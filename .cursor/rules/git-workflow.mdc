@@ -1,0 +1,15 @@
+---
+description: Fluxo Git seguro e revisável para alterações no projeto
+alwaysApply: true
+---
+
+# Fluxo Git e Pull Requests
+
+- Nunca implemente alterações de código diretamente na branch `main`.
+- Antes de modificar código, crie uma branch dedicada com o prefixo `codex/` e um nome curto que descreva a mudança.
+- Mantenha cada branch focada em uma alteração ou objetivo coerente.
+- Implemente e teste a mudança na branch dedicada.
+- Não faça `push`, abra Pull Request nem realize `merge` sem solicitação explícita do usuário.
+- Quando o usuário solicitar uma PR, revise as mudanças, execute os testes relevantes, faça commits claros, envie a branch e abra ou prepare a Pull Request.
+- Deixe a aprovação e o merge final sob responsabilidade do usuário, salvo instrução explícita em contrário.
+- Para explorações ou protótipos sem alteração de código, não é necessário criar uma branch.
