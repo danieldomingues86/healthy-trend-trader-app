@@ -20,6 +20,7 @@ Endpoints públicos da aplicação:
 
 - `GET /api/health`
 - `GET /api/market-cycle`
+- `GET /api/market-overview`
 - `GET /api/relative-strength?search=PETR&page=1&limit=50`
 
 Não existe endpoint de atualização manual. O servidor tenta atualizar uma vez por dia útil após 19h, horário de Brasília, e serve o cache nos demais momentos. Para a primeira carga ou uma operação agendada no servidor, use `npm run refresh`.
