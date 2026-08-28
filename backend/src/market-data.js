@@ -56,6 +56,25 @@ async function fetchHistory(symbol) {
   if (!result.length) throw new Error(`Sem histórico para ${symbol}`);
   return result;
 }
+function overviewFrom(rows, benchmarkHistory) {
+  const breadth = rows.reduce((summary, row) => {
+    summary[row.trendTemplate] = (summary[row.trendTemplate] || 0) + 1;
+    return summary;
+  }, { leader: 0, qualified: 0, watch: 0, 'below-threshold': 0 });
+  const sectorMap = new Map();
+  for (const row of rows) {
+    const sector = row.sector || 'Não classificado';
+    const current = sectorMap.get(sector) || { sector, assets: 0, leaders: 0, qualified: 0, totalScore: 0 };
+    current.assets += 1;
+    current.leaders += row.trendTemplate === 'leader' ? 1 : 0;
+    current.qualified += row.trendTemplate === 'qualified' ? 1 : 0;
+    current.totalScore += row.score;
+    sectorMap.set(sector, current);
+  }
+  const sectors = [...sectorMap.values()].map((sector) => ({ ...sector, averageScore: Math.round(sector.totalScore / sector.assets) })).sort((a, b) => b.averageScore - a.averageScore);
+  const history = benchmarkHistory.map((item) => ({ date: item.date, close: item.adjustedClose ?? item.close })).filter((item) => Number.isFinite(item.close));
+  return { breadth, leaders: rows.filter((row) => row.trendTemplate === 'leader' || row.trendTemplate === 'qualified').slice(0, 6), sectors: sectors.slice(0, 6), benchmarkHistory: history };
+}
 function relativeTrend(assetHistory, benchmarkHistory) {
   const benchmarkByDate = new Map(benchmarkHistory.map((item) => [item.date, item.adjustedClose ?? item.close]));
   const line = assetHistory.map((item) => {
@@ -126,7 +145,7 @@ async function refreshMarketData() {
     return { symbol, ...details, ...assetReturns, relativeTrend: relativeTrend(history, ibovHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
   });
   const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
-  const cache = { updatedAt: new Date().toISOString(), source: 'brapi', universe: { requested: symbols.length, available: rows.length }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows };
+  const cache = { updatedAt: new Date().toISOString(), source: 'brapi', universe: { requested: symbols.length, available: rows.length }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, overview: overviewFrom(rows, ibovHistory) };
   await writeCache(cache);
   return cache;
 }
@@ -138,4 +157,4 @@ async function refreshIfDue(now = new Date()) {
   return refreshMarketData();
 }
 
-module.exports = { readCache, refreshMarketData, refreshIfDue, scoreCycle, returns, relativeTrend, templateReading, rank };
+module.exports = { readCache, refreshMarketData, refreshIfDue, scoreCycle, returns, relativeTrend, templateReading, rank, overviewFrom };
