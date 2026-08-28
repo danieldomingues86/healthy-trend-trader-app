@@ -1,0 +1,28 @@
+# Backend de dados de mercado
+
+API interna para a V1 de Ciclo de Mercado e Força Relativa.
+
+## O que faz
+
+- Busca a composição pública do IBOV na B3, com lista de contingência configurável.
+- Consulta na BRAPI o histórico diário de até três meses do IBOV e dos componentes.
+- Calcula ciclo pelo preço em relação às EMAs 20 e 200.
+- Calcula força relativa em 1 e 3 meses versus IBOV e converte em ranking de 0 a 100.
+- Salva o resultado em `data/market-cache.json` e expõe somente dados já calculados.
+
+## Configuração
+
+1. Copie `.env.example` para `.env` e informe `BRAPI_TOKEN`.
+2. Execute `npm start` dentro desta pasta. O servidor lê o `.env` localmente; esse arquivo é ignorado pelo Git.
+
+Endpoints públicos da aplicação:
+
+- `GET /api/health`
+- `GET /api/market-cycle`
+- `GET /api/relative-strength?search=PETR&page=1&limit=50`
+
+Não existe endpoint de atualização manual. O servidor tenta atualizar uma vez por dia útil após 19h, horário de Brasília, e serve o cache nos demais momentos. Para a primeira carga ou uma operação agendada no servidor, use `npm run refresh`.
+
+## Consumo consciente da BRAPI
+
+O plano gratuito limita uma chamada a um ticker, por isso o backend limita a concorrência a três e persiste o cache. O frontend não acessa a BRAPI nem recebe o token.
