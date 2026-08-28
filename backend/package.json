@@ -1,0 +1,13 @@
+{
+  "name": "healthy-trend-market-data",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cache diário de Ciclo de Mercado e Força Relativa do IBOV.",
+  "scripts": {
+    "start": "node src/server.js",
+    "refresh": "node src/refresh.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
