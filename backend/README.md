@@ -8,6 +8,7 @@ API interna para a V1 de Ciclo de Mercado e Força Relativa.
 - Consulta na BRAPI o histórico diário de até três meses do IBOV e dos componentes.
 - Calcula ciclo pelo preço em relação às EMAs 20 e 200.
 - Calcula força relativa em 1 e 3 meses versus IBOV e converte em ranking de 0 a 100.
+- Mede se a linha de força relativa está subindo em 6 e aproximadamente 13 semanas, gerando uma leitura inspirada no Trend Template: líder, qualificado, acompanhar ou abaixo do filtro.
 - Salva o resultado em `data/market-cache.json` e expõe somente dados já calculados.
 
 ## Configuração

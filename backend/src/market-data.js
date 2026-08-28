@@ -2,6 +2,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 
 const BRAPI_URL = 'https://brapi.dev/api/v2/stocks/historical';
+const BRAPI_LIST_URL = 'https://brapi.dev/api/quote/list';
 const B3_INDEX_API = 'https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/GetPortfolioDay/';
 const CACHE_PATH = path.join(__dirname, '..', 'data', 'market-cache.json');
 const FALLBACK_SYMBOLS = (process.env.IBOV_SYMBOLS || 'PETR4,VALE3,ITUB4,BBAS3,BBDC4,WEGE3,PRIO3,SUZB3')
@@ -55,6 +56,35 @@ async function fetchHistory(symbol) {
   if (!result.length) throw new Error(`Sem histórico para ${symbol}`);
   return result;
 }
+function relativeTrend(assetHistory, benchmarkHistory) {
+  const benchmarkByDate = new Map(benchmarkHistory.map((item) => [item.date, item.adjustedClose ?? item.close]));
+  const line = assetHistory.map((item) => {
+    const assetClose = item.adjustedClose ?? item.close;
+    const benchmarkClose = benchmarkByDate.get(item.date);
+    return Number.isFinite(assetClose) && Number.isFinite(benchmarkClose) ? assetClose / benchmarkClose : null;
+  }).filter(Number.isFinite);
+  const latest = line.at(-1);
+  const change6w = percent(latest, line.at(-31));
+  const change13w = percent(latest, line[0]);
+  const direction = (change) => !Number.isFinite(change) ? 'unavailable' : change > 0.5 ? 'up' : change < -0.5 ? 'down' : 'flat';
+  return { change6w, change13w, direction6w: direction(change6w), direction13w: direction(change13w) };
+}
+function templateReading(score, trend) {
+  if (score >= 90 && trend.direction6w === 'up' && trend.direction13w === 'up') return 'leader';
+  if (score >= 70 && trend.direction6w === 'up') return 'qualified';
+  if (score >= 70) return 'watch';
+  return 'below-threshold';
+}
+async function fetchAssetMetadata() {
+  const firstPage = await fetchJson(`${BRAPI_LIST_URL}?limit=100&page=1`, brapiHeaders());
+  const pages = Array.from({ length: Math.max(0, (firstPage.totalPages || 1) - 1) }, (_, index) => index + 2);
+  const remaining = await mapWithConcurrency(pages, 3, async (page) => fetchJson(`${BRAPI_LIST_URL}?limit=100&page=${page}`, brapiHeaders()));
+  const catalog = [firstPage, ...remaining].flatMap((page) => page.stocks || []);
+  return new Map(catalog.map((asset) => [asset.stock, {
+    name: asset.name || asset.stock,
+    sector: asset.sector || asset.subsector || 'Não classificado',
+  }]));
+}
 async function fetchIbovSymbols() {
   try {
     const payload = { language: 'pt-br', pageNumber: 1, pageSize: 120, index: 'IBOV' };
@@ -87,13 +117,15 @@ async function refreshMarketData() {
   const symbols = await fetchIbovSymbols();
   const ibovHistory = await fetchHistory('^BVSP');
   const benchmarkReturns = returns(ibovHistory);
+  const metadata = await fetchAssetMetadata();
   const collected = await mapWithConcurrency(symbols, 3, async (symbol) => {
     const history = await fetchHistory(symbol);
     const assetReturns = returns(history);
     if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) throw new Error(`Histórico incompleto para ${symbol}`);
-    return { symbol, name: symbol, sector: null, ...assetReturns, relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
+    const details = metadata.get(symbol) || { name: symbol, sector: 'Não classificado' };
+    return { symbol, ...details, ...assetReturns, relativeTrend: relativeTrend(history, ibovHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
   });
-  const rows = rank(collected.filter((item) => !item.error));
+  const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
   const cache = { updatedAt: new Date().toISOString(), source: 'brapi', universe: { requested: symbols.length, available: rows.length }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows };
   await writeCache(cache);
   return cache;
@@ -106,4 +138,4 @@ async function refreshIfDue(now = new Date()) {
   return refreshMarketData();
 }
 
-module.exports = { readCache, refreshMarketData, refreshIfDue, scoreCycle, returns, rank };
+module.exports = { readCache, refreshMarketData, refreshIfDue, scoreCycle, returns, relativeTrend, templateReading, rank };
