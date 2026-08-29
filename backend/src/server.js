@@ -2,6 +2,7 @@ require('./env');
 const http = require('node:http');
 const { URL } = require('node:url');
 const { readCache, refreshIfDue } = require('./market-data');
+const { PLAN_CATALOG } = require('./subscription-plans');
 
 const port = Number(process.env.PORT || 8787);
 function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' }); response.end(JSON.stringify(body)); }
@@ -10,6 +11,7 @@ const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
   if (request.method !== 'GET') return send(response, 405, { error: 'Method not allowed' });
   try {
+    if (url.pathname === '/api/subscription/plans') return send(response, 200, { currency: 'BRL', plans: PLAN_CATALOG });
     const cache = await refreshIfDue();
     if (url.pathname === '/api/health') return send(response, 200, { status: 'ok', cachedAt: cache?.updatedAt || null });
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
