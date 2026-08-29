@@ -209,8 +209,6 @@ body[data-navigation-layout="tiles"]:has(#manual.active) .content{display:flex;f
 body[data-navigation-layout="tiles"]:has(#manual.active) #manual.page.active{display:block;flex:1 1 auto;height:auto!important;min-height:0}
 body[data-navigation-layout="tiles"]:has(#manual.active) .manual-book.v2{height:100%!important;min-height:0}
 @media(max-width:700px){body[data-navigation-layout="tiles"]:has(#manual.active) .main{padding-top:66px!important}}
-/* O resumo de Position Sizing permanece visível e equilibra a coluna no menu em blocos. */
-@media(min-width:1051px){body[data-navigation-layout="tiles"] #risk{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);gap:18px;align-items:start}body[data-navigation-layout="tiles"] #risk>.hero{grid-column:1/-1;margin-bottom:0}body[data-navigation-layout="tiles"] #risk>.risk-calculator-layout{display:contents}body[data-navigation-layout="tiles"] #risk .calculator-panel{grid-column:1;grid-row:2}body[data-navigation-layout="tiles"] #risk .result-panel,body[data-navigation-layout="tiles"] #risk.active .result-panel.risk-result-fixed{position:sticky!important;top:92px;left:auto;width:auto;grid-column:2;grid-row:2 / span 4;align-self:start;min-height:348px;z-index:5}body[data-navigation-layout="tiles"] #risk>.three-layer-hero{grid-column:1;grid-row:3;margin-top:0!important}body[data-navigation-layout="tiles"] #risk>.layer-grid{grid-column:1;grid-row:4;margin-top:0;grid-template-columns:repeat(3,minmax(0,1fr))}body[data-navigation-layout="tiles"] #risk>.decision-card{grid-column:1;grid-row:5;margin-top:0}}
 </style>
 </head>
 <body style="overflow:hidden">
@@ -1069,6 +1067,9 @@ applyLanguage=function(language){applyLanguageWithNavigationLayout(language);set
 function syncRiskResultPanel(){/* A grade do Position Sizing mantém o painel fixo pelo CSS. */}
 const goWithFixedRiskResult=go;
 go=function(id){goWithFixedRiskResult(id);requestAnimationFrame(syncRiskResultPanel)};
+function openSettingsPage(){const settings=document.getElementById('settings');if(!settings)return;closeNavigationHub();document.querySelectorAll('.page').forEach(page=>page.classList.remove('active'));settings.classList.add('active');document.querySelectorAll('.nav button').forEach(button=>button.classList.toggle('active',button.dataset.page==='settings'));const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=typeof uiText==='function'?uiText(titles.settings):titles.settings;window.scrollTo({top:0,behavior:'smooth'})}
+const goWithGuaranteedSettings=go;
+go=function(id){if(id==='settings'){openSettingsPage();return}goWithGuaranteedSettings(id)};
 window.addEventListener('resize',()=>{if(window.innerWidth<720)syncRiskResultPanel()});
 applyNavigationLayout(navigationLayout);
 setupAccountMenu();
