@@ -77,3 +77,28 @@ Transformar o Diário do Trader em um caderno digital de leitura agradável: cad
 - Preenchimento rápido durante o dia; leitura rica e reflexiva depois do fechamento.
 - Dados comportamentais são privados e não interferem diretamente nos cálculos financeiros ou de risco.
 - Visual compatível com Premium Gold e Healthy Green, em português e inglês.
+
+## Trader Wisdom / Sabedoria do Trader
+
+Funcionalidade planejada para uma branch própria, como uma biblioteca pessoal e consultável de referências que ajudam o usuário a reforçar o processo no dia a dia.
+
+### Objetivo
+
+Reunir, em uma única área, frases, artigos, princípios e outros aprendizados coletados de traders profissionais — inicialmente a partir do acervo pessoal do Evernote — para consulta rápida, reflexão e reforço de disciplina.
+
+### Escopo inicial da futura branch
+
+- Novo item de menu: **Trader Wisdom** / **Sabedoria do Trader**.
+- Biblioteca organizada por coleções, temas e autores.
+- Conteúdos iniciais: frases, trechos de artigos, princípios operacionais e recursos de referência.
+- Busca e filtros para encontrar um tema ou autor rapidamente.
+- Destaque diário ou aleatório com uma frase/reflexão para consulta recorrente.
+- Favoritos e conteúdos salvos pelo usuário.
+- Estrutura preparada para importar e organizar gradualmente o material vindo do Evernote.
+- Visual compatível com Premium Gold e Healthy Green, em português e inglês.
+
+### Princípios de experiência
+
+- Ser um espaço de consulta calma e inspiradora, sem prometer resultados ou incentivar operações.
+- Priorizar leitura rápida, organização clara e retorno fácil aos conteúdos salvos.
+- Manter autoria, fonte e contexto sempre que disponíveis no material original.
