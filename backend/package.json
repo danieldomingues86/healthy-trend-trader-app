@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "refresh": "node src/refresh.js",
-    "refresh:fundamentals": "node src/refresh-fundamentals.js"
+    "refresh:fundamentals": "node src/refresh-fundamentals.js",
+    "test": "node --test ../frontend/*.test.js test/*.test.js"
   },
   "engines": {
     "node": ">=20"
