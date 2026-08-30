@@ -71,3 +71,22 @@ body[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar{background
 body:not([data-theme="healthy"])[data-navigation-layout="top"]:has(#zen.active) .sidebar{background-image:linear-gradient(rgba(13,10,5,.52),rgba(13,10,5,.52)),url("../assets/trader-zen-gold.png")!important}
 body:not([data-theme="healthy"])[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar{background-image:linear-gradient(rgba(13,10,5,.48),rgba(13,10,5,.48)),url("../assets/trader-zen-gold.png")!important}
 body:not([data-theme="healthy"]) .tile-brand-mark:before{background:linear-gradient(145deg,#d8a13c,#f3d680)}body:not([data-theme="healthy"]) .tile-brand-mark:after{background:rgba(73,47,8,.72)}
+
+/* Uma única pintura contínua: a imagem nasce no topo do viewport, não no header. */
+body:has(#zen.active){background-color:#06140e!important;background-image:url("../assets/trader-zen-healthy.png")!important;background-size:cover!important;background-position:center center!important;background-repeat:no-repeat!important;background-attachment:fixed!important}
+body:not([data-theme="healthy"]):has(#zen.active){background-color:#0d0c09!important;background-image:url("../assets/trader-zen-gold.png")!important}
+body:has(#zen.active) .app{background:transparent!important}
+body:has(#zen.active) #zen{background:transparent!important}
+body:has(#zen.active) #zen:before{background:linear-gradient(90deg,rgba(1,15,8,.30),rgba(2,22,13,.07) 48%,rgba(1,13,8,.16)),linear-gradient(0deg,rgba(0,12,7,.20),transparent 52%,rgba(0,8,5,.06))!important;backdrop-filter:none}
+body:has(#zen.active) #zen:after{background:radial-gradient(circle at 48% 38%,rgba(93,239,151,.08),transparent 31%),linear-gradient(180deg,rgba(0,0,0,.05),transparent 28%)!important}
+body:not([data-theme="healthy"]):has(#zen.active) #zen:before{background:linear-gradient(90deg,rgba(12,9,4,.35),rgba(19,13,5,.08) 48%,rgba(12,9,4,.20)),linear-gradient(0deg,rgba(8,6,3,.24),transparent 52%,rgba(8,6,3,.07))!important}
+
+/* O menu é somente vidro sobre a mesma paisagem; não recebe asset próprio. */
+body[data-navigation-layout="top"]:has(#zen.active) .sidebar,
+body[data-navigation-layout="tiles"]:has(#zen.active) .sidebar,
+body[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar{background-image:none!important;background-color:rgba(3,19,11,.30)!important;backdrop-filter:blur(9px) saturate(1.14)!important;-webkit-backdrop-filter:blur(9px) saturate(1.14)!important;border-color:rgba(255,255,255,.09)!important;box-shadow:0 8px 22px rgba(0,0,0,.10)!important}
+body:not([data-theme="healthy"])[data-navigation-layout="top"]:has(#zen.active) .sidebar,
+body:not([data-theme="healthy"])[data-navigation-layout="tiles"]:has(#zen.active) .sidebar,
+body:not([data-theme="healthy"])[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar{background-color:rgba(12,9,4,.30)!important}
+body[data-navigation-layout="top"]:has(#zen.active) .sidebar:before,
+body[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar:before{background-image:none!important}
