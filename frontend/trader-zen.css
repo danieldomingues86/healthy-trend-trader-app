@@ -59,3 +59,15 @@ body[data-navigation-layout="tiles"]:has(#zen.active) .brand{border-color:rgba(1
 body:not([data-theme="healthy"])[data-navigation-layout="top"]:has(#zen.active) .sidebar,
 body:not([data-theme="healthy"])[data-navigation-layout="tiles"]:has(#zen.active) .sidebar{background:rgba(13,10,5,.48)!important;border-color:rgba(242,204,119,.18)!important}
 body:not([data-theme="healthy"])[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar{background:rgba(13,10,5,.42)!important;border-color:rgba(242,204,119,.16)!important}
+
+/* A marca é compartilhada pelo cabeçalho superior e pelo Menu em Blocos. */
+.brand strong em,.tile-brand strong em{font-style:normal;color:#27f07a}.brand strong,.tile-brand strong{font-size:16px!important;letter-spacing:-.03em!important}.brand small{letter-spacing:.2em}
+.tile-brand-mark{width:30px!important;height:30px!important;border:0!important;border-radius:0!important;background:transparent!important;position:relative;overflow:visible!important}
+.tile-brand-mark:before{content:"";position:absolute;width:18px;height:25px;border-radius:100% 0 100% 0;background:linear-gradient(145deg,#20ef7a,#a4ef8b);box-shadow:0 5px 15px rgba(35,231,109,.28);transform:rotate(42deg);left:6px;top:2px}.tile-brand-mark:after{content:"";position:absolute;width:2px;height:17px;border-radius:999px;background:rgba(5,54,28,.7);transform:rotate(42deg);left:14px;top:7px}
+
+/* A arte continua perceptível dentro da própria navegação, como uma única cena. */
+body[data-navigation-layout="top"]:has(#zen.active) .sidebar{background-image:linear-gradient(rgba(3,19,11,.52),rgba(3,19,11,.52)),url("../assets/trader-zen-healthy.png")!important;background-size:cover!important;background-position:center 25%!important}
+body[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar{background-image:linear-gradient(rgba(3,19,11,.48),rgba(3,19,11,.48)),url("../assets/trader-zen-healthy.png")!important;background-size:cover!important;background-position:center 25%!important}
+body:not([data-theme="healthy"])[data-navigation-layout="top"]:has(#zen.active) .sidebar{background-image:linear-gradient(rgba(13,10,5,.52),rgba(13,10,5,.52)),url("../assets/trader-zen-gold.png")!important}
+body:not([data-theme="healthy"])[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar{background-image:linear-gradient(rgba(13,10,5,.48),rgba(13,10,5,.48)),url("../assets/trader-zen-gold.png")!important}
+body:not([data-theme="healthy"]) .tile-brand-mark:before{background:linear-gradient(145deg,#d8a13c,#f3d680)}body:not([data-theme="healthy"]) .tile-brand-mark:after{background:rgba(73,47,8,.72)}
