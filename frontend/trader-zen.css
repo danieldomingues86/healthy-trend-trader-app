@@ -42,3 +42,20 @@ body[data-navigation-layout="tiles"]:has(#zen.active) .main{display:flex;height:
 body[data-navigation-layout="tiles"]:has(#zen.active) .content{display:flex;flex:1 1 auto;width:100%;height:auto!important;min-height:0}
 body[data-navigation-layout="tiles"]:has(#zen.active) #zen{display:block;flex:1 1 auto;height:auto!important;min-height:0}
 @media(max-width:700px){body[data-navigation-layout="tiles"]:has(#zen.active) .main{padding-top:66px!important}}
+
+/* Marca: folha orgânica, mais leve e adequada à identidade Healthy. */
+.brand .mark{width:34px;height:34px;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;position:relative;overflow:visible}
+.brand .mark:before{content:"";position:absolute;width:19px;height:27px;border:0!important;border-radius:100% 0 100% 0;background:linear-gradient(145deg,#20ef7a 0%,#72e98d 62%,#b9f28f 100%);box-shadow:0 5px 16px rgba(41,234,119,.24);transform:rotate(42deg);left:7px;top:3px}
+.brand .mark:after{content:"";position:absolute;width:2px;height:18px;border-radius:999px;background:rgba(5,54,28,.7);transform:rotate(42deg);left:16px;top:8px}
+body:not([data-theme="healthy"]) .brand .mark:before{background:linear-gradient(145deg,#d8a13c,#f3d680 68%,#fff0b2);box-shadow:0 5px 16px rgba(214,170,80,.22)}
+body:not([data-theme="healthy"]) .brand .mark:after{background:rgba(73,47,8,.72)}
+
+/* Na experiência Zen, a navegação se integra à paisagem em vez de cobri-la. */
+body[data-navigation-layout="top"]:has(#zen.active) .sidebar,
+body[data-navigation-layout="tiles"]:has(#zen.active) .sidebar{background:rgba(3,19,11,.48)!important;border-color:rgba(159,240,182,.18)!important;backdrop-filter:blur(13px) saturate(1.18);box-shadow:0 8px 26px rgba(0,0,0,.16)}
+body[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar{background:rgba(3,19,11,.42)!important;border-color:rgba(159,240,182,.16)!important}
+body[data-navigation-layout="top"]:has(#zen.active) .brand,
+body[data-navigation-layout="tiles"]:has(#zen.active) .brand{border-color:rgba(159,240,182,.14)!important}
+body:not([data-theme="healthy"])[data-navigation-layout="top"]:has(#zen.active) .sidebar,
+body:not([data-theme="healthy"])[data-navigation-layout="tiles"]:has(#zen.active) .sidebar{background:rgba(13,10,5,.48)!important;border-color:rgba(242,204,119,.18)!important}
+body:not([data-theme="healthy"])[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar{background:rgba(13,10,5,.42)!important;border-color:rgba(242,204,119,.16)!important}
