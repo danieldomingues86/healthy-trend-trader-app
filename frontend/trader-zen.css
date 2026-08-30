@@ -28,3 +28,17 @@ body:not([data-theme="healthy"]) .zen-breathing{border-color:rgba(242,203,113,.6
 @media(max-width:1120px){.zen-shell{grid-template-columns:150px minmax(420px,650px) 115px;padding-left:36px;padding-right:36px}.zen-stage h1{font-size:clamp(50px,7vw,82px)}}
 @media(max-width:820px){#zen{margin:-24px}.zen-shell{min-height:calc(100vh - 78px);display:block;padding:54px 22px 42px}.zen-side{display:none}.zen-stage{padding:30px 8px}.zen-stage h1{font-size:clamp(52px,14vw,76px)}.zen-stage h2{font-size:clamp(23px,6vw,32px)}.zen-copy{font-size:15px;max-width:410px}.zen-values{max-width:390px}.zen-value{padding:0 8px}.zen-value i{font-size:23px}}
 @media(max-width:520px){#zen{margin:-18px}.zen-shell{padding:38px 15px 30px}.zen-stage{padding:20px 0}.zen-kicker{font-size:9px;letter-spacing:.25em}.zen-copy{font-size:14px}.zen-action{min-width:238px;padding:15px 18px;font-size:12px}.zen-values{margin-top:25px}.zen-value{font-size:11px}.zen-value span{font-size:9px}.zen-quote{font-size:12px}}
+
+/* A Área Zen ocupa a área útil completa e exclui sinais operacionais. */
+body:has(#zen.active) #marketFocusGuard{display:none}
+body:has(#zen.active) .content{max-width:none;margin:0;padding:0}
+body:has(#zen.active) #zen{width:100%;min-height:calc(100vh - 78px);margin:0}
+body[data-navigation-layout="top"]:has(#zen.active) .app{display:grid!important;grid-template-columns:1fr!important;grid-template-rows:auto minmax(0,1fr);height:100vh;min-height:0;height:100dvh}
+body[data-navigation-layout="top"]:has(#zen.active) .sidebar{position:relative;grid-column:1;grid-row:1}
+body[data-navigation-layout="top"]:has(#zen.active) .main{grid-column:1;grid-row:2;min-height:0;height:100%;overflow:hidden}
+body[data-navigation-layout="top"]:has(#zen.active) .content{height:100%;min-height:0}
+body[data-navigation-layout="top"]:has(#zen.active) #zen{min-height:100%;height:100%}
+body[data-navigation-layout="tiles"]:has(#zen.active) .main{display:flex;height:100vh!important;min-height:0;padding-top:76px!important;overflow:hidden;height:100dvh!important;flex-direction:column}
+body[data-navigation-layout="tiles"]:has(#zen.active) .content{display:flex;flex:1 1 auto;width:100%;height:auto!important;min-height:0}
+body[data-navigation-layout="tiles"]:has(#zen.active) #zen{display:block;flex:1 1 auto;height:auto!important;min-height:0}
+@media(max-width:700px){body[data-navigation-layout="tiles"]:has(#zen.active) .main{padding-top:66px!important}}
