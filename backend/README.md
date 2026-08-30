@@ -16,6 +16,12 @@ API interna para a V1 de Ciclo de Mercado e Força Relativa.
 1. Copie `.env.example` para `.env` e informe `BRAPI_TOKEN`.
 2. Execute `npm start` dentro desta pasta. O servidor lê o `.env` localmente; esse arquivo é ignorado pelo Git.
 
+### Usuário administrador e persistência
+
+Para ativar a persistência real, configure no `.env` a `DATABASE_URL` do PostgreSQL do Supabase e as três variáveis `ADMIN_*` presentes no `.env.example`. Na primeira inicialização, o backend aplica as migrations em `db/migrations` e cria o administrador informado caso ele ainda não exista. A senha é transformada em hash antes de ser armazenada; nunca inclua `DATABASE_URL` ou `ADMIN_PASSWORD` no Git.
+
+O frontend se autentica exclusivamente pelo backend em `POST /api/auth/login`. As sessões possuem token aleatório, armazenado no banco somente como hash e expiram em 30 dias.
+
 Endpoints públicos da aplicação:
 
 - `GET /api/health`
