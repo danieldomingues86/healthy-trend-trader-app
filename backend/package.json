@@ -5,7 +5,8 @@
   "description": "Cache diário de Ciclo de Mercado e Força Relativa do IBOV.",
   "scripts": {
     "start": "node src/server.js",
-    "refresh": "node src/refresh.js"
+    "refresh": "node src/refresh.js",
+    "refresh:fundamentals": "node src/refresh-fundamentals.js"
   },
   "engines": {
     "node": ">=20"
