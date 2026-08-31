@@ -29,12 +29,14 @@
     if (!response.ok) throw new Error(payload.error || 'Não foi possível concluir a operação.');
     return payload;
   }
+  window.healthyTrendApi = { request, isAuthenticated: () => Boolean(token()) };
   function enter(user) {
     document.getElementById('loginShell')?.classList.add('hidden');
     document.body.style.overflow = '';
     const avatar = document.querySelector('.avatar');
     if (avatar) avatar.textContent = (user.displayName || user.email || 'U').split(/\s+/).map((part) => part[0]).slice(0, 2).join('').toUpperCase();
     if (typeof go === 'function') go('today');
+    window.dispatchEvent(new CustomEvent('healthyTrend:authenticated', { detail: { user } }));
   }
 
   window.enterWorkspace = async (event) => {

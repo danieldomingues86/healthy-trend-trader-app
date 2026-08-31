@@ -21,6 +21,21 @@ async function query(text, values) {
   return getPool().query(text, values);
 }
 
+async function transaction(work) {
+  const client = await getPool().connect();
+  try {
+    await client.query('BEGIN');
+    const result = await work({ query: (text, values) => client.query(text, values) });
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 async function migrate() {
   if (!configured() || migrated) return;
   const directory = path.join(__dirname, '..', 'db', 'migrations');
@@ -29,4 +44,4 @@ async function migrate() {
   migrated = true;
 }
 
-module.exports = { configured, query, migrate };
+module.exports = { configured, query, transaction, migrate };

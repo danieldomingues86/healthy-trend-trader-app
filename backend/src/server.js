@@ -6,6 +6,7 @@ const { PLAN_CATALOG } = require('./subscription-plans');
 const { fetchFundamentals } = require('./fundamentals');
 const database = require('./database');
 const auth = require('./auth');
+const trades = require('./trades');
 
 const port = Number(process.env.PORT || 8787);
 function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' }); response.end(JSON.stringify(body)); }
@@ -14,7 +15,7 @@ function page(rows, query) { const page = Math.max(1, Number(query.get('page')) 
 async function body(request) {
   const chunks = [];
   let size = 0;
-  for await (const chunk of request) { size += chunk.length; if (size > 100_000) throw new Error('Payload muito grande'); chunks.push(chunk); }
+  for await (const chunk of request) { size += chunk.length; if (size > 100_000) { const error = new Error('Payload muito grande'); error.status = 413; throw error; } chunks.push(chunk); }
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'); } catch { throw new Error('JSON inválido'); }
 }
 function bearer(request) { return request.headers.authorization?.replace(/^Bearer\s+/i, '') || ''; }
@@ -38,6 +39,36 @@ const server = http.createServer(async (request, response) => {
       if (database.configured()) await auth.logout(bearer(request));
       return send(response, 200, { ok: true });
     }
+    if (request.method === 'POST' && url.pathname === '/api/trades') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const trade = await trades.createPlan(user.id, await body(request));
+      return send(response, 201, { trade });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/trades') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { trades: await trades.listPlans(user.id) });
+    }
+    const eventMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/events$/);
+    if (request.method === 'POST' && eventMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const payload = await body(request);
+      const event = await trades.recordPositionEvent(user.id, eventMatch[1], payload.type, payload);
+      return send(response, 201, { event });
+    }
+    const executionMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/execute$/);
+    if (request.method === 'POST' && executionMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const trade = await trades.executePlan(user.id, executionMatch[1], await body(request));
+      return send(response, 200, { trade });
+    }
     if (request.method !== 'GET') return send(response, 405, { error: 'Method not allowed' });
     if (url.pathname === '/api/subscription/plans') return send(response, 200, { currency: 'BRL', plans: PLAN_CATALOG });
     if (url.pathname === '/api/fundamentals') return send(response, 200, await fetchFundamentals(url.searchParams.get('ticker')));
@@ -48,7 +79,7 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/market-overview') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, universe: cache.universe, cycle: cache.cycle, benchmark: cache.benchmark, overview: cache.overview });
     if (url.pathname === '/api/relative-strength') return send(response, 200, { updatedAt: cache.updatedAt, benchmark: cache.benchmark.symbol, universe: cache.universe, ...page(cache.relativeStrength, url.searchParams) });
     return send(response, 404, { error: 'Not found' });
-  } catch (error) { console.error(error); return send(response, 502, { error: 'Falha ao consultar os dados solicitados', detail: error.message }); }
+  } catch (error) { console.error(error); return send(response, error.status || 502, { error: error.status ? error.message : 'Falha ao consultar os dados solicitados', detail: error.message }); }
 });
 server.listen(port, async () => {
   try { await database.migrate(); await auth.ensureAdmin(); } catch (error) { console.error(`[database] ${error.message}`); }
