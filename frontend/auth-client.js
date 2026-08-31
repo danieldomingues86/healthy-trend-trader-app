@@ -69,6 +69,17 @@
   window.accountAction = (action) => action === 'signout' ? window.signOutWorkspace() : originalAccountAction?.(action);
 
   document.addEventListener('DOMContentLoaded', async () => {
+    const passwordInput = document.getElementById('loginPassword');
+    const revealButton = document.getElementById('revealLoginPassword');
+    if (passwordInput && revealButton) {
+      const reveal = () => { passwordInput.type = 'text'; };
+      const conceal = () => { passwordInput.type = 'password'; };
+      revealButton.addEventListener('pointerdown', (event) => { event.preventDefault(); reveal(); });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach((event) => revealButton.addEventListener(event, conceal));
+      revealButton.addEventListener('keydown', (event) => { if (event.key === ' ' || event.key === 'Enter') reveal(); });
+      revealButton.addEventListener('keyup', conceal);
+      revealButton.addEventListener('blur', conceal);
+    }
     if (!token()) return;
     try { enter((await request('/api/auth/me')).user); } catch (_) { clearToken(); }
   });
