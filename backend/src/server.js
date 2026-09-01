@@ -7,9 +7,11 @@ const { fetchFundamentals } = require('./fundamentals');
 const database = require('./database');
 const auth = require('./auth');
 const trades = require('./trades');
+const wealth = require('./wealth');
+const riskPolicy = require('./risk-policy');
 
 const port = Number(process.env.PORT || 8787);
-function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' }); response.end(JSON.stringify(body)); }
+function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS' }); response.end(JSON.stringify(body)); }
 function page(rows, query) { const page = Math.max(1, Number(query.get('page')) || 1); const limit = Math.min(100, Math.max(1, Number(query.get('limit')) || 50)); const search = (query.get('search') || '').toUpperCase(); const filtered = rows.filter((row) => !search || row.symbol.includes(search)); return { items: filtered.slice((page - 1) * limit, page * limit), page, limit, total: filtered.length }; }
 
 async function body(request) {
@@ -51,6 +53,43 @@ const server = http.createServer(async (request, response) => {
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, { trades: await trades.listPlans(user.id) });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/wealth') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await wealth.list(user.id));
+    }
+    if (request.method === 'GET' && url.pathname === '/api/risk-policy') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await riskPolicy.get(user.id));
+    }
+    if (request.method === 'PUT' && url.pathname === '/api/risk-policy') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await riskPolicy.save(user.id, await body(request)));
+    }
+    if (request.method === 'POST' && url.pathname === '/api/wealth/movements') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, { movement: await wealth.createMovement(user.id, await body(request)) });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/wealth/allocations') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, { allocation: await wealth.createAllocation(user.id, await body(request)) });
+    }
+    const allocationMatch = url.pathname.match(/^\/api\/wealth\/allocations\/([^/]+)$/);
+    if (request.method === 'PUT' && allocationMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { allocation: await wealth.updateAllocation(user.id, allocationMatch[1], await body(request)) });
     }
     const eventMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/events$/);
     if (request.method === 'POST' && eventMatch) {
