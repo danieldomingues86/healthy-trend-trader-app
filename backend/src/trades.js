@@ -24,6 +24,15 @@ function ratingFromValue(value) {
   return 'bad';
 }
 
+function entryTimestamp(value) {
+  if (value == null || value === '') return new Date().toISOString();
+  const date = String(value);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw invalid('Data de entrada é inválida.');
+  const timestamp = new Date(date + 'T12:00:00-03:00');
+  if (Number.isNaN(timestamp.getTime())) throw invalid('Data de entrada é inválida.');
+  return timestamp.toISOString();
+}
+
 function normalizePlan(payload = {}) {
   const ticker = String(payload.asset || payload.ticker || '').trim().toUpperCase();
   if (!/^[A-Z0-9]{4,12}$/.test(ticker)) throw invalid('Ticker inválido.');
@@ -59,8 +68,12 @@ function normalizePlan(payload = {}) {
     metadata: {
       mode: payload.mode === 'paper' ? 'paper' : 'real',
       thesis: String(payload.thesis || '').slice(0, 4000),
-      executedQuantity: number(payload.executedQty, 'Quantidade da operação', { minimum: 1, required: true })
-    }
+      executedQuantity: number(payload.executedQty, 'Quantidade da operação', { minimum: 1, required: true }),
+      entryDate: String(payload.entryDate || '').slice(0, 10) || null,
+      riskProfile: ['rampUp', 'standard'].includes(payload.riskProfile) ? payload.riskProfile : 'standard',
+      marketFactor: number(payload.marketFactor, 'Multiplicador de mercado', { minimum: 0 })
+    },
+    entryTimestamp: entryTimestamp(payload.entryDate)
   };
 }
 
@@ -75,11 +88,11 @@ async function createPlan(userId, payload) {
         rubric_responses, status, metadata, execution_price, executed_quantity, executed_at
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
-        $10, $11, $12, $13, $14, $15::jsonb, 'open', $16::jsonb, $7, $17, now()
+        $10, $11, $12, $13, $14, $15::jsonb, 'open', $16::jsonb, $7, $17, $18
       )`,
       [id, userId, plan.ticker, plan.market, plan.direction, plan.setup, plan.entry, plan.stop, plan.atr,
         plan.plannedQuantity, plan.riskPct, plan.rubricScore, plan.rubricMaxScore, plan.rubricGrade,
-        JSON.stringify(plan.rubricResponses), JSON.stringify(plan.metadata), plan.metadata.executedQuantity]
+        JSON.stringify(plan.rubricResponses), JSON.stringify(plan.metadata), plan.metadata.executedQuantity, plan.entryTimestamp]
     );
     for (const item of plan.contributions) {
       await client.query(
@@ -89,10 +102,10 @@ async function createPlan(userId, payload) {
       );
     }
     await client.query(
-      `INSERT INTO app.trade_events (id, trade_id, event_type, quantity, price, stop_price, atr, note)
-       VALUES ($1, $2, 'entry', $3, $4, $5, $6, $7)`,
+      `INSERT INTO app.trade_events (id, trade_id, event_type, quantity, price, stop_price, atr, note, occurred_at)
+       VALUES ($1, $2, 'entry', $3, $4, $5, $6, $7, $8)`,
       [crypto.randomUUID(), id, plan.metadata.executedQuantity, plan.entry, plan.stop, plan.atr,
-        plan.metadata.executedQuantity === plan.plannedQuantity ? 'Trade registrado conforme quantidade sugerida.' : `Quantidade registrada diferente da sugestão: ${plan.plannedQuantity} unidades.`]
+        plan.metadata.executedQuantity === plan.plannedQuantity ? 'Trade registrado conforme quantidade sugerida.' : `Quantidade registrada diferente da sugestão: ${plan.plannedQuantity} unidades.`, plan.entryTimestamp]
     );
   });
   return { id, ticker: plan.ticker, status: 'open', rubricGrade: plan.rubricGrade, executionPrice: plan.entry, executedQuantity: plan.metadata.executedQuantity };

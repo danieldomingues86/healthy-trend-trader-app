@@ -13,6 +13,16 @@ test('normaliza plano com ticker em caixa alta e contribuições da Rubric', () 
   assert.equal(plan.contributions[0].maxScore, 2);
 });
 
+test('preserva a data efetiva de entrada separada do registro do trade', () => {
+  const plan = normalizePlan({
+    asset: 'WEGE3', entry: 48.3, stop: 45.8, atr: 1.72, suggestedQty: 400,
+    executedQty: 400, riskPct: .001, rubricScore: 8, rubricMaxScore: 10, grade: 'B',
+    entryDate: '2026-08-27'
+  });
+  assert.equal(plan.metadata.entryDate, '2026-08-27');
+  assert.equal(plan.entryTimestamp, '2026-08-27T15:00:00.000Z');
+});
+
 test('rejeita ticker e quantidade inválidos antes de acessar o banco', () => {
   assert.throws(() => normalizePlan({ asset: 'weg!', entry: 10, stop: 9, suggestedQty: 100, riskPct: .001 }), /Ticker inválido/);
   assert.throws(() => normalizePlan({ asset: 'WEGE3', entry: 10, stop: 9, suggestedQty: 0, riskPct: .001 }), /Quantidade planejada/);

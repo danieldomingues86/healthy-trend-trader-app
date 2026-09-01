@@ -1,22 +1,65 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {calculateRubric,calculatePositionSizing,calculateOngoingRisk,validatePortfolio,riskBaseOptions}=require('./trading-rubrics');
-test('calcula score e contribuições da Trading Rubric',()=>{const result=calculateRubric({marketCycle:2,trendQuality:2,relativeStrength:2,fundamentalScore:1,setupQuality:2,volatility:1,entryQuality:1,marketCycleRegime:'healthy'});assert.equal(result.score,11);assert.equal(result.grade,'A+');assert.equal(result.contributions.length,7);assert.equal(result.marketCycle,'healthy')});
-test('converte score intermediário em Grade B e risco configurado',()=>{assert.equal(calculateRubric({marketCycle:2,trendQuality:2,relativeStrength:2,fundamentalScore:1}).grade,'B');assert.equal(calculateRubric({marketCycle:2,trendQuality:2,relativeStrength:2,fundamentalScore:1}).riskPct,.001)});
-test('Grade C e No Trade não permitem risco de entrada',()=>{assert.equal(calculateRubric({marketCycle:1}).grade,'C');assert.equal(calculateRubric({marketCycle:1}).riskPct,0);assert.equal(calculateRubric({marketCycle:-2}).grade,'No Trade');assert.equal(calculateRubric({marketCycle:-2}).riskPct,0)});
-test('Position Sizing preserva o menor limite',()=>{const r=calculatePositionSizing({equity:1029500,entry:48.3,stop:45.8,atr:1.72,riskPct:.001,volatilityPct:.002,capitalPct:.1,lot:100});assert.equal(r.quantity,400);assert.equal(r.limitingLayer,'risk');assert.equal(r.initialRisk,1000)});
-test('Position Sizing zera quando o Grade não permite risco',()=>{const r=calculatePositionSizing({equity:1029500,entry:48.3,stop:45.8,atr:1.72,riskPct:0,volatilityPct:.002,capitalPct:.1,lot:100});assert.equal(r.quantity,0);assert.equal(r.initialRisk,0)});
-test('Ongoing Risk permanece independente do Grade',()=>{const r=calculateOngoingRisk({currentPrice:55.1,currentStop:51.2,quantity:300,direction:'long',equity:1029500});assert.ok(Math.abs(r.cash-1170)<1e-9);assert.ok(Math.abs(r.riskPct-(1170/1029500*100))<1e-12)});
-test('Portfolio Heat e limite de posições continuam sendo o freio final',()=>{const ok=validatePortfolio({currentHeatPct:2,additionalRiskPct:.3,openPositions:3});assert.equal(ok.allowed,true);assert.equal(ok.projectedHeatPct,2.3);const blocked=validatePortfolio({currentHeatPct:12.4,additionalRiskPct:.3,openPositions:10});assert.equal(blocked.allowed,false);assert.equal(blocked.heatAllowed,false);assert.equal(blocked.positionsAllowed,false)});
-test('Rubric manual incompleta não libera grade nem risco-base',()=>{const result=calculateRubric({ratings:{marketCycle:'good',trendQuality:'medium'}});assert.equal(result.complete,false);assert.equal(result.grade,'—');assert.equal(result.riskPct,0)});
-test('Rubric manual completa preserva as escolhas e soma o score máximo',()=>{const ratings={marketCycle:'good',trendQuality:'good',relativeStrength:'good',fundamentalScore:'good',setupQuality:'good',volatility:'good',entryQuality:'good'};const result=calculateRubric({ratings});assert.equal(result.complete,true);assert.equal(result.score,14);assert.equal(result.grade,'A+');assert.equal(result.riskPct,.003);assert.ok(result.contributions.every(item=>item.selectedRating==='good'&&item.points===2))});
-test('Policy migra o peso antigo de setor para Score Fundamentalista',()=>{const policy={criteria:[{key:'sector',weight:2}]};const normalized=require('./trading-rubrics').normalizePolicy(policy);const fundamental=normalized.criteria.find(item=>item.key==='fundamentalScore');assert.equal(fundamental.label,'Score Fundamentalista · Grade');assert.equal(fundamental.weight,2);assert.equal(normalized.criteria.some(item=>item.key==='sector'),false)});
-test('Scorecard mantém os quatro pilares de contexto com títulos explícitos',()=>{const policy=require('./trading-rubrics').normalizePolicy();const labels=Object.fromEntries(policy.criteria.map(item=>[item.key,item.label]));assert.equal(labels.marketCycle,'Ciclo de Mercado · saudável?');assert.equal(labels.trendQuality,'Diário e Contexto · preço > MM20 e MM200');assert.equal(labels.relativeStrength,'RS Rank (Força Relativa)');assert.equal(labels.fundamentalScore,'Score Fundamentalista · Grade')});
-test('Policy configurada centraliza pesos, thresholds e risco-base',()=>{const policy={criteria:[{key:'marketCycle',weight:2}],grades:[{grade:'A+',minScore:4,riskPct:.004},{grade:'No Trade',minScore:-Infinity,riskPct:0}]};const result=calculateRubric({marketCycle:2},policy);assert.equal(result.score,4);assert.equal(result.grade,'A+');assert.equal(result.riskPct,.004);assert.equal(result.contributions.find(item=>item.key==='marketCycle').weight,2)});
-test('Policy migra Grade A salvo e expõe apenas A+, B, C e No Trade',()=>{const policy={grades:[{grade:'A+',minScore:10,riskPct:.004},{grade:'A',minScore:7,riskPct:.002},{grade:'B',minScore:4,riskPct:.001},{grade:'C',minScore:1,riskPct:0},{grade:'No Trade',minScore:-Infinity,riskPct:0}]};assert.deepEqual(riskBaseOptions(policy),[0,.001,.004]);assert.deepEqual(require('./trading-rubrics').normalizePolicy(policy).grades.map(grade=>grade.grade),['A+','B','C','No Trade'])});
-test('Risco-base configurado em 0,40% preserva o cálculo das três camadas',()=>{const sizing=calculatePositionSizing({equity:1029500,entry:48.3,stop:45.8,atr:1.72,riskPct:.004,volatilityPct:.002,capitalPct:.1,lot:100});assert.equal(sizing.quantity,1100);assert.equal(sizing.limitingLayer,'volatility');assert.equal(sizing.initialRisk,2750)});
-test('Rubric limita pontuações fora da escala permitida',()=>{const result=calculateRubric({marketCycle:99,trendQuality:-99});assert.equal(result.contributions.find(item=>item.key==='marketCycle').value,2);assert.equal(result.contributions.find(item=>item.key==='trendQuality').value,-2)});
-test('Position Sizing respeita arredondamento, camada de volatilidade e camada de capital',()=>{const volatility=calculatePositionSizing({equity:100000,entry:100,stop:90,atr:20,riskPct:.01,volatilityPct:.002,capitalPct:.9,lot:100});assert.equal(volatility.quantity,0);assert.equal(volatility.limitingLayer,'volatility');const capital=calculatePositionSizing({equity:100000,entry:100,stop:99,atr:1,riskPct:.1,volatilityPct:.2,capitalPct:.5,lot:100});assert.equal(capital.quantity,500);assert.equal(capital.limitingLayer,'capital')});
-test('Position Sizing usa a distância absoluta do stop e rejeita entradas inválidas',()=>{const short=calculatePositionSizing({equity:100000,entry:50,stop:55,atr:2,riskPct:.01,volatilityPct:.2,capitalPct:.9,lot:100});assert.equal(short.layers.find(item=>item.key==='risk').quantity,200);assert.equal(short.initialRisk,1000);assert.equal(calculatePositionSizing({equity:0,entry:50,stop:45,atr:2,riskPct:.01,volatilityPct:.2,capitalPct:.1}).quantity,0)});
-test('Ongoing Risk calcula long, short e equity ausente sem usar Grade',()=>{assert.equal(calculateOngoingRisk({currentPrice:45,currentStop:50,quantity:100,direction:'short',equity:10000}).cash,500);assert.equal(calculateOngoingRisk({currentPrice:55,currentStop:50,quantity:100,direction:'short',equity:10000}).cash,0);assert.equal(calculateOngoingRisk({currentPrice:55,currentStop:50,quantity:100,equity:0}).riskPct,0)});
-test('Portfolio aceita exatamente os limites configurados e bloqueia o excedente',()=>{const boundary=validatePortfolio({currentHeatPct:9.5,additionalRiskPct:.5,openPositions:4,maximumHeatPct:10,maximumPositions:5});assert.equal(boundary.allowed,true);const heat=validatePortfolio({currentHeatPct:9.6,additionalRiskPct:.5,openPositions:2,maximumHeatPct:10,maximumPositions:5});assert.equal(heat.heatAllowed,false);const positions=validatePortfolio({currentHeatPct:1,additionalRiskPct:.1,openPositions:5,maximumHeatPct:10,maximumPositions:5});assert.equal(positions.positionsAllowed,false)});
+const {DEFAULT_POLICY,calculateRubric,calculatePositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,normalizePolicy}=require('./trading-rubrics');
+
+test('Rubric padrão totaliza 10 pontos com o ciclo pesando 40%',()=>{
+  const policy=normalizePolicy();
+  assert.equal(policy.criteria.reduce((sum,item)=>sum+item.weight,0),10);
+  assert.equal(policy.criteria.find(item=>item.key==='marketCycle').weight,4);
+});
+
+test('A+ usa o menor risco entre grade e teto do perfil',()=>{
+  const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.map(item=>[item.key,item.key==='marketCycle'?'healthy':'good']));
+  const result=calculateRubric({ratings,marketCycleRegime:'healthy'});
+  assert.equal(result.score,10);
+  assert.equal(result.grade,'A+');
+  assert.equal(result.gradeRiskPct,.004);
+  assert.equal(result.profileCapPct,.003);
+  assert.equal(result.riskPct,.003);
+});
+
+test('o perfil Ramp-Up representa o mercado em recuperação e limita o risco final',()=>{
+  const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good']));
+  const result=calculateRubric({ratings,profileKey:'rampUp'});
+  assert.equal(result.grade,'A+');
+  assert.equal(result.marketCycle,'improving');
+  assert.equal(result.riskPct,.001);
+});
+
+test('o perfil padrão representa mercado saudável sem um segundo multiplicador',()=>{
+  const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good']));
+  const result=calculateRubric({ratings,profileKey:'standard'});
+  assert.equal(result.marketCycle,'healthy');
+  assert.equal(result.marketFactor,1);
+  assert.equal(result.riskPct,.003);
+});
+
+test('perfil Ramp-Up limita A+ a 0,10%',()=>{
+  const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good']));
+  const result=calculateRubric({ratings,profileKey:'rampUp'});
+  assert.equal(result.profileCapPct,.001);
+  assert.equal(result.riskPct,.001);
+});
+
+test('Position Sizing preserva o menor limite',()=>{
+  const result=calculatePositionSizing({equity:1029500,entry:48.3,stop:45.8,atr:1.72,riskPct:.001,volatilityPct:.002,capitalPct:.1,lot:100});
+  assert.equal(result.quantity,400);
+  assert.equal(result.limitingLayer,'risk');
+});
+
+test('peel-off reduz somente a quantidade necessária para respeitar o alarme',()=>{
+  const result=calculatePeelOff({currentPrice:60,currentStop:50,atr:2,quantity:1000,equity:1000000,policy:DEFAULT_POLICY,profileKey:'rampUp',lot:100});
+  assert.equal(result.required,true);
+  assert.equal(result.allowedQuantity,200);
+  assert.equal(result.peelQuantity,800);
+});
+
+test('Ongoing Risk calcula long e short',()=>{
+  assert.equal(calculateOngoingRisk({currentPrice:45,currentStop:50,quantity:100,direction:'short',equity:10000}).cash,500);
+});
+
+test('Portfolio Heat e limite de posições permanecem como freios finais',()=>{
+  const result=validatePortfolio({currentHeatPct:4.8,additionalRiskPct:.3,openPositions:3,maximumHeatPct:5,maximumPositions:6});
+  assert.equal(result.allowed,false);
+  assert.equal(result.heatAllowed,false);
+});

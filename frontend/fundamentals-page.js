@@ -3,6 +3,7 @@
   const pct = (value) => value == null ? 'N/D' : `${fmt(value * 100)}%`;
   const money = (value) => value == null ? 'N/D' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(value);
   const text = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+  const normalizeTicker = (value) => String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
 
   function render(state) {
     const root = document.getElementById('fundamentalsRoot');
@@ -10,11 +11,14 @@
     const analysis = state?.analysis;
     root.innerHTML = `<div class="fund-head"><div><div class="eyebrow">Análise Fundamentalista</div><h1>Fundamentos simples. Decisões mais assertivas.</h1><p>Somente o contexto financeiro que pode adicionar Edge ao seu Trading Rubric.</p></div><form id="fundSearch"><input id="fundTicker" value="${text(analysis?.ticker || state?.ticker)}" placeholder="PETR4" aria-label="Ticker B3"><button class="primary" type="submit">Analisar</button></form></div>${state?.loading ? '<div class="fund-loading">Consultando dados fundamentalistas…</div>' : state?.error ? `<div class="fund-error">${text(state.error)}</div>` : analysis ? overview(analysis) : '<div class="fund-empty">Pesquise um ticker da B3 para analisar a qualidade fundamental da empresa.</div>'}`;
     root.querySelector('#fundSearch')?.addEventListener('submit', search);
+    root.querySelector('#fundTicker')?.addEventListener('input', (event) => {
+      event.currentTarget.value = normalizeTicker(event.currentTarget.value);
+    });
   }
 
   async function search(event) {
     event.preventDefault();
-    const ticker = document.getElementById('fundTicker')?.value.trim().toUpperCase() || '';
+    const ticker = normalizeTicker(document.getElementById('fundTicker')?.value);
     if (!ticker) { render({ error: 'Informe um ticker da B3 antes de analisar.' }); return; }
     render({ loading: true, ticker });
     try {
