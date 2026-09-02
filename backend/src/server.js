@@ -9,6 +9,8 @@ const auth = require('./auth');
 const trades = require('./trades');
 const wealth = require('./wealth');
 const riskPolicy = require('./risk-policy');
+const platformAccess = require('./platform-access');
+const profitMonitor = require('./profit-monitor');
 
 const port = Number(process.env.PORT || 8787);
 function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS' }); response.end(JSON.stringify(body)); }
@@ -40,6 +42,58 @@ const server = http.createServer(async (request, response) => {
     if (request.method === 'POST' && url.pathname === '/api/auth/logout') {
       if (database.configured()) await auth.logout(bearer(request));
       return send(response, 200, { ok: true });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/platform-access/sessions') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, await platformAccess.start(user.id, await body(request)));
+    }
+    const platformAccessSessionMatch = url.pathname.match(/^\/api\/platform-access\/sessions\/([^/]+)\/(heartbeat|close)$/);
+    if (request.method === 'POST' && platformAccessSessionMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const [, sessionId, action] = platformAccessSessionMatch;
+      const session = action === 'heartbeat' ? await platformAccess.heartbeat(user.id, sessionId) : await platformAccess.close(user.id, sessionId);
+      return send(response, 200, { session });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/platform-access/sessions') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { sessions: await platformAccess.list(user.id, url.searchParams.get('days')) });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/platform-access/preferences') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { preferences: await platformAccess.preferences(user.id) });
+    }
+    if (request.method === 'PUT' && url.pathname === '/api/platform-access/preferences') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { preferences: await platformAccess.savePreferences(user.id, await body(request)) });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/platform-access/monitor/start') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { monitor: await profitMonitor.start(user.id) });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/platform-access/monitor/stop') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      profitMonitor.stop(user.id);
+      return send(response, 200, { monitor: profitMonitor.status(user.id) });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/platform-access/monitor') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { monitor: profitMonitor.status(user.id) });
     }
     if (request.method === 'POST' && url.pathname === '/api/trades') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
