@@ -73,7 +73,13 @@ function overviewFrom(rows, benchmarkHistory) {
   }
   const sectors = [...sectorMap.values()].map((sector) => ({ ...sector, averageScore: Math.round(sector.totalScore / sector.assets) })).sort((a, b) => b.averageScore - a.averageScore);
   const history = benchmarkHistory.map((item) => ({ date: item.date, close: item.adjustedClose ?? item.close })).filter((item) => Number.isFinite(item.close));
-  return { breadth, leaders: rows.filter((row) => row.trendTemplate === 'leader' || row.trendTemplate === 'qualified').slice(0, 6), sectors: sectors.slice(0, 6), benchmarkHistory: history };
+  return {
+    breadth,
+    leaders: rows.filter((row) => row.trendTemplate === 'leader').slice(0, 6),
+    qualified: rows.filter((row) => row.trendTemplate === 'qualified').slice(0, 6),
+    sectors: sectors.slice(0, 6),
+    benchmarkHistory: history
+  };
 }
 function relativeTrend(assetHistory, benchmarkHistory) {
   const benchmarkByDate = new Map(benchmarkHistory.map((item) => [item.date, item.adjustedClose ?? item.close]));
