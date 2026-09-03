@@ -4,6 +4,7 @@ const { URL } = require('node:url');
 const { readCache, refreshIfDue } = require('./market-data');
 const { PLAN_CATALOG } = require('./subscription-plans');
 const { fetchFundamentals } = require('./fundamentals');
+const { refreshFundamentusIfDue } = require('./fundamentus');
 const database = require('./database');
 const auth = require('./auth');
 const trades = require('./trades');
@@ -180,3 +181,5 @@ server.listen(port, async () => {
 });
 setInterval(() => refreshIfDue().catch((error) => console.error('[scheduler]', error.message)), 60 * 60 * 1000);
 refreshIfDue().catch((error) => console.error('[startup]', error.message));
+setInterval(() => refreshFundamentusIfDue().catch((error) => console.error('[fundamentus scheduler]', error.message)), 24 * 60 * 60 * 1000);
+refreshFundamentusIfDue().catch((error) => console.error('[fundamentus startup]', error.message));

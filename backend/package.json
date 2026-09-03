@@ -7,6 +7,7 @@
     "start": "node src/server.js",
     "refresh": "node src/refresh.js",
     "refresh:fundamentals": "node src/refresh-fundamentals.js",
+    "refresh:fundamentus": "node src/refresh-fundamentus.js",
     "db:check": "node src/check-database.js",
     "admin:reset": "node src/reset-admin-password.js",
     "test": "node --test ../frontend/*.test.js test/*.test.js"
