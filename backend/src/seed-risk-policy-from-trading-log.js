@@ -6,7 +6,7 @@ const policy = {
     { key: 'marketCycle', label: 'Market Cycle · permissão de mercado', weight: 4 },
     { key: 'trendQuality', label: 'Diário / Contexto técnico', weight: 1.5 },
     { key: 'relativeStrength', label: 'RS Rank / Força Relativa', weight: 1.5 },
-    { key: 'setupQuality', label: 'Setup / Contração 4H', weight: 1 },
+    { key: 'setupQuality', label: 'Gatilho de entrada / Contração 4H', weight: 1 },
     { key: 'volatility', label: 'ATR% adequado', weight: 0.75 },
     { key: 'entryQuality', label: 'Price Action fluido', weight: 0.75 },
     { key: 'fundamentalScore', label: 'Fundamentalista', weight: 0.5 }
