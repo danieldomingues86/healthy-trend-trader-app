@@ -1,6 +1,8 @@
 require('./env');
 const http = require('node:http');
 const { URL } = require('node:url');
+const fs = require('node:fs/promises');
+const path = require('node:path');
 const { readCache, refreshIfDue } = require('./market-data');
 const { PLAN_CATALOG } = require('./subscription-plans');
 const { fetchFundamentals } = require('./fundamentals');
@@ -16,6 +18,17 @@ const profitMonitor = require('./profit-monitor');
 const port = Number(process.env.PORT || 8787);
 function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS' }); response.end(JSON.stringify(body)); }
 function page(rows, query) { const page = Math.max(1, Number(query.get('page')) || 1); const limit = Math.min(100, Math.max(1, Number(query.get('limit')) || 50)); const search = (query.get('search') || '').toUpperCase(); const filtered = rows.filter((row) => !search || row.symbol.includes(search)); return { items: filtered.slice((page - 1) * limit, page * limit), page, limit, total: filtered.length }; }
+
+async function listTraderWisdomAssets() {
+  const root = path.join(__dirname, '..', '..', 'assets', 'trader-wisdom');
+  async function walk(directory) {
+    const entries = await fs.readdir(directory, { withFileTypes: true });
+    const nested = await Promise.all(entries.map(async (entry) => entry.isDirectory() ? walk(path.join(directory, entry.name)) : [path.join(directory, entry.name)]));
+    return nested.flat();
+  }
+  const files = await walk(root);
+  return files.filter((file) => /\.(jpe?g|png|webp)$/i.test(file)).map((file) => path.relative(path.join(__dirname, '..', '..'), file).split(path.sep).join('/')).sort();
+}
 
 async function body(request) {
   const chunks = [];
@@ -165,6 +178,12 @@ const server = http.createServer(async (request, response) => {
     }
     if (request.method !== 'GET') return send(response, 405, { error: 'Method not allowed' });
     if (url.pathname === '/api/subscription/plans') return send(response, 200, { currency: 'BRL', plans: PLAN_CATALOG });
+    if (url.pathname === '/api/trader-wisdom/assets') {
+      const items = await listTraderWisdomAssets();
+      const pageNumber = Math.max(1, Number(url.searchParams.get('page')) || 1);
+      const limit = Math.min(48, Math.max(1, Number(url.searchParams.get('limit')) || 24));
+      return send(response, 200, { items: items.slice((pageNumber - 1) * limit, pageNumber * limit), page: pageNumber, limit, total: items.length });
+    }
     if (url.pathname === '/api/fundamentals') return send(response, 200, await fetchFundamentals(url.searchParams.get('ticker')));
     const cache = await refreshIfDue();
     if (url.pathname === '/api/health') return send(response, 200, { status: 'ok', cachedAt: cache?.updatedAt || null, brapiTokenConfigured: Boolean(process.env.BRAPI_TOKEN), databaseConfigured: database.configured() });

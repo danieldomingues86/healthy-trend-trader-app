@@ -53,17 +53,19 @@ Em vez de editar a mesma linha extensa, o trader registra eventos:
 
 - atualização de preço, ATR ou trailing stop;
 - ajuste de stop;
-- venda parcial/peel-off;
+- redução de proteção (Peel-Off), quando o Ongoing Risk ultrapassar o limite;
 - nova observação;
 - encerramento.
 
 Cada evento recalcula risco ongoing, volatilidade, P&L aberto, P&L realizado, quantidade atual e ação recomendada.
 
-### Peel-off pertence à posição
+### Proteção de Ongoing Risk (Peel-Off) pertence à posição
 
-O `PEEL_OFF_LOG` não deve virar uma área separada no software. Cada venda parcial será um evento dentro da própria posição e aparecerá em sua linha do tempo.
+O `PEEL_OFF_LOG` não deve virar uma área separada no software. O Peel-Off é uma proteção extraordinária, não uma realização parcial rotineira: ele reduz apenas a quantidade necessária quando o Ongoing Risk ou a volatilidade em andamento ultrapassa o limite do perfil. Ele aparece como evento dentro da própria posição e em sua linha do tempo.
 
-Cada parcial deve registrar:
+O ATR Trailing Stop continua sendo a gestão normal da posição. Por isso, quando o stop móvel mantém o Ongoing Risk controlado, um Peel-Off pode ser raro ou sequer acontecer. Estratégias de lucro como *Sell Into Strength* devem ser modeladas e registradas separadamente.
+
+Cada redução de proteção deve registrar:
 
 - data e horário;
 - quantidade reduzida;
@@ -202,7 +204,7 @@ Essa fatia comprova o coração do produto antes de investir em dashboards e ana
 - **Execução:** a quantidade real pode ser alterada manualmente e diferir da planejada; ambas devem ser preservadas.
 - **Atualizações no MVP:** preço, ATR e stop serão informados manualmente.
 - **Paper trading:** utiliza as mesmas políticas e cálculos das operações reais, com separação explícita para não afetar patrimônio nem portfolio risk real.
-- **Peel-off:** cada parcial pertence à posição e aparece em sua linha do tempo; não haverá um módulo de log separado na experiência principal.
+- **Peel-Off:** a redução de proteção pertence à posição e aparece em sua linha do tempo; não haverá um módulo de log separado na experiência principal. Não deve ser confundida com realização parcial por lucro.
 
 ## Decisão ainda em aberto
 
