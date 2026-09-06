@@ -7,6 +7,41 @@ const B3_INDEX_API = 'https://sistemaswebb3-listados.b3.com.br/indexProxy/indexC
 const CACHE_PATH = path.join(__dirname, '..', 'data', 'market-cache.json');
 const FALLBACK_SYMBOLS = (process.env.IBOV_SYMBOLS || 'PETR4,VALE3,ITUB4,BBAS3,BBDC4,WEGE3,PRIO3,SUZB3')
   .split(',').map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
+const FII_SYMBOLS = `RBRL11 BTCI11 DEVA11 SPXS11 RBRP11 RCRB11 BRCR11 RECR11 HCTR11 RBRY11 RBRR11 VGIP11 MCCI11 VGIR11 CPTS11 RZAK11 RBRX11 AFHI11 RZAT11 BTLG11 SNCI11 SNFF11 BROF11 ALZR11 BTAL11 XPML11 BRCO11 KNIP11 GTWR11 KISU11 KNRI11 TEPP11 RBVA11 HGRU11 BCIA11 KFOF11 GARE11 HGBS11 XPCI11 VILG11 TRXF11 HSLG11 TRBL11 BCRI11 HSML11 HGLG11 VISC11 VGHF11 MXRF11 JSAF11 PVBI11 CYCR11 HABT11 OUJP11 MFII11 TGAR11 KNSC11 WHGR11 URPR11 LVBI11 KNCR11 VINO11 PORD11 VRTA11 HSAF11 KNHY11 VCJR11 TVRI11 HTMX11 XPSF11 KCRE11 HFOF11 CACR11 XPLG11 HGRE11 JSRE11 RZTR11 HGCR11 GGRC11 FATN11 CLIN11 KNHF11 KORE11 SNEL11 BPML11 CPSH11 GZIT11 KIVO11 KNUQ11 MANA11 MCRE11 ITRI11 BBIG11 VGRI11 ICRI11 LIFE11 BTHF11 TOPP11 VRTM11 PMLL11 AZPL11 PCIP11 PSEC11 RPRI11 RBFM11 IRIM11`.split(/\s+/).filter(Boolean);
+const FII_SEGMENTS = {
+  BTLG11:'Logística',BRCO11:'Logística',HGLG11:'Logística',HSLG11:'Logística',LVBI11:'Logística',VILG11:'Logística',XPLG11:'Logística',GGRC11:'Logística',TRBL11:'Logística',AZPL11:'Logística',
+  XPML11:'Shopping',HGBS11:'Shopping',HSML11:'Shopping',VISC11:'Shopping',BPML11:'Shopping',PMLL11:'Shopping',
+  BRCR11:'Lajes corporativas',GTWR11:'Lajes corporativas',PVBI11:'Lajes corporativas',RBRP11:'Lajes corporativas',RCRB11:'Lajes corporativas',HGRE11:'Lajes corporativas',JSRE11:'Lajes corporativas',TEPP11:'Lajes corporativas',VINO11:'Lajes corporativas',LIFE11:'Lajes corporativas',
+  BTCI11:'Papel/CRI',DEVA11:'Papel/CRI',RECR11:'Papel/CRI',HCTR11:'Papel/CRI',RBRY11:'Papel/CRI',RBRR11:'Papel/CRI',VGIP11:'Papel/CRI',MCCI11:'Papel/CRI',VGIR11:'Papel/CRI',CPTS11:'Papel/CRI',RZAK11:'Papel/CRI',AFHI11:'Papel/CRI',KNIP11:'Papel/CRI',XPCI11:'Papel/CRI',BCRI11:'Papel/CRI',MXRF11:'Papel/CRI',HABT11:'Papel/CRI',OUJP11:'Papel/CRI',KNSC11:'Papel/CRI',KNCR11:'Papel/CRI',VRTA11:'Papel/CRI',KNHY11:'Papel/CRI',VCJR11:'Papel/CRI',KCRE11:'Papel/CRI',CACR11:'Papel/CRI',HGCR11:'Papel/CRI',CLIN11:'Papel/CRI',KNHF11:'Papel/CRI',KIVO11:'Papel/CRI',KNUQ11:'Papel/CRI',MCRE11:'Papel/CRI',ICRI11:'Papel/CRI',PCIP11:'Papel/CRI',PSEC11:'Papel/CRI',RPRI11:'Papel/CRI',IRIM11:'Papel/CRI',
+  RBRL11:'Híbridos',RBRX11:'Híbridos',SNFF11:'Híbridos',KISU11:'Híbridos',KFOF11:'Híbridos',BCIA11:'Híbridos',JSAF11:'Híbridos',TGAR11:'Híbridos',XPSF11:'Híbridos',HFOF11:'Híbridos',BTHF11:'Híbridos',RBFM11:'Híbridos'
+};
+const FII_CATALOG = FII_SYMBOLS.map((symbol) => [symbol, symbol, FII_SEGMENTS[symbol] || 'Outros']);
+const BDR_CATALOG = [
+  ['AAPL34', 'Apple', 'Tecnologia', 'AAPL', 'NASDAQ'], ['MSFT34', 'Microsoft', 'Tecnologia', 'MSFT', 'NASDAQ'],
+  ['NVDC34', 'NVIDIA', 'Tecnologia', 'NVDA', 'NASDAQ'], ['GOGL34', 'Alphabet', 'Tecnologia', 'GOOGL', 'NASDAQ'],
+  ['AMZO34', 'Amazon', 'Consumo', 'AMZN', 'NASDAQ'], ['TSLA34', 'Tesla', 'Consumo', 'TSLA', 'NASDAQ'],
+  ['META34', 'Meta Platforms', 'Tecnologia', 'META', 'NASDAQ'], ['JPMC34', 'JPMorgan Chase', 'Financeiro', 'JPM', 'S&P 500'],
+  ['DISB34', 'Walt Disney', 'Comunicação', 'DIS', 'S&P 500'], ['MCDC34', 'McDonald\'s', 'Consumo', 'MCD', 'S&P 500']
+];
+const BDR_SYMBOLS = `MUTC34 A1MD34 ITLC34 TSMC34 BABA34 ORCL34 M1TA34 NVDC34 AVGO34 NIKE34 ROXO34 BERK34 AMZO34 BKNG34 COCA34 MELI34 JNJB34 GOGL34 WALM34 BOAC34 SPCX34 M2ST34 LILY34 JPMC34 CHVX34 MSFT34 AAPL34 DISB34 S2GM34 PAGS34 P2LT34 C2OI34 NFLX34 TSLA34`.split(/\s+/).filter(Boolean);
+const BDR_ORIGINALS = {
+  MUTC34:['MU','NASDAQ'],A1MD34:['AMD','NASDAQ'],ITLC34:['INTC','NASDAQ'],TSMC34:['TSM','NYSE'],BABA34:['BABA','NYSE'],ORCL34:['ORCL','NYSE'],M1TA34:['META','NASDAQ'],NVDC34:['NVDA','NASDAQ'],AVGO34:['AVGO','NASDAQ'],NIKE34:['NKE','NYSE'],ROXO34:['NU','NYSE'],BERK34:['BRK.B','NYSE'],AMZO34:['AMZN','NASDAQ'],BKNG34:['BKNG','NASDAQ'],COCA34:['KO','NYSE'],MELI34:['MELI','NASDAQ'],JNJB34:['JNJ','NYSE'],GOGL34:['GOOGL','NASDAQ'],WALM34:['WMT','NYSE'],BOAC34:['BA','NYSE'],SPCX34:['SPOT','NYSE'],M2ST34:['MSFT','NASDAQ'],LILY34:['LLY','NYSE'],JPMC34:['JPM','NYSE'],CHVX34:['CVX','NYSE'],MSFT34:['MSFT','NASDAQ'],AAPL34:['AAPL','NASDAQ'],DISB34:['DIS','NYSE'],S2GM34:['SG','NYSE'],PAGS34:['PAGS','NYSE'],P2LT34:['PLTR','NASDAQ'],C2OI34:['COIN','NASDAQ'],NFLX34:['NFLX','NASDAQ'],TSLA34:['TSLA','NASDAQ']
+};
+const BDR_CATALOG_VERSION = 4;
+
+function assetClassForSymbol(symbol) {
+  const normalized = String(symbol || '').trim().toUpperCase();
+  if (FII_CATALOG.some(([ticker]) => ticker === normalized)) return 'fii';
+  if (BDR_CATALOG.some(([ticker]) => ticker === normalized)) return 'bdr';
+  return 'stock';
+}
+function classMeta(assetClass) {
+  return {
+    stock: { key: 'stock', label: 'Ações', benchmark: 'IBOV', universeLabel: 'Ações e units da B3' },
+    fii: { key: 'fii', label: 'FIIs', benchmark: 'IFIX', universeLabel: 'Fundos imobiliários da B3' },
+    bdr: { key: 'bdr', label: 'BDRs', benchmark: 'BDRs + ativo original', universeLabel: 'BDRs negociados na B3' }
+  }[assetClass] || null;
+}
 
 function saoPauloParts(date = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23', weekday: 'short' }).formatToParts(date);
@@ -55,6 +90,16 @@ async function fetchHistory(symbol) {
   const result = payload.results?.[0]?.data?.historicalDataPrice || payload.results?.[0]?.historicalDataPrice || [];
   if (!result.length) throw new Error(`Sem histórico para ${symbol}`);
   return result;
+}
+async function fetchHistories(symbols) {
+  const normalized = [...new Set(symbols.map((symbol) => String(symbol).trim().toUpperCase()).filter(Boolean))];
+  const responses = await mapWithConcurrency(normalized, 3, async (symbol) => ({ symbol, history: await fetchHistory(symbol) }));
+  const histories = new Map();
+  for (const result of responses) {
+    if (result?.error || !result?.history?.length) continue;
+    histories.set(result.symbol, result.history);
+  }
+  return histories;
 }
 function overviewFrom(rows, benchmarkHistory) {
   const breadth = rows.reduce((summary, row) => {
@@ -108,7 +153,25 @@ async function fetchAssetMetadata() {
   return new Map(catalog.map((asset) => [asset.stock, {
     name: asset.name || asset.stock,
     sector: asset.sector || asset.subsector || 'Não classificado',
+    type: asset.type || null,
+    subType: asset.subType || null,
   }]));
+}
+function peerBenchmarkHistory(histories) {
+  const byDate = new Map();
+  for (const history of histories.values()) {
+    const first = history.map((item) => item.adjustedClose ?? item.close).find(Number.isFinite);
+    if (!Number.isFinite(first) || first === 0) continue;
+    for (const item of history) {
+      const close = item.adjustedClose ?? item.close;
+      if (!item.date || !Number.isFinite(close)) continue;
+      const current = byDate.get(item.date) || { total: 0, count: 0 };
+      current.total += (close / first) * 100;
+      current.count += 1;
+      byDate.set(item.date, current);
+    }
+  }
+  return [...byDate.entries()].sort(([a], [b]) => String(a).localeCompare(String(b))).map(([date, value]) => ({ date, close: value.total / value.count }));
 }
 async function fetchIbovSymbols() {
   try {
@@ -135,6 +198,70 @@ async function mapWithConcurrency(items, limit, mapper) {
   }));
   return results;
 }
+function catalogItems(catalog, assetClass) {
+  return catalog.map(([symbol, name, sector, originalSymbol, internationalBenchmark]) => ({
+    symbol, name, sector, assetClass, originalSymbol, internationalBenchmark
+  }));
+}
+function bdrCatalogFromMetadata(metadata) {
+  return [...metadata.entries()]
+    .filter(([symbol, item]) => BDR_SYMBOLS.includes(symbol) && item.type === 'bdr' && item.subType === 'bdr')
+    .map(([symbol, item]) => ({
+      symbol, name: item.name || symbol, sector: item.sector || 'Não classificado', assetClass: 'bdr',
+      originalSymbol: BDR_ORIGINALS[symbol]?.[0] || null,
+      internationalBenchmark: BDR_ORIGINALS[symbol]?.[1] || null
+    }))
+    .sort((a, b) => a.symbol.localeCompare(b.symbol));
+}
+async function collectClassRelativeStrength({ assetClass, benchmarkSymbol, catalog }) {
+  const benchmarkHistory = await fetchHistory(benchmarkSymbol);
+  const benchmarkReturns = returns(benchmarkHistory);
+  const collected = await mapWithConcurrency(catalog, 3, async (item) => {
+    const history = await fetchHistory(item.symbol);
+    const assetReturns = returns(history);
+    if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) throw new Error(`Histórico incompleto para ${item.symbol}`);
+    return {
+      ...item,
+      ...assetReturns,
+      relativeTrend: relativeTrend(history, benchmarkHistory),
+      relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65
+    };
+  });
+  const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
+  return { ...classMeta(assetClass), benchmark: benchmarkSymbol, returns: benchmarkReturns, requested: catalog.length, available: rows.length, items: rows };
+}
+async function collectPeerRelativeStrength({ assetClass, catalog }) {
+  const histories = await fetchHistories(catalog.map((item) => item.symbol));
+  const benchmarkHistory = peerBenchmarkHistory(histories);
+  const benchmarkReturns = returns(benchmarkHistory);
+  const collected = catalog.map((item) => {
+    const history = histories.get(item.symbol);
+    if (!history) return { ...item, error: `Histórico indisponível para ${item.symbol}` };
+    const assetReturns = returns(history);
+    if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) return { ...item, error: `Histórico incompleto para ${item.symbol}` };
+    return { ...item, ...assetReturns, relativeTrend: relativeTrend(history, benchmarkHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
+  });
+  const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
+  return { ...classMeta(assetClass), benchmark: 'Universo de BDRs', returns: benchmarkReturns, requested: catalog.length, available: rows.length, items: rows, catalogVersion: BDR_CATALOG_VERSION };
+}
+function classStrengthFromCache(cache) {
+  const stock = {
+    ...classMeta('stock'), benchmark: cache.benchmark?.symbol || 'IBOV', returns: cache.benchmark?.returns || {},
+    requested: cache.universe?.requested || cache.relativeStrength?.length || 0,
+    available: cache.universe?.available || cache.relativeStrength?.length || 0,
+    items: (cache.relativeStrength || []).map((item) => ({ ...item, assetClass: 'stock' }))
+  };
+  const pending = (assetClass) => ({ ...classMeta(assetClass), requested: 0, available: 0, items: [], pending: true });
+  return { stock, fii: cache.relativeStrengthByClass?.fii || pending('fii'), bdr: cache.relativeStrengthByClass?.bdr || pending('bdr') };
+}
+function classifyAsset(symbol, cache) {
+  const normalized = String(symbol || '').trim().toUpperCase();
+  const assetClass = assetClassForSymbol(normalized);
+  const classes = classStrengthFromCache(cache || {});
+  const universe = classes[assetClass];
+  const item = universe?.items?.find((candidate) => candidate.symbol === normalized) || null;
+  return { ticker: normalized, assetClass, ...classMeta(assetClass), item, available: Boolean(item) };
+}
 async function readCache() { try { return JSON.parse(await fs.readFile(CACHE_PATH, 'utf8')); } catch { return null; } }
 async function writeCache(data) { await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true }); await fs.writeFile(CACHE_PATH, JSON.stringify(data, null, 2)); }
 function isBusinessDay(date = new Date()) { const day = saoPauloParts(date).weekday; return day !== 'Sun' && day !== 'Sat'; }
@@ -151,9 +278,39 @@ async function refreshMarketData() {
     return { symbol, ...details, ...assetReturns, relativeTrend: relativeTrend(history, ibovHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
   });
   const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
-  const cache = { updatedAt: new Date().toISOString(), source: 'brapi', universe: { requested: symbols.length, available: rows.length }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, overview: overviewFrom(rows, ibovHistory) };
+  const catalogFii = catalogItems(FII_CATALOG, 'fii');
+  const catalogBdr = bdrCatalogFromMetadata(metadata);
+  const [fiiResult, bdrResult] = await Promise.allSettled([
+    collectClassRelativeStrength({ assetClass: 'fii', benchmarkSymbol: 'IFIX', catalog: catalogFii }),
+    // O ranking brasileiro do BDR é comparado apenas com BDRs. A leitura do ativo original
+    // é apresentada separadamente pela interface, para não misturar USD/BRL ao score local.
+    collectPeerRelativeStrength({ assetClass: 'bdr', catalog: catalogBdr })
+  ]);
+  const relativeStrengthByClass = {
+    fii: fiiResult.status === 'fulfilled' ? fiiResult.value : { ...classMeta('fii'), benchmark: 'IFIX', requested: catalogFii.length, available: 0, items: [], error: fiiResult.reason?.message },
+    bdr: bdrResult.status === 'fulfilled' ? bdrResult.value : { ...classMeta('bdr'), benchmark: 'Universo de BDRs', requested: catalogBdr.length, available: 0, items: [], error: bdrResult.reason?.message }
+  };
+  const cache = { updatedAt: new Date().toISOString(), source: 'brapi', universe: { requested: symbols.length, available: rows.length }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
   await writeCache(cache);
   return cache;
+}
+async function refreshClassStrength(cache) {
+  if (cache?.relativeStrengthByClass?.fii?.requested === FII_CATALOG.length && cache?.relativeStrengthByClass?.fii?.available > 0 && cache?.relativeStrengthByClass?.bdr?.catalogVersion === BDR_CATALOG_VERSION && cache?.relativeStrengthByClass?.bdr?.available > 0) return cache;
+  const catalogFii = catalogItems(FII_CATALOG, 'fii');
+  const catalogBdr = bdrCatalogFromMetadata(await fetchAssetMetadata());
+  const [fiiResult, bdrResult] = await Promise.allSettled([
+    collectClassRelativeStrength({ assetClass: 'fii', benchmarkSymbol: 'IFIX', catalog: catalogFii }),
+    collectPeerRelativeStrength({ assetClass: 'bdr', catalog: catalogBdr })
+  ]);
+  const next = {
+    ...cache,
+    relativeStrengthByClass: {
+      fii: fiiResult.status === 'fulfilled' ? fiiResult.value : { ...classMeta('fii'), benchmark: 'IFIX', requested: catalogFii.length, available: 0, items: [], error: fiiResult.reason?.message },
+      bdr: bdrResult.status === 'fulfilled' ? bdrResult.value : { ...classMeta('bdr'), benchmark: 'Universo de BDRs', requested: catalogBdr.length, available: 0, items: [], error: bdrResult.reason?.message }
+    }
+  };
+  await writeCache(next);
+  return next;
 }
 async function refreshIfDue(now = new Date()) {
   const cached = await readCache();
@@ -163,4 +320,4 @@ async function refreshIfDue(now = new Date()) {
   return refreshMarketData();
 }
 
-module.exports = { readCache, refreshMarketData, refreshIfDue, scoreCycle, returns, relativeTrend, templateReading, rank, overviewFrom };
+module.exports = { readCache, refreshMarketData, refreshIfDue, refreshClassStrength, scoreCycle, returns, relativeTrend, templateReading, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset };
