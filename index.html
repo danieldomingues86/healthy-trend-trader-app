@@ -434,7 +434,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
     <button data-page="wisdom"><span class="ico">✦</span>Sabedoria do Trader</button>
     <button data-page="traderprofile"><span class="ico">◈</span>Perfil do Trader</button>
     <button data-page="habits"><span class="ico">◉</span>Monitor de Hábitos</button>
-    <button data-page="materials"><span class="ico">🛒</span>Healthy Trend Trader Materials</button>
+    <button data-page="materials"><span class="ico materials-menu-icon" aria-hidden="true"></span>Healthy Trend Trader Materials</button>
   </nav></div>
   <div class="nav-group"><div class="nav-label">Configuração e suporte</div><nav class="nav">
     <button data-page="settings"><span class="ico">⚙</span>Configurações gerais</button>
@@ -2476,7 +2476,7 @@ const healthyMaterials=[
 let materialsFilter='Todos',materialsQuery='',materialsLibraryOnly=false,materialsDetail=null;
 function purchasedMaterials(){try{return JSON.parse(localStorage.getItem(MATERIALS_STORAGE)||'[]')}catch{return[]}}
 function savePurchasedMaterials(ids){localStorage.setItem(MATERIALS_STORAGE,JSON.stringify(ids))}
-function moneyBR(value){return 'R$ '+value.toFixed(2).replace('.',',')}
+function moneyBR(value,decimals=2){const amount=Number(value);return new Intl.NumberFormat(window.appLanguage==='en-US'?'en-US':'pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(Number.isFinite(amount)?amount:0)}
 function buyMaterial(id){const owned=purchasedMaterials();if(!owned.includes(id)){owned.push(id);savePurchasedMaterials(owned);showToast('Material adicionado à sua Biblioteca.')}renderMaterials()}
 function accessMaterial(id){const item=healthyMaterials.find(material=>material.id===id);showToast('Abrindo “'+item.title+'” na sua Biblioteca.');}
 /* Implementação inicial mantida como referência durante o refinamento do catálogo.
