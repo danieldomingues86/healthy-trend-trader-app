@@ -1,0 +1,11 @@
+# Diário V2 — inventário e compatibilidade
+
+Auditoria anterior à implementação: `index.html`, editor V4 (campos e handlers), caderno V1 (`journalBookSeed`, `JOURNAL_BOOK_STORAGE`, `saveJournalBook`), `journalSendHabit`, dados operacionais e `backend/src/server.js`.
+
+- **Técnico:** permissão de mercado, observações da sessão, nota de execução. O editor V4 também expunha permissão para arriscar, checklist de oito itens e posição relacionada. Esses campos não eram persistidos pelo salvamento antigo; a V2 os torna editáveis em detalhes recolhidos, com vínculos de trades por data.
+- **Emocional:** seleção múltipla de Paciente, Disciplinado, Calmo, Ansioso, Confiante, Raiva/Irritado, Impulsivo, Medroso e Ganancioso. Novos campos: intensidade de 1 a 5, relato separado, interferência e explicação opcional. Não inferir valores ausentes.
+- **Compartilhado:** data, título, aprendizado, frase, observações adicionais e padrões. Os dois padrões apresentados no caderno antigo eram textos fixos de referência, não descobertas pessoais persistidas. Continuam disponíveis como sugestões recolhidas e a ação de sugerir hábito permanece.
+- **Evidências:** o caderno antigo guardava rótulos como “4 prints”, “Áudio”, “WEGE3” e “1 lição”. O editor usava prévias temporárias por `URL.createObjectURL`, sem salvar os arquivos. Não há áudio persistido nesse fluxo. A V2 preserva todos os rótulos como referências históricas e não os apresenta como arquivos recuperados. Novos arquivos são armazenados em IndexedDB; metadados ficam no registro do dia.
+- **Histórico:** data, título, texto, score, emoções, rótulos e quaisquer campos desconhecidos são preservados integralmente. O mês passa a ser derivado da data, sem o cabeçalho fixo Agosto/2026. Registros do mesmo dia são consolidados no caderno, mantendo os originais em `legacyEntries`.
+- **Persistência:** nova chave `healthy-trend-journal-v2`, versão 2, um objeto diário com `technical`, `emotional`, `shared`, `evidence`. A chave V1 permanece intocada. Leitura inválida bloqueia gravação; falta de espaço gera erro visível, sem mensagem falsa de sucesso. Sem migração ou alteração de backend.
+- **Evolução futura:** data canônica, score numérico, plano respeitado trivalente, emoções múltiplas, intensidade e impacto explícitos permitem análises posteriores; não se produzem correlações ou conclusões clínicas nesta versão.
