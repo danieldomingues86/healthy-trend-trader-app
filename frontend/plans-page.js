@@ -15,7 +15,7 @@
     ['zen', 'Trader Zen e Biblioteca Mental', 'Trader Zen and Mental Library'], ['habits', 'Monitor de Hábitos', 'Habit Tracker'],
     ['wisdom', 'Sabedoria do Trader', 'Trader Wisdom'],
     ['traderprofile', 'Perfil do Trader', 'Trader Profile'], ['manual', 'Manual do software', 'Software Manual'],
-    ['glossary', 'Glossário do método', 'Method Glossary'], ['settings', 'Configurações gerais', 'General settings'],
+    ['glossary', 'Glossário do método', 'Method Glossary'], ['materials', 'Healthy Trend Trader Materials · compras separadas', 'Healthy Trend Trader Materials · separate purchases'], ['settings', 'Configurações gerais', 'General settings'],
     ['profile', 'Meus Dados', 'My Details'], ['avatar', 'Avatar', 'Avatar']
   ];
   window.getPlanFeatureInventory = () => features.map(([id, pt, en]) => ({ id, label: t(pt, en), professional: professionalPages.has(id) }));
