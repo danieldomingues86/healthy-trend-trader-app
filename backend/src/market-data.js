@@ -83,7 +83,9 @@ function brapiHeaders() { return process.env.BRAPI_TOKEN ? { Authorization: `Bea
 async function fetchHistory(symbol) {
   const url = new URL(BRAPI_URL);
   url.searchParams.set('symbols', symbol);
-  url.searchParams.set('range', '3mo');
+  // Um ano preserva os retornos já usados pelo RS e também permite a leitura
+  // de tendência (EMA 20/200), ATR e volume pelo mesmo histórico diário.
+  url.searchParams.set('range', '1y');
   url.searchParams.set('interval', '1d');
   url.searchParams.set('sortOrder', 'asc');
   const payload = await fetchJson(url, brapiHeaders());
@@ -135,9 +137,42 @@ function relativeTrend(assetHistory, benchmarkHistory) {
   }).filter(Number.isFinite);
   const latest = line.at(-1);
   const change6w = percent(latest, line.at(-31));
-  const change13w = percent(latest, line[0]);
+  // O histórico agora cobre um ano para suportar EMA200. A linha de RS,
+  // porém, continua deliberadamente nas mesmas janelas de 6 e 13 semanas.
+  const change13w = percent(latest, line.at(-64));
   const direction = (change) => !Number.isFinite(change) ? 'unavailable' : change > 0.5 ? 'up' : change < -0.5 ? 'down' : 'flat';
   return { change6w, change13w, direction6w: direction(change6w), direction13w: direction(change13w) };
+}
+function scanMetrics(history) {
+  const candles = history.filter((item) => Number.isFinite(item.adjustedClose ?? item.close));
+  const closes = candles.map((item) => item.adjustedClose ?? item.close);
+  const price = closes.at(-1);
+  const previousClose = closes.at(-2);
+  const recentVolumes = candles.slice(-21, -1).map((item) => Number(item.volume)).filter((value) => Number.isFinite(value) && value > 0);
+  const volume = Number(candles.at(-1)?.volume);
+  const averageVolume20 = recentVolumes.length >= 15 ? recentVolumes.reduce((sum, value) => sum + value, 0) / recentVolumes.length : null;
+  const ranges = candles.slice(-21).map((item, index, rows) => {
+    const high = Number(item.high);
+    const low = Number(item.low);
+    const prior = rows[index - 1]?.adjustedClose ?? rows[index - 1]?.close;
+    if (!Number.isFinite(high) || !Number.isFinite(low)) return null;
+    return Number.isFinite(prior) ? Math.max(high - low, Math.abs(high - prior), Math.abs(low - prior)) : high - low;
+  }).filter(Number.isFinite);
+  const atr = ranges.length >= 15 ? ranges.reduce((sum, value) => sum + value, 0) / ranges.length : null;
+  const ema20 = closes.length >= 20 ? ema(closes.slice(-20), 20) : null;
+  const ema200 = closes.length >= 200 ? ema(closes.slice(-200), 200) : null;
+  return {
+    price,
+    dayChangePct: percent(price, previousClose),
+    volume: Number.isFinite(volume) && volume > 0 ? volume : null,
+    averageVolume20,
+    volumeRatio: Number.isFinite(volume) && averageVolume20 ? volume / averageVolume20 : null,
+    atr21: atr,
+    atrPct: Number.isFinite(atr) && Number.isFinite(price) && price > 0 ? atr / price * 100 : null,
+    ema20,
+    ema200,
+    healthyTrend: Number.isFinite(price) && Number.isFinite(ema20) && Number.isFinite(ema200) && price > ema20 && ema20 > ema200
+  };
 }
 function templateReading(score, trend) {
   if (score >= 90 && trend.direction6w === 'up' && trend.direction13w === 'up') return 'leader';
@@ -223,6 +258,7 @@ async function collectClassRelativeStrength({ assetClass, benchmarkSymbol, catal
     return {
       ...item,
       ...assetReturns,
+      scan: scanMetrics(history),
       relativeTrend: relativeTrend(history, benchmarkHistory),
       relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65
     };
@@ -239,7 +275,7 @@ async function collectPeerRelativeStrength({ assetClass, catalog }) {
     if (!history) return { ...item, error: `Histórico indisponível para ${item.symbol}` };
     const assetReturns = returns(history);
     if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) return { ...item, error: `Histórico incompleto para ${item.symbol}` };
-    return { ...item, ...assetReturns, relativeTrend: relativeTrend(history, benchmarkHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
+    return { ...item, ...assetReturns, scan: scanMetrics(history), relativeTrend: relativeTrend(history, benchmarkHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
   });
   const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
   return { ...classMeta(assetClass), benchmark: 'Universo de BDRs', returns: benchmarkReturns, requested: catalog.length, available: rows.length, items: rows, catalogVersion: BDR_CATALOG_VERSION };
@@ -275,7 +311,7 @@ async function refreshMarketData() {
     const assetReturns = returns(history);
     if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) throw new Error(`Histórico incompleto para ${symbol}`);
     const details = metadata.get(symbol) || { name: symbol, sector: 'Não classificado' };
-    return { symbol, ...details, ...assetReturns, relativeTrend: relativeTrend(history, ibovHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
+    return { symbol, ...details, ...assetReturns, scan: scanMetrics(history), relativeTrend: relativeTrend(history, ibovHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
   });
   const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
   const catalogFii = catalogItems(FII_CATALOG, 'fii');
@@ -320,4 +356,4 @@ async function refreshIfDue(now = new Date()) {
   return refreshMarketData();
 }
 
-module.exports = { readCache, refreshMarketData, refreshIfDue, refreshClassStrength, scoreCycle, returns, relativeTrend, templateReading, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset };
+module.exports = { readCache, refreshMarketData, refreshIfDue, refreshClassStrength, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset };

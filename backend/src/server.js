@@ -4,6 +4,7 @@ const { URL } = require('node:url');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { readCache, refreshIfDue, refreshClassStrength, classStrengthFromCache, classifyAsset } = require('./market-data');
+const { marketScansFromCache } = require('./market-scans');
 const { PLAN_CATALOG } = require('./subscription-plans');
 const { fetchFundamentals } = require('./fundamentals');
 const { refreshFundamentusIfDue } = require('./fundamentus');
@@ -190,6 +191,10 @@ const server = http.createServer(async (request, response) => {
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
     if (url.pathname === '/api/market-cycle') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, cycle: cache.cycle, benchmark: cache.benchmark });
     if (url.pathname === '/api/market-overview') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, universe: cache.universe, cycle: cache.cycle, benchmark: cache.benchmark, overview: cache.overview });
+    if (url.pathname === '/api/market-scans') {
+      cache = await refreshClassStrength(cache);
+      return send(response, 200, marketScansFromCache(cache));
+    }
     if (url.pathname === '/api/relative-strength/classes') {
       cache = await refreshClassStrength(cache);
       const classes = classStrengthFromCache(cache);
