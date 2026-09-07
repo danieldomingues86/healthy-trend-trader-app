@@ -1,0 +1,116 @@
+/* The plans narrative fills the workspace while keeping the app navigation. */
+body:has(#plan.active) .content{width:100%;max-width:none;margin:0;padding:0}
+body:has(#plan.active) #marketFocusGuard{display:none}
+#plan.active .plans-landing{border:0;border-radius:0;min-height:calc(100dvh - 78px)}
+#plan .plans-landing{--plans-green:#73eeb1;--plans-muted:#becfc6;--plans-border:rgba(143,217,178,.25);color:#f5f8f4;background:#041b14;border:1px solid var(--plans-border);border-radius:18px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
+#plan .plans-landing *{box-sizing:border-box}
+#plan .plans-landing h1,#plan .plans-landing h2,#plan .plans-landing h3,#plan .plans-landing p{margin:0;color:inherit}
+#plan .plans-landing h1,#plan .plans-landing h2{font-family:Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:-.035em;line-height:1.06;text-wrap:balance}
+#plan .plans-landing h1{font-size:clamp(36px,4.15vw,62px)}
+#plan .plans-landing h2{font-size:clamp(29px,2.75vw,42px)}
+#plan .plans-landing h3{font-size:22px;font-weight:500;line-height:1.2;letter-spacing:-.025em}
+#plan .plans-landing em{display:block;color:var(--plans-green);font-style:normal}
+#plan .plans-landing p{font-size:16px;line-height:1.55}
+#plan .plans-landing .plans-eyebrow{color:var(--plans-green);font-size:12px;font-weight:700;line-height:1.7;letter-spacing:.19em;text-transform:uppercase;margin-bottom:17px}
+#plan .plans-hero{position:relative;padding:64px 5%;min-height:580px;background:linear-gradient(90deg,rgba(1,17,12,.48),transparent 85%),url('../assets/plans-connected-journey-v1.png') center 47%/cover}
+#plan .plans-hero-copy{position:relative;z-index:1;max-width:540px;width:57%}
+#plan .plans-hero .plans-lead{max-width:470px;margin:23px 0 26px;color:#e3ebe5}
+#plan .plans-action{display:inline-flex;align-items:center;justify-content:center;gap:20px;min-height:49px;padding:13px 22px;border:1px solid #8beab0;border-radius:8px;background:linear-gradient(110deg,#5be3a0,#a0f0b5);color:#042519!important;font:700 14px/1.35 Arial,Helvetica,sans-serif;cursor:pointer;text-decoration:none;box-shadow:0 5px 24px #36c48716;transition:filter .2s,transform .2s}
+#plan .plans-action:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-2px)}
+#plan .plans-action:focus-visible,#plan .plans-landing summary:focus-visible{outline:3px solid #e6d293;outline-offset:5px}
+#plan .plans-action:disabled{cursor:default;opacity:.7}
+#plan .plans-action span{font-size:22px;line-height:1}
+#plan .plans-action-outline{background:rgba(0,15,10,.35);border-color:#a2c6b3;color:#f5fff8!important;box-shadow:none}
+#plan .plans-hero-benefits{display:flex;gap:26px;margin-top:35px}
+#plan .plans-hero-benefits>span{display:flex;align-items:center;gap:10px;color:#d9e6dd;font-size:12px;line-height:1.5}
+#plan .plans-hero-benefits svg{width:30px;height:30px;color:var(--plans-green);flex-shrink:0}
+#plan .plans-hero .plans-hero-quote{position:absolute;right:5%;top:53%;font:400 clamp(18px,1.8vw,26px)/1.25 Georgia,serif;text-shadow:0 2px 14px #000;max-width:260px}
+#plan .plans-landscape-caption{position:absolute;right:5%;bottom:42px;border-left:1px solid #81dba9;padding-left:13px;color:#a3efc6;font-size:11px;line-height:1.9;text-transform:uppercase;letter-spacing:.2em}
+#plan .plans-process,#plan .plans-comparison,#plan .plans-pricing{padding:65px 5%;border-top:1px solid var(--plans-border)}
+#plan .plans-section-intro>p:not(.plans-eyebrow){margin-top:20px;color:var(--plans-muted)}
+#plan .plans-process{display:grid;grid-template-columns:27% minmax(0,1fr);gap:35px;background:radial-gradient(ellipse at 65% 40%,#0b4c343b,transparent 65%),#031a13}
+#plan .plans-process-map{align-self:center;min-width:0}
+#plan .plans-process-map ol{list-style:none;margin:0;padding:12px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;position:relative}
+#plan .plans-process-map ol::before{content:'';position:absolute;left:8%;right:8%;top:50%;height:70px;border-top:1px solid #7de7a5;border-bottom:1px solid #aab97180;border-radius:50%;transform:rotate(7deg);box-shadow:0 -12px 32px #49e59130}
+#plan .plans-process-map li{position:relative;min-width:0}
+#plan .plans-process-map li:nth-child(even){padding-top:40px}
+#plan .plans-process-map li:not(:last-child)::after{content:'→';position:absolute;right:-14px;top:49%;color:#e4d392;font-size:20px;z-index:2}
+#plan .plans-process-orbit{aspect-ratio:1/1.12;min-height:158px;border:1px solid #60dc98;border-radius:50%;background:radial-gradient(ellipse at top,#125638 0,#002619 45%,#00170f 80%);box-shadow:0 -5px 22px #42e79436,inset 0 0 20px #41d48b15;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:15px 10px;position:relative}
+#plan .plans-process-orbit svg{width:33px;height:33px;margin-bottom:12px;color:var(--plans-green)}
+#plan .plans-process-orbit h3{font:700 12px/1.4 Arial,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#99f3c2}
+#plan .plans-process-orbit p{font-size:12px;line-height:1.4;margin-top:7px;max-width:120px}
+#plan .plans-map-signature{display:flex;align-items:center;flex-direction:column;text-align:center;margin-top:22px!important;font-size:16px!important;gap:4px}
+#plan .plans-map-signature span{color:#92e9b9;font-size:10px;text-transform:uppercase;letter-spacing:.18em}
+#plan .plans-process-details{grid-column:1/-1;border-top:1px solid var(--plans-border);color:var(--plans-muted);margin-top:8px}
+#plan .plans-process-details summary{padding:19px 0 0;cursor:pointer;font-size:14px;list-style:none;display:flex;justify-content:space-between;gap:15px}
+#plan .plans-process-details summary::-webkit-details-marker{display:none}
+#plan .plans-process-details[open] summary span{transform:rotate(45deg)}
+#plan .plans-process-details>div{display:grid;grid-template-columns:repeat(4,1fr);gap:25px;padding-top:26px}
+#plan .plans-process-details h3{color:#a0efc0;font-size:16px;margin-bottom:10px}
+#plan .plans-process-details p{font-size:14px;line-height:1.8}
+#plan .plans-comparison{display:grid;grid-template-columns:.9fr 1fr 1.1fr;align-items:start;gap:25px;background:radial-gradient(ellipse at 95% 80%,#48784228,transparent 60%),linear-gradient(#041b14,#03160f)}
+#plan .plans-comparison .plans-section-intro{padding:10px 8px 0 0}
+#plan .plans-landing .plans-handwritten{font:italic 25px/1.45 Georgia,serif;color:#b2cbb8;transform:rotate(-5deg);margin-top:48px;padding-left:15px}
+#plan .plans-experience{padding:29px 24px 24px;border:1px solid #57876d;border-radius:13px;background:linear-gradient(150deg,#1c3c2d8c,#021b13ed);align-self:stretch;display:flex;flex-direction:column;position:relative}
+#plan .plans-experience-pro{border-color:#9feabb;background:radial-gradient(ellipse at 100% 85%,#84743138,transparent 65%),linear-gradient(160deg,#0e442c,#031c13 60%);box-shadow:0 0 32px #65e79a1c,inset -1px 0 #d8ca76}
+#plan .plans-label{align-self:flex-start;padding:5px 9px;border:1px solid #9ed9b3;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.15em;margin-bottom:18px}
+#plan .plans-experience-pro .plans-label{background:#8cecaf;color:#002818;border:0;box-shadow:0 0 18px #84e8aa55}
+#plan .plans-experience .plans-experience-lead{font-size:14px;color:#c3d7c9;margin:15px 0 22px}
+#plan .plans-list{list-style:none;padding:0;margin:0;display:grid;gap:11px}
+#plan .plans-list li{display:flex;align-items:baseline;gap:11px;font-size:14px;line-height:1.45;color:#edf7ed}
+#plan .plans-list li>span{color:#73eeb1;font-weight:700;flex-shrink:0}
+#plan .plans-feature-inventory{gap:10px}
+#plan .plans-experience-basic .plans-feature-inventory li{color:#cbd8ce}
+#plan .plans-experience .plans-experience-footer{margin-top:auto;padding-top:28px;font-size:14px;line-height:1.6;color:#dbe7dd}
+#plan .plans-pricing{display:grid;grid-template-columns:.8fr 2fr;gap:38px;background:radial-gradient(ellipse at top left,#13422f80,transparent 70%)}
+#plan .plans-pricing-content{min-width:0}
+#plan .plans-pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+#plan .plans-price-card.subscription-plan{--plan-card-art:url('../assets/plans-basic-growth-v1.png');position:relative;border:1px solid var(--plans-border)!important;border-radius:13px;background:linear-gradient(90deg,rgba(1,22,15,.88),rgba(1,22,15,.66) 48%,rgba(1,22,15,.22)),linear-gradient(0deg,rgba(1,22,15,.8),transparent 30%,rgba(1,22,15,.2)),var(--plan-card-art) right center/cover no-repeat!important;padding:27px 22px!important;display:flex;flex-direction:column;box-shadow:none!important}
+#plan .plans-price-card.subscription-plan.professional{--plan-card-art:url('../assets/plans-professional-growth-v1.png')}
+#plan .plans-price-card.subscription-plan.selected{border:1px solid #bef4b9!important;box-shadow:0 0 23px #a5e78528,inset 0 0 20px #a2db7530!important}
+#plan .plans-price-card.subscription-plan.selected::before{display:none}
+#plan .plans-tier{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.13em;margin-bottom:19px;color:#ccf5da}
+#plan .plans-price-card h3{font-size:17px}
+#plan .plans-price{display:flex;align-items:baseline;gap:8px;margin-top:21px}
+#plan .plans-price strong{font-size:40px;letter-spacing:-.04em;line-height:1.1}
+#plan .plans-price span{font-size:14px;color:#c0d0c5}
+#plan .plans-price-card .plans-annual{color:#b6cfbd!important;font-size:12px;line-height:1.65;margin:10px 0 23px;min-height:0}
+#plan .plans-price-card .plans-list{flex:1}
+#plan .plans-popular{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(110deg,#ddd091,#fff0b6);color:#183320;padding:6px 12px;border-radius:4px;font-size:10px;white-space:nowrap;font-weight:700;letter-spacing:.1em}
+#plan .plans-current{min-height:41px;margin-top:18px;font-size:12px;line-height:1.5;color:#9aefb8}
+#plan .plans-price-card button.plans-action{width:100%;margin-top:auto;font-size:14px;min-height:49px}
+#plan .plans-price-card.selected button.plans-action{background:linear-gradient(110deg,#5be3a0,#a0f0b5)!important;border-color:#8beab0!important;color:#042519!important;box-shadow:none}
+#plan .plans-trial{display:flex;align-items:center;gap:17px;border:1px solid var(--plans-border);border-radius:10px;padding:16px;margin-bottom:28px;background:#11452b55}
+#plan .plans-trial b{font-size:14px}
+#plan .plans-trial p{font-size:13px;margin-top:5px;color:var(--plans-muted)}
+#plan .plans-trial-days{font-size:27px;text-align:center;color:#9cf3ba;min-width:43px}
+#plan .plans-trial-days small{display:block;font-size:11px}
+#plan .plans-account-status{padding-top:28px;color:#edf7ef}
+#plan .plans-account-status b{font-size:20px;line-height:1.5}
+#plan .plans-account-status p,#plan .plans-billing-note{font-size:18px!important;line-height:1.7!important;margin-top:10px!important;color:#dcebe0!important}
+#plan .plans-billing-note{border-top:1px solid var(--plans-border);padding-top:20px;margin-top:22px!important}
+#plan .plans-closing{display:flex;justify-content:space-between;align-items:center;gap:35px;padding:62px 5%;min-height:365px;border-top:1px solid var(--plans-border);background:linear-gradient(90deg,#001b13e8,#00201670 60%,#00180d30),url('../assets/plans-connected-journey-v1.png') center 32%/cover}
+#plan .plans-closing>div{max-width:530px}
+#plan .plans-closing h2{font-size:clamp(32px,3vw,46px)}
+#plan .plans-closing>div>p:not(.plans-eyebrow){margin:20px 0 24px;color:#e0ece1;max-width:480px}
+#plan .plans-closing .plans-closing-quote{font:24px/1.2 Georgia,serif;text-shadow:0 2px 14px #000;min-width:190px}
+#plan #plans-comparison,#plan #plans-pricing{scroll-margin-top:95px;outline:none}
+@media(min-width:1500px){#plan .plans-hero{min-height:660px;padding-top:80px}#plan .plans-hero-copy{max-width:610px}}
+@media(max-width:1100px){#plan .plans-process{grid-template-columns:1fr}#plan .plans-process>.plans-section-intro{max-width:610px}#plan .plans-process-map{max-width:790px;width:100%;margin:auto}#plan .plans-comparison{grid-template-columns:1fr 1fr}#plan .plans-comparison>.plans-section-intro{grid-column:1/-1;max-width:660px}#plan .plans-landing .plans-handwritten{display:none}#plan .plans-pricing{grid-template-columns:1fr}#plan .plans-pricing>.plans-section-intro{max-width:620px}#plan .plans-hero-copy{width:65%}#plan .plans-hero-quote{max-width:160px!important;right:3%!important}#plan .plans-hero-benefits{gap:16px}}
+@media(max-width:680px){#plan .plans-landing{border-radius:12px}#plan .plans-hero{padding:42px 24px 35px;min-height:650px;background-position:60% center;background-image:linear-gradient(90deg,#00150fee,#00150f90),url('../assets/plans-connected-journey-v1.png')}#plan .plans-hero-copy{width:100%;max-width:none}#plan .plans-landing h1{font-size:39px}#plan .plans-hero .plans-hero-quote{position:static;max-width:none!important;font-size:20px;margin-top:36px;opacity:.85}#plan .plans-landscape-caption{display:none}#plan .plans-hero-benefits{flex-wrap:wrap;gap:18px}#plan .plans-hero-benefits>span{font-size:12px}#plan .plans-process,#plan .plans-comparison,#plan .plans-pricing{padding:40px 23px;gap:27px}#plan .plans-process-map ol{grid-template-columns:1fr;gap:25px;padding:0}#plan .plans-process-map ol::before{top:0;bottom:0;left:50%;right:auto;width:1px;height:auto;border:0;background:#6ad495;transform:none}#plan .plans-process-map li:nth-child(even){padding:0}#plan .plans-process-orbit{width:178px;min-height:178px;aspect-ratio:1;margin:auto}#plan .plans-process-map li:not(:last-child)::after{content:'↓';left:calc(50% - 6px);right:auto;top:auto;bottom:-23px;font-size:19px}#plan .plans-process-details>div{grid-template-columns:1fr;gap:22px}#plan .plans-comparison,#plan .plans-pricing-grid{grid-template-columns:1fr}#plan .plans-comparison>.plans-section-intro{grid-column:auto}#plan .plans-pricing-grid{gap:30px}#plan .plans-experience{padding:27px 23px}#plan .plans-closing{padding:45px 24px;display:block;background-position:65% center}#plan .plans-closing .plans-closing-quote{margin-top:40px;font-size:21px}#plan .plans-action{width:100%;gap:12px}#plan .plans-trial{flex-wrap:wrap}#plan .plans-feature-inventory{gap:12px}}
+@media(prefers-reduced-motion:reduce){#plan .plans-action{transition:none}#plan .plans-action:hover{transform:none}}
+/* Native typography, SVG flow and controls remain sharp at any workspace size. */
+#plan .plans-process-map{position:relative;isolation:isolate}
+#plan .plans-process-flow{position:absolute;inset:-15% -5%;width:110%;height:130%;z-index:-1;pointer-events:none;fill:none;stroke:url(#plansFlowGreen);stroke-width:1}
+#plan .plans-process-flow .plans-flow-gold{stroke:#dccf8e;stroke-width:1.5;opacity:.65}
+#plan .plans-process-orbit{background:radial-gradient(ellipse at top,#125638bb,#002619ed 45%,#00170ff5 80%)}
+#plan .plans-hero{min-height:calc(100dvh - 78px);display:flex;align-items:center;background-position:center}
+#plan .plans-hero-copy{max-width:720px;width:54%}
+#plan .plans-landing h1{font-size:clamp(38px,3.9vw,76px)}
+#plan .plans-hero .plans-lead{max-width:580px;font-size:clamp(16px,1.1vw,21px)}
+#plan .plans-hero .plans-hero-quote{top:52%;font-size:clamp(22px,1.9vw,34px);max-width:330px}
+#plan .plans-process,#plan .plans-comparison,#plan .plans-pricing{padding-top:clamp(55px,6vw,100px);padding-bottom:clamp(55px,6vw,100px)}
+#plan .plans-process-orbit h3{font-size:clamp(12px,.85vw,17px)}
+#plan .plans-process-orbit p{font-size:clamp(12px,.85vw,16px);max-width:170px}
+#plan .plans-process-orbit svg{width:clamp(33px,3vw,55px);height:clamp(33px,3vw,55px)}
+@media(max-width:680px){#plan .plans-hero{display:block;min-height:calc(100dvh - 78px)}#plan .plans-hero-copy{width:100%}#plan .plans-hero .plans-hero-quote{font-size:21px;max-width:none!important}#plan .plans-process-flow{display:none}}

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Healthy Trend Trader — Landing Page</title>
+  <meta name="description" content="Landing page visual do Healthy Trend Trader." />
+
+  <style>
+    .reference-region { display: contents; }
+    .reference-description { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .process-market { left: 33.2%; top: 26.5%; width: 12.6%; height: 8.7%; }
+    .process-decision { left: 48.3%; top: 29.3%; width: 12.6%; height: 8.6%; }
+    .process-execution { left: 64.5%; top: 29.3%; width: 12.6%; height: 8.6%; }
+    .process-evolution { left: 79.9%; top: 26.5%; width: 12.6%; height: 8.7%; }
+    .experience-basic { left: 33.3%; top: 44%; width: 25.5%; height: 22.4%; }
+    .experience-professional { left: 60.4%; top: 43.7%; width: 27.6%; height: 23.2%; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #041b13;
+      min-height: 100%;
+    }
+
+    body {
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page {
+      position: relative;
+      width: 100%;
+      max-width: none;
+      aspect-ratio: 2 / 3;
+      margin: -4.39453125vw auto 0;
+      background-image: url("../assets/plans-reference-v1.png");
+      background-repeat: no-repeat;
+      background-position: top center;
+      background-size: 100% 100%;
+      box-shadow: 0 0 80px rgba(0,0,0,.42);
+    }
+
+    /*
+      HOTSPOTS TRANSPARENTES
+      Mantêm o visual 100% idêntico à arte original, mas permitem
+      que o Codex conecte rotas reais sem alterar nenhum pixel.
+
+      As posições abaixo são relativas ao canvas original de 1024x1536.
+    */
+    .hotspot {
+      position: absolute;
+      display: block;
+      z-index: 10;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .hotspot:focus-visible {
+      outline: 2px solid #64ee9d;
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+    .hotspot:hover { box-shadow: 0 0 18px rgba(100,238,157,.3); border-radius: 8px; }
+    .hotspot:active { background: rgba(100,238,157,.12); }
+
+    /* NAV */
+    .nav-solucao      { left: 24.1%; top: 1.08%; width: 5.7%; height: 1.1%; }
+    .nav-planos       { left: 30.0%; top: 1.08%; width: 5.3%; height: 1.1%; }
+    .nav-depoimentos  { left: 35.5%; top: 1.08%; width: 7.2%; height: 1.1%; }
+    .nav-faq          { left: 43.1%; top: 1.08%; width: 3.0%; height: 1.1%; }
+    .nav-entrar       { left: 73.0%; top: .58%; width: 8.1%; height: 1.85%; }
+    .nav-comecar      { left: 82.0%; top: .58%; width: 12.8%; height: 1.85%; }
+
+    /* HERO */
+    .hero-profissional{ left: 5.5%; top: 18.35%; width: 21.8%; height: 2.25%; }
+
+    /* PLANOS */
+    .basic-btn        { left: 34.2%; top: 81.64%; width: 16.1%; height: 2.15%; }
+    .pro-btn          { left: 53.9%; top: 81.64%; width: 22.1%; height: 2.15%; }
+
+    /* CTA FINAL */
+    .final-cta        { left: 5.5%; top: 95.18%; width: 16.3%; height: 2.25%; }
+
+    /* Em telas maiores que a referência, preserva a proporção exata. */
+    @media (min-width: 1025px) {
+      body {
+        padding: 0;
+      }
+    }
+
+    /* Em mobile, a página apenas reduz proporcionalmente.
+       Nada é rearranjado, garantindo fidelidade visual total. */
+    @media (max-width: 640px) {
+      .page {
+        width: 100vw;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page" aria-label="Healthy Trend Trader landing page">
+
+    <section class="reference-region" aria-labelledby="reference-hero-title">
+    <h1 class="reference-description" id="reference-hero-title">Trading não precisa de mais ruído. Precisa de um processo conectado.</h1>
+    <a class="hotspot hero-profissional" href="#professional" aria-label="Conhecer o Professional"></a>
+    </section>
+
+    <section class="reference-region" aria-labelledby="reference-process-title">
+    <h2 class="reference-description" id="reference-process-title">Do cenário ao resultado. Tudo se conecta.</h2>
+    <a class="hotspot process-market" href="#mercado" data-action="process-market" aria-label="1. Mercado — explorar ferramentas de contexto"></a>
+    <a class="hotspot process-decision" href="#decisao" data-action="process-decision" aria-label="2. Decisão — explorar ferramentas de risco"></a>
+    <a class="hotspot process-execution" href="#execucao" data-action="process-execution" aria-label="3. Execução — explorar ferramentas de operação"></a>
+    <a class="hotspot process-evolution" href="#evolucao" data-action="process-evolution" aria-label="4. Evolução — explorar ferramentas de revisão e performance"></a>
+    </section>
+
+    <section class="reference-region" aria-labelledby="reference-comparison-title">
+    <h2 class="reference-description" id="reference-comparison-title">Duas experiências. O mesmo propósito.</h2>
+    <a class="hotspot experience-basic" href="#recursos-basic" data-action="features-basic" aria-label="Basic — consultar todos os recursos incluídos atualmente"></a>
+    <a class="hotspot experience-professional" href="#recursos-professional" data-action="features-professional" aria-label="Professional — consultar todos os recursos incluídos atualmente"></a>
+    </section>
+
+    <section class="reference-region" aria-labelledby="reference-pricing-title">
+    <h2 class="reference-description" id="reference-pricing-title">Escolha seu plano. Basic: R$ 29 por mês. Professional: R$ 69 por mês.</h2>
+    <a class="hotspot basic-btn" href="#basic" aria-label="Escolher Basic"></a>
+    <a class="hotspot pro-btn" href="#professional" aria-label="Desbloquear Professional"></a>
+    </section>
+
+    <section class="reference-region" aria-labelledby="reference-closing-title">
+    <h2 class="reference-description" id="reference-closing-title">Mais processo hoje. Mais liberdade amanhã.</h2>
+    <a class="hotspot final-cta" href="#comecar" aria-label="Começar agora"></a>
+    </section>
+  </main>
+  <script src="plans-reference-actions.js"></script>
+</body>
+</html>

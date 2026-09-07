@@ -103,3 +103,13 @@ body[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar:before{bac
 body[data-theme="healthy"] #zen{--zen-card-image:url("../assets/trader-zen-healthy.png")}body:not([data-theme="healthy"]) #zen{--zen-card-image:url("../assets/trader-zen-gold.png")}
 @media(max-width:1120px){.zen-moment-shell{padding-left:34px;padding-right:34px}.zen-practice-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:850px}.zen-practice-card{min-height:245px}.zen-shortcut-grid{grid-template-columns:repeat(4,minmax(0,1fr));max-width:680px}.zen-moment-side{display:none}}
 @media(max-width:650px){.zen-moment-shell{padding:24px 16px 36px}.zen-moment-heading{margin-top:22px}.zen-moment-heading h1{font-size:42px}.zen-moment-heading>p:last-child{font-size:16px}.zen-practice-grid{grid-template-columns:1fr;gap:14px}.zen-practice-card{min-height:220px}.zen-shortcut-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.zen-shortcut{min-height:96px}.zen-practice-detail.visible{align-items:flex-start;flex-direction:column;gap:12px}.zen-moment-quote{font-size:13px}}
+/* Biblioteca Mental is an internal Zen experience, with its existing player intact. */
+#zen [hidden]{display:none!important}
+#zen .zen-library-link{display:block;margin:20px auto 0;padding:12px 20px;border:1px solid rgba(143,224,170,.45);border-radius:12px;background:rgba(2,24,15,.65);color:#edfff3;font:600 16px/1.5 Arial,sans-serif;cursor:pointer;position:relative;z-index:1}
+#zen .zen-library-link span{display:block;font-size:13px;font-weight:400;color:#c4e6ce;margin-top:4px}
+#zen .zen-library-link:hover{background:rgba(13,64,37,.85)}
+#zen .zen-library-link:focus-visible,#zen .zen-library-back:focus-visible{outline:2px solid #93efb2;outline-offset:4px}
+#zen.zen-library-open{overflow:auto;background:#061b12}
+#zen.zen-library-open:before,#zen.zen-library-open:after{display:none}
+#zen #audiolibrary{position:relative;z-index:1;padding:24px clamp(18px,3vw,56px) 40px;box-sizing:border-box}
+#zen .zen-library-back{padding:12px 18px;border:1px solid #628e70;border-radius:9px;background:#102d1d;color:#e7f6ec;font:600 15px Arial,sans-serif;cursor:pointer}
