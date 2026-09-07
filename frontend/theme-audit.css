@@ -191,3 +191,8 @@ body:not([data-theme="healthy"]) #glossary .glossary-art .grade~circle{fill:#c79
 .materials-menu-icon{position:relative;color:currentColor}
 .materials-menu-icon::before{content:"";width:13px;height:10px;border:1.5px solid currentColor;border-radius:2px;box-sizing:border-box}
 .materials-menu-icon::after{content:"";position:absolute;top:1px;width:7px;height:4px;border:1.5px solid currentColor;border-bottom:0;border-radius:5px 5px 0 0}
+
+/* Portfolio Heat: preserve the title and keep the sizing glyph inside its own column. */
+.heat-philosophy h2::first-letter{color:#fff!important}
+.heat-logic-list div{padding-left:66px}
+.heat-logic-list div::before{left:16px;width:32px;height:32px;font-size:16px}
