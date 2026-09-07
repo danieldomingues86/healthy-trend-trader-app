@@ -10,7 +10,7 @@
     ['portfolioheat', 'Portfolio Heat', 'Portfolio Heat'], ['fundamentals', 'Análise Fundamentalista', 'Fundamental Analysis'],
     ['marketmap', 'Panorama de Mercado', 'Market Overview'], ['marketcycle', 'Ciclo de Mercado', 'Market Cycle'],
     ['relativestrength', 'Força Relativa', 'Relative Strength'], ['marketscans', 'Scans de Mercado', 'Market Scans'],
-    ['analytics', 'Analytics · Painel da Verdade', 'Analytics · Truth Panel'], ['journal', 'Diário do Trader', 'Trader Journal'],
+    ['analytics', 'Analytics · Painel da Verdade', 'Analytics · Truth Panel'], ['forecast', 'Forecast Simulator', 'Forecast Simulator'], ['journal', 'Diário do Trader', 'Trader Journal'],
     ['review', 'Revisão Semanal', 'Weekly Review'], ['platformaccess', 'Uso da plataforma e Monitor do Profit', 'Platform usage and Profit Monitor'],
     ['zen', 'Trader Zen e Biblioteca Mental', 'Trader Zen and Mental Library'], ['habits', 'Monitor de Hábitos', 'Habit Tracker'],
     ['wisdom', 'Sabedoria do Trader', 'Trader Wisdom'],
@@ -64,7 +64,7 @@
       ['market', t('Mercado', 'Market'), t('Entenda o ambiente antes de operar.', 'Understand the environment before trading.'), ['marketmap', 'marketcycle', 'relativestrength', 'marketscans', 'fundamentals']],
       ['decision', t('Decisão', 'Decision'), t('Transforme contexto em risco calculado.', 'Turn context into calculated risk.'), ['rubric', 'risk', 'riskpolicy', 'portfolioheat']],
       ['execution', t('Execução', 'Execution'), t('Opere com processo e disciplina.', 'Trade with process and discipline.'), ['today', 'newtrade', 'positions', 'dashboard']],
-      ['growth', t('Evolução', 'Growth'), t('Aprenda, ajuste e evolua.', 'Learn, adjust and grow.'), ['journal', 'review', 'analytics', 'zen', 'habits', 'audiolibrary', 'wisdom', 'traderprofile', 'platformaccess']]
+      ['growth', t('Evolução', 'Growth'), t('Aprenda, ajuste e evolua.', 'Learn, adjust and grow.'), ['journal', 'review', 'analytics', 'forecast', 'zen', 'habits', 'audiolibrary', 'wisdom', 'traderprofile', 'platformaccess']]
     ];
     root.innerHTML = `<div class="plans-landing">
       <section class="plans-hero" aria-labelledby="plans-heading">
