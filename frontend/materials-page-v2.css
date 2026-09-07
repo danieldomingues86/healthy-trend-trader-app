@@ -1,0 +1,106 @@
+/* Materials V2 reproduces the editorial library composition while preserving the existing store behavior. */
+body:has(#materials.active) .content{padding:0 clamp(18px,2.2vw,38px) 34px!important;background:#f4f1e8}
+#materials .materials-v2{width:min(100%,1660px);margin:0 auto;color:#102a20}
+
+#materials .materials-v2 .materials-hero{position:relative;min-height:270px;margin:0 0 14px;padding:27px 42px 22px;overflow:hidden;border:0;border-radius:0 0 12px 12px;background-image:linear-gradient(90deg,#002319 0%,rgba(0,35,25,.96) 26%,rgba(0,35,25,.52) 52%,rgba(0,35,25,.32) 78%,rgba(0,35,25,.62) 100%),linear-gradient(0deg,rgba(0,28,19,.9) 0%,transparent 52%),url('../assets/materials-hero-mountains-v1.png');background-position:center;background-size:cover;color:#fff;box-shadow:inset 0 -1px rgba(214,184,98,.35)}
+#materials .materials-hero-copy{position:relative;z-index:3;width:40%;max-width:560px}
+#materials .materials-v2 .materials-eyebrow{margin-bottom:8px;color:#d6bd72;font-size:10px;font-weight:850;letter-spacing:.2em;text-transform:uppercase}
+#materials .materials-v2 .materials-hero h1{max-width:none;margin:0;font:700 clamp(39px,3.25vw,58px)/.91 Georgia,'Times New Roman',serif;letter-spacing:-.045em;text-shadow:0 3px 24px rgba(0,0,0,.38)}
+#materials .materials-v2 .materials-hero p{max-width:520px;margin:12px 0 0;color:#f0f3ed;font-size:14px;line-height:1.45;text-shadow:0 2px 12px rgba(0,0,0,.42)}
+#materials .materials-hero blockquote{position:absolute;z-index:3;top:31px;right:4.4%;margin:0;color:#f0dfae;font:italic 22px/1.26 Georgia,serif;text-shadow:0 3px 18px rgba(0,0,0,.55)}
+
+#materials .materials-journey{position:absolute;z-index:3;right:4%;bottom:14px;left:34%;height:103px}
+#materials .materials-journey svg{position:absolute;inset:-9px 0 auto;width:100%;height:70px;overflow:visible;filter:drop-shadow(0 0 6px rgba(225,185,76,.45))}
+#materials .materials-journey path{fill:none;stroke:#d3aa4f;stroke-width:1.35;vector-effect:non-scaling-stroke}
+#materials .materials-journey circle{fill:rgba(245,211,118,.2);stroke:#e0bd62;stroke-width:1.1;vector-effect:non-scaling-stroke}
+#materials .materials-journey .journey-core{fill:#fff3c8;stroke:none}
+#materials .materials-journey-stages{position:absolute;right:0;bottom:0;left:9%;display:grid;grid-template-columns:repeat(5,1fr);gap:13px}
+#materials .journey-stage{display:flex;align-items:center;gap:9px;min-width:0}
+#materials .journey-stage i{display:grid;flex:0 0 34px;width:34px;height:34px;place-items:center;border:1px solid #b9d35d;border-radius:50%;background:rgba(1,39,26,.75);color:#d6bd63;font-style:normal;font-size:15px}
+#materials .journey-stage b{display:block;color:#d9e99f;font-size:9px;letter-spacing:.13em;text-transform:uppercase;white-space:nowrap}
+#materials .journey-stage small{display:block;margin-top:2px;color:#eef5ee;font-size:9px;white-space:nowrap}
+
+#materials .materials-v2 .materials-toolbar{position:relative;z-index:3;margin:0;padding:0 0 13px;gap:16px}
+#materials .materials-filters{gap:10px}
+#materials .materials-v2 .materials-filters button{padding:8px 17px;border:1px solid #d8ddd5;background:rgba(255,255,255,.88);color:#263e31;font-size:11px;box-shadow:0 3px 10px rgba(30,55,40,.03)}
+#materials .materials-v2 .materials-filters button.active{border-color:#08753f;background:#08753f;color:#fff;box-shadow:0 5px 15px rgba(8,117,63,.18)}
+#materials .materials-tools{display:flex;gap:12px;align-items:center;margin-left:auto}
+#materials .materials-v2 .materials-search{width:260px;min-width:220px;height:36px;border-color:#daddd5;border-radius:10px}
+#materials .materials-v2 .materials-search input{padding:9px 0;font-size:11px}
+#materials .materials-tools select{height:36px;min-width:138px;padding:0 13px;border:1px solid #daddd5;border-radius:10px;background:#fff;color:#4c5c52;font-size:11px}
+
+#materials .materials-v2 .materials-layout{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;padding:0;overflow:visible;isolation:isolate}
+#materials .materials-v2 .materials-layout:before{content:"KNOWLEDGE       PROCESS";position:absolute;z-index:-2;top:49px;left:25%;color:#154832;opacity:.035;font:700 clamp(58px,7vw,112px)/1 Georgia,serif;letter-spacing:.08em;white-space:nowrap;pointer-events:none}
+#materials .materials-v2 .materials-layout:after{content:"";position:absolute;z-index:-1;inset:12px -5% 0 0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cg fill='none' stroke='%23a98a42' stroke-width='1' opacity='.22'%3E%3Cpath d='M0 150 C190 15 280 260 460 128 S790 52 920 205 1210 170 1600 38'/%3E%3Cpath d='M0 188 C196 55 294 300 475 164 S800 94 938 242 1220 210 1600 74'/%3E%3Cpath d='M90 570 C275 402 410 650 590 530 S895 405 1050 572 1350 625 1650 420'/%3E%3Cpath d='M55 615 C285 447 418 696 603 570 S905 455 1064 612 1360 675 1650 463'/%3E%3C/g%3E%3Cg fill='%23c9a44d' opacity='.55'%3E%3Ccircle cx='220' cy='92' r='4'/%3E%3Ccircle cx='505' cy='150' r='4'/%3E%3Ccircle cx='885' cy='164' r='4'/%3E%3Ccircle cx='1260' cy='182' r='4'/%3E%3Ccircle cx='415' cy='568' r='4'/%3E%3Ccircle cx='1040' cy='560' r='4'/%3E%3C/g%3E%3C/svg%3E");background-position:center top;background-size:cover;opacity:.72;transition:opacity .35s,filter .35s;pointer-events:none}
+#materials .materials-v2 .materials-layout:has(.material-card:hover):after{opacity:1;filter:drop-shadow(0 0 7px rgba(183,144,45,.24))}
+#materials .materials-catalog,#materials .materials-v2 .materials-library{position:relative;z-index:1;min-width:0}
+#materials .materials-v2 .materials-heading{margin:0 0 12px}
+#materials .materials-v2 .materials-heading h2{font:700 27px/1 Georgia,serif;letter-spacing:-.025em}
+#materials .materials-v2 .materials-heading p{margin-top:4px;font-size:11px}
+
+#materials .materials-v2 .materials-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#materials .materials-v2 .material-card{overflow:hidden;border:1px solid rgba(24,67,43,.1);border-radius:11px;background:rgba(255,255,255,.94);box-shadow:0 9px 22px rgba(30,54,39,.07);transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
+#materials .materials-v2 .material-card:hover{z-index:3;transform:translateY(-3px);border-color:rgba(26,115,68,.38);box-shadow:0 17px 30px rgba(28,74,46,.15)}
+#materials .materials-v2 .material-cover{height:auto;aspect-ratio:1.42/1;margin:7px 7px 0;border-radius:8px;background:#071710}
+#materials .materials-v2 .material-cover img{width:100%;height:100%;object-fit:cover;object-position:center 48%;filter:saturate(.9) contrast(1.04);transition:transform .55s ease,filter .55s ease}
+#materials .materials-v2 .material-card:hover .material-cover img{transform:scale(1.025);filter:saturate(1) contrast(1.06)}
+#materials .materials-v2 .material-cover:after{background:linear-gradient(180deg,rgba(1,14,9,.12),rgba(1,14,9,.1) 48%,rgba(1,14,9,.72))}
+#materials .materials-v2 .material-type{top:8px;left:8px;padding:4px 7px;background:#fff;color:#263c30;font-size:8px}
+#materials .material-cover-copy{position:absolute;z-index:2;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:17px;text-align:center;color:#f4d98f;text-shadow:0 2px 12px #000}
+#materials .material-cover-copy:before{content:"";position:absolute;inset:12px;border:1px solid rgba(216,177,75,.72);pointer-events:none}
+#materials .material-cover-copy span{font-size:6px;font-weight:700;letter-spacing:.17em}
+#materials .material-cover-copy h3{position:static!important;max-width:94%;margin:7px 0!important;color:#f1d28a!important;font:700 clamp(15px,1.15vw,20px)/1.02 Georgia,serif!important;text-transform:uppercase;text-shadow:0 2px 12px #000!important}
+#materials .material-cover-copy small{position:absolute;bottom:17px;color:#e8dbb4;font-size:5px;letter-spacing:.12em}
+#materials .materials-v2 .material-body{padding:8px 10px 9px}
+#materials .material-body>h3{margin:0 0 5px;color:#18291f;font:700 15px/1.1 Georgia,serif}
+#materials .materials-v2 .material-body>p{min-height:45px;color:#677168;font-size:10.5px;line-height:1.35}
+#materials .materials-v2 .material-meta{padding-top:7px;font-size:9px}
+#materials .materials-v2 .material-price{font-size:13px;color:#0c5733}
+#materials .materials-v2 .material-actions{gap:7px;margin-top:7px}
+#materials .materials-v2 .material-actions button{min-height:30px;border-radius:7px;font-size:9px}
+#materials .materials-v2 .material-detail{margin-top:8px;padding:8px;border-radius:7px;font-size:9px;line-height:1.4}
+#materials .materials-method-footer{margin-top:17px;padding:13px 0;border-top:1px solid rgba(44,67,52,.12);color:#7f897f;text-align:center;font-size:8px;letter-spacing:.42em}
+#materials .materials-method-footer i{padding:0 10px;color:#c4a44e;font-style:normal}
+
+#materials .materials-v2 .materials-library{display:flex;flex-direction:column;gap:12px}
+#materials .materials-v2 .materials-library-card,#materials .materials-v2 .materials-support{border:1px solid rgba(31,63,43,.1);border-radius:12px;background:rgba(255,255,255,.95);box-shadow:0 9px 22px rgba(29,53,38,.06)}
+#materials .materials-v2 .materials-library-card{padding:15px}
+#materials .materials-v2 .materials-library-card header{align-items:center;margin-bottom:1px}
+#materials .materials-v2 .materials-library-card h2{font:700 19px/1 Georgia,serif}
+#materials .materials-library-card h2 span{margin-right:5px;color:#087143}
+#materials .materials-v2 .materials-library-card header button{font-size:9px;color:#087143}
+#materials .materials-v2 .materials-library-card>small{font-size:9px}
+#materials .materials-v2 .library-item{grid-template-columns:37px 1fr auto;gap:8px;padding:10px 0}
+#materials .materials-v2 .library-item img{width:37px;height:45px;border-radius:3px;object-fit:cover}
+#materials .materials-v2 .library-item b{font-size:10px}
+#materials .materials-v2 .library-item small{font-size:8px}
+#materials .materials-v2 .library-item button{padding:7px 11px;border-radius:6px;font-size:9px}
+
+#materials .materials-v2 .materials-promo{position:relative;min-height:192px;overflow:hidden;padding:0;border:0;border-radius:12px;background:#05261a url('../assets/materials-library-banner-v1.png') center/cover;color:#fff;box-shadow:0 15px 30px rgba(7,36,24,.18)}
+#materials .materials-v2 .materials-promo:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(1,26,17,.98) 0%,rgba(1,26,17,.91) 47%,rgba(1,26,17,.08) 88%)}
+#materials .materials-promo-copy{position:relative;z-index:2;width:62%;padding:21px 16px}
+#materials .materials-v2 .materials-promo h2{margin:0;color:#fff;font:700 23px/.93 Georgia,serif;letter-spacing:-.03em}
+#materials .materials-v2 .materials-promo p{margin:12px 0;color:#edf3ee;font-size:9px;line-height:1.4}
+#materials .materials-v2 .materials-promo button{padding:8px 11px;border:1px solid #d1b35e;border-radius:999px;background:rgba(4,74,43,.88);color:#fff;font-size:9px}
+#materials .materials-book-spines{position:absolute;z-index:2;right:8px;bottom:9px;display:flex;flex-direction:column;gap:2px;transform:rotate(-2deg);pointer-events:none}
+#materials .materials-book-spines span{padding:1px 5px;color:#d9bc68;font-size:5px;letter-spacing:.05em;text-transform:uppercase;text-shadow:0 1px 3px #000}
+#materials .materials-v2 .materials-support{display:grid;grid-template-columns:35px 1fr;gap:10px;padding:14px}
+#materials .support-icon{display:grid;width:31px;height:31px;place-items:center;border:1px solid #168052;border-radius:50%;color:#106c43;font:700 17px Georgia,serif}
+#materials .materials-v2 .materials-support b{font:700 16px Georgia,serif}
+#materials .materials-v2 .materials-support p{margin:4px 0 10px;color:#68746b;font-size:9px;line-height:1.4}
+#materials .materials-v2 .materials-support button{width:100%;padding:7px;border:1px solid #87ad97;border-radius:7px;background:#fff;color:#18593a;font-size:9px;font-weight:700}
+#materials .materials-footer-art{position:relative;min-height:112px;overflow:hidden;border-radius:10px;background:linear-gradient(180deg,rgba(244,241,232,0),rgba(244,241,232,.48)),linear-gradient(0deg,rgba(244,241,232,.24),rgba(244,241,232,.9)),url('../assets/materials-hero-mountains-v1.png') center 57%/cover;opacity:.31}
+#materials .materials-footer-art em{position:absolute;top:23px;left:31px;color:#52675a;font:italic 14px/1.35 Georgia,serif}
+
+body:not([data-theme="healthy"]) #materials .materials-v2{color:#f0e2c2}
+body:not([data-theme="healthy"]):has(#materials.active) .content{background:#11100c}
+body:not([data-theme="healthy"]) #materials .materials-v2 .materials-toolbar button,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-search,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-tools select,body:not([data-theme="healthy"]) #materials .materials-v2 .material-card,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-library-card,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-support{border-color:#403721;background:#191710;color:#f2e6cd}
+body:not([data-theme="healthy"]) #materials .material-body>h3{color:#f2e6cd}
+body:not([data-theme="healthy"]) #materials .materials-v2 .material-body>p,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-heading p,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-support p{color:#bfae87}
+body:not([data-theme="healthy"]) #materials .materials-v2 .materials-filters button.active,body:not([data-theme="healthy"]) #materials .materials-v2 .material-actions .buy,body:not([data-theme="healthy"]) #materials .materials-v2 .material-actions .access{border-color:#bf963a;background:#bf963a;color:#130f08}
+body:not([data-theme="healthy"]) #materials .materials-footer-art{filter:sepia(1);opacity:.18}
+
+@media(max-width:1450px){#materials .materials-v2 .materials-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#materials .journey-stage small{display:none}}
+@media(max-width:1100px){#materials .materials-v2 .materials-layout{grid-template-columns:1fr}#materials .materials-v2 .materials-library{display:grid;grid-template-columns:1fr 1fr 1fr}#materials .materials-footer-art{display:none}#materials .materials-journey{left:38%}#materials .materials-journey-stages{left:3%}}
+@media(max-width:820px){body:has(#materials.active) .content{padding:0 12px 30px!important}#materials .materials-v2 .materials-hero{margin:0 0 12px;padding:26px 22px 20px;min-height:390px}#materials .materials-hero-copy{width:80%}#materials .materials-hero blockquote{display:none}#materials .materials-journey{right:18px;bottom:18px;left:18px}#materials .materials-journey svg{display:none}#materials .materials-journey-stages{left:0;gap:5px}#materials .journey-stage{display:block;text-align:center}#materials .journey-stage i{margin:0 auto 5px}#materials .journey-stage b{font-size:7px}#materials .materials-tools{width:100%}#materials .materials-v2 .materials-search{width:100%}#materials .materials-tools select{display:none}#materials .materials-v2 .materials-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#materials .materials-v2 .materials-library{grid-template-columns:1fr}}
+@media(max-width:520px){#materials .materials-v2 .materials-grid{grid-template-columns:1fr}#materials .materials-v2 .material-cover{aspect-ratio:1.3/1}#materials .materials-v2 .materials-hero h1{font-size:42px}#materials .materials-journey-stages{grid-template-columns:repeat(5,1fr)}#materials .journey-stage div{display:none}}
