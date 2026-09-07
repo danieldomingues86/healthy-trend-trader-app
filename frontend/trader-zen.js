@@ -26,6 +26,7 @@
         <h2>Respire. Observe. Confie no processo.</h2>
         <p class="zen-copy">Aqui é o seu momento de reconexão. Menos ruído, mais clareza. Grandes resultados nascem de uma mente em equilíbrio.</p>
         <button class="zen-action" type="button" onclick="openZenMoment()"><span class="zen-leaf">◒</span>INICIAR MOMENTO ZEN<span class="zen-arrow">›</span></button>
+        <button class="zen-library-link" type="button" onclick="go('audiolibrary')">♫ Biblioteca Mental <span>Áudios, guias e boosts para o seu momento →</span></button>
         <div class="zen-values"><div class="zen-value"><i>◒</i>Mais<span>Consciência</span></div><div class="zen-value"><i>♧</i>Mais<span>Disciplina</span></div><div class="zen-value"><i>▥</i>Mais<span>Resultados</span></div></div>
         <p class="zen-quote">“Um trader em paz, toma melhores decisões.”</p>
       </article>
@@ -41,6 +42,7 @@
       <button class="zen-back" type="button" onclick="returnToZen()">← <span>Voltar</span></button>
       <aside class="zen-side zen-moment-side">Equilíbrio<br>hoje,<br>performance<br>sempre</aside>
       <header class="zen-moment-heading"><p class="zen-kicker">Paz interior, melhores decisões</p><h1>SEU MOMENTO <em>ZEN</em></h1><p>Escolha uma prática. Cuide da sua mente. Fortaleça o seu trader.</p></header>
+      <button class="zen-library-link" type="button" onclick="go('audiolibrary')">♫ Abrir Biblioteca Mental <span>Escolha um guia por estado ou um boost de confiança →</span></button>
       <section class="zen-practice-grid" aria-label="Práticas principais">${primary.map(([id,icon,title,description,meta])=>`<button class="zen-practice-card card-${id} ${selected===id?'selected':''}" type="button" onclick="selectZenPractice('${id}')"><span class="zen-practice-icon">${icon}</span><span class="zen-practice-arrow">›</span><strong>${title}</strong><small>${description}</small><em>${meta}</em></button>`).join('')}</section>
       <section class="zen-shortcut-grid" aria-label="Práticas rápidas">${shortcuts.map(([id,icon,title])=>`<button class="zen-shortcut ${selected===id?'selected':''}" type="button" onclick="selectZenPractice('${id}')"><i>${icon}</i><span>${title}</span></button>`).join('')}</section>
       <section class="zen-practice-detail ${info?'visible':''}" aria-live="polite">${info?`<div><small>PRÁTICA SELECIONADA</small><strong>${info[0]}</strong><p>${info[1]}</p></div><button type="button" onclick="beginZenPractice('${selected}')">Começar prática →</button>`:''}</section>
