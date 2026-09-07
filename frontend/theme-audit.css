@@ -186,7 +186,6 @@ body:not([data-theme="healthy"]) #glossary .glossary-card.active{border-color:#d
 body:not([data-theme="healthy"]) #glossary .glossary-panel-tabs button.active{border-color:#d4aa4e;color:#efce78}
 body:not([data-theme="healthy"]) #glossary .glossary-art .grade+circle,
 body:not([data-theme="healthy"]) #glossary .glossary-art .grade~circle{fill:#c79a3c}
-
 /* A CSS icon follows the navigation's currentColor in every theme. */
 .materials-menu-icon{position:relative;color:currentColor}
 .materials-menu-icon::before{content:"";width:13px;height:10px;border:1.5px solid currentColor;border-radius:2px;box-sizing:border-box}
