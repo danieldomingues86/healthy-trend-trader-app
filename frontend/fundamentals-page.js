@@ -23,6 +23,7 @@
     input.autocomplete = 'off';
     input.autocapitalize = 'characters';
     const form = input.closest('#fundSearch');
+    const field = input.closest('.ticker-combo-field') || form;
     const toggle = document.createElement('button');
     const menu = document.createElement('div');
     toggle.type = 'button';
@@ -31,7 +32,7 @@
     toggle.textContent = '⌄';
     menu.className = 'ticker-combo-menu';
     menu.hidden = true;
-    form?.append(toggle, menu);
+    field?.append(toggle, menu);
     const paint = (filter = '', all = false) => {
       const term = all ? '' : normalizeTicker(filter);
       const items = tickerSuggestions.filter((item) => !term || item.ticker.includes(term) || item.name.toUpperCase().includes(term));
@@ -60,7 +61,7 @@
     const root = document.getElementById('fundamentalsRoot');
     if (!root) return;
     const analysis = state?.analysis;
-    root.innerHTML = `<div class="fund-head"><div><div class="eyebrow">Análise Fundamentalista</div><h1>Fundamentos simples. Decisões mais assertivas.</h1><p>Somente o contexto financeiro que pode adicionar Edge ao seu Trading Rubric.</p></div><form id="fundSearch"><input id="fundTicker" value="${text(analysis?.ticker || state?.ticker)}" placeholder="PETR4" aria-label="Ticker B3"><button class="primary" type="submit">Analisar</button></form></div>${state?.loading ? '<div class="fund-loading">Consultando dados fundamentalistas…</div>' : state?.error ? `<div class="fund-error">${text(state.error)}</div>` : analysis ? overview(analysis) : '<div class="fund-empty">Pesquise um ticker da B3 para analisar a qualidade fundamental da empresa.</div>'}`;
+    root.innerHTML = `<div class="fund-head"><div><div class="eyebrow">Análise Fundamentalista</div><h1>Fundamentos simples. Decisões mais assertivas.</h1><p>Somente o contexto financeiro que pode adicionar Edge ao seu Trading Rubric.</p></div><form id="fundSearch"><div class="ticker-combo-field"><input id="fundTicker" value="${text(analysis?.ticker || state?.ticker)}" placeholder="PETR4" aria-label="Ticker B3"></div><button class="primary" type="submit">Analisar</button></form></div>${state?.loading ? '<div class="fund-loading">Consultando dados fundamentalistas…</div>' : state?.error ? `<div class="fund-error">${text(state.error)}</div>` : analysis ? overview(analysis) : '<div class="fund-empty">Pesquise um ticker da B3 para analisar a qualidade fundamental da empresa.</div>'}`;
     root.querySelector('#fundSearch')?.addEventListener('submit', search);
     root.querySelector('#fundTicker')?.addEventListener('input', (event) => {
       event.currentTarget.value = normalizeTicker(event.currentTarget.value);
@@ -99,7 +100,9 @@
       navigationTiles.splice(5, 0, ['fundamentals', '◉', 'Análise Fundamentalista', 'Avalie a qualidade financeira da empresa']);
     }
     if (!document.getElementById('fundamentals')) {
-      nav.insertAdjacentHTML('beforeend', '<button data-page="fundamentals"><span class="ico">◉</span>Análise Fundamentalista</button>');
+      if (!nav.querySelector('[data-page="fundamentals"]')) {
+        nav.insertAdjacentHTML('beforeend', '<button data-page="fundamentals"><span class="ico">◉</span>Análise Fundamentalista</button>');
+      }
       main.insertAdjacentHTML('beforeend', '<section class="page" id="fundamentals"><div id="fundamentalsRoot"></div></section>');
       document.querySelector('[data-page="fundamentals"]')?.addEventListener('click', () => go('fundamentals'));
     }
