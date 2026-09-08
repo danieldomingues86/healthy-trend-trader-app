@@ -73,6 +73,10 @@
     event.preventDefault();
     const ticker = normalizeTicker(document.getElementById('fundTicker')?.value);
     if (!ticker) { render({ error: 'Informe um ticker da B3 antes de analisar.' }); return; }
+    await analyzeTicker(ticker);
+  }
+
+  async function analyzeTicker(ticker) {
     render({ loading: true, ticker });
     try {
       const response = await fetch(`http://localhost:8787/api/fundamentals?ticker=${encodeURIComponent(ticker)}`);
@@ -83,6 +87,13 @@
       render({ error: `Não foi possível analisar ${ticker || 'o ticker'}. ${error.message}` });
     }
   }
+
+  window.openFundamentalsForTicker = async (value) => {
+    const ticker = normalizeTicker(value);
+    if (!ticker) return;
+    if (typeof go === 'function') go('fundamentals');
+    await analyzeTicker(ticker);
+  };
 
   function overview(analysis) {
     const metrics = analysis.metrics || {};

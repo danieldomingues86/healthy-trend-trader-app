@@ -2,6 +2,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 
 const BRAPI_URL = 'https://brapi.dev/api/v2/stocks/historical';
+const BRAPI_QUOTE_URL = 'https://brapi.dev/api/v2/stocks/quote';
 const BRAPI_LIST_URL = 'https://brapi.dev/api/quote/list';
 const B3_INDEX_API = 'https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/GetPortfolioDay/';
 const CACHE_PATH = path.join(__dirname, '..', 'data', 'market-cache.json');
@@ -83,6 +84,28 @@ async function fetchJson(url, headers = {}) {
 function brapiHeaders() { return process.env.BRAPI_TOKEN ? { Authorization: `Bearer ${process.env.BRAPI_TOKEN}` } : {}; }
 function historyRangeFor(symbol) {
   return ['^BVSP', 'IFIX'].includes(String(symbol || '').trim().toUpperCase()) ? INDEX_HISTORY_RANGE : '1y';
+}
+function quoteChunks(symbols, size = 50) {
+  return Array.from({ length: Math.ceil(symbols.length / size) }, (_, index) => symbols.slice(index * size, (index + 1) * size));
+}
+async function fetchQuotes(symbols) {
+  const chunks = quoteChunks([...new Set(symbols.map((symbol) => String(symbol || '').trim().toUpperCase()).filter(Boolean))]);
+  const responses = await mapWithConcurrency(chunks, 2, async (chunk) => {
+    const url = new URL(BRAPI_QUOTE_URL);
+    url.searchParams.set('symbols', chunk.join(','));
+    const payload = await fetchJson(url, brapiHeaders());
+    return payload.results || [];
+  });
+  const quotes = new Map();
+  for (const response of responses) {
+    if (!Array.isArray(response)) continue;
+    for (const result of response) {
+      const quote = result?.data || result;
+      const symbol = String(result?.symbol || quote?.symbol || '').trim().toUpperCase();
+      if (symbol) quotes.set(symbol, quote);
+    }
+  }
+  return quotes;
 }
 async function fetchHistory(symbol, range = historyRangeFor(symbol)) {
   const url = new URL(BRAPI_URL);
@@ -352,6 +375,52 @@ async function refreshClassStrength(cache) {
   await writeCache(next);
   return next;
 }
+function isMarketOpen(date = new Date()) {
+  if (!isBusinessDay(date)) return false;
+  const hour = Number(saoPauloParts(date).hour);
+  return hour >= 10 && hour < 18;
+}
+function isFresh(timestamp, now, minutes) {
+  const value = new Date(timestamp || 0).getTime();
+  return Number.isFinite(value) && now.getTime() - value < minutes * 60 * 1000;
+}
+function mergeLiveQuote(item, quote) {
+  if (!quote) return item;
+  const price = Number(quote.regularMarketPrice);
+  const change = Number(quote.regularMarketChangePercent);
+  const volume = Number(quote.regularMarketVolume);
+  const scan = { ...(item.scan || {}) };
+  if (Number.isFinite(price) && price > 0) scan.price = price;
+  if (Number.isFinite(change)) scan.dayChangePct = change;
+  if (Number.isFinite(volume) && volume > 0) {
+    scan.volume = volume;
+    if (Number.isFinite(Number(scan.averageVolume20)) && Number(scan.averageVolume20) > 0) scan.volumeRatio = volume / Number(scan.averageVolume20);
+  }
+  scan.healthyTrend = Number.isFinite(Number(scan.price)) && Number.isFinite(Number(scan.ema20)) && Number.isFinite(Number(scan.ema200))
+    && Number(scan.price) > Number(scan.ema20) && Number(scan.ema20) > Number(scan.ema200);
+  return { ...item, scan };
+}
+async function refreshLiveScanQuotes(cache, now = new Date()) {
+  if (!cache || !isMarketOpen(now) || isFresh(cache.liveUpdatedAt, now, 5)) return cache;
+  const stock = cache.relativeStrength || [];
+  const fii = cache.relativeStrengthByClass?.fii?.items || [];
+  const bdr = cache.relativeStrengthByClass?.bdr?.items || [];
+  const quotes = await fetchQuotes([...stock, ...fii, ...bdr].map((item) => item.symbol));
+  if (!quotes.size) return cache;
+  const next = {
+    ...cache,
+    updatedAt: now.toISOString(),
+    liveUpdatedAt: now.toISOString(),
+    relativeStrength: stock.map((item) => mergeLiveQuote(item, quotes.get(item.symbol))),
+    relativeStrengthByClass: {
+      ...cache.relativeStrengthByClass,
+      fii: { ...cache.relativeStrengthByClass?.fii, items: fii.map((item) => mergeLiveQuote(item, quotes.get(item.symbol))) },
+      bdr: { ...cache.relativeStrengthByClass?.bdr, items: bdr.map((item) => mergeLiveQuote(item, quotes.get(item.symbol))) }
+    }
+  };
+  await writeCache(next);
+  return next;
+}
 async function refreshIfDue(now = new Date()) {
   const cached = await readCache();
   const afterClose = Number(saoPauloParts(now).hour) >= 19;
@@ -360,4 +429,4 @@ async function refreshIfDue(now = new Date()) {
   return refreshMarketData();
 }
 
-module.exports = { readCache, refreshMarketData, refreshIfDue, refreshClassStrength, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor };
+module.exports = { readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote };

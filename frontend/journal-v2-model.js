@@ -74,14 +74,21 @@
     if (!record) { record = blank(key); data.records.push(record); }
     return record;
   }
+  function entryDate(trade) {
+    return dateKey(trade.entryDate || trade.metadata?.entryDate || trade.executed_at || trade.openedAt);
+  }
+  function closeDate(trade) {
+    const events = Array.isArray(trade.events) ? trade.events : [];
+    const close = [...events].reverse().find(event => event?.type === 'close');
+    return dateKey(trade.closedAt || trade.closed_at || close?.at);
+  }
   function tradesForDay(date, trades) {
     const seen = new Set();
     return trades.filter(trade => {
-      const key = dateKey(trade.entryDate || trade.metadata?.entryDate || trade.executed_at || trade.openedAt);
       const id = trade.id || trade.databaseId;
-      if (trade.status === 'planned' || !id || seen.has(id) || key !== date) return false;
+      if (trade.status === 'planned' || !id || seen.has(id) || (entryDate(trade) !== date && closeDate(trade) !== date)) return false;
       seen.add(id); return true;
     });
   }
-  return { KEY, LEGACY_KEY, dateKey, today, blank, score, migrate, load, save, ensureDay, tradesForDay };
+  return { KEY, LEGACY_KEY, dateKey, today, blank, score, migrate, load, save, ensureDay, entryDate, closeDate, tradesForDay };
 }));

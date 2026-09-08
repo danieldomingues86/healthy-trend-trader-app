@@ -3,7 +3,7 @@ const http = require('node:http');
 const { URL } = require('node:url');
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const { readCache, refreshIfDue, refreshClassStrength, classStrengthFromCache, classifyAsset } = require('./market-data');
+const { readCache, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, classStrengthFromCache, classifyAsset } = require('./market-data');
 const { marketScansFromCache } = require('./market-scans');
 const { PLAN_CATALOG } = require('./subscription-plans');
 const { fetchFundamentals } = require('./fundamentals');
@@ -15,9 +15,12 @@ const wealth = require('./wealth');
 const riskPolicy = require('./risk-policy');
 const platformAccess = require('./platform-access');
 const profitMonitor = require('./profit-monitor');
+const workspaceState = require('./workspace-state');
+const materials = require('./materials');
+const watchlist = require('./watchlist');
 
 const port = Number(process.env.PORT || 8787);
-function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS' }); response.end(JSON.stringify(body)); }
+function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' }); response.end(JSON.stringify(body)); }
 function page(rows, query) { const page = Math.max(1, Number(query.get('page')) || 1); const limit = Math.min(100, Math.max(1, Number(query.get('limit')) || 50)); const search = (query.get('search') || '').toUpperCase(); const filtered = rows.filter((row) => !search || row.symbol.includes(search)); return { items: filtered.slice((page - 1) * limit, page * limit), page, limit, total: filtered.length }; }
 
 async function listTraderWisdomAssets() {
@@ -34,7 +37,7 @@ async function listTraderWisdomAssets() {
 async function body(request) {
   const chunks = [];
   let size = 0;
-  for await (const chunk of request) { size += chunk.length; if (size > 100_000) { const error = new Error('Payload muito grande'); error.status = 413; throw error; } chunks.push(chunk); }
+  for await (const chunk of request) { size += chunk.length; if (size > 1_000_000) { const error = new Error('Payload muito grande'); error.status = 413; throw error; } chunks.push(chunk); }
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'); } catch { throw new Error('JSON inválido'); }
 }
 function bearer(request) { return request.headers.authorization?.replace(/^Bearer\s+/i, '') || ''; }
@@ -57,6 +60,56 @@ const server = http.createServer(async (request, response) => {
     if (request.method === 'POST' && url.pathname === '/api/auth/logout') {
       if (database.configured()) await auth.logout(bearer(request));
       return send(response, 200, { ok: true });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/workspace-state') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { state: await workspaceState.get(user.id) });
+    }
+    const workspaceStateMatch = url.pathname.match(/^\/api\/workspace-state\/([^/]+)$/);
+    if (workspaceStateMatch && request.method === 'PUT') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { state: await workspaceState.save(user.id, workspaceStateMatch[1], (await body(request)).value) });
+    }
+    if (workspaceStateMatch && request.method === 'DELETE') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { state: await workspaceState.remove(user.id, workspaceStateMatch[1]) });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/materials') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { entitlements: await materials.list(user.id) });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/materials/entitlements') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, { entitlement: await materials.grant(user.id, await body(request)) });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/watchlist') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { items: await watchlist.list(user.id) });
+    }
+    const watchlistMatch = url.pathname.match(/^\/api\/watchlist\/([^/]+)$/);
+    if (watchlistMatch && request.method === 'PUT') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { item: await watchlist.add(user.id, watchlistMatch[1]) });
+    }
+    if (watchlistMatch && request.method === 'DELETE') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { item: await watchlist.remove(user.id, watchlistMatch[1]) });
     }
     if (request.method === 'POST' && url.pathname === '/api/platform-access/sessions') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
@@ -193,6 +246,7 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/market-overview') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, universe: cache.universe, cycle: cache.cycle, benchmark: cache.benchmark, overview: cache.overview });
     if (url.pathname === '/api/market-scans') {
       cache = await refreshClassStrength(cache);
+      cache = await refreshLiveScanQuotes(cache);
       return send(response, 200, marketScansFromCache(cache));
     }
     if (url.pathname === '/api/relative-strength/classes') {

@@ -57,6 +57,12 @@ test('day trades use effective entry dates, deduplicate IDs and exclude planned 
   assert.deepEqual(M.tradesForDay('2026-09-01', trades).map(item => item.id), ['a', 'd']);
 });
 
+test('day trades also offer a closed trade for an optional post-trade review on its close day', () => {
+  const trade = { id: 'closed', status: 'closed', entryDate: '2026-09-01', events: [{ type: 'entry', at: '2026-09-01T12:00:00Z' }, { type: 'close', at: '2026-09-04T16:20:00Z' }] };
+  assert.equal(M.closeDate(trade), '2026-09-04');
+  assert.deepEqual(M.tradesForDay('2026-09-04', [trade]).map(item => item.id), ['closed']);
+});
+
 test('old scores parse without inventing a score for unknown or missing values', () => {
   assert.equal(M.score('8,7 / 10'), 8.7);
   for (const value of ['', null, '— / 10', '12 / 10', '-1']) assert.equal(M.score(value), null);

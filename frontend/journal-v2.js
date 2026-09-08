@@ -15,15 +15,16 @@
     lessons: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v17H5.5A2.5 2.5 0 0 0 3 22.5zM21 5.5A2.5 2.5 0 0 0 18.5 3H13v17h5.5a2.5 2.5 0 0 1 2.5 2.5z"/></svg>',
     patterns: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 1 5"/><path d="M20 4v7h-7"/></svg>'
   };
+  const storage = window.healthyTrendWorkspace?.storage;
   let data, selected, pane = 'technical', month, saveError = '', busy = false;
   let evidenceUrls = [];
   try {
-    data = M.load(localStorage, typeof journalBookEntries === 'undefined' ? [] : journalBookEntries);
+    data = M.load(storage, []);
     if (!data.records.length) M.ensureDay(data, M.today());
     selected = [...data.records].sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0].id;
     month = (current().date || '').slice(0, 7);
   } catch (error) {
-    window.renderJournalBook = () => { root.innerHTML = `<section class="jv-load-error"><h1>${text('Seus registros foram preservados.', 'Your records have been preserved.')}</h1><p>${text('Não foi possível ler os dados do diário. Nenhum registro foi substituído. Exporte uma cópia para recuperar o conteúdo.', 'The journal could not be read. No record was replaced. Export a copy to recover the content.')}</p><button type="button" id="jv-recovery">${text('Exportar dados originais', 'Export original data')}</button></section>`; root.querySelector('button').onclick = () => download(new Blob([JSON.stringify({ v1: localStorage.getItem(M.LEGACY_KEY), v2: localStorage.getItem(M.KEY) })], { type: 'application/json' }), 'diario-recuperacao.json'); };
+    window.renderJournalBook = () => { root.innerHTML = `<section class="jv-load-error"><h1>${text('Seus registros foram preservados.', 'Your records have been preserved.')}</h1><p>${text('Não foi possível ler os dados do diário. Nenhum registro foi substituído. Exporte uma cópia para recuperar o conteúdo.', 'The journal could not be read. No record was replaced. Export a copy to recover the content.')}</p><button type="button" id="jv-recovery">${text('Exportar dados originais', 'Export original data')}</button></section>`; root.querySelector('button').onclick = () => download(new Blob([JSON.stringify({ v1: storage.getItem(M.LEGACY_KEY), v2: storage.getItem(M.KEY) })], { type: 'application/json' }), 'diario-recuperacao.json'); };
     window.renderJournalBook(); return;
   }
   function current() { return data.records.find(item => item.id === selected); }
@@ -36,7 +37,7 @@
   }
   function persist(explicit = false) {
     current().updatedAt = new Date().toISOString();
-    try { M.save(localStorage, data); saveError = ''; status(text(explicit ? 'Registro salvo neste dispositivo.' : 'Alterações salvas.', explicit ? 'Entry saved on this device.' : 'Changes saved.')); return true; }
+    try { M.save(storage, data); saveError = ''; status(text(explicit ? 'Registro salvo na sua conta.' : 'Alterações salvas.', explicit ? 'Entry saved to your account.' : 'Changes saved.')); return true; }
     catch (error) { saveError = text('Não foi possível salvar. Suas alterações continuam nesta tela; libere espaço e tente salvar novamente.', 'Could not save. Your changes remain on this screen; free up space and try saving again.'); status(saveError, true); return false; }
   }
   function openDay(date) {
@@ -54,6 +55,18 @@
     const remote = typeof synchronizedTrades === 'undefined' ? [] : synchronizedTrades;
     const local = typeof operationalState === 'undefined' ? [] : [...(operationalState.positions || []), ...(operationalState.closedPositions || [])];
     return M.tradesForDay(current().date, [...remote, ...local]);
+  }
+  function tradeMoment(item) {
+    const opened = M.entryDate(item), closed = M.closeDate(item);
+    if (closed === current().date) return text('Encerrado neste dia', 'Closed on this day');
+    if (opened === current().date) return text('Aberto neste dia', 'Opened on this day');
+    return text('Trade relacionado', 'Related trade');
+  }
+  function linkedTradeSummary() {
+    const linked = dayTrades().filter(item => current().technical.tradeIds.includes(item.id));
+    if (!linked.length) return `<button type="button" class="jv-linked-trades is-empty" data-action="trades">＋ ${text('Vincular um trade a este registro', 'Link a trade to this entry')}</button>`;
+    const trades = linked.map(item => `<div class="jv-linked-trade"><b>${esc(item.ticker || item.asset)} · ${esc(tradeMoment(item))}</b><button type="button" data-position-id="${esc(item.id)}">${text('Ver posição', 'View position')} →</button></div>`).join('');
+    return `<section class="jv-linked-trades"><div class="jv-linked-trades-copy"><span>${text('Trades vinculados a este registro', 'Trades linked to this entry')}</span><div class="jv-linked-trade-list">${trades}</div></div><button type="button" data-action="trades">${text('Gerenciar vínculo', 'Manage links')} →</button></section>`;
   }
   function evidenceLabel() {
     const files = current().evidence;
@@ -80,7 +93,7 @@
     root.innerHTML = `<div class="jv-workspace">
       <header class="jv-heading"><div><span class="jv-kicker">${text('Observar · Registrar · Entender · Evoluir', 'Observe · Record · Understand · Grow')}</span><h1>${text('Diário do Trader', 'Trader Journal')}</h1><p>${text('Mais que registros. Um processo de evolução.', 'More than entries. A process of growth.')}</p></div><p class="jv-heading-quote">${text('Conheça o mercado.<br>Conheça a si mesmo.<br>E evolua todos os dias.', 'Know the market.<br>Know yourself.<br>Grow every day.')}</p></header>
       <div class="jv-layout"><aside class="jv-history"><h2>${text('Meu Caderno', 'My Notebook')}</h2><label class="jv-sr" for="jv-month">${text('Mês do histórico', 'History month')}</label><select id="jv-month">${months.map(value => `<option value="${value}" ${value === month ? 'selected' : ''}>${value ? dateLabel(`${value}-01`, { month: 'long', year: 'numeric' }) : text('Datas a revisar', 'Dates to review')}</option>`).join('')}</select><small>${visible.length} ${text(visible.length === 1 ? 'dia registrado' : 'dias registrados', visible.length === 1 ? 'recorded day' : 'recorded days')}</small><nav aria-label="${text('Histórico do diário', 'Journal history')}">${visible.map(item => `<button type="button" data-day="${esc(item.id)}" ${item.id === selected ? 'aria-current="date"' : ''}><time>${item.date ? dateLabel(item.date, { day: '2-digit', month: 'short' }) : '—'}</time><span>${esc(item.date === M.today() ? text('Hoje', 'Today') : item.title || item.emotional.states[0] || text('Registro', 'Entry'))}</span></button>`).join('')}</nav><button type="button" class="jv-new" data-action="today">＋ ${text('Registro de hoje', 'Today’s entry')}</button><p>${text('Um dia. Duas perspectivas.<br>Um só aprendizado.', 'One day. Two perspectives.<br>One shared lesson.')}</p></aside>
-      <main class="jv-notebook"><header class="jv-book-header"><div><span class="jv-kicker">${text('Seu Caderno de Processo', 'Your Process Notebook')}</span><h2>${dateLabel(e.date)}</h2></div><div class="jv-date-nav"><button type="button" data-action="previous" aria-label="${text('Registro anterior', 'Previous entry')}">‹</button><label><span class="jv-sr">${text('Abrir registro de uma data', 'Open a date')}</span><input id="jv-date" type="date" value="${e.date || ''}"></label><button type="button" data-action="next" aria-label="${text('Próximo registro', 'Next entry')}">›</button></div></header>
+      <main class="jv-notebook"><header class="jv-book-header"><div><span class="jv-kicker">${text('Seu Caderno de Processo', 'Your Process Notebook')}</span><h2>${dateLabel(e.date)}</h2></div><div class="jv-date-nav"><button type="button" data-action="previous" aria-label="${text('Registro anterior', 'Previous entry')}">‹</button><label><span class="jv-sr">${text('Abrir registro de uma data', 'Open a date')}</span><input id="jv-date" type="date" value="${e.date || ''}"></label><button type="button" data-action="next" aria-label="${text('Próximo registro', 'Next entry')}">›</button></div></header>${linkedTradeSummary()}
       <div class="jv-tabs" role="tablist" aria-label="${text('Página do caderno', 'Notebook page')}"><button type="button" id="jv-tab-technical" role="tab" aria-controls="jv-technical" aria-selected="${pane === 'technical'}" tabindex="${pane === 'technical' ? 0 : -1}" data-pane="technical">▥ ${text('Técnico', 'Technical')}</button><button type="button" id="jv-tab-emotional" role="tab" aria-controls="jv-emotional" aria-selected="${pane === 'emotional'}" tabindex="${pane === 'emotional' ? 0 : -1}" data-pane="emotional">◉ ${text('Emocional', 'Emotional')}</button></div>
       <div class="jv-spread" data-focus="${pane}">
         <section id="jv-technical" class="jv-sheet jv-technical ${pane === 'technical' ? 'is-focused' : ''}" aria-labelledby="jv-tech-title"><header><i class="jv-title-icon">${icons.technical}</i><div><h3 id="jv-tech-title">${text('Diário Técnico', 'Technical Journal')}</h3><p>${text('Como eu executei hoje?', 'How did I execute today?')}</p></div></header>
@@ -201,14 +214,14 @@
   }
   function showTrades() {
     const trades = dayTrades();
-    dialog(text('Trades do dia', 'Day’s trades'), trades.length ? `<p>${dateLabel(current().date)}</p><ul class="jv-trades">${trades.map(item => `<li><b>${esc(item.ticker || item.asset)}</b><span>${esc(item.setup || '—')} · ${esc(item.direction || '')}</span><label><input type="checkbox" data-trade="${esc(item.id)}" ${current().technical.tradeIds.includes(item.id) ? 'checked' : ''}> ${text('Vincular ao registro', 'Link to entry')}</label></li>`).join('')}</ul><button type="button" data-action="positions">${text('Abrir Posições', 'Open Positions')} →</button>` : `<p>${text('Nenhum trade com data de entrada neste dia foi encontrado nos dados disponíveis. Dias de espera também fazem parte do processo.', 'No trade entered on this date was found in the available data. Waiting days are part of the process too.')}</p>`);
+    dialog(text('Trades do dia', 'Day’s trades'), trades.length ? `<p>${text('O vínculo é opcional. Escolha apenas os trades que ajudarem a explicar o seu processo.', 'The link is optional. Choose only the trades that help explain your process.')}</p><ul class="jv-trades">${trades.map(item => `<li><b>${esc(item.ticker || item.asset)}</b><span>${esc(item.setup || '—')} · ${esc(item.direction || '')} · ${tradeMoment(item)}</span><label><input type="checkbox" data-trade="${esc(item.id)}" ${current().technical.tradeIds.includes(item.id) ? 'checked' : ''}> ${text('Vincular ao registro', 'Link to entry')}</label></li>`).join('')}</ul>` : `<p>${text('Nenhum trade aberto ou encerrado nesta data foi encontrado. Dias de espera também fazem parte do processo.', 'No trade opened or closed on this date was found. Waiting days are also part of the process.')}</p>`);
   }
   function sendHabit(suggestion) {
     if (!suggestion.trim()) { status(text('Escreva uma lição antes de enviá-la.', 'Write a lesson before sending it.'), true); return; }
     try {
-      const key = 'healthy-trend-habit-suggestions', items = JSON.parse(localStorage.getItem(key) || '[]');
+      const key = 'healthy-trend-habit-suggestions', items = JSON.parse(storage.getItem(key) || '[]');
       items.unshift({ suggestion, createdAt: new Date().toISOString(), source: 'journal', journalId: current().id, date: current().date });
-      localStorage.setItem(key, JSON.stringify(items)); status(text('Sugestão enviada para os hábitos.', 'Suggestion sent to habits.'));
+      storage.setItem(key, JSON.stringify(items)); status(text('Sugestão enviada para os hábitos.', 'Suggestion sent to habits.'));
     } catch (error) { status(text('Não foi possível salvar a sugestão.', 'Could not save the suggestion.'), true); }
   }
   function download(blob, name) { const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
@@ -232,11 +245,16 @@
     }
   });
   root.addEventListener('close', event => {
-    if (event.target.id === 'jv-dialog') { event.target.querySelectorAll('audio').forEach(audio => audio.pause()); clearEvidenceUrls(); }
+    if (event.target.id === 'jv-dialog') {
+      event.target.querySelectorAll('audio').forEach(audio => audio.pause());
+      clearEvidenceUrls();
+      render(true);
+    }
   }, true);
   root.addEventListener('click', event => {
     const button = event.target.closest('button'); if (!button) return;
     if (button.dataset.evidenceId) { openEvidence(button.dataset.evidenceId); return; }
+    if (button.dataset.positionId) { window.openPositionFromJournal?.(button.dataset.positionId); return; }
     if (button.dataset.day) { if (saveError && !persist()) return; selected = button.dataset.day; render(true); return; }
     if (button.dataset.pane) { pane = button.dataset.pane; render(true); root.querySelector(`#jv-tab-${pane}`).focus({ preventScroll: true }); return; }
     if (button.dataset.set) { const path = button.dataset.set; setValue(path, path === 'emotional.intensity' ? Number(button.dataset.value) : button.dataset.value); const fieldset = button.closest('fieldset'); fieldset.querySelectorAll('[data-set]').forEach(b => { const chosen = b === button; b.setAttribute('aria-pressed', chosen); b.classList.toggle('chosen', chosen); }); if (path === 'emotional.impact') root.querySelector('#jv-impact-explanation').hidden = button.dataset.value === 'no' && !current().emotional.impactNote; return; }
@@ -255,7 +273,25 @@
   });
   window.renderJournalBook = render;
   window.openJournalEditor = () => { go('journal'); openDay(M.today()); };
+  window.openJournalForTradeReview = (tradeId) => {
+    const trade = (typeof synchronizedTrades === 'undefined' ? [] : synchronizedTrades).find(item => String(item.id) === String(tradeId));
+    const date = trade && (M.closeDate(trade) || M.entryDate(trade));
+    go('journal');
+    requestAnimationFrame(() => {
+      openDay(date || M.today());
+      status(text('Revisão pós-trade pronta. Vincule este trade somente se fizer sentido para este registro.', 'Post-trade review ready. Link this trade only if it belongs in this entry.'));
+    });
+  };
   window.journalToggleComposer = open => { if (open) openDay(M.today()); };
+  window.addEventListener('healthyTrend:workspaceLoaded', () => {
+    try {
+      data = M.load(storage, []);
+      if (!data.records.length) M.ensureDay(data, M.today());
+      selected = [...data.records].sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0].id;
+      month = (current().date || '').slice(0, 7);
+      render(true);
+    } catch (error) { console.warn('Não foi possível atualizar o Diário do Trader.', error); }
+  });
   window.addEventListener('beforeunload', event => { if (saveError || busy) { event.preventDefault(); event.returnValue = ''; } });
   render(true);
 }());
