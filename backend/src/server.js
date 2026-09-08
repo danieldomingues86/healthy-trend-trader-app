@@ -18,9 +18,18 @@ const profitMonitor = require('./profit-monitor');
 const workspaceState = require('./workspace-state');
 const materials = require('./materials');
 const watchlist = require('./watchlist');
+const journalAttachments = require('./journal-attachments');
+const zenPractices = require('./zen-practices');
+const habits = require('./habits');
 
 const port = Number(process.env.PORT || 8787);
-function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' }); response.end(JSON.stringify(body)); }
+const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
+function send(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', ...cors }); response.end(JSON.stringify(body)); }
+function sendFile(response, status, bytes, type, name) {
+  const contentType = type || 'application/octet-stream';
+  const disposition = /^(image|audio|video)\//.test(contentType) || contentType === 'application/pdf' ? 'inline' : 'attachment';
+  response.writeHead(status, { 'Content-Type': contentType, 'Content-Length': bytes.length, 'Content-Disposition': `${disposition}; filename*=UTF-8''${encodeURIComponent(name)}`, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, max-age=300', ...cors }); response.end(bytes);
+}
 function page(rows, query) { const page = Math.max(1, Number(query.get('page')) || 1); const limit = Math.min(100, Math.max(1, Number(query.get('limit')) || 50)); const search = (query.get('search') || '').toUpperCase(); const filtered = rows.filter((row) => !search || row.symbol.includes(search)); return { items: filtered.slice((page - 1) * limit, page * limit), page, limit, total: filtered.length }; }
 
 async function listTraderWisdomAssets() {
@@ -40,7 +49,16 @@ async function body(request) {
   for await (const chunk of request) { size += chunk.length; if (size > 1_000_000) { const error = new Error('Payload muito grande'); error.status = 413; throw error; } chunks.push(chunk); }
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'); } catch { throw new Error('JSON inválido'); }
 }
+async function binaryBody(request, maxBytes = journalAttachments.MAX_BYTES) {
+  const chunks = []; let size = 0;
+  for await (const chunk of request) { size += chunk.length; if (size > maxBytes) { const error = new Error('O arquivo ultrapassa o limite de 20 MB.'); error.status = 413; throw error; } chunks.push(chunk); }
+  return Buffer.concat(chunks);
+}
 function bearer(request) { return request.headers.authorization?.replace(/^Bearer\s+/i, '') || ''; }
+function headerText(value) {
+  try { return decodeURIComponent(String(value || '')); }
+  catch { const error = new Error('Cabeçalho de arquivo inválido.'); error.status = 400; throw error; }
+}
 
 const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
@@ -79,6 +97,68 @@ const server = http.createServer(async (request, response) => {
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, { state: await workspaceState.remove(user.id, workspaceStateMatch[1]) });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/habits') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await habits.list(user.id));
+    }
+    if (request.method === 'POST' && url.pathname === '/api/habits') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, { habit: await habits.save(user.id, await body(request)) });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/habits/migrate') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await habits.migrate(user.id, (await body(request)).state));
+    }
+    const habitMatch = url.pathname.match(/^\/api\/habits\/([^/]+)$/);
+    if (habitMatch && request.method === 'PUT') { if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' }); const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' }); return send(response, 200, { habit: await habits.save(user.id, { ...(await body(request)), id: habitMatch[1] }) }); }
+    if (habitMatch && request.method === 'DELETE') { if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' }); const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' }); return send(response, 200, { habit: await habits.remove(user.id, habitMatch[1]) }); }
+    const habitCheckinMatch = url.pathname.match(/^\/api\/habits\/([^/]+)\/checkins$/);
+    if (habitCheckinMatch && request.method === 'PUT') { if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' }); const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' }); return send(response, 200, { checkin: await habits.checkin(user.id, habitCheckinMatch[1], await body(request)) }); }
+    if (request.method === 'PUT' && url.pathname === '/api/habits/ignored-days') { if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' }); const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' }); return send(response, 200, { ignoredDay: await habits.ignoredDay(user.id, await body(request)) }); }
+    if (request.method === 'GET' && url.pathname === '/api/zen-practices/summary') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { summary: await zenPractices.summary(user.id) });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/zen-practices/sessions') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, { session: await zenPractices.start(user.id, await body(request)) });
+    }
+    const zenSessionMatch = url.pathname.match(/^\/api\/zen-practices\/sessions\/([^/]+)\/complete$/);
+    if (zenSessionMatch && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { session: await zenPractices.complete(user.id, zenSessionMatch[1]) });
+    }
+    const attachmentContentMatch = url.pathname.match(/^\/api\/journal-attachments\/([^/]+)\/content$/);
+    if (attachmentContentMatch && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const file = await journalAttachments.content(user.id, attachmentContentMatch[1]);
+      return sendFile(response, 200, file.bytes, file.content_type, file.original_name);
+    }
+    if (request.method === 'POST' && url.pathname === '/api/journal-attachments') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const attachment = await journalAttachments.create(user.id, { recordId: request.headers['x-journal-record'], name: headerText(request.headers['x-file-name']), contentType: request.headers['content-type'], bytes: await binaryBody(request) });
+      return send(response, 201, { attachment });
+    }
+    const attachmentMatch = url.pathname.match(/^\/api\/journal-attachments\/([^/]+)$/);
+    if (attachmentMatch && request.method === 'DELETE') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { attachment: await journalAttachments.remove(user.id, attachmentMatch[1]) });
     }
     if (request.method === 'GET' && url.pathname === '/api/materials') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });

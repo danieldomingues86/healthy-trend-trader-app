@@ -112,7 +112,7 @@
           <div class="jv-page-preview"><span class="jv-page-number">02 / ${text('Um olhar para dentro', 'A look within')}</span><p>${esc(emotional.note || text('Você não é o resultado de um trade. Este espaço é para observar como você estava — sem julgamento.', 'You are not the outcome of a trade. This space is for noticing how you felt — without judgement.'))}</p><div class="jv-preview-emotions">${emotional.states.map(value => `<span>${esc(value)}</span>`).join('') || text('Nenhum estado registrado ainda.', 'No states recorded yet.')}</div><div>${text('Intensidade', 'Intensity')}: <b>${emotional.intensity ?? '—'} / 5</b></div><button type="button" data-pane="emotional">${text('Escrever na página emocional', 'Write on the emotional page')} →</button></div>
         </section>
       </div>
-      <footer class="jv-lessons"><div class="jv-lesson-title"><span class="jv-title-icon">${icons.lessons}</span><div><h3>${text('Lições do dia', 'Lessons of the day')}</h3><p>${text('Mercado + execução + emoção → aprendizado', 'Market + execution + emotion → learning')}</p></div></div><div class="jv-lesson-write">${field('shared.lesson', text('O que vou levar para amanhã?', 'What will I take into tomorrow?'), e.shared.lesson, text('Uma lição que conecta o que você fez e como se sentiu.', 'One lesson connecting what you did and how you felt.'), 3)}<button class="jv-save" type="button" data-action="save">✓ ${text('Salvar registro', 'Save entry')}</button></div><p id="jv-save-status" role="status" class="${saveError ? 'is-error' : ''}">${esc(saveError || (e.updatedAt ? text('Registro salvo neste dispositivo.', 'Entry saved on this device.') : text('Escreva no seu ritmo. As alterações são salvas neste dispositivo.', 'Write at your own pace.')))}</p>
+      <footer class="jv-lessons"><div class="jv-lesson-title"><span class="jv-title-icon">${icons.lessons}</span><div><h3>${text('Lições do dia', 'Lessons of the day')}</h3><p>${text('Mercado + execução + emoção → aprendizado', 'Market + execution + emotion → learning')}</p></div></div><div class="jv-lesson-write">${field('shared.lesson', text('O que vou levar para amanhã?', 'What will I take into tomorrow?'), e.shared.lesson, text('Uma lição que conecta o que você fez e como se sentiu.', 'One lesson connecting what you did and how you felt.'), 3)}<button class="jv-save" type="button" data-action="save">✓ ${text('Salvar registro', 'Save entry')}</button></div><p id="jv-save-status" role="status" class="${saveError ? 'is-error' : ''}">${esc(saveError || (e.updatedAt ? text('Registro salvo na sua conta.', 'Entry saved in your account.') : text('Escreva no seu ritmo. As alterações são salvas na sua conta.', 'Write at your own pace.')))}</p>
       </footer>${patternsSection(e)}
       </main></div><dialog id="jv-dialog" aria-labelledby="jv-dialog-title"><header><h2 id="jv-dialog-title"></h2><button type="button" data-action="close-dialog" aria-label="${text('Fechar', 'Close')}">×</button></header><div id="jv-dialog-body"></div></dialog>
     </div>`;
@@ -133,18 +133,10 @@
     if (!el.open) el.showModal();
   }
   function clearEvidenceUrls() { evidenceUrls.forEach(url => URL.revokeObjectURL(url)); evidenceUrls = []; }
-  function fileDb(action, id, file) {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open('healthy-trend-journal-evidence', 1);
-      request.onupgradeneeded = () => request.result.createObjectStore('files');
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        const db = request.result, tx = db.transaction('files', action === 'get' ? 'readonly' : 'readwrite');
-        const op = action === 'get' ? tx.objectStore('files').get(id) : tx.objectStore('files').put(file, id);
-        tx.oncomplete = () => { db.close(); resolve(op.result); };
-        tx.onerror = tx.onabort = () => { db.close(); reject(tx.error || new Error('Falha no armazenamento de anexos.')); };
-      };
-    });
+  function attachmentPath(id) { return `/api/journal-attachments/${encodeURIComponent(id)}/content`; }
+  async function evidenceBlob(item) {
+    if (!window.healthyTrendApi?.requestBlob) throw new Error(text('Entre novamente para acessar os anexos.', 'Sign in again to access attachments.'));
+    return window.healthyTrendApi.requestBlob(attachmentPath(item.id));
   }
   async function hydrateEvidenceStrip() {
     const items = current().evidence.filter(item => item.type.startsWith('image/'));
@@ -152,7 +144,7 @@
       const image = root.querySelector(`[data-evidence-thumb="${CSS.escape(item.id)}"]`);
       if (!image) continue;
       try {
-        const blob = await fileDb('get', item.id);
+        const blob = await evidenceBlob(item);
         if (!blob || !image.isConnected) continue;
         const url = URL.createObjectURL(blob); evidenceUrls.push(url); image.src = url;
       } catch (_) { /* The item remains as a neutral thumbnail when it is unavailable. */ }
@@ -164,8 +156,7 @@
     dialog(esc(item.name), `<p>${text('Carregando evidência…', 'Loading evidence…')}</p>`);
     root.querySelector('#jv-dialog').classList.add('jv-evidence-dialog');
     try {
-      const blob = await fileDb('get', item.id);
-      if (!blob) throw new Error('missing');
+      const blob = await evidenceBlob(item);
       const url = URL.createObjectURL(blob); evidenceUrls.push(url);
       const body = root.querySelector('#jv-dialog-body');
       if (!body) return;
@@ -174,25 +165,25 @@
         : item.type.startsWith('audio/')
           ? `<audio class="jv-evidence-audio" controls autoplay src="${url}"></audio>`
           : `<a href="${url}" download="${esc(item.name)}">${text('Baixar arquivo', 'Download file')}</a>`;
-    } catch (_) { const body = root.querySelector('#jv-dialog-body'); if (body) body.textContent = text('Não foi possível abrir este arquivo neste navegador.', 'This file could not be opened in this browser.'); }
+    } catch (_) { const body = root.querySelector('#jv-dialog-body'); if (body) body.textContent = text('Não foi possível abrir este arquivo salvo na sua conta.', 'This file could not be opened from your account.'); }
   }
   async function showEvidence() {
     clearEvidenceUrls();
     const e = current(), labels = e.legacyEntries.flatMap(item => Array.isArray(item.attachments) ? item.attachments : []);
-    dialog(text('Evidências da sessão', 'Session evidence'), `<label class="jv-upload">＋ ${text('Adicionar prints, áudio ou arquivos', 'Add screenshots, audio or files')}<input id="jv-files" type="file" multiple></label><p>${text('Até 20 MB por arquivo. Guardados apenas neste navegador.', 'Up to 20 MB per file. Stored only in this browser.')}</p><p id="jv-upload-status" role="status"></p><div id="jv-evidence-list"></div>${labels.length ? `<details><summary>${text('Referências do registro antigo', 'Legacy entry references')}</summary><p>${labels.map(esc).join(' · ')}</p><p>${text('O diário antigo guardava esses rótulos, mas não os arquivos. Nenhum arquivo foi reconstruído.', 'The old journal stored these labels, but not the files. No file was reconstructed.')}</p></details>` : ''}`);
+    dialog(text('Evidências da sessão', 'Session evidence'), `<label class="jv-upload">＋ ${text('Adicionar prints, áudio ou arquivos', 'Add screenshots, audio or files')}<input id="jv-files" type="file" multiple></label><p>${text('Até 20 MB por arquivo. Guardados de forma privada na sua conta.', 'Up to 20 MB per file. Stored privately in your account.')}</p><p id="jv-upload-status" role="status"></p><div id="jv-evidence-list"></div>${labels.length ? `<details><summary>${text('Referências do registro antigo', 'Legacy entry references')}</summary><p>${labels.map(esc).join(' · ')}</p><p>${text('O diário antigo guardava esses rótulos, mas não os arquivos. Nenhum arquivo foi reconstruído.', 'The old journal stored these labels, but not the files. No file was reconstructed.')}</p></details>` : ''}`);
     for (const item of e.evidence) {
       const host = root.querySelector('#jv-evidence-list'); if (!host) return;
       const row = document.createElement('article'); row.className = 'jv-file';
       row.innerHTML = `<b>${esc(item.name)}</b>`; host.append(row);
       try {
-        const blob = await fileDb('get', item.id);
-        if (!blob) { row.insertAdjacentHTML('beforeend', `<p>${text('Arquivo não encontrado neste navegador.', 'File not found in this browser.')}</p>`); continue; }
+        const blob = await evidenceBlob(item);
         if (!row.isConnected || !root.querySelector('#jv-dialog')?.open) return;
         const url = URL.createObjectURL(blob); evidenceUrls.push(url);
         if (item.type.startsWith('image/') && item.type !== 'image/svg+xml') { const img = document.createElement('img'); img.src = url; img.alt = item.name; row.append(img); }
         else if (item.type.startsWith('audio/')) { const audio = document.createElement('audio'); audio.controls = true; audio.src = url; row.append(audio); }
         const link = document.createElement('a'); link.href = url; link.download = item.name; link.textContent = text('Baixar arquivo', 'Download file'); row.append(link);
-      } catch (error) { row.insertAdjacentHTML('beforeend', `<p>${text('Não foi possível abrir este arquivo.', 'Could not open this file.')}</p>`); }
+        const remove = document.createElement('button'); remove.type = 'button'; remove.dataset.removeEvidence = item.id; remove.textContent = text('Remover', 'Remove'); row.append(remove);
+      } catch (error) { row.insertAdjacentHTML('beforeend', `<p>${text('Arquivo não encontrado na sua conta.', 'File not found in your account.')}</p>`); }
     }
   }
   async function upload(files) {
@@ -202,15 +193,41 @@
     try {
       for (const file of files) {
         if (file.size > 20 * 1024 * 1024) throw new Error(text('Um arquivo ultrapassa o limite de 20 MB.', 'A file exceeds the 20 MB limit.'));
-        const id = crypto.randomUUID(); await fileDb('put', id, file);
-        e.evidence.push({ id, name: file.name, type: file.type || 'application/octet-stream', size: file.size, createdAt: new Date().toISOString() });
-        if (!persist()) throw new Error(saveError); uploaded++;
+        if (!window.healthyTrendApi?.uploadFile) throw new Error(text('Entre novamente antes de enviar um arquivo.', 'Sign in again before uploading a file.'));
+        const result = await window.healthyTrendApi.uploadFile('/api/journal-attachments', file, { 'X-Journal-Record': e.id });
+        e.evidence.push(result.attachment);
+        if (!persist()) {
+          e.evidence = e.evidence.filter(item => item.id !== result.attachment.id);
+          await window.healthyTrendApi.request(`/api/journal-attachments/${encodeURIComponent(result.attachment.id)}`, { method: 'DELETE' }).catch(() => {});
+          throw new Error(saveError);
+        }
+        uploaded++;
       }
       render(true);
       await showEvidence();
       root.querySelector('#jv-upload-status').textContent = `${uploaded} ${text('arquivo(s) salvo(s).', 'file(s) saved.')}`;
     } catch (error) { const status = root.querySelector('#jv-upload-status'); if (status) status.textContent = error.message; }
     finally { busy = false; if (input?.isConnected) input.disabled = false; }
+  }
+  async function removeEvidence(id) {
+    if (busy) return; busy = true;
+    try {
+      if (!window.healthyTrendApi?.request) throw new Error(text('Entre novamente antes de remover um arquivo.', 'Sign in again before removing a file.'));
+      const removed = current().evidence.find(item => item.id === id);
+      current().evidence = current().evidence.filter(item => item.id !== id);
+      if (!persist()) { if (removed) current().evidence.push(removed); throw new Error(saveError); }
+      try { await window.healthyTrendApi.request(`/api/journal-attachments/${encodeURIComponent(id)}`, { method: 'DELETE' }); }
+      catch (error) {
+        if (removed) { current().evidence.push(removed); persist(); }
+        throw error;
+      }
+      await showEvidence();
+      const message = root.querySelector('#jv-upload-status'); if (message) message.textContent = text('Arquivo removido.', 'File removed.');
+    } catch (error) {
+      const message = root.querySelector('#jv-upload-status'); if (message) message.textContent = error.message;
+      render(true);
+    }
+    finally { busy = false; }
   }
   function showTrades() {
     const trades = dayTrades();
@@ -254,6 +271,7 @@
   root.addEventListener('click', event => {
     const button = event.target.closest('button'); if (!button) return;
     if (button.dataset.evidenceId) { openEvidence(button.dataset.evidenceId); return; }
+    if (button.dataset.removeEvidence) { removeEvidence(button.dataset.removeEvidence); return; }
     if (button.dataset.positionId) { window.openPositionFromJournal?.(button.dataset.positionId); return; }
     if (button.dataset.day) { if (saveError && !persist()) return; selected = button.dataset.day; render(true); return; }
     if (button.dataset.pane) { pane = button.dataset.pane; render(true); root.querySelector(`#jv-tab-${pane}`).focus({ preventScroll: true }); return; }
@@ -273,11 +291,35 @@
   });
   window.renderJournalBook = render;
   window.openJournalEditor = () => { go('journal'); openDay(M.today()); };
+  window.openJournalForMonth = monthKey => {
+    if (!/^\d{4}-\d{2}$/.test(monthKey || '')) return false;
+    const records = data.records
+      .filter(record => (record.date || '').slice(0, 7) === monthKey)
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    if (!records.length) return false;
+    if (saveError && !persist()) return false;
+    selected = records[0].id;
+    month = monthKey;
+    go('journal');
+    render(true);
+    return true;
+  };
   window.openJournalForTradeReview = (tradeId) => {
-    const trade = (typeof synchronizedTrades === 'undefined' ? [] : synchronizedTrades).find(item => String(item.id) === String(tradeId));
+    const targetId = String(tradeId);
+    const linkedRecord = data.records.find(record => (record.technical?.tradeIds || []).some(id => String(id) === targetId));
+    const remote = typeof synchronizedTrades === 'undefined' ? [] : synchronizedTrades;
+    const local = typeof operationalState === 'undefined' ? [] : [...(operationalState.closedPositions || []), ...(operationalState.positions || [])];
+    const trade = [...remote, ...local].find(item => String(item.id || item.databaseId) === targetId);
     const date = trade && (M.closeDate(trade) || M.entryDate(trade));
     go('journal');
     requestAnimationFrame(() => {
+      if (linkedRecord) {
+        selected = linkedRecord.id;
+        month = (linkedRecord.date || '').slice(0, 7);
+        render(true);
+        status(text('Registro já vinculado a esta posição aberto.', 'The entry already linked to this position is open.'));
+        return;
+      }
       openDay(date || M.today());
       status(text('Revisão pós-trade pronta. Vincule este trade somente se fizer sentido para este registro.', 'Post-trade review ready. Link this trade only if it belongs in this entry.'));
     });
