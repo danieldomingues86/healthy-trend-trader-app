@@ -5,6 +5,7 @@ const BRAPI_URL = 'https://brapi.dev/api/v2/stocks/historical';
 const BRAPI_LIST_URL = 'https://brapi.dev/api/quote/list';
 const B3_INDEX_API = 'https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/GetPortfolioDay/';
 const CACHE_PATH = path.join(__dirname, '..', 'data', 'market-cache.json');
+const INDEX_HISTORY_RANGE = process.env.BRAPI_INDEX_HISTORY_RANGE || '3mo';
 const FALLBACK_SYMBOLS = (process.env.IBOV_SYMBOLS || 'PETR4,VALE3,ITUB4,BBAS3,BBDC4,WEGE3,PRIO3,SUZB3')
   .split(',').map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
 const FII_SYMBOLS = `RBRL11 BTCI11 DEVA11 SPXS11 RBRP11 RCRB11 BRCR11 RECR11 HCTR11 RBRY11 RBRR11 VGIP11 MCCI11 VGIR11 CPTS11 RZAK11 RBRX11 AFHI11 RZAT11 BTLG11 SNCI11 SNFF11 BROF11 ALZR11 BTAL11 XPML11 BRCO11 KNIP11 GTWR11 KISU11 KNRI11 TEPP11 RBVA11 HGRU11 BCIA11 KFOF11 GARE11 HGBS11 XPCI11 VILG11 TRXF11 HSLG11 TRBL11 BCRI11 HSML11 HGLG11 VISC11 VGHF11 MXRF11 JSAF11 PVBI11 CYCR11 HABT11 OUJP11 MFII11 TGAR11 KNSC11 WHGR11 URPR11 LVBI11 KNCR11 VINO11 PORD11 VRTA11 HSAF11 KNHY11 VCJR11 TVRI11 HTMX11 XPSF11 KCRE11 HFOF11 CACR11 XPLG11 HGRE11 JSRE11 RZTR11 HGCR11 GGRC11 FATN11 CLIN11 KNHF11 KORE11 SNEL11 BPML11 CPSH11 GZIT11 KIVO11 KNUQ11 MANA11 MCRE11 ITRI11 BBIG11 VGRI11 ICRI11 LIFE11 BTHF11 TOPP11 VRTM11 PMLL11 AZPL11 PCIP11 PSEC11 RPRI11 RBFM11 IRIM11`.split(/\s+/).filter(Boolean);
@@ -80,12 +81,15 @@ async function fetchJson(url, headers = {}) {
   return response.json();
 }
 function brapiHeaders() { return process.env.BRAPI_TOKEN ? { Authorization: `Bearer ${process.env.BRAPI_TOKEN}` } : {}; }
-async function fetchHistory(symbol) {
+function historyRangeFor(symbol) {
+  return ['^BVSP', 'IFIX'].includes(String(symbol || '').trim().toUpperCase()) ? INDEX_HISTORY_RANGE : '1y';
+}
+async function fetchHistory(symbol, range = historyRangeFor(symbol)) {
   const url = new URL(BRAPI_URL);
   url.searchParams.set('symbols', symbol);
-  // Um ano preserva os retornos já usados pelo RS e também permite a leitura
-  // de tendência (EMA 20/200), ATR e volume pelo mesmo histórico diário.
-  url.searchParams.set('range', '1y');
+  // O plano atual da Brapi oferece apenas até três meses para índices. As
+  // ações permanecem com um ano, preservando ATR, tendência e retornos.
+  url.searchParams.set('range', range);
   url.searchParams.set('interval', '1d');
   url.searchParams.set('sortOrder', 'asc');
   const payload = await fetchJson(url, brapiHeaders());
@@ -356,4 +360,4 @@ async function refreshIfDue(now = new Date()) {
   return refreshMarketData();
 }
 
-module.exports = { readCache, refreshMarketData, refreshIfDue, refreshClassStrength, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset };
+module.exports = { readCache, refreshMarketData, refreshIfDue, refreshClassStrength, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor };
