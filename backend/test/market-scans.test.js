@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { marketScansFromCache } = require('../src/market-scans');
+const { mergeLiveQuote } = require('../src/market-data');
 
 function asset(symbol, overrides = {}) {
   return {
@@ -28,4 +29,14 @@ test('market scans informa indisponibilidade de métricas sem fabricar resultado
   assert.equal(payload.cards.find((card) => card.id === 'strong-up').available, false);
   assert.equal(payload.cards.find((card) => card.id === 'low-atr').count, 0);
   assert.equal(payload.cards.find((card) => card.id === 'rs-leaders').available, true);
+});
+
+test('cotação ao vivo atualiza o scan intradiário sem apagar métricas históricas', () => {
+  const current = asset('ABCD3', { scan: { price: 100, averageVolume20: 1_000, atrPct: 1.5, ema20: 95, ema200: 90, healthyTrend: true } });
+  const next = mergeLiveQuote(current, { regularMarketPrice: 104, regularMarketChangePercent: 4, regularMarketVolume: 3_200 });
+  assert.equal(next.scan.price, 104);
+  assert.equal(next.scan.dayChangePct, 4);
+  assert.equal(next.scan.volumeRatio, 3.2);
+  assert.equal(next.scan.atrPct, 1.5);
+  assert.equal(next.scan.healthyTrend, true);
 });

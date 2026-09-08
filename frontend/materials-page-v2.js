@@ -14,12 +14,24 @@
     material.cover = coverById[material.id] || material.cover;
   });
 
-  const originalPurchasedMaterials = purchasedMaterials;
-  purchasedMaterials = function () {
-    const stored = localStorage.getItem(MATERIALS_STORAGE);
-    if (stored === null) return ['risk', 'zen', 'checklist'];
-    return originalPurchasedMaterials();
-  };
+  let ownedIds = [];
+  async function loadEntitlements() {
+    if (!window.healthyTrendApi?.isAuthenticated()) { ownedIds = []; renderMaterials(); return; }
+    try {
+      const response = await window.healthyTrendApi.request('/api/materials');
+      ownedIds = (response.entitlements || []).map((item) => item.material_id);
+    } catch (error) { console.warn('Não foi possível carregar a biblioteca.', error); ownedIds = []; }
+    renderMaterials();
+  }
+  async function acquireMaterial(id) {
+    if (!window.healthyTrendApi?.isAuthenticated()) { showToast('Entre no workspace para adquirir um material.'); return; }
+    try {
+      await window.healthyTrendApi.request('/api/materials/entitlements', { method: 'POST', body: JSON.stringify({ materialId: id }) });
+      if (!ownedIds.includes(id)) ownedIds.push(id);
+      showToast('Material adicionado à sua Biblioteca.');
+      renderMaterials();
+    } catch (error) { showToast(error.message || 'Não foi possível atualizar sua Biblioteca.'); }
+  }
 
   const journey = [
     ['▥', 'Mercado', 'Entenda o ambiente'],
@@ -34,7 +46,7 @@
     const root = document.getElementById('materialsRoot');
     if (!root) return;
 
-    const owned = purchasedMaterials();
+    const owned = ownedIds;
     const categories = ['Todos', 'Livros', 'Apresentações', 'Guias', 'Templates', 'Áudios', 'Cursos'];
     const categoryMap = { Livros: 'Livro', Apresentações: 'Apresentação', Guias: 'Guia', Templates: 'Template', Áudios: 'Áudio', Cursos: 'Curso' };
     const query = materialsQuery.toLocaleLowerCase('pt-BR');
@@ -138,7 +150,7 @@
     });
     root.querySelectorAll('[data-material-action]').forEach((button) => button.onclick = () => {
       const id = button.dataset.materialAction;
-      owned.includes(id) ? accessMaterial(id) : buyMaterial(id);
+      owned.includes(id) ? accessMaterial(id) : acquireMaterial(id);
     });
     root.querySelector('[data-material-support]').onclick = () => showToast('O suporte está disponível pelo WhatsApp no canto inferior direito.');
     const crumb = document.getElementById('crumb');
@@ -147,5 +159,6 @@
     if (navLabel && navLabel.lastChild) navLabel.lastChild.nodeValue = 'Healthy Trend Trader Materials';
   };
 
+  window.addEventListener('healthyTrend:authenticated', loadEntitlements);
   renderMaterials();
 })();

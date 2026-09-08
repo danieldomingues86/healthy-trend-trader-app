@@ -80,6 +80,10 @@
     if (avatar) avatar.textContent = (user.displayName || user.email || 'U').split(/\s+/).map((part) => part[0]).slice(0, 2).join('').toUpperCase();
     if (typeof go === 'function') go('today');
     window.dispatchEvent(new CustomEvent('healthyTrend:authenticated', { detail: { user } }));
+    // The account menu is rendered from the signed-in profile. Render it again
+    // after login so the avatar is always an interactive control, even while
+    // the user workspace is still being loaded from the server.
+    window.setTimeout(() => window.setupAccountMenu?.(), 0);
   }
 
   window.enterWorkspace = async (event) => {

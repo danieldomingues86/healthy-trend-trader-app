@@ -10,6 +10,7 @@
     "refresh:fundamentus": "node src/refresh-fundamentus.js",
     "db:check": "node src/check-database.js",
     "admin:reset": "node src/reset-admin-password.js",
+    "demo:seed": "node src/seed-demo-user.js",
     "test": "node --test ../frontend/*.test.js test/*.test.js"
   },
   "engines": {
