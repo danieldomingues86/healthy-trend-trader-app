@@ -32,7 +32,21 @@
     if (!response.ok) throw new Error(payload.error || 'Não foi possível concluir a operação.');
     return payload;
   }
-  window.healthyTrendApi = { request, isAuthenticated: () => Boolean(token()) };
+  async function uploadFile(path, file, headers = {}) {
+    const requestHeaders = { 'Content-Type': file.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(file.name), ...headers };
+    if (token()) requestHeaders.Authorization = `Bearer ${token()}`;
+    const response = await fetch(`${API}${path}`, { method: 'POST', headers: requestHeaders, body: file });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || 'Não foi possível enviar o arquivo.');
+    return payload;
+  }
+  async function requestBlob(path) {
+    const headers = {}; if (token()) headers.Authorization = `Bearer ${token()}`;
+    const response = await fetch(`${API}${path}`, { headers });
+    if (!response.ok) { const payload = await response.json().catch(() => ({})); throw new Error(payload.error || 'Não foi possível abrir o arquivo.'); }
+    return response.blob();
+  }
+  window.healthyTrendApi = { request, uploadFile, requestBlob, isAuthenticated: () => Boolean(token()) };
   function createAccessSessionId() {
     if (window.crypto?.randomUUID) return window.crypto.randomUUID();
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
