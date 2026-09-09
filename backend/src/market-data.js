@@ -1,3 +1,4 @@
+const { stockUniverse, splitStockUniverse } = require('./stock-universe');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
@@ -39,7 +40,9 @@ function assetClassForSymbol(symbol) {
 }
 function classMeta(assetClass) {
   return {
-    stock: { key: 'stock', label: 'Ações', benchmark: 'IBOV', universeLabel: 'Ações e units da B3' },
+    stock: { key: 'stock_ibov', label: 'Ações Ibovespa', benchmark: 'IBOV', universeLabel: 'Componentes do Ibovespa' },
+    stock_ibov: { key: 'stock_ibov', label: 'Ações Ibovespa', benchmark: 'IBOV', universeLabel: 'Componentes do Ibovespa' },
+    stock_other: { key: 'stock_other', label: 'Demais ações', benchmark: 'SMLL / pelotão B3', universeLabel: 'Ações fora do Ibovespa' },
     fii: { key: 'fii', label: 'FIIs', benchmark: 'IFIX', universeLabel: 'Fundos imobiliários da B3' },
     bdr: { key: 'bdr', label: 'BDRs', benchmark: 'BDRs + ativo original', universeLabel: 'BDRs negociados na B3' }
   }[assetClass] || null;
@@ -78,7 +81,12 @@ function rank(items) {
 }
 async function fetchJson(url, headers = {}) {
   const response = await fetch(url, { headers });
-  if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
+  if (!response.ok) {
+    const detail = await response.json().catch(() => ({}));
+    const error = new Error(`HTTP ${response.status}: ${detail.message || url}`);
+    error.providerCode = detail.code;
+    throw error;
+  }
   return response.json();
 }
 function brapiHeaders() { return process.env.BRAPI_TOKEN ? { Authorization: `Bearer ${process.env.BRAPI_TOKEN}` } : {}; }
@@ -115,7 +123,12 @@ async function fetchHistory(symbol, range = historyRangeFor(symbol)) {
   url.searchParams.set('range', range);
   url.searchParams.set('interval', '1d');
   url.searchParams.set('sortOrder', 'asc');
-  const payload = await fetchJson(url, brapiHeaders());
+  let payload;
+  try { payload = await fetchJson(url, brapiHeaders()); }
+  catch (error) {
+    if (error.providerCode !== 'INVALID_RANGE' || range !== '1y') throw error;
+    return fetchHistory(symbol, '3mo');
+  }
   const result = payload.results?.[0]?.data?.historicalDataPrice || payload.results?.[0]?.historicalDataPrice || [];
   if (!result.length) throw new Error(`Sem histórico para ${symbol}`);
   return result;
@@ -211,6 +224,7 @@ async function fetchAssetMetadata() {
   const firstPage = await fetchJson(`${BRAPI_LIST_URL}?limit=100&page=1`, brapiHeaders());
   const pages = Array.from({ length: Math.max(0, (firstPage.totalPages || 1) - 1) }, (_, index) => index + 2);
   const remaining = await mapWithConcurrency(pages, 3, async (page) => fetchJson(`${BRAPI_LIST_URL}?limit=100&page=${page}`, brapiHeaders()));
+  if (remaining.some(page => page.error)) throw new Error('Catálogo de ativos incompleto: falha ao carregar uma página.');
   const catalog = [firstPage, ...remaining].flatMap((page) => page.stocks || []);
   return new Map(catalog.map((asset) => [asset.stock, {
     name: asset.name || asset.stock,
@@ -235,19 +249,19 @@ function peerBenchmarkHistory(histories) {
   }
   return [...byDate.entries()].sort(([a], [b]) => String(a).localeCompare(String(b))).map(([date, value]) => ({ date, close: value.total / value.count }));
 }
-async function fetchIbovSymbols() {
+async function fetchIndexSymbols(index, fallback = [], minimum = 20) {
   try {
-    const payload = { language: 'pt-br', pageNumber: 1, pageSize: 120, index: 'IBOV' };
+    const payload = { language: 'pt-br', pageNumber: 1, pageSize: 250, index };
     const encoded = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64');
     const response = await fetch(`${B3_INDEX_API}${encoded}`, { headers: { 'User-Agent': 'HealthyTrendTrader/1.0' } });
     if (!response.ok) throw new Error(`B3 HTTP ${response.status}`);
     const body = await response.json();
     const symbols = [...new Set((body.results || []).map((item) => item.cod).filter(Boolean))];
-    if (symbols.length >= 40) return symbols;
-    throw new Error('Composição da B3 não trouxe símbolos suficientes');
+    if (symbols.length >= minimum) return symbols;
+    throw new Error(`Composição ${index} não trouxe símbolos suficientes`);
   } catch (error) {
     console.warn(`[market-data] Usando lista de contingência: ${error.message}`);
-    return FALLBACK_SYMBOLS;
+    return fallback;
   }
 }
 async function mapWithConcurrency(items, limit, mapper) {
@@ -308,39 +322,57 @@ async function collectPeerRelativeStrength({ assetClass, catalog }) {
   return { ...classMeta(assetClass), benchmark: 'Universo de BDRs', returns: benchmarkReturns, requested: catalog.length, available: rows.length, items: rows, catalogVersion: BDR_CATALOG_VERSION };
 }
 function classStrengthFromCache(cache) {
-  const stock = {
-    ...classMeta('stock'), benchmark: cache.benchmark?.symbol || 'IBOV', returns: cache.benchmark?.returns || {},
-    requested: cache.universe?.requested || cache.relativeStrength?.length || 0,
-    available: cache.universe?.available || cache.relativeStrength?.length || 0,
-    items: (cache.relativeStrength || []).map((item) => ({ ...item, assetClass: 'stock' }))
-  };
+  const legacyStock = { ...classMeta('stock'), requested: cache.universe?.requested || 0, available: cache.relativeStrength?.length || 0, unavailable: cache.universe?.unavailable || [], items: (cache.relativeStrength || []).map((item) => ({ ...item, assetClass: item.assetClass || 'stock' })) };
+  const fallbackStock = { ...legacyStock, ...classMeta('stock_ibov'), items: legacyStock.items.map(item => ({ ...item, assetClass: 'stock_ibov' })) };
+  const stockIbov = cache.relativeStrengthByClass?.stock_ibov || fallbackStock;
+  const stockOther = cache.relativeStrengthByClass?.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [], pending: true };
   const pending = (assetClass) => ({ ...classMeta(assetClass), requested: 0, available: 0, items: [], pending: true });
-  return { stock, fii: cache.relativeStrengthByClass?.fii || pending('fii'), bdr: cache.relativeStrengthByClass?.bdr || pending('bdr') };
+  return { stock: legacyStock, stock_ibov: stockIbov, stock_other: stockOther, fii: cache.relativeStrengthByClass?.fii || pending('fii'), bdr: cache.relativeStrengthByClass?.bdr || pending('bdr') };
 }
 function classifyAsset(symbol, cache) {
   const normalized = String(symbol || '').trim().toUpperCase();
-  const assetClass = assetClassForSymbol(normalized);
+  const baseClass = assetClassForSymbol(normalized);
   const classes = classStrengthFromCache(cache || {});
+  const assetClass = baseClass === 'stock' ? (classes.stock_ibov.items.some(item => item.symbol === normalized) ? 'stock_ibov' : 'stock_other') : baseClass;
   const universe = classes[assetClass];
   const item = universe?.items?.find((candidate) => candidate.symbol === normalized) || null;
   return { ticker: normalized, assetClass, ...classMeta(assetClass), item, available: Boolean(item) };
+}
+
+function scoreStockGroup(entries, benchmarkHistory, benchmark) {
+  const benchmarkReturns = returns(benchmarkHistory);
+  return rank(entries.map(({ history, ...item }) => ({ ...item, benchmark, relativeTrend: relativeTrend(history, benchmarkHistory), relativeScore: (item.m1 - benchmarkReturns.m1) * .35 + (item.m3 - benchmarkReturns.m3) * .65 })))
+    .map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend), assetClass: benchmark === 'IBOV' ? 'stock_ibov' : 'stock_other' }));
 }
 async function readCache() { try { return JSON.parse(await fs.readFile(CACHE_PATH, 'utf8')); } catch { return null; } }
 async function writeCache(data) { await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true }); await fs.writeFile(CACHE_PATH, JSON.stringify(data, null, 2)); }
 function isBusinessDay(date = new Date()) { const day = saoPauloParts(date).weekday; return day !== 'Sun' && day !== 'Sat'; }
 async function refreshMarketData() {
-  const symbols = await fetchIbovSymbols();
+  const previous = await readCache();
+  const [indexSymbols, smallCapSymbols] = await Promise.all([fetchIndexSymbols('IBOV', FALLBACK_SYMBOLS, 40), fetchIndexSymbols('SMLL', [], 20)]);
   const ibovHistory = await fetchHistory('^BVSP');
+  const smllHistory = await fetchHistory('SMLL');
   const benchmarkReturns = returns(ibovHistory);
   const metadata = await fetchAssetMetadata();
+  const symbols = stockUniverse(metadata, indexSymbols);
   const collected = await mapWithConcurrency(symbols, 3, async (symbol) => {
     const history = await fetchHistory(symbol);
     const assetReturns = returns(history);
     if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) throw new Error(`Histórico incompleto para ${symbol}`);
     const details = metadata.get(symbol) || { name: symbol, sector: 'Não classificado' };
-    return { symbol, ...details, ...assetReturns, scan: scanMetrics(history), relativeTrend: relativeTrend(history, ibovHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
+    return { symbol, ...details, ...assetReturns, scan: scanMetrics(history), history };
   });
-  const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
+  const availableEntries = collected.filter((item) => !item.error);
+  const groups = splitStockUniverse(symbols, indexSymbols, smallCapSymbols);
+  const select = (members) => { const set = new Set(members); return availableEntries.filter(item => set.has(item.symbol)); };
+  const ibovRows = scoreStockGroup(select(groups.ibov), ibovHistory, 'IBOV');
+  const smallRows = scoreStockGroup(select(groups.small), smllHistory, 'SMLL');
+  const otherEntries = select(groups.other);
+  const otherBenchmarkHistory = peerBenchmarkHistory(new Map(otherEntries.map(item => [item.symbol, item.history])));
+  const residualRows = otherEntries.length && Number.isFinite(returns(otherBenchmarkHistory).m3) ? scoreStockGroup(otherEntries, otherBenchmarkHistory, 'B3 fora de IBOV/SMLL') : [];
+  const clean = item => { const { history, ...value } = item; return value; };
+  const rows = [...ibovRows, ...smallRows, ...residualRows].map(clean);
+  if (!rows.length || (previous?.relativeStrength?.length && rows.length < previous.relativeStrength.length * .8)) throw new Error('Atualização incompleta: cache anterior preservado.');
   const catalogFii = catalogItems(FII_CATALOG, 'fii');
   const catalogBdr = bdrCatalogFromMetadata(metadata);
   const [fiiResult, bdrResult] = await Promise.allSettled([
@@ -350,10 +382,12 @@ async function refreshMarketData() {
     collectPeerRelativeStrength({ assetClass: 'bdr', catalog: catalogBdr })
   ]);
   const relativeStrengthByClass = {
+    stock_ibov: { ...classMeta('stock_ibov'), returns: benchmarkReturns, requested: groups.ibov.length, available: ibovRows.length, items: ibovRows.map(clean) },
+    stock_other: { ...classMeta('stock_other'), requested: groups.small.length + groups.other.length, available: smallRows.length + residualRows.length, items: [...smallRows, ...residualRows].map(clean) },
     fii: fiiResult.status === 'fulfilled' ? fiiResult.value : { ...classMeta('fii'), benchmark: 'IFIX', requested: catalogFii.length, available: 0, items: [], error: fiiResult.reason?.message },
     bdr: bdrResult.status === 'fulfilled' ? bdrResult.value : { ...classMeta('bdr'), benchmark: 'Universo de BDRs', requested: catalogBdr.length, available: 0, items: [], error: bdrResult.reason?.message }
   };
-  const cache = { updatedAt: new Date().toISOString(), source: 'brapi', universe: { requested: symbols.length, available: rows.length }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
+  const cache = { updatedAt: new Date().toISOString(), source: 'brapi', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
   await writeCache(cache);
   return cache;
 }
@@ -368,6 +402,7 @@ async function refreshClassStrength(cache) {
   const next = {
     ...cache,
     relativeStrengthByClass: {
+      ...cache.relativeStrengthByClass,
       fii: fiiResult.status === 'fulfilled' ? fiiResult.value : { ...classMeta('fii'), benchmark: 'IFIX', requested: catalogFii.length, available: 0, items: [], error: fiiResult.reason?.message },
       bdr: bdrResult.status === 'fulfilled' ? bdrResult.value : { ...classMeta('bdr'), benchmark: 'Universo de BDRs', requested: catalogBdr.length, available: 0, items: [], error: bdrResult.reason?.message }
     }
@@ -429,4 +464,4 @@ async function refreshIfDue(now = new Date()) {
   return refreshMarketData();
 }
 
-module.exports = { readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote };
+module.exports = { fetchHistory, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote };
