@@ -1,0 +1,72 @@
+/* Gold Premium turns the habit tracker into a dark, warm workspace. */
+body:not([data-theme="healthy"]):has(#habits.active){
+  --habit-forest:#f3dfad;
+  --habit-green:#c99b3a;
+  --habit-soft:#2e2412;
+  --habit-surface:#18130b;
+  --habit-muted:#c7b78e;
+  background:#100d08;
+}
+body:not([data-theme="healthy"]):has(#habits.active) .main{
+  background-image:linear-gradient(180deg,rgba(10,8,5,.82),rgba(14,10,5,.9)),url('assets/habit-tracker-landscape-v2.png');
+}
+body:not([data-theme="healthy"]):has(#habits.active) .topbar{
+  background:rgba(11,9,5,.86);
+  border-bottom-color:rgba(206,163,66,.22);
+}
+body:not([data-theme="healthy"]):has(#habits.active) .market-focus-guard{
+  background:linear-gradient(90deg,rgba(48,36,13,.94),rgba(28,22,11,.94));
+  border-color:rgba(207,163,65,.4);
+  box-shadow:0 12px 26px rgba(0,0,0,.26);
+}
+body:not([data-theme="healthy"]):has(#habits.active) .market-focus-copy b{color:#fff0c9}
+body:not([data-theme="healthy"]):has(#habits.active) .market-focus-copy p,
+body:not([data-theme="healthy"]):has(#habits.active) .market-focus-state{color:#d7be83}
+body:not([data-theme="healthy"]):has(#habits.active) .market-focus-orb{background:#2f250f;border-color:#8d6b2e}
+body:not([data-theme="healthy"]):has(#habits.active) .market-focus-guard .secondary{background:#20170a;border-color:#72582a;color:#f1d99d}
+
+body:not([data-theme="healthy"]) #habits.habit-artistic-page::after{color:rgba(236,196,103,.38)}
+body:not([data-theme="healthy"]) #habits.habit-artistic-page::before{color:#d7ad52}
+body:not([data-theme="healthy"]) #habits .habit-workspace,
+body:not([data-theme="healthy"]) #habits .habit-summary-card,
+body:not([data-theme="healthy"]) #habits .habit-hero,
+body:not([data-theme="healthy"]) #habits .habit-card{
+  background:linear-gradient(145deg,rgba(33,25,12,.97),rgba(18,14,8,.98));
+  border-color:rgba(209,166,69,.3);
+  box-shadow:inset 0 1px rgba(255,230,169,.045),0 14px 42px rgba(0,0,0,.3);
+}
+body:not([data-theme="healthy"]) #habits .habit-workspace-head h2,
+body:not([data-theme="healthy"]) #habits .habit-hero h1,
+body:not([data-theme="healthy"]) #habits .habit-summary-card b,
+body:not([data-theme="healthy"]) #habits .habit-card h2{color:#fff0cf}
+body:not([data-theme="healthy"]) #habits .habit-workspace-head p,
+body:not([data-theme="healthy"]) #habits .habit-hero p,
+body:not([data-theme="healthy"]) #habits .habit-summary-card span,
+body:not([data-theme="healthy"]) #habits .habit-card p{color:#cdbb91}
+body:not([data-theme="healthy"]) #habits .habit-workspace-head .eyebrow,
+body:not([data-theme="healthy"]) #habits .habit-hero .eyebrow,
+body:not([data-theme="healthy"]) #habits .habit-summary-card small{color:#e0bc63}
+body:not([data-theme="healthy"]) #habits .habit-workspace-head .secondary{background:#231a0d;border-color:#765c2d;color:#f5d987}
+
+body:not([data-theme="healthy"]) #habits .habit-grid{border-color:#5d4925;background:#151109}
+body:not([data-theme="healthy"]) #habits .habit-grid-row>*{border-right-color:rgba(255,238,198,.075);border-bottom-color:rgba(255,238,198,.075)}
+body:not([data-theme="healthy"]) #habits .habit-grid-head{background:#31250f;color:#e8cf92}
+body:not([data-theme="healthy"]) #habits .habit-name{background:#1d160b}
+body:not([data-theme="healthy"]) #habits .habit-name b{color:#fff0cf}
+body:not([data-theme="healthy"]) #habits .habit-name small,
+body:not([data-theme="healthy"]) #habits .habit-remove{color:#bba980!important}
+body:not([data-theme="healthy"]) #habits .habit-category{background:#392b11;color:#efc965}
+body:not([data-theme="healthy"]) #habits .habit-day{background:#292218}
+body:not([data-theme="healthy"]) #habits .habit-day:hover{background:#3a2c11;box-shadow:inset 0 0 0 2px rgba(221,181,81,.58)}
+body:not([data-theme="healthy"]) #habits .habit-day.done{background:#bd8b32!important}
+body:not([data-theme="healthy"]) #habits .habit-day.skipped{background:#743f3b!important}
+body:not([data-theme="healthy"]) #habits .habit-day.ignored,
+body:not([data-theme="healthy"]) #habits .habit-day-head.ignored{background:repeating-linear-gradient(135deg,#3b372e 0 3px,#29261f 3px 6px)!important;color:#b6aa8e}
+body:not([data-theme="healthy"]) #habits .habit-grid-legend{color:#c7b68d}
+body:not([data-theme="healthy"]) #habits .habit-grid-legend i.ignored{background:#3b372e;border-color:#544d3c}
+body:not([data-theme="healthy"]) #habits .habit-summary-card:nth-child(1)::before,
+body:not([data-theme="healthy"]) #habits .habit-summary-card:nth-child(2)::before,
+body:not([data-theme="healthy"]) #habits .habit-summary-card:nth-child(3)::before{color:#f0c966;background:#3b2d11;border-color:#60481e}
+body:not([data-theme="healthy"]) #habits .habit-form input,
+body:not([data-theme="healthy"]) #habits .habit-form select{background:#171109;border-color:#6a5228;color:#f5e5bd}
+body:not([data-theme="healthy"]) #habits .habit-routine{background:linear-gradient(135deg,#2b210e,#17120a)}

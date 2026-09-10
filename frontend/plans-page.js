@@ -14,7 +14,7 @@
     ['review', 'Revisão Semanal', 'Weekly Review'], ['platformaccess', 'Uso da plataforma e Monitor do Profit', 'Platform usage and Profit Monitor'],
     ['zen', 'Trader Zen e Biblioteca Mental', 'Trader Zen and Mental Library'], ['habits', 'Monitor de Hábitos', 'Habit Tracker'],
     ['wisdom', 'Sabedoria do Trader', 'Trader Wisdom'],
-    ['traderprofile', 'Perfil do Trader', 'Trader Profile'], ['manual', 'Manual do software', 'Software Manual'],
+    ['traderprofile', 'Testes de Perfil', 'Profile Tests'], ['manual', 'Manual do software', 'Software Manual'],
     ['glossary', 'Glossário do método', 'Method Glossary'], ['materials', 'Healthy Trend Trader Materials · compras separadas', 'Healthy Trend Trader Materials · separate purchases'], ['settings', 'Configurações gerais', 'General settings'],
     ['profile', 'Meus Dados', 'My Details'], ['avatar', 'Avatar', 'Avatar']
   ];

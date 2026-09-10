@@ -181,6 +181,12 @@ body:not([data-theme="healthy"]) #journal{
   --jv-tone-eeeede:#eee9de;
   --jv-tone-f1f6e9:#f6f2e9;
 }
+
+/* Carry the journal atmosphere through the full available viewport. */
+body:has(#journal.active) .content{min-height:calc(100vh - 78px);background:linear-gradient(135deg,#062219 0%,#0d3d2c 48%,#092b20 100%)}
+body:has(#journal.active) #journal{min-height:calc(100vh - 78px);margin:0!important;padding:0!important}
+body:has(#journal.active) #journal .jv-workspace{min-height:calc(100vh - 78px)}
+body:not([data-theme="healthy"]):has(#journal.active) .content{background:linear-gradient(135deg,#171108 0%,#30210d 48%,#171108 100%)}
 body:has(#journal.active) .content{max-width:none;margin:0;padding:0}
 body:has(#journal.active) #marketFocusGuard{display:none}
 #journal .jv-workspace{--jv-ink:var(--jv-tone-293b30);--jv-muted:var(--jv-tone-647065);--jv-line:#cfcdbb;min-height:calc(100dvh - 78px);padding:42px clamp(20px,3vw,60px) 60px;background:radial-gradient(ellipse at 85% 0,var(--jv-tone-36584040),transparent 60%),linear-gradient(110deg,var(--jv-tone-081d14eb),var(--jv-tone-07150eed)),url('../assets/plans-connected-journey-v1.png') center/cover fixed;color:var(--jv-tone-eeeede);font:16px/1.6 Arial,Helvetica,sans-serif}
@@ -310,6 +316,10 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{--jv-chart:#d6aa50;backg
 #journal .jv-patterns .jv-title-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #journal .jv-patterns h3{font:400 23px Georgia,serif;margin:0;color:var(--jv-tone-293b30)}
 #journal .jv-patterns header p{margin:2px 0 0;color:var(--jv-tone-6b745e);font-size:12px}
+#journal .jv-emotional .jv-patterns{margin-top:24px;padding:20px 0 0;border-radius:0;background:transparent}
+#journal .jv-emotional .jv-patterns header{margin-bottom:12px}
+#journal .jv-emotional .jv-patterns h3{font-size:21px}
+#journal .jv-emotional .jv-patterns .jv-field textarea{min-height:96px}
 #journal #jv-dialog.jv-evidence-dialog{width:min(1600px,94vw);max-height:92dvh;padding:20px 24px}
 #journal #jv-dialog.jv-evidence-dialog .jv-evidence-preview{display:block;width:auto;max-width:100%;max-height:calc(92dvh - 100px);margin:auto;object-fit:contain}
 #journal #jv-dialog .jv-evidence-audio{width:100%;margin:20px 0}

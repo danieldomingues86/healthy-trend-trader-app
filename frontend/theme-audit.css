@@ -50,13 +50,15 @@ body:not([data-theme="healthy"]) #newtrade .final-size span{color:#e4d2aa}
 body:not([data-theme="healthy"]) .wealth-tabs{background:#18150e;border-color:#514222}
 body:not([data-theme="healthy"]) .wealth-tabs button{color:#d8c79f}
 body:not([data-theme="healthy"]) .wealth-tabs button.active{background:#4a3511;color:#fff8e6;border-color:#c99e3d}
-body:not([data-theme="healthy"]) .wealth-heat{background:linear-gradient(135deg,#27331f,#172217);border-color:#67884d;color:#f7f0de}
+body:not([data-theme="healthy"]) .wealth-heat{background:linear-gradient(135deg,#352514,#1b140b);border-color:#80612b;color:#f7f0de}
 body:not([data-theme="healthy"]) .wealth-heat b{color:#fff8e8}
 body:not([data-theme="healthy"]) #positions .period-selector{background:#18150e;border-color:#584625;color:#d9c9a6}
 body:not([data-theme="healthy"]) #positions .period-selector button{background:#292214;border-color:#5b4827;color:#eadabd}
 body:not([data-theme="healthy"]) #positions .period-selector button.active{background:#c99e3d;border-color:#e3c16b;color:#241b0b}
 body:not([data-theme="healthy"]) #positions .period-group-banner{background:#17140d;border-color:#604b28;color:#fff7e5}
 body:not([data-theme="healthy"]) #positions .period-group-banner small{color:#d9c8a1}
+body:not([data-theme="healthy"]) #positions .positions-table .closed-period-group td{background:#241f14!important;border-color:#5d4a26!important;color:#f4d27c!important}
+body:not([data-theme="healthy"]) #positions .positions-table .closed-period-group small{color:#cdbd98!important}
 
 /* Fundamental analysis: retain the semantic score colors but use Gold-neutral panels and readable years. */
 body:not([data-theme="healthy"]) #fundamentals .fund-score{background:linear-gradient(145deg,#241b0d,#151109)!important;border-color:#765b2b;color:#fff8e8}
@@ -105,6 +107,13 @@ body:not([data-theme="healthy"]) .risk-cycle-item.improving{background:#34351d;b
 body:not([data-theme="healthy"]) .risk-cycle-item.transition{background:#3d3118;border-color:#c6a64c}
 body:not([data-theme="healthy"]) .risk-cycle-item.defensive{background:#3c2719;border-color:#bd7f49}
 body:not([data-theme="healthy"]) .risk-cycle-item.riskOff{background:#3a2020;border-color:#b75d5d}
+body:not([data-theme="healthy"]) .risk-cycle-item.healthy{background:#2c2818;border-color:#806c38}
+
+/* Gold uses gold for neutral controls. Green stays reserved for positive market state only. */
+body:not([data-theme="healthy"]) .heat-status.ok .status-badge{background:#4d3a16!important;color:#f8df93!important;border-color:#b38a35!important}
+body:not([data-theme="healthy"]) .heat-status.ok .heat-meter i{background:linear-gradient(90deg,#9b762b,#e0b950)!important}
+body:not([data-theme="healthy"]) .heat-status.ok .heat-recommendation{border-left-color:#c69b3f!important;background:#261e10!important}
+body:not([data-theme="healthy"]) .wealth-card .wealth-heat{border-left-color:#c69b3f!important}
 
 /* Relative strength keeps its semantic green/red status, while all reading surfaces follow Gold. */
 body:not([data-theme="healthy"]) #relativestrength .rs-race-shell{color:#f5ead1}
@@ -187,9 +196,15 @@ body:not([data-theme="healthy"]) #glossary .glossary-panel-tabs button.active{bo
 body:not([data-theme="healthy"]) #glossary .glossary-art .grade+circle,
 body:not([data-theme="healthy"]) #glossary .glossary-art .grade~circle{fill:#c79a3c}
 /* A CSS icon follows the navigation's currentColor in every theme. */
-.materials-menu-icon{position:relative;color:currentColor}
-.materials-menu-icon::before{content:"";width:13px;height:10px;border:1.5px solid currentColor;border-radius:2px;box-sizing:border-box}
-.materials-menu-icon::after{content:"";position:absolute;top:1px;width:7px;height:4px;border:1.5px solid currentColor;border-bottom:0;border-radius:5px 5px 0 0}
+.materials-menu-icon{position:relative;display:inline-block!important;width:14px;height:14px;color:currentColor}
+.materials-menu-icon::before{content:"";position:absolute;left:0;bottom:1px;width:13px;height:10px;border:1.5px solid currentColor;border-radius:2px;box-sizing:border-box}
+.materials-menu-icon::after{content:"";position:absolute;left:3px;top:0;width:7px;height:5px;border:1.5px solid currentColor;border-bottom:0;border-radius:5px 5px 0 0;box-sizing:border-box}
+
+/* Top navigation: prioritize complete labels over a decorative block. */
+body[data-navigation-layout="top"] .sidebar{overflow-x:auto;scrollbar-width:thin}
+body[data-navigation-layout="top"] .sidebar .brand{margin-right:0}
+body[data-navigation-layout="top"] .sidebar .nav button{font-size:10px;padding:8px 8px;white-space:nowrap}
+body[data-navigation-layout="top"] .sidebar .nav{gap:1px}
 
 /* Portfolio Heat: preserve the title and keep the sizing glyph inside its own column. */
 .heat-philosophy h2::first-letter{color:#fff!important}

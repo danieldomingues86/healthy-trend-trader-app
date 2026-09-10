@@ -1,0 +1,106 @@
+/* Gold needs a deliberately dark Truth Panel. The base panel is a light glass surface. */
+body:not([data-theme="healthy"]) #analytics.truth-panel{
+  color:#f4ead5;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel::before{
+  background:
+    radial-gradient(circle at 88% 14%,rgba(199,151,51,.18),transparent 28%),
+    linear-gradient(135deg,#100d08 0%,#1d160b 55%,#120f09 100%) !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel::after{
+  opacity:.35;
+  border-color:rgba(218,178,85,.24) !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel .hero,
+body:not([data-theme="healthy"]) #analytics.truth-panel .card,
+body:not([data-theme="healthy"]) #analytics.truth-panel .truth-filter-card,
+body:not([data-theme="healthy"]) #analytics.truth-panel .analytics-summary-grid > *,
+body:not([data-theme="healthy"]) #analytics.truth-panel .analytics-advanced-grid > *,
+body:not([data-theme="healthy"]) #analytics.truth-panel .analytics-breakdown-grid > *{
+  background:linear-gradient(145deg,rgba(39,30,15,.97),rgba(20,16,9,.98)) !important;
+  border-color:rgba(198,155,62,.34) !important;
+  box-shadow:inset 0 1px rgba(255,234,184,.045),0 14px 30px rgba(0,0,0,.2) !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel .hero h1,
+body:not([data-theme="healthy"]) #analytics.truth-panel h2,
+body:not([data-theme="healthy"]) #analytics.truth-panel h3,
+body:not([data-theme="healthy"]) #analytics.truth-panel strong,
+body:not([data-theme="healthy"]) #analytics.truth-panel b,
+body:not([data-theme="healthy"]) #analytics.truth-panel .metric-value{
+  color:#fff3d7 !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel .hero p,
+body:not([data-theme="healthy"]) #analytics.truth-panel p,
+body:not([data-theme="healthy"]) #analytics.truth-panel small,
+body:not([data-theme="healthy"]) #analytics.truth-panel span,
+body:not([data-theme="healthy"]) #analytics.truth-panel label,
+body:not([data-theme="healthy"]) #analytics.truth-panel td,
+body:not([data-theme="healthy"]) #analytics.truth-panel th{
+  color:#cdbf9e !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel .eyebrow,
+body:not([data-theme="healthy"]) #analytics.truth-panel .truth-reflection,
+body:not([data-theme="healthy"]) #analytics.truth-panel .positive,
+body:not([data-theme="healthy"]) #analytics.truth-panel .metric-highlight{
+  color:#e5bd5e !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel select,
+body:not([data-theme="healthy"]) #analytics.truth-panel input{
+  color:#f8ebce !important;
+  background:#120f09 !important;
+  border-color:#6c552a !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel button.secondary,
+body:not([data-theme="healthy"]) #analytics.truth-panel .secondary{
+  color:#ead49e !important;
+  background:#241b0d !important;
+  border-color:#765d2e !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel button.primary,
+body:not([data-theme="healthy"]) #analytics.truth-panel .primary{
+  color:#231706 !important;
+  background:linear-gradient(135deg,#bf8d28,#ebc967) !important;
+  border-color:#efcf76 !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel .truth-grade-breakdown,
+body:not([data-theme="healthy"]) #analytics.truth-panel .truth-grade-setup,
+body:not([data-theme="healthy"]) #analytics.truth-panel .truth-breakdown-row,
+body:not([data-theme="healthy"]) #analytics.truth-panel .analytics-monthly tr{
+  background:linear-gradient(145deg,#2b210f,#18130b) !important;
+  border-color:rgba(198,155,62,.3) !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel .truth-grade-setup header,
+body:not([data-theme="healthy"]) #analytics.truth-panel .analytics-monthly thead{
+  background:#332610 !important;
+  border-color:rgba(218,178,85,.32) !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel .truth-grade-setup,
+body:not([data-theme="healthy"]) #analytics.truth-panel .truth-breakdown-row,
+body:not([data-theme="healthy"]) #analytics.truth-panel .analytics-monthly td,
+body:not([data-theme="healthy"]) #analytics.truth-panel .analytics-monthly th{
+  border-color:rgba(198,155,62,.2) !important;
+}
+
+/* An em dash already communicates missing data; empty months stay within the dark table. */
+body:not([data-theme="healthy"]) #analytics.truth-panel .analytics-monthly .empty-month td{
+  background:#1a140b !important;
+  color:#c9b98f !important;
+}
+
+body:not([data-theme="healthy"]) #analytics.truth-panel .chart-wrap,
+body:not([data-theme="healthy"]) #analytics.truth-panel .chart-container{
+  background:rgba(10,8,5,.45) !important;
+  border-color:rgba(198,155,62,.22) !important;
+}

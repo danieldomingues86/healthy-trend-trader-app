@@ -1,0 +1,99 @@
+/* The Gold identity wins over the Healthy defaults that are loaded with the workbench. */
+body:not([data-theme="healthy"]) #newtrade .workbench-card .trade-screenshot-section{
+  background:rgba(119,86,24,.18);
+  border-color:rgba(222,181,81,.4);
+}
+body:not([data-theme="healthy"]) #newtrade .workbench-card .trade-screenshot-drop{
+  background:linear-gradient(135deg,#3a2a0f,#251a0a);
+  border-color:#80642f;
+}
+body:not([data-theme="healthy"]) #newtrade .workbench-card .trade-screenshot-drop span{color:#fff0cb}
+body:not([data-theme="healthy"]) #newtrade .workbench-card .trade-screenshot-drop small,
+body:not([data-theme="healthy"]) #newtrade .workbench-card .trade-screenshot-section p{color:#d7c293}
+
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline{
+  border-color:rgba(225,185,86,.48);
+  background:linear-gradient(180deg,rgba(63,42,8,.78),rgba(24,16,6,.97) 64%),url('assets/trading-rubric/quality-environment-v1.png') center top/cover;
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-experience-header>b{color:#e8c36a}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-experience-header h3,
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-experience-card>header b{color:#fff1cf}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-experience-header p,
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-experience-card>header b span{color:#dbc69a}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-experience-card{
+  background:rgba(27,19,7,.86);
+  border-color:rgba(230,194,104,.28);
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-experience-card>header button{
+  border-color:rgba(226,184,81,.58);
+  background:rgba(131,91,19,.25);
+  color:#f0cf78;
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-criterion{color:#f8e9c5}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-criterion::before{color:#efc969}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-criterion::after{
+  background:linear-gradient(90deg,#d2a441 0 var(--rubric-fill),#725927 var(--rubric-fill) 100%);
+  box-shadow:0 0 8px rgba(223,181,75,.18);
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-criterion b{color:#f1cf75}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .manual-rubric-controls button{
+  border-color:rgba(231,196,111,.25);
+  background:rgba(255,241,204,.06);
+  color:#dfc796;
+}
+/* Status colors are semantic and remain stable across every visual theme. */
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .manual-rubric-controls button[data-rating="bad"].active{
+  background:#7d2835;
+  border-color:#ef6470;
+  color:#fff3f2;
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .manual-rubric-controls button[data-rating="medium"].active{
+  background:#765b18;
+  border-color:#e9bd42;
+  color:#fff4d7;
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .manual-rubric-controls button[data-rating="good"].active{
+  background:#126b47;
+  border-color:#54e29a;
+  color:#effff5;
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-experience-card footer{
+  border-color:rgba(229,193,102,.2);
+  color:#e7d0a0;
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-experience-card footer b{
+  background:rgba(155,111,27,.42);
+  color:#fff0c7;
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-risk-base{
+  background:rgba(28,19,7,.86);
+  border-color:rgba(229,193,102,.26);
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-risk-base strong{
+  background:linear-gradient(135deg,#85621b,#513909);
+  color:#fff1cb;
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .rubric-risk-base p{color:#e3cfaa}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .experience-status{
+  border-color:#dfb94f;
+  background:rgba(122,84,12,.76);
+  box-shadow:0 0 16px rgba(221,178,68,.22);
+  color:#fff0c5;
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .experience-gauge{
+  background:conic-gradient(from 270deg,#ad4841 0 24%,#d6a441 24% 50%,#eccb76 50% 82%,rgba(255,245,213,.18) 82% 100%);
+  filter:drop-shadow(0 0 14px rgba(224,181,73,.24));
+}
+body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .experience-gauge::before{background:radial-gradient(circle at 50% 88%,#fff3cb 0 4px,#201606 5px 100%)}
+
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control{
+  border-color:rgba(224,183,78,.45);
+  background:linear-gradient(145deg,rgba(57,39,10,.86),rgba(27,19,7,.9));
+}
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control label{color:#f1d583}
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control input{
+  background:#fff9e8;
+  border-color:#d2a745;
+  color:#372609;
+}
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control small{color:#ddca9d!important}
