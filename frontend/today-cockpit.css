@@ -9,4 +9,26 @@
 .today-next-action{position:relative;overflow:hidden;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;padding:27px;border-radius:20px;background:linear-gradient(135deg,#102f24,#174d37);color:#fff}.today-next-action:after{content:"→";position:absolute;right:24%;top:-26px;color:rgba(255,255,255,.045);font-size:150px}.today-next-action small{color:#8fd3a5;font-size:9px;font-weight:900;letter-spacing:.14em}.today-next-action h2{margin:7px 0;color:#fff;font:700 29px Georgia,serif}.today-next-action p{margin:0;color:#c7dfce;font-size:12px}.today-next-action button{position:relative;z-index:1;min-width:175px;border:1px solid #9ed4ae;border-radius:11px;background:#e9f8ec;color:#175b37;padding:12px 15px;font-weight:850;cursor:pointer}
 .top-heat-meter{display:flex;align-items:center;gap:9px;min-width:160px;padding:7px 11px;border:1px solid #d7e3d9;border-radius:999px;background:rgba(255,255,255,.72);cursor:pointer}.top-heat-meter span{font-size:9px;font-weight:850;color:#486456}.top-heat-meter b{font-size:11px;color:#173f2b}.top-heat-meter i{width:42px;height:5px;overflow:hidden;border-radius:999px;background:#dce5de}.top-heat-meter i em{display:block;height:100%;background:#4fad70}.top-heat-meter.warn i em{background:#d88e3b}
 body:not([data-theme="healthy"]) .today-cockpit-card{border-color:#3f3828;background:rgba(24,22,16,.88)}body:not([data-theme="healthy"]) .today-cockpit-card h2,body:not([data-theme="healthy"]) .today-cockpit-card h3{color:#f5ead3}body:not([data-theme="healthy"]) .today-account-facts div,body:not([data-theme="healthy"]) .today-opportunity-list button{border-color:#413925;background:#211d13;color:#f2e5c9}body:not([data-theme="healthy"]) .today-heat-bar{background:#3b3424}body:not([data-theme="healthy"]) .top-heat-meter{border-color:#4c4028;background:#211b11}body:not([data-theme="healthy"]) .top-heat-meter span,body:not([data-theme="healthy"]) .top-heat-meter b{color:#ead49f}
+
+/* Premium Gold: the operational panels use charcoal and gold, while green remains a market-status signal. */
+body:not([data-theme="healthy"]) .today-cockpit-hero{background:radial-gradient(circle at 82% 15%,rgba(224,181,79,.17),transparent 29%),linear-gradient(132deg,#15110b,#473119);box-shadow:0 24px 54px rgba(30,18,4,.3)}
+body:not([data-theme="healthy"]) .today-cockpit-hero .eyebrow{color:#e8bf62}
+body:not([data-theme="healthy"]) .today-cockpit-hero p{color:#e3d2aa}
+body:not([data-theme="healthy"]) .today-permission{border-color:rgba(233,196,108,.3);background:rgba(13,9,4,.38)}
+body:not([data-theme="healthy"]) .today-permission small{color:#e1c780}
+body:not([data-theme="healthy"]) .today-card-kicker{color:#d7aa4f}
+body:not([data-theme="healthy"]) .today-cockpit-card>p,
+body:not([data-theme="healthy"]) .today-heat-number span,
+body:not([data-theme="healthy"]) .today-heat-scale,
+body:not([data-theme="healthy"]) .today-account-facts small,
+body:not([data-theme="healthy"]) .today-opportunity-list small{color:#bcae8f}
+body:not([data-theme="healthy"]) .today-opportunity-list span{color:#cabd9c}
+body:not([data-theme="healthy"]) .today-opportunity-list button:hover{border-color:#c89f46;background:#2a2112}
+body:not([data-theme="healthy"]) .today-heat-bar i{background:linear-gradient(90deg,#a97420,#edc96d)}
+body:not([data-theme="healthy"]) .today-next-action{background:radial-gradient(circle at 76% 48%,rgba(221,179,73,.13),transparent 30%),linear-gradient(135deg,#1d150b,#513817)}
+body:not([data-theme="healthy"]) .today-next-action small{color:#e5bd61}
+body:not([data-theme="healthy"]) .today-next-action p{color:#d8c59c}
+body:not([data-theme="healthy"]) .today-next-action button{border-color:#e5c36f;background:#f2dfaa;color:#34220a}
+body:not([data-theme="healthy"]) .top-heat-meter i{background:#54462b}
+body:not([data-theme="healthy"]) .top-heat-meter i em{background:#d6aa50}
 @media(max-width:980px){.today-cockpit-hero,.today-cockpit-grid{grid-template-columns:1fr}.today-next-action{grid-template-columns:1fr}.today-next-action button{width:100%}}@media(max-width:680px){.today-heat-layout{grid-template-columns:1fr}.today-account-facts,.today-opportunity-list{grid-template-columns:1fr}.top-heat-meter{display:none}}

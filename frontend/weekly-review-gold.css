@@ -1,0 +1,46 @@
+/* Premium Gold: hierarchy and contrast for the monthly review. */
+body:not([data-theme="healthy"]) .weekly-review-hero span,
+body:not([data-theme="healthy"]) .weekly-review-page small,
+body:not([data-theme="healthy"]) .weekly-reflection small{
+  color:#e5bd67;
+}
+
+body:not([data-theme="healthy"]) .weekly-review-hero h1,
+body:not([data-theme="healthy"]) .weekly-reflection h2{
+  color:#fff2d2;
+}
+
+body:not([data-theme="healthy"]) .weekly-review-hero p,
+body:not([data-theme="healthy"]) .weekly-reflection span{
+  color:#eeddb8;
+}
+
+body:not([data-theme="healthy"]) .weekly-period{
+  border-color:rgba(229,189,103,.36);
+  background:rgba(35,24,6,.72);
+}
+
+body:not([data-theme="healthy"]) .weekly-period small{color:#e5bd67;}
+body:not([data-theme="healthy"]) .weekly-period b{color:#fff0cf;}
+body:not([data-theme="healthy"]) .weekly-period button{
+  border-color:rgba(229,189,103,.48);
+  background:#2a1d09;
+  color:#fff0cf;
+}
+
+body:not([data-theme="healthy"]) .weekly-metrics small,
+body:not([data-theme="healthy"]) .weekly-behaviour small,
+body:not([data-theme="healthy"]) .weekly-details small,
+body:not([data-theme="healthy"]) .weekly-metrics span,
+body:not([data-theme="healthy"]) .weekly-behaviour dt,
+body:not([data-theme="healthy"]) .weekly-note p,
+body:not([data-theme="healthy"]) .weekly-empty{
+  color:#cfbd94;
+}
+
+body:not([data-theme="healthy"]) .weekly-metrics strong,
+body:not([data-theme="healthy"]) .weekly-behaviour h2,
+body:not([data-theme="healthy"]) .weekly-details h2,
+body:not([data-theme="healthy"]) .weekly-note b{
+  color:#fff0d0;
+}

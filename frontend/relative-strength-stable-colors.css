@@ -1,0 +1,27 @@
+/* Every universe keeps its own color. The active dashboard color must not leak into sibling tabs. */
+#relativestrength .rs-class-tab.stock_ibov{--class-color:#238c64}
+#relativestrength .rs-class-tab.stock_other{--class-color:#b48737}
+#relativestrength .rs-class-tab.fii{--class-color:#21824d}
+#relativestrength .rs-class-tab.bdr{--class-color:#7045a3}
+
+#relativestrength .rs-class-tab.stock_ibov::before{background:#238c64}
+#relativestrength .rs-class-tab.stock_other::before{background:#b48737}
+#relativestrength .rs-class-tab.fii::before{background:#21824d}
+#relativestrength .rs-class-tab.bdr::before{background:#7045a3}
+
+#relativestrength .rs-class-tab.stock_ibov b{color:#238c64}
+#relativestrength .rs-class-tab.stock_other b{color:#b48737}
+#relativestrength .rs-class-tab.fii b{color:#21824d}
+#relativestrength .rs-class-tab.bdr b{color:#7045a3}
+
+body:not([data-theme="healthy"]) #relativestrength .rs-class-tab.stock_ibov.active{border-color:#238c64;background:linear-gradient(135deg,#172419,#1b261b)}
+body:not([data-theme="healthy"]) #relativestrength .rs-class-tab.stock_other.active{border-color:#b48737;background:linear-gradient(135deg,#2a210f,#292518)}
+body:not([data-theme="healthy"]) #relativestrength .rs-class-tab.fii.active{border-color:#21824d;background:linear-gradient(135deg,#172719,#1b291d)}
+body:not([data-theme="healthy"]) #relativestrength .rs-class-tab.bdr.active{border-color:#7045a3;background:linear-gradient(135deg,#21172b,#271d30)}
+
+body:not([data-theme="healthy"]) #relativestrength .rs-simple-dashboard-head h2{
+  color:#fff0cf;
+  text-shadow:0 1px 10px rgba(0,0,0,.34);
+}
+body:not([data-theme="healthy"]) #relativestrength .rs-simple-dashboard-head h2 span{color:#e1b957}
+body:not([data-theme="healthy"]) #relativestrength .rs-simple-dashboard-head p{color:#d4c298}

@@ -15,10 +15,8 @@
   const firstName = () => String(profileState?.name || 'Trader').trim().split(/\s+/)[0] || 'Trader';
 
   function renderCurrentDate() {
-    const target = document.getElementById('currentDatePill') || document.querySelector('.topbar .top-actions > .pill:nth-of-type(2)');
-    if (!target) return;
-    target.id = 'currentDatePill';
-    target.textContent = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date()).replace('.', '').toUpperCase();
+    // The header deliberately no longer exposes a current-date pill.
+    document.getElementById('currentDatePill')?.remove();
   }
 
   function preparedPositions() {

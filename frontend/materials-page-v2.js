@@ -154,9 +154,9 @@
     });
     root.querySelector('[data-material-support]').onclick = () => showToast('O suporte está disponível pelo WhatsApp no canto inferior direito.');
     const crumb = document.getElementById('crumb');
-    if (crumb) crumb.textContent = 'Healthy Trend Trader Materials';
+    if (crumb) crumb.textContent = window.appLanguage === 'en-US' ? 'Trader Store' : 'Loja do Trader';
     const navLabel = document.querySelector('.nav button[data-page="materials"]');
-    if (navLabel && navLabel.lastChild) navLabel.lastChild.nodeValue = 'Healthy Trend Trader Materials';
+    if (navLabel && navLabel.lastChild) navLabel.lastChild.nodeValue = window.appLanguage === 'en-US' ? 'Trader Store' : 'Loja do Trader';
   };
 
   window.addEventListener('healthyTrend:authenticated', loadEntitlements);
