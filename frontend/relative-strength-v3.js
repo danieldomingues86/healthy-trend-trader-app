@@ -175,11 +175,10 @@
           <span class="race-below"><b>${text('ABAIXO DO FILTRO','BELOW FILTER')}</b><small>${text('Ficando para trás','Falling behind')}</small></span>
         </div>
       </div></div>
-      <div class="rs-v3-copy"><div class="rs-v3-kicker">${text('INTELIGÊNCIA DE MERCADO','MARKET INTELLIGENCE')}</div>
-      <h1>${text('Força Relativa','Relative Strength')}</h1>
+      <div class="rs-v3-copy"><h1>${text('Força Relativa','Relative Strength')}</h1>
       <p>${text('Encontre as ações que estão rendendo mais que o Ibovespa.<br>Foque nos líderes e deixe o mercado trabalhar a seu favor.','Find stocks outperforming the Ibovespa.<br>Focus on leaders and let the market work in your favor.')}</p>
       <blockquote>${text('“O dinheiro tende a fluir para a força.”','“Money tends to flow toward strength.”')}</blockquote>
-      <small>${text('OPERE O QUE ESTÁ FORTE. DEIXE O RESTO PARA DEPOIS.','TRADE WHAT IS STRONG. LEAVE THE REST FOR LATER.')}</small></div>
+      <small>${text('OPERE O QUE ESTÁ FORTE. DEIXE COM QUE A FORÇA DO MERCADO TE DIGA AONDE COLOCAR SEU DINHEIRO E NÃO A SUA OPNIÃO.','TRADE WHAT IS STRONG. LET MARKET STRENGTH TELL YOU WHERE TO PUT YOUR MONEY, NOT YOUR OPINION.')}</small></div>
       <aside class="rs-v3-editorial"><b>${text('A FORÇA<br>MOVE O MERCADO.','STRENGTH<br>MOVES THE MARKET.')}</b><i></i><small>${text('MESMO MERCADO.<br>RESULTADOS DIFERENTES.','SAME MARKET.<br>DIFFERENT RESULTS.')}</small></aside>
     </header><div class="rs-v3-selector"></div>`);
     const selector = shell.querySelector('.rs-v3-selector');
@@ -197,7 +196,10 @@
     const lastHeader = dashboard.querySelector('.relative-table thead th:last-child');
     if (lastHeader) lastHeader.textContent = text('FUNDAMENTOS', 'FUNDAMENTALS');
     dashboard.insertAdjacentHTML('afterend', `<footer class="rs-v3-closing">${text('“Consistência é a verdadeira vantagem.”','“Consistency is the real advantage.”')}</footer>`);
-    if (disclaimer) { disclaimer.classList.add('rs-v3-disclaimer'); shell.append(disclaimer); }
+    if (disclaimer) {
+      disclaimer.classList.add('rs-v3-disclaimer');
+      dashboard.insertAdjacentElement('beforebegin', disclaimer);
+    }
   }
   const baseRows = renderRelativeStrengthClassRows;
   renderRelativeStrengthClassRows = function () {

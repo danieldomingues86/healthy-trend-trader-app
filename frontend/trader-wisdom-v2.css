@@ -1,0 +1,72 @@
+body:has(#wisdom.active) .main{background:#f5f4ee;color:#173e31}
+body:has(#wisdom.active) .content{padding:0!important;max-width:none;margin:0}
+body:has(#wisdom.active) #marketFocusGuard{display:none}
+body:has(#wisdom.active) .topbar{background:#f5f4eef5;color:#264739;border-bottom:1px solid #d8e2d9}
+body:has(#wisdom.active) .crumb,body:has(#wisdom.active) .crumb b{color:#173d30}
+#wisdom .wv-page{max-width:1900px;margin:auto;color:#173e31;font-family:Arial,sans-serif}
+#wisdom .wv-hero{min-height:310px;box-sizing:border-box;display:grid;grid-template-columns:1.08fr 1fr;align-items:center;gap:7%;padding:28px 4%;color:#fffef7;background:linear-gradient(90deg,#042b24dc 0%,#082e2770 48%,#08251d05 100%),url('../assets/wisdom-hero-v2.webp') center 53%/cover}
+#wisdom .wv-intro>small{letter-spacing:.42em;font-size:10px;color:#c4d7c3}
+#wisdom .wv-hero h1{font:700 clamp(48px,4.7vw,70px)/.88 Georgia,serif;letter-spacing:-.035em;margin:12px 0}
+#wisdom .wv-hero p{max-width:535px;font:13px/1.45 Arial,sans-serif;margin:14px 0;color:#f0f2e9}
+#wisdom .wv-hero blockquote{margin:65px 22% 0 0;padding-left:20px;border-left:2px solid #d6bf69;font:17px/1.45 Georgia,serif;text-shadow:0 2px 8px #001d14}
+#wisdom .wv-hero cite{display:block;font:12px Arial,sans-serif;margin-top:12px;color:#f4f6ed}
+#wisdom .wv-stats{display:flex;gap:35px;margin-top:20px}
+#wisdom .wv-stats>span{display:flex;align-items:center;gap:12px;font-size:29px;color:#a7d5a1}
+#wisdom .wv-stats b{font:600 12px/1.4 Arial,sans-serif;color:#f5f7ef}
+#wisdom .wv-stats small{display:block;font-weight:400;font-size:11px}
+#wisdom .wv-library{padding:16px 24px 24px}
+#wisdom .wv-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+#wisdom .wv-search{flex:1 1 270px;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #d5e0d9;border-radius:11px;padding:0 12px}
+#wisdom .wv-search input{border:0;outline:none;background:none;width:100%;font:11px Arial,sans-serif;padding:11px 0;color:#193d30;min-width:0}
+#wisdom .wv-filters{display:flex;gap:5px;flex-wrap:wrap}
+#wisdom .wv-toolbar button,#wisdom .wv-pagination button,#wisdom .wv-toolbar select,#wisdom .wv-pagination select{font:11px Arial,sans-serif;color:#244939;background:#fafbf8;border:1px solid #d5e0d9;border-radius:10px;padding:9px 10px;cursor:pointer}
+#wisdom .wv-filters button{border-radius:999px;font-size:10px;padding:9px}
+#wisdom button[aria-pressed=true],#wisdom .wv-pagination button[aria-current]{background:#227346;color:#fff;border-color:#227346}
+#wisdom .wv-views{display:flex;gap:3px}
+#wisdom .wv-views button{font-size:18px;padding:5px 9px}
+#wisdom .wv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+#wisdom .wv-card{isolation:isolate;position:relative;border-radius:12px;overflow:hidden;min-width:0;min-height:230px;box-shadow:0 2px 5px #193d3110;transition:transform .24s,box-shadow .24s;background:#13392c;color:#fff}
+#wisdom .wv-card::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,#052720cc,#051d1655),url('../assets/wisdom-hero-v2.webp') center/cover;transition:transform .24s}
+#wisdom .wv-art-1::before{background-image:linear-gradient(110deg,#1b3025a8,#132c2850),url('../assets/materials-hero-mountains-v1.png');background-position:80% 50%}
+#wisdom .wv-art-2::before{background-image:linear-gradient(110deg,#082c26b8,#05272055),url('../assets/trader-zen-healthy.png')}
+#wisdom .wv-art-3::before{background-image:linear-gradient(110deg,#16231da0,#0a291e10),url('../assets/healthy-login-chess-growth-v3.png');background-position:80% 50%}
+#wisdom .wv-art-4::before{background-position:0 80%;background-size:auto,230%}
+#wisdom .wv-art-5::before{background-image:linear-gradient(110deg,#24312aaa,#18342977),url('../assets/materials-zen-cover-v1.png')}
+#wisdom .wv-card:hover{transform:translateY(-3px);box-shadow:0 10px 25px #173d312b}
+#wisdom .wv-card:hover::before{transform:scale(1.035)}
+#wisdom .wv-open{width:100%;height:100%;min-height:230px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:28px 28px 18px 48px;background:none;border:0;color:inherit;cursor:pointer}
+#wisdom .wv-quote-mark{position:absolute;top:12px;left:16px;font:38px Georgia,serif;color:#f8faf0}
+#wisdom .wv-excerpt{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;font:20px/1.2 Georgia,serif;margin:18px 18px 16px 0;min-height:72px;text-shadow:0 2px 7px #0008}
+#wisdom .wv-author{font:11px Arial,sans-serif;color:#d1dcd2;margin-bottom:12px}
+#wisdom .wv-tags{display:flex;gap:6px;margin-top:auto;flex-wrap:wrap;margin-left:-22px}
+#wisdom .wv-tags span{background:#e6eee6eb;color:#173d31;padding:4px 9px;border-radius:999px;font:10px Arial,sans-serif}
+#wisdom .wv-star{position:absolute;top:8px;right:9px;font:26px Arial,sans-serif;color:#fff;background:none;border:0;cursor:pointer;padding:0 4px}
+#wisdom .wv-star[aria-pressed=true]{color:#f5d783;background:none;border:0}
+#wisdom .wv-pagination{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:22px 0;font-size:11px;color:#507065;flex-wrap:wrap}
+#wisdom .wv-pagination nav{display:flex;gap:7px;align-items:center}
+#wisdom .wv-pagination button:disabled{opacity:.35;cursor:default}
+#wisdom .wv-signature{padding:14px 0 2px;text-align:center;font:italic 16px Georgia,serif;color:#184b38}
+#wisdom .wv-signature small{display:block;margin-top:12px;letter-spacing:.3em;font:10px Arial,sans-serif;color:#769086}
+#wisdom .wv-empty,#wisdom .wv-status{padding:30px;border:1px dashed #a9beb1;border-radius:10px;grid-column:1/-1;color:#496854}
+#wisdom .wv-list{grid-template-columns:1fr}
+#wisdom .wv-list .wv-card,#wisdom .wv-list .wv-open{min-height:110px}
+#wisdom .wv-list .wv-excerpt{min-height:0;-webkit-line-clamp:2}
+#wisdom button:focus-visible,#wisdom input:focus-visible,#wisdom select:focus-visible{outline:2px solid #71af85;outline-offset:3px}
+#wv-dialog{width:min(1000px,calc(100vw - 32px));max-height:90vh;box-sizing:border-box;padding:0;border:1px solid #bdd1c0;border-radius:18px;background:#f6f5ef;color:#204633;box-shadow:0 30px 100px #001e16a0}
+#wv-dialog::backdrop{background:#021c15b8;backdrop-filter:blur(5px)}
+#wv-dialog header,#wv-dialog footer{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:18px 24px;border-bottom:1px solid #d7e1d8}
+#wv-dialog h2{font:28px Georgia,serif;margin:5px 0}
+#wv-dialog small{font:11px Arial,sans-serif;color:#58715f}
+#wv-dialog button{border:1px solid #bfcebf;border-radius:8px;padding:9px 14px;background:#edf1e9;color:#1b5438;cursor:pointer}
+#wv-dialog button:disabled{opacity:.35;cursor:default}
+#wv-dialog .wv-reader{padding:24px;display:grid;grid-template-columns:.8fr 1.2fr;gap:24px}
+#wv-dialog blockquote{margin:0 0 20px;font:23px/1.35 Georgia,serif}
+#wv-dialog p{font:13px/1.6 Arial,sans-serif}
+#wv-dialog img{width:100%;max-height:60vh;object-fit:contain;background:#e4e9df;border-radius:9px}
+#wv-dialog footer{border-top:1px solid #d7e1d8;border-bottom:0}
+@media(max-width:1400px){#wisdom .wv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#wisdom .wv-hero blockquote{margin-right:10%}#wisdom .wv-stats{gap:18px}}
+@media(max-width:1000px){#wisdom .wv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#wisdom .wv-hero{gap:25px}#wisdom .wv-hero blockquote{margin-right:0;font-size:15px}#wisdom .wv-stats{gap:10px}}
+@media(max-width:600px){#wisdom .wv-grid{grid-template-columns:1fr}#wisdom .wv-hero{grid-template-columns:1fr;padding:26px 22px;background-position:65% center}#wisdom .wv-hero h1{font-size:52px}#wisdom .wv-hero blockquote{margin:10px 0 0;font-size:15px}#wisdom .wv-library{padding:14px}#wisdom .wv-filters{gap:5px}#wisdom .wv-stats{justify-content:space-between}#wisdom .wv-stats>span{gap:5px;font-size:23px}#wisdom .wv-pagination{justify-content:center}#wv-dialog .wv-reader{grid-template-columns:1fr}#wisdom .wv-list{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){#wisdom .wv-card,#wisdom .wv-card::before{transition:none}}
+#wisdom .wv-excerpt,#wisdom .wv-hero q{font-weight:400!important}
+#wisdom .wv-grid.wv-list{grid-template-columns:1fr}

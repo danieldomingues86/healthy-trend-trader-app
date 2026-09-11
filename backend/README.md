@@ -16,6 +16,8 @@ API interna para a V1 de Ciclo de Mercado e Força Relativa.
 1. Copie `.env.example` para `.env` e informe `BRAPI_TOKEN`.
 2. Execute `npm start` dentro desta pasta. O servidor lê o `.env` localmente; esse arquivo é ignorado pelo Git.
 
+Para trocar a chave, substitua somente o valor de `BRAPI_TOKEN` em `backend/.env` e reinicie o backend. O controle salva apenas uma impressão criptográfica da credencial. Ao detectar uma chave realmente diferente, descarta o bloqueio e os contadores da chave anterior, preservando as respostas e o cache de mercado já existentes.
+
 ### Usuário administrador e persistência
 
 Para ativar a persistência real, configure no `.env` a `DATABASE_URL` do PostgreSQL do Supabase e as três variáveis `ADMIN_*` presentes no `.env.example`. Na primeira inicialização, o backend aplica as migrations em `db/migrations` e cria o administrador informado caso ele ainda não exista. A senha é transformada em hash antes de ser armazenada; nunca inclua `DATABASE_URL` ou `ADMIN_PASSWORD` no Git.
@@ -33,4 +35,6 @@ Não existe endpoint de atualização manual. O servidor tenta atualizar uma vez
 
 ## Consumo consciente da BRAPI
 
-O plano gratuito limita uma chamada a um ticker, por isso o backend limita a concorrência a três e persiste o cache. O frontend não acessa a BRAPI nem recebe o token.
+O frontend não acessa a BRAPI nem recebe o token. O backend combina históricos de até dez ativos por chamada, cache persistente, deduplicação de requisições, serialização de atualizações e bloqueio após erros de cota. Os limites preventivos padrão são 250 chamadas por dia e 14.000 em 31 dias; configure valores menores no `.env` quando a cota oficial for compartilhada com outro software. Scans atualizam cotações no máximo uma vez por hora por padrão. Durante indisponibilidade ou bloqueio, as telas continuam usando o último cache válido.
+
+`GET /api/health` mostra `provider.requestsToday`, `provider.trackedRequests`, `provider.blockedUntil` e `provider.reason`, sem expor a chave. Essa contagem começa quando esta proteção é instalada e cobre apenas este backend/diretório; confira o painel da BRAPI para o consumo total da conta.
