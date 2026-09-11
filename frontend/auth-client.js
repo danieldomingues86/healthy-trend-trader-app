@@ -88,6 +88,7 @@
     }
   };
   function enter(user) {
+    window.syncSubscriptionFromAccount?.(user);
     document.getElementById('loginShell')?.classList.add('hidden');
     document.body.style.overflow = '';
     const avatar = document.querySelector('.avatar');
@@ -99,6 +100,11 @@
     // the user workspace is still being loaded from the server.
     window.setTimeout(() => window.setupAccountMenu?.(), 0);
   }
+  function completeSession(result, remember = true) {
+    setToken(result.token, remember);
+    enter(result.user);
+  }
+  window.healthyTrendAuth = { completeSession };
 
   window.enterWorkspace = async (event) => {
     event.preventDefault();
@@ -111,8 +117,7 @@
     message('');
     try {
       const result = await request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-      setToken(result.token, remember);
-      enter(result.user);
+      completeSession(result, remember);
     } catch (error) {
       message(error.message);
     } finally {

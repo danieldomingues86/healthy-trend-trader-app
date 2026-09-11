@@ -83,22 +83,6 @@
       : '<p class="library-empty">Seus materiais adquiridos aparecerão aqui.</p>';
 
     root.innerHTML = `<main class="materials-page materials-v2">
-      <section class="materials-hero">
-        <div class="materials-hero-copy">
-          <div class="materials-eyebrow">Biblioteca premium</div>
-          <h1>Healthy Trend<br>Trader Materials</h1>
-          <p>Conteúdos, ferramentas e materiais que fazem parte do método Healthy Trend Trader. Leve o seu desenvolvimento mais longe.</p>
-        </div>
-        <blockquote>“Conhecimento<br>aplicado<br>transforma<br>resultados.”</blockquote>
-        <div class="materials-journey" aria-label="Jornada do conhecimento">
-          <svg viewBox="0 0 1000 84" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M0,68 C110,67 125,24 238,30 S350,70 438,45 S535,4 630,25 S752,73 842,52 S930,36 1000,50" />
-            ${[160, 355, 540, 735, 920].map((x, index) => `<circle cx="${x}" cy="${[39, 53, 22, 57, 44][index]}" r="8"/><circle class="journey-core" cx="${x}" cy="${[39, 53, 22, 57, 44][index]}" r="3"/>`).join('')}
-          </svg>
-          <div class="materials-journey-stages">${journey.map(([icon, title, subtitle]) => `<div class="journey-stage"><i>${icon}</i><div><b>${title}</b><small>${subtitle}</small></div></div>`).join('')}</div>
-        </div>
-      </section>
-
       <section class="materials-toolbar">
         <nav class="materials-filters">${categories.map((category) => `<button type="button" class="${!materialsLibraryOnly && materialsFilter === category ? 'active' : ''}" data-material-filter="${category}">${category}</button>`).join('')}</nav>
         <div class="materials-tools"><label class="materials-search">⌕ <input id="materialsSearch" value="${safe(materialsQuery)}" placeholder="Buscar materiais..."></label><select id="materialsSort" aria-label="Ordenar materiais"><option value="recent" ${materialsSort === 'recent' ? 'selected' : ''}>Mais recentes</option><option value="price-asc" ${materialsSort === 'price-asc' ? 'selected' : ''}>Menor preço</option><option value="price-desc" ${materialsSort === 'price-desc' ? 'selected' : ''}>Maior preço</option></select></div>

@@ -1,0 +1,27 @@
+/* Account menu: one dark surface across every workspace page. */
+.account-dropdown{
+  border-color:rgba(137,217,159,.26)!important;
+  background:linear-gradient(150deg,rgba(9,43,30,.98),rgba(3,22,15,.99))!important;
+  box-shadow:0 20px 45px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.045)!important;
+  color:#eaf7ed;
+  backdrop-filter:blur(16px);
+}
+.account-summary{border-bottom-color:rgba(164,226,181,.16)!important}
+.account-summary b{color:#f1faf3!important}
+.account-summary span{color:#a9c7b1!important}
+.account-dropdown button{
+  margin:2px 0;
+  background:transparent!important;
+  color:#dceddf!important;
+  font-weight:650;
+}
+.account-dropdown button:hover,.account-dropdown button:focus-visible{
+  background:linear-gradient(100deg,rgba(85,177,116,.23),rgba(85,177,116,.09))!important;
+  color:#fff!important;
+  outline:0;
+}
+.account-dropdown button .account-icon{color:#89d99f!important}
+.account-dropdown .account-separator{margin:7px 4px;background:rgba(164,226,181,.16)!important}
+.account-dropdown button.account-signout{color:#ffb1ad!important}
+.account-dropdown button.account-signout .account-icon{color:#ff8079!important}
+.account-dropdown button.account-signout:hover{background:rgba(201,95,85,.14)!important;color:#ffd2ce!important}
