@@ -1,0 +1,72 @@
+/* Área de trabalho comum para as páginas operacionais em telas largas. */
+:root{--workspace-max-width:1900px;--workspace-gutter:clamp(24px,3vw,64px)}
+
+@media (min-width:1201px){
+  .content{max-width:none;margin:0;padding:24px var(--workspace-gutter) 48px}
+
+  /* A proteção de foco fica alinhada com a página exibida logo abaixo. */
+  #marketFocusGuard{
+    width:min(100%,var(--workspace-max-width));
+    margin:0 auto 20px!important;
+  }
+  body:has(#materials.active) #marketFocusGuard{display:none}
+  body:has(#habits.active) #marketFocusGuard,
+  body:has(#settings.active) #marketFocusGuard{
+    width:min(100%,var(--workspace-max-width))!important;
+    margin-inline:auto!important;
+  }
+
+  .page.active:not(#journal):not(#zen):not(#manual):not(#wisdom){
+    width:min(100%,var(--workspace-max-width));
+    margin-inline:auto!important;
+  }
+
+  /* Páginas que antes tinham uma largura própria passam a ocupar a mesma área útil. */
+  #today.today-cockpit-page,
+  #habits.habit-artistic-page,
+  #traderprofile,
+  #platformaccess,
+  #relativestrength.rs-v3-page,
+  #dashboard,
+  #review,
+  #forecast,
+  #fundamentals,
+  #marketscans,
+  #materials{max-width:none!important;width:100%;margin-inline:auto!important}
+
+  #today.today-cockpit-page .today-cockpit,
+  #habits .habit-shell,
+  #dashboard .wealth-shell,
+  #review .weekly-review-page,
+  #forecastRoot,
+  #fundamentalsRoot,
+  #marketscans #marketScansRoot,
+  #materials .materials-v2{width:100%;max-width:none!important;margin-inline:auto}
+
+  body:has(#relativestrength.active) .content{
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:24px var(--workspace-gutter) 48px!important;
+  }
+  #relativestrength.rs-v3-page{width:min(100%,var(--workspace-max-width))!important}
+  #relativestrength.rs-v3-page .rs-simple-shell{width:100%!important;max-width:none!important}
+
+  #settings .settings-hero,
+  #settings .settings-grid,
+  #settings>.settings-footer,
+  body:has(#settings.active) #settings>.settings-hero,
+  body:has(#settings.active) #settings>.settings-grid,
+  body:has(#settings.active) #settings>.settings-footer{
+    width:min(100%,var(--workspace-max-width))!important;
+    max-width:none!important;
+    margin-inline:auto!important;
+  }
+
+  /* Scans começa junto à faixa de mercado, como as demais páginas. */
+  body:has(#marketscans.active) #marketscans{margin-top:-48px!important}
+
+  /* Sem o banner da loja, os filtros passam a iniciar o catálogo. */
+  body:has(#materials.active) .content{padding-top:24px!important}
+  #materials .materials-toolbar{margin:0 0 18px!important}
+}

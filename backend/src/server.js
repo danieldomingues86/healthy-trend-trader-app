@@ -70,6 +70,10 @@ const server = http.createServer(async (request, response) => {
       const session = await auth.login(credentials.email, credentials.password);
       return session ? send(response, 200, session) : send(response, 401, { error: 'E-mail ou senha inválidos.' });
     }
+    if (request.method === 'POST' && url.pathname === '/api/auth/register') {
+      if (!database.configured()) return send(response, 503, { error: 'Cadastro ainda não configurado no servidor.' });
+      return send(response, 201, await auth.register(await body(request)));
+    }
     if (request.method === 'GET' && url.pathname === '/api/auth/me') {
       if (!database.configured()) return send(response, 503, { error: 'Autenticação ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request));

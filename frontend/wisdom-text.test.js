@@ -27,7 +27,8 @@ test('Category, search, favorite and sort predicates compose',()=>{
  assert.deepEqual(select(records,{category:'psychology',query:'disciplina'}).map(r=>r.id),['b']);
  assert.deepEqual(select(records,{category:'risk',query:'disciplina'}),[]);
  assert.deepEqual(select(records,{category:'psychology',special:'favorites',favorites:['c']}).map(r=>r.id),['c']);
- assert.deepEqual(select(records,{category:'review',query:'Minervini'}).map(r=>r.id),['d']);
- assert.deepEqual(select(records,{sort:'newest'}).map(r=>r.id),['c','b','a']);
+ assert.deepEqual(select(records,{category:'review',query:'Minervini'}),[]);
+ assert.deepEqual(select([{...records[3],searchText:'Mark Minervini on discipline'}],{category:'traders'}).map(r=>r.id),['d']);
+ assert.deepEqual(select(records,{sort:'newest'}).map(r=>r.id),['d','c','b','a']);
  assert(inCategory(records[1],'psychology'));assert(!inCategory(records[1],'risk'));
 });

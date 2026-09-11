@@ -142,7 +142,7 @@ async function seed() {
 
   await database.transaction(async (client) => {
     await client.query('DELETE FROM app.app_users WHERE email = $1', [EMAIL]);
-    await client.query('INSERT INTO app.app_users (id, email, password_hash, display_name, role) VALUES ($1, $2, $3, $4, $5)', [userId, EMAIL, await hashPassword(PASSWORD), NAME, 'member']);
+    await client.query('INSERT INTO app.app_users (id, email, password_hash, display_name, role, plan_type, account_status) VALUES ($1, $2, $3, $4, $5, $6, $7)', [userId, EMAIL, await hashPassword(PASSWORD), NAME, 'member', 'PROFESSIONAL', 'active']);
     for (const trade of trades) {
       await client.query(
         `INSERT INTO app.trades (id, user_id, ticker, market, direction, setup, entry_price, stop_price, atr, planned_quantity, risk_pct, rubric_score, rubric_max_score, rubric_grade, rubric_responses, status, metadata, execution_price, executed_quantity, executed_at, created_at)

@@ -70,8 +70,9 @@ body:has(#wisdom.active) .crumb,body:has(#wisdom.active) .crumb b{color:#e5ebd9}
 #wisdom .wv-star{position:absolute;top:7px;right:8px;font:26px Arial,sans-serif;background:none;border:0;color:#fcf7df;padding:0 4px;line-height:1.2}
 #wisdom .wv-star[aria-pressed=true]{color:#ead27c}
 #wisdom .wv-pending .wv-open{padding:12px;align-items:center;gap:10px}
-#wisdom .wv-original-preview{width:100%;height:200px;object-fit:contain;background:#071b14;border-radius:6px}
-#wisdom .wv-review-label{font:12px/1.4 Arial,sans-serif;color:#e3dec2}
+#wisdom .wv-original-preview{width:100%;height:180px;object-fit:contain;background:#071b14;border-radius:6px}
+#wisdom .wv-pending .wv-tags{align-self:stretch}
+#wisdom .wv-review-label{font:12px/1.4 Arial,sans-serif;color:#c7e6cc}
 #wisdom .wv-pagination{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:24px 0 16px;font-size:12px;color:#b7cdb9}
 #wisdom .wv-pagination nav{display:flex;align-items:center;gap:6px}
 #wisdom .wv-pagination button:disabled{opacity:.35;cursor:default}
@@ -79,6 +80,50 @@ body:has(#wisdom.active) .crumb,body:has(#wisdom.active) .crumb b{color:#e5ebd9}
 #wisdom .wv-signature small{display:block;margin-top:8px;font:9px Arial,sans-serif;letter-spacing:.3em;color:#8fa991}
 #wisdom .wv-empty{grid-column:1/-1;padding:35px;text-align:center;color:#cdddc6;border:1px dashed #b9ceb245;border-radius:10px}
 #wisdom .wv-grid.wv-list{grid-template-columns:1fr}
+/* Premium Gold follows the application palette instead of inheriting Healthy Green surfaces. */
+body[data-theme="gold"]:has(#wisdom.active) .topbar{background:#171108ee;color:#f4e7c8;border-bottom-color:#d9b55a38}
+body[data-theme="gold"]:has(#wisdom.active) .crumb,body[data-theme="gold"]:has(#wisdom.active) .crumb b{color:#f2d594}
+body[data-theme="gold"] #wisdom .wv-page{--gold:#e9c76e;--line:rgba(225,187,96,.34);color:#f9edcf;background:radial-gradient(ellipse at 50% 42%,rgba(116,77,23,.22),transparent 68%),#100c07}
+body[data-theme="gold"] #wisdom .wv-top{background:linear-gradient(180deg,rgba(22,15,7,.32) 0%,rgba(19,13,7,.58) 38%,rgba(16,12,7,.94) 85%,#100c07 100%),linear-gradient(90deg,rgba(19,13,6,.76),rgba(33,21,8,.28)),url('../assets/wisdom-hero-v2.webp') center top/cover no-repeat}
+body[data-theme="gold"] #wisdom .wv-hero h1{color:#fff0ca;text-shadow:0 3px 18px rgba(18,10,2,.8)}
+body[data-theme="gold"] #wisdom .wv-hero p{color:#f5e5c3}
+body[data-theme="gold"] #wisdom .wv-hero blockquote{border-left-color:#e6bd5d;text-shadow:0 2px 8px rgba(18,10,2,.75)}
+body[data-theme="gold"] #wisdom .wv-hero cite{color:#ead9ae}
+body[data-theme="gold"] #wisdom .wv-search,body[data-theme="gold"] #wisdom .wv-shortcuts button,body[data-theme="gold"] #wisdom .wv-controls select,body[data-theme="gold"] #wisdom .wv-pagination button,body[data-theme="gold"] #wisdom .wv-pagination select,body[data-theme="gold"] #wisdom .wv-empty button{background:rgba(35,25,11,.88);border-color:rgba(225,187,96,.38);color:#f7e9c9}
+body[data-theme="gold"] #wisdom .wv-search svg{color:#e1bb65}
+body[data-theme="gold"] #wisdom .wv-search input,body[data-theme="gold"] #wisdom .wv-search input::placeholder{color:#f0dfba}
+body[data-theme="gold"] #wisdom .wv-shortcuts button[aria-pressed=true],body[data-theme="gold"] #wisdom .wv-pagination button[aria-current]{background:linear-gradient(125deg,#9a6c20,#e3b951);border-color:#f0cf78;color:#1e1406}
+body[data-theme="gold"] #wisdom select option{background:#251a0b;color:#f9eaca}
+body[data-theme="gold"] #wisdom .wv-category{border-color:rgba(225,187,96,.55);background:#211608;color:#fff1cf}
+body[data-theme="gold"] #wisdom .wv-category::after{background:linear-gradient(180deg,transparent 8%,rgba(20,12,4,.1) 35%,rgba(20,12,4,.84) 75%,rgba(13,8,3,.98))}
+body[data-theme="gold"] #wisdom .wv-category svg,body[data-theme="gold"] #wisdom .wv-section-title>svg{color:#f0cf78}
+body[data-theme="gold"] #wisdom .wv-category small{color:#e8d5a6}
+body[data-theme="gold"] #wisdom .wv-arrow{border-color:rgba(225,187,96,.5);background:rgba(181,130,37,.22)}
+body[data-theme="gold"] #wisdom .wv-category[aria-pressed=true]{border-color:#f2cf73;box-shadow:inset 0 0 0 2px #e4b552,0 0 18px rgba(212,162,57,.28)}
+body[data-theme="gold"] #wisdom .wv-category[aria-pressed=true] svg{color:#ffe4a0}
+body[data-theme="gold"] #wisdom .wv-category:hover{border-color:#f3d78f}
+body[data-theme="gold"] #wisdom .wv-audit-status{color:#d5bd85}
+body[data-theme="gold"] #wisdom .wv-section-title p,body[data-theme="gold"] #wisdom .wv-pagination{color:#dec99a}
+body[data-theme="gold"] #wisdom .wv-views button{color:#f2dfae}
+body[data-theme="gold"] #wisdom .wv-views button[aria-pressed=true]{background:rgba(198,151,49,.3);color:#ffe59c}
+body[data-theme="gold"] #wisdom .wv-card{border-color:rgba(225,187,96,.5);background:#21170a;box-shadow:0 5px 15px rgba(0,0,0,.35)}
+body[data-theme="gold"] #wisdom .wv-card::before{background:linear-gradient(110deg,rgba(28,18,7,.94),rgba(57,39,13,.7)),url('../assets/wisdom-hero-v2.webp') center/cover}
+body[data-theme="gold"] #wisdom .wv-author{color:#eadbb7}
+body[data-theme="gold"] #wisdom .wv-tags span{background:#f2e2b7;color:#2a1b08}
+body[data-theme="gold"] #wisdom .wv-read-more{color:#f1cf79}
+body[data-theme="gold"] #wisdom .wv-star{color:#fff0c8}
+body[data-theme="gold"] #wisdom .wv-star[aria-pressed=true]{color:#efc359}
+body[data-theme="gold"] #wisdom .wv-original-preview,body[data-theme="gold"] #wv-dialog img{background:#171007}
+body[data-theme="gold"] #wisdom .wv-review-label{color:#f0d28b}
+body[data-theme="gold"] #wisdom .wv-signature{color:#edd499}
+body[data-theme="gold"] #wisdom .wv-signature small{color:#c8a664}
+body[data-theme="gold"] #wisdom .wv-empty{color:#ead8b1;border-color:rgba(225,187,96,.35)}
+body[data-theme="gold"] #wisdom button:focus-visible,body[data-theme="gold"] #wisdom input:focus-visible,body[data-theme="gold"] #wisdom select:focus-visible{outline-color:#f0cc6f}
+body[data-theme="gold"] #wv-dialog{border-color:rgba(225,187,96,.5);background:#201609;color:#f8e9c9}
+body[data-theme="gold"] #wv-dialog::backdrop{background:rgba(13,8,3,.84)}
+body[data-theme="gold"] #wv-dialog header,body[data-theme="gold"] #wv-dialog footer{border-color:rgba(225,187,96,.22)}
+body[data-theme="gold"] #wv-dialog small{color:#dec58e}
+body[data-theme="gold"] #wv-dialog button{border-color:rgba(225,187,96,.4);background:#3c290d;color:#faeac3}
 #wisdom .wv-list .wv-open{min-height:140px}
 #wisdom .wv-list .wv-excerpt{-webkit-line-clamp:3}
 #wisdom button:focus-visible,#wisdom input:focus-visible,#wisdom select:focus-visible{outline:2px solid #e4d485;outline-offset:4px}
