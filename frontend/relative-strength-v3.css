@@ -43,7 +43,7 @@ body #relativestrength.rs-v3-page .rs-simple-shell { position:relative; isolatio
    No viewport positions or cover crop can detach a label from its horse. */
 body #relativestrength.rs-v3-page .rs-v3-hero { position:relative; height:20.6cqw; min-height:0; padding:2.8cqw 4px 0; }
 body #relativestrength.rs-v3-page .rs-race-scene { position:absolute; left:-28px; top:-28px; width:calc(100% + 56px); aspect-ratio:3 / 2; z-index:-1; pointer-events:none; }
-body #relativestrength.rs-v3-page .rs-race-art { display:block; width:100%; height:100%; object-fit:fill; mask-image:linear-gradient(#000 0%,#000 72%,transparent 100%); }
+body #relativestrength.rs-v3-page .rs-race-art { display:block; width:100%; height:100%; object-fit:fill; filter:brightness(.72) saturate(.86); mask-image:linear-gradient(#000 0%,#000 72%,transparent 100%); }
 body #relativestrength.rs-v3-page .rs-race-labels { position:absolute; inset:0; }
 body #relativestrength.rs-v3-page .rs-race-labels>span {
   position:absolute; transform:translate(-50%,-100%); padding:.65cqw .85cqw; border-radius:6px;
@@ -164,10 +164,12 @@ body #relativestrength.rs-v3-page .rs-bdr-perspective span { color:#c4ddce; }
 body #relativestrength.rs-v3-page .rs-class-empty { color:#d4e7db; padding:30px; }
 body #relativestrength.rs-v3-page .rs-v3-closing { padding:18px 0 12px; text-align:center; font:italic 17px Georgia,serif; color:#ebd487; text-shadow:0 2px 8px #00221b; }
 body #relativestrength.rs-v3-page .rs-v3-closing::after { content:''; display:block; width:38px; height:2px; margin:11px auto 0; background:#dbbb49; }
-body #relativestrength.rs-v3-page .rs-v3-disclaimer { display:block; margin:8px 0 0; padding:0; border:0; border-radius:0; background:none; box-shadow:none; min-height:0; opacity:.8; }
-body #relativestrength.rs-v3-page .rs-v3-disclaimer strong { font:400 9px Arial,sans-serif; letter-spacing:.06em; color:#c5dacc; }
-body #relativestrength.rs-v3-page .rs-v3-disclaimer strong em { font:inherit; color:inherit; margin-left:4px; display:inline; }
-body #relativestrength.rs-v3-page .rs-simple-warning { display:none; }
+body #relativestrength.rs-v3-page .rs-v3-disclaimer { display:flex; align-items:center; gap:9px; min-height:0; margin:10px 0 7px; padding:8px 11px; border:1px solid #d4b45a5c; border-radius:8px; background:#062d23bd; box-shadow:none; }
+body #relativestrength.rs-v3-page .rs-v3-disclaimer .rs-simple-warning { display:grid; place-items:center; flex:0 0 22px; width:22px; height:22px; border:1px solid #e5c66d; border-radius:50%; color:#ebce76; background:#d6a94b1a; box-shadow:none; font-size:13px; }
+body #relativestrength.rs-v3-page .rs-v3-disclaimer strong { font:600 10px/1.25 Arial,sans-serif; letter-spacing:.045em; color:#e5eee6; }
+body #relativestrength.rs-v3-page .rs-v3-disclaimer strong em { font:inherit; color:#e5c66f; margin-left:4px; display:inline; }
+body #relativestrength.rs-v3-page .rs-v3-disclaimer-copy,
+body #relativestrength.rs-v3-page .rs-v3-disclaimer .rs-simple-responsibility { display:none; }
 /* Existing navigation layouts, support and reminders remain available. */
 .rs-v3-header-tools { display:none; }
 body:has(#relativestrength.active) .rs-v3-header-tools { display:flex; align-items:center; gap:12px; }
@@ -179,7 +181,7 @@ body:has(#relativestrength.active) .rs-v3-header-tools nav button { display:bloc
 body:has(#relativestrength.active) .rs-v3-header-tools nav button:hover { background:#256e494f; }
 body:has(#relativestrength.active) .rs-v3-header-tools button:focus-visible,
 body:has(#relativestrength.active) .rs-v3-header-tools summary:focus-visible { outline:2px solid #94e9b3; }
-body:has(#relativestrength.active) #marketFocusGuard { order:2; margin-top:16px; }
+body:has(#relativestrength.active) #marketFocusGuard { display:none!important; }
 body:has(#relativestrength.active) .market-focus-guard { min-height:0; padding:5px 12px; margin:0!important; border:0; border-radius:0; background:#052b2099; grid-template-columns:1fr auto auto; }
 body:has(#relativestrength.active) .market-focus-copy p,
 body:has(#relativestrength.active) .market-focus-orb { display:none; }

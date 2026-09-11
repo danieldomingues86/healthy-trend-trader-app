@@ -1,12 +1,19 @@
 const { stockUniverse, splitStockUniverse } = require('./stock-universe');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { createBrapiClient, writeJson } = require('./brapi-client');
+const { createRefreshControl } = require('./market-refresh-control');
 
 const BRAPI_URL = 'https://brapi.dev/api/v2/stocks/historical';
 const BRAPI_QUOTE_URL = 'https://brapi.dev/api/v2/stocks/quote';
 const BRAPI_LIST_URL = 'https://brapi.dev/api/quote/list';
 const B3_INDEX_API = 'https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/GetPortfolioDay/';
-const CACHE_PATH = path.join(__dirname, '..', 'data', 'market-cache.json');
+const CACHE_PATH = process.env.MARKET_CACHE_PATH || path.join(__dirname, '..', 'data', 'market-cache.json');
+const CONTROL_PATH = process.env.BRAPI_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'brapi-cache');
+function positiveSetting(name, fallback) { const value = Number(process.env[name]); return Number.isFinite(value) && value > 0 ? value : fallback; }
+const LIVE_QUOTE_MINUTES = positiveSetting('LIVE_SCAN_QUOTE_TTL_MINUTES', 60);
+const brapi = createBrapiClient({ directory: CONTROL_PATH, credential: process.env.BRAPI_TOKEN || '', dailyLimit: positiveSetting('BRAPI_MAX_DAILY_REQUESTS', 250), rollingLimit: positiveSetting('BRAPI_MAX_31_DAY_REQUESTS', 14000) });
+const refreshControl = createRefreshControl({ directory: CONTROL_PATH, readCache: () => readCache(), provider: brapi });
 const INDEX_HISTORY_RANGE = process.env.BRAPI_INDEX_HISTORY_RANGE || '3mo';
 const FALLBACK_SYMBOLS = (process.env.IBOV_SYMBOLS || 'PETR4,VALE3,ITUB4,BBAS3,BBDC4,WEGE3,PRIO3,SUZB3')
   .split(',').map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
@@ -80,14 +87,9 @@ function rank(items) {
   return sorted.map((item, index) => ({ ...item, rank: index + 1, score: sorted.length === 1 ? 100 : Math.round(100 - (index / (sorted.length - 1)) * 100) }));
 }
 async function fetchJson(url, headers = {}) {
-  const response = await fetch(url, { headers });
-  if (!response.ok) {
-    const detail = await response.json().catch(() => ({}));
-    const error = new Error(`HTTP ${response.status}: ${detail.message || url}`);
-    error.providerCode = detail.code;
-    throw error;
-  }
-  return response.json();
+  const pathname = new URL(url).pathname;
+  const ttlMs = pathname === '/api/v2/stocks/quote' ? LIVE_QUOTE_MINUTES * 60000 : 20 * 3600000;
+  return brapi.request(url, headers, { ttlMs });
 }
 function brapiHeaders() { return process.env.BRAPI_TOKEN ? { Authorization: `Bearer ${process.env.BRAPI_TOKEN}` } : {}; }
 function historyRangeFor(symbol) {
@@ -133,14 +135,37 @@ async function fetchHistory(symbol, range = historyRangeFor(symbol)) {
   if (!result.length) throw new Error(`Sem histórico para ${symbol}`);
   return result;
 }
-async function fetchHistories(symbols) {
+function historyFromResult(result) {
+  return result?.data?.historicalDataPrice || result?.historicalDataPrice || [];
+}
+async function fetchHistoryBatch(symbols, range = '1y') {
   const normalized = [...new Set(symbols.map((symbol) => String(symbol).trim().toUpperCase()).filter(Boolean))];
-  const responses = await mapWithConcurrency(normalized, 3, async (symbol) => ({ symbol, history: await fetchHistory(symbol) }));
-  const histories = new Map();
-  for (const result of responses) {
-    if (result?.error || !result?.history?.length) continue;
-    histories.set(result.symbol, result.history);
+  if (!normalized.length) return new Map();
+  const url = new URL(BRAPI_URL);
+  url.searchParams.set('symbols', normalized.join(','));
+  url.searchParams.set('range', range);
+  url.searchParams.set('interval', '1d');
+  url.searchParams.set('sortOrder', 'asc');
+  let payload;
+  try { payload = await fetchJson(url, brapiHeaders()); }
+  catch (error) {
+    if (error.providerCode !== 'INVALID_RANGE' || range !== '1y') throw error;
+    return fetchHistoryBatch(normalized, '3mo');
   }
+  const histories = new Map();
+  for (const result of payload.results || []) {
+    const symbol = String(result?.symbol || result?.data?.symbol || '').trim().toUpperCase();
+    const history = historyFromResult(result);
+    if (symbol && history.length) histories.set(symbol, history);
+  }
+  return histories;
+}
+async function fetchHistories(symbols, batchSize = 10) {
+  const normalized = [...new Set(symbols.map((symbol) => String(symbol).trim().toUpperCase()).filter(Boolean))];
+  const chunks = Array.from({ length: Math.ceil(normalized.length / batchSize) }, (_, index) => normalized.slice(index * batchSize, (index + 1) * batchSize));
+  const responses = await mapWithConcurrency(chunks, 2, async (chunk) => fetchHistoryBatch(chunk));
+  const histories = new Map();
+  for (const response of responses) if (response instanceof Map) for (const [symbol, history] of response) histories.set(symbol, history);
   return histories;
 }
 function overviewFrom(rows, benchmarkHistory) {
@@ -265,13 +290,17 @@ async function fetchIndexSymbols(index, fallback = [], minimum = 20) {
   }
 }
 async function mapWithConcurrency(items, limit, mapper) {
-  const results = []; let cursor = 0;
+  const results = []; let cursor = 0, fatal;
   await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (cursor < items.length) {
+    while (cursor < items.length && !fatal) {
       const index = cursor++; const item = items[index];
-      try { results[index] = await mapper(item); } catch (error) { results[index] = { symbol: item, error: error.message }; }
+      try { results[index] = await mapper(item); } catch (error) {
+        if (error.status === 429 || error.status === 401 || error.status === 403 || /MONTHLY_LIMIT|LOCAL_.*BUDGET|BACKOFF/.test(error.providerCode || '')) fatal = error;
+        else results[index] = { symbol: item, error: error.message };
+      }
     }
   }));
+  if (fatal) throw fatal;
   return results;
 }
 function catalogItems(catalog, assetClass) {
@@ -292,10 +321,12 @@ function bdrCatalogFromMetadata(metadata) {
 async function collectClassRelativeStrength({ assetClass, benchmarkSymbol, catalog }) {
   const benchmarkHistory = await fetchHistory(benchmarkSymbol);
   const benchmarkReturns = returns(benchmarkHistory);
-  const collected = await mapWithConcurrency(catalog, 3, async (item) => {
-    const history = await fetchHistory(item.symbol);
+  const histories = await fetchHistories(catalog.map((item) => item.symbol));
+  const collected = catalog.map((item) => {
+    const history = histories.get(item.symbol);
+    if (!history) return { ...item, error: `Histórico indisponível para ${item.symbol}` };
     const assetReturns = returns(history);
-    if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) throw new Error(`Histórico incompleto para ${item.symbol}`);
+    if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) return { ...item, error: `Histórico incompleto para ${item.symbol}` };
     return {
       ...item,
       ...assetReturns,
@@ -345,9 +376,9 @@ function scoreStockGroup(entries, benchmarkHistory, benchmark) {
     .map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend), assetClass: benchmark === 'IBOV' ? 'stock_ibov' : 'stock_other' }));
 }
 async function readCache() { try { return JSON.parse(await fs.readFile(CACHE_PATH, 'utf8')); } catch { return null; } }
-async function writeCache(data) { await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true }); await fs.writeFile(CACHE_PATH, JSON.stringify(data, null, 2)); }
+async function writeCache(data) { await writeJson(CACHE_PATH, data); }
 function isBusinessDay(date = new Date()) { const day = saoPauloParts(date).weekday; return day !== 'Sun' && day !== 'Sat'; }
-async function refreshMarketData() {
+async function collectMarketData() {
   const previous = await readCache();
   const [indexSymbols, smallCapSymbols] = await Promise.all([fetchIndexSymbols('IBOV', FALLBACK_SYMBOLS, 40), fetchIndexSymbols('SMLL', [], 20)]);
   const ibovHistory = await fetchHistory('^BVSP');
@@ -355,10 +386,12 @@ async function refreshMarketData() {
   const benchmarkReturns = returns(ibovHistory);
   const metadata = await fetchAssetMetadata();
   const symbols = stockUniverse(metadata, indexSymbols);
-  const collected = await mapWithConcurrency(symbols, 3, async (symbol) => {
-    const history = await fetchHistory(symbol);
+  const histories = await fetchHistories(symbols);
+  const collected = symbols.map((symbol) => {
+    const history = histories.get(symbol);
+    if (!history) return { symbol, error: `Histórico indisponível para ${symbol}` };
     const assetReturns = returns(history);
-    if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) throw new Error(`Histórico incompleto para ${symbol}`);
+    if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) return { symbol, error: `Histórico incompleto para ${symbol}` };
     const details = metadata.get(symbol) || { name: symbol, sector: 'Não classificado' };
     return { symbol, ...details, ...assetReturns, scan: scanMetrics(history), history };
   });
@@ -381,17 +414,22 @@ async function refreshMarketData() {
     // é apresentada separadamente pela interface, para não misturar USD/BRL ao score local.
     collectPeerRelativeStrength({ assetClass: 'bdr', catalog: catalogBdr })
   ]);
+  for (const result of [fiiResult, bdrResult]) {
+    if (result.status === 'rejected' && (result.reason?.status === 429 || result.reason?.retryAt)) throw result.reason;
+  }
   const relativeStrengthByClass = {
     stock_ibov: { ...classMeta('stock_ibov'), returns: benchmarkReturns, requested: groups.ibov.length, available: ibovRows.length, items: ibovRows.map(clean) },
     stock_other: { ...classMeta('stock_other'), requested: groups.small.length + groups.other.length, available: smallRows.length + residualRows.length, items: [...smallRows, ...residualRows].map(clean) },
-    fii: fiiResult.status === 'fulfilled' ? fiiResult.value : { ...classMeta('fii'), benchmark: 'IFIX', requested: catalogFii.length, available: 0, items: [], error: fiiResult.reason?.message },
-    bdr: bdrResult.status === 'fulfilled' ? bdrResult.value : { ...classMeta('bdr'), benchmark: 'Universo de BDRs', requested: catalogBdr.length, available: 0, items: [], error: bdrResult.reason?.message }
+    fii: fiiResult.status === 'fulfilled' && fiiResult.value.available > 0 ? fiiResult.value : { ...(previous?.relativeStrengthByClass?.fii || { ...classMeta('fii'), requested: catalogFii.length, available: 0, items: [] }), error: fiiResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt },
+    bdr: bdrResult.status === 'fulfilled' && bdrResult.value.available > 0 ? bdrResult.value : { ...(previous?.relativeStrengthByClass?.bdr || { ...classMeta('bdr'), requested: catalogBdr.length, available: 0, items: [] }), error: bdrResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt }
   };
   const cache = { updatedAt: new Date().toISOString(), source: 'brapi', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
+  cache.historyUpdatedAt = cache.updatedAt;
   await writeCache(cache);
   return cache;
 }
-async function refreshClassStrength(cache) {
+async function collectClassStrength(cache) {
+  if (!cache) return cache;
   if (cache?.relativeStrengthByClass?.fii?.requested === FII_CATALOG.length && cache?.relativeStrengthByClass?.fii?.available > 0 && cache?.relativeStrengthByClass?.bdr?.catalogVersion === BDR_CATALOG_VERSION && cache?.relativeStrengthByClass?.bdr?.available > 0) return cache;
   const catalogFii = catalogItems(FII_CATALOG, 'fii');
   const catalogBdr = bdrCatalogFromMetadata(await fetchAssetMetadata());
@@ -403,8 +441,8 @@ async function refreshClassStrength(cache) {
     ...cache,
     relativeStrengthByClass: {
       ...cache.relativeStrengthByClass,
-      fii: fiiResult.status === 'fulfilled' ? fiiResult.value : { ...classMeta('fii'), benchmark: 'IFIX', requested: catalogFii.length, available: 0, items: [], error: fiiResult.reason?.message },
-      bdr: bdrResult.status === 'fulfilled' ? bdrResult.value : { ...classMeta('bdr'), benchmark: 'Universo de BDRs', requested: catalogBdr.length, available: 0, items: [], error: bdrResult.reason?.message }
+      fii: fiiResult.status === 'fulfilled' && fiiResult.value.available > 0 ? fiiResult.value : cache.relativeStrengthByClass?.fii,
+      bdr: bdrResult.status === 'fulfilled' && bdrResult.value.available > 0 ? bdrResult.value : cache.relativeStrengthByClass?.bdr
     }
   };
   await writeCache(next);
@@ -435,8 +473,8 @@ function mergeLiveQuote(item, quote) {
     && Number(scan.price) > Number(scan.ema20) && Number(scan.ema20) > Number(scan.ema200);
   return { ...item, scan };
 }
-async function refreshLiveScanQuotes(cache, now = new Date()) {
-  if (!cache || !isMarketOpen(now) || isFresh(cache.liveUpdatedAt, now, 5)) return cache;
+async function collectLiveScanQuotes(cache, now = new Date()) {
+  if (!cache || !isMarketOpen(now) || isFresh(cache.liveUpdatedAt, now, LIVE_QUOTE_MINUTES)) return cache;
   const stock = cache.relativeStrength || [];
   const fii = cache.relativeStrengthByClass?.fii?.items || [];
   const bdr = cache.relativeStrengthByClass?.bdr?.items || [];
@@ -444,7 +482,6 @@ async function refreshLiveScanQuotes(cache, now = new Date()) {
   if (!quotes.size) return cache;
   const next = {
     ...cache,
-    updatedAt: now.toISOString(),
     liveUpdatedAt: now.toISOString(),
     relativeStrength: stock.map((item) => mergeLiveQuote(item, quotes.get(item.symbol))),
     relativeStrengthByClass: {
@@ -459,9 +496,24 @@ async function refreshLiveScanQuotes(cache, now = new Date()) {
 async function refreshIfDue(now = new Date()) {
   const cached = await readCache();
   const afterClose = Number(saoPauloParts(now).hour) >= 19;
-  if (cached && cached.updatedAt?.slice(0, 10) === isoDate(now)) return cached;
+  const historicalDate = cached?.historyUpdatedAt || (!cached?.liveUpdatedAt ? cached?.updatedAt : null);
+  if (historicalDate && isoDate(new Date(historicalDate)) === isoDate(now)) return cached;
   if (!isBusinessDay(now) || !afterClose) return cached;
   return refreshMarketData();
 }
 
-module.exports = { fetchHistory, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote };
+function refreshMarketData() { return refreshControl.run('daily', collectMarketData); }
+function refreshClassStrength(cache) {
+  if (!cache || (cache.relativeStrengthByClass?.fii?.requested === FII_CATALOG.length && cache.relativeStrengthByClass?.fii?.available > 0 && cache.relativeStrengthByClass?.bdr?.catalogVersion === BDR_CATALOG_VERSION && cache.relativeStrengthByClass?.bdr?.available > 0)) return Promise.resolve(cache);
+  return refreshControl.run('classes', async () => collectClassStrength(await readCache() || cache), { minInterval: 24 * 3600000 });
+}
+function refreshLiveScanQuotes(cache, now = new Date()) {
+  if (!cache || !isMarketOpen(now) || isFresh(cache.liveUpdatedAt, now, LIVE_QUOTE_MINUTES)) return Promise.resolve(cache);
+  return refreshControl.run('live', async () => collectLiveScanQuotes(await readCache() || cache, now), { minInterval: LIVE_QUOTE_MINUTES * 60000 });
+}
+async function marketDataStatus() {
+  const state = await brapi.status();
+  return { blockedUntil: state.blockedUntil > Date.now() ? new Date(state.blockedUntil).toISOString() : null, reason: state.code, requestsToday: state.usage?.[new Date().toISOString().slice(0, 10)] || 0, trackedRequests: Object.values(state.usage || {}).reduce((a,b)=>a+b,0), liveQuoteIntervalMinutes: LIVE_QUOTE_MINUTES };
+}
+
+module.exports = { fetchHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote };

@@ -3,7 +3,7 @@ const http = require('node:http');
 const { URL } = require('node:url');
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const { readCache, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, classStrengthFromCache, classifyAsset } = require('./market-data');
+const { readCache, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, classStrengthFromCache, classifyAsset } = require('./market-data');
 const { marketScansFromCache } = require('./market-scans');
 const { PLAN_CATALOG } = require('./subscription-plans');
 const { fetchFundamentals } = require('./fundamentals');
@@ -319,8 +319,12 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, { items: items.slice((pageNumber - 1) * limit, pageNumber * limit), page: pageNumber, limit, total: items.length });
     }
     if (url.pathname === '/api/fundamentals') return send(response, 200, await fetchFundamentals(url.searchParams.get('ticker')));
+    if (url.pathname === '/api/health') {
+      const cached = await readCache();
+      return send(response, 200, { status: 'ok', cachedAt: cached?.updatedAt || null, brapiTokenConfigured: Boolean(process.env.BRAPI_TOKEN), databaseConfigured: database.configured(), provider: await marketDataStatus() });
+    }
+    if (!['/api/market-cycle','/api/market-overview','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();
-    if (url.pathname === '/api/health') return send(response, 200, { status: 'ok', cachedAt: cache?.updatedAt || null, brapiTokenConfigured: Boolean(process.env.BRAPI_TOKEN), databaseConfigured: database.configured() });
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
     if (url.pathname === '/api/market-cycle') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, cycle: cache.cycle, benchmark: cache.benchmark });
     if (url.pathname === '/api/market-overview') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, universe: cache.universe, cycle: cache.cycle, benchmark: cache.benchmark, overview: cache.overview });

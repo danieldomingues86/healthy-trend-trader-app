@@ -1,0 +1,26 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),os=require('node:os'),path=require('node:path');
+test('Real market refresh functions share the provider guard and retain historical timestamps',async t=>{
+ const directory=await fs.mkdtemp(path.join(os.tmpdir(),'htt-market-integration-'));
+ const originalFetch=global.fetch;
+ const oldCache=process.env.MARKET_CACHE_PATH,oldDirectory=process.env.BRAPI_CACHE_DIRECTORY;
+ const cacheFile=path.join(directory,'market.json');
+ process.env.MARKET_CACHE_PATH=cacheFile;process.env.BRAPI_CACHE_DIRECTORY=path.join(directory,'provider');
+ const cache={updatedAt:'2026-09-09T20:00:00.000Z',historyUpdatedAt:'2026-09-09T20:00:00.000Z',relativeStrength:[{symbol:'PETR4',score:95,scan:{price:30,ema20:25,ema200:20}}],relativeStrengthByClass:{fii:{items:[]},bdr:{items:[]}}};
+ await fs.writeFile(cacheFile,JSON.stringify(cache));
+ t.after(async()=>{global.fetch=originalFetch;if(oldCache===undefined)delete process.env.MARKET_CACHE_PATH;else process.env.MARKET_CACHE_PATH=oldCache;if(oldDirectory===undefined)delete process.env.BRAPI_CACHE_DIRECTORY;else process.env.BRAPI_CACHE_DIRECTORY=oldDirectory;await fs.rm(directory,{recursive:true,force:true});});
+ let calls=0;
+ global.fetch=async url=>{calls++;assert.match(String(url),/brapi\.dev/);return {ok:true,json:async()=>({results:[{symbol:'PETR4',regularMarketPrice:33}]})};};
+ const market=require('../src/market-data');
+ const liveNow=new Date('2026-09-10T15:00:00Z');
+ const values=await Promise.all(Array.from({length:20},()=>market.refreshLiveScanQuotes(cache,liveNow)));
+ assert.equal(calls,1);assert(values.every(c=>c.updatedAt===cache.updatedAt));
+ const next=JSON.parse(await fs.readFile(cacheFile));assert.equal(next.historyUpdatedAt,cache.historyUpdatedAt);assert.equal(next.relativeStrength[0].scan.price,33);assert.equal(next.liveUpdatedAt,liveNow.toISOString());
+ await market.refreshLiveScanQuotes(cache,new Date('2026-09-10T15:15:00Z'));assert.equal(calls,1);
+ const {createBrapiClient}=require('../src/brapi-client');
+ await createBrapiClient({directory:process.env.BRAPI_CACHE_DIRECTORY}).pauseUntil(Date.now()+86400000);
+ global.fetch=async()=>{throw Error('A blocked provider must not be contacted');};
+ const fallback=await market.refreshIfDue(new Date('2026-09-10T23:00:00Z'));
+ assert.equal(fallback.updatedAt,cache.updatedAt);assert.equal(fallback.relativeStrength[0].scan.price,33);
+ await market.refreshClassStrength(fallback);
+ assert.equal(calls,1);
+});

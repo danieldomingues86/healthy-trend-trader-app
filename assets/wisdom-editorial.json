@@ -1,0 +1,208 @@
+{
+  "assets/trader-wisdom/Trader Quotes/tw-0001.jpg": {
+    "pt": "Quando você encontra seu nicho, não precisa de disciplina para fazer as coisas certas; não vai querer fazer outra coisa.",
+    "editorialVerified": true,
+    "id": "steenbarger-niche",
+    "theme": "process",
+    "author": "Brett Steenbarger",
+    "source": "Acervo pessoal · Trading Card #231",
+    "image": "assets/trader-wisdom/Trader Quotes/tw-0001.jpg",
+    "quote": "When you have found your niche, you don’t need discipline to do the right things; you won’t want to do anything else.",
+    "reflection": {
+      "pt": "Encontre um processo que faça sentido para você. A disciplina fica mais sustentável quando a rotina está alinhada à sua vantagem.",
+      "en": "Build a process that makes sense for you. Discipline becomes more sustainable when your routine aligns with your edge."
+    }
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0091.jpg": {
+    "pt": "A marca de um profissional é operar dentro do próprio círculo de competência e ignorar todo o resto.",
+    "editorialVerified": true,
+    "id": "minervini-circle",
+    "theme": "process",
+    "author": "Mark Minervini",
+    "source": "Acervo pessoal · referência visual",
+    "image": "assets/trader-wisdom/Trader Quotes/tw-0091.jpg",
+    "quote": "The hallmark of a pro is to operate within your own circle of competence and ignore everything else.",
+    "reflection": {
+      "pt": "Seu método define o que merece atenção. O restante pode ser ruído — inclusive quando o mercado parece urgente.",
+      "en": "Your method defines what deserves attention. Everything else can be noise — even when the market feels urgent."
+    }
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0006.png": {
+    "theme": "patience",
+    "quote": "Markets attracts those who want to make quick money but rewards only those who are comfortable getting rich slowly.",
+    "pt": "O mercado atrai quem quer ganhar dinheiro rápido, mas recompensa quem se sente confortável enriquecendo devagar.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0007.jpg": {
+    "author": "Mark Twain",
+    "theme": "process",
+    "source": "AZ Quotes · atribuição no original",
+    "quote": "Continuous improvement is better than delayed perfection.",
+    "pt": "A melhoria contínua é melhor que a perfeição adiada.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0008.jpg": {
+    "theme": "process",
+    "quote": "Your best teacher is your last mistake.",
+    "pt": "Seu melhor professor é o seu último erro.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0009.jpg": {
+    "theme": "psychology",
+    "quote": "Be water, my friend.",
+    "pt": "Seja água, meu amigo.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0010.jpg": {
+    "author": "Bruce Lee",
+    "theme": "mindset",
+    "source": "facebook.com/bruceleephotos · original",
+    "quote": "To understand is to connect. The more we understand, the greater and deeper will be our contact with all that is around us.",
+    "pt": "Entender é conectar. Quanto mais entendemos, maior e mais profundo é o contato com tudo ao nosso redor.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0011.jpg": {
+    "author": "Stephen F. Lynch",
+    "theme": "wisdom",
+    "quote": "Free trade should not mean free labor.",
+    "pt": "Livre comércio não deveria significar trabalho gratuito.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0012.jpg": {
+    "author": "Paul Tudor Jones",
+    "theme": "process",
+    "quote": "I always believe prices move first and fundamentals come second.",
+    "pt": "Sempre acreditei que os preços se movem primeiro e os fundamentos vêm depois.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0013.jpg": {
+    "author": "Bob Jones",
+    "theme": "risk",
+    "quote": "No one will take as much care with your money as you will yourself.",
+    "pt": "Ninguém cuidará do seu dinheiro tão bem quanto você mesmo.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0014.jpg": {
+    "author": "Larry Hite",
+    "theme": "psychology",
+    "quote": "I don't trade for excitement; I trade to win.",
+    "pt": "Eu não opero pela emoção; opero para vencer.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0015.jpg": {
+    "theme": "process",
+    "quote": "No man knows how bad he is until he has tried very hard to be good.",
+    "pt": "Ninguém sabe o quanto precisa melhorar até se esforçar de verdade para ser bom.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0016.jpg": {
+    "author": "Jesse Livermore",
+    "theme": "patience",
+    "quote": "One of the most helpful things that anybody can learn is to give up trying to catch the last eighth — or the first. These two are the most expensive eighths in the world.",
+    "pt": "Uma das lições mais úteis é desistir de tentar capturar o primeiro ou o último trecho de um movimento. Esses são os trechos mais caros do mundo.",
+    "editorialVerified": false,
+    "reviewReason": "prior_editorial_paraphrase_requires_source_review"
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0017.jpg": {
+    "author": "Bruce Lee",
+    "theme": "mindset",
+    "quote": "If you always put limits on everything you do, it will spread into your work and into your life. There are no limits. There are only plateaus, and you must go beyond them.",
+    "pt": "Se você impõe limites a tudo o que faz, eles se espalham pelo trabalho e pela vida. Existem apenas platôs, e você precisa ir além deles.",
+    "editorialVerified": false,
+    "reviewReason": "prior_editorial_paraphrase_requires_source_review"
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0018.jpg": {
+    "author": "Ed Seykota",
+    "theme": "process",
+    "quote": "Good traders trade. Good letter writers write letters.",
+    "pt": "Bons traders operam. Bons escritores de cartas escrevem cartas.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0019.jpg": {
+    "author": "Sun Tzu",
+    "theme": "discipline",
+    "quote": "Victory is reserved for those who are willing to pay its price.",
+    "pt": "A vitória está reservada àqueles que estão dispostos a pagar o seu preço.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0020.jpg": {
+    "theme": "wisdom",
+    "quote": "Wise people are not always silent, but they know when to be.",
+    "pt": "Pessoas sábias nem sempre ficam em silêncio, mas sabem quando devem ficar.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0021.jpg": {
+    "theme": "process",
+    "quote": "The expert in anything was once a beginner.",
+    "pt": "Todo especialista já foi um iniciante.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0022.jpg": {
+    "author": "Scott Adams",
+    "theme": "mindset",
+    "quote": "A person with a flexible schedule and average resources will be happier than a rich person who has everything except a flexible schedule. Step one in your search for happiness is to continually work toward having control of your schedule.",
+    "pt": "Uma pessoa com horários flexíveis e recursos medianos será mais feliz que uma pessoa rica que possui tudo, menos flexibilidade. O primeiro passo na busca pela felicidade é conquistar cada vez mais controle sobre o próprio tempo.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0023.jpg": {
+    "author": "Dan Zanger",
+    "theme": "mindset",
+    "quote": "The market owes you nothing. Take full responsibility for everything that happens and your results will improve.",
+    "pt": "O mercado não lhe deve nada. Assuma total responsabilidade por tudo o que acontece e seus resultados melhorarão.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0024.jpg": {
+    "theme": "discipline",
+    "quote": "Confidence comes from discipline and training.",
+    "pt": "A confiança nasce da disciplina e do treinamento.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0025.jpg": {
+    "theme": "process",
+    "quote": "What most people think: one failure ends the journey. What successful people know: failure is part of the path to success.",
+    "pt": "O que a maioria pensa: uma falha encerra a jornada. O que as pessoas bem-sucedidas sabem: as falhas fazem parte do caminho até o sucesso.",
+    "editorialVerified": false,
+    "reviewReason": "prior_editorial_paraphrase_requires_source_review"
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0026.jpg": {
+    "author": "C. S. Lewis",
+    "theme": "mindset",
+    "quote": "Hardships often prepare ordinary people for an extraordinary destiny.",
+    "pt": "As dificuldades frequentemente preparam pessoas comuns para um destino extraordinário.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0027.jpg": {
+    "theme": "discipline",
+    "quote": "More important than the will to win is the will to prepare.",
+    "pt": "Mais importante que a vontade de vencer é a vontade de se preparar.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0002.png": {
+    "author": "Paul Tudor Jones",
+    "theme": "psychology",
+    "quote": "Trading is very competitive and you have to be able to handle getting your butt kicked.",
+    "pt": "O trading é muito competitivo, e você precisa ser capaz de lidar com as derrotas.",
+    "source": "QuoteAddicts.com · acervo original",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0003.jpg": {
+    "author": "Oscar Wilde",
+    "theme": "mindset",
+    "quote": "Nowadays people know the price of everything and the value of nothing.",
+    "pt": "Hoje as pessoas sabem o preço de tudo e o valor de nada.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0004.png": {
+    "theme": "mindset",
+    "quote": "Invest in yourself. Invest in your mind. Invest in your health. Invest in your happiness. Invest in your relationships. You are worth it.",
+    "pt": "Invista em você. Na sua mente, na sua saúde, na sua felicidade e nos seus relacionamentos. Você merece.",
+    "editorialVerified": true
+  },
+  "assets/trader-wisdom/Trader Quotes/tw-0005.jpg": {
+    "author": "Denise Shull",
+    "theme": "risk",
+    "quote": "Traders who make money year in and year out (and there are plenty of them out there) always work the game in this order anyway – manage risk first, size opportunity second.",
+    "pt": "Traders que ganham dinheiro ano após ano seguem esta ordem: primeiro gerenciam o risco, depois dimensionam a oportunidade.",
+    "editorialVerified": true
+  }
+}

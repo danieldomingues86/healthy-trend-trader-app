@@ -1,0 +1,41 @@
+const assert=require('node:assert/strict'),{pathToFileURL}=require('node:url'),path=require('node:path');
+const {chromium}=require('C:/Users/danie/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+(async()=>{
+ const browser=await chromium.launch({headless:true,channel:'msedge'});
+ try{
+ const p=await browser.newPage({viewport:{width:1536,height:1100}});
+ await p.goto(pathToFileURL(path.resolve('index.html')).href,{waitUntil:'domcontentloaded'});
+ await p.evaluate(()=>{document.getElementById('loginShell').classList.add('hidden');document.body.style.overflow='';document.body.dataset.theme='healthy';document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('wisdom').classList.add('active');traderWisdomState.query='';traderWisdomState.favorites=[];renderTraderWisdom();});
+ await p.waitForSelector('.wv-card');
+ assert.equal(await p.locator('.wv-category').count(),6);
+ assert(await p.locator('.wv-card').count()>0);
+ await p.waitForFunction(()=>[...document.querySelectorAll('.wv-category img')].every(i=>i.complete&&i.naturalWidth));
+ await p.screenshot({path:'output/wisdom-v3-desktop.png',fullPage:true});
+ await p.locator('[data-category="psychology"]').click();
+ const total=await p.locator('.wv-card').count();assert(total>0);
+ await p.locator('#wisdom [data-search]').fill('disciplina');
+ assert.equal(await p.locator('[data-category="psychology"]').getAttribute('aria-pressed'),'true');
+ assert(await p.locator('.wv-card').count()>0);assert(await p.locator('.wv-card').count()<=total);
+ await p.locator('#wisdom [data-search]').fill('');
+ await p.locator('.wv-star').first().click();
+ await p.locator('[data-special="favorites"]').click();assert.equal(await p.locator('.wv-card').count(),1);
+ await p.locator('[data-open]').click();await p.waitForSelector('#wv-dialog[open]');
+ await p.keyboard.press('Escape');assert.equal(await p.locator('#wv-dialog').isVisible(),false);
+ await p.locator('[data-special="favorites"]').click();await p.locator('[data-category="all"]').click();
+ await p.locator('#wisdom [data-search]').fill('Minervini');assert.equal(await p.locator('.wv-card').count(),1);
+ await p.locator('#wisdom [data-search]').fill('');
+ await p.locator('[data-size]').selectOption('24');assert.equal(await p.locator('.wv-card').count(),24);
+ await p.locator('[data-size]').selectOption('12');await p.locator('.wv-pagination [data-page="2"]').first().click();assert.equal(await p.locator('.wv-card').count(),12);
+ await p.locator('[data-category="review"]').click();assert.equal(await p.locator('.wv-pending').count(),12);assert.equal(await p.locator('.wv-excerpt').count(),0);
+ await p.locator('#wisdom [data-search]').fill('Minervini');assert(await p.locator('.wv-pending').count()>0);
+ await p.locator('[data-open]').first().click();await p.waitForFunction(()=>{let i=document.querySelector('#wv-dialog img');return i.complete&&i.naturalWidth>0;});
+ assert.equal(await p.locator('#wv-dialog blockquote').count(),0);await p.keyboard.press('Escape');
+ await p.locator('#wisdom [data-search]').fill('');await p.locator('[data-category="all"]').click();
+ await p.locator('[data-view="list"]').click();assert.equal(await p.locator('.wv-grid').evaluate(x=>getComputedStyle(x).gridTemplateColumns.split(' ').length),1);
+ await p.locator('[data-view="grid"]').click();
+ await p.evaluate(()=>{window.appLanguage='en-US';renderTraderWisdom();});assert.match(await p.locator('.wv-section-title h2').innerText(),/All wisdom/);
+ await p.setViewportSize({width:390,height:900});assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await p.screenshot({path:'output/wisdom-v3-mobile.png',fullPage:true});
+ console.log('PASS categories + combined search + favorites + pagination + pending originals + modal + grid/list + EN + mobile');
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1);});
