@@ -10,7 +10,6 @@
   body:has(#relativestrength.active) .nav-group{margin:10px 0 22px}
   body:has(#relativestrength.active) .sidebar .nav button{padding:12px 14px;font-size:14px}
 }
-
 @media (min-width:1201px){
   .content{max-width:none;margin:0;padding:24px var(--workspace-gutter) 48px}
 
