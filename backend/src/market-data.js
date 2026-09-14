@@ -4,6 +4,7 @@ const path = require('node:path');
 const { createBrapiClient, writeJson } = require('./brapi-client');
 const { createRefreshControl } = require('./market-refresh-control');
 const b3Historical = require('./b3-historical');
+const b3IndexHistory = require('./b3-index-history');
 
 const BRAPI_URL = 'https://brapi.dev/api/v2/stocks/historical';
 const BRAPI_QUOTE_URL = 'https://brapi.dev/api/v2/stocks/quote';
@@ -12,11 +13,14 @@ const B3_INDEX_API = 'https://sistemaswebb3-listados.b3.com.br/indexProxy/indexC
 const CACHE_PATH = process.env.MARKET_CACHE_PATH || path.join(__dirname, '..', 'data', 'market-cache.json');
 const CONTROL_PATH = process.env.BRAPI_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'brapi-cache');
 const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
+const B3_INDEX_HISTORY_CACHE = process.env.B3_INDEX_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-index-history-cache');
 function positiveSetting(name, fallback) { const value = Number(process.env[name]); return Number.isFinite(value) && value > 0 ? value : fallback; }
 const LIVE_QUOTE_MINUTES = positiveSetting('LIVE_SCAN_QUOTE_TTL_MINUTES', 60);
 const CATALOG_CACHE_DAYS = positiveSetting('BRAPI_CATALOG_CACHE_DAYS', 7);
 const brapi = createBrapiClient({ directory: CONTROL_PATH, credential: process.env.BRAPI_TOKEN || '', dailyLimit: positiveSetting('BRAPI_MAX_DAILY_REQUESTS', 250), rollingLimit: positiveSetting('BRAPI_MAX_31_DAY_REQUESTS', 14000) });
-const refreshControl = createRefreshControl({ directory: CONTROL_PATH, readCache: () => readCache(), provider: brapi });
+// A atualização de fechamento é primariamente B3. Ela não pode ser bloqueada
+// por uma cota de contingência da BRAPI antes sequer de consultar a B3.
+const refreshControl = createRefreshControl({ directory: CONTROL_PATH, readCache: () => readCache(), provider: { status: async () => ({ blockedUntil: 0 }) } });
 const INDEX_HISTORY_RANGE = process.env.BRAPI_INDEX_HISTORY_RANGE || '3mo';
 const FALLBACK_SYMBOLS = (process.env.IBOV_SYMBOLS || 'PETR4,VALE3,ITUB4,BBAS3,BBDC4,WEGE3,PRIO3,SUZB3')
   .split(',').map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
@@ -139,6 +143,23 @@ async function fetchHistory(symbol, range = historyRangeFor(symbol)) {
   const result = payload.results?.[0]?.data?.historicalDataPrice || payload.results?.[0]?.historicalDataPrice || [];
   if (!result.length) throw new Error(`Sem histórico para ${symbol}`);
   return result;
+}
+function indexHistoryYears(now = new Date()) {
+  const year = Number(saoPauloParts(now).year);
+  return [year - 1, year];
+}
+async function fetchBenchmarkHistory(symbol) {
+  try {
+    const history = await b3IndexHistory.fetchIndexHistory(symbol, { years: indexHistoryYears(), cacheDirectory: B3_INDEX_HISTORY_CACHE });
+    if (history.length >= 64) return history;
+    throw new Error(`Histórico B3 insuficiente para ${symbol}.`);
+  } catch (error) {
+    // A BRAPI fica fora do caminho normal e só é consultada se a B3 estiver
+    // temporariamente indisponível ou ainda não tiver publicado dados suficientes.
+    const fallback = await fetchHistory(symbol);
+    Object.defineProperty(fallback, 'source', { value: 'brapi-fallback', enumerable: false });
+    return fallback;
+  }
 }
 function historyFromResult(result) {
   return result?.data?.historicalDataPrice || result?.historicalDataPrice || [];
@@ -337,8 +358,22 @@ function bdrCatalogFromMetadata(metadata) {
     }))
     .sort((a, b) => a.symbol.localeCompare(b.symbol));
 }
+function metadataFromCache(cache) {
+  const items = cache?.relativeStrength || [];
+  return new Map(items.filter((item) => item?.symbol).map((item) => [item.symbol, {
+    type: 'stock', subType: 'stock', name: item.name || item.symbol, sector: item.sector || 'Não classificado'
+  }]));
+}
+function bdrCatalogFromCache(cache) {
+  const items = cache?.relativeStrengthByClass?.bdr?.items || [];
+  return items.filter((item) => item?.symbol).map((item) => ({
+    symbol: item.symbol, name: item.name || item.symbol, sector: item.sector || 'Não classificado', assetClass: 'bdr',
+    originalSymbol: item.originalSymbol || BDR_ORIGINALS[item.symbol]?.[0] || null,
+    internationalBenchmark: item.internationalBenchmark || BDR_ORIGINALS[item.symbol]?.[1] || null
+  }));
+}
 async function collectClassRelativeStrength({ assetClass, benchmarkSymbol, catalog }) {
-  const benchmarkHistory = await fetchHistory(benchmarkSymbol);
+  const benchmarkHistory = await fetchBenchmarkHistory(benchmarkSymbol);
   const benchmarkReturns = returns(benchmarkHistory);
   const histories = await fetchHistories(catalog.map((item) => item.symbol));
   const collected = catalog.map((item) => {
@@ -400,11 +435,14 @@ function isBusinessDay(date = new Date()) { const day = saoPauloParts(date).week
 async function collectMarketData() {
   const previous = await readCache();
   const [indexSymbols, smallCapSymbols] = await Promise.all([fetchIndexSymbols('IBOV', FALLBACK_SYMBOLS, 40), fetchIndexSymbols('SMLL', [], 20)]);
-  const ibovHistory = await fetchHistory('^BVSP');
-  const smllHistory = await fetchHistory('SMLL');
+  const ibovHistory = await fetchBenchmarkHistory('^BVSP');
+  const smllHistory = await fetchBenchmarkHistory('SMLL');
   const benchmarkReturns = returns(ibovHistory);
-  const metadata = await fetchAssetMetadata();
-  const symbols = stockUniverse(metadata, indexSymbols);
+  // A composição dos índices e os preços vêm da B3. Dados de catálogo são
+  // enriquecimento visual; reutilizamos o cache em vez de tornar a coleta
+  // dependente de um provedor externo.
+  const metadata = metadataFromCache(previous);
+  const symbols = stockUniverse(metadata, [...indexSymbols, ...smallCapSymbols]);
   const histories = await fetchHistories(symbols);
   const collected = symbols.map((symbol) => {
     const history = histories.get(symbol);
@@ -426,7 +464,7 @@ async function collectMarketData() {
   const rows = [...ibovRows, ...smallRows, ...residualRows].map(clean);
   if (!rows.length || (previous?.relativeStrength?.length && rows.length < previous.relativeStrength.length * .8)) throw new Error('Atualização incompleta: cache anterior preservado.');
   const catalogFii = catalogItems(FII_CATALOG, 'fii');
-  const catalogBdr = bdrCatalogFromMetadata(metadata);
+  const catalogBdr = bdrCatalogFromCache(previous).length ? bdrCatalogFromCache(previous) : catalogItems(BDR_CATALOG, 'bdr');
   const [fiiResult, bdrResult] = await Promise.allSettled([
     collectClassRelativeStrength({ assetClass: 'fii', benchmarkSymbol: 'IFIX', catalog: catalogFii }),
     // O ranking brasileiro do BDR é comparado apenas com BDRs. A leitura do ativo original
@@ -442,7 +480,7 @@ async function collectMarketData() {
     fii: fiiResult.status === 'fulfilled' && fiiResult.value.available > 0 ? fiiResult.value : { ...(previous?.relativeStrengthByClass?.fii || { ...classMeta('fii'), requested: catalogFii.length, available: 0, items: [] }), error: fiiResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt },
     bdr: bdrResult.status === 'fulfilled' && bdrResult.value.available > 0 ? bdrResult.value : { ...(previous?.relativeStrengthByClass?.bdr || { ...classMeta('bdr'), requested: catalogBdr.length, available: 0, items: [] }), error: bdrResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt }
   };
-  const cache = { updatedAt: new Date().toISOString(), source: histories.source || 'brapi-fallback', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
+  const cache = { updatedAt: new Date().toISOString(), source: histories.source === 'b3-cotahist' && ibovHistory.source === 'b3-indexes' && smllHistory.source === 'b3-indexes' ? 'b3-cotahist + b3-indexes' : 'brapi-fallback', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
   cache.historyUpdatedAt = cache.updatedAt;
   await writeCache(cache);
   return cache;
@@ -451,7 +489,7 @@ async function collectClassStrength(cache) {
   if (!cache) return cache;
   if (cache?.relativeStrengthByClass?.fii?.requested === FII_CATALOG.length && cache?.relativeStrengthByClass?.fii?.available > 0 && cache?.relativeStrengthByClass?.bdr?.catalogVersion === BDR_CATALOG_VERSION && cache?.relativeStrengthByClass?.bdr?.available > 0) return cache;
   const catalogFii = catalogItems(FII_CATALOG, 'fii');
-  const catalogBdr = bdrCatalogFromMetadata(await fetchAssetMetadata());
+  const catalogBdr = bdrCatalogFromCache(cache).length ? bdrCatalogFromCache(cache) : catalogItems(BDR_CATALOG, 'bdr');
   const [fiiResult, bdrResult] = await Promise.allSettled([
     collectClassRelativeStrength({ assetClass: 'fii', benchmarkSymbol: 'IFIX', catalog: catalogFii }),
     collectPeerRelativeStrength({ assetClass: 'bdr', catalog: catalogBdr })
@@ -535,4 +573,4 @@ async function marketDataStatus() {
   return { blockedUntil: state.blockedUntil > Date.now() ? new Date(state.blockedUntil).toISOString() : null, reason: state.code, requestsToday: state.usage?.[new Date().toISOString().slice(0, 10)] || 0, trackedRequests: Object.values(state.usage || {}).reduce((a,b)=>a+b,0), liveQuoteIntervalMinutes: LIVE_QUOTE_MINUTES };
 }
 
-module.exports = { fetchHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote };
+module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote };
