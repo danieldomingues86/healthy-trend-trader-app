@@ -121,7 +121,7 @@ body #relativestrength.rs-v3-page .rs-simple-toolbar select option:checked {
   font-weight:600;
 }
 body #relativestrength.rs-v3-page :is(button,input,select):focus-visible { outline:2px solid #9bf7c4; outline-offset:3px; }
-body #relativestrength.rs-v3-page .rs-simple-toolbar .relative-data-freshness { margin:0 0 0 auto; border:1px solid #c2e5d138; border-radius:99px; background:#082c2769; color:#d8e9e0; font:400 10px Arial,sans-serif; padding:8px 12px; white-space:normal; }
+body #relativestrength.rs-v3-page .rs-simple-toolbar .relative-data-freshness { margin:0 0 0 auto; border:1px solid #86d7aa8c; border-radius:99px; background:#082c27d9; color:#f0fbf3; font:600 13px/1.3 Arial,sans-serif; padding:10px 15px; white-space:normal; letter-spacing:.01em; }
 body #relativestrength.rs-v3-page .relative-table-wrap { border:1px solid #b2deca26; border-radius:7px; background:#265c4e14; overflow-x:auto; box-shadow:none; }
 body #relativestrength.rs-v3-page .relative-table { width:100%; min-width:900px; border-collapse:collapse; background:none; color:#edf4ed; font-family:Arial,sans-serif; }
 body #relativestrength.rs-v3-page .relative-table th { background:#9adeca11!important; color:#c4e0d5!important; padding:10px 13px; font:400 10px Arial,sans-serif; letter-spacing:.015em; border-bottom:1px solid #acd5c43b!important; }

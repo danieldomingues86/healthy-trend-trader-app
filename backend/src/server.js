@@ -344,7 +344,7 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/relative-strength/classes') {
       cache = await refreshClassStrength(cache);
       const classes = classStrengthFromCache(cache);
-      return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, classes });
+      return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf: cache.overview?.benchmarkHistory?.at(-1)?.date || null, source: cache.source, classes });
     }
     if (url.pathname === '/api/relative-strength/classify') return send(response, 200, classifyAsset(url.searchParams.get('ticker'), cache));
     if (url.pathname === '/api/relative-strength') {
