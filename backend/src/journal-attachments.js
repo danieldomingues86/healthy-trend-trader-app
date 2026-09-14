@@ -36,7 +36,7 @@ function filePath(storageKey) {
   if (!candidate.startsWith(`${root}${path.sep}`)) throw invalid('Arquivo inválido.');
   return candidate;
 }
-async function create(userId, input) {
+async function create(userId, input, persistence = database) {
   const journalRecordId = recordId(input.recordId);
   const originalName = name(input.name);
   const type = contentType(input.contentType);
@@ -51,7 +51,7 @@ async function create(userId, input) {
   await fs.writeFile(temporary, bytes, { flag: 'wx' });
   try {
     await fs.rename(temporary, target);
-    const result = await database.query(
+    const result = await persistence.query(
       `INSERT INTO app.journal_attachments (id, user_id, journal_record_id, original_name, content_type, byte_size, storage_key)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, original_name, content_type, byte_size, created_at`,

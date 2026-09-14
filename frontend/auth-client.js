@@ -4,7 +4,7 @@
   const ACCESS_SESSION_KEY = 'healthy-trend-platform-access-session';
   const memory = { token: null };
   let platformAccessStarted = false;
-  let platformAccessPreferences = { countOpenings: true, trackDuration: true, trackWindowEvents: false };
+  let platformAccessPreferences = { countOpenings: true, trackDuration: true, monitorEnabled: true, trackWindowEvents: false };
 
   function token() { return memory.token || localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY) || ''; }
   function setToken(value, remember) {
@@ -70,6 +70,15 @@
       window.dispatchEvent(new CustomEvent('healthyTrend:accessUpdated'));
     } catch (_) { platformAccessStarted = false; }
   }
+  async function startProfitMonitor() {
+    if (!token()) return;
+    try {
+      const settings = await request('/api/platform-access/preferences');
+      platformAccessPreferences = { ...platformAccessPreferences, ...(settings.preferences || {}) };
+      if (platformAccessPreferences.monitorEnabled === false) return;
+      await request('/api/platform-access/monitor/start', { method: 'POST', body: '{}' });
+    } catch (_) { /* The local connector is optional when unavailable. */ }
+  }
   function heartbeatPlatformAccess() {
     if (!platformAccessStarted || !token()) return;
     request(`/api/platform-access/sessions/${accessSessionId()}/heartbeat`, { method: 'POST', body: '{}' }).catch(() => {});
@@ -94,6 +103,8 @@
     const avatar = document.querySelector('.avatar');
     if (avatar) avatar.textContent = (user.displayName || user.email || 'U').split(/\s+/).map((part) => part[0]).slice(0, 2).join('').toUpperCase();
     if (typeof go === 'function') go('today');
+    startPlatformAccess();
+    startProfitMonitor();
     window.dispatchEvent(new CustomEvent('healthyTrend:authenticated', { detail: { user } }));
     // The account menu is rendered from the signed-in profile. Render it again
     // after login so the avatar is always an interactive control, even while

@@ -77,10 +77,15 @@
   }
   function evidenceStrip() {
     const items = current().evidence.slice(0, 3);
-    return `<div class="jv-evidence-strip">${items.map(item => `<button type="button" class="jv-evidence-thumb" data-evidence-id="${esc(item.id)}" title="${esc(item.name)}" aria-label="${text('Abrir', 'Open')} ${esc(item.name)}">${item.type.startsWith('image/') ? `<img data-evidence-thumb="${esc(item.id)}" alt="${esc(item.name)}">` : `<span>${item.type.startsWith('audio/') ? '♫' : '📎'}</span>`}<small>${esc(item.name)}</small></button>`).join('')}${current().evidence.length > 3 ? `<div class="jv-evidence-more">+${current().evidence.length - 3}</div>` : ''}<button type="button" class="jv-evidence-add" data-action="evidence" aria-label="${text('Adicionar evidências', 'Add evidence')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 6-6a3 3 0 1 1 4 4l-8 8a5 5 0 0 1-7-7l8-8"/></svg><small>${text('Adicionar', 'Add')}</small></button></div>`;
+    const imageCount = current().evidence.filter(item => item.type?.startsWith('image/') && item.type !== 'image/svg+xml').length;
+    return `<div class="jv-evidence-strip">${items.map(item => `<button type="button" class="jv-evidence-thumb" data-evidence-id="${esc(item.id)}" title="${esc(item.name)}" aria-label="${text('Abrir', 'Open')} ${esc(item.name)}">${item.type.startsWith('image/') ? `<img data-evidence-thumb="${esc(item.id)}" alt="${esc(item.name)}">` : `<span>${item.type.startsWith('audio/') ? '♫' : '📎'}</span>`}<small>${esc(item.name)}</small></button>`).join('')}${current().evidence.length > 3 ? `<div class="jv-evidence-more">+${current().evidence.length - 3}</div>` : ''}<button type="button" class="jv-evidence-add" data-action="evidence" aria-label="${text('Anexar arquivo ou colar print', 'Attach a file or paste a screenshot')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 6-6a3 3 0 1 1 4 4l-8 8a5 5 0 0 1-7-7l8-8"/></svg><small>${text('Anexar / Ctrl+V', 'Attach / Ctrl+V')}</small></button></div>${imageCount > 1 ? `<small class="jv-evidence-keyboard-hint">← → ${text('Abra um print e use as setas do teclado para navegar entre as imagens.', 'Open a screenshot and use the keyboard arrows to browse images.')}</small>` : ''}`;
   }
   function patternsSection(e) {
     return `<section class="jv-patterns"><header><span class="jv-title-icon">${icons.patterns}</span><div><h3>${text('Padrões e soluções', 'Patterns and solutions')}</h3><p>${text('(observações adicionais)', '(additional observations)')}</p></div></header>${field('shared.patterns', text('O que está se repetindo e como você quer responder?', 'What is repeating and how do you want to respond?'), e.shared.patterns, text('Registre o padrão que percebeu e a solução que pretende aplicar.', 'Record the pattern you noticed and the solution you intend to apply.'), 4)}</section>`;
+  }
+  function importedSourceSection(e) {
+    if (!e.imports?.length) return '';
+    return `<details class="jv-evernote-source"><summary>${text('Histórico importado do Evernote', 'History imported from Evernote')} · ${e.imports.length} ${text('notas', 'notes')}</summary><p>${text('Os textos e transcrições originais foram preservados. Emoções importadas são apenas as opções marcadas. Intensidade não foi estimada. Aderência, quando preenchida, foi mapeada conservadoramente a partir do checklist.', 'Original texts and transcripts were preserved. Imported emotions are only checked options. Intensity was not estimated. Adherence, when available, was conservatively mapped from the checklist.')}</p>${e.imports.map(source => `<section><b>${esc(source.title)}</b>${source.warning ? `<p>${esc(source.warning)}</p>` : ''}${source.coveredDates?.length > 1 ? `<p>${text('Abrange', 'Covers')}: ${source.coveredDates.map(date => esc(dateLabel(date))).join(' · ')}${source.sourceExecutionScore !== null ? ` · ${text('Avaliação conjunta original', 'Original combined score')}: ${esc(source.sourceExecutionScore)}/10` : ''}</p>` : ''}${source.scoreBasis === 'number-written-after-hoje-fui' ? `<p>${text('Nota de execução recuperada do número escrito após “Hoje fui”, em vez do campo “Nota”. Confira no texto original.', 'Execution score recovered from the number written after “Today I was”, rather than the score field. Check the original text.')}</p>` : ''}${source.conflicts?.length ? `<p>${text('Valores existentes preservados; divergências', 'Existing values preserved; differences')}: ${source.conflicts.map(esc).join(' · ')}</p>` : ''}</section>`).join('')}<pre>${esc(e.shared.observations || '')}</pre></details>`;
   }
   function render(force = false) {
     if (!force && root.contains(document.activeElement) && document.activeElement.matches('input,textarea,select')) return;
@@ -101,7 +106,8 @@
           ${field('technical.session', `2. ${text('O que eu observei hoje?', 'What did I observe today?')}`, tech.session, text('Contexto, decisões e execução. O que merece ficar registrado?', 'Context, decisions and execution. What is worth recording?'), 5)}
           <fieldset><legend>3. ${text('Execução', 'Execution')}</legend><div class="jv-execution"><div class="jv-execution-card"><span class="jv-execution-label">${text('Qualidade da execução', 'Execution quality')}</span><strong><output id="jv-execution-score">${tech.executionScore ?? '—'}</output> <small>/ 10</small></strong><input class="jv-score-slider" type="range" min="0" max="10" step="0.1" data-field="technical.executionScore" value="${tech.executionScore ?? 0}" aria-label="${text('Qualidade da execução', 'Execution quality')}"></div><div class="jv-execution-card"><span class="jv-execution-label">${text('Plano', 'Plan')}</span><div class="jv-plan-options" role="group" aria-label="${text('Plano respeitado', 'Plan followed')}">${[['yes', '✓', text('Respeitado', 'Followed')], ['partial', '–', text('Parcialmente', 'Partially')], ['no', '×', text('Não respeitado', 'Not followed')]].map(([value, icon, label]) => `<button type="button" class="jv-plan-option ${tech.planRespected === value ? 'chosen' : ''}" data-set="technical.planRespected" data-value="${value}" aria-pressed="${tech.planRespected === value}"><i aria-hidden="true">${icon}</i><span>${label}</span></button>`).join('')}</div></div></div></fieldset>
           ${linkedTradeSummary()}
-          <fieldset><legend>4. ${text('Evidências da sessão', 'Session evidence')}</legend><span class="jv-hint">${text('Anexos, prints, áudios e materiais complementares.', 'Attachments, screenshots, audio and supporting material.')}</span>${evidenceStrip()}${legacyLabels.length ? `<small class="jv-hint">${text('Referências antigas preservadas nos detalhes.', 'Legacy references preserved in details.')}</small>` : ''}</fieldset>
+          ${importedSourceSection(e)}
+          <fieldset><legend>4. ${text('Evidências da sessão', 'Session evidence')}</legend><span class="jv-hint">${text('Anexe arquivos ou abra “Anexar / Ctrl+V” para colar um print. Quando reconhecido, o ticker entra no nome do print junto à data do registro.', 'Attach files or open “Attach / Ctrl+V” to paste a screenshot. When recognised, the ticker is added to the screenshot name with the record date.')}</span>${evidenceStrip()}${legacyLabels.length ? `<small class="jv-hint">${text('Referências antigas preservadas nos detalhes.', 'Legacy references preserved in details.')}</small>` : ''}</fieldset>
           <details class="jv-extra"><summary>${text('Checklist e permissão operacional', 'Checklist and trading permission')}</summary><label class="jv-field">${text('O mercado merece meu dinheiro hoje?', 'Does the market deserve my money today?')}<select data-field="technical.permissionMoney"><option value="">${text('Não informado', 'Not recorded')}</option><option value="wait" ${tech.permissionMoney === 'wait' ? 'selected' : ''}>${text('Não — meu trabalho é esperar', 'No — my job is to wait')}</option><option value="a-plus" ${tech.permissionMoney === 'a-plus' ? 'selected' : ''}>${text('Sim — somente cenário A+', 'Yes — A+ conditions only')}</option></select></label>${checks.map((label, i) => `<label class="jv-check"><input type="checkbox" data-check="${i}" ${tech.checklist?.[i] ? 'checked' : ''}>${label}</label>`).join('')}</details></div>
           <div class="jv-page-preview"><span class="jv-page-number">01 / ${text('Leitura do processo', 'Process reading')}</span><p>${esc(tech.session || text('O que aconteceu no mercado e como você executou?', 'What happened in the market and how did you execute?'))}</p><div>${text('Execução', 'Execution')}: <b>${tech.executionScore ?? '—'} / 10</b></div><div>${text('Plano', 'Plan')}: <b>${tech.planRespected === 'yes' ? text('Respeitado', 'Followed') : tech.planRespected === 'no' ? text('Não respeitado', 'Not followed') : tech.planRespected === 'partial' ? text('Parcialmente', 'Partially') : '—'}</b></div><button type="button" data-pane="technical">${text('Escrever na página técnica', 'Write on the technical page')} →</button></div>
         </section>
@@ -119,6 +125,23 @@
       </main></div><dialog id="jv-dialog" aria-labelledby="jv-dialog-title"><header><h2 id="jv-dialog-title"></h2><button type="button" data-action="close-dialog" aria-label="${text('Fechar', 'Close')}">×</button></header><div id="jv-dialog-body"></div></dialog>
     </div>`;
     hydrateEvidenceStrip();
+    compactLessons();
+  }
+  function compactLessons() {
+    const lessons = root.querySelector('.jv-lessons');
+    const emotionalFields = root.querySelector('.jv-emotional .jv-fields');
+    if (!lessons || !emotionalFields) return;
+    const field = lessons.querySelector('.jv-lesson-write .jv-field');
+    const save = lessons.querySelector('.jv-save');
+    const saveStatus = lessons.querySelector('#jv-save-status');
+    if (!field || !save || !saveStatus) return;
+    const compact = document.createElement('section');
+    compact.className = 'jv-compact-closeout';
+    compact.innerHTML = `<header><div><h4>${text('Fechamento do dia', 'Day closeout')}</h4><p>${text('Opcional: registre uma lição breve antes de salvar.', 'Optional: record a brief lesson before saving.')}</p></div></header>`;
+    const actionRow = document.createElement('div'); actionRow.className = 'jv-compact-closeout-actions';
+    actionRow.append(field, save); compact.append(actionRow, saveStatus);
+    emotionalFields.append(compact);
+    lessons.remove();
   }
   function setValue(path, value) {
     const allowed = ['title', 'technical.marketState', 'technical.session', 'technical.executionScore', 'technical.planRespected', 'technical.permissionMoney', 'emotional.intensity', 'emotional.note', 'emotional.impact', 'emotional.impactNote', 'shared.lesson', 'shared.patterns', 'shared.observations', 'shared.phrase'];
@@ -136,6 +159,11 @@
   }
   function clearEvidenceUrls() { evidenceUrls.forEach(url => URL.revokeObjectURL(url)); evidenceUrls = []; }
   function attachmentPath(id) { return `/api/journal-attachments/${encodeURIComponent(id)}/content`; }
+  function screenshotEvidence() { return current().evidence.filter(item => item.type?.startsWith('image/') && item.type !== 'image/svg+xml'); }
+  function navigateEvidence(id, step) {
+    const items = screenshotEvidence(), index = items.findIndex(item => item.id === id), next = items[index + step];
+    if (next) openEvidence(next.id);
+  }
   async function evidenceBlob(item) {
     if (!window.healthyTrendApi?.requestBlob) throw new Error(text('Entre novamente para acessar os anexos.', 'Sign in again to access attachments.'));
     return window.healthyTrendApi.requestBlob(attachmentPath(item.id));
@@ -155,6 +183,7 @@
   async function openEvidence(id) {
     const item = current().evidence.find(candidate => candidate.id === id);
     if (!item) return;
+    const screenshots = screenshotEvidence(), screenshotIndex = screenshots.findIndex(candidate => candidate.id === id);
     dialog(esc(item.name), `<p>${text('Carregando evidência…', 'Loading evidence…')}</p>`);
     root.querySelector('#jv-dialog').classList.add('jv-evidence-dialog');
     try {
@@ -163,7 +192,7 @@
       const body = root.querySelector('#jv-dialog-body');
       if (!body) return;
       body.innerHTML = item.type.startsWith('image/') && item.type !== 'image/svg+xml'
-        ? `<img class="jv-evidence-preview" src="${url}" alt="${esc(item.name)}">`
+        ? `<nav class="jv-evidence-navigation" aria-label="${text('Navegação entre prints', 'Screenshot navigation')}"><button type="button" data-action="evidence-previous" data-evidence-id="${esc(item.id)}" ${screenshotIndex <= 0 ? 'disabled' : ''} aria-label="${text('Print anterior', 'Previous screenshot')}">← ${text('Anterior', 'Previous')}</button><span>${screenshotIndex + 1} ${text('de', 'of')} ${screenshots.length}</span><button type="button" data-action="evidence-next" data-evidence-id="${esc(item.id)}" ${screenshotIndex >= screenshots.length - 1 ? 'disabled' : ''} aria-label="${text('Próximo print', 'Next screenshot')}">${text('Próximo', 'Next')} →</button></nav><img class="jv-evidence-preview" src="${url}" alt="${esc(item.name)}"><p class="jv-evidence-keyboard-help">← → ${text('Use as setas do teclado para navegar entre os prints.', 'Use the keyboard arrows to browse screenshots.')}</p>`
         : item.type.startsWith('audio/')
           ? `<audio class="jv-evidence-audio" controls autoplay src="${url}"></audio>`
           : `<a href="${url}" download="${esc(item.name)}">${text('Baixar arquivo', 'Download file')}</a>`;
@@ -172,7 +201,7 @@
   async function showEvidence() {
     clearEvidenceUrls();
     const e = current(), labels = e.legacyEntries.flatMap(item => Array.isArray(item.attachments) ? item.attachments : []);
-    dialog(text('Evidências da sessão', 'Session evidence'), `<label class="jv-upload">＋ ${text('Adicionar prints, áudio ou arquivos', 'Add screenshots, audio or files')}<input id="jv-files" type="file" multiple></label><p>${text('Até 20 MB por arquivo. Guardados de forma privada na sua conta.', 'Up to 20 MB per file. Stored privately in your account.')}</p><p id="jv-upload-status" role="status"></p><div id="jv-evidence-list"></div>${labels.length ? `<details><summary>${text('Referências do registro antigo', 'Legacy entry references')}</summary><p>${labels.map(esc).join(' · ')}</p><p>${text('O diário antigo guardava esses rótulos, mas não os arquivos. Nenhum arquivo foi reconstruído.', 'The old journal stored these labels, but not the files. No file was reconstructed.')}</p></details>` : ''}`);
+    dialog(text('Evidências da sessão', 'Session evidence'), `<label class="jv-upload">＋ ${text('Adicionar prints, áudio ou arquivos', 'Add screenshots, audio or files')}<input id="jv-files" type="file" multiple></label><div class="jv-upload-paste" data-evidence-paste tabindex="0">${text('Ou cole um print da área de transferência com Ctrl + V.', 'Or paste a screenshot from the clipboard with Ctrl + V.')}</div><p>${text('Até 20 MB por arquivo. Guardados de forma privada na sua conta.', 'Up to 20 MB per file. Stored privately in your account.')}</p><p id="jv-upload-status" role="status"></p><div id="jv-evidence-list"></div>${labels.length ? `<details><summary>${text('Referências do registro antigo', 'Legacy entry references')}</summary><p>${labels.map(esc).join(' · ')}</p><p>${text('O diário antigo guardava esses rótulos, mas não os arquivos. Nenhum arquivo foi reconstruído.', 'The old journal stored these labels, but not the files. No file was reconstructed.')}</p></details>` : ''}`);
     for (const item of e.evidence) {
       const host = root.querySelector('#jv-evidence-list'); if (!host) return;
       const row = document.createElement('article'); row.className = 'jv-file';
@@ -210,6 +239,43 @@
       root.querySelector('#jv-upload-status').textContent = `${uploaded} ${text('arquivo(s) salvo(s).', 'file(s) saved.')}`;
     } catch (error) { const status = root.querySelector('#jv-upload-status'); if (status) status.textContent = error.message; }
     finally { busy = false; if (input?.isConnected) input.disabled = false; }
+  }
+  function clipboardImageFiles(clipboard) {
+    const files = [];
+    for (const item of clipboard?.items || []) {
+      if (!item.type?.startsWith('image/')) continue;
+      const image = item.getAsFile?.();
+      if (image) files.push(image);
+    }
+    return files;
+  }
+  async function tickerInImage(image) {
+    if (typeof window.TextDetector !== 'function' || typeof window.createImageBitmap !== 'function') return null;
+    let bitmap;
+    try {
+      bitmap = await window.createImageBitmap(image);
+      const blocks = await new window.TextDetector().detect(bitmap);
+      const textInImage = blocks.map(block => block.rawValue || '').join(' ').toUpperCase();
+      return textInImage.match(/\b[A-Z]{4}\d{1,2}\b/)?.[0] || null;
+    } catch (_) { return null; }
+    finally { bitmap?.close?.(); }
+  }
+  async function clipboardImages(files) {
+    const day = current().date || new Date().toISOString().slice(0, 10);
+    return Promise.all(files.map(async (image, index) => {
+      const ticker = await tickerInImage(image);
+      const extension = image.type.split('/')[1]?.replace(/[^a-z0-9]+/gi, '') || 'png';
+      const prefix = ticker || 'print';
+      return new File([image], `${prefix}_${day}_${String(index + 1).padStart(2, '0')}.${extension}`, { type: image.type });
+    }));
+  }
+  async function uploadClipboardImages(event) {
+    const files = clipboardImageFiles(event.clipboardData);
+    if (!files.length) return;
+    event.preventDefault();
+    const images = await clipboardImages(files);
+    if (!root.querySelector('#jv-dialog')?.open) await showEvidence();
+    await upload(images);
   }
   async function removeEvidence(id) {
     if (busy) return; busy = true;
@@ -258,7 +324,17 @@
     if (el.dataset.check !== undefined) { current().technical.checklist[el.dataset.check] = el.checked; persist(); }
     if (el.dataset.trade) { const ids = current().technical.tradeIds; current().technical.tradeIds = el.checked ? [...new Set([...ids, el.dataset.trade])] : ids.filter(id => id !== el.dataset.trade); persist(); }
   });
+  root.addEventListener('paste', event => {
+    const evidenceDialogOpen = root.querySelector('#jv-dialog')?.open;
+    const evidenceControl = event.target.closest?.('[data-action="evidence"], .jv-evidence-strip, [data-evidence-paste]');
+    if (evidenceDialogOpen || evidenceControl) uploadClipboardImages(event);
+  });
   root.addEventListener('keydown', event => {
+    const evidenceDialog = root.querySelector('#jv-dialog.jv-evidence-dialog[open]');
+    if (evidenceDialog && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      const id = evidenceDialog.querySelector('[data-evidence-id]')?.dataset.evidenceId;
+      if (id) { event.preventDefault(); navigateEvidence(id, event.key === 'ArrowLeft' ? -1 : 1); return; }
+    }
     if (event.target.getAttribute('role') === 'tab' && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
       event.preventDefault(); pane = event.key === 'Home' ? 'technical' : event.key === 'End' ? 'emotional' : pane === 'technical' ? 'emotional' : 'technical'; render(true); root.querySelector(`#jv-tab-${pane}`).focus();
     }
@@ -272,6 +348,8 @@
   }, true);
   root.addEventListener('click', event => {
     const button = event.target.closest('button'); if (!button) return;
+    if (button.dataset.action === 'evidence-previous') { navigateEvidence(button.dataset.evidenceId, -1); return; }
+    if (button.dataset.action === 'evidence-next') { navigateEvidence(button.dataset.evidenceId, 1); return; }
     if (button.dataset.evidenceId) { openEvidence(button.dataset.evidenceId); return; }
     if (button.dataset.removeEvidence) { removeEvidence(button.dataset.removeEvidence); return; }
     if (button.dataset.positionId) { window.openPositionFromJournal?.(button.dataset.positionId); return; }
@@ -293,6 +371,15 @@
   });
   window.renderJournalBook = render;
   window.openJournalEditor = () => { go('journal'); openDay(M.today()); };
+  window.openJournalRecord = id => {
+    const record = data.records.find(item => item.id === id);
+    if (!record) return false;
+    selected = record.id;
+    month = (record.date || '').slice(0, 7);
+    go('journal');
+    render(true);
+    return true;
+  };
   window.openJournalForMonth = monthKey => {
     if (!/^\d{4}-\d{2}$/.test(monthKey || '')) return false;
     const records = data.records

@@ -1,0 +1,124 @@
+body:has(#emotionalintelligence.active) .content{width:100%;max-width:none!important;margin:0!important;padding:0!important}
+body:has(#emotionalintelligence.active) #marketFocusGuard{display:none}
+body:has(#emotionalintelligence.active) #emotionalintelligence.page.active{width:100%!important;max-width:none!important;margin:0!important}
+#emotionalintelligence{--ei-ink:#122d23;--ei-muted:#59655c;--ei-green:#247956;--ei-gold:#b08c39;--ei-line:#d9d2bd;--ei-paper:#f5f1e5;color:var(--ei-ink);min-height:calc(100dvh - 78px);background:linear-gradient(180deg,rgba(0,17,11,.08),rgba(24,14,5,.12)),url('../assets/emotional-intelligence-study-v1.png') top center/100% auto no-repeat;background-color:#51351e;font:15px/1.55 Arial,Helvetica,sans-serif}
+#emotionalintelligence *{box-sizing:border-box}
+#emotionalintelligence .ei-shell{padding:0 clamp(18px,1.35vw,34px) 26px;min-height:calc(100dvh - 78px)}
+#emotionalintelligence .ei-hero{min-height:195px;display:flex;align-items:center;gap:25px;position:relative;padding:28px 22px 38px;color:#f5edd0}
+#emotionalintelligence .ei-hero-icon{flex:0 0 82px;width:82px;height:82px;display:grid;place-items:center;border:1px solid #d3c587;border-radius:50%;background:radial-gradient(circle,#294d33bd,#071d19e8);box-shadow:inset 0 0 0 5px #6b895c20,0 8px 26px #0004}
+#emotionalintelligence .ei-icon{width:29px;height:29px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#emotionalintelligence .ei-hero-icon svg{width:42px;height:42px}
+#emotionalintelligence .ei-hero-copy{max-width:660px}
+#emotionalintelligence .ei-hero h1{margin:0 0 8px;font:700 clamp(28px,2vw,38px)/1.06 Georgia,serif!important;letter-spacing:-.035em;color:#f8efd1}
+#emotionalintelligence .ei-hero-copy p{margin:0;font-size:16px;color:#f2f1e4}
+#emotionalintelligence .ei-hero blockquote{margin:0 0 0 8px;max-width:285px;border-left:1px solid #beaa5b;padding-left:22px;font:italic 20px/1.35 Georgia,serif;text-shadow:0 2px 9px #000}
+#emotionalintelligence .ei-period{position:absolute;right:12px;bottom:14px;display:flex;align-items:center;gap:9px;background:#06271fe8;color:#f5edce;border:1px solid #8da97077;border-radius:8px;padding:10px 12px;box-shadow:0 7px 24px #0004}
+#emotionalintelligence .ei-period svg{width:18px;height:18px}
+#emotionalintelligence select{font:600 14px Arial,sans-serif;color:inherit;background:transparent;border:0;cursor:pointer;min-width:132px}
+#emotionalintelligence select option{color:#102b21;background:#f5f1e5}
+#emotionalintelligence .ei-paper{border:1px solid #ddd6c0;border-radius:12px;background:linear-gradient(135deg,#fffdf5,#f2edde);box-shadow:0 4px 8px #0002,0 18px 34px #0c140a30,inset 0 1px 0 #fff;padding:18px 20px;min-width:0}
+#emotionalintelligence .ei-heading{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:12px}
+#emotionalintelligence h2{font:700 21px/1.2 Georgia,serif!important;letter-spacing:-.025em;margin:0!important;color:var(--ei-ink)}
+#emotionalintelligence .ei-heading p,#emotionalintelligence .ei-subtitle{font-size:13px;line-height:1.5;color:var(--ei-muted);margin:3px 0 0}
+#emotionalintelligence button{cursor:pointer;font-family:Arial,sans-serif}
+#emotionalintelligence .ei-button{padding:8px 11px;border:1px solid #cbc4ae;border-radius:6px;background:#faf8ed;color:#214433;font-size:13px;white-space:nowrap}
+#emotionalintelligence .ei-button:hover{background:#e8efdd}
+#emotionalintelligence button:focus-visible,#emotionalintelligence select:focus-visible,#emotionalintelligence [tabindex]:focus-visible{outline:2px solid #53875d;outline-offset:3px}
+#emotionalintelligence .ei-overview{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:14px;margin-bottom:14px}
+#emotionalintelligence .ei-state-panel .ei-heading{margin-bottom:3px}
+#emotionalintelligence .ei-state-grid{display:grid;grid-template-columns:1.6fr repeat(4,minmax(0,1fr));gap:12px;align-items:stretch}
+#emotionalintelligence .ei-dominant{display:flex;align-items:center;gap:17px;padding:7px 8px}
+#emotionalintelligence .ei-seal{width:67px;height:67px;flex:0 0 67px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle,#6c9b64,#0b563b);color:#f4e9ab;border:3px solid #a7bc81;box-shadow:0 0 0 3px #e4dbb1,inset 0 0 0 1px #eeead080}
+#emotionalintelligence .ei-dominant strong{display:block;font:400 26px/1.1 Georgia,serif;text-transform:capitalize}
+#emotionalintelligence .ei-dominant small{font-size:13px;color:var(--ei-muted)}
+#emotionalintelligence .ei-badge{display:inline-block;padding:3px 9px;border-radius:999px;background:#dce9d4;color:#246440;font-size:12px;margin-top:5px}
+#emotionalintelligence .ei-badge.attention{background:#f0dec9;color:#865b24}
+#emotionalintelligence .ei-stat{border:1px solid #dfd9c8;border-radius:8px;padding:13px 15px;background:#fffdf429;display:flex;flex-direction:column;justify-content:center}
+#emotionalintelligence .ei-stat strong{font:400 28px/1.15 Georgia,serif;color:#082820;white-space:nowrap}
+#emotionalintelligence .ei-stat span{font-size:13px;margin-top:3px;color:#414c44}
+#emotionalintelligence .ei-stat small{font-size:12px;color:#737969;margin-top:8px}
+#emotionalintelligence .ei-delta{font-weight:700;color:#297e55!important}
+#emotionalintelligence .ei-delta.attention{color:#ad4936!important}
+#emotionalintelligence .ei-quote{display:grid;place-items:center;border:1px solid #b8bb80;border-radius:12px;padding:24px;background:linear-gradient(135deg,#0d3a29ed,#08241ded);color:#f1e5ae;box-shadow:0 15px 30px #0004}
+#emotionalintelligence .ei-quote p{font:italic 23px/1.4 Georgia,serif;margin:0;text-align:center}
+#emotionalintelligence .ei-main-grid{display:grid;grid-template-columns:1.14fr 1fr .65fr;gap:14px;align-items:stretch;margin-bottom:14px}
+#emotionalintelligence .ei-pattern-list{display:grid;gap:6px}
+#emotionalintelligence .ei-pattern{display:flex;align-items:start;gap:12px;width:100%;text-align:left;padding:12px 11px;border:1px solid #e5dece;background:#fffdf594;border-radius:9px;box-shadow:0 3px 8px #31240b08;color:var(--ei-ink)}
+#emotionalintelligence .ei-pattern:hover{background:#fffef9;box-shadow:0 5px 12px #38280915}
+#emotionalintelligence .ei-pattern-icon{flex:0 0 44px;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;color:#287950;background:#d6e9ce}
+#emotionalintelligence .ei-pattern.attention .ei-pattern-icon{color:#b44535;background:#f5d9cf}
+#emotionalintelligence .ei-pattern.neutral .ei-pattern-icon{color:#8e6c34;background:#ede1c3}
+#emotionalintelligence .ei-pattern-copy{flex:1;min-width:0}
+#emotionalintelligence .ei-pattern b{display:block;font:700 17px/1.25 Georgia,serif;margin:0 0 3px}
+#emotionalintelligence .ei-pattern small{display:block;font-size:12px;color:#2a6148}
+#emotionalintelligence .ei-pattern p{font-size:13px;line-height:1.45;font-weight:400!important;margin:5px 0 0;color:#50594e}
+#emotionalintelligence .ei-chevron{align-self:center;width:25px;height:25px;display:grid;place-items:center;border-radius:50%;background:#e9e3d5;font-size:18px;color:#4b5948}
+#emotionalintelligence .ei-context{padding:12px;border-radius:9px;background:linear-gradient(140deg,#e4eddc55,#e5e6d25c)}
+#emotionalintelligence .ei-context.attention{margin-top:14px;background:linear-gradient(135deg,#f2dfd377,#e6cbb45c)}
+#emotionalintelligence .ei-context h2{display:flex;gap:9px;align-items:center;font-size:17px!important}
+#emotionalintelligence .ei-context h2 svg{flex:0 0 24px;width:24px;color:#17654b}
+#emotionalintelligence .ei-context.attention h2 svg{color:#b14734}
+#emotionalintelligence .ei-context ul{list-style:none;padding:0 0 0 32px;margin:10px 0 7px;display:grid;gap:5px;font-size:13px!important;line-height:1.45}
+#emotionalintelligence .ei-context li:before{content:'✦';color:#29835a;margin-right:9px}
+#emotionalintelligence .ei-context.attention li:before{color:#b44835}
+#emotionalintelligence .ei-context p{font-size:12px;line-height:1.45;color:#636953;margin:7px 0}
+#emotionalintelligence .ei-chart{display:block;width:100%;overflow:visible;font-family:Arial,sans-serif}
+#emotionalintelligence .ei-chart text{fill:#596259;font-size:12px}
+#emotionalintelligence .ei-chart .ei-axis{stroke:#244d41;stroke-width:1.1;fill:none}
+#emotionalintelligence .ei-chart .ei-gridline{stroke:#ded8c6;stroke-width:.6}
+#emotionalintelligence .ei-chart .ei-guide{stroke:#5c9282;stroke-width:1;stroke-dasharray:3 3;opacity:.8}
+#emotionalintelligence .ei-chart [data-day]{cursor:pointer}
+#emotionalintelligence .ei-chart [data-day]:hover circle{stroke:#152e23;stroke-width:2.5}
+#emotionalintelligence .ei-legend{display:flex;justify-content:center;gap:17px;font-size:12px;color:#4e5a51;margin:8px 0 4px;flex-wrap:wrap}
+#emotionalintelligence .ei-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle;background:#218e68}
+#emotionalintelligence .ei-dot.loss{background:#d45c4b}
+#emotionalintelligence .ei-dot.none{background:#c79b2f}
+#emotionalintelligence .ei-bottom-grid{display:grid;grid-template-columns:1.2fr .95fr .65fr;gap:14px}
+#emotionalintelligence .ei-bottom-grid .ei-paper{padding:15px 17px}
+#emotionalintelligence .ei-bottom-grid h2{font-size:17px!important}
+#emotionalintelligence .ei-relation{display:grid;grid-template-columns:1.3fr 1fr 42px;gap:8px;width:100%;padding:6px 0;align-items:center;background:none;border:0;text-align:left;font-size:12px;color:#4c584d}
+#emotionalintelligence .ei-relation-track{height:9px;border-radius:99px;background:#e8e3d8;overflow:hidden}
+#emotionalintelligence .ei-relation-track i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#49826a,#24a37a)}
+#emotionalintelligence .ei-relation small{text-align:right;color:#677260;font-size:11px}
+#emotionalintelligence .ei-soft-note{font-size:12px;color:#67705d;margin:8px 0 0;line-height:1.55}
+#emotionalintelligence .ei-empty{padding:22px 8px;text-align:center;color:#617056;font-size:14px;line-height:1.7;min-height:120px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+#emotionalintelligence .ei-empty svg{width:32px;height:32px;margin-bottom:9px;color:#9caa77}
+#emotionalintelligence .ei-empty .ei-button{margin-top:12px}
+#emotionalintelligence .ei-footer{display:flex;justify-content:space-between;gap:16px;color:#f4e5c0;padding:16px 6px 0;font-size:13px;text-shadow:0 1px 4px #000}
+#emotionalintelligence .ei-footer em{font:italic 15px Georgia,serif}
+#emotionalintelligence .ei-comparison{margin-top:14px}
+#emotionalintelligence .ei-comparison summary{cursor:pointer;font:700 17px Georgia,serif}
+#emotionalintelligence .ei-comparison-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+#emotionalintelligence .ei-comparison-grid article{padding:12px;border:1px solid #ddd5c0;border-radius:8px}
+#emotionalintelligence .ei-comparison-grid span{display:block;font-size:11px;margin-bottom:6px}
+#emotionalintelligence .ei-comparison-grid b{font:400 23px Georgia,serif}
+#emotionalintelligence .ei-source-status{color:#eeddb0;background:#122b21c7;border:1px solid #ac925b66;padding:9px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
+#emotionalintelligence .ei-tooltip{position:fixed;z-index:1500;pointer-events:none;max-width:265px;padding:12px 15px;border:1px solid #8eb784;border-radius:7px;background:#092c24f5;color:#f8f1da;font-size:13px;box-shadow:0 5px 15px #0004;white-space:pre-line}
+#emotionalintelligence .ei-tooltip[hidden]{display:none}
+.ei-evidence-dialog{width:min(820px,calc(100vw - 32px));max-height:calc(100dvh - 44px);padding:0;border:1px solid #b9ab72;border-radius:15px;background:#f5f0e2;color:#19382b;box-shadow:0 25px 100px #0008;font:15px/1.55 Arial,sans-serif}
+.ei-evidence-dialog::backdrop{background:#01170edb;backdrop-filter:blur(6px)}
+.ei-evidence-dialog header{padding:24px 28px;background:linear-gradient(135deg,#0b3325,#163f2e);color:#f7e8b9;display:flex;gap:16px;justify-content:space-between}
+.ei-evidence-dialog header h2{font:700 27px/1.1 Georgia,serif;margin:5px 0 8px;color:#f8edcf}
+.ei-evidence-dialog header small{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#bccd9d}
+.ei-evidence-dialog button{cursor:pointer;font-family:Arial,sans-serif}
+.ei-evidence-dialog .ei-close{align-self:start;width:35px;height:35px;border:1px solid #bca76688;border-radius:50%;background:#ffffff0d;color:#f3e7c8;font-size:25px}
+.ei-evidence-dialog .ei-evidence-body{padding:22px 28px}
+.ei-evidence-dialog .ei-method{padding:14px 17px;border-left:3px solid #ae9351;background:#e9e5d2;color:#526048;font-size:14px;margin-bottom:21px}
+.ei-evidence-dialog .ei-event{position:relative;margin-left:7px;padding:0 0 24px 24px;border-left:1px solid #bec7a8}
+.ei-evidence-dialog .ei-event:before{content:'';position:absolute;left:-5px;top:5px;width:9px;height:9px;background:#428962;border:2px solid #f5f0e2;border-radius:50%;box-shadow:0 0 0 1px #77a177}
+.ei-evidence-dialog .ei-event h3{font:700 20px Georgia,serif;margin:0 0 8px}
+.ei-evidence-dialog .ei-event-stats{display:flex;flex-wrap:wrap;gap:7px;font-size:13px;margin:8px 0}
+.ei-evidence-dialog .ei-event-stats span{padding:4px 7px;background:#e4e8d5;border-radius:5px}
+.ei-evidence-dialog .ei-event p{font-size:14px;color:#556049;white-space:pre-line;margin:8px 0}
+.ei-evidence-dialog .ei-event a,.ei-evidence-dialog .ei-event button{border:0;background:none;padding:0;color:#23744e;font-size:11px;text-decoration:underline}
+.ei-evidence-dialog details{font-size:12px}
+.ei-evidence-dialog .ei-evidence-footer{padding:14px 28px;border-top:1px solid #d4d1b9;font-size:13px;color:#617052}
+body[data-theme="gold"] #emotionalintelligence{--ei-green:#946c24;--ei-ink:#362710;--ei-muted:#776a50;background-color:#251a0a}
+body[data-theme="gold"] #emotionalintelligence .ei-period{background:#32230aeb;border-color:#d1ae6d88}
+body[data-theme="gold"] #emotionalintelligence .ei-quote{background:linear-gradient(135deg,#34260be8,#1c150ce8);border-color:#ceae6c}
+body[data-theme="gold"] #emotionalintelligence .ei-seal{background:radial-gradient(circle,#a98b4c,#69501a);border-color:#cfbd85}
+body[data-theme="gold"] #emotionalintelligence .ei-badge{background:#eee2bd;color:#775923}
+@media(min-width:2200px){#emotionalintelligence .ei-hero{min-height:245px}#emotionalintelligence .ei-paper{padding:24px}#emotionalintelligence .ei-pattern{padding:16px}#emotionalintelligence .ei-pattern p{font-size:13px}#emotionalintelligence .ei-pattern b{font-size:18px}#emotionalintelligence .ei-pattern small{font-size:12px}}
+@media(max-width:1400px){#emotionalintelligence .ei-overview{grid-template-columns:1fr 200px}#emotionalintelligence .ei-state-grid{gap:7px;grid-template-columns:1.35fr repeat(4,1fr)}#emotionalintelligence .ei-stat{padding:12px 9px}#emotionalintelligence .ei-dominant{gap:12px;padding:7px 0}#emotionalintelligence .ei-seal{width:53px;height:53px;flex-basis:53px}#emotionalintelligence .ei-main-grid{grid-template-columns:1.06fr 1fr .7fr}#emotionalintelligence .ei-paper{padding:16px 14px}#emotionalintelligence .ei-hero blockquote{font-size:17px;max-width:205px}#emotionalintelligence .ei-hero-copy{max-width:520px}#emotionalintelligence .ei-pattern{padding:10px 8px;gap:9px}#emotionalintelligence .ei-pattern-icon{width:36px;height:36px;flex-basis:36px}#emotionalintelligence .ei-context ul{padding-left:0}#emotionalintelligence .ei-context h2{font-size:15px!important}}
+@media(max-width:1150px){#emotionalintelligence{background-size:auto 900px}#emotionalintelligence .ei-hero blockquote{display:none}#emotionalintelligence .ei-overview{grid-template-columns:1fr}#emotionalintelligence .ei-quote{display:none}#emotionalintelligence .ei-main-grid{grid-template-columns:1fr 1fr}#emotionalintelligence .ei-contexts{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px}#emotionalintelligence .ei-context.attention{margin-top:0}#emotionalintelligence .ei-bottom-grid{grid-template-columns:1fr 1fr}#emotionalintelligence .ei-relations{grid-column:1/-1}}
+@media(max-width:750px){#emotionalintelligence .ei-shell{padding:0 12px 22px}#emotionalintelligence .ei-hero{padding:24px 3px 62px;gap:14px;min-height:215px}#emotionalintelligence .ei-hero-icon{flex-basis:54px;width:54px;height:54px}#emotionalintelligence .ei-hero-icon svg{width:30px;height:30px}#emotionalintelligence .ei-hero-copy p{font-size:12px}#emotionalintelligence .ei-period{right:0;bottom:14px}#emotionalintelligence .ei-state-grid{grid-template-columns:1fr 1fr}#emotionalintelligence .ei-dominant{grid-column:1/-1}#emotionalintelligence .ei-main-grid,#emotionalintelligence .ei-bottom-grid{grid-template-columns:1fr}#emotionalintelligence .ei-contexts{grid-template-columns:1fr}#emotionalintelligence .ei-comparison-grid{grid-template-columns:1fr 1fr}#emotionalintelligence .ei-footer{flex-direction:column}.ei-evidence-dialog .ei-evidence-body,.ei-evidence-dialog header{padding:20px}}

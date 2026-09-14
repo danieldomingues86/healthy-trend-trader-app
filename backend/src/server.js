@@ -232,12 +232,16 @@ const server = http.createServer(async (request, response) => {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const preferences = await platformAccess.preferences(user.id);
+      await platformAccess.savePreferences(user.id, { ...preferences, monitorEnabled: true });
       return send(response, 200, { monitor: await profitMonitor.start(user.id) });
     }
     if (request.method === 'POST' && url.pathname === '/api/platform-access/monitor/stop') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const preferences = await platformAccess.preferences(user.id);
+      await platformAccess.savePreferences(user.id, { ...preferences, monitorEnabled: false });
       profitMonitor.stop(user.id);
       return send(response, 200, { monitor: profitMonitor.status(user.id) });
     }

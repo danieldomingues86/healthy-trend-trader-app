@@ -1,15 +1,15 @@
 # Auditoria integral da Sabedoria do Trader V3
 
-- total: 1543
+- total: 1739
 - valid: 25
 - automaticallyCorrected: 0
-- normalized: 1
+- normalized: 197
 - translationCorrected: 0
 - translationFallback: 0
-- needsReview: 1518
-- unrecoverable: 37
+- needsReview: 1714
+- unrecoverable: 233
 
-Todos os 1543 registros foram analisados; cada registro inclui original, antes/depois, motivos e status em audit.json. Uma segunda validação verificou todos os campos publicáveis.
+Todos os 1739 registros foram analisados; cada registro inclui original, antes/depois, motivos e status em audit.json. Uma segunda validação verificou todos os campos publicáveis.
 
 A leitura automática não comprova significado nem autoria. Mensagens sem transcrição editorial verificada permanecem em revisão, mesmo quando não contêm símbolos estranhos. Nenhum original foi apagado. A interface permite consultar esses originais sem publicar OCR como citação.
 

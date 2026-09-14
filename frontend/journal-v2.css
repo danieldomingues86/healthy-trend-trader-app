@@ -322,6 +322,12 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{--jv-chart:#d6aa50;backg
 #journal .jv-emotional .jv-patterns .jv-field textarea{min-height:96px}
 #journal #jv-dialog.jv-evidence-dialog{width:min(1600px,94vw);max-height:92dvh;padding:20px 24px}
 #journal #jv-dialog.jv-evidence-dialog .jv-evidence-preview{display:block;width:auto;max-width:100%;max-height:calc(92dvh - 100px);margin:auto;object-fit:contain}
+#journal #jv-dialog.jv-evidence-dialog .jv-evidence-navigation{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 14px}
+#journal #jv-dialog.jv-evidence-dialog .jv-evidence-navigation button{padding:9px 14px;border:1px solid var(--jv-tone-608863);border-radius:7px;background:var(--jv-tone-285536);color:#fff;font-size:14px;font-weight:800;line-height:1.2;text-shadow:0 1px 1px #0008;box-shadow:inset 0 1px #ffffff1f,0 2px 5px #0003;cursor:pointer}
+#journal #jv-dialog.jv-evidence-dialog .jv-evidence-navigation button:hover:not(:disabled){background:var(--jv-tone-35724a)}
+#journal #jv-dialog.jv-evidence-dialog .jv-evidence-navigation button:disabled{opacity:.68;cursor:not-allowed}
+#journal .jv-evidence-keyboard-hint,#journal .jv-evidence-keyboard-help{display:block;margin-top:8px;color:var(--jv-tone-64705e);font-size:12px;line-height:1.45}
+#journal .jv-evidence-keyboard-help{text-align:center}
 #journal #jv-dialog .jv-evidence-audio{width:100%;margin:20px 0}
 #journal .jv-lesson-title h3{font:400 23px Georgia,serif}
 #journal .jv-lesson-title p{font-size:12px;color:var(--jv-tone-6b745e);margin-top:4px}
@@ -330,6 +336,16 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{--jv-chart:#d6aa50;backg
 #journal .jv-save:hover{background:var(--jv-tone-2b6843)}
 #journal #jv-save-status{font-size:12px;line-height:1.7;color:var(--jv-tone-5f7557);margin-top:12px}
 #journal #jv-save-status.is-error{color:#9b3328;font-weight:700}
+#journal .jv-compact-closeout{margin-top:4px;padding:16px 0 0;border-top:1px solid var(--jv-tone-c6c9b5)}
+#journal .jv-compact-closeout header{display:block!important;margin:0 0 10px!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+#journal .jv-compact-closeout h4{margin:0;color:var(--jv-tone-36533a);font:600 17px/1.2 Georgia,serif}
+#journal .jv-compact-closeout p{margin:3px 0 0;color:var(--jv-tone-647065);font-size:12px}
+#journal .jv-compact-closeout-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:14px}
+#journal .jv-compact-closeout .jv-field{margin:0}
+#journal .jv-compact-closeout .jv-field textarea{min-height:70px}
+#journal .jv-compact-closeout .jv-save{margin:0;white-space:nowrap}
+#journal .jv-compact-closeout #jv-save-status{margin:8px 0 0}
+@media(max-width:700px){#journal .jv-compact-closeout-actions{grid-template-columns:1fr}#journal .jv-compact-closeout .jv-save{width:100%}}
 #journal #jv-dialog{padding:25px;width:min(800px,92vw);max-height:85dvh;border:1px solid var(--jv-tone-c4c4ac);border-radius:14px;background:#f1efe3;color:var(--jv-tone-30402d);box-shadow:0 20px 70px #0007;font:16px/1.6 Arial,sans-serif}
 #journal #jv-dialog::backdrop{background:var(--jv-tone-04180fcc);backdrop-filter:blur(5px)}
 #journal #jv-dialog>header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:25px}
@@ -337,6 +353,8 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{--jv-chart:#d6aa50;backg
 #journal #jv-dialog button{border:1px solid var(--jv-tone-bcc5ab);border-radius:6px;background:var(--jv-tone-e0e7d5);color:var(--jv-tone-36533a);padding:8px 15px}
 #journal #jv-dialog .jv-upload{display:block;border:1px dashed var(--jv-tone-74936d);padding:20px;cursor:pointer;border-radius:8px;font-size:15px;background:var(--jv-tone-e5eadb)}
 #journal .jv-upload input{display:block;margin-top:10px;max-width:100%;font-size:14px}
+#journal #jv-dialog .jv-upload-paste{margin-top:10px;padding:11px 13px;border:1px dashed var(--jv-tone-9ca88a);border-radius:8px;background:var(--jv-tone-e5eadb);color:var(--jv-tone-47503e);font-size:13px}
+#journal #jv-dialog .jv-upload-paste:focus-visible{outline:2px solid var(--jv-tone-3b8b58);outline-offset:3px}
 #journal #jv-dialog p{margin:12px 0;font-size:14px}
 #journal .jv-file{margin:18px 0;padding:15px 0;border-top:1px solid var(--jv-tone-c6c9b5);display:grid;gap:12px}
 #journal .jv-file img{max-width:100%;max-height:420px;object-fit:contain}
@@ -509,6 +527,10 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{
   #journal .jv-heading{display:none}
   #journal .jv-notebook::before{inset:-13px -11px -17px}
 }
+#journal .jv-evernote-source{margin:16px 0;padding:12px;border:1px solid #b8ad8d;border-radius:8px;background:rgba(238,229,201,.6);font-size:12px;line-height:1.6}
+#journal .jv-evernote-source summary{cursor:pointer;color:#24513d;font-weight:700}
+#journal .jv-evernote-source section{padding:8px 0;border-bottom:1px solid #c8bea5}
+#journal .jv-evernote-source pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;max-height:420px;overflow-y:auto;padding:12px;background:#f8f3e7}
 @media(max-width:700px){
   #journal .jv-workspace{padding:24px 14px 48px}
   #journal .jv-layout{grid-template-columns:1fr;padding:0;gap:25px}
