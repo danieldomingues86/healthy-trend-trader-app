@@ -107,14 +107,15 @@
   }
 
   function init() {
-    const nav = document.querySelector('.sidebar .nav');
+    const nav = [...document.querySelectorAll('.sidebar .nav-group')]
+      .find((group) => group.querySelector('.nav-label')?.textContent.trim() === 'Inteligência de Mercado')?.querySelector('.nav');
     const main = document.querySelector('main.main');
     if (!nav || !main) return;
     if (typeof navigationTiles !== 'undefined' && !navigationTiles.some(([id]) => id === 'fundamentals')) {
       navigationTiles.splice(5, 0, ['fundamentals', '◉', 'Análise Fundamentalista', 'Avalie a qualidade financeira da empresa']);
     }
     if (!document.getElementById('fundamentals')) {
-      if (!nav.querySelector('[data-page="fundamentals"]')) {
+      if (!document.querySelector('[data-page="fundamentals"]')) {
         nav.insertAdjacentHTML('beforeend', '<button data-page="fundamentals"><span class="ico">◉</span>Análise Fundamentalista</button>');
       }
       main.insertAdjacentHTML('beforeend', '<section class="page" id="fundamentals"><div id="fundamentalsRoot"></div></section>');

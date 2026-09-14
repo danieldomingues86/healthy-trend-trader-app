@@ -3,11 +3,11 @@ const { readJson, writeJson, withFileLock } = require('./brapi-client');
 function createRefreshControl({ directory, readCache, provider, now = Date.now }) {
   const stateFile = path.join(directory, 'refresh-state.json');
   const jobs = new Map(); let queue = Promise.resolve();
-  function run(key, work, { minInterval = 3600000, fallback = true } = {}) {
+  function run(key, work, { minInterval = 3600000, fallback = true, force = false } = {}) {
     if (jobs.has(key)) return jobs.get(key);
     const job = queue.then(() => withFileLock(path.join(directory, 'refresh.lock'), async () => {
       const state = await readJson(stateFile, {}), time = now(), blocked = await provider.status();
-      if (blocked.blockedUntil > time || state[key]?.nextAttemptAt > time) {
+      if (blocked.blockedUntil > time || (!force && state[key]?.nextAttemptAt > time)) {
         const cached = await readCache();
         if (cached && fallback) return cached;
         throw Object.assign(new Error('Atualização pausada para preservar a cota de dados.'), { status: 503 });

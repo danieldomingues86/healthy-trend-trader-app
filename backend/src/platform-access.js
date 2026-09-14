@@ -21,6 +21,7 @@ function normalizePreferences(value = {}) {
     targetExecutable: String(value.targetExecutable || 'Profit.exe').trim().slice(0, 160) || 'Profit.exe',
     countOpenings: value.countOpenings !== false,
     trackDuration: value.trackDuration !== false,
+    monitorEnabled: value.monitorEnabled !== false,
     trackMinimize: value.trackMinimize !== false,
     trackMaximize: value.trackMaximize !== false,
     trackWindowEvents: true
@@ -90,11 +91,11 @@ async function recordEvent(userId, sessionIdValue, eventType) {
 }
 
 async function list(userId, days = 30) {
-  const limit = Math.min(180, Math.max(1, Number(days) || 30));
+  const limit = days === 'all' ? null : Math.min(730, Math.max(1, Number(days) || 30));
   const result = await database.query(`SELECT id, app_version, opened_at, last_seen_at, closed_at,
       COALESCE(duration_seconds, GREATEST(0, EXTRACT(EPOCH FROM (now() - opened_at))::integer)) AS duration_seconds
     FROM app.platform_access_sessions
-    WHERE user_id = $1 AND opened_at >= now() - ($2::text || ' days')::interval
+    WHERE user_id = $1 AND ($2::integer IS NULL OR opened_at >= now() - ($2::text || ' days')::interval)
     ORDER BY opened_at DESC`, [userId, limit]);
   return result.rows.map((row) => ({
     sessionId: row.id, appVersion: row.app_version, openedAt: row.opened_at, lastSeenAt: row.last_seen_at,

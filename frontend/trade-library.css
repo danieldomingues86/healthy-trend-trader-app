@@ -1,0 +1,65 @@
+#tradelibrary{min-height:calc(100dvh - 78px);background:linear-gradient(145deg,#061c14,#0b2d20);color:#edf6ef}
+body:has(#tradelibrary.active) .content{width:100%;max-width:none!important;min-width:0;margin:0!important;padding:0!important}
+body:has(#tradelibrary.active) #marketFocusGuard{display:none}
+body:has(#tradelibrary.active) #tradelibrary.page.active{width:100%;max-width:none!important;margin:0!important}
+#tradelibrary .trade-library{width:100%;max-width:none;min-height:calc(100dvh - 78px);margin:0;padding:clamp(28px,4vw,70px)}
+#tradelibrary .trade-library-head{display:flex;justify-content:space-between;gap:24px;align-items:end;padding-bottom:28px;border-bottom:1px solid rgba(166,222,181,.22)}
+#tradelibrary .trade-library-head p{margin:0 0 10px;color:#76e7a6;font-size:11px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+#tradelibrary .trade-library-head h1{margin:0;font:400 clamp(38px,4vw,64px)/1 Georgia,serif;letter-spacing:-.05em}
+#tradelibrary .trade-library-head span{display:block;max-width:600px;margin-top:14px;color:#c2d6c8;font-size:15px;line-height:1.6}
+#tradelibrary .trade-library-head>b{padding:10px 13px;border:1px solid rgba(117,231,166,.42);border-radius:999px;color:#9bf0bf;font-size:12px;white-space:nowrap}
+#tradelibrary .trade-library-filter{display:flex;flex-wrap:wrap;align-items:end;gap:12px;padding:24px 0}
+#tradelibrary .trade-library-filter label{display:grid;gap:6px;color:#b8cfbe;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+#tradelibrary .trade-library-filter select,#tradelibrary .trade-library-filter button,#tradelibrary .trade-library-card button,#tradelibrary .trade-library-empty button{border:1px solid rgba(167,221,183,.3);border-radius:9px;background:#123c2a;color:#eff8f1;padding:10px 12px;font:600 13px Arial,sans-serif;cursor:pointer}
+#tradelibrary .trade-library-filter select{min-width:170px;background:#0c2c20}
+#tradelibrary .trade-library-filter button{background:transparent;color:#b7d7c0}
+#tradelibrary .trade-library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:18px}
+#tradelibrary .trade-library-card{overflow:hidden;border:1px solid rgba(166,222,181,.22);border-radius:15px;background:rgba(4,24,16,.66);box-shadow:0 15px 32px rgba(0,0,0,.2)}
+#tradelibrary .trade-library-image{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:1.4;border:0!important;border-radius:0!important;background:radial-gradient(circle at 50% 38%,#245d42,#071c13)!important;padding:0!important;overflow:hidden}
+#tradelibrary .trade-library-image img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
+#tradelibrary .trade-library-image span{color:#7fe7aa;font-size:32px}
+#tradelibrary .trade-library-card>div{padding:15px}
+#tradelibrary .trade-library-card small{display:block;color:#d3ead9;font-size:15px;font-weight:750;letter-spacing:.01em}
+#tradelibrary .trade-library-card h2{margin:7px 0 5px;color:#8df0b8;font:700 18px/1.2 Arial,sans-serif}
+#tradelibrary .trade-library-card p{min-height:34px;margin:7px 0 14px;overflow:hidden;color:#c8d8cd;font-size:12px;line-height:1.4;text-overflow:ellipsis}
+#tradelibrary .trade-library-card>div>button{width:100%;background:#185338;border-color:#4bb878}
+#tradelibrary .trade-library-empty{max-width:620px;padding:46px 30px;border:1px dashed rgba(166,222,181,.35);border-radius:15px;background:rgba(3,22,14,.55);text-align:center}
+#tradelibrary .trade-library-empty b{font:400 26px Georgia,serif}
+#tradelibrary .trade-library-empty p{color:#bfd1c4;line-height:1.6}
+#tradelibrary .trade-library-empty button{background:#1c6b46;border-color:#65cf8c}
+#tradelibrary .trade-library-lightbox{position:fixed;z-index:1000;inset:0;display:grid;place-items:center;padding:clamp(18px,4vw,56px);background:rgba(0,12,8,.88);backdrop-filter:blur(8px)}
+#tradelibrary .trade-library-lightbox[hidden]{display:none}
+#tradelibrary .trade-library-lightbox figure{position:relative;display:flex;flex-direction:column;align-items:center;max-width:min(1500px,100%);max-height:100%;margin:0}
+#tradelibrary .trade-library-lightbox img{display:block;max-width:100%;max-height:calc(100dvh - 132px);border:1px solid rgba(173,235,194,.35);border-radius:12px;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+#tradelibrary .trade-library-lightbox figcaption{max-width:100%;padding-top:12px;color:#d5e6d9;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tradelibrary .trade-library-lightbox button{position:absolute;top:12px;right:12px;width:38px;height:38px;border:1px solid rgba(229,248,234,.36);border-radius:50%;background:rgba(3,27,18,.78);color:#fff;font-size:25px;line-height:1;cursor:pointer}
+#tradelibrary .trade-library-lightbox .trade-library-preview-nav{top:50%;right:auto;width:52px;height:52px;transform:translateY(-50%);font-size:31px;background:rgba(3,27,18,.86)}
+#tradelibrary .trade-library-lightbox .trade-library-preview-nav.previous{left:18px}
+#tradelibrary .trade-library-lightbox .trade-library-preview-nav.next{right:18px}
+#tradelibrary .trade-library-lightbox .trade-library-preview-nav:disabled{opacity:.28;cursor:not-allowed}
+#tradelibrary .trade-library-lightbox figcaption small{display:block;margin-top:6px;color:#96c9a8;font-size:12px;white-space:normal}
+body:has(#tradelibrary.active){overflow-x:hidden}
+/* A biblioteca acompanha a identidade dourada quando esse tema estiver ativo. */
+body[data-theme="gold"] #tradelibrary{background:radial-gradient(ellipse at 14% 0,rgba(184,134,43,.18),transparent 42%),linear-gradient(145deg,#181006,#38250c);color:#f8efd9}
+body[data-theme="gold"] #tradelibrary .trade-library-head{border-color:rgba(225,187,100,.32)}
+body[data-theme="gold"] #tradelibrary .trade-library-head p{color:#e6bd63}
+body[data-theme="gold"] #tradelibrary .trade-library-head span{color:#ded0ae}
+body[data-theme="gold"] #tradelibrary .trade-library-head>b{border-color:rgba(232,192,100,.55);color:#f2cc78}
+body[data-theme="gold"] #tradelibrary .trade-library-filter label{color:#dec996}
+body[data-theme="gold"] #tradelibrary .trade-library-filter select,body[data-theme="gold"] #tradelibrary .trade-library-filter button,body[data-theme="gold"] #tradelibrary .trade-library-card button,body[data-theme="gold"] #tradelibrary .trade-library-empty button{border-color:rgba(229,191,101,.38);background:#3b280f;color:#fff4d9}
+body[data-theme="gold"] #tradelibrary .trade-library-filter select{background:#281a09}
+body[data-theme="gold"] #tradelibrary .trade-library-filter button{background:transparent;color:#ecd39b}
+body[data-theme="gold"] #tradelibrary .trade-library-card{border-color:rgba(223,184,94,.3);background:rgba(30,19,6,.75);box-shadow:0 15px 32px rgba(0,0,0,.3)}
+body[data-theme="gold"] #tradelibrary .trade-library-image{background:radial-gradient(circle at 50% 38%,#795116,#1b1004)!important}
+body[data-theme="gold"] #tradelibrary .trade-library-image span,body[data-theme="gold"] #tradelibrary .trade-library-card h2{color:#f0c86f}
+body[data-theme="gold"] #tradelibrary .trade-library-card small{color:#f1d8a0}
+body[data-theme="gold"] #tradelibrary .trade-library-card p{color:#dccda9}
+body[data-theme="gold"] #tradelibrary .trade-library-card>div>button,body[data-theme="gold"] #tradelibrary .trade-library-empty button{background:#76511a;border-color:#d9ad54}
+body[data-theme="gold"] #tradelibrary .trade-library-empty{border-color:rgba(229,191,101,.45);background:rgba(35,22,6,.64)}
+body[data-theme="gold"] #tradelibrary .trade-library-empty p{color:#decfae}
+body[data-theme="gold"] #tradelibrary .trade-library-lightbox{background:rgba(20,12,3,.9)}
+body[data-theme="gold"] #tradelibrary .trade-library-lightbox img{border-color:rgba(230,190,97,.5)}
+body[data-theme="gold"] #tradelibrary .trade-library-lightbox figcaption{color:#f0dfb8}
+body[data-theme="gold"] #tradelibrary .trade-library-lightbox button{border-color:rgba(244,216,157,.45);background:rgba(48,30,7,.86);color:#fff4da}
+body[data-theme="gold"] #tradelibrary .trade-library-lightbox figcaption small{color:#e8ca85}
+@media(max-width:700px){#tradelibrary .trade-library{padding:28px 18px 48px}#tradelibrary .trade-library-head{align-items:start;flex-direction:column}#tradelibrary .trade-library-filter{align-items:stretch;flex-direction:column}#tradelibrary .trade-library-filter select{width:100%}}

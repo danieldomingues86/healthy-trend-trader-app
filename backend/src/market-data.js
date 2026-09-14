@@ -12,6 +12,7 @@ const CACHE_PATH = process.env.MARKET_CACHE_PATH || path.join(__dirname, '..', '
 const CONTROL_PATH = process.env.BRAPI_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'brapi-cache');
 function positiveSetting(name, fallback) { const value = Number(process.env[name]); return Number.isFinite(value) && value > 0 ? value : fallback; }
 const LIVE_QUOTE_MINUTES = positiveSetting('LIVE_SCAN_QUOTE_TTL_MINUTES', 60);
+const CATALOG_CACHE_DAYS = positiveSetting('BRAPI_CATALOG_CACHE_DAYS', 7);
 const brapi = createBrapiClient({ directory: CONTROL_PATH, credential: process.env.BRAPI_TOKEN || '', dailyLimit: positiveSetting('BRAPI_MAX_DAILY_REQUESTS', 250), rollingLimit: positiveSetting('BRAPI_MAX_31_DAY_REQUESTS', 14000) });
 const refreshControl = createRefreshControl({ directory: CONTROL_PATH, readCache: () => readCache(), provider: brapi });
 const INDEX_HISTORY_RANGE = process.env.BRAPI_INDEX_HISTORY_RANGE || '3mo';
@@ -88,7 +89,9 @@ function rank(items) {
 }
 async function fetchJson(url, headers = {}) {
   const pathname = new URL(url).pathname;
-  const ttlMs = pathname === '/api/v2/stocks/quote' ? LIVE_QUOTE_MINUTES * 60000 : 20 * 3600000;
+  const ttlMs = pathname === '/api/v2/stocks/quote'
+    ? LIVE_QUOTE_MINUTES * 60000
+    : pathname === '/api/quote/list' ? CATALOG_CACHE_DAYS * 24 * 3600000 : 20 * 3600000;
   return brapi.request(url, headers, { ttlMs });
 }
 function brapiHeaders() { return process.env.BRAPI_TOKEN ? { Authorization: `Bearer ${process.env.BRAPI_TOKEN}` } : {}; }
@@ -149,6 +152,13 @@ async function fetchHistoryBatch(symbols, range = '1y') {
   let payload;
   try { payload = await fetchJson(url, brapiHeaders()); }
   catch (error) {
+    // Planos da BRAPI com limite de um ativo rejeitam lotes. Mantemos os lotes
+    // para planos compatíveis, mas degradamos para chamadas individuais sem
+    // deixar uma falha de compatibilidade esvaziar o ranking inteiro.
+    if (error.providerCode === 'QUOTES_PER_REQUEST_EXCEEDED' && normalized.length > 1) {
+      const individual = await mapWithConcurrency(normalized, 2, async (ticker) => fetchHistoryBatch([ticker], range));
+      return new Map(individual.flatMap((history) => [...history]));
+    }
     if (error.providerCode !== 'INVALID_RANGE' || range !== '1y') throw error;
     return fetchHistoryBatch(normalized, '3mo');
   }
@@ -502,7 +512,7 @@ async function refreshIfDue(now = new Date()) {
   return refreshMarketData();
 }
 
-function refreshMarketData() { return refreshControl.run('daily', collectMarketData); }
+function refreshMarketData({ force = false, fallback = true } = {}) { return refreshControl.run('daily', collectMarketData, { force, fallback }); }
 function refreshClassStrength(cache) {
   if (!cache || (cache.relativeStrengthByClass?.fii?.requested === FII_CATALOG.length && cache.relativeStrengthByClass?.fii?.available > 0 && cache.relativeStrengthByClass?.bdr?.catalogVersion === BDR_CATALOG_VERSION && cache.relativeStrengthByClass?.bdr?.available > 0)) return Promise.resolve(cache);
   return refreshControl.run('classes', async () => collectClassStrength(await readCache() || cache), { minInterval: 24 * 3600000 });

@@ -1,7 +1,10 @@
 /* The plans narrative fills the workspace while keeping the app navigation. */
-body:has(#plan.active) .content{width:100%;max-width:none;margin:0;padding:0}
+/* Plano e uso é uma página de imersão: a área visual nunca herda a coluna
+   central limitada das telas operacionais. */
+body:has(#plan.active) .content{width:100%;max-width:none!important;min-width:0;margin:0!important;padding:0!important}
+body:has(#plan.active) #plan.page.active{width:100%!important;max-width:none!important;min-width:0;margin:0!important}
 body:has(#plan.active) #marketFocusGuard{display:none}
-#plan.active .plans-landing{border:0;border-radius:0;min-height:calc(100dvh - 78px)}
+#plan.active .plans-landing{width:100%;min-width:0;border:0;border-radius:0;min-height:calc(100dvh - 78px)}
 #plan .plans-landing{--plans-green:#73eeb1;--plans-muted:#becfc6;--plans-border:rgba(143,217,178,.25);color:#f5f8f4;background:#041b14;border:1px solid var(--plans-border);border-radius:18px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
 #plan .plans-landing *{box-sizing:border-box}
 #plan .plans-landing h1,#plan .plans-landing h2,#plan .plans-landing h3,#plan .plans-landing p{margin:0;color:inherit}

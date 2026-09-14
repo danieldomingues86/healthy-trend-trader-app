@@ -9,7 +9,7 @@
 #positions .positions-account-panel p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
 #positions .positions-account-panel>header>b{flex:0 0 auto;padding:8px 10px;border-radius:999px;background:#dff2e5;color:#257044;font-size:11px}
 #positions .positions-account-panel.paper>header>b{background:#f5ead0;color:#8a6421}
-#positions .positions-account-grid{display:grid;grid-template-columns:1fr;gap:14px}
+#positions .positions-account-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 #positions .positions-account-grid .position-card{border:1px solid rgba(29,81,56,.15)}
 #positions .positions-account-empty{padding:25px 16px;border:1px dashed rgba(68,116,85,.38);border-radius:14px;color:var(--muted);font-size:12px;text-align:center}
 body:not([data-theme="healthy"]) #positions .positions-account-panel{border-color:#3d614d;background:linear-gradient(145deg,#14281e,#0d1b14);box-shadow:0 16px 36px rgba(0,0,0,.22)}
@@ -20,4 +20,4 @@ body:not([data-theme="healthy"]) #positions .positions-account-panel h2{color:#f
 body:not([data-theme="healthy"]) #positions .positions-account-panel>header>b{background:#17452d;color:#b4edc4}
 body:not([data-theme="healthy"]) #positions .positions-account-panel.paper>header>b{background:#4a391b;color:#f0ce79}
 @media(max-width:1100px){#positions .positions-account-panels{grid-template-columns:1fr}}
-@media(max-width:700px){#positions .positions-account-panel{padding:14px;border-radius:17px}#positions .positions-account-panel h2{font-size:22px}#positions .positions-account-panel>header{gap:10px}#positions .positions-account-panel>header>b{font-size:10px;padding:7px 8px}}
+@media(max-width:700px){#positions .positions-account-grid{grid-template-columns:1fr}#positions .positions-account-panel{padding:14px;border-radius:17px}#positions .positions-account-panel h2{font-size:22px}#positions .positions-account-panel>header{gap:10px}#positions .positions-account-panel>header>b{font-size:10px;padding:7px 8px}}
