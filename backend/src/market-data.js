@@ -3,6 +3,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { createBrapiClient, writeJson } = require('./brapi-client');
 const { createRefreshControl } = require('./market-refresh-control');
+const b3Historical = require('./b3-historical');
 
 const BRAPI_URL = 'https://brapi.dev/api/v2/stocks/historical';
 const BRAPI_QUOTE_URL = 'https://brapi.dev/api/v2/stocks/quote';
@@ -10,6 +11,7 @@ const BRAPI_LIST_URL = 'https://brapi.dev/api/quote/list';
 const B3_INDEX_API = 'https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/GetPortfolioDay/';
 const CACHE_PATH = process.env.MARKET_CACHE_PATH || path.join(__dirname, '..', 'data', 'market-cache.json');
 const CONTROL_PATH = process.env.BRAPI_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'brapi-cache');
+const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
 function positiveSetting(name, fallback) { const value = Number(process.env[name]); return Number.isFinite(value) && value > 0 ? value : fallback; }
 const LIVE_QUOTE_MINUTES = positiveSetting('LIVE_SCAN_QUOTE_TTL_MINUTES', 60);
 const CATALOG_CACHE_DAYS = positiveSetting('BRAPI_CATALOG_CACHE_DAYS', 7);
@@ -172,6 +174,13 @@ async function fetchHistoryBatch(symbols, range = '1y') {
 }
 async function fetchHistories(symbols, batchSize = 10) {
   const normalized = [...new Set(symbols.map((symbol) => String(symbol).trim().toUpperCase()).filter(Boolean))];
+  // Fechamentos oficiais da B3 são a fonte principal para a Força Relativa.
+  // Índices continuam no fallback porque não constam no arquivo COTAHIST do mercado à vista.
+  const b3Symbols=normalized.filter(symbol=>!['^BVSP','SMLL','IFIX'].includes(symbol));
+  try{
+    const current=new Date().getFullYear(), b3=await b3Historical.fetchHistories(b3Symbols,{years:[current-1,current],cacheDirectory:B3_HISTORY_CACHE});
+    if(b3.size===b3Symbols.length){b3.source='b3-cotahist';return b3;}
+  }catch(error){/* contingência BRAPI abaixo */}
   const chunks = Array.from({ length: Math.ceil(normalized.length / batchSize) }, (_, index) => normalized.slice(index * batchSize, (index + 1) * batchSize));
   const responses = await mapWithConcurrency(chunks, 2, async (chunk) => fetchHistoryBatch(chunk));
   const histories = new Map();
@@ -433,7 +442,7 @@ async function collectMarketData() {
     fii: fiiResult.status === 'fulfilled' && fiiResult.value.available > 0 ? fiiResult.value : { ...(previous?.relativeStrengthByClass?.fii || { ...classMeta('fii'), requested: catalogFii.length, available: 0, items: [] }), error: fiiResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt },
     bdr: bdrResult.status === 'fulfilled' && bdrResult.value.available > 0 ? bdrResult.value : { ...(previous?.relativeStrengthByClass?.bdr || { ...classMeta('bdr'), requested: catalogBdr.length, available: 0, items: [] }), error: bdrResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt }
   };
-  const cache = { updatedAt: new Date().toISOString(), source: 'brapi', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
+  const cache = { updatedAt: new Date().toISOString(), source: histories.source || 'brapi-fallback', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
   cache.historyUpdatedAt = cache.updatedAt;
   await writeCache(cache);
   return cache;
