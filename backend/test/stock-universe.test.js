@@ -35,6 +35,7 @@ test('historical requests are grouped instead of consuming one call per asset', 
   const { fetchHistories } = require('../src/market-data');
   const original = global.fetch; const urls = [];
   global.fetch = async url => {
+    if (String(url).includes('bvmf.bmfbovespa.com.br/InstDados/SerHist/')) return { ok: false, status: 503 };
     urls.push(String(url));
     const symbols = new URL(String(url)).searchParams.get('symbols').split(',');
     return { ok: true, json: async () => ({ results: symbols.map(symbol => ({ symbol, historicalDataPrice: [{ close: 10 }] })) }) };
