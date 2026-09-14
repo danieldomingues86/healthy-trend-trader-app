@@ -514,6 +514,16 @@ function isFresh(timestamp, now, minutes) {
   const value = new Date(timestamp || 0).getTime();
   return Number.isFinite(value) && now.getTime() - value < minutes * 60 * 1000;
 }
+function historyDate(value) {
+  const raw = String(value || '').trim();
+  if (/^\d{8}$/.test(raw)) return `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`;
+  const parsed = new Date(raw);
+  return Number.isFinite(parsed.getTime()) ? isoDate(parsed) : null;
+}
+function hasCurrentHistoricalClose(cache, now = new Date()) {
+  const latest = cache?.overview?.benchmarkHistory?.at(-1)?.date;
+  return historyDate(latest) === isoDate(now);
+}
 function mergeLiveQuote(item, quote) {
   if (!quote) return item;
   const price = Number(quote.regularMarketPrice);
@@ -554,7 +564,9 @@ async function refreshIfDue(now = new Date()) {
   const cached = await readCache();
   const afterClose = Number(saoPauloParts(now).hour) >= 19;
   const historicalDate = cached?.historyUpdatedAt || (!cached?.liveUpdatedAt ? cached?.updatedAt : null);
-  if (historicalDate && isoDate(new Date(historicalDate)) === isoDate(now)) return cached;
+  // Uma coleta pode ocorrer antes da B3 publicar a matriz final do dia. Só a
+  // tratamos como concluída se o último fechamento do benchmark for o pregão atual.
+  if (historicalDate && isoDate(new Date(historicalDate)) === isoDate(now) && hasCurrentHistoricalClose(cached, now)) return cached;
   if (!isBusinessDay(now) || !afterClose) return cached;
   return refreshMarketData();
 }
@@ -573,4 +585,4 @@ async function marketDataStatus() {
   return { blockedUntil: state.blockedUntil > Date.now() ? new Date(state.blockedUntil).toISOString() : null, reason: state.code, requestsToday: state.usage?.[new Date().toISOString().slice(0, 10)] || 0, trackedRequests: Object.values(state.usage || {}).reduce((a,b)=>a+b,0), liveQuoteIntervalMinutes: LIVE_QUOTE_MINUTES };
 }
 
-module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote };
+module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose };
