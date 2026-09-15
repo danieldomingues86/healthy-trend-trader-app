@@ -1,0 +1,43 @@
+/* Mantém as explicações da política legíveis em monitores de trabalho. */
+.risk-policy-shell .risk-policy-heading p,
+.risk-policy-shell .risk-block-title p,
+.risk-policy-shell .wealth-note {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.risk-policy-shell .risk-rubric-suggestion {
+  display: block;
+  margin-top: 5px;
+  font-weight: 700;
+}
+
+.risk-policy-shell .risk-profile-card small,
+.risk-policy-shell .risk-cycle-item small {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.risk-policy-shell .field label,
+.risk-policy-shell .risk-weight-item .field label {
+  font-size: 11px !important;
+  line-height: 1.35;
+}
+
+.risk-policy-shell .risk-weight-total {
+  font-size: 13px;
+}
+
+.risk-policy-shell .risk-weight-total small {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.risk-policy-shell .risk-policy-quality:has(.risk-weight-total.invalid) {
+  border-width: 3px;
+  background: linear-gradient(135deg, rgba(204, 64, 64, .18), rgba(255, 231, 231, .72));
+}
+
+body:not([data-theme="healthy"]) .risk-policy-shell .risk-policy-quality:has(.risk-weight-total.invalid) {
+  background: linear-gradient(135deg, rgba(137, 38, 35, .42), rgba(68, 22, 21, .55));
+}

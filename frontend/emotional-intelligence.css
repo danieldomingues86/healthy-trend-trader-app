@@ -87,7 +87,7 @@ body:has(#emotionalintelligence.active) #emotionalintelligence.page.active{width
 #emotionalintelligence .ei-footer{display:flex;justify-content:space-between;gap:16px;color:#f4e5c0;padding:16px 6px 0;font-size:13px;text-shadow:0 1px 4px #000}
 #emotionalintelligence .ei-footer em{font:italic 15px Georgia,serif}
 #emotionalintelligence .ei-comparison{margin-top:14px}
-#emotionalintelligence .ei-comparison summary{cursor:pointer;font:700 17px Georgia,serif}
+#emotionalintelligence .ei-comparison h2{margin:0;font:700 17px Georgia,serif}
 #emotionalintelligence .ei-comparison-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
 #emotionalintelligence .ei-comparison-grid article{padding:12px;border:1px solid #ddd5c0;border-radius:8px}
 #emotionalintelligence .ei-comparison-grid span{display:block;font-size:11px;margin-bottom:6px}

@@ -75,13 +75,15 @@
     const other = files.length - images - audio;
     return files.length ? [images && `📷 ${images} prints`, audio && `♫ ${audio} ${text('áudios', 'audio')}`, other && `📎 ${other} ${text('anexos', 'files')}`].filter(Boolean).join(' · ') : text('Adicionar prints, áudio ou anexos', 'Add screenshots, audio or files');
   }
+  function evidenceKind(item) { return item.kind === 'market' ? 'market' : 'asset'; }
+  function evidenceKindLabel(kind) { return kind === 'market' ? text('Mercado / índice', 'Market / index') : text('Ativo / trade', 'Asset / trade'); }
   function evidenceStrip() {
     const items = current().evidence.slice(0, 3);
     const imageCount = current().evidence.filter(item => item.type?.startsWith('image/') && item.type !== 'image/svg+xml').length;
     return `<div class="jv-evidence-strip">${items.map(item => `<button type="button" class="jv-evidence-thumb" data-evidence-id="${esc(item.id)}" title="${esc(item.name)}" aria-label="${text('Abrir', 'Open')} ${esc(item.name)}">${item.type.startsWith('image/') ? `<img data-evidence-thumb="${esc(item.id)}" alt="${esc(item.name)}">` : `<span>${item.type.startsWith('audio/') ? '♫' : '📎'}</span>`}<small>${esc(item.name)}</small></button>`).join('')}${current().evidence.length > 3 ? `<div class="jv-evidence-more">+${current().evidence.length - 3}</div>` : ''}<button type="button" class="jv-evidence-add" data-action="evidence" aria-label="${text('Anexar arquivo ou colar print', 'Attach a file or paste a screenshot')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 6-6a3 3 0 1 1 4 4l-8 8a5 5 0 0 1-7-7l8-8"/></svg><small>${text('Anexar / Ctrl+V', 'Attach / Ctrl+V')}</small></button></div>${imageCount > 1 ? `<small class="jv-evidence-keyboard-hint">← → ${text('Abra um print e use as setas do teclado para navegar entre as imagens.', 'Open a screenshot and use the keyboard arrows to browse images.')}</small>` : ''}`;
   }
   function patternsSection(e) {
-    return `<section class="jv-patterns"><header><span class="jv-title-icon">${icons.patterns}</span><div><h3>${text('Padrões e soluções', 'Patterns and solutions')}</h3><p>${text('(observações adicionais)', '(additional observations)')}</p></div></header>${field('shared.patterns', text('O que está se repetindo e como você quer responder?', 'What is repeating and how do you want to respond?'), e.shared.patterns, text('Registre o padrão que percebeu e a solução que pretende aplicar.', 'Record the pattern you noticed and the solution you intend to apply.'), 4)}</section>`;
+    return `<section class="jv-patterns"><header><span class="jv-title-icon">${icons.patterns}</span><div><h3>${text('Padrões e soluções', 'Patterns and solutions')}</h3><p>${text('(observações adicionais)', '(additional observations)')}</p></div></header>${field('shared.patterns', text('O que está se repetindo e como você quer responder?', 'What is repeating and how do you want to respond?'), e.shared.patterns, text('Registre o padrão que percebeu e a solução que pretende aplicar.', 'Record the pattern you noticed and the solution you intend to apply.'), 4)}<div class="jv-pattern-save"><button class="jv-save" type="button" data-action="save">✓ ${text('Salvar registro', 'Save entry')}</button><p id="jv-save-status" role="status" class="${saveError ? 'is-error' : ''}">${esc(saveError || (e.updatedAt ? text('Registro salvo na sua conta.', 'Entry saved in your account.') : text('Escreva no seu ritmo. As alterações são salvas na sua conta.', 'Write at your own pace.')))}</p></div></section>`;
   }
   function importedSourceSection(e) {
     if (!e.imports?.length) return '';
@@ -120,28 +122,12 @@
           <div class="jv-page-preview"><span class="jv-page-number">02 / ${text('Um olhar para dentro', 'A look within')}</span><p>${esc(emotional.note || text('Você não é o resultado de um trade. Este espaço é para observar como você estava — sem julgamento.', 'You are not the outcome of a trade. This space is for noticing how you felt — without judgement.'))}</p><div class="jv-preview-emotions">${emotional.states.map(value => `<span>${esc(value)}</span>`).join('') || text('Nenhum estado registrado ainda.', 'No states recorded yet.')}</div><div>${text('Intensidade', 'Intensity')}: <b>${emotional.intensity ?? '—'} / 5</b></div><button type="button" data-pane="emotional">${text('Escrever na página emocional', 'Write on the emotional page')} →</button></div>
         </section>
       </div>
-      <footer class="jv-lessons"><div class="jv-lesson-title"><span class="jv-title-icon">${icons.lessons}</span><div><h3>${text('Lições do dia', 'Lessons of the day')}</h3><p>${text('Mercado + execução + emoção → aprendizado', 'Market + execution + emotion → learning')}</p></div></div><div class="jv-lesson-write">${field('shared.lesson', text('O que vou levar para amanhã?', 'What will I take into tomorrow?'), e.shared.lesson, text('Uma lição que conecta o que você fez e como se sentiu.', 'One lesson connecting what you did and how you felt.'), 3)}<button class="jv-save" type="button" data-action="save">✓ ${text('Salvar registro', 'Save entry')}</button></div><p id="jv-save-status" role="status" class="${saveError ? 'is-error' : ''}">${esc(saveError || (e.updatedAt ? text('Registro salvo na sua conta.', 'Entry saved in your account.') : text('Escreva no seu ritmo. As alterações são salvas na sua conta.', 'Write at your own pace.')))}</p>
+      <footer class="jv-lessons"><div class="jv-lesson-title"><span class="jv-title-icon">${icons.lessons}</span><div><h3>${text('Lições do dia', 'Lessons of the day')}</h3><p>${text('Mercado + execução + emoção → aprendizado', 'Market + execution + emotion → learning')}</p></div></div><div class="jv-lesson-write">${field('shared.lesson', text('O que vou levar para amanhã?', 'What will I take into tomorrow?'), e.shared.lesson, text('Uma lição que conecta o que você fez e como se sentiu.', 'One lesson connecting what you did and how you felt.'), 3)}</div>
       </footer>
       </main></div><dialog id="jv-dialog" aria-labelledby="jv-dialog-title"><header><h2 id="jv-dialog-title"></h2><button type="button" data-action="close-dialog" aria-label="${text('Fechar', 'Close')}">×</button></header><div id="jv-dialog-body"></div></dialog>
     </div>`;
     hydrateEvidenceStrip();
-    compactLessons();
-  }
-  function compactLessons() {
-    const lessons = root.querySelector('.jv-lessons');
-    const emotionalFields = root.querySelector('.jv-emotional .jv-fields');
-    if (!lessons || !emotionalFields) return;
-    const field = lessons.querySelector('.jv-lesson-write .jv-field');
-    const save = lessons.querySelector('.jv-save');
-    const saveStatus = lessons.querySelector('#jv-save-status');
-    if (!field || !save || !saveStatus) return;
-    const compact = document.createElement('section');
-    compact.className = 'jv-compact-closeout';
-    compact.innerHTML = `<header><div><h4>${text('Fechamento do dia', 'Day closeout')}</h4><p>${text('Opcional: registre uma lição breve antes de salvar.', 'Optional: record a brief lesson before saving.')}</p></div></header>`;
-    const actionRow = document.createElement('div'); actionRow.className = 'jv-compact-closeout-actions';
-    actionRow.append(field, save); compact.append(actionRow, saveStatus);
-    emotionalFields.append(compact);
-    lessons.remove();
+    root.querySelector('.jv-lessons')?.remove();
   }
   function setValue(path, value) {
     const allowed = ['title', 'technical.marketState', 'technical.session', 'technical.executionScore', 'technical.planRespected', 'technical.permissionMoney', 'emotional.intensity', 'emotional.note', 'emotional.impact', 'emotional.impactNote', 'shared.lesson', 'shared.patterns', 'shared.observations', 'shared.phrase'];
@@ -201,11 +187,11 @@
   async function showEvidence() {
     clearEvidenceUrls();
     const e = current(), labels = e.legacyEntries.flatMap(item => Array.isArray(item.attachments) ? item.attachments : []);
-    dialog(text('Evidências da sessão', 'Session evidence'), `<label class="jv-upload">＋ ${text('Adicionar prints, áudio ou arquivos', 'Add screenshots, audio or files')}<input id="jv-files" type="file" multiple></label><div class="jv-upload-paste" data-evidence-paste tabindex="0">${text('Ou cole um print da área de transferência com Ctrl + V.', 'Or paste a screenshot from the clipboard with Ctrl + V.')}</div><p>${text('Até 20 MB por arquivo. Guardados de forma privada na sua conta.', 'Up to 20 MB per file. Stored privately in your account.')}</p><p id="jv-upload-status" role="status"></p><div id="jv-evidence-list"></div>${labels.length ? `<details><summary>${text('Referências do registro antigo', 'Legacy entry references')}</summary><p>${labels.map(esc).join(' · ')}</p><p>${text('O diário antigo guardava esses rótulos, mas não os arquivos. Nenhum arquivo foi reconstruído.', 'The old journal stored these labels, but not the files. No file was reconstructed.')}</p></details>` : ''}`);
+    dialog(text('Evidências da sessão', 'Session evidence'), `<label class="jv-evidence-kind">${text('Este print representa', 'This screenshot represents')}<select id="jv-evidence-kind"><option value="asset">${text('Ativo / trade', 'Asset / trade')}</option><option value="market">${text('Mercado / índice (Ciclo de Mercado)', 'Market / index (Market Cycle)')}</option></select></label><label class="jv-upload">＋ ${text('Adicionar prints, áudio ou arquivos', 'Add screenshots, audio or files')}<input id="jv-files" type="file" multiple></label><div class="jv-upload-paste" data-evidence-paste tabindex="0">${text('Ou cole um print da área de transferência com Ctrl + V.', 'Or paste a screenshot from the clipboard with Ctrl + V.')}</div><p>${text('A classificação organiza a Biblioteca de Trades e separa os prints de ativos dos prints do mercado.', 'This classification organises the Trade Library and separates asset screenshots from market screenshots.')}</p><p>${text('Até 20 MB por arquivo. Guardados de forma privada na sua conta.', 'Up to 20 MB per file. Stored privately in your account.')}</p><p id="jv-upload-status" role="status"></p><div id="jv-evidence-list"></div>${labels.length ? `<details><summary>${text('Referências do registro antigo', 'Legacy entry references')}</summary><p>${labels.map(esc).join(' · ')}</p><p>${text('O diário antigo guardava esses rótulos, mas não os arquivos. Nenhum arquivo foi reconstruído.', 'The old journal stored these labels, but no files. No file was reconstructed.')}</p></details>` : ''}`);
     for (const item of e.evidence) {
       const host = root.querySelector('#jv-evidence-list'); if (!host) return;
       const row = document.createElement('article'); row.className = 'jv-file';
-      row.innerHTML = `<b>${esc(item.name)}</b>`; host.append(row);
+      row.innerHTML = `<b>${esc(item.name)}</b><small>${evidenceKindLabel(evidenceKind(item))}</small>`; host.append(row);
       try {
         const blob = await evidenceBlob(item);
         if (!row.isConnected || !root.querySelector('#jv-dialog')?.open) return;
@@ -219,14 +205,14 @@
   }
   async function upload(files) {
     if (busy) return; busy = true;
-    const e = current(), input = root.querySelector('#jv-files'); if (input) input.disabled = true;
+    const e = current(), input = root.querySelector('#jv-files'), kind = root.querySelector('#jv-evidence-kind')?.value === 'market' ? 'market' : 'asset'; if (input) input.disabled = true;
     let uploaded = 0;
     try {
       for (const file of files) {
         if (file.size > 20 * 1024 * 1024) throw new Error(text('Um arquivo ultrapassa o limite de 20 MB.', 'A file exceeds the 20 MB limit.'));
         if (!window.healthyTrendApi?.uploadFile) throw new Error(text('Entre novamente antes de enviar um arquivo.', 'Sign in again before uploading a file.'));
         const result = await window.healthyTrendApi.uploadFile('/api/journal-attachments', file, { 'X-Journal-Record': e.id });
-        e.evidence.push(result.attachment);
+        e.evidence.push({ ...result.attachment, kind });
         if (!persist()) {
           e.evidence = e.evidence.filter(item => item.id !== result.attachment.id);
           await window.healthyTrendApi.request(`/api/journal-attachments/${encodeURIComponent(result.attachment.id)}`, { method: 'DELETE' }).catch(() => {});

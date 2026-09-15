@@ -331,11 +331,10 @@ const server = http.createServer(async (request, response) => {
       const cached = await readCache();
       return send(response, 200, { status: 'ok', cachedAt: cached?.updatedAt || null, brapiTokenConfigured: Boolean(process.env.BRAPI_TOKEN), databaseConfigured: database.configured(), provider: await marketDataStatus() });
     }
-    if (!['/api/market-cycle','/api/market-overview','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
+    if (!['/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
-    if (url.pathname === '/api/market-cycle') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, cycle: cache.cycle, benchmark: cache.benchmark });
-    if (url.pathname === '/api/market-overview') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, universe: cache.universe, cycle: cache.cycle, benchmark: cache.benchmark, overview: cache.overview });
+    if (url.pathname === '/api/market-cycle') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, cycle: cache.cycle, benchmark: cache.benchmark, breadth: cache.overview?.breadth || null });
     if (url.pathname === '/api/market-scans') {
       cache = await refreshClassStrength(cache);
       cache = await refreshLiveScanQuotes(cache);
@@ -344,14 +343,14 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/relative-strength/classes') {
       cache = await refreshClassStrength(cache);
       const classes = classStrengthFromCache(cache);
-      return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, classes });
+      return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf: cache.overview?.benchmarkHistory?.at(-1)?.date || null, source: cache.source, classes });
     }
     if (url.pathname === '/api/relative-strength/classify') return send(response, 200, classifyAsset(url.searchParams.get('ticker'), cache));
     if (url.pathname === '/api/relative-strength') {
       const assetClass = url.searchParams.get('assetClass') || 'stock';
       const classes = classStrengthFromCache(cache);
       const selected = classes[assetClass] || classes.stock;
-      return send(response, 200, { updatedAt: cache.updatedAt, assetClass: selected.key, benchmark: selected.benchmark, universe: { requested: selected.requested, available: selected.available }, ...page(selected.items || [], url.searchParams) });
+      return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf: cache.overview?.benchmarkHistory?.at(-1)?.date || null, source: cache.source, assetClass: selected.key, benchmark: selected.benchmark, universe: { requested: selected.requested, available: selected.available }, ...page(selected.items || [], url.searchParams) });
     }
     return send(response, 404, { error: 'Not found' });
   } catch (error) { console.error(error); return send(response, error.status || 502, { error: error.status ? error.message : 'Falha ao consultar os dados solicitados', detail: error.message }); }

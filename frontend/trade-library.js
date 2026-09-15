@@ -3,7 +3,7 @@
   const root = document.getElementById('tradelibrary');
   if (!root) return;
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
-  const state = { year: '', month: '', day: '', urls: [], previewId: null };
+  const state = { year: '', month: '', day: '', kind: '', urls: [], previewId: null };
   const text = (pt, en) => window.appLanguage === 'en-US' ? en : pt;
   const storage = () => window.healthyTrendWorkspace?.storage;
   const dateLabel = value => new Date(`${value}T12:00:00`).toLocaleDateString(window.appLanguage === 'en-US' ? 'en-US' : 'pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -39,7 +39,7 @@
   function images() {
     return records().flatMap(record => (record.evidence || [])
       .filter(item => item.type?.startsWith('image/'))
-      .map(item => ({ ...item, date: record.date, recordId: record.id, ticker: ticker(item.name) })))
+      .map(item => ({ ...item, kind: item.kind === 'market' ? 'market' : 'asset', date: record.date, recordId: record.id, ticker: ticker(item.name) })))
       .sort((a, b) => `${b.date}${b.createdAt || ''}`.localeCompare(`${a.date}${a.createdAt || ''}`));
   }
   function clearUrls() { state.urls.forEach(URL.revokeObjectURL); state.urls = []; }
@@ -47,7 +47,8 @@
   function filtered(items) {
     return items.filter(item => (!state.year || item.date?.slice(0, 4) === state.year)
       && (!state.month || item.date?.slice(0, 7) === state.month)
-      && (!state.day || item.date === state.day));
+      && (!state.day || item.date === state.day)
+      && (!state.kind || item.kind === state.kind));
   }
   async function hydrate() {
     for (const item of filtered(images())) {
@@ -63,7 +64,7 @@
     const months = [...new Set(all.map(item => item.date?.slice(0, 7)).filter(Boolean))].sort().reverse();
     const days = [...new Set(all.map(item => item.date).filter(Boolean))].sort().reverse();
     const items = filtered(all);
-    root.innerHTML = `<div class="trade-library"><header class="trade-library-head"><div><p>${text('Acompanhamento · evidências', 'Tracking · evidence')}</p><h1>${text('Biblioteca de Trades', 'Playbook - Trades')}</h1><span>${text('Todos os prints salvos no Diário, organizados para sua revisão.', 'Every screenshot saved in the Journal, organised for your review.')}</span></div><b>${items.length} ${text(items.length === 1 ? 'print' : 'prints', items.length === 1 ? 'screenshot' : 'screenshots')}</b></header><section class="trade-library-filter" aria-label="${text('Filtros da Biblioteca de Trades', 'Playbook filters')}"><label>${text('Ano', 'Year')}<select data-filter="year">${choices(years, state.year, text('Todos os anos', 'All years'))}</select></label><label>${text('Mês', 'Month')}<select data-filter="month">${choices(months, state.month, text('Todos os meses', 'All months'))}</select></label><label>${text('Dia', 'Day')}<select data-filter="day">${choices(days, state.day, text('Todos os dias', 'All days'))}</select></label><button type="button" data-action="clear">${text('Limpar filtros', 'Clear filters')}</button></section>${items.length ? `<section class="trade-library-grid">${items.map(item => `<article class="trade-library-card"><button type="button" class="trade-library-image" data-action="preview" data-evidence-id="${esc(item.id)}" data-name="${esc(item.name)}" aria-label="${text('Ampliar', 'Enlarge')} ${esc(item.name)}"><img data-trade-library-image="${esc(item.id)}" alt="${esc(item.name)}"><span>⌁</span></button><div><small>${esc(dateLabel(item.date))}</small>${item.ticker ? `<h2>${esc(item.ticker)}</h2>` : ''}<p>${esc(item.name)}</p><button type="button" data-record="${esc(item.recordId)}">${text('Abrir no Diário →', 'Open in Journal →')}</button></div></article>`).join('')}</section>` : `<section class="trade-library-empty"><b>${text('Ainda não há prints para este período.', 'There are no screenshots for this period yet.')}</b><p>${text('No Diário do Trader, use Anexar / Ctrl+V para que seus prints apareçam automaticamente aqui.', 'In the Trader Journal, use Attach / Ctrl+V and your screenshots will appear here automatically.')}</p><button type="button" data-action="journal">${text('Abrir Diário do Trader', 'Open Trader Journal')}</button></section>`}</div>`;
+    root.innerHTML = `<div class="trade-library"><header class="trade-library-head"><div><p>${text('Acompanhamento · evidências', 'Tracking · evidence')}</p><h1>${text('Biblioteca de Trades', 'Playbook - Trades')}</h1><span>${text('Todos os prints salvos no Diário, organizados para sua revisão.', 'Every screenshot saved in the Journal, organised for your review.')}</span></div><b>${items.length} ${text(items.length === 1 ? 'print' : 'prints', items.length === 1 ? 'screenshot' : 'screenshots')}</b></header><section class="trade-library-filter" aria-label="${text('Filtros da Biblioteca de Trades', 'Playbook filters')}"><label>${text('Ano', 'Year')}<select data-filter="year">${choices(years, state.year, text('Todos os anos', 'All years'))}</select></label><label>${text('Mês', 'Month')}<select data-filter="month">${choices(months, state.month, text('Todos os meses', 'All months'))}</select></label><label>${text('Dia', 'Day')}<select data-filter="day">${choices(days, state.day, text('Todos os dias', 'All days'))}</select></label><label>${text('Tipo', 'Type')}<select data-filter="kind"><option value="">${text('Todos os prints', 'All screenshots')}</option><option value="asset" ${state.kind === 'asset' ? 'selected' : ''}>${text('Ativos / trades', 'Assets / trades')}</option><option value="market" ${state.kind === 'market' ? 'selected' : ''}>${text('Mercado / índice', 'Market / index')}</option></select></label><button type="button" data-action="clear">${text('Limpar filtros', 'Clear filters')}</button></section>${items.length ? `<section class="trade-library-grid">${items.map(item => `<article class="trade-library-card"><button type="button" class="trade-library-image" data-action="preview" data-evidence-id="${esc(item.id)}" data-name="${esc(item.name)}" aria-label="${text('Ampliar', 'Enlarge')} ${esc(item.name)}"><img data-trade-library-image="${esc(item.id)}" alt="${esc(item.name)}"><span>⌁</span></button><div><small>${esc(dateLabel(item.date))} · ${item.kind === 'market' ? text('Mercado / índice', 'Market / index') : text('Ativo / trade', 'Asset / trade')}</small>${item.ticker ? `<h2>${esc(item.ticker)}</h2>` : ''}<p>${esc(item.name)}</p><button type="button" data-record="${esc(item.recordId)}">${text('Abrir no Diário →', 'Open in Journal →')}</button></div></article>`).join('')}</section>` : `<section class="trade-library-empty"><b>${text('Ainda não há prints para este período.', 'There are no screenshots for this period yet.')}</b><p>${text('No Diário do Trader, use Anexar / Ctrl+V para que seus prints apareçam automaticamente aqui.', 'In the Trader Journal, use Attach / Ctrl+V and your screenshots will appear here automatically.')}</p><button type="button" data-action="journal">${text('Abrir Diário do Trader', 'Open Trader Journal')}</button></section>`}</div>`;
     hydrate();
   }
   root.addEventListener('change', event => {
@@ -80,7 +81,7 @@
     if (button.dataset.action === 'previous-preview') { navigatePreview(-1); return; }
     if (button.dataset.action === 'next-preview') { navigatePreview(1); return; }
     if (button.dataset.action === 'preview') { openPreview(button); return; }
-    if (button.dataset.action === 'clear') { state.year = ''; state.month = ''; state.day = ''; render(); return; }
+    if (button.dataset.action === 'clear') { state.year = ''; state.month = ''; state.day = ''; state.kind = ''; render(); return; }
     if (button.dataset.action === 'journal') { window.go?.('journal'); return; }
     if (button.dataset.record) window.openJournalRecord?.(button.dataset.record);
   });

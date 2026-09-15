@@ -1,0 +1,10 @@
+#newtrade .workbench-heat-callout{display:none;margin:13px 0 2px;padding:12px 14px;border:1px solid rgba(248,119,110,.8);border-radius:11px;background:linear-gradient(135deg,rgba(133,30,32,.92),rgba(82,20,25,.94));box-shadow:0 0 0 3px rgba(226,83,76,.16);color:#fff1ef;font-size:12px;line-height:1.45}
+#newtrade .workbench-heat-callout:not([hidden]){display:block}
+#newtrade .workbench-heat-callout b{display:block;margin-bottom:3px;color:#ffb2ad;font-size:11px;letter-spacing:.1em}
+#newtrade .workbench-sizer.is-heat-exceeded{border:2px solid #e46861;background:linear-gradient(155deg,#512428,#1c3025);box-shadow:0 0 0 5px rgba(222,79,73,.15),0 18px 34px rgba(43,5,8,.2)}
+#newtrade .workbench-sizer .layer-prism.heat-exceeded{border-color:#ef7a72;background:linear-gradient(145deg,rgba(147,45,47,.84),rgba(72,24,29,.94));box-shadow:0 0 0 3px rgba(232,90,82,.12)}
+#newtrade .workbench-sizer .layer-prism.heat-exceeded i{background:rgba(255,212,209,.2);color:#fff2f0}
+#newtrade .workbench-sizer .layer-prism.heat-exceeded p b,#newtrade .workbench-sizer .layer-prism.heat-exceeded .layer-status{color:#ffb8b3}
+#newtrade .workbench-sizer .final-size.heat-exceeded{border-color:rgba(240,117,109,.7);background:linear-gradient(145deg,#521f25,#2e171d)}
+#newtrade .workbench-sizer .final-size.heat-exceeded strong{color:#ffaaa5;text-shadow:0 0 22px rgba(240,98,91,.28)}
+#newtrade .workbench-sizer.is-heat-exceeded .summary-box button:disabled{border-color:#894845;background:#61332f;color:#e9b3af;cursor:not-allowed;opacity:.72}

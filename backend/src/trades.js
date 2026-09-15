@@ -1,5 +1,6 @@
 const crypto = require('node:crypto');
 const database = require('./database');
+const management = require('../../frontend/position-management-model');
 
 function invalid(message) {
   const error = new Error(message);
@@ -121,7 +122,7 @@ async function listPlans(userId) {
        LEFT JOIN LATERAL (
          SELECT jsonb_agg(jsonb_build_object(
            'id', e.id, 'type', e.event_type, 'qty', e.quantity, 'price', e.price,
-           'stop', e.stop_price, 'atr', e.atr, 'note', e.note, 'at', e.occurred_at
+           'stop', e.stop_price, 'atr', e.atr, 'note', e.note, 'at', e.occurred_at, 'context', e.context
          ) ORDER BY e.occurred_at, e.created_at) AS items
          FROM app.trade_events e WHERE e.trade_id = t.id
        ) events ON true
@@ -140,7 +141,13 @@ function normalizePositionEvent(type, payload = {}) {
     event.atr = number(payload.atr, 'ATR atual', { minimum: 0 });
   } else {
     event.quantity = number(payload.qty ?? payload.quantity, 'Quantidade', { minimum: 1, required: true });
+    if (!Number.isSafeInteger(event.quantity)) throw invalid('Quantidade deve ser um número inteiro de unidades.');
     event.price = number(payload.price, type === 'close' ? 'Preço de saída' : 'Preço da parcial', { minimum: 0.000001, required: true });
+  }
+  if (payload.occurredAt != null && payload.occurredAt !== '') {
+    const date = new Date(payload.occurredAt);
+    if (Number.isNaN(date.getTime())) throw invalid('Data/hora da parcial é inválida.');
+    event.occurredAt = date.toISOString();
   }
   return event;
 }
@@ -150,7 +157,7 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
   const event = normalizePositionEvent(type, payload);
   return database.transaction(async (client) => {
     const current = await client.query(
-      `SELECT id, status, executed_quantity FROM app.trades WHERE id = $1 AND user_id = $2 FOR UPDATE`,
+      `SELECT id, status, executed_quantity, execution_price, entry_price, stop_price, direction FROM app.trades WHERE id = $1 AND user_id = $2 FOR UPDATE`,
       [tradeId, userId]
     );
     if (!current.rowCount) throw invalid('Trade não encontrado.');
@@ -161,10 +168,49 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
     );
     const remaining = Number(current.rows[0].executed_quantity) - Number(exits.rows[0].total);
     if (event.quantity && event.quantity > remaining) throw invalid('A quantidade precisa ser menor ou igual ao saldo da posição.');
+    if (event.type === 'peeloff' && event.quantity >= remaining) throw invalid('Para encerrar toda a posição, registre um encerramento.');
+    const history = await client.query(
+      `SELECT event_type AS type, quantity AS qty, price, stop_price AS stop, context
+         FROM app.trade_events WHERE trade_id = $1 ORDER BY occurred_at, created_at`, [tradeId]
+    );
+    const trade = current.rows[0];
+    const entryEvent = history.rows.find(item => item.type === 'entry');
+    const events = entryEvent ? history.rows : [{ type: 'entry', qty: trade.executed_quantity, price: trade.execution_price ?? trade.entry_price, stop: trade.stop_price }, ...history.rows];
+    const entry = Number(entryEvent?.price ?? trade.execution_price ?? trade.entry_price);
+    const currentPrice = Number([...events].reverse().find(item => Number(item.price) > 0)?.price ?? entry);
+    const basis = { entry, initialStop: Number(entryEvent?.stop ?? trade.stop_price), initialQty: Number(entryEvent?.qty ?? trade.executed_quantity),
+      direction: trade.direction || 'long', currentPrice, currentStop: Number(trade.stop_price), events };
+    const before = management.state(basis, management.metricsFromEvents(basis));
+    const afterEvents = [...events, { type: event.type, qty: event.quantity, price: event.price, stop: event.stop }];
+    const next = { ...basis, currentPrice: event.price, currentStop: event.stop ?? basis.currentStop, events: afterEvents };
+    const after = management.state(next, management.metricsFromEvents(next));
+    const r = after.currentR;
+    if (event.type === 'peeloff' && payload?.source === 'sell_into_strength') {
+      const policy = await client.query('SELECT policy FROM app.risk_policies WHERE user_id = $1', [userId]);
+      const sell = management.settings(policy.rows[0]?.policy?.sellIntoStrength);
+      if (!sell.enabled || r == null || r < sell.startR) throw invalid('Sell Into Strength só está disponível na zona configurada.');
+    }
+    const historicalR = events.map(item => management.currentR({ ...basis, currentPrice: Number(item.price) || entry })).filter(Number.isFinite);
+    const previousPeak = Math.max(...historicalR, -Infinity);
+    const previousTrough = Math.min(...historicalR, Infinity);
+    const milestones = [2, 3].filter(level => r != null && r >= level && previousPeak < level).map(level => `${level}R`);
+    const source = event.type === 'peeloff' && payload?.source === 'sell_into_strength' ? 'sell_into_strength' : event.type === 'peeloff' ? 'risk_peel' : event.type;
+    const partialProfit = event.quantity ? (event.price - entry) * (basis.direction === 'short' ? -1 : 1) * event.quantity : 0;
+    const context = {
+      source, rAtEvent: r, rAtExit: event.quantity ? r : null,
+      percentRealized: event.quantity ? event.quantity / remaining * 100 : null,
+      partialProfit, totalRealizedProfit: after.realizedProfit,
+      runnerProfit: event.type === 'close' && event.quantity === remaining && before.runner ? partialProfit : null,
+      remainingQuantity: after.remaining, ongoingRisk: after.ongoingRisk,
+      freeRollCoverage: Number.isFinite(after.coverage) ? after.coverage : null,
+      freeRollActivated: !before.freeRoll && after.freeRoll,
+      freeRollActive: after.freeRoll, peakR: Math.max(previousPeak, r ?? -Infinity),
+      troughR: Math.min(previousTrough, r ?? Infinity), milestones
+    };
     await client.query(
-      `INSERT INTO app.trade_events (id, trade_id, event_type, quantity, price, stop_price, atr, note)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [crypto.randomUUID(), tradeId, event.type, event.quantity || null, event.price || null, event.stop || null, event.atr || null, event.note]
+      `INSERT INTO app.trade_events (id, trade_id, event_type, quantity, price, stop_price, atr, note, context, occurred_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, COALESCE($10::timestamptz, now()))`,
+      [crypto.randomUUID(), tradeId, event.type, event.quantity || null, event.price, event.stop || null, event.atr || null, event.note, JSON.stringify(context), event.occurredAt || null]
     );
     const shouldClose = event.type === 'close' && event.quantity === remaining;
     if (event.type === 'update') {
@@ -172,7 +218,7 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
     } else if (shouldClose) {
       await client.query(`UPDATE app.trades SET status = 'closed' WHERE id = $1 AND user_id = $2`, [tradeId, userId]);
     }
-    return { ...event, remaining: remaining - (event.quantity || 0), status: shouldClose ? 'closed' : 'open' };
+    return { ...event, context, remaining: remaining - (event.quantity || 0), status: shouldClose ? 'closed' : 'open' };
   });
 }
 

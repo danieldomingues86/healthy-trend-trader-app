@@ -30,6 +30,11 @@
   function isPro() { return typeof isProfessional === 'function' && isProfessional(); }
   function selectedCard() { return payload?.cards?.find((card) => card.id === selectedScan) || payload?.cards?.[0]; }
   function formattedUpdate(value) { return value ? new Date(value).toLocaleString('pt-BR', { dateStyle: 'medium', timeStyle: 'short' }) : 'aguardando primeira atualização'; }
+  function formattedMarketDate(value) {
+    if (!value) return 'data de mercado indisponível';
+    const raw = String(value); const date = /^\d{8}$/.test(raw) ? new Date(`${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}T12:00:00`) : new Date(raw);
+    return Number.isFinite(date.getTime()) ? date.toLocaleDateString('pt-BR', { dateStyle: 'medium' }) : raw;
+  }
 
   function upgrade() {
     return `<section class="market-scans-upgrade"><div class="market-scans-pro-pill">PRO</div><div class="eyebrow">Radar de mercado</div><h1>Encontre onde algo interessante está acontecendo.</h1><p>Os Scans de Mercado reduzem o universo acompanhado a uma lista objetiva de ativos que merecem atenção — sem substituir o seu critério, o gráfico ou o setup.</p><div class="market-scans-upgrade-grid"><div><b>🚀 Movimentos e fluxo</b><span>Altas, quedas e volume fora do padrão.</span></div><div><b>🏆 Força e tendência</b><span>RS, aceleração, ATR e estrutura saudável.</span></div><div><b>☆ Acompanhar</b><span>Leve ativos para a watchlist e aguarde o seu gatilho.</span></div></div><button class="primary" type="button" onclick="go('plan')">Desbloquear Scans de Mercado →</button><small>Disponível no plano Professional.</small></section>`;
@@ -71,6 +76,8 @@
     if (!card) { root.innerHTML = `<div class="market-scans-loading">${esc(payload.disclaimer || 'Não foi possível carregar os scans agora.')}</div>`; return; }
     root.innerHTML = `<section class="market-scans-shell"><header class="market-scans-hero"><div><div class="eyebrow">Scans de Mercado <span>PRO</span></div><h1>Encontre onde algo interessante está acontecendo.</h1><p>O Scan reduz o universo; a decisão, a leitura de contexto e a validação do setup continuam sendo suas.</p></div><div class="market-scans-update"><b>Última atualização</b><span>${formattedUpdate(payload.updatedAt)}</span><small>${payload.universe.total} ativos acompanhados</small></div></header><section class="market-scans-relationship"><div><b>Força Relativa</b><span>Quem está forte?</span></div><i>→</i><div><b>Ciclo de Mercado</b><span>O ambiente está favorável?</span></div><i>→</i><div class="current"><b>Scans</b><span>Onde merece atenção agora?</span></div><i>→</i><div><b>Rubric</b><span>Quantas probabilidades se alinham?</span></div></section><section class="market-scans-grid">${payload.cards.map(cardMarkup).join('')}</section><section class="market-scans-results"><header><div><div class="eyebrow">Scan selecionado</div><h2>${card.icon} ${esc(card.title)}</h2><p>${esc(card.criteria)} · ${esc(card.description)}</p></div><div class="market-scans-result-meta">${resultControls()}<div class="market-scans-watch-count">☆ ${watched().size} na watchlist</div></div></header>${resultRows(card)}</section><footer class="market-scans-disclaimer">${esc(payload.disclaimer)}</footer></section>`;
     root.querySelectorAll('[data-scan]').forEach((button) => button.addEventListener('click', () => { selectedScan = button.dataset.scan; render(); }));
+    const freshness = root.querySelector('.market-scans-update');
+    if (freshness) freshness.innerHTML = `<b>Dados de mercado</b><span>${formattedMarketDate(payload.dataAsOf)}</span><small>Cache sincronizado: ${formattedUpdate(payload.updatedAt)} · ${payload.universe.total} ativos acompanhados</small>`;
     root.querySelectorAll('[data-watch-ticker]').forEach((button) => button.addEventListener('click', () => toggleWatch(button.dataset.watchTicker)));
     root.querySelectorAll('[data-open-ticker]').forEach((button) => button.addEventListener('click', () => openTicker(button.dataset.openTicker)));
     const classFilter = root.querySelector('[data-scan-class-filter]');
@@ -85,7 +92,7 @@
   async function load() {
     if (!isPro()) { render(); return; }
     render();
-    try { await loadWatchlist(); const response = await fetch(`${api}/market-scans`); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Não foi possível atualizar os scans.'); payload = data; if (!payload.cards?.some((card) => card.id === selectedScan)) selectedScan = payload.cards?.[0]?.id; }
+    try { await loadWatchlist(); const response = await fetch(`${api}/market-scans`, { cache: 'no-store' }); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Não foi possível atualizar os scans.'); payload = data; if (!payload.cards?.some((card) => card.id === selectedScan)) selectedScan = payload.cards?.[0]?.id; }
     catch (error) { payload = { cards: [], universe: { total: 0 }, updatedAt: null, disclaimer: error.message }; }
     render();
   }
