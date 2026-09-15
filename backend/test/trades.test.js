@@ -47,4 +47,6 @@ test('normaliza eventos de gestão de posição', () => {
     type: 'peeloff', quantity: 100, price: 52, note: ''
   });
   assert.throws(() => normalizePositionEvent('close', { qty: 0, price: 52 }), /Quantidade/);
+  assert.throws(() => normalizePositionEvent('peeloff', { qty: 1.5, price: 52 }), /inteiro/);
+  assert.equal(normalizePositionEvent('peeloff', { qty: 2, price: 52, occurredAt: '2026-09-15T10:30:00-03:00' }).occurredAt, '2026-09-15T13:30:00.000Z');
 });

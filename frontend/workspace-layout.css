@@ -17,9 +17,12 @@
   body[data-navigation-layout="top"] .sidebar{
     position:sticky!important;inset:0 auto auto 0!important;width:100%!important;min-width:100%!important;max-width:none!important;
     height:76px!important;min-height:76px!important;padding:10px 22px!important;box-sizing:border-box;display:flex!important;
-    flex-direction:row!important;align-items:center!important;gap:16px!important;overflow:hidden!important;
+    flex-direction:row!important;align-items:center!important;gap:16px!important;overflow:visible!important;z-index:80!important;
   }
   body[data-navigation-layout="top"] .main{grid-column:auto!important;width:100%!important;min-width:0}
+  body[data-navigation-layout="top"] .top-navigation-controls{
+    display:flex!important;align-items:center!important;gap:6px!important;flex:1 1 auto!important;min-width:0!important;
+  }
   body[data-navigation-layout="top"] .top-navigation-menu{
     display:flex!important;flex:1 1 auto!important;min-width:0!important;width:auto!important;
     grid-template-rows:none!important;grid-auto-columns:auto!important;grid-auto-flow:row!important;
@@ -27,8 +30,22 @@
     overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;
   }
   body[data-navigation-layout="top"] .top-navigation-menu button{
-    flex:0 0 auto!important;height:38px!important;min-width:max-content!important;
+    display:flex!important;align-items:center!important;justify-content:flex-start!important;
+    flex:0 0 auto!important;height:38px!important;min-width:max-content!important;width:auto!important;
+    padding:8px 11px!important;font-size:11px!important;gap:7px!important;color:#dce9e1!important;
   }
+  body[data-navigation-layout="top"] .top-navigation-menu button>span:not(.ico){
+    display:inline!important;max-width:none!important;overflow:visible!important;color:inherit!important;
+  }
+  body[data-navigation-layout="top"] .top-navigation-scroll{
+    display:grid!important;place-items:center!important;flex:0 0 30px!important;width:30px!important;height:30px!important;
+    padding:0!important;border:1px solid rgba(164,226,181,.28)!important;border-radius:9px!important;
+    background:rgba(255,255,255,.07)!important;color:#e6f5e9!important;font:700 22px/1 Arial,sans-serif!important;cursor:pointer;
+  }
+  body[data-navigation-layout="top"] .top-navigation-scroll:hover:not(:disabled){background:rgba(137,217,159,.19)!important}
+  body[data-navigation-layout="top"] .top-navigation-scroll:disabled{opacity:.35;cursor:default}
+  body[data-navigation-layout="top"] .account-menu{z-index:120!important}
+  body[data-navigation-layout="top"] .account-dropdown{z-index:130!important}
 }
 
 /* A data do ranking é a do último pregão disponível, não a hora de atualização do cache. */

@@ -63,6 +63,11 @@ function marketScansFromCache(cache) {
       items: assets.filter((item) => Number(item.score) >= 90 && item.relativeTrend?.direction6w === 'up')
     }),
     scanDefinition({
+      id: 'rs-qualified', icon: '✦', title: 'Ativos qualificados', description: 'Força relativa confirmada para análise no gráfico.',
+      criteria: 'RS ≥ 70 e linha relativa ascendente', availability: hasRs, sort: 'score',
+      items: assets.filter((item) => Number(item.score) >= 70 && Number(item.score) < 90 && item.relativeTrend?.direction6w === 'up')
+    }),
+    scanDefinition({
       id: 'rs-accelerating', icon: '⚡', title: 'RS acelerando', description: 'Força relativa melhorando em ritmo superior ao histórico.',
       criteria: 'RS ≥ 70, linha RS ascendente e aceleração em 6 semanas', availability: hasRsTrend, sort: 'rsChange6w',
       items: assets.filter((item) => {
@@ -84,6 +89,7 @@ function marketScansFromCache(cache) {
   ];
   return {
     updatedAt: cache.updatedAt || null,
+    dataAsOf: cache.overview?.benchmarkHistory?.at(-1)?.date || null,
     source: cache.source || null,
     universe: { total: assets.length, byClass: { stocks: cache.relativeStrength?.length || 0, fii: cache.relativeStrengthByClass?.fii?.items?.length || 0, bdr: cache.relativeStrengthByClass?.bdr?.items?.length || 0 } },
     cards,

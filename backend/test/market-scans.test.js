@@ -12,14 +12,15 @@ function asset(symbol, overrides = {}) {
   };
 }
 
-test('market scans reutiliza as métricas de cache e retorna os sete scans da V1', () => {
+test('market scans reutiliza as métricas de cache e separa líderes de ativos qualificados', () => {
   const cache = { updatedAt: '2026-09-06T20:00:00.000Z', source: 'brapi', benchmark: { symbol: 'IBOV' }, relativeStrength: [asset('ABCD3')], relativeStrengthByClass: { fii: { items: [] }, bdr: { items: [] } } };
   const payload = marketScansFromCache(cache);
-  assert.equal(payload.cards.length, 7);
+  assert.equal(payload.cards.length, 8);
   assert.equal(payload.universe.total, 1);
   assert.equal(payload.cards.find((card) => card.id === 'strong-up').count, 1);
   assert.equal(payload.cards.find((card) => card.id === 'abnormal-volume').count, 1);
   assert.equal(payload.cards.find((card) => card.id === 'rs-leaders').results[0].symbol, 'ABCD3');
+  assert.equal(payload.cards.find((card) => card.id === 'rs-qualified').count, 0);
   assert.equal(payload.cards.find((card) => card.id === 'healthy-trend').count, 1);
 });
 

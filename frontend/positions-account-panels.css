@@ -11,6 +11,16 @@
 #positions .positions-account-panel.paper>header>b{background:#f5ead0;color:#8a6421}
 #positions .positions-account-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 #positions .positions-account-grid .position-card{border:1px solid rgba(29,81,56,.15)}
+#positions .position-action-queue{display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:7px;margin-top:12px}
+#positions .position-action-badge{display:flex;align-items:center;gap:7px;min-height:42px;padding:7px 8px;border:1px solid transparent;border-radius:8px;line-height:1.1}
+#positions .position-action-badge i{display:grid;flex:0 0 24px;place-items:center;width:24px;height:24px;border-radius:6px;font-size:15px;font-style:normal;font-weight:900}
+#positions .position-action-badge span{display:grid;gap:2px;min-width:0}
+#positions .position-action-badge b{font-size:9px;font-weight:900;letter-spacing:.035em;line-height:1.05}
+#positions .position-action-badge small{font-size:8px;font-weight:700;line-height:1.1;white-space:nowrap}
+#positions .position-action-badge.opportunity{border-color:#8cdb9f;background:linear-gradient(135deg,#e6faeb,#c9f3d5);color:#176b38;box-shadow:0 3px 10px rgba(42,151,77,.14)}
+#positions .position-action-badge.opportunity i{background:#23834a;color:#fff}
+#positions .position-action-badge.critical{border-color:#ef9b96;background:linear-gradient(135deg,#fff0ee,#ffd9d5);color:#a4322c;box-shadow:0 3px 10px rgba(177,57,48,.12)}
+#positions .position-action-badge.critical i{background:#bb4038;color:#fff}
 #positions .positions-account-empty{padding:25px 16px;border:1px dashed rgba(68,116,85,.38);border-radius:14px;color:var(--muted);font-size:12px;text-align:center}
 body:not([data-theme="healthy"]) #positions .positions-account-panel{border-color:#3d614d;background:linear-gradient(145deg,#14281e,#0d1b14);box-shadow:0 16px 36px rgba(0,0,0,.22)}
 body:not([data-theme="healthy"]) #positions .positions-account-panel.paper{border-color:#695326;background:linear-gradient(145deg,#251f12,#17150e)}
@@ -19,5 +29,8 @@ body:not([data-theme="healthy"]) #positions .positions-account-panel.paper>heade
 body:not([data-theme="healthy"]) #positions .positions-account-panel h2{color:#fff7e7}
 body:not([data-theme="healthy"]) #positions .positions-account-panel>header>b{background:#17452d;color:#b4edc4}
 body:not([data-theme="healthy"]) #positions .positions-account-panel.paper>header>b{background:#4a391b;color:#f0ce79}
+body:not([data-theme="healthy"]) #positions .position-action-badge.opportunity{border-color:#72ca89;background:linear-gradient(135deg,#143d29,#102b1e);color:#a8edb9}
+body:not([data-theme="healthy"]) #positions .position-action-badge.critical{border-color:#d56e68;background:linear-gradient(135deg,#482321,#341918);color:#ffb5ae}
 @media(max-width:1100px){#positions .positions-account-panels{grid-template-columns:1fr}}
 @media(max-width:700px){#positions .positions-account-grid{grid-template-columns:1fr}#positions .positions-account-panel{padding:14px;border-radius:17px}#positions .positions-account-panel h2{font-size:22px}#positions .positions-account-panel>header{gap:10px}#positions .positions-account-panel>header>b{font-size:10px;padding:7px 8px}}
+@media(max-width:520px){#positions .position-action-queue{grid-template-columns:1fr}}

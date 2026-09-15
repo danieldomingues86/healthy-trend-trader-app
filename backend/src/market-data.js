@@ -73,16 +73,33 @@ function ema(values, period) {
   return values.reduce((current, value, index) => index === 0 ? value : (value - current) * multiplier + current, values[0]);
 }
 function scoreCycle(history) {
-  const closes = history.map((item) => item.adjustedClose ?? item.close).filter(Number.isFinite);
+  const candles = history.filter((item) => Number.isFinite(item.adjustedClose ?? item.close));
+  const closes = candles.map((item) => item.adjustedClose ?? item.close);
   if (closes.length < 25) return { state: 'transition', score: 50, reason: 'Histórico insuficiente para leitura completa.' };
   const price = closes.at(-1);
   const ema20 = ema(closes.slice(-20), 20);
   const ema200 = closes.length >= 200 ? ema(closes.slice(-200), 200) : ema(closes, closes.length);
+  const previous20 = closes.length > 20 ? ema(closes.slice(-21, -1), 20) : null;
+  const previous200 = closes.length > 200 ? ema(closes.slice(-201, -1), 200) : null;
+  const ranges = candles.slice(-21).map((item, index, rows) => {
+    const high = Number(item.high), low = Number(item.low);
+    const prior = rows[index - 1]?.adjustedClose ?? rows[index - 1]?.close;
+    if (!Number.isFinite(high) || !Number.isFinite(low)) return null;
+    return Number.isFinite(prior) ? Math.max(high - low, Math.abs(high - prior), Math.abs(low - prior)) : high - low;
+  }).filter(Number.isFinite);
+  const atr21 = ranges.length >= 15 ? ranges.reduce((sum, value) => sum + value, 0) / ranges.length : null;
   const above20 = price > ema20;
   const above200 = price > ema200;
   const state = above20 && above200 ? 'healthy' : (!above20 && !above200 ? 'defensive' : 'transition');
   const score = state === 'healthy' ? 82 : state === 'defensive' ? 28 : 54;
-  return { state, score, price, ema20, ema200, above20, above200 };
+  return { state, score, price, ema20, ema200, above20, above200, atr21, atrPct: Number.isFinite(atr21) && price > 0 ? atr21 / price * 100 : null, ema20Slope: Number.isFinite(previous20) ? ema20 - previous20 : null, ema200Slope: Number.isFinite(previous200) ? ema200 - previous200 : null, date: candles.at(-1)?.date || null };
+}
+function marketCycleSeries(history) {
+  return history.map((candle, index) => {
+    if (index < 24) return null;
+    const reading = scoreCycle(history.slice(0, index + 1));
+    return { date: candle.date, close: reading.price, ema20: reading.ema20, ema200: reading.ema200, atr21: reading.atr21, atrPct: reading.atrPct, score: reading.score, state: reading.state };
+  }).filter(Boolean);
 }
 function returns(history) {
   const closes = history.map((item) => item.adjustedClose ?? item.close).filter(Number.isFinite);
@@ -146,7 +163,7 @@ async function fetchHistory(symbol, range = historyRangeFor(symbol)) {
 }
 function indexHistoryYears(now = new Date()) {
   const year = Number(saoPauloParts(now).year);
-  return [year - 1, year];
+  return [year - 2, year - 1, year];
 }
 async function fetchBenchmarkHistory(symbol) {
   try {
@@ -480,7 +497,7 @@ async function collectMarketData() {
     fii: fiiResult.status === 'fulfilled' && fiiResult.value.available > 0 ? fiiResult.value : { ...(previous?.relativeStrengthByClass?.fii || { ...classMeta('fii'), requested: catalogFii.length, available: 0, items: [] }), error: fiiResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt },
     bdr: bdrResult.status === 'fulfilled' && bdrResult.value.available > 0 ? bdrResult.value : { ...(previous?.relativeStrengthByClass?.bdr || { ...classMeta('bdr'), requested: catalogBdr.length, available: 0, items: [] }), error: bdrResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt }
   };
-  const cache = { updatedAt: new Date().toISOString(), source: histories.source === 'b3-cotahist' && ibovHistory.source === 'b3-indexes' && smllHistory.source === 'b3-indexes' ? 'b3-cotahist + b3-indexes' : 'brapi-fallback', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
+  const cache = { updatedAt: new Date().toISOString(), source: histories.source === 'b3-cotahist' && ibovHistory.source === 'b3-indexes' && smllHistory.source === 'b3-indexes' ? 'b3-cotahist + b3-indexes' : 'brapi-fallback', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns, history: marketCycleSeries(ibovHistory) }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
   cache.historyUpdatedAt = cache.updatedAt;
   await writeCache(cache);
   return cache;
@@ -577,6 +594,9 @@ function refreshClassStrength(cache) {
   return refreshControl.run('classes', async () => collectClassStrength(await readCache() || cache), { minInterval: 24 * 3600000 });
 }
 function refreshLiveScanQuotes(cache, now = new Date()) {
+  // B3/COTAHIST closing data is the default source. BRAPI live quotes stay an
+  // explicit contingency, never an implicit overlay on the Market Scans.
+  if (process.env.ENABLE_BRAPI_LIVE_SCANS !== 'true') return Promise.resolve(cache);
   if (!cache || !isMarketOpen(now) || isFresh(cache.liveUpdatedAt, now, LIVE_QUOTE_MINUTES)) return Promise.resolve(cache);
   return refreshControl.run('live', async () => collectLiveScanQuotes(await readCache() || cache, now), { minInterval: LIVE_QUOTE_MINUTES * 60000 });
 }
@@ -585,4 +605,4 @@ async function marketDataStatus() {
   return { blockedUntil: state.blockedUntil > Date.now() ? new Date(state.blockedUntil).toISOString() : null, reason: state.code, requestsToday: state.usage?.[new Date().toISOString().slice(0, 10)] || 0, trackedRequests: Object.values(state.usage || {}).reduce((a,b)=>a+b,0), liveQuoteIntervalMinutes: LIVE_QUOTE_MINUTES };
 }
 
-module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose };
+module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, marketCycleSeries, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose };
