@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="frontend/weekly-review.css?v=20260908-4" />
 <link rel="stylesheet" href="frontend/market-cycle-v2.css?v=20260915-8" />
 <link rel="stylesheet" href="frontend/daily-routine.css" />
+<link rel="stylesheet" href="frontend/emerging-leaders.css" />
 <style>
 /* Scans é uma tela de leitura comparativa: ocupa a largura total do workspace. */
 #marketscans{max-width:1600px}
@@ -437,6 +438,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
   <div class="nav-group"><div class="nav-label">Inteligência de Mercado</div><nav class="nav">
     <button data-page="marketcycle"><span class="ico">◌</span>Ciclo de Mercado</button>
     <button data-page="relativestrength"><span class="ico">↗</span>Força Relativa</button>
+    <button data-page="emergingleaders"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="m3 9 4-4 4 4 6-6"/></svg></span>Emerging Leaders<span class="el-badge-new">NOVO</span></button>
     <button data-page="fundamentals"><span class="ico">◔</span>Análise Fundamentalista</button>
     <button data-page="marketscans"><span class="ico">⌕</span>Scans de Mercado</button>
   </nav></div>
@@ -473,6 +475,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <section class="page" id="upgrade"></section>
 <section class="page" id="marketcycle"></section>
 <section class="page" id="relativestrength"></section>
+<section class="page" id="emergingleaders" aria-label="Emerging Leaders Scan"><div id="emergingLeadersRoot"></div></section>
 <section class="page active" id="dashboard"><div id="wealthDashboardRoot"></div>
 <!-- Legacy dashboard markup kept below temporarily for safe rollback.
   <div class="hero"><div><div class="eyebrow">Healthy trading workspace</div><h1>Clareza para decidir.<br>Disciplina para permanecer.</h1></div><div><p>O painel conecta patrimônio, risco, qualidade do contexto e execução. Cada número existe para melhorar o processo — não para estimular mais operações.</p><button class="primary" onclick="go('newtrade')">Planejar novo trade →</button></div></div>
@@ -733,7 +736,8 @@ const titles={today:'Hoje',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado
 titles.emotionalintelligence='Analisador Emocional';titles.forecast='Simulador de Resultados';
 titles.mistakesbook='Erros e lições';titles.masteredlessons='Lições Dominadas';
 titles.dailyroutine='Rotina Diária';
-function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=typeof uiText==='function'?uiText(titles[id]):titles[id];if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
+titles.emergingleaders='Emerging Leaders';
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=typeof uiText==='function'?uiText(titles[id]):titles[id];if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
 function marketCandles(seed=0,count=16){return Array.from({length:count},(_,i)=>{const h=18+((i*17+seed*11)%46),mb=7+((i*13+seed*7)%38),wick=h+13+((i*7+seed)%20),trend=i>count*.62?'down':'up';return `<i class="market-candle ${trend}" style="--h:${h}px;--mb:${mb}px;--wick:${wick}px"></i>`}).join('')}
 function setMarketRange(button){document.querySelectorAll('.market-range button').forEach(item=>item.classList.toggle('active',item===button));}
 function moneyBRL(value,decimals=2){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(value)}
@@ -1379,6 +1383,7 @@ const navigationTiles=[
   ['platformaccess','◷','Uso da Plataforma','Acompanhe sua jornada','25% 50%'],
   ['marketcycle','◌','Ciclo de Mercado','Leia o contexto do índice','50% 50%'],
   ['relativestrength','↗','Força Relativa','Encontre os ativos líderes','75% 50%'],
+  ['emergingleaders','<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="m3 9 4-4 4 4 6-6"/></svg>','Emerging Leaders','Descobrindo a próxima geração de líderes','75% 50%'],
   ['fundamentals','◔','Análise Fundamentalista','Avalie a qualidade financeira da empresa','100% 50%'],
   ['marketscans','⌕','Scans de Mercado','Radar de acontecimentos','0% 75%'],
   ['zen','◒','Trader Zen','Reconecte-se ao processo','25% 75%'],
@@ -2884,4 +2889,6 @@ renderEffectiveRiskPolicy();
 <script src="frontend/relative-strength-cache-recovery.js?v=20260916-2"></script>
 <script src="frontend/daily-routine-model.js"></script>
 <script src="frontend/daily-routine.js"></script>
+<script src="frontend/emerging-leaders-model.js"></script>
+<script src="frontend/emerging-leaders.js"></script>
 </body></html>
