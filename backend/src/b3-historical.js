@@ -52,18 +52,31 @@ function parseQuotes(text,symbols){
   }
   return values;
 }
-async function archive(year,{fetchImpl=fetch,cacheDirectory}){
+async function archive(year,{fetchImpl=fetch,cacheDirectory,force=false}={}){
   const file=cacheDirectory&&path.join(cacheDirectory,`cotahist-${year}.zip`);
-  try{return extractZip(await fs.readFile(file))}catch{}
-  const response=await fetchImpl(`${ARCHIVE}${year}.ZIP`);
-  if(!response.ok)throw Object.assign(new Error(`B3 HTTP ${response.status}`),{status:response.status});
-  const zip=Buffer.from(await response.arrayBuffer());
-  if(file){await fs.mkdir(cacheDirectory,{recursive:true});await fs.writeFile(file,zip)}
-  return extractZip(zip);
+  const currentYear=new Date().getFullYear();
+  const isCurrentYear=Number(year)===currentYear;
+  if(file&&!isCurrentYear&&!force){try{return extractZip(await fs.readFile(file))}catch{}}
+  if(file&&isCurrentYear&&!force){
+    try{
+      const stat=await fs.stat(file);
+      if(Date.now()-stat.mtimeMs<4*3600000){return extractZip(await fs.readFile(file))}
+    }catch{}
+  }
+  try{
+    const response=await fetchImpl(`${ARCHIVE}${year}.ZIP`);
+    if(!response.ok)throw Object.assign(new Error(`B3 HTTP ${response.status}`),{status:response.status});
+    const zip=Buffer.from(await response.arrayBuffer());
+    if(file){await fs.mkdir(cacheDirectory,{recursive:true});await fs.writeFile(file,zip)}
+    return extractZip(zip);
+  }catch(error){
+    if(file){try{return extractZip(await fs.readFile(file))}catch{}}
+    throw error;
+  }
 }
-async function fetchHistories(symbols,{years,fetchImpl,cacheDirectory}={}){
+async function fetchHistories(symbols,{years,fetchImpl,cacheDirectory,force=false}={}){
   const merged=new Map();
-  for(const year of years){for(const [symbol,items] of (await parseQuotes(await archive(year,{fetchImpl,cacheDirectory}),symbols)).entries())merged.set(symbol,[...(merged.get(symbol)||[]),...items])}
+  for(const year of years){for(const [symbol,items] of (await parseQuotes(await archive(year,{fetchImpl,cacheDirectory,force}),symbols)).entries())merged.set(symbol,[...(merged.get(symbol)||[]),...items])}
   return new Map([...merged].map(([symbol,items])=>[symbol,items.sort((a,b)=>a.date.localeCompare(b.date)).map(item=>({date:item.date,close:item.close}))]));
 }
 module.exports={parseLine,parseQuotes,fetchHistories,extractZip};

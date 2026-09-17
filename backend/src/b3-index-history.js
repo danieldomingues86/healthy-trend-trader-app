@@ -36,9 +36,20 @@ function parseYearMatrix(year, payload) {
   return rows.sort((a, b) => a.date.localeCompare(b.date));
 }
 
-async function readYear(cacheDirectory, index, year) {
+async function readYearWithMeta(cacheDirectory, index, year) {
   if (!cacheDirectory) return null;
-  try { return JSON.parse(await fs.readFile(path.join(cacheDirectory, `b3-index-${index}-${year}.json`), 'utf8')); } catch { return null; }
+  const filePath = path.join(cacheDirectory, `b3-index-${index}-${year}.json`);
+  try {
+    const [content, stat] = await Promise.all([fs.readFile(filePath, 'utf8'), fs.stat(filePath)]);
+    return { data: JSON.parse(content), mtimeMs: stat.mtimeMs };
+  } catch {
+    return null;
+  }
+}
+
+async function readYear(cacheDirectory, index, year) {
+  const meta = await readYearWithMeta(cacheDirectory, index, year);
+  return meta?.data || null;
 }
 
 async function writeYear(cacheDirectory, index, year, payload) {
@@ -47,20 +58,40 @@ async function writeYear(cacheDirectory, index, year, payload) {
   await fs.writeFile(path.join(cacheDirectory, `b3-index-${index}-${year}.json`), JSON.stringify(payload));
 }
 
-async function fetchIndexHistory(symbol, { years, fetchImpl = fetch, cacheDirectory } = {}) {
+async function fetchIndexHistory(symbol, { years, fetchImpl = fetch, cacheDirectory, force = false } = {}) {
   const index = b3IndexCode(symbol);
   if (!index) throw new Error(`Índice B3 não suportado: ${symbol}`);
   const selectedYears = [...new Set((years || []).map(Number).filter(Number.isInteger))];
   if (!selectedYears.length) throw new Error('Informe ao menos um ano para o histórico do índice B3.');
   const observations = new Map();
+  const currentYear = new Date().getFullYear();
   for (const year of selectedYears) {
-    let payload = await readYear(cacheDirectory, index, year);
+    const isCurrentYear = year === currentYear;
+    let payload = null;
+    let cached = null;
+    if (cacheDirectory) {
+      cached = await readYearWithMeta(cacheDirectory, index, year);
+      if (cached?.data) {
+        // Anos anteriores são definitivos. No ano atual, reutiliza apenas se atualizado há menos de 1 hora e sem force
+        if (!isCurrentYear || (!force && Date.now() - cached.mtimeMs < 3600000)) {
+          payload = cached.data;
+        }
+      }
+    }
     if (!payload) {
-      const url = `${B3_INDEX_HISTORY_API}${encodePayload(index, year)}`;
-      const response = await fetchImpl(url, { headers: { 'User-Agent': 'Healthy Trend Trader/1.0' } });
-      if (!response.ok) throw Object.assign(new Error(`B3 índices HTTP ${response.status}`), { status: response.status });
-      payload = await response.json();
-      await writeYear(cacheDirectory, index, year, payload);
+      try {
+        const url = `${B3_INDEX_HISTORY_API}${encodePayload(index, year)}`;
+        const response = await fetchImpl(url, { headers: { 'User-Agent': 'Healthy Trend Trader/1.0' } });
+        if (!response.ok) throw Object.assign(new Error(`B3 índices HTTP ${response.status}`), { status: response.status });
+        payload = await response.json();
+        await writeYear(cacheDirectory, index, year, payload);
+      } catch (error) {
+        if (cached?.data) {
+          payload = cached.data;
+        } else {
+          throw error;
+        }
+      }
     }
     for (const item of parseYearMatrix(year, payload)) observations.set(item.date, item);
   }

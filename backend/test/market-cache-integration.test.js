@@ -2,12 +2,12 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 test('Real market refresh functions share the provider guard and retain historical timestamps',async t=>{
  const directory=await fs.mkdtemp(path.join(os.tmpdir(),'htt-market-integration-'));
  const originalFetch=global.fetch;
- const oldCache=process.env.MARKET_CACHE_PATH,oldDirectory=process.env.BRAPI_CACHE_DIRECTORY;
+ const oldCache=process.env.MARKET_CACHE_PATH,oldDirectory=process.env.BRAPI_CACHE_DIRECTORY,oldLiveScans=process.env.ENABLE_BRAPI_LIVE_SCANS;
  const cacheFile=path.join(directory,'market.json');
- process.env.MARKET_CACHE_PATH=cacheFile;process.env.BRAPI_CACHE_DIRECTORY=path.join(directory,'provider');
+ process.env.MARKET_CACHE_PATH=cacheFile;process.env.BRAPI_CACHE_DIRECTORY=path.join(directory,'provider');process.env.ENABLE_BRAPI_LIVE_SCANS='true';
  const cache={updatedAt:'2026-09-09T20:00:00.000Z',historyUpdatedAt:'2026-09-09T20:00:00.000Z',relativeStrength:[{symbol:'PETR4',score:95,scan:{price:30,ema20:25,ema200:20}}],relativeStrengthByClass:{fii:{items:[]},bdr:{items:[]}}};
  await fs.writeFile(cacheFile,JSON.stringify(cache));
- t.after(async()=>{global.fetch=originalFetch;if(oldCache===undefined)delete process.env.MARKET_CACHE_PATH;else process.env.MARKET_CACHE_PATH=oldCache;if(oldDirectory===undefined)delete process.env.BRAPI_CACHE_DIRECTORY;else process.env.BRAPI_CACHE_DIRECTORY=oldDirectory;await fs.rm(directory,{recursive:true,force:true});});
+ t.after(async()=>{global.fetch=originalFetch;if(oldCache===undefined)delete process.env.MARKET_CACHE_PATH;else process.env.MARKET_CACHE_PATH=oldCache;if(oldDirectory===undefined)delete process.env.BRAPI_CACHE_DIRECTORY;else process.env.BRAPI_CACHE_DIRECTORY=oldDirectory;if(oldLiveScans===undefined)delete process.env.ENABLE_BRAPI_LIVE_SCANS;else process.env.ENABLE_BRAPI_LIVE_SCANS=oldLiveScans;await fs.rm(directory,{recursive:true,force:true});});
  let calls=0;
  global.fetch=async url=>{calls++;assert.match(String(url),/brapi\.dev/);return {ok:true,json:async()=>({results:[{symbol:'PETR4',regularMarketPrice:33}]})};};
  const market=require('../src/market-data');

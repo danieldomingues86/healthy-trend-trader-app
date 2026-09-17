@@ -23,6 +23,20 @@ test('coleta após o fechamento só é final quando inclui o pregão atual da B3
   assert.equal(hasCurrentHistoricalClose({ overview: { benchmarkHistory: [{ date: '20260914' }] } }, now), true);
 });
 
+test('expectedClosingDate calcula o fechamento devido considerando dias úteis e horário de fechamento', () => {
+  const { previousBusinessDay, expectedClosingDate } = require('../src/market-data');
+  // Segunda-feira às 14h (antes das 19h): espera fechamento da sexta-feira anterior
+  assert.equal(expectedClosingDate(new Date('2026-09-14T17:00:00Z')), '2026-09-11');
+  // Segunda-feira às 20h (após as 19h): espera fechamento da própria segunda-feira
+  assert.equal(expectedClosingDate(new Date('2026-09-14T23:00:00Z')), '2026-09-14');
+  // Domingo: espera fechamento da sexta-feira
+  assert.equal(expectedClosingDate(new Date('2026-09-13T15:00:00Z')), '2026-09-11');
+  // Quinta-feira às 15h: espera fechamento de quarta-feira
+  assert.equal(expectedClosingDate(new Date('2026-09-17T18:00:00Z')), '2026-09-16');
+  // Quinta-feira às 20h: espera fechamento de quinta-feira
+  assert.equal(expectedClosingDate(new Date('2026-09-17T23:00:00Z')), '2026-09-17');
+});
+
 test('série do Ciclo de Mercado é derivada do histórico real sem inventar observações', () => {
   const history = Array.from({ length: 230 }, (_, index) => ({
     date: `2026${String(Math.floor(index / 28) + 1).padStart(2, '0')}${String(index % 28 + 1).padStart(2, '0')}`,

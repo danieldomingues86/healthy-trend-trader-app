@@ -214,15 +214,23 @@ async function fetchHistories(symbols, batchSize = 10) {
   const normalized = [...new Set(symbols.map((symbol) => String(symbol).trim().toUpperCase()).filter(Boolean))];
   // Fechamentos oficiais da B3 são a fonte principal para a Força Relativa.
   // Índices continuam no fallback porque não constam no arquivo COTAHIST do mercado à vista.
-  const b3Symbols=normalized.filter(symbol=>!['^BVSP','SMLL','IFIX'].includes(symbol));
-  try{
-    const current=new Date().getFullYear(), b3=await b3Historical.fetchHistories(b3Symbols,{years:[current-1,current],cacheDirectory:B3_HISTORY_CACHE});
-    if(b3.size===b3Symbols.length){b3.source='b3-cotahist';return b3;}
-  }catch(error){/* contingência BRAPI abaixo */}
-  const chunks = Array.from({ length: Math.ceil(normalized.length / batchSize) }, (_, index) => normalized.slice(index * batchSize, (index + 1) * batchSize));
+  const b3Symbols = normalized.filter((symbol) => !['^BVSP', 'SMLL', 'IFIX'].includes(symbol));
+  let b3 = new Map();
+  try {
+    const current = new Date().getFullYear();
+    b3 = await b3Historical.fetchHistories(b3Symbols, { years: [current - 1, current], cacheDirectory: B3_HISTORY_CACHE });
+    if (b3.size === b3Symbols.length) { b3.source = 'b3-cotahist'; return b3; }
+  } catch (error) { /* contingência BRAPI abaixo */ }
+  const missing = normalized.filter((symbol) => !b3.has(symbol));
+  if (missing.length === 0 && b3.size > 0) {
+    b3.source = 'b3-cotahist';
+    return b3;
+  }
+  const chunks = Array.from({ length: Math.ceil(missing.length / batchSize) }, (_, index) => missing.slice(index * batchSize, (index + 1) * batchSize));
   const responses = await mapWithConcurrency(chunks, 2, async (chunk) => fetchHistoryBatch(chunk));
-  const histories = new Map();
+  const histories = new Map(b3);
   for (const response of responses) if (response instanceof Map) for (const [symbol, history] of response) histories.set(symbol, history);
+  histories.source = b3.size >= b3Symbols.length * 0.8 ? 'b3-cotahist' : 'brapi-fallback';
   return histories;
 }
 function overviewFrom(rows, benchmarkHistory) {
@@ -577,14 +585,42 @@ async function collectLiveScanQuotes(cache, now = new Date()) {
   await writeCache(next);
   return next;
 }
+function previousBusinessDay(date = new Date()) {
+  const d = new Date(date);
+  do {
+    d.setDate(d.getDate() - 1);
+  } while (!isBusinessDay(d));
+  return isoDate(d);
+}
+
+function expectedClosingDate(now = new Date()) {
+  const parts = saoPauloParts(now);
+  const hour = Number(parts.hour);
+  const isBday = isBusinessDay(now);
+  if (isBday && hour >= 19) return isoDate(now);
+  return previousBusinessDay(now);
+}
+
 async function refreshIfDue(now = new Date()) {
   const cached = await readCache();
+  if (!cached) return refreshMarketData();
   const afterClose = Number(saoPauloParts(now).hour) >= 19;
+  const isBday = isBusinessDay(now);
   const historicalDate = cached?.historyUpdatedAt || (!cached?.liveUpdatedAt ? cached?.updatedAt : null);
-  // Uma coleta pode ocorrer antes da B3 publicar a matriz final do dia. Só a
-  // tratamos como concluída se o último fechamento do benchmark for o pregão atual.
-  if (historicalDate && isoDate(new Date(historicalDate)) === isoDate(now) && hasCurrentHistoricalClose(cached, now)) return cached;
-  if (!isBusinessDay(now) || !afterClose) return cached;
+  const isHistoricalToday = historicalDate && isoDate(new Date(historicalDate)) === isoDate(now);
+
+  if (isBday && afterClose && isHistoricalToday && hasCurrentHistoricalClose(cached, now)) {
+    return cached;
+  }
+
+  const latestClose = historyDate(cached?.overview?.benchmarkHistory?.at(-1)?.date);
+  const expectedDate = expectedClosingDate(now);
+  if (latestClose && latestClose >= expectedDate) {
+    if (!isBday || !afterClose || hasCurrentHistoricalClose(cached, now)) {
+      return cached;
+    }
+  }
+
   return refreshMarketData();
 }
 
@@ -605,4 +641,4 @@ async function marketDataStatus() {
   return { blockedUntil: state.blockedUntil > Date.now() ? new Date(state.blockedUntil).toISOString() : null, reason: state.code, requestsToday: state.usage?.[new Date().toISOString().slice(0, 10)] || 0, trackedRequests: Object.values(state.usage || {}).reduce((a,b)=>a+b,0), liveQuoteIntervalMinutes: LIVE_QUOTE_MINUTES };
 }
 
-module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, marketCycleSeries, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose };
+module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, marketCycleSeries, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose, previousBusinessDay, expectedClosingDate };
