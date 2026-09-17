@@ -7,8 +7,19 @@
   'use strict';
 
   function renderDailyRoutineCard() {
-    const container = document.getElementById('dailyRoutineCardContainer');
-    if (!container) return;
+    let container = document.getElementById('dailyRoutineCardContainer');
+    if (!container) {
+      const todayPage = document.getElementById('today');
+      if (!todayPage) return;
+      container = document.createElement('div');
+      container.id = 'dailyRoutineCardContainer';
+      const mainCockpit = todayPage.querySelector('.today-cockpit') || todayPage.firstElementChild;
+      if (mainCockpit) {
+        todayPage.insertBefore(container, mainCockpit);
+      } else {
+        todayPage.prepend(container);
+      }
+    }
 
     const state = window.DailyRoutineModel.getTodayRoutineState();
     const remainingCount = state.totalCount - state.completedCount;
