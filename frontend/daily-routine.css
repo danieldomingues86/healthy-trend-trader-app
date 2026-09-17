@@ -387,12 +387,12 @@
    PAINEL DE CONFIGURAÇÕES — "Minha Rotina Diária"
    ========================================================================== */
 .dr-settings-panel {
-  background: var(--card-bg, rgba(20, 48, 36, 0.7));
-  border: 1px solid var(--border, rgba(143, 224, 170, 0.2));
-  border-radius: 18px;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--line, rgba(28, 72, 52, 0.12));
+  border-radius: 16px;
   padding: 22px;
   margin-top: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .dr-settings-list {
@@ -409,33 +409,33 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  background: #f4f8f5;
+  border: 1px solid #d8e5dc;
+  transition: all 0.2s ease;
 }
 
 .dr-settings-item:hover {
-  border-color: rgba(143, 224, 170, 0.35);
-  background: rgba(0, 0, 0, 0.35);
+  border-color: #48a56f;
+  background: #eef6f0;
 }
 
 .dr-settings-item input[type="text"] {
   flex: 1;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+  border: 1px solid #c8d8cc;
   border-radius: 8px;
   padding: 8px 12px;
-  color: #ffffff;
+  color: #173d30;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   outline: none;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .dr-settings-item input[type="text"]:focus {
-  border-color: #4edb8a;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 0 2px rgba(78, 219, 138, 0.2);
+  border-color: #173d30;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(23, 61, 48, 0.12);
 }
 
 .dr-settings-actions {
@@ -448,9 +448,9 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.08);
-  color: #c4d6cb;
+  border: 1px solid #c8d8cc;
+  background: #ffffff;
+  color: #38584d;
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -459,15 +459,15 @@
 }
 
 .dr-btn-icon:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #173d30;
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: #173d30;
 }
 
 .dr-btn-icon.danger:hover {
-  background: rgba(216, 130, 119, 0.3);
-  border-color: rgba(216, 130, 119, 0.6);
-  color: #ff9b8f;
+  background: #fdf2f0;
+  border-color: #e59a93;
+  color: #a55046;
 }
 
 .dr-add-form {
@@ -478,37 +478,42 @@
 
 .dr-add-form input {
   flex: 1;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+  border: 1px solid #c8d8cc;
   border-radius: 10px;
   padding: 10px 14px;
-  color: #ffffff;
+  color: #173d30;
   font-size: 13px;
+  font-weight: 500;
   outline: none;
   transition: border-color 0.2s ease;
 }
 
+.dr-add-form input::placeholder {
+  color: #7a9487;
+}
+
 .dr-add-form input:focus {
-  border-color: #4edb8a;
-  box-shadow: 0 0 0 2px rgba(78, 219, 138, 0.2);
+  border-color: #173d30;
+  box-shadow: 0 0 0 3px rgba(23, 61, 48, 0.12);
 }
 
 .dr-add-form button {
-  padding: 10px 20px;
+  padding: 10px 22px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #4edb8a 0%, #2f9e5f 100%);
-  color: #061910;
+  background: #173d30;
+  color: #ffffff;
   font-weight: 700;
   border: 0;
   cursor: pointer;
   font-size: 13px;
-  box-shadow: 0 4px 14px rgba(78, 219, 138, 0.25);
   transition: all 0.2s ease;
 }
 
 .dr-add-form button:hover {
+  background: #21513d;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(78, 219, 138, 0.35);
+  box-shadow: 0 4px 12px rgba(23, 61, 48, 0.2);
 }
 
 @media (max-width: 768px) {
