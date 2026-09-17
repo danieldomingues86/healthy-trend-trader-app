@@ -66,7 +66,7 @@
     ['Quando ocorre Peel-Off?','É uma redução de proteção quando o Ongoing Risk excede o limite definido. O sistema indica a redução necessária; a execução deve ser registrada. Não é uma realização de lucro automática.'],
     ['Como funciona o Risk Ramp-Up?','A exposição aumenta gradualmente conforme as condições e regras do método. Consulte o perfil ativo e os limites da Política de Risco; um score alto não autoriza ultrapassá-los.'],
     ['Onde altero patrimônio e percentuais do método?','Registre saldos e movimentações em Patrimônio. Ajuste os perfis, pesos e limites na Política de Risco e as preferências em Configurações.'],
-    ['Como usar o Emerging Leaders Scan?','O Emerging Leaders é um radar de descoberta inspirado em Mark Minervini. Ele identifica ações com forte desempenho relativo e resiliência durante correções. IMPORTANTE: Não compre apenas pelo score alto. Coloque os melhores candidatos na sua Watchlist e aguarde uma contração/bandeira no gráfico com Setup A+ antes de executar.'],
+    ['Como usar o Emerging Leaders Scan?','O Emerging Leaders é um radar de inteligência de mercado. Ele identifica ações com forte desempenho relativo e resiliência durante correções. IMPORTANTE: Não compre apenas pelo score alto. Coloque os melhores candidatos na sua Watchlist e aguarde uma contração/bandeira no gráfico com Setup A+ antes de executar.'],
   ];
   const steps = [
     ['globe','MARKET','Posso operar?','Analise o ciclo de mercado e obtenha permissão.','marketcycle'],
