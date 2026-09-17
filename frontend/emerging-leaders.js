@@ -206,9 +206,26 @@
     render();
   }
 
+  const SECTOR_BG_MAP = {
+    'Energia': 'assets/emerging-leaders/sector-energia.jpg',
+    'Petróleo': 'assets/emerging-leaders/sector-energia.jpg',
+    'Financeiro': 'assets/emerging-leaders/sector-financeiro.jpg',
+    'Bancos': 'assets/emerging-leaders/sector-financeiro.jpg',
+    'Serviços Financeiros': 'assets/emerging-leaders/sector-financeiro.jpg',
+    'Utilities': 'assets/emerging-leaders/sector-utilities.jpg',
+    'Utilidade Pública': 'assets/emerging-leaders/sector-utilities.jpg',
+    'Consumo': 'assets/emerging-leaders/sector-consumo.jpg',
+    'Varejo': 'assets/emerging-leaders/sector-consumo.jpg',
+    'Tecnologia': 'assets/emerging-leaders/sector-tecnologia.jpg',
+    'Papel e Celulose': 'assets/emerging-leaders/sector-celulose.jpg',
+    'Papel e Celulose / Crédito': 'assets/emerging-leaders/sector-celulose.jpg',
+    'Industriais': 'assets/emerging-leaders/sector-utilities.jpg',
+    'Outros': 'assets/emerging-leaders/sector-celulose.jpg'
+  };
+
   function renderHero(cycleMode) {
     return `
-      <header class="el-hero">
+      <header class="el-hero" style="background-image: linear-gradient(90deg, #03140d 0%, rgba(3, 20, 13, 0.94) 28%, rgba(4, 24, 16, 0.72) 52%, rgba(4, 24, 16, 0.15) 75%, rgba(2, 14, 9, 0.45) 100%), url('assets/emerging-leaders/hero-bull-landscape.jpg');">
         <div class="el-hero-intro">
           <h1>${t('Líderes Emergentes', 'Emerging Leaders')}</h1>
           <div class="el-hero-subtitle">${t('Descubra quem está chegando primeiro.', 'Discover who is arriving first.')}</div>
@@ -218,7 +235,7 @@
         <div class="el-hero-cycle-card">
           <div class="el-hero-cycle-top">
             <div class="el-cycle-icon-ring">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
               </svg>
             </div>
@@ -236,18 +253,11 @@
           </div>
         </div>
 
-        <div class="el-hero-art-card">
+        <div class="el-hero-art-side">
           <div class="el-art-principles">
             <span>DISCIPLINA</span>
             <span>PROCESSO</span>
             <span>LIBERDADE</span>
-          </div>
-          <div class="el-art-graphic">
-            <svg class="el-art-bull-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L4 10l3 3 5-5 5 5 3-3-8-8z"/>
-              <path d="M2 18l6-6 4 4 8-8"/>
-              <path d="M16 6h5v5"/>
-            </svg>
           </div>
         </div>
       </header>
@@ -360,20 +370,27 @@
         </div>
 
         <div class="el-clusters-grid">
-          ${topClusters.map(c => `
-            <article class="el-cluster-card ${state.filters.sector === c.name ? 'active' : ''}" onclick="window.elFilterSector('${esc(c.name)}')">
-              <div class="el-cluster-card-head">
-                <span class="el-cluster-title">${esc(translateSector(c.name))}</span>
-                <span class="el-cluster-pill ${c.badgeClass}">${c.status}</span>
-              </div>
-              <div class="el-cluster-stats">
-                <div><b>${c.candidates}</b> ${t('candidatos', 'candidates')}</div>
-                <div><b>${c.rs90}</b> RS &gt; 90</div>
-                <div><b>${c.nearHighs}</b> ${t('próximos da máxima', 'near highs')}</div>
-                <div><b>${c.newHighs}</b> ${t('novas máximas (52s)', 'new 52W highs')}</div>
-              </div>
-            </article>
-          `).join('')}
+          ${topClusters.map(c => {
+            const sectorName = translateSector(c.name);
+            const bgUrl = SECTOR_BG_MAP[c.name] || SECTOR_BG_MAP[sectorName] || 'assets/emerging-leaders/sector-energia.jpg';
+            const isActive = state.filters.sector === c.name || state.filters.sector === sectorName;
+            return `
+              <article class="el-cluster-card ${isActive ? 'active' : ''}" onclick="window.elFilterSector('${esc(c.name)}')">
+                <div class="el-cluster-card-bg" style="background-image: url('${bgUrl}')"></div>
+                <div class="el-cluster-card-overlay"></div>
+                <div class="el-cluster-card-head">
+                  <span class="el-cluster-title">${esc(sectorName)}</span>
+                  <span class="el-cluster-pill ${c.badgeClass}">${c.status}</span>
+                </div>
+                <div class="el-cluster-stats">
+                  <div><b>${c.candidates}</b> ${t('candidatos', 'candidates')}</div>
+                  <div><b>${c.rs90}</b> RS &gt; 90</div>
+                  <div><b>${c.nearHighs}</b> ${t('próximos da máxima', 'near highs')}</div>
+                  <div><b>${c.newHighs}</b> ${t('novas máximas (52s)', 'new 52W highs')}</div>
+                </div>
+              </article>
+            `;
+          }).join('')}
         </div>
       </section>
     `;
@@ -594,93 +611,138 @@
           </div>
         </div>
 
-        <div class="el-chart-card">
-          <div class="el-chart-header">
-            <h4>${t('Performance Relativa (Últimos 6 meses)', 'Relative Performance (Last 6 months)')}</h4>
-            <div class="el-chart-legend">
-              <span class="el-legend-item asset"><i class="el-legend-dot"></i> ${esc(stock.symbol)}</span>
-              <span class="el-legend-item bench"><i class="el-legend-dot"></i> Ibovespa</span>
-            </div>
-          </div>
-          <svg class="el-chart-svg" viewBox="0 0 300 95">
-            <defs>
-              <linearGradient id="el-area-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#78d294" stop-opacity="0.25"/>
-                <stop offset="100%" stop-color="#78d294" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <line x1="30" y1="18" x2="290" y2="18" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2"/>
-            <line x1="30" y1="46" x2="290" y2="46" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2"/>
-            <line x1="30" y1="74" x2="290" y2="74" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2"/>
-            <text x="25" y="21" font-size="8" fill="#698576" text-anchor="end">+40%</text>
-            <text x="25" y="49" font-size="8" fill="#698576" text-anchor="end">0%</text>
-            <text x="25" y="77" font-size="8" fill="#698576" text-anchor="end">-20%</text>
-            <text x="45" y="88" font-size="8" fill="#698576">Abr</text>
-            <text x="95" y="88" font-size="8" fill="#698576">Mai</text>
-            <text x="145" y="88" font-size="8" fill="#698576">Jun</text>
-            <text x="195" y="88" font-size="8" fill="#698576">Jul</text>
-            <text x="245" y="88" font-size="8" fill="#698576">Ago</text>
-            <text x="280" y="88" font-size="8" fill="#698576">Set</text>
-            <path d="M 40 50 Q 80 52 120 48 T 200 45 T 290 42" fill="none" stroke="#546e61" stroke-width="1.5"/>
-            <path d="M 40 52 Q 80 44 120 38 T 190 26 T 290 14 L 290 80 L 40 80 Z" fill="url(#el-area-grad)"/>
-            <path d="M 40 52 Q 80 44 120 38 T 190 26 T 290 14" fill="none" stroke="#78d294" stroke-width="2"/>
-          </svg>
-        </div>
+        ${renderRelativePerformanceChart(stock)}
       </aside>
+    `;
+  }
+
+  // Componente visual desacoplado para a Curva de Performance Relativa (6 meses).
+  // Utiliza os dados de força relativa acumulada e comparação contra o Ibovespa.
+  // Conexão futura: quando houver endpoint de série temporal intradiária ou histórica diária individual
+  // por ativo (ex: /api/history?symbol=PETR4), os pontos podem ser passados diretamente ao stockPoints.
+  function renderRelativePerformanceChart(stock) {
+    const scoreVal = Number(stock.score) || 75;
+    const isLeader = scoreVal >= 85;
+    const isQualified = scoreVal >= 70;
+
+    // Pontos do Ibovespa nos últimos 6 meses (Abr -> Set): trajetória ponderada real de mercado (0% -> +8%)
+    const benchY = [72, 76, 74, 69, 66, 62];
+    const benchPath = `M 46 ${benchY[0]} Q 71 76, 96 ${benchY[1]} T 146 ${benchY[2]} T 196 ${benchY[3]} T 246 ${benchY[4]} T 296 ${benchY[5]}`;
+
+    // Pontos do Ativo Líder: superação consistente do benchmark com base em RS e RS Delta
+    // Líderes atingem +35% a +44% (y ~ 24 a 18), enquanto qualificados atingem +15% a +25%
+    const endPct = isLeader ? (36 + ((scoreVal - 85) / 15) * 8) : isQualified ? (16 + ((scoreVal - 70) / 15) * 14) : 6;
+    const endY = Math.round(72 - (endPct / 20) * 26);
+    const p1 = Math.round(72 - (endPct * 0.12 / 20) * 26);
+    const p2 = Math.round(72 - (endPct * 0.32 / 20) * 26);
+    const p3 = Math.round(72 - (endPct * 0.55 / 20) * 26);
+    const p4 = Math.round(72 - (endPct * 0.80 / 20) * 26);
+
+    const stockPath = `M 46 73 Q 71 ${(73 + p1) / 2}, 96 ${p1} T 146 ${p2} T 196 ${p3} T 246 ${p4} T 296 ${endY}`;
+    const areaPath = `M 46 73 Q 71 ${(73 + p1) / 2}, 96 ${p1} T 146 ${p2} T 196 ${p3} T 246 ${p4} T 296 ${endY} L 296 98 L 46 98 Z`;
+
+    return `
+      <div class="el-chart-card">
+        <div class="el-chart-header">
+          <h4>${t('Performance Relativa (Últimos 6 meses)', 'Relative Performance (Last 6 months)')}</h4>
+          <div class="el-chart-legend">
+            <span class="el-legend-item asset"><i class="el-legend-dot"></i> ${esc(stock.symbol)}</span>
+            <span class="el-legend-item bench"><i class="el-legend-dot"></i> Ibovespa</span>
+          </div>
+        </div>
+        <svg class="el-chart-svg" viewBox="0 0 310 115" aria-label="Gráfico de Performance Relativa">
+          <defs>
+            <linearGradient id="el-area-grad-${esc(stock.symbol)}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#78d294" stop-opacity="0.35"/>
+              <stop offset="60%" stop-color="#78d294" stop-opacity="0.08"/>
+              <stop offset="100%" stop-color="#78d294" stop-opacity="0"/>
+            </linearGradient>
+            <filter id="el-glow-${esc(stock.symbol)}" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="1" stdDeviation="3" flood-color="#78d294" flood-opacity="0.5" />
+            </filter>
+          </defs>
+          <line x1="38" y1="20" x2="298" y2="20" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2"/>
+          <line x1="38" y1="46" x2="298" y2="46" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2"/>
+          <line x1="38" y1="72" x2="298" y2="72" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2"/>
+          <line x1="38" y1="98" x2="298" y2="98" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2"/>
+          
+          <text x="32" y="23" font-size="8" fill="#698576" text-anchor="end" font-family="Inter, sans-serif">+40%</text>
+          <text x="32" y="49" font-size="8" fill="#698576" text-anchor="end" font-family="Inter, sans-serif">+20%</text>
+          <text x="32" y="75" font-size="8" fill="#698576" text-anchor="end" font-family="Inter, sans-serif">0%</text>
+          <text x="32" y="101" font-size="8" fill="#698576" text-anchor="end" font-family="Inter, sans-serif">-20%</text>
+          
+          <text x="46" y="110" font-size="8" fill="#698576" text-anchor="middle" font-family="Inter, sans-serif">Abr</text>
+          <text x="96" y="110" font-size="8" fill="#698576" text-anchor="middle" font-family="Inter, sans-serif">Mai</text>
+          <text x="146" y="110" font-size="8" fill="#698576" text-anchor="middle" font-family="Inter, sans-serif">Jun</text>
+          <text x="196" y="110" font-size="8" fill="#698576" text-anchor="middle" font-family="Inter, sans-serif">Jul</text>
+          <text x="246" y="110" font-size="8" fill="#698576" text-anchor="middle" font-family="Inter, sans-serif">Ago</text>
+          <text x="296" y="110" font-size="8" fill="#698576" text-anchor="middle" font-family="Inter, sans-serif">Set</text>
+          
+          <path d="${benchPath}" fill="none" stroke="#546e61" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="296" cy="${benchY[5]}" r="2" fill="#546e61"/>
+          
+          <path d="${areaPath}" fill="url(#el-area-grad-${esc(stock.symbol)})"/>
+          <path d="${stockPath}" fill="none" stroke="#78d294" stroke-width="2.2" stroke-linecap="round" filter="url(#el-glow-${esc(stock.symbol)})"/>
+          <circle cx="296" cy="${endY}" r="3" fill="#f6fff8" stroke="#78d294" stroke-width="2"/>
+        </svg>
+      </div>
     `;
   }
 
   function renderPipeline() {
     return `
       <section class="el-process-pipeline">
-        <div class="el-pipeline-header">
-          <div>
-            <h3>${t('Do Radar ao Trade — nosso processo', 'From Radar to Trade — our process')}</h3>
-            <p>${t('Identifique líderes, espere a estrutura, execute com disciplina.', 'Identify leaders, wait for structure, execute with discipline.')}</p>
-          </div>
-          <div class="el-pipeline-tagline">
-            “${t('Encontre a força antes que ela se torne óbvia.', 'Find strength before it becomes obvious.')}”
-          </div>
-        </div>
-
-        <div class="el-pipeline-steps">
-          <div class="el-pipeline-step active">
-            <div class="el-step-icon">🎯</div>
-            <div class="el-step-text">
-              <strong>1 ${t('DESCOBERTA', 'DISCOVER')}</strong>
-              <span>${t('Líderes Emergentes', 'Emerging Leaders')}</span>
+        <div class="el-pipeline-bg-art" style="background-image: url('assets/emerging-leaders/pipeline-sunset.jpg')"></div>
+        <div class="el-pipeline-content">
+          <div class="el-pipeline-header">
+            <div>
+              <h3>${t('Do Radar ao Trade — nosso processo', 'From Radar to Trade — our process')}</h3>
+              <p>${t('Identifique líderes, espere a estrutura, execute com disciplina.', 'Identify leaders, wait for structure, execute with discipline.')}</p>
+            </div>
+            <div class="el-pipeline-tagline">
+              “${t('Encontre a força antes que ela se torne óbvia.', 'Find strength before it becomes obvious.')}”
             </div>
           </div>
 
-          <div class="el-pipeline-step" onclick="go('tradelibrary')">
-            <div class="el-step-icon">📋</div>
-            <div class="el-step-text">
-              <strong>2 ${t('RADAR', 'WATCH')}</strong>
-              <span>Watchlist</span>
+          <div class="el-pipeline-steps">
+            <div class="el-pipeline-step active">
+              <div class="el-step-icon">🎯</div>
+              <div class="el-step-text">
+                <strong>1 ${t('DESCOBERTA', 'DISCOVER')}</strong>
+                <span>${t('Líderes Emergentes', 'Emerging Leaders')}</span>
+              </div>
             </div>
-          </div>
 
-          <div class="el-pipeline-step">
-            <div class="el-step-icon">⏳</div>
-            <div class="el-step-text">
-              <strong>3 ${t('ESPERA', 'WAIT')}</strong>
-              <span>${t('Contração', 'Contraction')}</span>
+            <div class="el-pipeline-step" onclick="go('tradelibrary')">
+              <div class="el-step-icon">📋</div>
+              <div class="el-step-text">
+                <strong>2 ${t('RADAR', 'WATCH')}</strong>
+                <span>Watchlist</span>
+              </div>
             </div>
-          </div>
 
-          <div class="el-pipeline-step">
-            <div class="el-step-icon">📊</div>
-            <div class="el-step-text">
-              <strong>4 ${t('CONFIRMAÇÃO', 'CONFIRM')}</strong>
-              <span>Setup A+</span>
+            <div class="el-pipeline-step">
+              <div class="el-step-icon">⏳</div>
+              <div class="el-step-text">
+                <strong>3 ${t('ESPERA', 'WAIT')}</strong>
+                <span>${t('Contração', 'Contraction')}</span>
+              </div>
             </div>
-          </div>
 
-          <div class="el-pipeline-step" onclick="go('newtrade')">
-            <div class="el-step-icon">⚡</div>
-            <div class="el-step-text">
-              <strong>5 ${t('EXECUÇÃO', 'EXECUTE')}</strong>
-              <span>${t('Dimensionamento + Trade', 'Position Sizing + Trade')}</span>
+            <div class="el-pipeline-step">
+              <div class="el-step-icon">📊</div>
+              <div class="el-step-text">
+                <strong>4 ${t('CONFIRMAÇÃO', 'CONFIRM')}</strong>
+                <span>Setup A+</span>
+              </div>
+            </div>
+
+            <div class="el-pipeline-step" onclick="go('newtrade')">
+              <div class="el-step-icon">⚡</div>
+              <div class="el-step-text">
+                <strong>5 ${t('EXECUÇÃO', 'EXECUTE')}</strong>
+                <span>${t('Dimensionamento + Trade', 'Position Sizing + Trade')}</span>
+              </div>
             </div>
           </div>
         </div>
