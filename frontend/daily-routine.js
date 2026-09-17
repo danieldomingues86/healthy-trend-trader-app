@@ -75,6 +75,17 @@
               Uma boa rotina evita que grandes oportunidades passem despercebidas.
             </p>
           </div>
+          <div class="dr-hero-ritual-side">
+            <div class="dr-ritual-pill">Ritual Operacional</div>
+            <div class="dr-ritual-flow">
+              <span class="dr-ritual-step">1. Olhar</span>
+              <span class="dr-ritual-arrow">→</span>
+              <span class="dr-ritual-step">2. Marcar</span>
+              <span class="dr-ritual-arrow">→</span>
+              <span class="dr-ritual-step">3. Seguir</span>
+            </div>
+            <p class="dr-ritual-desc">Revisão ágil de todo o seu universo antes de qualquer execução.</p>
+          </div>
         </div>
 
         <div class="dr-progress-bar-container">
