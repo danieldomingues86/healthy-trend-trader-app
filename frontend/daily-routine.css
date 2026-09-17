@@ -3,6 +3,27 @@
    Identidade: Premium Gold & Healthy Green
    ========================================================================== */
 
+/* Padronização do ícone de navegação com os outros itens do menu */
+.sidebar .nav button[data-page="dailyroutine"] .ico svg,
+#topNavigationMenu button[data-page="dailyroutine"] .ico svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  flex-shrink: 0;
+}
+
+.navigation-hub-tile.tile-dailyroutine i svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+}
+
 /* Cobertura total de tela para widescreen e notebooks (15 polegadas) */
 body:has(#dailyroutine.active) .content {
   max-width: none !important;

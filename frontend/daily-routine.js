@@ -54,7 +54,9 @@
         
         <div class="dr-header">
           <div class="dr-header-title">
-            <div class="dr-header-icon">📋</div>
+            <div class="dr-header-icon">
+              <svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5H12a1.5 1.5 0 0 1 1.5 1.5v9.5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V4a1.5 1.5 0 0 1 1.5-1.5h1.5"/><rect x="5.5" y="1" width="5" height="3" rx="1"/><path d="M5.5 7.5h5M5.5 11h3.5"/></svg>
+            </div>
             <div class="dr-header-text">
               <h3>Rotina Diária</h3>
               <p>Seu processo antes da oportunidade.</p>
