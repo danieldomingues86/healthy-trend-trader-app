@@ -130,11 +130,15 @@
     `).join('');
 
     const html = `
-      <div class="dr-settings-panel">
-        <h4 style="margin:0 0 6px;font-size:16px;color:#fff;">Minha Rotina Diária</h4>
-        <p style="margin:0;font-size:12px;color:#9cbca8;">
-          Configure os mercados, ativos e verificações que você precisa olhar todos os dias antes de operar.
-        </p>
+      <div class="card dr-settings-panel">
+        <div class="card-head" style="margin-bottom:14px;">
+          <div>
+            <h3 style="margin:0 0 4px;font-size:16px;color:var(--ink,#fff);font-weight:700;">Minha Rotina Diária</h3>
+            <span style="font-size:12px;color:var(--muted,#9cbca8);line-height:1.4;">
+              Configure os mercados, ativos e verificações que você precisa olhar todos os dias antes de operar.
+            </span>
+          </div>
+        </div>
 
         <div class="dr-settings-list">
           ${itemsListMarkup}
