@@ -1,4 +1,4 @@
-﻿(function (root, factory) {
+(function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.EmergingLeadersModel = api;
@@ -132,7 +132,7 @@
     if (dist52w !== null && isFiniteNum(dist52w) && Number(dist52w) >= CONFIG.thresholds.newHighProximityPct) {
       return {
         key: 'new-high',
-        label: 'NEW HIGH',
+        label: 'NOVA MÁXIMA',
         badgeClass: 'new-high',
         color: '#62d48b'
       };
@@ -140,7 +140,7 @@
     if (score >= CONFIG.thresholds.emergingLeader) {
       return {
         key: 'emerging-leader',
-        label: 'EMERGING LEADER',
+        label: 'LÍDER EMERGENTE',
         badgeClass: 'emerging-leader',
         color: '#78d294'
       };
@@ -148,7 +148,7 @@
     if (score >= CONFIG.thresholds.strongCandidate) {
       return {
         key: 'strong-candidate',
-        label: 'STRONG CANDIDATE',
+        label: 'CANDIDATO FORTE',
         badgeClass: 'strong-candidate',
         color: '#d4af37'
       };
@@ -156,14 +156,14 @@
     if (score >= CONFIG.thresholds.improving) {
       return {
         key: 'improving',
-        label: 'IMPROVING',
+        label: 'EM EVOLUÇÃO',
         badgeClass: 'improving',
         color: '#66c0f4'
       };
     }
     return {
       key: 'not-confirmed',
-      label: 'NOT CONFIRMED',
+      label: 'NÃO CONFIRMADO',
       badgeClass: 'not-confirmed',
       color: '#94a99d'
     };
@@ -211,10 +211,10 @@
       let status = 'Em Formação';
       let badgeClass = 'developing';
       if (c.candidates >= 4 || (c.candidates >= 3 && c.rs90 >= 2)) {
-        status = 'Cluster Forte';
+        status = 'Grupo Forte';
         badgeClass = 'strong';
       } else if (c.candidates >= 2 || c.rs80 >= 2) {
-        status = 'Cluster Moderado';
+        status = 'Grupo Moderado';
         badgeClass = 'moderate';
       }
       return {
@@ -240,9 +240,9 @@
         state: 'transition',
         label: 'TRANSIÇÃO',
         discoveryModeActive: true,
-        modeBadge: 'Leadership Discovery Mode',
+        modeBadge: 'Modo Descoberta de Líderes',
         quote: '“Mercados ruins também revelam grandes oportunidades.”',
-        quoteAuthor: 'Mark Minervini',
+        quoteAuthor: 'Sabedoria de Mercado',
         color: '#c8f071'
       };
     }
@@ -253,7 +253,7 @@
         discoveryModeActive: false,
         modeBadge: 'Expansão Confirmada',
         quote: '“Líderes já estabelecidos; confirme o setup antes de executar.”',
-        quoteAuthor: 'Mark Minervini',
+        quoteAuthor: 'Sabedoria de Mercado',
         color: '#78d294'
       };
     }
@@ -263,7 +263,7 @@
       discoveryModeActive: false,
       modeBadge: 'Preservação de Capital',
       quote: '“Observe sem pressa; apenas acompanhe os líderes que resistem à queda.”',
-      quoteAuthor: 'Mark Minervini',
+      quoteAuthor: 'Sabedoria de Mercado',
       color: '#e4bf69'
     };
   }

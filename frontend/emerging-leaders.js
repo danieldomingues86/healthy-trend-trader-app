@@ -62,11 +62,45 @@
     }
   }
 
+  const SECTOR_TRANSLATIONS = {
+    'FINANCE': 'Financeiro',
+    'FINANCIAL': 'Financeiro',
+    'FINANCIAL SERVICES': 'Serviços Financeiros',
+    'RETAIL TRADE': 'Varejo',
+    'RETAIL': 'Varejo',
+    'TECHNOLOGY SERVICES': 'Tecnologia',
+    'TECHNOLOGY': 'Tecnologia',
+    'ENERGY': 'Energia',
+    'UTILITIES': 'Utilidade Pública',
+    'HEALTHCARE': 'Saúde',
+    'HEALTH SERVICES': 'Serviços de Saúde',
+    'INDUSTRIALS': 'Industriais',
+    'BASIC MATERIALS': 'Materiais Básicos',
+    'MATERIALS': 'Materiais Básicos',
+    'CONSUMER NON-DURABLES': 'Consumo Não Cíclico',
+    'CONSUMER DURABLES': 'Consumo Cíclico',
+    'CONSUMER SERVICES': 'Serviços ao Consumidor',
+    'CONSUMO': 'Consumo',
+    'COMMUNICATIONS': 'Comunicações',
+    'TELECOMMUNICATIONS': 'Telecomunicações',
+    'REAL ESTATE': 'Imobiliário',
+    'PAPEL/CRI': 'Papel e Celulose / Crédito',
+    'OUTROS': 'Outros'
+  };
+
+  function translateSector(name) {
+    if (!name) return 'Outros';
+    const clean = String(name).trim();
+    const upper = clean.toUpperCase();
+    return SECTOR_TRANSLATIONS[upper] || clean;
+  }
+
   function enrichStocks(items) {
     return items.map((item, index) => {
       const symbol = item.symbol;
       const name = item.name || symbol;
-      const sector = item.sector && item.sector !== 'Não classificado' ? item.sector : (index % 3 === 0 ? 'Energia' : index % 3 === 1 ? 'Financeiro' : 'Utilities');
+      const rawSector = item.sector && item.sector !== 'Não classificado' ? item.sector : (index % 3 === 0 ? 'Energia' : index % 3 === 1 ? 'Financeiro' : 'Utilities');
+      const sector = translateSector(rawSector);
       const rs = Number.isFinite(Number(item.score)) ? Number(item.score) : 75;
       
       const sixW = Number(item.relativeTrend?.change6w);
@@ -82,7 +116,7 @@
         ? Number(item.recovery)
         : Math.round(rs * 0.25 + (rsDelta > 0 ? rsDelta * 0.4 : 0));
 
-      const sectorLeadership = (sector === 'Energia' || sector === 'Financeiro') ? 'Cluster Forte' : (sector === 'Utilities' || sector === 'Consumo') ? 'Cluster Moderado' : 'Em Formação';
+      const sectorLeadership = (sector === 'Energia' || sector === 'Financeiro') ? 'Grupo Forte' : (sector === 'Utilities' || sector === 'Consumo') ? 'Grupo Moderado' : 'Em Formação';
 
       const scoreResult = window.EmergingLeadersModel.calculateCompositeScore({
         relativeStrength: rs,
@@ -176,7 +210,7 @@
     return `
       <header class="el-hero">
         <div class="el-hero-intro">
-          <h1>Emerging Leaders</h1>
+          <h1>${t('Líderes Emergentes', 'Emerging Leaders')}</h1>
           <div class="el-hero-subtitle">${t('Descubra quem está chegando primeiro.', 'Discover who is arriving first.')}</div>
           <p>${t('Os próximos líderes frequentemente começam a demonstrar força antes que o mercado pareça obviamente saudável.', 'Next-generation market leaders frequently begin demonstrating relative strength before the overall market looks obviously healthy.')}</p>
         </div>
@@ -189,7 +223,7 @@
               </svg>
             </div>
             <div>
-              <small>MARKET CYCLE</small>
+              <small>${t('CICLO DE MERCADO', 'MARKET CYCLE')}</small>
               <div>
                 <strong>${cycleMode.label}</strong>
                 <span class="el-mode-pill">${cycleMode.modeBadge}</span>
@@ -225,14 +259,14 @@
     const leaders = stocks.filter(s => s.score >= 85).length;
     const accelerating = stocks.filter(s => s.rsDelta >= 10).length;
     const clusters = window.EmergingLeadersModel.analyzeSectorClusters(stocks);
-    const leadingSectors = clusters.filter(c => c.status === 'Cluster Forte').length;
+    const leadingSectors = clusters.filter(c => c.status === 'Grupo Forte').length;
 
     return `
       <section class="el-kpi-row" aria-label="Métricas principais">
         <article class="el-kpi-card">
           <div class="el-kpi-icon mint">↗</div>
           <div class="el-kpi-body">
-            <div class="el-kpi-label">NEW 52W HIGHS</div>
+            <div class="el-kpi-label">${t('MÁXIMAS DE 52S', 'NEW 52W HIGHS')}</div>
             <div class="el-kpi-value">${newHighs || 12}</div>
             <div class="el-kpi-sub">
               <span>+33% vs. semana ant.</span>
@@ -250,7 +284,7 @@
         <article class="el-kpi-card">
           <div class="el-kpi-icon gold">🏆</div>
           <div class="el-kpi-body">
-            <div class="el-kpi-label">EMERGING LEADERS</div>
+            <div class="el-kpi-label">${t('LÍDERES EMERGENTES', 'EMERGING LEADERS')}</div>
             <div class="el-kpi-value">${leaders || 8}</div>
             <div class="el-kpi-sub">
               <span>Score ≥ 85</span>
@@ -267,7 +301,7 @@
         <article class="el-kpi-card">
           <div class="el-kpi-icon mint">⚡</div>
           <div class="el-kpi-body">
-            <div class="el-kpi-label">RS ACCELERATING</div>
+            <div class="el-kpi-label">${t('RS ACELERANDO', 'RS ACCELERATING')}</div>
             <div class="el-kpi-value">${accelerating || 23}</div>
             <div class="el-kpi-sub">
               <span>RS +10 (30d)</span>
@@ -284,10 +318,10 @@
         <article class="el-kpi-card">
           <div class="el-kpi-icon emerald">▦</div>
           <div class="el-kpi-body">
-            <div class="el-kpi-label">LEADING SECTORS</div>
+            <div class="el-kpi-label">${t('SETORES LÍDERES', 'LEADING SECTORS')}</div>
             <div class="el-kpi-value">${leadingSectors || 3}</div>
             <div class="el-kpi-sub">
-              <span>com cluster forte</span>
+              <span>${t('com grupo forte', 'with strong group')}</span>
               <div class="el-kpi-bars">
                 <span style="height:6px"></span>
                 <span style="height:8px" class="active"></span>
@@ -300,10 +334,10 @@
         <article class="el-kpi-card" style="cursor:pointer" onclick="go('marketcycle')">
           <div class="el-kpi-icon lime">🎯</div>
           <div class="el-kpi-body">
-            <div class="el-kpi-label">MARKET CYCLE</div>
+            <div class="el-kpi-label">${t('CICLO DE MERCADO', 'MARKET CYCLE')}</div>
             <div class="el-kpi-value" style="font-size:20px">${cycleMode.label} ›</div>
             <div class="el-kpi-sub">
-              <span style="color:#c8f071">Zona de descoberta</span>
+              <span style="color:#c8f071">${t('Zona de descoberta', 'Discovery zone')}</span>
             </div>
           </div>
         </article>
@@ -319,7 +353,7 @@
       <section class="el-clusters-section">
         <div class="el-clusters-head">
           <div>
-            <h2>Where Is Leadership Emerging?</h2>
+            <h2>${t('Onde a Liderança Está Surgindo?', 'Where Is Leadership Emerging?')}</h2>
             <p>${t('Setores com maior número de ações demonstrando força', 'Sectors with highest density of stocks showing structural strength')}</p>
           </div>
           <a class="el-clusters-link" onclick="window.elFilterSector('all')">${t('Ver todos os setores →', 'View all sectors →')}</a>
@@ -329,14 +363,14 @@
           ${topClusters.map(c => `
             <article class="el-cluster-card ${state.filters.sector === c.name ? 'active' : ''}" onclick="window.elFilterSector('${esc(c.name)}')">
               <div class="el-cluster-card-head">
-                <span class="el-cluster-title">${esc(c.name)}</span>
+                <span class="el-cluster-title">${esc(translateSector(c.name))}</span>
                 <span class="el-cluster-pill ${c.badgeClass}">${c.status}</span>
               </div>
               <div class="el-cluster-stats">
-                <div><b>${c.candidates}</b> candidatos</div>
+                <div><b>${c.candidates}</b> ${t('candidatos', 'candidates')}</div>
                 <div><b>${c.rs90}</b> RS &gt; 90</div>
-                <div><b>${c.nearHighs}</b> próximos da máxima</div>
-                <div><b>${c.newHighs}</b> new 52W highs</div>
+                <div><b>${c.nearHighs}</b> ${t('próximos da máxima', 'near highs')}</div>
+                <div><b>${c.newHighs}</b> ${t('novas máximas (52s)', 'new 52W highs')}</div>
               </div>
             </article>
           `).join('')}
@@ -393,7 +427,7 @@
               <div class="el-switch ${state.filters.onlyNewHighs ? 'on' : ''}">
                 <div class="el-switch-dot"></div>
               </div>
-              <span>${t('Apenas new highs', 'Only new highs')}</span>
+              <span>${t('Apenas novas máximas', 'Only new highs')}</span>
             </label>
 
             <div class="el-search-wrap">
@@ -414,8 +448,8 @@
                 <th>Score</th>
                 <th>RS</th>
                 <th>RS Δ (30d)</th>
-                <th>52W High</th>
-                <th>52W Range</th>
+                <th>${t('Máxima 52S', '52W High')}</th>
+                <th>${t('Range 52S', '52W Range')}</th>
                 <th>Resiliência</th>
                 <th>Recuperação</th>
                 <th>Status</th>
@@ -428,7 +462,7 @@
                   <td class="el-rank">${idx + 1}</td>
                   <td class="el-ticker">${esc(s.symbol)}</td>
                   <td class="el-stock-name">${esc(s.name)}</td>
-                  <td>${esc(s.sector)}</td>
+                  <td>${esc(translateSector(s.sector))}</td>
                   <td><span class="el-score-badge ${s.score >= 85 ? 'high' : 'medium'}">${s.score}</span></td>
                   <td><b>${s.rs}</b></td>
                   <td class="el-metric-mint">${s.rsDelta >= 0 ? '+' : ''}${s.rsDelta}</td>
@@ -494,10 +528,10 @@
           </div>
 
           <div class="el-score-actions">
-            <span class="el-score-name">Emerging Leader Score</span>
+            <span class="el-score-name">${t('Score Líder Emergente', 'Emerging Leader Score')}</span>
             <span class="el-status-pill ${stock.statusKey}">${stock.status}</span>
             <button type="button" class="el-btn-watchlist ${tracked ? 'tracked' : ''}" onclick="window.elToggleWatchlist('${esc(stock.symbol)}')">
-              ${tracked ? '★ Acompanhando na Watchlist' : '☆ Adicionar à Watchlist'}
+              ${tracked ? t('★ Acompanhando na Watchlist', '★ Tracking in Watchlist') : t('☆ Adicionar à Watchlist', '☆ Add to Watchlist')}
             </button>
           </div>
         </div>
@@ -505,7 +539,7 @@
         <div class="el-breakdown-list">
           <div class="el-breakdown-item">
             <div class="el-breakdown-meta">
-              <span class="el-breakdown-label">☆ Relative Strength</span>
+              <span class="el-breakdown-label">☆ ${t('Força Relativa', 'Relative Strength')}</span>
               <span class="el-breakdown-val">${stock.rs}</span>
             </div>
             <div class="el-breakdown-bar"><span style="width:${stock.rs}%"></span></div>
@@ -513,7 +547,7 @@
 
           <div class="el-breakdown-item">
             <div class="el-breakdown-meta">
-              <span class="el-breakdown-label">📈 RS Acceleration (30d)</span>
+              <span class="el-breakdown-label">📈 ${t('Aceleração de RS (30d)', 'RS Acceleration (30d)')}</span>
               <span class="el-breakdown-val el-metric-mint">+${stock.rsDelta}</span>
             </div>
             <div class="el-breakdown-bar"><span style="width:${Math.min(100, Math.max(10, stock.rsDelta * 5))}%"></span></div>
@@ -521,7 +555,7 @@
 
           <div class="el-breakdown-item">
             <div class="el-breakdown-meta">
-              <span class="el-breakdown-label">🎯 Dist. da Máxima 52s</span>
+              <span class="el-breakdown-label">🎯 ${t('Dist. da Máxima 52s', 'Dist. from 52w High')}</span>
               <span class="el-breakdown-val el-metric-gold">${pctBR(stock.dist52w)}</span>
             </div>
             <div class="el-breakdown-bar"><span style="width:${Math.max(10, 100 + stock.dist52w * 4)}%"></span></div>
@@ -529,7 +563,7 @@
 
           <div class="el-breakdown-item">
             <div class="el-breakdown-meta">
-              <span class="el-breakdown-label">📊 Posição no Range 52s</span>
+              <span class="el-breakdown-label">📊 ${t('Posição no Range 52s', 'Position in 52w Range')}</span>
               <span class="el-breakdown-val">${stock.rangePos}%</span>
             </div>
             <div class="el-breakdown-bar"><span style="width:${stock.rangePos}%"></span></div>
@@ -537,7 +571,7 @@
 
           <div class="el-breakdown-item">
             <div class="el-breakdown-meta">
-              <span class="el-breakdown-label">🛡 Resiliência (correção)</span>
+              <span class="el-breakdown-label">🛡 ${t('Resiliência (correção)', 'Resilience (correction)')}</span>
               <span class="el-breakdown-val">${esc(stock.resilience)}</span>
             </div>
             <div class="el-breakdown-bar"><span style="width:${stock.resilience === 'Forte' ? 100 : stock.resilience === 'Moderada' ? 65 : 30}%"></span></div>
@@ -545,7 +579,7 @@
 
           <div class="el-breakdown-item">
             <div class="el-breakdown-meta">
-              <span class="el-breakdown-label">⚡ Recovery Strength</span>
+              <span class="el-breakdown-label">⚡ ${t('Força de Recuperação', 'Recovery Strength')}</span>
               <span class="el-breakdown-val el-metric-mint">+${stock.recovery}%</span>
             </div>
             <div class="el-breakdown-bar"><span style="width:${Math.min(100, stock.recovery * 3.5)}%"></span></div>
@@ -553,8 +587,8 @@
 
           <div class="el-breakdown-item">
             <div class="el-breakdown-meta">
-              <span class="el-breakdown-label">🏢 Confirmação do Setor</span>
-              <span class="el-breakdown-val">${stock.sector === 'Energia' || stock.sector === 'Financeiro' ? 'Forte' : 'Moderada'}</span>
+              <span class="el-breakdown-label">🏢 ${t('Confirmação do Setor', 'Sector Confirmation')}</span>
+              <span class="el-breakdown-val">${stock.sector === 'Energia' || stock.sector === 'Financeiro' ? t('Grupo Forte', 'Strong Group') : t('Grupo Moderado', 'Moderate Group')}</span>
             </div>
             <div class="el-breakdown-bar"><span style="width:${stock.sector === 'Energia' || stock.sector === 'Financeiro' ? 100 : 70}%"></span></div>
           </div>
@@ -562,7 +596,7 @@
 
         <div class="el-chart-card">
           <div class="el-chart-header">
-            <h4>Performance Relativa (Últimos 6 meses)</h4>
+            <h4>${t('Performance Relativa (Últimos 6 meses)', 'Relative Performance (Last 6 months)')}</h4>
             <div class="el-chart-legend">
               <span class="el-legend-item asset"><i class="el-legend-dot"></i> ${esc(stock.symbol)}</span>
               <span class="el-legend-item bench"><i class="el-legend-dot"></i> Ibovespa</span>
@@ -601,11 +635,11 @@
       <section class="el-process-pipeline">
         <div class="el-pipeline-header">
           <div>
-            <h3>Do Radar ao Trade — nosso processo</h3>
+            <h3>${t('Do Radar ao Trade — nosso processo', 'From Radar to Trade — our process')}</h3>
             <p>${t('Identifique líderes, espere a estrutura, execute com disciplina.', 'Identify leaders, wait for structure, execute with discipline.')}</p>
           </div>
           <div class="el-pipeline-tagline">
-            “Find strength before it becomes obvious.”
+            “${t('Encontre a força antes que ela se torne óbvia.', 'Find strength before it becomes obvious.')}”
           </div>
         </div>
 
@@ -613,15 +647,15 @@
           <div class="el-pipeline-step active">
             <div class="el-step-icon">🎯</div>
             <div class="el-step-text">
-              <strong>1 DISCOVER</strong>
-              <span>Emerging Leaders</span>
+              <strong>1 ${t('DESCOBERTA', 'DISCOVER')}</strong>
+              <span>${t('Líderes Emergentes', 'Emerging Leaders')}</span>
             </div>
           </div>
 
           <div class="el-pipeline-step" onclick="go('tradelibrary')">
             <div class="el-step-icon">📋</div>
             <div class="el-step-text">
-              <strong>2 WATCH</strong>
+              <strong>2 ${t('RADAR', 'WATCH')}</strong>
               <span>Watchlist</span>
             </div>
           </div>
@@ -629,15 +663,15 @@
           <div class="el-pipeline-step">
             <div class="el-step-icon">⏳</div>
             <div class="el-step-text">
-              <strong>3 WAIT</strong>
-              <span>Contração</span>
+              <strong>3 ${t('ESPERA', 'WAIT')}</strong>
+              <span>${t('Contração', 'Contraction')}</span>
             </div>
           </div>
 
           <div class="el-pipeline-step">
             <div class="el-step-icon">📊</div>
             <div class="el-step-text">
-              <strong>4 CONFIRM</strong>
+              <strong>4 ${t('CONFIRMAÇÃO', 'CONFIRM')}</strong>
               <span>Setup A+</span>
             </div>
           </div>
@@ -645,8 +679,8 @@
           <div class="el-pipeline-step" onclick="go('newtrade')">
             <div class="el-step-icon">⚡</div>
             <div class="el-step-text">
-              <strong>5 EXECUTE</strong>
-              <span>Position Sizing + Trade</span>
+              <strong>5 ${t('EXECUÇÃO', 'EXECUTE')}</strong>
+              <span>${t('Dimensionamento + Trade', 'Position Sizing + Trade')}</span>
             </div>
           </div>
         </div>
@@ -662,7 +696,7 @@
       root.innerHTML = `
         <div style="padding:60px 20px;text-align:center;color:#8fe0aa">
           <div style="font-size:24px;margin-bottom:12px">⚡</div>
-          <b>${t('Carregando Emerging Leaders Scan…', 'Loading Emerging Leaders Scan…')}</b>
+          <b>${t('Carregando Líderes Emergentes…', 'Loading Emerging Leaders…')}</b>
           <div style="font-size:12px;color:#799485;margin-top:6px">${t('Calculando força relativa, aceleração e proximidade de máximas…', 'Calculating relative strength, acceleration and high proximity…')}</div>
         </div>
       `;

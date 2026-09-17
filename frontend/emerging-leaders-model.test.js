@@ -1,4 +1,4 @@
-﻿const test = require('node:test');
+const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
   CONFIG,
@@ -40,8 +40,9 @@ test('calculateDimensionScore maps each dimension properly', () => {
   assert.equal(calculateDimensionScore('recoveryStrength', 10), 55);
 
   // Sector Leadership
+  assert.equal(calculateDimensionScore('sectorLeadership', 'Grupo Forte'), 100);
   assert.equal(calculateDimensionScore('sectorLeadership', 'Cluster Forte'), 100);
-  assert.equal(calculateDimensionScore('sectorLeadership', 'Cluster Moderado'), 70);
+  assert.equal(calculateDimensionScore('sectorLeadership', 'Grupo Moderado'), 70);
   assert.equal(calculateDimensionScore('sectorLeadership', 'Em Formação'), 45);
 });
 
@@ -52,7 +53,7 @@ test('calculateCompositeScore combines 6 dimensions with correct default weights
     high52wProximity: -1.8,
     correctionResilience: 'Forte',
     recoveryStrength: 24,
-    sectorLeadership: 'Cluster Forte'
+    sectorLeadership: 'Grupo Forte'
   };
 
   const result = calculateCompositeScore(dimensions);
@@ -109,12 +110,12 @@ test('analyzeSectorClusters aggregates metrics and classifies cluster strength',
   assert.ok(energia);
   assert.equal(energia.candidates, 4);
   assert.equal(energia.rs90, 3);
-  assert.equal(energia.status, 'Cluster Forte');
+  assert.equal(energia.status, 'Grupo Forte');
 
   const financeiro = clusters.find(c => c.name === 'Financeiro');
   assert.ok(financeiro);
   assert.equal(financeiro.candidates, 3);
-  assert.equal(financeiro.status, 'Cluster Moderado');
+  assert.equal(financeiro.status, 'Grupo Moderado');
 
   const industriais = clusters.find(c => c.name === 'Industriais');
   assert.ok(industriais);
@@ -125,7 +126,7 @@ test('analyzeSectorClusters aggregates metrics and classifies cluster strength',
 test('marketCycleMode activates Leadership Discovery Mode in transition regime', () => {
   const trans = marketCycleMode('transition');
   assert.equal(trans.discoveryModeActive, true);
-  assert.equal(trans.modeBadge, 'Leadership Discovery Mode');
+  assert.equal(trans.modeBadge, 'Modo Descoberta de Líderes');
 
   const healthy = marketCycleMode('healthy');
   assert.equal(healthy.discoveryModeActive, false);
