@@ -9,16 +9,11 @@
   function renderDailyRoutineCard() {
     let container = document.getElementById('dailyRoutineCardContainer');
     if (!container) {
-      const todayPage = document.getElementById('today');
-      if (!todayPage) return;
+      const routinePage = document.getElementById('dailyroutine');
+      if (!routinePage) return;
       container = document.createElement('div');
       container.id = 'dailyRoutineCardContainer';
-      const mainCockpit = todayPage.querySelector('.today-cockpit') || todayPage.firstElementChild;
-      if (mainCockpit) {
-        todayPage.insertBefore(container, mainCockpit);
-      } else {
-        todayPage.prepend(container);
-      }
+      routinePage.appendChild(container);
     }
 
     const state = window.DailyRoutineModel.getTodayRoutineState();
@@ -201,17 +196,18 @@
     renderDailyRoutineCard();
   }
 
-  // Intercepta e expande a navegação global
   function init() {
-    renderDailyRoutineCard();
     renderDailyRoutineSettings();
+    if (document.getElementById('dailyroutine')?.classList.contains('active')) {
+      renderDailyRoutineCard();
+    }
 
-    // Hook na navegação para atualizar quando o usuário acessar 'today' ou 'settings'
+    // Hook na navegação para atualizar quando o usuário acessar 'dailyroutine' ou 'settings'
     const originalGo = window.go;
     if (typeof originalGo === 'function') {
       window.go = function (id) {
         originalGo(id);
-        if (id === 'today' || id === 'dashboard' || id === 'dailyroutine') {
+        if (id === 'dailyroutine') {
           renderDailyRoutineCard();
         }
         if (id === 'settings') {
