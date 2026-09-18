@@ -19,11 +19,21 @@
     } catch (error) { console.warn('Não foi possível carregar a watchlist.', error); watchedTickers = new Set(); }
   }
   async function toggleWatch(ticker) {
-    if (!window.healthyTrendApi?.isAuthenticated()) { showToast('Entre no workspace para acompanhar ativos.'); return; }
     const tracked = watchedTickers.has(ticker);
     try {
-      await window.healthyTrendApi.request(`/api/watchlist/${encodeURIComponent(ticker)}`, { method: tracked ? 'DELETE' : 'PUT', body: '{}' });
-      tracked ? watchedTickers.delete(ticker) : watchedTickers.add(ticker);
+      if (tracked) {
+        watchedTickers.delete(ticker);
+        if (window.healthyTrendApi?.isAuthenticated()) {
+          await window.healthyTrendApi.request(`/api/watchlist/${encodeURIComponent(ticker)}`, { method: 'DELETE' });
+        }
+      } else {
+        watchedTickers.add(ticker);
+        if (typeof window.addToWatchlist === 'function') {
+          await window.addToWatchlist(ticker, { origin: 'scans' });
+        } else if (window.healthyTrendApi?.isAuthenticated()) {
+          await window.healthyTrendApi.request(`/api/watchlist/${encodeURIComponent(ticker)}`, { method: 'PUT', body: JSON.stringify({ origin: 'scans' }) });
+        }
+      }
       render();
     } catch (error) { showToast(error.message || 'Não foi possível atualizar a watchlist.'); }
   }

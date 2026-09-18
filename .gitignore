@@ -6,3 +6,4 @@ backend/data/b3-index-history-cache/
 # Personal import sources, backups and reports (never commit account data).
 backend/data/evernote-imports/
 backend/backups/
+healthy-trend-trader-app/

@@ -43,18 +43,33 @@
   }
 
   async function toggleWatchlist(ticker) {
-    if (!window.healthyTrendApi?.isAuthenticated()) {
-      if (typeof showToast === 'function') showToast(t('Entre no workspace para acompanhar ativos.', 'Log in to track assets.'));
-      return;
-    }
     const tracked = rawData.watchedTickers.has(ticker);
+    const stock = (rawData.stocks || []).find(s => s.symbol === ticker) || {};
     try {
-      await window.healthyTrendApi.request(`/api/watchlist/${encodeURIComponent(ticker)}`, {
-        method: tracked ? 'DELETE' : 'PUT',
-        body: '{}'
-      });
-      if (tracked) rawData.watchedTickers.delete(ticker);
-      else rawData.watchedTickers.add(ticker);
+      if (tracked) {
+        rawData.watchedTickers.delete(ticker);
+        if (window.healthyTrendApi?.isAuthenticated()) {
+          await window.healthyTrendApi.request(`/api/watchlist/${encodeURIComponent(ticker)}`, { method: 'DELETE' });
+        }
+      } else {
+        rawData.watchedTickers.add(ticker);
+        if (typeof window.addToWatchlist === 'function') {
+          await window.addToWatchlist(ticker, {
+            origin: 'emerging-leaders',
+            rsScore: stock.rs,
+            distance52wPct: stock.dist52w,
+            price: stock.price,
+            name: stock.name,
+            sector: stock.sector,
+            emergingScore: stock.emergingScore || 85
+          });
+        } else if (window.healthyTrendApi?.isAuthenticated()) {
+          await window.healthyTrendApi.request(`/api/watchlist/${encodeURIComponent(ticker)}`, {
+            method: 'PUT',
+            body: JSON.stringify({ origin: 'emerging-leaders', rsScore: stock.rs })
+          });
+        }
+      }
       render();
     } catch (err) {
       if (typeof showToast === 'function') showToast(err.message || 'Erro ao atualizar watchlist.');

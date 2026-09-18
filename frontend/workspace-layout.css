@@ -73,6 +73,9 @@ body #relativestrength.rs-v3-page .rs-compact-content .relative-data-freshness i
     justify-content:flex-start;
   }
 }
+body:has(#watchlist.active) #marketFocusGuard {
+  display: none !important;
+}
 @media (min-width:1201px){
   .content{max-width:none;margin:0;padding:24px var(--workspace-gutter) 48px}
 
@@ -82,6 +85,7 @@ body #relativestrength.rs-v3-page .rs-compact-content .relative-data-freshness i
     margin:0 auto 20px!important;
   }
   body:has(#materials.active) #marketFocusGuard,
+  body:has(#watchlist.active) #marketFocusGuard,
   body:has(#emergingleaders.active) #marketFocusGuard{display:none}
   body:has(#habits.active) #marketFocusGuard,
   body:has(#settings.active) #marketFocusGuard{
@@ -89,7 +93,7 @@ body #relativestrength.rs-v3-page .rs-compact-content .relative-data-freshness i
     margin-inline:auto!important;
   }
 
-  .page.active:not(#journal):not(#zen):not(#manual):not(#wisdom):not(#tradelibrary):not(#emotionalintelligence):not(#emergingleaders){
+  .page.active:not(#journal):not(#zen):not(#manual):not(#wisdom):not(#tradelibrary):not(#emotionalintelligence):not(#emergingleaders):not(#watchlist){
     width:min(100%,var(--workspace-max-width));
     margin-inline:auto!important;
   }

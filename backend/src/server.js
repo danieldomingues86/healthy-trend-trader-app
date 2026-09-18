@@ -182,12 +182,28 @@ const server = http.createServer(async (request, response) => {
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, { items: await watchlist.list(user.id) });
     }
+    const watchlistArchiveMatch = url.pathname.match(/^\/api\/watchlist\/([^/]+)\/archive$/);
+    if (watchlistArchiveMatch && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const payload = await body(request);
+      return send(response, 200, { item: await watchlist.archive(user.id, watchlistArchiveMatch[1], payload) });
+    }
     const watchlistMatch = url.pathname.match(/^\/api\/watchlist\/([^/]+)$/);
     if (watchlistMatch && request.method === 'PUT') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
-      return send(response, 200, { item: await watchlist.add(user.id, watchlistMatch[1]) });
+      const payload = await body(request).catch(() => ({}));
+      return send(response, 200, { item: await watchlist.add(user.id, watchlistMatch[1], payload) });
+    }
+    if (watchlistMatch && request.method === 'PATCH') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const payload = await body(request);
+      return send(response, 200, { item: await watchlist.update(user.id, watchlistMatch[1], payload) });
     }
     if (watchlistMatch && request.method === 'DELETE') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
