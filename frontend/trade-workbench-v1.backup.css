@@ -1,0 +1,12 @@
+/* =========================================================================
+   ROLLBACK BACKUP: ORIGINAL NEW TRADE / WORKBENCH STYLES (V1)
+   Date: 2026-09-18
+   This file stores the original styles for instant recovery if needed.
+   ========================================================================= */
+
+#newtrade .hero{display:none}
+.trade-workbench{width:100%;min-height:calc(100vh - 146px);display:flex;flex-direction:column;color:#f5f8ff}
+.trade-workbench-head{padding:22px 26px;background:linear-gradient(115deg,#071323,#102740);border:1px solid rgba(103,151,213,.22);border-bottom:0;border-radius:22px 22px 0 0}
+.trade-workbench-grid{display:grid;grid-template-columns:minmax(280px,.94fr) minmax(330px,1.06fr) minmax(300px,.98fr);gap:16px;flex:1;min-height:0;padding:18px;background:linear-gradient(145deg,#07101d,#0c1728);border:1px solid rgba(103,151,213,.22);border-radius:0 0 22px 22px}
+.workbench-card{min-height:0;overflow:auto;padding:18px;border:1px solid rgba(126,169,226,.22);border-radius:17px;background:linear-gradient(155deg,rgba(19,35,57,.96),rgba(9,18,33,.96));box-shadow:inset 0 1px rgba(255,255,255,.05)}
+#newtrade .workbench-card #workbenchData .form-card{padding:18px!important;border-radius:16px;background:linear-gradient(145deg,#fffef9,#edf4eb)}

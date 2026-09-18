@@ -1,1 +1,1228 @@
-#dashboard{width:100%;max-width:none}.wealth-shell{width:100%;max-width:none!important;margin:0!important;padding:14px 0 46px;color:#153426}.wealth-top{position:relative;overflow:hidden;padding:24px 4px 16px;background:radial-gradient(circle at 77% 50%,rgba(119,170,139,.16),transparent 27%)}.wealth-top:after{content:'';position:absolute;right:4%;bottom:0;width:38%;height:78%;opacity:.23;background:linear-gradient(145deg,transparent 35%,#7da58e 36% 38%,transparent 39%),linear-gradient(35deg,transparent 52%,#547a67 53% 55%,transparent 56%);clip-path:polygon(0 100%,25% 40%,42% 69%,62% 10%,78% 62%,100% 0,100% 100%)}.wealth-top>*{position:relative;z-index:1}.wealth-heading{display:flex;justify-content:space-between;gap:24px;align-items:end}.wealth-heading h1{margin:5px 0 8px;font:700 clamp(42px,4vw,64px)/.95 Georgia,serif;letter-spacing:-.065em}.wealth-heading p{max-width:690px;margin:0;color:#677d70;font-size:14px;line-height:1.5}.wealth-period{min-width:165px;padding:11px 14px;border:1px solid #cbd9d0;border-radius:12px;background:#fdfefb;color:#244837;font-weight:800}.wealth-tabs{display:flex;gap:5px;margin-top:18px}.wealth-tabs button{border:0;border-radius:10px;padding:10px 16px;background:transparent;color:#61786a;font-weight:800}.wealth-tabs button.active{background:#143c2b;color:#fff;box-shadow:0 8px 17px rgba(10,54,34,.13)}.wealth-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.wealth-card{border:1px solid #d5e0d8;border-radius:16px;background:linear-gradient(145deg,#fff,#f5f8f4);box-shadow:0 12px 26px rgba(25,67,43,.07)}.wealth-kpi{position:relative;min-height:146px;padding:21px;overflow:hidden}.wealth-kpi:after{position:absolute;right:18px;top:18px;color:#4a9b70;font-size:29px}.wealth-kpi:nth-child(1):after{content:'◉'}.wealth-kpi:nth-child(2):after{content:'▥'}.wealth-kpi:nth-child(3):after{content:'◔'}.wealth-kpi:nth-child(4):after{content:'♨'}.wealth-kpi small,.wealth-section-kicker{display:block;color:#718579;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.wealth-kpi strong{display:block;margin:12px 0 8px;font-size:clamp(25px,1.75vw,35px);letter-spacing:-.055em;line-height:1}.wealth-kpi p{margin:0;color:#73857a;font-size:12px}.wealth-change{margin-top:10px!important;font-weight:800;color:#25834d!important}.wealth-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}.wealth-panel{padding:21px;min-height:350px}.wealth-panel header{display:flex;align-items:start;justify-content:space-between;gap:14px}.wealth-panel h2{margin:0;font-size:20px;letter-spacing:-.04em}.wealth-panel header p{margin:5px 0 0;color:#77887d;font-size:12px}.wealth-chart{width:100%;height:255px;margin-top:8px;overflow:visible}.wealth-chart .grid{stroke:#d9e4dc;stroke-width:1}.wealth-chart .axis-label,.wealth-chart .month-label{fill:#6d8175;font:11px Arial,sans-serif}.wealth-chart .line{fill:none;stroke:#258356;stroke-width:3.25}.wealth-chart .line.real{stroke:#c28a19}.wealth-chart .area{fill:url(#wealth-area)}.wealth-chart .dot{fill:#fff;stroke:#258356;stroke-width:3}.wealth-chart .dot.real{stroke:#c28a19}.wealth-bar-chart{height:215px;margin:12px 4px 0}.wealth-truth{margin-top:28px}.wealth-truth article{min-height:72px;padding:16px}.wealth-exposure{margin-top:27px}.wealth-empty{min-height:240px}.wealth-legend{font-size:12px}@media(max-width:1050px){.wealth-kpis{grid-template-columns:repeat(2,1fr)}.wealth-grid{grid-template-columns:1fr}.wealth-panel{min-height:290px}}@media(max-width:640px){.wealth-heading,.wealth-exposure{grid-template-columns:1fr;display:grid}.wealth-period{width:100%}.wealth-tabs{overflow:auto}.wealth-kpis,.wealth-truth{grid-template-columns:1fr}.wealth-kpi{min-height:auto}.wealth-panel{padding:15px}.wealth-chart{height:210px}}
+/* ==========================================================================
+   HEALTHY TREND TRADER — WEALTH DASHBOARD V2 (PATRIMÔNIO)
+   High-fidelity styles matching IMAGEM 2 reference
+   ========================================================================== */
+
+#dashboard {
+  width: 100%;
+  max-width: none;
+}
+
+.wealth-shell {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 8px 12px 48px;
+  color: #153426;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   1. TOP HERO & ARTISTIC HEADER (Integrated into page ground)
+   -------------------------------------------------------------------------- */
+header.wealth-top-hero,
+header.wealth-top-banner {
+  position: relative;
+  overflow: hidden; /* STRICTLY contains any internal art so it CANNOT leak */
+  padding: 6px 4px 14px;
+  margin-bottom: 20px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Subtle mountain watermark decoration: RESTRICTED EXCLUSIVELY to upper-right hero area */
+.wealth-hero-art {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 44%;
+  max-width: 520px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background-image: url('../assets/wealth-mountains-hero.jpg');
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  opacity: 0.22; /* Soft artistic watermark — NEVER competes with data or text */
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 40%, transparent 85%),
+                      linear-gradient(to bottom, rgba(0, 0, 0, 1) 30%, transparent 95%);
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 40%, transparent 85%),
+              linear-gradient(to bottom, rgba(0, 0, 0, 1) 30%, transparent 95%);
+}
+
+.wealth-dashboard-body {
+  position: relative;
+  z-index: 1;
+}
+
+.wealth-heading-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.wealth-title-block {
+  max-width: 720px;
+}
+
+.wealth-section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #2d6b49;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.wealth-section-kicker::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1.5px;
+  background-color: #2d6b49;
+}
+
+.wealth-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.wealth-main-title {
+  margin: 0;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-size: clamp(34px, 3.2vw, 44px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: #123424;
+}
+
+.wealth-main-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #556c5f;
+  max-width: 460px;
+}
+
+.wealth-artistic-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  text-align: right;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.artistic-quote {
+  margin: 0;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #1a4230;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85);
+}
+
+.wealth-period-select {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f4331;
+  background: #ffffff;
+  border: 1px solid #c9ded2;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.wealth-period-select:focus {
+  outline: none;
+  border-color: #2a8656;
+  box-shadow: 0 0 0 3px rgba(42, 134, 86, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   2. TABS NAVIGATION (Compact floating pill strip)
+   -------------------------------------------------------------------------- */
+.wealth-nav-tabs {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 14px;
+  padding: 3px 4px;
+  background: #ffffff;
+  border: 1px solid #dbe6df;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(18, 54, 35, 0.04);
+  width: fit-content;
+}
+
+.wealth-nav-tabs .tab-btn {
+  border: none;
+  background: transparent;
+  color: #557062;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.wealth-nav-tabs .tab-btn:hover {
+  color: #133827;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.wealth-nav-tabs .tab-btn.active {
+  background: #133827;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(19, 56, 39, 0.16);
+}
+
+/* --------------------------------------------------------------------------
+   3. FOUR TOP KPI CARDS
+   -------------------------------------------------------------------------- */
+.wealth-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.wealth-card {
+  position: relative;
+  border: 1px solid #dce6e0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 6px 20px rgba(18, 52, 34, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wealth-card:hover {
+  box-shadow: 0 10px 28px rgba(18, 52, 34, 0.07);
+}
+
+.wealth-kpi {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-icon-badge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eef6f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2a8656;
+}
+
+.kpi-icon-badge svg {
+  width: 18px;
+  height: 18px;
+}
+
+.kpi-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #63786c;
+  margin-bottom: 8px;
+}
+
+.kpi-value {
+  display: block;
+  font-size: clamp(23px, 1.8vw, 30px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  color: #123424;
+  margin-bottom: 6px;
+}
+
+.kpi-desc {
+  margin: 0;
+  font-size: 12px;
+  color: #74877c;
+  line-height: 1.4;
+}
+
+.kpi-badge-wrap {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+}
+
+.kpi-badge-pill {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 11.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.kpi-badge-pill.good {
+  background: #e8f5ed;
+  color: #1f824c;
+}
+
+.kpi-badge-pill.bad {
+  background: #fdeeee;
+  color: #c93b3b;
+}
+
+.kpi-badge-subtext {
+  color: #6d8276;
+  font-size: 11px;
+}
+
+/* --------------------------------------------------------------------------
+   4. CHARTS GRID (2 COLUMNS)
+   -------------------------------------------------------------------------- */
+.wealth-grid-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.wealth-panel {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.panel-header h2 {
+  margin: 0 0 4px;
+  font-size: 18.5px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #123424;
+}
+
+.panel-header p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #708477;
+  line-height: 1.4;
+}
+
+.panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.panel-pill-selector {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3b5c49;
+  background: #f1f6f3;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid #d8e5dc;
+  cursor: pointer;
+}
+
+.panel-badge-variation {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #eef6f1;
+}
+
+.panel-badge-variation.good {
+  color: #1f824c;
+  background: #eaf5ee;
+}
+
+.panel-badge-variation.bad {
+  color: #c93b3b;
+  background: #fbeeed;
+}
+
+/* SVG Chart Elements */
+.wealth-chart-container {
+  width: 100%;
+  height: 220px;
+  position: relative;
+}
+
+.wealth-chart-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.chart-grid-line {
+  stroke: #e6eee8;
+  stroke-width: 1;
+}
+
+.chart-grid-line.zero-axis {
+  stroke: #9bb0a3;
+  stroke-width: 1.25;
+}
+
+.chart-axis-label {
+  fill: #72877a;
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.chart-month-label {
+  fill: #617769;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Lines & Dots */
+.chart-line-real {
+  stroke: #258356;
+  stroke-width: 3.0;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-dot {
+  fill: #ffffff;
+  stroke: #258356;
+  stroke-width: 2.75;
+  transition: r 0.2s ease;
+  cursor: pointer;
+}
+
+.chart-dot:hover {
+  r: 6.5;
+  fill: #258356;
+  stroke: #ffffff;
+}
+
+.chart-line-strategy {
+  stroke: #1f7a4d;
+  stroke-width: 2.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-dot-strategy {
+  fill: #ffffff;
+  stroke: #1f7a4d;
+  stroke-width: 2.5;
+  cursor: pointer;
+}
+
+.chart-line-gold {
+  stroke: #c28a19;
+  stroke-width: 2.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-dot-gold {
+  fill: #ffffff;
+  stroke: #c28a19;
+  stroke-width: 2.5;
+  cursor: pointer;
+}
+
+.callout-bg {
+  fill: #133827;
+  filter: drop-shadow(0 3px 6px rgba(19, 56, 39, 0.25));
+}
+
+.callout-text {
+  fill: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* --------------------------------------------------------------------------
+   5. COMPARISON SPLIT LAYOUT (Estratégia x Patrimônio Real)
+   -------------------------------------------------------------------------- */
+.comparison-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 170px;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.comparison-chart-wrapper {
+  width: 100%;
+  height: 220px;
+}
+
+.comparison-side-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 12px;
+  border-left: 1px solid #e5eee8;
+}
+
+.side-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.side-metric-item .dot-label {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.side-metric-item .dot-label.strategy {
+  color: #1f7a4d;
+}
+
+.side-metric-item .dot-label.gold {
+  color: #b58014;
+}
+
+.side-metric-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: #123424;
+  letter-spacing: -0.02em;
+}
+
+.side-metric-item.highlight {
+  margin-top: 4px;
+}
+
+.side-metric-rate {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.side-metric-rate.good {
+  color: #1f824c;
+}
+
+.side-metric-rate.bad {
+  color: #c93b3b;
+}
+
+.side-metric-caption {
+  font-size: 10.5px;
+  color: #74877c;
+  line-height: 1.3;
+}
+
+/* --------------------------------------------------------------------------
+   6. FLOW SPLIT LAYOUT (Aportes e Retiradas)
+   -------------------------------------------------------------------------- */
+.panel-legend-flow {
+  display: flex;
+  gap: 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.legend-box.deposit {
+  color: #2fa866;
+}
+
+.legend-box.withdrawal {
+  color: #e55353;
+}
+
+.flow-split-layout {
+  display: grid;
+  grid-template-columns: 1fr 165px;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+}
+
+.flow-chart-wrapper {
+  width: 100%;
+  height: 220px;
+}
+
+.bar-deposit {
+  fill: #2fa866;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.bar-deposit:hover {
+  fill: #248f55;
+}
+
+.bar-withdrawal {
+  fill: #e55353;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.bar-withdrawal:hover {
+  fill: #cc4242;
+}
+
+.bar-return-positive {
+  fill: #2fa866;
+  cursor: pointer;
+}
+
+.bar-return-negative {
+  fill: #e55353;
+  cursor: pointer;
+}
+
+.flow-summary-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 12px;
+  border-left: 1px solid #e5eee8;
+}
+
+.flow-metric-box {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.flow-label {
+  font-size: 11px;
+  color: #6d8275;
+  font-weight: 600;
+}
+
+.flow-value {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.flow-value.deposit {
+  color: #1f824c;
+}
+
+.flow-value.withdrawal {
+  color: #c93b3b;
+}
+
+.flow-value.good {
+  color: #1f824c;
+}
+
+.flow-value.bad {
+  color: #c93b3b;
+}
+
+/* --------------------------------------------------------------------------
+   7. AS DUAS VERDADES DA CONTA
+   -------------------------------------------------------------------------- */
+.wealth-panel.truth-panel {
+  background: linear-gradient(145deg, #fcfaf4 0%, #faf6eb 100%);
+  border: 1px solid #e8dfce;
+  box-shadow: 0 8px 24px rgba(85, 69, 32, 0.05);
+}
+
+.truth-cards-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.truth-item-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid #e9e0d1;
+  box-shadow: 0 2px 8px rgba(90, 75, 40, 0.03);
+}
+
+.truth-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f5eedf;
+  color: #8c6a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.truth-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.truth-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #796a50;
+  margin-bottom: 3px;
+}
+
+.truth-val {
+  font-size: 18.5px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #2e2617;
+  line-height: 1.2;
+}
+
+.truth-sub {
+  font-size: 11px;
+  color: #8c7d65;
+  margin-top: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   8. EXPOSIÇÃO ATUAL
+   -------------------------------------------------------------------------- */
+.exposure-layout {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 18px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.exposure-data-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exposure-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #e2ebe6;
+}
+
+.exposure-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.exposure-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #556c5f;
+}
+
+.exposure-val-wrap {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.exposure-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #123424;
+  letter-spacing: -0.02em;
+}
+
+.exposure-hint {
+  font-size: 11px;
+  color: #72877b;
+}
+
+.exposure-hint.safe {
+  color: #1f824c;
+  font-weight: 700;
+}
+
+.exposure-policy-card {
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: #eef6f1;
+  border: 1px solid #c7ded1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.policy-status-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.policy-check-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2a8656;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.policy-status-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #185233;
+}
+
+.policy-status-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #496655;
+}
+
+.btn-policy-link {
+  align-self: flex-start;
+  margin-top: 4px;
+  border: 1px solid #b2d2c0;
+  background: #ffffff;
+  color: #185233;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-policy-link:hover {
+  background: #185233;
+  color: #ffffff;
+  border-color: #185233;
+}
+
+/* --------------------------------------------------------------------------
+   9. FOOTER
+   -------------------------------------------------------------------------- */
+.wealth-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 4px 0;
+  border-top: 1px solid #dbe6df;
+  margin-top: 24px;
+}
+
+.footer-update-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #72877b;
+}
+
+.footer-update-info .info-icon {
+  font-size: 13px;
+  color: #3b7454;
+}
+
+.footer-calligraphy em {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  color: #708679;
+}
+
+/* --------------------------------------------------------------------------
+   10. OTHER TABS (Movimentações, Alocação, Histórico, Metas)
+   -------------------------------------------------------------------------- */
+.wealth-tab-panel {
+  padding: 28px;
+}
+
+.tab-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5eee8;
+}
+
+.tab-panel-header h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #123424;
+}
+
+.tab-panel-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #607568;
+}
+
+.tab-header-stat {
+  text-align: right;
+}
+
+.tab-header-stat small {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #71877a;
+}
+
+.tab-header-stat strong {
+  font-size: 20px;
+  font-weight: 800;
+  color: #123424;
+}
+
+.wealth-tab-columns {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 28px;
+}
+
+.wealth-form {
+  padding: 20px;
+  border-radius: 14px;
+  background: #f7faf8;
+  border: 1px solid #dbe7df;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wealth-form h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #133827;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-field label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #496354;
+}
+
+.form-field input,
+.form-field select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #c7dbcf;
+  background: #ffffff;
+  font-size: 13px;
+  color: #153426;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: #2a8656;
+  box-shadow: 0 0 0 2px rgba(42, 134, 86, 0.15);
+}
+
+.wealth-form button.primary {
+  margin-top: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #133827;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.wealth-form button.primary:hover {
+  background: #1c5239;
+}
+
+.wealth-record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wealth-record-list h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #133827;
+}
+
+.record-item {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #e1ebe4;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.record-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.record-type {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.record-type.deposit {
+  color: #1f824c;
+}
+
+.record-type.withdrawal {
+  color: #c93b3b;
+}
+
+.record-date {
+  font-size: 11.5px;
+  color: #798f82;
+}
+
+.record-class {
+  font-size: 11px;
+  color: #798f82;
+}
+
+.record-amount {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #123424;
+}
+
+.record-amount.good {
+  color: #1f824c;
+}
+
+.record-amount.bad {
+  color: #c93b3b;
+}
+
+.record-bar-container {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #edf3ef;
+  overflow: hidden;
+}
+
+.record-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #2a8656;
+}
+
+.record-note {
+  width: 100%;
+  font-size: 11.5px;
+  color: #748a7d;
+}
+
+.wealth-goals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.goal-card {
+  padding: 22px;
+  border-radius: 14px;
+  background: #f7faf8;
+  border: 1px solid #dbe7df;
+  display: flex;
+  flex-direction: column;
+}
+
+.goal-kicker {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #3b7454;
+  margin-bottom: 6px;
+}
+
+.goal-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #123424;
+}
+
+.goal-card p {
+  margin: 0 0 16px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #5c7365;
+  flex-grow: 1;
+}
+
+.goal-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #e1ebe4;
+  font-size: 12px;
+  font-weight: 700;
+  color: #184831;
+}
+
+.goal-progress .good {
+  color: #1f824c;
+}
+
+.goal-pct {
+  color: #71897c;
+  font-weight: 600;
+}
+
+.wealth-chart-empty {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #72877a;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   11. RESPONSIVE BREAKPOINTS
+   -------------------------------------------------------------------------- */
+@media (max-width: 1120px) {
+  .wealth-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .truth-cards-row {
+    grid-template-columns: 1fr;
+  }
+  .exposure-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .wealth-grid-row {
+    grid-template-columns: 1fr;
+  }
+  .comparison-split-layout,
+  .flow-split-layout {
+    grid-template-columns: 1fr;
+  }
+  .comparison-side-metrics,
+  .flow-summary-metrics {
+    border-left: none;
+    border-top: 1px solid #e5eee8;
+    padding-left: 0;
+    padding-top: 14px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .wealth-heading-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .wealth-artistic-aside {
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+  }
+  .wealth-tab-columns {
+    grid-template-columns: 1fr;
+  }
+  .wealth-goals-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 580px) {
+  .wealth-kpis {
+    grid-template-columns: 1fr;
+  }
+  .panel-header {
+    flex-direction: column;
+  }
+  .panel-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .wealth-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

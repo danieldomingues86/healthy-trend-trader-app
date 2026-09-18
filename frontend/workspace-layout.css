@@ -9,6 +9,9 @@
   body:has(#relativestrength.active) .sidebar{width:248px;min-width:248px;max-width:248px;padding:26px 18px}
   body:has(#relativestrength.active) .nav-group{margin:10px 0 22px}
   body:has(#relativestrength.active) .sidebar .nav button{padding:12px 14px;font-size:14px}
+  body.sidebar-collapsed .app{grid-template-columns:72px minmax(0,1fr)!important}
+  body.sidebar-collapsed .sidebar{width:72px!important;min-width:72px!important;max-width:72px!important;padding:18px 8px!important}
+  body.sidebar-collapsed:has(#relativestrength.active) .sidebar{width:72px!important;min-width:72px!important;max-width:72px!important;padding:18px 8px!important}
 }
 
 /* O menu superior é uma barra completa, não uma barra lateral comprimida. */
