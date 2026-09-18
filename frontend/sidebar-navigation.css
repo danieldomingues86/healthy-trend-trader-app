@@ -1,0 +1,541 @@
+/* ==========================================================================
+   HEALTHY TREND TRADER - COMPACT SIDEBAR & FLYOUT SUBMENUS
+   Design: Healthy Dark Emerald (#02130c) - 100% Immersive & Scalable
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. APP GRID & SIDEBAR CONTAINER ADAPTATION
+   -------------------------------------------------------------------------- */
+@media (min-width: 801px) {
+  .app {
+    display: grid !important;
+    grid-template-columns: 248px minmax(0, 1fr) !important;
+    transition: grid-template-columns 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body.sidebar-collapsed .app {
+    grid-template-columns: 72px minmax(0, 1fr) !important;
+  }
+
+  .sidebar {
+    width: 248px !important;
+    min-width: 248px !important;
+    max-width: 248px !important;
+    padding: 18px 12px !important;
+    box-sizing: border-box !important;
+    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                min-width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                max-width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow-x: visible !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(143, 224, 170, 0.2) transparent;
+  }
+
+  body.sidebar-collapsed .sidebar {
+    width: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+    padding: 18px 8px !important;
+  }
+}
+
+/* Custom scrollbar for sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(143, 224, 170, 0.2);
+  border-radius: 4px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(143, 224, 170, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   2. SIDEBAR HEADER & COLLAPSE TOGGLE
+   -------------------------------------------------------------------------- */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 4px 16px 4px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(143, 224, 170, 0.12);
+  min-height: 44px;
+}
+
+.sidebar-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  min-width: 0;
+  flex: 1;
+}
+
+.sidebar-brand-mark {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(143, 224, 170, 0.45);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(143, 224, 170, 0.08);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-brand-mark:before {
+  content: "";
+  width: 9px;
+  height: 20px;
+  border: 1.6px solid #8fe0aa;
+  border-radius: 50% 0 50% 0;
+  transform: rotate(8deg);
+}
+
+.sidebar-brand-link:hover .sidebar-brand-mark {
+  transform: scale(1.05);
+  border-color: #8fe0aa;
+}
+
+.sidebar-brand-titles {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-brand-titles strong {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f6fff8;
+  letter-spacing: -0.2px;
+}
+
+.sidebar-brand-titles em {
+  font-style: normal;
+  color: #78d294;
+}
+
+.sidebar-brand-titles small {
+  font-size: 8.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #789987;
+  margin-top: 1px;
+}
+
+body.sidebar-collapsed .sidebar-brand-titles {
+  display: none !important;
+}
+
+/* Collapse Toggle Button */
+.sidebar-collapse-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(143, 224, 170, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #a3baa9;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.sidebar-collapse-btn:hover {
+  background: rgba(143, 224, 170, 0.12);
+  color: #ffffff;
+  border-color: rgba(143, 224, 170, 0.4);
+  transform: scale(1.05);
+}
+
+body.sidebar-collapsed .sidebar-header {
+  justify-content: center;
+  padding: 0 0 16px 0;
+}
+
+body.sidebar-collapsed .sidebar-collapse-btn {
+  margin-top: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   3. NAVIGATION GROUPS & BUTTONS
+   -------------------------------------------------------------------------- */
+.sidebar-nav-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sidebar-group-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #638271;
+  padding: 0 10px 5px;
+  user-select: none;
+}
+
+body.sidebar-collapsed .sidebar-group-label {
+  display: none !important;
+}
+
+/* Item Button */
+.sidebar-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9.5px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #aec0b7;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.sidebar-btn:hover {
+  background: rgba(143, 224, 170, 0.08);
+  color: #f6fff8;
+  border-color: rgba(143, 224, 170, 0.16);
+}
+
+.sidebar-btn.active {
+  background: linear-gradient(105deg, #164e35, #277953) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border-color: rgba(143, 224, 170, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(22, 78, 53, 0.35) !important;
+}
+
+/* Active parent group button */
+.sidebar-btn.parent-active {
+  background: rgba(143, 224, 170, 0.14) !important;
+  color: #8fe0aa !important;
+  font-weight: 600 !important;
+  border-color: rgba(143, 224, 170, 0.3) !important;
+}
+
+.sidebar-btn.parent-active .sidebar-btn-arrow {
+  color: #8fe0aa;
+}
+
+.sidebar-btn.flyout-open {
+  background: rgba(143, 224, 170, 0.12);
+  border-color: rgba(143, 224, 170, 0.3);
+  color: #f6fff8;
+}
+
+.sidebar-btn-ico {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.sidebar-btn-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.sidebar-btn-arrow {
+  font-size: 14px;
+  line-height: 1;
+  color: #638271;
+  transition: transform 0.2s ease, color 0.2s ease;
+  margin-left: auto;
+}
+
+.sidebar-btn.flyout-open .sidebar-btn-arrow {
+  transform: translateX(3px);
+  color: #34d399;
+}
+
+body.sidebar-collapsed .sidebar-btn {
+  justify-content: center;
+  padding: 10px 0;
+}
+
+body.sidebar-collapsed .sidebar-btn-label,
+body.sidebar-collapsed .sidebar-btn-arrow {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. FLYOUT SUBMENU
+   -------------------------------------------------------------------------- */
+.sidebar-flyout {
+  position: fixed;
+  z-index: 9999;
+  width: 295px;
+  background: rgba(3, 22, 15, 0.96);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 14px;
+  padding: 14px 12px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.7),
+              0 0 0 1px rgba(255, 255, 255, 0.04);
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-6px) scale(0.98);
+  transition: opacity 0.16s ease-out, transform 0.16s ease-out, visibility 0.16s;
+  pointer-events: none;
+}
+
+.sidebar-flyout.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Safe invisible hover bridge between sidebar item and flyout */
+.sidebar-flyout:before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  bottom: -12px;
+  left: -20px;
+  width: 20px;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.flyout-header {
+  padding: 2px 6px 10px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(143, 224, 170, 0.14);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8fe0aa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flyout-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flyout-item-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #dcece2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.flyout-item-link:hover {
+  background: rgba(143, 224, 170, 0.1);
+  border-color: rgba(143, 224, 170, 0.24);
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+.flyout-item-link.active {
+  background: linear-gradient(105deg, #134931, #1d6844) !important;
+  border-color: rgba(143, 224, 170, 0.4) !important;
+  color: #ffffff !important;
+}
+
+.flyout-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(143, 224, 170, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  color: #34d399;
+  transition: background 0.16s ease;
+}
+
+.flyout-item-link:hover .flyout-item-icon {
+  background: rgba(143, 224, 170, 0.2);
+}
+
+.flyout-item-link.active .flyout-item-icon {
+  background: rgba(143, 224, 170, 0.25);
+  color: #ffffff;
+}
+
+.flyout-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.flyout-item-title {
+  font-size: 13px;
+  font-weight: 650;
+  color: #ffffff;
+  line-height: 1.25;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flyout-item-desc {
+  font-size: 11px;
+  color: #8caea0;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.flyout-item-link:hover .flyout-item-desc {
+  color: #c0ded2;
+}
+
+.flyout-badge-pro {
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(228, 191, 105, 0.22);
+  color: #f0ce7a;
+  border: 1px solid rgba(228, 191, 105, 0.4);
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+}
+
+/* --------------------------------------------------------------------------
+   5. FLOATING TOOLTIPS IN COLLAPSED MODE
+   -------------------------------------------------------------------------- */
+.sidebar-tooltip {
+  position: fixed;
+  z-index: 10000;
+  background: #06281a;
+  border: 1px solid rgba(143, 224, 170, 0.32);
+  color: #f0fdf4;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-4px);
+  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s;
+  white-space: nowrap;
+}
+
+.sidebar-tooltip.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+/* --------------------------------------------------------------------------
+   6. COMPACT SIDEBAR FOOTER & DECORATIVE CARD
+   -------------------------------------------------------------------------- */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(143, 224, 170, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sidebar-quote-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(6, 32, 21, 0.85) 0%, rgba(2, 17, 11, 0.97) 100%),
+              url('assets/emerging-leaders/hero-banner.jpg') center/cover no-repeat;
+  border: 1px solid rgba(143, 224, 170, 0.22);
+  border-radius: 12px;
+  padding: 13px 14px;
+  margin-top: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.sidebar-quote-card:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #10b981, #e4bf69);
+}
+
+.sidebar-quote-text {
+  font-size: 11px;
+  font-style: italic;
+  color: #c9e4d1;
+  line-height: 1.45;
+  margin: 0;
+  letter-spacing: 0.1px;
+}
+
+body.sidebar-collapsed .sidebar-quote-card {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. MOBILE / TOUCH ADJUSTMENTS (< 800px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 800px) {
+  .sidebar-collapse-btn {
+    display: none !important;
+  }
+
+  .sidebar-flyout {
+    width: 270px;
+    max-width: 85vw;
+  }
+}

@@ -1,174 +1,1197 @@
-/* Materials V2 reproduces the editorial library composition while preserving the existing store behavior. */
-body:has(#materials.active) .content{padding:0 clamp(18px,2.2vw,38px) 34px!important;background:#f4f1e8}
-#materials .materials-v2{width:min(100%,1660px);margin:0 auto;color:#102a20}
+/* ==========================================================================
+   HEALTHY TREND TRADER — TRADER STORE (LUXURY EDITORIAL REDESIGN)
+   ========================================================================== */
 
-#materials .materials-v2 .materials-hero{position:relative;min-height:270px;margin:0 0 14px;padding:27px 42px 22px;overflow:hidden;border:0;border-radius:0 0 12px 12px;background-image:linear-gradient(90deg,#002319 0%,rgba(0,35,25,.96) 26%,rgba(0,35,25,.52) 52%,rgba(0,35,25,.32) 78%,rgba(0,35,25,.62) 100%),linear-gradient(0deg,rgba(0,28,19,.9) 0%,transparent 52%),url('../assets/materials-hero-mountains-v1.png');background-position:center;background-size:cover;color:#fff;box-shadow:inset 0 -1px rgba(214,184,98,.35)}
-#materials .materials-hero-copy{position:relative;z-index:3;width:40%;max-width:560px}
-#materials .materials-v2 .materials-eyebrow{margin-bottom:8px;color:#d6bd72;font-size:10px;font-weight:850;letter-spacing:.2em;text-transform:uppercase}
-#materials .materials-v2 .materials-hero h1{max-width:none;margin:0;font:700 clamp(39px,3.25vw,58px)/.91 Georgia,'Times New Roman',serif;letter-spacing:-.045em;text-shadow:0 3px 24px rgba(0,0,0,.38)}
-#materials .materials-v2 .materials-hero p{max-width:520px;margin:12px 0 0;color:#f0f3ed;font-size:14px;line-height:1.45;text-shadow:0 2px 12px rgba(0,0,0,.42)}
-#materials .materials-hero blockquote{position:absolute;z-index:3;top:31px;right:4.4%;margin:0;color:#f0dfae;font:italic 22px/1.26 Georgia,serif;text-shadow:0 3px 18px rgba(0,0,0,.55)}
-
-#materials .materials-journey{position:absolute;z-index:3;right:4%;bottom:14px;left:34%;height:103px}
-#materials .materials-journey svg{position:absolute;inset:-9px 0 auto;width:100%;height:70px;overflow:visible;filter:drop-shadow(0 0 6px rgba(225,185,76,.45))}
-#materials .materials-journey path{fill:none;stroke:#d3aa4f;stroke-width:1.35;vector-effect:non-scaling-stroke}
-#materials .materials-journey circle{fill:rgba(245,211,118,.2);stroke:#e0bd62;stroke-width:1.1;vector-effect:non-scaling-stroke}
-#materials .materials-journey .journey-core{fill:#fff3c8;stroke:none}
-#materials .materials-journey-stages{position:absolute;right:0;bottom:0;left:9%;display:grid;grid-template-columns:repeat(5,1fr);gap:13px}
-#materials .journey-stage{display:flex;align-items:center;gap:9px;min-width:0}
-#materials .journey-stage i{display:grid;flex:0 0 34px;width:34px;height:34px;place-items:center;border:1px solid #b9d35d;border-radius:50%;background:rgba(1,39,26,.75);color:#d6bd63;font-style:normal;font-size:15px}
-#materials .journey-stage b{display:block;color:#d9e99f;font-size:9px;letter-spacing:.13em;text-transform:uppercase;white-space:nowrap}
-#materials .journey-stage small{display:block;margin-top:2px;color:#eef5ee;font-size:9px;white-space:nowrap}
-
-#materials .materials-v2 .materials-toolbar{position:relative;z-index:3;margin:0;padding:0 0 13px;gap:16px}
-#materials .materials-filters{gap:10px}
-#materials .materials-v2 .materials-filters button{padding:8px 17px;border:1px solid #d8ddd5;background:rgba(255,255,255,.88);color:#263e31;font-size:11px;box-shadow:0 3px 10px rgba(30,55,40,.03)}
-#materials .materials-v2 .materials-filters button.active{border-color:#08753f;background:#08753f;color:#fff;box-shadow:0 5px 15px rgba(8,117,63,.18)}
-#materials .materials-tools{display:flex;gap:12px;align-items:center;margin-left:auto}
-#materials .materials-v2 .materials-search{width:260px;min-width:220px;height:36px;border-color:#daddd5;border-radius:10px}
-#materials .materials-v2 .materials-search input{padding:9px 0;font-size:11px}
-#materials .materials-tools select{height:36px;min-width:138px;padding:0 13px;border:1px solid #daddd5;border-radius:10px;background:#fff;color:#4c5c52;font-size:11px}
-
-#materials .materials-v2 .materials-layout{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;padding:0;overflow:visible;isolation:isolate}
-#materials .materials-v2 .materials-layout:before{content:"KNOWLEDGE       PROCESS";position:absolute;z-index:-2;top:49px;left:25%;color:#154832;opacity:.035;font:700 clamp(58px,7vw,112px)/1 Georgia,serif;letter-spacing:.08em;white-space:nowrap;pointer-events:none}
-#materials .materials-v2 .materials-layout:after{content:"";position:absolute;z-index:-1;inset:12px -5% 0 0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cg fill='none' stroke='%23a98a42' stroke-width='1' opacity='.22'%3E%3Cpath d='M0 150 C190 15 280 260 460 128 S790 52 920 205 1210 170 1600 38'/%3E%3Cpath d='M0 188 C196 55 294 300 475 164 S800 94 938 242 1220 210 1600 74'/%3E%3Cpath d='M90 570 C275 402 410 650 590 530 S895 405 1050 572 1350 625 1650 420'/%3E%3Cpath d='M55 615 C285 447 418 696 603 570 S905 455 1064 612 1360 675 1650 463'/%3E%3C/g%3E%3Cg fill='%23c9a44d' opacity='.55'%3E%3Ccircle cx='220' cy='92' r='4'/%3E%3Ccircle cx='505' cy='150' r='4'/%3E%3Ccircle cx='885' cy='164' r='4'/%3E%3Ccircle cx='1260' cy='182' r='4'/%3E%3Ccircle cx='415' cy='568' r='4'/%3E%3Ccircle cx='1040' cy='560' r='4'/%3E%3C/g%3E%3C/svg%3E");background-position:center top;background-size:cover;opacity:.72;transition:opacity .35s,filter .35s;pointer-events:none}
-#materials .materials-v2 .materials-layout:has(.material-card:hover):after{opacity:1;filter:drop-shadow(0 0 7px rgba(183,144,45,.24))}
-#materials .materials-catalog,#materials .materials-v2 .materials-library{position:relative;z-index:1;min-width:0}
-#materials .materials-v2 .materials-heading{margin:0 0 12px}
-#materials .materials-v2 .materials-heading h2{font:700 27px/1 Georgia,serif;letter-spacing:-.025em}
-#materials .materials-v2 .materials-heading p{margin-top:4px;font-size:11px}
-
-#materials .materials-v2 .materials-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-#materials .materials-v2 .material-card{overflow:hidden;border:1px solid rgba(24,67,43,.1);border-radius:11px;background:rgba(255,255,255,.94);box-shadow:0 9px 22px rgba(30,54,39,.07);transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
-#materials .materials-v2 .material-card:hover{z-index:3;transform:translateY(-3px);border-color:rgba(26,115,68,.38);box-shadow:0 17px 30px rgba(28,74,46,.15)}
-#materials .materials-v2 .material-cover{height:auto;aspect-ratio:1.42/1;margin:7px 7px 0;border-radius:8px;background:#071710}
-#materials .materials-v2 .material-cover img{width:100%;height:100%;object-fit:cover;object-position:center 48%;filter:saturate(.9) contrast(1.04);transition:transform .55s ease,filter .55s ease}
-#materials .materials-v2 .material-card:hover .material-cover img{transform:scale(1.025);filter:saturate(1) contrast(1.06)}
-#materials .materials-v2 .material-cover:after{background:linear-gradient(180deg,rgba(1,14,9,.12),rgba(1,14,9,.1) 48%,rgba(1,14,9,.72))}
-#materials .materials-v2 .material-type{top:8px;left:8px;padding:4px 7px;background:#fff;color:#263c30;font-size:8px}
-#materials .material-cover-copy{position:absolute;z-index:2;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:17px;text-align:center;color:#f4d98f;text-shadow:0 2px 12px #000}
-#materials .material-cover-copy:before{content:"";position:absolute;inset:12px;border:1px solid rgba(216,177,75,.72);pointer-events:none}
-#materials .material-cover-copy span{font-size:6px;font-weight:700;letter-spacing:.17em}
-#materials .material-cover-copy h3{position:static!important;max-width:94%;margin:7px 0!important;color:#f1d28a!important;font:700 clamp(15px,1.15vw,20px)/1.02 Georgia,serif!important;text-transform:uppercase;text-shadow:0 2px 12px #000!important}
-#materials .material-cover-copy small{position:absolute;bottom:17px;color:#e8dbb4;font-size:5px;letter-spacing:.12em}
-#materials .materials-v2 .material-body{padding:8px 10px 9px}
-#materials .material-body>h3{margin:0 0 5px;color:#18291f;font:700 15px/1.1 Georgia,serif}
-#materials .materials-v2 .material-body>p{min-height:45px;color:#677168;font-size:10.5px;line-height:1.35}
-#materials .materials-v2 .material-meta{padding-top:7px;font-size:9px}
-#materials .materials-v2 .material-price{font-size:13px;color:#0c5733}
-#materials .materials-v2 .material-actions{gap:7px;margin-top:7px}
-#materials .materials-v2 .material-actions button{min-height:30px;border-radius:7px;font-size:9px}
-#materials .materials-v2 .material-detail{margin-top:8px;padding:8px;border-radius:7px;font-size:9px;line-height:1.4}
-#materials .materials-method-footer{margin-top:17px;padding:13px 0;border-top:1px solid rgba(44,67,52,.12);color:#7f897f;text-align:center;font-size:8px;letter-spacing:.42em}
-#materials .materials-method-footer i{padding:0 10px;color:#c4a44e;font-style:normal}
-
-#materials .materials-v2 .materials-library{display:flex;flex-direction:column;gap:12px}
-#materials .materials-v2 .materials-library-card,#materials .materials-v2 .materials-support{border:1px solid rgba(31,63,43,.1);border-radius:12px;background:rgba(255,255,255,.95);box-shadow:0 9px 22px rgba(29,53,38,.06)}
-#materials .materials-v2 .materials-library-card{padding:15px}
-#materials .materials-v2 .materials-library-card header{align-items:center;margin-bottom:1px}
-#materials .materials-v2 .materials-library-card h2{font:700 19px/1 Georgia,serif}
-#materials .materials-library-card h2 span{margin-right:5px;color:#087143}
-#materials .materials-v2 .materials-library-card header button{font-size:9px;color:#087143}
-#materials .materials-v2 .materials-library-card>small{font-size:9px}
-#materials .materials-v2 .library-item{grid-template-columns:37px 1fr auto;gap:8px;padding:10px 0}
-#materials .materials-v2 .library-item img{width:37px;height:45px;border-radius:3px;object-fit:cover}
-#materials .materials-v2 .library-item b{font-size:10px}
-#materials .materials-v2 .library-item small{font-size:8px}
-#materials .materials-v2 .library-item button{padding:7px 11px;border-radius:6px;font-size:9px}
-
-#materials .materials-v2 .materials-promo{position:relative;min-height:192px;overflow:hidden;padding:0;border:0;border-radius:12px;background:#05261a url('../assets/materials-library-banner-v1.png') center/cover;color:#fff;box-shadow:0 15px 30px rgba(7,36,24,.18)}
-#materials .materials-v2 .materials-promo:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(1,26,17,.98) 0%,rgba(1,26,17,.91) 47%,rgba(1,26,17,.08) 88%)}
-#materials .materials-promo-copy{position:relative;z-index:2;width:62%;padding:21px 16px}
-#materials .materials-v2 .materials-promo h2{margin:0;color:#fff;font:700 23px/.93 Georgia,serif;letter-spacing:-.03em}
-#materials .materials-v2 .materials-promo p{margin:12px 0;color:#edf3ee;font-size:9px;line-height:1.4}
-#materials .materials-v2 .materials-promo button{padding:8px 11px;border:1px solid #d1b35e;border-radius:999px;background:rgba(4,74,43,.88);color:#fff;font-size:9px}
-#materials .materials-book-spines{position:absolute;z-index:2;right:8px;bottom:9px;display:flex;flex-direction:column;gap:2px;transform:rotate(-2deg);pointer-events:none}
-#materials .materials-book-spines span{padding:1px 5px;color:#d9bc68;font-size:5px;letter-spacing:.05em;text-transform:uppercase;text-shadow:0 1px 3px #000}
-#materials .materials-v2 .materials-support{display:grid;grid-template-columns:35px 1fr;gap:10px;padding:14px}
-#materials .support-icon{display:grid;width:31px;height:31px;place-items:center;border:1px solid #168052;border-radius:50%;color:#106c43;font:700 17px Georgia,serif}
-#materials .materials-v2 .materials-support b{font:700 16px Georgia,serif}
-#materials .materials-v2 .materials-support p{margin:4px 0 10px;color:#68746b;font-size:9px;line-height:1.4}
-#materials .materials-v2 .materials-support button{width:100%;padding:7px;border:1px solid #87ad97;border-radius:7px;background:#fff;color:#18593a;font-size:9px;font-weight:700}
-#materials .materials-footer-art{position:relative;min-height:112px;overflow:hidden;border-radius:10px;background:linear-gradient(180deg,rgba(244,241,232,0),rgba(244,241,232,.48)),linear-gradient(0deg,rgba(244,241,232,.24),rgba(244,241,232,.9)),url('../assets/materials-hero-mountains-v1.png') center 57%/cover;opacity:.31}
-#materials .materials-footer-art em{position:absolute;top:23px;left:31px;color:#52675a;font:italic 14px/1.35 Georgia,serif}
-
-body:not([data-theme="healthy"]) #materials .materials-v2{color:#f0e2c2}
-body:not([data-theme="healthy"]):has(#materials.active) .content{background:#11100c}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-toolbar button,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-search,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-tools select,body:not([data-theme="healthy"]) #materials .materials-v2 .material-card,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-library-card,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-support{border-color:#403721;background:#191710;color:#f2e6cd}
-body:not([data-theme="healthy"]) #materials .material-body>h3{color:#f2e6cd}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-body>p,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-heading p,body:not([data-theme="healthy"]) #materials .materials-v2 .materials-support p{color:#bfae87}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-filters button.active,body:not([data-theme="healthy"]) #materials .materials-v2 .material-actions .buy,body:not([data-theme="healthy"]) #materials .materials-v2 .material-actions .access{border-color:#bf963a;background:#bf963a;color:#130f08}
-body:not([data-theme="healthy"]) #materials .materials-footer-art{filter:sepia(1);opacity:.18}
-
-/* Premium Gold: the store is a warm editorial library, never a Healthy-green page. */
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-hero{
-  background-image:linear-gradient(90deg,#171006 0%,rgba(31,20,7,.95) 28%,rgba(50,33,11,.68) 55%,rgba(42,27,8,.42) 76%,rgba(20,13,5,.82) 100%),linear-gradient(0deg,rgba(14,9,3,.88) 0%,transparent 58%),url('../assets/materials-hero-mountains-v1.png');
-  box-shadow:inset 0 -1px rgba(236,193,93,.52),0 18px 38px rgba(0,0,0,.22)
-}
-body:not([data-theme="healthy"]) #materials .journey-stage i{border-color:#b78d36;background:rgba(37,23,5,.82);color:#f0c965}
-body:not([data-theme="healthy"]) #materials .journey-stage b{color:#e7c66f}
-body:not([data-theme="healthy"]) #materials .journey-stage small{color:#f0dfba}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-filters button{border-color:#594627;background:#1b160d;color:#dfc997}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-filters button:hover{border-color:#b68a34;background:#2a210f;color:#f5dfac}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-search input{color:#f2e3c3}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-search input::placeholder{color:#ad9b75}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-layout:before{color:#c79d42;opacity:.06}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-card:hover{border-color:#b9913e;box-shadow:0 17px 30px rgba(0,0,0,.28)}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-type{background:#30250e;color:#f3d58d}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-price{color:#e2b94d}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-actions .secondary{border-color:#69532b;background:#21190c;color:#ead39d}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-library-card h2 span,
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-library-card header button{color:#e2b94d}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-promo{background:#1b1206 url('../assets/materials-library-banner-v1.png') center/cover;box-shadow:0 15px 30px rgba(0,0,0,.28)}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-promo:before{background:linear-gradient(90deg,rgba(20,12,3,.98) 0%,rgba(31,19,5,.92) 49%,rgba(31,19,5,.15) 90%)}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-promo p{color:#e4d2ab}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-promo button{border-color:#d2a849;background:rgba(85,58,13,.85);color:#fff0c5}
-body:not([data-theme="healthy"]) #materials .support-icon{border-color:#c89d42;color:#e4bd5d}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-support button{border-color:#806634;background:#251b0c;color:#eed7a0}
-body:not([data-theme="healthy"]) #materials .materials-method-footer{border-color:#554425;color:#bba980}
-
-/* Gold store: editorial labels must remain readable on wide, dark displays. */
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-body{padding:11px 12px 12px}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-body>h3{margin-bottom:6px;color:#fff0cf;font-size:18px;line-height:1.12}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-body>p{min-height:50px;color:#d7c49b;font-size:12px;line-height:1.42}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-type{padding:5px 9px;color:#f7d982;font-size:9px;font-weight:800;letter-spacing:.03em}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-meta{padding-top:9px;color:#e5c46a;font-size:10px}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-price{color:#ffd35f;font-size:15px;font-weight:850}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-actions{margin-top:9px}
-body:not([data-theme="healthy"]) #materials .materials-v2 .material-actions button{min-height:34px;font-size:10px;font-weight:750}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-library-card h2{color:#fff0cf;font-size:22px}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-library-card header button{font-size:10px;font-weight:800}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-library-card>small{color:#cdbb91;font-size:11px}
-body:not([data-theme="healthy"]) #materials .materials-v2 .library-item b{color:#f8e7bd;font-size:12px}
-body:not([data-theme="healthy"]) #materials .materials-v2 .library-item small{color:#c8b68b;font-size:10px}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-promo h2{color:#fff3d5;font-size:27px;line-height:.95}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-promo p{color:#ead7ac;font-size:11px;line-height:1.45}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-promo button{font-size:10px;font-weight:800}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-support b{color:#ffebbb;font-size:18px}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-support p{color:#d3be91;font-size:11px;line-height:1.45}
-body:not([data-theme="healthy"]) #materials .materials-v2 .materials-support button{font-size:10px;font-weight:800}
-body:not([data-theme="healthy"]) #materials .materials-method-footer{color:#d2bd87;font-size:9px;letter-spacing:.34em}
-body:not([data-theme="healthy"]) #materials .materials-footer-art{
-  min-height:128px;
-  border:1px solid rgba(205,163,66,.34);
-  background:linear-gradient(90deg,rgba(25,16,5,.96),rgba(35,22,6,.76)),url('../assets/materials-hero-mountains-v1.png') center 57%/cover;
-  box-shadow:inset 0 1px rgba(255,229,162,.06);
-  filter:sepia(.34);
-  opacity:1;
-}
-body:not([data-theme="healthy"]) #materials .materials-footer-art::after{content:"";position:absolute;inset:14px;border:1px solid rgba(222,181,78,.25);pointer-events:none}
-body:not([data-theme="healthy"]) #materials .materials-footer-art em{
-  top:31px;
-  left:28px;
-  z-index:1;
-  color:#fff0cb;
-  font-size:19px;
-  font-weight:700;
-  line-height:1.3;
-  text-shadow:0 2px 12px rgba(0,0,0,.8);
+body:has(#materials.active) .content {
+  padding: 0 clamp(18px, 2.2vw, 38px) 44px !important;
+  background: var(--paper, #f4f1e8);
 }
 
-@media(max-width:1450px){#materials .materials-v2 .materials-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#materials .journey-stage small{display:none}}
-@media(max-width:1100px){#materials .materials-v2 .materials-layout{grid-template-columns:1fr}#materials .materials-v2 .materials-library{display:grid;grid-template-columns:1fr 1fr 1fr}#materials .materials-footer-art{display:none}#materials .materials-journey{left:38%}#materials .materials-journey-stages{left:3%}}
-@media(max-width:820px){body:has(#materials.active) .content{padding:0 12px 30px!important}#materials .materials-v2 .materials-hero{margin:0 0 12px;padding:26px 22px 20px;min-height:390px}#materials .materials-hero-copy{width:80%}#materials .materials-hero blockquote{display:none}#materials .materials-journey{right:18px;bottom:18px;left:18px}#materials .materials-journey svg{display:none}#materials .materials-journey-stages{left:0;gap:5px}#materials .journey-stage{display:block;text-align:center}#materials .journey-stage i{margin:0 auto 5px}#materials .journey-stage b{font-size:7px}#materials .materials-tools{width:100%}#materials .materials-v2 .materials-search{width:100%}#materials .materials-tools select{display:none}#materials .materials-v2 .materials-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#materials .materials-v2 .materials-library{grid-template-columns:1fr}}
-@media(max-width:520px){#materials .materials-v2 .materials-grid{grid-template-columns:1fr}#materials .materials-v2 .material-cover{aspect-ratio:1.3/1}#materials .materials-v2 .materials-hero h1{font-size:42px}#materials .materials-journey-stages{grid-template-columns:repeat(5,1fr)}#materials .journey-stage div{display:none}}
+#materials .materials-v2 {
+  width: min(100%, 1680px);
+  margin: 0 auto;
+  color: #102a20;
+}
+
+/* --------------------------------------------------------------------------
+   1. FEATURED HERO SPOTLIGHT (VITRINE PANORÂMICA NO TOPO)
+   -------------------------------------------------------------------------- */
+.materials-hero-spotlight {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 36px;
+  min-height: 380px;
+  margin: 0 0 24px;
+  padding: 40px 48px;
+  border-radius: 24px;
+  border: 1px solid rgba(214, 184, 98, 0.42);
+  background: linear-gradient(135deg, #062217 0%, #03150e 55%, #08291c 100%);
+  color: #fff;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(2, 20, 13, 0.28), inset 0 1px 0 rgba(255, 240, 190, 0.25);
+  isolation: isolate;
+}
+
+.materials-hero-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 75% 45%, rgba(214, 170, 80, 0.16) 0%, transparent 62%),
+              radial-gradient(circle at 20% 80%, rgba(46, 163, 102, 0.12) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.spotlight-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 2;
+}
+
+.spotlight-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.spotlight-badge-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(214, 170, 80, 0.16);
+  border: 1px solid rgba(214, 170, 80, 0.55);
+  color: #f5d688;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.spotlight-rating {
+  color: #f1cf7a;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.spotlight-rating i {
+  color: #b2cbbd;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.spotlight-title {
+  margin: 0;
+  font: 700 clamp(30px, 2.6vw, 44px) / 1.05 Georgia, "Times New Roman", serif;
+  letter-spacing: -0.035em;
+  color: #fffaf0;
+  text-shadow: 0 3px 20px rgba(0, 0, 0, 0.55);
+}
+
+.spotlight-subtitle {
+  margin: 0;
+  max-width: 580px;
+  color: #d1e2d7;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.spotlight-benefits {
+  list-style: none;
+  margin: 6px 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spotlight-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: #e5f0e9;
+  line-height: 1.45;
+}
+
+.benefit-check {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(143, 224, 170, 0.22);
+  border: 1px solid #79d89a;
+  color: #8fe0aa;
+  font-size: 11px;
+  font-weight: 900;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.spotlight-action-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.spotlight-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 24px;
+  border-radius: 12px;
+  border: 1px solid #f0d083;
+  background: linear-gradient(100deg, #2ea366 0%, #3db876 50%, #d6aa50 100%);
+  color: #041a10;
+  font: 850 13px/1 inherit;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(46, 163, 102, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.spotlight-cta-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 14px 30px rgba(214, 170, 80, 0.4);
+}
+
+.spotlight-cta-btn.is-acquired {
+  background: linear-gradient(100deg, #184b35, #2c6e4a);
+  border-color: #5bb27d;
+  color: #e5f7ed;
+  box-shadow: none;
+}
+
+.spotlight-detail-btn {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(214, 184, 98, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4d994;
+  font: 750 12px/1 inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.spotlight-detail-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #f0d083;
+}
+
+.spotlight-guarantee {
+  width: 100%;
+  font-size: 10px;
+  color: #9eb8aa;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   3D BOOK DISPLAY STAGE (HERO MOCKUP)
+   -------------------------------------------------------------------------- */
+.spotlight-book-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  perspective: 1200px;
+  padding: 20px 0;
+}
+
+.spotlight-ambient-glow {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(214, 170, 80, 0.32) 0%, rgba(46, 163, 102, 0.15) 50%, transparent 72%);
+  filter: blur(28px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.spotlight-3d-book {
+  position: relative;
+  z-index: 2;
+  width: 250px;
+  aspect-ratio: 1 / 1.42;
+  transform: rotateY(-14deg) rotateX(6deg) rotateZ(-1deg);
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease;
+}
+
+.spotlight-3d-book:hover {
+  transform: rotateY(-8deg) rotateX(3deg) translateY(-6px);
+}
+
+.spotlight-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 14px;
+  background: linear-gradient(90deg, #06150e 0%, #153c29 45%, #081a12 80%, rgba(214, 170, 80, 0.4) 100%);
+  border-radius: 6px 0 0 6px;
+  box-shadow: inset 1px 0 3px rgba(0, 0, 0, 0.8);
+  z-index: 4;
+}
+
+.spotlight-front-wrap {
+  position: absolute;
+  inset: 0 0 0 10px;
+  border-radius: 0 8px 8px 0;
+  overflow: hidden;
+  box-shadow: 4px 6px 20px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(214, 184, 98, 0.5);
+  border-left: 0;
+  background: #091c13;
+}
+
+.spotlight-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.spotlight-foil-reflection {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 0%, transparent 35%, rgba(255, 235, 170, 0.32) 48%, rgba(255, 255, 255, 0.5) 52%, transparent 64%);
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.spotlight-pages-rim {
+  position: absolute;
+  top: 4px;
+  right: -8px;
+  bottom: 4px;
+  width: 10px;
+  background: repeating-linear-gradient(90deg, #e8e2cf 0 1px, #cabf9d 1px 2px);
+  border-radius: 0 4px 4px 0;
+  box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.45);
+  z-index: 1;
+}
+
+.spotlight-shadow {
+  position: absolute;
+  left: 20px;
+  right: -10px;
+  bottom: -22px;
+  height: 24px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.72) 0%, transparent 72%);
+  filter: blur(8px);
+  transform: rotateX(85deg);
+  z-index: 0;
+}
+
+/* --------------------------------------------------------------------------
+   2. TOOLBAR (FILTROS & BUSCA)
+   -------------------------------------------------------------------------- */
+#materials .materials-v2 .materials-toolbar {
+  position: relative;
+  z-index: 3;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+#materials .materials-v2 .materials-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#materials .materials-v2 .materials-filters button {
+  padding: 8px 16px;
+  border: 1px solid #cfd8d1;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #274434;
+  font: 750 11px/1 inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(18, 42, 32, 0.04);
+}
+
+#materials .materials-v2 .materials-filters button:hover {
+  border-color: #2ea366;
+  color: #0b2d1d;
+  background: #fff;
+}
+
+#materials .materials-v2 .materials-filters button.active {
+  border-color: #176d42;
+  background: #176d42;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(23, 109, 66, 0.25);
+}
+
+#materials .materials-tools {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#materials .materials-v2 .materials-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 250px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #cfd8d1;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(18, 42, 32, 0.04);
+}
+
+#materials .materials-v2 .materials-search input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #102a20;
+  font: inherit;
+  font-size: 11px;
+}
+
+#materials .materials-tools select {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #cfd8d1;
+  border-radius: 11px;
+  background: #fff;
+  color: #365040;
+  font: inherit;
+  font-size: 11px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   3. CATALOG GRID & 3D BOOK CARDS (EFEITO OBJETO DE LUXO)
+   -------------------------------------------------------------------------- */
+#materials .materials-v2 .materials-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 22px;
+  align-items: start;
+}
+
+#materials .materials-v2 .materials-heading {
+  margin: 0 0 16px;
+}
+
+#materials .materials-v2 .materials-heading h2 {
+  margin: 0;
+  font: 700 clamp(24px, 2vw, 30px) / 1.1 Georgia, "Times New Roman", serif;
+  letter-spacing: -0.03em;
+  color: #0d291f;
+}
+
+#materials .materials-v2 .materials-heading p {
+  margin: 6px 0 0;
+  color: #556c5e;
+  font-size: 12px;
+}
+
+#materials .materials-v2 .materials-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Individual Material Card */
+.material-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(22, 59, 39, 0.12);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(18, 42, 32, 0.05);
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  overflow: hidden;
+}
+
+.material-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(46, 163, 102, 0.45);
+  box-shadow: 0 18px 40px rgba(18, 42, 32, 0.12);
+}
+
+.material-card.is-acquired {
+  background: linear-gradient(180deg, rgba(239, 248, 242, 0.95) 0%, #fff 100%);
+  border-color: rgba(79, 178, 122, 0.4);
+}
+
+/* 3D Book Stage inside card */
+.material-book-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.35 / 1;
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 50%, #0d2a1f 0%, #061710 100%);
+  overflow: hidden;
+}
+
+.material-3d-book {
+  position: relative;
+  width: 82%;
+  height: 86%;
+  transform: rotateY(-10deg) rotateX(4deg);
+  transform-style: preserve-3d;
+  transition: transform 0.35s ease;
+}
+
+.material-card:hover .material-3d-book {
+  transform: rotateY(-4deg) rotateX(2deg) translateY(-4px);
+}
+
+.card-book-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 8px;
+  background: linear-gradient(90deg, #05150d 0%, #173f2b 50%, #081a11 100%);
+  border-radius: 4px 0 0 4px;
+  z-index: 3;
+}
+
+.card-book-cover-wrap {
+  position: absolute;
+  inset: 0 0 0 6px;
+  border-radius: 0 6px 6px 0;
+  overflow: hidden;
+  border: 1px solid rgba(214, 184, 98, 0.38);
+  border-left: 0;
+  box-shadow: 3px 5px 15px rgba(0, 0, 0, 0.55);
+}
+
+.card-book-front {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.material-type-pill {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(3, 20, 14, 0.85);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(214, 170, 80, 0.45);
+  color: #f7df99;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  z-index: 4;
+}
+
+/* Foil sheen animation on card hover */
+.card-foil-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 0%, transparent 40%, rgba(255, 240, 180, 0.45) 50%, transparent 60%);
+  transform: translateX(-150%);
+  pointer-events: none;
+  transition: transform 0.65s ease;
+}
+
+.material-card:hover .card-foil-sheen {
+  transform: translateX(150%);
+}
+
+.card-book-pages {
+  position: absolute;
+  top: 3px;
+  right: -5px;
+  bottom: 3px;
+  width: 6px;
+  background: repeating-linear-gradient(90deg, #ede7d6 0 1px, #c3b897 1px 2px);
+  border-radius: 0 3px 3px 0;
+  box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.35);
+  z-index: 1;
+}
+
+.card-book-shadow {
+  position: absolute;
+  left: 10px;
+  right: -5px;
+  bottom: -14px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.6) 0%, transparent 70%);
+  filter: blur(5px);
+  transform: rotateX(85deg);
+  z-index: 0;
+}
+
+/* Card Body Typography & Details */
+.material-card .material-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 2px 0 0;
+}
+
+.material-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+.rating-stars {
+  color: #d6aa50;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.rating-score {
+  font-weight: 800;
+  font-size: 10px;
+  color: #274836;
+}
+
+.rating-label {
+  font-size: 9px;
+  color: #728479;
+  margin-left: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.material-card-title {
+  margin: 0 0 3px;
+  font: 700 16px / 1.15 Georgia, serif;
+  color: #11281e;
+}
+
+.material-card-tagline {
+  margin: 0 0 10px;
+  font-size: 10.5px;
+  color: #556c5e;
+  line-height: 1.35;
+  min-height: 28px;
+}
+
+/* Benefit Bullets */
+.material-card-benefits {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 8px 0;
+  border-top: 1px dashed rgba(22, 59, 39, 0.12);
+  border-bottom: 1px dashed rgba(22, 59, 39, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.material-card-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 10px;
+  color: #3b5344;
+  line-height: 1.35;
+}
+
+.card-check {
+  color: #1e8750;
+  font-weight: 850;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* Card Pricing & Actions */
+.material-card-footer {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.material-pricing {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.price-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6a7d71;
+}
+
+.material-card .material-price {
+  font-size: 15px;
+  font-weight: 850;
+  color: #0e5b35;
+}
+
+.is-acquired .material-price {
+  color: #1e7a4b;
+  font-size: 11px;
+}
+
+.material-card .material-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 8px;
+}
+
+.btn-card-detail {
+  padding: 8px 6px;
+  border-radius: 9px;
+  border: 1px solid #d0dad2;
+  background: #f8faf8;
+  color: #3d5648;
+  font: 750 10.5px/1 inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-card-detail:hover {
+  background: #edf3ef;
+  border-color: #adc0b3;
+}
+
+.btn-card-buy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1px solid #1a7848;
+  background: linear-gradient(100deg, #14693e 0%, #228450 100%);
+  color: #fff;
+  font: 800 11px/1 inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(20, 105, 62, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-card-buy:hover {
+  background: linear-gradient(100deg, #177746 0%, #2ca163 100%);
+  box-shadow: 0 6px 16px rgba(20, 105, 62, 0.32);
+}
+
+.btn-card-buy.access {
+  background: #eef6f0;
+  border-color: #5bb27d;
+  color: #17643b;
+  box-shadow: none;
+}
+
+.btn-card-buy.access:hover {
+  background: #dff0e4;
+}
+
+/* Expanded Detail Section */
+.material-detail {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f3f8f4;
+  border: 1px solid #d5e5db;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: #364e40;
+}
+
+.detail-benefits-full {
+  margin: 8px 0;
+}
+
+.detail-benefits-full b {
+  display: block;
+  font-size: 10px;
+  color: #123424;
+  margin-bottom: 4px;
+}
+
+.detail-benefits-full ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   4. SIDEBAR "MEU ACERVO PESSOAL" (ESTANTE DE COLECIONADOR)
+   -------------------------------------------------------------------------- */
+#materials .materials-v2 .materials-library {
+  position: sticky;
+  top: 92px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.materials-library-card {
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(22, 59, 39, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 24px rgba(18, 42, 32, 0.05);
+}
+
+.materials-library-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.materials-library-card h2 {
+  margin: 0;
+  font: 700 18px / 1.1 Georgia, serif;
+  color: #0f2c20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.materials-library-card h2 span {
+  font-size: 16px;
+  color: #1e8750;
+}
+
+.materials-library-card header button {
+  border: 0;
+  background: transparent;
+  color: #1b7b4a;
+  font: 800 10px inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.materials-library-card > small {
+  display: block;
+  color: #6a7f72;
+  font-size: 10px;
+  margin-bottom: 12px;
+}
+
+.library-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.library-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #f7faf7;
+  border: 1px solid #e2ede5;
+}
+
+.library-item-thumb {
+  width: 32px;
+  aspect-ratio: 1 / 1.35;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+}
+
+.library-item-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.library-item b {
+  display: block;
+  font-size: 11px;
+  color: #153225;
+  line-height: 1.2;
+}
+
+.library-item small {
+  display: block;
+  color: #1d7b4b;
+  font-size: 9px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.library-item button {
+  margin-left: auto;
+  border: 0;
+  border-radius: 7px;
+  background: #176d42;
+  color: #fff;
+  padding: 6px 10px;
+  font: 800 9.5px inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.library-empty {
+  margin: 12px 0 0;
+  color: #728578;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Promo Card */
+.materials-promo {
+  position: relative;
+  min-height: 180px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #051d14 0%, #0c3324 100%);
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(5, 29, 20, 0.2);
+  border: 1px solid rgba(214, 184, 98, 0.3);
+}
+
+.materials-promo-copy {
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+  width: 70%;
+}
+
+.promo-kicker {
+  display: inline-block;
+  color: #f1cf7a;
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.15em;
+  margin-bottom: 6px;
+}
+
+.materials-promo h2 {
+  margin: 0;
+  font: 700 21px / 1.05 Georgia, serif;
+  color: #fffaf0;
+}
+
+.materials-promo p {
+  margin: 8px 0 12px;
+  color: #c9ded2;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.materials-promo button {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid #d4af51;
+  background: rgba(214, 170, 80, 0.15);
+  color: #f7df9d;
+  font: 800 10px inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.materials-promo button:hover {
+  background: #d4af51;
+  color: #061f15;
+}
+
+.materials-book-spines {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 4px;
+  transform: rotate(-6deg);
+  opacity: 0.85;
+}
+
+.materials-book-spines span {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 8px 3px;
+  border-radius: 3px;
+  background: #113f2b;
+  border: 1px solid #5aa579;
+  color: #d8c79c;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* VIP Support Card */
+.materials-support {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(22, 59, 39, 0.14);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(18, 42, 32, 0.04);
+}
+
+.materials-support .support-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #edf7f1;
+  color: #176d42;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.materials-support b {
+  display: block;
+  font: 700 14px Georgia, serif;
+  color: #112c20;
+  margin-bottom: 4px;
+}
+
+.materials-support p {
+  margin: 0 0 10px;
+  font-size: 10.5px;
+  color: #556c5e;
+  line-height: 1.45;
+}
+
+.materials-support button {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #2ea366;
+  background: #f4faf6;
+  color: #176d42;
+  font: 800 10.5px inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.materials-support button:hover {
+  background: #176d42;
+  color: #fff;
+}
+
+/* Footer Art Card */
+.materials-footer-art {
+  padding: 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(23, 77, 49, 0.1) 0%, rgba(214, 170, 80, 0.06) 100%);
+  border: 1px solid rgba(23, 77, 49, 0.16);
+  text-align: center;
+}
+
+.materials-footer-art em {
+  font: italic 14px / 1.4 Georgia, serif;
+  color: #3b5a48;
+}
+
+/* Method Footer */
+.materials-method-footer {
+  margin-top: 24px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(22, 59, 39, 0.12);
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  color: #697f72;
+}
+
+.materials-method-footer i {
+  color: #d6aa50;
+  font-style: normal;
+  padding: 0 8px;
+}
+
+/* --------------------------------------------------------------------------
+   5. DARK GOLD THEME STYLING
+   -------------------------------------------------------------------------- */
+body:not([data-theme="healthy"]) .materials-hero-spotlight {
+  background: linear-gradient(135deg, #171106 0%, #0b0803 55%, #1f1608 100%);
+  border-color: rgba(214, 170, 80, 0.5);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(240, 206, 122, 0.28);
+}
+
+body:not([data-theme="healthy"]) .spotlight-title {
+  color: #fffaf0;
+}
+
+body:not([data-theme="healthy"]) .spotlight-subtitle {
+  color: #d7c9a9;
+}
+
+body:not([data-theme="healthy"]) .spotlight-benefits li {
+  color: #ebdcb9;
+}
+
+body:not([data-theme="healthy"]) .benefit-check {
+  background: rgba(214, 170, 80, 0.2);
+  border-color: #e5bd61;
+  color: #f5d688;
+}
+
+body:not([data-theme="healthy"]) .material-card {
+  background: #14120e;
+  border-color: #332b1b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+body:not([data-theme="healthy"]) .material-card:hover {
+  border-color: #d6aa50;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+body:not([data-theme="healthy"]) .material-card.is-acquired {
+  background: linear-gradient(180deg, #1c170f 0%, #14120e 100%);
+  border-color: rgba(214, 170, 80, 0.45);
+}
+
+body:not([data-theme="healthy"]) .material-card-title {
+  color: #f7ede1;
+}
+
+body:not([data-theme="healthy"]) .material-card-tagline {
+  color: #b8a886;
+}
+
+body:not([data-theme="healthy"]) .material-card-benefits {
+  border-color: #332b1b;
+}
+
+body:not([data-theme="healthy"]) .material-card-benefits li {
+  color: #c9bca0;
+}
+
+body:not([data-theme="healthy"]) .card-check {
+  color: #d6aa50;
+}
+
+body:not([data-theme="healthy"]) .material-card .material-price {
+  color: #f5d688;
+}
+
+body:not([data-theme="healthy"]) .btn-card-detail {
+  background: #1e1a14;
+  border-color: #403622;
+  color: #dfceab;
+}
+
+body:not([data-theme="healthy"]) .btn-card-detail:hover {
+  background: #2b241b;
+  border-color: #d6aa50;
+}
+
+body:not([data-theme="healthy"]) .btn-card-buy {
+  background: linear-gradient(100deg, #936418, #d8aa4a 55%, #efd080);
+  border-color: #f0d083;
+  color: #080808;
+}
+
+body:not([data-theme="healthy"]) .materials-library-card,
+body:not([data-theme="healthy"]) .materials-support {
+  background: #14120e;
+  border-color: #332b1b;
+}
+
+body:not([data-theme="healthy"]) .materials-library-card h2,
+body:not([data-theme="healthy"]) .materials-support b {
+  color: #f7ede1;
+}
+
+body:not([data-theme="healthy"]) .library-item {
+  background: #1b1712;
+  border-color: #362d1c;
+}
+
+body:not([data-theme="healthy"]) .library-item b {
+  color: #f7ede1;
+}
+
+body:not([data-theme="healthy"]) .library-item button {
+  background: #d6aa50;
+  color: #0a0a09;
+}
+
+/* --------------------------------------------------------------------------
+   6. RESPONSIVE BREAKPOINTS
+   -------------------------------------------------------------------------- */
+@media (max-width: 1440px) {
+  #materials .materials-v2 .materials-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
+  .materials-hero-spotlight {
+    grid-template-columns: 1fr;
+    padding: 30px;
+  }
+  .spotlight-book-stage {
+    display: none;
+  }
+  #materials .materials-v2 .materials-layout {
+    grid-template-columns: 1fr;
+  }
+  #materials .materials-v2 .materials-library {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  #materials .materials-v2 .materials-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #materials .materials-v2 .materials-library {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  #materials .materials-v2 .materials-grid {
+    grid-template-columns: 1fr;
+  }
+  .materials-hero-spotlight {
+    padding: 24px 18px;
+  }
+  .spotlight-title {
+    font-size: 24px;
+  }
+}

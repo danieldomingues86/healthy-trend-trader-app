@@ -1,0 +1,508 @@
+/* =========================================================================
+   HEALTHY TREND TRADER — ABOUT PAGE (FULL-WIDTH & MULTI-SCREEN FIDELITY)
+   Pure atmospheric dark green / gold palette matching the reference image.
+   ========================================================================= */
+
+/* ── 1. GLOBAL OVERRIDES FOR THE ABOUT ROUTE ────────────────────────────── */
+
+/* Hide market focus banner ("Seu plano já está registrado") on the About route */
+body:has(#about.active) #marketFocusGuard,
+body:has(#about.page.active) #marketFocusGuard {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+}
+
+/* Ensure full width and deep green background without any beige margins */
+body:has(#about.active) {
+  background: #07150e !important;
+}
+
+body:has(#about.active) .main {
+  background: #07150e !important;
+}
+
+body:has(#about.active) .content {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #07150e !important;
+}
+
+/* ── 2. TOPBAR THEME INTEGRATION ────────────────────────────────────────── */
+
+body:has(#about.active) .topbar {
+  background: #07150e !important;
+  border-bottom: 1px solid rgba(200, 168, 78, 0.16) !important;
+  backdrop-filter: blur(14px);
+  color: #d6ded8 !important;
+}
+
+body:has(#about.active) .crumb {
+  color: #798e82 !important;
+}
+
+body:has(#about.active) .crumb b {
+  color: #c8a84e !important;
+  font-weight: 700;
+}
+
+body:has(#about.active) .topbar .pill {
+  background: rgba(13, 34, 23, 0.75) !important;
+  border: 1px solid rgba(200, 168, 78, 0.22) !important;
+  color: #d6ded8 !important;
+}
+
+body:has(#about.active) .topbar .avatar {
+  background: linear-gradient(135deg, #1c3628, #c8a84e) !important;
+  color: #07150e !important;
+  border: 1px solid #c8a84e !important;
+  font-weight: 700;
+}
+
+/* ── 3. PAGE CONTAINER & FULL-WIDTH WRAPPER ─────────────────────────────── */
+
+#about.page.active {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 0 50px 0 !important;
+  min-height: calc(100vh - 78px) !important;
+  background: #07150e radial-gradient(circle at 85% 20%, rgba(20, 56, 38, 0.45) 0%, transparent 68%) !important;
+  color: #d6ded8 !important;
+  box-sizing: border-box !important;
+}
+
+/* Fluid wrapper without rigid max-width, occupying full width like reference */
+.about-wrapper {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 20px clamp(24px, 3.2vw, 56px) 40px clamp(24px, 3.2vw, 56px);
+  box-sizing: border-box;
+}
+
+/* ── 4. HERO SECTION ────────────────────────────────────────────────────── */
+
+.about-hero {
+  position: relative;
+  width: 100%;
+  min-height: clamp(480px, 48vh, 600px);
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  background-color: #07150e;
+  background-image:
+    linear-gradient(to right, #07150e 0%, #07150e 34%, rgba(7, 21, 14, 0.82) 48%, rgba(7, 21, 14, 0.25) 66%, transparent 80%),
+    linear-gradient(to top, #07150e 0%, rgba(7, 21, 14, 0.85) 4%, transparent 18%),
+    url('../assets/about-bull-art.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  background-size: auto 100%;
+  border-radius: 4px;
+}
+
+.about-hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: min(720px, 52vw);
+  padding: 20px 0;
+}
+
+/* Brand Header */
+.about-brand-header {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(14px, 1.4vw, 20px);
+  margin-bottom: 6px;
+}
+
+.about-brand-icon {
+  width: clamp(58px, 4.8vw, 76px);
+  height: clamp(52px, 4.3vw, 68px);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.about-brand-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.about-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 0.92;
+}
+
+.about-title-healthy {
+  font-size: clamp(44px, 3.8vw, 66px);
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  color: #f2ede4;
+  text-transform: uppercase;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.about-title-bottom {
+  display: flex;
+  gap: clamp(10px, 1vw, 14px);
+}
+
+.about-title-trend {
+  font-size: clamp(44px, 3.8vw, 66px);
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  color: #4db374;
+  text-transform: uppercase;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.about-title-trader {
+  font-size: clamp(44px, 3.8vw, 66px);
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  color: #d4bc6a;
+  text-transform: uppercase;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tagline */
+.about-tagline {
+  font-size: clamp(12.5px, 0.95vw, 15px);
+  font-weight: 750;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #c8a84e;
+  margin-top: 14px;
+  margin-bottom: 18px;
+}
+
+/* Description */
+.about-desc {
+  font-size: clamp(14px, 1vw, 16px);
+  line-height: 1.72;
+  color: #a4b8ac;
+  max-width: 540px;
+  margin: 0 0 24px 0;
+}
+
+/* Quote */
+.about-quote {
+  margin: 0;
+  padding: 14px 0 14px clamp(18px, 1.5vw, 24px);
+  border-left: 3.5px solid #c8a84e;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: clamp(16.5px, 1.25vw, 20px);
+  line-height: 1.65;
+  color: #e5d7ad;
+  max-width: 520px;
+}
+
+/* ── 5. SECTION HEADERS & DIVIDERS ──────────────────────────────────────── */
+
+.about-section-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 32px 0 22px 0;
+  width: 100%;
+}
+
+.about-section-title {
+  font-size: clamp(11.5px, 0.8vw, 13px);
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #c8a84e;
+  white-space: nowrap;
+}
+
+.about-section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(200, 168, 78, 0.45) 0%, rgba(200, 168, 78, 0.1) 85%, transparent 100%);
+}
+
+/* ── 6. A FILOSOFIA (5 Columns, Full-Width Fluid) ───────────────────────── */
+
+.about-philosophy-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(12px, 1.5vw, 24px);
+  margin-bottom: 28px;
+  width: 100%;
+}
+
+/* ── 7. O MÉTODO (8 Columns, Full-Width Fluid) ──────────────────────────── */
+
+.about-method-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: clamp(8px, 1vw, 16px);
+  margin-bottom: 28px;
+  width: 100%;
+}
+
+/* ── Shared Item Box for Filosofia & Método ─────────────────────────────── */
+
+.about-icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 4px;
+}
+
+.about-icon-box {
+  width: clamp(48px, 3.4vw, 58px);
+  height: clamp(48px, 3.4vw, 58px);
+  border-radius: 14px;
+  border: 1px solid rgba(200, 168, 78, 0.32);
+  background: rgba(200, 168, 78, 0.04);
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.about-icon-box:hover {
+  border-color: rgba(200, 168, 78, 0.7);
+  background: rgba(200, 168, 78, 0.09);
+  transform: translateY(-2px);
+}
+
+.about-icon-box svg {
+  display: block;
+}
+
+.about-philosophy-grid .about-icon-label {
+  font-size: clamp(12px, 0.88vw, 13.5px);
+  font-weight: 600;
+  color: #d6ded8;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.about-method-grid .about-icon-label {
+  font-size: clamp(11px, 0.8vw, 12.5px);
+  font-weight: 600;
+  color: #d6ded8;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* ── 8. BOTTOM GRID: A HISTÓRIA + CRIADO POR ────────────────────────────── */
+
+.about-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 4vw, 64px);
+  margin-top: 10px;
+  margin-bottom: 38px;
+  width: 100%;
+}
+
+.about-bottom-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.about-history-content {
+  padding-right: clamp(16px, 2vw, 32px);
+}
+
+.about-history-content p {
+  font-size: clamp(13.5px, 0.95vw, 15px);
+  line-height: 1.8;
+  color: #a4b8ac;
+  margin: 0 0 16px 0;
+}
+
+.about-creator-content {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 1.5vw, 24px);
+  margin-top: 6px;
+  flex-wrap: nowrap;
+}
+
+.about-monogram-circle {
+  width: clamp(64px, 4.5vw, 76px);
+  height: clamp(64px, 4.5vw, 76px);
+  border-radius: 50%;
+  border: 1.8px solid rgba(200, 168, 78, 0.5);
+  background: rgba(200, 168, 78, 0.04);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.about-monogram-text {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: clamp(26px, 2vw, 32px);
+  font-weight: 700;
+  color: #c8a84e;
+  line-height: 1;
+}
+
+.about-creator-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.about-creator-name {
+  font-size: clamp(16.5px, 1.2vw, 19px);
+  font-weight: 750;
+  color: #f2ede4;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.about-creator-tag {
+  font-size: clamp(10px, 0.75vw, 11px);
+  font-weight: 750;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: #c8a84e;
+  white-space: nowrap;
+}
+
+.about-creator-pillars {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.about-creator-pillars div {
+  font-size: clamp(9.5px, 0.72vw, 11px);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6e8677;
+  white-space: nowrap;
+}
+
+/* ── 9. FOOTER ──────────────────────────────────────────────────────────── */
+
+.about-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 22px;
+  border-top: 1px solid rgba(200, 168, 78, 0.18);
+  font-size: clamp(10.5px, 0.78vw, 11.5px);
+  color: #798e82;
+  width: 100%;
+}
+
+.about-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.about-footer-sep {
+  opacity: 0.35;
+}
+
+.about-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.about-footer-right a {
+  color: #798e82;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.about-footer-right a:hover {
+  color: #c8a84e;
+}
+
+.about-footer-globe {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  opacity: 0.75;
+}
+
+/* ── 10. RESPONSIVE ADAPTATIONS ─────────────────────────────────────────── */
+
+/* 15-inch common laptops (~1366px - 1440px): Ensure spacious clean fit */
+@media (max-width: 1440px) {
+  .about-hero {
+    min-height: 480px;
+    background-size: auto 95%;
+  }
+
+  .about-method-grid {
+    gap: 8px;
+  }
+}
+
+/* Compact screens and tablets */
+@media (max-width: 1100px) {
+  .about-hero {
+    background-size: auto 85%;
+    min-height: 440px;
+  }
+
+  .about-philosophy-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .about-method-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .about-wrapper {
+    padding: 16px 20px;
+  }
+
+  .about-hero {
+    min-height: auto;
+    background-image: none;
+  }
+
+  .about-hero-content {
+    max-width: 100%;
+  }
+
+  .about-bottom-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .about-creator-pillars {
+    margin-left: 0;
+    text-align: left;
+    margin-top: 12px;
+  }
+
+  .about-creator-content {
+    flex-wrap: wrap;
+  }
+
+  .about-footer {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+}

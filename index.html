@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="frontend/daily-routine.css" />
 <link rel="stylesheet" href="frontend/emerging-leaders.css" />
 <link rel="stylesheet" href="frontend/watchlist.css" />
+<link rel="stylesheet" href="frontend/sidebar-navigation.css" />
 <style>
 /* Scans é uma tela de leitura comparativa: ocupa a largura total do workspace. */
 #marketscans{max-width:1600px}
@@ -378,7 +379,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <link rel="stylesheet" href="frontend/mistakes-book.css?v=1">
 <link rel="stylesheet" href="frontend/emotional-intelligence.css?v=20260914-3">
 <link rel="stylesheet" href="frontend/positions-account-panels.css?v=20260915-2">
-<link rel="stylesheet" href="frontend/wealth-dashboard-v2.css?v=20260915-1">
+<link rel="stylesheet" href="frontend/wealth-dashboard-v2.css?v=20260918-2">
 <script src="frontend/plans-page.js"></script>
 <style>.positions-table .position-journal-link{margin-left:8px;padding:6px 8px;font-size:10px;white-space:nowrap}</style>
 </head>
@@ -687,6 +688,8 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
   <div id="glossaryRoot"></div>
 </section>
 
+<section class="page" id="about" aria-label="Sobre"></section>
+
 <section class="page" id="materials" aria-label="Healthy Trend Trader Materials">
   <div id="materialsRoot"></div>
 </section>
@@ -755,6 +758,7 @@ titles.mistakesbook='Erros e lições';titles.masteredlessons='Lições Dominada
 titles.dailyroutine='Rotina Diária';
 titles.emergingleaders='Líderes Emergentes';
 titles.watchlist='Watchlist';
+titles.about='Sobre';
 function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=typeof uiText==='function'?uiText(titles[id]):titles[id];if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
 function marketCandles(seed=0,count=16){return Array.from({length:count},(_,i)=>{const h=18+((i*17+seed*11)%46),mb=7+((i*13+seed*7)%38),wick=h+13+((i*7+seed)%20),trend=i>count*.62?'down':'up';return `<i class="market-candle ${trend}" style="--h:${h}px;--mb:${mb}px;--wick:${wick}px"></i>`}).join('')}
 function setMarketRange(button){document.querySelectorAll('.market-range button').forEach(item=>item.classList.toggle('active',item===button));}
@@ -2903,8 +2907,8 @@ renderEffectiveRiskPolicy();
 <script src="frontend/risk-heat-gate.js?v=20260915-1"></script>
 <link rel="stylesheet" href="frontend/login-cinematic.css?v=20260915-1" />
 <script src="frontend/login-cinematic.js?v=20260915-2"></script>
-<link rel="stylesheet" href="frontend/wealth-dashboard-v2.css?v=20260915-3" />
-<script src="frontend/wealth-dashboard-v2.js?v=20260916-1"></script>
+<link rel="stylesheet" href="frontend/wealth-dashboard-v2.css?v=20260918-2" />
+<script src="frontend/wealth-dashboard-v2.js?v=20260918-2"></script>
 <script src="frontend/relative-strength-cache-recovery.js?v=20260916-2"></script>
 <script src="frontend/daily-routine-model.js"></script>
 <script src="frontend/daily-routine.js"></script>
@@ -2912,4 +2916,12 @@ renderEffectiveRiskPolicy();
 <script src="frontend/emerging-leaders.js"></script>
 <script src="frontend/watchlist-model.js"></script>
 <script src="frontend/watchlist-page.js"></script>
+<link rel="stylesheet" href="frontend/about-page.css?v=20260918-1" />
+<script src="frontend/about-page.js?v=20260918-1"></script>
+<link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20260918-1" />
+<script>
+const goWithAboutPage=go;
+go=function(id){goWithAboutPage(id);if(id==='about')renderAboutPage()};
+</script>
+<script src="frontend/sidebar-navigation.js"></script>
 </body></html>
