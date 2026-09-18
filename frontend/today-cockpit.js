@@ -106,10 +106,6 @@
     }
   }
 
-  const previousRenderOperationalApp = renderOperationalApp;
-  renderOperationalApp = function () { previousRenderOperationalApp(); render(); };
-  const previousSetupAccountMenu = setupAccountMenu;
-  setupAccountMenu = function () { previousSetupAccountMenu(); renderCurrentDate(); renderTopHeat(); };
   const previousGo = go;
   go = function (id) { previousGo(id); if (id === 'today') load(); else renderTopHeat(); };
   window.addEventListener('healthyTrend:authenticated', load);

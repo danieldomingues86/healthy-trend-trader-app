@@ -34,6 +34,7 @@
     ['positions','Posições','Acompanhe e gerencie.','manual-positions','Abra a posição para consultar a linha do tempo, atualizar o stop e registrar reduções ou encerramento.'],
     ['portfolioheat','Portfolio Heat','Controle o risco da carteira.','manual-risk','Confira o risco agregado das posições e compare com o limite definido na sua Política de Risco.'],
     ['marketcycle','Ciclo de Mercado','Entenda o ambiente.','manual-permission','Leia o regime do mercado e a atualização dos dados. Use o contexto antes de procurar uma oportunidade.'],
+    ['emergingleaders','Líderes Emergentes','Descubra a próxima geração de líderes.','manual-emergingleaders','Identifique ações com alta Força Relativa, aceleração e proximidade da máxima durante correções. Acompanhe a força coletiva dos setores antes da entrada.'],
     ['relativestrength','Força Relativa','Encontre líderes.',null,'Compare os ativos dentro do seu universo. Força relativa indica liderança; a entrada ainda depende do setup.'],
     ['fundamentals','Fundamentalista','Analise a qualidade.',null,'Pesquise o ticker e consulte seus fundamentos atuais. Use a análise como evidência adicional na Rubric.'],
     ['analytics','Painel da Verdade','Descubra onde você tem edge.','manual-analytics','Revise os resultados das operações registradas e procure padrões de qualidade e execução.'],
@@ -65,6 +66,7 @@
     ['Quando ocorre Peel-Off?','É uma redução de proteção quando o Ongoing Risk excede o limite definido. O sistema indica a redução necessária; a execução deve ser registrada. Não é uma realização de lucro automática.'],
     ['Como funciona o Risk Ramp-Up?','A exposição aumenta gradualmente conforme as condições e regras do método. Consulte o perfil ativo e os limites da Política de Risco; um score alto não autoriza ultrapassá-los.'],
     ['Onde altero patrimônio e percentuais do método?','Registre saldos e movimentações em Patrimônio. Ajuste os perfis, pesos e limites na Política de Risco e as preferências em Configurações.'],
+    ['Como usar a tela de Líderes Emergentes?','A tela de Líderes Emergentes é um radar de inteligência de mercado. Ela identifica ações com forte desempenho relativo e resiliência durante correções. IMPORTANTE: Não compre apenas pelo score alto. Coloque os melhores candidatos na sua Watchlist e aguarde uma contração/bandeira no gráfico com Setup A+ antes de executar.'],
   ];
   const steps = [
     ['globe','MARKET','Posso operar?','Analise o ciclo de mercado e obtenha permissão.','marketcycle'],
@@ -124,6 +126,11 @@
     const [,title,,source,description] = entry;
     const original = source && legacy.querySelector('#'+source);
     const additionalGuides = {
+      emergingleaders: [
+        'A tela de Líderes Emergentes combina 6 dimensões em um Score único de 0 a 100: Força Relativa (25%), Aceleração de RS (15%), Proximidade da Máxima de 52S (20%), Resiliência na Correção (15%), Força de Recuperação (15%) e Liderança Setorial (10%).',
+        'Use esta ferramenta para descobrir quais ações estão sustentando preço enquanto a maioria do mercado cai. Veja os setores com maior concentração de força (Grupos Fortes) e selecione os melhores candidatos.',
+        'REGRA DE OURO: Descoberta NÃO é compra imediata. Um score alto serve para você colocar o ativo na sua Watchlist de acompanhamento. A compra só deve ser planejada quando a ação formar uma contração no gráfico com setup A+ e gatilho técnico confirmado.'
+      ],
       relativestrength: ['Escolha o universo de ativos e compare sua força relativa. Confira a data de atualização antes de interpretar a classificação.', 'Use os líderes para organizar sua pesquisa. Depois avalie o contexto técnico e a Rubric em Novo Trade; liderança não substitui um gatilho de entrada.'],
       fundamentals: ['Pesquise o código do ativo e confira os indicadores disponíveis. Campos sem dados devem permanecer sem avaliação, sem presumir qualidade.', 'Use a consulta atual para entender a empresa e complementar a seleção. Volte ao planejamento para revisar a dimensão fundamentalista e os demais critérios da Rubric.'],
       zen: ['Escolha a prática adequada ao seu momento e acompanhe as instruções da sessão.', 'Conclua a prática para registrar seu histórico. Antes de voltar à operação, retome seu plano e confira se está em condição de executá-lo.']

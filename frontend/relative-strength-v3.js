@@ -137,7 +137,19 @@
         button.textContent = text('Ver Análise', 'View Analysis');
         button.setAttribute('aria-label', text(`Ver análise de ${symbol}`, `View analysis for ${symbol}`));
         button.addEventListener('click', () => window.openFundamentalsForTicker(symbol));
-        actionCell.replaceChildren(button);
+        const wlBtn = document.createElement('button');
+        wlBtn.type = 'button';
+        wlBtn.className = 'rs-analysis-action';
+        wlBtn.style.cssText = 'margin-left:6px; background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.4);';
+        wlBtn.textContent = '+ Watchlist';
+        wlBtn.setAttribute('aria-label', text(`Adicionar ${symbol} à Watchlist`, `Add ${symbol} to Watchlist`));
+        wlBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (typeof window.addToWatchlist === 'function') {
+            window.addToWatchlist(symbol, { origin: 'relative-strength', rsScore: score });
+          }
+        });
+        actionCell.replaceChildren(button, wlBtn);
       }
     });
   }
