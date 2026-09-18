@@ -298,8 +298,15 @@
       // Bind global events (click outside, ESC, resize)
       this.bindGlobalEvents();
 
-      // Hook navigation
+      // Hook navigation and top navigation
       this.hookNavigation();
+      this.hookTopNavigation();
+      this.observeLayoutChanges();
+
+      // Ensure top navigation items if layout is already 'top'
+      if (document.body.dataset.navigationLayout === 'top') {
+        this.ensureTopNavigationItems();
+      }
 
       // Sync active state from current visible page
       const activeSection = document.querySelector('.page.active');
@@ -359,6 +366,9 @@
     }
 
     renderSidebar(sidebar) {
+      const existingControls = sidebar.querySelector('#topNavigationControls');
+      const existingActions = sidebar.querySelector('.top-actions');
+
       sidebar.innerHTML = `
         <header class="sidebar-header">
           <a class="sidebar-brand-link" onclick="go('today')" title="Início">
@@ -386,6 +396,13 @@
           </div>
         </footer>
       `;
+
+      if (existingControls) {
+        sidebar.appendChild(existingControls);
+      }
+      if (existingActions) {
+        sidebar.appendChild(existingActions);
+      }
 
       this.bindSidebarEvents(sidebar);
 
@@ -510,6 +527,10 @@
     }
 
     openFlyout(groupDef, triggerBtn, isPinned = false) {
+      if (document.body.dataset.navigationLayout === 'top' || document.body.dataset.navigationLayout === 'tiles') {
+        return;
+      }
+
       this.cancelClose();
       this.activeFlyoutGroup = groupDef.id;
       this.activeTriggerBtn = triggerBtn;
@@ -618,6 +639,7 @@
     }
 
     showTooltip(element, text) {
+      if (document.body.dataset.navigationLayout === 'top' || document.body.dataset.navigationLayout === 'tiles') return;
       if (!this.tooltipEl || !text) return;
       const rect = element.getBoundingClientRect();
       this.tooltipEl.textContent = text;
@@ -694,6 +716,11 @@
         });
       }
 
+      // Update Top Navigation active item if top navigation exists
+      document.querySelectorAll('#topNavigationMenu button').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.page === pageId);
+      });
+
       // Breadcrumb customization for grouped pages
       const crumb = document.getElementById('crumb');
       if (crumb) {
@@ -705,6 +732,138 @@
           }
         }
       }
+    }
+
+    hookTopNavigation() {
+      const originalSetup = root.setupTopNavigation;
+      const self = this;
+
+      root.setupTopNavigation = function() {
+        if (typeof originalSetup === 'function') {
+          originalSetup();
+        }
+        self.ensureTopNavigationItems();
+      };
+    }
+
+    ensureTopNavigationItems() {
+      const layout = document.body.dataset.navigationLayout;
+      if (layout !== 'top') return;
+
+      const sidebar = document.querySelector('.sidebar');
+      if (!sidebar) return;
+
+      let controls = document.getElementById('topNavigationControls');
+      let menu = document.getElementById('topNavigationMenu');
+
+      if (!menu) {
+        menu = document.createElement('nav');
+        menu.id = 'topNavigationMenu';
+        menu.className = 'top-navigation-menu';
+      }
+
+      if (!controls) {
+        controls = document.createElement('div');
+        controls.id = 'topNavigationControls';
+        controls.className = 'top-navigation-controls';
+        controls.innerHTML = `
+          <button class="top-navigation-scroll" id="topNavigationPrevious" type="button" aria-label="Ver atalhos anteriores" title="Ver atalhos anteriores" onclick="scrollTopNavigation(-1)">‹</button>
+          <button class="top-navigation-scroll" id="topNavigationNext" type="button" aria-label="Ver próximos atalhos" title="Ver próximos atalhos" onclick="scrollTopNavigation(1)">›</button>
+        `;
+      }
+
+      if (!controls.contains(menu)) {
+        controls.insertBefore(menu, controls.querySelector('#topNavigationNext'));
+      }
+
+      const actions = sidebar.querySelector('.top-actions') || document.querySelector('.top-actions');
+      if (actions && !sidebar.contains(actions)) {
+        sidebar.appendChild(actions);
+      }
+
+      if (actions) {
+        sidebar.insertBefore(controls, actions);
+      } else {
+        sidebar.appendChild(controls);
+      }
+
+      // Popula menu com as páginas se estiver vazio
+      if (menu.children.length === 0) {
+        const pages = this.getTopNavPages();
+        const activePage = this.activePageId || 'today';
+        const isPro = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
+        const proPages = root.professionalPages || new Set();
+
+        menu.innerHTML = pages.map((item) => {
+          const isLocked = proPages.has(item.page) && !isPro;
+          const activeClass = item.page === activePage ? ' active' : '';
+          const lockClass = isLocked ? ' plan-locked' : '';
+          return `<button type="button" class="${activeClass}${lockClass}" data-page="${item.page}" data-menu-label="${item.label}" aria-label="${item.label}" onclick="go('${item.page}')">${item.icon}<span>${item.label}</span></button>`;
+        }).join('');
+      }
+
+      menu.onscroll = root.updateTopNavigationScrollState;
+      if (typeof root.updateTopNavigationScrollState === 'function') {
+        root.updateTopNavigationScrollState();
+      }
+      if (typeof root.applySubscriptionAccess === 'function') {
+        root.applySubscriptionAccess();
+      }
+    }
+
+    getTopNavPages() {
+      if (Array.isArray(root.navigationTiles) && root.navigationTiles.length > 0) {
+        return root.navigationTiles.map(([pageId, icon, label]) => ({
+          page: pageId,
+          label: label,
+          icon: (icon && (icon.includes('<svg') || icon.includes('<span'))) ? icon : `<span class="ico">${icon || '•'}</span>`
+        }));
+      }
+
+      // Fallback robusto a partir de NAV_STRUCTURE e FOOTER_STRUCTURE
+      const items = [];
+      NAV_STRUCTURE.forEach((block) => {
+        if (block.items) {
+          block.items.forEach((item) => {
+            items.push({
+              page: item.page,
+              label: item.label || item.title,
+              icon: item.icon
+            });
+          });
+        }
+      });
+      FOOTER_STRUCTURE.forEach((item) => {
+        if (item.items) {
+          item.items.forEach((sub) => {
+            items.push({
+              page: sub.page,
+              label: sub.label || sub.title,
+              icon: sub.icon
+            });
+          });
+        } else {
+          items.push({
+            page: item.page,
+            label: item.label || item.title,
+            icon: item.icon
+          });
+        }
+      });
+      return items;
+    }
+
+    observeLayoutChanges() {
+      const self = this;
+      const observer = new MutationObserver(() => {
+        const layout = document.body.dataset.navigationLayout || 'sidebar';
+        self.closeFlyout(true);
+        self.hideTooltip();
+        if (layout === 'top') {
+          self.ensureTopNavigationItems();
+        }
+      });
+      observer.observe(document.body, { attributes: true, attributeFilter: ['data-navigation-layout'] });
     }
   }
 

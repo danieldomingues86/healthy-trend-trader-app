@@ -1420,6 +1420,7 @@ const navigationTiles=[
   ['manual','?','Manual do Software','Consulte o método','100% 100%'],
   ['glossary','≡','Glossário do método','Consulte os conceitos do método','center']
 ];
+window.navigationTiles = navigationTiles;
 let navigationLayout='sidebar';
 try{const storedNavigationLayout=localStorage.getItem(NAVIGATION_LAYOUT_STORAGE);if(navigationLayouts[storedNavigationLayout])navigationLayout=storedNavigationLayout}catch(error){}
 function navigationText(values){return window.appLanguage==='en-US'?values.en:values.pt}
