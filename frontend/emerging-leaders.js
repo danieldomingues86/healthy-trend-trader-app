@@ -21,7 +21,7 @@
     filters: {
       market: 'B3',
       sector: 'Todos os setores',
-      minRs: 70,
+      minRs: 80,
       onlyNewHighs: false,
       search: ''
     },
@@ -64,26 +64,45 @@
   const SECTOR_TRANSLATIONS = {
     'FINANCE': 'Financeiro',
     'FINANCIAL': 'Financeiro',
+    'FINANCIALS': 'Financeiro',
     'FINANCIAL SERVICES': 'Serviços Financeiros',
-    'RETAIL TRADE': 'Varejo',
+    'RETAIL TRADE': 'Comércio Varejista',
     'RETAIL': 'Varejo',
-    'TECHNOLOGY SERVICES': 'Tecnologia',
+    'TECHNOLOGY SERVICES': 'Serviços de Tecnologia',
     'TECHNOLOGY': 'Tecnologia',
+    'ELECTRONIC TECHNOLOGY': 'Tecnologia Eletrônica',
     'ENERGY': 'Energia',
+    'ENERGY MINERALS': 'Energia e Minerais',
+    'NON-ENERGY MINERALS': 'Materiais Não Energéticos',
     'UTILITIES': 'Utilidade Pública',
     'HEALTHCARE': 'Saúde',
     'HEALTH SERVICES': 'Serviços de Saúde',
+    'HEALTH TECHNOLOGY': 'Tecnologia em Saúde',
     'INDUSTRIALS': 'Industriais',
+    'INDUSTRIAL SERVICES': 'Serviços Industriais',
+    'PRODUCER MANUFACTURING': 'Indústria de Transformação',
+    'PROCESS INDUSTRIES': 'Indústrias de Processo',
     'BASIC MATERIALS': 'Materiais Básicos',
     'MATERIALS': 'Materiais Básicos',
-    'CONSUMER NON-DURABLES': 'Consumo Não Cíclico',
-    'CONSUMER DURABLES': 'Consumo Cíclico',
+    'CONSUMER NON-DURABLES': 'Bens de Consumo Não Duráveis',
+    'CONSUMER DURABLES': 'Bens de Consumo Duráveis',
     'CONSUMER SERVICES': 'Serviços ao Consumidor',
     'CONSUMO': 'Consumo',
+    'DISTRIBUTION SERVICES': 'Serviços de Distribuição',
+    'COMMERCIAL SERVICES': 'Serviços Comerciais',
     'COMMUNICATIONS': 'Comunicações',
     'TELECOMMUNICATIONS': 'Telecomunicações',
+    'TRANSPORTATION': 'Transportes',
+    'TRANSPORTES': 'Transportes',
     'REAL ESTATE': 'Imobiliário',
     'PAPEL/CRI': 'Papel e Celulose / Crédito',
+    'LAJES CORPORATIVAS': 'Lajes Corporativas',
+    'HÍBRIDOS': 'Híbridos',
+    'HIBRIDOS': 'Híbridos',
+    'SHOPPING': 'Shoppings',
+    'SHOPPINGS': 'Shoppings',
+    'LOGÍSTICA': 'Logística',
+    'LOGISTICA': 'Logística',
     'OUTROS': 'Outros'
   };
 
@@ -91,52 +110,72 @@
     if (!name) return 'Outros';
     const clean = String(name).trim();
     const upper = clean.toUpperCase();
-    return SECTOR_TRANSLATIONS[upper] || clean;
+    if (SECTOR_TRANSLATIONS[upper]) return SECTOR_TRANSLATIONS[upper];
+    if (typeof window.translateMarketSector === 'function') {
+      const globalTrans = window.translateMarketSector(clean);
+      if (globalTrans && globalTrans !== clean) return globalTrans;
+    }
+    return clean;
+  }
+
+  function detectAssetClass(symbol, rawAssetClass, sector) {
+    const sym = String(symbol || '').trim().toUpperCase();
+    if (rawAssetClass === 'bdr' || /(31|32|33|34|35|39)$/.test(sym)) {
+      return 'bdr';
+    }
+    if (rawAssetClass === 'fii' || (/(11|12|13|14)$/.test(sym) && (
+      ['Lajes corporativas', 'Lajes Corporativas', 'Papel/CRI', 'Híbridos', 'Hibridos', 'Shopping', 'Shoppings', 'Logística', 'Logistica', 'FII', 'Imobiliário', 'Títulos'].some(k => (sector || '').includes(k)) ||
+      ['BROF11', 'RBRP11', 'XPSF11', 'KNRI11', 'HGLG11', 'MXRF11', 'XPML11', 'BTLG11', 'VISC11', 'KNIP11', 'KNCR11', 'PVBI11', 'HGBS11', 'RBRR11', 'RZAK11', 'CPTS11', 'BRCO11', 'VILG11', 'HSLG11', 'LVBI11', 'TGAR11', 'KNSC11', 'VRTA11', 'TRXF11', 'ALZR11'].includes(sym)
+    ))) {
+      return 'fii';
+    }
+    return 'stock';
   }
 
   function enrichStocks(items) {
-    return items.map((item, index) => {
-      const symbol = item.symbol;
-      const name = item.name || symbol;
-      const rawSector = item.sector && item.sector !== 'Não classificado' ? item.sector : (index % 3 === 0 ? 'Energia' : index % 3 === 1 ? 'Financeiro' : 'Utilities');
-      const sector = translateSector(rawSector);
-      const rs = Number.isFinite(Number(item.score)) ? Number(item.score) : 75;
-      
-      const sixW = Number(item.relativeTrend?.change6w);
-      const rsDelta = Number.isFinite(sixW) ? Math.round(sixW * 2.5) : (rs >= 90 ? 15 + (index % 5) : rs >= 80 ? 10 + (index % 4) : 5 + (index % 3));
+    return items
+      .map((item, index) => {
+        const symbol = item.symbol;
+        const name = item.name || symbol;
+        const rawSector = item.sector && item.sector !== 'Não classificado' ? item.sector : (index % 3 === 0 ? 'Energia' : index % 3 === 1 ? 'Financeiro' : 'Utilidade Pública');
+        const sector = translateSector(rawSector);
+        const assetClass = detectAssetClass(symbol, item.assetClass, rawSector);
+        const rs = Number.isFinite(Number(item.score)) ? Number(item.score) : (Number.isFinite(Number(item.rs)) ? Number(item.rs) : 75);
+        
+        const sixW = Number(item.relativeTrend?.change6w);
+        const rsDelta = Number.isFinite(sixW) ? Math.round(sixW * 2.5) : (rs >= 90 ? 15 + (index % 5) : rs >= 80 ? 10 + (index % 4) : 5 + (index % 3));
 
-      const dist52w = Number.isFinite(Number(item.dist52w)) 
-        ? Number(item.dist52w) 
-        : (rs >= 90 ? - (1.5 + (index % 3) * 1.2) : rs >= 80 ? - (4.5 + (index % 4) * 1.5) : - (8.0 + (index % 5) * 2.0));
+        const dist52w = Number.isFinite(Number(item.dist52w)) 
+          ? Number(item.dist52w) 
+          : (rs >= 90 ? - (1.5 + (index % 3) * 1.2) : rs >= 80 ? - (4.5 + (index % 4) * 1.5) : - (8.0 + (index % 5) * 2.0));
 
-      const rangePos = Math.max(50, Math.min(99, Math.round(100 + dist52w * 1.5 - (index % 3))));
-      const resilience = rs >= 88 ? 'Forte' : rs >= 75 ? 'Moderada' : 'Baixa';
-      const recovery = Number.isFinite(Number(item.recovery))
-        ? Number(item.recovery)
-        : Math.round(rs * 0.25 + (rsDelta > 0 ? rsDelta * 0.4 : 0));
+        const rangePos = Math.max(50, Math.min(99, Math.round(100 + dist52w * 1.5 - (index % 3))));
+        const resilience = rs >= 88 ? 'Forte' : rs >= 75 ? 'Moderada' : 'Baixa';
+        const recovery = Number.isFinite(Number(item.recovery))
+          ? Number(item.recovery)
+          : Math.round(rs * 0.25 + (rsDelta > 0 ? rsDelta * 0.4 : 0));
 
-      const sectorLeadership = (sector === 'Energia' || sector === 'Financeiro') ? 'Grupo Forte' : (sector === 'Utilities' || sector === 'Consumo') ? 'Grupo Moderado' : 'Em Formação';
+        const score = rs;
+        const classification = window.EmergingLeadersModel.classifyStock(rs, dist52w);
 
-      const score = rs;
-      const classification = window.EmergingLeadersModel.classifyStock(rs, dist52w);
-
-      return {
-        symbol,
-        name,
-        sector,
-        assetClass: item.assetClass || 'stock',
-        score,
-        rs,
-        rsDelta,
-        dist52w: Number(dist52w.toFixed(1)),
-        rangePos,
-        resilience,
-        recovery,
-        status: classification.label,
-        statusKey: classification.key,
-        statusColor: classification.color
-      };
-    });
+        return {
+          symbol,
+          name,
+          sector,
+          assetClass,
+          score,
+          rs,
+          rsDelta,
+          dist52w: Number(dist52w.toFixed(1)),
+          rangePos,
+          resilience,
+          recovery,
+          status: classification.label,
+          statusKey: classification.key,
+          statusColor: classification.color
+        };
+      })
+      .filter(s => s.rs >= 80); // Restringe estritamente a tela a papéis fortes com RS >= 80
   }
 
   const DEFAULT_SAMPLE_STOCKS = [
@@ -144,10 +183,10 @@
     { symbol: 'PETR4', name: 'Petrobras', sector: 'Energia', rs: 93, rsDelta: 15, dist52w: -3.2, rangePos: 95, resilience: 'Forte', recovery: 18 },
     { symbol: 'ITUB4', name: 'Itaú', sector: 'Financeiro', rs: 91, rsDelta: 17, dist52w: -4.5, rangePos: 92, resilience: 'Forte', recovery: 16 },
     { symbol: 'BBAS3', name: 'Banco do Brasil', sector: 'Financeiro', rs: 88, rsDelta: 12, dist52w: -6.1, rangePos: 88, resilience: 'Moderada', recovery: 14 },
-    { symbol: 'TAEE11', name: 'Taesa', sector: 'Utilities', rs: 84, rsDelta: 11, dist52w: -7.3, rangePos: 86, resilience: 'Forte', recovery: 12 },
-    { symbol: 'CPFE3', name: 'CPFL Energia', sector: 'Utilities', rs: 82, rsDelta: 9, dist52w: -8.5, rangePos: 82, resilience: 'Moderada', recovery: 11 },
+    { symbol: 'TAEE11', name: 'Taesa', sector: 'Utilidade Pública', rs: 84, rsDelta: 11, dist52w: -7.3, rangePos: 86, resilience: 'Forte', recovery: 12 },
+    { symbol: 'CPFE3', name: 'CPFL Energia', sector: 'Utilidade Pública', rs: 82, rsDelta: 9, dist52w: -8.5, rangePos: 82, resilience: 'Moderada', recovery: 11 },
     { symbol: 'WEGE3', name: 'Weg', sector: 'Industriais', rs: 81, rsDelta: 10, dist52w: -9.1, rangePos: 80, resilience: 'Moderada', recovery: 10 },
-    { symbol: 'RENT3', name: 'Localiza', sector: 'Consumo', rs: 79, rsDelta: 8, dist52w: -10.4, rangePos: 76, resilience: 'Moderada', recovery: 9 }
+    { symbol: 'UGPA3', name: 'Ultrapar', sector: 'Comércio Varejista', rs: 85, rsDelta: 12, dist52w: -3.5, rangePos: 89, resilience: 'Forte', recovery: 15 }
   ];
 
   async function loadData() {
@@ -199,6 +238,7 @@
   const SECTOR_BG_MAP = {
     'Energia': 'assets/emerging-leaders/sector-energia.jpg',
     'Petróleo': 'assets/emerging-leaders/sector-energia.jpg',
+    'Energia e Minerais': 'assets/emerging-leaders/sector-energia.jpg',
     'Financeiro': 'assets/emerging-leaders/sector-financeiro.jpg',
     'Bancos': 'assets/emerging-leaders/sector-financeiro.jpg',
     'Serviços Financeiros': 'assets/emerging-leaders/sector-financeiro.jpg',
@@ -206,10 +246,25 @@
     'Utilidade Pública': 'assets/emerging-leaders/sector-utilities.jpg',
     'Consumo': 'assets/emerging-leaders/sector-consumo.jpg',
     'Varejo': 'assets/emerging-leaders/sector-consumo.jpg',
+    'Comércio Varejista': 'assets/emerging-leaders/sector-consumo.jpg',
+    'Bens de Consumo Não Duráveis': 'assets/emerging-leaders/sector-consumo.jpg',
+    'Bens de Consumo Duráveis': 'assets/emerging-leaders/sector-consumo.jpg',
     'Tecnologia': 'assets/emerging-leaders/sector-tecnologia.jpg',
+    'Serviços de Tecnologia': 'assets/emerging-leaders/sector-tecnologia.jpg',
+    'Tecnologia Eletrônica': 'assets/emerging-leaders/sector-tecnologia.jpg',
     'Papel e Celulose': 'assets/emerging-leaders/sector-celulose.jpg',
     'Papel e Celulose / Crédito': 'assets/emerging-leaders/sector-celulose.jpg',
     'Industriais': 'assets/emerging-leaders/sector-utilities.jpg',
+    'Serviços Industriais': 'assets/emerging-leaders/sector-utilities.jpg',
+    'Indústria de Transformação': 'assets/emerging-leaders/sector-utilities.jpg',
+    'Indústrias de Processo': 'assets/emerging-leaders/sector-celulose.jpg',
+    'Materiais Básicos': 'assets/emerging-leaders/sector-celulose.jpg',
+    'Materiais Não Energéticos': 'assets/emerging-leaders/sector-celulose.jpg',
+    'Saúde': 'assets/emerging-leaders/sector-utilities.jpg',
+    'Serviços de Saúde': 'assets/emerging-leaders/sector-utilities.jpg',
+    'Transportes': 'assets/emerging-leaders/sector-utilities.jpg',
+    'Imobiliário': 'assets/emerging-leaders/sector-celulose.jpg',
+    'Lajes Corporativas': 'assets/emerging-leaders/sector-celulose.jpg',
     'Outros': 'assets/emerging-leaders/sector-celulose.jpg'
   };
 
@@ -417,10 +472,8 @@
             </select>
 
             <select class="el-select" onchange="window.elFilterChange('minRs', this.value)">
-              <option value="90" ${state.filters.minRs == 90 ? 'selected' : ''}>RS ≥ 90</option>
               <option value="80" ${state.filters.minRs == 80 ? 'selected' : ''}>RS ≥ 80</option>
-              <option value="70" ${state.filters.minRs == 70 ? 'selected' : ''}>RS ≥ 70</option>
-              <option value="0" ${state.filters.minRs == 0 ? 'selected' : ''}>Qualquer RS</option>
+              <option value="90" ${state.filters.minRs == 90 ? 'selected' : ''}>RS ≥ 90</option>
             </select>
 
             <label class="el-toggle-filter" onclick="window.elToggleNewHighs()">

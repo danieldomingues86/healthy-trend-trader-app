@@ -6,19 +6,29 @@
  * volume já calculados na atualização diária.
  */
 function finite(value) { return Number.isFinite(Number(value)); }
+function isBdrSymbol(symbol) {
+  return /(31|32|33|34|35|39)$/.test(String(symbol || '').trim().toUpperCase());
+}
 function allAssets(cache) {
-  const stock = (cache.relativeStrength || []).map((item) => ({ ...item, assetClass: 'stock', benchmark: cache.benchmark?.symbol || 'IBOV' }));
-  const fii = cache.relativeStrengthByClass?.fii?.items || [];
-  const bdr = cache.relativeStrengthByClass?.bdr?.items || [];
+  const stock = (cache.relativeStrength || []).map((item) => ({
+    ...item,
+    assetClass: item.assetClass && item.assetClass !== 'stock' ? item.assetClass : (isBdrSymbol(item.symbol) ? 'bdr' : 'stock'),
+    benchmark: cache.benchmark?.symbol || 'IBOV'
+  }));
+  const fii = (cache.relativeStrengthByClass?.fii?.items || []).map(item => ({ ...item, assetClass: 'fii' }));
+  const bdr = (cache.relativeStrengthByClass?.bdr?.items || []).map(item => ({ ...item, assetClass: 'bdr' }));
   return [...stock, ...fii, ...bdr];
 }
 function itemView(item, status) {
   const scan = item.scan || {};
+  const isBdr = item.assetClass === 'bdr' || isBdrSymbol(item.symbol);
+  const isFii = item.assetClass === 'fii';
+  const assetClass = isBdr ? 'bdr' : (isFii ? 'fii' : (item.assetClass || 'stock'));
   return {
     symbol: item.symbol,
     name: item.name || item.symbol,
     sector: item.sector || 'Não classificado',
-    assetClass: item.assetClass || 'stock',
+    assetClass,
     benchmark: item.benchmark || null,
     dayChangePct: finite(scan.dayChangePct) ? Number(scan.dayChangePct) : null,
     volume: finite(scan.volume) ? Number(scan.volume) : null,

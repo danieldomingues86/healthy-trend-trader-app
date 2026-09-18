@@ -271,8 +271,20 @@
   function filterAndSortCandidates(stocks, filters = {}, sortField = 'score', sortAsc = false) {
     let result = [...stocks];
 
-    if (filters.market && filters.market !== 'all' && filters.market !== 'B3') {
-      result = result.filter(s => s.assetClass === filters.market || s.market === filters.market);
+    if (filters.market && filters.market !== 'all') {
+      if (filters.market === 'B3' || filters.market === 'stock') {
+        result = result.filter(s => {
+          const isBdr = s.assetClass === 'bdr' || /(31|32|33|34|35|39)$/.test(s.symbol || '');
+          const isFii = s.assetClass === 'fii';
+          return !isBdr && !isFii;
+        });
+      } else if (filters.market === 'fii') {
+        result = result.filter(s => s.assetClass === 'fii');
+      } else if (filters.market === 'bdr') {
+        result = result.filter(s => s.assetClass === 'bdr' || /(31|32|33|34|35|39)$/.test(s.symbol || ''));
+      } else {
+        result = result.filter(s => s.assetClass === filters.market || s.market === filters.market);
+      }
     }
     if (filters.sector && filters.sector !== 'all' && filters.sector !== 'Todos os setores') {
       result = result.filter(s => s.sector === filters.sector);

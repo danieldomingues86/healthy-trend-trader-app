@@ -158,3 +158,28 @@ test('filterAndSortCandidates filters and sorts candidates correctly', () => {
   assert.equal(sortedByRs[2].symbol, 'RENT3');
 });
 
+test('filterAndSortCandidates properly isolates B3 stocks from BDRs and FIIs', () => {
+  const universe = [
+    { symbol: 'PETR4', assetClass: 'stock', rs: 93 },
+    { symbol: 'P2LT34', assetClass: 'bdr', rs: 92 },
+    { symbol: 'AAPL34', assetClass: 'bdr', rs: 88 },
+    { symbol: 'BROF11', assetClass: 'fii', rs: 85 },
+    { symbol: 'VALE3', assetClass: 'stock', rs: 75 }
+  ];
+
+  const b3Only = filterAndSortCandidates(universe, { market: 'B3' });
+  assert.equal(b3Only.length, 2);
+  assert.deepEqual(b3Only.map(s => s.symbol), ['PETR4', 'VALE3']);
+
+  const bdrOnly = filterAndSortCandidates(universe, { market: 'bdr' });
+  assert.equal(bdrOnly.length, 2);
+  assert.deepEqual(bdrOnly.map(s => s.symbol), ['P2LT34', 'AAPL34']);
+
+  const fiiOnly = filterAndSortCandidates(universe, { market: 'fii' });
+  assert.equal(fiiOnly.length, 1);
+  assert.equal(fiiOnly[0].symbol, 'BROF11');
+
+  const strongRs = filterAndSortCandidates(universe, { minRs: 80 });
+  assert.equal(strongRs.length, 4);
+  assert.ok(!strongRs.some(s => s.symbol === 'VALE3'));
+});
