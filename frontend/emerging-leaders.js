@@ -21,12 +21,11 @@
     filters: {
       market: 'B3',
       sector: 'Todos os setores',
-      minScore: 70,
-      minRs: 80,
+      minRs: 70,
       onlyNewHighs: false,
       search: ''
     },
-    sortField: 'score',
+    sortField: 'rs',
     sortAsc: false
   };
 
@@ -118,17 +117,8 @@
 
       const sectorLeadership = (sector === 'Energia' || sector === 'Financeiro') ? 'Grupo Forte' : (sector === 'Utilities' || sector === 'Consumo') ? 'Grupo Moderado' : 'Em Formação';
 
-      const scoreResult = window.EmergingLeadersModel.calculateCompositeScore({
-        relativeStrength: rs,
-        rsAcceleration: rsDelta,
-        high52wProximity: dist52w,
-        correctionResilience: resilience,
-        recoveryStrength: recovery,
-        sectorLeadership: sectorLeadership
-      });
-
-      const score = scoreResult.score || rs;
-      const classification = window.EmergingLeadersModel.classifyStock(score, dist52w);
+      const score = rs;
+      const classification = window.EmergingLeadersModel.classifyStock(rs, dist52w);
 
       return {
         symbol,
@@ -266,7 +256,7 @@
 
   function renderKPIs(stocks, cycleMode) {
     const newHighs = stocks.filter(s => s.dist52w >= -2.0).length;
-    const leaders = stocks.filter(s => s.score >= 85).length;
+    const leaders = stocks.filter(s => s.rs >= 85).length;
     const accelerating = stocks.filter(s => s.rsDelta >= 10).length;
     const clusters = window.EmergingLeadersModel.analyzeSectorClusters(stocks);
     const leadingSectors = clusters.filter(c => c.status === 'Grupo Forte').length;
@@ -297,7 +287,7 @@
             <div class="el-kpi-label">${t('LÍDERES EMERGENTES', 'EMERGING LEADERS')}</div>
             <div class="el-kpi-value">${leaders || 8}</div>
             <div class="el-kpi-sub">
-              <span>Score ≥ 85</span>
+              <span>RS ≥ 85</span>
               <div class="el-kpi-bars">
                 <span style="height:5px"></span>
                 <span style="height:8px"></span>
@@ -426,13 +416,6 @@
               ${sectors.map(s => `<option value="${esc(s)}" ${state.filters.sector === s ? 'selected' : ''}>${esc(s)}</option>`).join('')}
             </select>
 
-            <select class="el-select" onchange="window.elFilterChange('minScore', this.value)">
-              <option value="85" ${state.filters.minScore == 85 ? 'selected' : ''}>Score ≥ 85</option>
-              <option value="70" ${state.filters.minScore == 70 ? 'selected' : ''}>Score ≥ 70</option>
-              <option value="55" ${state.filters.minScore == 55 ? 'selected' : ''}>Score ≥ 55</option>
-              <option value="0" ${state.filters.minScore == 0 ? 'selected' : ''}>Todos os scores</option>
-            </select>
-
             <select class="el-select" onchange="window.elFilterChange('minRs', this.value)">
               <option value="90" ${state.filters.minRs == 90 ? 'selected' : ''}>RS ≥ 90</option>
               <option value="80" ${state.filters.minRs == 80 ? 'selected' : ''}>RS ≥ 80</option>
@@ -462,7 +445,6 @@
                 <th>Ticker</th>
                 <th>Nome</th>
                 <th>Setor</th>
-                <th>Score</th>
                 <th>RS</th>
                 <th>RS Δ (30d)</th>
                 <th>${t('Máxima 52S', '52W High')}</th>
@@ -480,8 +462,7 @@
                   <td class="el-ticker">${esc(s.symbol)}</td>
                   <td class="el-stock-name">${esc(s.name)}</td>
                   <td>${esc(translateSector(s.sector))}</td>
-                  <td><span class="el-score-badge ${s.score >= 85 ? 'high' : 'medium'}">${s.score}</span></td>
-                  <td><b>${s.rs}</b></td>
+                  <td><span class="el-score-badge ${s.rs >= 90 ? 'high' : 'medium'}">${s.rs}</span></td>
                   <td class="el-metric-mint">${s.rsDelta >= 0 ? '+' : ''}${s.rsDelta}</td>
                   <td class="el-metric-gold">${pctBR(s.dist52w)}</td>
                   <td class="el-range-bar-cell">
@@ -496,7 +477,7 @@
                   <td><button type="button" class="el-action-dots" title="Detalhes">•••</button></td>
                 </tr>
               `).join('') : `
-                <tr><td colspan="13" style="text-align:center;padding:26px;color:#799485">${t('Nenhum candidato encontrado para os filtros selecionados.', 'No candidate found for selected filters.')}</td></tr>
+                <tr><td colspan="12" style="text-align:center;padding:26px;color:#799485">${t('Nenhum candidato encontrado para os filtros selecionados.', 'No candidate found for selected filters.')}</td></tr>
               `}
             </tbody>
           </table>
@@ -536,16 +517,16 @@
           <div class="el-gauge-circle">
             <svg viewBox="0 0 36 36">
               <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3.5" />
-              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#78d294" stroke-width="3.5" stroke-dasharray="${stock.score}, 100" stroke-linecap="round" />
+              <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#78d294" stroke-width="3.5" stroke-dasharray="${stock.rs}, 100" stroke-linecap="round" />
             </svg>
             <div class="el-gauge-text">
-              <strong>${stock.score}</strong>
+              <strong>${stock.rs}</strong>
               <small>/100</small>
             </div>
           </div>
 
           <div class="el-score-actions">
-            <span class="el-score-name">${t('Score Líder Emergente', 'Emerging Leader Score')}</span>
+            <span class="el-score-name">${t('Força Relativa (RS)', 'Relative Strength (RS)')}</span>
             <span class="el-status-pill ${stock.statusKey}">${stock.status}</span>
             <button type="button" class="el-btn-watchlist ${tracked ? 'tracked' : ''}" onclick="window.elToggleWatchlist('${esc(stock.symbol)}')">
               ${tracked ? t('★ Acompanhando na Watchlist', '★ Tracking in Watchlist') : t('☆ Adicionar à Watchlist', '☆ Add to Watchlist')}
@@ -621,7 +602,7 @@
   // Conexão futura: quando houver endpoint de série temporal intradiária ou histórica diária individual
   // por ativo (ex: /api/history?symbol=PETR4), os pontos podem ser passados diretamente ao stockPoints.
   function renderRelativePerformanceChart(stock) {
-    const scoreVal = Number(stock.score) || 75;
+    const scoreVal = Number(stock.rs) || 75;
     const isLeader = scoreVal >= 85;
     const isQualified = scoreVal >= 70;
 
