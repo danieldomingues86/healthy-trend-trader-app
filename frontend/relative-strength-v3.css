@@ -181,7 +181,7 @@ body:has(#relativestrength.active) .rs-v3-header-tools nav button { display:bloc
 body:has(#relativestrength.active) .rs-v3-header-tools nav button:hover { background:#256e494f; }
 body:has(#relativestrength.active) .rs-v3-header-tools button:focus-visible,
 body:has(#relativestrength.active) .rs-v3-header-tools summary:focus-visible { outline:2px solid #94e9b3; }
-body:has(#relativestrength.active) #marketFocusGuard { display:none!important; }
+body:has(#relativestrength.active) .content #marketFocusGuard { display:none!important; }
 body:has(#relativestrength.active) .market-focus-guard { min-height:0; padding:5px 12px; margin:0!important; border:0; border-radius:0; background:#052b2099; grid-template-columns:1fr auto auto; }
 body:has(#relativestrength.active) .market-focus-copy p,
 body:has(#relativestrength.active) .market-focus-orb { display:none; }

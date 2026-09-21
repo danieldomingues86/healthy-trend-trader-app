@@ -15,7 +15,13 @@
     });
     const current = (operationalState?.positions || []).filter(position => position.mode === 'real')
       .reduce((total, position) => total + (operationMetrics(position).riskPct || 0), 0);
-    return { current, projected: current + sizing.initialRisk / OPERATIONAL_EQUITY * 100, limit: portfolioHeatLimitPct() };
+
+    const execInput = document.getElementById('tradeExecutedQty');
+    let effectiveRisk = sizing.initialRisk;
+    if (execInput && execInput.value !== '' && Number(execInput.value) >= 0 && entry > 0 && stop > 0) {
+      effectiveRisk = Math.abs(entry - stop) * Number(execInput.value);
+    }
+    return { current, projected: current + effectiveRisk / OPERATIONAL_EQUITY * 100, limit: portfolioHeatLimitPct() };
   }
 
   refreshWorkbenchRiskGate = function () {
@@ -25,6 +31,8 @@
     const data = projectedHeat();
     const rubric = TradingRubrics.calculateRubric(currentRubricInput?.() || {}, riskPolicyState);
     const invalidWeights = !rubric.weightsValid;
+    const isGradeD = rubric.grade === 'D' || rubric.riskPct === 0;
+    const isOverrideOpen = Boolean(document.getElementById('courageOverrideBox')?.style.display === 'block');
     const exceeded = data.current >= data.limit || data.projected > data.limit;
     const reason = data.current >= data.limit
       ? `Portfolio Heat já excedido: ${format(data.current)} de ${format(data.limit)}.`
@@ -34,7 +42,8 @@
     if (!callout) {
       callout = document.createElement('div');
       callout.className = 'workbench-heat-callout';
-      sizer.querySelector('.three-layers')?.before(callout);
+      const mountTarget = sizer.querySelector('.workbench-sizer-body') || sizer.querySelector('.three-layers');
+      mountTarget?.before(callout);
     }
     callout.hidden = !(exceeded || invalidWeights);
     if (invalidWeights) callout.innerHTML = `<b>PESOS DA RUBRIC INVÁLIDOS</b><span>Total atual: ${numBR(rubric.weightsTotal, 2)} de 100,00 pontos. Ajuste a Política de Risco antes de abrir uma nova posição.</span>`;
@@ -49,17 +58,28 @@
     if (exceeded && details) details.textContent = `Registro bloqueado: ${reason}`;
 
     const locked = sizer.classList.contains('is-locked');
-    const blocked = locked || exceeded || invalidWeights;
+    const blocked = locked || exceeded || invalidWeights || isGradeD;
     const quantity = document.getElementById('tradeExecutedQty');
     if (quantity) {
-      quantity.disabled = blocked;
-      quantity.setAttribute('aria-disabled', String(blocked));
-      quantity.title = invalidWeights ? 'Ajuste os pesos da Rubric para totalizar 100 pontos.' : exceeded ? reason : locked ? 'Complete as Etapas 1 e 2 para registrar o trade.' : 'Ajuste opcional antes de registrar o trade.';
+      // A quantidade deve permanecer editável para que o usuário possa informar quantidade personalizada ou reduzir o lote
+      const shouldDisableQuantity = isGradeD || (locked && !isOverrideOpen);
+      quantity.disabled = shouldDisableQuantity;
+      quantity.setAttribute('aria-disabled', String(shouldDisableQuantity));
+      quantity.title = shouldDisableQuantity
+        ? (isGradeD ? 'Operação não recomendada pela política.' : 'Complete as Etapas 1 e 2 para registrar o trade.')
+        : 'Ajuste opcional antes de registrar o trade.';
+
+      if (!quantity.dataset.heatListenerBound) {
+        quantity.addEventListener('input', () => {
+          refreshWorkbenchRiskGate();
+        });
+        quantity.dataset.heatListenerBound = 'true';
+      }
     }
     sizer.querySelectorAll('.summary-box button').forEach(button => {
       button.disabled = blocked;
       button.setAttribute('aria-disabled', String(blocked));
-      button.title = invalidWeights ? 'Ajuste os pesos da Rubric para totalizar 100 pontos.' : exceeded ? reason : locked ? 'Complete as Etapas 1 e 2 para registrar o trade.' : '';
+      button.title = invalidWeights ? 'Ajuste os pesos da Rubric para totalizar 100 pontos.' : exceeded ? reason : isGradeD ? 'Operação não recomendada pela política.' : locked ? 'Complete as Etapas 1 e 2 para registrar o trade.' : '';
     });
   };
   refreshWorkbenchRiskGate();

@@ -1,0 +1,2397 @@
+/* ==========================================================================
+   DESAFIO A+ — CORAGEM CALCULADA V2 (LAYOUT COMPACTO SEM SCROLL)
+   Referência Visual Fiel: Menos Dashboard. Mais Treinamento.
+   ========================================================================== */
+
+/* Full-width container overrides to eliminate white/beige gaps and utilize full viewport */
+body:has(#couragechallenge.active) .main {
+  background: #06120d !important;
+  background-color: #06120d !important;
+}
+
+body:has(#couragechallenge.active) .content {
+  background: transparent !important;
+  max-width: none !important;
+  width: 100% !important;
+  padding: 8px 24px 36px 24px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+body:has(#couragechallenge.active) #marketFocusGuard {
+  display: none !important;
+}
+
+body:has(#couragechallenge.active) .topbar {
+  background: rgba(6, 18, 13, 0.92) !important;
+  border-bottom: 1px solid rgba(37, 211, 102, 0.12) !important;
+  backdrop-filter: blur(14px);
+  color: #dcece2 !important;
+}
+
+#couragechallenge {
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: calc(100vh - 52px);
+  overflow-y: visible !important;
+}
+
+.courage-challenge-shell.compact-viewport {
+  /* 1. Baseline: Notebook 15" (~1366px - 1680px) */
+  --courage-max-width: min(1080px, 94vw);
+  --courage-gap: 14px;
+  --courage-hero-min-height: 250px;
+  --courage-hero-max-height: 275px;
+  --courage-hero-padding: 26px 36px 22px 36px;
+  --courage-hero-body-max-width: 620px;
+  --courage-hero-title-size: 46px;
+  --courage-hero-subtitle-size: 20px;
+  --courage-hero-quote-size: 13.5px;
+  --courage-hero-kicker-size: 13px;
+
+  --courage-card-padding: 16px 28px;
+  --courage-card-radius: 14px;
+
+  --courage-donut-size: 130px;
+  --courage-donut-current-size: 44px;
+  --courage-donut-goal-size: 16px;
+  --courage-donut-label-size: 9px;
+
+  --courage-pct-size: 26px;
+  --courage-pct-label-size: 15px;
+  --courage-dot-size: 18px;
+  --courage-dot-gap: 8px;
+
+  --courage-stat-number-size: 24px;
+  --courage-stat-desc-size: 11px;
+  --courage-stat-padding: 0 20px;
+
+  --courage-cal-box-padding: 12px 20px;
+  --courage-cal-days-size: 26px;
+
+  --courage-sizing-heading-size: 13px;
+  --courage-sizing-box-padding: 12px 28px;
+  --courage-sizing-box-min-width: 145px;
+  --courage-metric-value-size: 34px;
+  --courage-connector-arrow-size: 28px;
+  --courage-result-circle-size: 56px;
+  --courage-result-icon-size: 26px;
+  --courage-result-title-size: 15px;
+  --courage-result-desc-size: 12px;
+
+  --courage-tile-min-height: 125px;
+  --courage-tile-padding: 14px 20px;
+  --courage-tile-badge-size: 42px;
+  --courage-tile-badge-font: 20px;
+  --courage-tile-title-size: 12.5px;
+  --courage-tile-subtitle-size: 11px;
+  --courage-tile-body-size: 12px;
+  --courage-tile-body-min-height: 44px;
+  --courage-tile-body-padding: 10px 14px;
+
+  height: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: var(--courage-gap, 14px);
+  padding: 4px 0 28px 0;
+  max-width: var(--courage-max-width, 1080px) !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  transition: max-width 0.25s ease;
+}
+
+/* 2. Tier Full HD Desktop (~1750px - 2199px) — +12% a +15% de escala */
+@media (min-width: 1750px) {
+  .courage-challenge-shell.compact-viewport {
+    --courage-max-width: min(1260px, 92vw);
+    --courage-gap: 16px;
+    --courage-hero-min-height: 295px;
+    --courage-hero-max-height: 325px;
+    --courage-hero-padding: 30px 42px 26px 42px;
+    --courage-hero-body-max-width: 710px;
+    --courage-hero-title-size: 52px;
+    --courage-hero-subtitle-size: 22.5px;
+    --courage-hero-quote-size: 15px;
+    --courage-hero-kicker-size: 14.5px;
+
+    --courage-card-padding: 18px 32px;
+    --courage-card-radius: 16px;
+
+    --courage-donut-size: 146px;
+    --courage-donut-current-size: 50px;
+    --courage-donut-goal-size: 18px;
+    --courage-donut-label-size: 10px;
+
+    --courage-pct-size: 30px;
+    --courage-pct-label-size: 17px;
+    --courage-dot-size: 21px;
+    --courage-dot-gap: 10px;
+
+    --courage-stat-number-size: 28px;
+    --courage-stat-desc-size: 12.5px;
+    --courage-stat-padding: 0 24px;
+
+    --courage-cal-box-padding: 14px 24px;
+    --courage-cal-days-size: 30px;
+
+    --courage-sizing-heading-size: 14.5px;
+    --courage-sizing-box-padding: 14px 32px;
+    --courage-sizing-box-min-width: 165px;
+    --courage-metric-value-size: 39px;
+    --courage-connector-arrow-size: 32px;
+    --courage-result-circle-size: 64px;
+    --courage-result-icon-size: 30px;
+    --courage-result-title-size: 17px;
+    --courage-result-desc-size: 13.5px;
+
+    --courage-tile-min-height: 140px;
+    --courage-tile-padding: 16px 24px;
+    --courage-tile-badge-size: 48px;
+    --courage-tile-badge-font: 23px;
+    --courage-tile-title-size: 14px;
+    --courage-tile-subtitle-size: 12px;
+    --courage-tile-body-size: 13.5px;
+    --courage-tile-body-min-height: 48px;
+    --courage-tile-body-padding: 12px 16px;
+  }
+}
+
+/* 3. Tier Ultrawide / Widescreen (>2200px) — +25% a +30% de escala */
+@media (min-width: 2200px) {
+  .courage-challenge-shell.compact-viewport {
+    --courage-max-width: min(1460px, 88vw);
+    --courage-gap: 20px;
+    --courage-hero-min-height: 350px;
+    --courage-hero-max-height: 385px;
+    --courage-hero-padding: 36px 48px 30px 48px;
+    --courage-hero-body-max-width: 820px;
+    --courage-hero-title-size: 60px;
+    --courage-hero-subtitle-size: 26px;
+    --courage-hero-quote-size: 17px;
+    --courage-hero-kicker-size: 16px;
+
+    --courage-card-padding: 22px 38px;
+    --courage-card-radius: 18px;
+
+    --courage-donut-size: 168px;
+    --courage-donut-current-size: 58px;
+    --courage-donut-goal-size: 21px;
+    --courage-donut-label-size: 11.5px;
+
+    --courage-pct-size: 34px;
+    --courage-pct-label-size: 19px;
+    --courage-dot-size: 24px;
+    --courage-dot-gap: 12px;
+
+    --courage-stat-number-size: 32px;
+    --courage-stat-desc-size: 14px;
+    --courage-stat-padding: 0 28px;
+
+    --courage-cal-box-padding: 16px 28px;
+    --courage-cal-days-size: 36px;
+
+    --courage-sizing-heading-size: 16px;
+    --courage-sizing-box-padding: 16px 38px;
+    --courage-sizing-box-min-width: 185px;
+    --courage-metric-value-size: 45px;
+    --courage-connector-arrow-size: 36px;
+    --courage-result-circle-size: 74px;
+    --courage-result-icon-size: 35px;
+    --courage-result-title-size: 19px;
+    --courage-result-desc-size: 15px;
+
+    --courage-tile-min-height: 160px;
+    --courage-tile-padding: 20px 28px;
+    --courage-tile-badge-size: 54px;
+    --courage-tile-badge-font: 26px;
+    --courage-tile-title-size: 16px;
+    --courage-tile-subtitle-size: 13.5px;
+    --courage-tile-body-size: 15px;
+    --courage-tile-body-min-height: 54px;
+    --courage-tile-body-padding: 14px 18px;
+  }
+}
+
+/* 1. HERO CINEMATOGRÁFICO COM ARTE DA MONTANHA INTEGRADA */
+.courage-compact-hero {
+  position: relative;
+  border-radius: var(--courage-card-radius, 14px);
+  overflow: hidden;
+  padding: var(--courage-hero-padding, 26px 36px 22px 36px);
+  min-height: var(--courage-hero-min-height, 250px);
+  max-height: var(--courage-hero-max-height, 275px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid rgba(46, 160, 114, 0.28);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  background-color: #06120d;
+  background-image: 
+    linear-gradient(90deg, #06120d 0%, #06120d 24%, rgba(6, 18, 13, 0.88) 42%, rgba(6, 18, 13, 0.12) 65%, transparent 82%),
+    url('../assets/courage-hero-landscape.jpg');
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  color: #ffffff;
+  transition: all 0.25s ease;
+}
+
+.courage-compact-hero-controls {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+  background: rgba(4, 14, 10, 0.55);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  opacity: 0.88;
+  transition: opacity 0.2s ease;
+}
+.courage-compact-hero-controls:hover {
+  opacity: 1;
+}
+
+.courage-hero-pill-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.courage-kicker-gold {
+  font-size: var(--courage-hero-kicker-size, 13px);
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: #dfbe73;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.courage-hero-status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.courage-hero-status-tag.active {
+  background: rgba(37, 211, 102, 0.18);
+  border: 1px solid rgba(37, 211, 102, 0.45);
+  color: #5efc8d;
+}
+.courage-hero-status-tag.paused {
+  background: rgba(234, 179, 8, 0.18);
+  border: 1px solid rgba(234, 179, 8, 0.45);
+  color: #fde047;
+}
+.courage-hero-status-tag.draft {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+}
+.courage-hero-status-tag.completed {
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.6);
+  color: #f7d674;
+}
+.courage-hero-status-tag.cancelled {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
+.courage-detachment-toggle-pill {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #b2c5bb;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.courage-detachment-toggle-pill.active {
+  border-color: rgba(37, 211, 102, 0.5);
+  color: #5efc8d;
+  background: rgba(37, 211, 102, 0.14);
+}
+
+.courage-compact-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.courage-mini-action-btn {
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.courage-mini-action-btn.gold {
+  background: linear-gradient(135deg, #d4af37, #b38b19);
+  color: #120c02;
+  font-weight: 700;
+}
+.courage-mini-action-btn.outline {
+  background: rgba(0, 0, 0, 0.45);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+.courage-mini-action-btn.danger {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+.courage-mini-action-btn.primary {
+  background: #25d366;
+  color: #06140d;
+  font-weight: 700;
+}
+
+.courage-compact-hero-body {
+  margin-top: 0;
+  max-width: var(--courage-hero-body-max-width, 620px);
+}
+
+.courage-compact-title {
+  font-family: 'Playfair Display', 'Cormorant Garamond', 'Baskerville', Georgia, serif;
+  font-size: var(--courage-hero-title-size, 46px);
+  font-weight: 700;
+  line-height: 1.04;
+  color: #f6edd9;
+  margin: 0;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.courage-title-accent {
+  position: relative;
+  display: inline-block;
+}
+.courage-title-brush {
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 12px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(46, 229, 157, 0.85));
+}
+
+.courage-compact-subtitle {
+  font-family: 'Playfair Display', 'Baskerville', Georgia, serif;
+  font-style: italic;
+  font-size: var(--courage-hero-subtitle-size, 20px);
+  color: #dfbe73;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.courage-compact-quote {
+  font-size: var(--courage-hero-quote-size, 13.5px);
+  font-style: italic;
+  color: rgba(220, 235, 226, 0.85);
+  margin: 10px 0 0 0;
+  max-width: var(--courage-hero-body-max-width, 520px);
+  line-height: 1.5;
+}
+
+/* 2. CARD PROGRESSO COMPACTO */
+.courage-compact-progress-card {
+  background: rgba(6, 20, 15, 0.88);
+  border: 1px solid rgba(46, 160, 114, 0.32);
+  border-radius: var(--courage-card-radius, 14px);
+  padding: var(--courage-card-padding, 16px 28px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+}
+
+.courage-progress-donut-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.courage-donut-wrap {
+  position: relative;
+  width: var(--courage-donut-size, 130px);
+  height: var(--courage-donut-size, 130px);
+}
+
+.courage-donut-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 10px rgba(46, 229, 157, 0.55));
+}
+
+.courage-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.courage-donut-current {
+  font-size: var(--courage-donut-current-size, 44px);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 0.95;
+}
+
+.courage-donut-goal {
+  font-size: var(--courage-donut-goal-size, 16px);
+  font-weight: 700;
+  color: #dfbe73;
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+.courage-donut-label {
+  font-size: var(--courage-donut-label-size, 9px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #2ee59d;
+  margin-top: 4px;
+}
+
+.courage-progress-main-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.courage-progress-top-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.courage-pct-highlight {
+  font-size: var(--courage-pct-size, 26px);
+  font-weight: 800;
+  color: #2ee59d;
+  line-height: 1;
+}
+
+.courage-pct-sublabel {
+  font-size: var(--courage-pct-label-size, 15px);
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.courage-clean-dots-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--courage-dot-gap, 8px);
+  margin: 4px 0;
+}
+
+.courage-clean-dot {
+  width: var(--courage-dot-size, 18px);
+  height: var(--courage-dot-size, 18px);
+  border-radius: 50%;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.courage-clean-dot.filled {
+  background: #2ee59d;
+  box-shadow: 0 0 10px rgba(46, 229, 157, 0.85);
+}
+.courage-clean-dot.next {
+  background: #12281e;
+  border: 2px dashed #2ee59d;
+}
+.courage-clean-dot.empty {
+  background: #14251d;
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+}
+.courage-clean-dot:hover {
+  transform: scale(1.35);
+}
+
+.courage-clean-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 6px;
+}
+
+.courage-clean-stat-col {
+  display: flex;
+  flex-direction: column;
+  padding: var(--courage-stat-padding, 0 20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+.courage-clean-stat-col:first-child {
+  padding-left: 0;
+}
+.courage-clean-stat-col:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.courage-clean-stat-number {
+  font-size: var(--courage-stat-number-size, 24px);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+}
+.courage-clean-stat-number.green {
+  color: #2ee59d;
+}
+.courage-clean-stat-number.yellow {
+  color: #eab308;
+}
+
+.courage-clean-stat-desc {
+  font-size: var(--courage-stat-desc-size, 11px);
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  margin-top: 3px;
+}
+
+.courage-progress-deadline-col {
+  background: rgba(4, 16, 11, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: var(--courage-cal-box-padding, 12px 20px);
+  min-width: 155px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.courage-progress-deadline-col:hover {
+  border-color: rgba(46, 229, 157, 0.45);
+  background: rgba(4, 16, 11, 0.8);
+}
+
+.courage-cal-header-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.courage-cal-emoji {
+  font-size: 17px;
+}
+.courage-cal-kicker {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.55);
+}
+.courage-cal-date {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.courage-cal-countdown {
+  margin-top: 6px;
+}
+.courage-cal-days {
+  font-size: var(--courage-cal-days-size, 26px);
+  font-weight: 800;
+  color: #ffffff;
+  margin-right: 4px;
+}
+.courage-cal-days-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 3. CARD SIZING COMPLIANCE (PROTAGONISTA) */
+.courage-compact-sizing-card {
+  background: rgba(6, 20, 15, 0.88);
+  border: 1px solid rgba(46, 160, 114, 0.36);
+  border-radius: var(--courage-card-radius, 14px);
+  padding: var(--courage-card-padding, 16px 28px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+}
+
+.courage-compact-sizing-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.courage-sizing-heading-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.courage-sizing-icon-svg {
+  font-size: 18px;
+}
+
+.courage-sizing-h3 {
+  font-size: var(--courage-sizing-heading-size, 13px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.courage-sizing-explainer {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 2px 0 0 0;
+}
+
+.courage-tooltip-ico {
+  color: rgba(255, 255, 255, 0.45);
+  cursor: help;
+}
+
+.courage-details-outline-btn {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(46, 229, 157, 0.45);
+  color: #5efc8d;
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.courage-details-outline-btn:hover {
+  background: rgba(46, 229, 157, 0.18);
+  border-color: #2ee59d;
+}
+
+.courage-compact-sizing-body {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.courage-sizing-metric-box.defined {
+  background: rgba(4, 16, 11, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: var(--courage-sizing-box-padding, 12px 28px);
+  text-align: center;
+  min-width: var(--courage-sizing-box-min-width, 145px);
+}
+
+.courage-metric-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.courage-metric-sub {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.courage-metric-value {
+  font-size: var(--courage-metric-value-size, 34px);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+  margin: 3px 0 2px 0;
+}
+
+.courage-metric-footer {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.courage-sizing-connector-arrow {
+  font-size: var(--courage-connector-arrow-size, 28px);
+  color: #2ee59d;
+  font-weight: 700;
+  margin: 0 4px;
+}
+
+.courage-sizing-metric-box.executed {
+  border-radius: 10px;
+  padding: var(--courage-sizing-box-padding, 12px 28px);
+  text-align: center;
+  min-width: var(--courage-sizing-box-min-width, 155px);
+}
+.courage-sizing-metric-box.executed.highlight-compliant {
+  border: 1.8px solid #2ee59d;
+  background: rgba(46, 229, 157, 0.12);
+  box-shadow: 0 0 20px rgba(46, 229, 157, 0.28);
+}
+.courage-sizing-metric-box.executed.highlight-under {
+  border: 1.8px solid #eab308;
+  background: rgba(234, 179, 8, 0.12);
+}
+.courage-sizing-metric-box.executed.highlight-over {
+  border: 1.8px solid #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+}
+.courage-metric-tag.green,
+.courage-metric-value.green {
+  color: #2ee59d;
+}
+
+.courage-metric-check-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2ee59d;
+  color: #06140d;
+  font-size: 12px;
+  font-weight: 900;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.courage-sizing-result-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.courage-result-icon-circle {
+  width: var(--courage-result-circle-size, 56px);
+  height: var(--courage-result-circle-size, 56px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--courage-result-icon-size, 26px);
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.courage-sizing-result-box.compliant .courage-result-icon-circle {
+  background: rgba(46, 229, 157, 0.16);
+  border: 2.5px solid #2ee59d;
+  box-shadow: 0 0 22px rgba(46, 229, 157, 0.45);
+  color: #2ee59d;
+}
+.courage-sizing-result-box.under-sizing .courage-result-icon-circle {
+  background: rgba(234, 179, 8, 0.16);
+  border: 2px solid #eab308;
+  color: #eab308;
+}
+.courage-sizing-result-box.over-sizing .courage-result-icon-circle {
+  background: rgba(239, 68, 68, 0.16);
+  border: 2px solid #ef4444;
+  color: #ef4444;
+}
+
+.courage-result-title {
+  font-size: var(--courage-result-title-size, 15px);
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  margin: 0;
+}
+.courage-sizing-result-box.compliant .courage-result-title { color: #2ee59d; }
+.courage-sizing-result-box.under-sizing .courage-result-title { color: #eab308; }
+.courage-sizing-result-box.over-sizing .courage-result-title { color: #ef4444; }
+
+.courage-result-desc {
+  font-size: var(--courage-result-desc-size, 12px);
+  color: rgba(255, 255, 255, 0.72);
+  margin: 3px 0 0 0;
+  max-width: 320px;
+  line-height: 1.4;
+}
+
+/* 4. CARDS COMPACTOS: MINHA RECOMPENSA & MINHA CONSEQUÊNCIA */
+.courage-compact-commitments-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--courage-gap, 14px);
+}
+
+.courage-compact-tile {
+  border-radius: var(--courage-card-radius, 12px);
+  padding: var(--courage-tile-padding, 14px 20px);
+  min-height: var(--courage-tile-min-height, 125px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.courage-compact-tile.reward {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.24) 0%, rgba(6, 22, 16, 0.88) 100%);
+  border: 1px solid rgba(46, 229, 157, 0.35);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+.courage-compact-tile.reward:hover {
+  border-color: rgba(46, 229, 157, 0.6);
+  transform: translateY(-2px);
+}
+.courage-compact-tile.consequence {
+  background: linear-gradient(135deg, rgba(217, 149, 12, 0.2) 0%, rgba(20, 16, 8, 0.88) 100%);
+  border: 1px solid rgba(217, 149, 12, 0.35);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+.courage-compact-tile.consequence:hover {
+  border-color: rgba(217, 149, 12, 0.6);
+  transform: translateY(-2px);
+}
+
+.courage-tile-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.courage-tile-icon-badge {
+  width: var(--courage-tile-badge-size, 42px);
+  height: var(--courage-tile-badge-size, 42px);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--courage-tile-badge-font, 20px);
+  flex-shrink: 0;
+}
+.courage-tile-icon-badge.green {
+  background: rgba(46, 229, 157, 0.2);
+  border: 1.5px solid rgba(46, 229, 157, 0.45);
+}
+.courage-tile-icon-badge.gold {
+  background: rgba(217, 149, 12, 0.2);
+  border: 1.5px solid rgba(217, 149, 12, 0.45);
+}
+
+.courage-tile-title {
+  font-size: var(--courage-tile-title-size, 12.5px);
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  margin: 0;
+}
+.courage-compact-tile.reward .courage-tile-title { color: #5efc8d; }
+.courage-compact-tile.consequence .courage-tile-title { color: #f7d674; }
+
+.courage-tile-subtitle {
+  font-size: var(--courage-tile-subtitle-size, 11px);
+  color: rgba(255, 255, 255, 0.65);
+  margin: 2px 0 0 0;
+}
+
+.courage-tile-body-box {
+  background: rgba(4, 14, 10, 0.8);
+  border: 1px solid rgba(46, 229, 157, 0.18);
+  border-radius: 8px;
+  padding: var(--courage-tile-body-padding, 10px 14px);
+  font-size: var(--courage-tile-body-size, 12px);
+  color: #a2c7b7;
+  margin-top: 10px;
+  line-height: 1.4;
+  min-height: var(--courage-tile-body-min-height, 44px);
+  display: flex;
+  align-items: center;
+}
+.courage-compact-tile.consequence .courage-tile-body-box {
+  background: rgba(14, 11, 5, 0.8);
+  border-color: rgba(217, 149, 12, 0.18);
+  color: #ded0b0;
+}
+
+/* 5. FOOTER COMPACTO */
+.courage-compact-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.courage-footer-quote {
+  font-weight: 600;
+}
+.courage-footer-brand {
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Sidebar quote accent when Courage Challenge is active */
+body:has(#couragechallenge.active) .sidebar::after {
+  content: "“Pequenas boas decisões constroem grandes resultados.”";
+  display: block;
+  font-size: 11px;
+  font-style: italic;
+  color: rgba(220, 235, 226, 0.7);
+  padding: 12px 14px 6px 14px;
+  border-top: 2px solid #2ee59d;
+  margin: 16px 12px 10px 12px;
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   ESTILOS EXISTENTES E MODAIS
+   -------------------------------------------------------------------------- */
+.courage-hero { 
+  background-image: 
+    linear-gradient(135deg, rgba(8, 20, 15, 0.88) 0%, rgba(12, 28, 20, 0.72) 50%, rgba(5, 12, 9, 0.92) 100%),
+    url('../assets/courage-challenge-hero-v1.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  background-repeat: no-repeat;
+  color: #ffffff;
+}
+
+body[data-theme="gold"] .courage-hero {
+  border-color: rgba(235, 195, 105, 0.4);
+  background-image: 
+    linear-gradient(135deg, rgba(22, 16, 8, 0.90) 0%, rgba(38, 26, 12, 0.75) 50%, rgba(12, 8, 4, 0.94) 100%),
+    url('../assets/courage-challenge-hero-v1.jpg');
+}
+
+.courage-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.courage-hero-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.courage-hero-status-pill.active {
+  background: rgba(37, 211, 102, 0.16);
+  border-color: rgba(37, 211, 102, 0.45);
+  color: #5efc8d;
+}
+
+.courage-hero-status-pill.paused {
+  background: rgba(234, 179, 8, 0.16);
+  border-color: rgba(234, 179, 8, 0.45);
+  color: #fde047;
+}
+
+.courage-hero-status-pill.draft {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #e2e8f0;
+}
+
+.courage-hero-status-pill.completed {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.6);
+  color: #f7d674;
+}
+
+.courage-hero-status-pill.cancelled {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
+.courage-hero-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.courage-hero-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.courage-action-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.courage-action-btn.primary {
+  background: linear-gradient(135deg, #25d366, #1b8a45);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+}
+
+.courage-action-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.35);
+}
+
+.courage-action-btn.gold {
+  background: linear-gradient(135deg, #d4af37, #b38b19);
+  color: #181005;
+  font-weight: 700;
+}
+
+.courage-action-btn.outline {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+.courage-action-btn.outline:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.courage-action-btn.danger {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.courage-hero-content {
+  margin-top: 20px;
+}
+
+.courage-hero-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  color: #dfba6c;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.courage-hero-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 10px;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.courage-hero-title span {
+  background: linear-gradient(90deg, #f7d674, #ecd089, #2ee684);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.courage-hero-philosophy {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* --------------------------------------------------------------------------
+   2. PROGRESSO — UM ÚNICO CARD LIMPO
+   -------------------------------------------------------------------------- */
+.courage-progress-card {
+  background: var(--card, #121815);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.courage-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.courage-progress-score-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.courage-progress-big-number {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  color: #25d366;
+  letter-spacing: -0.02em;
+}
+
+body[data-theme="gold"] .courage-progress-big-number {
+  color: #d4af37;
+}
+
+.courage-progress-target-label {
+  font-size: 16px;
+  color: var(--muted, #8b949e);
+  font-weight: 500;
+}
+
+.courage-progress-target-label strong {
+  color: var(--ink, #ffffff);
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.courage-risk-compliance-highlight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(37, 211, 102, 0.1);
+  border: 1px solid rgba(37, 211, 102, 0.3);
+  padding: 10px 18px;
+  border-radius: 12px;
+}
+
+.courage-risk-compliance-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #25d366;
+  line-height: 1;
+}
+
+.courage-risk-compliance-text {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink, #e2e8f0);
+}
+
+/* Representação dos 20 círculos */
+.courage-dots-row {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+}
+
+@media (max-width: 900px) {
+  .courage-dots-row {
+    grid-template-columns: repeat(10, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 540px) {
+  .courage-dots-row {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.courage-dot-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: transparent;
+  padding: 0;
+}
+
+.courage-dot-item.filled {
+  background: #25d366;
+  border-color: #25d366;
+  color: #0b1f13;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.35);
+}
+
+.courage-dot-item.filled:hover {
+  transform: scale(1.15);
+}
+
+.courage-dot-item.next {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: #d4af37;
+  color: #d4af37;
+  animation: pulse-next-slot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-next-slot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5); }
+  50% { box-shadow: 0 0 0 6px rgba(212, 175, 55, 0); }
+}
+
+.courage-dot-item.empty {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--muted, #64748b);
+}
+
+.courage-dot-item.empty:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--ink, #ffffff);
+}
+
+/* Quatro indicadores essenciais abaixo */
+.courage-indicators-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+@media (max-width: 680px) {
+  .courage-indicators-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.courage-indicator-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.courage-indicator-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted, #8b949e);
+}
+
+.courage-indicator-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink, #ffffff);
+}
+
+.courage-indicator-val.green { color: #25d366; }
+.courage-indicator-val.yellow { color: #eab308; }
+.courage-indicator-val.red { color: #ef4444; }
+
+/* --------------------------------------------------------------------------
+   3. SIZING COMPLIANCE — O CENTRO DA EXPERIÊNCIA (PROTAGONISTA)
+   -------------------------------------------------------------------------- */
+.courage-compliance-hero-card {
+  position: relative;
+  border-radius: 22px;
+  padding: 36px 40px;
+  background: radial-gradient(circle at 50% 0%, rgba(37, 211, 102, 0.14) 0%, rgba(18, 28, 22, 0.95) 75%), #0c1511;
+  border: 2px solid rgba(37, 211, 102, 0.45);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(37, 211, 102, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+}
+
+body[data-theme="gold"] .courage-compliance-hero-card {
+  background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.15) 0%, rgba(28, 22, 12, 0.95) 75%), #151008;
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(212, 175, 55, 0.15);
+}
+
+.courage-compliance-hero-card.under-sizing {
+  border-color: rgba(234, 179, 8, 0.55);
+  background: radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.14) 0%, rgba(26, 22, 10, 0.95) 75%), #141107;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(234, 179, 8, 0.15);
+}
+
+.courage-compliance-hero-card.over-sizing {
+  border-color: rgba(239, 68, 68, 0.55);
+  background: radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.14) 0%, rgba(28, 12, 12, 0.95) 75%), #150909;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 24px rgba(239, 68, 68, 0.15);
+}
+
+.courage-compliance-top-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #25d366;
+  background: rgba(37, 211, 102, 0.14);
+  border: 1px solid rgba(37, 211, 102, 0.35);
+}
+
+body[data-theme="gold"] .courage-compliance-top-badge {
+  color: #f7d674;
+  background: rgba(212, 175, 55, 0.14);
+  border-color: rgba(212, 175, 55, 0.35);
+}
+
+.courage-compliance-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.courage-compliance-sub {
+  font-size: 15px;
+  color: var(--muted, #cbd5e1);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.courage-compliance-equation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+
+.courage-compliance-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 18px 28px;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.courage-compliance-box.actual {
+  border-color: rgba(37, 211, 102, 0.45);
+  background: rgba(37, 211, 102, 0.08);
+}
+
+.courage-compliance-hero-card.under-sizing .courage-compliance-box.actual {
+  border-color: rgba(234, 179, 8, 0.45);
+  background: rgba(234, 179, 8, 0.08);
+}
+
+.courage-compliance-hero-card.over-sizing .courage-compliance-box.actual {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.courage-compliance-box-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted, #94a3b8);
+}
+
+.courage-compliance-box-val {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.courage-compliance-box.actual .courage-compliance-box-val {
+  color: #25d366;
+}
+
+.courage-compliance-hero-card.under-sizing .courage-compliance-box.actual .courage-compliance-box-val {
+  color: #eab308;
+}
+
+.courage-compliance-hero-card.over-sizing .courage-compliance-box.actual .courage-compliance-box-val {
+  color: #ef4444;
+}
+
+.courage-compliance-arrow {
+  font-size: 32px;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 300;
+}
+
+.courage-compliance-status-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.courage-compliance-status-banner.compliant {
+  background: rgba(37, 211, 102, 0.18);
+  border: 1px solid rgba(37, 211, 102, 0.5);
+  color: #25d366;
+}
+
+.courage-compliance-status-banner.under-sizing {
+  background: rgba(234, 179, 8, 0.18);
+  border: 1px solid rgba(234, 179, 8, 0.5);
+  color: #facc15;
+}
+
+.courage-compliance-status-banner.over-sizing {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+}
+
+.courage-compliance-message {
+  font-size: 14px;
+  color: var(--muted, #cbd5e1);
+  margin: 0;
+  max-width: 520px;
+}
+
+/* --------------------------------------------------------------------------
+   4. MODO DESAPEGO & BARREIRAS DESTE CICLO
+   -------------------------------------------------------------------------- */
+.courage-training-options-card {
+  background: var(--card, #121815);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 20px;
+  padding: 24px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.courage-detachment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.courage-detachment-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.courage-detachment-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.courage-detachment-text h4 {
+  margin: 0 0 3px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink, #ffffff);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.courage-detachment-text p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted, #8b949e);
+}
+
+.courage-detachment-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.courage-focus-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--ink, #cbd5e1);
+}
+
+/* Switch styling */
+.courage-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.courage-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.courage-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255, 255, 255, 0.18);
+  transition: .3s ease;
+  border-radius: 34px;
+}
+
+.courage-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s ease;
+  border-radius: 50%;
+}
+
+input:checked + .courage-slider {
+  background-color: #25d366;
+}
+
+body[data-theme="gold"] input:checked + .courage-slider {
+  background-color: #d4af37;
+}
+
+input:checked + .courage-slider:before {
+  transform: translateX(22px);
+}
+
+/* Barreiras deste ciclo */
+.courage-barriers-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.courage-barriers-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, #8b949e);
+  margin-bottom: 6px;
+}
+
+.courage-barriers-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.courage-barrier-tag {
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #dfba6c;
+}
+
+.courage-edit-btn {
+  background: transparent;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.18));
+  color: var(--muted, #94a3b8);
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.courage-edit-btn:hover {
+  border-color: #25d366;
+  color: var(--ink, #ffffff);
+}
+
+body[data-theme="gold"] .courage-edit-btn:hover {
+  border-color: #d4af37;
+}
+
+/* --------------------------------------------------------------------------
+   5. HISTÓRICO COMPACTO (ÚLTIMAS 5 EXECUÇÕES)
+   -------------------------------------------------------------------------- */
+.courage-recent-history-card {
+  background: var(--card, #121815);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 20px;
+  padding: 24px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.courage-recent-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.courage-recent-history-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink, #ffffff);
+}
+
+.courage-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.courage-recent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.2s;
+}
+
+.courage-recent-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.courage-recent-ticker {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink, #ffffff);
+  min-width: 80px;
+}
+
+.courage-recent-risks {
+  font-size: 13px;
+  color: var(--muted, #94a3b8);
+}
+
+.courage-recent-risks strong {
+  color: var(--ink, #ffffff);
+}
+
+.courage-recent-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.courage-recent-status.green { color: #25d366; }
+.courage-recent-status.yellow { color: #eab308; }
+.courage-recent-status.red { color: #ef4444; }
+
+.courage-recent-empty {
+  padding: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted, #8b949e);
+}
+
+.courage-view-all-link {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: #25d366;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  transition: opacity 0.2s;
+}
+
+body[data-theme="gold"] .courage-view-all-link {
+  color: #d4af37;
+}
+
+.courage-view-all-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   6. RECOMPENSA, CONSEQUÊNCIA E PRAZO (CARDS COMPACTOS)
+   -------------------------------------------------------------------------- */
+.courage-compact-commitments-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 840px) {
+  .courage-compact-commitments-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.courage-compact-commitment-card {
+  background: var(--card, #121815);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 16px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.courage-compact-commitment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.courage-compact-commitment-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, #8b949e);
+}
+
+.courage-compact-commitment-text {
+  font-size: 14px;
+  color: var(--ink, #ffffff);
+  line-height: 1.4;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   7. EVOLUÇÃO EMOCIONAL & APEGO AO VALOR NOMINAL
+   -------------------------------------------------------------------------- */
+.courage-emotional-analyzer-card {
+  background: var(--card, #121815);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 20px;
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.courage-emotional-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.courage-emotional-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #d4af37;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.courage-evolution-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .courage-evolution-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.courage-evolution-col {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.courage-evolution-col-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted, #8b949e);
+}
+
+.courage-evolution-col-val {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink, #ffffff);
+}
+
+.courage-evolution-arrow {
+  font-size: 24px;
+  color: #25d366;
+  text-align: center;
+}
+
+.courage-evolution-summary {
+  font-size: 13px;
+  color: #25d366;
+  background: rgba(37, 211, 102, 0.1);
+  border: 1px solid rgba(37, 211, 102, 0.25);
+  padding: 10px 16px;
+  border-radius: 10px;
+  margin: 0;
+}
+
+.courage-nominal-alert {
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.courage-nominal-alert-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #facc15;
+}
+
+.courage-nominal-alert-text {
+  font-size: 13px;
+  color: var(--ink, #ffffff);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   NOVO TRADE — WORKBENCH INTEGRAÇÃO: ACEITAÇÃO CONSCIENTE DO RISCO
+   -------------------------------------------------------------------------- */
+.courage-active-trade-banner {
+  border-radius: 14px;
+  padding: 14px 18px;
+  background: rgba(37, 211, 102, 0.12);
+  border: 1px solid rgba(37, 211, 102, 0.45);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.courage-banner-text strong {
+  color: #25d366 !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+}
+
+.courage-banner-text span {
+  font-size: 12.5px !important;
+  color: #c9ded3 !important;
+  font-weight: 500 !important;
+}
+
+.courage-banner-target {
+  font-size: 13px !important;
+  color: #d1fae5 !important;
+}
+
+.courage-conscious-risk-card {
+  border-radius: 16px;
+  padding: 20px 24px;
+  background: radial-gradient(circle at 50% 0%, rgba(37, 211, 102, 0.14) 0%, rgba(18, 28, 22, 0.96) 75%), #0c1511;
+  border: 1.5px solid rgba(37, 211, 102, 0.45);
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #ffffff;
+}
+
+.courage-conscious-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #25d366;
+}
+
+.courage-conscious-target-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.courage-conscious-target-row > div > div:first-child {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #9bb7a8 !important;
+  letter-spacing: 0.04em;
+}
+
+.courage-conscious-target-val {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.courage-conscious-actual-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: #25d366;
+}
+
+.courage-conscious-checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff !important;
+  background: rgba(37, 211, 102, 0.08);
+  border: 1px solid rgba(37, 211, 102, 0.28);
+  border-radius: 9px;
+  padding: 10px 14px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.courage-conscious-checkbox-wrap:hover {
+  background: rgba(37, 211, 102, 0.14);
+  border-color: rgba(37, 211, 102, 0.45);
+}
+
+.courage-conscious-checkbox-wrap span {
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+}
+
+.courage-conscious-checkbox-wrap input[type="checkbox"] {
+  width: 19px;
+  height: 19px;
+  cursor: pointer;
+  accent-color: #25d366;
+}
+
+.courage-discomfort-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.courage-discomfort-label {
+  font-size: 12.5px;
+  color: #f1f5f9 !important;
+  font-weight: 600;
+}
+
+.courage-discomfort-scale {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.courage-discomfort-btn {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.courage-discomfort-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.courage-discomfort-btn.selected {
+  background: #25d366 !important;
+  border-color: #25d366 !important;
+  color: #0b1f13 !important;
+  font-weight: 850 !important;
+  box-shadow: 0 0 12px rgba(37, 211, 102, 0.45);
+}
+
+.courage-discomfort-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #9bb7a8 !important;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   MODAIS DO DESAFIO A+ (DESIGN ESCURO IMERSIVO COM ALTO CONTRASTE)
+   -------------------------------------------------------------------------- */
+.courage-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.courage-modal-backdrop.open {
+  display: flex;
+}
+
+.courage-modal-card {
+  background: #081610 !important;
+  background: linear-gradient(145deg, #0c2017 0%, #05120c 100%) !important;
+  border: 1px solid rgba(46, 229, 157, 0.35) !important;
+  border-radius: 18px !important;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 26px 30px !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 0 30px rgba(46, 229, 157, 0.12) !important;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: #f1f5f3 !important;
+  box-sizing: border-box;
+}
+
+.courage-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(46, 229, 157, 0.2) !important;
+}
+
+.courage-modal-header h3 {
+  margin: 0;
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  color: #f6edd9 !important;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.courage-modal-close {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 50% !important;
+  width: 32px;
+  height: 32px;
+  font-size: 20px !important;
+  color: #c5d8cd !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.courage-modal-close:hover {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border-color: rgba(239, 68, 68, 0.55) !important;
+  color: #ffffff !important;
+}
+
+/* Modal Form Labels */
+.courage-modal-field-label {
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #8ed6af !important;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* Modal Form Inputs */
+.courage-modal-input,
+.courage-modal-card input[type="text"],
+.courage-modal-card input[type="date"],
+.courage-modal-card input[type="number"],
+.courage-modal-card select,
+.courage-modal-card textarea {
+  width: 100%;
+  padding: 11px 14px !important;
+  border-radius: 10px !important;
+  background: rgba(4, 16, 11, 0.85) !important;
+  border: 1px solid rgba(46, 229, 157, 0.28) !important;
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.courage-modal-input:focus,
+.courage-modal-card input[type="text"]:focus,
+.courage-modal-card input[type="date"]:focus,
+.courage-modal-card input[type="number"]:focus,
+.courage-modal-card select:focus,
+.courage-modal-card textarea:focus {
+  border-color: #2ee59d !important;
+  box-shadow: 0 0 14px rgba(46, 229, 157, 0.35) !important;
+  background: rgba(6, 24, 16, 0.95) !important;
+}
+
+/* Picker Grid de Barreiras */
+.courage-barriers-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 540px) {
+  .courage-barriers-picker-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.courage-barrier-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  cursor: pointer;
+  font-size: 13px !important;
+  color: #e4efe8 !important;
+  transition: all 0.2s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.courage-barrier-checkbox-item:hover {
+  background: rgba(46, 229, 157, 0.1) !important;
+  border-color: rgba(46, 229, 157, 0.45) !important;
+  color: #ffffff !important;
+}
+
+.courage-barrier-checkbox-item.checked,
+.courage-barrier-checkbox-item:has(input:checked) {
+  background: rgba(46, 229, 157, 0.15) !important;
+  border-color: #2ee59d !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(46, 229, 157, 0.22) !important;
+}
+
+.courage-barrier-checkbox-label,
+.courage-barrier-checkbox-item span {
+  color: #eaf5ee !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.3;
+}
+
+.courage-barrier-checkbox-item input[type="checkbox"] {
+  accent-color: #2ee59d;
+  width: 18px !important;
+  height: 18px !important;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin: 0 !important;
+}
+
+/* Modal Table Styling (Histórico) */
+.courage-modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.courage-modal-table th {
+  padding: 10px 12px;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #8ed6af !important;
+  border-bottom: 1.5px solid rgba(46, 229, 157, 0.28) !important;
+}
+
+.courage-modal-table td {
+  padding: 11px 12px;
+  font-size: 13px !important;
+  color: #dcece2 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.courage-modal-table tr:hover td {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.courage-ticker-badge {
+  color: #ffffff !important;
+  font-weight: 800;
+  font-size: 13.5px;
+}
+
+.courage-muted-cell {
+  color: #9bb7aa !important;
+}
+
+.courage-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.courage-status-pill.comp {
+  background: rgba(37, 211, 102, 0.16);
+  border: 1px solid rgba(37, 211, 102, 0.4);
+  color: #5efc8d;
+}
+.courage-status-pill.under {
+  background: rgba(234, 179, 8, 0.16);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  color: #fde047;
+}
+.courage-status-pill.over {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+/* Modal Snapshot Grid (Snapshot de Entrada) */
+.courage-snapshot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 520px) {
+  .courage-snapshot-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.courage-snapshot-item {
+  background: rgba(4, 16, 11, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.courage-snapshot-label {
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #8ed6af !important;
+}
+
+.courage-snapshot-value {
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+}
+.courage-snapshot-value.green {
+  color: #2ee59d !important;
+}
+.courage-snapshot-value.yellow {
+  color: #eab308 !important;
+}
+
+/* Modal Actions Footer */
+.courage-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}

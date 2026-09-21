@@ -14,16 +14,16 @@ body:not([data-theme="healthy"]):has(#habits.active) .topbar{
   background:rgba(11,9,5,.86);
   border-bottom-color:rgba(206,163,66,.22);
 }
-body:not([data-theme="healthy"]):has(#habits.active) .market-focus-guard{
+body:not([data-theme="healthy"]):has(#habits.active) .content .market-focus-guard{
   background:linear-gradient(90deg,rgba(48,36,13,.94),rgba(28,22,11,.94));
   border-color:rgba(207,163,65,.4);
   box-shadow:0 12px 26px rgba(0,0,0,.26);
 }
-body:not([data-theme="healthy"]):has(#habits.active) .market-focus-copy b{color:#fff0c9}
-body:not([data-theme="healthy"]):has(#habits.active) .market-focus-copy p,
-body:not([data-theme="healthy"]):has(#habits.active) .market-focus-state{color:#d7be83}
-body:not([data-theme="healthy"]):has(#habits.active) .market-focus-orb{background:#2f250f;border-color:#8d6b2e}
-body:not([data-theme="healthy"]):has(#habits.active) .market-focus-guard .secondary{background:#20170a;border-color:#72582a;color:#f1d99d}
+body:not([data-theme="healthy"]):has(#habits.active) .content .market-focus-copy b{color:#fff0c9}
+body:not([data-theme="healthy"]):has(#habits.active) .content .market-focus-copy p,
+body:not([data-theme="healthy"]):has(#habits.active) .content .market-focus-state{color:#d7be83}
+body:not([data-theme="healthy"]):has(#habits.active) .content .market-focus-orb{background:#2f250f;border-color:#8d6b2e}
+body:not([data-theme="healthy"]):has(#habits.active) .content .market-focus-guard .secondary{background:#20170a;border-color:#72582a;color:#f1d99d}
 
 body:not([data-theme="healthy"]) #habits.habit-artistic-page::after{color:rgba(236,196,103,.38)}
 body:not([data-theme="healthy"]) #habits.habit-artistic-page::before{color:#d7ad52}
