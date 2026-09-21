@@ -152,9 +152,10 @@ body:has(#manual.active) #marketFocusGuard{display:none}
 #manual .kc-reader-screen{display:block;width:100%;height:auto;max-height:330px;object-fit:cover;object-position:top;border:1px solid #294754;border-radius:8px;margin:23px 0}
 #manual .kc-reader-symbol .kc-icon{width:52px;height:52px;margin-top:23px;color:#55d7b9}
 #manual .kc-open-tool{display:inline-block;padding:12px 18px;margin:16px 0 8px;border:1px solid #258576;border-radius:7px;background:#0b4f43;color:#c4fff0;font-size:14px;font-weight:650}
-#manual .kc-door,#manual .kc-screen,#manual .kc-concept,#manual .kc-step,#manual .kc-support-card,#manual .kc-popular button{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+#manual .kc-door,#manual .kc-screen,#manual .kc-concept,#manual .kc-step,#manual .kc-support-card,#manual .kc-popular button{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,filter .22s ease}
 #manual :is(.kc-door,.kc-screen,.kc-concept,.kc-step,.kc-support-card:not(.kc-coming-soon),.kc-popular button):hover{transform:translateY(-2px);border-color:#438f99;box-shadow:0 8px 22px #0003,0 0 15px #37d5c40b}
-#manual .kc-screen:hover img{transform:scale(1.035)}
+#manual .kc-screen:hover{border-color:#36e7c766;box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 18px rgba(54,231,199,.12);filter:brightness(1.04)}
+#manual .kc-screen:hover img{transform:scale(1.03)}
 #manual .knowledge-center :is(button,a,summary,input):focus-visible{outline:2px solid #74e4d2;outline-offset:3px}
 #manual [id^="knowledge-"]{scroll-margin-top:95px}
 #manual .kc-highlight{animation:kc-section-highlight 1.8s ease-out}

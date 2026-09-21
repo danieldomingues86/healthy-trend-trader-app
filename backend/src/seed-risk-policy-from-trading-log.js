@@ -3,21 +3,20 @@ const database = require('./database');
 
 const policy = {
   criteria: [
-    { key: 'marketCycle', label: 'Market Cycle · permissão de mercado', weight: 4 },
-    { key: 'trendQuality', label: 'Diário / Contexto técnico', weight: 1.5 },
-    { key: 'relativeStrength', label: 'RS Rank / Força Relativa', weight: 1.5 },
-    { key: 'setupQuality', label: 'Gatilho de entrada / Contração 4H', weight: 1 },
-    { key: 'volatility', label: 'ATR% adequado', weight: 0.75 },
-    { key: 'entryQuality', label: 'Price Action fluido', weight: 0.75 },
-    { key: 'fundamentalScore', label: 'Fundamentalista', weight: 0.5 }
+    { key: 'trendQuality', label: 'Contexto do Ativo (Diário)', weight: 25 },
+    { key: 'marketCycle', label: 'Contexto do Mercado', weight: 20 },
+    { key: 'relativeStrength', label: 'Força Relativa (RS)', weight: 20 },
+    { key: 'volatility', label: 'Volatilidade (ATR)', weight: 15 },
+    { key: 'setupQuality', label: 'Gatilho de Entrada', weight: 15 },
+    { key: 'fundamentalScore', label: 'Fundamentos', weight: 5 }
   ],
   grades: [
-    { grade: 'A+', minScore: 8.5, riskPct: 0.004 },
-    { grade: 'B', minScore: 7, riskPct: 0.002 },
-    { grade: 'C', minScore: 5.5, riskPct: 0.001 },
-    { grade: 'No Trade', minScore: -Infinity, riskPct: 0 }
+    { grade: 'A+', minScore: 90, riskPct: 0.005 },
+    { grade: 'A', minScore: 80, riskPct: 0.004 },
+    { grade: 'B', minScore: 70, riskPct: 0.002 },
+    { grade: 'C', minScore: 60, riskPct: 0.001 },
+    { grade: 'D', minScore: -Infinity, riskPct: 0 }
   ],
-  marketMultipliers: { healthy: 1, improving: 0.75, transition: 0.5, defensive: 0.25, riskOff: 0 },
   profiles: {
     rampUp: { label: 'Risk Ramp-Up', initialRiskPct: 0.001, ongoingRiskPct: 0.0025, initialVolatilityPct: 0.001, ongoingVolatilityPct: 0.0025, capitalPct: 0.1, maximumPortfolioRiskPct: 0.05, maximumPositions: 3, pyramiding: false },
     standard: { label: 'Política padrão', initialRiskPct: 0.003, ongoingRiskPct: 0.006, initialVolatilityPct: 0.003, ongoingVolatilityPct: 0.006, capitalPct: 0.1, maximumPortfolioRiskPct: 0.05, maximumPositions: 6, pyramiding: false }

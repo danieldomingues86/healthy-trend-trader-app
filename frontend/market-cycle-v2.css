@@ -1,6 +1,6 @@
 #marketcycle{width:100%!important;min-width:0!important;margin:0!important;padding:0!important;max-width:none!important;container-type:inline-size}
 html.market-cycle-active .content,body.market-cycle-active .content,body:has(#marketcycle.page.active) .content{box-sizing:border-box;width:100%!important;min-width:0!important;max-width:none!important;margin:0!important;padding:0!important}
-html.market-cycle-active #marketFocusGuard,body.market-cycle-active #marketFocusGuard,body:has(#marketcycle.page.active) #marketFocusGuard{display:none!important}
+html.market-cycle-active .content #marketFocusGuard,body.market-cycle-active .content #marketFocusGuard,body:has(#marketcycle.page.active) .content #marketFocusGuard{display:none!important}
 #marketcycle .mcv2-page{--mc-accent:#32a968;--mc-accent-soft:#8ee5a7;--mc-warm:#c79c3a;--mc-ink:#123528;--mc-muted:#526a5e;--mc-paper:rgba(253,251,243,.94);position:relative;isolation:isolate;min-height:calc(100dvh - 58px);padding:clamp(22px,2.2vw,38px);background:#dfe9df url('../assets/market-cycle-landscape-v2.png') center top/cover fixed no-repeat;color:var(--mc-ink)}
 #marketcycle .mcv2-page:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(180deg,rgba(248,248,235,.38) 0%,rgba(233,241,229,.16) 28%,rgba(245,244,232,.65) 75%,rgba(239,239,226,.92) 100%),linear-gradient(90deg,rgba(215,232,217,.12),rgba(255,244,216,.08))}
 #marketcycle .mcv2-page.regime-transition:before{background:linear-gradient(180deg,rgba(244,240,220,.43),rgba(236,232,211,.3) 34%,rgba(244,241,226,.88) 100%)}

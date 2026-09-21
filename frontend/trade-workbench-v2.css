@@ -58,7 +58,7 @@ body:has(#newtrade.active) .content {
   max-width: none !important;
   width: 100% !important;
   margin: 0 !important;
-  padding: 16px clamp(16px, 2.5vw, 44px) 36px clamp(16px, 2.5vw, 44px) !important;
+  padding: 14px clamp(14px, 2vw, 36px) 36px clamp(14px, 2vw, 36px) !important;
   background: #07150e radial-gradient(circle at 80% 10%, rgba(20, 56, 38, 0.35) 0%, transparent 60%) !important;
   box-sizing: border-box !important;
 }
@@ -78,9 +78,9 @@ body:has(#newtrade.active) .content {
 
 #newtrade .trade-workbench {
   width: 100% !important;
-  max-width: 1720px !important;
+  max-width: min(2800px, 98vw) !important;
   margin: 0 auto !important;
-  min-height: calc(100vh - 120px) !important;
+  min-height: auto !important;
   display: flex !important;
   flex-direction: column !important;
   background: #081a13 !important;
@@ -93,7 +93,7 @@ body:has(#newtrade.active) .content {
 
 /* Workbench Head */
 #newtrade .trade-workbench-head {
-  padding: 20px 28px !important;
+  padding: 18px 26px !important;
   background: linear-gradient(135deg, #092218 0%, #0d2c20 100%) !important;
   border-bottom: 1px solid rgba(200, 168, 78, 0.16) !important;
   display: flex !important;
@@ -104,9 +104,9 @@ body:has(#newtrade.active) .content {
 }
 
 #newtrade .trade-workbench-head .eyebrow {
-  font-size: 11px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.22em !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.2em !important;
   text-transform: uppercase !important;
   color: #c8a84e !important;
   margin-bottom: 4px !important;
@@ -114,23 +114,23 @@ body:has(#newtrade.active) .content {
 
 #newtrade .trade-workbench-head h2 {
   margin: 0 !important;
-  font-size: clamp(20px, 1.8vw, 27px) !important;
+  font-size: clamp(22px, 1.8vw, 29px) !important;
   font-weight: 850 !important;
   color: #f2ede4 !important;
   letter-spacing: -0.01em !important;
 }
 
-/* ── 3. WORKBENCH THREE-COLUMN GRID ─────────────────────────────────────── */
+/* ── 3. WORKBENCH THREE-COLUMN GRID (4-UNIT ARCHITECTURE) ───────────────── */
 
 #newtrade .trade-workbench-grid {
   display: grid !important;
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 1fr) !important;
+  grid-template-columns: minmax(390px, 0.95fr) minmax(450px, 1.05fr) minmax(560px, 1.28fr) !important;
   gap: 16px !important;
   flex: 1 !important;
-  padding: 18px 20px !important;
+  padding: 12px 16px !important;
   background: #07150e !important;
   box-sizing: border-box !important;
-  align-items: stretch !important;
+  align-items: stretch !important; /* EXACT SAME TOP AND BOTTOM FOR ALL 3 STEPS */
   width: 100% !important;
 }
 
@@ -138,43 +138,46 @@ body:has(#newtrade.active) .content {
 #newtrade .workbench-card {
   min-width: 0 !important;
   min-height: 0 !important;
-  border: 1px solid rgba(200, 168, 78, 0.16) !important;
+  height: 100% !important;
+  border: 1px solid rgba(200, 168, 78, 0.18) !important;
   border-radius: 16px !important;
-  background: linear-gradient(160deg, rgba(13, 38, 27, 0.92), rgba(8, 25, 18, 0.96)) !important;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-  padding: 18px !important;
+  background: linear-gradient(160deg, rgba(13, 38, 27, 0.94), rgba(8, 25, 18, 0.98)) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  padding: 12px 14px !important;
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: column !important;
+  justify-content: flex-start !important;
   overflow: hidden !important;
 }
 
 #newtrade .workbench-card > .eyebrow {
-  font-size: 10.5px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.2em !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.16em !important;
   text-transform: uppercase !important;
   color: #c8a84e !important;
   margin-bottom: 4px !important;
 }
 
 #newtrade .workbench-card > h3 {
-  margin: 0 0 4px 0 !important;
-  font-size: 18px !important;
-  font-weight: 800 !important;
+  margin: 0 0 3px 0 !important;
+  font-size: 19px !important;
+  font-weight: 850 !important;
   color: #f2ede4 !important;
   letter-spacing: -0.01em !important;
+  line-height: 1.25 !important;
 }
 
 #newtrade .workbench-stage-subtitle {
-  min-height: 18px !important;
-  margin: 0 0 16px 0 !important;
-  color: #8fa99b !important;
-  font-size: 12px !important;
+  min-height: auto !important;
+  margin: 0 0 20px 0 !important;
+  color: #a4bfae !important;
+  font-size: 14px !important;
   line-height: 1.4 !important;
 }
 
-/* ── 4. COLUMN 1: DADOS DO TRADE (ELIMINATE WHITE CARD) ─────────────────── */
+/* ── 4. COLUMN 1: DADOS DO TRADE (COMPACT TERMINAL LAYOUT) ─────────────── */
 
 #newtrade .workbench-card #workbenchData .form-card {
   background: transparent !important;
@@ -184,18 +187,24 @@ body:has(#newtrade.active) .content {
   color: #d6ded8 !important;
 }
 
-#newtrade .workbench-card .form-card h3 {
-  display: none !important; /* Header is already in the card head */
+#newtrade .workbench-card .form-card h3,
+#newtrade .workbench-card .form-card > p {
+  display: none !important; /* Header and subtitle are in the workbench-card head */
+}
+
+#newtrade .workbench-card .form-grid {
+  gap: 18px 14px !important;
 }
 
 #newtrade .workbench-card .field label {
   display: block !important;
-  color: #8db09d !important;
-  font-size: 11px !important;
+  color: #a8cdb6 !important;
+  font-size: 12px !important;
   font-weight: 750 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.08em !important;
-  margin-bottom: 6px !important;
+  letter-spacing: 0.04em !important;
+  margin-bottom: 7px !important;
+  white-space: nowrap !important;
 }
 
 #newtrade .workbench-card .field input,
@@ -203,19 +212,137 @@ body:has(#newtrade.active) .content {
 #newtrade .workbench-card .field textarea {
   box-sizing: border-box !important;
   width: 100% !important;
-  background: #0a2016 !important;
-  border: 1px solid rgba(143, 224, 170, 0.26) !important;
-  border-radius: 10px !important;
+  background-color: #0a2016 !important;
+  border: 1px solid rgba(143, 224, 170, 0.28) !important;
+  border-radius: 9px !important;
   color: #eff8f1 !important;
-  font-size: 13.5px !important;
-  font-weight: 550 !important;
-  padding: 11px 14px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  padding: 8px 12px !important;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s !important;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s !important;
+}
+
+/* Standardized Premium Selects with Unified SVG Chevron */
+#newtrade .workbench-card .field select,
+#newtrade .rubric-market-selector {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-color: #0a2016 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238fe0aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px 16px !important;
+  padding-right: 36px !important;
+  cursor: pointer !important;
+}
+
+#newtrade .workbench-card .field select:hover,
+#newtrade .rubric-market-selector:hover {
+  border-color: rgba(143, 224, 170, 0.45) !important;
+}
+
+#newtrade .workbench-card .field select:focus,
+#newtrade .rubric-market-selector:focus {
+  background-color: #0d2c1f !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238fe0aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px 16px !important;
+  border-color: #5cc282 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(92, 194, 130, 0.2), inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Ticker Combo Wrapper & Toggle - Matching Select Standard Exactly */
+#newtrade .trade-asset-field-wrap {
+  position: relative !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+#newtrade #tradeAsset {
+  padding-right: 36px !important;
+}
+
+#newtrade .trade-asset-field-wrap .ticker-combo-toggle,
+#newtrade .field .ticker-combo-toggle {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 16px !important;
+  height: 16px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #8fe0aa !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 3 !important;
+  pointer-events: auto !important;
+  box-shadow: none !important;
+  line-height: 1 !important;
+}
+
+#newtrade .trade-asset-field-wrap .ticker-combo-toggle svg,
+#newtrade .field .ticker-combo-toggle svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  pointer-events: none !important;
+}
+
+#newtrade .trade-asset-field-wrap .ticker-combo-toggle:hover,
+#newtrade .field .ticker-combo-toggle:hover {
+  color: #bbf3cd !important;
+}
+
+#newtrade .trade-asset-field-wrap .ticker-combo-menu,
+#newtrade #workbenchData .field:has(#tradeAsset) .ticker-combo-menu {
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  z-index: 35 !important;
+  background: #102219 !important;
+  color: #effff5 !important;
+  border: 1px solid rgba(151, 205, 177, 0.42) !important;
+  border-radius: 11px !important;
+  box-shadow: 0 14px 30px rgba(7, 31, 21, 0.5) !important;
+}
+
+#newtrade .workbench-card .field textarea {
+  min-height: 115px !important;
+  line-height: 1.5 !important;
+  resize: vertical !important;
+}
+
+#newtrade .workbench-card .field small {
+  font-size: 12px !important;
+  color: #8fa99b !important;
+  line-height: 1.4 !important;
+  margin-top: 5px !important;
+  display: block !important;
+}
+
+#newtrade .trade-asset-cache-status {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  margin-top: 5px !important;
+  display: block !important;
 }
 
 #newtrade .workbench-card .field input:focus,
-#newtrade .workbench-card .field select:focus,
 #newtrade .workbench-card .field textarea:focus {
   background: #0d2c1f !important;
   border-color: #5cc282 !important;
@@ -231,28 +358,30 @@ body:has(#newtrade.active) .content {
 /* Screenshot Upload Zone */
 #newtrade .workbench-card .trade-screenshot-section {
   background: rgba(14, 42, 30, 0.6) !important;
-  border: 1px dashed rgba(143, 224, 170, 0.3) !important;
-  border-radius: 12px !important;
-  padding: 14px !important;
-  margin-top: 14px !important;
+  border: 1px dashed rgba(143, 224, 170, 0.32) !important;
+  border-radius: 10px !important;
+  padding: 10px 12px !important;
+  margin-top: 18px !important;
 }
 
 #newtrade .workbench-card .trade-screenshot-drop {
   background: rgba(7, 24, 17, 0.75) !important;
   border: 1px dashed rgba(143, 224, 170, 0.28) !important;
-  border-radius: 10px !important;
-  min-height: 72px !important;
+  border-radius: 8px !important;
+  min-height: 52px !important;
 }
 
 #newtrade .workbench-card .trade-screenshot-drop span {
-  color: #c9ded2 !important;
-  font-size: 12px !important;
+  color: #d6ded8 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
 }
 
 #newtrade .workbench-card .trade-screenshot-drop small,
 #newtrade .workbench-card .trade-screenshot-section p {
-  color: #799786 !important;
-  font-size: 11px !important;
+  color: #8fa99b !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
 }
 
 /* ── 5. COLUMN 2: QUALIDADE DO CENÁRIO & TRADING RUBRIC ─────────────────── */
@@ -262,79 +391,496 @@ body:has(#newtrade.active) .content {
   overflow: hidden !important;
   background: radial-gradient(circle at 50% 8%, rgba(92, 194, 130, 0.16) 0%, transparent 60%),
               linear-gradient(160deg, #0d2d1f 0%, #071d14 100%) !important;
+  transition: background 0.35s ease, border-color 0.35s ease !important;
 }
 
-/* Modernized clean gauge */
-#newtrade .rubric-gauge {
-  border-radius: 300px 300px 0 0 !important;
-  background: conic-gradient(from 270deg, #e05d60 0 20%, #e0b048 20% 40%, #76cb85 40% 70%, #4db374 70% 85%, rgba(255, 255, 255, 0.12) 85% 100%) !important;
-  box-shadow: 0 0 32px rgba(77, 179, 116, 0.22) !important;
-  margin: 10px auto 6px !important;
+#newtrade .workbench-rubric-stage.grade-pending,
+#newtrade .rubric-experience.grade-pending,
+#newtrade .rubric-experience-inline.grade-pending {
+  background: radial-gradient(circle at 50% 8%, rgba(92, 194, 130, 0.12) 0%, transparent 60%),
+              linear-gradient(160deg, #0e241c 0%, #091712 100%) !important;
+  border-color: rgba(143, 224, 170, 0.22) !important;
 }
 
-#newtrade .rubric-gauge:before {
-  background: #091f16 !important;
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6) !important;
+#newtrade .workbench-rubric-stage.grade-d,
+#newtrade .workbench-rubric-stage.grade-no-trade,
+#newtrade .rubric-experience.grade-d,
+#newtrade .rubric-experience.grade-no-trade,
+#newtrade .rubric-experience-inline.grade-d,
+#newtrade .rubric-experience-inline.grade-no-trade {
+  background: radial-gradient(circle at 50% 8%, rgba(239, 68, 68, 0.18) 0%, transparent 60%),
+              linear-gradient(160deg, #230d11 0%, #130608 100%) !important;
+  border-color: rgba(239, 68, 68, 0.38) !important;
 }
 
-#newtrade .rubric-gauge:after {
-  background: #f2ede4 !important;
-  box-shadow: 0 0 12px rgba(200, 168, 78, 0.8) !important;
+#newtrade .workbench-rubric-stage.grade-c,
+#newtrade .rubric-experience.grade-c,
+#newtrade .rubric-experience-inline.grade-c {
+  background: radial-gradient(circle at 50% 8%, rgba(234, 179, 8, 0.18) 0%, transparent 60%),
+              linear-gradient(160deg, #241a0b 0%, #150f06 100%) !important;
+  border-color: rgba(234, 179, 8, 0.35) !important;
 }
 
-#newtrade .rubric-gauge strong {
-  color: #f2ede4 !important;
-  font-size: 44px !important;
+#newtrade .workbench-rubric-stage.grade-b,
+#newtrade .rubric-experience.grade-b,
+#newtrade .rubric-experience-inline.grade-b {
+  background: radial-gradient(circle at 50% 8%, rgba(163, 230, 53, 0.15) 0%, transparent 60%),
+              linear-gradient(160deg, #182613 0%, #0d170a 100%) !important;
+  border-color: rgba(163, 230, 53, 0.30) !important;
+}
+
+#newtrade .workbench-rubric-stage.grade-a,
+#newtrade .workbench-rubric-stage.grade-a-plus,
+#newtrade .rubric-experience.grade-a,
+#newtrade .rubric-experience.grade-a-plus,
+#newtrade .rubric-experience-inline.grade-a,
+#newtrade .rubric-experience-inline.grade-a-plus {
+  background: radial-gradient(circle at 50% 8%, rgba(34, 197, 94, 0.18) 0%, transparent 60%),
+              linear-gradient(160deg, #0d2d1f 0%, #071a12 100%) !important;
+  border-color: rgba(34, 197, 94, 0.35) !important;
+}
+
+/* ── RÉGUA HORIZONTAL DE QUALIDADE (0 - 100) — ZERO CINZA ──────────────── */
+
+#newtrade .quality-ruler-container {
+  width: 100% !important;
+  max-width: 440px !important;
+  margin: 18px auto 14px !important;
+  padding: 0 24px !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+
+/* Pointer Track and Badge */
+#newtrade .quality-ruler-pointer-track {
+  position: relative !important;
+  width: 100% !important;
+  height: 38px !important;
+  margin-bottom: 6px !important;
+}
+
+#newtrade .quality-ruler-pointer {
+  position: absolute !important;
+  top: 0 !important;
+  transform: translateX(-50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  transition: left 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  pointer-events: none !important;
+  z-index: 5 !important;
+}
+
+#newtrade .pointer-score {
+  display: inline-block !important;
+  font-size: 13.5px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.04em !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+  transition: background 0.25s, color 0.25s, box-shadow 0.25s !important;
+}
+
+#newtrade .pointer-arrow {
+  font-size: 11px !important;
+  line-height: 1 !important;
+  margin-top: 1px !important;
+  transition: color 0.25s, filter 0.25s !important;
+}
+
+/* Pointer Colors according to zone */
+#newtrade .quality-ruler-pointer.pointer-danger .pointer-score {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.6) !important;
+}
+#newtrade .quality-ruler-pointer.pointer-danger .pointer-arrow {
+  color: #ef4444 !important;
+  filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.5)) !important;
+}
+
+#newtrade .quality-ruler-pointer.pointer-caution .pointer-score {
+  background: #eab308 !important;
+  color: #1a1600 !important;
+  box-shadow: 0 0 14px rgba(234, 179, 8, 0.6) !important;
+}
+#newtrade .quality-ruler-pointer.pointer-caution .pointer-arrow {
+  color: #eab308 !important;
+  filter: drop-shadow(0 2px 4px rgba(234, 179, 8, 0.5)) !important;
+}
+
+#newtrade .quality-ruler-pointer.pointer-good .pointer-score {
+  background: #22c55e !important;
+  color: #022011 !important;
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.6) !important;
+}
+#newtrade .quality-ruler-pointer.pointer-good .pointer-arrow {
+  color: #22c55e !important;
+  filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.5)) !important;
+}
+
+#newtrade .quality-ruler-pointer.pointer-pending .pointer-score {
+  background: #2b3b33 !important;
+  color: #c9ded3 !important;
+  border: 1px solid rgba(143, 224, 170, 0.25) !important;
+}
+#newtrade .quality-ruler-pointer.pointer-pending .pointer-arrow {
+  color: #2b3b33 !important;
+}
+
+/* Horizontal Bar: Continuous Red / Yellow / Green, ZERO GRAY */
+#newtrade .quality-ruler-bar {
+  position: relative !important;
+  width: 100% !important;
+  height: 24px !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 3px 10px rgba(0, 0, 0, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-sizing: border-box !important;
+  background: #000000 !important;
+}
+
+#newtrade .ruler-zone {
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  transition: width 0.3s ease !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .zone-red {
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 45%, #b91c1c 100%) !important;
+}
+
+#newtrade .zone-yellow {
+  background: linear-gradient(180deg, #fde047 0%, #eab308 45%, #a16207 100%) !important;
+}
+
+#newtrade .zone-green {
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 45%, #15803d 100%) !important;
+}
+
+#newtrade .zone-label {
+  font-size: 11px !important;
   font-weight: 900 !important;
-  text-shadow: 0 0 24px rgba(143, 224, 170, 0.35) !important;
+  letter-spacing: 0.08em !important;
+  color: rgba(10, 15, 12, 0.88) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  user-select: none !important;
 }
 
-#newtrade .rubric-gauge span {
-  color: #c8a84e !important;
+#newtrade .ruler-divider {
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 2px !important;
+  background: rgba(5, 15, 10, 0.8) !important;
+  transform: translateX(-50%) !important;
+  z-index: 3 !important;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.8) !important;
+  transition: left 0.3s ease !important;
+}
+
+/* Axis ticks / numbers below the bar */
+#newtrade .quality-ruler-axis {
+  position: relative !important;
+  width: 100% !important;
+  height: 18px !important;
+  margin-top: 8px !important;
+}
+
+#newtrade .axis-mark {
+  position: absolute !important;
+  top: 0 !important;
+  transform: translateX(-50%) !important;
+  font-size: 11px !important;
   font-weight: 750 !important;
+  color: #7e9c89 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  transition: left 0.3s ease !important;
+}
+
+#newtrade .axis-mark.axis-0 {
+  left: 0% !important;
+  transform: translateX(0) !important;
+}
+
+#newtrade .axis-mark.axis-100 {
+  left: 100% !important;
+  transform: translateX(-100%) !important;
+}
+
+/* Big Grade Display - Vertical stacked GRADE / Letter */
+#newtrade .quality-ruler-grade-display {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  margin: 18px 0 12px 0 !important;
+}
+
+#newtrade .quality-ruler-grade-display .grade-label {
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.16em !important;
+  color: #8fa99a !important;
+  text-transform: uppercase !important;
+}
+
+#newtrade .quality-ruler-grade-display .grade-val {
+  font-size: 48px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.02em !important;
+  transition: color 0.25s, text-shadow 0.25s !important;
+}
+
+#newtrade .grade-val.grade-d,
+#newtrade .grade-val.grade-no-trade {
+  color: #ef4444 !important;
+  text-shadow: 0 0 22px rgba(239, 68, 68, 0.45) !important;
+}
+
+#newtrade .grade-val.grade-c {
+  color: #eab308 !important;
+  text-shadow: 0 0 22px rgba(234, 179, 8, 0.45) !important;
+}
+
+#newtrade .grade-val.grade-b {
+  color: #a3e635 !important;
+  text-shadow: 0 0 22px rgba(163, 230, 53, 0.45) !important;
+}
+
+#newtrade .grade-val.grade-a,
+#newtrade .grade-val.grade-a-plus {
+  color: #22c55e !important;
+  text-shadow: 0 0 22px rgba(34, 197, 94, 0.45) !important;
+}
+
+#newtrade .grade-val.grade-pending {
+  color: #9ca3af !important;
+}
+
+/* Clean dedicated ruler hero: no duplicate titles or redundant subtext */
+#newtrade .rubric-experience-hero {
+  padding: 12px 16px 20px !important;
+  text-align: center !important;
+}
+
+#newtrade .rubric-experience-hero h2,
+#newtrade .rubric-experience-hero > p {
+  display: none !important;
+}
+
+#newtrade #experienceStatusHint,
+#newtrade #experienceRiskProfile {
+  display: none !important;
+}
+
+/* Status badge below the ruler - Single diagnosis pill, never duplicate the grade */
+.experience-status,
+#newtrade .experience-status {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 6px auto 16px !important;
+  padding: 7px 18px !important;
+  border-radius: 999px !important;
   font-size: 12px !important;
-  letter-spacing: 0.12em !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  transition: all 0.25s ease !important;
+}
+
+.experience-status.status-danger,
+#newtrade .experience-status.status-danger,
+.rubric-experience.grade-d .experience-status,
+.rubric-experience.grade-no-trade .experience-status,
+#newtrade .rubric-experience.grade-d .experience-status,
+#newtrade .rubric-experience.grade-no-trade .experience-status,
+.workbench-rubric-stage.grade-d .experience-status,
+.workbench-rubric-stage.grade-no-trade .experience-status,
+#tradeRubricStage.grade-d .experience-status,
+#tradeRubricStage.grade-no-trade .experience-status {
+  background: rgba(220, 38, 38, 0.25) !important;
+  border: 1.5px solid #ef4444 !important;
+  color: #fca5a5 !important;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.35) !important;
+}
+
+.experience-status.status-caution,
+#newtrade .experience-status.status-caution,
+.rubric-experience.grade-c .experience-status,
+#newtrade .rubric-experience.grade-c .experience-status,
+.workbench-rubric-stage.grade-c .experience-status,
+#tradeRubricStage.grade-c .experience-status {
+  background: rgba(234, 179, 8, 0.25) !important;
+  border: 1.5px solid #eab308 !important;
+  color: #fef08a !important;
+  box-shadow: 0 0 16px rgba(234, 179, 8, 0.25) !important;
+}
+
+.rubric-experience.grade-b .experience-status,
+#newtrade .rubric-experience.grade-b .experience-status,
+.workbench-rubric-stage.grade-b .experience-status,
+#tradeRubricStage.grade-b .experience-status {
+  background: rgba(163, 230, 53, 0.22) !important;
+  border: 1.5px solid #a3e635 !important;
+  color: #ecfccb !important;
+  box-shadow: 0 0 16px rgba(163, 230, 53, 0.25) !important;
+}
+
+.experience-status.status-good,
+#newtrade .experience-status.status-good,
+.rubric-experience.grade-a .experience-status,
+.rubric-experience.grade-a-plus .experience-status,
+#newtrade .rubric-experience.grade-a .experience-status,
+#newtrade .rubric-experience.grade-a-plus .experience-status,
+.workbench-rubric-stage.grade-a .experience-status,
+.workbench-rubric-stage.grade-a-plus .experience-status,
+#tradeRubricStage.grade-a .experience-status,
+#tradeRubricStage.grade-a-plus .experience-status {
+  background: rgba(16, 107, 71, 0.45) !important;
+  border: 1.5px solid #22c55e !important;
+  color: #bbf7d0 !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.28) !important;
+}
+
+#newtrade #experienceStatus.status-danger,
+#newtrade .rubric-experience-host #experienceStatus.status-danger,
+#newtrade #tradeGaugeMessage.status-danger {
+  background: rgba(220, 38, 38, 0.25) !important;
+  border: 1.5px solid #ef4444 !important;
+  color: #fca5a5 !important;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.35) !important;
+}
+
+#newtrade #experienceStatus.status-caution,
+#newtrade .rubric-experience-host #experienceStatus.status-caution,
+#newtrade #tradeGaugeMessage.status-caution {
+  background: rgba(234, 179, 8, 0.25) !important;
+  border: 1.5px solid #eab308 !important;
+  color: #fef08a !important;
+  box-shadow: 0 0 16px rgba(234, 179, 8, 0.25) !important;
+}
+
+#newtrade #experienceStatus.status-good,
+#newtrade .rubric-experience-host #experienceStatus.status-good,
+#newtrade #tradeGaugeMessage.status-good {
+  background: rgba(16, 107, 71, 0.45) !important;
+  border: 1.5px solid #22c55e !important;
+  color: #bbf7d0 !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.28) !important;
+}
+
+#newtrade #experienceStatus.status-pending,
+#newtrade .rubric-experience-host #experienceStatus.status-pending,
+#newtrade #tradeGaugeMessage.status-pending {
+  background: rgba(20, 50, 36, 0.6) !important;
+  border: 1px solid rgba(143, 224, 170, 0.28) !important;
+  color: #b9d8c4 !important;
+  box-shadow: none !important;
 }
 
 #newtrade #tradeGaugeMessage {
-  color: #8fe0aa !important;
-  font-size: 11.5px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.12em !important;
-  margin: 0 0 16px 0 !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.08em !important;
+  margin: 0 0 10px 0 !important;
 }
 
-/* Remove low-res forest image and replace with dark emerald ambiance */
+#newtrade #tradeGaugeMessage.grade-d,
+#newtrade #tradeGaugeMessage.grade-no-trade {
+  color: #fca5a5 !important;
+}
+
+#newtrade #tradeGaugeMessage.grade-c {
+  color: #fef08a !important;
+}
+
+#newtrade #tradeGaugeMessage.grade-b {
+  color: #ecfccb !important;
+}
+
+#newtrade #tradeGaugeMessage.grade-a,
+#newtrade #tradeGaugeMessage.grade-a-plus {
+  color: #8fe0aa !important;
+}
+
 #newtrade .rubric-experience-inline {
-  background: radial-gradient(circle at 50% 12%, rgba(92, 194, 130, 0.14) 0%, transparent 58%), #092016 !important;
-  border: 1px solid rgba(200, 168, 78, 0.22) !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 14px !important;
-  overflow: hidden !important;
+  overflow: visible !important;
+  padding-bottom: 2px !important;
+  transition: all 0.3s ease !important;
+}
+
+#newtrade .rubric-experience-inline.grade-d,
+#newtrade .rubric-experience-inline.grade-no-trade {
+  background: radial-gradient(circle at 50% 8%, rgba(239, 68, 68, 0.18) 0%, transparent 60%),
+              linear-gradient(160deg, #230d11 0%, #130608 100%) !important;
+  border-color: rgba(239, 68, 68, 0.38) !important;
+}
+
+#newtrade .rubric-experience-inline.grade-c {
+  background: radial-gradient(circle at 50% 8%, rgba(234, 179, 8, 0.18) 0%, transparent 60%),
+              linear-gradient(160deg, #241a0b 0%, #150f06 100%) !important;
+  border-color: rgba(234, 179, 8, 0.35) !important;
+}
+
+#newtrade .rubric-experience-inline.grade-b {
+  background: radial-gradient(circle at 50% 8%, rgba(163, 230, 53, 0.15) 0%, transparent 60%),
+              linear-gradient(160deg, #182613 0%, #0d170a 100%) !important;
+  border-color: rgba(163, 230, 53, 0.30) !important;
+}
+
+#newtrade .rubric-experience-inline.grade-a,
+#newtrade .rubric-experience-inline.grade-a-plus {
+  background: radial-gradient(circle at 50% 8%, rgba(34, 197, 94, 0.18) 0%, transparent 60%),
+              linear-gradient(160deg, #0d2d1f 0%, #071a12 100%) !important;
+  border-color: rgba(34, 197, 94, 0.35) !important;
 }
 
 #newtrade .rubric-experience-inline .rubric-experience-header {
   background: rgba(6, 22, 15, 0.75) !important;
   border-bottom: 1px solid rgba(143, 224, 170, 0.16) !important;
+  padding: 12px 16px 8px !important;
 }
 
 #newtrade .rubric-experience-inline .rubric-experience-header b {
   color: #c8a84e !important;
+  font-size: 11px !important;
+  letter-spacing: 0.14em !important;
 }
 
 #newtrade .rubric-experience-inline .rubric-experience-card > header {
   background: rgba(9, 29, 20, 0.8) !important;
   border-bottom: 1px solid rgba(143, 224, 170, 0.14) !important;
+  padding: 10px 14px 8px !important;
 }
 
 #newtrade .rubric-experience-inline .rubric-experience-card > header b {
   color: #f2ede4 !important;
+  font-size: 13px !important;
 }
 
 #newtrade .rubric-experience-inline .rubric-experience-card > header button {
   background: rgba(200, 168, 78, 0.12) !important;
   border: 1px solid rgba(200, 168, 78, 0.35) !important;
   color: #e5d7ad !important;
-  border-radius: 8px !important;
+  border-radius: 6px !important;
+  padding: 5px 10px !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
   transition: background 0.2s, border-color 0.2s !important;
 }
 
@@ -342,6 +888,16 @@ body:has(#newtrade.active) .content {
   background: rgba(200, 168, 78, 0.22) !important;
   border-color: #c8a84e !important;
   color: #fff !important;
+}
+
+#newtrade .rubric-source-divider {
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: #badfc8 !important;
+  padding: 8px 14px 4px !important;
+  border-bottom: 1px solid rgba(143, 224, 170, 0.2) !important;
 }
 
 /* Criteria rows & card container */
@@ -357,33 +913,40 @@ body:has(#newtrade.active) .content {
 #newtrade .rubric-experience-inline .rubric-criterion {
   background: rgba(8, 25, 17, 0.65) !important;
   border: 1px solid rgba(143, 224, 170, 0.14) !important;
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   display: grid !important;
   grid-template-columns: 18px minmax(0, 1fr) auto auto !important;
   align-items: center !important;
   gap: 8px !important;
   padding: 6px 10px !important;
-  min-height: 38px !important;
+  min-height: 42px !important;
   height: auto !important;
   color: #d6ded8 !important;
-  margin-bottom: 6px !important;
+  margin-bottom: 5px !important;
   box-sizing: border-box !important;
 }
 
 #newtrade .rubric-experience-host .rubric-criterion:before,
 #newtrade .rubric-experience-inline .rubric-criterion:before {
   grid-column: 1 !important;
+  font-size: 14px !important;
 }
 
 #newtrade .rubric-experience-host .rubric-criterion > span,
 #newtrade .rubric-experience-inline .rubric-criterion > span {
   grid-column: 2 !important;
-  color: #e5ede7 !important;
-  font-weight: 600 !important;
-  font-size: 11.5px !important;
+  color: #eaf3ed !important;
+  font-weight: 650 !important;
+  font-size: 13.5px !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+}
+
+#newtrade .rubric-auto-detail {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #9bf0b5 !important;
 }
 
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
@@ -400,8 +963,10 @@ body:has(#newtrade.active) .content {
   color: #b7d8c5 !important;
   border-radius: 6px !important;
   font-weight: 750 !important;
-  padding: 4px 6px !important;
-  font-size: 9.5px !important;
+  padding: 5px 9px !important;
+  font-size: 12px !important;
+  min-width: 44px !important;
+  min-height: 30px !important;
   transition: all 0.15s !important;
 }
 
@@ -416,7 +981,7 @@ body:has(#newtrade.active) .content {
   background: #6e2028 !important;
   border-color: #ea5460 !important;
   color: #fff !important;
-  box-shadow: 0 0 10px rgba(234, 84, 96, 0.35) !important;
+  box-shadow: 0 0 8px rgba(234, 84, 96, 0.35) !important;
 }
 
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button[data-rating="medium"].active,
@@ -424,7 +989,7 @@ body:has(#newtrade.active) .content {
   background: #695015 !important;
   border-color: #d8a834 !important;
   color: #fff !important;
-  box-shadow: 0 0 10px rgba(216, 168, 52, 0.35) !important;
+  box-shadow: 0 0 8px rgba(216, 168, 52, 0.35) !important;
 }
 
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button[data-rating="good"].active,
@@ -432,7 +997,7 @@ body:has(#newtrade.active) .content {
   background: #175d3c !important;
   border-color: #4db374 !important;
   color: #fff !important;
-  box-shadow: 0 0 10px rgba(77, 179, 116, 0.35) !important;
+  box-shadow: 0 0 8px rgba(77, 179, 116, 0.35) !important;
 }
 
 #newtrade .rubric-experience-host .rubric-criterion:after,
@@ -445,9 +1010,125 @@ body:has(#newtrade.active) .content {
   grid-column: 4 !important;
   color: #c8a84e !important;
   font-weight: 800 !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
   min-width: 44px !important;
   text-align: right !important;
+}
+
+/* ── RUBRIC VISUAL BRIDGE (SCORE TOTAL, GRADE, RISCO BASE) ─────────────── */
+
+#newtrade #rubricExperienceFooter {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+  padding: 10px 12px !important;
+  background: rgba(5, 20, 14, 0.92) !important;
+  border-top: 1px solid rgba(143, 224, 170, 0.22) !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade #rubricExperienceFooter .rubric-bridge-metric {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 3px !important;
+}
+
+#newtrade #rubricExperienceFooter .rubric-bridge-metric small {
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #a4bfae !important;
+}
+
+#newtrade #rubricExperienceFooter .rubric-bridge-metric b {
+  font-size: 15.5px !important;
+  font-weight: 900 !important;
+  color: #f2ede4 !important;
+}
+
+#newtrade #rubricExperienceFooter .grade-pill {
+  display: inline-block !important;
+  padding: 2px 10px !important;
+  border-radius: 999px !important;
+  background: rgba(37, 211, 102, 0.2) !important;
+  border: 1px solid #25d366 !important;
+  color: #6ee7a2 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
+
+#newtrade #rubricExperienceFooter .grade-pill.grade-b {
+  background: rgba(234, 179, 8, 0.2) !important;
+  border-color: #eab308 !important;
+  color: #fde047 !important;
+}
+
+#newtrade #rubricExperienceFooter .grade-pill.grade-c,
+#newtrade #rubricExperienceFooter .grade-pill.grade-d,
+#newtrade #rubricExperienceFooter .grade-pill.grade-no-trade {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+#newtrade #rubricExperienceFooter .risk-highlight {
+  color: #c8a84e !important;
+}
+
+#newtrade .rubric-risk-base {
+  margin: 10px 0 0 0 !important;
+  padding: 10px 14px !important;
+  border: 1px solid rgba(200, 168, 78, 0.28) !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(14, 46, 32, 0.85), rgba(7, 24, 17, 0.95)) !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .rubric-risk-base header {
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: #c8a84e !important;
+  margin-bottom: 5px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+#newtrade .rubric-risk-base > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+#newtrade .rubric-risk-base strong {
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  color: #6ee7a2 !important;
+  padding: 4px 10px !important;
+  border-radius: 7px !important;
+  background: rgba(8, 28, 19, 0.9) !important;
+  border: 1px solid rgba(110, 231, 162, 0.3) !important;
+  min-width: 62px !important;
+  text-align: center !important;
+}
+
+#newtrade .rubric-experience.grade-d .rubric-risk-base strong,
+#newtrade .rubric-experience.grade-c .rubric-risk-base strong {
+  color: #fca5a5 !important;
+  background: rgba(45, 14, 18, 0.9) !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+#newtrade .rubric-risk-base p {
+  margin: 0 !important;
+  font-size: 12.5px !important;
+  color: #b7cfbf !important;
+  line-height: 1.4 !important;
 }
 
 /* Market Selector */
@@ -457,109 +1138,223 @@ body:has(#newtrade.active) .content {
   border-radius: 8px !important;
   color: #ecfff1 !important;
   font-weight: 750 !important;
+  font-size: 13px !important;
 }
 
-/* ── 6. COLUMN 3: NIVELADOR DE RISCO & POSITION SIZING ───────────────────── */
+/* ── 6. COLUMN 3: NIVELADOR DE RISCO & POSITION SIZING (DUAS COLUNAS INTERNAS) ─ */
 
 #newtrade .workbench-sizer {
   grid-column: auto !important;
   display: flex !important;
   flex-direction: column !important;
+  height: 100% !important;
+  padding: 12px 14px !important;
+  box-sizing: border-box !important;
 }
 
-/* The 3 Sizing Layers */
+#newtrade .workbench-sizer-head {
+  margin-bottom: 6px !important;
+}
+
+#newtrade .workbench-sizer-body {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  flex: 1 !important;
+  align-items: stretch !important;
+  min-height: 0 !important;
+}
+
+/* Subcolumns 3A (O Sistema) and 3B (Você) */
+#newtrade .workbench-subcol {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  min-width: 0 !important;
+  gap: 10px !important;
+}
+
+#newtrade .workbench-subcol-divider {
+  width: 1px !important;
+  background: linear-gradient(180deg, rgba(200, 168, 78, 0.06) 0%, rgba(200, 168, 78, 0.28) 25%, rgba(200, 168, 78, 0.28) 75%, rgba(200, 168, 78, 0.06) 100%) !important;
+  align-self: stretch !important;
+}
+
+/* Semantic Subcolumn Kickers */
+#newtrade .subcol-kicker {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 2px 4px 6px 4px !important;
+  border-bottom: 1px solid rgba(200, 168, 78, 0.15) !important;
+  margin-bottom: 2px !important;
+}
+
+#newtrade .subcol-tag {
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+}
+
+#newtrade .workbench-subcol-system .subcol-tag {
+  color: #6ee7a2 !important;
+}
+
+#newtrade .workbench-subcol-execution .subcol-tag {
+  color: #c8a84e !important;
+}
+
+#newtrade .subcol-desc {
+  font-size: 11.5px !important;
+  color: #a4bfae !important;
+  font-weight: 500 !important;
+}
+
+/* Column 3A: The 3 Sizing Layers & Final Size */
 #newtrade .three-layers {
   display: flex !important;
   flex-direction: column !important;
-  gap: 10px !important;
-  margin: 14px 0 !important;
+  gap: 8px !important;
+  margin: 0 !important;
 }
 
 #newtrade .layer-prism {
   background: rgba(10, 31, 22, 0.82) !important;
   border: 1px solid rgba(143, 224, 170, 0.2) !important;
-  border-radius: 12px !important;
-  padding: 13px 16px !important;
+  border-radius: 11px !important;
+  padding: 8px 10px !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 14px !important;
+  display: grid !important;
+  grid-template-columns: 24px 1fr !important;
+  grid-template-rows: auto auto !important;
+  align-items: start !important;
+  gap: 2px 8px !important;
 }
 
 #newtrade .layer-prism i {
-  width: 30px !important;
-  height: 30px !important;
-  border-radius: 8px !important;
+  grid-column: 1 !important;
+  grid-row: 1 / span 2 !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
   background: rgba(200, 168, 78, 0.15) !important;
   color: #c8a84e !important;
   border: 1px solid rgba(200, 168, 78, 0.3) !important;
   display: grid !important;
   place-items: center !important;
   font-weight: 800 !important;
-  font-size: 13px !important;
+  font-size: 11.5px !important;
   flex-shrink: 0 !important;
+  margin-top: 2px !important;
 }
 
 #newtrade .layer-prism h3 {
-  margin: 0 0 2px 0 !important;
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  margin: 0 !important;
   color: #f2ede4 !important;
-  font-size: 13px !important;
-  font-weight: 750 !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
 }
 
 #newtrade .layer-prism p {
-  margin: 0 !important;
-  color: #a4b8ac !important;
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  margin: 2px 0 0 0 !important;
+  color: #b8ccbf !important;
   font-size: 11.5px !important;
   line-height: 1.35 !important;
 }
 
-/* POSITION SIZE FINAL CARD (HERO ELEMENT) */
+#newtrade .layer-prism .layer-status.status-danger {
+  color: #fca5a5 !important;
+  font-weight: 800 !important;
+}
+
+#newtrade .layer-prism .layer-status.status-good {
+  color: #6ee7a2 !important;
+  font-weight: 800 !important;
+}
+
+#newtrade .layer-prism .layer-status.status-caution {
+  color: #fde047 !important;
+  font-weight: 800 !important;
+}
+
+/* POSITION SIZE FINAL CARD (HERO ELEMENT NO RODAPÉ DE 3A) */
 #newtrade .final-size {
   background: linear-gradient(145deg, #0e3423, #071e14) !important;
   border: 1.5px solid rgba(200, 168, 78, 0.38) !important;
-  border-radius: 14px !important;
-  padding: 18px 20px !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(200, 168, 78, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(200, 168, 78, 0.2) !important;
   text-align: center !important;
-  margin: 12px 0 !important;
+  margin: auto 0 0 0 !important;
 }
 
 #newtrade .final-size small {
   display: block !important;
-  font-size: 10.5px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.22em !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
   color: #c8a84e !important;
-  margin-bottom: 6px !important;
+  margin-bottom: 2px !important;
 }
 
 #newtrade .final-size strong {
   display: block !important;
-  font-size: clamp(32px, 2.4vw, 42px) !important;
+  font-size: clamp(26px, 2vw, 36px) !important;
   font-weight: 900 !important;
-  color: #6ee7a2 !important;
-  text-shadow: 0 0 24px rgba(110, 231, 162, 0.38) !important;
+  color: #f2ede4 !important;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.22) !important;
   line-height: 1.05 !important;
-  margin-bottom: 6px !important;
+  margin-bottom: 2px !important;
+}
+
+#newtrade .final-size.zero-size strong {
+  color: #fca5a5 !important;
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.3) !important;
 }
 
 #newtrade .final-size span {
   display: block !important;
   color: #c7dcd0 !important;
-  font-size: 12.5px !important;
+  font-size: 11.5px !important;
   line-height: 1.4 !important;
 }
 
-/* Lock Hint & Summary */
+/* Lock Hint & Callout */
 #newtrade .workbench-lock-hint {
   border: 1px solid rgba(200, 168, 78, 0.25) !important;
   background: rgba(200, 168, 78, 0.05) !important;
   color: #dfcf9f !important;
-  border-radius: 10px !important;
+  border-radius: 9px !important;
   padding: 10px 14px !important;
-  font-size: 12px !important;
+  font-size: 12.5px !important;
+  margin: 6px 0 !important;
+}
+
+#newtrade .workbench-heat-callout {
+  margin: 6px 0 !important;
+}
+
+/* Column 3B Mount & Summary */
+#newtrade #workbenchExecutionMount {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+#newtrade .workbench-subcol-execution #workbenchSummary {
+  margin-top: auto !important;
+}
+
+#newtrade .workbench-subcol-execution .summary-box {
+  margin-top: 0 !important;
 }
 
 #newtrade .workbench-sizer .calc {
@@ -567,23 +1362,370 @@ body:has(#newtrade.active) .content {
   border: 1px solid rgba(143, 224, 170, 0.24) !important;
   border-radius: 12px !important;
   color: #eff8f1 !important;
+  padding: 10px 12px !important;
+  margin: 0 !important;
 }
 
-#newtrade .workbench-sizer .calc .big {
-  color: #c8a84e !important;
-  font-weight: 900 !important;
+#newtrade .workbench-sizer .calc > small,
+#newtrade .workbench-sizer .calc .big,
+#newtrade .workbench-sizer .calc .mini-layer-summary {
+  display: none !important;
+}
+
+#newtrade .workbench-sizer .calc-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px 10px !important;
+  margin-top: 0 !important;
 }
 
 #newtrade .workbench-sizer .calc-grid div {
-  border-color: rgba(143, 224, 170, 0.16) !important;
+  border-top: none !important;
+  border-left: 2px solid rgba(143, 224, 170, 0.2) !important;
+  padding: 3px 8px !important;
+  text-align: left !important;
 }
 
-#newtrade .workbench-sizer .calc-grid span {
-  color: #8da99b !important;
+#newtrade .workbench-sizer .calc-grid div:first-child {
+  border-left: 2px solid rgba(143, 224, 170, 0.2) !important;
+  padding-left: 8px !important;
+}
+
+#newtrade .workbench-sizer .calc-grid small {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: #a4bfae !important;
+  display: block !important;
+  white-space: nowrap !important;
 }
 
 #newtrade .workbench-sizer .calc-grid b {
+  font-size: 14px !important;
   color: #f2ede4 !important;
+  font-weight: 850 !important;
+  white-space: nowrap !important;
+}
+
+/* ── DESAFIO A+ QUANTITY CONTROLS ────────────────────────────────────────── */
+
+.courage-policy-qty-card {
+  background: linear-gradient(145deg, rgba(14, 46, 32, 0.9), rgba(6, 22, 15, 0.95)) !important;
+  border: 1.5px solid rgba(37, 211, 102, 0.45) !important;
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  margin: 8px 0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+  box-sizing: border-box !important;
+}
+
+.courage-policy-eyebrow {
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  color: #25d366 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  display: block !important;
+  margin-bottom: 2px !important;
+}
+
+.courage-policy-qty-val {
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1.1 !important;
+  margin: 2px 0 4px !important;
+}
+
+.courage-policy-qty-val .unit {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #8fa99b !important;
+  margin-left: 4px !important;
+}
+
+.courage-policy-qty-desc {
+  font-size: 12.5px !important;
+  color: #b7cfbf !important;
+  margin: 0 0 10px 0 !important;
+  line-height: 1.4 !important;
+}
+
+.courage-execute-policy-btn {
+  width: 100% !important;
+  background: linear-gradient(135deg, #177a45, #25a862) !important;
+  color: #fff !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  padding: 11px 16px !important;
+  border-radius: 9px !important;
+  border: 1px solid rgba(143, 224, 170, 0.5) !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(23, 122, 69, 0.35) !important;
+  transition: all 0.15s !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.courage-execute-policy-btn:hover {
+  filter: brightness(1.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.courage-execute-policy-btn.confirmed {
+  background: #0f482b !important;
+  border-color: #25d366 !important;
+  box-shadow: 0 0 12px rgba(37, 211, 102, 0.4) !important;
+}
+
+.courage-override-toggle-wrap {
+  text-align: center !important;
+  margin-top: 6px !important;
+}
+
+.courage-toggle-override-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #8fa99b !important;
+  font-size: 11.5px !important;
+  text-decoration: underline !important;
+  cursor: pointer !important;
+  padding: 4px 8px !important;
+  transition: color 0.15s !important;
+}
+
+.courage-toggle-override-btn:hover {
+  color: #c8a84e !important;
+}
+
+.courage-override-box {
+  margin-top: 8px !important;
+  padding: 12px !important;
+  background: rgba(5, 18, 12, 0.75) !important;
+  border: 1px dashed rgba(200, 168, 78, 0.3) !important;
+  border-radius: 9px !important;
+  box-sizing: border-box !important;
+}
+
+.courage-override-box label {
+  font-size: 11.5px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #dfcf9f !important;
+  display: block !important;
+  margin-bottom: 4px !important;
+}
+
+.courage-override-box input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 10px 14px !important;
+  font-size: 16px !important;
+  font-weight: 750 !important;
+  background: #061810 !important;
+  border: 1.5px solid rgba(200, 168, 78, 0.6) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  cursor: text !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+
+.courage-override-box input:focus {
+  outline: none !important;
+  border-color: #25d366 !important;
+  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.3) !important;
+  background: #082115 !important;
+}
+
+.courage-override-box input:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  background: #141c18 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+#newtrade .executed-quantity-control:has(#courageQuantityExperience) > label,
+#newtrade .executed-quantity-control:has(#courageQuantityExperience) > small {
+  display: none !important;
+}
+
+.courage-override-feedback {
+  margin-top: 8px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.courage-sizing-badge {
+  display: inline-block !important;
+  padding: 3px 9px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.05em !important;
+  margin-bottom: 4px !important;
+}
+
+.courage-sizing-badge.correct {
+  background: rgba(37, 211, 102, 0.18) !important;
+  border: 1px solid #25d366 !important;
+  color: #25d366 !important;
+}
+
+.courage-sizing-badge.undersizing {
+  background: rgba(234, 179, 8, 0.18) !important;
+  border: 1px solid #eab308 !important;
+  color: #fde047 !important;
+}
+
+.courage-sizing-badge.oversizing {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border: 1px solid #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
+.courage-sizing-diff {
+  font-weight: 700 !important;
+  color: #f2ede4 !important;
+  margin-left: 6px !important;
+}
+
+.courage-sizing-reflection {
+  margin: 4px 0 0 0 !important;
+  color: #9bb7a8 !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+/* High-contrast overrides for Courage Challenge & Conscious Risk Acceptance inside #newtrade */
+#newtrade .courage-active-trade-banner .courage-banner-text strong {
+  color: #25d366 !important;
+}
+
+#newtrade .courage-active-trade-banner .courage-banner-text span {
+  color: #c9ded3 !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+}
+
+#newtrade .courage-active-trade-banner {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 12px !important;
+  margin-bottom: 4px !important;
+  border-radius: 10px !important;
+  flex-wrap: wrap !important;
+}
+
+#newtrade .courage-active-trade-banner .courage-banner-main {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+#newtrade .courage-active-trade-banner .courage-banner-target {
+  flex-shrink: 0 !important;
+  color: #d1fae5 !important;
+}
+
+#newtrade .courage-conscious-risk-card {
+  color: #ffffff !important;
+  padding: 8px 12px !important;
+  margin-bottom: 4px !important;
+  gap: 6px !important;
+  border-radius: 12px !important;
+}
+
+#newtrade .courage-conscious-title {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+}
+
+#newtrade .courage-conscious-target-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+
+#newtrade .courage-conscious-target-val {
+  font-size: 20px !important;
+}
+
+#newtrade .courage-conscious-actual-val {
+  font-size: 16px !important;
+}
+
+#newtrade .courage-conscious-risk-card > div:nth-of-type(3) {
+  color: #d1fae5 !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+}
+
+#newtrade .courage-conscious-checkbox-wrap {
+  color: #ffffff !important;
+  background: rgba(37, 211, 102, 0.08) !important;
+  border: 1px solid rgba(37, 211, 102, 0.28) !important;
+  border-radius: 8px !important;
+  padding: 5px 8px !important;
+}
+
+#newtrade .courage-policy-qty-card {
+  padding: 8px 12px !important;
+  margin-bottom: 4px !important;
+  border-radius: 12px !important;
+}
+
+#newtrade .courage-policy-header {
+  margin-bottom: 4px !important;
+}
+
+#newtrade .courage-policy-qty-val {
+  font-size: 24px !important;
+  margin: 2px 0 !important;
+}
+
+#newtrade .courage-execute-policy-btn {
+  padding: 8px 14px !important;
+  font-size: 13.5px !important;
+}
+
+#newtrade .courage-conscious-checkbox-wrap span {
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+}
+
+#newtrade .courage-discomfort-label {
+  color: #f1f5f9 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+}
+
+#newtrade .courage-discomfort-btn {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+#newtrade .courage-discomfort-btn.selected {
+  color: #0b1f13 !important;
+  background: #25d366 !important;
+  border-color: #25d366 !important;
+  font-weight: 850 !important;
+}
+
+#newtrade .courage-discomfort-legend,
+#newtrade .courage-discomfort-legend span {
+  color: #9bb7a8 !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
 }
 
 /* Primary Action Button ("Registrar Trade" / "Confirmar Execução") */
@@ -593,9 +1735,9 @@ body:has(#newtrade.active) .content {
   background: linear-gradient(135deg, #256e45, #3fa86a) !important;
   color: #ffffff !important;
   border: 1px solid rgba(143, 224, 170, 0.45) !important;
-  box-shadow: 0 8px 24px rgba(37, 110, 69, 0.38) !important;
-  font-size: 14px !important;
-  font-weight: 800 !important;
+  box-shadow: 0 6px 20px rgba(37, 110, 69, 0.35) !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
   letter-spacing: 0.04em !important;
   padding: 13px 20px !important;
   border-radius: 10px !important;
@@ -608,83 +1750,174 @@ body:has(#newtrade.active) .content {
 #newtrade .workbench-sizer .summary-box button.primary:hover {
   filter: brightness(1.1) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 12px 28px rgba(37, 110, 69, 0.48) !important;
+  box-shadow: 0 10px 24px rgba(37, 110, 69, 0.45) !important;
 }
 
-/* ── 7. RESPONSIVE ADAPTATIONS (WIDESCREEN & 15" LAPTOPS) ─────────────────── */
+/* ── 7. RESPONSIVE ADAPTATIONS (WIDESCREEN, 15" LAPTOPS, AND HIGH-RES) ──── */
 
-/* 15-inch common laptops (~1366px - 1450px) */
-@media (max-width: 1450px) {
-  body:has(#newtrade.active) .content {
-    padding: 12px 16px 28px 16px !important;
-  }
+/* ── 8. RESPONSIVE BREAKPOINTS (HIERARQUIA INTELIGENTE) ──────────────────── */
 
+/* Desktop Grande (1700px - 2199px, ex: 1920x1080 Full HD):
+   Proporções ~30% / ~33% / ~37% */
+@media (min-width: 1700px) and (max-width: 2199px) {
   #newtrade .trade-workbench {
-    min-height: auto !important;
-  }
-
-  #newtrade .trade-workbench-head {
-    padding: 14px 18px !important;
+    max-width: 2600px !important;
   }
 
   #newtrade .trade-workbench-grid {
-    gap: 12px !important;
-    padding: 12px 14px !important;
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.16fr) minmax(0, 0.96fr) !important;
+    grid-template-columns: minmax(390px, 0.98fr) minmax(450px, 1.08fr) minmax(540px, 1.24fr) !important;
+    gap: 16px !important;
+    padding: 14px 18px !important;
+    align-items: stretch !important;
   }
 
   #newtrade .workbench-card {
-    padding: 14px !important;
+    padding: 14px 16px !important;
+    border-radius: 16px !important;
   }
 
-  #newtrade .workbench-sizer {
-    grid-column: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
+  #newtrade .workbench-card > h3 {
+    font-size: 20px !important;
+  }
+
+  #newtrade .workbench-stage-subtitle {
+    font-size: 14px !important;
+  }
+
+  #newtrade .quality-ruler-container {
+    max-width: 440px !important;
+  }
+
+  #newtrade .final-size strong {
+    font-size: 32px !important;
+  }
+}
+
+/* Ultra-wide monitors (>= 2200px, ex: 2560x1440, 3440x1440):
+   Proporções ~29% / ~32% / ~39% */
+@media (min-width: 2200px) {
+  #newtrade .trade-workbench {
+    max-width: 3200px !important;
+  }
+
+  #newtrade .trade-workbench-grid {
+    grid-template-columns: minmax(440px, 0.95fr) minmax(500px, 1.05fr) minmax(620px, 1.30fr) !important;
+    gap: 22px !important;
+    padding: 20px 26px !important;
+    align-items: stretch !important;
+  }
+
+  #newtrade .workbench-card {
+    padding: 20px 24px !important;
+    border-radius: 20px !important;
+  }
+
+  #newtrade .workbench-card > h3 {
+    font-size: 22px !important;
+  }
+
+  #newtrade .workbench-stage-subtitle {
+    font-size: 15px !important;
+  }
+
+  #newtrade .quality-ruler-container {
+    max-width: 500px !important;
+  }
+
+  #newtrade .quality-ruler-grade-display .grade-val {
+    font-size: 52px !important;
+  }
+
+  #newtrade .final-size strong {
+    font-size: 42px !important;
+  }
+}
+
+/* Desktop Médio / Laptops (<= 1600px):
+   Quando o espaço horizontal não comporta 3A + 3B confortáveis,
+   Etapa 3 empilha 3A sobre 3B internamente, preservando Etapas 1 e 2 com largura generosa */
+@media (max-width: 1600px) {
+  #newtrade .trade-workbench-grid {
+    gap: 12px !important;
+    padding: 10px 12px !important;
+    grid-template-columns: minmax(340px, 1fr) minmax(410px, 1.15fr) minmax(360px, 1.05fr) !important;
+    align-items: stretch !important;
+  }
+
+  #newtrade .workbench-card {
+    padding: 12px !important;
   }
 
   #newtrade .form-grid {
-    gap: 8px !important;
+    gap: 16px 12px !important;
   }
 
   #newtrade .field input,
   #newtrade .field select,
   #newtrade .field textarea {
-    padding: 8px 10px !important;
-    font-size: 11.5px !important;
+    padding: 7px 9px !important;
+    font-size: 13px !important;
   }
 
-  #newtrade .rubric-gauge {
-    max-width: 200px !important;
-    height: 100px !important;
+  #newtrade .quality-ruler-container {
+    max-width: 380px !important;
   }
 
-  #newtrade .rubric-gauge strong {
-    font-size: 32px !important;
+  #newtrade .quality-ruler-grade-display .grade-val {
+    font-size: 38px !important;
   }
 
   #newtrade .final-size {
-    padding: 12px 14px !important;
+    padding: 10px 12px !important;
   }
 
   #newtrade .final-size strong {
-    font-size: 26px !important;
+    font-size: 28px !important;
   }
 
   #newtrade .layer-prism {
-    padding: 8px 12px !important;
-    gap: 10px !important;
+    padding: 8px 10px !important;
+    gap: 8px !important;
+  }
+
+  #newtrade .workbench-sizer-body {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  #newtrade .workbench-subcol-divider {
+    width: 100% !important;
+    height: 1px !important;
+    margin: 4px 0 !important;
+    background: rgba(200, 168, 78, 0.16) !important;
+  }
+
+  #newtrade .workbench-sizer .calc-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
   }
 }
 
-/* Tablets and narrow screens */
+/* Tablets and narrow screens (< 1100px): stack all 3 steps vertically */
 @media (max-width: 1100px) {
   #newtrade .trade-workbench-grid {
     grid-template-columns: 1fr !important;
-    gap: 18px !important;
+    gap: 16px !important;
+    align-items: start !important;
   }
 
   #newtrade .workbench-card {
+    height: auto !important;
     overflow: visible !important;
+  }
+
+  #newtrade .workbench-sizer-body {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  #newtrade .workbench-subcol-divider {
+    width: 100% !important;
+    height: 1px !important;
+    margin: 4px 0 !important;
   }
 }
