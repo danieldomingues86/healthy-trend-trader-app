@@ -361,9 +361,9 @@ body:has(#newtrade.active) .content{max-width:none;padding:12px 18px;min-width:0
 <style>
 /* Novo Trade: remove o perfil duplicado e torna a permissão de mercado legível. */
 .experience-risk-profile{display:none!important}
-.rubric-experience-host .rubric-criterion.rubric-market-permission{grid-template-columns:20px minmax(0,1fr) auto!important;min-height:70px!important;height:70px}
-.rubric-experience-host .rubric-criterion.rubric-market-permission span{grid-column:2!important;display:flex;align-items:center;gap:12px;min-width:0;font-size:15px;font-weight:850;white-space:nowrap;overflow:visible}
-.rubric-experience-host .rubric-criterion.rubric-market-permission:after{display:none}
+.rubric-experience-host .rubric-criterion.rubric-market-permission{grid-template-columns:minmax(0,1fr) minmax(156px,190px) 76px!important;min-height:50px!important;height:auto}
+.rubric-experience-host .rubric-criterion.rubric-market-permission:before,.rubric-experience-host .rubric-criterion.rubric-market-permission:after{display:none!important}
+.rubric-experience-host .rubric-criterion.rubric-market-permission span{grid-column:1!important;display:flex;align-items:center;gap:12px;min-width:0;font-size:15px;font-weight:850;white-space:nowrap;overflow:visible}
 .rubric-experience-host .rubric-criterion.rubric-market-permission b{grid-column:3!important;justify-self:end;font-size:16px}
 .rubric-experience-host .rubric-active-profile{display:inline;margin:0;font-size:12px}
 #newtrade .rubric-policy-result{display:none!important}
@@ -3045,28 +3045,29 @@ renderEffectiveRiskPolicy();
 <style>
 /* Novo Trade — a Rubric precisa refletir exatamente as escolhas que liberam o risco. */
 #newtrade .rubric-experience-host .rubric-criterion{
-  grid-template-columns:20px minmax(160px,1.2fr) minmax(130px,180px) 56px!important;
+  grid-template-columns:minmax(0,1fr) minmax(156px,190px) 76px!important;
   min-height:50px!important;height:auto!important;gap:8px;align-items:center;
 }
 #newtrade .rubric-experience-host .rubric-criterion>span{
-  grid-column:2!important;white-space:normal!important;overflow:visible!important;
+  grid-column:1!important;white-space:normal!important;overflow:visible!important;
 }
+#newtrade .rubric-experience-host .rubric-criterion:before{display:none!important}
 #newtrade .rubric-experience-host .rubric-criterion:after{display:none!important}
-#newtrade .rubric-experience-host .rubric-criterion b{grid-column:4!important;font-size:12px!important}
+#newtrade .rubric-experience-host .rubric-criterion b{grid-column:3!important;font-size:12px!important}
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
-#newtrade .rubric-experience-host .rubric-criterion .rubric-market-selector{grid-column:3!important}
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-selector{grid-column:2!important}
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button{min-height:30px;padding:5px 4px;font-size:11px!important}
 #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission{min-height:48px!important;background:linear-gradient(90deg,rgba(59,142,92,.19),rgba(26,76,52,.10))}
 #newtrade .rubric-market-copy{display:flex;flex-direction:column;gap:3px}
 #newtrade .rubric-market-copy small{color:#b7dfc4;font-size:10px;font-weight:700;line-height:1.25}
 #newtrade .rubric-market-selector{display:block!important;width:100%;min-height:36px;padding:0 28px 0 10px;border:1px solid rgba(113,225,154,.62)!important;border-radius:8px!important;background:#10452e!important;color:#ecfff1!important;font:800 12px/1 inherit!important;cursor:pointer}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission{display:grid!important;grid-template-columns:20px minmax(160px,1.2fr) minmax(130px,180px) 56px!important;grid-template-rows:auto!important;gap:8px;align-items:center;padding:5px 12px!important}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission:before{display:block!important;grid-column:1!important;grid-row:1!important}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission>span{display:flex!important;grid-column:2!important;grid-row:1!important;align-items:center!important;min-width:0;text-align:left!important;white-space:normal!important}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission .rubric-market-selector{display:block!important;width:100%;grid-column:3!important;grid-row:1!important;color-scheme:light}
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(156px,190px) 76px!important;grid-template-rows:auto!important;gap:10px;align-items:center;padding:6px 10px!important}
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission:before{display:none!important}
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission>span{display:flex!important;grid-column:1!important;grid-row:1!important;align-items:center!important;min-width:0;text-align:left!important;white-space:normal!important}
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission .rubric-market-selector{display:block!important;width:100%;grid-column:2!important;grid-row:1!important;color-scheme:light}
 #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission:after{display:none!important}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission b{grid-column:4!important;grid-row:1!important;order:unset!important;text-align:right}
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission b{grid-column:3!important;grid-row:1!important;order:unset!important;text-align:right}
 #newtrade .rubric-market-selector option{background:#f4fbf6!important;color:#123b27!important;font-weight:800!important}
 #newtrade .rubric-source-divider{margin-top:8px!important}
 @media(max-width:850px){
@@ -3076,9 +3077,9 @@ renderEffectiveRiskPolicy();
   #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
   #newtrade .rubric-experience-host .rubric-criterion .rubric-market-selector{grid-column:2 / span 2!important;width:100%}
   #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission{display:grid!important}
-  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission>span{grid-column:2!important}
-  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission .rubric-market-selector{grid-column:2 / span 2!important;width:100%;flex:auto}
-  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission b{grid-column:3!important}
+  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission>span{grid-column:1!important}
+  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission .rubric-market-selector{grid-column:1 / -1!important;width:100%;flex:auto}
+  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission b{grid-column:2!important}
 }
 </style>
 <script>
@@ -3239,7 +3240,7 @@ renderEffectiveRiskPolicy();
 <script src="frontend/watchlist-page.js"></script>
 <link rel="stylesheet" href="frontend/about-page.css?v=20260918-1" />
 <script src="frontend/about-page.js?v=20260918-1"></script>
-<link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20260918-1" />
+<link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20260921-3" />
 <script>
 const goWithAboutPage=go;
 go=function(id){goWithAboutPage(id);if(id==='about')renderAboutPage()};

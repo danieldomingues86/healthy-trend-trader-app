@@ -1921,3 +1921,195 @@ body:has(#newtrade.active) .content {
     margin: 4px 0 !important;
   }
 }
+
+/* ── ALIGNMENT FOUNDATION: NEW TRADE ───────────────────────────────────── */
+/*
+ * One layout contract for the operating form and the Trading Rubric.
+ * Keep all alignment in the shared grids; feature controls must not carry
+ * individual positional compensation.
+ */
+#newtrade .workbench-card #workbenchData {
+  padding: 0 !important;
+}
+
+#newtrade .workbench-card #workbenchData .form-card {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 18px !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .workbench-card #workbenchData .form-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  column-gap: 14px !important;
+  row-gap: 16px !important;
+  align-items: start !important;
+}
+
+#newtrade .workbench-card #workbenchData .field {
+  display: grid !important;
+  grid-template-rows: auto 42px auto !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  align-content: start !important;
+}
+
+#newtrade .workbench-card #workbenchData .field label {
+  min-height: 13px !important;
+  margin: 0 !important;
+  line-height: 13px !important;
+}
+
+#newtrade .workbench-card #workbenchData .field input,
+#newtrade .workbench-card #workbenchData .field select {
+  height: 42px !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+#newtrade .workbench-card #workbenchData .field textarea {
+  grid-row: 2 / span 2 !important;
+  min-height: 116px !important;
+  margin: 0 !important;
+}
+
+#newtrade .workbench-card #workbenchData .field.full {
+  grid-column: 1 / -1 !important;
+}
+
+#newtrade .workbench-card #workbenchData .trade-form-divider {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  align-self: center !important;
+}
+
+/* The Rubric always has three functional columns: label, evaluation, score. */
+#newtrade .rubric-experience-host .rubric-criterion,
+#newtrade .rubric-experience-inline .rubric-criterion,
+#newtrade #rubricCriteria .rubric-criterion {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(156px, 190px) 76px !important;
+  grid-template-rows: minmax(38px, auto) !important;
+  column-gap: 10px !important;
+  align-items: center !important;
+  min-height: 50px !important;
+  margin: 0 0 6px !important;
+  padding: 6px 10px !important;
+}
+
+#newtrade .rubric-experience-host .rubric-criterion::before,
+#newtrade .rubric-experience-inline .rubric-criterion::before,
+#newtrade #rubricCriteria .rubric-criterion::before {
+  display: none !important;
+}
+
+#newtrade .rubric-experience-host .rubric-criterion > span,
+#newtrade .rubric-experience-inline .rubric-criterion > span,
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission > span,
+#newtrade #rubricCriteria .rubric-criterion > span {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+#newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
+#newtrade .rubric-experience-inline .rubric-criterion .manual-rubric-controls,
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-selector,
+#newtrade .rubric-experience-host .rubric-criterion .market-cycle-select,
+#newtrade #rubricCriteria .rubric-criterion .manual-rubric-controls,
+#newtrade #rubricCriteria .rubric-criterion .rubric-market-selector,
+#newtrade #rubricCriteria .rubric-criterion .market-cycle-select {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+#newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
+#newtrade .rubric-experience-inline .rubric-criterion .manual-rubric-controls {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 4px !important;
+}
+
+#newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button,
+#newtrade .rubric-experience-inline .rubric-criterion .manual-rubric-controls button,
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-selector,
+#newtrade .rubric-experience-host .rubric-criterion .market-cycle-select {
+  height: 32px !important;
+  min-height: 32px !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .rubric-experience-host .rubric-criterion b,
+#newtrade .rubric-experience-inline .rubric-criterion b,
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission b,
+#newtrade #rubricCriteria .rubric-criterion b {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission,
+#newtrade #rubricCriteria .rubric-criterion.rubric-market-permission {
+  grid-template-columns: minmax(0, 1fr) minmax(156px, 190px) 76px !important;
+  grid-template-rows: minmax(38px, auto) !important;
+  padding: 6px 10px !important;
+}
+
+#newtrade .rubric-source-divider {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 8px 0 4px !important;
+  padding: 8px 10px 4px !important;
+}
+
+#newtrade #rubricCriteria .rubric-criterion::after {
+  display: none !important;
+}
+
+@media (max-width: 850px) {
+  #newtrade .rubric-experience-host .rubric-criterion,
+  #newtrade .rubric-experience-inline .rubric-criterion,
+  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission,
+  #newtrade #rubricCriteria .rubric-criterion,
+  #newtrade #rubricCriteria .rubric-criterion.rubric-market-permission {
+    grid-template-columns: minmax(0, 1fr) 64px !important;
+    grid-template-rows: auto 32px !important;
+  }
+
+  #newtrade .rubric-experience-host .rubric-criterion > span,
+  #newtrade .rubric-experience-inline .rubric-criterion > span,
+  #newtrade #rubricCriteria .rubric-criterion > span {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  #newtrade .rubric-experience-host .rubric-criterion b,
+  #newtrade .rubric-experience-inline .rubric-criterion b,
+  #newtrade #rubricCriteria .rubric-criterion b {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+
+  #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
+  #newtrade .rubric-experience-inline .rubric-criterion .manual-rubric-controls,
+  #newtrade .rubric-experience-host .rubric-criterion .rubric-market-selector,
+  #newtrade .rubric-experience-host .rubric-criterion .market-cycle-select,
+  #newtrade #rubricCriteria .rubric-criterion .manual-rubric-controls,
+  #newtrade #rubricCriteria .rubric-criterion .rubric-market-selector,
+  #newtrade #rubricCriteria .rubric-criterion .market-cycle-select {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+  }
+}

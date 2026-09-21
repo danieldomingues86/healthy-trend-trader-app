@@ -1,4 +1,4 @@
-const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const {sanitizeWisdomText,validateWisdomText,auditRecord}=require('./wisdom-text');
 const {select,inCategory}=require('./wisdom-library');
 test('Normalizes encoding, HTML and literal escapes without rewriting meaning',()=>{
@@ -18,9 +18,10 @@ test('Bad translation falls back to verified original; bad author quarantines re
 test('Every archive record is audited, originals retained, publishable fields pass again',()=>{
  const ctx={window:{}};vm.runInNewContext(fs.readFileSync(require.resolve('./wisdom-catalog.js'),'utf8'),ctx);
  const catalog=ctx.window.wisdomCatalog,paths=JSON.parse(fs.readFileSync(require.resolve('../assets/wisdom-index.json'))).items;
+ const projectRoot=path.resolve(__dirname,'..');
  assert.equal(catalog.records.length,paths.length);assert.equal(new Set(catalog.records.map(r=>r.image)).size,paths.length);
  assert.equal(catalog.counts.valid+catalog.counts.needsReview,paths.length);
- for(const r of catalog.records){assert(fs.existsSync(r.image));if(r.needsReview){assert.equal(r.quote,'');assert.equal(r.pt,'');}else for(const field of ['quote','pt','author','title','source'])if(r[field])assert(validateWisdomText(r[field],{verified:true,kind:field==='source'?'source':'message'}).valid,`${r.id}/${field}`);}
+ for(const r of catalog.records){assert(fs.existsSync(path.join(projectRoot,r.image)));if(r.needsReview){assert.equal(r.quote,'');assert.equal(r.pt,'');}else for(const field of ['quote','pt','author','title','source'])if(r[field])assert(validateWisdomText(r[field],{verified:true,kind:field==='source'?'source':'message'}).valid,`${r.id}/${field}`);}
 });
 test('Category, search, favorite and sort predicates compose',()=>{
  const records=[{id:'a',theme:'risk',quote:'Manage capital',pt:'Gerencie o capital',author:'Maria',tags:[],index:0},{id:'b',theme:'psychology',quote:'Discipline',pt:'Disciplina',author:'John',tags:[],index:1},{id:'c',theme:'psychology',quote:'Patience',pt:'Paciência',author:'Ann',tags:[],index:2},{id:'d',quote:'',searchText:'Minervini',needsReview:true,index:3}];

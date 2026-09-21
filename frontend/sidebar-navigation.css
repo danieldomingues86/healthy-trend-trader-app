@@ -551,6 +551,11 @@ body.sidebar-collapsed .sidebar-btn-arrow {
   white-space: normal;
 }
 
+.flyout-item-desc.flyout-item-desc-compact {
+  font-size: 10px;
+  white-space: nowrap;
+}
+
 .flyout-item-link:hover .flyout-item-desc {
   color: #c0ded2;
 }
