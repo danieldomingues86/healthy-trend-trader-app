@@ -29,16 +29,10 @@
           page: 'today'
         },
         {
-          id: 'dailyroutine',
-          label: 'Rotina Diária',
-          icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5H12a1.5 1.5 0 0 1 1.5 1.5v9.5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V4a1.5 1.5 0 0 1 1.5-1.5h1.5"/><rect x="5.5" y="1" width="5" height="3" rx="1"/><path d="M5.5 7.5h5M5.5 11h3.5"/></svg>`,
-          page: 'dailyroutine'
-        },
-        {
-          id: 'habits',
-          label: 'Monitor de Hábitos',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
-          page: 'habits'
+          id: 'newtrade',
+          label: 'Novo Trade',
+          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`,
+          page: 'newtrade'
         },
         {
           id: 'journal',
@@ -47,10 +41,10 @@
           page: 'journal'
         },
         {
-          id: 'couragechallenge',
-          label: 'Desafio A/A+',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`,
-          page: 'couragechallenge'
+          id: 'dailyroutine',
+          label: 'Rotina Diária',
+          icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5H12a1.5 1.5 0 0 1 1.5 1.5v9.5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V4a1.5 1.5 0 0 1 1.5-1.5h1.5"/><rect x="5.5" y="1" width="5" height="3" rx="1"/><path d="M5.5 7.5h5M5.5 11h3.5"/></svg>`,
+          page: 'dailyroutine'
         },
         {
           id: 'watchlist',
@@ -59,10 +53,10 @@
           page: 'watchlist'
         },
         {
-          id: 'newtrade',
-          label: 'Novo Trade',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`,
-          page: 'newtrade'
+          id: 'habits',
+          label: 'Hábitos',
+          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+          page: 'habits'
         }
       ]
     },
@@ -154,6 +148,14 @@
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
       header: 'DADOS & PERFORMANCE',
       items: [
+        {
+          id: 'couragechallenge',
+          title: 'Desafio A/A+',
+          desc: 'Acompanhe a execução dos setups A e A+.',
+          compactDescription: true,
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`,
+          page: 'couragechallenge'
+        },
         {
           id: 'analytics',
           title: 'Painel da Verdade',
@@ -574,7 +576,7 @@
                     <span>${sub.title}</span>
                     ${isLocked ? '<span class="flyout-badge-pro">PRO</span>' : ''}
                   </div>
-                  <span class="flyout-item-desc">${sub.desc}</span>
+                  <span class="flyout-item-desc${sub.compactDescription ? ' flyout-item-desc-compact' : ''}">${sub.desc}</span>
                 </div>
               </button>
             `;
