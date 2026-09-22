@@ -1,11 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { normalizePlan, normalizeExecution, normalizePositionEvent, ratingFromValue } = require('../src/trades');
+const { normalizePlan, validateRareTrade, normalizeExecution, normalizePositionEvent, ratingFromValue } = require('../src/trades');
 
 test('normaliza plano com ticker em caixa alta e contribuições da Rubric', () => {
   const plan = normalizePlan({
     asset: ' wege3 ', entry: 48.3, stop: 45.8, atr: 1.72, suggestedQty: 400,
-    executedQty: 400, riskPct: .004, rubricScore: 18, rubricMaxScore: 24, grade: 'A+',
+    executedQty: 400, riskPct: .004, rubricScore: 97, rubricMaxScore: 100, grade: 'A',
     rubricResponses: { marketCycle: 2 }, rubricContributions: [{ key: 'marketCycle', value: 2, points: 2, weight: 1 }]
   });
   assert.equal(plan.ticker, 'WEGE3');
@@ -26,6 +26,19 @@ test('preserva a data efetiva de entrada separada do registro do trade', () => {
 test('rejeita ticker e quantidade inválidos antes de acessar o banco', () => {
   assert.throws(() => normalizePlan({ asset: 'weg!', entry: 10, stop: 9, suggestedQty: 100, riskPct: .001 }), /Ticker inválido/);
   assert.throws(() => normalizePlan({ asset: 'WEGE3', entry: 10, stop: 9, suggestedQty: 0, riskPct: .001 }), /Quantidade planejada/);
+});
+
+test('não aceita o grade legado em novos trades', () => {
+  assert.throws(() => normalizePlan({ asset: 'WEGE3', entry: 10, stop: 9, suggestedQty: 100, executedQty: 100, riskPct: .004, grade: 'A+' }), /Grade da Rubric inválido/);
+});
+
+test('API recusa Grade A com score alto mas um Quality Gate reprovado', () => {
+  const allGood = { trendQuality: 'good', relativeStrength: 'good', volatility: 'good', setupQuality: 'good', fundamentalScore: 'good' };
+  const verified = { rubricGrade: 'A', rubricScore: 100, rubricResponses: { ratings: allGood, marketCycleRegime: 'healthy' } };
+  assert.doesNotThrow(() => validateRareTrade(verified));
+  const failed = { ...verified, rubricScore: 97.8, rubricResponses: { ratings: { ...allGood, fundamentalScore: 'medium' }, marketCycleRegime: 'healthy' } };
+  assert.throws(() => validateRareTrade(failed), /Grade A exige/);
+  assert.throws(() => validateRareTrade({ ...verified, rubricScore: 97 }), /Grade A exige/);
 });
 
 test('converte a escala da tela para os três estados persistidos', () => {

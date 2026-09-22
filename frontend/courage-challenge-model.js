@@ -41,6 +41,7 @@
 
   function defaultChallengeState() {
     return {
+      gradingVersion: 2,
       challengeId: 'challenge-' + Date.now(),
       status: STATUS.DRAFT, // DRAFT | ACTIVE | PAUSED | COMPLETED | CANCELLED
       targetGoal: DEFAULT_TARGET_GOAL,
@@ -58,6 +59,7 @@
       completedAt: null,
       cancelledAt: null,
       attempts: [],
+      legacyAttempts: [],
       executions: [], // compatibilidade com views antigas
       celebrationDismissed: false
     };
@@ -227,7 +229,16 @@
         attempts: Array.isArray(parsed.attempts) ? parsed.attempts : 
                   (Array.isArray(parsed.executions) ? parsed.executions : [])
       };
+      if (parsed.gradingVersion !== 2) {
+        // Old A/A+ challenge attempts predate the Rare Trade gates. Preserve them
+        // for audit, but do not count them toward the new Grade A challenge.
+        merged.legacyAttempts = merged.attempts.map(attempt => ({ ...attempt, legacyGrade: attempt.grade || attempt.setupGrade || null }));
+        merged.attempts = [];
+        if (merged.status === STATUS.COMPLETED) merged.status = STATUS.DRAFT;
+      }
+      merged.gradingVersion = 2;
       merged.executions = merged.attempts;
+      if (parsed.gradingVersion !== 2) saveChallengeState(merged, storage);
       return merged;
     } catch {
       return defaultChallengeState();
@@ -338,7 +349,7 @@
   function isTradeEligibleForChallenge(trade, stateOrStorage) {
     if (!trade) return false;
     const g = trade.grade || trade.setupGrade;
-    if (!['A', 'A+'].includes(g)) return false;
+    if (g !== 'A') return false;
     const s = (stateOrStorage && stateOrStorage.status) ? stateOrStorage : loadChallengeState(stateOrStorage);
     return s.status === STATUS.ACTIVE;
   }
@@ -488,9 +499,10 @@
       id,
       ticker,
       date,
-      setupGrade = 'A+',
+      setupGrade,
       grade,
-      rubricScore = 100,
+      rubricScore = null,
+      rubricContributions = null,
       targetRiskPercent,
       targetRiskPct,
       entryPrice,
@@ -506,24 +518,26 @@
       tradeResultR = null,
       riskPolicySnapshot = null,
       detachmentMode,
-      preTradeDiscomfortLevel = null,
-      forceActive = false
+      preTradeDiscomfortLevel = null
     } = params;
 
-    // REGRA FUNDAMENTAL: Se o desafio não estiver ACTIVE nem DRAFT (ex: PAUSED, CANCELLED, COMPLETED), ignorar!
-    if (!forceActive && currentState.status && (currentState.status === STATUS.PAUSED || currentState.status === STATUS.CANCELLED)) {
+    // O compliance somente acompanha execuções durante um desafio ativo.
+    if (currentState.status !== STATUS.ACTIVE) {
       return singleArg ? null : { state: currentState, execution: null, ignored: true, reason: 'CHALLENGE_NOT_ACTIVE' };
     }
 
     const effTradeId = tradeId || id || ('trade-' + Date.now());
-    const effGrade = grade || setupGrade || 'A+';
+    const effGrade = grade || setupGrade;
 
-    // REGRA DE ELEGIBILIDADE: Apenas Grade A ou A+ pertencem ao Desafio A/A+. Trades B ou inferiores nunca entram!
-    if (!['A', 'A+'].includes(effGrade)) {
+    // Somente Rare Trades de Grade A pertencem ao desafio.
+    if (effGrade !== 'A') {
       return singleArg ? null : { state: currentState, execution: null, ignored: true, reason: 'GRADE_NOT_ELIGIBLE' };
     }
 
-    const effTargetRisk = Number(targetRiskPct !== undefined ? targetRiskPct : (targetRiskPercent !== undefined ? targetRiskPercent : 0.5));
+    const effTargetRisk = Number(targetRiskPct !== undefined ? targetRiskPct : targetRiskPercent);
+    if (!Number.isFinite(effTargetRisk) || effTargetRisk <= 0) {
+      return singleArg ? null : { state: currentState, execution: null, ignored: true, reason: 'RISK_POLICY_REQUIRED' };
+    }
     const effQty = Number(quantity !== undefined ? quantity : (actualQuantity !== undefined ? actualQuantity : plannedQuantity)) || 0;
     const effPlannedQty = Number(plannedQuantity !== undefined ? plannedQuantity : effQty) || 0;
     const effReason = differenceReason || reason || null;
@@ -573,6 +587,7 @@
       setupGrade: effGrade,
       grade: effGrade,
       rubricScore,
+      rubricContributions: Array.isArray(rubricContributions) ? rubricContributions : null,
       targetRiskPercent: Number(effTargetRisk.toFixed(2)),
       targetRiskPct: Number(effTargetRisk.toFixed(2)),
       actualRiskPercent: Number(Number(actualRiskPct).toFixed(2)),
@@ -682,8 +697,11 @@
   }
 
   function resetChallenge(storage) {
+    const targetStorage = storage || (typeof localStorage !== 'undefined' ? localStorage : null);
+    const previous = loadChallengeState(targetStorage);
     const fresh = defaultChallengeState();
-    if (storage) saveChallengeState(fresh, storage);
+    fresh.legacyAttempts = previous.legacyAttempts || [];
+    saveChallengeState(fresh, targetStorage);
     return fresh;
   }
 

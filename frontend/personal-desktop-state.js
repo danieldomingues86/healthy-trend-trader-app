@@ -1,6 +1,6 @@
 (function (root) {
   const key = 'healthy-personal-desktop-v1';
-  const defaults = { priorities: [], note: '', reminders: [], focus: { title: 'DISCIPLINA', text: 'Qualidade é tudo. Opere somente A+.' } };
+  const defaults = { priorities: [], note: '', reminders: [], focus: { title: 'DISCIPLINA', text: 'Qualidade é tudo. Opere somente A.' } };
   let state;
   function load() { if (state) return state; try { state = { ...defaults, ...JSON.parse(localStorage.getItem(key) || '{}') }; } catch (_) { state = { ...defaults }; } return state; }
   function save(next) { state = next; try { localStorage.setItem(key, JSON.stringify(state)); } catch (_) {} return state; }

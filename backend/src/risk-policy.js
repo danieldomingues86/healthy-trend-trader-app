@@ -1,15 +1,16 @@
 const database = require('./database');
+const { normalizePolicy } = require('../../frontend/trading-rubrics');
 
 function invalid(message) { const error = new Error(message); error.status = 400; return error; }
 
 function policy(payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw invalid('Política de risco inválida.');
-  return payload;
+  return normalizePolicy(payload);
 }
 
 async function get(userId) {
   const result = await database.query('SELECT policy, updated_at FROM app.risk_policies WHERE user_id = $1', [userId]);
-  return result.rowCount ? { policy: result.rows[0].policy, updatedAt: result.rows[0].updated_at } : { policy: null, updatedAt: null };
+  return result.rowCount ? { policy: policy(result.rows[0].policy), updatedAt: result.rows[0].updated_at } : { policy: null, updatedAt: null };
 }
 
 async function save(userId, payload) {

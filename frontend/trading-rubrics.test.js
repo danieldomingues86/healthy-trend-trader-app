@@ -1,30 +1,30 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {DEFAULT_POLICY,calculateRubric,calculateGrade,calculatePositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,normalizePolicy}=require('./trading-rubrics');
+const {DEFAULT_POLICY,calculateRubric,calculateGrade,calculatePositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,normalizePolicy,normalizeHistoricalGrade}=require('./trading-rubrics');
+test('leituras legadas nunca mostram A+ nem promovem A sem prova do Quality Gate',()=>{assert.equal(normalizeHistoricalGrade('A+'), 'B');assert.equal(normalizeHistoricalGrade('A'), 'B');assert.equal(normalizeHistoricalGrade('A',{gradingVersion:2}), 'A');assert.equal(normalizeHistoricalGrade('B'), 'B');assert.equal(normalizeHistoricalGrade('C'), 'C');assert.equal(normalizeHistoricalGrade('D'), 'D');assert.equal(normalizeHistoricalGrade(null), null)});
 test('Rubric de Position Trend Following totaliza 100 pontos nos seis pilares',()=>{const policy=normalizePolicy();assert.deepEqual(policy.criteria.map(({key,weight})=>[key,weight]),[['trendQuality',25],['marketCycle',20],['relativeStrength',20],['volatility',15],['setupQuality',15],['fundamentalScore',5]]);assert.equal(policy.criteria.reduce((sum,item)=>sum+item.weight,0),100)});
 test('Rubric segue a nomenclatura e ordem oficial dos seis critérios',()=>{const policy=normalizePolicy();assert.deepEqual(policy.criteria.map(({key,label,weight})=>[key,label,weight]),[['trendQuality','Contexto do Ativo (Diário)',25],['marketCycle','Contexto do Mercado',20],['relativeStrength','Força Relativa (RS)',20],['volatility','Volatilidade (ATR)',15],['setupQuality','Gatilho de Entrada',15],['fundamentalScore','Fundamentos',5]])});
-test('preserva pesos e grades configurados pelo usuário',()=>{const policy=normalizePolicy({criteria:[{key:'trendQuality',weight:19}],grades:[{grade:'A+',minScore:91,riskPct:.006}]});assert.equal(policy.criteria.find(item=>item.key==='trendQuality').weight,19);assert.deepEqual(policy.grades[0],{grade:'A+',minScore:91,riskPct:.006})});
+test('migra política antiga para quatro grades preservando o risco configurado de A',()=>{const policy=normalizePolicy({criteria:[{key:'trendQuality',weight:19}],grades:[{grade:'A+',minScore:91,riskPct:.006},{grade:'A',minScore:80,riskPct:.0045}]});assert.equal(policy.criteria.find(item=>item.key==='trendQuality').weight,19);assert.deepEqual(policy.grades.map(item=>[item.grade,item.minScore]),[['A',95],['B',80],['C',65],['D',-Infinity]]);assert.equal(policy.grades[0].riskPct,.0045)});
 test('bloqueia o risco quando os pesos da Rubric não somam 100 pontos',()=>{const policy=normalizePolicy({criteria:[{key:'trendQuality',weight:20}]}),ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good'])),result=calculateRubric({ratings,marketCycleRegime:'healthy'},policy);assert.equal(result.weightsTotal,95);assert.equal(result.weightsValid,false);assert.equal(result.riskPct,0);assert.equal(result.qualityAllowed,false);assert.match(result.gates.find(gate=>gate.key==='weights').message,/100 pontos/)});
 test('Portfolio Heat máximo é configurável e registros antigos recebem o padrão seguro',()=>{assert.equal(normalizePolicy().portfolioHeatLimitPct,3);assert.equal(normalizePolicy({portfolioHeatLimitPct:4.25}).portfolioHeatLimitPct,4.25);assert.equal(normalizePolicy({portfolioHeatLimitPct:0}).portfolioHeatLimitPct,.01)});
-test('A+ exige tendência estrutural saudável e mercado saudável',()=>{const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good'])),result=calculateRubric({ratings,marketCycleRegime:'healthy'});assert.equal(result.score,100);assert.equal(result.grade,'A+');assert.equal(result.gradeRiskPct,.005);assert.equal(result.qualityAllowed,true)});
-test('gate de tendência impede A+ mesmo quando a soma é alta',()=>{const result=calculateRubric({ratings:{trendQuality:'improving',relativeStrength:'good',volatility:'good',setupQuality:'good',fundamentalScore:'good'},marketCycleRegime:'healthy'});assert.equal(result.rawGrade,'A+');assert.equal(result.grade,'A');assert.equal(result.gates[0].key,'trend')});
+test('Grade A exige score e excelência em todos os seis edges',()=>{const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good']));const result=calculateRubric({ratings,marketCycleRegime:'healthy'});assert.equal(result.score,100);assert.equal(result.grade,'A');assert.equal(result.qualityAllowed,true)});
+test('score acima de 95 com edge crítico abaixo da excelência cai para B',()=>{const result=calculateRubric({ratings:{trendQuality:'good',relativeStrength:'good',volatility:'good',setupQuality:'good',fundamentalScore:'medium'},marketCycleRegime:'healthy'});assert.ok(result.score>=95);assert.equal(result.rawGrade,'A');assert.equal(result.grade,'B');assert.equal(result.gates[0].key,'fundamentalScore')});
+test('97 com todos os gates excelentes é A; 94 mesmo excelente permanece B',()=>{const ratings={trendQuality:'numeric',relativeStrength:'numeric',volatility:'numeric',setupQuality:'numeric',fundamentalScore:'numeric'};const values={trendQuality:.9625,relativeStrength:.9625,volatility:.9625,setupQuality:.9625,fundamentalScore:.9625};const result=calculateRubric({ratings,...values,marketCycleRegime:'healthy'});assert.equal(result.score,97);assert.equal(result.grade,'A');const lower=calculateRubric({ratings,...Object.fromEntries(Object.keys(values).map(key=>[key,.925])),marketCycleRegime:'healthy'});assert.equal(lower.score,94);assert.equal(lower.grade,'B')});
 test('mercado defensivo limita a classificação e risk-off bloqueia a oportunidade',()=>{const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good']));assert.equal(calculateRubric({ratings,marketCycleRegime:'defensive'}).grade,'B');assert.equal(calculateRubric({ratings,marketCycleRegime:'risk-off'}).grade,'D')});
-test('risco-base acompanha a grade sem contaminar a pontuação da Rubric',()=>{const ratings={trendQuality:'good',relativeStrength:'good',volatility:'medium',setupQuality:'medium',fundamentalScore:'medium'};const result=calculateRubric({ratings,marketCycleRegime:'healthy'});assert.equal(result.grade,'A');assert.equal(result.gradeRiskPct,.004)});
+test('risco-base acompanha a grade sem contaminar a pontuação da Rubric',()=>{const ratings={trendQuality:'good',relativeStrength:'good',volatility:'medium',setupQuality:'medium',fundamentalScore:'medium'};const result=calculateRubric({ratings,marketCycleRegime:'healthy'});assert.equal(result.grade,'B');assert.equal(result.gradeRiskPct,.002)});
 test('Position Sizing continua usando somente limites de risco, ATR e capital',()=>{const result=calculatePositionSizing({equity:1029500,entry:48.3,stop:45.8,atr:1.72,riskPct:.001,volatilityPct:.002,capitalPct:.1,lot:100});assert.equal(result.quantity,400);assert.equal(result.limitingLayer,'risk')});
 test('peel-off reduz somente a quantidade necessária para respeitar o alarme',()=>{const result=calculatePeelOff({currentPrice:60,currentStop:50,atr:2,quantity:1000,equity:1000000,policy:DEFAULT_POLICY,profileKey:'rampUp',lot:100});assert.equal(result.required,true);assert.equal(result.allowedQuantity,200);assert.equal(result.peelQuantity,800)});
 test('Ongoing Risk calcula long e short',()=>{assert.equal(calculateOngoingRisk({currentPrice:45,currentStop:50,quantity:100,direction:'short',equity:10000}).cash,500)});
 test('Portfolio Heat e limite de posições permanecem freios finais',()=>{assert.equal(validatePortfolio({currentHeatPct:4.8,additionalRiskPct:.3,openPositions:3,maximumHeatPct:5,maximumPositions:6}).allowed,false)});
 
 test('calculateGrade respeita os thresholds da escala oficial de 100 pontos',()=>{
-  assert.equal(calculateGrade(100), 'A+');
-  assert.equal(calculateGrade(90), 'A+');
-  assert.equal(calculateGrade(89.9), 'A');
-  assert.equal(calculateGrade(80), 'A');
-  assert.equal(calculateGrade(79.9), 'B');
-  assert.equal(calculateGrade(70), 'B');
-  assert.equal(calculateGrade(69.9), 'C');
-  assert.equal(calculateGrade(60), 'C');
-  assert.equal(calculateGrade(59.9), 'D');
+  assert.equal(calculateGrade(100), 'A');
+  assert.equal(calculateGrade(95), 'A');
+  assert.equal(calculateGrade(94), 'B');
+  assert.equal(calculateGrade(80), 'B');
+  assert.equal(calculateGrade(79), 'C');
+  assert.equal(calculateGrade(65), 'C');
+  assert.equal(calculateGrade(64.9), 'D');
   assert.equal(calculateGrade(11), 'D');
   assert.equal(calculateGrade(0), 'D');
 });
@@ -70,20 +70,18 @@ test('Proteção contra escala legada de 10 pontos não corrompe thresholds nem 
     ]
   };
   const normalized = normalizePolicy(legacyPolicy);
-  const gradeAPlus = normalized.grades.find(g => g.grade === 'A+');
   const gradeA = normalized.grades.find(g => g.grade === 'A');
   const gradeB = normalized.grades.find(g => g.grade === 'B');
   const gradeC = normalized.grades.find(g => g.grade === 'C');
   const gradeD = normalized.grades.find(g => g.grade === 'D');
 
   // Must have sanitized minScore to 100-point scale
-  assert.equal(gradeAPlus.minScore, 90);
-  assert.equal(gradeA.minScore, 80);
-  assert.equal(gradeB.minScore, 70);
-  assert.equal(gradeC.minScore, 60);
+  assert.equal(gradeA.minScore, 95);
+  assert.equal(gradeB.minScore, 80);
+  assert.equal(gradeC.minScore, 65);
   assert.equal(gradeD.minScore, -Infinity);
 
-  // Score 11 with this policy cannot be Grade A or A+
+  // Score 11 with this policy cannot be Grade A
   const result = calculateRubric({
     ratings: {
       trendQuality: 'bad',
@@ -143,26 +141,10 @@ test('Risco-base dinâmico por Grade aplicado ao Position Sizing (B = 0,20% -> 8
   assert.equal(sizingA.quantity, 1600);
   assert.equal(sizingA.initialRisk, 4000);
 
-  // Grade A+
-  const gradeAPlusConfig = policy.grades.find(g => g.grade === 'A+');
-  assert.equal(gradeAPlusConfig.riskPct, 0.005);
-  const sizingAPlus = calculatePositionSizing({
-    equity,
-    entry,
-    stop,
-    atr,
-    riskPct: gradeAPlusConfig.riskPct,
-    volatilityPct: 0.006,
-    capitalPct: 0.10,
-    lot: 100
-  });
-  // R$ 5.000 ÷ 2.50 = 2.000 ações
-  assert.equal(sizingAPlus.layers.find(l => l.key === 'risk').quantity, 2000);
-  assert.equal(sizingAPlus.quantity, 2000);
-  assert.equal(sizingAPlus.initialRisk, 5000);
+  assert.deepEqual(policy.grades.map(item => item.grade), ['A', 'B', 'C', 'D']);
 });
 
-test('Auto-cura de política legada onde Grade A e Grade B estavam travados em 0.002', () => {
+test('Migração preserva o risco configurado de A mesmo quando igual ao de B', () => {
   const legacyPolicy = {
     grades: [
       { grade: 'A+', riskPct: 0.004, minScore: 90 },
@@ -172,10 +154,10 @@ test('Auto-cura de política legada onde Grade A e Grade B estavam travados em 0
       { grade: 'D', riskPct: 0, minScore: null }
     ]
   };
-  const healed = normalizePolicy(legacyPolicy);
-  assert.equal(healed.grades.find(g => g.grade === 'B').riskPct, 0.002);
-  assert.equal(healed.grades.find(g => g.grade === 'A').riskPct, 0.004);
-  assert.equal(healed.grades.find(g => g.grade === 'A+').riskPct, 0.005);
+  const migrated = normalizePolicy(legacyPolicy);
+  assert.equal(migrated.grades.find(g => g.grade === 'B').riskPct, 0.002);
+  assert.equal(migrated.grades.find(g => g.grade === 'A').riskPct, 0.002);
+  assert.equal(migrated.grades.length, 4);
 });
 
 

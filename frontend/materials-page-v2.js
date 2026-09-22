@@ -19,7 +19,7 @@
       isFeatured: true,
       tagline: 'O Guia Mestre de Oportunidades',
       benefits: [
-        'Identificação precisa e pontuação ponderada de setups A+',
+        'Identificação precisa e pontuação ponderada de setups A',
         'Fórmula matemática de dimensionamento de lote (Position Sizing)'
       ]
     },
@@ -153,7 +153,7 @@
           <h1 class="spotlight-title">Trading Rubric: O Guia Mestre de Oportunidades</h1>
           <p class="spotlight-subtitle">O manual definitivo para classificar a qualidade de cada ativo, eliminar o achismo e só arriscar capital quando os 6 pilares matemáticos estiverem totalmente alinhados.</p>
           <ul class="spotlight-benefits">
-            <li><span class="benefit-check">✓</span> <span><b>Identificação precisa de setups A+:</b> método objetivo para filtrar ruído do mercado.</span></li>
+            <li><span class="benefit-check">✓</span> <span><b>Identificação precisa de setups A:</b> método objetivo para filtrar ruído do mercado.</span></li>
             <li><span class="benefit-check">✓</span> <span><b>Fórmula de Position Sizing:</b> defina exatamente o tamanho do lote antes da ordem.</span></li>
             <li><span class="benefit-check">✓</span> <span><b>Acesso Imediato:</b> formato PDF de alta resolução + compatível com Kindle / ePub.</span></li>
           </ul>
