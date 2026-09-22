@@ -96,7 +96,7 @@ body:has(#watchlist.active) #marketFocusGuard {
     margin-inline:auto!important;
   }
 
-  .page.active:not(#journal):not(#zen):not(#manual):not(#wisdom):not(#tradelibrary):not(#emotionalintelligence):not(#emergingleaders):not(#watchlist){
+  .page.active:not(#today):not(#journal):not(#zen):not(#manual):not(#wisdom):not(#tradelibrary):not(#emotionalintelligence):not(#emergingleaders):not(#watchlist){
     width:min(100%,var(--workspace-max-width));
     margin-inline:auto!important;
   }
