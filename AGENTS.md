@@ -76,12 +76,12 @@ Do not duplicate existing components. Reuse established primitives such as `.pag
 
 ## Domain rules to preserve
 
-- Workflow precedence is market permission → A+ setup → position sizing → portfolio heat → execution → journal/review. Discovery/Watchlist is not an execution signal by itself.
-- Market permission: Down protects capital/no new long trades; Transition favors preparation and conservative recovery behavior; Up permits only correctly sized A+ contexts. Follow the implemented logic before changing wording or gates.
-- Trading Rubric grades setup quality (A+, A, B, C, D). The current risk policy resolves grade-based nominal risk; Grade D is a zero-risk automatic block.
+- Workflow precedence is market permission → setup quality → position sizing → portfolio heat → execution → journal/review. Discovery/Watchlist is not an execution signal by itself.
+- Market permission: Down protects capital/no new long trades; Transition favors preparation and conservative recovery behavior; Up still requires correctly sized, policy-permitted contexts. Follow the implemented logic before changing wording or gates.
+- Trading Rubric grades setup quality exclusively as A, B, C or D. Grade A requires both score ≥95 and excellence (at least 90% of each criterion's weight) in all six critical criteria. A high score with a failed gate is B. The risk policy resolves grade-based nominal risk; Grade D is a zero-risk automatic block.
 - Position sizing has three constraints: stop risk, ATR volatility, and capital limit. The most conservative (smallest) quantity wins.
 - Risk Ramp-Up is a distinct conservative operational profile (documented as up to three concurrent positions); the standard profile is documented as up to six. Risk-policy behavior is implemented in `backend/src/risk-policy.js` and used by the trade workflow.
-- A/A+ Challenge eligibility is only A or A+; it evaluates execution against the policy’s nominal risk and must not change position sizing.
+- Grade A Challenge eligibility is only Rare Trades classified A while the challenge is active; it evaluates execution against the policy’s nominal risk and must not change position sizing. Legacy challenge attempts are archived separately and do not count toward new Grade A progress.
 - A position is the complete trade idea. Entries, partial exits, stop changes, and closing are position events; do not model partial exits as independent trades. Preserve transactional event recording in `backend/src/trades.js` and shared calculations in `frontend/position-management-model.js`.
 - Market-data refresh is protected by business-day/São Paulo timing, provider budgets, serialization, and cache-completeness safeguards. Historical B3 data is preferred; live BRAPI scan overlays are opt-in via `ENABLE_BRAPI_LIVE_SCANS=true`.
 

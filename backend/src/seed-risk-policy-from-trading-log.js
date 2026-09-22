@@ -2,6 +2,7 @@ require('./env');
 const database = require('./database');
 
 const policy = {
+  gradingVersion: 2,
   criteria: [
     { key: 'trendQuality', label: 'Contexto do Ativo (Diário)', weight: 25 },
     { key: 'marketCycle', label: 'Contexto do Mercado', weight: 20 },
@@ -11,10 +12,9 @@ const policy = {
     { key: 'fundamentalScore', label: 'Fundamentos', weight: 5 }
   ],
   grades: [
-    { grade: 'A+', minScore: 90, riskPct: 0.005 },
-    { grade: 'A', minScore: 80, riskPct: 0.004 },
-    { grade: 'B', minScore: 70, riskPct: 0.002 },
-    { grade: 'C', minScore: 60, riskPct: 0.001 },
+    { grade: 'A', minScore: 95, riskPct: 0.004 },
+    { grade: 'B', minScore: 80, riskPct: 0.002 },
+    { grade: 'C', minScore: 65, riskPct: 0.001 },
     { grade: 'D', minScore: -Infinity, riskPct: 0 }
   ],
   profiles: {

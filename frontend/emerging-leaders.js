@@ -782,7 +782,7 @@
               <div class="el-step-icon">📊</div>
               <div class="el-step-text">
                 <strong>4 ${t('CONFIRMAÇÃO', 'CONFIRM')}</strong>
-                <span>Setup A+</span>
+                <span>Setup A</span>
               </div>
             </div>
 

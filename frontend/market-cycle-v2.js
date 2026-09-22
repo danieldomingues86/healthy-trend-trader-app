@@ -58,8 +58,8 @@
     return {
       healthy: {
         label: t('Mercado saudável', 'Healthy market'),
-        interpretation: t('O contexto está a favor. Procure somente cenários A+ que respeitem integralmente o seu plano.', 'The context is favourable. Look only for A+ setups that fully respect your plan.'),
-        permission: t('Somente A+', 'A+ only'),
+        interpretation: t('O contexto está a favor. Procure somente cenários A que respeitem integralmente o seu plano.', 'The context is favourable. Look only for A setups that fully respect your plan.'),
+        permission: t('Somente A', 'A only'),
         context: t('O preço e a estrutura das médias sustentam uma leitura favorável. Ainda assim, cada nova posição precisa confirmar o setup e respeitar o risco.', 'Price and moving-average structure support a favourable reading. Every new position must still confirm the setup and respect risk.')
       },
       transition: {

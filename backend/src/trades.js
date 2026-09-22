@@ -1,6 +1,7 @@
 const crypto = require('node:crypto');
 const database = require('./database');
 const management = require('../../frontend/position-management-model');
+const rubricModel = require('../../frontend/trading-rubrics');
 
 function invalid(message) {
   const error = new Error(message);
@@ -44,6 +45,8 @@ function normalizePlan(payload = {}) {
   if (riskPct > 1) throw invalid('Risco-base é inválido.');
   const rubric = payload.rubricResponses && typeof payload.rubricResponses === 'object' ? payload.rubricResponses : {};
   const contributions = Array.isArray(payload.rubricContributions) ? payload.rubricContributions : [];
+  const rubricGrade = String(payload.grade || payload.rubricGrade || '').trim();
+  if (!['A', 'B', 'C', 'D'].includes(rubricGrade)) throw invalid('Grade da Rubric inválido. Reavalie o trade com a classificação atual.');
   return {
     ticker,
     market: String(payload.market || '').slice(0, 50) || null,
@@ -56,7 +59,7 @@ function normalizePlan(payload = {}) {
     riskPct,
     rubricScore: number(payload.rubricScore, 'Score da Rubric', { minimum: -1000 }),
     rubricMaxScore: number(payload.rubricMaxScore, 'Score máximo da Rubric', { minimum: 0 }),
-    rubricGrade: String(payload.grade || payload.rubricGrade || '').slice(0, 20) || null,
+    rubricGrade,
     rubricResponses: rubric,
     contributions: contributions
       .filter((item) => item && typeof item.key === 'string')
@@ -67,6 +70,7 @@ function normalizePlan(payload = {}) {
         maxScore: Math.max(0, Number(item.weight || 0) * 2)
       })),
     metadata: {
+      gradingVersion: 2,
       mode: payload.mode === 'paper' ? 'paper' : 'real',
       thesis: String(payload.thesis || '').slice(0, 4000),
       executedQuantity: number(payload.executedQty, 'Quantidade da operação', { minimum: 1, required: true }),
@@ -78,10 +82,22 @@ function normalizePlan(payload = {}) {
   };
 }
 
+function validateRareTrade(plan, policy) {
+  if (plan.rubricGrade !== 'A') return;
+  const verified = rubricModel.calculateRubric(plan.rubricResponses, policy);
+  if (!verified.qualityAllowed || Math.abs(verified.score - plan.rubricScore) > 0.11) {
+    throw invalid('Grade A exige score de pelo menos 95 e excelência em todos os critérios da Rubric. Reavalie o trade.');
+  }
+}
+
 async function createPlan(userId, payload) {
   const plan = normalizePlan(payload);
   const id = crypto.randomUUID();
   await database.transaction(async (client) => {
+    if (plan.rubricGrade === 'A') {
+      const savedPolicy = await client.query('SELECT policy FROM app.risk_policies WHERE user_id = $1', [userId]);
+      validateRareTrade(plan, savedPolicy.rows[0]?.policy);
+    }
     await client.query(
       `INSERT INTO app.trades (
         id, user_id, ticker, market, direction, setup, entry_price, stop_price, atr,
@@ -252,4 +268,4 @@ async function executePlan(userId, tradeId, payload) {
   });
 }
 
-module.exports = { createPlan, listPlans, executePlan, recordPositionEvent, normalizePlan, normalizeExecution, normalizePositionEvent, ratingFromValue };
+module.exports = { createPlan, listPlans, executePlan, recordPositionEvent, normalizePlan, validateRareTrade, normalizeExecution, normalizePositionEvent, ratingFromValue };

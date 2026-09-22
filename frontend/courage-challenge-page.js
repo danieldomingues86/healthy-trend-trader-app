@@ -1,5 +1,5 @@
 /**
- * HEALTHY TREND TRADER - DESAFIO A+ (CORAGEM CALCULADA V2 & MODO DESAPEGO)
+ * HEALTHY TREND TRADER - DESAFIO A (CORAGEM CALCULADA V2 & MODO DESAPEGO)
  * Filosofia: "Menos Dashboard. Mais Treinamento."
  */
 
@@ -51,9 +51,9 @@
 
     // Último trade avaliado para o card protagonista Sizing Compliance
     const latestAttempt = totalAttempts > 0 ? attempts[totalAttempts - 1] : null;
-    let targetDisplay = 0.50;
+    let targetDisplay = root.TradingRubrics?.normalizePolicy(root.riskPolicyState)?.grades.find(item => item.grade === 'A')?.riskPct * 100 || 0;
     if (latestAttempt) {
-      targetDisplay = latestAttempt.targetRiskPercent || latestAttempt.targetRiskPct || 0.50;
+      targetDisplay = latestAttempt.targetRiskPercent || latestAttempt.targetRiskPct || targetDisplay;
     } else if (root.riskPolicyState && root.riskPolicyState.grades && root.riskPolicyState.grades[0]) {
       targetDisplay = root.riskPolicyState.grades[0].riskPct * 100;
     }
@@ -160,7 +160,7 @@
     html += '  </div>';
 
     html += '  <div class="courage-compact-hero-body">';
-    html += '    <div class="courage-kicker-gold">DESAFIO A/A+</div>';
+    html += '    <div class="courage-kicker-gold">DESAFIO GRADE A</div>';
     html += '    <h1 class="courage-compact-title">';
     html += '      Quebre suas<br>';
     html += '      <span class="courage-title-accent">';
@@ -188,7 +188,7 @@
     html += '      <div class="courage-donut-center">';
     html += '        <div class="courage-donut-current">' + compCount + '</div>';
     html += '        <div class="courage-donut-goal">/ ' + targetGoal + '</div>';
-    html += '        <div class="courage-donut-label">A/A+ EXECUÇÕES</div>';
+    html += '        <div class="courage-donut-label">EXECUÇÕES GRADE A</div>';
     html += '      </div>';
     html += '    </div>';
     html += '  </div>';
@@ -202,7 +202,7 @@
     html += '    <div class="courage-clean-stats-row">';
     html += '      <div class="courage-clean-stat-col">';
     html += '        <span class="courage-clean-stat-number">' + totalAttempts + '</span>';
-    html += '        <span class="courage-clean-stat-desc">Setups A/A+</span>';
+    html += '        <span class="courage-clean-stat-desc">Setups Grade A</span>';
     html += '      </div>';
     html += '      <div class="courage-clean-stat-col">';
     html += '        <span class="courage-clean-stat-number green">' + compCount + '</span>';
@@ -322,7 +322,7 @@
     root.CourageChallengeModel.startChallenge();
     renderCourageChallengePage();
     if (typeof showToast === 'function') {
-      showToast('🟢 Desafio A/A+ Iniciado! Seus próximos setups A/A+ serão monitorados.');
+      showToast('🟢 Desafio Grade A Iniciado! Seus próximos setups Grade A serão monitorados.');
     }
   }
 
@@ -330,7 +330,7 @@
     root.CourageChallengeModel.pauseChallenge();
     renderCourageChallengePage();
     if (typeof showToast === 'function') {
-      showToast('⏸️ Desafio A/A+ Pausado. Trades não serão contabilizados até você retomar.');
+      showToast('⏸️ Desafio Grade A Pausado. Trades não serão contabilizados até você retomar.');
     }
   }
 
@@ -338,26 +338,26 @@
     root.CourageChallengeModel.resumeChallenge();
     renderCourageChallengePage();
     if (typeof showToast === 'function') {
-      showToast('🟢 Desafio A/A+ Retomado! Próximos setups A/A+ voltarão a ser vinculados.');
+      showToast('🟢 Desafio Grade A Retomado! Próximos setups Grade A voltarão a ser vinculados.');
     }
   }
 
   function confirmCancelChallenge() {
-    if (!confirm('Deseja realmente encerrar este Desafio A/A+? O progresso será finalizado.')) return;
+    if (!confirm('Deseja realmente encerrar este Desafio Grade A? O progresso será finalizado.')) return;
     root.CourageChallengeModel.cancelChallenge();
     renderCourageChallengePage();
     if (typeof showToast === 'function') {
-      showToast('⏹️ Desafio A/A+ encerrado.');
+      showToast('⏹️ Desafio Grade A encerrado.');
     }
   }
 
   function startNewChallenge() {
-    if (!confirm('Deseja iniciar um novo ciclo de 20 execuções A/A+? O histórico anterior será reiniciado.')) return;
+    if (!confirm('Deseja iniciar um novo ciclo de 20 execuções Grade A? O histórico anterior será reiniciado.')) return;
     root.CourageChallengeModel.resetChallenge();
     root.CourageChallengeModel.startChallenge();
     renderCourageChallengePage();
     if (typeof showToast === 'function') {
-      showToast('🟢 Novo Desafio A/A+ iniciado com sucesso!');
+      showToast('🟢 Novo Desafio Grade A iniciado com sucesso!');
     }
   }
 
@@ -500,7 +500,7 @@
     modalHtml += '  </div>';
     modalHtml += '  <div class="courage-snapshot-grid">';
     modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Data/Hora</div><div class="courage-snapshot-value">' + safe(trade.timestamp || trade.date) + '</div></div>';
-    modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Ticker & Setup</div><div class="courage-snapshot-value">' + safe(trade.ticker) + ' (' + safe(trade.setupGrade || 'A+') + ')</div></div>';
+    modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Ticker & Setup</div><div class="courage-snapshot-value">' + safe(trade.ticker) + ' (' + safe(trade.setupGrade || 'A') + ')</div></div>';
     modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Target Risk (Planejado)</div><div class="courage-snapshot-value">' + numBR(trade.targetRiskPercent || trade.targetRiskPct, 2) + '%</div></div>';
     modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Actual Risk (Executado)</div><div class="courage-snapshot-value ' + (isComp ? 'green' : 'yellow') + '">' + numBR(trade.actualRiskPercent || trade.actualRiskPct, 2) + '%</div></div>';
     modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Status Compliance</div><div class="courage-snapshot-value ' + (isComp ? 'green' : 'yellow') + '">' + safe(trade.complianceStatus) + '</div></div>';
@@ -520,18 +520,31 @@
 
   function openAddTradeModal() {
     const host = document.getElementById('courageModalsHost') || document.body;
+    const policy = root.TradingRubrics?.normalizePolicy(root.riskPolicyState);
     let modalHtml = '<div class="courage-modal-backdrop open" id="courageAddTradeModal">';
     modalHtml += '<div class="courage-modal-card" style="max-width:500px;">';
     modalHtml += '  <div class="courage-modal-header">';
-    modalHtml += '    <h3>＋ Registrar Execução A/A+ Manual</h3>';
+    modalHtml += '    <h3>＋ Registrar Execução Grade A Manual</h3>';
     modalHtml += '    <button class="courage-modal-close" onclick="CourageChallengePage.closeModal(&apos;courageAddTradeModal&apos;)" title="Fechar modal">×</button>';
     modalHtml += '  </div>';
     modalHtml += '  <div style="display:flex;flex-direction:column;gap:14px;">';
     modalHtml += '    <div><label class="courage-modal-field-label">Ticker do Ativo</label><input type="text" id="manTicker" class="courage-modal-input" value="PETR4"></div>';
     modalHtml += '    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
-    modalHtml += '      <div><label class="courage-modal-field-label">Target Risk %</label><input type="number" step="0.01" id="manTarget" class="courage-modal-input" value="0.50"></div>';
-    modalHtml += '      <div><label class="courage-modal-field-label">Actual Risk %</label><input type="number" step="0.01" id="manActual" class="courage-modal-input" value="0.50"></div>';
+    const nominalRisk = root.TradingRubrics?.normalizePolicy(root.riskPolicyState)?.grades.find(item => item.grade === 'A')?.riskPct * 100 || 0;
+    modalHtml += '      <div><label class="courage-modal-field-label">Target Risk %</label><input type="number" step="0.01" id="manTarget" class="courage-modal-input" value="' + nominalRisk + '" readonly></div>';
+    modalHtml += '      <div><label class="courage-modal-field-label">Actual Risk %</label><input type="number" step="0.01" id="manActual" class="courage-modal-input" value="' + nominalRisk + '"></div>';
     modalHtml += '    </div>';
+    modalHtml += '    <div><div class="courage-modal-field-label">Quality Gate do Rubric</div><p style="margin:4px 0 10px;color:#a2c7b7;font-size:12px;">Avalie todos os critérios. Só um Rare Trade confirmado entra no Desafio.</p>';
+    (policy?.criteria || []).forEach(function(criterion) {
+      const options = criterion.key === 'marketCycle'
+        ? [['healthy', 'Saudável'], ['improving', 'Melhorando'], ['transition', 'Transição'], ['defensive', 'Defensivo'], ['riskOff', 'Risk-Off']]
+        : [['good', 'Bom'], ['medium', 'Médio'], ['bad', 'Ruim']];
+      modalHtml += '<label class="courage-modal-field-label" for="manualRubric-' + safe(criterion.key) + '">' + safe(criterion.label) + '</label>';
+      modalHtml += '<select id="manualRubric-' + safe(criterion.key) + '" class="courage-modal-input" style="margin:4px 0 9px;"><option value="">Selecione</option>';
+      options.forEach(function(option) { modalHtml += '<option value="' + option[0] + '">' + option[1] + '</option>'; });
+      modalHtml += '</select>';
+    });
+    modalHtml += '</div>';
     modalHtml += '    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">';
     modalHtml += '      <div><label class="courage-modal-field-label">Preço Entrada (R$)</label><input type="number" step="0.01" id="manEntry" class="courage-modal-input" value="35.00"></div>';
     modalHtml += '      <div><label class="courage-modal-field-label">Stop Inicial (R$)</label><input type="number" step="0.01" id="manStop" class="courage-modal-input" value="34.00"></div>';
@@ -552,26 +565,48 @@
   }
 
   function confirmManualTrade() {
+    const policy = root.TradingRubrics?.normalizePolicy(root.riskPolicyState);
+    if (!policy) return;
+    const ratings = {};
+    let marketCycleRegime = '';
+    for (const criterion of policy.criteria) {
+      const value = document.getElementById('manualRubric-' + criterion.key)?.value;
+      if (!value) {
+        if (typeof showToast === 'function') showToast('Avalie todos os critérios do Rubric antes de registrar.');
+        return;
+      }
+      if (criterion.key === 'marketCycle') marketCycleRegime = value;
+      else ratings[criterion.key] = value;
+    }
+    const rubric = root.TradingRubrics.calculateRubric({ ratings, marketCycleRegime }, policy);
+    if (!rubric.complete || !rubric.qualityAllowed || rubric.grade !== 'A') {
+      if (typeof showToast === 'function') showToast('Este setup não passou pelo Quality Gate do Grade A. Revise os critérios no Novo Trade.');
+      return;
+    }
     const ticker = document.getElementById('manTicker')?.value || 'ATIVO';
-    const target = parseFloat(document.getElementById('manTarget')?.value) || 0.50;
-    const actual = parseFloat(document.getElementById('manActual')?.value) || 0.50;
+    const target = parseFloat(document.getElementById('manTarget')?.value);
+    const actual = parseFloat(document.getElementById('manActual')?.value);
+    if (!root.CourageChallengeModel.isChallengeActive() || !Number.isFinite(target) || target <= 0 || !Number.isFinite(actual)) return;
     const entry = parseFloat(document.getElementById('manEntry')?.value) || 35;
     const stop = parseFloat(document.getElementById('manStop')?.value) || 34;
     const discomfort = parseInt(document.getElementById('manDiscomfort')?.value) || 2;
-    const equity = 100000;
+    const equity = typeof OPERATIONAL_EQUITY !== 'undefined' ? Number(OPERATIONAL_EQUITY) : 0;
+    if (equity <= 0) return;
     const riskAmount = (actual / 100) * equity;
     const riskPerUnit = Math.abs(entry - stop) || 1;
     const qty = Math.round(riskAmount / riskPerUnit);
 
     root.CourageChallengeModel.recordAttempt({
       ticker,
+      setupGrade: rubric.grade,
+      rubricScore: rubric.score,
+      rubricContributions: rubric.contributions,
       targetRiskPercent: target,
       entryPrice: entry,
       initialStop: stop,
       quantity: qty,
       equityAtEntry: equity,
       preTradeDiscomfortLevel: discomfort,
-      forceActive: true
     });
 
     closeModal('courageAddTradeModal');
@@ -586,7 +621,7 @@
     let modalHtml = '<div class="courage-modal-backdrop open" id="courageCelebrationModal">';
     modalHtml += '<div class="courage-modal-card" style="text-align:center;max-width:520px;">';
     modalHtml += '  <div style="font-size:56px;line-height:1;margin-bottom:12px;">🏆</div>';
-    modalHtml += '  <h2 style="font-family:&apos;Playfair Display&apos;,Georgia,serif;font-size:28px;margin:0 0 10px;color:#f7d674;">DESAFIO A/A+ CONCLUÍDO!</h2>';
+    modalHtml += '  <h2 style="font-family:&apos;Playfair Display&apos;,Georgia,serif;font-size:28px;margin:0 0 10px;color:#f7d674;">DESAFIO GRADE A CONCLUÍDO!</h2>';
     modalHtml += '  <p style="font-size:15px;color:#dcece2;line-height:1.45;margin:0 0 24px;">Você completou 20 execuções perfeitas respeitando rigorosamente o risco autorizado pelo seu sistema.</p>';
     modalHtml += '  <button class="courage-action-btn gold" style="width:100%;justify-content:center;padding:12px;" onclick="CourageChallengePage.dismissCelebration()">Celebrar e Continuar</button>';
     modalHtml += '</div></div>';

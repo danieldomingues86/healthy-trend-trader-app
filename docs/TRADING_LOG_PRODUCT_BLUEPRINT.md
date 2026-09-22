@@ -13,7 +13,7 @@ A análise identificou 12 abas com cinco responsabilidades principais:
 1. **Operações reais e simuladas** — quatro abas trimestrais e uma área de paper trading, com até 48 campos por linha.
 2. **Motor de risco** — position sizing pelo menor limite entre risco, ATR e capital; risco ongoing; portfolio risk; peel-off matemático.
 3. **Patrimônio** — separação entre equity da estratégia, patrimônio real e aportes/retiradas.
-4. **Avaliação do processo** — contexto A+, checklist de execução, execution score e observações comportamentais.
+4. **Avaliação do processo** — Grade A (Rare Trade), checklist de execução, execution score e observações comportamentais.
 5. **Consolidação** — base anual, dashboard mensal e histórico de vendas parciais.
 
 Há também fórmulas quebradas na consolidação (`#REF!`, `#VALUE!` e `#NAME?`). Isso reforça uma vantagem importante do software: os indicadores devem ser calculados a partir de registros estruturados, sem depender de referências frágeis entre linhas e abas.
@@ -25,7 +25,7 @@ Há também fórmulas quebradas na consolidação (`#REF!`, `#VALUE!` e `#NAME?`
 O trader informa somente os dados conhecidos naquele momento:
 
 - mercado, ativo e direção;
-- contexto A+ e regime de mercado;
+- grade do contexto e regime de mercado;
 - setup e timeframe;
 - entrada, stop inicial, trailing stop e ATR diário;
 - multiplicador, quando for futuro.
@@ -112,7 +112,7 @@ Uma nova tela inicial operacional, acima do dashboard analítico:
 
 Um fluxo curto em quatro etapas:
 
-1. **Contexto** — mercado, ativo, lado, setup, regime e A+.
+1. **Contexto** — mercado, ativo, lado, setup, regime e grade A/B/C/D.
 2. **Risco** — entrada, stop, ATR, multiplicador e cálculo automático.
 3. **Carteira** — impacto nas posições existentes e portfolio risk após a entrada.
 4. **Decisão** — resumo, violações, checklist e salvar plano/confirmar execução.
@@ -142,7 +142,7 @@ Separar explicitamente:
 
 ### Analytics
 
-Calcular resultados por mercado, ativo, direção, setup, regime, contexto A+, volatilidade, limitador, aderência e período. A análise deve comparar resultado financeiro com qualidade do processo, evitando premiar apenas atividade.
+Calcular resultados por mercado, ativo, direção, setup, regime, grade A/B/C/D, volatilidade, limitador, aderência e período. A análise deve comparar resultado financeiro com qualidade do processo, evitando premiar apenas atividade.
 
 ## Modelo de dados essencial
 

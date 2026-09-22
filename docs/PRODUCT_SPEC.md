@@ -27,6 +27,6 @@ Não é apenas um trading journal. É um sistema operacional de processo, risco 
 
 - Contexto Diário e execução 4H.
 - ATR%: verde abaixo de 2%, amarelo de 2% a menos de 4%, vermelho a partir de 4%.
-- Nenhum trade é A+ sem alinhamento completo, contração saudável, gatilho e risco permitido.
+- Nenhum trade é Grade A (Rare Trade) sem score ≥95 e excelência em todos os seis critérios críticos da Rubric; o risco ainda precisa ser permitido pela política.
 - Aportes e retiradas não entram no resultado da estratégia.
 - Uma posição pode ter múltiplas entradas, saídas e ajustes de stop.

@@ -38,7 +38,7 @@ Permitir que o trader só procure operações quando o ciclo de mercado estiver 
 
 - Novo painel de **Ciclo de Mercado** com leitura de Ibovespa, IFIX, BDRX e o índice Sintes citado pelo usuário.
 - Estado claro para cada referência: **saudável**, **transição** ou **doente**.
-- Veredito consolidado de permissão: procurar contextos A+, gerenciar somente posições abertas ou proteger capital.
+- Veredito consolidado de permissão: procurar contextos de Grade A, gerenciar somente posições abertas ou proteger capital.
 - Alertas no planejamento e na gestão da posição quando o ciclo estiver contra a operação, sem bloquear decisões manuais.
 - Histórico para comparar a qualidade e o resultado das operações com o contexto de mercado na abertura.
 - Visual compatível com Premium Gold e Healthy Green, em português e inglês.

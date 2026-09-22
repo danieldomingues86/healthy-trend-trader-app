@@ -74,7 +74,7 @@ test('trade perdedor (-1R) conta como execução correta se o sizing foi respeit
   const { state: updated, execution } = Model.recordExecution(state, {
     tradeId: 'trade-loss-1',
     ticker: 'VALE3',
-    setupGrade: 'A+',
+    setupGrade: 'A',
     targetRiskPercent: 0.50,
     entryPrice: 60.00,
     initialStop: 58.00,
@@ -100,7 +100,7 @@ test('20/20 significa 20 execuções corretas: under e over sizing não avançam
     const res = Model.recordExecution(state, {
       tradeId: 'trade-comp-' + i,
       ticker: 'PETR4',
-      setupGrade: 'A+',
+      setupGrade: 'A',
       targetRiskPercent: 0.50,
       entryPrice: 30,
       initialStop: 29,
@@ -115,7 +115,7 @@ test('20/20 significa 20 execuções corretas: under e over sizing não avançam
     const res = Model.recordExecution(state, {
       tradeId: 'trade-fear-' + i,
       ticker: 'BBAS3',
-      setupGrade: 'A+',
+      setupGrade: 'A',
       targetRiskPercent: 0.50,
       entryPrice: 25,
       initialStop: 24,
@@ -130,7 +130,7 @@ test('20/20 significa 20 execuções corretas: under e over sizing não avançam
   const overRes = Model.recordExecution(state, {
     tradeId: 'trade-over-1',
     ticker: 'WEGE3',
-    setupGrade: 'A+',
+    setupGrade: 'A',
     targetRiskPercent: 0.50,
     entryPrice: 40,
     initialStop: 39,
@@ -152,7 +152,7 @@ test('20/20 significa 20 execuções corretas: under e over sizing não avançam
   assert.equal(metrics.isCompleted, false);
 });
 
-test('ciclo de vida do Desafio A+: DRAFT -> ACTIVE -> PAUSED -> ACTIVE -> CANCELLED', () => {
+test('ciclo de vida do Desafio Grade A: DRAFT -> ACTIVE -> PAUSED -> ACTIVE -> CANCELLED', () => {
   let state = Model.defaultChallengeState();
   assert.equal(state.status, 'DRAFT');
   assert.equal(Model.isChallengeActive(state), false);
@@ -167,7 +167,7 @@ test('ciclo de vida do Desafio A+: DRAFT -> ACTIVE -> PAUSED -> ACTIVE -> CANCEL
   const tradeActive = Model.recordExecution(state, {
     tradeId: 'trade-act-1',
     ticker: 'ITUB4',
-    setupGrade: 'A+',
+    setupGrade: 'A',
     targetRiskPercent: 0.50,
     entryPrice: 30,
     initialStop: 29,
@@ -187,7 +187,7 @@ test('ciclo de vida do Desafio A+: DRAFT -> ACTIVE -> PAUSED -> ACTIVE -> CANCEL
   const tradePaused = Model.recordExecution(state, {
     tradeId: 'trade-paused-1',
     ticker: 'B3SA3',
-    setupGrade: 'A+',
+    setupGrade: 'A',
     targetRiskPercent: 0.50,
     entryPrice: 12,
     initialStop: 11,
@@ -218,7 +218,7 @@ test('snapshot imutável no momento do trade salva todos os parâmetros requerid
   const res = Model.recordExecution(state, {
     tradeId: 'trade-snap-1',
     ticker: 'PRIO3',
-    setupGrade: 'A+',
+    setupGrade: 'A',
     targetRiskPercent: 0.50,
     entryPrice: 45.00,
     initialStop: 42.00,
@@ -277,7 +277,7 @@ test('Modo Desapego e Barreiras: inicialização padrão, alternância e gravaç
   const res = Model.recordExecution(state, {
     tradeId: 'trade-det-1',
     ticker: 'ELET3',
-    setupGrade: 'A+',
+    setupGrade: 'A',
     targetRiskPercent: 0.50,
     entryPrice: 40.00,
     initialStop: 38.00,
@@ -299,7 +299,7 @@ test('getRecentAttempts retorna as últimas 5 tentativas em ordem', () => {
     const res = Model.recordExecution(state, {
       tradeId: 'trade-order-' + i,
       ticker: 'ATIVO' + i,
-      setupGrade: 'A+',
+      setupGrade: 'A',
       targetRiskPercent: 0.50,
       entryPrice: 10,
       initialStop: 9,
@@ -323,7 +323,7 @@ test('calculateEmotionalEvolution detecta redução de desconforto e aumento de 
     const res = Model.recordExecution(state, {
       tradeId: 'trade-early-' + i,
       ticker: 'EARLY' + i,
-      setupGrade: 'A+',
+      setupGrade: 'A',
       targetRiskPercent: 0.50,
       entryPrice: 20,
       initialStop: 19,
@@ -339,7 +339,7 @@ test('calculateEmotionalEvolution detecta redução de desconforto e aumento de 
     const res = Model.recordExecution(state, {
       tradeId: 'trade-late-' + i,
       ticker: 'LATE' + i,
-      setupGrade: 'A+',
+      setupGrade: 'A',
       targetRiskPercent: 0.50,
       entryPrice: 20,
       initialStop: 19,
@@ -368,7 +368,7 @@ test('detectNominalAttachment identifica correlação de Under-Sizing com risco 
     const res = Model.recordExecution(state, {
       tradeId: 'trade-low-' + i,
       ticker: 'LOW' + i,
-      setupGrade: 'A+',
+      setupGrade: 'A',
       targetRiskPercent: 0.50,
       entryPrice: 10,
       initialStop: 9,
@@ -383,7 +383,7 @@ test('detectNominalAttachment identifica correlação de Under-Sizing com risco 
     const res = Model.recordExecution(state, {
       tradeId: 'trade-high-' + i,
       ticker: 'HIGH' + i,
-      setupGrade: 'A+',
+      setupGrade: 'A',
       targetRiskPercent: 0.50,
       entryPrice: 100,
       initialStop: 90,
@@ -398,20 +398,21 @@ test('detectNominalAttachment identifica correlação de Under-Sizing com risco 
   assert.match(nominal.message, /frequência de Under-Sizing também aumenta/);
 });
 
-test('isTradeEligibleForChallenge valida elegibilidade apenas para Grade A e A+ com desafio ativo', () => {
+test('isTradeEligibleForChallenge valida apenas Grade A com desafio ativo', () => {
   const activeState = { status: 'ACTIVE' };
   const pausedState = { status: 'PAUSED' };
 
-  assert.equal(Model.isTradeEligibleForChallenge({ grade: 'A+' }, activeState), true);
+  assert.equal(Model.isTradeEligibleForChallenge({ grade: 'A' }, activeState), true);
   assert.equal(Model.isTradeEligibleForChallenge({ setupGrade: 'A' }, activeState), true);
+  assert.equal(Model.isTradeEligibleForChallenge({ grade: 'A+' }, activeState), false);
   assert.equal(Model.isTradeEligibleForChallenge({ grade: 'B' }, activeState), false);
   assert.equal(Model.isTradeEligibleForChallenge({ grade: 'C' }, activeState), false);
   assert.equal(Model.isTradeEligibleForChallenge({ grade: 'D' }, activeState), false);
-  assert.equal(Model.isTradeEligibleForChallenge({ grade: 'A+' }, pausedState), false);
+  assert.equal(Model.isTradeEligibleForChallenge({ grade: 'A' }, pausedState), false);
   assert.equal(Model.isTradeEligibleForChallenge(null, activeState), false);
 });
 
-test('Desafio A/A+: trades Grade B ou inferiores são rejeitados e não entram no histórico', () => {
+test('Desafio Grade A: trades Grade B ou inferiores são rejeitados e não entram no histórico', () => {
   let state = Model.startChallenge(Model.defaultChallengeState());
   const initialAttemptsCount = state.attempts.length;
 
@@ -431,7 +432,18 @@ test('Desafio A/A+: trades Grade B ou inferiores são rejeitados e não entram n
   assert.equal(state.attempts.length, initialAttemptsCount);
 });
 
-test('Desafio A/A+: único desafio que aceita tanto Grade A quanto Grade A+ com seus respectivos riscos-alvo', () => {
+test('Desafio Grade A não presume um grade ou score para registros sem avaliação', () => {
+  const state = Model.startChallenge(Model.defaultChallengeState());
+  const missingGrade = Model.recordExecution(state, {
+    tradeId: 'sem-rubric', targetRiskPercent: 0.4, entryPrice: 20,
+    initialStop: 19, quantity: 400, equityAtEntry: 100000
+  });
+  assert.equal(missingGrade.ignored, true);
+  assert.equal(missingGrade.reason, 'GRADE_NOT_ELIGIBLE');
+  assert.equal(state.attempts.length, 0);
+});
+
+test('Desafio Grade A usa o alvo da política e rejeita o grade legado', () => {
   let state = Model.startChallenge(Model.defaultChallengeState());
 
   // Tentativa 1: Grade A com alvo 0,40% (ex: 400 ações com stop de R$ 1 em conta de 100k = 0,40%)
@@ -453,7 +465,7 @@ test('Desafio A/A+: único desafio que aceita tanto Grade A quanto Grade A+ com 
   assert.equal(resA.execution.actualRiskPercent, 0.40);
   assert.equal(resA.execution.complianceStatus, 'COMPLIANT');
 
-  // Tentativa 2: Grade A+ com alvo 0,50% (ex: 500 ações com stop de R$ 1 em conta de 100k = 0,50%)
+  // Uma execução legada não entra no desafio atual.
   const resAPlus = Model.recordExecution(state, {
     tradeId: 'trade-grade-aplus-1',
     ticker: 'PETR4',
@@ -465,20 +477,16 @@ test('Desafio A/A+: único desafio que aceita tanto Grade A quanto Grade A+ com 
     actualQuantity: 500,
     equityAtEntry: 100000
   });
-  state = resAPlus.state;
-
-  assert.equal(resAPlus.execution.setupGrade, 'A+');
-  assert.equal(resAPlus.execution.targetRiskPercent, 0.50);
-  assert.equal(resAPlus.execution.actualRiskPercent, 0.50);
-  assert.equal(resAPlus.execution.complianceStatus, 'COMPLIANT');
+  assert.equal(resAPlus.ignored, true);
+  assert.equal(resAPlus.reason, 'GRADE_NOT_ELIGIBLE');
 
   const metrics = Model.calculateChallengeMetrics(state);
-  assert.equal(metrics.totalAttempts, 2);
-  assert.equal(metrics.correctExecutions, 2);
+  assert.equal(metrics.totalAttempts, 1);
+  assert.equal(metrics.correctExecutions, 1);
   assert.equal(metrics.riskCompliancePct, 100);
 });
 
-test('Desafio A/A+: idempotência estrita por tradeId impede duplicação por retry ou duplo clique', () => {
+test('Desafio Grade A: idempotência estrita por tradeId impede duplicação por retry ou duplo clique', () => {
   let state = Model.startChallenge(Model.defaultChallengeState());
 
   const payload = {
@@ -503,5 +511,29 @@ test('Desafio A/A+: idempotência estrita por tradeId impede duplicação por re
   const secondRes = Model.recordExecution(state, payload);
   assert.equal(secondRes.isNew, false);
   assert.equal(secondRes.execution.tradeId, 'trade-unique-12345');
-  assert.equal(state.attempts.length, 1, 'Não deve duplicar tentativas no Desafio A/A+');
+  assert.equal(state.attempts.length, 1, 'Não deve duplicar tentativas no Desafio Grade A');
+});
+
+test('migração arquiva execuções legadas sem contá-las no novo Desafio Grade A', () => {
+  const oldState = {
+    status: 'ACTIVE',
+    attempts: [
+      { tradeId: 'old-aplus', grade: 'A+', complianceStatus: 'COMPLIANT' },
+      { tradeId: 'old-a', grade: 'A', complianceStatus: 'COMPLIANT' }
+    ]
+  };
+  const data = new Map([['healthy-trend-a-plus-challenge-v1', JSON.stringify(oldState)]]);
+  const storage = {
+    getItem: key => data.get(key) || null,
+    setItem: (key, value) => data.set(key, value)
+  };
+  const migrated = Model.loadChallengeState(storage);
+  assert.equal(migrated.gradingVersion, 2);
+  assert.equal(migrated.legacyAttempts.length, 2);
+  assert.deepEqual(migrated.attempts, []);
+  assert.equal(Model.calculateChallengeMetrics(migrated).correctExecutions, 0);
+  assert.equal(Model.loadChallengeState(storage).legacyAttempts.length, 2);
+  const nextCycle = Model.resetChallenge(storage);
+  assert.equal(nextCycle.legacyAttempts.length, 2);
+  assert.equal(Model.loadChallengeState(storage).legacyAttempts.length, 2);
 });

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   DESAFIO A+ — CORAGEM CALCULADA V2 (LAYOUT COMPACTO SEM SCROLL)
+   DESAFIO GRADE A — CORAGEM CALCULADA V2 (LAYOUT COMPACTO SEM SCROLL)
    Referência Visual Fiel: Menos Dashboard. Mais Treinamento.
    ========================================================================== */
 
@@ -2101,7 +2101,7 @@ body[data-theme="gold"] .courage-view-all-link {
 }
 
 /* --------------------------------------------------------------------------
-   MODAIS DO DESAFIO A+ (DESIGN ESCURO IMERSIVO COM ALTO CONTRASTE)
+   MODAIS DO DESAFIO GRADE A (DESIGN ESCURO IMERSIVO COM ALTO CONTRASTE)
    -------------------------------------------------------------------------- */
 .courage-modal-backdrop {
   position: fixed;

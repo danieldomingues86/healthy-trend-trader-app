@@ -30,7 +30,7 @@
     }
     if (drafts.length) return { kind: 'draft', title: 'Retomar plano salvo', detail: `${drafts.length} plano(s) aguardando sua decisão.`, page: 'newtrade', action: 'Abrir planejamento' };
     if (healthyMarket && opportunityCount > 0) return { kind: 'opportunity', title: 'Revisar oportunidades', detail: `${opportunityCount} ativo(s) passaram pelos filtros atuais.`, page: 'marketscans', action: 'Abrir scans' };
-    if (healthyMarket) return { kind: 'plan', title: 'Planejar somente um cenário A+', detail: 'O mercado permite procurar oportunidades, mas nenhum scan substitui a validação do setup.', page: 'newtrade', action: 'Planejar trade' };
+    if (healthyMarket) return { kind: 'plan', title: 'Planejar somente um cenário A', detail: 'O mercado permite procurar oportunidades, mas nenhum scan substitui a validação do setup.', page: 'newtrade', action: 'Planejar trade' };
     return { kind: 'wait', title: 'Preservar capital e observar', detail: 'Revise o Ciclo de Mercado antes de considerar uma nova exposição.', page: 'marketcycle', action: 'Ver ciclo de mercado' };
   }
 

@@ -7,7 +7,7 @@ const norm = value => String(value || '').normalize('NFD').replace(/[\u0300-\u03
 const unique = values => [...new Set(values)];
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const combine = (a, b) => unique([a, b].filter(Boolean)).join('\n\n');
-const checklistLabels = ['Trades somente no Diário + 4H', 'Somente setup A+', 'Entrada na contração do 4H', 'Não comprei expansão', 'Position sizing correto', 'Volatilidade considerada', 'Regras não foram alteradas'];
+const checklistLabels = ['Trades somente no Diário + 4H', 'Somente setup Grade A', 'Entrada na contração do 4H', 'Não comprei expansão', 'Position sizing correto', 'Volatilidade considerada', 'Regras não foram alteradas'];
 function mergeChecklist(record, values) {
   let changed = false;
   for (const [key, value] of Object.entries(values)) {
@@ -66,7 +66,8 @@ function checklist(note) {
   const candidates = (note.todo || []).filter(item => /diario.*4h|setup a\+|super contexto|contracao|expansao|position sizing|stop atr|volatilidade|alterar regras|fugir de alguma regra/i.test(norm(item.label)));
   const groups = [
     ['Trades somente no Diário + 4H', /diario.*4h/i],
-    ['Somente setup A+', /setup a\+|super contexto/i],
+    // Accept old wording in imported notes, but store the current checklist label.
+    ['Somente setup Grade A', /setup (?:grade )?a\+?|super contexto/i],
     ['Entrada na contração do 4H', /contracao/i],
     ['Não comprei expansão', /expansao/i],
     ['Position sizing correto', /position sizing/i],
@@ -95,7 +96,7 @@ function structured(note, dates) {
   const marketLabels = (note.checked || []).map(norm), markets = unique(marketLabels.map(label => /^(?:🟩\s*)?up(?: market| \/ saudavel)?$/.test(label) ? 'up' : /^(?:🟥\s*)?down(?: market| \/ doente)?$/.test(label) ? 'down' : /^(?:🟨\s*)?transicao$|^wild \(transition (?:up|down)\)$/.test(label) ? 'transition' : null).filter(Boolean));
   const scoreMatch = note.text.match(/Nota\s*\(0[-–]10\)\s*:\s*(\d+(?:[,.]\d+)?)/i), misplaced = !scoreMatch && note.text.match(/Hoje fui:\s*(\d+(?:[,.]\d+)?)\s*(?:\n|$)/i);
   const sourceScore = Journal.score(scoreMatch?.[1] ?? misplaced?.[1]);
-  const checks = checklist(note), permission = marketLabels.find(label => /^nao — meu trabalho hoje e esperar\.$/.test(label)) ? 'wait' : marketLabels.some(label => /^sim — mas somente em um cenario a\+ completo\.$/.test(label)) ? 'a-plus' : null;
+  const checks = checklist(note), permission = marketLabels.find(label => /^nao — meu trabalho hoje e esperar\.$/.test(label)) ? 'wait' : marketLabels.some(label => /^sim — mas somente em um cenario (?:grade )?a\+? completo\.$/.test(label)) ? 'grade-a' : null;
   const phrase = section(note.text, /⭐\s*Frase do Dia\s*/i), lesson = section(note.text, /⚠️?\s*Erros\s*\/\s*Aprendizados\s*/i, /🎯\s*Amanh[aã]|⭐\s*Frase do Dia/i).replace(/^Que erro eu n[aã]o posso repetir\?\s*/i, '').trim();
   const comments = section(note.text, /Coment[aá]rios:\s*/i, /⚠️?\s*Erros/i);
   const fullTranscription = transcripts.map(t => `${(note.resources || []).find(r => r.hash === t.hash)?.name || 'Áudio'}\n${t.text}`).join('\n\n');
