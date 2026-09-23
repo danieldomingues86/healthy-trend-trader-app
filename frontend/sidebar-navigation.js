@@ -313,7 +313,7 @@
 
       // Ensure top navigation items if layout is already 'top'
       if (document.body.dataset.navigationLayout === 'top') {
-        this.ensureTopNavigationItems();
+        this.ensureTopNavigationItems(true);
       }
 
       // Sync market focus guard placement
@@ -350,6 +350,23 @@
       this.applyCollapsedState();
       this.closeFlyout(true);
       this.hideTooltip();
+    }
+
+    localizedLabel(page, fallback) {
+      return typeof root.getNavigationLabel === 'function'
+        ? root.getNavigationLabel(page, fallback)
+        : fallback;
+    }
+
+    refresh() {
+      const sidebar = document.querySelector('.sidebar');
+      if (!sidebar) return;
+      this.closeFlyout(true);
+      this.renderSidebar(sidebar);
+      this.applyCollapsedState();
+      const activeSection = document.querySelector('.page.active');
+      this.setActivePage(activeSection?.id || this.activePageId || 'today');
+      this.ensureTopNavigationItems(true);
     }
 
     ensureFlyoutElement() {
@@ -454,10 +471,11 @@
     }
 
     renderDirectButton(item) {
+      const label = this.localizedLabel(item.page, item.label);
       return `
-        <button class="sidebar-btn nav-btn" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${item.label}">
+        <button class="sidebar-btn nav-btn" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${label}">
           <span class="sidebar-btn-ico">${item.icon}</span>
-          <span class="sidebar-btn-label">${item.label}</span>
+          <span class="sidebar-btn-label">${label}</span>
         </button>
       `;
     }
@@ -573,7 +591,7 @@
                 <span class="flyout-item-icon">${sub.icon}</span>
                 <div class="flyout-item-body">
                   <div class="flyout-item-title">
-                    <span>${sub.title}</span>
+                    <span>${this.localizedLabel(sub.page, sub.title)}</span>
                     ${isLocked ? '<span class="flyout-badge-pro">PRO</span>' : ''}
                   </div>
                   <span class="flyout-item-desc${sub.compactDescription ? ' flyout-item-desc-compact' : ''}">${sub.desc}</span>
@@ -759,7 +777,7 @@
       };
     }
 
-    ensureTopNavigationItems() {
+    ensureTopNavigationItems(forceRender = false) {
       const layout = document.body.dataset.navigationLayout;
       if (layout !== 'top') return;
 
@@ -801,7 +819,7 @@
       }
 
       // Popula menu com as páginas se estiver vazio
-      if (menu.children.length === 0) {
+      if (forceRender || menu.children.length === 0) {
         const pages = this.getTopNavPages();
         const activePage = this.activePageId || 'today';
         const isPro = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
@@ -828,7 +846,7 @@
       if (Array.isArray(root.navigationTiles) && root.navigationTiles.length > 0) {
         return root.navigationTiles.map(([pageId, icon, label]) => ({
           page: pageId,
-          label: label,
+          label: this.localizedLabel(pageId, label),
           icon: (icon && (icon.includes('<svg') || icon.includes('<span'))) ? icon : `<span class="ico">${icon || '•'}</span>`
         }));
       }

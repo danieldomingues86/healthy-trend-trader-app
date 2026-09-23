@@ -200,6 +200,47 @@ body:not([data-theme="healthy"]) #glossary .glossary-art .grade~circle{fill:#c79
 .materials-menu-icon::before{content:"";position:absolute;left:0;bottom:1px;width:13px;height:10px;border:1.5px solid currentColor;border-radius:2px;box-sizing:border-box}
 .materials-menu-icon::after{content:"";position:absolute;left:3px;top:0;width:7px;height:5px;border:1.5px solid currentColor;border-bottom:0;border-radius:5px 5px 0 0;box-sizing:border-box}
 
+/* Immersive modules used literal Healthy colors before the shared palette layer
+   existed. Keep semantic market states intact, while their structural surfaces
+   inherit Premium Gold through this final theme layer. */
+body[data-theme="gold"]:has(#today.active) #today .today-dashboard{background:radial-gradient(ellipse at 85% 0%,rgba(184,133,39,.18),transparent 45%),radial-gradient(ellipse at 8% 65%,rgba(129,83,21,.14),transparent 38%),#151109}
+body[data-theme="gold"]:has(#today.active) #today .today-dashboard:before{background-image:linear-gradient(rgba(224,185,95,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(224,185,95,.055) 1px,transparent 1px)}
+body[data-theme="gold"]:has(#today.active) #today .dashboard-widget{border-color:rgba(218,174,73,.3);background:radial-gradient(ellipse at 100% 20%,rgba(160,107,25,.16),transparent 65%),linear-gradient(130deg,#21180e,#100d08)}
+body[data-theme="gold"]:has(#today.active) #today .today-dashboard-header .eyebrow,body[data-theme="gold"]:has(#today.active) #today .dashboard-widget-kicker,body[data-theme="gold"]:has(#today.active) #today .dashboard-widget-details{color:#e4bd62}
+body[data-theme="gold"]:has(#today.active) #today .today-dashboard-header p,body[data-theme="gold"]:has(#today.active) #today .dashboard-widget-content p,body[data-theme="gold"]:has(#today.active) #today .dashboard-facts{color:#d2c19b}
+body[data-theme="gold"]:has(#today.active) #today .dashboard-opportunity-metrics div{border-color:rgba(214,173,77,.24);background:rgba(48,34,13,.65)}
+body[data-theme="gold"]:has(#today.active) #today .dashboard-progress{background:#4b3b1c}body[data-theme="gold"]:has(#today.active) #today .dashboard-progress i{background:linear-gradient(90deg,#a8782c,#e3bc5a)}
+body[data-theme="gold"]:has(#today.active) #today .dashboard-primary-action,body[data-theme="gold"]:has(#today.active) #today .dashboard-add-widget{border-color:#dcb65c;background:#b5842d;color:#211605}
+
+body[data-theme="gold"]:has(#dailyroutine.active) .main,body[data-theme="gold"]:has(#dailyroutine.active) .content{background:#151109!important}
+body[data-theme="gold"]:has(#dailyroutine.active) .dr-card{background:linear-gradient(145deg,#21180e,#120e08)!important;border-color:#5d4824!important;color:#f8eed8}
+body[data-theme="gold"]:has(#dailyroutine.active) .dr-header,body[data-theme="gold"]:has(#dailyroutine.active) .dr-footer{border-color:#5e4825!important}
+body[data-theme="gold"]:has(#dailyroutine.active) .dr-hero-banner{background:linear-gradient(135deg,#33220c,#6a4817)!important;border-color:#967235!important}
+body[data-theme="gold"]:has(#dailyroutine.active) .dr-item,body[data-theme="gold"]:has(#dailyroutine.active) .dr-settings-panel,body[data-theme="gold"]:has(#dailyroutine.active) .dr-settings-item{background:#1b150d!important;border-color:#554324!important;color:#f5e7c8}
+body[data-theme="gold"]:has(#dailyroutine.active) .dr-header-icon,body[data-theme="gold"]:has(#dailyroutine.active) .dr-item-icon,body[data-theme="gold"]:has(#dailyroutine.active) .dr-checkbox{border-color:#d5ab4d!important;color:#efd27f!important;background:#382711!important}
+body[data-theme="gold"]:has(#dailyroutine.active) .dr-progress-fill,body[data-theme="gold"]:has(#dailyroutine.active) .dr-btn-status.completed{background:linear-gradient(90deg,#a8782c,#e8c665)!important}
+
+body[data-theme="gold"]:has(#watchlist.active),body[data-theme="gold"]:has(#watchlist.active) .app,body[data-theme="gold"]:has(#watchlist.active) .main{background:#120e08!important;color:#f8eed8}
+body[data-theme="gold"]:has(#watchlist.active) .main{background:radial-gradient(circle at 50% -10%,#3d2a10 0%,#120e08 60%,#090704 100%)!important}
+body[data-theme="gold"]:has(#watchlist.active) .topbar{background:rgba(18,14,8,.92)!important;border-color:rgba(221,181,87,.2)!important}
+body[data-theme="gold"]:has(#watchlist.active) .wl-hero,body[data-theme="gold"]:has(#watchlist.active) .wl-control-bar,body[data-theme="gold"]:has(#watchlist.active) .wl-opp-card,body[data-theme="gold"]:has(#watchlist.active) .wl-table-container,body[data-theme="gold"]:has(#watchlist.active) .wl-drawer{background:linear-gradient(135deg,#251a0d,#120e08)!important;border-color:rgba(216,174,77,.3)!important}
+body[data-theme="gold"]:has(#watchlist.active) .wl-kpi-card,body[data-theme="gold"]:has(#watchlist.active) .wl-metric-cell{background:#21180e!important;border-color:#5a4624!important}
+body[data-theme="gold"]:has(#watchlist.active) .wl-btn-add,body[data-theme="gold"]:has(#watchlist.active) .wl-btn-trade{background:linear-gradient(135deg,#b88731,#e0b859)!important;color:#221606!important;border-color:#e4c16c!important}
+body[data-theme="gold"]:has(#watchlist.active) .wl-select,body[data-theme="gold"]:has(#watchlist.active) .wl-search-input{background:#100c07!important;border-color:#5e4927!important;color:#f7ead0!important}
+
+body[data-theme="gold"]:has(#emergingleaders.active),body[data-theme="gold"]:has(#emergingleaders.active) .app{background:#120e08!important;color:#f8eed8}
+body[data-theme="gold"]:has(#emergingleaders.active) .main{background:radial-gradient(circle at 50% -10%,#3d2a10 0%,#120e08 60%,#090704 100%)!important}
+body[data-theme="gold"]:has(#emergingleaders.active) .topbar{background:rgba(18,14,8,.92)!important;border-color:rgba(221,181,87,.2)!important}
+body[data-theme="gold"]:has(#emergingleaders.active) .el-hero,body[data-theme="gold"]:has(#emergingleaders.active) .el-kpi-card,body[data-theme="gold"]:has(#emergingleaders.active) .el-cluster-card,body[data-theme="gold"]:has(#emergingleaders.active) .el-main-workspace,body[data-theme="gold"]:has(#emergingleaders.active) .el-table-wrap{background:linear-gradient(135deg,#251a0d,#120e08)!important;border-color:rgba(216,174,77,.3)!important}
+body[data-theme="gold"]:has(#emergingleaders.active) .el-kpi-icon.gold,body[data-theme="gold"]:has(#emergingleaders.active) .el-switch.on{background:#d3a448!important}
+body[data-theme="gold"]:has(#emergingleaders.active) .el-select,body[data-theme="gold"]:has(#emergingleaders.active) .el-search-input{background:#100c07!important;border-color:#5e4927!important;color:#f7ead0!important}
+
+body[data-theme="gold"]:has(#couragechallenge.active) .main{background:#120e08!important}body[data-theme="gold"]:has(#couragechallenge.active) .topbar{background:rgba(18,14,8,.92)!important;border-color:rgba(221,181,87,.2)!important}
+body[data-theme="gold"]:has(#couragechallenge.active) .courage-challenge-shell{--courage-primary:#d6aa50;--courage-accent:#efd07d;--courage-surface:#1b150d;--courage-surface-strong:#100c07;--courage-border:#604a25;--courage-text:#f8eed8;--courage-muted:#cfbd95}
+
+body[data-theme="gold"]:has(#journal.active) #journal .jv-workspace{background:radial-gradient(ellipse at 85% 0%,rgba(177,126,35,.2),transparent 60%),linear-gradient(110deg,#1c1409,#0f0c07)!important}
+body[data-theme="gold"]:has(#journal.active) #journal .jv-book-header,body[data-theme="gold"]:has(#journal.active) #journal .jv-tabs,body[data-theme="gold"]:has(#journal.active) #journal .jv-spread{border-color:#5d4824!important}
+
 /* Top navigation: prioritize complete labels over a decorative block. */
 body[data-navigation-layout="top"] .sidebar{overflow-x:auto;scrollbar-width:thin}
 body[data-navigation-layout="top"] .sidebar .brand{margin-right:0}

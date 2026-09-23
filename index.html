@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="frontend/portfolio-heat-page.css" />
 <link rel="stylesheet" href="frontend/today-cockpit.css?v=20260922-grading-abcd-1" />
 <link rel="stylesheet" href="frontend/forecast-simulator.css" />
-<link rel="stylesheet" href="frontend/navigation-hub-support.css" />
+<link rel="stylesheet" href="frontend/navigation-hub-support.css?v=20260922-menu-theme-1" />
 <link rel="stylesheet" href="frontend/weekly-review.css?v=20260922-grading-abcd-1" />
 <link rel="stylesheet" href="frontend/market-cycle-v2.css?v=20260915-8" />
 <link rel="stylesheet" href="frontend/daily-routine.css" />
@@ -452,7 +452,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <aside class="sidebar">
   <div class="brand"><div class="mark"></div><div><strong><em>Healthy</em> Trend Trader</strong></div></div>
   <div class="nav-group"><div class="nav-label">Dia a Dia</div><nav class="nav">
-    <button data-page="today"><span class="ico">☀</span>Hoje</button>
+    <button data-page="today"><span class="ico">☀</span>Meu Desktop</button>
     <button data-page="dailyroutine"><span class="ico"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5H12a1.5 1.5 0 0 1 1.5 1.5v9.5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V4a1.5 1.5 0 0 1 1.5-1.5h1.5"/><rect x="5.5" y="1" width="5" height="3" rx="1"/><path d="M5.5 7.5h5M5.5 11h3.5"/></svg></span>Rotina Diária</button>
     <button data-page="dashboard"><span class="ico">⌂</span>Patrimônio</button>
     <button data-page="positions"><span class="ico">◫</span>Posições</button>
@@ -463,7 +463,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
   <div class="nav-group"><div class="nav-label">Acompanhamento</div><nav class="nav">
     <button data-page="analytics"><span class="ico">⌁</span>Painel da Verdade</button>
     <button data-page="journal"><span class="ico">✎</span>Diário do Trader</button>
-    <button data-page="couragechallenge"><span class="ico">🎯</span>Desafio Grade A</button>
+    <button data-page="couragechallenge"><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span>Desafio Grade A</button>
     <button data-page="tradelibrary"><span class="ico">▦</span>Biblioteca de Trades</button>
     <button data-page="emotionalintelligence"><span class="ico">◎</span>Analisador Emocional</button>
     <button data-page="mistakesbook"><span class="ico mb-nav-book" aria-hidden="true"></span>Erros e lições</button>
@@ -484,7 +484,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
     <button data-page="traderprofile"><span class="ico">◈</span>Testes de Perfil</button>
     <button data-page="habits"><span class="ico">◉</span>Monitor de Hábitos</button>
     <button data-page="forecast"><span class="ico">∿</span>Simulador de Resultados</button>
-    <button data-page="materials"><span class="ico materials-menu-icon" aria-hidden="true"></span>Trader Store</button>
+    <button data-page="materials"><span class="ico materials-menu-icon" aria-hidden="true"></span>Loja Trader</button>
   </nav></div>
   <div class="nav-group"><div class="nav-label">Configuração e suporte</div><nav class="nav">
     <button data-page="settings"><span class="ico">⚙</span>Configurações Gerais</button>
@@ -494,7 +494,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
   </nav></div>
 </aside>
 <main class="main">
-<header class="topbar"><div class="crumb">The Healthy Trend Trader / <b id="crumb">Hoje</b></div><div class="top-actions"><div class="pill" id="currentPlanPill">Plano Atual - —</div><button class="avatar account-trigger" type="button" aria-label="Abrir menu da conta" onclick="window.setupAccountMenu?.();window.requestAnimationFrame(()=>document.getElementById('accountTrigger')?.click())">DG</button></div></header>
+<header class="topbar"><div class="crumb">The Healthy Trend Trader / <b id="crumb">Meu Desktop</b></div><div class="top-actions"><div class="pill" id="currentPlanPill">Plano Atual - —</div><button class="avatar account-trigger" type="button" aria-label="Abrir menu da conta" onclick="window.setupAccountMenu?.();window.requestAnimationFrame(()=>document.getElementById('accountTrigger')?.click())">DG</button></div></header>
 <div class="content">
 <div id="marketFocusGuard" aria-live="polite"></div>
 <section class="page" id="today"><div class="hero"><div><div class="eyebrow">Seu ponto de partida</div><h1>Seu dia em<br>três passos simples.</h1></div><div><p>1. Veja se pode operar. 2. Atualize o que já está aberto. 3. Planeje algo novo somente quando fizer sentido.</p><div class="operations-actions"><button class="primary" onclick="go('newtrade')">Planejar trade →</button></div></div></div><div class="grid today-grid"><div class="card"><div class="card-head"><div><h3>1. Como está sua conta</h3><span>Posições em Paper Trading ficam separadas.</span></div><span class="badge good">Pode operar com atenção</span></div><div class="today-summary" id="todaySummary"></div><div class="section-title"><div><h2>2. O que precisa de atenção</h2><p>Abra uma posição para atualizar preço, stop ou registrar uma parcial.</p></div></div><div class="operational-list" id="todayPositions"></div></div><div class="card"><div class="card-head"><div><h3>3. Antes de fazer algo novo</h3><span>Alertas ajudam, mas não bloqueiam sua decisão.</span></div></div><div class="operational-list" id="todayAlerts"></div><div class="section-title"><div><h2>Planos salvos</h2><p id="draftCount">Nenhum plano pendente</p></div></div><div class="alert-item good"><b>Paper Trading:</b> pratique com as mesmas regras, sem alterar a conta real.</div></div></div></section>
@@ -826,7 +826,7 @@ body[data-theme="gold"][data-navigation-layout="tiles"] .navigation-hub-tile.pla
 function applyTheme(theme){const selected=theme==='healthy'?'healthy':'gold';document.body.dataset.theme=selected;document.querySelectorAll('[data-theme-choice]').forEach(button=>{const active=button.dataset.themeChoice===selected;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});try{localStorage.setItem('healthy-trend-theme',selected)}catch(error){}if(document.querySelector('#manual.page.active')&&typeof renderManualBook==='function')renderManualBook()}
 try{applyTheme(localStorage.getItem('healthy-trend-theme')||'gold')}catch(error){applyTheme('gold')}
 function enterWorkspace(event){event.preventDefault();document.getElementById('loginShell').classList.add('hidden');document.body.style.overflow='';go('today');}
-const titles={today:'Hoje',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',marketscans:'Scans de Mercado',fundamentals:'Análise Fundamentalista',positions:'Posições',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',journal:'Diário do Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Monitor de Hábitos',materials:'Trader Store',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
+const titles={today:'Meu Desktop',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',marketscans:'Scans de Mercado',fundamentals:'Análise Fundamentalista',positions:'Posições',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',journal:'Diário do Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Monitor de Hábitos',materials:'Loja Trader',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
 titles.emotionalintelligence='Analisador Emocional';titles.forecast='Simulador de Resultados';
 titles.mistakesbook='Erros e lições';titles.masteredlessons='Lições Dominadas';
 titles.dailyroutine='Rotina Diária';
@@ -1481,8 +1481,12 @@ const setupAccountMenuWithCurrentPlan=setupAccountMenu;
 setupAccountMenu=function(){setupAccountMenuWithCurrentPlan();updateCurrentPlanPill()};
 const NAVIGATION_LAYOUT_STORAGE='healthy-trend-navigation-layout-v1';
 const navigationLayouts={sidebar:{icon:'▤',pt:['Menu lateral','A navegação tradicional sempre visível à esquerda.'],en:['Side menu','Traditional navigation always visible on the left.']},top:{icon:'▬',pt:['Menu superior','Atalhos em uma faixa horizontal no topo.'],en:['Top menu','Shortcuts in a horizontal bar at the top.']},tiles:{icon:'▦',pt:['Tela única em blocos','Um painel visual para entrar em qualquer área.'],en:['Single-screen tiles','A visual panel to enter any area.']}};
+const navigationLabels={today:{pt:'Meu Desktop',en:'My Desktop'},relativestrength:{pt:'Força Relativa',en:'Relative Strength'},materials:{pt:'Loja Trader',en:'Trader Store'},couragechallenge:{pt:'Desafio Grade A',en:'Grade A Challenge'}};
+function navigationLabel(page,fallback=''){const item=navigationLabels[page];return item?(window.appLanguage==='en-US'?item.en:item.pt):fallback}
+window.getNavigationLabel=navigationLabel;
+const gradeChallengeNavigationIcon='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';
 const navigationTiles=[
-  ['today','☀','Hoje','Seu ponto de partida','0% 0%'],
+  ['today','☀',navigationLabel('today'),'Seu ponto de partida','0% 0%'],
   ['dailyroutine','<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5H12a1.5 1.5 0 0 1 1.5 1.5v9.5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V4a1.5 1.5 0 0 1 1.5-1.5h1.5"/><rect x="5.5" y="1" width="5" height="3" rx="1"/><path d="M5.5 7.5h5M5.5 11h3.5"/></svg>','Rotina Diária','Seu ritual antes da oportunidade','0% 0%'],
   ['dashboard','⌂','Patrimônio','Acompanhe capital, movimentações e alocação','25% 0%'],
   ['positions','◫','Posições','Gerencie operações abertas','50% 0%'],
@@ -1491,14 +1495,14 @@ const navigationTiles=[
   ['portfolioheat','♨','Portfolio Heat','Controle o risco agregado','100% 0%'],
   ['analytics','⌁','Painel da Verdade','Veja os fatos do seu processo','0% 25%'],
   ['journal','✎','Diário do Trader','Registre o seu processo','25% 25%'],
-  ['couragechallenge','🎯','Desafio Grade A','20 execuções com coragem calculada','25% 25%'],
+  ['couragechallenge',gradeChallengeNavigationIcon,navigationLabel('couragechallenge'),'20 execuções com coragem calculada','25% 25%'],
   ['tradelibrary','▦','Biblioteca de Trades','Revise seus prints por ativo e período','50% 25%'],
   ['emotionalintelligence','◎','Analisador Emocional','Descubra seus padrões comportamentais','75% 25%'],
   ['mistakesbook','▤','Erros e lições','Transforme erros em aprendizado','100% 25%'],
   ['review','✓','Revisão Mensal','Consolide os aprendizados do mês','0% 50%'],
   ['platformaccess','◷','Uso da Plataforma','Acompanhe sua jornada','25% 50%'],
   ['marketcycle','◌','Ciclo de Mercado','Leia o contexto do índice','50% 50%'],
-  ['relativestrength','↗','Força Relativa','Encontre os ativos líderes','75% 50%'],
+  ['relativestrength','↗',navigationLabel('relativestrength'),'Encontre os ativos líderes','75% 50%'],
   ['emergingleaders','<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="m3 9 4-4 4 4 6-6"/></svg>','Líderes Emergentes','Descobrindo a próxima geração de líderes','75% 50%'],
   ['fundamentals','◔','Análise Fundamentalista','Avalie a qualidade financeira da empresa','100% 50%'],
   ['marketscans','⌕','Scans de Mercado','Radar de acontecimentos','0% 75%'],
@@ -1507,7 +1511,7 @@ const navigationTiles=[
   ['traderprofile','◈','Testes de Perfil','Entenda seus padrões','75% 75%'],
   ['habits','◉','Monitor de Hábitos','Construa a rotina','100% 75%'],
   ['forecast','∿','Simulador de Resultados','Projete faixas probabilísticas','0% 100%'],
-  ['materials','◈','Trader Store','Materiais e ferramentas do método','25% 100%'],
+  ['materials','◈',navigationLabel('materials'),'Materiais e ferramentas do método','25% 100%'],
   ['settings','⚙','Configurações Gerais','Personalize o software','50% 100%'],
   ['riskpolicy','◈','Política de Risco','Defina as regras do método','75% 100%'],
   ['manual','?','Manual do Software','Consulte o método','100% 100%'],
@@ -1535,7 +1539,7 @@ openNavigationHub=function(){openNavigationHubWithoutProductSlogan();document.qu
 function closeNavigationHub(){document.getElementById('navigationHub')?.classList.remove('open')}
 function setupTileBrandBar(){let bar=document.getElementById('tileBrandBar');if(!bar){bar=document.createElement('header');bar.id='tileBrandBar';bar.className='tile-brand-bar';bar.innerHTML=`<div class="tile-brand"><span class="tile-brand-mark"></span><div><strong><em>Healthy</em> Trend Trader</strong><small>TRADER WORKSPACE</small></div></div>`;document.body.appendChild(bar)}return bar}
 function setupNavigationHubTrigger(){const bar=setupTileBrandBar();let trigger=document.getElementById('navigationHubTrigger');if(!trigger){trigger=document.createElement('button');trigger.id='navigationHubTrigger';trigger.className='navigation-hub-trigger';trigger.type='button';trigger.addEventListener('click',openNavigationHub)}bar.appendChild(trigger);trigger.textContent=window.appLanguage==='en-US'?'▦ Tile menu':'▦ Menu em blocos'}
-function openNavigationHub(){if(navigationLayout!=='tiles')return;let hub=document.getElementById('navigationHub');if(!hub){hub=document.createElement('section');hub.id='navigationHub';hub.className='navigation-hub';document.body.appendChild(hub)}const supportIds=new Set(['settings','riskpolicy','manual','glossary']),tile=([id,icon,title,description,position])=>{const locked=typeof professionalPages!=='undefined'&&professionalPages.has(id)&&!isProfessional(),wisdom=id==='wisdom',texture=wisdom?"url('assets/navigation-menu-wisdom-card-v1.png')":"url('assets/navigation-menu-card-textures-v1.png')";return `<button class="navigation-hub-tile tile-${id} ${wisdom?'tile-wisdom':''} ${locked?'plan-locked':''}" style="--tile-texture:${texture};--tile-position:${position}" type="button" onclick="go('${id}')"><i>${icon}</i><b>${title}</b><span>${description}</span></button>`},workspaceTiles=navigationTiles.filter(([id])=>!supportIds.has(id)).map(tile).join(''),supportTiles=navigationTiles.filter(([id])=>supportIds.has(id)).map(tile).join(''),english=window.appLanguage==='en-US';hub.innerHTML=`<div class="navigation-hub-inner"><header class="navigation-hub-header"><div class="navigation-hub-brand"><span class="tile-brand-mark">◢</span><div><strong>THE HEALTHY TREND</strong><small>TRADER WORKSPACE</small></div></div><div class="navigation-hub-title"><div class="eyebrow">${english?'NAVIGATION':'NAVEGAÇÃO'}</div><h1>${english?'Where do you want to go <em>today?</em>':'Para onde você quer ir <em>hoje?</em>'}</h1><p>${english?'Discipline today. Freedom tomorrow.':'Disciplina hoje. Liberdade amanhã.'}</p></div><aside class="navigation-hub-quote">“${english?'Consistency is the true advantage.':'Consistência é a verdadeira vantagem.'}”<small>— TOM BASSO</small></aside></header><div class="navigation-hub-layout"><div class="navigation-hub-grid">${workspaceTiles}</div><aside class="navigation-hub-support" aria-label="${english?'Settings and support':'Configuração e suporte'}"><small>${english?'SETTINGS & SUPPORT':'CONFIGURAÇÃO & SUPORTE'}</small>${supportTiles}</aside></div><footer class="navigation-hub-philosophy">${english?'FOCUS · PROCESS · DISCIPLINE · RESULTS':'FOCO · PROCESSO · DISCIPLINA · RESULTADOS'}</footer></div>`;hub.classList.add('open')}
+function openNavigationHub(){if(navigationLayout!=='tiles')return;let hub=document.getElementById('navigationHub');if(!hub){hub=document.createElement('section');hub.id='navigationHub';hub.className='navigation-hub';document.body.appendChild(hub)}const supportIds=new Set(['settings','riskpolicy','manual','glossary']),tile=([id,icon,title,description,position])=>{const locked=typeof professionalPages!=='undefined'&&professionalPages.has(id)&&!isProfessional(),wisdom=id==='wisdom',texture=wisdom?"url('assets/navigation-menu-wisdom-card-v1.png')":"url('assets/navigation-menu-card-textures-v1.png')",label=navigationLabel(id,title);return `<button class="navigation-hub-tile tile-${id} ${wisdom?'tile-wisdom':''} ${locked?'plan-locked':''}" style="--tile-texture:${texture};--tile-position:${position}" type="button" onclick="go('${id}')"><i>${icon}</i><b>${label}</b><span>${description}</span></button>`},workspaceTiles=navigationTiles.filter(([id])=>!supportIds.has(id)).map(tile).join(''),supportTiles=navigationTiles.filter(([id])=>supportIds.has(id)).map(tile).join(''),english=window.appLanguage==='en-US';hub.innerHTML=`<div class="navigation-hub-inner"><header class="navigation-hub-header"><div class="navigation-hub-brand"><span class="tile-brand-mark">◢</span><div><strong>THE HEALTHY TREND</strong><small>TRADER WORKSPACE</small></div></div><div class="navigation-hub-title"><div class="eyebrow">${english?'NAVIGATION':'NAVEGAÇÃO'}</div><h1>${english?'Where do you want to go <em>today?</em>':'Para onde você quer ir <em>hoje?</em>'}</h1><p>${english?'Discipline today. Freedom tomorrow.':'Disciplina hoje. Liberdade amanhã.'}</p></div><aside class="navigation-hub-quote">“${english?'Consistency is the true advantage.':'Consistência é a verdadeira vantagem.'}”<small>— TOM BASSO</small></aside></header><div class="navigation-hub-layout"><div class="navigation-hub-grid">${workspaceTiles}</div><aside class="navigation-hub-support" aria-label="${english?'Settings and support':'Configuração e suporte'}"><small>${english?'SETTINGS & SUPPORT':'CONFIGURAÇÃO & SUPORTE'}</small>${supportTiles}</aside></div><footer class="navigation-hub-philosophy">${english?'FOCUS · PROCESS · DISCIPLINE · RESULTS':'FOCO · PROCESSO · DISCIPLINA · RESULTADOS'}</footer></div>`;hub.classList.add('open')}
 function setupNavigationLayoutSettings(){const grid=document.querySelector('#settings .settings-grid');if(!grid)return;document.getElementById('navigationLayoutSettings')?.remove();const card=document.createElement('section');card.id='navigationLayoutSettings';card.className='card';const options=Object.entries(navigationLayouts).map(([id,layout])=>{const [title,description]=navigationText(layout);return `<button type="button" class="navigation-layout-option ${navigationLayout===id?'active':''}" onclick="applyNavigationLayout('${id}')"><i>${layout.icon}</i><b>${title}</b><span>${description}</span></button>`}).join('');card.innerHTML=`<div class="card-head"><div><h3>${window.appLanguage==='en-US'?'Navigation layout':'Formato do menu'}</h3><span>${window.appLanguage==='en-US'?'Choose how you want to navigate the platform.':'Escolha como prefere navegar pela plataforma.'}</span></div></div><div class="navigation-layout-options">${options}</div>`;grid.prepend(card)}
 function updateTopNavigationScrollState(){const menu=document.getElementById('topNavigationMenu'),previous=document.getElementById('topNavigationPrevious'),next=document.getElementById('topNavigationNext');if(!menu||!previous||!next)return;const limit=Math.max(0,menu.scrollWidth-menu.clientWidth);previous.disabled=menu.scrollLeft<=2;next.disabled=menu.scrollLeft>=limit-2}
 function scrollTopNavigation(direction){const menu=document.getElementById('topNavigationMenu');if(!menu)return;menu.scrollBy({left:direction*Math.max(280,menu.clientWidth*.72),behavior:'smooth'});window.setTimeout(updateTopNavigationScrollState,240)}
@@ -1547,7 +1551,7 @@ function applyNavigationLayout(layout){if(!navigationLayouts[layout])return;navi
 const goWithNavigationLayout=go;
 go=function(id){closeNavigationHub();goWithNavigationLayout(id)};
 const applyLanguageWithNavigationLayout=applyLanguage;
-applyLanguage=function(language){applyLanguageWithNavigationLayout(language);applyProductMessaging();setupWhatsAppSupport();setupWhatsAppSupportSettings();setupNavigationHubTrigger();setupNavigationLayoutSettings();if(navigationLayout==='tiles'&&document.getElementById('navigationHub')?.classList.contains('open'))openNavigationHub()};
+applyLanguage=function(language){applyLanguageWithNavigationLayout(language);window.SidebarNavigation?.refresh?.();applyProductMessaging();setupWhatsAppSupport();setupWhatsAppSupportSettings();setupNavigationHubTrigger();setupNavigationLayoutSettings();if(navigationLayout==='tiles'&&document.getElementById('navigationHub')?.classList.contains('open'))openNavigationHub()};
 function syncRiskResultPanel(){/* A grade do Position Sizing mantém o painel fixo pelo CSS. */}
 const goWithFixedRiskResult=go;
 go=function(id){goWithFixedRiskResult(id);requestAnimationFrame(syncRiskResultPanel)};
@@ -1902,7 +1906,8 @@ function truthFilteredTrades(trades){
 function truthSelect(label,key,items,emptyLabel){return `<label><span>${label}</span><select data-truth-filter="${key}"><option value="">${emptyLabel}</option>${items.map(item=>`<option value="${safe(item)}" ${truthPanelFilters[key]===item?'selected':''}>${safe(item)}</option>`).join('')}</select></label>`}
 function truthFilterMarkup(trades){
   const closed=trades.filter(trade=>trade.status==='closed');
-  return `<section class="card truth-filter-card"><div><div class="eyebrow">Recorte da análise</div><p>Os indicadores, curvas e exportações abaixo respeitam estes filtros.</p></div><div class="truth-filter-fields"><label><span>Período</span><select data-truth-filter="period"><option value="all" ${truthPanelFilters.period==='all'?'selected':''}>Todo o histórico</option><option value="30" ${truthPanelFilters.period==='30'?'selected':''}>Últimos 30 dias</option><option value="90" ${truthPanelFilters.period==='90'?'selected':''}>Últimos 90 dias</option><option value="365" ${truthPanelFilters.period==='365'?'selected':''}>Últimos 12 meses</option></select></label>${truthSelect('Ativo','asset',truthUnique(closed,trade=>trade.ticker),'Todos os ativos')}${truthSelect('Setup','setup',truthUnique(closed,trade=>trade.setup||'Setup não informado'),'Todos os setups')}<label><span>Direção</span><select data-truth-filter="direction"><option value="">Long e short</option><option value="long" ${truthPanelFilters.direction==='long'?'selected':''}>Long</option><option value="short" ${truthPanelFilters.direction==='short'?'selected':''}>Short</option></select></label>${truthSelect('Grade','grade',truthUnique(closed,trade=>trade.rubric_grade||'Não informado'),'Todos os grades')}${truthSelect('Conta','account',truthUnique(closed,truthAccountLabel),'Todas as contas')}<div class="truth-filter-actions"><button type="button" class="secondary" data-truth-reset>Limpar filtros</button><button type="button" class="secondary" data-truth-export="csv">Exportar CSV</button><button type="button" class="primary" data-truth-export="print">Imprimir relatório</button></div></div></section>`;
+  const gradeOptions=[...TradingRubrics.DEFAULT_POLICY.grades.map(item=>item.grade),'Não informado'];
+  return `<section class="card truth-filter-card"><div><div class="eyebrow">Recorte da análise</div><p>Os indicadores, curvas e exportações abaixo respeitam estes filtros.</p></div><div class="truth-filter-fields"><label><span>Período</span><select data-truth-filter="period"><option value="all" ${truthPanelFilters.period==='all'?'selected':''}>Todo o histórico</option><option value="30" ${truthPanelFilters.period==='30'?'selected':''}>Últimos 30 dias</option><option value="90" ${truthPanelFilters.period==='90'?'selected':''}>Últimos 90 dias</option><option value="365" ${truthPanelFilters.period==='365'?'selected':''}>Últimos 12 meses</option></select></label>${truthSelect('Ativo','asset',truthUnique(closed,trade=>trade.ticker),'Todos os ativos')}${truthSelect('Setup','setup',truthUnique(closed,trade=>trade.setup||'Setup não informado'),'Todos os setups')}<label><span>Direção</span><select data-truth-filter="direction"><option value="">Long e short</option><option value="long" ${truthPanelFilters.direction==='long'?'selected':''}>Long</option><option value="short" ${truthPanelFilters.direction==='short'?'selected':''}>Short</option></select></label>${truthSelect('Grade','grade',gradeOptions,'Todos os grades')}${truthSelect('Conta','account',truthUnique(closed,truthAccountLabel),'Todas as contas')}<div class="truth-filter-actions"><button type="button" class="secondary" data-truth-reset>Limpar filtros</button><button type="button" class="secondary" data-truth-export="csv">Exportar CSV</button><button type="button" class="primary" data-truth-export="print">Imprimir relatório</button></div></div></section>`;
 }
 function truthSeries(trades){let total=0,peak=0;return trades.map(minerAnalyticsTrade).sort((a,b)=>a.closedAt-b.closedAt).map(item=>{total+=item.result;peak=Math.max(peak,total);return {...item,total,drawdown:total-peak}})}
 function truthLineChart(series,key,color){
@@ -2886,7 +2891,7 @@ body:not([data-theme="healthy"]) #materials .materials-layout:before{color:#d4ad
 body:has(#materials.active) .content{padding-right:clamp(24px,3vw,64px)!important;padding-left:clamp(24px,3vw,64px)!important}#materials .materials-page{width:100%;max-width:none;margin:0}#materials .materials-hero{width:100%;box-sizing:border-box}#materials .materials-layout{width:100%;box-sizing:border-box}@media(min-width:1680px){#materials .materials-layout{grid-template-columns:minmax(0,1fr) 380px;gap:24px}#materials .materials-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}#materials .material-cover{height:220px}}
 </style>
 <link rel="stylesheet" href="frontend/materials-page-v2.css" />
-<link rel="stylesheet" href="frontend/theme-audit.css" />
+<link rel="stylesheet" href="frontend/theme-audit.css?v=20260922-menu-theme-1" />
 <script>
 const MATERIALS_STORAGE='healthy-trend-trader-materials-v1';
 const healthyMaterials=[
@@ -3743,5 +3748,5 @@ go=function(id){goWithAboutPage(id);if(id==='about')renderAboutPage()};
   }
 })();
 </script>
-<script src="frontend/sidebar-navigation.js?v=20260922-grading-abcd-1"></script>
+<script src="frontend/sidebar-navigation.js?v=20260922-menu-theme-1"></script>
 </body></html>
