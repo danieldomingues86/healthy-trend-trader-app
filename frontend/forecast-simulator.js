@@ -4,7 +4,7 @@
   const parseMoney=value=>Number(String(value).replace(/[^\d,-]/g,'').replace(/\./g,'').replace(',','.'))||0;
   const formatPct=(value,digits=1)=>`${(value*100).toLocaleString(window.appLanguage==='en-US'?'en-US':'pt-BR',{minimumFractionDigits:digits,maximumFractionDigits:digits})}%`;
   const closedRs=()=>{try{const database=(typeof synchronizedTrades!=='undefined'?synchronizedTrades:[]).filter(trade=>trade.status==='closed').map(trade=>analyticsTrade(trade).r).filter(Number.isFinite);if(database.length)return database;const local=(typeof operationalState!=='undefined'?operationalState.closedPositions||[]:[]).map(position=>{const metric=operationMetrics(position),risk=Number(position.initialRisk)||Math.abs(position.entry-(position.initialStop||position.currentStop))*position.initialQty;return risk?metric.realized/risk:null}).filter(Number.isFinite);return local}catch{return[]}};
-  const currentRisk=()=>{try{const profile=riskPolicyState?.profiles?.[riskPolicyState.selectedProfile];return Number(profile?.initialRiskPct)||.003}catch{return .003}};
+  const currentRisk=()=>{try{return Number(riskPolicyState?.grades?.find(item=>item.grade==='B')?.riskPct)||.002}catch{return .002}};
   const equity=()=>typeof OPERATIONAL_EQUITY==='number'?OPERATIONAL_EQUITY:1000000;
   const source=()=>{const actual=closedRs();return{values:actual,actual,count:actual.length,lowSample:actual.length>0&&actual.length<20}};
   const risks=()=>{const current=currentRisk();return{conservative:Math.min(.001,current*.5),current,aggressive:Math.min(.01,Math.max(.005,current*1.65))}};

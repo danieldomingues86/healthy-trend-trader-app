@@ -5,12 +5,18 @@ const { normalizePlan, validateRareTrade, normalizeExecution, normalizePositionE
 test('normaliza plano com ticker em caixa alta e contribuições da Rubric', () => {
   const plan = normalizePlan({
     asset: ' wege3 ', entry: 48.3, stop: 45.8, atr: 1.72, suggestedQty: 400,
-    executedQty: 400, riskPct: .004, rubricScore: 97, rubricMaxScore: 100, grade: 'A',
+    executedQty: 400, riskPct: .004, riskBudgetPct: .01, executableRiskPct: .0051,
+    limitingLayer: 'capital', limitingLayerName: 'Limite de capital', rubricScore: 97, rubricMaxScore: 100, grade: 'A',
     rubricResponses: { marketCycle: 2 }, rubricContributions: [{ key: 'marketCycle', value: 2, points: 2, weight: 1 }]
   });
   assert.equal(plan.ticker, 'WEGE3');
   assert.equal(plan.contributions[0].rating, 'good');
   assert.equal(plan.contributions[0].maxScore, 2);
+  assert.equal(plan.riskPct, .0051);
+  assert.equal(plan.metadata.riskBudgetPct, .01);
+  assert.equal(plan.metadata.executableRiskPct, .0051);
+  assert.equal(plan.metadata.limitingLayer, 'capital');
+  assert.equal(plan.metadata.limitingLayerName, 'Limite de capital');
 });
 
 test('preserva a data efetiva de entrada separada do registro do trade', () => {

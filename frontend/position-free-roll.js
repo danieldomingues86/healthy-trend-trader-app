@@ -66,34 +66,26 @@
     previousRiskRender();
     const shell = document.getElementById('effectiveRiskPolicy');
     if (!shell || shell.querySelector('.pm-policy')) return;
-    const saved = config(), heatLimit = Math.max(.01, Number(riskPolicyState?.portfolioHeatLimitPct) || 3);
-    const heatBlock = document.createElement('section');
-    heatBlock.className = 'risk-policy-block pm-policy pm-heat-policy';
-    heatBlock.innerHTML = `<div class="risk-block-title"><span>5</span><div><h4>Portfolio Heat máximo</h4><p>É o limite agregado das posições reais. Ele alimenta o alerta, o bloqueio de novas entradas e o controle de Portfolio Heat.</p></div></div>
-      <div class="pm-form-grid"><label>Heat máximo da carteira (%)<input type="number" step=".1" min=".01" data-pm-heat-limit value="${heatLimit}"></label></div>`;
+    const saved = config();
     const sellBlock = document.createElement('section');
     sellBlock.className = 'risk-policy-block pm-policy pm-sell-policy';
-    sellBlock.innerHTML = `<div class="risk-block-title"><span>6</span><div><h4>Sell Into Strength</h4><p>Identifica uma oportunidade de parcial; jamais executa venda automática ou define alvo para o Runner.</p></div></div>
+    sellBlock.innerHTML = `<div class="risk-block-title"><span>5</span><div><h4>Sell Into Strength</h4><p>Identifica uma oportunidade de parcial; jamais executa venda automática ou define alvo para o Runner.</p></div></div>
       <div class="pm-form-grid"><label>Sell Into Strength<select data-pm-setting="enabled"><option value="on" ${saved.enabled ? 'selected' : ''}>ON</option><option value="off" ${!saved.enabled ? 'selected' : ''}>OFF</option></select></label>
       <label>Zona inicial (R)<input type="number" step=".1" min="0" data-pm-setting="startR" value="${saved.startR}"></label>
       <label>Zona final (R)<input type="number" step=".1" min="0" data-pm-setting="endR" value="${saved.endR}"></label>
       <label>Realização sugerida (%)<input type="number" step="1" min="1" max="100" data-pm-setting="suggestedPercent" value="${saved.suggestedPercent}"></label></div><button type="button" class="secondary pm-manual-link" data-pm-manual="sell-into-strength">Sugestões de uso do Sell Into Strength →</button>`;
     const policyLayout = document.createElement('div');
     policyLayout.className = 'pm-policy-layout';
-    policyLayout.append(heatBlock, sellBlock);
+    policyLayout.append(sellBlock);
     shell.append(policyLayout);
   };
   document.addEventListener('change', async event => {
-    if (!event.target.matches('[data-pm-setting], [data-pm-heat-limit]')) return;
-    const heatInput = document.querySelector('#effectiveRiskPolicy [data-pm-heat-limit]');
-    const heatLimit = Number(heatInput?.value);
-    if (!Number.isFinite(heatLimit) || heatLimit <= 0) { showToast('Defina um Portfolio Heat máximo maior que zero.'); return; }
+    if (!event.target.matches('[data-pm-setting]')) return;
     const inputs = document.querySelectorAll('#effectiveRiskPolicy [data-pm-setting]');
     const value = Object.fromEntries([...inputs].map(input => [input.dataset.pmSetting, input.value]));
     if (+value.endR < +value.startR) { showToast('A zona final deve ser maior ou igual à inicial.'); return; }
     if (+value.suggestedPercent <= 0 || +value.suggestedPercent > 100) { showToast('Escolha um percentual entre 1% e 100%.'); return; }
     riskPolicyState.sellIntoStrength = model.settings({ enabled: value.enabled === 'on', startR: value.startR, endR: value.endR, suggestedPercent: value.suggestedPercent });
-    riskPolicyState.portfolioHeatLimitPct = heatLimit;
     await persistRiskPolicy();
     renderEffectiveRiskPolicy();
     window.renderPortfolioHeat?.();
