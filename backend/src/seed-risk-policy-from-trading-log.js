@@ -3,6 +3,7 @@ const database = require('./database');
 
 const policy = {
   gradingVersion: 2,
+  positionSizingVersion: 3,
   criteria: [
     { key: 'trendQuality', label: 'Contexto do Ativo (Diário)', weight: 25 },
     { key: 'marketCycle', label: 'Contexto do Mercado', weight: 20 },
@@ -18,8 +19,8 @@ const policy = {
     { grade: 'D', minScore: -Infinity, riskPct: 0 }
   ],
   profiles: {
-    rampUp: { label: 'Risk Ramp-Up', initialRiskPct: 0.001, ongoingRiskPct: 0.0025, initialVolatilityPct: 0.001, ongoingVolatilityPct: 0.0025, capitalPct: 0.1, maximumPortfolioRiskPct: 0.05, maximumPositions: 3, pyramiding: false },
-    standard: { label: 'Política padrão', initialRiskPct: 0.003, ongoingRiskPct: 0.006, initialVolatilityPct: 0.003, ongoingVolatilityPct: 0.006, capitalPct: 0.1, maximumPortfolioRiskPct: 0.05, maximumPositions: 6, pyramiding: false }
+    rampUp: { label: 'Risk Ramp-Up', ongoingRiskPct: 0.0025, initialVolatilityPct: 0.001, ongoingVolatilityPct: 0.0025, capitalPct: 0.1, maximumPortfolioRiskPct: 0.05, maximumPositions: 3, pyramiding: false },
+    standard: { label: 'Política padrão', ongoingRiskPct: 0.006, initialVolatilityPct: 0.003, ongoingVolatilityPct: 0.006, capitalPct: 0.1, maximumPortfolioRiskPct: 0.05, maximumPositions: 6, pyramiding: false }
   },
   selectedProfile: 'standard'
 };

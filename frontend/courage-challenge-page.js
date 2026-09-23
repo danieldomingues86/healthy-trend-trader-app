@@ -53,7 +53,7 @@
     const latestAttempt = totalAttempts > 0 ? attempts[totalAttempts - 1] : null;
     let targetDisplay = root.TradingRubrics?.normalizePolicy(root.riskPolicyState)?.grades.find(item => item.grade === 'A')?.riskPct * 100 || 0;
     if (latestAttempt) {
-      targetDisplay = latestAttempt.targetRiskPercent || latestAttempt.targetRiskPct || targetDisplay;
+      targetDisplay = latestAttempt.executableRiskPercent || latestAttempt.targetRiskPercent || latestAttempt.targetRiskPct || targetDisplay;
     } else if (root.riskPolicyState && root.riskPolicyState.grades && root.riskPolicyState.grades[0]) {
       targetDisplay = root.riskPolicyState.grades[0].riskPct * 100;
     }
@@ -456,7 +456,7 @@
       tableRows += '  <td><strong>#' + (att.attemptNumber || idx + 1) + '</strong></td>';
       tableRows += '  <td>' + safe(att.date || '—') + '</td>';
       tableRows += '  <td><strong class="courage-ticker-badge">' + safe(att.ticker) + '</strong></td>';
-      tableRows += '  <td>' + numBR(att.targetRiskPercent || att.targetRiskPct, 2) + '% → <strong>' + numBR(att.actualRiskPercent || att.actualRiskPct, 2) + '%</strong></td>';
+      tableRows += '  <td>' + numBR(att.executableRiskPercent || att.targetRiskPercent || att.targetRiskPct, 2) + '% → <strong>' + numBR(att.actualRiskPercent || att.actualRiskPct, 2) + '%</strong></td>';
       tableRows += '  <td><span class="courage-status-pill ' + stClass + '">' + stLabel + '</span></td>';
       tableRows += '  <td class="courage-muted-cell">' + safe(gapLabel) + '</td>';
       tableRows += '  <td><button class="courage-mini-action-btn outline" data-trade-id="' + safe(att.id || att.attemptId) + '" onclick="CourageChallengePage.openTradeDetails(this.dataset.tradeId)">Snapshot</button></td>';
@@ -501,7 +501,8 @@
     modalHtml += '  <div class="courage-snapshot-grid">';
     modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Data/Hora</div><div class="courage-snapshot-value">' + safe(trade.timestamp || trade.date) + '</div></div>';
     modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Ticker & Setup</div><div class="courage-snapshot-value">' + safe(trade.ticker) + ' (' + safe(trade.setupGrade || 'A') + ')</div></div>';
-    modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Target Risk (Planejado)</div><div class="courage-snapshot-value">' + numBR(trade.targetRiskPercent || trade.targetRiskPct, 2) + '%</div></div>';
+    modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Risk Budget pelo Grade</div><div class="courage-snapshot-value">' + numBR(trade.riskBudgetPercent || trade.riskBudgetPct, 2) + '%</div></div>';
+    modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Risco executável autorizado</div><div class="courage-snapshot-value">' + numBR(trade.executableRiskPercent || trade.targetRiskPercent || trade.targetRiskPct, 2) + '%</div></div>';
     modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Actual Risk (Executado)</div><div class="courage-snapshot-value ' + (isComp ? 'green' : 'yellow') + '">' + numBR(trade.actualRiskPercent || trade.actualRiskPct, 2) + '%</div></div>';
     modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Status Compliance</div><div class="courage-snapshot-value ' + (isComp ? 'green' : 'yellow') + '">' + safe(trade.complianceStatus) + '</div></div>';
     modalHtml += '    <div class="courage-snapshot-item"><div class="courage-snapshot-label">Courage Gap</div><div class="courage-snapshot-value">' + (trade.courageGap !== null ? (trade.courageGap + '%') : 'Nenhum') + '</div></div>';

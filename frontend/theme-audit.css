@@ -203,12 +203,12 @@ body:not([data-theme="healthy"]) #glossary .glossary-art .grade~circle{fill:#c79
 /* Immersive modules used literal Healthy colors before the shared palette layer
    existed. Keep semantic market states intact, while their structural surfaces
    inherit Premium Gold through this final theme layer. */
-body[data-theme="gold"]:has(#today.active) #today .today-dashboard{background:radial-gradient(ellipse at 85% 0%,rgba(184,133,39,.18),transparent 45%),radial-gradient(ellipse at 8% 65%,rgba(129,83,21,.14),transparent 38%),#151109}
-body[data-theme="gold"]:has(#today.active) #today .today-dashboard:before{background-image:linear-gradient(rgba(224,185,95,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(224,185,95,.055) 1px,transparent 1px)}
-body[data-theme="gold"]:has(#today.active) #today .dashboard-widget{border-color:rgba(218,174,73,.3);background:radial-gradient(ellipse at 100% 20%,rgba(160,107,25,.16),transparent 65%),linear-gradient(130deg,#21180e,#100d08)}
+body[data-theme="gold"]:has(#today.active) #today .today-dashboard{--desktop-accent:#e0b753;--desktop-accent-rgb:224,183,83;--desktop-border:rgba(224,183,83,.3);background:radial-gradient(ellipse 40% 30% at 92% 2%,rgba(186,132,39,.13),transparent 72%),radial-gradient(ellipse 38% 34% at 4% 72%,rgba(120,83,28,.1),transparent 72%),linear-gradient(145deg,#171309 0%,#0e0c08 74%,#161107 100%)}
+body[data-theme="gold"]:has(#today.active) #today .today-dashboard:before{background-image:linear-gradient(rgba(224,185,95,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(224,185,95,.035) 1px,transparent 1px),repeating-linear-gradient(156deg,transparent 0 78px,rgba(224,185,95,.018) 79px 80px);background-size:56px 56px,56px 56px,100% 100%}
+body[data-theme="gold"]:has(#today.active) #today .dashboard-widget{--widget-accent:#e0bb61;--widget-accent-rgb:224,187,97;border-color:rgba(var(--widget-accent-rgb),.32);background:radial-gradient(ellipse 48% 80% at 100% 38%,rgba(var(--widget-accent-rgb),.1),transparent 72%),linear-gradient(125deg,rgba(35,25,13,.98),rgba(13,10,6,.99) 74%)}
 body[data-theme="gold"]:has(#today.active) #today .today-dashboard-header .eyebrow,body[data-theme="gold"]:has(#today.active) #today .dashboard-widget-kicker,body[data-theme="gold"]:has(#today.active) #today .dashboard-widget-details{color:#e4bd62}
 body[data-theme="gold"]:has(#today.active) #today .today-dashboard-header p,body[data-theme="gold"]:has(#today.active) #today .dashboard-widget-content p,body[data-theme="gold"]:has(#today.active) #today .dashboard-facts{color:#d2c19b}
-body[data-theme="gold"]:has(#today.active) #today .dashboard-opportunity-metrics div{border-color:rgba(214,173,77,.24);background:rgba(48,34,13,.65)}
+body[data-theme="gold"]:has(#today.active) #today .dashboard-opportunity-metrics div{border-color:rgba(214,173,77,.34);background:radial-gradient(ellipse at 90% 5%,rgba(214,173,77,.11),transparent 65%),rgba(48,34,13,.65)}
 body[data-theme="gold"]:has(#today.active) #today .dashboard-progress{background:#4b3b1c}body[data-theme="gold"]:has(#today.active) #today .dashboard-progress i{background:linear-gradient(90deg,#a8782c,#e3bc5a)}
 body[data-theme="gold"]:has(#today.active) #today .dashboard-primary-action,body[data-theme="gold"]:has(#today.active) #today .dashboard-add-widget{border-color:#dcb65c;background:#b5842d;color:#211605}
 
@@ -251,3 +251,17 @@ body[data-navigation-layout="top"] .sidebar .nav{gap:1px}
 .heat-philosophy h2::first-letter{color:#fff!important}
 .heat-logic-list div{padding-left:66px}
 .heat-logic-list div::before{left:16px;width:32px;height:32px;font-size:16px}
+
+/* Position Sizing: Risk Budget -> policy limiters -> executable risk. */
+#newtrade .execution-limit{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border:1px solid rgba(156,231,181,.16);border-radius:8px;background:rgba(4,31,20,.24)}
+#newtrade .execution-limit em{padding:2px 5px;border-radius:999px;background:var(--accent,#d7b447);color:#172013;font-size:8px;font-style:normal;font-weight:900;letter-spacing:.06em}
+#newtrade .execution-limit.is-limiting{border-color:rgba(224,188,81,.62);background:rgba(181,137,26,.14)}
+#newtrade .executable-risk-summary{display:flex;align-items:baseline;justify-content:center;gap:7px;margin:2px 0 7px}
+#newtrade .executable-risk-summary small{color:#a9cdb6;font-size:9px;font-weight:850;letter-spacing:.09em}
+#newtrade .executable-risk-summary b{color:#9de7b7;font-size:22px}
+#newtrade .executable-risk-summary span{color:#bdd6c5;font-size:9px}
+#effectiveRiskPolicy .risk-profile-inputs .field small{display:block;margin-top:4px;color:var(--muted);font-size:9px;line-height:1.35}
+#effectiveRiskPolicy .risk-profile-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}
+.courage-banner-target small{display:block;margin-top:2px;font-size:8px;font-weight:650;opacity:.76}
+.courage-conscious-target-row small{display:block;margin-top:2px;font-size:8px;opacity:.75}
+@media(max-width:600px){#effectiveRiskPolicy .risk-profile-inputs{grid-template-columns:1fr}#newtrade .executable-risk-summary{flex-wrap:wrap}}

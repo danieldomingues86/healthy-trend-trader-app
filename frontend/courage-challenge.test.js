@@ -432,6 +432,29 @@ test('Desafio Grade A: trades Grade B ou inferiores são rejeitados e não entra
   assert.equal(state.attempts.length, initialAttemptsCount);
 });
 
+test('Desafio compara a execução com o risco executável, não com o Risk Budget do Grade', () => {
+  const state = Model.startChallenge(Model.defaultChallengeState());
+  const result = Model.recordExecution(state, {
+    tradeId: 'trade-policy-limited',
+    ticker: 'PETR4',
+    setupGrade: 'A',
+    riskBudgetPercent: 1.00,
+    executableRiskPercent: 0.51,
+    limitingLayer: 'capital',
+    limitingLayerName: 'Limite de capital',
+    entryPrice: 100,
+    initialStop: 94.90,
+    plannedQuantity: 1000,
+    actualQuantity: 1000,
+    equityAtEntry: 1000000
+  });
+  assert.equal(result.execution.complianceStatus, 'COMPLIANT');
+  assert.equal(result.execution.riskBudgetPercent, 1);
+  assert.equal(result.execution.executableRiskPercent, .51);
+  assert.equal(result.execution.actualRiskPercent, .51);
+  assert.equal(result.execution.limitingLayer, 'capital');
+});
+
 test('Desafio Grade A não presume um grade ou score para registros sem avaliação', () => {
   const state = Model.startChallenge(Model.defaultChallengeState());
   const missingGrade = Model.recordExecution(state, {

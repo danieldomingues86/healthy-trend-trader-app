@@ -505,6 +505,12 @@
       rubricContributions = null,
       targetRiskPercent,
       targetRiskPct,
+      executableRiskPercent,
+      executableRiskPct,
+      riskBudgetPercent,
+      riskBudgetPct,
+      limitingLayer = null,
+      limitingLayerName = null,
       entryPrice,
       initialStop,
       actualQuantity,
@@ -534,7 +540,10 @@
       return singleArg ? null : { state: currentState, execution: null, ignored: true, reason: 'GRADE_NOT_ELIGIBLE' };
     }
 
-    const effTargetRisk = Number(targetRiskPct !== undefined ? targetRiskPct : targetRiskPercent);
+    const executableTarget = executableRiskPct !== undefined ? executableRiskPct : executableRiskPercent;
+    const legacyTarget = targetRiskPct !== undefined ? targetRiskPct : targetRiskPercent;
+    const effTargetRisk = Number(executableTarget !== undefined ? executableTarget : legacyTarget);
+    const effRiskBudget = Number(riskBudgetPct !== undefined ? riskBudgetPct : riskBudgetPercent);
     if (!Number.isFinite(effTargetRisk) || effTargetRisk <= 0) {
       return singleArg ? null : { state: currentState, execution: null, ignored: true, reason: 'RISK_POLICY_REQUIRED' };
     }
@@ -590,11 +599,18 @@
       rubricContributions: Array.isArray(rubricContributions) ? rubricContributions : null,
       targetRiskPercent: Number(effTargetRisk.toFixed(2)),
       targetRiskPct: Number(effTargetRisk.toFixed(2)),
+      executableRiskPercent: Number(effTargetRisk.toFixed(2)),
+      executableRiskPct: Number(effTargetRisk.toFixed(2)),
+      riskBudgetPercent: Number.isFinite(effRiskBudget) ? Number(effRiskBudget.toFixed(2)) : null,
+      riskBudgetPct: Number.isFinite(effRiskBudget) ? Number(effRiskBudget.toFixed(2)) : null,
+      limitingLayer,
+      limitingLayerName,
       actualRiskPercent: Number(Number(actualRiskPct).toFixed(2)),
       actualRiskPct: Number(Number(actualRiskPct).toFixed(2)),
       equityAtEntry: Number(equityAtEntry) || 0,
       riskPolicySnapshot: riskPolicySnapshot || {
-        baseRisk: effTargetRisk,
+        riskBudgetPct: Number.isFinite(effRiskBudget) ? effRiskBudget : null,
+        executableRiskPct: effTargetRisk,
         equity: Number(equityAtEntry) || 0
       },
       plannedPositionSize: effPlannedQty,

@@ -8,12 +8,17 @@
     const items = Array.isArray(source) ? source : [];
     return registry.map((definition, index) => {
       const saved = items.find(item => item && item.id === definition.id);
-      const fallback = spans[definition.defaultSize] || 8;
+      const configuredDefault = Number(definition.defaultColumns);
+      const fallback = Number.isFinite(configuredDefault)
+        ? clamp(Math.round(configuredDefault), 4, 16)
+        : (spans[definition.defaultSize] || 8);
       const columns = Number(saved?.columns);
       return {
         id: definition.id,
         active: saved ? saved.active !== false : Boolean(definition.defaultActive),
-        order: Number.isFinite(saved?.order) ? saved.order : index,
+        order: Number.isFinite(saved?.order)
+          ? saved.order
+          : (Number.isFinite(definition.defaultOrder) ? definition.defaultOrder : index),
         columns: Number.isFinite(columns) && columns > 0 ? clamp(Math.round(columns), 4, 16) : (spans[saved?.size] || fallback)
       };
     }).sort((a, b) => a.order - b.order).map((item, order) => ({ ...item, order }));
@@ -37,12 +42,9 @@
         const span = clamp(Number(card.dataset.columns) || 8, minimum, count);
         card.style.gridColumn = `span ${span}`;
       });
-      cards.forEach(card => {
-        const body = card.querySelector('.desktop-widget-body');
-        // Small tracks absorb subpixel text differences without stretching cards.
-        // Include the card borders and the gutter in the space reserved by CSS grid.
-        card.style.gridRowEnd = `span ${Math.ceil((body.getBoundingClientRect().height + 2 + 16) / 8)}`;
-      });
+      // Height is content-driven. CSS Grid reserves the tallest card in each visual
+      // row, while every card keeps its own intrinsic height through align-self:start.
+      cards.forEach(card => card.style.removeProperty('grid-row-end'));
     }
     function schedule() { if (!frame && !destroyed) frame = requestAnimationFrame(measure); }
     const observer = new ResizeObserver(schedule);

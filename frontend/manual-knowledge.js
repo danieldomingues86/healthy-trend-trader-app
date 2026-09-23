@@ -30,9 +30,9 @@
   const icon = name => `<svg class="kc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.book}</svg>`;
   const software = [
     ['today','Visão Geral','Seu centro de comando.','manual-dashboard','Veja o mercado, o risco da conta e a próxima ação. Comece pelas posições que precisam de atenção.'],
-    ['newtrade','Novo Trade','Planeje e registre operações.','manual-newtrade','Defina parâmetros técnicos na Etapa 1, avalie a Rubric na Etapa 2 e confira o dimensionamento com risco dinâmico por Grade antes de registrar a operação.'],
-    ['riskpolicy','Política de Risco','Governança e calibração de risco.','manual-riskpolicy','Defina os limites de risco nominal para cada Grade (A, B, C e D), configure perfis operacionais e calibre os pesos da Trading Rubric.'],
-    ['couragechallenge','Desafio Grade A','Treinamento do Modo Desapego.','manual-courage','Acompanhe a execução dos Rare Trades de Grade A no tamanho nominal definido pela Política de Risco, somente com o desafio ativo.'],
+    ['newtrade','Novo Trade','Planeje e registre operações.','manual-newtrade','Defina parâmetros técnicos na Etapa 1, avalie a Rubric na Etapa 2 e confira como o Risk Budget é reduzido pelos limitadores da política antes de registrar a operação.'],
+    ['riskpolicy','Política de Risco','Governança e calibração de risco.','manual-riskpolicy','Defina o Risk Budget de cada Grade (A, B, C e D) e configure por perfil os limites de volatilidade, capital, Portfolio Heat e posições, além das proteções durante o trade.'],
+    ['couragechallenge','Desafio Grade A','Treinamento do Modo Desapego.','manual-courage','Acompanhe a execução dos Rare Trades de Grade A em relação ao sizing executável autorizado pelo sistema, somente com o desafio ativo.'],
     ['positions','Posições','Acompanhe e gerencie.','manual-positions','Abra a posição para consultar a linha do tempo, atualizar o stop e registrar reduções ou encerramento.'],
     ['portfolioheat','Portfolio Heat','Controle o risco da carteira.','manual-risk','Confira o risco agregado das posições e compare com o limite definido na sua Política de Risco.'],
     ['marketcycle','Ciclo de Mercado','Entenda o ambiente.','manual-permission','Leia o regime do mercado e a atualização dos dados. Use o contexto antes de procurar uma oportunidade.'],
@@ -58,10 +58,10 @@
     ['ramp','Risk Ramp-Up','Aumente a exposição gradualmente.','Risk Ramp-Up'],
   ];
   const faq = [
-    ['Por que meu Position Size ficou menor?','O tamanho respeita os limites de risco pelo stop (usando o % dinâmico do Grade), volatilidade por ATR e capital. A menor quantidade prevalece, com ajuste ao lote e validação do Portfolio Heat. Confira a camada limitante no planejamento.'],
-    ['Como o Grade da Rubric define o risco-base?','A Trading Rubric avalia os 6 critérios na escala de 100 pontos e determina A, B, C ou D. Para A, a pontuação de pelo menos 95 também exige excelência em todos os critérios. O sistema consulta o risco nominal configurado para a grade na Política de Risco e recalcula o Position Size.'],
-    ['O que acontece se meu setup for Grade B em vez de Grade A?','O sistema aplica o risco-base configurado para B (ex: 0,20% em vez de 0,40%), reduzindo a quantidade de ações pela metade (ex: de 1.600 para 800 ações com stop de R$ 2,50 em R$ 1.000.000). Além disso, o trade não pontua no Desafio Grade A.'],
-    ['O Desafio Grade A altera o tamanho da minha posição?','Não. Somente quando o desafio está ativo, ele mede se uma operação Grade A foi executada no risco nominal estipulado pela Política de Risco. O Position Sizing não é alterado.'],
+    ['Por que meu Position Size ficou menor?','O Grade define o Risk Budget e a quantidade teórica pelo stop. Depois, os limitadores de exposição — volatilidade por ATR, capital, Portfolio Heat e máximo de posições — determinam quanto a conta e a carteira podem efetivamente comportar. Confira o limitante destacado no planejamento.'],
+    ['Como o Grade da Rubric define o Risk Budget?','A Trading Rubric avalia os 6 critérios na escala de 100 pontos e determina A, B, C ou D. Para A, a pontuação de pelo menos 95 também exige excelência em todos os critérios. O percentual da grade é o risco financeiro inicial autorizado pela qualidade; não existe um segundo limite de risco inicial na Política.'],
+    ['O que acontece se meu setup for Grade B em vez de Grade A?','O sistema aplica o Risk Budget configurado para B. Em seguida, calcula o risco executável pelo menor limite da política e converte esse valor em quantidade. O Desafio Grade A avalia apenas Rare Trades e compara a execução com o sizing executável, nunca com o orçamento bruto da grade.'],
+    ['O Desafio Grade A altera o tamanho da minha posição?','Não. Somente quando o desafio está ativo, ele mede se uma operação Grade A foi executada na quantidade final autorizada depois de todos os limitadores. Uma redução causada pela política nunca é tratada como undersizing.'],
     ['Posso registrar um dia sem operar?','Sim. Registre observações, decisões e emoções no Diário mesmo sem operações. Vincular um trade é opcional; um dia de espera também faz parte do processo.'],
     ['O que acontece se meu Setup não for A?','A Rubric classifica a oportunidade conforme os critérios e pesos da política ativa. Grades diferentes permitem menos risco ou nenhum risco (como Grade D, que bloqueia o trade). Confira a classificação e o risco liberado antes de executar.'],
     ['Quando devo reduzir meu risco?','Revise a exposição quando o contexto se deteriorar ou os limites da política forem atingidos. Em posições abertas, acompanhe o Ongoing Risk e os alertas de proteção.'],
@@ -87,6 +87,100 @@
   while (root.firstChild) legacyBody.append(root.firstChild);
   legacy.append(legacyBody);
   const sectionHeading = (eyebrow,title,description,aside='') => `<header class="kc-section-heading"><div><span class="kc-eyebrow">${eyebrow}</span><h2>${title}</h2><p>${description}</p></div>${aside ? `<small>${aside}</small>` : ''}</header>`;
+  const gradingSection = () => `<section class="kc-grading-system" id="knowledge-grading" aria-labelledby="grading-system-title">
+    <header class="grading-hero">
+      <div class="grading-hero-copy">
+        <span class="grading-hero-icon" aria-hidden="true">↗</span>
+        <div>
+          <h2 id="grading-system-title"><span>GRADING</span> &amp; BET SIZING <em>SYSTEM</em></h2>
+          <p class="grading-kicker">DISCIPLINA TRANSFORMA ANÁLISE EM RESULTADOS</p>
+          <p class="grading-intro">Um sistema <strong>objetivo</strong> para classificar a qualidade das oportunidades e <strong>dimensionar suas posições</strong> com base na confluência dos edges do seu método.</p>
+        </div>
+      </div>
+      <blockquote>“QUALIDADE É TUDO.<br>PACIÊNCIA TE COLOCA NAS<br>MELHORES OPORTUNIDADES.”<cite>— HEALTHY TREND TRADER</cite></blockquote>
+      <p class="grading-hero-motto">TRADES<br>MELHORES<br><strong>VIDA MAIOR</strong></p>
+    </header>
+    <div class="grading-layout">
+      <article class="grading-card grading-grades">
+        <header class="grading-card-head"><span class="grading-card-icon" aria-hidden="true">◆</span><div><h3>O que cada grade representa</h3><p>Os grades indicam o nível de vantagem estatística da operação, com base na confluência dos edges do seu método.</p></div></header>
+        <div class="grading-table-wrap"><table class="grading-table">
+          <thead><tr><th>Grade</th><th>Faixa de Score</th><th>Significado</th><th>Interpretação</th></tr></thead>
+          <tbody>
+            <tr class="grade-a"><th scope="row">A</th><td data-label="Faixa de Score">95–100</td><td data-label="Significado"><strong>Rare Trade</strong></td><td data-label="Interpretação">Todos os edges alinhados. Highest Expected Value. Ocorre muito pouco.</td></tr>
+            <tr class="grade-b"><th scope="row">B</th><td data-label="Faixa de Score">80–94</td><td data-label="Significado"><strong>Good Edge</strong></td><td data-label="Interpretação">Boa oportunidade, mas nem todos os edges perfeitos. Trades comuns do dia a dia.</td></tr>
+            <tr class="grade-c"><th scope="row">C</th><td data-label="Faixa de Score">65–79</td><td data-label="Significado"><strong>Small Edge</strong></td><td data-label="Interpretação">Alguma vantagem, porém limitada. Pode ser operado, respeitando a política de risco.</td></tr>
+            <tr class="grade-d"><th scope="row">D</th><td data-label="Faixa de Score">&lt; 65</td><td data-label="Significado"><strong>No Edge</strong></td><td data-label="Interpretação">Medíocre. Não há vantagem suficiente. Evite a operação.</td></tr>
+          </tbody>
+        </table></div>
+      </article>
+      <article class="grading-card grading-distribution">
+        <header class="grading-card-head"><span class="grading-card-icon" aria-hidden="true">▥</span><div><h3>A maioria será Grade D — e isso é ótimo</h3></div></header>
+        <p>A nossa pontuação é intencionalmente rigorosa. A maioria dos setups vai ser Grade D, e isso é o comportamento esperado.</p>
+        <div class="grade-distribution-visual">
+          <figure class="grade-pie" role="img" aria-label="Distribuição ilustrativa: Grade A 4%, Grade B 13%, Grade C 23% e Grade D 60%">
+            <span class="pie-label pie-a"><b>A</b><small>~2–5%</small></span>
+            <span class="pie-label pie-b"><b>B</b><small>~10–15%</small></span>
+            <span class="pie-label pie-c"><b>C</b><small>~20–30%</small></span>
+            <span class="pie-label pie-d"><b>D</b><small>~60–70%</small></span>
+          </figure>
+          <ul class="grade-legend">
+            <li class="legend-a"><i></i><span><b>A — Raro</b><small>Poucos trades.</small></span></li>
+            <li class="legend-b"><i></i><span><b>B — Comum</b><small>Oportunidades válidas.</small></span></li>
+            <li class="legend-c"><i></i><span><b>C — Comum</b><small>Vantagem limitada.</small></span></li>
+            <li class="legend-d"><i></i><span><b>D — Mais frequente</b><small>Deve ser descartado.</small></span></li>
+          </ul>
+        </div>
+        <p class="grading-demand"><span aria-hidden="true">◆</span>SER EXIGENTE HOJE É O QUE TE COLOCA ENTRE OS TRADERS CONSISTENTES AMANHÃ.</p>
+      </article>
+      <article class="grading-card grading-gate">
+        <header class="grading-card-head"><span class="grading-card-icon" aria-hidden="true">⚙</span><div><h3>Score + Quality Gate</h3></div></header>
+        <p>Para receber Grade A, não basta alcançar 95 pontos. É necessário que todos os componentes críticos estejam no nível de excelência definido pelo sistema.</p>
+        <ul class="grading-checklist">
+          <li><i>✓</i>Score total ≥ 95</li>
+          <li><i>✓</i>Todos os componentes críticos no nível de excelência</li>
+          <li><i>✓</i>Nenhum edge crítico abaixo do mínimo exigido</li>
+        </ul>
+        <p>Se qualquer componente crítico não estiver no nível exigido, mesmo com score ≥ 95, o trade será classificado como B.</p>
+        <aside class="grading-example"><span aria-hidden="true">i</span><p><b>Exemplo</b>Score 97, mas com um componente crítico abaixo do mínimo → resultado final: Grade B.</p></aside>
+      </article>
+      <article class="grading-card grading-sizing">
+        <header class="grading-card-head"><span class="grading-card-icon" aria-hidden="true">◉</span><div><h3>Como o grade afeta o bet sizing <small>(tamanho da posição)</small></h3></div></header>
+        <ul class="grading-bullets">
+          <li>O Grade define o Risk Budget da operação, conforme a sua Política de Risco.</li>
+          <li>O Risk Budget calcula o tamanho teórico pelo stop; depois, volatilidade por ATR, capital, Portfolio Heat e máximo de posições verificam quanto a conta e a carteira podem comportar.</li>
+          <li>O Risk Budget é a única fonte do risco financeiro inicial autorizado pela qualidade da oportunidade.</li>
+          <li>O Desafio Grade A observa o cumprimento do sizing executável apenas enquanto estiver ativo; não altera o cálculo nem promove trades B a A.</li>
+        </ul>
+        <blockquote>“Gerenciamento de risco consistente transforma boas oportunidades em grandes resultados.”</blockquote>
+      </article>
+      <article class="grading-card grading-summary">
+        <header class="grading-card-head"><span class="grading-card-icon" aria-hidden="true">✓</span><div><h3>Resumo prático</h3></div></header>
+        <ol>
+          <li><span>1</span>A maioria dos trades será Grade D. Descarte.</li>
+          <li><span>2</span>Trades C e B são oportunidades do dia a dia, com vantagem válida.</li>
+          <li><span>3</span>Grade A é raro e representa uma confluência excepcional de edges.</li>
+          <li><span>4</span>Quando aparecer um Grade A, execute com disciplina e tamanho adequado.</li>
+          <li><span>5</span>Sempre siga sua Política de Risco e o sistema de Position Sizing.</li>
+        </ol>
+      </article>
+      <article class="grading-card grading-rare">
+        <header class="grading-card-head"><span class="grading-card-icon" aria-hidden="true">🏆</span><div><h3>Grade A — Rare Trade</h3></div></header>
+        <div class="rare-gates">
+          <ul>
+            <li><i>✓</i>Tendência e estrutura no Ativo (Diário)</li>
+            <li><i>✓</i>Ciclo de Mercado saudável</li>
+            <li><i>✓</i>Força Relativa elevada</li>
+            <li><i>✓</i>Volatilidade (ATR) baixa</li>
+            <li><i>✓</i>Gatilho de entrada OK</li>
+            <li><i>✓</i>Fundamentos alinhados</li>
+          </ul>
+          <div class="rare-badge"><b>RARE TRADE</b><small>HIGHEST EXPECTED VALUE</small></div>
+        </div>
+        <blockquote>“Só entre quando tudo fizer sentido.<br>É aí que você se permite apostar mais.”</blockquote>
+      </article>
+    </div>
+    <footer class="grading-footer"><span><b>HEALTHY TREND TRADER</b><small>DISCIPLINA · PROCESSO · RESULTADOS</small></span><p>TRADES MELHORES. VIDA MAIOR.</p></footer>
+  </section>`;
   root.innerHTML = `<div class="knowledge-center">
     <section class="kc-hero" aria-labelledby="knowledge-title"><div class="kc-hero-copy"><span class="kc-eyebrow">MANUAL</span><h1 id="knowledge-title">Central de<br>Conhecimento</h1><p class="kc-subtitle">Domine o software. Entenda o método.<br>Execute com intenção.</p><p class="kc-hero-description">Tudo o que você precisa para transformar o Healthy Trend Trader<br class="kc-wide-only"> em uma rotina de decisões consistentes.</p></div><p class="kc-hero-motto">MELHORES<br>TRADERS<br>CONSTROEM<br>MELHORES<br>DECISÕES</p></section>
     <div class="kc-body"><section class="kc-search-section" aria-label="Buscar conhecimento"><form class="kc-search" role="search">${icon('search')}<input type="search" id="knowledgeSearch" placeholder="O que você quer aprender hoje?" aria-label="O que você quer aprender hoje?" autocomplete="off"><kbd>Ctrl K</kbd></form><div class="kc-popular"><span>Perguntas populares:</span>${['Como calcular minha mão?','O que é Portfolio Heat?','Quando um setup é A?','Como funciona o Rubric?','Por que meu risco foi reduzido?'].map((q,i)=>`<button type="button" data-popular="${i}">${q}</button>`).join('')}</div><section class="kc-search-results" aria-live="polite" hidden></section></section>
@@ -95,7 +189,7 @@
     <section class="kc-panel" id="knowledge-software">${sectionHeading('EXPLORE O SOFTWARE','Conheça cada ferramenta da plataforma','Clique em uma tela para acessar seu guia completo, exemplos e dicas de uso.','MAIS QUE FERRAMENTAS.<br>UM SISTEMA INTEGRADO.')}<div class="kc-software-grid">${software.map(([id,title,description])=>`<button class="kc-screen" type="button" data-guide="${id}"><div class="kc-screen-window"><img src="assets/manual-knowledge/${id}.jpg" alt="Capa conceitual da ferramenta ${title} do Healthy Trend Trader" loading="lazy" width="560" height="315"></div><div class="kc-screen-copy"><h3>${title}</h3><p>${description}</p>${icon('arrow')}</div></button>`).join('')}</div></section>
     <section class="kc-panel" id="knowledge-method">${sectionHeading('DOMINE O MÉTODO','Os conceitos que fundamentam suas decisões','Entenda o porquê de cada etapa e como os conceitos se conectam.','“CONHECIMENTO APLICADO<br>É APENAS INFORMAÇÃO.”'.replace('É APENAS','VAI ALÉM DA'))}<div class="kc-concept-grid">${concepts.map(([i,t,d],n)=>`<button class="kc-concept" type="button" data-concept="${n}">${icon(i)}<div><h3>${t}</h3><p>${d}</p></div></button>`).join('')}</div></section>
     <section class="kc-panel kc-rubric" id="knowledge-rubric">${sectionHeading('TRADING RUBRIC · EVIDÊNCIAS EM CONJUNTO','Vários edges. Uma decisão consciente.','A qualidade orienta a exposição, dentro da sua política de risco.')}<div class="kc-rubric-flow"><div class="kc-evidence">${['Ciclo de Mercado','Contexto Diário','Força Relativa','Fundamentos','Volatilidade','Execução'].map(t=>`<span>${t}<i aria-hidden="true">+</i></span>`).join('')}</div><svg class="kc-confluence" viewBox="0 0 140 230" preserveAspectRatio="none" aria-hidden="true">${[15,55,95,135,175,215].map(y=>`<path d="M0 ${y} C75 ${y} 55 115 140 115"/>`).join('')}</svg><button type="button" class="kc-rubric-core" data-concept="1"><small>EXEMPLO ILUSTRATIVO</small><strong>A <span>97/100</span></strong><b>HIGH CONVICTION</b><span>Entenda o Rubric →</span></button><div class="kc-rubric-outcomes"><p><b>Mais edges alinhados</b><span>Maior qualidade → maior confiança<br>→ exposição adequada.</span></p><p><b>Menos edges alinhados</b><span>Maior incerteza → risco reduzido<br>ou nenhuma operação.</span></p><small>Score ilustrativo. A classificação real segue a política ativa e não representa probabilidade de ganho.</small></div></div></section>
-    <section class="kc-panel" id="knowledge-grading">${sectionHeading('GRADING & BET SIZING','A, B, C e D','O Grade A não é apenas uma nota alta. É a confluência excepcional dos edges do método.')}<div class="manual-grid"><article class="manual-card"><h3>O que cada grade representa</h3><p><b>A · 95–100 · Rare Trade / Highest Expected Value:</b> oportunidade excepcional, com score e todos os edges críticos excelentes.</p><p><b>B · 80–94 · Good Edge:</b> boa oportunidade, mas sem confluência máxima. Um score de 97 com um gate crítico falhando também é B.</p><p><b>C · 65–79 · Small Edge:</b> vantagem limitada; siga o risco permitido pela política.</p><p><b>D · abaixo de 65 · No Edge:</b> não há risco liberado; evite a operação.</p></article><article class="manual-card"><h3>Score + Quality Gate</h3><p>Para receber A, não basta alcançar 95 pontos. Cada um dos seis critérios — Contexto do Ativo, Mercado, Força Relativa, Volatilidade, Gatilho e Fundamentos — precisa alcançar pelo menos 90% do seu próprio peso. Um único critério abaixo desse nível impede A.</p><p>Exemplos: 97 pontos com todos os gates aprovados → A; 97 com um gate crítico abaixo do mínimo → B; 94 com todos excelentes → B; 79 → C; 64 → D.</p><p>Não encontrar Grades A frequentemente é o comportamento esperado, não um defeito da Rubric.</p></article><article class="manual-card"><h3>Como o grade afeta o tamanho</h3><p>A Rubric seleciona o risco nominal da grade na Política de Risco. O Position Sizing calcula três limites — risco pelo stop, volatilidade por ATR e capital — e usa a menor quantidade. O grade não substitui essas proteções.</p><p>O Desafio Grade A observa o cumprimento do sizing nominal apenas enquanto estiver ativo; não altera o cálculo nem promove trades B a A.</p></article></div></section>
+    ${gradingSection()}
     <section class="kc-panel" id="knowledge-position-management">${sectionHeading('GESTÃO DA POSIÇÃO','Proteja o risco. Deixe a tendência trabalhar.','Portfolio Heat, Peel-Off, Sell Into Strength, Free Roll e Runner têm funções diferentes na mesma operação.','DECISÕES REGISTRADAS · SEM SAÍDAS AUTOMÁTICAS')}<div class="manual-grid"><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">♨</div><h3>Portfolio Heat</h3></div><p>É o risco agregado das posições reais até seus stops. O limite é configurado na Política de Risco; quando excedido, o sistema alerta e bloqueia novas entradas até que a exposição volte ao teto.</p></article><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">↘</div><h3>Peel-Off</h3></div><p>É uma redução de proteção quando o Ongoing Risk ou a volatilidade em andamento excedem o limite. Reduz apenas o necessário e não representa realização planejada de lucro.</p></article><article class="manual-card" id="knowledge-sell-into-strength"><div class="manual-card-heading"><div class="manual-icon">↗</div><h3>Sell Into Strength</h3></div><p>É uma realização parcial manual em uma zona de força configurável.</p><p><strong class="sell-usage-highlight">Sugestão de uso: a faixa de 2R a 3R é uma referência inteligente para embolsar parte dos lucros, baseada em práticas recorrentes de estudos de mercado e no acompanhamento de grandes traders.</strong> Ela pode ser ajustada. Observe a força do ativo e o ciclo de mercado: em mercado saudável, pode fazer sentido realizar mais perto de 3R e deixar a posição correr; em mercado pior, pode fazer sentido realizar mais cedo, perto de 2R.</p></article><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">🛡</div><h3>Free Roll e Runner</h3></div><p>Depois de uma parcial, o Free Roll só fica ativo quando o lucro realizado cobre o risco remanescente. A quantidade restante é o Runner: continua sob trailing stop, ATR, Ongoing Risk e Portfolio Heat, sem venda automática por atingir um R específico.</p></article></div></section>
     <nav class="kc-support" aria-label="Mais formas de aprender"><a href="#knowledge-library" class="kc-support-card">${icon('play')}<div><span class="kc-eyebrow">TUTORIAIS E EXEMPLOS</span><h3>Aprenda vendo</h3><p>Exemplos práticos e simulações para fixar o conhecimento.</p></div>${icon('arrow')}</a><a href="#knowledge-faq" class="kc-support-card">${icon('chat')}<div><span class="kc-eyebrow">FAQ</span><h3>Perguntas frequentes</h3><p>Respostas rápidas para as dúvidas mais comuns da plataforma e do método.</p></div>${icon('arrow')}</a><article class="kc-support-card kc-coming-soon" aria-label="Ask Healthy, em breve">${icon('chat')}<div><span class="kc-eyebrow">ASK HEALTHY</span><h3>Pergunte qualquer coisa</h3><p>Respostas baseadas no seu método, regras e documentação do sistema.</p></div><span class="kc-soon">EM BREVE</span></article></nav>
     <section class="kc-panel kc-faq" id="knowledge-faq">${sectionHeading('RESPOSTAS PARA CONTINUAR','Perguntas frequentes','Abra apenas a dúvida que você quer resolver.')}<div class="kc-faq-grid">${faq.map(([q,a],i)=>`<details id="knowledge-faq-${i}"><summary>${q}<span aria-hidden="true">+</span></summary><p>${a}</p></details>`).join('')}</div></section>
@@ -133,19 +227,19 @@
     const additionalGuides = {
       newtrade: [
         'A tela Novo Trade estrutura a operação em duas etapas estritas: Etapa 1 (Parâmetros da Operação: Ativo, Direção, Gatilho, Entrada, Stop, ATR, Ambiente e Tese) e Etapa 2 (Validação pela Trading Rubric de 100 pontos).',
-        'Risco-Base Dinâmico por Grade: A Rubric consulta na Política de Risco o percentual nominal configurado para A, B, C ou D. Cada avaliação recalcula Grade → risco-base → risco financeiro → Position Size.',
-        'Dimensionamento em Três Camadas: O motor de cálculo confronta simultaneamente o Risco pelo stop, a Volatilidade por ATR e o Limite de capital. A menor quantidade sempre prevalece para proteger a integridade do patrimônio.',
-        'Integração com o Desafio Grade A: Apenas operações Grade A registradas enquanto o desafio está ativo são avaliadas quanto à execução do sizing nominal configurado na política.'
+        'Risk Budget por Grade: a Rubric consulta na Política de Risco o orçamento configurado para A, B, C ou D. Cada avaliação recalcula Qualidade → Risk Budget → limitadores da política → risco executável → Position Size.',
+        'Dimensionamento: o Risk Budget produz o Position Size teórico pela distância até o stop. Em seguida, volatilidade por ATR, capital, Portfolio Heat e máximo de posições limitam a quantidade executável quando necessário.',
+        'Integração com o Desafio Grade A: apenas operações Grade A registradas enquanto o desafio está ativo são avaliadas contra o sizing executável calculado pelo sistema.'
       ],
       riskpolicy: [
-        'A Política de Risco centraliza os perfis operacionais (Política Padrão e Risk Ramp-Up), os riscos nominais para A, B, C e D e os pesos da Trading Rubric.',
-        'Cards de Grades: Exibem e permitem editar o risco nominal de A, B e C. Grade D não libera risco. A política existente de cada conta é preservada na migração.',
+        'A Política de Risco centraliza os perfis operacionais (Política Padrão e Risk Ramp-Up), os Risk Budgets para A, B, C e D, os limitadores de exposição e os pesos da Trading Rubric.',
+        'Cards de Grades: exibem e permitem editar o Risk Budget de A, B e C. Grade D não libera risco. Cada perfil mantém seus próprios limites de volatilidade, capital, Heat e posições, além das proteções de risco e volatilidade durante o trade.',
         'Conexão Direta com Novo Trade: Qualquer alteração salva na Política de Risco atualiza instantaneamente a resolução de risco do Novo Trade e as validações de conformidade do Desafio Grade A.'
       ],
       couragechallenge: [
         'O Desafio Grade A é um módulo de treinamento psicológico (Modo Desapego) projetado para consolidar a coragem e a disciplina de assumir o risco correto nos melhores setups do método.',
         'Elegibilidade Estrita: Apenas Rare Trades classificados como Grade A e executados durante o desafio ativo participam. B, C e D não pontuam.',
-        'Inspeção sem Interferência: O desafio não altera o Position Sizing; ele compara o risco executado com o risco nominal de Grade A definido na Política de Risco.'
+        'Inspeção sem Interferência: o desafio não altera o Position Sizing; ele compara a execução real com o risco e a quantidade efetivamente autorizados depois dos limitadores da política.'
       ],
       emergingleaders: [
         'A tela de Líderes Emergentes combina 6 dimensões em um Score único de 0 a 100: Força Relativa (25%), Aceleração de RS (15%), Proximidade da Máxima de 52S (20%), Resiliência na Correção (15%), Força de Recuperação (15%) e Liderança Setorial (10%).',

@@ -35,3 +35,14 @@ test('unknown, duplicate and malformed entries cannot create extra instances', (
   assert.equal(result[0].columns, 5);
   assert.deepEqual(normalize({}, registry), normalize([], registry));
 });
+test('explicit visual defaults create the intended composition without overriding saved widths', () => {
+  const visualRegistry = [
+    { id: 'portfolio', defaultSize: 'medium', defaultColumns: 8, defaultOrder: 0, defaultActive: true },
+    { id: 'opportunities', defaultSize: 'medium', defaultColumns: 8, defaultOrder: 1, defaultActive: true },
+    { id: 'next-action', defaultSize: 'small', defaultColumns: 5, defaultOrder: 2, defaultActive: true }
+  ];
+  const defaults = normalize([], visualRegistry);
+  assert.deepEqual(defaults.map(x => [x.id, x.columns]), [['portfolio', 8], ['opportunities', 8], ['next-action', 5]]);
+  const saved = normalize([{ id: 'portfolio', order: 2, columns: 12 }], visualRegistry);
+  assert.equal(saved.find(x => x.id === 'portfolio').columns, 12);
+});

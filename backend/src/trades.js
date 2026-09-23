@@ -41,8 +41,10 @@ function normalizePlan(payload = {}) {
   const entry = number(payload.entry ?? payload.entryPrice, 'Preço de entrada', { minimum: 0.000001, required: true });
   const stop = number(payload.stop ?? payload.stopPrice, 'Stop inicial', { minimum: 0.000001, required: true });
   const plannedQuantity = number(payload.suggestedQty ?? payload.plannedQuantity, 'Quantidade planejada', { minimum: 1, required: true });
-  const riskPct = number(payload.riskPct, 'Risco-base', { minimum: 0, required: true });
-  if (riskPct > 1) throw invalid('Risco-base é inválido.');
+  const riskPct = number(payload.executableRiskPct ?? payload.riskPct, 'Risco executável', { minimum: 0, required: true });
+  const riskBudgetPct = number(payload.riskBudgetPct, 'Orçamento de risco', { minimum: 0 });
+  if (riskPct > 1) throw invalid('Risco executável é inválido.');
+  if (riskBudgetPct != null && riskBudgetPct > 1) throw invalid('Orçamento de risco é inválido.');
   const rubric = payload.rubricResponses && typeof payload.rubricResponses === 'object' ? payload.rubricResponses : {};
   const contributions = Array.isArray(payload.rubricContributions) ? payload.rubricContributions : [];
   const rubricGrade = String(payload.grade || payload.rubricGrade || '').trim();
@@ -76,7 +78,11 @@ function normalizePlan(payload = {}) {
       executedQuantity: number(payload.executedQty, 'Quantidade da operação', { minimum: 1, required: true }),
       entryDate: String(payload.entryDate || '').slice(0, 10) || null,
       riskProfile: ['rampUp', 'standard'].includes(payload.riskProfile) ? payload.riskProfile : 'standard',
-      marketFactor: number(payload.marketFactor, 'Multiplicador de mercado', { minimum: 0 })
+      marketFactor: number(payload.marketFactor, 'Multiplicador de mercado', { minimum: 0 }),
+      riskBudgetPct,
+      executableRiskPct: riskPct,
+      limitingLayer: String(payload.limitingLayer || '').slice(0, 40) || null,
+      limitingLayerName: String(payload.limitingLayerName || '').slice(0, 120) || null
     },
     entryTimestamp: entryTimestamp(payload.entryDate)
   };
