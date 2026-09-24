@@ -3,8 +3,12 @@
   const root = document.getElementById('assetBlacklistRoot');
   if (!root) return;
   const state = { items: [], markets: [], categories: [], query: '', loaded: false, loading: null, error: '', acknowledgedSymbol: '' };
+  const catalog = window.HealthyTrendInstruments;
   const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-  const current = () => state.items.find(item => item.symbol === String(document.getElementById('tradeAsset')?.value || '').trim().toUpperCase());
+  const tradeSymbol = () => catalog?.normalizeSymbol(document.getElementById('tradeAsset')?.value) || '';
+  const tradeMarket = () => String(document.getElementById('tradeMarket')?.value || '').trim();
+  const current = () => state.items.find(item => catalog?.matchesBlacklistRule({ symbol: tradeSymbol(), market: tradeMarket() }, item));
+  const isAcknowledged = () => Boolean(tradeSymbol() && state.acknowledgedSymbol === tradeSymbol());
   const date = value => value ? new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo' }).format(new Date(value)) : '—';
   function notify(message) { if (typeof window.showToast === 'function') window.showToast(message); else window.alert(message); }
 
@@ -39,7 +43,6 @@
   const modal = root.querySelector('#abModal');
   const form = root.querySelector('#abForm');
   const instrumentList = root.querySelector('#abInstrumentSuggestions');
-  const catalog = window.HealthyTrendInstruments;
   const dynamicInstruments = () => typeof tradeAssetSuggestions !== 'undefined' ? [...tradeAssetSuggestions.values()] : [];
   function syncInstrumentOptions() {
     const market = form.elements.market.value;
@@ -118,49 +121,103 @@
     finally { submit.disabled = false; }
   });
 
+  function registerButton() {
+    return [...document.querySelectorAll('#newtrade button.primary')].find(button => button.textContent.toLocaleLowerCase('pt-BR').includes('registrar trade'));
+  }
+  function syncRegisterBlockState(item) {
+    const button = registerButton();
+    if (!button) return;
+    const blocked = item?.restrictionLevel === 'block';
+    let message = document.getElementById('blacklistRegisterBlock');
+    if (!message) {
+      message = document.createElement('div');
+      message.id = 'blacklistRegisterBlock';
+      message.className = 'ab-register-block';
+      message.setAttribute('role', 'status');
+      button.before(message);
+    }
+    message.hidden = !blocked;
+    if (blocked) message.innerHTML = '<b>☠ Trade bloqueado pela sua Blacklist</b><span>Escolha outro ativo para continuar.</span>';
+    button.classList.toggle('is-blacklist-blocked', blocked);
+    button.toggleAttribute('data-blacklist-blocked', blocked);
+    if (blocked) {
+      button.disabled = true;
+      button.setAttribute('aria-disabled', 'true');
+      button.title = 'Trade bloqueado pela sua Blacklist. Escolha outro ativo para continuar.';
+    }
+  }
+  function refreshFinalGate() {
+    if (typeof window.refreshWorkbenchRiskGate === 'function') window.refreshWorkbenchRiskGate();
+  }
   function renderTradeNotice() {
-    const asset = document.getElementById('tradeAsset'); const field = asset?.closest('.field'); if (!asset || !field) return;
+    const asset = document.getElementById('tradeAsset');
+    const stage = document.getElementById('tradeDataStage') || document.getElementById('workbenchData')?.closest('.workbench-card');
+    if (!asset || !stage) return;
     let notice = document.getElementById('tradeBlacklistNotice');
-    if (!notice) { notice = document.createElement('div'); notice.id = 'tradeBlacklistNotice'; notice.className = 'ab-trade-notice'; notice.setAttribute('role', 'alert'); field.append(notice); }
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.id = 'tradeBlacklistNotice';
+      notice.className = 'ab-trade-notice';
+      notice.setAttribute('role', 'alert');
+      stage.querySelector('#workbenchData')?.before(notice);
+    }
     const item = current();
-    if (!item) { notice.hidden = true; state.acknowledgedSymbol = ''; return; }
+    stage.classList.toggle('is-blacklist-blocked', item?.restrictionLevel === 'block');
+    stage.classList.toggle('has-blacklist-alert', item?.restrictionLevel === 'alert');
+    if (!item) {
+      notice.hidden = true;
+      state.acknowledgedSymbol = '';
+      syncRegisterBlockState(null);
+      refreshFinalGate();
+      return;
+    }
     const blocked = item.restrictionLevel === 'block';
+    const selectedSymbol = tradeSymbol();
     notice.hidden = false;
     notice.classList.toggle('blocked', blocked);
-    notice.innerHTML = `<b>${blocked ? '☠ ATIVO BLOQUEADO' : '⚠ ATIVO NA BLACKLIST'} · ${escape(item.symbol)}${item.name ? ' — ' + escape(item.name) : ''}</b><p>Você colocou este ativo na Blacklist porque:</p><blockquote>“${escape(item.reason)}”</blockquote><p>Lembre-se por que você decidiu não operar este ativo.</p><div class="ab-notice-actions"><button type="button" data-choice="other">Escolher outro ativo</button>${blocked ? '<button type="button" data-choice="list">Consultar Blacklist →</button>' : '<button type="button" data-choice="continue">Continuar mesmo assim</button>'}</div>${blocked ? '' : `<label class="ab-ack" ${state.acknowledgedSymbol === item.symbol ? '' : 'hidden'}><input type="checkbox" ${state.acknowledgedSymbol === item.symbol ? 'checked' : ''}> Estou ciente de que este ativo está na minha Blacklist e desejo continuar.</label>`}`;
+    notice.innerHTML = `<div class="ab-notice-copy"><b>${blocked ? '☠ ATIVO NA SUA BLACKLIST' : '⚠ ATIVO NA SUA BLACKLIST'} — ${escape(selectedSymbol)}${item.name ? ' · ' + escape(item.name) : ''}</b><p>Você decidiu evitar esta família de ativos porque: <q>${escape(item.reason)}</q></p></div><div class="ab-notice-actions"><button type="button" data-choice="other">Escolher outro ativo</button>${blocked ? '<button type="button" data-choice="list">Consultar Blacklist →</button>' : '<button type="button" data-choice="continue">Continuar mesmo assim</button>'}</div><small class="ab-notice-reminder">Lembre-se por que você decidiu não operar este ativo.</small>${blocked ? '' : `<label class="ab-ack" ${isAcknowledged() ? '' : 'hidden'}><input type="checkbox" ${isAcknowledged() ? 'checked' : ''}> Estou ciente de que este ativo está na minha Blacklist e desejo continuar.</label>`}`;
+    syncRegisterBlockState(item);
+    refreshFinalGate();
   }
   document.addEventListener('input', event => { if (event.target?.id === 'tradeAsset') { state.acknowledgedSymbol = ''; renderTradeNotice(); } });
-  document.addEventListener('change', event => { if (event.target?.id === 'tradeAsset') renderTradeNotice(); });
+  document.addEventListener('change', event => { if (['tradeAsset', 'tradeMarket'].includes(event.target?.id)) { state.acknowledgedSymbol = ''; renderTradeNotice(); } });
   document.addEventListener('click', event => {
     const button = event.target.closest('#tradeBlacklistNotice [data-choice]'); if (!button) return;
     if (button.dataset.choice === 'list') return window.go('assetblacklist');
     if (button.dataset.choice === 'other') { const asset = document.getElementById('tradeAsset'); asset.value = ''; asset.focus(); asset.dispatchEvent(new Event('input', { bubbles: true })); return; }
     const label = document.querySelector('#tradeBlacklistNotice .ab-ack'); if (label) { label.hidden = false; label.querySelector('input')?.focus(); }
   });
-  document.addEventListener('change', event => { if (event.target.matches('#tradeBlacklistNotice .ab-ack input')) state.acknowledgedSymbol = event.target.checked ? current()?.symbol || '' : ''; });
+  document.addEventListener('change', event => { if (event.target.matches('#tradeBlacklistNotice .ab-ack input')) state.acknowledgedSymbol = event.target.checked ? tradeSymbol() : ''; });
 
   const oldPayload = window.plannerPayload;
-  if (typeof oldPayload === 'function') window.plannerPayload = function (...args) { const plan = oldPayload.apply(this, args); plan.blacklistOverride = Boolean(current()?.restrictionLevel === 'alert' && state.acknowledgedSymbol === current()?.symbol); return plan; };
+  if (typeof oldPayload === 'function') window.plannerPayload = function (...args) { const plan = oldPayload.apply(this, args); plan.blacklistOverride = Boolean(current()?.restrictionLevel === 'alert' && isAcknowledged()); return plan; };
   async function allowed() {
     if (!state.loaded) await load();
     if (!state.loaded) { notify('Não foi possível verificar a Blacklist. Tente novamente antes de registrar.'); return false; }
     const item = current();
     if (!item) return true;
     renderTradeNotice();
-    if (item.restrictionLevel === 'block') { notify(`${item.symbol} está bloqueado pela sua regra pessoal. Consulte a Blacklist.`); return false; }
-    if (state.acknowledgedSymbol !== item.symbol) { notify('Confirme que deseja continuar com este ativo da Blacklist.'); return false; }
+    if (item.restrictionLevel === 'block') { notify(`${tradeSymbol()} está bloqueado pela sua regra pessoal. Consulte a Blacklist.`); return false; }
+    if (!isAcknowledged()) { notify('Confirme que deseja continuar com este ativo da Blacklist.'); return false; }
     return true;
   }
   const oldSave = window.saveTradePlan;
   if (typeof oldSave === 'function') window.saveTradePlan = async function (...args) { if (!await allowed()) return; return oldSave.apply(this, args); };
-  const registerButton = [...document.querySelectorAll('#newtrade button.primary')].find(button => button.textContent.includes('Registrar trade'));
-  if (registerButton) registerButton.onclick = window.saveTradePlan;
+  const initialRegisterButton = registerButton();
+  if (initialRegisterButton) initialRegisterButton.onclick = window.saveTradePlan;
   const oldManual = window.confirmTradeExecution;
   if (typeof oldManual === 'function') window.confirmTradeExecution = async function (...args) { if (!await allowed()) return; return oldManual.apply(this, args); };
   const oldGo = window.go;
   window.go = function (page, ...args) { const result = oldGo.call(this, page, ...args); if (page === 'assetblacklist' || page === 'newtrade') load(); if (page === 'newtrade') renderTradeNotice(); return result; };
   window.addEventListener('healthyTrend:authenticated', () => { state.items = []; state.loaded = false; load(); });
-  window.AssetBlacklist = { load, current, renderTradeNotice };
+  window.AssetBlacklist = {
+    load,
+    current,
+    renderTradeNotice,
+    resetTradeState: () => { state.acknowledgedSymbol = ''; renderTradeNotice(); },
+    isBlocked: () => current()?.restrictionLevel === 'block',
+    isAcknowledged
+  };
   renderRows();
   if (window.healthyTrendApi?.isAuthenticated()) load();
 })();

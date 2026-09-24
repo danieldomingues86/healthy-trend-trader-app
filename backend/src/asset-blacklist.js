@@ -31,9 +31,14 @@ async function list(userId) {
   const result = await database.query('SELECT * FROM app.asset_blacklist WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
   return result.rows.map(map);
 }
-async function find(userId, value, client = database) {
-  const result = await client.query('SELECT * FROM app.asset_blacklist WHERE user_id = $1 AND symbol = $2', [userId, symbol(value)]);
-  return result.rows[0] ? map(result.rows[0]) : null;
+async function find(userId, value, market, client = database) {
+  const normalizedSymbol = symbol(value);
+  const normalizedMarket = String(market || '').trim();
+  if (!MARKETS.includes(normalizedMarket)) return null;
+  const result = await client.query('SELECT * FROM app.asset_blacklist WHERE user_id = $1 AND market = $2 ORDER BY created_at DESC', [userId, normalizedMarket]);
+  const tradeAsset = { symbol: normalizedSymbol, market: normalizedMarket };
+  const row = result.rows.find(entry => instruments.matchesBlacklistRule(tradeAsset, map(entry)));
+  return row ? map(row) : null;
 }
 async function save(userId, payload, id) {
   const item = normalize(payload);

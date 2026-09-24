@@ -15,7 +15,7 @@ test('normaliza e valida registros da Blacklist', () => {
   assert.equal(trades.normalizePlan({ ...plan, blacklistOverride: true }).metadata.blacklistOverride, true);
 });
 
-test('regra pessoal bloqueia o registro e alerta exige confirmação; override fica no histórico', async () => {
+test('regra pessoal bloqueia toda a família de futuros e alerta exige confirmação', async () => {
   const original = database.transaction;
   let restrictionLevel = 'block';
   let savedMetadata;
@@ -27,13 +27,14 @@ test('regra pessoal bloqueia o registro e alerta exige confirmação; override f
     return { rows: [] };
   } });
   try {
-    await assert.rejects(trades.createPlan('user-1', { ...plan, blacklistOverride: true }), /bloqueado/);
+    await assert.rejects(trades.createPlan('user-1', { ...plan, asset: 'WDOFUT', blacklistOverride: true }), /bloqueado/);
+    await assert.rejects(trades.createPlan('user-1', { ...plan, asset: 'WDOQ26', blacklistOverride: true }), /bloqueado/);
     assert.equal(queries.filter(entry => entry.sql.includes('INSERT INTO app.trades')).length, 0);
     restrictionLevel = 'alert';
-    await assert.rejects(trades.createPlan('user-1', plan), /Confirme conscientemente/);
-    await trades.createPlan('user-1', { ...plan, blacklistOverride: true });
+    await assert.rejects(trades.createPlan('user-1', { ...plan, asset: 'WDOV26' }), /Confirme conscientemente/);
+    await trades.createPlan('user-1', { ...plan, asset: 'WDOZ26', blacklistOverride: true });
     assert.equal(savedMetadata.blacklistOverride, true);
-    assert.deepEqual(queries[0].values, ['user-1', 'WDO']);
+    assert.deepEqual(queries[0].values, ['user-1', 'Futuros']);
   } finally { database.transaction = original; }
 });
 

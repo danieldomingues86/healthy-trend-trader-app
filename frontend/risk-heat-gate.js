@@ -67,7 +67,8 @@
     if (exceeded && details) details.textContent = `Registro bloqueado: ${reason}`;
 
     const locked = sizer.classList.contains('is-locked');
-    const blocked = locked || exceeded || invalidWeights || isGradeD;
+    const blacklistBlocked = Boolean(window.AssetBlacklist?.isBlocked?.());
+    const blocked = locked || exceeded || invalidWeights || isGradeD || blacklistBlocked;
     const quantity = document.getElementById('tradeExecutedQty');
     if (quantity) {
       // A quantidade deve permanecer editável para que o usuário possa informar quantidade personalizada ou reduzir o lote
@@ -88,7 +89,9 @@
     sizer.querySelectorAll('.summary-box button').forEach(button => {
       button.disabled = blocked;
       button.setAttribute('aria-disabled', String(blocked));
-      button.title = invalidWeights ? 'Ajuste os pesos da Rubric para totalizar 100 pontos.' : exceeded ? reason : isGradeD ? 'Operação não recomendada pela política.' : locked ? 'Complete as Etapas 1 e 2 para registrar o trade.' : '';
+      button.classList.toggle('is-blacklist-blocked', blacklistBlocked);
+      button.toggleAttribute('data-blacklist-blocked', blacklistBlocked);
+      button.title = blacklistBlocked ? 'Trade bloqueado pela sua Blacklist. Escolha outro ativo para continuar.' : invalidWeights ? 'Ajuste os pesos da Rubric para totalizar 100 pontos.' : exceeded ? reason : isGradeD ? 'Operação não recomendada pela política.' : locked ? 'Complete as Etapas 1 e 2 para registrar o trade.' : '';
     });
   };
   refreshWorkbenchRiskGate();

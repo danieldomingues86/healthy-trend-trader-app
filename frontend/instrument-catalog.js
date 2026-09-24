@@ -7,6 +7,18 @@
 
   const MARKETS = ['Ações', 'Futuros', 'BDR', 'FII', 'Cripto', 'Forex', 'Outros'];
   const INSTRUMENTS = [
+    // Base local para que o seletor continue útil enquanto o cache de Força Relativa é atualizado.
+    // A lista dinâmica complementa estes instrumentos; a classificação permanece centralizada aqui.
+    { symbol: 'WEGE3', name: 'WEG', market: 'Ações' },
+    { symbol: 'PETR4', name: 'Petrobras PN', market: 'Ações' },
+    { symbol: 'VALE3', name: 'Vale ON', market: 'Ações' },
+    { symbol: 'BBAS3', name: 'Banco do Brasil ON', market: 'Ações' },
+    { symbol: 'ITUB4', name: 'Itaú Unibanco PN', market: 'Ações' },
+    { symbol: 'BBDC4', name: 'Bradesco PN', market: 'Ações' },
+    { symbol: 'MGLU3', name: 'Magazine Luiza ON', market: 'Ações' },
+    { symbol: 'UGPA3', name: 'Ultrapar ON', market: 'Ações' },
+    { symbol: 'PRIO3', name: 'PRIO ON', market: 'Ações' },
+    { symbol: 'FLRY3', name: 'Fleury ON', market: 'Ações' },
     { symbol: 'WDO', name: 'Mini Dólar', market: 'Futuros' },
     { symbol: 'WIN', name: 'Mini Índice', market: 'Futuros' },
     { symbol: 'CCM', name: 'Milho', market: 'Futuros' },
@@ -35,6 +47,26 @@
   ];
 
   const normalizeSymbol = value => String(value || '').trim().toUpperCase();
+  const normalizeMarket = value => String(value || '').trim();
+  const futureFamily = value => {
+    const symbol = normalizeSymbol(value);
+    const match = symbol.match(/^([A-Z0-9]{2,12}?)(?:FUT|[FGHJKMNQUVXZ]\d{1,2})$/);
+    return match ? match[1] : symbol;
+  };
+  function assetFamily(symbol, market) {
+    const normalized = normalizeSymbol(symbol);
+    return normalizeMarket(market) === 'Futuros' ? futureFamily(normalized) : normalized;
+  }
+  function matchesBlacklistRule(tradeAsset, blacklistEntry) {
+    const tradeMarket = normalizeMarket(tradeAsset && tradeAsset.market);
+    const ruleMarket = normalizeMarket(blacklistEntry && blacklistEntry.market);
+    const tradeSymbol = normalizeSymbol(tradeAsset && tradeAsset.symbol);
+    const ruleSymbol = normalizeSymbol(blacklistEntry && blacklistEntry.symbol);
+    if (!tradeSymbol || !ruleSymbol || !tradeMarket || tradeMarket !== ruleMarket) return false;
+    if (tradeSymbol === ruleSymbol) return true;
+    if (tradeMarket !== 'Futuros') return false;
+    return assetFamily(tradeSymbol, tradeMarket) === assetFamily(ruleSymbol, ruleMarket);
+  }
   const normalize = (item, defaultMarket) => {
     const symbol = normalizeSymbol(item && item.symbol);
     if (!symbol) return null;
@@ -49,11 +81,15 @@
     return [...merged.values()].sort((left, right) => left.symbol.localeCompare(right.symbol, 'pt-BR'));
   }
   function find(symbol, market, dynamicItems = []) {
-    return forMarket(market, dynamicItems).find(item => item.symbol === normalizeSymbol(symbol)) || null;
+    const items = forMarket(market, dynamicItems);
+    const exact = items.find(item => item.symbol === normalizeSymbol(symbol));
+    if (exact) return exact;
+    if (normalizeMarket(market) !== 'Futuros') return null;
+    return items.find(item => matchesBlacklistRule({ symbol, market }, item)) || null;
   }
   function belongsToMarket(symbol, market, dynamicItems = []) {
     return Boolean(find(symbol, market, dynamicItems));
   }
 
-  return { MARKETS, INSTRUMENTS, normalizeSymbol, normalize, forMarket, find, belongsToMarket };
+  return { MARKETS, INSTRUMENTS, normalizeSymbol, assetFamily, matchesBlacklistRule, normalize, forMarket, find, belongsToMarket };
 });
