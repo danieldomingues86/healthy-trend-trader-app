@@ -40,7 +40,10 @@ async function migrate() {
   if (!configured() || migrated) return;
   const directory = path.join(__dirname, '..', 'db', 'migrations');
   const files = (await fs.readdir(directory)).filter((file) => file.endsWith('.sql')).sort();
-  for (const file of files) await query(await fs.readFile(path.join(directory, file), 'utf8'));
+  for (const file of files) {
+    const sql = (await fs.readFile(path.join(directory, file), 'utf8')).replace(/^\uFEFF/, '');
+    await query(sql);
+  }
   migrated = true;
 }
 

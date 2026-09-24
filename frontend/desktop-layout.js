@@ -3,7 +3,8 @@
   const spans = { compact: 4, small: 5, medium: 8, large: 10, full: 16 };
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-  // Persist only intent. Heights and responsive placement are derived from the DOM.
+  // Persist placement and width for every widget. Height remains content-driven
+  // until the user explicitly resizes it while customizing the Desktop.
   function normalize(source, registry) {
     const items = Array.isArray(source) ? source : [];
     return registry.map((definition, index) => {
@@ -13,13 +14,16 @@
         ? clamp(Math.round(configuredDefault), 4, 16)
         : (spans[definition.defaultSize] || 8);
       const columns = Number(saved?.columns);
+      const rows = Number(saved?.rows);
       return {
         id: definition.id,
         active: saved ? saved.active !== false : Boolean(definition.defaultActive),
         order: Number.isFinite(saved?.order)
           ? saved.order
           : (Number.isFinite(definition.defaultOrder) ? definition.defaultOrder : index),
-        columns: Number.isFinite(columns) && columns > 0 ? clamp(Math.round(columns), 4, 16) : (spans[saved?.size] || fallback)
+        columns: Number.isFinite(columns) && columns > 0 ? clamp(Math.round(columns), 4, 16) : (spans[saved?.size] || fallback),
+        customHeight: Boolean(saved?.customHeight) && Number.isFinite(rows) && rows > 0,
+        rows: Boolean(saved?.customHeight) && Number.isFinite(rows) && rows > 0 ? Math.round(rows) : null
       };
     }).sort((a, b) => a.order - b.order).map((item, order) => ({ ...item, order }));
   }
@@ -30,6 +34,19 @@
     const abort = new AbortController();
     const listen = (node, type, callback) => node.addEventListener(type, callback, { signal: abort.signal });
     const columns = () => Number(getComputedStyle(grid).getPropertyValue('--desktop-columns')) || 16;
+    const rowSize = () => Number(getComputedStyle(grid).getPropertyValue('--desktop-row-size')) || 12;
+    const gap = () => Number(getComputedStyle(grid).rowGap) || 12;
+    const rowsForHeight = (height) => Math.max(1, Math.ceil((height + gap()) / (rowSize() + gap())));
+    function minimumRows(card) {
+      const body = card.querySelector('.desktop-widget-body');
+      if (!body) return rowsForHeight(card.scrollHeight);
+      // `body.scrollHeight` includes the custom grid height once a widget has
+      // been enlarged. Measure its real children instead so a vertical resize
+      // can always return to the content-driven minimum.
+      const style = getComputedStyle(body);
+      const childrenHeight = Array.from(body.children).reduce((total, child) => total + Math.max(child.scrollHeight, child.offsetHeight), 0);
+      return rowsForHeight(childrenHeight + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom));
+    }
 
     function measure() {
       frame = 0;
@@ -42,9 +59,14 @@
         const span = clamp(Number(card.dataset.columns) || 8, minimum, count);
         card.style.gridColumn = `span ${span}`;
       });
-      // Height is content-driven. CSS Grid reserves the tallest card in each visual
-      // row, while every card keeps its own intrinsic height through align-self:start.
-      cards.forEach(card => card.style.removeProperty('grid-row-end'));
+      cards.forEach(card => {
+        const minimum = minimumRows(card);
+        const customHeight = card.dataset.customHeight === 'true';
+        const desired = Number(card.dataset.rows);
+        const rows = customHeight && Number.isFinite(desired) ? Math.max(minimum, Math.round(desired)) : minimum;
+        card.style.gridRowEnd = `span ${rows}`;
+        if (customHeight) card.dataset.rows = rows;
+      });
     }
     function schedule() { if (!frame && !destroyed) frame = requestAnimationFrame(measure); }
     const observer = new ResizeObserver(schedule);
@@ -63,9 +85,18 @@
       if (cancelled) {
         current.original.forEach(card => grid.append(card));
         current.card.dataset.columns = current.startColumns;
+        current.card.dataset.customHeight = current.startCustomHeight;
+        if (current.startCustomHeight === 'true') current.card.dataset.rows = current.startRows;
+        else delete current.card.dataset.rows;
       }
       measure();
-      if (!cancelled && current.moved) onCommit(Array.from(grid.children).map((card, order) => ({ id: card.dataset.widgetId, columns: Number(card.dataset.columns), order })));
+      if (!cancelled && current.moved) onCommit(Array.from(grid.children).map((card, order) => ({
+        id: card.dataset.widgetId,
+        columns: Number(card.dataset.columns),
+        customHeight: card.dataset.customHeight === 'true',
+        rows: card.dataset.customHeight === 'true' ? Number(card.dataset.rows) : null,
+        order
+      })));
       onIdle?.();
     }
     function move(event) {
@@ -81,7 +112,14 @@
         const unit = (rect.width + 16) / count;
         const minimum = Math.min(count, Math.max(4, Math.ceil(260 / unit)));
         // clientX and DOMRect share viewport CSS pixels (including sidebar/scroll).
-        g.card.dataset.columns = clamp(Math.round((g.width + dx + 16) / unit), minimum, count);
+        if (g.resize === 'horizontal' || g.resize === 'both') {
+          g.card.dataset.columns = clamp(Math.round((g.width + dx + 16) / unit), minimum, count);
+        }
+        if (g.resize === 'vertical' || g.resize === 'both') {
+          const targetRows = rowsForHeight(g.height + dy);
+          g.card.dataset.customHeight = 'true';
+          g.card.dataset.rows = Math.max(minimumRows(g.card), targetRows);
+        }
         g.card.classList.add('is-resizing');
         measure();
         return;
@@ -114,12 +152,15 @@
     }
     if (editing) cards.forEach(card => {
       const header = card.querySelector('.dashboard-widget-header');
-      const edge = card.querySelector('.dashboard-widget-resize-handle');
-      [header, edge].forEach(handle => listen(handle, 'pointerdown', event => {
+      const horizontalEdge = card.querySelector('.dashboard-widget-resize-handle--horizontal');
+      const verticalEdge = card.querySelector('.dashboard-widget-resize-handle--vertical');
+      const corner = card.querySelector('.dashboard-widget-resize-handle--corner');
+      [header, horizontalEdge, verticalEdge, corner].forEach(handle => listen(handle, 'pointerdown', event => {
         if (gesture || event.button !== 0 || event.target.closest('button,input,textarea,a')) return;
         event.preventDefault();
         const r = card.getBoundingClientRect();
-        gesture = { card, handle, pointerId: event.pointerId, resize: handle === edge, x: event.clientX, y: event.clientY, offsetX: event.clientX - r.left, offsetY: event.clientY - r.top, width: r.width, startColumns: card.dataset.columns, original: Array.from(grid.children), moved: false };
+        const resize = handle === horizontalEdge ? 'horizontal' : handle === verticalEdge ? 'vertical' : handle === corner ? 'both' : null;
+        gesture = { card, handle, pointerId: event.pointerId, resize, x: event.clientX, y: event.clientY, offsetX: event.clientX - r.left, offsetY: event.clientY - r.top, width: r.width, height: r.height, startColumns: card.dataset.columns, startCustomHeight: card.dataset.customHeight || 'false', startRows: card.dataset.rows || '', original: Array.from(grid.children), moved: false };
         handle.setPointerCapture(event.pointerId);
       }));
     });

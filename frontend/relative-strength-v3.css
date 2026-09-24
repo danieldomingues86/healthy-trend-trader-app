@@ -23,18 +23,6 @@ body:has(#relativestrength.active) .crumb b { color:#45ecc0; font-weight:600; }
 body:has(#relativestrength.active) .topbar .pill,
 body:has(#relativestrength.active) .topbar button { color:#e7f1ed; border-color:#c0e0d23b; background:#052c279c; }
 body:has(#relativestrength.active) .topbar .avatar { background:#9af2c1; color:#124437; }
-body:has(#relativestrength.active) .sidebar {
-  background:linear-gradient(180deg,#042522f7,#00221dfa); border-right:1px solid #88ceaf38;
-  box-shadow:none; padding:17px 12px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#295b49 transparent;
-}
-body:has(#relativestrength.active) .brand { padding:0 3px 22px; }
-body:has(#relativestrength.active) .brand strong { color:#eff5ee; }
-body:has(#relativestrength.active) .brand em { color:#54e598; }
-body:not([data-theme="healthy"]):has(#relativestrength.active) .sidebar .mark { filter:hue-rotate(65deg); }
-body:has(#relativestrength.active) .nav-group { margin:8px 0 17px; }
-body:has(#relativestrength.active) .sidebar .nav-label { font-size:9px; color:#8cb5ac!important; font-weight:400; }
-body:has(#relativestrength.active) .sidebar .nav button { font-size:12px; padding:9px 12px; border-radius:9px; color:#e1eee7!important; font-weight:400; }
-body:has(#relativestrength.active) .sidebar .nav button.active { background:linear-gradient(110deg,#4bdd99,#b8f599); color:#052d20!important; box-shadow:inset 0 1px #ceffd266; font-weight:700; }
 body #relativestrength.rs-v3-page { order:1; width:100%; margin:0!important; padding:0!important; max-width:none; background:none!important; color:#eef4ed; min-height:calc(100vh - 54px); }
 body #relativestrength.rs-v3-page::before,
 body #relativestrength.rs-v3-page::after { display:none!important; }

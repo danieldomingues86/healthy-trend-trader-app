@@ -179,7 +179,33 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(opportunities));
     } catch (e) {}
+    publishWatchlistChange();
   }
+
+  function currentWatchlistItems() {
+    if (opportunities.length) return opportunities.map((item) => ({ ...item }));
+    try {
+      const cached = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      return Array.isArray(cached) ? cached.map(getModel().normalizeOpportunity) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function publishWatchlistChange() {
+    root.dispatchEvent(new CustomEvent('healthyTrend:watchlist-changed', {
+      detail: { items: currentWatchlistItems() }
+    }));
+  }
+
+  // Shared read model for compact surfaces such as Meu Desktop. The Watchlist
+  // remains the only owner of these records; consumers receive a snapshot.
+  root.getWatchlistOpportunities = currentWatchlistItems;
+  root.loadWatchlistOpportunities = async function () {
+    await loadOpportunities();
+    publishWatchlistChange();
+    return currentWatchlistItems();
+  };
 
   async function syncOpportunityToServer(opp) {
     const token = getAuthToken();
@@ -232,21 +258,6 @@
     } catch (err) {
       console.warn('[Watchlist] Erro ao obter métricas de mercado ao vivo:', err);
     }
-  }
-
-  // Get Market Cycle info for Hero badge
-  function getMarketCycleBadge() {
-    if (root.MarketCycleV2 && typeof root.MarketCycleV2.getMarketState === 'function') {
-      const cycle = root.MarketCycleV2.getMarketState();
-      return {
-        label: cycle.label || 'TRANSIÇÃO',
-        mode: cycle.mode || 'Leadership Discovery Mode'
-      };
-    }
-    return {
-      label: 'TRANSIÇÃO',
-      mode: 'Leadership Discovery Mode'
-    };
   }
 
   // Public API: Add asset to Watchlist
@@ -460,7 +471,6 @@
     await loadCurrentMetrics();
 
     const model = getModel();
-    const cycle = getMarketCycleBadge();
     const filteredOpps = model.filterAndSortOpportunities(opportunities, filters, currentMetricsMap);
 
     // Extract unique sectors for filter dropdown
@@ -473,10 +483,6 @@
           <div class="wl-hero-glow"></div>
           <div class="wl-hero-content">
             <div class="wl-hero-left">
-              <div class="wl-badges-row">
-                <span class="wl-badge-tag">Pool Inteligente de Oportunidades</span>
-                <span class="wl-badge-cycle">Market Cycle: <b>${cycle.label}</b> • ${cycle.mode}</span>
-              </div>
               <h1 class="wl-hero-title">
                 Watchlist Inteligente
               </h1>
@@ -1467,5 +1473,11 @@
 
   // Export
   root.renderWatchlistPage = renderWatchlistPage;
+  root.loadWatchlistOpportunities().catch(() => {
+    // The widget can still read the locally persisted Watchlist when the API is unavailable.
+  });
+  root.addEventListener('healthyTrend:authenticated', () => {
+    root.loadWatchlistOpportunities().catch(() => {});
+  });
 
 })(typeof globalThis !== 'undefined' ? globalThis : this);
