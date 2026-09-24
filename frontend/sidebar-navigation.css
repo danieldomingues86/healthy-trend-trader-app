@@ -542,18 +542,28 @@ body.sidebar-collapsed .sidebar-btn-arrow {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.flyout-item-title > span:first-child {
+  min-width: 0;
 }
 
 .flyout-item-desc {
+  display: block;
+  max-width: 100%;
   font-size: 11px;
   color: #8caea0;
   line-height: 1.35;
+  overflow-wrap: anywhere;
   white-space: normal;
 }
 
 .flyout-item-desc.flyout-item-desc-compact {
   font-size: 10px;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .flyout-item-link:hover .flyout-item-desc {
