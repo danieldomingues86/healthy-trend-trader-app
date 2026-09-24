@@ -158,65 +158,63 @@
         {
           id: 'couragechallenge',
           title: 'Desafio Grade A',
-          desc: 'Acompanhe a execução dos Rare Trades de Grade A.',
-          compactDescription: true,
+          desc: 'Execução dos trades A.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`,
           page: 'couragechallenge'
         },
         {
           id: 'analytics',
           title: 'Painel da Verdade',
-          desc: 'Métricas de assertividade e Payoff.',
+          desc: 'Métricas de performance.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
           page: 'analytics'
         },
         {
           id: 'tradeanatomy',
           title: 'Anatomia dos Trades',
-          desc: 'Compare seus maiores vencedores e perdedores.',
-          compactDescription: true,
+          desc: 'Vencedores e perdedores.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/><path d="m3 8 6-5 6 7 6-5"/></svg>`,
           page: 'tradeanatomy'
         },
         {
           id: 'mistakesbook',
           title: 'Erros e Lições',
-          desc: 'Caderno de falhas e aprendizados.',
+          desc: 'Falhas e aprendizados.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M10 10l4 4M14 10l-4 4"/></svg>`,
           page: 'mistakesbook'
         },
         {
           id: 'tradelibrary',
           title: 'Biblioteca de Trades',
-          desc: 'Modelos de trades de referência.',
+          desc: 'Trades de referência.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>`,
           page: 'tradelibrary'
         },
         {
           id: 'emotionalintelligence',
           title: 'Analisador Emocional',
-          desc: 'Psicologia e estado mental.',
+          desc: 'Psicologia operacional.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>`,
           page: 'emotionalintelligence'
         },
         {
           id: 'platformaccess',
           title: 'Uso da Plataforma',
-          desc: 'Tempo de tela e monitor do Profit.',
+          desc: 'Uso e foco na plataforma.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
           page: 'platformaccess'
         },
         {
           id: 'review',
           title: 'Revisão Mensal',
-          desc: 'Balanço de fechamento de mês.',
+          desc: 'Fechamento do mês.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`,
           page: 'review'
         },
         {
           id: 'forecast',
           title: 'Simulador de Resultados',
-          desc: 'Projeção estatística e compounding.',
+          desc: 'Projeções de resultado.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 7-8.5 8.5-5-5L2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
           page: 'forecast'
         }
