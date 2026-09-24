@@ -102,7 +102,7 @@ async function createPlan(userId, payload) {
   const plan = normalizePlan(payload);
   const id = crypto.randomUUID();
   await database.transaction(async (client) => {
-    const restriction = await assetBlacklist.find(userId, plan.ticker, client);
+    const restriction = await assetBlacklist.find(userId, plan.ticker, plan.market, client);
     if (restriction?.restrictionLevel === 'block') throw invalid(`${plan.ticker} está bloqueado na sua Blacklist. Consulte a regra pessoal antes de operar.`);
     if (restriction?.restrictionLevel === 'alert' && !plan.metadata.blacklistOverride) throw invalid(`${plan.ticker} está na sua Blacklist. Confirme conscientemente antes de continuar.`);
     if (!restriction) plan.metadata.blacklistOverride = false;

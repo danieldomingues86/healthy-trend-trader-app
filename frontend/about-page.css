@@ -71,18 +71,28 @@ body:has(#about.active) .topbar .avatar {
   margin: 0 !important;
   padding: 0 0 50px 0 !important;
   min-height: calc(100vh - 78px) !important;
-  background: #07150e radial-gradient(circle at 85% 20%, rgba(20, 56, 38, 0.45) 0%, transparent 68%) !important;
+  background:
+    radial-gradient(ellipse at 76% 8%, rgba(43, 91, 57, 0.28), transparent 43%),
+    radial-gradient(ellipse at 48% 46%, rgba(16, 58, 37, 0.2), transparent 48%),
+    linear-gradient(145deg, #06130d 0%, #071b12 48%, #04120c 100%) !important;
   color: #d6ded8 !important;
   box-sizing: border-box !important;
 }
 
 /* Fluid wrapper without rigid max-width, occupying full width like reference */
 .about-wrapper {
+  --about-composition-width: 1580px;
+  --about-content-gutter: clamp(22px, 2.2vw, 42px);
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 20px clamp(24px, 3.2vw, 56px) 40px clamp(24px, 3.2vw, 56px);
+  padding: 0 0 40px;
   box-sizing: border-box;
+}
+
+.about-content {
+  width: min(calc(100% - (2 * var(--about-content-gutter))), var(--about-composition-width));
+  margin-inline: auto;
 }
 
 /* ── 4. HERO SECTION ────────────────────────────────────────────────────── */
@@ -90,27 +100,98 @@ body:has(#about.active) .topbar .avatar {
 .about-hero {
   position: relative;
   width: 100%;
-  min-height: clamp(480px, 48vh, 600px);
-  margin-bottom: 30px;
+  min-height: clamp(510px, 57vh, 680px);
+  margin-bottom: clamp(24px, 3vh, 38px);
+  box-sizing: border-box;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 68% 38%, rgba(58, 122, 76, 0.3), transparent 34%),
+    radial-gradient(ellipse at 50% 88%, rgba(195, 152, 60, 0.09), transparent 30%),
+    linear-gradient(105deg, #05110c 0%, #071b12 42%, #0a2618 66%, #04110b 100%);
+  border-bottom: 1px solid rgba(200, 168, 78, 0.16);
+}
+
+.about-hero::before,
+.about-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.about-hero::before {
+  opacity: .5;
+  background:
+    radial-gradient(ellipse at 22% 35%, rgba(44, 111, 70, .18), transparent 35%),
+    linear-gradient(118deg, transparent 24%, rgba(90, 139, 86, .08) 47%, transparent 68%);
+  filter: blur(2px);
+}
+
+.about-hero::after {
+  background:
+    linear-gradient(90deg, rgba(4,15,10,.5), transparent 22%, transparent 78%, rgba(4,15,10,.3)),
+    linear-gradient(0deg, #06150f 0%, transparent 13%, transparent 86%, rgba(2,10,7,.42) 100%);
+}
+
+.about-hero-stage {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  background-color: #07150e;
-  background-image:
-    linear-gradient(to right, #07150e 0%, #07150e 34%, rgba(7, 21, 14, 0.82) 48%, rgba(7, 21, 14, 0.25) 66%, transparent 80%),
-    linear-gradient(to top, #07150e 0%, rgba(7, 21, 14, 0.85) 4%, transparent 18%),
-    url('../assets/about-bull-art.png');
-  background-repeat: no-repeat;
-  background-position: right top;
-  background-size: auto 100%;
-  border-radius: 4px;
+  width: min(calc(100% - (2 * var(--about-content-gutter))), var(--about-composition-width));
+  min-height: inherit;
+  margin-inline: auto;
+  isolation: isolate;
+}
+
+.about-hero-stage::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #05110cf7 0%, #05110ce5 28%, rgba(5,17,12,.58) 46%, rgba(5,17,12,.07) 68%, rgba(5,17,12,.03) 100%),
+    radial-gradient(ellipse at 58% 13%, rgba(117, 181, 112, .18), transparent 31%);
+}
+
+.about-hero-art {
+  position: absolute;
+  z-index: -2;
+  inset: -7% -1% -9% 27%;
+  display: block;
+  background: url('../assets/about-bull-art.png') right center / cover no-repeat;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.16) 9%, #000 30%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.16) 9%, #000 30%, #000 100%);
+  filter: saturate(.96) contrast(1.05);
+  transform: scale(1.045);
+  transform-origin: right center;
 }
 
 .about-hero-content {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: min(720px, 52vw);
-  padding: 20px 0;
+  max-width: min(850px, 55vw);
+  padding: clamp(24px, 4vh, 54px) clamp(6px, .7vw, 12px);
+}
+
+.about-hero-kicker {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: min(100%, 720px);
+  margin-bottom: clamp(22px, 3vh, 34px);
+  color: #e6e7df;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+.about-hero-kicker i {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(200,168,78,.55), rgba(200,168,78,.05));
 }
 
 /* Brand Header */
@@ -122,8 +203,8 @@ body:has(#about.active) .topbar .avatar {
 }
 
 .about-brand-icon {
-  width: clamp(58px, 4.8vw, 76px);
-  height: clamp(52px, 4.3vw, 68px);
+  width: clamp(74px, 5.8vw, 108px);
+  height: clamp(66px, 5.2vw, 96px);
   flex-shrink: 0;
   margin-top: 4px;
 }
@@ -141,7 +222,7 @@ body:has(#about.active) .topbar .avatar {
 }
 
 .about-title-healthy {
-  font-size: clamp(44px, 3.8vw, 66px);
+  font-size: clamp(54px, 4.65vw, 88px);
   font-weight: 900;
   letter-spacing: 0.07em;
   color: #f2ede4;
@@ -155,7 +236,7 @@ body:has(#about.active) .topbar .avatar {
 }
 
 .about-title-trend {
-  font-size: clamp(44px, 3.8vw, 66px);
+  font-size: clamp(54px, 4.65vw, 88px);
   font-weight: 900;
   letter-spacing: 0.07em;
   color: #4db374;
@@ -164,7 +245,7 @@ body:has(#about.active) .topbar .avatar {
 }
 
 .about-title-trader {
-  font-size: clamp(44px, 3.8vw, 66px);
+  font-size: clamp(54px, 4.65vw, 88px);
   font-weight: 900;
   letter-spacing: 0.07em;
   color: #d4bc6a;
@@ -174,22 +255,22 @@ body:has(#about.active) .topbar .avatar {
 
 /* Tagline */
 .about-tagline {
-  font-size: clamp(12.5px, 0.95vw, 15px);
+  font-size: clamp(13px, 1.02vw, 17px);
   font-weight: 750;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: #c8a84e;
-  margin-top: 14px;
-  margin-bottom: 18px;
+  margin-top: 17px;
+  margin-bottom: 22px;
 }
 
 /* Description */
 .about-desc {
-  font-size: clamp(14px, 1vw, 16px);
+  font-size: clamp(15px, 1.06vw, 18px);
   line-height: 1.72;
   color: #a4b8ac;
-  max-width: 540px;
-  margin: 0 0 24px 0;
+  max-width: 620px;
+  margin: 0 0 26px 0;
 }
 
 /* Quote */
@@ -199,10 +280,10 @@ body:has(#about.active) .topbar .avatar {
   border-left: 3.5px solid #c8a84e;
   font-family: 'Georgia', 'Times New Roman', serif;
   font-style: italic;
-  font-size: clamp(16.5px, 1.25vw, 20px);
+  font-size: clamp(18px, 1.34vw, 23px);
   line-height: 1.65;
   color: #e5d7ad;
-  max-width: 520px;
+  max-width: 590px;
 }
 
 /* ── 5. SECTION HEADERS & DIVIDERS ──────────────────────────────────────── */
@@ -211,12 +292,12 @@ body:has(#about.active) .topbar .avatar {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin: 32px 0 22px 0;
+  margin: clamp(28px, 3vh, 38px) 0 clamp(20px, 2.4vh, 28px);
   width: 100%;
 }
 
 .about-section-title {
-  font-size: clamp(11.5px, 0.8vw, 13px);
+  font-size: clamp(12px, 0.84vw, 14px);
   font-weight: 800;
   letter-spacing: 0.24em;
   text-transform: uppercase;
@@ -235,8 +316,8 @@ body:has(#about.active) .topbar .avatar {
 .about-philosophy-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: clamp(12px, 1.5vw, 24px);
-  margin-bottom: 28px;
+  gap: clamp(14px, 2vw, 34px);
+  margin-bottom: clamp(30px, 4vh, 46px);
   width: 100%;
 }
 
@@ -245,8 +326,8 @@ body:has(#about.active) .topbar .avatar {
 .about-method-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: clamp(8px, 1vw, 16px);
-  margin-bottom: 28px;
+  gap: clamp(10px, 1.25vw, 22px);
+  margin-bottom: clamp(30px, 4vh, 46px);
   width: 100%;
 }
 
@@ -257,18 +338,18 @@ body:has(#about.active) .topbar .avatar {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 8px 4px;
+  padding: 10px 5px;
 }
 
 .about-icon-box {
-  width: clamp(48px, 3.4vw, 58px);
-  height: clamp(48px, 3.4vw, 58px);
+  width: clamp(54px, 3.75vw, 68px);
+  height: clamp(54px, 3.75vw, 68px);
   border-radius: 14px;
   border: 1px solid rgba(200, 168, 78, 0.32);
   background: rgba(200, 168, 78, 0.04);
   display: grid;
   place-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   transition: border-color 0.2s, background 0.2s, transform 0.2s;
 }
 
@@ -280,10 +361,12 @@ body:has(#about.active) .topbar .avatar {
 
 .about-icon-box svg {
   display: block;
+  width: clamp(26px, 1.75vw, 32px);
+  height: clamp(26px, 1.75vw, 32px);
 }
 
 .about-philosophy-grid .about-icon-label {
-  font-size: clamp(12px, 0.88vw, 13.5px);
+  font-size: clamp(13px, 0.93vw, 15px);
   font-weight: 600;
   color: #d6ded8;
   line-height: 1.45;
@@ -291,7 +374,7 @@ body:has(#about.active) .topbar .avatar {
 }
 
 .about-method-grid .about-icon-label {
-  font-size: clamp(11px, 0.8vw, 12.5px);
+  font-size: clamp(12px, 0.83vw, 13.5px);
   font-weight: 600;
   color: #d6ded8;
   line-height: 1.4;
@@ -443,12 +526,19 @@ body:has(#about.active) .topbar .avatar {
 
 /* ── 10. RESPONSIVE ADAPTATIONS ─────────────────────────────────────────── */
 
+@media (min-width: 1800px) {
+  .about-hero-art {
+    background-size: auto 112%;
+  }
+}
+
 /* 15-inch common laptops (~1366px - 1440px): Ensure spacious clean fit */
 @media (max-width: 1440px) {
   .about-hero {
     min-height: 480px;
-    background-size: auto 95%;
   }
+
+  .about-hero-art { left: 25%; }
 
   .about-method-grid {
     gap: 8px;
@@ -458,8 +548,18 @@ body:has(#about.active) .topbar .avatar {
 /* Compact screens and tablets */
 @media (max-width: 1100px) {
   .about-hero {
-    background-size: auto 85%;
-    min-height: 440px;
+    min-height: 460px;
+  }
+
+  .about-hero-art {
+    inset: -3% -10% -4% 22%;
+    opacity: .78;
+  }
+
+  .about-hero-stage::after {
+    background:
+      linear-gradient(90deg, #05110cf7 0%, #05110eea 37%, rgba(5,17,12,.62) 59%, rgba(5,17,12,.18) 100%),
+      radial-gradient(ellipse at 58% 13%, rgba(117, 181, 112, .14), transparent 31%);
   }
 
   .about-philosophy-grid {
@@ -473,12 +573,23 @@ body:has(#about.active) .topbar .avatar {
 
 @media (max-width: 860px) {
   .about-wrapper {
-    padding: 16px 20px;
+    --about-content-gutter: 20px;
+    padding: 0 0 20px;
   }
 
   .about-hero {
-    min-height: auto;
-    background-image: none;
+    min-height: 500px;
+  }
+
+  .about-hero-art {
+    inset: 0 -26% 0 16%;
+    opacity: .42;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 32%);
+    mask-image: linear-gradient(90deg, transparent, #000 32%);
+  }
+
+  .about-hero-stage::after {
+    background: linear-gradient(90deg, #05110cfa 0%, #05110ee8 56%, rgba(5,17,12,.48) 100%);
   }
 
   .about-hero-content {
@@ -505,4 +616,21 @@ body:has(#about.active) .topbar .avatar {
     gap: 12px;
     text-align: center;
   }
+}
+
+@media (max-width: 620px) {
+  .about-hero { min-height: 540px; }
+  .about-hero-kicker { margin-bottom: 22px; }
+  .about-brand-icon { width: 58px; height: 54px; }
+  .about-title-healthy,
+  .about-title-trend,
+  .about-title-trader { font-size: clamp(34px, 10vw, 46px); letter-spacing: .035em; }
+  .about-title-bottom { gap: 7px; }
+  .about-tagline { font-size: 11px; letter-spacing: .16em; }
+  .about-desc { font-size: 14px; }
+  .about-quote { font-size: 16px; }
+  .about-philosophy-grid,
+  .about-method-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .about-footer-left,
+  .about-footer-right { flex-wrap: wrap; justify-content: center; }
 }

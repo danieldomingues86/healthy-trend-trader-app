@@ -17,7 +17,7 @@
       'process-market': ['Mercado', 'Market', ['marketmap', 'marketcycle', 'relativestrength', 'marketscans', 'fundamentals']],
       'process-decision': ['Decisão', 'Decision', ['rubric', 'risk', 'riskpolicy', 'portfolioheat']],
       'process-execution': ['Execução', 'Execution', ['today', 'newtrade', 'positions', 'positiondetail', 'dashboard']],
-      'process-evolution': ['Evolução', 'Growth', ['analytics', 'journal', 'review', 'platformaccess', 'zen', 'habits', 'audiolibrary', 'wisdom', 'traderprofile']]
+      'process-evolution': ['Evolução', 'Growth', ['analytics', 'tradeanatomy', 'journal', 'review', 'platformaccess', 'zen', 'habits', 'audiolibrary', 'wisdom', 'traderprofile']]
     };
     if (processGroups[section] || section.startsWith('features-')) {
       const group = processGroups[section];

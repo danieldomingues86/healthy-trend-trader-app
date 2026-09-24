@@ -116,34 +116,39 @@
       <div class="about-wrapper">
         <!-- HERO SECTION -->
         <section class="about-hero" aria-label="Apresentação">
-          <div class="about-hero-content">
-            <div class="about-brand-header">
-              <div class="about-brand-icon">${ICONS.brandMark}</div>
-              <div class="about-brand-text">
-                <span class="about-title-healthy">HEALTHY</span>
-                <div class="about-title-bottom">
-                  <span class="about-title-trend">TREND</span>
-                  <span class="about-title-trader">TRADER</span>
+          <div class="about-hero-stage">
+            <span class="about-hero-art" aria-hidden="true"></span>
+            <div class="about-hero-content">
+              <div class="about-hero-kicker"><span>SOBRE</span><i aria-hidden="true"></i></div>
+              <div class="about-brand-header">
+                <div class="about-brand-icon">${ICONS.brandMark}</div>
+                <div class="about-brand-text">
+                  <span class="about-title-healthy">HEALTHY</span>
+                  <div class="about-title-bottom">
+                    <span class="about-title-trend">TREND</span>
+                    <span class="about-title-trader">TRADER</span>
+                  </div>
                 </div>
               </div>
+
+              <div class="about-tagline">TRADE THE TREND. PROTECT THE CAPITAL. REPEAT.</div>
+
+              <p class="about-desc">
+                Uma plataforma criada para ajudar o trader a encontrar
+                tendências saudáveis, dimensionar risco corretamente
+                e executar um processo consistente.
+              </p>
+
+              <blockquote class="about-quote">
+                “Não buscamos prever o mercado.<br>
+                Buscamos reconhecer força, controlar o risco<br>
+                e permanecer com a tendência.”
+              </blockquote>
             </div>
-
-            <div class="about-tagline">TRADE THE TREND. PROTECT THE CAPITAL. REPEAT.</div>
-
-            <p class="about-desc">
-              Uma plataforma criada para ajudar o trader a encontrar
-              tendências saudáveis, dimensionar risco corretamente
-              e executar um processo consistente.
-            </p>
-
-            <blockquote class="about-quote">
-              “Não buscamos prever o mercado.<br>
-              Buscamos reconhecer força, controlar o risco<br>
-              e permanecer com a tendência.”
-            </blockquote>
           </div>
         </section>
 
+        <div class="about-content">
         <!-- A FILOSOFIA -->
         <div class="about-section-header">
           <span class="about-section-title">A FILOSOFIA</span>
@@ -228,6 +233,7 @@
             <span class="about-footer-globe">${ICONS.globe}</span>
           </div>
         </footer>
+        </div>
       </div>
     `;
   }
