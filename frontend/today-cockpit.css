@@ -46,23 +46,29 @@ body:not([data-theme="healthy"]) .top-heat-meter i em{background:#d6aa50}
 @media(max-width:980px){.today-cockpit-hero,.today-cockpit-grid{grid-template-columns:1fr}.today-next-action{grid-template-columns:1fr}.today-next-action button{width:100%}}@media(max-width:680px){.today-heat-layout{grid-template-columns:1fr}.today-account-facts,.today-opportunity-list{grid-template-columns:1fr}.top-heat-meter{display:none}}
 
 
-/* One layout authority. Grid reserves measured content height; pointer interaction
-   changes only DOM order and column span. No data-size or fixed-height overrides. */
+/* One layout authority. Widgets begin at their intrinsic content height; a row
+   span is persisted only after the user explicitly adjusts height in edit mode. */
 /* The legacy glossary rule sets content padding !important even when hidden. */
 body:has(#today.active) .content{max-width:none;width:100%;margin:0;padding:16px!important;box-sizing:border-box}
 #today.today-cockpit-page{width:100%;max-width:none;margin:0;min-width:0}
 #today .today-dashboard{width:100%;box-sizing:border-box;margin:0;padding:24px;border:1px solid rgba(90,175,122,.26);border-radius:18px;background:linear-gradient(145deg,#082b1e,#071f17)}
-#today .dashboard-grid{--desktop-columns:16;display:grid;grid-template-columns:repeat(var(--desktop-columns),minmax(0,1fr));grid-auto-rows:auto;grid-auto-flow:row;gap:12px;align-items:start;min-width:0}
-#today .dashboard-widget,.desktop-drag-preview{position:relative;box-sizing:border-box;min-width:0;margin:0;align-self:start;border:1px solid rgba(88,173,122,.28);border-radius:13px;background:linear-gradient(145deg,#082b1e,#071f17);box-shadow:0 10px 22px rgba(0,0,0,.12)}
-.desktop-widget-body{padding:17px;box-sizing:border-box;min-width:0;overflow-wrap:anywhere}
+#today .dashboard-grid{--desktop-columns:16;--desktop-row-size:12px;display:grid;grid-template-columns:repeat(var(--desktop-columns),minmax(0,1fr));grid-auto-rows:var(--desktop-row-size);grid-auto-flow:row;gap:12px;align-items:stretch;min-width:0}
+#today .dashboard-widget,.desktop-drag-preview{position:relative;box-sizing:border-box;min-width:0;min-height:0;margin:0;align-self:stretch;border:1px solid rgba(88,173,122,.28);border-radius:13px;background:linear-gradient(145deg,#082b1e,#071f17);box-shadow:0 10px 22px rgba(0,0,0,.12)}
+.desktop-widget-body{display:flex;flex-direction:column;height:100%;padding:17px;box-sizing:border-box;min-width:0;min-height:0;overflow-wrap:anywhere}
 #today .dashboard-widget-content{min-width:0}
 #today .dashboard-widget-header{position:static;cursor:default}
 #today .is-editing .dashboard-widget-header{cursor:grab;touch-action:none;user-select:none}
 #today .is-editing .dashboard-widget{border-color:rgba(225,185,52,.55)}
 #today .is-manipulating .dashboard-widget-header{cursor:grabbing}
-#today .dashboard-widget-resize-handle{position:absolute;z-index:2;top:12px;right:0;bottom:12px;width:12px;cursor:ew-resize;touch-action:none;border-radius:0 10px 10px 0}
+#today .dashboard-widget-resize-handle{position:absolute;z-index:6;touch-action:none;opacity:0;transition:opacity .16s ease,background .16s ease}
+#today .is-editing .dashboard-widget-resize-handle{opacity:1}
 #today .dashboard-widget-resize-handle:hover,#today .is-resizing .dashboard-widget-resize-handle{background:rgba(232,196,94,.2)}
-#today .dashboard-widget-resize-handle:after{content:"";position:absolute;right:1px;top:30%;bottom:30%;width:2px;border-radius:2px;background:rgba(232,196,94,.4)}
+#today .dashboard-widget-resize-handle--horizontal{top:12px;right:0;bottom:18px;width:12px;cursor:ew-resize;border-radius:0 10px 0 0}
+#today .dashboard-widget-resize-handle--horizontal:after{content:"";position:absolute;right:1px;top:30%;bottom:30%;width:2px;border-radius:2px;background:rgba(232,196,94,.5)}
+#today .dashboard-widget-resize-handle--vertical{right:18px;bottom:0;left:12px;height:12px;cursor:ns-resize;border-radius:0 0 0 10px}
+#today .dashboard-widget-resize-handle--vertical:after{content:"";position:absolute;right:30%;bottom:1px;left:30%;height:2px;border-radius:2px;background:rgba(232,196,94,.5)}
+#today .dashboard-widget-resize-handle--corner{right:0;bottom:0;width:18px;height:18px;cursor:nwse-resize;border-radius:0 0 10px 0;background:linear-gradient(135deg,transparent 44%,rgba(232,196,94,.72) 45% 52%,transparent 53%)}
+#today .dashboard-widget-resize-handle--corner:hover,#today .is-resizing .dashboard-widget-resize-handle--corner{background:linear-gradient(135deg,transparent 38%,rgba(232,196,94,.92) 39% 56%,rgba(232,196,94,.2) 57%)}
 #today .dashboard-widget.is-resizing{border-color:#e8c45e;box-shadow:0 0 0 2px rgba(225,185,52,.2)}
 #today .dashboard-widget.is-dragging{border:1px dashed #e8c45e;background:rgba(225,185,52,.08)}
 #today .is-dragging .desktop-widget-body{opacity:.15}
@@ -172,7 +178,7 @@ body:has(#today.active) .topbar{background:#041a12}
 #today .dashboard-challenge strong{font-size:36px;letter-spacing:-.05em;color:#77e6ac}
 .desktop-challenge-progress{display:flex;align-items:center;gap:13px;flex-wrap:wrap}.desktop-challenge-progress svg{width:66px;height:66px;flex:0 0 66px;fill:none;stroke:#184b34;stroke-width:4}.desktop-challenge-progress circle+circle{stroke:#55dfa0;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center}.desktop-challenge-label{font-weight:750;color:#86deb0!important}
 #today .dashboard-wealth strong{font-size:38px;color:#71e4ac;letter-spacing:-.05em}
-#today .dashboard-widget-details{padding:12px 0 0;color:#76deb0;font-size:12px}
+#today .dashboard-widget-details{margin-top:auto;padding:12px 0 0;color:#76deb0;font-size:12px}
 #today .dashboard-primary-action{background:linear-gradient(120deg,#16734f,#209766);border:1px solid #6ed69b30;box-shadow:0 4px 12px #0002}
 #today .personal-notes,#today .personal-focus input,#today .personal-focus textarea,#today .personal-list form input{background:#052118d9;border-color:#57aa7e38;color:#e5f3eb;line-height:1.5}
 #today .personal-checklist label,#today .personal-list label{padding:7px 0;border-bottom:1px solid #62b88a15;line-height:1.4}
@@ -324,7 +330,7 @@ body:not([data-theme="healthy"]) #today .today-dashboard{--desktop-accent:#e0b75
 #today .is-editing .dashboard-widget{border-color:rgba(232,196,94,.58);box-shadow:inset 0 0 0 1px rgba(232,196,94,.08),0 8px 22px rgba(0,0,0,.16)}
 #today .dashboard-widget-edit-controls{position:relative;z-index:3;gap:3px;opacity:.72}
 #today .dashboard-widget-drag-handle,#today .dashboard-widget-edit-controls button{width:23px;height:23px;border-radius:5px;font-size:15px}
-#today .dashboard-widget-resize-handle{z-index:5;width:10px}
+#today .dashboard-widget-resize-handle{z-index:6}
 
 @container desktop-card (max-width:430px){
   #today .desktop-widget-art{width:60%;opacity:.24!important}

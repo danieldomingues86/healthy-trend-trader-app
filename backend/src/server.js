@@ -18,6 +18,7 @@ const profitMonitor = require('./profit-monitor');
 const workspaceState = require('./workspace-state');
 const materials = require('./materials');
 const watchlist = require('./watchlist');
+const assetBlacklist = require('./asset-blacklist');
 const journalAttachments = require('./journal-attachments');
 const zenPractices = require('./zen-practices');
 const habits = require('./habits');
@@ -175,6 +176,27 @@ const server = http.createServer(async (request, response) => {
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 201, { entitlement: await materials.grant(user.id, await body(request)) });
+    }
+    if (url.pathname === '/api/asset-blacklist' && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { items: await assetBlacklist.list(user.id), markets: assetBlacklist.MARKETS, categories: assetBlacklist.CATEGORIES });
+    }
+    if (url.pathname === '/api/asset-blacklist' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, { item: await assetBlacklist.save(user.id, await body(request)) });
+    }
+    const blacklistMatch = url.pathname.match(/^\/api\/asset-blacklist\/([^/]+)$/);
+    if (blacklistMatch && request.method === 'PUT') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { item: await assetBlacklist.save(user.id, await body(request), blacklistMatch[1]) });
+    }
+    if (blacklistMatch && request.method === 'DELETE') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { item: await assetBlacklist.remove(user.id, blacklistMatch[1]) });
     }
     if (request.method === 'GET' && url.pathname === '/api/watchlist') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });

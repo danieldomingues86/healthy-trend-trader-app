@@ -6,7 +6,7 @@
     ['today', 'Hoje', 'Today'], ['newtrade', 'Novo Trade e registro de trades', 'New Trade and trade records'],
     ['positions', 'Posições e histórico', 'Positions and history'], ['positiondetail', 'Gestão da posição', 'Position management'],
     ['risk', 'Position Sizing', 'Position Sizing'], ['rubric', 'Trading Rubric', 'Trading Rubric'],
-    ['riskpolicy', 'Política de Risco', 'Risk Policy'], ['dashboard', 'Patrimônio', 'Wealth'],
+    ['riskpolicy', 'Política de Risco', 'Risk Policy'], ['assetblacklist', 'Ativos Blacklist', 'Asset Blacklist'], ['dashboard', 'Patrimônio', 'Wealth'],
     ['portfolioheat', 'Portfolio Heat', 'Portfolio Heat'], ['fundamentals', 'Análise Fundamentalista', 'Fundamental Analysis'],
     ['marketmap', 'Panorama de Mercado', 'Market Overview'], ['marketcycle', 'Ciclo de Mercado', 'Market Cycle'],
     ['relativestrength', 'Força Relativa', 'Relative Strength'], ['marketscans', 'Scans de Mercado', 'Market Scans'],
@@ -62,7 +62,7 @@
     if (!root) return;
     const steps = [
       ['market', t('Mercado', 'Market'), t('Entenda o ambiente antes de operar.', 'Understand the environment before trading.'), ['marketmap', 'marketcycle', 'relativestrength', 'marketscans', 'fundamentals']],
-      ['decision', t('Decisão', 'Decision'), t('Transforme contexto em risco calculado.', 'Turn context into calculated risk.'), ['rubric', 'risk', 'riskpolicy', 'portfolioheat']],
+      ['decision', t('Decisão', 'Decision'), t('Transforme contexto em risco calculado.', 'Turn context into calculated risk.'), ['rubric', 'risk', 'riskpolicy', 'assetblacklist', 'portfolioheat']],
       ['execution', t('Execução', 'Execution'), t('Opere com processo e disciplina.', 'Trade with process and discipline.'), ['today', 'newtrade', 'positions', 'dashboard']],
       ['growth', t('Evolução', 'Growth'), t('Aprenda, ajuste e evolua.', 'Learn, adjust and grow.'), ['journal', 'tradelibrary', 'review', 'analytics', 'forecast', 'zen', 'habits', 'audiolibrary', 'wisdom', 'traderprofile', 'platformaccess']]
     ];

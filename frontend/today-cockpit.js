@@ -4,7 +4,7 @@
   let loading = false;
   let loadedAt = 0;
   const dashboardStorageKey = 'healthy-home-widget-dashboard-v4';
-  const dashboardLayoutVersion = 5;
+  const dashboardLayoutVersion = 6;
   const widgetRegistry = window.HomeWidgetRegistry;
   const defaultWidgetLayout = window.DesktopLayout.normalize([], widgetRegistry.all());
   let layoutEngine = null;
@@ -47,8 +47,8 @@
     let source = [];
     try {
       const stored = JSON.parse(localStorage.getItem(dashboardStorageKey));
-      // v4 and v5 share the key so existing selections/order survive the migration.
-      if ([4, 5].includes(stored?.layoutVersion) && Array.isArray(stored.items)) source = stored.items;
+      // Existing selections/order survive the height-enabled layout migration.
+      if ([4, 5, 6].includes(stored?.layoutVersion) && Array.isArray(stored.items)) source = stored.items;
     } catch (_) { /* Malformed storage falls back to the registry defaults. */ }
     widgetLayout = window.DesktopLayout.normalize(source, widgetRegistry.all());
     saveWidgetLayout(widgetLayout);
@@ -72,9 +72,9 @@
   function widgetShell(item, widget, content) {
     const details = widget.route ? `<button class="dashboard-widget-details" type="button" data-widget-page="${esc(widget.route)}">Ver detalhes <span>→</span></button>` : '';
     const editControls = dashboardEditing ? `<div class="dashboard-widget-edit-controls" aria-label="Editar ${esc(widget.name)}"><span class="dashboard-widget-drag-handle" title="Arraste pelo cabeçalho para reorganizar">⠿</span><button type="button" class="danger" data-widget-remove="${item.id}" aria-label="Remover ${esc(widget.name)}">×</button></div>` : '';
-    const edge = dashboardEditing ? `<span class="dashboard-widget-resize-handle" aria-label="Redimensionar ${esc(widget.name)}"></span>` : '';
+    const resizeHandles = dashboardEditing ? `<span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--horizontal" aria-label="Ajustar largura de ${esc(widget.name)}"></span><span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--vertical" aria-label="Ajustar altura de ${esc(widget.name)}"></span><span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--corner" aria-label="Ajustar largura e altura de ${esc(widget.name)}"></span>` : '';
     const artwork = desktopArtwork(item.id);
-    return `<article class="dashboard-widget" data-widget-id="${item.id}" data-columns="${item.columns}"><div class="desktop-widget-art" aria-hidden="true">${artwork}</div><div class="desktop-widget-body"><header class="dashboard-widget-header"><div><span class="dashboard-widget-kicker">${esc(widget.category)}</span><h2>${esc(widget.name)}</h2></div>${editControls}</header><div class="dashboard-widget-content">${content}</div>${details}</div>${edge}</article>`;
+    return `<article class="dashboard-widget" data-widget-id="${item.id}" data-columns="${item.columns}" data-custom-height="${item.customHeight === true}"${item.customHeight ? ` data-rows="${item.rows}"` : ''}><div class="desktop-widget-art" aria-hidden="true">${artwork}</div><div class="desktop-widget-body"><header class="dashboard-widget-header"><div><span class="dashboard-widget-kicker">${esc(widget.category)}</span><h2>${esc(widget.name)}</h2></div>${editControls}</header><div class="dashboard-widget-content">${content}</div>${details}</div>${resizeHandles}</article>`;
 
   }
 
@@ -206,7 +206,9 @@
     const opportunitiesContent = loading && !market.ranking && !market.scans ? `<div class="dashboard-widget-state">Carregando leitura de mercado…</div>` : `<p>Leituras compactas dos filtros atuais; a decisão completa continua nas telas oficiais.</p><div class="dashboard-opportunity-metrics"><div><strong>${market.ranking ? leaders : '—'}</strong><span>Líderes RS</span></div><div><strong>${market.scans ? candidates : '—'}</strong><span>Ativos nos scans</span></div><div><strong>${market.scans ? scanSummary.available : '—'}</strong><span>Scans ativos</span></div></div>`;
     const actionContent = `<span class="dashboard-action-kind">${esc(action.kind)}</span><h3>${esc(action.title)}</h3><p>${esc(action.detail)}</p><button class="dashboard-primary-action" type="button" data-dashboard-action>${esc(action.action)} <span>→</span></button>`;
     const rankingItems = Array.isArray(market.ranking?.items) ? market.ranking.items.slice(0, 3) : [];
-    const watchlistItems = Array.isArray(operationalState?.watchlist) ? operationalState.watchlist.slice(0, 3) : [];
+    const watchlistItems = typeof window.getWatchlistOpportunities === 'function'
+      ? window.getWatchlistOpportunities().slice(0, 3)
+      : (Array.isArray(operationalState?.watchlist) ? operationalState.watchlist.slice(0, 3) : []);
     const challenge = window.CourageChallengeModel?.getState?.();
     const attemptSummary = challenge ? window.CourageChallengeModel?.calculateChallengeMetrics?.(challenge) : null;
     const personal = window.PersonalDesktopState.get();
@@ -233,7 +235,7 @@
     const layout = getWidgetLayout();
     const activeLayout = layout.filter((item) => item.active);
     const widgetsMarkup = activeLayout.map((item) => { const widget = widgetRegistry.get(item.id); return widget ? widgetShell(item, widget, widget.render(renderContext)) : ''; }).join('');
-    root.innerHTML = `<main class="today-dashboard"><header class="today-dashboard-header"><div><span class="eyebrow">TRADING DESKTOP</span><h1>Bom dia, ${esc(firstName())}.</h1><p>O essencial do seu sistema antes de entrar nas telas completas.</p></div><div class="today-dashboard-actions"><button type="button" class="dashboard-edit-toggle ${dashboardEditing ? 'active' : ''}" data-dashboard-edit>${dashboardEditing ? 'Concluir personalização' : 'Personalizar painel'}</button>${dashboardEditing ? '<button type="button" class="dashboard-add-widget" data-gallery-open>+ Adicionar Widget</button><button type="button" class="dashboard-reset" data-dashboard-reset>Restaurar padrão</button>' : ''}</div></header><div class="today-dashboard-context"><span class="today-source ${source.kind}">${source.label}</span><span>${healthy() ? 'Mercado saudável para observar cenários A' : 'Mercado defensivo: priorize proteção e gestão'}</span><span>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</span></div>${dashboardEditing ? '<div class="dashboard-edit-hint">Organize seu Desktop: arraste os widgets para reposicionar e redimensione pelas laterais. Suas preferências são salvas automaticamente.</div>' : ''}<section class="dashboard-grid" aria-label="Widgets do painel">${widgetsMarkup}</section>${!activeLayout.length ? '<section class="dashboard-empty"><h2>Seu painel está vazio</h2><p>Abra a galeria ou restaure o painel padrão para exibir os widgets.</p><button type="button" data-gallery-open>Adicionar widget</button></section>' : ''}</main>${galleryMarkup(layout)}`;
+    root.innerHTML = `<main class="today-dashboard"><header class="today-dashboard-header"><div><span class="eyebrow">TRADING DESKTOP</span><h1>Bom dia, ${esc(firstName())}.</h1><p>O essencial do seu sistema antes de entrar nas telas completas.</p></div><div class="today-dashboard-actions"><button type="button" class="dashboard-edit-toggle ${dashboardEditing ? 'active' : ''}" data-dashboard-edit>${dashboardEditing ? 'Concluir personalização' : 'Personalizar painel'}</button>${dashboardEditing ? '<button type="button" class="dashboard-add-widget" data-gallery-open>+ Adicionar Widget</button><button type="button" class="dashboard-reset" data-dashboard-reset>Restaurar padrão</button>' : ''}</div></header><div class="today-dashboard-context"><span class="today-source ${source.kind}">${source.label}</span><span>${healthy() ? 'Mercado saudável para observar cenários A' : 'Mercado defensivo: priorize proteção e gestão'}</span><span>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</span></div>${dashboardEditing ? '<div class="dashboard-edit-hint">Organize seu Desktop: arraste pelo cabeçalho para reposicionar. Redimensione pela lateral, pela base ou pelo canto; suas preferências são salvas automaticamente.</div>' : ''}<section class="dashboard-grid" aria-label="Widgets do painel">${widgetsMarkup}</section>${!activeLayout.length ? '<section class="dashboard-empty"><h2>Seu painel está vazio</h2><p>Abra a galeria ou restaure o painel padrão para exibir os widgets.</p><button type="button" data-gallery-open>Adicionar widget</button></section>' : ''}</main>${galleryMarkup(layout)}`;
     root.querySelector('.today-dashboard-header p').textContent = 'Disciplina hoje. Consistência amanhã.';
     root.querySelector('.today-dashboard-context').outerHTML = `<section class="desktop-market-pulse" aria-label="Market Pulse"><div class="desktop-pulse-reading"><svg viewBox="0 0 48 40" aria-hidden="true"><path d="M1 22h9l5-13 6 25 7-30 5 23 5-9h9"/></svg><div><b>MARKET PULSE</b><p>${market.cycle?.cycle ? healthy() ? 'Mercado saudável para observar cenários A' : 'Mercado defensivo: priorize proteção e gestão' : 'Aguardando leitura do mercado'}</p></div></div><dl class="desktop-pulse-metrics"><div><dt>Heat</dt><dd>${pct(currentHeat)}</dd></div>${market.ranking ? `<div><dt>Líderes RS</dt><dd>${leaders}</dd></div>` : ''}${market.scans ? `<div><dt>Ativos nos scans</dt><dd>${candidates}</dd></div><div><dt>Scans ativos</dt><dd>${scanSummary.available}</dd></div>` : ''}</dl><div class="desktop-pulse-discipline"><span aria-hidden="true">◎</span><p>“Processo bem feito<br>leva a grandes resultados.”</p></div><div class="desktop-pulse-source"><span class="today-source ${source.kind}">${source.label}</span><small>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</small></div></section>`;
     bindDashboard(root, action);
@@ -270,6 +272,9 @@
   go = function (id) { previousGo(id); if (id === 'today') load(); else renderTopHeat(); };
   window.addEventListener('healthyTrend:authenticated', load);
   window.addEventListener('healthyTrend:workspace-synced', render);
+  window.addEventListener('healthyTrend:watchlist-changed', () => {
+    if (document.getElementById('today')?.classList.contains('active')) render();
+  });
   renderCurrentDate();
   render();
   if (document.getElementById('today')?.classList.contains('active')) load();

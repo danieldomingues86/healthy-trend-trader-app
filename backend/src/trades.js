@@ -2,6 +2,7 @@ const crypto = require('node:crypto');
 const database = require('./database');
 const management = require('../../frontend/position-management-model');
 const rubricModel = require('../../frontend/trading-rubrics');
+const assetBlacklist = require('./asset-blacklist');
 
 function invalid(message) {
   const error = new Error(message);
@@ -37,7 +38,7 @@ function entryTimestamp(value) {
 
 function normalizePlan(payload = {}) {
   const ticker = String(payload.asset || payload.ticker || '').trim().toUpperCase();
-  if (!/^[A-Z0-9]{4,12}$/.test(ticker)) throw invalid('Ticker inválido.');
+  if (!/^[A-Z0-9.\-]{2,20}$/.test(ticker)) throw invalid('Ticker inválido.');
   const entry = number(payload.entry ?? payload.entryPrice, 'Preço de entrada', { minimum: 0.000001, required: true });
   const stop = number(payload.stop ?? payload.stopPrice, 'Stop inicial', { minimum: 0.000001, required: true });
   const plannedQuantity = number(payload.suggestedQty ?? payload.plannedQuantity, 'Quantidade planejada', { minimum: 1, required: true });
@@ -82,7 +83,8 @@ function normalizePlan(payload = {}) {
       riskBudgetPct,
       executableRiskPct: riskPct,
       limitingLayer: String(payload.limitingLayer || '').slice(0, 40) || null,
-      limitingLayerName: String(payload.limitingLayerName || '').slice(0, 120) || null
+      limitingLayerName: String(payload.limitingLayerName || '').slice(0, 120) || null,
+      blacklistOverride: payload.blacklistOverride === true
     },
     entryTimestamp: entryTimestamp(payload.entryDate)
   };
@@ -100,6 +102,10 @@ async function createPlan(userId, payload) {
   const plan = normalizePlan(payload);
   const id = crypto.randomUUID();
   await database.transaction(async (client) => {
+    const restriction = await assetBlacklist.find(userId, plan.ticker, client);
+    if (restriction?.restrictionLevel === 'block') throw invalid(`${plan.ticker} está bloqueado na sua Blacklist. Consulte a regra pessoal antes de operar.`);
+    if (restriction?.restrictionLevel === 'alert' && !plan.metadata.blacklistOverride) throw invalid(`${plan.ticker} está na sua Blacklist. Confirme conscientemente antes de continuar.`);
+    if (!restriction) plan.metadata.blacklistOverride = false;
     if (plan.rubricGrade === 'A') {
       const savedPolicy = await client.query('SELECT policy FROM app.risk_policies WHERE user_id = $1', [userId]);
       validateRareTrade(plan, savedPolicy.rows[0]?.policy);

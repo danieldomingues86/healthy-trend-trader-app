@@ -62,8 +62,8 @@
     layer?.classList.toggle('heat-exceeded', exceeded);
     final?.classList.toggle('heat-exceeded', exceeded);
     if (exceeded && layer) layer.innerHTML = positionsExceeded
-      ? `<i>3</i><h3>Exposição da carteira</h3><p><span>Máx. de posições <b>${data.openPositions + 1}</b> / ${data.maximumPositions}</span><span class="layer-status">LIMITANTE</span></p>`
-      : `<i>3</i><h3>Exposição da carteira</h3><p><span>Portfolio Heat <b>${format(data.projected)}</b> / ${format(data.limit)}</span><span class="layer-status">LIMITANTE</span></p>`;
+      ? `<i>3</i><h3>Exposição da carteira</h3><div class="layer-content layer-portfolio-content"><span class="portfolio-reading"><small>POSIÇÕES</small><b>${data.openPositions + 1} / ${data.maximumPositions}</b></span><span class="layer-status status-caution">LIMITANTE · máximo de posições</span></div>`
+      : `<i>3</i><h3>Exposição da carteira</h3><div class="layer-content layer-portfolio-content"><span class="portfolio-reading"><small>PORTFOLIO HEAT</small><b>${format(data.current)} → ${format(data.projected)}</b><em>/ ${format(data.limit)}</em></span><span class="layer-status status-caution">LIMITANTE · Portfolio Heat</span></div>`;
     if (exceeded && details) details.textContent = `Registro bloqueado: ${reason}`;
 
     const locked = sizer.classList.contains('is-locked');

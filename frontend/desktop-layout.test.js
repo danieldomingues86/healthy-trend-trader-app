@@ -11,14 +11,18 @@ test('layout initializes finite spans and respects registry availability', () =>
   assert.deepEqual(result.map(x => x.columns), [10, 8, 8]);
   assert.deepEqual(result.map(x => x.active), [true, true, false]);
 });
-test('legacy invalid dimensions become safe and arbitrary heights are discarded', () => {
+test('legacy invalid dimensions become safe and arbitrary heights stay automatic', () => {
   const result = normalize([
     { id: 'portfolio', columns: 'undefined', rows: 800, height: 10000 },
     { id: 'opportunities', columns: -10 },
     { id: 'relative-strength', columns: 1000, active: true }
   ], registry);
   assert.deepEqual(result.map(x => x.columns), [10, 8, 16]);
-  result.forEach(x => assert.deepEqual(Object.keys(x).sort(), ['active', 'columns', 'id', 'order']));
+  result.forEach(x => {
+    assert.deepEqual(Object.keys(x).sort(), ['active', 'columns', 'customHeight', 'id', 'order', 'rows']);
+    assert.equal(x.customHeight, false);
+    assert.equal(x.rows, null);
+  });
 });
 test('roundtrip preserves order, widths and removed widgets', () => {
   const source = [
@@ -27,7 +31,8 @@ test('roundtrip preserves order, widths and removed widgets', () => {
     { id: 'opportunities', order: 2, columns: 7, active: true }
   ];
   const result = normalize(source, registry);
-  assert.deepEqual(normalize(JSON.parse(JSON.stringify(result)), registry), source);
+  assert.deepEqual(normalize(JSON.parse(JSON.stringify(result)), registry), result);
+  assert.ok(result.every(item => item.customHeight === false && item.rows === null));
 });
 test('unknown, duplicate and malformed entries cannot create extra instances', () => {
   const result = normalize([null, { id: 'unknown' }, { id: 'portfolio', columns: 4.8 }, { id: 'portfolio', columns: 16 }], registry);
