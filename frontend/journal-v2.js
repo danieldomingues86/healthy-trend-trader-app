@@ -56,28 +56,8 @@
   function journalMarketMeta(key) {
     return JOURNAL_MARKETS[key] || JOURNAL_MARKETS.ibov;
   }
-  function getMarketCycleSnapshot(marketKey) {
-    try {
-      const raw = storage.getItem('healthy-trend-market-cycle-snapshots-v1') || (typeof localStorage !== 'undefined' ? localStorage.getItem('healthy-trend-market-cycle-snapshots-v1') : null);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      const meta = journalMarketMeta(marketKey);
-      return parsed[meta.marketCycleId] || null;
-    } catch (_) {
-      return null;
-    }
-  }
   function marketContextSection(tech) {
     const selectedMarket = tech.market || 'ibov';
-    const meta = journalMarketMeta(selectedMarket);
-    const snapshot = getMarketCycleSnapshot(selectedMarket);
-    let feedbackHtml = '';
-    if (snapshot && (snapshot.score != null || snapshot.classification)) {
-      const snapLabel = snapshot.classification === 'healthy' ? text('Saudável', 'Healthy') : snapshot.classification === 'defensive' ? 'Down' : text('Transição', 'Transition');
-      feedbackHtml = `<div class="jv-market-cycle-badge"><span class="jv-cycle-pulse"></span><span>${text('Ciclo de Mercado (', 'Market Cycle (')}${meta.benchmark}): <strong>${snapshot.score != null ? `${snapshot.score} pts` : ''}</strong> · <em class="jv-cycle-${snapshot.classification || 'healthy'}">${snapLabel}</em></span><small>${text('Sincronizado', 'Synchronized')}</small></div>`;
-    } else {
-      feedbackHtml = `<div class="jv-market-cycle-badge is-neutral"><span class="jv-cycle-neutral-icon">ℹ</span><span>${text('Benchmark de referência:', 'Benchmark:')} <b>${meta.benchmark}</b> (${meta.fullName})</span></div>`;
-    }
 
     return `<fieldset class="jv-market-fieldset">
       <legend>1. ${text('Contexto do mercado', 'Market context')}</legend>
@@ -90,7 +70,6 @@
           </button>
         `).join('')}
       </div>
-      ${feedbackHtml}
       <span class="jv-hint" style="margin-top:12px">${text('Permissão do mercado', 'Market permission')}</span>
       ${options('technical.marketState', [['down', 'Down'], ['transition', text('Transição', 'Transition')], ['up', text('Saudável', 'Healthy')]], tech.marketState)}
     </fieldset>`;
@@ -139,13 +118,6 @@
   function render(force = false) {
     if (!force && root.contains(document.activeElement) && document.activeElement.matches('input,textarea,select')) return;
     const e = current(), tech = e.technical, emotional = e.emotional;
-    if (tech.marketState == null) {
-      const snap = getMarketCycleSnapshot(tech.market || 'ibov');
-      if (snap && snap.classification) {
-        const stateMap = { healthy: 'up', transition: 'transition', defensive: 'down' };
-        tech.marketState = stateMap[snap.classification] || 'transition';
-      }
-    }
     const records = [...data.records].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     const months = [...new Set(records.map(item => (item.date || '').slice(0, 7)))];
     const visible = records.filter(item => (item.date || '').slice(0, 7) === month);
@@ -693,11 +665,6 @@
       const value = path === 'emotional.intensity' ? Number(button.dataset.value) : button.dataset.value;
       setValue(path, value);
       if (path === 'technical.market') {
-        const snapshot = getMarketCycleSnapshot(value);
-        if (snapshot && snapshot.classification) {
-          const stateMap = { healthy: 'up', transition: 'transition', defensive: 'down' };
-          setValue('technical.marketState', stateMap[snapshot.classification] || 'transition');
-        }
         render(true);
         return;
       }
