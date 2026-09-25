@@ -61,4 +61,11 @@ test('uppercase normalizes ticker, setup, timeframe and market to uppercase and 
   assert.equal(M.uppercase(undefined), '');
 });
 
+test('TYPES and GROUPS include Seleção de Ativos', () => {
+  assert.ok(M.TYPES.includes('Seleção de Ativos'));
+  assert.ok(M.GROUPS.Entrada.includes('Seleção de Ativos'));
+  assert.ok(M.GROUPS.Setup.includes('Seleção de Ativos'));
+});
+
+
 

@@ -5,8 +5,8 @@
 }(typeof window === 'undefined' ? globalThis : window, function () {
   'use strict';
   const KEY = 'healthy-trend-mistakes-book-v1';
-  const TYPES = ['Entrada antecipada', 'FOMO', 'Quebra de regra', 'Contexto ruim', 'Sizing incorreto', 'Stop incorreto', 'Saída antecipada', 'Setup ruim', 'Contra tendência', 'Overtrading', 'Erro emocional', 'Erro de execução'];
-  const GROUPS = { Entrada: ['Entrada antecipada', 'FOMO', 'Contra tendência'], Saída: ['Saída antecipada'], Gestão: ['Sizing incorreto', 'Stop incorreto'], Emocional: ['FOMO', 'Overtrading', 'Erro emocional'], Setup: ['Setup ruim', 'Contexto ruim', 'Quebra de regra', 'Erro de execução'] };
+  const TYPES = ['Entrada antecipada', 'FOMO', 'Quebra de regra', 'Contexto ruim', 'Sizing incorreto', 'Stop incorreto', 'Saída antecipada', 'Setup ruim', 'Contra tendência', 'Overtrading', 'Erro emocional', 'Erro de execução', 'Seleção de Ativos'];
+  const GROUPS = { Entrada: ['Entrada antecipada', 'FOMO', 'Contra tendência', 'Seleção de Ativos'], Saída: ['Saída antecipada'], Gestão: ['Sizing incorreto', 'Stop incorreto'], Emocional: ['FOMO', 'Overtrading', 'Erro emocional'], Setup: ['Setup ruim', 'Contexto ruim', 'Quebra de regra', 'Erro de execução', 'Seleção de Ativos'] };
   const number = value => { if (value == null || String(value).trim() === '') return null; const result = Number(String(value).replace(',', '.')); return Number.isFinite(result) ? result : null; };
   function load(storage) {
     const raw = storage?.getItem(KEY);
