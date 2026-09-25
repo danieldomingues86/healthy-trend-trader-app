@@ -33,6 +33,12 @@
     return `${refDate.getFullYear()}-${pad(refDate.getMonth() + 1)}-${pad(refDate.getDate())}`;
   }
 
+  
+  function marketName(key) {
+    if (key === 'bdr') return 'BDRs (BDRX)';
+    if (key === 'ifix') return 'FIIs (IFIX)';
+    return 'Ações B3 (IBOV)';
+  }
   function marketStateLabel(state) {
     if (state === 'up') return 'Saudável';
     if (state === 'transition') return 'Transição';
@@ -162,7 +168,7 @@
         lines.push('DIÁRIO TÉCNICO');
         lines.push('');
         lines.push('Contexto do mercado:');
-        lines.push(marketStateLabel(t.marketState));
+        lines.push(t.market ? `${marketName(t.market)} · ${marketStateLabel(t.marketState)}` : marketStateLabel(t.marketState));
         lines.push('');
         lines.push('Observações:');
         lines.push((t.session && t.session.trim()) || '[Sem observações registradas]');
@@ -261,6 +267,8 @@
 
         if (content === 'all' || content === 'technical') {
           item.technical = {
+            market: r.technical?.market || null,
+            marketLabel: r.technical?.market ? marketName(r.technical.market) : null,
             marketState: r.technical?.marketState || null,
             marketStateLabel: marketStateLabel(r.technical?.marketState),
             session: r.technical?.session || '',
@@ -407,6 +415,7 @@
     formatDateBR,
     getWeekdayBR,
     getTodayStr,
+    marketName,
     marketStateLabel,
     planRespectedLabel,
     impactLabel,

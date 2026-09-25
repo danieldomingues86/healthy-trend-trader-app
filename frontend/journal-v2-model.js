@@ -23,7 +23,7 @@
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }
   function blank(date) {
-    return { id: `day-${date}`, date, title: '', technical: { marketState: null, session: '', executionScore: null, planRespected: null, checklist: {}, permissionMoney: null, tradeIds: [] }, emotional: { states: [], intensity: null, note: '', impact: null, impactNote: '' }, shared: { lesson: '', patterns: '', observations: '', phrase: '' }, evidence: [], legacyEntries: [], updatedAt: null };
+    return { id: `day-${date}`, date, title: '', technical: { market: 'ibov', marketState: null, session: '', executionScore: null, planRespected: null, checklist: {}, permissionMoney: null, tradeIds: [] }, emotional: { states: [], intensity: null, note: '', impact: null, impactNote: '' }, shared: { lesson: '', patterns: '', observations: '', phrase: '' }, evidence: [], legacyEntries: [], updatedAt: null };
   }
   function score(value) {
     if (value == null || String(value).trim() === '') return null;

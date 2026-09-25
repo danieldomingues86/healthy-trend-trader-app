@@ -48,6 +48,53 @@
   function field(path, label, value, placeholder = '', rows = 4) {
     return `<label class="jv-field">${label}<textarea data-field="${path}" rows="${rows}" placeholder="${esc(placeholder)}">${esc(value)}</textarea></label>`;
   }
+  const JOURNAL_MARKETS = {
+    ibov: { key: 'ibov', marketCycleId: 'stock_b3', name: 'Ações B3', benchmark: 'IBOV', fullName: 'Índice Bovespa' },
+    bdr: { key: 'bdr', marketCycleId: 'bdr', name: 'BDRs', benchmark: 'BDRX', fullName: 'Índice de BDRs Não Patrocinados' },
+    ifix: { key: 'ifix', marketCycleId: 'ifix', name: 'FIIs', benchmark: 'IFIX', fullName: 'Índice de Fundos Imobiliários' }
+  };
+  function journalMarketMeta(key) {
+    return JOURNAL_MARKETS[key] || JOURNAL_MARKETS.ibov;
+  }
+  function getMarketCycleSnapshot(marketKey) {
+    try {
+      const raw = storage.getItem('healthy-trend-market-cycle-snapshots-v1') || (typeof localStorage !== 'undefined' ? localStorage.getItem('healthy-trend-market-cycle-snapshots-v1') : null);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      const meta = journalMarketMeta(marketKey);
+      return parsed[meta.marketCycleId] || null;
+    } catch (_) {
+      return null;
+    }
+  }
+  function marketContextSection(tech) {
+    const selectedMarket = tech.market || 'ibov';
+    const meta = journalMarketMeta(selectedMarket);
+    const snapshot = getMarketCycleSnapshot(selectedMarket);
+    let feedbackHtml = '';
+    if (snapshot && (snapshot.score != null || snapshot.classification)) {
+      const snapLabel = snapshot.classification === 'healthy' ? text('Saudável', 'Healthy') : snapshot.classification === 'defensive' ? 'Down' : text('Transição', 'Transition');
+      feedbackHtml = `<div class="jv-market-cycle-badge"><span class="jv-cycle-pulse"></span><span>${text('Ciclo de Mercado (', 'Market Cycle (')}${meta.benchmark}): <strong>${snapshot.score != null ? `${snapshot.score} pts` : ''}</strong> · <em class="jv-cycle-${snapshot.classification || 'healthy'}">${snapLabel}</em></span><small>${text('Sincronizado', 'Synchronized')}</small></div>`;
+    } else {
+      feedbackHtml = `<div class="jv-market-cycle-badge is-neutral"><span class="jv-cycle-neutral-icon">ℹ</span><span>${text('Benchmark de referência:', 'Benchmark:')} <b>${meta.benchmark}</b> (${meta.fullName})</span></div>`;
+    }
+
+    return `<fieldset class="jv-market-fieldset">
+      <legend>1. ${text('Contexto do mercado', 'Market context')}</legend>
+      <span class="jv-hint">${text('Qual mercado você está avaliando hoje?', 'Which market are you evaluating today?')}</span>
+      <div class="jv-market-selector" role="group" aria-label="${text('Mercado avaliado', 'Evaluated market')}">
+        ${Object.values(JOURNAL_MARKETS).map(m => `
+          <button type="button" class="jv-market-opt ${m.key === selectedMarket ? 'chosen' : ''}" data-set="technical.market" data-value="${m.key}" aria-pressed="${m.key === selectedMarket}">
+            <b>${m.name}</b>
+            <span class="jv-market-badge">${m.benchmark}</span>
+          </button>
+        `).join('')}
+      </div>
+      ${feedbackHtml}
+      <span class="jv-hint" style="margin-top:12px">${text('Permissão do mercado', 'Market permission')}</span>
+      ${options('technical.marketState', [['down', 'Down'], ['transition', text('Transição', 'Transition')], ['up', text('Saudável', 'Healthy')]], tech.marketState)}
+    </fieldset>`;
+  }
   function options(path, values, selectedValue) {
     return `<div class="jv-options">${values.map(([value, label]) => `<button type="button" data-set="${path}" data-value="${value}" aria-pressed="${String(selectedValue) === String(value)}" class="${String(selectedValue) === String(value) ? 'chosen' : ''}">${label}</button>`).join('')}</div>`;
   }
@@ -92,6 +139,13 @@
   function render(force = false) {
     if (!force && root.contains(document.activeElement) && document.activeElement.matches('input,textarea,select')) return;
     const e = current(), tech = e.technical, emotional = e.emotional;
+    if (tech.marketState == null) {
+      const snap = getMarketCycleSnapshot(tech.market || 'ibov');
+      if (snap && snap.classification) {
+        const stateMap = { healthy: 'up', transition: 'transition', defensive: 'down' };
+        tech.marketState = stateMap[snap.classification] || 'transition';
+      }
+    }
     const records = [...data.records].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     const months = [...new Set(records.map(item => (item.date || '').slice(0, 7)))];
     const visible = records.filter(item => (item.date || '').slice(0, 7) === month);
@@ -104,14 +158,14 @@
       <div class="jv-tabs" role="tablist" aria-label="${text('Página do caderno', 'Notebook page')}"><button type="button" id="jv-tab-technical" role="tab" aria-controls="jv-technical" aria-selected="${pane === 'technical'}" tabindex="${pane === 'technical' ? 0 : -1}" data-pane="technical">▥ ${text('Técnico', 'Technical')}</button><button type="button" id="jv-tab-emotional" role="tab" aria-controls="jv-emotional" aria-selected="${pane === 'emotional'}" tabindex="${pane === 'emotional' ? 0 : -1}" data-pane="emotional">◉ ${text('Emocional', 'Emotional')}</button></div>
       <div class="jv-spread" data-focus="${pane}">
         <section id="jv-technical" class="jv-sheet jv-technical ${pane === 'technical' ? 'is-focused' : ''}" aria-labelledby="jv-tech-title"><header><i class="jv-title-icon">${icons.technical}</i><div><h3 id="jv-tech-title">${text('Diário Técnico', 'Technical Journal')}</h3><p>${text('Como eu executei hoje?', 'How did I execute today?')}</p></div></header>
-          <div class="jv-fields"><fieldset><legend>1. ${text('Contexto do mercado', 'Market context')}</legend><span class="jv-hint">${text('Permissão do mercado', 'Market permission')}</span>${options('technical.marketState', [['down', 'Down'], ['transition', text('Transição', 'Transition')], ['up', text('Saudável', 'Healthy')]], tech.marketState)}</fieldset>
+          <div class="jv-fields">${marketContextSection(tech)}
           ${field('technical.session', `2. ${text('O que eu observei hoje?', 'What did I observe today?')}`, tech.session, text('Contexto, decisões e execução. O que merece ficar registrado?', 'Context, decisions and execution. What is worth recording?'), 5)}
           <fieldset><legend>3. ${text('Execução', 'Execution')}</legend><div class="jv-execution"><div class="jv-execution-card"><span class="jv-execution-label">${text('Qualidade da execução', 'Execution quality')}</span><strong><output id="jv-execution-score">${tech.executionScore ?? '—'}</output> <small>/ 10</small></strong><input class="jv-score-slider" type="range" min="0" max="10" step="0.1" data-field="technical.executionScore" value="${tech.executionScore ?? 0}" aria-label="${text('Qualidade da execução', 'Execution quality')}"></div><div class="jv-execution-card"><span class="jv-execution-label">${text('Plano', 'Plan')}</span><div class="jv-plan-options" role="group" aria-label="${text('Plano respeitado', 'Plan followed')}">${[['yes', '✓', text('Respeitado', 'Followed')], ['partial', '–', text('Parcialmente', 'Partially')], ['no', '×', text('Não respeitado', 'Not followed')]].map(([value, icon, label]) => `<button type="button" class="jv-plan-option ${tech.planRespected === value ? 'chosen' : ''}" data-set="technical.planRespected" data-value="${value}" aria-pressed="${tech.planRespected === value}"><i aria-hidden="true">${icon}</i><span>${label}</span></button>`).join('')}</div></div></div></fieldset>
           ${linkedTradeSummary()}
           ${importedSourceSection(e)}
           <fieldset><legend>4. ${text('Evidências da sessão', 'Session evidence')}</legend><span class="jv-hint">${text('Anexe arquivos ou abra “Anexar / Ctrl+V” para colar um print. Quando reconhecido, o ticker entra no nome do print junto à data do registro.', 'Attach files or open “Attach / Ctrl+V” to paste a screenshot. When recognised, the ticker is added to the screenshot name with the record date.')}</span>${evidenceStrip()}${legacyLabels.length ? `<small class="jv-hint">${text('Referências antigas preservadas nos detalhes.', 'Legacy references preserved in details.')}</small>` : ''}</fieldset>
           <details class="jv-extra"><summary>${text('Checklist e permissão operacional', 'Checklist and trading permission')}</summary><label class="jv-field">${text('O mercado merece meu dinheiro hoje?', 'Does the market deserve my money today?')}<select data-field="technical.permissionMoney"><option value="">${text('Não informado', 'Not recorded')}</option><option value="wait" ${tech.permissionMoney === 'wait' ? 'selected' : ''}>${text('Não — meu trabalho é esperar', 'No — my job is to wait')}</option><option value="grade-a" ${['grade-a','a-plus'].includes(tech.permissionMoney) ? 'selected' : ''}>${text('Sim — somente cenário A', 'Yes — A conditions only')}</option></select></label>${checks.map((label, i) => `<label class="jv-check"><input type="checkbox" data-check="${i}" ${tech.checklist?.[i] ? 'checked' : ''}>${label}</label>`).join('')}</details></div>
-          <div class="jv-page-preview"><span class="jv-page-number">01 / ${text('Leitura do processo', 'Process reading')}</span><p>${esc(tech.session || text('O que aconteceu no mercado e como você executou?', 'What happened in the market and how did you execute?'))}</p><div>${text('Execução', 'Execution')}: <b>${tech.executionScore ?? '—'} / 10</b></div><div>${text('Plano', 'Plan')}: <b>${tech.planRespected === 'yes' ? text('Respeitado', 'Followed') : tech.planRespected === 'no' ? text('Não respeitado', 'Not followed') : tech.planRespected === 'partial' ? text('Parcialmente', 'Partially') : '—'}</b></div><button type="button" data-pane="technical">${text('Escrever na página técnica', 'Write on the technical page')} →</button></div>
+          <div class="jv-page-preview"><span class="jv-page-number">01 / ${text('Leitura do processo', 'Process reading')}</span><p>${esc(tech.session || text('O que aconteceu no mercado e como você executou?', 'What happened in the market and how did you execute?'))}</p><div>${text('Mercado', 'Market')}: <b>${journalMarketMeta(tech.market || 'ibov').name} (${journalMarketMeta(tech.market || 'ibov').benchmark})</b> · <b>${tech.marketState ? (tech.marketState === 'up' ? text('Saudável', 'Healthy') : tech.marketState === 'down' ? 'Down' : text('Transição', 'Transition')) : '—'}</b></div><div>${text('Execução', 'Execution')}: <b>${tech.executionScore ?? '—'} / 10</b></div><div>${text('Plano', 'Plan')}: <b>${tech.planRespected === 'yes' ? text('Respeitado', 'Followed') : tech.planRespected === 'no' ? text('Não respeitado', 'Not followed') : tech.planRespected === 'partial' ? text('Parcialmente', 'Partially') : '—'}</b></div><button type="button" data-pane="technical">${text('Escrever na página técnica', 'Write on the technical page')} →</button></div>
         </section>
         <section id="jv-emotional" class="jv-sheet jv-emotional ${pane === 'emotional' ? 'is-focused' : ''}" aria-labelledby="jv-emotion-title"><header><i class="jv-title-icon">${icons.emotional}</i><div><h3 id="jv-emotion-title">${text('Diário Emocional', 'Emotional Journal')}</h3><p>${text('Como eu estava enquanto tomava minhas decisões?', 'How was I feeling while making decisions?')}</p></div></header>
           <div class="jv-fields"><fieldset><legend>1. ${text('Como me senti hoje?', 'How did I feel today?')}</legend><span class="jv-hint">${text('Selecione os estados que representam seu dia.', 'Select the states that represent your day.')}</span><div class="jv-emotions">${allEmotions.map(emotion => `<button type="button" data-emotion="${esc(emotion)}" aria-pressed="${emotional.states.includes(emotion)}">${esc(emotion)}</button>`).join('')}</div></fieldset>
@@ -130,7 +184,7 @@
     root.querySelector('.jv-lessons')?.remove();
   }
   function setValue(path, value) {
-    const allowed = ['title', 'technical.marketState', 'technical.session', 'technical.executionScore', 'technical.planRespected', 'technical.permissionMoney', 'emotional.intensity', 'emotional.note', 'emotional.impact', 'emotional.impactNote', 'shared.lesson', 'shared.patterns', 'shared.observations', 'shared.phrase'];
+    const allowed = ['title', 'technical.market', 'technical.marketState', 'technical.session', 'technical.executionScore', 'technical.planRespected', 'technical.permissionMoney', 'emotional.intensity', 'emotional.note', 'emotional.impact', 'emotional.impactNote', 'shared.lesson', 'shared.patterns', 'shared.observations', 'shared.phrase'];
     if (!allowed.includes(path)) return;
     const keys = path.split('.');
     let target = current(); if (keys.length === 2) target = target[keys.shift()];
@@ -634,7 +688,28 @@
     if (button.dataset.positionId) { window.openPositionFromJournal?.(button.dataset.positionId); return; }
     if (button.dataset.day) { if (saveError && !persist()) return; selected = button.dataset.day; render(true); return; }
     if (button.dataset.pane) { pane = button.dataset.pane; render(true); root.querySelector(`#jv-tab-${pane}`).focus({ preventScroll: true }); return; }
-    if (button.dataset.set) { const path = button.dataset.set; setValue(path, path === 'emotional.intensity' ? Number(button.dataset.value) : button.dataset.value); const fieldset = button.closest('fieldset'); fieldset.querySelectorAll('[data-set]').forEach(b => { const chosen = b === button; b.setAttribute('aria-pressed', chosen); b.classList.toggle('chosen', chosen); }); if (path === 'emotional.impact') root.querySelector('#jv-impact-explanation').hidden = button.dataset.value === 'no' && !current().emotional.impactNote; return; }
+    if (button.dataset.set) {
+      const path = button.dataset.set;
+      const value = path === 'emotional.intensity' ? Number(button.dataset.value) : button.dataset.value;
+      setValue(path, value);
+      if (path === 'technical.market') {
+        const snapshot = getMarketCycleSnapshot(value);
+        if (snapshot && snapshot.classification) {
+          const stateMap = { healthy: 'up', transition: 'transition', defensive: 'down' };
+          setValue('technical.marketState', stateMap[snapshot.classification] || 'transition');
+        }
+        render(true);
+        return;
+      }
+      const fieldset = button.closest('fieldset');
+      fieldset.querySelectorAll(`[data-set="${CSS.escape(path)}"]`).forEach(b => {
+        const chosen = b === button;
+        b.setAttribute('aria-pressed', chosen);
+        b.classList.toggle('chosen', chosen);
+      });
+      if (path === 'emotional.impact') root.querySelector('#jv-impact-explanation').hidden = button.dataset.value === 'no' && !current().emotional.impactNote;
+      return;
+    }
     if (button.dataset.emotion) { const states = current().emotional.states, value = button.dataset.emotion; current().emotional.states = states.includes(value) ? states.filter(item => item !== value) : [...states, value]; button.setAttribute('aria-pressed', current().emotional.states.includes(value)); persist(); return; }
     if (button.dataset.pattern !== undefined) { sendHabit(patterns[Number(button.dataset.pattern)]); return; }
     switch (button.dataset.action) {

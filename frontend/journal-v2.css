@@ -802,3 +802,101 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{
   background:rgba(200,190,170,.3)!important;
   color:#3a4b36!important;
 }
+
+/* Seletor de Mercado no Diário Técnico */
+#journal .jv-market-selector{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:6px;
+}
+#journal .jv-market-opt{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  padding:8px 6px;
+  background:#fffdf7;
+  border:1px solid #d5ceb8;
+  border-radius:8px;
+  color:#3f3727;
+  cursor:pointer;
+  transition:all .18s ease;
+}
+#journal .jv-market-opt b{
+  font-size:12px;
+  font-weight:700;
+}
+#journal .jv-market-opt .jv-market-badge{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.05em;
+  padding:1px 6px;
+  border-radius:4px;
+  background:#ece5d2;
+  color:#594928;
+}
+#journal .jv-market-opt:hover{
+  border-color:#75623b;
+  background:#f9f5ea;
+  transform:translateY(-1px);
+}
+#journal .jv-market-opt.chosen{
+  background:linear-gradient(135deg,#0e4b2d,#08341e);
+  border-color:#3ab267;
+  color:#fff;
+  box-shadow:0 3px 10px rgba(0,0,0,.15);
+}
+#journal .jv-market-opt.chosen .jv-market-badge{
+  background:rgba(214,169,84,.3);
+  color:#fcf3dc;
+  border:1px solid rgba(214,169,84,.45);
+}
+
+/* Badge do Ciclo de Mercado no Diário */
+#journal .jv-market-cycle-badge{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+  padding:7px 12px;
+  border-radius:6px;
+  background:rgba(14,62,40,.09);
+  border:1px solid rgba(58,178,103,.35);
+  font-size:12px;
+  color:#194f31;
+}
+#journal .jv-market-cycle-badge.is-neutral{
+  background:rgba(135,105,65,.08);
+  border-color:rgba(135,105,65,.25);
+  color:#594928;
+}
+#journal .jv-market-cycle-badge em{
+  font-style:normal;
+  font-weight:700;
+}
+#journal .jv-market-cycle-badge em.jv-cycle-healthy{color:#0e693b}
+#journal .jv-market-cycle-badge em.jv-cycle-transition{color:#8b6b15}
+#journal .jv-market-cycle-badge em.jv-cycle-defensive{color:#a82a2a}
+#journal .jv-market-cycle-badge small{
+  margin-left:auto;
+  font-size:10px;
+  color:#65522b;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+#journal .jv-cycle-pulse{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#2eb35f;
+  box-shadow:0 0 0 0 rgba(46,179,95,.7);
+  animation:jvPulse 2s infinite;
+}
+@keyframes jvPulse{
+  0%{transform:scale(.95);box-shadow:0 0 0 0 rgba(46,179,95,.7)}
+  70%{transform:scale(1);box-shadow:0 0 0 6px rgba(46,179,95,0)}
+  100%{transform:scale(.95);box-shadow:0 0 0 0 rgba(46,179,95,0)}
+}
