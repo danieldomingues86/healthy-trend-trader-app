@@ -211,13 +211,14 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{--jv-chart:#d6aa50;backg
 #journal .jv-history h2{font:400 21px Georgia,serif;margin-bottom:14px}
 #journal .jv-history select{width:100%;border:0;border-bottom:1px solid var(--jv-tone-34543a);border-radius:0;padding:5px 0 10px;background:var(--jv-tone-0c2014);color:var(--jv-tone-d7e1d3);font-size:14px}
 #journal .jv-history small{display:block;font-size:12px;color:var(--jv-tone-a1b69e);padding-top:5px}
-#journal .jv-history nav{display:grid;gap:6px;margin:20px 0}
+#journal .jv-history nav{display:grid;gap:6px;margin:12px 0 16px}
 #journal .jv-history nav button{width:100%;background:transparent;color:var(--jv-tone-d2dfce);border:0;border-left:2px solid transparent;border-radius:5px;padding:13px 9px;text-align:left;display:flex;gap:12px;font-size:13px;line-height:1.4}
 #journal .jv-history nav button[aria-current]{background:var(--jv-tone-b5d8af16);border-left-color:var(--jv-tone-a1caa3);color:#fff}
 #journal .jv-history time{flex-shrink:0;text-transform:uppercase;font-size:12px}
 #journal .jv-history nav span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#journal .jv-history .jv-new{width:100%;border:1px solid var(--jv-tone-6b8865);background:var(--jv-tone-163820);color:var(--jv-tone-d5edcc);border-radius:8px;padding:10px 6px;font-size:13px}
-#journal .jv-history>p{font:italic 15px/1.7 Georgia,serif;color:var(--jv-tone-b3bba1);padding:23px 4px 0}
+#journal .jv-history .jv-new{width:100%;margin:12px 0 14px;border:1px solid var(--jv-tone-6b8865);background:var(--jv-tone-163820);color:var(--jv-tone-d5edcc);border-radius:8px;padding:10px 8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:all .18s ease}
+#journal .jv-history .jv-new:hover{transform:translateY(-1px);filter:brightness(1.1)}
+#journal .jv-history>p{font:italic 15px/1.7 Georgia,serif;color:var(--jv-tone-b3bba1);padding:14px 4px 0}
 #journal .jv-notebook{color:var(--jv-ink);border:1px solid #d5d0b9;border-radius:20px 20px 17px 17px;background:#ece9dc;box-shadow:0 22px 65px #0008,0 0 0 4px var(--jv-tone-686b5140),0 0 0 7px #c0b79040;position:relative;min-width:0}
 #journal .jv-book-header{padding:22px 32px 17px;display:flex;gap:15px;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#e9e6d8,#f2efe2 45%,#dfdccd 50%,#eeeadd 55%);border-radius:20px 20px 0 0}
 #journal .jv-book-header .jv-kicker{color:var(--jv-tone-65745c);font-size:11px}
