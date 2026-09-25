@@ -40,9 +40,10 @@
     return 'Ações B3 (IBOV)';
   }
   function marketStateLabel(state) {
-    if (state === 'up') return 'Saudável';
-    if (state === 'transition') return 'Transição';
-    if (state === 'down') return 'Down';
+    if (state === 'healthy' || state === 'up') return 'Saudável';
+    if (state === 'transition' || state === 'improving') return 'Transição';
+    if (state === 'defensive' || state === 'down' || state === 'riskOff') return 'Defensivo';
+    if (state === 'unavailable') return 'Não disponível';
     return state || 'Não informado';
   }
 

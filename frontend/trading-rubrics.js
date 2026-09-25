@@ -10,8 +10,9 @@
     ],
     ratingScale:{
       bad:{label:'Ruim',score:0},medium:{label:'Médio',score:.55},good:{label:'Bom',score:1},
-      healthy:{label:'Saudável',score:1},improving:{label:'Melhorando',score:.75},transition:{label:'Transição',score:.55},
-      defensive:{label:'Defensivo',score:.2},riskOff:{label:'Risk-Off',score:0}
+      healthy:{label:'Saudável',score:1},transition:{label:'Transição',score:.55},
+      defensive:{label:'Defensivo',score:.2},unavailable:{label:'Não disponível',score:0},
+      improving:{label:'Transição',score:.55},riskOff:{label:'Defensivo',score:.2}
     },
     grades:[
       {grade:'A',minScore:95,riskPct:.004},
@@ -83,12 +84,14 @@
   }
 
   function marketCycleKey(value){
-    const normalized=String(value||'').toLowerCase();
+    if(value===null||value===undefined||value==='')return null;
+    const normalized=String(value||'').trim().toLowerCase();
     if(['healthy','saudável','saudavel','risk-on','up'].includes(normalized))return'healthy';
-    if(['improving','melhorando'].includes(normalized))return'improving';
-    if(['transition','transição','transicao','neutral','neutro'].includes(normalized))return'transition';
+    if(['improving','melhorando','em recuperação','em recuperacao'].includes(normalized))return'transition';
+    if(['transition','transição','transicao','neutral','neutro','transição saudável','transicao saudavel'].includes(normalized))return'transition';
     if(['defensive','defensivo','weak','sideways','deteriorating','desfavorável','desfavoravel'].includes(normalized))return'defensive';
-    if(['riskoff','risk-off','doente','down'].includes(normalized))return'riskOff';
+    if(['riskoff','risk-off','doente','down'].includes(normalized))return'defensive';
+    if(['unavailable','não disponível','nao disponivel','indisponível','indisponivel','none'].includes(normalized))return'unavailable';
     return'transition';
   }
 
@@ -108,7 +111,8 @@
 
   function calculateRubric(input={},policy){
     const p=normalizePolicy(policy),ratings=input.ratings||{},profile=profileFor(p,input.profileKey);
-    const cycleKey=marketCycleKey(input.marketCycleRegime||ratings.marketCycle||input.marketCycle||'transition');
+    const rawCycle=input.marketCycleRegime!==undefined?input.marketCycleRegime:(ratings.marketCycle||input.marketCycle);
+    const cycleKey=rawCycle===null||rawCycle==='unavailable'?'unavailable':(marketCycleKey(rawCycle)||'transition');
     const weightsTotal=p.criteria.reduce((sum,item)=>sum+Number(item.weight||0),0),weightsValid=Math.abs(weightsTotal-100)<.001;
     const contributions=p.criteria.map(c=>{
       const selectedRating=c.key==='marketCycle'?cycleKey:(ratings[c.key]||input[c.key+'Rating']);
@@ -126,7 +130,7 @@
       if(failed.length){grade='B';failed.forEach(item=>gates.push({key:item.key,status:'limited',message:`${item.label} precisa atingir excelência para liberar o Rare Trade.`}));}
     }
     if(cycleKey==='defensive'&&grade==='A'){grade='B';gates.push({key:'market',status:'limited',message:'Mercado defensivo: a classificação máxima é B.'});}
-    if(cycleKey==='riskOff'&&grade!=='D'){grade='D';gates.push({key:'market',status:'blocked',message:'Mercado hostil: não há permissão operacional.'});}
+    if(cycleKey==='unavailable'){gates.push({key:'market',status:'limited',message:'Não foi possível obter o ciclo de mercado atual (ciclo não disponível).'});}
     const gradeObj=p.grades.find(item=>item.grade===grade)||p.grades[p.grades.length-1];
     const gradeRiskPct=gradeObj.riskPct;
     const riskBudgetPct=(weightsValid&&complete&&grade!=='D')?gradeRiskPct:0;

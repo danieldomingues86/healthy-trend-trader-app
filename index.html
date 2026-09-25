@@ -360,13 +360,8 @@ body:has(#newtrade.active) .content{max-width:none;padding:12px 18px;min-width:0
 .risk-policy-shell{padding:22px!important}.risk-policy-heading{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:18px}.risk-policy-heading>div:first-child{max-width:620px}.risk-policy-heading span{color:var(--good);font-size:10px;font-weight:850;letter-spacing:.14em}.risk-policy-heading h3{margin:5px 0;font-size:23px}.risk-policy-heading p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}.risk-policy-formula{min-width:275px;padding:13px 15px;border:1px solid #b9d8c3;border-radius:13px;background:#edf6ee}.risk-policy-formula small{display:block;color:#547764;font-size:9px;font-weight:800;letter-spacing:.1em}.risk-policy-formula b{display:block;margin-top:5px;color:#24563a;font-size:12px}.risk-policy-block{margin-top:15px;padding:17px;border:1px solid var(--line);border-radius:15px}.risk-policy-profile{background:linear-gradient(135deg,#eef8f0,#fbfcf8)}.risk-policy-grades{background:linear-gradient(135deg,#f7f8ef,#fffdf7)}.risk-policy-quality{background:linear-gradient(135deg,#f2f8f5,#fbfdfb)}.risk-policy-cycle{background:linear-gradient(135deg,#f6f7f1,#fffefa)}.risk-block-title{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}.risk-block-title>span{display:grid;place-items:center;flex:0 0 auto;width:25px;height:25px;border-radius:50%;background:var(--good);color:#fff;font-size:11px;font-weight:850}.risk-block-title h4{margin:1px 0 3px;font-size:15px}.risk-block-title p{margin:0;color:var(--muted);font-size:11px}.risk-profile-select{max-width:540px;margin-bottom:12px}.risk-profile-grid,.risk-grade-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.risk-profile-card,.risk-grade-card{padding:13px;border:1px solid #cfded2;border-radius:12px;background:rgba(255,255,255,.72)}.risk-profile-card.active{border-color:#58a878;background:#fff;box-shadow:0 0 0 2px rgba(88,168,120,.15)}.risk-profile-card>b,.risk-grade-card>b{display:block;font-size:12px}.risk-profile-card small{display:block;margin-top:3px;color:var(--muted);font-size:10px}.risk-profile-inputs,.risk-grade-card>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:11px}.risk-weight-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.risk-weight-item{padding:10px;border:1px solid #d5e3d8;border-radius:11px;background:rgba(255,255,255,.7)}.risk-cycle-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.risk-cycle-item{padding:11px;border:1px solid #d6ded3;border-radius:11px;background:#fff}.risk-cycle-item small{display:block;margin-top:6px;color:var(--muted);font-size:9px;line-height:1.35}.risk-cycle-item.healthy{border-color:#78b88b;background:#eef9f0}.risk-cycle-item.improving{border-color:#a8c985;background:#f7faed}.risk-cycle-item.transition{border-color:#e4c36d;background:#fff9e9}.risk-cycle-item.defensive{border-color:#e1a272;background:#fff3e9}.risk-cycle-item.riskOff{border-color:#dc9696;background:#fff0f0}.risk-policy-shell .field label{font-size:9px!important}.risk-policy-shell .field input,.risk-policy-shell .field select{font-size:12px!important}.experience-risk-profile{display:block;width:max-content;max-width:calc(100% - 32px);margin:7px auto 0;padding:5px 9px;border:1px solid rgba(165,237,191,.45);border-radius:999px;background:rgba(5,50,30,.48);color:#d5f6df;font-size:9px;font-weight:800}.rubric-experience-host .rubric-criterion.rubric-market-permission{min-height:58px!important;height:58px}.rubric-experience-host .rubric-criterion.rubric-market-permission span{white-space:normal;overflow:visible}.rubric-active-profile{display:block;margin-top:3px;color:#9ceab8;font-size:9px;font-weight:800;letter-spacing:.02em}.rubric-experience-host #experienceStatusHint{margin-top:7px}@media(max-width:900px){.risk-policy-heading{flex-direction:column}.risk-policy-formula{min-width:0}.risk-weight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.risk-cycle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.risk-policy-shell{padding:14px!important}.risk-profile-grid,.risk-grade-grid,.risk-weight-grid,.risk-cycle-grid{grid-template-columns:1fr}.risk-policy-heading h3{font-size:20px}}
 </style>
 <style>
-/* Novo Trade: remove o perfil duplicado e torna a permissão de mercado legível. */
+/* Novo Trade: remove o perfil duplicado e oculta resultado legado. */
 .experience-risk-profile{display:none!important}
-.rubric-experience-host .rubric-criterion.rubric-market-permission{grid-template-columns:minmax(0,1fr) minmax(156px,190px) 76px!important;min-height:50px!important;height:auto}
-.rubric-experience-host .rubric-criterion.rubric-market-permission:before,.rubric-experience-host .rubric-criterion.rubric-market-permission:after{display:none!important}
-.rubric-experience-host .rubric-criterion.rubric-market-permission span{grid-column:1!important;display:flex;align-items:center;gap:12px;min-width:0;font-size:15px;font-weight:850;white-space:nowrap;overflow:visible}
-.rubric-experience-host .rubric-criterion.rubric-market-permission b{grid-column:3!important;justify-self:end;font-size:16px}
-.rubric-experience-host .rubric-active-profile{display:inline;margin:0;font-size:12px}
 #newtrade .rubric-policy-result{display:none!important}
 </style>
 <style>
@@ -3175,55 +3170,127 @@ renderEffectiveRiskPolicy();
 #newtrade .rubric-experience-host .rubric-criterion:after{display:none!important}
 #newtrade .rubric-experience-host .rubric-criterion b{grid-column:3!important;font-size:12px!important}
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
-#newtrade .rubric-experience-host .rubric-criterion .rubric-market-selector{grid-column:2!important}
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-sync-indicator{grid-column:2!important}
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button{min-height:30px;padding:5px 4px;font-size:11px!important}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission{min-height:48px!important;background:linear-gradient(90deg,rgba(59,142,92,.19),rgba(26,76,52,.10))}
-#newtrade .rubric-market-copy{display:flex;flex-direction:column;gap:3px}
-#newtrade .rubric-market-copy small{color:#b7dfc4;font-size:10px;font-weight:700;line-height:1.25}
-#newtrade .rubric-market-selector{display:block!important;width:100%;min-height:36px;padding:0 28px 0 10px;border:1px solid rgba(113,225,154,.62)!important;border-radius:8px!important;background:#10452e!important;color:#ecfff1!important;font:800 12px/1 inherit!important;cursor:pointer}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(156px,190px) 76px!important;grid-template-rows:auto!important;gap:10px;align-items:center;padding:6px 10px!important}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission:before{display:none!important}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission>span{display:flex!important;grid-column:1!important;grid-row:1!important;align-items:center!important;min-width:0;text-align:left!important;white-space:normal!important}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission .rubric-market-selector{display:block!important;width:100%;grid-column:2!important;grid-row:1!important;color-scheme:light}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission:after{display:none!important}
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission b{grid-column:3!important;grid-row:1!important;order:unset!important;text-align:right}
-#newtrade .rubric-market-selector option{background:#f4fbf6!important;color:#123b27!important;font-weight:800!important}
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-sync-indicator{
+  display:flex!important;align-items:center;justify-content:center;gap:6px;
+  min-height:30px;padding:4px 8px;border-radius:7px;
+  font:700 11px/1 inherit!important;text-align:center;
+  border:1px solid rgba(255,255,255,.18);box-sizing:border-box;user-select:none;
+}
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-sync-indicator.state-healthy{
+  background:rgba(46,125,82,.28);border-color:rgba(84,226,154,.45);color:#c9f7db;
+}
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-sync-indicator.state-transition{
+  background:rgba(180,130,20,.26);border-color:rgba(233,189,66,.45);color:#fff1c2;
+}
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-sync-indicator.state-defensive{
+  background:rgba(180,50,50,.26);border-color:rgba(239,100,112,.45);color:#ffd6d9;
+}
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-sync-indicator.state-unavailable{
+  background:rgba(100,116,139,.22);border-color:rgba(148,163,184,.35);color:#cbd5e1;
+}
+.rubric-sync-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.rubric-sync-sub{display:block;font-size:10px;color:#a4ceb5;font-weight:600;margin-top:2px;line-height:1.2}
 #newtrade .rubric-source-divider{margin-top:8px!important}
 @media(max-width:850px){
   #newtrade .rubric-experience-host .rubric-criterion{grid-template-columns:18px minmax(0,1fr) 48px!important;gap:7px;padding:10px!important}
   #newtrade .rubric-experience-host .rubric-criterion>span{grid-column:2!important}
   #newtrade .rubric-experience-host .rubric-criterion b{grid-column:3!important}
   #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
-  #newtrade .rubric-experience-host .rubric-criterion .rubric-market-selector{grid-column:2 / span 2!important;width:100%}
-  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission{display:grid!important}
-  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission>span{grid-column:1!important}
-  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission .rubric-market-selector{grid-column:1 / -1!important;width:100%;flex:auto}
-  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission b{grid-column:2!important}
+  #newtrade .rubric-experience-host .rubric-criterion .rubric-market-sync-indicator{grid-column:2 / span 2!important;width:100%}
 }
 </style>
 <script>
-/* Fonte única da Etapa 2: seleção explícita do ciclo e cinco avaliações consistentes. */
+/* Fonte única da Etapa 2: ciclo de mercado sincronizado automaticamente e cinco avaliações consistentes. */
 (function installNewTradeRubricFix(){
-  const marketOptions=[
-    ['healthy','Saudável','Tendência e contexto favoráveis'],
-    ['improving','Em recuperação','Contexto melhorando, com cautela'],
-    ['transition','Transição saudável','Mercado em mudança, sem alinhamento total'],
-    ['defensive','Defensivo','Contexto pede exposição menor'],
-    ['riskOff','Risk-Off','Contexto hostil: não libera risco-base']
-  ];
-  const manualKeys=()=>tradingRubricPolicy.criteria.filter(item=>item.key!=='marketCycle').map(item=>item.key);
-  const marketChoice=()=>selectedRubricMarketCycle||manualRubricRatings.marketCycle||'transition';
+  const MARKET_BENCHMARK_MAP = {
+    'ações': { marketId: 'stock_b3', benchmarkSymbol: 'IBOV', benchmarkName: 'Índice Bovespa (IBOV)', label: 'Ações B3' },
+    'acoes': { marketId: 'stock_b3', benchmarkSymbol: 'IBOV', benchmarkName: 'Índice Bovespa (IBOV)', label: 'Ações B3' },
+    'ações b3': { marketId: 'stock_b3', benchmarkSymbol: 'IBOV', benchmarkName: 'Índice Bovespa (IBOV)', label: 'Ações B3' },
+    'acoes b3': { marketId: 'stock_b3', benchmarkSymbol: 'IBOV', benchmarkName: 'Índice Bovespa (IBOV)', label: 'Ações B3' },
+    'bdr': { marketId: 'bdr', benchmarkSymbol: 'BDRX', benchmarkName: 'Índice de BDRs Não Patrocinados (BDRX)', label: 'BDRs' },
+    'bdrs': { marketId: 'bdr', benchmarkSymbol: 'BDRX', benchmarkName: 'Índice de BDRs Não Patrocinados (BDRX)', label: 'BDRs' }
+  };
 
-  /* Volatilidade volta a seguir o mesmo padrão dos demais critérios: escolha clara do trader. */
+  function resolveMarketBenchmark(marketName) {
+    const normalized = String(marketName || '').trim().toLowerCase();
+    return MARKET_BENCHMARK_MAP[normalized] || null;
+  }
+
+  function getMarketCycleStateForTrade(marketName) {
+    const mapping = resolveMarketBenchmark(marketName);
+    if (!mapping) {
+      return {
+        available: false,
+        marketId: null,
+        benchmarkSymbol: null,
+        state: 'unavailable',
+        label: 'Não disponível',
+        description: 'Não foi possível obter o ciclo de mercado atual.'
+      };
+    }
+
+    let snapshot = null;
+    if (typeof window.getMarketCycleSnapshot === 'function') {
+      snapshot = window.getMarketCycleSnapshot(mapping.marketId);
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem('healthy-trend-market-cycle-snapshots-v1') || '{}');
+        snapshot = saved[mapping.marketId] || null;
+      } catch {}
+    }
+
+    if (!snapshot && typeof window.loadMarketCycleV2 === 'function') {
+      window.loadMarketCycleV2(mapping.marketId).then(() => {
+        if (typeof updateTradingRubric === 'function') updateTradingRubric();
+      }).catch(() => {});
+    }
+
+    if (!snapshot || !snapshot.classification) {
+      return {
+        available: false,
+        marketId: mapping.marketId,
+        benchmarkSymbol: mapping.benchmarkSymbol,
+        state: 'unavailable',
+        label: 'Não disponível',
+        description: 'Não foi possível obter o ciclo de mercado atual.'
+      };
+    }
+
+    const rawState = snapshot.classification;
+    const normalizedState = (typeof TradingRubrics !== 'undefined' && TradingRubrics.marketCycleKey)
+      ? TradingRubrics.marketCycleKey(rawState)
+      : rawState;
+
+    const stateLabels = {
+      healthy: 'Saudável',
+      transition: 'Transição',
+      defensive: 'Defensivo',
+      unavailable: 'Não disponível'
+    };
+
+    return {
+      available: true,
+      marketId: mapping.marketId,
+      benchmarkSymbol: mapping.benchmarkSymbol,
+      state: normalizedState || 'transition',
+      label: stateLabels[normalizedState] || 'Transição',
+      description: `${mapping.benchmarkSymbol} · sincronizado com Ciclo de Mercado`
+    };
+  }
+
+  window.resolveMarketBenchmark = resolveMarketBenchmark;
+  window.getMarketCycleStateForTrade = getMarketCycleStateForTrade;
+
+  const manualKeys=()=>tradingRubricPolicy.criteria.filter(item=>item.key!=='marketCycle').map(item=>item.key);
+
+  /* Volatilidade segue o padrão dos demais critérios: escolha clara do trader. */
   syncAutomaticAtrRating=function(){};
   delete manualRubricRatings.volatility;
-  if(!selectedRubricMarketCycle)selectedRubricMarketCycle='transition';
-  manualRubricRatings={...manualRubricRatings,marketCycle:marketChoice()};
 
   setRubricMarketCycle=function(regime){
-    selectedRubricMarketCycle=marketOptions.some(([key])=>key===regime)?regime:'transition';
-    manualRubricRatings={...manualRubricRatings,marketCycle:selectedRubricMarketCycle};
     rebuildRiskRubric();
     updateTradingRubric();
   };
@@ -3235,12 +3302,26 @@ renderEffectiveRiskPolicy();
   rebuildRiskRubric=function(){
     const root=document.getElementById('rubricCriteria');
     if(!root)return;
-    const selected=marketChoice();
-    manualRubricRatings={...manualRubricRatings,marketCycle:selected};
+    const currentMarket=document.getElementById('tradeMarket')?.value||'Ações';
+    const cycleInfo=getMarketCycleStateForTrade(currentMarket);
+    manualRubricRatings={...manualRubricRatings,marketCycle:cycleInfo.state};
     root.innerHTML=tradingRubricPolicy.criteria.map((criterion,index)=>{
       if(criterion.key==='marketCycle'){
-        const options=marketOptions.map(([key,label,detail])=>'<option value="'+key+'" '+(key===selected?'selected':'')+'>'+label+'</option>').join('');
-        return '<div class="rubric-criterion rubric-market-permission" data-rubric-key="marketCycle"><span class="rubric-market-copy">Contexto do Mercado</span><select class="rubric-market-selector" aria-label="Contexto do Mercado" onchange="setRubricMarketCycle(this.value)">'+options+'</select><b data-rubric-points="marketCycle">—</b></div>';
+        const dotColors={
+          healthy:'#54e29a',
+          transition:'#e9bd42',
+          defensive:'#ef6470',
+          unavailable:'#94a3b8'
+        };
+        const dotColor=dotColors[cycleInfo.state]||'#e9bd42';
+        return '<div class="rubric-criterion rubric-market-permission" data-rubric-key="marketCycle">'
+          +'<span>Contexto do Mercado<small class="rubric-sync-sub">'+cycleInfo.description+'</small></span>'
+          +'<div class="rubric-market-sync-indicator state-'+cycleInfo.state+'" title="'+cycleInfo.description+'">'
+            +'<span class="rubric-sync-dot" style="background:'+dotColor+'"></span>'
+            +'<span class="rubric-sync-label">'+cycleInfo.label+'</span>'
+          +'</div>'
+          +'<b data-rubric-points="marketCycle">—</b>'
+          +'</div>';
       }
       const buttons=['bad','medium','good'].map(rating=>'<button type="button" data-rating="'+rating+'" onclick="setPolicyRubricRating(\''+criterion.key+'\',\''+rating+'\')">'+({bad:'Ruim',medium:'Médio',good:'Bom'})[rating]+'</button>').join('');
       const displayLabel = criterion.label || (criterion.key === 'volatility' ? 'Volatilidade (ATR)' : criterion.key);
@@ -3250,9 +3331,11 @@ renderEffectiveRiskPolicy();
   currentRubricInput=function(){
     const ratings={};
     manualKeys().forEach(key=>{if(manualRubricRatings[key])ratings[key]=manualRubricRatings[key]});
-    return {ratings,marketCycleRegime:marketChoice(),profileKey:selectedRiskProfile().key};
+    const currentMarket=document.getElementById('tradeMarket')?.value||'Ações';
+    const cycleInfo=getMarketCycleStateForTrade(currentMarket);
+    return {ratings,marketCycleRegime:cycleInfo.state,profileKey:selectedRiskProfile().key};
   };
-  manualRubricIsComplete=function(){return Boolean(marketChoice())&&manualKeys().every(key=>Boolean(manualRubricRatings[key]))};
+  manualRubricIsComplete=function(){return manualKeys().every(key=>Boolean(manualRubricRatings[key]))};
   workbenchStageTwoReady=function(){return manualRubricIsComplete()};
   workbenchStageOneReady=function(){
     const ids=['tradeMarket','tradeAsset','tradeDirection','tradeSetup','entry','stop','atr','tradeMode','tradeThesis'];
@@ -3305,7 +3388,7 @@ renderEffectiveRiskPolicy();
     const isApproved=complete&&result.qualityAllowed;
     const experience=document.querySelector('#tradeRubricStage .rubric-experience')||document.getElementById('tradingRubricExperience');
     const statusHint=experience?.querySelector('#experienceStatusHint');
-    if(statusHint)statusHint.textContent=complete?(isGradeD?'A oportunidade não libera Risk Budget.':(isApproved?'O orçamento de risco é recalculado a cada ajuste da Rubric.':'A oportunidade recebeu um orçamento de risco menor.')):'Selecione o Contexto do Mercado e avalie os demais critérios para calcular o Risk Budget.';
+    if(statusHint)statusHint.textContent=complete?(isGradeD?'A oportunidade não libera Risk Budget.':(isApproved?'O orçamento de risco é recalculado a cada ajuste da Rubric.':'A oportunidade recebeu um orçamento de risco menor.')):'Avalie os critérios da Rubric para calcular o Risk Budget.';
 
     // Sincroniza a régua de qualidade canônica, score "64,00 / 100,00", ponteiro posicionado, Grade e background dinâmico do card
     syncQualityRulerExperience(result);
@@ -3366,6 +3449,7 @@ renderEffectiveRiskPolicy();
   rebuildRiskRubric();
   updateTradingRubric();
   document.addEventListener('input',event=>{if(['entry','stop','atr'].includes(event.target.id))updateTradingRubric()});
+  document.addEventListener('change',event=>{if(event.target&&event.target.id==='tradeMarket'){rebuildRiskRubric();updateTradingRubric()}});
 })();
 </script>
 <script src="frontend/market-cycle-v2.js?v=20260922-grading-abcd-1"></script>
