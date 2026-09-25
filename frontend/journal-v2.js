@@ -99,7 +99,7 @@
     const legacyLabels = e.legacyEntries.flatMap(item => Array.isArray(item.attachments) ? item.attachments : []);
     root.innerHTML = `<div class="jv-workspace">
       <header class="jv-heading"><div><span class="jv-kicker">${text('Observar · Registrar · Entender · Evoluir', 'Observe · Record · Understand · Grow')}</span><h1>${text('Diário do Trader', 'Trader Journal')}</h1><p>${text('Mais que registros. Um processo de evolução.', 'More than entries. A process of growth.')}</p></div><p class="jv-heading-quote">${text('Conheça o mercado.<br>Conheça a si mesmo.<br>E evolua todos os dias.', 'Know the market.<br>Know yourself.<br>Grow every day.')}</p></header>
-      <div class="jv-layout"><aside class="jv-history"><h2>${text('Meu Caderno', 'My Notebook')}</h2><label class="jv-sr" for="jv-month">${text('Mês do histórico', 'History month')}</label><select id="jv-month">${months.map(value => `<option value="${value}" ${value === month ? 'selected' : ''}>${value ? dateLabel(`${value}-01`, { month: 'long', year: 'numeric' }) : text('Datas a revisar', 'Dates to review')}</option>`).join('')}</select><small>${visible.length} ${text(visible.length === 1 ? 'dia registrado' : 'dias registrados', visible.length === 1 ? 'recorded day' : 'recorded days')}</small><nav aria-label="${text('Histórico do diário', 'Journal history')}">${visible.map(item => `<button type="button" data-day="${esc(item.id)}" ${item.id === selected ? 'aria-current="date"' : ''}><time>${item.date ? dateLabel(item.date, { day: '2-digit', month: 'short' }) : '—'}</time><span>${esc(item.date === M.today() ? text('Hoje', 'Today') : item.title || item.emotional.states[0] || text('Registro', 'Entry'))}</span></button>`).join('')}</nav><button type="button" class="jv-new" data-action="today">＋ ${text('Registro de hoje', 'Today’s entry')}</button><p>${text('Um dia. Duas perspectivas.<br>Um só aprendizado.', 'One day. Two perspectives.<br>One shared lesson.')}</p></aside>
+      <div class="jv-layout"><aside class="jv-history"><h2>${text('Meu Caderno', 'My Notebook')}</h2><label class="jv-sr" for="jv-month">${text('Mês do histórico', 'History month')}</label><select id="jv-month">${months.map(value => `<option value="${value}" ${value === month ? 'selected' : ''}>${value ? dateLabel(`${value}-01`, { month: 'long', year: 'numeric' }) : text('Datas a revisar', 'Dates to review')}</option>`).join('')}</select><small>${visible.length} ${text(visible.length === 1 ? 'dia registrado' : 'dias registrados', visible.length === 1 ? 'recorded day' : 'recorded days')}</small><button type="button" class="jv-export-trigger" data-action="export-journal" title="${text('Exportar Diário (preparado para IA)', 'Export Journal (AI ready)')}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>${text('Exportar Diário', 'Export Journal')}</span></button><nav aria-label="${text('Histórico do diário', 'Journal history')}">${visible.map(item => `<button type="button" data-day="${esc(item.id)}" ${item.id === selected ? 'aria-current="date"' : ''}><time>${item.date ? dateLabel(item.date, { day: '2-digit', month: 'short' }) : '—'}</time><span>${esc(item.date === M.today() ? text('Hoje', 'Today') : item.title || item.emotional.states[0] || text('Registro', 'Entry'))}</span></button>`).join('')}</nav><button type="button" class="jv-new" data-action="today">＋ ${text('Registro de hoje', 'Today’s entry')}</button><p>${text('Um dia. Duas perspectivas.<br>Um só aprendizado.', 'One day. Two perspectives.<br>One shared lesson.')}</p></aside>
       <main class="jv-notebook"><header class="jv-book-header"><div><span class="jv-kicker">${text('Seu Caderno de Processo', 'Your Process Notebook')}</span><h2>${dateLabel(e.date)}</h2></div><div class="jv-date-nav"><button type="button" data-action="previous" aria-label="${text('Registro anterior', 'Previous entry')}">‹</button><label><span class="jv-sr">${text('Abrir registro de uma data', 'Open a date')}</span><input id="jv-date" type="date" value="${e.date || ''}"></label><button type="button" data-action="next" aria-label="${text('Próximo registro', 'Next entry')}">›</button></div></header>
       <div class="jv-tabs" role="tablist" aria-label="${text('Página do caderno', 'Notebook page')}"><button type="button" id="jv-tab-technical" role="tab" aria-controls="jv-technical" aria-selected="${pane === 'technical'}" tabindex="${pane === 'technical' ? 0 : -1}" data-pane="technical">▥ ${text('Técnico', 'Technical')}</button><button type="button" id="jv-tab-emotional" role="tab" aria-controls="jv-emotional" aria-selected="${pane === 'emotional'}" tabindex="${pane === 'emotional' ? 0 : -1}" data-pane="emotional">◉ ${text('Emocional', 'Emotional')}</button></div>
       <div class="jv-spread" data-focus="${pane}">
@@ -296,6 +296,298 @@
     } catch (error) { status(text('Não foi possível salvar a sugestão.', 'Could not save the suggestion.'), true); }
   }
   function download(blob, name) { const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+  const exportState = {
+    period: 'current_month',
+    startDate: '',
+    endDate: '',
+    content: 'all',
+    format: 'markdown',
+    forAi: true
+  };
+
+  function getActivePeriodLabel() {
+    const p = exportState.period;
+    if (p === 'today') return text('Dia atual (' + M.today() + ')', 'Today (' + M.today() + ')');
+    if (p === 'current_month') {
+      const ym = month || M.today().slice(0, 7);
+      return dateLabel(`${ym}-01`, { month: 'long', year: 'numeric' });
+    }
+    if (p === 'last_30_days') return text('Últimos 30 dias', 'Last 30 days');
+    if (p === 'last_3_months') return text('Últimos 3 meses', 'Last 3 months');
+    if (p === 'current_year') return (month || M.today()).slice(0, 4);
+    if (p === 'custom') return `${exportState.startDate} até ${exportState.endDate}`;
+    return text('Todo o histórico', 'Full history');
+  }
+
+  function renderExportPreview() {
+    const EM = window.JournalExportModel;
+    if (!EM) return;
+    const filtered = EM.filterRecords(data.records, {
+      period: exportState.period,
+      activeMonth: month,
+      startDate: exportState.startDate,
+      endDate: exportState.endDate
+    });
+
+    const periodLabel = getActivePeriodLabel();
+    const formatted = EM.formatExport(filtered, {
+      format: exportState.format,
+      content: exportState.content,
+      forAi: exportState.forAi,
+      periodLabel,
+      startDate: exportState.startDate,
+      endDate: exportState.endDate,
+      activeMonth: month
+    });
+
+    const pre = root.querySelector('#jv-export-preview');
+    if (pre) pre.textContent = formatted;
+
+    const badge = root.querySelector('#jv-export-meta-badge');
+    if (badge) {
+      const byteLen = new TextEncoder().encode(formatted).length;
+      const kb = (byteLen / 1024).toFixed(1);
+      badge.textContent = `${filtered.length} ${text(filtered.length === 1 ? 'dia' : 'dias', filtered.length === 1 ? 'day' : 'days')} · ${kb} KB`;
+    }
+
+    const copyLabel = root.querySelector('#jv-export-copy-label');
+    if (copyLabel) {
+      copyLabel.textContent = exportState.forAi
+        ? text('Copiar para IA', 'Copy to AI')
+        : text('Copiar conteúdo', 'Copy content');
+    }
+  }
+
+  async function copyExportContent() {
+    const pre = root.querySelector('#jv-export-preview');
+    if (!pre) return;
+    const textToCopy = pre.textContent || '';
+    const label = root.querySelector('#jv-export-copy-label');
+    const copyBtn = root.querySelector('#jv-export-copy-btn');
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = textToCopy;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      if (label) {
+        const original = label.textContent;
+        label.textContent = text('✓ Copiado! Cole no ChatGPT, Claude ou Gemini', '✓ Copied! Paste into ChatGPT, Claude or Gemini');
+        copyBtn?.classList.add('jv-btn-success');
+        setTimeout(() => {
+          if (label.isConnected) {
+            label.textContent = original;
+            copyBtn?.classList.remove('jv-btn-success');
+          }
+        }, 3000);
+      }
+    } catch (err) {
+      console.error('Falha ao copiar:', err);
+      alert(text('Não foi possível copiar automaticamente. Selecione o texto da prévia e use Ctrl+C.', 'Could not copy automatically. Select the preview text and use Ctrl+C.'));
+    }
+  }
+
+  function downloadExportFile() {
+    const EM = window.JournalExportModel;
+    if (!EM) return;
+    const pre = root.querySelector('#jv-export-preview');
+    if (!pre) return;
+    const content = pre.textContent || '';
+    const filename = EM.getExportFilename({
+      format: exportState.format,
+      period: exportState.period,
+      activeMonth: month,
+      startDate: exportState.startDate,
+      endDate: exportState.endDate
+    });
+    const mimeTypes = {
+      markdown: 'text/markdown;charset=utf-8',
+      text: 'text/plain;charset=utf-8',
+      json: 'application/json;charset=utf-8',
+      csv: 'text/csv;charset=utf-8'
+    };
+    const mime = mimeTypes[exportState.format] || 'text/plain;charset=utf-8';
+    download(new Blob([content], { type: mime }), filename);
+  }
+
+  function bindExportModalEvents() {
+    const dialogEl = root.querySelector('#jv-dialog');
+    if (!dialogEl) return;
+
+    const periodSelect = dialogEl.querySelector('#jv-export-period');
+    if (periodSelect) {
+      periodSelect.addEventListener('change', e => {
+        exportState.period = e.target.value;
+        const customGroup = dialogEl.querySelector('#jv-export-custom-dates');
+        if (customGroup) customGroup.hidden = exportState.period !== 'custom';
+        renderExportPreview();
+      });
+    }
+
+    const startInput = dialogEl.querySelector('#jv-export-start');
+    if (startInput) {
+      startInput.addEventListener('change', e => {
+        exportState.startDate = e.target.value;
+        renderExportPreview();
+      });
+    }
+
+    const endInput = dialogEl.querySelector('#jv-export-end');
+    if (endInput) {
+      endInput.addEventListener('change', e => {
+        exportState.endDate = e.target.value;
+        renderExportPreview();
+      });
+    }
+
+    dialogEl.querySelectorAll('[data-export-content]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        exportState.content = btn.dataset.exportContent;
+        dialogEl.querySelectorAll('[data-export-content]').forEach(b => {
+          const chosen = b === btn;
+          b.classList.toggle('chosen', chosen);
+          b.setAttribute('aria-pressed', String(chosen));
+        });
+        renderExportPreview();
+      });
+    });
+
+    dialogEl.querySelectorAll('[data-export-format]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        exportState.format = btn.dataset.exportFormat;
+        dialogEl.querySelectorAll('[data-export-format]').forEach(b => {
+          const chosen = b === btn;
+          b.classList.toggle('chosen', chosen);
+          b.setAttribute('aria-pressed', String(chosen));
+        });
+        renderExportPreview();
+      });
+    });
+
+    const aiCheck = dialogEl.querySelector('#jv-export-for-ai');
+    if (aiCheck) {
+      aiCheck.addEventListener('change', e => {
+        exportState.forAi = e.target.checked;
+        renderExportPreview();
+      });
+    }
+
+    const copyBtn = dialogEl.querySelector('#jv-export-copy-btn');
+    if (copyBtn) copyBtn.addEventListener('click', copyExportContent);
+
+    const downloadBtn = dialogEl.querySelector('#jv-export-download-btn');
+    if (downloadBtn) downloadBtn.addEventListener('click', downloadExportFile);
+  }
+
+  function showExportModal() {
+    const EM = window.JournalExportModel;
+    if (!EM) return;
+    const el = root.querySelector('#jv-dialog');
+    if (!el) return;
+    el.classList.remove('jv-evidence-dialog');
+    el.classList.add('jv-export-dialog');
+
+    if (!exportState.startDate) exportState.startDate = `${month || M.today().slice(0, 7)}-01`;
+    if (!exportState.endDate) exportState.endDate = M.today();
+
+    const title = text('Exportar Diário do Trader', 'Export Trader Journal');
+    const periods = [
+      ['current_month', text('Mês atual', 'Current month')],
+      ['today', text('Dia atual', 'Today')],
+      ['last_30_days', text('Últimos 30 dias', 'Last 30 days')],
+      ['last_3_months', text('Últimos 3 meses', 'Last 3 months')],
+      ['current_year', text('Ano atual', 'Current year')],
+      ['custom', text('Período personalizado', 'Custom period')],
+      ['all', text('Todo o histórico', 'Full history')]
+    ];
+    const contents = [
+      ['all', text('Ambos (Técnico + Emocional)', 'Both (Technical + Emotional)')],
+      ['technical', text('Diário Técnico', 'Technical Journal')],
+      ['emotional', text('Diário Emocional', 'Emotional Journal')]
+    ];
+    const formats = [
+      ['markdown', 'Markdown (.md) · ' + text('Ideal para IA', 'Ideal for AI')],
+      ['text', text('Texto (.txt)', 'Text (.txt)')],
+      ['json', 'JSON (.json)'],
+      ['csv', 'CSV (.csv)']
+    ];
+
+    const bodyHtml = `
+      <div class="jv-export-shell">
+        <p class="jv-export-desc">${text('Exporte seus registros estruturados e prontos para estudo pessoal ou análise aprofundada em modelos de IA (ChatGPT, Claude, Gemini).', 'Export your records structured and ready for personal study or in-depth analysis in AI models (ChatGPT, Claude, Gemini).')}</p>
+        
+        <div class="jv-export-grid">
+          <div class="jv-export-control-group">
+            <label class="jv-export-label" for="jv-export-period">${text('Período:', 'Period:')}</label>
+            <select id="jv-export-period" class="jv-export-select">
+              ${periods.map(([val, lbl]) => `<option value="${val}" ${exportState.period === val ? 'selected' : ''}>${lbl}</option>`).join('')}
+            </select>
+          </div>
+
+          <div id="jv-export-custom-dates" class="jv-export-dates" ${exportState.period === 'custom' ? '' : 'hidden'}>
+            <div>
+              <label for="jv-export-start">${text('Data inicial:', 'Start date:')}</label>
+              <input type="date" id="jv-export-start" value="${exportState.startDate}">
+            </div>
+            <div>
+              <label for="jv-export-end">${text('Data final:', 'End date:')}</label>
+              <input type="date" id="jv-export-end" value="${exportState.endDate}">
+            </div>
+          </div>
+
+          <div class="jv-export-control-group">
+            <span class="jv-export-label">${text('Conteúdo:', 'Content:')}</span>
+            <div class="jv-export-pills" role="radiogroup" aria-label="${text('Conteúdo a exportar', 'Content to export')}">
+              ${contents.map(([val, lbl]) => `<button type="button" class="jv-export-pill ${exportState.content === val ? 'chosen' : ''}" data-export-content="${val}" aria-pressed="${exportState.content === val}">${lbl}</button>`).join('')}
+            </div>
+          </div>
+
+          <div class="jv-export-control-group">
+            <span class="jv-export-label">${text('Formato:', 'Format:')}</span>
+            <div class="jv-export-pills" role="radiogroup" aria-label="${text('Formato do arquivo', 'File format')}">
+              ${formats.map(([val, lbl]) => `<button type="button" class="jv-export-pill ${exportState.format === val ? 'chosen' : ''}" data-export-format="${val}" aria-pressed="${exportState.format === val}">${lbl}</button>`).join('')}
+            </div>
+          </div>
+
+          <div class="jv-export-ai-opt">
+            <label class="jv-export-checkbox-label">
+              <input type="checkbox" id="jv-export-for-ai" ${exportState.forAi ? 'checked' : ''}>
+              <span><b>${text('Preparar para análise por IA', 'Prepare for AI analysis')}</b> — ${text('organiza o documento de forma semântica e inclui instruções prontas para o ChatGPT, Claude ou Gemini identificarem padrões recorrentes e correlações emocionais/técnicas.', 'organises document semantically and includes prompt instructions for ChatGPT, Claude or Gemini to identify patterns and emotional/technical correlations.')}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="jv-export-preview-box">
+          <div class="jv-export-preview-header">
+            <span>${text('Prévia do documento:', 'Document preview:')}</span>
+            <span id="jv-export-meta-badge" class="jv-export-badge">—</span>
+          </div>
+          <pre id="jv-export-preview" class="jv-export-preview-content" tabindex="0"></pre>
+        </div>
+
+        <footer class="jv-export-actions">
+          <button type="button" id="jv-export-copy-btn" class="jv-btn-primary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="jv-export-copy-label">${text('Copiar para IA', 'Copy to AI')}</span>
+          </button>
+          <button type="button" id="jv-export-download-btn" class="jv-btn-secondary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>${text('Baixar arquivo', 'Download file')}</span>
+          </button>
+          <button type="button" data-action="close-dialog" class="jv-btn-cancel">${text('Fechar', 'Close')}</button>
+        </footer>
+      </div>
+    `;
+
+    dialog(title, bodyHtml);
+    bindExportModalEvents();
+    renderExportPreview();
+  }
   root.addEventListener('input', event => {
     const el = event.target; if (!el.dataset.field) return;
     if (el.type === 'number' && !el.validity.valid) { status(text('Use uma nota de 0 a 10.', 'Use a score from 0 to 10.'), true); return; }
@@ -327,6 +619,7 @@
   });
   root.addEventListener('close', event => {
     if (event.target.id === 'jv-dialog') {
+      event.target.classList.remove('jv-export-dialog');
       event.target.querySelectorAll('audio').forEach(audio => audio.pause());
       clearEvidenceUrls();
       render(true);
@@ -352,6 +645,7 @@
       case 'trades': showTrades(); break;
       case 'positions': root.querySelector('#jv-dialog').close(); go('positions'); break;
       case 'habit': sendHabit(current().shared.lesson); break;
+      case 'export-journal': showExportModal(); break;
       case 'close-dialog': root.querySelector('#jv-dialog').close(); clearEvidenceUrls(); break;
     }
   });

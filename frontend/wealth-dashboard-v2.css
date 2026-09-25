@@ -1226,3 +1226,19 @@ header.wealth-top-banner {
     align-items: flex-start;
   }
 }
+
+.wealth-chart-empty,
+.wealth-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 180px;
+  padding: 24px;
+  background: #f7faf8;
+  border: 1px dashed #cfe0d5;
+  border-radius: 12px;
+  color: #60796b;
+  font-size: 13px;
+  line-height: 1.5;
+}

@@ -3,7 +3,7 @@ const http = require('node:http');
 const { URL } = require('node:url');
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const { readCache, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, classStrengthFromCache, classifyAsset } = require('./market-data');
+const { readCache, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, classStrengthFromCache, classifyAsset, resolveMarketCycle } = require('./market-data');
 const { marketScansFromCache } = require('./market-scans');
 const { PLAN_CATALOG } = require('./subscription-plans');
 const { fetchFundamentals } = require('./fundamentals');
@@ -372,7 +372,11 @@ const server = http.createServer(async (request, response) => {
     if (!['/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
-    if (url.pathname === '/api/market-cycle') return send(response, 200, { updatedAt: cache.updatedAt, source: cache.source, cycle: cache.cycle, benchmark: cache.benchmark, breadth: cache.overview?.breadth || null });
+    if (url.pathname === '/api/market-cycle') {
+      const marketParam = url.searchParams.get('market') || 'stock_b3';
+      const payload = await resolveMarketCycle(cache, marketParam);
+      return send(response, 200, payload);
+    }
     if (url.pathname === '/api/market-scans') {
       cache = await refreshClassStrength(cache);
       cache = await refreshLiveScanQuotes(cache);

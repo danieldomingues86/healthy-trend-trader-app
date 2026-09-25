@@ -31,17 +31,30 @@
   const software = [
     ['today','Visão Geral','Seu centro de comando.','manual-dashboard','Veja o mercado, o risco da conta e a próxima ação. Comece pelas posições que precisam de atenção.'],
     ['newtrade','Novo Trade','Planeje e registre operações.','manual-newtrade','Defina parâmetros técnicos na Etapa 1, avalie a Rubric na Etapa 2 e confira como o Risk Budget é reduzido pelos limitadores da política antes de registrar a operação.'],
+    ['dailyroutine','Rotina Diária','O ritual da consistência.',null,'Execute seus rituais operacionais em cada fase do pregão: pré, intra e pós-mercado, protegendo sua rotina contra improvisos.'],
+    ['watchlist','Watchlist','Radar de oportunidades.',null,'Organize seus ativos em observação por estágio técnico (Base, Contração, Rompimento) e prioridade antes de planejar a entrada.'],
+    ['habits','Monitor de Hábitos','Disciplina que constrói o trader.',null,'Monitore diariamente a execução dos hábitos de alta performance e transforme disciplina em métricas visíveis de consistência.'],
     ['riskpolicy','Política de Risco','Governança e calibração de risco.','manual-riskpolicy','Defina o Risk Budget de cada Grade (A, B, C e D) e configure por perfil os limites de volatilidade, capital, Portfolio Heat e posições, além das proteções durante o trade.'],
     ['couragechallenge','Desafio Grade A','Treinamento do Modo Desapego.','manual-courage','Acompanhe a execução dos Rare Trades de Grade A em relação ao sizing executável autorizado pelo sistema, somente com o desafio ativo.'],
     ['positions','Posições','Acompanhe e gerencie.','manual-positions','Abra a posição para consultar a linha do tempo, atualizar o stop e registrar reduções ou encerramento.'],
     ['portfolioheat','Portfolio Heat','Controle o risco da carteira.','manual-risk','Confira o risco agregado das posições e compare com o limite definido na sua Política de Risco.'],
+    ['dashboard','Patrimônio','Visão patrimonial e alocações.',null,'Acompanhe a curva de capital da estratégia, separe o rendimento real dos aportes e gerencie as alocações da sua carteira.'],
+    ['assetblacklist','Ativos Blacklist','Blindagem comportamental.',null,'Cadastre ativos proibidos, ilíquidos ou fora do seu perfil para bloquear compras acidentais no sistema.'],
     ['marketcycle','Ciclo de Mercado','Entenda o ambiente.','manual-permission','Leia o regime do mercado e a atualização dos dados. Use o contexto antes de procurar uma oportunidade.'],
     ['emergingleaders','Líderes Emergentes','Descubra a próxima geração de líderes.','manual-emergingleaders','Identifique ações com alta Força Relativa, aceleração e proximidade da máxima durante correções. Acompanhe a força coletiva dos setores antes da entrada.'],
     ['relativestrength','Força Relativa','Encontre líderes.',null,'Compare os ativos dentro do seu universo. Força relativa indica liderança; a entrada ainda depende do setup.'],
+    ['marketscans','Scans de Mercado','Filtros inteligentes de setups.',null,'Filtre ações em rompimento de 52 semanas, contração de volatilidade ou forte momentum no universo B3 para abastecer seu radar.'],
     ['fundamentals','Fundamentalista','Analise a qualidade.',null,'Pesquise o ticker e consulte seus fundamentos atuais. Use a análise como evidência adicional na Rubric.'],
     ['analytics','Painel da Verdade','Descubra onde você tem edge.','manual-analytics','Revise os resultados das operações registradas e procure padrões de qualidade e execução.'],
+    ['tradeanatomy','Anatomia dos Trades','Decomposição do seu edge.',null,'Examine a anatomia estatística dos seus trades vencedores vs perdedores, relação de R múltiplo, permanência e setups mais lucrativos.'],
     ['journal','Diário','Registre e evolua.','manual-journal','Registre o processo técnico e emocional. O vínculo com uma posição é opcional, inclusive em dias sem operar.'],
+    ['mistakesbook','Erros e Lições','Catálogo de aprendizados.',null,'Registre erros operacionais e comportamentais para identificar padrões e consolidar lições aprendidas.'],
+    ['tradelibrary','Biblioteca de Trades','Trades modelo e referências.',null,'Estude operações históricas de referência e setups clássicos do método para treinar seu olhar para o padrão perfeito.'],
+    ['emotionalintelligence','Analisador Emocional','Psicologia e clareza mental.',null,'Mapeie os estados emocionais associados às suas operações, detecte gatilhos de euforia ou ansiedade e mantenha a clareza.'],
+    ['forecast','Simulador de Resultados','Projeções probabilísticas.',null,'Simule a evolução matemática da sua curva de capital combinando taxa de acerto, payoff (R médio) e volume operacional.'],
     ['zen','Trader Zen','Proteja o trader.',null,'Escolha uma prática, acompanhe a sessão e retorne ao processo com atenção. As práticas concluídas compõem seu histórico.'],
+    ['wisdom','Sabedoria do Trader','Filosofia dos mestres.',null,'Mergulhe no acervo curado com princípios, ensinamentos e citações dos maiores operadores de tendência da história.'],
+    ['materials','Trader Store','Recursos e templates.',null,'Acesse materiais de apoio, checklists impressos, áudios de foco e guias operacionais desenvolvidos para sua rotina.'],
   ];
   const concepts = [
     ['star','Empilhamento de Probabilidades','Vários edges, uma decisão.','Empilhamento de Probabilidades'],
@@ -231,6 +244,21 @@
         'Dimensionamento: o Risk Budget produz o Position Size teórico pela distância até o stop. Em seguida, volatilidade por ATR, capital, Portfolio Heat e máximo de posições limitam a quantidade executável quando necessário.',
         'Integração com o Desafio Grade A: apenas operações Grade A registradas enquanto o desafio está ativo são avaliadas contra o sizing executável calculado pelo sistema.'
       ],
+      dailyroutine: [
+        'A Rotina Diária estrutura a jornada do trader em três fases sagradas: Pré-Mercado (checagem de ciclo, revisão de posições, trailing stops e atualização da watchlist), Intra-Mercado (disciplina de execução e paciência) e Pós-Mercado (diário, registro de métricas e reflexão).',
+        'O ritual previne o improviso: o trader só opera quando a preparação foi concluída e o ciclo de mercado autoriza novas exposições.',
+        'A rotina sincroniza com seu histórico de hábitos, garantindo consistência no longo prazo.'
+      ],
+      watchlist: [
+        'A Watchlist Inteligente funciona como seu Pool de Oportunidades: ela centraliza os melhores ativos identificados nos Scans, Líderes Emergentes e Força Relativa.',
+        'Classificação por Estágios: organize cada oportunidade conforme seu momento técnico — Base em Construção, Contração de Volatilidade (VCP), Alerta de Rompimento ou Follow Through.',
+        'REGRA DE OURO: Descoberta não é ordem de compra. Ativos na Watchlist são alvos em observação; a operação só é registrada quando o gatilho técnico e a Rubric confirmam o alinhamento.'
+      ],
+      habits: [
+        'O Monitor de Hábitos transforma o processo invisível em métricas tangíveis: consistência de rotina, respeito aos stops, pausas conscientes e preenchimento do diário.',
+        'Visualização de Sequências: acompanhe dias consecutivos de disciplina (streaks), taxa de adesão semanal e alertas quando algum pilar for negligenciado.',
+        'A meta não é o resultado financeiro de um único dia, mas a excelência diária no cumprimento do processo operacional.'
+      ],
       riskpolicy: [
         'A Política de Risco centraliza os perfis operacionais (Política Padrão e Risk Ramp-Up), os Risk Budgets para A, B, C e D, os limitadores de exposição e os pesos da Trading Rubric.',
         'Cards de Grades: exibem e permitem editar o Risk Budget de A, B e C. Grade D não libera risco. Cada perfil mantém seus próprios limites de volatilidade, capital, Heat e posições, além das proteções de risco e volatilidade durante o trade.',
@@ -241,14 +269,69 @@
         'Elegibilidade Estrita: Apenas Rare Trades classificados como Grade A e executados durante o desafio ativo participam. B, C e D não pontuam.',
         'Inspeção sem Interferência: o desafio não altera o Position Sizing; ele compara a execução real com o risco e a quantidade efetivamente autorizados depois dos limitadores da política.'
       ],
+      dashboard: [
+        'O módulo Patrimônio oferece uma visão holística da sua saúde financeira: curva de capital da estratégia, taxa de crescimento anual e retorno percentual acumulado.',
+        'Separação de Aportes vs Performance: o sistema calcula o retorno real gerado pelas operações sem distorções causadas por novos depósitos ou retiradas financeiras.',
+        'Gestão de Alocações: acompanhe suas metas percentuais por classe de ativos e monitore o desbalanceamento da sua carteira.'
+      ],
+      assetblacklist: [
+        'A Blacklist de Ativos é sua blindagem comportamental e de liquidez: adicione ativos que violam suas regras de risco, ações com volume insuficiente ou papéis com governança duvidosa.',
+        'Bloqueio no Planejamento: o sistema impede o registro de ordens para ativos na Blacklist, garantindo que a disciplina seja imposta pelo software mesmo em momentos de impulso.'
+      ],
+      marketcycle: [
+        'A tela de Ciclo de Mercado monitora o regime técnico dos índices de referência (Ibovespa e Small Caps) em relação às médias móveis e ao fôlego de mercado.',
+        'Permissão Operacional: Mercado Saudável autoriza novos setups; Mercado em Transição exige cautela e menor exposição; Mercado Defensivo/Risk-Off protege o capital e bloqueia novas compras long.'
+      ],
       emergingleaders: [
         'A tela de Líderes Emergentes combina 6 dimensões em um Score único de 0 a 100: Força Relativa (25%), Aceleração de RS (15%), Proximidade da Máxima de 52S (20%), Resiliência na Correção (15%), Força de Recuperação (15%) e Liderança Setorial (10%).',
         'Use esta ferramenta para descobrir quais ações estão sustentando preço enquanto a maioria do mercado cai. Veja os setores com maior concentração de força (Grupos Fortes) e selecione os melhores candidatos.',
         'REGRA DE OURO: Descoberta NÃO é compra imediata. Um score alto serve para você colocar o ativo na sua Watchlist de acompanhamento. A compra só deve ser planejada quando a ação formar uma contração no gráfico com setup A e gatilho técnico confirmado.'
       ],
       relativestrength: ['Escolha o universo de ativos e compare sua força relativa. Confira a data de atualização antes de interpretar a classificação.', 'Use os líderes para organizar sua pesquisa. Depois avalie o contexto técnico e a Rubric em Novo Trade; liderança não substitui um gatilho de entrada.'],
+      marketscans: [
+        'Os Scans de Mercado monitoram o universo B3 e filtram ativos automaticamente em padrões técnicos comprovados: Rompimentos de 52 Semanas, Contrações de Volatilidade (VCP), Momentum Positivo e Retração às Médias.',
+        'Varredura Eficiente: identifique rapidamente em poucos segundos quais ações estão em pontos de inflexão técnica sem precisar folhear centenas de gráficos manualmente.',
+        'Conexão Direta: envie os ativos filtrados com um clique diretamente para sua Watchlist para acompanhamento refinado.'
+      ],
       fundamentals: ['Pesquise o código do ativo e confira os indicadores disponíveis. Campos sem dados devem permanecer sem avaliação, sem presumir qualidade.', 'Use a consulta atual para entender a empresa e complementar a seleção. Volte ao planejamento para revisar a dimensão fundamentalista e os demais critérios da Rubric.'],
-      zen: ['Escolha a prática adequada ao seu momento e acompanhe as instruções da sessão.', 'Conclua a prática para registrar seu histórico. Antes de voltar à operação, retome seu plano e confira se está em condição de executá-lo.']
+      analytics: [
+        'O Painel da Verdade analisa objetivamente suas estatísticas acumuladas: taxa de acerto, fator de lucro, payoff médio e expectativa matemática.',
+        'Padrões de Resultado: filtre por setup, direção, ciclo de mercado e grade da Rubric para descobrir onde reside sua verdadeira vantagem estatística.'
+      ],
+      tradeanatomy: [
+        'A Anatomia dos Trades disseca suas operações encerradas sob uma ótica puramente estatística e científica: taxa de acerto real, payoff médio (R médio de ganho vs perda) e expectativa matemática por trade.',
+        'Decomposição por Setups e Grades: descubra exatamente quais padrões gráficos e quais faixas de score da Rubric geram a maior parte dos seus lucros e quais apenas consomem comissões e energia.',
+        'Tempo de Permanência: compare o tempo médio de retenção de trades vencedores versus perdedores para assegurar que você está cortando perdas rápido e deixando os lucros correrem.'
+      ],
+      journal: [
+        'O Diário do Trader registra a evolução técnica e comportamental dia a dia. Vincule operações, anexe capturas de gráficos e registre emoções e notas de reflexão.',
+        'Mesmo em dias sem operar, registre a disciplina da espera. A paciência é parte integrante do método.'
+      ],
+      mistakesbook: [
+        'O Caderno de Erros e Lições cataloga as falhas que custaram capital ou disciplina: quebra de stop, entrada antecipada, FOMO, hesitação ou violação da política de risco.',
+        'Lições Dominadas: ao registrar uma falha, o trader define a lição e o compromisso prático para corrigi-la. Revisitar as lições antes do pregão blinda o comportamento contra erros recorrentes.'
+      ],
+      tradelibrary: [
+        'A Biblioteca de Trades é o acervo de excelência visual da plataforma: reúne trades históricos modelo, breakouts perfeitos, pullbacks institucionais e casos de estudo comentados.',
+        'Treinamento de Padrões: estude os melhores setups para calibrar seu cérebro a reconhecer rapidamente a anatomia visual de um Rare Trade Grade A no mercado real.'
+      ],
+      emotionalintelligence: [
+        'O Analisador Emocional correlaciona suas tomadas de decisão com o seu estado psicológico no momento do trade: calma, ansiedade, euforia, frustração ou hesitação.',
+        'Detecção de Padrões: identifique quais emoções precedem seus maiores erros operacionais e aprenda a identificar os sinais de estresse antes que eles afetem seu capital.'
+      ],
+      forecast: [
+        'O Simulador de Resultados projeta probabilisticamente a evolução futura da sua curva de capital com base na sua taxa de acerto real, payoff médio e frequência de operações.',
+        'Consciência Estatística: compreenda o poder dos juros compostos no trading e visualize como pequenas melhorias na seleção de trades transformam seus resultados no longo prazo.'
+      ],
+      zen: ['Escolha a prática adequada ao seu momento e acompanhe as instruções da sessão.', 'Conclua a prática para registrar seu histórico. Antes de voltar à operação, retome seu plano e confira se está em condição de executá-lo.'],
+      wisdom: [
+        'A tela Sabedoria do Trader disponibiliza um acervo curado com centenas de princípios, citações comentadas e reflexões atemporais dos maiores operadores de tendência da história.',
+        'Alinhamento Filosófico: acesse ensinamentos categorizados em Gestão de Risco, Psicologia, Disciplina e Estratégia para manter a perspectiva correta durante drawdowns.'
+      ],
+      materials: [
+        'A Trader Store reúne materiais complementares do trader: guias operacionais em PDF, checklists para impressão, áudios de foco e fichas de acompanhamento.',
+        'Recursos Exclusivos: ferramentas desenhadas para transformar a teoria do método em ferramentas físicas e materiais de consulta rápida ao lado da sua mesa de operações.'
+      ]
     };
     const paragraphs = (additionalGuides[id] || (original ? [...original.querySelectorAll('p')].map(p=>p.textContent).filter(p=>p && !/checklist A\+ antes|classificada como rejeitada/.test(p)) : []));
     showReader(`<h2 id="kc-reader-title">${title}</h2><p class="kc-reader-lead">${description}</p><img class="kc-reader-screen" src="assets/manual-knowledge/${id}.jpg" alt="Tela ${title}"><span class="kc-eyebrow">COMO USAR</span>${paragraphs.length?paragraphs.map(p=>`<p>${esc(p)}</p>`).join(''):'<p>Consulte a informação da tela, confira seu contexto e siga para a próxima etapa do processo. Mantenha a Política de Risco como referência para suas decisões.</p>'}<button class="kc-open-tool" type="button" data-route="${id}">Abrir ${title} →</button>`);

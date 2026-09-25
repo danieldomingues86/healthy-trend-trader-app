@@ -1,8 +1,17 @@
 (() => {
   'use strict';
 
-  const root = document.getElementById('wealthDashboardRoot');
-  if (!root) return;
+  function getRoot() {
+    let r = typeof document !== 'undefined' ? document.getElementById('wealthDashboardRoot') : null;
+    if (!r && typeof document !== 'undefined') {
+      const dashboard = document.getElementById('dashboard');
+      if (dashboard) {
+        dashboard.innerHTML = '<div id="wealthDashboardRoot"></div>';
+        r = (typeof document.getElementById === 'function' ? document.getElementById('wealthDashboardRoot') : null) || dashboard;
+      }
+    }
+    return r;
+  }
 
   const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
   const MONTHS_FULL = [
@@ -817,6 +826,22 @@
       ['goals', 'Metas']
     ];
 
+    const currentYear = new Date().getFullYear();
+    const availableYearsSet = new Set([
+      currentYear,
+      currentYear - 1,
+      state.year
+    ]);
+    (data.snapshots || []).forEach(s => {
+      const d = parseDate(s.occurredAt);
+      if (d) availableYearsSet.add(d.getFullYear());
+    });
+    (data.movements || []).forEach(m => {
+      const d = parseDate(m.occurredAt);
+      if (d) availableYearsSet.add(d.getFullYear());
+    });
+    const yearsList = Array.from(availableYearsSet).sort((a, b) => b - a);
+
     // ------------------------------------------------
     // SECTION 1: 4 TOP KPI CARDS
     // ------------------------------------------------
@@ -1062,6 +1087,9 @@
     // ------------------------------------------------
     // FULL HTML ASSEMBLY
     // ------------------------------------------------
+    const root = getRoot();
+    if (!root) return;
+
     root.innerHTML = `
       <main class="wealth-shell">
         <!-- 1. HERO / HEADER (Completely self-contained, ends strictly before cards) -->
@@ -1085,7 +1113,7 @@
                 constrói o trader que você quer ser.
               </p>
               <select class="wealth-period-select" aria-label="Ano selecionado" data-wealth-year>
-                <option value="${state.year}">${state.year} (Ano Atual)</option>
+                ${yearsList.map(y => `<option value="${y}" ${state.year === y ? 'selected' : ''}>${y}${y === currentYear ? ' (Ano Atual)' : ''}</option>`).join('')}
               </select>
             </div>
           </div>
@@ -1139,11 +1167,33 @@
 
   async function saveRecord(form, apiPath) {
     try {
+      const data = Object.fromEntries(new FormData(form));
       if (!window.healthyTrendApi?.isAuthenticated?.()) {
-        window.showToast?.('Entre no workspace para salvar alterações.');
+        if (apiPath.includes('movements')) {
+          state.wealth = state.wealth || JSON.parse(JSON.stringify(DEFAULT_WEALTH));
+          state.wealth.movements = state.wealth.movements || [];
+          state.wealth.movements.unshift({
+            id: 'm-' + Date.now(),
+            type: data.type,
+            amount: Number(data.amount),
+            occurredAt: data.occurredAt || new Date().toISOString().slice(0, 10),
+            note: data.note || ''
+          });
+        } else if (apiPath.includes('allocations')) {
+          state.wealth = state.wealth || JSON.parse(JSON.stringify(DEFAULT_WEALTH));
+          state.wealth.allocations = state.wealth.allocations || [];
+          state.wealth.allocations.push({
+            id: 'a-' + Date.now(),
+            label: data.label,
+            assetClass: data.assetClass,
+            amount: Number(data.amount),
+            targetPct: data.targetPct ? Number(data.targetPct) : null
+          });
+        }
+        window.showToast?.('Registro salvo no modo demonstração.');
+        render();
         return;
       }
-      const data = Object.fromEntries(new FormData(form));
       await window.healthyTrendApi.request(apiPath, {
         method: 'POST',
         body: JSON.stringify(data)
@@ -1211,5 +1261,9 @@
     };
   }
 
-  loadWealthData();
+  if (typeof document !== 'undefined' && document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => loadWealthData());
+  } else {
+    loadWealthData();
+  }
 })();

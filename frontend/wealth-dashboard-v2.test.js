@@ -190,5 +190,63 @@ test('wealth dashboard renders complete structure matching reference image', () 
   // 6. Footer
   assert.ok(renderedHtml.includes('Dados atualizados automaticamente'), 'Should render footer info');
   assert.ok(renderedHtml.includes('Processo gera liberdade.'), 'Should render calligraphy script');
+
+  // 7. Tab switching
+  global.window.wealthDashboardV2SelectTab('movements');
+  assert.ok(renderedHtml.includes('Movimentações da Conta'), 'Should render movements tab');
+  assert.ok(renderedHtml.includes('Nova Movimentação'), 'Should render new movement form');
+
+  global.window.wealthDashboardV2SelectTab('allocation');
+  assert.ok(renderedHtml.includes('Alocação Estrutural de Capital'), 'Should render allocation tab');
+  assert.ok(renderedHtml.includes('Registrar Alocação'), 'Should render new allocation form');
+
+  global.window.wealthDashboardV2SelectTab('history');
+  assert.ok(renderedHtml.includes('Histórico de Snapshots Patrimoniais'), 'Should render history tab');
+
+  global.window.wealthDashboardV2SelectTab('goals');
+  assert.ok(renderedHtml.includes('Metas Patrimoniais'), 'Should render goals tab');
+
+  // Back to overview
+  global.window.wealthDashboardV2SelectTab('overview');
+  assert.ok(renderedHtml.includes('Patrimônio.'), 'Should return to overview');
+});
+
+test('wealth dashboard recovers when wealthDashboardRoot was wiped from dashboard container', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const code = fs.readFileSync(path.join(__dirname, 'wealth-dashboard-v2.js'), 'utf8');
+
+  let renderedHtml = '';
+  const dashboardRoot = {
+    set innerHTML(html) { renderedHtml = html; },
+    get innerHTML() { return renderedHtml; },
+    querySelector() { return null; },
+    querySelectorAll() { return []; },
+    addEventListener() {}
+  };
+
+  global.document = {
+    getElementById(id) {
+      if (id === 'wealthDashboardRoot') return null; // Initially wiped!
+      if (id === 'dashboard') return dashboardRoot;
+      return null;
+    },
+    createElement(tag) {
+      return { id: '', set innerHTML(h) { renderedHtml = h; }, get innerHTML() { return renderedHtml; }, querySelector() { return null; }, querySelectorAll() { return []; }, addEventListener() {} };
+    }
+  };
+  global.window = {
+    portfolioHeatSnapshot() { return { heat: 2.62, limit: 12.50 }; },
+    addEventListener() {}
+  };
+  global.localStorage = {
+    getItem() { return null; },
+    setItem() {}
+  };
+
+  eval(code);
+  assert.ok(typeof global.window.renderWealthV2 === 'function', 'Should export renderWealthV2');
+  global.window.renderWealthV2();
+  assert.ok(renderedHtml.includes('Patrimônio.'), 'Should render into recovered dashboard root');
 });
 
