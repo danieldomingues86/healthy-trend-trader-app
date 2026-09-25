@@ -1,6 +1,6 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {DEFAULT_POLICY,calculateRubric,calculateGrade,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,normalizePolicy,normalizeHistoricalGrade}=require('./trading-rubrics');
+const {DEFAULT_POLICY,calculateRubric,calculateGrade,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,normalizePolicy,normalizeHistoricalGrade,marketCycleKey}=require('./trading-rubrics');
 test('leituras legadas nunca mostram A+ nem promovem A sem prova do Quality Gate',()=>{assert.equal(normalizeHistoricalGrade('A+'), 'B');assert.equal(normalizeHistoricalGrade('A'), 'B');assert.equal(normalizeHistoricalGrade('A',{gradingVersion:2}), 'A');assert.equal(normalizeHistoricalGrade('B'), 'B');assert.equal(normalizeHistoricalGrade('C'), 'C');assert.equal(normalizeHistoricalGrade('D'), 'D');assert.equal(normalizeHistoricalGrade(null), null)});
 test('Rubric de Position Trend Following totaliza 100 pontos nos seis pilares',()=>{const policy=normalizePolicy();assert.deepEqual(policy.criteria.map(({key,weight})=>[key,weight]),[['trendQuality',25],['marketCycle',20],['relativeStrength',20],['volatility',15],['setupQuality',15],['fundamentalScore',5]]);assert.equal(policy.criteria.reduce((sum,item)=>sum+item.weight,0),100)});
 test('Rubric segue a nomenclatura e ordem oficial dos seis critérios',()=>{const policy=normalizePolicy();assert.deepEqual(policy.criteria.map(({key,label,weight})=>[key,label,weight]),[['trendQuality','Contexto do Ativo (Diário)',25],['marketCycle','Contexto do Mercado',20],['relativeStrength','Força Relativa (RS)',20],['volatility','Volatilidade (ATR)',15],['setupQuality','Gatilho de Entrada',15],['fundamentalScore','Fundamentos',5]])});
@@ -12,7 +12,7 @@ test('descarta o antigo limite de risco inicial salvo nos perfis',()=>{const pol
 test('Grade A exige score e excelência em todos os seis edges',()=>{const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good']));const result=calculateRubric({ratings,marketCycleRegime:'healthy'});assert.equal(result.score,100);assert.equal(result.grade,'A');assert.equal(result.qualityAllowed,true)});
 test('score acima de 95 com edge crítico abaixo da excelência cai para B',()=>{const result=calculateRubric({ratings:{trendQuality:'good',relativeStrength:'good',volatility:'good',setupQuality:'good',fundamentalScore:'medium'},marketCycleRegime:'healthy'});assert.ok(result.score>=95);assert.equal(result.rawGrade,'A');assert.equal(result.grade,'B');assert.equal(result.gates[0].key,'fundamentalScore')});
 test('97 com todos os gates excelentes é A; 94 mesmo excelente permanece B',()=>{const ratings={trendQuality:'numeric',relativeStrength:'numeric',volatility:'numeric',setupQuality:'numeric',fundamentalScore:'numeric'};const values={trendQuality:.9625,relativeStrength:.9625,volatility:.9625,setupQuality:.9625,fundamentalScore:.9625};const result=calculateRubric({ratings,...values,marketCycleRegime:'healthy'});assert.equal(result.score,97);assert.equal(result.grade,'A');const lower=calculateRubric({ratings,...Object.fromEntries(Object.keys(values).map(key=>[key,.925])),marketCycleRegime:'healthy'});assert.equal(lower.score,94);assert.equal(lower.grade,'B')});
-test('mercado defensivo limita a classificação e risk-off bloqueia a oportunidade',()=>{const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good']));assert.equal(calculateRubric({ratings,marketCycleRegime:'defensive'}).grade,'B');assert.equal(calculateRubric({ratings,marketCycleRegime:'risk-off'}).grade,'D')});
+test('mercado defensivo limita a classificação a B e normaliza risk-off legado para defensivo',()=>{const ratings=Object.fromEntries(DEFAULT_POLICY.criteria.filter(item=>item.key!=='marketCycle').map(item=>[item.key,'good']));assert.equal(calculateRubric({ratings,marketCycleRegime:'defensive'}).grade,'B');assert.equal(calculateRubric({ratings,marketCycleRegime:'risk-off'}).grade,'B');assert.equal(calculateRubric({ratings,marketCycleRegime:'risk-off'}).marketCycle,'defensive')});
 test('Risk Budget acompanha a grade sem contaminar a pontuação da Rubric',()=>{const ratings={trendQuality:'good',relativeStrength:'good',volatility:'medium',setupQuality:'medium',fundamentalScore:'medium'};const result=calculateRubric({ratings,marketCycleRegime:'healthy'});assert.equal(result.grade,'B');assert.equal(result.gradeRiskPct,.002)});
 test('Position Sizing usa o Risk Budget do Grade e os limites de ATR e capital',()=>{const result=calculatePositionSizing({equity:1029500,entry:48.3,stop:45.8,atr:1.72,riskPct:.001,volatilityPct:.002,capitalPct:.1,lot:100});assert.equal(result.quantity,400);assert.equal(result.limitingLayer,'budget');assert.equal(result.theoreticalQuantity,400);assert.equal(result.layers.some(layer=>layer.key==='risk'),false)});
 test('Risk Budget é teto e o risco executável reflete o menor limitador da política',()=>{
@@ -206,6 +206,92 @@ test('Migração preserva o risco configurado de A mesmo quando igual ao de B', 
   assert.equal(migrated.grades.find(g => g.grade === 'B').riskPct, 0.002);
   assert.equal(migrated.grades.find(g => g.grade === 'A').riskPct, 0.002);
   assert.equal(migrated.grades.length, 4);
+});
+
+test('marketCycleKey normaliza os 3 estados operacionais oficiais e preserva compatibilidade com legados', () => {
+  // 3 Estados Oficiais
+  assert.equal(marketCycleKey('healthy'), 'healthy');
+  assert.equal(marketCycleKey('Saudável'), 'healthy');
+  assert.equal(marketCycleKey('saudavel'), 'healthy');
+  assert.equal(marketCycleKey('transition'), 'transition');
+  assert.equal(marketCycleKey('Transição'), 'transition');
+  assert.equal(marketCycleKey('transicao'), 'transition');
+  assert.equal(marketCycleKey('defensive'), 'defensive');
+  assert.equal(marketCycleKey('Defensivo'), 'defensive');
+
+  // Mapeamentos de Legado
+  assert.equal(marketCycleKey('improving'), 'transition');
+  assert.equal(marketCycleKey('Melhorando'), 'transition');
+  assert.equal(marketCycleKey('Em recuperação'), 'transition');
+  assert.equal(marketCycleKey('Transição saudável'), 'transition');
+  assert.equal(marketCycleKey('riskOff'), 'defensive');
+  assert.equal(marketCycleKey('Risk-Off'), 'defensive');
+  assert.equal(marketCycleKey('doente'), 'defensive');
+  assert.equal(marketCycleKey('down'), 'defensive');
+
+  // Indisponível e vazios
+  assert.equal(marketCycleKey('unavailable'), 'unavailable');
+  assert.equal(marketCycleKey('Não disponível'), 'unavailable');
+  assert.equal(marketCycleKey('indisponível'), 'unavailable');
+  assert.equal(marketCycleKey(null), null);
+  assert.equal(marketCycleKey(''), null);
+});
+
+test('Rubric calcula pontos corretos para os 3 estados (20, 11 e 4 pontos) e 0 para indisponível', () => {
+  const ratings = { trendQuality: 'good', relativeStrength: 'good', volatility: 'good', setupQuality: 'good', fundamentalScore: 'good' };
+  
+  // Healthy: 20 pts -> total 100 pts -> Grade A
+  const resHealthy = calculateRubric({ ratings, marketCycleRegime: 'healthy' });
+  const itemHealthy = resHealthy.contributions.find(c => c.key === 'marketCycle');
+  assert.equal(itemHealthy.points, 20);
+  assert.equal(resHealthy.score, 100);
+  assert.equal(resHealthy.grade, 'A');
+
+  // Transition: 11 pts -> total 91 pts -> Grade B
+  const resTransition = calculateRubric({ ratings, marketCycleRegime: 'transition' });
+  const itemTransition = resTransition.contributions.find(c => c.key === 'marketCycle');
+  assert.equal(itemTransition.points, 11);
+  assert.equal(resTransition.score, 91);
+  assert.equal(resTransition.grade, 'B');
+
+  // Defensive: 4 pts -> total 84 pts -> Grade B
+  const resDefensive = calculateRubric({ ratings, marketCycleRegime: 'defensive' });
+  const itemDefensive = resDefensive.contributions.find(c => c.key === 'marketCycle');
+  assert.equal(itemDefensive.points, 4);
+  assert.equal(resDefensive.score, 84);
+  assert.equal(resDefensive.grade, 'B');
+
+  // Unavailable: 0 pts -> total 80 pts -> Grade B, sem inflar artificialmente para Grade A
+  const resUnavailable = calculateRubric({ ratings, marketCycleRegime: 'unavailable' });
+  const itemUnavailable = resUnavailable.contributions.find(c => c.key === 'marketCycle');
+  assert.equal(itemUnavailable.points, 0);
+  assert.equal(resUnavailable.score, 80);
+  assert.equal(resUnavailable.grade, 'B');
+  assert.ok(resUnavailable.gates.some(g => g.key === 'market' && g.message.includes('Não foi possível obter o ciclo de mercado atual')));
+});
+
+test('Override manual do Contexto de Mercado recalcula Score e Grade dinamicamente', () => {
+  const ratings = { trendQuality: 'good', relativeStrength: 'good', volatility: 'good', setupQuality: 'good', fundamentalScore: 'good' };
+
+  // Contexto automático inicial: Saudável (100 pts -> Grade A)
+  const autoResult = calculateRubric({ ratings, marketCycleRegime: 'healthy' });
+  assert.equal(autoResult.score, 100);
+  assert.equal(autoResult.grade, 'A');
+
+  // Override manual para Transição (91 pts -> Grade B)
+  const overrideTransition = calculateRubric({ ratings, marketCycleRegime: 'transition' });
+  assert.equal(overrideTransition.score, 91);
+  assert.equal(overrideTransition.grade, 'B');
+
+  // Override manual para Defensivo (84 pts -> Grade B)
+  const overrideDefensive = calculateRubric({ ratings, marketCycleRegime: 'defensive' });
+  assert.equal(overrideDefensive.score, 84);
+  assert.equal(overrideDefensive.grade, 'B');
+
+  // Reversão para automático (restaura 100 pts -> Grade A)
+  const restoredResult = calculateRubric({ ratings, marketCycleRegime: 'healthy' });
+  assert.equal(restoredResult.score, 100);
+  assert.equal(restoredResult.grade, 'A');
 });
 
 

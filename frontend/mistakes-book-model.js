@@ -5,8 +5,8 @@
 }(typeof window === 'undefined' ? globalThis : window, function () {
   'use strict';
   const KEY = 'healthy-trend-mistakes-book-v1';
-  const TYPES = ['Entrada antecipada', 'FOMO', 'Quebra de regra', 'Contexto ruim', 'Sizing incorreto', 'Stop incorreto', 'Saída antecipada', 'Setup ruim', 'Contra tendência', 'Overtrading', 'Erro emocional', 'Erro de execução'];
-  const GROUPS = { Entrada: ['Entrada antecipada', 'FOMO', 'Contra tendência'], Saída: ['Saída antecipada'], Gestão: ['Sizing incorreto', 'Stop incorreto'], Emocional: ['FOMO', 'Overtrading', 'Erro emocional'], Setup: ['Setup ruim', 'Contexto ruim', 'Quebra de regra', 'Erro de execução'] };
+  const TYPES = ['Entrada antecipada', 'FOMO', 'Quebra de regra', 'Contexto ruim', 'Sizing incorreto', 'Stop incorreto', 'Saída antecipada', 'Setup ruim', 'Contra tendência', 'Overtrading', 'Erro emocional', 'Erro de execução', 'Seleção de Ativos'];
+  const GROUPS = { Entrada: ['Entrada antecipada', 'FOMO', 'Contra tendência', 'Seleção de Ativos'], Saída: ['Saída antecipada'], Gestão: ['Sizing incorreto', 'Stop incorreto'], Emocional: ['FOMO', 'Overtrading', 'Erro emocional'], Setup: ['Setup ruim', 'Contexto ruim', 'Quebra de regra', 'Erro de execução', 'Seleção de Ativos'] };
   const number = value => { if (value == null || String(value).trim() === '') return null; const result = Number(String(value).replace(',', '.')); return Number.isFinite(result) ? result : null; };
   function load(storage) {
     const raw = storage?.getItem(KEY);
@@ -41,5 +41,17 @@
     const recent = months.slice(3).reduce((sum, item) => sum + item.count, 0);
     return { months, previous, recent, percentage: previous ? Math.round((previous - recent) / previous * 100) : null };
   }
-  return { KEY, TYPES, GROUPS, load, save, number, occurrences, impact, metrics, monthlyCounts, change };
+  const ANNOTATION_TOOLS = ['Entrada', 'Stop', 'Saída', 'Região de interesse', 'Breakout', 'Erro', 'Confirmação correta'];
+  function nextRecordId(records, currentId, delta) {
+    if (!Array.isArray(records) || !records.length) return null;
+    const index = records.findIndex(record => record.id === currentId);
+    if (index === -1) {
+      return delta > 0 ? records[0].id : records[records.length - 1].id;
+    }
+    const nextIndex = index + delta;
+    if (nextIndex < 0 || nextIndex >= records.length) return records[index].id;
+    return records[nextIndex].id;
+  }
+  const uppercase = value => (value != null ? String(value).trim().toUpperCase() : '');
+  return { KEY, TYPES, GROUPS, ANNOTATION_TOOLS, nextRecordId, load, save, number, occurrences, impact, metrics, monthlyCounts, change, uppercase };
 }));

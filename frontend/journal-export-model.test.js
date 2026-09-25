@@ -222,3 +222,56 @@ test('getExportFilename gera nomes semânticos adequados por formato e período'
   assert.equal(ExportModel.getExportFilename({ format: 'text', period: 'all' }), 'diario-trader-historico-completo.txt');
   assert.equal(ExportModel.getExportFilename({ format: 'markdown', period: 'custom', startDate: '2026-01-01', endDate: '2026-06-30' }), 'diario-trader-2026-01-01_2026-06-30.md');
 });
+
+test('barra lateral do diário posiciona Registro de hoje no topo e Exportar Diário na base', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const code = fs.readFileSync(path.join(__dirname, 'journal-v2.js'), 'utf8');
+
+  const todayIndex = code.indexOf('data-action="today"');
+  const navIndex = code.indexOf('<nav aria-label=');
+  const exportIndex = code.indexOf('data-action="export-journal"');
+
+  assert.ok(todayIndex !== -1, 'Botão "Registro de hoje" deve existir no diário');
+  assert.ok(navIndex !== -1, 'Lista de histórico <nav> deve existir no diário');
+  assert.ok(exportIndex !== -1, 'Botão "Exportar Diário" deve existir no diário');
+
+  assert.ok(todayIndex < navIndex, 'Registro de hoje deve ficar no topo, antes da lista de histórico');
+  assert.ok(navIndex < exportIndex, 'Exportar Diário deve ficar na base, depois da lista de histórico');
+});
+
+test('Diário suporta identificação de mercado (IBOV, BDRX, IFIX) no modelo e na UI', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const journalCode = fs.readFileSync(path.join(__dirname, 'journal-v2.js'), 'utf8');
+
+  assert.ok(journalCode.includes('JOURNAL_MARKETS'), 'JOURNAL_MARKETS deve estar definido no Diário');
+  assert.ok(journalCode.includes('Ações B3'), 'Opção Ações B3 (IBOV) deve existir');
+  assert.ok(journalCode.includes('BDRs'), 'Opção BDRs (BDRX) deve existir');
+  assert.ok(journalCode.includes('FIIs'), 'Opção FIIs (IFIX) deve existir');
+  assert.ok(journalCode.includes('technical.market'), 'technical.market deve ser manipulado via data-set');
+  assert.ok(journalCode.includes('getMarketCycleSnapshot'), 'getMarketCycleSnapshot deve carregar o ciclo do mercado');
+
+  // Test export model market formatting
+  const recordsWithMarket = [
+    {
+      id: 'day-1',
+      date: '2026-09-24',
+      technical: {
+        market: 'bdr',
+        marketState: 'up',
+        session: 'BDRs fortes.'
+      },
+      emotional: { states: [] },
+      shared: {}
+    }
+  ];
+
+  const md = ExportModel.toMarkdown(recordsWithMarket);
+  assert.match(md, /Contexto do mercado:\nBDRs \(BDRX\) · Saudável/);
+
+  const jsonStr = ExportModel.toJson(recordsWithMarket);
+  const parsed = JSON.parse(jsonStr);
+  assert.equal(parsed.records[0].technical.market, 'bdr');
+  assert.equal(parsed.records[0].technical.marketLabel, 'BDRs (BDRX)');
+});
