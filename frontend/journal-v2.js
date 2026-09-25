@@ -103,17 +103,6 @@
   function journalMarketMeta(key) {
     return JOURNAL_MARKETS[key] || JOURNAL_MARKETS.ibov;
   }
-  function getMarketCycleSnapshot(marketKey) {
-    try {
-      const raw = storage.getItem('healthy-trend-market-cycle-snapshots-v1') || (typeof localStorage !== 'undefined' ? localStorage.getItem('healthy-trend-market-cycle-snapshots-v1') : null);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      const meta = journalMarketMeta(marketKey);
-      return parsed[meta.marketCycleId] || null;
-    } catch (_) {
-      return null;
-    }
-  }
   function marketContextSection(tech) {
     const activeMarkets = Array.isArray(tech.markets) && tech.markets.length
       ? tech.markets
@@ -928,7 +917,6 @@
   function render(force = false) {
     if (!force && root.contains(document.activeElement) && document.activeElement.matches('input,textarea,select')) return;
     const e = current(), tech = e.technical, emotional = e.emotional;
-
     const records = [...data.records].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     const months = [...new Set(records.map(item => (item.date || '').slice(0, 7)))];
     const visible = records.filter(item => (item.date || '').slice(0, 7) === month);
