@@ -270,4 +270,28 @@ test('Rubric calcula pontos corretos para os 3 estados (20, 11 e 4 pontos) e 0 p
   assert.ok(resUnavailable.gates.some(g => g.key === 'market' && g.message.includes('Não foi possível obter o ciclo de mercado atual')));
 });
 
+test('Override manual do Contexto de Mercado recalcula Score e Grade dinamicamente', () => {
+  const ratings = { trendQuality: 'good', relativeStrength: 'good', volatility: 'good', setupQuality: 'good', fundamentalScore: 'good' };
+
+  // Contexto automático inicial: Saudável (100 pts -> Grade A)
+  const autoResult = calculateRubric({ ratings, marketCycleRegime: 'healthy' });
+  assert.equal(autoResult.score, 100);
+  assert.equal(autoResult.grade, 'A');
+
+  // Override manual para Transição (91 pts -> Grade B)
+  const overrideTransition = calculateRubric({ ratings, marketCycleRegime: 'transition' });
+  assert.equal(overrideTransition.score, 91);
+  assert.equal(overrideTransition.grade, 'B');
+
+  // Override manual para Defensivo (84 pts -> Grade B)
+  const overrideDefensive = calculateRubric({ ratings, marketCycleRegime: 'defensive' });
+  assert.equal(overrideDefensive.score, 84);
+  assert.equal(overrideDefensive.grade, 'B');
+
+  // Reversão para automático (restaura 100 pts -> Grade A)
+  const restoredResult = calculateRubric({ ratings, marketCycleRegime: 'healthy' });
+  assert.equal(restoredResult.score, 100);
+  assert.equal(restoredResult.grade, 'A');
+});
+
 

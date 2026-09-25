@@ -84,7 +84,11 @@ function normalizePlan(payload = {}) {
       executableRiskPct: riskPct,
       limitingLayer: String(payload.limitingLayer || '').slice(0, 40) || null,
       limitingLayerName: String(payload.limitingLayerName || '').slice(0, 120) || null,
-      blacklistOverride: payload.blacklistOverride === true
+      blacklistOverride: payload.blacklistOverride === true,
+      benchmark: payload.benchmark ? String(payload.benchmark).slice(0, 20) : null,
+      marketCycleSuggested: payload.marketCycleSuggested ? String(payload.marketCycleSuggested).slice(0, 40) : null,
+      marketCycleUsed: payload.marketCycleUsed ? String(payload.marketCycleUsed).slice(0, 40) : null,
+      marketCycleOverride: payload.marketCycleOverride === true
     },
     entryTimestamp: entryTimestamp(payload.entryDate)
   };

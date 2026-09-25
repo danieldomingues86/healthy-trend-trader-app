@@ -19,6 +19,18 @@ test('normaliza plano com ticker em caixa alta e contribuições da Rubric', () 
   assert.equal(plan.metadata.limitingLayerName, 'Limite de capital');
 });
 
+test('preserva campos de auditoria do ciclo de mercado e override no metadata', () => {
+  const plan = normalizePlan({
+    asset: 'WEGE3', entry: 48.3, stop: 45.8, atr: 1.72, suggestedQty: 400,
+    executedQty: 400, riskPct: .004, rubricScore: 85, rubricMaxScore: 100, grade: 'A',
+    benchmark: 'IBOV', marketCycleSuggested: 'Saudável', marketCycleUsed: 'Transição', marketCycleOverride: true
+  });
+  assert.equal(plan.metadata.benchmark, 'IBOV');
+  assert.equal(plan.metadata.marketCycleSuggested, 'Saudável');
+  assert.equal(plan.metadata.marketCycleUsed, 'Transição');
+  assert.equal(plan.metadata.marketCycleOverride, true);
+});
+
 test('preserva a data efetiva de entrada separada do registro do trade', () => {
   const plan = normalizePlan({
     asset: 'WEGE3', entry: 48.3, stop: 45.8, atr: 1.72, suggestedQty: 400,
