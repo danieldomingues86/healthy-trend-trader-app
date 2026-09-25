@@ -41,5 +41,16 @@
     const recent = months.slice(3).reduce((sum, item) => sum + item.count, 0);
     return { months, previous, recent, percentage: previous ? Math.round((previous - recent) / previous * 100) : null };
   }
-  return { KEY, TYPES, GROUPS, load, save, number, occurrences, impact, metrics, monthlyCounts, change };
+  const ANNOTATION_TOOLS = ['Entrada', 'Stop', 'Saída', 'Região de interesse', 'Breakout', 'Erro', 'Confirmação correta'];
+  function nextRecordId(records, currentId, delta) {
+    if (!Array.isArray(records) || !records.length) return null;
+    const index = records.findIndex(record => record.id === currentId);
+    if (index === -1) {
+      return delta > 0 ? records[0].id : records[records.length - 1].id;
+    }
+    const nextIndex = index + delta;
+    if (nextIndex < 0 || nextIndex >= records.length) return records[index].id;
+    return records[nextIndex].id;
+  }
+  return { KEY, TYPES, GROUPS, ANNOTATION_TOOLS, nextRecordId, load, save, number, occurrences, impact, metrics, monthlyCounts, change };
 }));

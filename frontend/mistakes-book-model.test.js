@@ -30,3 +30,25 @@ test('older books gain an empty market lessons collection without changing recor
   const storage = { getItem: () => JSON.stringify({ version: 1, records: [{ id: 'kept' }] }) };
   assert.deepEqual(M.load(storage), { version: 1, records: [{ id: 'kept' }], marketLessons: [] });
 });
+
+test('nextRecordId navigates smoothly across records and respects boundaries for keyboard navigation', () => {
+  const records = [{ id: 'rec-1' }, { id: 'rec-2' }, { id: 'rec-3' }];
+  assert.equal(M.nextRecordId(records, 'rec-1', 1), 'rec-2');
+  assert.equal(M.nextRecordId(records, 'rec-2', 1), 'rec-3');
+  assert.equal(M.nextRecordId(records, 'rec-3', 1), 'rec-3'); // boundary: stays on last
+  assert.equal(M.nextRecordId(records, 'rec-3', -1), 'rec-2');
+  assert.equal(M.nextRecordId(records, 'rec-2', -1), 'rec-1');
+  assert.equal(M.nextRecordId(records, 'rec-1', -1), 'rec-1'); // boundary: stays on first
+  assert.equal(M.nextRecordId(records, 'unknown', 1), 'rec-1'); // fallback to first
+  assert.equal(M.nextRecordId(records, 'unknown', -1), 'rec-3'); // fallback to last
+  assert.equal(M.nextRecordId([], 'rec-1', 1), null);
+});
+
+test('ANNOTATION_TOOLS defines standard charting markers without colliding with zoom mode', () => {
+  assert.ok(Array.isArray(M.ANNOTATION_TOOLS));
+  assert.ok(M.ANNOTATION_TOOLS.includes('Entrada'));
+  assert.ok(M.ANNOTATION_TOOLS.includes('Stop'));
+  assert.ok(M.ANNOTATION_TOOLS.includes('Saída'));
+  assert.ok(M.ANNOTATION_TOOLS.includes('Erro'));
+});
+

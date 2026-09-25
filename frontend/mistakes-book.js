@@ -28,16 +28,20 @@
   // Legacy records may only have preTradeScreenshot. Keep it visible as the
   // single screenshot while newer records always use tradeScreenshot.
   function screenshot(record) { return record.tradeScreenshot || record.preTradeScreenshot || evidenceFor(record)[0] || null; }
-  function clearUrls() { state.urls.forEach(URL.revokeObjectURL); state.urls = []; }
+  const attachmentUrlCache = new Map();
+  function clearUrls() { /* Keep cached URLs alive across page turns */ }
   function closeImagePreview() { root.querySelector('.mb-image-preview')?.remove(); }
   function openImagePreview(source) {
-    if (!source?.src) return;
+    if (!source?.src && !source?.dataset?.attachment) return;
     closeImagePreview();
     const dialog = document.createElement('section');
     dialog.className = 'mb-image-preview'; dialog.setAttribute('role', 'dialog'); dialog.setAttribute('aria-modal', 'true'); dialog.setAttribute('aria-label', source.alt || lang('Visualização do print', 'Screenshot preview'));
     const figure = document.createElement('figure');
     const close = document.createElement('button'); close.type = 'button'; close.className = 'mb-image-preview-close'; close.dataset.closeImagePreview = ''; close.setAttribute('aria-label', lang('Fechar visualização', 'Close preview')); close.textContent = '×';
-    const image = new Image(); image.src = source.currentSrc || source.src; image.alt = source.alt || lang('Print ampliado', 'Expanded screenshot');
+    const image = new Image();
+    const srcUrl = source.currentSrc || source.src || (source.dataset?.attachment && attachmentUrlCache.get(source.dataset.attachment));
+    image.src = srcUrl || '';
+    image.alt = source.alt || lang('Print ampliado', 'Expanded screenshot');
     const caption = document.createElement('figcaption'); caption.textContent = source.alt || lang('Print', 'Screenshot');
     figure.append(close, image, caption); dialog.append(figure); root.append(dialog); close.focus();
   }
@@ -49,9 +53,23 @@
   }
   async function hydrateImages() {
     for (const image of root.querySelectorAll('img[data-attachment]')) {
+      const id = image.dataset.attachment;
+      if (attachmentUrlCache.has(id)) {
+        image.src = attachmentUrlCache.get(id);
+        image.onload = () => fitAnnotationLayer(image);
+        if (image.complete) fitAnnotationLayer(image);
+        continue;
+      }
       try {
-        const blob = await window.healthyTrendApi.requestBlob(`/api/journal-attachments/${encodeURIComponent(image.dataset.attachment)}/content`);
-        if (image.isConnected) { const url = URL.createObjectURL(blob); state.urls.push(url); image.onload = () => fitAnnotationLayer(image); image.src = url; }
+        const blob = await window.healthyTrendApi.requestBlob(`/api/journal-attachments/${encodeURIComponent(id)}/content`);
+        if (image.isConnected) {
+          const url = URL.createObjectURL(blob);
+          attachmentUrlCache.set(id, url);
+          state.urls.push(url);
+          image.onload = () => fitAnnotationLayer(image);
+          image.src = url;
+          if (image.complete) fitAnnotationLayer(image);
+        }
       } catch (_) { image.closest('.mb-chart')?.classList.add('mb-image-unavailable'); }
     }
   }
@@ -78,7 +96,17 @@
   }
   function imageMarkup(record, label) {
     const item = screenshot(record);
-    return `<div class="mb-chart mb-chart-main">${item ? `<img data-attachment="${esc(item.id)}" alt="${esc(label)}" draggable="false">` : `<div class="mb-chart-placeholder"><span>⌁</span><p>${esc(lang('Adicione o print do trade para localizar o erro no gráfico.', 'Add a trade screenshot to locate the mistake on the chart.'))}</p></div>`}${item ? `<div class="mb-annotation-layer" data-chart-annotate="${esc(record.id)}">${annotationMarkup(record)}</div>` : ''}</div>`;
+    return `<div class="mb-chart mb-chart-main">${item ? `<img data-attachment="${esc(item.id)}" alt="${esc(label)}" draggable="false"><button type="button" class="mb-chart-zoom-btn" data-chart-zoom title="${lang('Ampliar print em tela cheia (Zoom)', 'Enlarge screenshot (Zoom)')}">🔍 ${lang('Ampliar print', 'Zoom print')}</button><div class="mb-annotation-layer ${state.annotation === 'zoom' ? 'mb-mode-zoom' : ''}" data-chart-annotate="${esc(record.id)}">${annotationMarkup(record)}</div>` : `<div class="mb-chart-placeholder"><span>⌁</span><p>${esc(lang('Adicione o print do trade para localizar o erro no gráfico.', 'Add a trade screenshot to locate the mistake on the chart.'))}</p></div>`}</div>`;
+  }
+  function navigateRecord(delta) {
+    if (state.section === 'marketLessons') return;
+    const items = filtered();
+    if (!items.length) return;
+    const nextId = M.nextRecordId ? M.nextRecordId(items, state.selected, delta) : null;
+    if (nextId && nextId !== state.selected) {
+      state.selected = nextId;
+      render();
+    }
   }
   function evolution(record) {
     const type = record.mistakeTypes?.[0]; if (!type) return lang('Classifique o erro para acompanhar sua evolução.', 'Classify the mistake to follow your progress.');
@@ -90,7 +118,8 @@
   function spread(record, items) {
     const index = items.findIndex(item => item.id === record.id), type = record.mistakeTypes?.[0], impact = type ? M.impact(data.records, type) : null;
     const number = data.records.indexOf(record) + 1;
-    return `<div class="mb-book-wrap"><div class="mb-book"><div class="mb-page mb-page-left"><div class="mb-folio"><i>#${String(number).padStart(3, '0')}</i><span>${esc(dateLabel(record.date))}</span></div><div class="mb-trade-title"><div><h2>${esc(record.ticker || lang('Sem ativo', 'No asset'))}</h2><p>${esc(record.assetName || record.market || '')}</p></div><div class="mb-result"><small>${lang('RESULTADO', 'RESULT')}</small><b>${formatR(M.number(record.resultR))}</b></div></div><div class="mb-trade-meta"><div><small>Setup</small><b>${esc(record.setup || '—')}</b></div><div><small>Timeframe</small><b>${esc(record.timeframe || '—')}</b></div><div><small>${lang('Mercado', 'Market')}</small><b>${esc(record.market || '—')}</b></div></div>${imageMarkup(record, 'tradeScreenshot', lang('Print do trade', 'Trade screenshot'))}<div class="mb-annotation-controls"><span>${lang('Marcar no gráfico:', 'Mark on chart:')}</span><select data-annotation-tool aria-label="${lang('Tipo de marcação', 'Annotation type')}">${['Entrada', 'Stop', 'Saída', 'Região de interesse', 'Breakout', 'Erro', 'Confirmação correta'].map(value => `<option ${state.annotation === value ? 'selected' : ''}>${value}</option>`).join('')}</select><button data-undo-annotation="${esc(record.id)}" ${(record.annotations || []).length ? '' : 'disabled'}>${lang('Desfazer', 'Undo')}</button><small>${lang('Clique no ponto exato do print.', 'Click the exact point on the screenshot.')}</small></div><div class="mb-before-note"><div><h3>Print to Trade <small>(${lang('setup original', 'original setup')})</small></h3>${imageMarkup(record, 'preTradeScreenshot', 'Print to Trade')}</div><blockquote class="mb-sticky">${esc(record.notes || lang('Sua nota pessoal aparecerá aqui.', 'Your personal note will appear here.'))}</blockquote></div></div><div class="mb-book-spine"></div><div class="mb-page mb-page-right"><div class="mb-analysis-grid"><section><h3>1. ${lang('Onde errei?', 'Where did I go wrong?')}</h3><p>${esc(record.whatWentWrong || '—')}</p></section><section><h3>2. ${lang('Tipo do erro', 'Mistake type')}</h3><div class="mb-tags">${(record.mistakeTypes || []).map(tag => `<span>${esc(tag)}</span>`).join('') || '<span>—</span>'}</div></section><section><h3>3. ${lang('Por que fiz isso?', 'Why did I do it?')}</h3><p>${esc(record.whyIDidIt || '—')}</p>${(record.emotionalTags || []).length ? `<small class="mb-emotions">${record.emotionalTags.map(esc).join(' · ')}</small>` : ''}</section><section><h3>4. ${lang('O que deveria ter feito?', 'What should I have done?')}</h3><p>${esc(record.whatShouldHaveDone || '—')}</p></section><section><h3>5. ${lang('Lição aprendida', 'Lesson learned')}</h3><blockquote class="mb-lesson">“${esc(record.lessonLearned || '—')}”</blockquote></section><section><h3>6. ${lang('Nova regra', 'New rule')}</h3><blockquote class="mb-rule"><span>✓</span>${esc(record.newRule || '—')}</blockquote></section><section><h3>7. ${lang('Já repeti esse erro?', 'Have I repeated this mistake?')}</h3><p>${impact && impact.count > 1 ? lang(`Sim. Este erro apareceu ${impact.count} vezes.`, `Yes. This mistake has appeared ${impact.count} times.`) : lang('Ainda não há repetição desta categoria.', 'No repetition of this category yet.')}</p>${type ? `<button class="mb-inline-button" data-related="${esc(type)}">${lang('Ver todos os erros de', 'See all mistakes of')} ${esc(type)} →</button>` : ''}</section><section><h3>${lang('Impacto deste erro', 'Impact of this mistake')}</h3><div class="mb-impact"><p>${lang('Total de ocorrências', 'Occurrences')}: <b>${impact?.count ?? '—'}</b></p><p>${lang('Percentual dos erros', 'Share of mistakes')}: <b>${impact?.percentage ?? '—'}%</b></p><p>${lang('Custo total', 'Total cost')}: <b class="mb-negative">${formatR(impact?.costR ?? null)}</b></p></div></section><section class="mb-evolution"><h3>${lang('Evolução', 'Progress')}</h3>${evolution(record)}</section><section class="mb-page-quote">“${lang('Disciplina é a ponte entre o erro de hoje e o resultado de amanhã.', 'Discipline is the bridge between today’s mistake and tomorrow’s result.')}”</section></div><div class="mb-page-actions"><button data-edit="${esc(record.id)}">${lang('Editar registro', 'Edit entry')}</button><button data-master="${esc(record.id)}">${record.isMastered ? lang('Reabrir lição', 'Reopen lesson') : lang('Marcar como Lição Dominada', 'Mark as Mastered Lesson')}</button></div></div></div><div class="mb-book-tabs">${['Todos', 'Entrada', 'Saída', 'Gestão', 'Emocional', 'Setup', 'Lições Dominadas'].map((name, i) => `<button style="--tab-index:${i}" class="${state.filter === name ? 'active' : ''}" data-filter="${esc(name)}">${esc(name)}</button>`).join('')}</div></div><nav class="mb-page-nav"><button data-move="-1" ${index <= 0 ? 'disabled' : ''}>← ${lang('Anterior', 'Previous')}</button><span>${index + 1} / ${items.length}</span><button data-move="1" ${index >= items.length - 1 ? 'disabled' : ''}>${lang('Próximo', 'Next')} →</button></nav>`;
+    const tools = M.ANNOTATION_TOOLS || ['Entrada', 'Stop', 'Saída', 'Região de interesse', 'Breakout', 'Erro', 'Confirmação correta'];
+    return `<div class="mb-book-wrap"><div class="mb-book"><div class="mb-page mb-page-left"><div class="mb-folio"><i>#${String(number).padStart(3, '0')}</i><span>${esc(dateLabel(record.date))}</span></div><div class="mb-trade-title"><div><h2>${esc(record.ticker || lang('Sem ativo', 'No asset'))}</h2><p>${esc(record.assetName || record.market || '')}</p></div><div class="mb-result"><small>${lang('RESULTADO', 'RESULT')}</small><b>${formatR(M.number(record.resultR))}</b></div></div><div class="mb-trade-meta"><div><small>Setup</small><b>${esc(record.setup || '—')}</b></div><div><small>Timeframe</small><b>${esc(record.timeframe || '—')}</b></div><div><small>${lang('Mercado', 'Market')}</small><b>${esc(record.market || '—')}</b></div></div>${imageMarkup(record, lang('Print do trade', 'Trade screenshot'))}<div class="mb-annotation-controls"><span>${lang('Modo / Ferramenta:', 'Mode / Tool:')}</span><select data-annotation-tool aria-label="${lang('Modo de marcação ou zoom', 'Annotation or zoom mode')}"><option value="zoom" ${state.annotation === 'zoom' ? 'selected' : ''}>🔍 ${lang('Modo Zoom (clicar amplia)', 'Zoom mode (click to zoom)')}</option><optgroup label="${lang('Marcar no gráfico', 'Mark on chart')}">${tools.map(value => `<option value="${value}" ${state.annotation === value ? 'selected' : ''}>✏️ ${value}</option>`).join('')}</optgroup></select><button type="button" data-chart-zoom title="${lang('Ampliar imagem em tela cheia', 'Enlarge image full screen')}">🔍 ${lang('Ampliar print', 'Zoom print')}</button><button data-undo-annotation="${esc(record.id)}" ${(record.annotations || []).length ? '' : 'disabled'}>${lang('Desfazer', 'Undo')}</button><small>${state.annotation === 'zoom' ? lang('Clique no gráfico para dar zoom em tela cheia.', 'Click chart to zoom full screen.') : lang(`Clique no gráfico para marcar: ${state.annotation}.`, `Click on chart to mark: ${state.annotation}.`)}</small></div><div class="mb-before-note"><div><h3>Print to Trade <small>(${lang('setup original', 'original setup')})</small></h3>${imageMarkup(record, 'Print to Trade')}</div><blockquote class="mb-sticky">${esc(record.notes || lang('Sua nota pessoal aparecerá aqui.', 'Your personal note will appear here.'))}</blockquote></div></div><div class="mb-book-spine"></div><div class="mb-page mb-page-right"><div class="mb-analysis-grid"><section><h3>1. ${lang('Onde errei?', 'Where did I go wrong?')}</h3><p>${esc(record.whatWentWrong || '—')}</p></section><section><h3>2. ${lang('Tipo do erro', 'Mistake type')}</h3><div class="mb-tags">${(record.mistakeTypes || []).map(tag => `<span>${esc(tag)}</span>`).join('') || '<span>—</span>'}</div></section><section><h3>3. ${lang('Por que fiz isso?', 'Why did I do it?')}</h3><p>${esc(record.whyIDidIt || '—')}</p>${(record.emotionalTags || []).length ? `<small class="mb-emotions">${record.emotionalTags.map(esc).join(' · ')}</small>` : ''}</section><section><h3>4. ${lang('O que deveria ter feito?', 'What should I have done?')}</h3><p>${esc(record.whatShouldHaveDone || '—')}</p></section><section><h3>5. ${lang('Lição aprendida', 'Lesson learned')}</h3><blockquote class="mb-lesson">“${esc(record.lessonLearned || '—')}”</blockquote></section><section><h3>6. ${lang('Nova regra', 'New rule')}</h3><blockquote class="mb-rule"><span>✓</span>${esc(record.newRule || '—')}</blockquote></section><section><h3>7. ${lang('Já repeti esse erro?', 'Have I repeated this mistake?')}</h3><p>${impact && impact.count > 1 ? lang(`Sim. Este erro apareceu ${impact.count} vezes.`, `Yes. This mistake has appeared ${impact.count} times.`) : lang('Ainda não há repetição desta categoria.', 'No repetition of this category yet.')}</p>${type ? `<button class="mb-inline-button" data-related="${esc(type)}">${lang('Ver todos os erros de', 'See all mistakes of')} ${esc(type)} →</button>` : ''}</section><section><h3>${lang('Impacto deste erro', 'Impact of this mistake')}</h3><div class="mb-impact"><p>${lang('Total de ocorrências', 'Occurrences')}: <b>${impact?.count ?? '—'}</b></p><p>${lang('Percentual dos erros', 'Share of mistakes')}: <b>${impact?.percentage ?? '—'}%</b></p><p>${lang('Custo total', 'Total cost')}: <b class="mb-negative">${formatR(impact?.costR ?? null)}</b></p></div></section><section class="mb-evolution"><h3>${lang('Evolução', 'Progress')}</h3>${evolution(record)}</section><section class="mb-page-quote">“${lang('Disciplina é a ponte entre o erro de hoje e o resultado de amanhã.', 'Discipline is the bridge between today’s mistake and tomorrow’s result.')}”</section></div><div class="mb-page-actions"><button data-edit="${esc(record.id)}">${lang('Editar registro', 'Edit entry')}</button><button data-master="${esc(record.id)}">${record.isMastered ? lang('Reabrir lição', 'Reopen lesson') : lang('Marcar como Lição Dominada', 'Mark as Mastered Lesson')}</button></div></div></div><div class="mb-book-tabs">${['Todos', 'Entrada', 'Saída', 'Gestão', 'Emocional', 'Setup', 'Lições Dominadas'].map((name, i) => `<button style="--tab-index:${i}" class="${state.filter === name ? 'active' : ''}" data-filter="${esc(name)}">${esc(name)}</button>`).join('')}</div></div><nav class="mb-page-nav"><button data-move="-1" ${index <= 0 ? 'disabled' : ''}>← ${lang('Anterior', 'Previous')}</button><span>${index + 1} / ${items.length}</span><button data-move="1" ${index >= items.length - 1 ? 'disabled' : ''}>${lang('Próximo', 'Next')} →</button></nav>`;
   }
   function empty() { const hasRecords = data.records.length > 0; return `<div class="mb-book-wrap"><div class="mb-book mb-book-empty"><div class="mb-page mb-page-left"><div class="mb-empty-art">📖</div><h2>${hasRecords ? lang('Nenhum registro neste capítulo.', 'No entries in this chapter.') : lang('Seu Mistakes Book ainda está vazio.', 'Your Mistakes Book is still empty.')}</h2><p>${hasRecords ? lang('Experimente outra aba ou palavra-chave para encontrar uma lição.', 'Try another tab or keyword to find a lesson.') : lang('O mercado cobra algumas lições. Aqui você garante que não precisará pagar duas vezes pela mesma.', 'The market charges for some lessons. Here you make sure you do not pay twice for the same one.')}</p><button ${hasRecords ? 'data-clear-filters' : 'data-new'}>${hasRecords ? lang('Ver todos os registros', 'See all entries') : lang('Registrar minha primeira lição', 'Record my first lesson')}</button></div><div class="mb-book-spine"></div><div class="mb-page mb-page-right"><div class="mb-empty-steps"><span>Trade</span><i>→</i><span>Erro</span><i>→</i><span>Causa</span><i>→</i><span>Correção</span><i>→</i><span>Lição</span><i>→</i><span>Regra</span><i>→</i><span>Evolução</span></div><blockquote>“${lang('O erro aconteceu no passado. O aprendizado precisa permanecer para sempre.', 'The mistake happened in the past. The learning should last forever.')}”</blockquote></div></div><div class="mb-book-tabs">${['Todos', 'Entrada', 'Saída', 'Gestão', 'Emocional', 'Setup', 'Lições Dominadas'].map((name, i) => `<button style="--tab-index:${i}" class="${state.filter === name ? 'active' : ''}" data-filter="${esc(name)}">${esc(name)}</button>`).join('')}</div></div>`; }
   function marketLessonsView() {
@@ -183,20 +212,55 @@
     const input = form.querySelector('input[name=screenshots], input[name=tradeScreenshotFile]'); if (!input) return;
     event.preventDefault(); setInputFiles(input, input.multiple ? images : [images[0]]);
   });
-  root.addEventListener('change', event => { if (event.target.matches('[data-trade-choice]')) fillFromTrade(event.target); if (event.target.matches('[data-annotation-tool]')) state.annotation = event.target.value; });
+  root.addEventListener('change', event => {
+    if (event.target.matches('[data-trade-choice]')) fillFromTrade(event.target);
+    if (event.target.matches('[data-annotation-tool]')) {
+      state.annotation = event.target.value;
+      const layer = root.querySelector('.mb-annotation-layer');
+      if (layer) layer.classList.toggle('mb-mode-zoom', state.annotation === 'zoom');
+      const helper = root.querySelector('.mb-annotation-controls small');
+      if (helper) {
+        helper.textContent = state.annotation === 'zoom'
+          ? lang('Clique no gráfico para dar zoom em tela cheia.', 'Click chart to zoom full screen.')
+          : lang(`Clique no gráfico para marcar: ${state.annotation}.`, `Click on chart to mark: ${state.annotation}.`);
+      }
+    }
+  });
   root.addEventListener('input', event => { if (event.target.matches('[data-search]')) { state.query = event.target.value; const pos = event.target.selectionStart; render(); const input = root.querySelector('[data-search]'); input.focus(); input.setSelectionRange(pos, pos); } });
   root.addEventListener('click', event => {
     if (event.target.classList.contains('mb-modal-backdrop')) { closeModal(); return; }
     if (event.target.classList.contains('mb-image-preview')) { closeImagePreview(); return; }
     if (event.target.closest('[data-close-image-preview]')) { closeImagePreview(); return; }
-    const image = event.target.closest('img[data-attachment]');
-    if (image) { openImagePreview(image); return; }
+    if (event.target.closest('[data-chart-zoom]')) {
+      const zoomBtn = event.target.closest('[data-chart-zoom]');
+      const chart = zoomBtn.closest('.mb-chart') || root.querySelector('.mb-chart');
+      const img = chart?.querySelector('img[data-attachment]');
+      if (img) openImagePreview(img);
+      return;
+    }
     const layer = event.target.closest('[data-chart-annotate]');
-    if (layer && event.target === layer) {
-      if (!event.altKey) { openImagePreview(layer.closest('.mb-chart')?.querySelector('img[data-attachment]')); return; }
+    if (layer) {
+      if (state.annotation === 'zoom') {
+        const img = layer.closest('.mb-chart')?.querySelector('img[data-attachment]');
+        if (img) openImagePreview(img);
+        return;
+      }
       const record = data.records.find(item => item.id === layer.dataset.chartAnnotate), box = layer.getBoundingClientRect();
-      record.annotations ||= []; record.annotations.push({ x: Math.round((event.clientX - box.left) / box.width * 1000) / 10, y: Math.round((event.clientY - box.top) / box.height * 1000) / 10, label: state.annotation });
-      record.updatedAt = new Date().toISOString(); try { persist(); render(); } catch (error) { window.showToast?.(error.message); } return;
+      if (!record) return;
+      record.annotations ||= [];
+      record.annotations.push({
+        x: Math.round((event.clientX - box.left) / box.width * 1000) / 10,
+        y: Math.round((event.clientY - box.top) / box.height * 1000) / 10,
+        label: state.annotation
+      });
+      record.updatedAt = new Date().toISOString();
+      try { persist(); render(); } catch (error) { window.showToast?.(error.message); }
+      return;
+    }
+    const marketImg = event.target.closest('.mb-market-lesson-images img');
+    if (marketImg) {
+      openImagePreview(marketImg);
+      return;
     }
     const button = event.target.closest('button'); if (!button) return;
     if (button.hasAttribute('data-close')) { closeModal(); return; }
@@ -211,11 +275,30 @@
     if (button.dataset.filter) { state.filter = button.dataset.filter; state.selected = null; render(); return; }
     if (button.dataset.related) { state.filter = 'Todos'; state.query = button.dataset.related; state.selected = null; render(); return; }
     if (button.dataset.undoAnnotation) { const record = data.records.find(item => item.id === button.dataset.undoAnnotation); record.annotations?.pop(); record.updatedAt = new Date().toISOString(); try { persist(); render(); } catch (error) { window.showToast?.(error.message); } return; }
-    if (button.dataset.move) { const items = filtered(), index = items.findIndex(item => item.id === state.selected), next = items[index + Number(button.dataset.move)]; if (next) { state.selected = next.id; render(); } return; }
+    if (button.dataset.move) { navigateRecord(Number(button.dataset.move)); return; }
     if (button.dataset.master) { const record = data.records.find(item => item.id === button.dataset.master); record.isMastered = !record.isMastered; record.masteredAt = record.isMastered ? new Date().toISOString() : null; record.updatedAt = new Date().toISOString(); try { persist(); render(); } catch (error) { window.showToast?.(error.message); } }
   });
   masteredRoot.addEventListener('click', event => { const button = event.target.closest('button'); if (!button) return; if (button.dataset.openMistake) state.selected = button.dataset.openMistake; window.go?.('mistakesbook'); render(); });
-  document.addEventListener('keydown', event => { if (event.key !== 'Escape') return; if (root.querySelector('.mb-image-preview')) { closeImagePreview(); return; } if (state.modal) closeModal(); });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      if (root.querySelector('.mb-image-preview')) { closeImagePreview(); return; }
+      if (state.modal) { closeModal(); return; }
+    }
+    if (!root.classList.contains('active')) return;
+    if (state.modal || root.querySelector('.mb-modal-backdrop') || root.querySelector('.mb-image-preview')) return;
+    const target = event.target;
+    if (target) {
+      const tag = target.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable) return;
+    }
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      navigateRecord(-1);
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      navigateRecord(1);
+    }
+  });
   const previousGo = window.go; window.go = function (id) { previousGo(id); if (id === 'masteredlessons') document.querySelectorAll('.nav button[data-page="mistakesbook"],#topNavigationMenu button[data-page="mistakesbook"]').forEach(button => button.classList.add('active')); if (id === 'mistakesbook' || id === 'masteredlessons') render(); };
   window.addEventListener('healthyTrend:workspaceLoaded', () => { reload(); render(); });
   window.addEventListener('healthyTrend:tradesUpdated', () => { if (root.classList.contains('active')) render(); });
