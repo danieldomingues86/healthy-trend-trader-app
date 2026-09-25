@@ -232,10 +232,14 @@
 
   function MarketCycleHero(cycle, history, marketInfo) {
     const info = regime(cycle);
+    const regimeKey = cycle?.state === 'healthy' ? 'expansion' : cycle?.state === 'defensive' ? 'defence' : 'transition';
     return `<section class="mcv2-hero">
       <div class="mcv2-diagnosis">
         <p>${t('Situação atual do mercado', 'Current market situation')} · ${esc(marketInfo.benchmarkSymbol)}</p>
-        <h2>${info.label}</h2>
+        <div class="mcv2-hero-title-row">
+          <span class="mcv2-hero-icon">${regimeIcon(regimeKey)}</span>
+          <h2>${info.label}</h2>
+        </div>
         <span>${info.interpretation}</span>
         <div>
           <button type="button" class="primary" onclick="go('newtrade')">${t('Planejar trade →', 'Plan trade →')}</button>
@@ -258,7 +262,8 @@
 
   function MarketRegimeBar(cycle) {
     const position = Math.max(4, Math.min(96, Number(cycle.score) || 50));
-    return `<section class="mcv2-regime" aria-label="${t('Posição atual no regime de mercado', 'Current market regime position')}"><div class="mcv2-regime-item defence"><span class="mcv2-regime-icon">${regimeIcon('defence')}</span><div><b>${t('Defesa', 'Defence')}</b><span>${t('Preservar capital. Ficar de fora.', 'Preserve capital. Stay out.')}</span></div></div><div class="mcv2-regime-item transition"><span class="mcv2-regime-icon">${regimeIcon('transition')}</span><div><b>${t('Transição', 'Transition')}</b><span>${t('Atenção e seletividade.', 'Attention and selectivity.')}</span></div></div><div class="mcv2-regime-item expansion"><span class="mcv2-regime-icon">${regimeIcon('expansion')}</span><div><b>${t('Expansão', 'Expansion')}</b><span>${t('Ambiente favorável para oportunidades.', 'Favourable environment for opportunities.')}</span></div></div><i style="left:${position}%" title="${t('Score atual', 'Current score')}: ${number(cycle.score)}/100"></i></section>`;
+    const activeSegment = cycle?.state === 'healthy' ? 'expansion' : cycle?.state === 'defensive' ? 'defence' : 'transition';
+    return `<section class="mcv2-regime" aria-label="${t('Posição atual no regime de mercado', 'Current market regime position')}"><div class="mcv2-regime-item defence ${activeSegment === 'defence' ? 'active' : ''}"><span class="mcv2-regime-icon">${regimeIcon('defence')}</span><div><b>${t('Defesa', 'Defence')}</b><span>${t('Preservar capital. Ficar de fora.', 'Preserve capital. Stay out.')}</span></div></div><div class="mcv2-regime-item transition ${activeSegment === 'transition' ? 'active' : ''}"><span class="mcv2-regime-icon">${regimeIcon('transition')}</span><div><b>${t('Transição', 'Transition')}</b><span>${t('Atenção e seletividade.', 'Attention and selectivity.')}</span></div></div><div class="mcv2-regime-item expansion ${activeSegment === 'expansion' ? 'active' : ''}"><span class="mcv2-regime-icon">${regimeIcon('expansion')}</span><div><b>${t('Expansão', 'Expansion')}</b><span>${t('Ambiente favorável para oportunidades.', 'Favourable environment for opportunities.')}</span></div></div><i style="left:${position}%" title="${t('Score atual', 'Current score')}: ${number(cycle.score)}/100"></i></section>`;
   }
 
   function MarketBreadth(breadth, marketInfo) {
@@ -478,7 +483,8 @@
 
     const snapshot = getMarketSnapshot(currentMarket);
     const info = regime(cycle);
-    root.innerHTML = `<div class="mcv2-page regime-${cycle.state || 'transition'}">
+    const activeRegime = cycle?.state === 'healthy' ? 'healthy' : cycle?.state === 'defensive' ? 'defensive' : 'transition';
+    root.innerHTML = `<div class="mcv2-page regime-${activeRegime}" data-market-regime="${activeRegime}">
       <div class="mcv2-shell">
         <header class="mcv2-heading">
           <div>

@@ -136,8 +136,10 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
 
   const fetchCalls = [];
   const originalFetch = global.fetch;
+  let customHandler = null;
   global.fetch = async (url) => {
     fetchCalls.push(url);
+    if (customHandler) return customHandler(url);
     const parsed = new URL(url);
     const market = parsed.searchParams.get('market') || 'stock_b3';
     if (market === 'bdr') {
@@ -171,6 +173,10 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   assert.ok(env.rootElement.innerHTML.includes('IBOV · Diário'), 'Deve renderizar título diário do IBOV');
   assert.ok(env.rootElement.innerHTML.includes('183.966') || env.rootElement.innerHTML.includes('183.965'), 'Preço do IBOV');
   assert.ok(env.rootElement.innerHTML.includes('recuo abaixo da EMA 10'), 'Deve alertar recuo abaixo da EMA 10 para IBOV');
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="healthy"'), 'Deve conter data-market-regime="healthy"');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item expansion active'), 'Segmento de Expansão deve estar ativo na régua');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-hero-title-row'), 'Hero deve conter linha de título com ícone do regime');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-hero-icon'), 'Hero deve conter ícone temático de regime');
 
   // Snapshot de Ações B3 deve ter sido persistido com score dinâmico
   const savedSnapshots1 = JSON.parse(env.storage.get('healthy-trend-market-cycle-snapshots-v1') || '{}');
@@ -189,6 +195,8 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   assert.ok(env.rootElement.innerHTML.includes('BDRs'), 'Rótulo BDRs');
   assert.ok(env.rootElement.innerHTML.includes('EMA 10 ascendente'), 'Deve indicar EMA 10 ascendente para BDRX');
   assert.ok(!env.rootElement.innerHTML.includes('Como está a base do IBOV?'), 'Não deve exibir breadth do IBOV na tela de BDRs');
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="healthy"'), 'BDRX com estado saudável');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item expansion active'), 'Segmento de Expansão ativo para BDRX');
 
   // Snapshot de BDRs deve ter sido persistido SEM sobrescrever ou apagar stock_b3
   const savedSnapshots2 = JSON.parse(env.storage.get('healthy-trend-market-cycle-snapshots-v1') || '{}');
@@ -205,6 +213,27 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   await env.mockWindow.loadMarketCycleV2('stock_b3');
   assert.ok(env.rootElement.innerHTML.includes('IBOV · Diário'), 'Restaura IBOV');
   assert.ok(env.rootElement.innerHTML.includes('Como está a base do IBOV?'), 'Restaura breadth do IBOV');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item expansion active'), 'Segmento ativo restaurado');
+
+  // 5. Testar renderização de estado de Transição
+  customHandler = async () => ({
+    ok: true,
+    json: async () => mockFetchHistory('IBOV', 175000, 51, 'transition', false)
+  });
+  await env.mockWindow.loadMarketCycleV2('stock_b3', true);
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="transition"'), 'Deve marcar data-market-regime="transition"');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item transition active'), 'Segmento de Transição deve estar ativo');
+  assert.ok(env.rootElement.innerHTML.includes('Mercado em transição'), 'Título Mercado em transição');
+
+  // 6. Testar renderização de estado Defensivo
+  customHandler = async () => ({
+    ok: true,
+    json: async () => mockFetchHistory('IBOV', 160000, 25, 'defensive', false)
+  });
+  await env.mockWindow.loadMarketCycleV2('stock_b3', true);
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="defensive"'), 'Deve marcar data-market-regime="defensive"');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item defence active'), 'Segmento de Defesa deve estar ativo');
+  assert.ok(env.rootElement.innerHTML.includes('Mercado defensivo'), 'Título Mercado defensivo');
 
   global.fetch = originalFetch;
 });
