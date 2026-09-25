@@ -193,9 +193,11 @@
   }
 
   function publishWatchlistChange() {
-    root.dispatchEvent(new CustomEvent('healthyTrend:watchlist-changed', {
-      detail: { items: currentWatchlistItems() }
-    }));
+    if (typeof root.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
+      root.dispatchEvent(new CustomEvent('healthyTrend:watchlist-changed', {
+        detail: { items: currentWatchlistItems() }
+      }));
+    }
   }
 
   // Shared read model for compact surfaces such as Meu Desktop. The Watchlist
@@ -412,12 +414,14 @@
       animation: fadeIn 0.2s ease;
     `;
     toast.textContent = msg;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transition = 'opacity 0.3s ease';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    if (document.body && typeof document.body.appendChild === 'function') {
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
   }
 
   // Formatters
@@ -824,6 +828,9 @@
             <span>🏷</span> ${escapeHtml(originLabel)}
           </span>
           <div class="wl-card-actions">
+            <button class="wl-btn-remove" data-action="remove" data-ticker="${opp.ticker}" title="Remover ${opp.ticker} da Watchlist" aria-label="Remover ${opp.ticker} da Watchlist">
+              🗑 Remover
+            </button>
             <button class="wl-btn-inspect" data-action="inspect" data-ticker="${opp.ticker}">
               Perfil ↗
             </button>
@@ -882,7 +889,8 @@
                   <td>${dist52w.toFixed(1)}%</td>
                   <td><span style="color:#34d399; font-weight:700;">${checked}/${waiting.length || 5}</span></td>
                   <td><span class="wl-evolution-tag ${evo.state}">${evo.label}</span></td>
-                  <td style="text-align:right;">
+                  <td style="text-align:right; white-space:nowrap;">
+                    <button class="wl-btn-remove" data-action="remove" data-ticker="${opp.ticker}" style="margin-right:6px;" title="Remover ${opp.ticker} da Watchlist" aria-label="Remover ${opp.ticker} da Watchlist">Remover</button>
                     <button class="wl-btn-inspect" data-action="inspect" data-ticker="${opp.ticker}" style="margin-right:6px;">Perfil</button>
                     <button class="wl-btn-trade" data-action="trade" data-ticker="${opp.ticker}">Trade</button>
                   </td>
@@ -946,7 +954,7 @@
 
       <!-- FOOTER -->
       <div class="wl-drawer-footer">
-        <button class="wl-btn-drawer-delete" id="wlBtnDrawerDelete" title="Remover da watchlist">🗑</button>
+        <button class="wl-btn-drawer-delete" id="wlBtnDrawerDelete" title="Remover ${opp.ticker} da Watchlist">🗑 Remover</button>
         <button class="wl-btn-drawer-archive" id="wlBtnDrawerArchive">Arquivar</button>
         <button class="wl-btn-drawer-trade" id="wlBtnDrawerTrade">Criar Novo Trade →</button>
       </div>
@@ -1006,7 +1014,10 @@
     });
 
     drawer.querySelector('#wlBtnDrawerDelete')?.addEventListener('click', () => {
-      if (confirm(`Remover ${opp.ticker} da Watchlist?`)) {
+      const confirmed = typeof window.confirm === 'function'
+        ? window.confirm(`Remover ${opp.ticker} da Watchlist?`)
+        : true;
+      if (confirmed) {
         removeOpportunity(opp.ticker);
         closeDrawer();
       }
@@ -1298,7 +1309,7 @@
     }
 
     showToast(`${ticker} removido da Watchlist.`);
-    renderWatchlistPage();
+    await renderWatchlistPage();
   }
 
   async function archiveOpportunity(ticker, exitReason, turnedTrade) {
@@ -1329,7 +1340,7 @@
     showToast(`Oportunidade ${ticker} arquivada no histórico.`);
     closeArchiveModal();
     closeDrawer();
-    renderWatchlistPage();
+    await renderWatchlistPage();
   }
 
   // Event bindings
@@ -1389,7 +1400,22 @@
       });
     });
 
-    // Inspect & Trade buttons inside cards/table
+    // Remove, Inspect & Trade buttons inside cards/table
+    container.querySelectorAll('[data-action="remove"]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const ticker = btn.dataset.ticker;
+        if (!ticker) return;
+        const confirmed = typeof window.confirm === 'function'
+          ? window.confirm(`Remover ${ticker} da Watchlist?`)
+          : true;
+        if (confirmed) {
+          removeOpportunity(ticker);
+          if (selectedTicker === ticker) closeDrawer();
+        }
+      });
+    });
+
     container.querySelectorAll('[data-action="inspect"]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1473,11 +1499,15 @@
 
   // Export
   root.renderWatchlistPage = renderWatchlistPage;
+  root.removeFromWatchlist = removeOpportunity;
+  root.loadWatchlistOpportunities = loadOpportunities;
   root.loadWatchlistOpportunities().catch(() => {
     // The widget can still read the locally persisted Watchlist when the API is unavailable.
   });
-  root.addEventListener('healthyTrend:authenticated', () => {
-    root.loadWatchlistOpportunities().catch(() => {});
-  });
+  if (typeof root.addEventListener === 'function') {
+    root.addEventListener('healthyTrend:authenticated', () => {
+      root.loadWatchlistOpportunities().catch(() => {});
+    });
+  }
 
 })(typeof globalThis !== 'undefined' ? globalThis : this);

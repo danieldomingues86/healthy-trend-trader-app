@@ -3,12 +3,34 @@
   const root = document.getElementById('marketcycle');
   if (!root) return;
 
+  const MARKET_REGISTRY = {
+    stock_b3: {
+      id: 'stock_b3',
+      name: 'Ações B3',
+      benchmarkSymbol: 'IBOV',
+      benchmarkName: 'Índice Bovespa (IBOV)',
+      badge: 'IBOV',
+      hasBreadth: true
+    },
+    bdr: {
+      id: 'bdr',
+      name: 'BDRs',
+      benchmarkSymbol: 'BDRX',
+      benchmarkName: 'Índice de BDRs Não Patrocinados (BDRX)',
+      badge: 'BDRX',
+      hasBreadth: false
+    }
+  };
+
+  const SNAPSHOTS_STORAGE_KEY = 'healthy-trend-market-cycle-snapshots-v1';
+
   const api = () => `${window.MARKET_DATA_API_URL || 'http://localhost:8787/api'}/market-cycle`;
   const t = (pt, en) => window.appLanguage === 'en-US' ? en : pt;
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const hasNumber = value => value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value));
   const number = (value, digits = 0) => hasNumber(value) ? Number(value).toLocaleString(window.appLanguage === 'en-US' ? 'en-US' : 'pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits }) : '—';
   const percent = value => hasNumber(value) ? `${Number(value) >= 0 ? '+' : ''}${number(value, 1)}%` : '—';
+
   function parseDate(value) {
     if (hasNumber(value) && Number(value) > 100000000) {
       const timestamp = Number(value) < 100000000000 ? Number(value) * 1000 : Number(value);
@@ -20,10 +42,12 @@
     const parsed = new Date(`${normalized}T12:00:00Z`);
     return Number.isFinite(parsed.getTime()) ? parsed : null;
   }
+
   const dateLabel = value => {
     const parsed = parseDate(value);
     return parsed ? parsed.toLocaleDateString(window.appLanguage === 'en-US' ? 'en-US' : 'pt-BR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—';
   };
+
   const icon = name => ({
     trend: '<svg viewBox="0 0 24 24"><path d="M3 18 9 12l4 4 8-10M16 6h5v5"/></svg>',
     averages: '<svg viewBox="0 0 24 24"><path d="M3 17c4-8 7-2 11-8 2-3 4-3 7-5M3 20h18"/></svg>',
@@ -34,7 +58,63 @@
   const ranges = [
     ['1m', 22, '1M'], ['3m', 64, '3M'], ['6m', 128, '6M'], ['1y', 260, '1A'], ['2y', 520, '2A']
   ];
-  let state = { status: 'loading', payload: null, error: '', range: '1y' };
+
+  let state = {
+    currentMarket: 'stock_b3',
+    markets: {
+      stock_b3: { status: 'idle', payload: null, error: '', range: '1y' },
+      bdr: { status: 'idle', payload: null, error: '', range: '1y' }
+    }
+  };
+
+  function getMarketSnapshot(marketId) {
+    try {
+      const saved = JSON.parse(localStorage.getItem(SNAPSHOTS_STORAGE_KEY) || '{}');
+      return saved[marketId] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  function persistMarketSnapshot(marketId, payload) {
+    if (!payload?.cycle || !hasNumber(payload.cycle.price)) return null;
+    try {
+      const saved = JSON.parse(localStorage.getItem(SNAPSHOTS_STORAGE_KEY) || '{}');
+      const marketInfo = MARKET_REGISTRY[marketId] || MARKET_REGISTRY.stock_b3;
+      const cycle = payload.cycle;
+      const history = Array.isArray(payload.benchmark?.history) ? payload.benchmark.history : [];
+      const snapshot = {
+        market: marketId,
+        marketLabel: marketInfo.name,
+        benchmarkSymbol: marketInfo.benchmarkSymbol,
+        benchmarkName: marketInfo.benchmarkName,
+        classification: cycle.state,
+        score: Number(cycle.score) || 0,
+        evaluatedAt: new Date().toISOString(),
+        dataDate: cycle.date || history.at(-1)?.date || null,
+        dataVersion: payload.source || 'b3-indexes',
+        indicators: {
+          price: Number(cycle.price) || null,
+          ema10: Number(cycle.ema10) || null,
+          ema20: Number(cycle.ema20) || null,
+          ema200: Number(cycle.ema200) || null,
+          above10: Boolean(cycle.above10),
+          above20: Boolean(cycle.above20),
+          above200: Boolean(cycle.above200),
+          atr21: hasNumber(cycle.atr21) ? Number(cycle.atr21) : null,
+          atrPct: hasNumber(cycle.atrPct) ? Number(cycle.atrPct) : null,
+          ema20Slope: hasNumber(cycle.ema20Slope) ? Number(cycle.ema20Slope) : null,
+          ema200Slope: hasNumber(cycle.ema200Slope) ? Number(cycle.ema200Slope) : null
+        }
+      };
+      saved[marketId] = snapshot;
+      localStorage.setItem(SNAPSHOTS_STORAGE_KEY, JSON.stringify(saved));
+      return snapshot;
+    } catch (err) {
+      console.warn('Erro ao salvar snapshot de ciclo:', err);
+      return null;
+    }
+  }
 
   function syncActiveLayout() {
     const active = root.classList.contains('active');
@@ -77,7 +157,23 @@
     }[key];
   }
 
-  function marketStatus(dataDate, source) {
+  function MarketSelector() {
+    const current = state.currentMarket || 'stock_b3';
+    const entries = Object.values(MARKET_REGISTRY);
+    return `<div class="mcv2-market-pills" role="tablist" aria-label="${t('Seletor de Mercado', 'Market Selector')}">
+      ${entries.map(item => `
+        <button type="button" role="tab" data-market-select="${esc(item.id)}"
+          class="mcv2-market-pill ${current === item.id ? 'active' : ''}"
+          aria-selected="${current === item.id}"
+          title="${esc(item.benchmarkName)}">
+          <span class="mcv2-market-name">${esc(item.name)}</span>
+          <span class="mcv2-market-ref">${esc(item.benchmarkSymbol)}</span>
+        </button>
+      `).join('')}
+    </div>`;
+  }
+
+  function marketStatus(dataDate, source, marketInfo, snapshot) {
     const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', weekday: 'short', hour: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
     const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
     const open = !['Sat', 'Sun'].includes(values.weekday) && Number(values.hour) >= 10 && Number(values.hour) < 18;
@@ -93,7 +189,21 @@
     }
     const stale = businessDays > 1;
     const officialB3 = String(source || '').includes('b3-');
-    return `<div class="mcv2-status ${open ? 'open' : 'closed'} ${stale ? 'stale' : ''}"><i></i><div><b>${stale ? t('Dados desatualizados', 'Stale data') : open ? t('Mercado aberto', 'Market open') : t('Mercado fechado', 'Market closed')}</b><span>${stale ? t('Aguardando um fechamento mais recente da B3.', 'Waiting for a newer B3 close.') : open ? t('Leitura intradiária não altera o fechamento oficial.', 'Intraday movement does not alter the official close.') : t('Próxima leitura no próximo pregão.', 'Next reading on the next trading session.')}</span></div><small>${officialB3 ? t('Fechamento oficial B3', 'Official B3 close') : t('Fonte de contingência', 'Contingency source')}: ${dateLabel(dataDate)}</small></div>`;
+    const snapshotTime = snapshot?.evaluatedAt
+      ? new Date(snapshot.evaluatedAt).toLocaleTimeString(window.appLanguage === 'en-US' ? 'en-US' : 'pt-BR', { hour: '2-digit', minute: '2-digit' })
+      : null;
+
+    return `<div class="mcv2-status ${open ? 'open' : 'closed'} ${stale ? 'stale' : ''}">
+      <i></i>
+      <div>
+        <b>${stale ? t('Dados desatualizados', 'Stale data') : open ? t('Mercado aberto', 'Market open') : t('Mercado fechado', 'Market closed')}</b>
+        <span>${stale ? t('Aguardando um fechamento mais recente da B3.', 'Waiting for a newer B3 close.') : open ? t('Leitura intradiária não altera o fechamento oficial.', 'Intraday movement does not alter the official close.') : t('Próxima leitura no próximo pregão.', 'Next reading on the next trading session.')}</span>
+      </div>
+      <div class="mcv2-status-dates">
+        <small>${officialB3 ? t('Fechamento oficial B3', 'Official B3 close') : t('Fonte de contingência', 'Contingency source')}: ${dateLabel(dataDate)}</small>
+        ${snapshotTime ? `<small class="mcv2-snapshot-tag">${t('Snapshot', 'Snapshot')}: ${snapshotTime}</small>` : ''}
+      </div>
+    </div>`;
   }
 
   function scoreChange(series) {
@@ -112,16 +222,29 @@
   function MarketCycleFactors(cycle, info) {
     const slopePositive = hasNumber(cycle.ema20Slope) && Number(cycle.ema20Slope) > 0 && (!hasNumber(cycle.ema200Slope) || Number(cycle.ema200Slope) >= 0);
     const structure = cycle.ema20 > cycle.ema200;
+    const shortTerm = cycle.above10 ? t('EMA 10 ascendente', 'EMA 10 rising') : t('recuo abaixo da EMA 10', 'pullback below EMA 10');
     return `<aside class="mcv2-factors"><p>${t('Principais fatores', 'Main factors')}</p>
-      <div>${icon('trend')}<span><small>${t('Tendência', 'Trend')}</small><b>${info.label}</b></span></div>
+      <div>${icon('trend')}<span><small>${t('Tendência', 'Trend')}</small><b>${info.label} · ${shortTerm}</b></span></div>
       <div>${icon('averages')}<span><small>${t('Estrutura de médias', 'Moving-average structure')}</small><b>EMA 20 ${structure ? '>' : '≤'} EMA 200 · ${slopePositive ? t('ascendente', 'rising') : t('sem confirmação', 'unconfirmed')}</b></span></div>
       <div>${icon('permission')}<span><small>${t('Permissão operacional', 'Trading permission')}</small><b>${info.permission}</b></span></div>
     </aside>`;
   }
 
-  function MarketCycleHero(cycle, history) {
+  function MarketCycleHero(cycle, history, marketInfo) {
     const info = regime(cycle);
-    return `<section class="mcv2-hero"><div class="mcv2-diagnosis"><p>${t('Situação atual do mercado', 'Current market situation')}</p><h2>${info.label}</h2><span>${info.interpretation}</span><div><button type="button" class="primary" onclick="go('newtrade')">${t('Planejar trade →', 'Plan trade →')}</button><button type="button" class="secondary" onclick="go('relativestrength')">${t('Ver Força Relativa →', 'View Relative Strength →')}</button></div></div>${MarketCycleGauge(cycle, history)}${MarketCycleFactors(cycle, info)}</section>`;
+    return `<section class="mcv2-hero">
+      <div class="mcv2-diagnosis">
+        <p>${t('Situação atual do mercado', 'Current market situation')} · ${esc(marketInfo.benchmarkSymbol)}</p>
+        <h2>${info.label}</h2>
+        <span>${info.interpretation}</span>
+        <div>
+          <button type="button" class="primary" onclick="go('newtrade')">${t('Planejar trade →', 'Plan trade →')}</button>
+          <button type="button" class="secondary" onclick="go('relativestrength')">${t('Ver Força Relativa →', 'View Relative Strength →')}</button>
+        </div>
+      </div>
+      ${MarketCycleGauge(cycle, history)}
+      ${MarketCycleFactors(cycle, info)}
+    </section>`;
   }
 
   function regimeIcon(type) {
@@ -138,19 +261,37 @@
     return `<section class="mcv2-regime" aria-label="${t('Posição atual no regime de mercado', 'Current market regime position')}"><div class="mcv2-regime-item defence"><span class="mcv2-regime-icon">${regimeIcon('defence')}</span><div><b>${t('Defesa', 'Defence')}</b><span>${t('Preservar capital. Ficar de fora.', 'Preserve capital. Stay out.')}</span></div></div><div class="mcv2-regime-item transition"><span class="mcv2-regime-icon">${regimeIcon('transition')}</span><div><b>${t('Transição', 'Transition')}</b><span>${t('Atenção e seletividade.', 'Attention and selectivity.')}</span></div></div><div class="mcv2-regime-item expansion"><span class="mcv2-regime-icon">${regimeIcon('expansion')}</span><div><b>${t('Expansão', 'Expansion')}</b><span>${t('Ambiente favorável para oportunidades.', 'Favourable environment for opportunities.')}</span></div></div><i style="left:${position}%" title="${t('Score atual', 'Current score')}: ${number(cycle.score)}/100"></i></section>`;
   }
 
-  function MarketBreadth(breadth) {
-    if (!breadth || !Object.values(breadth).some(hasNumber)) return '';
-    const items = [
-      ['leader', t('Líderes', 'Leaders')],
-      ['qualified', t('Qualificados', 'Qualified')],
-      ['watch', t('Em acompanhamento', 'On watch')],
-      ['below-threshold', t('Abaixo do filtro', 'Below filter')]
-    ];
-    return `<section class="mcv2-breadth" aria-label="${t('Amplitude do mercado', 'Market breadth')}"><header><div><p>${t('Amplitude do mercado', 'Market breadth')}</p><h2>${t('Como está a base do IBOV?', 'How broad is IBOV strength?')}</h2></div><button type="button" data-open-scans>${t('Ver oportunidades nos Scans →', 'View opportunities in Scans →')}</button></header><div>${items.map(([key, label]) => `<article class="${key}"><b>${number(breadth[key] || 0)}</b><span>${label}</span></article>`).join('')}</div><small>${t('A amplitude mostra quantos ativos sustentam a leitura atual. Para analisar líderes e qualificados, use os Scans de Mercado.', 'Breadth shows how many assets support the current reading. Use Market Scans to analyse leaders and qualified assets.')}</small></section>`;
+  function MarketBreadth(breadth, marketInfo) {
+    if (marketInfo.hasBreadth && breadth && Object.values(breadth).some(hasNumber)) {
+      const items = [
+        ['leader', t('Líderes', 'Leaders')],
+        ['qualified', t('Qualificados', 'Qualified')],
+        ['watch', t('Em acompanhamento', 'On watch')],
+        ['below-threshold', t('Abaixo do filtro', 'Below filter')]
+      ];
+      return `<section class="mcv2-breadth" aria-label="${t('Amplitude do mercado', 'Market breadth')}"><header><div><p>${t('Amplitude do mercado', 'Market breadth')}</p><h2>${t('Como está a base do IBOV?', 'How broad is IBOV strength?')}</h2></div><button type="button" data-open-scans>${t('Ver oportunidades nos Scans →', 'View opportunities in Scans →')}</button></header><div>${items.map(([key, label]) => `<article class="${key}"><b>${number(breadth[key] || 0)}</b><span>${label}</span></article>`).join('')}</div><small>${t('A amplitude mostra quantos ativos sustentam a leitura atual. Para analisar líderes e qualificados, use os Scans de Mercado.', 'Breadth shows how many assets support the current reading. Use Market Scans to analyse leaders and qualified assets.')}</small></section>`;
+    }
+
+    if (!marketInfo.hasBreadth) {
+      return `<section class="mcv2-breadth mcv2-breadth-info" aria-label="${t('Universo de BDRs', 'BDR Universe')}">
+        <header>
+          <div>
+            <p>${t('Universo de BDRs', 'BDR Universe')}</p>
+            <h2>${t('Amplitude e Seleção de BDRs na B3', 'Breadth & BDR Selection on B3')}</h2>
+          </div>
+          <button type="button" onclick="go('relativestrength')">${t('Ver Força Relativa de BDRs →', 'View BDR Relative Strength →')}</button>
+        </header>
+        <div class="mcv2-breadth-note">
+          <p>${t('O índice BDRX afere o ciclo e a direção geral dos certificados de ativos internacionais na B3. Para explorar os 34 BDRs elegíveis, classificados por liderança e força relativa sem misturar com ações locais, acesse a tela de Força Relativa.', 'The BDRX index tracks cycle and overall direction for global asset certificates on B3. To inspect the 34 eligible BDRs ranked by relative strength and leadership, visit the Relative Strength screen.')}</p>
+        </div>
+      </section>`;
+    }
+
+    return '';
   }
 
-  function visibleSeries(history) {
-    const requested = ranges.find(([id]) => id === state.range)?.[1] || 260;
+  function visibleSeries(history, currentRange = '1y') {
+    const requested = ranges.find(([id]) => id === currentRange)?.[1] || 260;
     return history.slice(-requested);
   }
 
@@ -165,8 +306,8 @@
     return path;
   }
 
-  function IbovDailyChart(history, source) {
-    const rows = visibleSeries(history);
+  function MarketDailyChart(history, source, marketInfo, currentRange) {
+    const rows = visibleSeries(history, currentRange);
     if (rows.length < 2) return `<div class="mcv2-empty">${t('Histórico insuficiente para desenhar o gráfico.', 'Insufficient history to draw the chart.')}</div>`;
     const values = rows.flatMap(row => [row.close, row.ema20, row.ema200]).map(Number).filter(Number.isFinite);
     const min = Math.min(...values), max = Math.max(...values), spread = max - min || 1;
@@ -178,26 +319,60 @@
     const availableRanges = ranges.filter(([, days]) => history.length >= days);
     const officialB3 = String(source || '').includes('b3-');
     const sourceCopy = officialB3 ? t('série oficial B3', 'official B3 series') : t('fonte de contingência', 'contingency source');
-    return `<div class="mcv2-chart-head"><div><h2>IBOVESPA · ${t('Diário', 'Daily')}</h2><p>${t('Preço e médias móveis', 'Price and moving averages')} · ${sourceCopy}</p></div><div class="mcv2-ranges" role="group" aria-label="${t('Período do gráfico', 'Chart period')}">${availableRanges.map(([id,, label]) => `<button type="button" data-market-range="${id}" class="${state.range === id ? 'active' : ''}" aria-pressed="${state.range === id}">${label}</button>`).join('')}</div></div>
-      <div class="mcv2-chart-scroll"><svg class="mcv2-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('Gráfico diário do Ibovespa com EMA 20 e EMA 200', 'Daily Ibovespa chart with 20 and 200 EMA')}">
-        <defs><linearGradient id="mcv2-area" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#21945d" stop-opacity=".22"/><stop offset="1" stop-color="#21945d" stop-opacity="0"/></linearGradient></defs>
+    const chartLabel = `${esc(marketInfo.benchmarkSymbol)} · ${t('Diário', 'Daily')}`;
+
+    return `<div class="mcv2-chart-head">
+      <div>
+        <h2>${chartLabel}</h2>
+        <p>${t('Preço e médias móveis', 'Price and moving averages')} · ${sourceCopy}</p>
+      </div>
+      <div class="mcv2-ranges" role="group" aria-label="${t('Período do gráfico', 'Chart period')}">
+        ${availableRanges.map(([id,, label]) => `<button type="button" data-market-range="${id}" class="${currentRange === id ? 'active' : ''}" aria-pressed="${currentRange === id}">${label}</button>`).join('')}
+      </div>
+    </div>
+    <div class="mcv2-chart-scroll">
+      <svg class="mcv2-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('Gráfico diário de', 'Daily chart of')} ${esc(marketInfo.benchmarkSymbol)} ${t('com EMA 20 e EMA 200', 'with 20 and 200 EMA')}">
+        <defs><linearGradient id="mcv2-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#21945d" stop-opacity=".22"/><stop offset="1" stop-color="#21945d" stop-opacity="0"/></linearGradient></defs>
         <rect x="${left}" y="${top}" width="${W-left-right}" height="${H-top-bottom}" rx="8" class="mcv2-plot-bg"/>
         ${ticks.map(value => `<line x1="${left}" y1="${y(value)}" x2="${W-right}" y2="${y(value)}" class="mcv2-gridline"/><text x="${left-10}" y="${y(value)+4}" text-anchor="end">${number(value)}</text>`).join('')}
         ${dateTicks.map(index => `<text x="${x(index)}" y="${H-18}" text-anchor="${index === 0 ? 'start' : index === rows.length-1 ? 'end' : 'middle'}">${dateLabel(rows[index].date).replace(/ de /g,' ')}</text>`).join('')}
         <path class="mcv2-price-area" d="${linePath(rows,'close',x,y)} L${x(rows.length-1)},${H-bottom} L${left},${H-bottom} Z"/>
         <path class="mcv2-line ema200" d="${linePath(rows,'ema200',x,y)}"/><path class="mcv2-line ema20" d="${linePath(rows,'ema20',x,y)}"/><path class="mcv2-line price" d="${linePath(rows,'close',x,y)}"/>
-        ${rows.map((row,index) => `<circle tabindex="0" cx="${x(index)}" cy="${y(row.close)}" r="7" class="mcv2-hit"><title>${dateLabel(row.date)}\nIBOV: ${number(row.close)}\nEMA 20: ${number(row.ema20)}\nEMA 200: ${number(row.ema200)}\nScore: ${number(row.score)}/100</title></circle>`).join('')}
-      </svg></div><div class="mcv2-legend"><span class="price"><i></i>${t('Preço', 'Price')}</span><span class="ema20"><i></i>EMA 20</span><span class="ema200"><i></i>EMA 200</span></div>`;
+        ${rows.map((row,index) => `<circle tabindex="0" cx="${x(index)}" cy="${y(row.close)}" r="7" class="mcv2-hit"><title>${dateLabel(row.date)}\n${esc(marketInfo.benchmarkSymbol)}: ${number(row.close)}\nEMA 20: ${number(row.ema20)}\nEMA 200: ${number(row.ema200)}\nScore: ${number(row.score)}/100</title></circle>`).join('')}
+      </svg>
+    </div>
+    <div class="mcv2-legend">
+      <span class="price"><i></i>${t('Preço', 'Price')}</span>
+      <span class="ema20"><i></i>EMA 20</span>
+      <span class="ema200"><i></i>EMA 200</span>
+    </div>`;
   }
 
   function checkRow(label, value, pass) {
     return `<div class="${pass ? 'pass' : 'attention'}"><span>${label}</span><b>${value}</b><i aria-label="${pass ? t('Confirmado', 'Confirmed') : t('Atenção', 'Attention')}">${pass ? '✓' : '!'}</i></div>`;
   }
 
-  function MarketTransparentReading(cycle) {
+  function MarketTransparentReading(cycle, marketInfo) {
     const info = regime(cycle);
     const slopes = hasNumber(cycle.ema20Slope) && Number(cycle.ema20Slope) > 0 && (!hasNumber(cycle.ema200Slope) || Number(cycle.ema200Slope) >= 0);
-    return `<aside class="mcv2-reading"><section><h3>${t('Leitura transparente', 'Transparent reading')}</h3>${checkRow(t('Preço acima da EMA 20','Price above 20 EMA'), number(cycle.price), cycle.above20)}${checkRow(t('Preço acima da EMA 200','Price above 200 EMA'), number(cycle.price), cycle.above200)}${checkRow(t('Inclinação das médias','Moving-average slope'), slopes ? t('Positiva','Positive') : t('Sem confirmação','Unconfirmed'), slopes)}${checkRow(t('Score do mercado','Market score'), `${number(cycle.score)}/100`, cycle.state === 'healthy')}</section><section class="mcv2-context"><h3>${t('Contexto atual', 'Current context')} ${icon('info')}</h3><p>${info.context}</p></section><blockquote>“${t('Grandes lucros exigem suportar pequenas dores.', 'Great profits require enduring small pains.')}”</blockquote></aside>`;
+    const hasAtr = hasNumber(cycle.atr21);
+    return `<aside class="mcv2-reading">
+      <section>
+        <h3>${t('Leitura transparente', 'Transparent reading')} · ${esc(marketInfo.benchmarkSymbol)}</h3>
+        ${hasNumber(cycle.ema10) ? checkRow(t('Preço acima da EMA 10 (Curto prazo)','Price above 10 EMA (Short term)'), number(cycle.price), cycle.above10) : ''}
+        ${checkRow(t('Preço acima da EMA 20 (Médio prazo)','Price above 20 EMA (Medium term)'), number(cycle.price), cycle.above20)}
+        ${checkRow(t('Preço acima da EMA 200 (Longo prazo)','Price above 200 EMA (Long term)'), number(cycle.price), cycle.above200)}
+        ${hasNumber(cycle.ema10) ? checkRow(t('Alinhamento das médias curtas','Short averages alignment'), cycle.ema10Above20 ? 'EMA 10 > EMA 20' : 'EMA 10 ≤ EMA 20', cycle.ema10Above20) : ''}
+        ${checkRow(t('Inclinação das médias','Moving-average slope'), slopes ? t('Positiva','Positive') : t('Sem confirmação','Unconfirmed'), slopes)}
+        ${hasAtr ? checkRow('ATR 21 (Volatilidade)', `${number(cycle.atr21, 0)} (${percent(cycle.atrPct)})`, true) : ''}
+        ${checkRow(t('Score do mercado','Market score'), `${number(cycle.score)}/100`, cycle.score >= 70)}
+      </section>
+      <section class="mcv2-context">
+        <h3>${t('Contexto atual', 'Current context')} ${icon('info')}</h3>
+        <p>${info.context}</p>
+      </section>
+      <blockquote>“${t('Grandes lucros exigem suportar pequenas dores.', 'Great profits require enduring small pains.')}”</blockquote>
+    </aside>`;
   }
 
   function changeFrom(row, previous, field) {
@@ -205,68 +380,189 @@
     return Number.isFinite(a) && Number.isFinite(b) && b !== 0 ? (a / b - 1) * 100 : null;
   }
 
-  function MarketEvidenceCards(cycle, history) {
+  function MarketEvidenceCards(cycle, history, marketInfo) {
     const current = history.at(-1), previous = history.at(-2);
     const score = scoreChange(history);
+    const hasEma10 = hasNumber(cycle.ema10);
     const cards = [
       [t('Preço atual','Current price'), number(cycle.price), percent(changeFrom(current,previous,'close'))],
-      ['EMA 20', number(cycle.ema20), percent(changeFrom(current,previous,'ema20'))],
-      ['EMA 200', number(cycle.ema200), percent(changeFrom(current,previous,'ema200'))],
-      [t('Variação do score','Score change'), score ? `${score.value > 0 ? '+' : ''}${number(score.value)} ${t('pontos','points')}` : '—', score ? `${t('últimos','last')} ${score.sessions} ${t('pregões','sessions')}` : t('Histórico insuficiente','Insufficient history')]
+      [
+        hasEma10 ? 'EMA 10 (Curto)' : 'EMA 20',
+        hasEma10 ? number(cycle.ema10) : number(cycle.ema20),
+        hasEma10 ? (cycle.above10 ? t('↗ Acima da média', '↗ Above average') : t('↘ Abaixo da média', '↘ Below average')) : percent(changeFrom(current,previous,'ema20'))
+      ],
+      ['EMA 200 (Longo)', number(cycle.ema200), percent(changeFrom(current,previous,'ema200'))],
+      [
+        t('Variação do score','Score change'),
+        score ? `${score.value > 0 ? '+' : ''}${number(score.value)} ${t('pontos','points')}` : '—',
+        score ? `${t('últimos','last')} ${score.sessions} ${t('pregões','sessions')}` : t('Histórico insuficiente','Insufficient history')
+      ]
     ];
     return `<div class="mcv2-evidence">${cards.map(([label,value,detail]) => `<article><small>${label}</small><b>${value}</b><span>${detail}</span></article>`).join('')}</div>`;
   }
 
-  function renderLoading() {
-    root.innerHTML = `<div class="mcv2-page is-loading"><div class="mcv2-shell"><div class="mcv2-loading"><i></i><b>${t('Lendo o ambiente do mercado…', 'Reading the market environment…')}</b><span>${t('Carregando fechamento, médias e histórico oficial da B3.', 'Loading close, averages and official B3 history.')}</span></div></div></div>`;
-  }
-
-  function renderError(message) {
-    root.innerHTML = `<div class="mcv2-page is-error"><div class="mcv2-shell"><div class="mcv2-loading"><b>${t('Não foi possível ler o Ciclo de Mercado.', 'Market Cycle could not be loaded.')}</b><span>${esc(message)}</span><button type="button" data-market-retry>${t('Tentar novamente', 'Try again')}</button></div></div></div>`;
-  }
-
-  function renderEmpty() {
-    root.innerHTML = `<div class="mcv2-page is-empty"><div class="mcv2-shell"><div class="mcv2-loading"><b>${t('Ainda não há histórico suficiente.', 'There is not enough history yet.')}</b><span>${t('A leitura aparecerá assim que o fechamento oficial da B3 tiver observações suficientes para calcular o ambiente sem inventar dados.', 'The reading will appear as soon as the official B3 close has enough observations to calculate the environment without inventing data.')}</span><button type="button" data-market-retry>${t('Consultar novamente', 'Check again')}</button></div></div></div>`;
-  }
-
   function render() {
     syncActiveLayout();
-    if (state.status === 'loading') return renderLoading();
-    if (state.status === 'error') return renderError(state.error);
-    const payload = state.payload, cycle = payload?.cycle || {}, history = Array.isArray(payload?.benchmark?.history) ? payload.benchmark.history : [];
-    if (!hasNumber(cycle.price) || history.length < 2) return renderEmpty();
+    const currentMarket = state.currentMarket || 'stock_b3';
+    const marketInfo = MARKET_REGISTRY[currentMarket] || MARKET_REGISTRY.stock_b3;
+    const mState = state.markets[currentMarket] || { status: 'loading', payload: null, error: '', range: '1y' };
+
+    if (mState.status === 'loading') {
+      root.innerHTML = `<div class="mcv2-page is-loading">
+        <div class="mcv2-shell">
+          <header class="mcv2-heading">
+            <div>
+              <p>The Healthy Trend Trader / <b>${t('Ciclo de Mercado','Market Cycle')}</b></p>
+              <h1>${t('Ciclo de Mercado','Market Cycle')}</h1>
+              <em>${t('Antes de escolher o cavalo, entenda a pista.','Before choosing the horse, understand the track.')}</em>
+            </div>
+            ${MarketSelector()}
+            <blockquote>“${t('O mercado não é ON/OFF.<br>É um ambiente para se posicionar.','The market is not ON/OFF.<br>It is an environment to position within.')}”</blockquote>
+          </header>
+          <div class="mcv2-loading">
+            <i></i>
+            <b>${t(`Lendo o ambiente de ${marketInfo.name} (${marketInfo.benchmarkSymbol})…`, `Reading the market environment for ${marketInfo.name} (${marketInfo.benchmarkSymbol})…`)}</b>
+            <span>${t('Carregando fechamento, médias e histórico oficial da B3.', 'Loading close, averages and official B3 history.')}</span>
+          </div>
+        </div>
+      </div>`;
+      return;
+    }
+
+    if (mState.status === 'error') {
+      root.innerHTML = `<div class="mcv2-page is-error">
+        <div class="mcv2-shell">
+          <header class="mcv2-heading">
+            <div>
+              <p>The Healthy Trend Trader / <b>${t('Ciclo de Mercado','Market Cycle')}</b></p>
+              <h1>${t('Ciclo de Mercado','Market Cycle')}</h1>
+              <em>${t('Antes de escolher o cavalo, entenda a pista.','Before choosing the horse, understand the track.')}</em>
+            </div>
+            ${MarketSelector()}
+            <blockquote>“${t('O mercado não é ON/OFF.<br>É um ambiente para se posicionar.','The market is not ON/OFF.<br>It is an environment to position within.')}”</blockquote>
+          </header>
+          <div class="mcv2-loading">
+            <b>${t(`Não foi possível ler o Ciclo de Mercado para ${marketInfo.name}.`, `Market Cycle could not be loaded for ${marketInfo.name}.`)}</b>
+            <span>${esc(mState.error)}</span>
+            <button type="button" data-market-retry>${t('Tentar novamente', 'Try again')}</button>
+          </div>
+        </div>
+      </div>`;
+      return;
+    }
+
+    const payload = mState.payload;
+    const cycle = payload?.cycle || {};
+    const history = Array.isArray(payload?.benchmark?.history) ? payload.benchmark.history : [];
+    if (!hasNumber(cycle.price) || history.length < 2) {
+      root.innerHTML = `<div class="mcv2-page is-empty">
+        <div class="mcv2-shell">
+          <header class="mcv2-heading">
+            <div>
+              <p>The Healthy Trend Trader / <b>${t('Ciclo de Mercado','Market Cycle')}</b></p>
+              <h1>${t('Ciclo de Mercado','Market Cycle')}</h1>
+              <em>${t('Antes de escolher o cavalo, entenda a pista.','Before choosing the horse, understand the track.')}</em>
+            </div>
+            ${MarketSelector()}
+            <blockquote>“${t('O mercado não é ON/OFF.<br>É um ambiente para se posicionar.','The market is not ON/OFF.<br>It is an environment to position within.')}”</blockquote>
+          </header>
+          <div class="mcv2-loading">
+            <b>${t(`Ainda não há histórico suficiente para ${marketInfo.name} (${marketInfo.benchmarkSymbol}).`, `There is not enough history yet for ${marketInfo.name} (${marketInfo.benchmarkSymbol}).`)}</b>
+            <span>${t('A leitura aparecerá assim que o fechamento oficial da B3 tiver observações suficientes para calcular o ambiente sem inventar dados.', 'The reading will appear as soon as the official B3 close has enough observations to calculate the environment without inventing data.')}</span>
+            <button type="button" data-market-retry>${t('Consultar novamente', 'Check again')}</button>
+          </div>
+        </div>
+      </div>`;
+      return;
+    }
+
+    const snapshot = getMarketSnapshot(currentMarket);
     const info = regime(cycle);
-    root.innerHTML = `<div class="mcv2-page regime-${cycle.state || 'transition'}"><div class="mcv2-shell"><header class="mcv2-heading"><div><p>The Healthy Trend Trader / <b>${t('Ciclo de Mercado','Market Cycle')}</b></p><h1>${t('Ciclo de Mercado','Market Cycle')}</h1><em>${t('Antes de escolher o cavalo, entenda a pista.','Before choosing the horse, understand the track.')}</em></div>${marketStatus(cycle.date || history.at(-1)?.date, payload.source)}<blockquote>“${t('O mercado não é ON/OFF.<br>É um ambiente para se posicionar.','The market is not ON/OFF.<br>It is an environment to position within.')}”</blockquote></header>${MarketCycleHero(cycle,history)}${MarketRegimeBar(cycle)}<section class="mcv2-analysis"><article class="mcv2-chart-card">${IbovDailyChart(history,payload.source)}${MarketEvidenceCards(cycle,history)}</article>${MarketTransparentReading(cycle)}</section>${MarketBreadth(payload.breadth)}<footer><span>${info.permission}</span><b>${t('Disciplina gera liberdade.','Discipline creates freedom.')}</b></footer></div></div>`;
+    root.innerHTML = `<div class="mcv2-page regime-${cycle.state || 'transition'}">
+      <div class="mcv2-shell">
+        <header class="mcv2-heading">
+          <div>
+            <p>The Healthy Trend Trader / <b>${t('Ciclo de Mercado','Market Cycle')}</b></p>
+            <h1>${t('Ciclo de Mercado','Market Cycle')}</h1>
+            <em>${t('Antes de escolher o cavalo, entenda a pista.','Before choosing the horse, understand the track.')}</em>
+          </div>
+          ${MarketSelector()}
+          ${marketStatus(cycle.date || history.at(-1)?.date, payload.source, marketInfo, snapshot)}
+          <blockquote>“${t('O mercado não é ON/OFF.<br>É um ambiente para se posicionar.','The market is not ON/OFF.<br>It is an environment to position within.')}”</blockquote>
+        </header>
+        ${MarketCycleHero(cycle, history, marketInfo)}
+        ${MarketRegimeBar(cycle)}
+        <section class="mcv2-analysis">
+          <article class="mcv2-chart-card">
+            ${MarketDailyChart(history, payload.source, marketInfo, mState.range)}
+            ${MarketEvidenceCards(cycle, history, marketInfo)}
+          </article>
+          ${MarketTransparentReading(cycle, marketInfo)}
+        </section>
+        ${MarketBreadth(payload.breadth, marketInfo)}
+        <footer>
+          <span>${info.permission}</span>
+          <b>${t('Disciplina gera liberdade.','Discipline creates freedom.')}</b>
+        </footer>
+      </div>
+    </div>`;
   }
 
-  async function load(force = false) {
-    if (!force && state.payload) { render(); return; }
-    state.status = 'loading'; render();
+  async function load(marketId = state.currentMarket, force = false) {
+    if (!MARKET_REGISTRY[marketId]) marketId = 'stock_b3';
+    state.currentMarket = marketId;
+    const current = state.markets[marketId];
+    if (!force && current?.payload) {
+      render();
+      return;
+    }
+    state.markets[marketId] = { ...current, status: 'loading', error: '' };
+    render();
     try {
-      const response = await fetch(api());
+      const response = await fetch(`${api()}?market=${marketId}`);
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
-      state = { ...state, status: 'ready', payload, error: '' };
       const history = Array.isArray(payload?.benchmark?.history) ? payload.benchmark.history : [];
-      if (!ranges.some(([id, days]) => id === state.range && history.length >= days)) {
-        state.range = ranges.filter(([, days]) => history.length >= days).at(-1)?.[0] || '1m';
+      let range = current.range || '1y';
+      if (!ranges.some(([id, days]) => id === range && history.length >= days)) {
+        range = ranges.filter(([, days]) => history.length >= days).at(-1)?.[0] || '1m';
       }
+      state.markets[marketId] = { status: 'ready', payload, error: '', range };
+      persistMarketSnapshot(marketId, payload);
       render();
     } catch (error) {
-      state = { ...state, status: 'error', error: error.message || t('Falha ao consultar os dados solicitados.', 'Failed to query the requested data.') };
+      state.markets[marketId] = {
+        ...current,
+        status: 'error',
+        error: error.message || t('Falha ao consultar os dados solicitados.', 'Failed to query the requested data.')
+      };
       render();
     }
   }
 
   root.addEventListener('click', event => {
+    const marketSelect = event.target.closest('[data-market-select]')?.dataset.marketSelect;
+    if (marketSelect && marketSelect !== state.currentMarket) {
+      load(marketSelect);
+      return;
+    }
     const range = event.target.closest('[data-market-range]')?.dataset.marketRange;
-    if (range) { state.range = range; render(); return; }
+    if (range) {
+      if (state.markets[state.currentMarket]) {
+        state.markets[state.currentMarket].range = range;
+        render();
+      }
+      return;
+    }
     if (event.target.closest('[data-open-scans]')) { go('marketscans'); return; }
-    if (event.target.closest('[data-market-retry]')) load(true);
+    if (event.target.closest('[data-market-retry]')) load(state.currentMarket, true);
   });
 
   window.renderMarketCycle = render;
   window.loadMarketCycleV2 = load;
-  window.addEventListener('healthyTrend:authenticated', () => load(true));
+  window.MARKET_REGISTRY = MARKET_REGISTRY;
+  window.getMarketCycleSnapshot = getMarketSnapshot;
+  window.persistMarketCycleSnapshot = persistMarketSnapshot;
+  window.addEventListener('healthyTrend:authenticated', () => load(state.currentMarket, true));
   load();
 }());

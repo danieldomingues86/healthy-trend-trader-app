@@ -61,19 +61,18 @@ body:not([data-theme="healthy"]) #positions .positions-table .closed-period-grou
 body:not([data-theme="healthy"]) #positions .positions-table .closed-period-group small{color:#cdbd98!important}
 
 /* Fundamental analysis: retain the semantic score colors but use Gold-neutral panels and readable years. */
-body:not([data-theme="healthy"]) #fundamentals .fund-score{background:linear-gradient(145deg,#241b0d,#151109)!important;border-color:#765b2b;color:#fff8e8}
-body:not([data-theme="healthy"]) #fundamentals .fund-gauge:after{background:#17140d}
-body:not([data-theme="healthy"]) #fundamentals .fund-score>b{color:#f2d06f}
-body:not([data-theme="healthy"]) #fundamentals .fund-score p{color:#e7d7b5}
-body:not([data-theme="healthy"]) #fundamentals .fund-metrics article{background:#1b170e;border-color:#493c21}
-body:not([data-theme="healthy"]) #fundamentals .fund-metrics small,
-body:not([data-theme="healthy"]) #fundamentals .fund-metrics span{color:#cfc09c}
-body:not([data-theme="healthy"]) #fundamentals .fund-metrics b,
-body:not([data-theme="healthy"]) #fundamentals .fund-big{color:#ecc45f}
-body:not([data-theme="healthy"]) #fundamentals .fund-years span{background:#352b19;color:#f6e7c4}
-body:not([data-theme="healthy"]) #fundamentals .fund-years .no{background:#442226;color:#ffd9d4}
-body:not([data-theme="healthy"]) #fundamentals .fund-takeaway{background:linear-gradient(120deg,#2c1d08,#4a3310)!important;border-color:#7b5d2d;color:#fff8e8}
-body:not([data-theme="healthy"]) #fundamentals .fund-takeaway small{color:#e6d2a4}
+body:not([data-theme="healthy"]) #fundamentals .fund-score-card{background:linear-gradient(145deg,#241b0d,#151109)!important;border-color:#765b2b;color:#fff8e8}
+body:not([data-theme="healthy"]) #fundamentals .fund-score-hero-row .fund-score-number{color:#fff8e8}
+body:not([data-theme="healthy"]) #fundamentals .fund-score-takeaway-inline{color:#e7d7b5;border-left-color:#8e7039}
+body:not([data-theme="healthy"]) #fundamentals .fund-snapshot,
+body:not([data-theme="healthy"]) #fundamentals .fund-calculation-section,
+body:not([data-theme="healthy"]) #fundamentals .fund-raiox-section,
+body:not([data-theme="healthy"]) #fundamentals .fund-bottom-card{background:#1b170e;border-color:#493c21;color:#f3e8d2}
+body:not([data-theme="healthy"]) #fundamentals .fund-dim-card{background:#231c11;border-color:#534324}
+body:not([data-theme="healthy"]) #fundamentals .fund-raiox-item{background:#231c11;border-color:#534324}
+body:not([data-theme="healthy"]) #fundamentals .fund-formula-bar{background:#2b2111;border-color:#6c572a;color:#fff1cb}
+body:not([data-theme="healthy"]) #fundamentals .fund-trader-takeaway{background:linear-gradient(120deg,#2c1d08,#4a3310)!important;border-color:#7b5d2d;color:#fff8e8}
+body:not([data-theme="healthy"]) #fundamentals .fund-trader-takeaway small{color:#e6d2a4}
 
 /* Portfolio Heat retains its visual story while adopting the selected Gold theme. */
 body:not([data-theme="healthy"]) .heat-philosophy h2::first-letter{color:#fff!important}

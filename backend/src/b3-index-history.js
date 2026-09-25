@@ -2,7 +2,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 
 const B3_INDEX_HISTORY_API = 'https://sistemaswebb3-listados.b3.com.br/indexStatisticsProxy/IndexCall/GetPortfolioDay/';
-const INDEX_CODES = { '^BVSP': 'IBOV', IBOV: 'IBOV', SMLL: 'SMLL', IFIX: 'IFIX' };
+const INDEX_CODES = { '^BVSP': 'IBOV', IBOV: 'IBOV', SMLL: 'SMLL', IFIX: 'IFIX', BDRX: 'BDRX' };
 
 function b3IndexCode(symbol) {
   return INDEX_CODES[String(symbol || '').trim().toUpperCase()] || null;

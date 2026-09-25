@@ -34,22 +34,59 @@ const FII_SEGMENTS = {
 };
 const FII_CATALOG = FII_SYMBOLS.map((symbol) => [symbol, symbol, FII_SEGMENTS[symbol] || 'Outros']);
 const BDR_CATALOG = [
-  ['AAPL34', 'Apple', 'Tecnologia', 'AAPL', 'NASDAQ'], ['MSFT34', 'Microsoft', 'Tecnologia', 'MSFT', 'NASDAQ'],
-  ['NVDC34', 'NVIDIA', 'Tecnologia', 'NVDA', 'NASDAQ'], ['GOGL34', 'Alphabet', 'Tecnologia', 'GOOGL', 'NASDAQ'],
-  ['AMZO34', 'Amazon', 'Consumo', 'AMZN', 'NASDAQ'], ['TSLA34', 'Tesla', 'Consumo', 'TSLA', 'NASDAQ'],
-  ['META34', 'Meta Platforms', 'Tecnologia', 'META', 'NASDAQ'], ['JPMC34', 'JPMorgan Chase', 'Financeiro', 'JPM', 'S&P 500'],
-  ['DISB34', 'Walt Disney', 'Comunicação', 'DIS', 'S&P 500'], ['MCDC34', 'McDonald\'s', 'Consumo', 'MCD', 'S&P 500']
+  ['ROXO34', 'Nu Holdings', 'Financeiro', 'NU', 'NYSE'],
+  ['MELI34', 'MercadoLibre', 'Consumo', 'MELI', 'NASDAQ'],
+  ['M1TA34', 'Meta Platforms', 'Tecnologia', 'META', 'NASDAQ'],
+  ['NVDC34', 'NVIDIA', 'Tecnologia', 'NVDA', 'NASDAQ'],
+  ['TSLA34', 'Tesla', 'Consumo', 'TSLA', 'NASDAQ'],
+  ['ITLC34', 'Intel', 'Tecnologia', 'INTC', 'NASDAQ'],
+  ['AMZO34', 'Amazon', 'Consumo', 'AMZN', 'NASDAQ'],
+  ['GOGL34', 'Alphabet', 'Tecnologia', 'GOOGL', 'NASDAQ'],
+  ['MSFT34', 'Microsoft', 'Tecnologia', 'MSFT', 'NASDAQ'],
+  ['M2ST34', 'MicroStrategy', 'Tecnologia', 'MSTR', 'NASDAQ'],
+  ['SPCX34', 'SpaceX / Destiny', 'Tecnologia', 'DXYZ', 'NYSE'],
+  ['TSMC34', 'TSMC', 'Tecnologia', 'TSM', 'NYSE'],
+  ['P2LT34', 'Palantir', 'Tecnologia', 'PLTR', 'NASDAQ'],
+  ['ORCL34', 'Oracle', 'Tecnologia', 'ORCL', 'NYSE'],
+  ['MUTC34', 'Micron Technology', 'Tecnologia', 'MU', 'NASDAQ'],
+  ['AAPL34', 'Apple', 'Tecnologia', 'AAPL', 'NASDAQ'],
+  ['NFLX34', 'Netflix', 'Comunicação', 'NFLX', 'NASDAQ'],
+  ['BABA34', 'Alibaba', 'Consumo', 'BABA', 'NYSE'],
+  ['LILY34', 'Eli Lilly', 'Saúde', 'LLY', 'NYSE'],
+  ['A1MD34', 'AMD', 'Tecnologia', 'AMD', 'NASDAQ'],
+  ['JPMC34', 'JPMorgan Chase', 'Financeiro', 'JPM', 'NYSE'],
+  ['AVGO34', 'Broadcom', 'Tecnologia', 'AVGO', 'NASDAQ'],
+  ['BOAC34', 'Bank of America', 'Financeiro', 'BAC', 'NYSE'],
+  ['C2OI34', 'Coinbase', 'Financeiro', 'COIN', 'NASDAQ'],
+  ['COCA34', 'Coca-Cola', 'Consumo', 'KO', 'NYSE'],
+  ['BERK34', 'Berkshire Hathaway', 'Financeiro', 'BRK.B', 'NYSE'],
+  ['BKNG34', 'Booking Holdings', 'Consumo', 'BKNG', 'NASDAQ'],
+  ['S2GM34', 'Sigma Lithium', 'Materiais Básicos', 'SGML', 'NASDAQ'],
+  ['NIKE34', 'Nike', 'Consumo', 'NKE', 'NYSE'],
+  ['WALM34', 'Walmart', 'Consumo', 'WMT', 'NYSE'],
+  ['JNJB34', 'Johnson & Johnson', 'Saúde', 'JNJ', 'NYSE'],
+  ['DISB34', 'Walt Disney', 'Comunicação', 'DIS', 'NYSE'],
+  ['PAGS34', 'PagSeguro', 'Financeiro', 'PAGS', 'NYSE'],
+  ['CHVX34', 'Chevron', 'Petróleo e Gás', 'CVX', 'NYSE']
 ];
-const BDR_SYMBOLS = `MUTC34 A1MD34 ITLC34 TSMC34 BABA34 ORCL34 M1TA34 NVDC34 AVGO34 NIKE34 ROXO34 BERK34 AMZO34 BKNG34 COCA34 MELI34 JNJB34 GOGL34 WALM34 BOAC34 SPCX34 M2ST34 LILY34 JPMC34 CHVX34 MSFT34 AAPL34 DISB34 S2GM34 PAGS34 P2LT34 C2OI34 NFLX34 TSLA34`.split(/\s+/).filter(Boolean);
+const BDR_SYMBOLS = BDR_CATALOG.map(([symbol]) => symbol);
 const BDR_ORIGINALS = {
-  MUTC34:['MU','NASDAQ'],A1MD34:['AMD','NASDAQ'],ITLC34:['INTC','NASDAQ'],TSMC34:['TSM','NYSE'],BABA34:['BABA','NYSE'],ORCL34:['ORCL','NYSE'],M1TA34:['META','NASDAQ'],NVDC34:['NVDA','NASDAQ'],AVGO34:['AVGO','NASDAQ'],NIKE34:['NKE','NYSE'],ROXO34:['NU','NYSE'],BERK34:['BRK.B','NYSE'],AMZO34:['AMZN','NASDAQ'],BKNG34:['BKNG','NASDAQ'],COCA34:['KO','NYSE'],MELI34:['MELI','NASDAQ'],JNJB34:['JNJ','NYSE'],GOGL34:['GOOGL','NASDAQ'],WALM34:['WMT','NYSE'],BOAC34:['BA','NYSE'],SPCX34:['SPOT','NYSE'],M2ST34:['MSFT','NASDAQ'],LILY34:['LLY','NYSE'],JPMC34:['JPM','NYSE'],CHVX34:['CVX','NYSE'],MSFT34:['MSFT','NASDAQ'],AAPL34:['AAPL','NASDAQ'],DISB34:['DIS','NYSE'],S2GM34:['SG','NYSE'],PAGS34:['PAGS','NYSE'],P2LT34:['PLTR','NASDAQ'],C2OI34:['COIN','NASDAQ'],NFLX34:['NFLX','NASDAQ'],TSLA34:['TSLA','NASDAQ']
+  ROXO34:['NU','NYSE'],MELI34:['MELI','NASDAQ'],M1TA34:['META','NASDAQ'],NVDC34:['NVDA','NASDAQ'],
+  TSLA34:['TSLA','NASDAQ'],ITLC34:['INTC','NASDAQ'],AMZO34:['AMZN','NASDAQ'],GOGL34:['GOOGL','NASDAQ'],
+  MSFT34:['MSFT','NASDAQ'],M2ST34:['MSTR','NASDAQ'],SPCX34:['DXYZ','NYSE'],TSMC34:['TSM','NYSE'],
+  P2LT34:['PLTR','NASDAQ'],ORCL34:['ORCL','NYSE'],MUTC34:['MU','NASDAQ'],AAPL34:['AAPL','NASDAQ'],
+  NFLX34:['NFLX','NASDAQ'],BABA34:['BABA','NYSE'],LILY34:['LLY','NYSE'],A1MD34:['AMD','NASDAQ'],
+  JPMC34:['JPM','NYSE'],AVGO34:['AVGO','NASDAQ'],BOAC34:['BAC','NYSE'],C2OI34:['COIN','NASDAQ'],
+  COCA34:['KO','NYSE'],BERK34:['BRK.B','NYSE'],BKNG34:['BKNG','NASDAQ'],S2GM34:['SGML','NASDAQ'],
+  NIKE34:['NKE','NYSE'],WALM34:['WMT','NYSE'],JNJB34:['JNJ','NYSE'],DISB34:['DIS','NYSE'],
+  PAGS34:['PAGS','NYSE'],CHVX34:['CVX','NYSE']
 };
-const BDR_CATALOG_VERSION = 4;
+const BDR_CATALOG_VERSION = 5;
 
 function assetClassForSymbol(symbol) {
   const normalized = String(symbol || '').trim().toUpperCase();
   if (FII_CATALOG.some(([ticker]) => ticker === normalized)) return 'fii';
-  if (BDR_CATALOG.some(([ticker]) => ticker === normalized)) return 'bdr';
+  if (BDR_CATALOG.some(([ticker]) => ticker === normalized) || BDR_SYMBOLS.includes(normalized) || /(31|32|33|34|35|39)$/.test(normalized)) return 'bdr';
   return 'stock';
 }
 function classMeta(assetClass) {
@@ -77,8 +114,10 @@ function scoreCycle(history) {
   const closes = candles.map((item) => item.adjustedClose ?? item.close);
   if (closes.length < 25) return { state: 'transition', score: 50, reason: 'Histórico insuficiente para leitura completa.' };
   const price = closes.at(-1);
+  const ema10 = ema(closes.slice(-10), 10);
   const ema20 = ema(closes.slice(-20), 20);
   const ema200 = closes.length >= 200 ? ema(closes.slice(-200), 200) : ema(closes, closes.length);
+  const previous10 = closes.length > 10 ? ema(closes.slice(-11, -1), 10) : ema10;
   const previous20 = closes.length > 20 ? ema(closes.slice(-21, -1), 20) : null;
   const previous200 = closes.length > 200 ? ema(closes.slice(-201, -1), 200) : null;
   const ranges = candles.slice(-21).map((item, index, rows) => {
@@ -88,17 +127,89 @@ function scoreCycle(history) {
     return Number.isFinite(prior) ? Math.max(high - low, Math.abs(high - prior), Math.abs(low - prior)) : high - low;
   }).filter(Number.isFinite);
   const atr21 = ranges.length >= 15 ? ranges.reduce((sum, value) => sum + value, 0) / ranges.length : null;
+  const above10 = price > ema10;
   const above20 = price > ema20;
   const above200 = price > ema200;
+  const ema10Above20 = ema10 > ema20;
+  const structure = ema20 > ema200;
+  const ema10Slope = Number.isFinite(previous10) ? ema10 - previous10 : 0;
+  const ema20Slope = Number.isFinite(previous20) ? ema20 - previous20 : 0;
+  const ema200Slope = Number.isFinite(previous200) ? ema200 - previous200 : 0;
+  const roc10 = closes.length >= 11 ? ((price / closes.at(-11)) - 1) * 100 : 0;
+
+  // Regime primário
   const state = above20 && above200 ? 'healthy' : (!above20 && !above200 ? 'defensive' : 'transition');
-  const score = state === 'healthy' ? 82 : state === 'defensive' ? 28 : 54;
-  return { state, score, price, ema20, ema200, above20, above200, atr21, atrPct: Number.isFinite(atr21) && price > 0 ? atr21 / price * 100 : null, ema20Slope: Number.isFinite(previous20) ? ema20 - previous20 : null, ema200Slope: Number.isFinite(previous200) ? ema200 - previous200 : null, date: candles.at(-1)?.date || null };
+
+  // Score contínuo e responsivo (0 a 100)
+  let score = 50;
+  if (state === 'healthy') {
+    // Mercado saudável: base 76, modulação de 70 a 95
+    score = 76;
+    if (above10) score += 5; else score -= 5;
+    if (ema10Above20) score += 3; else score -= 2;
+    if (ema10Slope > 0) score += 3; else score -= 3;
+    if (ema20Slope > 0) score += 3; else score -= 2;
+    if (ema200Slope >= 0) score += 2;
+    const rocAdj = Math.max(-5, Math.min(5, Math.round(roc10 * 1.2)));
+    score += rocAdj;
+    score = Math.max(70, Math.min(95, score));
+  } else if (state === 'transition') {
+    // Mercado em transição: base 54, modulação de 45 a 68
+    score = 54;
+    if (above20) score += 6;
+    if (above200) score += 4;
+    if (above10) score += 3; else score -= 3;
+    if (ema10Slope > 0) score += 2; else score -= 2;
+    const rocAdj = Math.max(-4, Math.min(4, Math.round(roc10 * 1.0)));
+    score += rocAdj;
+    score = Math.max(45, Math.min(68, score));
+  } else {
+    // Mercado defensivo: base 26, modulação de 10 a 40
+    score = 26;
+    if (above10) score += 5;
+    if (ema10Slope > 0) score += 3;
+    if (structure) score += 3;
+    const rocAdj = Math.max(-5, Math.min(5, Math.round(roc10 * 1.0)));
+    score += rocAdj;
+    score = Math.max(10, Math.min(40, score));
+  }
+
+  return {
+    state,
+    score,
+    price,
+    ema10,
+    ema20,
+    ema200,
+    above10,
+    above20,
+    above200,
+    ema10Above20,
+    structure,
+    atr21,
+    atrPct: Number.isFinite(atr21) && price > 0 ? atr21 / price * 100 : null,
+    ema10Slope,
+    ema20Slope: Number.isFinite(previous20) ? ema20 - previous20 : null,
+    ema200Slope: Number.isFinite(previous200) ? ema200 - previous200 : null,
+    roc10,
+    date: candles.at(-1)?.date || null
+  };
 }
 function marketCycleSeries(history) {
   return history.map((candle, index) => {
     if (index < 24) return null;
     const reading = scoreCycle(history.slice(0, index + 1));
-    return { date: candle.date, close: reading.price, ema20: reading.ema20, ema200: reading.ema200, atr21: reading.atr21, atrPct: reading.atrPct, score: reading.score, state: reading.state };
+    return {
+      date: candle.date,
+      close: reading.price,
+      ema10: reading.ema10,
+      ema20: reading.ema20,
+      ema200: reading.ema200,
+      atr21: reading.atr21,
+      atrPct: reading.atrPct,
+      score: reading.score,
+      state: reading.state
+    };
   }).filter(Boolean);
 }
 function returns(history) {
@@ -119,7 +230,7 @@ async function fetchJson(url, headers = {}) {
 }
 function brapiHeaders() { return process.env.BRAPI_TOKEN ? { Authorization: `Bearer ${process.env.BRAPI_TOKEN}` } : {}; }
 function historyRangeFor(symbol) {
-  return ['^BVSP', 'IFIX'].includes(String(symbol || '').trim().toUpperCase()) ? INDEX_HISTORY_RANGE : '1y';
+  return ['^BVSP', 'IFIX', 'BDRX'].includes(String(symbol || '').trim().toUpperCase()) ? INDEX_HISTORY_RANGE : '1y';
 }
 function quoteChunks(symbols, size = 50) {
   return Array.from({ length: Math.ceil(symbols.length / size) }, (_, index) => symbols.slice(index * size, (index + 1) * size));
@@ -391,11 +502,18 @@ function metadataFromCache(cache) {
 }
 function bdrCatalogFromCache(cache) {
   const items = cache?.relativeStrengthByClass?.bdr?.items || [];
-  return items.filter((item) => item?.symbol).map((item) => ({
-    symbol: item.symbol, name: item.name || item.symbol, sector: item.sector || 'Não classificado', assetClass: 'bdr',
-    originalSymbol: item.originalSymbol || BDR_ORIGINALS[item.symbol]?.[0] || null,
-    internationalBenchmark: item.internationalBenchmark || BDR_ORIGINALS[item.symbol]?.[1] || null
-  }));
+  const cachedMap = new Map(items.filter((item) => item?.symbol).map((item) => [item.symbol, item]));
+  return BDR_CATALOG.map(([symbol, defaultName, defaultSector, originalSymbol, internationalBenchmark]) => {
+    const cached = cachedMap.get(symbol);
+    return {
+      symbol,
+      name: cached?.name || defaultName || symbol,
+      sector: cached?.sector || defaultSector || 'Não classificado',
+      assetClass: 'bdr',
+      originalSymbol: cached?.originalSymbol || originalSymbol || BDR_ORIGINALS[symbol]?.[0] || null,
+      internationalBenchmark: cached?.internationalBenchmark || internationalBenchmark || BDR_ORIGINALS[symbol]?.[1] || null
+    };
+  });
 }
 async function collectClassRelativeStrength({ assetClass, benchmarkSymbol, catalog }) {
   const benchmarkHistory = await fetchBenchmarkHistory(benchmarkSymbol);
@@ -460,8 +578,11 @@ function isBusinessDay(date = new Date()) { const day = saoPauloParts(date).week
 async function collectMarketData() {
   const previous = await readCache();
   const [indexSymbols, smallCapSymbols] = await Promise.all([fetchIndexSymbols('IBOV', FALLBACK_SYMBOLS, 40), fetchIndexSymbols('SMLL', [], 20)]);
-  const ibovHistory = await fetchBenchmarkHistory('^BVSP');
-  const smllHistory = await fetchBenchmarkHistory('SMLL');
+  const [ibovHistory, smllHistory, bdrxHistoryResult] = await Promise.all([
+    fetchBenchmarkHistory('^BVSP'),
+    fetchBenchmarkHistory('SMLL'),
+    fetchBenchmarkHistory('BDRX').then(data => ({ ok: true, data })).catch(err => ({ ok: false, error: err.message }))
+  ]);
   const benchmarkReturns = returns(ibovHistory);
   // A composição dos índices e os preços vêm da B3. Dados de catálogo são
   // enriquecimento visual; reutilizamos o cache em vez de tornar a coleta
@@ -505,16 +626,39 @@ async function collectMarketData() {
     fii: fiiResult.status === 'fulfilled' && fiiResult.value.available > 0 ? fiiResult.value : { ...(previous?.relativeStrengthByClass?.fii || { ...classMeta('fii'), requested: catalogFii.length, available: 0, items: [] }), error: fiiResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt },
     bdr: bdrResult.status === 'fulfilled' && bdrResult.value.available > 0 ? bdrResult.value : { ...(previous?.relativeStrengthByClass?.bdr || { ...classMeta('bdr'), requested: catalogBdr.length, available: 0, items: [] }), error: bdrResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt }
   };
-  const cache = { updatedAt: new Date().toISOString(), source: histories.source === 'b3-cotahist' && ibovHistory.source === 'b3-indexes' && smllHistory.source === 'b3-indexes' ? 'b3-cotahist + b3-indexes' : 'brapi-fallback', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns, history: marketCycleSeries(ibovHistory) }, relativeStrength: rows, relativeStrengthByClass, overview: overviewFrom(rows, ibovHistory) };
+  const bdrxHistory = bdrxHistoryResult.ok ? bdrxHistoryResult.data : null;
+  const bdrxReturns = bdrxHistory ? returns(bdrxHistory) : null;
+  const bdrxCycle = bdrxHistory ? scoreCycle(bdrxHistory) : (previous?.cycles?.bdr?.cycle || null);
+  const bdrxBenchmark = bdrxHistory
+    ? { symbol: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', returns: bdrxReturns, history: marketCycleSeries(bdrxHistory) }
+    : (previous?.cycles?.bdr?.benchmark || null);
+
+  const overview = overviewFrom(rows, ibovHistory);
+  const cycles = {
+    stock_b3: {
+      market: 'stock_b3',
+      benchmark: { symbol: 'IBOV', name: 'Índice Bovespa (IBOV)', returns: benchmarkReturns, history: marketCycleSeries(ibovHistory) },
+      cycle: scoreCycle(ibovHistory),
+      breadth: overview?.breadth || null
+    },
+    bdr: {
+      market: 'bdr',
+      benchmark: bdrxBenchmark,
+      cycle: bdrxCycle,
+      breadth: null
+    }
+  };
+
+  const cache = { updatedAt: new Date().toISOString(), source: histories.source === 'b3-cotahist' && ibovHistory.source === 'b3-indexes' && smllHistory.source === 'b3-indexes' ? 'b3-cotahist + b3-indexes' : 'brapi-fallback', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns, history: marketCycleSeries(ibovHistory) }, cycles, relativeStrength: rows, relativeStrengthByClass, overview };
   cache.historyUpdatedAt = cache.updatedAt;
   await writeCache(cache);
   return cache;
 }
 async function collectClassStrength(cache) {
   if (!cache) return cache;
-  if (cache?.relativeStrengthByClass?.fii?.requested === FII_CATALOG.length && cache?.relativeStrengthByClass?.fii?.available > 0 && cache?.relativeStrengthByClass?.bdr?.catalogVersion === BDR_CATALOG_VERSION && cache?.relativeStrengthByClass?.bdr?.available > 0) return cache;
+  if (cache?.relativeStrengthByClass?.fii?.requested === FII_CATALOG.length && cache?.relativeStrengthByClass?.fii?.available > 0 && cache?.relativeStrengthByClass?.bdr?.catalogVersion === BDR_CATALOG_VERSION && cache?.relativeStrengthByClass?.bdr?.available === BDR_CATALOG.length) return cache;
   const catalogFii = catalogItems(FII_CATALOG, 'fii');
-  const catalogBdr = bdrCatalogFromCache(cache).length ? bdrCatalogFromCache(cache) : catalogItems(BDR_CATALOG, 'bdr');
+  const catalogBdr = bdrCatalogFromCache(cache);
   const [fiiResult, bdrResult] = await Promise.allSettled([
     collectClassRelativeStrength({ assetClass: 'fii', benchmarkSymbol: 'IFIX', catalog: catalogFii }),
     collectPeerRelativeStrength({ assetClass: 'bdr', catalog: catalogBdr })
@@ -626,7 +770,7 @@ async function refreshIfDue(now = new Date()) {
 
 function refreshMarketData({ force = false, fallback = true } = {}) { return refreshControl.run('daily', collectMarketData, { force, fallback }); }
 function refreshClassStrength(cache) {
-  if (!cache || (cache.relativeStrengthByClass?.fii?.requested === FII_CATALOG.length && cache.relativeStrengthByClass?.fii?.available > 0 && cache.relativeStrengthByClass?.bdr?.catalogVersion === BDR_CATALOG_VERSION && cache.relativeStrengthByClass?.bdr?.available > 0)) return Promise.resolve(cache);
+  if (!cache || (cache.relativeStrengthByClass?.fii?.requested === FII_CATALOG.length && cache.relativeStrengthByClass?.fii?.available > 0 && cache.relativeStrengthByClass?.bdr?.catalogVersion === BDR_CATALOG_VERSION && cache.relativeStrengthByClass?.bdr?.available === BDR_CATALOG.length)) return Promise.resolve(cache);
   return refreshControl.run('classes', async () => collectClassStrength(await readCache() || cache), { minInterval: 24 * 3600000 });
 }
 function refreshLiveScanQuotes(cache, now = new Date()) {
@@ -641,4 +785,105 @@ async function marketDataStatus() {
   return { blockedUntil: state.blockedUntil > Date.now() ? new Date(state.blockedUntil).toISOString() : null, reason: state.code, requestsToday: state.usage?.[new Date().toISOString().slice(0, 10)] || 0, trackedRequests: Object.values(state.usage || {}).reduce((a,b)=>a+b,0), liveQuoteIntervalMinutes: LIVE_QUOTE_MINUTES };
 }
 
-module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, marketCycleSeries, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose, previousBusinessDay, expectedClosingDate };
+function marketCycleFor(cache, market = 'stock_b3') {
+  const normalized = String(market || 'stock_b3').trim().toLowerCase();
+  if (['bdr', 'bdrx'].includes(normalized)) {
+    const entry = cache?.cycles?.bdr;
+    if (entry?.cycle && entry?.benchmark) {
+      return {
+        updatedAt: entry.updatedAt || cache?.updatedAt || new Date().toISOString(),
+        source: entry.source || cache?.source || 'b3-indexes',
+        cycle: entry.cycle,
+        benchmark: entry.benchmark,
+        breadth: entry.breadth || null,
+        market: 'bdr',
+        supportedMarkets: ['stock_b3', 'bdr']
+      };
+    }
+    return {
+      updatedAt: cache?.updatedAt || new Date().toISOString(),
+      source: cache?.source || 'b3-indexes',
+      cycle: { state: 'transition', score: 50, reason: 'Histórico do BDRX indisponível no momento.' },
+      benchmark: { symbol: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', returns: { m1: 0, m3: 0 }, history: [] },
+      breadth: null,
+      market: 'bdr',
+      supportedMarkets: ['stock_b3', 'bdr']
+    };
+  }
+  const entry = cache?.cycles?.stock_b3;
+  return {
+    updatedAt: entry?.updatedAt || cache?.updatedAt || null,
+    source: entry?.source || cache?.source || null,
+    cycle: entry?.cycle || cache?.cycle || null,
+    benchmark: entry?.benchmark || cache?.benchmark || null,
+    breadth: entry?.breadth || cache?.overview?.breadth || null,
+    market: 'stock_b3',
+    supportedMarkets: ['stock_b3', 'bdr']
+  };
+}
+
+async function resolveMarketCycle(cache, market = 'stock_b3') {
+  const normalized = String(market || 'stock_b3').trim().toLowerCase();
+  if (['bdr', 'bdrx'].includes(normalized)) {
+    if (!cache?.cycles?.bdr?.cycle?.ema10 || !cache?.cycles?.bdr?.benchmark?.history?.length) {
+      try {
+        const bdrxHistory = await fetchBenchmarkHistory('BDRX');
+        if (bdrxHistory?.length >= 25) {
+          const bdrxReturns = returns(bdrxHistory);
+          const bdrxCycle = scoreCycle(bdrxHistory);
+          const bdrxBenchmark = {
+            symbol: 'BDRX',
+            name: 'Índice de BDRs Não Patrocinados (BDRX)',
+            returns: bdrxReturns,
+            history: marketCycleSeries(bdrxHistory)
+          };
+          if (cache) {
+            cache.cycles = cache.cycles || {};
+            cache.cycles.bdr = {
+              market: 'bdr',
+              benchmark: bdrxBenchmark,
+              cycle: bdrxCycle,
+              breadth: null
+            };
+          }
+        }
+      } catch {
+        // Degrada graciosamente se houver falha de rede
+      }
+    }
+    return marketCycleFor(cache, 'bdr');
+  }
+
+  if (!cache?.cycles?.stock_b3?.cycle?.ema10 || !cache?.cycle?.ema10) {
+    try {
+      const ibovHistory = await fetchBenchmarkHistory('^BVSP');
+      if (ibovHistory?.length >= 25) {
+        const ibovReturns = returns(ibovHistory);
+        const ibovCycle = scoreCycle(ibovHistory);
+        const ibovBenchmark = {
+          symbol: 'IBOV',
+          name: 'Índice Bovespa (IBOV)',
+          returns: ibovReturns,
+          history: marketCycleSeries(ibovHistory)
+        };
+        if (cache) {
+          cache.cycle = ibovCycle;
+          cache.benchmark = ibovBenchmark;
+          cache.cycles = cache.cycles || {};
+          cache.cycles.stock_b3 = {
+            market: 'stock_b3',
+            benchmark: ibovBenchmark,
+            cycle: ibovCycle,
+            breadth: cache.overview?.breadth || null
+          };
+        }
+      }
+    } catch {
+      // Degrada graciosamente se houver falha de rede
+    }
+  }
+
+  return marketCycleFor(cache, 'stock_b3');
+}
+
+module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, marketCycleSeries, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose, previousBusinessDay, expectedClosingDate, marketCycleFor, resolveMarketCycle };

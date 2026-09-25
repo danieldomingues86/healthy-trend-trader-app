@@ -50,3 +50,19 @@ test('série do Ciclo de Mercado é derivada do histórico real sem inventar obs
   assert.ok(Number.isFinite(series.at(-1).ema200));
   assert.equal(series.at(-1).atr21, null);
 });
+
+test('todas as 34 BDRs são reconhecidas como classe bdr', () => {
+  const { assetClassForSymbol } = require('../src/market-data');
+  const bdrs = [
+    'ROXO34', 'MELI34', 'M1TA34', 'NVDC34', 'TSLA34', 'ITLC34', 'AMZO34', 'GOGL34',
+    'MSFT34', 'M2ST34', 'SPCX34', 'TSMC34', 'P2LT34', 'ORCL34', 'MUTC34', 'AAPL34',
+    'NFLX34', 'BABA34', 'LILY34', 'A1MD34', 'JPMC34', 'AVGO34', 'BOAC34', 'C2OI34',
+    'COCA34', 'BERK34', 'BKNG34', 'S2GM34', 'NIKE34', 'WALM34', 'JNJB34', 'DISB34',
+    'PAGS34', 'CHVX34'
+  ];
+  for (const symbol of bdrs) {
+    assert.equal(assetClassForSymbol(symbol), 'bdr', `${symbol} deve ser classificado como bdr`);
+  }
+  assert.equal(bdrs.length, 34);
+});
+
