@@ -97,12 +97,12 @@ html.market-cycle-active .content #marketFocusGuard,body.market-cycle-active .co
   #marketcycle.page .mcv2-page{padding:32px 6cqw 40px}
   #marketcycle.page .mcv2-shell{width:100%;max-width:none}
   #marketcycle.page .mcv2-hero{grid-template-columns:repeat(3,minmax(0,1fr));min-height:280px}
-  #marketcycle.page .mcv2-gauge{width:262px}
+  #marketcycle.page .mcv2-gauge{width:262px;aspect-ratio:1/.82}
   #marketcycle.page .mcv2-gauge:before,#marketcycle.page .mcv2-gauge:after{left:19px;right:19px;top:5px;border-width:26px;border-bottom:0}
-  #marketcycle.page .mcv2-gauge>div{inset:80px 0 0}
+  #marketcycle.page .mcv2-gauge>div{inset:72px 0 0}
   #marketcycle.page .mcv2-gauge strong{font-size:77px}
   #marketcycle.page .mcv2-gauge span{font-size:24px}
-  #marketcycle.page .mcv2-gauge small{font-size:11px;margin-top:16px}
+  #marketcycle.page .mcv2-gauge small{font-size:11px;margin-top:10px}
   #marketcycle.page .mcv2-gauge-wrap{padding:22px 12px;gap:8px}
   #marketcycle.page .mcv2-score-change{min-width:96px}
   #marketcycle.page .mcv2-analysis{grid-template-columns:minmax(0,3.3fr) minmax(300px,1fr);gap:18px}
@@ -170,7 +170,7 @@ html.market-cycle-active .content #marketFocusGuard,body.market-cycle-active .co
 
 /* Gauge e Score Integrados ao Regime */
 #marketcycle .mcv2-gauge-wrap{display:grid;grid-template-columns:1fr auto;place-items:center;gap:6px;padding:18px 20px;border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08)}
-#marketcycle .mcv2-gauge{position:relative;width:210px;aspect-ratio:1/.65;overflow:hidden}
+#marketcycle .mcv2-gauge{position:relative;width:210px;aspect-ratio:1/.82;overflow:hidden}
 #marketcycle .mcv2-gauge:before,#marketcycle .mcv2-gauge:after{content:"";position:absolute;left:15px;right:15px;top:4px;aspect-ratio:2/1;border-radius:180px 180px 0 0}
 #marketcycle .mcv2-gauge:before{border:21px solid rgba(255,255,255,.1);border-bottom:0}
 #marketcycle .mcv2-gauge:after{
@@ -182,10 +182,10 @@ html.market-cycle-active .content #marketFocusGuard,body.market-cycle-active .co
   filter:drop-shadow(0 0 10px var(--regime-glow));
   transition:border-color .35s ease,filter .35s ease,transform .4s ease;
 }
-#marketcycle .mcv2-gauge>div{position:absolute;inset:64px 0 0;text-align:center}
+#marketcycle .mcv2-gauge>div{position:absolute;inset:58px 0 0;text-align:center;display:flex;flex-direction:column;align-items:center}
 #marketcycle .mcv2-gauge strong{font:700 62px/.8 Inter,sans-serif;letter-spacing:-.075em;color:#ffffff}
 #marketcycle .mcv2-gauge span{font-size:19px;font-weight:700;color:rgba(255,255,255,.55)}
-#marketcycle .mcv2-gauge small{display:block;margin-top:13px;color:var(--regime-primary);font-size:9.5px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;transition:color .35s ease}
+#marketcycle .mcv2-gauge small{display:block;margin-top:8px;color:var(--regime-primary);font-size:9.5px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;line-height:1.3;white-space:nowrap;transition:color .35s ease}
 #marketcycle .mcv2-score-change{align-self:center;display:grid;min-width:112px}
 #marketcycle .mcv2-score-change b{color:#4ade80;font-size:15px}
 #marketcycle .mcv2-score-change.down b{color:#fb7185}
