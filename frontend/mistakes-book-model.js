@@ -52,5 +52,6 @@
     if (nextIndex < 0 || nextIndex >= records.length) return records[index].id;
     return records[nextIndex].id;
   }
-  return { KEY, TYPES, GROUPS, ANNOTATION_TOOLS, nextRecordId, load, save, number, occurrences, impact, metrics, monthlyCounts, change };
+  const uppercase = value => (value != null ? String(value).trim().toUpperCase() : '');
+  return { KEY, TYPES, GROUPS, ANNOTATION_TOOLS, nextRecordId, load, save, number, occurrences, impact, metrics, monthlyCounts, change, uppercase };
 }));

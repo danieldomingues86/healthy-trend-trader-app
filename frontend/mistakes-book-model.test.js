@@ -52,3 +52,13 @@ test('ANNOTATION_TOOLS defines standard charting markers without colliding with 
   assert.ok(M.ANNOTATION_TOOLS.includes('Erro'));
 });
 
+test('uppercase normalizes ticker, setup, timeframe and market to uppercase and trims', () => {
+  assert.equal(M.uppercase('wege3'), 'WEGE3');
+  assert.equal(M.uppercase('  breakout 20 '), 'BREAKOUT 20');
+  assert.equal(M.uppercase('1h / 4h'), '1H / 4H');
+  assert.equal(M.uppercase('ibov'), 'IBOV');
+  assert.equal(M.uppercase(null), '');
+  assert.equal(M.uppercase(undefined), '');
+});
+
+
