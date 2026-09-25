@@ -33,7 +33,6 @@
     return `${refDate.getFullYear()}-${pad(refDate.getMonth() + 1)}-${pad(refDate.getDate())}`;
   }
 
-  
   function marketName(key) {
     if (key === 'bdr') return 'BDRs (BDRX)';
     if (key === 'ifix') return 'FIIs (IFIX)';

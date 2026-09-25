@@ -802,7 +802,6 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{
   background:rgba(200,190,170,.3)!important;
   color:#3a4b36!important;
 }
-
 /* Seletor de Mercado no Diário Técnico */
 #journal .jv-market-selector{
   display:grid;
