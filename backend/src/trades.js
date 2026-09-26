@@ -86,6 +86,10 @@ function normalizePlan(payload = {}) {
       limitingLayerName: String(payload.limitingLayerName || '').slice(0, 120) || null,
       blacklistOverride: payload.blacklistOverride === true,
       benchmark: payload.benchmark ? String(payload.benchmark).slice(0, 20) : null,
+      marketBenchmark: payload.marketBenchmark ? String(payload.marketBenchmark).slice(0, 20) : (payload.benchmark ? String(payload.benchmark).slice(0, 20) : null),
+      marketType: payload.marketType ? String(payload.marketType).slice(0, 40) : null,
+      marketCycleScore: Number.isFinite(Number(payload.marketCycleScore)) ? Number(payload.marketCycleScore) : null,
+      marketCycleSource: payload.marketCycleSource ? String(payload.marketCycleSource).slice(0, 20) : null,
       marketCycleSuggested: payload.marketCycleSuggested ? String(payload.marketCycleSuggested).slice(0, 40) : null,
       marketCycleUsed: payload.marketCycleUsed ? String(payload.marketCycleUsed).slice(0, 40) : null,
       marketCycleOverride: payload.marketCycleOverride === true

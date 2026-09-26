@@ -578,10 +578,11 @@ function isBusinessDay(date = new Date()) { const day = saoPauloParts(date).week
 async function collectMarketData() {
   const previous = await readCache();
   const [indexSymbols, smallCapSymbols] = await Promise.all([fetchIndexSymbols('IBOV', FALLBACK_SYMBOLS, 40), fetchIndexSymbols('SMLL', [], 20)]);
-  const [ibovHistory, smllHistory, bdrxHistoryResult] = await Promise.all([
+  const [ibovHistory, smllHistory, bdrxHistoryResult, ifixHistoryResult] = await Promise.all([
     fetchBenchmarkHistory('^BVSP'),
     fetchBenchmarkHistory('SMLL'),
-    fetchBenchmarkHistory('BDRX').then(data => ({ ok: true, data })).catch(err => ({ ok: false, error: err.message }))
+    fetchBenchmarkHistory('BDRX').then(data => ({ ok: true, data })).catch(err => ({ ok: false, error: err.message })),
+    fetchBenchmarkHistory('IFIX').then(data => ({ ok: true, data })).catch(err => ({ ok: false, error: err.message }))
   ]);
   const benchmarkReturns = returns(ibovHistory);
   // A composição dos índices e os preços vêm da B3. Dados de catálogo são
@@ -633,6 +634,13 @@ async function collectMarketData() {
     ? { symbol: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', returns: bdrxReturns, history: marketCycleSeries(bdrxHistory) }
     : (previous?.cycles?.bdr?.benchmark || null);
 
+  const ifixHistory = ifixHistoryResult.ok ? ifixHistoryResult.data : null;
+  const ifixReturns = ifixHistory ? returns(ifixHistory) : null;
+  const ifixCycle = ifixHistory ? scoreCycle(ifixHistory) : (previous?.cycles?.fii?.cycle || null);
+  const ifixBenchmark = ifixHistory
+    ? { symbol: 'IFIX', name: 'Índice de Fundos de Investimentos Imobiliários (IFIX)', returns: ifixReturns, history: marketCycleSeries(ifixHistory) }
+    : (previous?.cycles?.fii?.benchmark || null);
+
   const overview = overviewFrom(rows, ibovHistory);
   const cycles = {
     stock_b3: {
@@ -645,6 +653,12 @@ async function collectMarketData() {
       market: 'bdr',
       benchmark: bdrxBenchmark,
       cycle: bdrxCycle,
+      breadth: null
+    },
+    fii: {
+      market: 'fii',
+      benchmark: ifixBenchmark,
+      cycle: ifixCycle,
       breadth: null
     }
   };
@@ -797,7 +811,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
         benchmark: entry.benchmark,
         breadth: entry.breadth || null,
         market: 'bdr',
-        supportedMarkets: ['stock_b3', 'bdr']
+        supportedMarkets: ['stock_b3', 'bdr', 'fii']
       };
     }
     return {
@@ -807,7 +821,30 @@ function marketCycleFor(cache, market = 'stock_b3') {
       benchmark: { symbol: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', returns: { m1: 0, m3: 0 }, history: [] },
       breadth: null,
       market: 'bdr',
-      supportedMarkets: ['stock_b3', 'bdr']
+      supportedMarkets: ['stock_b3', 'bdr', 'fii']
+    };
+  }
+  if (['fii', 'fiis', 'ifix'].includes(normalized)) {
+    const entry = cache?.cycles?.fii;
+    if (entry?.cycle && entry?.benchmark) {
+      return {
+        updatedAt: entry.updatedAt || cache?.updatedAt || new Date().toISOString(),
+        source: entry.source || cache?.source || 'b3-indexes',
+        cycle: entry.cycle,
+        benchmark: entry.benchmark,
+        breadth: entry.breadth || null,
+        market: 'fii',
+        supportedMarkets: ['stock_b3', 'bdr', 'fii']
+      };
+    }
+    return {
+      updatedAt: cache?.updatedAt || new Date().toISOString(),
+      source: cache?.source || 'b3-indexes',
+      cycle: { state: 'transition', score: 50, reason: 'Histórico do IFIX indisponível no momento.' },
+      benchmark: { symbol: 'IFIX', name: 'Índice de Fundos de Investimentos Imobiliários (IFIX)', returns: { m1: 0, m3: 0 }, history: [] },
+      breadth: null,
+      market: 'fii',
+      supportedMarkets: ['stock_b3', 'bdr', 'fii']
     };
   }
   const entry = cache?.cycles?.stock_b3;
@@ -818,7 +855,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
     benchmark: entry?.benchmark || cache?.benchmark || null,
     breadth: entry?.breadth || cache?.overview?.breadth || null,
     market: 'stock_b3',
-    supportedMarkets: ['stock_b3', 'bdr']
+    supportedMarkets: ['stock_b3', 'bdr', 'fii']
   };
 }
 
@@ -852,6 +889,36 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
       }
     }
     return marketCycleFor(cache, 'bdr');
+  }
+
+  if (['fii', 'fiis', 'ifix'].includes(normalized)) {
+    if (!cache?.cycles?.fii?.cycle?.ema10 || !cache?.cycles?.fii?.benchmark?.history?.length) {
+      try {
+        const ifixHistory = await fetchBenchmarkHistory('IFIX');
+        if (ifixHistory?.length >= 25) {
+          const ifixReturns = returns(ifixHistory);
+          const ifixCycle = scoreCycle(ifixHistory);
+          const ifixBenchmark = {
+            symbol: 'IFIX',
+            name: 'Índice de Fundos de Investimentos Imobiliários (IFIX)',
+            returns: ifixReturns,
+            history: marketCycleSeries(ifixHistory)
+          };
+          if (cache) {
+            cache.cycles = cache.cycles || {};
+            cache.cycles.fii = {
+              market: 'fii',
+              benchmark: ifixBenchmark,
+              cycle: ifixCycle,
+              breadth: null
+            };
+          }
+        }
+      } catch {
+        // Degrada graciosamente se houver falha de rede
+      }
+    }
+    return marketCycleFor(cache, 'fii');
   }
 
   if (!cache?.cycles?.stock_b3?.cycle?.ema10 || !cache?.cycle?.ema10) {

@@ -19,6 +19,14 @@
       benchmarkName: 'Índice de BDRs Não Patrocinados (BDRX)',
       badge: 'BDRX',
       hasBreadth: false
+    },
+    fii: {
+      id: 'fii',
+      name: 'FIIs',
+      benchmarkSymbol: 'IFIX',
+      benchmarkName: 'Índice de Fundos de Investimentos Imobiliários (IFIX)',
+      badge: 'IFIX',
+      hasBreadth: false
     }
   };
 
@@ -63,7 +71,8 @@
     currentMarket: 'stock_b3',
     markets: {
       stock_b3: { status: 'idle', payload: null, error: '', range: '1y' },
-      bdr: { status: 'idle', payload: null, error: '', range: '1y' }
+      bdr: { status: 'idle', payload: null, error: '', range: '1y' },
+      fii: { status: 'idle', payload: null, error: '', range: '1y' }
     }
   };
 
@@ -278,16 +287,19 @@
     }
 
     if (!marketInfo.hasBreadth) {
-      return `<section class="mcv2-breadth mcv2-breadth-info" aria-label="${t('Universo de BDRs', 'BDR Universe')}">
+      const isFii = marketInfo.id === 'fii';
+      return `<section class="mcv2-breadth mcv2-breadth-info" aria-label="${isFii ? t('Universo de FIIs', 'FII Universe') : t('Universo de BDRs', 'BDR Universe')}">
         <header>
           <div>
-            <p>${t('Universo de BDRs', 'BDR Universe')}</p>
-            <h2>${t('Amplitude e Seleção de BDRs na B3', 'Breadth & BDR Selection on B3')}</h2>
+            <p>${isFii ? t('Universo de FIIs', 'FII Universe') : t('Universo de BDRs', 'BDR Universe')}</p>
+            <h2>${isFii ? t('Amplitude e Seleção de FIIs na B3', 'Breadth & FII Selection on B3') : t('Amplitude e Seleção de BDRs na B3', 'Breadth & BDR Selection on B3')}</h2>
           </div>
-          <button type="button" onclick="go('relativestrength')">${t('Ver Força Relativa de BDRs →', 'View BDR Relative Strength →')}</button>
+          <button type="button" onclick="go('relativestrength')">${isFii ? t('Ver Força Relativa de FIIs →', 'View FII Relative Strength →') : t('Ver Força Relativa de BDRs →', 'View BDR Relative Strength →')}</button>
         </header>
         <div class="mcv2-breadth-note">
-          <p>${t('O índice BDRX afere o ciclo e a direção geral dos certificados de ativos internacionais na B3. Para explorar os 34 BDRs elegíveis, classificados por liderança e força relativa sem misturar com ações locais, acesse a tela de Força Relativa.', 'The BDRX index tracks cycle and overall direction for global asset certificates on B3. To inspect the 34 eligible BDRs ranked by relative strength and leadership, visit the Relative Strength screen.')}</p>
+          <p>${isFii
+            ? t('O índice IFIX afere o ciclo e a direção geral dos Fundos de Investimentos Imobiliários na B3. Para explorar os FIIs elegíveis, classificados por liderança e força relativa com benchmark IFIX dedicado, acesse a tela de Força Relativa.', 'The IFIX index tracks the cycle and overall direction for Real Estate Investment Funds on B3. To inspect eligible FIIs ranked by relative strength and leadership against the IFIX benchmark, visit the Relative Strength screen.')
+            : t('O índice BDRX afere o ciclo e a direção geral dos certificados de ativos internacionais na B3. Para explorar os 34 BDRs elegíveis, classificados por liderança e força relativa sem misturar com ações locais, acesse a tela de Força Relativa.', 'The BDRX index tracks cycle and overall direction for global asset certificates on B3. To inspect the 34 eligible BDRs ranked by relative strength and leadership, visit the Relative Strength screen.')}</p>
         </div>
       </section>`;
     }
