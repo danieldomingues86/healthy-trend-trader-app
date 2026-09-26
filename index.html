@@ -2519,7 +2519,7 @@ async function applyTradeAssetCache(){
   const instrument=catalog?.find(symbol,market,[...tradeAssetSuggestions.values()]);
   if(market!=='Ações'){
     appliedTradeAsset=symbol;
-    setTradeAssetStatus(instrument?`${instrument.name} · ${market}`:'Selecione um instrumento listado para este mercado.','ready');
+    setTradeAssetStatus(instrument?`${instrument.name} · ${market}`:`${symbol} · ${market}`,'ready');
     return;
   }
   const relative=tradeAssetSuggestions.get(symbol);
@@ -2571,6 +2571,16 @@ async function setupTradeAssetSuggestions(){
   const catalog=window.HealthyTrendInstruments;
   const currentMarket=()=>String(market?.value||'').trim();
   const currentItems=()=>catalog?.forMarket(currentMarket(),[...tradeAssetSuggestions.values()])||[];
+  const detectMarketForSymbol=(symbol)=>{
+    const norm=String(symbol||'').trim().toUpperCase();
+    if(!norm)return null;
+    const direct=catalog?.INSTRUMENTS?.find(item=>item.symbol===norm);
+    if(direct?.market)return direct.market;
+    if(/^[A-Z0-9]{4}(31|32|33|34|35|39)$/.test(norm))return 'BDR';
+    const stockUnits=new Set(['TAEE11','KLBN11','SAPR11','BPAC11','SANB11','ALUP11','ENGI11','SULA11','TIET11','BPAN11']);
+    if(/^[A-Z]{4}11$/.test(norm)&&!stockUnits.has(norm))return 'FII';
+    return null;
+  };
   const clearAssetForMarketChange=()=>{
     input.value='';
     appliedTradeAsset='';
@@ -2582,19 +2592,28 @@ async function setupTradeAssetSuggestions(){
   const updateMarketState=({resetAsset=false}={})=>{
     const selected=currentMarket();
     const valid=input.value&&catalog?.belongsToMarket(input.value,selected,[...tradeAssetSuggestions.values()]);
-    if(resetAsset||(input.value&&!valid))clearAssetForMarketChange();
+    if((resetAsset&&!valid)||(input.value&&!valid))clearAssetForMarketChange();
     input.disabled=!selected;toggle.disabled=!selected;input.placeholder=selected?'Selecione ou busque um ativo...':'Selecione primeiro o mercado';
     if(!selected)setTradeAssetStatus('Selecione primeiro o mercado.','manual');
     else if(selected!=='Ações')setTradeAssetStatus(`${currentItems().length} instrumentos de ${selected} disponíveis.`,'ready');
     else setTradeAssetStatus(`${currentItems().length} ações disponíveis para sugestão.`,'ready');
     menu.hidden=true;
   };
-  const paint=(filter='',all=false)=>{const term=all?'':String(filter||'').trim().toUpperCase(),items=currentItems().filter(item=>!term||String(item.symbol||'').includes(term)||String(item.name||'').toUpperCase().includes(term));menu.replaceChildren(...items.map(item=>{const option=document.createElement('button');option.type='button';option.className='ticker-combo-option';const detail=currentMarket()==='Ações'&&item.score!=null?` · RS ${safe(item.score)}`:` · ${safe(item.market)}`;option.innerHTML='<b>'+safe(item.symbol)+'</b><span>'+safe(item.name||item.symbol)+detail+'</span>';option.addEventListener('mousedown',event=>event.preventDefault());option.addEventListener('click',()=>{input.value=String(item.symbol||'').toUpperCase();menu.hidden=true;input.dataset.comboSelection='true';input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}))});return option}));if(!items.length)menu.textContent=`Nenhum instrumento de ${currentMarket()||'este mercado'} encontrado.`};
+  const paint=(filter='',all=false)=>{const term=all?'':String(filter||'').trim().toUpperCase(),items=currentItems().filter(item=>!term||String(item.symbol||'').includes(term)||String(item.name||'').toUpperCase().includes(term));menu.replaceChildren(...items.map(item=>{const option=document.createElement('button');option.type='button';option.className='ticker-combo-option';const detail=currentMarket()==='Ações'&&item.score!=null?` · RS ${safe(item.score)}`:` · ${safe(item.market)}`;option.innerHTML='<b>'+safe(item.symbol)+'</b><span>'+safe(item.name||item.symbol)+detail+'</span>';option.addEventListener('mousedown',event=>event.preventDefault());option.addEventListener('click',()=>{input.value=String(item.symbol||'').toUpperCase();menu.hidden=true;input.dataset.comboSelection='true';const detected=detectMarketForSymbol(input.value);if(detected&&market&&market.value!==detected){market.value=detected;updateMarketState({resetAsset:false});market.dispatchEvent(new Event('change',{bubbles:true}));}input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}))});return option}));if(!items.length)menu.textContent=`Nenhum instrumento de ${currentMarket()||'este mercado'} encontrado.`};
   const show=(all=false)=>{if(!currentMarket())return;paint(input.value,all);menu.hidden=false};
   toggle.addEventListener('click',()=>{if(toggle.disabled)return;if(menu.hidden)show(true);else menu.hidden=true});
   input.addEventListener('focus',()=>show(false));
   input.addEventListener('input',()=>{
     input.value=input.value.toUpperCase();
+    const typed=input.value.trim();
+    if(typed.length>=4){
+      const detected=detectMarketForSymbol(typed);
+      if(detected&&market&&market.value!==detected){
+        market.value=detected;
+        updateMarketState({resetAsset:false});
+        market.dispatchEvent(new Event('change',{bubbles:true}));
+      }
+    }
     const selected=input.dataset.comboSelection==='true';
     if(selected)delete input.dataset.comboSelection;else show(false);
     if(input.value.trim().toUpperCase()!==appliedTradeAsset)applyTradeAssetCache();
@@ -3231,7 +3250,11 @@ renderEffectiveRiskPolicy();
     'ações b3': { marketId: 'stock_b3', benchmarkSymbol: 'IBOV', benchmarkName: 'Índice Bovespa (IBOV)', label: 'Ações B3' },
     'acoes b3': { marketId: 'stock_b3', benchmarkSymbol: 'IBOV', benchmarkName: 'Índice Bovespa (IBOV)', label: 'Ações B3' },
     'bdr': { marketId: 'bdr', benchmarkSymbol: 'BDRX', benchmarkName: 'Índice de BDRs Não Patrocinados (BDRX)', label: 'BDRs' },
-    'bdrs': { marketId: 'bdr', benchmarkSymbol: 'BDRX', benchmarkName: 'Índice de BDRs Não Patrocinados (BDRX)', label: 'BDRs' }
+    'bdrs': { marketId: 'bdr', benchmarkSymbol: 'BDRX', benchmarkName: 'Índice de BDRs Não Patrocinados (BDRX)', label: 'BDRs' },
+    'fii': { marketId: 'fii', benchmarkSymbol: 'IFIX', benchmarkName: 'Índice de Fundos de Investimentos Imobiliários (IFIX)', label: 'FIIs' },
+    'fiis': { marketId: 'fii', benchmarkSymbol: 'IFIX', benchmarkName: 'Índice de Fundos de Investimentos Imobiliários (IFIX)', label: 'FIIs' },
+    'fundos imobiliários': { marketId: 'fii', benchmarkSymbol: 'IFIX', benchmarkName: 'Índice de Fundos de Investimentos Imobiliários (IFIX)', label: 'FIIs' },
+    'fundos imobiliarios': { marketId: 'fii', benchmarkSymbol: 'IFIX', benchmarkName: 'Índice de Fundos de Investimentos Imobiliários (IFIX)', label: 'FIIs' }
   };
 
   function resolveMarketBenchmark(marketName) {
@@ -3543,9 +3566,14 @@ renderEffectiveRiskPolicy();
     const plan=basePlannerPayload();
     const currentMarket=document.getElementById('tradeMarket')?.value||'Ações';
     const cycleInfo=getMarketCycleStateForTrade(currentMarket);
+    const snapshot=getMarketCycleSnapshotForMarket(cycleInfo.marketId);
     return{
       ...plan,
       benchmark:cycleInfo.benchmarkSymbol||null,
+      marketBenchmark:cycleInfo.benchmarkSymbol||null,
+      marketType:currentMarket,
+      marketCycleScore:snapshot&&Number.isFinite(Number(snapshot.score))?Number(snapshot.score):null,
+      marketCycleSource:cycleInfo.isOverridden?'MANUAL':'AUTO',
       marketCycleSuggested:cycleInfo.suggestedLabel||null,
       marketCycleUsed:cycleInfo.label||null,
       marketCycleOverride:Boolean(cycleInfo.isOverridden)

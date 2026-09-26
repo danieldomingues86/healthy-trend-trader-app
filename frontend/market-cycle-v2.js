@@ -19,6 +19,14 @@
       benchmarkName: 'Índice de BDRs Não Patrocinados (BDRX)',
       badge: 'BDRX',
       hasBreadth: false
+    },
+    fii: {
+      id: 'fii',
+      name: 'FIIs',
+      benchmarkSymbol: 'IFIX',
+      benchmarkName: 'Índice de Fundos de Investimentos Imobiliários (IFIX)',
+      badge: 'IFIX',
+      hasBreadth: false
     }
   };
 
@@ -63,7 +71,8 @@
     currentMarket: 'stock_b3',
     markets: {
       stock_b3: { status: 'idle', payload: null, error: '', range: '1y' },
-      bdr: { status: 'idle', payload: null, error: '', range: '1y' }
+      bdr: { status: 'idle', payload: null, error: '', range: '1y' },
+      fii: { status: 'idle', payload: null, error: '', range: '1y' }
     }
   };
 
@@ -232,10 +241,14 @@
 
   function MarketCycleHero(cycle, history, marketInfo) {
     const info = regime(cycle);
+    const regimeKey = cycle?.state === 'healthy' ? 'expansion' : cycle?.state === 'defensive' ? 'defence' : 'transition';
     return `<section class="mcv2-hero">
       <div class="mcv2-diagnosis">
         <p>${t('Situação atual do mercado', 'Current market situation')} · ${esc(marketInfo.benchmarkSymbol)}</p>
-        <h2>${info.label}</h2>
+        <div class="mcv2-hero-title-row">
+          <span class="mcv2-hero-icon">${regimeIcon(regimeKey)}</span>
+          <h2>${info.label}</h2>
+        </div>
         <span>${info.interpretation}</span>
         <div>
           <button type="button" class="primary" onclick="go('newtrade')">${t('Planejar trade →', 'Plan trade →')}</button>
@@ -258,7 +271,8 @@
 
   function MarketRegimeBar(cycle) {
     const position = Math.max(4, Math.min(96, Number(cycle.score) || 50));
-    return `<section class="mcv2-regime" aria-label="${t('Posição atual no regime de mercado', 'Current market regime position')}"><div class="mcv2-regime-item defence"><span class="mcv2-regime-icon">${regimeIcon('defence')}</span><div><b>${t('Defesa', 'Defence')}</b><span>${t('Preservar capital. Ficar de fora.', 'Preserve capital. Stay out.')}</span></div></div><div class="mcv2-regime-item transition"><span class="mcv2-regime-icon">${regimeIcon('transition')}</span><div><b>${t('Transição', 'Transition')}</b><span>${t('Atenção e seletividade.', 'Attention and selectivity.')}</span></div></div><div class="mcv2-regime-item expansion"><span class="mcv2-regime-icon">${regimeIcon('expansion')}</span><div><b>${t('Expansão', 'Expansion')}</b><span>${t('Ambiente favorável para oportunidades.', 'Favourable environment for opportunities.')}</span></div></div><i style="left:${position}%" title="${t('Score atual', 'Current score')}: ${number(cycle.score)}/100"></i></section>`;
+    const activeSegment = cycle?.state === 'healthy' ? 'expansion' : cycle?.state === 'defensive' ? 'defence' : 'transition';
+    return `<section class="mcv2-regime" aria-label="${t('Posição atual no regime de mercado', 'Current market regime position')}"><div class="mcv2-regime-item defence ${activeSegment === 'defence' ? 'active' : ''}"><span class="mcv2-regime-icon">${regimeIcon('defence')}</span><div><b>${t('Defesa', 'Defence')}</b><span>${t('Preservar capital. Ficar de fora.', 'Preserve capital. Stay out.')}</span></div></div><div class="mcv2-regime-item transition ${activeSegment === 'transition' ? 'active' : ''}"><span class="mcv2-regime-icon">${regimeIcon('transition')}</span><div><b>${t('Transição', 'Transition')}</b><span>${t('Atenção e seletividade.', 'Attention and selectivity.')}</span></div></div><div class="mcv2-regime-item expansion ${activeSegment === 'expansion' ? 'active' : ''}"><span class="mcv2-regime-icon">${regimeIcon('expansion')}</span><div><b>${t('Expansão', 'Expansion')}</b><span>${t('Ambiente favorável para oportunidades.', 'Favourable environment for opportunities.')}</span></div></div><i style="left:${position}%" title="${t('Score atual', 'Current score')}: ${number(cycle.score)}/100"></i></section>`;
   }
 
   function MarketBreadth(breadth, marketInfo) {
@@ -273,16 +287,19 @@
     }
 
     if (!marketInfo.hasBreadth) {
-      return `<section class="mcv2-breadth mcv2-breadth-info" aria-label="${t('Universo de BDRs', 'BDR Universe')}">
+      const isFii = marketInfo.id === 'fii';
+      return `<section class="mcv2-breadth mcv2-breadth-info" aria-label="${isFii ? t('Universo de FIIs', 'FII Universe') : t('Universo de BDRs', 'BDR Universe')}">
         <header>
           <div>
-            <p>${t('Universo de BDRs', 'BDR Universe')}</p>
-            <h2>${t('Amplitude e Seleção de BDRs na B3', 'Breadth & BDR Selection on B3')}</h2>
+            <p>${isFii ? t('Universo de FIIs', 'FII Universe') : t('Universo de BDRs', 'BDR Universe')}</p>
+            <h2>${isFii ? t('Amplitude e Seleção de FIIs na B3', 'Breadth & FII Selection on B3') : t('Amplitude e Seleção de BDRs na B3', 'Breadth & BDR Selection on B3')}</h2>
           </div>
-          <button type="button" onclick="go('relativestrength')">${t('Ver Força Relativa de BDRs →', 'View BDR Relative Strength →')}</button>
+          <button type="button" onclick="go('relativestrength')">${isFii ? t('Ver Força Relativa de FIIs →', 'View FII Relative Strength →') : t('Ver Força Relativa de BDRs →', 'View BDR Relative Strength →')}</button>
         </header>
         <div class="mcv2-breadth-note">
-          <p>${t('O índice BDRX afere o ciclo e a direção geral dos certificados de ativos internacionais na B3. Para explorar os 34 BDRs elegíveis, classificados por liderança e força relativa sem misturar com ações locais, acesse a tela de Força Relativa.', 'The BDRX index tracks cycle and overall direction for global asset certificates on B3. To inspect the 34 eligible BDRs ranked by relative strength and leadership, visit the Relative Strength screen.')}</p>
+          <p>${isFii
+            ? t('O índice IFIX afere o ciclo e a direção geral dos Fundos de Investimentos Imobiliários na B3. Para explorar os FIIs elegíveis, classificados por liderança e força relativa com benchmark IFIX dedicado, acesse a tela de Força Relativa.', 'The IFIX index tracks the cycle and overall direction for Real Estate Investment Funds on B3. To inspect eligible FIIs ranked by relative strength and leadership against the IFIX benchmark, visit the Relative Strength screen.')
+            : t('O índice BDRX afere o ciclo e a direção geral dos certificados de ativos internacionais na B3. Para explorar os 34 BDRs elegíveis, classificados por liderança e força relativa sem misturar com ações locais, acesse a tela de Força Relativa.', 'The BDRX index tracks cycle and overall direction for global asset certificates on B3. To inspect the 34 eligible BDRs ranked by relative strength and leadership, visit the Relative Strength screen.')}</p>
         </div>
       </section>`;
     }
@@ -478,7 +495,8 @@
 
     const snapshot = getMarketSnapshot(currentMarket);
     const info = regime(cycle);
-    root.innerHTML = `<div class="mcv2-page regime-${cycle.state || 'transition'}">
+    const activeRegime = cycle?.state === 'healthy' ? 'healthy' : cycle?.state === 'defensive' ? 'defensive' : 'transition';
+    root.innerHTML = `<div class="mcv2-page regime-${activeRegime}" data-market-regime="${activeRegime}">
       <div class="mcv2-shell">
         <header class="mcv2-heading">
           <div>

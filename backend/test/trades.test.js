@@ -21,14 +21,20 @@ test('normaliza plano com ticker em caixa alta e contribuições da Rubric', () 
 
 test('preserva campos de auditoria do ciclo de mercado e override no metadata', () => {
   const plan = normalizePlan({
-    asset: 'WEGE3', entry: 48.3, stop: 45.8, atr: 1.72, suggestedQty: 400,
-    executedQty: 400, riskPct: .004, rubricScore: 85, rubricMaxScore: 100, grade: 'A',
-    benchmark: 'IBOV', marketCycleSuggested: 'Saudável', marketCycleUsed: 'Transição', marketCycleOverride: true
+    asset: 'HGLG11', entry: 160.5, stop: 155.0, atr: 2.1, suggestedQty: 100,
+    executedQty: 100, riskPct: .004, rubricScore: 85, rubricMaxScore: 100, grade: 'B',
+    benchmark: 'IFIX', marketBenchmark: 'IFIX', marketType: 'FII',
+    marketCycleScore: 68, marketCycleSource: 'AUTO',
+    marketCycleSuggested: 'Transição', marketCycleUsed: 'Transição', marketCycleOverride: false
   });
-  assert.equal(plan.metadata.benchmark, 'IBOV');
-  assert.equal(plan.metadata.marketCycleSuggested, 'Saudável');
+  assert.equal(plan.metadata.benchmark, 'IFIX');
+  assert.equal(plan.metadata.marketBenchmark, 'IFIX');
+  assert.equal(plan.metadata.marketType, 'FII');
+  assert.equal(plan.metadata.marketCycleScore, 68);
+  assert.equal(plan.metadata.marketCycleSource, 'AUTO');
+  assert.equal(plan.metadata.marketCycleSuggested, 'Transição');
   assert.equal(plan.metadata.marketCycleUsed, 'Transição');
-  assert.equal(plan.metadata.marketCycleOverride, true);
+  assert.equal(plan.metadata.marketCycleOverride, false);
 });
 
 test('preserva a data efetiva de entrada separada do registro do trade', () => {
