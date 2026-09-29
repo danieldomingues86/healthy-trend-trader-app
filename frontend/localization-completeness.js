@@ -176,50 +176,73 @@
     'Ver indicadores e regras': 'View metrics & benchmarks'
   };
 
+  const sortedCopy = Object.entries(copy).sort((a, b) => b[0].length - a[0].length);
   const original = new WeakMap();
   const attributeOriginal = new WeakMap();
+  const translateCache = new Map();
+
   const translate = (value) => {
-    let result = String(value || '');
-    if (copy[result]) return copy[result];
-    if (typeof window.translateString === 'function') result = window.translateString(result, 'en-US');
-    Object.entries(copy).sort((a, b) => b[0].length - a[0].length).forEach(([pt, en]) => {
-      result = result.replaceAll(pt, en);
-    });
+    if (!value || typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    if (!trimmed) return value;
+    if (copy[value]) return copy[value];
+    if (copy[trimmed]) return value.replace(trimmed, copy[trimmed]);
+    if (translateCache.has(value)) return translateCache.get(value);
+
+    let result = value;
+    if (typeof window.translateString === 'function') {
+      result = window.translateString(result, 'en-US');
+    }
+    for (let i = 0; i < sortedCopy.length; i++) {
+      const from = sortedCopy[i][0];
+      if (result.includes(from)) {
+        result = result.replaceAll(from, sortedCopy[i][1]);
+      }
+    }
     result = result.replace(/(\d+) operação\(ões\) encerrada\(s\) no período/g, '$1 closed trades in this period');
     result = result.replace(/(\d+) posição\(ões\)/g, '$1 position(s)');
+    translateCache.set(value, result);
     return result;
   };
 
+  let isLocalizing = false;
   function completeLocalization() {
-    const english = window.appLanguage === 'en-US';
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        return node.parentElement && !['SCRIPT', 'STYLE'].includes(node.parentElement.tagName) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-      }
-    });
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach((node) => {
-      if (!original.has(node)) original.set(node, node.nodeValue);
-      const source = original.get(node);
-      const next = english ? translate(source) : source;
-      if (node.nodeValue !== next) node.nodeValue = next;
-    });
-    document.querySelectorAll('[placeholder],[aria-label],[title]').forEach((element) => {
-      ['placeholder', 'aria-label', 'title'].forEach((attribute) => {
-        if (!element.hasAttribute(attribute)) return;
-        if (!attributeOriginal.has(element)) attributeOriginal.set(element, {});
-        const values = attributeOriginal.get(element);
-        if (!(attribute in values)) values[attribute] = element.getAttribute(attribute);
-        const next = english ? translate(values[attribute]) : values[attribute];
-        if (element.getAttribute(attribute) !== next) element.setAttribute(attribute, next);
+    if (isLocalizing) return;
+    isLocalizing = true;
+    try {
+      const english = window.appLanguage === 'en-US';
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          return node.parentElement && !['SCRIPT', 'STYLE'].includes(node.parentElement.tagName) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+        }
       });
-    });
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach((node) => {
+        if (!original.has(node)) original.set(node, node.nodeValue);
+        const source = original.get(node);
+        const next = english ? translate(source) : source;
+        if (node.nodeValue !== next) node.nodeValue = next;
+      });
+      document.querySelectorAll('[placeholder],[aria-label],[title]').forEach((element) => {
+        ['placeholder', 'aria-label', 'title'].forEach((attribute) => {
+          if (!element.hasAttribute(attribute)) return;
+          if (!attributeOriginal.has(element)) attributeOriginal.set(element, {});
+          const values = attributeOriginal.get(element);
+          if (!(attribute in values)) values[attribute] = element.getAttribute(attribute);
+          const next = english ? translate(values[attribute]) : values[attribute];
+          if (element.getAttribute(attribute) !== next) element.setAttribute(attribute, next);
+        });
+      });
+    } finally {
+      isLocalizing = false;
+    }
   }
 
   let pending = false;
   function schedule() {
-    if (pending) return;
+    if (isLocalizing || pending) return;
     pending = true;
     requestAnimationFrame(() => {
       pending = false;
@@ -244,6 +267,6 @@
       return result;
     };
   }
-  new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, characterData: true });
+  new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
   schedule();
 }());

@@ -275,3 +275,53 @@ test('Diário suporta identificação de mercado (IBOV, BDRX, IFIX) no modelo e 
   assert.equal(parsed.records[0].technical.market, 'bdr');
   assert.equal(parsed.records[0].technical.marketLabel, 'BDRs (BDRX)');
 });
+
+test('Diário exporta trades do dia com Gatilho de Entrada em Markdown e JSON', () => {
+  const recordsWithTrades = [
+    {
+      id: 'day-trade-test',
+      date: '2026-09-29',
+      technical: {
+        market: 'stock_b3',
+        marketState: 'up',
+        session: 'Excelente dia de operações.'
+      },
+      emotional: { states: ['Focado'] },
+      shared: { lesson: 'Paciência compensa.' },
+      trades: [
+        {
+          id: 'trade-1',
+          ticker: 'PETR4',
+          direction: 'long',
+          setup: 'Inside Bar',
+          setupTrigger: 'INSIDE_BAR',
+          grade: 'A',
+          timeframe: 'Diário + 4H',
+          entryTime: '10:30',
+          execution: {
+            entryPrice: 38.5,
+            initialStop: 37.2,
+            positionSize: 500
+          },
+          management: {
+            result: 650,
+            rMultiple: '+2.0R'
+          }
+        }
+      ]
+    }
+  ];
+
+  const md = ExportModel.toMarkdown(recordsWithTrades);
+  assert.match(md, /TRADES DO DIA:/);
+  assert.match(md, /Trade #1: PETR4 \(LONG \(Compra\)\)/);
+  assert.match(md, /- Gatilho de Entrada: Inside Bar · Grade: A · Timeframe: Diário \+ 4H · Entrada: 10:30/);
+
+  const jsonStr = ExportModel.toJson(recordsWithTrades);
+  const parsed = JSON.parse(jsonStr);
+  assert.ok(Array.isArray(parsed.records[0].trades));
+  assert.equal(parsed.records[0].trades.length, 1);
+  assert.equal(parsed.records[0].trades[0].setup, 'Inside Bar');
+  assert.equal(parsed.records[0].trades[0].setupTrigger, 'INSIDE_BAR');
+});
+

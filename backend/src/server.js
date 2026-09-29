@@ -19,6 +19,7 @@ const workspaceState = require('./workspace-state');
 const materials = require('./materials');
 const watchlist = require('./watchlist');
 const assetBlacklist = require('./asset-blacklist');
+const marketPause = require('./market-pause');
 const journalAttachments = require('./journal-attachments');
 const zenPractices = require('./zen-practices');
 const habits = require('./habits');
@@ -47,7 +48,17 @@ async function listTraderWisdomAssets() {
 async function body(request) {
   const chunks = [];
   let size = 0;
-  for await (const chunk of request) { size += chunk.length; if (size > 1_000_000) { const error = new Error('Payload muito grande'); error.status = 413; throw error; } chunks.push(chunk); }
+  request.on('error', () => {});
+  for await (const chunk of request) {
+    size += chunk.length;
+    if (size > 25_000_000) {
+      request.resume();
+      const error = new Error('Payload muito grande');
+      error.status = 413;
+      throw error;
+    }
+    chunks.push(chunk);
+  }
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'); } catch { throw new Error('JSON inválido'); }
 }
 async function binaryBody(request, maxBytes = journalAttachments.MAX_BYTES) {
@@ -197,6 +208,25 @@ const server = http.createServer(async (request, response) => {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, { item: await assetBlacklist.remove(user.id, blacklistMatch[1]) });
+    }
+    if (url.pathname === '/api/market-pause' && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, {
+        active: await marketPause.getActive(user.id),
+        history: await marketPause.getHistory(user.id),
+        reasons: marketPause.REASONS
+      });
+    }
+    if (url.pathname === '/api/market-pause' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { active: await marketPause.start(user.id, await body(request)) });
+    }
+    if (url.pathname === '/api/market-pause/end' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { ended: await marketPause.end(user.id, await body(request)) });
     }
     if (request.method === 'GET' && url.pathname === '/api/watchlist') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
@@ -356,6 +386,14 @@ const server = http.createServer(async (request, response) => {
       const trade = await trades.executePlan(user.id, executionMatch[1], await body(request));
       return send(response, 200, { trade });
     }
+    const tradeUpdateMatch = url.pathname.match(/^\/api\/trades\/([^/]+)$/);
+    if ((request.method === 'PATCH' || request.method === 'PUT') && tradeUpdateMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const trade = await trades.updateTrade(user.id, tradeUpdateMatch[1], await body(request));
+      return send(response, 200, { trade });
+    }
     if (request.method !== 'GET') return send(response, 405, { error: 'Method not allowed' });
     if (url.pathname === '/api/subscription/plans') return send(response, 200, { currency: 'BRL', plans: PLAN_CATALOG });
     if (url.pathname === '/api/trader-wisdom/assets') {
@@ -396,6 +434,16 @@ const server = http.createServer(async (request, response) => {
     }
     return send(response, 404, { error: 'Not found' });
   } catch (error) { console.error(error); return send(response, error.status || 502, { error: error.status ? error.message : 'Falha ao consultar os dados solicitados', detail: error.message }); }
+});
+server.on('clientError', (err, socket) => {
+  if (err.code === 'ECONNRESET' || !socket.writable) return;
+  socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+});
+server.on('error', (err) => {
+  console.error('[server error]', err.message);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[unhandledRejection]', reason);
 });
 server.listen(port, async () => {
   try { await database.migrate(); await auth.ensureAdmin(); } catch (error) { console.error(`[database] ${error.message}`); }

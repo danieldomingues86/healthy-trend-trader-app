@@ -42,3 +42,30 @@ test('DNA usa apenas o denominador de snapshots realmente registrados', () => {
   assert.equal(grade.denominator, 1);
   assert.equal(grade.percentage, 100);
 });
+
+test('filtra por setupTrigger e calcula métricas por gatilho', () => {
+  const t1 = trade({ id: 'trig-1', setup_trigger: 'INSIDE_BAR' });
+  const t2 = trade({ id: 'trig-2', setup_trigger: '123_COMPRA', events: [{ type: 'entry', qty: 10, price: 100, stop: 95, at: '2025-01-01' }, { type: 'close', qty: 10, price: 90, at: '2025-01-02' }] });
+  const items = [t1, t2];
+
+  const insideBarFiltered = model.filterTrades(items, { setupTrigger: 'INSIDE_BAR' });
+  assert.equal(insideBarFiltered.length, 1);
+  assert.equal(insideBarFiltered[0].id, 'trig-1');
+
+  const pfrFiltered = model.filterTrades(items, { setupTrigger: 'PFR_COMPRA' });
+  assert.equal(pfrFiltered.length, 0);
+
+  const byTrigger = model.metricsByTrigger(items.map(model.analyzeTrade));
+  assert.equal(byTrigger.length, 5);
+
+  const insideBarStats = byTrigger.find(t => t.id === 'INSIDE_BAR');
+  assert.equal(insideBarStats.total, 1);
+  assert.equal(insideBarStats.wins, 1);
+  assert.equal(insideBarStats.winRate, 100);
+
+  const stats123 = byTrigger.find(t => t.id === '123_COMPRA');
+  assert.equal(stats123.total, 1);
+  assert.equal(stats123.losses, 1);
+  assert.equal(stats123.winRate, 0);
+});
+

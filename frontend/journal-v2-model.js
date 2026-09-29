@@ -1,8 +1,11 @@
 (function (root, factory) {
-  const model = factory();
+  const triggersCatalog = (typeof module === 'object' && module.exports)
+    ? require('./setup-triggers-catalog')
+    : (typeof window !== 'undefined' ? window.SetupTriggersCatalog : null);
+  const model = factory(triggersCatalog);
   if (typeof module === 'object' && module.exports) module.exports = model;
   else root.JournalV2Model = model;
-}(typeof window === 'undefined' ? globalThis : window, function () {
+}(typeof window === 'undefined' ? globalThis : window, function (setupTriggers) {
   'use strict';
   const KEY = 'healthy-trend-journal-v2';
   const LEGACY_KEY = 'healthy-trend-journal-book-v1';
@@ -23,7 +26,7 @@
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }
   function blank(date) {
-    return { id: `day-${date}`, date, title: '', technical: { market: 'ibov', marketState: null, session: '', executionScore: null, planRespected: null, checklist: {}, permissionMoney: null, tradeIds: [] }, emotional: { states: [], intensity: null, note: '', impact: null, impactNote: '' }, shared: { lesson: '', patterns: '', observations: '', phrase: '' }, evidence: [], legacyEntries: [], updatedAt: null };
+    return { id: `day-${date}`, date, title: '', technical: { market: null, markets: [], marketState: null, marketStates: {}, session: '', executionScore: null, planRespected: null, checklist: {}, permissionMoney: null, tradeIds: [] }, emotional: { states: [], intensity: null, note: '', impact: null, impactNote: '' }, shared: { lesson: '', patterns: '', observations: '', phrase: '' }, trades: [], evidence: [], legacyEntries: [], updatedAt: null };
   }
   function score(value) {
     if (value == null || String(value).trim() === '') return null;
@@ -59,6 +62,7 @@
       const ids = new Set(), dates = new Set();
       for (const record of parsed.records) {
         if (!record || !record.id || !record.technical || !record.emotional || !record.shared || !Array.isArray(record.emotional.states) || !Array.isArray(record.evidence) || !Array.isArray(record.legacyEntries) || ids.has(record.id) || (record.date && (!dateKey(record.date) || dates.has(record.date)))) throw new Error('Não foi possível ler um registro do Diário V2.');
+        record.trades = Array.isArray(record.trades) ? record.trades : [];
         ids.add(record.id); if (record.date) dates.add(record.date);
       }
       return parsed;
@@ -72,6 +76,7 @@
     if (!key) throw new Error('Escolha uma data válida.');
     let record = data.records.find(item => item.date === key);
     if (!record) { record = blank(key); data.records.push(record); }
+    record.trades = Array.isArray(record.trades) ? record.trades : [];
     return record;
   }
   function entryDate(trade) {
@@ -90,5 +95,71 @@
       seen.add(id); return true;
     });
   }
-  return { KEY, LEGACY_KEY, dateKey, today, blank, score, migrate, load, save, ensureDay, entryDate, closeDate, tradesForDay };
+
+  function createTrade(data = {}) {
+    const ticker = String(data.ticker || '').trim().toUpperCase() || 'TRADE';
+    const now = new Date();
+    const defaultTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const rawTrigger = data.setupTrigger || data.setup_trigger;
+    const triggerKey = rawTrigger
+      ? (setupTriggers ? setupTriggers.normalizeKey(rawTrigger) : rawTrigger)
+      : (data.setup ? (setupTriggers ? setupTriggers.normalizeKey(data.setup) : null) : null);
+    const triggerLabel = triggerKey && setupTriggers
+      ? setupTriggers.getTriggerLabel(triggerKey)
+      : (data.setup || 'Não informado');
+
+    return {
+      id: data.id || `trade-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      ticker,
+      direction: data.direction === 'short' ? 'short' : 'long',
+      setup: triggerLabel,
+      setupTrigger: triggerKey,
+      grade: data.grade || 'A',
+      timeframe: data.timeframe || 'Diário + 4H',
+      entryTime: data.entryTime || defaultTime,
+      whatISaw: data.whatISaw || '',
+      whyIEntered: data.whyIEntered || '',
+      execution: {
+        entryPrice: data.execution?.entryPrice != null ? Number(data.execution.entryPrice) : null,
+        initialStop: data.execution?.initialStop != null ? Number(data.execution.initialStop) : null,
+        chartRisk: data.execution?.chartRisk || '',
+        positionSize: data.execution?.positionSize || '',
+        oneR: data.execution?.oneR || ''
+      },
+      images: Array.isArray(data.images) ? data.images : (data.image ? [data.image] : []),
+      management: {
+        movementNotes: data.management?.movementNotes || '',
+        stopAdjustments: data.management?.stopAdjustments || '',
+        partialExits: data.management?.partialExits || '',
+        additions: data.management?.additions || '',
+        exitPrice: data.management?.exitPrice != null ? Number(data.management.exitPrice) : null,
+        result: data.management?.result || '',
+        rMultiple: data.management?.rMultiple || ''
+      },
+      postTrade: {
+        planRespected: data.postTrade?.planRespected ?? null,
+        whatWentRight: data.postTrade?.whatWentRight || '',
+        whatWentWrong: data.postTrade?.whatWentWrong || '',
+        lessonsLearned: data.postTrade?.lessonsLearned || ''
+      },
+      createdAt: data.createdAt || now.toISOString()
+    };
+  }
+
+  function addTrade(record, tradeData) {
+    if (!record) throw new Error('Registro inválido para adicionar trade.');
+    record.trades = Array.isArray(record.trades) ? record.trades : [];
+    const trade = createTrade(tradeData);
+    record.trades.push(trade);
+    return trade;
+  }
+
+  function removeTrade(record, tradeId) {
+    if (!record || !Array.isArray(record.trades)) return false;
+    const initialLen = record.trades.length;
+    record.trades = record.trades.filter(t => t.id !== tradeId);
+    return record.trades.length < initialLen;
+  }
+
+  return { KEY, LEGACY_KEY, dateKey, today, blank, score, migrate, load, save, ensureDay, entryDate, closeDate, tradesForDay, createTrade, addTrade, removeTrade };
 }));

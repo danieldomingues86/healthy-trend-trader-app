@@ -136,14 +136,22 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
 
   const fetchCalls = [];
   const originalFetch = global.fetch;
+  let customHandler = null;
   global.fetch = async (url) => {
     fetchCalls.push(url);
+    if (customHandler) return customHandler(url);
     const parsed = new URL(url);
     const market = parsed.searchParams.get('market') || 'stock_b3';
     if (market === 'bdr') {
       return {
         ok: true,
         json: async () => mockFetchHistory('BDRX', 28503.28, 95, 'healthy', true)
+      };
+    }
+    if (market === 'fii') {
+      return {
+        ok: true,
+        json: async () => mockFetchHistory('IFIX', 3421.50, 58, 'transition', false)
       };
     }
     return {
@@ -165,12 +173,17 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   assert.ok(env.mockWindow.MARKET_REGISTRY, 'MARKET_REGISTRY deve ser exportado');
   assert.equal(env.mockWindow.MARKET_REGISTRY.stock_b3.benchmarkSymbol, 'IBOV');
   assert.equal(env.mockWindow.MARKET_REGISTRY.bdr.benchmarkSymbol, 'BDRX');
+  assert.equal(env.mockWindow.MARKET_REGISTRY.fii.benchmarkSymbol, 'IFIX');
 
   // 2. Estado padrão: Ações B3 (IBOV)
   assert.ok(env.rootElement.innerHTML.includes('Ações B3'), 'Deve renderizar Ações B3');
   assert.ok(env.rootElement.innerHTML.includes('IBOV · Diário'), 'Deve renderizar título diário do IBOV');
   assert.ok(env.rootElement.innerHTML.includes('183.966') || env.rootElement.innerHTML.includes('183.965'), 'Preço do IBOV');
   assert.ok(env.rootElement.innerHTML.includes('recuo abaixo da EMA 10'), 'Deve alertar recuo abaixo da EMA 10 para IBOV');
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="healthy"'), 'Deve conter data-market-regime="healthy"');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item expansion active'), 'Segmento de Expansão deve estar ativo na régua');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-hero-title-row'), 'Hero deve conter linha de título com ícone do regime');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-hero-icon'), 'Hero deve conter ícone temático de regime');
 
   // Snapshot de Ações B3 deve ter sido persistido com score dinâmico
   const savedSnapshots1 = JSON.parse(env.storage.get('healthy-trend-market-cycle-snapshots-v1') || '{}');
@@ -189,6 +202,8 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   assert.ok(env.rootElement.innerHTML.includes('BDRs'), 'Rótulo BDRs');
   assert.ok(env.rootElement.innerHTML.includes('EMA 10 ascendente'), 'Deve indicar EMA 10 ascendente para BDRX');
   assert.ok(!env.rootElement.innerHTML.includes('Como está a base do IBOV?'), 'Não deve exibir breadth do IBOV na tela de BDRs');
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="healthy"'), 'BDRX com estado saudável');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item expansion active'), 'Segmento de Expansão ativo para BDRX');
 
   // Snapshot de BDRs deve ter sido persistido SEM sobrescrever ou apagar stock_b3
   const savedSnapshots2 = JSON.parse(env.storage.get('healthy-trend-market-cycle-snapshots-v1') || '{}');
@@ -201,10 +216,50 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   assert.equal(savedSnapshots2.stock_b3.score, 73, 'Score do IBOV preservado intacto em 73');
   assert.notEqual(savedSnapshots2.bdr.score, savedSnapshots2.stock_b3.score, 'BDRX e IBOV têm scores diferentes e dinâmicos');
 
-  // 4. Alternar de volta para Ações B3
+  // 4. Alternar para FIIs (IFIX)
+  await env.mockWindow.loadMarketCycleV2('fii');
+  assert.ok(env.rootElement.innerHTML.includes('IFIX · Diário'), 'Deve renderizar título diário do IFIX');
+  assert.ok(env.rootElement.innerHTML.includes('3.422') || env.rootElement.innerHTML.includes('3.421'), 'Preço do IFIX');
+  assert.ok(env.rootElement.innerHTML.includes('FIIs'), 'Rótulo FIIs');
+  assert.ok(env.rootElement.innerHTML.includes('Universo de FIIs'), 'Seção de amplitude contextualizada para FIIs');
+  assert.ok(env.rootElement.innerHTML.includes('Amplitude e Seleção de FIIs na B3'), 'Título de amplitude de FIIs');
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="transition"'), 'IFIX com estado de transição');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item transition active'), 'Segmento de Transição ativo para IFIX');
+
+  // Snapshot de FIIs deve ter sido persistido preservando stock_b3 e bdr
+  const savedSnapshots3 = JSON.parse(env.storage.get('healthy-trend-market-cycle-snapshots-v1') || '{}');
+  assert.ok(savedSnapshots3.stock_b3, 'Snapshot de stock_b3 preservado');
+  assert.ok(savedSnapshots3.bdr, 'Snapshot de bdr preservado');
+  assert.ok(savedSnapshots3.fii, 'Snapshot de fii criado');
+  assert.equal(savedSnapshots3.fii.benchmarkSymbol, 'IFIX');
+  assert.equal(savedSnapshots3.fii.score, 58);
+  assert.equal(savedSnapshots3.fii.classification, 'transition');
+
+  // 5. Alternar de volta para Ações B3
   await env.mockWindow.loadMarketCycleV2('stock_b3');
   assert.ok(env.rootElement.innerHTML.includes('IBOV · Diário'), 'Restaura IBOV');
   assert.ok(env.rootElement.innerHTML.includes('Como está a base do IBOV?'), 'Restaura breadth do IBOV');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item expansion active'), 'Segmento ativo restaurado');
+
+  // 6. Testar renderização de estado de Transição
+  customHandler = async () => ({
+    ok: true,
+    json: async () => mockFetchHistory('IBOV', 175000, 51, 'transition', false)
+  });
+  await env.mockWindow.loadMarketCycleV2('stock_b3', true);
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="transition"'), 'Deve marcar data-market-regime="transition"');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item transition active'), 'Segmento de Transição deve estar ativo');
+  assert.ok(env.rootElement.innerHTML.includes('Mercado em transição'), 'Título Mercado em transição');
+
+  // 7. Testar renderização de estado Defensivo
+  customHandler = async () => ({
+    ok: true,
+    json: async () => mockFetchHistory('IBOV', 160000, 25, 'defensive', false)
+  });
+  await env.mockWindow.loadMarketCycleV2('stock_b3', true);
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="defensive"'), 'Deve marcar data-market-regime="defensive"');
+  assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item defence active'), 'Segmento de Defesa deve estar ativo');
+  assert.ok(env.rootElement.innerHTML.includes('Mercado defensivo'), 'Título Mercado defensivo');
 
   global.fetch = originalFetch;
 });

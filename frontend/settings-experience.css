@@ -95,7 +95,7 @@ body:has(#settings.active) .market-focus-guard{min-height:68px;padding:13px 20px
 #settings .settings-footer{order:3;flex:none;text-align:center;color:#8b998b;font-size:10px;letter-spacing:.02em;margin:32px 0 0}
 #settings button,#settings a{transition:border-color .18s,box-shadow .18s,transform .18s}
 #settings button:hover,#settings .settings-support-link:hover{transform:translateY(-1px);box-shadow:0 4px 12px #163a1610}
-body:has(#settings.active) .sidebar{background:#082b1e}
+/* Sidebar maintained by sidebar-navigation.css */
 @media(min-width:1600px){#settings .settings-grid > .card{padding:24px}#settings .settings-hero{min-height:240px}#settings .navigation-layout-option{min-height:204px}#settings .theme-choice{min-height:96px}}
 @media(max-width:1200px){#settings .settings-grid{grid-template-columns:1.4fr 1fr}#settings .language-settings-card{grid-column:1;grid-row:2}#settings #whatsAppSupportSettings{grid-column:2;grid-row:2}#settings #marketFocusSettings{grid-column:1/3;grid-row:3}#settings .settings-quote{margin-top:20px}#settings .settings-hero aside{font-size:18px}#settings .theme-choice img{width:38%}#settings .theme-choice:after{left:calc(38% + 17px)}}
 @media(max-width:720px){body:has(#settings.active) .content{padding:0 16px 25px}#settings .settings-hero{min-height:230px;padding:20px 0;align-items:flex-start}#settings .settings-hero h1{font-size:38px}#settings .settings-hero p{max-width:320px;font-size:13px}#settings .settings-hero aside{display:none}#settings .settings-grid{display:flex;flex-direction:column}#settings .settings-grid > .card{padding:18px}#settings .navigation-layout-option{padding:10px;min-height:185px}#settings .navigation-layout-option b{font-size:11px}#settings .navigation-layout-option > span{font-size:10px}#settings .settings-menu-preview{margin:0;height:74px}#settings .theme-choice img{height:80px}#settings .language-picker{margin-top:0}#settings .card-head{gap:9px}#settings .form-grid{gap:12px}#settings .settings-focus-note{gap:7px;padding:8px}#settings .settings-wa-icon{width:48px;height:48px}#settings .settings-wa-icon svg{width:35px;height:35px}#settings .setting-row{gap:8px}body:has(#settings.active) .main{background-size:auto 1000px}}
@@ -107,7 +107,7 @@ body:has(#settings.active) .market-focus-guard{margin-bottom:0}
 #settings .settings-hero aside{font-weight:400!important}
 body:has(#settings.active) .sidebar .nav button{white-space:normal;line-height:1.35}
 body:has(#settings.active) .sidebar .nav button:not(.active){color:#d0ddcf}
-body[data-theme="gold"]:has(#settings.active) .sidebar{background:#25271c}
+/* Gold Sidebar maintained by sidebar-navigation.css */
 body[data-theme="gold"] #settings.active{--good:#987432;--ink:#393a26}
 body[data-theme="gold"] #settings .settings-grid>.card{background:rgba(255,250,234,.89);border-color:#d9d1b9}
 body[data-theme="gold"] #settings .navigation-layout-option.active,body[data-theme="gold"] #settings .theme-choice.active,body[data-theme="gold"] #settings .language-choice.active{background:#f6edd57d;border-color:#b79c5b}
@@ -123,10 +123,9 @@ body[data-theme="gold"] #settings .navigation-layout-option.active,body[data-the
 /* Navigation stays functional without decorative sidebar artwork or a duplicate market pill. */
 .settings-sidebar-signature,#settingsMarketPill{display:none!important}
  #currentDatePill{display:none!important}
-body:has(#settings.active) .crumb{position:relative;z-index:1;display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border:1px solid rgba(24,84,55,.2);border-radius:8px;background:rgba(255,255,249,.82);color:#294b3e;font-weight:700;text-shadow:none;box-shadow:0 3px 13px rgba(21,59,39,.09)}
-body:has(#settings.active) .crumb b{color:#0c482c;font-weight:850}
+/* Topbar & Crumb maintained by sidebar-navigation.css */
 body:has(#settings.active) #settings .settings-footer{padding:18px 0 24px;color:#315745;font-size:12px;font-weight:650;letter-spacing:.015em;text-shadow:0 1px 12px rgba(255,255,245,.9);opacity:1}
-@media(min-width:1000px){body:has(#settings.active):not([data-navigation-layout="top"]):not([data-navigation-layout="tiles"]) .app{grid-template-columns:204px minmax(0,1fr)}body:has(#settings.active):not([data-navigation-layout="top"]):not([data-navigation-layout="tiles"]) .sidebar{width:204px;padding-left:14px;padding-right:14px}body:has(#settings.active) .sidebar .nav button{font-size:11px;padding:8px 10px}body:has(#settings.active) .top-actions{gap:9px}body:has(#settings.active) .top-actions .pill{font-size:10px;padding:9px 12px}}
+@media(min-width:1000px){/* Sidebar width maintained globally at 248px */body:has(#settings.active) .sidebar .nav button{font-size:11px;padding:8px 10px}body:has(#settings.active) .top-actions{gap:9px}body:has(#settings.active) .top-actions .pill{font-size:10px;padding:9px 12px}}
 @media(max-width:720px){body:has(#settings.active) #settingsMarketPill{display:none}#settings .settings-hero{height:auto;min-height:230px}}
 @media(max-width:720px){body:has(#settings.active) .topbar{padding:0 16px;height:64px;gap:12px;background:#f8f7edcc}body:has(#settings.active) .topbar .top-actions .pill{display:none}body:has(#settings.active) .topbar .crumb{font-size:11px}#settings .settings-hero{background:linear-gradient(90deg,rgba(246,246,232,.95),rgba(246,246,232,.83) 68%,rgba(246,246,232,.25));margin:0 -16px;padding:22px 16px}#settings .settings-hero p{font-weight:400!important}#settings .settings-grid>.card{background:rgba(255,255,251,.94)}}
 

@@ -24,7 +24,7 @@ body:has(#couragechallenge.active) #marketFocusGuard {
   display: none !important;
 }
 
-body:has(#couragechallenge.active) .topbar {
+body[data-theme="healthy"]:has(#couragechallenge.active) .topbar {
   background: rgba(6, 18, 13, 0.92) !important;
   border-bottom: 1px solid rgba(37, 211, 102, 0.12) !important;
   backdrop-filter: blur(14px);

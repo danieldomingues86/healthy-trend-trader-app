@@ -4,24 +4,7 @@
    Theme: Healthy Dark Emerald (#02130c) - Full screen immersion (Zero white, zero isolated boxes)
    ========================================================================== */
 
-/* Dark immersive canvas across the whole page (Zero white background, zero isolated boxes) */
-body:has(#watchlist.active) {
-  background: #02130c !important;
-  color: #dcece2;
-}
-
-body:has(#watchlist.active) .app {
-  background: #02130c !important;
-}
-
-body:has(#watchlist.active) .main {
-  position: relative;
-  isolation: isolate;
-  min-height: 100vh;
-  background: radial-gradient(circle at 50% -10%, #06281a 0%, #02130c 60%, #010a06 100%) !important;
-  background-color: #02130c !important;
-}
-
+/* Dark immersive canvas across the whole page (Scoped cleanly to theme) */
 body:has(#watchlist.active) .content {
   background: transparent !important;
   max-width: none !important;
@@ -30,81 +13,76 @@ body:has(#watchlist.active) .content {
   margin: 0 !important;
 }
 
-/* Hide market focus guard banner unconditionally on Watchlist */
+/* Hide market focus guard banner on Watchlist */
 body:has(#watchlist.active) #marketFocusGuard {
   display: none !important;
 }
 
-/* Translucent dark emerald topbar */
-body:has(#watchlist.active) .topbar {
-  background: rgba(2, 19, 12, 0.92) !important;
-  border-bottom: 1px solid rgba(143, 224, 170, 0.14) !important;
-  backdrop-filter: blur(14px);
-  color: #dcece2 !important;
+/* HEALTHY GREEN: Watchlist canvas */
+body[data-theme="healthy"]:has(#watchlist.active) {
+  background: #02130c !important;
+  color: #dcece2;
 }
 
-body:has(#watchlist.active) .crumb {
-  color: #799786 !important;
-  font-size: 11px;
+body[data-theme="healthy"]:has(#watchlist.active) .app {
+  background: #02130c !important;
 }
 
-body:has(#watchlist.active) .crumb b {
-  color: #8fe0aa !important;
-  font-weight: 700;
+body[data-theme="healthy"]:has(#watchlist.active) .main {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% -10%, #06281a 0%, #02130c 60%, #010a06 100%) !important;
+  background-color: #02130c !important;
 }
 
-body:has(#watchlist.active) .topbar .pill {
-  background: rgba(6, 28, 19, 0.8) !important;
-  border: 1px solid rgba(143, 224, 170, 0.22) !important;
-  color: #c7ded1 !important;
+/* PREMIUM GOLD: Watchlist canvas & theme overrides */
+body:not([data-theme="healthy"]):has(#watchlist.active) {
+  background: #0c0906 !important;
+  color: #f8eed8;
 }
 
-body:has(#watchlist.active) .topbar .avatar {
-  background: linear-gradient(135deg, #1b5239, #78d294) !important;
-  color: #03140d !important;
-  border: 1px solid #78d294 !important;
+body:not([data-theme="healthy"]):has(#watchlist.active) .app {
+  background: #0c0906 !important;
 }
 
-body:has(#watchlist.active) .top-heat-meter span {
-  color: #c1dfd2 !important;
+body:not([data-theme="healthy"]):has(#watchlist.active) .main {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% -10%, #2a1c0d 0%, #120e08 60%, #090704 100%) !important;
+  background-color: #0c0906 !important;
 }
 
-body:has(#watchlist.active) .top-heat-meter b {
-  color: #8fe0aa !important;
+body:not([data-theme="healthy"]) #watchlist .wl-btn-add,
+body:not([data-theme="healthy"]) #watchlist .wl-btn-trade {
+  background: linear-gradient(135deg, #b88731, #e0b859) !important;
+  color: #221606 !important;
+  border-color: #e4c16c !important;
 }
 
-/* Dark themed sidebar */
-body:has(#watchlist.active) .sidebar {
-  background: linear-gradient(180deg, #03160e 0%, #010f09 100%) !important;
-  border-right: 1px solid rgba(143, 224, 170, 0.12) !important;
+body:not([data-theme="healthy"]) #watchlist .wl-hero,
+body:not([data-theme="healthy"]) #watchlist .wl-control-bar,
+body:not([data-theme="healthy"]) #watchlist .wl-opp-card,
+body:not([data-theme="healthy"]) #watchlist .wl-table-container,
+body:not([data-theme="healthy"]) #watchlist .wl-drawer {
+  background: linear-gradient(135deg, #251a0d, #120e08) !important;
+  border-color: rgba(216, 174, 77, 0.3) !important;
 }
 
-body:has(#watchlist.active) .sidebar .brand strong {
-  color: #f6fff8 !important;
+body:not([data-theme="healthy"]) #watchlist .wl-kpi-card,
+body:not([data-theme="healthy"]) #watchlist .wl-metric-cell {
+  background: #21180e !important;
+  border-color: #5a4624 !important;
 }
 
-body:has(#watchlist.active) .sidebar .brand em {
-  color: #78d294 !important;
+body:not([data-theme="healthy"]) #watchlist .wl-kpi-val,
+body:not([data-theme="healthy"]) #watchlist .wl-score-badge {
+  color: #f5d77a !important;
 }
 
-body:has(#watchlist.active) .sidebar .nav-label {
-  color: #638271 !important;
-}
-
-body:has(#watchlist.active) .sidebar .nav button {
-  color: #a3baa9 !important;
-}
-
-body:has(#watchlist.active) .sidebar .nav button:hover {
-  background: rgba(143, 224, 170, 0.08) !important;
-  color: #f6fff8 !important;
-}
-
-body:has(#watchlist.active) .sidebar .nav button.active {
-  background: linear-gradient(105deg, #164e35, #277953) !important;
-  color: #f6fff8 !important;
-  border: 1px solid rgba(143, 224, 170, 0.3) !important;
-  box-shadow: 0 4px 14px rgba(22, 78, 53, 0.35) !important;
+body:not([data-theme="healthy"]) #watchlist .wl-metric-val.mint {
+  color: #e5bf68 !important;
 }
 
 #watchlist {

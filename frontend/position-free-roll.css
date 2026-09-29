@@ -35,16 +35,139 @@
 .pm-dialog input { width: 100%; box-sizing: border-box; }
 .pm-dialog .pm-preview { margin: 18px 0; padding: 14px; border-radius: 10px; border: 1px solid var(--line, #39483e); line-height: 1.7; }
 .pm-dialog .pm-form-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.pm-policy { margin-top: 16px; }
-.pm-policy-layout{display:grid;grid-template-columns:minmax(300px,.42fr) minmax(0,1fr);gap:18px;margin-top:16px}
-.pm-policy-layout .pm-policy{margin-top:0}
-.pm-heat-policy{max-width:none}.pm-sell-policy{margin-top:0}
-.pm-policy .pm-form-grid { display: grid; grid-template-columns: repeat(4, minmax(100px, 1fr)); gap: 12px; }
-.pm-policy label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
-.pm-policy .risk-block-title p { font-size: 13px; line-height: 1.55; }
-.pm-manual-link { margin-top: 14px; font-size: 12px; }
+.pm-policy {
+  margin-top: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pm-policy-layout {
+  display: block;
+  width: 100%;
+  margin-top: 15px;
+}
+.pm-sell-policy {
+  width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #f2f8f5, #fbfdfb);
+}
+.pm-sell-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.pm-sell-item {
+  padding: 10px 12px;
+  border: 1px solid #d5e3d8;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.75);
+  box-sizing: border-box;
+}
+.pm-sell-item .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pm-sell-item .field label {
+  font-size: 11px !important;
+  line-height: 1.35;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.pm-sell-item .field input,
+.pm-sell-item .field select {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 12px !important;
+  height: 38px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.pm-sell-item .field input:focus,
+.pm-sell-item .field select:focus {
+  outline: none;
+  border-color: var(--good, #10b981);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+.pm-sell-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  padding: 11px 15px;
+  border: 1px solid rgba(84, 168, 112, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  box-sizing: border-box;
+}
+.pm-sell-hint {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+  flex: 1 1 280px;
+}
+.pm-sell-hint span {
+  font-weight: 800;
+  color: #168147;
+  margin-right: 4px;
+}
+.pm-sell-footer .pm-manual-link {
+  margin: 0;
+  white-space: nowrap;
+  font-size: 12px;
+  padding: 7px 14px;
+}
+
+/* Premium Gold: harmonia total para o Sell Into Strength */
+body:not([data-theme="healthy"]) .pm-sell-policy {
+  background: #1c180f !important;
+  border-color: #554525 !important;
+}
+body:not([data-theme="healthy"]) .pm-sell-item {
+  background: #242016 !important;
+  border-color: #5c4b2a !important;
+  color: #f8f0df !important;
+}
+body:not([data-theme="healthy"]) .pm-sell-item .field label {
+  color: #d7c8a6 !important;
+}
+body:not([data-theme="healthy"]) .pm-sell-item .field input,
+body:not([data-theme="healthy"]) .pm-sell-item .field select {
+  background: #0e0d0a !important;
+  border-color: #62502c !important;
+  color: #fff8e9 !important;
+}
+body:not([data-theme="healthy"]) .pm-sell-item .field input:focus,
+body:not([data-theme="healthy"]) .pm-sell-item .field select:focus {
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25) !important;
+}
+body:not([data-theme="healthy"]) .pm-sell-footer {
+  background: rgba(36, 32, 22, 0.75) !important;
+  border-color: rgba(214, 170, 80, 0.25) !important;
+}
+body:not([data-theme="healthy"]) .pm-sell-hint {
+  color: #cdbd98 !important;
+}
+body:not([data-theme="healthy"]) .pm-sell-hint span {
+  color: #fde047 !important;
+}
+
 @media(max-width: 1100px) { .position-management .pm-grid { grid-template-columns: repeat(3,minmax(130px,1fr)); } }
-@media(max-width: 900px) { .pm-policy-layout{grid-template-columns:1fr} }
-@media(max-width: 700px) { .position-management .pm-grid, .pm-dialog .pm-form-grid, .pm-policy .pm-form-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width: 900px) { .pm-sell-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media(max-width: 700px) { .position-management .pm-grid, .pm-dialog .pm-form-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width: 550px) {
+  .pm-sell-grid { grid-template-columns: 1fr; }
+  .pm-sell-footer { flex-direction: column; align-items: flex-start; }
+  .pm-sell-footer .pm-manual-link { width: 100%; text-align: center; }
+}
 @media(max-width: 460px) { .position-management .pm-grid, .pm-dialog .pm-form-grid { grid-template-columns: 1fr; } }
 @media(prefers-reduced-motion:no-preference) { .position-management .pm-sell-available, .position-management .pm-r-highlight { animation: pm-action-pulse 2.6s ease-in-out infinite; } @keyframes pm-action-pulse { 50% { box-shadow: 0 0 0 8px rgba(50,169,102,.08), 0 16px 31px rgba(34,127,73,.22); } } }

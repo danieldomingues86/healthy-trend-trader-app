@@ -5,15 +5,27 @@
   let pending = Promise.resolve();
 
   function serialize(value) { return typeof value === 'string' ? value : JSON.stringify(value ?? null); }
+  const saveDebounceTimers = new Map();
   function save(key, value) {
     const serialized = serialize(value);
     values.set(key, serialized);
     if (!window.healthyTrendApi?.isAuthenticated()) return Promise.resolve();
     if (!hydrated) { dirty.add(key); return Promise.resolve(); }
-    pending = pending.catch(() => {}).then(() => window.healthyTrendApi.request(`/api/workspace-state/${encodeURIComponent(key)}`, {
-      method: 'PUT', body: JSON.stringify({ value: serialized })
-    }));
-    return pending;
+    if (saveDebounceTimers.has(key)) {
+      clearTimeout(saveDebounceTimers.get(key));
+    }
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        saveDebounceTimers.delete(key);
+        pending = pending.catch(() => {}).then(async () => {
+          const latestValue = values.get(key);
+          await window.healthyTrendApi.request(`/api/workspace-state/${encodeURIComponent(key)}`, {
+            method: 'PUT', body: JSON.stringify({ value: latestValue })
+          });
+        }).then(resolve).catch(resolve);
+      }, 350);
+      saveDebounceTimers.set(key, timer);
+    });
   }
   const storage = {
     getItem(key) { return values.has(key) ? values.get(key) : null; },
@@ -38,4 +50,24 @@
   }
   window.healthyTrendWorkspace = { storage, save, hydrate, ready: () => hydrated, raw: (key) => storage.getItem(key) };
   window.addEventListener('healthyTrend:authenticated', () => { hydrate().catch((error) => console.warn('Não foi possível carregar os dados do workspace.', error)); });
+  window.addEventListener('beforeunload', () => {
+    saveDebounceTimers.forEach((timer, key) => {
+      clearTimeout(timer);
+      const latestValue = values.get(key);
+      if (latestValue && window.healthyTrendApi?.isAuthenticated()) {
+        try {
+          fetch(`${window.HEALTHY_TREND_API_URL || 'http://localhost:8787'}/api/workspace-state/${encodeURIComponent(key)}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('healthy-trend-session-token') || sessionStorage.getItem('healthy-trend-session-token') || ''}`
+            },
+            body: JSON.stringify({ value: latestValue }),
+            keepalive: true
+          });
+        } catch (_) {}
+      }
+    });
+    saveDebounceTimers.clear();
+  });
 })();

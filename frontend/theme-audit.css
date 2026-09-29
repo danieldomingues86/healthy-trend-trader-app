@@ -253,7 +253,10 @@ body[data-navigation-layout="top"] .sidebar .nav{gap:1px}
 
 /* Position Sizing: Risk Budget -> policy limiters -> executable risk. */
 #newtrade .execution-limit{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border:1px solid rgba(156,231,181,.16);border-radius:8px;background:rgba(4,31,20,.24)}
-#newtrade .execution-limit em{padding:2px 5px;border-radius:999px;background:var(--accent,#d7b447);color:#172013;font-size:8px;font-style:normal;font-weight:900;letter-spacing:.06em}
+#newtrade .execution-limit em{display:inline-flex;align-items:center;justify-content:center;font-style:normal}
+#newtrade .execution-limit em.is-ok,#newtrade .execution-limit:not(.is-limiting) em{width:22px;height:22px;padding:0;border-radius:50%;background:rgba(16,185,129,.16);border:1.5px solid rgba(113,233,166,.45);color:#71e9a6;box-shadow:0 0 10px rgba(113,233,166,.15)}
+#newtrade .execution-limit em.is-ok svg,#newtrade .execution-limit:not(.is-limiting) em svg{display:block;width:12px;height:12px;stroke:#71e9a6}
+#newtrade .execution-limit.is-limiting em{padding:2px 7px;border-radius:999px;background:rgba(234,179,8,.18);border:1px solid rgba(234,179,8,.55);color:#fde047;font-size:8.5px;font-weight:850;letter-spacing:.05em}
 #newtrade .execution-limit.is-limiting{border-color:rgba(224,188,81,.62);background:rgba(181,137,26,.14)}
 #newtrade .executable-risk-summary{display:flex;align-items:baseline;justify-content:center;gap:7px;margin:2px 0 7px}
 #newtrade .executable-risk-summary small{color:#a9cdb6;font-size:9px;font-weight:850;letter-spacing:.09em}
@@ -264,3 +267,109 @@ body[data-navigation-layout="top"] .sidebar .nav{gap:1px}
 .courage-banner-target small{display:block;margin-top:2px;font-size:8px;font-weight:650;opacity:.76}
 .courage-conscious-target-row small{display:block;margin-top:2px;font-size:8px;opacity:.75}
 @media(max-width:600px){#effectiveRiskPolicy .risk-profile-inputs{grid-template-columns:1fr}#newtrade .executable-risk-summary{flex-wrap:wrap}}
+
+
+/* --------------------------------------------------------------------------
+   THEME PALETTE ISOLATION — COMPLETE PROJECT COVERAGE
+   -------------------------------------------------------------------------- */
+
+/* PATRIMÔNIO (Dashboard) — Gold surfaces & typography */
+body:not([data-theme="healthy"]) #dashboard .wealth-shell {
+  color: #f5ead1;
+}
+
+body:not([data-theme="healthy"]) #dashboard .wealth-section-kicker {
+  color: #d4af37;
+}
+
+body:not([data-theme="healthy"]) #dashboard .wealth-section-kicker i {
+  background-color: #d4af37;
+}
+
+body:not([data-theme="healthy"]) #dashboard .wealth-heading-content h1 {
+  color: #fff8e8;
+}
+
+body:not([data-theme="healthy"]) #dashboard .wealth-heading-content p {
+  color: #cdbd98;
+}
+
+body:not([data-theme="healthy"]) #dashboard .wealth-card {
+  background: linear-gradient(145deg, #1c170e, #120e08);
+  border-color: #514222;
+  color: #f8eed8;
+}
+
+body:not([data-theme="healthy"]) #dashboard .wealth-kpi-sub {
+  color: #cdbd98;
+}
+
+body:not([data-theme="healthy"]) #dashboard .wealth-metric-val {
+  color: #f5d77a;
+}
+
+/* ATIVOS BLACKLIST — Gold surfaces */
+body:not([data-theme="healthy"]) #assetblacklist {
+  background: radial-gradient(ellipse at 77% 4%, rgba(86, 68, 25, 0.18), transparent 42%),
+              radial-gradient(ellipse at 83% 94%, rgba(99, 22, 32, 0.10), transparent 40%),
+              linear-gradient(145deg, #17120a, #0d0a06 72%) !important;
+  color: #f8efdb !important;
+}
+
+body:not([data-theme="healthy"]) #assetblacklist .ab-panel {
+  border-color: #584423 !important;
+  background: linear-gradient(155deg, #1c160e, #110e08 70%) !important;
+}
+
+body:not([data-theme="healthy"]) #assetblacklist .ab-table th {
+  color: #e4ce98 !important;
+  background: #241c10 !important;
+}
+
+body:not([data-theme="healthy"]) #assetblacklist .ab-table td {
+  background: #17140e !important;
+  border-color: #4b3a20 !important;
+  color: #f1e5c8 !important;
+}
+
+body:not([data-theme="healthy"]) #assetblacklist .ab-search {
+  border-color: #584423 !important;
+  color: #deb465 !important;
+  background: #130f08 !important;
+}
+
+/* TRADER STORE (Materials) — Gold & Healthy strict isolation */
+body[data-theme="healthy"] #materials .materials-hero-spotlight {
+  border-color: rgba(52, 211, 153, 0.35) !important;
+  background: linear-gradient(135deg, #062217 0%, #03150e 55%, #08291c 100%) !important;
+}
+
+body[data-theme="healthy"] #materials .materials-hero-spotlight::before {
+  background: radial-gradient(circle at 75% 45%, rgba(52, 211, 153, 0.15) 0%, transparent 62%) !important;
+}
+
+body:not([data-theme="healthy"]) #materials .materials-hero-spotlight {
+  border-color: rgba(214, 170, 80, 0.42) !important;
+  background: linear-gradient(135deg, #241a0b 0%, #120e06 55%, #291c0b 100%) !important;
+}
+
+body:not([data-theme="healthy"]) #materials .materials-hero-spotlight::before {
+  background: radial-gradient(circle at 75% 45%, rgba(214, 170, 80, 0.18) 0%, transparent 62%) !important;
+}
+
+/* SETTINGS (Configurações) — Gold toggles & buttons */
+body:not([data-theme="healthy"]) #settings .toggle.on {
+  background: #c99e3d !important;
+}
+
+body:not([data-theme="healthy"]) #settings .settings-hero {
+  color: #f7eedb;
+}
+
+body:not([data-theme="healthy"]) #settings .settings-hero h1 {
+  color: #fff8e8;
+}
+
+body:not([data-theme="healthy"]) #settings .settings-hero p {
+  color: #cdbd98;
+}

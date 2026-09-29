@@ -4,24 +4,7 @@
    Paleta estrita: Healthy Green & Premium Gold (Zero cinza)
    ========================================================================== */
 
-/* Dark immersive canvas across the whole page (Zero white background, zero isolated boxes) */
-body:has(#emergingleaders.active) {
-  background: #02130c !important;
-  color: #dcece2;
-}
-
-body:has(#emergingleaders.active) .app {
-  background: #02130c !important;
-}
-
-body:has(#emergingleaders.active) .main {
-  position: relative;
-  isolation: isolate;
-  min-height: 100vh;
-  background: radial-gradient(circle at 50% -10%, #06281a 0%, #02130c 60%, #010a06 100%) !important;
-  background-color: #02130c !important;
-}
-
+/* Full-width container scoped to active theme */
 body:has(#emergingleaders.active) .content {
   background: transparent !important;
   max-width: none !important;
@@ -35,76 +18,40 @@ body:has(#emergingleaders.active) #marketFocusGuard {
   display: none !important;
 }
 
-/* Translucent dark emerald topbar */
-body:has(#emergingleaders.active) .topbar {
-  background: rgba(2, 19, 12, 0.92) !important;
-  border-bottom: 1px solid rgba(143, 224, 170, 0.14) !important;
-  backdrop-filter: blur(14px);
-  color: #dcece2 !important;
+/* HEALTHY GREEN: Emerging Leaders canvas */
+body[data-theme="healthy"]:has(#emergingleaders.active) {
+  background: #02130c !important;
+  color: #dcece2;
 }
 
-body:has(#emergingleaders.active) .crumb {
-  color: #799786 !important;
-  font-size: 11px;
+body[data-theme="healthy"]:has(#emergingleaders.active) .app {
+  background: #02130c !important;
 }
 
-body:has(#emergingleaders.active) .crumb b {
-  color: #8fe0aa !important;
-  font-weight: 700;
+body[data-theme="healthy"]:has(#emergingleaders.active) .main {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% -10%, #06281a 0%, #02130c 60%, #010a06 100%) !important;
+  background-color: #02130c !important;
 }
 
-body:has(#emergingleaders.active) .topbar .pill {
-  background: rgba(6, 28, 19, 0.8) !important;
-  border: 1px solid rgba(143, 224, 170, 0.22) !important;
-  color: #c7ded1 !important;
+/* PREMIUM GOLD: Emerging Leaders canvas */
+body:not([data-theme="healthy"]):has(#emergingleaders.active) {
+  background: #0c0906 !important;
+  color: #f8eed8;
 }
 
-body:has(#emergingleaders.active) .topbar .avatar {
-  background: linear-gradient(135deg, #1b5239, #78d294) !important;
-  color: #03140d !important;
-  border: 1px solid #78d294 !important;
+body:not([data-theme="healthy"]):has(#emergingleaders.active) .app {
+  background: #0c0906 !important;
 }
 
-body:has(#emergingleaders.active) .top-heat-meter span {
-  color: #c1dfd2 !important;
-}
-
-body:has(#emergingleaders.active) .top-heat-meter b {
-  color: #8fe0aa !important;
-}
-
-/* Dark themed sidebar */
-body:has(#emergingleaders.active) .sidebar {
-  background: linear-gradient(180deg, #03160e 0%, #010f09 100%) !important;
-  border-right: 1px solid rgba(143, 224, 170, 0.12) !important;
-}
-
-body:has(#emergingleaders.active) .sidebar .brand strong {
-  color: #f6fff8 !important;
-}
-
-body:has(#emergingleaders.active) .sidebar .brand em {
-  color: #78d294 !important;
-}
-
-body:has(#emergingleaders.active) .sidebar .nav-label {
-  color: #638271 !important;
-}
-
-body:has(#emergingleaders.active) .sidebar .nav button {
-  color: #a3baa9 !important;
-}
-
-body:has(#emergingleaders.active) .sidebar .nav button:hover {
-  background: rgba(143, 224, 170, 0.08) !important;
-  color: #f6fff8 !important;
-}
-
-body:has(#emergingleaders.active) .sidebar .nav button.active {
-  background: linear-gradient(105deg, #164e35, #277953) !important;
-  color: #f6fff8 !important;
-  border: 1px solid rgba(143, 224, 170, 0.3) !important;
-  box-shadow: 0 4px 14px rgba(22, 78, 53, 0.35) !important;
+body:not([data-theme="healthy"]):has(#emergingleaders.active) .main {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% -10%, #2a1c0d 0%, #120e08 60%, #090704 100%) !important;
+  background-color: #0c0906 !important;
 }
 
 #emergingleaders {
@@ -134,8 +81,8 @@ body:has(#emergingleaders.active) .sidebar .nav button.active {
 /* Nav Badge NOVO */
 .el-badge-new {
   display: inline-block;
-  background: linear-gradient(135deg, #e4bf69, #cba143);
-  color: #0d261b;
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: #022013;
   font-size: 9px;
   font-weight: 800;
   padding: 1px 5px;
@@ -144,6 +91,11 @@ body:has(#emergingleaders.active) .sidebar .nav button.active {
   margin-left: 6px;
   line-height: 1.3;
   vertical-align: middle;
+}
+
+body:not([data-theme="healthy"]) .el-badge-new {
+  background: linear-gradient(135deg, #e4bf69, #cba143);
+  color: #211604;
 }
 
 /* ==========================================================================
@@ -505,9 +457,10 @@ body:has(#emergingleaders.active) .sidebar .nav button.active {
   z-index: 2;
 }
 
+/* Cluster card hover & active states - STRICTLY THEMED */
 .el-cluster-card:hover {
-  border-color: #d4af37;
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.25);
+  border-color: #34d399;
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.25);
   transform: translateY(-2px);
 }
 
@@ -517,9 +470,9 @@ body:has(#emergingleaders.active) .sidebar .nav button.active {
 }
 
 .el-cluster-card.active {
-  border: 1.5px solid #d4af37 !important;
+  border: 1.5px solid #34d399 !important;
   background: #082418;
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.32), 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.32), 0 8px 24px rgba(0, 0, 0, 0.45) !important;
   transform: translateY(-2px);
 }
 
@@ -528,6 +481,23 @@ body:has(#emergingleaders.active) .sidebar .nav button.active {
 }
 
 .el-cluster-card.active .el-cluster-title {
+  color: #e6fffa;
+  text-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+}
+
+/* Gold Theme Overrides for Clusters */
+body:not([data-theme="healthy"]) .el-cluster-card:hover {
+  border-color: #d4af37;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.25);
+}
+
+body:not([data-theme="healthy"]) .el-cluster-card.active {
+  border: 1.5px solid #d4af37 !important;
+  background: #261b0c !important;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.32), 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+body:not([data-theme="healthy"]) .el-cluster-card.active .el-cluster-title {
   color: #fff9e6;
   text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
 }
@@ -1217,6 +1187,10 @@ body:has(#emergingleaders.active) .sidebar .nav button.active {
   font-family: Georgia, serif;
   font-style: italic;
   font-size: 12px;
+  color: #8fe0aa;
+}
+
+body:not([data-theme="healthy"]) .el-pipeline-tagline {
   color: #d4af37;
 }
 

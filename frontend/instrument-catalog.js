@@ -65,6 +65,21 @@
     { symbol: 'KNRI11', name: 'Kinea Renda Imobiliária', market: 'FII' },
     { symbol: 'VISC11', name: 'Vinci Shopping Centers', market: 'FII' },
     { symbol: 'XPLG11', name: 'XP Log', market: 'FII' },
+    { symbol: 'BTLG11', name: 'BTG Pactual Logística', market: 'FII' },
+    { symbol: 'XPML11', name: 'XP Malls', market: 'FII' },
+    { symbol: 'MXRF11', name: 'Maxi Renda', market: 'FII' },
+    { symbol: 'KNCR11', name: 'Kinea Rendimentos Imobiliários', market: 'FII' },
+    { symbol: 'KNIP11', name: 'Kinea Índices de Preços', market: 'FII' },
+    { symbol: 'HGBS11', name: 'Hedge Brasil Shopping', market: 'FII' },
+    { symbol: 'TRXF11', name: 'TRX Real Estate', market: 'FII' },
+    { symbol: 'CPTS11', name: 'Capitânia Securities II', market: 'FII' },
+    { symbol: 'ALZR11', name: 'Alianza Trust Renda Imobiliária', market: 'FII' },
+    { symbol: 'BRCO11', name: 'Bresco Logística', market: 'FII' },
+    { symbol: 'VILG11', name: 'Vinci Logística', market: 'FII' },
+    { symbol: 'LVBI11', name: 'VBI Logístico', market: 'FII' },
+    { symbol: 'KNSC11', name: 'Kinea Securities', market: 'FII' },
+    { symbol: 'PVBI11', name: 'VBI Prime Properties', market: 'FII' },
+    { symbol: 'TGAR11', name: 'TG Ativo Real', market: 'FII' },
     { symbol: 'BTC', name: 'Bitcoin', market: 'Cripto' },
     { symbol: 'ETH', name: 'Ethereum', market: 'Cripto' },
     { symbol: 'SOL', name: 'Solana', market: 'Cripto' },
@@ -117,7 +132,12 @@
     return items.find(item => matchesBlacklistRule({ symbol, market }, item)) || null;
   }
   function belongsToMarket(symbol, market, dynamicItems = []) {
-    return Boolean(find(symbol, market, dynamicItems));
+    if (find(symbol, market, dynamicItems)) return true;
+    const normSym = normalizeSymbol(symbol);
+    const normMkt = normalizeMarket(market);
+    if (normMkt === 'FII' && /^[A-Z]{4}11$/.test(normSym)) return true;
+    if (normMkt === 'BDR' && /^[A-Z0-9]{4}(31|32|33|34|35|39)$/.test(normSym)) return true;
+    return false;
   }
 
   return { MARKETS, INSTRUMENTS, normalizeSymbol, assetFamily, matchesBlacklistRule, normalize, forMarket, find, belongsToMarket };

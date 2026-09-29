@@ -1,0 +1,911 @@
+/* ==========================================================================
+   Modo Fora do Mercado (Market Pause Mode)
+   Healthy Trend Trader — Design System Harmony
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Global Top Banner (Persistent across all main pages)
+   -------------------------------------------------------------------------- */
+.market-pause-banner-root {
+  width: 100%;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 40;
+}
+
+/* Default Dark Palette (Dashboard, Watchlist, Positions, etc.) */
+.market-pause-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(16, 42, 34, 0.95), rgba(10, 26, 21, 0.95));
+  border: 1px solid rgba(32, 201, 151, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 15px rgba(32, 201, 151, 0.12);
+  color: var(--text, #eaf4ee);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: mpFadeIn 0.3s ease-out;
+}
+
+/* Gold Theme (Dark Workspace) */
+body.gold-theme .market-pause-banner,
+body[data-theme="gold"] .market-pause-banner {
+  background: linear-gradient(135deg, rgba(38, 30, 16, 0.95), rgba(22, 17, 9, 0.95));
+  border-color: rgba(230, 198, 117, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 15px rgba(230, 198, 117, 0.15);
+}
+
+/* Light Theme in Settings Page (#settings.active) */
+body:has(#settings.active) .market-pause-banner {
+  background: rgba(223, 235, 218, 0.92);
+  border: 1px solid #b8d4b3;
+  color: #102c23;
+  box-shadow: 0 4px 16px rgba(18, 53, 28, 0.08);
+}
+
+body:has(#settings.active) .mp-banner-title {
+  background: rgba(21, 149, 93, 0.16);
+  color: #147443;
+  border-color: rgba(21, 149, 93, 0.3);
+}
+
+body:has(#settings.active) .mp-banner-desc {
+  color: #1e3e30;
+}
+
+body:has(#settings.active) .mp-banner-desc b {
+  color: #0c261b;
+}
+
+body:has(#settings.active) .mp-banner-desc em {
+  color: #4e6b5c;
+}
+
+body:has(#settings.active) .mp-banner-btn-details {
+  background: #ffffffd0;
+  border-color: #cbdad0;
+  color: #1a4231;
+}
+
+body:has(#settings.active) .mp-banner-btn-details:hover {
+  background: #15955d;
+  color: #ffffff;
+  border-color: #15955d;
+}
+
+/* Gold Theme in Settings Page */
+body[data-theme="gold"]:has(#settings.active) .market-pause-banner {
+  background: rgba(241, 232, 205, 0.92);
+  border-color: #cfb970;
+  color: #46341b;
+}
+
+body[data-theme="gold"]:has(#settings.active) .mp-banner-title {
+  background: rgba(177, 132, 44, 0.18);
+  color: #7f5c18;
+  border-color: rgba(177, 132, 44, 0.35);
+}
+
+body[data-theme="gold"]:has(#settings.active) .mp-banner-btn-details {
+  background: rgba(255, 253, 245, 0.9);
+  border-color: #d8c8a0;
+  color: #55401c;
+}
+
+.mp-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.mp-banner-glow-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--good, #20c997);
+  box-shadow: 0 0 8px var(--good, #20c997);
+  flex-shrink: 0;
+  animation: mpPulse 2s infinite ease-in-out;
+}
+
+body:has(#settings.active) .mp-banner-glow-dot {
+  background: #15955d;
+  box-shadow: 0 0 8px #15955d;
+}
+
+body.gold-theme .mp-banner-glow-dot,
+body[data-theme="gold"] .mp-banner-glow-dot {
+  background: #e6c675;
+  box-shadow: 0 0 8px #e6c675;
+}
+
+.mp-banner-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.mp-banner-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--good, #20c997);
+  padding: 3px 8px;
+  background: rgba(32, 201, 151, 0.15);
+  border-radius: 6px;
+  border: 1px solid rgba(32, 201, 151, 0.3);
+}
+
+body.gold-theme .mp-banner-title,
+body[data-theme="gold"] .mp-banner-title {
+  color: #e6c675;
+  background: rgba(230, 198, 117, 0.15);
+  border-color: rgba(230, 198, 117, 0.3);
+}
+
+.mp-banner-desc {
+  color: var(--text, #eaf4ee);
+  font-weight: 500;
+}
+
+.mp-banner-desc b {
+  color: inherit;
+}
+
+.mp-banner-desc em {
+  font-style: normal;
+  opacity: 0.85;
+}
+
+.mp-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.mp-banner-btn-details {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mp-banner-btn-details:hover {
+  background: rgba(32, 201, 151, 0.18);
+  border-color: var(--good, #20c997);
+}
+
+/* --------------------------------------------------------------------------
+   Settings Page Section Card (#settings .market-pause-settings-card)
+   Adheres 100% to the light cream/sage palette of #settings
+   -------------------------------------------------------------------------- */
+#settings .market-pause-settings-card {
+  /* Reuses the standard card background from settings-experience.css */
+  background: rgba(255, 255, 251, 0.86);
+  border: 1px solid rgba(208, 223, 207, 0.55);
+  border-radius: 13px;
+  padding: 19px;
+  box-shadow: 0 9px 28px #12351c05;
+  backdrop-filter: blur(9px);
+  color: #092f25;
+  margin: 0;
+}
+
+body[data-theme="gold"] #settings .market-pause-settings-card {
+  background: rgba(255, 250, 235, 0.9);
+  border-color: rgba(193, 164, 99, 0.46);
+  color: #3b2a12;
+}
+
+#settings .mp-settings-intro {
+  color: #556c60;
+  font-size: 12.5px;
+  line-height: 1.55;
+  margin: 0 0 18px;
+  max-width: 860px;
+}
+
+body[data-theme="gold"] #settings .mp-settings-intro {
+  color: #6d5830;
+}
+
+/* Form Grid & Fields in Settings */
+#settings .mp-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px 16px;
+  margin-bottom: 18px;
+}
+
+#settings .mp-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#settings .mp-form-field.full {
+  grid-column: 1 / -1;
+}
+
+#settings .mp-form-field label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #254537;
+  margin: 0;
+}
+
+body[data-theme="gold"] #settings .mp-form-field label {
+  color: #55401c;
+}
+
+#settings .mp-form-field input,
+#settings .mp-form-field select,
+#settings .mp-form-field textarea {
+  background: #ffffffb0;
+  border: 1px solid #cbdad0;
+  border-radius: 8px;
+  color: #234635;
+  padding: 9px 13px;
+  font-size: 12.5px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.18s, box-shadow 0.18s, background-color 0.18s;
+}
+
+#settings .mp-form-field input,
+#settings .mp-form-field select {
+  height: 40px;
+}
+
+#settings .mp-form-field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+#settings .mp-form-field input:focus,
+#settings .mp-form-field select:focus,
+#settings .mp-form-field textarea:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #169354;
+  box-shadow: 0 0 0 3px rgba(22, 147, 84, 0.15);
+}
+
+body[data-theme="gold"] #settings .mp-form-field input,
+body[data-theme="gold"] #settings .mp-form-field select,
+body[data-theme="gold"] #settings .mp-form-field textarea {
+  background: rgba(255, 253, 245, 0.88);
+  border-color: #d8c8a0;
+  color: #55401c;
+}
+
+body[data-theme="gold"] #settings .mp-form-field input:focus,
+body[data-theme="gold"] #settings .mp-form-field select:focus,
+body[data-theme="gold"] #settings .mp-form-field textarea:focus {
+  background: #ffffff;
+  border-color: #b78d37;
+  box-shadow: 0 0 0 3px rgba(183, 141, 55, 0.15);
+}
+
+#settings .mp-form-field ::placeholder {
+  color: #7b9186;
+  opacity: 1;
+}
+
+body[data-theme="gold"] #settings .mp-form-field ::placeholder {
+  color: #9c855a;
+}
+
+/* Primary Activation Button in Settings */
+#settings .mp-btn-activate {
+  background: #15955d;
+  color: #ffffff;
+  border: 1px solid #148250;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 10px 22px;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, background-color 0.18s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#settings .mp-btn-activate:hover {
+  background: #128250;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(21, 149, 93, 0.22);
+}
+
+body[data-theme="gold"] #settings .mp-btn-activate {
+  background: #b1842c;
+  border-color: #8f6720;
+}
+
+body[data-theme="gold"] #settings .mp-btn-activate:hover {
+  background: #9d7322;
+  box-shadow: 0 4px 12px rgba(177, 132, 44, 0.25);
+}
+
+/* Active Summary Box within Settings */
+#settings .mp-active-summary-card {
+  background: rgba(231, 244, 224, 0.6);
+  border: 1px solid #bedbc4;
+  border-radius: 11px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+
+body[data-theme="gold"] #settings .mp-active-summary-card {
+  background: rgba(246, 235, 205, 0.6);
+  border-color: #dec886;
+}
+
+#settings .mp-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+#settings .mp-summary-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #12382a;
+}
+
+body[data-theme="gold"] #settings .mp-summary-status {
+  color: #4b3614;
+}
+
+#settings .mp-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+#settings .mp-summary-metric {
+  background: #ffffffc8;
+  border: 1px solid #cbdad0;
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+body[data-theme="gold"] #settings .mp-summary-metric {
+  background: rgba(255, 253, 245, 0.9);
+  border-color: #d8c8a0;
+}
+
+#settings .mp-summary-metric small {
+  display: block;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #556c60;
+  margin-bottom: 3px;
+}
+
+body[data-theme="gold"] #settings .mp-summary-metric small {
+  color: #7b6238;
+}
+
+#settings .mp-summary-metric strong {
+  font-size: 13.5px;
+  color: #102c23;
+  font-weight: 600;
+}
+
+body[data-theme="gold"] #settings .mp-summary-metric strong {
+  color: #3b2a12;
+}
+
+#settings .mp-summary-notes {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border-left: 3px solid #169354;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #1e4533;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+body[data-theme="gold"] #settings .mp-summary-notes {
+  border-left-color: #b1842c;
+  color: #443217;
+}
+
+#settings .mp-summary-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+#settings #mpSettingsEndBtn {
+  background: #15955d;
+  color: #ffffff;
+  border: 1px solid #148250;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#settings #mpSettingsEditBtn {
+  background: #ffffffb0;
+  color: #234635;
+  border: 1px solid #cbdad0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body[data-theme="gold"] #settings #mpSettingsEndBtn {
+  background: #b1842c;
+  border-color: #8f6720;
+}
+
+body[data-theme="gold"] #settings #mpSettingsEditBtn {
+  background: rgba(255, 253, 245, 0.9);
+  color: #55401c;
+  border-color: #d8c8a0;
+}
+
+/* History Section in Settings */
+#settings .mp-history-section {
+  margin-top: 24px;
+  border-top: 1px solid #dce8df;
+  padding-top: 18px;
+}
+
+body[data-theme="gold"] #settings .mp-history-section {
+  border-top-color: #ded1b8;
+}
+
+#settings .mp-history-head h4 {
+  margin: 0 0 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #254537;
+}
+
+body[data-theme="gold"] #settings .mp-history-head h4 {
+  color: #55401c;
+}
+
+#settings .mp-history-empty {
+  padding: 16px 20px;
+  text-align: center;
+  color: #586f63;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px dashed #cbdad0;
+  border-radius: 8px;
+  font-style: italic;
+}
+
+body[data-theme="gold"] #settings .mp-history-empty {
+  background: rgba(255, 253, 245, 0.7);
+  border-color: #d8c8a0;
+  color: #7b6238;
+}
+
+#settings .mp-history-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #cbdad0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+body[data-theme="gold"] #settings .mp-history-table-wrap {
+  border-color: #d8c8a0;
+  background: rgba(255, 253, 245, 0.85);
+}
+
+#settings .mp-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+
+#settings .mp-history-table th {
+  padding: 9px 13px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #254537;
+  background: #edf5ee;
+  border-bottom: 1px solid #cbdad0;
+}
+
+body[data-theme="gold"] #settings .mp-history-table th {
+  background: #f5eed9;
+  color: #55401c;
+  border-bottom-color: #d8c8a0;
+}
+
+#settings .mp-history-table td {
+  padding: 10px 13px;
+  color: #1f3d2f;
+  border-bottom: 1px solid #e4ede6;
+}
+
+body[data-theme="gold"] #settings .mp-history-table td {
+  color: #4b3614;
+  border-bottom-color: #ece1cc;
+}
+
+#settings .mp-history-table tr:last-child td {
+  border-bottom: none;
+}
+
+#settings .mp-history-table tr:hover td {
+  background: rgba(231, 244, 224, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   Modals (Login Welcome, Trade Attempt Brake, End Pause, Details)
+   Clean, premium trading-workspace look
+   -------------------------------------------------------------------------- */
+.market-pause-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(6, 12, 10, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: mpFadeIn 0.25s ease-out;
+}
+
+.market-pause-modal {
+  width: 100%;
+  max-width: 560px;
+  background: #0f1c17;
+  border: 1px solid rgba(32, 201, 151, 0.3);
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(32, 201, 151, 0.1);
+  padding: 32px 28px 26px;
+  color: #eaf4ee;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: mpZoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.gold-theme .market-pause-modal,
+body[data-theme="gold"] .market-pause-modal {
+  background: #1a150c;
+  border-color: rgba(230, 198, 117, 0.35);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(230, 198, 117, 0.12);
+}
+
+.mp-modal-kicker {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #20c997;
+  margin-bottom: 8px;
+}
+
+body.gold-theme .mp-modal-kicker,
+body[data-theme="gold"] .mp-modal-kicker {
+  color: #e6c675;
+}
+
+.mp-modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 6px;
+  color: #ffffff;
+}
+
+.mp-modal-subtitle {
+  font-size: 14.5px;
+  color: #20c997;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+body.gold-theme .mp-modal-subtitle,
+body[data-theme="gold"] .mp-modal-subtitle {
+  color: #e6c675;
+}
+
+.mp-modal-lead {
+  font-size: 14px;
+  color: #d7e4dc;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+/* Modal Info Card */
+.mp-modal-info-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.mp-modal-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mp-modal-info-row span {
+  color: #8da196;
+}
+
+.mp-modal-info-row strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Modal Quote */
+.mp-modal-quote {
+  border-left: 3px solid #20c997;
+  padding: 12px 16px;
+  background: rgba(32, 201, 151, 0.07);
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 20px;
+  font-size: 13.5px;
+  font-style: italic;
+  line-height: 1.6;
+  color: #dcece2;
+}
+
+body.gold-theme .mp-modal-quote,
+body[data-theme="gold"] .mp-modal-quote {
+  border-left-color: #e6c675;
+  background: rgba(230, 198, 117, 0.08);
+}
+
+.mp-modal-respect-text {
+  font-size: 13px;
+  color: #92a49a;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+/* Modal Actions */
+.mp-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.mp-modal-actions button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.mp-modal-actions .primary {
+  background: #15955d;
+  color: #ffffff;
+  border: 1px solid #148250;
+}
+
+.mp-modal-actions .primary:hover {
+  background: #128250;
+  transform: translateY(-1px);
+}
+
+.mp-modal-actions .secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #eaf4ee;
+}
+
+.mp-modal-actions .secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+body.gold-theme .mp-modal-actions .primary,
+body[data-theme="gold"] .mp-modal-actions .primary {
+  background: #b1842c;
+  border-color: #8f6720;
+}
+
+/* Modal Inputs (e.g. End reflection, edit return date) */
+.market-pause-modal input,
+.market-pause-modal textarea {
+  width: 100%;
+  padding: 10px 13px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.market-pause-modal input:focus,
+.market-pause-modal textarea:focus {
+  outline: none;
+  border-color: #20c997;
+  box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   Trade Attempt Modal (Freio Psicológico Consciente)
+   -------------------------------------------------------------------------- */
+.mp-brake-modal {
+  border-color: rgba(245, 159, 0, 0.45);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(245, 159, 0, 0.12);
+}
+
+.mp-brake-kicker {
+  color: #f59f00;
+}
+
+.mp-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0 22px;
+}
+
+.mp-option-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-size: 13.5px;
+  color: #eaf4ee;
+}
+
+.mp-option-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.mp-option-item.selected {
+  background: rgba(32, 201, 151, 0.14);
+  border-color: #20c997;
+  color: #ffffff;
+}
+
+body.gold-theme .mp-option-item.selected,
+body[data-theme="gold"] .mp-option-item.selected {
+  background: rgba(230, 198, 117, 0.14);
+  border-color: #e6c675;
+}
+
+.mp-option-item input[type="radio"] {
+  accent-color: #20c997;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  margin: 0;
+}
+
+body.gold-theme .mp-option-item input[type="radio"],
+body[data-theme="gold"] .mp-option-item input[type="radio"] {
+  accent-color: #e6c675;
+}
+
+.mp-btn-back-pause {
+  background: #15955d;
+  color: #ffffff;
+  border: 1px solid #148250;
+  font-weight: 600;
+}
+
+.mp-btn-back-pause:hover {
+  background: #128250;
+  transform: translateY(-1px);
+}
+
+body.gold-theme .mp-btn-back-pause,
+body[data-theme="gold"] .mp-btn-back-pause {
+  background: #b1842c;
+  border-color: #8f6720;
+}
+
+.mp-btn-end-pause-subtle {
+  background: transparent;
+  border: 1px solid rgba(245, 159, 0, 0.35);
+  color: #f59f00;
+}
+
+.mp-btn-end-pause-subtle:hover {
+  background: rgba(245, 159, 0, 0.12);
+  border-color: #f59f00;
+}
+
+/* --------------------------------------------------------------------------
+   Animations & Responsive
+   -------------------------------------------------------------------------- */
+@keyframes mpFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mpZoomIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes mpPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+@media (max-width: 768px) {
+  .market-pause-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  #settings .mp-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .market-pause-modal {
+    padding: 22px 18px;
+  }
+  .mp-modal-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .mp-modal-actions button {
+    width: 100%;
+  }
+}

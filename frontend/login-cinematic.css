@@ -1,79 +1,770 @@
-/* Login artwork and live controls share the reference's three-part composition. */
-#loginShell{--login-accent:#e4c16a;--login-soft:#d9c9a3;--login-border:rgba(221,180,73,.55);--login-glass:rgba(25,19,7,.82);--login-field:rgba(6,7,4,.68);--login-button:linear-gradient(105deg,#b28b48,#efc660 60%,#fff1b2);display:block;overflow:auto;isolation:isolate;background:#050807;color:#f5f2e8;min-height:100dvh;color-scheme:dark}
-body[data-theme="healthy"] #loginShell{--login-accent:#98dfa7;--login-soft:#bdcfbd;--login-border:rgba(149,216,143,.55);--login-glass:rgba(5,32,22,.82);--login-field:rgba(3,17,12,.72);--login-button:linear-gradient(105deg,#53ae8b,#93dca1 60%,#bdec99)}
-#loginShell::after{display:none}
-#loginShell .login-scene{position:fixed;inset:0;z-index:-3;background-position:center;background-size:cover;pointer-events:none;transition:opacity 450ms ease,filter 450ms ease;filter:brightness(.68) saturate(.72) contrast(.92)}
-#loginShell .login-scene-green{background-image:url('../assets/login/healthy-green-login.webp');opacity:0}
-#loginShell .login-scene-gold{background-image:url('../assets/login/premium-gold-login.webp');opacity:1}
-body[data-theme="healthy"] #loginShell .login-scene-green{opacity:1}
-body[data-theme="healthy"] #loginShell .login-scene-gold{opacity:0}
-#loginShell .login-visual{position:absolute;inset:0;min-height:100%;padding:0;border:0;overflow:visible;background:none}
-#loginShell .login-visual::before{content:"";display:block;position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse 32% 66% at 50% 49%,rgba(2,8,5,.52) 0%,rgba(2,8,5,.32) 54%,transparent 100%),linear-gradient(90deg,rgba(0,0,0,.3),transparent 38%,rgba(0,0,0,.18)),linear-gradient(0deg,rgba(0,0,0,.34),transparent 38%);mix-blend-mode:normal}
-#loginShell .login-visual::after{position:fixed;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,0,0,.12),transparent 40%),linear-gradient(0deg,rgba(0,0,0,.18),transparent 22%);height:auto;mix-blend-mode:normal}
-#loginShell .login-brand{position:absolute;top:3.6vh;left:2.8vw;gap:14px}
-#loginShell .login-brand-mark{width:48px;height:48px;border-radius:13px;border-color:var(--login-border);color:var(--login-accent);font:700 22px Georgia,serif}
-#loginShell .login-brand strong{color:#eeeade;font-size:14px;letter-spacing:.08em}
-#loginShell .login-brand small{color:var(--login-accent);font-size:9px;letter-spacing:.22em}
-#loginShell .market-art{position:absolute;left:2.8vw;top:22vh;bottom:auto;max-width:17vw}
-#loginShell .market-art h1{font:500 clamp(36px,2.6vw,64px)/1.06 Georgia,serif;letter-spacing:-.045em;margin:0 0 32px;color:#f5f2e8;text-shadow:0 2px 18px #0008}
-#loginShell .market-art h1 em{color:var(--login-accent);font-style:normal}
-#loginShell .login-editorial{border-left:3px solid var(--login-accent);padding-left:16px}
-#loginShell .market-art p{display:block;margin:0;color:#d0d9c8;font-size:clamp(14px,.79vw,18px);line-height:1.6;text-shadow:0 2px 10px #000;max-width:none}
-body[data-theme="healthy"] #loginShell .market-art{left:4.5vw;max-width:25vw;top:23vh}
-body[data-theme="healthy"] #loginShell .login-brand{left:4.2vw}
-#loginShell .login-foot{display:flex;position:absolute;top:69vh;bottom:auto;left:2.8vw;gap:24px;color:var(--login-soft);text-transform:none;letter-spacing:0}
-#loginShell .login-foot div{display:grid;justify-items:center;gap:4px}
-#loginShell .login-foot span{color:var(--login-accent);font-size:28px;line-height:1}
-#loginShell .login-foot b{font-size:10px;letter-spacing:.025em}
-#loginShell .login-foot small{font-size:11px}
-body[data-theme="healthy"] #loginShell .login-foot{top:auto;bottom:4vh;left:4.2vw}
-#loginShell .login-panel{position:relative;inset:auto;min-height:100dvh;display:flex;justify-content:center;align-items:center;padding:90px 0 52px;pointer-events:none;background:transparent;box-sizing:border-box}
-#loginShell .login-card{pointer-events:auto;width:clamp(400px,21.1vw,550px);max-width:calc(100vw - 32px);margin:0;padding:28px 34px;border:1px solid var(--login-border);border-radius:20px;background:linear-gradient(145deg,rgba(255,229,151,.035),transparent 40%),var(--login-glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 28px 70px #0008,inset 0 1px 0 #ffffff0d;color:#f5f2e8}
-#loginShell .login-card .login-kicker{color:var(--login-accent);font-size:11px;font-weight:800;letter-spacing:.18em;text-align:center}
-#loginShell .login-card h2{margin:10px -10px;font:500 clamp(29px,1.65vw,42px)/1.15 Georgia,serif;letter-spacing:-.035em;color:#f5f2e8;text-align:center}
-#loginShell .login-card>p{color:#b8b9a9;text-align:center;font-size:14px;line-height:1.45;margin:0 0 22px}
-#loginShell .login-theme-picker{display:flex;width:max-content;max-width:100%;gap:2px;padding:4px;margin:0 auto 22px;background:#0003;border:1px solid var(--login-border);border-radius:11px}
-#loginShell .theme-choice{display:flex;align-items:center;justify-content:center;white-space:nowrap;font-family:inherit;font-weight:600;font-size:12px;line-height:1.2;letter-spacing:0;padding:9px 12px;min-height:36px;color:#c8c9bb;border-radius:7px}
-#loginShell .theme-choice.active{background:var(--login-button);color:#163022;border:1px solid #ffffff55;box-shadow:0 0 12px #a9ca8522}
-#loginShell .theme-choice[data-theme-choice="gold"].active{color:#35260c}
-#loginShell .login-form{border:0;background:none;padding:0}
-#loginShell .login-field{margin:0 0 16px}
-#loginShell .login-field label{color:var(--login-accent);font-size:13px;font-weight:700;margin-bottom:7px}
-#loginShell .login-field input{height:46px;border:1px solid var(--login-border);border-radius:7px;background:var(--login-field);color:#f8f4e8;font-size:15px;box-shadow:inset 0 1px 5px #0002}
-#loginShell .login-field input::placeholder{color:#a0a394;opacity:1}
-#loginShell .login-field input:focus{border-color:var(--login-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--login-accent) 18%,transparent)}
-#loginShell .login-email-input{position:relative}
-#loginShell .login-email-input>span{position:absolute;top:50%;left:14px;transform:translateY(-50%);color:var(--login-soft)}
-#loginShell .login-email-input input{padding-left:38px}
-#loginShell .password-visibility{color:var(--login-soft);width:40px;height:40px;right:4px}
-#loginShell .login-submit{height:48px;margin-top:3px;background:var(--login-button);border:1px solid #fff7;border-radius:8px;color:#16291b;font-size:14px;font-weight:800;box-shadow:inset 0 1px 0 #fff5,0 6px 24px #0003;transition:transform 200ms,filter 200ms,background 450ms}
-body:not([data-theme="healthy"]) #loginShell .login-submit{color:#201707}
-#loginShell .login-submit::after{content:' →';font-size:20px;margin-left:5px}
-#loginShell .login-submit:hover{transform:translateY(-1px);filter:brightness(1.06)}
-#loginShell .login-submit:disabled{opacity:.65;cursor:wait;transform:none}
-#loginShell .login-meta{gap:12px;margin-top:12px;font-size:12px;color:#c3c3b4;align-items:center}
-#loginShell .login-meta label,#loginShell .login-meta button{min-height:32px}
-#loginShell .login-meta button{color:var(--login-accent);font:inherit}
-#loginShell .login-meta input{accent-color:var(--login-accent);width:14px;height:14px}
-#loginShell .login-card>.login-signup-prompt{border-top:1px solid color-mix(in srgb,var(--login-accent) 22%,transparent);padding-top:14px;margin:14px 0 0;font-size:13px;color:#bbbfae}
-#loginShell #openSignup{background:transparent;color:var(--login-accent);border:0;text-decoration:underline;text-underline-offset:4px;font-size:13px;font-weight:700;padding:7px;cursor:pointer}
-#loginShell .login-demo{font-size:13px;line-height:1.45;color:#ffc0b8;margin:12px 0 0}
-#loginShell .login-demo:empty{display:none}
-#loginShell .login-language-picker{top:3.4vh;right:2.8vw;background:#070e09aa;border-color:var(--login-border)}
-#loginShell .language-choice{min-height:32px;font-size:12px}
-#loginShell .language-choice.active{background:var(--login-button);color:#14251a}
-#loginShell button:focus-visible{outline:2px solid var(--login-accent);outline-offset:4px}
-#loginShell .login-mantra{position:absolute;right:2.8vw;top:15vh;display:grid;gap:10px;padding:20px 0;color:var(--login-accent);font-size:11px;letter-spacing:.4em;opacity:.8;pointer-events:none}
-#loginShell .login-mantra::before,#loginShell .login-mantra::after{content:'';width:38px;height:1px;background:var(--login-accent);margin:0 0 10px}
-#loginShell .login-mantra::after{margin:10px 0 0}
-#loginShell .login-card,#loginShell .login-brand-mark,#loginShell h1 em,#loginShell button,#loginShell input{transition:background-color 450ms,border-color 450ms,color 450ms,box-shadow 450ms}
-@media(min-width:1900px){#loginShell .login-card{padding:30px 38px}#loginShell .login-field input{height:50px}#loginShell .login-submit{height:50px}#loginShell .login-card>p{font-size:15px}}
-@media(max-width:1200px){#loginShell .market-art{max-width:27vw;left:3vw}#loginShell .market-art h1{font-size:36px}#loginShell .login-panel{justify-content:flex-end;padding-right:12vw}#loginShell .login-foot{gap:14px;left:3vw}#loginShell .login-mantra{display:none}#loginShell .login-scene{background-position:60% center}}
-@media(max-width:800px){#loginShell .login-visual{position:relative;inset:auto;min-height:0;padding:95px 24px 24px}#loginShell .login-brand,body[data-theme="healthy"] #loginShell .login-brand{top:22px;left:24px}#loginShell .login-brand strong{font-size:11px;max-width:220px}#loginShell .login-brand small{font-size:7px}#loginShell .login-brand-mark{width:40px;height:40px}#loginShell .market-art,body[data-theme="healthy"] #loginShell .market-art{position:relative;inset:auto;display:block;max-width:440px;margin:auto}#loginShell .market-art h1{font-size:34px;margin-bottom:0}#loginShell .login-editorial,#loginShell .login-foot{display:none}#loginShell .login-panel{min-height:0;padding:0 16px 32px;justify-content:center}#loginShell .login-card{width:440px;padding:25px}#loginShell .login-scene{background-position:72% center}#loginShell .login-visual::after{background:#0006}#loginShell .login-language-picker{top:24px;right:16px}#loginShell .login-card h2{font-size:31px}}
-@media(max-width:440px){#loginShell .login-brand strong{font-size:9px;max-width:150px}#loginShell .login-brand small{font-size:6px;letter-spacing:.12em}#loginShell .login-brand{gap:8px}#loginShell .language-choice{min-width:30px;padding:6px}#loginShell .market-art h1{font-size:31px}#loginShell .login-card{padding:24px 20px}#loginShell .theme-choice{padding:8px 9px;font-size:11px}#loginShell .login-meta{font-size:11px}}
-@media(prefers-reduced-motion:reduce){#loginShell,#loginShell *{transition:none!important;animation:none!important}}
-/* Match the reference's card height while retaining comfortable input targets. */
-@media(min-width:1201px){#loginShell .login-panel{padding:60px 0}#loginShell .login-card{padding-top:25px;padding-bottom:24px}#loginShell .login-card>p:not(.login-signup-prompt){margin-bottom:18px}#loginShell .login-theme-picker{margin-bottom:17px}#loginShell .login-field{margin-bottom:13px}}
-#loginShell .login-foot svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-#loginShell .password-visibility svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7}
-@media(min-width:801px) and (max-aspect-ratio:2/1){#loginShell .login-scene{background-position:70% center}#loginShell .login-mantra{display:none}#loginShell .login-visual::after{background:linear-gradient(90deg,#0009,transparent 45%)}}
+/* ═══════════════════════════════════════════════════════════════════════
+   THE HEALTHY TREND TRADER — CINEMATIC LOGIN
+   Temas: Healthy Green + Premium Gold
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Tokens e Variáveis de Tema ─────────────────────────────────── */
+#loginShell {
+  /* Padrão: PREMIUM GOLD */
+  --login-bg: #050605;
+  --login-card-bg: rgba(14, 13, 9, 0.84);
+  --login-card-border: rgba(212, 175, 55, 0.36);
+  --login-card-highlight: rgba(250, 204, 21, 0.55);
+  --login-card-shadow: 0 28px 75px -10px rgba(0, 0, 0, 0.85);
+  --login-accent: #d4af37;
+  --login-accent-bright: #facc15;
+  --login-accent-glow: rgba(234, 179, 8, 0.22);
+  --login-headline-accent: #eab308;
+  --login-line-color: #d4af37;
+  --login-cta-bg: linear-gradient(90deg, #fde047 0%, #facc15 50%, #eab308 100%);
+  --login-cta-text: #1a1606;
+  --login-cta-shadow: rgba(234, 179, 8, 0.35);
+  --login-input-bg: rgba(6, 6, 4, 0.78);
+  --login-input-border: rgba(255, 255, 255, 0.08);
+  --login-input-focus: rgba(212, 175, 55, 0.7);
+  --login-icon-color: #eab308;
+  --login-pill-active-bg: #facc15;
+  --login-pill-active-text: #1a1606;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--login-bg);
+  color: #f5f5f5;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+#loginShell.hidden {
+  display: none !important;
+}
+
+/* TEMA 1 — HEALTHY GREEN */
+body[data-theme="healthy"] #loginShell {
+  --login-bg: #040806;
+  --login-card-bg: rgba(8, 14, 10, 0.84);
+  --login-card-border: rgba(52, 211, 153, 0.3);
+  --login-card-highlight: rgba(52, 211, 153, 0.55);
+  --login-card-shadow: 0 28px 75px -10px rgba(0, 0, 0, 0.85);
+  --login-accent: #34d399;
+  --login-accent-bright: #6ee7b7;
+  --login-accent-glow: rgba(52, 211, 153, 0.22);
+  --login-headline-accent: #34d399;
+  --login-line-color: #10b981;
+  --login-cta-bg: linear-gradient(90deg, #6ee7b7 0%, #86efac 50%, #a7f3d0 100%);
+  --login-cta-text: #064e3b;
+  --login-cta-shadow: rgba(52, 211, 153, 0.35);
+  --login-input-bg: rgba(3, 7, 5, 0.78);
+  --login-input-border: rgba(255, 255, 255, 0.08);
+  --login-input-focus: rgba(52, 211, 153, 0.7);
+  --login-icon-color: #34d399;
+  --login-pill-active-bg: #34d399;
+  --login-pill-active-text: #042f1a;
+}
+
+/* ── 2. Cenas de Background Cinematográficas ───────────────────────── */
+#loginShell::before,
+#loginShell::after {
+  content: none !important;
+  display: none !important;
+}
+
+#loginShell .login-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background-position: right center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  pointer-events: none;
+  transition: opacity 500ms ease, filter 500ms ease;
+  filter: brightness(0.95) contrast(1.04);
+}
+
+#loginShell .login-scene-green {
+  background-image: url('../assets/login/healthy-green-bg.png');
+  opacity: 0;
+  visibility: hidden;
+}
+
+#loginShell .login-scene-gold {
+  background-image: url('../assets/login/premium-gold-bg.png');
+  opacity: 1;
+  visibility: visible;
+}
+
+body[data-theme="healthy"] #loginShell .login-scene-green {
+  opacity: 1;
+  visibility: visible;
+}
+
+body[data-theme="healthy"] #loginShell .login-scene-gold {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Vinheta de Proteção de Contraste — Preserva a legibilidade do texto e card em qualquer resolução */
+#loginShell .login-scene-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(90deg, #050605 0%, rgba(5, 6, 5, 0.94) 28%, rgba(5, 6, 5, 0.68) 46%, rgba(5, 6, 5, 0.15) 68%, transparent 100%);
+}
+
+body[data-theme="healthy"] #loginShell .login-scene-overlay {
+  background: linear-gradient(90deg, #040806 0%, rgba(4, 8, 6, 0.94) 28%, rgba(4, 8, 6, 0.68) 46%, rgba(4, 8, 6, 0.15) 68%, transparent 100%);
+}
+
+/* ── 3. Top Bar (Tema & Idioma) ────────────────────────────────────── */
+#loginShell .login-top-bar {
+  position: absolute;
+  top: 28px;
+  right: 36px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#loginShell .login-theme-picker,
+#loginShell .login-language-picker {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 99px;
+  background: rgba(12, 16, 14, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+body[data-theme="healthy"] #loginShell .login-theme-picker,
+body[data-theme="healthy"] #loginShell .login-language-picker {
+  background: rgba(8, 16, 12, 0.7);
+  border-color: rgba(52, 211, 153, 0.18);
+}
+
+body:not([data-theme="healthy"]) #loginShell .login-theme-picker,
+body:not([data-theme="healthy"]) #loginShell .login-language-picker {
+  background: rgba(14, 13, 9, 0.7);
+  border-color: rgba(212, 175, 55, 0.18);
+}
+
+#loginShell .login-theme-picker .theme-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+#loginShell .login-theme-picker .theme-choice:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+#loginShell .login-theme-picker .theme-swatch {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#loginShell .login-theme-picker .theme-choice[data-theme-choice="healthy"] .theme-swatch {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+#loginShell .login-theme-picker .theme-choice[data-theme-choice="gold"] .theme-swatch {
+  background: #facc15;
+  box-shadow: 0 0 6px rgba(250, 204, 21, 0.6);
+}
+
+#loginShell .login-theme-picker .theme-choice.active,
+#loginShell .login-theme-picker .theme-choice[aria-pressed="true"] {
+  background: var(--login-pill-active-bg);
+  color: var(--login-pill-active-text);
+  font-weight: 850;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+#loginShell .login-theme-picker .theme-choice.active .theme-swatch,
+#loginShell .login-theme-picker .theme-choice[aria-pressed="true"] .theme-swatch {
+  transform: scale(1.15);
+}
+
+#loginShell .language-choice {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 5px 11px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#loginShell .language-choice:hover {
+  color: #ffffff;
+}
+
+#loginShell .language-choice.active,
+#loginShell .language-choice[aria-pressed="true"] {
+  background: var(--login-pill-active-bg);
+  color: var(--login-pill-active-text);
+  font-weight: 850;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ── 4. Grid Container Principal ───────────────────────────────────── */
+#loginShell .login-container {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 36px clamp(24px, 3.5vw, 64px);
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(320px, 1.1fr) minmax(390px, 450px) minmax(280px, 1.1fr);
+  align-items: center;
+  gap: clamp(24px, 3vw, 56px);
+  min-height: 100vh;
+}
+
+/* ── 5. Coluna Esquerda: Marca + Manifesto + Pilares ───────────────── */
+#loginShell .login-manifesto-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  max-height: 720px;
+  padding: 12px 0;
+  box-sizing: border-box;
+}
+
+/* Marca HT */
+#loginShell .login-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#loginShell .login-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--login-card-border);
+  background: rgba(10, 14, 11, 0.7);
+  color: var(--login-accent);
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+#loginShell .login-brand-text strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #f3f4f6;
+}
+
+#loginShell .login-brand-text small {
+  display: block;
+  margin-top: 3px;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.22em;
+  color: var(--login-accent);
+  text-transform: uppercase;
+}
+
+/* Headline Editorial */
+#loginShell .login-headline-area {
+  margin: 36px 0;
+}
+
+#loginShell .login-headline-area h1 {
+  margin: 0;
+  font-family: Georgia, "Playfair Display", "Times New Roman", serif;
+  font-size: clamp(34px, 3.1vw, 50px);
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.035em;
+  color: #ffffff;
+}
+
+#loginShell .login-headline-area h1 em {
+  font-style: normal;
+  display: block;
+  color: var(--login-headline-accent);
+}
+
+#loginShell .login-accent-line {
+  width: 32px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--login-line-color);
+  margin: 22px 0 20px;
+}
+
+#loginShell .login-editorial p {
+  margin: 0 0 4px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #8da498;
+  max-width: 420px;
+}
+
+/* Pilares Inferiores Minimalistas */
+#loginShell .login-foot {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#loginShell .login-foot > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+#loginShell .login-foot > div:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  padding-right: 12px;
+}
+
+#loginShell .login-foot span {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 5px;
+  color: var(--login-icon-color);
+  font-size: 20px;
+}
+
+#loginShell .login-foot svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--login-icon-color);
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#loginShell .login-foot b {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #e5ede7;
+  text-transform: uppercase;
+}
+
+#loginShell .login-foot small {
+  font-size: 10.5px;
+  color: #637f70;
+  letter-spacing: 0.01em;
+}
+
+/* ── 6. Coluna Central: Card de Login (Foreground Protagonista) ───── */
+#loginShell .login-card-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loginShell .login-card {
+  width: 100%;
+  max-width: 446px;
+  padding: 38px 40px 30px;
+  box-sizing: border-box;
+  background: var(--login-card-bg);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-radius: 20px;
+  border: 1px solid var(--login-card-border);
+  box-shadow: 
+    var(--login-card-shadow),
+    inset 0 1px 0 var(--login-card-highlight);
+  position: relative;
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+#loginShell .login-kicker {
+  font-size: 9.5px;
+  font-weight: 850;
+  letter-spacing: 0.22em;
+  color: var(--login-accent);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+#loginShell .login-card h2 {
+  margin: 0 0 6px;
+  font-family: Georgia, "Playfair Display", "Times New Roman", serif;
+  font-size: clamp(25px, 2.1vw, 32px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+  text-align: center;
+}
+
+#loginShell .login-card > p {
+  margin: 0 0 24px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #9ca3af;
+  text-align: center;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Formulário de Autenticação */
+#loginShell .login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+#loginShell .login-field {
+  margin-bottom: 16px;
+}
+
+#loginShell .login-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #d1d5db;
+  margin-bottom: 6px;
+}
+
+#loginShell .login-email-input,
+#loginShell .password-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+#loginShell .login-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+#loginShell .login-field input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px 0 40px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: var(--login-input-bg);
+  border: 1px solid var(--login-input-border);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13.5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+#loginShell .password-input input {
+  padding-right: 42px;
+}
+
+#loginShell .login-field input::placeholder {
+  color: #4b5563;
+  opacity: 1;
+}
+
+#loginShell .login-field input:focus {
+  border-color: var(--login-input-focus);
+  box-shadow: 0 0 0 3px var(--login-accent-glow), inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+#loginShell .password-visibility {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+#loginShell .password-visibility:hover {
+  color: #e5e7eb;
+}
+
+#loginShell .password-visibility svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+/* Botão Submit com Gradiente Nobre */
+#loginShell .login-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 46px;
+  margin-top: 6px;
+  border-radius: 8px;
+  border: none;
+  background: var(--login-cta-bg);
+  color: var(--login-cta-text);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 6px 20px -2px var(--login-cta-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+}
+
+#loginShell .login-submit .submit-arrow {
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+#loginShell .login-submit:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 8px 24px -2px var(--login-cta-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+#loginShell .login-submit:hover .submit-arrow {
+  transform: translateX(3px);
+}
+
+#loginShell .login-submit:active {
+  transform: translateY(0);
+}
+
+#loginShell .login-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+/* Linha de Metadados (Manter conectado & Esqueci minha senha) */
+#loginShell .login-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  font-size: 11.5px;
+  color: #9ca3af;
+}
+
+#loginShell .login-meta label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#loginShell .login-meta input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--login-accent);
+  cursor: pointer;
+}
+
+#loginShell .login-forgot-btn {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-family: inherit;
+  font-size: 11.5px;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+#loginShell .login-forgot-btn:hover {
+  color: #e5e7eb;
+}
+
+/* Prompt Novo por aqui? Crie sua conta */
+#loginShell .login-signup-prompt {
+  text-align: center;
+  margin: 22px 0 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+#loginShell #openSignup {
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+#loginShell #openSignup:hover {
+  color: var(--login-accent-bright);
+}
+
+#loginShell .login-demo {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #f87171;
+  text-align: center;
+}
+
+#loginShell .login-demo:empty {
+  display: none;
+}
+
+/* ── 7. Coluna Direita (Área de Respiro para a Arte) ──────────────── */
+#loginShell .login-art-col {
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ── 8. Responsividade Refinada ────────────────────────────────────── */
+@media (max-width: 1280px) {
+  #loginShell .login-container {
+    grid-template-columns: minmax(300px, 1fr) minmax(360px, 420px);
+    gap: 32px;
+    padding: 32px 36px;
+  }
+  #loginShell .login-art-col {
+    display: none;
+  }
+  #loginShell .login-headline-area h1 {
+    font-size: clamp(30px, 2.7vw, 40px);
+  }
+}
+
+@media (max-width: 960px) {
+  #loginShell .login-container {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding: 80px 24px 40px;
+    min-height: auto;
+  }
+  #loginShell .login-manifesto-col {
+    align-items: center;
+    text-align: center;
+    max-height: none;
+    margin-bottom: 24px;
+  }
+  #loginShell .login-accent-line {
+    margin: 18px auto 16px;
+  }
+  #loginShell .login-foot {
+    display: none; /* Oculta pilares em telas compactas conforme requisitos */
+  }
+  #loginShell .login-card {
+    max-width: 440px;
+  }
+  #loginShell .login-top-bar {
+    top: 18px;
+    right: 20px;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 560px) {
+  #loginShell .login-top-bar {
+    top: 14px;
+    right: 14px;
+    gap: 6px;
+  }
+  #loginShell .login-theme-picker .theme-choice-text {
+    display: none;
+  }
+  #loginShell .login-theme-picker .theme-choice {
+    padding: 6px 9px;
+  }
+  #loginShell .login-theme-picker .theme-swatch {
+    margin: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  #loginShell .login-container {
+    padding: 70px 16px 30px;
+  }
+  #loginShell .login-card {
+    padding: 28px 20px 22px;
+  }
+  #loginShell .login-headline-area h1 {
+    font-size: 26px;
+  }
+  #loginShell .login-editorial p {
+    font-size: 12px;
+  }
+  #loginShell .login-brand strong {
+    font-size: 11.5px;
+  }
+  #loginShell .login-brand small {
+    font-size: 7.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #loginShell,
+  #loginShell * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
