@@ -76,7 +76,8 @@
     const hasTech = Boolean(t.marketState || (t.session && t.session.trim()) || t.executionScore != null || t.planRespected || (t.tradeIds && t.tradeIds.length));
     const hasEmot = Boolean((e.states && e.states.length) || e.intensity != null || (e.note && e.note.trim()) || e.impact || (e.impactNote && e.impactNote.trim()));
     const hasShared = Boolean((s.lesson && s.lesson.trim()) || (s.patterns && s.patterns.trim()) || (s.observations && s.observations.trim()));
-    return !hasTech && !hasEmot && !hasShared;
+    const hasTrades = Boolean(Array.isArray(record.trades) && record.trades.length > 0);
+    return !hasTech && !hasEmot && !hasShared && !hasTrades;
   }
 
   /**
@@ -222,6 +223,45 @@
         lines.push(s.patterns.trim());
         lines.push('');
       }
+
+      if (Array.isArray(r.trades) && r.trades.length > 0) {
+        lines.push('TRADES DO DIA:');
+        lines.push('');
+        r.trades.forEach((tr, trIdx) => {
+          const dir = tr.direction === 'short' ? 'SHORT (Venda)' : 'LONG (Compra)';
+          lines.push(`Trade #${trIdx + 1}: ${tr.ticker || 'ATIVO'} (${dir})`);
+          const trigger = tr.setup || tr.setupTrigger || 'Não informado';
+          lines.push(`- Gatilho de Entrada: ${trigger} · Grade: ${tr.grade || '—'} · Timeframe: ${tr.timeframe || '—'} · Entrada: ${tr.entryTime || '—'}`);
+          const ex = tr.execution || {};
+          const exParts = [];
+          if (ex.entryPrice != null) exParts.push(`Entrada: ${ex.entryPrice}`);
+          if (ex.initialStop != null) exParts.push(`Stop inicial: ${ex.initialStop}`);
+          if (ex.chartRisk) exParts.push(`Risco gráfico: ${ex.chartRisk}`);
+          if (ex.positionSize) exParts.push(`Tamanho: ${ex.positionSize}`);
+          if (ex.oneR) exParts.push(`1R: ${ex.oneR}`);
+          if (exParts.length) lines.push(`- Execução: ${exParts.join(' | ')}`);
+          if (tr.whatISaw) lines.push(`- O que vi: ${tr.whatISaw.trim()}`);
+          if (tr.whyIEntered) lines.push(`- Por que entrei: ${tr.whyIEntered.trim()}`);
+          const mg = tr.management || {};
+          const mgParts = [];
+          if (mg.movementNotes) mgParts.push(`Movimentação: ${mg.movementNotes}`);
+          if (mg.stopAdjustments) mgParts.push(`Ajustes de stop: ${mg.stopAdjustments}`);
+          if (mg.partialExits) mgParts.push(`Parciais: ${mg.partialExits}`);
+          if (mg.additions) mgParts.push(`Adições: ${mg.additions}`);
+          if (mg.exitPrice != null) mgParts.push(`Saída: ${mg.exitPrice}`);
+          if (mg.result) mgParts.push(`Resultado: ${mg.result}`);
+          if (mg.rMultiple) mgParts.push(`R múltiplo: ${mg.rMultiple}`);
+          if (mgParts.length) lines.push(`- Acompanhamento: ${mgParts.join(' | ')}`);
+          const pt = tr.postTrade || {};
+          const ptParts = [];
+          if (pt.planRespected) ptParts.push(`Plano: ${planRespectedLabel(pt.planRespected)}`);
+          if (pt.whatWentRight) ptParts.push(`Certo: ${pt.whatWentRight}`);
+          if (pt.whatWentWrong) ptParts.push(`Errado: ${pt.whatWentWrong}`);
+          if (pt.lessonsLearned) ptParts.push(`Aprendizado: ${pt.lessonsLearned}`);
+          if (ptParts.length) lines.push(`- Pós-Trade: ${ptParts.join(' | ')}`);
+          lines.push('');
+        });
+      }
     });
 
     if (forAi && records.length > 0) {
@@ -295,6 +335,22 @@
           lesson: r.shared?.lesson || '',
           patterns: r.shared?.patterns || ''
         };
+
+        if (Array.isArray(r.trades) && r.trades.length > 0) {
+          item.trades = r.trades.map(tr => ({
+            id: tr.id,
+            ticker: tr.ticker,
+            direction: tr.direction,
+            setup: tr.setup,
+            setupTrigger: tr.setupTrigger,
+            grade: tr.grade,
+            timeframe: tr.timeframe,
+            entryTime: tr.entryTime,
+            execution: tr.execution,
+            management: tr.management,
+            postTrade: tr.postTrade
+          }));
+        }
 
         return item;
       })

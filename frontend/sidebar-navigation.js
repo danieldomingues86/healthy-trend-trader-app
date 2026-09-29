@@ -255,7 +255,7 @@
   const FOOTER_STRUCTURE = [
     {
       id: 'materials',
-      label: 'Trader Store',
+      label: 'Loja do Trader',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>`,
       page: 'materials'
     },
@@ -366,9 +366,14 @@
     }
 
     localizedLabel(page, fallback) {
-      return typeof root.getNavigationLabel === 'function'
-        ? root.getNavigationLabel(page, fallback)
-        : fallback;
+      if (typeof root.getNavigationLabel === 'function') {
+        const custom = root.getNavigationLabel(page);
+        if (custom) return custom;
+      }
+      if (typeof root.uiText === 'function') {
+        return root.uiText(fallback);
+      }
+      return fallback;
     }
 
     refresh() {
@@ -435,7 +440,7 @@
             ${this.renderFooterItems()}
           </div>
           <div class="sidebar-quote-card">
-            <p class="sidebar-quote-text">“Disciplina transforma oportunidades em resultados.”</p>
+            <p class="sidebar-quote-text">${root.appLanguage === 'en-US' ? '“Discipline turns opportunities into results.”' : '“Disciplina transforma oportunidades em resultados.”'}</p>
           </div>
         </footer>
       `;
@@ -460,7 +465,7 @@
         if (block.groupLabel) {
           return `
             <div class="sidebar-group">
-              <span class="sidebar-group-label">${block.groupLabel}</span>
+              <span class="sidebar-group-label">${this.localizedLabel(block.id, block.groupLabel)}</span>
               ${block.items.map((item) => this.renderDirectButton(item)).join('')}
             </div>
           `;
@@ -485,22 +490,12 @@
 
     renderDirectButton(item) {
       const label = this.localizedLabel(item.page, item.label);
-      return `
-        <button class="sidebar-btn nav-btn" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${label}">
-          <span class="sidebar-btn-ico">${item.icon}</span>
-          <span class="sidebar-btn-label">${label}</span>
-        </button>
-      `;
+      return `<button class="sidebar-btn nav-btn" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${label}"><span class="sidebar-btn-ico">${item.icon}</span><span class="sidebar-btn-label">${label}</span></button>`;
     }
 
     renderGroupButton(group) {
-      return `
-        <button class="sidebar-btn sidebar-group-trigger" type="button" data-group-id="${group.id}" data-label="${group.label}" aria-haspopup="true" aria-expanded="false">
-          <span class="sidebar-btn-ico">${group.icon}</span>
-          <span class="sidebar-btn-label">${group.label}</span>
-          <span class="sidebar-btn-arrow">›</span>
-        </button>
-      `;
+      const label = this.localizedLabel(group.id, group.label);
+      return `<button class="sidebar-btn sidebar-group-trigger" type="button" data-group-id="${group.id}" data-label="${label}" aria-haspopup="true" aria-expanded="false"><span class="sidebar-btn-ico">${group.icon}</span><span class="sidebar-btn-label">${label}</span><span class="sidebar-btn-arrow">›</span></button>`;
     }
 
     bindSidebarEvents(sidebar) {
@@ -592,8 +587,8 @@
       // Render flyout content
       this.flyoutEl.innerHTML = `
         <div class="flyout-header">
-          <span>${groupDef.header || groupDef.label}</span>
-          ${isPinned ? '<span style="font-size:9px; color:#638271; font-weight:600; cursor:pointer;" title="Clique para desfixar">FIXADO (ESC)</span>' : ''}
+          <span>${this.localizedLabel(groupDef.id, groupDef.header || groupDef.label)}</span>
+          ${isPinned ? (root.appLanguage === 'en-US' ? '<span style="font-size:9px; color:#638271; font-weight:600; cursor:pointer;" title="Click to unpin">PINNED (ESC)</span>' : '<span style="font-size:9px; color:#638271; font-weight:600; cursor:pointer;" title="Clique para desfixar">FIXADO (ESC)</span>') : ''}
         </div>
         <div class="flyout-items-list nav">
           ${groupDef.items.map((sub) => {
@@ -768,12 +763,31 @@
       // Breadcrumb customization for grouped pages
       const crumb = document.getElementById('crumb');
       if (crumb) {
+        let found = false;
         for (const group of allGroups) {
           const matchedItem = group.items.find((sub) => sub.page === pageId);
           if (matchedItem) {
-            crumb.textContent = `${group.label} / ${matchedItem.title}`;
+            crumb.innerHTML = `${group.label} / <b>${matchedItem.title}</b>`;
+            found = true;
             break;
           }
+        }
+        if (!found) {
+          const titleMap = {
+            today: 'Meu Desktop',
+            newtrade: 'Novo Trade',
+            journal: 'Diário do Trader',
+            dailyroutine: 'Rotina Diária',
+            watchlist: 'Watchlist',
+            habits: 'Monitor de Hábitos',
+            plans: 'Loja do Trader',
+            materials: 'Loja do Trader',
+            settings: 'Configurações Gerais',
+            manual: 'Manual do Software',
+            about: 'Sobre'
+          };
+          const t = titleMap[pageId] || (typeof titles !== 'undefined' && titles[pageId]) || 'Meu Desktop';
+          crumb.innerHTML = `The Healthy Trend Trader / <b>${t}</b>`;
         }
       }
     }

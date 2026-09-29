@@ -87,3 +87,32 @@ test('normaliza eventos de gestão de posição', () => {
   assert.throws(() => normalizePositionEvent('peeloff', { qty: 1.5, price: 52 }), /inteiro/);
   assert.equal(normalizePositionEvent('peeloff', { qty: 2, price: 52, occurredAt: '2026-09-15T10:30:00-03:00' }).occurredAt, '2026-09-15T13:30:00.000Z');
 });
+
+test('normaliza e valida setupTrigger com catálogo oficial dos 5 gatilhos', () => {
+  const plan1 = normalizePlan({
+    asset: 'PETR4', entry: 38.5, stop: 36.5, atr: 1.2, suggestedQty: 100, executedQty: 100,
+    riskPct: .002, grade: 'B', setupTrigger: 'INSIDE_BAR'
+  });
+  assert.equal(plan1.setupTrigger, 'INSIDE_BAR');
+  assert.equal(plan1.setup, 'Inside Bar');
+
+  const plan2 = normalizePlan({
+    asset: 'VALE3', entry: 60.0, stop: 58.0, atr: 1.5, suggestedQty: 100, executedQty: 100,
+    riskPct: .002, grade: 'B', setupTrigger: '1-2-3 de Compra'
+  });
+  assert.equal(plan2.setupTrigger, '123_COMPRA');
+  assert.equal(plan2.setup, '1-2-3 de Compra');
+
+  assert.throws(() => normalizePlan({
+    asset: 'WEGE3', entry: 50, stop: 48, suggestedQty: 100, executedQty: 100,
+    riskPct: .002, grade: 'B', setupTrigger: 'GATILHO_INVALIDO'
+  }), /Gatilho de entrada inválido/);
+
+  // Trade legado sem setupTrigger: mantém null e não falha
+  const legacy = normalizePlan({
+    asset: 'ITUB4', entry: 30, stop: 29, suggestedQty: 100, executedQty: 100,
+    riskPct: .002, grade: 'B'
+  });
+  assert.equal(legacy.setupTrigger, null);
+});
+

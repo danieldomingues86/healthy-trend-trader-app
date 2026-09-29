@@ -67,3 +67,76 @@ test('old scores parse without inventing a score for unknown or missing values',
   assert.equal(M.score('8,7 / 10'), 8.7);
   for (const value of ['', null, '— / 10', '12 / 10', '-1']) assert.equal(M.score(value), null);
 });
+
+test('createTrade, addTrade and removeTrade manage individual child trades of the day', () => {
+  const day = M.blank('2026-09-28');
+  assert.deepEqual(day.trades, []);
+
+  const trade = M.addTrade(day, {
+    ticker: 'msft',
+    direction: 'long',
+    setup: 'Contração de Volatilidade',
+    grade: 'A',
+    timeframe: 'Diário + 4H',
+    entryTime: '10:30',
+    whatISaw: 'Contração na MM21 com volume seco',
+    whyIEntered: 'Risco/retorno 3:1 com mercado saudável',
+    execution: { entryPrice: 420.5, initialStop: 410, chartRisk: '2.5%', positionSize: '300 ações', oneR: 'R$ 3.150' },
+    management: { rMultiple: '+2.5R' },
+    postTrade: { planRespected: 'yes', whatWentRight: 'Esperei o fechamento do candle' }
+  });
+
+  assert.equal(trade.ticker, 'MSFT');
+  assert.equal(trade.direction, 'long');
+  assert.equal(trade.grade, 'A');
+  assert.equal(day.trades.length, 1);
+  assert.equal(day.trades[0].id, trade.id);
+  assert.equal(day.trades[0].execution.entryPrice, 420.5);
+
+  const trade2 = M.addTrade(day, { ticker: 'AAPL', direction: 'short' });
+  assert.equal(day.trades.length, 2);
+
+  const removed = M.removeTrade(day, trade.id);
+  assert.equal(removed, true);
+  assert.equal(day.trades.length, 1);
+  assert.equal(day.trades[0].ticker, 'AAPL');
+});
+
+test('loading V2 storage without trades field automatically initializes trades as an array', () => {
+  const rawV2 = JSON.stringify({
+    version: 2,
+    records: [{
+      id: 'day-2026-09-28',
+      date: '2026-09-28',
+      technical: { market: 'ibov', session: 'Sem trades' },
+      emotional: { states: ['Calmo'] },
+      shared: { lesson: 'Paciência' },
+      evidence: [],
+      legacyEntries: []
+    }]
+  });
+  const s = storage({ [M.KEY]: rawV2 });
+  const data = M.load(s);
+  assert.ok(Array.isArray(data.records[0].trades));
+  assert.equal(data.records[0].trades.length, 0);
+});
+
+test('createTrade initializes setupTrigger from catalog and falls back cleanly for legacy trades', () => {
+  const t1 = M.createTrade({ ticker: 'WEGE3', setupTrigger: 'INSIDE_BAR' });
+  assert.equal(t1.setupTrigger, 'INSIDE_BAR');
+  assert.equal(t1.setup, 'Inside Bar');
+
+  const t2 = M.createTrade({ ticker: 'VALE3', setup: 'Dave Landry' });
+  assert.equal(t2.setupTrigger, 'DAVE_LANDRY');
+  assert.equal(t2.setup, 'Dave Landry');
+
+  const t3 = M.createTrade({ ticker: 'PETR4', setup: 'RBI' });
+  assert.equal(t3.setupTrigger, 'RBI');
+  assert.equal(t3.setup, 'Barra Vermelha Ignorada (RBI)');
+
+  const tLegacy = M.createTrade({ ticker: 'BBAS3' });
+  assert.equal(tLegacy.setupTrigger, null);
+  assert.equal(tLegacy.setup, 'Não informado');
+});
+
+

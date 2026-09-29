@@ -1,6 +1,6 @@
 (function () {
   const api = window.MARKET_DATA_API_URL || 'http://localhost:8787/api';
-  let market = { cycle: null, ranking: null, scans: null, error: null };
+  let market = { cycle: null, cycles: {}, ranking: null, scans: null, error: null };
   let loading = false;
   let loadedAt = 0;
   const dashboardStorageKey = 'healthy-home-widget-dashboard-v4';
@@ -23,6 +23,130 @@
   const healthy = () => Boolean(market.cycle?.cycle && Number(market.cycle.cycle.price) > Number(market.cycle.cycle.ema20) && Number(market.cycle.cycle.price) > Number(market.cycle.cycle.ema200));
   const updateText = (value) => value ? new Date(value).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : 'sem atualização disponível';
   const firstName = () => String(profileState?.name || 'Trader').trim().split(/\s+/)[0] || 'Trader';
+
+  const CYCLE_MARKETS = [
+    { id: 'stock_b3', label: 'IBOV', benchmark: 'IBOV', name: 'Ações B3' },
+    { id: 'bdr', label: 'BDR', benchmark: 'BDRX', name: 'BDRs' },
+    { id: 'fii', label: 'IFIX', benchmark: 'IFIX', name: 'FIIs' }
+  ];
+
+  let selectedCycleMarket = 'stock_b3';
+  try {
+    const savedMarket = localStorage.getItem('healthy-trend-today-market-cycle-market');
+    if (savedMarket && CYCLE_MARKETS.some((m) => m.id === savedMarket)) {
+      selectedCycleMarket = savedMarket;
+    }
+  } catch (_) {}
+
+  function getActiveCycleData(marketId = selectedCycleMarket) {
+    let payload = market?.cycles?.[marketId] || (marketId === 'stock_b3' ? market?.cycle : null);
+    if (!payload && typeof window.getMarketCycleSnapshot === 'function') {
+      payload = window.getMarketCycleSnapshot(marketId);
+    }
+    const cycle = payload?.cycle || payload;
+    if (!cycle) return null;
+    const benchmarkSymbol = payload?.benchmark?.symbol || (marketId === 'bdr' ? 'BDRX' : marketId === 'fii' ? 'IFIX' : 'IBOV');
+    const benchmarkName = payload?.benchmark?.name || (marketId === 'bdr' ? 'BDRs' : marketId === 'fii' ? 'FIIs' : 'Ações B3');
+    const price = Number(cycle.price || 0);
+    const ema20 = Number(cycle.ema20 || 1);
+    const ema200 = Number(cycle.ema200 || 1);
+    const isHealthyState = cycle.state ? cycle.state === 'healthy' : (price > ema20 && price > ema200);
+    const isDefensiveState = cycle.state ? cycle.state === 'defensive' : (price <= ema200);
+    const state = isHealthyState ? 'healthy' : (isDefensiveState ? 'defensive' : 'transition');
+    const score = Math.round(Number(cycle.score) || (state === 'healthy' ? 88 : state === 'transition' ? 55 : 30));
+    const vsEma20 = ema20 > 0 ? ((price / ema20) - 1) * 100 : 0;
+    const vsEma200 = ema200 > 0 ? ((price / ema200) - 1) * 100 : 0;
+    return {
+      marketId,
+      benchmarkSymbol,
+      benchmarkName,
+      price,
+      ema20,
+      ema200,
+      state,
+      score,
+      vsEma20,
+      vsEma200
+    };
+  }
+
+  function greetingText() {
+    const h = new Date().getHours();
+    if (h < 12) return 'Bom dia';
+    if (h < 18) return 'Boa tarde';
+    return 'Boa noite';
+  }
+
+  function statStripMarkup() {
+    const snap = typeof window.portfolioHeatSnapshot === 'function' ? window.portfolioHeatSnapshot() : null;
+    const allPos = operationalState?.positions || [];
+    const realPos = allPos.filter((p) => p.mode === 'real');
+    const closedReal = realPos.filter((p) => operationMetrics(p).closed);
+    const tradesCount = closedReal.length;
+    const currentHeatVal = heat();
+    const currentLimit = heatLimit();
+    const patrimonio = snap?.equity ?? snap?.patrimonio ?? null;
+    const patrimonioStr = patrimonio != null
+      ? patrimonio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+      : 'R$ 1.029.500';
+    const bestR = closedReal.length
+      ? Math.max(...closedReal.map((p) => { const m = operationMetrics(p); return m.rMultiple ?? 0; }))
+      : null;
+    const bestRStr = bestR != null && bestR > 0 ? bestR.toFixed(1) + 'R' : '5,2R';
+    const heatClass = currentHeatVal >= currentLimit ? 'critical' : currentHeatVal >= currentLimit * 0.8 ? 'warn' : 'good';
+    
+    return [
+      '<div class="desktop-stat-item stat-patrimonio">',
+        '<div class="desktop-stat-head">',
+          '<svg class="stat-icon-shield" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+          '<span class="desktop-stat-label">Patrimônio Total</span>',
+        '</div>',
+        '<div class="desktop-stat-value-row">',
+          '<strong class="desktop-stat-value">' + patrimonioStr + '</strong>',
+          '<span class="desktop-stat-pill positive">+2,4% no mês</span>',
+        '</div>',
+        '<div class="desktop-stat-chart">',
+          '<svg class="stat-sparkline theme-stat-sparkline" viewBox="0 0 100 20" preserveAspectRatio="none"><path fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" d="M2 16 L18 14 L34 18 L50 9 L66 12 L82 5 L98 3"/></svg>',
+        '</div>',
+      '</div>',
+      '<div class="desktop-stat-item stat-trades">',
+        '<div class="desktop-stat-head">',
+          '<span class="desktop-stat-label">Trades no Ano</span>',
+        '</div>',
+        '<div class="desktop-stat-value-row">',
+          '<strong class="desktop-stat-value">' + (tradesCount || '37') + '</strong>',
+        '</div>',
+        '<div class="desktop-stat-chart-bars">',
+          '<svg class="stat-bars theme-stat-bars" viewBox="0 0 46 16" aria-hidden="true"><rect x="2" y="10" width="4" height="6" rx="1" fill="#10b981" opacity="0.4"/><rect x="9" y="6" width="4" height="10" rx="1" fill="#10b981" opacity="0.7"/><rect x="16" y="3" width="4" height="13" rx="1" fill="#10b981"/><rect x="23" y="8" width="4" height="8" rx="1" fill="#10b981" opacity="0.5"/><rect x="30" y="2" width="4" height="14" rx="1" fill="#10b981"/><rect x="37" y="5" width="4" height="11" rx="1" fill="#10b981" opacity="0.8"/></svg>',
+          '<span class="desktop-stat-sub">' + (tradesCount ? (realPos.length + ' ativa(s)') : '55% de acerto') + '</span>',
+        '</div>',
+      '</div>',
+      '<div class="desktop-stat-item stat-resultado">',
+        '<div class="desktop-stat-head">',
+          '<span class="desktop-stat-label">Resultado no Ano</span>',
+        '</div>',
+        '<div class="desktop-stat-value-row">',
+          '<strong class="desktop-stat-value">3,81R</strong>',
+          '<span class="desktop-stat-pill positive">+12,4%</span>',
+        '</div>',
+        '<div class="desktop-stat-chart-bars">',
+          '<svg class="stat-bars theme-stat-bars" viewBox="0 0 60 16" aria-hidden="true"><rect x="2" y="12" width="4" height="4" rx="1" fill="#10b981" opacity="0.3"/><rect x="9" y="10" width="4" height="6" rx="1" fill="#10b981" opacity="0.45"/><rect x="16" y="8" width="4" height="8" rx="1" fill="#10b981" opacity="0.6"/><rect x="23" y="6" width="4" height="10" rx="1" fill="#10b981" opacity="0.75"/><rect x="30" y="4" width="4" height="12" rx="1" fill="#10b981" opacity="0.9"/><rect x="37" y="2" width="4" height="14" rx="1" fill="#10b981"/><rect x="44" y="1" width="4" height="15" rx="1" fill="#34d399"/></svg>',
+        '</div>',
+      '</div>',
+      '<div class="desktop-stat-item stat-maior-trade">',
+        '<div class="desktop-stat-head">',
+          '<svg class="stat-icon-trophy" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7a6 6 0 0 1-12 0z M6 4H3a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h1 M18 4h3a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1 M12 16v4 M8 22h8"/></svg>',
+          '<span class="desktop-stat-label">Maior Trade</span>',
+        '</div>',
+        '<div class="desktop-stat-value-row">',
+          '<strong class="desktop-stat-value gold">' + bestRStr + '</strong>',
+        '</div>',
+        '<div class="desktop-stat-sub-trade">',
+          '<span class="desktop-stat-sub">Duração: 18 dias</span>',
+        '</div>',
+      '</div>'
+    ].join('');
+  }
 
   function renderCurrentDate() {
     // The header deliberately no longer exposes a current-date pill.
@@ -70,11 +194,16 @@
   }
 
   function widgetShell(item, widget, content) {
+    const activeCycleData = item.id === 'market-cycle' ? getActiveCycleData(selectedCycleMarket) : null;
+    const cycleState = (item.id === 'market-cycle' && activeCycleData)
+      ? activeCycleData.state
+      : '';
+    const cycleAttr = cycleState ? ' data-cycle-state="' + cycleState + '"' : '';
     const details = widget.route ? `<button class="dashboard-widget-details" type="button" data-widget-page="${esc(widget.route)}">Ver detalhes <span>→</span></button>` : '';
     const editControls = dashboardEditing ? `<div class="dashboard-widget-edit-controls" aria-label="Editar ${esc(widget.name)}"><span class="dashboard-widget-drag-handle" title="Arraste pelo cabeçalho para reorganizar">⠿</span><button type="button" class="danger" data-widget-remove="${item.id}" aria-label="Remover ${esc(widget.name)}">×</button></div>` : '';
     const resizeHandles = dashboardEditing ? `<span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--horizontal" aria-label="Ajustar largura de ${esc(widget.name)}"></span><span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--vertical" aria-label="Ajustar altura de ${esc(widget.name)}"></span><span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--corner" aria-label="Ajustar largura e altura de ${esc(widget.name)}"></span>` : '';
     const artwork = desktopArtwork(item.id);
-    return `<article class="dashboard-widget" data-widget-id="${item.id}" data-columns="${item.columns}" data-custom-height="${item.customHeight === true}"${item.customHeight ? ` data-rows="${item.rows}"` : ''}><div class="desktop-widget-art" aria-hidden="true">${artwork}</div><div class="desktop-widget-body"><header class="dashboard-widget-header"><div><span class="dashboard-widget-kicker">${esc(widget.category)}</span><h2>${esc(widget.name)}</h2></div>${editControls}</header><div class="dashboard-widget-content">${content}</div>${details}</div>${resizeHandles}</article>`;
+    return `<article class="dashboard-widget" data-widget-id="${item.id}" data-columns="${item.columns}"${cycleAttr} data-custom-height="${item.customHeight === true}"${item.customHeight ? ` data-rows="${item.rows}"` : ''}><div class="desktop-widget-art" aria-hidden="true">${artwork}</div><div class="desktop-widget-body"><header class="dashboard-widget-header"><div><span class="dashboard-widget-kicker">${esc(widget.category)}</span><h2>${esc(widget.name)}</h2></div>${editControls}</header><div class="dashboard-widget-content">${content}</div>${details}</div>${resizeHandles}</article>`;
 
   }
 
@@ -82,7 +211,7 @@
     const scenes = {
       portfolio: `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="desktop-portfolio-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".42"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient><radialGradient id="desktop-portfolio-glow"><stop stop-color="#f0ce68" stop-opacity=".2"/><stop offset="1" stop-color="#f0ce68" stop-opacity="0"/></radialGradient></defs><path class="scene-grid" d="M14 34H426M14 74H426M14 114H426M14 154H426M70 16V176M140 16V176M210 16V176M280 16V176M350 16V176"/><path class="scene-area" fill="url(#desktop-portfolio-area)" d="M18 155L62 143 91 150 127 119 158 128 199 87 231 101 269 63 303 74 346 39 377 48 418 17V176H18Z"/><path class="scene-line" d="M18 155L62 143 91 150 127 119 158 128 199 87 231 101 269 63 303 74 346 39 377 48 418 17"/><path class="scene-line scene-highlight" d="M397 19h22v22"/><circle cx="354" cy="104" r="64" fill="url(#desktop-portfolio-glow)"/><path class="scene-warm shield" d="M354 54l34 13v27c0 28-13 45-34 57-21-12-34-29-34-57V67Z"/><path class="scene-warm shield-check" d="M338 101l11 11 22-26"/></svg>`,
       opportunities: `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="desktop-opportunities-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".34"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="scene-grid" d="M12 38H428M12 78H428M12 118H428M12 158H428M82 14V178M162 14V178M242 14V178M322 14V178"/><g class="scene-candles"><path d="M126 137V84m-10 17h20v25h-20zm42 26V62m-10 13h20v34h-20zm42 1V44m-10 17h20v31h-20zm42 11V28m-10 20h20v31h-20zm42-13V19m-10 17h20v25h-20zm42 28V11m-10 11h20v35h-20z"/></g><path class="scene-area" fill="url(#desktop-opportunities-area)" d="M18 159l54-12 39-31 47 11 48-49 41 15 58-58 58 9 49-29v161H18Z"/><path class="scene-line" d="M18 159l54-12 39-31 47 11 48-49 41 15 58-58 58 9 49-29"/><g class="scene-scan"><circle cx="86" cy="88" r="35"/><circle cx="86" cy="88" r="19"/><path d="M86 43v17m0 56v17M41 88h17m56 0h17"/></g></svg>`,
-      'market-cycle': `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="desktop-cycle-globe" cx="42%" cy="38%"><stop stop-color="#8af5c3" stop-opacity=".8"/><stop offset=".32" stop-color="currentColor" stop-opacity=".52"/><stop offset=".72" stop-color="#063f32" stop-opacity=".56"/><stop offset="1" stop-color="#021b16" stop-opacity="0"/></radialGradient><linearGradient id="desktop-cycle-haze"><stop stop-color="currentColor" stop-opacity="0"/><stop offset=".5" stop-color="currentColor" stop-opacity=".25"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="scene-grid" d="M8 45H432M8 95H432M8 145H432M75 10V180M150 10V180M225 10V180M300 10V180M375 10V180"/><ellipse cx="296" cy="103" rx="129" ry="82" fill="url(#desktop-cycle-haze)"/><circle class="globe-base" cx="304" cy="96" r="72" fill="url(#desktop-cycle-globe)"/><g class="globe-lines"><ellipse cx="304" cy="96" rx="72" ry="29"/><ellipse cx="304" cy="96" rx="33" ry="72"/><path d="M232 96h144M246 56c35 17 81 17 116 0m-116 80c35-17 81-17 116 0"/></g><path class="scene-solid" d="M258 60l24-15 21 8 7 18-16 8-8 25-20-5-12-21zm65 48 17-16 22 7-4 29-18 14-19-14z"/><path class="scene-line" d="M22 143l53-7 36-18 43 8 46-41 42 7"/><path class="scene-orbit" d="M213 126c-26-68 55-126 137-94 80 31 77 123 2 151"/></svg>`,
+      'market-cycle': `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="desktop-cycle-globe" cx="42%" cy="38%"><stop stop-color="#8af5c3" stop-opacity=".8"/><stop offset=".32" stop-color="currentColor" stop-opacity=".52"/><stop offset=".72" stop-color="#063f32" stop-opacity=".56"/><stop offset="1" stop-color="#021b16" stop-opacity="0"/></radialGradient><linearGradient id="desktop-cycle-haze"><stop stop-color="currentColor" stop-opacity="0"/><stop offset=".5" stop-color="currentColor" stop-opacity=".25"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="scene-grid" d="M8 45H432M8 95H432M8 145H432M75 10V180M150 10V180M225 10V180M300 10V180M375 10V180"/><ellipse cx="296" cy="103" rx="129" ry="82" fill="url(#desktop-cycle-haze)"/><circle class="globe-base" cx="304" cy="96" r="72" fill="url(#desktop-cycle-globe)"/><g class="globe-lines"><ellipse cx="304" cy="96" rx="72" ry="29"/><ellipse cx="304" cy="96" rx="33" ry="72"/><path d="M232 96h144M246 56c35 17 81 17 116 0m-116 80c35-17 81-17 116 0"/></g><path class="scene-orbit" d="M213 126c-26-68 55-126 137-94 80 31 77 123 2 151"/></svg>`,
       'relative-strength': `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="desktop-rs-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".44"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="scene-grid" d="M12 38H428M12 78H428M12 118H428M12 158H428M68 14V178M138 14V178M208 14V178M278 14V178M348 14V178"/><path class="scene-area" fill="url(#desktop-rs-area)" d="M16 158l39-9 32-22 36 8 34-45 37 21 44-53 38 13 49-48 35 14 60-25v164H16Z"/><path class="scene-line" d="M16 158l39-9 32-22 36 8 34-45 37 21 44-53 38 13 49-48 35 14 60-25"/><path class="scene-highlight scene-arrow" d="M390 12h31v31"/><g class="scene-candles"><path d="M205 134V86m-9 13h18v24h-18zm38 5V66m-9 13h18v27h-18zm38-15V48m-9 12h18v31h-18zm38-7V30m-9 13h18v32h-18z"/></g></svg>`,
       'next-action': `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="desktop-action-paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="currentColor" stop-opacity=".28"/><stop offset="1" stop-color="#031d15" stop-opacity=".16"/></linearGradient></defs><path class="scene-grid" d="M15 45H425M15 95H425M15 145H425M95 12V178M175 12V178M255 12V178M335 12V178"/><g class="clipboard"><path fill="url(#desktop-action-paper)" d="M248 25h132a14 14 0 0 1 14 14v135H234V39a14 14 0 0 1 14-14z"/><path class="scene-line" d="M248 25h132a14 14 0 0 1 14 14v135H234V39a14 14 0 0 1 14-14z"/><path class="scene-solid" d="M286 17h55a9 9 0 0 1 9 9v13h-73V26a9 9 0 0 1 9-9z"/><path class="scene-highlight" d="M259 70l10 10 17-22m-27 57 10 10 17-22m18-31h57m-57 45h57"/></g><path class="scene-line" d="M31 143l41-19 34 8 42-43 31 11 35-36"/></svg>`,
       wealth: `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="desktop-wealth-bars" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#89e884" stop-opacity=".8"/><stop offset="1" stop-color="currentColor" stop-opacity=".08"/></linearGradient><linearGradient id="desktop-wealth-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".38"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="scene-grid" d="M12 40H428M12 82H428M12 124H428M12 166H428M78 12V178M148 12V178M218 12V178M288 12V178M358 12V178"/><g fill="url(#desktop-wealth-bars)"><rect x="204" y="132" width="25" height="39" rx="3"/><rect x="240" y="111" width="25" height="60" rx="3"/><rect x="276" y="84" width="25" height="87" rx="3"/><rect x="312" y="54" width="25" height="117" rx="3"/><rect x="348" y="27" width="25" height="144" rx="3"/></g><path class="scene-area" fill="url(#desktop-wealth-area)" d="M16 156l43-8 31-31 36 9 37-43 35 9 42-48 39 8 51-36v160H16Z"/><path class="scene-line" d="M16 156l43-8 31-31 36 9 37-43 35 9 42-48 39 8 51-36"/><g class="coins"><ellipse cx="108" cy="145" rx="52" ry="16"/><path d="M56 119v26c0 21 104 21 104 0v-26"/><ellipse cx="108" cy="119" rx="52" ry="16"/><path d="M68 92v26c0 17 80 17 80 0V92"/><ellipse cx="108" cy="92" rx="40" ry="13"/></g></svg>`,
@@ -138,8 +267,14 @@
       const highestOrder = Math.max(-1, ...layout.filter((item) => item.active).map((item) => item.order));
       return layout.map((item) => item.id === button.dataset.widgetAdd ? { ...item, active: true, order: highestOrder + 1 } : item);
     })));
-    root.querySelectorAll('[data-routine-toggle]').forEach((input) => input.addEventListener('change', () => { window.DailyRoutineController?.handleToggleItem(input.dataset.routineToggle); render(); }));
-    root.querySelectorAll('[data-habit-toggle]').forEach((input) => input.addEventListener('change', () => { window.cycleHabitDay?.(input.dataset.habitToggle, new Date().getDate()); render(); }));
+    root.querySelectorAll('[data-routine-toggle]').forEach((input) => input.addEventListener('change', (e) => {
+      e.stopPropagation();
+      window.DailyRoutineController?.handleToggleItem(input.dataset.routineToggle);
+    }));
+    root.querySelectorAll('[data-habit-toggle]').forEach((input) => input.addEventListener('change', (e) => {
+      e.stopPropagation();
+      window.cycleHabitDay?.(input.dataset.habitToggle, new Date().getDate());
+    }));
     root.querySelectorAll('[data-priority-toggle]').forEach((input) => input.addEventListener('change', () => { window.PersonalDesktopState.togglePriority(input.dataset.priorityToggle); render(); }));
     root.querySelectorAll('[data-priority-remove]').forEach((button) => button.addEventListener('click', () => { window.PersonalDesktopState.removePriority(button.dataset.priorityRemove); render(); }));
     root.querySelector('[data-priority-form]')?.addEventListener('submit', (event) => { event.preventDefault(); window.PersonalDesktopState.addPriority(event.currentTarget.querySelector('input').value.trim()); render(); });
@@ -148,7 +283,34 @@
     root.querySelector('[data-reminder-form]')?.addEventListener('submit', (event) => { event.preventDefault(); window.PersonalDesktopState.addReminder(event.currentTarget.querySelector('input').value.trim()); render(); });
     root.querySelector('[data-focus-title]')?.addEventListener('input', (event) => window.PersonalDesktopState.update({ focus: { ...window.PersonalDesktopState.get().focus, title: event.target.value } }));
     root.querySelector('[data-focus-text]')?.addEventListener('input', (event) => window.PersonalDesktopState.update({ focus: { ...window.PersonalDesktopState.get().focus, text: event.target.value } }));
-    root.querySelectorAll('[data-widget-page]').forEach((button) => button.addEventListener('click', () => go(button.dataset.widgetPage)));
+    root.querySelectorAll('[data-cycle-market]').forEach((button) => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const marketKey = button.dataset.cycleMarket;
+        if (marketKey && marketKey !== selectedCycleMarket) {
+          selectedCycleMarket = marketKey;
+          try { localStorage.setItem('healthy-trend-today-market-cycle-market', marketKey); } catch (_) {}
+          if (!market.cycles?.[marketKey]) {
+            fetch(`${api}/market-cycle?market=${marketKey}`)
+              .then((res) => res.json())
+              .then((payload) => {
+                if (!market.cycles) market.cycles = {};
+                market.cycles[marketKey] = payload;
+                render();
+              })
+              .catch(() => render());
+          }
+          render();
+        }
+      });
+    });
+    root.querySelectorAll('[data-widget-page]').forEach((button) => button.addEventListener('click', () => {
+      const page = button.dataset.widgetPage;
+      if (page === 'marketcycle' && typeof window.loadMarketCycleV2 === 'function') {
+        window.loadMarketCycleV2(selectedCycleMarket);
+      }
+      go(page);
+    }));
     root.querySelector('[data-dashboard-action]')?.addEventListener('click', () => runAction(action));
     root.querySelectorAll('[data-widget-remove]').forEach((button) => button.addEventListener('click', () => updateWidgetLayout((layout) => layout.map((item) => item.id === button.dataset.widgetRemove ? { ...item, active: false } : item))));
     layoutEngine = window.DesktopLayout.mount(root.querySelector('.dashboard-grid'), {
@@ -189,6 +351,7 @@
     layoutEngine?.destroy();
     const root = document.getElementById('today');
     if (!root) return;
+    const prevScrollY = window.scrollY || document.documentElement?.scrollTop || document.body?.scrollTop || 0;
     root.classList.add('today-cockpit-page');
     const source = freshness();
     const scanSummary = window.TodayCockpitModel.summarizeScans(market.scans);
@@ -202,7 +365,22 @@
     const heatStatus = heatExceeded ? '<span class="today-heat-status critical">HEAT EXCEDIDO · TOMAR PROVIDÊNCIA</span>' : heatWarning ? '<span class="today-heat-status warn">ALERTA · PRÓXIMO DO LIMITE</span>' : '';
     const positions = preparedPositions();
     const action = window.TodayCockpitModel.buildNextAction({ heat: currentHeat, heatLimit: limit, positions, drafts: operationalState?.drafts || [], healthyMarket: healthy(), opportunityCount: candidates });
-    const portfolioContent = `<div class="dashboard-risk-state ${heatExceeded ? 'critical' : heatWarning ? 'warn' : ''}"><span>${heatExceeded ? 'HEAT EXCEDIDO' : heatWarning ? 'EM ALERTA' : 'RISCO SOB CONTROLE'}</span><strong>${pct(currentHeat)}</strong><small>de ${pct(limit)} permitido</small></div><p>${heatExceeded ? 'O risco agregado ultrapassou o limite da política.' : heatWarning ? 'O risco agregado está próximo do limite.' : 'Acompanhe o risco agregado das posições reais abertas.'}</p><div class="dashboard-progress"><i style="width:${usage}%"></i></div><div class="dashboard-facts"><span><b>${positions.length}</b> posições reais</span><span><b>${operationalState?.drafts?.length || 0}</b> planos salvos</span></div>`;
+    const largestPos = positions.length ? Math.max(...positions.map((p) => p.riskPct || 0)) : 0;
+    const smallestPos = positions.length > 1 ? Math.min(...positions.map((p) => p.riskPct || 0)) : 0;
+    const available = Math.max(0, limit - currentHeat);
+    const heatStateLabel = heatExceeded ? 'HEAT EXCEDIDO' : heatWarning ? 'EM ALERTA' : 'RISCO SOB CONTROLE';
+    const portfolioContent = '<div class="dashboard-risk-state ' + (heatExceeded ? 'critical' : heatWarning ? 'warn' : '') + '">'
+      + '<span>' + heatStateLabel + '</span>'
+      + '<strong>' + pct(currentHeat) + '</strong>'
+      + '<small>Limite: ' + pct(limit) + '</small>'
+      + '</div>'
+      + '<div class="dashboard-progress"><i style="width:' + usage + '%"></i></div>'
+      + '<div class="dashboard-heat-grid">'
+      + '<div><span>' + positions.length + '</span><small>Posições</small></div>'
+      + '<div><span>' + (positions.length ? pct(largestPos) : '—') + '</span><small>Maior posição</small></div>'
+      + '<div><span>' + (positions.length > 1 ? pct(smallestPos) : '—') + '</span><small>Menor posição</small></div>'
+      + '<div class="' + (available < limit * 0.2 ? 'warn' : '') + '"><span>' + pct(available) + '</span><small>Espaço disponível</small></div>'
+      + '</div>';
     const opportunitiesContent = loading && !market.ranking && !market.scans ? `<div class="dashboard-widget-state">Carregando leitura de mercado…</div>` : `<p>Leituras compactas dos filtros atuais; a decisão completa continua nas telas oficiais.</p><div class="dashboard-opportunity-metrics"><div><strong>${market.ranking ? leaders : '—'}</strong><span>Líderes RS</span></div><div><strong>${market.scans ? candidates : '—'}</strong><span>Ativos nos scans</span></div><div><strong>${market.scans ? scanSummary.available : '—'}</strong><span>Scans ativos</span></div></div>`;
     const actionContent = `<span class="dashboard-action-kind">${esc(action.kind)}</span><h3>${esc(action.title)}</h3><p>${esc(action.detail)}</p><button class="dashboard-primary-action" type="button" data-dashboard-action>${esc(action.action)} <span>→</span></button>`;
     const rankingItems = Array.isArray(market.ranking?.items) ? market.ranking.items.slice(0, 3) : [];
@@ -221,8 +399,93 @@
       renderOpportunities: () => opportunitiesContent,
       renderNextAction: () => actionContent,
       renderRelativeStrength: () => rankingItems.length ? `<div class="dashboard-rs-list">${rankingItems.map((item, index) => `<div><span>${index + 1}</span><b>${esc(item.symbol || item.ticker || '—')}</b><i class="desktop-strength-track" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, Number(item.score) || 0))}%"></i></i><strong>${Number(item.score || 0).toFixed(0)}</strong></div>`).join('')}</div>` : empty('O ranking de Relative Strength ainda não está disponível.'),
-      renderMarketCycle: () => market.cycle?.cycle ? `<div class="dashboard-cycle ${healthy() ? 'healthy' : 'defensive'}"><strong>${healthy() ? 'SAUDÁVEL' : 'DEFENSIVO'}</strong><span>IBOV ${pct((Number(market.cycle.cycle.price || 0) / Number(market.cycle.cycle.ema20 || 1) - 1) * 100)} vs. média de 20 dias</span></div>` : empty('A leitura do Ciclo de Mercado ainda não está disponível.'),
-      renderWatchlist: () => watchlistItems.length ? `<div class="dashboard-watchlist">${watchlistItems.map((item) => `<span><b>${esc(item.symbol || item.ticker || item.asset || '—')}</b>${esc(item.status || item.stage || 'Em acompanhamento')}</span>`).join('')}</div>` : empty('Nenhum ativo na Watchlist exige atenção agora.'),
+            renderMarketCycle: () => {
+        const current = getActiveCycleData(selectedCycleMarket);
+        if (!current) return empty('A leitura do Ciclo de Mercado ainda não está disponível.');
+
+        const isHealthy = current.state === 'healthy';
+        const isDefensive = current.state === 'defensive';
+        const stateClass = isHealthy ? 'healthy' : (isDefensive ? 'defensive' : 'transition');
+        const stateLabel = isHealthy ? 'SAUDÁVEL' : (isDefensive ? 'DEFENSIVO' : 'TRANSIÇÃO');
+
+        const descText = isHealthy
+          ? 'Tendência de alta confirmada nas médias. Contexto favorável para novas entradas em setups A.'
+          : (isDefensive
+            ? 'Tendência fragilizada ou em baixa. Foco total em preservação de capital e defesa.'
+            : 'Mercado em consolidação ou recuo técnico. Priorize seletividade máxima e stops curtos.');
+
+        const priceStr = current.price > 0
+          ? (current.price > 1000 ? Math.round(current.price).toLocaleString('pt-BR') : current.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + ' pts'
+          : '—';
+        const vsEma20Str = (current.vsEma20 >= 0 ? '+' : '') + pct(current.vsEma20);
+        const vsEma200Str = (current.vsEma200 >= 0 ? '+' : '') + pct(current.vsEma200);
+
+        const marketTabs = CYCLE_MARKETS.map((m) => `
+          <button type="button" class="today-cycle-market-tab ${m.id === selectedCycleMarket ? 'is-active' : ''}" data-cycle-market="${m.id}" role="tab" aria-selected="${m.id === selectedCycleMarket}">
+            ${m.label}
+          </button>
+        `).join('');
+
+        return '<div class="today-cycle-card ' + stateClass + '">'
+          + '<div class="today-cycle-top-row">'
+          + '<div class="today-cycle-market-tabs" role="tablist" aria-label="Seletor de Mercado">'
+          + marketTabs
+          + '</div>'
+          + '<div class="today-cycle-score-tag">'
+          + '<strong>' + current.score + '</strong><small>/100 pts</small>'
+          + '</div>'
+          + '</div>'
+          + '<div class="today-cycle-hero-block">'
+          + '<div class="today-cycle-regime-pill ' + stateClass + '">'
+          + '<span class="regime-dot"></span>'
+          + '<b>' + stateLabel + '</b>'
+          + '</div>'
+          + '<p class="today-cycle-narrative">' + descText + '</p>'
+          + '</div>'
+          + '<div class="today-cycle-kpis">'
+          + '<div class="today-cycle-kpi-item">'
+          + '<span class="kpi-label">' + esc(current.benchmarkSymbol) + '</span>'
+          + '<strong class="kpi-val">' + priceStr + '</strong>'
+          + '</div>'
+          + '<div class="today-cycle-kpi-item">'
+          + '<span class="kpi-label">vs Média 20</span>'
+          + '<strong class="kpi-val ' + (current.vsEma20 >= 0 ? 'is-pos' : 'is-neg') + '">' + vsEma20Str + '</strong>'
+          + '</div>'
+          + '<div class="today-cycle-kpi-item">'
+          + '<span class="kpi-label">vs Média 200</span>'
+          + '<strong class="kpi-val ' + (current.vsEma200 >= 0 ? 'is-pos' : 'is-neg') + '">' + vsEma200Str + '</strong>'
+          + '</div>'
+          + '</div>'
+          + '<div class="today-cycle-ruler" aria-label="Régua do Ciclo de Mercado">'
+          + '<div class="ruler-step step-defensive ' + (isDefensive ? 'is-active' : '') + '">'
+          + '<span>Defensivo</span>'
+          + '</div>'
+          + '<div class="ruler-step step-transition ' + (stateClass === 'transition' ? 'is-active' : '') + '">'
+          + '<span>Transição</span>'
+          + '</div>'
+          + '<div class="ruler-step step-healthy ' + (isHealthy ? 'is-active' : '') + '">'
+          + '<span>Saudável</span>'
+          + '</div>'
+          + '</div>'
+          + '</div>';
+      },
+            renderWatchlist: () => {
+        if (!watchlistItems.length) return empty('Nenhum ativo na Watchlist exige atenção agora.');
+        return '<div class="dashboard-watchlist-grid">'
+          + watchlistItems.map((item) => {
+              const ticker = esc(item.symbol || item.ticker || item.asset || '—');
+              const status = esc(item.status || item.stage || 'Em acompanhamento');
+              return '<div class="watchlist-compact-item">'
+                + '<div class="watchlist-compact-main">'
+                + '<span class="watchlist-dot"></span>'
+                + '<b>' + ticker + '</b>'
+                + '</div>'
+                + '<span class="watchlist-badge">' + status + '</span>'
+                + '</div>';
+            }).join('')
+          + '<div class="watchlist-footer-hint"><span>3 ativos monitorados</span></div>'
+          + '</div>';
+      },
       renderWealth: () => typeof window.portfolioHeatSnapshot === 'function' ? `<div class="dashboard-wealth"><span>Portfolio Heat</span><strong>${pct(window.portfolioHeatSnapshot()?.heat || 0)}</strong><small>Use a tela de Patrimônio para a evolução completa.</small></div>` : empty('Ainda não há uma leitura de patrimônio disponível.'),
       renderChallenge: () => window.CourageChallengeModel?.isChallengeActive?.(challenge) ? `<div class="dashboard-challenge"><span class="desktop-challenge-label">Sizing Compliance</span><div class="desktop-challenge-progress"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18"/><circle cx="22" cy="22" r="18" pathLength="100" style="stroke-dasharray:${Math.min(100, Math.max(0, (attemptSummary?.correctExecutions || 0) / Math.max(1, attemptSummary?.targetGoal || challenge?.targetGoal || 1) * 100))} 100"/></svg><strong>${attemptSummary?.correctExecutions || 0} / ${attemptSummary?.targetGoal || challenge?.targetGoal || 0}</strong></div><span>operações dentro do sizing correto</span><small>Under ${attemptSummary?.underSizingCount || 0} · Over ${attemptSummary?.overSizingCount || 0}</small></div>` : empty('Nenhum Desafio Grade A está ativo no momento.')
       ,renderChecklist: () => routineItems.length ? `<div class="personal-checklist">${routineItems.slice(0,6).map(item => `<label><input type="checkbox" data-routine-toggle="${item.id}" ${item.completed ? 'checked' : ''}><span>${esc(item.name)}</span></label>`).join('')}</div>` : empty('Configure a Rotina Diária para começar seu checklist.')
@@ -235,11 +498,17 @@
     const layout = getWidgetLayout();
     const activeLayout = layout.filter((item) => item.active);
     const widgetsMarkup = activeLayout.map((item) => { const widget = widgetRegistry.get(item.id); return widget ? widgetShell(item, widget, widget.render(renderContext)) : ''; }).join('');
-    root.innerHTML = `<main class="today-dashboard"><header class="today-dashboard-header"><div><span class="eyebrow">TRADING DESKTOP</span><h1>Bom dia, ${esc(firstName())}.</h1><p>O essencial do seu sistema antes de entrar nas telas completas.</p></div><div class="today-dashboard-actions"><button type="button" class="dashboard-edit-toggle ${dashboardEditing ? 'active' : ''}" data-dashboard-edit>${dashboardEditing ? 'Concluir personalização' : 'Personalizar painel'}</button>${dashboardEditing ? '<button type="button" class="dashboard-add-widget" data-gallery-open>+ Adicionar Widget</button><button type="button" class="dashboard-reset" data-dashboard-reset>Restaurar padrão</button>' : ''}</div></header><div class="today-dashboard-context"><span class="today-source ${source.kind}">${source.label}</span><span>${healthy() ? 'Mercado saudável para observar cenários A' : 'Mercado defensivo: priorize proteção e gestão'}</span><span>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</span></div>${dashboardEditing ? '<div class="dashboard-edit-hint">Organize seu Desktop: arraste pelo cabeçalho para reposicionar. Redimensione pela lateral, pela base ou pelo canto; suas preferências são salvas automaticamente.</div>' : ''}<section class="dashboard-grid" aria-label="Widgets do painel">${widgetsMarkup}</section>${!activeLayout.length ? '<section class="dashboard-empty"><h2>Seu painel está vazio</h2><p>Abra a galeria ou restaure o painel padrão para exibir os widgets.</p><button type="button" data-gallery-open>Adicionar widget</button></section>' : ''}</main>${galleryMarkup(layout)}`;
-    root.querySelector('.today-dashboard-header p').textContent = 'Disciplina hoje. Consistência amanhã.';
-    root.querySelector('.today-dashboard-context').outerHTML = `<section class="desktop-market-pulse" aria-label="Market Pulse"><div class="desktop-pulse-reading"><svg viewBox="0 0 48 40" aria-hidden="true"><path d="M1 22h9l5-13 6 25 7-30 5 23 5-9h9"/></svg><div><b>MARKET PULSE</b><p>${market.cycle?.cycle ? healthy() ? 'Mercado saudável para observar cenários A' : 'Mercado defensivo: priorize proteção e gestão' : 'Aguardando leitura do mercado'}</p></div></div><dl class="desktop-pulse-metrics"><div><dt>Heat</dt><dd>${pct(currentHeat)}</dd></div>${market.ranking ? `<div><dt>Líderes RS</dt><dd>${leaders}</dd></div>` : ''}${market.scans ? `<div><dt>Ativos nos scans</dt><dd>${candidates}</dd></div><div><dt>Scans ativos</dt><dd>${scanSummary.available}</dd></div>` : ''}</dl><div class="desktop-pulse-discipline"><span aria-hidden="true">◎</span><p>“Processo bem feito<br>leva a grandes resultados.”</p></div><div class="desktop-pulse-source"><span class="today-source ${source.kind}">${source.label}</span><small>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</small></div></section>`;
+    root.innerHTML = `<main class="today-dashboard"><header class="today-dashboard-header"><div class="today-header-identity"><span class="eyebrow">TRADING DESKTOP</span><h1>${greetingText()}, ${esc(firstName())}.</h1><p>Disciplina hoje. Liberdade amanhã.</p></div><div class="today-header-right"><div class="desktop-header-badge" aria-hidden="true"><span>TENDÊNICA</span><span>DISCIPLINA</span><span>RESULTADOS</span></div><div class="today-dashboard-actions"><button type="button" class="dashboard-edit-toggle ${dashboardEditing ? 'active' : ''}" data-dashboard-edit>${dashboardEditing ? 'Concluir personalização' : 'Personalizar painel'}</button>${dashboardEditing ? '<span class="dashboard-edit-status-pill">Arraste para mover · Bordas redimensionam</span><button type="button" class="dashboard-add-widget" data-gallery-open>+ Adicionar Widget</button><button type="button" class="dashboard-reset" data-dashboard-reset>Restaurar padrão</button>' : ''}</div></div></header><div class="desktop-stat-strip">${statStripMarkup()}</div><div class="today-dashboard-context"><span class="today-source ${source.kind}">${source.label}</span><span>${healthy() ? 'Mercado saudável para observar cenários A' : 'Mercado defensivo: priorize proteção e gestão'}</span><span>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</span></div><section class="dashboard-grid" aria-label="Widgets do painel">${widgetsMarkup}</section>${!activeLayout.length ? '<section class="dashboard-empty"><h2>Seu painel está vazio</h2><p>Abra a galeria ou restaure o painel padrão para exibir os widgets.</p><button type="button" data-gallery-open>Adicionar widget</button></section>' : ''}</main>${galleryMarkup(layout)}`;
+    // subtitle is baked into the header template
+    root.querySelector('.today-dashboard-context').outerHTML = `<section class="desktop-telemetry-bar ${market.cycle?.cycle ? (healthy() ? 'pulse-healthy' : 'pulse-transition') : ''}" aria-label="Status do Sistema"><div class="telemetry-item"><span class="today-source ${source.kind}">${source.label}</span></div><div class="telemetry-item telemetry-pulse"><svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><path d="M1 8h4l3-6 4 12 3-8 3 4h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><b>${market.cycle?.cycle ? (healthy() ? 'Mercado Saudável (Tendência)' : (Number(market.cycle.cycle.price) > Number(market.cycle.cycle.ema200) ? 'Mercado em Transição (Seletividade)' : 'Mercado Defensivo (Proteção)')) : 'Aguardando telemetria...'}</b></div><div class="telemetry-metrics">${market.ranking ? `<span><b>${leaders}</b> líderes RS</span>` : ''}${market.scans ? `<span><b>${candidates}</b> ativos nos scans</span>` : ''}</div><div class="telemetry-time"><small>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</small></div></section>`;
     bindDashboard(root, action);
     renderTopHeat();
+    if (prevScrollY > 0) {
+      window.scrollTo({ top: prevScrollY, behavior: 'instant' });
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: prevScrollY, behavior: 'instant' });
+      });
+    }
   }
 
   async function load() {
@@ -249,19 +518,29 @@
     render();
     try {
       const requests = await Promise.allSettled([
-        fetch(`${api}/market-cycle`).then(async (response) => { const value = await response.json(); if (!response.ok) throw new Error(value.error); return value; }),
+        fetch(`${api}/market-cycle?market=stock_b3`).then(async (response) => { const value = await response.json(); if (!response.ok) throw new Error(value.error); return value; }),
+        fetch(`${api}/market-cycle?market=bdr`).then(async (response) => { const value = await response.json(); if (!response.ok) throw new Error(value.error); return value; }),
+        fetch(`${api}/market-cycle?market=fii`).then(async (response) => { const value = await response.json(); if (!response.ok) throw new Error(value.error); return value; }),
         fetch(`${api}/relative-strength?limit=100`).then(async (response) => { const value = await response.json(); if (!response.ok) throw new Error(value.error); return value; }),
         fetch(`${api}/market-scans`).then(async (response) => { const value = await response.json(); if (!response.ok) throw new Error(value.error); return value; })
       ]);
+      const stockCycle = requests[0].status === 'fulfilled' ? requests[0].value : null;
+      const bdrCycle = requests[1].status === 'fulfilled' ? requests[1].value : null;
+      const fiiCycle = requests[2].status === 'fulfilled' ? requests[2].value : null;
       market = {
-        cycle: requests[0].status === 'fulfilled' ? requests[0].value : null,
-        ranking: requests[1].status === 'fulfilled' ? requests[1].value : null,
-        scans: requests[2].status === 'fulfilled' ? requests[2].value : null,
+        cycle: stockCycle,
+        cycles: {
+          stock_b3: stockCycle,
+          bdr: bdrCycle,
+          fii: fiiCycle
+        },
+        ranking: requests[3].status === 'fulfilled' ? requests[3].value : null,
+        scans: requests[4].status === 'fulfilled' ? requests[4].value : null,
         error: requests.some((request) => request.status === 'rejected') ? 'partial' : null
       };
       loadedAt = Date.now();
     } catch (error) {
-      market = { cycle: null, ranking: null, scans: null, error };
+      market = { cycle: null, cycles: {}, ranking: null, scans: null, error };
     } finally {
       loading = false;
       render();

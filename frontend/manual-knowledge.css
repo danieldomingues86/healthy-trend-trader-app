@@ -283,3 +283,40 @@ body[data-theme="gold"] #manual #knowledge-position-management .manual-card{bord
 body[data-theme="gold"] #manual #knowledge-position-management .manual-card .manual-icon,body[data-theme="gold"] #manual #knowledge-position-management .manual-card b{color:#f2d488}
 body[data-theme="gold"] #manual #knowledge-position-management .sell-usage-highlight{color:#f2d488}
 @media(max-width:850px){#manual #knowledge-position-management .manual-card{min-height:0}#manual #knowledge-position-management .manual-card p{font-size:13px}}
+
+/* Gatilhos de Entrada: paleta escura trading-workspace com alto contraste e harmonia visual */
+#manual #knowledge-triggers{background:radial-gradient(ellipse at left bottom,rgba(8,37,52,.38),transparent 75%),#031119;border-color:var(--kc-line)}
+#manual #knowledge-triggers .manual-card{min-height:200px;padding:25px;border:1px solid rgba(123,217,163,.34)!important;background:radial-gradient(circle at 15% 0%,rgba(25,153,100,.14),transparent 40%),linear-gradient(145deg,rgba(3,40,28,.96),rgba(1,24,18,.98))!important;border-radius:18px;color:#f0fff5!important;box-shadow:0 12px 28px rgba(0,0,0,.25)}
+#manual #knowledge-triggers .trigger-card-heading{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(123,217,163,.18);padding-bottom:14px;margin-bottom:18px}
+#manual #knowledge-triggers .trigger-title-wrap{display:flex;align-items:center;gap:12px}
+#manual #knowledge-triggers .trigger-badge-idx{background:rgba(20,160,95,.22);color:#55f0a5;border:1px solid rgba(54,226,150,.35);font-weight:800;font-size:11px;padding:4px 10px;border-radius:6px;letter-spacing:.05em}
+#manual #knowledge-triggers .trigger-badge-code{font-size:11px;color:#a2c4b0;background:rgba(0,0,0,.35);border:1px solid rgba(123,217,163,.18);padding:4px 8px;border-radius:6px;font-family:monospace}
+#manual #knowledge-triggers .trigger-title{margin:0;font-size:21px;font-weight:800;color:#f4fff7!important;letter-spacing:-.01em}
+#manual #knowledge-triggers .trigger-grid-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+#manual #knowledge-triggers .manual-card h4{color:#52e89d!important;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px}
+#manual #knowledge-triggers .manual-card p{margin:0 0 14px;color:#d5ecdc!important;line-height:1.6;font-size:13px}
+#manual #knowledge-triggers .manual-card ul{margin:0 0 14px;padding-left:18px;color:#d5ecdc!important;line-height:1.6;font-size:13px}
+#manual #knowledge-triggers .manual-card li{color:#d5ecdc!important;margin-bottom:4px}
+#manual #knowledge-triggers .manual-card b{color:#b9f4cf!important}
+#manual #knowledge-triggers .trigger-observations{color:#a3cbb3!important;line-height:1.6;font-style:italic}
+#manual #knowledge-triggers .trigger-example-box{margin-top:16px;background:rgba(0,18,12,.72)!important;border:1px solid rgba(123,217,163,.22)!important;border-radius:10px;padding:14px}
+#manual #knowledge-triggers .trigger-example-box small{color:#7ce5a9!important;font-weight:700;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:8px;font-size:10px}
+#manual #knowledge-triggers .trigger-example-box pre{margin:0;font-family:"SF Mono",Consolas,"Courier New",monospace;font-size:11.5px;color:#5af5a8!important;white-space:pre-wrap;line-height:1.45}
+
+/* Gold Theme Overrides */
+body[data-theme="gold"] #manual #knowledge-triggers{background:linear-gradient(145deg,rgba(47,36,14,.96),rgba(27,21,10,.95));border-color:rgba(226,186,96,.45)}
+body[data-theme="gold"] #manual #knowledge-triggers .manual-card{border:1px solid rgba(233,199,119,.3)!important;background:radial-gradient(circle at 15% 0%,rgba(214,170,80,.14),transparent 40%),linear-gradient(145deg,rgba(46,34,14,.97),rgba(24,18,8,.98))!important;color:#fbf5e6!important}
+body[data-theme="gold"] #manual #knowledge-triggers .trigger-card-heading{border-bottom-color:rgba(233,199,119,.18)}
+body[data-theme="gold"] #manual #knowledge-triggers .trigger-badge-idx{background:rgba(214,170,80,.18);color:#f0ce7a;border-color:rgba(214,170,80,.35)}
+body[data-theme="gold"] #manual #knowledge-triggers .trigger-badge-code{background:rgba(0,0,0,.4);color:#d8c7a3;border-color:rgba(214,170,80,.2)}
+body[data-theme="gold"] #manual #knowledge-triggers .trigger-title{color:#fffaf0!important}
+body[data-theme="gold"] #manual #knowledge-triggers .manual-card h4{color:#e5b85a!important}
+body[data-theme="gold"] #manual #knowledge-triggers .manual-card p,body[data-theme="gold"] #manual #knowledge-triggers .manual-card ul,body[data-theme="gold"] #manual #knowledge-triggers .manual-card li{color:#ecdcc1!important}
+body[data-theme="gold"] #manual #knowledge-triggers .manual-card b{color:#f2d488!important}
+body[data-theme="gold"] #manual #knowledge-triggers .trigger-observations{color:#c9b48c!important}
+body[data-theme="gold"] #manual #knowledge-triggers .trigger-example-box{background:rgba(18,14,6,.75)!important;border-color:rgba(233,199,119,.22)!important}
+body[data-theme="gold"] #manual #knowledge-triggers .trigger-example-box small{color:#e5b85a!important}
+body[data-theme="gold"] #manual #knowledge-triggers .trigger-example-box pre{color:#f5ce75!important}
+
+@media(max-width:850px){#manual #knowledge-triggers .manual-card{min-height:0}#manual #knowledge-triggers .manual-card p{font-size:12.5px}#manual #knowledge-triggers .trigger-card-heading{flex-direction:column;align-items:flex-start;gap:8px}}
+

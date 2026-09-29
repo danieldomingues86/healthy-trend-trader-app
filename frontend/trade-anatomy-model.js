@@ -1,8 +1,11 @@
 (function (root, factory) {
-  const api = factory();
+  const triggersCatalog = (typeof module === 'object' && module.exports)
+    ? require('./setup-triggers-catalog')
+    : (typeof window !== 'undefined' ? window.SetupTriggersCatalog : null);
+  const api = factory(triggersCatalog);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.TradeAnatomyModel = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (setupTriggers) {
   const number = value => Number.isFinite(Number(value)) ? Number(value) : null;
   const normalized = value => String(value || '').trim().toLowerCase();
 
@@ -44,13 +47,19 @@
     const responses = responsesOf(trade);
     const atr = number(entryEvent?.atr ?? trade?.atr);
     const atrPct = atr != null && entry > 0 ? atr / entry * 100 : null;
+
+    const setupTrigger = trade?.setup_trigger || trade?.setupTrigger || (setupTriggers ? setupTriggers.normalizeKey(trade?.setup) : null);
+    const triggerLabel = setupTriggers ? setupTriggers.getTriggerLabel(setupTrigger || trade?.setup) : (trade?.setup || 'Não informado');
+
     return {
       id: trade?.id,
       trade,
       symbol: String(trade?.ticker || '—').toUpperCase(),
       market: trade?.market || null,
       direction: trade?.direction || null,
-      setup: trade?.setup || null,
+      setup: triggerLabel,
+      setupTrigger,
+      triggerLabel,
       grade: trade?.rubric_grade || null,
       score: number(trade?.rubric_score),
       result,
@@ -81,8 +90,10 @@
     return trades.filter(trade => trade?.status === 'closed').map(analyzeTrade).filter(item => {
       const year = item.closedAt.getFullYear();
       const month = item.closedAt.getMonth() + 1;
+      const matchesTrigger = !filters.setupTrigger || item.setupTrigger === filters.setupTrigger;
       return (!filters.year || year === Number(filters.year)) && (!filters.month || month === Number(filters.month)) &&
-        (!filters.market || item.market === filters.market) && (!filters.direction || item.direction === filters.direction);
+        (!filters.market || item.market === filters.market) && (!filters.direction || item.direction === filters.direction) &&
+        matchesTrigger;
     });
   }
 
@@ -103,6 +114,49 @@
     };
   }
 
+  function metricsByTrigger(items) {
+    const triggers = setupTriggers ? setupTriggers.getAllTriggers() : [
+      { id: 'INSIDE_BAR', name: 'Inside Bar', shortLabel: 'Inside Bar' },
+      { id: 'PFR_COMPRA', name: 'PFR de Compra', shortLabel: 'PFR de Compra' },
+      { id: '123_COMPRA', name: '1-2-3 de Compra', shortLabel: '1-2-3 de Compra' },
+      { id: 'DAVE_LANDRY', name: 'Dave Landry', shortLabel: 'Dave Landry' },
+      { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)', shortLabel: 'RBI' }
+    ];
+
+    return triggers.map(t => {
+      const subset = items.filter(item => item.setupTrigger === t.id);
+      const wins = subset.filter(item => item.result > 0);
+      const losses = subset.filter(item => item.result < 0);
+      const grossProfit = wins.reduce((sum, item) => sum + item.result, 0);
+      const grossLoss = Math.abs(losses.reduce((sum, item) => sum + item.result, 0));
+      const net = subset.reduce((sum, item) => sum + item.result, 0);
+      const rValues = subset.map(item => item.r).filter(v => v != null);
+      const avgR = rValues.length ? rValues.reduce((a, b) => a + b, 0) / rValues.length : null;
+      const winRate = subset.length ? (wins.length / subset.length) * 100 : 0;
+      const avgWin = wins.length ? grossProfit / wins.length : 0;
+      const avgLoss = losses.length ? grossLoss / losses.length : 0;
+      const expectancy = subset.length ? ((winRate / 100) * avgWin) - (((100 - winRate) / 100) * avgLoss) : 0;
+
+      return {
+        id: t.id,
+        name: t.name,
+        shortLabel: t.shortLabel,
+        total: subset.length,
+        wins: wins.length,
+        losses: losses.length,
+        winRate,
+        profitFactor: grossLoss ? grossProfit / grossLoss : (grossProfit > 0 ? Infinity : null),
+        net,
+        avgR,
+        expectancy,
+        grossProfit,
+        grossLoss,
+        avgWin,
+        avgLoss
+      };
+    });
+  }
+
   function ranking(items, limit = 10) {
     return {
       winners: items.filter(item => item.result > 0).sort((a, b) => b.result - a.result).slice(0, limit),
@@ -116,7 +170,11 @@
     { key: 'assetContext', label: 'Contexto Diário bom', read: item => item.assetContext ? item.assetContext === 'Bom' : null },
     { key: 'marketHealthy', label: 'Mercado saudável', read: item => item.marketContext ? item.marketContext === 'Saudável' : null },
     { key: 'atr', label: 'ATR < 2%', read: item => item.atrPct == null ? null : item.atrPct < 2 },
-    { key: 'contraction', label: 'Gatilho: Contração', read: item => item.setup ? normalized(item.setup).includes('contra') : null },
+    { key: 'triggerInsideBar', label: 'Gatilho: Inside Bar', read: item => item.setupTrigger ? item.setupTrigger === 'INSIDE_BAR' : null },
+    { key: 'triggerPfr', label: 'Gatilho: PFR de Compra', read: item => item.setupTrigger ? item.setupTrigger === 'PFR_COMPRA' : null },
+    { key: 'trigger123', label: 'Gatilho: 1-2-3 de Compra', read: item => item.setupTrigger ? item.setupTrigger === '123_COMPRA' : null },
+    { key: 'triggerDaveLandry', label: 'Gatilho: Dave Landry', read: item => item.setupTrigger ? item.setupTrigger === 'DAVE_LANDRY' : null },
+    { key: 'triggerRbi', label: 'Gatilho: RBI', read: item => item.setupTrigger ? item.setupTrigger === 'RBI' : null },
     { key: 'long', label: 'Direção Long', read: item => item.direction ? item.direction === 'long' : null }
   ];
 
@@ -134,5 +192,6 @@
     return winnerDna.map((winner, index) => ({ feature: winner.label, winners: winner, losers: loserDna[index] }));
   }
 
-  return { analyzeTrade, filtersFor, filterTrades, metrics, ranking, dna, compare, ratingLabel };
+  return { analyzeTrade, filtersFor, filterTrades, metrics, metricsByTrigger, ranking, dna, compare, ratingLabel };
 });
+

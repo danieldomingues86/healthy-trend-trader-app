@@ -69,6 +69,7 @@
     ['gauge','Ongoing Risk','Proteção contínua.','Ongoing Risk'],
     ['peel','Peel-Off','Redução quando necessário.','Peel-Off'],
     ['ramp','Risk Ramp-Up','Aumente a exposição gradualmente.','Risk Ramp-Up'],
+    ['target','5 Gatilhos de Entrada','Inside Bar, PFR, 1-2-3, Dave Landry e RBI.','Gatilhos de Entrada'],
   ];
   const faq = [
     ['Por que meu Position Size ficou menor?','O Grade define o Risk Budget e a quantidade teórica pelo stop. Depois, os limitadores de exposição — volatilidade por ATR, capital, Portfolio Heat e máximo de posições — determinam quanto a conta e a carteira podem efetivamente comportar. Confira o limitante destacado no planejamento.'],
@@ -194,6 +195,46 @@
     </div>
     <footer class="grading-footer"><span><b>HEALTHY TREND TRADER</b><small>DISCIPLINA · PROCESSO · RESULTADOS</small></span><p>TRADES MELHORES. VIDA MAIOR.</p></footer>
   </section>`;
+  const triggersSection = () => {
+    const catalog = window.SetupTriggersCatalog ? window.SetupTriggersCatalog.getAllTriggers() : [];
+    if (!catalog.length) return '';
+    return `<section class="kc-panel" id="knowledge-triggers">${sectionHeading('CATÁLOGO OFICIAL DE ENTRADAS', 'Os 5 Gatilhos de Entrada', 'Critérios objetivos de timing. Um único catálogo padronizado em todo o sistema.', 'TIMING PRECISO · STOP ESTRUTURAL')}<div class="manual-grid" style="grid-template-columns:1fr;gap:24px">${catalog.map((t, idx) => `
+      <article class="manual-card trigger-card" id="knowledge-trigger-${t.id.toLowerCase()}">
+        <div class="manual-card-heading trigger-card-heading">
+          <div class="trigger-title-wrap">
+            <span class="badge trigger-badge-idx">GATILHO #${idx + 1}</span>
+            <h3 class="trigger-title">${esc(t.name)}</h3>
+          </div>
+          <span class="badge trigger-badge-code">CÓDIGO: ${esc(t.id)}</span>
+        </div>
+        <div class="trigger-grid-cols">
+          <div>
+            <h4>1. O que é</h4>
+            <p>${esc(t.whatIs)}</p>
+            <h4>2. Como identificar no gráfico</h4>
+            <p>${esc(t.howToIdentify)}</p>
+            <h4>3. Conceito por trás do gatilho</h4>
+            <p>${esc(t.concept)}</p>
+          </div>
+          <div>
+            <h4>4. Condições obrigatórias</h4>
+            <ul>
+              ${t.conditions.map(c => `<li>${esc(c)}</li>`).join('')}
+            </ul>
+            <h4>5. Gatilho de entrada &amp; Stop</h4>
+            <p><b>Entrada:</b> ${esc(t.entryTrigger)}</p>
+            <p><b>Stop inicial:</b> ${esc(t.stop)}</p>
+            <h4>6. Observações práticas</h4>
+            <p class="trigger-observations">“${esc(t.observations)}”</p>
+          </div>
+        </div>
+        <div class="trigger-example-box">
+          <small>Exemplo Estrutural</small>
+          <pre>${esc(t.visualExample)}</pre>
+        </div>
+      </article>
+    `).join('')}</div></section>`;
+  };
   root.innerHTML = `<div class="knowledge-center">
     <section class="kc-hero" aria-labelledby="knowledge-title"><div class="kc-hero-copy"><span class="kc-eyebrow">MANUAL</span><h1 id="knowledge-title">Central de<br>Conhecimento</h1><p class="kc-subtitle">Domine o software. Entenda o método.<br>Execute com intenção.</p><p class="kc-hero-description">Tudo o que você precisa para transformar o Healthy Trend Trader<br class="kc-wide-only"> em uma rotina de decisões consistentes.</p></div><p class="kc-hero-motto">MELHORES<br>TRADERS<br>CONSTROEM<br>MELHORES<br>DECISÕES</p></section>
     <div class="kc-body"><section class="kc-search-section" aria-label="Buscar conhecimento"><form class="kc-search" role="search">${icon('search')}<input type="search" id="knowledgeSearch" placeholder="O que você quer aprender hoje?" aria-label="O que você quer aprender hoje?" autocomplete="off"><kbd>Ctrl K</kbd></form><div class="kc-popular"><span>Perguntas populares:</span>${['Como calcular minha mão?','O que é Portfolio Heat?','Quando um setup é A?','Como funciona o Rubric?','Por que meu risco foi reduzido?'].map((q,i)=>`<button type="button" data-popular="${i}">${q}</button>`).join('')}</div><section class="kc-search-results" aria-live="polite" hidden></section></section>
@@ -203,6 +244,7 @@
     <section class="kc-panel" id="knowledge-method">${sectionHeading('DOMINE O MÉTODO','Os conceitos que fundamentam suas decisões','Entenda o porquê de cada etapa e como os conceitos se conectam.','“CONHECIMENTO APLICADO<br>É APENAS INFORMAÇÃO.”'.replace('É APENAS','VAI ALÉM DA'))}<div class="kc-concept-grid">${concepts.map(([i,t,d],n)=>`<button class="kc-concept" type="button" data-concept="${n}">${icon(i)}<div><h3>${t}</h3><p>${d}</p></div></button>`).join('')}</div></section>
     <section class="kc-panel kc-rubric" id="knowledge-rubric">${sectionHeading('TRADING RUBRIC · EVIDÊNCIAS EM CONJUNTO','Vários edges. Uma decisão consciente.','A qualidade orienta a exposição, dentro da sua política de risco.')}<div class="kc-rubric-flow"><div class="kc-evidence">${['Ciclo de Mercado','Contexto Diário','Força Relativa','Fundamentos','Volatilidade','Execução'].map(t=>`<span>${t}<i aria-hidden="true">+</i></span>`).join('')}</div><svg class="kc-confluence" viewBox="0 0 140 230" preserveAspectRatio="none" aria-hidden="true">${[15,55,95,135,175,215].map(y=>`<path d="M0 ${y} C75 ${y} 55 115 140 115"/>`).join('')}</svg><button type="button" class="kc-rubric-core" data-concept="1"><small>EXEMPLO ILUSTRATIVO</small><strong>A <span>97/100</span></strong><b>HIGH CONVICTION</b><span>Entenda o Rubric →</span></button><div class="kc-rubric-outcomes"><p><b>Mais edges alinhados</b><span>Maior qualidade → maior confiança<br>→ exposição adequada.</span></p><p><b>Menos edges alinhados</b><span>Maior incerteza → risco reduzido<br>ou nenhuma operação.</span></p><small>Score ilustrativo. A classificação real segue a política ativa e não representa probabilidade de ganho.</small></div></div></section>
     ${gradingSection()}
+    ${triggersSection()}
     <section class="kc-panel" id="knowledge-position-management">${sectionHeading('GESTÃO DA POSIÇÃO','Proteja o risco. Deixe a tendência trabalhar.','Portfolio Heat, Peel-Off, Sell Into Strength, Free Roll e Runner têm funções diferentes na mesma operação.','DECISÕES REGISTRADAS · SEM SAÍDAS AUTOMÁTICAS')}<div class="manual-grid"><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">♨</div><h3>Portfolio Heat</h3></div><p>É o risco agregado das posições reais até seus stops. O limite é configurado na Política de Risco; quando excedido, o sistema alerta e bloqueia novas entradas até que a exposição volte ao teto.</p></article><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">↘</div><h3>Peel-Off</h3></div><p>É uma redução de proteção quando o Ongoing Risk ou a volatilidade em andamento excedem o limite. Reduz apenas o necessário e não representa realização planejada de lucro.</p></article><article class="manual-card" id="knowledge-sell-into-strength"><div class="manual-card-heading"><div class="manual-icon">↗</div><h3>Sell Into Strength</h3></div><p>É uma realização parcial manual em uma zona de força configurável.</p><p><strong class="sell-usage-highlight">Sugestão de uso: a faixa de 2R a 3R é uma referência inteligente para embolsar parte dos lucros, baseada em práticas recorrentes de estudos de mercado e no acompanhamento de grandes traders.</strong> Ela pode ser ajustada. Observe a força do ativo e o ciclo de mercado: em mercado saudável, pode fazer sentido realizar mais perto de 3R e deixar a posição correr; em mercado pior, pode fazer sentido realizar mais cedo, perto de 2R.</p></article><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">🛡</div><h3>Free Roll e Runner</h3></div><p>Depois de uma parcial, o Free Roll só fica ativo quando o lucro realizado cobre o risco remanescente. A quantidade restante é o Runner: continua sob trailing stop, ATR, Ongoing Risk e Portfolio Heat, sem venda automática por atingir um R específico.</p></article></div></section>
     <nav class="kc-support" aria-label="Mais formas de aprender"><a href="#knowledge-library" class="kc-support-card">${icon('play')}<div><span class="kc-eyebrow">TUTORIAIS E EXEMPLOS</span><h3>Aprenda vendo</h3><p>Exemplos práticos e simulações para fixar o conhecimento.</p></div>${icon('arrow')}</a><a href="#knowledge-faq" class="kc-support-card">${icon('chat')}<div><span class="kc-eyebrow">FAQ</span><h3>Perguntas frequentes</h3><p>Respostas rápidas para as dúvidas mais comuns da plataforma e do método.</p></div>${icon('arrow')}</a><article class="kc-support-card kc-coming-soon" aria-label="Ask Healthy, em breve">${icon('chat')}<div><span class="kc-eyebrow">ASK HEALTHY</span><h3>Pergunte qualquer coisa</h3><p>Respostas baseadas no seu método, regras e documentação do sistema.</p></div><span class="kc-soon">EM BREVE</span></article></nav>
     <section class="kc-panel kc-faq" id="knowledge-faq">${sectionHeading('RESPOSTAS PARA CONTINUAR','Perguntas frequentes','Abra apenas a dúvida que você quer resolver.')}<div class="kc-faq-grid">${faq.map(([q,a],i)=>`<details id="knowledge-faq-${i}"><summary>${q}<span aria-hidden="true">+</span></summary><p>${a}</p></details>`).join('')}</div></section>

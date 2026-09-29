@@ -24,34 +24,7 @@ body:has(#newtrade.active) .main {
   background: #07150e !important;
 }
 
-body:has(#newtrade.active) .topbar {
-  background: #07150e !important;
-  border-bottom: 1px solid rgba(200, 168, 78, 0.16) !important;
-  backdrop-filter: blur(14px);
-  color: #d6ded8 !important;
-}
-
-body:has(#newtrade.active) .crumb {
-  color: #798e82 !important;
-}
-
-body:has(#newtrade.active) .crumb b {
-  color: #c8a84e !important;
-  font-weight: 700;
-}
-
-body:has(#newtrade.active) .topbar .pill {
-  background: rgba(13, 34, 23, 0.75) !important;
-  border: 1px solid rgba(200, 168, 78, 0.22) !important;
-  color: #d6ded8 !important;
-}
-
-body:has(#newtrade.active) .topbar .avatar {
-  background: linear-gradient(135deg, #1c3628, #c8a84e) !important;
-  color: #07150e !important;
-  border: 1px solid #c8a84e !important;
-  font-weight: 700;
-}
+/* Topbar & navigation are managed authoritatively by sidebar-navigation.css for both themes */
 
 /* Fluid full-width container for widescreen and laptop */
 body:has(#newtrade.active) .content {
@@ -2332,7 +2305,7 @@ body:has(#newtrade.active) .content {
 
 #newtrade .execution-limit {
   position: relative !important;
-  padding: 7px 28px 7px 9px !important;
+  padding: 7px 38px 7px 11px !important;
   border-radius: 8px !important;
   background: rgba(117, 220, 155, 0.06) !important;
   border: 1px solid rgba(117, 220, 155, 0.16) !important;
@@ -2340,22 +2313,56 @@ body:has(#newtrade.active) .content {
 
 #newtrade .execution-limit em {
   position: absolute !important;
-  right: 8px !important;
+  right: 10px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  color: #71e9a6 !important;
-  font-size: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   font-style: normal !important;
-  font-weight: 850 !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+#newtrade .execution-limit em.is-ok,
+#newtrade .execution-limit:not(.is-limiting) em {
+  width: 22px !important;
+  height: 22px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: rgba(16, 185, 129, 0.16) !important;
+  border: 1.5px solid rgba(113, 233, 166, 0.45) !important;
+  color: #71e9a6 !important;
+  box-shadow: 0 0 10px rgba(113, 233, 166, 0.15) !important;
+}
+
+#newtrade .execution-limit em.is-ok svg,
+#newtrade .execution-limit:not(.is-limiting) em svg {
+  display: block !important;
+  width: 12px !important;
+  height: 12px !important;
+  color: #71e9a6 !important;
+  stroke: #71e9a6 !important;
 }
 
 #newtrade .execution-limit.is-limiting {
   border-color: rgba(234, 179, 8, 0.65) !important;
   background: rgba(234, 179, 8, 0.12) !important;
+  padding-right: 68px !important;
 }
 
 #newtrade .execution-limit.is-limiting em {
+  width: auto !important;
+  height: auto !important;
+  padding: 2px 7px !important;
+  border-radius: 999px !important;
+  background: rgba(234, 179, 8, 0.18) !important;
+  border: 1px solid rgba(234, 179, 8, 0.55) !important;
   color: #fde047 !important;
+  font-size: 8.5px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: none !important;
 }
 
 #newtrade .portfolio-reading em {

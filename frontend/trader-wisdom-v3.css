@@ -1,8 +1,8 @@
 body:has(#wisdom.active) .main{background:#051c15;color:#f2efdf}
 body:has(#wisdom.active) .content{padding:0!important;max-width:none;margin:0}
 body:has(#wisdom.active) #marketFocusGuard{display:none}
-body:has(#wisdom.active) .topbar{background:#09241eee;color:#ecebdc;border-bottom:1px solid #dbe7cd1c;backdrop-filter:blur(12px)}
-body:has(#wisdom.active) .crumb,body:has(#wisdom.active) .crumb b{color:#e5ebd9}
+body[data-theme="healthy"]:has(#wisdom.active) .topbar{background:#09241eee;color:#ecebdc;border-bottom:1px solid #dbe7cd1c;backdrop-filter:blur(12px)}
+body[data-theme="healthy"]:has(#wisdom.active) .crumb,body[data-theme="healthy"]:has(#wisdom.active) .crumb b{color:#e5ebd9}
 #wisdom .wv-page{font-family:Arial,sans-serif;color:#f4f1e2;background:radial-gradient(ellipse at 50% 45%,#18392c66,transparent 70%),#041a13;min-height:100vh;padding-bottom:24px;--gold:#e0cb83;--line:#d4dfc545}
 #wisdom .wv-top{padding:0 max(24px,calc((100% - 1800px)/2));background:linear-gradient(180deg,#021b1433 0%,#041b1366 38%,#041a13ef 85%,#041a13 100%),linear-gradient(90deg,#021a14b0,#021a1420),url('../assets/wisdom-hero-v2.webp') center top/cover no-repeat}
 #wisdom .wv-hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:8%;padding:24px 10px 18px;min-height:220px}

@@ -6,12 +6,8 @@
   .app{grid-template-columns:248px minmax(0,1fr)}
   .sidebar{width:248px;min-width:248px;max-width:248px;overflow-x:hidden}
   .main{min-width:0;overflow-x:clip}
-  body:has(#relativestrength.active) .sidebar{width:248px;min-width:248px;max-width:248px;padding:26px 18px}
-  body:has(#relativestrength.active) .nav-group{margin:10px 0 22px}
-  body:has(#relativestrength.active) .sidebar .nav button{padding:12px 14px;font-size:14px}
   body.sidebar-collapsed .app{grid-template-columns:72px minmax(0,1fr)!important}
   body.sidebar-collapsed .sidebar{width:72px!important;min-width:72px!important;max-width:72px!important;padding:18px 8px!important}
-  body.sidebar-collapsed:has(#relativestrength.active) .sidebar{width:72px!important;min-width:72px!important;max-width:72px!important;padding:18px 8px!important}
 }
 
 /* O menu superior é uma barra completa, não uma barra lateral comprimida. */
@@ -123,14 +119,33 @@ body:has(#watchlist.active) #marketFocusGuard {
   #marketscans #marketScansRoot,
   #materials .materials-v2{width:100%;max-width:none!important;margin-inline:auto}
 
-  body:has(#relativestrength.active) .content{
-    width:auto!important;
-    max-width:none!important;
-    margin:0!important;
-    padding:24px var(--workspace-gutter) 48px!important;
+  body:has(#relativestrength.active) .content,
+  body:has(#relativestrength.page.active) .content {
+    box-sizing: border-box;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  #relativestrength.rs-v3-page{width:min(100%,var(--workspace-max-width))!important}
-  #relativestrength.rs-v3-page .rs-simple-shell{width:100%!important;max-width:none!important}
+  body:has(#relativestrength.active) .content #marketFocusGuard,
+  body:has(#relativestrength.page.active) .content #marketFocusGuard {
+    display: none !important;
+  }
+  #relativestrength,
+  #relativestrength.rs-v3-page {
+    box-sizing: border-box;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #relativestrength.rs-v3-page .rs-simple-shell {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
 
   #settings .settings-hero,
   #settings .settings-grid,

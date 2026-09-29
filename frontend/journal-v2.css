@@ -853,6 +853,179 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{
   border:1px solid rgba(214,169,84,.45);
 }
 
+
+/* Gerenciamento de Mercados no Diário Técnico */
+#journal .jv-market-empty-state {
+  padding: 14px 16px;
+  background: #fbf9f2;
+  border: 1px dashed #d5ceb8;
+  border-radius: 9px;
+  margin-top: 6px;
+}
+
+#journal .jv-market-add-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+#journal .jv-market-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  background: #fffdf7;
+  border: 1px solid #d5ceb8;
+  border-radius: 8px;
+  color: #3f3727;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-size: 12px;
+}
+
+#journal .jv-market-add-btn .jv-add-plus {
+  font-weight: 800;
+  font-size: 14px;
+  color: #1e6b37;
+}
+
+#journal .jv-market-add-btn b {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#journal .jv-market-add-btn .jv-market-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #ece5d2;
+  color: #594928;
+}
+
+#journal .jv-market-add-btn:hover {
+  border-color: #3ab267;
+  background: #f4fbf6;
+  transform: translateY(-1px);
+}
+
+#journal .jv-active-markets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+#journal .jv-market-card {
+  background: #fffdf7;
+  border: 1px solid #d5ceb8;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+#journal .jv-market-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ebe5d3;
+}
+
+#journal .jv-market-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#journal .jv-market-card-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #1e6b37;
+  box-shadow: 0 0 6px rgba(30, 107, 55, 0.4);
+}
+
+#journal .jv-market-card-title b {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1f2b1d;
+}
+
+#journal .jv-market-card-title .jv-market-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(30, 107, 55, 0.12);
+  color: #1e6b37;
+  border: 1px solid rgba(30, 107, 55, 0.25);
+}
+
+#journal .jv-market-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #8c7e6b;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+
+#journal .jv-market-remove-btn:hover {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+}
+
+#journal .jv-market-add-more {
+  margin-top: 10px;
+}
+
+#journal .jv-market-add-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px dashed #b8ad95;
+  border-radius: 7px;
+  padding: 6px 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #4b3e26;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#journal .jv-market-add-toggle:hover {
+  background: #f7f3ea;
+  border-color: #75623b;
+  color: #1f2b1d;
+}
+
+#journal .jv-market-add-dropdown {
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: #f9f6ed;
+  border: 1px solid #d5ceb8;
+  border-radius: 8px;
+}
+
+#journal .jv-market-add-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
 /* Badge do Ciclo de Mercado no Diário */
 #journal .jv-market-cycle-badge{
   display:flex;
@@ -898,4 +1071,1313 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{
   0%{transform:scale(.95);box-shadow:0 0 0 0 rgba(46,179,95,.7)}
   70%{transform:scale(1);box-shadow:0 0 0 6px rgba(46,179,95,0)}
   100%{transform:scale(.95);box-shadow:0 0 0 0 rgba(46,179,95,0)}
+}
+
+/* ==========================================================================
+   NAVEGAÇÃO POR ABAS: DIÁRIO DO DIA vs OPERAÇÕES INDIVIDUAIS (TRADES DO DIA)
+   ========================================================================== */
+
+#journal .jv-session-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px clamp(16px, 2.5vw, 32px);
+  background: linear-gradient(90deg, #e4dfd0, #eae6d9 50%, #e4dfd0);
+  border-bottom: 1px solid #d5ceb8;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  white-space: nowrap;
+}
+
+#journal .jv-session-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #c9c3b0;
+  background: #f7f4ea;
+  color: #374836;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s ease;
+  flex-shrink: 0;
+}
+
+#journal .jv-session-tab:hover {
+  background: #fffdf7;
+  border-color: #84a47d;
+  color: #194f31;
+  transform: translateY(-1px);
+}
+
+#journal .jv-session-tab.is-active {
+  background: linear-gradient(135deg, #0e4b2d, #08341e);
+  color: #ffffff;
+  border-color: #072a18;
+  box-shadow: 0 3px 10px rgba(14, 75, 45, .28);
+}
+
+#journal .jv-session-tab .jv-tab-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+#journal .jv-session-tab .jv-tab-title {
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+#journal .jv-session-tab .jv-tab-subtag {
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, .07);
+  letter-spacing: .04em;
+  opacity: .85;
+}
+
+#journal .jv-session-tab.is-active .jv-tab-subtag {
+  background: rgba(255, 255, 255, .2);
+  color: #f1f6e9;
+}
+
+#journal .jv-session-nav-divider {
+  width: 1px;
+  height: 22px;
+  background: #c4beab;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+#journal .jv-trades-nav-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #6b7866;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+#journal .jv-tab-dir-pill {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  letter-spacing: .04em;
+  line-height: 1.2;
+}
+
+#journal .jv-tab-dir-pill.is-long {
+  background: #dcfce7;
+  color: #166534;
+}
+
+#journal .jv-tab-dir-pill.is-short {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+#journal .jv-session-tab.is-active .jv-tab-dir-pill.is-long {
+  background: #22c55e;
+  color: #052e16;
+}
+
+#journal .jv-session-tab.is-active .jv-tab-dir-pill.is-short {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+#journal .jv-tab-grade {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, .12);
+}
+
+#journal .jv-tab-grade.grade-aplus { background: #dcfce7; color: #15803d; border-color: #86efac; }
+#journal .jv-tab-grade.grade-a { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+#journal .jv-tab-grade.grade-b { background: #fef3c7; color: #b45309; border-color: #fde68a; }
+#journal .jv-tab-grade.grade-c { background: #ffedd5; color: #c2410c; border-color: #fed7aa; }
+#journal .jv-tab-grade.grade-d { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+
+#journal .jv-session-tab.is-active .jv-tab-grade {
+  border-color: rgba(255, 255, 255, .3);
+}
+
+#journal .jv-tab-r {
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: monospace;
+  background: rgba(0, 0, 0, .07);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+#journal .jv-session-tab.is-active .jv-tab-r {
+  background: rgba(255, 255, 255, .2);
+  color: #e5eadb;
+}
+
+#journal .jv-add-trade-btn {
+  background: #edf5ed;
+  border: 1px dashed #35724a;
+  color: #194f31;
+  font-weight: 700;
+}
+
+#journal .jv-add-trade-btn:hover {
+  background: #dcf0de;
+  border-color: #194f31;
+  color: #0c3621;
+}
+
+/* ==========================================================================
+   SEÇÃO "TRADES DO DIA" NA VISÃO GERAL DO DIÁRIO (EMBAIXO DO SPREAD)
+   ========================================================================== */
+
+#journal .jv-trades-day-section {
+  padding: 30px clamp(20px, 2.8vw, 42px) 38px;
+  background: #f6f3e7;
+  border-top: 1px solid #d5ceb8;
+  border-radius: 0 0 17px 17px;
+}
+
+#journal .jv-trades-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+#journal .jv-trades-day-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#journal .jv-trades-day-title .jv-title-icon svg {
+  width: 28px;
+  height: 28px;
+  stroke: #194f31;
+}
+
+#journal .jv-trades-day-title h3 {
+  font: 700 20px Georgia, serif;
+  color: #163820;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#journal .jv-trades-count {
+  font-size: 11px;
+  font-family: monospace;
+  font-weight: 800;
+  background: #194f31;
+  color: #f1f6e9;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: .05em;
+}
+
+#journal .jv-trades-day-title p {
+  font-size: 13px;
+  color: #647065;
+  margin: 4px 0 0;
+}
+
+#journal .jv-btn-add-trade {
+  background: linear-gradient(135deg, #0e4b2d, #08341e);
+  color: #ffffff;
+  border: 1px solid #08341e;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 3px 8px rgba(14, 75, 45, .2);
+  transition: all .18s ease;
+}
+
+#journal .jv-btn-add-trade:hover {
+  background: linear-gradient(135deg, #13603a, #0b4226);
+  transform: translateY(-1px);
+}
+
+#journal .jv-trades-empty-box {
+  text-align: center;
+  padding: 44px 24px;
+  background: #fffdf7;
+  border: 1.5px dashed #c9c3b0;
+  border-radius: 14px;
+}
+
+#journal .jv-trades-empty-icon {
+  font-size: 34px;
+  margin-bottom: 8px;
+}
+
+#journal .jv-trades-empty-box h4 {
+  font: 600 17px Georgia, serif;
+  color: #273f29;
+  margin: 0 0 6px;
+}
+
+#journal .jv-trades-empty-box p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #647065;
+  max-width: 640px;
+  margin: 0 auto 18px;
+}
+
+#journal .jv-btn-add-trade-primary {
+  background: linear-gradient(135deg, #0d6338, #074727);
+  color: #fff;
+  border: 1px solid #084928;
+  padding: 10px 22px;
+  font-size: 13.5px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(7, 71, 39, .25);
+  transition: all .18s ease;
+}
+
+#journal .jv-btn-add-trade-primary:hover {
+  background: linear-gradient(135deg, #137e47, #09542e);
+  transform: translateY(-1px);
+}
+
+#journal .jv-trades-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+#journal .jv-trade-card {
+  background: #fffdf7;
+  border: 1px solid #d5ceb8;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  transition: all .18s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+}
+
+#journal .jv-trade-card:hover {
+  border-color: #35724a;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .08);
+  transform: translateY(-2px);
+}
+
+#journal .jv-trade-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+#journal .jv-trade-card-ticker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#journal .jv-trade-card-ticker h4 {
+  font: 700 18px Georgia, serif;
+  color: #163820;
+  margin: 0;
+}
+
+#journal .jv-trade-card-num {
+  font-size: 11px;
+  color: #7c826c;
+  font-weight: 600;
+}
+
+#journal .jv-card-dir-pill {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: .04em;
+}
+
+#journal .jv-card-dir-pill.is-long {
+  background: #dcfce7;
+  color: #166534;
+}
+
+#journal .jv-card-dir-pill.is-short {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+#journal .jv-trade-card-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#journal .jv-badge-grade {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, .12);
+}
+
+#journal .jv-badge-grade.grade-aplus { background: #dcfce7; color: #15803d; border-color: #86efac; }
+#journal .jv-badge-grade.grade-a { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+#journal .jv-badge-grade.grade-b { background: #fef3c7; color: #b45309; border-color: #fde68a; }
+#journal .jv-badge-grade.grade-c { background: #ffedd5; color: #c2410c; border-color: #fed7aa; }
+#journal .jv-badge-grade.grade-d { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+
+#journal .jv-badge-r {
+  font-size: 11px;
+  font-weight: 800;
+  font-family: monospace;
+  background: #0c2014;
+  color: #d5edcc;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+#journal .jv-trade-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#journal .jv-card-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  border-bottom: 1px dashed #eee8d8;
+  padding-bottom: 4px;
+}
+
+#journal .jv-card-info-label {
+  color: #647065;
+}
+
+#journal .jv-card-info-val {
+  color: #163820;
+  font-weight: 600;
+}
+
+#journal .jv-card-excerpt {
+  font: italic 12.5px/1.45 Georgia, serif;
+  color: #4b5544;
+  background: #f6f3e8;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-left: 3px solid #35724a;
+  margin: 4px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+#journal .jv-trade-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #eee8d8;
+  font-size: 12px;
+}
+
+#journal .jv-card-plan-status {
+  font-weight: 600;
+  color: #275b39;
+}
+
+#journal .jv-btn-open-trade {
+  background: transparent;
+  border: 0;
+  color: #194f31;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all .15s ease;
+}
+
+#journal .jv-btn-open-trade:hover {
+  background: #e8f0e8;
+}
+
+/* ==========================================================================
+   FOLHA INDIVIDUAL DO TRADE (7 SEÇÕES CATALOGADAS)
+   ========================================================================== */
+
+#journal .jv-trade-sheet {
+  padding: 28px clamp(20px, 2.8vw, 48px) 40px;
+  background: #fbf8ee;
+  border-radius: 0 0 17px 17px;
+  min-width: 0;
+}
+
+#journal .jv-trade-sheet-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #d5ceb8;
+}
+
+#journal .jv-trade-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #647065;
+}
+
+#journal .jv-back-btn {
+  background: transparent;
+  border: 0;
+  color: #194f31;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all .15s ease;
+}
+
+#journal .jv-back-btn:hover {
+  background: #e6eee6;
+}
+
+#journal .jv-crumb-sep {
+  color: #a49e8d;
+}
+
+#journal .jv-trade-sheet-titlebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+#journal .jv-trade-title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#journal .jv-trade-title-left h2 {
+  font: 700 clamp(20px, 2vw, 26px) Georgia, serif;
+  color: #163820;
+  margin: 0;
+}
+
+#journal .jv-trade-badge-dir {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 5px;
+  letter-spacing: .04em;
+}
+
+#journal .jv-trade-badge-dir.is-long {
+  background: #166534;
+  color: #dcfce7;
+}
+
+#journal .jv-trade-badge-dir.is-short {
+  background: #991b1b;
+  color: #fee2e2;
+}
+
+#journal .jv-trade-badge-setup,
+#journal .jv-trade-badge-tf,
+#journal .jv-trade-badge-time {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #ede8d7;
+  color: #394632;
+  border: 1px solid #d3cdbb;
+}
+
+#journal .jv-btn-delete-trade {
+  background: transparent;
+  border: 1px solid #d8b4b4;
+  color: #a82a2a;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all .18s ease;
+}
+
+#journal .jv-btn-delete-trade:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+#journal .jv-trade-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+#journal .jv-trade-section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+#journal .jv-trade-section legend {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--jv-tone-334432);
+  display: block;
+  width: 100%;
+  padding: 0 0 8px;
+  border-bottom: 1px solid #c9c6b35e;
+  margin-bottom: 12px;
+}
+
+/* 1. IDENTIFICAÇÃO */
+#journal .jv-ident-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+
+#journal .jv-ident-row:last-child {
+  margin-bottom: 0;
+}
+
+#journal .jv-field-ticker {
+  width: 130px;
+  flex-shrink: 0;
+}
+
+#journal .jv-field-dir {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+#journal .jv-field-setup {
+  width: 360px;
+  flex-shrink: 0;
+}
+
+#journal .jv-field-grade {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+#journal .jv-field-tf {
+  flex: 1;
+  min-width: 200px;
+}
+
+#journal .jv-field-time {
+  width: 170px;
+  flex-shrink: 0;
+}
+
+#journal .jv-trade-sheet select {
+  width: 100%;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 900px) {
+  #journal .jv-ident-row {
+    flex-wrap: wrap;
+  }
+  #journal .jv-field-ticker,
+  #journal .jv-field-dir,
+  #journal .jv-field-setup,
+  #journal .jv-field-grade,
+  #journal .jv-field-tf,
+  #journal .jv-field-time {
+    width: 100%;
+    flex: none;
+  }
+}
+
+#journal .jv-input-ticker {
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+
+#journal .jv-toggle-group {
+  display: flex;
+  border: 1px solid #c9c3b0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#journal .jv-toggle-opt {
+  flex: 1;
+  padding: 7px 12px;
+  background: #f4efe3;
+  border: 0;
+  color: #505c4d;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+#journal .jv-toggle-opt:hover {
+  background: #fffdf7;
+}
+
+#journal .jv-toggle-opt.chosen {
+  background: #194f31;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+#journal .jv-grade-pills {
+  display: flex;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+#journal .jv-grade-pill {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #c9c3b0;
+  background: #f7f4ea;
+  color: #394632;
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+
+#journal .jv-grade-pill:hover {
+  background: #fff;
+  border-color: #7c826c;
+}
+
+#journal .jv-grade-pill.chosen {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
+  transform: scale(1.04);
+}
+
+#journal .jv-grade-pill.grade-aplus.chosen { background: #15803d; color: #fff; border-color: #15803d; }
+#journal .jv-grade-pill.grade-a.chosen { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+#journal .jv-grade-pill.grade-b.chosen { background: #d97706; color: #fff; border-color: #d97706; }
+#journal .jv-grade-pill.grade-c.chosen { background: #ea580c; color: #fff; border-color: #ea580c; }
+#journal .jv-grade-pill.grade-d.chosen { background: #dc2626; color: #fff; border-color: #dc2626; }
+
+/* 3. PRINT DA ENTRADA */
+#journal .jv-trade-images-container {
+  margin-top: 6px;
+}
+
+#journal .jv-trade-upload-dropzone {
+  border: 2px dashed #b5ab91;
+  border-radius: 10px;
+  padding: 30px 20px;
+  text-align: center;
+  background: #fbf8ee;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+#journal .jv-trade-upload-dropzone:hover {
+  border-color: #194f31;
+  background: #f3eee1;
+}
+
+#journal .jv-dropzone-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+
+#journal .jv-trade-upload-dropzone h4 {
+  font: 700 15px Georgia, serif;
+  color: #163820;
+  margin: 0 0 4px;
+}
+
+#journal .jv-trade-upload-dropzone p {
+  font-size: 12.5px;
+  color: #647065;
+  margin: 0 0 14px;
+}
+
+#journal .jv-btn-browse-img {
+  background: #194f31;
+  color: #ffffff;
+  border: 0;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+#journal .jv-btn-browse-img:hover {
+  background: #236540;
+}
+
+#journal .jv-trade-images-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+#journal .jv-trade-image-card {
+  border: 1px solid #d5ceb8;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fffdf7;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .05);
+}
+
+#journal .jv-trade-image-preview {
+  width: 100%;
+  height: 190px;
+  background: #16201a;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
+  cursor: zoom-in;
+  user-select: none;
+}
+
+#journal .jv-trade-image-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+  transition: transform 0.22s ease, filter 0.22s ease;
+}
+
+#journal .jv-trade-image-preview:hover img {
+  transform: scale(1.03);
+  filter: brightness(1.05);
+}
+
+#journal .jv-trade-image-preview .jv-img-zoom-hint {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(18, 38, 28, 0.85);
+  backdrop-filter: blur(4px);
+  color: #f1f6e9;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+#journal .jv-trade-image-preview:hover .jv-img-zoom-hint,
+#journal .jv-trade-image-preview:focus-visible .jv-img-zoom-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#journal .jv-trade-image-preview:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: -2px;
+}
+
+#journal .jv-trade-image-meta {
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  border-top: 1px solid #eae5d7;
+}
+
+#journal .jv-trade-image-actions {
+  display: flex;
+  gap: 6px;
+}
+
+#journal .jv-btn-img-zoom {
+  background: transparent;
+  border: 1px solid #b5ab91;
+  color: #234b30;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#journal .jv-btn-img-remove {
+  background: transparent;
+  border: 1px solid #d8b4b4;
+  color: #a82a2a;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+/* 6. PÓS-TRADE */
+#journal .jv-plan-options {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+#journal .jv-plan-option {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #d5ceb8;
+  background: #fffdf7;
+  color: #394632;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all .18s ease;
+}
+
+#journal .jv-plan-option:hover {
+  background: #f9f5ea;
+  border-color: #84a47d;
+}
+
+#journal .jv-plan-option i {
+  font-style: normal;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+#journal .jv-plan-option.chosen {
+  background: #194f31;
+  color: #ffffff;
+  border-color: #0f3621;
+  box-shadow: 0 3px 8px rgba(15, 54, 33, .2);
+}
+
+#journal .jv-post-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 0;
+}
+
+#journal .jv-post-full {
+  grid-column: 1 / -1;
+}
+
+/* RODAPÉ DO TRADE SHEET */
+#journal .jv-trade-sheet-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid #d5ceb8;
+  margin-top: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+#journal .jv-trade-save-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#journal #jv-trade-save-status {
+  font-size: 12px;
+  color: #275b39;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+#journal #jv-trade-save-status.is-saved-flash,
+#journal #jv-save-status.is-saved-flash {
+  color: #059669 !important;
+  font-weight: 700;
+  animation: jvSavePulse 1.4s ease-out;
+}
+
+#journal #jv-trade-save-status.is-error,
+#journal #jv-save-status.is-error {
+  color: #b91c1c !important;
+  font-weight: 700;
+}
+
+@keyframes jvSavePulse {
+  0% { transform: scale(1.08); opacity: 0.6; }
+  25% { transform: scale(1); opacity: 1; text-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+  100% { transform: scale(1); text-shadow: none; }
+}
+
+#journal .jv-save.is-saving-feedback {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #047857 !important;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35) !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* ==========================================================================
+   MODAL DE CADASTRO DE NOVO TRADE (+ ADICIONAR TRADE)
+   ========================================================================== */
+
+.jv-add-trade-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.jv-modal-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #657060;
+  margin: 0 0 4px;
+}
+
+.jv-modal-quick-import {
+  padding: 10px 14px;
+  background: #f2ece0;
+  border-radius: 8px;
+  border: 1px solid #d5cca7;
+  margin-bottom: 4px;
+}
+
+.jv-modal-quick-import span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #495b44;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.jv-modal-quick-import select {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #c8be9c;
+  background: #fff;
+  font-size: 12.5px;
+}
+
+.jv-add-trade-form .jv-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.jv-add-trade-form .jv-grade-pills {
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   TEMA GOLD — OVERRIDES PARA TRADES DO DIA E ABAS
+   ========================================================================== */
+
+body:not([data-theme="healthy"]) #journal .jv-session-nav {
+  background: linear-gradient(90deg, #241c0f, #2c2213 50%, #241c0f);
+  border-bottom-color: #4a3a1f;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-session-tab {
+  background: #231b0e;
+  border-color: #48381c;
+  color: #d8c8a8;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-session-tab:hover {
+  background: #312614;
+  border-color: #8c6e33;
+  color: #f7eddc;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-session-tab.is-active {
+  background: linear-gradient(135deg, #7c5d1e, #4f3b10);
+  border-color: #9b7529;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(124, 93, 30, .35);
+}
+
+body:not([data-theme="healthy"]) #journal .jv-add-trade-btn {
+  background: #261f12;
+  border-color: #8c6e33;
+  color: #dfbf78;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-add-trade-btn:hover {
+  background: #382c16;
+  border-color: #d6aa50;
+  color: #faeac8;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trades-day-section {
+  background: #1c150b;
+  border-top-color: #40321a;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trades-day-title h3 {
+  color: #f3e6ce;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trades-day-title .jv-title-icon svg {
+  stroke: #d6aa50;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trades-count {
+  background: #7c5d1e;
+  color: #fff;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-btn-add-trade {
+  background: linear-gradient(135deg, #7c5d1e, #4f3b10);
+  border-color: #8c6e33;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-btn-add-trade:hover {
+  background: linear-gradient(135deg, #9b7529, #664d17);
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-card {
+  background: #251d10;
+  border-color: #443419;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-card:hover {
+  border-color: #9b7529;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-card-ticker h4 {
+  color: #faeed7;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-card-info-row {
+  border-bottom-color: #362914;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-card-info-val {
+  color: #f0e2ca;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-card-excerpt {
+  background: #2f2413;
+  border-left-color: #b58934;
+  color: #ded1ba;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-card-footer {
+  border-top-color: #362914;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-card-plan-status {
+  color: #cdad68;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-btn-open-trade {
+  color: #dfbf78;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-sheet {
+  background: #1c150b;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-sheet-header {
+  border-bottom-color: #40321a;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-title-left h2 {
+  color: #faeed7;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-badge-setup,
+body:not([data-theme="healthy"]) #journal .jv-trade-badge-tf,
+body:not([data-theme="healthy"]) #journal .jv-trade-badge-time {
+  background: #2e2311;
+  color: #d8c8a8;
+  border-color: #48381c;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-section legend {
+  color: #e5cb91;
+  border-bottom-color: #48381c;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-toggle-opt {
+  background: #2c2213;
+  color: #bfae8d;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-toggle-opt.chosen {
+  background: #7c5d1e;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-upload-dropzone {
+  background: #251d10;
+  border-color: #55411f;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-upload-dropzone h4 {
+  color: #faeed7;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-btn-browse-img {
+  background: #7c5d1e;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-plan-option {
+  background: #2a2012;
+  border-color: #48381c;
+  color: #d8c8a8;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-plan-option.chosen {
+  background: #7c5d1e;
+  border-color: #9b7529;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-trade-sheet-footer {
+  border-top-color: #40321a;
+}
+
+
+
+/* Mercados no Diário - Gold Theme */
+body:not([data-theme="healthy"]) #journal .jv-market-empty-state,
+body[data-theme="gold"] #journal .jv-market-empty-state {
+  background: rgba(24, 19, 12, 0.6) !important;
+  border-color: rgba(214, 170, 80, 0.25) !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-card,
+body[data-theme="gold"] #journal .jv-market-card {
+  background: rgba(24, 19, 12, 0.85) !important;
+  border-color: rgba(214, 170, 80, 0.25) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-card-header,
+body[data-theme="gold"] #journal .jv-market-card-header {
+  border-bottom-color: rgba(214, 170, 80, 0.15) !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-card-title b,
+body[data-theme="gold"] #journal .jv-market-card-title b {
+  color: #fffaf0 !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-card-dot,
+body[data-theme="gold"] #journal .jv-market-card-dot {
+  background: #d4af37 !important;
+  box-shadow: 0 0 6px rgba(214, 170, 80, 0.5) !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-card-title .jv-market-badge,
+body[data-theme="gold"] #journal .jv-market-card-title .jv-market-badge {
+  background: rgba(214, 170, 80, 0.18) !important;
+  color: #f5edd8 !important;
+  border-color: rgba(214, 170, 80, 0.35) !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-remove-btn,
+body[data-theme="gold"] #journal .jv-market-remove-btn {
+  color: #a49477 !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-remove-btn:hover,
+body[data-theme="gold"] #journal .jv-market-remove-btn:hover {
+  color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-add-btn,
+body[data-theme="gold"] #journal .jv-market-add-btn {
+  background: rgba(24, 19, 12, 0.8) !important;
+  border-color: rgba(214, 170, 80, 0.25) !important;
+  color: #fffaf0 !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-add-btn .jv-add-plus,
+body[data-theme="gold"] #journal .jv-market-add-btn .jv-add-plus {
+  color: #d4af37 !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-add-btn:hover,
+body[data-theme="gold"] #journal .jv-market-add-btn:hover {
+  background: rgba(214, 170, 80, 0.15) !important;
+  border-color: rgba(214, 170, 80, 0.45) !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-add-toggle,
+body[data-theme="gold"] #journal .jv-market-add-toggle {
+  border-color: rgba(214, 170, 80, 0.3) !important;
+  color: #c5bca9 !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-add-toggle:hover,
+body[data-theme="gold"] #journal .jv-market-add-toggle:hover {
+  background: rgba(214, 170, 80, 0.12) !important;
+  color: #fffaf0 !important;
+}
+
+body:not([data-theme="healthy"]) #journal .jv-market-add-dropdown,
+body[data-theme="gold"] #journal .jv-market-add-dropdown {
+  background: rgba(20, 16, 10, 0.9) !important;
+  border-color: rgba(214, 170, 80, 0.25) !important;
 }

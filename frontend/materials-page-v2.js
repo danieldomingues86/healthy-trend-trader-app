@@ -345,8 +345,25 @@
     root.querySelector('[data-material-support]').onclick = () => showToast('O suporte está disponível pelo WhatsApp no canto inferior direito.');
     const crumb = document.getElementById('crumb');
     if (crumb) crumb.textContent = window.appLanguage === 'en-US' ? 'Trader Store' : 'Loja do Trader';
-    const navLabel = document.querySelector('.nav button[data-page="materials"]');
-    if (navLabel && navLabel.lastChild) navLabel.lastChild.nodeValue = window.appLanguage === 'en-US' ? 'Trader Store' : 'Loja do Trader';
+    const navBtn = document.querySelector('.nav button[data-page="materials"]');
+    if (navBtn) {
+      const labelText = window.appLanguage === 'en-US' ? 'Trader Store' : 'Loja do Trader';
+      const labelSpan = navBtn.querySelector('.sidebar-btn-label');
+      if (labelSpan) {
+        labelSpan.textContent = labelText;
+        navBtn.setAttribute('data-label', labelText);
+        Array.from(navBtn.childNodes).forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE) node.remove();
+        });
+      } else {
+        const textNode = Array.from(navBtn.childNodes).find((n) => n.nodeType === Node.TEXT_NODE && n.nodeValue.trim());
+        if (textNode) {
+          textNode.nodeValue = labelText;
+        } else if (navBtn.lastChild && navBtn.lastChild.nodeType === Node.TEXT_NODE) {
+          navBtn.lastChild.nodeValue = labelText;
+        }
+      }
+    }
   };
 
   window.addEventListener('healthyTrend:authenticated', loadEntitlements);

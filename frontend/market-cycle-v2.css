@@ -158,6 +158,53 @@ html.market-cycle-active .content #marketFocusGuard,body.market-cycle-active .co
 #marketcycle .mcv2-diagnosis>p{margin:0;color:var(--regime-primary);font-size:10.5px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;transition:color .35s ease}
 #marketcycle .mcv2-hero-title-row{display:flex;align-items:center;gap:12px;margin:12px 0 10px}
 #marketcycle .mcv2-hero-icon{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex:none;color:var(--regime-primary);transition:color .35s ease}
+
+/* ── THEME PALETTE ISOLATION FOR MARKET CYCLE ── */
+body:not([data-theme="healthy"]) #marketcycle .mcv2-page {
+  background: #0d0a06 radial-gradient(circle at 50% 0%, #26190b 0%, #130e07 60%, #080603 100%) !important;
+  color: #f7eedb !important;
+}
+
+body:not([data-theme="healthy"]) #marketcycle .mcv2-market-pills {
+  border-color: rgba(214, 170, 80, 0.3) !important;
+  background: rgba(26, 19, 10, 0.85) !important;
+}
+
+body:not([data-theme="healthy"]) #marketcycle .mcv2-market-pill {
+  color: #d7c59d !important;
+}
+
+body:not([data-theme="healthy"]) #marketcycle .mcv2-market-pill:hover {
+  background: rgba(214, 170, 80, 0.15) !important;
+  color: #fff4d6 !important;
+}
+
+body:not([data-theme="healthy"]) #marketcycle .mcv2-market-pill.active {
+  background: linear-gradient(105deg, #b78022, #e0b750) !important;
+  color: #171004 !important;
+  border-color: rgba(240, 210, 120, 0.4) !important;
+}
+
+body:not([data-theme="healthy"]) #marketcycle .mcv2-market-pill.active .mcv2-market-ref {
+  background: rgba(0, 0, 0, 0.25) !important;
+  color: #171004 !important;
+}
+
+body:not([data-theme="healthy"]) #marketcycle .mcv2-market-tag {
+  border-color: rgba(214, 170, 80, 0.3) !important;
+  background: rgba(26, 19, 10, 0.8) !important;
+  color: #deb465 !important;
+}
+
+body:not([data-theme="healthy"]) #marketcycle .mcv2-status {
+  background: rgba(26, 19, 10, 0.85) !important;
+  border-color: rgba(214, 170, 80, 0.35) !important;
+}
+
+body:not([data-theme="healthy"]) #marketcycle .mcv2-hero {
+  background: linear-gradient(135deg, rgba(38, 26, 11, 0.96) 0%, rgba(20, 14, 7, 0.98) 100%) !important;
+  color: #f7eedb !important;
+}
 #marketcycle .mcv2-hero-icon svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #marketcycle .mcv2-diagnosis h2{margin:0;color:#ffffff;font-size:clamp(26px,2.2vw,36px);letter-spacing:-.035em;font-weight:700}
 #marketcycle .mcv2-diagnosis>span{display:block;max-width:480px;color:#cbe0d3;font-size:14px;line-height:1.55}

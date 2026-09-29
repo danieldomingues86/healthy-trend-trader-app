@@ -32,7 +32,44 @@ const FII_SEGMENTS = {
   BTCI11:'Papel/CRI',DEVA11:'Papel/CRI',RECR11:'Papel/CRI',HCTR11:'Papel/CRI',RBRY11:'Papel/CRI',RBRR11:'Papel/CRI',VGIP11:'Papel/CRI',MCCI11:'Papel/CRI',VGIR11:'Papel/CRI',CPTS11:'Papel/CRI',RZAK11:'Papel/CRI',AFHI11:'Papel/CRI',KNIP11:'Papel/CRI',XPCI11:'Papel/CRI',BCRI11:'Papel/CRI',MXRF11:'Papel/CRI',HABT11:'Papel/CRI',OUJP11:'Papel/CRI',KNSC11:'Papel/CRI',KNCR11:'Papel/CRI',VRTA11:'Papel/CRI',KNHY11:'Papel/CRI',VCJR11:'Papel/CRI',KCRE11:'Papel/CRI',CACR11:'Papel/CRI',HGCR11:'Papel/CRI',CLIN11:'Papel/CRI',KNHF11:'Papel/CRI',KIVO11:'Papel/CRI',KNUQ11:'Papel/CRI',MCRE11:'Papel/CRI',ICRI11:'Papel/CRI',PCIP11:'Papel/CRI',PSEC11:'Papel/CRI',RPRI11:'Papel/CRI',IRIM11:'Papel/CRI',
   RBRL11:'Híbridos',RBRX11:'Híbridos',SNFF11:'Híbridos',KISU11:'Híbridos',KFOF11:'Híbridos',BCIA11:'Híbridos',JSAF11:'Híbridos',TGAR11:'Híbridos',XPSF11:'Híbridos',HFOF11:'Híbridos',BTHF11:'Híbridos',RBFM11:'Híbridos'
 };
-const FII_CATALOG = FII_SYMBOLS.map((symbol) => [symbol, symbol, FII_SEGMENTS[symbol] || 'Outros']);
+const FII_NAME_MAP = {
+  HGLG11: 'CSHG Logística', KNIP11: 'Kinea Índices de Preços', KNCR11: 'Kinea Rendimentos Imobiliários',
+  KNRI11: 'Kinea Renda Imobiliária', KNHY11: 'Kinea High Yield CRI', KNSC11: 'Kinea Securities',
+  KFOF11: 'Kinea Fundo de Fundos', KCRE11: 'Kinea Crédito Agro', KNHF11: 'Kinea Hedge Fund',
+  KORE11: 'Kinea Oportunidades Real Estate', KNUQ11: 'Kinea Unique', XPML11: 'XP Malls',
+  XPLG11: 'XP Logística', XPCI11: 'XP Crédito Imobiliário', XPSF11: 'XP Seleção FOF',
+  MXRF11: 'Maxi Renda', BTLG11: 'BTG Pactual Logística', BTAL11: 'BTG Pactual Agro Logística',
+  BTCI11: 'BTG Pactual Crédito Imobiliário', BPML11: 'BTG Pactual Shoppings', BTHF11: 'BTG Pactual Hedge Fund',
+  BRCR11: 'BTG Pactual Corporate Office', VISC11: 'Vinci Shopping Centers', VILG11: 'Vinci Logística',
+  VINO11: 'Vinci Offices', VGHF11: 'Valora Hedge Fund', VGIR11: 'Valora RE III',
+  VGIP11: 'Valora CRI Índice de Preço', VGRI11: 'Valora Gestão de Renda Imobiliária', HGRU11: 'CSHG Renda Urbana',
+  HGBS11: 'Hedge Brasil Shopping', HGRE11: 'CSHG Real Estate', HGCR11: 'CSHG Recebíveis Imobiliários',
+  HFOF11: 'Hedge Top FOFII', HCTR11: 'Hectare CE', HSML11: 'HSI Malls',
+  HSLG11: 'HSI Logística', HSAF11: 'HSI Ativos Financeiros', CPTS11: 'Capitânia Securities II',
+  CPSH11: 'Capitânia Shopping', RZAK11: 'Riza Akin', RZTR11: 'Riza Terrax',
+  RZAT11: 'Riza Agro', TGAR11: 'TG Ativo Real', TRXF11: 'TRX Real Estate',
+  ALZR11: 'Alianza Trust Renda Imobiliária', BRCO11: 'Bresco Logística', BROF11: 'BR Properties Corporate Offices',
+  PVBI11: 'VBI Prime Properties', LVBI11: 'VBI Logística', BCIA11: 'Bradesco Carteira Imobiliária Ativa',
+  BCRI11: 'Banestes Recebíveis Imobiliários', GARE11: 'Guardian Real Estate', GGRC11: 'GGR Covepi Renda Imobiliária',
+  GZIT11: 'Gazit Malls', JSRE11: 'JS Real Estate Multigestão', JSAF11: 'JS Ativos Financeiros',
+  MCCI11: 'Mauá Capital Recebíveis', MCRE11: 'Mauá Capital Real Estate', MANA11: 'MANA FII',
+  RBRP11: 'RBR Properties', RBRR11: 'RBR Rendimento High Grade', RBRY11: 'RBR Crédito Imobiliário',
+  RBRL11: 'RBR Logística', RBRX11: 'RBR Plus Multiestratégia', RBVA11: 'Rio Bravo Renda Varejo',
+  RBFM11: 'Rio Bravo Renda Comercial', RCRB11: 'Rio Bravo Renda Corporativa', RECR11: 'REC Recebíveis Imobiliários',
+  SNCI11: 'Suno Recebíveis Imobiliários', SNFF11: 'Suno Fundo de Fundos', SNEL11: 'Suno Energias Limpas',
+  KISU11: 'Kilima FIC de FII SUNO 30', KIVO11: 'Kilima Vesta', TEPP11: 'Tellus Properties',
+  VRTA11: 'Fator Verità', VRTM11: 'Fator Verità Multiestratégia', FATN11: 'BR Capital Distribuição',
+  CLIN11: 'Clave Índices de Preços', DEVA11: 'Devant Recebíveis Imobiliários', URPR11: 'Urca Prime Renda',
+  HABT11: 'Habitat II', OUJP11: 'Ourinvest JPP', AFHI11: 'AF Invest Cri',
+  MFII11: 'Mérito Desenvolvimento Imobiliário', WHGR11: 'WHG Real Estate', PORD11: 'Polo FII Recebíveis Imobiliários',
+  VCJR11: 'Vectis Juros Real', TVRI11: 'Tivio Renda Imobiliária', HTMX11: 'Hotel Maxinvest',
+  CACR11: 'Cartesia Recebíveis Imobiliários', ITRI11: 'Inter Títulos Imobiliários', BBIG11: 'BB Renda Imobiliária',
+  ICRI11: 'Integral Brei CRI', LIFE11: 'Life Capital Partners', TOPP11: 'Torre Almirante',
+  PMLL11: 'Pátria Malls', AZPL11: 'AZ Quest Panorama Logística', PCIP11: 'Polocred Índices de Preços',
+  PSEC11: 'Pátria Securitizadora', RPRI11: 'RBCap Renda Imobiliária', IRIM11: 'Iridium Recebíveis Imobiliários',
+  CYCR11: 'Cyrela Crédito Imobiliário', SPXS11: 'Apex SPX Crédito Imobiliário', GTWR11: 'Green Towers Brasília'
+};
+const FII_CATALOG = FII_SYMBOLS.map((symbol) => [symbol, FII_NAME_MAP[symbol] || symbol, FII_SEGMENTS[symbol] || 'Outros']);
 const BDR_CATALOG = [
   ['ROXO34', 'Nu Holdings', 'Financeiro', 'NU', 'NYSE'],
   ['MELI34', 'MercadoLibre', 'Consumo', 'MELI', 'NASDAQ'],
@@ -555,7 +592,26 @@ function classStrengthFromCache(cache) {
   const stockIbov = cache.relativeStrengthByClass?.stock_ibov || fallbackStock;
   const stockOther = cache.relativeStrengthByClass?.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [], pending: true };
   const pending = (assetClass) => ({ ...classMeta(assetClass), requested: 0, available: 0, items: [], pending: true });
-  return { stock: legacyStock, stock_ibov: stockIbov, stock_other: stockOther, fii: cache.relativeStrengthByClass?.fii || pending('fii'), bdr: cache.relativeStrengthByClass?.bdr || pending('bdr') };
+  const fiiRaw = cache.relativeStrengthByClass?.fii || pending('fii');
+  const fii = {
+    ...fiiRaw,
+    items: (fiiRaw.items || []).map((item) => ({
+      ...item,
+      name: (item.name && item.name !== item.symbol) ? item.name : (FII_NAME_MAP[item.symbol] || item.name || item.symbol)
+    }))
+  };
+  const bdrRaw = cache.relativeStrengthByClass?.bdr || pending('bdr');
+  const bdr = {
+    ...bdrRaw,
+    items: (bdrRaw.items || []).map((item) => {
+      const bdrEntry = BDR_CATALOG.find(([s]) => s === item.symbol);
+      return {
+        ...item,
+        name: (item.name && item.name !== item.symbol) ? item.name : (bdrEntry?.[1] || item.name || item.symbol)
+      };
+    })
+  };
+  return { stock: legacyStock, stock_ibov: stockIbov, stock_other: stockOther, fii, bdr };
 }
 function classifyAsset(symbol, cache) {
   const normalized = String(symbol || '').trim().toUpperCase();

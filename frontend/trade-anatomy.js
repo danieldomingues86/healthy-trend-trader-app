@@ -3,7 +3,7 @@
   const model = window.TradeAnatomyModel;
   if (!model) return;
 
-  const state = { year: '', month: '', market: '', direction: '', selectedId: null, selectedRank: null };
+  const state = { year: '', month: '', market: '', direction: '', setupTrigger: '', selectedId: null, selectedRank: null };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
   const money = value => Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const num = (value, digits = 1) => Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -18,17 +18,30 @@
     return `<option value="">${empty}</option>${items.map(item => `<option value="${esc(item)}" ${String(selected) === String(item) ? 'selected' : ''}>${esc(item)}</option>`).join('')}`;
   }
 
+  function triggerOptions(selected) {
+    const list = window.SetupTriggersCatalog ? window.SetupTriggersCatalog.getAllTriggers() : [
+      { id: 'INSIDE_BAR', name: 'Inside Bar' },
+      { id: 'PFR_COMPRA', name: 'PFR de Compra' },
+      { id: '123_COMPRA', name: '1-2-3 de Compra' },
+      { id: 'DAVE_LANDRY', name: 'Dave Landry' },
+      { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)' }
+    ];
+    return `<option value="">Todos</option>` + list.map(t => `<option value="${esc(t.id)}" ${String(selected) === String(t.id) ? 'selected' : ''}>${esc(t.name)}</option>`).join('');
+  }
+
   function summaryMetric(label, value, tone = '') {
     return `<div class="ta-summary-item ${tone}"><small>${label}</small><strong>${value}</strong></div>`;
   }
 
   function tradeCard(item, rank, kind) {
     const r = item.r == null ? 'R não registrado' : `${item.r >= 0 ? '+' : ''}${num(item.r, 1)}R`;
+    const triggerLabel = item.triggerLabel || item.setup || 'Não informado';
     return `<article class="ta-trade-card ${kind} rank-${Math.min(rank, 4)}" data-ta-detail="${esc(item.id)}" data-ta-rank="${rank}" tabindex="0" role="button" aria-label="Abrir Raio-X de ${esc(item.symbol)}">
       <div class="ta-rank"><span>#${rank}</span>${rank <= 3 ? '<i>★</i>' : ''}</div>
       <div class="ta-card-symbol">${esc(item.symbol)}</div>
       <div class="ta-result"><strong>${money(item.result)}</strong><span>${r}</span></div>
       <div class="ta-card-essential"><span>GRADE <b>${available(item.grade)}</b></span><span>RS <b>${available(item.relativeStrength)}</b></span></div>
+      <div class="ta-card-trigger">GATILHO: <b>${esc(triggerLabel)}</b></div>
       <div class="ta-card-link">Ver Raio-X <span>→</span></div>
     </article>`;
   }
@@ -53,6 +66,59 @@
     </section>`;
   }
 
+  function triggersPerformanceSection(filtered) {
+    if (typeof model.metricsByTrigger !== 'function') return '';
+    const items = model.metricsByTrigger(filtered);
+    const cards = items.map(item => {
+      const winRateStr = item.total ? `${num(item.winRate, 1)}%` : '—';
+      const netStr = item.total ? money(item.net) : '—';
+      const avgRStr = item.avgR != null ? `${item.avgR >= 0 ? '+' : ''}${num(item.avgR, 1)}R` : '—';
+      const pfStr = item.profitFactor == null ? '—' : item.profitFactor === Infinity ? '∞' : num(item.profitFactor, 2);
+      const tone = item.net > 0 ? 'positive' : item.net < 0 ? 'negative' : '';
+      return `<article class="ta-trigger-card">
+        <div class="ta-trigger-card-head">
+          <h3>${esc(item.name)}</h3>
+          <span>${item.total} trade${item.total === 1 ? '' : 's'}</span>
+        </div>
+        <div class="ta-trigger-card-stats">
+          <div class="ta-trigger-card-stat">
+            <small>Taxa de Acerto</small>
+            <strong>${winRateStr}</strong>
+          </div>
+          <div class="ta-trigger-card-stat">
+            <small>Resultado Líquido</small>
+            <strong class="${tone}">${netStr}</strong>
+          </div>
+          <div class="ta-trigger-card-stat">
+            <small>R Médio</small>
+            <strong>${avgRStr}</strong>
+          </div>
+          <div class="ta-trigger-card-stat">
+            <small>Profit Factor</small>
+            <strong>${pfStr}</strong>
+          </div>
+          <div class="ta-trigger-card-stat">
+            <small>Vencedores</small>
+            <strong class="positive">${item.wins}</strong>
+          </div>
+          <div class="ta-trigger-card-stat">
+            <small>Perdedores</small>
+            <strong class="negative">${item.losses}</strong>
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+
+    return `<section class="ta-triggers-section">
+      <header>
+        <div class="ta-section-question">🎯 PERFORMANCE POR GATILHO DE ENTRADA</div>
+        <h2>EFICÁCIA DOS 5 GATILHOS</h2>
+        <p>Métricas consolidadas de cada gatilho padronizado no recorte atual.</p>
+      </header>
+      <div class="ta-triggers-grid">${cards}</div>
+    </section>`;
+  }
+
   function dnaRow(entry) {
     const bar = (data, tone) => `<div class="ta-dna-bar ${tone}"><span>${tone === 'winner' ? 'Vencedores' : 'Perdedores'}</span><i><em style="width:${data.percentage || 0}%"></em></i><b>${data.percentage == null ? '—' : `${num(data.percentage, 0)}%`}</b><small>${data.denominator ? `${data.matches}/${data.denominator}` : 'sem dado'}</small></div>`;
     return `<article class="ta-dna-row"><h3>${esc(entry.feature)}</h3><div>${bar(entry.winners, 'winner')}${bar(entry.losers, 'loser')}</div></article>`;
@@ -70,7 +136,7 @@
     const rows = [
       ['Grade', item.grade], ['Força Relativa', item.relativeStrength], ['Contexto Diário', item.assetContext],
       ['Ciclo de Mercado', item.marketContext], ['ATR%', item.atrPct == null ? null : `${num(item.atrPct, 2)}%`],
-      ['Gatilho', item.setup], ['Fundamentos', item.fundamentals], ['Direção', direction],
+      ['Gatilho de Entrada', item.triggerLabel || item.setup || 'Não informado'], ['Fundamentos', item.fundamentals], ['Direção', direction],
       ['Data de entrada', date(item.openedAt)], ['Duração', duration]
     ];
     return `<div class="ta-drawer-backdrop" data-ta-close></div><aside class="ta-drawer" role="dialog" aria-modal="true" aria-label="Raio-X do trade ${esc(item.symbol)}">
@@ -104,6 +170,7 @@
         <label><span>Mês</span><select data-ta-filter="month"><option value="">Todos</option>${['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map((label,index)=>`<option value="${index+1}" ${String(state.month)===String(index+1)?'selected':''}>${label}</option>`).join('')}</select></label>
         <label><span>Mercado</span><select data-ta-filter="market">${selectOptions(choices.markets, state.market, 'Todos')}</select></label>
         <label><span>Direção</span><select data-ta-filter="direction"><option value="">Todas</option><option value="long" ${state.direction==='long'?'selected':''}>Long</option><option value="short" ${state.direction==='short'?'selected':''}>Short</option></select></label>
+        <label><span>Gatilho de Entrada</span><select data-ta-filter="setupTrigger">${triggerOptions(state.setupTrigger)}</select></label>
         <button type="button" class="ta-refresh" data-ta-refresh>↻ Atualizar</button>
       </section>
       <section class="ta-summary">
@@ -112,6 +179,7 @@
       </section>
       ${rankingSection('winner', ranks.winners, metrics.grossProfit)}
       ${rankingSection('loser', ranks.losers, metrics.grossLoss)}
+      ${triggersPerformanceSection(filtered)}
       <section class="ta-dna">
         <header><div class="ta-section-question">🧬 O QUE ELES TINHAM EM COMUM?</div><h2>DNA DOS VENCEDORES × PERDEDORES</h2><p>Comparação descritiva dos dados registrados na entrada. Associação não significa causalidade.</p></header>
         <div class="ta-dna-list">${comparison.map(dnaRow).join('')}</div>

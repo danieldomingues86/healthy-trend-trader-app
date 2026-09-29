@@ -3,6 +3,8 @@ const database = require('./database');
 const management = require('../../frontend/position-management-model');
 const rubricModel = require('../../frontend/trading-rubrics');
 const assetBlacklist = require('./asset-blacklist');
+const marketPause = require('./market-pause');
+const setupTriggers = require('../../frontend/setup-triggers-catalog');
 
 function invalid(message) {
   const error = new Error(message);
@@ -50,11 +52,26 @@ function normalizePlan(payload = {}) {
   const contributions = Array.isArray(payload.rubricContributions) ? payload.rubricContributions : [];
   const rubricGrade = String(payload.grade || payload.rubricGrade || '').trim();
   if (!['A', 'B', 'C', 'D'].includes(rubricGrade)) throw invalid('Grade da Rubric inválido. Reavalie o trade com a classificação atual.');
+
+  const rawTrigger = payload.setupTrigger || payload.setup_trigger;
+  let setupTrigger = null;
+  if (rawTrigger) {
+    setupTrigger = setupTriggers.normalizeKey(rawTrigger);
+    if (!setupTrigger || !setupTriggers.isValidTrigger(setupTrigger)) {
+      throw invalid('Gatilho de entrada inválido. Selecione um dos 5 gatilhos homologados.');
+    }
+  } else if (payload.setup) {
+    setupTrigger = setupTriggers.normalizeKey(payload.setup);
+  }
+
+  const setupLabel = setupTrigger ? setupTriggers.getTriggerLabel(setupTrigger) : (String(payload.setup || '').slice(0, 100) || null);
+
   return {
     ticker,
     market: String(payload.market || '').slice(0, 50) || null,
     direction: ['long', 'short'].includes(payload.direction) ? payload.direction : null,
-    setup: String(payload.setup || '').slice(0, 100) || null,
+    setup: setupLabel,
+    setupTrigger,
     entry,
     stop,
     atr: number(payload.atr, 'ATR', { minimum: 0 }),
@@ -114,6 +131,10 @@ async function createPlan(userId, payload) {
     if (restriction?.restrictionLevel === 'block') throw invalid(`${plan.ticker} está bloqueado na sua Blacklist. Consulte a regra pessoal antes de operar.`);
     if (restriction?.restrictionLevel === 'alert' && !plan.metadata.blacklistOverride) throw invalid(`${plan.ticker} está na sua Blacklist. Confirme conscientemente antes de continuar.`);
     if (!restriction) plan.metadata.blacklistOverride = false;
+    const activePause = await marketPause.getActive(userId, client);
+    if (activePause) {
+      throw invalid(`Você está em período de pausa fora do mercado até ${activePause.expectedReturnDate}. Encerre a pausa antes de registrar uma nova operação.`);
+    }
     if (plan.rubricGrade === 'A') {
       const savedPolicy = await client.query('SELECT policy FROM app.risk_policies WHERE user_id = $1', [userId]);
       validateRareTrade(plan, savedPolicy.rows[0]?.policy);
@@ -122,14 +143,14 @@ async function createPlan(userId, payload) {
       `INSERT INTO app.trades (
         id, user_id, ticker, market, direction, setup, entry_price, stop_price, atr,
         planned_quantity, risk_pct, rubric_score, rubric_max_score, rubric_grade,
-        rubric_responses, status, metadata, execution_price, executed_quantity, executed_at
+        rubric_responses, status, metadata, execution_price, executed_quantity, executed_at, setup_trigger
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
-        $10, $11, $12, $13, $14, $15::jsonb, 'open', $16::jsonb, $7, $17, $18
+        $10, $11, $12, $13, $14, $15::jsonb, 'open', $16::jsonb, $7, $17, $18, $19
       )`,
       [id, userId, plan.ticker, plan.market, plan.direction, plan.setup, plan.entry, plan.stop, plan.atr,
         plan.plannedQuantity, plan.riskPct, plan.rubricScore, plan.rubricMaxScore, plan.rubricGrade,
-        JSON.stringify(plan.rubricResponses), JSON.stringify(plan.metadata), plan.metadata.executedQuantity, plan.entryTimestamp]
+        JSON.stringify(plan.rubricResponses), JSON.stringify(plan.metadata), plan.metadata.executedQuantity, plan.entryTimestamp, plan.setupTrigger]
     );
     for (const item of plan.contributions) {
       await client.query(
@@ -145,12 +166,12 @@ async function createPlan(userId, payload) {
         plan.metadata.executedQuantity === plan.plannedQuantity ? 'Trade registrado conforme quantidade sugerida.' : `Quantidade registrada diferente da sugestão: ${plan.plannedQuantity} unidades.`, plan.entryTimestamp]
     );
   });
-  return { id, ticker: plan.ticker, status: 'open', rubricGrade: plan.rubricGrade, executionPrice: plan.entry, executedQuantity: plan.metadata.executedQuantity };
+  return { id, ticker: plan.ticker, status: 'open', rubricGrade: plan.rubricGrade, setupTrigger: plan.setupTrigger, executionPrice: plan.entry, executedQuantity: plan.metadata.executedQuantity };
 }
 
 async function listPlans(userId) {
   const result = await database.query(
-    `SELECT t.id, t.ticker, t.market, t.direction, t.setup, t.entry_price, t.stop_price, t.atr, t.planned_quantity,
+    `SELECT t.id, t.ticker, t.market, t.direction, t.setup, t.setup_trigger, t.entry_price, t.stop_price, t.atr, t.planned_quantity,
             t.risk_pct, t.rubric_score, t.rubric_max_score, t.rubric_grade, t.rubric_responses, t.status, t.metadata,
             t.execution_price, t.executed_quantity, t.executed_at, t.created_at, t.updated_at,
             COALESCE(events.items, '[]'::jsonb) AS events
@@ -165,7 +186,10 @@ async function listPlans(userId) {
        WHERE t.user_id = $1 ORDER BY t.created_at DESC`,
     [userId]
   );
-  return result.rows;
+  return result.rows.map(row => ({
+    ...row,
+    setupTrigger: row.setup_trigger || setupTriggers.normalizeKey(row.setup) || null
+  }));
 }
 
 function normalizePositionEvent(type, payload = {}) {
@@ -288,4 +312,38 @@ async function executePlan(userId, tradeId, payload) {
   });
 }
 
-module.exports = { createPlan, listPlans, executePlan, recordPositionEvent, normalizePlan, validateRareTrade, normalizeExecution, normalizePositionEvent, ratingFromValue };
+async function updateTrade(userId, tradeId, payload = {}) {
+  if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
+  let setupTrigger = undefined;
+  let setupLabel = undefined;
+  if (payload.setupTrigger !== undefined || payload.setup_trigger !== undefined) {
+    const raw = payload.setupTrigger ?? payload.setup_trigger;
+    if (raw === null || raw === '') {
+      setupTrigger = null;
+      setupLabel = null;
+    } else {
+      const normalized = setupTriggers.normalizeKey(raw);
+      if (!normalized || !setupTriggers.isValidTrigger(normalized)) {
+        throw invalid('Gatilho de entrada inválido. Selecione um dos 5 gatilhos homologados.');
+      }
+      setupTrigger = normalized;
+      setupLabel = setupTriggers.getTriggerLabel(normalized);
+    }
+  }
+
+  const result = await database.query(
+    `UPDATE app.trades
+        SET setup_trigger = COALESCE($3, setup_trigger),
+            setup = COALESCE($4, setup)
+      WHERE id = $1 AND user_id = $2
+      RETURNING id, ticker, status, setup, setup_trigger`,
+    [tradeId, userId, setupTrigger, setupLabel]
+  );
+  if (!result.rowCount) throw invalid('Trade não encontrado.');
+  return {
+    ...result.rows[0],
+    setupTrigger: result.rows[0].setup_trigger
+  };
+}
+
+module.exports = { createPlan, listPlans, executePlan, updateTrade, recordPositionEvent, normalizePlan, validateRareTrade, normalizeExecution, normalizePositionEvent, ratingFromValue };

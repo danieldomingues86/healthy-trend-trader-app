@@ -33,34 +33,7 @@ body:has(#about.active) .content {
 
 /* ── 2. TOPBAR THEME INTEGRATION ────────────────────────────────────────── */
 
-body:has(#about.active) .topbar {
-  background: #07150e !important;
-  border-bottom: 1px solid rgba(200, 168, 78, 0.16) !important;
-  backdrop-filter: blur(14px);
-  color: #d6ded8 !important;
-}
-
-body:has(#about.active) .crumb {
-  color: #798e82 !important;
-}
-
-body:has(#about.active) .crumb b {
-  color: #c8a84e !important;
-  font-weight: 700;
-}
-
-body:has(#about.active) .topbar .pill {
-  background: rgba(13, 34, 23, 0.75) !important;
-  border: 1px solid rgba(200, 168, 78, 0.22) !important;
-  color: #d6ded8 !important;
-}
-
-body:has(#about.active) .topbar .avatar {
-  background: linear-gradient(135deg, #1c3628, #c8a84e) !important;
-  color: #07150e !important;
-  border: 1px solid #c8a84e !important;
-  font-weight: 700;
-}
+/* Topbar & navigation are managed authoritatively by sidebar-navigation.css for both themes */
 
 /* ── 3. PAGE CONTAINER & FULL-WIDTH WRAPPER ─────────────────────────────── */
 
