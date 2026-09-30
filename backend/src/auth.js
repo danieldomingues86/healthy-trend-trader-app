@@ -1,6 +1,7 @@
 const crypto = require('node:crypto');
 const { promisify } = require('node:util');
 const database = require('./database');
+const emailService = require('./email-service');
 
 const scrypt = promisify(crypto.scrypt);
 const SESSION_DAYS = 30;
@@ -74,7 +75,7 @@ async function register(payload) {
   const now = new Date();
   const trialEnd = input.planType === 'TRIAL' ? new Date(now.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000) : null;
   try {
-    return await database.transaction(async (client) => {
+    const session = await database.transaction(async (client) => {
       const user = {
         id: crypto.randomUUID(), email: input.email, display_name: input.displayName, role: 'member',
         plan_type: input.planType, account_status: input.planType === 'TRIAL' ? 'trial' : 'active',
@@ -88,6 +89,20 @@ async function register(payload) {
       );
       return createSession(user, client);
     });
+
+    try {
+      emailService.sendWelcomeEmail({
+        email: input.email,
+        displayName: input.displayName,
+        planType: input.planType
+      }).catch(err => {
+        console.warn('[auth.register] Erro no envio assíncrono do e-mail de boas-vindas:', err.message);
+      });
+    } catch (err) {
+      console.warn('[auth.register] Falha ao acionar envio de e-mail:', err.message);
+    }
+
+    return session;
   } catch (error) {
     if (error.code === '23505') { const duplicate = new Error('Já existe uma conta com este e-mail.'); duplicate.status = 409; throw duplicate; }
     throw error;

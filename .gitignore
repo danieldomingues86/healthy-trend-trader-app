@@ -3,6 +3,7 @@ backend/data/journal-attachments/
 backend/data/brapi-cache/
 backend/data/b3-history-cache/
 backend/data/b3-index-history-cache/
+backend/data/emails/
 # Personal import sources, backups and reports (never commit account data).
 backend/data/evernote-imports/
 backend/backups/
