@@ -1,4 +1,16 @@
 const fs = require('node:fs');
+const path = require('node:path');
+
+function getBannerBase64() {
+  try {
+    const bannerPath = path.resolve(__dirname, '..', '..', '..', 'assets', 'email', 'welcome-trend-banner.jpg');
+    if (fs.existsSync(bannerPath)) {
+      const data = fs.readFileSync(bannerPath).toString('base64');
+      return `data:image/jpeg;base64,${data}`;
+    }
+  } catch (_) {}
+  return null;
+}
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -22,11 +34,12 @@ function planLabel(planType) {
   }
 }
 
-function renderWelcomeEmail({ displayName, email, planType, appUrl }) {
+function renderWelcomeEmail({ displayName, email, planType, appUrl, bannerUrl }) {
   const safeName = escapeHtml(displayName || 'Trader');
   const safeEmail = escapeHtml(email || '');
   const safePlan = escapeHtml(planLabel(planType));
   const safeUrl = escapeHtml(appUrl || process.env.APP_BASE_URL || 'http://localhost:3000');
+  const finalBannerUrl = bannerUrl || 'cid:welcome-trend-banner';
 
   const subject = `Bem-vindo ao The Healthy Trend Trader — Seu novo centro operacional`;
 
@@ -52,6 +65,13 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl }) {
           <!-- Top Accent Bar -->
           <tr>
             <td style="height:4px;background:linear-gradient(90deg,#dfbd5f,#34d399);font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
+          <!-- Hero Banner: Tendência de Alta com Candles & Médias Móveis -->
+          <tr>
+            <td style="padding:0;line-height:0;font-size:0;background-color:#03130d;text-align:center;">
+              <img src="${finalBannerUrl}" alt="Tendência de Alta - The Healthy Trend Trader" width="620" style="width:100%;max-width:620px;height:auto;display:block;border-bottom:1px solid #1e5038;" />
+            </td>
           </tr>
 
           <!-- Header / Identidade Visual -->
@@ -269,5 +289,6 @@ Equipe The Healthy Trend Trader
 module.exports = {
   renderWelcomeEmail,
   planLabel,
-  escapeHtml
+  escapeHtml,
+  getBannerBase64
 };

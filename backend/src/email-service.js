@@ -5,7 +5,7 @@ try {
   nodemailer = require('nodemailer');
 } catch (_) {}
 
-const { renderWelcomeEmail } = require('./templates/welcome-email');
+const { renderWelcomeEmail, getBannerBase64 } = require('./templates/welcome-email');
 
 function isConfigured() {
   return Boolean(
@@ -63,27 +63,61 @@ async function sendWelcomeEmail({ email, displayName, planType, appUrl }) {
     return { sent: false, error: 'E-mail do destinatário não informado.' };
   }
 
-  const { subject, html, text } = renderWelcomeEmail({ displayName, email, planType, appUrl });
+  const bannerPath = path.resolve(__dirname, '..', '..', 'assets', 'email', 'welcome-trend-banner.jpg');
+  const bannerExists = require('node:fs').existsSync(bannerPath);
 
   try {
     if (isConfigured() && process.env.NODE_ENV !== 'test') {
+      const { subject, html, text } = renderWelcomeEmail({
+        displayName,
+        email,
+        planType,
+        appUrl,
+        bannerUrl: bannerExists ? 'cid:welcome-trend-banner' : undefined
+      });
+
+      const attachments = [];
+      if (bannerExists) {
+        attachments.push({
+          filename: 'welcome-trend-banner.jpg',
+          path: bannerPath,
+          cid: 'welcome-trend-banner'
+        });
+      }
+
       const transporter = createTransporter();
       const info = await transporter.sendMail({
         from: getFromAddress(),
         to: email,
         subject,
         html,
-        text
+        text,
+        attachments
       });
       console.log(`[email-service] 🚀 E-mail de boas-vindas enviado para ${email} (ID: ${info.messageId})`);
       return { sent: true, mode: 'smtp', messageId: info.messageId };
     }
 
     // Modo preview / teste quando SMTP não está configurado
+    const bannerBase64 = getBannerBase64();
+    const { subject, html, text } = renderWelcomeEmail({
+      displayName,
+      email,
+      planType,
+      appUrl,
+      bannerUrl: bannerBase64 || 'cid:welcome-trend-banner'
+    });
     return await saveEmailPreview(email, subject, html, text);
   } catch (err) {
     console.error(`[email-service] ⚠️ Erro ao disparar e-mail de boas-vindas para ${email}:`, err.message);
-    // Salva fallback localmente para inspeção caso falhe o envio remoto
+    const bannerBase64 = getBannerBase64();
+    const { subject, html, text } = renderWelcomeEmail({
+      displayName,
+      email,
+      planType,
+      appUrl,
+      bannerUrl: bannerBase64 || 'cid:welcome-trend-banner'
+    });
     await saveEmailPreview(email, subject, html, text);
     return { sent: false, mode: 'smtp_error', error: err.message };
   }
