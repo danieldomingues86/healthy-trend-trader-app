@@ -34,7 +34,7 @@ function planLabel(planType) {
   }
 }
 
-const DEFAULT_BG_URL = 'https://files.catbox.moe/o8u8uz.jpg';
+const DEFAULT_BG_URL = 'https://files.catbox.moe/r0yq77.jpg';
 
 function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUrl, bannerUrl }) {
   const safeName = escapeHtml(displayName || 'Trader');
@@ -57,12 +57,12 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUr
   </style>
   <![endif]-->
 </head>
-<body style="margin:0;padding:0;background-color:#020f0a;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;color:#e9f5ed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" background="${finalBgUrl}" style="background-color:#020f0a;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;padding:48px 15px;">
+<body style="margin:0;padding:0;background-color:#010a07;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;color:#e9f5ed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" background="${finalBgUrl}" style="background-color:#010a07;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;padding:48px 15px;">
     <tr>
       <td align="center" background="${finalBgUrl}" style="background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;">
-        <!-- Card Principal -->
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:linear-gradient(160deg,rgba(7,31,22,0.94) 0%,rgba(3,19,13,0.97) 100%);border:1px solid rgba(52,211,153,0.3);border-radius:18px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.7);">
+        <!-- Card Principal (100% Sólido e Opaco para máxima legibilidade do texto) -->
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:#04150e;background:linear-gradient(160deg,#061f15 0%,#03120c 100%);border:1px solid rgba(52,211,153,0.3);border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.85);">
           
           <!-- Top Accent Bar -->
           <tr>
@@ -100,7 +100,7 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUr
               </p>
 
               <!-- Bloco Destaque / Filosofia -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px 0;background:rgba(223,189,95,0.06);border-left:3px solid #dfbd5f;border-radius:0 10px 10px 0;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px 0;background:#091911;border-left:3px solid #dfbd5f;border-radius:0 10px 10px 0;">
                 <tr>
                   <td style="padding:14px 18px;">
                     <p style="margin:0;color:#e8ddb5;font-size:13px;font-style:italic;line-height:1.5;">
@@ -111,7 +111,7 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUr
               </table>
 
               <!-- Detalhes da Conta -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 26px 0;background:#03150e;border:1px solid #1a4230;border-radius:12px;padding:14px 18px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 26px 0;background:#03130c;border:1px solid #1a4230;border-radius:12px;padding:14px 18px;">
                 <tr>
                   <td>
                     <div style="font-size:10px;font-weight:800;color:#789081;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">DADOS DA SUA CONTA</div>
@@ -129,7 +129,7 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUr
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:28px;">
                 <tr>
                   <td style="padding-bottom:10px;">
-                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:rgba(6,32,22,0.85);border:1px solid rgba(41,126,77,0.45);border-radius:10px;padding:12px 16px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#051a12;border:1px solid rgba(41,126,77,0.45);border-radius:10px;padding:12px 16px;">
                       <tr>
                         <td width="32" valign="top" style="font-size:18px;line-height:1;">🚦</td>
                         <td style="padding-left:10px;">
@@ -145,7 +145,7 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUr
 
                 <tr>
                   <td style="padding-bottom:10px;">
-                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:rgba(6,32,22,0.85);border:1px solid rgba(41,126,77,0.45);border-radius:10px;padding:12px 16px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#051a12;border:1px solid rgba(41,126,77,0.45);border-radius:10px;padding:12px 16px;">
                       <tr>
                         <td width="32" valign="top" style="font-size:18px;line-height:1;">⚖️</td>
                         <td style="padding-left:10px;">
@@ -161,7 +161,7 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUr
 
                 <tr>
                   <td style="padding-bottom:10px;">
-                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:rgba(6,32,22,0.85);border:1px solid rgba(41,126,77,0.45);border-radius:10px;padding:12px 16px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#051a12;border:1px solid rgba(41,126,77,0.45);border-radius:10px;padding:12px 16px;">
                       <tr>
                         <td width="32" valign="top" style="font-size:18px;line-height:1;">🎯</td>
                         <td style="padding-left:10px;">
@@ -177,7 +177,7 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUr
 
                 <tr>
                   <td>
-                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:rgba(6,32,22,0.85);border:1px solid rgba(41,126,77,0.45);border-radius:10px;padding:12px 16px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#051a12;border:1px solid rgba(41,126,77,0.45);border-radius:10px;padding:12px 16px;">
                       <tr>
                         <td width="32" valign="top" style="font-size:18px;line-height:1;">📖</td>
                         <td style="padding-left:10px;">
