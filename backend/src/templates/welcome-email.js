@@ -34,7 +34,7 @@ function planLabel(planType) {
   }
 }
 
-const DEFAULT_BG_URL = 'https://files.catbox.moe/6qx809.jpg';
+const DEFAULT_BG_URL = 'https://files.catbox.moe/o8u8uz.jpg';
 
 function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUrl, bannerUrl }) {
   const safeName = escapeHtml(displayName || 'Trader');
@@ -57,8 +57,8 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUr
   </style>
   <![endif]-->
 </head>
-<body style="margin:0;padding:0;background-color:#03130d;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;color:#e9f5ed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" background="${finalBgUrl}" style="background-color:#03130d;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;padding:48px 15px;">
+<body style="margin:0;padding:0;background-color:#020f0a;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;color:#e9f5ed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" background="${finalBgUrl}" style="background-color:#020f0a;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;padding:48px 15px;">
     <tr>
       <td align="center" background="${finalBgUrl}" style="background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;">
         <!-- Card Principal -->
