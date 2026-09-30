@@ -34,7 +34,7 @@ function planLabel(planType) {
   }
 }
 
-const DEFAULT_BG_URL = 'https://files.catbox.moe/r0yq77.jpg';
+const DEFAULT_BG_URL = 'https://files.catbox.moe/kv00dt.jpg';
 
 function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUrl, bannerUrl }) {
   const safeName = escapeHtml(displayName || 'Trader');
