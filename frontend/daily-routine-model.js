@@ -1,11 +1,43 @@
 /**
- * Daily Routine Data Model — Healthy Trend Trader V5
- * Gerencia a configuração da rotina, a lista de tarefas diárias com reset por data,
- * e a persistência no localStorage.
+ * Daily Routine Data Model — Healthy Trend Trader V2
+ * Gerencia a configuração da rotina, lista dinâmica de tarefas com suporte a
+ * categorias, ícones SVG, tempo estimado e persistência com navegação por data.
  */
 
-(function (window) {
+(function (root, factory) {
+  const api = factory(root);
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root) root.DailyRoutineModel = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (root) {
   'use strict';
+
+  const memStore = {};
+  const safeStorage = {
+    getItem(key) {
+      if (typeof localStorage !== 'undefined') {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+      }
+      return Object.prototype.hasOwnProperty.call(memStore, key) ? memStore[key] : null;
+    },
+    setItem(key, val) {
+      if (typeof localStorage !== 'undefined') {
+        try { localStorage.setItem(key, String(val)); return; } catch (e) {}
+      }
+      memStore[key] = String(val);
+    },
+    removeItem(key) {
+      if (typeof localStorage !== 'undefined') {
+        try { localStorage.removeItem(key); return; } catch (e) {}
+      }
+      delete memStore[key];
+    },
+    clear() {
+      if (typeof localStorage !== 'undefined') {
+        try { localStorage.clear(); return; } catch (e) {}
+      }
+      for (const k in memStore) delete memStore[k];
+    }
+  };
 
   const STORAGE_KEYS = {
     ITEMS: 'htt_daily_routine_items',
@@ -14,13 +46,88 @@
     HISTORY: 'htt_daily_routine_history'
   };
 
+  // 8 Rituais oficiais recomendados (Mockup V2)
   const DEFAULT_ITEMS = [
-    { id: 'dr_1', icon: '📊', name: 'Ações / Watchlist', active: true },
-    { id: 'dr_2', icon: '🐂', name: 'Boi — BGI', active: true },
-    { id: 'dr_3', icon: '🌽', name: 'Milho — CCM', active: true },
-    { id: 'dr_4', icon: '💼', name: 'Posições abertas', active: true },
-    { id: 'dr_5', icon: '🔔', name: 'Alertas de preço', active: true },
-    { id: 'dr_6', icon: '📈', name: 'Relative Strength', active: true }
+    {
+      id: 'dr_1',
+      name: 'Mercado e Contexto',
+      description: 'Verificar cenário macro e setores no Diário.',
+      category: 'trading',
+      icon: 'chart-line',
+      time: '10 min',
+      period: 'pre',
+      active: true
+    },
+    {
+      id: 'dr_2',
+      name: 'Análise de Ativos',
+      description: 'Revisar watchlist e marcar ativos em potencial.',
+      category: 'trading',
+      icon: 'search',
+      time: '20 min',
+      period: 'pre',
+      active: true
+    },
+    {
+      id: 'dr_3',
+      name: 'Plano do Dia',
+      description: 'Definir setups, entradas e níveis de risco.',
+      category: 'trading',
+      icon: 'file-text',
+      time: '10 min',
+      period: 'pre',
+      active: true
+    },
+    {
+      id: 'dr_4',
+      name: 'Execução',
+      description: 'Executar apenas setups de alta qualidade.',
+      category: 'trading',
+      icon: 'chart-up',
+      time: 'Durante o dia',
+      period: 'intra',
+      active: true
+    },
+    {
+      id: 'dr_5',
+      name: 'Registro no Diário',
+      description: 'Registrar trades, prints e observações.',
+      category: 'produtividade',
+      icon: 'notebook',
+      time: '5 min',
+      period: 'pos',
+      active: true
+    },
+    {
+      id: 'dr_6',
+      name: 'Revisão de Desempenho',
+      description: 'Verificar métricas e resultados do dia.',
+      category: 'trading',
+      icon: 'chart-bar',
+      time: '10 min',
+      period: 'pos',
+      active: true
+    },
+    {
+      id: 'dr_7',
+      name: 'Estudo e Evolução',
+      description: 'Ler, revisar o método ou assistir conteúdo.',
+      category: 'estudos',
+      icon: 'brain',
+      time: '20 min',
+      period: 'pos',
+      active: true
+    },
+    {
+      id: 'dr_8',
+      name: 'Mentalidade',
+      description: 'Praticar disciplina e revisar checklist psicológico.',
+      category: 'mentalidade',
+      icon: 'heart',
+      time: '5 min',
+      period: 'any',
+      active: true
+    }
   ];
 
   function getTodayString() {
@@ -38,43 +145,107 @@
     return `${hours}:${minutes}`;
   }
 
+  /**
+   * Normaliza um item para garantir que sempre tenha category, icon, description e time
+   */
+  function normalizeRoutineItem(raw) {
+    if (!raw || typeof raw !== 'object') {
+      return null;
+    }
+
+    const name = (raw.name || raw.title || 'Novo Item').trim();
+    let category = raw.category;
+    let icon = raw.icon;
+
+    // Se categoria ou ícone estiverem ausentes ou forem emojis antigos
+    if (!category || !icon || icon.length <= 2) {
+      const iconsApi = (typeof root !== 'undefined' && root && root.DailyRoutineIcons)
+        || (typeof window !== 'undefined' && window.DailyRoutineIcons)
+        || (typeof require !== 'undefined' ? (function () { try { return require('./daily-routine-icons.js'); } catch (e) { return null; } })() : null);
+      const suggestion = iconsApi && iconsApi.suggestCategoryAndIcon
+        ? iconsApi.suggestCategoryAndIcon(name)
+        : { category: 'trading', icon: 'chart-line' };
+
+      category = category || suggestion.category;
+      icon = (icon && icon.length > 2) ? icon : suggestion.icon;
+    }
+
+    return {
+      id: raw.id || ('dr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
+      name: name,
+      description: raw.description ? raw.description.trim() : 'Siga o processo e execute com foco.',
+      category: category,
+      icon: icon,
+      time: raw.time || '10 min',
+      period: raw.period || 'any',
+      active: raw.active !== false
+    };
+  }
+
   // --- CONFIGURAÇÃO DA ROTINA ---
 
   function getRoutineItems() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEYS.ITEMS);
+      const raw = safeStorage.getItem(STORAGE_KEYS.ITEMS);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          return parsed.map(normalizeRoutineItem).filter(Boolean);
         }
       }
     } catch (e) {
       console.warn('Erro ao carregar itens da rotina diária:', e);
     }
-    // Salva os itens padrão caso não existam
+    // Salva os itens padrão recomendados
     saveRoutineItems(DEFAULT_ITEMS);
     return DEFAULT_ITEMS;
   }
 
   function saveRoutineItems(items) {
     try {
-      localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(items));
+      const normalized = (items || []).map(normalizeRoutineItem).filter(Boolean);
+      safeStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(normalized));
     } catch (e) {
       console.error('Erro ao salvar itens da rotina diária:', e);
     }
   }
 
-  function addRoutineItem(name, icon = '📌') {
+  function resetToDefaultItems() {
+    saveRoutineItems(DEFAULT_ITEMS);
+    return DEFAULT_ITEMS;
+  }
+
+  function addRoutineItem(itemData) {
     const items = getRoutineItems();
-    const newItem = {
-      id: 'dr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-      icon: icon || '📌',
-      name: name.trim() || 'Novo Item',
-      active: true
-    };
-    items.push(newItem);
-    saveRoutineItems(items);
+    let newItem = null;
+
+    if (typeof itemData === 'string') {
+      const name = itemData.trim();
+      const suggestion = window.DailyRoutineIcons?.suggestCategoryAndIcon
+        ? window.DailyRoutineIcons.suggestCategoryAndIcon(name)
+        : { category: 'trading', icon: 'chart-line' };
+
+      newItem = normalizeRoutineItem({
+        id: 'dr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        name: name,
+        description: 'Siga o processo e execute com foco.',
+        category: suggestion.category,
+        icon: suggestion.icon,
+        time: '10 min',
+        active: true
+      });
+    } else {
+      newItem = normalizeRoutineItem({
+        id: 'dr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        ...itemData,
+        active: true
+      });
+    }
+
+    if (newItem) {
+      items.push(newItem);
+      saveRoutineItems(items);
+    }
     return newItem;
   }
 
@@ -82,7 +253,7 @@
     const items = getRoutineItems();
     const index = items.findIndex(item => item.id === id);
     if (index !== -1) {
-      items[index] = { ...items[index], ...updates };
+      items[index] = normalizeRoutineItem({ ...items[index], ...updates });
       saveRoutineItems(items);
       return items[index];
     }
@@ -115,7 +286,7 @@
   function getDailyLog(dateStr = getTodayString()) {
     try {
       const key = STORAGE_KEYS.LOG_PREFIX + dateStr;
-      const raw = localStorage.getItem(key);
+      const raw = safeStorage.getItem(key);
       if (raw) {
         return JSON.parse(raw);
       }
@@ -128,10 +299,12 @@
   function saveDailyLog(log) {
     try {
       const key = STORAGE_KEYS.LOG_PREFIX + log.date;
-      localStorage.setItem(key, JSON.stringify(log));
+      safeStorage.setItem(key, JSON.stringify(log));
       
-      // Atualiza o registro de última data
-      localStorage.setItem(STORAGE_KEYS.LAST_DATE, log.date);
+      // Atualiza o registro de última data se for hoje
+      if (log.date === getTodayString()) {
+        safeStorage.setItem(STORAGE_KEYS.LAST_DATE, log.date);
+      }
 
       // Atualiza resumo no histórico
       updateHistorySnapshot(log);
@@ -152,7 +325,7 @@
         }
       });
 
-      const historyRaw = localStorage.getItem(STORAGE_KEYS.HISTORY);
+      const historyRaw = safeStorage.getItem(STORAGE_KEYS.HISTORY);
       let history = historyRaw ? JSON.parse(historyRaw) : [];
 
       const index = history.findIndex(h => h.date === log.date);
@@ -171,41 +344,35 @@
         history.push(snapshot);
       }
 
-      // Manter apenas últimos 90 dias no histórico
       if (history.length > 90) {
         history = history.slice(-90);
       }
 
-      localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
+      safeStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
     } catch (e) {
       console.warn('Erro ao atualizar histórico da rotina:', e);
     }
   }
 
-  /**
-   * Verifica transição de dia e realiza o reset automático se necessário.
-   */
   function checkAndPerformDailyReset() {
     const today = getTodayString();
-    const lastDate = localStorage.getItem(STORAGE_KEYS.LAST_DATE);
+    const lastDate = safeStorage.getItem(STORAGE_KEYS.LAST_DATE);
 
     if (lastDate && lastDate !== today) {
-      // É um novo dia! Garantir que o log de hoje existe em branco
       const todayLog = getDailyLog(today);
       if (!todayLog.updatedAt) {
         saveDailyLog({ date: today, completions: {}, updatedAt: new Date().toISOString() });
       }
     }
-    localStorage.setItem(STORAGE_KEYS.LAST_DATE, today);
+    safeStorage.setItem(STORAGE_KEYS.LAST_DATE, today);
   }
 
   /**
-   * Alterna a conclusão de um item da rotina para a data de hoje ("VI -> MARQUEI")
+   * Alterna a conclusão de um item da rotina para a data selecionada
    */
-  function toggleItemCompletion(itemId) {
+  function toggleItemCompletion(itemId, dateStr = getTodayString()) {
     checkAndPerformDailyReset();
-    const today = getTodayString();
-    const log = getDailyLog(today);
+    const log = getDailyLog(dateStr);
 
     if (!log.completions) {
       log.completions = {};
@@ -225,14 +392,13 @@
   }
 
   /**
-   * Obtém o estado completo consolidado da rotina de hoje
+   * Obtém o estado completo consolidado da rotina para uma data arbitrária
    */
-  function getTodayRoutineState() {
+  function getRoutineStateForDate(dateStr = getTodayString()) {
     checkAndPerformDailyReset();
-    const today = getTodayString();
     const allItems = getRoutineItems();
     const activeItems = allItems.filter(item => item.active);
-    const log = getDailyLog(today);
+    const log = getDailyLog(dateStr);
 
     let completedCount = 0;
     const itemsWithStatus = activeItems.map(item => {
@@ -240,7 +406,7 @@
       if (status.completed) completedCount++;
       return {
         ...item,
-        completed: status.completed,
+        completed: Boolean(status.completed),
         completedAt: status.completedAt
       };
     });
@@ -249,7 +415,7 @@
     const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
     return {
-      date: today,
+      date: dateStr,
       items: itemsWithStatus,
       allItems: allItems,
       totalCount: totalCount,
@@ -259,9 +425,13 @@
     };
   }
 
+  function getTodayRoutineState() {
+    return getRoutineStateForDate(getTodayString());
+  }
+
   function getHistoryStats() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEYS.HISTORY);
+      const raw = safeStorage.getItem(STORAGE_KEYS.HISTORY);
       const history = raw ? JSON.parse(raw) : [];
       const totalDays = history.length;
       const completedDays = history.filter(h => h.isFullyCompleted).length;
@@ -287,21 +457,25 @@
     }
   }
 
-  // Exportação global
-  window.DailyRoutineModel = {
+  return {
+    STORAGE_KEYS,
+    DEFAULT_ITEMS,
+    safeStorage,
     getTodayString,
     getRoutineItems,
     saveRoutineItems,
+    resetToDefaultItems,
     addRoutineItem,
     updateRoutineItem,
     deleteRoutineItem,
     moveRoutineItem,
     getDailyLog,
     toggleItemCompletion,
+    getRoutineStateForDate,
     getTodayRoutineState,
     getHistoryStats,
     checkAndPerformDailyReset,
-    DEFAULT_ITEMS
+    normalizeRoutineItem
   };
+});
 
-})(window);
