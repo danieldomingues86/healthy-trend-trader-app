@@ -12,7 +12,9 @@
   // State
   let opportunities = [];
   let currentMetricsMap = {};
-  let activeView = 'cards';
+  let activeView = 'table';
+  let lastRemovedItem = null;
+  let lastRemovedIndex = -1;
   let filters = {
     search: '',
     status: 'todos',
@@ -28,6 +30,31 @@
 
   // Curated initial seed when watchlist is empty for the first time
   const INITIAL_SEED = [
+    {
+      ticker: 'TOTS3',
+      name: 'Totvs S.A.',
+      sector: 'Tecnologia',
+      origin: 'emerging-leaders',
+      status: 'ready',
+      thesis: 'Rompimento de pivot confirmado com volume expressivo e RS na máxima de 52 semanas.',
+      snapshot: {
+        price: 32.5,
+        rsScore: 91,
+        distance52wPct: -1.2,
+        atrPct: 2.0,
+        volumeRatio: 1.8,
+        marketCycle: 'Saudável',
+        emergingScore: 90
+      },
+      waiting_conditions: [
+        { id: 'contraction-4h', label: 'Contração de volatilidade (base estreita no 4H/Diário)', checked: true },
+        { id: 'support-emas', label: 'Teste ou suporte nas médias móveis rápidas (EMA 9 / EMA 21)', checked: true },
+        { id: 'entry-trigger', label: 'Gatilho técnico claro (rompimento de pivô ou linha de tendência)', checked: true },
+        { id: 'volume-confirmation', label: 'Volume de confirmação acima da média na barra de ignição', checked: true },
+        { id: 'market-cycle', label: 'Confirmação do Market Cycle (Ambiente Saudável ou Transição)', checked: true }
+      ],
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+    },
     {
       ticker: 'WEGE3',
       name: 'WEG S.A.',
@@ -51,7 +78,7 @@
         { id: 'volume-confirmation', label: 'Volume de confirmação acima da média na barra de ignição', checked: false },
         { id: 'market-cycle', label: 'Confirmação do Market Cycle (Ambiente Saudável ou Transição)', checked: true }
       ],
-      created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
     },
     {
       ticker: 'PRIO3',
@@ -76,32 +103,7 @@
         { id: 'volume-confirmation', label: 'Volume de confirmação acima da média na barra de ignição', checked: false },
         { id: 'market-cycle', label: 'Confirmação do Market Cycle (Ambiente Saudável ou Transição)', checked: true }
       ],
-      created_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      ticker: 'TOTS3',
-      name: 'Totvs S.A.',
-      sector: 'Tecnologia',
-      origin: 'emerging-leaders',
-      status: 'ready',
-      thesis: 'Rompimento de pivot confirmado com volume expressivo e RS na máxima de 52 semanas.',
-      snapshot: {
-        price: 32.5,
-        rsScore: 91,
-        distance52wPct: -1.2,
-        atrPct: 2.0,
-        volumeRatio: 1.8,
-        marketCycle: 'Saudável',
-        emergingScore: 90
-      },
-      waiting_conditions: [
-        { id: 'contraction-4h', label: 'Contração de volatilidade (base estreita no 4H/Diário)', checked: true },
-        { id: 'support-emas', label: 'Teste ou suporte nas médias móveis rápidas (EMA 9 / EMA 21)', checked: true },
-        { id: 'entry-trigger', label: 'Gatilho técnico claro (rompimento de pivô ou linha de tendência)', checked: true },
-        { id: 'volume-confirmation', label: 'Volume de confirmação acima da média na barra de ignição', checked: true },
-        { id: 'market-cycle', label: 'Confirmação do Market Cycle (Ambiente Saudável ou Transição)', checked: true }
-      ],
-      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
     }
   ];
 
@@ -392,36 +394,58 @@
     }, 100);
   };
 
-  function showToast(msg) {
-    const existing = document.querySelector('.wl-toast');
-    if (existing) existing.remove();
+  function showToast(msg, onUndo = null) {
+    const existing = document.querySelector?.('.wl-toast');
+    if (existing && typeof existing.remove === 'function') existing.remove();
 
     const toast = document.createElement('div');
     toast.className = 'wl-toast';
-    toast.style.cssText = `
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #062e1e;
-      border: 1px solid #10b981;
-      color: #ffffff;
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 13.5px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      z-index: 100000;
-      animation: fadeIn 0.2s ease;
-    `;
-    toast.textContent = msg;
+
+    if (typeof onUndo === 'function') {
+      toast.innerHTML = `<span>${escapeHtml(msg)}</span><button class="wl-toast-undo">Desfazer</button>`;
+      const undoBtn = toast.querySelector?.('.wl-toast-undo');
+      if (undoBtn) {
+        undoBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (typeof toast.remove === 'function') toast.remove();
+          onUndo();
+        };
+      }
+    } else {
+      toast.textContent = msg;
+    }
+
     if (document.body && typeof document.body.appendChild === 'function') {
       document.body.appendChild(toast);
       setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
+        if (toast.style) {
+          toast.style.transform = 'translateY(10px)';
+          toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          toast.style.opacity = '0';
+        }
+        setTimeout(() => {
+          if (typeof toast.remove === 'function') toast.remove();
+        }, 300);
+      }, 4500);
     }
+  }
+
+  function getSectorBadge(sector) {
+    const s = String(sector || 'Outros').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    let cls = 'sector-default';
+    if (s.includes('tecno')) cls = 'sector-tech';
+    else if (s.includes('indus') || s.includes('bens')) cls = 'sector-indust';
+    else if (s.includes('petrol') || s.includes('gas') || s.includes('energi')) cls = 'sector-energy';
+    else if (s.includes('saude') || s.includes('health')) cls = 'sector-health';
+    else if (s.includes('finan') || s.includes('banc')) cls = 'sector-fin';
+    else if (s.includes('consum') || s.includes('varej')) cls = 'sector-consumer';
+    return `<span class="wl-sector-badge ${cls}">${escapeHtml(sector || 'Ações')}</span>`;
+  }
+
+  function renderStatusPill(status) {
+    const label = getStatusLabel(status);
+    return `<span class="wl-status-badge status-${status} ${status}"><span class="wl-status-dot"></span> ${label}</span>`;
   }
 
   // Formatters
@@ -468,7 +492,7 @@
 
     // Load view preference
     try {
-      activeView = localStorage.getItem(VIEW_STORAGE_KEY) || 'cards';
+      activeView = localStorage.getItem(VIEW_STORAGE_KEY) || 'table';
     } catch (e) {}
 
     await loadOpportunities();
@@ -484,25 +508,35 @@
       <div class="wl-container">
         <!-- HERO BANNER -->
         <div class="wl-hero">
-          <div class="wl-hero-glow"></div>
-          <div class="wl-hero-content">
-            <div class="wl-hero-left">
-              <h1 class="wl-hero-title">
-                Watchlist Inteligente
-              </h1>
+          <div class="wl-hero-left">
+            <div class="wl-hero-icon-box">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 10a4 4 0 0 1 4-4h1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H8a4 4 0 0 1-4-4v-4Z"></path>
+                <path d="M20 10a4 4 0 0 0-4-4h-1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h1a4 4 0 0 0 4-4v-4Z"></path>
+                <line x1="10" y1="12" x2="14" y2="12"></line>
+              </svg>
+            </div>
+            <div>
+              <h1 class="wl-hero-title">Watchlist Inteligente</h1>
               <p class="wl-hero-subtitle">
-                Acompanhamento dinâmico de setups em construção. Monitore por que o ativo chamou atenção, o que você está esperando acontecer e sua evolução em tempo real.
+                Acompanhe seus ativos em observação e identifique oportunidades com base em tendência, força relativa e contexto de mercado.
               </p>
             </div>
-            <div class="wl-hero-right">
-              <div class="wl-quote-card">
-                “O objetivo não é comprar ações no fundo, mas comprar no momento exato em que estão prontas para acelerar.”
-                <span class="wl-quote-author">— Mark Minervini</span>
-              </div>
-              <button class="wl-btn-add" id="wlBtnOpenAddModal">
-                <span>+</span> Adicionar Ativo
-              </button>
+          </div>
+          <div class="wl-hero-center-art">
+            <img src="assets/watchlist-hero-observation.jpg" alt="Observação de Mercado" class="wl-hero-art-img" />
+          </div>
+          <div class="wl-hero-right">
+            <div class="wl-quote-card">
+              <span class="wl-quote-icon">❝</span>
+              <p class="wl-quote-text">
+                "O objetivo não é comprar ações no fundo, mas comprar no momento exato em que estão prontas para acelerar."
+              </p>
+              <span class="wl-quote-author">— Mark Minervini</span>
             </div>
+            <button class="wl-btn-add" id="wlBtnOpenAddModal">
+              <span>+</span> Adicionar Ativo
+            </button>
           </div>
         </div>
 
@@ -510,16 +544,19 @@
         <div class="wl-control-bar">
           <div class="wl-filter-group">
             <div class="wl-search-wrap">
-              <span class="wl-search-icon">🔍</span>
+              <svg class="wl-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
               <input type="text" class="wl-search-input" id="wlSearchInput" placeholder="Buscar ticker ou empresa..." value="${escapeHtml(filters.search)}" />
             </div>
 
             <select class="wl-select" id="wlFilterStatus">
               <option value="todos" ${filters.status === 'todos' ? 'selected' : ''}>Todos os Status</option>
-              <option value="observando" ${filters.status === 'observando' ? 'selected' : ''}>👀 Observando</option>
-              <option value="desenvolvendo" ${filters.status === 'desenvolvendo' ? 'selected' : ''}>🟡 Desenvolvendo</option>
-              <option value="setup-proximo" ${filters.status === 'setup-proximo' ? 'selected' : ''}>🟢 Setup Próximo</option>
-              <option value="ready" ${filters.status === 'ready' ? 'selected' : ''}>🎯 Ready</option>
+              <option value="ready" ${filters.status === 'ready' ? 'selected' : ''}>● READY</option>
+              <option value="setup-proximo" ${filters.status === 'setup-proximo' ? 'selected' : ''}>● SETUP PRÓXIMO</option>
+              <option value="desenvolvendo" ${filters.status === 'desenvolvendo' ? 'selected' : ''}>● DESENVOLVENDO</option>
+              <option value="observando" ${filters.status === 'observando' ? 'selected' : ''}>● OBSERVANDO</option>
             </select>
 
             <select class="wl-select" id="wlFilterSector">
@@ -548,10 +585,21 @@
 
           <div class="wl-view-toggle">
             <button class="wl-toggle-btn ${activeView === 'cards' ? 'active' : ''}" id="wlViewCardsBtn">
-              ▦ Cards
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              Cards
             </button>
             <button class="wl-toggle-btn ${activeView === 'table' ? 'active' : ''}" id="wlViewTableBtn">
-              ☰ Tabela
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+              Tabela
             </button>
           </div>
         </div>
@@ -562,33 +610,44 @@
         <!-- PIPELINE FOOTER ("DO RADAR AO TRADE") -->
         <div class="wl-pipeline-footer">
           <div class="wl-pipeline-title">
-            <span>⚡</span> Do Radar ao Trade — O Pipeline de Alta Performance
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#059669" stroke="#059669" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>DO RADAR AO TRADE — O PIPELINE DE ALTA PERFORMANCE</span>
           </div>
           <div class="wl-pipeline-steps">
             <div class="wl-pipeline-step">
-              <span class="wl-step-num">ETAPA 01</span>
-              <span class="wl-step-name">1. Discover</span>
-              <span class="wl-step-desc">Identifique líderes em Emerging Leaders, Relative Strength ou Scans.</span>
+              <div class="wl-step-num">1</div>
+              <div class="wl-step-text">
+                <span class="wl-step-name">Discover</span>
+                <span class="wl-step-desc">Identifique líderes em Emerging Leaders, Relative Strength ou Scans.</span>
+              </div>
             </div>
             <div class="wl-pipeline-step active">
-              <span class="wl-step-num">ETAPA 02</span>
-              <span class="wl-step-name">2. Watch</span>
-              <span class="wl-step-desc">Adicione à Watchlist com o snapshot de entrada e tese de observação.</span>
+              <div class="wl-step-num">2</div>
+              <div class="wl-step-text">
+                <span class="wl-step-name">Watch</span>
+                <span class="wl-step-desc">Adicione à Watchlist com o snapshot de entrada e tese de observação.</span>
+              </div>
             </div>
             <div class="wl-pipeline-step">
-              <span class="wl-step-num">ETAPA 03</span>
-              <span class="wl-step-name">3. Wait</span>
-              <span class="wl-step-desc">Aguarde a contração de volatilidade e o cumprimento das condições.</span>
+              <div class="wl-step-num">3</div>
+              <div class="wl-step-text">
+                <span class="wl-step-name">Wait</span>
+                <span class="wl-step-desc">Aguarde a contração de volatilidade e o cumprimento das condições.</span>
+              </div>
             </div>
             <div class="wl-pipeline-step">
-              <span class="wl-step-num">ETAPA 04</span>
-              <span class="wl-step-name">4. Confirm</span>
-              <span class="wl-step-desc">Verifique o gatilho técnico no 4H e a confirmação do Market Cycle.</span>
+              <div class="wl-step-num">4</div>
+              <div class="wl-step-text">
+                <span class="wl-step-name">Confirm</span>
+                <span class="wl-step-desc">Verifique o gatilho técnico no Diário e a confirmação do Market Cycle.</span>
+              </div>
             </div>
             <div class="wl-pipeline-step">
-              <span class="wl-step-num">ETAPA 05</span>
-              <span class="wl-step-name">5. Execute</span>
-              <span class="wl-step-desc">Envie o contexto direto ao Novo Trade e posicione o stop correto.</span>
+              <div class="wl-step-num">5</div>
+              <div class="wl-step-text">
+                <span class="wl-step-name">Execute</span>
+                <span class="wl-step-desc">Envie o contexto direto ao Novo Trade e posicione o stop correto.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -829,7 +888,11 @@
           </span>
           <div class="wl-card-actions">
             <button class="wl-btn-remove" data-action="remove" data-ticker="${opp.ticker}" title="Remover ${opp.ticker} da Watchlist" aria-label="Remover ${opp.ticker} da Watchlist">
-              🗑 Remover
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span class="sr-only">Remover</span>
             </button>
             <button class="wl-btn-inspect" data-action="inspect" data-ticker="${opp.ticker}">
               Perfil ↗
@@ -872,27 +935,34 @@
               const evo = model.calculateEvolution(opp, current);
               const waiting = Array.isArray(opp.waiting_conditions) ? opp.waiting_conditions : [];
               const checked = waiting.filter((w) => w.checked).length;
+              const totalConditions = waiting.length || 5;
+              const condClass = checked === totalConditions ? 'all-met' : (checked >= 2 ? 'partial-met' : 'few-met');
+              const evoClass = evo.state || 'estavel';
 
               return `
                 <tr data-ticker="${opp.ticker}" style="cursor:pointer;">
                   <td><span class="wl-table-ticker">${opp.ticker}</span></td>
-                  <td>${escapeHtml(opp.name || opp.ticker)}</td>
-                  <td><span class="wl-opp-sector">${escapeHtml(opp.sector || 'Ações')}</span></td>
-                  <td><span style="font-size:11.5px; color:#94a3b8;">${escapeHtml(model.ORIGINS[opp.origin]?.label || opp.origin)}</span></td>
-                  <td>
-                    <span class="wl-status-badge ${opp.status}">
-                      ${getStatusIcon(opp.status)} ${getStatusLabel(opp.status)}
-                    </span>
-                  </td>
-                  <td style="font-weight:700;">${formatMoney(price)}</td>
-                  <td><span class="wl-rs-pill">RS ${Math.round(rs)}</span></td>
-                  <td>${dist52w.toFixed(1)}%</td>
-                  <td><span style="color:#34d399; font-weight:700;">${checked}/${waiting.length || 5}</span></td>
-                  <td><span class="wl-evolution-tag ${evo.state}">${evo.label}</span></td>
-                  <td style="text-align:right; white-space:nowrap;">
-                    <button class="wl-btn-remove" data-action="remove" data-ticker="${opp.ticker}" style="margin-right:6px;" title="Remover ${opp.ticker} da Watchlist" aria-label="Remover ${opp.ticker} da Watchlist">Remover</button>
-                    <button class="wl-btn-inspect" data-action="inspect" data-ticker="${opp.ticker}" style="margin-right:6px;">Perfil</button>
-                    <button class="wl-btn-trade" data-action="trade" data-ticker="${opp.ticker}">Trade</button>
+                  <td><span class="wl-table-company">${escapeHtml(opp.name || opp.ticker)}</span></td>
+                  <td>${getSectorBadge(opp.sector)}</td>
+                  <td><span class="wl-origin-label">${escapeHtml(model.ORIGINS[opp.origin]?.label || opp.origin)}</span></td>
+                  <td>${renderStatusPill(opp.status)}</td>
+                  <td><span class="wl-table-price">${formatMoney(price)}</span></td>
+                  <td><span class="wl-rs-badge">RS ${Math.round(rs)}</span></td>
+                  <td><span class="wl-dist-val">${dist52w >= 0 ? '+' : ''}${dist52w.toFixed(1)}%</span></td>
+                  <td><span class="wl-cond-ratio ${condClass}">${checked}/${totalConditions}</span></td>
+                  <td><span class="wl-evo-badge ${evoClass}">${evo.label}</span></td>
+                  <td style="text-align:right;">
+                    <div class="wl-row-actions">
+                      <button class="wl-btn-remove" data-action="remove" data-ticker="${opp.ticker}" title="Remover ${opp.ticker} da Watchlist" aria-label="Remover ${opp.ticker} da Watchlist">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        <span class="sr-only">Remover</span>
+                      </button>
+                      <button class="wl-btn-inspect" data-action="inspect" data-ticker="${opp.ticker}">Perfil</button>
+                      <button class="wl-btn-trade" data-action="trade" data-ticker="${opp.ticker}">Trade</button>
+                    </div>
                   </td>
                 </tr>
               `;
@@ -1014,13 +1084,8 @@
     });
 
     drawer.querySelector('#wlBtnDrawerDelete')?.addEventListener('click', () => {
-      const confirmed = typeof window.confirm === 'function'
-        ? window.confirm(`Remover ${opp.ticker} da Watchlist?`)
-        : true;
-      if (confirmed) {
-        removeOpportunity(opp.ticker);
-        closeDrawer();
-      }
+      removeOpportunity(opp.ticker);
+      closeDrawer();
     });
   }
 
@@ -1295,8 +1360,13 @@
   }
 
   async function removeOpportunity(ticker) {
-    opportunities = opportunities.filter((o) => o.ticker !== ticker);
-    saveToLocalStorage();
+    const index = opportunities.findIndex((o) => o.ticker === ticker);
+    if (index >= 0) {
+      lastRemovedItem = opportunities[index];
+      lastRemovedIndex = index;
+      opportunities.splice(index, 1);
+      saveToLocalStorage();
+    }
 
     const token = getAuthToken();
     if (token) {
@@ -1308,7 +1378,21 @@
       } catch (e) {}
     }
 
-    showToast(`${ticker} removido da Watchlist.`);
+    showToast(`${ticker} removido da Watchlist`, () => {
+      if (lastRemovedItem && lastRemovedItem.ticker === ticker) {
+        if (lastRemovedIndex >= 0 && lastRemovedIndex <= opportunities.length) {
+          opportunities.splice(lastRemovedIndex, 0, lastRemovedItem);
+        } else {
+          opportunities.unshift(lastRemovedItem);
+        }
+        saveToLocalStorage();
+        syncOpportunityToServer(lastRemovedItem);
+        renderWatchlistPage();
+        showToast(`Ação desfeita: ${ticker} restaurado!`);
+        lastRemovedItem = null;
+      }
+    });
+
     await renderWatchlistPage();
   }
 
@@ -1406,13 +1490,8 @@
         e.stopPropagation();
         const ticker = btn.dataset.ticker;
         if (!ticker) return;
-        const confirmed = typeof window.confirm === 'function'
-          ? window.confirm(`Remover ${ticker} da Watchlist?`)
-          : true;
-        if (confirmed) {
-          removeOpportunity(ticker);
-          if (selectedTicker === ticker) closeDrawer();
-        }
+        removeOpportunity(ticker);
+        if (selectedTicker === ticker) closeDrawer();
       });
     });
 
