@@ -199,11 +199,19 @@
       ? activeCycleData.state
       : '';
     const cycleAttr = cycleState ? ' data-cycle-state="' + cycleState + '"' : '';
+    const routineState = item.id === 'daily-checklist' ? window.DailyRoutineModel?.getTodayRoutineState?.() : null;
+    const checklistItems = Array.isArray(routineState?.items) ? routineState.items : [];
+    const isChecklistDone = item.id === 'daily-checklist' && checklistItems.length > 0 && (
+      Boolean(routineState?.isFullyCompleted) || checklistItems.slice(0, 6).every((it) => it.completed)
+    );
+    const checklistAttr = isChecklistDone ? ' data-checklist-done="true"' : '';
+    const checklistClass = isChecklistDone ? ' is-checklist-done' : '';
+    const donePill = isChecklistDone ? ' <span class="dashboard-done-pill">✓ Concluído</span>' : '';
     const details = widget.route ? `<button class="dashboard-widget-details" type="button" data-widget-page="${esc(widget.route)}">Ver detalhes <span>→</span></button>` : '';
     const editControls = dashboardEditing ? `<div class="dashboard-widget-edit-controls" aria-label="Editar ${esc(widget.name)}"><span class="dashboard-widget-drag-handle" title="Arraste pelo cabeçalho para reorganizar">⠿</span><button type="button" class="danger" data-widget-remove="${item.id}" aria-label="Remover ${esc(widget.name)}">×</button></div>` : '';
     const resizeHandles = dashboardEditing ? `<span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--horizontal" aria-label="Ajustar largura de ${esc(widget.name)}"></span><span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--vertical" aria-label="Ajustar altura de ${esc(widget.name)}"></span><span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--corner" aria-label="Ajustar largura e altura de ${esc(widget.name)}"></span>` : '';
     const artwork = desktopArtwork(item.id);
-    return `<article class="dashboard-widget" data-widget-id="${item.id}" data-columns="${item.columns}"${cycleAttr} data-custom-height="${item.customHeight === true}"${item.customHeight ? ` data-rows="${item.rows}"` : ''}><div class="desktop-widget-art" aria-hidden="true">${artwork}</div><div class="desktop-widget-body"><header class="dashboard-widget-header"><div><span class="dashboard-widget-kicker">${esc(widget.category)}</span><h2>${esc(widget.name)}</h2></div>${editControls}</header><div class="dashboard-widget-content">${content}</div>${details}</div>${resizeHandles}</article>`;
+    return `<article class="dashboard-widget${checklistClass}" data-widget-id="${item.id}" data-columns="${item.columns}"${cycleAttr}${checklistAttr} data-custom-height="${item.customHeight === true}"${item.customHeight ? ` data-rows="${item.rows}"` : ''}><div class="desktop-widget-art" aria-hidden="true">${artwork}</div><div class="desktop-widget-body"><header class="dashboard-widget-header"><div><span class="dashboard-widget-kicker">${esc(widget.category)}</span><h2>${esc(widget.name)}${donePill}</h2></div>${editControls}</header><div class="dashboard-widget-content">${content}</div>${details}</div>${resizeHandles}</article>`;
 
   }
 
@@ -270,6 +278,7 @@
     root.querySelectorAll('[data-routine-toggle]').forEach((input) => input.addEventListener('change', (e) => {
       e.stopPropagation();
       window.DailyRoutineController?.handleToggleItem(input.dataset.routineToggle);
+      render();
     }));
     root.querySelectorAll('[data-habit-toggle]').forEach((input) => input.addEventListener('change', (e) => {
       e.stopPropagation();
@@ -488,7 +497,7 @@
       },
       renderWealth: () => typeof window.portfolioHeatSnapshot === 'function' ? `<div class="dashboard-wealth"><span>Portfolio Heat</span><strong>${pct(window.portfolioHeatSnapshot()?.heat || 0)}</strong><small>Use a tela de Patrimônio para a evolução completa.</small></div>` : empty('Ainda não há uma leitura de patrimônio disponível.'),
       renderChallenge: () => window.CourageChallengeModel?.isChallengeActive?.(challenge) ? `<div class="dashboard-challenge"><span class="desktop-challenge-label">Sizing Compliance</span><div class="desktop-challenge-progress"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18"/><circle cx="22" cy="22" r="18" pathLength="100" style="stroke-dasharray:${Math.min(100, Math.max(0, (attemptSummary?.correctExecutions || 0) / Math.max(1, attemptSummary?.targetGoal || challenge?.targetGoal || 1) * 100))} 100"/></svg><strong>${attemptSummary?.correctExecutions || 0} / ${attemptSummary?.targetGoal || challenge?.targetGoal || 0}</strong></div><span>operações dentro do sizing correto</span><small>Under ${attemptSummary?.underSizingCount || 0} · Over ${attemptSummary?.overSizingCount || 0}</small></div>` : empty('Nenhum Desafio Grade A está ativo no momento.')
-      ,renderChecklist: () => routineItems.length ? `<div class="personal-checklist">${routineItems.slice(0,6).map(item => `<label><input type="checkbox" data-routine-toggle="${item.id}" ${item.completed ? 'checked' : ''}><span>${esc(item.name)}</span></label>`).join('')}</div>` : empty('Configure a Rotina Diária para começar seu checklist.')
+      ,renderChecklist: () => routineItems.length ? `<div class="personal-checklist">${routineItems.slice(0,6).map(item => `<label class="${item.completed ? 'is-completed' : ''}"><input type="checkbox" data-routine-toggle="${item.id}" ${item.completed ? 'checked' : ''}><span>${esc(item.name)}</span></label>`).join('')}</div>` : empty('Configure a Rotina Diária para começar seu checklist.')
       ,renderPriorities: () => `<div class="personal-list">${personal.priorities.map(item => `<label><input type="checkbox" data-priority-toggle="${item.id}" ${item.done ? 'checked' : ''}><span>${esc(item.text)}</span><button type="button" data-priority-remove="${item.id}">×</button></label>`).join('') || '<p>Nenhuma prioridade definida. Escolha até três coisas importantes.</p>'}<form data-priority-form><input maxlength="90" placeholder="Adicionar prioridade" ${personal.priorities.length >= 3 ? 'disabled' : ''}><button ${personal.priorities.length >= 3 ? 'disabled' : ''}>+</button></form></div>`
       ,renderNotes: () => `<textarea class="personal-notes" data-personal-notes placeholder="Escreva uma nota rápida…">${esc(personal.note)}</textarea><small class="personal-muted">Salvo automaticamente.</small>`
       ,renderReminders: () => `<div class="personal-list">${personal.reminders.map(item => `<span>${esc(item.text)}<button type="button" data-reminder-remove="${item.id}">×</button></span>`).join('') || '<p>Nenhum lembrete para hoje.</p>'}<form data-reminder-form><input maxlength="80" placeholder="Novo lembrete"><button>+</button></form></div>`
@@ -552,6 +561,9 @@
   window.addEventListener('healthyTrend:authenticated', load);
   window.addEventListener('healthyTrend:workspace-synced', render);
   window.addEventListener('healthyTrend:watchlist-changed', () => {
+    if (document.getElementById('today')?.classList.contains('active')) render();
+  });
+  window.addEventListener('healthyTrend:routineUpdated', () => {
     if (document.getElementById('today')?.classList.contains('active')) render();
   });
   renderCurrentDate();

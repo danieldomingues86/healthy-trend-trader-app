@@ -1031,7 +1031,7 @@ body[data-theme="healthy"] #today .dashboard-widget {
   border-radius: 16px !important;
   box-shadow: 0 4px 20px rgba(15, 42, 32, 0.04), 0 1px 3px rgba(15, 42, 32, 0.02) !important;
   overflow: hidden;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
+  transition: background 0.35s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease !important;
 }
 
 #today .dashboard-widget:hover,
@@ -1096,6 +1096,62 @@ body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="market-cycle
 
 body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="market-cycle"][data-cycle-state="transition"] .desktop-widget-art svg {
   stroke: #10b981 !important;
+}
+
+/* Daily Checklist Concluído (Done) no Healthy Green */
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"],
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] {
+  background: linear-gradient(165deg, #f0fdf4 0%, #dcfce7 55%, #c7f3d6 100%) !important;
+  border-color: rgba(34, 197, 94, 0.55) !important;
+  box-shadow: 0 10px 28px rgba(22, 163, 74, 0.16), 0 2px 6px rgba(22, 163, 74, 0.06) !important;
+}
+
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"]:hover,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"]:hover {
+  border-color: rgba(34, 197, 94, 0.8) !important;
+  box-shadow: 0 12px 32px rgba(22, 163, 74, 0.22), 0 2px 6px rgba(22, 163, 74, 0.08) !important;
+}
+
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-kicker,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-kicker {
+  color: #15803d !important;
+}
+
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] h2,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] h2 {
+  color: #064e3b !important;
+}
+
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art {
+  opacity: 0.22 !important;
+}
+
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art svg,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art svg {
+  stroke: #16a34a !important;
+}
+
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist label,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist label {
+  color: #065f46 !important;
+  border-bottom-color: rgba(34, 197, 94, 0.18) !important;
+}
+
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist input[type="checkbox"],
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist input[type="checkbox"] {
+  accent-color: #16a34a !important;
+}
+
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details {
+  color: #15803d !important;
+  font-weight: 700 !important;
+}
+
+#today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details:hover,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details:hover {
+  color: #047857 !important;
 }
 
 .cycle-state-indicator.transition,
@@ -1946,6 +2002,63 @@ body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="market
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="market-cycle"] .desktop-widget-art svg {
   stroke: #d4af37 !important;
 }
+
+/* Daily Checklist Concluído (Done) no Gold / Dark */
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"],
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] {
+  background: linear-gradient(165deg, #092c1e 0%, #051a11 100%) !important;
+  border-color: rgba(74, 222, 128, 0.45) !important;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6), 0 0 28px rgba(34, 197, 94, 0.18), inset 0 1px 0 rgba(74, 222, 128, 0.22) !important;
+}
+
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"]:hover,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"]:hover {
+  border-color: rgba(74, 222, 128, 0.7) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 34px rgba(34, 197, 94, 0.26), inset 0 1px 0 rgba(74, 222, 128, 0.3) !important;
+}
+
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-kicker,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-kicker {
+  color: #4ade80 !important;
+}
+
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] h2,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] h2 {
+  color: #f0fdf4 !important;
+}
+
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art {
+  opacity: 0.28 !important;
+  filter: drop-shadow(0 0 16px rgba(34, 197, 94, 0.25)) !important;
+}
+
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art svg,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art svg {
+  stroke: #4ade80 !important;
+}
+
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist label,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist label {
+  color: #d1fae5 !important;
+  border-bottom-color: rgba(74, 222, 128, 0.15) !important;
+}
+
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist input[type="checkbox"],
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist input[type="checkbox"] {
+  accent-color: #34d399 !important;
+}
+
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details {
+  color: #6ee7b7 !important;
+  font-weight: 700 !important;
+}
+
+body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details:hover,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details:hover {
+  color: #a7f3d0 !important;
+}
 body:not([data-theme="healthy"]) .dashboard-cycle.transition .cycle-state-copy strong,
 body[data-theme="gold"] .dashboard-cycle.transition .cycle-state-copy strong {
   color: #fbbf24 !important;
@@ -2269,4 +2382,30 @@ body[data-theme="gold"] #today .personal-checklist label,
 body[data-theme="gold"] #today .personal-list label {
   color: #dcd0b7 !important;
   border-bottom: 1px solid rgba(214, 170, 80, 0.12) !important;
+}
+
+
+/* ── Dashboard Done Pill ────────────────────────────── */
+.dashboard-done-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+body[data-theme="gold"] .dashboard-done-pill,
+body:not([data-theme="healthy"]) .dashboard-done-pill {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+  border: 1px solid rgba(74, 222, 128, 0.4);
 }

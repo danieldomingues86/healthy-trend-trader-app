@@ -167,6 +167,9 @@
   function handleToggleItem(itemId) {
     window.DailyRoutineModel.toggleItemCompletion(itemId);
     renderDailyRoutineCard();
+    if (typeof window.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
+      window.dispatchEvent(new CustomEvent('healthyTrend:routineUpdated'));
+    }
   }
 
   function goToSettings() {
