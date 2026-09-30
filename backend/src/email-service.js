@@ -5,7 +5,7 @@ try {
   nodemailer = require('nodemailer');
 } catch (_) {}
 
-const { renderWelcomeEmail, getBannerBase64 } = require('./templates/welcome-email');
+const { renderWelcomeEmail, getBackgroundBase64, DEFAULT_BG_URL } = require('./templates/welcome-email');
 
 function isConfigured() {
   return Boolean(
@@ -58,32 +58,21 @@ async function saveEmailPreview(to, subject, html, text) {
   }
 }
 
-async function sendWelcomeEmail({ email, displayName, planType, appUrl }) {
+async function sendWelcomeEmail({ email, displayName, planType, appUrl, backgroundUrl }) {
   if (!email) {
     return { sent: false, error: 'E-mail do destinatário não informado.' };
   }
 
-  const bannerPath = path.resolve(__dirname, '..', '..', 'assets', 'email', 'welcome-trend-banner.jpg');
-  const bannerExists = require('node:fs').existsSync(bannerPath);
-
   try {
     if (isConfigured() && process.env.NODE_ENV !== 'test') {
+      const finalBgUrl = backgroundUrl || process.env.WELCOME_EMAIL_BG_URL || DEFAULT_BG_URL;
       const { subject, html, text } = renderWelcomeEmail({
         displayName,
         email,
         planType,
         appUrl,
-        bannerUrl: bannerExists ? 'cid:welcome-trend-banner' : undefined
+        backgroundUrl: finalBgUrl
       });
-
-      const attachments = [];
-      if (bannerExists) {
-        attachments.push({
-          filename: 'welcome-trend-banner.jpg',
-          path: bannerPath,
-          cid: 'welcome-trend-banner'
-        });
-      }
 
       const transporter = createTransporter();
       const info = await transporter.sendMail({
@@ -91,32 +80,33 @@ async function sendWelcomeEmail({ email, displayName, planType, appUrl }) {
         to: email,
         subject,
         html,
-        text,
-        attachments
+        text
       });
       console.log(`[email-service] 🚀 E-mail de boas-vindas enviado para ${email} (ID: ${info.messageId})`);
       return { sent: true, mode: 'smtp', messageId: info.messageId };
     }
 
     // Modo preview / teste quando SMTP não está configurado
-    const bannerBase64 = getBannerBase64();
+    const bgBase64 = getBackgroundBase64();
+    const finalBgUrl = backgroundUrl || bgBase64 || process.env.WELCOME_EMAIL_BG_URL || DEFAULT_BG_URL;
     const { subject, html, text } = renderWelcomeEmail({
       displayName,
       email,
       planType,
       appUrl,
-      bannerUrl: bannerBase64 || 'cid:welcome-trend-banner'
+      backgroundUrl: finalBgUrl
     });
     return await saveEmailPreview(email, subject, html, text);
   } catch (err) {
     console.error(`[email-service] ⚠️ Erro ao disparar e-mail de boas-vindas para ${email}:`, err.message);
-    const bannerBase64 = getBannerBase64();
+    const bgBase64 = getBackgroundBase64();
+    const finalBgUrl = backgroundUrl || bgBase64 || process.env.WELCOME_EMAIL_BG_URL || DEFAULT_BG_URL;
     const { subject, html, text } = renderWelcomeEmail({
       displayName,
       email,
       planType,
       appUrl,
-      bannerUrl: bannerBase64 || 'cid:welcome-trend-banner'
+      backgroundUrl: finalBgUrl
     });
     await saveEmailPreview(email, subject, html, text);
     return { sent: false, mode: 'smtp_error', error: err.message };
