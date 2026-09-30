@@ -146,7 +146,7 @@
     const toolbarMarkup = `
       <div class="dr-v2-toolbar">
         <div class="dr-v2-toolbar-left">
-          <span class="dr-v2-tag">Rituais ativos: <b>${state.totalCount}</b></span>
+          <span class="dr-v2-tag">Tarefas ativas: <b>${state.totalCount}</b></span>
           <span class="dr-v2-tag success">Concluídos: <b>${state.completedCount}</b></span>
         </div>
         <div class="dr-v2-toolbar-right">
@@ -155,7 +155,7 @@
           </button>
           <button type="button" class="dr-v2-btn-primary" data-dr-add-btn>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Adicionar rotina
+            Adicionar tarefa
           </button>
         </div>
       </div>
@@ -167,8 +167,8 @@
       cardsMarkup = `
         <div class="dr-v2-empty-state">
           <div class="dr-v2-empty-icon">📋</div>
-          <h3>Nenhuma rotina configurada</h3>
-          <p>Crie rotinas personalizadas ou restaure os 8 passos recomendados para guiar seu dia com disciplina.</p>
+          <h3>Nenhuma tarefa configurada</h3>
+          <p>Crie tarefas personalizadas ou restaure os 8 passos recomendados para guiar seu dia com disciplina.</p>
           <button type="button" class="dr-v2-btn-primary" data-dr-reset-btn>Restaurar 8 passos recomendados</button>
         </div>
       `;
@@ -207,7 +207,7 @@
                 </svg>
                 ${esc(item.time || '10 min')}
               </span>
-              <button type="button" class="dr-v2-card-arrow" data-dr-edit="${item.id}" title="Editar rotina" aria-label="Editar rotina">
+              <button type="button" class="dr-v2-card-arrow" data-dr-edit="${item.id}" title="Editar tarefa" aria-label="Editar tarefa">
                 ›
               </button>
             </div>
@@ -258,10 +258,10 @@
     if (!isModalOpen) return '';
 
     const isEdit = Boolean(editingItemId);
-    const title = isEdit ? 'Editar Rotina Diária' : 'Nova Rotina Diária';
+    const title = isEdit ? 'Editar Tarefa' : 'Nova Tarefa';
     const subtitle = isEdit
-      ? 'Atualize o título, descrição, categoria ou tempo desta rotina.'
-      : 'Crie uma nova rotina com ícone contextual e tempo estimado.';
+      ? 'Atualize o título, descrição, categoria ou tempo desta tarefa.'
+      : 'Crie uma nova tarefa com ícone contextual e tempo estimado.';
 
     const categories = window.DailyRoutineIcons?.CATEGORIES || {};
     const categoryTabs = Object.values(categories).map(cat => {
@@ -305,9 +305,9 @@
           </header>
 
           <form class="dr-modal-form" id="drRoutineForm" onsubmit="event.preventDefault();">
-            <!-- Nome da Rotina -->
+            <!-- Nome da Tarefa -->
             <div class="dr-form-group">
-              <label for="drInputName">Nome da rotina *</label>
+              <label for="drInputName">Nome da tarefa *</label>
               <input type="text" id="drInputName" placeholder="Ex: Caminhar 30 minutos, Revisar watchlist..." maxlength="80" required autocomplete="off" />
               <small class="dr-form-hint">O sistema sugere a categoria e o ícone automaticamente conforme você digita.</small>
             </div>
@@ -356,10 +356,10 @@
             </div>
 
             <footer class="dr-modal-footer">
-              ${isEdit ? `<button type="button" class="dr-btn-danger" data-dr-delete-btn>Excluir rotina</button>` : '<div></div>'}
+              ${isEdit ? `<button type="button" class="dr-btn-danger" data-dr-delete-btn>Excluir tarefa</button>` : '<div></div>'}
               <div class="dr-modal-actions-right">
                 <button type="button" class="dr-v2-btn-secondary" data-dr-modal-close>Cancelar</button>
-                <button type="submit" class="dr-v2-btn-primary" data-dr-save-btn>Salvar rotina</button>
+                <button type="submit" class="dr-v2-btn-primary" data-dr-save-btn>Salvar tarefa</button>
               </div>
             </footer>
           </form>
@@ -539,7 +539,7 @@
 
     // Excluir
     root.querySelector('[data-dr-delete-btn]')?.addEventListener('click', () => {
-      if (editingItemId && confirm('Tem certeza que deseja excluir esta rotina?')) {
+      if (editingItemId && confirm('Tem certeza que deseja excluir esta tarefa?')) {
         window.DailyRoutineModel.deleteRoutineItem(editingItemId);
         closeModal();
         renderDailyRoutineCard();
@@ -698,7 +698,7 @@
         </div>
 
         <div style="display:flex;gap:10px;">
-          <button type="button" class="btn primary" onclick="window.DailyRoutineController.openModal(null)">+ Adicionar nova rotina</button>
+          <button type="button" class="btn primary" onclick="window.DailyRoutineController.openModal(null)">+ Adicionar nova tarefa</button>
           <button type="button" class="btn secondary" onclick="window.DailyRoutineModel.resetToDefaultItems(); window.DailyRoutineController.renderDailyRoutineSettings(); window.DailyRoutineController.renderDailyRoutineCard();">↺ Restaurar 8 passos</button>
         </div>
       </div>
@@ -718,7 +718,7 @@
   }
 
   function handleDeleteItem(id) {
-    if (confirm('Deseja realmente remover este item da sua rotina?')) {
+    if (confirm('Deseja realmente remover esta tarefa da sua rotina?')) {
       window.DailyRoutineModel.deleteRoutineItem(id);
       renderDailyRoutineSettings();
       renderDailyRoutineCard();
