@@ -1,11 +1,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-function getBannerBase64() {
+function getBackgroundBase64() {
   try {
-    const bannerPath = path.resolve(__dirname, '..', '..', '..', 'assets', 'email', 'welcome-trend-banner.jpg');
-    if (fs.existsSync(bannerPath)) {
-      const data = fs.readFileSync(bannerPath).toString('base64');
+    const bgPath = path.resolve(__dirname, '..', '..', '..', 'assets', 'email', 'welcome-trend-bg.jpg');
+    if (fs.existsSync(bgPath)) {
+      const data = fs.readFileSync(bgPath).toString('base64');
       return `data:image/jpeg;base64,${data}`;
     }
   } catch (_) {}
@@ -34,12 +34,14 @@ function planLabel(planType) {
   }
 }
 
-function renderWelcomeEmail({ displayName, email, planType, appUrl, bannerUrl }) {
+const DEFAULT_BG_URL = 'https://files.catbox.moe/6qx809.jpg';
+
+function renderWelcomeEmail({ displayName, email, planType, appUrl, backgroundUrl, bannerUrl }) {
   const safeName = escapeHtml(displayName || 'Trader');
   const safeEmail = escapeHtml(email || '');
   const safePlan = escapeHtml(planLabel(planType));
   const safeUrl = escapeHtml(appUrl || process.env.APP_BASE_URL || 'http://localhost:3000');
-  const finalBannerUrl = bannerUrl || 'cid:welcome-trend-banner';
+  const finalBgUrl = backgroundUrl || bannerUrl || process.env.WELCOME_EMAIL_BG_URL || DEFAULT_BG_URL;
 
   const subject = `Bem-vindo ao The Healthy Trend Trader — Seu novo centro operacional`;
 
@@ -55,23 +57,16 @@ function renderWelcomeEmail({ displayName, email, planType, appUrl, bannerUrl })
   </style>
   <![endif]-->
 </head>
-<body style="margin:0;padding:0;background-color:#03130d;color:#e9f5ed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#03130d;padding:40px 15px;">
+<body style="margin:0;padding:0;background-color:#03130d;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;color:#e9f5ed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" background="${finalBgUrl}" style="background-color:#03130d;background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;padding:48px 15px;">
     <tr>
-      <td align="center">
+      <td align="center" background="${finalBgUrl}" style="background-image:url('${finalBgUrl}');background-repeat:no-repeat;background-position:center top;background-size:cover;">
         <!-- Card Principal -->
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:linear-gradient(145deg,#071f16 0%,#04150f 100%);border:1px solid #1e5038;border-radius:18px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,0.5);">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:620px;background:linear-gradient(160deg,rgba(7,31,22,0.94) 0%,rgba(3,19,13,0.97) 100%);border:1px solid rgba(52,211,153,0.3);border-radius:18px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.7);">
           
           <!-- Top Accent Bar -->
           <tr>
             <td style="height:4px;background:linear-gradient(90deg,#dfbd5f,#34d399);font-size:0;line-height:0;">&nbsp;</td>
-          </tr>
-
-          <!-- Hero Banner: Tendência de Alta com Candles & Médias Móveis -->
-          <tr>
-            <td style="padding:0;line-height:0;font-size:0;background-color:#03130d;text-align:center;">
-              <img src="${finalBannerUrl}" alt="Tendência de Alta - The Healthy Trend Trader" width="620" style="width:100%;max-width:620px;height:auto;display:block;border-bottom:1px solid #1e5038;" />
-            </td>
           </tr>
 
           <!-- Header / Identidade Visual -->
@@ -290,5 +285,6 @@ module.exports = {
   renderWelcomeEmail,
   planLabel,
   escapeHtml,
-  getBannerBase64
+  getBackgroundBase64,
+  DEFAULT_BG_URL
 };
