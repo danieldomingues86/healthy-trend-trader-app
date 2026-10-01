@@ -1,0 +1,380 @@
+/* Scale-In — Gestão do Trade + Política de Risco */
+
+.scale-in-card {
+  margin: 20px 0;
+  border-left: 3px solid #10b981;
+}
+
+.scale-in-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.scale-in-card header h3 {
+  margin: 0;
+}
+
+.scale-in-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.scale-in-stat {
+  padding: 12px;
+  border: 1px solid var(--line, #39483e);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.scale-in-stat small,
+.scale-in-stat strong {
+  display: block;
+}
+
+.scale-in-stat small {
+  color: var(--muted);
+  margin-bottom: 7px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.scale-in-stat strong {
+  font-size: 17px;
+}
+
+.scale-in-stat.highlight {
+  border: 2px solid #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.scale-in-stat.highlight strong {
+  color: #10b981;
+}
+
+.scale-in-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line, #39483e);
+  flex-wrap: wrap;
+}
+
+.scale-in-status-msg {
+  font-size: 13px;
+  color: var(--muted);
+  flex: 1 1 280px;
+  line-height: 1.5;
+}
+
+.scale-in-status-msg.blocked {
+  color: #f59e0b;
+}
+
+.scale-in-status-msg.ready {
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Consolidated Trade Breakdown */
+.consolidated-view {
+  margin-top: 18px;
+  border: 1px solid var(--line, #39483e);
+  border-radius: 12px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.consolidated-view h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.consolidated-table-wrap {
+  overflow-x: auto;
+}
+
+.consolidated-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+
+.consolidated-table th,
+.consolidated-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line, #39483e);
+}
+
+.consolidated-table th {
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.consolidated-table tr.total-row {
+  font-weight: bold;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.consolidated-table tr.total-row td {
+  border-bottom: none;
+  color: #10b981;
+}
+
+/* Modal Dialog */
+.scale-in-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  border: 1px solid var(--line, #39483e);
+  border-radius: 14px;
+  padding: 24px;
+  background: var(--surface, #19281f);
+  color: inherit;
+  width: min(calc(100vw - 32px), 780px);
+  max-height: min(calc(100vh - 32px), 820px);
+  overflow-y: auto;
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.4);
+}
+
+.scale-in-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.scale-in-dialog h3 {
+  margin: 0 0 6px;
+}
+
+.scale-in-dialog-subtitle {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.scale-in-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.scale-in-dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.scale-in-dialog input,
+.scale-in-dialog select,
+.scale-in-dialog textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--line, #39483e);
+  border-radius: 8px;
+  background: var(--surface-secondary, rgba(0, 0, 0, 0.2));
+  color: inherit;
+  font-size: 13px;
+}
+
+.scale-in-calc-preview {
+  margin: 18px 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.scale-in-calc-card {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line, #39483e);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.scale-in-calc-card h5 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.scale-in-calc-card.result-card {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.06);
+}
+
+/* Checklist of Risk Validation */
+.scale-in-validation-box {
+  margin: 18px 0;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line, #39483e);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.scale-in-validation-box h4 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.scale-in-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scale-in-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.scale-in-check-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.scale-in-check-icon.pass {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.scale-in-check-icon.fail {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.scale-in-check-detail {
+  color: var(--muted);
+  margin-left: auto;
+  font-size: 11px;
+}
+
+/* Risk Policy Settings Block */
+.risk-policy-scale-in {
+  margin-top: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.scale-in-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.scale-in-policy-item {
+  padding: 10px 12px;
+  border: 1px solid var(--line, #d5e3d8);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.03);
+  box-sizing: border-box;
+}
+
+.scale-in-policy-item .field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scale-in-policy-item .field label {
+  font-size: 11px !important;
+  line-height: 1.35;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.scale-in-policy-item .field input,
+.scale-in-policy-item .field select {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 12px !important;
+  height: 38px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: inherit;
+  color: inherit;
+}
+
+.scale-in-policy-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+  padding: 11px 15px;
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.scale-in-policy-hint {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.scale-in-policy-hint span {
+  font-weight: 800;
+  color: #10b981;
+  margin-right: 4px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .scale-in-grid {
+    grid-template-columns: repeat(2, minmax(130px, 1fr));
+  }
+  .scale-in-policy-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .scale-in-form-grid,
+  .scale-in-calc-preview {
+    grid-template-columns: 1fr;
+  }
+  .scale-in-policy-grid {
+    grid-template-columns: 1fr;
+  }
+}

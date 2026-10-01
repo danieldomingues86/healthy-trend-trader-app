@@ -20,6 +20,15 @@
       {grade:'C',minScore:65,riskPct:.001},
       {grade:'D',minScore:-Infinity,riskPct:0}
     ],
+    scaleIn:{
+      enabled:true,
+      maxAdditions:2,
+      minR:1.0,
+      requireBreakeven:true,
+      maxRiskPct:0.5,
+      respectPortfolioHeat:true,
+      allowLosingTrades:false
+    },
     profiles:{
       rampUp:{label:'Mercado em recuperação',ongoingRiskPct:.0025,initialVolatilityPct:.001,ongoingVolatilityPct:.0025,capitalPct:.1,maximumPortfolioRiskPct:.03,maximumPositions:3,pyramiding:false},
       standard:{label:'Política padrão',ongoingRiskPct:.006,initialVolatilityPct:.003,ongoingVolatilityPct:.006,capitalPct:.1,maximumPortfolioRiskPct:.03,maximumPositions:6,pyramiding:false}
@@ -62,6 +71,16 @@
     const settings=policy.sellIntoStrength||{};
     const start=Math.max(0,finite(settings.startR,2));
     const end=Math.max(start,finite(settings.endR,3));
+    const rawScaleIn=policy.scaleIn||{};
+    const scaleIn={
+      enabled:rawScaleIn.enabled!==false,
+      maxAdditions:Math.max(1,Math.floor(finite(rawScaleIn.maxAdditions,DEFAULT_POLICY.scaleIn.maxAdditions))),
+      minR:Math.max(0,finite(rawScaleIn.minR,DEFAULT_POLICY.scaleIn.minR)),
+      requireBreakeven:rawScaleIn.requireBreakeven!==false,
+      maxRiskPct:Math.max(0,finite(rawScaleIn.maxRiskPct,DEFAULT_POLICY.scaleIn.maxRiskPct)),
+      respectPortfolioHeat:rawScaleIn.respectPortfolioHeat!==false,
+      allowLosingTrades:rawScaleIn.allowLosingTrades===true
+    };
     const selectedProfile=profiles[policy.selectedProfile]?policy.selectedProfile:DEFAULT_POLICY.selectedProfile;
     return{
       gradingVersion:2,
@@ -73,7 +92,8 @@
       marketMultipliers:{...(policy.marketMultipliers||{})},
       selectedProfile,
       portfolioHeatLimitPct:profiles[selectedProfile].maximumPortfolioRiskPct*100,
-      sellIntoStrength:{enabled:settings.enabled!==false,startR:start,endR:end,suggestedPercent:Math.min(100,Math.max(1,finite(settings.suggestedPercent,50)))}
+      sellIntoStrength:{enabled:settings.enabled!==false,startR:start,endR:end,suggestedPercent:Math.min(100,Math.max(1,finite(settings.suggestedPercent,50)))},
+      scaleIn
     };
   }
 
