@@ -2,6 +2,7 @@ const crypto = require('node:crypto');
 const database = require('./database');
 const management = require('../../frontend/position-management-model');
 const rubricModel = require('../../frontend/trading-rubrics');
+const scaleInModel = require('../../frontend/scale-in-model');
 const assetBlacklist = require('./asset-blacklist');
 const marketPause = require('./market-pause');
 const setupTriggers = require('../../frontend/setup-triggers-catalog');
@@ -139,18 +140,21 @@ async function createPlan(userId, payload) {
       const savedPolicy = await client.query('SELECT policy FROM app.risk_policies WHERE user_id = $1', [userId]);
       validateRareTrade(plan, savedPolicy.rows[0]?.policy);
     }
+    const totalCapital = plan.entry * plan.metadata.executedQuantity;
     await client.query(
       `INSERT INTO app.trades (
         id, user_id, ticker, market, direction, setup, entry_price, stop_price, atr,
         planned_quantity, risk_pct, rubric_score, rubric_max_score, rubric_grade,
-        rubric_responses, status, metadata, execution_price, executed_quantity, executed_at, setup_trigger
+        rubric_responses, status, metadata, execution_price, executed_quantity, executed_at, setup_trigger,
+        scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
-        $10, $11, $12, $13, $14, $15::jsonb, 'open', $16::jsonb, $7, $17, $18, $19
+        $10, $11, $12, $13, $14, $15::jsonb, 'open', $16::jsonb, $7, $17, $18, $19,
+        true, 0, $17, $7, $20, $11
       )`,
       [id, userId, plan.ticker, plan.market, plan.direction, plan.setup, plan.entry, plan.stop, plan.atr,
         plan.plannedQuantity, plan.riskPct, plan.rubricScore, plan.rubricMaxScore, plan.rubricGrade,
-        JSON.stringify(plan.rubricResponses), JSON.stringify(plan.metadata), plan.metadata.executedQuantity, plan.entryTimestamp, plan.setupTrigger]
+        JSON.stringify(plan.rubricResponses), JSON.stringify(plan.metadata), plan.metadata.executedQuantity, plan.entryTimestamp, plan.setupTrigger, totalCapital]
     );
     for (const item of plan.contributions) {
       await client.query(
@@ -159,6 +163,19 @@ async function createPlan(userId, payload) {
         [crypto.randomUUID(), id, item.key, item.rating, item.score, item.maxScore]
       );
     }
+    await client.query(
+      `INSERT INTO app.trade_entries (
+        id, trade_id, entry_type, entry_date, entry_time, price, quantity,
+        capital_allocated, initial_stop, risk_amount, risk_percent,
+        r_multiple_at_entry, note, context, created_at, updated_at
+      ) VALUES ($1, $2, 'INITIAL', $3, $4, $5, $6, $7, $8, $9, $10, 0, $11, $12::jsonb, $13, $13)`,
+      [crypto.randomUUID(), id, plan.metadata.entryDate || plan.entryTimestamp.slice(0, 10),
+        new Date(plan.entryTimestamp).toTimeString().slice(0, 8),
+        plan.entry, plan.metadata.executedQuantity, totalCapital, plan.stop,
+        Math.abs(plan.entry - plan.stop) * plan.metadata.executedQuantity,
+        plan.riskPct, 'Entrada inicial registrada no plano.',
+        JSON.stringify({ initialRisk: Math.abs(plan.entry - plan.stop) * plan.metadata.executedQuantity }), plan.entryTimestamp]
+    );
     await client.query(
       `INSERT INTO app.trade_events (id, trade_id, event_type, quantity, price, stop_price, atr, note, occurred_at)
        VALUES ($1, $2, 'entry', $3, $4, $5, $6, $7, $8)`,
@@ -174,7 +191,9 @@ async function listPlans(userId) {
     `SELECT t.id, t.ticker, t.market, t.direction, t.setup, t.setup_trigger, t.entry_price, t.stop_price, t.atr, t.planned_quantity,
             t.risk_pct, t.rubric_score, t.rubric_max_score, t.rubric_grade, t.rubric_responses, t.status, t.metadata,
             t.execution_price, t.executed_quantity, t.executed_at, t.created_at, t.updated_at,
-            COALESCE(events.items, '[]'::jsonb) AS events
+            t.scale_in_enabled, t.scale_in_count, t.total_quantity, t.average_entry_price, t.total_allocated_capital, t.current_risk_percent,
+            COALESCE(events.items, '[]'::jsonb) AS events,
+            COALESCE(entries.items, '[]'::jsonb) AS entries
        FROM app.trades t
        LEFT JOIN LATERAL (
          SELECT jsonb_agg(jsonb_build_object(
@@ -183,12 +202,28 @@ async function listPlans(userId) {
          ) ORDER BY e.occurred_at, e.created_at) AS items
          FROM app.trade_events e WHERE e.trade_id = t.id
        ) events ON true
+       LEFT JOIN LATERAL (
+         SELECT jsonb_agg(jsonb_build_object(
+           'id', en.id, 'type', en.entry_type, 'date', en.entry_date, 'time', en.entry_time,
+           'price', en.price, 'qty', en.quantity, 'capital', en.capital_allocated,
+           'stop', en.initial_stop, 'riskAmount', en.risk_amount, 'riskPct', en.risk_percent,
+           'rAtEntry', en.r_multiple_at_entry, 'note', en.note, 'context', en.context,
+           'createdAt', en.created_at
+         ) ORDER BY en.created_at) AS items
+         FROM app.trade_entries en WHERE en.trade_id = t.id
+       ) entries ON true
        WHERE t.user_id = $1 ORDER BY t.created_at DESC`,
     [userId]
   );
   return result.rows.map(row => ({
     ...row,
-    setupTrigger: row.setup_trigger || setupTriggers.normalizeKey(row.setup) || null
+    setupTrigger: row.setup_trigger || setupTriggers.normalizeKey(row.setup) || null,
+    scale_in_enabled: row.scale_in_enabled !== false,
+    scale_in_count: Number(row.scale_in_count || 0),
+    total_quantity: Number(row.total_quantity || row.executed_quantity || row.planned_quantity || 0),
+    average_entry_price: Number(row.average_entry_price || row.execution_price || row.entry_price || 0),
+    total_allocated_capital: Number(row.total_allocated_capital || 0),
+    current_risk_percent: Number(row.current_risk_percent || row.risk_pct || 0)
   }));
 }
 
@@ -214,10 +249,15 @@ function normalizePositionEvent(type, payload = {}) {
 
 async function recordPositionEvent(userId, tradeId, type, payload) {
   if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
+  if (type === 'scale_in') {
+    return addScaleIn(userId, tradeId, payload);
+  }
   const event = normalizePositionEvent(type, payload);
   return database.transaction(async (client) => {
     const current = await client.query(
-      `SELECT id, status, executed_quantity, execution_price, entry_price, stop_price, direction FROM app.trades WHERE id = $1 AND user_id = $2 FOR UPDATE`,
+      `SELECT id, status, executed_quantity, execution_price, entry_price, stop_price, direction,
+              total_quantity, average_entry_price, total_allocated_capital, current_risk_percent
+         FROM app.trades WHERE id = $1 AND user_id = $2 FOR UPDATE`,
       [tradeId, userId]
     );
     if (!current.rowCount) throw invalid('Trade não encontrado.');
@@ -226,7 +266,8 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
       `SELECT COALESCE(SUM(quantity), 0) AS total FROM app.trade_events
         WHERE trade_id = $1 AND event_type IN ('peeloff', 'close')`, [tradeId]
     );
-    const remaining = Number(current.rows[0].executed_quantity) - Number(exits.rows[0].total);
+    const totalBought = Number(current.rows[0].total_quantity || current.rows[0].executed_quantity || 0);
+    const remaining = totalBought - Number(exits.rows[0].total);
     if (event.quantity && event.quantity > remaining) throw invalid('A quantidade precisa ser menor ou igual ao saldo da posição.');
     if (event.type === 'peeloff' && event.quantity >= remaining) throw invalid('Para encerrar toda a posição, registre um encerramento.');
     const history = await client.query(
@@ -237,6 +278,7 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
     const entryEvent = history.rows.find(item => item.type === 'entry');
     const events = entryEvent ? history.rows : [{ type: 'entry', qty: trade.executed_quantity, price: trade.execution_price ?? trade.entry_price, stop: trade.stop_price }, ...history.rows];
     const entry = Number(entryEvent?.price ?? trade.execution_price ?? trade.entry_price);
+    const avgEntry = Number(trade.average_entry_price || entry);
     const currentPrice = Number([...events].reverse().find(item => Number(item.price) > 0)?.price ?? entry);
     const basis = { entry, initialStop: Number(entryEvent?.stop ?? trade.stop_price), initialQty: Number(entryEvent?.qty ?? trade.executed_quantity),
       direction: trade.direction || 'long', currentPrice, currentStop: Number(trade.stop_price), events };
@@ -255,7 +297,7 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
     const previousTrough = Math.min(...historicalR, Infinity);
     const milestones = [2, 3].filter(level => r != null && r >= level && previousPeak < level).map(level => `${level}R`);
     const source = event.type === 'peeloff' && payload?.source === 'sell_into_strength' ? 'sell_into_strength' : event.type === 'peeloff' ? 'risk_peel' : event.type;
-    const partialProfit = event.quantity ? (event.price - entry) * (basis.direction === 'short' ? -1 : 1) * event.quantity : 0;
+    const partialProfit = event.quantity ? (event.price - avgEntry) * (basis.direction === 'short' ? -1 : 1) * event.quantity : 0;
     const context = {
       source, rAtEvent: r, rAtExit: event.quantity ? r : null,
       percentRealized: event.quantity ? event.quantity / remaining * 100 : null,
@@ -274,9 +316,12 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
     );
     const shouldClose = event.type === 'close' && event.quantity === remaining;
     if (event.type === 'update') {
-      await client.query(`UPDATE app.trades SET stop_price = $3, atr = COALESCE($4, atr) WHERE id = $1 AND user_id = $2`, [tradeId, userId, event.stop, event.atr]);
+      await client.query(`UPDATE app.trades SET stop_price = $3, atr = COALESCE($4, atr), updated_at = now() WHERE id = $1 AND user_id = $2`, [tradeId, userId, event.stop, event.atr]);
     } else if (shouldClose) {
-      await client.query(`UPDATE app.trades SET status = 'closed' WHERE id = $1 AND user_id = $2`, [tradeId, userId]);
+      await client.query(`UPDATE app.trades SET status = 'closed', total_allocated_capital = 0, current_risk_percent = 0, updated_at = now() WHERE id = $1 AND user_id = $2`, [tradeId, userId]);
+    } else if (event.type === 'peeloff') {
+      const remainingCapital = Math.max(0, after.remaining * avgEntry);
+      await client.query(`UPDATE app.trades SET total_allocated_capital = $3, updated_at = now() WHERE id = $1 AND user_id = $2`, [tradeId, userId, remainingCapital]);
     }
     return { ...event, context, remaining: remaining - (event.quantity || 0), status: shouldClose ? 'closed' : 'open' };
   });
@@ -294,19 +339,36 @@ async function executePlan(userId, tradeId, payload) {
   const execution = normalizeExecution(payload);
   return database.transaction(async (client) => {
     const current = await client.query(
-      `SELECT id, ticker, status, planned_quantity, metadata
+      `SELECT id, ticker, status, planned_quantity, entry_price, stop_price, risk_pct, metadata
          FROM app.trades WHERE id = $1 AND user_id = $2 FOR UPDATE`,
       [tradeId, userId]
     );
     if (!current.rowCount) throw invalid('Plano não encontrado.');
     if (current.rows[0].status !== 'planned') throw invalid('Este plano já foi executado ou não está disponível.');
+    const totalAllocatedCapital = execution.price * execution.quantity;
     const result = await client.query(
       `UPDATE app.trades
           SET status = 'open', execution_price = $3, executed_quantity = $4, executed_at = now(),
+              total_quantity = $4, average_entry_price = $3, total_allocated_capital = $5,
               metadata = jsonb_set(metadata, '{executedQuantity}', to_jsonb($4::numeric), true)
         WHERE id = $1 AND user_id = $2
-        RETURNING id, ticker, status, execution_price, executed_quantity, executed_at`,
-      [tradeId, userId, execution.price, execution.quantity]
+        RETURNING id, ticker, status, execution_price, executed_quantity, executed_at,
+                  total_quantity, average_entry_price, total_allocated_capital, scale_in_enabled, scale_in_count`,
+      [tradeId, userId, execution.price, execution.quantity, totalAllocatedCapital]
+    );
+    await client.query(
+      `INSERT INTO app.trade_entries (
+        id, trade_id, entry_type, entry_date, entry_time, price, quantity,
+        capital_allocated, initial_stop, risk_amount, risk_percent,
+        r_multiple_at_entry, note, context
+      ) VALUES ($1, $2, 'INITIAL', CURRENT_DATE, CURRENT_TIME, $3, $4, $5, $6, $7, $8, 0, 'Execução do plano confirmada.', '{}'::jsonb)
+      ON CONFLICT (id) DO NOTHING`,
+      [
+        crypto.randomUUID(), tradeId, execution.price, execution.quantity,
+        totalAllocatedCapital, current.rows[0].stop_price || null,
+        Math.abs(execution.price - (Number(current.rows[0].stop_price) || 0)) * execution.quantity,
+        Number(current.rows[0].risk_pct) || 0
+      ]
     );
     return result.rows[0];
   });
@@ -330,14 +392,20 @@ async function updateTrade(userId, tradeId, payload = {}) {
       setupLabel = setupTriggers.getTriggerLabel(normalized);
     }
   }
+  let scaleInEnabled = undefined;
+  if (payload.scale_in_enabled !== undefined || payload.scaleInEnabled !== undefined) {
+    scaleInEnabled = Boolean(payload.scale_in_enabled ?? payload.scaleInEnabled);
+  }
 
   const result = await database.query(
     `UPDATE app.trades
         SET setup_trigger = COALESCE($3, setup_trigger),
-            setup = COALESCE($4, setup)
+            setup = COALESCE($4, setup),
+            scale_in_enabled = COALESCE($5, scale_in_enabled),
+            updated_at = now()
       WHERE id = $1 AND user_id = $2
-      RETURNING id, ticker, status, setup, setup_trigger`,
-    [tradeId, userId, setupTrigger, setupLabel]
+      RETURNING id, ticker, status, setup, setup_trigger, scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent`,
+    [tradeId, userId, setupTrigger, setupLabel, scaleInEnabled]
   );
   if (!result.rowCount) throw invalid('Trade não encontrado.');
   return {
@@ -346,4 +414,216 @@ async function updateTrade(userId, tradeId, payload = {}) {
   };
 }
 
-module.exports = { createPlan, listPlans, executePlan, updateTrade, recordPositionEvent, normalizePlan, validateRareTrade, normalizeExecution, normalizePositionEvent, ratingFromValue };
+async function getAccountEquity(userId, client = database) {
+  try {
+    const snap = await client.query(
+      `SELECT amount FROM app.wealth_snapshots WHERE user_id = $1 AND snapshot_type = 'strategy_equity' ORDER BY occurred_at DESC, created_at DESC LIMIT 1`,
+      [userId]
+    );
+    if (snap.rowCount && Number(snap.rows[0].amount) > 0) return Number(snap.rows[0].amount);
+    const set = await client.query(
+      `SELECT strategy_base FROM app.wealth_settings WHERE user_id = $1`,
+      [userId]
+    );
+    if (set.rowCount && Number(set.rows[0].strategy_base) > 0) return Number(set.rows[0].strategy_base);
+  } catch (_) {}
+  return 1029500;
+}
+
+async function validateScaleIn(userId, tradeId, payload = {}, clientOverride = null) {
+  if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
+  const query = clientOverride ? clientOverride.query.bind(clientOverride) : database.query.bind(database);
+
+  const tradeRes = await query(
+    `SELECT t.*,
+            COALESCE(events.items, '[]'::jsonb) AS events,
+            COALESCE(entries.items, '[]'::jsonb) AS entries
+       FROM app.trades t
+       LEFT JOIN LATERAL (
+         SELECT jsonb_agg(jsonb_build_object(
+           'id', e.id, 'type', e.event_type, 'qty', e.quantity, 'price', e.price,
+           'stop', e.stop_price, 'atr', e.atr, 'note', e.note, 'at', e.occurred_at, 'context', e.context
+         ) ORDER BY e.occurred_at, e.created_at) AS items
+         FROM app.trade_events e WHERE e.trade_id = t.id
+       ) events ON true
+       LEFT JOIN LATERAL (
+         SELECT jsonb_agg(jsonb_build_object(
+           'id', en.id, 'type', en.entry_type, 'date', en.entry_date, 'time', en.entry_time,
+           'price', en.price, 'qty', en.quantity, 'capital', en.capital_allocated,
+           'stop', en.initial_stop, 'riskAmount', en.risk_amount, 'riskPct', en.risk_percent,
+           'rAtEntry', en.r_multiple_at_entry, 'note', en.note, 'context', en.context,
+           'createdAt', en.created_at
+         ) ORDER BY en.created_at) AS items
+         FROM app.trade_entries en WHERE en.trade_id = t.id
+       ) entries ON true
+       WHERE t.id = $1 AND t.user_id = $2`,
+    [tradeId, userId]
+  );
+  if (!tradeRes.rowCount) throw invalid('Trade não encontrado.');
+  const trade = tradeRes.rows[0];
+
+  const policyRes = await query('SELECT policy FROM app.risk_policies WHERE user_id = $1', [userId]);
+  const policy = policyRes.rows?.[0]?.policy || {};
+
+  let openTrades = [];
+  try {
+    const openTradesRes = await query(
+      `SELECT t.id, t.direction, t.execution_price, t.entry_price, t.stop_price, t.executed_quantity, t.planned_quantity, t.status, t.metadata,
+              COALESCE(events.items, '[]'::jsonb) AS events
+         FROM app.trades t
+         LEFT JOIN LATERAL (
+           SELECT jsonb_agg(jsonb_build_object(
+             'id', e.id, 'type', e.event_type, 'qty', e.quantity, 'price', e.price,
+             'stop', e.stop_price, 'atr', e.atr, 'note', e.note, 'at', e.occurred_at
+           ) ORDER BY e.occurred_at, e.created_at) AS items
+           FROM app.trade_events e WHERE e.trade_id = t.id
+         ) events ON true
+         WHERE t.user_id = $1 AND t.status = 'open'`,
+      [userId]
+    );
+    openTrades = openTradesRes.rows || [];
+  } catch (_) {}
+
+  const equity = payload.equity ? Number(payload.equity) : await getAccountEquity(userId, { query });
+  return scaleInModel.canExecuteScaleIn({
+    trade,
+    scaleIn: payload,
+    equity,
+    policy,
+    openTrades
+  });
+}
+
+async function addScaleIn(userId, tradeId, payload = {}) {
+  if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
+  return database.transaction(async (client) => {
+    const lockedTrade = await client.query(
+      `SELECT id, status, scale_in_enabled FROM app.trades WHERE id = $1 AND user_id = $2 FOR UPDATE`,
+      [tradeId, userId]
+    );
+    if (!lockedTrade.rowCount) throw invalid('Trade não encontrado.');
+    if (lockedTrade.rows[0].status !== 'open') throw invalid('A gestão só está disponível para posições abertas.');
+
+    const validation = await validateScaleIn(userId, tradeId, payload, client);
+    if (!validation.allowed) {
+      throw invalid(validation.reason || 'Scale-In não autorizado pela Política de Risco.');
+    }
+
+    const { metrics } = validation;
+    const additionNumber = metrics.additionNumber;
+    const now = new Date();
+    const entryDate = payload.date || payload.entryDate || now.toISOString().slice(0, 10);
+    const entryTime = payload.time || payload.entryTime || now.toTimeString().slice(0, 8);
+    const occurredAt = payload.occurredAt ? new Date(payload.occurredAt).toISOString() : now.toISOString();
+    const note = String(payload.note || '').trim() || `Scale-In #${additionNumber}: +${metrics.quantity} ações @ R$ ${metrics.price.toFixed(2)}`;
+
+    const context = {
+      additionNumber,
+      price: metrics.price,
+      quantity: metrics.quantity,
+      stop: metrics.stop,
+      additionalCapital: metrics.additionalCapital,
+      additionalRiskCash: metrics.additionalRiskCash,
+      additionalRiskPct: metrics.additionalRiskPct,
+      averageEntryBefore: metrics.currentAvgPrice,
+      averageEntryAfter: metrics.newAvgPrice,
+      totalCapitalAfter: metrics.totalCapitalAfter,
+      totalRiskPctAfter: metrics.totalRiskPctAfter,
+      heatBefore: metrics.currentHeatPct,
+      heatAfter: metrics.projectedHeatPct,
+      rAtEntry: metrics.currentR
+    };
+
+    const entryId = crypto.randomUUID();
+    const eventId = crypto.randomUUID();
+
+    await client.query(
+      `INSERT INTO app.trade_entries (
+        id, trade_id, entry_type, entry_date, entry_time, price, quantity,
+        capital_allocated, initial_stop, risk_amount, risk_percent,
+        r_multiple_at_entry, note, context, created_at, updated_at
+      ) VALUES ($1, $2, 'SCALE_IN', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14, $14)`,
+      [
+        entryId, tradeId, entryDate, entryTime, metrics.price, metrics.quantity,
+        metrics.additionalCapital, metrics.stop, metrics.additionalRiskCash, metrics.additionalRiskPct,
+        metrics.currentR, note, JSON.stringify(context), occurredAt
+      ]
+    );
+
+    await client.query(
+      `INSERT INTO app.trade_events (id, trade_id, event_type, quantity, price, stop_price, atr, note, context, occurred_at)
+       VALUES ($1, $2, 'scale_in', $3, $4, $5, null, $6, $7::jsonb, $8)`,
+      [
+        eventId, tradeId, metrics.quantity, metrics.price, metrics.stop,
+        note, JSON.stringify(context), occurredAt
+      ]
+    );
+
+    const updatedRes = await client.query(
+      `UPDATE app.trades
+          SET scale_in_count = scale_in_count + 1,
+              total_quantity = $3,
+              average_entry_price = $4,
+              total_allocated_capital = $5,
+              current_risk_percent = $6,
+              updated_at = now()
+        WHERE id = $1 AND user_id = $2
+        RETURNING id, ticker, status, scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent`,
+      [tradeId, userId, metrics.newQuantity, metrics.newAvgPrice, metrics.totalCapitalAfter, metrics.totalRiskPctAfter]
+    );
+
+    return {
+      success: true,
+      scaleIn: {
+        id: entryId,
+        tradeId,
+        entryType: 'SCALE_IN',
+        date: entryDate,
+        time: entryTime,
+        price: metrics.price,
+        quantity: metrics.quantity,
+        capital: metrics.additionalCapital,
+        stop: metrics.stop,
+        riskAmount: metrics.additionalRiskCash,
+        riskPct: metrics.additionalRiskPct,
+        rAtEntry: metrics.currentR,
+        note,
+        context
+      },
+      validation,
+      trade: updatedRes.rows[0]
+    };
+  });
+}
+
+async function listScaleIns(userId, tradeId) {
+  if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
+  const result = await database.query(
+    `SELECT id, entry_type AS "entryType", entry_date AS date, entry_time AS time,
+            price, quantity, capital_allocated AS capital, initial_stop AS stop,
+            risk_amount AS "riskAmount", risk_percent AS "riskPct",
+            r_multiple_at_entry AS "rAtEntry", note, context, created_at AS "createdAt"
+       FROM app.trade_entries
+      WHERE trade_id = $1 AND entry_type = 'SCALE_IN'
+      ORDER BY created_at ASC`,
+    [tradeId]
+  );
+  return result.rows;
+}
+
+module.exports = {
+  createPlan,
+  listPlans,
+  executePlan,
+  updateTrade,
+  recordPositionEvent,
+  canExecuteScaleIn: validateScaleIn,
+  addScaleIn,
+  listScaleIns,
+  getAccountEquity,
+  normalizePlan,
+  validateRareTrade,
+  normalizeExecution,
+  normalizePositionEvent,
+  ratingFromValue
+};

@@ -141,7 +141,7 @@
     button.classList.toggle('is-blacklist-blocked', blocked);
     button.toggleAttribute('data-blacklist-blocked', blocked);
     if (blocked) {
-      button.disabled = true;
+      if (!button.dataset.isSubmitting) button.disabled = false;
       button.setAttribute('aria-disabled', 'true');
       button.title = 'Trade bloqueado pela sua Blacklist. Escolha outro ativo para continuar.';
     }

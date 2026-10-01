@@ -26,7 +26,8 @@ function setup(plan = 'basic', overrides = {}, language = 'pt-BR') {
     'subscriptionMonth', 'trialExpiresAt', 'trialIsActive', 'trialIsExpired', 'syncSubscriptionMonth',
     'saveSubscription', 'subscriptionText', 'isProfessional', 'planName', 'trialDaysRemaining', 'setSubscriptionPlan', 'startFreeTrial'];
   vm.runInContext(declarations.map(declaration).join('\n'), context);
-  vm.runInContext(`let subscriptionState=${JSON.stringify({ plan, trialStartedAt: Date.now(), trialStatus: 'active', trialUsed: true, usageMonth: new Date().toISOString().slice(0, 7), tradesUsed: 12, trialAlertedDays: [], ...overrides })}`, context);
+  const currentMonth = context.subscriptionMonth();
+  vm.runInContext(`let subscriptionState=${JSON.stringify({ plan, trialStartedAt: Date.now(), trialStatus: 'active', trialUsed: true, usageMonth: currentMonth, tradesUsed: 12, trialAlertedDays: [], ...overrides })}`, context);
   vm.runInContext(renderer, context);
   context.renderPlan();
   return { root, context, saved, state: () => vm.runInContext('subscriptionState', context) };

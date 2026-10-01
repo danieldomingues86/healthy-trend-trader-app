@@ -20,6 +20,21 @@
       {grade:'C',minScore:65,riskPct:.001},
       {grade:'D',minScore:-Infinity,riskPct:0}
     ],
+    scaleIn:{
+      enabled:true,
+      maxAdditions:2,
+      minR:1.0,
+      triggerR1:1.0,
+      triggerR2:2.0,
+      requireBreakeven:true,
+      maxRiskPct:0.5,
+      respectPortfolioHeat:true,
+      allowLosingTrades:false
+    },
+    atrVolatility:{
+      maxExcellent:2.0,
+      maxGood:4.0
+    },
     profiles:{
       rampUp:{label:'Mercado em recuperação',ongoingRiskPct:.0025,initialVolatilityPct:.001,ongoingVolatilityPct:.0025,capitalPct:.1,maximumPortfolioRiskPct:.03,maximumPositions:3,pyramiding:false},
       standard:{label:'Política padrão',ongoingRiskPct:.006,initialVolatilityPct:.003,ongoingVolatilityPct:.006,capitalPct:.1,maximumPortfolioRiskPct:.03,maximumPositions:6,pyramiding:false}
@@ -62,6 +77,29 @@
     const settings=policy.sellIntoStrength||{};
     const start=Math.max(0,finite(settings.startR,2));
     const end=Math.max(start,finite(settings.endR,3));
+    const rawScaleIn=policy.scaleIn||{};
+    const triggerR1=Math.max(0,finite(rawScaleIn.triggerR1,finite(rawScaleIn.minR,DEFAULT_POLICY.scaleIn.triggerR1||1.0)));
+    const triggerR2=Math.max(0,finite(rawScaleIn.triggerR2,DEFAULT_POLICY.scaleIn.triggerR2||2.0));
+    const scaleIn={
+      enabled:rawScaleIn.enabled!==false,
+      maxAdditions:Math.max(1,Math.floor(finite(rawScaleIn.maxAdditions,DEFAULT_POLICY.scaleIn.maxAdditions))),
+      minR:triggerR1,
+      triggerR1,
+      triggerR2,
+      requireBreakeven:rawScaleIn.requireBreakeven!==false,
+      maxRiskPct:Math.max(0,finite(rawScaleIn.maxRiskPct,DEFAULT_POLICY.scaleIn.maxRiskPct)),
+      respectPortfolioHeat:rawScaleIn.respectPortfolioHeat!==false,
+      allowLosingTrades:rawScaleIn.allowLosingTrades===true
+    };
+    const rawAtrVol=policy.atrVolatility||{};
+    let maxExcellent=finite(rawAtrVol.maxExcellent??rawAtrVol.excellentMaxPct??rawAtrVol.excellentMax,DEFAULT_POLICY.atrVolatility.maxExcellent);
+    let maxGood=finite(rawAtrVol.maxGood??rawAtrVol.goodMaxPct??rawAtrVol.goodMax,DEFAULT_POLICY.atrVolatility.maxGood);
+    if(maxExcellent<=0) maxExcellent=DEFAULT_POLICY.atrVolatility.maxExcellent;
+    if(maxGood<=maxExcellent) maxGood=Number((maxExcellent+2.0).toFixed(2));
+    const atrVolatility={
+      maxExcellent:Number(maxExcellent.toFixed(2)),
+      maxGood:Number(maxGood.toFixed(2))
+    };
     const selectedProfile=profiles[policy.selectedProfile]?policy.selectedProfile:DEFAULT_POLICY.selectedProfile;
     return{
       gradingVersion:2,
@@ -73,7 +111,9 @@
       marketMultipliers:{...(policy.marketMultipliers||{})},
       selectedProfile,
       portfolioHeatLimitPct:profiles[selectedProfile].maximumPortfolioRiskPct*100,
-      sellIntoStrength:{enabled:settings.enabled!==false,startR:start,endR:end,suggestedPercent:Math.min(100,Math.max(1,finite(settings.suggestedPercent,50)))}
+      sellIntoStrength:{enabled:settings.enabled!==false,startR:start,endR:end,suggestedPercent:Math.min(100,Math.max(1,finite(settings.suggestedPercent,50)))},
+      scaleIn,
+      atrVolatility
     };
   }
 
@@ -109,8 +149,66 @@
     return'D';
   }
 
+  function classifyAtrVolatility(atrPct,atrVolatilityConfig){
+    const num=Number(atrPct);
+    if(!Number.isFinite(num)||num<=0)return null;
+    const config=atrVolatilityConfig||DEFAULT_POLICY.atrVolatility;
+    const maxExc=Number(config.maxExcellent??2.0);
+    const maxGd=Number(config.maxGood??4.0);
+    const fmt=v=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const percentStr=fmt(num);
+    if(num<maxExc){
+      return{
+        rating:'good',
+        label:'Excelente',
+        shortLabel:'Excelente',
+        decision:'Priorizar',
+        color:'green',
+        icon:'🟢',
+        percent:num,
+        percentFormatted:percentStr,
+        rangeText:`< ${fmt(maxExc)}%`,
+        reason:`ATR: ${percentStr}% do preço • Limite: < ${fmt(maxExc)}%`,
+        summaryText:`${percentStr}% — 🟢 Excelente`
+      };
+    }
+    if(num<maxGd){
+      return{
+        rating:'medium',
+        label:'Confortável',
+        shortLabel:'Confortável',
+        decision:'Considerar',
+        color:'yellow',
+        icon:'🟡',
+        percent:num,
+        percentFormatted:percentStr,
+        rangeText:`${fmt(maxExc)}% a ${fmt(maxGd)}%`,
+        reason:`ATR: ${percentStr}% do preço • Faixa: ${fmt(maxExc)}% a < ${fmt(maxGd)}%`,
+        summaryText:`${percentStr}% — 🟡 Confortável`
+      };
+    }
+    return{
+      rating:'bad',
+      label:'Evitar',
+      shortLabel:'Evitar',
+      decision:'Não operar',
+      color:'red',
+      icon:'🔴',
+      percent:num,
+      percentFormatted:percentStr,
+      rangeText:`≥ ${fmt(maxGd)}%`,
+      reason:`ATR: ${percentStr}% do preço • Limite: ≥ ${fmt(maxGd)}%`,
+      summaryText:`${percentStr}% — 🔴 Evitar`
+    };
+  }
+
   function calculateRubric(input={},policy){
-    const p=normalizePolicy(policy),ratings=input.ratings||{},profile=profileFor(p,input.profileKey);
+    const p=normalizePolicy(policy),ratings={...(input.ratings||{})},profile=profileFor(p,input.profileKey);
+    if((Number(input.entry)>0&&Number(input.atr)>0)&&(!ratings.volatility||input.autoVolatility!==false)){
+      const autoPct=(Number(input.atr)/Number(input.entry))*100;
+      const autoVol=classifyAtrVolatility(autoPct,p.atrVolatility);
+      if(autoVol)ratings.volatility=autoVol.rating;
+    }
     const rawCycle=input.marketCycleRegime!==undefined?input.marketCycleRegime:(ratings.marketCycle||input.marketCycle);
     const cycleKey=rawCycle===null||rawCycle==='unavailable'?'unavailable':(marketCycleKey(rawCycle)||'transition');
     const weightsTotal=p.criteria.reduce((sum,item)=>sum+Number(item.weight||0),0),weightsValid=Math.abs(weightsTotal-100)<.001;
@@ -118,7 +216,7 @@
       const selectedRating=c.key==='marketCycle'?cycleKey:(ratings[c.key]||input[c.key+'Rating']);
       const raw=selectedRating&&p.ratingScale[selectedRating]?p.ratingScale[selectedRating].score:input[c.key];
       const value=Math.max(0,Math.min(1,finite(raw,0)));
-      return{key:c.key,label:c.label,selectedRating,value,weight:c.weight,points:Number((value*c.weight).toFixed(2))};
+      return{key:c.key,label:c.label,selectedRating,rating:selectedRating,value,weight:c.weight,points:Number((value*c.weight).toFixed(2))};
     });
     const complete=p.criteria.every(c=>c.key==='marketCycle'||Boolean(ratings[c.key]||input[c.key+'Rating']));
     const score=Number(contributions.reduce((sum,item)=>sum+item.points,0).toFixed(1)),rawGrade=calculateGrade(score,p),gates=[];
@@ -194,5 +292,5 @@
     return{projectedHeatPct,projectedPositions,heatAllowed,positionsAllowed,allowed:heatAllowed&&positionsAllowed};
   }
 
-  return{DEFAULT_POLICY,normalizePolicy,normalizeHistoricalGrade,profileFor,marketCycleKey,riskBaseOptions,calculateGrade,calculateRubric,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio};
+  return{DEFAULT_POLICY,normalizePolicy,normalizeHistoricalGrade,profileFor,marketCycleKey,riskBaseOptions,calculateGrade,calculateRubric,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,classifyAtrVolatility};
 });

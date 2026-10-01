@@ -378,6 +378,32 @@ const server = http.createServer(async (request, response) => {
       const event = await trades.recordPositionEvent(user.id, eventMatch[1], payload.type, payload);
       return send(response, 201, { event });
     }
+        const scaleInMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/scale-ins$/);
+    if (request.method === 'POST' && scaleInMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const result = await trades.addScaleIn(user.id, scaleInMatch[1], await body(request));
+      return send(response, 201, result);
+    }
+    if (request.method === 'GET' && scaleInMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const scaleIns = await trades.listScaleIns(user.id, scaleInMatch[1]);
+      return send(response, 200, { scaleIns });
+    }
+    const scaleInValidationMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/scale-in-validation$/);
+    if (request.method === 'GET' && scaleInValidationMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const price = Number(url.searchParams.get('price')) || undefined;
+      const quantity = Number(url.searchParams.get('quantity')) || undefined;
+      const stop = Number(url.searchParams.get('stop')) || undefined;
+      const validation = await trades.canExecuteScaleIn(user.id, scaleInValidationMatch[1], { price, quantity, stop });
+      return send(response, 200, validation);
+    }
     const executionMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/execute$/);
     if (request.method === 'POST' && executionMatch) {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });

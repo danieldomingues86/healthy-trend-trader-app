@@ -28,29 +28,49 @@
   }
   function metricsFromEvents(position, equity) {
     const basis = initial(position), events = position.events || [], entry = basis.entry ?? 0;
+    const scaleIns = events.filter(event => event.type === 'scale_in');
+    const scaleInQty = scaleIns.reduce((sum, event) => sum + (finite(event.qty) || 0), 0);
+    const totalBought = (basis.originalQuantity || 0) + scaleInQty;
     const exits = events.filter(event => ['peeloff', 'close'].includes(event.type));
     const exited = exits.reduce((sum, event) => sum + (finite(event.qty) || 0), 0);
-    const remaining = Math.max(0, (basis.originalQuantity || 0) - exited);
-    const realized = exits.reduce((sum, event) => sum + ((finite(event.price) ?? entry) - entry) * basis.sign * (finite(event.qty) || 0), 0);
-    const price = finite(position.currentPrice) ?? entry;
+    const remaining = Math.max(0, totalBought - exited);
+    const totalBuyCost = ((basis.originalQuantity || 0) * entry) + scaleIns.reduce((sum, event) => sum + ((finite(event.qty) || 0) * (finite(event.price) || 0)), 0);
+    const avgEntry = totalBought > 0 ? totalBuyCost / totalBought : entry;
+    const realized = exits.reduce((sum, event) => sum + ((finite(event.price) ?? avgEntry) - avgEntry) * basis.sign * (finite(event.qty) || 0), 0);
+    const price = finite(position.currentPrice) ?? avgEntry;
     const risk = Rubric.calculateOngoingRisk({ currentPrice: price, currentStop: finite(position.currentStop) ?? price, quantity: remaining, direction: position.direction, equity });
-    return { remaining, realized, open: (price - entry) * basis.sign * remaining, risk: risk.cash, riskPct: risk.riskPct, partials: events.filter(event => event.type === 'peeloff').length };
+    return {
+      remaining,
+      totalBought,
+      averageEntry: avgEntry,
+      realized,
+      open: (price - avgEntry) * basis.sign * remaining,
+      risk: risk.cash,
+      riskPct: risk.riskPct,
+      partials: events.filter(event => event.type === 'peeloff').length,
+      scaleIns: scaleIns.length
+    };
   }
   function state(position, metric, config) {
     const basis = initial(position), sell = settings(config), r = currentR(position);
     const remaining = Math.max(0, finite(metric.remaining) ?? 0), realized = finite(metric.realized) ?? 0, ongoingRisk = Math.max(0, finite(metric.risk) ?? 0);
     const partials = (position.events || []).filter(event => event.type === 'peeloff');
+    const scaleIns = (position.events || []).filter(event => event.type === 'scale_in');
     const coverage = realized > 0 ? (ongoingRisk > 0 ? realized / ongoingRisk : Infinity) : null;
     return {
       initialRisk: basis.cash, initialRiskPerUnit: basis.perUnit, initialStop: basis.stop,
-      currentR: r, remaining, originalQuantity: basis.originalQuantity, realizedProfit: realized,
+      currentR: r, remaining, originalQuantity: basis.originalQuantity,
+      totalQuantity: metric.totalBought || basis.originalQuantity,
+      averageEntry: metric.averageEntry || basis.entry,
+      realizedProfit: realized,
       openProfit: finite(metric.open) ?? 0, ongoingRisk, coverage,
       freeRoll: partials.length > 0 && realized > 0 && realized >= ongoingRisk,
       runner: partials.length > 0 && remaining > 0,
-      realizedQuantity: (basis.originalQuantity || 0) - remaining,
+      realizedQuantity: (metric.totalBought || basis.originalQuantity || 0) - remaining,
       sellAvailable: sell.enabled && r !== null && r >= sell.startR && remaining > 1 && partials.filter(isSellIntoStrength).length === 0,
       aboveZone: r !== null && r > sell.endR,
-      sell, sellCount: partials.filter(isSellIntoStrength).length
+      sell, sellCount: partials.filter(isSellIntoStrength).length,
+      scaleInCount: scaleIns.length
     };
   }
   function preview(position, metric, percent, price, quantity) {

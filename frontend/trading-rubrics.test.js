@@ -288,10 +288,104 @@ test('Override manual do Contexto de Mercado recalcula Score e Grade dinamicamen
   assert.equal(overrideDefensive.score, 84);
   assert.equal(overrideDefensive.grade, 'B');
 
-  // Reversão para automático (restaura 100 pts -> Grade A)
+// Reversão para automático (restaura 100 pts -> Grade A)
   const restoredResult = calculateRubric({ ratings, marketCycleRegime: 'healthy' });
   assert.equal(restoredResult.score, 100);
   assert.equal(restoredResult.grade, 'A');
 });
+
+test('classifyAtrVolatility classifica corretamente as faixas padrão (<2%, 2%–<4%, ≥4%)', () => {
+  const { classifyAtrVolatility } = require('./trading-rubrics');
+
+  // Inválidos / zeros
+  assert.equal(classifyAtrVolatility(0), null);
+  assert.equal(classifyAtrVolatility(-1.5), null);
+  assert.equal(classifyAtrVolatility(null), null);
+
+  // Faixa 1: < 2% -> Excelente (good, verde, Priorizar)
+  const exc = classifyAtrVolatility(1.54);
+  assert.equal(exc.rating, 'good');
+  assert.equal(exc.label, 'Excelente');
+  assert.equal(exc.decision, 'Priorizar');
+  assert.equal(exc.color, 'green');
+  assert.equal(exc.icon, '🟢');
+  assert.equal(exc.rangeText, '< 2,00%');
+  assert.equal(exc.reason, 'ATR: 1,54% do preço • Limite: < 2,00%');
+  assert.equal(exc.summaryText, '1,54% — 🟢 Excelente');
+
+  // Exemplo da especificação: Preço 401,01, ATR 15,26 -> ATR% = 3,81% -> Confortável (medium, amarelo, Considerar)
+  const atrPctSpec = (15.26 / 401.01) * 100; // ~3.80539...
+  const goodSpec = classifyAtrVolatility(atrPctSpec);
+  assert.equal(goodSpec.rating, 'medium');
+  assert.equal(goodSpec.label, 'Confortável');
+  assert.equal(goodSpec.decision, 'Considerar');
+  assert.equal(goodSpec.color, 'yellow');
+  assert.equal(goodSpec.icon, '🟡');
+  assert.equal(goodSpec.percentFormatted, '3,81');
+  assert.equal(goodSpec.rangeText, '2,00% a 4,00%');
+  assert.equal(goodSpec.reason, 'ATR: 3,81% do preço • Faixa: 2,00% a < 4,00%');
+  assert.equal(goodSpec.summaryText, '3,81% — 🟡 Confortável');
+
+  // Limite exato 2,00% cai na Faixa 2 (Confortável)
+  const boundaryTwo = classifyAtrVolatility(2.0);
+  assert.equal(boundaryTwo.rating, 'medium');
+  assert.equal(boundaryTwo.label, 'Confortável');
+
+  // Faixa 3: ≥ 4% -> Evitar (bad, vermelho, Não operar)
+  const boundaryFour = classifyAtrVolatility(4.0);
+  assert.equal(boundaryFour.rating, 'bad');
+  assert.equal(boundaryFour.label, 'Evitar');
+  assert.equal(boundaryFour.decision, 'Não operar');
+  assert.equal(boundaryFour.color, 'red');
+  assert.equal(boundaryFour.icon, '🔴');
+  assert.equal(boundaryFour.rangeText, '≥ 4,00%');
+  assert.equal(boundaryFour.reason, 'ATR: 4,00% do preço • Limite: ≥ 4,00%');
+  assert.equal(boundaryFour.summaryText, '4,00% — 🔴 Evitar');
+
+  const highVol = classifyAtrVolatility(4.72);
+  assert.equal(highVol.rating, 'bad');
+  assert.equal(highVol.label, 'Evitar');
+  assert.equal(highVol.percentFormatted, '4,72');
+  assert.equal(highVol.reason, 'ATR: 4,72% do preço • Limite: ≥ 4,00%');
+  assert.equal(highVol.summaryText, '4,72% — 🔴 Evitar');
+});
+
+test('classifyAtrVolatility respeita faixas customizadas configuradas na Política de Risco', () => {
+  const { classifyAtrVolatility } = require('./trading-rubrics');
+  const customConfig = { maxExcellent: 2.5, maxGood: 5.0 };
+
+  // 2.2% era medium no default, mas agora é good
+  const exc = classifyAtrVolatility(2.2, customConfig);
+  assert.equal(exc.rating, 'good');
+  assert.equal(exc.rangeText, '< 2,50%');
+
+  // 4.5% era bad no default, mas agora é medium
+  const med = classifyAtrVolatility(4.5, customConfig);
+  assert.equal(med.rating, 'medium');
+  assert.equal(med.rangeText, '2,50% a 5,00%');
+
+  // 5.5% é bad
+  const bad = classifyAtrVolatility(5.5, customConfig);
+  assert.equal(bad.rating, 'bad');
+  assert.equal(bad.rangeText, '≥ 5,00%');
+});
+
+test('calculateRubric classifica volatilidade automaticamente via entry e atr quando rating não é informado', () => {
+  const ratings = { trendQuality: 'good', relativeStrength: 'good', setupQuality: 'good', fundamentalScore: 'good' };
+  // Preço 401,01, ATR 15,26 -> ATR% = 3,81% -> medium (55% de 15 pts = 8,25 pts)
+  const result = calculateRubric({
+    entry: 401.01,
+    atr: 15.26,
+    ratings,
+    marketCycleRegime: 'healthy'
+  });
+  const volItem = result.contributions.find(c => c.key === 'volatility');
+  assert.equal(volItem.rating, 'medium');
+  assert.equal(volItem.points, 8.25);
+  // Total score: 25 + 20 + 20 + 8.25 + 15 + 5 = 93.25 (arredondado toFixed(1) = 93.3)
+  assert.equal(result.score, 93.3);
+  assert.equal(result.grade, 'B');
+});
+
 
 

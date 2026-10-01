@@ -76,7 +76,7 @@
         },
         {
           id: 'relativestrength',
-          title: 'Relative Strength',
+          title: 'Força Relativa',
           desc: 'Veja quem está liderando.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
           page: 'relativestrength'
@@ -124,6 +124,13 @@
           desc: 'Gestão de stops e trailing.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`,
           page: 'positions'
+        },
+        {
+          id: 'closedpositions',
+          title: 'Posições Encerradas',
+          desc: 'Histórico e revisão de trades.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="m9 14 2 2 4-4"/></svg>`,
+          page: 'closedpositions'
         },
         {
           id: 'portfolioheat',
@@ -767,7 +774,9 @@
         for (const group of allGroups) {
           const matchedItem = group.items.find((sub) => sub.page === pageId);
           if (matchedItem) {
-            crumb.innerHTML = `${group.label} / <b>${matchedItem.title}</b>`;
+            const groupLabel = typeof uiText === 'function' ? uiText(group.label) : group.label;
+            const itemTitle = typeof uiText === 'function' ? uiText(matchedItem.title) : matchedItem.title;
+            crumb.innerHTML = `${groupLabel} / <b>${itemTitle}</b>`;
             found = true;
             break;
           }
@@ -776,6 +785,8 @@
           const titleMap = {
             today: 'Meu Desktop',
             newtrade: 'Novo Trade',
+            positions: 'Posições Abertas',
+            closedpositions: 'Posições Encerradas',
             journal: 'Diário do Trader',
             dailyroutine: 'Rotina Diária',
             watchlist: 'Watchlist',

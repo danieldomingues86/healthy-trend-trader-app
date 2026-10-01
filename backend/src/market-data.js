@@ -531,11 +531,33 @@ function bdrCatalogFromMetadata(metadata) {
     }))
     .sort((a, b) => a.symbol.localeCompare(b.symbol));
 }
+const STOCK_CATALOG_FALLBACK = {
+  EMBJ3: { name: 'EMBRAER S.A.', sector: 'Tecnologia eletrônica' },
+  AXIA3: { name: 'AXIA ENERGIA S.A.', sector: 'Serviços públicos' },
+  AXIA6: { name: 'AXIA ENERGIA S.A.', sector: 'Serviços públicos' },
+  AXIA7: { name: 'AXIA ENERGIA S.A.', sector: 'Serviços públicos' },
+  MBRF3: { name: 'MBRF GLOBAL FOODS COMPANY S.A.', sector: 'Bens de consumo não duráveis' },
+  RIAA3: { name: 'RIACHUELO S.A.', sector: 'Comércio varejista' },
+  WDCN3: { name: 'WDC NETWORKS (LIVETECH DA BAHIA S.A.)', sector: 'Serviços de tecnologia' },
+  SAUD3: { name: 'BRADSAÚDE S.A.', sector: 'Tecnologia em saúde' }
+};
 function metadataFromCache(cache) {
   const items = cache?.relativeStrength || [];
-  return new Map(items.filter((item) => item?.symbol).map((item) => [item.symbol, {
+  const map = new Map(items.filter((item) => item?.symbol).map((item) => [item.symbol, {
     type: 'stock', subType: 'stock', name: item.name || item.symbol, sector: item.sector || 'Não classificado'
   }]));
+  for (const [sym, info] of Object.entries(STOCK_CATALOG_FALLBACK)) {
+    const existing = map.get(sym);
+    if (!existing || !existing.name || existing.name === sym) {
+      map.set(sym, {
+        type: 'stock',
+        subType: 'stock',
+        name: info.name,
+        sector: existing?.sector && existing.sector !== 'Não classificado' ? existing.sector : info.sector
+      });
+    }
+  }
+  return map;
 }
 function bdrCatalogFromCache(cache) {
   const items = cache?.relativeStrengthByClass?.bdr?.items || [];
