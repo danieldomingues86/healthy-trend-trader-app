@@ -13,6 +13,7 @@
     previousOpenPosition(id);
     const p = locate(id), host = document.getElementById('positionDetail');
     if (!p || !host) return;
+    host.dataset.currentPositionId = p.id;
     const metric = operationMetrics(p), state = model.state(p, metric, config());
     const stats = [
       ['Risco inicial', state.initialRisk == null ? '—' : money(state.initialRisk), ''],
@@ -23,20 +24,47 @@
       ['Quantidade atual / original', `${units(state.remaining)} / ${units(state.originalQuantity || p.initialQty)}`, ''],
       ['Lucro realizado', money(state.realizedProfit), ''],
       ['Lucro aberto', money(state.openProfit), ''],
-      ['Cobertura Free Roll', coverage(state.coverage), '']
+      ...(state.sell.enabled ? [['Cobertura Free Roll', coverage(state.coverage), '']] : [])
     ];
-    const action = state.sellAvailable && state.currentR != null ? `<div class="pm-sell-action"><button type="button" class="primary" data-pm-partial="${safe(p.id)}">REALIZAR PARCIAL</button><span class="pm-profit-symbol" role="img" aria-label="Realização de lucro" title="Realização de lucro">💰</span></div>` : '';
+    const action = state.sellAvailable && state.currentR != null ? `
+      <div class="pm-sell-action">
+        <button type="button" class="primary pm-realizar-parcial-btn" data-pm-partial="${safe(p.id)}">
+          <span class="pm-btn-icon" aria-hidden="true">💰</span>
+          <span class="pm-btn-text">REALIZAR PARCIAL</span>
+          <span class="pm-btn-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>` : '';
     const sellTitle = state.sellCount ? 'REALIZADO' : state.sellAvailable ? 'DISPONÍVEL' : 'EM ESPERA';
+    const sellBadge = state.sellAvailable 
+      ? '<span class="pm-status-glow-dot"></span> SELL INTO STRENGTH DISPONÍVEL' 
+      : `🟢 SELL INTO STRENGTH ${sellTitle}`;
     const sellMessage = !state.sell.enabled ? 'Desabilitado nas configurações.' : state.sellCount ? state.freeRoll ? 'Sell Into Strength / parcial já registrado. O lucro realizado cobre o risco remanescente: Free Roll ativo.' : 'Sell Into Strength / parcial já registrado. O Runner segue em gestão; o Free Roll será ativado quando o lucro realizado cobrir o risco remanescente.' : state.currentR == null ? 'Cadastre um stop inicial válido para calcular R.' : state.sellAvailable ? 'O trade atingiu a zona configurada. Este é o momento de avaliar a realização parcial; o restante segue a tendência.' : state.remaining <= 1 ? 'É preciso manter ao menos uma unidade no Runner.' : 'Aguarde a expansão do trade. Não existe venda automática.';
     const card = document.createElement('section');
     card.className = 'card position-management';
+    const statesHtml = state.sell.enabled ? `
+      <div class="pm-states">
+        <div class="pm-state pm-sell-state ${state.sellAvailable ? 'active pm-sell-available' : state.sellCount ? 'pm-sell-completed' : ''}">
+          <div class="pm-sell-body">
+            <b class="pm-sell-title">${sellBadge}</b>
+            <small class="pm-sell-zone">Zona ${multiple(state.sell.startR)} – ${multiple(state.sell.endR)} · sugestão ${units(state.sell.suggestedPercent)}%</small>
+            <p class="pm-sell-desc">${sellMessage}</p>
+            ${action}
+          </div>
+        </div>
+        <div class="pm-state ${state.freeRoll ? 'active pm-free-roll-active' : ''}">
+          <b>🛡️ FREE ROLL ${state.freeRoll ? 'ATIVO' : 'AINDA NÃO ATINGIDO'}</b>
+          <small>Cobertura ${coverage(state.coverage)}</small>
+          <p>Lucro realizado ${money(state.realizedProfit)} / risco remanescente ${money(state.ongoingRisk)}.<br><span class="pm-stop-recalculated">Recalculado após cada alteração do stop.</span></p>
+        </div>
+        <div class="pm-state ${state.runner ? 'active' : ''}">
+          <b>🏇 RUNNER ${state.runner ? 'LET IT RUN' : 'EM ESPERA'}</b>
+          <small>Original ${units(state.originalQuantity || p.initialQty)} · realizado ${units(state.realizedQuantity)} · runner ${units(state.remaining)}</small>
+          <p>O Runner permanece sob trailing stop, ATR, Ongoing Risk e Portfolio Heat. Sem alvo de saída automática.</p>
+        </div>
+      </div>` : '';
     card.innerHTML = `<header><div><div class="eyebrow">Risco em primeiro lugar</div><h3>Gestão da Posição</h3></div><span class="badge ${metric.risk > 0 ? 'warn' : 'good'}">Ongoing Risk ${money(state.ongoingRisk)}</span></header>
       <div class="pm-grid">${stats.map(([label, value, className]) => `<div class="pm-stat ${className}"><small>${safe(label)}</small><strong>${safe(value)}</strong></div>`).join('')}</div>
-      <div class="pm-states"><div class="pm-state pm-sell-state ${state.sellAvailable ? 'active pm-sell-available' : state.sellCount ? 'pm-sell-completed' : ''}"><b>🟢 SELL INTO STRENGTH ${sellTitle}</b>
-        <small>Zona ${multiple(state.sell.startR)} – ${multiple(state.sell.endR)} · sugestão ${units(state.sell.suggestedPercent)}%</small>
-        <p>${sellMessage}</p>${action}</div>
-      <div class="pm-state ${state.freeRoll ? 'active pm-free-roll-active' : ''}"><b>🛡️ FREE ROLL ${state.freeRoll ? 'ATIVO' : 'AINDA NÃO ATINGIDO'}</b><small>Cobertura ${coverage(state.coverage)}</small><p>Lucro realizado ${money(state.realizedProfit)} / risco remanescente ${money(state.ongoingRisk)}.<br><span class="pm-stop-recalculated">Recalculado após cada alteração do stop.</span></p></div>
-      <div class="pm-state ${state.runner ? 'active' : ''}"><b>🏇 RUNNER ${state.runner ? 'LET IT RUN' : 'EM ESPERA'}</b><small>Original ${units(state.originalQuantity || p.initialQty)} · realizado ${units(state.realizedQuantity)} · runner ${units(state.remaining)}</small><p>O Runner permanece sob trailing stop, ATR, Ongoing Risk e Portfolio Heat. Sem alvo de saída automática.</p></div></div><dialog class="pm-dialog" id="pm-dialog"></dialog>`;
+      ${statesHtml}<dialog class="pm-dialog" id="pm-dialog"></dialog>`;
     const kpis = host.querySelector('.grid.kpis');
     if (kpis) kpis.after(card); else host.prepend(card);
     const timeline = host.querySelector('.timeline');
@@ -69,18 +97,28 @@
     const saved = config();
     const stepNumber = shell.querySelectorAll('.risk-policy-block').length + 1;
     const sellBlock = document.createElement('section');
-    sellBlock.className = 'risk-policy-block pm-policy pm-sell-policy';
-    sellBlock.innerHTML = `<div class="risk-block-title"><span>${stepNumber}</span><div><h4>Sell Into Strength</h4><p>Identifica uma oportunidade de parcial; jamais executa venda automática ou define alvo para o Runner.</p></div></div>
-      <div class="pm-form-grid pm-sell-grid">
-        <div class="pm-sell-item">
-          <div class="field">
-            <label>Sell Into Strength</label>
-            <select data-pm-setting="enabled">
-              <option value="on" ${saved.enabled ? 'selected' : ''}>ON</option>
-              <option value="off" ${!saved.enabled ? 'selected' : ''}>OFF</option>
-            </select>
+    sellBlock.className = 'risk-policy-block pm-policy pm-sell-policy' + (!saved.enabled ? ' is-policy-disabled' : '');
+    sellBlock.innerHTML = `<div class="risk-block-title">
+        <span>${stepNumber}</span>
+        <div class="risk-title-content">
+          <div class="risk-title-row">
+            <h4>Sell Into Strength</h4>
+            <button type="button" 
+                    class="risk-artistic-toggle ${saved.enabled ? 'is-on' : 'is-off'}" 
+                    role="switch" 
+                    aria-checked="${saved.enabled ? 'true' : 'false'}"
+                    data-risk-toggle="sellIntoStrength"
+                    title="${saved.enabled ? 'Sell Into Strength ativado — Clique para desativar' : 'Sell Into Strength desativado — Clique para ativar'}">
+              <span class="risk-toggle-label on">ON</span>
+              <span class="risk-toggle-thumb"></span>
+              <span class="risk-toggle-label off">OFF</span>
+            </button>
           </div>
+          <p>Identifica uma oportunidade de parcial; jamais executa venda automática ou define alvo para o Runner.</p>
         </div>
+      </div>
+      <input type="hidden" data-pm-setting="enabled" value="${saved.enabled ? 'on' : 'off'}">
+      <div class="pm-form-grid pm-sell-grid">
         <div class="pm-sell-item">
           <div class="field">
             <label>Zona inicial (R)</label>
@@ -118,8 +156,29 @@
     window.renderPortfolioHeat?.();
     window.renderOperationalApp?.();
     window.updateTradingRubric?.();
-    const active = operationalState.positions.find(position => document.getElementById('positionDetail')?.querySelector(`[data-pm-partial="${position.id}"]`));
-    if (active) openPosition(active.id);
+    const host = document.getElementById('positionDetail');
+    const currentId = host?.dataset?.currentPositionId || operationalState.positions.find(position => host?.querySelector(`[data-pm-partial="${position.id}"]`))?.id;
+    if (currentId) openPosition(currentId);
+  });
+  document.addEventListener('click', async event => {
+    const toggle = event.target.closest('[data-risk-toggle="sellIntoStrength"]');
+    if (!toggle) return;
+    event.preventDefault();
+    const current = config();
+    const newEnabled = !current.enabled;
+    riskPolicyState.sellIntoStrength = model.settings({
+      ...current,
+      enabled: newEnabled
+    });
+    await persistRiskPolicy();
+    renderEffectiveRiskPolicy();
+    window.renderPortfolioHeat?.();
+    window.renderOperationalApp?.();
+    window.updateTradingRubric?.();
+    const host = document.getElementById('positionDetail');
+    const currentId = host?.dataset?.currentPositionId || operationalState.positions.find(position => host?.querySelector(`[data-pm-partial="${position.id}"]`))?.id;
+    if (currentId) openPosition(currentId);
+    showToast(newEnabled ? 'Sell Into Strength ativado.' : 'Sell Into Strength desativado.');
   });
 
   function renderPreview(dialog, position) {

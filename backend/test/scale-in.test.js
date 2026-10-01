@@ -374,3 +374,104 @@ test('Cenário 10: Duas adições consecutivas com auditoria completa de preço 
   assert.equal(val3.allowed, false);
   assert.match(val3.reason, /adições já atingido/i);
 });
+
+test('Cenário 11: Scale-In desativado na Política de Risco bloqueia execução (DENY)', () => {
+  const trade = {
+    id: 'b4444444-4444-4444-4444-444444444444',
+    status: 'open',
+    direction: 'long',
+    execution_price: 100,
+    entry_price: 100,
+    stop_price: 102,
+    executed_quantity: 100,
+    currentPrice: 115,
+    currentStop: 102,
+    events: [{ type: 'entry', qty: 100, price: 100, stop: 95 }]
+  };
+
+  const disabledPolicy = {
+    ...defaultPolicy,
+    scaleIn: { ...defaultPolicy.scaleIn, enabled: false }
+  };
+
+  const validation = scaleInModel.canExecuteScaleIn({
+    trade,
+    scaleIn: { price: 115, quantity: 50, stop: 102 },
+    equity: EQUITY,
+    policy: disabledPolicy
+  });
+
+  assert.equal(validation.allowed, false);
+  assert.match(validation.reason, /desativado na Política de Risco/i);
+});
+
+test('Cenário 12: Gatilhos independentes da 1ª adição (+1.5R) e 2ª adição (+2.5R) na Política de Risco', () => {
+  const customPolicy = {
+    ...defaultPolicy,
+    scaleIn: {
+      ...defaultPolicy.scaleIn,
+      enabled: true,
+      triggerR1: 1.5,
+      triggerR2: 2.5
+    }
+  };
+
+  const trade = {
+    id: 'b5555555-5555-5555-5555-555555555555',
+    status: 'open',
+    direction: 'long',
+    execution_price: 100,
+    entry_price: 100,
+    stop_price: 101,
+    executed_quantity: 100,
+    currentPrice: 106, // Risco unitário = 5. currentPrice 106 -> +1.2R (abaixo de +1.5R)
+    currentStop: 101,
+    events: [{ type: 'entry', qty: 100, price: 100, stop: 95 }]
+  };
+
+  // 1ª adição requer +1.5R; trade tem +1.2R -> bloqueado
+  const val1 = scaleInModel.canExecuteScaleIn({
+    trade,
+    scaleIn: { price: 106, quantity: 50, stop: 101 },
+    equity: EQUITY,
+    policy: customPolicy
+  });
+  assert.equal(val1.allowed, false);
+  assert.match(val1.reason, /gatilho mínimo de \+1\.50R/i);
+
+  // Preço avança para 108 (+1.6R) -> 1ª adição liberada
+  trade.currentPrice = 108;
+  const val1Pass = scaleInModel.canExecuteScaleIn({
+    trade,
+    scaleIn: { price: 108, quantity: 50, stop: 101 },
+    equity: EQUITY,
+    policy: customPolicy
+  });
+  assert.equal(val1Pass.allowed, true);
+
+  // Simula 1ª adição concluída
+  trade.scale_in_count = 1;
+  trade.events.push({ type: 'scale_in', qty: 50, price: 108, stop: 101 });
+  trade.currentPrice = 111; // +2.2R (acima de +1.5R mas abaixo do gatilho da 2ª adição de +2.5R)
+
+  const val2 = scaleInModel.canExecuteScaleIn({
+    trade,
+    scaleIn: { price: 111, quantity: 50, stop: 104 },
+    equity: EQUITY,
+    policy: customPolicy
+  });
+  assert.equal(val2.allowed, false);
+  assert.match(val2.reason, /gatilho mínimo de \+2\.50R/i);
+
+  // Preço avança para 113 (+2.6R) -> 2ª adição liberada
+  trade.currentPrice = 113;
+  trade.currentStop = 104;
+  const val2Pass = scaleInModel.canExecuteScaleIn({
+    trade,
+    scaleIn: { price: 113, quantity: 50, stop: 104 },
+    equity: EQUITY,
+    policy: customPolicy
+  });
+  assert.equal(val2Pass.allowed, true);
+});
+

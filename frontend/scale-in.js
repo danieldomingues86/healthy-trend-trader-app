@@ -9,6 +9,7 @@
   const units = value => typeof numBR === 'function' ? numBR(value) : String(value || 0);
   const multiple = value => value == null ? '—' : `${value >= 0 ? '+' : ''}${typeof numBR === 'function' ? numBR(value, 2) : Number(value).toFixed(2)}R`;
   const pct = value => `${typeof numBR === 'function' ? numBR(value, 2) : Number(value || 0).toFixed(2)}%`;
+  const safe = str => String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
   function getScaleInConfig() {
     return model.settings(window.riskPolicyState?.scaleIn);
@@ -25,135 +26,56 @@
     const host = document.getElementById('positionDetail');
     if (!p || !host) return;
 
+    // Remove legacy permanent scaleInCard if it exists
+    const legacyCard = host.querySelector('#scaleInSection');
+    if (legacyCard) legacyCard.remove();
+
     const scaleConfig = getScaleInConfig();
-    const info = model.initialTradeInfo(p);
-    const validation = model.canExecuteScaleIn({
-      trade: p,
-      scaleIn: { price: p.currentPrice, stop: p.currentStop },
-      equity: typeof OPERATIONAL_EQUITY !== 'undefined' ? OPERATIONAL_EQUITY : 1029500,
-      policy: window.riskPolicyState,
-      openTrades: operationalState.positions
-    });
-    const consolidated = model.calculateConsolidatedPosition({ trade: p, events: p.events });
 
-    const scaleInCard = document.createElement('section');
-    scaleInCard.className = 'card scale-in-card';
-    scaleInCard.id = 'scaleInSection';
-
-    const triggerMet = info.currentR !== null && info.currentR >= (scaleConfig.minR - 0.0001);
-
-    const stats = [
-      ['Adições realizadas', `${info.scaleInCount} / ${scaleConfig.maxAdditions}`, ''],
-      ['Próximo gatilho', `+${scaleConfig.minR.toFixed(1)}R`, triggerMet ? 'highlight' : ''],
-      ['R atual', multiple(info.currentR), triggerMet ? 'highlight' : ''],
-      ['Risco atual', pct(validation.metrics.currentRiskPct), ''],
-      ['Capital alocado', money(info.currentAllocatedCapital), ''],
-      ['Capital máximo permitido', money(validation.metrics.maxCapitalAllowed), '']
-    ];
-
-    // Build consolidated table rows
-    const scaleEvents = (p.events || []).filter(e => e.type === 'scale_in');
-    let rowsHtml = `
-      <tr>
-        <td><strong>Entrada Inicial</strong></td>
-        <td>${money(info.entry)}</td>
-        <td>${units(info.initialQty)}</td>
-        <td>${money(info.initialQty * info.entry)}</td>
-        <td>${money(info.initialStop)}</td>
-        <td>${money(info.initialRiskCash)}</td>
-      </tr>
-    `;
-
-    scaleEvents.forEach((sc, idx) => {
-      const scPrice = Number(sc.price || 0);
-      const scQty = Number(sc.qty || 0);
-      const scStop = Number(sc.stop || p.currentStop);
-      const scRisk = Math.abs(scPrice - scStop) * scQty;
-      rowsHtml += `
-        <tr>
-          <td><strong>Scale-In #${idx + 1}</strong></td>
-          <td>${money(scPrice)}</td>
-          <td>+${units(scQty)}</td>
-          <td>${money(scQty * scPrice)}</td>
-          <td>${money(scStop)}</td>
-          <td>${money(scRisk)}</td>
-        </tr>
-      `;
-    });
-
-    rowsHtml += `
-      <tr class="total-row">
-        <td><strong>Total Consolidado</strong></td>
-        <td><strong>${money(consolidated.averageEntryPrice)} (PM)</strong></td>
-        <td><strong>${units(consolidated.totalEnteredQty)} un. (${units(consolidated.remainingQty)} ativas)</strong></td>
-        <td><strong>${money(consolidated.totalAllocatedCapital)}</strong></td>
-        <td><strong>Stop: ${money(p.currentStop)}</strong></td>
-        <td><strong>${multiple(consolidated.totalR)}</strong></td>
-      </tr>
-    `;
-
-    const statusMsg = validation.allowed
-      ? `<span class="scale-in-status-msg ready">✓ Trade qualificado para aumento de lote (+${scaleConfig.minR.toFixed(1)}R atingido e stop protegido).</span>`
-      : `<span class="scale-in-status-msg blocked">⚠️ ${validation.reason || 'Condições da Política de Risco não atendidas.'}</span>`;
-
-    scaleInCard.innerHTML = `
-      <header>
-        <div>
-          <div class="eyebrow">Gestão do Trade</div>
-          <h3>Scale-In · Aumento de Posição</h3>
-        </div>
-        <span class="badge ${scaleConfig.enabled ? 'good' : 'warn'}">${scaleConfig.enabled ? 'Scale-In Ativado' : 'Scale-In Desativado'}</span>
-      </header>
-      <div class="scale-in-grid">
-        ${stats.map(([label, val, cls]) => `
-          <div class="scale-in-stat ${cls}">
-            <small>${safe(label)}</small>
-            <strong>${safe(val)}</strong>
-          </div>
-        `).join('')}
-      </div>
-
-      <div class="consolidated-view">
-        <h4>Composição Consolidada da Posição</h4>
-        <div class="consolidated-table-wrap">
-          <table class="consolidated-table">
-            <thead>
-              <tr>
-                <th>Etapa</th>
-                <th>Preço</th>
-                <th>Quantidade</th>
-                <th>Capital</th>
-                <th>Stop</th>
-                <th>Risco / R</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="scale-in-action-bar">
-        ${statusMsg}
-        <button type="button" class="primary" data-scale-in-btn="${safe(p.id)}" ${validation.allowed ? '' : 'disabled'} title="${validation.allowed ? 'Adicionar Scale-In' : safe(validation.reason || 'Bloqueado por política')}">
-          + Adicionar Scale-In
-        </button>
-      </div>
-      <dialog class="scale-in-dialog" id="scale-in-dialog"></dialog>
-    `;
-
-    // Insert after .position-management card or after .grid.kpis
-    const pmCard = host.querySelector('.card.position-management');
-    if (pmCard) {
-      pmCard.after(scaleInCard);
-    } else {
-      const kpis = host.querySelector('.grid.kpis');
-      if (kpis) kpis.after(scaleInCard);
-      else host.prepend(scaleInCard);
+    // 1. Se Scale-In = Desativado na Política de Risco, o recurso não aparece na operação.
+    const existingBtn = host.querySelector('[data-scale-in-btn]');
+    if (!scaleConfig.enabled) {
+      if (existingBtn) existingBtn.remove();
+      return;
     }
 
-    // Enhance timeline for scale-in events
+    // 2. Se a posição estiver encerrada, não exibe ação de Scale-In
+    const m = typeof operationMetrics === 'function' ? operationMetrics(p) : { remaining: p.remainingQty || 1 };
+    if (p.status === 'closed' || m.remaining <= 0) {
+      if (existingBtn) existingBtn.remove();
+      return;
+    }
+
+    // 3. Gestão do Trade: ação discreta "+ Fazer Scale-In" dentro de .operations-actions
+    const actionsWrap = host.querySelector('.operations-actions');
+    if (actionsWrap && !actionsWrap.querySelector('[data-scale-in-btn]')) {
+      const validation = model.canExecuteScaleIn({
+        trade: p,
+        scaleIn: { price: p.currentPrice, stop: p.currentStop },
+        equity: typeof OPERATIONAL_EQUITY !== 'undefined' ? OPERATIONAL_EQUITY : 1029500,
+        policy: window.riskPolicyState,
+        openTrades: operationalState.positions
+      });
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `secondary pm-scale-in-btn ${validation.allowed ? 'is-qualified' : ''}`;
+      btn.dataset.scaleInBtn = p.id;
+      btn.title = validation.allowed
+        ? 'Gatilho de aumento atingido pela Política de Risco. Clique para avaliar.'
+        : (validation.reason || 'Avaliar aumento de posição');
+      btn.textContent = '+ Fazer Scale-In';
+      actionsWrap.appendChild(btn);
+    }
+
+    // Garante que o dialog exista no documento
+    if (!document.getElementById('scale-in-dialog')) {
+      const dialog = document.createElement('dialog');
+      dialog.className = 'scale-in-dialog';
+      dialog.id = 'scale-in-dialog';
+      document.body.appendChild(dialog);
+    }
+
+    // Enhance timeline for executed scale-in events
     const timeline = host.querySelector('.timeline');
     if (timeline) {
       const events = p.events || [];
@@ -196,32 +118,52 @@
     });
 
     const m = validation.metrics;
+    const scaleConfig = getScaleInConfig();
+
     const previewContainer = dialog.querySelector('.scale-in-calc-preview');
     if (previewContainer) {
+      const triggerMet = m.currentR !== null && m.currentR >= (m.targetTriggerR - 0.0001);
       previewContainer.innerHTML = `
-        <div class="scale-in-calc-card">
-          <h5>Trade Atual</h5>
-          <div>Entrada inicial: <b>${money(m.currentAvgPrice)}</b></div>
-          <div>Quantidade ativa: <b>${units(m.currentQuantity)} un.</b></div>
-          <div>Preço atual: <b>${money(price)}</b></div>
-          <div>R atual: <b>${multiple(m.currentR)}</b></div>
-          <div>Risco atual: <b>${pct(m.currentRiskPct)} (${money(m.currentRiskCash)})</b></div>
+        <div class="scale-in-kpi-summary">
+          <div class="scale-in-summary-card">
+            <small>Próximo Gatilho</small>
+            <strong>+${m.targetTriggerR.toFixed(1)}R</strong>
+            <span class="${triggerMet ? 'tag-good' : 'tag-warn'}">
+              ${triggerMet ? 'Atingido (' + multiple(m.currentR) + ')' : 'Pendente (' + multiple(m.currentR) + ')'}
+            </span>
+          </div>
+          <div class="scale-in-summary-card">
+            <small>Adição</small>
+            <strong>${m.additionNumber} de ${scaleConfig.maxAdditions}</strong>
+            <span>${m.additionNumber > scaleConfig.maxAdditions ? 'Limite esgotado' : 'Dentro do limite'}</span>
+          </div>
+          <div class="scale-in-summary-card">
+            <small>Preço Atual</small>
+            <strong>${money(price)}</strong>
+            <span>Stop: ${money(stop)}</span>
+          </div>
+          <div class="scale-in-summary-card">
+            <small>Capital Adicional</small>
+            <strong>${money(m.additionalCapital)}</strong>
+            <span>Limite: ${money(m.maxCapitalAllowed)}</span>
+          </div>
+          <div class="scale-in-summary-card">
+            <small>Risco Atual</small>
+            <strong>${pct(m.currentRiskPct)}</strong>
+            <span>${money(m.currentRiskCash)}</span>
+          </div>
+          <div class="scale-in-summary-card result">
+            <small>Novo Risco Estimado</small>
+            <strong class="${m.totalRiskPctAfter <= scaleConfig.maxRiskPct ? 'good' : 'bad'}">${pct(m.totalRiskPctAfter)}</strong>
+            <span>Teto: ${pct(scaleConfig.maxRiskPct)} (${money(m.totalRiskCashAfter)})</span>
+          </div>
         </div>
-        <div class="scale-in-calc-card">
-          <h5>Scale-In Proposto</h5>
-          <div>Preço de entrada: <b>${money(price)}</b></div>
-          <div>Quantidade: <b>+${units(quantity)} un.</b></div>
-          <div>Stop considerado: <b>${money(stop)}</b></div>
-          <div>Capital adicional: <b>${money(m.additionalCapital)}</b></div>
-          <div>Risco adicional: <b>+${pct(m.additionalRiskPct)} (${money(m.additionalRiskCash)})</b></div>
-        </div>
-        <div class="scale-in-calc-card result-card">
-          <h5>Após Scale-In</h5>
-          <div>Quantidade total: <b>${units(m.newQuantity)} un.</b></div>
-          <div>Novo preço médio: <b>${money(m.newAvgPrice)}</b></div>
-          <div>Capital total: <b>${money(m.totalCapitalAfter)}</b></div>
-          <div>Risco total resultante: <b>${pct(m.totalRiskPctAfter)} (${money(m.totalRiskCashAfter)})</b></div>
-          <div>Portfolio Heat: <b>${pct(m.projectedHeatPct)}</b></div>
+
+        <div class="scale-in-validation-banner ${validation.allowed ? 'pass' : 'fail'}">
+          ${validation.allowed
+            ? `✓ <b>Trade Qualificado:</b> Todos os parâmetros atendem às regras da Política de Risco para a adição #${m.additionNumber}.`
+            : `⚠️ <b>Bloqueio pela Política de Risco:</b> ${safe(validation.reason || 'Condições não atendidas.')}`
+          }
         </div>
       `;
     }
@@ -243,36 +185,93 @@
       if (!validation.allowed) {
         submitBtn.title = validation.reason || 'Ajuste os valores para atender a Política de Risco';
       } else {
-        submitBtn.title = 'Confirmar adição de lote';
+        submitBtn.title = 'Confirmar adição de lote conforme a Política de Risco';
       }
     }
   }
 
-  // Click on "+ Adicionar Scale-In"
+  // Click on "+ Fazer Scale-In"
   document.addEventListener('click', event => {
     const btn = event.target.closest('[data-scale-in-btn]');
     if (!btn) return;
 
     const position = locate(btn.dataset.scaleInBtn);
-    const dialog = document.getElementById('scale-in-dialog');
-    if (!position || !dialog) return;
+    let dialog = document.getElementById('scale-in-dialog');
+    if (!dialog) {
+      dialog = document.createElement('dialog');
+      dialog.className = 'scale-in-dialog';
+      dialog.id = 'scale-in-dialog';
+      document.body.appendChild(dialog);
+    }
+    if (!position) return;
+
+    const scaleConfig = getScaleInConfig();
+    const info = model.initialTradeInfo(position);
+    const consolidated = model.calculateConsolidatedPosition({ trade: position, events: position.events });
 
     const now = new Date();
     const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     const initialQty = Number(position.initialQty || 100);
     const suggestedQty = Math.max(1, Math.floor(initialQty * 0.5));
 
+    // Build consolidated table rows for optional review
+    const scaleEvents = (position.events || []).filter(e => e.type === 'scale_in');
+    let rowsHtml = `
+      <tr>
+        <td><strong>Entrada Inicial</strong></td>
+        <td>${money(info.entry)}</td>
+        <td>${units(info.initialQty)}</td>
+        <td>${money(info.initialQty * info.entry)}</td>
+        <td>${money(info.initialStop)}</td>
+        <td>${money(info.initialRiskCash)}</td>
+      </tr>
+    `;
+
+    scaleEvents.forEach((sc, idx) => {
+      const scPrice = Number(sc.price || 0);
+      const scQty = Number(sc.qty || 0);
+      const scStop = Number(sc.stop || position.currentStop);
+      const scRisk = Math.abs(scPrice - scStop) * scQty;
+      rowsHtml += `
+        <tr>
+          <td><strong>Scale-In #${idx + 1}</strong></td>
+          <td>${money(scPrice)}</td>
+          <td>+${units(scQty)}</td>
+          <td>${money(scQty * scPrice)}</td>
+          <td>${money(scStop)}</td>
+          <td>${money(scRisk)}</td>
+        </tr>
+      `;
+    });
+
+    rowsHtml += `
+      <tr class="total-row">
+        <td><strong>Total Consolidado</strong></td>
+        <td><strong>${money(consolidated.averageEntryPrice)} (PM)</strong></td>
+        <td><strong>${units(consolidated.totalEnteredQty)} un. (${units(consolidated.remainingQty)} ativas)</strong></td>
+        <td><strong>${money(consolidated.totalAllocatedCapital)}</strong></td>
+        <td><strong>Stop: ${money(position.currentStop)}</strong></td>
+        <td><strong>${multiple(consolidated.totalR)}</strong></td>
+      </tr>
+    `;
+
     dialog.innerHTML = `
-      <h3>Adicionar Scale-In · ${safe(position.asset)}</h3>
-      <p class="scale-in-dialog-subtitle">Aumento de posição vencedora com risco auditado pela Política de Risco.</p>
+      <header class="scale-in-dialog-header">
+        <div>
+          <div class="eyebrow">Gestão do Trade · Aumento de Posição</div>
+          <h3>Fazer Scale-In · ${safe(position.asset)}</h3>
+          <p class="scale-in-dialog-subtitle">Cálculo e dimensionamento orientados exclusivamente pela Política de Risco configurada.</p>
+        </div>
+        <button type="button" class="close scale-in-close-btn" data-scale-in-cancel aria-label="Fechar">✕</button>
+      </header>
       <form data-scale-in-trade="${safe(position.id)}">
         <div class="scale-in-form-grid">
           <label>
-            Preço de Entrada
+            Preço da Adição
             <input name="price" type="number" step="0.01" min="0.01" value="${position.currentPrice}" required>
           </label>
           <label>
-            Quantidade
+            Quantidade Sugerida
             <input name="quantity" type="number" step="1" min="1" value="${suggestedQty}" required>
           </label>
           <label>
@@ -284,7 +283,7 @@
             <input name="occurredAt" type="datetime-local" value="${localDateTime}" required>
           </label>
           <label style="grid-column: span 2">
-            Motivo / Observação
+            Motivo / Justificativa
             <input name="note" type="text" placeholder="Ex: Rompimento do primeiro pullback com risco zerado">
           </label>
         </div>
@@ -292,11 +291,32 @@
         <div class="scale-in-calc-preview"></div>
 
         <div class="scale-in-validation-box">
-          <h4>Validação de Risco</h4>
+          <h4>Auditoria de Regras da Política de Risco</h4>
           <ul class="scale-in-checklist"></ul>
         </div>
 
-        <div class="pm-form-actions" style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end">
+        <details class="scale-in-consolidated-details">
+          <summary>Ver Composição Consolidada da Posição</summary>
+          <div class="consolidated-table-wrap" style="margin-top:10px">
+            <table class="consolidated-table">
+              <thead>
+                <tr>
+                  <th>Etapa</th>
+                  <th>Preço</th>
+                  <th>Quantidade</th>
+                  <th>Capital</th>
+                  <th>Stop</th>
+                  <th>Risco / R</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </details>
+
+        <div class="pm-form-actions" style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
           <button type="button" class="secondary" data-scale-in-cancel>Cancelar</button>
           <button type="submit" class="primary">CONFIRMAR SCALE-IN</button>
         </div>
@@ -364,7 +384,7 @@
     }
   });
 
-  // Hook renderEffectiveRiskPolicy
+  // Hook renderEffectiveRiskPolicy — Seção "SCALE-IN — AUMENTO DE POSIÇÃO"
   const previousRiskRender = window.renderEffectiveRiskPolicy;
   window.renderEffectiveRiskPolicy = function () {
     if (typeof previousRiskRender === 'function') {
@@ -378,28 +398,32 @@
     const stepNumber = shell.querySelectorAll('.risk-policy-block').length + 1;
 
     const scaleBlock = document.createElement('section');
-    scaleBlock.className = 'risk-policy-block risk-policy-scale-in';
+    scaleBlock.className = 'risk-policy-block risk-policy-scale-in' + (!saved.enabled ? ' is-policy-disabled' : '');
     scaleBlock.innerHTML = `
       <div class="risk-block-title">
         <span>${stepNumber}</span>
-        <div>
-          <h4>Scale-In (Aumento de Posição)</h4>
-          <p>Permite aumentar uma posição vencedora de forma controlada; nunca permite adicionar risco em operações perdedoras.</p>
+        <div class="risk-title-content">
+          <div class="risk-title-row">
+            <h4>Scale-In — Aumento de Posição</h4>
+            <button type="button" 
+                    class="risk-artistic-toggle ${saved.enabled ? 'is-on' : 'is-off'}" 
+                    role="switch" 
+                    aria-checked="${saved.enabled ? 'true' : 'false'}"
+                    data-risk-toggle="scaleIn"
+                    title="${saved.enabled ? 'Scale-In ativado — Clique para desativar' : 'Scale-In desativado — Clique para ativar'}">
+              <span class="risk-toggle-label on">ON</span>
+              <span class="risk-toggle-thumb"></span>
+              <span class="risk-toggle-label off">OFF</span>
+            </button>
+          </div>
+          <p>Configure os parâmetros para permitir o aumento de posições vencedoras. Se desativado, o recurso não aparece na Gestão do Trade.</p>
         </div>
       </div>
+      <input type="hidden" data-scale-in-setting="enabled" value="${saved.enabled ? 'on' : 'off'}">
       <div class="scale-in-policy-grid">
         <div class="scale-in-policy-item">
           <div class="field">
-            <label>Scale-In Habilitado</label>
-            <select data-scale-in-setting="enabled">
-              <option value="on" ${saved.enabled ? 'selected' : ''}>Sim (ON)</option>
-              <option value="off" ${!saved.enabled ? 'selected' : ''}>Não (OFF)</option>
-            </select>
-          </div>
-        </div>
-        <div class="scale-in-policy-item">
-          <div class="field">
-            <label>Máximo de adições por trade</label>
+            <label>Nº máximo de adições</label>
             <select data-scale-in-setting="maxAdditions">
               <option value="1" ${saved.maxAdditions === 1 ? 'selected' : ''}>1 adição</option>
               <option value="2" ${saved.maxAdditions === 2 ? 'selected' : ''}>2 adições (Padrão)</option>
@@ -409,21 +433,23 @@
         </div>
         <div class="scale-in-policy-item">
           <div class="field">
-            <label>Gatilho mínimo para primeiro Scale-In</label>
-            <select data-scale-in-setting="minR">
-              <option value="0.5" ${Math.abs(saved.minR - 0.5) < 0.01 ? 'selected' : ''}>+0.5R</option>
-              <option value="1.0" ${Math.abs(saved.minR - 1.0) < 0.01 ? 'selected' : ''}>+1.0R (Padrão)</option>
-              <option value="1.5" ${Math.abs(saved.minR - 1.5) < 0.01 ? 'selected' : ''}>+1.5R</option>
-              <option value="2.0" ${Math.abs(saved.minR - 2.0) < 0.01 ? 'selected' : ''}>+2.0R</option>
+            <label>Gatilho da 1ª adição</label>
+            <select data-scale-in-setting="triggerR1">
+              <option value="0.5" ${Math.abs(saved.triggerR1 - 0.5) < 0.01 ? 'selected' : ''}>+0,5R</option>
+              <option value="1.0" ${Math.abs(saved.triggerR1 - 1.0) < 0.01 ? 'selected' : ''}>+1,0R (Padrão)</option>
+              <option value="1.5" ${Math.abs(saved.triggerR1 - 1.5) < 0.01 ? 'selected' : ''}>+1,5R</option>
+              <option value="2.0" ${Math.abs(saved.triggerR1 - 2.0) < 0.01 ? 'selected' : ''}>+2,0R</option>
             </select>
           </div>
         </div>
         <div class="scale-in-policy-item">
           <div class="field">
-            <label>Permitir antes do breakeven</label>
-            <select data-scale-in-setting="requireBreakeven">
-              <option value="true" ${saved.requireBreakeven ? 'selected' : ''}>Não (Exige Breakeven)</option>
-              <option value="false" ${!saved.requireBreakeven ? 'selected' : ''}>Sim (Permitido)</option>
+            <label>Gatilho da 2ª adição</label>
+            <select data-scale-in-setting="triggerR2">
+              <option value="1.5" ${Math.abs(saved.triggerR2 - 1.5) < 0.01 ? 'selected' : ''}>+1,5R</option>
+              <option value="2.0" ${Math.abs(saved.triggerR2 - 2.0) < 0.01 ? 'selected' : ''}>+2,0R (Padrão)</option>
+              <option value="2.5" ${Math.abs(saved.triggerR2 - 2.5) < 0.01 ? 'selected' : ''}>+2,5R</option>
+              <option value="3.0" ${Math.abs(saved.triggerR2 - 3.0) < 0.01 ? 'selected' : ''}>+3,0R</option>
             </select>
           </div>
         </div>
@@ -431,6 +457,23 @@
           <div class="field">
             <label>Risco máx. resultante (% conta)</label>
             <input type="number" step="0.05" min="0.1" max="2.0" data-scale-in-setting="maxRiskPct" value="${saved.maxRiskPct}">
+          </div>
+        </div>
+        <div class="scale-in-policy-item">
+          <div class="field">
+            <label>Exigir Breakeven (Ongoing Risk)</label>
+            <select data-scale-in-setting="requireBreakeven">
+              <option value="true" ${saved.requireBreakeven ? 'selected' : ''}>Sim (Stop protegido na entrada)</option>
+              <option value="false" ${!saved.requireBreakeven ? 'selected' : ''}>Não (Permitir antes)</option>
+            </select>
+          </div>
+        </div>
+        <div class="scale-in-policy-item">
+          <div class="field">
+            <label>Respeitar Limite de Capital</label>
+            <select data-scale-in-setting="respectCapital">
+              <option value="true" selected>Sim (Obrigatório — limite do perfil)</option>
+            </select>
           </div>
         </div>
         <div class="scale-in-policy-item">
@@ -445,7 +488,7 @@
       </div>
       <div class="scale-in-policy-footer">
         <div class="scale-in-policy-hint">
-          <span>Proteção de Capital:</span> O Scale-In transforma o lucro aberto em colchão de segurança. A posição só é aumentada quando o trade já provou sua tese.
+          <span>Princípio da Política:</span> O Scale-In é uma ferramenta opcional de gestão. Quando ativado, permite aportes graduais à medida que os gatilhos em R são conquistados e o stop protege o capital inicial. Quando desativado, o recurso não é exibido na Gestão do Trade.
         </div>
       </div>
     `;
@@ -459,11 +502,16 @@
     const inputs = document.querySelectorAll('#effectiveRiskPolicy [data-scale-in-setting]');
     const values = Object.fromEntries([...inputs].map(input => [input.dataset.scaleInSetting, input.value]));
 
+    const triggerR1 = Math.max(0, Number(values.triggerR1 || values.minR || 1.0));
+    const triggerR2 = Math.max(0, Number(values.triggerR2 || 2.0));
+
     if (!window.riskPolicyState) window.riskPolicyState = {};
     window.riskPolicyState.scaleIn = {
       enabled: values.enabled === 'on',
       maxAdditions: Math.max(1, Math.min(5, Math.floor(Number(values.maxAdditions || 2)))),
-      minR: Math.max(0, Number(values.minR || 1.0)),
+      minR: triggerR1,
+      triggerR1,
+      triggerR2,
       requireBreakeven: values.requireBreakeven === 'true',
       maxRiskPct: Math.max(0, Number(values.maxRiskPct || 0.5)),
       respectPortfolioHeat: values.respectPortfolioHeat === 'true',
@@ -476,6 +524,24 @@
     if (typeof renderEffectiveRiskPolicy === 'function') {
       renderEffectiveRiskPolicy();
     }
+  });
+
+  // Toggle button click listener for Scale-In
+  document.addEventListener('click', async event => {
+    const toggle = event.target.closest('[data-risk-toggle="scaleIn"]');
+    if (!toggle) return;
+    event.preventDefault();
+    const current = getScaleInConfig();
+    const newEnabled = !current.enabled;
+    if (!window.riskPolicyState) window.riskPolicyState = {};
+    window.riskPolicyState.scaleIn = {
+      ...current,
+      enabled: newEnabled
+    };
+    if (typeof persistRiskPolicy === 'function') await persistRiskPolicy();
+    if (typeof renderEffectiveRiskPolicy === 'function') renderEffectiveRiskPolicy();
+    if (typeof renderOperationalApp === 'function') renderOperationalApp();
+    showToast(newEnabled ? 'Scale-In ativado.' : 'Scale-In desativado.');
   });
 
   // Analytics Hook for Scale-In performance

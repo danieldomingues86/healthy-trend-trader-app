@@ -43,15 +43,18 @@ async function savePreferences(userId, value) {
 }
 
 async function start(userId, payload = {}) {
-  const id = sessionId(payload.sessionId);
+  let id = sessionId(payload.sessionId);
   return database.transaction(async ({ query }) => {
-    const existing = await query('SELECT id, opened_at, closed_at FROM app.platform_access_sessions WHERE id = $1 AND user_id = $2', [id, userId]);
+    const existing = await query('SELECT id, user_id, opened_at, closed_at FROM app.platform_access_sessions WHERE id = $1', [id]);
     if (existing.rowCount) {
-      const result = await query(`UPDATE app.platform_access_sessions
-        SET closed_at = NULL, duration_seconds = NULL, last_seen_at = now()
-        WHERE id = $1 AND user_id = $2
-        RETURNING id, opened_at, last_seen_at, closed_at, duration_seconds`, [id, userId]);
-      return { session: result.rows[0], resumed: true };
+      if (existing.rows[0].user_id === userId) {
+        const result = await query(`UPDATE app.platform_access_sessions
+          SET closed_at = NULL, duration_seconds = NULL, last_seen_at = now()
+          WHERE id = $1 AND user_id = $2
+          RETURNING id, opened_at, last_seen_at, closed_at, duration_seconds`, [id, userId]);
+        return { session: result.rows[0], resumed: true };
+      }
+      id = crypto.randomUUID();
     }
     await query(`UPDATE app.platform_access_sessions
       SET closed_at = now(), last_seen_at = now(),
@@ -59,6 +62,8 @@ async function start(userId, payload = {}) {
       WHERE user_id = $1 AND closed_at IS NULL`, [userId]);
     const result = await query(`INSERT INTO app.platform_access_sessions (id, user_id, app_version)
       VALUES ($1, $2, $3)
+      ON CONFLICT (id) DO UPDATE
+        SET user_id = EXCLUDED.user_id, closed_at = NULL, duration_seconds = NULL, last_seen_at = now()
       RETURNING id, opened_at, last_seen_at, closed_at, duration_seconds`, [id, userId, version(payload.appVersion)]);
     return { session: result.rows[0], resumed: false };
   });

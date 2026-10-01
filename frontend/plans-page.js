@@ -4,7 +4,7 @@
   // Route membership follows the actual navigation guard, not marketing tiers.
   const features = [
     ['today', 'Hoje', 'Today'], ['newtrade', 'Novo Trade e registro de trades', 'New Trade and trade records'],
-    ['positions', 'Posições e histórico', 'Positions and history'], ['positiondetail', 'Gestão da posição', 'Position management'],
+    ['positions', 'Posições Abertas', 'Open Positions'], ['closedpositions', 'Posições Encerradas', 'Closed Positions'], ['positiondetail', 'Gestão da posição', 'Position management'],
     ['risk', 'Position Sizing', 'Position Sizing'], ['rubric', 'Trading Rubric', 'Trading Rubric'],
     ['riskpolicy', 'Política de Risco', 'Risk Policy'], ['assetblacklist', 'Ativos Blacklist', 'Asset Blacklist'], ['dashboard', 'Patrimônio', 'Wealth'],
     ['portfolioheat', 'Portfolio Heat', 'Portfolio Heat'], ['fundamentals', 'Análise Fundamentalista', 'Fundamental Analysis'],
@@ -63,7 +63,7 @@
     const steps = [
       ['market', t('Mercado', 'Market'), t('Entenda o ambiente antes de operar.', 'Understand the environment before trading.'), ['marketmap', 'marketcycle', 'relativestrength', 'marketscans', 'fundamentals']],
       ['decision', t('Decisão', 'Decision'), t('Transforme contexto em risco calculado.', 'Turn context into calculated risk.'), ['rubric', 'risk', 'riskpolicy', 'assetblacklist', 'portfolioheat']],
-      ['execution', t('Execução', 'Execution'), t('Opere com processo e disciplina.', 'Trade with process and discipline.'), ['today', 'newtrade', 'positions', 'dashboard']],
+      ['execution', t('Execução', 'Execution'), t('Opere com processo e disciplina.', 'Trade with process and discipline.'), ['today', 'newtrade', 'positions', 'closedpositions', 'dashboard']],
       ['growth', t('Evolução', 'Growth'), t('Aprenda, ajuste e evolua.', 'Learn, adjust and grow.'), ['journal', 'tradelibrary', 'review', 'analytics', 'tradeanatomy', 'forecast', 'zen', 'habits', 'audiolibrary', 'wisdom', 'traderprofile', 'platformaccess']]
     ];
     root.innerHTML = `<div class="plans-landing">

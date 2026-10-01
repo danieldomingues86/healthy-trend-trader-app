@@ -11,6 +11,8 @@
     enabled: true,
     maxAdditions: 2,
     minR: 1.0,
+    triggerR1: 1.0,
+    triggerR2: 2.0,
     requireBreakeven: true,
     maxRiskPct: 0.5, // 0.50% do patrimônio
     respectPortfolioHeat: true,
@@ -21,10 +23,14 @@
 
   function settings(input) {
     const saved = input || {};
+    const triggerR1 = Math.max(0, finite(saved.triggerR1, finite(saved.minR, DEFAULT_SCALE_IN_CONFIG.triggerR1)));
+    const triggerR2 = Math.max(0, finite(saved.triggerR2, DEFAULT_SCALE_IN_CONFIG.triggerR2));
     return {
       enabled: saved.enabled !== false,
       maxAdditions: Math.max(1, Math.floor(finite(saved.maxAdditions, DEFAULT_SCALE_IN_CONFIG.maxAdditions))),
-      minR: Math.max(0, finite(saved.minR, DEFAULT_SCALE_IN_CONFIG.minR)),
+      minR: triggerR1,
+      triggerR1,
+      triggerR2,
       requireBreakeven: saved.requireBreakeven !== false,
       maxRiskPct: Math.max(0, finite(saved.maxRiskPct, DEFAULT_SCALE_IN_CONFIG.maxRiskPct)),
       respectPortfolioHeat: saved.respectPortfolioHeat !== false,
@@ -158,11 +164,21 @@
     const projectedHeatPct = currentHeatPct + additionalRiskPct;
     const maxHeatPct = (profile.maximumPortfolioRiskPct || 0.125) * 100;
 
+    const additionNumber = info.scaleInCount + 1;
+    const targetTriggerR = additionNumber === 1
+      ? scaleConfig.triggerR1
+      : (additionNumber === 2
+          ? scaleConfig.triggerR2
+          : scaleConfig.triggerR2 + (additionNumber - 2) * 1.0);
+
     return {
-      additionNumber: info.scaleInCount + 1,
+      additionNumber,
       maxAdditions: scaleConfig.maxAdditions,
       currentR: info.currentR,
-      minR: scaleConfig.minR,
+      minR: targetTriggerR,
+      targetTriggerR,
+      triggerR1: scaleConfig.triggerR1,
+      triggerR2: scaleConfig.triggerR2,
       currentRiskCash: info.currentRiskCash,
       currentRiskPct: accEquity > 0 ? (info.currentRiskCash / accEquity) * 100 : 0,
       additionalRiskCash,
@@ -200,9 +216,9 @@
       {
         key: 'trigger',
         label: 'Trade atingiu o gatilho mínimo',
-        passed: metrics.currentR !== null && metrics.currentR >= (scaleConfig.minR - 0.0001),
+        passed: metrics.currentR !== null && metrics.currentR >= (metrics.targetTriggerR - 0.0001),
         detail: metrics.currentR !== null
-          ? `${metrics.currentR >= 0 ? '+' : ''}${metrics.currentR.toFixed(2)}R (mínimo: +${scaleConfig.minR.toFixed(2)}R)`
+          ? `${metrics.currentR >= 0 ? '+' : ''}${metrics.currentR.toFixed(2)}R (mínimo: +${metrics.targetTriggerR.toFixed(2)}R)`
           : 'Gatilho não atingido'
       },
       {
@@ -252,8 +268,8 @@
       reason = 'Scale-In não é permitido em trades perdedores.';
     } else if (info.scaleInCount >= scaleConfig.maxAdditions) {
       reason = `Limite de ${scaleConfig.maxAdditions} adições já atingido para esta operação.`;
-    } else if (metrics.currentR === null || metrics.currentR < (scaleConfig.minR - 0.0001)) {
-      reason = `O trade ainda não atingiu o gatilho mínimo de +${scaleConfig.minR.toFixed(2)}R.`;
+    } else if (metrics.currentR === null || metrics.currentR < (metrics.targetTriggerR - 0.0001)) {
+      reason = `O trade ainda não atingiu o gatilho mínimo de +${metrics.targetTriggerR.toFixed(2)}R.`;
     } else if (scaleConfig.requireBreakeven && !info.breakevenProtected) {
       reason = 'O stop da posição inicial ainda não está protegido no breakeven.';
     } else if (scaleIn.quantity !== undefined && scaleIn.quantity <= 0) {

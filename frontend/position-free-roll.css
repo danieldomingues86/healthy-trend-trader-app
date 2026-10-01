@@ -10,23 +10,173 @@
 .position-management .pm-r-highlight small { color: #17653c; font-weight: 800; }
 .position-management .pm-r-highlight strong { color: #0d5a31; font-size: 22px; }
 .position-management .pm-states { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 17px; }
-.position-management .pm-state { flex: 1 1 230px; border: 1px solid var(--line, #39483e); border-radius: 10px; padding: 14px; }
+.position-management .pm-state { flex: 1 1 230px; border: 1px solid var(--line, #39483e); border-radius: 14px; padding: 18px; box-sizing: border-box; }
 .position-management .pm-state b, .position-management .pm-state small { display: block; margin-bottom: 5px; }
+.position-management .pm-state small { font-size: 13px; line-height: 1.45; }
+.position-management .pm-state p { font-size: 13px; color: var(--muted); line-height: 1.55; margin: 6px 0 0 0; }
+.position-management .pm-stop-recalculated { display: inline-block; margin-top: 7px; font-size: 13px; }
 .position-management .pm-state.active { border-color: #68bb84; }
-.position-management .pm-sell-available { border: 2px solid #32a966; background: linear-gradient(135deg, #e9fbef 0%, #ccf5d8 100%); box-shadow: 0 0 0 5px rgba(50,169,102,.16), 0 13px 28px rgba(34,127,73,.18); }
-.position-management .pm-sell-available b { color: #0d5b32; font-size: 15px; letter-spacing: .01em; }
-.position-management .pm-sell-available small { color: #17693f; font-weight: 750; }
-.position-management .pm-sell-available .primary { background: #168147; border-color: #0e6333; color: #fff; box-shadow: 0 7px 14px rgba(17,116,61,.24); font-weight: 850; }
-.position-management .pm-sell-available .primary:hover { background: #0f6c39; transform: translateY(-1px); }
+
+/* Sell Into Strength - Estado Disponível (Artístico / Premium com Caixa Registradora) */
+.position-management .pm-state.pm-sell-available {
+  flex: 1.8 1 520px;
+  min-height: 220px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(46, 230, 129, 0.45);
+  background-color: #02140b;
+  background-image: 
+    linear-gradient(90deg, #02140b 0%, #03180e 38%, rgba(3, 24, 14, 0.88) 55%, rgba(2, 20, 11, 0.35) 75%, rgba(2, 20, 11, 0.1) 100%),
+    url('../assets/position-management/sell-into-strength-art.jpg');
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: cover;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(50, 169, 102, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.position-management .pm-sell-available .pm-sell-body {
+  position: relative;
+  z-index: 2;
+  max-width: 330px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.position-management .pm-sell-available .pm-sell-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #00f076;
+  font-size: 14.5px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  text-shadow: 0 0 12px rgba(0, 240, 118, 0.35);
+}
+
+.position-management .pm-status-glow-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #00ff7f;
+  box-shadow: 0 0 0 3px rgba(0, 255, 127, 0.28), 0 0 12px rgba(0, 255, 127, 0.9), 0 0 20px rgba(0, 255, 127, 0.5);
+  display: inline-block;
+  flex-shrink: 0;
+  animation: pmGlowPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes pmGlowPulse {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 3px rgba(0, 255, 127, 0.28), 0 0 12px rgba(0, 255, 127, 0.9); }
+  50% { transform: scale(1.12); opacity: 0.9; box-shadow: 0 0 0 5px rgba(0, 255, 127, 0.38), 0 0 18px rgba(0, 255, 127, 1); }
+}
+
+.position-management .pm-sell-available .pm-sell-zone {
+  color: #8fe5b0;
+  font-size: 12.5px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  margin-bottom: 11px;
+}
+
+.position-management .pm-sell-available .pm-sell-desc {
+  color: #d1e9db;
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0 0 16px 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.position-management .pm-sell-available .pm-sell-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 4px;
+}
+
+.position-management .pm-realizar-parcial-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px 9px 12px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #00c853 0%, #00963e 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 18px rgba(0, 200, 83, 0.45), 0 2px 6px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.position-management .pm-realizar-parcial-btn:hover {
+  background: linear-gradient(135deg, #02db5d 0%, #00a846 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 24px rgba(0, 200, 83, 0.58), 0 3px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.position-management .pm-realizar-parcial-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 200, 83, 0.4);
+}
+
+.position-management .pm-btn-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.position-management .pm-btn-text {
+  font-weight: 850;
+  color: #ffffff;
+}
+
+.position-management .pm-btn-arrow {
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1;
+  color: #ffffff;
+  transition: transform 0.18s ease;
+}
+
+.position-management .pm-realizar-parcial-btn:hover .pm-btn-arrow {
+  transform: translateX(3px);
+}
+
 .position-management .pm-sell-completed { border-color: #a5c6ae; background: rgba(241, 249, 243, .72); }
 .position-management .pm-free-roll-active { border: 2px solid #32a966; background: linear-gradient(135deg, #e9fbef 0%, #ccf5d8 100%); box-shadow: 0 0 0 5px rgba(50,169,102,.16), 0 13px 28px rgba(34,127,73,.18); }
 .position-management .pm-free-roll-active b { color: #0d5b32; font-size: 15px; letter-spacing: .01em; }
 .position-management .pm-free-roll-active small { color: #17693f; font-weight: 750; }
-.position-management .pm-state p { font-size: 13px; color: var(--muted); line-height: 1.55; }
-.position-management .pm-state small { font-size: 13px; line-height: 1.45; }
-.position-management .pm-stop-recalculated { display: inline-block; margin-top: 7px; font-size: 13px; }
-.position-management .pm-state .primary { margin-top: 6px; }
-.position-management .pm-sell-action{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:15px}.position-management .pm-sell-action .primary{margin:0}.position-management .pm-profit-symbol{display:grid;place-items:center;width:36px;height:36px;border:1px solid rgba(13,91,50,.28);border-radius:50%;background:rgba(255,255,255,.62);font-size:19px;box-shadow:0 4px 10px rgba(17,116,61,.14)}
+
+@media (max-width: 900px) {
+  .position-management .pm-state.pm-sell-available {
+    flex: 1 1 100%;
+    min-height: 200px;
+    background-size: cover;
+    background-image: 
+      linear-gradient(90deg, rgba(2, 20, 11, 0.95) 0%, rgba(3, 24, 14, 0.9) 50%, rgba(2, 20, 11, 0.65) 100%),
+      url('../assets/position-management/sell-into-strength-art.jpg');
+  }
+  .position-management .pm-sell-available .pm-sell-body {
+    max-width: 100%;
+  }
+}
 .pm-dialog { position: fixed; inset: 0; margin: auto; box-sizing: border-box; border: 1px solid var(--line, #39483e); border-radius: 14px; padding: 22px; background: var(--surface, #19281f); color: inherit; width: min(calc(100vw - 32px), 720px); max-height: min(calc(100vh - 32px), 720px); overflow: auto; box-shadow: 0 26px 80px rgba(0,0,0,.38); }
 .pm-dialog::backdrop { background: rgba(0,0,0,.65); }
 .pm-dialog h3 { margin: 0 0 15px; }
@@ -52,7 +202,7 @@
 }
 .pm-sell-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-top: 12px;
 }
@@ -159,6 +309,228 @@ body:not([data-theme="healthy"]) .pm-sell-hint {
 }
 body:not([data-theme="healthy"]) .pm-sell-hint span {
   color: #fde047 !important;
+}
+
+/* Artistic ON/OFF Toggle Switch for Risk Policy Headers */
+.risk-title-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.risk-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 9px;
+}
+
+.risk-title-row h4 {
+  margin: 0 !important;
+}
+
+.risk-title-content p {
+  margin: 0 !important;
+  line-height: 1.5;
+  font-size: 11.5px;
+}
+
+.risk-artistic-toggle {
+  position: relative;
+  width: 66px;
+  height: 28px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  padding: 2px 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  user-select: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  outline: none;
+  vertical-align: middle;
+}
+
+/* ON State */
+.risk-artistic-toggle.is-on {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: #059669;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2), 0 3px 8px rgba(16, 185, 129, 0.35);
+}
+
+.risk-artistic-toggle.is-on:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(16, 185, 129, 0.45);
+}
+
+.risk-artistic-toggle.is-on .risk-toggle-label.on {
+  color: #ffffff;
+  opacity: 1;
+  transform: translateX(0);
+  padding-left: 6px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.risk-artistic-toggle.is-on .risk-toggle-label.off {
+  opacity: 0;
+  display: none;
+}
+
+.risk-artistic-toggle.is-on .risk-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* OFF State */
+.risk-artistic-toggle.is-off {
+  background: #64748b;
+  border-color: #475569;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.risk-artistic-toggle.is-off:hover {
+  background: #526175;
+}
+
+.risk-artistic-toggle.is-off .risk-toggle-label.on {
+  opacity: 0;
+  display: none;
+}
+
+.risk-artistic-toggle.is-off .risk-toggle-label.off {
+  color: #f1f5f9;
+  opacity: 1;
+  transform: translateX(0);
+  margin-left: auto;
+  padding-right: 6px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.risk-artistic-toggle.is-off .risk-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f8fafc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Disabled Policy State (Full Form Grayscale) */
+.risk-policy-block.is-policy-disabled {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  transition: all 0.3s ease;
+}
+
+.risk-policy-block.is-policy-disabled .risk-block-title > span {
+  background: #94a3b8 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.risk-policy-block.is-policy-disabled .risk-title-content h4 {
+  color: #64748b !important;
+}
+
+.risk-policy-block.is-policy-disabled .risk-title-content p {
+  color: #94a3b8 !important;
+}
+
+.risk-policy-block.is-policy-disabled .pm-sell-grid,
+.risk-policy-block.is-policy-disabled .pm-sell-footer,
+.risk-policy-block.is-policy-disabled .scale-in-policy-grid,
+.risk-policy-block.is-policy-disabled .scale-in-policy-footer {
+  filter: grayscale(100%);
+  opacity: 0.42;
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.risk-policy-block.is-policy-disabled .pm-sell-item,
+.risk-policy-block.is-policy-disabled .scale-in-policy-item {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.risk-policy-block.is-policy-disabled .pm-sell-footer,
+.risk-policy-block.is-policy-disabled .scale-in-policy-footer {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.risk-policy-block.is-policy-disabled input,
+.risk-policy-block.is-policy-disabled select {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+}
+
+/* Gold Theme Toggles & Disabled State */
+body:not([data-theme="healthy"]) .risk-artistic-toggle.is-on {
+  background: linear-gradient(135deg, #d4af37 0%, #a17f1a 100%) !important;
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25), 0 3px 8px rgba(212, 175, 55, 0.4) !important;
+}
+
+body:not([data-theme="healthy"]) .risk-artistic-toggle.is-off {
+  background: #334155 !important;
+  border-color: #1e293b !important;
+}
+
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled {
+  background: #141414 !important;
+  border-color: #27272a !important;
+}
+
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .risk-block-title > span {
+  background: #3f3f46 !important;
+  color: #a1a1aa !important;
+}
+
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .risk-title-content h4 {
+  color: #71717a !important;
+}
+
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .risk-title-content p {
+  color: #52525b !important;
+}
+
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .pm-sell-item,
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .scale-in-policy-item {
+  background: #18181b !important;
+  border-color: #27272a !important;
+}
+
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .pm-sell-footer,
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .scale-in-policy-footer {
+  background: #18181b !important;
+  border-color: #27272a !important;
+}
+
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled input,
+body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled select {
+  background: #18181b !important;
+  border-color: #27272a !important;
+  color: #71717a !important;
+  cursor: not-allowed !important;
 }
 
 @media(max-width: 1100px) { .position-management .pm-grid { grid-template-columns: repeat(3,minmax(130px,1fr)); } }

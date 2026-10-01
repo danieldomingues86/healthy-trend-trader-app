@@ -52,13 +52,20 @@ body:not([data-theme="healthy"]) .wealth-tabs button{color:#d8c79f}
 body:not([data-theme="healthy"]) .wealth-tabs button.active{background:#4a3511;color:#fff8e6;border-color:#c99e3d}
 body:not([data-theme="healthy"]) .wealth-heat{background:linear-gradient(135deg,#352514,#1b140b);border-color:#80612b;color:#f7f0de}
 body:not([data-theme="healthy"]) .wealth-heat b{color:#fff8e8}
-body:not([data-theme="healthy"]) #positions .period-selector{background:#18150e;border-color:#584625;color:#d9c9a6}
-body:not([data-theme="healthy"]) #positions .period-selector button{background:#292214;border-color:#5b4827;color:#eadabd}
-body:not([data-theme="healthy"]) #positions .period-selector button.active{background:#c99e3d;border-color:#e3c16b;color:#241b0b}
-body:not([data-theme="healthy"]) #positions .period-group-banner{background:#17140d;border-color:#604b28;color:#fff7e5}
-body:not([data-theme="healthy"]) #positions .period-group-banner small{color:#d9c8a1}
-body:not([data-theme="healthy"]) #positions .positions-table .closed-period-group td{background:#241f14!important;border-color:#5d4a26!important;color:#f4d27c!important}
-body:not([data-theme="healthy"]) #positions .positions-table .closed-period-group small{color:#cdbd98!important}
+body:not([data-theme="healthy"]) #positions .period-selector,
+body:not([data-theme="healthy"]) #closedpositions .period-selector{background:#18150e;border-color:#584625;color:#d9c9a6}
+body:not([data-theme="healthy"]) #positions .period-selector button,
+body:not([data-theme="healthy"]) #closedpositions .period-selector button{background:#292214;border-color:#5b4827;color:#eadabd}
+body:not([data-theme="healthy"]) #positions .period-selector button.active,
+body:not([data-theme="healthy"]) #closedpositions .period-selector button.active{background:#c99e3d;border-color:#e3c16b;color:#241b0b}
+body:not([data-theme="healthy"]) #positions .period-group-banner,
+body:not([data-theme="healthy"]) #closedpositions .period-group-banner{background:#17140d;border-color:#604b28;color:#fff7e5}
+body:not([data-theme="healthy"]) #positions .period-group-banner small,
+body:not([data-theme="healthy"]) #closedpositions .period-group-banner small{color:#d9c8a1}
+body:not([data-theme="healthy"]) #positions .positions-table .closed-period-group td,
+body:not([data-theme="healthy"]) #closedpositions .positions-table .closed-period-group td{background:#241f14!important;border-color:#5d4a26!important;color:#f4d27c!important}
+body:not([data-theme="healthy"]) #positions .positions-table .closed-period-group small,
+body:not([data-theme="healthy"]) #closedpositions .positions-table .closed-period-group small{color:#cdbd98!important}
 
 /* Fundamental analysis: retain the semantic score colors but use Gold-neutral panels and readable years. */
 body:not([data-theme="healthy"]) #fundamentals .fund-score-card{background:linear-gradient(145deg,#241b0d,#151109)!important;border-color:#765b2b;color:#fff8e8}

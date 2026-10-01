@@ -34,7 +34,7 @@
     const data = projectedHeat();
     const rubric = TradingRubrics.calculateRubric(currentRubricInput?.() || {}, riskPolicyState);
     const invalidWeights = !rubric.weightsValid;
-    const isGradeD = rubric.grade === 'D' || rubric.riskPct === 0;
+    const isGradeD = Boolean(rubric.complete && (rubric.grade === 'D' || rubric.riskPct === 0));
     const isOverrideOpen = Boolean(document.getElementById('courageOverrideBox')?.style.display === 'block');
     const heatExceeded = data.current >= data.limit || data.projected > data.limit;
     const positionsExceeded = data.sizing.positionCapacityAvailable === false;
@@ -87,12 +87,54 @@
       }
     }
     sizer.querySelectorAll('.summary-box button').forEach(button => {
-      button.disabled = blocked;
+      if (!button.dataset.isSubmitting) {
+        button.disabled = false;
+      }
+      button.classList.toggle('is-pending-gate', blocked);
+      button.onclick = (e) => saveTradePlan(e);
       button.setAttribute('aria-disabled', String(blocked));
       button.classList.toggle('is-blacklist-blocked', blacklistBlocked);
       button.toggleAttribute('data-blacklist-blocked', blacklistBlocked);
       button.title = blacklistBlocked ? 'Trade bloqueado pela sua Blacklist. Escolha outro ativo para continuar.' : invalidWeights ? 'Ajuste os pesos da Rubric para totalizar 100 pontos.' : exceeded ? reason : isGradeD ? 'Operação não recomendada pela política.' : locked ? 'Complete as Etapas 1 e 2 para registrar o trade.' : '';
     });
   };
+  const origSavePlanBeforeHeat = window.saveTradePlan;
+  if (typeof origSavePlanBeforeHeat === 'function') {
+    window.saveTradePlan = async function (...args) {
+      const data = projectedHeat();
+      const rubric = TradingRubrics.calculateRubric(currentRubricInput?.() || {}, riskPolicyState);
+      const invalidWeights = !rubric.weightsValid;
+      const isGradeD = Boolean(rubric.complete && (rubric.grade === 'D' || rubric.riskPct === 0));
+      const heatExceeded = data.current >= data.limit || data.projected > data.limit;
+      const positionsExceeded = data.sizing.positionCapacityAvailable === false;
+      const exceeded = heatExceeded || positionsExceeded;
+      const blacklistBlocked = Boolean(window.AssetBlacklist?.isBlocked?.());
+
+      if (blacklistBlocked) {
+        if (typeof showToast === 'function') showToast('☠ Trade bloqueado pela sua Blacklist. Escolha outro ativo para continuar.');
+        return;
+      }
+      if (invalidWeights) {
+        if (typeof showToast === 'function') showToast(`⚠️ Pesos da Rubric inválidos (total: ${numBR(rubric.weightsTotal, 2)} de 100 pontos). Ajuste a Política de Risco.`);
+        return;
+      }
+      if (exceeded) {
+        const reason = positionsExceeded
+          ? `O perfil ativo já atingiu ${data.openPositions} de ${data.maximumPositions} posições simultâneas.`
+          : data.current >= data.limit
+            ? `Portfolio Heat já excedido: ${format(data.current)} de ${format(data.limit)}.`
+            : `Este trade elevaria o Portfolio Heat para ${format(data.projected)}, acima do limite de ${format(data.limit)}.`;
+        if (typeof showToast === 'function') showToast(`⚠️ ${reason}`);
+        return;
+      }
+      if (isGradeD) {
+        if (typeof showToast === 'function') showToast('⚠️ Operações classificadas como Grade D possuem risco zero e não podem ser abertas.');
+        document.getElementById('tradeRubricStage')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      return origSavePlanBeforeHeat.apply(this, args);
+    };
+  }
+
   refreshWorkbenchRiskGate();
 }());

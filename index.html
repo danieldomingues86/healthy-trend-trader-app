@@ -399,7 +399,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <link rel="stylesheet" href="frontend/positions-account-panels.css?v=20260915-2">
 <link rel="stylesheet" href="frontend/wealth-dashboard-v2.css?v=20260918-2">
 <script src="frontend/plans-page.js"></script>
-<style>.positions-table .position-journal-link{margin-left:8px;padding:6px 8px;font-size:10px;white-space:nowrap}</style>
+<style>.positions-table .position-journal-link{margin-left:8px;padding:6px 8px;font-size:10px;white-space:nowrap}.field-highlight-error{border-color:#e05252!important;box-shadow:0 0 0 3px rgba(224,82,82,.25)!important;animation:shakeError .4s ease-in-out}@keyframes shakeError{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}.summary-box button.is-pending-gate{opacity:.85;cursor:pointer}.summary-box button.is-pending-gate:hover{opacity:1}</style>
 </head>
 <body style="overflow:hidden">
 <section class="login-shell" id="loginShell" aria-label="Acesso ao The Healthy Trend Trader">
@@ -601,11 +601,13 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 </section> -->
 </section>
 
-<section class="page" id="positions"><div class="hero"><div><div class="eyebrow">Trading log</div><h1>Posições são histórias,<br>não apenas linhas.</h1></div><div><p>Cada posição reúne planejamento, entradas, saídas, ajustes de stop, imagens e revisão final.</p><button class="primary" onclick="go('newtrade')">Nova posição →</button></div></div><div class="section-title"><div><h2>Posições em andamento</h2><p id="positionsOpenSubtitle">Dados sincronizados</p></div></div><div class="positions-account-panels"><section class="positions-account-panel real"><header><div><span class="positions-account-kicker">Ambiente operacional</span><h2>Conta Real</h2><p>Operações que impactam seu capital e Portfolio Heat.</p></div><b id="realPositionCount">0 abertas</b></header><div class="positions-account-grid" id="realPositionCards"></div></section><section class="positions-account-panel paper"><header><div><span class="positions-account-kicker">Ambiente de prática</span><h2>Paper Trading</h2><p>Simulações acompanhadas separadamente da conta real.</p></div><b id="paperPositionCount">0 abertas</b></header><div class="positions-account-grid" id="paperPositionCards"></div></section></div><div class="section-title positions-closed-title"><div><h2>Encerradas recentemente</h2><p>Últimas operações revisadas</p></div><div class="period-selector" id="positionPeriodControls"></div></div><div class="card"><table class="positions-table"><thead><tr><th>Ativo</th><th>Período</th><th>Setup</th><th>Resultado</th><th>R</th><th>Processo</th></tr></thead><tbody id="closedPositionRows"><tr><td colspan="6">Nenhuma posição encerrada registrada.</td></tr></tbody></table></div></section>
+<section class="page" id="positions"><div class="hero"><div><div class="eyebrow">Trading log</div><h1>Posições são histórias,<br>não apenas linhas.</h1></div><div><p>Cada posição reúne planejamento, entradas, saídas, ajustes de stop, imagens e revisão final.</p><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="secondary" type="button" onclick="go('closedpositions')" style="font-size:13px;padding:10px 16px;border-radius:10px;cursor:pointer">Posições encerradas →</button><button class="primary" onclick="go('newtrade')">Nova posição →</button></div></div></div><div class="section-title"><div><h2>Posições em andamento</h2><p id="positionsOpenSubtitle">Dados sincronizados</p></div></div><div class="positions-account-panels"><section class="positions-account-panel real"><header><div><span class="positions-account-kicker">Ambiente operacional</span><h2>Conta Real</h2><p>Operações que impactam seu capital e Portfolio Heat.</p></div><b id="realPositionCount">0 abertas</b></header><div class="positions-account-grid" id="realPositionCards"></div></section><section class="positions-account-panel paper"><header><div><span class="positions-account-kicker">Ambiente de prática</span><h2>Paper Trading</h2><p>Simulações acompanhadas separadamente da conta real.</p></div><b id="paperPositionCount">0 abertas</b></header><div class="positions-account-grid" id="paperPositionCards"></div></section></div></section>
+
+<section class="page" id="closedpositions"><div class="hero"><div><div class="eyebrow">Histórico de trades</div><h1>Posições Encerradas</h1></div><div><p>Consulte o histórico das operações finalizadas, analise seus resultados, R-múltiplos e revise cada caso no Diário.</p><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="secondary" type="button" onclick="go('positions')" style="font-size:13px;padding:10px 16px;border-radius:10px;cursor:pointer">← Posições abertas</button><button class="primary" onclick="go('newtrade')">Nova posição →</button></div></div></div><div class="section-title positions-closed-title"><div><h2>Operações finalizadas</h2><p id="closedPositionsSubtitle">Histórico de execuções</p></div><div class="period-selector" id="closedPositionPeriodControls"></div></div><div id="closedPositionsContainer"><div class="card" id="closedPositionsCard"><table class="positions-table"><thead><tr><th>Ativo</th><th>Período</th><th>Setup</th><th>Resultado</th><th>R</th><th>Processo</th></tr></thead><tbody id="closedPositionRows"><tr><td colspan="6">Nenhuma posição encerrada registrada.</td></tr></tbody></table></div><div class="card positions-closed-empty" id="closedPositionsEmptyState" style="display:none;text-align:center;padding:56px 24px;border:1px dashed var(--line);border-radius:20px;background:rgba(255,255,255,0.02);margin-top:14px"><div style="width:52px;height:52px;margin:0 auto 16px;border-radius:50%;display:grid;place-items:center;background:rgba(143,224,170,0.12);color:var(--mint,#8fe0aa)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="m9 14 2 2 4-4"/></svg></div><h3 style="margin:0 0 8px;font-size:20px;letter-spacing:-0.02em;color:var(--ink,#fff)">Nenhuma posição encerrada</h3><p style="max-width:440px;margin:0 auto;color:var(--muted,#9bb7a8);font-size:13px;line-height:1.55">Suas operações encerradas aparecerão aqui após o fechamento de uma posição.</p></div></div></section>
 
 <section class="page" id="positiondetail"><div id="positionDetail"></div></section>
 
-<section class="page" id="newtrade"><div class="hero"><div><div class="eyebrow">Trade planner</div><h1>Planeje antes que<br>a emoção participe.</h1></div><p>O sistema calcula o tamanho da posição, valida o contexto e mostra o impacto no risco da carteira antes da execução.</p></div><div class="grid trade-layout"><div class="card steps"><div class="step done"><span class="step-num">✓</span><div><b>Contexto</b><small>Mercado e tendência</small></div></div><div class="step active"><span class="step-num">2</span><div><b>Planejamento</b><small>Entrada, stop e risco</small></div></div><div class="step"><span class="step-num">3</span><div><b>Checklist A</b><small>Validação do método</small></div></div><div class="step"><span class="step-num">4</span><div><b>Revisão</b><small>Impacto na carteira</small></div></div></div><div class="card form-card"><h3>Planejamento da posição</h3><div class="form-grid"><div class="field"><label>Mercado</label><select><option>Ações</option><option>Futuros</option><option>BDR</option><option>FII</option><option>Cripto</option><option>Forex</option><option>Outros</option></select></div><div class="field"><label>Ativo</label><input value="WEGE3" /></div><div class="field"><label>Direção</label><select><option>Long / Compra</option><option>Short / Venda</option></select></div><div class="field"><label>Gatilho de entrada</label><select id="tradeSetup"><option value="">Selecione o gatilho...</option><option value="INSIDE_BAR">Inside Bar</option><option value="PFR_COMPRA">PFR de Compra</option><option value="123_COMPRA">1-2-3 de Compra</option><option value="DAVE_LANDRY">Dave Landry</option><option value="RBI">Barra Vermelha Ignorada (RBI)</option></select></div><div class="field"><label>Preço de entrada</label><input id="entry" type="number" value="48.30" step="0.01" /></div><div class="field"><label>Stop inicial</label><input id="stop" type="number" value="45.80" step="0.01" /></div><div class="field"><label>ATR (21)</label><input id="atr" type="number" value="1.72" step="0.01" /></div><div class="field"><label>Risco da conta</label><select id="riskPct"><option value="0.001">0,10%</option><option value="0.002">0,20%</option><option value="0.003">0,30%</option></select></div><div class="field full"><label>Comentários / Tese da Operação</label><textarea rows="4" placeholder="Descreva aqui a tese da sua operação. Ex.: Diário totalmente alinhado, ATR% em zona verde e contração limpa no gráfico de 4 horas. Entrada somente após confirmação do gatilho."></textarea></div></div><div class="section-title"><div><h2>Checklist Healthy Trend</h2><p>Critérios obrigatórios para classificação A</p></div></div><div class="checklist" id="checks"><label class="check"><input type="checkbox" checked/> Diário 100% saudável e médias alinhadas</label><label class="check"><input type="checkbox" checked/> Preço acima de todas as médias</label><label class="check"><input type="checkbox" checked/> Tendência sem entrelaçamento</label><label class="check"><input type="checkbox" checked/> ATR% abaixo de 2%</label><label class="check"><input type="checkbox" checked/> Contração saudável no 4H</label><label class="check"><input type="checkbox" checked/> Gatilho claro de entrada</label><label class="check"><input type="checkbox" checked/> Position size dentro das regras</label><label class="check"><input type="checkbox" checked/> Portfolio Heat permanece permitido</label></div></div><div class="summary-box"><div class="calc"><small>Position Size · 3 camadas</small><div class="big" id="qty">400 ações</div><div class="mini-layer-summary"><div class="mini-layer-row"><span>1. Risco pelo stop</span><strong id="qtyRisk">400</strong></div><div class="mini-layer-row"><span>2. Volatilidade / ATR</span><strong id="qtyVol">1.190</strong></div><div class="mini-layer-row selected"><span>3. Limite de capital</span><strong id="qtyCapital">2.100</strong></div></div><div class="calc-grid"><div><small>Risco financeiro</small><b id="riskMoney">R$ 1.000,00</b></div><div><small>Capital utilizado</small><b id="capital">R$ 19.320</b></div><div><small>Camada limitante</small><b id="limitingLayer">Risco pelo stop</b></div><div><small>ATR%</small><b id="atrpct">3,56%</b></div></div></div><div class="trade-quality-badge" id="qualityBadge"><b>A CONTEXT</b><small>Todos os critérios obrigatórios foram atendidos.</small></div><button class="primary" style="width:100%;margin-top:12px">Salvar planejamento →</button></div></div></section>
+<section class="page" id="newtrade"><div class="hero"><div><div class="eyebrow">Trade planner</div><h1>Planeje antes que<br>a emoção participe.</h1></div><p>O sistema calcula o tamanho da posição, valida o contexto e mostra o impacto no risco da carteira antes da execução.</p></div><div class="grid trade-layout"><div class="card steps"><div class="step done"><span class="step-num">✓</span><div><b>Contexto</b><small>Mercado e tendência</small></div></div><div class="step active"><span class="step-num">2</span><div><b>Planejamento</b><small>Entrada, stop e risco</small></div></div><div class="step"><span class="step-num">3</span><div><b>Checklist A</b><small>Validação do método</small></div></div><div class="step"><span class="step-num">4</span><div><b>Revisão</b><small>Impacto na carteira</small></div></div></div><div class="card form-card"><h3>Planejamento da posição</h3><div class="form-grid"><div class="field"><label>Mercado</label><select><option>Ações</option><option>Futuros</option><option>BDR</option><option>FII</option><option>Cripto</option><option>Forex</option><option>Outros</option></select></div><div class="field"><label>Ativo</label><input value="WEGE3" /></div><div class="field"><label>Direção</label><select><option>Long / Compra</option><option>Short / Venda</option></select></div><div class="field"><label>Gatilho de entrada</label><select id="tradeSetup"><option value="">Selecione o gatilho...</option><option value="INSIDE_BAR" selected>Inside Bar</option><option value="PFR_COMPRA">PFR de Compra</option><option value="123_COMPRA">1-2-3 de Compra</option><option value="DAVE_LANDRY">Dave Landry</option><option value="RBI">Barra Vermelha Ignorada (RBI)</option></select></div><div class="field"><label>Preço de entrada</label><input id="entry" type="number" value="48.30" step="0.01" /></div><div class="field"><label>Stop inicial</label><input id="stop" type="number" value="45.80" step="0.01" /></div><div class="field"><label>ATR (21)</label><input id="atr" type="number" value="1.72" step="0.01" /></div><div class="field"><label>Risco da conta</label><select id="riskPct"><option value="0.001">0,10%</option><option value="0.002">0,20%</option><option value="0.003">0,30%</option></select></div><div class="field full"><label>Comentários / Tese da Operação</label><textarea rows="4" placeholder="Descreva aqui a tese da sua operação. Ex.: Diário totalmente alinhado, ATR% em zona verde e contração limpa no gráfico de 4 horas. Entrada somente após confirmação do gatilho."></textarea></div></div><div class="section-title"><div><h2>Checklist Healthy Trend</h2><p>Critérios obrigatórios para classificação A</p></div></div><div class="checklist" id="checks"><label class="check"><input type="checkbox" checked/> Diário 100% saudável e médias alinhadas</label><label class="check"><input type="checkbox" checked/> Preço acima de todas as médias</label><label class="check"><input type="checkbox" checked/> Tendência sem entrelaçamento</label><label class="check"><input type="checkbox" checked/> ATR% abaixo de 2%</label><label class="check"><input type="checkbox" checked/> Contração saudável no 4H</label><label class="check"><input type="checkbox" checked/> Gatilho claro de entrada</label><label class="check"><input type="checkbox" checked/> Position size dentro das regras</label><label class="check"><input type="checkbox" checked/> Portfolio Heat permanece permitido</label></div></div><div class="summary-box"><div class="calc"><small>Position Size · 3 camadas</small><div class="big" id="qty">400 ações</div><div class="mini-layer-summary"><div class="mini-layer-row"><span>1. Risco pelo stop</span><strong id="qtyRisk">400</strong></div><div class="mini-layer-row"><span>2. Volatilidade / ATR</span><strong id="qtyVol">1.190</strong></div><div class="mini-layer-row selected"><span>3. Limite de capital</span><strong id="qtyCapital">2.100</strong></div></div><div class="calc-grid"><div><small>Risco financeiro</small><b id="riskMoney">R$ 1.000,00</b></div><div><small>Capital utilizado</small><b id="capital">R$ 19.320</b></div><div><small>Camada limitante</small><b id="limitingLayer">Risco pelo stop</b></div><div><small>ATR%</small><b id="atrpct">3,56%</b></div></div></div><div class="trade-quality-badge" id="qualityBadge"><b>A CONTEXT</b><small>Todos os critérios obrigatórios foram atendidos.</small></div><button class="primary" style="width:100%;margin-top:12px">Salvar planejamento →</button></div></div></section>
 
 <section class="page" id="risk">
 <div class="hero"><div><div class="eyebrow">Healthy risk manager</div><h1>Calculadora de<br>Position Sizing.</h1></div><p>Informe apenas os dados da operação. As regras permanentes da conta são carregadas automaticamente das Configurações.</p></div>
@@ -893,7 +895,7 @@ body[data-theme="gold"][data-navigation-layout="tiles"] .navigation-hub-tile.pla
 function applyTheme(theme){const selected=theme==='healthy'?'healthy':'gold';document.body.dataset.theme=selected;document.querySelectorAll('[data-theme-choice]').forEach(button=>{const active=button.dataset.themeChoice===selected;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});try{localStorage.setItem('healthy-trend-theme',selected)}catch(error){}if(document.querySelector('#manual.page.active')&&typeof renderManualBook==='function')renderManualBook()}
 try{applyTheme(localStorage.getItem('healthy-trend-theme')||'healthy')}catch(error){applyTheme('healthy')}
 function enterWorkspace(event){event.preventDefault();document.getElementById('loginShell').classList.add('hidden');document.body.style.overflow='';go('today');}
-const titles={today:'Meu Desktop',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',marketscans:'Scans de Mercado',fundamentals:'Análise Fundamentalista',positions:'Posições',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',tradeanatomy:'Anatomia dos Trades',journal:'Diário do Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Monitor de Hábitos',materials:'Loja Trader',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',assetblacklist:'Ativos Blacklist',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
+const titles={today:'Meu Desktop',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',marketscans:'Scans de Mercado',fundamentals:'Análise Fundamentalista',positions:'Posições Abertas',closedpositions:'Posições Encerradas',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',tradeanatomy:'Anatomia dos Trades',journal:'Diário do Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Monitor de Hábitos',materials:'Loja Trader',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',assetblacklist:'Ativos Blacklist',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
 titles.emotionalintelligence='Analisador Emocional';titles.forecast='Simulador de Resultados';
 titles.mistakesbook='Erros e lições';titles.masteredlessons='Lições Dominadas';
 titles.dailyroutine='Rotina Diária';
@@ -1094,14 +1096,14 @@ function setupTradePlanner(){
    const currentVal=setup.value;
    const opts=window.SetupTriggersCatalog.getTriggerOptions();
    setup.innerHTML='<option value="">Selecione o gatilho...</option>'+opts.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
-   if(currentVal&&window.SetupTriggersCatalog.isValidTrigger(currentVal)){setup.value=currentVal;}
+   setup.value=(currentVal&&window.SetupTriggersCatalog.isValidTrigger(currentVal))?currentVal:'INSIDE_BAR';
  }
   const riskField=document.getElementById('riskPct').closest('.field');
   const mode=document.createElement('div');mode.className='field';mode.innerHTML='<label>Ambiente</label><select id="tradeMode"><option value="real">Conta real</option><option value="paper">Paper Trading</option></select>';
   const executed=document.createElement('div');executed.className='field';executed.innerHTML='<label>Quantidade executada</label><input id="tradeExecutedQty" type="number" min="0" step="100" value="400"><small style="display:block;margin-top:5px;color:var(--muted);font-size:10px">Pode divergir da sugestão; o sistema apenas alerta.</small>';
   riskField.insertAdjacentElement('afterend',mode);mode.insertAdjacentElement('afterend',executed);
  const save=[...document.querySelectorAll('#newtrade button.primary')].find(b=>b.textContent.includes('Salvar planejamento'));
- save.onclick=saveTradePlan;save.textContent='Registrar trade →';
+ save.onclick=(e)=>saveTradePlan(e);save.textContent='Registrar trade →';
  const sync=()=>{const suggested=Number((document.getElementById('qty').textContent.match(/[\d.]+/)||['0'])[0].replace('.',''))||0;document.getElementById('tradeExecutedQty').value=suggested};
  ['entry','stop','atr','riskPct'].forEach(id=>document.getElementById(id).addEventListener('change',sync));sync();
   setupPlannerScreenshot();setupPlannerChecklist();injectTradeFormDividers();
@@ -1155,22 +1157,50 @@ function plannerPayload(){
   };
 }
 async function saveTradePlan(){
-  const plan=plannerPayload();
-  if(!plan.setupTrigger||!window.SetupTriggersCatalog?.isValidTrigger(plan.setupTrigger)){
-    showToast('Selecione um dos 5 Gatilhos de Entrada para planejar o trade.');
+  if(typeof getWorkbenchStageOneMissingFields==='function'){
+    const missing=getWorkbenchStageOneMissingFields();
+    if(missing.length>0){
+      showToast(`⚠️ Preencha o campo obrigatório na Etapa 1: ${missing[0].label}.`);
+      const el=document.getElementById(missing[0].id);
+      if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.focus();el.classList.add('field-highlight-error');setTimeout(()=>el.classList.remove('field-highlight-error'),2500);}
+      return;
+    }
+  }
+  if(typeof manualRubricIsComplete==='function'&&!manualRubricIsComplete()){
+    const pending=(typeof manualKeys==='function'?manualKeys():[]).filter(k=>!manualRubricRatings[k]).map(k=>{
+      const crit=tradingRubricPolicy?.criteria?.find(c=>c.key===k);
+      return crit?.label||k;
+    });
+    showToast(`⚠️ Avalie todos os critérios da Trading Rubric na Etapa 2 (${pending.join(', ')}).`);
+    document.getElementById('tradeRubricStage')?.scrollIntoView({behavior:'smooth',block:'start'});
     return;
   }
-  if(!plan.entry||!plan.stop||!plan.executedQty){showToast('Informe entrada, stop e quantidade válida antes de registrar.');return}
+  const lastRubric=window.lastCalculatedRubricResult||(typeof updateTradingRubric==='function'?updateTradingRubric():null);
+  if(lastRubric&&(lastRubric.grade==='D'||lastRubric.grade==='No Trade'||lastRubric.riskPct===0)){
+    showToast('⚠️ Operações classificadas como Grade D possuem risco zero e não podem ser abertas.');
+    document.getElementById('tradeRubricStage')?.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  const plan=plannerPayload();
+  if(!plan.setupTrigger||!window.SetupTriggersCatalog?.isValidTrigger(plan.setupTrigger)){
+    showToast('⚠️ Selecione um dos 5 Gatilhos de Entrada na Etapa 1 para planejar o trade.');
+    const setup=document.getElementById('tradeSetup');
+    if(setup){setup.scrollIntoView({behavior:'smooth',block:'center'});setup.focus();setup.classList.add('field-highlight-error');setTimeout(()=>setup.classList.remove('field-highlight-error'),2500);}
+    return;
+  }
+  if(!plan.entry||!plan.stop){showToast('⚠️ Preencha preços válidos de entrada e stop inicial.');return}
+  if(plan.entry===plan.stop){showToast('⚠️ O preço de entrada e o stop inicial não podem ser iguais.');return}
+  if(!plan.executedQty||plan.executedQty<=0){showToast('⚠️ A quantidade da operação precisa ser maior que zero.');return}
   if(!window.healthyTrendApi?.isAuthenticated()){showToast('Entre no workspace para registrar o trade no banco de dados.');return}
   const saveButton=[...document.querySelectorAll('#newtrade button.primary')].find(button=>button.textContent.includes('Registrar trade'));
-  if(saveButton){saveButton.disabled=true;saveButton.textContent='Registrando trade…'}
+  if(saveButton){saveButton.dataset.isSubmitting='true';saveButton.disabled=true;saveButton.textContent='Registrando trade…'}
   try{
     const rubric=updateTradingRubric(),{planningScreenshot,...tradeForDatabase}=plan;
     const result=await window.healthyTrendApi.request('/api/trades',{method:'POST',body:JSON.stringify({...tradeForDatabase,rubricResponses:currentRubricInput(),rubricContributions:rubric?.contributions||plan.rubricContributions||[]})});
     const openedAt=new Date().toISOString(),diverged=plan.executedQty!==plan.suggestedQty,entry=Number(result.trade.executionPrice||plan.entry),quantity=Number(result.trade.executedQuantity||plan.executedQty);
     const position={id:result.trade.id,databaseId:result.trade.id,mode:plan.mode,asset:plan.asset,market:plan.market,direction:plan.direction,setup:plan.setup,setupTrigger:plan.setupTrigger,entry,initialQty:quantity,currentPrice:entry,currentStop:plan.stop,atr:plan.atr,openedAt,thesis:plan.thesis,planningScreenshot:plan.planningScreenshot,rubricRatings:{...manualRubricRatings},rubricResponses:plan.rubricResponses,marketCycle:plan.marketCycle,rubricScore:plan.rubricScore,grade:plan.grade,riskPct:plan.riskPct,riskBudgetPct:plan.riskBudgetPct,executableRiskPct:plan.executableRiskPct,limitingLayer:plan.limitingLayer,limitingLayerName:plan.limitingLayerName,positionSizeFinal:plan.positionSizeFinal,initialRisk:Math.abs(entry-plan.stop)*quantity,portfolioHeatAtEntry:operationalState.positions.filter(item=>item.mode==='real').reduce((total,item)=>total+operationMetrics(item).riskPct,0),rubricContributions:plan.rubricContributions,events:[{type:'entry',at:openedAt,qty:quantity,price:entry,note:diverged?`Quantidade registrada diferente da sugestão: ${plan.suggestedQty} unidades.`:'Trade registrado conforme quantidade sugerida.'}]};
     operationalState.positions.unshift(position);saveOperationalState();renderOperationalApp();showToast(`Trade de ${plan.asset} registrado e aberto.`);openPosition(position.id);
-  }catch(error){showToast(error.message||'Não foi possível registrar o trade no banco de dados.')}finally{if(saveButton){saveButton.disabled=false;saveButton.textContent='Registrar trade →'}}
+  }catch(error){showToast(error.message||'Não foi possível registrar o trade no banco de dados.')}finally{if(saveButton){delete saveButton.dataset.isSubmitting;saveButton.disabled=false;saveButton.textContent='Registrar trade →';if(typeof refreshWorkbenchRiskGate==='function')refreshWorkbenchRiskGate();}}
 }
 function confirmTradeExecution(){
   const plan=plannerPayload();
@@ -1207,12 +1237,9 @@ const baseOperationalRender=renderOperationalApp;
 let positionPeriod=(()=>{try{return localStorage.getItem('healthy-trend-position-period')||'month'}catch(e){return'month'}})();
 function periodLabel(date,period){const d=new Date(date),year=d.getFullYear(),month=d.toLocaleDateString('pt-BR',{month:'long'});if(period==='month')return `${month.charAt(0).toUpperCase()+month.slice(1)} de ${year}`;if(period==='quarter')return `${Math.floor(d.getMonth()/3)+1}º trimestre de ${year}`;return `${d.getMonth()<6?'1º':'2º'} semestre de ${year}`}
 function setPositionPeriod(period){positionPeriod=period;try{localStorage.setItem('healthy-trend-position-period',period)}catch(e){}renderOperationalApp();}
-function renderPositionPeriodView(){const controls=document.getElementById('positionPeriodControls');if(controls){controls.innerHTML=`<span>Organizar por</span>${[['month','Mês'],['quarter','Trimestre'],['semester','Semestre']].map(([key,label])=>`<button class="${positionPeriod===key?'active':''}" onclick="setPositionPeriod('${key}')">${label}</button>`).join('')}`};const realBox=document.getElementById('realPositionCards'),paperBox=document.getElementById('paperPositionCards');if(!realBox||!paperBox)return;const open=operationalState.positions.filter(p=>!operationMetrics(p).closed),real=open.filter(p=>p.mode!=='paper'),paper=open.filter(p=>p.mode==='paper');const card=p=>{const m=operationMetrics(p);const triggerLabel=(window.SetupTriggersCatalog?window.SetupTriggersCatalog.getTriggerLabel(p.setupTrigger||p.setup):null)||p.setup||'Não informado';return `<article class="card position-card" data-position-id="${safe(p.id)}" onclick="openPosition('${p.id}')"><div class="position-top"><div class="row"><span class="mode-badge ${p.mode==='paper'?'paper':''}">${modeLabel(p)}</span><small>${safe(p.market)} · ${p.direction==='short'?'Short':'Long'}</small></div><h3>${safe(p.asset)}</h3><p>Gatilho: ${safe(triggerLabel)} · aberta em ${fmtDate(p.openedAt)}</p></div><div class="position-body"><div class="data-pairs"><div class="pair"><small>Resultado total</small><b class="money ${m.total>=0?'good':'bad'}">${moneyBR(m.total)}</b></div><div class="pair"><small>Risco atual</small><b>${numBR(m.riskPct,2)}%</b></div><div class="pair"><small>Quantidade</small><b>${numBR(m.remaining)} / ${numBR(p.initialQty)}</b></div><div class="pair"><small>Parciais</small><b>${m.partials}</b></div></div><div class="progress"><span style="width:${Math.min(100,Math.max(8,(p.currentPrice/p.entry-1)*180+45))}%"></span></div></div></article>`};realBox.innerHTML=real.map(card).join('')||'<div class="positions-account-empty">Nenhuma posição aberta na conta real.</div>';paperBox.innerHTML=paper.map(card).join('')||'<div class="positions-account-empty">Nenhuma simulação aberta.</div>';const subtitle=document.getElementById('positionsOpenSubtitle');if(subtitle)subtitle.textContent=`${open.length} posição(ões) abertas · ${real.length} reais · ${paper.length} em simulação`;document.getElementById('realPositionCount').textContent=`${real.length} aberta${real.length===1?'':'s'}`;document.getElementById('paperPositionCount').textContent=`${paper.length} aberta${paper.length===1?'':'s'}`;}
-renderOperationalApp=function(){baseOperationalRender();renderPositionPeriodView()};
-const renderPositionPeriodViewWithClosedRows=renderPositionPeriodView;
-renderPositionPeriodView=function(){renderPositionPeriodViewWithClosedRows();const rows=document.getElementById('closedPositionRows');if(!rows)return;const closed=[...(operationalState.closedPositions||[])].sort((a,b)=>new Date(b.closedAt||b.openedAt)-new Date(a.closedAt||a.openedAt)),groups=new Map();closed.forEach(position=>{const key=periodLabel(position.closedAt||position.openedAt,positionPeriod);groups.set(key,[...(groups.get(key)||[]),position])});rows.innerHTML=[...groups.entries()].map(([label,items])=>`<tr class="closed-period-group"><td colspan="6"><b>${label}</b><small>${items.length} operação(ões) encerrada(s) no período</small></td></tr>${items.map(position=>{const metrics=operationMetrics(position),initialRisk=Math.max(1,Math.abs(position.entry-position.initialStop)*position.initialQty),multiple=metrics.realized/initialRisk,finishedAt=position.closedAt||position.openedAt;const trigLabel=(window.SetupTriggersCatalog?window.SetupTriggersCatalog.getTriggerLabel(position.setupTrigger||position.setup):null)||position.setup||'Não informado';return`<tr data-position-id="${safe(position.id)}"><td><div class="asset"><span class="asset-dot">${safe(position.asset).slice(0,4)}</span>${safe(position.asset)}</div></td><td>${fmtDate(finishedAt)}</td><td>${safe(trigLabel)}</td><td class="money ${metrics.realized>=0?'good':'bad'}">${moneyBR(metrics.realized)}</td><td class="money ${multiple>=0?'good':'bad'}">${multiple>=0?'+':''}${numBR(multiple,1)}R</td><td><span class="badge ${position.grade==='A'?'good':'warn'}">${safe(position.grade||'—')}</span><button type="button" class="secondary position-journal-link" onclick="window.openJournalForTradeReview?.('${safe(position.id)}')">Revisar no Diário →</button></td></tr>`}).join('')}`).join('')||'<tr><td colspan="6">Nenhuma posição encerrada registrada.</td></tr>';};
-const renderPositionPeriodViewWithVisualState=renderPositionPeriodView;
-renderPositionPeriodView=function(){renderPositionPeriodViewWithVisualState();const controls=document.getElementById('positionPeriodControls');if(!controls)return;controls.querySelectorAll('button').forEach(button=>{const period={'Mês':'month','Trimestre':'quarter','Semestre':'semester'}[button.textContent.trim()];if(!period)return;const active=period===positionPeriod;button.dataset.period=period;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))})};
+function renderPositionPeriodView(){const realBox=document.getElementById('realPositionCards'),paperBox=document.getElementById('paperPositionCards');if(!realBox||!paperBox)return;const open=operationalState.positions.filter(p=>!operationMetrics(p).closed),real=open.filter(p=>p.mode!=='paper'),paper=open.filter(p=>p.mode==='paper');const card=p=>{const m=operationMetrics(p);const triggerLabel=(window.SetupTriggersCatalog?window.SetupTriggersCatalog.getTriggerLabel(p.setupTrigger||p.setup):null)||p.setup||'Não informado';return `<article class="card position-card" data-position-id="${safe(p.id)}" onclick="openPosition('${p.id}')"><div class="position-top"><div class="row"><span class="mode-badge ${p.mode==='paper'?'paper':''}"><span class="badge-label">${modeLabel(p)}</span></span><small>${safe(p.market)} · ${p.direction==='short'?'Short':'Long'}</small></div><h3>${safe(p.asset)}</h3><p>Gatilho: ${safe(triggerLabel)} · aberta em ${fmtDate(p.openedAt)}</p></div><div class="position-body"><div class="data-pairs"><div class="pair"><small>Resultado total</small><b class="money ${m.total>=0?'good':'bad'}">${moneyBR(m.total)}</b></div><div class="pair"><small>Risco atual</small><b>${numBR(m.riskPct,2)}%</b></div><div class="pair"><small>Quantidade</small><b>${numBR(m.remaining)} / ${numBR(p.initialQty)}</b></div><div class="pair"><small>Parciais</small><b>${m.partials}</b></div></div><div class="progress"><span style="width:${Math.min(100,Math.max(8,(p.currentPrice/p.entry-1)*180+45))}%"></span></div></div></article>`};realBox.innerHTML=real.map(card).join('')||'<div class="positions-account-empty">Nenhuma posição aberta na conta real.</div>';paperBox.innerHTML=paper.map(card).join('')||'<div class="positions-account-empty">Nenhuma simulação aberta.</div>';const subtitle=document.getElementById('positionsOpenSubtitle');if(subtitle)subtitle.textContent=`${open.length} posição(ões) abertas · ${real.length} reais · ${paper.length} em simulação`;const realCount=document.getElementById('realPositionCount');if(realCount)realCount.textContent=`${real.length} aberta${real.length===1?'':'s'}`;const paperCount=document.getElementById('paperPositionCount');if(paperCount)paperCount.textContent=`${paper.length} aberta${paper.length===1?'':'s'}`;}
+function renderClosedPositionsView(){const controls=document.getElementById('closedPositionPeriodControls');if(controls){controls.innerHTML=`<span>Organizar por</span>${[['month','Mês'],['quarter','Trimestre'],['semester','Semestre']].map(([key,label])=>`<button class="${positionPeriod===key?'active':''}" data-period="${key}" aria-pressed="${positionPeriod===key}" onclick="setPositionPeriod('${key}')">${label}</button>`).join('')}`};const closed=[...(operationalState.closedPositions||[])].sort((a,b)=>new Date(b.closedAt||b.openedAt)-new Date(a.closedAt||a.openedAt));const subtitle=document.getElementById('closedPositionsSubtitle');if(subtitle)subtitle.textContent=`${closed.length} operação(ões) encerrada(s)`;const card=document.getElementById('closedPositionsCard');const emptyState=document.getElementById('closedPositionsEmptyState');const rows=document.getElementById('closedPositionRows');if(!rows)return;if(closed.length===0){if(card)card.style.display='none';if(emptyState)emptyState.style.display='block';rows.innerHTML='<tr><td colspan="6">Nenhuma posição encerrada registrada.</td></tr>';return;}if(card)card.style.display='block';if(emptyState)emptyState.style.display='none';const groups=new Map();closed.forEach(position=>{const key=periodLabel(position.closedAt||position.openedAt,positionPeriod);groups.set(key,[...(groups.get(key)||[]),position]);});rows.innerHTML=[...groups.entries()].map(([label,items])=>`<tr class="closed-period-group"><td colspan="6"><b>${label}</b><small>${items.length} operação(ões) encerrada(s) no período</small></td></tr>${items.map(position=>{const metrics=operationMetrics(position),initialRisk=Math.max(1,Math.abs(position.entry-position.initialStop)*position.initialQty),multiple=metrics.realized/initialRisk,finishedAt=position.closedAt||position.openedAt;const trigLabel=(window.SetupTriggersCatalog?window.SetupTriggersCatalog.getTriggerLabel(position.setupTrigger||position.setup):null)||position.setup||'Não informado';return`<tr data-position-id="${safe(position.id)}"><td><div class="asset"><span class="asset-dot">${safe(position.asset).slice(0,4)}</span>${safe(position.asset)}</div></td><td>${fmtDate(finishedAt)}</td><td>${safe(trigLabel)}</td><td class="money ${metrics.realized>=0?'good':'bad'}">${moneyBR(metrics.realized)}</td><td class="money ${multiple>=0?'good':'bad'}">${multiple>=0?'+':''}${numBR(multiple,1)}R</td><td><span class="badge ${position.grade==='A'?'good':'warn'}">${safe(position.grade||'—')}</span><button type="button" class="secondary position-journal-link" onclick="window.openJournalForTradeReview?.('${safe(position.id)}')">Revisar no Diário →</button></td></tr>`;}).join('')}`).join('');}
+renderOperationalApp=function(){baseOperationalRender();renderPositionPeriodView();renderClosedPositionsView();};
 setPositionPeriod=function(period){if(!['month','quarter','semester'].includes(period))return;positionPeriod=period;try{localStorage.setItem('healthy-trend-position-period',period)}catch(e){}renderOperationalApp();};
 setupTradePlanner();renderOperationalApp();
 
@@ -1384,7 +1411,7 @@ Object.assign(ptToEn,{
   'Resultado da Estratégia':'Strategy result','Resultado operacional separado de aportes e retiradas':'Trading result separated from deposits and withdrawals','Saudável':'Healthy','real':'real','reais':'real','em teste':'in test','un. restantes':'units remaining','parcial(is) registrada(s)':'partial(s) recorded','risco atual de':'current risk of','da equity':'of equity','Positions são histórias, não apenas linhas.':'Positions are stories, not just rows.','Cada posição reúne planejamento, entradas, saídas, ajustes de stop, imagens e revisão final.':'Each position brings together planning, entries, exits, stop adjustments, images and final review.','Nova posição →':'New position →','Positions em andamento':'Positions in progress','posição(ões) no período':'position(s) in the period','Encerradas recentemente':'Recently closed','Últimas operações revisadas':'Latest reviewed trades','PERÍODO':'PERIOD','Planeje antes que a emoção participe.':'Plan before emotion takes part.','O sistema calcula o tamanho da posição, valida o contexto e mostra o impacto no risco da carteira antes da execução.':'The system calculates position size, validates context and shows portfolio-risk impact before execution.','Mercado e tendência':'Market and trend','Planejamento':'Planning','Entry, stop e risco':'Entry, stop and risk','Validação do método':'Method validation','Revisão':'Review','Impacto na carteira':'Portfolio impact','Planejamento da posição':'Position planning','Defina os parâmetros antes de calcular a quantidade sugerida.':'Define the inputs before calculating the suggested quantity.','DIREÇÃO':'DIRECTION','Long / Compra':'Long / Buy','Short / Venda':'Short / Sell','PREÇO DE ENTRADA':'ENTRY PRICE','STOP INICIAL':'INITIAL STOP','RISK DA CONTA':'ACCOUNT RISK','AMBIENTE':'ENVIRONMENT','QUANTITY EXECUTADA':'EXECUTED QUANTITY','Pode divergir da sugestão; o sistema apenas alerta.':'May differ from the suggestion; the system only alerts.','TESE DA OPERAÇÃO':'TRADE THESIS','Checklist Healthy Trend':'Healthy Trend checklist','Required criteria para classificação A':'Required criteria for A classification','Diário 100% saudável e médias alinhadas':'Daily chart fully healthy and moving averages aligned','Preço acima de todas as médias':'Price above all moving averages','Tendência sem entrelaçamento':'Trend without overlap','Contração saudável no 4H':'Healthy 4H contraction','Gatilho claro de entrada':'Clear entry trigger','Position size dentro das regras':'Position size within rules','Portfolio Heat permanece permitido':'Portfolio Heat remains permitted','Todos os critérios obrigatórios foram atendidos.':'All required criteria have been met.','Salvar plano →':'Save plan →','Confirmar execução →':'Confirm execution →','Calculadora de Position Sizing.':'Position Sizing calculator.','Informe apenas os dados da operação. As regras permanentes da conta são carregadas automaticamente das Settings.':'Enter only the trade data. Permanent account rules are loaded automatically from Settings.','CÁLCULO RÁPIDO':'QUICK CALCULATION','Dados da operação':'Trade data','Entry, stop e ATR mudam a cada trade. Equity, percentuais de risco, limite de capital, lote e Portfolio Heat permanecem centralizados nas Settings.':'Entry, stop and ATR change with each trade. Equity, risk percentages, capital limit, lot size and Portfolio Heat remain centralized in Settings.','PARÂMETROS SINCRONIZADOS':'SYNCHRONIZED PARAMETERS','Compra / Long':'Buy / Long','Venda / Short':'Sell / Short','STOP / SAÍDA DE RISCO':'STOP / RISK EXIT','Configuração automática: o motor utiliza as regras salvas para a conta principal. Para alterá-las, use a página Settings.':'Automatic configuration: the engine uses saved rules for the primary account. To change them, use Settings.','QUANTITY FINAL SUGERIDA':'SUGGESTED FINAL QUANTITY','arredondadas conservadoramente':'conservatively rounded','A camada limitante é':'The limiting layer is','Como gerou':'Because it produced','o menor valor entre as três camadas, ela define a quantidade permitida.':'the lowest value among the three layers, it sets the allowed quantity.','CAPITAL UTILIZADO':'CAPITAL USED','NOVO PORTFOLIO HEAT':'NEW PORTFOLIO HEAT','As três proteções são calculadas simultaneamente. O sistema não faz média e não escolhe a opção mais confortável: utiliza sempre a menor quantidade.':'The three protections are calculated simultaneously. The system does not average them or choose the most comfortable option: it always uses the smallest quantity.','Limita a perda financeira caso o stop seja atingido.':'Limits financial loss if the stop is hit.','Reduz a posição quando o ativo está mais volátil.':'Reduces position size when the asset is more volatile.','Evita concentração excessiva em uma única posição.':'Avoids excessive concentration in one position.','Calculado com as regras da conta':'Calculated with account rules','DECISÃO DO MOTOR DE RISCO':'RISK ENGINE DECISION','ações sugeridas':'suggested shares','Descubra onde seu processo realmente funciona.':'Discover where your process really works.','Results financeiros ganham contexto quando são comparados com direção, mercado, setup e qualidade da decisão.':'Financial results gain context when compared with direction, market, setup and decision quality.','Result por mercado':'Result by market','Histórico consolidado':'Consolidated history','Result por ano':'Result by year','Lucro e perda estimados':'Estimated profit and loss','MELHOR MERCADO':'BEST MARKET','MELHOR ATIVO':'BEST ASSET','Registre o dia. Preserve a verdade.':'Record the day. Preserve the truth.','Um diário independente das posições para documentar o ciclo do mercado, decisões, emoções, aprendizados e prints de qualquer sessão.':'A journal independent from positions to document market cycle, decisions, emotions, lessons and screenshots from any session.','Novo registro':'New entry','PERMISSÃO DO MERCADO':'MARKET PERMISSION','Antes de procurar setups, decida se o mercado merece seu capital.':'Before looking for setups, decide whether the market deserves your capital.','O estado do ciclo orienta o comportamento do dia.':'The cycle state guides the day’s behavior.','Mercado doente protege capital; transição prepara cenários; mercado saudável permite procurar somente contextos A.':'An unhealthy market protects capital; transition prepares scenarios; a healthy market allows only A contexts.','REGISTRO DE HOJE':'TODAY’S ENTRY','Diário ainda não concluído':'Journal not completed yet','Não operar compras. Proteger capital e esperar.':'Do not buy. Protect capital and wait.','Não antecipar. Estudar e preparar cenários.':'Do not anticipate. Study and prepare scenarios.','Procurar somente A com tamanho correto.':'Look only for A with correct size.','Consistência do diário':'Journal consistency','Registros no mês':'Entries this month','Dias disciplinados':'Disciplined days','Estado predominante':'Main state','Calmo':'Calm','Prints anexados':'Attached screenshots','Escrever sobre hoje →':'Write about today →','Abrir registro':'Open entry','O mercado não sabe que você existe.':'The market does not know you exist.','Seu diário sabe. A revisão transforma execução em aprendizado e impede que o ego reescreva a história.':'Your journal does. The review turns execution into learning and stops ego from rewriting history.','REFLEXÃO DA SEMANA':'WEEKLY REFLECTION','Resumo comportamental':'Behavioral summary','Padrões observados':'Observed patterns','Paciência para entrada':'Patience for entry','Respeito ao stop':'Stop respect','Aumento por impulso':'Impulse increase','Nenhum':'None','Entry fora do A':'Entry outside A','Notas da semana':'Weekly notes','Decisões, erros e aprendizados':'Decisions, mistakes and lessons','Adicionar nota':'Add note','Seu método, traduzido em regras.':'Your method, translated into rules.','Esses parâmetros alimentam o position sizing, o checklist A e os alertas de risco.':'These settings power position sizing, the A checklist and risk alerts.','ATR% abaixo de 2%':'ATR% below 2%','Contração no 4H':'4H contraction','O Healthy Trend Trader organiza a rotina para que a decisão venha depois do contexto. Você não precisa decorar telas: basta seguir o caminho do método.':'Healthy Trend Trader organizes your routine so the decision comes after context. You do not need to memorize screens: simply follow the method’s path.','O princípio':'The principle','O software não começa pela compra. Ele começa pela permissão, passa pelo plano e só então registra a execução.':'The software does not begin with a purchase. It begins with permission, goes through the plan and only then records execution.','Como navegar':'How to navigate','Use as telas na ordem:':'Use screens in this order:','Planejar':'Plan','Posição':'Position','Diário':'Journal','Revisão':'Review','O que evitar':'What to avoid','Não use o painel como um convite à atividade. Ele existe para reduzir decisões impulsivas.':'Do not use the dashboard as an invitation to activity. It exists to reduce impulsive decisions.','Exemplo de rotina':'Routine example','Transição':'Transition','Ação':'Action','Esperar':'Wait','Foco':'Focus','A melhor decisão hoje pode ser não abrir nenhuma posição.':'The best decision today may be to open no position.'
 });
 Object.assign(ptToEn,{
-  'Seu método,':'Your method,','traduzido em regras.':'translated into rules.','Processo':'Process','Posições são histórias,':'Positions are stories,','não apenas linhas.':'not just rows.','Posições em andamento':'Positions in progress','4 posições · Heat total 6,4%':'4 positions · Total Heat 6.4%','3º trimestre de 2026':'3rd quarter of 2026','2 operação(ões) no período':'2 position(s) in the period','Encerradas recentemente':'Recently closed','Últimas operações revisadas':'Latest reviewed trades','R$':'BRL ','un.':'units','parcial(is)':'partial(s)','reais':'real','em teste':'in test','quantidade permitida.':'allowed quantity.','A camada limitante é':'The limiting layer is','Como gerou':'Because it produced','As três proteções são calculadas simultaneamente.':'The three protections are calculated simultaneously.','O sistema não faz média e não escolhe a opção mais confortável: utiliza sempre a menor quantidade.':'The system does not average them or choose the most comfortable option: it always uses the smallest quantity.','Limita a perda financeira caso o stop seja atingido.':'Limits financial loss if the stop is hit.','Reduz a posição quando o ativo está mais volátil.':'Reduces position size when the asset is more volatile.','Evita concentração excessiva em uma única posição.':'Avoids excessive concentration in one position.','Calculado com as regras da conta':'Calculated with account rules','O Healthy Trend Trader organiza a rotina para que a decisão venha depois do contexto.':'Healthy Trend Trader organizes your routine so decisions come after context.','Você não precisa decorar telas: basta seguir o caminho do método.':'You do not need to memorize screens: simply follow the method’s path.','O princípio':'The principle','Como navegar':'How to navigate','O que evitar':'What to avoid','Use as telas na ordem:':'Use screens in this order:','A melhor decisão hoje pode be to open no position.':'The best decision today may be to open no position.'
+  'Seu método,':'Your method,','traduzido em regras.':'translated into rules.','Processo':'Process','Posições são histórias,':'Positions are stories,','Posições Abertas':'Open Positions','Posições Encerradas':'Closed Positions','Operações finalizadas':'Finished operations','Nenhuma posição encerrada':'No closed positions','Suas operações encerradas aparecerão aqui após o fechamento de uma posição.':'Your closed operations will appear here after closing a position.','não apenas linhas.':'not just rows.','Posições em andamento':'Positions in progress','4 posições · Heat total 6,4%':'4 positions · Total Heat 6.4%','3º trimestre de 2026':'3rd quarter of 2026','2 operação(ões) no período':'2 position(s) in the period','Encerradas recentemente':'Recently closed','Últimas operações revisadas':'Latest reviewed trades','R$':'BRL ','un.':'units','parcial(is)':'partial(s)','reais':'real','em teste':'in test','quantidade permitida.':'allowed quantity.','A camada limitante é':'The limiting layer is','Como gerou':'Because it produced','As três proteções são calculadas simultaneamente.':'The three protections are calculated simultaneously.','O sistema não faz média e não escolhe a opção mais confortável: utiliza sempre a menor quantidade.':'The system does not average them or choose the most comfortable option: it always uses the smallest quantity.','Limita a perda financeira caso o stop seja atingido.':'Limits financial loss if the stop is hit.','Reduz a posição quando o ativo está mais volátil.':'Reduces position size when the asset is more volatile.','Evita concentração excessiva em uma única posição.':'Avoids excessive concentration in one position.','Calculado com as regras da conta':'Calculated with account rules','O Healthy Trend Trader organiza a rotina para que a decisão venha depois do contexto.':'Healthy Trend Trader organizes your routine so decisions come after context.','Você não precisa decorar telas: basta seguir o caminho do método.':'You do not need to memorize screens: simply follow the method’s path.','O princípio':'The principle','Como navegar':'How to navigate','O que evitar':'What to avoid','Use as telas na ordem:':'Use screens in this order:','A melhor decisão hoje pode be to open no position.':'The best decision today may be to open no position.'
 });
 Object.assign(ptToEn,{
   'Comece o dia pelo que importa.':'Start the day with what matters.','A tela Hoje mostra somente três coisas: como está sua conta, o que precisa de atenção e o que avaliar antes de abrir algo novo.':'The Today screen shows only three things: your account status, what needs attention and what to assess before opening anything new.','Primeiro, olhe o risco. Depois, a oportunidade.':'First, look at risk. Then, opportunity.','Paper Trading fica separado da conta real para que a leitura da carteira continue clara.':'Paper Trading is kept separate from the real account so portfolio visibility stays clear.','Uma ideia se torna um plano.':'An idea becomes a plan.','Antes de enviar uma ordem, registre ativo, contexto, entrada, stop e tese. O sistema sugere uma quantidade; sua execução pode ser diferente, mas fica registrada.':'Before submitting an order, record asset, context, entry, stop and thesis. The system suggests a quantity; your execution may differ, but it is recorded.','Planejamento reduz a distância entre intenção e execução.':'Planning reduces the distance between intention and execution.','O checklist A ajuda a tornar os critérios repetíveis.':'The A checklist makes criteria repeatable.','Toda posição tem uma história.':'Every position has a story.','A posição reúne a entrada, ajustes de stop, preço atual, saídas parciais e encerramento. Nada importante fica perdido em outra planilha.':'A position brings together entry, stop adjustments, current price, partial exits and close. Nothing important is lost in another spreadsheet.','Parcial não é um novo trade. É um capítulo da mesma operação.':'A partial is not a new trade. It is a chapter of the same position.','O risco em andamento sugere quando vale revisar sua exposição.':'Ongoing risk suggests when it is worth reviewing exposure.','O menor limite protege você.':'The smallest limit protects you.','O tamanho da posição é calculado em três camadas: risco até o stop, volatilidade por ATR e limite de capital. A menor quantidade é a escolhida.':'Position size is calculated in three layers: risk to stop, ATR volatility and capital limit. The smallest quantity is chosen.','A menor quantidade sempre vence.':'The smallest quantity always wins.','A regra protege a conta mesmo quando a oportunidade parece excelente.':'The rule protects the account even when the opportunity looks excellent.','Registre o que o gráfico não mostra.':'Record what the chart does not show.','O Diário guarda o contexto, os sentimentos e os aprendizados. A revisão mensal transforma esses registros em mudanças concretas no processo.':'The Journal keeps context, feelings and lessons. The weekly review turns those records into concrete process changes.','Esperar também é uma decisão de qualidade.':'Waiting is also a quality decision.','O objetivo não é produzir mais trades; é reconhecer padrões melhores.':'The goal is not to produce more trades; it is to recognize better patterns.','Como está sua conta':'How is your account','O que exige atenção':'What needs attention','Antes de operar':'Before trading','Leia Portfolio Heat, capacidade disponível e a separação entre conta real e Paper Trading.':'Read Portfolio Heat, available capacity and the separation between real account and Paper Trading.','Abra as posições listadas para atualizar preço, stop ou registrar uma parcial.':'Open listed positions to update price, stop or record a partial.','Os alertas orientam a decisão; não bloqueiam manualmente uma operação planejada.':'Alerts guide the decision; they do not manually block a planned trade.','Exemplo · tela Hoje':'Example · Today screen','Heat real':'Real heat','Capacidade':'Capacity','Pendência':'Pending item','Abra WEGE3 para atualizar preço e stop antes de planejar outro trade.':'Open WEGE3 to update price and stop before planning another trade.','Antes de procurar setups, decida se o mercado merece seu capital.':'Before looking for setups, decide whether the market deserves your capital.','REGISTRO DE HOJE':'TODAY’S ENTRY','06 AGO 2026':'AUG 06 2026','Quinta-feira · Diário ainda não concluído':'Thursday · Journal not completed yet','Agosto de 2026':'August 2026','05 de agosto de 2026':'August 05, 2026','04 de agosto de 2026':'August 04, 2026','03 de agosto de 2026':'August 03, 2026','Observações importantes · Diário + 4H':'Key observations · Daily + 4H','4 prints · 1 aprendizado':'4 screenshots · 1 lesson','Execução 8,7/10':'Execution 8.7/10'
@@ -1887,9 +1914,9 @@ updateTradingRubric();
 function syncCompletedManualRubric(){if(Object.keys(manualRubricRatings).length<tradingRubricPolicy.criteria.length)return;const input={marketCycleRegime:manualRubricRatings.marketCycle==='good'?'saudável':manualRubricRatings.marketCycle==='bad'?'desfavorável':'neutro'};tradingRubricPolicy.criteria.forEach(criterion=>input[criterion.key]=MANUAL_RUBRIC_RATINGS[manualRubricRatings[criterion.key]].score);const state=TradingRubrics.calculateRubric(input,tradingRubricPolicy);renderTradingRubricExperience(state)}
 const updateTradingRubricWithManualSync=updateTradingRubric;
 updateTradingRubric=function(){const result=updateTradingRubricWithManualSync();syncCompletedManualRubric();return result};
-function stageOneIsComplete(){const controls=[...document.querySelectorAll('#workbenchData input,#workbenchData select,#workbenchData textarea')].filter(control=>!control.disabled&&control.type!=='checkbox'&&control.type!=='file'&&control.id!=='riskPct');return controls.length>0&&controls.every(control=>control.type==='number'?Number(control.value)>0:String(control.value||'').trim().length>0)&&Number(document.getElementById('entry')?.value)!==Number(document.getElementById('stop')?.value)}
+function stageOneIsComplete(){const controls=[...document.querySelectorAll('#workbenchData input,#workbenchData select,#workbenchData textarea')].filter(control=>!control.disabled&&control.type!=='checkbox'&&control.type!=='file'&&control.id!=='riskPct'&&control.id!=='tradeThesis'&&control.tagName.toLowerCase()!=='textarea');return controls.length>0&&controls.every(control=>control.type==='number'?Number(control.value)>0:String(control.value||'').trim().length>0)&&Number(document.getElementById('entry')?.value)!==Number(document.getElementById('stop')?.value)}
 function manualRubricIsComplete(){return tradingRubricPolicy.criteria.filter(criterion=>criterion.key!=='marketCycle').every(criterion=>Object.prototype.hasOwnProperty.call(manualRubricRatings,criterion.key))}
-function syncRiskStageLock(){const sizer=document.querySelector('.workbench-sizer');if(!sizer)return;const rubricComplete=manualRubricIsComplete(),dataComplete=stageOneIsComplete(),locked=!(rubricComplete&&dataComplete);sizer.classList.toggle('is-locked',locked);sizer.setAttribute('aria-disabled',String(locked));let hint=sizer.querySelector('.workbench-lock-hint');if(!hint){hint=document.createElement('p');hint.className='workbench-lock-hint';sizer.querySelector('.three-layers')?.before(hint)}hint.textContent=!dataComplete&&!rubricComplete?'Preencha os dados da Etapa 1 e avalie todos os critérios da Etapa 2 para liberar o nivelador de risco.':!dataComplete?'Preencha os dados essenciais da Etapa 1 para liberar o nivelador de risco.':'Avalie todos os critérios da Trading Rubric para liberar o nivelador de risco.';sizer.querySelectorAll('.summary-box button').forEach(button=>{button.disabled=locked;button.setAttribute('aria-disabled',String(locked));button.title=locked?hint.textContent:''})}
+function syncRiskStageLock(){const sizer=document.querySelector('.workbench-sizer');if(!sizer)return;const rubricComplete=manualRubricIsComplete(),dataComplete=stageOneIsComplete(),locked=!(rubricComplete&&dataComplete);sizer.classList.toggle('is-locked',locked);sizer.setAttribute('aria-disabled',String(locked));let hint=sizer.querySelector('.workbench-lock-hint');if(!hint){hint=document.createElement('p');hint.className='workbench-lock-hint';sizer.querySelector('.three-layers')?.before(hint)}hint.textContent=!dataComplete&&!rubricComplete?'Preencha os dados da Etapa 1 e avalie todos os critérios da Etapa 2 para liberar o nivelador de risco.':!dataComplete?'Preencha os dados essenciais da Etapa 1 para liberar o nivelador de risco.':'Avalie todos os critérios da Trading Rubric para liberar o nivelador de risco.';sizer.querySelectorAll('.summary-box button').forEach(button=>{if(!button.dataset.isSubmitting){button.disabled=false;}button.classList.toggle('is-pending-gate',locked);button.setAttribute('aria-disabled',String(locked));button.title=locked?hint.textContent:'';button.onclick=(e)=>saveTradePlan(e)})}
 const syncRiskStageLockWithQuantityControl=syncRiskStageLock;
 syncRiskStageLock=function(){syncRiskStageLockWithQuantityControl();const sizer=document.querySelector('.workbench-sizer'),quantity=document.getElementById('tradeExecutedQty');if(!sizer||!quantity)return;const locked=sizer.classList.contains('is-locked');quantity.disabled=locked;quantity.setAttribute('aria-disabled',String(locked));quantity.title=locked?'Complete as Etapas 1 e 2 para registrar o trade.':'Ajuste opcional antes de registrar o trade.'}
 const updateTradingRubricWithRiskStageLock=updateTradingRubric;
@@ -1902,7 +1929,7 @@ syncRiskStageLock();
 const plannerPayloadWithManualRatings=plannerPayload;
 plannerPayload=function(){const plan=plannerPayloadWithManualRatings();return{...plan,rubricRatings:{...manualRubricRatings},rubricResponses:tradingRubricPolicy.criteria.map(criterion=>({id:criterion.key,label:criterion.label,selectedRating:manualRubricRatings[criterion.key]||null,score:MANUAL_RUBRIC_RATINGS[manualRubricRatings[criterion.key]]?.score??0,maxScore:2,weight:criterion.weight}))}};
 const saveTradePlanWithManualRatings=saveTradePlan;
-saveTradePlan=function(){if(Object.keys(manualRubricRatings).length<tradingRubricPolicy.criteria.length){showToast('Avalie todos os critérios da Trading Rubric antes de salvar.');return}saveTradePlanWithManualRatings()};
+saveTradePlan=function(){if(typeof manualRubricIsComplete==='function'&&!manualRubricIsComplete()){showToast('Avalie todos os critérios da Trading Rubric antes de salvar.');return}saveTradePlanWithManualRatings()};
 const confirmTradeExecutionWithManualRatings=confirmTradeExecution;
 confirmTradeExecution=async function(){
  if(Object.keys(manualRubricRatings).length<tradingRubricPolicy.criteria.length){showToast('Avalie todos os critérios da Trading Rubric antes de executar.');return}
@@ -2075,7 +2102,7 @@ renderAnalyticsFromDatabase=function(trades=synchronizedTrades){
   root.querySelector('[data-truth-reset]')?.addEventListener('click',()=>{truthPanelFilters={period:'all',asset:'',setup:'',direction:'',grade:'',account:''};renderAnalyticsFromDatabase(synchronizedTrades)});
   root.querySelectorAll('[data-truth-export]').forEach(button=>button.addEventListener('click',()=>exportTruthReport(button.dataset.truthExport)));
 };
-go=function(id){const destination=id==='risk'?'newtrade':id;goWithEmbeddedPositionSizing(destination);if(destination==='today'||destination==='positions'||destination==='analytics')syncOperationalFromDatabase();if(destination==='analytics')renderAnalyticsFromDatabase()};
+go=function(id){const destination=id==='risk'?'newtrade':id;goWithEmbeddedPositionSizing(destination);if(destination==='today'||destination==='positions'||destination==='closedpositions'||destination==='analytics')syncOperationalFromDatabase();if(destination==='closedpositions')renderClosedPositionsView();if(destination==='analytics')renderAnalyticsFromDatabase()};
 </script>
 <!-- Fundamentals styling loaded via frontend/fundamentals.css -->
 <script src="frontend/fundamental-score.js"></script>
@@ -2414,7 +2441,37 @@ function saveEffectiveRiskPolicy(){
 }
 function renderEffectiveRiskPolicy(){const grid=document.getElementById('riskPolicyGrid');if(!grid)return;const p=riskPolicyState,field=(label,control)=>'<div class="field"><label>'+label+'</label>'+control+'</div>',profiles=Object.entries(p.profiles).map(([key,item])=>'<section class="risk-profile-card '+(key===p.selectedProfile?'active':'')+'"><div><b>'+item.label+'</b><small>'+(key===p.selectedProfile?'Perfil aplicado aos novos trades':'Perfil disponível para ativação')+'</small></div><div class="risk-profile-inputs">'+field('Risco inicial','<input data-profile="'+key+'" data-policy-field="initialRiskPct" type="number" min="0" step=".01" value="'+percentInput(item.initialRiskPct)+'">')+field('Risco em andamento','<input data-profile="'+key+'" data-policy-field="ongoingRiskPct" type="number" min="0" step=".01" value="'+percentInput(item.ongoingRiskPct)+'">')+'</div></section>').join(''),grades=p.grades.map((item,index)=>'<section class="risk-grade-card"><b>'+item.grade+'</b><div>'+field('Score mínimo','<input data-grade="'+index+'" data-policy-field="minScore" type="number" '+(item.grade==='No Trade'||item.grade==='D'?'disabled':'')+' value="'+(Number.isFinite(item.minScore)?item.minScore:'')+'">')+field('Risco-base','<input data-grade="'+index+'" data-policy-field="riskPct" type="number" min="0" step=".01" value="'+percentInput(item.riskPct)+'">')+'</div></section>').join(''),weights=p.criteria.map((item,index)=>'<div class="risk-weight-item">'+field(item.label,'<input data-criterion="'+index+'" type="number" min="0" step=".25" value="'+item.weight+'">')+'</div>').join(''),weightTotal=p.criteria.reduce((sum,item)=>sum+Number(item.weight||0),0),weightsValid=Math.abs(weightTotal-100)<.001,weightValidation='<div class="risk-weight-total '+(weightsValid?'valid':'invalid')+'"><span>Total dos pesos</span><b>'+numBR(weightTotal,2)+' / 100,00</b><small>'+ (weightsValid?'Configuração válida':'Ajuste os pesos para totalizar 100,00') +'</small></div>',cycles=Object.entries(p.marketMultipliers).map(([key,value])=>'<div class="risk-cycle-item '+key+'">'+field(cycleLabel(key),'<input data-multiplier="'+key+'" type="number" min="0" max="1" step=".05" value="'+value+'">')+'<small>'+({healthy:'Risco integral liberado',improving:'Redução moderada',transition:'Exposição pela metade',defensive:'Exposição mínima',riskOff:'Nenhum risco liberado'})[key]+'</small></div>').join('');grid.innerHTML='<section class="card market-focus-settings risk-policy-shell" id="effectiveRiskPolicy"><header class="risk-policy-heading"><div><span>POLÍTICA OPERACIONAL</span><h3>Como o risco é decidido</h3><p>Primeiro avaliamos a qualidade do trade; depois o ciclo de mercado limita a exposição permitida.</p></div><div class="risk-policy-formula"><small>FÓRMULA CENTRAL</small><b>Grade (risco-base) → stop / ATR / capital → Portfolio Heat</b></div></header><section class="risk-policy-block risk-policy-profile"><div class="risk-block-title"><span>1</span><div><h4>Perfil ativo</h4><p>Define o teto de risco operacional da conta.</p></div></div><div class="risk-profile-select">'+field('Perfil aplicado aos novos trades','<select data-policy-profile><option value="rampUp" '+(p.selectedProfile==='rampUp'?'selected':'')+'>Risk Ramp-Up · Tread the waters</option><option value="standard" '+(p.selectedProfile==='standard'?'selected':'')+'>Política padrão</option></select>')+'</div><div class="risk-profile-grid">'+profiles+'</div></section><section class="risk-policy-block risk-policy-grades"><div class="risk-block-title"><span>2</span><div><h4>Quanto arriscar por qualidade do trade (Notas A, B, C e D)</h4><p>Define o risco financeiro máximo autorizado de acordo com a nota de qualidade da oportunidade. Oportunidades com maior confluência de edges permitem mais risco; notas menores reduzem ou bloqueiam a exposição para proteger seu capital.</p></div></div><div class="risk-grade-grid">'+grades+'</div></section><section class="risk-policy-block risk-policy-quality"><div class="risk-block-title"><span>3</span><div><h4>Pesos de cada edge</h4><p>Defina o peso de cada critério na avaliação da oportunidade no Novo Trade. O total obrigatório é 100 pontos.</p></div></div><div class="risk-weight-grid">'+weights+'</div>'+weightValidation+'</section><section class="risk-policy-block risk-policy-cycle"><div class="risk-block-title"><span>4</span><div><h4>Permissão de mercado</h4><p>O ciclo não muda a qualidade do trade; ele reduz ou bloqueia o risco final.</p></div></div><div class="risk-cycle-grid">'+cycles+'</div></section><div class="wealth-note"><b>Peel-off matemático:</b> se o risco ou a volatilidade em andamento ultrapassarem o alarme do perfil, o sistema sugere apenas a redução necessária para voltar ao limite.</div></section>';grid.querySelector('[data-policy-profile]').addEventListener('change',event=>{riskPolicyState.selectedProfile=event.target.value;saveEffectiveRiskPolicy()});grid.querySelectorAll('input').forEach(input=>input.addEventListener('change',saveEffectiveRiskPolicy))}
 function ongoingRiskAdvice(p,m){const advice=TradingRubrics.calculatePeelOff({currentPrice:p.currentPrice,currentStop:p.currentStop,atr:p.atr,quantity:m.remaining,direction:p.direction,equity:OPERATIONAL_EQUITY,policy:riskPolicyState,profileKey:p.riskProfile||riskPolicyState.selectedProfile,lot:100});return '<div class="risk-advisor '+(advice.required?'alert':'')+'"><div class="advisor-kicker">Risco em andamento · '+advice.profile.label+'</div><h4>'+(advice.required?'Realize a parcial de '+numBR(advice.peelQuantity)+' unidades para voltar ao limite de '+advice.reason+'.':'Risco e volatilidade em andamento dentro dos limites.')+'</h4><p>O cálculo reduz apenas a quantidade necessária. Após um peel-off, a posição não é recomposta.</p><div class="advisor-values"><div><small>Risco atual</small><b>'+numBR(advice.ongoingRiskPct*100,2)+'%</b></div><div><small>Volatilidade atual</small><b>'+numBR(advice.ongoingVolatilityPct*100,2)+'%</b></div><div><small>Quantidade permitida</small><b>'+numBR(advice.allowedQuantity)+'</b></div></div>'+(advice.required?'<button class="primary" onclick="showOperationForm(\''+p.id+'\',\'peeloff\')">Registrar parcial sugerida</button>':'')+'</div>'}
-function policyAllowsNewTrade(){const plan=plannerPayload(),profile=selectedRiskProfile(),real=(operationalState?.positions||[]).filter(item=>item.mode==='real'),heat=real.reduce((sum,item)=>sum+operationMetrics(item).riskPct,0),validation=TradingRubrics.validatePortfolio({currentHeatPct:heat,additionalRiskPct:plan.riskPct*100,openPositions:real.length,maximumHeatPct:profile.maximumPortfolioRiskPct*100,maximumPositions:profile.maximumPositions});if(plan.riskPct<=0){showToast('Este ciclo de mercado não libera risco para uma nova posição.');return false}if(!validation.allowed){showToast(validation.heatAllowed?'O perfil ativo atingiu o máximo de posições.':'O Portfolio Heat do perfil ativo seria ultrapassado.');return false}return true}
+function policyAllowsNewTrade(){
+  if(typeof getWorkbenchStageOneMissingFields==='function'){
+    const missing=getWorkbenchStageOneMissingFields();
+    if(missing.length>0){
+      showToast(`⚠️ Preencha o campo obrigatório na Etapa 1: ${missing[0].label}.`);
+      const el=document.getElementById(missing[0].id);
+      if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.focus();el.classList.add('field-highlight-error');setTimeout(()=>el.classList.remove('field-highlight-error'),2500);}
+      return false;
+    }
+  }
+  if(typeof manualRubricIsComplete==='function'&&!manualRubricIsComplete()){
+    showToast('⚠️ Avalie todos os critérios da Trading Rubric na Etapa 2 antes de registrar.');
+    document.getElementById('tradeRubricStage')?.scrollIntoView({behavior:'smooth',block:'start'});
+    return false;
+  }
+  const plan=plannerPayload(),profile=selectedRiskProfile(),real=(operationalState?.positions||[]).filter(item=>item.mode==='real'),heat=real.reduce((sum,item)=>sum+operationMetrics(item).riskPct,0),validation=TradingRubrics.validatePortfolio({currentHeatPct:heat,additionalRiskPct:plan.riskPct*100,openPositions:real.length,maximumHeatPct:profile.maximumPortfolioRiskPct*100,maximumPositions:profile.maximumPositions});
+  if(plan.riskPct<=0){
+    const lastRubric=window.lastCalculatedRubricResult||(typeof updateTradingRubric==='function'?updateTradingRubric():null);
+    if(lastRubric&&(lastRubric.grade==='D'||lastRubric.grade==='No Trade')){
+      showToast('⚠️ Setups classificados como Grade D possuem risco zero pela Política de Risco.');
+    }else{
+      showToast('⚠️ Este ciclo de mercado ou perfil não libera risco para uma nova posição.');
+    }
+    return false;
+  }
+  if(!validation.allowed){
+    showToast(validation.heatAllowed?'⚠️ O perfil ativo atingiu o máximo de posições.':'⚠️ O Portfolio Heat do perfil ativo seria ultrapassado.');
+    return false;
+  }
+  return true;
+}
 const saveTradePlanWithPolicyGate=saveTradePlan;
 saveTradePlan=function(){if(!policyAllowsNewTrade())return;return saveTradePlanWithPolicyGate()}
 const confirmTradeExecutionWithPolicyGate=confirmTradeExecution;
@@ -2424,9 +2481,9 @@ renderEffectiveRiskPolicy=function(){renderEffectiveRiskPolicyWithoutCycleLayer(
 const updateTradingRubricWithoutCycleMultiplier=updateTradingRubric;
 updateTradingRubric=function(){const result=updateTradingRubricWithoutCycleMultiplier();if(!result)return result;const regime=document.getElementById('rubricMarketRegime'),warning=document.getElementById('rubricNoTrade');if(regime)regime.textContent='Perfil ativo · '+result.profile.label;if(warning&&result.riskPct>0)warning.innerHTML='<div class="rubric-policy-result"><b>Risk Budget: '+numBR(result.riskBudgetPct*100,2)+'%</b> · risco financeiro inicial definido exclusivamente pela qualidade da oportunidade.</div>';return result}
 // Fonte única da liberação da Etapa 3: lê a escolha visível do usuário, não estados de versões antigas da Rubric.
-function workbenchStageOneReady(){const ids=['tradeMarket','tradeAsset','tradeDirection','tradeSetup','entry','stop','atr','tradeMode','tradeThesis'];return ids.every(id=>{const control=document.getElementById(id);if(!control)return false;return control.type==='number'?Number(control.value)>0:String(control.value||'').trim().length>0})&&Number(document.getElementById('entry')?.value)!==Number(document.getElementById('stop')?.value)}
+function workbenchStageOneReady(){const ids=['tradeMarket','tradeAsset','tradeDirection','tradeSetup','entry','stop','atr','tradeMode'];return ids.every(id=>{const control=document.getElementById(id);if(!control)return false;return control.type==='number'?Number(control.value)>0:String(control.value||'').trim().length>0})&&Number(document.getElementById('entry')?.value)!==Number(document.getElementById('stop')?.value)}
 function workbenchStageTwoReady(){const rows=[...document.querySelectorAll('#rubricCriteria .rubric-criterion')].filter(row=>!row.classList.contains('rubric-market-permission'));return rows.length>0&&rows.every(row=>Boolean(row.querySelector('[data-rating].active')))}
-function refreshWorkbenchRiskGate(){const sizer=document.querySelector('.workbench-sizer');if(!sizer)return;const dataReady=workbenchStageOneReady(),rubricReady=workbenchStageTwoReady(),locked=!(dataReady&&rubricReady);sizer.classList.toggle('is-locked',locked);sizer.setAttribute('aria-disabled',String(locked));let hint=sizer.querySelector('.workbench-lock-hint');if(!hint){hint=document.createElement('p');hint.className='workbench-lock-hint';sizer.querySelector('.three-layers')?.before(hint)}hint.textContent=!dataReady&&!rubricReady?'Preencha os dados da Etapa 1 e escolha uma opção em cada critério da Etapa 2 para liberar o nivelador de risco.':!dataReady?'Preencha os dados essenciais da Etapa 1 para liberar o nivelador de risco.':'Escolha uma opção em cada critério da Trading Rubric para liberar o nivelador de risco.';const quantity=document.getElementById('tradeExecutedQty');if(quantity){quantity.disabled=locked;quantity.setAttribute('aria-disabled',String(locked));quantity.title=locked?hint.textContent:'Ajuste opcional antes de registrar o trade.'}sizer.querySelectorAll('.summary-box button').forEach(button=>{button.disabled=locked;button.setAttribute('aria-disabled',String(locked));button.title=locked?hint.textContent:''})}
+function refreshWorkbenchRiskGate(){const sizer=document.querySelector('.workbench-sizer');if(!sizer)return;const dataReady=workbenchStageOneReady(),rubricReady=workbenchStageTwoReady(),locked=!(dataReady&&rubricReady);sizer.classList.toggle('is-locked',locked);sizer.setAttribute('aria-disabled',String(locked));let hint=sizer.querySelector('.workbench-lock-hint');if(!hint){hint=document.createElement('p');hint.className='workbench-lock-hint';sizer.querySelector('.three-layers')?.before(hint)}hint.textContent=!dataReady&&!rubricReady?'Preencha os dados da Etapa 1 e escolha uma opção em cada critério da Etapa 2 para liberar o nivelador de risco.':!dataReady?'Preencha os dados essenciais da Etapa 1 para liberar o nivelador de risco.':'Escolha uma opção em cada critério da Trading Rubric para liberar o nivelador de risco.';const quantity=document.getElementById('tradeExecutedQty');if(quantity){quantity.disabled=locked;quantity.setAttribute('aria-disabled',String(locked));quantity.title=locked?hint.textContent:'Ajuste opcional antes de registrar o trade.'}sizer.querySelectorAll('.summary-box button').forEach(button=>{button.classList.toggle('is-pending-gate',locked);button.setAttribute('aria-disabled',String(locked));button.title=locked?hint.textContent:'';button.onclick=(e)=>saveTradePlan(e)})}
 const updateTradingRubricWithWorkbenchGate=updateTradingRubric;
 function syncWorkbenchRiskSummary(result){
   if(!result)return;
@@ -3317,6 +3374,81 @@ renderEffectiveRiskPolicy=function(){
   shell.querySelectorAll('[data-criterion]').forEach(input=>{input.disabled=false;input.removeAttribute('title');input.addEventListener('input',renderRubricWeightTotal)});
   shell.querySelectorAll('[data-profile]').forEach(input=>{if(input.dataset.policyField!=='ongoingRiskPct')input.addEventListener('change',saveEffectiveRiskPolicy)});
   renderRubricWeightTotal();
+
+  // Seção 4 — Parâmetros de Volatilidade (ATR)
+  let atrBlock = shell.querySelector('.risk-policy-atr-volatility');
+  const atrVol = (riskPolicyState && riskPolicyState.atrVolatility) || { maxExcellent: 2.0, maxGood: 4.0 };
+  const fmtAtr = v => Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!atrBlock) {
+    const qualityBlock = shell.querySelector('.risk-policy-quality');
+    const blockHtml = '<section class="risk-policy-block risk-policy-atr-volatility">'
+      +'<div class="risk-block-title"><span>4</span><div><h4>Parâmetros de Volatilidade (ATR)</h4><p>Configure os limites percentuais de ATR (21) em relação ao preço de entrada que classificam automaticamente o critério de volatilidade no Trading Rubric.</p></div></div>'
+      +'<div class="risk-atr-bands-card">'
+        +'<div class="risk-atr-band-row band-green">'
+          +'<div class="risk-atr-band-header"><span class="risk-atr-band-badge state-green">🟢 Excelente</span><small class="risk-atr-band-desc">Priorizar</small></div>'
+          +'<div class="risk-atr-band-rule"><span>Até</span><div class="risk-atr-input-wrap"><input type="text" inputmode="decimal" data-atr-policy-field="maxExcellent" id="riskAtrMaxExcellent" value="'+fmtAtr(atrVol.maxExcellent)+'" class="risk-atr-input" title="Limite máximo para classificação Excelente" /><span class="unit">%</span></div></div>'
+        +'</div>'
+        +'<div class="risk-atr-band-row band-yellow">'
+          +'<div class="risk-atr-band-header"><span class="risk-atr-band-badge state-yellow">🟡 Confortável</span><small class="risk-atr-band-desc">Considerar</small></div>'
+          +'<div class="risk-atr-band-rule"><span>De</span><b class="risk-atr-bound" id="riskAtrMinGoodDisplay">'+fmtAtr(atrVol.maxExcellent)+'%</b><span>até</span><div class="risk-atr-input-wrap"><input type="text" inputmode="decimal" data-atr-policy-field="maxGood" id="riskAtrMaxGood" value="'+fmtAtr(atrVol.maxGood)+'" class="risk-atr-input" title="Limite máximo para classificação Bom" /><span class="unit">%</span></div></div>'
+        +'</div>'
+        +'<div class="risk-atr-band-row band-red">'
+          +'<div class="risk-atr-band-header"><span class="risk-atr-band-badge state-red">🔴 Evitar</span><small class="risk-atr-band-desc">Não operar</small></div>'
+          +'<div class="risk-atr-band-rule"><span>Acima de</span><b class="risk-atr-bound" id="riskAtrMinBadDisplay">'+fmtAtr(atrVol.maxGood)+'%</b><span class="risk-atr-inclusive">(≥ limite configurado)</span></div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="risk-atr-note" id="riskAtrValidationMsg"><small>As faixas são contínuas e sem sobreposição: a Faixa 2 inicia onde a Faixa 1 termina, e a Faixa 3 começa no teto da Faixa 2.</small></div>'
+    +'</section>';
+    if (qualityBlock) {
+      qualityBlock.insertAdjacentHTML('afterend', blockHtml);
+    } else {
+      shell.insertAdjacentHTML('beforeend', blockHtml);
+    }
+  } else {
+    const inputExc = document.getElementById('riskAtrMaxExcellent');
+    const inputGood = document.getElementById('riskAtrMaxGood');
+    if (inputExc) inputExc.value = fmtAtr(atrVol.maxExcellent);
+    if (inputGood) inputGood.value = fmtAtr(atrVol.maxGood);
+    const minGoodEl = document.getElementById('riskAtrMinGoodDisplay');
+    const minBadEl = document.getElementById('riskAtrMinBadDisplay');
+    if (minGoodEl) minGoodEl.textContent = fmtAtr(atrVol.maxExcellent) + '%';
+    if (minBadEl) minBadEl.textContent = fmtAtr(atrVol.maxGood) + '%';
+  }
+
+  const inputExc = document.getElementById('riskAtrMaxExcellent');
+  const inputGood = document.getElementById('riskAtrMaxGood');
+  const minGoodEl = document.getElementById('riskAtrMinGoodDisplay');
+  const minBadEl = document.getElementById('riskAtrMinBadDisplay');
+  const noteEl = document.getElementById('riskAtrValidationMsg');
+
+  const updateAtrDisplayBounds = () => {
+    const exc = Number(String(inputExc?.value || '').replace(',', '.'));
+    const good = Number(String(inputGood?.value || '').replace(',', '.'));
+    if (minGoodEl && Number.isFinite(exc) && exc > 0) minGoodEl.textContent = fmtAtr(exc) + '%';
+    if (minBadEl && Number.isFinite(good) && good > 0) minBadEl.textContent = fmtAtr(good) + '%';
+    if (noteEl) {
+      if (Number.isFinite(exc) && Number.isFinite(good) && good <= exc) {
+        noteEl.className = 'risk-atr-note is-invalid';
+        noteEl.innerHTML = '<small>⚠️ O limite de "Confortável" deve ser estritamente maior que o limite de "Excelente".</small>';
+      } else if (Number.isFinite(exc) && exc <= 0) {
+        noteEl.className = 'risk-atr-note is-invalid';
+        noteEl.innerHTML = '<small>⚠️ O limite de "Excelente" deve ser maior que 0%.</small>';
+      } else {
+        noteEl.className = 'risk-atr-note';
+        noteEl.innerHTML = '<small>As faixas são contínuas e sem sobreposição: a Faixa 2 inicia onde a Faixa 1 termina, e a Faixa 3 começa no teto da Faixa 2.</small>';
+      }
+    }
+  };
+
+  [inputExc, inputGood].forEach(inp => {
+    if (!inp || inp.dataset.boundAtrListener) return;
+    inp.dataset.boundAtrListener = 'true';
+    inp.addEventListener('input', updateAtrDisplayBounds);
+    inp.addEventListener('change', () => {
+      updateAtrDisplayBounds();
+      saveEffectiveRiskPolicy();
+    });
+  });
 };
 const saveEffectiveRiskPolicyWithLocalizedPercentages=saveEffectiveRiskPolicy;
 saveEffectiveRiskPolicy=function(){
@@ -3324,6 +3456,17 @@ saveEffectiveRiskPolicy=function(){
   shell?.querySelectorAll('[data-profile]:not([data-policy-unit="integer"]), [data-grade][data-policy-field="riskPct"]').forEach(input=>{
     input.value=String(input.value||'').trim().replace(',', '.');
   });
+  const maxExcInput = document.getElementById('riskAtrMaxExcellent');
+  const maxGoodInput = document.getElementById('riskAtrMaxGood');
+  if (maxExcInput && maxGoodInput) {
+    const excVal = Number(String(maxExcInput.value || '').trim().replace(',', '.'));
+    const goodVal = Number(String(maxGoodInput.value || '').trim().replace(',', '.'));
+    if (Number.isFinite(excVal) && excVal > 0 && Number.isFinite(goodVal) && goodVal > excVal) {
+      if (!riskPolicyState.atrVolatility) riskPolicyState.atrVolatility = {};
+      riskPolicyState.atrVolatility.maxExcellent = Number(excVal.toFixed(2));
+      riskPolicyState.atrVolatility.maxGood = Number(goodVal.toFixed(2));
+    }
+  }
   return saveEffectiveRiskPolicyWithLocalizedPercentages();
 };
 renderEffectiveRiskPolicy();
@@ -3373,7 +3516,8 @@ renderEffectiveRiskPolicy();
 #newtrade .rubric-experience-host .rubric-criterion:after{display:none!important}
 #newtrade .rubric-experience-host .rubric-criterion b{grid-column:3!important;font-size:12px!important}
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
-#newtrade .rubric-experience-host .rubric-criterion .rubric-market-control{grid-column:2!important}
+#newtrade .rubric-experience-host .rubric-criterion .rubric-market-control,
+#newtrade .rubric-experience-host .rubric-criterion .rubric-volatility-control{grid-column:2!important}
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
 #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button{min-height:30px;padding:5px 4px;font-size:11px!important}
 #newtrade .rubric-experience-host .rubric-criterion .rubric-market-control{display:flex!important;align-items:center;gap:6px;width:100%}
@@ -3417,12 +3561,64 @@ renderEffectiveRiskPolicy();
 .rubric-sync-sub{display:block;font-size:10px;color:#a4ceb5;font-weight:600;margin-top:2px;line-height:1.2}
 .rubric-sync-sub.is-override{color:#eed886}
 #newtrade .rubric-source-divider{margin-top:8px!important}
+#newtrade .rubric-experience-host .rubric-criterion .rubric-volatility-control{
+  display:flex!important;align-items:center;justify-content:center;width:100%;
+}
+.rubric-volatility-badge{
+  display:inline-flex!important;align-items:center;justify-content:center;
+  gap:5px;width:100%;min-height:30px;padding:4px 10px;border-radius:7px;
+  font:700 11px/1.2 inherit!important;text-align:center;
+  border:1px solid rgba(255,255,255,.18);box-sizing:border-box;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:none;
+}
+.rubric-volatility-badge.state-green{
+  background-color:rgba(46,125,82,.28);border-color:rgba(84,226,154,.45);color:#c9f7db;
+}
+.rubric-volatility-badge.state-yellow{
+  background-color:rgba(180,130,20,.26);border-color:rgba(233,189,66,.45);color:#fff1c2;
+}
+.rubric-volatility-badge.state-red{
+  background-color:rgba(180,50,50,.26);border-color:rgba(239,100,112,.45);color:#ffd6d9;
+}
+.rubric-volatility-badge.is-pending{
+  background-color:rgba(100,116,139,.18);border-color:rgba(148,163,184,.3);color:#cbd5e1;
+  font-weight:600;font-style:italic;
+}
+.rubric-volatility-reason{
+  display:block;font-size:10px;color:#a4ceb5;font-weight:600;margin-top:2px;line-height:1.2;
+}
+.rubric-volatility-reason.is-pending{color:rgba(255,255,255,.5)}
+
+/* Política de Risco — Seção Parâmetros de Volatilidade (ATR) */
+.risk-policy-atr-volatility{background:linear-gradient(135deg,#f3f8f4,#fbfdf9)}
+.risk-atr-bands-card{display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.78);border:1px solid #cfded2;border-radius:12px;padding:14px 16px}
+.risk-atr-band-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 14px;border-radius:9px;border:1px solid rgba(0,0,0,.06)}
+.risk-atr-band-row.band-green{background:rgba(46,125,82,.06);border-color:rgba(46,125,82,.22)}
+.risk-atr-band-row.band-yellow{background:rgba(180,130,20,.06);border-color:rgba(233,189,66,.28)}
+.risk-atr-band-row.band-red{background:rgba(180,50,50,.05);border-color:rgba(239,100,112,.22)}
+.risk-atr-band-header{display:flex;flex-direction:column;gap:3px}
+.risk-atr-band-badge{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:750;letter-spacing:.01em}
+.risk-atr-band-badge.state-green{color:#1e6b37}
+.risk-atr-band-badge.state-yellow{color:#8f6208}
+.risk-atr-band-badge.state-red{color:#a12828}
+.risk-atr-band-desc{font-size:11px;color:var(--muted);font-weight:500}
+.risk-atr-band-rule{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#24362c}
+.risk-atr-bound{font-size:13px;font-weight:750;color:#1e3a2b;min-width:44px;text-align:center}
+.risk-atr-inclusive{font-size:11px;color:var(--muted);font-weight:500}
+.risk-atr-input-wrap{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid #bad2c0;border-radius:8px;padding:3px 8px;box-shadow:inset 0 1px 2px rgba(0,0,0,.04)}
+.risk-atr-input-wrap:focus-within{border-color:#2e7d52;box-shadow:0 0 0 2px rgba(46,125,82,.18)}
+.risk-atr-input{width:56px;border:none;background:transparent;font-size:13px!important;font-weight:750!important;text-align:right;color:#1a3324;outline:none}
+.risk-atr-input-wrap .unit{font-size:12px;font-weight:700;color:#557762}
+.risk-atr-note{margin-top:10px;font-size:11px;color:var(--muted);line-height:1.4}
+.risk-atr-note.is-invalid{color:#b91c1c;font-weight:600}
+@media(max-width:700px){.risk-atr-band-row{flex-direction:column;align-items:flex-start;gap:8px}}
 @media(max-width:850px){
   #newtrade .rubric-experience-host .rubric-criterion{grid-template-columns:18px minmax(0,1fr) 48px!important;gap:7px;padding:10px!important}
   #newtrade .rubric-experience-host .rubric-criterion>span{grid-column:2!important}
   #newtrade .rubric-experience-host .rubric-criterion b{grid-column:3!important}
   #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls,
-  #newtrade .rubric-experience-host .rubric-criterion .rubric-market-control{grid-column:2 / span 2!important;width:100%}
+  #newtrade .rubric-experience-host .rubric-criterion .rubric-market-control,
+  #newtrade .rubric-experience-host .rubric-criterion .rubric-volatility-control{grid-column:2 / span 2!important;width:100%}
 }
 </style>
 <script>
@@ -3574,11 +3770,53 @@ renderEffectiveRiskPolicy();
   window.restoreAutomaticMarketCycle = restoreAutomaticMarketCycle;
   window.marketCycleManualOverrides = marketCycleManualOverrides;
 
-  const manualKeys=()=>tradingRubricPolicy.criteria.filter(item=>item.key!=='marketCycle').map(item=>item.key);
+  const manualKeys=()=>tradingRubricPolicy.criteria.filter(item=>item.key!=='marketCycle'&&item.key!=='volatility').map(item=>item.key);
 
-  /* Volatilidade segue o padrão dos demais critérios: escolha clara do trader. */
-  syncAutomaticAtrRating=function(){};
-  delete manualRubricRatings.volatility;
+  /* Volatilidade (ATR) é calculada e classificada automaticamente pelo sistema com base na Política de Risco */
+  syncAutomaticAtrRating=function(){
+    const entry=Number(document.getElementById('entry')?.value)||0;
+    const atr=Number(document.getElementById('atr')?.value)||0;
+    const badge=document.getElementById('rubricAtrBadge');
+    const reason=document.getElementById('rubricAtrReason');
+    const row=document.querySelector('.rubric-criterion[data-rubric-key="volatility"]');
+    const policyConfig=(riskPolicyState||tradingRubricPolicy)?.atrVolatility;
+
+    if(entry>0&&atr>0){
+      const atrPct=(atr/entry)*100;
+      const classification=TradingRubrics.classifyAtrVolatility(atrPct,policyConfig);
+      if(classification){
+        manualRubricRatings.volatility=classification.rating;
+        if(badge){
+          badge.className='rubric-volatility-badge state-'+classification.color;
+          badge.textContent=`${classification.percentFormatted}% — ${classification.icon} ${classification.label}`;
+          badge.title=classification.reason;
+        }
+        if(reason){
+          reason.className='rubric-volatility-reason';
+          reason.textContent=classification.reason;
+        }
+        if(row){
+          row.classList.remove('is-pending');
+        }
+        return classification;
+      }
+    }
+    delete manualRubricRatings.volatility;
+    if(badge){
+      badge.className='rubric-volatility-badge is-pending';
+      badge.textContent='Aguardando dados';
+      badge.title='Preencha Entrada e ATR (21)';
+    }
+    if(reason){
+      reason.className='rubric-volatility-reason is-pending';
+      reason.textContent='Preencha Entrada e ATR (21)';
+    }
+    if(row){
+      row.classList.add('is-pending');
+    }
+    return null;
+  };
+
 
   setRubricMarketCycle=function(regime){
     setManualMarketCycleOverride(regime);
@@ -3622,6 +3860,24 @@ renderEffectiveRiskPolicy();
           +'<b data-rubric-points="marketCycle">—</b>'
           +'</div>';
       }
+      if(criterion.key==='volatility'){
+        const classification=syncAutomaticAtrRating();
+        const isPending=!classification;
+        const badgeClass=isPending?'is-pending':('state-'+classification.color);
+        const badgeContent=isPending
+          ?'Aguardando dados'
+          :`${classification.percentFormatted}% — ${classification.icon} ${classification.label}`;
+        const reasonContent=isPending
+          ?'Preencha Entrada e ATR (21)'
+          :classification.reason;
+        return '<div class="rubric-criterion rubric-volatility-auto '+(isPending?'is-pending':'')+'" data-rubric-key="volatility">'
+          +'<span>Volatilidade (ATR)<small class="rubric-volatility-reason '+(isPending?'is-pending':'')+'" id="rubricAtrReason">'+reasonContent+'</small></span>'
+          +'<div class="rubric-volatility-control" id="rubricAtrBadgeWrap">'
+            +'<span class="rubric-volatility-badge '+badgeClass+'" id="rubricAtrBadge" title="'+reasonContent+'">'+badgeContent+'</span>'
+          +'</div>'
+          +'<b data-rubric-points="volatility">—</b>'
+          +'</div>';
+      }
       const buttons=['bad','medium','good'].map(rating=>'<button type="button" data-rating="'+rating+'" onclick="setPolicyRubricRating(\''+criterion.key+'\',\''+rating+'\')">'+({bad:'Ruim',medium:'Médio',good:'Bom'})[rating]+'</button>').join('');
       const displayLabel = criterion.label || (criterion.key === 'volatility' ? 'Volatilidade (ATR)' : criterion.key);
       return '<div class="rubric-criterion" data-rubric-key="'+criterion.key+'"><span>'+displayLabel+'</span><div class="manual-rubric-controls">'+buttons+'</div><b data-rubric-points="'+criterion.key+'">—</b></div>';
@@ -3630,24 +3886,45 @@ renderEffectiveRiskPolicy();
   currentRubricInput=function(){
     const ratings={};
     manualKeys().forEach(key=>{if(manualRubricRatings[key])ratings[key]=manualRubricRatings[key]});
+    if(manualRubricRatings.volatility)ratings.volatility=manualRubricRatings.volatility;
     const currentMarket=document.getElementById('tradeMarket')?.value||'Ações';
     const cycleInfo=getMarketCycleStateForTrade(currentMarket);
     return {ratings,marketCycleRegime:cycleInfo.state,profileKey:selectedRiskProfile().key};
   };
-  manualRubricIsComplete=function(){return manualKeys().every(key=>Boolean(manualRubricRatings[key]))};
+  manualRubricIsComplete=function(){return manualKeys().every(key=>Boolean(manualRubricRatings[key]))&&Boolean(manualRubricRatings.volatility)};
   workbenchStageTwoReady=function(){return manualRubricIsComplete()};
+  function getWorkbenchStageOneMissingFields(){
+    const missing=[];
+    const asset=document.getElementById('tradeAsset')?.value.trim();
+    if(!asset) missing.push({id:'tradeAsset',label:'Ativo (Ticker)'});
+    const setup=document.getElementById('tradeSetup')?.value;
+    if(!setup||(window.SetupTriggersCatalog&&!window.SetupTriggersCatalog.isValidTrigger(setup))){
+      missing.push({id:'tradeSetup',label:'Gatilho de Entrada'});
+    }
+    const entryVal=Number(document.getElementById('entry')?.value);
+    const stopVal=Number(document.getElementById('stop')?.value);
+    if(!entryVal||entryVal<=0) missing.push({id:'entry',label:'Preço de Entrada'});
+    if(!stopVal||stopVal<=0) missing.push({id:'stop',label:'Stop Inicial'});
+    if(entryVal>0&&stopVal>0&&entryVal===stopVal){
+      missing.push({id:'stop',label:'Stop diferente da Entrada'});
+    }
+    const atrVal=Number(document.getElementById('atr')?.value);
+    if(!atrVal||atrVal<=0) missing.push({id:'atr',label:'ATR (21)'});
+    return missing;
+  }
+  window.getWorkbenchStageOneMissingFields=getWorkbenchStageOneMissingFields;
   workbenchStageOneReady=function(){
-    const ids=['tradeMarket','tradeAsset','tradeDirection','tradeSetup','entry','stop','atr','tradeMode','tradeThesis'];
-    return ids.every(id=>{const control=document.getElementById(id);return control&&(control.type==='number'?Number(control.value)>0:String(control.value||'').trim().length>0)})&&Number(document.getElementById('entry')?.value)!==Number(document.getElementById('stop')?.value);
+    return getWorkbenchStageOneMissingFields().length===0;
   };
   renderManualRubricState=function(){};
   syncCompletedManualRubric=function(){};
   refreshWorkbenchRiskGate=function(){
     const sizer=document.querySelector('.workbench-sizer');
     if(!sizer)return;
-    const dataReady=workbenchStageOneReady(),rubricReady=manualRubricIsComplete();
+    const missingStageOne=getWorkbenchStageOneMissingFields();
+    const dataReady=missingStageOne.length===0,rubricReady=manualRubricIsComplete();
     const lastRubric=window.lastCalculatedRubricResult;
-    const isGradeD=Boolean(lastRubric&&(lastRubric.grade==='D'||lastRubric.grade==='No Trade'||lastRubric.riskPct===0));
+    const isGradeD=Boolean(rubricReady&&lastRubric&&(lastRubric.grade==='D'||lastRubric.grade==='No Trade'||lastRubric.riskPct===0));
     const locked=!(dataReady&&rubricReady);
     const shouldDisable=locked||isGradeD;
     sizer.classList.toggle('is-locked',shouldDisable);
@@ -3658,27 +3935,37 @@ renderEffectiveRiskPolicy();
       const crit=tradingRubricPolicy.criteria.find(c=>c.key===k);
       return crit?.label||k;
     });
+    if(!manualRubricRatings.volatility) pendingCriteria.push('Volatilidade (ATR)');
     if(!dataReady&&!rubricReady){
-      hint.textContent='Preencha os dados essenciais da Etapa 1 e avalie os critérios da Etapa 2 para liberar o envio.';
+      hint.innerHTML='<b>Pendente na Etapa 1:</b> '+missingStageOne.map(f=>f.label).join(', ')+'.<br><b>Pendente na Rubric:</b> '+pendingCriteria.join(', ')+'.';
     }else if(!dataReady){
-      hint.textContent='Preencha os dados essenciais da Etapa 1 para liberar o envio.';
+      hint.innerHTML='<b>Pendente na Etapa 1:</b> '+missingStageOne.map(f=>f.label).join(', ')+'.';
     }else if(pendingCriteria.length>0){
       hint.innerHTML='<b>Critérios pendentes na Rubric:</b> '+pendingCriteria.join(', ')+'.';
     }else if(isGradeD){
-      hint.textContent='A Rubric não liberou risco para setups Grade D (0% de risco).';
+      hint.innerHTML='<b>Bloqueio de Risco:</b> A Rubric não liberou risco para setups Grade D (0% de risco).';
     }else{
-      hint.textContent='Critérios avaliados. Nivelador de risco liberado.';
+      hint.innerHTML='✓ Critérios avaliados. Nivelador de risco liberado.';
     }
     const quantity=document.getElementById('tradeExecutedQty');
     if(quantity){
       quantity.disabled=isGradeD;
       quantity.title=isGradeD?'Operação não recomendada pela política.':'Ajuste opcional antes de registrar o trade.';
     }
-    sizer.querySelectorAll('.summary-box button').forEach(button=>{button.disabled=shouldDisable;button.setAttribute('aria-disabled',String(shouldDisable));button.title=shouldDisable?hint.textContent.replace(/<[^>]+>/g,''):''});
+    sizer.querySelectorAll('.summary-box button').forEach(button=>{
+      if(!button.dataset.isSubmitting){
+        button.disabled=false;
+      }
+      button.classList.toggle('is-pending-gate',shouldDisable);
+      button.setAttribute('aria-disabled',String(shouldDisable));
+      button.title=shouldDisable?hint.textContent.replace(/<[^>]+>/g,''):'Registrar trade planejado';
+      button.onclick=(e)=>saveTradePlan(e);
+    });
   };
   syncRiskStageLock=refreshWorkbenchRiskGate;
   const updateBeforeRubricFix=updateTradingRubric;
   updateTradingRubric=function(){
+    syncAutomaticAtrRating();
     const result=updateBeforeRubricFix();
     if(!result)return result;
     window.lastCalculatedRubricResult=result;
@@ -3766,7 +4053,10 @@ renderEffectiveRiskPolicy();
   rebuildRiskRubric();
   updateTradingRubric();
   document.addEventListener('input',event=>{if(['entry','stop','atr'].includes(event.target.id))updateTradingRubric()});
-  document.addEventListener('change',event=>{if(event.target&&event.target.id==='tradeMarket'){rebuildRiskRubric();updateTradingRubric()}});
+  document.addEventListener('change',event=>{
+    if(event.target&&event.target.id==='tradeMarket'){rebuildRiskRubric();updateTradingRubric()}
+    if(event.target&&['entry','stop','atr'].includes(event.target.id)){syncAutomaticAtrRating();updateTradingRubric()}
+  });
 })();
 </script>
 <script src="frontend/market-cycle-v2.js?v=20260922-grading-abcd-1"></script>
@@ -3779,7 +4069,7 @@ renderEffectiveRiskPolicy();
 <script src="frontend/position-action-badges.js?v=20260915-2"></script>
 <link rel="stylesheet" href="frontend/risk-policy-rubric.css?v=20260915-1" />
 <link rel="stylesheet" href="frontend/risk-heat-gate.css?v=20260915-1" />
-<script src="frontend/risk-heat-gate.js?v=20260924-family-block-1"></script>
+<script src="frontend/risk-heat-gate.js?v=20261001-gate-click-2"></script>
 <script src="frontend/login-cinematic.js?v=20260915-2"></script>
 <link rel="stylesheet" href="frontend/wealth-dashboard-v2.css?v=20260918-2" />
 <script src="frontend/wealth-dashboard-v2.js?v=20260918-2"></script>
@@ -4162,6 +4452,25 @@ go=function(id){goWithAboutPage(id);if(id==='about')renderAboutPage()};
   if (typeof saveTradePlan === 'function') {
     const origSaveTradePlan = saveTradePlan;
     saveTradePlan = async function() {
+      if (typeof getWorkbenchStageOneMissingFields === 'function') {
+        const missing = getWorkbenchStageOneMissingFields();
+        if (missing.length > 0) {
+          showToast(`⚠️ Preencha o campo obrigatório na Etapa 1: ${missing[0].label}.`);
+          const el = document.getElementById(missing[0].id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.focus();
+            el.classList.add('field-highlight-error');
+            setTimeout(() => el.classList.remove('field-highlight-error'), 2500);
+          }
+          return;
+        }
+      }
+      if (typeof manualRubricIsComplete === 'function' && !manualRubricIsComplete()) {
+        showToast('⚠️ Avalie todos os critérios da Trading Rubric na Etapa 2 antes de registrar.');
+        document.getElementById('tradeRubricStage')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
       const previousPositionId = operationalState?.positions?.[0]?.id;
       let plan = null;
       try {
@@ -4298,7 +4607,7 @@ go=function(id){goWithAboutPage(id);if(id==='about')renderAboutPage()};
 <script src="frontend/trade-anatomy-model.js?v=20260924-1"></script>
 <script src="frontend/trade-anatomy.js?v=20260924-2"></script>
 <script src="frontend/sidebar-navigation.js?v=20260924-trade-anatomy-1"></script>
-<script src="frontend/asset-blacklist.js?v=20260924-blacklist-frame-1"></script>
+<script src="frontend/asset-blacklist.js?v=20261001-blacklist-click-2"></script>
 <link rel="stylesheet" href="frontend/market-pause.css?v=20260929-1" />
 <script src="frontend/market-pause-model.js?v=20260929-1"></script>
 <script src="frontend/market-pause.js?v=20260929-1"></script>
