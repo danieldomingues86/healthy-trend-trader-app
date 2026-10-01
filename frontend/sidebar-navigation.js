@@ -76,7 +76,7 @@
         },
         {
           id: 'relativestrength',
-          title: 'Relative Strength',
+          title: 'Força Relativa',
           desc: 'Veja quem está liderando.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
           page: 'relativestrength'
@@ -767,7 +767,9 @@
         for (const group of allGroups) {
           const matchedItem = group.items.find((sub) => sub.page === pageId);
           if (matchedItem) {
-            crumb.innerHTML = `${group.label} / <b>${matchedItem.title}</b>`;
+            const groupLabel = typeof uiText === 'function' ? uiText(group.label) : group.label;
+            const itemTitle = typeof uiText === 'function' ? uiText(matchedItem.title) : matchedItem.title;
+            crumb.innerHTML = `${groupLabel} / <b>${itemTitle}</b>`;
             found = true;
             break;
           }

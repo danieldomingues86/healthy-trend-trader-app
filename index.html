@@ -1409,7 +1409,7 @@ Object.assign(ptToEn,{
 Object.assign(ptToEn,{
  'Print do planejamento':'Planning screenshot','Registre a imagem do gráfico que justificou o plano. Este anexo é opcional.':'Record the chart image that supported the plan. This attachment is optional.','Arraste um print aqui ou clique para escolher uma imagem':'Drop a screenshot here or click to choose an image','PNG, JPG ou WEBP · opcional':'PNG, JPG or WEBP · optional','Remover imagem':'Remove image','Imagem registrada antes da abertura da posição.':'Image recorded before opening the position.','Checklist pendente':'Checklist pending','Confirme cada critério antes de classificar o contexto como A.':'Confirm each criterion before classifying the context as A.','Price Action: fluido de ler ou errático?':'Price action: clear to read or erratic?','Preço acima das médias relevantes':'Price above the relevant moving averages','Selecione uma imagem (PNG, JPG ou WEBP).':'Select an image (PNG, JPG or WEBP).','Use uma imagem de até 6 MB.':'Use an image up to 6 MB.'
 });
-Object.assign(ptToEn,{'Panorama de Mercado':'Market Overview','Patrimônio':'Wealth','Inteligência de Mercado':'Market Intelligence','Ciclo de Mercado':'Market Cycle','Força Relativa':'Relative Strength','Acompanhamento':'Monitoring','Configuração e suporte':'Settings & support'});
+Object.assign(ptToEn,{'Panorama de Mercado':'Market Overview','Patrimônio':'Wealth','Inteligência de Mercado':'Market Intelligence','Ciclo de Mercado':'Market Cycle','Força Relativa':'Relative Strength','Acompanhamento':'Monitoring','Configuração e suporte':'Settings & support','Análise de Mercado':'Market Analysis','Carteira & Risco':'Portfolio & Risk','Dados & Performance':'Data & Performance','Mentalidade & Zen':'Mindset & Zen','Operação Diária':'Daily Operation'});
 Object.assign(ptToEn,{'Realize a parcial de':'Take a partial of','unidades, para ficar dentro do seu limite de risco':'units to stay within your risk limit'});
 Object.assign(ptToEn,{
   'Alta Performance':'High Performance',
@@ -3065,7 +3065,17 @@ const FII_NAME_MAP = {
   PSEC11: 'Pátria Securitizadora', RPRI11: 'RBCap Renda Imobiliária', IRIM11: 'Iridium Recebíveis Imobiliários',
   CYCR11: 'Cyrela Crédito Imobiliário', SPXS11: 'Apex SPX Crédito Imobiliário', GTWR11: 'Green Towers Brasília'
 };
-function relativeCompanyName(item){if(!item)return'—';const sym=String(item.symbol||'').trim().toUpperCase();if(BDR_NAME_MAP[sym])return BDR_NAME_MAP[sym];if(FII_NAME_MAP[sym])return FII_NAME_MAP[sym];const name=String(item.name||'').trim();if(name&&name.toUpperCase()!==sym)return name;return'—'}
+const STOCK_NAME_MAP = {
+  EMBJ3: 'EMBRAER S.A.',
+  AXIA3: 'AXIA ENERGIA S.A.',
+  AXIA6: 'AXIA ENERGIA S.A.',
+  AXIA7: 'AXIA ENERGIA S.A.',
+  MBRF3: 'MBRF GLOBAL FOODS COMPANY S.A.',
+  RIAA3: 'RIACHUELO S.A.',
+  WDCN3: 'WDC NETWORKS (LIVETECH DA BAHIA S.A.)',
+  SAUD3: 'BRADSAÚDE S.A.'
+};
+function relativeCompanyName(item){if(!item)return'—';const sym=String(item.symbol||'').trim().toUpperCase();if(STOCK_NAME_MAP[sym])return STOCK_NAME_MAP[sym];if(BDR_NAME_MAP[sym])return BDR_NAME_MAP[sym];if(FII_NAME_MAP[sym])return FII_NAME_MAP[sym];const name=String(item.name||'').trim();if(name&&name.toUpperCase()!==sym)return name;return'—'}
 function relativeClassFilteredItems(){const search=(document.getElementById('rsSearch')?.value||'').trim().toLowerCase(),sector=document.getElementById('rsSector')?.value||'';return relativeClassItems().filter(item=>{const cName=relativeCompanyName(item);return !search||`${item.symbol} ${item.name||''} ${cName} ${item.sector||''} ${item.originalSymbol||''}`.toLowerCase().includes(search)}).filter(item=>!sector||item.sector===sector)}
 function selectRelativeStrengthClass(key){relativeStrengthClassesState.selected=key;renderRelativeStrengthClassesPage()}
 let relativeClassSearchTimer;
