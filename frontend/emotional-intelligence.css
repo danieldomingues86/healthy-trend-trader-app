@@ -3,7 +3,7 @@ body:has(#emotionalintelligence.active) #marketFocusGuard{display:none}
 body:has(#emotionalintelligence.active) #emotionalintelligence.page.active{width:100%!important;max-width:none!important;margin:0!important}
 #emotionalintelligence{--ei-ink:#122d23;--ei-muted:#59655c;--ei-green:#247956;--ei-gold:#b08c39;--ei-line:#d9d2bd;--ei-paper:#f5f1e5;color:var(--ei-ink);min-height:calc(100dvh - 78px);background:linear-gradient(180deg,rgba(7,24,18,.5),rgba(12,38,28,.7)),url('../assets/emotional-intelligence-study-v1.png') top center/100% auto no-repeat fixed;background-color:#0b2319;font:15px/1.55 Arial,Helvetica,sans-serif}
 #emotionalintelligence *{box-sizing:border-box}
-#emotionalintelligence .ei-shell{max-width:1560px;margin:0 auto;padding:18px clamp(16px,1.8vw,32px) 36px;min-height:calc(100dvh - 78px)}
+#emotionalintelligence .ei-shell{width:100%;max-width:none;margin:0;padding:18px clamp(18px,2vw,44px) 36px;min-height:calc(100dvh - 78px)}
 #emotionalintelligence .ei-hero{min-height:195px;display:flex;align-items:center;gap:25px;position:relative;padding:28px 22px 38px;color:#f5edd0}
 #emotionalintelligence .ei-hero-icon{flex:0 0 82px;width:82px;height:82px;display:grid;place-items:center;border:1px solid #d3c587;border-radius:50%;background:radial-gradient(circle,#294d33bd,#071d19e8);box-shadow:inset 0 0 0 5px #6b895c20,0 8px 26px #0004}
 #emotionalintelligence .ei-icon{width:29px;height:29px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -144,10 +144,10 @@ body[data-theme="gold"] #emotionalintelligence .ei-badge{background:#eee2bd;colo
 .ei-quote-author{display:block;font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#247956}
 
 .emotion-cards-list{display:flex;flex-direction:column;gap:14px}
-.emotion-horizontal-card{display:grid;grid-template-columns:minmax(180px,210px) minmax(130px,.9fr) minmax(150px,1.1fr) minmax(160px,1.15fr) minmax(220px,1.45fr);gap:16px;align-items:stretch;background:#fff;border:1px solid #e3decfa6;border-radius:14px;padding:12px 16px;box-shadow:0 3px 10px rgba(0,0,0,.03),0 1px 3px rgba(0,0,0,.02);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.emotion-horizontal-card{display:grid;grid-template-columns:clamp(200px,13vw,280px) clamp(140px,9.5vw,200px) 1.15fr 1.15fr 1.45fr;gap:clamp(16px,1.4vw,28px);align-items:stretch;background:#fff;border:1px solid #e3decfa6;border-radius:14px;padding:clamp(12px,0.9vw,16px) clamp(16px,1.3vw,24px);box-shadow:0 3px 10px rgba(0,0,0,.03),0 1px 3px rgba(0,0,0,.02);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
 .emotion-horizontal-card:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.06);border-color:#cbd8cf}
 
-.emotion-img-col{position:relative;border-radius:10px;overflow:hidden;min-height:98px;height:100%;box-shadow:0 3px 8px rgba(0,0,0,.12);background:#0c2017}
+.emotion-img-col{position:relative;border-radius:10px;overflow:hidden;min-height:104px;height:100%;box-shadow:0 3px 8px rgba(0,0,0,.12);background:#0c2017}
 .emotion-card-img{width:100%;height:100%;object-fit:cover;display:block}
 .emotion-badge-num{position:absolute;top:8px;left:8px;width:25px;height:25px;border-radius:50%;font-size:11px;font-weight:800;color:#fff;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.45);letter-spacing:-.02em}
 .emotion-badge-num.num-01{background:#e04f44}
@@ -217,6 +217,12 @@ body[data-theme="gold"] #emotionalintelligence .ei-badge{background:#eee2bd;colo
 .mindset-pillar-title{font:700 17px/1.2 Georgia,serif;color:#122d23;margin:0}
 .mindset-pillar-summary{font-size:13.5px;color:#247956;font-weight:700;line-height:1.35}
 .mindset-pillar-desc{font-size:13px;color:#4c5b52;line-height:1.5;margin:0}
+
+@media(min-width:1700px){
+  .habits-sections-grid{grid-template-columns:repeat(3,1fr)}
+  .mindset-pillars-grid{grid-template-columns:repeat(4,1fr)}
+  .behavior-compare-card{grid-template-columns:clamp(220px,13vw,300px) 1fr 1fr}
+}
 
 @media(max-width:1280px){
   .emotion-horizontal-card{grid-template-columns:165px 120px 1fr 1fr 1.3fr;gap:12px;padding:10px 12px}
