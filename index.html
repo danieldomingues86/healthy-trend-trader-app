@@ -2884,12 +2884,12 @@ body:has(#glossary.active) .content{max-width:none;margin:0;padding:22px clamp(2
 </style>
 <style>
 /* O glossário usa toda a largura útil do workspace e só reduz o grid quando necessário. */
-body:has(#glossary) .content{max-width:none!important;margin:0!important;padding:18px clamp(24px,3vw,64px) 48px!important}
+body:has(#glossary.active) .content{max-width:none!important;margin:0!important;padding:18px clamp(24px,3vw,64px) 48px!important}
 #glossary.page.active,#glossaryRoot,.glossary-page{width:100%;max-width:none}.glossary-page{margin:0}.glossary-layout{grid-template-columns:minmax(0,1fr) clamp(380px,23vw,480px);gap:22px}.glossary-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.glossary-card{min-height:286px;padding:20px}.glossary-card.major{min-height:336px}.glossary-panel{min-height:640px;padding:28px}.glossary-hero{padding:34px clamp(32px,4vw,70px)}.glossary-quick{margin-top:14px}
 @media(max-width:1500px){.glossary-layout{grid-template-columns:minmax(0,1fr) 410px}.glossary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:1180px){.glossary-layout{grid-template-columns:1fr}.glossary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.glossary-panel{position:static;min-height:0}}
 @media(max-width:900px){.glossary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:620px){body:has(#glossary) .content{padding:16px!important}.glossary-grid{grid-template-columns:1fr}.glossary-card.major{grid-column:span 1}.glossary-card,.glossary-card.major{min-height:0}.glossary-panel{padding:20px}}
+@media(max-width:620px){body:has(#glossary.active) .content{padding:16px!important}.glossary-grid{grid-template-columns:1fr}.glossary-card.major{grid-column:span 1}.glossary-card,.glossary-card.major{min-height:0}.glossary-panel{padding:20px}}
 </style>
 <style>
 /* Painel lateral: leitura em camadas, com imagem forte e conteúdo curto por aba. */

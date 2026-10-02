@@ -182,6 +182,25 @@
     </div>`;
   }
 
+  function MarketFreshness(dataDate, source) {
+    const formatted = dateLabel(dataDate);
+    const provider = String(source || 'B3').toLowerCase().includes('b3') ? 'B3' : source || 'B3';
+    const text = formatted === '—'
+      ? t(`Último fechamento indisponível · Fonte: ${provider}`, `Latest close unavailable · Source: ${provider}`)
+      : t(`Último fechamento: ${formatted} · Fonte: ${provider}`, `Latest close: ${formatted} · Source: ${provider}`);
+    return `<span class="mcv2-freshness relative-data-freshness">
+      <span class="rs-freshness-icon" aria-hidden="true">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </span>
+      <span class="rs-freshness-text">${esc(text)}</span>
+    </span>`;
+  }
+
   function marketStatus(dataDate, source, marketInfo, snapshot) {
     const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', weekday: 'short', hour: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
     const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
@@ -433,7 +452,9 @@
               <h1>${t('Ciclo de Mercado','Market Cycle')}</h1>
               <em>${t('Antes de escolher o cavalo, entenda a pista.','Before choosing the horse, understand the track.')}</em>
             </div>
-            ${MarketSelector()}
+            <div class="mcv2-heading-center">
+              ${MarketSelector()}
+            </div>
             <blockquote>“${t('O mercado não é ON/OFF.<br>É um ambiente para se posicionar.','The market is not ON/OFF.<br>It is an environment to position within.')}”</blockquote>
           </header>
           <div class="mcv2-loading">
@@ -455,7 +476,9 @@
               <h1>${t('Ciclo de Mercado','Market Cycle')}</h1>
               <em>${t('Antes de escolher o cavalo, entenda a pista.','Before choosing the horse, understand the track.')}</em>
             </div>
-            ${MarketSelector()}
+            <div class="mcv2-heading-center">
+              ${MarketSelector()}
+            </div>
             <blockquote>“${t('O mercado não é ON/OFF.<br>É um ambiente para se posicionar.','The market is not ON/OFF.<br>It is an environment to position within.')}”</blockquote>
           </header>
           <div class="mcv2-loading">
@@ -480,7 +503,9 @@
               <h1>${t('Ciclo de Mercado','Market Cycle')}</h1>
               <em>${t('Antes de escolher o cavalo, entenda a pista.','Before choosing the horse, understand the track.')}</em>
             </div>
-            ${MarketSelector()}
+            <div class="mcv2-heading-center">
+              ${MarketSelector()}
+            </div>
             <blockquote>“${t('O mercado não é ON/OFF.<br>É um ambiente para se posicionar.','The market is not ON/OFF.<br>It is an environment to position within.')}”</blockquote>
           </header>
           <div class="mcv2-loading">
@@ -504,7 +529,10 @@
             <h1>${t('Ciclo de Mercado','Market Cycle')}</h1>
             <em>${t('Antes de escolher o cavalo, entenda a pista.','Before choosing the horse, understand the track.')}</em>
           </div>
-          ${MarketSelector()}
+          <div class="mcv2-heading-center">
+            ${MarketSelector()}
+            ${MarketFreshness(cycle.date || history.at(-1)?.date, payload?.source)}
+          </div>
           ${marketStatus(cycle.date || history.at(-1)?.date, payload.source, marketInfo, snapshot)}
           <blockquote>“${t('O mercado não é ON/OFF.<br>É um ambiente para se posicionar.','The market is not ON/OFF.<br>It is an environment to position within.')}”</blockquote>
         </header>

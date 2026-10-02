@@ -1,6 +1,68 @@
 #marketcycle{width:100%!important;min-width:0!important;margin:0!important;padding:0!important;max-width:none!important;container-type:inline-size}
-html.market-cycle-active .content,body.market-cycle-active .content,body:has(#marketcycle.page.active) .content{box-sizing:border-box;width:100%!important;min-width:0!important;max-width:none!important;margin:0!important;padding:0!important}
-html.market-cycle-active .content #marketFocusGuard,body.market-cycle-active .content #marketFocusGuard,body:has(#marketcycle.page.active) .content #marketFocusGuard{display:none!important}
+
+html.market-cycle-active,
+body.market-cycle-active,
+body:has(#marketcycle.active),
+body:has(#marketcycle.page.active) {
+  background: #072517 !important;
+}
+html.market-cycle-active .main,
+body.market-cycle-active .main,
+body:has(#marketcycle.active) .main,
+body:has(#marketcycle.page.active) .main {
+  background: #072517 !important;
+}
+html.market-cycle-active .content,
+body.market-cycle-active .content,
+body:has(#marketcycle.active) .content,
+body:has(#marketcycle.page.active) .content {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #072517 radial-gradient(circle at 50% 0%, #0e3b26 0%, #072618 60%, #04180f 100%) !important;
+}
+html.market-cycle-active .content #marketPauseBannerRoot:empty,
+body.market-cycle-active .content #marketPauseBannerRoot:empty,
+body:has(#marketcycle.active) .content #marketPauseBannerRoot:empty,
+body:has(#marketcycle.page.active) .content #marketPauseBannerRoot:empty,
+html.market-cycle-active .content #marketFocusGuard,
+body.market-cycle-active .content #marketFocusGuard,
+body:has(#marketcycle.active) .content #marketFocusGuard,
+body:has(#marketcycle.page.active) .content #marketFocusGuard {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+}
+
+/* Gold Theme Cockpit Overrides */
+body.gold-theme.market-cycle-active,
+body[data-theme="gold"].market-cycle-active,
+body.gold-theme:has(#marketcycle.active),
+body[data-theme="gold"]:has(#marketcycle.active),
+body.gold-theme:has(#marketcycle.page.active),
+body[data-theme="gold"]:has(#marketcycle.page.active) {
+  background: #0d0a06 !important;
+}
+body.gold-theme.market-cycle-active .main,
+body[data-theme="gold"].market-cycle-active .main,
+body.gold-theme:has(#marketcycle.active) .main,
+body[data-theme="gold"]:has(#marketcycle.active) .main,
+body.gold-theme:has(#marketcycle.page.active) .main,
+body[data-theme="gold"]:has(#marketcycle.page.active) .main {
+  background: #0d0a06 !important;
+}
+body.gold-theme.market-cycle-active .content,
+body[data-theme="gold"].market-cycle-active .content,
+body.gold-theme:has(#marketcycle.active) .content,
+body[data-theme="gold"]:has(#marketcycle.active) .content,
+body.gold-theme:has(#marketcycle.page.active) .content,
+body[data-theme="gold"]:has(#marketcycle.page.active) .content {
+  background: #0d0a06 radial-gradient(circle at 50% 0%, #21170a 0%, #120e07 60%, #080603 100%) !important;
+}
 
 #marketcycle .mcv2-page{
   --regime-primary:#e5b83b;
@@ -120,12 +182,61 @@ html.market-cycle-active .content #marketFocusGuard,body.market-cycle-active .co
 
 #marketcycle .mcv2-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 16px;padding:0 10px;flex-wrap:wrap}
 #marketcycle .mcv2-heading>div:first-child{flex:0 1 auto}
+#marketcycle .mcv2-heading .mcv2-heading-center{display:flex;flex-direction:column;align-items:center;gap:10px;flex:0 0 auto;margin:0}
 #marketcycle .mcv2-heading .mcv2-market-pills{flex:0 0 auto;margin:0}
 #marketcycle .mcv2-heading p{margin:0 0 10px;color:#7ba58e;font-size:12px}
 #marketcycle .mcv2-heading p b{color:#d6ece0}
 #marketcycle .mcv2-heading h1{margin:0;color:#ffffff;font:600 clamp(37px,3.2vw,58px)/.95 Georgia,serif;letter-spacing:-.045em}
 #marketcycle .mcv2-heading em{display:block;margin-top:8px;color:#b0d9c2;font:italic 600 clamp(17px,1.35vw,23px)/1.25 Georgia,serif}
 #marketcycle .mcv2-heading blockquote{flex:0 1 auto;justify-self:end;margin:0;color:#85b89c;font:italic 600 15px/1.4 Georgia,serif;text-align:right}
+
+/* Freshness badge in Market Cycle (matching Força Relativa design language) */
+#marketcycle .mcv2-freshness.relative-data-freshness {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 14px !important;
+  border: 1px solid rgba(80, 140, 105, 0.35) !important;
+  border-radius: 999px !important;
+  background: rgba(4, 22, 14, 0.75) !important;
+  color: #c4ecd3 !important;
+  font: 600 12px/1.3 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  white-space: nowrap !important;
+}
+#marketcycle .mcv2-freshness .rs-freshness-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 14px !important;
+  height: 14px !important;
+  color: #55cf7a !important;
+  flex-shrink: 0 !important;
+  line-height: 1 !important;
+}
+#marketcycle .mcv2-freshness .rs-freshness-icon svg {
+  display: block !important;
+  width: 13px !important;
+  height: 13px !important;
+  stroke: currentColor !important;
+}
+#marketcycle .mcv2-freshness .rs-freshness-text {
+  line-height: 1.2 !important;
+}
+
+body.gold-theme #marketcycle .mcv2-freshness.relative-data-freshness,
+body[data-theme="gold"] #marketcycle .mcv2-freshness.relative-data-freshness {
+  border-color: rgba(214, 170, 80, 0.35) !important;
+  background: rgba(26, 19, 10, 0.85) !important;
+  color: #f7eedb !important;
+}
+body.gold-theme #marketcycle .mcv2-freshness .rs-freshness-icon,
+body[data-theme="gold"] #marketcycle .mcv2-freshness .rs-freshness-icon {
+  color: #d6aa50 !important;
+}
 
 #marketcycle .mcv2-status{display:flex;align-items:center;gap:12px;min-width:420px;padding:13px 18px;border:1px solid rgba(70,125,95,.32);border-radius:999px;background:rgba(5,26,17,.75);box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
 #marketcycle .mcv2-status>i{width:10px;height:10px;flex:none;border-radius:50%;background:#6a7f73;box-shadow:0 0 0 5px rgba(87,116,98,.15)}
@@ -436,6 +547,7 @@ body:not([data-theme="healthy"]) #marketcycle .mcv2-hero {
 @container (max-width:900px){
   #marketcycle .mcv2-page{padding:18px 14px;background-attachment:scroll}
   #marketcycle .mcv2-heading{flex-direction:column;align-items:flex-start;gap:14px}
+  #marketcycle .mcv2-heading .mcv2-heading-center{align-items:flex-start;width:100%}
   #marketcycle .mcv2-status{min-width:0;width:100%;border-radius:14px}
   #marketcycle .mcv2-status small{display:none}
   #marketcycle .mcv2-hero{grid-template-columns:1fr}
