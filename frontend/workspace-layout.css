@@ -92,7 +92,7 @@ body:has(#watchlist.active) #marketFocusGuard {
     margin-inline:auto!important;
   }
 
-  .page.active:not(#today):not(#journal):not(#zen):not(#manual):not(#wisdom):not(#tradelibrary):not(#emotionalintelligence):not(#emergingleaders):not(#watchlist){
+  .page.active:not(#today):not(#journal):not(#zen):not(#manual):not(#wisdom):not(#tradelibrary):not(#emotionalintelligence):not(#emergingleaders):not(#watchlist):not(#marketcycle){
     width:min(100%,var(--workspace-max-width));
     margin-inline:auto!important;
   }
@@ -103,6 +103,7 @@ body:has(#watchlist.active) #marketFocusGuard {
   #traderprofile,
   #platformaccess,
   #relativestrength.rs-v3-page,
+  #marketcycle,
   #dashboard,
   #review,
   #forecast,
@@ -120,7 +121,9 @@ body:has(#watchlist.active) #marketFocusGuard {
   #materials .materials-v2{width:100%;max-width:none!important;margin-inline:auto}
 
   body:has(#relativestrength.active) .content,
-  body:has(#relativestrength.page.active) .content {
+  body:has(#relativestrength.page.active) .content,
+  body:has(#marketcycle.active) .content,
+  body:has(#marketcycle.page.active) .content {
     box-sizing: border-box;
     width: 100% !important;
     min-width: 0 !important;
@@ -129,7 +132,9 @@ body:has(#watchlist.active) #marketFocusGuard {
     padding: 0 !important;
   }
   body:has(#relativestrength.active) .content #marketFocusGuard,
-  body:has(#relativestrength.page.active) .content #marketFocusGuard {
+  body:has(#relativestrength.page.active) .content #marketFocusGuard,
+  body:has(#marketcycle.active) .content #marketFocusGuard,
+  body:has(#marketcycle.page.active) .content #marketFocusGuard {
     display: none !important;
   }
   #relativestrength,
