@@ -1,496 +1,1136 @@
-/* Mentalidade — Hub central de práticas, conteúdo, psicologia e autoconhecimento. */
+/* Mentalidade — Central de Treinamento Mental do Trader */
+
+/* Reset do container content para permitir aproveitamento total do espaço horizontal */
 body:has(#mindset.active) .content,
-body:has(#traderrules.active) .content{
-  max-width:none!important;
-  margin:0!important;
-  padding:0!important;
-  background:#f4f8f5;
+body:has(#traderrules.active) .content {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #f8faf9;
 }
 
 #mindset,
-#traderrules{
-  width:100%;
-  min-height:calc(100vh - 64px);
-  margin:0;
-  padding:clamp(20px,2vw,34px) clamp(18px,2.6vw,46px) clamp(34px,4vw,64px);
-  color:#14251f;
+#traderrules {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  margin: 0;
+  padding: clamp(16px, 1.8vw, 28px) clamp(18px, 2.4vw, 42px) clamp(36px, 3.5vw, 60px);
+  color: #111827;
   background:
-    radial-gradient(circle at 12% 0%,rgba(72,194,149,.1),transparent 26%),
-    linear-gradient(180deg,#fbfdfc 0%,#f2f8f4 52%,#edf6f1 100%);
-  box-sizing:border-box;
+    radial-gradient(circle at 10% 0%, rgba(16, 185, 129, 0.08), transparent 30%),
+    linear-gradient(180deg, #fbfdfc 0%, #f4f8f5 50%, #edf4f0 100%);
+  box-sizing: border-box;
 }
 
 .mindset-hub,
-.trader-rules-shell{
-  width:100%;
-  max-width:1600px;
-  margin:0 auto;
-  box-sizing:border-box;
+.trader-rules-shell {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 2.2vw, 32px);
 }
 
 /* Submodule Back Navigation */
-.mindset-sub-back{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:9px 16px;
-  margin:0 0 20px;
-  border:1px solid #cbe3d6;
-  border-radius:999px;
-  background:#ffffff;
-  color:#156849;
-  font:700 13px/1 Inter,Arial,sans-serif;
-  cursor:pointer;
-  box-shadow:0 3px 10px rgba(22,72,50,.05);
-  transition:background .18s ease,border-color .18s ease,transform .18s ease;
-}
-.mindset-sub-back:hover{
-  background:#edf9f3;
-  border-color:#8fd6b6;
-  transform:translateX(-2px);
-}
-#zen .mindset-sub-back{
-  background:rgba(255,255,255,.94);
-  border-color:rgba(148,249,177,.6);
-  color:#0c3e24;
-  box-shadow:0 6px 18px rgba(0,0,0,.35);
-}
-#zen .mindset-sub-back:hover{
-  background:#ffffff;
-  border-color:#82f49c;
+.mindset-sub-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  margin: 0 0 20px;
+  border: 1px solid #cbe3d6;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #047857;
+  font: 700 13px/1 Inter, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(22, 72, 50, 0.05);
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
 
-/* 1. Hero Banner */
-.mindset-hero{
-  position:relative;
-  min-height:clamp(280px,25vw,410px);
-  overflow:hidden;
-  display:flex;
-  align-items:flex-start;
-  padding:clamp(28px,3.1vw,54px);
-  border:1px solid rgba(42,126,93,.16);
-  border-radius:26px;
-  isolation:isolate;
-  box-shadow:0 22px 46px rgba(19,64,46,.1);
-  background:
-    linear-gradient(90deg,rgba(255,255,253,.98) 0%,rgba(255,255,253,.94) 34%,rgba(255,255,253,.58) 58%,rgba(255,255,253,.08) 82%),
-    linear-gradient(180deg,rgba(255,255,255,.2),rgba(18,80,57,.1)),
-    url('../assets/mindset-hero-v1.png') center right/cover no-repeat;
+.mindset-sub-back:hover {
+  background: #ecfdf5;
+  border-color: #86efac;
+  transform: translateX(-2px);
 }
 
-.mindset-hero::after{
-  content:'';
-  position:absolute;
-  z-index:-1;
-  inset:auto -5% -35% 24%;
-  height:45%;
-  background:radial-gradient(ellipse,rgba(40,147,109,.18),transparent 70%);
-  filter:blur(20px);
+/* 1. HERO — MENTE DE TRADER */
+.mindset-hero {
+  position: relative;
+  min-height: clamp(340px, 25vw, 410px);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  box-shadow: 0 16px 40px rgba(15, 60, 42, 0.08);
+  background: url('../assets/mindset-hero-panorama.jpg') center right / cover no-repeat;
+  display: flex;
+  align-items: center;
+  padding: clamp(26px, 3.2vw, 52px);
+  box-sizing: border-box;
+  isolation: isolate;
 }
 
-.mindset-hero-copy{max-width:min(690px,62%)}
-.mindset-hero .eyebrow,
-.mindset-section-kicker,
-.mindset-card-kicker,
-.rules-kicker{
-  margin:0 0 8px;
-  color:#176e52;
-  font:800 11px/1.2 Inter,Arial,sans-serif;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-}
-.mindset-hero h1{
-  margin:0;
-  max-width:620px;
-  color:#11261e;
-  font:800 clamp(38px,4.2vw,64px)/.95 Inter,Arial,sans-serif;
-  letter-spacing:-.065em;
-}
-.mindset-hero h1 em{font-style:normal;color:#13845f}
-.mindset-hero h2{
-  margin:10px 0 0;
-  color:#1b2c27;
-  font:600 clamp(19px,1.75vw,27px)/1.15 Inter,Arial,sans-serif;
-  letter-spacing:-.035em;
-}
-.mindset-hero p{
-  max-width:580px;
-  margin:14px 0 0;
-  color:#405650;
-  font:500 clamp(14px,1.1vw,17px)/1.45 Inter,Arial,sans-serif;
+.mindset-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 255, 255, 0.96) 38%,
+    rgba(255, 255, 255, 0.76) 58%,
+    rgba(255, 255, 255, 0.15) 86%
+  );
 }
 
-/* Floating quote on right of hero */
-.mindset-hero-quote{
-  position:absolute;
-  top:clamp(24px,2.8vw,46px);
-  right:clamp(24px,3.2vw,54px);
-  max-width:270px;
-  padding:16px 20px;
-  border-radius:18px;
-  background:rgba(255,255,253,.65);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.75);
-  box-shadow:0 14px 34px rgba(18,60,45,.1);
-}
-.mindset-hero-quote blockquote{
-  margin:0;
-  color:#15372c;
-  font:600 clamp(15px,1.2vw,18px)/1.35 Georgia,serif;
-  letter-spacing:-.02em;
-}
-.mindset-hero-quote cite{
-  display:block;
-  margin-top:8px;
-  color:#167f59;
-  font:700 11px/1 Inter,Arial,sans-serif;
-  font-style:normal;
-  letter-spacing:.08em;
-  text-transform:uppercase;
+.mindset-hero-copy {
+  position: relative;
+  z-index: 2;
+  max-width: min(720px, 66%);
 }
 
-/* Benefit pills in hero */
-.mindset-benefits{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:clamp(8px,1.5vw,22px);
-  max-width:920px;
-  margin:clamp(22px,2.6vw,34px) 0 0;
-}
-.mindset-benefit{display:flex;align-items:center;gap:9px;color:#1b332a;font:700 13px/1.25 Inter,Arial,sans-serif}
-.mindset-benefit i{display:grid;place-items:center;flex:0 0 31px;width:31px;height:31px;border-radius:50%;background:rgba(229,249,239,.95);color:#118661;font-style:normal;font-size:16px}
-
-/* 2. Submodule Grid (6 cards) */
-.mindset-module-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:clamp(14px,1.35vw,22px);
-  margin-top:clamp(18px,2vw,30px);
-}
-.mindset-module{
-  position:relative;
-  min-height:260px;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  padding:clamp(20px,1.7vw,28px);
-  border:1px solid var(--mindset-border,rgba(28,122,89,.17));
-  border-radius:22px;
-  background:var(--mindset-bg,#ffffff);
-  box-shadow:0 12px 27px rgba(23,67,49,.075);
-  isolation:isolate;
-  cursor:pointer;
-  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
-}
-.mindset-module:hover{
-  transform:translateY(-3px);
-  box-shadow:0 18px 36px rgba(23,67,49,.11);
-  border-color:var(--mindset-accent);
-}
-.mindset-module:hover .mindset-module-open{
-  transform:translateX(4px);
-  background:#fff;
-  box-shadow:0 3px 10px rgba(0,0,0,.08);
-}
-.mindset-module::before{
-  content:'';
-  position:absolute;
-  z-index:-2;
-  inset:0;
-  background:
-    linear-gradient(105deg,var(--mindset-overlay,rgba(255,255,255,.96)) 0%,var(--mindset-overlay,rgba(255,255,255,.82)) 50%,rgba(255,255,255,.12) 100%),
-    var(--mindset-image) center/cover no-repeat;
-}
-.mindset-module::after{
-  content:'';
-  position:absolute;
-  z-index:-1;
-  right:-34px;
-  bottom:-58px;
-  width:176px;
-  height:176px;
-  border-radius:50%;
-  background:var(--mindset-accent-soft,rgba(78,211,170,.14));
-  filter:blur(5px);
+.mindset-hero-kicker {
+  color: #059669;
+  font: 800 11px/1.2 Inter, Arial, sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.mindset-module.zen{--mindset-bg:#f4fffa;--mindset-border:#bae9d6;--mindset-overlay:rgba(248,255,251,.96);--mindset-image:url('../assets/materials-zen-cover-v1.png');--mindset-accent:#13845f;--mindset-accent-soft:rgba(59,197,151,.16)}
-.mindset-module.library{--mindset-bg:#f2f9ff;--mindset-border:#cce7fa;--mindset-overlay:rgba(246,251,255,.96);--mindset-image:url('../assets/materials-audio-cover-v1.png');--mindset-accent:#276f9e;--mindset-accent-soft:rgba(80,172,229,.15)}
-.mindset-module.psychology{--mindset-bg:#f8f4ff;--mindset-border:#e2d5ff;--mindset-overlay:rgba(250,247,255,.96);--mindset-image:url('../assets/wisdom-category-psychology-v3.webp');--mindset-accent:#8054a5;--mindset-accent-soft:rgba(170,112,229,.16)}
-.mindset-module.rules{--mindset-bg:#fffaf0;--mindset-border:#f0dbac;--mindset-overlay:rgba(255,251,241,.96);--mindset-image:url('../assets/materials-checklist-cover-v1.png');--mindset-accent:#aa7620;--mindset-accent-soft:rgba(232,174,66,.16)}
-.mindset-module.wisdom{--mindset-bg:#fff5f5;--mindset-border:#f1cbcb;--mindset-overlay:rgba(255,248,248,.96);--mindset-image:url('../assets/navigation-menu-wisdom-card-v1.png');--mindset-accent:#b45b67;--mindset-accent-soft:rgba(230,117,134,.15)}
-.mindset-module.profile{--mindset-bg:#f2fcfb;--mindset-border:#c7e8e4;--mindset-overlay:rgba(247,254,253,.96);--mindset-image:url('../assets/wisdom-category-mindset-v3.webp');--mindset-accent:#117d78;--mindset-accent-soft:rgba(69,204,192,.15)}
+.mindset-hero-kicker::before {
+  content: '—';
+  color: #10b981;
+}
 
-.mindset-module-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.mindset-module-title{display:flex;align-items:center;gap:12px}
-.mindset-module-icon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border-radius:15px;background:color-mix(in srgb,var(--mindset-accent) 13%,white);color:var(--mindset-accent);font-size:24px}
-.mindset-module h3{margin:0;color:#17251f;font:800 clamp(18px,1.35vw,22px)/1.08 Inter,Arial,sans-serif;letter-spacing:-.04em}
-.mindset-module h3 small{display:block;margin-top:4px;color:#455e55;font:500 13px/1.2 Inter,Arial,sans-serif;letter-spacing:0}
-.mindset-module-open{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border:1px solid color-mix(in srgb,var(--mindset-accent) 27%,white);border-radius:50%;background:rgba(255,255,255,.78);color:var(--mindset-accent);font:700 20px/1 Inter,Arial,sans-serif;pointer-events:none;transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
-.mindset-module p{max-width:80%;margin:16px 0 0;color:#354d44;font:500 14px/1.42 Inter,Arial,sans-serif}
-.mindset-module-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto;padding-top:18px}
-.mindset-module-pills span{padding:6px 12px;border:1px solid rgba(255,255,255,.8);border-radius:999px;background:rgba(255,255,255,.85);color:#243c33;font:700 11px/1.2 Inter,Arial,sans-serif;box-shadow:0 2px 7px rgba(36,61,51,.04);pointer-events:none;user-select:none;transition:background .18s ease,color .18s ease}
-.mindset-module:hover .mindset-module-pills span{background:rgba(255,255,255,.95);color:var(--mindset-accent)}
+.mindset-hero h1 {
+  margin: 0;
+  color: #111827;
+  font: 800 clamp(36px, 3.8vw, 56px) / 1.02 Inter, Arial, sans-serif;
+  letter-spacing: -0.04em;
+}
 
-/* 3. Lower Grid (3 Cards) */
-.mindset-lower-grid{
-  display:grid;
-  grid-template-columns:minmax(290px,.96fr) minmax(420px,1.32fr) minmax(260px,.72fr);
-  gap:clamp(14px,1.35vw,22px);
-  margin-top:clamp(18px,2vw,30px);
+.mindset-hero h1 em {
+  font-style: normal;
+  color: #059669;
 }
-.mindset-lower-card{
-  min-height:190px;
-  padding:22px;
-  border:1px solid #dcebe4;
-  border-radius:20px;
-  background:rgba(255,255,255,.88);
-  box-shadow:0 10px 24px rgba(24,70,50,.06);
-  box-sizing:border-box;
-}
-.mindset-lower-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.mindset-lower-head-title{display:flex;align-items:flex-start;gap:10px}
-.mindset-lower-head-title i{font-style:normal;font-size:24px}
-.mindset-lower-head-title h3{margin:0;color:#193128;font:800 18px/1.1 Inter,Arial,sans-serif;letter-spacing:-.035em}
-.mindset-lower-head-title p{margin:5px 0 0;color:#657971;font:500 12px/1.3 Inter,Arial,sans-serif}
 
-/* Card 1: Meu Estado Mental */
-.mindset-state-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:16px}
-.mindset-state-option{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  min-height:84px;
-  gap:5px;
-  padding:7px 3px;
-  border:1px solid #e1ebe5;
-  border-radius:12px;
-  background:#fbfdfc;
-  color:#4a6057;
-  font:700 11px/1.1 Inter,Arial,sans-serif;
-  cursor:pointer;
-  transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease;
+.mindset-hero h2 {
+  margin: 10px 0 0;
+  color: #1f2937;
+  font: 600 clamp(18px, 1.6vw, 24px) / 1.25 Inter, Arial, sans-serif;
+  letter-spacing: -0.02em;
 }
-.mindset-state-option span{
-  display:grid;
-  place-items:center;
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  font-size:22px;
-  background:#f0f6f2;
-  transition:all .18s ease;
-}
-.mindset-state-option:hover{transform:translateY(-2px);background:#f6fbf8}
-.mindset-state-option[data-state="calm"] span{background:#e5f8ee}
-.mindset-state-option[data-state="good"] span{background:#fdfae6}
-.mindset-state-option[data-state="neutral"] span{background:#fbf5e6}
-.mindset-state-option[data-state="anxious"] span{background:#fef0e6}
-.mindset-state-option[data-state="agitated"] span{background:#fde8e8}
 
-.mindset-state-option[data-state="calm"].active{border-color:#20a86c;background:#e9f9f1;color:#0f5e39;box-shadow:0 4px 12px rgba(32,168,108,.16),inset 0 0 0 1px rgba(32,168,108,.2)}
-.mindset-state-option[data-state="good"].active{border-color:#d4b322;background:#fefbee;color:#69530b;box-shadow:0 4px 12px rgba(212,179,34,.16),inset 0 0 0 1px rgba(212,179,34,.2)}
-.mindset-state-option[data-state="neutral"].active{border-color:#cf9f3b;background:#fef7e9;color:#6b4a0f;box-shadow:0 4px 12px rgba(207,159,59,.16),inset 0 0 0 1px rgba(207,159,59,.2)}
-.mindset-state-option[data-state="anxious"].active{border-color:#e0782a;background:#feeedf;color:#783607;box-shadow:0 4px 12px rgba(224,120,42,.16),inset 0 0 0 1px rgba(224,120,42,.2)}
-.mindset-state-option[data-state="agitated"].active{border-color:#d94343;background:#fde7e7;color:#7c1818;box-shadow:0 4px 12px rgba(217,67,67,.16),inset 0 0 0 1px rgba(217,67,67,.2)}
+.mindset-hero p {
+  margin: 14px 0 0;
+  color: #4b5563;
+  font: 500 clamp(14px, 1.05vw, 16px) / 1.5 Inter, Arial, sans-serif;
+  max-width: 620px;
+}
 
-/* Card 2: Minha Evolução Mental */
-.mindset-evolution{display:flex;flex-direction:column}
-.mindset-evolution-period select{
-  padding:5px 9px;
-  border:1px solid #d4e4db;
-  border-radius:8px;
-  background:#fff;
-  color:#274337;
-  font:600 12px Inter,Arial,sans-serif;
-  cursor:pointer;
+.mindset-hero-actions {
+  margin-top: 22px;
 }
-.mindset-evolution-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:10px;
-  margin-top:20px;
-}
-.mindset-evolution-item{
-  padding-right:10px;
-  border-right:1px solid #dcebe4;
-}
-.mindset-evolution-item:last-child{border:0;padding-right:0}
-.mindset-evolution-item b{display:block;color:#183126;font:800 20px/1.08 Inter,Arial,sans-serif;letter-spacing:-.04em}
-.mindset-evolution-item span{display:block;margin-top:5px;color:#5a6e65;font:600 11px/1.25 Inter,Arial,sans-serif;min-height:28px}
-.mindset-evolution-bar{
-  width:100%;
-  height:5px;
-  margin-top:8px;
-  border-radius:999px;
-  background:#e5eee9;
-  overflow:hidden;
-}
-.mindset-evolution-bar span{
-  display:block;
-  height:100%;
-  border-radius:999px;
-  background:linear-gradient(90deg,#38c692,#168b64);
-}
-.mindset-evolution-note{margin:auto 0 0;padding-top:14px;color:#6d8078;font:500 12px/1.35 Inter,Arial,sans-serif}
 
-/* Card 3: Frase do dia */
-.mindset-quote{
-  position:relative;
-  overflow:hidden;
-  background:
-    linear-gradient(135deg,rgba(247,255,251,.94),rgba(234,246,241,.92)),
-    url('../assets/courage-hero-landscape.jpg') center/cover no-repeat;
+.mindset-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 28px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  font: 700 15px/1 Inter, Arial, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(5, 150, 105, 0.32);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
-.mindset-quote::after{content:'“';position:absolute;right:14px;bottom:-54px;color:rgba(46,174,126,.14);font:800 185px/.7 Georgia,serif;pointer-events:none}
-.mindset-quote-nav{display:flex;align-items:center;gap:6px}
-.mindset-quote-nav button{
-  display:grid;
-  place-items:center;
-  width:26px;
-  height:26px;
-  border:1px solid #cbe0d5;
-  border-radius:50%;
-  background:#ffffff;
-  color:#1b4436;
-  font:700 13px/1 Inter,Arial,sans-serif;
-  cursor:pointer;
-  transition:all .18s ease;
+
+.mindset-hero-cta:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 12px 28px rgba(5, 150, 105, 0.42);
 }
-.mindset-quote-nav button:hover{background:#e8f7ee;border-color:#8ad4b2}
-.mindset-quote-nav span{color:#486357;font:700 11px Inter,Arial,sans-serif}
-.mindset-quote blockquote{position:relative;z-index:1;margin:18px 0 0;color:#18342a;font:600 19px/1.3 Georgia,serif;letter-spacing:-.03em}
-.mindset-quote cite{position:relative;z-index:1;display:block;margin-top:12px;color:#287459;font:700 11px/1 Inter,Arial,sans-serif;font-style:normal;letter-spacing:.08em;text-transform:uppercase}
 
-/* 4. Regras do Trader Screen */
-.trader-rules-hero{
-  display:flex;
-  align-items:end;
-  justify-content:space-between;
-  gap:24px;
-  padding:clamp(28px,3vw,46px);
-  border:1px solid #cfe5da;
-  border-radius:24px;
-  background:linear-gradient(120deg,#effaf4,#fff9ea);
-  box-shadow:0 18px 42px rgba(28,77,55,.08);
+.mindset-cta-icon {
+  font-size: 18px;
 }
-.trader-rules-hero h1{margin:0;color:#173128;font:800 clamp(32px,3.6vw,54px)/1 Inter,Arial,sans-serif;letter-spacing:-.06em}
-.trader-rules-hero p{max-width:640px;margin:13px 0 0;color:#526960;font:500 15px/1.5 Inter,Arial,sans-serif}
-.trader-rules-hero aside{max-width:280px;padding:16px 18px;border-left:3px solid #d9aa42;border-radius:0 12px 12px 0;background:rgba(255,255,255,.65);color:#70551b;font:600 14px/1.42 Georgia,serif}
 
-.trader-rules-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:22px}
-.trader-rules-card{padding:clamp(22px,2vw,32px);border:1px solid #dcebe4;border-radius:20px;background:#fff;box-shadow:0 11px 27px rgba(22,63,47,.06)}
-.trader-rules-card h2{margin:0;color:#193128;font:800 23px/1.1 Inter,Arial,sans-serif;letter-spacing:-.045em}
-.trader-rules-card>p{margin:8px 0 20px;color:#64786f;font:500 13px/1.45 Inter,Arial,sans-serif}
-
-.trader-rules-checklist-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-.trader-rules-checklist-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font:700 11px Inter,Arial,sans-serif}
-.trader-rules-checklist-badge.complete{background:#daf5e7;color:#126e49}
-.trader-rules-checklist-badge.pending{background:#faebd4;color:#87541b}
-.trader-rules-checklist-actions{display:flex;gap:8px}
-.trader-rules-checklist-actions button{padding:5px 9px;border:1px solid #d4e5dc;border-radius:7px;background:#f8faf8;color:#355346;font:600 11px Inter,Arial,sans-serif;cursor:pointer}
-.trader-rules-checklist-actions button:hover{background:#edf6f0}
-
-.trader-rules-checklist{display:grid;gap:9px}
-.trader-rules-check{display:flex;align-items:center;gap:12px;min-height:47px;padding:11px 13px;border:1px solid #e0ece5;border-radius:12px;background:#fbfdfc;color:#294237;font:600 14px/1.25 Inter,Arial,sans-serif;cursor:pointer;transition:all .15s ease}
-.trader-rules-check:hover{border-color:#b4decb;background:#f6fbf8}
-.trader-rules-check input{width:18px;height:18px;accent-color:#168b64;cursor:pointer}
-.trader-rules-check:has(input:checked){border-color:#9ed9bf;background:#effbf5;color:#146949}
-
-.trader-rules-sections{display:grid;gap:13px}
-.trader-rules-section{padding:16px 18px;border-radius:14px;background:#f7fbf8;border:1px solid #e5efe8}
-.trader-rules-section b{display:block;color:#185b3f;font:800 12px/1.2 Inter,Arial,sans-serif;letter-spacing:.09em;text-transform:uppercase}
-.trader-rules-section p{margin:8px 0 0;color:#51675e;font:500 13px/1.42 Inter,Arial,sans-serif}
-
-.trader-rules-gold{margin-top:22px;padding:clamp(22px,2vw,30px);border:1px solid #efd8a0;border-radius:20px;background:linear-gradient(120deg,#fffdf6,#fff8e8)}
-.trader-rules-gold h2{margin:0;color:#634b12;font:800 22px/1.1 Inter,Arial,sans-serif}
-.trader-rule-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0 0;padding:0;list-style:none}
-.trader-rule-list li{padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.8);border:1px solid rgba(220,195,140,.3);color:#604b25;font:700 13px/1.35 Inter,Arial,sans-serif}
-.trader-rule-list li::before{content:'✓';margin-right:8px;color:#aa7b16}
-
-.trader-rules-dont{margin-top:20px;padding:18px 20px;border-left:4px solid #cb5e50;border-radius:0 14px 14px 0;background:#fff5f3;color:#7b3d34}
-.trader-rules-dont b{display:block;font:800 12px/1.2 Inter,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#9b3325}
-.trader-rules-dont ul{margin:10px 0 0;padding-left:18px}
-.trader-rules-dont li{margin-bottom:6px;font:600 13px/1.4 Inter,Arial,sans-serif}
-
-/* 5. Psicologia do Trader Guide Tabs & Cards */
-.psychology-tabs{
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  padding:12px 0 18px;
-  border-bottom:1px solid #ded5c0;
-  margin-bottom:18px;
+.mindset-cta-arrow {
+  font-size: 16px;
+  transition: transform 0.2s ease;
 }
-.psychology-tab{
-  padding:8px 14px;
-  border:1px solid #dcd3bd;
-  border-radius:999px;
-  background:#f9f6ec;
-  color:#425247;
-  font:700 12px Inter,Arial,sans-serif;
-  cursor:pointer;
-  white-space:nowrap;
-  transition:all .18s ease;
-}
-.psychology-tab:hover{background:#f0e9d6;border-color:#b4a787}
-.psychology-tab.active{background:#236b4c;border-color:#236b4c;color:#fff;box-shadow:0 3px 10px rgba(35,107,76,.2)}
 
-.psychology-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.psychology-item-card{
-  padding:18px 20px;
-  border:1px solid #e0d8c4;
-  border-radius:14px;
-  background:#fffdf7;
-  box-shadow:0 4px 12px rgba(40,30,15,.04);
+.mindset-hero-cta:hover .mindset-cta-arrow {
+  transform: translateX(3px);
 }
-.psychology-item-card h3{margin:0 0 6px;color:#18372b;font:800 16px Inter,Arial,sans-serif}
-.psychology-item-card p{margin:0;color:#5a685e;font:500 13px/1.45 Inter,Arial,sans-serif}
-.psychology-item-card .antidote{margin-top:10px;padding:9px 12px;border-radius:8px;background:#eef7f1;color:#1c694a;font:600 12px/1.4 Inter,Arial,sans-serif}
-.psychology-item-card .antidote b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
 
-/* Responsiveness */
-@media (max-width:1220px){
-  .mindset-module-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .mindset-lower-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .mindset-quote{grid-column:span 2}
-  .mindset-benefits{max-width:700px}
-  .mindset-benefit{font-size:12px}
-  .psychology-guide-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.mindset-benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  margin-top: 24px;
 }
-@media (max-width:950px){
-  .mindset-hero{background-position:64% center}
-  .mindset-hero-copy{max-width:75%}
-  .mindset-hero-quote{display:none}
-  .mindset-benefits{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .trader-rules-grid{grid-template-columns:1fr}
-  .trader-rules-hero{align-items:flex-start;flex-direction:column}
-  .trader-rules-hero aside{max-width:none}
+
+.mindset-benefit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 13px/1.3 Inter, Arial, sans-serif;
+  color: #374151;
 }
-@media (max-width:720px){
-  #mindset,#traderrules{padding:14px 12px 30px}
-  .mindset-hero{min-height:430px;padding:24px 20px;background:linear-gradient(180deg,rgba(255,255,253,.98) 0%,rgba(255,255,253,.9) 56%,rgba(255,255,253,.15) 100%),url('../assets/mindset-hero-v1.png') 67% center/cover no-repeat}
-  .mindset-hero-copy{max-width:100%}
-  .mindset-hero h1{font-size:42px}
-  .mindset-benefits{max-width:100%}
-  .mindset-module-grid,.mindset-lower-grid{grid-template-columns:1fr}
-  .mindset-quote{grid-column:auto}
-  .mindset-module{min-height:240px}
-  .mindset-module p{max-width:85%}
-  .mindset-evolution-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-  .mindset-evolution-item{padding-right:0;border-right:0;border-bottom:1px solid #dcebe4;padding-bottom:10px}
-  .trader-rules-hero{padding:25px 20px}
-  .trader-rules-hero h1{font-size:36px}
-  .trader-rule-list{grid-template-columns:1fr}
-  .psychology-guide-grid{grid-template-columns:1fr}
+
+.mindset-benefit i {
+  font-size: 15px;
+  font-style: normal;
 }
-@media (max-width:440px){
-  .mindset-benefits{grid-template-columns:1fr}
-  .mindset-benefit i{width:27px;height:27px;flex-basis:27px}
-  .mindset-state-options{gap:4px}
-  .mindset-state-option{min-height:74px;font-size:9px}
-  .mindset-lower-card{padding:18px}
-  .mindset-evolution-grid{grid-template-columns:1fr}
+
+/* Floating Quote in Hero */
+.mindset-hero-quote {
+  position: absolute;
+  top: 32px;
+  right: 36px;
+  z-index: 2;
+  padding: 16px 22px;
+  max-width: 270px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+.mindset-hero-quote blockquote {
+  margin: 0;
+  color: #111827;
+  font: 600 clamp(15px, 1.15vw, 17px) / 1.35 Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+.mindset-hero-quote cite {
+  display: block;
+  margin-top: 8px;
+  color: #059669;
+  font: 800 10px/1 Inter, Arial, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-style: normal;
+}
+
+/* 2. OVERVIEW ROW (3 COLUNAS) */
+.mindset-row-overview {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.05fr) minmax(420px, 1.4fr) minmax(320px, 1.05fr);
+  gap: clamp(16px, 1.5vw, 24px);
+  align-items: stretch;
+}
+
+.mindset-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: 0 6px 24px rgba(17, 38, 30, 0.035);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mindset-card.pulse-focus {
+  animation: mindsetCardPulse 1.2s ease;
+}
+
+@keyframes mindsetCardPulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0.18); border-color: #10b981; }
+  100% { box-shadow: 0 6px 24px rgba(17, 38, 30, 0.035); }
+}
+
+.mindset-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mindset-card-head-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mindset-card-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #059669;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.mindset-card-head-title h3 {
+  margin: 0;
+  font: 700 17px/1.2 Inter, Arial, sans-serif;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+.mindset-card-head-title p {
+  margin: 3px 0 0;
+  font: 500 13px/1.2 Inter, Arial, sans-serif;
+  color: #6b7280;
+}
+
+/* Card 1: Seu Estado Mental */
+.mindset-state-options {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.mindset-state-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 4px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.mindset-state-option:hover {
+  background: #f0fdf4;
+  border-color: #86efac;
+  transform: translateY(-2px);
+}
+
+.mindset-state-option.active {
+  background: #ecfdf5;
+  border: 2px solid #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.16);
+}
+
+.mindset-state-emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.mindset-state-name {
+  font: 600 12px/1 Inter, Arial, sans-serif;
+  color: #374151;
+}
+
+.mindset-state-option.active .mindset-state-name {
+  color: #065f46;
+  font-weight: 700;
+}
+
+.mindset-state-footer {
+  margin-top: auto;
+  padding: 12px 14px;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mindset-state-current-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mindset-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
+}
+
+.mindset-state-current-status strong {
+  display: block;
+  font: 700 13px/1.2 Inter, Arial, sans-serif;
+  color: #111827;
+}
+
+.mindset-state-current-status span {
+  display: block;
+  font: 500 11px/1.2 Inter, Arial, sans-serif;
+  color: #059669;
+}
+
+.mindset-state-last-time {
+  text-align: right;
+}
+
+.mindset-state-last-time small {
+  display: block;
+  font: 600 10px/1 Inter, Arial, sans-serif;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.mindset-state-last-time span {
+  font: 600 12px/1.2 Inter, Arial, sans-serif;
+  color: #4b5563;
+}
+
+/* Card 2: Sua Evolução Mental */
+.mindset-evolution-period-picker select {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #ffffff;
+  font: 600 12px Inter, Arial, sans-serif;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.18s ease;
+}
+
+.mindset-evolution-period-picker select:hover {
+  border-color: #10b981;
+}
+
+.mindset-evolution-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.mindset-kpi-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.mindset-kpi-val {
+  font: 800 24px/1 Inter, Arial, sans-serif;
+  color: #111827;
+  letter-spacing: -0.03em;
+}
+
+.mindset-kpi-lbl {
+  font: 500 11px/1.3 Inter, Arial, sans-serif;
+  color: #6b7280;
+  margin: 4px 0 6px;
+  min-height: 28px;
+}
+
+.mindset-kpi-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font: 700 10px/1 Inter, Arial, sans-serif;
+}
+
+.mindset-kpi-badge.good {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.mindset-kpi-badge.neutral {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.mindset-chart-wrap {
+  width: 100%;
+  height: 112px;
+  margin-top: auto;
+}
+
+.mindset-evolution-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.mindset-chart-dot {
+  fill: #ffffff;
+  stroke: #10b981;
+  stroke-width: 2.5;
+  transition: transform 0.2s ease, r 0.2s ease;
+  cursor: pointer;
+}
+
+.mindset-chart-dot:hover {
+  r: 5.5;
+  fill: #10b981;
+}
+
+.mindset-chart-x-label {
+  font: 500 10px Inter, Arial, sans-serif;
+  fill: #9ca3af;
+}
+
+/* Card 3: Continue sua jornada */
+.mindset-continue-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.mindset-continue-content-box {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 14px;
+}
+
+.mindset-continue-thumb {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.mindset-continue-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mindset-continue-kicker {
+  display: block;
+  font: 700 10px/1 Inter, Arial, sans-serif;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 3px;
+}
+
+.mindset-continue-info h4 {
+  font: 700 13px/1.2 Inter, Arial, sans-serif;
+  color: #111827;
+  margin: 0 0 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mindset-continue-info p {
+  font: 500 11px/1 Inter, Arial, sans-serif;
+  color: #6b7280;
+  margin: 0 0 6px;
+}
+
+.mindset-continue-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mindset-progress-track {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.mindset-progress-fill {
+  height: 100%;
+  background: #10b981;
+  border-radius: 999px;
+}
+
+.mindset-progress-num {
+  font: 700 11px/1 Inter, Arial, sans-serif;
+  color: #111827;
+}
+
+.mindset-continue-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: #059669;
+  color: #ffffff;
+  font: 700 14px/1 Inter, Arial, sans-serif;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.25);
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.mindset-continue-btn:hover {
+  background: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(5, 150, 105, 0.35);
+}
+
+.mindset-next-recommendation {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+  margin-top: auto;
+}
+
+.mindset-next-recommendation:hover {
+  background: #fef3c7;
+  border-color: #fde68a;
+}
+
+.mindset-recom-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.mindset-recom-text small {
+  display: block;
+  font: 700 10px/1 Inter, Arial, sans-serif;
+  color: #b45309;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+
+.mindset-recom-text strong {
+  display: block;
+  font: 700 12px/1.25 Inter, Arial, sans-serif;
+  color: #92400e;
+}
+
+.mindset-recom-text span {
+  display: block;
+  font: 500 11px/1 Inter, Arial, sans-serif;
+  color: #b45309;
+  margin-top: 2px;
+}
+
+/* 3. SUA JORNADA MENTAL (GRID 6 MÓDULOS) */
+.mindset-journey-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.mindset-journey-head h2 {
+  margin: 0;
+  font: 800 clamp(20px, 1.8vw, 24px) / 1.2 Inter, Arial, sans-serif;
+  color: #111827;
+  letter-spacing: -0.03em;
+}
+
+.mindset-journey-head p {
+  margin: 4px 0 0;
+  font: 500 14px/1.3 Inter, Arial, sans-serif;
+  color: #6b7280;
+}
+
+.mindset-module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 1.5vw, 24px);
+  margin-top: 18px;
+}
+
+.mindset-module {
+  position: relative;
+  overflow: hidden;
+  min-height: 250px;
+  border-radius: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: clamp(20px, 1.8vw, 26px);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  background: #ffffff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  isolation: isolate;
+  box-sizing: border-box;
+}
+
+.mindset-module::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--card-bg-img);
+  background-position: right center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transition: transform 0.3s ease;
+}
+
+.mindset-module::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    rgba(255, 255, 255, 0.97) 45%,
+    rgba(255, 255, 255, 0.76) 66%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+}
+
+.mindset-module:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.mindset-module:hover::before {
+  transform: scale(1.03);
+}
+
+.mindset-module.zen {
+  --card-bg-img: url('../assets/mindset-card-zen.jpg');
+  --module-accent: #059669;
+}
+
+.mindset-module.psychology {
+  --card-bg-img: url('../assets/mindset-card-psychology.jpg');
+  --module-accent: #0284c7;
+}
+
+.mindset-module.library {
+  --card-bg-img: url('../assets/mindset-card-library.jpg');
+  --module-accent: #7c3aed;
+}
+
+.mindset-module.rules {
+  --card-bg-img: url('../assets/mindset-card-rules.jpg');
+  --module-accent: #d97706;
+}
+
+.mindset-module.wisdom {
+  --card-bg-img: url('../assets/mindset-card-wisdom.jpg');
+  --module-accent: #e11d48;
+}
+
+.mindset-module.profile {
+  --card-bg-img: url('../assets/mindset-card-profile.jpg');
+  --module-accent: #0d9488;
+}
+
+.mindset-module-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mindset-module-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mindset-module-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.mindset-module h3 {
+  margin: 0;
+  font: 700 clamp(16px, 1.25vw, 19px) / 1.2 Inter, Arial, sans-serif;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+.mindset-module small {
+  display: block;
+  margin-top: 2px;
+  font: 500 12px/1.2 Inter, Arial, sans-serif;
+  color: #6b7280;
+}
+
+.mindset-module-open {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  font: 700 16px/1 Inter, Arial, sans-serif;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mindset-module:hover .mindset-module-open {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+  transform: translateX(3px);
+}
+
+.mindset-module p {
+  max-width: 78%;
+  margin: 12px 0 0;
+  font: 500 13px/1.45 Inter, Arial, sans-serif;
+  color: #4b5563;
+}
+
+.mindset-module-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.mindset-module-pills span {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e5e7eb;
+  font: 600 11px/1.2 Inter, Arial, sans-serif;
+  color: #374151;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  pointer-events: none;
+  user-select: none;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.mindset-module:hover .mindset-module-pills span {
+  border-color: #86efac;
+  color: #047857;
+}
+
+/* 4. BLOCO INFERIOR (3 COLUNAS) */
+.mindset-row-bottom {
+  display: grid;
+  grid-template-columns: minmax(360px, 1.25fr) minmax(380px, 1.35fr) minmax(200px, 0.65fr);
+  gap: clamp(16px, 1.5vw, 24px);
+  align-items: stretch;
+}
+
+.mindset-bottom-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 4px 18px rgba(17, 38, 30, 0.035);
+  box-sizing: border-box;
+}
+
+/* Card 1: Reflexão do Dia */
+.mindset-quote-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mindset-quote-card::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  background: url('../assets/mindset-hero-panorama.jpg') center right / cover no-repeat;
+  opacity: 0.18;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+  pointer-events: none;
+}
+
+.mindset-quote-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mindset-quote-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mindset-quote-glyph {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #059669;
+  font: 700 22px/1 Georgia, serif;
+}
+
+.mindset-quote-title {
+  font: 700 15px/1.2 Inter, Arial, sans-serif;
+  color: #111827;
+}
+
+.mindset-quote-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 12px Inter, Arial, sans-serif;
+  color: #6b7280;
+}
+
+.mindset-quote-nav button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  font: 700 14px/1 Inter, Arial, sans-serif;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.18s ease;
+}
+
+.mindset-quote-nav button:hover {
+  border-color: #10b981;
+  color: #059669;
+}
+
+.mindset-quote-body blockquote {
+  margin: 8px 0;
+  font: 600 clamp(15px, 1.15vw, 17px) / 1.4 Georgia, serif;
+  color: #111827;
+  letter-spacing: -0.01em;
+  position: relative;
+  z-index: 1;
+}
+
+.mindset-quote-body cite {
+  display: block;
+  font: 700 12px/1 Inter, Arial, sans-serif;
+  color: #059669;
+  font-style: normal;
+  margin-top: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Card 2: Atividade Recente */
+.mindset-activity-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.mindset-activity-icon {
+  font-size: 16px;
+}
+
+.mindset-activity-head h3 {
+  margin: 0;
+  font: 700 15px/1.2 Inter, Arial, sans-serif;
+  color: #111827;
+}
+
+.mindset-activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mindset-activity-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font: 500 12px/1.3 Inter, Arial, sans-serif;
+  color: #4b5563;
+}
+
+.mindset-activity-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.mindset-activity-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  flex-shrink: 0;
+}
+
+.mindset-activity-time {
+  font-weight: 700;
+  color: #111827;
+  flex-shrink: 0;
+  min-width: 72px;
+}
+
+.mindset-activity-desc {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mindset-activity-desc strong {
+  color: #059669;
+}
+
+/* Card 3: Micro-Card de Inspiração */
+.mindset-mini-card {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px;
+}
+
+.mindset-mini-icon {
+  font-size: 26px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.mindset-mini-card p {
+  margin: 0;
+  font: 700 14px/1.35 Inter, Arial, sans-serif;
+  color: #065f46;
+}
+
+/* ==================================================
+   RESPONSIVIDADE ROBUSTA
+   Validação explícita em:
+   - 1366x768 (Notebook)
+   - 1440x900
+   - 1920x1080 (Full HD)
+   - Ultrawide (> 2000px)
+   ================================================== */
+
+@media (max-width: 1320px) {
+  .mindset-row-overview {
+    grid-template-columns: 1fr 1fr;
+  }
+  .mindset-card-continue {
+    grid-column: 1 / -1;
+  }
+  .mindset-row-bottom {
+    grid-template-columns: 1fr 1fr;
+  }
+  .mindset-mini-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1100px) {
+  .mindset-module-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .mindset-hero {
+    min-height: auto;
+    padding: 24px;
+    align-items: flex-start;
+  }
+  .mindset-hero-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(255, 255, 255, 0.95) 60%,
+      rgba(255, 255, 255, 0.75) 100%
+    );
+  }
+  .mindset-hero-copy {
+    max-width: 100%;
+  }
+  .mindset-hero-quote {
+    position: static;
+    margin-top: 20px;
+    max-width: 100%;
+  }
+  .mindset-row-overview {
+    grid-template-columns: 1fr;
+  }
+  .mindset-card-continue {
+    grid-column: auto;
+  }
+  .mindset-row-bottom {
+    grid-template-columns: 1fr;
+  }
+  .mindset-mini-card {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 680px) {
+  .mindset-module-grid {
+    grid-template-columns: 1fr;
+  }
+  .mindset-state-options {
+    gap: 4px;
+  }
+  .mindset-state-option {
+    padding: 8px 2px;
+  }
+  .mindset-state-emoji {
+    font-size: 20px;
+  }
+  .mindset-state-name {
+    font-size: 10px;
+  }
+  .mindset-evolution-kpis {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }

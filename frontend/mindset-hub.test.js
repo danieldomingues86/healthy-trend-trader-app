@@ -48,7 +48,11 @@ test('sidebar-navigation.js: único ponto de entrada para Mentalidade sem itens 
   assert.match(sidebarNavJs, /onclick="go\('mindset'\)"/);
 });
 
-test('mindset-hub.js: estrutura da Home com os 6 submódulos e 3 cards inferiores', () => {
+test('mindset-hub.js: estrutura da Home com os 6 submódulos, overview e blocos integrados', () => {
+  // Hero com CTA de check-in mental
+  assert.match(mindsetHubJs, /Fazer check-in mental/);
+  assert.match(mindsetHubJs, /onclick="focusMentalCheckin\(\)"/);
+
   // 6 submodules present
   assert.match(mindsetHubJs, /class="mindset-module zen"/);
   assert.match(mindsetHubJs, /class="mindset-module library"/);
@@ -69,10 +73,15 @@ test('mindset-hub.js: estrutura da Home com os 6 submódulos e 3 cards inferiore
   assert.match(mindsetHubJs, /<div class="mindset-module-pills">\s*<span>Respiração<\/span>/);
   assert.doesNotMatch(mindsetHubJs, /<div class="mindset-module-pills">\s*<button/);
 
-  // Lower cards
-  assert.match(mindsetHubJs, /Meu Estado Mental/);
-  assert.match(mindsetHubJs, /Minha Evolução Mental/);
-  assert.match(mindsetHubJs, /Frase do dia/);
+  // Overview row: Seu Estado Mental, Sua Evolução Mental, Continue sua jornada
+  assert.match(mindsetHubJs, /Seu Estado Mental/);
+  assert.match(mindsetHubJs, /Sua Evolução Mental/);
+  assert.match(mindsetHubJs, /Continue sua jornada/);
+  assert.match(mindsetHubJs, /Sua Jornada Mental/);
+
+  // Bloco inferior: Reflexão do dia, Atividade recente
+  assert.match(mindsetHubJs, /Reflexão do dia/);
+  assert.match(mindsetHubJs, /Atividade recente/);
 
   // 5 mental states
   assert.match(mindsetHubJs, /data-state="calm"/);
