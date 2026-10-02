@@ -500,6 +500,7 @@ process.on('unhandledRejection', (reason) => {
 server.listen(port, async () => {
   try { await database.migrate(); await auth.ensureAdmin(); } catch (error) { console.error(`[database] ${error.message}`); }
   console.log(`Market data API em http://localhost:${port}`);
+  tickerChart.warmup().catch((error) => console.error('[ticker-chart warmup]', error.message));
 });
 setInterval(() => refreshIfDue().catch((error) => console.error('[scheduler]', error.message)), 60 * 60 * 1000);
 refreshIfDue().catch((error) => console.error('[startup]', error.message));

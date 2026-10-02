@@ -10,6 +10,7 @@ const TickerChartModel = require('../../frontend/ticker-chart-model');
 
 const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
 const NASDAQ_PRICES_FILE = path.join(__dirname, '..', 'data', 'nasdaq-daily-prices.json');
+const SPOT_CANDLES_CACHE_FILE = path.join(__dirname, '..', 'data', 'b3-spot-candles-cache.json');
 
 // In-memory cache de velas históricas indexadas por ticker
 let b3StocksCache = null;
@@ -59,6 +60,36 @@ function parseSpotStocksFromBuffer(buffer) {
 
 function loadB3History() {
   if (b3StocksCache) return b3StocksCache;
+
+  // 1. Carregamento ultra-rápido via cache persistente JSON (~1s em vez de 17s descompactando 1.5GB)
+  if (fs.existsSync(SPOT_CANDLES_CACHE_FILE)) {
+    try {
+      const stats = fs.statSync(SPOT_CANDLES_CACHE_FILE);
+      let needsRebuild = false;
+      const currentYear = new Date().getFullYear();
+      for (const year of [currentYear - 1, currentYear]) {
+        const zipFile = path.join(B3_HISTORY_CACHE, `cotahist-${year}.zip`);
+        if (fs.existsSync(zipFile)) {
+          const zipStat = fs.statSync(zipFile);
+          if (zipStat.mtimeMs > stats.mtimeMs) {
+            needsRebuild = true;
+            break;
+          }
+        }
+      }
+
+      if (!needsRebuild) {
+        const raw = fs.readFileSync(SPOT_CANDLES_CACHE_FILE, 'utf8');
+        const parsed = JSON.parse(raw);
+        b3StocksCache = new Map(Object.entries(parsed));
+        return b3StocksCache;
+      }
+    } catch (err) {
+      console.warn('Falha ao ler b3-spot-candles-cache.json, reconstruindo:', err.message);
+    }
+  }
+
+  // 2. Extração de contingência a partir dos zips brutos do COTAHIST
   const merged = new Map();
   const currentYear = new Date().getFullYear();
   const years = [currentYear - 1, currentYear];
@@ -92,6 +123,14 @@ function loadB3History() {
       }
     }
     merged.set(sym, deduped);
+  }
+
+  // Salva no arquivo de cache persistente para as próximas inicializações
+  try {
+    const obj = Object.fromEntries(merged);
+    fs.writeFileSync(SPOT_CANDLES_CACHE_FILE, JSON.stringify(obj));
+  } catch (err) {
+    console.warn('Erro ao salvar b3-spot-candles-cache.json:', err.message);
   }
 
   b3StocksCache = merged;
@@ -480,8 +519,20 @@ async function getTickerChartData(rawSymbol) {
   };
 }
 
+async function warmup() {
+  try {
+    loadB3History();
+    loadNasdaqHistory();
+    await getSearchUniverse();
+  } catch (err) {
+    console.warn('[ticker-chart warmup]', err.message);
+  }
+}
+
 module.exports = {
   getTickerChartData,
   getSearchUniverse,
-  formatLargeNumber
+  formatLargeNumber,
+  warmup
 };
+

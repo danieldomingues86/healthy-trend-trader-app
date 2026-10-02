@@ -12,6 +12,8 @@
   let volumeSeries = null;
   let disciplineState = null;
 
+  const tickerDataCache = new Map();
+
   // Carrega e inicializa o estado de disciplina
   function initDiscipline() {
     if (window.TickerChartModel) {
@@ -19,14 +21,163 @@
     }
   }
 
-  // Busca o universo pesquisável do backend
+  // Busca o universo pesquisável do backend (com cache para evitar requests repetidos)
   async function loadUniverse() {
+    if (searchUniverse && searchUniverse.length > 0) return;
     try {
-      const res = await window.healthyTrendApi ? window.healthyTrendApi.request('/api/market-data/ticker-universe') : fetch('/api/market-data/ticker-universe').then(r => r.json());
+      const res = window.healthyTrendApi ? await window.healthyTrendApi.request('/api/market-data/ticker-universe') : await fetch('/api/market-data/ticker-universe').then(r => r.json());
       searchUniverse = Array.isArray(res) ? res : [];
     } catch (err) {
       console.warn('Falha ao carregar universo de busca:', err);
     }
+  }
+
+  // Renderiza imediatamente o skeleton da tela para eliminar qualquer tela em branco
+  function renderLoadingSkeleton(sym) {
+    const root = document.getElementById('tickerChartRoot');
+    if (!root) return;
+
+    root.innerHTML = `
+      <!-- 1. HEADER & SEARCH -->
+      <div class="ticker-chart-header">
+        <div class="ticker-chart-title-area">
+          <h1>Gráficos</h1>
+          <p class="ticker-chart-subtitle">Análise completa do ativo no gráfico Diário.</p>
+        </div>
+
+        <div class="ticker-search-container">
+          <div class="ticker-search-input-wrapper">
+            <input type="text" class="ticker-search-input" id="tickerSearchInput" value="${sym}" placeholder="Pesquisar ticker (ex: PETR4, VALE3, AAPL, VOD...)" autocomplete="off" />
+            <span class="ticker-search-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
+          </div>
+          <div class="ticker-search-dropdown" id="tickerSearchDropdown"></div>
+        </div>
+
+        <div class="ticker-discipline-top-widget" id="btnOpenDisciplineDrawer" title="Clique para ver seu histórico de disciplina do diário">
+          ${renderDonutMini(disciplineState)}
+          <div class="discipline-info-wrap">
+            <div class="discipline-info-title">Disciplina do Diário</div>
+            <div class="discipline-info-sub">${disciplineState ? disciplineState.sessionsToday : 1} / 2 visualizações hoje</div>
+          </div>
+          <div class="discipline-status-pill ${getDisciplinePillClass(disciplineState)}">
+            <span>●</span> ${getDisciplinePillText(disciplineState)}
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. TICKER HERO SKELETON -->
+      <div class="ticker-hero-card ticker-skeleton-loading">
+        <div class="ticker-hero-left">
+          <div class="ticker-monogram-badge">${getMonogram(sym)}</div>
+          <div class="ticker-title-group">
+            <div class="ticker-symbol-row">
+              <span class="ticker-hero-symbol">${sym}</span>
+              <span class="ticker-skeleton-line" style="width: 80px; height: 24px; border-radius: 6px;"></span>
+              <span class="ticker-skeleton-line" style="width: 100px; height: 20px; border-radius: 6px;"></span>
+            </div>
+            <div class="ticker-hero-name" style="color: #94a3b8; font-size: 13px;">Sincronizando cotação e dados do ativo...</div>
+          </div>
+        </div>
+
+        <div class="ticker-hero-meta-columns">
+          <div class="ticker-meta-col">
+            <span class="ticker-meta-label">Setor</span>
+            <span class="ticker-skeleton-line" style="width: 90px; height: 16px;"></span>
+          </div>
+          <div class="ticker-meta-col">
+            <span class="ticker-meta-label">Subsetor</span>
+            <span class="ticker-skeleton-line" style="width: 110px; height: 16px;"></span>
+          </div>
+          <div class="ticker-meta-col">
+            <span class="ticker-meta-label">Valor de Mercado</span>
+            <span class="ticker-skeleton-line" style="width: 80px; height: 16px;"></span>
+          </div>
+          <div class="ticker-meta-col">
+            <span class="ticker-meta-label">Volume Médio (21d)</span>
+            <span class="ticker-skeleton-line" style="width: 70px; height: 16px;"></span>
+          </div>
+        </div>
+
+        <div class="ticker-hero-actions">
+          <button class="btn-watchlist-toggle" disabled style="opacity: 0.6; cursor: wait;">
+            <span>⭐</span> Watchlist
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. MAIN CHART SKELETON & VISÃO DO ATIVO GRID -->
+      <div class="ticker-main-grid">
+        <div class="ticker-chart-card">
+          <div class="ticker-chart-toolbar">
+            <div class="chart-toolbar-left">
+              <div class="chart-timeframe-badge">D</div>
+              <div class="chart-timeframe-select-wrap">
+                <span>Diário (oficial)</span>
+              </div>
+            </div>
+            <div class="chart-toolbar-right">
+              <div class="chart-official-method-badge">
+                <span>💡</span> Você opera pelo gráfico Diário
+              </div>
+            </div>
+          </div>
+
+          <div class="ticker-chart-skeleton-wrap">
+            <div class="ticker-chart-spinner"></div>
+            <div class="ticker-chart-skeleton-text">
+              Carregando gráfico Diário e médias do ativo <strong>${sym}</strong>...
+            </div>
+            <div class="ticker-chart-skeleton-sub">
+              Sincronizando séries históricas B3 e indicadores do método
+            </div>
+          </div>
+        </div>
+
+        <div class="ticker-vision-card ticker-skeleton-loading">
+          <div class="vision-card-head">
+            <div class="vision-head-title">
+              <div class="vision-title">Visão do Ativo</div>
+              <div class="vision-subtitle">Baseado no seu método e no rubric atual.</div>
+            </div>
+            <div class="vision-grade-badge" style="opacity: 0.5;">...</div>
+          </div>
+          <div class="vision-checklist">
+            <div class="vision-check-item"><span>○</span> Tendência alinhada</div>
+            <div class="vision-check-item"><span>○</span> Força Relativa</div>
+            <div class="vision-check-item"><span>○</span> Volatilidade favorável</div>
+            <div class="vision-check-item"><span>○</span> Ciclo de mercado</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. METHOD INDICATORS ROW SKELETON -->
+      <div class="ticker-method-row">
+        ${['Força Relativa', 'Ciclo de Mercado', 'Tendência', 'Volatilidade (ATR)', 'Estrutura', 'Gatilho'].map((name) => `
+          <div class="method-card ticker-skeleton-loading">
+            <div class="method-card-head">
+              <div class="method-card-title-wrap">
+                <span class="method-card-title">${name}</span>
+              </div>
+            </div>
+            <div class="method-main-metric">
+              <span class="ticker-skeleton-line" style="width: 80px; height: 26px;"></span>
+            </div>
+            <div class="method-desc-line">
+              <span class="ticker-skeleton-line" style="width: 100%; height: 13px;"></span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- DISCIPLINA FLYOUT DRAWER & OVERLAY -->
+      <div class="discipline-drawer-overlay" id="disciplineDrawerOverlay"></div>
+      <div class="discipline-drawer" id="disciplineDrawer"></div>
+    `;
+
+    setupSearchEvents();
+    setupDisciplineDrawerEvents();
   }
 
   // Busca dados analíticos completos do ticker
@@ -36,21 +187,34 @@
     const root = document.getElementById('tickerChartRoot');
     if (!root) return;
 
+    // Se já estiver em cache, renderiza imediatamente (0ms) e revalida em segundo plano
+    const isCached = tickerDataCache.has(sym);
+    if (isCached) {
+      tickerData = tickerDataCache.get(sym);
+      renderAll();
+    } else {
+      // Exibe skeleton completo instantaneamente para eliminar a tela branca
+      renderLoadingSkeleton(sym);
+    }
+
     try {
       const url = `/api/market-data/ticker-chart?ticker=${encodeURIComponent(sym)}`;
       const res = window.healthyTrendApi ? await window.healthyTrendApi.request(url) : await fetch(url).then(r => r.json());
       if (res.error) throw new Error(res.error);
       tickerData = res;
+      tickerDataCache.set(sym, res);
       renderAll();
     } catch (err) {
       console.error('Erro ao carregar dados do ticker:', err);
-      root.innerHTML = `
-        <div style="padding: 40px; text-align: center; color: #64748b;">
-          <h3>Não foi possível carregar os dados para ${sym}</h3>
-          <p>${err.message || 'Verifique se o ticker está cadastrado no sistema.'}</p>
-          <button class="primary" onclick="window.loadTickerChart('${defaultTicker}')" style="margin-top: 16px;">Voltar para ${defaultTicker}</button>
-        </div>
-      `;
+      if (!isCached) {
+        root.innerHTML = `
+          <div style="padding: 40px; text-align: center; color: #64748b;">
+            <h3>Não foi possível carregar os dados para ${sym}</h3>
+            <p>${err.message || 'Verifique se o ticker está cadastrado no sistema.'}</p>
+            <button class="primary" onclick="window.loadTickerChart('${defaultTicker}')" style="margin-top: 16px;">Voltar para ${defaultTicker}</button>
+          </div>
+        `;
+      }
     }
   }
 
@@ -891,13 +1055,12 @@
     };
   }
 
-  function setupEventListeners() {
-    // Busca e Autocomplete
+  function setupSearchEvents() {
     const searchInput = document.getElementById('tickerSearchInput');
     const dropdown = document.getElementById('tickerSearchDropdown');
 
     if (searchInput && dropdown) {
-      searchInput.addEventListener('input', (e) => {
+      searchInput.oninput = (e) => {
         const query = e.target.value.trim().toUpperCase();
         if (!query) {
           dropdown.classList.remove('active');
@@ -932,17 +1095,17 @@
 
         // Click no item do dropdown
         dropdown.querySelectorAll('.ticker-search-item').forEach(el => {
-          el.addEventListener('click', () => {
+          el.onclick = () => {
             const sym = el.getAttribute('data-symbol');
             dropdown.classList.remove('active');
             searchInput.value = '';
             handleTickerSelect(sym);
-          });
+          };
         });
-      });
+      };
 
       // Pressionar Enter seleciona o primeiro item ou ticker digitado
-      searchInput.addEventListener('keydown', (e) => {
+      searchInput.onkeydown = (e) => {
         if (e.key === 'Enter') {
           const first = dropdown.querySelector('.ticker-search-item');
           if (first) {
@@ -959,20 +1122,47 @@
         } else if (e.key === 'Escape') {
           dropdown.classList.remove('active');
         }
-      });
+      };
 
       // Fecha dropdown ao clicar fora
-      document.addEventListener('click', (e) => {
+      document.onclick = (e) => {
         if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
           dropdown.classList.remove('active');
         }
-      });
+      };
     }
+  }
+
+  function setupDisciplineDrawerEvents() {
+    const btnOpenDrawer = document.getElementById('btnOpenDisciplineDrawer');
+    const drawer = document.getElementById('disciplineDrawer');
+    const overlay = document.getElementById('disciplineDrawerOverlay');
+    const btnCloseDrawer = document.getElementById('btnCloseDisciplineDrawer');
+
+    if (btnOpenDrawer && drawer && overlay) {
+      btnOpenDrawer.onclick = () => {
+        drawer.classList.add('active');
+        overlay.classList.add('active');
+      };
+
+      const closeFn = () => {
+        drawer.classList.remove('active');
+        overlay.classList.remove('active');
+      };
+
+      if (btnCloseDrawer) btnCloseDrawer.onclick = closeFn;
+      overlay.onclick = closeFn;
+    }
+  }
+
+  function setupEventListeners() {
+    setupSearchEvents();
+    setupDisciplineDrawerEvents();
 
     // Toggle Watchlist
     const btnWatchlist = document.getElementById('btnToggleWatchlist');
     if (btnWatchlist) {
-      btnWatchlist.addEventListener('click', () => {
+      btnWatchlist.onclick = () => {
         btnWatchlist.classList.toggle('active');
         const isActive = btnWatchlist.classList.contains('active');
         btnWatchlist.innerHTML = isActive ? '<span>★</span> Na Watchlist' : '<span>⭐</span> Adicionar à Watchlist';
@@ -982,28 +1172,7 @@
             body: { ticker: currentTicker }
           }).catch(() => {});
         }
-      });
-    }
-
-    // Drawer de Disciplina
-    const btnOpenDrawer = document.getElementById('btnOpenDisciplineDrawer');
-    const drawer = document.getElementById('disciplineDrawer');
-    const overlay = document.getElementById('disciplineDrawerOverlay');
-    const btnCloseDrawer = document.getElementById('btnCloseDisciplineDrawer');
-
-    if (btnOpenDrawer && drawer && overlay) {
-      btnOpenDrawer.addEventListener('click', () => {
-        drawer.classList.add('active');
-        overlay.classList.add('active');
-      });
-
-      const closeFn = () => {
-        drawer.classList.remove('active');
-        overlay.classList.remove('active');
       };
-
-      if (btnCloseDrawer) btnCloseDrawer.addEventListener('click', closeFn);
-      overlay.addEventListener('click', closeFn);
     }
 
     // Fullscreen no gráfico
