@@ -21,6 +21,8 @@
 <link rel="stylesheet" href="frontend/asset-blacklist.css?v=20260924-fullscreen-1" />
 <link rel="stylesheet" href="frontend/courage-challenge.css" />
 <link rel="stylesheet" href="frontend/login-cinematic.css?v=20260927-1" />
+<link rel="stylesheet" href="frontend/mindset-hub.css" />
+<link rel="stylesheet" href="frontend/ticker-chart.css" />
 <script src="frontend/instrument-catalog.js?v=20260924-market-reset-1"></script>
 <script src="frontend/setup-triggers-catalog.js?v=20260929-1"></script>
 <style>
@@ -528,7 +530,6 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
     <button data-page="journal"><span class="ico">✎</span>Diário do Trader</button>
     <button data-page="couragechallenge"><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span>Desafio Grade A</button>
     <button data-page="tradelibrary"><span class="ico">▦</span>Biblioteca de Trades</button>
-    <button data-page="emotionalintelligence"><span class="ico">◎</span>Analisador Emocional</button>
     <button data-page="mistakesbook"><span class="ico mb-nav-book" aria-hidden="true"></span>Erros e lições</button>
     <button data-page="review"><span class="ico">✓</span>Revisão Mensal</button>
     <button data-page="platformaccess"><span class="ico">◷</span>Uso da Plataforma</button>
@@ -541,10 +542,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
     <button data-page="marketscans"><span class="ico">⌕</span>Scans de Mercado</button>
   </nav></div>
   <div class="nav-group"><div class="nav-label">Alta Performance</div><nav class="nav">
-    <button data-page="zen"><span class="ico">◒</span>Trader Zen</button>
-
-    <button data-page="wisdom"><span class="ico">✦</span>Sabedoria do Trader</button>
-    <button data-page="traderprofile"><span class="ico">◈</span>Testes de Perfil</button>
+    <button data-page="mindset"><span class="ico">◉</span>Mentalidade</button>
     <button data-page="habits"><span class="ico">◉</span>Monitor de Hábitos</button>
     <button data-page="forecast"><span class="ico">∿</span>Simulador de Resultados</button>
     <button data-page="materials"><span class="ico materials-menu-icon" aria-hidden="true"></span>Loja Trader</button>
@@ -565,9 +563,11 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <section class="page" id="today"><div class="hero"><div><div class="eyebrow">Seu ponto de partida</div><h1>Seu dia em<br>três passos simples.</h1></div><div><p>1. Veja se pode operar. 2. Atualize o que já está aberto. 3. Planeje algo novo somente quando fizer sentido.</p><div class="operations-actions"><button class="primary" onclick="go('newtrade')">Planejar trade →</button></div></div></div><div class="grid today-grid"><div class="card"><div class="card-head"><div><h3>1. Como está sua conta</h3><span>Posições em Paper Trading ficam separadas.</span></div><span class="badge good">Pode operar com atenção</span></div><div class="today-summary" id="todaySummary"></div><div class="section-title"><div><h2>2. O que precisa de atenção</h2><p>Abra uma posição para atualizar preço, stop ou registrar uma parcial.</p></div></div><div class="operational-list" id="todayPositions"></div></div><div class="card"><div class="card-head"><div><h3>3. Antes de fazer algo novo</h3><span>Alertas ajudam, mas não bloqueiam sua decisão.</span></div></div><div class="operational-list" id="todayAlerts"></div><div class="section-title"><div><h2>Planos salvos</h2><p id="draftCount">Nenhum plano pendente</p></div></div><div class="alert-item good"><b>Paper Trading:</b> pratique com as mesmas regras, sem alterar a conta real.</div></div></div></section>
 <section class="page" id="dailyroutine" aria-label="Rotina Diária"><div id="dailyRoutineCardContainer"></div></section>
 <section class="page" id="habits"></section>
+<section class="page" id="mindset" aria-label="Mentalidade"><div id="mindsetHubRoot"></div></section>
 <section class="page" id="zen" aria-label="Trader Zen"><div id="traderZenRoot"></div><section id="audiolibrary" aria-label="Biblioteca Mental do Trader Zen" hidden><button class="zen-library-back" type="button" onclick="go('zen')">← Voltar ao Trader Zen</button><div id="mentalAudioLibraryRoot"></div></section></section>
 
 <section class="page" id="traderprofile" aria-label="Testes de Perfil"></section>
+<section class="page" id="traderrules" aria-label="Regras do Trader"><div id="traderRulesRoot"></div></section>
 <section class="page" id="platformaccess" aria-label="Uso da plataforma"></section>
 <section class="page" id="profile"></section>
 <section class="page" id="avatar"></section>
@@ -577,6 +577,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <section class="page" id="relativestrength"></section>
 <section class="page" id="emergingleaders" aria-label="Emerging Leaders Scan"><div id="emergingLeadersRoot"></div></section>
 <section class="page" id="watchlist" aria-label="Watchlist Inteligente"></section>
+<section class="page" id="charts" aria-label="Gráficos — Central de Análise do Ticker"><div id="tickerChartRoot"></div></section>
 <section class="page" id="assetblacklist" aria-label="Ativos Blacklist"><div id="assetBlacklistRoot"></div></section>
 <section class="page active" id="dashboard"><div id="wealthDashboardRoot"></div>
 <!-- Legacy dashboard markup kept below temporarily for safe rollback.
@@ -696,7 +697,8 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
         <div class="manual-group">Telas</div>
         <button data-manual-target="manual-dashboard">⌂ Visão geral</button>
         <button data-manual-target="manual-emergingleaders">✦ Líderes Emergentes</button>
-        <button data-manual-target="manual-positions">◫ Posições</button>
+        <button data-manual-target="manual-positions">◫ Posições Abertas</button>
+        <button data-manual-target="manual-closedpositions">🗂 Posições Encerradas</button>
         <button data-manual-target="manual-newtrade">＋ Novo trade</button>
         <button data-manual-target="manual-risk">◔ Position Sizing</button>
         <button data-manual-target="manual-riskpolicy">🛡 Política de Risco</button>
@@ -704,11 +706,15 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
         <button data-manual-target="manual-analytics">⌁ Painel da Verdade</button>
         <button data-manual-target="manual-journal">✎ Diário do Trader</button>
         <button data-manual-target="manual-review">✓ Revisão mensal</button>
+        <button data-manual-target="manual-mindset">🧠 Mentalidade</button>
+        <button data-manual-target="manual-traderrules">📋 Regras do Trader</button>
         <button data-manual-target="manual-settings">⚙ Configurações</button>
         <div class="manual-group">Conceitos</div>
         <button data-manual-target="manual-permission">● Permissão do mercado</button>
         <button data-manual-target="manual-formulas">∑ Três camadas</button>
         <button data-manual-target="manual-graderisk">▲ Risco por Grade</button>
+        <button data-manual-target="manual-scalein">⤹ Scale-In (Adição)</button>
+        <button data-manual-target="manual-marketpause">⏸ Modo Fora do Mercado</button>
         <button data-manual-target="manual-faq">? Dúvidas frequentes</button>
       </div>
     </aside>
@@ -745,13 +751,24 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
         <div class="section-kicker">Tela 02</div><h2>Posições</h2><p>Reúne as operações abertas e encerradas. Cada posição pode conter múltiplas entradas, saídas parciais, ajustes de stop, prints e notas.</p><div class="manual-callout"><b>Uma posição não é uma linha de planilha.</b><p>O sistema trata a ideia completa no ativo como uma posição e registra cada execução separadamente. Isso evita contar saídas parciais como trades diferentes.</p></div>
       </section>
 
-      <section class="manual-section" id="manual-newtrade" data-search="novo trade planejar rubric grade sizing risco base stop atr camadas tese desafio etapas">
+      <section class="manual-section" id="manual-closedpositions" data-search="posições encerradas histórico trade anatomy r múltiplo payoff win rate duration exportação diário">
+        <div class="section-kicker">Histórico &amp; Performance</div><h2>Posições Encerradas</h2><p>O arquivo definitivo de todas as operações finalizadas na sua jornada, consolidando métricas executadas, R-múltiplos reais, prints de encerramento e lições aprendidas.</p>
+        <div class="manual-grid">
+          <article class="manual-card"><div class="manual-icon">🗂</div><h3>Visão Consolidada</h3><p>Tabela analítica com data de encerramento, ativo, direção, resultado financeiro, R-múltiplo final, duração em barras/dias e motivo da saída (Stop Técnico, Breakeven, Alvo ou Saída Parcial).</p></article>
+          <article class="manual-card"><div class="manual-icon">🔬</div><h3>Trade Anatomy</h3><p>Clique em qualquer posição encerrada para inspecionar a anatomia completa do trade: gráfico com linha do tempo de entradas, adições (scale-ins) e parciais, além do print de saída.</p></article>
+          <article class="manual-card"><div class="manual-icon">⚡</div><h3>Pós-Trade &amp; Lições</h3><p>Registre a autoavaliação emocional e técnica logo após fechar o trade. Descubra se o encerramento seguiu o plano ou se houve interferência psicológica prematura.</p></article>
+        </div>
+      </section>
+
+      <section class="manual-section" id="manual-newtrade" data-search="novo trade planejar rubric grade sizing risco base stop atr camadas tese desafio etapas override manual gatilhos">
         <div class="section-kicker">Tela 03</div><h2>Novo Trade (Mesa Operacional)</h2><p>Estrutura o planejamento da operação em duas etapas sequenciais e rigorosas, eliminando improvisos e alinhando o tamanho da posição à qualidade real do setup.</p>
         <div class="manual-grid">
-          <article class="manual-card"><div class="manual-icon">01</div><h3>Etapa 1 · Parâmetros da Operação</h3><p>Organizada com divisórias claras entre Ativo, Gatilho, Preços (Entrada e Stop), ATR, Ambiente e Tese da operação. O stop técnico define o ponto exato de invalidação da ideia.</p></article>
+          <article class="manual-card"><div class="manual-icon">01</div><h3>Etapa 1 · Parâmetros da Operação</h3><p>Organizada com divisórias claras entre Ativo, Gatilho (5 setups autorizados: Rompimento, Pullback nas Médias, Reversão de Fundo, Contração de Volatilidade e Clímax com Volume), Preços (Entrada e Stop), ATR, Ambiente e Tese da operação.</p></article>
           <article class="manual-card"><div class="manual-icon">02</div><h3>Etapa 2 · Trading Rubric (100 pts)</h3><p>Consolida os 6 pilares: Contexto Diário (25%), Ciclo do Mercado (20%), Força Relativa (20%), ATR (15%), Gatilho (15%) e Fundamentos (5%). Determina o Grade de qualidade (A, B, C ou D).</p></article>
           <article class="manual-card"><div class="manual-icon">R$</div><h3>Risco-Base Dinâmico por Grade</h3><p>O sistema busca na Política de Risco o percentual configurado para o Grade resultante (B = 0,20%, A = 0,40%). Ao alterar qualquer critério, toda a cadeia recalcula imediatamente.</p></article>
           <article class="manual-card"><div class="manual-icon">⚔</div><h3>Integração com o Desafio Grade A</h3><p>Setups com Grade A qualificam automaticamente para o Desafio Grade A em Modo Desapego. Ao salvar o trade, a execução é gravada ponta a ponta sem duplicidade.</p></article>
+          <article class="manual-card"><div class="manual-icon">⚡</div><h3>Override Manual de Ciclo</h3><p>Em eventos extraordinários de mercado, o trader pode sobrepor a leitura algorítmica do índice com justificativa obrigatória, preservando a disciplina e registrando a tese.</p></article>
+          <article class="manual-card"><div class="manual-icon">🛡</div><h3>Trava de Bloqueio por Risco</h3><p>Se o Grade for D ou a conta estiver em Modo Fora do Mercado (Market Pause), a plataforma bloqueia o salvamento e previne ordens impulsivas no calor do pregão.</p></article>
         </div>
       </section>
 
@@ -760,12 +777,14 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
         <div class="manual-callout"><b>A menor quantidade sempre vence.</b><p>O sistema calcula o risco pelo stop (com o % do Grade), volatilidade por ATR e limite de capital. A camada mais conservadora define o position size final.</p></div>
       </section>
 
-      <section class="manual-section" id="manual-riskpolicy" data-search="política de risco risk policy grades risco base a+ a b c d ramp up standard perfis">
+      <section class="manual-section" id="manual-riskpolicy" data-search="política de risco risk policy grades risco base a+ a b c d ramp up standard perfis scale-in sell into strength">
         <div class="section-kicker">Governança</div><h2>Política de Risco &amp; Grades</h2><p>Define as regras do jogo antes que o capital entre em risco. Aqui você visualiza e calibra os percentuais nominais para cada Grade e os perfis operacionais do método.</p>
         <div class="manual-grid">
           <article class="manual-card"><div class="manual-icon">A</div><h3>Cards de Grade (A, B, C, D)</h3><p>Percentuais nominais editáveis e persistidos: Grade A (ex: 0,40%), Grade B (ex: 0,20%), Grade C (ex: 0,10%) e Grade D (0,00% — bloqueio automático).</p></article>
           <article class="manual-card"><div class="manual-icon">⚖</div><h3>Perfis Operacionais</h3><p>Política Padrão (para mercado saudável, até 6 posições simultâneas) e Risk Ramp-Up (para mercados em recuperação/transição, até 3 posições e risco conservador).</p></article>
           <article class="manual-card"><div class="manual-icon">⚡</div><h3>Conexão Imediata</h3><p>Qualquer alteração salva na Política de Risco é refletida em tempo real no motor de cálculo do Novo Trade e nas validações do Desafio Grade A.</p></article>
+          <article class="manual-card"><div class="manual-icon">⤹</div><h3>Regras de Scale-In</h3><p>Parâmetros para adições com Risco Zero: exigência de lucro mínimo (ex: +1.0R), stop no Breakeven e teto de adições (máximo 2) para jamais transformar lucro em prejuízo.</p></article>
+          <article class="manual-card"><div class="manual-icon">🎯</div><h3>Sell Into Strength</h3><p>Diretrizes para realização parcial defensiva em esticadas atípicas de volatilidade antes do alvo primário, garantindo rentabilidade sem encerrar a tendência.</p></article>
         </div>
       </section>
 
@@ -782,16 +801,50 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
         <div class="section-kicker">Tela 05</div><h2>Painel da Verdade</h2><p>O espelho do seu trading: mostra onde o trader realmente possui edge por meio de ganhos, perdas, expectativa, tempo de permanência e aderência ao processo. O objetivo não é premiar atividade, mas revelar padrões repetíveis.</p>
       </section>
 
-      <section class="manual-section" id="manual-journal" data-search="diário trader registro dia prints emoções aprendizados frase execução mercado">
-        <div class="section-kicker">Tela 06</div><h2>Diário do Trader</h2><p>Registre o dia mesmo quando nenhuma posição for aberta. Documente o ciclo, observações, sentimentos, prints, erros, aprendizados e a qualidade da execução.</p><div class="manual-grid"><article class="manual-card"><div class="manual-icon">✎</div><h3>Registro independente</h3><p>O diário não depende de uma operação. Dias de espera e proteção de capital também fazem parte do processo.</p></article><article class="manual-card"><div class="manual-icon">▧</div><h3>Prints e evidências</h3><p>Anexe gráficos do índice, posições e novos cenários para reconstruir o raciocínio daquele dia.</p></article></div>
+      <section class="manual-section" id="manual-journal" data-search="diário trader registro dia prints emoções aprendizados frase execução mercado exportação ia llm chatgpt claude">
+        <div class="section-kicker">Tela 06</div><h2>Diário do Trader</h2><p>Registre o dia mesmo quando nenhuma posição for aberta. Documente o ciclo, observações, sentimentos, prints, erros, aprendizados e a qualidade da execução.</p>
+        <div class="manual-grid">
+          <article class="manual-card"><div class="manual-icon">✎</div><h3>Registro independente</h3><p>O diário não depende de uma operação. Dias de espera e proteção de capital também fazem parte do processo.</p></article>
+          <article class="manual-card"><div class="manual-icon">▧</div><h3>Prints e evidências</h3><p>Anexe gráficos do índice, posições e novos cenários para reconstruir o raciocínio daquele dia.</p></article>
+          <article class="manual-card"><div class="manual-icon">🤖</div><h3>Exportação para IA</h3><p>Exporte seus registros em Markdown, Texto, JSON ou CSV estruturados para análise por LLMs (ChatGPT, Claude, Gemini) com prompt metodológico para diagnosticar vieses e erros recorrentes.</p></article>
+          <article class="manual-card"><div class="manual-icon">🧭</div><h3>Filtros por Período</h3><p>Selecione registros do dia, mês, últimos 30 dias, 3 meses ou histórico completo, escolhendo entre notas técnicas, reflexões emocionais ou visão completa.</p></article>
+        </div>
       </section>
 
       <section class="manual-section" id="manual-review" data-search="revisão mensal disciplina erros execução score processo">
         <div class="section-kicker">Tela 07</div><h2>Revisão mensal</h2><p>Consolida o que aconteceu durante o mês: aderência ao plano, erros recorrentes, qualidade das decisões e ações concretas para o próximo período.</p>
       </section>
 
-      <section class="manual-section" id="manual-settings" data-search="configurações equity risco volatilidade capital heat lote regras A">
-        <div class="section-kicker">Tela 08</div><h2>Configurações</h2><p>Centraliza os parâmetros permanentes da conta e do método. Alterações feitas aqui alimentam automaticamente os cálculos e validações em todo o sistema.</p><div class="manual-grid"><article class="manual-card"><div class="manual-icon">%</div><h3>Gestão de risco</h3><p>Equity, risco por trade, volatilidade-alvo, limite de capital, lote e Portfolio Heat máximo.</p></article><article class="manual-card"><div class="manual-icon">✓</div><h3>Regras A</h3><p>Critérios obrigatórios que determinam se uma operação pode ser classificada como contexto A.</p></article></div>
+      <section class="manual-section" id="manual-mindset" data-search="mentalidade trader zen biblioteca mental psicologia regras do trader sabedoria teste de perfil estado mental respiração meditação">
+        <div class="section-kicker">Mente &amp; Comportamento</div><h2>Mentalidade</h2><p>O hub central de inteligência psicológica, autorregulação e disciplina do Healthy Trend Trader. Consolida 6 pilares indispensáveis para a consistência comportamental.</p>
+        <div class="manual-grid">
+          <article class="manual-card"><div class="manual-icon">🧘</div><h3>Trader Zen</h3><p>Exercícios de respiração guiada com temporizador rítmico, meditações focadas, pausas conscientes e protocolos de recuperação pós-loss para desarmar o modo reativo.</p></article>
+          <article class="manual-card"><div class="manual-icon">🎧</div><h3>Biblioteca Mental</h3><p>Sons ambientes de imersão (Floresta, Oceano, Chuva), afirmações positivas de longo prazo e pílulas de foco para blindar a atenção durante a sessão operacional.</p></article>
+          <article class="manual-card"><div class="manual-icon">🧠</div><h3>Psicologia do Trader</h3><p>Mapeamento de gatilhos emocionais (FOMO, Ganância, Medo, Vingança) e identificação de vieses cognitivos clássicos para prevenir desvios da política.</p></article>
+          <article class="manual-card"><div class="manual-icon">📋</div><h3>Regras do Trader</h3><p>Checklists pré-trade, Regras de Ouro inegociáveis, rituais antes/durante/depois da sessão e lista visual de comportamentos proibidos ("O que NÃO fazer").</p></article>
+          <article class="manual-card"><div class="manual-icon">📖</div><h3>Sabedoria do Trader</h3><p>Acervo curado com centenas de princípios, reflexões e lições de mestres como Jesse Livermore, Mark Douglas, Paul Tudor Jones e Nicolas Darvas.</p></article>
+          <article class="manual-card"><div class="manual-icon">🧪</div><h3>Teste de Perfil &amp; Estado</h3><p>Diagnóstico do perfil comportamental do trader (tolerância à dor, impulsividade, paciência) e termômetro em tempo real do estado mental presente.</p></article>
+        </div>
+      </section>
+
+      <section class="manual-section" id="manual-traderrules" data-search="regras do trader checklist regras de ouro antes durante depois o que não fazer disciplina consistência">
+        <div class="section-kicker">Disciplina Prática</div><h2>Regras do Trader</h2><p>A ponte definitiva entre a teoria psicológica e a execução no book. Estabelece limites inegociáveis que impedem a autodestruição do capital.</p>
+        <div class="manual-grid">
+          <article class="manual-card"><div class="manual-icon">✓</div><h3>Checklist Pré-Trade</h3><p>7 perguntas de verificação obrigatória antes de qualquer boleta: setup confirmado, contexto favorável, risco dimensionado e mente serena.</p></article>
+          <article class="manual-card"><div class="manual-icon">⭐</div><h3>As 7 Regras de Ouro</h3><p>Princípios perpétuos: não perseguir preço, não operar sem setup, não aumentar risco após perda, respeitar stop e aceitar ficar de fora.</p></article>
+          <article class="manual-card"><div class="manual-icon">⏳</div><h3>Rituais Operacionais</h3><p>Rotinas estruturadas para os 3 momentos da sessão: preparação pré-mercado, disciplina intra-mercado e revisão pós-mercado.</p></article>
+          <article class="manual-card"><div class="manual-icon">⛔</div><h3>O que NÃO Fazer</h3><p>Guia anti-comportamento listando os vícios mais nocivos: operar por tédio, revenge trading, adiar stop e tentar adivinhar topos e fundos.</p></article>
+        </div>
+      </section>
+
+      <section class="manual-section" id="manual-settings" data-search="configurações equity risco volatilidade capital heat lote regras A modo fora do mercado market pause preferências">
+        <div class="section-kicker">Tela 08</div><h2>Configurações</h2><p>Centraliza os parâmetros permanentes da conta e do método. Alterações feitas aqui alimentam automaticamente os cálculos e validações em todo o sistema.</p>
+        <div class="manual-grid">
+          <article class="manual-card"><div class="manual-icon">%</div><h3>Gestão de risco</h3><p>Equity, risco por trade, volatilidade-alvo, limite de capital, lote e Portfolio Heat máximo.</p></article>
+          <article class="manual-card"><div class="manual-icon">✓</div><h3>Regras A</h3><p>Critérios obrigatórios que determinam se uma operação pode ser classificada como contexto A.</p></article>
+          <article class="manual-card"><div class="manual-icon">⏸</div><h3>Modo Fora do Mercado (Market Pause)</h3><p>Permite congelar temporariamente o envio de novas operações com duração configurável (hoje, 3 dias, 1 semana, etc.) e motivo registrado, ativando alertas nas telas operacionais.</p></article>
+          <article class="manual-card"><div class="manual-icon">🎨</div><h3>Tema &amp; Idioma</h3><p>Alterne entre a estética Premium Gold e Healthy Green, além de suporte para Português (BR) e Inglês (US).</p></article>
+        </div>
       </section>
 
       <section class="card manual-section" id="manual-permission" data-search="permissão mercado down doente transição up saudável não operar antecipar procurar A">
@@ -813,7 +866,26 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
         <div class="manual-callout"><b>Recálculo Imediato:</b><p>Ao mudar um critério na Rubric e elevar o Score de 94 (Grade B) para 97 (Grade A com Quality Gate), o risco salta de 0,20% para 0,40%. Em uma conta de R$ 1.000.000 com stop de R$ 2,50, o lote dobra instantaneamente de 800 para 1.600 ações.</p></div>
       </section>
 
-      <section class="manual-section manual-faq" id="manual-faq" data-search="dúvidas perguntas ajuda FAQ position size diário trade rejeitado risco grade desafio">
+      <section class="card manual-section" id="manual-scalein" data-search="scale-in adição risco zero breakeven piramidar tendência trailing stop r múltiplo">
+        <div class="section-kicker">Conceito avançado</div><h2>Scale-In (Adição com Risco Zero)</h2><p>Aumentar posições vencedoras é a principal alavanca para retornos assimétricos no Trend Following, desde que o risco monetário total permaneça matematicamente protegido.</p>
+        <div class="formula-stack">
+          <div class="formula-row"><span>Condição 1 · Lucro Mínimo</span><code>R Atual ≥ +1.0R</code><b>Adição autorizada apenas quando a posição já está em terreno amplamente positivo</b></div>
+          <div class="formula-row"><span>Condição 2 · Stop no Breakeven</span><code>Novo Stop ≥ Preço Médio Ponderado</code><b>O stop de todo o lote combinado deve garantir Risco Zero ou lucro travado</b></div>
+          <div class="formula-row"><span>Condição 3 · Teto de Adições</span><code>Máximo 2 adições por trade</code><b>Impede piramidação excessiva em topos esticados de tendência</b></div>
+        </div>
+        <div class="manual-callout"><b>Regra de Ouro do Scale-In:</b><p>Uma adição nunca pode transformar um trade vencedor em perdedor. Se o stop do lote adicionado não puder ser coberto pelo lucro acumulado do lote inicial, a adição é terminantemente proibida.</p></div>
+      </section>
+
+      <section class="card manual-section" id="manual-marketpause" data-search="modo fora do mercado market pause preservação de capital drawdown descanso férias pausa consciente">
+        <div class="section-kicker">Disciplina &amp; Proteção</div><h2>Modo Fora do Mercado (Market Pause)</h2><p>O maior diferencial de um trader profissional é a capacidade de não operar quando as condições pessoais ou de mercado são desfavoráveis.</p>
+        <div class="manual-grid">
+          <article class="manual-card"><div class="manual-icon">⏸</div><h3>Preservação Total</h3><p>Ativa um status protetivo na plataforma que bloqueia o registro de novos trades, exibindo um banner reflexivo e lembrando que dinheiro parado rende paz de espírito.</p></article>
+          <article class="manual-card"><div class="manual-icon">📅</div><h3>Duração Planejada</h3><p>Defina o período de pausa (hoje, até o fim da semana, 15 dias ou indefinido) para evitar a tentação de voltar ao mercado antes de restabelecer a clareza mental.</p></article>
+          <article class="manual-card"><div class="manual-icon">🛡</div><h3>Quando Utilizar</h3><p>Recomendado em sequências de perdas consecutivas (drawdown mental), mercado em consolidação errática sem tendência (Chop), viagens, momentos de estresse pessoal ou após atingir a meta do mês.</p></article>
+        </div>
+      </section>
+
+      <section class="manual-section manual-faq" id="manual-faq" data-search="dúvidas perguntas ajuda FAQ position size diário trade rejeitado risco grade desafio scale-in market pause override fundamentos ia mentalidade">
         <div class="section-kicker">Ajuda rápida</div><h2>Dúvidas frequentes</h2>
         <details><summary>Como o Grade da Rubric altera o Position Size?</summary><p>A Trading Rubric avalia a confluência de edges em uma pontuação de 0 a 100 e atribui um Grade. O sistema busca dinamicamente o risco configurado na sua Política de Risco para esse Grade: Grade B utiliza o risco de B (ex: 0,20% → 800 ações com stop de R$ 2,50 em R$ 1M), enquanto Grade A utiliza o risco de A (ex: 0,40% → 1.600 ações). Toda a cadeia recalcula imediatamente a cada mudança.</p></details>
         <details><summary>O que acontece se meu setup for Grade B em vez de Grade A?</summary><p>O sistema usa o Risk Budget configurado para B e depois aplica os limitadores de exposição: volatilidade, capital, Portfolio Heat e máximo de posições. A operação não é elegível para o Desafio Grade A.</p></details>
@@ -821,6 +893,12 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
         <details><summary>O Desafio Grade A interfere no cálculo de risco da operação?</summary><p>Não. Com o desafio ativo, ele apenas compara a execução real com o sizing executável calculado pela Política de Risco. Uma limitação automática nunca conta como undersizing.</p></details>
         <details><summary>Posso registrar um dia sem fazer trades?</summary><p>Sim. O Diário do Trader foi criado exatamente para registrar observação, espera, disciplina e proteção de capital, mesmo sem operações.</p></details>
         <details><summary>Onde altero os percentuais de risco de cada Grade?</summary><p>Na tela Política de Risco (e em Patrimônio para o capital de referência). Os 4 cards de Grade (A, B, C e D) permitem personalizar os percentuais nominais que alimentam automaticamente o Novo Trade.</p></details>
+        <details><summary>Como funciona a regra de Scale-In (Adição de Lote)?</summary><p>O Scale-In só é autorizado quando a posição original já atingiu pelo menos +1.0R de lucro e o stop de toda a posição combinada pode ser movido para o preço de Breakeven (ou superior), garantindo Risco Zero na operação.</p></details>
+        <details><summary>O que é o Modo Fora do Mercado (Market Pause)?</summary><p>É uma trava consciente em Configurações para traders em drawdown emocional, férias ou fases de mercado sem tendência. Ele desativa alertas impulsivos e bloqueia novas operações, incentivando foco em estudo e descanso.</p></details>
+        <details><summary>Como funciona o Override Manual do Ciclo do Mercado?</summary><p>Na tela de Novo Trade ou Ciclo, o trader pode definir manualmente a fase do Ibovespa (Down, Transição ou Up) caso identifique divergências fundamentais com a regra algorítmica. O sistema exige justificativa para manter a prestação de contas.</p></details>
+        <details><summary>Como é calculada a nota nos Fundamentos quando faltam dados?</summary><p>O software segue o princípio inviolável de que dado ausente não é zero. Os pesos das dimensões faltantes são redistribuídos proporcionalmente entre as dimensões conhecidas, e uma métrica explícita de Cobertura dos Dados (ex: 85%) é exibida.</p></details>
+        <details><summary>Como posso exportar meu Diário para análise em LLMs (ChatGPT/Claude)?</summary><p>No Diário do Trader, clique em 'Exportar Diário' e escolha a opção 'Preparar para IA' em formato Markdown. O arquivo gerado traz contexto do pregão, execução, emoções registradas e um prompt estruturado para a IA diagnosticar seus padrões operacionais.</p></details>
+        <details><summary>O que compõe o novo módulo Mentalidade?</summary><p>O módulo Mentalidade centraliza 6 submódulos essenciais: Trader Zen (respiração e foco), Biblioteca Mental (áudios e sons ambientes), Psicologia do Trader (vieses e emoções), Regras do Trader (checklists e regras de ouro), Sabedoria do Trader (grandes mestres) e Teste de Perfil Comportamental.</p></details>
       </section>
       <div class="manual-empty" id="manualEmpty"><h3>Nenhum conteúdo encontrado</h3><p>Tente buscar por outro termo.</p></div>
     </main>
@@ -896,14 +974,15 @@ function applyTheme(theme){const selected=theme==='healthy'?'healthy':'gold';doc
 try{applyTheme(localStorage.getItem('healthy-trend-theme')||'healthy')}catch(error){applyTheme('healthy')}
 function enterWorkspace(event){event.preventDefault();document.getElementById('loginShell').classList.add('hidden');document.body.style.overflow='';go('today');}
 const titles={today:'Meu Desktop',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',marketscans:'Scans de Mercado',fundamentals:'Análise Fundamentalista',positions:'Posições Abertas',closedpositions:'Posições Encerradas',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',tradeanatomy:'Anatomia dos Trades',journal:'Diário do Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Monitor de Hábitos',materials:'Loja Trader',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',assetblacklist:'Ativos Blacklist',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
+Object.assign(titles,{mindset:'Mentalidade',traderrules:'Regras do Trader'});
 titles.emotionalintelligence='Analisador Emocional';titles.forecast='Simulador de Resultados';
 titles.mistakesbook='Erros e lições';titles.masteredlessons='Lições Dominadas';
 titles.dailyroutine='Rotina Diária';
 titles.emergingleaders='Líderes Emergentes';
 titles.watchlist='Watchlist';
 titles.about='Sobre';
-titles.couragechallenge='Desafio Grade A';
-function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.getElementById('crumb');if(crumb){const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
+titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){window.loadTickerChart();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
 function marketCandles(seed=0,count=16){return Array.from({length:count},(_,i)=>{const h=18+((i*17+seed*11)%46),mb=7+((i*13+seed*7)%38),wick=h+13+((i*7+seed)%20),trend=i>count*.62?'down':'up';return `<i class="market-candle ${trend}" style="--h:${h}px;--mb:${mb}px;--wick:${wick}px"></i>`}).join('')}
 function setMarketRange(button){document.querySelectorAll('.market-range button').forEach(item=>item.classList.toggle('active',item===button));}
 function moneyBRL(value,decimals=2){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(value)}
@@ -1604,6 +1683,9 @@ function updateCurrentPlanPill(){const pill=document.getElementById('currentPlan
 updateCurrentPlanPill();
 const professionalPages=new Set(['analytics','tradeanatomy','forecast','marketcycle','relativestrength','marketscans','journal','tradelibrary','emotionalintelligence','review','platformaccess','zen','wisdom','traderprofile','habits']);
 const professionalLabels={analytics:['Painel da Verdade','Truth Panel'],forecast:['Simulador de Previsão','Forecast Simulator'],marketcycle:['Ciclo de Mercado','Market Cycle'],relativestrength:['Força Relativa','Relative Strength'],marketscans:['Scans de Mercado','Market Scans'],journal:['Diário do Trader','Trader Journal'],tradelibrary:['Biblioteca de Trades','Playbook - Trades'],emotionalintelligence:['Inteligência Emocional','Emotional Intelligence'],review:['Revisão Mensal','Monthly Review'],platformaccess:['Uso da Plataforma','Platform usage'],zen:['Trader Zen','Trader Zen'],audiolibrary:['Biblioteca Mental','Mental Library'],wisdom:['Sabedoria do Trader','Trader Wisdom'],traderprofile:['Testes de Perfil','Profile Tests'],habits:['Rastreador de hábitos','Habit Tracker']};
+professionalPages.add('mindset');
+professionalPages.add('traderrules');
+Object.assign(professionalLabels,{mindset:['Mentalidade','Mindset'],traderrules:['Regras do Trader','Trader Rules']});
 function professionalLabel(page){const labels=professionalLabels[page]||['Este recurso','This feature'];return subscriptionText(labels[0],labels[1])}
 function applySubscriptionAccess(){syncSubscriptionMonth();updateCurrentPlanPill();const selectedPlan=selectedSubscriptionPlan();document.querySelectorAll('.nav button[data-page],#topNavigationMenu button[data-page]').forEach(button=>{const label=button.dataset.menuLabel||button.textContent.trim(),restricted=professionalPages.has(button.dataset.page)&&!isProfessional();button.classList.toggle('plan-locked',restricted);button.setAttribute('aria-label',restricted?`${label} · ${subscriptionText('Disponível no Professional','Available in Professional')}`:label)});document.querySelectorAll('.subscription-plan').forEach(card=>card.classList.toggle('selected',card.classList.contains('professional')?selectedPlan==='professional':selectedPlan==='basic'));document.querySelectorAll('.subscription-table .subscription-check').forEach(cell=>{if(cell.textContent.trim()==='✓')cell.classList.add('comparison-icon','available')});document.querySelectorAll('.subscription-table .subscription-lock').forEach(cell=>{cell.textContent='✕';cell.classList.add('comparison-icon','unavailable')});renderTrialExpiryNotice();notifyTrialExpiryOnce()}
 function trialDaysRemaining(){return Math.max(0,Math.ceil((trialExpiresAt()-Date.now())/(24*60*60*1000)))}
@@ -1649,7 +1731,7 @@ const navigationTiles=[
   ['journal','✎','Diário do Trader','Registre o seu processo','25% 25%'],
   ['couragechallenge',gradeChallengeNavigationIcon,navigationLabel('couragechallenge'),'20 execuções com coragem calculada','25% 25%'],
   ['tradelibrary','▦','Biblioteca de Trades','Revise seus prints por ativo e período','50% 25%'],
-  ['emotionalintelligence','◎','Analisador Emocional','Descubra seus padrões comportamentais','75% 25%'],
+  ['mindset','◉','Mentalidade','Clareza para pensar e disciplina para executar','75% 25%'],
   ['mistakesbook','▤','Erros e lições','Transforme erros em aprendizado','100% 25%'],
   ['review','✓','Revisão Mensal','Consolide os aprendizados do mês','0% 50%'],
   ['platformaccess','◷','Uso da Plataforma','Acompanhe sua jornada','25% 50%'],
@@ -1658,9 +1740,6 @@ const navigationTiles=[
   ['emergingleaders','<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="m3 9 4-4 4 4 6-6"/></svg>','Líderes Emergentes','Descobrindo a próxima geração de líderes','75% 50%'],
   ['fundamentals','◔','Análise Fundamentalista','Avalie a qualidade financeira da empresa','100% 50%'],
   ['marketscans','⌕','Scans de Mercado','Radar de acontecimentos','0% 75%'],
-  ['zen','◒','Trader Zen','Reconecte-se ao processo','25% 75%'],
-  ['wisdom','✦','Sabedoria do Trader','Consulte referências para o processo','50% 75%'],
-  ['traderprofile','◈','Testes de Perfil','Entenda seus padrões','75% 75%'],
   ['habits','◉','Monitor de Hábitos','Construa a rotina','100% 75%'],
   ['forecast','∿','Simulador de Resultados','Projete faixas probabilísticas','0% 100%'],
   ['materials','◈',navigationLabel('materials'),'Materiais e ferramentas do método','25% 100%'],
@@ -2599,7 +2678,7 @@ function saveTraderProfileTest(event,key){event.preventDefault();const test=trad
 function resetTraderProfile(){traderProfileState={active:'risk',results:{}};saveTraderProfileState();renderTraderProfile();showToast('Resultados dos Testes de Perfil removidos deste dispositivo.')}
 function traderProfileNarrative(metrics){const strengths=[],attention=[],insights=[];if(metrics.discipline>=3.9)strengths.push('A disciplina declarada sugere boa aderência a regras pré-definidas e à execução planejada.');else attention.push('A disciplina merece atenção: antes de operar, confirme se tamanho, stop e tese estão registrados.');if(metrics.impulse>=3.9)strengths.push('Você relata baixa propensão a FOMO e impulsividade, uma base favorável para seletividade.');else attention.push('Há sinais de impulso ou FOMO: crie uma pausa curta entre perceber a oportunidade e enviar a ordem.');if(metrics.anxiety>=3.9)strengths.push('Você parece tolerar bem o acompanhamento de posições sem deixar a emoção dominar a decisão.');else attention.push('A ansiedade pode ganhar espaço durante posições abertas: defina horários de revisão e critérios objetivos de ajuste.');if(metrics.risk>=3.9)insights.push('Sua tolerância declarada ao risco é mais alta. Compare-a periodicamente com os limites já definidos na Política de risco.');else insights.push('Sua preferência parece mais orientada à preservação. Observe se o tamanho das posições mantém você capaz de seguir o plano com calma.');insights.push('Este relatório descreve respostas declaradas. Com mais histórico, a plataforma poderá comparar essas percepções com padrões reais de execução.');return{strengths,attention,insights}}
 function renderTraderProfileReport(){if(!traderProfileComplete())return '<div class="profile-report-empty"><div><i>◈</i><h3>Seu relatório aparecerá aqui.</h3><p>Conclua os testes de risco e comportamento para visualizar uma leitura consolidada dos seus padrões declarados.</p></div></div>';const m=traderProfileMetrics(),n=traderProfileNarrative(m),metrics=[['Tolerância ao risco',traderProfileLevel(m.risk)],['Disciplina',traderProfileLevel(m.discipline)],['Paciência',traderProfileLevel(m.patience)],['Aversão à perda',traderProfileLevel(m.lossAversion)],['Impulsividade',traderProfileLevel(m.impulse)],['Ansiedade operacional',traderProfileLevel(m.anxiety)]];const list=items=>items.map(item=>'<li>'+item+'</li>').join('');return '<div class="profile-report-grid">'+metrics.map(([label,value])=>'<article class="profile-metric"><small>'+label+'</small><b>'+value+'</b></article>').join('')+'</div><section class="profile-report-section strengths"><h3>Pontos fortes</h3><ul>'+list(n.strengths)+'</ul></section><section class="profile-report-section attention"><h3>Pontos de atenção</h3><ul>'+list(n.attention)+'</ul></section><section class="profile-report-section insights"><h3>Insights para reflexão</h3><ul>'+list(n.insights)+'</ul></section><div class="profile-report-actions"><button class="secondary" type="button" onclick="window.print()">Imprimir relatório</button><button class="secondary" type="button" onclick="resetTraderProfile()">Refazer testes</button></div>'}
-function renderTraderProfile(){const root=document.getElementById('traderprofile');if(!root)return;const completed=Object.keys(traderProfileState.results).length,active=traderProfileTests[traderProfileState.active],previous=traderProfileState.results[traderProfileState.active]?.answers||{};const testCards=Object.entries(traderProfileTests).map(([key,test])=>'<article class="profile-test-card"><b>'+test.icon+' '+test.title+'</b><p>'+test.description+'</p><footer><span class="profile-test-status">'+(traderProfileState.results[key]?'Concluído':'Pendente')+'</span><button class="'+(key===traderProfileState.active?'primary':'secondary')+'" type="button" onclick="startTraderProfileTest(\''+key+'\')">'+(traderProfileState.results[key]?'Revisar':'Iniciar')+'</button></footer></article>').join('');const questions=active.questions.map(([id,text])=>'<label class="profile-question"><b>'+text+'</b><div class="profile-scale">'+[1,2,3,4,5].map(value=>'<label><input type="radio" name="'+id+'" value="'+value+'" '+(Number(previous[id])===value?'checked':'')+'>'+value+'</label>').join('')+'</div><div class="profile-scale-legend"><span>Discordo</span><span>Concordo</span></div></label>').join('');root.innerHTML='<section class="trader-profile-hero"><div class="eyebrow">Alta Performance · Autoconhecimento</div><h1>Entenda quem toma as decisões.</h1><p>Mapeie como você percebe risco, pressão e disciplina. O objetivo é transformar respostas em perguntas melhores — não dizer o que você deve fazer.</p><div class="trader-profile-disclaimer"><b>Uso responsável:</b> este conteúdo é uma ferramenta educacional de autoconhecimento. Não é diagnóstico psicológico, recomendação de investimento ou substituto de apoio profissional.</div></section><section class="trader-profile-kpis"><article class="trader-profile-kpi"><small>Testes concluídos</small><b>'+completed+' / 2</b><span>Respostas salvas neste dispositivo.</span></article><article class="trader-profile-kpi"><small>Relatório</small><b>'+(traderProfileComplete()?'Disponível':'Em construção')+'</b><span>Consolidado a partir das suas respostas.</span></article><article class="trader-profile-kpi"><small>Próxima evolução</small><b>Declarado × real</b><span>Comparar respostas com o diário e a execução.</span></article></section><div class="trader-profile-layout"><section class="trader-profile-tests"><header class="trader-profile-heading"><div><div class="eyebrow">Testes iniciais</div><h2>Seu ponto de partida</h2><p>Responda com base no seu comportamento habitual, não no trader que você gostaria de ser.</p></div></header><div class="profile-test-list">'+testCards+'</div><form class="profile-questionnaire" id="traderProfileQuestionnaire" onsubmit="saveTraderProfileTest(event,\''+traderProfileState.active+'\')"><header><div><div class="eyebrow">'+active.title+'</div><h3>'+active.icon+' '+active.title+'</h3><p>Escala de 1 (discordo) a 5 (concordo).</p></div><span class="badge good">'+active.questions.length+' itens</span></header>'+questions+'<button class="primary profile-submit" type="submit">Salvar respostas e atualizar relatório →</button></form><div class="profile-research-note"><b>Fundamentação da V1:</b> os eixos observados — aversão à perda, excesso de confiança, autocontrole, FOMO e reação à incerteza — são temas recorrentes em finanças comportamentais. Os resultados são descritivos e não classificam o trader.</div></section><aside class="trader-profile-report"><header class="trader-profile-heading"><div><div class="eyebrow">Relatório do Trader</div><h2>Seu perfil declarado</h2><p>Uma leitura consolidada para apoiar a reflexão antes, durante e depois da operação.</p></div></header>'+renderTraderProfileReport()+'</aside></div>';}
+function renderTraderProfile(){const root=document.getElementById('traderprofile');if(!root)return;const completed=Object.keys(traderProfileState.results).length,active=traderProfileTests[traderProfileState.active],previous=traderProfileState.results[traderProfileState.active]?.answers||{};const testCards=Object.entries(traderProfileTests).map(([key,test])=>'<article class="profile-test-card"><b>'+test.icon+' '+test.title+'</b><p>'+test.description+'</p><footer><span class="profile-test-status">'+(traderProfileState.results[key]?'Concluído':'Pendente')+'</span><button class="'+(key===traderProfileState.active?'primary':'secondary')+'" type="button" onclick="startTraderProfileTest(\''+key+'\')">'+(traderProfileState.results[key]?'Revisar':'Iniciar')+'</button></footer></article>').join('');const questions=active.questions.map(([id,text])=>'<label class="profile-question"><b>'+text+'</b><div class="profile-scale">'+[1,2,3,4,5].map(value=>'<label><input type="radio" name="'+id+'" value="'+value+'" '+(Number(previous[id])===value?'checked':'')+'>'+value+'</label>').join('')+'</div><div class="profile-scale-legend"><span>Discordo</span><span>Concordo</span></div></label>').join('');root.innerHTML='<button class="mindset-sub-back" type="button" onclick="go(\'mindset\')">← Voltar para Mentalidade</button><section class="trader-profile-hero"><div class="eyebrow">Alta Performance · Autoconhecimento</div><h1>Entenda quem toma as decisões.</h1><p>Mapeie como você percebe risco, pressão e disciplina. O objetivo é transformar respostas em perguntas melhores — não dizer o que você deve fazer.</p><div class="trader-profile-disclaimer"><b>Uso responsável:</b> este conteúdo é uma ferramenta educacional de autoconhecimento. Não é diagnóstico psicológico, recomendação de investimento ou substituto de apoio profissional.</div></section><section class="trader-profile-kpis"><article class="trader-profile-kpi"><small>Testes concluídos</small><b>'+completed+' / 2</b><span>Respostas salvas neste dispositivo.</span></article><article class="trader-profile-kpi"><small>Relatório</small><b>'+(traderProfileComplete()?'Disponível':'Em construção')+'</b><span>Consolidado a partir das suas respostas.</span></article><article class="trader-profile-kpi"><small>Próxima evolução</small><b>Declarado × real</b><span>Comparar respostas com o diário e a execução.</span></article></section><div class="trader-profile-layout"><section class="trader-profile-tests"><header class="trader-profile-heading"><div><div class="eyebrow">Testes iniciais</div><h2>Seu ponto de partida</h2><p>Responda com base no seu comportamento habitual, não no trader que você gostaria de ser.</p></div></header><div class="profile-test-list">'+testCards+'</div><form class="profile-questionnaire" id="traderProfileQuestionnaire" onsubmit="saveTraderProfileTest(event,\''+traderProfileState.active+'\')"><header><div><div class="eyebrow">'+active.title+'</div><h3>'+active.icon+' '+active.title+'</h3><p>Escala de 1 (discordo) a 5 (concordo).</p></div><span class="badge good">'+active.questions.length+' itens</span></header>'+questions+'<button class="primary profile-submit" type="submit">Salvar respostas e atualizar relatório →</button></form><div class="profile-research-note"><b>Fundamentação da V1:</b> os eixos observados — aversão à perda, excesso de confiança, autocontrole, FOMO e reação à incerteza — são temas recorrentes em finanças comportamentais. Os resultados são descritivos e não classificam o trader.</div></section><aside class="trader-profile-report"><header class="trader-profile-heading"><div><div class="eyebrow">Relatório do Trader</div><h2>Seu perfil declarado</h2><p>Uma leitura consolidada para apoiar a reflexão antes, durante e depois da operação.</p></div></header>'+renderTraderProfileReport()+'</aside></div>';}
 renderTraderProfile();
 function accessDuration(seconds){const total=Math.max(0,Number(seconds)||0),hours=Math.floor(total/3600),minutes=Math.floor(total%3600/60);return hours?(hours+'h '+String(minutes).padStart(2,'0')+'min'):(minutes+'min')}
 function accessDayKey(value){return new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Sao_Paulo'}).format(new Date(value))}
@@ -4613,4 +4692,9 @@ go=function(id){goWithAboutPage(id);if(id==='about')renderAboutPage()};
 <link rel="stylesheet" href="frontend/market-pause.css?v=20260929-1" />
 <script src="frontend/market-pause-model.js?v=20260929-1"></script>
 <script src="frontend/market-pause.js?v=20260929-1"></script>
+<script src="frontend/mindset-hub.js"></script>
+<script src="frontend/trader-rules.js"></script>
+<script src="frontend/vendor/lightweight-charts.standalone.production.js"></script>
+<script src="frontend/ticker-chart-model.js"></script>
+<script src="frontend/ticker-chart.js"></script>
 </body></html>

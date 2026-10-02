@@ -53,6 +53,12 @@
           page: 'watchlist'
         },
         {
+          id: 'charts',
+          label: 'Gráficos',
+          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="M4 14l5-5 4 4 7-7"/></svg>`,
+          page: 'charts'
+        },
+        {
           id: 'habits',
           label: 'Hábitos',
           icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
@@ -101,6 +107,13 @@
           desc: 'Avalie a qualidade do ativo.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20L12 2Z"/></svg>`,
           page: 'fundamentals'
+        },
+        {
+          id: 'charts',
+          title: 'Gráficos',
+          desc: 'Central de análise do ticker.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="M4 14l5-5 4 4 7-7"/></svg>`,
+          page: 'charts'
         }
       ]
     },
@@ -198,13 +211,6 @@
           page: 'tradelibrary'
         },
         {
-          id: 'emotionalintelligence',
-          title: 'Analisador Emocional',
-          desc: 'Psicologia operacional.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>`,
-          page: 'emotionalintelligence'
-        },
-        {
           id: 'platformaccess',
           title: 'Uso da Plataforma',
           desc: 'Uso e foco na plataforma.',
@@ -228,34 +234,10 @@
       ]
     },
     {
-      id: 'mindset-zen',
-      isGroup: true,
-      label: 'Mentalidade & Zen',
-      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 1 0 7 7"/></svg>`,
-      header: 'MENTALIDADE & ZEN',
-      items: [
-        {
-          id: 'zen',
-          title: 'Trader Zen',
-          desc: 'Pausas conscientes e reset mental.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 1 0 7 7"/></svg>`,
-          page: 'zen'
-        },
-        {
-          id: 'wisdom',
-          title: 'Sabedoria do Trader',
-          desc: 'Filosofia dos maiores mestres.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-          page: 'wisdom'
-        },
-        {
-          id: 'traderprofile',
-          title: 'Testes de Perfil',
-          desc: 'Diagnóstico do seu perfil de risco.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-          page: 'traderprofile'
-        }
-      ]
+      id: 'mindset',
+      label: 'Mentalidade',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4.5A4.5 4.5 0 0 0 5 9v1a4 4 0 0 0 1 7.87V19a2 2 0 0 0 2 2h1.5M14.5 4.5A4.5 4.5 0 0 1 19 9v1a4 4 0 0 1-1 7.87V19a2 2 0 0 1-2 2h-1.5M9.5 4.5A3.5 3.5 0 0 1 12 6a3.5 3.5 0 0 1 2.5-1.5M12 6v15M8 10h1.5M14.5 10H16M8 14h1.5M14.5 14H16"/></svg>`,
+      page: 'mindset'
     }
   ];
 
@@ -480,6 +462,10 @@
 
         if (block.isGroup) {
           return this.renderGroupButton(block);
+        }
+
+        if (block.page) {
+          return this.renderDirectButton(block);
         }
 
         return '';
@@ -745,6 +731,13 @@
         btn.classList.toggle('active', isDirect);
       });
 
+      const mindsetPages = new Set(['mindset', 'zen', 'audiolibrary', 'emotionalintelligence', 'traderrules', 'wisdom', 'traderprofile']);
+      if (mindsetPages.has(pageId)) {
+        document.querySelectorAll('.sidebar-btn[data-page="mindset"]').forEach((btn) => {
+          btn.classList.add('active');
+        });
+      }
+
       // Check which parent group owns this pageId
       const allGroups = [...NAV_STRUCTURE, ...FOOTER_STRUCTURE].filter((x) => x.isGroup);
       allGroups.forEach((group) => {
@@ -768,7 +761,7 @@
       });
 
       // Breadcrumb customization for grouped pages
-      const crumb = document.getElementById('crumb');
+      const crumb = document.querySelector('.crumb') || document.getElementById('crumb');
       if (crumb) {
         let found = false;
         for (const group of allGroups) {
@@ -782,7 +775,13 @@
           }
         }
         if (!found) {
-          const titleMap = {
+          const mindsetSubPages = new Set(['zen', 'audiolibrary', 'emotionalintelligence', 'traderrules', 'wisdom', 'traderprofile']);
+          if (mindsetSubPages.has(pageId)) {
+            const pageTitle = (typeof titles !== 'undefined' && titles[pageId]) || pageId;
+            crumb.innerHTML = `The Healthy Trend Trader / <a href="javascript:void(0)" onclick="go('mindset')" style="color:inherit;text-decoration:none">Mentalidade</a> / <b>${pageTitle}</b>`;
+          } else {
+            const titleMap = {
+              mindset: 'Mentalidade',
             today: 'Meu Desktop',
             newtrade: 'Novo Trade',
             positions: 'Posições Abertas',
@@ -799,6 +798,7 @@
           };
           const t = titleMap[pageId] || (typeof titles !== 'undefined' && titles[pageId]) || 'Meu Desktop';
           crumb.innerHTML = `The Healthy Trend Trader / <b>${t}</b>`;
+          }
         }
       }
     }

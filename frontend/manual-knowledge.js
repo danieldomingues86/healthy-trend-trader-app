@@ -26,6 +26,10 @@
     chat: '<path d="M6 27 3 32l9-4c16 5 25-16 13-23C13-2-3 13 6 27z"/><circle cx="11" cy="15" r=".7"/><circle cx="17" cy="15" r=".7"/><circle cx="23" cy="15" r=".7"/>',
     play: '<rect x="3" y="6" width="28" height="23" rx="5"/><path d="m14 12 9 6-9 6z"/>',
     arrow: '<path d="m12 7 10 10-10 10"/>',
+    plus: '<path d="M18 9v18M9 18h18"/>',
+    pause: '<rect width="4" height="16" x="11" y="10" rx="1"/><rect width="4" height="16" x="21" y="10" rx="1"/>',
+    check: '<path d="m9 18 6 6 12-14"/>',
+    scale: '<path d="M18 3v28M6 9l12-4 12 4M6 9v7a6 6 0 0 0 12 0V9M30 9v7a6 6 0 0 1-12 0V9"/>',
   };
   const icon = name => `<svg class="kc-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.book}</svg>`;
   const software = [
@@ -34,42 +38,51 @@
     ['dailyroutine','Rotina Diária','O ritual da consistência.',null,'Execute seus rituais operacionais em cada fase do pregão: pré, intra e pós-mercado, protegendo sua rotina contra improvisos.'],
     ['watchlist','Watchlist','Radar de oportunidades.',null,'Organize seus ativos em observação por estágio técnico (Base, Contração, Rompimento) e prioridade antes de planejar a entrada.'],
     ['habits','Monitor de Hábitos','Disciplina que constrói o trader.',null,'Monitore diariamente a execução dos hábitos de alta performance e transforme disciplina em métricas visíveis de consistência.'],
-    ['riskpolicy','Política de Risco','Governança e calibração de risco.','manual-riskpolicy','Defina o Risk Budget de cada Grade (A, B, C e D) e configure por perfil os limites de volatilidade, capital, Portfolio Heat e posições, além das proteções durante o trade.'],
+    ['riskpolicy','Política de Risco','Governança e calibração de risco.','manual-riskpolicy','Defina o Risk Budget de cada Grade (A, B, C e D) e configure por perfil os limites de volatilidade, capital, Portfolio Heat e posições, além dos alternadores de Scale-In e Sell Into Strength.'],
     ['couragechallenge','Desafio Grade A','Treinamento do Modo Desapego.','manual-courage','Acompanhe a execução dos Rare Trades de Grade A em relação ao sizing executável autorizado pelo sistema, somente com o desafio ativo.'],
     ['positions','Posições','Acompanhe e gerencie.','manual-positions','Abra a posição para consultar a linha do tempo, atualizar o stop e registrar reduções ou encerramento.'],
+    ['closedpositions','Posições Encerradas','Histórico e revisão de trades.','manual-closedpositions','Consulte o histórico completo de trades finalizados com auditoria de eventos, R-múltiplo real alcançado, duração e diário vinculado.'],
     ['portfolioheat','Portfolio Heat','Controle o risco da carteira.','manual-risk','Confira o risco agregado das posições e compare com o limite definido na sua Política de Risco.'],
     ['dashboard','Patrimônio','Visão patrimonial e alocações.',null,'Acompanhe a curva de capital da estratégia, separe o rendimento real dos aportes e gerencie as alocações da sua carteira.'],
     ['assetblacklist','Ativos Blacklist','Blindagem comportamental.',null,'Cadastre ativos proibidos, ilíquidos ou fora do seu perfil para bloquear compras acidentais no sistema.'],
-    ['marketcycle','Ciclo de Mercado','Entenda o ambiente.','manual-permission','Leia o regime do mercado e a atualização dos dados. Use o contexto antes de procurar uma oportunidade.'],
+    ['marketcycle','Ciclo de Mercado','Entenda o ambiente.','manual-permission','Leia o regime multi-mercado independente (Ações B3, BDRs e FIIs) e a atualização dos dados antes de procurar uma oportunidade.'],
     ['emergingleaders','Líderes Emergentes','Descubra a próxima geração de líderes.','manual-emergingleaders','Identifique ações com alta Força Relativa, aceleração e proximidade da máxima durante correções. Acompanhe a força coletiva dos setores antes da entrada.'],
     ['relativestrength','Força Relativa','Encontre líderes.',null,'Compare os ativos dentro do seu universo. Força relativa indica liderança; a entrada ainda depende do setup.'],
     ['marketscans','Scans de Mercado','Filtros inteligentes de setups.',null,'Filtre ações em rompimento de 52 semanas, contração de volatilidade ou forte momentum no universo B3 para abastecer seu radar.'],
-    ['fundamentals','Fundamentalista','Analise a qualidade.',null,'Pesquise o ticker e consulte seus fundamentos atuais. Use a análise como evidência adicional na Rubric.'],
+    ['fundamentals','Fundamentalista','Score em 6 dimensões com CVM e SEC.',null,'Pesquise ações B3 ou BDRs internacionais. Score ponderado de 0 a 10 com régua de 5 patamares e Cobertura dos Dados (dado ausente não é zero).'],
     ['analytics','Painel da Verdade','Descubra onde você tem edge.','manual-analytics','Revise os resultados das operações registradas e procure padrões de qualidade e execução.'],
     ['tradeanatomy','Anatomia dos Trades','Decomposição do seu edge.',null,'Examine a anatomia estatística dos seus trades vencedores vs perdedores, relação de R múltiplo, permanência e setups mais lucrativos.'],
-    ['journal','Diário','Registre e evolua.','manual-journal','Registre o processo técnico e emocional. O vínculo com uma posição é opcional, inclusive em dias sem operar.'],
+    ['journal','Diário do Trader','Registro e exportação para IA.','manual-journal','Registre o processo técnico e emocional. Exporte notas em múltiplos formatos ou com prompt formatado para análise com IA (ChatGPT/Claude/Gemini).'],
     ['mistakesbook','Erros e Lições','Catálogo de aprendizados.',null,'Registre erros operacionais e comportamentais para identificar padrões e consolidar lições aprendidas.'],
     ['tradelibrary','Biblioteca de Trades','Trades modelo e referências.',null,'Estude operações históricas de referência e setups clássicos do método para treinar seu olhar para o padrão perfeito.'],
-    ['emotionalintelligence','Analisador Emocional','Psicologia e clareza mental.',null,'Mapeie os estados emocionais associados às suas operações, detecte gatilhos de euforia ou ansiedade e mantenha a clareza.'],
+    ['review','Revisão Mensal','Fechamento e auditoria periódica.','manual-review','Auditoria estruturada do mês: consolide aderência ao plano, analise erros recorrentes e firme compromissos práticos para o próximo ciclo.'],
+    ['platformaccess','Uso da Plataforma','Foco e disciplina no software.',null,'Monitore o tempo de tela e sessões no software para evitar checagem compulsiva de cotações e garantir foco cirúrgico no mercado.'],
     ['forecast','Simulador de Resultados','Projeções probabilísticas.',null,'Simule a evolução matemática da sua curva de capital combinando taxa de acerto, payoff (R médio) e volume operacional.'],
-    ['zen','Trader Zen','Proteja o trader.',null,'Escolha uma prática, acompanhe a sessão e retorne ao processo com atenção. As práticas concluídas compõem seu histórico.'],
-    ['wisdom','Sabedoria do Trader','Filosofia dos mestres.',null,'Mergulhe no acervo curado com princípios, ensinamentos e citações dos maiores operadores de tendência da história.'],
+    ['mindset','Mentalidade','Hub central da mente do trader.','manual-mindset','Desenvolva clareza mental, registre seu estado emocional diário e acesse os 6 submódulos comportamentais para um trading mais saudável.'],
+    ['traderrules','Regras do Trader','Disciplina operacional na prática.','manual-traderrules','Checklist pré-trade de 7 pontos, regras de execução antes/durante/depois, 7 Regras de Ouro e comportamentos que o trader deve evitar.'],
+    ['emotionalintelligence','Psicologia do Trader','Emoções, vieses e autoconhecimento.',null,'Mapeie estados emocionais, compreenda vieses comportamentais e padrões de autossabotagem, além do Analisador Estatístico de Padrões.'],
+    ['zen','Trader Zen','Respiração, meditação e pausas conscientes.',null,'Escolha uma prática de respiração, meditação, foco ou relaxamento e retorne ao processo com atenção plena.'],
+    ['wisdom','Sabedoria do Trader','Filosofia dos grandes mestres.',null,'Mergulhe no acervo curado com centenas de princípios, lições e citações dos maiores operadores de tendência da história.'],
+    ['traderprofile','Testes de Perfil','Diagnóstico comportamental.',null,'Descubra suas características comportamentais, pontos fortes, tolerância ao risco e áreas de atenção para evoluir como trader.'],
     ['materials','Trader Store','Recursos e templates.',null,'Acesse materiais de apoio, checklists impressos, áudios de foco e guias operacionais desenvolvidos para sua rotina.'],
   ];
   const concepts = [
     ['star','Empilhamento de Probabilidades','Vários edges, uma decisão.','Empilhamento de Probabilidades'],
     ['shield','Trading Rubric','A qualidade do setup.','Trading Rubric'],
-    ['cycle','Ciclo de Mercado','Up, Down ou Transição.','Market Cycle'],
+    ['cycle','Ciclo de Mercado','Up, Down ou Transição multi-mercado.','Market Cycle'],
     ['mountain','Contexto Diário','Tendência, volatilidade e estrutura.','Contexto Diário'],
     ['trend','Força Relativa','Leaders e laggards.','Força Relativa'],
-    ['chart','Fundamentos','Qualidade por trás do preço.','Score Fundamentalista'],
+    ['chart','Fundamentos (6 Dimensões)','Qualidade e Cobertura dos Dados (CVM e SEC).','Score Fundamentalista'],
     ['pulse','Volatilidade / ATR','Medindo o risco.','ATR'],
     ['layers','Position Sizing','Transformando risco em posição.','Position Sizing'],
     ['fire','Portfolio Heat','O risco total da carteira.','Portfolio Heat'],
     ['gauge','Ongoing Risk','Proteção contínua.','Ongoing Risk'],
     ['peel','Peel-Off','Redução quando necessário.','Peel-Off'],
+    ['plus','Scale-In (Adição de Risco Zero)','Adição com lucro ≥ +1R e stop no Breakeven.','Scale-In'],
     ['ramp','Risk Ramp-Up','Aumente a exposição gradualmente.','Risk Ramp-Up'],
     ['target','5 Gatilhos de Entrada','Inside Bar, PFR, 1-2-3, Dave Landry e RBI.','Gatilhos de Entrada'],
+    ['pause','Modo Fora do Mercado','Pausa deliberada e blindagem contra drawdowns.','Modo Fora do Mercado'],
+    ['check','As 7 Regras de Ouro','Princípios inegociáveis de disciplina e consistência.','Regras do Trader'],
   ];
   const faq = [
     ['Por que meu Position Size ficou menor?','O Grade define o Risk Budget e a quantidade teórica pelo stop. Depois, os limitadores de exposição — volatilidade por ATR, capital, Portfolio Heat e máximo de posições — determinam quanto a conta e a carteira podem efetivamente comportar. Confira o limitante destacado no planejamento.'],
@@ -82,6 +95,12 @@
     ['O que significa Portfolio Heat?','É o risco agregado do portfólio, apresentado em relação à equity e ao limite da política. Ele mostra quanto risco já está comprometido e a capacidade para novas posições.'],
     ['Qual a diferença entre risco inicial e Ongoing Risk?','O risco inicial é a distância entre entrada e stop inicial multiplicada pela quantidade. O Ongoing Risk acompanha a distância entre preço atual e stop para a quantidade que ainda está aberta.'],
     ['Quando ocorre Peel-Off?','É uma redução de proteção quando o Ongoing Risk excede o limite definido. O sistema indica a redução necessária; a execução deve ser registrada. Não é uma realização de lucro automática.'],
+    ['Como funciona o Scale-In (adição à posição) e quando ele é permitido?','O Scale-In permite adicionar lotes a uma posição já vencedora somente quando o preço atingir pelo menos +1R de lucro E o stop da posição já estiver ajustado para o Breakeven (risco zero da posição inicial). O sistema permite no máximo 2 adições, recalcula o preço médio ponderado no lucro realizado e verifica se a nova quantidade respeita a folga do Portfolio Heat e o capital máximo.'],
+    ['O que é o Modo Fora do Mercado (Market Pause) e quando ativá-lo?','É uma blindagem psicológica disponível em Configurações. Quando ativado, o sistema bloqueia voluntariamente a criação de novos planos de trade no Novo Trade por um período escolhido (ex: 2 a 5 dias). É recomendado após uma sequência de perdas, dias de sobrecarga emocional ou quando o mercado estiver hostil.'],
+    ['Como funciona o Override Manual do Ciclo de Mercado no Novo Trade?','Por padrão, o Novo Trade sugere automaticamente o regime do índice benchmark correspondente (IBOV para B3, BDRX para BDRs, IFIX para FIIs). O trader pode sobrescrever manualmente esse regime no seletor da Rubric caso seu ativo pertença a um setor com dinâmica própria ou em caso de divergência técnica intradiária. O score e o Grade recalculam imediatamente.'],
+    ['O que significa a métrica de Cobertura dos Dados no módulo Fundamentalista?','No Healthy Trend Trader, dado ausente não é zero. Quando uma empresa não divulga certos indicadores ou não tem histórico longo de dividendos (como muitas empresas de crescimento ou BDRs da SEC), o sistema repondera matematicamente apenas as dimensões disponíveis e informa com transparência a porcentagem de dados analisados (ex: 82% de cobertura).'],
+    ['Como exportar o Diário do Trader para estudar com Inteligência Artificial (ChatGPT/Claude/Gemini)?','Na tela do Diário do Trader, clique no botão "Exportar Diário". Escolha o período desejado e selecione o formato "Preparar para IA". O sistema gera um texto semântico estruturado por blocos de data com um prompt especializado que orienta a IA a correlacionar seu estado emocional, disciplina e execução do plano com os resultados obtidos.'],
+    ['O que é o novo módulo central de Mentalidade e onde encontro o Trader Zen e as Regras?','O menu lateral agora concentra todo o ecossistema psicológico e comportamental no item "🧠 Mentalidade". Na Home de Mentalidade você encontra os 6 submódulos (Trader Zen, Biblioteca Mental, Psicologia do Trader, Regras do Trader, Sabedoria do Trader e Teste de Perfil), além do seu check-in diário de Estado Mental e o painel de Evolução Mental.'],
     ['Como funciona o Risk Ramp-Up?','A exposição aumenta gradualmente conforme as condições e regras do método. Consulte o perfil ativo e os limites da Política de Risco; um score alto não autoriza ultrapassá-los.'],
     ['Onde altero patrimônio e percentuais do método?','Registre saldos e movimentações em Patrimônio. Ajuste os percentuais nominais de cada Grade, perfis e pesos na Política de Risco e as preferências em Configurações.'],
     ['Como usar a tela de Líderes Emergentes?','A tela de Líderes Emergentes é um radar de inteligência de mercado. Ela identifica ações com forte desempenho relativo e resiliência durante correções. IMPORTANTE: Não compre apenas pelo score alto. Coloque os melhores candidatos na sua Watchlist e aguarde uma contração/bandeira no gráfico com Setup A antes de executar.'],
@@ -245,7 +264,7 @@
     <section class="kc-panel kc-rubric" id="knowledge-rubric">${sectionHeading('TRADING RUBRIC · EVIDÊNCIAS EM CONJUNTO','Vários edges. Uma decisão consciente.','A qualidade orienta a exposição, dentro da sua política de risco.')}<div class="kc-rubric-flow"><div class="kc-evidence">${['Ciclo de Mercado','Contexto Diário','Força Relativa','Fundamentos','Volatilidade','Execução'].map(t=>`<span>${t}<i aria-hidden="true">+</i></span>`).join('')}</div><svg class="kc-confluence" viewBox="0 0 140 230" preserveAspectRatio="none" aria-hidden="true">${[15,55,95,135,175,215].map(y=>`<path d="M0 ${y} C75 ${y} 55 115 140 115"/>`).join('')}</svg><button type="button" class="kc-rubric-core" data-concept="1"><small>EXEMPLO ILUSTRATIVO</small><strong>A <span>97/100</span></strong><b>HIGH CONVICTION</b><span>Entenda o Rubric →</span></button><div class="kc-rubric-outcomes"><p><b>Mais edges alinhados</b><span>Maior qualidade → maior confiança<br>→ exposição adequada.</span></p><p><b>Menos edges alinhados</b><span>Maior incerteza → risco reduzido<br>ou nenhuma operação.</span></p><small>Score ilustrativo. A classificação real segue a política ativa e não representa probabilidade de ganho.</small></div></div></section>
     ${gradingSection()}
     ${triggersSection()}
-    <section class="kc-panel" id="knowledge-position-management">${sectionHeading('GESTÃO DA POSIÇÃO','Proteja o risco. Deixe a tendência trabalhar.','Portfolio Heat, Peel-Off, Sell Into Strength, Free Roll e Runner têm funções diferentes na mesma operação.','DECISÕES REGISTRADAS · SEM SAÍDAS AUTOMÁTICAS')}<div class="manual-grid"><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">♨</div><h3>Portfolio Heat</h3></div><p>É o risco agregado das posições reais até seus stops. O limite é configurado na Política de Risco; quando excedido, o sistema alerta e bloqueia novas entradas até que a exposição volte ao teto.</p></article><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">↘</div><h3>Peel-Off</h3></div><p>É uma redução de proteção quando o Ongoing Risk ou a volatilidade em andamento excedem o limite. Reduz apenas o necessário e não representa realização planejada de lucro.</p></article><article class="manual-card" id="knowledge-sell-into-strength"><div class="manual-card-heading"><div class="manual-icon">↗</div><h3>Sell Into Strength</h3></div><p>É uma realização parcial manual em uma zona de força configurável.</p><p><strong class="sell-usage-highlight">Sugestão de uso: a faixa de 2R a 3R é uma referência inteligente para embolsar parte dos lucros, baseada em práticas recorrentes de estudos de mercado e no acompanhamento de grandes traders.</strong> Ela pode ser ajustada. Observe a força do ativo e o ciclo de mercado: em mercado saudável, pode fazer sentido realizar mais perto de 3R e deixar a posição correr; em mercado pior, pode fazer sentido realizar mais cedo, perto de 2R.</p></article><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">🛡</div><h3>Free Roll e Runner</h3></div><p>Depois de uma parcial, o Free Roll só fica ativo quando o lucro realizado cobre o risco remanescente. A quantidade restante é o Runner: continua sob trailing stop, ATR, Ongoing Risk e Portfolio Heat, sem venda automática por atingir um R específico.</p></article></div></section>
+    <section class="kc-panel" id="knowledge-position-management">${sectionHeading('GESTÃO DA POSIÇÃO','Proteja o risco. Deixe a tendência trabalhar.','Portfolio Heat, Peel-Off, Scale-In, Sell Into Strength, Free Roll e Runner têm funções diferentes na mesma operação.','DECISÕES REGISTRADAS · SEM SAÍDAS AUTOMÁTICAS')}<div class="manual-grid"><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">♨</div><h3>Portfolio Heat</h3></div><p>É o risco agregado das posições reais até seus stops. O limite é configurado na Política de Risco; quando excedido, o sistema alerta e bloqueia novas entradas até que a exposição volte ao teto.</p></article><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">↘</div><h3>Peel-Off</h3></div><p>É uma redução de proteção quando o Ongoing Risk ou a volatilidade em andamento excedem o limite. Reduz apenas o necessário e não representa realização planejada de lucro.</p></article><article class="manual-card" id="knowledge-scale-in"><div class="manual-card-heading"><div class="manual-icon">➕</div><h3>Scale-In (Adição de Risco Zero)</h3></div><p>É a adição controlada de lotes a uma posição vencedora, permitida <strong>exclusivamente quando a operação atinge no mínimo +1R de lucro E o stop da posição base já está garantido no Breakeven (preço de entrada)</strong> ou melhor, blindando o capital inicial.</p><p><strong>Regras de Execução e Governança:</strong> O método autoriza até 2 adições por posição (com gatilhos configuráveis na Política de Risco, ex: 1ª adição em +1.0R/+1.5R e 2ª adição em +2.0R/+2.5R). O preço médio ponderado (PMP) é recalculado para apurar lucros realizados, mas o R-múltiplo final e o stop de invalidação continuam protegidos sem diluição do payoff original. Cada adição consome e respeita a folga do Portfolio Heat e o limite de capital da conta.</p></article><article class="manual-card" id="knowledge-sell-into-strength"><div class="manual-card-heading"><div class="manual-icon">↗</div><h3>Sell Into Strength</h3></div><p>É uma realização parcial manual em uma zona de força configurável.</p><p><strong class="sell-usage-highlight">Sugestão de uso: a faixa de 2R a 3R é uma referência inteligente para embolsar parte dos lucros, baseada em práticas recorrentes de estudos de mercado e no acompanhamento de grandes traders.</strong> Ela pode ser ajustada. Observe a força do ativo e o ciclo de mercado: em mercado saudável, pode fazer sentido realizar mais perto de 3R e deixar a posição correr; em mercado pior, pode fazer sentido realizar mais cedo, perto de 2R.</p></article><article class="manual-card"><div class="manual-card-heading"><div class="manual-icon">🛡</div><h3>Free Roll e Runner</h3></div><p>Depois de uma parcial, o Free Roll só fica ativo quando o lucro realizado cobre o risco remanescente. A quantidade restante é o Runner: continua sob trailing stop, ATR, Ongoing Risk e Portfolio Heat, sem venda automática por atingir um R específico.</p></article></div></section>
     <nav class="kc-support" aria-label="Mais formas de aprender"><a href="#knowledge-library" class="kc-support-card">${icon('play')}<div><span class="kc-eyebrow">TUTORIAIS E EXEMPLOS</span><h3>Aprenda vendo</h3><p>Exemplos práticos e simulações para fixar o conhecimento.</p></div>${icon('arrow')}</a><a href="#knowledge-faq" class="kc-support-card">${icon('chat')}<div><span class="kc-eyebrow">FAQ</span><h3>Perguntas frequentes</h3><p>Respostas rápidas para as dúvidas mais comuns da plataforma e do método.</p></div>${icon('arrow')}</a><article class="kc-support-card kc-coming-soon" aria-label="Ask Healthy, em breve">${icon('chat')}<div><span class="kc-eyebrow">ASK HEALTHY</span><h3>Pergunte qualquer coisa</h3><p>Respostas baseadas no seu método, regras e documentação do sistema.</p></div><span class="kc-soon">EM BREVE</span></article></nav>
     <section class="kc-panel kc-faq" id="knowledge-faq">${sectionHeading('RESPOSTAS PARA CONTINUAR','Perguntas frequentes','Abra apenas a dúvida que você quer resolver.')}<div class="kc-faq-grid">${faq.map(([q,a],i)=>`<details id="knowledge-faq-${i}"><summary>${q}<span aria-hidden="true">+</span></summary><p>${a}</p></details>`).join('')}</div></section>
     <div id="knowledge-library-mount"></div><footer class="kc-footer"><span>${icon('mountain')}<b>HEALTHY TREND TRADER</b><em>V4 PREMIUM</em></span><p>Processo antes do resultado. <i>|</i> Conhecimento gera clareza. <i>|</i> Disciplina gera liberdade.</p></footer></div>
@@ -281,7 +300,9 @@
     const original = source && legacy.querySelector('#'+source);
     const additionalGuides = {
       newtrade: [
-        'A tela Novo Trade estrutura a operação em duas etapas estritas: Etapa 1 (Parâmetros da Operação: Ativo, Direção, Gatilho, Entrada, Stop, ATR, Ambiente e Tese) e Etapa 2 (Validação pela Trading Rubric de 100 pontos).',
+        'A tela Novo Trade estrutura a operação em duas etapas estritas: Etapa 1 (Parâmetros da Operação: Ativo, Direção, Gatilho Oficial, Entrada, Stop, ATR, Ambiente e Tese) e Etapa 2 (Validação pela Trading Rubric de 100 pontos).',
+        'Os 5 Gatilhos Oficiais de Entrada: Inside Bar, PFR (Padrão de Fechamento e Reversão), 1-2-3 de Compra, Dave Landry e RBI (Red Bar Ignored) fornecem timing cirúrgico e stop estrutural objetivo.',
+        'Override Manual do Ciclo de Mercado: caso a dinâmica setorial ou intradiária do ativo divirja do índice benchmark geral, o trader pode ajustar manualmente o regime no seletor da Rubric, recalculando pontos, Grade e Risk Budget em tempo real.',
         'Risk Budget por Grade: a Rubric consulta na Política de Risco o orçamento configurado para A, B, C ou D. Cada avaliação recalcula Qualidade → Risk Budget → limitadores da política → risco executável → Position Size.',
         'Dimensionamento: o Risk Budget produz o Position Size teórico pela distância até o stop. Em seguida, volatilidade por ATR, capital, Portfolio Heat e máximo de posições limitam a quantidade executável quando necessário.',
         'Integração com o Desafio Grade A: apenas operações Grade A registradas enquanto o desafio está ativo são avaliadas contra o sizing executável calculado pelo sistema.'
@@ -303,13 +324,28 @@
       ],
       riskpolicy: [
         'A Política de Risco centraliza os perfis operacionais (Política Padrão e Risk Ramp-Up), os Risk Budgets para A, B, C e D, os limitadores de exposição e os pesos da Trading Rubric.',
-        'Cards de Grades: exibem e permitem editar o Risk Budget de A, B e C. Grade D não libera risco. Cada perfil mantém seus próprios limites de volatilidade, capital, Heat e posições, além das proteções de risco e volatilidade durante o trade.',
+        'Cards de Grades: exibem e permitem editar o Risk Budget de A, B e C. Grade D não libera risco (0%). Cada perfil mantém seus próprios limites de volatilidade, capital, Heat e posições.',
+        'Gestão de Posição & Toggles Artísticos: ative ou desative os módulos de Scale-In (adições a +1R com breakeven) e Sell Into Strength (parciais na zona de força), configurando gatilhos e faixas personalizadas.',
         'Conexão Direta com Novo Trade: Qualquer alteração salva na Política de Risco atualiza instantaneamente a resolução de risco do Novo Trade e as validações de conformidade do Desafio Grade A.'
       ],
       couragechallenge: [
         'O Desafio Grade A é um módulo de treinamento psicológico (Modo Desapego) projetado para consolidar a coragem e a disciplina de assumir o risco correto nos melhores setups do método.',
         'Elegibilidade Estrita: Apenas Rare Trades classificados como Grade A e executados durante o desafio ativo participam. B, C e D não pontuam.',
         'Inspeção sem Interferência: o desafio não altera o Position Sizing; ele compara a execução real com o risco e a quantidade efetivamente autorizados depois dos limitadores da política.'
+      ],
+      positions: [
+        'O módulo Posições Abertas é seu cockpit de condução: monitore o trailing stop, o lucro em R-múltiplos, a volatilidade atual e a aproximação de zonas parciais.',
+        'Gestão de Eventos: registre ajustes de stop, acione parciais manuais de Sell Into Strength ou adições de Scale-In (quando autorizadas pelo sistema a partir de +1R e breakeven).',
+        'Linha do Tempo Completa: cada decisão fica gravada cronologicamente na posição sem fragmentar o trade em linhas soltas.'
+      ],
+      closedpositions: [
+        'O módulo Posições Encerradas reúne o histórico completo de todas as operações finalizadas na plataforma.',
+        'Auditoria Pós-Trade: consulte a linha do tempo de cada posição, desde a entrada original, eventuais adições de Scale-In, parciais de Sell Into Strength até o encerramento do Runner.',
+        'Métricas Conexas: analise o R-múltiplo real alcançado, o tempo de permanência, o preço médio ponderado e as anotações do Diário do Trader vinculadas à operação.'
+      ],
+      portfolioheat: [
+        'O Portfolio Heat monitora o risco agregado e simultâneo de todas as suas posições abertas em relação ao patrimônio líquido da conta.',
+        'Termômetro de Risco: previne a sobreexposição em momentos de euforia. Quando o Heat atinge o teto da Política de Risco, o sistema bloqueia novas compras e sinaliza a necessidade de aguardar parciais ou avanço de stops para Breakeven antes de assumir novos riscos.'
       ],
       dashboard: [
         'O módulo Patrimônio oferece uma visão holística da sua saúde financeira: curva de capital da estratégia, taxa de crescimento anual e retorno percentual acumulado.',
@@ -321,7 +357,7 @@
         'Bloqueio no Planejamento: o sistema impede o registro de ordens para ativos na Blacklist, garantindo que a disciplina seja imposta pelo software mesmo em momentos de impulso.'
       ],
       marketcycle: [
-        'A tela de Ciclo de Mercado monitora o regime técnico dos índices de referência (Ibovespa e Small Caps) em relação às médias móveis e ao fôlego de mercado.',
+        'A tela de Ciclo de Mercado monitora o regime técnico dos índices de referência de forma independente para cada universo: Ações B3 (Ibovespa), BDRs Internacionais (BDRX) e Fundos Imobiliários (IFIX).',
         'Permissão Operacional: Mercado Saudável autoriza novos setups; Mercado em Transição exige cautela e menor exposição; Mercado Defensivo/Risk-Off protege o capital e bloqueia novas compras long.'
       ],
       emergingleaders: [
@@ -335,7 +371,11 @@
         'Varredura Eficiente: identifique rapidamente em poucos segundos quais ações estão em pontos de inflexão técnica sem precisar folhear centenas de gráficos manualmente.',
         'Conexão Direta: envie os ativos filtrados com um clique diretamente para sua Watchlist para acompanhamento refinado.'
       ],
-      fundamentals: ['Pesquise o código do ativo e confira os indicadores disponíveis. Campos sem dados devem permanecer sem avaliação, sem presumir qualidade.', 'Use a consulta atual para entender a empresa e complementar a seleção. Volte ao planejamento para revisar a dimensão fundamentalista e os demais critérios da Rubric.'],
+      fundamentals: [
+        'O módulo Fundamentalista integra demonstrações de Ações B3 (CVM/Fundamentus) e BDRs Internacionais (SEC). O Score Fundamentalista (0 a 10) segue a metodologia de 6 dimensões ponderadas: Rentabilidade (28%), Consistência de Lucros (22%), Crescimento (16%), Endividamento (18%), Valuation (10%) e Dividendos (6%).',
+        'Princípio Inviolável: Dado ausente não é zero. Quando métricas ou históricos contábeis anuais não estão disponíveis, o sistema repondera os componentes disponíveis e expõe uma métrica explícita e separada de Cobertura dos Dados (ex: 78% em CEAB3) com alertas claros de dados parciais.',
+        'Régua Horizontal de 5 Patamares (RUIM, FRACO, MÉDIO, BOM, EXCELENTE) e Raio-X agrupado por categorias econômicas com Market Cap humanizado.'
+      ],
       analytics: [
         'O Painel da Verdade analisa objetivamente suas estatísticas acumuladas: taxa de acerto, fator de lucro, payoff médio e expectativa matemática.',
         'Padrões de Resultado: filtre por setup, direção, ciclo de mercado e grade da Rubric para descobrir onde reside sua verdadeira vantagem estatística.'
@@ -347,6 +387,7 @@
       ],
       journal: [
         'O Diário do Trader registra a evolução técnica e comportamental dia a dia. Vincule operações, anexe capturas de gráficos e registre emoções e notas de reflexão.',
+        'Exportação Estruturada & Modo "Preparar para IA": exporte seus registros em Markdown, Texto, JSON, CSV ou gere um texto semanticamente estruturado por blocos de data com prompt pronto para envio a LLMs (ChatGPT, Claude, Gemini) para mapear correlações entre contexto, plano e emoções.',
         'Mesmo em dias sem operar, registre a disciplina da espera. A paciência é parte integrante do método.'
       ],
       mistakesbook: [
@@ -357,18 +398,48 @@
         'A Biblioteca de Trades é o acervo de excelência visual da plataforma: reúne trades históricos modelo, breakouts perfeitos, pullbacks institucionais e casos de estudo comentados.',
         'Treinamento de Padrões: estude os melhores setups para calibrar seu cérebro a reconhecer rapidamente a anatomia visual de um Rare Trade Grade A no mercado real.'
       ],
-      emotionalintelligence: [
-        'O Analisador Emocional correlaciona suas tomadas de decisão com o seu estado psicológico no momento do trade: calma, ansiedade, euforia, frustração ou hesitação.',
-        'Detecção de Padrões: identifique quais emoções precedem seus maiores erros operacionais e aprenda a identificar os sinais de estresse antes que eles afetem seu capital.'
+      review: [
+        'A Revisão Mensal é o ritual de fechamento e auditoria periódica do seu processo operacional.',
+        'Análise Sistêmica: consolide a aderência ao plano no mês, liste os erros mais frequentes (alimentando o Caderno de Erros) e defina metas comportamentais concretas para o próximo ciclo.',
+        'Processo Acima do Resultado: meça o sucesso não apenas pelos ganhos financeiros, mas pela fidelidade absoluta às suas regras operacionais.'
+      ],
+      platformaccess: [
+        'O módulo Uso da Plataforma é um instrumento de disciplina e higiene mental para o trader de alta performance.',
+        'Foco Operacional vs Compulsão: monitore o tempo de uso ativo e a frequência de sessões no software. O objetivo do operador de tendência é tomar poucas e excelentes decisões, evitando a vigilância obsessiva de cotações intradiárias.'
       ],
       forecast: [
         'O Simulador de Resultados projeta probabilisticamente a evolução futura da sua curva de capital com base na sua taxa de acerto real, payoff médio e frequência de operações.',
         'Consciência Estatística: compreenda o poder dos juros compostos no trading e visualize como pequenas melhorias na seleção de trades transformam seus resultados no longo prazo.'
       ],
-      zen: ['Escolha a prática adequada ao seu momento e acompanhe as instruções da sessão.', 'Conclua a prática para registrar seu histórico. Antes de voltar à operação, retome seu plano e confira se está em condição de executá-lo.'],
+      mindset: [
+        'O módulo central Mentalidade (Mente de Trader) unifica todo o ecossistema comportamental, psicológico e de foco do Healthy Trend Trader em um único ambiente moderno e integrado.',
+        'Meu Estado Mental: realize seu check-in diário em 5 níveis (Calmo, Bem, Neutro, Ansioso, Agitado). O sistema registra o histórico para que você entenda como suas emoções afetam sua disciplina.',
+        'Minha Evolução Mental: acompanhe indicadores reais de dias com mente estável, total de práticas zen realizadas, aderência ao plano e redução da ansiedade.',
+        'Os 6 Submódulos: navegue em um clique para Trader Zen (respiração e pausas), Biblioteca Mental (áudios e sons ambientes), Psicologia do Trader (vieses e emoções), Regras do Trader (disciplina prática), Sabedoria do Trader (filosofia dos mestres) e Teste de Perfil (diagnóstico de risco).'
+      ],
+      traderrules: [
+        'A tela Regras do Trader traduz princípios psicológicos em disciplina de execução prática e inegociável.',
+        'Checklist Pré-Trade de 7 Pontos: validação objetiva antes de emitir qualquer ordem (Setup presente, Contexto favorável, Entrada e Stop definidos, Risco na política, Estado emocional sereno e motivação legítima).',
+        'As Três Fases de Execução: diretrizes para Antes do Trade (preparação), Durante o Trade (condução sem interferência precipitada) e Depois do Trade (processamento analítico e diário).',
+        'As 7 Regras de Ouro & "O que NÃO fazer": regras para blindar sua conta contra os vícios mais nocivos do trading (overtrading, perseguição de preço, aumento de risco para recuperar perdas e quebra de stop).'
+      ],
+      emotionalintelligence: [
+        'A tela Psicologia do Trader reúne o Analisador Estatístico de Padrões e quatro guias fundamentais de autoconhecimento: Emoções do Trader, Vieses Comportamentais, Comportamentos no Trade e Autoconhecimento.',
+        'Correlação Emoção x Resultado: identifique quais sentimentos (euforia, ansiedade, medo, hesitação) precedem seus maiores erros e firme compromissos pessoais com o método.'
+      ],
+      zen: ['Escolha a prática adequada ao seu momento (Respiração Guiada, Meditação, Foco ou Relaxamento) e acompanhe as instruções da sessão.', 'Conclua a prática para registrar seu histórico. Antes de voltar à operação, retome seu plano e confira se está em condição serena de executá-lo.'],
       wisdom: [
         'A tela Sabedoria do Trader disponibiliza um acervo curado com centenas de princípios, citações comentadas e reflexões atemporais dos maiores operadores de tendência da história.',
         'Alinhamento Filosófico: acesse ensinamentos categorizados em Gestão de Risco, Psicologia, Disciplina e Estratégia para manter a perspectiva correta durante drawdowns.'
+      ],
+      traderprofile: [
+        'Os Testes de Perfil oferecem um diagnóstico comportamental das suas características como operador: perfil de risco, tendências, pontos fortes e pontos de atenção.',
+        'Autoconhecimento Aplicado: use o resultado para escolher com segurança o perfil operacional ideal na sua Política de Risco (Política Padrão vs Risk Ramp-Up).'
+      ],
+      settings: [
+        'A tela Configurações personaliza a aparência (Premium Gold vs Healthy Green), o idioma e recursos de governança do software.',
+        'Modo Fora do Mercado (Market Pause): ative uma pausa deliberada por prazo determinado (ex: 2 a 5 dias) para blindar seu capital e bloquear novas ordens após sequências difíceis no mercado.',
+        'Rotina Diária e Notificações: configure horários de rituais pré, intra e pós-mercado.'
       ],
       materials: [
         'A Trader Store reúne materiais complementares do trader: guias operacionais em PDF, checklists para impressão, áudios de foco e fichas de acompanhamento.',
@@ -399,6 +470,10 @@
   window.openSellIntoStrengthManual = function () {
     go('manual');
     requestAnimationFrame(() => scrollToSection('knowledge-sell-into-strength'));
+  };
+  window.openScaleInManual = function () {
+    go('manual');
+    requestAnimationFrame(() => scrollToSection('knowledge-scale-in'));
   };
   const catalog=[...(typeof methodGlossary!=='undefined'?methodGlossary:[]).map((item,id)=>({title:item.term,text:[item.definition,item.role,item.not].join(' '),type:'glossary',id})),...software.map(([id,title,,source,text])=>({title,text,type:'guide',id})),...concepts.map(([,title,text],id)=>({title,text,type:'concept',id})),...faq.map(([title,text],id)=>({title,text,type:'faq',id})),...Array.from(legacy.querySelectorAll('.manual-section:not(.manual-faq)')).map(section=>({title:section.querySelector('h2')?.textContent||'Guia completo',text:section.textContent,type:'legacy',id:section.id}))];
   function findContent() {

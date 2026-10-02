@@ -24,6 +24,7 @@ const journalAttachments = require('./journal-attachments');
 const zenPractices = require('./zen-practices');
 const habits = require('./habits');
 const { nasdaqRelativeStrengthEngine } = require('./nasdaq-relative-strength');
+const tickerChart = require('./ticker-chart');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -436,6 +437,14 @@ const server = http.createServer(async (request, response) => {
       const limit = Math.min(48, Math.max(1, Number(url.searchParams.get('limit')) || 24));
       return send(response, 200, { items: items.slice((pageNumber - 1) * limit, pageNumber * limit), page: pageNumber, limit, total: items.length });
     }
+    if (url.pathname === '/api/market-data/ticker-universe') {
+      return send(response, 200, await tickerChart.getSearchUniverse());
+    }
+    if (url.pathname === '/api/market-data/ticker-chart') {
+      const tickerParam = url.searchParams.get('ticker');
+      if (!tickerParam) return send(response, 400, { error: 'Parâmetro ticker é obrigatório.' });
+      return send(response, 200, await tickerChart.getTickerChartData(tickerParam));
+    }
     if (url.pathname === '/api/fundamentals') return send(response, 200, await fetchFundamentals(url.searchParams.get('ticker')));
     if (url.pathname === '/api/health') {
       const cached = await readCache();
@@ -491,6 +500,7 @@ process.on('unhandledRejection', (reason) => {
 server.listen(port, async () => {
   try { await database.migrate(); await auth.ensureAdmin(); } catch (error) { console.error(`[database] ${error.message}`); }
   console.log(`Market data API em http://localhost:${port}`);
+  tickerChart.warmup().catch((error) => console.error('[ticker-chart warmup]', error.message));
 });
 setInterval(() => refreshIfDue().catch((error) => console.error('[scheduler]', error.message)), 60 * 60 * 1000);
 refreshIfDue().catch((error) => console.error('[startup]', error.message));
