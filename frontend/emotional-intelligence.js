@@ -24,9 +24,12 @@
   const icon = name => `<svg class="ei-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[name] || icons.brain}</svg>`;
   const confidenceLabel = value => ({ high: t('Alta', 'High'), medium: t('Média', 'Medium'), low: t('Baixa', 'Low') })[value];
   let period = '90', sessions = [], sourceStatus = '', analysis, requestId = 0, accessState = 'idle', usageMode = 'days', showAllPatterns = false, tradesReady = true, dataReady = true;
-  let activePsychologyTab = 'emotions';
+  let activePsychologyTab = (function () {
+    try { return sessionStorage.getItem('healthyTrendPsychologyTab') || 'emotions'; } catch (_) { return 'emotions'; }
+  })();
   window.selectPsychologyTab = function (tab) {
     activePsychologyTab = tab;
+    try { sessionStorage.setItem('healthyTrendPsychologyTab', tab); } catch (_) {}
     render();
   };
   const patternTitles = { 'anxiety-access': 'Anxiety and monitoring frequency', 'calm-plan': 'Calm and plan adherence', 'calm-execution': 'Calm and execution quality', 'market-emotion': 'Healthy market and emotional activation', 'access-execution': 'Monitoring and execution', 'access-trades': 'Access frequency and new trades', 'access-plan': 'Access frequency and adherence', 'loss-after-access': 'Activity after losing exits', 'loss-reentry': 'New trades after losing exits', 'loss-streak-emotion': 'Loss streaks and emotional activation', 'win-streak-activity': 'Win streaks and activity', 'weekday-execution': 'Early week and execution' };
@@ -155,11 +158,13 @@
     {
       id: '01',
       badgeClass: 'num-01',
-      name: 'Loss Aversion (Aversão à Perda)',
+      name: 'Loss Aversion',
+      ptName: '(Aversão à Perda)',
+      img: 'assets/bias-loss-aversion.jpg',
       icon: '📉',
       desc: 'Viés evolutivo de sofrimento',
       trap: 'A dor psicológica de perder R$ 1.000 é duas vezes maior que o prazer de ganhar R$ 1.000.',
-      impact: 'Segurar posições perdedoras na esperança de voltar ao zero, transformando pequenas perdas em catástrofes.',
+      impact: 'Segurar posições perdedoras na esperança de voltar ao zero, transformando pequenas perdas em grandes catástrofes.',
       defense: [
         'Tratar o stop loss como custo fixo de empresa',
         'O primeiro prejuízo é sempre o menor prejuízo',
@@ -169,7 +174,9 @@
     {
       id: '02',
       badgeClass: 'num-02',
-      name: 'FOMO (Fear of Missing Out)',
+      name: 'FOMO',
+      ptName: '(Fear of Missing Out)',
+      img: 'assets/bias-fomo.jpg',
       icon: '🏃',
       desc: 'Medo de ficar de fora',
       trap: 'Ver um ativo disparando sem você e sentir urgência imediata de entrar na euforia.',
@@ -183,7 +190,9 @@
     {
       id: '03',
       badgeClass: 'num-03',
-      name: 'Overconfidence (Excesso de Confiança)',
+      name: 'Overconfidence',
+      ptName: '(Excesso de Confiança)',
+      img: 'assets/bias-overconfidence.jpg',
       icon: '👑',
       desc: 'Ilusão de maestria',
       trap: 'Acreditar que os ganhos recentes derivam de genialidade pessoal e não de um mercado em tendência.',
@@ -197,7 +206,9 @@
     {
       id: '04',
       badgeClass: 'num-04',
-      name: 'Recency Bias (Viés de Recência)',
+      name: 'Recency Bias',
+      ptName: '(Viés de Recência)',
+      img: 'assets/bias-recency-bias.jpg',
       icon: '🔄',
       desc: 'Miopia do último pregão',
       trap: 'Julgar a qualidade do seu método com base nos últimos 2 ou 3 trades recentes.',
@@ -211,7 +222,9 @@
     {
       id: '05',
       badgeClass: 'num-05',
-      name: 'Need to Be Right (Necessidade de Estar Certo)',
+      name: 'Need to Be Right',
+      ptName: '(Necessidade de Estar Certo)',
+      img: 'assets/bias-need-to-be-right.jpg',
       icon: '🎯',
       desc: 'Ego versus Lucro',
       trap: 'Priorizar o ego e a vaidade sobre o lucro real. Tentar provar que o mercado está errado.',
@@ -225,7 +238,9 @@
     {
       id: '06',
       badgeClass: 'num-06',
-      name: 'Revenge Trading (Operação por Vingança)',
+      name: 'Revenge Trading',
+      ptName: '(Operação por Vingança)',
+      img: 'assets/bias-revenge-trading.jpg',
       icon: '⚔️',
       desc: 'Reação emocional destrutiva',
       trap: 'Tentar "dar o troco" no ativo ou recuperar o prejuízo no mesmo pregão após um stop doloroso.',
@@ -494,36 +509,44 @@
       <div class="emotion-cards-list">
         ${biasesList.map(b => `
           <article class="emotion-horizontal-card bias-card">
-            <div class="bias-badge-col">
+            <div class="emotion-img-col">
               <span class="emotion-badge-num ${b.badgeClass}">${b.id}</span>
-              <span class="bias-main-icon">${b.icon}</span>
+              <img src="${b.img}" alt="${b.name}" class="emotion-card-img" />
             </div>
-            <div class="emotion-title-col">
-              <h3 class="emotion-name" style="font-size:15.5px">${b.name}</h3>
-              <span class="emotion-desc">${b.desc}</span>
+            <div class="emotion-title-col bias-title-col">
+              <h3 class="bias-card-title">
+                <span class="bias-title-primary">${b.name}</span>
+                <span class="bias-title-secondary">${b.ptName}</span>
+              </h3>
+              <span class="emotion-desc bias-card-desc">${b.desc}</span>
             </div>
-            <div class="emotion-trigger-col">
-              <div class="emotion-col-eyebrow" style="color:#2a6148">
+            <div class="emotion-trigger-col bias-trap-col">
+              <div class="emotion-col-eyebrow bias-trap-eyebrow">
                 <span class="eyebrow-icon">🧠</span>
                 <span>ARMADILHA EVOLUTIVA</span>
               </div>
-              <p class="emotion-col-text">${b.trap}</p>
+              <p class="emotion-col-text bias-trap-text">${b.trap}</p>
             </div>
-            <div class="emotion-signals-col">
-              <div class="emotion-col-eyebrow" style="color:#c0392b">
+            <div class="emotion-signals-col bias-impact-col">
+              <div class="emotion-col-eyebrow bias-impact-eyebrow">
                 <span class="eyebrow-icon">⚠️</span>
                 <span>IMPACTO NO TRADE</span>
               </div>
-              <p class="emotion-col-text" style="color:#78350f">${b.impact}</p>
+              <p class="emotion-col-text bias-impact-text">${b.impact}</p>
             </div>
-            <div class="emotion-antidote-col">
-              <div class="antidote-card-inner">
-                <div class="antidote-eyebrow">
-                  <span class="antidote-icon">🛡️</span>
-                  <span>DEFESA SISTEMÁTICA</span>
+            <div class="emotion-antidote-col bias-defense-col">
+              <div class="bias-defense-panel">
+                <div class="bias-defense-head">
+                  <span class="bias-defense-icon">🛡️</span>
+                  <span class="bias-defense-label">DEFESA SISTEMÁTICA</span>
                 </div>
-                <ul class="antidote-checklist">
-                  ${b.defense.map(d => `<li><span class="check-icon">☑</span><span>${d}</span></li>`).join('')}
+                <ul class="bias-defense-list">
+                  ${b.defense.map(rule => `
+                    <li class="bias-defense-item">
+                      <span class="bias-check-icon">✓</span>
+                      <span class="bias-rule-text">${rule}</span>
+                    </li>
+                  `).join('')}
                 </ul>
               </div>
             </div>
