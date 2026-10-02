@@ -24,10 +24,43 @@
   const icon = name => `<svg class="ei-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[name] || icons.brain}</svg>`;
   const confidenceLabel = value => ({ high: t('Alta', 'High'), medium: t('Média', 'Medium'), low: t('Baixa', 'Low') })[value];
   let period = '90', sessions = [], sourceStatus = '', analysis, requestId = 0, accessState = 'idle', usageMode = 'days', showAllPatterns = false, tradesReady = true, dataReady = true;
+  let activePsychologyTab = 'analyzer';
+  window.selectPsychologyTab = function (tab) {
+    activePsychologyTab = tab;
+    render();
+  };
   const patternTitles = { 'anxiety-access': 'Anxiety and monitoring frequency', 'calm-plan': 'Calm and plan adherence', 'calm-execution': 'Calm and execution quality', 'market-emotion': 'Healthy market and emotional activation', 'access-execution': 'Monitoring and execution', 'access-trades': 'Access frequency and new trades', 'access-plan': 'Access frequency and adherence', 'loss-after-access': 'Activity after losing exits', 'loss-reentry': 'New trades after losing exits', 'loss-streak-emotion': 'Loss streaks and emotional activation', 'win-streak-activity': 'Win streaks and activity', 'weekday-execution': 'Early week and execution' };
   Object.assign(patternTitles, { 'anxiety-monitoring': 'Anxiety and monitoring area visits', 'market-calm-execution': 'Healthy market, calm and execution', 'trade-count-plan': 'Trade count and plan adherence' });
   Object.assign(patternTitles, { 'declared-anxiety-execution': 'Recorded anxiety and execution quality', 'declared-calm-execution': 'Recorded calm and execution quality', 'declared-confidence-execution': 'Recorded confidence and execution quality' });
   const patternTitle = p => en() ? patternTitles[p.id] || p.title : p.title;
+
+  const emotionsList = [
+    { name: 'Medo', icon: '😨', trigger: 'Perda recente, tamanho de lote excessivo ou medo de devolver lucros.', signals: 'Hesitação para puxar o gatilho, apertar o stop cedo demais ou paralisia.', antidote: 'Diminua o tamanho da posição para o menor nível de risco da política. Foque em executar 100 trades de processo.' },
+    { name: 'Ansiedade', icon: '😟', trigger: 'Incerteza sobre o próximo candle ou ficar olhando as cotações tick a tick.', signals: 'Taquicardia, checar o celular compulsivamente a cada minuto.', antidote: 'Afaste-se da tela. As ordens de stop e saída devem estar na corretora. Faça 3 minutos de respiração consciente no Trader Zen.' },
+    { name: 'Euforia', icon: '🥳', trigger: 'Sequência de 3 ou mais trades vencedores consecutivos.', signals: 'Sensação de invencibilidade, aumento arbitrário de lotes e desdém pelo risco.', antidote: 'Faça uma pausa obrigatória. O mercado não mudou; você apenas capturou uma amostra favorável de variância positiva.' },
+    { name: 'Ganância', icon: '🤑', trigger: 'Lucro na tela superando as expectativas iniciais.', signals: 'Ignorar a realização parcial planejada, sonhar com lucro infinito.', antidote: 'Venda parcial no alvo técnico conforme o plano e conduza apenas o restante com stop móvel no breakeven.' },
+    { name: 'Frustração', icon: '😤', trigger: 'Ser estopado e logo depois ver o preço ir na direção que você previa.', signals: 'Sentimento de injustiça, raiva do mercado, vontade de discutir com o gráfico.', antidote: 'Aceite o ruído estatístico. O stop existe para proteger seu capital nos casos em que o preço não volta.' },
+    { name: 'Impaciência', icon: '⌛', trigger: 'Mercado lateral ou sem setups claros por vários dias seguidos.', signals: 'Buscar operações em papéis ilíquidos ou operar setups medíocres (Grade D).', antidote: 'Lembre-se: paciência também é uma posição. Estar fora do mercado protege seu capital para as grandes tendências.' }
+  ];
+
+  const biasesList = [
+    { name: 'Loss Aversion (Aversão à Perda)', icon: '📉', trap: 'A dor psicológica de perder R$ 1.000 é duas vezes maior que o prazer de ganhar R$ 1.000. Isso faz o trader segurar posições perdedoras na esperança de voltar ao zero.', defense: 'Trate o stop loss como um custo fixo do negócio. O primeiro prejuízo é sempre o menor prejuízo.' },
+    { name: 'FOMO (Fear of Missing Out)', icon: '🏃', trap: 'Medo incontrolável de ficar de fora ao ver uma ação subindo forte sem você. Leva a compras afobadas no topo de expansões.', defense: 'Nunca compre após 3 candles de alta consecutivos longe das médias. Se perdeu o movimento, aguarde a próxima contração de volatilidade.' },
+    { name: 'Overconfidence (Excesso de Confiança)', icon: '👑', trap: 'Acreditar que os ganhos recentes derivam de genialidade pessoal e não de um mercado em forte tendência direcional.', defense: 'Mantenha o Position Sizing invariável. Nunca aumente o percentual de risco por causa de uma fase positiva.' },
+    { name: 'Recency Bias (Viés de Recência)', icon: '🔄', trap: 'Julgar a qualidade do seu método com base nos últimos 2 ou 3 trades, ignorando a expectativa matemática de longo prazo.', defense: 'Avalie sua consistência em blocos de 20 trades (como no Desafio Grade A), nunca pelo resultado do último pregão.' },
+    { name: 'Need to Be Right (Necessidade de Estar Certo)', icon: '🎯', trap: 'Priorizar o ego e a vaidade sobre o lucro. Tentar provar que o mercado está errado.', defense: 'Você quer estar certo ou quer ganhar dinheiro? O mercado tem sempre razão. Errar pequeno é a chave para vencer grande.' },
+    { name: 'Revenge Trading (Operação por Vingança)', icon: '⚔️', trap: 'Tentar "dar o troco" no ativo ou recuperar o prejuízo no mesmo dia abrindo operações impulsivas.', defense: 'Após ser estopado, declare um intervalo obrigatório de 15 minutos longe do terminal ou encerre o dia operacional.' }
+  ];
+
+  const behaviorsList = [
+    { title: 'Perseguir preço', bad: 'Comprar quando o ativo já esticou longe das médias móveis.', good: 'Aguardar contração de volatilidade ou pullback nas médias móveis de 20 períodos.' },
+    { title: 'Aumentar risco para recuperar perda', bad: 'Dobrar o tamanho do lote após um loss para tentar zerar o prejuízo rapidamente.', good: 'Em momentos de drawdown, reduzir para o perfil Risk Ramp-Up ou pausar.' },
+    { title: 'Sair cedo demais', bad: 'Zerar a posição com lucro mínimo no primeiro candle de recuo por medo de devolver.', good: 'Executar a venda parcial programada e conduzir o restante com stop na média móvel.' },
+    { title: 'Interferir no trade', bad: 'Ficar mexendo em ordens, cancelando stops ou mudando de ideia tick a tick.', good: 'Planejar entrada, stop e alvo antes do mercado abrir e deixar o plano agir.' },
+    { title: 'Operar sem setup', bad: 'Entrar por "sensação", notícia em rede social ou palpite de terceiros.', good: 'Operar estritamente oportunidades catalogadas no Rubric com Grade A ou B.' },
+    { title: 'Operar por tédio', bad: 'Abrir operações aleatórias apenas para sentir a emoção de estar no jogo.', good: 'Aceitar ficar em caixa quando o mercado não oferece contexto saudável.' },
+    { title: 'Operar emocionalmente', bad: 'Operar sob estresse pessoal, cansaço, raiva ou distração.', good: 'Fazer o check-in no Meu Estado Mental; se estiver agitado ou ansioso, não operar.' }
+  ];
   function readInput() {
     const storage = window.healthyTrendWorkspace?.storage;
     const records = storage && window.JournalV2Model ? window.JournalV2Model.load(storage, []).records : [];
@@ -92,13 +125,165 @@
     const items = [[t('Ativação emocional', 'Emotional activation'), 'intensity', false, 'absolute'], [t('Aderência ao plano', 'Plan adherence'), 'adherence', true, 'percentage'], [t('Acessos registrados / dia', 'Recorded accesses / day'), 'access', null, 'relative'], [t('Qualidade da execução', 'Execution quality'), 'execution', true, 'absolute']];
     return `<section class="ei-paper ei-comparison"><h2>${t('Sua evolução entre períodos', 'Your progress between periods')}</h2><p class="ei-soft-note">${dateLabel(analysis.bounds.previousStart, true)} – ${dateLabel(analysis.bounds.previousEnd, true)} → ${dateLabel(analysis.bounds.start, true)} – ${dateLabel(analysis.bounds.end, true)}. ${t('Cada indicador usa apenas os registros em que ele foi informado.', 'Each metric only uses entries where it was recorded.')}</p><div class="ei-comparison-grid">${items.map(([label, field, better, type]) => `<article><span>${label}</span><b>${field === 'adherence' ? pct(b[field]) : format(b[field])} → ${field === 'adherence' ? pct(a[field]) : format(a[field])}</b>${delta(a[field], b[field], type, better)}</article>`).join('')}</div></section>`;
   }
+  function renderEmotionsGuide() {
+    return `
+      <section class="ei-paper" style="margin-bottom:18px">
+        <div class="ei-heading">
+          <div>
+            <h2>Emoções do Trader</h2>
+            <p>Compreenda os gatilhos, sintomas corporais e os antídotos objetivos para cada estado emocional.</p>
+          </div>
+        </div>
+        <div class="psychology-guide-grid">
+          ${emotionsList.map(e => `
+            <article class="psychology-item-card">
+              <h3><span style="font-size:20px;margin-right:6px">${e.icon}</span>${e.name}</h3>
+              <p><strong>Gatilho:</strong> ${e.trigger}</p>
+              <p style="margin-top:6px"><strong>Sinais:</strong> ${e.signals}</p>
+              <div class="antidote">
+                <b>Antídoto Prático</b>
+                ${e.antidote}
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderBiasesGuide() {
+    return `
+      <section class="ei-paper" style="margin-bottom:18px">
+        <div class="ei-heading">
+          <div>
+            <h2>Vieses Comportamentais no Trading</h2>
+            <p>Armadilhas cognitivas evolutivas que sabotam a execução do trader e como neutralizá-las.</p>
+          </div>
+        </div>
+        <div class="psychology-guide-grid">
+          ${biasesList.map(b => `
+            <article class="psychology-item-card">
+              <h3><span style="font-size:20px;margin-right:6px">${b.icon}</span>${b.name}</h3>
+              <p><strong>Armadilha:</strong> ${b.trap}</p>
+              <div class="antidote">
+                <b>Defesa Sistemática</b>
+                ${b.defense}
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderBehaviorsGuide() {
+    return `
+      <section class="ei-paper" style="margin-bottom:18px">
+        <div class="ei-heading">
+          <div>
+            <h2>Comportamentos no Trade: Impulso × Disciplina</h2>
+            <p>Mapeamento claro dos comportamentos que destroem contas versus a execução do método Healthy.</p>
+          </div>
+        </div>
+        <div style="display:grid;gap:12px">
+          ${behaviorsList.map(b => `
+            <article class="psychology-item-card" style="display:grid;grid-template-columns:220px 1fr 1fr;gap:16px;align-items:center">
+              <div>
+                <b style="color:#193427;font-size:15px">${b.title}</b>
+              </div>
+              <div style="padding:10px 14px;border-radius:10px;background:#fff5f3;border-left:3px solid #cb5e50;color:#7a3c34;font-size:13px">
+                <span style="display:block;font-weight:700;font-size:10px;text-transform:uppercase;margin-bottom:3px">Comportamento Tóxico</span>
+                ${b.bad}
+              </div>
+              <div style="padding:10px 14px;border-radius:10px;background:#edf8f2;border-left:3px solid #168b64;color:#18573d;font-size:13px">
+                <span style="display:block;font-weight:700;font-size:10px;text-transform:uppercase;margin-bottom:3px">Padrão Saudável</span>
+                ${b.good}
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderSelfKnowledgeGuide() {
+    const commitment = localStorage.getItem('healthyTrendSelfCommitment') || '';
+    return `
+      <section class="ei-paper" style="margin-bottom:18px">
+        <div class="ei-heading">
+          <div>
+            <h2>Autoconhecimento e Identificação de Padrões</h2>
+            <p>O trader que você é sob pressão é o trader que você precisa aprender a gerenciar.</p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div class="psychology-item-card">
+            <h3>🧭 Diagnóstico de Padrões Pessoais</h3>
+            <p style="line-height:1.6">Responda para si mesmo com honestidade absoluta:</p>
+            <ul style="margin:10px 0;padding-left:20px;font-size:13px;color:#3f5247;line-height:1.6">
+              <li>Qual emoção antecede a maioria dos seus trades perdedores?</li>
+              <li>Você tende mais a sair cedo de trades vencedores ou segurar perdedores?</li>
+              <li>O que você sente no estômago quando o mercado faz um pullback de 2%?</li>
+              <li>Você opera para ter razão ou para acumular capital com disciplina?</li>
+            </ul>
+            <p style="font-size:12px;color:#196a4a;font-weight:600">Recomendação: utilize os Testes de Perfil e anote suas respostas no Diário após cada sessão.</p>
+          </div>
+          <div class="psychology-item-card">
+            <h3>✍️ Meu Compromisso Inegociável</h3>
+            <p style="font-size:13px;color:#55665d">Escreva uma regra inegociável para a sua mente antes do próximo pregão:</p>
+            <textarea id="selfCommitmentInput" rows="4" style="width:100%;margin-top:8px;padding:10px;border:1px solid #d4cbb3;border-radius:8px;background:#fff;font:inherit;font-size:13px" placeholder="Ex: Se eu tomar 2 stops no mesmo dia, fecho a plataforma e vou caminhar...">${esc(commitment)}</textarea>
+            <button class="ei-button" type="button" style="margin-top:10px" onclick="saveSelfCommitment()">Salvar Compromisso</button>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  window.saveSelfCommitment = function () {
+    const input = document.getElementById('selfCommitmentInput');
+    if (input) {
+      localStorage.setItem('healthyTrendSelfCommitment', input.value.trim());
+      if (typeof showToast === 'function') showToast('Compromisso de autoconhecimento salvo.');
+    }
+  };
+
   function render() {
-    if (!dataReady) { root.innerHTML = `<div class="ei-shell"><div class="ei-source-status">${t('Conectando o histórico da sua conta…', 'Connecting your account history…')}</div></div>`; return; }
+    const topNav = `
+      <div style="padding:16px clamp(18px,1.35vw,34px) 0;">
+        <button class="mindset-sub-back" type="button" onclick="go('mindset')">← Voltar para Mentalidade</button>
+        <nav class="psychology-tabs" aria-label="Abas de Psicologia do Trader">
+          <button class="psychology-tab ${activePsychologyTab === 'analyzer' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('analyzer')">📊 Analisador de Padrões</button>
+          <button class="psychology-tab ${activePsychologyTab === 'emotions' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('emotions')">💭 Emoções do Trader</button>
+          <button class="psychology-tab ${activePsychologyTab === 'biases' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('biases')">⚖️ Vieses Comportamentais</button>
+          <button class="psychology-tab ${activePsychologyTab === 'behaviors' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('behaviors')">⚡ Comportamentos</button>
+          <button class="psychology-tab ${activePsychologyTab === 'selfknowledge' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('selfknowledge')">🧭 Autoconhecimento</button>
+        </nav>
+      </div>
+    `;
+
+    if (activePsychologyTab === 'emotions') {
+      root.innerHTML = `<div class="ei-shell">${topNav}${renderEmotionsGuide()}</div>`;
+      return;
+    }
+    if (activePsychologyTab === 'biases') {
+      root.innerHTML = `<div class="ei-shell">${topNav}${renderBiasesGuide()}</div>`;
+      return;
+    }
+    if (activePsychologyTab === 'behaviors') {
+      root.innerHTML = `<div class="ei-shell">${topNav}${renderBehaviorsGuide()}</div>`;
+      return;
+    }
+    if (activePsychologyTab === 'selfknowledge') {
+      root.innerHTML = `<div class="ei-shell">${topNav}${renderSelfKnowledgeGuide()}</div>`;
+      return;
+    }
+
+    if (!dataReady) { root.innerHTML = `<div class="ei-shell">${topNav}<div class="ei-source-status">${t('Conectando o histórico da sua conta…', 'Connecting your account history…')}</div></div>`; return; }
     try { analysis = M.analyze(readInput()); }
-    catch (_) { root.innerHTML = `<div class="ei-shell">${empty(t('Não foi possível ler seu Diário. Seus registros foram preservados; consulte o Diário para recuperar os dados.', 'Your Journal could not be read. Entries were preserved; open the Journal to recover them.'), true)}</div>`; return; }
+    catch (_) { root.innerHTML = `<div class="ei-shell">${topNav}${empty(t('Não foi possível ler seu Diário. Seus registros foram preservados; consulte o Diário para recuperar os dados.', 'Your Journal could not be read. Entries were preserved; open the Journal to recover them.'), true)}</div>`; return; }
     const a = analysis.current, b = analysis.previous || {}, patternList = showAllPatterns ? analysis.patterns : analysis.patterns.slice(0, 4), selectedPeriod = periods.find(p => p[0] === period);
     const improvement = b.execution !== null && b.execution !== undefined && a.execution !== null && a.execution - b.execution >= .5 || b.adherence !== null && b.adherence !== undefined && a.adherence !== null && a.adherence - b.adherence >= .1;
-    root.innerHTML = `<div class="ei-shell"><header class="ei-hero"><div class="ei-hero-icon">${icon('brain')}</div><div class="ei-hero-copy"><h1>${t('Inteligência Emocional do Trader', 'Trader Emotional Intelligence')}</h1><p>${t('Seus dados revelam padrões. Conheça a si mesmo e evolua todos os dias.', 'Your data reveals patterns. Know yourself and evolve every day.')}</p></div><blockquote>“${t('O mercado muda.<br>Seus padrões deixam rastros.', 'The market changes.<br>Your patterns leave traces.')}”</blockquote><label class="ei-period">${icon('calendar')}<select id="ei-period" aria-label="${t('Período da análise', 'Analysis period')}">${periods.map(([id, pt, english]) => `<option value="${id}" ${period === id ? 'selected' : ''}>${t(pt, english)}</option>`).join('')}</select></label></header>${sourceStatus ? `<div class="ei-source-status" role="status">${esc(sourceStatus)}</div>` : ''}<div class="ei-overview"><section class="ei-paper ei-state-panel"><div class="ei-heading"><div><h2>${t('Seu Estado Atual', 'Your Current State')}</h2><p>${t(selectedPeriod[1], selectedPeriod[2])} · ${a.records} ${t('registros do Diário', 'Journal entries')}</p></div></div><div class="ei-state-grid"><div class="ei-dominant"><div class="ei-seal">${icon('leaf')}</div><div><strong>${a.dominant ? esc(statesLabel([a.dominant])) : t('Em descoberta', 'Discovering')}</strong><small>${t('Estado predominante', 'Predominant state')}</small><br><span class="ei-badge">${improvement ? t('Tendência positiva', 'Positive trend') : t('Histórico em observação', 'History under observation')}</span></div></div><article class="ei-stat"><strong>${a.trades}</strong><span>${t('Trades abertos no período', 'Trades opened in this period')}</span>${delta(a.trades, analysis.previous && b.records ? b.trades : null, 'relative', null)}</article><article class="ei-stat"><strong>${format(a.access)}</strong><span>${t('Acessos registrados (média/dia)', 'Recorded accesses (daily average)')}</span>${delta(a.access, b.access, 'relative', null)}</article><article class="ei-stat"><strong>${pct(a.adherence)}</strong><span>${t('Aderência integral ao plano', 'Full plan adherence')}</span>${delta(a.adherence, b.adherence, 'percentage', true)}</article><article class="ei-stat"><strong>${format(a.execution)}<span>/10</span></strong><span>${t('Qualidade média da execução', 'Average execution quality')}</span>${delta(a.execution, b.execution, 'absolute', true)}</article></div><p class="ei-soft-note">${a.adherenceCount} ${t('dias com plano avaliado', 'days with plan ratings')} · ${a.executionCount} ${t('dias com execução avaliada', 'days with execution ratings')}. ${t('Resultados usam encerramentos e risco inicial documentado. Conta real e Paper são identificados nas evidências.', 'Results use exits and documented initial risk. Real and Paper accounts are identified in the evidence.')}</p></section><aside class="ei-quote"><p>${t('Autoconhecimento<br>é uma vantagem<br>competitiva.', 'Self-knowledge<br>is a competitive<br>advantage.')}</p></aside></div><div class="ei-main-grid"><section class="ei-paper"><div class="ei-heading"><div><h2>${t('Padrões Identificados', 'Identified Patterns')}</h2><p>${t('Baseado no seu histórico e nas relações recorrentes entre comportamento, emoção e execução.', 'Based on your history and recurring relationships between behaviour, emotion and execution.')}</p></div>${analysis.patterns.length > 4 ? `<button class="ei-button" data-action="patterns">${showAllPatterns ? t('Ver destaques', 'Show highlights') : t('Ver todos', 'View all')} →</button>` : ''}</div><div class="ei-pattern-list">${patternList.length ? patternList.map(p => `<button class="ei-pattern ${p.kind}" data-pattern="${p.id}"><span class="ei-pattern-icon">${icon(p.kind === 'positive' ? 'target' : p.kind === 'attention' ? 'brain' : 'trend')}</span><span class="ei-pattern-copy"><b>${esc(patternTitle(p))}</b><small>${t('Detectado em', 'Detected on')} ${p.count} ${t('ocasiões', 'occasions')} | ${t('Confiança', 'Confidence')}: ${confidenceLabel(p.confidence)}</small><p>${esc(patternCopy(p))}</p></span><span class="ei-chevron">›</span></button>`).join('') : empty(t('Ainda estamos conhecendo seus padrões. Continue registrando seu Diário do Trader para construir uma análise mais confiável.', 'We are still getting to know your patterns. Keep recording your Trader Journal to build a more reliable analysis.'), true)}</div><p class="ei-soft-note">${t('Associações exploratórias, não causalidade. Confiança reflete repetição e tamanho do grupo de comparação, não diagnóstico nem certeza estatística.', 'Exploratory associations, not causation. Confidence reflects repetition and comparison group size, not a diagnosis or statistical certainty.')}</p></section><section class="ei-paper"><div class="ei-heading"><div><h2>${t('Mapa de Estados', 'State Map')}</h2><p>${t('Cada ponto representa um dia do seu histórico.', 'Each point represents one day of your history.')}</p></div><span class="ei-button">${t(selectedPeriod[1], selectedPeriod[2])}</span></div>${scatterChart()}</section><aside class="ei-paper ei-contexts">${contextMarkup(analysis.contexts.best, false)}${contextMarkup(analysis.contexts.attention, true)}</aside></div><div class="ei-bottom-grid"><section class="ei-paper"><div class="ei-heading"><div><h2>${t('Linha do Tempo Emocional', 'Emotional Timeline')}</h2><p>${t('Evolução dos seus estados e da sua execução ao longo do tempo', 'Your states and execution over time')}</p></div></div><div class="ei-legend"><span><i class="ei-dot none"></i>${t('Ativação (1–5, eixo esquerdo)', 'Activation (1–5, left axis)')}</span><span><i class="ei-dot"></i>${t('Execução (0–10, eixo direito)', 'Execution (0–10, right axis)')}</span></div>${lineChart()}</section><section class="ei-paper"><div class="ei-heading"><div><h2>${t('Uso da Plataforma', 'Platform Usage')}</h2><p>${t('Seus hábitos de utilização', 'Your usage habits')} · ${t('Média diária', 'Daily average')}: <b>${format(a.access)}</b></p></div><button class="ei-button" data-action="usage">${usageMode === 'days' ? t('Por horário', 'By hour') : t('Por dia', 'By day')}</button></div>${usageChart()}</section><section class="ei-paper ei-relations"><div class="ei-heading"><div><h2>${t('Associação de Fatores', 'Factor Associations')}</h2><p>${t('Como diferentes fatores aparecem relacionados no seu histórico.', 'How different factors appear related in your history.')}</p></div></div>${analysis.relationships.map(r => `<button class="ei-relation" data-relation="${r.id}"><span>${esc(en() ? ({ 'emotion-access': 'Activation × Accesses', 'emotion-execution': 'Activation × Execution', 'access-trades': 'Accesses × Trade count', 'access-plan': 'Accesses × Adherence', 'market-emotion': 'Market × Activation' })[r.id] : r.label)}</span><span class="ei-relation-track"><i style="width:${r.value === null ? 0 : Math.abs(r.value) * 100}%"></i></span><small>${r.value === null ? t('Poucos dados', 'Sparse data') : `${r.value < 0 ? '↘' : '↗'} ${format(Math.abs(r.value), 2)}`}</small></button>`).join('')}<button class="ei-relation" data-action="weekday"><span>${t('Dia da semana × Resultado', 'Weekday × Result')}</span><span class="ei-relation-track"></span><small>${t('Estudar', 'Explore')} →</small></button><p class="ei-soft-note">${t('Sono × Execução: sono ainda não é registrado. Barras medem a intensidade da associação; setas indicam a direção. São necessários 7 pares válidos e variação nos dois fatores.', 'Sleep × Execution: sleep is not yet recorded. Bars show association strength; arrows indicate direction. At least 7 valid pairs and variation in both factors are required.')}</p></section></div>${comparisonMarkup()}<footer class="ei-footer"><span>${t('Diário: registrar → Biblioteca: estudar trades → Inteligência Emocional: descobrir padrões.', 'Journal: record → Library: study trades → Emotional Intelligence: discover patterns.')}</span><em>${t('Pequenas melhorias. Grandes resultados.', 'Small improvements. Great results.')}</em></footer></div><div class="ei-tooltip" hidden></div>`;
+    root.innerHTML = `<div class="ei-shell">${topNav}<header class="ei-hero"><div class="ei-hero-icon">${icon('brain')}</div><div class="ei-hero-copy"><h1>${t('Psicologia do Trader · Analisador Emocional', 'Trader Psychology · Emotional Analyzer')}</h1><p>${t('Seus dados revelam padrões. Conheça a si mesmo e evolua todos os dias.', 'Your data reveals patterns. Know yourself and evolve every day.')}</p></div><blockquote>“${t('O mercado muda.<br>Seus padrões deixam rastros.', 'The market changes.<br>Your patterns leave traces.')}”</blockquote><label class="ei-period">${icon('calendar')}<select id="ei-period" aria-label="${t('Período da análise', 'Analysis period')}">${periods.map(([id, pt, english]) => `<option value="${id}" ${period === id ? 'selected' : ''}>${t(pt, english)}</option>`).join('')}</select></label></header>${sourceStatus ? `<div class="ei-source-status" role="status">${esc(sourceStatus)}</div>` : ''}<div class="ei-overview"><section class="ei-paper ei-state-panel"><div class="ei-heading"><div><h2>${t('Seu Estado Atual', 'Your Current State')}</h2><p>${t(selectedPeriod[1], selectedPeriod[2])} · ${a.records} ${t('registros do Diário', 'Journal entries')}</p></div></div><div class="ei-state-grid"><div class="ei-dominant"><div class="ei-seal">${icon('leaf')}</div><div><strong>${a.dominant ? esc(statesLabel([a.dominant])) : t('Em descoberta', 'Discovering')}</strong><small>${t('Estado predominante', 'Predominant state')}</small><br><span class="ei-badge">${improvement ? t('Tendência positiva', 'Positive trend') : t('Histórico em observação', 'History under observation')}</span></div></div><article class="ei-stat"><strong>${a.trades}</strong><span>${t('Trades abertos no período', 'Trades opened in this period')}</span>${delta(a.trades, analysis.previous && b.records ? b.trades : null, 'relative', null)}</article><article class="ei-stat"><strong>${format(a.access)}</strong><span>${t('Acessos registrados (média/dia)', 'Recorded accesses (daily average)')}</span>${delta(a.access, b.access, 'relative', null)}</article><article class="ei-stat"><strong>${pct(a.adherence)}</strong><span>${t('Aderência integral ao plano', 'Full plan adherence')}</span>${delta(a.adherence, b.adherence, 'percentage', true)}</article><article class="ei-stat"><strong>${format(a.execution)}<span>/10</span></strong><span>${t('Qualidade média da execução', 'Average execution quality')}</span>${delta(a.execution, b.execution, 'absolute', true)}</article></div><p class="ei-soft-note">${a.adherenceCount} ${t('dias com plano avaliado', 'days with plan ratings')} · ${a.executionCount} ${t('dias com execução avaliada', 'days with execution ratings')}. ${t('Resultados usam encerramentos e risco inicial documentado. Conta real e Paper são identificados nas evidências.', 'Results use exits and documented initial risk. Real and Paper accounts are identified in the evidence.')}</p></section><aside class="ei-quote"><p>${t('Autoconhecimento<br>é uma vantagem<br>competitiva.', 'Self-knowledge<br>is a competitive<br>advantage.')}</p></aside></div><div class="ei-main-grid"><section class="ei-paper"><div class="ei-heading"><div><h2>${t('Padrões Identificados', 'Identified Patterns')}</h2><p>${t('Baseado no seu histórico e nas relações recorrentes entre comportamento, emoção e execução.', 'Based on your history and recurring relationships between behaviour, emotion and execution.')}</p></div>${analysis.patterns.length > 4 ? `<button class="ei-button" data-action="patterns">${showAllPatterns ? t('Ver destaques', 'Show highlights') : t('Ver todos', 'View all')} →</button>` : ''}</div><div class="ei-pattern-list">${patternList.length ? patternList.map(p => `<button class="ei-pattern ${p.kind}" data-pattern="${p.id}"><span class="ei-pattern-icon">${icon(p.kind === 'positive' ? 'target' : p.kind === 'attention' ? 'brain' : 'trend')}</span><span class="ei-pattern-copy"><b>${esc(patternTitle(p))}</b><small>${t('Detectado em', 'Detected on')} ${p.count} ${t('ocasiões', 'occasions')} | ${t('Confiança', 'Confidence')}: ${confidenceLabel(p.confidence)}</small><p>${esc(patternCopy(p))}</p></span><span class="ei-chevron">›</span></button>`).join('') : empty(t('Ainda estamos conhecendo seus padrões. Continue registrando seu Diário do Trader para construir uma análise mais confiável.', 'We are still getting to know your patterns. Keep recording your Trader Journal to build a more reliable analysis.'), true)}</div><p class="ei-soft-note">${t('Associações exploratórias, não causalidade. Confiança reflete repetição e tamanho do grupo de comparação, não diagnóstico nem certeza estatística.', 'Exploratory associations, not causation. Confidence reflects repetition and comparison group size, not a diagnosis or statistical certainty.')}</p></section><section class="ei-paper"><div class="ei-heading"><div><h2>${t('Mapa de Estados', 'State Map')}</h2><p>${t('Cada ponto representa um dia do seu histórico.', 'Each point represents one day of your history.')}</p></div><span class="ei-button">${t(selectedPeriod[1], selectedPeriod[2])}</span></div>${scatterChart()}</section><aside class="ei-paper ei-contexts">${contextMarkup(analysis.contexts.best, false)}${contextMarkup(analysis.contexts.attention, true)}</aside></div><div class="ei-bottom-grid"><section class="ei-paper"><div class="ei-heading"><div><h2>${t('Linha do Tempo Emocional', 'Emotional Timeline')}</h2><p>${t('Evolução dos seus estados e da sua execução ao longo do tempo', 'Your states and execution over time')}</p></div></div><div class="ei-legend"><span><i class="ei-dot none"></i>${t('Ativação (1–5, eixo esquerdo)', 'Activation (1–5, left axis)')}</span><span><i class="ei-dot"></i>${t('Execução (0–10, eixo direito)', 'Execution (0–10, right axis)')}</span></div>${lineChart()}</section><section class="ei-paper"><div class="ei-heading"><div><h2>${t('Uso da Plataforma', 'Platform Usage')}</h2><p>${t('Seus hábitos de utilização', 'Your usage habits')} · ${t('Média diária', 'Daily average')}: <b>${format(a.access)}</b></p></div><button class="ei-button" data-action="usage">${usageMode === 'days' ? t('Por horário', 'By hour') : t('Por dia', 'By day')}</button></div>${usageChart()}</section><section class="ei-paper ei-relations"><div class="ei-heading"><div><h2>${t('Associação de Fatores', 'Factor Associations')}</h2><p>${t('Como diferentes fatores aparecem relacionados no seu histórico.', 'How different factors appear related in your history.')}</p></div></div>${analysis.relationships.map(r => `<button class="ei-relation" data-relation="${r.id}"><span>${esc(en() ? ({ 'emotion-access': 'Activation × Accesses', 'emotion-execution': 'Activation × Execution', 'access-trades': 'Accesses × Trade count', 'access-plan': 'Accesses × Adherence', 'market-emotion': 'Market × Activation' })[r.id] : r.label)}</span><span class="ei-relation-track"><i style="width:${r.value === null ? 0 : Math.abs(r.value) * 100}%"></i></span><small>${r.value === null ? t('Poucos dados', 'Sparse data') : `${r.value < 0 ? '↘' : '↗'} ${format(Math.abs(r.value), 2)}`}</small></button>`).join('')}<button class="ei-relation" data-action="weekday"><span>${t('Dia da semana × Resultado', 'Weekday × Result')}</span><span class="ei-relation-track"></span><small>${t('Estudar', 'Explore')} →</small></button><p class="ei-soft-note">${t('Sono × Execução: sono ainda não é registrado. Barras medem a intensidade da associação; setas indicam a direção. São necessários 7 pares válidos e variação nos dois fatores.', 'Sleep × Execution: sleep is not yet recorded. Bars show association strength; arrows indicate direction. At least 7 valid pairs and variation in both factors are required.')}</p></section></div>${comparisonMarkup()}<footer class="ei-footer"><span>${t('Diário: registrar → Biblioteca: estudar trades → Inteligência Emocional: descobrir padrões.', 'Journal: record → Library: study trades → Emotional Intelligence: discover patterns.')}</span><em>${t('Pequenas melhorias. Grandes resultados.', 'Small improvements. Great results.')}</em></footer></div><div class="ei-tooltip" hidden></div>`;
   }
   function evidenceEvents(days) {
     return [...days].sort((a, b) => b.date.localeCompare(a.date)).map(d => `<article class="ei-event"><h3>${dateLabel(d.date)}</h3><b>${esc(statesLabel(d.states) || t('Emoção não informada', 'Emotion not recorded'))}</b><div class="ei-event-stats"><span>${t('Intensidade', 'Intensity')}: ${d.intensity ?? '—'}</span><span>${d.access ?? '—'} ${t('acessos registrados', 'recorded accesses')}</span><span>${t('Execução', 'Execution')}: ${format(d.execution)}/10</span><span>${t('Plano', 'Plan')}: ${pct(d.adherence)}</span><span>${t('Resultado', 'Result')}: ${rLabel(d.resultR)}</span><span>${d.entries.length} ${t('novas operações', 'new entries')}</span></div>${d.note ? `<p>“${esc(d.note)}”</p>` : ''}${d.observations ? `<details><summary>${t('Observações do Diário', 'Journal observations')}</summary><p>${esc(d.observations)}</p></details>` : ''}${d.trades.length ? `<p>${d.trades.map(trade => `${esc(trade.asset)} · ${esc(trade.setup || '—')} · ${trade.mode === 'paper' ? 'Paper' : t('Real', 'Real')} · ${rLabel(trade.closedDate && trade.closedDate <= analysis.bounds.end ? trade.resultR : null)}`).join('<br>')}</p>` : ''}${d.areas && Object.keys(d.areas).length ? `<details><summary>${t("Áreas consultadas", "Areas visited")}</summary><p>${Object.entries(d.areas).map(([area, count]) => `${esc(typeof titles !== "undefined" ? titles[area] || area : area)}: ${count}`).join(" · ")}</p></details>` : ""}${d.sessions.length ? `<details><summary>${t('Horários de acesso', 'Access times')}</summary><p>${d.sessions.map(s => new Date(s.openedAt).toLocaleTimeString(en() ? 'en-US' : 'pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' })).join(' · ')} (${t('Brasília', 'São Paulo time')})</p></details>` : ''}${d.recordId ? `<button data-journal-record="${esc(d.recordId)}">${t('Abrir o registro original no Diário →', 'Open the original Journal entry →')}</button>` : ''}</article>`).join('');

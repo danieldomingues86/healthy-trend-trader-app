@@ -29,6 +29,7 @@
 
   function renderHome(){
     root.innerHTML=`<div class="zen-shell zen-home">
+      <button class="mindset-sub-back" type="button" onclick="go('mindset')" style="position:absolute;top:20px;left:24px;z-index:10">← Voltar para Mentalidade</button>
       <aside class="zen-side"><strong>Foco</strong><strong>Disciplina</strong><strong>Paciência</strong><strong>Resultados</strong></aside>
       <article class="zen-stage">
         <p class="zen-kicker">Mais que trading, um estilo de vida</p>
