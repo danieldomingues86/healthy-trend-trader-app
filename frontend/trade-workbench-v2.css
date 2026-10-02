@@ -62,6 +62,8 @@ body:has(#newtrade.active) .content {
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
   overflow: hidden !important;
   box-sizing: border-box !important;
+  container-type: inline-size;
+  container-name: trade-workbench;
 }
 
 /* Workbench Head */
@@ -97,7 +99,7 @@ body:has(#newtrade.active) .content {
 
 #newtrade .trade-workbench-grid {
   display: grid !important;
-  grid-template-columns: minmax(390px, 0.95fr) minmax(450px, 1.05fr) minmax(560px, 1.28fr) !important;
+  grid-template-columns: minmax(360px, 0.95fr) minmax(420px, 1.05fr) minmax(540px, 1.28fr) !important;
   gap: 16px !important;
   flex: 1 !important;
   padding: 12px 16px !important;
@@ -107,9 +109,25 @@ body:has(#newtrade.active) .content {
   width: 100% !important;
 }
 
+#newtrade #tradeDataStage {
+  grid-column: 1 / 2;
+  grid-row: 1;
+}
+
+#newtrade #tradeRubricStage {
+  grid-column: 2 / 3;
+  grid-row: 1;
+}
+
+#newtrade .workbench-sizer {
+  grid-column: 3 / 4;
+  grid-row: 1;
+}
+
 /* Individual Column Cards */
 #newtrade .workbench-card {
   min-width: 0 !important;
+  max-width: 100% !important;
   min-height: 0 !important;
   height: 100% !important;
   border: 1px solid rgba(200, 168, 78, 0.18) !important;
@@ -140,6 +158,10 @@ body:has(#newtrade.active) .content {
   color: #f2ede4 !important;
   letter-spacing: -0.01em !important;
   line-height: 1.25 !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 
 #newtrade .workbench-stage-subtitle {
@@ -148,6 +170,10 @@ body:has(#newtrade.active) .content {
   color: #a4bfae !important;
   font-size: 14px !important;
   line-height: 1.4 !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 
 /* ── 4. COLUMN 1: DADOS DO TRADE (COMPACT TERMINAL LAYOUT) ─────────────── */
@@ -1835,94 +1861,9 @@ body:has(#newtrade.active) .content {
   }
 }
 
-/* Desktop Médio / Laptops (<= 1600px):
-   Quando o espaço horizontal não comporta 3A + 3B confortáveis,
-   Etapa 3 empilha 3A sobre 3B internamente, preservando Etapas 1 e 2 com largura generosa */
-@media (max-width: 1600px) {
-  #newtrade .trade-workbench-grid {
-    gap: 12px !important;
-    padding: 10px 12px !important;
-    grid-template-columns: minmax(340px, 1fr) minmax(410px, 1.15fr) minmax(360px, 1.05fr) !important;
-    align-items: stretch !important;
-  }
-
-  #newtrade .workbench-card {
-    padding: 12px !important;
-  }
-
-  #newtrade .form-grid {
-    gap: 16px 12px !important;
-  }
-
-  #newtrade .field input,
-  #newtrade .field select,
-  #newtrade .field textarea {
-    padding: 7px 9px !important;
-    font-size: 13px !important;
-  }
-
-  #newtrade .quality-ruler-container {
-    max-width: 380px !important;
-  }
-
-  #newtrade .quality-ruler-grade-display .grade-val {
-    font-size: 38px !important;
-  }
-
-  #newtrade .final-size {
-    padding: 10px 12px !important;
-  }
-
-  #newtrade .final-size strong {
-    font-size: 28px !important;
-  }
-
-  #newtrade .layer-prism {
-    padding: 8px 10px !important;
-    gap: 8px !important;
-  }
-
-  #newtrade .workbench-sizer-body {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  #newtrade .workbench-subcol-divider {
-    width: 100% !important;
-    height: 1px !important;
-    margin: 4px 0 !important;
-    background: rgba(200, 168, 78, 0.16) !important;
-  }
-
-  #newtrade .workbench-sizer .calc-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
-}
-
-/* Tablets and narrow screens (< 1100px): stack all 3 steps vertically */
-@media (max-width: 1100px) {
-  #newtrade .trade-workbench-grid {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-    align-items: start !important;
-  }
-
-  #newtrade .workbench-card {
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  #newtrade .workbench-sizer-body {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-
-  #newtrade .workbench-subcol-divider {
-    width: 100% !important;
-    height: 1px !important;
-    margin: 4px 0 !important;
-  }
-}
+/* Desktop Médio / Laptops e Telas Menores:
+   Consolidado de forma autoritativa no motor responsivo unificado
+   ao final deste arquivo (Seção 9: UNIFIED RESPONSIVE ENGINE). */
 
 /* ── ALIGNMENT FOUNDATION: NEW TRADE ───────────────────────────────────── */
 /*
@@ -2138,13 +2079,21 @@ body:has(#newtrade.active) .content {
 
 #newtrade .workbench-sizer-head h3 {
   font-size: clamp(18px, 1.25vw, 23px) !important;
-  line-height: 1.08 !important;
+  line-height: 1.18 !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 
 #newtrade .workbench-sizer-head .workbench-stage-subtitle {
   margin: 2px 0 0 !important;
   color: #a9c9b5 !important;
   font-size: 12.5px !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 
 #newtrade .risk-policy-shortcut {
@@ -2152,6 +2101,7 @@ body:has(#newtrade.active) .content {
   grid-row: 1 / span 3 !important;
   align-self: center !important;
   white-space: nowrap !important;
+  flex-shrink: 0 !important;
   background: linear-gradient(135deg, #124b31, #0a3020) !important;
   border: 1px solid rgba(110, 231, 162, 0.72) !important;
   color: #f2fff6 !important;
@@ -2384,42 +2334,229 @@ body:has(#newtrade.active) .content {
   gap: 12px !important;
 }
 
-@media (max-width: 1200px) {
+/* =========================================================================
+   9. UNIFIED RESPONSIVE ENGINE (CONTAINER QUERIES + MEDIA QUERIES)
+   Architectural breakdown:
+   - Wide (>= 1680px viewport / > 1380px container):
+     Exact original 3 columns side-by-side [1] [2] [3].
+   - Medium / Notebooks 15" (1050px - 1680px viewport / 820px - 1380px container):
+     Intelligent 2 + 1 Layout:
+     Row 1: [1. Dados do Trade] [2. Qualidade do Cenário] side-by-side
+     Row 2: [3. Do Risk Budget ao Position Size final] spanning full 100% width
+            With Subcolumns 3A (O Sistema) and 3B (Você) side-by-side with ample room!
+   - Small / Tablet (< 1050px viewport / < 820px container):
+     Single column stacked layout [1] over [2] over [3]
+     Subcolumns 3A and 3B stack vertically inside Card 3.
+   - Mobile (< 540px viewport):
+     Fluid inputs, single column form, and compact paddings.
+   ========================================================================= */
+
+/* ── TIER 2: MEDIUM / NOTEBOOKS (15" LAPTOPS, 1280px, 1366px, 1440px, 1536px) ── */
+@media (max-width: 1680px) {
+  #newtrade .trade-workbench-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+    padding: 12px 14px !important;
+    align-items: stretch !important;
+  }
+
+  #newtrade #tradeDataStage {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 !important;
+    height: 100% !important;
+  }
+
+  #newtrade #tradeRubricStage {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 !important;
+    height: 100% !important;
+  }
+
   #newtrade .workbench-sizer {
-    padding: 15px !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 18px 20px !important;
+  }
+
+  #newtrade .workbench-sizer-head {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 4px 16px !important;
+    align-items: center !important;
+    margin-bottom: 14px !important;
+    width: 100% !important;
+  }
+
+  #newtrade .workbench-sizer-head h3 {
+    font-size: clamp(17px, 1.3vw, 22px) !important;
+    line-height: 1.18 !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    min-width: 0 !important;
+  }
+
+  #newtrade .risk-policy-shortcut {
+    grid-column: 2 !important;
+    grid-row: 1 / span 3 !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    align-self: center !important;
   }
 
   #newtrade .workbench-sizer-body {
-    grid-template-columns: minmax(0, 0.94fr) 2px minmax(0, 1.06fr) !important;
-    gap: 14px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 2px minmax(0, 1fr) !important;
+    gap: 18px !important;
+    align-items: stretch !important;
+    width: 100% !important;
   }
 
-  #newtrade .workbench-subcol-system .layer-prism {
-    min-height: 112px !important;
-    padding: 12px !important;
+  #newtrade .workbench-subcol-divider {
+    display: block !important;
+    width: 2px !important;
+    border-radius: 999px !important;
+    background: linear-gradient(180deg, rgba(110, 231, 162, 0.05), rgba(110, 231, 162, 0.4) 22%, rgba(200, 168, 78, 0.52) 50%, rgba(110, 231, 162, 0.4) 78%, rgba(110, 231, 162, 0.05)) !important;
+    box-shadow: 0 0 12px rgba(110, 231, 162, 0.12) !important;
   }
 
-  #newtrade .layer-metric b,
-  #newtrade .portfolio-reading b,
-  #newtrade .execution-limit b {
-    font-size: 15px !important;
+  #newtrade .workbench-subcol {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  #newtrade .workbench-sizer .calc-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  #newtrade .quality-ruler-container {
+    max-width: 440px !important;
   }
 }
 
-@media (max-width: 850px) {
+/* Container query progressive enhancement for Tier 2 */
+@container trade-workbench (max-width: 1380px) {
+  #newtrade .trade-workbench-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+    padding: 12px 14px !important;
+    align-items: stretch !important;
+  }
+
+  #newtrade #tradeDataStage {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 !important;
+    height: 100% !important;
+  }
+
+  #newtrade #tradeRubricStage {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 !important;
+    height: 100% !important;
+  }
+
+  #newtrade .workbench-sizer {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 18px 20px !important;
+  }
+
+  #newtrade .workbench-sizer-head {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 4px 16px !important;
+    align-items: center !important;
+    margin-bottom: 14px !important;
+    width: 100% !important;
+  }
+
+  #newtrade .workbench-sizer-head h3 {
+    font-size: clamp(17px, 1.3vw, 22px) !important;
+    line-height: 1.18 !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+    min-width: 0 !important;
+  }
+
+  #newtrade .risk-policy-shortcut {
+    grid-column: 2 !important;
+    grid-row: 1 / span 3 !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    align-self: center !important;
+  }
+
+  #newtrade .workbench-sizer-body {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 2px minmax(0, 1fr) !important;
+    gap: 18px !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+
+  #newtrade .workbench-subcol-divider {
+    display: block !important;
+    width: 2px !important;
+    border-radius: 999px !important;
+    background: linear-gradient(180deg, rgba(110, 231, 162, 0.05), rgba(110, 231, 162, 0.4) 22%, rgba(200, 168, 78, 0.52) 50%, rgba(110, 231, 162, 0.4) 78%, rgba(110, 231, 162, 0.05)) !important;
+    box-shadow: 0 0 12px rgba(110, 231, 162, 0.12) !important;
+  }
+
+  #newtrade .workbench-subcol {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  #newtrade .workbench-sizer .calc-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  #newtrade .quality-ruler-container {
+    max-width: 440px !important;
+  }
+}
+
+/* ── TIER 3: SMALL / TABLETS (STACK ALL 3 STEPS VERTICALLY) ─────────────── */
+@media (max-width: 1050px) {
+  #newtrade .trade-workbench-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 10px 12px !important;
+    align-items: start !important;
+  }
+
+  #newtrade #tradeDataStage,
+  #newtrade #tradeRubricStage,
+  #newtrade .workbench-sizer {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #newtrade .workbench-sizer {
+    padding: 16px !important;
+  }
+
   #newtrade .workbench-sizer-head {
     grid-template-columns: 1fr !important;
+    gap: 8px !important;
   }
 
   #newtrade .risk-policy-shortcut {
     grid-column: 1 !important;
     grid-row: auto !important;
     justify-self: start !important;
-    margin-top: 8px !important;
+    margin-top: 6px !important;
   }
 
   #newtrade .workbench-sizer-body {
     grid-template-columns: 1fr !important;
+    gap: 14px !important;
   }
 
   #newtrade .workbench-subcol-divider {
@@ -2428,12 +2565,119 @@ body:has(#newtrade.active) .content {
 
   #newtrade .workbench-subcol-system .layer-prism {
     min-height: 0 !important;
+    padding: 12px 14px !important;
+  }
+
+  #newtrade .layer-metric b,
+  #newtrade .portfolio-reading b,
+  #newtrade .execution-limit b {
+    font-size: 15px !important;
+  }
+
+  #newtrade .workbench-sizer .calc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #newtrade .quality-ruler-container {
+    max-width: 400px !important;
   }
 }
 
-@media (max-width: 520px) {
+/* Container query progressive enhancement for Tier 3 */
+@container trade-workbench (max-width: 820px) {
+  #newtrade .trade-workbench-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 10px 12px !important;
+    align-items: start !important;
+  }
+
+  #newtrade #tradeDataStage,
+  #newtrade #tradeRubricStage,
+  #newtrade .workbench-sizer {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #newtrade .workbench-sizer {
+    padding: 16px !important;
+  }
+
+  #newtrade .workbench-sizer-head {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  #newtrade .risk-policy-shortcut {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    justify-self: start !important;
+    margin-top: 6px !important;
+  }
+
+  #newtrade .workbench-sizer-body {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  #newtrade .workbench-subcol-divider {
+    display: none !important;
+  }
+
+  #newtrade .workbench-subcol-system .layer-prism {
+    min-height: 0 !important;
+    padding: 12px 14px !important;
+  }
+
+  #newtrade .layer-metric b,
+  #newtrade .portfolio-reading b,
+  #newtrade .execution-limit b {
+    font-size: 15px !important;
+  }
+
+  #newtrade .workbench-sizer .calc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #newtrade .quality-ruler-container {
+    max-width: 400px !important;
+  }
+}
+
+/* ── TIER 4: MOBILE SCREENS (< 540px) ──────────────────────────────────── */
+@media (max-width: 540px) {
+  #newtrade .trade-workbench-head {
+    padding: 12px 14px !important;
+  }
+
+  #newtrade .trade-workbench-grid {
+    padding: 8px 10px !important;
+    gap: 12px !important;
+  }
+
+  #newtrade .workbench-card {
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+  }
+
+  #newtrade .workbench-card #workbenchData .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  #newtrade .quality-ruler-container {
+    padding: 0 8px !important;
+  }
+
   #newtrade .layer-exposure-content,
   #newtrade .layer-portfolio-content {
+    grid-template-columns: 1fr !important;
+  }
+
+  #newtrade .workbench-sizer .calc-grid {
     grid-template-columns: 1fr !important;
   }
 }
