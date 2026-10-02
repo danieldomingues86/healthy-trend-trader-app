@@ -23,6 +23,7 @@ const marketPause = require('./market-pause');
 const journalAttachments = require('./journal-attachments');
 const zenPractices = require('./zen-practices');
 const habits = require('./habits');
+const { nasdaqRelativeStrengthEngine } = require('./nasdaq-relative-strength');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -413,12 +414,19 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, { trade });
     }
     const tradeUpdateMatch = url.pathname.match(/^\/api\/trades\/([^/]+)$/);
-    if ((request.method === 'PATCH' || request.method === 'PUT') && tradeUpdateMatch) {
+    if (tradeUpdateMatch && (request.method === 'PATCH' || request.method === 'PUT')) {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       const trade = await trades.updateTrade(user.id, tradeUpdateMatch[1], await body(request));
       return send(response, 200, { trade });
+    }
+    if ((url.pathname === '/api/nasdaq/refresh' || url.pathname === '/api/nasdaq/sync' || url.pathname === '/api/market-data/nasdaq-refresh') && request.method === 'POST') {
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const payload = await body(request).catch(() => ({}));
+      const result = await nasdaqRelativeStrengthEngine.runEodJob(payload);
+      return send(response, result.success ? 200 : 429, result);
     }
     if (request.method !== 'GET') return send(response, 405, { error: 'Method not allowed' });
     if (url.pathname === '/api/subscription/plans') return send(response, 200, { currency: 'BRL', plans: PLAN_CATALOG });
@@ -432,6 +440,15 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/health') {
       const cached = await readCache();
       return send(response, 200, { status: 'ok', cachedAt: cached?.updatedAt || null, brapiTokenConfigured: Boolean(process.env.BRAPI_TOKEN), databaseConfigured: database.configured(), provider: await marketDataStatus() });
+    }
+    if (url.pathname === '/api/relative-strength/nasdaq' || url.pathname === '/api/market-data/nasdaq-relative-strength') {
+      return send(response, 200, nasdaqRelativeStrengthEngine.getNasdaqRelativeStrength());
+    }
+    if (url.pathname === '/api/nasdaq/status' || url.pathname === '/api/market-data/nasdaq-status') {
+      return send(response, 200, await nasdaqRelativeStrengthEngine.provider.getStatus());
+    }
+    if (url.pathname === '/api/nasdaq/validation') {
+      return send(response, 200, await nasdaqRelativeStrengthEngine.validateDataset());
     }
     if (!['/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();

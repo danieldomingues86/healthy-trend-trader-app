@@ -6,6 +6,9 @@ backend/data/b3-index-history-cache/
 # Personal import sources, backups and reports (never commit account data).
 backend/data/evernote-imports/
 backend/data/emails/
+backend/data/nasdaq-daily-prices.json
+backend/data/nasdaq-market-cache.json
+backend/data/twelve-data-usage.json
 backend/backups/
 healthy-trend-trader-app/
 output/
