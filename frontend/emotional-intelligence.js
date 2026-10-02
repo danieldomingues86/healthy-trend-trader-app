@@ -24,7 +24,7 @@
   const icon = name => `<svg class="ei-icon" viewBox="0 0 24 24" aria-hidden="true">${icons[name] || icons.brain}</svg>`;
   const confidenceLabel = value => ({ high: t('Alta', 'High'), medium: t('Média', 'Medium'), low: t('Baixa', 'Low') })[value];
   let period = '90', sessions = [], sourceStatus = '', analysis, requestId = 0, accessState = 'idle', usageMode = 'days', showAllPatterns = false, tradesReady = true, dataReady = true;
-  let activePsychologyTab = 'analyzer';
+  let activePsychologyTab = 'emotions';
   window.selectPsychologyTab = function (tab) {
     activePsychologyTab = tab;
     render();
@@ -35,31 +35,322 @@
   const patternTitle = p => en() ? patternTitles[p.id] || p.title : p.title;
 
   const emotionsList = [
-    { name: 'Medo', icon: '😨', trigger: 'Perda recente, tamanho de lote excessivo ou medo de devolver lucros.', signals: 'Hesitação para puxar o gatilho, apertar o stop cedo demais ou paralisia.', antidote: 'Diminua o tamanho da posição para o menor nível de risco da política. Foque em executar 100 trades de processo.' },
-    { name: 'Ansiedade', icon: '😟', trigger: 'Incerteza sobre o próximo candle ou ficar olhando as cotações tick a tick.', signals: 'Taquicardia, checar o celular compulsivamente a cada minuto.', antidote: 'Afaste-se da tela. As ordens de stop e saída devem estar na corretora. Faça 3 minutos de respiração consciente no Trader Zen.' },
-    { name: 'Euforia', icon: '🥳', trigger: 'Sequência de 3 ou mais trades vencedores consecutivos.', signals: 'Sensação de invencibilidade, aumento arbitrário de lotes e desdém pelo risco.', antidote: 'Faça uma pausa obrigatória. O mercado não mudou; você apenas capturou uma amostra favorável de variância positiva.' },
-    { name: 'Ganância', icon: '🤑', trigger: 'Lucro na tela superando as expectativas iniciais.', signals: 'Ignorar a realização parcial planejada, sonhar com lucro infinito.', antidote: 'Venda parcial no alvo técnico conforme o plano e conduza apenas o restante com stop móvel no breakeven.' },
-    { name: 'Frustração', icon: '😤', trigger: 'Ser estopado e logo depois ver o preço ir na direção que você previa.', signals: 'Sentimento de injustiça, raiva do mercado, vontade de discutir com o gráfico.', antidote: 'Aceite o ruído estatístico. O stop existe para proteger seu capital nos casos em que o preço não volta.' },
-    { name: 'Impaciência', icon: '⌛', trigger: 'Mercado lateral ou sem setups claros por vários dias seguidos.', signals: 'Buscar operações em papéis ilíquidos ou operar setups medíocres (Grade D).', antidote: 'Lembre-se: paciência também é uma posição. Estar fora do mercado protege seu capital para as grandes tendências.' }
+    {
+      id: '01',
+      badgeClass: 'num-01',
+      name: 'Medo',
+      icon: '😨',
+      img: 'assets/emotion-medo.jpg',
+      desc: 'Paralisia ou hesitação',
+      trigger: 'Perda recente, tamanho de lote excessivo ou medo de devolver lucros acumulados.',
+      signals: [
+        'Hesitação para puxar o gatilho',
+        'Apertar o stop cedo demais',
+        'Paralisia diante de setups A+'
+      ],
+      antidote: [
+        'Diminuir o tamanho da posição',
+        'Focar em executar 100 trades de processo',
+        'Aceitar a perda como custo operacional'
+      ]
+    },
+    {
+      id: '02',
+      badgeClass: 'num-02',
+      name: 'Ansiedade',
+      icon: '😟',
+      img: 'assets/emotion-ansiedade.jpg',
+      desc: 'Incerteza e agitação',
+      trigger: 'Ficar olhando cotações tick a tick ou operar com tamanho acima do suportado.',
+      signals: [
+        'Taquicardia e inquietação física',
+        'Checar celular compulsivamente',
+        'Dificuldade para aguardar o candle'
+      ],
+      antidote: [
+        'Afastar-se da tela após enviar a ordem',
+        'Deixar os stops na corretora (não mexer)',
+        '3 min de respiração consciente no Zen'
+      ]
+    },
+    {
+      id: '03',
+      badgeClass: 'num-03',
+      name: 'Euforia',
+      icon: '🥳',
+      img: 'assets/emotion-euforia.jpg',
+      desc: 'Falsa invencibilidade',
+      trigger: 'Sequência de 3 ou mais trades vencedores gerando excesso de confiança.',
+      signals: [
+        'Aumento arbitrário de lote',
+        'Desdém pelo risco e stop loss',
+        'Sensação de "dominar o mercado"'
+      ],
+      antidote: [
+        'Pausa obrigatória de 30 minutos',
+        'Manter o Position Sizing invariável',
+        'Reconhecer a variância estatística'
+      ]
+    },
+    {
+      id: '04',
+      badgeClass: 'num-04',
+      name: 'Ganância',
+      icon: '🤑',
+      img: 'assets/emotion-ganancia.jpg',
+      desc: 'Ambição descontrolada',
+      trigger: 'Lucro expressivo na tela superando as expectativas do planejamento.',
+      signals: [
+        'Ignorar a realização parcial técnica',
+        'Mudar alvos no meio da operação',
+        'Querer "o trade da vida"'
+      ],
+      antidote: [
+        'Executar venda parcial no alvo técnico',
+        'Conduzir restante com stop no breakeven',
+        'Proteger o capital acumulado'
+      ]
+    },
+    {
+      id: '05',
+      badgeClass: 'num-05',
+      name: 'Frustração',
+      icon: '😤',
+      img: 'assets/emotion-frustracao.jpg',
+      desc: 'Revolta contra o mercado',
+      trigger: 'Ser violinado (stop acionado e logo depois o preço atinge o alvo planejado).',
+      signals: [
+        'Sentimento de injustiça e raiva',
+        'Vontade de operar por vingança',
+        'Discutir mentalmente com o gráfico'
+      ],
+      antidote: [
+        'Intervalo de 15 min longe do terminal',
+        'Aceitar o ruído estatístico inerente',
+        'Lembrar: o stop protegeu seu capital'
+      ]
+    },
+    {
+      id: '06',
+      badgeClass: 'num-06',
+      name: 'Impaciência',
+      icon: '⌛',
+      img: 'assets/emotion-impaciencia.jpg',
+      desc: 'Pressa e falta de foco',
+      trigger: 'Mercado lateral, sem tendência ou sem setups claros por dias seguidos.',
+      signals: [
+        'Buscar operações em papéis ilíquidos',
+        'Forçar entradas em setups Grade D',
+        'Operar apenas pelo tédio de estar fora'
+      ],
+      antidote: [
+        'Estar em caixa também é uma posição',
+        'Desligar o terminal e ler Trader Wisdom',
+        'Preservar capital para tendências reais'
+      ]
+    }
   ];
 
   const biasesList = [
-    { name: 'Loss Aversion (Aversão à Perda)', icon: '📉', trap: 'A dor psicológica de perder R$ 1.000 é duas vezes maior que o prazer de ganhar R$ 1.000. Isso faz o trader segurar posições perdedoras na esperança de voltar ao zero.', defense: 'Trate o stop loss como um custo fixo do negócio. O primeiro prejuízo é sempre o menor prejuízo.' },
-    { name: 'FOMO (Fear of Missing Out)', icon: '🏃', trap: 'Medo incontrolável de ficar de fora ao ver uma ação subindo forte sem você. Leva a compras afobadas no topo de expansões.', defense: 'Nunca compre após 3 candles de alta consecutivos longe das médias. Se perdeu o movimento, aguarde a próxima contração de volatilidade.' },
-    { name: 'Overconfidence (Excesso de Confiança)', icon: '👑', trap: 'Acreditar que os ganhos recentes derivam de genialidade pessoal e não de um mercado em forte tendência direcional.', defense: 'Mantenha o Position Sizing invariável. Nunca aumente o percentual de risco por causa de uma fase positiva.' },
-    { name: 'Recency Bias (Viés de Recência)', icon: '🔄', trap: 'Julgar a qualidade do seu método com base nos últimos 2 ou 3 trades, ignorando a expectativa matemática de longo prazo.', defense: 'Avalie sua consistência em blocos de 20 trades (como no Desafio Grade A), nunca pelo resultado do último pregão.' },
-    { name: 'Need to Be Right (Necessidade de Estar Certo)', icon: '🎯', trap: 'Priorizar o ego e a vaidade sobre o lucro. Tentar provar que o mercado está errado.', defense: 'Você quer estar certo ou quer ganhar dinheiro? O mercado tem sempre razão. Errar pequeno é a chave para vencer grande.' },
-    { name: 'Revenge Trading (Operação por Vingança)', icon: '⚔️', trap: 'Tentar "dar o troco" no ativo ou recuperar o prejuízo no mesmo dia abrindo operações impulsivas.', defense: 'Após ser estopado, declare um intervalo obrigatório de 15 minutos longe do terminal ou encerre o dia operacional.' }
+    {
+      id: '01',
+      badgeClass: 'num-01',
+      name: 'Loss Aversion (Aversão à Perda)',
+      icon: '📉',
+      desc: 'Viés evolutivo de sofrimento',
+      trap: 'A dor psicológica de perder R$ 1.000 é duas vezes maior que o prazer de ganhar R$ 1.000.',
+      impact: 'Segurar posições perdedoras na esperança de voltar ao zero, transformando pequenas perdas em catástrofes.',
+      defense: [
+        'Tratar o stop loss como custo fixo de empresa',
+        'O primeiro prejuízo é sempre o menor prejuízo',
+        'Ordem OCO enviada direto para a corretora'
+      ]
+    },
+    {
+      id: '02',
+      badgeClass: 'num-02',
+      name: 'FOMO (Fear of Missing Out)',
+      icon: '🏃',
+      desc: 'Medo de ficar de fora',
+      trap: 'Ver um ativo disparando sem você e sentir urgência imediata de entrar na euforia.',
+      impact: 'Comprar no topo de candles esticados longe das médias com risco/retorno desfavorável.',
+      defense: [
+        'Nunca comprar após 3 candles de alta longe da MM20',
+        'Se perdeu o movimento, aguardar contração',
+        'O mercado abre todos os dias com novas chances'
+      ]
+    },
+    {
+      id: '03',
+      badgeClass: 'num-03',
+      name: 'Overconfidence (Excesso de Confiança)',
+      icon: '👑',
+      desc: 'Ilusão de maestria',
+      trap: 'Acreditar que os ganhos recentes derivam de genialidade pessoal e não de um mercado em tendência.',
+      impact: 'Aumentar o percentual de risco por trade e ignorar filtros de qualidade do Rubric.',
+      defense: [
+        'Position Sizing invariável por Grade de setup',
+        'Respeitar o teto de 6 posições simultâneas',
+        'Humildade estatística perante a variância'
+      ]
+    },
+    {
+      id: '04',
+      badgeClass: 'num-04',
+      name: 'Recency Bias (Viés de Recência)',
+      icon: '🔄',
+      desc: 'Miopia do último pregão',
+      trap: 'Julgar a qualidade do seu método com base nos últimos 2 ou 3 trades recentes.',
+      impact: 'Abandonar um sistema lucrativo durante um drawdown natural ou mudar de estratégia toda semana.',
+      defense: [
+        'Avaliar consistência em blocos de 20 trades',
+        'Foco na expectativa matemática de longo prazo',
+        'Registrar métricas no Diário do Trader'
+      ]
+    },
+    {
+      id: '05',
+      badgeClass: 'num-05',
+      name: 'Need to Be Right (Necessidade de Estar Certo)',
+      icon: '🎯',
+      desc: 'Ego versus Lucro',
+      trap: 'Priorizar o ego e a vaidade sobre o lucro real. Tentar provar que o mercado está errado.',
+      impact: 'Remover stops ou fazer preço médio contra a tendência para não admitir o erro da análise.',
+      defense: [
+        'Você quer estar certo ou ganhar dinheiro?',
+        'O mercado tem sempre razão soberana',
+        'Errar pequeno para vencer grande nas tendências'
+      ]
+    },
+    {
+      id: '06',
+      badgeClass: 'num-06',
+      name: 'Revenge Trading (Operação por Vingança)',
+      icon: '⚔️',
+      desc: 'Reação emocional destrutiva',
+      trap: 'Tentar "dar o troco" no ativo ou recuperar o prejuízo no mesmo pregão após um stop doloroso.',
+      impact: 'Operações impulsivas sem setup, com lote dobrado e violação total do plano.',
+      defense: [
+        'Intervalo obrigatório de 15 min após stop',
+        'Limite máximo de 2 perdas por pregão',
+        'Fazer check-in no Meu Estado Mental'
+      ]
+    }
   ];
 
   const behaviorsList = [
-    { title: 'Perseguir preço', bad: 'Comprar quando o ativo já esticou longe das médias móveis.', good: 'Aguardar contração de volatilidade ou pullback nas médias móveis de 20 períodos.' },
-    { title: 'Aumentar risco para recuperar perda', bad: 'Dobrar o tamanho do lote após um loss para tentar zerar o prejuízo rapidamente.', good: 'Em momentos de drawdown, reduzir para o perfil Risk Ramp-Up ou pausar.' },
-    { title: 'Sair cedo demais', bad: 'Zerar a posição com lucro mínimo no primeiro candle de recuo por medo de devolver.', good: 'Executar a venda parcial programada e conduzir o restante com stop na média móvel.' },
-    { title: 'Interferir no trade', bad: 'Ficar mexendo em ordens, cancelando stops ou mudando de ideia tick a tick.', good: 'Planejar entrada, stop e alvo antes do mercado abrir e deixar o plano agir.' },
-    { title: 'Operar sem setup', bad: 'Entrar por "sensação", notícia em rede social ou palpite de terceiros.', good: 'Operar estritamente oportunidades catalogadas no Rubric com Grade A ou B.' },
-    { title: 'Operar por tédio', bad: 'Abrir operações aleatórias apenas para sentir a emoção de estar no jogo.', good: 'Aceitar ficar em caixa quando o mercado não oferece contexto saudável.' },
-    { title: 'Operar emocionalmente', bad: 'Operar sob estresse pessoal, cansaço, raiva ou distração.', good: 'Fazer o check-in no Meu Estado Mental; se estiver agitado ou ansioso, não operar.' }
+    {
+      title: 'Perseguir preço esticado',
+      icon: '🏃‍♂️',
+      bad: 'Comprar quando o ativo já esticou longe das médias móveis, assumindo stop longo e risco desproporcional.',
+      good: 'Aguardar contração de volatilidade ou pullback nas médias móveis de 20 períodos com gatilho claro.'
+    },
+    {
+      title: 'Aumentar risco após perda',
+      icon: '💣',
+      bad: 'Dobrar o tamanho do lote após um loss para tentar zerar o prejuízo rapidamente no mesmo dia.',
+      good: 'Em fases de drawdown, reduzir para o perfil Risk Ramp-Up (risco 0,15% e máx 3 posições) ou pausar.'
+    },
+    {
+      title: 'Sair cedo do trade vencedor',
+      icon: '✂️',
+      bad: 'Zerar a posição inteira com lucro mínimo no primeiro candle de recuo por medo de devolver.',
+      good: 'Executar a venda parcial programada no alvo técnico e conduzir o restante com stop na MM20/MM50.'
+    },
+    {
+      title: 'Interferência contínua na ordem',
+      icon: '🕹️',
+      bad: 'Ficar mexendo em ordens, cancelando stops manualmente ou mudando alvos a cada oscilação.',
+      good: 'Planejar entrada, stop e alvo antes do mercado abrir e deixar o plano agir sem interferência.'
+    },
+    {
+      title: 'Operar sem setup catalogado',
+      icon: '🎲',
+      bad: 'Entrar por "sensação", notícia em rede social, dicas de terceiros ou intuição de momento.',
+      good: 'Operar estritamente oportunidades catalogadas no Trading Rubric com Grade A+ ou Grade A.'
+    },
+    {
+      title: 'Operar por tédio ou adrenalina',
+      icon: '⌛',
+      bad: 'Abrir operações aleatórias apenas para sentir a emoção de estar no jogo ou passar o tempo.',
+      good: 'Aceitar ficar em caixa quando o mercado não oferece contexto saudável. Caixa é posição.'
+    },
+    {
+      title: 'Operar sob estresse emocional',
+      icon: '⚡',
+      bad: 'Operar sob estresse pessoal, cansaço físico, raiva ou distração familiar/profissional.',
+      good: 'Fazer o check-in no Meu Estado Mental. Se estiver agitado ou ansioso, não operar no dia.'
+    }
+  ];
+
+  const habitsSections = [
+    {
+      title: 'Rotina Pré-Mercado · Preparação e Clareza',
+      icon: '🌅',
+      time: '08:30 – 09:45',
+      desc: 'Construa sua clareza operacional antes do primeiro tick do dia.',
+      steps: [
+        { label: 'Check-in Mental', desc: 'Avalie seu estado emocional no módulo Mentalidade. Se agitado, faça 5 min no Trader Zen.' },
+        { label: 'Contexto de Mercado', desc: 'Verifique a Permissão de Mercado (Saudável, Transição ou Defensivo) no dashboard.' },
+        { label: 'Revisão da Watchlist', desc: 'Identifique ativos em contração de volatilidade com gatilhos confirmados para o dia.' },
+        { label: 'Cálculo de Position Sizing', desc: 'Defina a quantidade de ações com base na política de risco e no stop planejado.' }
+      ]
+    },
+    {
+      title: 'Rotina Durante o Mercado · Execução e Foco',
+      icon: '🎯',
+      time: '10:00 – 17:00',
+      desc: 'Proteja seu capital com execução disciplinada e zero interferência emocional.',
+      steps: [
+        { label: 'Ordens na Pedra', desc: 'Envie as ordens de entrada e stop simultaneamente. Nunca opere sem stop cadastrado.' },
+        { label: 'Afaste-se do Monitor', desc: 'Evite olhar cotações tick a tick. O ruído intradiário desgasta seu capital psicológico.' },
+        { label: 'Execução Sem Debate', desc: 'Se o stop for acionado, aceite sem questionar. O stop preserva sua sobrevivência.' },
+        { label: 'Pausa Obrigatória', desc: 'Após qualquer encerramento (gain ou loss), faça uma pausa de 15 minutos longe das telas.' }
+      ]
+    },
+    {
+      title: 'Rotina Pós-Mercado · Processamento e Evolução',
+      icon: '🌙',
+      time: '17:30 – 18:30',
+      desc: 'Transforme a experiência de cada pregão em aprendizado acumulado para amanhã.',
+      steps: [
+        { label: 'Preenchimento do Diário', desc: 'Registre a execução, aderência ao plano e emoções sentidas durante a sessão.' },
+        { label: 'Revisão de Padrões', desc: 'Consulte o Analisador de Padrões para checar se houve gatilhos recorrentes.' },
+        { label: 'Leitura de Sabedoria', desc: 'Leia 1 card reflexivo no Trader Wisdom para desacelerar a mente antes do descanso.' },
+        { label: 'Desconexão Total', desc: 'Feche as plataformas e viva sua vida fora do mercado. O descanso consolida a disciplina.' }
+      ]
+    }
+  ];
+
+  const mindsetPrinciples = [
+    {
+      num: '01',
+      title: 'Pensamento Probabilístico',
+      icon: '🎲',
+      summary: 'Qualquer coisa pode acontecer no próximo trade individual.',
+      desc: 'O resultado de uma operação individual é puramente aleatório. A consistência real reside na execução repetida de um padrão estatístico ao longo de centenas de operações sem hesitar ou violar as regras.'
+    },
+    {
+      num: '02',
+      title: 'Desapego do Resultado Imediato',
+      icon: '🏔️',
+      summary: 'Bom trade é trade bem executado, não necessariamente com lucro.',
+      desc: 'Você pode fazer tudo certo e tomar um stop natural. Você pode fazer tudo errado e ter lucro por pura sorte. Traders profissionais medem seu sucesso pela fidelidade ao processo, nunca pelo P&L diário.'
+    },
+    {
+      num: '03',
+      title: 'A Regra dos 100 Trades',
+      icon: '📊',
+      summary: 'Sua vantagem matemática só se manifesta em grandes amostras.',
+      desc: 'Nunca julgue sua capacidade em um único pregão ou semana. Pense em blocos de 100 trades de alta qualidade (Grade A/A+). O tempo e os juros compostos trabalham a favor de quem segue o método.'
+    },
+    {
+      num: '04',
+      title: 'Capital Psicológico como Ativo Mais Valioso',
+      icon: '🧠',
+      summary: 'Dinheiro perdido se recupera; a confiança destruída leva meses.',
+      desc: 'Quando seu estado mental estiver instável ou abalado, parar de operar é a decisão mais inteligente e lucrativa. Preservar sua clareza mental e serenidade é o alicerce de qualquer operador de elite.'
+    }
   ];
   function readInput() {
     const storage = window.healthyTrendWorkspace?.storage;
@@ -127,115 +418,267 @@
   }
   function renderEmotionsGuide() {
     return `
-      <section class="ei-paper" style="margin-bottom:18px">
-        <div class="ei-heading">
-          <div>
-            <h2>Emoções do Trader</h2>
-            <p>Compreenda os gatilhos, sintomas corporais e os antídotos objetivos para cada estado emocional.</p>
-          </div>
+      <div class="ei-section-header">
+        <div class="ei-section-title-wrap">
+          <h1 class="ei-section-title">Emoções do <span class="ei-accent-text">Trader</span></h1>
+          <p class="ei-section-subtitle">Identifique os gatilhos, reconheça os sinais e aplique antídotos práticos para operar com mais equilíbrio.</p>
         </div>
-        <div class="psychology-guide-grid">
-          ${emotionsList.map(e => `
-            <article class="psychology-item-card">
-              <h3><span style="font-size:20px;margin-right:6px">${e.icon}</span>${e.name}</h3>
-              <p><strong>Gatilho:</strong> ${e.trigger}</p>
-              <p style="margin-top:6px"><strong>Sinais:</strong> ${e.signals}</p>
-              <div class="antidote">
-                <b>Antídoto Prático</b>
-                ${e.antidote}
+        <aside class="ei-quote-box">
+          <span class="ei-quote-mark">“</span>
+          <p class="ei-quote-text">O controle das emoções é uma vantagem competitiva.</p>
+          <span class="ei-quote-author">HEALTHY TREND TRADER</span>
+        </aside>
+      </div>
+
+      <div class="emotion-cards-list">
+        ${emotionsList.map(e => `
+          <article class="emotion-horizontal-card">
+            <div class="emotion-img-col">
+              <img src="${e.img}" alt="${e.name}" class="emotion-card-img" loading="lazy" />
+              <span class="emotion-badge-num ${e.badgeClass}">${e.id}</span>
+            </div>
+            <div class="emotion-title-col">
+              <div class="emotion-title-header">
+                <span class="emotion-icon">${e.icon}</span>
+                <h3 class="emotion-name">${e.name}</h3>
               </div>
-            </article>
-          `).join('')}
-        </div>
-      </section>
+              <span class="emotion-desc">${e.desc}</span>
+            </div>
+            <div class="emotion-trigger-col">
+              <div class="emotion-col-eyebrow">
+                <span class="eyebrow-icon">⚡</span>
+                <span>GATILHO</span>
+              </div>
+              <p class="emotion-col-text">${e.trigger}</p>
+            </div>
+            <div class="emotion-signals-col">
+              <div class="emotion-col-eyebrow">
+                <span class="eyebrow-icon">🔴</span>
+                <span>SINAIS</span>
+              </div>
+              <ul class="emotion-signals-list">
+                ${e.signals.map(s => `<li>${s}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="emotion-antidote-col">
+              <div class="antidote-card-inner">
+                <div class="antidote-eyebrow">
+                  <span class="antidote-icon">🎯</span>
+                  <span>ANTÍDOTO PRÁTICO</span>
+                </div>
+                <ul class="antidote-checklist">
+                  ${e.antidote.map(a => `<li><span class="check-icon">☑</span><span>${a}</span></li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          </article>
+        `).join('')}
+      </div>
     `;
   }
 
   function renderBiasesGuide() {
     return `
-      <section class="ei-paper" style="margin-bottom:18px">
-        <div class="ei-heading">
-          <div>
-            <h2>Vieses Comportamentais no Trading</h2>
-            <p>Armadilhas cognitivas evolutivas que sabotam a execução do trader e como neutralizá-las.</p>
-          </div>
+      <div class="ei-section-header">
+        <div class="ei-section-title-wrap">
+          <h1 class="ei-section-title">Vieses <span class="ei-accent-text">Cognitivos</span></h1>
+          <p class="ei-section-subtitle">Armadilhas mentais evolutivas que sabotam a execução do trader e como neutralizá-las no pregão.</p>
         </div>
-        <div class="psychology-guide-grid">
-          ${biasesList.map(b => `
-            <article class="psychology-item-card">
-              <h3><span style="font-size:20px;margin-right:6px">${b.icon}</span>${b.name}</h3>
-              <p><strong>Armadilha:</strong> ${b.trap}</p>
-              <div class="antidote">
-                <b>Defesa Sistemática</b>
-                ${b.defense}
+        <aside class="ei-quote-box">
+          <span class="ei-quote-mark">“</span>
+          <p class="ei-quote-text">O primeiro prejuízo é sempre o menor prejuízo.</p>
+          <span class="ei-quote-author">REGRA DE OURO</span>
+        </aside>
+      </div>
+
+      <div class="emotion-cards-list">
+        ${biasesList.map(b => `
+          <article class="emotion-horizontal-card bias-card">
+            <div class="bias-badge-col">
+              <span class="emotion-badge-num ${b.badgeClass}">${b.id}</span>
+              <span class="bias-main-icon">${b.icon}</span>
+            </div>
+            <div class="emotion-title-col">
+              <h3 class="emotion-name" style="font-size:15.5px">${b.name}</h3>
+              <span class="emotion-desc">${b.desc}</span>
+            </div>
+            <div class="emotion-trigger-col">
+              <div class="emotion-col-eyebrow" style="color:#2a6148">
+                <span class="eyebrow-icon">🧠</span>
+                <span>ARMADILHA EVOLUTIVA</span>
               </div>
-            </article>
-          `).join('')}
-        </div>
-      </section>
+              <p class="emotion-col-text">${b.trap}</p>
+            </div>
+            <div class="emotion-signals-col">
+              <div class="emotion-col-eyebrow" style="color:#c0392b">
+                <span class="eyebrow-icon">⚠️</span>
+                <span>IMPACTO NO TRADE</span>
+              </div>
+              <p class="emotion-col-text" style="color:#78350f">${b.impact}</p>
+            </div>
+            <div class="emotion-antidote-col">
+              <div class="antidote-card-inner">
+                <div class="antidote-eyebrow">
+                  <span class="antidote-icon">🛡️</span>
+                  <span>DEFESA SISTEMÁTICA</span>
+                </div>
+                <ul class="antidote-checklist">
+                  ${b.defense.map(d => `<li><span class="check-icon">☑</span><span>${d}</span></li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          </article>
+        `).join('')}
+      </div>
     `;
   }
 
   function renderBehaviorsGuide() {
     return `
-      <section class="ei-paper" style="margin-bottom:18px">
-        <div class="ei-heading">
-          <div>
-            <h2>Comportamentos no Trade: Impulso × Disciplina</h2>
-            <p>Mapeamento claro dos comportamentos que destroem contas versus a execução do método Healthy.</p>
-          </div>
+      <div class="ei-section-header">
+        <div class="ei-section-title-wrap">
+          <h1 class="ei-section-title">Padrões de <span class="ei-accent-text">Comportamento</span></h1>
+          <p class="ei-section-subtitle">Mapeamento claro dos impulsos tóxicos versus a execução disciplinada do método Healthy Trend Trader.</p>
         </div>
-        <div style="display:grid;gap:12px">
-          ${behaviorsList.map(b => `
-            <article class="psychology-item-card" style="display:grid;grid-template-columns:220px 1fr 1fr;gap:16px;align-items:center">
-              <div>
-                <b style="color:#193427;font-size:15px">${b.title}</b>
+        <aside class="ei-quote-box">
+          <span class="ei-quote-mark">“</span>
+          <p class="ei-quote-text">Disciplina é a ponte entre seus objetivos e suas realizações.</p>
+          <span class="ei-quote-author">MÉTODO HEALTHY</span>
+        </aside>
+      </div>
+
+      <div class="behavior-cards-list">
+        ${behaviorsList.map(b => `
+          <article class="behavior-compare-card">
+            <div class="behavior-title-box">
+              <span class="behavior-icon">${b.icon}</span>
+              <h3 class="behavior-title">${b.title}</h3>
+            </div>
+            <div class="behavior-toxic-box">
+              <div class="behavior-box-tag toxic">
+                <span>🔴</span> COMPORTAMENTO TÓXICO
               </div>
-              <div style="padding:10px 14px;border-radius:10px;background:#fff5f3;border-left:3px solid #cb5e50;color:#7a3c34;font-size:13px">
-                <span style="display:block;font-weight:700;font-size:10px;text-transform:uppercase;margin-bottom:3px">Comportamento Tóxico</span>
-                ${b.bad}
+              <p class="behavior-box-text">${b.bad}</p>
+            </div>
+            <div class="behavior-healthy-box">
+              <div class="behavior-box-tag healthy">
+                <span>🟢</span> PADRÃO SAUDÁVEL
               </div>
-              <div style="padding:10px 14px;border-radius:10px;background:#edf8f2;border-left:3px solid #168b64;color:#18573d;font-size:13px">
-                <span style="display:block;font-weight:700;font-size:10px;text-transform:uppercase;margin-bottom:3px">Padrão Saudável</span>
-                ${b.good}
-              </div>
-            </article>
-          `).join('')}
+              <p class="behavior-box-text">${b.good}</p>
+            </div>
+          </article>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderHabitsGuide() {
+    return `
+      <div class="ei-section-header">
+        <div class="ei-section-title-wrap">
+          <h1 class="ei-section-title">Rotinas e <span class="ei-accent-text">Hábitos</span></h1>
+          <p class="ei-section-subtitle">A consistência nos resultados decorre de processos estruturados antes, durante e após cada sessão de mercado.</p>
         </div>
-      </section>
+        <aside class="ei-quote-box">
+          <span class="ei-quote-mark">“</span>
+          <p class="ei-quote-text">Você cai ao nível dos seus sistemas de treino diário.</p>
+          <span class="ei-quote-author">PROCESSO SUSTENTÁVEL</span>
+        </aside>
+      </div>
+
+      <div class="habits-sections-grid">
+        ${habitsSections.map(h => `
+          <article class="habit-phase-card">
+            <div class="habit-phase-header">
+              <div class="habit-phase-title-wrap">
+                <span class="habit-phase-icon">${h.icon}</span>
+                <div>
+                  <h3 class="habit-phase-title">${h.title}</h3>
+                  <span class="habit-phase-time">${h.time}</span>
+                </div>
+              </div>
+              <p class="habit-phase-desc">${h.desc}</p>
+            </div>
+            <div class="habit-steps-list">
+              ${h.steps.map((s, idx) => `
+                <div class="habit-step-item">
+                  <span class="habit-step-num">0${idx + 1}</span>
+                  <div class="habit-step-content">
+                    <strong class="habit-step-label">${s.label}</strong>
+                    <p class="habit-step-desc">${s.desc}</p>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </article>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderMindsetSuccessGuide() {
+    return `
+      <div class="ei-section-header">
+        <div class="ei-section-title-wrap">
+          <h1 class="ei-section-title">Mindset do <span class="ei-accent-text">Sucesso</span></h1>
+          <p class="ei-section-subtitle">Modelos mentais e princípios fundamentais adotados pelos operadores de maior longevidade no mercado.</p>
+        </div>
+        <aside class="ei-quote-box">
+          <span class="ei-quote-mark">“</span>
+          <p class="ei-quote-text">Operar com vantagem é pensar em probabilidades, não em certezas.</p>
+          <span class="ei-quote-author">MARK DOUGLAS</span>
+        </aside>
+      </div>
+
+      <div class="mindset-pillars-grid">
+        ${mindsetPrinciples.map(p => `
+          <article class="mindset-pillar-card">
+            <div class="mindset-pillar-badge">${p.num}</div>
+            <div class="mindset-pillar-head">
+              <span class="mindset-pillar-icon">${p.icon}</span>
+              <h3 class="mindset-pillar-title">${p.title}</h3>
+            </div>
+            <strong class="mindset-pillar-summary">${p.summary}</strong>
+            <p class="mindset-pillar-desc">${p.desc}</p>
+          </article>
+        `).join('')}
+      </div>
     `;
   }
 
   function renderSelfKnowledgeGuide() {
     const commitment = localStorage.getItem('healthyTrendSelfCommitment') || '';
     return `
-      <section class="ei-paper" style="margin-bottom:18px">
-        <div class="ei-heading">
-          <div>
-            <h2>Autoconhecimento e Identificação de Padrões</h2>
-            <p>O trader que você é sob pressão é o trader que você precisa aprender a gerenciar.</p>
-          </div>
+      <div class="ei-section-header">
+        <div class="ei-section-title-wrap">
+          <h1 class="ei-section-title">Autoconhecimento e <span class="ei-accent-text">Compromisso</span></h1>
+          <p class="ei-section-subtitle">O trader que você é sob pressão é o trader que você precisa aprender a gerenciar.</p>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
-          <div class="psychology-item-card">
-            <h3>🧭 Diagnóstico de Padrões Pessoais</h3>
-            <p style="line-height:1.6">Responda para si mesmo com honestidade absoluta:</p>
-            <ul style="margin:10px 0;padding-left:20px;font-size:13px;color:#3f5247;line-height:1.6">
-              <li>Qual emoção antecede a maioria dos seus trades perdedores?</li>
-              <li>Você tende mais a sair cedo de trades vencedores ou segurar perdedores?</li>
-              <li>O que você sente no estômago quando o mercado faz um pullback de 2%?</li>
-              <li>Você opera para ter razão ou para acumular capital com disciplina?</li>
-            </ul>
-            <p style="font-size:12px;color:#196a4a;font-weight:600">Recomendação: utilize os Testes de Perfil e anote suas respostas no Diário após cada sessão.</p>
-          </div>
-          <div class="psychology-item-card">
-            <h3>✍️ Meu Compromisso Inegociável</h3>
-            <p style="font-size:13px;color:#55665d">Escreva uma regra inegociável para a sua mente antes do próximo pregão:</p>
-            <textarea id="selfCommitmentInput" rows="4" style="width:100%;margin-top:8px;padding:10px;border:1px solid #d4cbb3;border-radius:8px;background:#fff;font:inherit;font-size:13px" placeholder="Ex: Se eu tomar 2 stops no mesmo dia, fecho a plataforma e vou caminhar...">${esc(commitment)}</textarea>
-            <button class="ei-button" type="button" style="margin-top:10px" onclick="saveSelfCommitment()">Salvar Compromisso</button>
-          </div>
+        <aside class="ei-quote-box">
+          <span class="ei-quote-mark">“</span>
+          <p class="ei-quote-text">Conhece a ti mesmo e vencerás mil batalhas.</p>
+          <span class="ei-quote-author">SUN TZU</span>
+        </aside>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="antidote-card-inner" style="padding:22px;border-radius:14px;background:#ffffff">
+          <h3 style="margin:0 0 10px;font-size:18px;color:#122d23">🧭 Diagnóstico de Padrões Pessoais</h3>
+          <p style="line-height:1.6;font-size:13.5px;color:#475549">Responda para si mesmo com honestidade absoluta:</p>
+          <ul style="margin:12px 0;padding-left:20px;font-size:13px;color:#3f5247;line-height:1.7">
+            <li>Qual emoção antecede a maioria dos seus trades perdedores?</li>
+            <li>Você tende mais a sair cedo de trades vencedores ou segurar perdedores?</li>
+            <li>O que você sente no estômago quando o mercado faz um pullback de 2%?</li>
+            <li>Você opera para ter razão ou para acumular capital com disciplina?</li>
+          </ul>
+          <p style="font-size:12px;color:#196a4a;font-weight:600;margin-top:12px">Recomendação: utilize os Testes de Perfil e anote suas respostas no Diário após cada sessão.</p>
         </div>
-      </section>
+        <div class="antidote-card-inner" style="padding:22px;border-radius:14px;background:#ffffff">
+          <h3 style="margin:0 0 10px;font-size:18px;color:#122d23">✍️ Meu Compromisso Inegociável</h3>
+          <p style="font-size:13px;color:#55665d">Escreva uma regra inegociável para a sua mente antes do próximo pregão:</p>
+          <textarea id="selfCommitmentInput" rows="5" style="width:100%;margin-top:10px;padding:12px;border:1px solid #d4cbb3;border-radius:10px;background:#fbfaf6;font:inherit;font-size:13px;line-height:1.5" placeholder="Ex: Se eu tomar 2 stops no mesmo dia, fecho a plataforma imediatamente e vou caminhar ao ar livre...">${esc(commitment)}</textarea>
+          <button class="ei-button" type="button" style="margin-top:12px;padding:9px 18px;font-weight:700" onclick="saveSelfCommitment()">Salvar Compromisso</button>
+        </div>
+      </div>
     `;
   }
 
@@ -249,32 +692,43 @@
 
   function render() {
     const topNav = `
-      <div style="padding:16px clamp(18px,1.35vw,34px) 0;">
-        <button class="mindset-sub-back" type="button" onclick="go('mindset')">← Voltar para Mentalidade</button>
+      <div class="ei-top-navigation">
+        <div class="ei-nav-left">
+          <button class="mindset-sub-back" type="button" onclick="go('mindset')">← Voltar para Mentalidade</button>
+        </div>
         <nav class="psychology-tabs" aria-label="Abas de Psicologia do Trader">
-          <button class="psychology-tab ${activePsychologyTab === 'analyzer' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('analyzer')">📊 Analisador de Padrões</button>
-          <button class="psychology-tab ${activePsychologyTab === 'emotions' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('emotions')">💭 Emoções do Trader</button>
-          <button class="psychology-tab ${activePsychologyTab === 'biases' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('biases')">⚖️ Vieses Comportamentais</button>
-          <button class="psychology-tab ${activePsychologyTab === 'behaviors' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('behaviors')">⚡ Comportamentos</button>
-          <button class="psychology-tab ${activePsychologyTab === 'selfknowledge' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('selfknowledge')">🧭 Autoconhecimento</button>
+          <button class="psychology-tab ${activePsychologyTab === 'emotions' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('emotions')">🧠 Emoções do Trader</button>
+          <button class="psychology-tab ${activePsychologyTab === 'biases' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('biases')">🧩 Vieses Cognitivos</button>
+          <button class="psychology-tab ${activePsychologyTab === 'behaviors' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('behaviors')">📊 Padrões de Comportamento</button>
+          <button class="psychology-tab ${activePsychologyTab === 'habits' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('habits')">⚙️ Rotinas e Hábitos</button>
+          <button class="psychology-tab ${activePsychologyTab === 'mindset_success' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('mindset_success')">🎯 Mindset do Sucesso</button>
+          <button class="psychology-tab ${activePsychologyTab === 'analyzer' ? 'active' : ''}" type="button" onclick="selectPsychologyTab('analyzer')">📈 Analisador de Padrões</button>
         </nav>
       </div>
     `;
 
     if (activePsychologyTab === 'emotions') {
-      root.innerHTML = `<div class="ei-shell">${topNav}${renderEmotionsGuide()}</div>`;
+      root.innerHTML = `<div class="ei-shell">${topNav}<div class="ei-main-sheet">${renderEmotionsGuide()}</div></div>`;
       return;
     }
     if (activePsychologyTab === 'biases') {
-      root.innerHTML = `<div class="ei-shell">${topNav}${renderBiasesGuide()}</div>`;
+      root.innerHTML = `<div class="ei-shell">${topNav}<div class="ei-main-sheet">${renderBiasesGuide()}</div></div>`;
       return;
     }
     if (activePsychologyTab === 'behaviors') {
-      root.innerHTML = `<div class="ei-shell">${topNav}${renderBehaviorsGuide()}</div>`;
+      root.innerHTML = `<div class="ei-shell">${topNav}<div class="ei-main-sheet">${renderBehaviorsGuide()}</div></div>`;
+      return;
+    }
+    if (activePsychologyTab === 'habits') {
+      root.innerHTML = `<div class="ei-shell">${topNav}<div class="ei-main-sheet">${renderHabitsGuide()}</div></div>`;
+      return;
+    }
+    if (activePsychologyTab === 'mindset_success') {
+      root.innerHTML = `<div class="ei-shell">${topNav}<div class="ei-main-sheet">${renderMindsetSuccessGuide()}</div></div>`;
       return;
     }
     if (activePsychologyTab === 'selfknowledge') {
-      root.innerHTML = `<div class="ei-shell">${topNav}${renderSelfKnowledgeGuide()}</div>`;
+      root.innerHTML = `<div class="ei-shell">${topNav}<div class="ei-main-sheet">${renderSelfKnowledgeGuide()}</div></div>`;
       return;
     }
 
