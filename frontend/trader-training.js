@@ -226,7 +226,15 @@
 
   function renderHero() {
     return `
-      <section class="tt-hero">
+      <section class="tt-hero" aria-label="Treinamento Trader">
+        <img
+          src="assets/trader-training-hero-v1.jpg"
+          alt="Arqueiro treinando mira nas montanhas"
+          class="tt-hero-bg"
+          loading="eager"
+          decoding="async"
+        />
+        <div class="tt-hero-overlay" aria-hidden="true"></div>
         <div class="tt-hero-content">
           <span class="tt-hero-eyebrow">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
@@ -252,8 +260,9 @@
               <span class="tt-card-icon">🎯</span>
               <h2>Meu objetivo atual</h2>
             </div>
-            <button type="button" class="tt-btn-switch" onclick="window.TraderTraining.openLibrary()">
-              ＋ Selecionar objetivo
+            <button type="button" class="tt-btn-switch" onclick="window.TraderTraining.openLibrary()" aria-label="Selecionar objetivo">
+              <span class="tt-btn-switch-icon" aria-hidden="true">＋</span>
+              <span>Selecionar objetivo</span>
             </button>
           </header>
           <div class="tt-goal-body empty" style="text-align:center; padding: 22px 0 14px;">
@@ -285,8 +294,9 @@
             <h2>Meu objetivo atual</h2>
             <span class="tt-badge-status active">● Em treinamento</span>
           </div>
-          <button type="button" class="tt-btn-switch" onclick="window.TraderTraining.openLibrary()">
-            ⇄ Trocar objetivo
+          <button type="button" class="tt-btn-switch" onclick="window.TraderTraining.openLibrary()" aria-label="Trocar objetivo">
+            <span class="tt-btn-switch-icon" aria-hidden="true">↔</span>
+            <span>Trocar objetivo</span>
           </button>
         </header>
 
