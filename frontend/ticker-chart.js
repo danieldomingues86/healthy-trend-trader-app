@@ -7,10 +7,358 @@
   let searchUniverse = [];
   let chartInstance = null;
   let candleSeries = null;
+  let lineSeries = null;
   let ema9Series = null;
   let ema30Series = null;
+  let ema21Series = null;
   let volumeSeries = null;
+  let activeBenchmark = null;
   let disciplineState = null;
+  let selectedNoteCategory = 'plano';
+
+  const NOTES_STORAGE_KEY = 'healthy-trend-ticker-notes';
+  const INDICATORS_STORAGE_KEY = 'healthy-trend-chart-indicators';
+  const SETTINGS_STORAGE_KEY = 'healthy-trend-chart-settings';
+
+  let indicatorPrefs = loadIndicatorPrefs();
+  let chartSettings = loadChartSettings();
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function formatAssetClassBadge(rawClass) {
+    const c = String(rawClass || '').trim().toLowerCase();
+    if (c === 'stock_ibov' || c === 'ibov') return 'IBOV';
+    if (c === 'stock_other' || c === 'stock' || c === 'stock_b3') return 'B3';
+    if (c === 'bdr') return 'BDR';
+    if (c === 'fii') return 'FII';
+    if (c === 'index') return 'Índice';
+    if (c === 'nasdaq') return 'Nasdaq';
+    if (c === 'etf') return 'ETF';
+    return 'B3';
+  }
+
+  function loadIndicatorPrefs() {
+    try {
+      const raw = localStorage.getItem(INDICATORS_STORAGE_KEY);
+      if (raw) return Object.assign({ ema9: true, ema30: true, ema21: false, volume: true }, JSON.parse(raw));
+    } catch (e) {}
+    return { ema9: true, ema30: true, ema21: false, volume: true };
+  }
+
+  function saveIndicatorPrefs(prefs) {
+    try {
+      localStorage.setItem(INDICATORS_STORAGE_KEY, JSON.stringify(prefs));
+    } catch (e) {}
+  }
+
+  function loadChartSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      if (raw) return Object.assign({ type: 'candles', grid: 'smooth', scale: 'normal' }, JSON.parse(raw));
+    } catch (e) {}
+    return { type: 'candles', grid: 'smooth', scale: 'normal' };
+  }
+
+  function saveChartSettings(s) {
+    try {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(s));
+    } catch (e) {}
+  }
+
+  function isTickerInWatchlist(symbol) {
+    const sym = String(symbol || currentTicker || '').trim().toUpperCase();
+    if (!sym) return false;
+    if (typeof window.getWatchlistOpportunities === 'function') {
+      const list = window.getWatchlistOpportunities();
+      if (Array.isArray(list) && list.some(it => String(it.ticker || it.symbol || '').toUpperCase() === sym)) {
+        return true;
+      }
+    }
+    try {
+      const raw = localStorage.getItem('healthy-trend-watchlist-v2');
+      if (!raw) return false;
+      const items = JSON.parse(raw);
+      return Array.isArray(items) && items.some(it => String(it.ticker || it.symbol || '').toUpperCase() === sym);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function updateWatchlistButtonState() {
+    const btn = document.getElementById('btnToggleWatchlist');
+    if (!btn) return;
+    const inList = isTickerInWatchlist(currentTicker);
+    if (inList) {
+      btn.classList.add('active');
+      btn.innerHTML = '<span>★</span> Na Watchlist';
+      btn.title = 'Clique para remover este ativo da sua Watchlist';
+    } else {
+      btn.classList.remove('active');
+      btn.innerHTML = '<span>⭐</span> Adicionar à Watchlist';
+      btn.title = 'Clique para adicionar este ativo à sua Watchlist';
+    }
+  }
+
+  async function toggleWatchlistForCurrentTicker() {
+    const sym = String(currentTicker || '').trim().toUpperCase();
+    if (!sym) return;
+    const inList = isTickerInWatchlist(sym);
+    if (inList) {
+      if (typeof window.removeFromWatchlist === 'function') {
+        await window.removeFromWatchlist(sym);
+      } else {
+        try {
+          const raw = localStorage.getItem('healthy-trend-watchlist-v2');
+          const items = raw ? JSON.parse(raw) : [];
+          const next = items.filter(it => String(it.ticker || it.symbol || '').toUpperCase() !== sym);
+          localStorage.setItem('healthy-trend-watchlist-v2', JSON.stringify(next));
+        } catch (e) {}
+      }
+    } else {
+      const context = {
+        origin: 'ticker-chart',
+        name: tickerData?.tickerInfo?.name || sym,
+        sector: tickerData?.tickerInfo?.sector || '',
+        price: tickerData?.tickerInfo?.price || 0,
+        rsScore: tickerData?.relativeStrength?.score || 80,
+        atrPct: tickerData?.volatility?.atrPct || 2.0,
+        status: 'observando',
+        thesis: `Acompanhamento gráfico no Diário: tendência ${tickerData?.trend?.formula || 'alta'}, Força Relativa ${tickerData?.relativeStrength?.classification || 'Forte'}.`
+      };
+      if (typeof window.addToWatchlist === 'function') {
+        await window.addToWatchlist(sym, context);
+      } else {
+        try {
+          const raw = localStorage.getItem('healthy-trend-watchlist-v2');
+          const items = raw ? JSON.parse(raw) : [];
+          items.unshift({
+            ticker: sym,
+            name: context.name,
+            sector: context.sector,
+            status: context.status,
+            thesis: context.thesis,
+            created_at: new Date().toISOString()
+          });
+          localStorage.setItem('healthy-trend-watchlist-v2', JSON.stringify(items));
+        } catch (e) {}
+      }
+    }
+    updateWatchlistButtonState();
+  }
+
+  function loadAllTickerNotes() {
+    try {
+      const raw = localStorage.getItem(NOTES_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function getTickerNotes(symbol) {
+    const sym = String(symbol || currentTicker).trim().toUpperCase();
+    const all = loadAllTickerNotes();
+    return Array.isArray(all[sym]) ? all[sym] : [];
+  }
+
+  function saveTickerNote(symbol, text, category) {
+    const sym = String(symbol || currentTicker).trim().toUpperCase();
+    if (!text || !text.trim()) return;
+    const all = loadAllTickerNotes();
+    if (!Array.isArray(all[sym])) all[sym] = [];
+    all[sym].unshift({
+      id: 'note_' + Date.now(),
+      text: text.trim(),
+      category: category || 'plano',
+      createdAt: new Date().toISOString()
+    });
+    try {
+      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(all));
+    } catch (e) {}
+    updateNotesBadge();
+    renderNotesList();
+  }
+
+  function deleteTickerNote(symbol, noteId) {
+    const sym = String(symbol || currentTicker).trim().toUpperCase();
+    const all = loadAllTickerNotes();
+    if (Array.isArray(all[sym])) {
+      all[sym] = all[sym].filter(n => n.id !== noteId);
+      try {
+        localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(all));
+      } catch (e) {}
+    }
+    updateNotesBadge();
+    renderNotesList();
+  }
+
+  function updateNotesBadge() {
+    const badge = document.getElementById('chartNotesCountBadge');
+    if (!badge) return;
+    const notes = getTickerNotes(currentTicker);
+    if (notes.length > 0) {
+      badge.textContent = notes.length;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function renderNotesList() {
+    const container = document.getElementById('chartNotesList');
+    if (!container) return;
+    const notes = getTickerNotes(currentTicker);
+    if (!notes.length) {
+      container.innerHTML = `
+        <div class="chart-notes-empty">
+          Nenhuma anotação para <b>${currentTicker}</b> ainda.<br>
+          Escreva acima para registrar pontos de entrada, stops e observações técnicas.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = notes.map(n => {
+      const d = new Date(n.createdAt);
+      const dateFormatted = isNaN(d) ? '' : d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const catLabel = n.category === 'plano' ? 'Setup / Plano' : (n.category === 'suporte' ? 'Suporte / Resistência' : (n.category === 'aviso' ? 'Aviso / Risco' : 'Geral'));
+      return `
+        <div class="chart-note-item">
+          <div class="chart-note-item-head">
+            <span class="chart-note-item-cat ${n.category || 'plano'}">${catLabel}</span>
+            <span class="chart-note-item-time">${dateFormatted}</span>
+          </div>
+          <div class="chart-note-item-body">${escapeHtml(n.text)}</div>
+          <button class="btn-chart-note-delete" data-id="${n.id}">🗑 Excluir</button>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.btn-chart-note-delete').forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.getAttribute('data-id');
+        deleteTickerNote(currentTicker, id);
+      };
+    });
+  }
+
+  function resetChartZoom() {
+    if (!chartInstance || !tickerData?.ohlc?.length) return;
+    const totalBars = tickerData.ohlc.length;
+    // Exibe aproximadamente 75 barras recentes (~3.5 meses de pregões)
+    // Zoom muito mais próximo para enxergar com clareza candles e médias
+    const barsToShow = Math.min(totalBars, 75);
+    chartInstance.timeScale().setVisibleLogicalRange({
+      from: Math.max(0, totalBars - barsToShow),
+      to: totalBars + 4
+    });
+  }
+
+  function applyIndicatorVisibility() {
+    if (ema9Series) ema9Series.applyOptions({ visible: !!indicatorPrefs.ema9 });
+    if (ema30Series) ema30Series.applyOptions({ visible: !!indicatorPrefs.ema30 });
+    if (volumeSeries) volumeSeries.applyOptions({ visible: !!indicatorPrefs.volume });
+    if (ema21Series) {
+      ema21Series.applyOptions({ visible: !!indicatorPrefs.ema21 });
+    } else if (indicatorPrefs.ema21 && chartInstance && tickerData?.ohlc) {
+      ensureEma21Series();
+    }
+
+    const lEma9 = document.querySelector('.legend-ema9');
+    if (lEma9) lEma9.style.display = indicatorPrefs.ema9 ? 'inline' : 'none';
+    const lEma30 = document.querySelector('.legend-ema30');
+    if (lEma30) lEma30.style.display = indicatorPrefs.ema30 ? 'inline' : 'none';
+    const lVol = document.querySelector('.legend-vol');
+    if (lVol) lVol.style.display = indicatorPrefs.volume ? 'inline' : 'none';
+    const lEma21 = document.querySelector('.legend-ema21');
+    if (lEma21) lEma21.style.display = indicatorPrefs.ema21 ? 'inline' : 'none';
+  }
+
+  function ensureEma21Series() {
+    if (!chartInstance || !tickerData?.ohlc) return;
+    if (!ema21Series) {
+      ema21Series = chartInstance.addLineSeries({
+        color: '#3b82f6',
+        lineWidth: 2,
+        title: 'EMA 21',
+        visible: !!indicatorPrefs.ema21
+      });
+    }
+    const closes = tickerData.ohlc.map(c => c.close);
+    if (window.TickerChartModel) {
+      const rawEma = window.TickerChartModel.calculateEma(closes, 21);
+      const data = tickerData.ohlc.map((c, idx) => ({
+        time: c.time,
+        value: rawEma[idx]
+      })).filter(p => Number.isFinite(p.value));
+      ema21Series.setData(data);
+    }
+  }
+
+  function applyChartSettings() {
+    if (!chartInstance) return;
+    const isGold = document.documentElement.getAttribute('data-theme') === 'gold';
+    let gridColor = isGold ? 'rgba(255, 255, 255, 0.05)' : '#f1f5f9';
+    if (chartSettings.grid === 'hidden') {
+      gridColor = 'transparent';
+    }
+    chartInstance.applyOptions({
+      grid: {
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor }
+      },
+      rightPriceScale: {
+        mode: chartSettings.scale === 'log' ? 1 : 0
+      }
+    });
+
+    if (candleSeries) {
+      if (chartSettings.type === 'line') {
+        candleSeries.applyOptions({ visible: false });
+        if (!lineSeries) {
+          lineSeries = chartInstance.addLineSeries({
+            color: '#10b981',
+            lineWidth: 2,
+            title: currentTicker
+          });
+          const lineData = tickerData.ohlc.map(c => ({ time: c.time, value: c.close }));
+          lineSeries.setData(lineData);
+        } else {
+          lineSeries.applyOptions({ visible: true });
+        }
+      } else {
+        candleSeries.applyOptions({ visible: true });
+        if (lineSeries) lineSeries.applyOptions({ visible: false });
+      }
+    }
+  }
+
+  function closeAllPopovers() {
+    document.querySelectorAll('.chart-popover').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.chart-toolbar-btn').forEach(b => {
+      if (b.id !== 'btnToggleWatchlist') b.classList.remove('active');
+    });
+  }
+
+  function togglePopover(popoverId, btnId) {
+    const popover = document.getElementById(popoverId);
+    const btn = document.getElementById(btnId);
+    if (!popover || !btn) return;
+    const isCurrentlyActive = popover.classList.contains('active');
+    closeAllPopovers();
+    if (!isCurrentlyActive) {
+      popover.classList.add('active');
+      btn.classList.add('active');
+    }
+  }
 
   const tickerDataCache = new Map();
 
@@ -289,8 +637,9 @@
         </div>
 
         <div class="ticker-hero-actions">
-          <button class="btn-watchlist-toggle" id="btnToggleWatchlist">
-            <span>⭐</span> Adicionar à Watchlist
+          <button class="btn-watchlist-toggle ${isTickerInWatchlist(tickerData.tickerInfo.symbol) ? 'active' : ''}" id="btnToggleWatchlist">
+            <span>${isTickerInWatchlist(tickerData.tickerInfo.symbol) ? '★' : '⭐'}</span>
+            ${isTickerInWatchlist(tickerData.tickerInfo.symbol) ? 'Na Watchlist' : 'Adicionar à Watchlist'}
           </button>
           <button class="btn-icon-more" id="btnMoreTickerOptions" title="Mais opções">⋮</button>
         </div>
@@ -306,24 +655,131 @@
                 <span>Diário (oficial)</span>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </div>
-              <button class="chart-toolbar-btn" id="btnChartIndicators">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
-                Indicadores
-              </button>
-              <button class="chart-toolbar-btn" id="btnChartCompare">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M11 18H8a2 2 0 0 1-2-2V9"/></svg>
-                Comparar
-              </button>
-              <button class="chart-toolbar-btn" id="btnChartNotes">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                Anotações
-              </button>
-              <button class="chart-toolbar-btn" id="btnChartSettings">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-              </button>
+
+              <!-- INDICADORES POPOVER -->
+              <div class="chart-toolbar-btn-wrap">
+                <button class="chart-toolbar-btn" id="btnChartIndicators" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+                  Indicadores
+                </button>
+                <div class="chart-popover chart-indicators-popover" id="popoverIndicators">
+                  <div class="chart-popover-head">
+                    <span class="chart-popover-title">Indicadores Técnicos</span>
+                    <button class="chart-popover-close" id="btnCloseIndicatorsPopover" type="button">✕</button>
+                  </div>
+                  <div class="chart-indicator-list">
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #0d9488;"></span>
+                        <span>EMA 9 (Curta / Rastreio)</span>
+                      </div>
+                      <input type="checkbox" id="chkIndEma9" ${indicatorPrefs.ema9 ? 'checked' : ''} />
+                    </label>
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #d97706;"></span>
+                        <span>EMA 30 (Média do Método)</span>
+                      </div>
+                      <input type="checkbox" id="chkIndEma30" ${indicatorPrefs.ema30 ? 'checked' : ''} />
+                    </label>
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #3b82f6;"></span>
+                        <span>EMA 21 (Pullback)</span>
+                      </div>
+                      <input type="checkbox" id="chkIndEma21" ${indicatorPrefs.ema21 ? 'checked' : ''} />
+                    </label>
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #10b981;"></span>
+                        <span>Volume Diário</span>
+                      </div>
+                      <input type="checkbox" id="chkIndVolume" ${indicatorPrefs.volume ? 'checked' : ''} />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- COMPARAR POPOVER -->
+              <div class="chart-toolbar-btn-wrap">
+                <button class="chart-toolbar-btn" id="btnChartCompare" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M11 18H8a2 2 0 0 1-2-2V9"/></svg>
+                  Comparar
+                </button>
+                <div class="chart-popover chart-compare-popover" id="popoverCompare">
+                  <div class="chart-popover-head">
+                    <span class="chart-popover-title">Comparar Desempenho</span>
+                    <button class="chart-popover-close" id="btnCloseComparePopover" type="button">✕</button>
+                  </div>
+                  <div class="chart-compare-grid">
+                    <div style="font-size: 11px; color: #64748b; font-weight: 600;">Benchmarks Rápidos:</div>
+                    <div class="compare-pills-row">
+                      <button class="btn-compare-pill" data-bench="IBOV" type="button">IBOV</button>
+                      <button class="btn-compare-pill" data-bench="SMLL" type="button">SMLL</button>
+                      <button class="btn-compare-pill" data-bench="IFIX" type="button">IFIX</button>
+                      <button class="btn-compare-pill" data-bench="BDRX" type="button">BDRX</button>
+                      <button class="btn-compare-pill" data-bench="SPX" type="button">S&P 500</button>
+                    </div>
+                    <div class="compare-input-row">
+                      <input type="text" class="compare-ticker-input" id="compareTickerInput" placeholder="Outro ativo (ex: VALE3)" />
+                      <button class="btn-compare-apply" id="btnApplyCustomCompare" type="button">Comparar</button>
+                    </div>
+                    <div id="compareActiveStatus"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ANOTAÇÕES BUTTON -->
+              <div class="chart-toolbar-btn-wrap">
+                <button class="chart-toolbar-btn" id="btnChartNotes" type="button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  Anotações
+                  <span class="chart-notes-count-badge" id="chartNotesCountBadge" style="display: none;">0</span>
+                </button>
+              </div>
+
+              <!-- CONFIGURAÇÕES POPOVER -->
+              <div class="chart-toolbar-btn-wrap">
+                <button class="chart-toolbar-btn" id="btnChartSettings" type="button" title="Configurações do gráfico">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
+                <div class="chart-popover chart-settings-popover" id="popoverSettings">
+                  <div class="chart-popover-head">
+                    <span class="chart-popover-title">Configurações</span>
+                    <button class="chart-popover-close" id="btnCloseSettingsPopover" type="button">✕</button>
+                  </div>
+                  <div class="chart-settings-group">
+                    <label class="chart-settings-label">Estilo do Gráfico</label>
+                    <select class="chart-settings-select" id="selChartType">
+                      <option value="candles" ${chartSettings.type === 'candles' ? 'selected' : ''}>Candlesticks (Padrão)</option>
+                      <option value="line" ${chartSettings.type === 'line' ? 'selected' : ''}>Linha de Fechamento</option>
+                    </select>
+                  </div>
+                  <div class="chart-settings-group">
+                    <label class="chart-settings-label">Linhas de Grade</label>
+                    <select class="chart-settings-select" id="selChartGrid">
+                      <option value="smooth" ${chartSettings.grid === 'smooth' ? 'selected' : ''}>Grade Suave</option>
+                      <option value="hidden" ${chartSettings.grid === 'hidden' ? 'selected' : ''}>Sem Grade (Oculta)</option>
+                    </select>
+                  </div>
+                  <div class="chart-settings-group">
+                    <label class="chart-settings-label">Escala de Preço</label>
+                    <select class="chart-settings-select" id="selChartScale">
+                      <option value="normal" ${chartSettings.scale === 'normal' ? 'selected' : ''}>Linear / Normal</option>
+                      <option value="log" ${chartSettings.scale === 'log' ? 'selected' : ''}>Logarítmica</option>
+                    </select>
+                  </div>
+                  <button class="btn-chart-reset-all" id="btnResetChartZoomFromSettings" type="button">Restaurar Zoom Inicial</button>
+                </div>
+              </div>
             </div>
+
             <div class="chart-toolbar-right">
-              <button class="chart-toolbar-btn" id="btnChartFullscreen" title="Tela cheia">
+              <button class="chart-toolbar-btn" id="btnChartResetZoom" type="button" title="Restaurar zoom inicial próximo">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                Zoom Padrão
+              </button>
+              <button class="chart-toolbar-btn" id="btnChartFullscreen" type="button" title="Tela cheia">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
               </button>
             </div>
@@ -342,9 +798,11 @@
                 </span>
               </div>
               <div class="legend-row-indicators" id="legendIndicatorsRow">
-                <span class="legend-ema9">EMA 9: ${formatNumber(tickerData.indicators.ema9.at(-1)?.value)}</span>
-                <span class="legend-ema30">EMA 30: ${formatNumber(tickerData.indicators.ema30.at(-1)?.value)}</span>
-                <span class="legend-vol">Volume: ${(tickerData.ohlc.at(-1)?.volume / 1e6).toFixed(1)}M</span>
+                <span class="legend-ema9" style="display: ${indicatorPrefs.ema9 ? 'inline' : 'none'}">EMA 9: ${formatNumber(tickerData.indicators.ema9.at(-1)?.value)}</span>
+                <span class="legend-ema30" style="display: ${indicatorPrefs.ema30 ? 'inline' : 'none'}">EMA 30: ${formatNumber(tickerData.indicators.ema30.at(-1)?.value)}</span>
+                <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: —</span>
+                <span class="legend-vol" style="display: ${indicatorPrefs.volume ? 'inline' : 'none'}">Volume: ${(tickerData.ohlc.at(-1)?.volume / 1e6).toFixed(1)}M</span>
+                <span id="legendCompareTag" style="display: none;"></span>
               </div>
             </div>
           </div>
@@ -721,6 +1179,37 @@
           </div>
         </div>
       </div>
+
+      <!-- 8. ANOTAÇÕES FLYOUT DRAWER & OVERLAY -->
+      <div class="chart-notes-overlay" id="chartNotesOverlay"></div>
+      <div class="chart-notes-drawer" id="chartNotesDrawer">
+        <div class="chart-notes-head">
+          <div class="chart-notes-title-wrap">
+            <div class="chart-notes-title">Anotações: ${tickerData.tickerInfo.symbol}</div>
+            <div class="chart-notes-subtitle">Diário e planos operacionais para este ativo</div>
+          </div>
+          <button class="chart-notes-close" id="btnCloseChartNotesDrawer" type="button">✕</button>
+        </div>
+
+        <div class="chart-note-form">
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b;">Categoria da Anotação</div>
+          <div class="chart-note-cat-pills" id="chartNoteCatPills">
+            <button type="button" class="note-cat-pill active" data-cat="plano">Setup / Plano</button>
+            <button type="button" class="note-cat-pill" data-cat="suporte">Suporte / Resistência</button>
+            <button type="button" class="note-cat-pill" data-cat="aviso">Aviso / Risco</button>
+            <button type="button" class="note-cat-pill" data-cat="geral">Geral</button>
+          </div>
+          <textarea class="chart-note-textarea" id="txtChartNote" placeholder="Ex: Rompimento de pivô na EMA 9 com confirmação de volume. Stop inicial abaixo de 36.20."></textarea>
+          <button type="button" class="btn-chart-save-note" id="btnSaveChartNote">+ Salvar Anotação</button>
+        </div>
+
+        <div>
+          <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 8px;">
+            Histórico de Anotações
+          </div>
+          <div class="chart-notes-list" id="chartNotesList"></div>
+        </div>
+      </div>
     `;
 
     // Renderiza o gráfico TradingView Lightweight Charts
@@ -865,15 +1354,27 @@
       downColor: '#ef4444',
       borderVisible: false,
       wickUpColor: '#10b981',
-      wickDownColor: '#ef4444'
+      wickDownColor: '#ef4444',
+      visible: chartSettings.type !== 'line'
     });
     candleSeries.setData(data.ohlc);
+
+    // Line Series (opcional, para visualização de linha)
+    lineSeries = chartInstance.addLineSeries({
+      color: '#10b981',
+      lineWidth: 2,
+      title: data.tickerInfo.symbol,
+      visible: chartSettings.type === 'line'
+    });
+    const lineData = data.ohlc.map(c => ({ time: c.time, value: c.close }));
+    lineSeries.setData(lineData);
 
     // EMA 9 Line
     ema9Series = chartInstance.addLineSeries({
       color: '#0d9488',
       lineWidth: 2,
-      title: 'EMA 9'
+      title: 'EMA 9',
+      visible: !!indicatorPrefs.ema9
     });
     ema9Series.setData(data.indicators.ema9);
 
@@ -881,16 +1382,23 @@
     ema30Series = chartInstance.addLineSeries({
       color: '#d97706',
       lineWidth: 2,
-      title: 'EMA 30'
+      title: 'EMA 30',
+      visible: !!indicatorPrefs.ema30
     });
     ema30Series.setData(data.indicators.ema30);
+
+    // EMA 21 Line (se ativada pelo usuário)
+    if (indicatorPrefs.ema21) {
+      ensureEma21Series();
+    }
 
     // Volume Histogram Series
     volumeSeries = chartInstance.addHistogramSeries({
       color: '#64748b',
       priceFormat: { type: 'volume' },
       priceScaleId: '', // Overlay no mesmo painel
-      scaleMargins: { top: 0.8, bottom: 0 }
+      scaleMargins: { top: 0.8, bottom: 0 },
+      visible: !!indicatorPrefs.volume
     });
 
     const volumeData = data.ohlc.map(c => ({
@@ -900,7 +1408,11 @@
     }));
     volumeSeries.setData(volumeData);
 
-    chartInstance.timeScale().fitContent();
+    // Aplica configurações visuais (grade suave/oculta, escala logarítmica)
+    applyChartSettings();
+
+    // Zoom inicial próximo (exibe ~75 barras com 4 barras de respiro à direita)
+    resetChartZoom();
 
     // Atualiza a legenda ao mover o crosshair
     chartInstance.subscribeCrosshairMove(param => {
@@ -922,37 +1434,42 @@
           </span>
         `;
         legendInd.innerHTML = `
-          <span class="legend-ema9">EMA 9: ${formatNumber(data.indicators.ema9.at(-1)?.value)}</span>
-          <span class="legend-ema30">EMA 30: ${formatNumber(data.indicators.ema30.at(-1)?.value)}</span>
-          <span class="legend-vol">Volume: ${(last?.volume / 1e6).toFixed(1)}M</span>
+          <span class="legend-ema9" style="display: ${indicatorPrefs.ema9 ? 'inline' : 'none'}">EMA 9: ${formatNumber(data.indicators.ema9.at(-1)?.value)}</span>
+          <span class="legend-ema30" style="display: ${indicatorPrefs.ema30 ? 'inline' : 'none'}">EMA 30: ${formatNumber(data.indicators.ema30.at(-1)?.value)}</span>
+          <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(ema21Series ? data.ohlc.at(-1)?.close : null)}</span>
+          <span class="legend-vol" style="display: ${indicatorPrefs.volume ? 'inline' : 'none'}">Volume: ${(last?.volume / 1e6).toFixed(1)}M</span>
+          <span id="legendCompareTag" style="display: ${activeBenchmark ? 'inline-block' : 'none'};" class="chart-comparison-active-tag">${activeBenchmark ? 'vs ' + activeBenchmark : ''}</span>
         `;
         return;
       }
 
-      const bar = param.seriesData.get(candleSeries);
+      const bar = param.seriesData.get(candleSeries) || param.seriesData.get(lineSeries);
       const e9 = param.seriesData.get(ema9Series);
       const e30 = param.seriesData.get(ema30Series);
+      const e21 = ema21Series ? param.seriesData.get(ema21Series) : null;
       const vol = param.seriesData.get(volumeSeries);
 
       if (bar) {
-        const change = bar.close - bar.open;
+        const change = bar.close - (bar.open !== undefined ? bar.open : bar.close);
         const changePct = bar.open ? (change / bar.open) * 100 : 0;
         legendMain.innerHTML = `
           <span>${data.tickerInfo.symbol} · ${param.time}</span>
-          <span>Abr ${formatNumber(bar.open)}</span>
-          <span>Máx ${formatNumber(bar.high)}</span>
-          <span>Mín ${formatNumber(bar.low)}</span>
+          ${bar.open !== undefined ? `<span>Abr ${formatNumber(bar.open)}</span>` : ''}
+          ${bar.high !== undefined ? `<span>Máx ${formatNumber(bar.high)}</span>` : ''}
+          ${bar.low !== undefined ? `<span>Mín ${formatNumber(bar.low)}</span>` : ''}
           <span>Fch ${formatNumber(bar.close)}</span>
           <span style="color: ${change >= 0 ? '#10b981' : '#ef4444'}">
             ${change >= 0 ? '+' : ''}${formatNumber(change)} (${changePct >= 0 ? '+' : ''}${formatNumber(changePct)}%)
           </span>
         `;
       }
-      if (e9 || e30 || vol) {
+      if (e9 || e30 || vol || e21) {
         legendInd.innerHTML = `
-          <span class="legend-ema9">EMA 9: ${formatNumber(e9?.value)}</span>
-          <span class="legend-ema30">EMA 30: ${formatNumber(e30?.value)}</span>
-          <span class="legend-vol">Volume: ${vol?.value ? (vol.value / 1e6).toFixed(1) + 'M' : '—'}</span>
+          <span class="legend-ema9" style="display: ${indicatorPrefs.ema9 ? 'inline' : 'none'}">EMA 9: ${formatNumber(e9?.value)}</span>
+          <span class="legend-ema30" style="display: ${indicatorPrefs.ema30 ? 'inline' : 'none'}">EMA 30: ${formatNumber(e30?.value)}</span>
+          <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(e21?.value)}</span>
+          <span class="legend-vol" style="display: ${indicatorPrefs.volume ? 'inline' : 'none'}">Volume: ${vol?.value ? (vol.value / 1e6).toFixed(1) + 'M' : '—'}</span>
+          <span id="legendCompareTag" style="display: ${activeBenchmark ? 'inline-block' : 'none'};" class="chart-comparison-active-tag">${activeBenchmark ? 'vs ' + activeBenchmark : ''}</span>
         `;
       }
     });
@@ -1085,7 +1602,7 @@
               <span class="ticker-search-name">${item.name || ''}</span>
             </div>
             <div class="ticker-search-item-right">
-              <span class="ticker-search-class-badge">${item.assetClass || 'B3'}</span>
+              <span class="ticker-search-class-badge">${formatAssetClassBadge(item.assetClass)}</span>
               ${item.score ? `<span class="ticker-search-score-badge">${item.score}</span>` : ''}
             </div>
           </div>
@@ -1125,11 +1642,11 @@
       };
 
       // Fecha dropdown ao clicar fora
-      document.onclick = (e) => {
+      document.addEventListener('click', (e) => {
         if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
           dropdown.classList.remove('active');
         }
-      };
+      });
     }
   }
 
@@ -1155,25 +1672,231 @@
     }
   }
 
-  function setupEventListeners() {
-    setupSearchEvents();
-    setupDisciplineDrawerEvents();
+  function setupPopoverEvents() {
+    // 1. Indicadores Popover
+    const btnIndicators = document.getElementById('btnChartIndicators');
+    const btnCloseIndicators = document.getElementById('btnCloseIndicatorsPopover');
+    if (btnIndicators) {
+      btnIndicators.onclick = (e) => {
+        e.stopPropagation();
+        togglePopover('popoverIndicators', 'btnChartIndicators');
+      };
+    }
+    if (btnCloseIndicators) {
+      btnCloseIndicators.onclick = (e) => {
+        e.stopPropagation();
+        closeAllPopovers();
+      };
+    }
 
-    // Toggle Watchlist
-    const btnWatchlist = document.getElementById('btnToggleWatchlist');
-    if (btnWatchlist) {
-      btnWatchlist.onclick = () => {
-        btnWatchlist.classList.toggle('active');
-        const isActive = btnWatchlist.classList.contains('active');
-        btnWatchlist.innerHTML = isActive ? '<span>★</span> Na Watchlist' : '<span>⭐</span> Adicionar à Watchlist';
-        if (window.healthyTrendApi) {
-          window.healthyTrendApi.request('/api/watchlist', {
-            method: 'POST',
-            body: { ticker: currentTicker }
-          }).catch(() => {});
+    const chkE9 = document.getElementById('chkIndEma9');
+    const chkE30 = document.getElementById('chkIndEma30');
+    const chkE21 = document.getElementById('chkIndEma21');
+    const chkVol = document.getElementById('chkIndVolume');
+
+    if (chkE9) chkE9.onchange = () => { indicatorPrefs.ema9 = chkE9.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    if (chkE30) chkE30.onchange = () => { indicatorPrefs.ema30 = chkE30.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    if (chkE21) chkE21.onchange = () => { indicatorPrefs.ema21 = chkE21.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    if (chkVol) chkVol.onchange = () => { indicatorPrefs.volume = chkVol.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+
+    // 2. Comparar Popover
+    const btnCompare = document.getElementById('btnChartCompare');
+    const btnCloseCompare = document.getElementById('btnCloseComparePopover');
+    if (btnCompare) {
+      btnCompare.onclick = (e) => {
+        e.stopPropagation();
+        togglePopover('popoverCompare', 'btnChartCompare');
+      };
+    }
+    if (btnCloseCompare) {
+      btnCloseCompare.onclick = (e) => {
+        e.stopPropagation();
+        closeAllPopovers();
+      };
+    }
+
+    // Benchmark quick pills
+    document.querySelectorAll('.btn-compare-pill').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const bench = btn.getAttribute('data-bench');
+        applyComparison(bench);
+      };
+    });
+
+    const btnCustomCompare = document.getElementById('btnApplyCustomCompare');
+    const inputCustomCompare = document.getElementById('compareTickerInput');
+    if (btnCustomCompare && inputCustomCompare) {
+      btnCustomCompare.onclick = (e) => {
+        e.stopPropagation();
+        const sym = inputCustomCompare.value.trim().toUpperCase();
+        if (sym) applyComparison(sym);
+      };
+      inputCustomCompare.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const sym = inputCustomCompare.value.trim().toUpperCase();
+          if (sym) applyComparison(sym);
         }
       };
     }
+
+    function applyComparison(bench) {
+      activeBenchmark = bench;
+      document.querySelectorAll('.btn-compare-pill').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-bench') === bench);
+      });
+      const statusDiv = document.getElementById('compareActiveStatus');
+      if (statusDiv) {
+        statusDiv.innerHTML = `
+          <div class="compare-active-banner">
+            <span>Comparando com <b>${bench}</b></span>
+            <button class="btn-compare-remove" id="btnRemoveCompare" type="button">Remover</button>
+          </div>
+        `;
+        const btnRemove = document.getElementById('btnRemoveCompare');
+        if (btnRemove) {
+          btnRemove.onclick = (e) => {
+            e.stopPropagation();
+            removeComparison();
+          };
+        }
+      }
+      const tag = document.getElementById('legendCompareTag');
+      if (tag) {
+        tag.textContent = 'vs ' + bench;
+        tag.style.display = 'inline-block';
+      }
+    }
+
+    function removeComparison() {
+      activeBenchmark = null;
+      document.querySelectorAll('.btn-compare-pill').forEach(b => b.classList.remove('active'));
+      const statusDiv = document.getElementById('compareActiveStatus');
+      if (statusDiv) statusDiv.innerHTML = '';
+      const tag = document.getElementById('legendCompareTag');
+      if (tag) tag.style.display = 'none';
+      const input = document.getElementById('compareTickerInput');
+      if (input) input.value = '';
+    }
+
+    // 3. Settings Popover
+    const btnSettings = document.getElementById('btnChartSettings');
+    const btnCloseSettings = document.getElementById('btnCloseSettingsPopover');
+    if (btnSettings) {
+      btnSettings.onclick = (e) => {
+        e.stopPropagation();
+        togglePopover('popoverSettings', 'btnChartSettings');
+      };
+    }
+    if (btnCloseSettings) {
+      btnCloseSettings.onclick = (e) => {
+        e.stopPropagation();
+        closeAllPopovers();
+      };
+    }
+
+    const selType = document.getElementById('selChartType');
+    const selGrid = document.getElementById('selChartGrid');
+    const selScale = document.getElementById('selChartScale');
+    if (selType) selType.onchange = () => { chartSettings.type = selType.value; saveChartSettings(chartSettings); applyChartSettings(); };
+    if (selGrid) selGrid.onchange = () => { chartSettings.grid = selGrid.value; saveChartSettings(chartSettings); applyChartSettings(); };
+    if (selScale) selScale.onchange = () => { chartSettings.scale = selScale.value; saveChartSettings(chartSettings); applyChartSettings(); };
+
+    const btnResetZoomSettings = document.getElementById('btnResetChartZoomFromSettings');
+    if (btnResetZoomSettings) {
+      btnResetZoomSettings.onclick = () => {
+        resetChartZoom();
+        closeAllPopovers();
+      };
+    }
+
+    // 4. Zoom Padrão Toolbar Button
+    const btnResetZoom = document.getElementById('btnChartResetZoom');
+    if (btnResetZoom) {
+      btnResetZoom.onclick = () => resetChartZoom();
+    }
+
+    // Fecha popovers ao clicar fora de qualquer popover ou botão
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.chart-popover') && !e.target.closest('.chart-toolbar-btn')) {
+        closeAllPopovers();
+      }
+    });
+  }
+
+  function setupNotesDrawerEvents() {
+    const btnNotes = document.getElementById('btnChartNotes');
+    const drawer = document.getElementById('chartNotesDrawer');
+    const overlay = document.getElementById('chartNotesOverlay');
+    const btnClose = document.getElementById('btnCloseChartNotesDrawer');
+
+    if (btnNotes && drawer && overlay) {
+      btnNotes.onclick = () => {
+        closeAllPopovers();
+        drawer.classList.add('active');
+        overlay.classList.add('active');
+        renderNotesList();
+      };
+
+      const closeFn = () => {
+        drawer.classList.remove('active');
+        overlay.classList.remove('active');
+      };
+
+      if (btnClose) btnClose.onclick = closeFn;
+      overlay.onclick = closeFn;
+
+      // Category pills
+      document.querySelectorAll('#chartNoteCatPills .note-cat-pill').forEach(pill => {
+        pill.onclick = () => {
+          document.querySelectorAll('#chartNoteCatPills .note-cat-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          selectedNoteCategory = pill.getAttribute('data-cat') || 'plano';
+        };
+      });
+
+      // Save note button
+      const btnSave = document.getElementById('btnSaveChartNote');
+      const txtNote = document.getElementById('txtChartNote');
+      if (btnSave && txtNote) {
+        btnSave.onclick = () => {
+          const val = txtNote.value.trim();
+          if (val) {
+            saveTickerNote(currentTicker, val, selectedNoteCategory);
+            txtNote.value = '';
+          }
+        };
+      }
+
+      // Initial badge & list
+      updateNotesBadge();
+      renderNotesList();
+    }
+  }
+
+  function setupWatchlistButtonEvents() {
+    updateWatchlistButtonState();
+
+    const btnWatchlist = document.getElementById('btnToggleWatchlist');
+    if (btnWatchlist) {
+      btnWatchlist.onclick = async () => {
+        await toggleWatchlistForCurrentTicker();
+      };
+    }
+
+    // Sincronização reativa quando a Watchlist for modificada em qualquer lugar
+    window.addEventListener('healthyTrend:watchlist-changed', () => {
+      updateWatchlistButtonState();
+    });
+  }
+
+  function setupEventListeners() {
+    setupSearchEvents();
+    setupDisciplineDrawerEvents();
+    setupPopoverEvents();
+    setupNotesDrawerEvents();
+    setupWatchlistButtonEvents();
 
     // Fullscreen no gráfico
     const btnFullscreen = document.getElementById('btnChartFullscreen');
