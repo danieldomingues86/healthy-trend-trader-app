@@ -560,8 +560,41 @@
             </div>
           </fieldset>
 
+          ${(() => {
+            const activeGoal = window.TraderTraining?.getState()?.active;
+            if (!activeGoal) return '';
+            const val = trade.trainingAssessment || '';
+            return `
+              <!-- TREINAMENTO DE TRADER -->
+              <fieldset class="jv-trade-section jv-training-section">
+                <div class="jv-training-head">
+                  <span class="jv-training-head-icon" aria-hidden="true">🎯</span>
+                  <div class="jv-training-head-text">
+                    <span class="jv-training-kicker">${text('Treinamento de Trader · Seu objetivo de evolução', 'Trader Training · Your evolution goal')}</span>
+                    <strong class="jv-training-goal-title">“${esc(activeGoal.title)}”</strong>
+                  </div>
+                </div>
+                <div class="jv-training-question">
+                  <span>${text('Como você se saiu nesta operação?', 'How did you perform in this trade?')}</span>
+                  <div class="jv-training-buttons-row">
+                    <button type="button" class="jv-btn-assessment ${val === 'correct' ? 'chosen correct' : ''}" data-trade-id="${esc(trade.id)}" data-trade-training="correct">
+                      🟢 ${text('Executei corretamente', 'Executed correctly')}
+                    </button>
+                    <button type="button" class="jv-btn-assessment ${val === 'incorrect' ? 'chosen incorrect' : ''}" data-trade-id="${esc(trade.id)}" data-trade-training="incorrect">
+                      🔴 ${text('Não executei corretamente', 'Did not execute correctly')}
+                    </button>
+                    <button type="button" class="jv-btn-assessment ${val === 'not_applicable' ? 'chosen not_applicable' : ''}" data-trade-id="${esc(trade.id)}" data-trade-training="not_applicable">
+                      ⚪ ${text('Não se aplicava', 'Did not apply')}
+                    </button>
+                  </div>
+                </div>
+              </fieldset>
+            `;
+          })()}
+
           <!-- PÓS-TRADE / APRENDIZADO -->
           <fieldset class="jv-trade-section">
+
             <div class="jv-post-grid">
               <label class="jv-field">
                 <span>${text('O que fiz certo?', 'What did I do right?')}</span>
@@ -1484,6 +1517,30 @@
       const tradeId = button.dataset.tradeId || activeView;
       setTradeValue(tradeId, button.dataset.tradeSet, button.dataset.value);
       render(true);
+      return;
+    }
+    if (button.dataset.tradeTraining) {
+      const tradeId = button.dataset.tradeId || activeView;
+      const assessment = button.dataset.tradeTraining;
+      const trade = getTrades().find(t => t.id === tradeId);
+      if (trade) {
+        trade.trainingAssessment = assessment;
+        persist();
+        render(true);
+        if (window.TraderTraining?.recordJournalAssessment) {
+          const outcome = trade.management?.result ? (Number(trade.management.result) > 0 ? 'gain' : 'loss') : (trade.management?.rMultiple ? (Number(String(trade.management.rMultiple).replace(/[^\d.-]/g, '')) > 0 ? 'gain' : 'loss') : 'open');
+          const rVal = trade.management?.rMultiple ? Number(String(trade.management.rMultiple).replace(/[^\d.-]/g, '')) : null;
+          window.TraderTraining.recordJournalAssessment({
+            sourceRef: trade.id,
+            recordDate: current()?.date || M.today(),
+            ticker: trade.ticker,
+            outcome,
+            rMultiple: Number.isFinite(rVal) ? rVal : null,
+            assessment,
+            note: trade.postTrade?.lessonsLearned || trade.postTrade?.whatWentWrong || trade.postTrade?.whatWentRight || trade.whatISaw || ''
+          });
+        }
+      }
       return;
     }
     if (button.dataset.action === 'evidence-previous') { navigateEvidence(button.dataset.evidenceId, -1); return; }

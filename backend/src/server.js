@@ -25,6 +25,7 @@ const zenPractices = require('./zen-practices');
 const habits = require('./habits');
 const { nasdaqRelativeStrengthEngine } = require('./nasdaq-relative-strength');
 const tickerChart = require('./ticker-chart');
+const traderTraining = require('./trader-training');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -229,6 +230,37 @@ const server = http.createServer(async (request, response) => {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, { ended: await marketPause.end(user.id, await body(request)) });
+    }
+    if (url.pathname === '/api/trader-training' && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await traderTraining.getState(user.id));
+    }
+    if (url.pathname === '/api/trader-training/goals' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, { goal: await traderTraining.startGoal(user.id, await body(request)) });
+    }
+    if (url.pathname === '/api/trader-training/goals/active/extend' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { goal: await traderTraining.extendActiveGoal(user.id, await body(request)) });
+    }
+    if (url.pathname === '/api/trader-training/goals/active/switch' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { goal: await traderTraining.switchOrConcludeActiveGoal(user.id, await body(request)) });
+    }
+    if (url.pathname === '/api/trader-training/records' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await traderTraining.saveRecord(user.id, await body(request)));
+    }
+    const trainingRecordMatch = url.pathname.match(/^\/api\/trader-training\/records\/([^/]+)$/);
+    if (trainingRecordMatch && request.method === 'DELETE') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await traderTraining.deleteRecord(user.id, trainingRecordMatch[1]));
     }
     if (request.method === 'GET' && url.pathname === '/api/watchlist') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });

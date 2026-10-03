@@ -1,0 +1,1257 @@
+/* ==========================================================================
+   THE HEALTHY TREND TRADER — TREINAMENTO DE TRADER
+   Metáfora do arqueiro: Foco, Repetição, Precisão, Evolução e Hábito
+   ========================================================================== */
+
+/* Layout da Página */
+body:has(#tradertraining.active) .content {
+  max-width: 1880px;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(14px, 1.8vw, 24px) !important;
+  box-sizing: border-box;
+}
+
+#tradertraining {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.tt-page {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 1.8vw, 24px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 1. Hero do Arqueiro */
+.tt-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: clamp(260px, 28vw, 340px);
+  padding: clamp(28px, 4vw, 56px);
+  border-radius: 22px;
+  background-color: #0b1f15;
+  background-image:
+    linear-gradient(90deg, rgba(8, 28, 19, 0.95) 0%, rgba(8, 28, 19, 0.82) 42%, rgba(8, 28, 19, 0.28) 75%, rgba(8, 28, 19, 0.45) 100%),
+    url('../assets/trader-training-hero-v1.jpg');
+  background-size: cover;
+  background-position: left center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(120, 196, 148, 0.22);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+  color: #f2fbf5;
+}
+
+.tt-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tt-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #72e29e;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.tt-hero-title {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(34px, 4.4vw, 56px);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: #ffffff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+}
+
+.tt-hero-subtitle {
+  margin: 0;
+  font-size: clamp(13px, 1.2vw, 15px);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8ae8b0;
+  opacity: 0.95;
+}
+
+.tt-hero-quote {
+  margin: 6px 0 0;
+  padding: 12px 18px;
+  border-left: 3px solid #58cb8a;
+  background: rgba(4, 24, 15, 0.65);
+  backdrop-filter: blur(8px);
+  border-radius: 0 12px 12px 0;
+  color: #d8ede0;
+  font-size: clamp(13px, 1.1vw, 14.5px);
+  line-height: 1.55;
+  font-style: italic;
+  max-width: 680px;
+}
+
+/* Grids Principais */
+.tt-top-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(360px, 1fr);
+  gap: clamp(14px, 1.6vw, 22px);
+  align-items: stretch;
+}
+
+.tt-mid-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(320px, 1.1fr);
+  gap: clamp(14px, 1.6vw, 22px);
+  align-items: stretch;
+}
+
+.tt-bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(380px, 1fr);
+  gap: clamp(14px, 1.6vw, 22px);
+  align-items: flex-start;
+}
+
+/* Cards Padrão do Módulo */
+.tt-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(18px, 1.8vw, 26px);
+  background: #ffffff;
+  border: 1px solid rgba(24, 60, 40, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(18, 48, 30, 0.04);
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tt-card:hover {
+  border-color: rgba(64, 160, 102, 0.2);
+  box-shadow: 0 12px 32px rgba(18, 48, 30, 0.07);
+}
+
+.tt-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(22, 60, 38, 0.08);
+  margin-bottom: 16px;
+}
+
+.tt-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tt-card-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(43, 140, 84, 0.1);
+  color: #1b744d;
+  font-size: 15px;
+}
+
+.tt-card-header h2,
+.tt-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  color: #0f2c1d;
+  letter-spacing: -0.015em;
+}
+
+/* 3. Card: Meu Objetivo Atual */
+.tt-current-goal-card .tt-goal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.tt-goal-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.tt-goal-target-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(82, 196, 130, 0.16), rgba(27, 116, 77, 0.08));
+  border: 1px solid rgba(48, 150, 93, 0.2);
+  color: #1b744d;
+  font-size: 26px;
+}
+
+.tt-goal-headline {
+  flex: 1;
+}
+
+.tt-goal-title {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: clamp(21px, 2vw, 27px);
+  line-height: 1.25;
+  color: #0a2719;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.tt-goal-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(24, 60, 40, 0.1);
+}
+
+.tt-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tt-meta-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #557864;
+}
+
+.tt-meta-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #103322;
+}
+
+.tt-meta-sub {
+  font-size: 11px;
+  color: #6d8e7b;
+}
+
+/* Badges e Botões de Ação */
+.tt-badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.tt-badge-status.active {
+  background: rgba(43, 168, 98, 0.14);
+  color: #166b42;
+  border: 1px solid rgba(43, 168, 98, 0.28);
+}
+
+.tt-badge-status.consolidated {
+  background: rgba(33, 150, 83, 0.16);
+  color: #145e38;
+}
+
+.tt-badge-status.developing {
+  background: rgba(224, 159, 36, 0.14);
+  color: #8c5b05;
+}
+
+.tt-badge-status:before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.tt-btn-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: 1px solid rgba(27, 116, 77, 0.3);
+  border-radius: 9px;
+  background: #f4faf6;
+  color: #17603e;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.tt-btn-switch:hover {
+  background: #1b744d;
+  color: #ffffff;
+  border-color: #1b744d;
+}
+
+/* 6. Card: Aderência Atual */
+.tt-adherence-card {
+  justify-content: space-between;
+}
+
+.tt-adherence-hero-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.tt-adherence-big-score {
+  font-size: clamp(48px, 4.6vw, 64px);
+  line-height: 0.95;
+  font-weight: 850;
+  letter-spacing: -0.05em;
+  color: #103823;
+}
+
+.tt-adherence-ratio {
+  text-align: right;
+}
+
+.tt-adherence-ratio strong {
+  display: block;
+  font-size: 16px;
+  color: #123824;
+}
+
+.tt-adherence-ratio small {
+  font-size: 11px;
+  color: #648572;
+}
+
+.tt-progress-track {
+  width: 100%;
+  height: 12px;
+  background: #e6eee8;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 8px 0 18px;
+}
+
+.tt-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #32b56e 0%, #1f8a51 100%);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tt-pills-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tt-metric-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 13px;
+  border-radius: 12px;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.tt-metric-pill.correct {
+  background: rgba(39, 174, 96, 0.1);
+  color: #146237;
+  border: 1px solid rgba(39, 174, 96, 0.22);
+}
+
+.tt-metric-pill.incorrect {
+  background: rgba(235, 87, 87, 0.1);
+  color: #9c2727;
+  border: 1px solid rgba(235, 87, 87, 0.22);
+}
+
+.tt-metric-pill.na {
+  background: rgba(140, 160, 149, 0.12);
+  color: #496354;
+  border: 1px solid rgba(140, 160, 149, 0.22);
+}
+
+.tt-pill-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 900;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.tt-metric-pill strong {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.tt-metric-pill span {
+  font-size: 11px;
+  color: inherit;
+  opacity: 0.9;
+}
+
+/* 7. Card: Evolução por Semana */
+.tt-weekly-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 14px;
+  min-height: 160px;
+  padding-top: 18px;
+  border-bottom: 1px solid #e7eee9;
+  padding-bottom: 8px;
+}
+
+.tt-weekly-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 80px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.tt-weekly-bar-val {
+  font-size: 12px;
+  font-weight: 800;
+  color: #113824;
+}
+
+.tt-weekly-bar-track {
+  width: 100%;
+  height: 120px;
+  background: #f1f6f2;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.tt-weekly-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #43c97f 0%, #1f8b52 100%);
+  border-radius: 8px 8px 0 0;
+  transition: height 0.4s ease;
+}
+
+.tt-weekly-bar-col.future .tt-weekly-bar-fill {
+  background: #d4e0d7;
+}
+
+.tt-weekly-bar-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #557865;
+}
+
+/* 7. Card: Minha Evolução */
+.tt-evolution-card .tt-evolution-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  height: 100%;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.tt-evolution-icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(39, 174, 96, 0.12);
+  color: #1e824c;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.tt-evolution-body h4 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  color: #133c27;
+  font-weight: 750;
+}
+
+.tt-evolution-body p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #486958;
+}
+
+.tt-evolution-body p b {
+  color: #103d25;
+}
+
+/* 8. Card: Período do Treinamento */
+.tt-timeline-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+
+.tt-timeline-axis {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 750;
+  color: #4f735f;
+}
+
+.tt-timeline-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: #e4ece6;
+  border-radius: 999px;
+  overflow: visible;
+}
+
+.tt-timeline-fill {
+  height: 100%;
+  background: #1b744d;
+  border-radius: inherit;
+}
+
+.tt-timeline-dot {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #1b744d;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transform: translate(-50%, -50%);
+}
+
+.tt-timeline-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #6a8c79;
+}
+
+.tt-motivation-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(245, 182, 38, 0.12);
+  border: 1px solid rgba(245, 182, 38, 0.3);
+  color: #7a5005;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.tt-motivation-box b {
+  display: block;
+  font-size: 13px;
+  color: #633f02;
+  margin-bottom: 2px;
+}
+
+/* 9. Card: Histórico de Comportamento */
+.tt-notice-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f7faf8;
+  border: 1px solid #dbe6df;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #486b57;
+  margin-bottom: 14px;
+}
+
+.tt-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e5eee8;
+}
+
+.tt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.tt-table th {
+  padding: 11px 14px;
+  background: #f3f8f5;
+  color: #4d735e;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #dce8e0;
+}
+
+.tt-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #eef4f0;
+  color: #173826;
+  vertical-align: middle;
+}
+
+.tt-table tr:hover td {
+  background: #fbfdfc;
+}
+
+.tt-table .outcome-gain {
+  color: #1f8a4c;
+  font-weight: 700;
+}
+
+.tt-table .outcome-loss {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+.tt-table .outcome-breakeven,
+.tt-table .outcome-open {
+  color: #6b8878;
+}
+
+.tt-table .r-val {
+  font-weight: 800;
+  font-family: inherit;
+}
+
+.tt-pill-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.tt-pill-cell.correct {
+  background: rgba(39, 174, 96, 0.12);
+  color: #14693a;
+}
+
+.tt-pill-cell.incorrect {
+  background: rgba(235, 87, 87, 0.12);
+  color: #a82323;
+}
+
+.tt-pill-cell.not_applicable {
+  background: #edf2ee;
+  color: #5d7568;
+}
+
+/* 4 & 5. Card: Selecionar Novo Objetivo */
+.tt-tabs-rail {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #e7eee9;
+}
+
+.tt-tab-btn {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #577866;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.16s ease;
+}
+
+.tt-tab-btn:hover {
+  background: #f0f6f2;
+  color: #123b26;
+}
+
+.tt-tab-btn.active {
+  background: #1b744d;
+  color: #ffffff;
+}
+
+.tt-catalog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.tt-catalog-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid #e0ece4;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.tt-catalog-item:hover {
+  border-color: #55c285;
+  background: #f8fcf9;
+}
+
+.tt-catalog-item.selected {
+  border-color: #1b744d;
+  background: rgba(27, 116, 77, 0.05);
+  box-shadow: 0 0 0 2px rgba(27, 116, 77, 0.15);
+}
+
+.tt-catalog-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #143524;
+  font-weight: 600;
+}
+
+.tt-catalog-item-info {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #eef5f0;
+  color: #49715b;
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.tt-btn-custom-goal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 8px 12px;
+  border: 1px dashed rgba(27, 116, 77, 0.4);
+  border-radius: 8px;
+  background: transparent;
+  color: #1b744d;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.tt-btn-custom-goal:hover {
+  background: #f2faf5;
+  border-style: solid;
+}
+
+/* Modal de Configuração do Treinamento */
+.tt-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(4, 18, 12, 0.65);
+  backdrop-filter: blur(6px);
+}
+
+.tt-modal-dialog {
+  width: min(580px, 100%);
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(120, 196, 148, 0.3);
+  padding: clamp(20px, 3vw, 32px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: ttModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ttModalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.tt-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tt-modal-header h3 {
+  margin: 0;
+  font-size: 19px;
+  color: #0d2b1c;
+  font-weight: 800;
+}
+
+.tt-modal-close {
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  color: #648674;
+  cursor: pointer;
+}
+
+.tt-modal-summary-box {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #f1f8f3;
+  border-left: 4px solid #1b744d;
+}
+
+.tt-modal-summary-box small {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #3f6e54;
+  margin-bottom: 4px;
+}
+
+.tt-modal-summary-box h4 {
+  margin: 0;
+  font-size: 15px;
+  color: #0b291a;
+  line-height: 1.4;
+}
+
+.tt-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tt-form-group label {
+  font-size: 12px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4b705c;
+}
+
+.tt-pills-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tt-selector-btn {
+  padding: 8px 14px;
+  border: 1px solid #dbe7df;
+  border-radius: 8px;
+  background: #f8fbf9;
+  color: #173826;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.tt-selector-btn:hover {
+  border-color: #55c285;
+}
+
+.tt-selector-btn.selected {
+  background: #1b744d;
+  color: #ffffff;
+  border-color: #1b744d;
+}
+
+.tt-selector-btn .recommended-tag {
+  font-size: 9px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  margin-left: 4px;
+  text-transform: uppercase;
+}
+
+.tt-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tt-btn-primary {
+  padding: 11px 22px;
+  border-radius: 10px;
+  border: 0;
+  background: #1b744d;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(27, 116, 77, 0.28);
+  transition: all 0.16s ease;
+}
+
+.tt-btn-primary:hover {
+  background: #155e3e;
+  transform: translateY(-1px);
+}
+
+.tt-btn-secondary {
+  padding: 11px 18px;
+  border-radius: 10px;
+  border: 1px solid #d0ded5;
+  background: transparent;
+  color: #426452;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* 14. Seção: Histórico de Desenvolvimento */
+.tt-development-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.tt-development-timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.tt-development-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e1ece5;
+}
+
+.tt-development-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tt-development-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #113421;
+}
+
+.tt-development-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: #618471;
+}
+
+/* 11 & 12. Banner Contextual em Novo Trade */
+.tt-contextual-focus-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(27, 116, 77, 0.12), rgba(27, 116, 77, 0.04));
+  border: 1px solid rgba(48, 150, 93, 0.35);
+  margin-bottom: 16px;
+  color: #0c2b1c;
+  animation: ttFadeIn 0.25s ease;
+}
+
+@keyframes ttFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tt-focus-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tt-focus-banner-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #1b744d;
+  color: #ffffff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.tt-focus-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tt-focus-banner-eyebrow {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1b744d;
+}
+
+.tt-focus-banner-msg {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #092618;
+}
+
+.tt-focus-banner-sub {
+  font-size: 11.5px;
+  color: #4b6f5d;
+}
+
+.tt-btn-dismiss-focus {
+  padding: 6px 14px;
+  border: 1px solid rgba(27, 116, 77, 0.3);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #17603e;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tt-btn-dismiss-focus:hover {
+  background: #1b744d;
+  color: #ffffff;
+}
+
+/* 10. Seção de Treinamento no Diário de Trades */
+.jv-training-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(27, 116, 77, 0.08), rgba(27, 116, 77, 0.02));
+  border: 1px solid rgba(48, 150, 93, 0.28);
+  margin: 16px 0;
+}
+
+.jv-training-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.jv-training-head-icon {
+  font-size: 18px;
+}
+
+.jv-training-head-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.jv-training-kicker {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1b744d;
+}
+
+.jv-training-goal-title {
+  font-size: 14px;
+  font-weight: 750;
+  color: #0d2e1e;
+}
+
+.jv-training-question {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jv-training-question span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #496d5b;
+}
+
+.jv-training-buttons-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.jv-btn-assessment {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #cce0d4;
+  background: #ffffff;
+  color: #173826;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.jv-btn-assessment:hover {
+  border-color: #55c285;
+}
+
+.jv-btn-assessment.chosen.correct {
+  background: #27ae60;
+  color: #ffffff;
+  border-color: #27ae60;
+}
+
+.jv-btn-assessment.chosen.incorrect {
+  background: #eb5757;
+  color: #ffffff;
+  border-color: #eb5757;
+}
+
+.jv-btn-assessment.chosen.not_applicable {
+  background: #647d70;
+  color: #ffffff;
+  border-color: #647d70;
+}
+
+/* Modo Escuro / Tema Gold */
+body:not([data-theme="healthy"]) .tt-card {
+  background: rgba(22, 19, 14, 0.92);
+  border-color: rgba(212, 174, 82, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+body:not([data-theme="healthy"]) .tt-card-header h2,
+body:not([data-theme="healthy"]) .tt-card-header h3,
+body:not([data-theme="healthy"]) .tt-goal-title,
+body:not([data-theme="healthy"]) .tt-adherence-big-score {
+  color: #f7ede1;
+}
+
+body:not([data-theme="healthy"]) .tt-meta-value {
+  color: #f0e3d0;
+}
+
+body:not([data-theme="healthy"]) .tt-meta-label,
+body:not([data-theme="healthy"]) .tt-meta-sub {
+  color: #bfa982;
+}
+
+body:not([data-theme="healthy"]) .tt-catalog-item {
+  background: #181510;
+  border-color: #362e21;
+}
+
+body:not([data-theme="healthy"]) .tt-catalog-item-left {
+  color: #e8dccb;
+}
+
+body:not([data-theme="healthy"]) .tt-table th {
+  background: #211c15;
+  color: #d1b888;
+  border-color: #3b3223;
+}
+
+body:not([data-theme="healthy"]) .tt-table td {
+  border-color: #2c2419;
+  color: #edd9be;
+}
+
+body:not([data-theme="healthy"]) .tt-modal-dialog {
+  background: #1a1611;
+  border-color: #554425;
+}
+
+body:not([data-theme="healthy"]) .tt-modal-header h3 {
+  color: #f7ede1;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .tt-top-grid,
+  .tt-mid-grid,
+  .tt-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .tt-pills-row {
+    grid-template-columns: 1fr;
+  }
+  .tt-goal-meta-grid {
+    grid-template-columns: 1fr;
+  }
+  .tt-hero {
+    min-height: auto;
+    padding: 24px 20px;
+  }
+}
