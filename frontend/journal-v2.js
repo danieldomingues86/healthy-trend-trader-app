@@ -565,31 +565,73 @@
                                (typeof window.TraderTraining?.getState === 'function' ? window.TraderTraining.getState()?.active : null);
             if (!activeGoal) return '';
             const val = trade.trainingAssessment || '';
+            const catLabel = window.TraderTrainingModel ? window.TraderTrainingModel.categoryLabel(activeGoal.category) : 'Treinamento';
             return `
-              <!-- TREINAMENTO DE TRADER -->
-              <fieldset class="jv-trade-section jv-training-section">
-                <div class="jv-training-head">
-                  <span class="jv-training-head-icon" aria-hidden="true">🎯</span>
-                  <div class="jv-training-head-text">
-                    <span class="jv-training-kicker">${text('Treinamento de Trader · Seu objetivo de evolução', 'Trader Training · Your evolution goal')}</span>
-                    <strong class="jv-training-goal-title">“${esc(activeGoal.title)}”</strong>
+              <!-- TREINAMENTO DE TRADER INTEGRADO NA FICHA DO TRADE -->
+              <section class="jv-trade-section jv-training-card" aria-label="${text('Treinamento de Trader', 'Trader Training')}">
+                <header class="jv-training-card-header">
+                  <div class="jv-training-badge-group">
+                    <span class="jv-training-target-icon" aria-hidden="true">🎯</span>
+                    <div>
+                      <div class="jv-training-kicker-row">
+                        <span class="jv-training-kicker">${text('Treinamento de Trader', 'Trader Training')}</span>
+                        <span class="jv-training-dot">·</span>
+                        <span class="jv-training-subtag">${text('Seu objetivo de evolução', 'Your evolution goal')}</span>
+                        <span class="jv-training-cat-pill">${esc(catLabel)}</span>
+                      </div>
+                      <h4 class="jv-training-goal-title">“${esc(activeGoal.title)}”</h4>
+                    </div>
                   </div>
-                </div>
-                <div class="jv-training-question">
-                  <span>${text('Como você se saiu nesta operação?', 'How did you perform in this trade?')}</span>
-                  <div class="jv-training-buttons-row">
-                    <button type="button" class="jv-btn-assessment ${val === 'correct' ? 'chosen correct' : ''}" data-trade-id="${esc(trade.id)}" data-trade-training="correct">
-                      🟢 ${text('Executei corretamente', 'Executed correctly')}
+                  <div class="jv-training-meta-pill">
+                    <span class="jv-training-meta-target">${text('Meta', 'Target')}: <b>${activeGoal.targetPct}%</b></span>
+                  </div>
+                </header>
+
+                <div class="jv-training-content">
+                  <div class="jv-training-question-label">
+                    <span>${text('Como você avalia seu comportamento nesta operação?', 'How do you evaluate your behavior in this trade?')}</span>
+                    <small>${text('O resultado financeiro não define a qualidade da sua execução. Avalie sua disciplina.', 'Financial outcome does not define your execution quality. Evaluate your discipline.')}</small>
+                  </div>
+
+                  <div class="jv-training-options-grid">
+                    <button type="button" class="jv-training-option-btn opt-correct ${val === 'correct' ? 'is-selected chosen' : ''}" data-trade-id="${esc(trade.id)}" data-trade-training="correct">
+                      <span class="jv-opt-status-circle">✓</span>
+                      <div class="jv-opt-text">
+                        <strong>${text('Executei corretamente', 'Executed correctly')}</strong>
+                        <small>${text('Respeitei 100% a regra treinada', 'Respected 100% of the trained rule')}</small>
+                      </div>
                     </button>
-                    <button type="button" class="jv-btn-assessment ${val === 'incorrect' ? 'chosen incorrect' : ''}" data-trade-id="${esc(trade.id)}" data-trade-training="incorrect">
-                      🔴 ${text('Não executei corretamente', 'Did not execute correctly')}
+
+                    <button type="button" class="jv-training-option-btn opt-incorrect ${val === 'incorrect' ? 'is-selected chosen' : ''}" data-trade-id="${esc(trade.id)}" data-trade-training="incorrect">
+                      <span class="jv-opt-status-circle">✕</span>
+                      <div class="jv-opt-text">
+                        <strong>${text('Não executei corretamente', 'Did not execute correctly')}</strong>
+                        <small>${text('Houve hesitação, antecipação ou desvio', 'Hesitation, anticipation or deviation')}</small>
+                      </div>
                     </button>
-                    <button type="button" class="jv-btn-assessment ${val === 'not_applicable' ? 'chosen not_applicable' : ''}" data-trade-id="${esc(trade.id)}" data-trade-training="not_applicable">
-                      ⚪ ${text('Não se aplicava', 'Did not apply')}
+
+                    <button type="button" class="jv-training-option-btn opt-na ${val === 'not_applicable' ? 'is-selected chosen' : ''}" data-trade-id="${esc(trade.id)}" data-trade-training="not_applicable">
+                      <span class="jv-opt-status-circle">—</span>
+                      <div class="jv-opt-text">
+                        <strong>${text('Não se aplicava', 'Did not apply')}</strong>
+                        <small>${text('Cenário não exigiu esta regra', 'Scenario did not require this rule')}</small>
+                      </div>
                     </button>
                   </div>
+
+                  ${val ? `
+                    <div class="jv-training-feedback-banner ${val}">
+                      ${val === 'correct' ? `
+                        <span>✨ <b>${text('Excelente disciplina!', 'Great discipline!')}</b> ${text('Esta execução pontua positivamente na sua meta de consistência.', 'This execution scores positively toward your consistency goal.')}</span>
+                      ` : val === 'incorrect' ? `
+                        <span>💡 <b>${text('Honestidade com o processo!', 'Honesty with the process!')}</b> ${text('Identificar o erro com clareza é o primeiro passo para consolidar o hábito.', 'Clearly spotting the mistake is the first step toward building the habit.')}</span>
+                      ` : `
+                        <span>⚪ <b>${text('Caso neutro registrado.', 'Neutral case recorded.')}</b> ${text('Não afeta sua taxa de aderência no Treinamento.', 'Does not affect your adherence rate in Training.')}</span>
+                      `}
+                    </div>
+                  ` : ''}
                 </div>
-              </fieldset>
+              </section>
             `;
           })()}
 
