@@ -36,9 +36,15 @@
         },
         {
           id: 'journal',
-          label: 'Diário do Trader',
+          label: 'Diário de Trader',
           icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
           page: 'journal'
+        },
+        {
+          id: 'tradertraining',
+          label: 'Treinamento Trader',
+          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+          page: 'tradertraining'
         },
         {
           id: 'dailyroutine',
@@ -776,28 +782,33 @@
         }
         if (!found) {
           const mindsetSubPages = new Set(['zen', 'audiolibrary', 'emotionalintelligence', 'traderrules', 'wisdom', 'traderprofile']);
-          if (mindsetSubPages.has(pageId)) {
+          if (pageId === 'tradertraining') {
+            crumb.innerHTML = `The Healthy Trend Trader / <a href="javascript:void(0)" onclick="go('journal')" style="color:inherit;text-decoration:none">Diário de Trader</a> / <b>Treinamento Trader</b>`;
+          } else if (pageId === 'journal') {
+            crumb.innerHTML = `The Healthy Trend Trader / <b>Diário de Trader</b>`;
+          } else if (mindsetSubPages.has(pageId)) {
             const pageTitle = (typeof titles !== 'undefined' && titles[pageId]) || pageId;
             crumb.innerHTML = `The Healthy Trend Trader / <a href="javascript:void(0)" onclick="go('mindset')" style="color:inherit;text-decoration:none">Mentalidade</a> / <b>${pageTitle}</b>`;
           } else {
             const titleMap = {
               mindset: 'Mentalidade',
-            today: 'Meu Desktop',
-            newtrade: 'Novo Trade',
-            positions: 'Posições Abertas',
-            closedpositions: 'Posições Encerradas',
-            journal: 'Diário do Trader',
-            dailyroutine: 'Rotina Diária',
-            watchlist: 'Watchlist',
-            habits: 'Monitor de Hábitos',
-            plans: 'Loja do Trader',
-            materials: 'Loja do Trader',
-            settings: 'Configurações Gerais',
-            manual: 'Manual do Software',
-            about: 'Sobre'
-          };
-          const t = titleMap[pageId] || (typeof titles !== 'undefined' && titles[pageId]) || 'Meu Desktop';
-          crumb.innerHTML = `The Healthy Trend Trader / <b>${t}</b>`;
+              today: 'Meu Desktop',
+              newtrade: 'Novo Trade',
+              positions: 'Posições Abertas',
+              closedpositions: 'Posições Encerradas',
+              journal: 'Diário de Trader',
+              tradertraining: 'Treinamento Trader',
+              dailyroutine: 'Rotina Diária',
+              watchlist: 'Watchlist',
+              habits: 'Monitor de Hábitos',
+              plans: 'Loja do Trader',
+              materials: 'Loja do Trader',
+              settings: 'Configurações Gerais',
+              manual: 'Manual do Software',
+              about: 'Sobre'
+            };
+            const t = titleMap[pageId] || (typeof titles !== 'undefined' && titles[pageId]) || 'Meu Desktop';
+            crumb.innerHTML = `The Healthy Trend Trader / <b>${t}</b>`;
           }
         }
       }

@@ -142,6 +142,7 @@
         whatWentWrong: data.postTrade?.whatWentWrong || '',
         lessonsLearned: data.postTrade?.lessonsLearned || ''
       },
+      trainingAssessment: data.trainingAssessment || null,
       createdAt: data.createdAt || now.toISOString()
     };
   }
