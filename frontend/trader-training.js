@@ -26,11 +26,13 @@
     },
     modalOpen: false,
     modalGoalCandidate: null,
+    customModalOpen: false,
+    skillModalItem: null,
     isLoading: false,
     dismissedBanners: new Set()
   };
 
-  // Sanitização e formatação
+  // Sanitização
   const esc = (val) => String(val ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[c]);
 
   function loadLocalState() {
@@ -159,10 +161,9 @@
         });
       } else if (state.active) {
         const adh = M.computeAdherence(state.records);
-        const status = targetStatus || M.finalStatus(state.active, state.records);
         state.history.unshift({
           ...state.active,
-          status,
+          status: targetStatus,
           finalAdherence: adh.pct
         });
         state.active = null;
@@ -173,24 +174,38 @@
       render();
       syncWorkbenchFocusBanner();
     } catch (err) {
-      alert(err.message || 'Erro ao concluir objetivo.');
+      alert(err.message || 'Erro ao arquivar objetivo.');
     }
   }
 
-  async function saveRecord(payload) {
+  async function recordBehavior({ sourceRef, recordDate, assessment, note = '', ticker = '', outcome = 'open', rMultiple = null }) {
+    if (!state.active) return;
     try {
-      const norm = M.normalizeRecord(payload);
       if (root.healthyTrendApi?.isAuthenticated()) {
         await root.healthyTrendApi.request('/api/trader-training/records', {
           method: 'POST',
-          body: JSON.stringify(norm)
+          body: JSON.stringify({
+            goalId: state.active.id,
+            sourceRef,
+            recordDate: M.toDateOnly(recordDate),
+            assessment,
+            note,
+            ticker,
+            outcome,
+            rMultiple
+          })
         });
-      } else if (state.active) {
+      } else {
         const record = {
           id: `local-rec-${Date.now()}`,
-          userId: 'local',
           goalId: state.active.id,
-          ...norm,
+          sourceRef,
+          recordDate: M.toDateOnly(recordDate),
+          assessment,
+          note,
+          ticker,
+          outcome,
+          rMultiple,
           createdAt: new Date().toISOString()
         };
         const idx = state.records.findIndex(r => r.sourceRef === record.sourceRef);
@@ -213,15 +228,31 @@
         <div class="tt-hero-content">
           <span class="tt-hero-eyebrow">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            Metodologia Healthy Trend
+            Treinamento Deliberado
           </span>
           <h1 class="tt-hero-title">Treinamento de Trader</h1>
           <p class="tt-hero-subtitle">Lapide suas habilidades. Repita até virar hábito.</p>
+          <div class="tt-hero-divider"></div>
           <div class="tt-hero-quote">
             “Você não precisa melhorar tudo ao mesmo tempo. Escolha um comportamento, treine, meça e transforme em hábito. Depois avance para o próximo.”
           </div>
         </div>
       </section>
+    `;
+  }
+
+  function renderFocusStrip() {
+    return `
+      <div class="tt-focus-strip">
+        <div class="tt-focus-strip-left">
+          <span class="tt-focus-badge">🎯 FOCO ATUAL</span>
+          <span class="tt-focus-rule-divider">·</span>
+          <span class="tt-focus-rule-title">Regra Fundamental</span>
+        </div>
+        <div class="tt-focus-strip-text">
+          “Uma habilidade por vez. Repetição suficiente. Medição objetiva. Até virar comportamento automático.”
+        </div>
+      </div>
     `;
   }
 
@@ -235,10 +266,10 @@
               <h2>Meu objetivo atual</h2>
             </div>
           </header>
-          <div class="tt-goal-body" style="text-align:center; padding: 24px 0;">
-            <div class="tt-goal-target-icon" style="margin: 0 auto 12px;">🎯</div>
-            <h3 style="margin: 0 0 8px; font-size: 19px;">Nenhum treinamento ativo no momento</h3>
-            <p style="margin: 0 0 16px; color: #557864; font-size: 13.5px;">Escolha um comportamento abaixo para iniciar seu período de foco e repetição deliberada.</p>
+          <div class="tt-goal-body" style="text-align:center; padding: 28px 0;">
+            <div class="tt-goal-target-icon" style="margin: 0 auto 14px;">🎯</div>
+            <h3 style="margin: 0 0 8px; font-size: 20px; color: #0f2c1d;">Nenhum treinamento ativo no momento</h3>
+            <p style="margin: 0 0 20px; color: #557864; font-size: 14px;">Escolha um comportamento na biblioteca abaixo para iniciar seu período de foco e repetição deliberada.</p>
             <button type="button" class="tt-btn-primary" style="margin: 0 auto;" onclick="window.TraderTraining.scrollToSelection()">
               Selecionar um objetivo de evolução ↓
             </button>
@@ -269,7 +300,7 @@
           <div class="tt-goal-main">
             <div class="tt-goal-target-icon" aria-hidden="true">🎯</div>
             <div class="tt-goal-headline">
-              <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #1b744d; letter-spacing: 0.08em; display: block; margin-bottom: 4px;">Objetivo em foco</span>
+              <span class="tt-goal-kicker">Comportamento em Foco</span>
               <h3 class="tt-goal-title">“${esc(active.title)}”</h3>
             </div>
           </div>
@@ -277,7 +308,7 @@
           <div class="tt-goal-meta-grid">
             <div class="tt-meta-item">
               <span class="tt-meta-label">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                 Categoria
               </span>
               <span class="tt-meta-value">${esc(catLabel)}</span>
@@ -285,7 +316,7 @@
 
             <div class="tt-meta-item">
               <span class="tt-meta-label">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 Período
               </span>
               <span class="tt-meta-value">${startStr} → ${endStr}</span>
@@ -294,7 +325,7 @@
 
             <div class="tt-meta-item">
               <span class="tt-meta-label">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                 Meta de consistência
               </span>
               <span class="tt-meta-value">${active.targetPct}%</span>
@@ -307,9 +338,10 @@
 
   function renderAdherenceCard(active, records) {
     const adh = M.computeAdherence(records);
-    const scoreStr = adh.pct != null ? `${Math.round(adh.pct)}%` : '—';
-    const fillPct = adh.pct != null ? Math.min(100, Math.max(0, adh.pct)) : 0;
-    const ratioStr = `${adh.correct} de ${adh.applicable} operações corretas`;
+    const hasData = adh.applicable > 0;
+    const scoreStr = hasData ? `${Math.round(adh.pct)}%` : '—';
+    const fillPct = hasData ? Math.min(100, Math.max(0, adh.pct)) : 0;
+    const ratioStr = hasData ? `${adh.correct} de ${adh.applicable} operações corretas` : 'Nenhuma operação registrada ainda';
 
     return `
       <article class="tt-card tt-adherence-card">
@@ -324,9 +356,15 @@
           <div class="tt-adherence-big-score">${scoreStr}</div>
           <div class="tt-adherence-ratio">
             <strong>${ratioStr}</strong>
-            <small>calculado sobre casos aplicáveis</small>
+            <small>${hasData ? 'calculado sobre casos aplicáveis' : 'aguardando primeira operação'}</small>
           </div>
         </div>
+
+        ${!hasData ? `
+          <div class="tt-adherence-empty-msg">
+            “Seu treinamento começou. Registre seu comportamento nas próximas operações do Diário.”
+          </div>
+        ` : ''}
 
         <div class="tt-progress-track" role="progressbar" aria-valuenow="${fillPct}" aria-valuemin="0" aria-valuemax="100">
           <div class="tt-progress-fill" style="width: ${fillPct}%;"></div>
@@ -371,7 +409,7 @@
               <h2>Evolução por semana</h2>
             </div>
           </header>
-          <p style="color: #6a8c79; font-size: 13px; margin: 20px 0;">Inicie um treinamento para visualizar a evolução semanal da sua consistência.</p>
+          <p style="color: #6a8c79; font-size: 13.5px; margin: 24px 0;">Inicie um treinamento para visualizar a evolução semanal da sua consistência.</p>
         </article>
       `;
     }
@@ -387,21 +425,31 @@
           </div>
         </header>
 
-        <div class="tt-weekly-chart">
-          ${weeks.map((week) => {
-            const hasData = week.pct != null;
-            const barHeight = hasData ? Math.min(100, Math.max(8, week.pct)) : 4;
-            const valLabel = hasData ? `${Math.round(week.pct)}%` : '—';
-            return `
-              <div class="tt-weekly-bar-col ${!hasData ? 'future' : ''}">
-                <span class="tt-weekly-bar-val">${valLabel}</span>
-                <div class="tt-weekly-bar-track">
-                  <div class="tt-weekly-bar-fill" style="height: ${barHeight}%;"></div>
+        <div class="tt-weekly-chart-wrap">
+          <div class="tt-weekly-y-axis">
+            <span>100%</span>
+            <span>75%</span>
+            <span>50%</span>
+            <span>25%</span>
+            <span>0%</span>
+          </div>
+
+          <div class="tt-weekly-chart">
+            ${weeks.map((week) => {
+              const hasData = week.pct != null;
+              const barHeight = hasData ? Math.min(100, Math.max(6, week.pct)) : 4;
+              const valLabel = hasData ? `${Math.round(week.pct)}%` : '—';
+              return `
+                <div class="tt-weekly-bar-col ${!hasData ? 'future' : ''}">
+                  <span class="tt-weekly-bar-val">${valLabel}</span>
+                  <div class="tt-weekly-bar-track">
+                    <div class="tt-weekly-bar-fill" style="height: ${barHeight}%;"></div>
+                  </div>
+                  <span class="tt-weekly-bar-label">${week.label}</span>
                 </div>
-                <span class="tt-weekly-bar-label">${week.label}</span>
-              </div>
-            `;
-          }).join('')}
+              `;
+            }).join('')}
+          </div>
         </div>
       </article>
     `;
@@ -415,20 +463,24 @@
       <article class="tt-card tt-evolution-card">
         <header class="tt-card-header">
           <div class="tt-card-title-group">
-            <span class="tt-card-icon">🌱</span>
+            <span class="tt-card-icon">↗</span>
             <h2>Minha evolução</h2>
           </div>
         </header>
 
         <div class="tt-evolution-body">
-          <div style="display:flex; align-items:center; gap: 12px;">
-            <div class="tt-evolution-icon-wrap" aria-hidden="true">
-              ${insight.tone === 'up' ? '↗' : insight.tone === 'down' ? '↘' : '➔'}
-            </div>
-            <div>
-              <h4>${esc(insight.title)}</h4>
+          <div class="tt-evolution-icon-wrap" aria-hidden="true">
+            ${insight.tone === 'up' ? '↗' : insight.tone === 'down' ? '↘' : insight.tone === 'empty' ? '🌱' : '➔'}
+          </div>
+          <div class="tt-evolution-copy">
+            <h4>${esc(insight.title)}</h4>
+            ${insight.tone === 'up' && insight.highlight ? `
+              <p>Sua aderência aumentou <strong class="tt-stat-delta">+${esc(insight.highlight)}</strong> desde o início do treinamento.</p>
+            ` : insight.tone === 'down' && insight.highlight ? `
+              <p>Sua aderência caiu <strong class="tt-stat-delta bad">-${esc(insight.highlight)}</strong> desde o início. Revise os desvios no Diário.</p>
+            ` : `
               <p>${esc(insight.message)}</p>
-            </div>
+            `}
           </div>
         </div>
       </article>
@@ -445,7 +497,7 @@
               <h2>Período do treinamento</h2>
             </div>
           </header>
-          <p style="color: #6a8c79; font-size: 13px; margin: 20px 0;">Defina um objetivo para acompanhar a linha do tempo do seu treinamento.</p>
+          <p style="color: #6a8c79; font-size: 13.5px; margin: 24px 0;">Defina um objetivo para acompanhar a linha do tempo do seu treinamento.</p>
         </article>
       `;
     }
@@ -453,10 +505,6 @@
     const progress = M.periodProgress(active);
     const startStr = M.formatDate(active.startDate, false);
     const endStr = M.formatDate(active.endDate, false);
-    const adh = M.computeAdherence(state.records);
-    const mot = M.motivation(adh, active.targetPct);
-
-    // Conclusão automática quando o período termina
     const conclusion = M.conclusion(active, state.records);
 
     return `
@@ -479,16 +527,11 @@
             <div class="tt-timeline-fill" style="width: ${progress.pct}%;"></div>
             <div class="tt-timeline-dot" style="left: ${progress.pct}%;"></div>
           </div>
-
-          <div class="tt-timeline-info">
-            <small>${progress.elapsed} de ${progress.totalDays} dias transcorridos (${Math.round(progress.pct)}%)</small>
-            ${active.extensions > 0 ? `<small>+${active.extensions} extensão(ões)</small>` : ''}
-          </div>
         </div>
 
         ${conclusion ? `
           <div class="tt-motivation-box" style="background: rgba(39, 174, 96, 0.12); border-color: rgba(39, 174, 96, 0.3); color: #105930;">
-            <div style="font-size: 20px;">${conclusion.reached ? '🏆' : '🔄'}</div>
+            <div style="font-size: 24px;">${conclusion.reached ? '🏆' : '🔄'}</div>
             <div style="flex:1;">
               <b>${conclusion.reached ? 'Objetivo concluído!' : 'Continue treinando'}</b>
               <span>${conclusion.reached
@@ -507,10 +550,10 @@
           </div>
         ` : `
           <div class="tt-motivation-box">
-            <div style="font-size: 20px;">${mot.icon}</div>
+            <div style="font-size: 24px;">🏆</div>
             <div>
-              <b>${esc(mot.title)}</b>
-              <span>${esc(mot.message)}</span>
+              <b>Mantenha o foco!</b>
+              <span>Você está no caminho para alcançar sua meta de consistência.</span>
             </div>
           </div>
         `}
@@ -525,17 +568,17 @@
       <article class="tt-card tt-history-card">
         <header class="tt-card-header">
           <div class="tt-card-title-group">
-            <span class="tt-card-icon">📋</span>
+            <span class="tt-card-icon">🕒</span>
             <h2>Histórico de comportamento</h2>
           </div>
-          <span style="font-size: 12px; color: #557864; font-weight: 600;">
+          <span style="font-size: 12.5px; color: #557864; font-weight: 700;">
             ${list.length} registro${list.length === 1 ? '' : 's'} no período
           </span>
         </header>
 
         <div class="tt-notice-disclaimer">
-          <span style="font-size: 15px;">⚖️</span>
-          <span><b>Atenção:</b> Resultado financeiro e qualidade da execução são coisas distintas. Uma operação pode perder dinheiro e ter execução correta; ou ganhar dinheiro e ter execução incorreta. O treinamento mede seu <b>comportamento</b> e respeito ao processo.</span>
+          <span style="font-size: 16px;">⚖️</span>
+          <span><b>Atenção pedagógica:</b> Resultado financeiro e qualidade da execução são coisas distintas. Uma operação pode perder dinheiro e ter execução correta; ou ganhar dinheiro e ter execução incorreta. O treinamento mede seu <b>comportamento e disciplina</b>.</span>
         </div>
 
         <div class="tt-table-container">
@@ -553,9 +596,9 @@
             <tbody>
               ${!list.length ? `
                 <tr>
-                  <td colspan="6" style="text-align: center; padding: 32px; color: #6a8c79;">
+                  <td colspan="6" style="text-align: center; padding: 36px; color: #6a8c79;">
                     Nenhum comportamento registrado neste período ainda.<br>
-                    <small>Ao preencher ou revisar suas operações no Diário de Trades, marque sua autoavaliação para alimentar esta tabela.</small>
+                    <small style="display:block; margin-top: 6px; color: #87a896;">Ao registrar ou revisar suas operações no Diário de Trades, marque sua autoavaliação para alimentar esta tabela.</small>
                   </td>
                 </tr>
               ` : list.map((item) => {
@@ -564,14 +607,14 @@
                 const rStr = M.formatR(item.rMultiple);
                 const assessClass = item.assessment;
                 const assessLabel = M.assessmentLabel(item.assessment);
-                const assessIcon = item.assessment === 'correct' ? '🟢' : item.assessment === 'incorrect' ? '🔴' : '⚪';
+                const assessIcon = item.assessment === 'correct' ? '✓' : item.assessment === 'incorrect' ? '✕' : '—';
 
                 return `
                   <tr>
                     <td><b>${dateStr}</b></td>
                     <td><b>${esc(item.ticker || '—')}</b></td>
                     <td class="outcome-${esc(item.outcome)}">${outLabel}</td>
-                    <td class="r-val">${rStr}</td>
+                    <td class="r-val ${item.rMultiple > 0 ? 'outcome-gain' : item.rMultiple < 0 ? 'outcome-loss' : ''}">${rStr}</td>
                     <td>
                       <span class="tt-pill-cell ${assessClass}">
                         ${assessIcon} ${assessLabel}
@@ -607,10 +650,10 @@
       <article class="tt-card tt-selection-card" id="ttSelectionCard">
         <header class="tt-card-header">
           <div class="tt-card-title-group">
-            <span class="tt-card-icon">🎯</span>
+            <span class="tt-card-icon">📋</span>
             <h2>Selecionar novo objetivo</h2>
           </div>
-          <button type="button" class="tt-btn-primary" style="padding: 6px 12px; font-size: 11.5px;" onclick="window.TraderTraining.openCustomGoalModal()">
+          <button type="button" class="tt-btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="window.TraderTraining.openCustomGoalModal()">
             ＋ Novo objetivo
           </button>
         </header>
@@ -624,9 +667,9 @@
         </nav>
 
         ${isCustom ? `
-          <div style="padding: 16px; background: #f8fbf9; border-radius: 12px; border: 1px solid #dce8e0;">
-            <h4 style="margin: 0 0 6px; font-size: 14px;">Criar objetivo personalizado</h4>
-            <p style="margin: 0 0 14px; font-size: 12.5px; color: #557864;">Defina qualquer regra ou comportamento específico que você deseja transformar em hábito através da repetição deliberada.</p>
+          <div style="padding: 18px; background: #f8fbf9; border-radius: 14px; border: 1px solid #dce8e0;">
+            <h4 style="margin: 0 0 6px; font-size: 14.5px; color: #0d2c1e;">Criar objetivo personalizado</h4>
+            <p style="margin: 0 0 16px; font-size: 13px; color: #557864; line-height: 1.5;">Defina qualquer regra ou comportamento específico que você deseja transformar em hábito através da repetição deliberada.</p>
             <button type="button" class="tt-btn-primary" onclick="window.TraderTraining.openCustomGoalModal()">
               ＋ Escrever objetivo personalizado
             </button>
@@ -641,7 +684,7 @@
                     <input type="radio" name="tt_catalog_radio" ${isSelected ? 'checked' : ''} aria-label="${esc(item.title)}">
                     <span>${esc(item.title)}</span>
                   </div>
-                  <span class="tt-catalog-item-info" title="${esc(item.focus || item.title)}">ℹ</span>
+                  <span class="tt-catalog-item-info" title="Ver detalhes do comportamento" onclick="event.stopPropagation(); window.TraderTraining.showSkillDetails('${item.id}')">ℹ</span>
                 </div>
               `;
             }).join('')}
@@ -665,8 +708,8 @@
             <span class="tt-card-icon">🏆</span>
             <h2>Meu desenvolvimento</h2>
           </div>
-          <span style="font-size: 12px; color: #557864; font-weight: 600;">
-            Linha do tempo comportamental
+          <span style="font-size: 12.5px; color: #557864; font-weight: 700;">
+            Histórico de Habilidades Treinadas
           </span>
         </header>
 
@@ -675,14 +718,14 @@
             const isConsolidated = goal.status === 'consolidated';
             const statusLabel = isConsolidated ? 'Consolidado' : goal.status === 'developing' ? 'Em desenvolvimento' : 'Interrompido';
             const icon = isConsolidated ? '🟢' : goal.status === 'developing' ? '🔄' : '⚪';
-            const adhLabel = goal.adherence != null ? `${Math.round(goal.adherence)}%` : '—';
+            const adhLabel = goal.finalAdherence != null ? `${Math.round(goal.finalAdherence)}%` : goal.adherence != null ? `${Math.round(goal.adherence)}%` : '—';
             const catLabel = M.categoryLabel(goal.category);
 
             return `
               <div class="tt-development-card">
                 <div class="tt-development-card-head">
                   <span class="tt-badge-status ${goal.status}">${icon} ${statusLabel}</span>
-                  <strong style="font-size: 14px; color: #113421;">${adhLabel}</strong>
+                  <strong style="font-size: 14.5px; color: #113421;">${adhLabel}</strong>
                 </div>
                 <div class="tt-development-card-title">“${esc(goal.title)}”</div>
                 <div class="tt-development-card-meta">
@@ -697,6 +740,45 @@
           }).join('')}
         </div>
       </section>
+    `;
+  }
+
+  function renderSkillDetailModal() {
+    if (!state.skillModalItem) return '';
+    const item = state.skillModalItem;
+    const catLabel = M.categoryLabel(item.category);
+
+    return `
+      <div class="tt-modal-backdrop" onclick="if (event.target === this) window.TraderTraining.closeSkillModal()">
+        <div class="tt-modal-dialog" role="dialog" aria-modal="true">
+          <header class="tt-modal-header">
+            <h3>Detalhes da Habilidade</h3>
+            <button type="button" class="tt-modal-close" onclick="window.TraderTraining.closeSkillModal()" aria-label="Fechar">×</button>
+          </header>
+
+          <div class="tt-modal-summary-box">
+            <small>${esc(catLabel)} · Treinamento Comportamental</small>
+            <h4>“${esc(item.title)}”</h4>
+          </div>
+
+          <div class="tt-skill-detail-block">
+            <small>Por que este comportamento importa?</small>
+            <p>${esc(item.description || item.focus)}</p>
+          </div>
+
+          <div class="tt-skill-detail-block">
+            <small>Critério de avaliação no Diário</small>
+            <p>${esc(item.criteria || 'Marque "Executei corretamente" apenas quando respeitou integralmente a regra durante toda a operação.')}</p>
+          </div>
+
+          <footer class="tt-modal-actions">
+            <button type="button" class="tt-btn-secondary" onclick="window.TraderTraining.closeSkillModal()">Fechar</button>
+            <button type="button" class="tt-btn-primary" onclick="window.TraderTraining.chooseSkillFromDetails('${item.id}')">
+              Treinar este objetivo →
+            </button>
+          </footer>
+        </div>
+      </div>
     `;
   }
 
@@ -739,7 +821,7 @@
             </div>
           </div>
 
-          <div style="padding: 10px 14px; background: #fafcfb; border-radius: 8px; font-size: 12px; color: #4b6e5b; border: 1px solid #dce8e0;">
+          <div style="padding: 12px 16px; background: #fafcfb; border-radius: 10px; font-size: 12.5px; color: #4b6e5b; border: 1px solid #dce8e0; line-height: 1.5;">
             <b>Regra de ouro:</b> Apenas 1 objetivo ativo por vez. Treine até virar hábito e meça sua adesão a cada operação no Diário.
           </div>
 
@@ -767,12 +849,12 @@
 
           <div class="tt-form-group">
             <label>Comportamento a treinar</label>
-            <textarea id="ttCustomTitleInput" rows="3" style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cce0d4; border-radius: 8px; font: inherit;" placeholder="Ex: Não realizar lucro antes do meu plano de Sell Into Strength.">${esc(state.customGoal.title)}</textarea>
+            <textarea id="ttCustomTitleInput" rows="3" style="width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid #cce0d4; border-radius: 10px; font: inherit; font-size: 13.5px;" placeholder="Ex: Não realizar lucro antes do meu plano de Sell Into Strength.">${esc(state.customGoal.title)}</textarea>
           </div>
 
           <div class="tt-form-group">
             <label>Categoria</label>
-            <select id="ttCustomCatSelect" style="padding: 8px; border-radius: 8px; border: 1px solid #cce0d4; font: inherit;">
+            <select id="ttCustomCatSelect" style="padding: 10px; border-radius: 10px; border: 1px solid #cce0d4; font: inherit; font-size: 13.5px;">
               <option value="execution" ${state.customGoal.category === 'execution' ? 'selected' : ''}>Execução</option>
               <option value="psychology" ${state.customGoal.category === 'psychology' ? 'selected' : ''}>Psicologia</option>
               <option value="process" ${state.customGoal.category === 'process' ? 'selected' : ''}>Processo</option>
@@ -795,9 +877,12 @@
     const rootEl = document.getElementById('traderTrainingRoot') || document.getElementById('tradertraining');
     if (!rootEl) return;
 
+    document.body.classList.add('tt-active-screen');
+
     rootEl.innerHTML = `
       <main class="tt-page">
         ${renderHero()}
+        ${renderFocusStrip()}
 
         <section class="tt-top-grid">
           ${renderCurrentGoalCard(state.active)}
@@ -819,6 +904,7 @@
 
         ${renderConfigModal()}
         ${renderCustomModal()}
+        ${renderSkillDetailModal()}
       </main>
     `;
   }
@@ -848,171 +934,188 @@
       banner = document.createElement('div');
       banner.id = 'ttContextualFocusBanner';
       banner.className = 'tt-contextual-focus-banner';
-
-      // Insere logo antes do tradeFlow ou do card de formulário
-      const flow = document.getElementById('tradeFlow') || newTradePage.querySelector('.grid');
-      if (flow && flow.parentNode) {
-        flow.parentNode.insertBefore(banner, flow);
+      const formCard = newTradePage.querySelector('.form-card') || newTradePage.querySelector('.hero') || newTradePage.firstChild;
+      if (formCard && formCard.parentNode) {
+        formCard.parentNode.insertBefore(banner, formCard.nextSibling);
       } else {
         newTradePage.prepend(banner);
       }
     }
 
     banner.innerHTML = `
-      <div class="tt-focus-banner-left">
-        <div class="tt-focus-banner-icon" aria-hidden="true">🎯</div>
-        <div class="tt-focus-banner-text">
-          <span class="tt-focus-banner-eyebrow">Seu foco atual · Treinamento de Trader</span>
-          <strong class="tt-focus-banner-msg">“${esc(focusMsg)}”</strong>
-          <span class="tt-focus-banner-sub">Antes de entrar, lembre-se do comportamento que você está treinando deliberadamente.</span>
+      <div class="tt-contextual-focus-left">
+        <span class="tt-contextual-focus-icon">🎯</span>
+        <div>
+          <span class="tt-contextual-focus-kicker">Seu foco atual em treinamento</span>
+          <div class="tt-contextual-focus-title">“${esc(active.title)}”</div>
+          <div class="tt-contextual-focus-sub">${esc(focusMsg)}</div>
         </div>
       </div>
-      <button type="button" class="tt-btn-dismiss-focus" onclick="window.TraderTraining.dismissFocusBanner('${esc(active.id)}')">
-        Entendi ✓
+      <button type="button" class="tt-btn-dismiss-focus" onclick="window.TraderTraining.dismissWorkbenchBanner('${active.id}')">
+        Entendi
       </button>
     `;
   }
 
-  // ---------- API PÚBLICA ----------
-
+  // API Pública
   root.TraderTraining = {
-    getState: () => state,
-    fetchState,
-    render,
+    async init() {
+      await fetchState();
+      render();
+      syncWorkbenchFocusBanner();
+    },
+    async refresh() {
+      await fetchState();
+      render();
+      syncWorkbenchFocusBanner();
+    },
+    getActiveGoal() {
+      return state.active;
+    },
+    getRecords() {
+      return state.records;
+    },
+    recordBehavior,
     syncWorkbenchFocusBanner,
-
-    selectCategory: (catId) => {
+    selectCategory(catId) {
       state.selectedCategory = catId;
+      state.selectedCatalogId = null;
       render();
     },
-
-    pickCatalogItem: (itemId) => {
-      state.selectedCatalogId = itemId;
-      const item = M.catalogById(itemId);
-      if (item) {
-        state.modalGoalCandidate = {
-          catalogId: item.id,
-          title: item.title,
-          category: item.category,
-          durationDays: M.RECOMMENDED_DURATION,
-          targetPct: M.RECOMMENDED_TARGET
-        };
-        state.modalOpen = true;
-        render();
-      }
+    pickCatalogItem(catalogId) {
+      state.selectedCatalogId = catalogId;
+      const item = state.catalog.find(c => c.id === catalogId);
+      if (!item) return;
+      state.modalGoalCandidate = {
+        catalogId: item.id,
+        title: item.title,
+        category: item.category,
+        durationDays: 21,
+        targetPct: 90
+      };
+      state.modalOpen = true;
+      render();
     },
+    showSkillDetails(catalogId) {
+      const item = state.catalog.find(c => c.id === catalogId);
+      if (!item) return;
+      state.skillModalItem = item;
+      render();
+    },
+    closeSkillModal() {
+      state.skillModalItem = null;
+      render();
+    },
+    chooseSkillFromDetails(catalogId) {
+      state.skillModalItem = null;
+      this.pickCatalogItem(catalogId);
+    },
+    openCustomGoalModal() {
+      state.customGoal = {
+        title: '',
+        category: state.selectedCategory === 'custom' ? 'execution' : state.selectedCategory,
+        durationDays: 21,
+        targetPct: 90
+      };
+      state.customModalOpen = true;
+      render();
+    },
+    closeCustomModal() {
+      state.customModalOpen = false;
+      render();
+    },
+    submitCustomGoal() {
+      const titleInput = document.getElementById('ttCustomTitleInput');
+      const catSelect = document.getElementById('ttCustomCatSelect');
+      const title = (titleInput ? titleInput.value : state.customGoal.title).trim();
+      const category = catSelect ? catSelect.value : state.customGoal.category;
 
-    setCandidateDuration: (days) => {
+      if (!title) {
+        alert('Por favor, descreva o comportamento específico que você deseja treinar.');
+        return;
+      }
+
+      state.customGoal.title = title;
+      state.customGoal.category = category;
+      state.customModalOpen = false;
+
+      state.modalGoalCandidate = {
+        title,
+        category,
+        durationDays: state.customGoal.durationDays || 21,
+        targetPct: state.customGoal.targetPct || 90
+      };
+      state.modalOpen = true;
+      render();
+    },
+    closeModal() {
+      state.modalOpen = false;
+      state.modalGoalCandidate = null;
+      render();
+    },
+    setCandidateDuration(days) {
       if (state.modalGoalCandidate) {
         state.modalGoalCandidate.durationDays = days;
         render();
       }
     },
-
-    setCandidateTarget: (target) => {
+    setCandidateTarget(pct) {
       if (state.modalGoalCandidate) {
-        state.modalGoalCandidate.targetPct = target;
+        state.modalGoalCandidate.targetPct = pct;
         render();
       }
     },
-
-    confirmStartTraining: () => {
-      if (state.modalGoalCandidate) {
-        startTraining(state.modalGoalCandidate);
-        state.modalOpen = false;
-        state.modalGoalCandidate = null;
-      }
-    },
-
-    closeModal: () => {
+    async confirmStartTraining() {
+      if (!state.modalGoalCandidate) return;
+      const candidate = state.modalGoalCandidate;
       state.modalOpen = false;
       state.modalGoalCandidate = null;
-      render();
+      await startTraining(candidate);
     },
-
-    openCustomGoalModal: () => {
-      state.customModalOpen = true;
-      render();
+    async extendActiveGoal(days = 7) {
+      await extendTraining(days);
     },
-
-    closeCustomModal: () => {
-      state.customModalOpen = false;
-      render();
-    },
-
-    submitCustomGoal: () => {
-      const input = document.getElementById('ttCustomTitleInput');
-      const catSelect = document.getElementById('ttCustomCatSelect');
-      const title = (input?.value || '').trim();
-      const category = catSelect?.value || 'execution';
-      if (!title || title.length < 3) {
-        alert('Por favor, informe o comportamento que deseja treinar.');
+    async promptSwitchGoal() {
+      if (!confirm('Você tem certeza que deseja trocar seu objetivo atual? O treinamento em andamento será arquivado para manter o foco em uma única habilidade por vez.')) {
         return;
       }
-      state.customModalOpen = false;
-      state.modalGoalCandidate = {
-        title,
-        category,
-        durationDays: M.RECOMMENDED_DURATION,
-        targetPct: M.RECOMMENDED_TARGET
-      };
-      state.modalOpen = true;
-      render();
+      await switchOrConcludeGoal('switched');
+      this.scrollToSelection();
     },
-
-    promptSwitchGoal: () => {
-      if (confirm('Deseja realmente trocar seu objetivo de treinamento atual? O progresso do objetivo anterior será arquivado no seu desenvolvimento.')) {
-        switchOrConcludeGoal('switched');
-        root.TraderTraining.scrollToSelection();
+    async concludeAndSelectNext() {
+      if (state.active) {
+        const finalSt = M.finalStatus(state.active, state.records);
+        await switchOrConcludeGoal(finalSt);
+      }
+      this.scrollToSelection();
+    },
+    scrollToSelection() {
+      const el = document.getElementById('ttSelectionCard');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     },
-
-    concludeAndSelectNext: () => {
-      switchOrConcludeGoal();
-      root.TraderTraining.scrollToSelection();
-    },
-
-    extendActiveGoal: (days) => {
-      extendTraining(days);
-    },
-
-    scrollToSelection: () => {
-      const el = document.getElementById('ttSelectionCard');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    },
-
-    dismissFocusBanner: (goalId) => {
+    dismissWorkbenchBanner(goalId) {
       state.dismissedBanners.add(goalId);
-      syncWorkbenchFocusBanner();
-    },
-
-    // Integração direta com Diário de Trades
-    recordJournalAssessment: async ({ sourceRef, recordDate, ticker, outcome, rMultiple, assessment, note }) => {
-      await saveRecord({ sourceRef, recordDate, ticker, outcome, rMultiple, assessment, note });
+      const b = document.getElementById('ttContextualFocusBanner');
+      if (b) b.remove();
     }
   };
 
-  // Inicialização e ouvintes
-  window.addEventListener('DOMContentLoaded', () => {
-    fetchState().then(() => {
-      render();
-      syncWorkbenchFocusBanner();
-    });
-  });
-
-  window.addEventListener('healthyTrend:authenticated', () => {
-    fetchState().then(() => {
-      render();
-      syncWorkbenchFocusBanner();
-    });
-  });
-
-  window.addEventListener('healthyTrend:tradesUpdated', () => {
-    syncWorkbenchFocusBanner();
-  });
-
-  // Exporta função global para window.go('tradertraining')
-  window.renderTraderTraining = () => {
-    fetchState().then(render);
+  root.renderTraderTraining = function () {
+    root.TraderTraining.init();
   };
-})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+  // Observador de mutação e eventos de login
+  document.addEventListener('DOMContentLoaded', () => {
+    loadLocalState();
+    if (document.getElementById('tradertraining')?.classList.contains('active')) {
+      root.TraderTraining.init();
+    }
+  });
+
+  window.addEventListener('healthyTrend:auth', () => {
+    fetchState().then(render);
+  });
+
+})(typeof window !== 'undefined' ? window : globalThis);

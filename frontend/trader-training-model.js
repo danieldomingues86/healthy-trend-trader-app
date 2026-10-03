@@ -24,32 +24,208 @@
   const CATEGORY_ORDER = ['execution', 'psychology', 'process', 'risk'];
 
   const CATALOG = [
-    { id: 'exec-trigger', category: 'execution', title: 'Executar o gatilho da operação sempre corretamente.', focus: 'Execute o gatilho exatamente como definido no seu plano.' },
-    { id: 'exec-no-anticipate', category: 'execution', title: 'Não antecipar a entrada.', focus: 'Não antecipe a entrada. Aguarde o gatilho definido no seu plano.' },
-    { id: 'exec-confirmation', category: 'execution', title: 'Não entrar sem confirmação.', focus: 'Aguarde a confirmação completa antes de executar.' },
-    { id: 'exec-entry-point', category: 'execution', title: 'Respeitar o ponto de entrada planejado.', focus: 'Entre somente no preço planejado. Não persiga o ativo.' },
-    { id: 'exec-initial-stop', category: 'execution', title: 'Respeitar o stop inicial.', focus: 'Respeite o stop definido antes da entrada.', surfaces: ['newtrade', 'positions', 'journal'] },
-    { id: 'exec-no-add', category: 'execution', title: 'Não aumentar posição fora da regra.', focus: 'Só aumente a posição quando a regra de Scale-In permitir.', surfaces: ['newtrade', 'positions', 'journal'] },
+    {
+      id: 'exec-trigger',
+      category: 'execution',
+      title: 'Executar o gatilho da operação sempre corretamente.',
+      focus: 'Execute o gatilho exatamente como definido no seu plano.',
+      description: 'O gatilho técnico sinaliza o momento exato em que a vantagem probabilística se ativa. Entrar antes gera ansiedade; entrar depois prejudica a assimetria risco/retorno.',
+      criteria: 'A entrada ocorreu estritamente no nível de gatilho validado pelo setup (ex: violação da máxima/mínima de referência).'
+    },
+    {
+      id: 'exec-no-anticipate',
+      category: 'execution',
+      title: 'Não antecipar a entrada.',
+      focus: 'Não antecipe a entrada. Aguarde o gatilho definido no seu plano.',
+      description: 'Antecipar o rompimento ou confirmação transforma uma operação estatística em tentativa de adivinhação sem suporte do fluxo comprador.',
+      criteria: 'Aguardou a ativação formal do gatilho sem comprar ou vender antes do preço atingir o patamar planejado.'
+    },
+    {
+      id: 'exec-confirmation',
+      category: 'execution',
+      title: 'Não entrar sem confirmação.',
+      focus: 'Aguarde a confirmação completa antes de executar.',
+      description: 'A confirmação é o testemunho técnico de que os participantes dominantes estão dispostos a defender aquele nível de preço.',
+      criteria: 'Todos os critérios de confirmação pré-definidos (fechamento de barra, volume ou tick) foram confirmados antes de enviar a ordem.'
+    },
+    {
+      id: 'exec-entry-point',
+      category: 'execution',
+      title: 'Respeitar o ponto de entrada planejado.',
+      focus: 'Entre somente no preço planejado. Não persiga o ativo.',
+      description: 'Se o ativo já andou e se distanciou da entrada, perseguir o preço aumenta o stop financeiro em R e destrói o payoff do sistema.',
+      criteria: 'A ordem foi preenchida na faixa estipulada de preço de entrada, sem tolerância a perseguição desenfreada.'
+    },
+    {
+      id: 'exec-initial-stop',
+      category: 'execution',
+      title: 'Respeitar o stop inicial.',
+      focus: 'Respeite o stop definido antes da entrada.',
+      surfaces: ['newtrade', 'positions', 'journal'],
+      description: 'O stop inicial é a muralha de proteção do capital contra a ruína matemática. Movê-lo para trás durante o trade destrói a disciplina.',
+      criteria: 'O stop permaneceu no nível técnico planejado e foi honrado sem hesitação ou cancelamento manual se atingido.'
+    },
+    {
+      id: 'exec-no-add',
+      category: 'execution',
+      title: 'Não aumentar posição fora da regra.',
+      focus: 'Só aumente a posição quando a regra de Scale-In permitir.',
+      surfaces: ['newtrade', 'positions', 'journal'],
+      description: 'Fazer preço médio em posição perdedora é o comportamento número um de destruição de contas. Adições só podem ocorrer na força e com stop no zero.',
+      criteria: 'Nenhum lote foi adicionado a posições negativas ou em desacordo com as regras de piramidação da política de risco.'
+    },
 
-    { id: 'psy-fomo', category: 'psychology', title: 'Não entrar por FOMO.', focus: 'Se a oportunidade passou, deixe ir. Outra virá dentro do seu plano.', surfaces: ['newtrade', 'journal'] },
-    { id: 'psy-recover', category: 'psychology', title: 'Não tentar recuperar uma perda.', focus: 'O próximo trade não tem a missão de recuperar o anterior.', surfaces: ['newtrade', 'journal'] },
-    { id: 'psy-revenge', category: 'psychology', title: 'Não operar por vingança.', focus: 'Opere o plano, não a emoção do último resultado.', surfaces: ['newtrade', 'journal'] },
-    { id: 'psy-accept-loss', category: 'psychology', title: 'Aceitar uma operação perdedora.', focus: 'Perder dentro do plano faz parte do processo.', surfaces: ['positions', 'journal'] },
-    { id: 'psy-interfere', category: 'psychology', title: 'Não interferir emocionalmente na operação.', focus: 'Deixe o plano trabalhar. Intervenha apenas pelas regras.', surfaces: ['positions', 'journal'] },
-    { id: 'psy-premature-profit', category: 'psychology', title: 'Não realizar lucro prematuramente por medo.', focus: 'Respeite seu plano de saída. Não realize lucro por medo.', surfaces: ['positions', 'journal'] },
+    {
+      id: 'psy-fomo',
+      category: 'psychology',
+      title: 'Não entrar por FOMO.',
+      focus: 'Se a oportunidade passou, deixe ir. Outra virá dentro do seu plano.',
+      surfaces: ['newtrade', 'journal'],
+      description: 'O medo de ficar de fora (FOMO) seduz o trader a entrar no topo de impulsos esticados. O mercado opera em ciclos infinitos de oportunidades.',
+      criteria: 'A decisão de entrar foi 100% fruto de planejamento sereno pré-mercado, sem impulsos gerados por barras repentinas.'
+    },
+    {
+      id: 'psy-recover',
+      category: 'psychology',
+      title: 'Não tentar recuperar uma perda.',
+      focus: 'O próximo trade não tem a missão de recuperar o anterior.',
+      surfaces: ['newtrade', 'journal'],
+      description: 'A pressa em anular uma perda recente gera superalavancagem e perda de critério. Cada trade é um evento probabilístico independente.',
+      criteria: 'A postura e dimensionamento do trade foram neutros, desvinculados do saldo ou resultado da operação anterior.'
+    },
+    {
+      id: 'psy-revenge',
+      category: 'psychology',
+      title: 'Não operar por vingança.',
+      focus: 'Opere o plano, não a emoção do último resultado.',
+      surfaces: ['newtrade', 'journal'],
+      description: 'A vingança contra o ativo ou contra o mercado é uma ilusão egóica perigosa. O mercado é impessoal e não se importa com sua posição.',
+      criteria: 'Não operou por frustração e respeitou uma pausa consciente antes de planejar nova intervenção no mercado.'
+    },
+    {
+      id: 'psy-accept-loss',
+      category: 'psychology',
+      title: 'Aceitar uma operação perdedora.',
+      focus: 'Perder dentro do plano faz parte do processo.',
+      surfaces: ['positions', 'journal'],
+      description: 'Stops são custos operacionais normais de um sistema de tendência. Aceitá-los em paz é o que permite lucrar alto nas grandes altas.',
+      criteria: 'Aceitou a saída no stop sem irritação, sem alterar o humor e sem alterar o plano operacional do dia.'
+    },
+    {
+      id: 'psy-interfere',
+      category: 'psychology',
+      title: 'Não interferir emocionalmente na operação.',
+      focus: 'Deixe o plano trabalhar. Intervenha apenas pelas regras.',
+      surfaces: ['positions', 'journal'],
+      description: 'Ficar mexendo em ordens durante a flutuação intradiária por medo de devolução corrói o edge estatístico e aumenta a fadiga mental.',
+      criteria: 'As saídas ocorreram unicamente pelos critérios pré-estabelecidos (alvo, stop técnico ou saída no fechamento), sem intervenção ansiosa.'
+    },
+    {
+      id: 'psy-premature-profit',
+      category: 'psychology',
+      title: 'Não realizar lucro prematuramente por medo.',
+      focus: 'Respeite seu plano de saída. Não realize lucro por medo.',
+      surfaces: ['positions', 'journal'],
+      description: 'Cortar lucros pequenos por alívio psicológico impede a captura de movimentos de 3R a 10R que pagam a série de stops.',
+      criteria: 'Manteve a posição aberta até o gatilho de saída do sistema ser atingido, resistindo à tentação de realizar antes.'
+    },
 
-    { id: 'proc-checklist', category: 'process', title: 'Fazer o checklist antes da entrada.', focus: 'Complete o checklist antes de qualquer entrada.', surfaces: ['newtrade', 'journal', 'dailyroutine'] },
-    { id: 'proc-register', category: 'process', title: 'Registrar a operação imediatamente.', focus: 'Registre a operação no Diário logo após executar.', surfaces: ['newtrade', 'journal'] },
-    { id: 'proc-plan', category: 'process', title: 'Seguir o plano definido antes da entrada.', focus: 'Siga o plano que você definiu antes da entrada.', surfaces: ['newtrade', 'journal'] },
-    { id: 'proc-journal-analysis', category: 'process', title: 'Analisar somente no Diário.', focus: 'Faça sua análise no Diário, com calma e registro.', surfaces: ['journal', 'charts'] },
-    { id: 'proc-chart-watching', category: 'process', title: 'Não olhar o gráfico excessivamente.', focus: 'Você já tem um plano. Evite olhar o gráfico em excesso.', surfaces: ['journal', 'charts'] },
-    { id: 'proc-routine', category: 'process', title: 'Respeitar minha rotina de análise.', focus: 'Cumpra sua rotina de análise antes de operar.', surfaces: ['dailyroutine', 'journal'] },
+    {
+      id: 'proc-checklist',
+      category: 'process',
+      title: 'Fazer o checklist antes da entrada.',
+      focus: 'Complete o checklist antes de qualquer entrada.',
+      surfaces: ['newtrade', 'journal', 'dailyroutine'],
+      description: 'O checklist é o cinto de segurança do trader sistemático. Ele impede que o entusiasmo momentâneo passe por cima de falhas técnicas graves.',
+      criteria: 'Todos os itens de tendência, ciclo de mercado e contexto foram formalmente conferidos antes da ordem ser disparada.'
+    },
+    {
+      id: 'proc-register',
+      category: 'process',
+      title: 'Registrar a operação imediatamente.',
+      focus: 'Registre a operação no Diário logo após executar.',
+      surfaces: ['newtrade', 'journal'],
+      description: 'O registro imediato captura os pensamentos e o contexto com fidelidade, antes que a mente comece a justificar ou esquecer detalhes.',
+      criteria: 'A operação e suas motivações foram documentadas no Diário de Trades logo após a abertura.'
+    },
+    {
+      id: 'proc-plan',
+      category: 'process',
+      title: 'Seguir o plano definido antes da entrada.',
+      focus: 'Siga o plano que você definiu antes da entrada.',
+      surfaces: ['newtrade', 'journal'],
+      description: 'O plano elaborado fora do pregão é racional; improvisações no meio da batalha são quase sempre emocionais. Siga o roteiro.',
+      criteria: 'A execução seguiu exatamente os preços, alvos, dimensionamento e regras traçadas no planejamento pré-trade.'
+    },
+    {
+      id: 'proc-journal-analysis',
+      category: 'process',
+      title: 'Analisar somente no Diário.',
+      focus: 'Faça sua análise no Diário, com calma e registro.',
+      surfaces: ['journal', 'charts'],
+      description: 'A avaliação analítica de erros e acertos deve ser feita no Diário com distanciamento temporal, não no calor do calor dos preços.',
+      criteria: 'A análise da qualidade da decisão foi conduzida na ferramenta de Diário com anotações objetivas e sem julgamentos destrutivos.'
+    },
+    {
+      id: 'proc-chart-watching',
+      category: 'process',
+      title: 'Não olhar o gráfico excessivamente.',
+      focus: 'Você já tem um plano. Evite olhar o gráfico em excesso.',
+      surfaces: ['journal', 'charts'],
+      description: 'Vigiar cada oscilação de centavos sobrecarrega a dopamina e incita decisões intempestivas. Confie no seu alarme e no seu stop.',
+      criteria: 'Monitorou os gráficos apenas nos momentos de tomada de decisão (ex: fechamento de barra diária ou alertas programados).'
+    },
+    {
+      id: 'proc-routine',
+      category: 'process',
+      title: 'Respeitar minha rotina de análise.',
+      focus: 'Cumpra sua rotina de análise antes de operar.',
+      surfaces: ['dailyroutine', 'journal'],
+      description: 'O sucesso no pregão é consequência direta do trabalho prévio de preparação do ambiente, revisão de notícias e estudo dos papéis.',
+      criteria: 'Executou a rotina matinal completa de preparação antes de iniciar qualquer leitura ou envio de ordens.'
+    },
 
-    { id: 'risk-sizing', category: 'risk', title: 'Respeitar o Position Sizing.', focus: 'Use exatamente a quantidade calculada pelo Position Sizing.' },
-    { id: 'risk-per-trade', category: 'risk', title: 'Respeitar o risco por operação.', focus: 'Não ultrapasse o risco por operação definido na sua política.' },
-    { id: 'risk-no-add', category: 'risk', title: 'Não aumentar posição fora da regra.', focus: 'Só aumente a posição quando a regra de Scale-In permitir.' },
-    { id: 'risk-heat', category: 'risk', title: 'Respeitar o Heat máximo do portfólio.', focus: 'Confira o Heat da carteira antes de abrir uma nova posição.' },
-    { id: 'risk-exit-plan', category: 'risk', title: 'Respeitar o plano de saída.', focus: 'Siga o plano de saída definido antes da entrada.', surfaces: ['positions', 'newtrade', 'journal'] }
+    {
+      id: 'risk-sizing',
+      category: 'risk',
+      title: 'Respeitar o Position Sizing.',
+      focus: 'Use exatamente a quantidade calculada pelo Position Sizing.',
+      description: 'O método de 3 camadas calcula o menor tamanho seguro entre Stop, ATR e Limite de Capital. Alterar a mão é violar a matemática da sobrevivência.',
+      criteria: 'A quantidade executada foi exatamente a determinada pelo motor de risco, sem arredondamentos arbitrários para cima.'
+    },
+    {
+      id: 'risk-per-trade',
+      category: 'risk',
+      title: 'Respeitar o risco por operação.',
+      focus: 'Não ultrapasse o risco por operação definido na sua política.',
+      description: 'O risco nominal por operação garante que uma sequência de 5 ou 10 perdas não comprometa irremediavelmente a capacidade financeira da conta.',
+      criteria: 'O valor financeiro em risco na entrada não excedeu a porcentagem máxima estipulada pela sua Política de Risco.'
+    },
+    {
+      id: 'risk-no-add',
+      category: 'risk',
+      title: 'Não aumentar posição fora da regra.',
+      focus: 'Só aumente a posição quando a regra de Scale-In permitir.',
+      description: 'Adicionar lote sem o trade ter atingido +1R e sem breakeven transforma uma operação controlada em uma bomba de risco desnecessário.',
+      criteria: 'Seguiu rigidamente os critérios de elegibilidade para Scale-In aprovados pelo sistema.'
+    },
+    {
+      id: 'risk-heat',
+      category: 'risk',
+      title: 'Respeitar o Heat máximo do portfólio.',
+      focus: 'Confira o Heat da carteira antes de abrir uma nova posição.',
+      description: 'O calor agregado da carteira protege contra choques sistêmicos de mercado que atingem simultaneamente vários ativos correlacionados.',
+      criteria: 'Verificou se a abertura de mais uma posição manteria o Heat total da carteira dentro do teto seguro estabelecido.'
+    },
+    {
+      id: 'risk-exit-plan',
+      category: 'risk',
+      title: 'Respeitar o plano de saída.',
+      focus: 'Siga o plano de saída definido antes da entrada.',
+      surfaces: ['positions', 'newtrade', 'journal'],
+      description: 'Saber onde sair antes de entrar elimina a paralisia decisória no momento em que o mercado acelera a favor ou contra sua posição.',
+      criteria: 'A saída foi executada em conformidade integral com a estratégia de encerramento desenhada no plano inicial.'
+    }
   ];
 
   const DURATION_OPTIONS = [7, 14, 21, 30];
@@ -267,7 +443,7 @@
   function evolutionInsight(weeks = []) {
     const measured = weeks.filter((week) => week.pct != null);
     if (!measured.length) {
-      return { tone: 'empty', deltaPp: null, title: 'Seu treinamento começou', message: 'Registre o comportamento nas próximas operações do Diário para medir sua evolução.' };
+      return { tone: 'empty', deltaPp: null, title: 'Seu treinamento começou', message: 'Registre seu comportamento no Diário para acompanhar sua evolução.' };
     }
     if (measured.length === 1) {
       const only = measured[0];

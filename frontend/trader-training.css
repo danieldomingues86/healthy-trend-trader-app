@@ -1,15 +1,17 @@
 /* ==========================================================================
    THE HEALTHY TREND TRADER — TREINAMENTO DE TRADER
-   Metáfora do arqueiro: Foco, Repetição, Precisão, Evolução e Hábito
+   Visual Cinematográfico, Metáfora do Arqueiro e Biblioteca de Habilidades
    ========================================================================== */
 
-/* Layout da Página */
-body:has(#tradertraining.active) .content {
-  max-width: 1880px;
-  width: 100%;
-  margin: 0 auto;
-  padding: clamp(14px, 1.8vw, 24px) !important;
-  box-sizing: border-box;
+/* Layout da Página & Expansão de Largura */
+body:has(#tradertraining.active) .content,
+body.tt-active-screen .content,
+#tradertraining.page.active {
+  max-width: 1720px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: clamp(16px, 2vw, 32px) !important;
+  box-sizing: border-box !important;
 }
 
 #tradertraining {
@@ -22,46 +24,56 @@ body:has(#tradertraining.active) .content {
 .tt-page {
   display: flex;
   flex-direction: column;
-  gap: clamp(16px, 1.8vw, 24px);
+  gap: clamp(18px, 1.8vw, 24px);
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
-/* 1. Hero do Arqueiro */
+/* 1. Hero do Arqueiro (Cinematográfico, Alto, Arqueiro Visível no lado esquerdo) */
 .tt-hero {
   position: relative;
   overflow: hidden;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
-  min-height: clamp(260px, 28vw, 340px);
+  min-height: clamp(380px, 34vw, 460px);
   padding: clamp(28px, 4vw, 56px);
-  border-radius: 22px;
+  border-radius: 24px;
   background-color: #0b1f15;
   background-image:
-    linear-gradient(90deg, rgba(8, 28, 19, 0.95) 0%, rgba(8, 28, 19, 0.82) 42%, rgba(8, 28, 19, 0.28) 75%, rgba(8, 28, 19, 0.45) 100%),
+    linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0) 36%,
+      rgba(246, 250, 247, 0.4) 52%,
+      rgba(246, 250, 247, 0.88) 72%,
+      rgba(246, 250, 247, 0.97) 100%
+    ),
     url('../assets/trader-training-hero-v1.jpg');
   background-size: cover;
   background-position: left center;
   background-repeat: no-repeat;
-  border: 1px solid rgba(120, 196, 148, 0.22);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
-  color: #f2fbf5;
+  border: 1px solid rgba(120, 196, 148, 0.28);
+  box-shadow: 0 16px 40px rgba(12, 38, 24, 0.12);
+  color: #0c2016;
+  box-sizing: border-box;
 }
 
 .tt-hero-content {
   position: relative;
   z-index: 2;
-  max-width: 780px;
+  width: min(620px, 52%);
+  margin-left: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .tt-hero-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #72e29e;
+  color: #17603c;
   font-size: 11px;
   font-weight: 850;
   letter-spacing: 0.16em;
@@ -70,58 +82,116 @@ body:has(#tradertraining.active) .content {
 
 .tt-hero-title {
   margin: 0;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(34px, 4.4vw, 56px);
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: clamp(38px, 4.2vw, 56px);
   line-height: 1.05;
   font-weight: 700;
   letter-spacing: -0.035em;
-  color: #ffffff;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+  color: #091f14;
 }
 
 .tt-hero-subtitle {
   margin: 0;
-  font-size: clamp(13px, 1.2vw, 15px);
-  font-weight: 800;
-  letter-spacing: 0.14em;
+  font-size: clamp(12.5px, 1.1vw, 14px);
+  font-weight: 850;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #8ae8b0;
-  opacity: 0.95;
+  color: #1a4f35;
+}
+
+.tt-hero-divider {
+  width: 46px;
+  height: 3.5px;
+  background: #27ae60;
+  border-radius: 999px;
+  margin: 2px 0 4px;
 }
 
 .tt-hero-quote {
-  margin: 6px 0 0;
-  padding: 12px 18px;
-  border-left: 3px solid #58cb8a;
-  background: rgba(4, 24, 15, 0.65);
-  backdrop-filter: blur(8px);
-  border-radius: 0 12px 12px 0;
-  color: #d8ede0;
-  font-size: clamp(13px, 1.1vw, 14.5px);
-  line-height: 1.55;
-  font-style: italic;
-  max-width: 680px;
+  margin: 4px 0 0;
+  padding: 0;
+  color: #1a3828;
+  font-size: clamp(13.5px, 1.15vw, 15px);
+  line-height: 1.62;
+  font-style: normal;
+  font-weight: 500;
+  max-width: 580px;
 }
 
-/* Grids Principais */
+/* 2. Banner de Regra: FOCO ATUAL */
+.tt-focus-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 22px;
+  background: linear-gradient(90deg, rgba(235, 248, 240, 0.95), rgba(255, 255, 255, 0.92));
+  border: 1px solid rgba(56, 168, 102, 0.28);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(18, 52, 34, 0.04);
+  backdrop-filter: blur(8px);
+  box-sizing: border-box;
+}
+
+.tt-focus-strip-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.tt-focus-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #103422;
+  color: #8fe0aa;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tt-focus-rule-divider {
+  color: #a4c7b3;
+  font-weight: 700;
+}
+
+.tt-focus-rule-title {
+  font-size: 12.5px;
+  font-weight: 750;
+  color: #17422a;
+}
+
+.tt-focus-strip-text {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #19462e;
+  letter-spacing: -0.01em;
+  text-align: right;
+}
+
+/* 3. Grids Principais */
 .tt-top-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(360px, 1fr);
-  gap: clamp(14px, 1.6vw, 22px);
+  gap: clamp(16px, 1.6vw, 22px);
   align-items: stretch;
 }
 
 .tt-mid-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(320px, 1.1fr);
-  gap: clamp(14px, 1.6vw, 22px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 1.6vw, 22px);
   align-items: stretch;
 }
 
 .tt-bottom-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(380px, 1fr);
-  gap: clamp(14px, 1.6vw, 22px);
+  grid-template-columns: minmax(0, 1.48fr) minmax(370px, 1fr);
+  gap: clamp(16px, 1.6vw, 22px);
   align-items: flex-start;
 }
 
@@ -130,18 +200,18 @@ body:has(#tradertraining.active) .content {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: clamp(18px, 1.8vw, 26px);
+  padding: clamp(20px, 2vw, 28px);
   background: #ffffff;
   border: 1px solid rgba(24, 60, 40, 0.08);
-  border-radius: 20px;
+  border-radius: 22px;
   box-shadow: 0 8px 24px rgba(18, 48, 30, 0.04);
   box-sizing: border-box;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .tt-card:hover {
-  border-color: rgba(64, 160, 102, 0.2);
-  box-shadow: 0 12px 32px rgba(18, 48, 30, 0.07);
+  border-color: rgba(64, 160, 102, 0.24);
+  box-shadow: 0 12px 32px rgba(18, 48, 30, 0.06);
 }
 
 .tt-card-header {
@@ -151,7 +221,7 @@ body:has(#tradertraining.active) .content {
   gap: 12px;
   padding-bottom: 14px;
   border-bottom: 1px solid rgba(22, 60, 38, 0.08);
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .tt-card-title-group {
@@ -174,66 +244,76 @@ body:has(#tradertraining.active) .content {
 .tt-card-header h2,
 .tt-card-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 750;
   color: #0f2c1d;
   letter-spacing: -0.015em;
 }
 
-/* 3. Card: Meu Objetivo Atual */
+/* 4. Card: Meu Objetivo Atual */
 .tt-current-goal-card .tt-goal-body {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
   height: 100%;
   justify-content: space-between;
 }
 
 .tt-goal-main {
   display: flex;
-  align-items: flex-start;
-  gap: 18px;
+  align-items: center;
+  gap: 20px;
 }
 
 .tt-goal-target-icon {
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(82, 196, 130, 0.16), rgba(27, 116, 77, 0.08));
-  border: 1px solid rgba(48, 150, 93, 0.2);
-  color: #1b744d;
-  font-size: 26px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #eaf6ef;
+  border: 1.5px solid #a8e3bd;
+  color: #1c7b47;
+  font-size: 32px;
+  box-shadow: 0 6px 18px rgba(39, 174, 96, 0.12);
 }
 
 .tt-goal-headline {
   flex: 1;
 }
 
+.tt-goal-kicker {
+  font-size: 10.5px;
+  font-weight: 850;
+  text-transform: uppercase;
+  color: #1b744d;
+  letter-spacing: 0.12em;
+  display: block;
+  margin-bottom: 5px;
+}
+
 .tt-goal-title {
   margin: 0;
-  font-family: Georgia, serif;
-  font-size: clamp(21px, 2vw, 27px);
+  font-size: clamp(22px, 2.1vw, 28px);
   line-height: 1.25;
   color: #0a2719;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 750;
+  letter-spacing: -0.025em;
 }
 
 .tt-goal-meta-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  padding-top: 14px;
-  border-top: 1px dashed rgba(24, 60, 40, 0.1);
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(24, 60, 40, 0.08);
 }
 
 .tt-meta-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .tt-meta-label {
@@ -244,46 +324,32 @@ body:has(#tradertraining.active) .content {
   font-weight: 750;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #557864;
+  color: #647d70;
 }
 
 .tt-meta-value {
-  font-size: 14px;
-  font-weight: 700;
-  color: #103322;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0d2c1e;
 }
 
 .tt-meta-sub {
-  font-size: 11px;
-  color: #6d8e7b;
+  font-size: 12px;
+  color: #6a8877;
+  font-weight: 600;
 }
 
-/* Badges e Botões de Ação */
 .tt-badge-status {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 11px;
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 750;
   letter-spacing: 0.04em;
-}
-
-.tt-badge-status.active {
-  background: rgba(43, 168, 98, 0.14);
-  color: #166b42;
-  border: 1px solid rgba(43, 168, 98, 0.28);
-}
-
-.tt-badge-status.consolidated {
-  background: rgba(33, 150, 83, 0.16);
-  color: #145e38;
-}
-
-.tt-badge-status.developing {
-  background: rgba(224, 159, 36, 0.14);
-  color: #8c5b05;
+  background: #e4f5eb;
+  color: #1e7040;
 }
 
 .tt-badge-status:before {
@@ -291,49 +357,49 @@ body:has(#tradertraining.active) .content {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: currentColor;
+  background: #27ae60;
 }
 
 .tt-btn-switch {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 13px;
-  border: 1px solid rgba(27, 116, 77, 0.3);
-  border-radius: 9px;
-  background: #f4faf6;
-  color: #17603e;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid #d0ded6;
+  background: #fbfdfc;
+  color: #17422c;
   font-size: 12px;
   font-weight: 750;
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: all 0.18s ease;
 }
 
 .tt-btn-switch:hover {
-  background: #1b744d;
-  color: #ffffff;
-  border-color: #1b744d;
+  background: #eef7f2;
+  border-color: #72cf97;
+  color: #0d2d1e;
 }
 
-/* 6. Card: Aderência Atual */
+/* 5. Card: Aderência Atual */
 .tt-adherence-card {
   justify-content: space-between;
 }
 
 .tt-adherence-hero-row {
   display: flex;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
 .tt-adherence-big-score {
-  font-size: clamp(48px, 4.6vw, 64px);
-  line-height: 0.95;
+  font-size: clamp(38px, 3.6vw, 48px);
   font-weight: 850;
   letter-spacing: -0.05em;
-  color: #103823;
+  color: #0c2b1c;
+  line-height: 1;
 }
 
 .tt-adherence-ratio {
@@ -342,29 +408,39 @@ body:has(#tradertraining.active) .content {
 
 .tt-adherence-ratio strong {
   display: block;
-  font-size: 16px;
-  color: #123824;
+  font-size: 15px;
+  font-weight: 800;
+  color: #103824;
 }
 
 .tt-adherence-ratio small {
-  font-size: 11px;
-  color: #648572;
+  display: block;
+  font-size: 11.5px;
+  color: #6a8c79;
+}
+
+.tt-adherence-empty-msg {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #557864;
+  font-style: italic;
+  margin: 6px 0 14px;
 }
 
 .tt-progress-track {
   width: 100%;
-  height: 12px;
-  background: #e6eee8;
+  height: 10px;
+  background: #e8eee9;
   border-radius: 999px;
   overflow: hidden;
-  margin: 8px 0 18px;
+  margin-bottom: 18px;
 }
 
 .tt-progress-fill {
   height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #32b56e 0%, #1f8a51 100%);
-  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(90deg, #3db574, #78db9c);
+  border-radius: 999px;
+  transition: width 0.4s ease;
 }
 
 .tt-pills-row {
@@ -377,179 +453,201 @@ body:has(#tradertraining.active) .content {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 13px;
+  padding: 10px 12px;
   border-radius: 12px;
   font-size: 12px;
-  box-sizing: border-box;
 }
 
 .tt-metric-pill.correct {
-  background: rgba(39, 174, 96, 0.1);
-  color: #146237;
-  border: 1px solid rgba(39, 174, 96, 0.22);
+  background: #eaf7ef;
+  border: 1px solid rgba(39, 174, 96, 0.2);
+  color: #176036;
 }
 
 .tt-metric-pill.incorrect {
-  background: rgba(235, 87, 87, 0.1);
+  background: #fdf0ee;
+  border: 1px solid rgba(235, 87, 87, 0.2);
   color: #9c2727;
-  border: 1px solid rgba(235, 87, 87, 0.22);
 }
 
 .tt-metric-pill.na {
-  background: rgba(140, 160, 149, 0.12);
-  color: #496354;
-  border: 1px solid rgba(140, 160, 149, 0.22);
+  background: #f3f5f4;
+  border: 1px solid rgba(100, 125, 112, 0.2);
+  color: #496355;
 }
 
 .tt-pill-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 11px;
-  font-weight: 900;
-  background: #ffffff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
 .tt-metric-pill strong {
+  display: block;
   font-size: 16px;
-  line-height: 1;
+  font-weight: 850;
+  line-height: 1.1;
 }
 
 .tt-metric-pill span {
+  display: block;
   font-size: 11px;
-  color: inherit;
-  opacity: 0.9;
+  font-weight: 650;
 }
 
-/* 7. Card: Evolução por Semana */
+/* 6. Card: Evolução por Semana */
+.tt-weekly-chart-wrap {
+  display: flex;
+  gap: 12px;
+  height: 170px;
+  align-items: stretch;
+  margin-top: 10px;
+}
+
+.tt-weekly-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 24px;
+  font-size: 10.5px;
+  color: #799786;
+  font-weight: 700;
+  text-align: right;
+  width: 32px;
+}
+
 .tt-weekly-chart {
+  flex: 1;
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  gap: 14px;
-  min-height: 160px;
-  padding-top: 18px;
-  border-bottom: 1px solid #e7eee9;
-  padding-bottom: 8px;
+  gap: 16px;
+  border-bottom: 1px solid #dce8e0;
+  padding-bottom: 24px;
 }
 
 .tt-weekly-bar-col {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  max-width: 80px;
+  gap: 6px;
   height: 100%;
   justify-content: flex-end;
 }
 
 .tt-weekly-bar-val {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 800;
-  color: #113824;
+  color: #123d27;
 }
 
 .tt-weekly-bar-track {
   width: 100%;
-  height: 120px;
-  background: #f1f6f2;
-  border-radius: 8px 8px 0 0;
+  max-width: 52px;
+  height: 100%;
+  max-height: 115px;
   display: flex;
   align-items: flex-end;
+  background: #eff5f1;
+  border-radius: 8px 8px 0 0;
   overflow: hidden;
 }
 
 .tt-weekly-bar-fill {
   width: 100%;
-  background: linear-gradient(180deg, #43c97f 0%, #1f8b52 100%);
+  background: linear-gradient(180deg, #44bf7d, #27ae60);
   border-radius: 8px 8px 0 0;
   transition: height 0.4s ease;
 }
 
-.tt-weekly-bar-col.future .tt-weekly-bar-fill {
-  background: #d4e0d7;
-}
-
 .tt-weekly-bar-label {
+  position: absolute;
+  bottom: 0;
   font-size: 11px;
   font-weight: 700;
-  color: #557865;
+  color: #648573;
 }
 
 /* 7. Card: Minha Evolução */
-.tt-evolution-card .tt-evolution-body {
+.tt-evolution-body {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  height: 100%;
-  justify-content: center;
-  flex-direction: column;
+  padding-top: 6px;
 }
 
 .tt-evolution-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #eaf7ef;
+  border: 1px solid #b3e6c6;
+  color: #1f8a4e;
+  font-size: 24px;
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: rgba(39, 174, 96, 0.12);
-  color: #1e824c;
-  font-size: 22px;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
-.tt-evolution-body h4 {
-  margin: 0 0 6px;
-  font-size: 16px;
-  color: #133c27;
-  font-weight: 750;
+.tt-evolution-copy {
+  flex: 1;
 }
 
-.tt-evolution-body p {
+.tt-evolution-copy h4 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1b844b;
+  letter-spacing: -0.015em;
+}
+
+.tt-evolution-copy p {
   margin: 0;
   font-size: 13.5px;
-  line-height: 1.5;
-  color: #486958;
+  line-height: 1.55;
+  color: #294d3a;
 }
 
-.tt-evolution-body p b {
-  color: #103d25;
+.tt-stat-delta {
+  color: #1e824c;
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.tt-stat-delta.bad {
+  color: #c0392b;
 }
 
 /* 8. Card: Período do Treinamento */
 .tt-timeline-wrap {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 8px 0 16px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .tt-timeline-axis {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 750;
-  color: #4f735f;
+  color: #557864;
 }
 
 .tt-timeline-track {
   position: relative;
   width: 100%;
   height: 8px;
-  background: #e4ece6;
+  background: #e6ede8;
   border-radius: 999px;
-  overflow: visible;
 }
 
 .tt-timeline-fill {
   height: 100%;
-  background: #1b744d;
-  border-radius: inherit;
+  background: linear-gradient(90deg, #38b671, #69d892);
+  border-radius: 999px;
 }
 
 .tt-timeline-dot {
@@ -559,27 +657,20 @@ body:has(#tradertraining.active) .content {
   height: 16px;
   border-radius: 50%;
   background: #ffffff;
-  border: 3px solid #1b744d;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  border: 3.5px solid #27ae60;
   transform: translate(-50%, -50%);
-}
-
-.tt-timeline-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: #6a8c79;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .tt-motivation-box {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-radius: 12px;
-  background: rgba(245, 182, 38, 0.12);
-  border: 1px solid rgba(245, 182, 38, 0.3);
-  color: #7a5005;
+  background: #fff8e8;
+  border: 1px solid #f2deaf;
+  color: #755512;
   font-size: 12.5px;
   line-height: 1.45;
 }
@@ -587,7 +678,7 @@ body:has(#tradertraining.active) .content {
 .tt-motivation-box b {
   display: block;
   font-size: 13px;
-  color: #633f02;
+  color: #644405;
   margin-bottom: 2px;
 }
 
@@ -596,21 +687,23 @@ body:has(#tradertraining.active) .content {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 11px 14px;
   background: #f7faf8;
-  border: 1px solid #dbe6df;
+  border-radius: 10px;
+  border: 1px solid #dce8e0;
   font-size: 12px;
-  line-height: 1.45;
-  color: #486b57;
-  margin-bottom: 14px;
+  line-height: 1.48;
+  color: #486957;
+  margin-bottom: 16px;
+}
+
+.tt-notice-disclaimer b {
+  color: #173f2a;
 }
 
 .tt-table-container {
   width: 100%;
   overflow-x: auto;
-  border-radius: 12px;
-  border: 1px solid #e5eee8;
 }
 
 .tt-table {
@@ -621,112 +714,117 @@ body:has(#tradertraining.active) .content {
 }
 
 .tt-table th {
-  padding: 11px 14px;
-  background: #f3f8f5;
-  color: #4d735e;
-  font-size: 11px;
+  padding: 10px 12px;
+  font-size: 10.5px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border-bottom: 1px solid #dce8e0;
+  letter-spacing: 0.08em;
+  color: #658473;
+  border-bottom: 1px solid #e1ebe5;
+  background: #fafcfb;
 }
 
 .tt-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid #eef4f0;
-  color: #173826;
-  vertical-align: middle;
+  padding: 12px;
+  border-bottom: 1px solid #eef3f0;
+  color: #1c3829;
 }
 
 .tt-table tr:hover td {
   background: #fbfdfc;
 }
 
-.tt-table .outcome-gain {
-  color: #1f8a4c;
+.outcome-gain {
+  color: #27ae60;
+  font-weight: 750;
+}
+
+.outcome-loss {
+  color: #eb5757;
+  font-weight: 750;
+}
+
+.outcome-breakeven {
+  color: #889b91;
   font-weight: 700;
 }
 
-.tt-table .outcome-loss {
-  color: #c0392b;
+.outcome-open {
+  color: #2980b9;
   font-weight: 700;
 }
 
-.tt-table .outcome-breakeven,
-.tt-table .outcome-open {
-  color: #6b8878;
-}
-
-.tt-table .r-val {
+.r-val {
   font-weight: 800;
-  font-family: inherit;
 }
 
 .tt-pill-cell {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 9px;
-  border-radius: 6px;
-  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
   font-weight: 750;
 }
 
 .tt-pill-cell.correct {
-  background: rgba(39, 174, 96, 0.12);
-  color: #14693a;
+  background: #eaf7ef;
+  color: #176839;
 }
 
 .tt-pill-cell.incorrect {
-  background: rgba(235, 87, 87, 0.12);
-  color: #a82323;
+  background: #fdf0ee;
+  color: #a82828;
 }
 
 .tt-pill-cell.not_applicable {
-  background: #edf2ee;
-  color: #5d7568;
+  background: #f1f4f2;
+  color: #556c60;
 }
 
-/* 4 & 5. Card: Selecionar Novo Objetivo */
+/* 10. Card: Selecionar Novo Objetivo (Biblioteca de Habilidades) */
 .tt-tabs-rail {
   display: flex;
-  gap: 6px;
+  gap: 4px;
+  padding: 4px;
+  background: #eef4f0;
+  border-radius: 999px;
+  margin-bottom: 16px;
   overflow-x: auto;
-  padding-bottom: 6px;
-  margin-bottom: 14px;
-  border-bottom: 1px solid #e7eee9;
 }
 
 .tt-tab-btn {
-  padding: 6px 12px;
+  flex: 1;
   border: 0;
-  border-radius: 8px;
   background: transparent;
-  color: #577866;
-  font-size: 12px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
   font-weight: 750;
+  color: #557864;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.16s ease;
 }
 
 .tt-tab-btn:hover {
-  background: #f0f6f2;
-  color: #123b26;
+  color: #0c2b1c;
 }
 
 .tt-tab-btn.active {
-  background: #1b744d;
-  color: #ffffff;
+  background: #ffffff;
+  color: #0c2b1c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .tt-catalog-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 380px;
+  margin-bottom: 14px;
+  max-height: 420px;
   overflow-y: auto;
-  padding-right: 4px;
 }
 
 .tt-catalog-item {
@@ -734,32 +832,38 @@ body:has(#tradertraining.active) .content {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 14px;
-  border: 1px solid #e0ece4;
-  border-radius: 10px;
-  background: #ffffff;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid #dce8e0;
+  background: #fbfdfc;
   cursor: pointer;
   transition: all 0.16s ease;
 }
 
 .tt-catalog-item:hover {
-  border-color: #55c285;
-  background: #f8fcf9;
+  border-color: #62c78a;
+  background: #f4fbf6;
 }
 
 .tt-catalog-item.selected {
-  border-color: #1b744d;
-  background: rgba(27, 116, 77, 0.05);
-  box-shadow: 0 0 0 2px rgba(27, 116, 77, 0.15);
+  border-color: #27ae60;
+  background: #edf8f1;
+  box-shadow: 0 0 0 1px #27ae60;
 }
 
 .tt-catalog-item-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 13px;
-  color: #143524;
-  font-weight: 600;
+  font-weight: 650;
+  color: #173a27;
+  flex: 1;
+}
+
+.tt-catalog-item-left input[type="radio"] {
+  accent-color: #27ae60;
+  cursor: pointer;
 }
 
 .tt-catalog-item-info {
@@ -768,109 +872,157 @@ body:has(#tradertraining.active) .content {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #eef5f0;
-  color: #49715b;
+  border: 1px solid #c2dbcd;
+  color: #2f8355;
   font-size: 11px;
-  font-style: italic;
   font-weight: 800;
+  cursor: pointer;
   flex-shrink: 0;
+  transition: all 0.14s ease;
+}
+
+.tt-catalog-item-info:hover {
+  background: #27ae60;
+  border-color: #27ae60;
+  color: #ffffff;
 }
 
 .tt-btn-custom-goal {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 14px;
-  padding: 8px 12px;
-  border: 1px dashed rgba(27, 116, 77, 0.4);
-  border-radius: 8px;
-  background: transparent;
-  color: #1b744d;
-  font-size: 12px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px dashed #b9d6c5;
+  background: #fafdfb;
+  color: #1a623c;
+  font-size: 12.5px;
   font-weight: 750;
   cursor: pointer;
-  width: fit-content;
+  transition: all 0.16s ease;
 }
 
 .tt-btn-custom-goal:hover {
-  background: #f2faf5;
-  border-style: solid;
+  background: #eef8f2;
+  border-color: #27ae60;
 }
 
-/* Modal de Configuração do Treinamento */
+/* 11. Botões Padrão */
+.tt-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 0;
+  background: #27ae60;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.28);
+  transition: all 0.16s ease;
+}
+
+.tt-btn-primary:hover {
+  background: #219653;
+  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.38);
+}
+
+.tt-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid #ccd8d0;
+  background: #ffffff;
+  color: #173826;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.tt-btn-secondary:hover {
+  background: #f5f8f6;
+  border-color: #9cbda9;
+}
+
+/* 12. Modais */
 .tt-modal-backdrop {
   position: fixed;
   inset: 0;
+  background: rgba(8, 24, 16, 0.65);
+  backdrop-filter: blur(6px);
   z-index: 1000;
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(4, 18, 12, 0.65);
-  backdrop-filter: blur(6px);
+  box-sizing: border-box;
 }
 
 .tt-modal-dialog {
-  width: min(580px, 100%);
+  width: min(580px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
   background: #ffffff;
   border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(120, 196, 148, 0.3);
-  padding: clamp(20px, 3vw, 32px);
-  box-sizing: border-box;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(24, 60, 40, 0.15);
+  padding: 24px 26px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  animation: ttModalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes ttModalIn {
-  from { opacity: 0; transform: scale(0.96) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  gap: 16px;
+  box-sizing: border-box;
 }
 
 .tt-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5ede8;
 }
 
 .tt-modal-header h3 {
   margin: 0;
-  font-size: 19px;
-  color: #0d2b1c;
-  font-weight: 800;
+  font-size: 18px;
+  color: #0c2b1b;
 }
 
 .tt-modal-close {
   border: 0;
-  background: transparent;
-  font-size: 22px;
-  color: #648674;
+  background: #eff4f1;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: #385b48;
   cursor: pointer;
 }
 
 .tt-modal-summary-box {
-  padding: 14px 18px;
+  padding: 14px 16px;
+  background: #f4fbf6;
   border-radius: 12px;
-  background: #f1f8f3;
-  border-left: 4px solid #1b744d;
+  border: 1px solid #c9e8d4;
 }
 
 .tt-modal-summary-box small {
   display: block;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #3f6e54;
+  color: #1e7040;
+  letter-spacing: 0.08em;
   margin-bottom: 4px;
 }
 
 .tt-modal-summary-box h4 {
   margin: 0;
-  font-size: 15px;
-  color: #0b291a;
-  line-height: 1.4;
+  font-size: 16.5px;
+  color: #0a2618;
 }
 
 .tt-form-group {
@@ -880,11 +1032,11 @@ body:has(#tradertraining.active) .content {
 }
 
 .tt-form-group label {
-  font-size: 12px;
-  font-weight: 750;
+  font-size: 11.5px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #4b705c;
+  letter-spacing: 0.08em;
+  color: #557864;
 }
 
 .tt-pills-selector {
@@ -895,186 +1047,126 @@ body:has(#tradertraining.active) .content {
 
 .tt-selector-btn {
   padding: 8px 14px;
-  border: 1px solid #dbe7df;
-  border-radius: 8px;
-  background: #f8fbf9;
-  color: #173826;
+  border-radius: 999px;
+  border: 1px solid #cfded4;
+  background: #fcfdfc;
+  color: #153b27;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 750;
   cursor: pointer;
   transition: all 0.16s ease;
 }
 
 .tt-selector-btn:hover {
-  border-color: #55c285;
+  border-color: #58b87e;
 }
 
 .tt-selector-btn.selected {
-  background: #1b744d;
+  background: #123d26;
+  border-color: #123d26;
   color: #ffffff;
-  border-color: #1b744d;
 }
 
 .tt-selector-btn .recommended-tag {
-  font-size: 9px;
-  padding: 2px 5px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.25);
+  display: inline-block;
   margin-left: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(39, 174, 96, 0.25);
+  font-size: 9.5px;
   text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tt-selector-btn.selected .recommended-tag {
+  background: #27ae60;
+  color: #ffffff;
 }
 
 .tt-modal-actions {
   display: flex;
-  align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid #e5ede8;
 }
 
-.tt-btn-primary {
-  padding: 11px 22px;
-  border-radius: 10px;
-  border: 0;
-  background: #1b744d;
-  color: #ffffff;
-  font-size: 13.5px;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(27, 116, 77, 0.28);
-  transition: all 0.16s ease;
-}
-
-.tt-btn-primary:hover {
-  background: #155e3e;
-  transform: translateY(-1px);
-}
-
-.tt-btn-secondary {
-  padding: 11px 18px;
-  border-radius: 10px;
-  border: 1px solid #d0ded5;
-  background: transparent;
-  color: #426452;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* 14. Seção: Histórico de Desenvolvimento */
-.tt-development-section {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 10px;
-}
-
-.tt-development-timeline {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-}
-
-.tt-development-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Modal de Detalhes da Habilidade */
+.tt-skill-detail-block {
   padding: 14px 16px;
-  border-radius: 14px;
-  background: #ffffff;
-  border: 1px solid #e1ece5;
-}
-
-.tt-development-card-head {
+  background: #f7faf8;
+  border-radius: 12px;
+  border: 1px solid #dce8e0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.tt-development-card-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #113421;
+.tt-skill-detail-block small {
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #27ae60;
 }
 
-.tt-development-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 11px;
-  color: #618471;
+.tt-skill-detail-block p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #1b3827;
 }
 
-/* 11 & 12. Banner Contextual em Novo Trade */
+/* 13. Lembrete Contextual no Novo Trade */
 .tt-contextual-focus-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 18px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(27, 116, 77, 0.12), rgba(27, 116, 77, 0.04));
-  border: 1px solid rgba(48, 150, 93, 0.35);
-  margin-bottom: 16px;
-  color: #0c2b1c;
-  animation: ttFadeIn 0.25s ease;
+  gap: 14px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(235, 248, 240, 0.95), rgba(255, 255, 255, 0.95));
+  border: 1px solid rgba(56, 168, 102, 0.35);
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(18, 52, 34, 0.06);
 }
 
-@keyframes ttFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.tt-focus-banner-left {
+.tt-contextual-focus-left {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.tt-focus-banner-icon {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: #1b744d;
-  color: #ffffff;
-  font-size: 16px;
-  flex-shrink: 0;
+.tt-contextual-focus-icon {
+  font-size: 22px;
 }
 
-.tt-focus-banner-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.tt-focus-banner-eyebrow {
+.tt-contextual-focus-kicker {
   font-size: 10px;
   font-weight: 850;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #1b744d;
+  color: #186f44;
 }
 
-.tt-focus-banner-msg {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #092618;
+.tt-contextual-focus-title {
+  margin: 2px 0 0;
+  font-size: 14.5px;
+  font-weight: 750;
+  color: #0b2c1c;
 }
 
-.tt-focus-banner-sub {
+.tt-contextual-focus-sub {
   font-size: 11.5px;
-  color: #4b6f5d;
+  color: #557864;
 }
 
 .tt-btn-dismiss-focus {
   padding: 6px 14px;
-  border: 1px solid rgba(27, 116, 77, 0.3);
-  border-radius: 8px;
+  border-radius: 999px;
+  border: 1px solid #b5d9c2;
   background: #ffffff;
-  color: #17603e;
+  color: #16462d;
   font-size: 12px;
   font-weight: 750;
   cursor: pointer;
@@ -1082,108 +1174,100 @@ body:has(#tradertraining.active) .content {
 }
 
 .tt-btn-dismiss-focus:hover {
-  background: #1b744d;
-  color: #ffffff;
+  background: #eef7f1;
 }
 
-/* 10. Seção de Treinamento no Diário de Trades */
-.jv-training-section {
+/* 14. Seção Meu Desenvolvimento (Galeria) */
+.tt-development-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px 20px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(27, 116, 77, 0.08), rgba(27, 116, 77, 0.02));
-  border: 1px solid rgba(48, 150, 93, 0.28);
-  margin: 16px 0;
-}
-
-.jv-training-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.jv-training-head-icon {
-  font-size: 18px;
-}
-
-.jv-training-head-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.jv-training-kicker {
-  font-size: 10px;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #1b744d;
-}
-
-.jv-training-goal-title {
-  font-size: 14px;
-  font-weight: 750;
-  color: #0d2e1e;
-}
-
-.jv-training-question {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.jv-training-question span {
-  font-size: 12px;
-  font-weight: 700;
-  color: #496d5b;
-}
-
-.jv-training-buttons-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.jv-btn-assessment {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid #cce0d4;
+  gap: 16px;
+  padding: 24px;
   background: #ffffff;
-  color: #173826;
-  font-size: 12px;
+  border-radius: 22px;
+  border: 1px solid rgba(24, 60, 40, 0.08);
+}
+
+.tt-development-timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.tt-development-card {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #dce8e0;
+  background: #fbfdfc;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tt-development-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tt-development-card-title {
+  font-size: 13.5px;
   font-weight: 750;
-  cursor: pointer;
-  transition: all 0.16s ease;
+  color: #103220;
 }
 
-.jv-btn-assessment:hover {
-  border-color: #55c285;
+.tt-development-card-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #638573;
 }
 
-.jv-btn-assessment.chosen.correct {
-  background: #27ae60;
-  color: #ffffff;
-  border-color: #27ae60;
+/* 15. Tema Gold / Escuro */
+body:not([data-theme="healthy"]) .tt-hero {
+  background-color: #0c1810;
+  background-image:
+    linear-gradient(90deg,
+      rgba(15, 26, 19, 0) 0%,
+      rgba(15, 26, 19, 0) 36%,
+      rgba(15, 26, 19, 0.6) 52%,
+      rgba(15, 26, 19, 0.94) 74%,
+      rgba(15, 26, 19, 0.98) 100%
+    ),
+    url('../assets/trader-training-hero-v1.jpg');
+  border-color: rgba(212, 174, 82, 0.28);
+  color: #f7ede1;
 }
 
-.jv-btn-assessment.chosen.incorrect {
-  background: #eb5757;
-  color: #ffffff;
-  border-color: #eb5757;
+body:not([data-theme="healthy"]) .tt-hero-title {
+  color: #fbf6ee;
 }
 
-.jv-btn-assessment.chosen.not_applicable {
-  background: #647d70;
-  color: #ffffff;
-  border-color: #647d70;
+body:not([data-theme="healthy"]) .tt-hero-subtitle {
+  color: #ddbf82;
 }
 
-/* Modo Escuro / Tema Gold */
-body:not([data-theme="healthy"]) .tt-card {
+body:not([data-theme="healthy"]) .tt-hero-quote {
+  color: #e5d8c3;
+}
+
+body:not([data-theme="healthy"]) .tt-focus-strip {
+  background: linear-gradient(90deg, rgba(28, 24, 18, 0.95), rgba(36, 31, 23, 0.95));
+  border-color: rgba(212, 174, 82, 0.24);
+}
+
+body:not([data-theme="healthy"]) .tt-focus-badge {
+  background: #3a2e16;
+  color: #f0cb79;
+}
+
+body:not([data-theme="healthy"]) .tt-focus-rule-title,
+body:not([data-theme="healthy"]) .tt-focus-strip-text {
+  color: #ecd9ba;
+}
+
+body:not([data-theme="healthy"]) .tt-card,
+body:not([data-theme="healthy"]) .tt-development-section {
   background: rgba(22, 19, 14, 0.92);
   border-color: rgba(212, 174, 82, 0.15);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -1234,24 +1318,47 @@ body:not([data-theme="healthy"]) .tt-modal-header h3 {
   color: #f7ede1;
 }
 
-/* Responsividade */
+/* 16. Responsividade */
 @media (max-width: 1200px) {
   .tt-top-grid,
   .tt-mid-grid,
   .tt-bottom-grid {
     grid-template-columns: 1fr;
   }
+  .tt-hero {
+    min-height: 340px;
+  }
+  .tt-hero-content {
+    width: 65%;
+  }
 }
 
-@media (max-width: 768px) {
-  .tt-pills-row {
-    grid-template-columns: 1fr;
-  }
-  .tt-goal-meta-grid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 800px) {
   .tt-hero {
     min-height: auto;
     padding: 24px 20px;
+    background-image:
+      linear-gradient(180deg,
+        rgba(246, 250, 247, 0.4) 0%,
+        rgba(246, 250, 247, 0.94) 50%,
+        rgba(246, 250, 247, 0.98) 100%
+      ),
+      url('../assets/trader-training-hero-v1.jpg');
+    justify-content: flex-start;
+  }
+  .tt-hero-content {
+    width: 100%;
+    margin-left: 0;
+  }
+  .tt-focus-strip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tt-focus-strip-text {
+    text-align: left;
+  }
+  .tt-pills-row,
+  .tt-goal-meta-grid {
+    grid-template-columns: 1fr;
   }
 }
