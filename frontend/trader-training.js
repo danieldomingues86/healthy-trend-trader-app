@@ -1041,19 +1041,43 @@
       banner = document.createElement('div');
       banner.id = 'ttContextualFocusBanner';
       banner.className = 'tt-contextual-focus-banner';
+    }
+
+    const formGrid = newTradePage.querySelector('#tradeDataStage .form-grid') ||
+                     newTradePage.querySelector('.form-card .form-grid') ||
+                     newTradePage.querySelector('.form-grid');
+
+    if (formGrid && formGrid.parentNode) {
+      if (banner.parentNode !== formGrid.parentNode || banner.nextSibling !== formGrid) {
+        formGrid.parentNode.insertBefore(banner, formGrid);
+      }
+    } else {
       const formCard = newTradePage.querySelector('.form-card') || newTradePage.querySelector('.hero') || newTradePage.firstChild;
       if (formCard && formCard.parentNode) {
-        formCard.parentNode.insertBefore(banner, formCard.nextSibling);
+        if (banner.parentNode !== formCard.parentNode || banner.nextSibling !== formCard) {
+          formCard.parentNode.insertBefore(banner, formCard);
+        }
       } else {
-        newTradePage.prepend(banner);
+        if (banner.parentNode !== newTradePage || newTradePage.firstChild !== banner) {
+          newTradePage.prepend(banner);
+        }
       }
     }
 
     banner.innerHTML = `
       <div class="tt-contextual-focus-left">
-        <span class="tt-contextual-focus-icon">🎯</span>
-        <div>
-          <span class="tt-contextual-focus-kicker">Seu foco atual em treinamento</span>
+        <div class="tt-contextual-focus-icon-wrap" aria-hidden="true">
+          <svg class="tt-contextual-focus-target-svg" width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="17" cy="19" r="13" stroke="#f43f5e" stroke-width="2.5" fill="#fff5f6" />
+            <circle cx="17" cy="19" r="8.5" stroke="#cbd5e1" stroke-width="1.8" fill="#ffffff" />
+            <circle cx="17" cy="19" r="4.5" stroke="#06b6d4" stroke-width="2" fill="#ecfeff" />
+            <circle cx="17" cy="19" r="1.8" fill="#0891b2" />
+            <path d="M7 9L15 17" stroke="#0f172a" stroke-width="2" stroke-linecap="round" />
+            <path d="M5 8L8 5L9 8L6 11Z" fill="#0f172a" />
+          </svg>
+        </div>
+        <div class="tt-contextual-focus-content">
+          <span class="tt-contextual-focus-kicker">SEU FOCO ATUAL EM TREINAMENTO</span>
           <div class="tt-contextual-focus-title">“${esc(active.title)}”</div>
           <div class="tt-contextual-focus-sub">${esc(focusMsg)}</div>
         </div>
