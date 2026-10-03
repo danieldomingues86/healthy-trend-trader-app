@@ -316,9 +316,16 @@
         horzLines: { color: gridColor }
       },
       rightPriceScale: {
-        mode: chartSettings.scale === 'log' ? 1 : 0
+        mode: chartSettings.scale === 'log' ? 1 : 0,
+        scaleMargins: { top: 0.08, bottom: 0.24 }
       }
     });
+
+    if (volumeSeries) {
+      volumeSeries.priceScale().applyOptions({
+        scaleMargins: { top: 0.82, bottom: 0 }
+      });
+    }
 
     if (candleSeries) {
       if (chartSettings.type === 'line') {
@@ -1339,7 +1346,7 @@
       },
       rightPriceScale: {
         borderColor: gridColor,
-        scaleMargins: { top: 0.1, bottom: 0.22 }
+        scaleMargins: { top: 0.08, bottom: 0.24 }
       },
       timeScale: {
         borderColor: gridColor,
@@ -1392,19 +1399,28 @@
       ensureEma21Series();
     }
 
-    // Volume Histogram Series
+    // Volume Histogram Series (ancorado na base para não sobrepor os candles)
     volumeSeries = chartInstance.addHistogramSeries({
-      color: '#64748b',
       priceFormat: { type: 'volume' },
-      priceScaleId: '', // Overlay no mesmo painel
-      scaleMargins: { top: 0.8, bottom: 0 },
+      priceScaleId: '', // Escala overlay no mesmo painel
+      lastValueVisible: false, // Mantém a régua vertical da direita exclusiva para os preços
+      priceLineVisible: false, // Não traça linha horizontal no preço
       visible: !!indicatorPrefs.volume
+    });
+
+    // Aplica scaleMargins diretamente na escala de preço do volume:
+    // top: 0.82 garante que as maiores barras ocupem no máximo 18% da altura do gráfico
+    volumeSeries.priceScale().applyOptions({
+      scaleMargins: {
+        top: 0.82,
+        bottom: 0
+      }
     });
 
     const volumeData = data.ohlc.map(c => ({
       time: c.time,
       value: c.volume || 0,
-      color: c.close >= c.open ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)'
+      color: c.close >= c.open ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'
     }));
     volumeSeries.setData(volumeData);
 
