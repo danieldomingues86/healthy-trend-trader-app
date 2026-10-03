@@ -2,11 +2,28 @@
    HEALTHY TREND TRADER — CENTRAL DE ANÁLISE DO TICKER (GRÁFICOS)
    ========================================================================== */
 
-#charts.page {
-  padding: 20px 28px 48px;
-  max-width: 1680px;
-  margin: 0 auto;
+/* Layout calibrado para telas widescreen e monitores wide */
+body:has(#charts.active) .content,
+body:has(#charts.page.active) .content {
+  max-width: 1880px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 18px clamp(16px, 1.8vw, 28px) 48px !important;
+  box-sizing: border-box !important;
+}
+
+body:has(#charts.active) #marketFocusGuard,
+body:has(#charts.page.active) #marketFocusGuard {
   width: 100%;
+  max-width: 1880px;
+  margin: 0 auto 16px;
+}
+
+#charts.page {
+  padding: 0 0 32px 0;
+  max-width: 1880px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
   box-sizing: border-box;
 }
 
@@ -46,6 +63,18 @@
   flex: 1;
   max-width: 480px;
   min-width: 280px;
+}
+
+@media (min-width: 1600px) {
+  .ticker-search-container {
+    max-width: 560px;
+  }
+}
+
+@media (min-width: 2000px) {
+  .ticker-search-container {
+    max-width: 640px;
+  }
 }
 
 .ticker-search-input-wrapper {
@@ -350,7 +379,7 @@
 .ticker-hero-meta-columns {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: clamp(20px, 2.5vw, 44px);
   flex-wrap: wrap;
 }
 
@@ -428,9 +457,16 @@
 /* 3. MAIN CHART & VISÃO DO ATIVO ROW */
 .ticker-main-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 350px;
   gap: 18px;
   margin-bottom: 20px;
+}
+
+@media (min-width: 1700px) {
+  .ticker-main-grid {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 20px;
+  }
 }
 
 @media (max-width: 1200px) {
@@ -441,6 +477,7 @@
 
 /* Chart Card */
 .ticker-chart-card {
+  min-width: 0;
   background: var(--surface, #ffffff);
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 18px;
@@ -489,6 +526,12 @@
   cursor: default;
 }
 
+.chart-toolbar-btn-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .chart-toolbar-btn {
   display: flex;
   align-items: center;
@@ -502,10 +545,250 @@
   color: #475569;
   cursor: pointer;
   transition: all 0.15s ease;
+  user-select: none;
 }
 
 .chart-toolbar-btn:hover {
   background: #f1f5f9;
+  color: #0f172a;
+}
+
+.chart-toolbar-btn.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.chart-notes-count-badge {
+  font-size: 10px;
+  background: #059669;
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  font-weight: 700;
+  margin-left: 2px;
+  line-height: 1.2;
+}
+
+/* Toolbar Popovers */
+.chart-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 280px;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 14px 16px;
+  z-index: 200;
+  display: none;
+  box-sizing: border-box;
+}
+
+.chart-popover.active {
+  display: block;
+  animation: popoverFadeIn 0.15s ease-out;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart-popover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-light, #f1f5f9);
+}
+
+.chart-popover-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--ink, #0f172a);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.chart-popover-close {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  color: var(--muted, #94a3b8);
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.chart-popover-close:hover {
+  color: var(--ink, #0f172a);
+}
+
+.chart-indicator-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chart-indicator-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--ink, #1e293b);
+  cursor: pointer;
+  user-select: none;
+}
+
+.chart-indicator-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.indicator-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Compare Popover */
+.chart-compare-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compare-pills-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-compare-pill {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border, #cbd5e1);
+  background: var(--surface, #ffffff);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink, #334155);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-compare-pill:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.btn-compare-pill.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.compare-input-row {
+  display: flex;
+  gap: 6px;
+}
+
+.compare-ticker-input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.btn-compare-apply {
+  padding: 6px 12px;
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.compare-active-banner {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 11.5px;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.btn-compare-remove {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Settings Popover */
+.chart-settings-group {
+  margin-bottom: 10px;
+}
+
+.chart-settings-group:last-child {
+  margin-bottom: 0;
+}
+
+.chart-settings-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted, #64748b);
+  margin-bottom: 5px;
+  display: block;
+}
+
+.chart-settings-select {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 6px;
+  font-size: 12px;
+  background: var(--surface, #ffffff);
+  color: var(--ink, #1e293b);
+}
+
+.btn-chart-reset-all {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+.btn-chart-reset-all:hover {
+  background: #e2e8f0;
   color: #0f172a;
 }
 
@@ -514,6 +797,18 @@
   width: 100%;
   height: 480px;
   min-height: 400px;
+}
+
+@media (min-width: 1600px) {
+  .chart-canvas-wrapper {
+    height: 500px;
+  }
+}
+
+@media (min-width: 2000px) {
+  .chart-canvas-wrapper {
+    height: 520px;
+  }
 }
 
 /* Legend Overlay */
@@ -698,6 +993,12 @@
   margin-bottom: 18px;
 }
 
+@media (min-width: 1800px) {
+  .method-widgets-row {
+    gap: 18px;
+  }
+}
+
 @media (max-width: 1400px) {
   .method-widgets-row {
     grid-template-columns: repeat(3, 1fr);
@@ -808,6 +1109,12 @@
   grid-template-columns: 1.3fr 1.3fr 1fr 1fr;
   gap: 16px;
   margin-bottom: 24px;
+}
+
+@media (min-width: 1800px) {
+  .detailed-widgets-row {
+    gap: 20px;
+  }
 }
 
 @media (max-width: 1300px) {
@@ -1451,4 +1758,261 @@
   font-size: 12.5px;
   color: var(--muted, #64748b);
 }
+
+/* 8. CHART NOTES DRAWER */
+.chart-notes-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(3px);
+  z-index: 9998;
+  display: none;
+}
+
+.chart-notes-overlay.active {
+  display: block;
+}
+
+.chart-notes-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 440px;
+  max-width: 92vw;
+  height: 100vh;
+  background: var(--surface, #ffffff);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 24px 28px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chart-notes-drawer.active {
+  transform: translateX(0);
+}
+
+.chart-notes-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-light, #f1f5f9);
+  padding-bottom: 14px;
+}
+
+.chart-notes-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chart-notes-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink, #0f172a);
+}
+
+.chart-notes-subtitle {
+  font-size: 12px;
+  color: var(--muted, #64748b);
+}
+
+.chart-notes-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--muted, #94a3b8);
+  padding: 2px 6px;
+}
+
+.chart-notes-close:hover {
+  color: var(--ink, #0f172a);
+}
+
+.chart-note-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.chart-note-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 12.5px;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.chart-note-cat-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.note-cat-pill {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.note-cat-pill.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.btn-chart-save-note {
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background 0.15s ease;
+}
+
+.btn-chart-save-note:hover {
+  background: #047857;
+}
+
+.chart-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chart-note-item {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.chart-note-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.chart-note-item-cat {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-weight: 700;
+}
+
+.chart-note-item-cat.plano {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.chart-note-item-cat.suporte {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.chart-note-item-cat.aviso {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.chart-note-item-time {
+  color: #94a3b8;
+}
+
+.chart-note-item-body {
+  font-size: 12.5px;
+  color: #334155;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.btn-chart-note-delete {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  align-self: flex-end;
+}
+
+.btn-chart-note-delete:hover {
+  text-decoration: underline;
+}
+
+.chart-notes-empty {
+  text-align: center;
+  padding: 24px 16px;
+  font-size: 12.5px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+/* Gold Theme Overrides */
+[data-theme="gold"] .chart-popover,
+[data-theme="gold"] .chart-notes-drawer {
+  background: #0f1715;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+[data-theme="gold"] .chart-note-form,
+[data-theme="gold"] .chart-note-item {
+  background: #141e1c;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="gold"] .chart-settings-select,
+[data-theme="gold"] .compare-ticker-input,
+[data-theme="gold"] .chart-note-textarea {
+  background: #0b1110;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+}
+
+[data-theme="gold"] .btn-compare-pill,
+[data-theme="gold"] .note-cat-pill {
+  background: #141e1c;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+[data-theme="gold"] .btn-compare-pill.active,
+[data-theme="gold"] .note-cat-pill.active {
+  background: #2dd4bf;
+  color: #042f2e;
+  border-color: #2dd4bf;
+}
+
 

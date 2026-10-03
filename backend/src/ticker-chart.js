@@ -170,6 +170,18 @@ function loadNasdaqHistory() {
   return nasdaqStocksCache;
 }
 
+function normalizeAssetClassLabel(rawClass) {
+  const c = String(rawClass || '').trim().toLowerCase();
+  if (c === 'stock_ibov' || c === 'ibov') return 'IBOV';
+  if (c === 'stock_other' || c === 'stock' || c === 'stock_b3') return 'B3';
+  if (c === 'bdr') return 'BDR';
+  if (c === 'fii') return 'FII';
+  if (c === 'index') return 'Índice';
+  if (c === 'nasdaq') return 'Nasdaq';
+  if (c === 'etf') return 'ETF';
+  return 'B3';
+}
+
 /**
  * Retorna o universo pesquisável com informações sumarizadas
  */
@@ -194,7 +206,7 @@ async function getSearchUniverse() {
         symbol: sym,
         name: name || sym,
         sector: sector || 'Não classificado',
-        assetClass: assetClass || 'stock',
+        assetClass: normalizeAssetClassLabel(assetClass),
         score: Number.isFinite(Number(score)) ? Number(score) : null,
         price: Number.isFinite(Number(price)) ? Number(price) : null,
         dayChangePct: Number.isFinite(Number(dayChangePct)) ? Number(dayChangePct) : null
@@ -433,7 +445,7 @@ async function getTickerChartData(rawSymbol) {
       marketCapFormatted,
       volumeAvg21,
       volumeAvg21Formatted,
-      assetClass
+      assetClass: normalizeAssetClassLabel(assetClass)
     },
     ohlc: candles,
     indicators: {
