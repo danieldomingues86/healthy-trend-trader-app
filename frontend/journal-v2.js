@@ -567,14 +567,14 @@
             const val = trade.trainingAssessment || '';
             const catLabel = window.TraderTrainingModel ? window.TraderTrainingModel.categoryLabel(activeGoal.category) : 'Treinamento';
             return `
-              <!-- TREINAMENTO DE TRADER INTEGRADO NA FICHA DO TRADE -->
-              <section class="jv-trade-section jv-training-card" aria-label="${text('Treinamento de Trader', 'Trader Training')}">
+              <!-- TREINAMENTO TRADER INTEGRADO NA FICHA DO TRADE -->
+              <section class="jv-trade-section jv-training-card" aria-label="${text('Treinamento Trader', 'Trader Training')}">
                 <header class="jv-training-card-header">
                   <div class="jv-training-badge-group">
                     <span class="jv-training-target-icon" aria-hidden="true">🎯</span>
                     <div>
                       <div class="jv-training-kicker-row">
-                        <span class="jv-training-kicker">${text('Treinamento de Trader', 'Trader Training')}</span>
+                        <span class="jv-training-kicker">${text('Treinamento Trader', 'Trader Training')}</span>
                         <span class="jv-training-dot">·</span>
                         <span class="jv-training-subtag">${text('Seu objetivo de evolução', 'Your evolution goal')}</span>
                         <span class="jv-training-cat-pill">${esc(catLabel)}</span>

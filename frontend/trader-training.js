@@ -27,6 +27,8 @@
     modalOpen: false,
     modalGoalCandidate: null,
     customModalOpen: false,
+    libraryModalOpen: false,
+    historyModalOpen: false,
     skillModalItem: null,
     isLoading: false,
     dismissedBanners: new Set()
@@ -230,29 +232,14 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             Treinamento Deliberado
           </span>
-          <h1 class="tt-hero-title">Treinamento de Trader</h1>
-          <p class="tt-hero-subtitle">Lapide suas habilidades. Repita até virar hábito.</p>
+          <h1 class="tt-hero-title">Treinamento Trader</h1>
+          <p class="tt-hero-subtitle">LAPIDE SUAS HABILIDADES. REPITA ATÉ VIRAR HÁBITO.</p>
           <div class="tt-hero-divider"></div>
           <div class="tt-hero-quote">
             “Você não precisa melhorar tudo ao mesmo tempo. Escolha um comportamento, treine, meça e transforme em hábito. Depois avance para o próximo.”
           </div>
         </div>
       </section>
-    `;
-  }
-
-  function renderFocusStrip() {
-    return `
-      <div class="tt-focus-strip">
-        <div class="tt-focus-strip-left">
-          <span class="tt-focus-badge">🎯 FOCO ATUAL</span>
-          <span class="tt-focus-rule-divider">·</span>
-          <span class="tt-focus-rule-title">Regra Fundamental</span>
-        </div>
-        <div class="tt-focus-strip-text">
-          “Uma habilidade por vez. Repetição suficiente. Medição objetiva. Até virar comportamento automático.”
-        </div>
-      </div>
     `;
   }
 
@@ -265,14 +252,21 @@
               <span class="tt-card-icon">🎯</span>
               <h2>Meu objetivo atual</h2>
             </div>
-          </header>
-          <div class="tt-goal-body" style="text-align:center; padding: 28px 0;">
-            <div class="tt-goal-target-icon" style="margin: 0 auto 14px;">🎯</div>
-            <h3 style="margin: 0 0 8px; font-size: 20px; color: #0f2c1d;">Nenhum treinamento ativo no momento</h3>
-            <p style="margin: 0 0 20px; color: #557864; font-size: 14px;">Escolha um comportamento na biblioteca abaixo para iniciar seu período de foco e repetição deliberada.</p>
-            <button type="button" class="tt-btn-primary" style="margin: 0 auto;" onclick="window.TraderTraining.scrollToSelection()">
-              Selecionar um objetivo de evolução ↓
+            <button type="button" class="tt-btn-switch" onclick="window.TraderTraining.openLibrary()">
+              ＋ Selecionar objetivo
             </button>
+          </header>
+          <div class="tt-goal-body empty" style="text-align:center; padding: 22px 0 14px;">
+            <div class="tt-goal-target-icon" style="margin: 0 auto 12px;">🎯</div>
+            <h3 style="margin: 0 0 6px; font-size: 18px; color: #0f2c1d;">Nenhum treinamento ativo no momento</h3>
+            <p style="margin: 0 auto 16px; color: #557864; font-size: 13.5px; max-width: 440px; line-height: 1.5;">Escolha um comportamento na biblioteca para iniciar seu período de foco e repetição deliberada.</p>
+            <button type="button" class="tt-btn-primary" onclick="window.TraderTraining.openLibrary()">
+              Abrir biblioteca de objetivos →
+            </button>
+          </div>
+          <div class="tt-goal-focus-note">
+            <span class="tt-focus-note-badge">FOCO ATUAL</span>
+            <span class="tt-focus-note-text">“Uma habilidade por vez. Repetição suficiente. Medição objetiva. Até virar comportamento automático.”</span>
           </div>
         </article>
       `;
@@ -289,9 +283,9 @@
           <div class="tt-card-title-group">
             <span class="tt-card-icon">🎯</span>
             <h2>Meu objetivo atual</h2>
-            <span class="tt-badge-status active">Em treinamento</span>
+            <span class="tt-badge-status active">● Em treinamento</span>
           </div>
-          <button type="button" class="tt-btn-switch" onclick="window.TraderTraining.promptSwitchGoal()">
+          <button type="button" class="tt-btn-switch" onclick="window.TraderTraining.openLibrary()">
             ⇄ Trocar objetivo
           </button>
         </header>
@@ -331,6 +325,11 @@
               <span class="tt-meta-value">${active.targetPct}%</span>
             </div>
           </div>
+        </div>
+
+        <div class="tt-goal-focus-note">
+          <span class="tt-focus-note-badge">FOCO ATUAL</span>
+          <span class="tt-focus-note-text">“Uma habilidade por vez. Repetição suficiente. Medição objetiva. Até virar comportamento automático.”</span>
         </div>
       </article>
     `;
@@ -455,39 +454,7 @@
     `;
   }
 
-  function renderEvolutionCard(active, records) {
-    const weeks = active ? M.weeklyEvolution(active, records) : [];
-    const insight = M.evolutionInsight(weeks);
-
-    return `
-      <article class="tt-card tt-evolution-card">
-        <header class="tt-card-header">
-          <div class="tt-card-title-group">
-            <span class="tt-card-icon">↗</span>
-            <h2>Minha evolução</h2>
-          </div>
-        </header>
-
-        <div class="tt-evolution-body">
-          <div class="tt-evolution-icon-wrap" aria-hidden="true">
-            ${insight.tone === 'up' ? '↗' : insight.tone === 'down' ? '↘' : insight.tone === 'empty' ? '🌱' : '➔'}
-          </div>
-          <div class="tt-evolution-copy">
-            <h4>${esc(insight.title)}</h4>
-            ${insight.tone === 'up' && insight.highlight ? `
-              <p>Sua aderência aumentou <strong class="tt-stat-delta">+${esc(insight.highlight)}</strong> desde o início do treinamento.</p>
-            ` : insight.tone === 'down' && insight.highlight ? `
-              <p>Sua aderência caiu <strong class="tt-stat-delta bad">-${esc(insight.highlight)}</strong> desde o início. Revise os desvios no Diário.</p>
-            ` : `
-              <p>${esc(insight.message)}</p>
-            `}
-          </div>
-        </div>
-      </article>
-    `;
-  }
-
-  function renderPeriodCard(active) {
+  function renderPeriodAndEvolutionCard(active, records) {
     if (!active) {
       return `
         <article class="tt-card tt-period-card">
@@ -497,7 +464,12 @@
               <h2>Período do treinamento</h2>
             </div>
           </header>
-          <p style="color: #6a8c79; font-size: 13.5px; margin: 24px 0;">Defina um objetivo para acompanhar a linha do tempo do seu treinamento.</p>
+          <div style="padding: 24px 0; text-align: center; color: #6a8c79; font-size: 13.5px;">
+            <p style="margin: 0 0 14px;">Defina um objetivo para acompanhar a linha do tempo e a evolução da sua consistência.</p>
+            <button type="button" class="tt-btn-secondary" style="padding: 7px 16px; font-size: 12.5px;" onclick="window.TraderTraining.openLibrary()">
+              Escolher objetivo na biblioteca →
+            </button>
+          </div>
         </article>
       `;
     }
@@ -505,7 +477,10 @@
     const progress = M.periodProgress(active);
     const startStr = M.formatDate(active.startDate, false);
     const endStr = M.formatDate(active.endDate, false);
-    const conclusion = M.conclusion(active, state.records);
+    const conclusion = M.conclusion(active, records);
+
+    const weeks = M.weeklyEvolution(active, records);
+    const insight = M.evolutionInsight(weeks);
 
     return `
       <article class="tt-card tt-period-card">
@@ -514,31 +489,55 @@
             <span class="tt-card-icon">📅</span>
             <h2>Período do treinamento</h2>
           </div>
+          <span class="tt-period-remaining-badge">${progress.remaining} dias restantes</span>
         </header>
 
         <div class="tt-timeline-wrap">
           <div class="tt-timeline-axis">
-            <span>${startStr} · Início</span>
-            <span>${progress.remaining} dias restantes</span>
-            <span>${endStr} · Fim</span>
+            <span class="tt-tl-start"><b>${startStr}</b> · Início</span>
+            <span class="tt-tl-center"><b>${progress.remaining} dias restantes</b></span>
+            <span class="tt-tl-end"><b>${endStr}</b> · Fim</span>
           </div>
 
-          <div class="tt-timeline-track">
+          <div class="tt-timeline-track" role="progressbar" aria-valuenow="${progress.pct}" aria-valuemin="0" aria-valuemax="100">
             <div class="tt-timeline-fill" style="width: ${progress.pct}%;"></div>
             <div class="tt-timeline-dot" style="left: ${progress.pct}%;"></div>
           </div>
         </div>
 
+        <div class="tt-unified-evolution-block">
+          <div class="tt-evolution-subhead">
+            <span class="tt-card-icon small">↗</span>
+            <h3>Minha evolução</h3>
+          </div>
+
+          <div class="tt-evolution-body-compact">
+            <div class="tt-evolution-icon-wrap" aria-hidden="true">
+              ${insight.tone === 'up' ? '↗' : insight.tone === 'down' ? '↘' : insight.tone === 'empty' ? '🌱' : '➔'}
+            </div>
+            <div class="tt-evolution-copy">
+              <h4>${esc(insight.title)}</h4>
+              ${insight.tone === 'up' && insight.highlight ? `
+                <p>Sua aderência aumentou <strong class="tt-stat-delta">+${esc(insight.highlight)}</strong> desde o início do treinamento.</p>
+              ` : insight.tone === 'down' && insight.highlight ? `
+                <p>Sua aderência caiu <strong class="tt-stat-delta bad">-${esc(insight.highlight)}</strong> desde o início. Revise os desvios no Diário.</p>
+              ` : `
+                <p>${esc(insight.message)}</p>
+              `}
+            </div>
+          </div>
+        </div>
+
         ${conclusion ? `
-          <div class="tt-motivation-box" style="background: rgba(39, 174, 96, 0.12); border-color: rgba(39, 174, 96, 0.3); color: #105930;">
-            <div style="font-size: 24px;">${conclusion.reached ? '🏆' : '🔄'}</div>
+          <div class="tt-motivation-box conclusion ${conclusion.reached ? 'success' : 'pending'}">
+            <div class="tt-motivation-icon">${conclusion.reached ? '🏆' : '🔄'}</div>
             <div style="flex:1;">
               <b>${conclusion.reached ? 'Objetivo concluído!' : 'Continue treinando'}</b>
               <span>${conclusion.reached
                 ? `Você manteve ${Math.round(conclusion.adherence.pct)}% de aderência durante o treinamento. Meta de consistência atingida!`
                 : `Sua aderência foi de ${Math.round(conclusion.adherence.pct || 0)}%. O comportamento ainda está se consolidando.`}
               </span>
-              <div style="display:flex; gap: 8px; margin-top: 10px;">
+              <div class="tt-conclusion-actions">
                 ${conclusion.reached ? `
                   <button type="button" class="tt-btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="window.TraderTraining.concludeAndSelectNext()">Escolher próximo objetivo</button>
                 ` : `
@@ -550,7 +549,7 @@
           </div>
         ` : `
           <div class="tt-motivation-box">
-            <div style="font-size: 24px;">🏆</div>
+            <div class="tt-motivation-icon">🏆</div>
             <div>
               <b>Mantenha o foco!</b>
               <span>Você está no caminho para alcançar sua meta de consistência.</span>
@@ -563,6 +562,7 @@
 
   function renderHistoryTable(records) {
     const list = records || [];
+    const recent = list.slice(0, 5);
 
     return `
       <article class="tt-card tt-history-card">
@@ -571,15 +571,17 @@
             <span class="tt-card-icon">🕒</span>
             <h2>Histórico de comportamento</h2>
           </div>
-          <span style="font-size: 12.5px; color: #557864; font-weight: 700;">
-            ${list.length} registro${list.length === 1 ? '' : 's'} no período
-          </span>
+          <div class="tt-history-header-actions">
+            <span class="tt-history-count-badge">
+              ${list.length} registro${list.length === 1 ? '' : 's'} no período
+            </span>
+            ${list.length > 0 ? `
+              <button type="button" class="tt-btn-link-viewall" onclick="window.TraderTraining.openHistoryModal()">
+                Ver histórico completo →
+              </button>
+            ` : ''}
+          </div>
         </header>
-
-        <div class="tt-notice-disclaimer">
-          <span style="font-size: 16px;">⚖️</span>
-          <span><b>Atenção pedagógica:</b> Resultado financeiro e qualidade da execução são coisas distintas. Uma operação pode perder dinheiro e ter execução correta; ou ganhar dinheiro e ter execução incorreta. O treinamento mede seu <b>comportamento e disciplina</b>.</span>
-        </div>
 
         <div class="tt-table-container">
           <table class="tt-table">
@@ -594,15 +596,15 @@
               </tr>
             </thead>
             <tbody>
-              ${!list.length ? `
+              ${!recent.length ? `
                 <tr>
-                  <td colspan="6" style="text-align: center; padding: 36px; color: #6a8c79;">
+                  <td colspan="6" style="text-align: center; padding: 32px; color: #6a8c79;">
                     Nenhum comportamento registrado neste período ainda.<br>
-                    <small style="display:block; margin-top: 6px; color: #87a896;">Ao registrar ou revisar suas operações no Diário de Trades, marque sua autoavaliação para alimentar esta tabela.</small>
+                    <small style="display:block; margin-top: 6px; color: #87a896;">Ao registrar ou revisar suas operações no Diário de Trader, marque sua avaliação de disciplina para alimentar esta tabela.</small>
                   </td>
                 </tr>
-              ` : list.map((item) => {
-                const dateStr = M.formatDate(item.recordDate);
+              ` : recent.map((item) => {
+                const dateStr = M.formatDate(item.recordDate, false);
                 const outLabel = M.outcomeLabel(item.outcome);
                 const rStr = M.formatR(item.rMultiple);
                 const assessClass = item.assessment;
@@ -612,7 +614,7 @@
                 return `
                   <tr>
                     <td><b>${dateStr}</b></td>
-                    <td><b>${esc(item.ticker || '—')}</b></td>
+                    <td><span class="tt-ticker-pill">${esc(item.ticker || '—')}</span></td>
                     <td class="outcome-${esc(item.outcome)}">${outLabel}</td>
                     <td class="r-val ${item.rMultiple > 0 ? 'outcome-gain' : item.rMultiple < 0 ? 'outcome-loss' : ''}">${rStr}</td>
                     <td>
@@ -620,7 +622,7 @@
                         ${assessIcon} ${assessLabel}
                       </span>
                     </td>
-                    <td style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${esc(item.note || '')}">
+                    <td style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${esc(item.note || '')}">
                       ${esc(item.note || '—')}
                     </td>
                   </tr>
@@ -629,11 +631,18 @@
             </tbody>
           </table>
         </div>
+
+        <div class="tt-notice-disclaimer compact">
+          <span style="font-size: 16px;">⚖️</span>
+          <span><b>Atenção pedagógica:</b> Resultado financeiro e qualidade da execução são coisas distintas. Uma operação pode perder dinheiro e ter execução correta; ou ganhar dinheiro e ter execução incorreta. O treinamento mede seu <b>comportamento e disciplina</b>.</span>
+        </div>
       </article>
     `;
   }
 
-  function renderSelectionCard() {
+  function renderLibraryModal() {
+    if (!state.libraryModalOpen) return '';
+
     const cats = [
       { id: 'execution', label: 'Execução' },
       { id: 'psychology', label: 'Psicologia' },
@@ -647,53 +656,142 @@
     const items = isCustom ? [] : M.catalogByCategory(currentCat);
 
     return `
-      <article class="tt-card tt-selection-card" id="ttSelectionCard">
-        <header class="tt-card-header">
-          <div class="tt-card-title-group">
-            <span class="tt-card-icon">📋</span>
-            <h2>Selecionar novo objetivo</h2>
-          </div>
-          <button type="button" class="tt-btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="window.TraderTraining.openCustomGoalModal()">
-            ＋ Novo objetivo
-          </button>
-        </header>
+      <div class="tt-modal-backdrop" onclick="if (event.target === this) window.TraderTraining.closeLibrary()">
+        <div class="tt-modal-dialog tt-library-dialog" role="dialog" aria-modal="true" aria-labelledby="ttLibraryTitle">
+          <header class="tt-modal-header">
+            <div class="tt-card-title-group">
+              <span class="tt-card-icon">🎯</span>
+              <div>
+                <h3 id="ttLibraryTitle" style="margin: 0; font-size: 18px; color: #0c2016;">Biblioteca de Objetivos de Evolução</h3>
+                <small style="color: #557864; font-size: 12.5px;">Escolha um comportamento para treinar. Você terá apenas um objetivo ativo por vez.</small>
+              </div>
+            </div>
+            <button type="button" class="tt-modal-close" onclick="window.TraderTraining.closeLibrary()" aria-label="Fechar">×</button>
+          </header>
 
-        <nav class="tt-tabs-rail" role="tablist">
-          ${cats.map(c => `
-            <button type="button" class="tt-tab-btn ${currentCat === c.id ? 'active' : ''}" role="tab" onclick="window.TraderTraining.selectCategory('${c.id}')">
-              ${c.label}
-            </button>
-          `).join('')}
-        </nav>
+          <nav class="tt-tabs-rail" role="tablist">
+            ${cats.map(c => `
+              <button type="button" class="tt-tab-btn ${currentCat === c.id ? 'active' : ''}" role="tab" onclick="window.TraderTraining.selectCategory('${c.id}')">
+                ${c.label}
+              </button>
+            `).join('')}
+          </nav>
 
-        ${isCustom ? `
-          <div style="padding: 18px; background: #f8fbf9; border-radius: 14px; border: 1px solid #dce8e0;">
-            <h4 style="margin: 0 0 6px; font-size: 14.5px; color: #0d2c1e;">Criar objetivo personalizado</h4>
-            <p style="margin: 0 0 16px; font-size: 13px; color: #557864; line-height: 1.5;">Defina qualquer regra ou comportamento específico que você deseja transformar em hábito através da repetição deliberada.</p>
-            <button type="button" class="tt-btn-primary" onclick="window.TraderTraining.openCustomGoalModal()">
-              ＋ Escrever objetivo personalizado
-            </button>
+          <div class="tt-library-content">
+            ${isCustom ? `
+              <div class="tt-custom-prompt-card">
+                <h4 style="margin: 0 0 6px; font-size: 15px; color: #0d2c1e;">Criar objetivo personalizado</h4>
+                <p style="margin: 0 0 16px; font-size: 13px; color: #557864; line-height: 1.5;">Defina qualquer regra ou comportamento específico que você deseja transformar em hábito através da repetição deliberada.</p>
+                <button type="button" class="tt-btn-primary" onclick="window.TraderTraining.openCustomGoalModal()">
+                  ＋ Escrever objetivo personalizado
+                </button>
+              </div>
+            ` : `
+              <div class="tt-catalog-list">
+                ${items.map(item => {
+                  const isSelected = state.selectedCatalogId === item.id;
+                  const descShort = item.focus || item.description || '';
+                  return `
+                    <div class="tt-catalog-item ${isSelected ? 'selected' : ''}" onclick="window.TraderTraining.pickCatalogItem('${item.id}')">
+                      <div class="tt-catalog-item-left">
+                        <span class="tt-catalog-radio-dot"></span>
+                        <div class="tt-catalog-item-texts">
+                          <span class="tt-catalog-item-title">${esc(item.title)}</span>
+                          <span class="tt-catalog-item-desc">${esc(descShort)}</span>
+                        </div>
+                      </div>
+                      <button type="button" class="tt-catalog-item-info" title="${esc(item.description || item.focus || 'Ver detalhes')}" onclick="event.stopPropagation(); window.TraderTraining.showSkillDetails('${item.id}')" aria-label="Ver detalhes do comportamento">
+                        ℹ
+                      </button>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <button type="button" class="tt-btn-custom-goal" onclick="window.TraderTraining.openCustomGoalModal()">
+                ＋ Criar objetivo personalizado
+              </button>
+            `}
           </div>
-        ` : `
-          <div class="tt-catalog-list">
-            ${items.map(item => {
-              const isSelected = state.selectedCatalogId === item.id;
-              return `
-                <div class="tt-catalog-item ${isSelected ? 'selected' : ''}" onclick="window.TraderTraining.pickCatalogItem('${item.id}')">
-                  <div class="tt-catalog-item-left">
-                    <input type="radio" name="tt_catalog_radio" ${isSelected ? 'checked' : ''} aria-label="${esc(item.title)}">
-                    <span>${esc(item.title)}</span>
-                  </div>
-                  <span class="tt-catalog-item-info" title="Ver detalhes do comportamento" onclick="event.stopPropagation(); window.TraderTraining.showSkillDetails('${item.id}')">ℹ</span>
-                </div>
-              `;
-            }).join('')}
+
+          <footer class="tt-modal-actions">
+            <button type="button" class="tt-btn-secondary" onclick="window.TraderTraining.closeLibrary()">Fechar</button>
+          </footer>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderHistoryModal() {
+    if (!state.historyModalOpen) return '';
+    const list = state.records || [];
+
+    return `
+      <div class="tt-modal-backdrop" onclick="if (event.target === this) window.TraderTraining.closeHistoryModal()">
+        <div class="tt-modal-dialog tt-history-dialog" role="dialog" aria-modal="true" aria-labelledby="ttHistoryModalTitle">
+          <header class="tt-modal-header">
+            <div class="tt-card-title-group">
+              <span class="tt-card-icon">🕒</span>
+              <div>
+                <h3 id="ttHistoryModalTitle" style="margin: 0; font-size: 18px; color: #0c2016;">Histórico Completo de Comportamento</h3>
+                <small style="color: #557864; font-size: 12.5px;">${list.length} registro${list.length === 1 ? '' : 's'} no treinamento atual</small>
+              </div>
+            </div>
+            <button type="button" class="tt-modal-close" onclick="window.TraderTraining.closeHistoryModal()" aria-label="Fechar">×</button>
+          </header>
+
+          <div class="tt-modal-scroll-body">
+            <div class="tt-table-container">
+              <table class="tt-table">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Ativo</th>
+                    <th>Resultado</th>
+                    <th>R Múltiplo</th>
+                    <th>Comportamento</th>
+                    <th>Observações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${!list.length ? `
+                    <tr>
+                      <td colspan="6" style="text-align: center; padding: 36px; color: #6a8c79;">
+                        Nenhum comportamento registrado neste período ainda.
+                      </td>
+                    </tr>
+                  ` : list.map((item) => {
+                    const dateStr = M.formatDate(item.recordDate, false);
+                    const outLabel = M.outcomeLabel(item.outcome);
+                    const rStr = M.formatR(item.rMultiple);
+                    const assessClass = item.assessment;
+                    const assessLabel = M.assessmentLabel(item.assessment);
+                    const assessIcon = item.assessment === 'correct' ? '✓' : item.assessment === 'incorrect' ? '✕' : '—';
+
+                    return `
+                      <tr>
+                        <td><b>${dateStr}</b></td>
+                        <td><span class="tt-ticker-pill">${esc(item.ticker || '—')}</span></td>
+                        <td class="outcome-${esc(item.outcome)}">${outLabel}</td>
+                        <td class="r-val ${item.rMultiple > 0 ? 'outcome-gain' : item.rMultiple < 0 ? 'outcome-loss' : ''}">${rStr}</td>
+                        <td>
+                          <span class="tt-pill-cell ${assessClass}">
+                            ${assessIcon} ${assessLabel}
+                          </span>
+                        </td>
+                        <td>${esc(item.note || '—')}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <button type="button" class="tt-btn-custom-goal" onclick="window.TraderTraining.openCustomGoalModal()">
-            ＋ Criar objetivo personalizado
-          </button>
-        `}
-      </article>
+
+          <footer class="tt-modal-actions">
+            <button type="button" class="tt-btn-secondary" onclick="window.TraderTraining.closeHistoryModal()">Fechar</button>
+          </footer>
+        </div>
+      </div>
     `;
   }
 
@@ -882,7 +980,6 @@
     rootEl.innerHTML = `
       <main class="tt-page">
         ${renderHero()}
-        ${renderFocusStrip()}
 
         <section class="tt-top-grid">
           ${renderCurrentGoalCard(state.active)}
@@ -891,17 +988,17 @@
 
         <section class="tt-mid-grid">
           ${renderWeeklyCard(state.active, state.records)}
-          ${renderEvolutionCard(state.active, state.records)}
-          ${renderPeriodCard(state.active)}
+          ${renderPeriodAndEvolutionCard(state.active, state.records)}
         </section>
 
         <section class="tt-bottom-grid">
           ${renderHistoryTable(state.records)}
-          ${renderSelectionCard()}
         </section>
 
         ${renderDevelopmentSection(state.history)}
 
+        ${renderLibraryModal()}
+        ${renderHistoryModal()}
         ${renderConfigModal()}
         ${renderCustomModal()}
         ${renderSkillDetailModal()}
@@ -987,6 +1084,30 @@
       return recordBehavior(payload);
     },
     syncWorkbenchFocusBanner,
+    openLibrary() {
+      state.libraryModalOpen = true;
+      render();
+    },
+    openLibraryModal() {
+      state.libraryModalOpen = true;
+      render();
+    },
+    closeLibrary() {
+      state.libraryModalOpen = false;
+      render();
+    },
+    closeLibraryModal() {
+      state.libraryModalOpen = false;
+      render();
+    },
+    openHistoryModal() {
+      state.historyModalOpen = true;
+      render();
+    },
+    closeHistoryModal() {
+      state.historyModalOpen = false;
+      render();
+    },
     selectCategory(catId) {
       state.selectedCategory = catId;
       state.selectedCatalogId = null;
@@ -996,6 +1117,7 @@
       state.selectedCatalogId = catalogId;
       const item = state.catalog.find(c => c.id === catalogId);
       if (!item) return;
+      state.libraryModalOpen = false;
       state.modalGoalCandidate = {
         catalogId: item.id,
         title: item.title,
@@ -1048,6 +1170,7 @@
       state.customGoal.title = title;
       state.customGoal.category = category;
       state.customModalOpen = false;
+      state.libraryModalOpen = false;
 
       state.modalGoalCandidate = {
         title,
@@ -1080,30 +1203,27 @@
       const candidate = state.modalGoalCandidate;
       state.modalOpen = false;
       state.modalGoalCandidate = null;
+      state.libraryModalOpen = false;
+      if (state.active) {
+        await switchOrConcludeGoal('switched');
+      }
       await startTraining(candidate);
     },
     async extendActiveGoal(days = 7) {
       await extendTraining(days);
     },
     async promptSwitchGoal() {
-      if (!confirm('Você tem certeza que deseja trocar seu objetivo atual? O treinamento em andamento será arquivado para manter o foco em uma única habilidade por vez.')) {
-        return;
-      }
-      await switchOrConcludeGoal('switched');
-      this.scrollToSelection();
+      this.openLibrary();
     },
     async concludeAndSelectNext() {
       if (state.active) {
         const finalSt = M.finalStatus(state.active, state.records);
         await switchOrConcludeGoal(finalSt);
       }
-      this.scrollToSelection();
+      this.openLibrary();
     },
     scrollToSelection() {
-      const el = document.getElementById('ttSelectionCard');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      this.openLibrary();
     },
     dismissWorkbenchBanner(goalId) {
       state.dismissedBanners.add(goalId);

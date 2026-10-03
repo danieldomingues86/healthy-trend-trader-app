@@ -30,31 +30,31 @@ body.tt-active-screen .content,
   box-sizing: border-box;
 }
 
-/* 1. Hero do Arqueiro (Cinematográfico, Alto, Arqueiro Visível no lado esquerdo) */
+/* 1. Hero do Arqueiro (Cinematográfico, 220-240px, Arqueiro Visível à esquerda) */
 .tt-hero {
   position: relative;
   overflow: hidden;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  min-height: clamp(380px, 34vw, 460px);
-  padding: clamp(28px, 4vw, 56px);
-  border-radius: 24px;
+  min-height: clamp(210px, 19vw, 240px);
+  padding: clamp(18px, 2.2vw, 26px) clamp(24px, 3.5vw, 48px);
+  border-radius: 20px;
   background-color: #0b1f15;
   background-image:
     linear-gradient(90deg,
       rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0) 36%,
-      rgba(246, 250, 247, 0.4) 52%,
-      rgba(246, 250, 247, 0.88) 72%,
-      rgba(246, 250, 247, 0.97) 100%
+      rgba(255, 255, 255, 0) 38%,
+      rgba(246, 250, 247, 0.42) 54%,
+      rgba(246, 250, 247, 0.90) 74%,
+      rgba(246, 250, 247, 0.98) 100%
     ),
     url('../assets/trader-training-hero-v1.jpg');
   background-size: cover;
   background-position: left center;
   background-repeat: no-repeat;
   border: 1px solid rgba(120, 196, 148, 0.28);
-  box-shadow: 0 16px 40px rgba(12, 38, 24, 0.12);
+  box-shadow: 0 12px 32px rgba(12, 38, 24, 0.10);
   color: #0c2016;
   box-sizing: border-box;
 }
@@ -62,19 +62,19 @@ body.tt-active-screen .content,
 .tt-hero-content {
   position: relative;
   z-index: 2;
-  width: min(620px, 52%);
+  width: min(640px, 56%);
   margin-left: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .tt-hero-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: #17603c;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -83,115 +83,60 @@ body.tt-active-screen .content,
 .tt-hero-title {
   margin: 0;
   font-family: Georgia, 'Playfair Display', serif;
-  font-size: clamp(38px, 4.2vw, 56px);
-  line-height: 1.05;
+  font-size: clamp(28px, 2.6vw, 36px);
+  line-height: 1.08;
   font-weight: 700;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
   color: #091f14;
 }
 
 .tt-hero-subtitle {
   margin: 0;
-  font-size: clamp(12.5px, 1.1vw, 14px);
+  font-size: clamp(11px, 0.9vw, 12px);
   font-weight: 850;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #1a4f35;
 }
 
 .tt-hero-divider {
-  width: 46px;
-  height: 3.5px;
+  width: 36px;
+  height: 3px;
   background: #27ae60;
   border-radius: 999px;
-  margin: 2px 0 4px;
+  margin: 2px 0;
 }
 
 .tt-hero-quote {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   padding: 0;
   color: #1a3828;
-  font-size: clamp(13.5px, 1.15vw, 15px);
-  line-height: 1.62;
+  font-size: clamp(12.5px, 0.98vw, 13.5px);
+  line-height: 1.52;
   font-style: normal;
   font-weight: 500;
   max-width: 580px;
 }
 
-/* 2. Banner de Regra: FOCO ATUAL */
-.tt-focus-strip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 13px 22px;
-  background: linear-gradient(90deg, rgba(235, 248, 240, 0.95), rgba(255, 255, 255, 0.92));
-  border: 1px solid rgba(56, 168, 102, 0.28);
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(18, 52, 34, 0.04);
-  backdrop-filter: blur(8px);
-  box-sizing: border-box;
-}
-
-.tt-focus-strip-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.tt-focus-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #103422;
-  color: #8fe0aa;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.tt-focus-rule-divider {
-  color: #a4c7b3;
-  font-weight: 700;
-}
-
-.tt-focus-rule-title {
-  font-size: 12.5px;
-  font-weight: 750;
-  color: #17422a;
-}
-
-.tt-focus-strip-text {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #19462e;
-  letter-spacing: -0.01em;
-  text-align: right;
-}
-
-/* 3. Grids Principais */
+/* 2. Grids Principais com Otimização Horizontal */
 .tt-top-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(360px, 1fr);
-  gap: clamp(16px, 1.6vw, 22px);
+  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr);
+  gap: clamp(14px, 1.4vw, 18px);
   align-items: stretch;
 }
 
 .tt-mid-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(16px, 1.6vw, 22px);
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 1fr);
+  gap: clamp(14px, 1.4vw, 18px);
   align-items: stretch;
 }
 
 .tt-bottom-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.48fr) minmax(370px, 1fr);
-  gap: clamp(16px, 1.6vw, 22px);
+  grid-template-columns: 1fr;
+  gap: clamp(14px, 1.4vw, 18px);
   align-items: flex-start;
 }
 
@@ -379,6 +324,39 @@ body.tt-active-screen .content,
   background: #eef7f2;
   border-color: #72cf97;
   color: #0d2d1e;
+}
+
+.tt-goal-focus-note {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: linear-gradient(90deg, rgba(39, 174, 96, 0.08), rgba(39, 174, 96, 0.02));
+  border: 1px solid rgba(39, 174, 96, 0.16);
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.tt-focus-note-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #1b744d;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.tt-focus-note-text {
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 600;
+  color: #1e4a34;
+  line-height: 1.45;
 }
 
 /* 5. Card: Aderência Atual */
@@ -620,7 +598,21 @@ body.tt-active-screen .content,
   color: #c0392b;
 }
 
-/* 8. Card: Período do Treinamento */
+/* 8. Card: Período do Treinamento e Minha Evolução */
+.tt-period-remaining-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 750;
+  background: #e8f5ed;
+  color: #19693f;
+  border: 1px solid #bce4cc;
+  letter-spacing: 0.02em;
+}
+
 .tt-timeline-wrap {
   display: flex;
   flex-direction: column;
@@ -662,6 +654,59 @@ body.tt-active-screen .content,
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+.tt-unified-evolution-block {
+  margin: 6px 0 14px;
+  padding: 12px 14px;
+  background: #fbfdfc;
+  border: 1px solid #dce8e0;
+  border-radius: 14px;
+}
+
+.tt-evolution-subhead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tt-card-icon.small {
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+.tt-evolution-subhead h3 {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 750;
+  color: #103220;
+}
+
+.tt-evolution-body-compact {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tt-evolution-body-compact .tt-evolution-icon-wrap {
+  width: 38px;
+  height: 38px;
+  font-size: 20px;
+  border-radius: 10px;
+}
+
+.tt-evolution-body-compact .tt-evolution-copy h4 {
+  font-size: 14px;
+  margin: 0 0 2px;
+}
+
+.tt-evolution-body-compact .tt-evolution-copy p {
+  font-size: 12.5px;
+  line-height: 1.45;
+  margin: 0;
+}
+
 .tt-motivation-box {
   display: flex;
   align-items: center;
@@ -682,7 +727,62 @@ body.tt-active-screen .content,
   margin-bottom: 2px;
 }
 
+.tt-conclusion-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
 /* 9. Card: Histórico de Comportamento */
+.tt-history-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tt-history-count-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #5d7c6b;
+  background: #eef4f0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.tt-btn-link-viewall {
+  border: 0;
+  background: transparent;
+  color: #1b744d;
+  font-size: 12.5px;
+  font-weight: 750;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.16s ease;
+}
+
+.tt-btn-link-viewall:hover {
+  background: #eef7f2;
+  color: #0e4c2f;
+}
+
+.tt-ticker-pill {
+  font-weight: 850;
+  font-size: 11.5px;
+  color: #0b291a;
+  background: #eef5f1;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #d2e4da;
+  letter-spacing: 0.04em;
+}
+
 .tt-notice-disclaimer {
   display: flex;
   align-items: flex-start;
@@ -695,6 +795,13 @@ body.tt-active-screen .content,
   line-height: 1.48;
   color: #486957;
   margin-bottom: 16px;
+}
+
+.tt-notice-disclaimer.compact {
+  margin-top: 14px;
+  margin-bottom: 0;
+  padding: 9px 12px;
+  font-size: 11.5px;
 }
 
 .tt-notice-disclaimer b {
@@ -861,6 +968,40 @@ body.tt-active-screen .content,
   flex: 1;
 }
 
+.tt-catalog-radio-dot {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid #b3d1c1;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.tt-catalog-item.selected .tt-catalog-radio-dot {
+  border-color: #27ae60;
+  background: #27ae60;
+  box-shadow: inset 0 0 0 2.5px #ffffff;
+}
+
+.tt-catalog-item-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tt-catalog-item-title {
+  font-size: 13px;
+  font-weight: 750;
+  color: #0d2b1c;
+}
+
+.tt-catalog-item-desc {
+  font-size: 11.5px;
+  color: #608070;
+  line-height: 1.35;
+}
+
 .tt-catalog-item-left input[type="radio"] {
   accent-color: #27ae60;
   cursor: pointer;
@@ -885,6 +1026,15 @@ body.tt-active-screen .content,
   background: #27ae60;
   border-color: #27ae60;
   color: #ffffff;
+}
+
+.tt-custom-prompt-card {
+  padding: 24px;
+  background: #f7fbf8;
+  border: 1.5px dashed #a4d2b7;
+  border-radius: 14px;
+  text-align: center;
+  margin: 10px 0 16px;
 }
 
 .tt-btn-custom-goal {
@@ -975,6 +1125,23 @@ body.tt-active-screen .content,
   flex-direction: column;
   gap: 16px;
   box-sizing: border-box;
+}
+
+.tt-library-dialog {
+  width: min(740px, 94vw);
+  max-height: 85vh;
+}
+
+.tt-history-dialog {
+  width: min(940px, 95vw);
+  max-height: 88vh;
+}
+
+.tt-modal-scroll-body {
+  overflow-y: auto;
+  max-height: calc(88vh - 140px);
+  margin: 0 -4px;
+  padding: 0 4px;
 }
 
 .tt-modal-header {
@@ -1251,19 +1418,81 @@ body:not([data-theme="healthy"]) .tt-hero-quote {
   color: #e5d8c3;
 }
 
-body:not([data-theme="healthy"]) .tt-focus-strip {
-  background: linear-gradient(90deg, rgba(28, 24, 18, 0.95), rgba(36, 31, 23, 0.95));
-  border-color: rgba(212, 174, 82, 0.24);
+body:not([data-theme="healthy"]) .tt-goal-focus-note {
+  background: linear-gradient(90deg, rgba(46, 36, 18, 0.7), rgba(30, 24, 14, 0.5));
+  border-color: rgba(212, 174, 82, 0.28);
 }
 
-body:not([data-theme="healthy"]) .tt-focus-badge {
-  background: #3a2e16;
+body:not([data-theme="healthy"]) .tt-focus-note-badge {
+  background: #3e3118;
   color: #f0cb79;
+  border: 1px solid rgba(212, 174, 82, 0.4);
 }
 
-body:not([data-theme="healthy"]) .tt-focus-rule-title,
-body:not([data-theme="healthy"]) .tt-focus-strip-text {
-  color: #ecd9ba;
+body:not([data-theme="healthy"]) .tt-focus-note-text {
+  color: #ebdcc3;
+}
+
+body:not([data-theme="healthy"]) .tt-period-remaining-badge {
+  background: #252016;
+  color: #e5c378;
+  border-color: #554425;
+}
+
+body:not([data-theme="healthy"]) .tt-unified-evolution-block {
+  background: #18140f;
+  border-color: #3b3122;
+}
+
+body:not([data-theme="healthy"]) .tt-evolution-subhead h3 {
+  color: #f5ede0;
+}
+
+body:not([data-theme="healthy"]) .tt-evolution-body-compact .tt-evolution-copy p {
+  color: #d8c7ad;
+}
+
+body:not([data-theme="healthy"]) .tt-ticker-pill {
+  background: #231d15;
+  color: #f0deb8;
+  border-color: #493b27;
+}
+
+body:not([data-theme="healthy"]) .tt-history-count-badge {
+  background: #231d15;
+  color: #c9b48c;
+}
+
+body:not([data-theme="healthy"]) .tt-btn-link-viewall {
+  color: #d4ae52;
+}
+
+body:not([data-theme="healthy"]) .tt-btn-link-viewall:hover {
+  background: rgba(212, 174, 82, 0.12);
+  color: #f1cf77;
+}
+
+body:not([data-theme="healthy"]) .tt-catalog-item-title {
+  color: #f3e8d6;
+}
+
+body:not([data-theme="healthy"]) .tt-catalog-item-desc {
+  color: #b59f7d;
+}
+
+body:not([data-theme="healthy"]) .tt-catalog-radio-dot {
+  border-color: #635237;
+}
+
+body:not([data-theme="healthy"]) .tt-catalog-item.selected .tt-catalog-radio-dot {
+  border-color: #d4ae52;
+  background: #d4ae52;
+  box-shadow: inset 0 0 0 2.5px #181510;
+}
+
+body:not([data-theme="healthy"]) .tt-custom-prompt-card {
+  background: #191510;
+  border-color: #614f2e;
 }
 
 body:not([data-theme="healthy"]) .tt-card,
@@ -1326,7 +1555,7 @@ body:not([data-theme="healthy"]) .tt-modal-header h3 {
     grid-template-columns: 1fr;
   }
   .tt-hero {
-    min-height: 340px;
+    min-height: 240px;
   }
   .tt-hero-content {
     width: 65%;
@@ -1350,12 +1579,10 @@ body:not([data-theme="healthy"]) .tt-modal-header h3 {
     width: 100%;
     margin-left: 0;
   }
-  .tt-focus-strip {
+  .tt-goal-focus-note {
     flex-direction: column;
     align-items: flex-start;
-  }
-  .tt-focus-strip-text {
-    text-align: left;
+    gap: 6px;
   }
   .tt-pills-row,
   .tt-goal-meta-grid {
