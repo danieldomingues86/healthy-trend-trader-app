@@ -969,6 +969,13 @@
       render();
       syncWorkbenchFocusBanner();
     },
+    getState() {
+      return {
+        active: state.active,
+        records: state.records,
+        history: state.history
+      };
+    },
     getActiveGoal() {
       return state.active;
     },
@@ -976,6 +983,9 @@
       return state.records;
     },
     recordBehavior,
+    recordJournalAssessment(payload) {
+      return recordBehavior(payload);
+    },
     syncWorkbenchFocusBanner,
     selectCategory(catId) {
       state.selectedCategory = catId;

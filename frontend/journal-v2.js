@@ -561,7 +561,8 @@
           </fieldset>
 
           ${(() => {
-            const activeGoal = window.TraderTraining?.getState()?.active;
+            const activeGoal = (typeof window.TraderTraining?.getActiveGoal === 'function' ? window.TraderTraining.getActiveGoal() : null) ||
+                               (typeof window.TraderTraining?.getState === 'function' ? window.TraderTraining.getState()?.active : null);
             if (!activeGoal) return '';
             const val = trade.trainingAssessment || '';
             return `
