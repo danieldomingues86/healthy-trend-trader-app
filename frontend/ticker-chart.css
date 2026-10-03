@@ -2,11 +2,28 @@
    HEALTHY TREND TRADER — CENTRAL DE ANÁLISE DO TICKER (GRÁFICOS)
    ========================================================================== */
 
-#charts.page {
-  padding: 20px 28px 48px;
-  max-width: 1680px;
-  margin: 0 auto;
+/* Layout expansivo para telas widescreen e monitores wide */
+body:has(#charts.active) .content,
+body:has(#charts.page.active) .content {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 18px clamp(18px, 2vw, 36px) 48px !important;
+  box-sizing: border-box !important;
+}
+
+body:has(#charts.active) #marketFocusGuard,
+body:has(#charts.page.active) #marketFocusGuard {
   width: 100%;
+  max-width: none;
+  margin: 0 auto 16px;
+}
+
+#charts.page {
+  padding: 0 0 32px 0;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
   box-sizing: border-box;
 }
 
@@ -46,6 +63,18 @@
   flex: 1;
   max-width: 480px;
   min-width: 280px;
+}
+
+@media (min-width: 1600px) {
+  .ticker-search-container {
+    max-width: 560px;
+  }
+}
+
+@media (min-width: 2000px) {
+  .ticker-search-container {
+    max-width: 640px;
+  }
 }
 
 .ticker-search-input-wrapper {
@@ -350,7 +379,7 @@
 .ticker-hero-meta-columns {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: clamp(20px, 2.5vw, 44px);
   flex-wrap: wrap;
 }
 
@@ -428,9 +457,23 @@
 /* 3. MAIN CHART & VISÃO DO ATIVO ROW */
 .ticker-main-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 350px;
   gap: 18px;
   margin-bottom: 20px;
+}
+
+@media (min-width: 1700px) {
+  .ticker-main-grid {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 22px;
+  }
+}
+
+@media (min-width: 2200px) {
+  .ticker-main-grid {
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 24px;
+  }
 }
 
 @media (max-width: 1200px) {
@@ -441,6 +484,7 @@
 
 /* Chart Card */
 .ticker-chart-card {
+  min-width: 0;
   background: var(--surface, #ffffff);
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 18px;
@@ -758,8 +802,20 @@
 .chart-canvas-wrapper {
   position: relative;
   width: 100%;
-  height: 480px;
-  min-height: 400px;
+  height: 500px;
+  min-height: 420px;
+}
+
+@media (min-width: 1600px) {
+  .chart-canvas-wrapper {
+    height: 550px;
+  }
+}
+
+@media (min-width: 2000px) {
+  .chart-canvas-wrapper {
+    height: 600px;
+  }
 }
 
 /* Legend Overlay */
@@ -944,6 +1000,12 @@
   margin-bottom: 18px;
 }
 
+@media (min-width: 1800px) {
+  .method-widgets-row {
+    gap: 18px;
+  }
+}
+
 @media (max-width: 1400px) {
   .method-widgets-row {
     grid-template-columns: repeat(3, 1fr);
@@ -1054,6 +1116,12 @@
   grid-template-columns: 1.3fr 1.3fr 1fr 1fr;
   gap: 16px;
   margin-bottom: 24px;
+}
+
+@media (min-width: 1800px) {
+  .detailed-widgets-row {
+    gap: 20px;
+  }
 }
 
 @media (max-width: 1300px) {

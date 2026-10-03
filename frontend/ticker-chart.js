@@ -1329,9 +1329,11 @@
     const textColor = isGold ? '#e2e8f0' : '#475569';
     const gridColor = isGold ? 'rgba(255, 255, 255, 0.05)' : '#f1f5f9';
 
+    const initialHeight = (container && container.clientHeight > 0) ? container.clientHeight : 520;
+
     chartInstance = window.LightweightCharts.createChart(container, {
       width: container.clientWidth,
-      height: 480,
+      height: initialHeight,
       layout: {
         background: { type: 'solid', color: chartBg },
         textColor: textColor,
