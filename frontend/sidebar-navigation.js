@@ -59,12 +59,6 @@
           page: 'watchlist'
         },
         {
-          id: 'charts',
-          label: 'Gráficos',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="M4 14l5-5 4 4 7-7"/></svg>`,
-          page: 'charts'
-        },
-        {
           id: 'habits',
           label: 'Hábitos',
           icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
@@ -80,13 +74,6 @@
       header: 'ANÁLISE DE MERCADO',
       items: [
         {
-          id: 'marketcycle',
-          title: 'Ciclo de Mercado',
-          desc: 'Entenda o ambiente atual.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
-          page: 'marketcycle'
-        },
-        {
           id: 'relativestrength',
           title: 'Força Relativa',
           desc: 'Veja quem está liderando.',
@@ -94,11 +81,18 @@
           page: 'relativestrength'
         },
         {
-          id: 'emergingleaders',
-          title: 'Líderes Emergentes',
-          desc: 'Descubra novos líderes.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="m3 9 4-4 4 4 6-6"/></svg>`,
-          page: 'emergingleaders'
+          id: 'marketcycle',
+          title: 'Ciclo de Mercado',
+          desc: 'Entenda o ambiente atual.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+          page: 'marketcycle'
+        },
+        {
+          id: 'charts',
+          title: 'Gráficos',
+          desc: 'Central de análise do ticker.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="M4 14l5-5 4 4 7-7"/></svg>`,
+          page: 'charts'
         },
         {
           id: 'marketscans',
@@ -108,20 +102,26 @@
           page: 'marketscans'
         },
         {
+          id: 'emergingleaders',
+          title: 'Líderes Emergentes',
+          desc: 'Descubra novos líderes.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="m3 9 4-4 4 4 6-6"/></svg>`,
+          page: 'emergingleaders'
+        },
+        {
           id: 'fundamentals',
           title: 'Fundamentalista',
           desc: 'Avalie a qualidade do ativo.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20L12 2Z"/></svg>`,
           page: 'fundamentals'
-        },
-        {
-          id: 'charts',
-          title: 'Gráficos',
-          desc: 'Central de análise do ticker.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="M4 14l5-5 4 4 7-7"/></svg>`,
-          page: 'charts'
         }
       ]
+    },
+    {
+      id: 'tradesimulator',
+      label: 'Simulador de Trades',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 7 13 11 18 6"/></svg>`,
+      page: 'tradesimulator'
     },
     {
       id: 'portfolio-risk',
@@ -489,7 +489,8 @@
 
     renderDirectButton(item) {
       const label = this.localizedLabel(item.page, item.label);
-      return `<button class="sidebar-btn nav-btn" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${label}"><span class="sidebar-btn-ico">${item.icon}</span><span class="sidebar-btn-label">${label}</span></button>`;
+      const arrowHtml = item.hasArrow ? `<span class="sidebar-btn-arrow">›</span>` : '';
+      return `<button class="sidebar-btn nav-btn" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${label}"><span class="sidebar-btn-ico">${item.icon}</span><span class="sidebar-btn-label">${label}</span>${arrowHtml}</button>`;
     }
 
     renderGroupButton(group) {

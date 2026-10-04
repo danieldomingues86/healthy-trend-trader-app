@@ -27,6 +27,7 @@ test('ticker-chart: getTickerChartData retorna pacote analítico completo para P
   // 1. Ticker info
   assert.equal(data.tickerInfo.symbol, 'PETR4');
   assert.ok(data.tickerInfo.price > 0);
+  assert.ok(data.tickerInfo.sessionDate);
   assert.ok(data.tickerInfo.marketCapFormatted);
 
   // 2. OHLC Candles
@@ -59,6 +60,7 @@ test('ticker-chart: getTickerChartData retorna pacote analítico completo para P
   // 7. Gatilho
   assert.ok(data.trigger.id);
   assert.ok(data.trigger.name);
+  assert.equal(typeof data.trigger.hasTrigger, 'boolean');
 
   // 8. Rubric
   assert.ok(data.rubric.finalGrade);
@@ -77,3 +79,77 @@ test('ticker-chart: rejeita símbolo vazio', async () => {
     /Símbolo do ticker não fornecido/
   );
 });
+
+test('ticker-chart: ativo fraco (VALE3) retorna Grade D e classificação Fraco com bloqueio nominal', async () => {
+  const data = await tickerChart.getTickerChartData('VALE3');
+  assert.equal(data.tickerInfo.symbol, 'VALE3');
+  assert.equal(data.relativeStrength.score, 12);
+  assert.equal(data.relativeStrength.classification, 'Fraco');
+  assert.equal(data.rubric.finalGrade, 'D');
+  assert.ok(data.rubric.summaryText.includes('Bloqueio automático com risco nominal zero'));
+  const rsCriteria = data.rubric.criteria.find(c => c.name === 'Força Relativa');
+  assert.ok(rsCriteria);
+  assert.equal(rsCriteria.status, false);
+});
+
+test('ticker-chart: ativo da Nasdaq (AAPL) resolve benchmark BDRX e classe Nasdaq', async () => {
+  const data = await tickerChart.getTickerChartData('AAPL');
+  assert.equal(data.tickerInfo.symbol, 'AAPL');
+  assert.equal(data.tickerInfo.assetClass, 'Nasdaq');
+  assert.equal(data.marketCycle.benchmark, 'BDRX');
+  assert.ok(data.marketCycle.regime);
+  assert.ok(data.marketCycle.score > 0);
+  assert.notEqual(data.marketCycle.benchmark, 'IBOV');
+});
+
+test('ticker-chart: ativo BDR (AAPL34) resolve benchmark BDRX e classe BDR', async () => {
+  const data = await tickerChart.getTickerChartData('AAPL34');
+  assert.equal(data.tickerInfo.symbol, 'AAPL34');
+  assert.equal(data.tickerInfo.assetClass, 'BDR');
+  assert.equal(data.marketCycle.benchmark, 'BDRX');
+  assert.ok(data.marketCycle.regime);
+  assert.notEqual(data.marketCycle.benchmark, 'IBOV');
+});
+
+test('ticker-chart: ação B3 (PETR4) resolve benchmark IBOV e classe B3', async () => {
+  const data = await tickerChart.getTickerChartData('PETR4');
+  assert.equal(data.tickerInfo.symbol, 'PETR4');
+  assert.equal(data.tickerInfo.assetClass, 'B3');
+  assert.equal(data.marketCycle.benchmark, 'IBOV');
+  assert.ok(data.marketCycle.regime);
+  assert.ok(data.marketCycle.score > 0);
+});
+
+test('ticker-chart: FII (HGLG11) resolve benchmark IFIX e classe FII', async () => {
+  const data = await tickerChart.getTickerChartData('HGLG11');
+  assert.equal(data.tickerInfo.symbol, 'HGLG11');
+  assert.equal(data.tickerInfo.assetClass, 'FII');
+  assert.equal(data.marketCycle.benchmark, 'IFIX');
+  assert.ok(data.marketCycle.regime);
+  assert.notEqual(data.marketCycle.benchmark, 'IBOV');
+});
+
+test('ticker-chart: avaliação de fundamentos reflete FundamentalScore oficial para MGLU3 (Fraco) e PETR4 (Forte)', async () => {
+  const mglu = await tickerChart.getTickerChartData('MGLU3');
+  assert.equal(mglu.tickerInfo.symbol, 'MGLU3');
+  assert.equal(mglu.fundamentals.classification, 'FRACO');
+  assert.equal(mglu.fundamentals.evaluation, 'Fraco');
+  assert.equal(mglu.fundamentals.status, 'bad');
+  assert.equal(mglu.fundamentals.score, 4.7);
+  const mgluFundCriteria = mglu.rubric.criteria.find(c => c.name === 'Fundamentos');
+  assert.ok(mgluFundCriteria);
+  assert.equal(mgluFundCriteria.status, false);
+  assert.equal(mgluFundCriteria.obs, 'Fraco');
+
+  const petr = await tickerChart.getTickerChartData('PETR4');
+  assert.equal(petr.tickerInfo.symbol, 'PETR4');
+  assert.equal(petr.fundamentals.classification, 'BOM');
+  assert.equal(petr.fundamentals.evaluation, 'Forte');
+  assert.equal(petr.fundamentals.status, 'good');
+  assert.ok(petr.fundamentals.score >= 7.0);
+  const petrFundCriteria = petr.rubric.criteria.find(c => c.name === 'Fundamentos');
+  assert.ok(petrFundCriteria);
+  assert.equal(petrFundCriteria.status, true);
+  assert.equal(petrFundCriteria.obs, 'Forte');
+});
+

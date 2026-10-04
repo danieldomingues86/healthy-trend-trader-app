@@ -7,6 +7,7 @@ const { fetchFundamentals } = require('./fundamentals');
 const marketData = require('./market-data');
 const TradingRubrics = require('../../frontend/trading-rubrics');
 const TickerChartModel = require('../../frontend/ticker-chart-model');
+const FundamentalScore = require('../../frontend/fundamental-score');
 
 const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
 const NASDAQ_PRICES_FILE = path.join(__dirname, '..', 'data', 'nasdaq-daily-prices.json');
@@ -170,6 +171,23 @@ function loadNasdaqHistory() {
   return nasdaqStocksCache;
 }
 
+let nasdaqRankingCache = null;
+function getNasdaqRanking() {
+  if (nasdaqRankingCache) return nasdaqRankingCache;
+  const nasdaqCacheFile = path.join(__dirname, '..', 'data', 'nasdaq-market-cache.json');
+  if (fs.existsSync(nasdaqCacheFile)) {
+    try {
+      const raw = JSON.parse(fs.readFileSync(nasdaqCacheFile, 'utf8'));
+      nasdaqRankingCache = Array.isArray(raw.ranking) ? raw.ranking : [];
+    } catch {
+      nasdaqRankingCache = [];
+    }
+  } else {
+    nasdaqRankingCache = [];
+  }
+  return nasdaqRankingCache;
+}
+
 function normalizeAssetClassLabel(rawClass) {
   const c = String(rawClass || '').trim().toLowerCase();
   if (c === 'stock_ibov' || c === 'ibov') return 'IBOV';
@@ -237,11 +255,16 @@ async function getSearchUniverse() {
 
   // 5. Nasdaq
   const nasdaqMap = loadNasdaqHistory();
+  const nasdaqRanking = getNasdaqRanking();
   for (const sym of nasdaqMap.keys()) {
     if (!universeMap.has(sym)) {
       const candles = nasdaqMap.get(sym);
       const last = candles[candles.length - 1];
-      addAsset(sym, sym, 'Tecnologia / EUA', 'nasdaq', 85, last?.close, 0);
+      const rankingItem = nasdaqRanking.find(x => x.symbol === sym);
+      const name = rankingItem?.companyName || sym;
+      const sector = rankingItem?.sector || 'Tecnologia / EUA';
+      const score = rankingItem?.score ?? rankingItem?.rsScore ?? 85;
+      addAsset(sym, name, sector, 'nasdaq', score, last?.close, 0);
     }
   }
 
@@ -342,7 +365,7 @@ async function getTickerChartData(rawSymbol) {
   const trigger = TickerChartModel.detectSetupTriggers(candles, ema9Array, ema30Array);
 
   // Estrutura
-  let structureLabel = 'Pullback';
+  let structureLabel = 'Correção';
   let structureDesc = 'Correção saudável dentro da tendência.';
   if (trigger.id === 'INSIDE_BAR') {
     structureLabel = 'Contração';
@@ -352,22 +375,48 @@ async function getTickerChartData(rawSymbol) {
     structureDesc = 'Perna de alta esticada em relação às médias.';
   }
 
-  // 3. Força Relativa do market-cache.json
+  // 3. Força Relativa do market-cache.json ou nasdaq-market-cache.json
+  const nasdaqRanking = getNasdaqRanking();
+  const nasdaqItem = nasdaqRanking.find(x => x.symbol === symbol);
+
   const rsData = rsItems.find(x => x.symbol === symbol)
-    || (cache.relativeStrengthByClass?.bdr?.items || []).find(x => x.symbol === symbol)
+    || (cache.relativeStrengthByClass?.bdr?.items || []).find(x => x.symbol === symbol || x.originalSymbol === symbol)
     || (cache.relativeStrengthByClass?.fii?.items || []).find(x => x.symbol === symbol)
-    || null;
+    || (nasdaqItem ? {
+        symbol: nasdaqItem.symbol,
+        name: nasdaqItem.companyName,
+        sector: nasdaqItem.sector,
+        score: nasdaqItem.score ?? nasdaqItem.rsScore,
+        rank: nasdaqItem.rank ?? nasdaqItem.rsRank,
+        m3: nasdaqItem.m3 ?? nasdaqItem.relativeStrength3M
+      } : null);
 
   const rsScore = rsData ? Math.round(rsData.score || 0) : 85;
   const rsRank = rsData ? rsData.rank : 24;
   const totalUniverse = rsItems.length || 277;
   const rsPercentile = rsRank ? `Top ${Math.max(1, Math.round((rsRank / totalUniverse) * 100))}% do universo` : 'Top 15% do universo';
-  const rsClassification = rsScore >= 80 ? 'Líder' : (rsScore >= 50 ? 'Neutro' : 'Fraco');
+  const rsInfo = TradingRubrics.classifyRelativeStrength(rsScore);
+  const rsClassification = rsInfo.label;
   const rs3m = rsData?.m3 ? Number(rsData.m3.toFixed(1)) : 28.4;
 
-  // 4. Ciclo de Mercado
-  const assetClass = marketData.assetClassForSymbol(symbol);
-  const cycleInfo = cache.cycle || {};
+  // 4. Ciclo de Mercado e Classe do Ativo
+  const isNasdaq = nasdaqHistories.has(symbol);
+  let rawClass = marketData.assetClassForSymbol(symbol);
+  if (isNasdaq) {
+    rawClass = 'nasdaq';
+  }
+  const assetClass = rawClass;
+
+  // Mercado de ciclo correspondente (BDRX para BDR e Nasdaq, IFIX para FII, IBOV para Ações B3)
+  const cycleMarket = (assetClass === 'nasdaq' || assetClass === 'bdr')
+    ? 'bdr'
+    : (assetClass === 'fii' ? 'fii' : 'stock_b3');
+
+  const resolvedCycle = await marketData.resolveMarketCycle(cache, cycleMarket);
+  const cycleInfo = resolvedCycle?.cycle || {};
+  const benchmarkInfo = resolvedCycle?.benchmark || {};
+  const benchmarkSymbol = benchmarkInfo?.symbol || (cycleMarket === 'bdr' ? 'BDRX' : (cycleMarket === 'fii' ? 'IFIX' : 'IBOV'));
+
   let cycleState = 'Positivo';
   let cycleDesc = 'Tendência de alta e força institucional.';
   if (cycleInfo.state === 'healthy') {
@@ -386,21 +435,87 @@ async function getTickerChartData(rawSymbol) {
   try {
     fundData = await fetchFundamentals(symbol);
   } catch {
-    // Tenta enriquecer com dados básicos
+    // Sem dados fundamentais disponíveis
   }
 
   const metrics = fundData?.metrics || {};
   const company = fundData?.company || {};
   const market = fundData?.market || {};
 
-  const roeVal = metrics.roe ? (metrics.roe * 100).toFixed(1) + '%' : '18,4%';
-  const netMarginVal = metrics.netMargin ? (metrics.netMargin * 100).toFixed(1) + '%' : '15,2%';
-  const netDebtVal = metrics.netDebtToEbitda ? metrics.netDebtToEbitda.toFixed(1) : (metrics.netDebtToEquity ? metrics.netDebtToEquity.toFixed(1) : '1,4');
-  const peVal = metrics.priceEarnings ? metrics.priceEarnings.toFixed(1) : '3,8';
-  const pvpVal = metrics.priceToBook ? metrics.priceToBook.toFixed(1) : '0,9';
-  const growthVal = metrics.earningsCagr ? (metrics.earningsCagr > 0 ? '+' : '') + (metrics.earningsCagr * 100).toFixed(1) + '%' : '+24,6%';
+  // Avaliação fundamentalista oficial via FundamentalScore
+  const hasFundMetrics = Boolean(fundData && fundData.metrics && Object.keys(fundData.metrics).length > 0);
+  const fundAnalysis = hasFundMetrics ? FundamentalScore.analyze(fundData) : null;
+  const hasRealFunds = Boolean(fundAnalysis && fundAnalysis.dataCoveragePct > 0);
+  const fundScore = hasRealFunds ? fundAnalysis.score : null;
+  const fundClassification = hasRealFunds ? fundAnalysis.classification : 'Indisponível';
 
-  const marketCapNum = market.marketCap || 506800000000;
+  let fundEvaluation = 'Neutro';
+  let fundStatus = 'neutral';
+  let fundCriteriaStatus = false;
+  let rubricFundRating = 'medium';
+
+  if (hasRealFunds) {
+    if (fundClassification === 'EXCELENTE') {
+      fundEvaluation = 'Excelente';
+      fundStatus = 'good';
+      fundCriteriaStatus = true;
+      rubricFundRating = 'good';
+    } else if (fundClassification === 'BOM') {
+      fundEvaluation = 'Forte';
+      fundStatus = 'good';
+      fundCriteriaStatus = true;
+      rubricFundRating = 'good';
+    } else if (fundClassification === 'MÉDIO') {
+      fundEvaluation = 'Médio';
+      fundStatus = 'alert';
+      fundCriteriaStatus = false;
+      rubricFundRating = 'medium';
+    } else if (fundClassification === 'FRACO') {
+      fundEvaluation = 'Fraco';
+      fundStatus = 'bad';
+      fundCriteriaStatus = false;
+      rubricFundRating = 'bad';
+    } else { // RUIM
+      fundEvaluation = 'Ruim';
+      fundStatus = 'bad';
+      fundCriteriaStatus = false;
+      rubricFundRating = 'bad';
+    }
+  }
+
+  // Métricas individuais com formatação e tags reais
+  const roeNum = metrics.roe != null ? Number(metrics.roe) : null;
+  const roeVal = roeNum != null ? `${(roeNum * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : '—';
+  const roeTag = roeNum == null ? 'N/D' : (roeNum >= 0.18 ? 'Excelente' : (roeNum >= 0.10 ? 'Saudável' : 'Baixo'));
+  const roeStatus = roeNum == null ? 'neutral' : (roeNum >= 0.10 ? 'good' : 'warn');
+
+  const netMarginNum = metrics.netMargin != null ? Number(metrics.netMargin) : null;
+  const netMarginVal = netMarginNum != null ? `${(netMarginNum * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : '—';
+  const netMarginTag = netMarginNum == null ? 'N/D' : (netMarginNum >= 0.15 ? 'Alta margem' : (netMarginNum >= 0.05 ? 'Saudável' : 'Comprimida'));
+  const netMarginStatus = netMarginNum == null ? 'neutral' : (netMarginNum >= 0.05 ? 'good' : 'warn');
+
+  const debtRatio = metrics.netDebtToEbitda != null ? Number(metrics.netDebtToEbitda) : (metrics.netDebtToEquity != null ? Number(metrics.netDebtToEquity) : null);
+  const debtIsPl = metrics.netDebtToEbitda == null && metrics.netDebtToEquity != null;
+  const netDebtVal = debtRatio != null ? `${debtRatio.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${debtIsPl ? ' (PL)' : ''}` : '—';
+  const netDebtTag = debtRatio == null ? 'N/D' : (debtRatio <= 0 ? 'Caixa líq.' : (debtRatio <= 1.0 ? 'Baixo' : (debtRatio <= 2.5 ? 'Controlado' : 'Elevado')));
+  const netDebtStatus = debtRatio == null ? 'neutral' : (debtRatio <= 2.5 ? 'good' : 'warn');
+
+  const peNum = metrics.priceEarnings != null ? Number(metrics.priceEarnings) : null;
+  const peVal = peNum != null ? peNum.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—';
+  const peTag = peNum == null ? 'N/D' : (peNum <= 0 ? 'Prejuízo' : (peNum <= 8.0 ? 'Atrativo' : (peNum <= 15.0 ? 'Justo' : 'Expandido')));
+  const peStatus = peNum == null ? 'neutral' : (peNum > 0 && peNum <= 15.0 ? 'good' : 'warn');
+
+  const pvpNum = metrics.priceToBook != null ? Number(metrics.priceToBook) : null;
+  const pvpVal = pvpNum != null ? pvpNum.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—';
+  const pvpTag = pvpNum == null ? 'N/D' : (pvpNum <= 1.0 ? 'Abaixo VP' : (pvpNum <= 2.5 ? 'Moderado' : 'Prêmio alto'));
+  const pvpStatus = pvpNum == null ? 'neutral' : (pvpNum <= 2.5 ? 'good' : 'warn');
+
+  const growthNum = metrics.earningsCagr != null ? Number(metrics.earningsCagr) : null;
+  const growthVal = growthNum != null ? `${growthNum > 0 ? '+' : ''}${(growthNum * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : '—';
+  const growthTag = growthNum == null ? 'N/D' : (growthNum >= 0.12 ? 'Expressivo' : (growthNum >= 0.05 ? 'Saudável' : 'Modesto'));
+  const growthStatus = growthNum == null ? 'neutral' : (growthNum >= 0.05 ? 'good' : 'warn');
+
+  const marketCapNum = market.marketCap || (company.marketCap || 506800000000);
   const marketCapFormatted = formatLargeNumber(marketCapNum);
   const financialVolume21 = volumeAvg21 * currentPrice;
   const volumeAvg21Formatted = formatLargeNumber(financialVolume21);
@@ -410,37 +525,40 @@ async function getTickerChartData(rawSymbol) {
     ratings: {
       trendQuality: priceAboveEma9 && ema9AboveEma30 ? 'healthy' : 'transition',
       marketCycle: cycleInfo.state || 'healthy',
-      relativeStrength: rsScore >= 80 ? 'good' : (rsScore >= 50 ? 'medium' : 'bad'),
+      relativeStrength: rsInfo.status === 'good' ? 'good' : (rsInfo.status === 'neutral' ? 'medium' : 'bad'),
       volatility: atrPctVal <= 4.5 ? 'good' : 'medium',
-      setupQuality: trigger.grade === 'A+' || trigger.grade === 'A' ? 'good' : 'medium',
-      fundamentalScore: metrics.roe && metrics.roe > 0.12 ? 'good' : 'medium'
+      setupQuality: trigger.hasTrigger ? (trigger.grade === 'A+' || trigger.grade === 'A' ? 'good' : 'medium') : 'bad',
+      fundamentalScore: rubricFundRating
     },
     entry: currentPrice,
     atr: atrVal
   });
 
   const finalGrade = (priceAboveEma9 && ema9AboveEma30 && rsScore >= 80 && cycleState === 'Positivo') ? 'A' : (rubricEvaluation.grade || 'B');
+  const gradeVisual = TradingRubrics.getRubricGradeVisual(finalGrade);
 
   const criteriaTable = [
-    { name: 'Força Relativa', status: rsScore >= 80, obs: `${rsClassification} (${rsScore})` },
+    { name: 'Força Relativa', status: rsInfo.status === 'good', obs: `${rsClassification} (${rsScore})` },
     { name: 'Ciclo de Mercado', status: cycleState === 'Positivo', obs: cycleState },
     { name: 'Preço > EMA 9', status: priceAboveEma9, obs: priceAboveEma9 ? 'Sim' : 'Não' },
     { name: 'EMA 9 > EMA 30', status: ema9AboveEma30, obs: ema9AboveEma30 ? 'Sim' : 'Não' },
     { name: 'Volatilidade (ATR)', status: atrPctVal <= 5.0, obs: `${atrRegime} (${atrPctVal.toFixed(1)}%)` },
     { name: 'Estrutura', status: true, obs: structureLabel },
-    { name: 'Gatilho', status: trigger.id !== 'NONE', obs: `${trigger.name} (${trigger.grade})` },
-    { name: 'Fundamentos', status: true, obs: 'Fortes' }
+    { name: 'Gatilho', status: trigger.hasTrigger === true, obs: trigger.hasTrigger ? `${trigger.name} (${trigger.grade})` : 'Nenhum' },
+    { name: 'Fundamentos', status: fundCriteriaStatus, obs: fundEvaluation }
   ];
 
   return {
     tickerInfo: {
       symbol,
-      name: company.name || `${symbol} - B3`,
-      sector: company.sector || (rsData?.sector || 'Petróleo, Gás e Biocombustíveis'),
-      subSector: company.industry || company.sector || 'Exploração e Produção',
+      name: company.name || (rsData?.name ? `${rsData.name}` : (isNasdaq ? `${symbol} - Nasdaq` : `${symbol} - B3`)),
+      sector: company.sector || (rsData?.sector || (isNasdaq ? 'Tecnologia / EUA' : 'Petróleo, Gás e Biocombustíveis')),
+      subSector: company.industry || company.sector || (rsData?.sector || (isNasdaq ? 'Ações Internacionais' : 'Exploração e Produção')),
       price: currentPrice,
       dayChange,
       dayChangePct,
+      date: latestCandle.time,
+      sessionDate: latestCandle.time,
       marketCap: marketCapNum,
       marketCapFormatted,
       volumeAvg21,
@@ -467,7 +585,7 @@ async function getTickerChartData(rawSymbol) {
     marketCycle: {
       regime: cycleState,
       description: cycleDesc,
-      benchmark: cache.benchmark?.symbol || 'IBOV',
+      benchmark: benchmarkSymbol,
       score: cycleInfo.score || 88
     },
     trend: {
@@ -486,33 +604,41 @@ async function getTickerChartData(rawSymbol) {
     structure: {
       label: structureLabel,
       description: structureDesc,
-      isPullback: structureLabel === 'Pullback'
+      isPullback: structureLabel === 'Correção'
     },
     trigger: {
       id: trigger.id,
       name: trigger.name,
       grade: trigger.grade,
+      hasTrigger: Boolean(trigger.hasTrigger),
       description: trigger.description,
       detail: trigger.detail,
       entry: trigger.entry,
-      stop: trigger.stop
+      stop: trigger.stop,
+      entryLabel: trigger.entryLabel,
+      stopLabel: trigger.stopLabel
     },
     rubric: {
       finalGrade,
       score: rubricEvaluation.score || 92,
-      summaryText: finalGrade === 'A' || finalGrade === 'A+'
-        ? 'Setup com alta probabilidade segundo o seu método.'
-        : 'Setup dentro dos parâmetros de risco controlado.',
+      summaryText: gradeVisual.summaryText,
       criteria: criteriaTable
     },
     fundamentals: {
-      roe: { value: roeVal, tag: 'Bom', positive: true },
-      netMargin: { value: netMarginVal, tag: 'Boa', positive: true },
-      netDebtToEbitda: { value: netDebtVal, tag: 'Saudável', positive: true },
-      pe: { value: peVal, tag: 'Atrativo', positive: true },
-      pvp: { value: pvpVal, tag: 'Atrativo', positive: true },
-      growth: { value: growthVal, tag: 'Forte', positive: true },
-      available: Boolean(fundData)
+      score: fundScore,
+      classification: fundClassification,
+      evaluation: fundEvaluation,
+      status: fundStatus,
+      dataCoveragePct: fundAnalysis?.dataCoveragePct || 0,
+      isPartial: fundAnalysis?.isPartial || false,
+      takeaway: fundAnalysis?.takeaway || null,
+      roe: { value: roeVal, tag: roeTag, status: roeStatus, positive: roeStatus === 'good' },
+      netMargin: { value: netMarginVal, tag: netMarginTag, status: netMarginStatus, positive: netMarginStatus === 'good' },
+      netDebtToEbitda: { value: netDebtVal, tag: netDebtTag, status: netDebtStatus, positive: netDebtStatus === 'good' },
+      pe: { value: peVal, tag: peTag, status: peStatus, positive: peStatus === 'good' },
+      pvp: { value: pvpVal, tag: pvpTag, status: pvpStatus, positive: pvpStatus === 'good' },
+      growth: { value: growthVal, tag: growthTag, status: growthStatus, positive: growthStatus === 'good' },
+      available: hasRealFunds
     },
     liquidity: {
       volumeAvg21Formatted: `${(volumeAvg21 / 1e6).toFixed(1)} milhões`,
@@ -531,11 +657,41 @@ async function getTickerChartData(rawSymbol) {
   };
 }
 
+async function refreshB3HistoryIfDue({ force = false } = {}) {
+  const currentYear = new Date().getFullYear();
+  const zipFile = path.join(B3_HISTORY_CACHE, `cotahist-${currentYear}.zip`);
+  let shouldCheck = force;
+  if (!shouldCheck && fs.existsSync(zipFile)) {
+    try {
+      const stat = fs.statSync(zipFile);
+      if (Date.now() - stat.mtimeMs > 4 * 3600 * 1000) {
+        shouldCheck = true;
+      }
+    } catch {
+      shouldCheck = true;
+    }
+  } else if (!fs.existsSync(zipFile)) {
+    shouldCheck = true;
+  }
+
+  if (shouldCheck) {
+    try {
+      const b3Hist = require('./b3-historical');
+      await b3Hist.fetchHistories(['PETR4'], { years: [currentYear], cacheDirectory: B3_HISTORY_CACHE, force });
+      b3StocksCache = null;
+      loadB3History();
+    } catch (err) {
+      console.warn('[ticker-chart] Não foi possível atualizar COTAHIST remoto:', err.message);
+    }
+  }
+}
+
 async function warmup() {
   try {
     loadB3History();
     loadNasdaqHistory();
     await getSearchUniverse();
+    refreshB3HistoryIfDue().catch(() => {});
   } catch (err) {
     console.warn('[ticker-chart warmup]', err.message);
   }
@@ -545,6 +701,7 @@ module.exports = {
   getTickerChartData,
   getSearchUniverse,
   formatLargeNumber,
+  refreshB3HistoryIfDue,
   warmup
 };
 

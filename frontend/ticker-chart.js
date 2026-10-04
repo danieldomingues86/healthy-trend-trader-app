@@ -23,6 +23,29 @@
   let indicatorPrefs = loadIndicatorPrefs();
   let chartSettings = loadChartSettings();
 
+  const ICONS = {
+    search: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`,
+    trophy: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+    relativeStrength: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+    marketCycle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+    trend: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`,
+    structure: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+    trigger: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
+    volatility: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+    fundamentals: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="12" y1="14" x2="12" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>`,
+    context: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+    rubric: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><polyline points="9 11 12 14 22 4"/></svg>`,
+    liquidity: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+    chevronDown: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
+    check: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+    star: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+    starFilled: `<svg width="14" height="14" viewBox="0 0 24 24" fill="#059669" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+    trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+    clock: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    calendar: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    lightbulb: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`
+  };
+
   function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -98,11 +121,11 @@
     const inList = isTickerInWatchlist(currentTicker);
     if (inList) {
       btn.classList.add('active');
-      btn.innerHTML = '<span>★</span> Na Watchlist';
+      btn.innerHTML = `<span>${ICONS.starFilled}</span> Na Watchlist`;
       btn.title = 'Clique para remover este ativo da sua Watchlist';
     } else {
       btn.classList.remove('active');
-      btn.innerHTML = '<span>⭐</span> Adicionar à Watchlist';
+      btn.innerHTML = `<span>${ICONS.star}</span> Adicionar à Watchlist`;
       btn.title = 'Clique para adicionar este ativo à sua Watchlist';
     }
   }
@@ -237,7 +260,7 @@
             <span class="chart-note-item-time">${dateFormatted}</span>
           </div>
           <div class="chart-note-item-body">${escapeHtml(n.text)}</div>
-          <button class="btn-chart-note-delete" data-id="${n.id}">🗑 Excluir</button>
+          <button class="btn-chart-note-delete" data-id="${n.id}">${ICONS.trash} Excluir</button>
         </div>
       `;
     }).join('');
@@ -368,6 +391,16 @@
   }
 
   const tickerDataCache = new Map();
+  const TICKER_CACHE_TTL_MS = 60 * 1000; // 1 minuto de cache em memória antes de exigir revalidação
+
+  function formatSessionDate(dateStr) {
+    if (!dateStr) return '—';
+    const parts = String(dateStr).split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return String(dateStr);
+  }
 
   // Carrega e inicializa o estado de disciplina
   function initDiscipline() {
@@ -402,9 +435,9 @@
 
         <div class="ticker-search-container">
           <div class="ticker-search-input-wrapper">
-            <input type="text" class="ticker-search-input" id="tickerSearchInput" value="${sym}" placeholder="Pesquisar ticker (ex: PETR4, VALE3, AAPL, VOD...)" autocomplete="off" />
+            <input type="text" class="ticker-search-input" id="tickerSearchInput" value="${sym ? String(sym).toUpperCase() : ''}" placeholder="Pesquisar ticker (ex: PETR4, VALE3, AAPL, VOD...)" autocomplete="off" />
             <span class="ticker-search-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              ${ICONS.search}
             </span>
           </div>
           <div class="ticker-search-dropdown" id="tickerSearchDropdown"></div>
@@ -417,7 +450,8 @@
             <div class="discipline-info-sub">${disciplineState ? disciplineState.sessionsToday : 1} / 2 visualizações hoje</div>
           </div>
           <div class="discipline-status-pill ${getDisciplinePillClass(disciplineState)}">
-            <span>●</span> ${getDisciplinePillText(disciplineState)}
+            <div class="discipline-status-headline"><span>●</span> ${getDisciplinePillText(disciplineState)}</div>
+            <div class="discipline-status-subtext">Próxima análise: amanhã, após o fechamento</div>
           </div>
         </div>
       </div>
@@ -457,7 +491,7 @@
 
         <div class="ticker-hero-actions">
           <button class="btn-watchlist-toggle" disabled style="opacity: 0.6; cursor: wait;">
-            <span>⭐</span> Watchlist
+            <span>${ICONS.star}</span> Watchlist
           </button>
         </div>
       </div>
@@ -470,11 +504,12 @@
               <div class="chart-timeframe-badge">D</div>
               <div class="chart-timeframe-select-wrap">
                 <span>Diário (oficial)</span>
+                ${ICONS.chevronDown}
               </div>
             </div>
             <div class="chart-toolbar-right">
               <div class="chart-official-method-badge">
-                <span>💡</span> Você opera pelo gráfico Diário
+                <span>${ICONS.lightbulb}</span> Você opera pelo gráfico Diário
               </div>
             </div>
           </div>
@@ -490,37 +525,50 @@
           </div>
         </div>
 
-        <div class="ticker-vision-card ticker-skeleton-loading">
-          <div class="vision-card-head">
-            <div class="vision-head-title">
-              <div class="vision-title">Visão do Ativo</div>
-              <div class="vision-subtitle">Baseado no seu método e no rubric atual.</div>
+        <div class="ticker-summary-card ticker-skeleton-loading">
+          <div class="summary-card-head">
+            <div class="summary-card-head-left">
+              <div class="summary-trophy-badge">${ICONS.trophy}</div>
+              <div class="summary-titles">
+                <div class="summary-title">Visão do Ativo</div>
+                <div class="summary-subtitle">Baseado no seu método e no rubric atual.</div>
+              </div>
             </div>
-            <div class="vision-grade-badge" style="opacity: 0.5;">...</div>
+            <div class="summary-grade-box" style="opacity: 0.5;">...</div>
           </div>
-          <div class="vision-checklist">
-            <div class="vision-check-item"><span>○</span> Tendência alinhada</div>
-            <div class="vision-check-item"><span>○</span> Força Relativa</div>
-            <div class="vision-check-item"><span>○</span> Volatilidade favorável</div>
-            <div class="vision-check-item"><span>○</span> Ciclo de mercado</div>
+          <div class="summary-checklist">
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.relativeStrength}</span><span>Força Relativa</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.marketCycle}</span><span>Ciclo de Mercado</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.trend}</span><span>Tendência</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.structure}</span><span>Estrutura</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.trigger}</span><span>Gatilho</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.volatility}</span><span>Volatilidade</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.fundamentals}</span><span>Fundamentos</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.context}</span><span>Contexto</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
           </div>
         </div>
       </div>
 
       <!-- 4. METHOD INDICATORS ROW SKELETON -->
-      <div class="ticker-method-row">
-        ${['Força Relativa', 'Ciclo de Mercado', 'Tendência', 'Volatilidade (ATR)', 'Estrutura', 'Gatilho'].map((name) => `
+      <div class="method-widgets-row">
+        ${[
+          { name: 'Força Relativa', icon: ICONS.relativeStrength },
+          { name: 'Ciclo de Mercado', icon: ICONS.marketCycle },
+          { name: 'Tendência', icon: ICONS.trend },
+          { name: 'Volatilidade (ATR)', icon: ICONS.volatility },
+          { name: 'Estrutura', icon: ICONS.structure },
+          { name: 'Gatilho', icon: ICONS.trigger }
+        ].map((item) => `
           <div class="method-card ticker-skeleton-loading">
             <div class="method-card-head">
-              <div class="method-card-title-wrap">
-                <span class="method-card-title">${name}</span>
+              <div class="method-card-head-left">
+                <div class="method-card-icon">${item.icon}</div>
+                <span class="method-card-title">${item.name}</span>
               </div>
             </div>
-            <div class="method-main-metric">
-              <span class="ticker-skeleton-line" style="width: 80px; height: 26px;"></span>
-            </div>
-            <div class="method-desc-line">
-              <span class="ticker-skeleton-line" style="width: 100%; height: 13px;"></span>
+            <div class="method-card-body">
+              <span class="ticker-skeleton-line" style="width: 80px; height: 28px;"></span>
+              <span class="ticker-skeleton-line" style="width: 100%; height: 13px; margin-top: 6px;"></span>
             </div>
           </div>
         `).join('')}
@@ -542,26 +590,27 @@
     const root = document.getElementById('tickerChartRoot');
     if (!root) return;
 
-    // Se já estiver em cache, renderiza imediatamente (0ms) e revalida em segundo plano
-    const isCached = tickerDataCache.has(sym);
-    if (isCached) {
-      tickerData = tickerDataCache.get(sym);
+    // Se já estiver em cache recente (< 1 min), renderiza imediatamente (0ms) e revalida em segundo plano
+    const cachedEntry = tickerDataCache.get(sym);
+    const isFresh = Boolean(cachedEntry && (Date.now() - cachedEntry.timestamp < TICKER_CACHE_TTL_MS));
+    if (isFresh) {
+      tickerData = cachedEntry.data;
       renderAll();
-    } else {
+    } else if (!tickerData || tickerData.tickerInfo?.symbol !== sym) {
       // Exibe skeleton completo instantaneamente para eliminar a tela branca
       renderLoadingSkeleton(sym);
     }
 
     try {
-      const url = `/api/market-data/ticker-chart?ticker=${encodeURIComponent(sym)}`;
-      const res = window.healthyTrendApi ? await window.healthyTrendApi.request(url) : await fetch(url).then(r => r.json());
+      const url = `/api/market-data/ticker-chart?ticker=${encodeURIComponent(sym)}&_t=${Date.now()}`;
+      const res = window.healthyTrendApi ? await window.healthyTrendApi.request(url) : await fetch(url, { cache: 'no-cache' }).then(r => r.json());
       if (res.error) throw new Error(res.error);
       tickerData = res;
-      tickerDataCache.set(sym, res);
+      tickerDataCache.set(sym, { data: res, timestamp: Date.now() });
       renderAll();
     } catch (err) {
       console.error('Erro ao carregar dados do ticker:', err);
-      if (!isCached) {
+      if (!isFresh && (!tickerData || tickerData.tickerInfo?.symbol !== sym)) {
         root.innerHTML = `
           <div style="padding: 40px; text-align: center; color: #64748b;">
             <h3>Não foi possível carregar os dados para ${sym}</h3>
@@ -573,9 +622,214 @@
     }
   }
 
+  function renderTriggerBanner(trigger) {
+    if (!trigger || !trigger.hasTrigger) return '';
+
+    const entryPriceFormatted = trigger.entry ? `R$ ${formatNumber(trigger.entry)}` : '';
+    const stopPriceFormatted = trigger.stop ? `R$ ${formatNumber(trigger.stop)}` : '';
+    const entryText = entryPriceFormatted ? `${trigger.entryLabel || '1 tick acima da máxima'} (${entryPriceFormatted})` : (trigger.entryLabel || '1 tick acima da máxima');
+    const stopText = stopPriceFormatted ? `${trigger.stopLabel || '1 tick abaixo da mínima'} (${stopPriceFormatted})` : (trigger.stopLabel || '1 tick abaixo da mínima');
+
+    return `
+      <!-- 2.5 BANNER DE DESTAQUE: GATILHO IDENTIFICADO -->
+      <div class="trigger-alert-banner">
+        <div class="trigger-alert-banner-left">
+          <div class="trigger-alert-icon-wrap">
+            ${ICONS.trigger}
+          </div>
+          <div class="trigger-alert-info">
+            <div class="trigger-alert-title-row">
+              <span class="trigger-alert-title">🎯 GATILHO DE COMPRA IDENTIFICADO</span>
+              <span class="trigger-alert-pattern-badge">${escapeHtml(trigger.name)} (${escapeHtml(trigger.grade || 'A')})</span>
+              <span class="trigger-alert-rule-tag">Acima da EMA 9 e EMA 30</span>
+            </div>
+            <div class="trigger-alert-desc">
+              ${escapeHtml(trigger.detail || trigger.description || 'Condição de entrada válida no gráfico Diário segundo as regras do método.')}
+            </div>
+          </div>
+        </div>
+        <div class="trigger-alert-banner-right">
+          <div class="trigger-alert-plan-item entry">
+            <span class="plan-label">ENTRADA</span>
+            <span class="plan-value">${escapeHtml(entryText)}</span>
+          </div>
+          <div class="trigger-alert-plan-item stop">
+            <span class="plan-label">STOP</span>
+            <span class="plan-value">${escapeHtml(stopText)}</span>
+          </div>
+          <div class="trigger-alert-actions">
+            <button class="btn-trigger-simulate" id="btnSimulateTriggerTrade" type="button" title="Acompanhar esta oportunidade virtualmente no Simulador de Trades">
+              ▶ SIMULAR TRADE
+            </button>
+            <button class="btn-trigger-newtrade" id="btnNewTradeFromTrigger" type="button" title="Registrar operação real no Diário">
+              + NOVO TRADE
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function classifyRelativeStrength(score, classification) {
+    if (window.TradingRubrics && typeof window.TradingRubrics.classifyRelativeStrength === 'function') {
+      return window.TradingRubrics.classifyRelativeStrength(score, classification);
+    }
+    if (window.TickerChartModel && typeof window.TickerChartModel.classifyRelativeStrength === 'function') {
+      return window.TickerChartModel.classifyRelativeStrength(score, classification);
+    }
+    const hasScore = score !== null && score !== undefined && score !== '' && !Number.isNaN(Number(score));
+    const s = hasScore ? Number(score) : null;
+    const c = String(classification || '').toLowerCase();
+    if ((hasScore && s >= 90) || c.includes('líd') || c.includes('lead')) return { score: s, tier: 'leader', label: 'Líder', status: 'good', statusClass: 'good', color: '#15803d', icon: '🟢', dot: '●', display: s !== null ? `Líder (${s})` : 'Líder' };
+    if ((hasScore && s >= 70) || c.includes('fort') || c.includes('qualif')) return { score: s, tier: 'strong', label: 'Forte', status: 'good', statusClass: 'good', color: '#15803d', icon: '🟢', dot: '●', display: s !== null ? `Forte (${s})` : 'Forte' };
+    if ((hasScore && s < 40) || c.includes('frac') || c.includes('lag') || c.includes('abaixo')) return { score: s, tier: 'weak', label: 'Fraco', status: 'bad', statusClass: 'bad', color: '#b91c1c', icon: '🔴', dot: '●', display: s !== null ? `Fraco (${s})` : 'Fraco' };
+    return { score: s, tier: 'neutral', label: 'Neutro', status: 'neutral', statusClass: 'neutral', color: '#64748b', icon: '🟡', dot: '●', display: s !== null ? `Neutro (${s})` : 'Neutro' };
+  }
+
+  function getRubricGradeVisual(grade) {
+    if (window.TradingRubrics && typeof window.TradingRubrics.getRubricGradeVisual === 'function') {
+      return window.TradingRubrics.getRubricGradeVisual(grade);
+    }
+    if (window.TickerChartModel && typeof window.TickerChartModel.getRubricGradeVisual === 'function') {
+      return window.TickerChartModel.getRubricGradeVisual(grade);
+    }
+    const g = String(grade || '').trim().toUpperCase();
+    if (g === 'A+' || g === 'A') return { grade: g || 'A', status: 'good', statusClass: 'grade-a', badgeClass: 'good', color: '#15803d', bg: '#f0fdf4', border: '#bbf7d0', icon: '🏆', title: g === 'A+' ? 'Rare Trade (A+)' : 'Alta Qualidade (A)', summaryText: 'Setup com alta probabilidade segundo o seu método.' };
+    if (g === 'B') return { grade: 'B', status: 'good', statusClass: 'grade-b', badgeClass: 'good', color: '#a16207', bg: '#fefce8', border: '#fef08a', icon: '✅', title: 'Bom Edge (B)', summaryText: 'Setup dentro dos parâmetros de risco controlado.' };
+    if (g === 'C') return { grade: 'C', status: 'neutral', statusClass: 'grade-c', badgeClass: 'neutral', color: '#c2410c', bg: '#fff7ed', border: '#fed7aa', icon: '⚠️', title: 'Edge Pequeno (C)', summaryText: 'Qualidade limítrofe. Exige cautela e dimensionamento reduzido.' };
+    return { grade: g || 'D', status: 'bad', statusClass: 'grade-d', badgeClass: 'bad', color: '#b91c1c', bg: '#fee2e2', border: '#fca5a5', icon: '⛔', title: 'Sem Edge (D)', summaryText: 'Sem Edge. Bloqueio automático com risco nominal zero (0%).' };
+  }
+
+  function getRsStatus(score, classification) {
+    return classifyRelativeStrength(score, classification).statusClass;
+  }
+
+  function getTrendStatus(status) {
+    const s = String(status || '').toLowerCase();
+    if (s.includes('baix')) return 'bad';
+    if (s.includes('neutr') || s.includes('transi')) return 'neutral';
+    return 'good';
+  }
+
+  function getCycleStatus(regime) {
+    const r = String(regime || '').toLowerCase();
+    if (r.includes('defens') || r.includes('baixa') || r.includes('negat')) return 'bad';
+    if (r.includes('transi') || r.includes('neutr')) return 'neutral';
+    return 'good';
+  }
+
+  function getVolatilityStatus(regime, atrPct) {
+    const r = String(regime || '').toLowerCase();
+    const pct = Number(atrPct) || 0;
+    // CUIDADO: Volatilidade baixa é BOA para Trend Following (good/verde)
+    if (r.includes('baix') || (pct > 0 && pct < 3.5)) return 'good';
+    if (r.includes('elevad') || r.includes('alt') || pct > 6.0) return 'bad';
+    return 'neutral';
+  }
+
+  function getStructureStatus(label) {
+    const l = String(label || '').toLowerCase();
+    if (l.includes('degrad') || l.includes('fals')) return 'bad';
+    if (l.includes('neutr')) return 'neutral';
+    return 'good';
+  }
+
+  function renderRsSparkline(status) {
+    if (status === 'bad') {
+      return `
+        <svg width="100%" height="28" viewBox="0 0 140 28" fill="none">
+          <defs>
+            <linearGradient id="rsAreaGradBad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ef4444" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#ef4444" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          <path d="M5 6 Q 35 10, 65 18 T 135 24 L 135 28 L 5 28 Z" fill="url(#rsAreaGradBad)"/>
+          <path d="M5 6 Q 35 10, 65 18 T 135 24" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="135" cy="24" r="3" fill="#ef4444"/>
+        </svg>
+      `;
+    }
+    if (status === 'neutral') {
+      return `
+        <svg width="100%" height="28" viewBox="0 0 140 28" fill="none">
+          <defs>
+            <linearGradient id="rsAreaGradNeu" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          <path d="M5 16 Q 35 14, 65 15 T 135 14 L 135 28 L 5 28 Z" fill="url(#rsAreaGradNeu)"/>
+          <path d="M5 16 Q 35 14, 65 15 T 135 14" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="135" cy="14" r="3" fill="#94a3b8"/>
+        </svg>
+      `;
+    }
+    return `
+      <svg width="100%" height="28" viewBox="0 0 140 28" fill="none">
+        <defs>
+          <linearGradient id="rsAreaGradGood" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+          </linearGradient>
+        </defs>
+        <path d="M5 24 Q 35 22, 65 15 T 135 4 L 135 28 L 5 28 Z" fill="url(#rsAreaGradGood)"/>
+        <path d="M5 24 Q 35 22, 65 15 T 135 4" stroke="#10b981" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="135" cy="4" r="3" fill="#10b981"/>
+      </svg>
+    `;
+  }
+
   function renderAll() {
     const root = document.getElementById('tickerChartRoot');
     if (!root || !tickerData) return;
+
+    const lastCandleDate = (tickerData.ohlc && tickerData.ohlc.length) ? tickerData.ohlc[tickerData.ohlc.length - 1].time : null;
+    const sessionDateRaw = tickerData.tickerInfo.sessionDate || tickerData.tickerInfo.date || lastCandleDate;
+    const sessionDateFormatted = formatSessionDate(sessionDateRaw);
+
+    // Avalia status semânticos (good = verde, neutral = cinza, bad = vermelho)
+    const gradeVisual = getRubricGradeVisual(tickerData.rubric?.finalGrade);
+    const rsStatus = getRsStatus(tickerData.relativeStrength?.score, tickerData.relativeStrength?.classification);
+    const trendStatus = getTrendStatus(tickerData.trend?.status);
+    const cycleStatus = getCycleStatus(tickerData.marketCycle?.regime);
+    // CUIDADO: Volatilidade baixa é BOA para Trend Following (good/verde)
+    const volStatus = getVolatilityStatus(tickerData.volatility?.regime, tickerData.volatility?.atrPct);
+    const structureStatus = getStructureStatus(tickerData.structure?.label);
+    const triggerStatus = Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? 'good' : 'neutral';
+    const fundEvaluation = tickerData.fundamentals?.evaluation
+      || (tickerData.fundamentals?.classification
+        ? (tickerData.fundamentals.classification === 'EXCELENTE' ? 'Excelente'
+          : tickerData.fundamentals.classification === 'BOM' ? 'Forte'
+          : tickerData.fundamentals.classification === 'MÉDIO' ? 'Médio'
+          : tickerData.fundamentals.classification === 'FRACO' ? 'Fraco'
+          : tickerData.fundamentals.classification === 'RUIM' ? 'Ruim' : 'Neutro')
+        : (tickerData.fundamentals?.available !== false ? 'Forte' : 'Neutro'));
+
+    let fundStatus = tickerData.fundamentals?.status;
+    if (!fundStatus) {
+      if (tickerData.fundamentals?.available === false) {
+        fundStatus = 'neutral';
+      } else if (fundEvaluation === 'Excelente' || fundEvaluation === 'Forte') {
+        fundStatus = 'good';
+      } else if (fundEvaluation === 'Médio') {
+        fundStatus = 'alert';
+      } else if (fundEvaluation === 'Fraco' || fundEvaluation === 'Ruim') {
+        fundStatus = 'bad';
+      } else {
+        fundStatus = 'neutral';
+      }
+    }
+
+    const getMetricTagClass = (item) => {
+      if (!item) return '';
+      if (item.status === 'good' || item.positive === true) return 'good';
+      if (item.status === 'warn' || item.status === 'bad' || item.positive === false) return 'warn';
+      if (item.status === 'neutral') return 'neutral';
+      return '';
+    };
+
+    const contextStatus = (trendStatus === 'good' && cycleStatus === 'good') ? 'good' : (trendStatus === 'bad' ? 'bad' : 'neutral');
 
     // Constrói HTML estrutural
     root.innerHTML = `
@@ -590,7 +844,7 @@
           <div class="ticker-search-input-wrapper">
             <input type="text" class="ticker-search-input" id="tickerSearchInput" placeholder="Pesquisar ticker (ex: PETR4, VALE3, AAPL, VOD...)" autocomplete="off" />
             <span class="ticker-search-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              ${ICONS.search}
             </span>
           </div>
           <div class="ticker-search-dropdown" id="tickerSearchDropdown"></div>
@@ -603,7 +857,8 @@
             <div class="discipline-info-sub">${disciplineState ? disciplineState.sessionsToday : 1} / 2 visualizações hoje</div>
           </div>
           <div class="discipline-status-pill ${getDisciplinePillClass(disciplineState)}">
-            <span>●</span> ${getDisciplinePillText(disciplineState)}
+            <div class="discipline-status-headline"><span>●</span> ${getDisciplinePillText(disciplineState)}</div>
+            <div class="discipline-status-subtext">Próxima análise: amanhã, após o fechamento</div>
           </div>
         </div>
       </div>
@@ -620,11 +875,15 @@
                 ${tickerData.tickerInfo.dayChange >= 0 ? '+' : ''}${formatNumber(tickerData.tickerInfo.dayChange)} (${tickerData.tickerInfo.dayChangePct >= 0 ? '+' : ''}${formatNumber(tickerData.tickerInfo.dayChangePct)}%) ${tickerData.tickerInfo.dayChange >= 0 ? '▲' : '▼'}
               </span>
             </div>
-            <div class="ticker-hero-name">${tickerData.tickerInfo.name}</div>
+            <div class="ticker-hero-name">${tickerData.tickerInfo.name} <span class="ticker-session-dot">•</span> <span class="ticker-session-tag">Fechamento: ${sessionDateFormatted}</span></div>
           </div>
         </div>
 
         <div class="ticker-hero-meta-columns">
+          <div class="ticker-meta-col">
+            <span class="ticker-meta-label">Último Pregão</span>
+            <span class="ticker-meta-value highlight-session">${sessionDateFormatted}</span>
+          </div>
           <div class="ticker-meta-col">
             <span class="ticker-meta-label">Setor</span>
             <span class="ticker-meta-value">${tickerData.tickerInfo.sector || '—'}</span>
@@ -645,12 +904,15 @@
 
         <div class="ticker-hero-actions">
           <button class="btn-watchlist-toggle ${isTickerInWatchlist(tickerData.tickerInfo.symbol) ? 'active' : ''}" id="btnToggleWatchlist">
-            <span>${isTickerInWatchlist(tickerData.tickerInfo.symbol) ? '★' : '⭐'}</span>
+            <span>${isTickerInWatchlist(tickerData.tickerInfo.symbol) ? ICONS.starFilled : ICONS.star}</span>
             ${isTickerInWatchlist(tickerData.tickerInfo.symbol) ? 'Na Watchlist' : 'Adicionar à Watchlist'}
           </button>
           <button class="btn-icon-more" id="btnMoreTickerOptions" title="Mais opções">⋮</button>
         </div>
       </div>
+
+      <!-- 2.5 BANNER DE DESTAQUE: GATILHO IDENTIFICADO (apenas quando houver gatilho de compra válido) -->
+      ${renderTriggerBanner(tickerData.trigger)}
 
       <!-- 3. MAIN CHART & VISÃO DO ATIVO GRID -->
       <div class="ticker-main-grid">
@@ -660,7 +922,7 @@
               <div class="chart-timeframe-badge">D</div>
               <div class="chart-timeframe-select-wrap" title="O Healthy Trend Trader opera estritamente no gráfico Diário para eliminar o ruído intraday.">
                 <span>Diário (oficial)</span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                ${ICONS.chevronDown}
               </div>
 
               <!-- INDICADORES POPOVER -->
@@ -692,7 +954,7 @@
                     <label class="chart-indicator-item">
                       <div class="chart-indicator-left">
                         <span class="indicator-color-dot" style="background: #3b82f6;"></span>
-                        <span>EMA 21 (Pullback)</span>
+                        <span>EMA 21</span>
                       </div>
                       <input type="checkbox" id="chkIndEma21" ${indicatorPrefs.ema21 ? 'checked' : ''} />
                     </label>
@@ -795,7 +1057,7 @@
           <div class="chart-canvas-wrapper" id="lightweightChartContainer">
             <div class="chart-legend-overlay" id="chartLegendOverlay">
               <div class="legend-row-main" id="legendMainRow">
-                <span>${tickerData.tickerInfo.symbol} · 1D · B3</span>
+                <span>${tickerData.tickerInfo.symbol} · 1D · ${escapeHtml(tickerData.tickerInfo.assetClass || 'B3')}</span>
                 <span>Abr ${formatNumber(tickerData.ohlc.at(-1)?.open)}</span>
                 <span>Máx ${formatNumber(tickerData.ohlc.at(-1)?.high)}</span>
                 <span>Mín ${formatNumber(tickerData.ohlc.at(-1)?.low)}</span>
@@ -817,84 +1079,85 @@
 
         <!-- VISÃO DO ATIVO CARD -->
         <div class="ticker-summary-card">
-          <div>
-            <div class="summary-card-head">
-              <div class="summary-card-head-left">
-                <div class="summary-trophy-badge">🏆</div>
-                <div class="summary-titles">
-                  <div class="summary-title">Visão do Ativo</div>
-                  <div class="summary-subtitle">Baseado no seu método e no rubric atual.</div>
-                </div>
-              </div>
-              <div class="summary-grade-box grade-${tickerData.rubric.finalGrade.toLowerCase()}">
-                ${tickerData.rubric.finalGrade}
+          <div class="summary-card-head">
+            <div class="summary-card-head-left">
+              <div class="summary-trophy-badge">${ICONS.trophy}</div>
+              <div class="summary-titles">
+                <div class="summary-title">Visão do Ativo</div>
+                <div class="summary-subtitle">Baseado no seu método e no rubric atual.</div>
               </div>
             </div>
+            <div class="summary-grade-box ${gradeVisual.statusClass}">
+              ${tickerData.rubric.finalGrade}
+            </div>
+          </div>
 
-            <div class="summary-checklist">
-              <div class="summary-check-row">
-                <div class="summary-check-left">
-                  <span>📈</span> Força Relativa
-                </div>
-                <div class="summary-check-right" style="color: #10b981;">
-                  ${tickerData.relativeStrength.classification} (${tickerData.relativeStrength.score})
-                </div>
+          <div class="summary-checklist">
+            <div class="summary-check-row">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.relativeStrength}</span> Força Relativa
               </div>
-              <div class="summary-check-row">
-                <div class="summary-check-left">
-                  <span>🔄</span> Ciclo de Mercado
-                </div>
-                <div class="summary-check-right" style="color: ${tickerData.marketCycle.regime === 'Positivo' ? '#10b981' : '#f59e0b'};">
-                  ● ${tickerData.marketCycle.regime}
-                </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${rsStatus}">● ${escapeHtml(tickerData.relativeStrength.classification)} (${tickerData.relativeStrength.score})</span>
               </div>
-              <div class="summary-check-row">
-                <div class="summary-check-left">
-                  <span>📈</span> Tendência
-                </div>
-                <div class="summary-check-right" style="color: #10b981;">
-                  ● ${tickerData.trend.formula}
-                </div>
+            </div>
+            <div class="summary-check-row">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.marketCycle}</span> Ciclo de Mercado
               </div>
-              <div class="summary-check-row">
-                <div class="summary-check-left">
-                  <span>☁️</span> Estrutura
-                </div>
-                <div class="summary-check-right" style="color: #10b981;">
-                  ● ${tickerData.structure.label}
-                </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${cycleStatus}">● ${escapeHtml(tickerData.marketCycle.regime)}</span>
               </div>
-              <div class="summary-check-row">
-                <div class="summary-check-left">
-                  <span>🎯</span> Gatilho
-                </div>
-                <div class="summary-check-right" style="color: #10b981;">
-                  ● ${tickerData.trigger.name}
-                </div>
+            </div>
+            <div class="summary-check-row">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.trend}</span> Tendência
               </div>
-              <div class="summary-check-row">
-                <div class="summary-check-left">
-                  <span>📊</span> Volatilidade
-                </div>
-                <div class="summary-check-right" style="color: #10b981;">
-                  ● ${tickerData.volatility.regime} (ATR ${formatNumber(tickerData.volatility.atr21)} | ${formatNumber(tickerData.volatility.atrPct)}%)
-                </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${trendStatus}">● ${escapeHtml(tickerData.trend.formula || tickerData.trend.status)}</span>
               </div>
-              <div class="summary-check-row">
-                <div class="summary-check-left">
-                  <span>🏛️</span> Fundamentos
-                </div>
-                <div class="summary-check-right" style="color: #10b981;">
-                  ● Fortes
-                </div>
+            </div>
+            <div class="summary-check-row">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.structure}</span> Estrutura
               </div>
-              <div class="summary-check-row">
-                <div class="summary-check-left">
-                  <span>🎯</span> Contexto
-                </div>
-                <div class="summary-check-right" style="color: #10b981;">
-                  ● Super Contexto
-                </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${structureStatus}">● ${escapeHtml(tickerData.structure.label)}</span>
+              </div>
+            </div>
+            <div class="summary-check-row">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.trigger}</span> Gatilho
+              </div>
+              <div class="summary-check-right">
+                ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger)
+                  ? `<span class="vision-status good">● ${escapeHtml(tickerData.trigger.name)} (${escapeHtml(tickerData.trigger.grade || 'A')})</span>`
+                  : `<span class="vision-status neutral">● Nenhum gatilho</span>`
+                }
+              </div>
+            </div>
+            <div class="summary-check-row">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.volatility}</span> Volatilidade
+              </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${volStatus}">● ${escapeHtml(tickerData.volatility.regime)} (ATR ${formatNumber(tickerData.volatility.atr21)} | ${formatNumber(tickerData.volatility.atrPct)}%)</span>
+              </div>
+            </div>
+            <div class="summary-check-row">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.fundamentals}</span> Fundamentos
+              </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${fundStatus}">● ${escapeHtml(fundEvaluation)}</span>
+              </div>
+            </div>
+            <div class="summary-check-row">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.context}</span> Contexto
+              </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${contextStatus}">● ${escapeHtml(tickerData.context?.title || 'Contexto')}</span>
               </div>
             </div>
           </div>
@@ -907,16 +1170,31 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">📈</div>
+              <div class="method-card-icon">${ICONS.relativeStrength}</div>
               <div class="method-card-title">Força Relativa</div>
             </div>
-            <div class="method-card-badge">${tickerData.relativeStrength.classification}</div>
+            <div class="method-card-badge ${rsStatus}">${escapeHtml(tickerData.relativeStrength.classification)}</div>
           </div>
           <div class="method-card-body">
-            <div class="method-big-score">${tickerData.relativeStrength.score}</div>
-            <div class="method-card-desc">${tickerData.relativeStrength.percentile}</div>
-            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
-              Ranking: <b>${tickerData.relativeStrength.rank} / ${tickerData.relativeStrength.totalUniverse}</b> · RS (3M): <b style="color: #10b981;">+${tickerData.relativeStrength.rs3m}%</b>
+            <div class="method-rs-top-split">
+              <div class="method-big-score">${tickerData.relativeStrength.score}</div>
+              <div class="method-rs-metrics-stack">
+                <div class="method-rs-metric-line">
+                  <span class="rs-label">Ranking Geral</span>
+                  <span class="rs-val">${tickerData.relativeStrength.rank} / ${tickerData.relativeStrength.totalUniverse}</span>
+                </div>
+                <div class="method-rs-metric-line">
+                  <span class="rs-label">RS (3M)</span>
+                  <span class="rs-val ${tickerData.relativeStrength.rs3m >= 0 ? 'rs-pos' : 'rs-neg'}">${tickerData.relativeStrength.rs3m >= 0 ? '+' : ''}${tickerData.relativeStrength.rs3m}%</span>
+                </div>
+              </div>
+            </div>
+            <div class="method-rs-badge-row">
+              <span class="method-leader-pill ${rsStatus}">${escapeHtml(tickerData.relativeStrength.classification)}</span>
+              <span class="method-percentile-text">${tickerData.relativeStrength.percentile}</span>
+            </div>
+            <div class="method-micro-visual">
+              ${renderRsSparkline(rsStatus)}
             </div>
           </div>
         </div>
@@ -925,18 +1203,26 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">🎯</div>
+              <div class="method-card-icon">${ICONS.marketCycle}</div>
               <div class="method-card-title">Ciclo de Mercado</div>
             </div>
-            <div class="method-card-badge">${tickerData.marketCycle.benchmark}</div>
+            <div class="method-card-badge neutral">${escapeHtml(tickerData.marketCycle.benchmark)}</div>
           </div>
           <div class="method-card-body">
-            <div style="font-size: 20px; font-weight: 800; color: #10b981; display: flex; align-items: center; gap: 6px;">
-              <span>●</span> ${tickerData.marketCycle.regime}
+            <div class="method-cycle-status ${cycleStatus}">
+              <span>●</span> ${escapeHtml(tickerData.marketCycle.regime)}
             </div>
-            <div class="method-card-desc">${tickerData.marketCycle.description}</div>
-            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
+            <div class="method-card-desc">${escapeHtml(tickerData.marketCycle.description)}</div>
+            <div class="method-card-subline">
               Score Institucional: <b>${tickerData.marketCycle.score} / 100</b>
+            </div>
+            <div class="method-micro-visual">
+              <div class="mini-volume-bars">
+                <span class="vol-bar" style="height: 8px;"></span>
+                <span class="vol-bar" style="height: 12px;"></span>
+                <span class="vol-bar" style="height: 16px;"></span>
+                <span class="vol-bar ${cycleStatus === 'good' ? 'active' : ''}" style="height: 22px;"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -945,16 +1231,27 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">📈</div>
+              <div class="method-card-icon">${ICONS.trend}</div>
               <div class="method-card-title">Tendência</div>
             </div>
-            <div class="method-card-badge">${tickerData.trend.status}</div>
+            <div class="method-card-badge ${trendStatus}">${escapeHtml(tickerData.trend.status)}</div>
           </div>
           <div class="method-card-body">
+            <div class="method-trend-headline ${trendStatus}">${escapeHtml(tickerData.trend.status)}</div>
+            <div class="trend-formula-pill ${trendStatus}">${escapeHtml(tickerData.trend.formula)}</div>
             <div class="method-checklist-mini">
-              <div><span style="color: #10b981;">✔</span> Preço acima da EMA 9</div>
-              <div><span style="color: #10b981;">✔</span> EMA 9 acima da EMA 30</div>
-              <div><span style="color: #10b981;">✔</span> Ambas inclinadas para cima</div>
+              <div>
+                <span class="check-icon ${tickerData.trend.priceAboveEma9 ? 'good' : 'neutral'}">${tickerData.trend.priceAboveEma9 ? ICONS.check : '—'}</span>
+                Preço acima da EMA 9
+              </div>
+              <div>
+                <span class="check-icon ${tickerData.trend.ema9AboveEma30 ? 'good' : 'neutral'}">${tickerData.trend.ema9AboveEma30 ? ICONS.check : '—'}</span>
+                EMA 9 acima da EMA 30
+              </div>
+              <div>
+                <span class="check-icon ${tickerData.trend.bothSlopingUp ? 'good' : 'neutral'}">${tickerData.trend.bothSlopingUp ? ICONS.check : '—'}</span>
+                Ambas inclinadas para cima
+              </div>
             </div>
           </div>
         </div>
@@ -963,20 +1260,36 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">📉</div>
+              <div class="method-card-icon">${ICONS.volatility}</div>
               <div class="method-card-title">Volatilidade (ATR)</div>
             </div>
-            <div class="method-card-badge">${tickerData.volatility.regime}</div>
+            <div class="method-card-badge ${volStatus}">${escapeHtml(tickerData.volatility.regime)}</div>
           </div>
           <div class="method-card-body">
-            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
-              <span style="color: #64748b;">ATR (21):</span> <b>R$ ${formatNumber(tickerData.volatility.atr21)}</b>
+            <div class="method-atr-table">
+              <div class="method-atr-row">
+                <span class="atr-label">ATR (21):</span>
+                <b>R$ ${formatNumber(tickerData.volatility.atr21)}</b>
+              </div>
+              <div class="method-atr-row">
+                <span class="atr-label">ATR %:</span>
+                <b>${formatNumber(tickerData.volatility.atrPct)}%</b>
+              </div>
+              <div class="method-atr-row">
+                <span class="atr-label">Regime:</span>
+                <b class="atr-regime-val ${volStatus}">${escapeHtml(tickerData.volatility.regime)}</b>
+              </div>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
-              <span style="color: #64748b;">ATR %:</span> <b>${formatNumber(tickerData.volatility.atrPct)}%</b>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 12px;">
-              <span style="color: #64748b;">Regime:</span> <b style="color: #10b981;">${tickerData.volatility.regime}</b>
+            <div class="method-micro-visual">
+              <div class="mini-atr-histogram">
+                <span style="height: 6px;"></span>
+                <span style="height: 8px;"></span>
+                <span style="height: 10px;"></span>
+                <span style="height: 7px;"></span>
+                <span style="height: 9px;"></span>
+                <span style="height: 12px; background: ${volStatus === 'good' ? '#10b981' : (volStatus === 'bad' ? '#ef4444' : '#38bdf8')};"></span>
+                <span style="height: 11px; background: ${volStatus === 'good' ? '#10b981' : (volStatus === 'bad' ? '#ef4444' : '#38bdf8')};"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -985,32 +1298,65 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">🗂️</div>
+              <div class="method-card-icon">${ICONS.structure}</div>
               <div class="method-card-title">Estrutura</div>
             </div>
+            <div class="method-card-badge ${structureStatus}">${tickerData.structure.label === 'Contração' || tickerData.structure.label === 'Correção' ? 'Saudável' : escapeHtml(tickerData.structure.label)}</div>
           </div>
           <div class="method-card-body">
-            <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">
-              ${tickerData.structure.label}
+            <div class="method-structure-label ${structureStatus}">
+              <span class="structure-arrow ${structureStatus}">▲</span> ${escapeHtml(tickerData.structure.label)}
             </div>
-            <div class="method-card-desc">${tickerData.structure.description}</div>
+            <div class="method-card-desc">${escapeHtml(tickerData.structure.description)}</div>
+            <div class="method-micro-visual">
+              <svg width="100%" height="24" viewBox="0 0 120 24" fill="none">
+                <path d="M5 20 L35 6 L65 16 L95 4 L115 8" stroke="${structureStatus === 'bad' ? '#ef4444' : (structureStatus === 'neutral' ? '#94a3b8' : '#10b981')}" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="65" cy="16" r="3" fill="#f59e0b" stroke="#ffffff" stroke-width="1.5"/>
+              </svg>
+            </div>
           </div>
         </div>
 
         <!-- Card 6: Gatilho -->
-        <div class="method-card">
+        <div class="method-card ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? 'method-card-trigger-highlight' : 'method-card-trigger-neutral'}">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">🎯</div>
+              <div class="method-card-icon trigger-icon ${!Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? 'neutral-icon' : ''}">${ICONS.trigger}</div>
               <div class="method-card-title">Gatilho</div>
             </div>
-            <div class="method-card-badge gold">${tickerData.trigger.grade}</div>
+            ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger)
+              ? `<div class="method-trigger-grade-badge">${escapeHtml(tickerData.trigger.grade || 'A')}</div>`
+              : `<div class="method-trigger-neutral-badge">Neutro</div>`
+            }
           </div>
           <div class="method-card-body">
-            <div style="font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">
-              ${tickerData.trigger.name}
+            <div class="method-trigger-name ${!Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? 'neutral' : ''}">
+              ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? escapeHtml(tickerData.trigger.name) : 'Nenhum gatilho encontrado'}
             </div>
-            <div class="method-card-desc">${tickerData.trigger.description}</div>
+            <div class="method-card-desc">
+              ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger)
+                ? escapeHtml(tickerData.trigger.description || 'Padrão válido de compra acima da EMA 9 e EMA 30.')
+                : 'Nenhum padrão de entrada válido identificado no gráfico Diário.'
+              }
+            </div>
+            ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? `
+            <div class="method-micro-visual" style="display: flex; justify-content: flex-end; padding-right: 12px;">
+              <div class="mini-candlestick-diagram">
+                <div class="mini-candle mother">
+                  <div class="mini-candle-wick"></div>
+                  <div class="mini-candle-body"></div>
+                  <div class="mini-candle-wick"></div>
+                </div>
+                <div class="mini-candle inside">
+                  <div class="mini-candle-wick"></div>
+                  <div class="mini-candle-body"></div>
+                  <div class="mini-candle-wick"></div>
+                </div>
+              </div>
+            </div>
+            ` : `
+            <div class="method-trigger-neutral-hint">Aguardando padrão com preço acima da EMA 9 e EMA 30</div>
+            `}
           </div>
         </div>
       </div>
@@ -1021,27 +1367,39 @@
         <div class="detailed-card">
           <div class="detailed-card-head">
             <div class="detailed-card-head-left">
-              <span style="font-size: 14px;">📋</span>
+              <span class="detailed-card-icon">${ICONS.rubric}</span>
               <span class="detailed-card-title">Rubric do Ativo</span>
             </div>
-            <a class="detailed-card-link" onclick="window.go('newtrade')">Ver detalhes →</a>
           </div>
           <div class="rubric-split-layout">
             <table class="rubric-criteria-table">
+              <thead>
+                <tr>
+                  <th style="text-align: left; font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; padding: 2px 6px 6px;">Critério</th>
+                  <th style="text-align: center; font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; padding: 2px 6px 6px;">Status</th>
+                  <th style="text-align: right; font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; padding: 2px 6px 6px;">Observação</th>
+                </tr>
+              </thead>
               <tbody>
-                ${tickerData.rubric.criteria.map(c => `
-                  <tr>
-                    <td style="color: #475569;">${c.name}</td>
-                    <td>✔</td>
-                    <td style="color: #0f172a; font-weight: 600; text-align: right;">${c.obs}</td>
-                  </tr>
-                `).join('')}
+                ${tickerData.rubric.criteria.map(c => {
+                  const isPass = c.status === true;
+                  const isFail = c.status === false;
+                  return `
+                    <tr>
+                      <td style="color: #475569; font-weight: 500;">${escapeHtml(c.name)}</td>
+                      <td class="rubric-check-td ${isPass ? 'pass' : (isFail ? 'fail' : 'neutral')}">
+                        ${isPass ? ICONS.check : (isFail ? `<span class="rubric-fail-dot">✕</span>` : '—')}
+                      </td>
+                      <td class="rubric-obs-td ${isPass ? 'pass' : (isFail ? 'fail' : 'neutral')}" style="font-weight: 600; text-align: right;">${escapeHtml(c.obs)}</td>
+                    </tr>
+                  `;
+                }).join('')}
               </tbody>
             </table>
-            <div class="rubric-final-box">
+            <div class="rubric-final-box ${gradeVisual.statusClass}">
               <div class="rubric-final-label">Nota Final</div>
               <div class="rubric-final-grade">${tickerData.rubric.finalGrade}</div>
-              <div class="rubric-final-text">${tickerData.rubric.summaryText}</div>
+              <div class="rubric-final-text">${gradeVisual.summaryText || tickerData.rubric.summaryText}</div>
             </div>
           </div>
         </div>
@@ -1050,41 +1408,42 @@
         <div class="detailed-card">
           <div class="detailed-card-head">
             <div class="detailed-card-head-left">
-              <span style="font-size: 14px;">🏛️</span>
+              <span class="detailed-card-icon">${ICONS.fundamentals}</span>
               <span class="detailed-card-title">Fundamentos</span>
+              ${tickerData.fundamentals?.score != null ? `<span class="ticker-search-score-badge ${fundStatus}" style="font-size: 10px; margin-left: 6px;">${tickerData.fundamentals.score.toFixed(1).replace('.', ',')} • ${escapeHtml(tickerData.fundamentals.classification || fundEvaluation)}</span>` : ''}
             </div>
-            <a class="detailed-card-link" onclick="window.go('fundamentals')">Ver mais →</a>
+            <a class="detailed-card-link" id="btnGoFundamentals" href="javascript:void(0)" onclick="if (typeof window.openFundamentalsForTicker === 'function') { window.openFundamentalsForTicker('${escapeHtml(tickerData.tickerInfo.symbol)}'); } else if (typeof window.go === 'function') { window.go('fundamentals'); }">Ver mais →</a>
           </div>
           <div class="fundamentals-grid">
             <div class="fundamental-metric-box">
               <span class="fundamental-label">ROE</span>
-              <span class="fundamental-val">${tickerData.fundamentals.roe.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.roe.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.roe?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.roe)}">${escapeHtml(tickerData.fundamentals?.roe?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">Margem Líquida</span>
-              <span class="fundamental-val">${tickerData.fundamentals.netMargin.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.netMargin.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.netMargin?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.netMargin)}">${escapeHtml(tickerData.fundamentals?.netMargin?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">Dív. Líq/EBITDA</span>
-              <span class="fundamental-val">${tickerData.fundamentals.netDebtToEbitda.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.netDebtToEbitda.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.netDebtToEbitda?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.netDebtToEbitda)}">${escapeHtml(tickerData.fundamentals?.netDebtToEbitda?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">P/L</span>
-              <span class="fundamental-val">${tickerData.fundamentals.pe.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.pe.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.pe?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.pe)}">${escapeHtml(tickerData.fundamentals?.pe?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">P/VP</span>
-              <span class="fundamental-val">${tickerData.fundamentals.pvp.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.pvp.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.pvp?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.pvp)}">${escapeHtml(tickerData.fundamentals?.pvp?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">Crescimento LPA</span>
-              <span class="fundamental-val">${tickerData.fundamentals.growth.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.growth.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.growth?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.growth)}">${escapeHtml(tickerData.fundamentals?.growth?.tag || '—')}</span>
             </div>
           </div>
         </div>
@@ -1093,7 +1452,7 @@
         <div class="detailed-card">
           <div class="detailed-card-head">
             <div class="detailed-card-head-left">
-              <span style="font-size: 14px;">📊</span>
+              <span class="detailed-card-icon">${ICONS.liquidity}</span>
               <span class="detailed-card-title">Liquidez</span>
             </div>
           </div>
@@ -1110,8 +1469,21 @@
               <span class="liquidity-label">Spread Médio</span>
               <span class="liquidity-val">
                 ${tickerData.liquidity.spread}
-                <span class="ticker-search-score-badge" style="font-size: 10px;">${tickerData.liquidity.spreadRating}</span>
+                <span class="ticker-search-score-badge good" style="font-size: 10px;">${tickerData.liquidity.spreadRating}</span>
               </span>
+            </div>
+            <div class="liquidity-micro-bars">
+              <svg width="100%" height="20" viewBox="0 0 120 20" fill="none">
+                <rect x="10" y="8" width="5" height="12" rx="1" fill="#cbd5e1"/>
+                <rect x="22" y="10" width="5" height="10" rx="1" fill="#cbd5e1"/>
+                <rect x="34" y="6" width="5" height="14" rx="1" fill="#cbd5e1"/>
+                <rect x="46" y="11" width="5" height="9" rx="1" fill="#cbd5e1"/>
+                <rect x="58" y="4" width="5" height="16" rx="1" fill="#cbd5e1"/>
+                <rect x="70" y="7" width="5" height="13" rx="1" fill="#cbd5e1"/>
+                <rect x="82" y="3" width="5" height="17" rx="1" fill="#10b981"/>
+                <rect x="94" y="5" width="5" height="15" rx="1" fill="#10b981"/>
+                <rect x="106" y="2" width="5" height="18" rx="1" fill="#10b981"/>
+              </svg>
             </div>
           </div>
         </div>
@@ -1120,7 +1492,7 @@
         <div class="detailed-card">
           <div class="detailed-card-head">
             <div class="detailed-card-head-left">
-              <span style="font-size: 14px;">🎯</span>
+              <span class="detailed-card-icon">${ICONS.context}</span>
               <span class="detailed-card-title">Contexto</span>
             </div>
           </div>
@@ -1128,10 +1500,10 @@
             <div class="context-title">${tickerData.context.title}</div>
             <div class="context-desc">${tickerData.context.description}</div>
             <div class="context-checklist">
-              <div><span style="color: #10b981;">✔</span> Preço acima da EMA 10</div>
-              <div><span style="color: #10b981;">✔</span> EMA 10 > EMA 20 > EMA 50</div>
-              <div><span style="color: #10b981;">✔</span> Rumo às máximas históricas</div>
-              <div><span style="color: #10b981;">✔</span> Líder do setor</div>
+              <div><span class="check-icon">${ICONS.check}</span> Preço acima da EMA 10</div>
+              <div><span class="check-icon">${ICONS.check}</span> EMA 10 > EMA 20 > EMA 50</div>
+              <div><span class="check-icon">${ICONS.check}</span> Rumo às máximas históricas</div>
+              <div><span class="check-icon">${ICONS.check}</span> Líder do setor</div>
             </div>
           </div>
         </div>
@@ -1596,7 +1968,17 @@
 
     if (searchInput && dropdown) {
       searchInput.oninput = (e) => {
-        const query = e.target.value.trim().toUpperCase();
+        const raw = e.target.value;
+        const upper = raw.toUpperCase();
+        if (raw !== upper) {
+          const start = e.target.selectionStart;
+          const end = e.target.selectionEnd;
+          e.target.value = upper;
+          if (start !== null && end !== null) {
+            e.target.setSelectionRange(start, end);
+          }
+        }
+        const query = upper.trim();
         if (!query) {
           dropdown.classList.remove('active');
           dropdown.innerHTML = '';
@@ -1613,7 +1995,10 @@
           return;
         }
 
-        dropdown.innerHTML = filtered.map(item => `
+        dropdown.innerHTML = filtered.map(item => {
+          const hasScore = item.score !== null && item.score !== undefined && Number.isFinite(Number(item.score));
+          const rsInfo = classifyRelativeStrength(item.score);
+          return `
           <div class="ticker-search-item" data-symbol="${item.symbol}">
             <div class="ticker-search-item-left">
               <span class="ticker-search-sym">${item.symbol}</span>
@@ -1621,10 +2006,11 @@
             </div>
             <div class="ticker-search-item-right">
               <span class="ticker-search-class-badge">${formatAssetClassBadge(item.assetClass)}</span>
-              ${item.score ? `<span class="ticker-search-score-badge">${item.score}</span>` : ''}
+              ${hasScore ? `<span class="ticker-search-score-badge ${rsInfo.statusClass}" title="Força Relativa ${rsInfo.label}: ${rsInfo.score}">${item.score}</span>` : ''}
             </div>
           </div>
-        `).join('');
+        `;
+        }).join('');
 
         dropdown.classList.add('active');
 
@@ -1745,6 +2131,18 @@
     const btnCustomCompare = document.getElementById('btnApplyCustomCompare');
     const inputCustomCompare = document.getElementById('compareTickerInput');
     if (btnCustomCompare && inputCustomCompare) {
+      inputCustomCompare.oninput = (e) => {
+        const raw = e.target.value;
+        const upper = raw.toUpperCase();
+        if (raw !== upper) {
+          const start = e.target.selectionStart;
+          const end = e.target.selectionEnd;
+          e.target.value = upper;
+          if (start !== null && end !== null) {
+            e.target.setSelectionRange(start, end);
+          }
+        }
+      };
       btnCustomCompare.onclick = (e) => {
         e.stopPropagation();
         const sym = inputCustomCompare.value.trim().toUpperCase();
@@ -1915,6 +2313,20 @@
     setupPopoverEvents();
     setupNotesDrawerEvents();
     setupWatchlistButtonEvents();
+    setupTriggerBannerEvents();
+
+    const btnGoFundamentals = document.getElementById('btnGoFundamentals');
+    if (btnGoFundamentals) {
+      btnGoFundamentals.onclick = (e) => {
+        e.preventDefault();
+        const sym = tickerData?.tickerInfo?.symbol || currentTicker;
+        if (typeof window.openFundamentalsForTicker === 'function') {
+          window.openFundamentalsForTicker(sym);
+        } else if (typeof window.go === 'function') {
+          window.go('fundamentals');
+        }
+      };
+    }
 
     // Fullscreen no gráfico
     const btnFullscreen = document.getElementById('btnChartFullscreen');
@@ -1927,6 +2339,61 @@
           document.exitFullscreen().catch(() => {});
         }
       });
+    }
+  }
+
+  function setupTriggerBannerEvents() {
+    const btnSimulate = document.getElementById('btnSimulateTriggerTrade');
+    if (btnSimulate) {
+      btnSimulate.onclick = async () => {
+        if (btnSimulate.classList.contains('simulated')) return;
+        const trig = tickerData?.trigger;
+        if (!trig) return;
+        const sym = tickerData?.tickerInfo?.symbol || currentTicker;
+        if (window.TradeSimulator && typeof window.TradeSimulator.addSimulation === 'function') {
+          await window.TradeSimulator.addSimulation({
+            symbol: sym,
+            triggerName: trig.name,
+            grade: trig.grade || 'A',
+            sector: tickerData?.tickerInfo?.sector || 'Geral',
+            companyName: tickerData?.tickerInfo?.name || sym,
+            signalDate: tickerData?.tickerInfo?.sessionDate || tickerData?.tickerInfo?.date || new Date().toISOString().slice(0, 10),
+            entryPrice: trig.entry,
+            stopLoss: trig.stop,
+            candles: Array.isArray(tickerData?.ohlc) ? tickerData.ohlc.slice(-25) : []
+          });
+          btnSimulate.classList.add('simulated');
+          btnSimulate.innerHTML = '✓ Simulação ativa (Aguardando entrada)';
+        }
+      };
+    }
+
+    const btnNewTrade = document.getElementById('btnNewTradeFromTrigger');
+    if (btnNewTrade) {
+      btnNewTrade.onclick = () => {
+        const tradeContext = window.TickerChartModel?.buildTradeContext
+          ? window.TickerChartModel.buildTradeContext(tickerData)
+          : {
+              symbol: tickerData?.tickerInfo?.symbol,
+              companyName: tickerData?.tickerInfo?.name,
+              date: tickerData?.tickerInfo?.sessionDate || tickerData?.tickerInfo?.date,
+              timeframe: 'Diário',
+              entryPrice: tickerData?.trigger?.entry,
+              stopLoss: tickerData?.trigger?.stop,
+              triggerName: tickerData?.trigger?.name,
+              triggerGrade: tickerData?.trigger?.grade || 'A',
+              source: 'charts_trigger'
+            };
+
+        window.__pendingTradeContext = tradeContext;
+
+        if (typeof window.go === 'function') {
+          window.go('newtrade');
+        }
+        if (typeof window.applyTradeContext === 'function') {
+          window.applyTradeContext(tradeContext);
+        }
+      };
     }
   }
 
@@ -1946,7 +2413,9 @@
   // Ponto de entrada chamado ao navegar para a tela 'charts'
   function onOpenChartsPage(requestedTicker) {
     initDiscipline();
-    const target = requestedTicker || currentTicker || defaultTicker;
+    const target = requestedTicker || window.__pendingChartsTicker || currentTicker || defaultTicker;
+    window.__pendingChartsTicker = null;
+    currentTicker = target;
 
     if (window.TickerChartModel && disciplineState) {
       const access = window.TickerChartModel.registerChartAccess(disciplineState);
@@ -1964,7 +2433,187 @@
 
   // Expõe no window para integração com o app
   window.loadTickerChart = (ticker) => {
-    onOpenChartsPage(ticker);
+    const sym = ticker || window.__pendingChartsTicker || currentTicker || defaultTicker;
+    window.__pendingChartsTicker = null;
+    onOpenChartsPage(sym);
+  };
+
+  /**
+   * Integração Gráficos -> Novo Trade: Pré-preenche o formulário do workbench e a Trading Rubric
+   * com fidelidade absoluta aos dados da oportunidade analisada, mantendo todos os campos 100% editáveis.
+   */
+  function applyTradeContext(ctx) {
+    if (!ctx) return;
+    window.activeTradeContext = ctx;
+
+    // 1. Garante que o workbench de Novo Trade esteja montado
+    if (typeof window.setupTradeWorkbench === 'function') {
+      window.setupTradeWorkbench();
+    }
+
+    // 2. Mercado
+    const marketEl = document.getElementById('tradeMarket');
+    if (marketEl && ctx.marketClass) {
+      const targetMarket = String(ctx.marketClass).trim().toLowerCase();
+      for (let i = 0; i < marketEl.options.length; i++) {
+        if (marketEl.options[i].value.toLowerCase() === targetMarket ||
+            marketEl.options[i].text.toLowerCase() === targetMarket) {
+          marketEl.selectedIndex = i;
+          break;
+        }
+      }
+      marketEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 3. Ativo (Ticker)
+    const assetEl = document.getElementById('tradeAsset');
+    if (assetEl && ctx.symbol) {
+      assetEl.value = String(ctx.symbol).toUpperCase().trim();
+      assetEl.dataset.comboSelection = 'true';
+      assetEl.dispatchEvent(new Event('input', { bubbles: true }));
+      assetEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 4. Direção
+    const directionEl = document.getElementById('tradeDirection');
+    if (directionEl) {
+      const isShort = ctx.direction === 'short';
+      directionEl.value = isShort ? 'Short / Venda' : 'Long / Compra';
+      directionEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 5. Gatilho de entrada (Setup)
+    const setupEl = document.getElementById('tradeSetup');
+    if (setupEl && (ctx.triggerKey || ctx.triggerName)) {
+      const key = String(ctx.triggerKey || '').trim();
+      const name = String(ctx.triggerName || '').trim().toLowerCase();
+      let matched = false;
+      for (let i = 0; i < setupEl.options.length; i++) {
+        const optVal = setupEl.options[i].value;
+        const optText = setupEl.options[i].text.toLowerCase();
+        if ((key && optVal === key) || (name && (optText === name || optText.includes(name) || name.includes(optText)))) {
+          setupEl.selectedIndex = i;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched && key) {
+        const newOpt = new Option(ctx.triggerName || key, key, true, true);
+        setupEl.add(newOpt);
+      }
+      setupEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 6. Preço de Entrada
+    const entryEl = document.getElementById('entry');
+    if (entryEl && ctx.entryPrice != null) {
+      entryEl.value = Number(ctx.entryPrice).toFixed(2);
+      entryEl.dispatchEvent(new Event('input', { bubbles: true }));
+      entryEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 7. Stop Inicial
+    const stopEl = document.getElementById('stop');
+    if (stopEl && ctx.stopLoss != null) {
+      stopEl.value = Number(ctx.stopLoss).toFixed(2);
+      stopEl.dispatchEvent(new Event('input', { bubbles: true }));
+      stopEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 8. ATR (21)
+    const atrEl = document.getElementById('atr');
+    const atrVal = ctx.volatility?.atr21 ?? ctx.technicals?.atr21 ?? ctx.atr;
+    if (atrEl && atrVal != null) {
+      atrEl.value = Number(atrVal).toFixed(2);
+      atrEl.dispatchEvent(new Event('input', { bubbles: true }));
+      atrEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 9. Comentários / Tese da Operação
+    const thesisEl = document.getElementById('tradeThesis');
+    if (thesisEl) {
+      const thesisText = ctx.thesis || (window.TickerChartModel?.formatTradeThesis ? window.TickerChartModel.formatTradeThesis(ctx) : '');
+      if (thesisText) {
+        thesisEl.value = thesisText;
+        thesisEl.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
+
+    // 10. Data da Operação / Sessão
+    const dateEl = document.getElementById('tradeEntryDate');
+    if (dateEl && ctx.date) {
+      dateEl.value = ctx.date;
+      dateEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 11. Timeframe
+    const tfEl = document.getElementById('tradeTimeframe');
+    if (tfEl && ctx.timeframe) {
+      tfEl.value = ctx.timeframe;
+      tfEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 12. Pré-preenchimento dos Critérios da Trading Rubric
+    const ratings = window.TickerChartModel?.inferRubricRatingsFromContext
+      ? window.TickerChartModel.inferRubricRatingsFromContext(ctx)
+      : {};
+
+    // Ciclo de Mercado
+    if (ratings.marketCycle) {
+      if (typeof window.setManualMarketCycleOverride === 'function') {
+        window.setManualMarketCycleOverride(ratings.marketCycle);
+      } else if (typeof window.setRubricMarketCycle === 'function') {
+        window.setRubricMarketCycle(ratings.marketCycle);
+      }
+    }
+
+    // Critérios Manuais
+    const manualKeysList = ['trendQuality', 'relativeStrength', 'setupQuality', 'fundamentalScore'];
+    manualKeysList.forEach(k => {
+      const rating = ratings[k];
+      if (rating) {
+        if (typeof window.setPolicyRubricRating === 'function') {
+          window.setPolicyRubricRating(k, rating);
+        } else if (typeof window.setManualRubricRating === 'function') {
+          window.setManualRubricRating(k, rating);
+        } else if (typeof window.manualRubricRatings !== 'undefined') {
+          window.manualRubricRatings[k] = rating;
+        }
+      }
+    });
+
+    // Volatilidade
+    if (ratings.volatility && typeof window.manualRubricRatings !== 'undefined') {
+      window.manualRubricRatings.volatility = ratings.volatility;
+    }
+    if (typeof window.syncAutomaticAtrRating === 'function') {
+      window.syncAutomaticAtrRating();
+    }
+
+    // 13. Atualiza Rubric, Position Sizing e Gates do Workbench
+    if (typeof window.updateTradingRubric === 'function') {
+      window.updateTradingRubric();
+    }
+    if (typeof window.recalc === 'function') {
+      window.recalc();
+    }
+    if (typeof window.refreshWorkbenchRiskGate === 'function') {
+      window.refreshWorkbenchRiskGate();
+    }
+
+    if (typeof window.showToast === 'function') {
+      window.showToast(`✓ Contexto de ${ctx.symbol || 'ativo'} carregado no Planejador.`);
+    }
+  }
+
+  window.applyTradeContext = applyTradeContext;
+  window.TickerChart = {
+    loadTicker: (ticker) => {
+      window.__pendingChartsTicker = ticker;
+      currentTicker = ticker;
+      onOpenChartsPage(ticker);
+    },
+    applyTradeContext: applyTradeContext
   };
 
   // Observa mudanças de navegação

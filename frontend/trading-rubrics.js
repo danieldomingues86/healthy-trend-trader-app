@@ -202,6 +202,135 @@
     };
   }
 
+  function classifyRelativeStrength(score, classification) {
+    const hasScore = score !== null && score !== undefined && score !== '' && !Number.isNaN(Number(score));
+    const rawNum = hasScore ? Number(score) : null;
+    const hasNum = Number.isFinite(rawNum);
+    const num = hasNum ? Math.max(0, Math.min(100, Math.round(rawNum))) : null;
+    const c = String(classification || '').trim().toLowerCase();
+
+    if ((hasNum && num >= 90) || c.includes('líd') || c.includes('lead')) {
+      return {
+        score: num,
+        tier: 'leader',
+        label: 'Líder',
+        status: 'good',
+        statusClass: 'good',
+        badgeClass: 'good',
+        color: '#15803d',
+        icon: '🟢',
+        dot: '●',
+        display: num !== null ? `Líder (${num})` : 'Líder'
+      };
+    }
+    if ((hasNum && num >= 70) || c.includes('fort') || c.includes('qualif')) {
+      return {
+        score: num,
+        tier: 'strong',
+        label: 'Forte',
+        status: 'good',
+        statusClass: 'good',
+        badgeClass: 'good',
+        color: '#15803d',
+        icon: '🟢',
+        dot: '●',
+        display: num !== null ? `Forte (${num})` : 'Forte'
+      };
+    }
+    if ((hasNum && num < 40) || c.includes('frac') || c.includes('lag') || c.includes('abaixo')) {
+      return {
+        score: num,
+        tier: 'weak',
+        label: 'Fraco',
+        status: 'bad',
+        statusClass: 'bad',
+        badgeClass: 'bad',
+        color: '#b91c1c',
+        icon: '🔴',
+        dot: '●',
+        display: num !== null ? `Fraco (${num})` : 'Fraco'
+      };
+    }
+    return {
+      score: num,
+      tier: 'neutral',
+      label: 'Neutro',
+      status: 'neutral',
+      statusClass: 'neutral',
+      badgeClass: 'neutral',
+      color: '#64748b',
+      icon: '🟡',
+      dot: '●',
+      display: num !== null ? `Neutro (${num})` : 'Neutro'
+    };
+  }
+
+  function getRubricGradeVisual(grade) {
+    const raw = String(grade || '').trim().toUpperCase();
+    if (raw === 'A+' || raw === 'A') {
+      return {
+        grade: raw || 'A',
+        status: 'good',
+        statusClass: 'grade-a',
+        badgeClass: 'good',
+        color: '#15803d',
+        bg: '#f0fdf4',
+        border: '#bbf7d0',
+        icon: '🏆',
+        title: raw === 'A+' ? 'Rare Trade (A+)' : 'Alta Qualidade (A)',
+        summaryText: 'Setup com alta probabilidade segundo o seu método.',
+        riskDescription: 'Risco nominal liberado'
+      };
+    }
+    if (raw === 'B') {
+      return {
+        grade: 'B',
+        status: 'good',
+        statusClass: 'grade-b',
+        badgeClass: 'good',
+        color: '#a16207',
+        bg: '#fefce8',
+        border: '#fef08a',
+        icon: '✅',
+        title: 'Bom Edge (B)',
+        summaryText: 'Setup dentro dos parâmetros de risco controlado.',
+        riskDescription: 'Risco moderado permitido'
+      };
+    }
+    if (raw === 'C') {
+      return {
+        grade: 'C',
+        status: 'neutral',
+        statusClass: 'grade-c',
+        badgeClass: 'neutral',
+        color: '#c2410c',
+        bg: '#fff7ed',
+        border: '#fed7aa',
+        icon: '⚠️',
+        title: 'Edge Pequeno (C)',
+        summaryText: 'Qualidade limítrofe. Exige cautela e dimensionamento reduzido.',
+        riskDescription: 'Risco mínimo reduzido'
+      };
+    }
+    return {
+      grade: raw || 'D',
+      status: 'bad',
+      statusClass: 'grade-d',
+      badgeClass: 'bad',
+      color: '#b91c1c',
+      bg: '#fee2e2',
+      border: '#fca5a5',
+      icon: '⛔',
+      title: 'Sem Edge (D)',
+      summaryText: 'Sem Edge. Bloqueio automático com risco nominal zero (0%).',
+      riskDescription: 'Operação bloqueada pelo método'
+    };
+  }
+
+  function getRubricGradeColor(grade) {
+    return getRubricGradeVisual(grade).color;
+  }
+
   function calculateRubric(input={},policy){
     const p=normalizePolicy(policy),ratings={...(input.ratings||{})},profile=profileFor(p,input.profileKey);
     if((Number(input.entry)>0&&Number(input.atr)>0)&&(!ratings.volatility||input.autoVolatility!==false)){
@@ -292,5 +421,5 @@
     return{projectedHeatPct,projectedPositions,heatAllowed,positionsAllowed,allowed:heatAllowed&&positionsAllowed};
   }
 
-  return{DEFAULT_POLICY,normalizePolicy,normalizeHistoricalGrade,profileFor,marketCycleKey,riskBaseOptions,calculateGrade,calculateRubric,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,classifyAtrVolatility};
+  return{DEFAULT_POLICY,normalizePolicy,normalizeHistoricalGrade,profileFor,marketCycleKey,riskBaseOptions,calculateGrade,calculateRubric,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,classifyAtrVolatility,classifyRelativeStrength,getRubricGradeVisual,getRubricGradeColor};
 });
