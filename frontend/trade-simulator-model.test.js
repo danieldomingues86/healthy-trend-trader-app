@@ -285,3 +285,48 @@ test('trade-simulator-model: filterSimulations é 100% compatível com filtros d
   assert.equal(updatedAll[0].symbol, 'BPAC11');
 });
 
+test('trade-simulator-model: generateSimulationSnapshotCandles produz estrutura cronológica para o snapshot do trade', () => {
+  // 1. Trade com Gain (+2R)
+  const gainSim = {
+    symbol: 'PETR4',
+    signalDate: '2026-09-01',
+    entryDate: '2026-09-02',
+    exitDate: '2026-09-06',
+    entryPrice: 38.00,
+    stopLoss: 36.50,
+    status: model.STATUS.CLOSED_GAIN
+  };
+  const gainCandles = model.generateSimulationSnapshotCandles(gainSim);
+  assert.ok(Array.isArray(gainCandles) && gainCandles.length >= 10, 'Deve gerar pelo menos 10 candles');
+  assert.ok(gainCandles.some(c => c.isSignal), 'Deve possuir candle do sinal');
+  assert.ok(gainCandles.some(c => c.isEntry), 'Deve possuir candle da entrada executada');
+  assert.ok(gainCandles.some(c => c.isTarget2R || (c.isExit && c.close >= 41.00)), 'Deve possuir alvo atingido (+2R)');
+  assert.ok(gainCandles.every(c => typeof c.ema9 === 'number' && typeof c.ema30 === 'number'), 'Todos os candles devem ter EMAs 9 e 30');
+
+  // 2. Trade com Loss (Stop Loss)
+  const lossSim = {
+    symbol: 'VALE3',
+    signalDate: '2026-09-10',
+    entryDate: '2026-09-11',
+    exitDate: '2026-09-13',
+    entryPrice: 58.00,
+    stopLoss: 56.00,
+    status: model.STATUS.CLOSED_LOSS
+  };
+  const lossCandles = model.generateSimulationSnapshotCandles(lossSim);
+  assert.ok(lossCandles.some(c => c.isStop || (c.isExit && c.low <= 56.00)), 'Deve registrar o toque no stop loss');
+
+  // 3. Trade Aguardando Entrada
+  const waitSim = {
+    symbol: 'BPAC11',
+    signalDate: '2026-10-02',
+    entryPrice: 66.03,
+    stopLoss: 63.06,
+    status: model.STATUS.WAITING_ENTRY
+  };
+  const waitCandles = model.generateSimulationSnapshotCandles(waitSim);
+  assert.ok(waitCandles.some(c => c.isSignal), 'Deve possuir candle de sinal');
+  assert.ok(!waitCandles.some(c => c.isEntry), 'Não deve possuir entrada ativada');
+});
+
+

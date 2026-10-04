@@ -322,12 +322,26 @@ async function evaluate(userId, client = database) {
   return { updatedCount };
 }
 
+/**
+ * Remove todas as simulações do usuário para limpar a massa de teste.
+ */
+async function clearAll(userId, client = database) {
+  if (!userId) throw invalid('Usuário não autenticado.', 401);
+  await client.query(`DELETE FROM app.trade_simulations WHERE user_id = $1`, [userId]);
+  return {
+    deleted: true,
+    simulations: [],
+    stats: model.calculateSimulatorStats([])
+  };
+}
+
 module.exports = {
   list,
   create,
   update,
   remove,
   reset,
+  clearAll,
   evaluate,
   mapSimulation
 };

@@ -1222,9 +1222,248 @@
         exitReason: 'Breakeven / Proteção',
         resultR: 0.10,
         mfeR: 1.10,
-        maeR: -0.40
+        maeR: -0.15
       }
     ];
+  }
+
+  /**
+   * Gera ou enriquece candles cronológicos para o print visual do momento da captura e execução
+   */
+  function generateSimulationSnapshotCandles(simulation) {
+    if (!simulation) return [];
+
+    const entryPrice = Number(simulation.entryPrice) || 50.0;
+    const stopLoss = Number(simulation.stopLoss) || (entryPrice * 0.95);
+    const risk = Math.max(0.1, Math.abs(entryPrice - stopLoss));
+    const target1R = round2(entryPrice + risk);
+    const target2R = round2(entryPrice + 2 * risk);
+    const status = simulation.status || STATUS.WAITING_ENTRY;
+    const signalDate = simulation.signalDate || '2026-09-20';
+    const entryDate = simulation.entryDate || signalDate;
+    const exitDate = simulation.exitDate || signalDate;
+
+    // Se já houver candles reais vinculados à simulação
+    if (Array.isArray(simulation.candles) && simulation.candles.length >= 5) {
+      const closes = simulation.candles.map(c => Number(c.close));
+      const ema9 = calculateEmaSeries(closes, 9);
+      const ema30 = calculateEmaSeries(closes, Math.min(30, closes.length));
+      return simulation.candles.map((c, idx) => ({
+        time: c.time || `2026-09-${String(idx + 1).padStart(2, '0')}`,
+        open: round2(c.open),
+        high: round2(c.high),
+        low: round2(c.low),
+        close: round2(c.close),
+        ema9: ema9[idx],
+        ema30: ema30[idx],
+        isSignal: c.time === signalDate,
+        isEntry: c.time === entryDate && (status === STATUS.IN_OPERATION || status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS),
+        isExit: c.time === exitDate && (status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS),
+        isTarget1R: Number(c.high) >= target1R,
+        isTarget2R: Number(c.high) >= target2R && status === STATUS.CLOSED_GAIN,
+        isStop: Number(c.low) <= stopLoss && status === STATUS.CLOSED_LOSS
+      }));
+    }
+
+    // Geração determinística de candles para o snapshot da oportunidade
+    const baseDate = new Date(signalDate + 'T12:00:00Z');
+    const dayMs = 24 * 3600 * 1000;
+    const candles = [];
+
+    // 10 candles anteriores ao sinal: tendência de alta saudável com recuo
+    const preCount = 10;
+    for (let i = preCount; i >= 1; i--) {
+      const d = new Date(baseDate.getTime() - i * dayMs);
+      const dStr = d.toISOString().slice(0, 10);
+      const prog = (preCount - i) / preCount; // 0 até 1
+      const mid = entryPrice - (1.6 - prog * 1.1) * risk;
+      const cOpen = round2(mid - 0.2 * risk);
+      const cClose = round2(mid + 0.2 * risk);
+      const cLow = round2(mid - 0.35 * risk);
+      const cHigh = round2(mid + 0.35 * risk);
+
+      candles.push({
+        time: dStr,
+        open: cOpen,
+        high: cHigh,
+        low: cLow,
+        close: cClose,
+        isSignal: false,
+        isEntry: false,
+        isExit: false
+      });
+    }
+
+    // Candle do Sinal (signalDate): forma o gatilho exatamente nos parâmetros operacionais
+    const signalCandle = {
+      time: signalDate,
+      open: round2(entryPrice - 0.5 * risk),
+      high: round2(entryPrice - 0.01), // Máxima logo abaixo do gatilho de rompimento
+      low: round2(stopLoss + 0.05 * risk), // Mínima preservando o stop inicial planejado
+      close: round2(entryPrice - 0.08 * risk),
+      isSignal: true,
+      isEntry: false,
+      isExit: false
+    };
+    candles.push(signalCandle);
+
+    // Candle seguinte (ativação ou espera)
+    const postDate1 = new Date(baseDate.getTime() + 1 * dayMs).toISOString().slice(0, 10);
+    if (status === STATUS.WAITING_ENTRY) {
+      candles.push({
+        time: postDate1,
+        open: round2(entryPrice - 0.25 * risk),
+        high: round2(entryPrice - 0.04), // Não rompeu a entrada ainda
+        low: round2(stopLoss + 0.2 * risk),
+        close: round2(entryPrice - 0.15 * risk),
+        isSignal: false,
+        isEntry: false,
+        isExit: false
+      });
+      // Mais um candle recente de consolidação
+      const postDate2 = new Date(baseDate.getTime() + 2 * dayMs).toISOString().slice(0, 10);
+      candles.push({
+        time: postDate2,
+        open: round2(entryPrice - 0.18 * risk),
+        high: round2(entryPrice - 0.03),
+        low: round2(stopLoss + 0.3 * risk),
+        close: round2(entryPrice - 0.1 * risk),
+        isSignal: false,
+        isEntry: false,
+        isExit: false
+      });
+    } else if (status === STATUS.NOT_TRIGGERED) {
+      candles.push({
+        time: postDate1,
+        open: round2(stopLoss + 0.15 * risk),
+        high: round2(stopLoss + 0.3 * risk),
+        low: round2(stopLoss - 0.15 * risk), // Perdeu o stop antes de acionar entrada
+        close: round2(stopLoss - 0.1 * risk),
+        isSignal: false,
+        isEntry: false,
+        isExit: true,
+        isStop: true
+      });
+    } else {
+      // Trades com entrada executada (IN_OPERATION, CLOSED_GAIN, CLOSED_LOSS)
+      const eDate = entryDate || postDate1;
+      candles.push({
+        time: eDate,
+        open: round2(entryPrice - 0.1 * risk),
+        high: round2(entryPrice + 0.45 * risk), // Rompeu e executou entrada!
+        low: round2(stopLoss + 0.25 * risk),
+        close: round2(entryPrice + 0.35 * risk),
+        isSignal: false,
+        isEntry: true,
+        isExit: false
+      });
+
+      if (status === STATUS.CLOSED_GAIN) {
+        // Sequência até +2R (alvo atingido)
+        const d2 = new Date(baseDate.getTime() + 2 * dayMs).toISOString().slice(0, 10);
+        const d3 = new Date(baseDate.getTime() + 3 * dayMs).toISOString().slice(0, 10);
+        const d4 = new Date(baseDate.getTime() + 4 * dayMs).toISOString().slice(0, 10);
+        const xDate = exitDate || new Date(baseDate.getTime() + 5 * dayMs).toISOString().slice(0, 10);
+
+        candles.push({
+          time: d2,
+          open: round2(entryPrice + 0.3 * risk),
+          high: round2(entryPrice + 0.8 * risk),
+          low: round2(entryPrice + 0.15 * risk),
+          close: round2(entryPrice + 0.7 * risk)
+        });
+        candles.push({
+          time: d3,
+          open: round2(entryPrice + 0.65 * risk),
+          high: round2(target1R + 0.1 * risk), // Atinge +1R
+          low: round2(entryPrice + 0.5 * risk),
+          close: round2(target1R),
+          isTarget1R: true
+        });
+        candles.push({
+          time: d4,
+          open: round2(target1R),
+          high: round2(entryPrice + 1.5 * risk),
+          low: round2(target1R - 0.1 * risk),
+          close: round2(entryPrice + 1.45 * risk)
+        });
+        candles.push({
+          time: xDate,
+          open: round2(entryPrice + 1.4 * risk),
+          high: round2(target2R + 0.25 * risk), // Atinge Alvo +2R (Sell into Strength)!
+          low: round2(entryPrice + 1.3 * risk),
+          close: round2(target2R + 0.1 * risk),
+          isExit: true,
+          isTarget2R: true
+        });
+      } else if (status === STATUS.CLOSED_LOSS) {
+        // Sequência até tocar o stop loss
+        const d2 = new Date(baseDate.getTime() + 2 * dayMs).toISOString().slice(0, 10);
+        const xDate = exitDate || new Date(baseDate.getTime() + 3 * dayMs).toISOString().slice(0, 10);
+
+        candles.push({
+          time: d2,
+          open: round2(entryPrice + 0.2 * risk),
+          high: round2(entryPrice + 0.3 * risk),
+          low: round2(entryPrice - 0.3 * risk),
+          close: round2(entryPrice - 0.2 * risk)
+        });
+        candles.push({
+          time: xDate,
+          open: round2(entryPrice - 0.3 * risk),
+          high: round2(entryPrice - 0.1 * risk),
+          low: round2(stopLoss - 0.05 * risk), // Atinge Stop Loss
+          close: round2(stopLoss),
+          isExit: true,
+          isStop: true
+        });
+      } else if (status === STATUS.IN_OPERATION) {
+        // Operação em andamento
+        const d2 = new Date(baseDate.getTime() + 2 * dayMs).toISOString().slice(0, 10);
+        const d3 = new Date(baseDate.getTime() + 3 * dayMs).toISOString().slice(0, 10);
+        const curP = Number(simulation.currentPrice) || round2(entryPrice + 0.7 * risk);
+
+        candles.push({
+          time: d2,
+          open: round2(entryPrice + 0.2 * risk),
+          high: round2(entryPrice + 0.6 * risk),
+          low: round2(entryPrice + 0.1 * risk),
+          close: round2(entryPrice + 0.5 * risk)
+        });
+        candles.push({
+          time: d3,
+          open: round2(entryPrice + 0.45 * risk),
+          high: round2(Math.max(curP + 0.1 * risk, entryPrice + 0.9 * risk)),
+          low: round2(entryPrice + 0.3 * risk),
+          close: round2(curP)
+        });
+      }
+    }
+
+    // Calcula EMAs
+    const closes = candles.map(c => c.close);
+    const ema9Series = calculateEmaSeries(closes, 9);
+    const ema30Series = calculateEmaSeries(closes, Math.min(30, closes.length));
+
+    return candles.map((c, idx) => ({
+      ...c,
+      ema9: ema9Series[idx],
+      ema30: ema30Series[idx]
+    }));
+  }
+
+  function calculateEmaSeries(values, period) {
+    if (!Array.isArray(values) || values.length === 0) return [];
+    const k = 2 / (period + 1);
+    const result = [];
+    let prev = values[0];
+    result.push(round2(prev));
+    for (let i = 1; i < values.length; i++) {
+      const val = values[i] * k + prev * (1 - k);
+      result.push(round2(val));
+      prev = val;
+    }
+    return result;
   }
 
   return {
@@ -1239,6 +1478,7 @@
     evaluateSimulationOnCandles,
     calculateSimulatorStats,
     filterSimulations,
-    getDefaultSeedSimulations
+    getDefaultSeedSimulations,
+    generateSimulationSnapshotCandles
   };
 });

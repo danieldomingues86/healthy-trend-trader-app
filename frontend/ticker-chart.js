@@ -2327,7 +2327,8 @@
             companyName: tickerData?.tickerInfo?.name || sym,
             signalDate: tickerData?.tickerInfo?.sessionDate || tickerData?.tickerInfo?.date || new Date().toISOString().slice(0, 10),
             entryPrice: trig.entry,
-            stopLoss: trig.stop
+            stopLoss: trig.stop,
+            candles: Array.isArray(tickerData?.ohlc) ? tickerData.ohlc.slice(-25) : []
           });
           btnSimulate.classList.add('simulated');
           btnSimulate.innerHTML = '✓ Simulação ativa (Aguardando entrada)';

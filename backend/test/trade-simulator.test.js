@@ -136,6 +136,12 @@ test('tradeSimulator backend: update e remoção de simulação', async () => {
     const del = await tradeSimulator.remove('user-1', 'sim-123');
     assert.equal(del.deleted, true);
     assert.equal(store.length, 0);
+
+    // Teste clearAll
+    store.push({ id: 'sim-1', user_id: 'user-1' }, { id: 'sim-2', user_id: 'user-1' });
+    const cleared = await tradeSimulator.clearAll('user-1');
+    assert.equal(cleared.deleted, true);
+    assert.deepEqual(cleared.simulations, []);
   } finally {
     database.query = originalQuery;
   }

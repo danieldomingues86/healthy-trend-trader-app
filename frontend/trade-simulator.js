@@ -23,7 +23,8 @@
       unit: 'R' // 'R' ou 'RS'
     },
     activeDropdown: null,
-    selectedSimId: null
+    selectedSimId: null,
+    snapshotSimId: null
   };
 
   /**
@@ -124,6 +125,7 @@
       mfeR: null,
       maeR: null,
       notes: params.notes || '',
+      candles: Array.isArray(params.candles) ? params.candles : [],
       timeline: [
         {
           type: 'SIGNAL_IDENTIFIED',
@@ -205,7 +207,27 @@
     state.loading = false;
     render();
     if (typeof root.showToast === 'function') {
-      root.showToast('✓ Simulador restaurado para a base oficial de 24 trades.');
+      root.showToast('✓ Massa de teste de 24 trades carregada com sucesso.');
+    }
+  }
+
+  /**
+   * Exclui todas as simulações imediatamente sem popup
+   */
+  async function clearAllSimulations() {
+    try {
+      if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
+        await root.healthyTrendApi.request(API_ENDPOINT + '/clear', { method: 'POST' });
+      }
+    } catch (e) {}
+
+    state.simulations = [];
+    saveLocalCache();
+    state.selectedSimId = null;
+    state.snapshotSimId = null;
+    render();
+    if (typeof root.showToast === 'function') {
+      root.showToast('✓ Todas as simulações foram excluídas.');
     }
   }
 
@@ -408,6 +430,7 @@
         ${renderChartsRow(stats)}
         ${renderTableSection(filtered, stats)}
         ${renderModal()}
+        ${renderSnapshotModal()}
       </div>
     `;
 
@@ -428,12 +451,16 @@
         <div class="sim-header-titles">
           <div class="sim-title-row">
             <h1>Simulador de Trades</h1>
-            <span class="sim-beta-badge">BETA</span>
           </div>
           <p>Acompanhe como seus trades teriam performado seguindo as regras do seu método.</p>
         </div>
 
         <div class="sim-top-filters">
+          <!-- Botão Gerar Massa de Teste -->
+          <button class="sim-btn-seed" type="button" id="simBtnSeedMass" title="Gera massa de 24 trades simulados dos últimos 2 meses para validação">
+            <span>⚡ Gerar Massa de Teste (2 Meses)</span>
+          </button>
+
           <!-- Filtro Período -->
           <div class="sim-filter-select-wrap">
             <button class="sim-filter-btn" type="button" data-dropdown="days">
@@ -502,8 +529,10 @@
           <div class="sim-filter-select-wrap">
             <button class="sim-more-btn" type="button" data-dropdown="more" title="Mais opções">···</button>
             <div class="sim-dropdown-menu ${state.activeDropdown === 'more' ? 'open' : ''}">
+              <button class="sim-dropdown-item" id="simActionSeedMass">⚡ Gerar Massa de Teste (2 Meses)</button>
               <button class="sim-dropdown-item" id="simActionEvaluate">⚡ Reavaliar candles agora</button>
               <button class="sim-dropdown-item" id="simActionReset">🔄 Restaurar dados padrão (24 trades)</button>
+              <button class="sim-dropdown-item" id="simActionClearAll" style="color: #ef4444;">🗑️ Excluir todas as simulações</button>
             </div>
           </div>
         </div>
@@ -925,7 +954,7 @@
         <!-- Ações -->
         <td>
           <div class="sim-actions-cell">
-            <button class="sim-action-btn" type="button" title="Ver no Gráfico" data-action="chart" data-ticker="${sim.symbol}">📊</button>
+            <button class="sim-action-btn" type="button" title="Ver Foto / Snapshot do Trade" data-action="chart" data-sim-id="${sim.id}" data-ticker="${sim.symbol}">📊</button>
             <button class="sim-action-btn" type="button" title="Ver Detalhes" data-action="details" data-sim-id="${sim.id}">⋮</button>
           </div>
         </td>
@@ -1066,8 +1095,8 @@
 
           <!-- Ações do Modal -->
           <div class="sim-modal-actions">
-            <button class="sim-action-btn" style="width: auto; padding: 0 14px; font-size: 12px; font-weight: 700;" type="button" id="simModalViewChart" data-ticker="${sim.symbol}">
-              📊 Abrir no Gráfico
+            <button class="sim-action-btn" style="width: auto; padding: 0 14px; font-size: 12px; font-weight: 700;" type="button" id="simModalViewChart" data-sim-id="${sim.id}" data-ticker="${sim.symbol}">
+              📊 Ver Foto / Snapshot do Trade
             </button>
             <button class="sim-export-btn" style="color: #dc2626; border-color: #fca5a5;" type="button" id="simModalDelete" data-sim-id="${sim.id}">
               🗑️ Excluir Simulação
@@ -1075,6 +1104,327 @@
           </div>
         </div>
       </div>
+    `;
+  }
+
+  /**
+   * 6. Modal de Snapshot / Foto do Trade no Momento da Captura e Execução
+   */
+  function renderSnapshotModal() {
+    if (!state.snapshotSimId) return '<div class="sim-modal-overlay" id="simSnapshotModal"></div>';
+
+    const sim = state.simulations.find(s => s.id === state.snapshotSimId);
+    if (!sim) return '<div class="sim-modal-overlay" id="simSnapshotModal"></div>';
+
+    const entry = Number(sim.entryPrice) || 0;
+    const stop = Number(sim.stopLoss) || 0;
+    const risk = entry && stop ? Math.abs(entry - stop) : 0;
+    const riskPct = entry && risk ? (risk / entry) * 100 : 0;
+    const target1R = entry && risk ? (entry + risk) : null;
+    const target2R = entry && risk ? (entry + 2 * risk) : null;
+
+    return `
+      <div class="sim-modal-overlay open" id="simSnapshotModal">
+        <div class="sim-snapshot-modal-box">
+          <!-- Cabeçalho do Snapshot -->
+          <div class="sim-snapshot-header">
+            <div class="sim-snapshot-title-wrap">
+              <h2>
+                <span>${sim.symbol}</span>
+                <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
+                ${renderStatusPill(sim.status)}
+              </h2>
+              <p>${sim.companyName || sim.symbol} • Gatilho: <b>${sim.triggerName}</b> • Setor: ${sim.sector || 'Geral'}</p>
+            </div>
+            <button class="sim-modal-close-btn" type="button" id="simSnapshotClose" title="Fechar snapshot">×</button>
+          </div>
+
+          <!-- Barra de Parâmetros Congelados da Captura -->
+          <div class="sim-snapshot-params-bar">
+            <div class="sim-snapshot-param-item">
+              <small>Data do Sinal</small>
+              <b>${formatDateBR(sim.signalDate)}</b>
+            </div>
+            <div class="sim-snapshot-param-item">
+              <small>Entrada Planejada</small>
+              <b style="color: #0284c7;">${formatMoney(sim.entryPrice)}</b>
+            </div>
+            <div class="sim-snapshot-param-item">
+              <small>Stop Inicial</small>
+              <b style="color: #ef4444;">${formatMoney(sim.stopLoss)}</b>
+            </div>
+            <div class="sim-snapshot-param-item">
+              <small>Risco R$ (1R)</small>
+              <b>${formatMoney(risk)} (${riskPct.toFixed(2)}%)</b>
+            </div>
+            <div class="sim-snapshot-param-item">
+              <small>Alvo +1R</small>
+              <b style="color: #14b8a6;">${formatMoney(target1R)}</b>
+            </div>
+            <div class="sim-snapshot-param-item">
+              <small>Alvo +2R (Sell into Strength)</small>
+              <b style="color: #10b981;">${formatMoney(target2R)}</b>
+            </div>
+            <div class="sim-snapshot-param-item">
+              <small>Resultado</small>
+              <b style="color: ${sim.resultR > 0 ? '#10b981' : (sim.resultR < 0 ? '#ef4444' : 'inherit')}">
+                ${formatR(sim.resultR)}
+              </b>
+            </div>
+          </div>
+
+          <!-- Print / Foto do Momento da Captura & Execução -->
+          <div class="sim-snapshot-chart-card">
+            ${renderSnapshotChartSvg(sim)}
+          </div>
+
+          <!-- Rodapé do Snapshot -->
+          <div class="sim-snapshot-footer">
+            <div class="sim-snapshot-footer-note">
+              <span>📷 Foto congelada dos parâmetros da captura e execução da oportunidade.</span>
+            </div>
+            <div class="sim-snapshot-footer-actions">
+              <button class="sim-action-btn" style="width: auto; padding: 0 16px; height: 38px; font-size: 12px; font-weight: 700;" type="button" id="simSnapshotOpenInteractive" data-ticker="${sim.symbol}">
+                📈 Abrir no Gráfico Interativo Diário
+              </button>
+              <button class="sim-export-btn" style="padding: 0 16px; height: 38px;" type="button" id="simSnapshotCloseBtn">
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Renderiza o gráfico vetorial SVG com linhas de gatilho, entrada, stop e alvos
+   */
+  function renderSnapshotChartSvg(sim) {
+    if (!sim) return '';
+    const candles = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.generateSimulationSnapshotCandles === 'function'
+      ? root.TradeSimulatorModel.generateSimulationSnapshotCandles(sim)
+      : [];
+    if (!candles.length) {
+      return '<div style="color: #94a3b8; text-align: center; padding: 40px;">Candles indisponíveis para este trade.</div>';
+    }
+
+    const entry = Number(sim.entryPrice) || 0;
+    const stop = Number(sim.stopLoss) || 0;
+    const risk = Math.max(0.01, Math.abs(entry - stop));
+    const target1R = Number((entry + risk).toFixed(2));
+    const target2R = Number((entry + 2 * risk).toFixed(2));
+
+    // Dimensões do SVG
+    const svgW = 960;
+    const svgH = 430;
+    const padLeft = 40;
+    const padRight = 135;
+    const padTop = 35;
+    const padBottom = 40;
+    const plotW = svgW - padLeft - padRight;
+    const plotH = svgH - padTop - padBottom;
+
+    // Escala de preços
+    let allPrices = [entry, stop, target1R, target2R];
+    candles.forEach(c => {
+      allPrices.push(Number(c.high), Number(c.low));
+      if (c.ema9) allPrices.push(Number(c.ema9));
+      if (c.ema30) allPrices.push(Number(c.ema30));
+    });
+    if (sim.executedEntryPrice) allPrices.push(Number(sim.executedEntryPrice));
+    if (sim.exitPrice) allPrices.push(Number(sim.exitPrice));
+
+    let minP = Math.min(...allPrices);
+    let maxP = Math.max(...allPrices);
+    const pMargin = (maxP - minP) * 0.08 || 1;
+    minP -= pMargin;
+    maxP += pMargin;
+
+    function getY(price) {
+      if (maxP === minP) return padTop + plotH / 2;
+      return padTop + plotH - ((price - minP) / (maxP - minP)) * plotH;
+    }
+
+    const n = candles.length;
+    const colW = plotW / n;
+    const bodyW = Math.max(4, Math.min(22, colW * 0.65));
+
+    function getX(idx) {
+      return padLeft + (idx + 0.5) * colW;
+    }
+
+    // Linhas de Grade Horizontal
+    const gridSteps = 5;
+    let gridLinesSvg = '';
+    for (let i = 0; i <= gridSteps; i++) {
+      const p = minP + (i / gridSteps) * (maxP - minP);
+      const y = getY(p);
+      gridLinesSvg += `
+        <line x1="${padLeft}" y1="${y}" x2="${padLeft + plotW}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="3,3" />
+        <text x="${svgW - 5}" y="${y + 4}" fill="#64748b" font-size="10" text-anchor="end" font-family="monospace">R$ ${p.toFixed(2)}</text>
+      `;
+    }
+
+    // Linhas de Referência: Target 2R, Target 1R, Entrada, Stop Loss
+    const yT2 = getY(target2R);
+    const yT1 = getY(target1R);
+    const yEnt = getY(entry);
+    const yStp = getY(stop);
+
+    const isGain = sim.status === 'CLOSED_GAIN';
+    const isLoss = sim.status === 'CLOSED_LOSS';
+
+    const refLinesSvg = `
+      <!-- Alvo +2R -->
+      <line x1="${padLeft}" y1="${yT2}" x2="${padLeft + plotW}" y2="${yT2}" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,4" />
+      <g transform="translate(${padLeft + plotW + 6}, ${yT2 - 9})">
+        <rect width="118" height="18" rx="4" fill="${isGain ? '#10b981' : '#064e3b'}" />
+        <text x="59" y="13" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle" font-family="system-ui">
+          ${isGain ? '★ +2R ATINGIDO' : 'ALVO 2R: ' + target2R.toFixed(2)}
+        </text>
+      </g>
+
+      <!-- Alvo +1R -->
+      <line x1="${padLeft}" y1="${yT1}" x2="${padLeft + plotW}" y2="${yT1}" stroke="#14b8a6" stroke-width="1.2" stroke-dasharray="3,3" />
+      <g transform="translate(${padLeft + plotW + 6}, ${yT1 - 9})">
+        <rect width="118" height="18" rx="4" fill="#134e4a" />
+        <text x="59" y="13" fill="#5eead4" font-size="9.5" font-weight="700" text-anchor="middle" font-family="system-ui">
+          ALVO 1R: R$ ${target1R.toFixed(2)}
+        </text>
+      </g>
+
+      <!-- Entrada -->
+      <line x1="${padLeft}" y1="${yEnt}" x2="${padLeft + plotW}" y2="${yEnt}" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="5,4" />
+      <g transform="translate(${padLeft + plotW + 6}, ${yEnt - 9})">
+        <rect width="118" height="18" rx="4" fill="#0369a1" />
+        <text x="59" y="13" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle" font-family="system-ui">
+          ▶ ENTRADA: R$ ${entry.toFixed(2)}
+        </text>
+      </g>
+
+      <!-- Stop Loss -->
+      <line x1="${padLeft}" y1="${yStp}" x2="${padLeft + plotW}" y2="${yStp}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,4" />
+      <g transform="translate(${padLeft + plotW + 6}, ${yStp - 9})">
+        <rect width="118" height="18" rx="4" fill="${isLoss ? '#ef4444' : '#7f1d1d'}" />
+        <text x="59" y="13" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle" font-family="system-ui">
+          ${isLoss ? '✕ STOP EXECUTADO' : 'STOP: R$ ' + stop.toFixed(2)}
+        </text>
+      </g>
+    `;
+
+    // Caminhos das EMAs
+    let ema9Path = '';
+    let ema30Path = '';
+    candles.forEach((c, idx) => {
+      const cx = getX(idx);
+      if (c.ema9) {
+        const cy9 = getY(c.ema9);
+        ema9Path += idx === 0 ? `M ${cx} ${cy9}` : ` L ${cx} ${cy9}`;
+      }
+      if (c.ema30) {
+        const cy30 = getY(c.ema30);
+        ema30Path += idx === 0 ? `M ${cx} ${cy30}` : ` L ${cx} ${cy30}`;
+      }
+    });
+
+    const emaSvg = `
+      ${ema30Path ? `<path d="${ema30Path}" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.85" />` : ''}
+      ${ema9Path ? `<path d="${ema9Path}" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-opacity="0.9" />` : ''}
+    `;
+
+    // Candlesticks e Anotações
+    let candlesSvg = '';
+    let calloutsSvg = '';
+
+    candles.forEach((c, idx) => {
+      const cx = getX(idx);
+      const cOpen = Number(c.open);
+      const cClose = Number(c.close);
+      const cHigh = Number(c.high);
+      const cLow = Number(c.low);
+      const isBull = cClose >= cOpen;
+      const color = isBull ? '#10b981' : '#ef4444';
+
+      const yH = getY(cHigh);
+      const yL = getY(cLow);
+      const yO = getY(cOpen);
+      const yC = getY(cClose);
+      const topY = Math.min(yO, yC);
+      const bodyH = Math.max(2, Math.abs(yO - yC));
+
+      // Pavio (Wick)
+      candlesSvg += `<line x1="${cx}" y1="${yH}" x2="${cx}" y2="${yL}" stroke="${color}" stroke-width="1.2" />`;
+      // Corpo (Body)
+      candlesSvg += `<rect x="${cx - bodyW / 2}" y="${topY}" width="${bodyW}" height="${bodyH}" fill="${color}" rx="1" />`;
+
+      // Data no eixo X (a cada 2 ou em pontos-chave)
+      if (idx % 2 === 0 || c.isSignal || c.isEntry || c.isExit) {
+        const dText = String(c.time || '').slice(5).replace('-', '/');
+        candlesSvg += `<text x="${cx}" y="${svgH - 12}" fill="#64748b" font-size="9" text-anchor="middle" font-family="monospace">${dText}</text>`;
+      }
+
+      // Callouts nos candles
+      if (c.isSignal) {
+        calloutsSvg += `
+          <g transform="translate(${cx}, ${yL + 16})">
+            <polygon points="0,-6 -5,0 5,0" fill="#38bdf8" />
+            <rect x="-45" y="0" width="90" height="16" rx="4" fill="#0284c7" />
+            <text x="0" y="11" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">🎯 GATILHO</text>
+          </g>
+        `;
+      }
+
+      if (c.isEntry) {
+        calloutsSvg += `
+          <g transform="translate(${cx}, ${yL + 18})">
+            <polygon points="0,-6 -5,0 5,0" fill="#10b981" />
+            <rect x="-48" y="0" width="96" height="16" rx="4" fill="#059669" />
+            <text x="0" y="11" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">▶ ENTRADA</text>
+          </g>
+        `;
+      }
+
+      if (c.isTarget2R || (c.isExit && isGain)) {
+        calloutsSvg += `
+          <g transform="translate(${cx}, ${yH - 24})">
+            <rect x="-56" y="0" width="112" height="17" rx="4" fill="#10b981" />
+            <polygon points="0,23 -5,17 5,17" fill="#10b981" />
+            <text x="0" y="12" fill="#ffffff" font-size="8.5" font-weight="800" text-anchor="middle" font-family="system-ui">★ +2R ATINGIDO</text>
+          </g>
+        `;
+      } else if (c.isStop || (c.isExit && isLoss)) {
+        calloutsSvg += `
+          <g transform="translate(${cx}, ${yL + 18})">
+            <polygon points="0,-6 -5,0 5,0" fill="#ef4444" />
+            <rect x="-45" y="0" width="90" height="16" rx="4" fill="#dc2626" />
+            <text x="0" y="11" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">✕ STOP LOSS</text>
+          </g>
+        `;
+      }
+    });
+
+    // Legenda no canto superior esquerdo
+    const legendSvg = `
+      <g transform="translate(${padLeft + 10}, 18)">
+        <line x1="0" y1="5" x2="16" y2="5" stroke="#06b6d4" stroke-width="2" />
+        <text x="22" y="9" fill="#06b6d4" font-size="10" font-weight="600" font-family="system-ui">EMA 9</text>
+        
+        <line x1="75" y1="5" x2="91" y2="5" stroke="#f59e0b" stroke-width="2" />
+        <text x="97" y="9" fill="#f59e0b" font-size="10" font-weight="600" font-family="system-ui">EMA 30</text>
+      </g>
+    `;
+
+    return `
+      <svg class="sim-snapshot-chart-svg" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet">
+        <rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#06150f" rx="10" />
+        ${gridLinesSvg}
+        ${refLinesSvg}
+        ${emaSvg}
+        ${candlesSvg}
+        ${calloutsSvg}
+        ${legendSvg}
+      </svg>
     `;
   }
 
@@ -1104,13 +1454,29 @@
       });
     });
 
+    // Botão de gerar massa de teste no topo
+    container.querySelector('#simBtnSeedMass')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetToDefaults();
+    });
+
     // Ações do menu mais (...)
+    container.querySelector('#simActionSeedMass')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      resetToDefaults();
+    });
+
     container.querySelector('#simActionReset')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.activeDropdown = null;
-      if (confirm('Deseja restaurar as 24 simulações padrão da tela de referência?')) {
-        resetToDefaults();
-      }
+      resetToDefaults();
+    });
+
+    container.querySelector('#simActionClearAll')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      clearAllSimulations();
     });
 
     container.querySelector('#simActionEvaluate')?.addEventListener('click', (e) => {
@@ -1158,17 +1524,12 @@
     // Botão Exportar CSV
     container.querySelector('#simExportBtn')?.addEventListener('click', exportFilteredCSV);
 
-    // Botões de Ação na Tabela (Gráfico e Detalhes)
+    // Botões de Ação na Tabela (Snapshot e Detalhes)
     container.querySelectorAll('.sim-action-btn[data-action="chart"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const ticker = btn.dataset.ticker;
-        if (ticker && typeof root.go === 'function') {
-          root.go('charts');
-          if (root.TickerChart && typeof root.TickerChart.loadTicker === 'function') {
-            root.TickerChart.loadTicker(ticker);
-          }
-        }
+        state.snapshotSimId = btn.dataset.simId;
+        render();
       });
     });
 
@@ -1192,7 +1553,7 @@
       });
     });
 
-    // Fechar modal
+    // Fechar modal de detalhes
     container.querySelector('#simModalClose')?.addEventListener('click', () => {
       state.selectedSimId = null;
       render();
@@ -1205,22 +1566,48 @@
       }
     });
 
-    // Ações internas do modal
+    // Ações internas do modal de detalhes
     container.querySelector('#simModalViewChart')?.addEventListener('click', (e) => {
-      const ticker = e.currentTarget.dataset.ticker;
+      const simId = e.currentTarget.dataset.simId;
       state.selectedSimId = null;
-      if (ticker && typeof root.go === 'function') {
-        root.go('charts');
-        if (root.TickerChart && typeof root.TickerChart.loadTicker === 'function') {
-          root.TickerChart.loadTicker(ticker);
-        }
-      }
+      state.snapshotSimId = simId;
+      render();
     });
 
     container.querySelector('#simModalDelete')?.addEventListener('click', async (e) => {
       const id = e.currentTarget.dataset.simId;
       if (!id) return;
       await deleteSimulation(id);
+    });
+
+    // Fechar snapshot modal
+    container.querySelector('#simSnapshotClose')?.addEventListener('click', () => {
+      state.snapshotSimId = null;
+      render();
+    });
+
+    container.querySelector('#simSnapshotCloseBtn')?.addEventListener('click', () => {
+      state.snapshotSimId = null;
+      render();
+    });
+
+    container.querySelector('#simSnapshotModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simSnapshotModal') {
+        state.snapshotSimId = null;
+        render();
+      }
+    });
+
+    // Abrir gráfico interativo a partir do snapshot modal
+    container.querySelector('#simSnapshotOpenInteractive')?.addEventListener('click', (e) => {
+      const ticker = e.currentTarget.dataset.ticker;
+      state.snapshotSimId = null;
+      if (ticker && typeof root.go === 'function') {
+        root.go('charts');
+        if (root.TickerChart && typeof root.TickerChart.loadTicker === 'function') {
+          root.TickerChart.loadTicker(ticker);
+        }
+      }
     });
   }
 
@@ -1240,13 +1627,8 @@
     tbody.querySelectorAll('.sim-action-btn[data-action="chart"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const ticker = btn.dataset.ticker;
-        if (ticker && typeof root.go === 'function') {
-          root.go('charts');
-          if (root.TickerChart && typeof root.TickerChart.loadTicker === 'function') {
-            root.TickerChart.loadTicker(ticker);
-          }
-        }
+        state.snapshotSimId = btn.dataset.simId;
+        render();
       });
     });
 
