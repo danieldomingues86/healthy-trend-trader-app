@@ -146,3 +146,75 @@ test('tradeSimulator backend: update e remoção de simulação', async () => {
     database.query = originalQuery;
   }
 });
+
+test('tradeSimulator backend: reset aceita cenários de gestão e compare retorna dados comparativos', async () => {
+  const originalQuery = database.query;
+  const store = [];
+
+  database.query = async (sql, values) => {
+    if (sql.includes('DELETE FROM app.trade_simulations')) {
+      store.length = 0;
+      return { rows: [] };
+    }
+    if (sql.includes('INSERT INTO app.trade_simulations')) {
+      const row = {
+        id: values[0],
+        user_id: values[1],
+        symbol: values[2],
+        company_name: values[3],
+        trigger_name: values[4],
+        grade: values[5],
+        sector: values[6],
+        signal_date: values[7],
+        entry_price: values[8],
+        stop_loss: values[9],
+        status: values[10],
+        executed_entry_price: values[11],
+        entry_date: values[12],
+        current_stop: values[13],
+        current_price: values[14],
+        exit_price: values[15],
+        exit_date: values[16],
+        exit_reason: values[17],
+        result_r: values[18],
+        mfe_r: values[19],
+        mae_r: values[20],
+        timeline: values[21],
+        notes: values[22],
+        management_scenario: values[23],
+        scale_in: values[24]
+      };
+      store.push(row);
+      return { rows: [row] };
+    }
+    if (sql.includes('SELECT * FROM app.trade_simulations')) {
+      return { rows: [...store] };
+    }
+    return { rows: [] };
+  };
+
+  try {
+    // 1. Reset com cenário PYRAMID_1R_2R
+    const resPyramid = await tradeSimulator.reset('user-1', { scenario: 'PYRAMID_1R_2R' });
+    assert.equal(resPyramid.simulations.length, 42);
+    assert.ok(resPyramid.comparison);
+    assert.equal(resPyramid.comparison.scenarios.length, 3);
+
+    // Verifica que simulações têm managementScenario PYRAMID_1R_2R
+    assert.equal(resPyramid.simulations[0].managementScenario, 'PYRAMID_1R_2R');
+
+    // 2. Endpoint compare
+    const cmp = await tradeSimulator.compare('user-1');
+    assert.ok(cmp.comparison);
+    assert.equal(cmp.comparison.scenarios.length, 3);
+    const scen2R = cmp.comparison.scenarios.find(s => s.id === '2R');
+    const scen25R = cmp.comparison.scenarios.find(s => s.id === '2.5R');
+    const scenPyr = cmp.comparison.scenarios.find(s => s.id === 'PYRAMID_1R_2R');
+    assert.ok(scen2R && scen25R && scenPyr);
+    assert.equal(scen2R.totalTrades, 42);
+    assert.equal(scen25R.totalTrades, 42);
+    assert.equal(scenPyr.totalTrades, 42);
+  } finally {
+    database.query = originalQuery;
+  }
+});

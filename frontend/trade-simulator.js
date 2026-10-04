@@ -13,6 +13,10 @@
   const state = {
     simulations: [],
     loading: false,
+    activeScenario: '2R',
+    scenarioModalOpen: false,
+    tempScenarioSelection: '2R',
+    comparison: null,
     filters: {
       days: 120,
       trigger: 'ALL',
@@ -53,6 +57,11 @@
         const response = await root.healthyTrendApi.request(API_ENDPOINT, { method: 'GET' });
         if (response && Array.isArray(response.simulations) && response.simulations.length > 0) {
           state.simulations = response.simulations.filter(s => s && s.triggerName !== 'Pullback');
+          state.comparison = response.comparison || null;
+          if (state.simulations[0]?.managementScenario) {
+            state.activeScenario = state.simulations[0].managementScenario;
+            state.tempScenarioSelection = state.simulations[0].managementScenario;
+          }
           saveLocalCache();
           state.loading = false;
           return;
@@ -69,15 +78,25 @@
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
           state.simulations = parsed.filter(s => s && s.triggerName !== 'Pullback');
+          if (state.simulations[0]?.managementScenario) {
+            state.activeScenario = state.simulations[0].managementScenario;
+            state.tempScenarioSelection = state.simulations[0].managementScenario;
+          }
+          if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
+            state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations.length === 42 ? null : state.simulations);
+          }
           state.loading = false;
           return;
         }
       }
     } catch (e) {}
 
-    // Fallback padrão: as 19 simulações idênticas ao design aprovado (sem Pullback)
+    // Fallback padrão: as 42 simulações calibradas na mesma amostra
     if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getDefaultSeedSimulations === 'function') {
-      state.simulations = root.TradeSimulatorModel.getDefaultSeedSimulations();
+      state.simulations = root.TradeSimulatorModel.getDefaultSeedSimulations('2R');
+      state.comparison = root.TradeSimulatorModel.compareManagementScenarios();
+      state.activeScenario = '2R';
+      state.tempScenarioSelection = '2R';
     } else {
       state.simulations = [];
     }
@@ -183,36 +202,51 @@
   }
 
   /**
-   * Reseta os dados para o padrão de 24 simulações idênticas ao design aprovado
+   * Gera massa de teste no cenário de gestão selecionado ('2R', '2.5R' ou 'PYRAMID_1R_2R')
    */
-  async function resetToDefaults() {
+  async function generateScenarioMass(scenarioId = '2R') {
     state.loading = true;
+    state.activeScenario = scenarioId;
+    state.tempScenarioSelection = scenarioId;
+    state.scenarioModalOpen = false;
     render();
+
     try {
       if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
-        const res = await root.healthyTrendApi.request(API_ENDPOINT + '/reset', { method: 'POST' });
-        if (res && Array.isArray(res.simulations)) {
-          state.simulations = res.simulations;
+        const res = await root.healthyTrendApi.request(API_ENDPOINT + '/reset', {
+          method: 'POST',
+          body: { scenario: scenarioId }
+        });
+        if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
+          state.simulations = res.simulations.filter(s => s && s.triggerName !== 'Pullback');
+          state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios() : null);
           saveLocalCache();
           state.loading = false;
           render();
           if (typeof root.showToast === 'function') {
-            root.showToast('✓ Simulador restaurado para a base oficial de 42 trades.');
+            const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
+            root.showToast(`✓ Massa de teste gerada para o cenário: ${meta.name}`);
           }
           return;
         }
       }
     } catch (e) {}
 
-    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getDefaultSeedSimulations === 'function') {
-      state.simulations = root.TradeSimulatorModel.getDefaultSeedSimulations();
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.generateSeedSimulationsForScenario === 'function') {
+      state.simulations = root.TradeSimulatorModel.generateSeedSimulationsForScenario(scenarioId);
+      state.comparison = root.TradeSimulatorModel.compareManagementScenarios();
     }
     saveLocalCache();
     state.loading = false;
     render();
     if (typeof root.showToast === 'function') {
-      root.showToast('✓ Massa de teste de 42 trades (últimos 4 meses) carregada com sucesso.');
+      const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
+      root.showToast(`✓ Massa de teste gerada para o cenário: ${meta.name}`);
     }
+  }
+
+  async function resetToDefaults() {
+    return generateScenarioMass(state.activeScenario || '2R');
   }
 
   /**
@@ -508,6 +542,11 @@
         ${renderKpiCards(stats)}
         ${renderChartsRow(stats)}
         ${renderTableSection(filtered, stats)}
+        <div class="sim-bottom-row">
+          ${renderComparisonSection()}
+          ${renderScenariosExplanationSection()}
+        </div>
+        ${renderScenarioModal()}
         ${renderModal()}
         ${renderSnapshotModal()}
       </div>
@@ -517,7 +556,7 @@
   }
 
   /**
-   * 1. Header com Título, Badge BETA e Filtros Superiores
+   * 1. Header com Título, Botão de Cenários de Gestão e Filtros Superiores
    */
   function renderHeader() {
     const daysLabel = state.filters.days === 120
@@ -539,9 +578,9 @@
         </div>
 
         <div class="sim-top-filters">
-          <!-- Botão Gerar Massa de Teste -->
-          <button class="sim-btn-seed" type="button" id="simBtnSeedMass" title="Gera massa de 42 trades simulados dos últimos 4 meses para validação">
-            <span>⚡ Gerar Massa de Teste (4 Meses)</span>
+          <!-- Botão Gerar Massa de Teste com Seleção de Cenário de Gestão -->
+          <button class="sim-btn-seed sim-btn-seed-dropdown" type="button" id="simBtnScenarioModal" title="Escolha o cenário de gestão de risco para simulação">
+            <span>⚡ Gerar Massa de Teste ▾</span>
           </button>
 
           <!-- Filtro Período -->
@@ -1104,6 +1143,349 @@
   }
 
   /**
+   * Mini diagrama SVG dos cenários de gestão para o modal e cards explicativos
+   */
+  function getScenarioMiniDiagramSvg(scenarioId) {
+    if (scenarioId === '2.5R') {
+      return `
+        <svg width="170" height="42" viewBox="0 0 170 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="28" y1="18" x2="132" y2="18" stroke="#f59e0b" stroke-width="2" />
+          <polygon points="132,14 140,18 132,22" fill="#f59e0b" />
+          <circle cx="28" cy="18" r="3.5" fill="#f59e0b" />
+          <text x="28" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="140" cy="18" r="3.5" fill="#f59e0b" />
+          <text x="140" y="10" fill="#f59e0b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2,5R)</text>
+          <line x1="28" y1="18" x2="28" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
+          <line x1="24" y1="34" x2="32" y2="34" stroke="#ef4444" stroke-width="2" />
+          <text x="36" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        </svg>
+      `;
+    }
+
+    if (scenarioId === 'PYRAMID_1R_2R') {
+      return `
+        <svg width="190" height="42" viewBox="0 0 190 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="24" y1="18" x2="78" y2="18" stroke="#0284c7" stroke-width="2" />
+          <line x1="78" y1="18" x2="152" y2="18" stroke="#0284c7" stroke-width="2" />
+          <polygon points="152,14 160,18 152,22" fill="#0284c7" />
+          <circle cx="24" cy="18" r="3.5" fill="#0284c7" />
+          <text x="24" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada 1</text>
+          <circle cx="78" cy="18" r="3.5" fill="#10b981" />
+          <text x="78" y="10" fill="#10b981" font-size="8" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Add +1R</text>
+          <circle cx="160" cy="18" r="3.5" fill="#0284c7" />
+          <text x="160" y="10" fill="#0284c7" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
+          <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
+          <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
+          <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        </svg>
+      `;
+    }
+
+    // Default: '2R' Base
+    return `
+      <svg width="170" height="42" viewBox="0 0 170 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="28" y1="18" x2="132" y2="18" stroke="#10b981" stroke-width="2" />
+        <polygon points="132,14 140,18 132,22" fill="#10b981" />
+        <circle cx="28" cy="18" r="3.5" fill="#10b981" />
+        <text x="28" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+        <circle cx="140" cy="18" r="3.5" fill="#10b981" />
+        <text x="140" y="10" fill="#10b981" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
+        <line x1="28" y1="18" x2="28" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
+        <line x1="24" y1="34" x2="32" y2="34" stroke="#ef4444" stroke-width="2" />
+        <text x="36" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+      </svg>
+    `;
+  }
+
+  /**
+   * Modal "Escolha o cenário de gestão de risco"
+   */
+  function renderScenarioModal() {
+    if (!state.scenarioModalOpen) return '';
+
+    const sel = state.tempScenarioSelection || state.activeScenario || '2R';
+
+    return `
+      <div class="sim-scenario-modal-overlay open" id="simScenarioModalOverlay">
+        <div class="sim-scenario-modal-box" id="simScenarioModalBox">
+          <div class="sim-scenario-modal-header">
+            <div>
+              <h2>Escolha o cenário de gestão de risco</h2>
+              <p>Gere uma massa de simulação usando diferentes formas de gestão para comparar os resultados do seu setup.</p>
+            </div>
+            <button class="sim-modal-close-btn" type="button" id="simScenarioModalClose">×</button>
+          </div>
+
+          <div class="sim-scenario-options-list">
+            <!-- Opção 1: Gestão 2R — Base -->
+            <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
+              <div class="sim-scen-opt-left">
+                <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
+                  <span class="sim-scen-radio-dot"></span>
+                </div>
+                <div class="sim-scen-opt-texts">
+                  <div class="sim-scen-opt-title">Gestão 2R — Base</div>
+                  <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em 2R.</div>
+                </div>
+              </div>
+              <div class="sim-scen-opt-diagram">
+                ${getScenarioMiniDiagramSvg('2R')}
+              </div>
+            </div>
+
+            <!-- Opção 2: Gestão 2,5R — Alvo Estendido -->
+            <div class="sim-scenario-option ${sel === '2.5R' ? 'selected' : ''}" data-scenario-select="2.5R">
+              <div class="sim-scen-opt-left">
+                <div class="sim-scen-radio ${sel === '2.5R' ? 'checked' : ''}">
+                  <span class="sim-scen-radio-dot"></span>
+                </div>
+                <div class="sim-scen-opt-texts">
+                  <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
+                  <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em 2,5R.</div>
+                </div>
+              </div>
+              <div class="sim-scen-opt-diagram">
+                ${getScenarioMiniDiagramSvg('2.5R')}
+              </div>
+            </div>
+
+            <!-- Opção 3: Gestão Pirâmide — 1R → 2R -->
+            <div class="sim-scenario-option ${sel === 'PYRAMID_1R_2R' ? 'selected' : ''}" data-scenario-select="PYRAMID_1R_2R">
+              <div class="sim-scen-opt-left">
+                <div class="sim-scen-radio ${sel === 'PYRAMID_1R_2R' ? 'checked' : ''}">
+                  <span class="sim-scen-radio-dot"></span>
+                </div>
+                <div class="sim-scen-opt-texts">
+                  <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
+                  <div class="sim-scen-opt-desc">Risco inicial de 1R. Ao atingir +1R adiciona posição +1R e encerra tudo em 2R.</div>
+                </div>
+              </div>
+              <div class="sim-scen-opt-diagram">
+                ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Seletor de Período -->
+          <div class="sim-scenario-period-section">
+            <label class="sim-scen-period-label">Período da análise</label>
+            <div class="sim-scen-period-pill">
+              <span>📅</span>
+              <span>Últimos 4 meses (mesma amostra)</span>
+              <span class="sim-chevron">▼</span>
+            </div>
+          </div>
+
+          <!-- Botão de Ação -->
+          <div class="sim-scenario-action-wrap">
+            <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
+              <span>🚀 Gerar Massa de Teste</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * 6. Comparador de Cenários de Gestão (Section 4)
+   */
+  function renderComparisonSection() {
+    const comparison = state.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios() : null);
+    const scenarios = comparison && Array.isArray(comparison.scenarios) ? comparison.scenarios : [];
+    const sampleInfo = comparison?.sampleInfo || 'Mesma amostra: últimos 4 meses • 42 trades';
+
+    const defaultBench = root.TradeSimulatorModel?.BENCHMARK_SCENARIOS_COMPARISON || [];
+    const sc2R = scenarios.find(s => s.id === '2R') || defaultBench[0] || {};
+    const sc25R = scenarios.find(s => s.id === '2.5R') || defaultBench[1] || {};
+    const scPyr = scenarios.find(s => s.id === 'PYRAMID_1R_2R') || defaultBench[2] || {};
+
+    return `
+      <div class="sim-comparison-card">
+        <div class="sim-comparison-header">
+          <div class="sim-comparison-titles">
+            <h3>Comparador de Cenários de Gestão</h3>
+            <p>Compare o desempenho do seu setup usando diferentes políticas de gestão de risco na mesma amostra de sinais.</p>
+          </div>
+          <div class="sim-comparison-badge">
+            ${sampleInfo}
+          </div>
+        </div>
+
+        <div class="sim-comparison-table-wrap">
+          <table class="sim-comparison-table">
+            <thead>
+              <tr>
+                <th class="th-metric">MÉTRICA</th>
+                <th class="th-scen scen-col-2r ${state.activeScenario === '2R' ? 'active-col' : ''}" data-switch-scenario="2R" title="Clique para simular este cenário">
+                  <div class="scen-th-inner">
+                    <div class="scen-th-title-row">
+                      <span class="scen-circle-dot dot-green"></span>
+                      <b>Gestão 2R — Base</b>
+                    </div>
+                    <span class="scen-th-badge badge-green">Risco 1R → Saída 2R</span>
+                  </div>
+                </th>
+                <th class="th-scen scen-col-25r ${state.activeScenario === '2.5R' ? 'active-col' : ''}" data-switch-scenario="2.5R" title="Clique para simular este cenário">
+                  <div class="scen-th-inner">
+                    <div class="scen-th-title-row">
+                      <span class="scen-circle-dot dot-yellow"></span>
+                      <b>Gestão 2,5R — Alvo Estendido</b>
+                    </div>
+                    <span class="scen-th-badge badge-yellow">Risco 1R → Saída 2,5R</span>
+                  </div>
+                </th>
+                <th class="th-scen scen-col-pyr ${state.activeScenario === 'PYRAMID_1R_2R' ? 'active-col' : ''}" data-switch-scenario="PYRAMID_1R_2R" title="Clique para simular este cenário">
+                  <div class="scen-th-inner">
+                    <div class="scen-th-title-row">
+                      <span class="scen-circle-dot dot-blue"></span>
+                      <b>Gestão Pirâmide — 1R → 2R</b>
+                    </div>
+                    <span class="scen-th-badge badge-blue">Add em +1R → Saída 2R</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="td-metric-name">Total de Trades</td>
+                <td><b>${sc2R.totalTrades ?? 42}</b></td>
+                <td><b>${sc25R.totalTrades ?? 42}</b></td>
+                <td><b>${scPyr.totalTrades ?? 42}</b></td>
+              </tr>
+              <tr>
+                <td class="td-metric-name">Win Rate</td>
+                <td>${sc2R.winRateFormatted ?? '52,4% (22)'}</td>
+                <td>${sc25R.winRateFormatted ?? '47,6% (20)'}</td>
+                <td>${scPyr.winRateFormatted ?? '50,0% (21)'}</td>
+              </tr>
+              <tr>
+                <td class="td-metric-name">Loss Rate</td>
+                <td>${sc2R.lossRateFormatted ?? '47,6% (20)'}</td>
+                <td>${sc25R.lossRateFormatted ?? '52,4% (22)'}</td>
+                <td>${scPyr.lossRateFormatted ?? '50,0% (21)'}</td>
+              </tr>
+              <tr>
+                <td class="td-metric-name">R médio por trade</td>
+                <td class="metric-accent">${sc2R.avgRFormatted ?? '0,68R'}</td>
+                <td class="metric-accent">${sc25R.avgRFormatted ?? '0,82R'}</td>
+                <td class="metric-accent-blue">${scPyr.avgRFormatted ?? '1,12R'}</td>
+              </tr>
+              <tr>
+                <td class="td-metric-name">Expectancy</td>
+                <td class="metric-accent">${sc2R.expectancyFormatted ?? '0,65R'}</td>
+                <td class="metric-accent">${sc25R.expectancyFormatted ?? '0,78R'}</td>
+                <td class="metric-accent-blue">${scPyr.expectancyFormatted ?? '1,05R'}</td>
+              </tr>
+              <tr>
+                <td class="td-metric-name">Profit Factor</td>
+                <td><b>${sc2R.profitFactorFormatted ?? '1,78'}</b></td>
+                <td><b>${sc25R.profitFactorFormatted ?? '1,92'}</b></td>
+                <td><b class="metric-accent-blue">${scPyr.profitFactorFormatted ?? '2,35'}</b></td>
+              </tr>
+              <tr>
+                <td class="td-metric-name">Resultado acumulado</td>
+                <td class="metric-gain">${sc2R.totalRFormatted ?? '+27,36R'}</td>
+                <td class="metric-gain">${sc25R.totalRFormatted ?? '+32,90R'}</td>
+                <td class="metric-gain-high">${scPyr.totalRFormatted ?? '+44,10R'}</td>
+              </tr>
+              <tr>
+                <td class="td-metric-name">Drawdown máximo</td>
+                <td class="metric-loss">${sc2R.maxDrawdownFormatted ?? '-6,20R'}</td>
+                <td class="metric-loss">${sc25R.maxDrawdownFormatted ?? '-7,10R'}</td>
+                <td class="metric-loss">${scPyr.maxDrawdownFormatted ?? '-8,40R'}</td>
+              </tr>
+              <tr>
+                <td class="td-metric-name">MFE médio (vencedores)</td>
+                <td>${sc2R.avgMfeFormatted ?? '2,10R'}</td>
+                <td>${sc25R.avgMfeFormatted ?? '2,58R'}</td>
+                <td>${scPyr.avgMfeFormatted ?? '2,85R'}</td>
+              </tr>
+              <tr>
+                <td class="td-metric-name">MAE médio (perdedores)</td>
+                <td class="metric-loss">${sc2R.avgMaeFormatted ?? '-1,05R'}</td>
+                <td class="metric-loss">${sc25R.avgMaeFormatted ?? '-1,08R'}</td>
+                <td class="metric-loss">${scPyr.avgMaeFormatted ?? '-1,15R'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * 7. Card lateral "Como os cenários funcionam?" (Section 5)
+   */
+  function renderScenariosExplanationSection() {
+    return `
+      <div class="sim-explanation-card">
+        <div class="sim-explanation-header">
+          <h3>Como os cenários funcionam?</h3>
+        </div>
+
+        <div class="sim-explanation-list">
+          <!-- Card 1: Gestão 2R Base -->
+          <div class="sim-expl-item item-2r">
+            <div class="sim-expl-item-body">
+              <div class="sim-expl-title-row">
+                <span class="scen-circle-dot dot-green"></span>
+                <b>Gestão 2R — Base</b>
+              </div>
+              <ul class="sim-expl-bullets">
+                <li>Entrada: 1R de risco</li>
+                <li>Stop: -1R</li>
+                <li>Saída: 100% em +2R</li>
+                <li>Sem piramidagem.</li>
+              </ul>
+            </div>
+            <div class="sim-expl-item-diagram">
+              ${getScenarioMiniDiagramSvg('2R')}
+            </div>
+          </div>
+
+          <!-- Card 2: Gestão 2.5R Alvo Estendido -->
+          <div class="sim-expl-item item-25r">
+            <div class="sim-expl-item-body">
+              <div class="sim-expl-title-row">
+                <span class="scen-circle-dot dot-yellow"></span>
+                <b>Gestão 2,5R — Alvo Estendido</b>
+              </div>
+              <ul class="sim-expl-bullets">
+                <li>Entrada: 1R de risco</li>
+                <li>Stop: -1R</li>
+                <li>Saída: 100% em +2,5R</li>
+                <li>Sem piramidagem.</li>
+              </ul>
+            </div>
+            <div class="sim-expl-item-diagram">
+              ${getScenarioMiniDiagramSvg('2.5R')}
+            </div>
+          </div>
+
+          <!-- Card 3: Gestão Pirâmide 1R -> 2R -->
+          <div class="sim-expl-item item-pyr">
+            <div class="sim-expl-item-body">
+              <div class="sim-expl-title-row">
+                <span class="scen-circle-dot dot-blue"></span>
+                <b>Gestão Pirâmide — 1R → 2R</b>
+              </div>
+              <ul class="sim-expl-bullets">
+                <li>Entrada 1: 1R de risco</li>
+                <li>Ao atingir +1R: adiciona posição</li>
+                <li>Saída: 100% em +2R</li>
+              </ul>
+            </div>
+            <div class="sim-expl-item-diagram">
+              ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
    * 5. Modal de Detalhes da Simulação e Timeline do Trade
    */
   function renderModal() {
@@ -1315,6 +1697,11 @@
     const entry = Number(sim.entryPrice) || 0;
     const stop = Number(sim.stopLoss) || 0;
     const risk = Math.max(0.01, Math.abs(entry - stop));
+    const scenario = sim.managementScenario || '2R';
+    const isPyramid = scenario === 'PYRAMID_1R_2R';
+    const isExtended = scenario === '2.5R';
+    const targetMult = isExtended ? 2.5 : 2.0;
+    const targetExitPrice = Number((entry + targetMult * risk).toFixed(2));
     const target1R = Number((entry + risk).toFixed(2));
     const target2R = Number((entry + 2 * risk).toFixed(2));
 
@@ -1329,7 +1716,7 @@
     const plotH = svgH - padTop - padBottom;
 
     // Escala de preços
-    let allPrices = [entry, stop, target1R, target2R];
+    let allPrices = [entry, stop, target1R, targetExitPrice];
     candles.forEach(c => {
       allPrices.push(Number(c.high), Number(c.low));
       if (c.ema9) allPrices.push(Number(c.ema9));
@@ -1369,8 +1756,8 @@
       `;
     }
 
-    // Linhas de Referência: Target 2R, Target 1R, Entrada, Stop Loss
-    const yT2 = getY(target2R);
+    // Linhas de Referência: Target Exit, Target 1R / Adição, Entrada, Stop Loss
+    const yExit = getY(targetExitPrice);
     const yT1 = getY(target1R);
     const yEnt = getY(entry);
     const yStp = getY(stop);
@@ -1378,22 +1765,42 @@
     const isGain = sim.status === 'CLOSED_GAIN';
     const isLoss = sim.status === 'CLOSED_LOSS';
 
+    let targetLabel = isGain ? '★ +2R ATINGIDO' : 'ALVO 2R: ' + targetExitPrice.toFixed(2);
+    let targetBg = isGain ? '#10b981' : '#064e3b';
+    let targetStroke = '#10b981';
+
+    if (isExtended) {
+      targetLabel = isGain ? '★ +2,5R ATINGIDO' : 'ALVO 2,5R: ' + targetExitPrice.toFixed(2);
+      targetBg = isGain ? '#f59e0b' : '#78350f';
+      targetStroke = '#f59e0b';
+    } else if (isPyramid) {
+      targetLabel = isGain ? '★ ALVO (+3,00R CONSOL.)' : 'ALVO 2R: ' + targetExitPrice.toFixed(2);
+      targetBg = isGain ? '#0284c7' : '#0c4a6e';
+      targetStroke = '#0284c7';
+    }
+
+    const t1BadgeLabel = (isPyramid && sim.scaleIn && sim.scaleIn.executed)
+      ? '▶ ADIÇÃO (+1R FEITA)'
+      : `ALVO 1R: R$ ${target1R.toFixed(2)}`;
+    const t1BadgeBg = (isPyramid && sim.scaleIn && sim.scaleIn.executed) ? '#0284c7' : '#134e4a';
+    const t1BadgeColor = (isPyramid && sim.scaleIn && sim.scaleIn.executed) ? '#ffffff' : '#5eead4';
+
     const refLinesSvg = `
-      <!-- Alvo +2R -->
-      <line x1="${padLeft}" y1="${yT2}" x2="${padLeft + plotW}" y2="${yT2}" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,4" />
-      <g transform="translate(${padLeft + plotW + 6}, ${yT2 - 9})">
-        <rect width="118" height="18" rx="4" fill="${isGain ? '#10b981' : '#064e3b'}" />
-        <text x="59" y="13" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle" font-family="system-ui">
-          ${isGain ? '★ +2R ATINGIDO' : 'ALVO 2R: ' + target2R.toFixed(2)}
+      <!-- Alvo Saída (${scenario}) -->
+      <line x1="${padLeft}" y1="${yExit}" x2="${padLeft + plotW}" y2="${yExit}" stroke="${targetStroke}" stroke-width="1.5" stroke-dasharray="4,4" />
+      <g transform="translate(${padLeft + plotW + 6}, ${yExit - 9})">
+        <rect width="126" height="18" rx="4" fill="${targetBg}" />
+        <text x="63" y="13" fill="#ffffff" font-size="9" font-weight="700" text-anchor="middle" font-family="system-ui">
+          ${targetLabel}
         </text>
       </g>
 
-      <!-- Alvo +1R -->
-      <line x1="${padLeft}" y1="${yT1}" x2="${padLeft + plotW}" y2="${yT1}" stroke="#14b8a6" stroke-width="1.2" stroke-dasharray="3,3" />
+      <!-- Alvo 1R / Adição -->
+      <line x1="${padLeft}" y1="${yT1}" x2="${padLeft + plotW}" y2="${yT1}" stroke="${isPyramid ? '#0284c7' : '#14b8a6'}" stroke-width="1.2" stroke-dasharray="3,3" />
       <g transform="translate(${padLeft + plotW + 6}, ${yT1 - 9})">
-        <rect width="118" height="18" rx="4" fill="#134e4a" />
-        <text x="59" y="13" fill="#5eead4" font-size="9.5" font-weight="700" text-anchor="middle" font-family="system-ui">
-          ALVO 1R: R$ ${target1R.toFixed(2)}
+        <rect width="126" height="18" rx="4" fill="${t1BadgeBg}" />
+        <text x="63" y="13" fill="${t1BadgeColor}" font-size="9" font-weight="700" text-anchor="middle" font-family="system-ui">
+          ${t1BadgeLabel}
         </text>
       </g>
 
@@ -1557,10 +1964,59 @@
       });
     });
 
-    // Botão de gerar massa de teste no topo (botão único)
+    // Botão de gerar massa de teste no topo (abre modal de cenários de gestão)
+    container.querySelector('#simBtnScenarioModal')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.scenarioModalOpen = true;
+      state.tempScenarioSelection = state.activeScenario || '2R';
+      render();
+    });
+
     container.querySelector('#simBtnSeedMass')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      resetToDefaults();
+      state.scenarioModalOpen = true;
+      state.tempScenarioSelection = state.activeScenario || '2R';
+      render();
+    });
+
+    // Fechar modal de cenários
+    container.querySelector('#simScenarioModalClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.scenarioModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simScenarioModalOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simScenarioModalOverlay') {
+        state.scenarioModalOpen = false;
+        render();
+      }
+    });
+
+    // Seleção de opção no modal de cenários
+    container.querySelectorAll('[data-scenario-select]').forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.tempScenarioSelection = opt.dataset.scenarioSelect;
+        render();
+      });
+    });
+
+    // Confirmar geração de massa no modal
+    container.querySelector('#simModalConfirmScenario')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      generateScenarioMass(state.tempScenarioSelection || '2R');
+    });
+
+    // Trocar cenário clicando no cabeçalho da tabela comparativa
+    container.querySelectorAll('[data-switch-scenario]').forEach(th => {
+      th.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const scen = th.dataset.switchScenario;
+        if (scen && scen !== state.activeScenario) {
+          generateScenarioMass(scen);
+        }
+      });
     });
 
     // Ações do menu mais (...)

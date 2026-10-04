@@ -325,4 +325,183 @@ test('trade-simulator-model: generateSimulationSnapshotCandles produz estrutura 
   assert.ok(!waitCandles.some(c => c.isEntry), 'Não deve possuir entrada ativada');
 });
 
+test('trade-simulator-model: adaptSimulationToScenario adapta regras de 2R, 2.5R e Pirâmide de forma determinística', () => {
+  const baseSimGain = {
+    id: 'sim-test-1',
+    symbol: 'PETR4',
+    entryPrice: 30.00,
+    stopLoss: 28.00, // risk = 2.00
+    status: model.STATUS.CLOSED_GAIN,
+    resultR: 2.0,
+    mfeR: 2.8,
+    maeR: -0.2,
+    timeline: [
+      { type: 'SIGNAL_IDENTIFIED', date: '2026-09-01' },
+      { type: 'ENTRY_EXECUTED', date: '2026-09-02', price: 30.00 },
+      { type: 'TARGET_1R', date: '2026-09-03' },
+      { type: 'TARGET_2R', date: '2026-09-05' },
+      { type: 'CLOSED', date: '2026-09-05', resultR: 2.0 }
+    ]
+  };
+
+  // 1. Cenário 2R
+  const adapted2R = model.adaptSimulationToScenario(baseSimGain, '2R');
+  assert.equal(adapted2R.managementScenario, '2R');
+  assert.equal(adapted2R.resultR, 2.0);
+
+  // 2. Cenário 2.5R com MFE suficiente (>= 2.5)
+  const adapted25R = model.adaptSimulationToScenario(baseSimGain, '2.5R');
+  assert.equal(adapted25R.managementScenario, '2.5R');
+  assert.equal(adapted25R.resultR, 2.5);
+  assert.equal(adapted25R.exitPrice, 35.00); // 30 + 2.5 * 2 = 35.00
+
+  // 3. Cenário 2.5R com MFE insuficiente (< 2.5, ex: mfe 2.1)
+  const baseSimPartialGain = {
+    ...baseSimGain,
+    mfeR: 2.1
+  };
+  const adapted25RStopped = model.adaptSimulationToScenario(baseSimPartialGain, '2.5R');
+  assert.equal(adapted25RStopped.resultR, 0); // Breakeven protetivo
+  assert.equal(adapted25RStopped.exitReason, 'Proteção / Breakeven');
+
+  // 4. Cenário Pirâmide 1R -> 2R com MFE >= 2.0 (atinge alvo final)
+  const adaptedPyr = model.adaptSimulationToScenario(baseSimGain, 'PYRAMID_1R_2R');
+  assert.equal(adaptedPyr.managementScenario, 'PYRAMID_1R_2R');
+  assert.equal(adaptedPyr.resultR, 3.0, 'Lote 1 (+2R) + Lote 2 (+1R) = +3,00R consolidado');
+  assert.ok(adaptedPyr.scaleIn && adaptedPyr.scaleIn.executed);
+  assert.equal(adaptedPyr.scaleIn.price, 32.00); // 30 + 1 * 2 = 32.00
+  assert.equal(adaptedPyr.scaleIn.consolidatedResultR, 3.0);
+
+  // 5. Cenário Pirâmide com recuo após +1R (mfe 1.5, não atingiu 2R)
+  const baseSimPyrPullback = {
+    ...baseSimGain,
+    mfeR: 1.5
+  };
+  const adaptedPyrPullback = model.adaptSimulationToScenario(baseSimPyrPullback, 'PYRAMID_1R_2R');
+  assert.equal(adaptedPyrPullback.status, model.STATUS.CLOSED_LOSS);
+  assert.equal(adaptedPyrPullback.resultR, -1.0, 'Lote 1 no breakeven (0R) + Lote 2 no stop (-1R) = -1,00R');
+  assert.equal(adaptedPyrPullback.scaleIn.consolidatedResultR, -1.0);
+});
+
+test('trade-simulator-model: getDefaultSeedSimulations aceita cenário e gera 42 simulações idênticas em amostra', () => {
+  const seeds2R = model.getDefaultSeedSimulations('2R');
+  const seeds25R = model.getDefaultSeedSimulations('2.5R');
+  const seedsPyr = model.getDefaultSeedSimulations('PYRAMID_1R_2R');
+
+  assert.equal(seeds2R.length, 42);
+  assert.equal(seeds25R.length, 42);
+  assert.equal(seedsPyr.length, 42);
+
+  // Todos os cenários compartilham a mesma amostra de ativos e datas de sinal
+  for (let i = 0; i < 42; i++) {
+    assert.equal(seeds2R[i].symbol, seeds25R[i].symbol);
+    assert.equal(seeds2R[i].symbol, seedsPyr[i].symbol);
+    assert.equal(seeds2R[i].signalDate, seeds25R[i].signalDate);
+    assert.equal(seeds2R[i].entryPrice, seeds25R[i].entryPrice);
+  }
+
+  // Verifica cenários identificados
+  assert.ok(seeds2R.every(s => s.managementScenario === '2R'));
+  assert.ok(seeds25R.every(s => s.managementScenario === '2.5R'));
+  assert.ok(seedsPyr.every(s => s.managementScenario === 'PYRAMID_1R_2R'));
+});
+
+test('trade-simulator-model: compareManagementScenarios consolida 10 métricas oficiais dos 3 cenários', () => {
+  const comparison = model.compareManagementScenarios();
+  assert.ok(comparison && Array.isArray(comparison.scenarios));
+  assert.equal(comparison.scenarios.length, 3);
+
+  const [sc2R, sc25R, scPyr] = comparison.scenarios;
+
+  // 1. Cenário 2R Base
+  assert.equal(sc2R.id, '2R');
+  assert.equal(sc2R.totalTrades, 42);
+  assert.equal(sc2R.winRate, 52.4);
+  assert.equal(sc2R.lossRate, 47.6);
+  assert.equal(sc2R.avgR, 0.68);
+  assert.equal(sc2R.expectancy, 0.65);
+  assert.equal(sc2R.profitFactor, 1.78);
+  assert.equal(sc2R.totalR, 27.36);
+  assert.equal(sc2R.maxDrawdown, -6.20);
+  assert.equal(sc2R.avgMfe, 2.10);
+  assert.equal(sc2R.avgMae, -1.05);
+
+  // 2. Cenário 2.5R Alvo Estendido
+  assert.equal(sc25R.id, '2.5R');
+  assert.equal(sc25R.totalTrades, 42);
+  assert.equal(sc25R.winRate, 47.6);
+  assert.equal(sc25R.lossRate, 52.4);
+  assert.equal(sc25R.avgR, 0.82);
+  assert.equal(sc25R.expectancy, 0.78);
+  assert.equal(sc25R.profitFactor, 1.92);
+  assert.equal(sc25R.totalR, 32.90);
+  assert.equal(sc25R.maxDrawdown, -7.10);
+  assert.equal(sc25R.avgMfe, 2.58);
+  assert.equal(sc25R.avgMae, -1.08);
+
+  // 3. Cenário Pirâmide 1R -> 2R
+  assert.equal(scPyr.id, 'PYRAMID_1R_2R');
+  assert.equal(scPyr.totalTrades, 42);
+  assert.equal(scPyr.winRate, 50.0);
+  assert.equal(scPyr.lossRate, 50.0);
+  assert.equal(scPyr.avgR, 1.12);
+  assert.equal(scPyr.expectancy, 1.05);
+  assert.equal(scPyr.profitFactor, 2.35);
+  assert.equal(scPyr.totalR, 44.10);
+  assert.equal(scPyr.maxDrawdown, -8.40);
+  assert.equal(scPyr.avgMfe, 2.85);
+  assert.equal(scPyr.avgMae, -1.15);
+});
+
+test('trade-simulator-model: evaluateSimulationOnCandles simula Pirâmide e 2.5R com física real de candles', () => {
+  const baseSim = {
+    symbol: 'PETR4',
+    signalDate: '2026-09-01',
+    entryPrice: 30.00,
+    stopLoss: 28.00, // risk = 2.00, 1R = 32.00, 2R = 34.00, 2.5R = 35.00
+    status: model.STATUS.WAITING_ENTRY,
+    timeline: []
+  };
+
+  // Cenário A: Pirâmide com Gain (+3,00R)
+  const candlesGain = [
+    { time: '2026-09-01', open: 29.50, high: 29.90, low: 28.50, close: 29.60 },
+    { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 }, // Ativa entrada a 30.00
+    { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.20 }, // Passa por 1R (32.00) -> Scale-In!
+    { time: '2026-09-04', open: 32.20, high: 34.50, low: 31.80, close: 34.20 }  // Atinge 2R (34.00) -> Saída total +3.00R!
+  ];
+  const evalPyrGain = model.evaluateSimulationOnCandles(baseSim, candlesGain, 'PYRAMID_1R_2R');
+  assert.equal(evalPyrGain.status, model.STATUS.CLOSED_GAIN);
+  assert.equal(evalPyrGain.resultR, 3.0);
+  assert.ok(evalPyrGain.scaleIn && evalPyrGain.scaleIn.executed);
+  assert.equal(evalPyrGain.scaleIn.price, 32.00);
+  assert.equal(evalPyrGain.scaleIn.consolidatedResultR, 3.0);
+
+  // Cenário B: Pirâmide com recuo após +1R (atinge 1R, stop vai para 30.00, dia seguinte recua para 29.80)
+  const candlesPyrStop = [
+    { time: '2026-09-01', open: 29.50, high: 29.90, low: 28.50, close: 29.60 },
+    { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 }, // Ativa entrada a 30.00
+    { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.20 }, // Passa por 1R (32.00) -> Scale-In, stop = 30.00
+    { time: '2026-09-04', open: 31.80, high: 32.00, low: 29.50, close: 29.80 }  // Recua e bate no stop (30.00) -> -1.00R consolidado!
+  ];
+  const evalPyrLoss = model.evaluateSimulationOnCandles(baseSim, candlesPyrStop, 'PYRAMID_1R_2R');
+  assert.equal(evalPyrLoss.status, model.STATUS.CLOSED_LOSS);
+  assert.equal(evalPyrLoss.resultR, -1.0);
+  assert.equal(evalPyrLoss.scaleIn.consolidatedResultR, -1.0);
+
+  // Cenário C: Alvo estendido 2.5R atingido
+  const candles25Gain = [
+    { time: '2026-09-01', open: 29.50, high: 29.90, low: 28.50, close: 29.60 },
+    { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 }, // Ativa entrada a 30.00
+    { time: '2026-09-03', open: 30.50, high: 33.00, low: 30.20, close: 32.80 },
+    { time: '2026-09-04', open: 33.00, high: 35.50, low: 32.50, close: 35.20 }  // Atinge 2.5R (35.00)
+  ];
+  const eval25Gain = model.evaluateSimulationOnCandles(baseSim, candles25Gain, '2.5R');
+  assert.equal(eval25Gain.status, model.STATUS.CLOSED_GAIN);
+  assert.equal(eval25Gain.resultR, 2.5);
+  assert.equal(eval25Gain.exitPrice, 35.00);
+});
+
+
+
 
