@@ -1210,9 +1210,7 @@
     container.querySelector('#simModalDelete')?.addEventListener('click', async (e) => {
       const id = e.currentTarget.dataset.simId;
       if (!id) return;
-      if (confirm('Deseja excluir esta simulação?')) {
-        await deleteSimulation(id);
-      }
+      await deleteSimulation(id);
     });
   }
 
