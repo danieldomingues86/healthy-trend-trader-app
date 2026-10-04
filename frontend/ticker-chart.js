@@ -797,7 +797,38 @@
     const volStatus = getVolatilityStatus(tickerData.volatility?.regime, tickerData.volatility?.atrPct);
     const structureStatus = getStructureStatus(tickerData.structure?.label);
     const triggerStatus = Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? 'good' : 'neutral';
-    const fundStatus = tickerData.fundamentals?.available !== false ? 'good' : 'neutral';
+    const fundEvaluation = tickerData.fundamentals?.evaluation
+      || (tickerData.fundamentals?.classification
+        ? (tickerData.fundamentals.classification === 'EXCELENTE' ? 'Excelente'
+          : tickerData.fundamentals.classification === 'BOM' ? 'Forte'
+          : tickerData.fundamentals.classification === 'MÉDIO' ? 'Médio'
+          : tickerData.fundamentals.classification === 'FRACO' ? 'Fraco'
+          : tickerData.fundamentals.classification === 'RUIM' ? 'Ruim' : 'Neutro')
+        : (tickerData.fundamentals?.available !== false ? 'Forte' : 'Neutro'));
+
+    let fundStatus = tickerData.fundamentals?.status;
+    if (!fundStatus) {
+      if (tickerData.fundamentals?.available === false) {
+        fundStatus = 'neutral';
+      } else if (fundEvaluation === 'Excelente' || fundEvaluation === 'Forte') {
+        fundStatus = 'good';
+      } else if (fundEvaluation === 'Médio') {
+        fundStatus = 'alert';
+      } else if (fundEvaluation === 'Fraco' || fundEvaluation === 'Ruim') {
+        fundStatus = 'bad';
+      } else {
+        fundStatus = 'neutral';
+      }
+    }
+
+    const getMetricTagClass = (item) => {
+      if (!item) return '';
+      if (item.status === 'good' || item.positive === true) return 'good';
+      if (item.status === 'warn' || item.status === 'bad' || item.positive === false) return 'warn';
+      if (item.status === 'neutral') return 'neutral';
+      return '';
+    };
+
     const contextStatus = (trendStatus === 'good' && cycleStatus === 'good') ? 'good' : (trendStatus === 'bad' ? 'bad' : 'neutral');
 
     // Constrói HTML estrutural
@@ -1118,7 +1149,7 @@
                 <span class="summary-check-icon">${ICONS.fundamentals}</span> Fundamentos
               </div>
               <div class="summary-check-right">
-                <span class="vision-status ${fundStatus}">● Fortes</span>
+                <span class="vision-status ${fundStatus}">● ${escapeHtml(fundEvaluation)}</span>
               </div>
             </div>
             <div class="summary-check-row">
@@ -1379,39 +1410,40 @@
             <div class="detailed-card-head-left">
               <span class="detailed-card-icon">${ICONS.fundamentals}</span>
               <span class="detailed-card-title">Fundamentos</span>
+              ${tickerData.fundamentals?.score != null ? `<span class="ticker-search-score-badge ${fundStatus}" style="font-size: 10px; margin-left: 6px;">${tickerData.fundamentals.score.toFixed(1).replace('.', ',')} • ${escapeHtml(tickerData.fundamentals.classification || fundEvaluation)}</span>` : ''}
             </div>
             <a class="detailed-card-link" id="btnGoFundamentals" href="javascript:void(0)" onclick="if (typeof window.openFundamentalsForTicker === 'function') { window.openFundamentalsForTicker('${escapeHtml(tickerData.tickerInfo.symbol)}'); } else if (typeof window.go === 'function') { window.go('fundamentals'); }">Ver mais →</a>
           </div>
           <div class="fundamentals-grid">
             <div class="fundamental-metric-box">
               <span class="fundamental-label">ROE</span>
-              <span class="fundamental-val">${tickerData.fundamentals.roe.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.roe.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.roe?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.roe)}">${escapeHtml(tickerData.fundamentals?.roe?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">Margem Líquida</span>
-              <span class="fundamental-val">${tickerData.fundamentals.netMargin.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.netMargin.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.netMargin?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.netMargin)}">${escapeHtml(tickerData.fundamentals?.netMargin?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">Dív. Líq/EBITDA</span>
-              <span class="fundamental-val">${tickerData.fundamentals.netDebtToEbitda.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.netDebtToEbitda.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.netDebtToEbitda?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.netDebtToEbitda)}">${escapeHtml(tickerData.fundamentals?.netDebtToEbitda?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">P/L</span>
-              <span class="fundamental-val">${tickerData.fundamentals.pe.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.pe.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.pe?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.pe)}">${escapeHtml(tickerData.fundamentals?.pe?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">P/VP</span>
-              <span class="fundamental-val">${tickerData.fundamentals.pvp.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.pvp.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.pvp?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.pvp)}">${escapeHtml(tickerData.fundamentals?.pvp?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
               <span class="fundamental-label">Crescimento LPA</span>
-              <span class="fundamental-val">${tickerData.fundamentals.growth.value}</span>
-              <span class="fundamental-tag">${tickerData.fundamentals.growth.tag}</span>
+              <span class="fundamental-val">${tickerData.fundamentals?.growth?.value || '—'}</span>
+              <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.growth)}">${escapeHtml(tickerData.fundamentals?.growth?.tag || '—')}</span>
             </div>
           </div>
         </div>

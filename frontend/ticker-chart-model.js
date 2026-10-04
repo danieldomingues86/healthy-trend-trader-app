@@ -695,7 +695,10 @@
       },
       fundamentals: {
         available: funds.available !== false,
-        evaluation: funds.available === false ? 'Neutro' : 'Fortes',
+        evaluation: funds.evaluation || (funds.available === false ? 'Neutro' : 'Forte'),
+        status: funds.status || (funds.available === false ? 'neutral' : 'good'),
+        classification: funds.classification || null,
+        score: funds.score ?? null,
         ...funds
       },
       context: {
@@ -772,12 +775,23 @@
     // 5. Fundamentos - fundamentalScore
     let fundamentalScore = 'good';
     if (ctx.fundamentals) {
-      if (ctx.fundamentals.available === false) {
+      const fStatus = String(ctx.fundamentals.status || '').toLowerCase();
+      const fClass = String(ctx.fundamentals.classification || '').toLowerCase();
+      const fEval = String(ctx.fundamentals.evaluation || '').toLowerCase();
+      if (ctx.fundamentals.available === false || fStatus === 'neutral' || fEval.includes('neutr')) {
         fundamentalScore = 'medium';
+      } else if (fStatus === 'bad' || fClass.includes('frac') || fClass.includes('ruim') || fEval.includes('frac') || fEval.includes('ruim')) {
+        fundamentalScore = 'bad';
+      } else if (fStatus === 'alert' || fClass.includes('méd') || fClass.includes('med') || fEval.includes('méd') || fEval.includes('med')) {
+        fundamentalScore = 'medium';
+      } else if (fStatus === 'good' || fClass.includes('bom') || fClass.includes('excel') || fEval.includes('fort') || fEval.includes('excel')) {
+        fundamentalScore = 'good';
       } else if (ctx.fundamentals.roe?.positive && ctx.fundamentals.netMargin?.positive && ctx.fundamentals.netDebtToEbitda?.positive) {
         fundamentalScore = 'good';
       } else if (ctx.fundamentals.roe?.positive || ctx.fundamentals.netMargin?.positive) {
         fundamentalScore = 'medium';
+      } else {
+        fundamentalScore = 'bad';
       }
     }
 

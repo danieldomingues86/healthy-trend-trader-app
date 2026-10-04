@@ -7,6 +7,7 @@ const { fetchFundamentals } = require('./fundamentals');
 const marketData = require('./market-data');
 const TradingRubrics = require('../../frontend/trading-rubrics');
 const TickerChartModel = require('../../frontend/ticker-chart-model');
+const FundamentalScore = require('../../frontend/fundamental-score');
 
 const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
 const NASDAQ_PRICES_FILE = path.join(__dirname, '..', 'data', 'nasdaq-daily-prices.json');
@@ -434,21 +435,87 @@ async function getTickerChartData(rawSymbol) {
   try {
     fundData = await fetchFundamentals(symbol);
   } catch {
-    // Tenta enriquecer com dados básicos
+    // Sem dados fundamentais disponíveis
   }
 
   const metrics = fundData?.metrics || {};
   const company = fundData?.company || {};
   const market = fundData?.market || {};
 
-  const roeVal = metrics.roe ? (metrics.roe * 100).toFixed(1) + '%' : '18,4%';
-  const netMarginVal = metrics.netMargin ? (metrics.netMargin * 100).toFixed(1) + '%' : '15,2%';
-  const netDebtVal = metrics.netDebtToEbitda ? metrics.netDebtToEbitda.toFixed(1) : (metrics.netDebtToEquity ? metrics.netDebtToEquity.toFixed(1) : '1,4');
-  const peVal = metrics.priceEarnings ? metrics.priceEarnings.toFixed(1) : '3,8';
-  const pvpVal = metrics.priceToBook ? metrics.priceToBook.toFixed(1) : '0,9';
-  const growthVal = metrics.earningsCagr ? (metrics.earningsCagr > 0 ? '+' : '') + (metrics.earningsCagr * 100).toFixed(1) + '%' : '+24,6%';
+  // Avaliação fundamentalista oficial via FundamentalScore
+  const hasFundMetrics = Boolean(fundData && fundData.metrics && Object.keys(fundData.metrics).length > 0);
+  const fundAnalysis = hasFundMetrics ? FundamentalScore.analyze(fundData) : null;
+  const hasRealFunds = Boolean(fundAnalysis && fundAnalysis.dataCoveragePct > 0);
+  const fundScore = hasRealFunds ? fundAnalysis.score : null;
+  const fundClassification = hasRealFunds ? fundAnalysis.classification : 'Indisponível';
 
-  const marketCapNum = market.marketCap || 506800000000;
+  let fundEvaluation = 'Neutro';
+  let fundStatus = 'neutral';
+  let fundCriteriaStatus = false;
+  let rubricFundRating = 'medium';
+
+  if (hasRealFunds) {
+    if (fundClassification === 'EXCELENTE') {
+      fundEvaluation = 'Excelente';
+      fundStatus = 'good';
+      fundCriteriaStatus = true;
+      rubricFundRating = 'good';
+    } else if (fundClassification === 'BOM') {
+      fundEvaluation = 'Forte';
+      fundStatus = 'good';
+      fundCriteriaStatus = true;
+      rubricFundRating = 'good';
+    } else if (fundClassification === 'MÉDIO') {
+      fundEvaluation = 'Médio';
+      fundStatus = 'alert';
+      fundCriteriaStatus = false;
+      rubricFundRating = 'medium';
+    } else if (fundClassification === 'FRACO') {
+      fundEvaluation = 'Fraco';
+      fundStatus = 'bad';
+      fundCriteriaStatus = false;
+      rubricFundRating = 'bad';
+    } else { // RUIM
+      fundEvaluation = 'Ruim';
+      fundStatus = 'bad';
+      fundCriteriaStatus = false;
+      rubricFundRating = 'bad';
+    }
+  }
+
+  // Métricas individuais com formatação e tags reais
+  const roeNum = metrics.roe != null ? Number(metrics.roe) : null;
+  const roeVal = roeNum != null ? `${(roeNum * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : '—';
+  const roeTag = roeNum == null ? 'N/D' : (roeNum >= 0.18 ? 'Excelente' : (roeNum >= 0.10 ? 'Saudável' : 'Baixo'));
+  const roeStatus = roeNum == null ? 'neutral' : (roeNum >= 0.10 ? 'good' : 'warn');
+
+  const netMarginNum = metrics.netMargin != null ? Number(metrics.netMargin) : null;
+  const netMarginVal = netMarginNum != null ? `${(netMarginNum * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : '—';
+  const netMarginTag = netMarginNum == null ? 'N/D' : (netMarginNum >= 0.15 ? 'Alta margem' : (netMarginNum >= 0.05 ? 'Saudável' : 'Comprimida'));
+  const netMarginStatus = netMarginNum == null ? 'neutral' : (netMarginNum >= 0.05 ? 'good' : 'warn');
+
+  const debtRatio = metrics.netDebtToEbitda != null ? Number(metrics.netDebtToEbitda) : (metrics.netDebtToEquity != null ? Number(metrics.netDebtToEquity) : null);
+  const debtIsPl = metrics.netDebtToEbitda == null && metrics.netDebtToEquity != null;
+  const netDebtVal = debtRatio != null ? `${debtRatio.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${debtIsPl ? ' (PL)' : ''}` : '—';
+  const netDebtTag = debtRatio == null ? 'N/D' : (debtRatio <= 0 ? 'Caixa líq.' : (debtRatio <= 1.0 ? 'Baixo' : (debtRatio <= 2.5 ? 'Controlado' : 'Elevado')));
+  const netDebtStatus = debtRatio == null ? 'neutral' : (debtRatio <= 2.5 ? 'good' : 'warn');
+
+  const peNum = metrics.priceEarnings != null ? Number(metrics.priceEarnings) : null;
+  const peVal = peNum != null ? peNum.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—';
+  const peTag = peNum == null ? 'N/D' : (peNum <= 0 ? 'Prejuízo' : (peNum <= 8.0 ? 'Atrativo' : (peNum <= 15.0 ? 'Justo' : 'Expandido')));
+  const peStatus = peNum == null ? 'neutral' : (peNum > 0 && peNum <= 15.0 ? 'good' : 'warn');
+
+  const pvpNum = metrics.priceToBook != null ? Number(metrics.priceToBook) : null;
+  const pvpVal = pvpNum != null ? pvpNum.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—';
+  const pvpTag = pvpNum == null ? 'N/D' : (pvpNum <= 1.0 ? 'Abaixo VP' : (pvpNum <= 2.5 ? 'Moderado' : 'Prêmio alto'));
+  const pvpStatus = pvpNum == null ? 'neutral' : (pvpNum <= 2.5 ? 'good' : 'warn');
+
+  const growthNum = metrics.earningsCagr != null ? Number(metrics.earningsCagr) : null;
+  const growthVal = growthNum != null ? `${growthNum > 0 ? '+' : ''}${(growthNum * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : '—';
+  const growthTag = growthNum == null ? 'N/D' : (growthNum >= 0.12 ? 'Expressivo' : (growthNum >= 0.05 ? 'Saudável' : 'Modesto'));
+  const growthStatus = growthNum == null ? 'neutral' : (growthNum >= 0.05 ? 'good' : 'warn');
+
+  const marketCapNum = market.marketCap || (company.marketCap || 506800000000);
   const marketCapFormatted = formatLargeNumber(marketCapNum);
   const financialVolume21 = volumeAvg21 * currentPrice;
   const volumeAvg21Formatted = formatLargeNumber(financialVolume21);
@@ -461,7 +528,7 @@ async function getTickerChartData(rawSymbol) {
       relativeStrength: rsInfo.status === 'good' ? 'good' : (rsInfo.status === 'neutral' ? 'medium' : 'bad'),
       volatility: atrPctVal <= 4.5 ? 'good' : 'medium',
       setupQuality: trigger.hasTrigger ? (trigger.grade === 'A+' || trigger.grade === 'A' ? 'good' : 'medium') : 'bad',
-      fundamentalScore: metrics.roe && metrics.roe > 0.12 ? 'good' : 'medium'
+      fundamentalScore: rubricFundRating
     },
     entry: currentPrice,
     atr: atrVal
@@ -478,7 +545,7 @@ async function getTickerChartData(rawSymbol) {
     { name: 'Volatilidade (ATR)', status: atrPctVal <= 5.0, obs: `${atrRegime} (${atrPctVal.toFixed(1)}%)` },
     { name: 'Estrutura', status: true, obs: structureLabel },
     { name: 'Gatilho', status: trigger.hasTrigger === true, obs: trigger.hasTrigger ? `${trigger.name} (${trigger.grade})` : 'Nenhum' },
-    { name: 'Fundamentos', status: true, obs: 'Fortes' }
+    { name: 'Fundamentos', status: fundCriteriaStatus, obs: fundEvaluation }
   ];
 
   return {
@@ -558,13 +625,20 @@ async function getTickerChartData(rawSymbol) {
       criteria: criteriaTable
     },
     fundamentals: {
-      roe: { value: roeVal, tag: 'Bom', positive: true },
-      netMargin: { value: netMarginVal, tag: 'Boa', positive: true },
-      netDebtToEbitda: { value: netDebtVal, tag: 'Saudável', positive: true },
-      pe: { value: peVal, tag: 'Atrativo', positive: true },
-      pvp: { value: pvpVal, tag: 'Atrativo', positive: true },
-      growth: { value: growthVal, tag: 'Forte', positive: true },
-      available: Boolean(fundData)
+      score: fundScore,
+      classification: fundClassification,
+      evaluation: fundEvaluation,
+      status: fundStatus,
+      dataCoveragePct: fundAnalysis?.dataCoveragePct || 0,
+      isPartial: fundAnalysis?.isPartial || false,
+      takeaway: fundAnalysis?.takeaway || null,
+      roe: { value: roeVal, tag: roeTag, status: roeStatus, positive: roeStatus === 'good' },
+      netMargin: { value: netMarginVal, tag: netMarginTag, status: netMarginStatus, positive: netMarginStatus === 'good' },
+      netDebtToEbitda: { value: netDebtVal, tag: netDebtTag, status: netDebtStatus, positive: netDebtStatus === 'good' },
+      pe: { value: peVal, tag: peTag, status: peStatus, positive: peStatus === 'good' },
+      pvp: { value: pvpVal, tag: pvpTag, status: pvpStatus, positive: pvpStatus === 'good' },
+      growth: { value: growthVal, tag: growthTag, status: growthStatus, positive: growthStatus === 'good' },
+      available: hasRealFunds
     },
     liquidity: {
       volumeAvg21Formatted: `${(volumeAvg21 / 1e6).toFixed(1)} milhões`,

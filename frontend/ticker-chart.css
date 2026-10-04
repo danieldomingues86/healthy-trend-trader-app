@@ -2107,6 +2107,19 @@ body:has(#charts.page.active) #marketFocusGuard {
   color: #15803d;
 }
 
+.fundamental-tag.good {
+  color: #15803d;
+}
+
+.fundamental-tag.warn,
+.fundamental-tag.bad {
+  color: #b91c1c;
+}
+
+.fundamental-tag.neutral {
+  color: #64748b;
+}
+
 /* Liquidez Card */
 .liquidity-rows {
   display: flex;

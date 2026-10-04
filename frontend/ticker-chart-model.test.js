@@ -210,3 +210,48 @@ test('TickerChartModel: ausência de padrão nunca retorna "Pullback em andament
   assert.equal(trigger.description, 'Nenhum padrão de entrada válido identificado no gráfico Diário.');
   assert.notEqual(trigger.name, 'Pullback em Andamento');
 });
+
+test('TickerChartModel: buildTradeContext e inferRubricRatingsFromContext respeitam fundamentos fracos (MGLU3) e fortes (PETR4)', () => {
+  // Cenário MGLU3: Fundamentos Fracos
+  const mgluContext = TickerChartModel.buildTradeContext({
+    tickerInfo: { symbol: 'MGLU3', price: 8.35 },
+    trigger: { id: 'INSIDE_BAR', name: 'Inside Bar', grade: 'A', entry: 8.50, stop: 7.90 },
+    fundamentals: {
+      score: 4.7,
+      classification: 'FRACO',
+      evaluation: 'Fraco',
+      status: 'bad',
+      available: true
+    }
+  });
+
+  assert.equal(mgluContext.fundamentals.evaluation, 'Fraco');
+  assert.equal(mgluContext.fundamentals.status, 'bad');
+  assert.equal(mgluContext.fundamentals.classification, 'FRACO');
+  assert.equal(mgluContext.fundamentals.score, 4.7);
+
+  const mgluRatings = TickerChartModel.inferRubricRatingsFromContext(mgluContext);
+  assert.equal(mgluRatings.fundamentalScore, 'bad');
+
+  // Cenário PETR4: Fundamentos Fortes
+  const petrContext = TickerChartModel.buildTradeContext({
+    tickerInfo: { symbol: 'PETR4', price: 36.50 },
+    trigger: { id: '123_COMPRA', name: '1-2-3 de Compra', grade: 'A', entry: 36.80, stop: 35.20 },
+    fundamentals: {
+      score: 8.8,
+      classification: 'BOM',
+      evaluation: 'Forte',
+      status: 'good',
+      available: true
+    }
+  });
+
+  assert.equal(petrContext.fundamentals.evaluation, 'Forte');
+  assert.equal(petrContext.fundamentals.status, 'good');
+  assert.equal(petrContext.fundamentals.classification, 'BOM');
+  assert.equal(petrContext.fundamentals.score, 8.8);
+
+  const petrRatings = TickerChartModel.inferRubricRatingsFromContext(petrContext);
+  assert.equal(petrRatings.fundamentalScore, 'good');
+});
+

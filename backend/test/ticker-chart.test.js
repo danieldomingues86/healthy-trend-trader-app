@@ -128,3 +128,28 @@ test('ticker-chart: FII (HGLG11) resolve benchmark IFIX e classe FII', async () 
   assert.ok(data.marketCycle.regime);
   assert.notEqual(data.marketCycle.benchmark, 'IBOV');
 });
+
+test('ticker-chart: avaliação de fundamentos reflete FundamentalScore oficial para MGLU3 (Fraco) e PETR4 (Forte)', async () => {
+  const mglu = await tickerChart.getTickerChartData('MGLU3');
+  assert.equal(mglu.tickerInfo.symbol, 'MGLU3');
+  assert.equal(mglu.fundamentals.classification, 'FRACO');
+  assert.equal(mglu.fundamentals.evaluation, 'Fraco');
+  assert.equal(mglu.fundamentals.status, 'bad');
+  assert.equal(mglu.fundamentals.score, 4.7);
+  const mgluFundCriteria = mglu.rubric.criteria.find(c => c.name === 'Fundamentos');
+  assert.ok(mgluFundCriteria);
+  assert.equal(mgluFundCriteria.status, false);
+  assert.equal(mgluFundCriteria.obs, 'Fraco');
+
+  const petr = await tickerChart.getTickerChartData('PETR4');
+  assert.equal(petr.tickerInfo.symbol, 'PETR4');
+  assert.equal(petr.fundamentals.classification, 'BOM');
+  assert.equal(petr.fundamentals.evaluation, 'Forte');
+  assert.equal(petr.fundamentals.status, 'good');
+  assert.ok(petr.fundamentals.score >= 7.0);
+  const petrFundCriteria = petr.rubric.criteria.find(c => c.name === 'Fundamentos');
+  assert.ok(petrFundCriteria);
+  assert.equal(petrFundCriteria.status, true);
+  assert.equal(petrFundCriteria.obs, 'Forte');
+});
+
