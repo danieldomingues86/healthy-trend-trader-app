@@ -102,10 +102,12 @@ body:has(#charts.page.active) #marketFocusGuard {
   color: var(--ink, #0f172a);
   outline: none;
   font-family: inherit;
+  text-transform: uppercase;
 }
 
 .ticker-search-input::placeholder {
   color: var(--muted, #94a3b8);
+  text-transform: none;
 }
 
 .ticker-search-icon {

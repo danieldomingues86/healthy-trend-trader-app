@@ -435,7 +435,7 @@
 
         <div class="ticker-search-container">
           <div class="ticker-search-input-wrapper">
-            <input type="text" class="ticker-search-input" id="tickerSearchInput" value="${sym}" placeholder="Pesquisar ticker (ex: PETR4, VALE3, AAPL, VOD...)" autocomplete="off" />
+            <input type="text" class="ticker-search-input" id="tickerSearchInput" value="${sym ? String(sym).toUpperCase() : ''}" placeholder="Pesquisar ticker (ex: PETR4, VALE3, AAPL, VOD...)" autocomplete="off" />
             <span class="ticker-search-icon">
               ${ICONS.search}
             </span>
@@ -1936,7 +1936,17 @@
 
     if (searchInput && dropdown) {
       searchInput.oninput = (e) => {
-        const query = e.target.value.trim().toUpperCase();
+        const raw = e.target.value;
+        const upper = raw.toUpperCase();
+        if (raw !== upper) {
+          const start = e.target.selectionStart;
+          const end = e.target.selectionEnd;
+          e.target.value = upper;
+          if (start !== null && end !== null) {
+            e.target.setSelectionRange(start, end);
+          }
+        }
+        const query = upper.trim();
         if (!query) {
           dropdown.classList.remove('active');
           dropdown.innerHTML = '';
@@ -2089,6 +2099,18 @@
     const btnCustomCompare = document.getElementById('btnApplyCustomCompare');
     const inputCustomCompare = document.getElementById('compareTickerInput');
     if (btnCustomCompare && inputCustomCompare) {
+      inputCustomCompare.oninput = (e) => {
+        const raw = e.target.value;
+        const upper = raw.toUpperCase();
+        if (raw !== upper) {
+          const start = e.target.selectionStart;
+          const end = e.target.selectionEnd;
+          e.target.value = upper;
+          if (start !== null && end !== null) {
+            e.target.setSelectionRange(start, end);
+          }
+        }
+      };
       btnCustomCompare.onclick = (e) => {
         e.stopPropagation();
         const sym = inputCustomCompare.value.trim().toUpperCase();

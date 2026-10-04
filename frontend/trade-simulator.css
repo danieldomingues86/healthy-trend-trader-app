@@ -563,6 +563,11 @@
   color: var(--ink);
   outline: none;
   transition: border-color 0.15s ease;
+  text-transform: uppercase;
+}
+
+.sim-search-input::placeholder {
+  text-transform: none;
 }
 
 .sim-search-input:focus {

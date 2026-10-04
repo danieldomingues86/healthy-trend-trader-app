@@ -1139,7 +1139,17 @@
     const searchInput = container.querySelector('#simSearchInput');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
-        state.filters.query = e.target.value.trim();
+        const raw = e.target.value;
+        const upper = raw.toUpperCase();
+        if (raw !== upper) {
+          const start = e.target.selectionStart;
+          const end = e.target.selectionEnd;
+          e.target.value = upper;
+          if (start !== null && end !== null) {
+            e.target.setSelectionRange(start, end);
+          }
+        }
+        state.filters.query = upper.trim();
         // Atualiza a tabela preservando foco
         updateTableOnly();
       });
