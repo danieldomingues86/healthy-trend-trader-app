@@ -387,15 +387,21 @@ test('trade-simulator-model: getDefaultSeedSimulations aceita cenário e gera 42
   const seeds2R = model.getDefaultSeedSimulations('2R');
   const seeds25R = model.getDefaultSeedSimulations('2.5R');
   const seedsPyr = model.getDefaultSeedSimulations('PYRAMID_1R_2R');
+  const seedsPart50 = model.getDefaultSeedSimulations('PARTIAL_50_2R_EMA9');
+  const seedsPart80 = model.getDefaultSeedSimulations('PARTIAL_80_2R_EMA9');
 
   assert.equal(seeds2R.length, 42);
   assert.equal(seeds25R.length, 42);
   assert.equal(seedsPyr.length, 42);
+  assert.equal(seedsPart50.length, 42);
+  assert.equal(seedsPart80.length, 42);
 
   // Todos os cenários compartilham a mesma amostra de ativos e datas de sinal
   for (let i = 0; i < 42; i++) {
     assert.equal(seeds2R[i].symbol, seeds25R[i].symbol);
     assert.equal(seeds2R[i].symbol, seedsPyr[i].symbol);
+    assert.equal(seeds2R[i].symbol, seedsPart50[i].symbol);
+    assert.equal(seeds2R[i].symbol, seedsPart80[i].symbol);
     assert.equal(seeds2R[i].signalDate, seeds25R[i].signalDate);
     assert.equal(seeds2R[i].entryPrice, seeds25R[i].entryPrice);
   }
@@ -404,14 +410,16 @@ test('trade-simulator-model: getDefaultSeedSimulations aceita cenário e gera 42
   assert.ok(seeds2R.every(s => s.managementScenario === '2R'));
   assert.ok(seeds25R.every(s => s.managementScenario === '2.5R'));
   assert.ok(seedsPyr.every(s => s.managementScenario === 'PYRAMID_1R_2R'));
+  assert.ok(seedsPart50.every(s => s.managementScenario === 'PARTIAL_50_2R_EMA9'));
+  assert.ok(seedsPart80.every(s => s.managementScenario === 'PARTIAL_80_2R_EMA9'));
 });
 
-test('trade-simulator-model: compareManagementScenarios consolida 10 métricas oficiais dos 3 cenários', () => {
+test('trade-simulator-model: compareManagementScenarios consolida 10 métricas oficiais dos 5 cenários', () => {
   const comparison = model.compareManagementScenarios();
   assert.ok(comparison && Array.isArray(comparison.scenarios));
-  assert.equal(comparison.scenarios.length, 3);
+  assert.equal(comparison.scenarios.length, 5);
 
-  const [sc2R, sc25R, scPyr] = comparison.scenarios;
+  const [sc2R, sc25R, scPyr, scPart50, scPart80] = comparison.scenarios;
 
   // 1. Cenário 2R Base
   assert.equal(sc2R.id, '2R');
@@ -435,7 +443,7 @@ test('trade-simulator-model: compareManagementScenarios consolida 10 métricas o
   assert.equal(sc25R.winnersCount, 10);
   assert.equal(sc25R.losersCount, 26);
 
-  // 3. Cenário Pirâmide 1R -> 2R (identidade exata com a tela principal)
+  // 3. Cenário Pirâmide 1R -> 2R
   assert.equal(scPyr.id, 'PYRAMID_1R_2R');
   assert.equal(scPyr.totalTrades, 42);
   assert.equal(scPyr.winRate, 36.1);
@@ -445,9 +453,31 @@ test('trade-simulator-model: compareManagementScenarios consolida 10 métricas o
   assert.equal(scPyr.totalR, 24.20);
   assert.equal(scPyr.winnersCount, 13);
   assert.equal(scPyr.losersCount, 23);
+
+  // 4. Cenário Parcial 50% em 2R + Condução por MM9
+  assert.equal(scPart50.id, 'PARTIAL_50_2R_EMA9');
+  assert.equal(scPart50.totalTrades, 42);
+  assert.equal(scPart50.winRate, 55.6);
+  assert.equal(scPart50.lossRate, 44.4);
+  assert.equal(scPart50.avgR, 0.70);
+  assert.equal(scPart50.expectancy, 0.70);
+  assert.equal(scPart50.totalR, 25.13);
+  assert.equal(scPart50.winnersCount, 20);
+  assert.equal(scPart50.losersCount, 16);
+
+  // 5. Cenário Parcial 80% em 2R + Condução por MM9
+  assert.equal(scPart80.id, 'PARTIAL_80_2R_EMA9');
+  assert.equal(scPart80.totalTrades, 42);
+  assert.equal(scPart80.winRate, 55.6);
+  assert.equal(scPart80.lossRate, 44.4);
+  assert.equal(scPart80.avgR, 0.71);
+  assert.equal(scPart80.expectancy, 0.71);
+  assert.equal(scPart80.totalR, 25.46);
+  assert.equal(scPart80.winnersCount, 20);
+  assert.equal(scPart80.losersCount, 16);
 });
 
-test('trade-simulator-model: evaluateSimulationOnCandles simula Pirâmide e 2.5R com física real de candles', () => {
+test('trade-simulator-model: evaluateSimulationOnCandles simula Pirâmide, 2.5R e Parciais com física real de candles', () => {
   const baseSim = {
     symbol: 'PETR4',
     signalDate: '2026-09-01',
@@ -494,6 +524,25 @@ test('trade-simulator-model: evaluateSimulationOnCandles simula Pirâmide e 2.5R
   assert.equal(eval25Gain.status, model.STATUS.CLOSED_GAIN);
   assert.equal(eval25Gain.resultR, 2.5);
   assert.equal(eval25Gain.exitPrice, 35.00);
+
+  // Cenário D: Parcial 50% em 2R + condução por MM9
+  // Dia 4: atinge 2R (34.00) -> realiza 50% (+1.00R garantido), stop = 30.00
+  // Dia 5: preço fecha a 31.00 (abaixo da EMA 9 que está em ~31.04) -> runner encerra a 31.00 (+0.50R no runner)
+  // Consolidado: 0.5 * 2.0 + 0.5 * 0.5 = 1.0 + 0.25 = +1.25R
+  const candlesPart50 = [
+    { time: '2026-09-01', open: 29.50, high: 29.90, low: 28.50, close: 29.60 },
+    { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 },
+    { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.20 },
+    { time: '2026-09-04', open: 32.20, high: 34.50, low: 31.80, close: 34.20 }, // Atinge +2R (34.00)
+    { time: '2026-09-05', open: 33.00, high: 33.10, low: 30.80, close: 31.00 }  // Fecha abaixo da EMA 9
+  ];
+  const evalPart50 = model.evaluateSimulationOnCandles(baseSim, candlesPart50, 'PARTIAL_50_2R_EMA9');
+  assert.equal(evalPart50.status, model.STATUS.CLOSED_GAIN);
+  assert.ok(evalPart50.partialExit && evalPart50.partialExit.executed);
+  assert.equal(evalPart50.partialExit.percent, 50);
+  assert.equal(evalPart50.partialExit.runnerPercent, 50);
+  assert.equal(evalPart50.resultR, 1.25); // 0.5*2 + 0.5*0.5 = 1.25R
+  assert.ok(evalPart50.resultR > 1.0);
 });
 
 

@@ -1177,6 +1177,44 @@
       `;
     }
 
+    if (scenarioId === 'PARTIAL_50_2R_EMA9') {
+      return `
+        <svg width="200" height="42" viewBox="0 0 200 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="24" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2" />
+          <line x1="88" y1="18" x2="162" y2="18" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3 2" />
+          <polygon points="162,14 170,18 162,22" fill="#8b5cf6" />
+          <circle cx="24" cy="18" r="3.5" fill="#8b5cf6" />
+          <text x="24" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="88" cy="18" r="3.5" fill="#a78bfa" />
+          <text x="88" y="10" fill="#a78bfa" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">50% em 2R</text>
+          <circle cx="170" cy="18" r="3.5" fill="#8b5cf6" />
+          <text x="170" y="10" fill="#8b5cf6" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
+          <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
+          <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
+          <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        </svg>
+      `;
+    }
+
+    if (scenarioId === 'PARTIAL_80_2R_EMA9') {
+      return `
+        <svg width="200" height="42" viewBox="0 0 200 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="24" y1="18" x2="88" y2="18" stroke="#06b6d4" stroke-width="2" />
+          <line x1="88" y1="18" x2="162" y2="18" stroke="#06b6d4" stroke-width="2" stroke-dasharray="3 2" />
+          <polygon points="162,14 170,18 162,22" fill="#06b6d4" />
+          <circle cx="24" cy="18" r="3.5" fill="#06b6d4" />
+          <text x="24" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="88" cy="18" r="3.5" fill="#38bdf8" />
+          <text x="88" y="10" fill="#38bdf8" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">80% em 2R</text>
+          <circle cx="170" cy="18" r="3.5" fill="#06b6d4" />
+          <text x="170" y="10" fill="#06b6d4" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
+          <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
+          <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
+          <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        </svg>
+      `;
+    }
+
     // Default: '2R' Base
     return `
       <svg width="170" height="42" viewBox="0 0 170 42" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1283,6 +1321,38 @@
                     ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
                   </div>
                 </div>
+
+                <!-- Opção 4: Gestão Parcial 50% (2R) + Média 9 -->
+                <div class="sim-scenario-option ${sel === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_50_2R_EMA9">
+                  <div class="sim-scen-opt-left">
+                    <div class="sim-scen-radio ${sel === 'PARTIAL_50_2R_EMA9' ? 'checked' : ''}">
+                      <span class="sim-scen-radio-dot"></span>
+                    </div>
+                    <div class="sim-scen-opt-texts">
+                      <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
+                      <div class="sim-scen-opt-desc">Embolsa 50% em +2R e move o stop para breakeven. Conduz os 50% restantes até perder a média de 9 períodos.</div>
+                    </div>
+                  </div>
+                  <div class="sim-scen-opt-diagram">
+                    ${getScenarioMiniDiagramSvg('PARTIAL_50_2R_EMA9')}
+                  </div>
+                </div>
+
+                <!-- Opção 5: Gestão Parcial 80% (2R) + Média 9 -->
+                <div class="sim-scenario-option ${sel === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_80_2R_EMA9">
+                  <div class="sim-scen-opt-left">
+                    <div class="sim-scen-radio ${sel === 'PARTIAL_80_2R_EMA9' ? 'checked' : ''}">
+                      <span class="sim-scen-radio-dot"></span>
+                    </div>
+                    <div class="sim-scen-opt-texts">
+                      <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
+                      <div class="sim-scen-opt-desc">Embolsa 80% em +2R e move o stop para breakeven. Conduz os 20% restantes até perder a média de 9 períodos.</div>
+                    </div>
+                  </div>
+                  <div class="sim-scen-opt-diagram">
+                    ${getScenarioMiniDiagramSvg('PARTIAL_80_2R_EMA9')}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1345,6 +1415,8 @@
     const sc2R = scenarios.find(s => s.id === '2R') || {};
     const sc25R = scenarios.find(s => s.id === '2.5R') || {};
     const scPyr = scenarios.find(s => s.id === 'PYRAMID_1R_2R') || {};
+    const scPart50 = scenarios.find(s => s.id === 'PARTIAL_50_2R_EMA9') || {};
+    const scPart80 = scenarios.find(s => s.id === 'PARTIAL_80_2R_EMA9') || {};
 
     return `
       <div class="sim-compare-modal-overlay open" id="simCompareModalOverlay">
@@ -1397,6 +1469,24 @@
                       <span class="scen-th-badge badge-blue">Add em +1R → Saída 2R</span>
                     </div>
                   </th>
+                  <th class="th-scen scen-col-part50 ${state.activeScenario === 'PARTIAL_50_2R_EMA9' ? 'active-col' : ''}" data-switch-scenario="PARTIAL_50_2R_EMA9" title="Clique para simular este cenário">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-purple"></span>
+                        <b>Parcial 50% + MM9</b>
+                      </div>
+                      <span class="scen-th-badge badge-purple">50% em 2R → 50% MM9</span>
+                    </div>
+                  </th>
+                  <th class="th-scen scen-col-part80 ${state.activeScenario === 'PARTIAL_80_2R_EMA9' ? 'active-col' : ''}" data-switch-scenario="PARTIAL_80_2R_EMA9" title="Clique para simular este cenário">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-cyan"></span>
+                        <b>Parcial 80% + MM9</b>
+                      </div>
+                      <span class="scen-th-badge badge-cyan">80% em 2R → 20% MM9</span>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -1405,60 +1495,80 @@
                   <td><b>${sc2R.totalTrades ?? 42}</b></td>
                   <td><b>${sc25R.totalTrades ?? 42}</b></td>
                   <td><b>${scPyr.totalTrades ?? 42}</b></td>
+                  <td><b>${scPart50.totalTrades ?? 42}</b></td>
+                  <td><b>${scPart80.totalTrades ?? 42}</b></td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Win Rate</td>
                   <td>${sc2R.winRateFormatted || '—'}</td>
                   <td>${sc25R.winRateFormatted || '—'}</td>
                   <td>${scPyr.winRateFormatted || '—'}</td>
+                  <td>${scPart50.winRateFormatted || '—'}</td>
+                  <td>${scPart80.winRateFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Loss Rate</td>
                   <td>${sc2R.lossRateFormatted || '—'}</td>
                   <td>${sc25R.lossRateFormatted || '—'}</td>
                   <td>${scPyr.lossRateFormatted || '—'}</td>
+                  <td>${scPart50.lossRateFormatted || '—'}</td>
+                  <td>${scPart80.lossRateFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">R médio por trade</td>
                   <td class="metric-accent">${sc2R.avgRFormatted || '—'}</td>
                   <td class="metric-accent">${sc25R.avgRFormatted || '—'}</td>
                   <td class="metric-accent-blue">${scPyr.avgRFormatted || '—'}</td>
+                  <td class="metric-accent-purple">${scPart50.avgRFormatted || '—'}</td>
+                  <td class="metric-accent-cyan">${scPart80.avgRFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Expectancy</td>
                   <td class="metric-accent">${sc2R.expectancyFormatted || '—'}</td>
                   <td class="metric-accent">${sc25R.expectancyFormatted || '—'}</td>
                   <td class="metric-accent-blue">${scPyr.expectancyFormatted || '—'}</td>
+                  <td class="metric-accent-purple">${scPart50.expectancyFormatted || '—'}</td>
+                  <td class="metric-accent-cyan">${scPart80.expectancyFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Profit Factor</td>
                   <td><b>${sc2R.profitFactorFormatted || '—'}</b></td>
                   <td><b>${sc25R.profitFactorFormatted || '—'}</b></td>
                   <td><b class="metric-accent-blue">${scPyr.profitFactorFormatted || '—'}</b></td>
+                  <td><b class="metric-accent-purple">${scPart50.profitFactorFormatted || '—'}</b></td>
+                  <td><b class="metric-accent-cyan">${scPart80.profitFactorFormatted || '—'}</b></td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Resultado acumulado</td>
                   <td class="metric-gain">${sc2R.totalRFormatted || '—'}</td>
                   <td class="metric-gain">${sc25R.totalRFormatted || '—'}</td>
                   <td class="metric-gain-high">${scPyr.totalRFormatted || '—'}</td>
+                  <td class="metric-gain-purple">${scPart50.totalRFormatted || '—'}</td>
+                  <td class="metric-gain-cyan">${scPart80.totalRFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Drawdown máximo</td>
                   <td class="metric-loss">${sc2R.maxDrawdownFormatted || '—'}</td>
                   <td class="metric-loss">${sc25R.maxDrawdownFormatted || '—'}</td>
                   <td class="metric-loss">${scPyr.maxDrawdownFormatted || '—'}</td>
+                  <td class="metric-loss">${scPart50.maxDrawdownFormatted || '—'}</td>
+                  <td class="metric-loss">${scPart80.maxDrawdownFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">MFE médio (vencedores)</td>
                   <td>${sc2R.avgMfeFormatted || '—'}</td>
                   <td>${sc25R.avgMfeFormatted || '—'}</td>
                   <td>${scPyr.avgMfeFormatted || '—'}</td>
+                  <td>${scPart50.avgMfeFormatted || '—'}</td>
+                  <td>${scPart80.avgMfeFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">MAE médio (perdedores)</td>
                   <td class="metric-loss">${sc2R.avgMaeFormatted || '—'}</td>
                   <td class="metric-loss">${sc25R.avgMaeFormatted || '—'}</td>
                   <td class="metric-loss">${scPyr.avgMaeFormatted || '—'}</td>
+                  <td class="metric-loss">${scPart50.avgMaeFormatted || '—'}</td>
+                  <td class="metric-loss">${scPart80.avgMaeFormatted || '—'}</td>
                 </tr>
               </tbody>
             </table>
@@ -1523,6 +1633,42 @@
                 </div>
                 <div class="sim-expl-item-diagram">
                   ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
+                </div>
+              </div>
+
+              <!-- Card 4: Parcial 50% (2R) + Média 9 -->
+              <div class="sim-expl-item item-part50">
+                <div class="sim-expl-item-body">
+                  <div class="sim-expl-title-row">
+                    <span class="scen-circle-dot dot-purple"></span>
+                    <b>Parcial 50% (2R) + MM9</b>
+                  </div>
+                  <ul class="sim-expl-bullets">
+                    <li>Entrada: 1R de risco inicial</li>
+                    <li>Ao atingir +2R: embolsa 50% (+1,00R fixo) e move stop para breakeven</li>
+                    <li>Condução: 50% restantes correm até perder a média de 9 períodos</li>
+                  </ul>
+                </div>
+                <div class="sim-expl-item-diagram">
+                  ${getScenarioMiniDiagramSvg('PARTIAL_50_2R_EMA9')}
+                </div>
+              </div>
+
+              <!-- Card 5: Parcial 80% (2R) + Média 9 -->
+              <div class="sim-expl-item item-part80">
+                <div class="sim-expl-item-body">
+                  <div class="sim-expl-title-row">
+                    <span class="scen-circle-dot dot-cyan"></span>
+                    <b>Parcial 80% (2R) + MM9</b>
+                  </div>
+                  <ul class="sim-expl-bullets">
+                    <li>Entrada: 1R de risco inicial</li>
+                    <li>Ao atingir +2R: embolsa 80% (+1,60R fixo) e move stop para breakeven</li>
+                    <li>Condução: 20% restantes correm até perder a média de 9 períodos</li>
+                  </ul>
+                </div>
+                <div class="sim-expl-item-diagram">
+                  ${getScenarioMiniDiagramSvg('PARTIAL_80_2R_EMA9')}
                 </div>
               </div>
             </div>
@@ -1834,6 +1980,14 @@
       targetLabel = isGain ? '★ ALVO (+3,00R CONSOL.)' : 'ALVO 2R: ' + targetExitPrice.toFixed(2);
       targetBg = isGain ? '#0284c7' : '#0c4a6e';
       targetStroke = '#0284c7';
+    } else if (scenario === 'PARTIAL_50_2R_EMA9') {
+      targetLabel = isGain ? '★ PARCIAL 50% (+2R)' : 'PARCIAL 50%: ' + targetExitPrice.toFixed(2);
+      targetBg = isGain ? '#8b5cf6' : '#4c1d95';
+      targetStroke = '#8b5cf6';
+    } else if (scenario === 'PARTIAL_80_2R_EMA9') {
+      targetLabel = isGain ? '★ PARCIAL 80% (+2R)' : 'PARCIAL 80%: ' + targetExitPrice.toFixed(2);
+      targetBg = isGain ? '#06b6d4' : '#164e63';
+      targetStroke = '#06b6d4';
     }
 
     const t1BadgeLabel = (isPyramid && sim.scaleIn && sim.scaleIn.executed)

@@ -198,22 +198,30 @@ test('tradeSimulator backend: reset aceita cenários de gestão e compare retorn
     const resPyramid = await tradeSimulator.reset('user-1', { scenario: 'PYRAMID_1R_2R' });
     assert.equal(resPyramid.simulations.length, 42);
     assert.ok(resPyramid.comparison);
-    assert.equal(resPyramid.comparison.scenarios.length, 3);
+    assert.equal(resPyramid.comparison.scenarios.length, 5);
 
     // Verifica que simulações têm managementScenario PYRAMID_1R_2R
     assert.equal(resPyramid.simulations[0].managementScenario, 'PYRAMID_1R_2R');
 
+    // Reset com cenário PARTIAL_50_2R_EMA9
+    const resPart50 = await tradeSimulator.reset('user-1', { scenario: 'PARTIAL_50_2R_EMA9' });
+    assert.equal(resPart50.simulations[0].managementScenario, 'PARTIAL_50_2R_EMA9');
+
     // 2. Endpoint compare
     const cmp = await tradeSimulator.compare('user-1');
     assert.ok(cmp.comparison);
-    assert.equal(cmp.comparison.scenarios.length, 3);
+    assert.equal(cmp.comparison.scenarios.length, 5);
     const scen2R = cmp.comparison.scenarios.find(s => s.id === '2R');
     const scen25R = cmp.comparison.scenarios.find(s => s.id === '2.5R');
     const scenPyr = cmp.comparison.scenarios.find(s => s.id === 'PYRAMID_1R_2R');
-    assert.ok(scen2R && scen25R && scenPyr);
+    const scenPart50 = cmp.comparison.scenarios.find(s => s.id === 'PARTIAL_50_2R_EMA9');
+    const scenPart80 = cmp.comparison.scenarios.find(s => s.id === 'PARTIAL_80_2R_EMA9');
+    assert.ok(scen2R && scen25R && scenPyr && scenPart50 && scenPart80);
     assert.equal(scen2R.totalTrades, 42);
     assert.equal(scen25R.totalTrades, 42);
     assert.equal(scenPyr.totalTrades, 42);
+    assert.equal(scenPart50.totalTrades, 42);
+    assert.equal(scenPart80.totalTrades, 42);
   } finally {
     database.query = originalQuery;
   }

@@ -67,7 +67,9 @@
   const SCENARIOS = Object.freeze({
     BASE_2R: '2R',
     EXTENDED_2_5R: '2.5R',
-    PYRAMID_1R_2R: 'PYRAMID_1R_2R'
+    PYRAMID_1R_2R: 'PYRAMID_1R_2R',
+    PARTIAL_50_2R_EMA9: 'PARTIAL_50_2R_EMA9',
+    PARTIAL_80_2R_EMA9: 'PARTIAL_80_2R_EMA9'
   });
 
   const SCENARIO_METADATA = Object.freeze({
@@ -79,6 +81,7 @@
       description: 'Risco inicial de 1R e saída total em 2R.',
       targetR: 2.0,
       hasPyramid: false,
+      hasPartial: false,
       color: '#10b981',
       badgeClass: 'scenario-base-2r'
     },
@@ -90,6 +93,7 @@
       description: 'Risco inicial de 1R e saída total em 2,5R.',
       targetR: 2.5,
       hasPyramid: false,
+      hasPartial: false,
       color: '#f59e0b',
       badgeClass: 'scenario-extended-25r'
     },
@@ -101,8 +105,35 @@
       description: 'Risco inicial de 1R. Ao atingir +1R adiciona posição +1R e encerra tudo em 2R.',
       targetR: 2.0,
       hasPyramid: true,
+      hasPartial: false,
       color: '#0284c7',
       badgeClass: 'scenario-pyramid'
+    },
+    'PARTIAL_50_2R_EMA9': {
+      id: 'PARTIAL_50_2R_EMA9',
+      name: 'Gestão Parcial 50% (2R) + Média 9',
+      shortLabel: 'Parcial 50% + MM9',
+      sub: '50% em 2R → 50% na MM9',
+      description: 'Risco 1R. Embolsa metade (50%) em +2R e move o stop para breakeven. Os 50% restantes correm até o preço perder a média móvel de 9 períodos.',
+      targetR: 2.0,
+      hasPyramid: false,
+      hasPartial: true,
+      partialPercent: 50,
+      color: '#8b5cf6',
+      badgeClass: 'scenario-partial-50'
+    },
+    'PARTIAL_80_2R_EMA9': {
+      id: 'PARTIAL_80_2R_EMA9',
+      name: 'Gestão Parcial 80% (2R) + Média 9',
+      shortLabel: 'Parcial 80% + MM9',
+      sub: '80% em 2R → 20% na MM9',
+      description: 'Risco 1R. Embolsa 80% em +2R e move o stop para breakeven. Os 20% restantes correm até o preço perder a média móvel de 9 períodos.',
+      targetR: 2.0,
+      hasPyramid: false,
+      hasPartial: true,
+      partialPercent: 80,
+      color: '#06b6d4',
+      badgeClass: 'scenario-partial-80'
     }
   });
 
@@ -152,13 +183,22 @@
     const scenario = simulation.managementScenario || scenarioOverride || '2R';
     const targetMultiplier = scenario === '2.5R' ? 2.5 : 2.0;
     const isPyramid = scenario === 'PYRAMID_1R_2R';
+    const isPartial50 = scenario === 'PARTIAL_50_2R_EMA9';
+    const isPartial80 = scenario === 'PARTIAL_80_2R_EMA9';
+    const isPartialEma9 = isPartial50 || isPartial80;
+    const partialPercent = isPartial50 ? 50 : (isPartial80 ? 80 : 0);
+    const runnerPercent = 100 - partialPercent;
 
     const sim = {
       ...simulation,
       managementScenario: scenario,
       scaleIn: simulation.scaleIn ? { ...simulation.scaleIn } : null,
+      partialExit: simulation.partialExit ? { ...simulation.partialExit } : null,
       timeline: Array.isArray(simulation.timeline) ? [...simulation.timeline] : []
     };
+
+    const closes = candles.map(c => Number(c.close));
+    const ema9Series = calculateEmaSeries(closes, 9);
 
     const entryPlanned = Number(sim.entryPrice);
     const stopInitial = Number(sim.stopLoss);
@@ -374,8 +414,131 @@
           }
         }
 
-        // Marco de Saída do Alvo (+2R ou +2,5R ou Pirâmide)
-        if (cHigh >= targetExitPrice) {
+        // Marco de Saída do Alvo (+2R ou +2,5R ou Pirâmide ou Parcial 50%/80% + MM9)
+        if (isPartialEma9) {
+          // Fase 1: se ainda não realizou a parcial, verifica se atingiu +2R
+          if (!sim.partialExit?.executed && cHigh >= targetExitPrice) {
+            // Ambiguidade: no mesmo candle tocou alvo e stop?
+            if (cLow <= currentStop) {
+              status = currentStop >= executedEntryPrice ? STATUS.CLOSED_GAIN : STATUS.CLOSED_LOSS;
+              exitPrice = currentStop;
+              exitDate = candleDate;
+              const resCalc = round2((exitPrice - executedEntryPrice) / risk);
+              resultR = resCalc;
+              exitReason = currentStop >= executedEntryPrice ? 'Proteção / Breakeven' : 'Stop Loss';
+              addTimelineEvent({
+                type: 'STOPPED_OUT',
+                date: candleDate,
+                label: exitReason,
+                price: exitPrice,
+                resultR,
+                desc: `${exitReason} acionado a ${formatPrice(exitPrice)} (${formatR(resultR)})`
+              });
+              addTimelineEvent({
+                type: 'CLOSED',
+                date: candleDate,
+                label: 'Trade encerrado',
+                resultR,
+                desc: `Resultado final: ${formatR(resultR)}`
+              });
+              break;
+            }
+
+            // Realiza parcial em +2R
+            const partialResult = round2((partialPercent / 100) * 2.0);
+            sim.partialExit = {
+              executed: true,
+              date: candleDate,
+              percent: partialPercent,
+              runnerPercent,
+              partialPrice: targetExitPrice,
+              partialResultR: partialResult,
+              runnerExitPrice: null,
+              runnerExitR: null,
+              consolidatedResultR: null
+            };
+            // Move stop do restante para o breakeven
+            currentStop = Math.max(currentStop, executedEntryPrice);
+
+            addTimelineEvent({
+              type: 'TARGET_2R',
+              date: candleDate,
+              label: '+2R atingido',
+              desc: `Alvo de +2R atingido a ${formatPrice(targetExitPrice)}`
+            });
+            addTimelineEvent({
+              type: 'PARTIAL_EXIT',
+              date: candleDate,
+              label: `Parcial ${partialPercent}% (+2R)`,
+              price: targetExitPrice,
+              desc: `Realização de ${partialPercent}% da posição a ${formatPrice(targetExitPrice)} (+${partialResult.toFixed(2).replace('.', ',')}R garantido). Stop ajustado para o Breakeven.`
+            });
+          }
+
+          // Fase 2: se a parcial já foi executada, monitora condução do runner pela MM9 ou Breakeven
+          if (sim.partialExit?.executed) {
+            const cEma9 = ema9Series[i] || targetExitPrice;
+
+            // 1. Violou o Breakeven
+            if (cLow <= currentStop) {
+              exitPrice = currentStop;
+              exitDate = candleDate;
+              const runnerR = 0.0;
+              resultR = round2(sim.partialExit.partialResultR + (runnerPercent / 100) * runnerR);
+              status = STATUS.CLOSED_GAIN;
+              exitReason = `Parcial ${partialPercent}% no 2R + Breakeven no restante`;
+              sim.partialExit.runnerExitPrice = exitPrice;
+              sim.partialExit.runnerExitR = runnerR;
+              sim.partialExit.consolidatedResultR = resultR;
+
+              addTimelineEvent({
+                type: 'STOPPED_OUT',
+                date: candleDate,
+                label: 'Breakeven no restante',
+                price: exitPrice,
+                resultR,
+                desc: `Restante stopado no Breakeven a ${formatPrice(exitPrice)}. Lucro consolidado da parcial: ${formatR(resultR)}`
+              });
+              addTimelineEvent({
+                type: 'CLOSED',
+                date: candleDate,
+                label: 'Trade encerrado',
+                resultR,
+                desc: `Operação concluída com ganho de ${formatR(resultR)}`
+              });
+              break;
+            }
+
+            // 2. Fechamento perdeu a média de 9 períodos (EMA 9)
+            if (cClose < cEma9) {
+              exitPrice = cClose;
+              exitDate = candleDate;
+              const runnerR = Math.max(0, round2((exitPrice - executedEntryPrice) / risk));
+              resultR = round2(sim.partialExit.partialResultR + (runnerPercent / 100) * runnerR);
+              status = STATUS.CLOSED_GAIN;
+              exitReason = `Parcial ${partialPercent}% no 2R + Saída na EMA 9 (${formatR(runnerR)} no restante)`;
+              sim.partialExit.runnerExitPrice = exitPrice;
+              sim.partialExit.runnerExitR = runnerR;
+              sim.partialExit.consolidatedResultR = resultR;
+
+              addTimelineEvent({
+                type: 'RUNNER_EXIT',
+                date: candleDate,
+                label: 'Saída pela Média de 9 (MM9)',
+                price: exitPrice,
+                desc: `Fechamento a ${formatPrice(exitPrice)} abaixo da EMA 9 (${formatPrice(cEma9)}). Runner: ${formatR(runnerR)}.`
+              });
+              addTimelineEvent({
+                type: 'CLOSED',
+                date: candleDate,
+                label: 'Trade encerrado',
+                resultR,
+                desc: `Operação concluída com ganho de ${formatR(resultR)}`
+              });
+              break;
+            }
+          }
+        } else if (cHigh >= targetExitPrice) {
           // Ambiguidade: no mesmo candle tocou alvo e stop?
           if (cLow <= currentStop) {
             // Pela política conservadora: assume stop
@@ -448,8 +611,8 @@
           break;
         }
 
-        // Saída por Stop
-        if (cLow <= currentStop) {
+        // Saída por Stop (quando não houve parcial ou para outros cenários)
+        if (!sim.partialExit?.executed && cLow <= currentStop) {
           exitPrice = cOpen < currentStop ? cOpen : currentStop;
           exitDate = candleDate;
 
@@ -503,7 +666,12 @@
     if (status === STATUS.IN_OPERATION && executedEntryPrice) {
       const curPrice = sim.currentPrice || executedEntryPrice;
       const r1 = round2((curPrice - executedEntryPrice) / risk);
-      if (isPyramid && sim.scaleIn && sim.scaleIn.executed) {
+      if (isPartialEma9 && sim.partialExit?.executed) {
+        const runnerR = Math.max(0, r1);
+        resultR = round2(sim.partialExit.partialResultR + (runnerPercent / 100) * runnerR);
+        sim.partialExit.runnerExitR = runnerR;
+        sim.partialExit.consolidatedResultR = resultR;
+      } else if (isPyramid && sim.scaleIn && sim.scaleIn.executed) {
         const addPrice = Number(round2(executedEntryPrice + risk));
         const r2 = round2((curPrice - addPrice) / risk);
         resultR = round2(r1 + r2);
@@ -519,6 +687,7 @@
       ...sim,
       managementScenario: scenario,
       scaleIn: sim.scaleIn || null,
+      partialExit: sim.partialExit || null,
       status,
       executedEntryPrice: round2(executedEntryPrice),
       entryDate,
@@ -1874,6 +2043,84 @@
       return cloned;
     }
 
+    if (scenario === 'PARTIAL_50_2R_EMA9' || scenario === 'PARTIAL_80_2R_EMA9') {
+      const is50 = scenario === 'PARTIAL_50_2R_EMA9';
+      const pct = is50 ? 0.5 : 0.8;
+      const runnerPct = 1 - pct;
+      const cloned = {
+        ...sim,
+        managementScenario: scenario,
+        scaleIn: null,
+        timeline: Array.isArray(sim.timeline) ? [...sim.timeline] : []
+      };
+      const mfe = Number(sim.mfeR) || 0;
+      const target2Price = round2(entry + 2.0 * risk);
+
+      if (sim.status === STATUS.CLOSED_GAIN && mfe >= 2.0) {
+        // Runner sai quando preço perde a EMA 9 (estimado em média móvel rápida em relação ao pico)
+        const runnerExitR = round2(Math.max(0, mfe >= 2.3 ? (mfe - 0.65) : (mfe >= 2.0 ? 1.4 : 0)));
+        cloned.resultR = round2(pct * 2.0 + runnerPct * runnerExitR);
+        cloned.exitPrice = round2(entry + cloned.resultR * risk);
+        cloned.exitReason = `Parcial ${Math.round(pct * 100)}% em +2R + Saída na EMA 9`;
+        cloned.partialExit = {
+          executed: true,
+          percent: Math.round(pct * 100),
+          runnerPercent: Math.round(runnerPct * 100),
+          partialPrice: target2Price,
+          partialResultR: round2(pct * 2.0),
+          runnerExitR,
+          consolidatedResultR: cloned.resultR
+        };
+
+        const hasPartial = cloned.timeline.some(e => e.type === 'PARTIAL_EXIT');
+        if (!hasPartial) {
+          const newTimeline = [];
+          for (const evt of cloned.timeline) {
+            newTimeline.push(evt);
+            if (evt.type === 'TARGET_2R') {
+              newTimeline.push({
+                type: 'PARTIAL_EXIT',
+                date: evt.date,
+                label: `Parcial ${Math.round(pct * 100)}% (+2R)`,
+                price: target2Price,
+                desc: `Realização de ${Math.round(pct * 100)}% da posição a ${formatPrice(target2Price)} (+${(pct * 2).toFixed(2).replace('.', ',')}R garantido). Stop ajustado para breakeven.`
+              });
+              newTimeline.push({
+                type: 'RUNNER_EXIT',
+                date: sim.exitDate || evt.date,
+                label: 'Saída pela Média de 9 (MM9)',
+                desc: `Encerramento dos ${Math.round(runnerPct * 100)}% restantes após perda da EMA 9 (+${runnerExitR.toFixed(2).replace('.', ',')}R no runner).`
+              });
+            }
+          }
+          cloned.timeline = newTimeline.map(evt => {
+            if (evt.type === 'SELL_INTO_STRENGTH') {
+              return { ...evt, desc: `Realização parcial e condução por MM9 (${formatR(cloned.resultR)})` };
+            }
+            if (evt.type === 'CLOSED') {
+              return { ...evt, resultR: cloned.resultR, desc: `Operação concluída com resultado de ${formatR(cloned.resultR)}` };
+            }
+            return evt;
+          });
+        }
+      } else if (sim.status === STATUS.IN_OPERATION && mfe >= 2.0) {
+        const curPrice = sim.currentPrice || entry;
+        const runnerR = round2((curPrice - entry) / risk);
+        cloned.resultR = round2(pct * 2.0 + runnerPct * runnerR);
+        cloned.partialExit = {
+          executed: true,
+          percent: Math.round(pct * 100),
+          runnerPercent: Math.round(runnerPct * 100),
+          partialPrice: target2Price,
+          partialResultR: round2(pct * 2.0),
+          runnerExitR: runnerR,
+          consolidatedResultR: cloned.resultR
+        };
+      }
+
+      return cloned;
+    }
+
     return sim;
   }
 
@@ -2106,10 +2353,12 @@
     const sc2R = calculateScenarioMetrics(rawList.map(s => adaptSimulationToScenario(s, '2R')), '2R');
     const sc25R = calculateScenarioMetrics(rawList.map(s => adaptSimulationToScenario(s, '2.5R')), '2.5R');
     const scPyr = calculateScenarioMetrics(rawList.map(s => adaptSimulationToScenario(s, 'PYRAMID_1R_2R')), 'PYRAMID_1R_2R');
+    const scPart50 = calculateScenarioMetrics(rawList.map(s => adaptSimulationToScenario(s, 'PARTIAL_50_2R_EMA9')), 'PARTIAL_50_2R_EMA9');
+    const scPart80 = calculateScenarioMetrics(rawList.map(s => adaptSimulationToScenario(s, 'PARTIAL_80_2R_EMA9')), 'PARTIAL_80_2R_EMA9');
 
     return {
       sampleInfo: `Mesma amostra: últimos 4 meses • ${rawList.length} trades`,
-      scenarios: [sc2R, sc25R, scPyr]
+      scenarios: [sc2R, sc25R, scPyr, scPart50, scPart80]
     };
   }
   function generateSimulationSnapshotCandles(simulation) {
