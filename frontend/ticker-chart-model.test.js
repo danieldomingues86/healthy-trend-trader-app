@@ -115,3 +115,98 @@ test('TickerChartModel: detecção de Inside Bar e PFR', () => {
   assert.equal(trigger.id, 'INSIDE_BAR');
   assert.equal(trigger.grade, 'A+');
 });
+
+test('TickerChartModel: Inside Bar acima da EMA 9 e EMA 30 é promovido a gatilho válido (A+)', () => {
+  const candles = [
+    { high: 32, low: 22, close: 25 },
+    { high: 30, low: 20, close: 28 },
+    { high: 28, low: 22, close: 26 }
+  ];
+  // EMAs abaixo do fechamento (26): EMA9 = 24, EMA30 = 22
+  const ema9 = [23, 23.5, 24];
+  const ema30 = [21, 21.5, 22];
+  const trigger = TickerChartModel.detectSetupTriggers(candles, ema9, ema30);
+
+  assert.equal(trigger.hasTrigger, true);
+  assert.equal(trigger.id, 'INSIDE_BAR');
+  assert.equal(trigger.name, 'Inside Bar');
+  assert.equal(trigger.grade, 'A+');
+  assert.equal(trigger.entry, 28.01);
+  assert.equal(trigger.stop, 21.99);
+});
+
+test('TickerChartModel: Inside Bar abaixo da EMA 9 é rejeitado (hasTrigger: false)', () => {
+  const candles = [
+    { high: 32, low: 22, close: 25 },
+    { high: 30, low: 20, close: 24 },
+    { high: 28, low: 22, close: 23 } // Fechamento em 23
+  ];
+  // EMA9 acima do fechamento: EMA9 = 25, EMA30 = 20
+  const ema9 = [25, 25, 25];
+  const ema30 = [20, 20, 20];
+  const trigger = TickerChartModel.detectSetupTriggers(candles, ema9, ema30);
+
+  assert.equal(trigger.hasTrigger, false);
+  assert.equal(trigger.id, 'NONE');
+  assert.equal(trigger.name, 'Nenhum gatilho encontrado');
+  assert.equal(trigger.grade, 'Neutro');
+  assert.equal(trigger.entry, null);
+  assert.equal(trigger.stop, null);
+});
+
+test('TickerChartModel: Inside Bar abaixo da EMA 30 é rejeitado (hasTrigger: false)', () => {
+  const candles = [
+    { high: 32, low: 22, close: 25 },
+    { high: 30, low: 20, close: 28 },
+    { high: 28, low: 22, close: 26 } // Fechamento em 26
+  ];
+  // EMA30 acima do fechamento: EMA9 = 24, EMA30 = 29
+  const ema9 = [24, 24, 24];
+  const ema30 = [29, 29, 29];
+  const trigger = TickerChartModel.detectSetupTriggers(candles, ema9, ema30);
+
+  assert.equal(trigger.hasTrigger, false);
+  assert.equal(trigger.id, 'NONE');
+  assert.equal(trigger.name, 'Nenhum gatilho encontrado');
+  assert.equal(trigger.grade, 'Neutro');
+});
+
+test('TickerChartModel: 1-2-3 de Compra acima das médias é gatilho válido, mas abaixo é rejeitado', () => {
+  // c3: L=18; c2: L=15, H=20; c1: L=16, H=22, close=21 (> c2.high)
+  const candles = [
+    { high: 25, low: 18, close: 19 },
+    { high: 20, low: 15, close: 17 },
+    { high: 22, low: 16, close: 21 }
+  ];
+
+  // Caso 1: acima de ambas (EMA9=18, EMA30=17)
+  const valid = TickerChartModel.detectSetupTriggers(candles, [17, 17.5, 18], [16, 16.5, 17]);
+  assert.equal(valid.hasTrigger, true);
+  assert.equal(valid.id, '123_COMPRA');
+  assert.equal(valid.grade, 'A');
+  assert.equal(valid.entry, 22.01);
+  assert.equal(valid.stop, 14.99);
+
+  // Caso 2: abaixo da EMA 9 (EMA9=23, EMA30=17)
+  const invalid = TickerChartModel.detectSetupTriggers(candles, [23, 23, 23], [16, 16.5, 17]);
+  assert.equal(invalid.hasTrigger, false);
+  assert.equal(invalid.id, 'NONE');
+  assert.equal(invalid.name, 'Nenhum gatilho encontrado');
+});
+
+test('TickerChartModel: ausência de padrão nunca retorna "Pullback em andamento" como gatilho', () => {
+  const candles = [
+    { high: 30, low: 20, close: 25 },
+    { high: 35, low: 22, close: 32 },
+    { high: 40, low: 30, close: 38 } // Expansão forte, sem inside bar ou 123
+  ];
+  const ema9 = [24, 26, 28];
+  const ema30 = [20, 21, 22];
+  const trigger = TickerChartModel.detectSetupTriggers(candles, ema9, ema30);
+
+  assert.equal(trigger.hasTrigger, false);
+  assert.equal(trigger.id, 'NONE');
+  assert.equal(trigger.name, 'Nenhum gatilho encontrado');
+  assert.equal(trigger.description, 'Nenhum padrão de entrada válido identificado no gráfico Diário.');
+  assert.notEqual(trigger.name, 'Pullback em Andamento');
+});

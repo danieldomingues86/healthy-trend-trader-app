@@ -387,5 +387,117 @@ test('calculateRubric classifica volatilidade automaticamente via entry e atr qu
   assert.equal(result.grade, 'B');
 });
 
+test('classifyRelativeStrength classifica corretamente as faixas de força relativa e status de cor', () => {
+  const { classifyRelativeStrength } = require('./trading-rubrics');
+
+  // Líder (>= 90) -> Verde
+  const leader95 = classifyRelativeStrength(95);
+  assert.equal(leader95.tier, 'leader');
+  assert.equal(leader95.label, 'Líder');
+  assert.equal(leader95.status, 'good');
+  assert.equal(leader95.statusClass, 'good');
+  assert.equal(leader95.color, '#15803d');
+  assert.equal(leader95.icon, '🟢');
+
+  const leader90 = classifyRelativeStrength(90);
+  assert.equal(leader90.label, 'Líder');
+  assert.equal(leader90.status, 'good');
+
+  // Forte (70 a 89) -> Verde
+  const strong85 = classifyRelativeStrength(85);
+  assert.equal(strong85.tier, 'strong');
+  assert.equal(strong85.label, 'Forte');
+  assert.equal(strong85.status, 'good');
+  assert.equal(strong85.statusClass, 'good');
+  assert.equal(strong85.color, '#15803d');
+  assert.equal(strong85.icon, '🟢');
+
+  const strong70 = classifyRelativeStrength(70);
+  assert.equal(strong70.label, 'Forte');
+  assert.equal(strong70.status, 'good');
+
+  // Neutro (40 a 69) -> Cinza / Amarelo
+  const neutral55 = classifyRelativeStrength(55);
+  assert.equal(neutral55.tier, 'neutral');
+  assert.equal(neutral55.label, 'Neutro');
+  assert.equal(neutral55.status, 'neutral');
+  assert.equal(neutral55.statusClass, 'neutral');
+  assert.equal(neutral55.color, '#64748b');
+  assert.equal(neutral55.icon, '🟡');
+
+  const neutral40 = classifyRelativeStrength(40);
+  assert.equal(neutral40.label, 'Neutro');
+  assert.equal(neutral40.status, 'neutral');
+
+  // Fraco (< 40, ex: 12) -> Vermelho
+  const weak12 = classifyRelativeStrength(12);
+  assert.equal(weak12.tier, 'weak');
+  assert.equal(weak12.label, 'Fraco');
+  assert.equal(weak12.status, 'bad');
+  assert.equal(weak12.statusClass, 'bad');
+  assert.equal(weak12.color, '#b91c1c');
+  assert.equal(weak12.icon, '🔴');
+
+  const weak0 = classifyRelativeStrength(0);
+  assert.equal(weak0.label, 'Fraco');
+  assert.equal(weak0.status, 'bad');
+
+  // Classificações por texto
+  assert.equal(classifyRelativeStrength(null, 'Líder').status, 'good');
+  assert.equal(classifyRelativeStrength(null, 'Forte').status, 'good');
+  assert.equal(classifyRelativeStrength(null, 'Neutro').status, 'neutral');
+  assert.equal(classifyRelativeStrength(null, 'Fraco').status, 'bad');
+});
+
+test('getRubricGradeVisual retorna estilos oficiais e consistentes para todos os Grades', () => {
+  const { getRubricGradeVisual, getRubricGradeColor } = require('./trading-rubrics');
+
+  // Grade A / A+ -> Verde
+  const gradeA = getRubricGradeVisual('A');
+  assert.equal(gradeA.status, 'good');
+  assert.equal(gradeA.statusClass, 'grade-a');
+  assert.equal(gradeA.color, '#15803d');
+  assert.equal(gradeA.bg, '#f0fdf4');
+  assert.equal(gradeA.border, '#bbf7d0');
+  assert.ok(gradeA.summaryText.includes('alta probabilidade'));
+
+  const gradeAPlus = getRubricGradeVisual('A+');
+  assert.equal(gradeAPlus.status, 'good');
+  assert.equal(gradeAPlus.statusClass, 'grade-a');
+
+  // Grade B -> Âmbar / Verde-amarelo
+  const gradeB = getRubricGradeVisual('B');
+  assert.equal(gradeB.status, 'good');
+  assert.equal(gradeB.statusClass, 'grade-b');
+  assert.equal(gradeB.color, '#a16207');
+  assert.equal(gradeB.bg, '#fefce8');
+  assert.equal(gradeB.border, '#fef08a');
+  assert.ok(gradeB.summaryText.includes('risco controlado'));
+
+  // Grade C -> Amarelo / Laranja
+  const gradeC = getRubricGradeVisual('C');
+  assert.equal(gradeC.status, 'neutral');
+  assert.equal(gradeC.statusClass, 'grade-c');
+  assert.equal(gradeC.color, '#c2410c');
+  assert.equal(gradeC.bg, '#fff7ed');
+  assert.equal(gradeC.border, '#fed7aa');
+  assert.ok(gradeC.summaryText.includes('Qualidade limítrofe'));
+
+  // Grade D -> Vermelho / Bloqueio
+  const gradeD = getRubricGradeVisual('D');
+  assert.equal(gradeD.status, 'bad');
+  assert.equal(gradeD.statusClass, 'grade-d');
+  assert.equal(gradeD.color, '#b91c1c');
+  assert.equal(gradeD.bg, '#fee2e2');
+  assert.equal(gradeD.border, '#fca5a5');
+  assert.ok(gradeD.summaryText.includes('Bloqueio automático com risco nominal zero'));
+
+  // getRubricGradeColor helper
+  assert.equal(getRubricGradeColor('A'), '#15803d');
+  assert.equal(getRubricGradeColor('B'), '#a16207');
+  assert.equal(getRubricGradeColor('C'), '#c2410c');
+  assert.equal(getRubricGradeColor('D'), '#b91c1c');
+});
+
 
 

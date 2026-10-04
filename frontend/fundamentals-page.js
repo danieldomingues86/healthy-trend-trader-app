@@ -184,7 +184,9 @@
   window.openFundamentalsForTicker = async (value) => {
     const ticker = normalizeTicker(value);
     if (!ticker) return;
-    if (typeof go === 'function') go('fundamentals');
+    if (!document.getElementById('fundamentalsRoot')) init();
+    const goFn = typeof window.go === 'function' ? window.go : (typeof go === 'function' ? go : null);
+    if (goFn) goFn('fundamentals');
     await analyzeTicker(ticker);
   };
 

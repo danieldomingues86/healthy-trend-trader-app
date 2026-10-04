@@ -170,6 +170,23 @@ function loadNasdaqHistory() {
   return nasdaqStocksCache;
 }
 
+let nasdaqRankingCache = null;
+function getNasdaqRanking() {
+  if (nasdaqRankingCache) return nasdaqRankingCache;
+  const nasdaqCacheFile = path.join(__dirname, '..', 'data', 'nasdaq-market-cache.json');
+  if (fs.existsSync(nasdaqCacheFile)) {
+    try {
+      const raw = JSON.parse(fs.readFileSync(nasdaqCacheFile, 'utf8'));
+      nasdaqRankingCache = Array.isArray(raw.ranking) ? raw.ranking : [];
+    } catch {
+      nasdaqRankingCache = [];
+    }
+  } else {
+    nasdaqRankingCache = [];
+  }
+  return nasdaqRankingCache;
+}
+
 function normalizeAssetClassLabel(rawClass) {
   const c = String(rawClass || '').trim().toLowerCase();
   if (c === 'stock_ibov' || c === 'ibov') return 'IBOV';
@@ -237,11 +254,16 @@ async function getSearchUniverse() {
 
   // 5. Nasdaq
   const nasdaqMap = loadNasdaqHistory();
+  const nasdaqRanking = getNasdaqRanking();
   for (const sym of nasdaqMap.keys()) {
     if (!universeMap.has(sym)) {
       const candles = nasdaqMap.get(sym);
       const last = candles[candles.length - 1];
-      addAsset(sym, sym, 'Tecnologia / EUA', 'nasdaq', 85, last?.close, 0);
+      const rankingItem = nasdaqRanking.find(x => x.symbol === sym);
+      const name = rankingItem?.companyName || sym;
+      const sector = rankingItem?.sector || 'Tecnologia / EUA';
+      const score = rankingItem?.score ?? rankingItem?.rsScore ?? 85;
+      addAsset(sym, name, sector, 'nasdaq', score, last?.close, 0);
     }
   }
 
@@ -352,22 +374,48 @@ async function getTickerChartData(rawSymbol) {
     structureDesc = 'Perna de alta esticada em relação às médias.';
   }
 
-  // 3. Força Relativa do market-cache.json
+  // 3. Força Relativa do market-cache.json ou nasdaq-market-cache.json
+  const nasdaqRanking = getNasdaqRanking();
+  const nasdaqItem = nasdaqRanking.find(x => x.symbol === symbol);
+
   const rsData = rsItems.find(x => x.symbol === symbol)
-    || (cache.relativeStrengthByClass?.bdr?.items || []).find(x => x.symbol === symbol)
+    || (cache.relativeStrengthByClass?.bdr?.items || []).find(x => x.symbol === symbol || x.originalSymbol === symbol)
     || (cache.relativeStrengthByClass?.fii?.items || []).find(x => x.symbol === symbol)
-    || null;
+    || (nasdaqItem ? {
+        symbol: nasdaqItem.symbol,
+        name: nasdaqItem.companyName,
+        sector: nasdaqItem.sector,
+        score: nasdaqItem.score ?? nasdaqItem.rsScore,
+        rank: nasdaqItem.rank ?? nasdaqItem.rsRank,
+        m3: nasdaqItem.m3 ?? nasdaqItem.relativeStrength3M
+      } : null);
 
   const rsScore = rsData ? Math.round(rsData.score || 0) : 85;
   const rsRank = rsData ? rsData.rank : 24;
   const totalUniverse = rsItems.length || 277;
   const rsPercentile = rsRank ? `Top ${Math.max(1, Math.round((rsRank / totalUniverse) * 100))}% do universo` : 'Top 15% do universo';
-  const rsClassification = rsScore >= 80 ? 'Líder' : (rsScore >= 50 ? 'Neutro' : 'Fraco');
+  const rsInfo = TradingRubrics.classifyRelativeStrength(rsScore);
+  const rsClassification = rsInfo.label;
   const rs3m = rsData?.m3 ? Number(rsData.m3.toFixed(1)) : 28.4;
 
-  // 4. Ciclo de Mercado
-  const assetClass = marketData.assetClassForSymbol(symbol);
-  const cycleInfo = cache.cycle || {};
+  // 4. Ciclo de Mercado e Classe do Ativo
+  const isNasdaq = nasdaqHistories.has(symbol);
+  let rawClass = marketData.assetClassForSymbol(symbol);
+  if (isNasdaq) {
+    rawClass = 'nasdaq';
+  }
+  const assetClass = rawClass;
+
+  // Mercado de ciclo correspondente (BDRX para BDR e Nasdaq, IFIX para FII, IBOV para Ações B3)
+  const cycleMarket = (assetClass === 'nasdaq' || assetClass === 'bdr')
+    ? 'bdr'
+    : (assetClass === 'fii' ? 'fii' : 'stock_b3');
+
+  const resolvedCycle = await marketData.resolveMarketCycle(cache, cycleMarket);
+  const cycleInfo = resolvedCycle?.cycle || {};
+  const benchmarkInfo = resolvedCycle?.benchmark || {};
+  const benchmarkSymbol = benchmarkInfo?.symbol || (cycleMarket === 'bdr' ? 'BDRX' : (cycleMarket === 'fii' ? 'IFIX' : 'IBOV'));
+
   let cycleState = 'Positivo';
   let cycleDesc = 'Tendência de alta e força institucional.';
   if (cycleInfo.state === 'healthy') {
@@ -410,9 +458,9 @@ async function getTickerChartData(rawSymbol) {
     ratings: {
       trendQuality: priceAboveEma9 && ema9AboveEma30 ? 'healthy' : 'transition',
       marketCycle: cycleInfo.state || 'healthy',
-      relativeStrength: rsScore >= 80 ? 'good' : (rsScore >= 50 ? 'medium' : 'bad'),
+      relativeStrength: rsInfo.status === 'good' ? 'good' : (rsInfo.status === 'neutral' ? 'medium' : 'bad'),
       volatility: atrPctVal <= 4.5 ? 'good' : 'medium',
-      setupQuality: trigger.grade === 'A+' || trigger.grade === 'A' ? 'good' : 'medium',
+      setupQuality: trigger.hasTrigger ? (trigger.grade === 'A+' || trigger.grade === 'A' ? 'good' : 'medium') : 'bad',
       fundamentalScore: metrics.roe && metrics.roe > 0.12 ? 'good' : 'medium'
     },
     entry: currentPrice,
@@ -420,27 +468,30 @@ async function getTickerChartData(rawSymbol) {
   });
 
   const finalGrade = (priceAboveEma9 && ema9AboveEma30 && rsScore >= 80 && cycleState === 'Positivo') ? 'A' : (rubricEvaluation.grade || 'B');
+  const gradeVisual = TradingRubrics.getRubricGradeVisual(finalGrade);
 
   const criteriaTable = [
-    { name: 'Força Relativa', status: rsScore >= 80, obs: `${rsClassification} (${rsScore})` },
+    { name: 'Força Relativa', status: rsInfo.status === 'good', obs: `${rsClassification} (${rsScore})` },
     { name: 'Ciclo de Mercado', status: cycleState === 'Positivo', obs: cycleState },
     { name: 'Preço > EMA 9', status: priceAboveEma9, obs: priceAboveEma9 ? 'Sim' : 'Não' },
     { name: 'EMA 9 > EMA 30', status: ema9AboveEma30, obs: ema9AboveEma30 ? 'Sim' : 'Não' },
     { name: 'Volatilidade (ATR)', status: atrPctVal <= 5.0, obs: `${atrRegime} (${atrPctVal.toFixed(1)}%)` },
     { name: 'Estrutura', status: true, obs: structureLabel },
-    { name: 'Gatilho', status: trigger.id !== 'NONE', obs: `${trigger.name} (${trigger.grade})` },
+    { name: 'Gatilho', status: trigger.hasTrigger === true, obs: trigger.hasTrigger ? `${trigger.name} (${trigger.grade})` : 'Nenhum' },
     { name: 'Fundamentos', status: true, obs: 'Fortes' }
   ];
 
   return {
     tickerInfo: {
       symbol,
-      name: company.name || `${symbol} - B3`,
-      sector: company.sector || (rsData?.sector || 'Petróleo, Gás e Biocombustíveis'),
-      subSector: company.industry || company.sector || 'Exploração e Produção',
+      name: company.name || (rsData?.name ? `${rsData.name}` : (isNasdaq ? `${symbol} - Nasdaq` : `${symbol} - B3`)),
+      sector: company.sector || (rsData?.sector || (isNasdaq ? 'Tecnologia / EUA' : 'Petróleo, Gás e Biocombustíveis')),
+      subSector: company.industry || company.sector || (rsData?.sector || (isNasdaq ? 'Ações Internacionais' : 'Exploração e Produção')),
       price: currentPrice,
       dayChange,
       dayChangePct,
+      date: latestCandle.time,
+      sessionDate: latestCandle.time,
       marketCap: marketCapNum,
       marketCapFormatted,
       volumeAvg21,
@@ -467,7 +518,7 @@ async function getTickerChartData(rawSymbol) {
     marketCycle: {
       regime: cycleState,
       description: cycleDesc,
-      benchmark: cache.benchmark?.symbol || 'IBOV',
+      benchmark: benchmarkSymbol,
       score: cycleInfo.score || 88
     },
     trend: {
@@ -492,17 +543,18 @@ async function getTickerChartData(rawSymbol) {
       id: trigger.id,
       name: trigger.name,
       grade: trigger.grade,
+      hasTrigger: Boolean(trigger.hasTrigger),
       description: trigger.description,
       detail: trigger.detail,
       entry: trigger.entry,
-      stop: trigger.stop
+      stop: trigger.stop,
+      entryLabel: trigger.entryLabel,
+      stopLabel: trigger.stopLabel
     },
     rubric: {
       finalGrade,
       score: rubricEvaluation.score || 92,
-      summaryText: finalGrade === 'A' || finalGrade === 'A+'
-        ? 'Setup com alta probabilidade segundo o seu método.'
-        : 'Setup dentro dos parâmetros de risco controlado.',
+      summaryText: gradeVisual.summaryText,
       criteria: criteriaTable
     },
     fundamentals: {
@@ -531,11 +583,41 @@ async function getTickerChartData(rawSymbol) {
   };
 }
 
+async function refreshB3HistoryIfDue({ force = false } = {}) {
+  const currentYear = new Date().getFullYear();
+  const zipFile = path.join(B3_HISTORY_CACHE, `cotahist-${currentYear}.zip`);
+  let shouldCheck = force;
+  if (!shouldCheck && fs.existsSync(zipFile)) {
+    try {
+      const stat = fs.statSync(zipFile);
+      if (Date.now() - stat.mtimeMs > 4 * 3600 * 1000) {
+        shouldCheck = true;
+      }
+    } catch {
+      shouldCheck = true;
+    }
+  } else if (!fs.existsSync(zipFile)) {
+    shouldCheck = true;
+  }
+
+  if (shouldCheck) {
+    try {
+      const b3Hist = require('./b3-historical');
+      await b3Hist.fetchHistories(['PETR4'], { years: [currentYear], cacheDirectory: B3_HISTORY_CACHE, force });
+      b3StocksCache = null;
+      loadB3History();
+    } catch (err) {
+      console.warn('[ticker-chart] Não foi possível atualizar COTAHIST remoto:', err.message);
+    }
+  }
+}
+
 async function warmup() {
   try {
     loadB3History();
     loadNasdaqHistory();
     await getSearchUniverse();
+    refreshB3HistoryIfDue().catch(() => {});
   } catch (err) {
     console.warn('[ticker-chart warmup]', err.message);
   }
@@ -545,6 +627,7 @@ module.exports = {
   getTickerChartData,
   getSearchUniverse,
   formatLargeNumber,
+  refreshB3HistoryIfDue,
   warmup
 };
 

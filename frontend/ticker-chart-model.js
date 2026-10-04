@@ -1,10 +1,11 @@
 (function (root, factory) {
+  const rubrics = typeof module === 'object' && module.exports ? require('./trading-rubrics') : (root && root.TradingRubrics);
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
+    module.exports = factory(rubrics);
   } else {
-    root.TickerChartModel = factory();
+    root.TickerChartModel = factory(rubrics);
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (TradingRubrics) {
   'use strict';
 
   const STORAGE_KEY = 'healthyTrendChartDiscipline';
@@ -334,90 +335,261 @@
 
   /**
    * Detecção de Gatilhos Técnicos Oficiais nos últimos candles
+   * Regra Obrigatória: Para ser considerado um gatilho válido de compra,
+   * o preço precisa estar estritamente acima da EMA 9 e acima da EMA 30.
+   * Se qualquer condição falhar, retorna "Nenhum gatilho encontrado" (sem falsos positivos).
    */
   function detectSetupTriggers(candles, ema9Values = [], ema30Values = []) {
     if (!Array.isArray(candles) || candles.length < 3) {
-      return { id: 'NONE', name: 'Nenhum gatilho ativo', grade: 'D', description: 'Aguardando formação de setup.' };
+      return {
+        id: 'NONE',
+        name: 'Nenhum gatilho encontrado',
+        grade: 'Neutro',
+        hasTrigger: false,
+        description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
+        detail: null,
+        entry: null,
+        stop: null,
+        entryLabel: null,
+        stopLabel: null
+      };
     }
 
     const c1 = candles[candles.length - 1]; // candle atual
     const c2 = candles[candles.length - 2]; // candle anterior
     const c3 = candles[candles.length - 3]; // candle prévio
 
+    let ema9Arr = ema9Values;
+    let ema30Arr = ema30Values;
+    if ((!Array.isArray(ema9Arr) || ema9Arr.length === 0) && candles.length >= 9) {
+      ema9Arr = calculateEma(candles.map(c => c.close), 9);
+    }
+    if ((!Array.isArray(ema30Arr) || ema30Arr.length === 0) && candles.length >= 30) {
+      ema30Arr = calculateEma(candles.map(c => c.close), 30);
+    }
+
+    const latestEma9 = (Array.isArray(ema9Arr) && ema9Arr.length > 0)
+      ? ema9Arr[ema9Arr.length - 1]
+      : null;
+    const latestEma30 = (Array.isArray(ema30Arr) && ema30Arr.length > 0)
+      ? ema30Arr[ema30Arr.length - 1]
+      : null;
+
+    const hasEmaContext = latestEma9 !== null && latestEma30 !== null;
+    const isAboveBothEmas = hasEmaContext
+      ? (c1.close > latestEma9 && c1.close > latestEma30)
+      : true;
+
     // 1. Inside Bar: candle atual completamente contido dentro da amplitude do anterior
     if (c1.high <= c2.high && c1.low >= c2.low) {
+      if (!isAboveBothEmas) {
+        return {
+          id: 'NONE',
+          name: 'Nenhum gatilho encontrado',
+          grade: 'Neutro',
+          hasTrigger: false,
+          patternDetected: 'Inside Bar (rejeitado: abaixo das médias)',
+          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
+          detail: 'Padrão Inside Bar abaixo da EMA 9 ou EMA 30 não qualifica como gatilho de compra pelo método.',
+          entry: null,
+          stop: null,
+          entryLabel: null,
+          stopLabel: null
+        };
+      }
       return {
         id: 'INSIDE_BAR',
         name: 'Inside Bar',
         grade: 'A+',
+        hasTrigger: true,
         description: 'Candle dentro do candle anterior.',
-        detail: 'Contração de volatilidade em região de médias. Rompimento da máxima ativa compra.',
-        entry: c1.high + 0.01,
-        stop: c1.low - 0.01
+        detail: 'Contração de volatilidade acima da EMA 9 e EMA 30. Rompimento da máxima ativa compra.',
+        entry: Number((c1.high + 0.01).toFixed(2)),
+        stop: Number((c1.low - 0.01).toFixed(2)),
+        entryLabel: '1 tick acima da máxima do Inside Bar',
+        stopLabel: '1 tick abaixo da mínima do Inside Bar'
       };
     }
 
-    // 2. PFR de Compra: mínima mais baixa que o candle anterior, mas fechamento acima do fechamento anterior
-    if (c1.low < c2.low && c1.close > c2.close) {
-      return {
-        id: 'PFR_COMPRA',
-        name: 'PFR de Compra',
-        grade: 'A',
-        description: 'Padrão de Fechamento de Reversão de fundo.',
-        detail: 'Rejeição de mínimas com fechamento forte acima do candle anterior.',
-        entry: c1.high + 0.01,
-        stop: c1.low - 0.01
-      };
-    }
-
-    // 3. 1-2-3 de Compra: candle 2 é a mínima mais baixa entre 1 e 3; candle 1 faz mínima mais alta
+    // 2. 1-2-3 de Compra: candle 2 é a mínima mais baixa entre 1 e 3; candle 1 (mais recente) fecha acima da máxima do candle 2
     if (c2.low < c3.low && c1.low > c2.low && c1.close > c2.high) {
+      if (!isAboveBothEmas) {
+        return {
+          id: 'NONE',
+          name: 'Nenhum gatilho encontrado',
+          grade: 'Neutro',
+          hasTrigger: false,
+          patternDetected: '1-2-3 de Compra (rejeitado: abaixo das médias)',
+          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
+          detail: 'Formação 1-2-3 de compra abaixo da EMA 9 ou EMA 30 não qualifica como gatilho pelo método.',
+          entry: null,
+          stop: null,
+          entryLabel: null,
+          stopLabel: null
+        };
+      }
       return {
         id: '123_COMPRA',
         name: '1-2-3 de Compra',
         grade: 'A',
+        hasTrigger: true,
         description: 'Formação de fundo de 3 candles.',
-        detail: 'Candle 2 fez o fundo e candle 3 confirmou sustentação do suporte.',
-        entry: c1.high + 0.01,
-        stop: c2.low - 0.01
+        detail: 'Candle 2 fez o fundo e candle 3 confirmou sustentação acima da EMA 9 e EMA 30.',
+        entry: Number((c1.high + 0.01).toFixed(2)),
+        stop: Number((c2.low - 0.01).toFixed(2)),
+        entryLabel: '1 tick acima da máxima do candle 3',
+        stopLabel: '1 tick abaixo da mínima do candle 2 (fundo)'
+      };
+    }
+
+    // 3. PFR de Compra: mínima mais baixa que o candle anterior, mas fechamento acima do fechamento anterior
+    if (c1.low < c2.low && c1.close > c2.close) {
+      if (!isAboveBothEmas) {
+        return {
+          id: 'NONE',
+          name: 'Nenhum gatilho encontrado',
+          grade: 'Neutro',
+          hasTrigger: false,
+          patternDetected: 'PFR de Compra (rejeitado: abaixo das médias)',
+          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
+          detail: 'Reversão abaixo da EMA 9 ou EMA 30 não qualifica como gatilho pelo método.',
+          entry: null,
+          stop: null,
+          entryLabel: null,
+          stopLabel: null
+        };
+      }
+      return {
+        id: 'PFR_COMPRA',
+        name: 'PFR de Compra',
+        grade: 'A',
+        hasTrigger: true,
+        description: 'Padrão de Fechamento de Reversão de fundo.',
+        detail: 'Rejeição de mínimas com fechamento forte acima do candle anterior e acima das médias.',
+        entry: Number((c1.high + 0.01).toFixed(2)),
+        stop: Number((c1.low - 0.01).toFixed(2)),
+        entryLabel: '1 tick acima da máxima do candle de reversão',
+        stopLabel: '1 tick abaixo da mínima do candle de reversão'
       };
     }
 
     // 4. Dave Landry: 2 mínimas descendentes com médias apontando para cima
     if (c2.low < c3.low && c1.low < c2.low) {
+      if (!isAboveBothEmas) {
+        return {
+          id: 'NONE',
+          name: 'Nenhum gatilho encontrado',
+          grade: 'Neutro',
+          hasTrigger: false,
+          patternDetected: 'Dave Landry (rejeitado: abaixo das médias)',
+          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
+          detail: 'Recuo abaixo da EMA 9 ou EMA 30 não qualifica como gatilho pelo método.',
+          entry: null,
+          stop: null,
+          entryLabel: null,
+          stopLabel: null
+        };
+      }
       return {
         id: 'DAVE_LANDRY',
         name: 'Dave Landry',
         grade: 'B',
+        hasTrigger: true,
         description: 'Recuo ordenado para média móvel.',
-        detail: 'Duas ou mais mínimas consecutivas mais baixas em tendência de alta.',
-        entry: c1.high + 0.01,
-        stop: c1.low - 0.01
+        detail: 'Duas ou mais mínimas consecutivas mais baixas com sustentação acima da EMA 9 e EMA 30.',
+        entry: Number((c1.high + 0.01).toFixed(2)),
+        stop: Number((c1.low - 0.01).toFixed(2)),
+        entryLabel: '1 tick acima da máxima do candle gatilho',
+        stopLabel: '1 tick abaixo da mínima do candle gatilho'
       };
     }
 
     // 5. Barra Vermelha Ignorada (RBI): candle anterior vermelho pequeno seguido de fechamento positivo
     if (c2.close < c2.open && c1.close > c1.open && c1.close > c2.high) {
+      if (!isAboveBothEmas) {
+        return {
+          id: 'NONE',
+          name: 'Nenhum gatilho encontrado',
+          grade: 'Neutro',
+          hasTrigger: false,
+          patternDetected: 'Barra Vermelha Ignorada (rejeitado: abaixo das médias)',
+          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
+          detail: 'Superação abaixo da EMA 9 ou EMA 30 não qualifica como gatilho pelo método.',
+          entry: null,
+          stop: null,
+          entryLabel: null,
+          stopLabel: null
+        };
+      }
       return {
         id: 'RBI',
         name: 'Barra Vermelha Ignorada (RBI)',
         grade: 'A',
+        hasTrigger: true,
         description: 'Retomada imediata após breve correção.',
-        detail: 'Superação imediata da máxima da barra vendedora.',
-        entry: c1.high + 0.01,
-        stop: c2.low - 0.01
+        detail: 'Superação imediata da máxima da barra vendedora acima da EMA 9 e EMA 30.',
+        entry: Number((c1.high + 0.01).toFixed(2)),
+        stop: Number((c2.low - 0.01).toFixed(2)),
+        entryLabel: '1 tick acima da máxima da barra compradora',
+        stopLabel: '1 tick abaixo da mínima da barra vermelha'
       };
     }
 
+    // 6. Nenhum padrão válido identificado
     return {
-      id: 'PULLBACK',
-      name: 'Pullback em Andamento',
-      grade: 'B',
-      description: 'Correção técnica saudável na direção da tendência.',
-      detail: 'Aguarde o candle de confirmação para acionamento do gatilho.',
+      id: 'NONE',
+      name: 'Nenhum gatilho encontrado',
+      grade: 'Neutro',
+      hasTrigger: false,
+      description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
+      detail: 'Aguarde a formação de um padrão com fechamento acima da EMA 9 e EMA 30.',
       entry: null,
-      stop: null
+      stop: null,
+      entryLabel: null,
+      stopLabel: null
     };
+  }
+
+  function classifyRelativeStrength(score, classification) {
+    if (TradingRubrics && typeof TradingRubrics.classifyRelativeStrength === 'function') {
+      return TradingRubrics.classifyRelativeStrength(score, classification);
+    }
+    const hasScore = score !== null && score !== undefined && score !== '' && !Number.isNaN(Number(score));
+    const rawNum = hasScore ? Number(score) : null;
+    const hasNum = Number.isFinite(rawNum);
+    const num = hasNum ? Math.max(0, Math.min(100, Math.round(rawNum))) : null;
+    const c = String(classification || '').trim().toLowerCase();
+    if ((hasNum && num >= 90) || c.includes('líd') || c.includes('lead')) {
+      return { score: num, tier: 'leader', label: 'Líder', status: 'good', statusClass: 'good', badgeClass: 'good', color: '#15803d', icon: '🟢', dot: '●', display: num !== null ? `Líder (${num})` : 'Líder' };
+    }
+    if ((hasNum && num >= 70) || c.includes('fort') || c.includes('qualif')) {
+      return { score: num, tier: 'strong', label: 'Forte', status: 'good', statusClass: 'good', badgeClass: 'good', color: '#15803d', icon: '🟢', dot: '●', display: num !== null ? `Forte (${num})` : 'Forte' };
+    }
+    if ((hasNum && num < 40) || c.includes('frac') || c.includes('lag') || c.includes('abaixo')) {
+      return { score: num, tier: 'weak', label: 'Fraco', status: 'bad', statusClass: 'bad', badgeClass: 'bad', color: '#b91c1c', icon: '🔴', dot: '●', display: num !== null ? `Fraco (${num})` : 'Fraco' };
+    }
+    return { score: num, tier: 'neutral', label: 'Neutro', status: 'neutral', statusClass: 'neutral', badgeClass: 'neutral', color: '#64748b', icon: '🟡', dot: '●', display: num !== null ? `Neutro (${num})` : 'Neutro' };
+  }
+
+  function getRubricGradeVisual(grade) {
+    if (TradingRubrics && typeof TradingRubrics.getRubricGradeVisual === 'function') {
+      return TradingRubrics.getRubricGradeVisual(grade);
+    }
+    const raw = String(grade || '').trim().toUpperCase();
+    if (raw === 'A+' || raw === 'A') {
+      return { grade: raw || 'A', status: 'good', statusClass: 'grade-a', badgeClass: 'good', color: '#15803d', bg: '#f0fdf4', border: '#bbf7d0', icon: '🏆', title: raw === 'A+' ? 'Rare Trade (A+)' : 'Alta Qualidade (A)', summaryText: 'Setup com alta probabilidade segundo o seu método.', riskDescription: 'Risco nominal liberado' };
+    }
+    if (raw === 'B') {
+      return { grade: 'B', status: 'good', statusClass: 'grade-b', badgeClass: 'good', color: '#a16207', bg: '#fefce8', border: '#fef08a', icon: '✅', title: 'Bom Edge (B)', summaryText: 'Setup dentro dos parâmetros de risco controlado.', riskDescription: 'Risco moderado permitido' };
+    }
+    if (raw === 'C') {
+      return { grade: 'C', status: 'neutral', statusClass: 'grade-c', badgeClass: 'neutral', color: '#c2410c', bg: '#fff7ed', border: '#fed7aa', icon: '⚠️', title: 'Edge Pequeno (C)', summaryText: 'Qualidade limítrofe. Exige cautela e dimensionamento reduzido.', riskDescription: 'Risco mínimo reduzido' };
+    }
+    return { grade: raw || 'D', status: 'bad', statusClass: 'grade-d', badgeClass: 'bad', color: '#b91c1c', bg: '#fee2e2', border: '#fca5a5', icon: '⛔', title: 'Sem Edge (D)', summaryText: 'Sem Edge. Bloqueio automático com risco nominal zero (0%).', riskDescription: 'Operação bloqueada pelo método' };
+  }
+
+  function getRubricGradeColor(grade) {
+    return getRubricGradeVisual(grade).color;
   }
 
   return {
@@ -435,6 +607,9 @@
     evaluatePatienceIndex,
     calculateEma,
     calculateAtr,
-    detectSetupTriggers
+    detectSetupTriggers,
+    classifyRelativeStrength,
+    getRubricGradeVisual,
+    getRubricGradeColor
   };
 });
