@@ -71,9 +71,15 @@ async function start(userId, payload = {}) {
 
 async function heartbeat(userId, value) {
   const id = sessionId(value);
-  const result = await database.query(`UPDATE app.platform_access_sessions SET last_seen_at = now()
+  let result = await database.query(`UPDATE app.platform_access_sessions SET last_seen_at = now()
     WHERE id = $1 AND user_id = $2 AND closed_at IS NULL
     RETURNING id, opened_at, last_seen_at`, [id, userId]);
+  if (!result.rowCount) {
+    result = await database.query(`UPDATE app.platform_access_sessions
+      SET closed_at = NULL, duration_seconds = NULL, last_seen_at = now()
+      WHERE id = $1 AND user_id = $2
+      RETURNING id, opened_at, last_seen_at`, [id, userId]);
+  }
   if (!result.rowCount) throw invalid('Sessão de acesso não está ativa.');
   return result.rows[0];
 }

@@ -85,7 +85,7 @@
   }
   function heartbeatPlatformAccess() {
     if (!platformAccessStarted || !token()) return;
-    request(`/api/platform-access/sessions/${accessSessionId()}/heartbeat`, { method: 'POST', body: '{}' }).catch(() => {});
+    request(`/api/platform-access/sessions/${accessSessionId()}/heartbeat`, { method: 'POST', body: '{}' }).catch(() => { if (token()) { platformAccessStarted = false; sessionStorage.removeItem(ACCESS_SESSION_KEY); startPlatformAccess().catch(() => {}); } });
   }
   function closePlatformAccess() {
     if (!platformAccessStarted || !token()) return;

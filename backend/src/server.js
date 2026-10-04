@@ -576,7 +576,10 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf: cache.overview?.benchmarkHistory?.at(-1)?.date || null, source: cache.source, assetClass: selected.key, benchmark: selected.benchmark, universe: { requested: selected.requested, available: selected.available }, ...page(selected.items || [], url.searchParams) });
     }
     return send(response, 404, { error: 'Not found' });
-  } catch (error) { console.error(error); return send(response, error.status || 502, { error: error.status ? error.message : 'Falha ao consultar os dados solicitados', detail: error.message }); }
+  } catch (error) {
+    if (!error.status || error.status >= 500) console.error(error);
+    return send(response, error.status || 502, { error: error.status ? error.message : 'Falha ao consultar os dados solicitados', detail: error.message });
+  }
 });
 server.on('clientError', (err, socket) => {
   if (err.code === 'ECONNRESET' || !socket.writable) return;
