@@ -2315,13 +2315,27 @@
     const btnNewTrade = document.getElementById('btnNewTradeFromTrigger');
     if (btnNewTrade) {
       btnNewTrade.onclick = () => {
+        const tradeContext = window.TickerChartModel?.buildTradeContext
+          ? window.TickerChartModel.buildTradeContext(tickerData)
+          : {
+              symbol: tickerData?.tickerInfo?.symbol,
+              companyName: tickerData?.tickerInfo?.name,
+              date: tickerData?.tickerInfo?.sessionDate || tickerData?.tickerInfo?.date,
+              timeframe: 'Diário',
+              entryPrice: tickerData?.trigger?.entry,
+              stopLoss: tickerData?.trigger?.stop,
+              triggerName: tickerData?.trigger?.name,
+              triggerGrade: tickerData?.trigger?.grade || 'A',
+              source: 'charts_trigger'
+            };
+
         if (typeof window.go === 'function') {
           window.go('newtrade');
-          const symInput = document.getElementById('tradeTicker');
-          if (symInput && tickerData?.tickerInfo?.symbol) {
-            symInput.value = tickerData.tickerInfo.symbol;
-            symInput.dispatchEvent(new Event('input', { bubbles: true }));
-          }
+        }
+        if (typeof window.applyTradeContext === 'function') {
+          window.applyTradeContext(tradeContext);
+        } else {
+          window.__pendingTradeContext = tradeContext;
         }
       };
     }

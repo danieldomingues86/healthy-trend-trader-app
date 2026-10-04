@@ -110,7 +110,9 @@ function normalizePlan(payload = {}) {
       marketCycleSource: payload.marketCycleSource ? String(payload.marketCycleSource).slice(0, 20) : null,
       marketCycleSuggested: payload.marketCycleSuggested ? String(payload.marketCycleSuggested).slice(0, 40) : null,
       marketCycleUsed: payload.marketCycleUsed ? String(payload.marketCycleUsed).slice(0, 40) : null,
-      marketCycleOverride: payload.marketCycleOverride === true
+      marketCycleOverride: payload.marketCycleOverride === true,
+      timeframe: String(payload.timeframe || 'Diário').slice(0, 30),
+      tradeContext: (payload.tradeContext && typeof payload.tradeContext === 'object') ? payload.tradeContext : null
     },
     entryTimestamp: entryTimestamp(payload.entryDate)
   };

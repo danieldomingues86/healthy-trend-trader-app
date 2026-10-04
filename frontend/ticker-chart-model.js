@@ -592,6 +592,246 @@
     return getRubricGradeVisual(grade).color;
   }
 
+  function formatContextNum(val, dec = 2) {
+    if (val === null || val === undefined || val === '' || Number.isNaN(Number(val))) return '—';
+    return Number(val).toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  }
+
+  function resolveLastIndicatorValue(series) {
+    if (Array.isArray(series)) {
+      for (let i = series.length - 1; i >= 0; i--) {
+        const v = series[i];
+        if (v !== null && v !== undefined && Number.isFinite(Number(v))) return Number(v);
+      }
+      return null;
+    }
+    return Number.isFinite(Number(series)) ? Number(series) : null;
+  }
+
+  function buildTradeContext(tickerData = {}) {
+    const info = tickerData.tickerInfo || {};
+    const trig = tickerData.trigger || {};
+    const rs = tickerData.relativeStrength || {};
+    const cycle = tickerData.marketCycle || {};
+    const trend = tickerData.trend || {};
+    const struct = tickerData.structure || {};
+    const vol = tickerData.volatility || {};
+    const inds = tickerData.indicators || {};
+    const funds = tickerData.fundamentals || {};
+    const ctx = tickerData.context || {};
+
+    const symbol = String(info.symbol || trig.symbol || '').trim().toUpperCase();
+    const companyName = String(info.name || symbol);
+    const date = String(info.sessionDate || info.date || getTodayIsoDate()).slice(0, 10);
+    const timeframe = 'Diário';
+
+    const currentPrice = Number.isFinite(Number(info.price)) ? Number(info.price) : null;
+    const entryPrice = Number.isFinite(Number(trig.entry)) ? Number(trig.entry) : null;
+    const stopLoss = Number.isFinite(Number(trig.stop)) ? Number(trig.stop) : null;
+
+    const triggerKey = trig.id || null;
+    const triggerName = trig.name || (trig.hasTrigger ? 'Gatilho de Compra' : null);
+    const triggerGrade = trig.grade || 'A';
+
+    const ema9Val = resolveLastIndicatorValue(inds.ema9);
+    const ema30Val = resolveLastIndicatorValue(inds.ema30);
+    const atr21Val = Number.isFinite(Number(vol.atr21)) ? Number(vol.atr21) : (Number.isFinite(Number(inds.atr21)) ? Number(inds.atr21) : null);
+    const atrPctVal = Number.isFinite(Number(vol.atrPct)) ? Number(vol.atrPct) : (Number.isFinite(Number(inds.atrPct)) ? Number(inds.atrPct) : null);
+
+    let marketClass = 'Ações';
+    if (info.assetClass) {
+      const ac = String(info.assetClass).toLowerCase();
+      if (ac.includes('bdr')) marketClass = 'BDR';
+      else if (ac.includes('fii')) marketClass = 'FII';
+      else if (ac.includes('futuro')) marketClass = 'Futuros';
+      else if (ac.includes('cripto')) marketClass = 'Cripto';
+    } else if (/34|35$/.test(symbol)) {
+      marketClass = 'BDR';
+    } else if (/11$/.test(symbol) && (info.sector?.toLowerCase().includes('imobil') || info.sector?.toLowerCase().includes('fii'))) {
+      marketClass = 'FII';
+    }
+
+    return {
+      symbol,
+      companyName,
+      date,
+      timeframe,
+      marketClass,
+      currentPrice,
+      entryPrice,
+      stopLoss,
+      triggerKey,
+      triggerName,
+      triggerGrade,
+      relativeStrength: {
+        score: Number.isFinite(Number(rs.score)) ? Number(rs.score) : null,
+        classification: rs.classification || (rs.score >= 70 ? 'Forte' : 'Neutro')
+      },
+      marketCycle: {
+        regime: cycle.regime || 'healthy',
+        description: cycle.description || 'Positivo',
+        benchmark: cycle.benchmark || 'IBOV',
+        score: Number.isFinite(Number(cycle.score)) ? Number(cycle.score) : null
+      },
+      trend: {
+        status: trend.status || 'Alta',
+        formula: trend.formula || 'Preço > EMA 9 > EMA 30',
+        priceAboveEma9: trend.priceAboveEma9 !== false,
+        ema9AboveEma30: trend.ema9AboveEma30 !== false,
+        bothSlopingUp: trend.bothSlopingUp !== false
+      },
+      structure: {
+        label: struct.label || 'Pullback',
+        description: struct.description || 'Pullback'
+      },
+      volatility: {
+        atr21: atr21Val,
+        atrPct: atrPctVal,
+        regime: vol.regime || (atrPctVal && atrPctVal < 3 ? 'Baixa' : 'Normal')
+      },
+      technicals: {
+        ema9: ema9Val,
+        ema30: ema30Val
+      },
+      fundamentals: {
+        available: funds.available !== false,
+        evaluation: funds.available === false ? 'Neutro' : 'Fortes',
+        ...funds
+      },
+      context: {
+        title: ctx.title || 'Super Contexto',
+        description: ctx.description || 'Ativo em tendência alinhada no gráfico Diário.'
+      },
+      source: 'charts_trigger',
+      importedAt: new Date().toISOString()
+    };
+  }
+
+  function inferRubricRatingsFromContext(ctx) {
+    if (!ctx) return {
+      trendQuality: 'good',
+      relativeStrength: 'good',
+      setupQuality: 'good',
+      fundamentalScore: 'good'
+    };
+
+    // 1. Contexto do Ativo (Diário) - trendQuality
+    let trendQuality = 'good';
+    if (ctx.trend) {
+      const isStrong = ctx.trend.priceAboveEma9 && ctx.trend.ema9AboveEma30;
+      const isPullback = ctx.structure?.label?.toLowerCase().includes('pullback') || ctx.structure?.label?.toLowerCase().includes('contração');
+      if (isStrong && isPullback) {
+        trendQuality = 'good';
+      } else if (isStrong || ctx.trend.status?.toLowerCase().includes('alta')) {
+        trendQuality = 'good';
+      } else if (ctx.trend.status?.toLowerCase().includes('neutr') || ctx.trend.status?.toLowerCase().includes('lateral')) {
+        trendQuality = 'medium';
+      } else {
+        trendQuality = 'bad';
+      }
+    }
+
+    // 2. Ciclo de Mercado - marketCycle
+    let marketCycle = 'healthy';
+    if (ctx.marketCycle) {
+      const reg = String(ctx.marketCycle.regime || '').toLowerCase();
+      if (reg.includes('defens') || reg.includes('down') || reg.includes('baixa')) {
+        marketCycle = 'defensive';
+      } else if (reg.includes('trans') || reg.includes('neutr') || (ctx.marketCycle.score != null && ctx.marketCycle.score < 70)) {
+        marketCycle = 'transition';
+      } else {
+        marketCycle = 'healthy';
+      }
+    }
+
+    // 3. Força Relativa (RS) - relativeStrength
+    let relativeStrength = 'good';
+    if (ctx.relativeStrength) {
+      const rsScore = ctx.relativeStrength.score;
+      const rsClass = String(ctx.relativeStrength.classification || '').toLowerCase();
+      if ((rsScore != null && rsScore >= 70) || rsClass.includes('líd') || rsClass.includes('fort')) {
+        relativeStrength = 'good';
+      } else if ((rsScore != null && rsScore >= 40) || rsClass.includes('neutr')) {
+        relativeStrength = 'medium';
+      } else if (rsScore != null && rsScore < 40) {
+        relativeStrength = 'bad';
+      }
+    }
+
+    // 4. Gatilho de Entrada - setupQuality
+    let setupQuality = 'good';
+    const grade = String(ctx.triggerGrade || 'A').toUpperCase();
+    if (grade === 'A+' || grade === 'A') {
+      setupQuality = 'good';
+    } else if (grade === 'B') {
+      setupQuality = 'medium';
+    } else {
+      setupQuality = 'bad';
+    }
+
+    // 5. Fundamentos - fundamentalScore
+    let fundamentalScore = 'good';
+    if (ctx.fundamentals) {
+      if (ctx.fundamentals.available === false) {
+        fundamentalScore = 'medium';
+      } else if (ctx.fundamentals.roe?.positive && ctx.fundamentals.netMargin?.positive && ctx.fundamentals.netDebtToEbitda?.positive) {
+        fundamentalScore = 'good';
+      } else if (ctx.fundamentals.roe?.positive || ctx.fundamentals.netMargin?.positive) {
+        fundamentalScore = 'medium';
+      }
+    }
+
+    return {
+      trendQuality,
+      marketCycle,
+      relativeStrength,
+      setupQuality,
+      fundamentalScore
+    };
+  }
+
+  function formatTradeThesis(ctx) {
+    if (!ctx) return '';
+    const parts = [];
+    const sym = ctx.symbol || 'ATIVO';
+    const name = ctx.companyName && ctx.companyName !== sym ? ` (${ctx.companyName})` : '';
+    parts.push(`• Ativo: ${sym}${name} — Timeframe: ${ctx.timeframe || 'Diário'}`);
+    if (ctx.triggerName) {
+      parts.push(`• Gatilho: ${ctx.triggerName} (Grade ${ctx.triggerGrade || 'A'})`);
+    }
+    if (ctx.entryPrice != null && ctx.stopLoss != null) {
+      parts.push(`• Entrada sugerida: R$ ${formatContextNum(ctx.entryPrice)} | Stop inicial: R$ ${formatContextNum(ctx.stopLoss)}`);
+    }
+    if (ctx.trend?.formula || ctx.structure?.label) {
+      const formula = ctx.trend?.formula || 'Preço > EMA 9 > EMA 30';
+      const struct = ctx.structure?.label ? ` (Estrutura: ${ctx.structure.label})` : '';
+      parts.push(`• Tendência: ${formula}${struct}`);
+    }
+    if (ctx.relativeStrength) {
+      const rsLabel = ctx.relativeStrength.classification || (ctx.relativeStrength.score >= 70 ? 'Forte' : 'Neutro');
+      const rsScore = ctx.relativeStrength.score != null ? ` (${ctx.relativeStrength.score})` : '';
+      parts.push(`• Força Relativa: ${rsLabel}${rsScore}`);
+    }
+    if (ctx.marketCycle) {
+      const cycleDesc = ctx.marketCycle.description || (ctx.marketCycle.regime === 'healthy' ? 'Positivo' : ctx.marketCycle.regime);
+      const bmk = ctx.marketCycle.benchmark ? ` [${ctx.marketCycle.benchmark}]` : '';
+      parts.push(`• Ciclo de Mercado: ${cycleDesc}${bmk}`);
+    }
+    if (ctx.volatility) {
+      const atrTxt = ctx.volatility.atr21 != null ? `ATR ${formatContextNum(ctx.volatility.atr21)}` : '';
+      const atrPctTxt = ctx.volatility.atrPct != null ? ` (${formatContextNum(ctx.volatility.atrPct)}%)` : '';
+      const reg = ctx.volatility.regime ? ` — ${ctx.volatility.regime}` : '';
+      if (atrTxt) parts.push(`• Volatilidade: ${atrTxt}${atrPctTxt}${reg}`);
+    }
+    if (ctx.technicals?.ema9 != null && ctx.technicals?.ema30 != null) {
+      parts.push(`• Médias: EMA 9: ${formatContextNum(ctx.technicals.ema9)} | EMA 30: ${formatContextNum(ctx.technicals.ema30)}`);
+    }
+    if (ctx.context?.title) {
+      parts.push(`• Contexto: ${ctx.context.title}`);
+    }
+    return `Contexto da oportunidade (importado de Gráficos):\n` + parts.join('\n');
+  }
+
   return {
     STORAGE_KEY,
     MAX_PLANNED_SESSIONS_PER_DAY,
@@ -610,6 +850,9 @@
     detectSetupTriggers,
     classifyRelativeStrength,
     getRubricGradeVisual,
-    getRubricGradeColor
+    getRubricGradeColor,
+    buildTradeContext,
+    inferRubricRatingsFromContext,
+    formatTradeThesis
   };
 });

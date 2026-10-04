@@ -341,6 +341,106 @@ body:has(#newtrade.active) .content{max-width:none;padding:12px 18px;min-width:0
   color: #b9d8c4 !important;
   box-shadow: none !important;
 }
+
+/* ----------------------------------------------------
+   WORKBENCH CONTEXT BANNER (Integração Gráficos → Novo Trade)
+---------------------------------------------------- */
+.workbench-context-banner {
+  margin-bottom: 16px;
+  padding: 15px 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(16, 54, 38, 0.96), rgba(8, 36, 25, 0.98));
+  border: 1px solid rgba(143, 224, 170, 0.42);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #eff8f1;
+  position: relative;
+}
+.workbench-context-banner .wcb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.workbench-context-banner .wcb-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.workbench-context-banner .wcb-badge-import {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--mint, #8fe0aa);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.workbench-context-banner .wcb-symbol {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.workbench-context-banner .wcb-symbol small {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a8d5b8;
+  margin-left: 6px;
+}
+.workbench-context-banner .wcb-dismiss {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #c4dccb;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.workbench-context-banner .wcb-dismiss:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+.workbench-context-banner .wcb-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.workbench-context-banner .wcb-pill {
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(143, 224, 170, 0.25);
+  border-radius: 7px;
+  padding: 4px 9px;
+  color: #e2f2e7;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.workbench-context-banner .wcb-pill b {
+  color: #8fe0aa;
+  font-weight: 700;
+}
+.workbench-context-banner .wcb-footer {
+  border-top: 1px solid rgba(143, 224, 170, 0.15);
+  padding-top: 8px;
+}
+.workbench-context-banner .wcb-footer small {
+  font-size: 11px;
+  color: #9ec6ad;
+  line-height: 1.4;
+  display: block;
+}
+
 </style>
 <style>
 /* O estado escolhido precisa ser inequívoco durante a avaliação do Rubric. */
@@ -985,7 +1085,7 @@ titles.emergingleaders='Líderes Emergentes';
 titles.watchlist='Watchlist';
 titles.about='Sobre';
 titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.tradertraining='Treinamento Trader';titles.tradesimulator='Simulador de Trades';
-function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Diário de Trader / <b>Treinamento Trader</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / <b>Simulador de Trades</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){window.loadTickerChart();}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Diário de Trader / <b>Treinamento Trader</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / <b>Simulador de Trades</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){window.loadTickerChart();}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
 function marketCandles(seed=0,count=16){return Array.from({length:count},(_,i)=>{const h=18+((i*17+seed*11)%46),mb=7+((i*13+seed*7)%38),wick=h+13+((i*7+seed)%20),trend=i>count*.62?'down':'up';return `<i class="market-candle ${trend}" style="--h:${h}px;--mb:${mb}px;--wick:${wick}px"></i>`}).join('')}
 function setMarketRange(button){document.querySelectorAll('.market-range button').forEach(item=>item.classList.toggle('active',item===button));}
 function moneyBRL(value,decimals=2){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(value)}
@@ -1227,6 +1327,7 @@ function plannerPayload(){
     setupTrigger:setupTrigger||null,
     mode:value('tradeMode')||'real',
     entryDate:value('tradeEntryDate')||new Date().toISOString().slice(0,10),
+    timeframe:value('tradeTimeframe')||'Diário',
     entry:Number(value('entry'))||0,
     stop:Number(value('stop'))||0,
     atr:Number(value('atr'))||0,
@@ -1235,7 +1336,8 @@ function plannerPayload(){
     suggestedQty:suggested,
     executedQty:Number(value('tradeExecutedQty'))||0,
     executionPrice:Number(value('entry'))||0,
-    planningScreenshot:tradePlanningScreenshot
+    planningScreenshot:tradePlanningScreenshot,
+    tradeContext:window.activeTradeContext||null
   };
 }
 async function saveTradePlan(){
