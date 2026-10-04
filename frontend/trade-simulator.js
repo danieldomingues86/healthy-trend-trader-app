@@ -1588,10 +1588,10 @@
                     <b>Gestão 2R — Base</b>
                   </div>
                   <ul class="sim-expl-bullets">
-                    <li>Entrada: 1R de risco inicial</li>
+                    <li>Entrada: Risco inicial 1R</li>
                     <li>Stop: -1R</li>
-                    <li>Saída: 100% da posição em +2R</li>
-                    <li>Sem piramidagem.</li>
+                    <li>Saída: 100% em +2R</li>
+                    <li>Sem piramidagem</li>
                   </ul>
                 </div>
                 <div class="sim-expl-item-diagram">
@@ -1604,13 +1604,13 @@
                 <div class="sim-expl-item-body">
                   <div class="sim-expl-title-row">
                     <span class="scen-circle-dot dot-yellow"></span>
-                    <b>Gestão 2,5R — Alvo Estendido</b>
+                    <b>Gestão 2,5R — Alvo Est.</b>
                   </div>
                   <ul class="sim-expl-bullets">
-                    <li>Entrada: 1R de risco inicial</li>
-                    <li>Stop: -1R (ao atingir +1R move para breakeven)</li>
-                    <li>Saída: 100% da posição em +2,5R</li>
-                    <li>Sem piramidagem.</li>
+                    <li>Entrada: Risco inicial 1R</li>
+                    <li>Stop: -1R (+1R move p/ BE)</li>
+                    <li>Saída: 100% em +2,5R</li>
+                    <li>Sem piramidagem</li>
                   </ul>
                 </div>
                 <div class="sim-expl-item-diagram">
@@ -1623,12 +1623,12 @@
                 <div class="sim-expl-item-body">
                   <div class="sim-expl-title-row">
                     <span class="scen-circle-dot dot-blue"></span>
-                    <b>Gestão Pirâmide — 1R → 2R</b>
+                    <b>Pirâmide — 1R → 2R</b>
                   </div>
                   <ul class="sim-expl-bullets">
-                    <li>Entrada 1: 1R de risco inicial</li>
-                    <li>Ao atingir +1R: adiciona lote e move stop para breakeven</li>
-                    <li>Saída: 100% em +2R (+3,00R consolidado)</li>
+                    <li>Entrada: Risco inicial 1R</li>
+                    <li>Em +1R: add lote e stop p/ BE</li>
+                    <li>Saída: 100% em +2R (+3R total)</li>
                   </ul>
                 </div>
                 <div class="sim-expl-item-diagram">
@@ -1641,12 +1641,12 @@
                 <div class="sim-expl-item-body">
                   <div class="sim-expl-title-row">
                     <span class="scen-circle-dot dot-purple"></span>
-                    <b>Parcial 50% (2R) + MM9</b>
+                    <b>Parcial 50% + MM9</b>
                   </div>
                   <ul class="sim-expl-bullets">
-                    <li>Entrada: 1R de risco inicial</li>
-                    <li>Ao atingir +2R: embolsa 50% (+1,00R fixo) e move stop para breakeven</li>
-                    <li>Condução: 50% restantes correm até perder a média de 9 períodos</li>
+                    <li>Entrada: Risco inicial 1R</li>
+                    <li>Em +2R: 50% (+1R) e stop p/ BE</li>
+                    <li>Runner: 50% conduzidos na MM9</li>
                   </ul>
                 </div>
                 <div class="sim-expl-item-diagram">
@@ -1659,12 +1659,12 @@
                 <div class="sim-expl-item-body">
                   <div class="sim-expl-title-row">
                     <span class="scen-circle-dot dot-cyan"></span>
-                    <b>Parcial 80% (2R) + MM9</b>
+                    <b>Parcial 80% + MM9</b>
                   </div>
                   <ul class="sim-expl-bullets">
-                    <li>Entrada: 1R de risco inicial</li>
-                    <li>Ao atingir +2R: embolsa 80% (+1,60R fixo) e move stop para breakeven</li>
-                    <li>Condução: 20% restantes correm até perder a média de 9 períodos</li>
+                    <li>Entrada: Risco inicial 1R</li>
+                    <li>Em +2R: 80% (+1,6R) e stop p/ BE</li>
+                    <li>Runner: 20% conduzidos na MM9</li>
                   </ul>
                 </div>
                 <div class="sim-expl-item-diagram">
@@ -2208,8 +2208,11 @@
     container.querySelectorAll('[data-scenario-select]').forEach(opt => {
       opt.addEventListener('click', (e) => {
         e.stopPropagation();
-        state.tempScenarioSelection = opt.dataset.scenarioSelect;
-        render();
+        const scen = opt.getAttribute('data-scenario-select') || opt.dataset.scenarioSelect;
+        if (scen) {
+          state.tempScenarioSelection = scen;
+          render();
+        }
       });
     });
 
@@ -2268,7 +2271,7 @@
     container.querySelectorAll('[data-switch-scenario]').forEach(th => {
       th.addEventListener('click', (e) => {
         e.stopPropagation();
-        const scen = th.dataset.switchScenario;
+        const scen = th.getAttribute('data-switch-scenario') || th.dataset.switchScenario;
         if (scen && scen !== state.activeScenario) {
           generateScenarioMass(scen);
         }

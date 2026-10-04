@@ -1382,6 +1382,24 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
   box-shadow: 0 0 0 1px #0284c7;
 }
 
+.sim-scenario-option.selected[data-scenario-select="PARTIAL_50_2R_EMA9"] {
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+  box-shadow: 0 0 0 1px #8b5cf6;
+}
+
+.sim-scenario-option.selected[data-scenario-select="PARTIAL_80_2R_EMA9"] {
+  border-color: #06b6d4;
+  background: #ecfeff;
+  box-shadow: 0 0 0 1px #06b6d4;
+}
+
+.sim-scenario-option.selected {
+  border-color: #10b981;
+  background: #f0fdf4;
+  box-shadow: 0 0 0 1px #10b981;
+}
+
 .sim-scen-opt-left {
   display: flex;
   align-items: center;
@@ -1429,6 +1447,45 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
   height: 10px;
   border-radius: 50%;
   background: #0284c7;
+}
+
+.sim-scenario-option.selected[data-scenario-select="PARTIAL_50_2R_EMA9"] .sim-scen-radio {
+  border-color: #8b5cf6;
+}
+.sim-scenario-option.selected[data-scenario-select="PARTIAL_50_2R_EMA9"] .sim-scen-radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #8b5cf6;
+}
+
+.sim-scenario-option.selected[data-scenario-select="PARTIAL_80_2R_EMA9"] .sim-scen-radio {
+  border-color: #06b6d4;
+}
+.sim-scenario-option.selected[data-scenario-select="PARTIAL_80_2R_EMA9"] .sim-scen-radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #06b6d4;
+}
+
+.sim-scenario-option.selected .sim-scen-radio {
+  border-color: #10b981;
+}
+.sim-scenario-option.selected .sim-scen-radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+}
+.sim-scen-radio.checked {
+  border-color: #10b981;
+}
+.sim-scen-radio.checked .sim-scen-radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
 }
 
 .sim-scen-opt-title {
@@ -1683,27 +1740,27 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
 .sim-compare-modal-box {
   background: #0b1712;
   color: #f1ede3;
-  border-radius: 24px;
-  width: 100%;
-  max-width: 1120px;
-  max-height: 94vh;
+  border-radius: 20px;
+  width: 96vw;
+  max-width: 1500px;
+  max-height: 96vh;
   overflow-y: auto;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.12);
   animation: simModalFadeIn 0.2s ease-out;
-  padding: 28px 32px;
+  padding: 16px 22px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 10px;
 }
 
 .sim-compare-modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 18px;
+  padding-bottom: 8px;
 }
 
 .sim-compare-header-badge {
@@ -1711,22 +1768,22 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
   font-weight: 800;
   letter-spacing: 0.08em;
   color: #34d399;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .sim-compare-header-left h2 {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
   color: #ffffff;
-  margin: 0 0 6px;
+  margin: 0 0 2px;
   letter-spacing: -0.02em;
 }
 
 .sim-compare-header-left p {
-  font-size: 13px;
+  font-size: 12px;
   color: #94a3b8;
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 .sim-compare-header-right {
@@ -1740,7 +1797,7 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
   color: #cbd5e1;
   font-size: 11px;
   font-weight: 600;
-  padding: 6px 12px;
+  padding: 5px 12px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   white-space: nowrap;
@@ -1749,38 +1806,36 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
 .sim-compare-table-container {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 16px;
+  border-radius: 12px;
   overflow-x: auto;
-  padding: 8px 12px;
+  padding: 2px 4px;
 }
 
 .sim-comparison-table {
   width: 100%;
-  min-width: 900px;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 12px;
+  table-layout: fixed;
 }
 
 .sim-comparison-table thead th {
-  padding: 12px 14px;
+  padding: 6px 8px;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sim-comparison-table thead th.th-metric {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #94a3b8;
-  width: 18%;
-  min-width: 140px;
+  width: 16%;
 }
 
 .sim-comparison-table thead th.th-scen {
-  width: 16.4%;
-  min-width: 135px;
-  border-radius: 8px 8px 0 0;
+  width: 16.8%;
+  border-radius: 6px 6px 0 0;
   cursor: pointer;
   transition: background 0.12s ease;
 }
@@ -1792,25 +1847,29 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
 .scen-th-inner {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .scen-th-title-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 5px;
+  font-size: 12px;
   font-weight: 700;
   color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .scen-th-badge {
   display: inline-block;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 6px;
+  padding: 1.5px 6px;
+  border-radius: 5px;
   width: fit-content;
+  white-space: nowrap;
 }
 
 .badge-green {
@@ -1856,14 +1915,15 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
 }
 
 .sim-comparison-table tbody td {
-  padding: 10px 14px;
+  padding: 4px 8px;
   color: #e2e8f0;
+  white-space: nowrap;
 }
 
 .sim-comparison-table tbody td.td-metric-name {
   color: #94a3b8;
   font-weight: 500;
-  font-size: 12.5px;
+  font-size: 11.5px;
 }
 
 .sim-comparison-table tbody td.metric-accent {
@@ -1904,33 +1964,35 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
 .sim-compare-explanation-container {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
-  padding: 18px 20px;
+  border-radius: 12px;
+  padding: 8px 12px;
 }
 
 .sim-compare-expl-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #34d399;
-  margin-bottom: 14px;
+  margin-bottom: 6px;
 }
 
 .sim-compare-expl-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .sim-expl-item {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 14px 14px;
+  border-radius: 10px;
+  padding: 8px 9px;
   background: rgba(255, 255, 255, 0.02);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 4px;
+  min-width: 0;
 }
 
 .sim-expl-item.item-part50 {
@@ -1944,46 +2006,64 @@ body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
 .sim-expl-title-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 5px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 6px;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sim-expl-bullets {
   margin: 0;
-  padding-left: 18px;
-  font-size: 11.5px;
+  padding-left: 14px;
+  font-size: 10px;
   color: #94a3b8;
-  line-height: 1.5;
+  line-height: 1.35;
 }
 
 .sim-expl-item-diagram {
-  margin-top: 4px;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.1);
-  overflow-x: auto;
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.sim-expl-item-diagram svg {
+  width: 100%;
+  max-width: 160px;
+  height: 26px;
+  display: block;
+  margin: 0 auto;
 }
 
 .sim-compare-modal-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 10px;
+  padding-top: 6px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sim-compare-footer-info {
-  font-size: 12px;
+  font-size: 11px;
   color: #94a3b8;
 }
 
-@media (max-width: 950px) {
+@media (max-width: 1100px) {
+  .sim-compare-expl-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
   .sim-compare-expl-grid {
     grid-template-columns: 1fr;
   }
 }
+
 
 @media (max-width: 800px) {
   #tradesimulator {
