@@ -622,15 +622,28 @@
     });
 
     // 7. Navegação para gráfico do ativo (Ticker)
+    const navigateToTicker = (ticker) => {
+      if (!ticker) return;
+      let targetTicker = String(ticker).trim().toUpperCase();
+      if (targetTicker === 'NDX') targetTicker = 'QQQ';
+      state.activeModalStoryId = null;
+      if (typeof window !== 'undefined') {
+        window.__pendingChartsTicker = targetTicker;
+      }
+      if (typeof root.go === 'function') {
+        root.go('charts', targetTicker);
+      }
+      if (typeof window.loadTickerChart === 'function') {
+        window.loadTickerChart(targetTicker);
+      }
+    };
+
     container.querySelectorAll('[data-nav-ticker]').forEach(el => {
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         const ticker = el.dataset.navTicker;
         if (ticker) {
-          state.activeModalStoryId = null;
-          if (typeof root.go === 'function') {
-            root.go('charts', ticker);
-          }
+          navigateToTicker(ticker);
         }
       });
     });
