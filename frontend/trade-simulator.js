@@ -14,7 +14,7 @@
     simulations: [],
     loading: false,
     filters: {
-      days: 90,
+      days: 120,
       trigger: 'ALL',
       sector: 'ALL',
       grade: 'ALL',
@@ -197,7 +197,7 @@
           state.loading = false;
           render();
           if (typeof root.showToast === 'function') {
-            root.showToast('✓ Simulador restaurado para a base oficial de 24 trades.');
+            root.showToast('✓ Simulador restaurado para a base oficial de 42 trades.');
           }
           return;
         }
@@ -211,7 +211,7 @@
     state.loading = false;
     render();
     if (typeof root.showToast === 'function') {
-      root.showToast('✓ Massa de teste de 24 trades carregada com sucesso.');
+      root.showToast('✓ Massa de teste de 42 trades (últimos 4 meses) carregada com sucesso.');
     }
   }
 
@@ -520,7 +520,11 @@
    * 1. Header com Título, Badge BETA e Filtros Superiores
    */
   function renderHeader() {
-    const daysLabel = state.filters.days === 90 ? 'Últimos 90 dias' : (state.filters.days === 30 ? 'Últimos 30 dias' : 'Todo o período');
+    const daysLabel = state.filters.days === 120
+      ? 'Últimos 120 dias (4 meses)'
+      : (state.filters.days === 90
+        ? 'Últimos 90 dias'
+        : (state.filters.days === 30 ? 'Últimos 30 dias' : 'Todo o período'));
     const triggerLabel = state.filters.trigger === 'ALL' ? 'Todos os gatilhos' : state.filters.trigger;
     const sectorLabel = state.filters.sector === 'ALL' ? 'Todos os setores' : state.filters.sector;
     const gradeLabel = state.filters.grade === 'ALL' ? 'Todas as notas' : `Nota ${state.filters.grade}`;
@@ -536,8 +540,8 @@
 
         <div class="sim-top-filters">
           <!-- Botão Gerar Massa de Teste -->
-          <button class="sim-btn-seed" type="button" id="simBtnSeedMass" title="Gera massa de 24 trades simulados dos últimos 2 meses para validação">
-            <span>⚡ Gerar Massa de Teste (2 Meses)</span>
+          <button class="sim-btn-seed" type="button" id="simBtnSeedMass" title="Gera massa de 42 trades simulados dos últimos 4 meses para validação">
+            <span>⚡ Gerar Massa de Teste (4 Meses)</span>
           </button>
 
           <!-- Filtro Período -->
@@ -550,6 +554,7 @@
             <div class="sim-dropdown-menu ${state.activeDropdown === 'days' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.days === 30 ? 'active' : ''}" data-filter-type="days" data-filter-val="30">Últimos 30 dias</button>
               <button class="sim-dropdown-item ${state.filters.days === 90 ? 'active' : ''}" data-filter-type="days" data-filter-val="90">Últimos 90 dias</button>
+              <button class="sim-dropdown-item ${state.filters.days === 120 ? 'active' : ''}" data-filter-type="days" data-filter-val="120">Últimos 120 dias (4 meses)</button>
               <button class="sim-dropdown-item ${state.filters.days === 'ALL' ? 'active' : ''}" data-filter-type="days" data-filter-val="ALL">Todo o período</button>
             </div>
           </div>
@@ -607,9 +612,7 @@
           <div class="sim-filter-select-wrap">
             <button class="sim-more-btn" type="button" data-dropdown="more" title="Mais opções">···</button>
             <div class="sim-dropdown-menu ${state.activeDropdown === 'more' ? 'open' : ''}">
-              <button class="sim-dropdown-item" id="simActionSeedMass">⚡ Gerar Massa de Teste (2 Meses)</button>
               <button class="sim-dropdown-item" id="simActionEvaluate">⚡ Reavaliar candles agora</button>
-              <button class="sim-dropdown-item" id="simActionReset">🔄 Restaurar dados padrão (24 trades)</button>
               <button class="sim-dropdown-item" id="simActionClearAll" style="color: #ef4444;">🗑️ Excluir todas as simulações</button>
             </div>
           </div>
@@ -1554,24 +1557,13 @@
       });
     });
 
-    // Botão de gerar massa de teste no topo
+    // Botão de gerar massa de teste no topo (botão único)
     container.querySelector('#simBtnSeedMass')?.addEventListener('click', (e) => {
       e.stopPropagation();
       resetToDefaults();
     });
 
     // Ações do menu mais (...)
-    container.querySelector('#simActionSeedMass')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.activeDropdown = null;
-      resetToDefaults();
-    });
-
-    container.querySelector('#simActionReset')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.activeDropdown = null;
-      resetToDefaults();
-    });
 
     container.querySelector('#simActionClearAll')?.addEventListener('click', (e) => {
       e.stopPropagation();

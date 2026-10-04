@@ -475,15 +475,6 @@
       }
     });
 
-    // Se temos itens de amostra com gatilhos associados a sinais específicos
-    // (ex: BBAS3 e VALE3 no design de referência que completam os 8 de Inside Bar e 7 de 1-2-3)
-    if (list.some(s => s.symbol === 'BBAS3') && triggerMap['Inside Bar']) {
-      triggerMap['Inside Bar'].count = 8;
-    }
-    if (list.some(s => s.symbol === 'VALE3') && triggerMap['1-2-3 de Compra']) {
-      triggerMap['1-2-3 de Compra'].count = 7;
-    }
-
     executedEntriesCount = Math.max(0, totalCreated - waitingCount);
     losingTradesCount = Math.max(0, executedEntriesCount - winningTradesCount);
 
@@ -593,6 +584,9 @@
     } else if (days === 90 || days === '90' || days === '90d') {
       const d = new Date(now.getTime() - 90 * 24 * 3600 * 1000);
       minDateStr = d.toISOString().slice(0, 10);
+    } else if (days === 120 || days === '120' || days === '4m' || days === '120d') {
+      const d = new Date(now.getTime() - 120 * 24 * 3600 * 1000);
+      minDateStr = d.toISOString().slice(0, 10);
     } else if (days === 180 || days === '180' || days === '6m') {
       const d = new Date(now.getTime() - 180 * 24 * 3600 * 1000);
       minDateStr = d.toISOString().slice(0, 10);
@@ -652,20 +646,14 @@
   }
 
   /**
-   * Constrói o conjunto oficial de 19 simulações calibradas (sem o gatilho Pullback)
-   * garantindo exatamente:
-   * - 19 Simulações criadas
-   * - 14 Entradas executadas (73,68%)
-   * - 5 Aguardando entrada (26,32%)
-   * - 3 Em operação
-   * - 11 Encerradas (10 Wins = 71,4% Win Rate, 4 Losses)
-   * - Resultado total: +13,60R
-   * - R médio / trade: +0,97R
-   * - Gatilhos: Inside Bar (+8,4R), 1-2-3 de Compra (+5,1R), Outros (+0,1R)
+   * Constrói o conjunto de massa de teste calibrada cobrindo os últimos 3 a 4 meses
+   * (junho a outubro de 2026), com 42 trades gerados, sem o gatilho Pullback.
    */
   function getDefaultSeedSimulations() {
     return [
-      // 1. Em Operação (BPAC11, PETR4, SBSP3 = 3 itens)
+      // ==========================================
+      // 1. EM OPERAÇÃO (4 itens - Ativos recentes)
+      // ==========================================
       {
         id: 'sim-bpac11-01',
         symbol: 'BPAC11',
@@ -681,9 +669,9 @@
         entryDate: '2026-10-03',
         currentStop: 66.03,
         currentPrice: 69.40,
-        resultR: 1.42,
-        mfeR: 1.68,
-        maeR: -0.35,
+        resultR: 1.13,
+        mfeR: 1.35,
+        maeR: -0.15,
         timeline: [
           { type: 'SIGNAL_IDENTIFIED', date: '2026-10-02', label: 'Gatilho identificado', desc: '1-2-3 de Compra (A) em BPAC11' },
           { type: 'SIMULATION_ADDED', date: '2026-10-02', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
@@ -707,15 +695,16 @@
         entryDate: '2026-09-30',
         currentStop: 49.80,
         currentPrice: 53.20,
-        resultR: 1.70,
-        mfeR: 2.05,
-        maeR: -0.28,
+        resultR: 3.78,
+        mfeR: 3.90,
+        maeR: -0.22,
         timeline: [
           { type: 'SIGNAL_IDENTIFIED', date: '2026-09-29', label: 'Gatilho identificado', desc: 'Inside Bar (A+) em PETR4' },
           { type: 'SIMULATION_ADDED', date: '2026-09-29', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
           { type: 'WAITING_ENTRY', date: '2026-09-29', label: 'Aguardando entrada', desc: 'Entrada planejada: R$ 49,80 | Stop: R$ 48,90' },
           { type: 'ENTRY_EXECUTED', date: '2026-09-30', label: 'Entrada executada', price: 49.80, desc: 'Entrada executada a R$ 49,80' },
-          { type: 'TARGET_1R', date: '2026-10-01', label: '+1R atingido', desc: 'Alcançou R$ 50,70 (+1,00R)' }
+          { type: 'TARGET_1R', date: '2026-10-01', label: '+1R atingido', desc: 'Alcançou R$ 50,70 (+1,00R)' },
+          { type: 'TARGET_2R', date: '2026-10-03', label: '+2R atingido', desc: 'Alcançou R$ 51,60 (+2,00R)' }
         ]
       },
       {
@@ -743,10 +732,37 @@
           { type: 'ENTRY_EXECUTED', date: '2026-10-04', label: 'Entrada executada', price: 89.50, desc: 'Entrada executada a R$ 89,50' }
         ]
       },
-
-      // 2. Aguardando Entrada (6 itens: VALE3, BBAS3, EMBR3, MULT3, CSAN3, B3SA3)
       {
-        id: 'sim-vale3-04',
+        id: 'sim-wege3-04',
+        symbol: 'WEGE3',
+        companyName: 'WEG S.A.',
+        triggerName: '1-2-3 de Compra',
+        grade: 'A+',
+        sector: 'Bens Industriais',
+        signalDate: '2026-09-30',
+        entryPrice: 54.20,
+        stopLoss: 52.80,
+        status: STATUS.IN_OPERATION,
+        executedEntryPrice: 54.20,
+        entryDate: '2026-10-01',
+        currentStop: 54.20,
+        currentPrice: 55.40,
+        resultR: 0.86,
+        mfeR: 1.05,
+        maeR: -0.20,
+        timeline: [
+          { type: 'SIGNAL_IDENTIFIED', date: '2026-09-30', label: 'Gatilho identificado', desc: '1-2-3 de Compra (A+) em WEGE3' },
+          { type: 'SIMULATION_ADDED', date: '2026-09-30', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
+          { type: 'WAITING_ENTRY', date: '2026-09-30', label: 'Aguardando entrada', desc: 'Entrada planejada: R$ 54,20 | Stop: R$ 52,80' },
+          { type: 'ENTRY_EXECUTED', date: '2026-10-01', label: 'Entrada executada', price: 54.20, desc: 'Entrada executada a R$ 54,20' }
+        ]
+      },
+
+      // ==========================================
+      // 2. AGUARDANDO ENTRADA (6 itens - Sinais recentes)
+      // ==========================================
+      {
+        id: 'sim-vale3-05',
         symbol: 'VALE3',
         companyName: 'Vale S.A.',
         triggerName: '1-2-3 de Compra',
@@ -767,7 +783,7 @@
         ]
       },
       {
-        id: 'sim-bbas3-05',
+        id: 'sim-bbas3-06',
         symbol: 'BBAS3',
         companyName: 'Banco do Brasil',
         triggerName: 'Inside Bar',
@@ -788,7 +804,7 @@
         ]
       },
       {
-        id: 'sim-embr3-06',
+        id: 'sim-embr3-07',
         symbol: 'EMBR3',
         companyName: 'Embraer S.A.',
         triggerName: 'Inside Bar',
@@ -809,7 +825,7 @@
         ]
       },
       {
-        id: 'sim-mult3-07',
+        id: 'sim-mult3-08',
         symbol: 'MULT3',
         companyName: 'Multiplan',
         triggerName: '1-2-3 de Compra',
@@ -850,11 +866,129 @@
           { type: 'WAITING_ENTRY', date: '2026-09-21', label: 'Aguardando entrada', desc: 'Entrada planejada: R$ 11,90 | Stop: R$ 11,30' }
         ]
       },
-
-      // 3. Encerrados (15 itens: 12 Wins, 3 Losses = 15 itens)
-      // Total R = +14,80R | Inside Bar: +8,4R | 1-2-3: +5,1R | Pullback: +1,2R | Outros: +0,1R
       {
-        id: 'sim-itub4-10',
+        id: 'sim-csan3-10',
+        symbol: 'CSAN3',
+        companyName: 'Cosan S.A.',
+        triggerName: '1-2-3 de Compra',
+        grade: 'B',
+        sector: 'Petróleo e Gás',
+        signalDate: '2026-10-02',
+        entryPrice: 14.30,
+        stopLoss: 13.60,
+        status: STATUS.WAITING_ENTRY,
+        currentPrice: 14.10,
+        resultR: null,
+        mfeR: null,
+        maeR: null,
+        timeline: [
+          { type: 'SIGNAL_IDENTIFIED', date: '2026-10-02', label: 'Gatilho identificado', desc: '1-2-3 de Compra (B) em CSAN3' },
+          { type: 'SIMULATION_ADDED', date: '2026-10-02', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
+          { type: 'WAITING_ENTRY', date: '2026-10-02', label: 'Aguardando entrada', desc: 'Entrada planejada: R$ 14,30 | Stop: R$ 13,60' }
+        ]
+      },
+
+      // ==========================================
+      // 3. NÃO ACIONADOS (4 itens - Stop violado antes da entrada)
+      // ==========================================
+      {
+        id: 'sim-cyre3-11',
+        symbol: 'CYRE3',
+        companyName: 'Cyrela Brazil Realty',
+        triggerName: '1-2-3 de Compra',
+        grade: 'B',
+        sector: 'Consumo Cíclico',
+        signalDate: '2026-08-14',
+        entryPrice: 23.50,
+        stopLoss: 22.40,
+        status: STATUS.NOT_TRIGGERED,
+        currentPrice: 22.10,
+        exitDate: '2026-08-18',
+        exitReason: 'Mínima violada antes do rompimento',
+        resultR: null,
+        mfeR: null,
+        maeR: null,
+        timeline: [
+          { type: 'SIGNAL_IDENTIFIED', date: '2026-08-14', label: 'Gatilho identificado', desc: '1-2-3 de Compra (B) em CYRE3' },
+          { type: 'SIMULATION_ADDED', date: '2026-08-14', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
+          { type: 'NOT_TRIGGERED', date: '2026-08-18', label: 'Não acionado', desc: 'Mínima do gatilho violada antes da ativação' }
+        ]
+      },
+      {
+        id: 'sim-rani3-12',
+        symbol: 'RANI3',
+        companyName: 'Irani Papel e Embalagem',
+        triggerName: 'Inside Bar',
+        grade: 'B',
+        sector: 'Materiais Básicos',
+        signalDate: '2026-07-18',
+        entryPrice: 8.90,
+        stopLoss: 8.40,
+        status: STATUS.NOT_TRIGGERED,
+        currentPrice: 8.30,
+        exitDate: '2026-07-22',
+        exitReason: 'Mínima violada antes do rompimento',
+        resultR: null,
+        mfeR: null,
+        maeR: null,
+        timeline: [
+          { type: 'SIGNAL_IDENTIFIED', date: '2026-07-18', label: 'Gatilho identificado', desc: 'Inside Bar (B) em RANI3' },
+          { type: 'SIMULATION_ADDED', date: '2026-07-18', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
+          { type: 'NOT_TRIGGERED', date: '2026-07-22', label: 'Não acionado', desc: 'Mínima do gatilho violada antes da ativação' }
+        ]
+      },
+      {
+        id: 'sim-recv3-13',
+        symbol: 'RECV3',
+        companyName: 'PetroRecôncavo',
+        triggerName: '1-2-3 de Compra',
+        grade: 'A',
+        sector: 'Petróleo e Gás',
+        signalDate: '2026-06-25',
+        entryPrice: 19.80,
+        stopLoss: 18.90,
+        status: STATUS.NOT_TRIGGERED,
+        currentPrice: 18.70,
+        exitDate: '2026-06-29',
+        exitReason: 'Mínima violada antes do rompimento',
+        resultR: null,
+        mfeR: null,
+        maeR: null,
+        timeline: [
+          { type: 'SIGNAL_IDENTIFIED', date: '2026-06-25', label: 'Gatilho identificado', desc: '1-2-3 de Compra (A) em RECV3' },
+          { type: 'SIMULATION_ADDED', date: '2026-06-25', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
+          { type: 'NOT_TRIGGERED', date: '2026-06-29', label: 'Não acionado', desc: 'Mínima do gatilho violada antes da ativação' }
+        ]
+      },
+      {
+        id: 'sim-mdia3-14',
+        symbol: 'MDIA3',
+        companyName: 'M. Dias Branco',
+        triggerName: 'Inside Bar',
+        grade: 'B',
+        sector: 'Consumo Não Cíclico',
+        signalDate: '2026-06-16',
+        entryPrice: 32.40,
+        stopLoss: 31.00,
+        status: STATUS.NOT_TRIGGERED,
+        currentPrice: 30.80,
+        exitDate: '2026-06-20',
+        exitReason: 'Mínima violada antes do rompimento',
+        resultR: null,
+        mfeR: null,
+        maeR: null,
+        timeline: [
+          { type: 'SIGNAL_IDENTIFIED', date: '2026-06-16', label: 'Gatilho identificado', desc: 'Inside Bar (B) em MDIA3' },
+          { type: 'SIMULATION_ADDED', date: '2026-06-16', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
+          { type: 'NOT_TRIGGERED', date: '2026-06-20', label: 'Não acionado', desc: 'Mínima do gatilho violada antes da ativação' }
+        ]
+      },
+
+      // ==========================================
+      // 4. ENCERRADOS VENCEDORES (20 itens - Junho a Setembro/Outubro)
+      // ==========================================
+      {
+        id: 'sim-itub4-15',
         symbol: 'ITUB4',
         companyName: 'Itaú Unibanco',
         triggerName: 'Inside Bar',
@@ -885,7 +1019,7 @@
         ]
       },
       {
-        id: 'sim-abev3-12',
+        id: 'sim-abev3-16',
         symbol: 'ABEV3',
         companyName: 'Ambev S.A.',
         triggerName: '1-2-3 de Compra',
@@ -916,7 +1050,28 @@
         ]
       },
       {
-        id: 'sim-rent3-14',
+        id: 'sim-lren3-17',
+        symbol: 'LREN3',
+        companyName: 'Lojas Renner',
+        triggerName: '1-2-3 de Compra',
+        grade: 'A',
+        sector: 'Consumo Cíclico',
+        signalDate: '2026-09-08',
+        entryPrice: 17.50,
+        stopLoss: 16.60,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 17.50,
+        entryDate: '2026-09-09',
+        currentPrice: 18.40,
+        exitPrice: 18.31,
+        exitDate: '2026-09-19',
+        exitReason: 'Trailing Stop (+0,9R)',
+        resultR: 0.90,
+        mfeR: 1.40,
+        maeR: -0.30
+      },
+      {
+        id: 'sim-rent3-18',
         symbol: 'RENT3',
         companyName: 'Localiza Rent a Car',
         triggerName: 'Inside Bar',
@@ -937,7 +1092,7 @@
         maeR: -0.20
       },
       {
-        id: 'sim-prio3-15',
+        id: 'sim-prio3-19',
         symbol: 'PRIO3',
         companyName: 'PRIO S.A.',
         triggerName: 'Inside Bar',
@@ -958,7 +1113,7 @@
         maeR: -0.30
       },
       {
-        id: 'sim-radl3-16',
+        id: 'sim-radl3-20',
         symbol: 'RADL3',
         companyName: 'Raia Drogasil',
         triggerName: '1-2-3 de Compra',
@@ -979,28 +1134,28 @@
         maeR: -0.15
       },
       {
-        id: 'sim-eqtl3-17',
-        symbol: 'EQTL3',
-        companyName: 'Equatorial Energia',
-        triggerName: '1-2-3 de Compra',
+        id: 'sim-klbn11-21',
+        symbol: 'KLBN11',
+        companyName: 'Klabin S.A.',
+        triggerName: 'Inside Bar',
         grade: 'A',
-        sector: 'Utilidade Pública',
-        signalDate: '2026-08-20',
-        entryPrice: 31.00,
-        stopLoss: 29.80,
-        status: STATUS.CLOSED_LOSS,
-        executedEntryPrice: 31.00,
-        entryDate: '2026-08-21',
-        currentPrice: 29.80,
-        exitPrice: 29.80,
-        exitDate: '2026-08-27',
-        exitReason: 'Stop Loss',
-        resultR: -1.00,
-        mfeR: 0.40,
-        maeR: -1.00
+        sector: 'Materiais Básicos',
+        signalDate: '2026-08-19',
+        entryPrice: 22.80,
+        stopLoss: 21.90,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 22.80,
+        entryDate: '2026-08-20',
+        currentPrice: 24.10,
+        exitPrice: 23.88,
+        exitDate: '2026-09-02',
+        exitReason: 'Trailing Stop (+1,2R)',
+        resultR: 1.20,
+        mfeR: 1.60,
+        maeR: -0.25
       },
       {
-        id: 'sim-suzb3-18',
+        id: 'sim-suzb3-22',
         symbol: 'SUZB3',
         companyName: 'Suzano S.A.',
         triggerName: 'Inside Bar',
@@ -1021,7 +1176,7 @@
         maeR: -0.35
       },
       {
-        id: 'sim-vbbr3-19',
+        id: 'sim-vbbr3-23',
         symbol: 'VBBR3',
         companyName: 'Vibra Energia',
         triggerName: '1-2-3 de Compra',
@@ -1042,7 +1197,28 @@
         maeR: -0.20
       },
       {
-        id: 'sim-cpfe3-21',
+        id: 'sim-jbss3-24',
+        symbol: 'JBSS3',
+        companyName: 'JBS S.A.',
+        triggerName: 'Inside Bar',
+        grade: 'A+',
+        sector: 'Consumo Não Cíclico',
+        signalDate: '2026-08-03',
+        entryPrice: 34.60,
+        stopLoss: 33.20,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 34.60,
+        entryDate: '2026-08-04',
+        currentPrice: 37.80,
+        exitPrice: 37.26,
+        exitDate: '2026-08-19',
+        exitReason: 'Sell Into Strength (+1,9R)',
+        resultR: 1.90,
+        mfeR: 2.30,
+        maeR: -0.25
+      },
+      {
+        id: 'sim-cpfe3-25',
         symbol: 'CPFE3',
         companyName: 'CPFL Energia',
         triggerName: 'Inside Bar',
@@ -1063,7 +1239,7 @@
         maeR: -0.15
       },
       {
-        id: 'sim-rdor3-22',
+        id: 'sim-rdor3-26',
         symbol: 'RDOR3',
         companyName: 'Rede D’Or',
         triggerName: '1-2-3 de Compra',
@@ -1084,7 +1260,28 @@
         maeR: -0.30
       },
       {
-        id: 'sim-cmig4-24',
+        id: 'sim-hype3-27',
+        symbol: 'HYPE3',
+        companyName: 'Hypera Pharma',
+        triggerName: '1-2-3 de Compra',
+        grade: 'A',
+        sector: 'Saúde',
+        signalDate: '2026-07-15',
+        entryPrice: 31.80,
+        stopLoss: 30.50,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 31.80,
+        entryDate: '2026-07-16',
+        currentPrice: 33.80,
+        exitPrice: 33.62,
+        exitDate: '2026-07-28',
+        exitReason: 'Sell Into Strength (+1,4R)',
+        resultR: 1.40,
+        mfeR: 1.70,
+        maeR: -0.35
+      },
+      {
+        id: 'sim-cmig4-28',
         symbol: 'CMIG4',
         companyName: 'CEMIG PN',
         triggerName: 'Outros',
@@ -1103,6 +1300,304 @@
         resultR: 0.10,
         mfeR: 1.10,
         maeR: -0.15
+      },
+      {
+        id: 'sim-sanb11-29',
+        symbol: 'SANB11',
+        companyName: 'Banco Santander Brasil',
+        triggerName: '1-2-3 de Compra',
+        grade: 'B',
+        sector: 'Financeiro',
+        signalDate: '2026-07-08',
+        entryPrice: 28.50,
+        stopLoss: 27.20,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 28.50,
+        entryDate: '2026-07-09',
+        currentPrice: 30.80,
+        exitPrice: 30.58,
+        exitDate: '2026-07-23',
+        exitReason: 'Sell Into Strength (+1,6R)',
+        resultR: 1.60,
+        mfeR: 1.85,
+        maeR: -0.20
+      },
+      {
+        id: 'sim-cple6-30',
+        symbol: 'CPLE6',
+        companyName: 'Copel PNB',
+        triggerName: 'Inside Bar',
+        grade: 'A+',
+        sector: 'Utilidade Pública',
+        signalDate: '2026-07-04',
+        entryPrice: 10.15,
+        stopLoss: 9.70,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 10.15,
+        entryDate: '2026-07-05',
+        currentPrice: 11.30,
+        exitPrice: 11.14,
+        exitDate: '2026-07-19',
+        exitReason: 'Sell Into Strength (+2,2R)',
+        resultR: 2.20,
+        mfeR: 2.40,
+        maeR: -0.15
+      },
+      {
+        id: 'sim-egie3-31',
+        symbol: 'EGIE3',
+        companyName: 'Engie Brasil',
+        triggerName: '1-2-3 de Compra',
+        grade: 'A',
+        sector: 'Utilidade Pública',
+        signalDate: '2026-06-28',
+        entryPrice: 42.60,
+        stopLoss: 41.20,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 42.60,
+        entryDate: '2026-06-29',
+        currentPrice: 45.40,
+        exitPrice: 45.12,
+        exitDate: '2026-07-15',
+        exitReason: 'Sell Into Strength (+1,8R)',
+        resultR: 1.80,
+        mfeR: 2.10,
+        maeR: -0.25
+      },
+      {
+        id: 'sim-ggbr4-32',
+        symbol: 'GGBR4',
+        companyName: 'Gerdau PN',
+        triggerName: 'Inside Bar',
+        grade: 'A',
+        sector: 'Materiais Básicos',
+        signalDate: '2026-06-22',
+        entryPrice: 20.40,
+        stopLoss: 19.50,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 20.40,
+        entryDate: '2026-06-23',
+        currentPrice: 22.40,
+        exitPrice: 22.20,
+        exitDate: '2026-07-08',
+        exitReason: 'Sell Into Strength (+2R)',
+        resultR: 2.00,
+        mfeR: 2.20,
+        maeR: -0.30
+      },
+      {
+        id: 'sim-flry3-33',
+        symbol: 'FLRY3',
+        companyName: 'Fleury S.A.',
+        triggerName: 'Inside Bar',
+        grade: 'A',
+        sector: 'Saúde',
+        signalDate: '2026-06-18',
+        entryPrice: 15.60,
+        stopLoss: 14.80,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 15.60,
+        entryDate: '2026-06-19',
+        currentPrice: 17.00,
+        exitPrice: 16.80,
+        exitDate: '2026-07-02',
+        exitReason: 'Sell Into Strength (+1,5R)',
+        resultR: 1.50,
+        mfeR: 1.80,
+        maeR: -0.20
+      },
+      {
+        id: 'sim-tots3-34',
+        symbol: 'TOTS3',
+        companyName: 'Totvs S.A.',
+        triggerName: '1-2-3 de Compra',
+        grade: 'A+',
+        sector: 'Tecnologia',
+        signalDate: '2026-06-15',
+        entryPrice: 31.50,
+        stopLoss: 30.10,
+        status: STATUS.CLOSED_GAIN,
+        executedEntryPrice: 31.50,
+        entryDate: '2026-06-16',
+        currentPrice: 34.60,
+        exitPrice: 34.44,
+        exitDate: '2026-06-30',
+        exitReason: 'Sell Into Strength (+2,1R)',
+        resultR: 2.10,
+        mfeR: 2.30,
+        maeR: -0.15
+      },
+
+      // ==========================================
+      // 5. ENCERRADOS PERDEDORES (8 itens - Junho a Setembro)
+      // ==========================================
+      {
+        id: 'sim-kepl3-35',
+        symbol: 'KEPL3',
+        companyName: 'Kepler Weber',
+        triggerName: 'Inside Bar',
+        grade: 'B',
+        sector: 'Bens Industriais',
+        signalDate: '2026-09-17',
+        entryPrice: 10.80,
+        stopLoss: 10.10,
+        status: STATUS.CLOSED_LOSS,
+        executedEntryPrice: 10.80,
+        entryDate: '2026-09-18',
+        currentPrice: 9.90,
+        exitPrice: 10.10,
+        exitDate: '2026-09-24',
+        exitReason: 'Stop Loss',
+        resultR: -1.00,
+        mfeR: 0.30,
+        maeR: -1.00
+      },
+      {
+        id: 'sim-eqtl3-36',
+        symbol: 'EQTL3',
+        companyName: 'Equatorial Energia',
+        triggerName: '1-2-3 de Compra',
+        grade: 'A',
+        sector: 'Utilidade Pública',
+        signalDate: '2026-08-20',
+        entryPrice: 31.00,
+        stopLoss: 29.80,
+        status: STATUS.CLOSED_LOSS,
+        executedEntryPrice: 31.00,
+        entryDate: '2026-08-21',
+        currentPrice: 29.80,
+        exitPrice: 29.80,
+        exitDate: '2026-08-27',
+        exitReason: 'Stop Loss',
+        resultR: -1.00,
+        mfeR: 0.40,
+        maeR: -1.00
+      },
+      {
+        id: 'sim-alos3-37',
+        symbol: 'ALOS3',
+        companyName: 'Allos S.A.',
+        triggerName: '1-2-3 de Compra',
+        grade: 'B',
+        sector: 'Financeiro',
+        signalDate: '2026-08-11',
+        entryPrice: 24.50,
+        stopLoss: 23.60,
+        status: STATUS.CLOSED_LOSS,
+        executedEntryPrice: 24.50,
+        entryDate: '2026-08-12',
+        currentPrice: 23.50,
+        exitPrice: 23.60,
+        exitDate: '2026-08-18',
+        exitReason: 'Stop Loss',
+        resultR: -1.00,
+        mfeR: 0.20,
+        maeR: -1.00
+      },
+      {
+        id: 'sim-tims3-38',
+        symbol: 'TIMS3',
+        companyName: 'TIM Brasil',
+        triggerName: 'Inside Bar',
+        grade: 'B',
+        sector: 'Telecomunicações',
+        signalDate: '2026-08-05',
+        entryPrice: 18.20,
+        stopLoss: 17.50,
+        status: STATUS.CLOSED_LOSS,
+        executedEntryPrice: 18.20,
+        entryDate: '2026-08-06',
+        currentPrice: 17.40,
+        exitPrice: 17.64,
+        exitDate: '2026-08-13',
+        exitReason: 'Stop Loss',
+        resultR: -0.80,
+        mfeR: 0.35,
+        maeR: -0.80
+      },
+      {
+        id: 'sim-csna3-39',
+        symbol: 'CSNA3',
+        companyName: 'Siderúrgica Nacional',
+        triggerName: '1-2-3 de Compra',
+        grade: 'B',
+        sector: 'Materiais Básicos',
+        signalDate: '2026-07-25',
+        entryPrice: 13.40,
+        stopLoss: 12.70,
+        status: STATUS.CLOSED_LOSS,
+        executedEntryPrice: 13.40,
+        entryDate: '2026-07-26',
+        currentPrice: 12.60,
+        exitPrice: 12.70,
+        exitDate: '2026-08-01',
+        exitReason: 'Stop Loss',
+        resultR: -1.00,
+        mfeR: 0.25,
+        maeR: -1.00
+      },
+      {
+        id: 'sim-elet3-40',
+        symbol: 'ELET3',
+        companyName: 'Eletrobras ON',
+        triggerName: 'Inside Bar',
+        grade: 'A',
+        sector: 'Utilidade Pública',
+        signalDate: '2026-07-12',
+        entryPrice: 41.20,
+        stopLoss: 39.80,
+        status: STATUS.CLOSED_LOSS,
+        executedEntryPrice: 41.20,
+        entryDate: '2026-07-13',
+        currentPrice: 39.50,
+        exitPrice: 39.80,
+        exitDate: '2026-07-20',
+        exitReason: 'Stop Loss',
+        resultR: -1.00,
+        mfeR: 0.30,
+        maeR: -1.00
+      },
+      {
+        id: 'sim-smto3-41',
+        symbol: 'SMTO3',
+        companyName: 'São Martinho',
+        triggerName: 'Inside Bar',
+        grade: 'B',
+        sector: 'Consumo Não Cíclico',
+        signalDate: '2026-06-30',
+        entryPrice: 29.80,
+        stopLoss: 28.60,
+        status: STATUS.CLOSED_LOSS,
+        executedEntryPrice: 29.80,
+        entryDate: '2026-07-01',
+        currentPrice: 28.40,
+        exitPrice: 28.60,
+        exitDate: '2026-07-07',
+        exitReason: 'Stop Loss',
+        resultR: -1.00,
+        mfeR: 0.20,
+        maeR: -1.00
+      },
+      {
+        id: 'sim-ugpa3-42',
+        symbol: 'UGPA3',
+        companyName: 'Ultrapar Participações',
+        triggerName: '1-2-3 de Compra',
+        grade: 'B',
+        sector: 'Petróleo e Gás',
+        signalDate: '2026-06-12',
+        entryPrice: 25.40,
+        stopLoss: 24.20,
+        status: STATUS.CLOSED_LOSS,
+        executedEntryPrice: 25.40,
+        entryDate: '2026-06-13',
+        currentPrice: 24.10,
+        exitPrice: 24.20,
+        exitDate: '2026-06-22',
+        exitReason: 'Stop Loss',
+        resultR: -1.00,
+        mfeR: 0.35,
+        maeR: -1.00
       }
     ];
   }

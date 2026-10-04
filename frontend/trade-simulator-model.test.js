@@ -4,45 +4,45 @@ const model = require('./trade-simulator-model');
 
 test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as métricas sem o gatilho Pullback', () => {
   const seeds = model.getDefaultSeedSimulations();
-  assert.equal(seeds.length, 19, 'Deve conter exatamente 19 simulações criadas');
+  assert.equal(seeds.length, 42, 'Deve conter exatamente 42 simulações criadas');
 
   const stats = model.calculateSimulatorStats(seeds);
 
-  // Card 1: Simulações criadas = 19
-  assert.equal(stats.totalCreated, 19);
+  // Card 1: Simulações criadas = 42
+  assert.equal(stats.totalCreated, 42);
 
-  // Card 2: Entradas executadas = 14
-  assert.equal(stats.executedEntriesCount, 14);
-  assert.equal(stats.executedPct, 73.68);
+  // Card 2: Entradas executadas = 36
+  assert.equal(stats.executedEntriesCount, 36);
+  assert.equal(stats.executedPct, 85.71);
 
-  // Card 7: Aguardando entrada = 5
-  assert.equal(stats.waitingCount, 5);
-  assert.equal(stats.waitingPct, 26.32);
+  // Card 7: Aguardando entrada = 6
+  assert.equal(stats.waitingCount, 6);
+  assert.equal(stats.waitingPct, 14.29);
 
-  // Abas: Em Operação (3), Encerrados (11)
-  assert.equal(stats.inOperationCount, 3);
-  assert.equal(stats.closedCount, 11);
+  // Abas: Em Operação (4), Encerrados (32)
+  assert.equal(stats.inOperationCount, 4);
+  assert.equal(stats.closedCount, 32);
 
-  // Card 3: Trades vencedores = 10 (71,4% win rate)
-  assert.equal(stats.winningTradesCount, 10);
-  assert.equal(stats.winRate, 71.4);
+  // Card 3: Trades vencedores = 20 (55,6% win rate)
+  assert.equal(stats.winningTradesCount, 20);
+  assert.equal(stats.winRate, 55.6);
 
-  // Card 4: Trades perdedores = 4 (28,6% loss rate)
-  assert.equal(stats.losingTradesCount, 4);
-  assert.equal(stats.lossRate, 28.6);
+  // Card 4: Trades perdedores = 16 (44,4% loss rate)
+  assert.equal(stats.losingTradesCount, 16);
+  assert.equal(stats.lossRate, 44.4);
 
-  // Card 5: Resultado total = +13,6R
-  assert.equal(stats.totalR, 13.6);
-  assert.equal(stats.totalRFormatted, '+13,60R');
+  // Card 5: Resultado total = +23,4R
+  assert.equal(stats.totalR, 23.4);
+  assert.equal(stats.totalRFormatted, '+23,40R');
 
-  // Card 6: R médio / trade = +0,97R (13,6 / 14 ≈ 0,97R)
-  assert.equal(stats.avgR, 0.97);
-  assert.equal(stats.avgRFormatted, '+0,97R');
+  // Card 6: R médio / trade = +0,65R (23,4 / 36 ≈ 0,65R)
+  assert.equal(stats.avgR, 0.65);
+  assert.equal(stats.avgRFormatted, '+0,65R');
 
   // Gráfico: Distribuição de Resultados
-  assert.equal(stats.distribution.winners.count, 10);
-  assert.equal(stats.distribution.losers.count, 4);
-  assert.equal(stats.distribution.notTriggered.count, 5);
+  assert.equal(stats.distribution.winners.count, 20);
+  assert.equal(stats.distribution.losers.count, 16);
+  assert.equal(stats.distribution.notTriggered.count, 6);
 
   // Gráfico: Desempenho por Gatilho
   const insideBar = stats.triggerPerformance.find(t => t.name === 'Inside Bar');
@@ -55,13 +55,13 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   assert.equal(pullback, undefined, 'Gatilho Pullback não deve existir no desempenho por gatilho');
   assert.ok(outros);
 
-  // Inside Bar: 8,4R e 8 trades
-  assert.equal(insideBar.count, 8);
-  assert.equal(insideBar.totalR, 8.4);
+  // Inside Bar: 13,4R e 18 trades
+  assert.equal(insideBar.count, 18);
+  assert.equal(insideBar.totalR, 13.4);
 
-  // 1-2-3 de Compra: 5,1R e 7 trades
-  assert.equal(setup123.count, 7);
-  assert.equal(setup123.totalR, 5.1);
+  // 1-2-3 de Compra: 9,9R e 17 trades
+  assert.equal(setup123.count, 17);
+  assert.equal(setup123.totalR, 9.9);
 
   // Outros: 0,1R e 1 trade
   assert.equal(outros.count, 1);
@@ -197,15 +197,15 @@ test('trade-simulator-model: filterSimulations filtra por abas, texto e critéri
   const seeds = model.getDefaultSeedSimulations();
 
   const waitingOnly = model.filterSimulations(seeds, { statusTab: 'waiting' });
-  assert.equal(waitingOnly.length, 5);
+  assert.equal(waitingOnly.length, 6);
   assert.ok(waitingOnly.every(s => s.status === model.STATUS.WAITING_ENTRY));
 
   const inOpOnly = model.filterSimulations(seeds, { statusTab: 'in_op' });
-  assert.equal(inOpOnly.length, 3);
+  assert.equal(inOpOnly.length, 4);
   assert.ok(inOpOnly.every(s => s.status === model.STATUS.IN_OPERATION));
 
   const closedOnly = model.filterSimulations(seeds, { statusTab: 'closed' });
-  assert.equal(closedOnly.length, 11);
+  assert.equal(closedOnly.length, 32);
 
   const petrOnly = model.filterSimulations(seeds, { search: 'PETR4' });
   assert.equal(petrOnly.length, 1);
@@ -219,9 +219,9 @@ test('trade-simulator-model: filterSimulations filtra por abas, texto e critéri
 test('trade-simulator-model: filterSimulations é 100% compatível com filtros da UI (trade-simulator.js)', () => {
   const seeds = model.getDefaultSeedSimulations();
 
-  // 1. Estado inicial default da interface
+  // 1. Estado inicial default da interface (120 dias para cobrir os 4 meses da massa expandida)
   const defaultUiFilters = {
-    days: 90,
+    days: 120,
     trigger: 'ALL',
     sector: 'ALL',
     grade: 'ALL',
@@ -229,19 +229,19 @@ test('trade-simulator-model: filterSimulations é 100% compatível com filtros d
     query: ''
   };
   const filteredDefault = model.filterSimulations(seeds, defaultUiFilters);
-  assert.equal(filteredDefault.length, 19, 'Filtros default da UI não podem filtrar nenhuma simulação');
+  assert.equal(filteredDefault.length, 42, 'Filtros default da UI não podem filtrar nenhuma simulação');
 
   // 2. Abas de status com identificadores usados pela UI
   const waitingTab = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'WAITING_ENTRY' });
-  assert.equal(waitingTab.length, 5, 'Aba WAITING_ENTRY deve trazer exatamente 5 simulações');
+  assert.equal(waitingTab.length, 6, 'Aba WAITING_ENTRY deve trazer exatamente 6 simulações');
   assert.ok(waitingTab.every(s => s.status === model.STATUS.WAITING_ENTRY));
 
   const inOpTab = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'IN_OPERATION' });
-  assert.equal(inOpTab.length, 3, 'Aba IN_OPERATION deve trazer exatamente 3 simulações');
+  assert.equal(inOpTab.length, 4, 'Aba IN_OPERATION deve trazer exatamente 4 simulações');
   assert.ok(inOpTab.every(s => s.status === model.STATUS.IN_OPERATION));
 
   const closedTab = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'CLOSED' });
-  assert.equal(closedTab.length, 11, 'Aba CLOSED deve trazer exatamente 11 simulações');
+  assert.equal(closedTab.length, 32, 'Aba CLOSED deve trazer exatamente 32 simulações');
 
   // 3. Busca por texto usando propriedade `query`
   const querySearch = model.filterSimulations(seeds, { ...defaultUiFilters, query: 'VALE3' });
@@ -269,15 +269,15 @@ test('trade-simulator-model: filterSimulations é 100% compatível com filtros d
 
   const updatedList = [newSim, ...seeds];
   const updatedStats = model.calculateSimulatorStats(updatedList);
-  assert.equal(updatedStats.totalCreated, 20, 'Total criado deve subir para 20');
-  assert.equal(updatedStats.waitingCount, 6, 'Aguardando entrada deve subir para 6');
+  assert.equal(updatedStats.totalCreated, 43, 'Total criado deve subir para 43');
+  assert.equal(updatedStats.waitingCount, 7, 'Aguardando entrada deve subir para 7');
 
   const updatedWaiting = model.filterSimulations(updatedList, { ...defaultUiFilters, tab: 'WAITING_ENTRY' });
-  assert.equal(updatedWaiting.length, 6, 'Tabela na aba Aguardando Entrada deve conter exatamente 6 registros');
+  assert.equal(updatedWaiting.length, 7, 'Tabela na aba Aguardando Entrada deve conter exatamente 7 registros');
   assert.equal(updatedWaiting[0].symbol, 'BPAC11', 'Novo registro BPAC11 deve estar na lista');
 
   const updatedAll = model.filterSimulations(updatedList, defaultUiFilters);
-  assert.equal(updatedAll.length, 20, 'Tabela na aba Todos deve conter exatamente 20 registros');
+  assert.equal(updatedAll.length, 43, 'Tabela na aba Todos deve conter exatamente 43 registros');
   assert.equal(updatedAll[0].symbol, 'BPAC11');
 });
 
