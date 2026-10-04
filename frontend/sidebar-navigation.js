@@ -118,6 +118,13 @@
       ]
     },
     {
+      id: 'tradesimulator',
+      label: 'Simulador de Trades',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 7 13 11 18 6"/></svg>`,
+      page: 'tradesimulator',
+      hasArrow: true
+    },
+    {
       id: 'portfolio-risk',
       isGroup: true,
       label: 'Carteira & Risco',
@@ -483,7 +490,8 @@
 
     renderDirectButton(item) {
       const label = this.localizedLabel(item.page, item.label);
-      return `<button class="sidebar-btn nav-btn" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${label}"><span class="sidebar-btn-ico">${item.icon}</span><span class="sidebar-btn-label">${label}</span></button>`;
+      const arrowHtml = item.hasArrow ? `<span class="sidebar-btn-arrow">›</span>` : '';
+      return `<button class="sidebar-btn nav-btn" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${label}"><span class="sidebar-btn-ico">${item.icon}</span><span class="sidebar-btn-label">${label}</span>${arrowHtml}</button>`;
     }
 
     renderGroupButton(group) {

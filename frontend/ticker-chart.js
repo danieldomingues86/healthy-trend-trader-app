@@ -657,6 +657,14 @@
             <span class="plan-label">STOP</span>
             <span class="plan-value">${escapeHtml(stopText)}</span>
           </div>
+          <div class="trigger-alert-actions">
+            <button class="btn-trigger-simulate" id="btnSimulateTriggerTrade" type="button" title="Acompanhar esta oportunidade virtualmente no Simulador de Trades">
+              ▶ SIMULAR TRADE
+            </button>
+            <button class="btn-trigger-newtrade" id="btnNewTradeFromTrigger" type="button" title="Registrar operação real no Diário">
+              + NOVO TRADE
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -2251,6 +2259,7 @@
     setupPopoverEvents();
     setupNotesDrawerEvents();
     setupWatchlistButtonEvents();
+    setupTriggerBannerEvents();
 
     const btnGoFundamentals = document.getElementById('btnGoFundamentals');
     if (btnGoFundamentals) {
@@ -2276,6 +2285,45 @@
           document.exitFullscreen().catch(() => {});
         }
       });
+    }
+  }
+
+  function setupTriggerBannerEvents() {
+    const btnSimulate = document.getElementById('btnSimulateTriggerTrade');
+    if (btnSimulate) {
+      btnSimulate.onclick = async () => {
+        if (btnSimulate.classList.contains('simulated')) return;
+        const trig = tickerData?.trigger;
+        if (!trig) return;
+        const sym = tickerData?.tickerInfo?.symbol || currentTicker;
+        if (window.TradeSimulator && typeof window.TradeSimulator.addSimulation === 'function') {
+          await window.TradeSimulator.addSimulation({
+            symbol: sym,
+            triggerName: trig.name,
+            grade: trig.grade || 'A',
+            sector: tickerData?.tickerInfo?.sector || '',
+            companyName: tickerData?.tickerInfo?.name || sym,
+            entryPrice: trig.entry,
+            stopLoss: trig.stop
+          });
+          btnSimulate.classList.add('simulated');
+          btnSimulate.innerHTML = '✓ Simulação ativa (Aguardando entrada)';
+        }
+      };
+    }
+
+    const btnNewTrade = document.getElementById('btnNewTradeFromTrigger');
+    if (btnNewTrade) {
+      btnNewTrade.onclick = () => {
+        if (typeof window.go === 'function') {
+          window.go('newtrade');
+          const symInput = document.getElementById('tradeTicker');
+          if (symInput && tickerData?.tickerInfo?.symbol) {
+            symInput.value = tickerData.tickerInfo.symbol;
+            symInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        }
+      };
     }
   }
 

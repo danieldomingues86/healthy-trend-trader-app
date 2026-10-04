@@ -26,6 +26,7 @@ const habits = require('./habits');
 const { nasdaqRelativeStrengthEngine } = require('./nasdaq-relative-strength');
 const tickerChart = require('./ticker-chart');
 const traderTraining = require('./trader-training');
+const tradeSimulator = require('./trade-simulator');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -261,6 +262,37 @@ const server = http.createServer(async (request, response) => {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, await traderTraining.deleteRecord(user.id, trainingRecordMatch[1]));
+    }
+    if (url.pathname === '/api/trade-simulations' && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await tradeSimulator.list(user.id));
+    }
+    if (url.pathname === '/api/trade-simulations' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, { simulation: await tradeSimulator.create(user.id, await body(request)) });
+    }
+    if (url.pathname === '/api/trade-simulations/evaluate' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await tradeSimulator.evaluate(user.id));
+    }
+    if (url.pathname === '/api/trade-simulations/reset' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await tradeSimulator.reset(user.id));
+    }
+    const tradeSimMatch = url.pathname.match(/^\/api\/trade-simulations\/([^/]+)$/);
+    if (tradeSimMatch && request.method === 'PATCH') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { simulation: await tradeSimulator.update(user.id, tradeSimMatch[1], await body(request)) });
+    }
+    if (tradeSimMatch && request.method === 'DELETE') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await tradeSimulator.remove(user.id, tradeSimMatch[1]));
     }
     if (request.method === 'GET' && url.pathname === '/api/watchlist') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
