@@ -14,6 +14,9 @@
     simulations: [],
     loading: false,
     activeScenario: '2R',
+    massModalOpen: false,
+    showClearConfirm: false,
+    compareModalOpen: false,
     scenarioModalOpen: false,
     tempScenarioSelection: '2R',
     comparison: null,
@@ -542,11 +545,8 @@
         ${renderKpiCards(stats)}
         ${renderChartsRow(stats)}
         ${renderTableSection(filtered, stats)}
-        <div class="sim-bottom-row">
-          ${renderComparisonSection()}
-          ${renderScenariosExplanationSection()}
-        </div>
-        ${renderScenarioModal()}
+        ${renderMassModal()}
+        ${renderCompareModal()}
         ${renderModal()}
         ${renderSnapshotModal()}
       </div>
@@ -556,7 +556,7 @@
   }
 
   /**
-   * 1. Header com Título, Botão de Cenários de Gestão e Filtros Superiores
+   * 1. Header com Título, Botão da Massa de Teste, Filtros e Botão Comparar Cenários
    */
   function renderHeader() {
     const daysLabel = state.filters.days === 120
@@ -578,9 +578,9 @@
         </div>
 
         <div class="sim-top-filters">
-          <!-- Botão Gerar Massa de Teste com Seleção de Cenário de Gestão -->
-          <button class="sim-btn-seed sim-btn-seed-dropdown" type="button" id="simBtnScenarioModal" title="Escolha o cenário de gestão de risco para simulação">
-            <span>⚡ Gerar Massa de Teste ▾</span>
+          <!-- 1. Painel Centralizado da Massa de Teste (Gerar, Reavaliar e Excluir) -->
+          <button class="sim-btn-seed sim-btn-seed-dropdown" type="button" id="simBtnMassModal" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
+            <span>⚡ Massa de Teste ▾</span>
           </button>
 
           <!-- Filtro Período -->
@@ -647,14 +647,11 @@
             </div>
           </div>
 
-          <!-- Menu de Mais Ações (...) -->
-          <div class="sim-filter-select-wrap">
-            <button class="sim-more-btn" type="button" data-dropdown="more" title="Mais opções">···</button>
-            <div class="sim-dropdown-menu ${state.activeDropdown === 'more' ? 'open' : ''}">
-              <button class="sim-dropdown-item" id="simActionEvaluate">⚡ Reavaliar candles agora</button>
-              <button class="sim-dropdown-item" id="simActionClearAll" style="color: #ef4444;">🗑️ Excluir todas as simulações</button>
-            </div>
-          </div>
+          <!-- 2. Botão Estratégico em Destaque: Comparar Cenários -->
+          <button class="sim-btn-compare-scenarios" type="button" id="simBtnCompareModal" title="Comparar 2R vs 2,5R vs Pirâmide na mesma amostra de trades">
+            <span class="sim-compare-icon">📊</span>
+            <span>Comparar Cenários</span>
+          </button>
         </div>
       </div>
     `;
@@ -1198,89 +1195,149 @@
   }
 
   /**
-   * Modal "Escolha o cenário de gestão de risco"
+   * Modal / Painel Centralizado da Massa de Teste
+   * Agrupa: 1. Gerar Massa de Teste (Cenários 2R, 2.5R e Pirâmide)
+   *         2. Ações da Massa Atual (Reavaliar candles e Excluir com confirmação)
    */
-  function renderScenarioModal() {
-    if (!state.scenarioModalOpen) return '';
+  function renderMassModal() {
+    if (!state.massModalOpen) return '';
 
     const sel = state.tempScenarioSelection || state.activeScenario || '2R';
 
     return `
-      <div class="sim-scenario-modal-overlay open" id="simScenarioModalOverlay">
-        <div class="sim-scenario-modal-box" id="simScenarioModalBox">
+      <div class="sim-scenario-modal-overlay open" id="simMassModalOverlay">
+        <div class="sim-scenario-modal-box sim-mass-modal-box" id="simMassModalBox">
+          <!-- Cabeçalho do Painel -->
           <div class="sim-scenario-modal-header">
             <div>
-              <h2>Escolha o cenário de gestão de risco</h2>
-              <p>Gere uma massa de simulação usando diferentes formas de gestão para comparar os resultados do seu setup.</p>
+              <div class="sim-mass-header-badge">PAINEL DE CONTROLE</div>
+              <h2>⚡ Massa de Teste</h2>
+              <p>Gere cenários históricos para o seu setup ou gerencie os dados atualmente em análise.</p>
             </div>
-            <button class="sim-modal-close-btn" type="button" id="simScenarioModalClose">×</button>
+            <button class="sim-modal-close-btn" type="button" id="simMassModalClose" title="Fechar">×</button>
           </div>
 
-          <div class="sim-scenario-options-list">
-            <!-- Opção 1: Gestão 2R — Base -->
-            <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
-              <div class="sim-scen-opt-left">
-                <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
-                  <span class="sim-scen-radio-dot"></span>
-                </div>
-                <div class="sim-scen-opt-texts">
-                  <div class="sim-scen-opt-title">Gestão 2R — Base</div>
-                  <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em 2R.</div>
-                </div>
-              </div>
-              <div class="sim-scen-opt-diagram">
-                ${getScenarioMiniDiagramSvg('2R')}
+          <!-- BLOCO 1: GERAR MASSA DE TESTE -->
+          <div class="sim-mass-modal-section">
+            <div class="sim-mass-section-eyebrow">
+              <span>GERAR MASSA DE TESTE</span>
+            </div>
+
+            <!-- Período -->
+            <div class="sim-scenario-period-section">
+              <label class="sim-scen-period-label">Período</label>
+              <div class="sim-scen-period-pill">
+                <span>📅</span>
+                <span>Últimos 120 dias (4 meses)</span>
+                <span class="sim-scen-sample-tag">Amostra de 42 trades</span>
               </div>
             </div>
 
-            <!-- Opção 2: Gestão 2,5R — Alvo Estendido -->
-            <div class="sim-scenario-option ${sel === '2.5R' ? 'selected' : ''}" data-scenario-select="2.5R">
-              <div class="sim-scen-opt-left">
-                <div class="sim-scen-radio ${sel === '2.5R' ? 'checked' : ''}">
-                  <span class="sim-scen-radio-dot"></span>
+            <!-- Cenário de Gestão -->
+            <div class="sim-scenario-options-group">
+              <label class="sim-scen-period-label">Cenário de Gestão</label>
+              <div class="sim-scenario-options-list">
+                <!-- Opção 1: Gestão 2R — Base -->
+                <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
+                  <div class="sim-scen-opt-left">
+                    <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
+                      <span class="sim-scen-radio-dot"></span>
+                    </div>
+                    <div class="sim-scen-opt-texts">
+                      <div class="sim-scen-opt-title">Gestão 2R — Base</div>
+                      <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2R. Sem piramidagem.</div>
+                    </div>
+                  </div>
+                  <div class="sim-scen-opt-diagram">
+                    ${getScenarioMiniDiagramSvg('2R')}
+                  </div>
                 </div>
-                <div class="sim-scen-opt-texts">
-                  <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
-                  <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em 2,5R.</div>
+
+                <!-- Opção 2: Gestão 2,5R — Alvo Estendido -->
+                <div class="sim-scenario-option ${sel === '2.5R' ? 'selected' : ''}" data-scenario-select="2.5R">
+                  <div class="sim-scen-opt-left">
+                    <div class="sim-scen-radio ${sel === '2.5R' ? 'checked' : ''}">
+                      <span class="sim-scen-radio-dot"></span>
+                    </div>
+                    <div class="sim-scen-opt-texts">
+                      <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
+                      <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2,5R. Sem piramidagem.</div>
+                    </div>
+                  </div>
+                  <div class="sim-scen-opt-diagram">
+                    ${getScenarioMiniDiagramSvg('2.5R')}
+                  </div>
                 </div>
-              </div>
-              <div class="sim-scen-opt-diagram">
-                ${getScenarioMiniDiagramSvg('2.5R')}
+
+                <!-- Opção 3: Gestão Pirâmide — 1R → 2R -->
+                <div class="sim-scenario-option ${sel === 'PYRAMID_1R_2R' ? 'selected' : ''}" data-scenario-select="PYRAMID_1R_2R">
+                  <div class="sim-scen-opt-left">
+                    <div class="sim-scen-radio ${sel === 'PYRAMID_1R_2R' ? 'checked' : ''}">
+                      <span class="sim-scen-radio-dot"></span>
+                    </div>
+                    <div class="sim-scen-opt-texts">
+                      <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
+                      <div class="sim-scen-opt-desc">Risco inicial de 1R. Ao atingir +1R adiciona posição +1R e encerra tudo em +2R.</div>
+                    </div>
+                  </div>
+                  <div class="sim-scen-opt-diagram">
+                    ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Opção 3: Gestão Pirâmide — 1R → 2R -->
-            <div class="sim-scenario-option ${sel === 'PYRAMID_1R_2R' ? 'selected' : ''}" data-scenario-select="PYRAMID_1R_2R">
-              <div class="sim-scen-opt-left">
-                <div class="sim-scen-radio ${sel === 'PYRAMID_1R_2R' ? 'checked' : ''}">
-                  <span class="sim-scen-radio-dot"></span>
-                </div>
-                <div class="sim-scen-opt-texts">
-                  <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
-                  <div class="sim-scen-opt-desc">Risco inicial de 1R. Ao atingir +1R adiciona posição +1R e encerra tudo em 2R.</div>
-                </div>
-              </div>
-              <div class="sim-scen-opt-diagram">
-                ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
-              </div>
+            <!-- Botão de Ação -->
+            <div class="sim-scenario-action-wrap">
+              <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
+                <span>🚀 Gerar Massa de Teste</span>
+              </button>
             </div>
           </div>
 
-          <!-- Seletor de Período -->
-          <div class="sim-scenario-period-section">
-            <label class="sim-scen-period-label">Período da análise</label>
-            <div class="sim-scen-period-pill">
-              <span>📅</span>
-              <span>Últimos 4 meses (mesma amostra)</span>
-              <span class="sim-chevron">▼</span>
-            </div>
-          </div>
+          <!-- DIVISOR VISUAL -->
+          <div class="sim-mass-modal-divider"></div>
 
-          <!-- Botão de Ação -->
-          <div class="sim-scenario-action-wrap">
-            <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
-              <span>🚀 Gerar Massa de Teste</span>
-            </button>
+          <!-- BLOCO 2: AÇÕES DA MASSA ATUAL -->
+          <div class="sim-mass-modal-section">
+            <div class="sim-mass-section-eyebrow">
+              <span>AÇÕES DA MASSA ATUAL</span>
+            </div>
+
+            <div class="sim-mass-actions-list">
+              <!-- Reavaliar candles -->
+              <div class="sim-mass-action-card" id="simMassActionEvaluate">
+                <div class="sim-mass-action-icon">↻</div>
+                <div class="sim-mass-action-info">
+                  <div class="sim-mass-action-title">Reavaliar candles</div>
+                  <div class="sim-mass-action-desc">Reprocessar as simulações existentes utilizando os candles disponíveis.</div>
+                </div>
+                <button class="sim-mass-action-trigger-btn" type="button" id="simMassActionEvaluateBtn">Executar</button>
+              </div>
+
+              <!-- Excluir massa atual -->
+              <div class="sim-mass-action-card danger" id="simMassActionClear">
+                <div class="sim-mass-action-icon danger">🗑</div>
+                <div class="sim-mass-action-info">
+                  <div class="sim-mass-action-title danger">Excluir massa atual</div>
+                  <div class="sim-mass-action-desc">Excluir as simulações atualmente carregadas.</div>
+                </div>
+                <button class="sim-mass-action-trigger-btn danger" type="button" id="simMassActionClearBtn">Excluir</button>
+              </div>
+
+              <!-- Confirmação Destrutiva Segura -->
+              ${state.showClearConfirm ? `
+                <div class="sim-mass-confirm-alert">
+                  <div class="sim-mass-confirm-text">
+                    ⚠️ <b>Confirmar exclusão:</b> Deseja realmente excluir todas as simulações carregadas? Esta ação é irreversível.
+                  </div>
+                  <div class="sim-mass-confirm-actions">
+                    <button class="sim-btn-confirm-cancel" type="button" id="simMassConfirmCancel">Cancelar</button>
+                    <button class="sim-btn-confirm-danger" type="button" id="simMassConfirmClear">Sim, Excluir</button>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
           </div>
         </div>
       </div>
@@ -1288,9 +1345,13 @@
   }
 
   /**
-   * 6. Comparador de Cenários de Gestão (Section 4)
+   * Modal Grande / Drawer do Comparador de Cenários de Gestão
+   * Exibe a comparação das 10 métricas oficiais entre 2R, 2.5R e Pirâmide na mesma amostra,
+   * acompanhada dos cards explicativos e diagramas didáticos.
    */
-  function renderComparisonSection() {
+  function renderCompareModal() {
+    if (!state.compareModalOpen) return '';
+
     const comparison = state.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios() : null);
     const scenarios = comparison && Array.isArray(comparison.scenarios) ? comparison.scenarios : [];
     const sampleInfo = comparison?.sampleInfo || 'Mesma amostra: últimos 4 meses • 42 trades';
@@ -1301,184 +1362,195 @@
     const scPyr = scenarios.find(s => s.id === 'PYRAMID_1R_2R') || defaultBench[2] || {};
 
     return `
-      <div class="sim-comparison-card">
-        <div class="sim-comparison-header">
-          <div class="sim-comparison-titles">
-            <h3>Comparador de Cenários de Gestão</h3>
-            <p>Compare o desempenho do seu setup usando diferentes políticas de gestão de risco na mesma amostra de sinais.</p>
-          </div>
-          <div class="sim-comparison-badge">
-            ${sampleInfo}
-          </div>
-        </div>
-
-        <div class="sim-comparison-table-wrap">
-          <table class="sim-comparison-table">
-            <thead>
-              <tr>
-                <th class="th-metric">MÉTRICA</th>
-                <th class="th-scen scen-col-2r ${state.activeScenario === '2R' ? 'active-col' : ''}" data-switch-scenario="2R" title="Clique para simular este cenário">
-                  <div class="scen-th-inner">
-                    <div class="scen-th-title-row">
-                      <span class="scen-circle-dot dot-green"></span>
-                      <b>Gestão 2R — Base</b>
-                    </div>
-                    <span class="scen-th-badge badge-green">Risco 1R → Saída 2R</span>
-                  </div>
-                </th>
-                <th class="th-scen scen-col-25r ${state.activeScenario === '2.5R' ? 'active-col' : ''}" data-switch-scenario="2.5R" title="Clique para simular este cenário">
-                  <div class="scen-th-inner">
-                    <div class="scen-th-title-row">
-                      <span class="scen-circle-dot dot-yellow"></span>
-                      <b>Gestão 2,5R — Alvo Estendido</b>
-                    </div>
-                    <span class="scen-th-badge badge-yellow">Risco 1R → Saída 2,5R</span>
-                  </div>
-                </th>
-                <th class="th-scen scen-col-pyr ${state.activeScenario === 'PYRAMID_1R_2R' ? 'active-col' : ''}" data-switch-scenario="PYRAMID_1R_2R" title="Clique para simular este cenário">
-                  <div class="scen-th-inner">
-                    <div class="scen-th-title-row">
-                      <span class="scen-circle-dot dot-blue"></span>
-                      <b>Gestão Pirâmide — 1R → 2R</b>
-                    </div>
-                    <span class="scen-th-badge badge-blue">Add em +1R → Saída 2R</span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="td-metric-name">Total de Trades</td>
-                <td><b>${sc2R.totalTrades ?? 42}</b></td>
-                <td><b>${sc25R.totalTrades ?? 42}</b></td>
-                <td><b>${scPyr.totalTrades ?? 42}</b></td>
-              </tr>
-              <tr>
-                <td class="td-metric-name">Win Rate</td>
-                <td>${sc2R.winRateFormatted ?? '52,4% (22)'}</td>
-                <td>${sc25R.winRateFormatted ?? '47,6% (20)'}</td>
-                <td>${scPyr.winRateFormatted ?? '50,0% (21)'}</td>
-              </tr>
-              <tr>
-                <td class="td-metric-name">Loss Rate</td>
-                <td>${sc2R.lossRateFormatted ?? '47,6% (20)'}</td>
-                <td>${sc25R.lossRateFormatted ?? '52,4% (22)'}</td>
-                <td>${scPyr.lossRateFormatted ?? '50,0% (21)'}</td>
-              </tr>
-              <tr>
-                <td class="td-metric-name">R médio por trade</td>
-                <td class="metric-accent">${sc2R.avgRFormatted ?? '0,68R'}</td>
-                <td class="metric-accent">${sc25R.avgRFormatted ?? '0,82R'}</td>
-                <td class="metric-accent-blue">${scPyr.avgRFormatted ?? '1,12R'}</td>
-              </tr>
-              <tr>
-                <td class="td-metric-name">Expectancy</td>
-                <td class="metric-accent">${sc2R.expectancyFormatted ?? '0,65R'}</td>
-                <td class="metric-accent">${sc25R.expectancyFormatted ?? '0,78R'}</td>
-                <td class="metric-accent-blue">${scPyr.expectancyFormatted ?? '1,05R'}</td>
-              </tr>
-              <tr>
-                <td class="td-metric-name">Profit Factor</td>
-                <td><b>${sc2R.profitFactorFormatted ?? '1,78'}</b></td>
-                <td><b>${sc25R.profitFactorFormatted ?? '1,92'}</b></td>
-                <td><b class="metric-accent-blue">${scPyr.profitFactorFormatted ?? '2,35'}</b></td>
-              </tr>
-              <tr>
-                <td class="td-metric-name">Resultado acumulado</td>
-                <td class="metric-gain">${sc2R.totalRFormatted ?? '+27,36R'}</td>
-                <td class="metric-gain">${sc25R.totalRFormatted ?? '+32,90R'}</td>
-                <td class="metric-gain-high">${scPyr.totalRFormatted ?? '+44,10R'}</td>
-              </tr>
-              <tr>
-                <td class="td-metric-name">Drawdown máximo</td>
-                <td class="metric-loss">${sc2R.maxDrawdownFormatted ?? '-6,20R'}</td>
-                <td class="metric-loss">${sc25R.maxDrawdownFormatted ?? '-7,10R'}</td>
-                <td class="metric-loss">${scPyr.maxDrawdownFormatted ?? '-8,40R'}</td>
-              </tr>
-              <tr>
-                <td class="td-metric-name">MFE médio (vencedores)</td>
-                <td>${sc2R.avgMfeFormatted ?? '2,10R'}</td>
-                <td>${sc25R.avgMfeFormatted ?? '2,58R'}</td>
-                <td>${scPyr.avgMfeFormatted ?? '2,85R'}</td>
-              </tr>
-              <tr>
-                <td class="td-metric-name">MAE médio (perdedores)</td>
-                <td class="metric-loss">${sc2R.avgMaeFormatted ?? '-1,05R'}</td>
-                <td class="metric-loss">${sc25R.avgMaeFormatted ?? '-1,08R'}</td>
-                <td class="metric-loss">${scPyr.avgMaeFormatted ?? '-1,15R'}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * 7. Card lateral "Como os cenários funcionam?" (Section 5)
-   */
-  function renderScenariosExplanationSection() {
-    return `
-      <div class="sim-explanation-card">
-        <div class="sim-explanation-header">
-          <h3>Como os cenários funcionam?</h3>
-        </div>
-
-        <div class="sim-explanation-list">
-          <!-- Card 1: Gestão 2R Base -->
-          <div class="sim-expl-item item-2r">
-            <div class="sim-expl-item-body">
-              <div class="sim-expl-title-row">
-                <span class="scen-circle-dot dot-green"></span>
-                <b>Gestão 2R — Base</b>
+      <div class="sim-compare-modal-overlay open" id="simCompareModalOverlay">
+        <div class="sim-compare-modal-box" id="simCompareModalBox">
+          <!-- Cabeçalho do Modal -->
+          <div class="sim-compare-modal-header">
+            <div class="sim-compare-header-left">
+              <div class="sim-compare-header-badge">ANÁLISE ESTRATÉGICA</div>
+              <h2>📊 Comparador de Cenários de Gestão</h2>
+              <p>Compare o desempenho do seu setup usando diferentes políticas de gestão de risco na mesma amostra de sinais.</p>
+            </div>
+            <div class="sim-compare-header-right">
+              <div class="sim-comparison-badge">
+                ${sampleInfo}
               </div>
-              <ul class="sim-expl-bullets">
-                <li>Entrada: 1R de risco</li>
-                <li>Stop: -1R</li>
-                <li>Saída: 100% em +2R</li>
-                <li>Sem piramidagem.</li>
-              </ul>
-            </div>
-            <div class="sim-expl-item-diagram">
-              ${getScenarioMiniDiagramSvg('2R')}
+              <button class="sim-modal-close-btn" type="button" id="simCompareModalClose" title="Fechar comparador">×</button>
             </div>
           </div>
 
-          <!-- Card 2: Gestão 2.5R Alvo Estendido -->
-          <div class="sim-expl-item item-25r">
-            <div class="sim-expl-item-body">
-              <div class="sim-expl-title-row">
-                <span class="scen-circle-dot dot-yellow"></span>
-                <b>Gestão 2,5R — Alvo Estendido</b>
-              </div>
-              <ul class="sim-expl-bullets">
-                <li>Entrada: 1R de risco</li>
-                <li>Stop: -1R</li>
-                <li>Saída: 100% em +2,5R</li>
-                <li>Sem piramidagem.</li>
-              </ul>
+          <!-- Tabela Comparativa de 10 Métricas -->
+          <div class="sim-compare-table-container">
+            <table class="sim-comparison-table">
+              <thead>
+                <tr>
+                  <th class="th-metric">MÉTRICA</th>
+                  <th class="th-scen scen-col-2r ${state.activeScenario === '2R' ? 'active-col' : ''}" data-switch-scenario="2R" title="Clique para simular este cenário">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-green"></span>
+                        <b>Gestão 2R — Base</b>
+                      </div>
+                      <span class="scen-th-badge badge-green">Risco 1R → Saída 2R</span>
+                    </div>
+                  </th>
+                  <th class="th-scen scen-col-25r ${state.activeScenario === '2.5R' ? 'active-col' : ''}" data-switch-scenario="2.5R" title="Clique para simular este cenário">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-yellow"></span>
+                        <b>Gestão 2,5R — Alvo Estendido</b>
+                      </div>
+                      <span class="scen-th-badge badge-yellow">Risco 1R → Saída 2,5R</span>
+                    </div>
+                  </th>
+                  <th class="th-scen scen-col-pyr ${state.activeScenario === 'PYRAMID_1R_2R' ? 'active-col' : ''}" data-switch-scenario="PYRAMID_1R_2R" title="Clique para simular este cenário">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-blue"></span>
+                        <b>Gestão Pirâmide — 1R → 2R</b>
+                      </div>
+                      <span class="scen-th-badge badge-blue">Add em +1R → Saída 2R</span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-metric-name">Total de Trades</td>
+                  <td><b>${sc2R.totalTrades ?? 42}</b></td>
+                  <td><b>${sc25R.totalTrades ?? 42}</b></td>
+                  <td><b>${scPyr.totalTrades ?? 42}</b></td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">Win Rate</td>
+                  <td>${sc2R.winRateFormatted ?? '52,4% (22)'}</td>
+                  <td>${sc25R.winRateFormatted ?? '47,6% (20)'}</td>
+                  <td>${scPyr.winRateFormatted ?? '50,0% (21)'}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">Loss Rate</td>
+                  <td>${sc2R.lossRateFormatted ?? '47,6% (20)'}</td>
+                  <td>${sc25R.lossRateFormatted ?? '52,4% (22)'}</td>
+                  <td>${scPyr.lossRateFormatted ?? '50,0% (21)'}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">R médio por trade</td>
+                  <td class="metric-accent">${sc2R.avgRFormatted ?? '0,68R'}</td>
+                  <td class="metric-accent">${sc25R.avgRFormatted ?? '0,82R'}</td>
+                  <td class="metric-accent-blue">${scPyr.avgRFormatted ?? '1,12R'}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">Expectancy</td>
+                  <td class="metric-accent">${sc2R.expectancyFormatted ?? '0,65R'}</td>
+                  <td class="metric-accent">${sc25R.expectancyFormatted ?? '0,78R'}</td>
+                  <td class="metric-accent-blue">${scPyr.expectancyFormatted ?? '1,05R'}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">Profit Factor</td>
+                  <td><b>${sc2R.profitFactorFormatted ?? '1,78'}</b></td>
+                  <td><b>${sc25R.profitFactorFormatted ?? '1,92'}</b></td>
+                  <td><b class="metric-accent-blue">${scPyr.profitFactorFormatted ?? '2,35'}</b></td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">Resultado acumulado</td>
+                  <td class="metric-gain">${sc2R.totalRFormatted ?? '+27,36R'}</td>
+                  <td class="metric-gain">${sc25R.totalRFormatted ?? '+32,90R'}</td>
+                  <td class="metric-gain-high">${scPyr.totalRFormatted ?? '+44,10R'}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">Drawdown máximo</td>
+                  <td class="metric-loss">${sc2R.maxDrawdownFormatted ?? '-6,20R'}</td>
+                  <td class="metric-loss">${sc25R.maxDrawdownFormatted ?? '-7,10R'}</td>
+                  <td class="metric-loss">${scPyr.maxDrawdownFormatted ?? '-8,40R'}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">MFE médio (vencedores)</td>
+                  <td>${sc2R.avgMfeFormatted ?? '2,10R'}</td>
+                  <td>${sc25R.avgMfeFormatted ?? '2,58R'}</td>
+                  <td>${scPyr.avgMfeFormatted ?? '2,85R'}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">MAE médio (perdedores)</td>
+                  <td class="metric-loss">${sc2R.avgMaeFormatted ?? '-1,05R'}</td>
+                  <td class="metric-loss">${sc25R.avgMaeFormatted ?? '-1,08R'}</td>
+                  <td class="metric-loss">${scPyr.avgMaeFormatted ?? '-1,15R'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Como os cenários funcionam? -->
+          <div class="sim-compare-explanation-container">
+            <div class="sim-compare-expl-title">
+              <span>COMO OS CENÁRIOS FUNCIONAM?</span>
             </div>
-            <div class="sim-expl-item-diagram">
-              ${getScenarioMiniDiagramSvg('2.5R')}
+            <div class="sim-compare-expl-grid">
+              <!-- Card 1: 2R Base -->
+              <div class="sim-expl-item item-2r">
+                <div class="sim-expl-item-body">
+                  <div class="sim-expl-title-row">
+                    <span class="scen-circle-dot dot-green"></span>
+                    <b>Gestão 2R — Base</b>
+                  </div>
+                  <ul class="sim-expl-bullets">
+                    <li>Entrada: 1R de risco inicial</li>
+                    <li>Stop: -1R</li>
+                    <li>Saída: 100% da posição em +2R</li>
+                    <li>Sem piramidagem.</li>
+                  </ul>
+                </div>
+                <div class="sim-expl-item-diagram">
+                  ${getScenarioMiniDiagramSvg('2R')}
+                </div>
+              </div>
+
+              <!-- Card 2: 2.5R Alvo Estendido -->
+              <div class="sim-expl-item item-25r">
+                <div class="sim-expl-item-body">
+                  <div class="sim-expl-title-row">
+                    <span class="scen-circle-dot dot-yellow"></span>
+                    <b>Gestão 2,5R — Alvo Estendido</b>
+                  </div>
+                  <ul class="sim-expl-bullets">
+                    <li>Entrada: 1R de risco inicial</li>
+                    <li>Stop: -1R (ao atingir +1R move para breakeven)</li>
+                    <li>Saída: 100% da posição em +2,5R</li>
+                    <li>Sem piramidagem.</li>
+                  </ul>
+                </div>
+                <div class="sim-expl-item-diagram">
+                  ${getScenarioMiniDiagramSvg('2.5R')}
+                </div>
+              </div>
+
+              <!-- Card 3: Pirâmide 1R -> 2R -->
+              <div class="sim-expl-item item-pyr">
+                <div class="sim-expl-item-body">
+                  <div class="sim-expl-title-row">
+                    <span class="scen-circle-dot dot-blue"></span>
+                    <b>Gestão Pirâmide — 1R → 2R</b>
+                  </div>
+                  <ul class="sim-expl-bullets">
+                    <li>Entrada 1: 1R de risco inicial</li>
+                    <li>Ao atingir +1R: adiciona lote e move stop para breakeven</li>
+                    <li>Saída: 100% em +2R (+3,00R consolidado)</li>
+                  </ul>
+                </div>
+                <div class="sim-expl-item-diagram">
+                  ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Card 3: Gestão Pirâmide 1R -> 2R -->
-          <div class="sim-expl-item item-pyr">
-            <div class="sim-expl-item-body">
-              <div class="sim-expl-title-row">
-                <span class="scen-circle-dot dot-blue"></span>
-                <b>Gestão Pirâmide — 1R → 2R</b>
-              </div>
-              <ul class="sim-expl-bullets">
-                <li>Entrada 1: 1R de risco</li>
-                <li>Ao atingir +1R: adiciona posição</li>
-                <li>Saída: 100% em +2R</li>
-              </ul>
+          <!-- Rodapé do Modal -->
+          <div class="sim-compare-modal-footer">
+            <div class="sim-compare-footer-info">
+              💡 <b>Dica:</b> Clique no cabeçalho de qualquer cenário na tabela para carregar suas métricas e trades no simulador.
             </div>
-            <div class="sim-expl-item-diagram">
-              ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
-            </div>
+            <button class="sim-export-btn" type="button" id="simCompareModalCloseBtn">
+              Fechar
+            </button>
           </div>
         </div>
       </div>
@@ -1964,36 +2036,40 @@
       });
     });
 
-    // Botão de gerar massa de teste no topo (abre modal de cenários de gestão)
+    // 1. Painel de Controle: Massa de Teste (Gerar, Reavaliar e Excluir)
+    container.querySelector('#simBtnMassModal')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.massModalOpen = true;
+      state.showClearConfirm = false;
+      state.tempScenarioSelection = state.activeScenario || '2R';
+      render();
+    });
+
     container.querySelector('#simBtnScenarioModal')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      state.scenarioModalOpen = true;
+      state.massModalOpen = true;
+      state.showClearConfirm = false;
       state.tempScenarioSelection = state.activeScenario || '2R';
       render();
     });
 
-    container.querySelector('#simBtnSeedMass')?.addEventListener('click', (e) => {
+    // Fechar modal da Massa de Teste
+    container.querySelector('#simMassModalClose')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      state.scenarioModalOpen = true;
-      state.tempScenarioSelection = state.activeScenario || '2R';
+      state.massModalOpen = false;
+      state.showClearConfirm = false;
       render();
     });
 
-    // Fechar modal de cenários
-    container.querySelector('#simScenarioModalClose')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.scenarioModalOpen = false;
-      render();
-    });
-
-    container.querySelector('#simScenarioModalOverlay')?.addEventListener('click', (e) => {
-      if (e.target.id === 'simScenarioModalOverlay') {
-        state.scenarioModalOpen = false;
+    container.querySelector('#simMassModalOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simMassModalOverlay') {
+        state.massModalOpen = false;
+        state.showClearConfirm = false;
         render();
       }
     });
 
-    // Seleção de opção no modal de cenários
+    // Seleção de opção no modal de Massa de Teste
     container.querySelectorAll('[data-scenario-select]').forEach(opt => {
       opt.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -2002,10 +2078,68 @@
       });
     });
 
-    // Confirmar geração de massa no modal
+    // Confirmar geração de massa de teste
     container.querySelector('#simModalConfirmScenario')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      state.massModalOpen = false;
+      state.showClearConfirm = false;
       generateScenarioMass(state.tempScenarioSelection || '2R');
+    });
+
+    // Ações da massa atual no painel
+    const handleEvaluate = (e) => {
+      e.stopPropagation();
+      state.massModalOpen = false;
+      evaluateActive();
+    };
+    container.querySelector('#simMassActionEvaluate')?.addEventListener('click', handleEvaluate);
+    container.querySelector('#simMassActionEvaluateBtn')?.addEventListener('click', handleEvaluate);
+
+    const handlePromptClear = (e) => {
+      e.stopPropagation();
+      state.showClearConfirm = true;
+      render();
+    };
+    container.querySelector('#simMassActionClear')?.addEventListener('click', handlePromptClear);
+    container.querySelector('#simMassActionClearBtn')?.addEventListener('click', handlePromptClear);
+
+    container.querySelector('#simMassConfirmCancel')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.showClearConfirm = false;
+      render();
+    });
+
+    container.querySelector('#simMassConfirmClear')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.showClearConfirm = false;
+      state.massModalOpen = false;
+      clearAllSimulations();
+    });
+
+    // 2. Modal do Comparador de Cenários de Gestão
+    container.querySelector('#simBtnCompareModal')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.compareModalOpen = true;
+      render();
+    });
+
+    container.querySelector('#simCompareModalClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.compareModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simCompareModalCloseBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.compareModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simCompareModalOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simCompareModalOverlay') {
+        state.compareModalOpen = false;
+        render();
+      }
     });
 
     // Trocar cenário clicando no cabeçalho da tabela comparativa
@@ -2017,20 +2151,6 @@
           generateScenarioMass(scen);
         }
       });
-    });
-
-    // Ações do menu mais (...)
-
-    container.querySelector('#simActionClearAll')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.activeDropdown = null;
-      clearAllSimulations();
-    });
-
-    container.querySelector('#simActionEvaluate')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.activeDropdown = null;
-      evaluateActive();
     });
 
     // Toggle R / R$
