@@ -22,6 +22,10 @@
       query: '',
       unit: 'R' // 'R' ou 'RS'
     },
+    sort: {
+      column: 'signalDate',
+      direction: 'desc'
+    },
     activeDropdown: null,
     selectedSimId: null,
     snapshotSimId: null
@@ -48,7 +52,7 @@
       if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
         const response = await root.healthyTrendApi.request(API_ENDPOINT, { method: 'GET' });
         if (response && Array.isArray(response.simulations) && response.simulations.length > 0) {
-          state.simulations = response.simulations;
+          state.simulations = response.simulations.filter(s => s && s.triggerName !== 'Pullback');
           saveLocalCache();
           state.loading = false;
           return;
@@ -64,14 +68,14 @@
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          state.simulations = parsed;
+          state.simulations = parsed.filter(s => s && s.triggerName !== 'Pullback');
           state.loading = false;
           return;
         }
       }
     } catch (e) {}
 
-    // Fallback padrão: as 24 simulações idênticas ao design aprovado
+    // Fallback padrão: as 19 simulações idênticas ao design aprovado (sem Pullback)
     if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getDefaultSeedSimulations === 'function') {
       state.simulations = root.TradeSimulatorModel.getDefaultSeedSimulations();
     } else {
@@ -359,13 +363,88 @@
   }
 
   /**
-   * Aplica filtros atuais completos (incluindo aba de status e busca textual)
+   * Ordena a lista de simulações com base na coluna e direção selecionadas
+   */
+  function sortSimulations(list, sort) {
+    if (!Array.isArray(list) || !sort || !sort.column) return list || [];
+    const col = sort.column;
+    const dir = sort.direction === 'asc' ? 1 : -1;
+
+    return [...list].sort((a, b) => {
+      let valA;
+      let valB;
+
+      switch (col) {
+        case 'symbol':
+          valA = (a.symbol || '').toUpperCase();
+          valB = (b.symbol || '').toUpperCase();
+          break;
+        case 'triggerName':
+          valA = (a.triggerName || '').toLowerCase();
+          valB = (b.triggerName || '').toLowerCase();
+          break;
+        case 'grade': {
+          const gradeRank = { 'A+': 5, 'A': 4, 'B+': 3, 'B': 2, 'C': 1, 'D': 0 };
+          valA = gradeRank[a.grade] ?? -1;
+          valB = gradeRank[b.grade] ?? -1;
+          break;
+        }
+        case 'signalDate':
+          valA = a.signalDate || '';
+          valB = b.signalDate || '';
+          break;
+        case 'entryPrice':
+          valA = Number(a.entryPrice) || 0;
+          valB = Number(b.entryPrice) || 0;
+          break;
+        case 'stopLoss':
+          valA = Number(a.stopLoss) || 0;
+          valB = Number(b.stopLoss) || 0;
+          break;
+        case 'status': {
+          const statusRank = { 'IN_OPERATION': 4, 'WAITING_ENTRY': 3, 'CLOSED_GAIN': 2, 'CLOSED_LOSS': 1, 'NOT_TRIGGERED': 0 };
+          valA = statusRank[a.status] ?? -1;
+          valB = statusRank[b.status] ?? -1;
+          break;
+        }
+        case 'currentPrice':
+          valA = Number(a.currentPrice) || 0;
+          valB = Number(b.currentPrice) || 0;
+          break;
+        case 'resultR':
+          valA = a.resultR !== null && a.resultR !== undefined ? Number(a.resultR) : (dir === 1 ? 9999 : -9999);
+          valB = b.resultR !== null && b.resultR !== undefined ? Number(b.resultR) : (dir === 1 ? 9999 : -9999);
+          break;
+        case 'mfeR':
+          valA = a.mfeR !== null && a.mfeR !== undefined ? Number(a.mfeR) : (dir === 1 ? 9999 : -9999);
+          valB = b.mfeR !== null && b.mfeR !== undefined ? Number(b.mfeR) : (dir === 1 ? 9999 : -9999);
+          break;
+        case 'maeR':
+          valA = a.maeR !== null && a.maeR !== undefined ? Number(a.maeR) : (dir === 1 ? 9999 : -9999);
+          valB = b.maeR !== null && b.maeR !== undefined ? Number(b.maeR) : (dir === 1 ? 9999 : -9999);
+          break;
+        default:
+          valA = a[col] != null ? a[col] : '';
+          valB = b[col] != null ? b[col] : '';
+      }
+
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
+    });
+  }
+
+  /**
+   * Aplica filtros atuais completos (incluindo aba de status e busca textual) e ordenação
    */
   function getFilteredSimulations() {
+    let filtered;
     if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.filterSimulations !== 'function') {
-      return state.simulations;
+      filtered = state.simulations;
+    } else {
+      filtered = root.TradeSimulatorModel.filterSimulations(state.simulations, state.filters);
     }
-    return root.TradeSimulatorModel.filterSimulations(state.simulations, state.filters);
+    return sortSimulations(filtered, state.sort);
   }
 
   /**
@@ -486,7 +565,6 @@
               <button class="sim-dropdown-item ${state.filters.trigger === 'ALL' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="ALL">Todos os gatilhos</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Inside Bar">Inside Bar</button>
               <button class="sim-dropdown-item ${state.filters.trigger === '1-2-3 de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="1-2-3 de Compra">1-2-3 de Compra</button>
-              <button class="sim-dropdown-item ${state.filters.trigger === 'Pullback' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Pullback">Pullback</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Outros' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Outros">Outros</button>
             </div>
           </div>
@@ -644,7 +722,6 @@
     const triggers = stats.triggerPerformance || [
       { name: 'Inside Bar', totalRFormatted: '+8,4R', tradesText: '8 trades', totalR: 8.4 },
       { name: '1-2-3 de Compra', totalRFormatted: '+5,1R', tradesText: '7 trades', totalR: 5.1 },
-      { name: 'Pullback', totalRFormatted: '+1,2R', tradesText: '4 trades', totalR: 1.2 },
       { name: 'Outros', totalRFormatted: '+0,1R', tradesText: '1 trade', totalR: 0.1 }
     ];
     const maxTriggerR = Math.max(...triggers.map(t => Math.max(0.1, t.totalR || 0)), 10);
@@ -828,6 +905,29 @@
   }
 
   /**
+   * Renderiza cabeçalho de coluna ordenável com indicador de direção
+   */
+  function getSortHeader(columnKey, label) {
+    const isSorted = state.sort && state.sort.column === columnKey;
+    const arrow = isSorted
+      ? (state.sort.direction === 'asc' ? '▲' : '▼')
+      : '↕';
+    const activeClass = isSorted ? `sim-sorted ${state.sort.direction}` : '';
+    const title = isSorted
+      ? (state.sort.direction === 'asc' ? 'Ordenado crescente (clique para decrescente)' : 'Ordenado decrescente (clique para crescente)')
+      : `Clique para ordenar por ${label}`;
+
+    return `
+      <th class="sim-th-sortable ${activeClass}" data-sort="${columnKey}" title="${title}">
+        <div class="sim-th-content">
+          <span>${label}</span>
+          <span class="sim-sort-arrow">${arrow}</span>
+        </div>
+      </th>
+    `;
+  }
+
+  /**
    * 4. Seção de Tabela com Abas, Busca, Exportação e Linhas de Dados
    */
   function renderTableSection(simulations, stats) {
@@ -875,17 +975,17 @@
           <table class="sim-table">
             <thead>
               <tr>
-                <th>Ativo</th>
-                <th>Gatilho</th>
-                <th>Nota</th>
-                <th>Data do Sinal</th>
-                <th>Entrada</th>
-                <th>Stop</th>
-                <th>Status</th>
-                <th>Preço Atual</th>
-                <th>Resultado (R)</th>
-                <th>MFE (R)</th>
-                <th>MAE (R)</th>
+                ${getSortHeader('symbol', 'Ativo')}
+                ${getSortHeader('triggerName', 'Gatilho')}
+                ${getSortHeader('grade', 'Nota')}
+                ${getSortHeader('signalDate', 'Data do Sinal')}
+                ${getSortHeader('entryPrice', 'Entrada')}
+                ${getSortHeader('stopLoss', 'Stop')}
+                ${getSortHeader('status', 'Status')}
+                ${getSortHeader('currentPrice', 'Preço Atual')}
+                ${getSortHeader('resultR', 'Resultado (R)')}
+                ${getSortHeader('mfeR', 'MFE (R)')}
+                ${getSortHeader('maeR', 'MAE (R)')}
                 <th>Ações</th>
               </tr>
             </thead>
@@ -1598,12 +1698,30 @@
       }
     });
 
+    // Ordenação por clique nas colunas da tabela
+    container.querySelectorAll('th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.sort;
+        if (!col) return;
+        if (state.sort.column === col) {
+          state.sort.direction = state.sort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+          state.sort.column = col;
+          state.sort.direction = (col === 'symbol' || col === 'triggerName') ? 'asc' : 'desc';
+        }
+        render();
+      });
+    });
+
     // Abrir gráfico interativo a partir do snapshot modal
     container.querySelector('#simSnapshotOpenInteractive')?.addEventListener('click', (e) => {
       const ticker = e.currentTarget.dataset.ticker;
       state.snapshotSimId = null;
       if (ticker && typeof root.go === 'function') {
-        root.go('charts');
+        if (typeof window !== 'undefined') {
+          window.__pendingChartsTicker = ticker;
+        }
+        root.go('charts', ticker);
         if (root.TickerChart && typeof root.TickerChart.loadTicker === 'function') {
           root.TickerChart.loadTicker(ticker);
         }

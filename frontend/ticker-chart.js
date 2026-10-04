@@ -923,7 +923,7 @@
                     <label class="chart-indicator-item">
                       <div class="chart-indicator-left">
                         <span class="indicator-color-dot" style="background: #3b82f6;"></span>
-                        <span>EMA 21 (Pullback)</span>
+                        <span>EMA 21</span>
                       </div>
                       <input type="checkbox" id="chkIndEma21" ${indicatorPrefs.ema21 ? 'checked' : ''} />
                     </label>
@@ -1270,7 +1270,7 @@
               <div class="method-card-icon">${ICONS.structure}</div>
               <div class="method-card-title">Estrutura</div>
             </div>
-            <div class="method-card-badge ${structureStatus}">${tickerData.structure.label === 'Contração' || tickerData.structure.label === 'Pullback' ? 'Saudável' : escapeHtml(tickerData.structure.label)}</div>
+            <div class="method-card-badge ${structureStatus}">${tickerData.structure.label === 'Contração' || tickerData.structure.label === 'Correção' ? 'Saudável' : escapeHtml(tickerData.structure.label)}</div>
           </div>
           <div class="method-card-body">
             <div class="method-structure-label ${structureStatus}">
@@ -2381,7 +2381,9 @@
   // Ponto de entrada chamado ao navegar para a tela 'charts'
   function onOpenChartsPage(requestedTicker) {
     initDiscipline();
-    const target = requestedTicker || currentTicker || defaultTicker;
+    const target = requestedTicker || window.__pendingChartsTicker || currentTicker || defaultTicker;
+    window.__pendingChartsTicker = null;
+    currentTicker = target;
 
     if (window.TickerChartModel && disciplineState) {
       const access = window.TickerChartModel.registerChartAccess(disciplineState);
@@ -2399,7 +2401,9 @@
 
   // Expõe no window para integração com o app
   window.loadTickerChart = (ticker) => {
-    onOpenChartsPage(ticker);
+    const sym = ticker || window.__pendingChartsTicker || currentTicker || defaultTicker;
+    window.__pendingChartsTicker = null;
+    onOpenChartsPage(sym);
   };
 
   /**
@@ -2572,7 +2576,11 @@
 
   window.applyTradeContext = applyTradeContext;
   window.TickerChart = {
-    loadTicker: (ticker) => onOpenChartsPage(ticker),
+    loadTicker: (ticker) => {
+      window.__pendingChartsTicker = ticker;
+      currentTicker = ticker;
+      onOpenChartsPage(ticker);
+    },
     applyTradeContext: applyTradeContext
   };
 

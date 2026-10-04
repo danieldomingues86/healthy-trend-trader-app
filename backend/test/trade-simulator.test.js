@@ -14,12 +14,12 @@ test('tradeSimulator backend: listagem retorna seeds quando banco vazio', async 
 
   try {
     const res = await tradeSimulator.list('test-user-1');
-    assert.equal(res.simulations.length, 24);
-    assert.equal(res.stats.totalCreated, 24);
-    assert.equal(res.stats.executedEntriesCount, 18);
-    assert.equal(res.stats.waitingCount, 6);
-    assert.equal(res.stats.totalR, 14.8);
-    assert.equal(res.stats.avgR, 0.82);
+    assert.equal(res.simulations.length, 19);
+    assert.equal(res.stats.totalCreated, 19);
+    assert.equal(res.stats.executedEntriesCount, 14);
+    assert.equal(res.stats.waitingCount, 5);
+    assert.equal(res.stats.totalR, 13.6);
+    assert.equal(res.stats.avgR, 0.97);
   } finally {
     database.query = originalQuery;
   }

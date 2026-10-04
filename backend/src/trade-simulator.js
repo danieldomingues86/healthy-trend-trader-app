@@ -63,17 +63,17 @@ async function list(userId, client = database) {
 
   const result = await client.query(
     `SELECT * FROM app.trade_simulations
-     WHERE user_id = $1
+     WHERE user_id = $1 AND trigger_name != 'Pullback'
      ORDER BY signal_date DESC, created_at DESC`,
     [userId]
   );
 
   let simulations;
   if (!result.rows || result.rows.length === 0) {
-    // Retorna as 24 simulações de referência calibradas
+    // Retorna as simulações de referência calibradas sem Pullback
     simulations = model.getDefaultSeedSimulations();
   } else {
-    simulations = result.rows.map(mapSimulation);
+    simulations = result.rows.map(mapSimulation).filter(s => s && s.triggerName !== 'Pullback');
   }
 
   const stats = model.calculateSimulatorStats(simulations);

@@ -630,6 +630,43 @@
   white-space: nowrap;
 }
 
+.sim-th-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.sim-th-sortable:hover {
+  color: var(--ink);
+  background-color: #f6f9f6;
+}
+
+.sim-th-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sim-sort-arrow {
+  font-size: 10px;
+  line-height: 1;
+  color: #a5b4ab;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.sim-th-sortable:hover .sim-sort-arrow {
+  color: var(--ink);
+}
+
+.sim-th-sortable.sim-sorted {
+  color: #10b981;
+}
+
+.sim-th-sortable.sim-sorted .sim-sort-arrow {
+  color: #10b981;
+  font-weight: 900;
+}
+
 .sim-table td {
   font-size: 12px;
   color: var(--ink);

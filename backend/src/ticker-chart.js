@@ -364,7 +364,7 @@ async function getTickerChartData(rawSymbol) {
   const trigger = TickerChartModel.detectSetupTriggers(candles, ema9Array, ema30Array);
 
   // Estrutura
-  let structureLabel = 'Pullback';
+  let structureLabel = 'Correção';
   let structureDesc = 'Correção saudável dentro da tendência.';
   if (trigger.id === 'INSIDE_BAR') {
     structureLabel = 'Contração';
@@ -537,7 +537,7 @@ async function getTickerChartData(rawSymbol) {
     structure: {
       label: structureLabel,
       description: structureDesc,
-      isPullback: structureLabel === 'Pullback'
+      isPullback: structureLabel === 'Correção'
     },
     trigger: {
       id: trigger.id,

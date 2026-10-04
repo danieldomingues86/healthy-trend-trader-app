@@ -620,7 +620,7 @@
       // 3. Gatilho
       if (trigger && trigger.toUpperCase() !== 'ALL') {
         if (trigger === 'Outros') {
-          const known = ['Inside Bar', '1-2-3 de Compra', 'Pullback', 'PFR de Compra', 'Dave Landry', 'RBI'];
+          const known = ['Inside Bar', '1-2-3 de Compra', 'PFR de Compra', 'Dave Landry', 'RBI'];
           if (known.includes(sim.triggerName)) return false;
         } else if (sim.triggerName !== trigger) {
           return false;
@@ -652,16 +652,16 @@
   }
 
   /**
-   * Constrói o conjunto oficial de 24 simulações idênticas ao design de referência aprovado
+   * Constrói o conjunto oficial de 19 simulações calibradas (sem o gatilho Pullback)
    * garantindo exatamente:
-   * - 24 Simulações criadas
-   * - 18 Entradas executadas (75,0%)
-   * - 6 Aguardando entrada (25,0%)
+   * - 19 Simulações criadas
+   * - 14 Entradas executadas (73,68%)
+   * - 5 Aguardando entrada (26,32%)
    * - 3 Em operação
-   * - 15 Encerradas (12 Wins = 66,7% Win Rate, 6 Losses na amostra de 18 trades executados)
-   * - Resultado total: +14,8R
-   * - R médio / trade: +0,82R (14,8R / 18)
-   * - Gatilhos: Inside Bar (+8,4R), 1-2-3 de Compra (+5,1R), Pullback (+1,2R), Outros (+0,1R)
+   * - 11 Encerradas (10 Wins = 71,4% Win Rate, 4 Losses)
+   * - Resultado total: +13,60R
+   * - R médio / trade: +0,97R
+   * - Gatilhos: Inside Bar (+8,4R), 1-2-3 de Compra (+5,1R), Outros (+0,1R)
    */
   function getDefaultSeedSimulations() {
     return [
@@ -830,27 +830,6 @@
         ]
       },
       {
-        id: 'sim-csan3-08',
-        symbol: 'CSAN3',
-        companyName: 'Cosan S.A.',
-        triggerName: 'Pullback',
-        grade: 'B',
-        sector: 'Petróleo e Gás',
-        signalDate: '2026-09-24',
-        entryPrice: 12.80,
-        stopLoss: 12.10,
-        status: STATUS.WAITING_ENTRY,
-        currentPrice: 12.50,
-        resultR: null,
-        mfeR: null,
-        maeR: null,
-        timeline: [
-          { type: 'SIGNAL_IDENTIFIED', date: '2026-09-24', label: 'Gatilho identificado', desc: 'Pullback (B) em CSAN3' },
-          { type: 'SIMULATION_ADDED', date: '2026-09-24', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
-          { type: 'WAITING_ENTRY', date: '2026-09-24', label: 'Aguardando entrada', desc: 'Entrada planejada: R$ 12,80 | Stop: R$ 12,10' }
-        ]
-      },
-      {
         id: 'sim-b3sa3-09',
         symbol: 'B3SA3',
         companyName: 'B3 S.A. Brasil Bolsa Balcão',
@@ -906,35 +885,6 @@
         ]
       },
       {
-        id: 'sim-wege3-11',
-        symbol: 'WEGE3',
-        companyName: 'WEG S.A.',
-        triggerName: 'Pullback',
-        grade: 'A',
-        sector: 'Bens Industriais',
-        signalDate: '2026-09-18',
-        entryPrice: 41.20,
-        stopLoss: 39.50,
-        status: STATUS.CLOSED_LOSS,
-        executedEntryPrice: 41.20,
-        entryDate: '2026-09-19',
-        currentPrice: 39.50,
-        exitPrice: 39.50,
-        exitDate: '2026-09-25',
-        exitReason: 'Stop Loss',
-        resultR: -1.00,
-        mfeR: 0.85,
-        maeR: -1.00,
-        timeline: [
-          { type: 'SIGNAL_IDENTIFIED', date: '2026-09-18', label: 'Gatilho identificado', desc: 'Pullback (A) em WEGE3' },
-          { type: 'SIMULATION_ADDED', date: '2026-09-18', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
-          { type: 'WAITING_ENTRY', date: '2026-09-18', label: 'Aguardando entrada', desc: 'Entrada planejada: R$ 41,20 | Stop: R$ 39,50' },
-          { type: 'ENTRY_EXECUTED', date: '2026-09-19', label: 'Entrada executada', price: 41.20, desc: 'Entrada executada a R$ 41,20' },
-          { type: 'STOPPED_OUT', date: '2026-09-25', label: 'Stop Loss', price: 39.50, resultR: -1.00, desc: 'Stop executado a R$ 39,50 (-1,00R)' },
-          { type: 'CLOSED', date: '2026-09-25', label: 'Trade encerrado', resultR: -1.00, desc: 'Operação finalizada com perda de -1,00R' }
-        ]
-      },
-      {
         id: 'sim-abev3-12',
         symbol: 'ABEV3',
         companyName: 'Ambev S.A.',
@@ -963,34 +913,6 @@
           { type: 'TARGET_2R', date: '2026-09-24', label: '+2R atingido', desc: 'Preço atingiu R$ 14,35 (+2,00R)' },
           { type: 'SELL_INTO_STRENGTH', date: '2026-09-24', label: 'Sell Into Strength', price: 14.52, desc: 'Saída programada em R$ 14,52 (+2,30R)' },
           { type: 'CLOSED', date: '2026-09-24', label: 'Trade encerrado', resultR: 2.30, desc: 'Operação concluída com ganho de +2,30R' }
-        ]
-      },
-      {
-        id: 'sim-elet3-13',
-        symbol: 'ELET3',
-        companyName: 'Eletrobras ON',
-        triggerName: 'Pullback',
-        grade: 'B+',
-        sector: 'Utilidade Pública',
-        signalDate: '2026-09-05',
-        entryPrice: 41.80,
-        stopLoss: 40.20,
-        status: STATUS.NOT_TRIGGERED,
-        executedEntryPrice: null,
-        entryDate: null,
-        currentPrice: 40.90,
-        exitPrice: null,
-        exitDate: '2026-09-15',
-        exitReason: 'Gatilho expirado sem acionar entrada',
-        resultR: null,
-        mfeR: null,
-        maeR: null,
-        timeline: [
-          { type: 'SIGNAL_IDENTIFIED', date: '2026-09-05', label: 'Gatilho identificado', desc: 'Pullback (B+) em ELET3' },
-          { type: 'SIMULATION_ADDED', date: '2026-09-05', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
-          { type: 'WAITING_ENTRY', date: '2026-09-05', label: 'Aguardando entrada', desc: 'Entrada planejada: R$ 41,80 | Stop: R$ 40,20' },
-          { type: 'NOT_TRIGGERED', date: '2026-09-15', label: 'Não acionado', desc: 'Preço não rompeu a máxima do gatilho e perdeu a estrutura' },
-          { type: 'CLOSED', date: '2026-09-15', label: 'Simulação encerrada', desc: 'Gatilho expirado sem entrada' }
         ]
       },
       {
@@ -1120,27 +1042,6 @@
         maeR: -0.20
       },
       {
-        id: 'sim-jbss3-20',
-        symbol: 'JBSS3',
-        companyName: 'JBS S.A.',
-        triggerName: 'Pullback',
-        grade: 'A',
-        sector: 'Consumo Não Cíclico',
-        signalDate: '2026-08-02',
-        entryPrice: 34.50,
-        stopLoss: 33.00,
-        status: STATUS.CLOSED_GAIN,
-        executedEntryPrice: 34.50,
-        entryDate: '2026-08-03',
-        currentPrice: 37.80,
-        exitPrice: 37.70,
-        exitDate: '2026-08-16',
-        exitReason: 'Sell Into Strength (+2R)',
-        resultR: 1.20,
-        mfeR: 2.40,
-        maeR: -0.30
-      },
-      {
         id: 'sim-cpfe3-21',
         symbol: 'CPFE3',
         companyName: 'CPFL Energia',
@@ -1181,27 +1082,6 @@
         resultR: 0.80,
         mfeR: 1.10,
         maeR: -0.30
-      },
-      {
-        id: 'sim-klbn11-23',
-        symbol: 'KLBN11',
-        companyName: 'Klabin S.A.',
-        triggerName: 'Pullback',
-        grade: 'B+',
-        sector: 'Materiais Básicos',
-        signalDate: '2026-07-16',
-        entryPrice: 21.80,
-        stopLoss: 20.90,
-        status: STATUS.CLOSED_GAIN,
-        executedEntryPrice: 21.80,
-        entryDate: '2026-07-17',
-        currentPrice: 23.70,
-        exitPrice: 23.60,
-        exitDate: '2026-07-31',
-        exitReason: 'Sell Into Strength (+1,0R)',
-        resultR: 1.00,
-        mfeR: 1.30,
-        maeR: -0.25
       },
       {
         id: 'sim-cmig4-24',

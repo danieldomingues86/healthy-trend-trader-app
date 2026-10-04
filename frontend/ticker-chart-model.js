@@ -681,8 +681,8 @@
         bothSlopingUp: trend.bothSlopingUp !== false
       },
       structure: {
-        label: struct.label || 'Pullback',
-        description: struct.description || 'Pullback'
+        label: struct.label || 'Correção',
+        description: struct.description || 'Correção saudável'
       },
       volatility: {
         atr21: atr21Val,
