@@ -218,7 +218,7 @@
       if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
         const res = await root.healthyTrendApi.request(API_ENDPOINT + '/reset', {
           method: 'POST',
-          body: { scenario: scenarioId }
+          body: JSON.stringify({ scenario: scenarioId })
         });
         if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
           state.simulations = res.simulations.filter(s => s && s.triggerName !== 'Pullback');

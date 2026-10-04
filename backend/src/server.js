@@ -63,7 +63,15 @@ async function body(request) {
     }
     chunks.push(chunk);
   }
-  try { return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'); } catch { throw new Error('JSON inválido'); }
+  const text = Buffer.concat(chunks).toString('utf8').trim();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    const error = new Error('JSON inválido');
+    error.status = 400;
+    throw error;
+  }
 }
 async function binaryBody(request, maxBytes = journalAttachments.MAX_BYTES) {
   const chunks = []; let size = 0;
