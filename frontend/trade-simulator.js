@@ -15,7 +15,6 @@
     loading: false,
     activeScenario: '2R',
     massModalOpen: false,
-    showClearConfirm: false,
     compareModalOpen: false,
     scenarioModalOpen: false,
     tempScenarioSelection: '2R',
@@ -1324,19 +1323,6 @@
                 </div>
                 <button class="sim-mass-action-trigger-btn danger" type="button" id="simMassActionClearBtn">Excluir</button>
               </div>
-
-              <!-- Confirmação Destrutiva Segura -->
-              ${state.showClearConfirm ? `
-                <div class="sim-mass-confirm-alert">
-                  <div class="sim-mass-confirm-text">
-                    ⚠️ <b>Confirmar exclusão:</b> Deseja realmente excluir todas as simulações carregadas? Esta ação é irreversível.
-                  </div>
-                  <div class="sim-mass-confirm-actions">
-                    <button class="sim-btn-confirm-cancel" type="button" id="simMassConfirmCancel">Cancelar</button>
-                    <button class="sim-btn-confirm-danger" type="button" id="simMassConfirmClear">Sim, Excluir</button>
-                  </div>
-                </div>
-              ` : ''}
             </div>
           </div>
         </div>
@@ -2040,7 +2026,6 @@
     container.querySelector('#simBtnMassModal')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.massModalOpen = true;
-      state.showClearConfirm = false;
       state.tempScenarioSelection = state.activeScenario || '2R';
       render();
     });
@@ -2048,7 +2033,6 @@
     container.querySelector('#simBtnScenarioModal')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.massModalOpen = true;
-      state.showClearConfirm = false;
       state.tempScenarioSelection = state.activeScenario || '2R';
       render();
     });
@@ -2057,14 +2041,12 @@
     container.querySelector('#simMassModalClose')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.massModalOpen = false;
-      state.showClearConfirm = false;
       render();
     });
 
     container.querySelector('#simMassModalOverlay')?.addEventListener('click', (e) => {
       if (e.target.id === 'simMassModalOverlay') {
         state.massModalOpen = false;
-        state.showClearConfirm = false;
         render();
       }
     });
@@ -2082,7 +2064,6 @@
     container.querySelector('#simModalConfirmScenario')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.massModalOpen = false;
-      state.showClearConfirm = false;
       generateScenarioMass(state.tempScenarioSelection || '2R');
     });
 
@@ -2095,26 +2076,14 @@
     container.querySelector('#simMassActionEvaluate')?.addEventListener('click', handleEvaluate);
     container.querySelector('#simMassActionEvaluateBtn')?.addEventListener('click', handleEvaluate);
 
-    const handlePromptClear = (e) => {
+    // Exclusão direta sem segunda confirmação: fecha o modal e limpa imediatamente
+    const handleDirectClear = (e) => {
       e.stopPropagation();
-      state.showClearConfirm = true;
-      render();
-    };
-    container.querySelector('#simMassActionClear')?.addEventListener('click', handlePromptClear);
-    container.querySelector('#simMassActionClearBtn')?.addEventListener('click', handlePromptClear);
-
-    container.querySelector('#simMassConfirmCancel')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.showClearConfirm = false;
-      render();
-    });
-
-    container.querySelector('#simMassConfirmClear')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.showClearConfirm = false;
       state.massModalOpen = false;
       clearAllSimulations();
-    });
+    };
+    container.querySelector('#simMassActionClear')?.addEventListener('click', handleDirectClear);
+    container.querySelector('#simMassActionClearBtn')?.addEventListener('click', handleDirectClear);
 
     // 2. Modal do Comparador de Cenários de Gestão
     container.querySelector('#simBtnCompareModal')?.addEventListener('click', (e) => {
