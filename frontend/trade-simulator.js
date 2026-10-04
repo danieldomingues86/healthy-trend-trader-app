@@ -85,7 +85,7 @@
             state.tempScenarioSelection = state.simulations[0].managementScenario;
           }
           if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
-            state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations.length === 42 ? null : state.simulations);
+            state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
           }
           state.loading = false;
           return;
@@ -221,7 +221,7 @@
         });
         if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
           state.simulations = res.simulations.filter(s => s && s.triggerName !== 'Pullback');
-          state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios() : null);
+          state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
           saveLocalCache();
           state.loading = false;
           render();
@@ -236,7 +236,7 @@
 
     if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.generateSeedSimulationsForScenario === 'function') {
       state.simulations = root.TradeSimulatorModel.generateSeedSimulationsForScenario(scenarioId);
-      state.comparison = root.TradeSimulatorModel.compareManagementScenarios();
+      state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
     }
     saveLocalCache();
     state.loading = false;
@@ -1338,14 +1338,13 @@
   function renderCompareModal() {
     if (!state.compareModalOpen) return '';
 
-    const comparison = state.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios() : null);
+    const comparison = state.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
     const scenarios = comparison && Array.isArray(comparison.scenarios) ? comparison.scenarios : [];
     const sampleInfo = comparison?.sampleInfo || 'Mesma amostra: últimos 4 meses • 42 trades';
 
-    const defaultBench = root.TradeSimulatorModel?.BENCHMARK_SCENARIOS_COMPARISON || [];
-    const sc2R = scenarios.find(s => s.id === '2R') || defaultBench[0] || {};
-    const sc25R = scenarios.find(s => s.id === '2.5R') || defaultBench[1] || {};
-    const scPyr = scenarios.find(s => s.id === 'PYRAMID_1R_2R') || defaultBench[2] || {};
+    const sc2R = scenarios.find(s => s.id === '2R') || {};
+    const sc25R = scenarios.find(s => s.id === '2.5R') || {};
+    const scPyr = scenarios.find(s => s.id === 'PYRAMID_1R_2R') || {};
 
     return `
       <div class="sim-compare-modal-overlay open" id="simCompareModalOverlay">
@@ -1409,57 +1408,57 @@
                 </tr>
                 <tr>
                   <td class="td-metric-name">Win Rate</td>
-                  <td>${sc2R.winRateFormatted ?? '52,4% (22)'}</td>
-                  <td>${sc25R.winRateFormatted ?? '47,6% (20)'}</td>
-                  <td>${scPyr.winRateFormatted ?? '50,0% (21)'}</td>
+                  <td>${sc2R.winRateFormatted || '—'}</td>
+                  <td>${sc25R.winRateFormatted || '—'}</td>
+                  <td>${scPyr.winRateFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Loss Rate</td>
-                  <td>${sc2R.lossRateFormatted ?? '47,6% (20)'}</td>
-                  <td>${sc25R.lossRateFormatted ?? '52,4% (22)'}</td>
-                  <td>${scPyr.lossRateFormatted ?? '50,0% (21)'}</td>
+                  <td>${sc2R.lossRateFormatted || '—'}</td>
+                  <td>${sc25R.lossRateFormatted || '—'}</td>
+                  <td>${scPyr.lossRateFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">R médio por trade</td>
-                  <td class="metric-accent">${sc2R.avgRFormatted ?? '0,68R'}</td>
-                  <td class="metric-accent">${sc25R.avgRFormatted ?? '0,82R'}</td>
-                  <td class="metric-accent-blue">${scPyr.avgRFormatted ?? '1,12R'}</td>
+                  <td class="metric-accent">${sc2R.avgRFormatted || '—'}</td>
+                  <td class="metric-accent">${sc25R.avgRFormatted || '—'}</td>
+                  <td class="metric-accent-blue">${scPyr.avgRFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Expectancy</td>
-                  <td class="metric-accent">${sc2R.expectancyFormatted ?? '0,65R'}</td>
-                  <td class="metric-accent">${sc25R.expectancyFormatted ?? '0,78R'}</td>
-                  <td class="metric-accent-blue">${scPyr.expectancyFormatted ?? '1,05R'}</td>
+                  <td class="metric-accent">${sc2R.expectancyFormatted || '—'}</td>
+                  <td class="metric-accent">${sc25R.expectancyFormatted || '—'}</td>
+                  <td class="metric-accent-blue">${scPyr.expectancyFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Profit Factor</td>
-                  <td><b>${sc2R.profitFactorFormatted ?? '1,78'}</b></td>
-                  <td><b>${sc25R.profitFactorFormatted ?? '1,92'}</b></td>
-                  <td><b class="metric-accent-blue">${scPyr.profitFactorFormatted ?? '2,35'}</b></td>
+                  <td><b>${sc2R.profitFactorFormatted || '—'}</b></td>
+                  <td><b>${sc25R.profitFactorFormatted || '—'}</b></td>
+                  <td><b class="metric-accent-blue">${scPyr.profitFactorFormatted || '—'}</b></td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Resultado acumulado</td>
-                  <td class="metric-gain">${sc2R.totalRFormatted ?? '+27,36R'}</td>
-                  <td class="metric-gain">${sc25R.totalRFormatted ?? '+32,90R'}</td>
-                  <td class="metric-gain-high">${scPyr.totalRFormatted ?? '+44,10R'}</td>
+                  <td class="metric-gain">${sc2R.totalRFormatted || '—'}</td>
+                  <td class="metric-gain">${sc25R.totalRFormatted || '—'}</td>
+                  <td class="metric-gain-high">${scPyr.totalRFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">Drawdown máximo</td>
-                  <td class="metric-loss">${sc2R.maxDrawdownFormatted ?? '-6,20R'}</td>
-                  <td class="metric-loss">${sc25R.maxDrawdownFormatted ?? '-7,10R'}</td>
-                  <td class="metric-loss">${scPyr.maxDrawdownFormatted ?? '-8,40R'}</td>
+                  <td class="metric-loss">${sc2R.maxDrawdownFormatted || '—'}</td>
+                  <td class="metric-loss">${sc25R.maxDrawdownFormatted || '—'}</td>
+                  <td class="metric-loss">${scPyr.maxDrawdownFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">MFE médio (vencedores)</td>
-                  <td>${sc2R.avgMfeFormatted ?? '2,10R'}</td>
-                  <td>${sc25R.avgMfeFormatted ?? '2,58R'}</td>
-                  <td>${scPyr.avgMfeFormatted ?? '2,85R'}</td>
+                  <td>${sc2R.avgMfeFormatted || '—'}</td>
+                  <td>${sc25R.avgMfeFormatted || '—'}</td>
+                  <td>${scPyr.avgMfeFormatted || '—'}</td>
                 </tr>
                 <tr>
                   <td class="td-metric-name">MAE médio (perdedores)</td>
-                  <td class="metric-loss">${sc2R.avgMaeFormatted ?? '-1,05R'}</td>
-                  <td class="metric-loss">${sc25R.avgMaeFormatted ?? '-1,08R'}</td>
-                  <td class="metric-loss">${scPyr.avgMaeFormatted ?? '-1,15R'}</td>
+                  <td class="metric-loss">${sc2R.avgMaeFormatted || '—'}</td>
+                  <td class="metric-loss">${sc25R.avgMaeFormatted || '—'}</td>
+                  <td class="metric-loss">${scPyr.avgMaeFormatted || '—'}</td>
                 </tr>
               </tbody>
             </table>

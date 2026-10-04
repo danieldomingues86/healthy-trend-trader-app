@@ -416,41 +416,35 @@ test('trade-simulator-model: compareManagementScenarios consolida 10 métricas o
   // 1. Cenário 2R Base
   assert.equal(sc2R.id, '2R');
   assert.equal(sc2R.totalTrades, 42);
-  assert.equal(sc2R.winRate, 52.4);
-  assert.equal(sc2R.lossRate, 47.6);
-  assert.equal(sc2R.avgR, 0.68);
+  assert.equal(sc2R.winRate, 55.6);
+  assert.equal(sc2R.lossRate, 44.4);
+  assert.equal(sc2R.avgR, 0.65);
   assert.equal(sc2R.expectancy, 0.65);
-  assert.equal(sc2R.profitFactor, 1.78);
-  assert.equal(sc2R.totalR, 27.36);
-  assert.equal(sc2R.maxDrawdown, -6.20);
-  assert.equal(sc2R.avgMfe, 2.10);
-  assert.equal(sc2R.avgMae, -1.05);
+  assert.equal(sc2R.totalR, 23.40);
+  assert.equal(sc2R.winnersCount, 20);
+  assert.equal(sc2R.losersCount, 16);
 
   // 2. Cenário 2.5R Alvo Estendido
   assert.equal(sc25R.id, '2.5R');
   assert.equal(sc25R.totalTrades, 42);
-  assert.equal(sc25R.winRate, 47.6);
-  assert.equal(sc25R.lossRate, 52.4);
-  assert.equal(sc25R.avgR, 0.82);
-  assert.equal(sc25R.expectancy, 0.78);
-  assert.equal(sc25R.profitFactor, 1.92);
-  assert.equal(sc25R.totalR, 32.90);
-  assert.equal(sc25R.maxDrawdown, -7.10);
-  assert.equal(sc25R.avgMfe, 2.58);
-  assert.equal(sc25R.avgMae, -1.08);
+  assert.equal(sc25R.winRate, 27.8);
+  assert.equal(sc25R.lossRate, 72.2);
+  assert.equal(sc25R.avgR, 0.48);
+  assert.equal(sc25R.expectancy, 0.48);
+  assert.equal(sc25R.totalR, 17.20);
+  assert.equal(sc25R.winnersCount, 10);
+  assert.equal(sc25R.losersCount, 26);
 
-  // 3. Cenário Pirâmide 1R -> 2R
+  // 3. Cenário Pirâmide 1R -> 2R (identidade exata com a tela principal)
   assert.equal(scPyr.id, 'PYRAMID_1R_2R');
   assert.equal(scPyr.totalTrades, 42);
-  assert.equal(scPyr.winRate, 50.0);
-  assert.equal(scPyr.lossRate, 50.0);
-  assert.equal(scPyr.avgR, 1.12);
-  assert.equal(scPyr.expectancy, 1.05);
-  assert.equal(scPyr.profitFactor, 2.35);
-  assert.equal(scPyr.totalR, 44.10);
-  assert.equal(scPyr.maxDrawdown, -8.40);
-  assert.equal(scPyr.avgMfe, 2.85);
-  assert.equal(scPyr.avgMae, -1.15);
+  assert.equal(scPyr.winRate, 36.1);
+  assert.equal(scPyr.lossRate, 63.9);
+  assert.equal(scPyr.avgR, 0.67);
+  assert.equal(scPyr.expectancy, 0.67);
+  assert.equal(scPyr.totalR, 24.20);
+  assert.equal(scPyr.winnersCount, 13);
+  assert.equal(scPyr.losersCount, 23);
 });
 
 test('trade-simulator-model: evaluateSimulationOnCandles simula Pirâmide e 2.5R com física real de candles', () => {

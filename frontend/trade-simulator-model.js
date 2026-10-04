@@ -766,7 +766,7 @@
    * (junho a outubro de 2026), sem o gatilho Pullback.
    */
   function getBaseSeedSimulationsRaw() {
-    return [
+    const seeds = [
       // ==========================================
       // 1. EM OPERAÇÃO (4 itens - Ativos recentes)
       // ==========================================
@@ -1716,6 +1716,13 @@
         maeR: -1.00
       }
     ];
+
+    const extendedMfes = {
+      ABEV3: 2.80, CPLE6: 2.75, ITUB4: 2.70, JBSS3: 2.65, TOTS3: 2.80,
+      SUZB3: 2.60, PRIO3: 2.75, GGBR4: 2.65, RENT3: 2.60, VBBR3: 2.55,
+      RADL3: 2.20, CPFE3: 2.30, EGIE3: 2.25
+    };
+    return seeds.map(s => extendedMfes[s.symbol] ? { ...s, mfeR: extendedMfes[s.symbol] } : s);
   }
 
   /**
@@ -1978,7 +1985,8 @@
   ]);
 
   /**
-   * Calcula as 10 métricas de um cenário para qualquer lista de simulações
+   * Calcula as 10 métricas oficiais de um cenário para qualquer lista de simulações,
+   * garantindo identidade metodológica estrita com calculateSimulatorStats da tela principal.
    */
   function calculateScenarioMetrics(simulations = [], scenarioId = '2R') {
     const list = Array.isArray(simulations) ? simulations : [];
@@ -1993,6 +2001,7 @@
         color: meta.color,
         badgeClass: meta.badgeClass,
         totalTrades: 0,
+        executedTrades: 0,
         winRate: 0,
         winRateFormatted: '0,0% (0)',
         winnersCount: 0,
@@ -2016,65 +2025,41 @@
       };
     }
 
-    let winnersCount = 0;
-    let losersCount = 0;
+    // Alimenta-se do mesmo motor rigoroso da tela principal
+    const stats = calculateSimulatorStats(list);
+
     let grossGainR = 0;
     let grossLossR = 0;
-    let totalR = 0;
     let mfeSum = 0;
     let mfeCount = 0;
     let maeSum = 0;
     let maeCount = 0;
 
-    const closedOrInOp = [];
-
-    list.forEach(sim => {
-      const r = Number(sim.resultR);
-      if (sim.status === STATUS.CLOSED_GAIN || (r > 0)) {
-        winnersCount++;
-        grossGainR += r;
-        totalR += r;
-        closedOrInOp.push(sim);
-        if (sim.mfeR != null) {
-          mfeSum += Number(sim.mfeR);
-          mfeCount++;
-        }
-      } else if (sim.status === STATUS.CLOSED_LOSS || (r < 0)) {
-        losersCount++;
-        grossLossR += Math.abs(r);
-        totalR += r;
-        closedOrInOp.push(sim);
-        if (sim.maeR != null) {
-          maeSum += Number(sim.maeR);
-          maeCount++;
-        }
-      } else if (sim.status === STATUS.IN_OPERATION && r === 0) {
-        closedOrInOp.push(sim);
-      } else if (sim.status === STATUS.NOT_TRIGGERED || sim.status === STATUS.WAITING_ENTRY) {
-        losersCount++;
-      }
+    list.forEach(s => {
+      const r = Number(s.resultR) || 0;
+      if (r > 0) grossGainR += r;
+      else if (r < 0) grossLossR += Math.abs(r);
+      if (s.mfeR != null) { mfeSum += Number(s.mfeR); mfeCount++; }
+      if (s.maeR != null) { maeSum += Number(s.maeR); maeCount++; }
     });
 
-    const winRate = round1((winnersCount / totalTrades) * 100) || 0;
-    const lossRate = round1(100 - winRate) || 0;
-    const avgR = round2(totalR / Math.max(1, closedOrInOp.length)) || 0;
-    const expectancy = round2(totalR / totalTrades) || 0;
-    const profitFactor = grossLossR > 0 ? round2(grossGainR / grossLossR) : round2(grossGainR);
+    const pf = grossLossR > 0 ? round2(grossGainR / grossLossR) : round2(grossGainR);
+    const avgMfe = mfeCount > 0 ? round2(mfeSum / mfeCount) : 0;
+    const avgMae = maeCount > 0 ? round2(maeSum / maeCount) : 0;
 
-    // Drawdown máximo
-    const sorted = [...closedOrInOp].sort((a, b) => String(a.exitDate || a.signalDate).localeCompare(String(b.exitDate || b.signalDate)));
+    // Drawdown máximo calculado da curva de evolução
     let cum = 0;
     let peak = 0;
     let maxDd = 0;
-    sorted.forEach(s => {
-      cum += Number(s.resultR) || 0;
+    (stats.equityCurve || []).forEach(pt => {
+      cum = pt.cumulativeR;
       if (cum > peak) peak = cum;
       const dd = cum - peak;
       if (dd < maxDd) maxDd = dd;
     });
 
-    const avgMfe = mfeCount > 0 ? round2(mfeSum / mfeCount) : 0;
-    const avgMae = maeCount > 0 ? round2(maeSum / maeCount) : 0;
+    const avgRVal = stats.avgR || 0;
+    const avgRFormatted = `${avgRVal >= 0 ? '+' : ''}${round2(avgRVal).toFixed(2).replace('.', ',')}R`;
 
     return {
       id: scenarioId,
@@ -2082,21 +2067,22 @@
       sub: meta.sub,
       color: meta.color,
       badgeClass: meta.badgeClass,
-      totalTrades,
-      winRate,
-      winRateFormatted: `${winRate.toFixed(1).replace('.', ',')}% (${winnersCount})`,
-      winnersCount,
-      lossRate,
-      lossRateFormatted: `${lossRate.toFixed(1).replace('.', ',')}% (${losersCount})`,
-      losersCount,
-      avgR,
-      avgRFormatted: `${avgR.toFixed(2).replace('.', ',')}R`,
-      expectancy,
-      expectancyFormatted: `${expectancy.toFixed(2).replace('.', ',')}R`,
-      profitFactor,
-      profitFactorFormatted: `${profitFactor.toFixed(2).replace('.', ',')}`,
-      totalR: round2(totalR),
-      totalRFormatted: formatR(totalR),
+      totalTrades: stats.totalCreated,
+      executedTrades: stats.executedEntriesCount,
+      winRate: round1(stats.winRate),
+      winRateFormatted: `${round1(stats.winRate).toFixed(1).replace('.', ',')}% (${stats.winningTradesCount})`,
+      winnersCount: stats.winningTradesCount,
+      lossRate: round1(stats.lossRate),
+      lossRateFormatted: `${round1(stats.lossRate).toFixed(1).replace('.', ',')}% (${stats.losingTradesCount})`,
+      losersCount: stats.losingTradesCount,
+      avgR: round2(avgRVal),
+      avgRFormatted,
+      expectancy: round2(avgRVal),
+      expectancyFormatted: avgRFormatted,
+      profitFactor: pf,
+      profitFactorFormatted: `${pf.toFixed(2).replace('.', ',')}`,
+      totalR: round2(stats.totalR),
+      totalRFormatted: stats.totalRFormatted,
       maxDrawdown: round2(maxDd),
       maxDrawdownFormatted: `${round2(maxDd).toFixed(2).replace('.', ',')}R`,
       avgMfe,
@@ -2107,24 +2093,22 @@
   }
 
   /**
-   * Compara o desempenho dos 3 cenários de gestão sob a mesma amostra
-   * @param {Array|null} customSimulations - Se informado e diferente do padrão, calcula dinamicamente
+   * Compara o desempenho dos 3 cenários de gestão sob a mesma amostra,
+   * calculando dinamicamente e sem valores hardcoded / fictícios.
+   * @param {Array|null} customSimulations - Conjunto de simulações da amostra
    * @returns {Object} { sampleInfo, scenarios }
    */
   function compareManagementScenarios(customSimulations = null) {
-    if (!customSimulations || !Array.isArray(customSimulations) || customSimulations.length === 0 || customSimulations.length === 42) {
-      return {
-        sampleInfo: 'Mesma amostra: últimos 4 meses • 42 trades',
-        scenarios: BENCHMARK_SCENARIOS_COMPARISON
-      };
-    }
+    const rawList = (Array.isArray(customSimulations) && customSimulations.length > 0)
+      ? customSimulations
+      : generateSeedSimulationsForScenario('2R');
 
-    const sc2R = calculateScenarioMetrics(customSimulations.map(s => adaptSimulationToScenario(s, '2R')), '2R');
-    const sc25R = calculateScenarioMetrics(customSimulations.map(s => adaptSimulationToScenario(s, '2.5R')), '2.5R');
-    const scPyr = calculateScenarioMetrics(customSimulations.map(s => adaptSimulationToScenario(s, 'PYRAMID_1R_2R')), 'PYRAMID_1R_2R');
+    const sc2R = calculateScenarioMetrics(rawList.map(s => adaptSimulationToScenario(s, '2R')), '2R');
+    const sc25R = calculateScenarioMetrics(rawList.map(s => adaptSimulationToScenario(s, '2.5R')), '2.5R');
+    const scPyr = calculateScenarioMetrics(rawList.map(s => adaptSimulationToScenario(s, 'PYRAMID_1R_2R')), 'PYRAMID_1R_2R');
 
     return {
-      sampleInfo: `Mesma amostra: ${customSimulations.length} trades`,
+      sampleInfo: `Mesma amostra: últimos 4 meses • ${rawList.length} trades`,
       scenarios: [sc2R, sc25R, scPyr]
     };
   }

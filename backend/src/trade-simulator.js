@@ -79,7 +79,7 @@ async function list(userId, client = database) {
   }
 
   const stats = model.calculateSimulatorStats(simulations);
-  const comparison = model.compareManagementScenarios(simulations.length === 42 ? null : simulations);
+  const comparison = model.compareManagementScenarios(simulations);
   return {
     simulations,
     stats,
@@ -282,7 +282,7 @@ async function compare(userId, client = database) {
   if (!userId) throw invalid('Usuário não autenticado.', 401);
   const data = await list(userId, client);
   return {
-    comparison: model.compareManagementScenarios(data.simulations.length === 42 ? null : data.simulations)
+    comparison: model.compareManagementScenarios(data.simulations)
   };
 }
 
