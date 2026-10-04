@@ -98,6 +98,10 @@
       return null;
     }
 
+    if (!Array.isArray(state.simulations) || state.simulations.length === 0) {
+      await loadData();
+    }
+
     const newSim = {
       id: 'sim-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
       symbol: String(params.symbol).toUpperCase().trim(),
@@ -316,7 +320,24 @@
   }
 
   /**
-   * Aplica filtros atuais
+   * Obtém simulações no escopo dos filtros do topo (dias, gatilho, setor, nota)
+   */
+  function getScopedSimulations() {
+    if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.filterSimulations !== 'function') {
+      return state.simulations;
+    }
+    return root.TradeSimulatorModel.filterSimulations(state.simulations, {
+      days: state.filters.days,
+      trigger: state.filters.trigger,
+      sector: state.filters.sector,
+      grade: state.filters.grade,
+      tab: 'ALL',
+      query: ''
+    });
+  }
+
+  /**
+   * Aplica filtros atuais completos (incluindo aba de status e busca textual)
    */
   function getFilteredSimulations() {
     if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.filterSimulations !== 'function') {
@@ -354,11 +375,11 @@
     const rootEl = document.getElementById('tradeSimulatorRoot');
     if (!rootEl) return;
 
-    const filtered = getFilteredSimulations();
+    const scoped = getScopedSimulations();
     const stats = root.TradeSimulatorModel
-      ? root.TradeSimulatorModel.calculateSimulatorStats(state.simulations)
+      ? root.TradeSimulatorModel.calculateSimulatorStats(scoped)
       : {
-          totalCreated: state.simulations.length,
+          totalCreated: scoped.length,
           executedEntriesCount: 0,
           executedPct: 0,
           winningTradesCount: 0,
@@ -377,6 +398,8 @@
           triggerPerformance: [],
           equityCurve: []
         };
+
+    const filtered = getFilteredSimulations();
 
     rootEl.innerHTML = `
       <div class="simulator-page">

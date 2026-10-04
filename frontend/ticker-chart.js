@@ -2301,8 +2301,9 @@
             symbol: sym,
             triggerName: trig.name,
             grade: trig.grade || 'A',
-            sector: tickerData?.tickerInfo?.sector || '',
+            sector: tickerData?.tickerInfo?.sector || 'Geral',
             companyName: tickerData?.tickerInfo?.name || sym,
+            signalDate: tickerData?.tickerInfo?.sessionDate || tickerData?.tickerInfo?.date || new Date().toISOString().slice(0, 10),
             entryPrice: trig.entry,
             stopLoss: trig.stop
           });
@@ -2329,13 +2330,13 @@
               source: 'charts_trigger'
             };
 
+        window.__pendingTradeContext = tradeContext;
+
         if (typeof window.go === 'function') {
           window.go('newtrade');
         }
         if (typeof window.applyTradeContext === 'function') {
           window.applyTradeContext(tradeContext);
-        } else {
-          window.__pendingTradeContext = tradeContext;
         }
       };
     }
@@ -2376,6 +2377,180 @@
   // Expõe no window para integração com o app
   window.loadTickerChart = (ticker) => {
     onOpenChartsPage(ticker);
+  };
+
+  /**
+   * Integração Gráficos -> Novo Trade: Pré-preenche o formulário do workbench e a Trading Rubric
+   * com fidelidade absoluta aos dados da oportunidade analisada, mantendo todos os campos 100% editáveis.
+   */
+  function applyTradeContext(ctx) {
+    if (!ctx) return;
+    window.activeTradeContext = ctx;
+
+    // 1. Garante que o workbench de Novo Trade esteja montado
+    if (typeof window.setupTradeWorkbench === 'function') {
+      window.setupTradeWorkbench();
+    }
+
+    // 2. Mercado
+    const marketEl = document.getElementById('tradeMarket');
+    if (marketEl && ctx.marketClass) {
+      const targetMarket = String(ctx.marketClass).trim().toLowerCase();
+      for (let i = 0; i < marketEl.options.length; i++) {
+        if (marketEl.options[i].value.toLowerCase() === targetMarket ||
+            marketEl.options[i].text.toLowerCase() === targetMarket) {
+          marketEl.selectedIndex = i;
+          break;
+        }
+      }
+      marketEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 3. Ativo (Ticker)
+    const assetEl = document.getElementById('tradeAsset');
+    if (assetEl && ctx.symbol) {
+      assetEl.value = String(ctx.symbol).toUpperCase().trim();
+      assetEl.dataset.comboSelection = 'true';
+      assetEl.dispatchEvent(new Event('input', { bubbles: true }));
+      assetEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 4. Direção
+    const directionEl = document.getElementById('tradeDirection');
+    if (directionEl) {
+      const isShort = ctx.direction === 'short';
+      directionEl.value = isShort ? 'Short / Venda' : 'Long / Compra';
+      directionEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 5. Gatilho de entrada (Setup)
+    const setupEl = document.getElementById('tradeSetup');
+    if (setupEl && (ctx.triggerKey || ctx.triggerName)) {
+      const key = String(ctx.triggerKey || '').trim();
+      const name = String(ctx.triggerName || '').trim().toLowerCase();
+      let matched = false;
+      for (let i = 0; i < setupEl.options.length; i++) {
+        const optVal = setupEl.options[i].value;
+        const optText = setupEl.options[i].text.toLowerCase();
+        if ((key && optVal === key) || (name && (optText === name || optText.includes(name) || name.includes(optText)))) {
+          setupEl.selectedIndex = i;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched && key) {
+        const newOpt = new Option(ctx.triggerName || key, key, true, true);
+        setupEl.add(newOpt);
+      }
+      setupEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 6. Preço de Entrada
+    const entryEl = document.getElementById('entry');
+    if (entryEl && ctx.entryPrice != null) {
+      entryEl.value = Number(ctx.entryPrice).toFixed(2);
+      entryEl.dispatchEvent(new Event('input', { bubbles: true }));
+      entryEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 7. Stop Inicial
+    const stopEl = document.getElementById('stop');
+    if (stopEl && ctx.stopLoss != null) {
+      stopEl.value = Number(ctx.stopLoss).toFixed(2);
+      stopEl.dispatchEvent(new Event('input', { bubbles: true }));
+      stopEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 8. ATR (21)
+    const atrEl = document.getElementById('atr');
+    const atrVal = ctx.volatility?.atr21 ?? ctx.technicals?.atr21 ?? ctx.atr;
+    if (atrEl && atrVal != null) {
+      atrEl.value = Number(atrVal).toFixed(2);
+      atrEl.dispatchEvent(new Event('input', { bubbles: true }));
+      atrEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 9. Comentários / Tese da Operação
+    const thesisEl = document.getElementById('tradeThesis');
+    if (thesisEl) {
+      const thesisText = ctx.thesis || (window.TickerChartModel?.formatTradeThesis ? window.TickerChartModel.formatTradeThesis(ctx) : '');
+      if (thesisText) {
+        thesisEl.value = thesisText;
+        thesisEl.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
+
+    // 10. Data da Operação / Sessão
+    const dateEl = document.getElementById('tradeEntryDate');
+    if (dateEl && ctx.date) {
+      dateEl.value = ctx.date;
+      dateEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 11. Timeframe
+    const tfEl = document.getElementById('tradeTimeframe');
+    if (tfEl && ctx.timeframe) {
+      tfEl.value = ctx.timeframe;
+      tfEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // 12. Pré-preenchimento dos Critérios da Trading Rubric
+    const ratings = window.TickerChartModel?.inferRubricRatingsFromContext
+      ? window.TickerChartModel.inferRubricRatingsFromContext(ctx)
+      : {};
+
+    // Ciclo de Mercado
+    if (ratings.marketCycle) {
+      if (typeof window.setManualMarketCycleOverride === 'function') {
+        window.setManualMarketCycleOverride(ratings.marketCycle);
+      } else if (typeof window.setRubricMarketCycle === 'function') {
+        window.setRubricMarketCycle(ratings.marketCycle);
+      }
+    }
+
+    // Critérios Manuais
+    const manualKeysList = ['trendQuality', 'relativeStrength', 'setupQuality', 'fundamentalScore'];
+    manualKeysList.forEach(k => {
+      const rating = ratings[k];
+      if (rating) {
+        if (typeof window.setPolicyRubricRating === 'function') {
+          window.setPolicyRubricRating(k, rating);
+        } else if (typeof window.setManualRubricRating === 'function') {
+          window.setManualRubricRating(k, rating);
+        } else if (typeof window.manualRubricRatings !== 'undefined') {
+          window.manualRubricRatings[k] = rating;
+        }
+      }
+    });
+
+    // Volatilidade
+    if (ratings.volatility && typeof window.manualRubricRatings !== 'undefined') {
+      window.manualRubricRatings.volatility = ratings.volatility;
+    }
+    if (typeof window.syncAutomaticAtrRating === 'function') {
+      window.syncAutomaticAtrRating();
+    }
+
+    // 13. Atualiza Rubric, Position Sizing e Gates do Workbench
+    if (typeof window.updateTradingRubric === 'function') {
+      window.updateTradingRubric();
+    }
+    if (typeof window.recalc === 'function') {
+      window.recalc();
+    }
+    if (typeof window.refreshWorkbenchRiskGate === 'function') {
+      window.refreshWorkbenchRiskGate();
+    }
+
+    if (typeof window.showToast === 'function') {
+      window.showToast(`✓ Contexto de ${ctx.symbol || 'ativo'} carregado no Planejador.`);
+    }
+  }
+
+  window.applyTradeContext = applyTradeContext;
+  window.TickerChart = {
+    loadTicker: (ticker) => onOpenChartsPage(ticker),
+    applyTradeContext: applyTradeContext
   };
 
   // Observa mudanças de navegação

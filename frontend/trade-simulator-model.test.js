@@ -219,3 +219,69 @@ test('trade-simulator-model: filterSimulations filtra por abas, texto e critéri
   assert.ok(gradeAPlus.length > 0);
   assert.ok(gradeAPlus.every(s => s.grade === 'A+'));
 });
+
+test('trade-simulator-model: filterSimulations é 100% compatível com filtros da UI (trade-simulator.js)', () => {
+  const seeds = model.getDefaultSeedSimulations();
+
+  // 1. Estado inicial default da interface
+  const defaultUiFilters = {
+    days: 90,
+    trigger: 'ALL',
+    sector: 'ALL',
+    grade: 'ALL',
+    tab: 'ALL',
+    query: ''
+  };
+  const filteredDefault = model.filterSimulations(seeds, defaultUiFilters);
+  assert.equal(filteredDefault.length, 24, 'Filtros default da UI não podem filtrar nenhuma simulação');
+
+  // 2. Abas de status com identificadores usados pela UI
+  const waitingTab = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'WAITING_ENTRY' });
+  assert.equal(waitingTab.length, 6, 'Aba WAITING_ENTRY deve trazer exatamente 6 simulações');
+  assert.ok(waitingTab.every(s => s.status === model.STATUS.WAITING_ENTRY));
+
+  const inOpTab = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'IN_OPERATION' });
+  assert.equal(inOpTab.length, 3, 'Aba IN_OPERATION deve trazer exatamente 3 simulações');
+  assert.ok(inOpTab.every(s => s.status === model.STATUS.IN_OPERATION));
+
+  const closedTab = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'CLOSED' });
+  assert.equal(closedTab.length, 15, 'Aba CLOSED deve trazer exatamente 15 simulações');
+
+  // 3. Busca por texto usando propriedade `query`
+  const querySearch = model.filterSimulations(seeds, { ...defaultUiFilters, query: 'VALE3' });
+  assert.equal(querySearch.length, 1);
+  assert.equal(querySearch[0].symbol, 'VALE3');
+
+  // 4. Paridade com novo trade adicionado de Gráficos (ex: BPAC11)
+  const newSim = {
+    id: 'sim-test-bpac11',
+    symbol: 'BPAC11',
+    companyName: 'BTG PACTUAL',
+    sector: 'Financeiro',
+    triggerName: '1-2-3 de Compra',
+    triggerKey: '123_COMPRA',
+    grade: 'A',
+    signalDate: new Date().toISOString().slice(0, 10),
+    entryPrice: 66.03,
+    stopLoss: 63.06,
+    status: model.STATUS.WAITING_ENTRY,
+    currentPrice: 66.02,
+    resultR: null,
+    mfeR: 0,
+    maeR: 0
+  };
+
+  const updatedList = [newSim, ...seeds];
+  const updatedStats = model.calculateSimulatorStats(updatedList);
+  assert.equal(updatedStats.totalCreated, 25, 'Total criado deve subir para 25');
+  assert.equal(updatedStats.waitingCount, 7, 'Aguardando entrada deve subir para 7');
+
+  const updatedWaiting = model.filterSimulations(updatedList, { ...defaultUiFilters, tab: 'WAITING_ENTRY' });
+  assert.equal(updatedWaiting.length, 7, 'Tabela na aba Aguardando Entrada deve conter exatamente 7 registros');
+  assert.equal(updatedWaiting[0].symbol, 'BPAC11', 'Novo registro BPAC11 deve estar na lista');
+
+  const updatedAll = model.filterSimulations(updatedList, defaultUiFilters);
+  assert.equal(updatedAll.length, 25, 'Tabela na aba Todos deve conter exatamente 25 registros');
+  assert.equal(updatedAll[0].symbol, 'BPAC11');
+});
+

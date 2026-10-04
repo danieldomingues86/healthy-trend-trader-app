@@ -781,12 +781,27 @@
       }
     }
 
+    // 6. Volatilidade (ATR) - volatility
+    let volatility = 'good';
+    if (ctx.volatility) {
+      const reg = String(ctx.volatility.regime || '').toLowerCase();
+      const atrP = Number(ctx.volatility.atrPct);
+      if (reg.includes('baix') || (Number.isFinite(atrP) && atrP < 3.0)) {
+        volatility = 'good';
+      } else if (reg.includes('mode') || (Number.isFinite(atrP) && atrP < 5.0)) {
+        volatility = 'medium';
+      } else {
+        volatility = 'bad';
+      }
+    }
+
     return {
       trendQuality,
       marketCycle,
       relativeStrength,
       setupQuality,
-      fundamentalScore
+      fundamentalScore,
+      volatility
     };
   }
 

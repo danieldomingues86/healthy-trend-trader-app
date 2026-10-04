@@ -113,6 +113,7 @@ test('TradeContext: inferRubricRatingsFromContext deduz notas coerentes para opo
   assert.equal(ratings.relativeStrength, 'good', 'Força Relativa 80 deve ser boa');
   assert.equal(ratings.setupQuality, 'good', 'Gatilho Grade A deve ser bom');
   assert.equal(ratings.fundamentalScore, 'good', 'Fundamentos fortes devem ser bons');
+  assert.equal(ratings.volatility, 'good', 'Volatilidade baixa deve ser boa');
 });
 
 test('TradeContext: inferRubricRatingsFromContext trata ativos em transição ou fraqueza', () => {
@@ -134,6 +135,7 @@ test('TradeContext: inferRubricRatingsFromContext trata ativos em transição ou
   assert.equal(ratings.relativeStrength, 'bad');
   assert.equal(ratings.setupQuality, 'bad');
   assert.equal(ratings.fundamentalScore, 'medium');
+  assert.equal(ratings.volatility, 'medium', 'Volatilidade moderada deve ser média');
 });
 
 test('TradeContext: formatTradeThesis gera tese descritiva e completa', () => {

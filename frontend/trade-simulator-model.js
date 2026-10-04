@@ -572,68 +572,77 @@
   }
 
   /**
-   * Filtra simulações pelos controles superiores da página
+   * Filtra simulações pelos controles da página
    */
   function filterSimulations(simulations = [], filters = {}) {
-    const {
-      period = '90d',
-      trigger = 'all',
-      sector = 'all',
-      grade = 'all',
-      search = '',
-      statusTab = 'all'
-    } = filters;
-
     const list = Array.isArray(simulations) ? simulations : [];
-    const query = String(search || '').trim().toUpperCase();
+
+    const tab = String(filters.tab || filters.statusTab || 'ALL').trim().toUpperCase();
+    const trigger = String(filters.trigger || 'ALL').trim();
+    const sector = String(filters.sector || 'ALL').trim();
+    const grade = String(filters.grade || 'ALL').trim();
+    const query = String(filters.query || filters.search || '').trim().toUpperCase();
 
     // Data limite para o período
     const now = new Date();
     let minDateStr = null;
-    if (period === '30d') {
+    const days = filters.days != null ? filters.days : filters.period;
+    if (days === 30 || days === '30' || days === '30d') {
       const d = new Date(now.getTime() - 30 * 24 * 3600 * 1000);
       minDateStr = d.toISOString().slice(0, 10);
-    } else if (period === '90d') {
+    } else if (days === 90 || days === '90' || days === '90d') {
       const d = new Date(now.getTime() - 90 * 24 * 3600 * 1000);
       minDateStr = d.toISOString().slice(0, 10);
-    } else if (period === '6m') {
+    } else if (days === 180 || days === '180' || days === '6m') {
       const d = new Date(now.getTime() - 180 * 24 * 3600 * 1000);
       minDateStr = d.toISOString().slice(0, 10);
-    } else if (period === 'year') {
-      minDateStr = `${now.getFullYear()}-01-01`;
+    } else if (days === 'year') {
+      minDateStr = String(now.getFullYear()) + '-01-01';
     }
 
     return list.filter(sim => {
       // 1. Aba de Status
-      if (statusTab === 'waiting' && sim.status !== STATUS.WAITING_ENTRY) return false;
-      if (statusTab === 'in_op' && sim.status !== STATUS.IN_OPERATION) return false;
-      if (statusTab === 'closed' && sim.status !== STATUS.CLOSED_GAIN && sim.status !== STATUS.CLOSED_LOSS && sim.status !== STATUS.NOT_TRIGGERED) return false;
+      if (tab === 'WAITING_ENTRY' || tab === 'WAITING') {
+        if (sim.status !== STATUS.WAITING_ENTRY) return false;
+      } else if (tab === 'IN_OPERATION' || tab === 'IN_OP') {
+        if (sim.status !== STATUS.IN_OPERATION) return false;
+      } else if (tab === 'CLOSED') {
+        if (sim.status !== STATUS.CLOSED_GAIN && sim.status !== STATUS.CLOSED_LOSS && sim.status !== STATUS.NOT_TRIGGERED) return false;
+      } else if (tab !== 'ALL' && tab !== '' && sim.status !== tab) {
+        return false;
+      }
 
       // 2. Período
-      if (minDateStr && sim.signalDate && sim.signalDate < minDateStr) {
+      if (minDateStr && sim.signalDate && String(sim.signalDate).slice(0, 10) < minDateStr) {
         return false;
       }
 
       // 3. Gatilho
-      if (trigger && trigger !== 'all' && sim.triggerName !== trigger) {
-        return false;
+      if (trigger && trigger.toUpperCase() !== 'ALL') {
+        if (trigger === 'Outros') {
+          const known = ['Inside Bar', '1-2-3 de Compra', 'Pullback', 'PFR de Compra', 'Dave Landry', 'RBI'];
+          if (known.includes(sim.triggerName)) return false;
+        } else if (sim.triggerName !== trigger) {
+          return false;
+        }
       }
 
       // 4. Setor
-      if (sector && sector !== 'all' && sim.sector !== sector) {
-        return false;
+      if (sector && sector.toUpperCase() !== 'ALL') {
+        if (sim.sector !== sector) return false;
       }
 
       // 5. Nota / Grade
-      if (grade && grade !== 'all' && sim.grade !== grade) {
-        return false;
+      if (grade && grade.toUpperCase() !== 'ALL') {
+        if (sim.grade !== grade) return false;
       }
 
-      // 6. Busca textual por ativo ou gatilho
+      // 6. Busca textual por ativo ou gatilho ou empresa
       if (query) {
         const sym = String(sim.symbol || '').toUpperCase();
         const trig = String(sim.triggerName || '').toUpperCase();
-        if (!sym.includes(query) && !trig.includes(query)) {
+        const comp = String(sim.companyName || '').toUpperCase();
+        if (!sym.includes(query) && !trig.includes(query) && !comp.includes(query)) {
           return false;
         }
       }
