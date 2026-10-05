@@ -63,7 +63,15 @@ async function body(request) {
     }
     chunks.push(chunk);
   }
-  try { return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'); } catch { throw new Error('JSON inválido'); }
+  const text = Buffer.concat(chunks).toString('utf8').trim();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    const error = new Error('JSON inválido');
+    error.status = 400;
+    throw error;
+  }
 }
 async function binaryBody(request, maxBytes = journalAttachments.MAX_BYTES) {
   const chunks = []; let size = 0;
@@ -278,10 +286,15 @@ const server = http.createServer(async (request, response) => {
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, await tradeSimulator.evaluate(user.id));
     }
+    if (url.pathname === '/api/trade-simulations/compare' && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await tradeSimulator.compare(user.id));
+    }
     if (url.pathname === '/api/trade-simulations/reset' && request.method === 'POST') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
-      return send(response, 200, await tradeSimulator.reset(user.id));
+      return send(response, 200, await tradeSimulator.reset(user.id, await body(request)));
     }
     if (url.pathname === '/api/trade-simulations/clear' && request.method === 'POST') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
@@ -563,7 +576,10 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf: cache.overview?.benchmarkHistory?.at(-1)?.date || null, source: cache.source, assetClass: selected.key, benchmark: selected.benchmark, universe: { requested: selected.requested, available: selected.available }, ...page(selected.items || [], url.searchParams) });
     }
     return send(response, 404, { error: 'Not found' });
-  } catch (error) { console.error(error); return send(response, error.status || 502, { error: error.status ? error.message : 'Falha ao consultar os dados solicitados', detail: error.message }); }
+  } catch (error) {
+    if (!error.status || error.status >= 500) console.error(error);
+    return send(response, error.status || 502, { error: error.status ? error.message : 'Falha ao consultar os dados solicitados', detail: error.message });
+  }
 });
 server.on('clientError', (err, socket) => {
   if (err.code === 'ECONNRESET' || !socket.writable) return;

@@ -27,7 +27,11 @@
   async function request(path, options = {}) {
     const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
     if (token()) headers.Authorization = `Bearer ${token()}`;
-    const response = await fetch(`${API}${path}`, { ...options, headers });
+    const fetchOptions = { ...options, headers };
+    if (fetchOptions.body && typeof fetchOptions.body === 'object' && !(fetchOptions.body instanceof FormData) && !(fetchOptions.body instanceof Blob)) {
+      fetchOptions.body = JSON.stringify(fetchOptions.body);
+    }
+    const response = await fetch(`${API}${path}`, fetchOptions);
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.error || 'Não foi possível concluir a operação.');
     return payload;
@@ -81,7 +85,7 @@
   }
   function heartbeatPlatformAccess() {
     if (!platformAccessStarted || !token()) return;
-    request(`/api/platform-access/sessions/${accessSessionId()}/heartbeat`, { method: 'POST', body: '{}' }).catch(() => {});
+    request(`/api/platform-access/sessions/${accessSessionId()}/heartbeat`, { method: 'POST', body: '{}' }).catch(() => { if (token()) { platformAccessStarted = false; sessionStorage.removeItem(ACCESS_SESSION_KEY); startPlatformAccess().catch(() => {}); } });
   }
   function closePlatformAccess() {
     if (!platformAccessStarted || !token()) return;

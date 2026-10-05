@@ -2351,6 +2351,19 @@
         if (!trig) return;
         const sym = tickerData?.tickerInfo?.symbol || currentTicker;
         if (window.TradeSimulator && typeof window.TradeSimulator.addSimulation === 'function') {
+          let liveVision = null;
+          if (tickerData && window.TradeSimulatorModel && typeof window.TradeSimulatorModel.getTradeVisionAtivo === 'function') {
+            liveVision = window.TradeSimulatorModel.getTradeVisionAtivo({
+              symbol: sym,
+              signalDate: tickerData?.tickerInfo?.sessionDate || tickerData?.tickerInfo?.date || new Date().toISOString().slice(0, 10),
+              triggerName: trig.name,
+              grade: trig.grade || 'A',
+              entryPrice: trig.entry,
+              stopLoss: trig.stop,
+              sector: tickerData?.tickerInfo?.sector || 'Geral'
+            });
+          }
+
           await window.TradeSimulator.addSimulation({
             symbol: sym,
             triggerName: trig.name,
@@ -2360,7 +2373,8 @@
             signalDate: tickerData?.tickerInfo?.sessionDate || tickerData?.tickerInfo?.date || new Date().toISOString().slice(0, 10),
             entryPrice: trig.entry,
             stopLoss: trig.stop,
-            candles: Array.isArray(tickerData?.ohlc) ? tickerData.ohlc.slice(-25) : []
+            candles: Array.isArray(tickerData?.ohlc) ? tickerData.ohlc.slice(-25) : [],
+            visionAtivo: liveVision
           });
           btnSimulate.classList.add('simulated');
           btnSimulate.innerHTML = '✓ Simulação ativa (Aguardando entrada)';

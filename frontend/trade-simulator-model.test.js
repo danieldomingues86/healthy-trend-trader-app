@@ -39,6 +39,10 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   assert.equal(stats.avgR, 0.65);
   assert.equal(stats.avgRFormatted, '+0,65R');
 
+  // Card 7: Duração média = 10,7 dias
+  assert.equal(stats.avgDurationDays, 10.7);
+  assert.equal(stats.avgDurationDaysFormatted, '10,7 dias');
+
   // Gráfico: Distribuição de Resultados
   assert.equal(stats.distribution.winners.count, 20);
   assert.equal(stats.distribution.losers.count, 16);
@@ -325,4 +329,371 @@ test('trade-simulator-model: generateSimulationSnapshotCandles produz estrutura 
   assert.ok(!waitCandles.some(c => c.isEntry), 'Não deve possuir entrada ativada');
 });
 
+test('trade-simulator-model: adaptSimulationToScenario adapta regras de 2R, 2.5R e Pirâmide de forma determinística', () => {
+  const baseSimGain = {
+    id: 'sim-test-1',
+    symbol: 'PETR4',
+    entryPrice: 30.00,
+    stopLoss: 28.00, // risk = 2.00
+    status: model.STATUS.CLOSED_GAIN,
+    resultR: 2.0,
+    mfeR: 2.8,
+    maeR: -0.2,
+    timeline: [
+      { type: 'SIGNAL_IDENTIFIED', date: '2026-09-01' },
+      { type: 'ENTRY_EXECUTED', date: '2026-09-02', price: 30.00 },
+      { type: 'TARGET_1R', date: '2026-09-03' },
+      { type: 'TARGET_2R', date: '2026-09-05' },
+      { type: 'CLOSED', date: '2026-09-05', resultR: 2.0 }
+    ]
+  };
 
+  // 1. Cenário 2R
+  const adapted2R = model.adaptSimulationToScenario(baseSimGain, '2R');
+  assert.equal(adapted2R.managementScenario, '2R');
+  assert.equal(adapted2R.resultR, 2.0);
+
+  // 2. Cenário 2.5R com MFE suficiente (>= 2.5)
+  const adapted25R = model.adaptSimulationToScenario(baseSimGain, '2.5R');
+  assert.equal(adapted25R.managementScenario, '2.5R');
+  assert.equal(adapted25R.resultR, 2.5);
+  assert.equal(adapted25R.exitPrice, 35.00); // 30 + 2.5 * 2 = 35.00
+
+  // 3. Cenário 2.5R com MFE insuficiente (< 2.5, ex: mfe 2.1)
+  const baseSimPartialGain = {
+    ...baseSimGain,
+    mfeR: 2.1
+  };
+  const adapted25RStopped = model.adaptSimulationToScenario(baseSimPartialGain, '2.5R');
+  assert.equal(adapted25RStopped.resultR, 0); // Breakeven protetivo
+  assert.equal(adapted25RStopped.exitReason, 'Proteção / Breakeven');
+
+  // 4. Cenário Pirâmide 1R -> 2R com MFE >= 2.0 (atinge alvo final)
+  const adaptedPyr = model.adaptSimulationToScenario(baseSimGain, 'PYRAMID_1R_2R');
+  assert.equal(adaptedPyr.managementScenario, 'PYRAMID_1R_2R');
+  assert.equal(adaptedPyr.resultR, 3.0, 'Lote 1 (+2R) + Lote 2 (+1R) = +3,00R consolidado');
+  assert.ok(adaptedPyr.scaleIn && adaptedPyr.scaleIn.executed);
+  assert.equal(adaptedPyr.scaleIn.price, 32.00); // 30 + 1 * 2 = 32.00
+  assert.equal(adaptedPyr.scaleIn.consolidatedResultR, 3.0);
+
+  // 5. Cenário Pirâmide com recuo após +1R (mfe 1.5, não atingiu 2R)
+  const baseSimPyrPullback = {
+    ...baseSimGain,
+    mfeR: 1.5
+  };
+  const adaptedPyrPullback = model.adaptSimulationToScenario(baseSimPyrPullback, 'PYRAMID_1R_2R');
+  assert.equal(adaptedPyrPullback.status, model.STATUS.CLOSED_LOSS);
+  assert.equal(adaptedPyrPullback.resultR, -1.0, 'Lote 1 no breakeven (0R) + Lote 2 no stop (-1R) = -1,00R');
+  assert.equal(adaptedPyrPullback.scaleIn.consolidatedResultR, -1.0);
+});
+
+test('trade-simulator-model: getDefaultSeedSimulations aceita cenário e gera 42 simulações idênticas em amostra', () => {
+  const seeds2R = model.getDefaultSeedSimulations('2R');
+  const seeds25R = model.getDefaultSeedSimulations('2.5R');
+  const seedsPyr = model.getDefaultSeedSimulations('PYRAMID_1R_2R');
+  const seedsPart50 = model.getDefaultSeedSimulations('PARTIAL_50_2R_EMA9');
+  const seedsPart80 = model.getDefaultSeedSimulations('PARTIAL_80_2R_EMA9');
+
+  assert.equal(seeds2R.length, 42);
+  assert.equal(seeds25R.length, 42);
+  assert.equal(seedsPyr.length, 42);
+  assert.equal(seedsPart50.length, 42);
+  assert.equal(seedsPart80.length, 42);
+
+  // Todos os cenários compartilham a mesma amostra de ativos e datas de sinal
+  for (let i = 0; i < 42; i++) {
+    assert.equal(seeds2R[i].symbol, seeds25R[i].symbol);
+    assert.equal(seeds2R[i].symbol, seedsPyr[i].symbol);
+    assert.equal(seeds2R[i].symbol, seedsPart50[i].symbol);
+    assert.equal(seeds2R[i].symbol, seedsPart80[i].symbol);
+    assert.equal(seeds2R[i].signalDate, seeds25R[i].signalDate);
+    assert.equal(seeds2R[i].entryPrice, seeds25R[i].entryPrice);
+  }
+
+  // Verifica cenários identificados
+  assert.ok(seeds2R.every(s => s.managementScenario === '2R'));
+  assert.ok(seeds25R.every(s => s.managementScenario === '2.5R'));
+  assert.ok(seedsPyr.every(s => s.managementScenario === 'PYRAMID_1R_2R'));
+  assert.ok(seedsPart50.every(s => s.managementScenario === 'PARTIAL_50_2R_EMA9'));
+  assert.ok(seedsPart80.every(s => s.managementScenario === 'PARTIAL_80_2R_EMA9'));
+});
+
+test('trade-simulator-model: compareManagementScenarios consolida 10 métricas oficiais dos 5 cenários', () => {
+  const comparison = model.compareManagementScenarios();
+  assert.ok(comparison && Array.isArray(comparison.scenarios));
+  assert.equal(comparison.scenarios.length, 5);
+
+  const [sc2R, sc25R, scPyr, scPart50, scPart80] = comparison.scenarios;
+
+  // 1. Cenário 2R Base
+  assert.equal(sc2R.id, '2R');
+  assert.equal(sc2R.totalTrades, 42);
+  assert.equal(sc2R.winRate, 55.6);
+  assert.equal(sc2R.lossRate, 44.4);
+  assert.equal(sc2R.avgR, 0.65);
+  assert.equal(sc2R.expectancy, 0.65);
+  assert.equal(sc2R.totalR, 23.40);
+  assert.equal(sc2R.winnersCount, 20);
+  assert.equal(sc2R.losersCount, 16);
+
+  // 2. Cenário 2.5R Alvo Estendido
+  assert.equal(sc25R.id, '2.5R');
+  assert.equal(sc25R.totalTrades, 42);
+  assert.equal(sc25R.winRate, 27.8);
+  assert.equal(sc25R.lossRate, 72.2);
+  assert.equal(sc25R.avgR, 0.48);
+  assert.equal(sc25R.expectancy, 0.48);
+  assert.equal(sc25R.totalR, 17.20);
+  assert.equal(sc25R.winnersCount, 10);
+  assert.equal(sc25R.losersCount, 26);
+
+  // 3. Cenário Pirâmide 1R -> 2R
+  assert.equal(scPyr.id, 'PYRAMID_1R_2R');
+  assert.equal(scPyr.totalTrades, 42);
+  assert.equal(scPyr.winRate, 36.1);
+  assert.equal(scPyr.lossRate, 63.9);
+  assert.equal(scPyr.avgR, 0.67);
+  assert.equal(scPyr.expectancy, 0.67);
+  assert.equal(scPyr.totalR, 24.20);
+  assert.equal(scPyr.winnersCount, 13);
+  assert.equal(scPyr.losersCount, 23);
+
+  // 4. Cenário Parcial 50% em 2R + Condução por MM9
+  assert.equal(scPart50.id, 'PARTIAL_50_2R_EMA9');
+  assert.equal(scPart50.totalTrades, 42);
+  assert.equal(scPart50.winRate, 55.6);
+  assert.equal(scPart50.lossRate, 44.4);
+  assert.equal(scPart50.avgR, 0.70);
+  assert.equal(scPart50.expectancy, 0.70);
+  assert.equal(scPart50.totalR, 25.13);
+  assert.equal(scPart50.winnersCount, 20);
+  assert.equal(scPart50.losersCount, 16);
+
+  // 5. Cenário Parcial 80% em 2R + Condução por MM9
+  assert.equal(scPart80.id, 'PARTIAL_80_2R_EMA9');
+  assert.equal(scPart80.totalTrades, 42);
+  assert.equal(scPart80.winRate, 55.6);
+  assert.equal(scPart80.lossRate, 44.4);
+  assert.equal(scPart80.avgR, 0.71);
+  assert.equal(scPart80.expectancy, 0.71);
+  assert.equal(scPart80.totalR, 25.46);
+  assert.equal(scPart80.winnersCount, 20);
+  assert.equal(scPart80.losersCount, 16);
+});
+
+test('trade-simulator-model: evaluateSimulationOnCandles simula Pirâmide, 2.5R e Parciais com física real de candles', () => {
+  const baseSim = {
+    symbol: 'PETR4',
+    signalDate: '2026-09-01',
+    entryPrice: 30.00,
+    stopLoss: 28.00, // risk = 2.00, 1R = 32.00, 2R = 34.00, 2.5R = 35.00
+    status: model.STATUS.WAITING_ENTRY,
+    timeline: []
+  };
+
+  // Cenário A: Pirâmide com Gain (+3,00R)
+  const candlesGain = [
+    { time: '2026-09-01', open: 29.50, high: 29.90, low: 28.50, close: 29.60 },
+    { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 }, // Ativa entrada a 30.00
+    { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.20 }, // Passa por 1R (32.00) -> Scale-In!
+    { time: '2026-09-04', open: 32.20, high: 34.50, low: 31.80, close: 34.20 }  // Atinge 2R (34.00) -> Saída total +3.00R!
+  ];
+  const evalPyrGain = model.evaluateSimulationOnCandles(baseSim, candlesGain, 'PYRAMID_1R_2R');
+  assert.equal(evalPyrGain.status, model.STATUS.CLOSED_GAIN);
+  assert.equal(evalPyrGain.resultR, 3.0);
+  assert.ok(evalPyrGain.scaleIn && evalPyrGain.scaleIn.executed);
+  assert.equal(evalPyrGain.scaleIn.price, 32.00);
+  assert.equal(evalPyrGain.scaleIn.consolidatedResultR, 3.0);
+
+  // Cenário B: Pirâmide com recuo após +1R (atinge 1R, stop vai para 30.00, dia seguinte recua para 29.80)
+  const candlesPyrStop = [
+    { time: '2026-09-01', open: 29.50, high: 29.90, low: 28.50, close: 29.60 },
+    { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 }, // Ativa entrada a 30.00
+    { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.20 }, // Passa por 1R (32.00) -> Scale-In, stop = 30.00
+    { time: '2026-09-04', open: 31.80, high: 32.00, low: 29.50, close: 29.80 }  // Recua e bate no stop (30.00) -> -1.00R consolidado!
+  ];
+  const evalPyrLoss = model.evaluateSimulationOnCandles(baseSim, candlesPyrStop, 'PYRAMID_1R_2R');
+  assert.equal(evalPyrLoss.status, model.STATUS.CLOSED_LOSS);
+  assert.equal(evalPyrLoss.resultR, -1.0);
+  assert.equal(evalPyrLoss.scaleIn.consolidatedResultR, -1.0);
+
+  // Cenário C: Alvo estendido 2.5R atingido
+  const candles25Gain = [
+    { time: '2026-09-01', open: 29.50, high: 29.90, low: 28.50, close: 29.60 },
+    { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 }, // Ativa entrada a 30.00
+    { time: '2026-09-03', open: 30.50, high: 33.00, low: 30.20, close: 32.80 },
+    { time: '2026-09-04', open: 33.00, high: 35.50, low: 32.50, close: 35.20 }  // Atinge 2.5R (35.00)
+  ];
+  const eval25Gain = model.evaluateSimulationOnCandles(baseSim, candles25Gain, '2.5R');
+  assert.equal(eval25Gain.status, model.STATUS.CLOSED_GAIN);
+  assert.equal(eval25Gain.resultR, 2.5);
+  assert.equal(eval25Gain.exitPrice, 35.00);
+
+  // Cenário D: Parcial 50% em 2R + condução por MM9
+  // Dia 4: atinge 2R (34.00) -> realiza 50% (+1.00R garantido), stop = 30.00
+  // Dia 5: preço fecha a 31.00 (abaixo da EMA 9 que está em ~31.04) -> runner encerra a 31.00 (+0.50R no runner)
+  // Consolidado: 0.5 * 2.0 + 0.5 * 0.5 = 1.0 + 0.25 = +1.25R
+  const candlesPart50 = [
+    { time: '2026-09-01', open: 29.50, high: 29.90, low: 28.50, close: 29.60 },
+    { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 },
+    { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.20 },
+    { time: '2026-09-04', open: 32.20, high: 34.50, low: 31.80, close: 34.20 }, // Atinge +2R (34.00)
+    { time: '2026-09-05', open: 33.00, high: 33.10, low: 30.80, close: 31.00 }  // Fecha abaixo da EMA 9
+  ];
+  const evalPart50 = model.evaluateSimulationOnCandles(baseSim, candlesPart50, 'PARTIAL_50_2R_EMA9');
+  assert.equal(evalPart50.status, model.STATUS.CLOSED_GAIN);
+  assert.ok(evalPart50.partialExit && evalPart50.partialExit.executed);
+  assert.equal(evalPart50.partialExit.percent, 50);
+  assert.equal(evalPart50.partialExit.runnerPercent, 50);
+  assert.equal(evalPart50.resultR, 1.25); // 0.5*2 + 0.5*0.5 = 1.25R
+  assert.ok(evalPart50.resultR > 1.0);
+});
+
+test('trade-simulator-model: calcula duração de dias de cada trade e duração média dos trades', () => {
+  // 1. Trade encerrado vencedor (ITUB4: 23/09/2026 até 01/10/2026 = 8 dias)
+  const itub = {
+    symbol: 'ITUB4',
+    status: model.STATUS.CLOSED_GAIN,
+    signalDate: '2026-09-22',
+    entryDate: '2026-09-23',
+    exitDate: '2026-10-01'
+  };
+  assert.equal(model.calculateTradeDurationDays(itub), 8);
+  assert.equal(model.formatDurationDays(model.calculateTradeDurationDays(itub)), '8 dias');
+
+  // 2. Trade com duração de 1 dia (singular)
+  const oneDayTrade = {
+    status: model.STATUS.CLOSED_GAIN,
+    entryDate: '2026-10-01',
+    exitDate: '2026-10-02'
+  };
+  assert.equal(model.calculateTradeDurationDays(oneDayTrade), 1);
+  assert.equal(model.formatDurationDays(1), '1 dia');
+
+  // 3. Trade encerrado perdedor (KEPL3: 18/09/2026 até 24/09/2026 = 6 dias)
+  const kepl = {
+    symbol: 'KEPL3',
+    status: model.STATUS.CLOSED_LOSS,
+    signalDate: '2026-09-17',
+    entryDate: '2026-09-18',
+    exitDate: '2026-09-24'
+  };
+  assert.equal(model.calculateTradeDurationDays(kepl), 6);
+
+  // 4. Trade aguardando entrada não possui duração
+  const waiting = {
+    status: model.STATUS.WAITING_ENTRY,
+    signalDate: '2026-10-02'
+  };
+  assert.equal(model.calculateTradeDurationDays(waiting), null);
+  assert.equal(model.formatDurationDays(model.calculateTradeDurationDays(waiting)), '—');
+
+  // 5. Trade em operação calcula dias decorridos até referência
+  const inOp = {
+    status: model.STATUS.IN_OPERATION,
+    signalDate: '2026-10-02',
+    entryDate: '2026-10-03'
+  };
+  assert.equal(model.calculateTradeDurationDays(inOp, '2026-10-05'), 2);
+
+  // 6. Todas as simulações padrão possuem duração válida
+  const seeds = model.getDefaultSeedSimulations();
+  seeds.forEach(s => {
+    if (s.status === model.STATUS.CLOSED_GAIN || s.status === model.STATUS.CLOSED_LOSS) {
+      assert.ok(s.durationDays > 0, `Trade encerrado ${s.symbol} deve ter durationDays > 0`);
+    } else if (s.status === model.STATUS.WAITING_ENTRY) {
+      assert.equal(s.durationDays, null, `Trade aguardando ${s.symbol} deve ter durationDays null`);
+    }
+  });
+
+  // 7. Estatísticas consolidadas calculam a média geral dos trades encerrados (10,7 dias)
+  const stats = model.calculateSimulatorStats(seeds);
+  assert.equal(stats.avgDurationDays, 10.7);
+  assert.equal(stats.avgDurationDaysFormatted, '10,7 dias');
+
+  // 8. Comparador de cenários reporta duração média para todos os cenários
+  const comp = model.compareManagementScenarios(seeds);
+  const sc2R = comp.scenarios.find(s => s.id === '2R');
+  const sc25R = comp.scenarios.find(s => s.id === '2.5R');
+  const scPyr = comp.scenarios.find(s => s.id === 'PYRAMID_1R_2R');
+  assert.ok(sc2R && sc2R.avgDurationDaysFormatted);
+  assert.ok(sc25R && sc25R.avgDurationDaysFormatted);
+  assert.ok(scPyr && scPyr.avgDurationDaysFormatted);
+});
+
+test('trade-simulator-model: getTradeVisionAtivo reproduz com fidelidade o cenário do Rubric e Visão do Ativo', () => {
+  // Caso 1: ITUB4 na data de 22/09/2026 (Exatamente como na Imagem 2 do usuário)
+  const itub = {
+    symbol: 'ITUB4',
+    signalDate: '2026-09-22',
+    entryPrice: 37.20,
+    stopLoss: 35.90,
+    triggerName: 'Inside Bar',
+    grade: 'B+',
+    status: model.STATUS.CLOSED_GAIN
+  };
+
+  const visionItub = model.getTradeVisionAtivo(itub);
+  assert.ok(visionItub, 'Visão do Ativo deve ser gerada');
+  assert.equal(visionItub.grade, 'B+');
+  assert.equal(visionItub.gradeBoxClass, 'grade-b');
+
+  // 1. Força Relativa: Neutro (67)
+  assert.equal(visionItub.relativeStrength.classification, 'Neutro');
+  assert.equal(visionItub.relativeStrength.score, 67);
+  assert.equal(visionItub.relativeStrength.status, 'neutral');
+  assert.equal(visionItub.relativeStrength.text, 'Neutro (67)');
+
+  // 2. Ciclo de Mercado: Positivo
+  assert.equal(visionItub.marketCycle.regime, 'Positivo');
+  assert.equal(visionItub.marketCycle.status, 'good');
+
+  // 3. Tendência: Preço > EMA 9 > EMA 30
+  assert.equal(visionItub.trend.formula, 'Preço > EMA 9 > EMA 30');
+  assert.equal(visionItub.trend.status, 'good');
+
+  // 4. Estrutura: Correção
+  assert.equal(visionItub.structure.label, 'Correção');
+  assert.equal(visionItub.structure.status, 'good');
+
+  // 5. Gatilho: Inside Bar (B+)
+  assert.equal(visionItub.trigger.display, 'Inside Bar (B+)');
+  assert.equal(visionItub.trigger.status, 'good');
+
+  // 6. Volatilidade: Normal (ATR 1,30 | 3,49%)
+  assert.equal(visionItub.volatility.regime, 'Normal');
+  assert.equal(visionItub.volatility.atr21, 1.30);
+  assert.equal(visionItub.volatility.text, 'Normal (ATR 1,30 | 3,49%)');
+  assert.equal(visionItub.volatility.status, 'good');
+
+  // 7. Fundamentos: Forte
+  assert.equal(visionItub.fundamentals.evaluation, 'Forte');
+  assert.equal(visionItub.fundamentals.status, 'good');
+
+  // 8. Contexto: Super Contexto
+  assert.equal(visionItub.context.title, 'Super Contexto');
+  assert.equal(visionItub.context.status, 'good');
+
+  // Caso 2: Simulações padrão trazem visionAtivo anexado
+  const seeds = model.getDefaultSeedSimulations();
+  const seedItub = seeds.find(s => s.symbol === 'ITUB4');
+  assert.ok(seedItub && seedItub.visionAtivo);
+  assert.equal(seedItub.visionAtivo.relativeStrength.score, 67);
+
+  // Caso 3: Trade que estopou em mercado defensivo (Junho de 2026)
+  const defensiveTrade = {
+    symbol: 'PETR4',
+    signalDate: '2026-06-15',
+    entryPrice: 38.00,
+    stopLoss: 36.00,
+    triggerName: 'Inside Bar',
+    grade: 'B',
+    status: model.STATUS.CLOSED_LOSS
+  };
+  const visionDefensive = model.getTradeVisionAtivo(defensiveTrade);
+  assert.equal(visionDefensive.marketCycle.regime, 'Defensivo');
+  assert.equal(visionDefensive.marketCycle.status, 'bad');
+  assert.equal(visionDefensive.trend.status, 'bad');
+  assert.equal(visionDefensive.structure.label, 'Degradada');
+  assert.equal(visionDefensive.context.title, 'Desfavorável');
+});

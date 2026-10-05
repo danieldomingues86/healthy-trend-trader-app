@@ -13,7 +13,7 @@ function fixture(allowed) {
     traderZenRoot: { hidden: false }
   };
   const context = { document: { getElementById: id => elements[id] }, goWithMentalAudioLibrary: id => { routes.push(id); active = id === 'zen' && allowed; }, renderMentalAudioLibrary: () => renders++ };
-  vm.runInNewContext(source.split('\n').find(line => line.startsWith("go=function(id){const library=id==='audiolibrary'")), context);
+  vm.runInNewContext(source.split('\n').find(line => line.includes("const library=id==='audiolibrary'")), context);
   return { context, elements, routes, renders: () => renders };
 }
 test('mental library opens inside Zen and returns without a separate page', () => {

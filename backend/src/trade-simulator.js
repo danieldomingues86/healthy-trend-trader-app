@@ -25,7 +25,7 @@ function toIsoDate(value) {
 
 function mapSimulation(row) {
   if (!row) return null;
-  return {
+  const mapped = {
     id: row.id,
     userId: row.user_id,
     symbol: row.symbol,
@@ -48,15 +48,24 @@ function mapSimulation(row) {
     mfeR: row.mfe_r != null ? Number(row.mfe_r) : null,
     maeR: row.mae_r != null ? Number(row.mae_r) : null,
     timeline: Array.isArray(row.timeline) ? row.timeline : (typeof row.timeline === 'string' ? JSON.parse(row.timeline || '[]') : []),
+    managementScenario: row.management_scenario || '2R',
+    scaleIn: row.scale_in ? (typeof row.scale_in === 'string' ? JSON.parse(row.scale_in) : row.scale_in) : null,
     notes: row.notes || '',
     createdAt: row.created_at ? (row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at)) : null,
     updatedAt: row.updated_at ? (row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at)) : null
   };
+  mapped.durationDays = row.duration_days != null
+    ? Number(row.duration_days)
+    : (typeof model.calculateTradeDurationDays === 'function' ? model.calculateTradeDurationDays(mapped) : null);
+  mapped.visionAtivo = (typeof model.getTradeVisionAtivo === 'function')
+    ? model.getTradeVisionAtivo(mapped)
+    : null;
+  return mapped;
 }
 
 /**
  * Retorna as simulações do usuário. Caso não haja registros no banco,
- * retorna a lista padrão de 24 simulações idênticas ao design aprovado.
+ * retorna a lista padrão de simulações idênticas ao design aprovado.
  */
 async function list(userId, client = database) {
   if (!userId) throw invalid('Usuário não autenticado.', 401);
@@ -71,15 +80,17 @@ async function list(userId, client = database) {
   let simulations;
   if (!result.rows || result.rows.length === 0) {
     // Retorna as simulações de referência calibradas sem Pullback
-    simulations = model.getDefaultSeedSimulations();
+    simulations = model.getDefaultSeedSimulations('2R');
   } else {
     simulations = result.rows.map(mapSimulation).filter(s => s && s.triggerName !== 'Pullback');
   }
 
   const stats = model.calculateSimulatorStats(simulations);
+  const comparison = model.compareManagementScenarios(simulations);
   return {
     simulations,
-    stats
+    stats,
+    comparison
   };
 }
 
@@ -224,41 +235,62 @@ async function remove(userId, id, client = database) {
 }
 
 /**
- * Reseta as simulações para a base padrão de 24 simulações da tela aprovada.
+ * Reseta as simulações para a base padrão calibrada no cenário selecionado ('2R', '2.5R' ou 'PYRAMID_1R_2R').
  */
-async function reset(userId, client = database) {
+async function reset(userId, options = {}, client = database) {
   if (!userId) throw invalid('Usuário não autenticado.', 401);
 
-  await client.query(`DELETE FROM app.trade_simulations WHERE user_id = $1`, [userId]);
+  let opts = options;
+  let dbClient = client;
+  if (options && typeof options.query === 'function') {
+    dbClient = options;
+    opts = {};
+  }
 
-  const seeds = model.getDefaultSeedSimulations();
+  const scenario = (typeof opts === 'string' ? opts : opts?.scenario) || '2R';
+
+  await dbClient.query(`DELETE FROM app.trade_simulations WHERE user_id = $1`, [userId]);
+
+  const seeds = model.generateSeedSimulationsForScenario(scenario);
   for (const s of seeds) {
     const id = crypto.randomUUID();
-    await client.query(
+    await dbClient.query(
       `INSERT INTO app.trade_simulations (
         id, user_id, symbol, company_name, trigger_name, grade, sector,
         signal_date, entry_price, stop_loss, status,
         executed_entry_price, entry_date, current_stop, current_price,
         exit_price, exit_date, exit_reason, result_r, mfe_r, mae_r,
-        timeline, notes
+        timeline, notes, management_scenario, scale_in
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11,
         $12, $13, $14, $15,
         $16, $17, $18, $19, $20, $21,
-        $22, $23
+        $22, $23, $24, $25
       )`,
       [
         id, userId, s.symbol, s.companyName || '', s.triggerName, s.grade || '', s.sector || '',
         s.signalDate, s.entryPrice, s.stopLoss, s.status,
         s.executedEntryPrice, s.entryDate, s.currentStop, s.currentPrice,
         s.exitPrice, s.exitDate, s.exitReason, s.resultR, s.mfeR, s.maeR,
-        JSON.stringify(s.timeline || []), s.notes || ''
+        JSON.stringify(s.timeline || []), s.notes || '',
+        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null
       ]
     );
   }
 
-  return list(userId, client);
+  return list(userId, dbClient);
+}
+
+/**
+ * Retorna a comparação consolidada entre os 3 cenários de gestão de risco
+ */
+async function compare(userId, client = database) {
+  if (!userId) throw invalid('Usuário não autenticado.', 401);
+  const data = await list(userId, client);
+  return {
+    comparison: model.compareManagementScenarios(data.simulations)
+  };
 }
 
 /**
@@ -343,5 +375,6 @@ module.exports = {
   reset,
   clearAll,
   evaluate,
+  compare,
   mapSimulation
 };
