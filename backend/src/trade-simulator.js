@@ -25,7 +25,7 @@ function toIsoDate(value) {
 
 function mapSimulation(row) {
   if (!row) return null;
-  return {
+  const mapped = {
     id: row.id,
     userId: row.user_id,
     symbol: row.symbol,
@@ -54,6 +54,13 @@ function mapSimulation(row) {
     createdAt: row.created_at ? (row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at)) : null,
     updatedAt: row.updated_at ? (row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at)) : null
   };
+  mapped.durationDays = row.duration_days != null
+    ? Number(row.duration_days)
+    : (typeof model.calculateTradeDurationDays === 'function' ? model.calculateTradeDurationDays(mapped) : null);
+  mapped.visionAtivo = (typeof model.getTradeVisionAtivo === 'function')
+    ? model.getTradeVisionAtivo(mapped)
+    : null;
+  return mapped;
 }
 
 /**

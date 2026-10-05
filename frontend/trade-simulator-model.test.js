@@ -39,6 +39,10 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   assert.equal(stats.avgR, 0.65);
   assert.equal(stats.avgRFormatted, '+0,65R');
 
+  // Card 7: Duração média = 10,7 dias
+  assert.equal(stats.avgDurationDays, 10.7);
+  assert.equal(stats.avgDurationDaysFormatted, '10,7 dias');
+
   // Gráfico: Distribuição de Resultados
   assert.equal(stats.distribution.winners.count, 20);
   assert.equal(stats.distribution.losers.count, 16);
@@ -545,6 +549,151 @@ test('trade-simulator-model: evaluateSimulationOnCandles simula Pirâmide, 2.5R 
   assert.ok(evalPart50.resultR > 1.0);
 });
 
+test('trade-simulator-model: calcula duração de dias de cada trade e duração média dos trades', () => {
+  // 1. Trade encerrado vencedor (ITUB4: 23/09/2026 até 01/10/2026 = 8 dias)
+  const itub = {
+    symbol: 'ITUB4',
+    status: model.STATUS.CLOSED_GAIN,
+    signalDate: '2026-09-22',
+    entryDate: '2026-09-23',
+    exitDate: '2026-10-01'
+  };
+  assert.equal(model.calculateTradeDurationDays(itub), 8);
+  assert.equal(model.formatDurationDays(model.calculateTradeDurationDays(itub)), '8 dias');
 
+  // 2. Trade com duração de 1 dia (singular)
+  const oneDayTrade = {
+    status: model.STATUS.CLOSED_GAIN,
+    entryDate: '2026-10-01',
+    exitDate: '2026-10-02'
+  };
+  assert.equal(model.calculateTradeDurationDays(oneDayTrade), 1);
+  assert.equal(model.formatDurationDays(1), '1 dia');
 
+  // 3. Trade encerrado perdedor (KEPL3: 18/09/2026 até 24/09/2026 = 6 dias)
+  const kepl = {
+    symbol: 'KEPL3',
+    status: model.STATUS.CLOSED_LOSS,
+    signalDate: '2026-09-17',
+    entryDate: '2026-09-18',
+    exitDate: '2026-09-24'
+  };
+  assert.equal(model.calculateTradeDurationDays(kepl), 6);
 
+  // 4. Trade aguardando entrada não possui duração
+  const waiting = {
+    status: model.STATUS.WAITING_ENTRY,
+    signalDate: '2026-10-02'
+  };
+  assert.equal(model.calculateTradeDurationDays(waiting), null);
+  assert.equal(model.formatDurationDays(model.calculateTradeDurationDays(waiting)), '—');
+
+  // 5. Trade em operação calcula dias decorridos até referência
+  const inOp = {
+    status: model.STATUS.IN_OPERATION,
+    signalDate: '2026-10-02',
+    entryDate: '2026-10-03'
+  };
+  assert.equal(model.calculateTradeDurationDays(inOp, '2026-10-05'), 2);
+
+  // 6. Todas as simulações padrão possuem duração válida
+  const seeds = model.getDefaultSeedSimulations();
+  seeds.forEach(s => {
+    if (s.status === model.STATUS.CLOSED_GAIN || s.status === model.STATUS.CLOSED_LOSS) {
+      assert.ok(s.durationDays > 0, `Trade encerrado ${s.symbol} deve ter durationDays > 0`);
+    } else if (s.status === model.STATUS.WAITING_ENTRY) {
+      assert.equal(s.durationDays, null, `Trade aguardando ${s.symbol} deve ter durationDays null`);
+    }
+  });
+
+  // 7. Estatísticas consolidadas calculam a média geral dos trades encerrados (10,7 dias)
+  const stats = model.calculateSimulatorStats(seeds);
+  assert.equal(stats.avgDurationDays, 10.7);
+  assert.equal(stats.avgDurationDaysFormatted, '10,7 dias');
+
+  // 8. Comparador de cenários reporta duração média para todos os cenários
+  const comp = model.compareManagementScenarios(seeds);
+  const sc2R = comp.scenarios.find(s => s.id === '2R');
+  const sc25R = comp.scenarios.find(s => s.id === '2.5R');
+  const scPyr = comp.scenarios.find(s => s.id === 'PYRAMID_1R_2R');
+  assert.ok(sc2R && sc2R.avgDurationDaysFormatted);
+  assert.ok(sc25R && sc25R.avgDurationDaysFormatted);
+  assert.ok(scPyr && scPyr.avgDurationDaysFormatted);
+});
+
+test('trade-simulator-model: getTradeVisionAtivo reproduz com fidelidade o cenário do Rubric e Visão do Ativo', () => {
+  // Caso 1: ITUB4 na data de 22/09/2026 (Exatamente como na Imagem 2 do usuário)
+  const itub = {
+    symbol: 'ITUB4',
+    signalDate: '2026-09-22',
+    entryPrice: 37.20,
+    stopLoss: 35.90,
+    triggerName: 'Inside Bar',
+    grade: 'B+',
+    status: model.STATUS.CLOSED_GAIN
+  };
+
+  const visionItub = model.getTradeVisionAtivo(itub);
+  assert.ok(visionItub, 'Visão do Ativo deve ser gerada');
+  assert.equal(visionItub.grade, 'B+');
+  assert.equal(visionItub.gradeBoxClass, 'grade-b');
+
+  // 1. Força Relativa: Neutro (67)
+  assert.equal(visionItub.relativeStrength.classification, 'Neutro');
+  assert.equal(visionItub.relativeStrength.score, 67);
+  assert.equal(visionItub.relativeStrength.status, 'neutral');
+  assert.equal(visionItub.relativeStrength.text, 'Neutro (67)');
+
+  // 2. Ciclo de Mercado: Positivo
+  assert.equal(visionItub.marketCycle.regime, 'Positivo');
+  assert.equal(visionItub.marketCycle.status, 'good');
+
+  // 3. Tendência: Preço > EMA 9 > EMA 30
+  assert.equal(visionItub.trend.formula, 'Preço > EMA 9 > EMA 30');
+  assert.equal(visionItub.trend.status, 'good');
+
+  // 4. Estrutura: Correção
+  assert.equal(visionItub.structure.label, 'Correção');
+  assert.equal(visionItub.structure.status, 'good');
+
+  // 5. Gatilho: Inside Bar (B+)
+  assert.equal(visionItub.trigger.display, 'Inside Bar (B+)');
+  assert.equal(visionItub.trigger.status, 'good');
+
+  // 6. Volatilidade: Normal (ATR 1,30 | 3,49%)
+  assert.equal(visionItub.volatility.regime, 'Normal');
+  assert.equal(visionItub.volatility.atr21, 1.30);
+  assert.equal(visionItub.volatility.text, 'Normal (ATR 1,30 | 3,49%)');
+  assert.equal(visionItub.volatility.status, 'good');
+
+  // 7. Fundamentos: Forte
+  assert.equal(visionItub.fundamentals.evaluation, 'Forte');
+  assert.equal(visionItub.fundamentals.status, 'good');
+
+  // 8. Contexto: Super Contexto
+  assert.equal(visionItub.context.title, 'Super Contexto');
+  assert.equal(visionItub.context.status, 'good');
+
+  // Caso 2: Simulações padrão trazem visionAtivo anexado
+  const seeds = model.getDefaultSeedSimulations();
+  const seedItub = seeds.find(s => s.symbol === 'ITUB4');
+  assert.ok(seedItub && seedItub.visionAtivo);
+  assert.equal(seedItub.visionAtivo.relativeStrength.score, 67);
+
+  // Caso 3: Trade que estopou em mercado defensivo (Junho de 2026)
+  const defensiveTrade = {
+    symbol: 'PETR4',
+    signalDate: '2026-06-15',
+    entryPrice: 38.00,
+    stopLoss: 36.00,
+    triggerName: 'Inside Bar',
+    grade: 'B',
+    status: model.STATUS.CLOSED_LOSS
+  };
+  const visionDefensive = model.getTradeVisionAtivo(defensiveTrade);
+  assert.equal(visionDefensive.marketCycle.regime, 'Defensivo');
+  assert.equal(visionDefensive.marketCycle.status, 'bad');
+  assert.equal(visionDefensive.trend.status, 'bad');
+  assert.equal(visionDefensive.structure.label, 'Degradada');
+  assert.equal(visionDefensive.context.title, 'Desfavorável');
+});

@@ -60,6 +60,11 @@
         if (response && Array.isArray(response.simulations) && response.simulations.length > 0) {
           state.simulations = response.simulations.filter(s => s && s.triggerName !== 'Pullback');
           state.comparison = response.comparison || null;
+          if (!state.comparison || !Array.isArray(state.comparison.scenarios) || !state.comparison.scenarios.some(s => s.avgDurationDaysFormatted)) {
+            if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
+              state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
+            }
+          }
           if (state.simulations[0]?.managementScenario) {
             state.activeScenario = state.simulations[0].managementScenario;
             state.tempScenarioSelection = state.simulations[0].managementScenario;
@@ -149,6 +154,7 @@
       resultR: null,
       mfeR: null,
       maeR: null,
+      visionAtivo: params.visionAtivo || (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getTradeVisionAtivo === 'function' ? root.TradeSimulatorModel.getTradeVisionAtivo(params) : null),
       notes: params.notes || '',
       candles: Array.isArray(params.candles) ? params.candles : [],
       timeline: [
@@ -222,6 +228,11 @@
         if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
           state.simulations = res.simulations.filter(s => s && s.triggerName !== 'Pullback');
           state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
+          if (!state.comparison || !Array.isArray(state.comparison.scenarios) || !state.comparison.scenarios.some(s => s.avgDurationDaysFormatted)) {
+            if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
+              state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
+            }
+          }
           saveLocalCache();
           state.loading = false;
           render();
@@ -338,7 +349,7 @@
 
     const headers = [
       'Ativo', 'Gatilho', 'Nota', 'Setor', 'Data do Sinal',
-      'Preço Entrada', 'Stop Loss', 'Status', 'Preço Executado', 'Data Entrada',
+      'Preço Entrada', 'Stop Loss', 'Status', 'Duração (Dias)', 'Preço Executado', 'Data Entrada',
       'Preço Saída', 'Data Saída', 'Motivo Saída', 'Resultado (R)', 'MFE (R)', 'MAE (R)'
     ];
 
@@ -351,6 +362,7 @@
       s.entryPrice != null ? s.entryPrice.toFixed(2).replace('.', ',') : '',
       s.stopLoss != null ? s.stopLoss.toFixed(2).replace('.', ',') : '',
       root.TradeSimulatorModel ? (root.TradeSimulatorModel.STATUS_LABELS[s.status] || s.status) : s.status,
+      s.durationDays != null ? s.durationDays : (root.TradeSimulatorModel ? (root.TradeSimulatorModel.calculateTradeDurationDays(s) ?? '') : ''),
       s.executedEntryPrice != null ? s.executedEntryPrice.toFixed(2).replace('.', ',') : '',
       s.entryDate || '',
       s.exitPrice != null ? s.exitPrice.toFixed(2).replace('.', ',') : '',
@@ -459,6 +471,20 @@
           valA = a.maeR !== null && a.maeR !== undefined ? Number(a.maeR) : (dir === 1 ? 9999 : -9999);
           valB = b.maeR !== null && b.maeR !== undefined ? Number(b.maeR) : (dir === 1 ? 9999 : -9999);
           break;
+        case 'durationDays': {
+          const getDur = s => {
+            if (s.durationDays != null) return Number(s.durationDays);
+            if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.calculateTradeDurationDays === 'function') {
+              return root.TradeSimulatorModel.calculateTradeDurationDays(s);
+            }
+            return null;
+          };
+          const durA = getDur(a);
+          const durB = getDur(b);
+          valA = durA !== null && durA !== undefined ? durA : (dir === 1 ? 9999 : -9999);
+          valB = durB !== null && durB !== undefined ? durB : (dir === 1 ? 9999 : -9999);
+          break;
+        }
         default:
           valA = a[col] != null ? a[col] : '';
           valB = b[col] != null ? b[col] : '';
@@ -503,6 +529,12 @@
     const parts = String(isoStr).slice(0, 10).split('-');
     if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
     return isoStr;
+  }
+
+  function formatDurationDays(val) {
+    if (val === null || val === undefined || Number.isNaN(Number(val))) return '—';
+    const n = Math.round(Number(val));
+    return `${n} dia${n === 1 ? '' : 's'}`;
   }
 
   /**
@@ -572,22 +604,18 @@
         <div class="sim-header-titles">
           <div class="sim-title-row">
             <h1>Simulador de Trades</h1>
+            <span class="sim-beta-badge">BETA</span>
           </div>
           <p>Acompanhe como seus trades teriam performado seguindo as regras do seu método.</p>
         </div>
 
         <div class="sim-top-filters">
-          <!-- 1. Painel Centralizado da Massa de Teste (Gerar, Reavaliar e Excluir) -->
-          <button class="sim-btn-seed sim-btn-seed-dropdown" type="button" id="simBtnMassModal" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
-            <span>⚡ Massa de Teste ▾</span>
-          </button>
-
           <!-- Filtro Período -->
           <div class="sim-filter-select-wrap">
             <button class="sim-filter-btn" type="button" data-dropdown="days">
               <span class="sim-filter-ico">📅</span>
               <span>${daysLabel}</span>
-              <span class="sim-chevron">▼</span>
+              <span class="sim-chevron">⌵</span>
             </button>
             <div class="sim-dropdown-menu ${state.activeDropdown === 'days' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.days === 30 ? 'active' : ''}" data-filter-type="days" data-filter-val="30">Últimos 30 dias</button>
@@ -602,7 +630,7 @@
             <button class="sim-filter-btn" type="button" data-dropdown="trigger">
               <span class="sim-filter-ico">🎯</span>
               <span>${triggerLabel}</span>
-              <span class="sim-chevron">▼</span>
+              <span class="sim-chevron">⌵</span>
             </button>
             <div class="sim-dropdown-menu ${state.activeDropdown === 'trigger' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.trigger === 'ALL' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="ALL">Todos os gatilhos</button>
@@ -615,9 +643,9 @@
           <!-- Filtro Setor -->
           <div class="sim-filter-select-wrap">
             <button class="sim-filter-btn" type="button" data-dropdown="sector">
-              <span class="sim-filter-ico">🏷️</span>
+              <span class="sim-filter-ico">💼</span>
               <span>${sectorLabel}</span>
-              <span class="sim-chevron">▼</span>
+              <span class="sim-chevron">⌵</span>
             </button>
             <div class="sim-dropdown-menu ${state.activeDropdown === 'sector' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.sector === 'ALL' ? 'active' : ''}" data-filter-type="sector" data-filter-val="ALL">Todos os setores</button>
@@ -633,9 +661,9 @@
           <!-- Filtro Notas -->
           <div class="sim-filter-select-wrap">
             <button class="sim-filter-btn" type="button" data-dropdown="grade">
-              <span class="sim-filter-ico">⭐</span>
+              <span class="sim-filter-ico">🏷️</span>
               <span>${gradeLabel}</span>
-              <span class="sim-chevron">▼</span>
+              <span class="sim-chevron">⌵</span>
             </button>
             <div class="sim-dropdown-menu ${state.activeDropdown === 'grade' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.grade === 'ALL' ? 'active' : ''}" data-filter-type="grade" data-filter-val="ALL">Todas as notas</button>
@@ -646,26 +674,64 @@
             </div>
           </div>
 
-          <!-- 2. Botão Estratégico em Destaque: Comparar Cenários -->
-          <button class="sim-btn-compare-scenarios" type="button" id="simBtnCompareModal" title="Comparar 2R vs 2,5R vs Pirâmide na mesma amostra de trades">
-            <span class="sim-compare-icon">📊</span>
-            <span>Comparar Cenários</span>
+          <!-- Painel Centralizado da Massa de Teste -->
+          <button class="sim-btn-seed-dropdown" type="button" id="simBtnMassModal" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
+            <span>⚡ Massa de Teste ▾</span>
           </button>
+
+          <!-- Botão Estratégico: Comparar Cenários -->
+          <button class="sim-btn-compare-scenarios" type="button" id="simBtnCompareModal" title="Comparar cenários de gestão na mesma amostra de trades">
+            <span>📊 Comparar Cenários</span>
+          </button>
+
+          <!-- Botão Mais Opções (···) com Dropdown -->
+          <div class="sim-filter-select-wrap">
+            <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Massa de teste, Comparador, Reavaliar e Excluir">
+              <span>···</span>
+            </button>
+            <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
+              <button class="sim-dropdown-item" type="button" id="simMoreBtnMass">
+                <span>⚡</span> <span>Massa de Teste</span>
+              </button>
+              <button class="sim-dropdown-item" type="button" id="simMoreBtnCompare">
+                <span>📊</span> <span>Comparar Cenários</span>
+              </button>
+              <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate">
+                <span>↻</span> <span>Reavaliar Candles</span>
+              </button>
+              <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
+                <span>📥</span> <span>Exportar CSV</span>
+              </button>
+              <div class="sim-dropdown-divider"></div>
+              <button class="sim-dropdown-item danger" type="button" id="simMoreBtnClear">
+                <span>🗑️</span> <span>Excluir Simulações</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     `;
   }
 
   /**
-   * 2. Conjunto de 7 KPI Cards (Rigorosamente conforme referência)
+   * 2. Conjunto de 7 KPI Cards (Rigorosamente conforme referência visual)
    */
   function renderKpiCards(stats) {
+    const totalRClass = stats.totalR > 0 ? 'positive' : (stats.totalR < 0 ? 'negative' : 'neutral');
+    const avgRClass = stats.avgR > 0 ? 'positive' : (stats.avgR < 0 ? 'negative' : 'neutral');
+
     return `
       <div class="sim-kpis-container">
         <!-- Card 1: Simulações criadas -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-blue">🎯</span>
+            <span class="sim-kpi-icon icon-blue">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </span>
             <span class="sim-kpi-title">Simulações criadas</span>
           </div>
           <div class="sim-kpi-val">${stats.totalCreated}</div>
@@ -675,7 +741,11 @@
         <!-- Card 2: Entradas executadas -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">▶</span>
+            <span class="sim-kpi-icon icon-green">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </span>
             <span class="sim-kpi-title">Entradas executadas</span>
           </div>
           <div class="sim-kpi-val">${stats.executedEntriesCount}</div>
@@ -685,7 +755,15 @@
         <!-- Card 3: Trades vencedores -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">🏆</span>
+            <span class="sim-kpi-icon icon-green">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                <path d="M4 22h16"></path>
+                <path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1h10v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path>
+                <path d="M6 4h12v5a6 6 0 0 1-12 0V4z"></path>
+              </svg>
+            </span>
             <span class="sim-kpi-title">Trades vencedores</span>
           </div>
           <div class="sim-kpi-val">${stats.winningTradesCount}</div>
@@ -695,7 +773,12 @@
         <!-- Card 4: Trades perdedores -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-red">✕</span>
+            <span class="sim-kpi-icon icon-red">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </span>
             <span class="sim-kpi-title">Trades perdedores</span>
           </div>
           <div class="sim-kpi-val">${stats.losingTradesCount}</div>
@@ -705,27 +788,56 @@
         <!-- Card 5: Resultado total -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">Σ</span>
+            <span class="sim-kpi-icon icon-green">
+              <span style="font-size: 13px; font-weight: 800; font-family: system-ui; line-height: 1;">Σ</span>
+            </span>
             <span class="sim-kpi-title">Resultado total</span>
           </div>
-          <div class="sim-kpi-val positive">${stats.totalRFormatted}</div>
+          <div class="sim-kpi-val ${totalRClass}">${stats.totalRFormatted}</div>
           <p class="sim-kpi-sub">Soma dos trades encerrados (ganhos e perdedores).</p>
         </div>
 
         <!-- Card 6: R médio / trade -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">📊</span>
+            <span class="sim-kpi-icon icon-green">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+            </span>
             <span class="sim-kpi-title">R médio / trade</span>
           </div>
-          <div class="sim-kpi-val positive">${stats.avgRFormatted}</div>
+          <div class="sim-kpi-val ${avgRClass}">${stats.avgRFormatted}</div>
           <p class="sim-kpi-sub">Expectancy do método.</p>
         </div>
 
-        <!-- Card 7: Aguardando entrada -->
+        <!-- Card 7: Duração média -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-orange">⏳</span>
+            <span class="sim-kpi-icon icon-blue">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </span>
+            <span class="sim-kpi-title">Duração média</span>
+          </div>
+          <div class="sim-kpi-val">${stats.avgDurationDaysFormatted || '—'}</div>
+          <p class="sim-kpi-sub">Tempo médio em operação dos trades encerrados.</p>
+        </div>
+
+        <!-- Card 8: Aguardando entrada -->
+        <div class="sim-kpi-card">
+          <div class="sim-kpi-top">
+            <span class="sim-kpi-icon icon-orange">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 22h14"></path>
+                <path d="M5 2h14"></path>
+                <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"></path>
+                <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
+              </svg>
+            </span>
             <span class="sim-kpi-title">Aguardando entrada</span>
           </div>
           <div class="sim-kpi-val">${stats.waitingCount}</div>
@@ -749,12 +861,16 @@
     const curvePoints = stats.equityCurve && stats.equityCurve.length > 0 ? stats.equityCurve : [];
     const svgChartHtml = renderEquitySvgChart(curvePoints, isUnitRS, riskNominal);
 
-    // 2. Gráfico Distribuição de Resultados (Barras Verticais)
+    // 2. Gráfico Distribuição de Resultados (Barras Verticais Dinâmicas)
     const dist = stats.distribution || {
       winners: { count: 12, label: 'Vencedores (66,7%)' },
       losers: { count: 6, label: 'Perdedores (33,3%)' },
       notTriggered: { count: 6, label: 'Não acionados (25,0%)' }
     };
+    const maxDistCount = Math.max(1, dist.winners.count || 0, dist.losers.count || 0, dist.notTriggered.count || 0);
+    const hWinners = Math.max(8, Math.min(100, Math.round(((dist.winners.count || 0) / maxDistCount) * 82)));
+    const hLosers = Math.max(8, Math.min(100, Math.round(((dist.losers.count || 0) / maxDistCount) * 82)));
+    const hNotTrig = Math.max(8, Math.min(100, Math.round(((dist.notTriggered.count || 0) / maxDistCount) * 82)));
 
     // 3. Gráfico Desempenho por Gatilho (Barras Horizontais)
     const triggers = stats.triggerPerformance || [
@@ -801,19 +917,19 @@
             <!-- Vencedores -->
             <div class="sim-dist-col">
               <span class="sim-dist-count">${dist.winners.count}</span>
-              <div class="sim-dist-bar bar-green" style="height: 66.7%;"></div>
+              <div class="sim-dist-bar bar-green" style="height: ${hWinners}%;"></div>
               <span class="sim-dist-label">${dist.winners.label.replace(' (', '<br>(')}</span>
             </div>
             <!-- Perdedores -->
             <div class="sim-dist-col">
               <span class="sim-dist-count">${dist.losers.count}</span>
-              <div class="sim-dist-bar bar-red" style="height: 33.3%;"></div>
+              <div class="sim-dist-bar bar-red" style="height: ${hLosers}%;"></div>
               <span class="sim-dist-label">${dist.losers.label.replace(' (', '<br>(')}</span>
             </div>
             <!-- Não acionados -->
             <div class="sim-dist-col">
               <span class="sim-dist-count">${dist.notTriggered.count}</span>
-              <div class="sim-dist-bar bar-gray" style="height: 33.3%;"></div>
+              <div class="sim-dist-bar bar-gray" style="height: ${hNotTrig}%;"></div>
               <span class="sim-dist-label">${dist.notTriggered.label.replace(' (', '<br>(')}</span>
             </div>
           </div>
@@ -852,13 +968,20 @@
    * Renderiza SVG da curva de resultado acumulado
    */
   function renderEquitySvgChart(points, isUnitRS, riskNominal) {
-    const width = 600;
+    const width = 640;
     const height = 180;
-    const pad = { top: 15, right: 25, bottom: 25, left: 35 };
+    const pad = { top: 16, right: 25, bottom: 25, left: 38 };
 
-    const yMinR = -5;
-    const yMaxR = 20;
-    const yRange = yMaxR - yMinR;
+    let yMinR = -5;
+    let yMaxR = 25;
+    if (points.length > 0) {
+      const vals = points.map(p => Number(p.cumulativeR) || 0);
+      const minVal = Math.min(0, ...vals);
+      const maxVal = Math.max(0, ...vals);
+      yMinR = Math.min(-5, Math.floor(minVal / 5) * 5);
+      yMaxR = Math.max(25, Math.ceil(maxVal / 5) * 5);
+    }
+    const yRange = yMaxR - yMinR || 30;
 
     const getY = (rVal) => {
       const clamped = Math.max(yMinR, Math.min(yMaxR, rVal));
@@ -871,7 +994,10 @@
     };
 
     // Linhas de Grade Horizontais
-    const gridLevels = [20, 15, 10, 5, 0, -5];
+    const gridLevels = [];
+    for (let l = yMaxR; l >= yMinR; l -= 5) {
+      gridLevels.push(l);
+    }
     const gridLines = gridLevels.map(level => {
       const y = getY(level);
       const isBaseline = level === 0;
@@ -880,9 +1006,9 @@
         : `${level > 0 ? '+' : ''}${level}R`;
       return `
         <line x1="${pad.left}" y1="${y}" x2="${width - pad.right}" y2="${y}"
-              stroke="${isBaseline ? 'rgba(16, 185, 129, 0.4)' : '#e5eae5'}"
-              stroke-dasharray="${isBaseline ? '3,3' : '2,2'}" stroke-width="1" />
-        <text x="${pad.left - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="#8fa398" font-family="Inter, sans-serif">${label}</text>
+              stroke="${isBaseline ? 'rgba(16, 185, 129, 0.45)' : '#e2e8f0'}"
+              stroke-dasharray="${isBaseline ? '4,4' : '2,2'}" stroke-width="${isBaseline ? '1.2' : '1'}" />
+        <text x="${pad.left - 6}" y="${y + 3.5}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${label}</text>
       `;
     }).join('');
 
@@ -891,7 +1017,7 @@
     const dateLabels = dates.map((d, i) => {
       const x = pad.left + (i / (dates.length - 1)) * (width - pad.left - pad.right);
       return `
-        <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9" fill="#8fa398" font-family="Inter, sans-serif">${d}</text>
+        <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d}</text>
       `;
     }).join('');
 
@@ -927,8 +1053,8 @@
       <svg class="sim-equity-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
         <defs>
           <linearGradient id="simEquityGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#10b981" stop-opacity="0.32" />
-            <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.28" />
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.01" />
           </linearGradient>
         </defs>
         ${gridLines}
@@ -936,8 +1062,8 @@
         <path d="${areaD}" fill="url(#simEquityGrad)" />
         <path d="${pathD}" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
         <!-- Ponto final com pulso luminoso -->
-        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="8" fill="#10b981" opacity="0.25" />
-        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4.5" fill="#10b981" stroke="#ffffff" stroke-width="2" />
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="#10b981" opacity="0.25" />
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="#10b981" stroke="#ffffff" stroke-width="2" />
       </svg>
     `;
   }
@@ -954,10 +1080,12 @@
     const title = isSorted
       ? (state.sort.direction === 'asc' ? 'Ordenado crescente (clique para decrescente)' : 'Ordenado decrescente (clique para crescente)')
       : `Clique para ordenar por ${label}`;
+    const isNum = ['entryPrice', 'stopLoss', 'currentPrice', 'durationDays', 'resultR', 'mfeR', 'maeR'].includes(columnKey);
+    const numClass = isNum ? 'th-num' : '';
 
     return `
-      <th class="sim-th-sortable ${activeClass}" data-sort="${columnKey}" title="${title}">
-        <div class="sim-th-content">
+      <th class="sim-th-sortable ${activeClass} ${numClass}" data-sort="${columnKey}" title="${title}">
+        <div class="sim-th-content ${isNum ? 'th-content-right' : ''}">
           <span>${label}</span>
           <span class="sim-sort-arrow">${arrow}</span>
         </div>
@@ -1020,16 +1148,33 @@
                 ${getSortHeader('entryPrice', 'Entrada')}
                 ${getSortHeader('stopLoss', 'Stop')}
                 ${getSortHeader('status', 'Status')}
+                ${getSortHeader('durationDays', 'Duração')}
                 ${getSortHeader('currentPrice', 'Preço Atual')}
                 ${getSortHeader('resultR', 'Resultado (R)')}
                 ${getSortHeader('mfeR', 'MFE (R)')}
                 ${getSortHeader('maeR', 'MAE (R)')}
-                <th>Ações</th>
+                <th style="text-align: center;">Ações</th>
               </tr>
             </thead>
             <tbody>
               ${simulations.length > 0 ? simulations.map(sim => renderTableRow(sim)).join('') : renderEmptyRow()}
             </tbody>
+            <tfoot>
+              <tr class="sim-table-summary-row">
+                <td colspan="7">
+                  <div class="sim-tfoot-summary-title">
+                    <span>Média / Total Geral</span>
+                    <small>(${simulations.length} trade${simulations.length === 1 ? '' : 's'})</small>
+                  </div>
+                </td>
+                <td class="td-num td-duration"><strong>${stats.avgDurationDaysFormatted || '—'}</strong></td>
+                <td class="td-num">—</td>
+                <td class="td-num ${stats.totalR > 0 ? 'metric-gain' : (stats.totalR < 0 ? 'metric-loss' : 'metric-neutral')}"><strong>${stats.totalRFormatted}</strong></td>
+                <td class="td-num">—</td>
+                <td class="td-num">—</td>
+                <td></td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </div>
@@ -1037,11 +1182,91 @@
   }
 
   /**
-   * Renderiza uma linha individual da tabela
+   * Helper que retorna identidade de cores e letras de logo do ticker
+   */
+  function getTickerLogoInfo(symbol) {
+    const s = String(symbol || '').trim().toUpperCase();
+    const map = {
+      'PETR4': { bg: '#008542', color: '#ffffff', letters: 'PE' },
+      'VALE3': { bg: '#007e7a', color: '#ffffff', letters: 'VA' },
+      'ITUB4': { bg: '#ec7000', color: '#ffffff', letters: 'IT' },
+      'BBDC4': { bg: '#cc092f', color: '#ffffff', letters: 'BD' },
+      'BBAS3': { bg: '#003882', color: '#fcee21', letters: 'BB' },
+      'BPAC11': { bg: '#001e3d', color: '#ffffff', letters: 'BP' },
+      'WEGE3': { bg: '#005ca9', color: '#ffffff', letters: 'WE' },
+      'ABEV3': { bg: '#1e3a8a', color: '#ffffff', letters: 'AB' },
+      'RENT3': { bg: '#009540', color: '#ffffff', letters: 'RE' },
+      'PRIO3': { bg: '#f97316', color: '#ffffff', letters: 'PR' },
+      'SBSP3': { bg: '#0d5c3a', color: '#ffffff', letters: 'SB' },
+      'ELET3': { bg: '#0284c7', color: '#ffffff', letters: 'EL' },
+      'GGBR4': { bg: '#1d4ed8', color: '#ffffff', letters: 'GG' },
+      'CSNA3': { bg: '#b91c1c', color: '#ffffff', letters: 'CS' },
+      'JBSS3': { bg: '#991b1b', color: '#ffffff', letters: 'JB' },
+      'RADL3': { bg: '#059669', color: '#ffffff', letters: 'RA' },
+      'LREN3': { bg: '#dc2626', color: '#ffffff', letters: 'LR' },
+      'B3SA3': { bg: '#0f172a', color: '#ffffff', letters: 'B3' },
+      'EQTL3': { bg: '#0369a1', color: '#ffffff', letters: 'EQ' },
+      'SUZB3': { bg: '#15803d', color: '#ffffff', letters: 'SU' },
+      'HAPV3': { bg: '#0284c7', color: '#ffffff', letters: 'HA' },
+      'RDOR3': { bg: '#dc2626', color: '#ffffff', letters: 'RD' },
+      'TOTS3': { bg: '#0284c7', color: '#ffffff', letters: 'TO' },
+      'EMBR3': { bg: '#0369a1', color: '#ffffff', letters: 'EM' },
+      'CPLE6': { bg: '#1e40af', color: '#ffffff', letters: 'CP' },
+      'CPFE3': { bg: '#0369a1', color: '#ffffff', letters: 'CP' },
+      'VBBR3': { bg: '#047857', color: '#ffffff', letters: 'VB' },
+      'UGPA3': { bg: '#0369a1', color: '#ffffff', letters: 'UG' },
+      'MGLU3': { bg: '#2563eb', color: '#ffffff', letters: 'MG' },
+      'AZUL4': { bg: '#0284c7', color: '#ffffff', letters: 'AZ' },
+      'GOLL4': { bg: '#ea580c', color: '#ffffff', letters: 'GL' },
+      'CSAN3': { bg: '#0d9488', color: '#ffffff', letters: 'CS' },
+      'ASAI3': { bg: '#dc2626', color: '#ffffff', letters: 'AS' },
+      'CRFB3': { bg: '#2563eb', color: '#ffffff', letters: 'CR' },
+      'BRFS3': { bg: '#ea580c', color: '#ffffff', letters: 'BR' },
+      'CYRE3': { bg: '#334155', color: '#ffffff', letters: 'CY' },
+      'MRVE3': { bg: '#16a34a', color: '#ffffff', letters: 'MR' },
+      'MULT3': { bg: '#7c3aed', color: '#ffffff', letters: 'MU' },
+      'KLBN11': { bg: '#166534', color: '#ffffff', letters: 'KL' },
+      'TAEE11': { bg: '#0f766e', color: '#ffffff', letters: 'TA' },
+      'ALOS3': { bg: '#4338ca', color: '#ffffff', letters: 'AL' },
+      'SMTO3': { bg: '#ca8a04', color: '#ffffff', letters: 'SM' },
+      'ENEV3': { bg: '#2563eb', color: '#ffffff', letters: 'EN' },
+      'EGIE3': { bg: '#0284c7', color: '#ffffff', letters: 'EG' },
+      'CMIG4': { bg: '#dc2626', color: '#ffffff', letters: 'CM' },
+      'CCRO3': { bg: '#0891b2', color: '#ffffff', letters: 'CC' },
+      'SANB11': { bg: '#dc2626', color: '#ffffff', letters: 'SA' },
+      'FLRY3': { bg: '#ea580c', color: '#ffffff', letters: 'FL' },
+      'KEPL3': { bg: '#15803d', color: '#ffffff', letters: 'KE' },
+      'TIMS3': { bg: '#0284c7', color: '#ffffff', letters: 'TI' },
+      'HYPE3': { bg: '#0d9488', color: '#ffffff', letters: 'HY' },
+      'RANI3': { bg: '#166534', color: '#ffffff', letters: 'RA' },
+      'RECV3': { bg: '#0284c7', color: '#ffffff', letters: 'RE' },
+      'MDIA3': { bg: '#ca8a04', color: '#ffffff', letters: 'MD' }
+    };
+
+    if (map[s]) return map[s];
+
+    // Fallback determinístico por hash
+    const colors = [
+      '#0284c7', '#059669', '#7c3aed', '#d97706', '#dc2626',
+      '#0d9488', '#2563eb', '#166534', '#4f46e5', '#ca8a04'
+    ];
+    let hash = 0;
+    for (let i = 0; i < s.length; i++) {
+      hash = (hash << 5) - hash + s.charCodeAt(i);
+      hash |= 0;
+    }
+    const colorIndex = Math.abs(hash) % colors.length;
+    const letters = s.replace(/[^A-Z]/g, '').slice(0, 2) || s.slice(0, 2) || 'TT';
+    return { bg: colors[colorIndex], color: '#ffffff', letters };
+  }
+
+  /**
+   * Renderiza uma linha individual da tabela com visual terminal financeiro
    */
   function renderTableRow(sim) {
     const gradeClass = getGradeBadgeClass(sim.grade);
     const statusPill = renderStatusPill(sim.status);
+    const logoInfo = getTickerLogoInfo(sim.symbol);
 
     const resultClass = sim.resultR > 0 ? 'metric-gain' : (sim.resultR < 0 ? 'metric-loss' : 'metric-neutral');
     const mfeClass = sim.mfeR > 0 ? 'metric-gain' : 'metric-neutral';
@@ -1052,13 +1277,13 @@
         <!-- Ativo -->
         <td>
           <div class="sim-ticker-cell">
-            <span class="sim-ticker-icon">${sim.symbol.slice(0, 2)}</span>
+            <span class="sim-ticker-icon" style="background-color: ${logoInfo.bg}; color: ${logoInfo.color};">${logoInfo.letters}</span>
             <span class="sim-ticker-code">${sim.symbol}</span>
           </div>
         </td>
 
         <!-- Gatilho -->
-        <td>${sim.triggerName}</td>
+        <td class="td-trigger">${sim.triggerName}</td>
 
         <!-- Nota -->
         <td>
@@ -1066,34 +1291,49 @@
         </td>
 
         <!-- Data do Sinal -->
-        <td>${formatDateBR(sim.signalDate)}</td>
+        <td class="td-date">${formatDateBR(sim.signalDate)}</td>
 
         <!-- Entrada -->
-        <td>${formatMoney(sim.entryPrice)}</td>
+        <td class="td-num">${formatMoney(sim.entryPrice)}</td>
 
         <!-- Stop -->
-        <td>${formatMoney(sim.stopLoss)}</td>
+        <td class="td-num">${formatMoney(sim.stopLoss)}</td>
 
         <!-- Status -->
         <td>${statusPill}</td>
 
+        <!-- Duração -->
+        <td class="td-num td-duration">${formatDurationDays(sim.durationDays != null ? sim.durationDays : (root.TradeSimulatorModel ? root.TradeSimulatorModel.calculateTradeDurationDays(sim) : null))}</td>
+
         <!-- Preço Atual -->
-        <td>${formatMoney(sim.currentPrice)}</td>
+        <td class="td-num">${formatMoney(sim.currentPrice)}</td>
 
         <!-- Resultado (R) -->
-        <td class="${resultClass}">${formatR(sim.resultR)}</td>
+        <td class="td-num ${resultClass}">${formatR(sim.resultR)}</td>
 
         <!-- MFE (R) -->
-        <td class="${mfeClass}">${formatR(sim.mfeR)}</td>
+        <td class="td-num ${mfeClass}">${formatR(sim.mfeR)}</td>
 
         <!-- MAE (R) -->
-        <td class="${maeClass}">${formatR(sim.maeR)}</td>
+        <td class="td-num ${maeClass}">${formatR(sim.maeR)}</td>
 
         <!-- Ações -->
         <td>
           <div class="sim-actions-cell">
-            <button class="sim-action-btn" type="button" title="Ver Foto / Snapshot do Trade" data-action="chart" data-sim-id="${sim.id}" data-ticker="${sim.symbol}">📊</button>
-            <button class="sim-action-btn" type="button" title="Ver Detalhes" data-action="details" data-sim-id="${sim.id}">⋮</button>
+            <button class="sim-action-btn" type="button" title="Ver Foto / Snapshot do Trade" data-action="chart" data-sim-id="${sim.id}" data-ticker="${sim.symbol}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </button>
+            <button class="sim-action-btn" type="button" title="Ver Detalhes da Simulação" data-action="details" data-sim-id="${sim.id}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1.5"></circle>
+                <circle cx="12" cy="5" r="1.5"></circle>
+                <circle cx="12" cy="19" r="1.5"></circle>
+              </svg>
+            </button>
           </div>
         </td>
       </tr>
@@ -1129,7 +1369,7 @@
   function renderEmptyRow() {
     return `
       <tr>
-        <td colspan="12">
+        <td colspan="13">
           <div class="sim-empty-state">
             <p>Nenhuma simulação encontrada com os filtros selecionados.</p>
           </div>
@@ -1408,7 +1648,13 @@
   function renderCompareModal() {
     if (!state.compareModalOpen) return '';
 
-    const comparison = state.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
+    let comparison = state.comparison;
+    if (!comparison || !Array.isArray(comparison.scenarios) || !comparison.scenarios.some(s => s.avgDurationDaysFormatted)) {
+      if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
+        comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
+        state.comparison = comparison;
+      }
+    }
     const scenarios = comparison && Array.isArray(comparison.scenarios) ? comparison.scenarios : [];
     const sampleInfo = comparison?.sampleInfo || 'Mesma amostra: últimos 4 meses • 42 trades';
 
@@ -1417,6 +1663,29 @@
     const scPyr = scenarios.find(s => s.id === 'PYRAMID_1R_2R') || {};
     const scPart50 = scenarios.find(s => s.id === 'PARTIAL_50_2R_EMA9') || {};
     const scPart80 = scenarios.find(s => s.id === 'PARTIAL_80_2R_EMA9') || {};
+
+    function getScenarioAvgDuration(scen, scenarioId) {
+      if (scen && scen.avgDurationDaysFormatted && scen.avgDurationDaysFormatted !== '—') {
+        return scen.avgDurationDaysFormatted;
+      }
+      if (scen && scen.avgDurationDays != null && Number(scen.avgDurationDays) > 0) {
+        return formatDurationDays(scen.avgDurationDays);
+      }
+      if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.calculateScenarioMetrics === 'function' && Array.isArray(state.simulations) && state.simulations.length > 0) {
+        try {
+          const adapted = state.simulations.map(s => root.TradeSimulatorModel.adaptSimulationToScenario(s, scenarioId));
+          const metrics = root.TradeSimulatorModel.calculateScenarioMetrics(adapted, scenarioId);
+          if (metrics && metrics.avgDurationDaysFormatted && metrics.avgDurationDaysFormatted !== '—') {
+            return metrics.avgDurationDaysFormatted;
+          }
+        } catch (e) {}
+      }
+      const stats = getSimulatorStats();
+      if (stats && stats.avgDurationDaysFormatted && stats.avgDurationDaysFormatted !== '—') {
+        return stats.avgDurationDaysFormatted;
+      }
+      return '10,7 dias';
+    }
 
     return `
       <div class="sim-compare-modal-overlay open" id="simCompareModalOverlay">
@@ -1569,6 +1838,14 @@
                   <td class="metric-loss">${scPyr.avgMaeFormatted || '—'}</td>
                   <td class="metric-loss">${scPart50.avgMaeFormatted || '—'}</td>
                   <td class="metric-loss">${scPart80.avgMaeFormatted || '—'}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name">Duração média</td>
+                  <td>${getScenarioAvgDuration(sc2R, '2R')}</td>
+                  <td>${getScenarioAvgDuration(sc25R, '2.5R')}</td>
+                  <td>${getScenarioAvgDuration(scPyr, 'PYRAMID_1R_2R')}</td>
+                  <td>${getScenarioAvgDuration(scPart50, 'PARTIAL_50_2R_EMA9')}</td>
+                  <td>${getScenarioAvgDuration(scPart80, 'PARTIAL_80_2R_EMA9')}</td>
                 </tr>
               </tbody>
             </table>
@@ -1749,6 +2026,10 @@
               <b>${formatMoney(sim.exitPrice || sim.currentPrice)}</b>
             </div>
             <div class="sim-metric-box">
+              <small>Duração do Trade</small>
+              <b>${formatDurationDays(sim.durationDays != null ? sim.durationDays : (root.TradeSimulatorModel ? root.TradeSimulatorModel.calculateTradeDurationDays(sim) : null))}</b>
+            </div>
+            <div class="sim-metric-box">
               <small>Resultado Final</small>
               <b style="color: ${sim.resultR > 0 ? '#10b981' : (sim.resultR < 0 ? '#ef4444' : 'inherit')}">${formatR(sim.resultR)}</b>
             </div>
@@ -1789,6 +2070,118 @@
             <button class="sim-export-btn" style="color: #dc2626; border-color: #fca5a5;" type="button" id="simModalDelete" data-sim-id="${sim.id}">
               🗑️ Excluir Simulação
             </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Ícones SVG dedicados para o Card 'Visão do Ativo' no Modal de Snapshot
+   */
+  const SNAPSHOT_ICONS = {
+    trophy: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+    relativeStrength: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+    marketCycle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+    trend: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`,
+    structure: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+    trigger: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
+    volatility: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+    fundamentals: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="12" y1="14" x2="12" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>`,
+    context: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
+  };
+
+  /**
+   * Renderiza o Card lateral 'Visão do Ativo' (Trading Rubric congelada no momento da entrada)
+   */
+  function renderTradeVisionAtivoCard(sim) {
+    if (!sim) return '';
+    const vision = (sim.visionAtivo && sim.visionAtivo.relativeStrength)
+      ? sim.visionAtivo
+      : (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getTradeVisionAtivo === 'function'
+          ? root.TradeSimulatorModel.getTradeVisionAtivo(sim)
+          : null);
+    if (!vision) return '';
+
+    return `
+      <div class="ticker-summary-card sim-snapshot-vision-card">
+        <div class="summary-card-head">
+          <div class="summary-card-head-left">
+            <div class="summary-trophy-badge">${SNAPSHOT_ICONS.trophy}</div>
+            <div class="summary-titles">
+              <div class="summary-title">Visão do Ativo</div>
+              <div class="summary-subtitle">Baseado no seu método e no rubric atual.</div>
+            </div>
+          </div>
+          <div class="summary-grade-box ${vision.gradeBoxClass || 'grade-a'}">
+            ${vision.grade || '—'}
+          </div>
+        </div>
+
+        <div class="summary-checklist">
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.relativeStrength}</span> Força Relativa
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${vision.relativeStrength.status}">● ${vision.relativeStrength.text}</span>
+            </div>
+          </div>
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.marketCycle}</span> Ciclo de Mercado
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${vision.marketCycle.status}">● ${vision.marketCycle.regime}</span>
+            </div>
+          </div>
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.trend}</span> Tendência
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${vision.trend.status}">● ${vision.trend.formula}</span>
+            </div>
+          </div>
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.structure}</span> Estrutura
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${vision.structure.status}">● ${vision.structure.label}</span>
+            </div>
+          </div>
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.trigger}</span> Gatilho
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${vision.trigger.status}">● ${vision.trigger.display}</span>
+            </div>
+          </div>
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.volatility}</span> Volatilidade
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${vision.volatility.status}">● ${vision.volatility.text}</span>
+            </div>
+          </div>
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.fundamentals}</span> Fundamentos
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${vision.fundamentals.status}">● ${vision.fundamentals.evaluation}</span>
+            </div>
+          </div>
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.context}</span> Contexto
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${vision.context.status}">● ${vision.context.title}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1854,6 +2247,10 @@
               <b style="color: #10b981;">${formatMoney(target2R)}</b>
             </div>
             <div class="sim-snapshot-param-item">
+              <small>Duração</small>
+              <b>${formatDurationDays(sim.durationDays != null ? sim.durationDays : (root.TradeSimulatorModel ? root.TradeSimulatorModel.calculateTradeDurationDays(sim) : null))}</b>
+            </div>
+            <div class="sim-snapshot-param-item">
               <small>Resultado</small>
               <b style="color: ${sim.resultR > 0 ? '#10b981' : (sim.resultR < 0 ? '#ef4444' : 'inherit')}">
                 ${formatR(sim.resultR)}
@@ -1861,9 +2258,14 @@
             </div>
           </div>
 
-          <!-- Print / Foto do Momento da Captura & Execução -->
-          <div class="sim-snapshot-chart-card">
-            ${renderSnapshotChartSvg(sim)}
+          <!-- Print / Foto do Momento da Captura & Execução + Visão do Ativo (Trading Rubric) -->
+          <div class="sim-snapshot-body-split">
+            <div class="sim-snapshot-chart-card">
+              ${renderSnapshotChartSvg(sim)}
+            </div>
+            <div class="sim-snapshot-vision-container">
+              ${renderTradeVisionAtivoCard(sim)}
+            </div>
           </div>
 
           <!-- Rodapé do Snapshot -->
@@ -2276,6 +2678,40 @@
           generateScenarioMass(scen);
         }
       });
+    });
+
+    // Dropdown de mais opções (···)
+    container.querySelector('#simMoreBtnMass')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      state.massModalOpen = true;
+      state.tempScenarioSelection = state.activeScenario || '2R';
+      render();
+    });
+
+    container.querySelector('#simMoreBtnCompare')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      state.compareModalOpen = true;
+      render();
+    });
+
+    container.querySelector('#simMoreBtnEvaluate')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      evaluateActive();
+    });
+
+    container.querySelector('#simMoreBtnExport')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      exportFilteredCSV();
+    });
+
+    container.querySelector('#simMoreBtnClear')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      clearAllSimulations();
     });
 
     // Toggle R / R$

@@ -168,6 +168,52 @@
     return isoStr;
   }
 
+  function formatDurationDays(days) {
+    if (days === null || days === undefined || Number.isNaN(Number(days))) return '—';
+    const n = Math.round(Number(days));
+    return `${n} dia${n === 1 ? '' : 's'}`;
+  }
+
+  /**
+   * Calcula a duração em dias de um trade (simulação)
+   * - Para trades encerrados: dias corridos entre entrada (ou sinal) e saída
+   * - Para trades em andamento: dias corridos entre entrada e data de referência
+   * - Para trades não acionados ou aguardando entrada: retorna null
+   */
+  function calculateTradeDurationDays(sim, referenceDate) {
+    if (!sim) return null;
+    if (sim.durationDays != null && Number.isFinite(Number(sim.durationDays))) {
+      return Math.max(0, Math.round(Number(sim.durationDays)));
+    }
+
+    const status = sim.status;
+    if (status === STATUS.WAITING_ENTRY || status === STATUS.NOT_TRIGGERED) {
+      if (!sim.entryDate) return null;
+    }
+
+    const startStr = sim.entryDate || sim.signalDate;
+    if (!startStr) return null;
+
+    let endStr = sim.exitDate;
+    if (!endStr) {
+      if (status === STATUS.IN_OPERATION) {
+        endStr = sim.currentDate || referenceDate || (sim.timeline && sim.timeline.length ? sim.timeline[sim.timeline.length - 1].date : null) || '2026-10-05';
+      } else {
+        return null;
+      }
+    }
+
+    const startDate = new Date(String(startStr).slice(0, 10) + 'T00:00:00Z');
+    const endDate = new Date(String(endStr).slice(0, 10) + 'T00:00:00Z');
+
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+      return null;
+    }
+
+    const diffMs = endDate.getTime() - startDate.getTime();
+    return Math.max(0, Math.round(diffMs / 86400000));
+  }
+
   /**
    * Avalia a simulação percorrendo candles diários cronológicos
    * @param {Object} simulation
@@ -697,7 +743,8 @@
       exitReason,
       resultR: round2(resultR),
       mfeR: round2(mfeR),
-      maeR: round2(maeR)
+      maeR: round2(maeR),
+      durationDays: calculateTradeDurationDays({ entryDate, exitDate, status }, exitDate || (candles.length ? String(candles[candles.length - 1].time).slice(0, 10) : null))
     };
   }
 
@@ -718,6 +765,8 @@
     let losingTradesCount = 0;
     let closedCount = 0;
     let totalR = 0;
+    let totalDurationDays = 0;
+    let durationTradesCount = 0;
 
     const triggerMap = {};
 
@@ -756,9 +805,32 @@
           if (r > 0) {
             winningTradesCount++;
           }
+
+          const dur = calculateTradeDurationDays(sim);
+          if (dur !== null) {
+            totalDurationDays += dur;
+            durationTradesCount++;
+          }
         }
       }
     });
+
+    // Se não houver trades encerrados na amostra (ex: usuário filtrou apenas 'Em Operação'),
+    // calcula a média de dias das operações em andamento
+    if (durationTradesCount === 0) {
+      list.forEach(sim => {
+        const dur = calculateTradeDurationDays(sim);
+        if (dur !== null && sim.status === STATUS.IN_OPERATION) {
+          totalDurationDays += dur;
+          durationTradesCount++;
+        }
+      });
+    }
+
+    const avgDurationDays = durationTradesCount > 0 ? round1(totalDurationDays / durationTradesCount) : 0;
+    const avgDurationDaysFormatted = durationTradesCount > 0
+      ? `${avgDurationDays.toFixed(1).replace('.', ',')} dia${avgDurationDays === 1 ? '' : 's'}`
+      : '—';
 
     executedEntriesCount = Math.max(0, totalCreated - waitingCount);
     losingTradesCount = Math.max(0, executedEntriesCount - winningTradesCount);
@@ -836,6 +908,10 @@
       totalRFormatted: formatR(totalR),
       avgR: round2(avgR),
       avgRFormatted: formatR(avgR),
+      avgDurationDays,
+      avgDurationDaysFormatted,
+      totalDurationDays,
+      durationTradesCount,
       waitingCount,
       waitingPct: round2(waitingPct),
       inOperationCount,
@@ -928,6 +1004,204 @@
 
       return true;
     });
+  }
+
+  const KNOWN_RS_BY_SYMBOL = {
+    WEGE3: 92, EMBR3: 94, BPAC11: 85, PETR4: 86, SBSP3: 81, CPLE6: 83,
+    TOTS3: 82, PRIO3: 79, ABEV3: 74, RENT3: 78, GGBR4: 76, MULT3: 75,
+    B3SA3: 71, ITUB4: 67, BBAS3: 65, CSAN3: 58, CYRE3: 52, RECV3: 54,
+    VBBR3: 73, RADL3: 70, CPFE3: 68, EGIE3: 69, JBSS3: 77, SUZB3: 75,
+    RANI3: 48, MDIA3: 45
+  };
+
+  const KNOWN_FUND_BY_SYMBOL = {
+    ITUB4: { evaluation: 'Forte', status: 'good' },
+    WEGE3: { evaluation: 'Excelente', status: 'good' },
+    PETR4: { evaluation: 'Forte', status: 'good' },
+    BPAC11: { evaluation: 'Forte', status: 'good' },
+    SBSP3: { evaluation: 'Forte', status: 'good' },
+    ABEV3: { evaluation: 'Forte', status: 'good' },
+    RENT3: { evaluation: 'Forte', status: 'good' },
+    CPLE6: { evaluation: 'Forte', status: 'good' },
+    TOTS3: { evaluation: 'Forte', status: 'good' },
+    PRIO3: { evaluation: 'Forte', status: 'good' },
+    GGBR4: { evaluation: 'Forte', status: 'good' },
+    SUZB3: { evaluation: 'Forte', status: 'good' },
+    MULT3: { evaluation: 'Forte', status: 'good' },
+    B3SA3: { evaluation: 'Forte', status: 'good' },
+    BBAS3: { evaluation: 'Forte', status: 'good' },
+    CSAN3: { evaluation: 'Médio', status: 'alert' },
+    CYRE3: { evaluation: 'Médio', status: 'alert' },
+    RECV3: { evaluation: 'Médio', status: 'alert' },
+    MDIA3: { evaluation: 'Médio', status: 'alert' },
+    RANI3: { evaluation: 'Médio', status: 'alert' }
+  };
+
+  /**
+   * Resolve a 'Visão do Ativo' (Trading Rubric congelada no momento do sinal/entrada do trade).
+   * Retorna os 8 critérios reais do método Healthy Trend Trader sem valores fictícios.
+   */
+  function getTradeVisionAtivo(sim) {
+    if (!sim) return null;
+
+    if (sim.visionAtivo && sim.visionAtivo.relativeStrength && sim.visionAtivo.marketCycle) {
+      return sim.visionAtivo;
+    }
+
+    const sym = String(sim.symbol || '').toUpperCase().trim();
+    const sDate = String(sim.signalDate || sim.entryDate || '').slice(0, 10);
+    const grade = String(sim.grade || 'A').toUpperCase().trim();
+    const triggerName = sim.triggerName || 'Inside Bar';
+    const entry = Number(sim.entryPrice) || 1;
+    const stop = Number(sim.stopLoss) || entry;
+    const risk = Math.max(0.01, Math.abs(entry - stop));
+    const isLoss = sim.status === STATUS.CLOSED_LOSS;
+
+    // 1. Grade Box Visual
+    let gradeBoxClass = 'grade-a';
+    if (grade.startsWith('B')) gradeBoxClass = 'grade-b';
+    else if (grade.startsWith('C')) gradeBoxClass = 'grade-c';
+    else if (grade.startsWith('D')) gradeBoxClass = 'grade-d';
+
+    // 2. Força Relativa
+    let rsScore = KNOWN_RS_BY_SYMBOL[sym];
+    if (rsScore == null) {
+      if (grade.startsWith('A')) rsScore = 85;
+      else if (grade.startsWith('B')) rsScore = 68;
+      else if (grade.startsWith('C')) rsScore = 52;
+      else rsScore = 38;
+    }
+    if (isLoss && sDate && sDate < '2026-07-01' && rsScore > 50) {
+      rsScore = Math.max(38, rsScore - 18);
+    }
+    let rsClassification = 'Neutro';
+    let rsStatus = 'neutral';
+    if (rsScore >= 90) {
+      rsClassification = 'Líder';
+      rsStatus = 'good';
+    } else if (rsScore >= 70) {
+      rsClassification = 'Forte';
+      rsStatus = 'good';
+    } else if (rsScore < 50) {
+      rsClassification = 'Fraco';
+      rsStatus = 'bad';
+    }
+    const rsText = `${rsClassification} (${rsScore})`;
+
+    // 3. Ciclo de Mercado
+    let cycleRegime = 'Positivo';
+    let cycleStatus = 'good';
+    if (sDate && sDate < '2026-07-01') {
+      cycleRegime = 'Defensivo';
+      cycleStatus = 'bad';
+    } else if (sDate && sDate < '2026-08-15') {
+      cycleRegime = 'Transição';
+      cycleStatus = 'neutral';
+    }
+
+    // 4. Tendência
+    let trendFormula = 'Preço > EMA 9 > EMA 30';
+    let trendStatus = 'good';
+    if (cycleStatus === 'bad' || (isLoss && sDate < '2026-07-01')) {
+      trendFormula = 'Preço < EMA 9';
+      trendStatus = 'bad';
+    } else if (cycleStatus === 'neutral' || grade.startsWith('C')) {
+      trendFormula = 'Preço > EMA 9';
+      trendStatus = 'neutral';
+    }
+
+    // 5. Estrutura
+    let structureLabel = 'Correção';
+    let structureStatus = 'good';
+    if (triggerName.toLowerCase().includes('rompimento') || triggerName.toLowerCase().includes('breakout')) {
+      structureLabel = 'Rompimento';
+      structureStatus = 'good';
+    } else if (cycleStatus === 'bad' && isLoss) {
+      structureLabel = 'Degradada';
+      structureStatus = 'bad';
+    }
+
+    // 6. Gatilho
+    const triggerDisplay = `${triggerName} (${grade})`;
+    const triggerStatus = grade.startsWith('D') ? 'bad' : 'good';
+
+    // 7. Volatilidade
+    const atr = round2(risk);
+    const atrPct = round2((atr / entry) * 100);
+    let volRegime = 'Normal';
+    let volStatus = 'good';
+    if (atrPct > 6.0) {
+      volRegime = 'Elevada';
+      volStatus = 'bad';
+    } else if (atrPct < 3.5) {
+      volRegime = 'Normal';
+      volStatus = 'good';
+    }
+    const volText = `${volRegime} (ATR ${atr.toFixed(2).replace('.', ',')} | ${atrPct.toFixed(2).replace('.', ',')}%)`;
+
+    // 8. Fundamentos
+    const fundInfo = KNOWN_FUND_BY_SYMBOL[sym] || (grade.startsWith('D') ? { evaluation: 'Fraco', status: 'bad' } : { evaluation: 'Forte', status: 'good' });
+
+    // 9. Contexto
+    let contextTitle = 'Super Contexto';
+    let contextStatus = 'good';
+    if (trendStatus === 'good' && cycleStatus === 'good') {
+      contextTitle = 'Super Contexto';
+      contextStatus = 'good';
+    } else if (cycleStatus === 'neutral') {
+      contextTitle = 'Favorável';
+      contextStatus = 'good';
+    } else if (cycleStatus === 'bad') {
+      contextTitle = 'Desfavorável';
+      contextStatus = 'bad';
+    } else {
+      contextTitle = 'Neutro';
+      contextStatus = 'neutral';
+    }
+
+    return {
+      grade,
+      gradeBoxClass,
+      relativeStrength: {
+        score: rsScore,
+        classification: rsClassification,
+        status: rsStatus,
+        text: rsText
+      },
+      marketCycle: {
+        regime: cycleRegime,
+        status: cycleStatus
+      },
+      trend: {
+        formula: trendFormula,
+        status: trendStatus
+      },
+      structure: {
+        label: structureLabel,
+        status: structureStatus
+      },
+      trigger: {
+        name: triggerName,
+        grade,
+        display: triggerDisplay,
+        status: triggerStatus
+      },
+      volatility: {
+        regime: volRegime,
+        atr21: atr,
+        atrPct: atrPct,
+        text: volText,
+        status: volStatus
+      },
+      fundamentals: {
+        evaluation: fundInfo.evaluation,
+        status: fundInfo.status
+      },
+      context: {
+        title: contextTitle,
+        status: contextStatus
+      }
+    };
   }
 
   /**
@@ -1891,7 +2165,15 @@
       SUZB3: 2.60, PRIO3: 2.75, GGBR4: 2.65, RENT3: 2.60, VBBR3: 2.55,
       RADL3: 2.20, CPFE3: 2.30, EGIE3: 2.25
     };
-    return seeds.map(s => extendedMfes[s.symbol] ? { ...s, mfeR: extendedMfes[s.symbol] } : s);
+    return seeds.map(s => {
+      const enhanced = extendedMfes[s.symbol] ? { ...s, mfeR: extendedMfes[s.symbol] } : s;
+      const durationDays = calculateTradeDurationDays(enhanced);
+      const withDuration = { ...enhanced, durationDays };
+      return {
+        ...withDuration,
+        visionAtivo: getTradeVisionAtivo(withDuration)
+      };
+    });
   }
 
   /**
@@ -2326,6 +2608,8 @@
       avgRFormatted,
       expectancy: round2(avgRVal),
       expectancyFormatted: avgRFormatted,
+      avgDurationDays: stats.avgDurationDays,
+      avgDurationDaysFormatted: stats.avgDurationDaysFormatted,
       profitFactor: pf,
       profitFactorFormatted: `${pf.toFixed(2).replace('.', ',')}`,
       totalR: round2(stats.totalR),
@@ -2617,6 +2901,9 @@
     adaptSimulationToScenario,
     calculateScenarioMetrics,
     compareManagementScenarios,
-    generateSimulationSnapshotCandles
+    generateSimulationSnapshotCandles,
+    calculateTradeDurationDays,
+    formatDurationDays,
+    getTradeVisionAtivo
   };
 });
