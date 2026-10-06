@@ -504,6 +504,34 @@ A força relativa (RS) das big techs continua em patamar elevado, confirmando a 
     }
   ];
 
+  let liveStories = null;
+  function liveStory(story, index) {
+    const ticker = Array.isArray(story.tickers) ? story.tickers[0] : null;
+    return {
+      id: story.id,
+      rank: story.rank || String(index + 1).padStart(2, '0'),
+      title: story.title,
+      headline: story.title,
+      summary: story.summary || 'Leia a matéria completa no veículo de origem.',
+      details: story.summary || 'Leia a matéria completa no veículo de origem.',
+      source: story.source,
+      sourceUrl: story.url,
+      time: story.time || '—',
+      date: story.publishedAt ? new Date(story.publishedAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : (story.time || '—'),
+      market: story.market || 'global',
+      category: story.category || 'Mercado',
+      categoryBadge: story.category || 'Mercado',
+      tickers: Array.isArray(story.tickers) ? story.tickers : [],
+      ticker,
+      companyName: ticker || 'Mercado',
+      impact: 'Contexto',
+      image: story.image || null,
+      thumbnail: story.image || null,
+      content: 'Esta notícia é apresentada com título, fonte e horário pelo Healthy Trend Trader. Abra a matéria original para a leitura completa.'
+    };
+  }
+  function setLiveStories(stories) { liveStories = Array.isArray(stories) ? stories.map(liveStory) : null; }
+
   /**
    * Filtra histórias com base nos critérios selecionados pelo usuário.
    */
@@ -518,8 +546,11 @@ A força relativa (RS) das big techs continua em patamar elevado, confirmando a 
 
     const term = (search || '').trim().toLowerCase();
 
+    const sourceStories = liveStories || WATCHLIST_STORIES;
+    const topSource = liveStories || TOP_STORIES;
+    const latestSource = liveStories || LATEST_STORIES;
     // Filtra Watchlist Stories
-    const filteredWatchlist = WATCHLIST_STORIES.filter(item => {
+    const filteredWatchlist = sourceStories.filter(item => {
       // Filtro de mercado
       if (market !== 'todos' && item.market !== market) return false;
 
@@ -552,7 +583,7 @@ A força relativa (RS) das big techs continua em patamar elevado, confirmando a 
     });
 
     // Filtra Últimas Notícias
-    const filteredLatest = LATEST_STORIES.filter(item => {
+    const filteredLatest = latestSource.filter(item => {
       if (market !== 'todos' && item.market !== market) return false;
       if (category !== 'todas') {
         const catNorm = (item.category || '').toLowerCase();
@@ -576,7 +607,7 @@ A força relativa (RS) das big techs continua em patamar elevado, confirmando a 
     });
 
     // Filtra Top Stories
-    const filteredTop = TOP_STORIES.filter(item => {
+    const filteredTop = topSource.filter(item => {
       if (market !== 'todos' && item.market !== market) return false;
       if (category !== 'todas') {
         const catNorm = (item.category || '').toLowerCase();
@@ -600,7 +631,7 @@ A força relativa (RS) das big techs continua em patamar elevado, confirmando a 
     });
 
     return {
-      featured: FEATURED_STORY,
+      featured: liveStories?.[0] || FEATURED_STORY,
       topStories: filteredTop,
       watchlistStories: filteredWatchlist,
       latestStories: filteredLatest,
@@ -614,6 +645,8 @@ A força relativa (RS) das big techs continua em patamar elevado, confirmando a 
    */
   function getStoryById(storyId) {
     if (!storyId) return null;
+    const live = liveStories?.find(item => item.id === storyId);
+    if (live) return live;
     if (FEATURED_STORY.id === storyId) return FEATURED_STORY;
 
     const inTop = TOP_STORIES.find(s => s.id === storyId);
@@ -683,6 +716,7 @@ A força relativa (RS) das big techs continua em patamar elevado, confirmando a 
     TOP_STORIES,
     WATCHLIST_STORIES,
     LATEST_STORIES,
+    setLiveStories,
     filterStories,
     getStoryById,
     getMarketSessionInfo

@@ -125,10 +125,27 @@
       ]
     },
     {
-      id: 'tradesimulator',
-      label: 'Simulador de Trades',
+      id: 'simulators',
+      isGroup: true,
+      label: 'Simuladores',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 7 13 11 18 6"/></svg>`,
-      page: 'tradesimulator'
+      header: 'SIMULADORES',
+      items: [
+        {
+          id: 'tradesimulator',
+          title: 'Simulador de Trades',
+          desc: 'Ambiente de testes e cenários.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 7 13 11 18 6"/></svg>`,
+          page: 'tradesimulator'
+        },
+        {
+          id: 'forecast',
+          title: 'Simulador de Equity',
+          desc: 'Projeções e curvas de capital.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 7-8.5 8.5-5-5L2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+          page: 'forecast'
+        }
+      ]
     },
     {
       id: 'portfolio-risk',
@@ -236,13 +253,6 @@
           desc: 'Fechamento do mês.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`,
           page: 'review'
-        },
-        {
-          id: 'forecast',
-          title: 'Simulador de Resultados',
-          desc: 'Projeções de resultado.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 7-8.5 8.5-5-5L2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
-          page: 'forecast'
         }
       ]
     },
@@ -297,6 +307,8 @@
       this.tooltipEl = null;
       this.closeTimeout = null;
       this.activePageId = 'today';
+      this.navStructure = NAV_STRUCTURE;
+      this.footerStructure = FOOTER_STRUCTURE;
     }
 
     init() {
@@ -813,7 +825,9 @@
               materials: 'Loja do Trader',
               settings: 'Configurações Gerais',
               manual: 'Manual do Software',
-              about: 'Sobre'
+              about: 'Sobre',
+              tradesimulator: 'Simulador de Trades',
+              forecast: 'Simulador de Equity'
             };
             const t = titleMap[pageId] || (typeof titles !== 'undefined' && titles[pageId]) || 'Meu Desktop';
             crumb.innerHTML = `The Healthy Trend Trader / <b>${t}</b>`;

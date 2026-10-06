@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="frontend/mindset-hub.css" />
 <link rel="stylesheet" href="frontend/ticker-chart.css" />
 <link rel="stylesheet" href="frontend/trade-simulator.css" />
-<link rel="stylesheet" href="frontend/market-news.css" />
+<link rel="stylesheet" href="frontend/market-news.css?v=20261005-live-feed" />
 <script src="frontend/instrument-catalog.js?v=20260924-market-reset-1"></script>
 <script src="frontend/setup-triggers-catalog.js?v=20260929-1"></script>
 <style>
@@ -647,7 +647,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
   <div class="nav-group"><div class="nav-label">Alta Performance</div><nav class="nav">
     <button data-page="mindset"><span class="ico">◉</span>Mentalidade</button>
     <button data-page="habits"><span class="ico">◉</span>Monitor de Hábitos</button>
-    <button data-page="forecast"><span class="ico">∿</span>Simulador de Resultados</button>
+    <button data-page="forecast"><span class="ico">∿</span>Simulador de Equity</button>
     <button data-page="materials"><span class="ico materials-menu-icon" aria-hidden="true"></span>Loja Trader</button>
   </nav></div>
   <div class="nav-group"><div class="nav-label">Configuração e suporte</div><nav class="nav">
@@ -1027,7 +1027,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <section class="page" id="settings"><div class="hero"><div><div class="eyebrow">Preferências do software</div><h1>Seu ambiente,<br>do seu jeito.</h1></div><p>Personalize idioma, aparência, navegação e os recursos de apoio sem alterar as regras do seu método.</p></div><div class="grid settings-grid"><div class="card theme-settings-card"><div class="card-head"><div><h3>Aparência do software</h3><span>Escolha a identidade visual que combina melhor com seu momento</span></div></div><div class="theme-picker" aria-label="Tema visual do software"><button class="theme-choice" type="button" data-theme-choice="gold" onclick="applyTheme('gold')"><span class="theme-swatch"></span>Premium Gold</button><button class="theme-choice" type="button" data-theme-choice="healthy" onclick="applyTheme('healthy')"><span class="theme-swatch"></span>Healthy Green</button></div></div><div class="card language-settings-card"><div class="card-head"><div><h3>Idioma do software</h3><span>Escolha como deseja ler toda a plataforma</span></div></div><p class="language-picker-label">Idioma de exibição</p><div class="language-picker" aria-label="Escolha o idioma"><button class="language-choice" type="button" data-language-choice="pt-BR" onclick="applyLanguage('pt-BR')">Português (BR)</button><button class="language-choice" type="button" data-language-choice="en-US" onclick="applyLanguage('en-US')">English (US)</button></div></div><div id="marketPauseSettingsRoot" style="grid-column: 1 / -1;"></div><div id="drSettingsSection" style="grid-column: 1 / -1;"></div></div></section>
 <section class="page" id="riskpolicy"><div class="hero"><div><div class="eyebrow">Livro de regras</div><h1>Política de<br>risco.</h1></div><p>Defina o Risk Budget por Grade e os limitadores que transformam esse teto em risco executável.</p></div><div class="grid settings-grid" id="riskPolicyGrid"><section class="card"><div class="card-head"><div><h3>Proteção da conta</h3><span>Limites permanentes da operação</span></div></div><div class="setting-row"><div><b>Volatilidade alvo</b><small>Modelo baseado em ATR</small></div><strong>0,20%</strong></div><div class="setting-row"><div><b>Limite de capital</b><small>Máximo por posição</small></div><strong>10%</strong></div><div class="setting-row"><div><b>Portfolio Heat máximo</b><small>Risco agregado</small></div><strong>12,5%</strong></div><div class="setting-row"><div><b>Máximo de posições</b><small>Simultâneas</small></div><strong>10</strong></div></section><section class="card"><div class="card-head"><div><h3>Regras A</h3><span>Critérios obrigatórios do método</span></div></div><div class="setting-row"><div><b>Diário saudável</b><small>Médias totalmente alinhadas</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>ATR% abaixo de 2%</b><small>Zona verde</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>Contração no 4H</b><small>Não comprar expansão</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>Gatilho confirmado</b><small>Execução objetiva</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>Bloquear trade rejeitado</b><small>Permitir apenas com justificativa</small></div><div class="toggle"><span></span></div></div></section></div></section>
 <section class="page" id="portfolioheat" aria-label="Controle de Portfolio Heat"><div id="portfolioHeatRoot"></div></section>
-<section class="page" id="forecast" aria-label="Simulador de Resultados"><div id="forecastRoot"></div></section>
+<section class="page" id="forecast" aria-label="Simulador de Equity"><div id="forecastRoot"></div></section>
 </div>
 </main></div>
 
@@ -1080,14 +1080,14 @@ try{applyTheme(localStorage.getItem('healthy-trend-theme')||'healthy')}catch(err
 function enterWorkspace(event){event.preventDefault();document.getElementById('loginShell').classList.add('hidden');document.body.style.overflow='';go('today');}
 const titles={today:'Meu Desktop',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',marketscans:'Scans de Mercado',fundamentals:'Análise Fundamentalista',positions:'Posições Abertas',closedpositions:'Posições Encerradas',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',tradeanatomy:'Anatomia dos Trades',journal:'Diário de Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Monitor de Hábitos',materials:'Loja Trader',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',assetblacklist:'Ativos Blacklist',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
 Object.assign(titles,{mindset:'Mentalidade',traderrules:'Regras do Trader'});
-titles.emotionalintelligence='Analisador Emocional';titles.forecast='Simulador de Resultados';
+titles.emotionalintelligence='Analisador Emocional';titles.forecast='Simulador de Equity';
 titles.mistakesbook='Erros e lições';titles.masteredlessons='Lições Dominadas';
 titles.dailyroutine='Rotina Diária';
 titles.emergingleaders='Líderes Emergentes';
 titles.watchlist='Watchlist';
 titles.about='Sobre';
 titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.tradertraining='Treinamento Trader';titles.tradesimulator='Simulador de Trades';titles.marketnews='Notícias';titles.news='Notícias';
-function go(id, extra){if(id==='news')id='marketnews';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Diário de Trader / <b>Treinamento Trader</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / <b>Simulador de Trades</b>';}else if(id==='marketnews'||id==='news'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Notícias</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if((id==='marketnews'||id==='news')&&typeof window.MarketNews?.render==='function'){window.MarketNews.render();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
+function go(id, extra){if(id==='news')id='marketnews';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Diário de Trader / <b>Treinamento Trader</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Trades</b>';}else if(id==='forecast'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Equity</b>';}else if(id==='marketnews'||id==='news'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Notícias</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if((id==='marketnews'||id==='news')&&typeof window.MarketNews?.render==='function'){window.MarketNews.render();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
 function marketCandles(seed=0,count=16){return Array.from({length:count},(_,i)=>{const h=18+((i*17+seed*11)%46),mb=7+((i*13+seed*7)%38),wick=h+13+((i*7+seed)%20),trend=i>count*.62?'down':'up';return `<i class="market-candle ${trend}" style="--h:${h}px;--mb:${mb}px;--wick:${wick}px"></i>`}).join('')}
 function setMarketRange(button){document.querySelectorAll('.market-range button').forEach(item=>item.classList.toggle('active',item===button));}
 function moneyBRL(value,decimals=2){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(value)}
@@ -1622,7 +1622,7 @@ Object.assign(ptToEn,{
 Object.assign(ptToEn,{
  'Print do planejamento':'Planning screenshot','Registre a imagem do gráfico que justificou o plano. Este anexo é opcional.':'Record the chart image that supported the plan. This attachment is optional.','Arraste um print aqui ou clique para escolher uma imagem':'Drop a screenshot here or click to choose an image','PNG, JPG ou WEBP · opcional':'PNG, JPG or WEBP · optional','Remover imagem':'Remove image','Imagem registrada antes da abertura da posição.':'Image recorded before opening the position.','Checklist pendente':'Checklist pending','Confirme cada critério antes de classificar o contexto como A.':'Confirm each criterion before classifying the context as A.','Price Action: fluido de ler ou errático?':'Price action: clear to read or erratic?','Preço acima das médias relevantes':'Price above the relevant moving averages','Selecione uma imagem (PNG, JPG ou WEBP).':'Select an image (PNG, JPG or WEBP).','Use uma imagem de até 6 MB.':'Use an image up to 6 MB.'
 });
-Object.assign(ptToEn,{'Panorama de Mercado':'Market Overview','Patrimônio':'Wealth','Inteligência de Mercado':'Market Intelligence','Ciclo de Mercado':'Market Cycle','Força Relativa':'Relative Strength','Acompanhamento':'Monitoring','Configuração e suporte':'Settings & support','Análise de Mercado':'Market Analysis','Carteira & Risco':'Portfolio & Risk','Dados & Performance':'Data & Performance','Mentalidade & Zen':'Mindset & Zen','Operação Diária':'Daily Operation'});
+Object.assign(ptToEn,{'Panorama de Mercado':'Market Overview','Patrimônio':'Wealth','Inteligência de Mercado':'Market Intelligence','Ciclo de Mercado':'Market Cycle','Força Relativa':'Relative Strength','Acompanhamento':'Monitoring','Configuração e suporte':'Settings & support','Análise de Mercado':'Market Analysis','Simuladores':'Simulators','Simulador de Trades':'Trade Simulator','Simulador de Equity':'Equity Simulator','Carteira & Risco':'Portfolio & Risk','Dados & Performance':'Data & Performance','Mentalidade & Zen':'Mindset & Zen','Operação Diária':'Daily Operation'});
 Object.assign(ptToEn,{'Realize a parcial de':'Take a partial of','unidades, para ficar dentro do seu limite de risco':'units to stay within your risk limit'});
 Object.assign(ptToEn,{
   'Alta Performance':'High Performance',
@@ -1789,7 +1789,7 @@ function planName(){if(trialIsActive())return subscriptionText('Teste grátis ·
 function updateCurrentPlanPill(){const pill=document.getElementById('currentPlanPill')||document.querySelector('.top-actions .pill:first-child');if(!pill)return;pill.id='currentPlanPill';const currentPlan=trialIsExpired()?subscriptionText('Aguardando escolha','Awaiting choice'):isProfessional()?subscriptionText('Profissional','Professional'):subscriptionText('Basic','Basic');pill.textContent=subscriptionText(`Plano Atual - ${currentPlan}`,`Current Plan - ${currentPlan}`)}
 updateCurrentPlanPill();
 const professionalPages=new Set(['analytics','tradeanatomy','forecast','marketcycle','relativestrength','marketscans','journal','tradelibrary','emotionalintelligence','review','platformaccess','zen','wisdom','traderprofile','habits']);
-const professionalLabels={analytics:['Painel da Verdade','Truth Panel'],forecast:['Simulador de Previsão','Forecast Simulator'],marketcycle:['Ciclo de Mercado','Market Cycle'],relativestrength:['Força Relativa','Relative Strength'],marketscans:['Scans de Mercado','Market Scans'],journal:['Diário do Trader','Trader Journal'],tradelibrary:['Biblioteca de Trades','Playbook - Trades'],emotionalintelligence:['Inteligência Emocional','Emotional Intelligence'],review:['Revisão Mensal','Monthly Review'],platformaccess:['Uso da Plataforma','Platform usage'],zen:['Trader Zen','Trader Zen'],audiolibrary:['Biblioteca Mental','Mental Library'],wisdom:['Sabedoria do Trader','Trader Wisdom'],traderprofile:['Testes de Perfil','Profile Tests'],habits:['Rastreador de hábitos','Habit Tracker']};
+const professionalLabels={analytics:['Painel da Verdade','Truth Panel'],forecast:['Simulador de Equity','Equity Simulator'],marketcycle:['Ciclo de Mercado','Market Cycle'],relativestrength:['Força Relativa','Relative Strength'],marketscans:['Scans de Mercado','Market Scans'],journal:['Diário do Trader','Trader Journal'],tradelibrary:['Biblioteca de Trades','Playbook - Trades'],emotionalintelligence:['Inteligência Emocional','Emotional Intelligence'],review:['Revisão Mensal','Monthly Review'],platformaccess:['Uso da Plataforma','Platform usage'],zen:['Trader Zen','Trader Zen'],audiolibrary:['Biblioteca Mental','Mental Library'],wisdom:['Sabedoria do Trader','Trader Wisdom'],traderprofile:['Testes de Perfil','Profile Tests'],habits:['Rastreador de hábitos','Habit Tracker']};
 professionalPages.add('mindset');
 professionalPages.add('traderrules');
 Object.assign(professionalLabels,{mindset:['Mentalidade','Mindset'],traderrules:['Regras do Trader','Trader Rules']});
@@ -1848,7 +1848,8 @@ const navigationTiles=[
   ['fundamentals','◔','Análise Fundamentalista','Avalie a qualidade financeira da empresa','100% 50%'],
   ['marketscans','⌕','Scans de Mercado','Radar de acontecimentos','0% 75%'],
   ['habits','◉','Monitor de Hábitos','Construa a rotina','100% 75%'],
-  ['forecast','∿','Simulador de Resultados','Projete faixas probabilísticas','0% 100%'],
+  ['forecast','∿','Simulador de Equity','Projeções e curvas de capital','0% 100%'],
+  ['tradesimulator','<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 7 13 11 18 6"/></svg>','Simulador de Trades','Ambiente de testes e cenários','0% 100%'],
   ['materials','◈',navigationLabel('materials'),'Materiais e ferramentas do método','25% 100%'],
   ['settings','⚙','Configurações Gerais','Personalize o software','50% 100%'],
   ['riskpolicy','◈','Política de Risco','Defina as regras do método','75% 100%'],
@@ -3661,21 +3662,22 @@ renderEffectiveRiskPolicy();
 (() => {
   const applyRenamedExperiences = () => {
     titles.emotionalintelligence = 'Analisador Emocional';
-    titles.forecast = 'Simulador de Resultados';
+    titles.forecast = 'Simulador de Equity';
+    titles.tradesimulator = 'Simulador de Trades';
     if (typeof professionalLabels !== 'undefined') {
       professionalLabels.emotionalintelligence = ['Analisador Emocional', 'Emotional Analyzer'];
-      professionalLabels.forecast = ['Simulador de Resultados', 'Results Simulator'];
+      professionalLabels.forecast = ['Simulador de Equity', 'Equity Simulator'];
     }
     if (typeof navigationTiles !== 'undefined') {
       const emotionalTile = navigationTiles.find(tile => tile[0] === 'emotionalintelligence');
       const forecastTile = navigationTiles.find(tile => tile[0] === 'forecast');
       if (emotionalTile) emotionalTile[2] = 'Analisador Emocional';
-      if (forecastTile) forecastTile[2] = 'Simulador de Resultados';
+      if (forecastTile) forecastTile[2] = 'Simulador de Equity';
     }
     const emotionalTitle = document.querySelector('#emotionalintelligence .ei-hero h1');
     if (emotionalTitle) emotionalTitle.textContent = window.appLanguage === 'en-US' ? 'Trader Emotional Analyzer' : 'Analisador Emocional do Trader';
     const forecastTitle = document.querySelector('#forecast .forecast-hero h1');
-    if (forecastTitle) forecastTitle.innerHTML = forecastTitle.innerHTML.replace('Previsão', 'Resultados');
+    if (forecastTitle) forecastTitle.innerHTML = forecastTitle.innerHTML.replace('Previsão', 'Equity').replace('Resultados', 'Equity');
   };
   const previousGoWithRenamedExperiences = go;
   go = function (id, ...args) { previousGoWithRenamedExperiences(id, ...args); window.requestAnimationFrame(applyRenamedExperiences); };
@@ -4802,6 +4804,7 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <script src="frontend/mindset-hub.js"></script>
 <script src="frontend/trader-rules.js"></script>
 <script src="frontend/vendor/lightweight-charts.standalone.production.js"></script>
+<script src="assets/vendor/html2canvas-1.4.1.min.js"></script>
 <script src="frontend/ticker-chart-model.js"></script>
 <script src="frontend/ticker-chart.js"></script>
 <link rel="stylesheet" href="frontend/trader-training.css?v=20261003-1" />
@@ -4809,6 +4812,6 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <script src="frontend/trader-training.js?v=20261003-1"></script>
 <script src="frontend/trade-simulator-model.js"></script>
 <script src="frontend/trade-simulator.js"></script>
-<script src="frontend/market-news-model.js"></script>
-<script src="frontend/market-news.js"></script>
+<script src="frontend/market-news-model.js?v=20261005-live-feed"></script>
+<script src="frontend/market-news.js?v=20261005-live-feed"></script>
 </body></html>

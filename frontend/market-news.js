@@ -16,7 +16,10 @@
       watchlistOnly: false
     },
     activeModalStoryId: null,
-    clockInterval: null
+    clockInterval: null,
+    loadingFeed: false,
+    feedLoaded: false,
+    feedMeta: null
   };
 
   /**
@@ -101,6 +104,7 @@
       rootEl.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)">Carregando Inteligência de Mercado...</div>';
       return;
     }
+    if (!state.feedLoaded && !state.loadingFeed) void loadLiveNews();
 
     const userWatchlist = getUserWatchlistTickers();
     const filteredData = Model.filterStories({
@@ -186,6 +190,7 @@
           <div class="news-header-time-info">
             <span>${dateTime.dateFormatted}</span>
             <span class="news-clock-time" id="newsLiveClock">${dateTime.timeFormatted}</span>
+            <small class="news-feed-status">${feedStatus()}</small>
           </div>
 
           <!-- Status do Mercado -->
@@ -196,6 +201,32 @@
         </div>
       </div>
     `;
+  }
+
+  function feedStatus() {
+    if (state.loadingFeed) return 'Atualizando notícias…';
+    if (!state.feedMeta?.updatedAt) return 'Feed indisponível; exibindo contexto local.';
+    const at = new Date(state.feedMeta.updatedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `${state.feedMeta.stale ? 'Último feed disponível' : 'Atualizado'} ${at} · GDELT + fontes originais`;
+  }
+
+  async function loadLiveNews() {
+    state.loadingFeed = true;
+    try {
+      const response = root.healthyTrendApi
+        ? await root.healthyTrendApi.request('/api/market-news')
+        : await fetch('/api/market-news').then(result => result.json());
+      if (Array.isArray(response.stories) && response.stories.length) {
+        root.MarketNewsModel?.setLiveStories(response.stories);
+        state.feedMeta = response;
+      }
+    } catch (error) {
+      state.feedMeta = { error: error.message };
+    } finally {
+      state.loadingFeed = false;
+      state.feedLoaded = true;
+      render();
+    }
   }
 
   /**
@@ -540,6 +571,7 @@
           ` : ''}
 
           <div class="news-modal-footer">
+            ${story.sourceUrl ? `<a class="secondary" href="${escapeHtml(story.sourceUrl)}" target="_blank" rel="noopener noreferrer">Abrir matéria original ↗</a>` : ''}
             ${story.tickers && story.tickers[0] ? `
               <button class="primary" type="button" data-nav-ticker="${story.tickers[0]}">
                 Ver Gráfico de ${story.tickers[0]} →
@@ -712,7 +744,8 @@
 
   // Exporta objeto global
   root.MarketNews = {
-    render
+    render,
+    refresh: () => { state.feedLoaded = false; return loadLiveNews(); }
   };
 
 })(typeof globalThis !== 'undefined' ? globalThis : this);

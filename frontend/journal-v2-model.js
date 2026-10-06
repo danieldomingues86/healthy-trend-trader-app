@@ -26,7 +26,7 @@
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   }
   function blank(date) {
-    return { id: `day-${date}`, date, title: '', technical: { market: null, markets: [], marketState: null, marketStates: {}, session: '', executionScore: null, planRespected: null, checklist: {}, permissionMoney: null, tradeIds: [] }, emotional: { states: [], intensity: null, note: '', impact: null, impactNote: '' }, shared: { lesson: '', patterns: '', observations: '', phrase: '' }, trades: [], evidence: [], legacyEntries: [], updatedAt: null };
+    return { id: `day-${date}`, date, title: '', technical: { market: null, markets: [], marketState: null, marketStates: {}, session: '', executionScore: null, planRespected: null, checklist: {}, permissionMoney: null, tradeIds: [], analyses: [] }, emotional: { states: [], intensity: null, note: '', impact: null, impactNote: '' }, shared: { lesson: '', patterns: '', observations: '', phrase: '' }, trades: [], evidence: [], legacyEntries: [], updatedAt: null };
   }
   function score(value) {
     if (value == null || String(value).trim() === '') return null;
@@ -63,6 +63,7 @@
       for (const record of parsed.records) {
         if (!record || !record.id || !record.technical || !record.emotional || !record.shared || !Array.isArray(record.emotional.states) || !Array.isArray(record.evidence) || !Array.isArray(record.legacyEntries) || ids.has(record.id) || (record.date && (!dateKey(record.date) || dates.has(record.date)))) throw new Error('Não foi possível ler um registro do Diário V2.');
         record.trades = Array.isArray(record.trades) ? record.trades : [];
+        record.technical.analyses = Array.isArray(record.technical.analyses) ? record.technical.analyses : [];
         ids.add(record.id); if (record.date) dates.add(record.date);
       }
       return parsed;
@@ -77,6 +78,7 @@
     let record = data.records.find(item => item.date === key);
     if (!record) { record = blank(key); data.records.push(record); }
     record.trades = Array.isArray(record.trades) ? record.trades : [];
+    record.technical.analyses = Array.isArray(record.technical.analyses) ? record.technical.analyses : [];
     return record;
   }
   function entryDate(trade) {

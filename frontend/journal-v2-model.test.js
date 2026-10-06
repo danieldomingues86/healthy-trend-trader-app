@@ -119,6 +119,13 @@ test('loading V2 storage without trades field automatically initializes trades a
   const data = M.load(s);
   assert.ok(Array.isArray(data.records[0].trades));
   assert.equal(data.records[0].trades.length, 0);
+  assert.deepEqual(data.records[0].technical.analyses, []);
+});
+
+test('a daily record is ready to retain structured chart analyses alongside evidence', () => {
+  const record = M.blank('2026-10-05');
+  record.technical.analyses.push({ ticker: 'VALE3', timeframe: 'Diário', rubric: 'D' });
+  assert.deepEqual(record.technical.analyses, [{ ticker: 'VALE3', timeframe: 'Diário', rubric: 'D' }]);
 });
 
 test('createTrade initializes setupTrigger from catalog and falls back cleanly for legacy trades', () => {

@@ -56,6 +56,105 @@
       .replace(/'/g, '&#39;');
   }
 
+  function localDateKey(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function analysisSnapshot() {
+    const d = tickerData || {};
+    const fundamentals = d.fundamentals || {};
+    return {
+      ticker: d.tickerInfo?.symbol || currentTicker,
+      capturedAt: new Date().toISOString(),
+      timeframe: 'Diário',
+      price: d.tickerInfo?.price ?? null,
+      rubric: d.rubric?.finalGrade || '—',
+      relativeStrength: d.relativeStrength?.classification || '—',
+      marketCycle: d.marketCycle?.regime || d.marketCycle?.classification || '—',
+      trend: d.trend?.status || d.trend?.formula || '—',
+      structure: d.structure?.label || '—',
+      trigger: d.trigger?.hasTrigger ? (d.trigger.name || 'Identificado') : 'Sem gatilho',
+      volatility: d.volatility?.regime || '—',
+      atrPct: d.volatility?.atrPct ?? null,
+      fundamentals: fundamentals.evaluation || fundamentals.classification || '—',
+      context: d.context?.title || d.context?.description || '—',
+      ema9: d.indicators?.ema9?.at?.(-1)?.value ?? null,
+      ema30: d.indicators?.ema30?.at?.(-1)?.value ?? null
+    };
+  }
+
+  function showAnalysisRegisteredToast(snapshot) {
+    document.getElementById('analysisRegisteredToast')?.remove();
+    const time = new Date(snapshot.capturedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const toast = document.createElement('div');
+    toast.id = 'analysisRegisteredToast';
+    toast.className = 'analysis-registered-toast';
+    toast.innerHTML = `<b>✓ Análise registrada no Diário</b><span>${escapeHtml(snapshot.ticker)} · ${new Date().toLocaleDateString('pt-BR')} · ${time}</span>`;
+    document.body.append(toast);
+    requestAnimationFrame(() => toast.classList.add('is-visible'));
+    window.setTimeout(() => {
+      toast.classList.remove('is-visible');
+      window.setTimeout(() => toast.remove(), 240);
+    }, 4200);
+  }
+
+  async function registerAnalysisInJournal(blob) {
+    const M = window.JournalV2Model;
+    const workspace = window.healthyTrendWorkspace;
+    if (!M || !workspace?.storage || !window.healthyTrendApi?.uploadFile || !window.healthyTrendApi.isAuthenticated()) {
+      throw new Error('Entre na sua conta para registrar a análise no Diário.');
+    }
+    const snapshot = analysisSnapshot();
+    const date = localDateKey();
+    const timestamp = new Date(snapshot.capturedAt);
+    const filename = `${snapshot.ticker}_analise_diario_${date}_${String(timestamp.getHours()).padStart(2, '0')}${String(timestamp.getMinutes()).padStart(2, '0')}.png`;
+    const file = new File([blob], filename, { type: 'image/png' });
+    const journal = M.load(workspace.storage, []);
+    const record = M.ensureDay(journal, date);
+    record.technical.analyses = Array.isArray(record.technical.analyses) ? record.technical.analyses : [];
+    record.evidence = Array.isArray(record.evidence) ? record.evidence : [];
+    const response = await window.healthyTrendApi.uploadFile('/api/journal-attachments', file, { 'X-Journal-Record': record.id });
+    const analysis = { id: `analysis-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, ...snapshot, evidenceId: response.attachment.id };
+    const attachment = { ...response.attachment, kind: 'asset', ticker: snapshot.ticker, source: 'ticker-chart-analysis', analysisId: analysis.id };
+    record.technical.analyses.unshift(analysis);
+    record.evidence.unshift(attachment);
+    record.updatedAt = snapshot.capturedAt;
+    try {
+      M.save(workspace.storage, journal);
+      await workspace.save(M.KEY, JSON.stringify(journal));
+    } catch (error) {
+      await window.healthyTrendApi.request(`/api/journal-attachments/${encodeURIComponent(response.attachment.id)}`, { method: 'DELETE' }).catch(() => {});
+      throw error;
+    }
+    window.dispatchEvent(new CustomEvent('healthyTrend:journalAnalysisRecorded', { detail: { recordId: record.id, analysis, attachment } }));
+    return snapshot;
+  }
+
+  async function captureAndRegisterAnalysis() {
+    const target = document.querySelector('#tickerChartRoot .ticker-main-grid');
+    const button = document.getElementById('btnRegisterChartAnalysis');
+    if (!target || !tickerData) return;
+    if (typeof window.html2canvas !== 'function') {
+      window.showToast?.('O recurso de captura não foi carregado. Atualize a página e tente novamente.');
+      return;
+    }
+    const original = button?.innerHTML;
+    if (button) { button.disabled = true; button.classList.add('is-capturing'); button.innerHTML = '⏳ Registrando…'; }
+    try {
+      const canvas = await window.html2canvas(target, { backgroundColor: '#f5f7f4', scale: Math.min(window.devicePixelRatio || 1, 2), useCORS: true, logging: false, ignoreElements: element => element.dataset?.html2canvasIgnore === 'true' });
+      const blob = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error('Não foi possível gerar a imagem da análise.')), 'image/png'));
+      const snapshot = await registerAnalysisInJournal(blob);
+      showAnalysisRegisteredToast(snapshot);
+    } catch (error) {
+      window.showToast?.(error.message || 'Não foi possível registrar esta análise.');
+    } finally {
+      if (button?.isConnected) { button.disabled = false; button.classList.remove('is-capturing'); button.innerHTML = original; }
+    }
+  }
+
   function formatAssetClassBadge(rawClass) {
     const c = String(rawClass || '').trim().toLowerCase();
     if (c === 'stock_ibov' || c === 'ibov') return 'IBOV';
@@ -1004,6 +1103,13 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   Anotações
                   <span class="chart-notes-count-badge" id="chartNotesCountBadge" style="display: none;">0</span>
+                </button>
+              </div>
+
+              <div class="chart-toolbar-btn-wrap" data-html2canvas-ignore="true">
+                <button class="chart-toolbar-btn chart-register-analysis-btn" id="btnRegisterChartAnalysis" type="button" title="Registra a análise visual e os metadados no Diário do Trader">
+                  <span aria-hidden="true">📸</span>
+                  Registrar no Diário
                 </button>
               </div>
 
@@ -2314,6 +2420,9 @@
     setupNotesDrawerEvents();
     setupWatchlistButtonEvents();
     setupTriggerBannerEvents();
+
+    const btnRegisterAnalysis = document.getElementById('btnRegisterChartAnalysis');
+    if (btnRegisterAnalysis) btnRegisterAnalysis.onclick = captureAndRegisterAnalysis;
 
     const btnGoFundamentals = document.getElementById('btnGoFundamentals');
     if (btnGoFundamentals) {

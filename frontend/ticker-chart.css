@@ -848,6 +848,43 @@ body:has(#charts.page.active) #marketFocusGuard {
   border-color: #0f172a;
 }
 
+.chart-register-analysis-btn {
+  border-color: color-mix(in srgb, var(--mint, #10b981) 55%, #cbd5e1);
+  background: color-mix(in srgb, var(--mint, #10b981) 10%, #fff);
+  color: #126643;
+}
+
+.chart-register-analysis-btn:hover:not(:disabled) {
+  background: #0f6b49;
+  border-color: #0f6b49;
+  color: #fff;
+}
+
+.chart-register-analysis-btn:disabled { cursor: wait; opacity: .72; }
+
+.analysis-registered-toast {
+  position: fixed;
+  z-index: 1000;
+  right: 24px;
+  bottom: 24px;
+  width: min(330px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border: 1px solid rgba(117, 218, 163, .5);
+  border-radius: 14px;
+  background: #102b20;
+  box-shadow: 0 18px 48px rgba(4, 20, 13, .28);
+  color: #fff;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .22s ease, transform .22s ease;
+  pointer-events: none;
+}
+
+.analysis-registered-toast.is-visible { opacity: 1; transform: translateY(0); }
+.analysis-registered-toast b, .analysis-registered-toast span { display: block; }
+.analysis-registered-toast b { font-size: 12px; color: #9aedbf; }
+.analysis-registered-toast span { margin-top: 5px; font-size: 11px; color: #d6e8dd; }
+
 .chart-notes-count-badge {
   font-size: 10px;
   background: #059669;
@@ -2894,6 +2931,12 @@ body:has(#charts.page.active) #marketFocusGuard {
   background: #141e1c;
   border-color: rgba(255, 255, 255, 0.12);
   color: #cbd5e1;
+}
+
+[data-theme="gold"] .chart-register-analysis-btn {
+  background: rgba(214, 170, 80, .14);
+  border-color: rgba(214, 170, 80, .52);
+  color: #ebc974;
 }
 
 [data-theme="gold"] .btn-compare-pill.active,
