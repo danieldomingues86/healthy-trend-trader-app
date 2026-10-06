@@ -27,6 +27,7 @@ const { nasdaqRelativeStrengthEngine } = require('./nasdaq-relative-strength');
 const tickerChart = require('./ticker-chart');
 const traderTraining = require('./trader-training');
 const tradeSimulator = require('./trade-simulator');
+const marketNews = require('./market-news');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -522,6 +523,7 @@ const server = http.createServer(async (request, response) => {
     }
     if (request.method !== 'GET') return send(response, 405, { error: 'Method not allowed' });
     if (url.pathname === '/api/subscription/plans') return send(response, 200, { currency: 'BRL', plans: PLAN_CATALOG });
+    if (url.pathname === '/api/market-news') return send(response, 200, await marketNews.get());
     if (url.pathname === '/api/trader-wisdom/assets') {
       const items = await listTraderWisdomAssets();
       const pageNumber = Math.max(1, Number(url.searchParams.get('page')) || 1);

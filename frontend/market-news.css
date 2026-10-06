@@ -99,6 +99,8 @@
   color: var(--muted);
 }
 
+.news-feed-status{display:block;margin-top:3px;color:var(--muted);font-size:10px;line-height:1.35}
+
 .news-clock-time {
   font-weight: 700;
   color: var(--ink);

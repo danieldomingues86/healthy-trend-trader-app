@@ -328,6 +328,11 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{--jv-chart:#d6aa50;backg
 #journal #jv-dialog.jv-evidence-dialog .jv-evidence-navigation button:hover:not(:disabled){background:var(--jv-tone-35724a)}
 #journal #jv-dialog.jv-evidence-dialog .jv-evidence-navigation button:disabled{opacity:.68;cursor:not-allowed}
 #journal .jv-evidence-keyboard-hint,#journal .jv-evidence-keyboard-help{display:block;margin-top:8px;color:var(--jv-tone-64705e);font-size:12px;line-height:1.45}
+#journal .jv-analysis-history>div{display:grid;gap:9px;margin-top:12px}
+#journal .jv-analysis-entry{padding:11px;border:1px solid var(--jv-tone-c8c8b6);border-radius:12px;background:rgba(255,255,255,.48)}
+#journal .jv-analysis-entry header{display:flex;align-items:center;justify-content:space-between;gap:9px;font-size:11px}
+#journal .jv-analysis-entry header span{color:var(--jv-tone-64705e);font-size:10px}
+#journal .jv-analysis-entry>div{display:flex;flex-wrap:wrap;gap:5px 11px;margin-top:8px;color:var(--jv-tone-64705e);font-size:10px}
 #journal .jv-evidence-keyboard-help{text-align:center}
 #journal #jv-dialog .jv-evidence-audio{width:100%;margin:20px 0}
 #journal .jv-lesson-title h3{font:400 23px Georgia,serif}

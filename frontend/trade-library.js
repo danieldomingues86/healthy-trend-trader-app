@@ -94,5 +94,6 @@
   const goWithTradeLibrary = window.go;
   window.go = function (id) { goWithTradeLibrary(id); if (id === 'tradelibrary') render(); };
   window.addEventListener('healthyTrend:workspaceLoaded', render);
+  window.addEventListener('healthyTrend:journalAnalysisRecorded', render);
   render();
 }());

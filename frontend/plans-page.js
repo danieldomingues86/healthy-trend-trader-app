@@ -10,7 +10,7 @@
     ['portfolioheat', 'Portfolio Heat', 'Portfolio Heat'], ['fundamentals', 'Análise Fundamentalista', 'Fundamental Analysis'],
     ['marketmap', 'Panorama de Mercado', 'Market Overview'], ['marketcycle', 'Ciclo de Mercado', 'Market Cycle'],
     ['relativestrength', 'Força Relativa', 'Relative Strength'], ['marketscans', 'Scans de Mercado', 'Market Scans'],
-    ['analytics', 'Analytics · Painel da Verdade', 'Analytics · Truth Panel'], ['tradeanatomy', 'Anatomia dos Trades', 'Trade Anatomy'], ['forecast', 'Simulador de Resultados', 'Results Simulator'], ['journal', 'Diário do Trader', 'Trader Journal'], ['tradelibrary', 'Biblioteca de Trades', 'Playbook - Trades'],
+    ['analytics', 'Analytics · Painel da Verdade', 'Analytics · Truth Panel'], ['tradeanatomy', 'Anatomia dos Trades', 'Trade Anatomy'], ['forecast', 'Simulador de Equity', 'Equity Simulator'], ['journal', 'Diário do Trader', 'Trader Journal'], ['tradelibrary', 'Biblioteca de Trades', 'Playbook - Trades'],
     ['emotionalintelligence', 'Analisador Emocional', 'Emotional Analyzer'], ['review', 'Revisão Semanal', 'Weekly Review'], ['platformaccess', 'Uso da plataforma e Monitor do Profit', 'Platform usage and Profit Monitor'],
     ['zen', 'Trader Zen e Biblioteca Mental', 'Trader Zen and Mental Library'], ['habits', 'Monitor de Hábitos', 'Habit Tracker'],
     ['wisdom', 'Sabedoria do Trader', 'Trader Wisdom'],
