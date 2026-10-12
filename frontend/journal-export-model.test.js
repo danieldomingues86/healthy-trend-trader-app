@@ -250,7 +250,7 @@ test('Diário suporta identificação de mercado (IBOV, BDRX, IFIX) no modelo e 
   assert.ok(journalCode.includes('BDRs'), 'Opção BDRs (BDRX) deve existir');
   assert.ok(journalCode.includes('FIIs'), 'Opção FIIs (IFIX) deve existir');
   assert.ok(journalCode.includes('technical.market'), 'technical.market deve ser manipulado via data-set');
-  assert.ok(journalCode.includes('getMarketCycleSnapshot'), 'getMarketCycleSnapshot deve carregar o ciclo do mercado');
+  assert.ok(!journalCode.includes('jv-market-cycle-badge'), 'Não deve exibir o badge do ciclo de mercado no Diário para não confundir o estado do dia');
 
   // Test export model market formatting
   const recordsWithMarket = [
