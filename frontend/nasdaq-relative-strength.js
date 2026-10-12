@@ -629,16 +629,8 @@
   function injectMarketSwitcherIntoB3() {
     const root = document.getElementById('relativestrength');
     if (!root) return;
-
-    let existingSwitcher = root.querySelector('.rs-header-container');
-    if (!existingSwitcher) {
-      const shell = root.querySelector('.rs-simple-shell') || root;
-      shell.insertAdjacentHTML('afterbegin', getMarketSwitcherHtml('b3'));
-    } else {
-      existingSwitcher.querySelectorAll('.rs-market-tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.market === 'b3');
-      });
-    }
+    // Em V3, a seleção de mercado é integrada na barra lateral interna. Remove cabeçalho legado se existir.
+    root.querySelectorAll('.rs-header-container').forEach(el => el.remove());
   }
 
   // --- Global Market Switcher Function ---
@@ -658,7 +650,9 @@
     window.go = function (id) {
       baseGo.apply(this, arguments);
       if (id === 'relativestrength') {
-        if (window.currentRelativeStrengthMarket === 'nasdaq') {
+        if (typeof window.renderRelativeStrengthClassesPage === 'function') {
+          window.renderRelativeStrengthClassesPage();
+        } else if (window.currentRelativeStrengthMarket === 'nasdaq') {
           renderNasdaqScreen();
         } else {
           injectMarketSwitcherIntoB3();

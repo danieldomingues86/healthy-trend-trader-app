@@ -151,3 +151,21 @@ test('Força Relativa: Paginação default 20 e combo seletor com opções 10, 2
   assert.match(jsContent, /rs-pagination-per-page/, 'Deve existir container rs-pagination-per-page ao lado da paginação');
 });
 
+test('Força Relativa: Breadcrumb duplicado removido e espaçamento elegante de topo', () => {
+  const fs = require('fs');
+  const path = require('path');
+
+  const jsContent = fs.readFileSync(path.join(__dirname, '../../frontend/relative-strength-v3.js'), 'utf8');
+  const cssContent = fs.readFileSync(path.join(__dirname, '../../frontend/relative-strength-v3.css'), 'utf8');
+
+  // Assert in-page duplicate breadcrumb is NOT rendered in template
+  assert.doesNotMatch(jsContent, /<nav class="rs-breadcrumb"/, 'Breadcrumb redundante em página deve ser removido');
+
+  // Assert top breathing room in rs-container
+  assert.match(cssContent, /\.rs-container\s*\{[^}]*padding:\s*28px/, 'rs-container deve ter padding de topo de 28px');
+
+  // Assert legacy rs-header-container is suppressed
+  assert.match(cssContent, /\.rs-header-container/, 'rs-header-container legado deve estar na regra de supressão');
+});
+
+

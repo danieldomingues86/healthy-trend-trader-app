@@ -703,13 +703,6 @@
 
     root.innerHTML = `
       <div class="rs-container">
-        <!-- Breadcrumb -->
-        <nav class="rs-breadcrumb" aria-label="Breadcrumb">
-          <span class="rs-breadcrumb-root">${text('Análise de Mercado', 'Market Analysis')}</span>
-          <span class="rs-breadcrumb-sep">›</span>
-          <span class="rs-breadcrumb-current">${text('Força Relativa', 'Relative Strength')}</span>
-        </nav>
-
         <!-- Main Workspace Split Grid -->
         <div class="rs-layout-grid">
           <!-- Left Internal Filter Sidebar -->

@@ -3,7 +3,7 @@
    Layout com Barra Lateral Interna, Seletor de Modalidade e Tabela de Alta Precisão
    ========================================================================== */
 
-/* Limpeza de pseudo-elementos legados do hipódromo */
+/* Limpeza de pseudo-elementos legados do hipódromo e cabeçalhos legados */
 #relativestrength::before,
 #relativestrength::after,
 .rs-track,
@@ -11,7 +11,9 @@
 .rs-v3-hero,
 .rs-race-scene,
 .rs-class-overview,
-.rs-bdr-perspectives {
+.rs-bdr-perspectives,
+#relativestrength .rs-header-container,
+.rs-header-container {
   display: none !important;
   content: none !important;
 }
@@ -29,18 +31,12 @@ body #relativestrength.rs-workspace-active {
 .rs-container {
   width: 100%;
   margin: 0 auto;
-  padding: 0 12px 64px;
+  padding: 28px 14px 64px;
 }
 
-/* --- Breadcrumb --- */
+/* O breadcrumb do workspace já é exibido no topo da tela pela barra principal */
 .rs-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: #627b6e;
-  margin-bottom: 18px;
+  display: none !important;
 }
 
 .rs-breadcrumb-root {
