@@ -18,7 +18,7 @@
   content: none !important;
 }
 
-body #relativestrength.rs-workspace-active {
+body #relativestrength.rs-workspace-active.active {
   display: block !important;
   width: 100% !important;
   max-width: 1760px !important;
@@ -26,6 +26,10 @@ body #relativestrength.rs-workspace-active {
   padding: 0 !important;
   background: transparent !important;
   color: #0b1a14;
+}
+
+#relativestrength:not(.active) {
+  display: none !important;
 }
 
 .rs-container {

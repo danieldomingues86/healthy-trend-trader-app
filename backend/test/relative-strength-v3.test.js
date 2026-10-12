@@ -168,4 +168,92 @@ test('Força Relativa: Breadcrumb duplicado removido e espaçamento elegante de 
   assert.match(cssContent, /\.rs-header-container/, 'rs-header-container legado deve estar na regra de supressão');
 });
 
+test('Força Relativa: isolamento estrito de visibilidade entre Força Relativa e Watchlist (sem sobreposição)', () => {
+  const fs = require('fs');
+  const path = require('path');
+
+  const cssContent = fs.readFileSync(path.join(__dirname, '../../frontend/relative-strength-v3.css'), 'utf8');
+
+  // Assert rule requiring .active for workspace display
+  assert.match(
+    cssContent,
+    /body\s+#relativestrength\.rs-workspace-active\.active\s*\{[^}]*display:\s*block\s*!important/s,
+    'body #relativestrength.rs-workspace-active.active deve exigir .active para ter display: block !important'
+  );
+
+  // Assert :not(.active) guard
+  assert.match(
+    cssContent,
+    /#relativestrength:not\(\.active\)\s*\{[^}]*display:\s*none\s*!important/s,
+    '#relativestrength:not(.active) deve forçar display: none !important'
+  );
+
+  // Assert no unconditioned display: block !important on #relativestrength without .active
+  assert.doesNotMatch(
+    cssContent,
+    /body\s+#relativestrength\.rs-workspace-active\s*\{[^}]*display:\s*block/s,
+    'Não deve haver display: block sem a classe .active em #relativestrength'
+  );
+});
+
+test('Força Relativa: botão "Ver análise" direciona para central de análise de ticker com dados carregados', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const vm = require('vm');
+
+  const jsContent = fs.readFileSync(path.join(__dirname, '../../frontend/relative-strength-v3.js'), 'utf8');
+
+  // Assert openTickerAnalysis definition and table button wiring
+  assert.match(jsContent, /function openTickerAnalysis\(ticker\)/, 'Deve definir a função openTickerAnalysis');
+  assert.match(jsContent, /window\.openTickerAnalysis\s*=\s*openTickerAnalysis/, 'Deve expor openTickerAnalysis no window');
+  assert.match(jsContent, /rs-btn-analysis["'][^>]*onclick=["']window\.openTickerAnalysis/, 'Botão rs-btn-analysis deve invocar window.openTickerAnalysis');
+
+  // Test execution in isolated VM context
+  let navigatedPage = null;
+  let navigatedExtra = null;
+  let loadedTicker = null;
+  let dispatchedEvent = null;
+
+  const mockWindow = {
+    go: (page, extra) => {
+      navigatedPage = page;
+      navigatedExtra = extra;
+    },
+    loadTickerChart: (ticker) => {
+      loadedTicker = ticker;
+    },
+    dispatchEvent: (event) => {
+      dispatchedEvent = event;
+    },
+    appLanguage: 'pt-BR'
+  };
+
+  const context = vm.createContext({
+    window: mockWindow,
+    document: { readyState: 'complete', addEventListener: () => {} },
+    CustomEvent: class {
+      constructor(type, init) {
+        this.type = type;
+        this.detail = init?.detail;
+      }
+    },
+    setTimeout: () => {}
+  });
+
+  vm.runInContext(jsContent, context);
+
+  assert.strictEqual(typeof mockWindow.openTickerAnalysis, 'function', 'openTickerAnalysis deve ser uma função no window');
+
+  // Invoke with MGLU3
+  mockWindow.openTickerAnalysis('mglu3');
+
+  assert.strictEqual(mockWindow.__pendingChartsTicker, 'MGLU3', '__pendingChartsTicker deve receber MGLU3 em maiúsculas');
+  assert.strictEqual(navigatedPage, 'charts', 'Navegação deve ter como destino a tela charts');
+  assert.strictEqual(navigatedExtra, 'MGLU3', 'Parâmetro de navegação deve ser MGLU3');
+  assert.strictEqual(loadedTicker, 'MGLU3', 'loadTickerChart deve ser chamado com MGLU3');
+  assert.ok(dispatchedEvent, 'Evento healthyTrend:navigate deve ser disparado');
+  assert.strictEqual(dispatchedEvent.detail.page, 'charts');
+  assert.strictEqual(dispatchedEvent.detail.ticker, 'MGLU3');
+});
+
 
