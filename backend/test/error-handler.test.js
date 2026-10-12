@@ -107,6 +107,7 @@ test('ErrorHandlerModel.renderErrorCardHtml: renderiza card com estrutura visual
   assert.ok(html.includes('Verifique sua conexão com a internet'), 'Deve ter instrução de orientação');
   assert.ok(html.includes('id="loginRetryBtn"'), 'Deve ter botão Tentar novamente');
   assert.ok(html.includes('window.retryLogin'), 'Botão deve chamar window.retryLogin');
+  assert.ok(html.includes('class="login-error-dismiss-btn"'), 'Deve ter botão de fechar/dispensar');
   assert.ok(html.includes('login-error-secondary-note'), 'Deve ter nota secundária');
   assert.ok(html.includes('Se o problema persistir, tente novamente mais tarde.'), 'Deve ter nota secundária correta');
   assert.ok(!html.includes('Failed to fetch'), 'NUNCA deve expor "Failed to fetch" na interface');
@@ -147,9 +148,13 @@ test('index.html e assets: scripts e CSS de erro estão devidamente incluídos',
   assert.ok(authClientIndex > 0, 'index.html deve incluir frontend/auth-client.js');
   assert.ok(errorHandlerIndex < authClientIndex, 'error-handler-model.js deve ser carregado antes de auth-client.js');
 
-  // CSS possui os seletores do card de erro
+  // CSS possui os seletores do card de erro e ancoragem estável
+  assert.ok(css.includes('#loginShell .login-form'), 'login-cinematic.css deve conter .login-form');
+  assert.ok(css.includes('#loginShell #loginMessage'), 'login-cinematic.css deve conter #loginMessage com ancoragem');
+  assert.ok(css.includes('position: absolute'), 'login-cinematic.css deve posicionar #loginMessage absolutamente para evitar reflow');
   assert.ok(css.includes('#loginShell .login-error-card'), 'login-cinematic.css deve estilizar .login-error-card');
   assert.ok(css.includes('#loginShell .login-error-header'), 'login-cinematic.css deve estilizar .login-error-header');
+  assert.ok(css.includes('#loginShell .login-error-dismiss-btn'), 'login-cinematic.css deve estilizar .login-error-dismiss-btn');
   assert.ok(css.includes('#loginShell .login-error-advice-box'), 'login-cinematic.css deve estilizar .login-error-advice-box');
   assert.ok(css.includes('#loginShell .login-error-retry-btn'), 'login-cinematic.css deve estilizar .login-error-retry-btn');
   assert.ok(css.includes('#loginShell .login-error-secondary-note'), 'login-cinematic.css deve estilizar .login-error-secondary-note');
@@ -158,8 +163,9 @@ test('index.html e assets: scripts e CSS de erro estão devidamente incluídos',
 test('auth-client.js: preserva campos de input de login e fornece retryLogin', () => {
   const authClientJs = fs.readFileSync(path.join(root, 'frontend', 'auth-client.js'), 'utf8');
 
-  // window.retryLogin existe
+  // window.retryLogin e window.dismissLoginError existem
   assert.ok(authClientJs.includes('window.retryLogin = async'), 'auth-client.js deve expor window.retryLogin');
+  assert.ok(authClientJs.includes('window.dismissLoginError = dismissLoginError'), 'auth-client.js deve expor window.dismissLoginError');
   // Trava de submissão duplicada (isLoginSubmitting)
   assert.ok(authClientJs.includes('let isLoginSubmitting = false;'), 'auth-client.js deve ter flag de concorrência');
   assert.ok(authClientJs.includes('if (isLoginSubmitting) return;'), 'enterWorkspace deve bloquear submissão duplicada');

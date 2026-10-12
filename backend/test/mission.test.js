@@ -359,7 +359,7 @@ test('Navegação e Estrutura: submenu Treinamento & Recuperação e sections re
 
   // Submenu unificado em sidebar-navigation.js
   assert.ok(navCode.includes("id: 'training-recovery'"), 'Deve existir grupo training-recovery');
-  assert.ok(navCode.includes("label: 'Treinamento & Recuperação'"), 'Label do grupo deve ser Treinamento & Recuperação');
+  assert.ok(navCode.includes("label: 'Treinamento'"), 'Label do grupo deve ser Treinamento');
   assert.ok(navCode.includes("page: 'tradertraining'"), 'Deve conter tradertraining');
   assert.ok(navCode.includes("page: 'mission'"), 'Deve conter mission');
   assert.ok(navCode.includes("page: 'rebuild'"), 'Deve conter rebuild');
