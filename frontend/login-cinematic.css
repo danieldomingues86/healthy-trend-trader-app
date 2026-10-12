@@ -455,6 +455,7 @@ body:not([data-theme="healthy"]) #loginShell .login-language-picker {
 #loginShell .login-form {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 #loginShell .login-field {
@@ -674,15 +675,26 @@ body:not([data-theme="healthy"]) #loginShell .login-language-picker {
   display: none;
 }
 
-/* ── Card de Erro Amigável e Orientado à Resolução (Alta Fidelidade) ── */
-#loginShell .login-error-card {
-  margin-top: 14px;
-  background: rgba(11, 26, 20, 0.95);
-  border: 1px solid rgba(34, 197, 94, 0.28);
-  border-radius: 16px;
-  padding: 18px 20px;
+#loginShell #loginMessage {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 50;
+  margin: 0;
   text-align: left;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Card de Erro Amigável e Orientado à Resolução (Tema Vinho Escuro) ── */
+#loginShell .login-error-card {
+  margin-top: 0;
+  background: rgba(28, 10, 12, 0.98);
+  border: 1px solid rgba(239, 68, 68, 0.42);
+  border-radius: 16px;
+  padding: 16px 18px;
+  text-align: left;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(239, 68, 68, 0.15);
   animation: loginErrorFadeIn 0.2s ease-out;
 }
 
@@ -695,7 +707,7 @@ body:not([data-theme="healthy"]) #loginShell .login-language-picker {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 #loginShell .login-error-icon {
@@ -707,40 +719,65 @@ body:not([data-theme="healthy"]) #loginShell .login-language-picker {
 
 #loginShell .login-error-title {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: -0.01em;
+  flex: 1;
+}
+
+#loginShell .login-error-dismiss-btn {
+  border: none;
+  background: transparent;
+  color: #fca5a5;
+  font-size: 15px;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+#loginShell .login-error-dismiss-btn:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.22);
+  color: #ffffff;
 }
 
 #loginShell .login-error-desc {
-  margin: 0 0 14px 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: #94a3b8;
+  margin: 0 0 12px 0;
+  font-size: 12.5px;
+  line-height: 1.48;
+  color: #e2e8f0;
 }
 
 #loginShell .login-error-advice-box {
-  background: rgba(8, 20, 15, 0.78);
-  border: 1px solid rgba(143, 224, 170, 0.14);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
+  background: rgba(18, 6, 8, 0.88);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 11px;
+  padding: 10px 13px;
+  margin-bottom: 12px;
 }
 
 #loginShell .login-error-advice-title {
   display: block;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  color: #10b981;
-  margin-bottom: 4px;
+  color: #fca5a5;
+  margin-bottom: 3px;
 }
 
 #loginShell .login-error-advice-text {
   margin: 0;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.45;
-  color: #cbd5e1;
+  color: #f1f5f9;
 }
 
 #loginShell .login-error-retry-btn {
@@ -752,9 +789,9 @@ body:not([data-theme="healthy"]) #loginShell .login-language-picker {
   background: #059669;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  padding: 11px 16px;
-  font-size: 13px;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -780,39 +817,40 @@ body:not([data-theme="healthy"]) #loginShell .login-language-picker {
 
 #loginShell .login-error-secondary-note {
   display: block;
-  margin-top: 10px;
+  margin-top: 9px;
   text-align: center;
   font-size: 11px;
-  color: #64748b;
-  line-height: 1.4;
+  color: #94a3b8;
+  line-height: 1.35;
 }
 
-/* Suporte ao Tema Gold */
+/* Suporte ao Tema Gold - preserva identidade de erro vermelha/vinho */
 body[data-theme="gold"] #loginShell .login-error-card,
 body:not([data-theme="healthy"]) #loginShell .login-error-card {
-  background: rgba(22, 20, 14, 0.96);
-  border-color: rgba(224, 185, 82, 0.3);
+  background: rgba(30, 11, 13, 0.98);
+  border-color: rgba(239, 68, 68, 0.42);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(239, 68, 68, 0.15);
 }
 
 body[data-theme="gold"] #loginShell .login-error-advice-box,
 body:not([data-theme="healthy"]) #loginShell .login-error-advice-box {
-  background: rgba(15, 14, 9, 0.85);
-  border-color: rgba(224, 185, 82, 0.15);
+  background: rgba(20, 7, 9, 0.88);
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
 body[data-theme="gold"] #loginShell .login-error-advice-title,
 body:not([data-theme="healthy"]) #loginShell .login-error-advice-title {
-  color: #e0b952;
+  color: #fca5a5;
 }
 
 body[data-theme="gold"] #loginShell .login-error-retry-btn,
 body:not([data-theme="healthy"]) #loginShell .login-error-retry-btn {
-  background: #b48737;
+  background: #059669;
 }
 
 body[data-theme="gold"] #loginShell .login-error-retry-btn:hover,
 body:not([data-theme="healthy"]) #loginShell .login-error-retry-btn:hover {
-  background: #c9983e;
+  background: #10b981;
 }
 
 /* ── 7. Coluna Direita (Área de Respiro para a Arte) ──────────────── */

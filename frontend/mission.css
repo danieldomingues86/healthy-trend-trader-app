@@ -1,0 +1,1308 @@
+/* ==========================================================================
+   MISSÃO — JORNADA DE FOCO E RECUPERAÇÃO
+   Visual cinematográfico de montanha, soldado, trilha dourada e 4 cards
+   Fidelidade rigorosa à referência aprovada (media_1791832519754.jpg)
+   ========================================================================== */
+
+/* ── Container da Página (Imersão Escura no Workspace) ───────────────────── */
+/* ── Elimina Vazamento de Fundo Claro no Shell Geral (Contexto Escuro) ────── */
+body:has(#mission.active) .main,
+body:has(#mission.active) .content,
+body:has(#mission.page.active) .main,
+body:has(#mission.page.active) .content {
+  background: #081712 !important;
+}
+
+body:has(#mission.active) .content,
+body:has(#mission.page.active) .content {
+  max-width: none !important;
+  padding: 18px 32px 48px !important;
+}
+
+body:has(#mission.active) #marketFocusGuard,
+body:has(#mission.page.active) #marketFocusGuard {
+  display: none !important;
+}
+
+/* ── Container da Página (Imersão Escura no Workspace) ───────────────────── */
+.page#mission {
+  position: relative;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: #081712;
+  color: #f1f5f9;
+  min-height: calc(100vh - 60px);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+#mission .mission-shell {
+  max-width: min(96vw, 1820px);
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Hero Panorama Artístico da Montanha ─────────────────────────────────── */
+.mission-hero-panorama {
+  position: relative;
+  width: 100%;
+  height: clamp(520px, 31vw, 640px);
+  min-height: 480px;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
+  background: #091a14 url('../assets/mission-hero-clean.jpg') center top / cover no-repeat;
+  isolation: isolate;
+}
+
+/* Sutil vinheta para legibilidade do texto e contraste nas bordas */
+.mission-hero-panorama::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(6, 18, 14, 0.45) 0%, rgba(6, 18, 14, 0.05) 45%, rgba(6, 18, 14, 0.6) 100%),
+              radial-gradient(circle at 14% 30%, rgba(6, 18, 14, 0.6) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+/* ── Topo Esquerdo: Breadcrumb, Histórico, Título MISSÃO e Subtítulo ─────── */
+.mission-hero-title-block {
+  position: absolute;
+  top: 26px;
+  left: 36px;
+  z-index: 4;
+}
+
+.mission-hero-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.mission-hero-breadcrumb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.mission-hero-breadcrumb-btn:hover {
+  color: #34d399;
+}
+
+.mission-hero-history-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd5e1;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mission-hero-history-btn:hover {
+  background: rgba(52, 211, 153, 0.2);
+  border-color: #34d399;
+  color: #34d399;
+}
+
+.mission-hero-title-block h1 {
+  margin: 0 0 6px 0;
+  font-size: clamp(34px, 3.2vw, 48px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  line-height: 1.0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
+}
+
+.mission-hero-title-block p {
+  margin: 0;
+  font-size: 15px;
+  color: #d1fae5;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.35;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+.mission-hero-progress-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  background: rgba(8, 20, 16, 0.88);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 11.5px;
+  color: #e2e8f0;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.mission-hero-progress-pill b {
+  color: #34d399;
+}
+
+.mission-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+  display: inline-block;
+}
+
+/* ── Placas de Madeira na Trilha à Esquerda (Signpost) ───────────────────── */
+.mission-trail-signs {
+  position: absolute;
+  top: 175px;
+  left: 36px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.mission-trail-signs::before {
+  content: "";
+  position: absolute;
+  left: 65px;
+  top: -14px;
+  bottom: -32px;
+  width: 9px;
+  background: linear-gradient(90deg, #302013, #4a331e 50%, #20140b 100%);
+  border-radius: 2px;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.7);
+  z-index: -1;
+}
+
+.mission-sign-wood {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(68, 47, 33, 0.94), rgba(46, 30, 20, 0.96));
+  border: 1px solid rgba(162, 123, 92, 0.5);
+  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 5px 14px;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  color: #fae1b8;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+  clip-path: polygon(0% 0%, 93% 0%, 100% 50%, 93% 100%, 0% 100%);
+  transform: rotate(-1deg);
+  width: fit-content;
+}
+
+.mission-sign-wood:nth-child(2) { transform: rotate(1deg); margin-left: 4px; }
+.mission-sign-wood:nth-child(3) { transform: rotate(-1.5deg); }
+.mission-sign-wood:nth-child(4) { transform: rotate(1.5deg); margin-left: 2px; }
+
+/* ── Card Superior Central: MINHA MISSÃO (Instância Única) ───────────────── */
+.mission-center-card {
+  position: absolute;
+  top: 24px;
+  left: 31%;
+  width: min(510px, calc(100% - 350px));
+  z-index: 4;
+  background: rgba(8, 20, 16, 0.92);
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  border-radius: 18px;
+  padding: 18px 24px;
+  backdrop-filter: blur(14px);
+}
+
+.mission-center-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.mission-center-kicker {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  color: #34d399;
+  text-transform: uppercase;
+}
+
+.mission-edit-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.mission-edit-btn:hover {
+  background: rgba(52, 211, 153, 0.2);
+  border-color: rgba(52, 211, 153, 0.5);
+  color: #34d399;
+}
+
+.mission-goal-text {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.mission-reason-label {
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.mission-reason-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+/* ── Topo Direito: Painel de Recompensa (Alinhado à Direita) ─────────────── */
+.mission-reward-destination {
+  position: absolute;
+  top: 24px;
+  right: 36px;
+  z-index: 4;
+  text-align: right;
+  max-width: 220px;
+  background: rgba(10, 24, 18, 0.85);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 14px;
+  padding: 10px 14px;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mission-reward-destination:hover {
+  background: rgba(16, 38, 28, 0.95);
+  border-color: rgba(234, 179, 8, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(234, 179, 8, 0.25);
+}
+
+.mission-reward-kicker {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #facc15;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.mission-reward-sub {
+  font-size: 9.5px;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  display: block;
+}
+
+.mission-reward-preview {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Marcadores / Waypoints na Trilha da Montanha ────────────────────────── */
+.mission-interactive-trail {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: auto;
+}
+
+.mission-waypoint-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform 0.2s ease;
+}
+
+.mission-waypoint-node:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.mission-node-active-crown {
+  position: absolute;
+  top: -12px;
+  font-size: 11px;
+  color: #facc15;
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.95);
+  animation: crownFloat 2s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes crownFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.mission-node-disc {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.mission-waypoint-node.completed .mission-node-disc {
+  background: #059669;
+  border: 2px solid #34d399;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(52, 211, 153, 0.6);
+}
+
+.mission-waypoint-node.active .mission-node-disc {
+  width: 36px;
+  height: 36px;
+  background: #111814;
+  border: 3px solid #facc15;
+  color: #facc15;
+  box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.35), 0 0 22px rgba(250, 204, 21, 0.95);
+  animation: activeNodePulse 2s infinite ease-in-out;
+}
+
+@keyframes activeNodePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.3), 0 0 16px rgba(250, 204, 21, 0.8);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(250, 204, 21, 0.45), 0 0 26px rgba(250, 204, 21, 1);
+    transform: scale(1.04);
+  }
+}
+
+.mission-waypoint-node.locked .mission-node-disc {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: #94a3b8;
+}
+
+/* Placa identificadora de Marco abaixo da bolinha */
+.mission-waypoint-label-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5px;
+  margin-top: 5px;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.mission-waypoint-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95);
+  line-height: 1.1;
+}
+
+.mission-waypoint-range {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #cbd5e1;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+  line-height: 1.1;
+}
+
+.mission-waypoint-pill {
+  margin-top: 2px;
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1.5px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.mission-waypoint-pill.completed {
+  background: rgba(5, 150, 105, 0.55);
+  border: 1px solid #10b981;
+  color: #34d399;
+}
+
+.mission-waypoint-pill.active {
+  background: rgba(234, 179, 8, 0.45);
+  border: 1px solid #facc15;
+  color: #fde047;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+}
+
+.mission-waypoint-pill.locked {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+}
+
+.mission-waypoint-node.is-selected {
+  z-index: 25;
+}
+
+.mission-waypoint-node.is-selected .mission-node-disc {
+  box-shadow: 0 0 0 3px #ffffff, 0 0 22px rgba(52, 211, 153, 0.95);
+  transform: scale(1.15);
+}
+
+/* Popover informativo do waypoint ao clicar */
+.mission-waypoint-info-card {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  background: rgba(10, 26, 20, 0.96);
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 20px rgba(16, 185, 129, 0.2);
+  border-radius: 14px;
+  padding: 12px 14px;
+  z-index: 30;
+  backdrop-filter: blur(14px);
+  pointer-events: auto;
+  cursor: default;
+  text-align: left;
+  animation: missionPopoverFade 0.16s ease-out;
+}
+
+@keyframes missionPopoverFade {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.mission-waypoint-info-card::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(10, 26, 20, 0.96);
+}
+
+.mission-waypoint-info-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mission-waypoint-info-head b {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.mission-waypoint-info-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.mission-waypoint-info-close:hover {
+  color: #ffffff;
+}
+
+.mission-waypoint-info-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mission-waypoint-info-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11px;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.mission-waypoint-info-line .mission-info-icon {
+  color: #34d399;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.mission-waypoint-info-line.highlight {
+  color: #fde047;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.mission-waypoint-info-line.highlight .mission-info-icon {
+  color: #fde047;
+}
+
+.mission-config-hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 10px;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.35;
+}
+
+/* ── 4 Cards Inferiores (Grid Horizontal com Alinhamento Preciso) ────────── */
+.mission-cards-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.1fr) minmax(300px, 1.25fr) minmax(360px, 1.55fr) minmax(280px, 1.1fr);
+  gap: clamp(14px, 1.2vw, 22px);
+  margin-top: 20px;
+  align-items: stretch;
+}
+
+.mission-card {
+  background: #091a14;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 250px;
+}
+
+.mission-card-title {
+  margin: 0 0 14px 0;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #34d399;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Card 1: Configuração da Missão */
+.mission-config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.mission-config-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mission-config-field.mission-field-reward {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.mission-config-field.mission-field-reward input {
+  width: 100%;
+}
+
+.mission-config-field label {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.mission-config-field input,
+.mission-config-field select {
+  width: 120px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #ffffff;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.mission-config-field input:focus,
+.mission-config-field select:focus {
+  border-color: #34d399;
+}
+
+.mission-rebuild-flag {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #facc15;
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.mission-rebuild-badge {
+  font-size: 11px;
+  color: #facc15;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.22);
+  padding: 6px 10px;
+  border-radius: 8px;
+  line-height: 1.35;
+}
+
+.mission-start-btn {
+  margin-top: auto;
+  width: 100%;
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 16px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.mission-start-btn:hover {
+  background: #10b981;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+.mission-start-btn.active-mission,
+.mission-start-btn.is-active {
+  background: #059669;
+  color: #ffffff;
+}
+
+.mission-reset-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.mission-reset-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+.mission-stop-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.mission-stop-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.mission-stopped-badge {
+  font-size: 11px;
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  padding: 6px 10px;
+  border-radius: 8px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.mission-btn-danger {
+  background: #dc2626;
+  color: #ffffff;
+  border: 1px solid #ef4444;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.mission-btn-danger:hover {
+  background: #b91c1c;
+  border-color: #f87171;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
+}
+
+.mission-inline-feedback {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* Card 2: Progresso da Missão */
+.mission-progress-body {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  align-items: center;
+  flex: 1;
+}
+
+.mission-radial-gauge {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  margin: 0 auto;
+}
+
+.mission-gauge-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.mission-gauge-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 9;
+}
+
+.mission-gauge-fill {
+  fill: none;
+  stroke: #10b981;
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.mission-gauge-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.mission-gauge-text strong {
+  font-size: 15px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.mission-gauge-text small {
+  font-size: 9px;
+  color: #94a3b8;
+  line-height: 1.2;
+}
+
+.mission-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mission-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.mission-stat-icon {
+  font-size: 15px;
+  color: #34d399;
+  width: 18px;
+  text-align: center;
+}
+
+.mission-stat-item strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.mission-stat-item small {
+  display: block;
+  font-size: 10.5px;
+  color: #94a3b8;
+}
+
+/* Card 3: Últimos Trades da Missão */
+.mission-trades-card {
+  overflow: hidden;
+}
+
+.mission-trades-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mission-mark-trade-btn {
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mission-mark-trade-btn:hover {
+  background: #10b981;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+}
+
+.mission-trades-table-wrap {
+  flex: 1;
+  max-height: 190px;
+  overflow-y: auto;
+}
+
+.mission-trades-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.mission-trades-table th {
+  text-align: left;
+  padding: 6px 6px;
+  color: #64748b;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mission-trades-table td {
+  padding: 7px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+}
+
+.mission-trades-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.mission-trade-check {
+  color: #10b981;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.mission-empty-trades {
+  padding: 24px 10px;
+  text-align: center;
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* Card 4: Frase Motivacional */
+.mission-quote-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 22px;
+  background: linear-gradient(145deg, #091a14 0%, #061510 100%);
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+.mission-quote-text {
+  font-size: 15.5px;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.55;
+  color: #e2e8f0;
+  margin: 0 0 16px 0;
+}
+
+.mission-quote-bar {
+  width: 44px;
+  height: 4px;
+  border-radius: 999px;
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+/* ── Modais ──────────────────────────────────────────────────────────────── */
+.mission-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: missionModalFade 0.18s ease-out;
+}
+
+@keyframes missionModalFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mission-modal-dialog {
+  background: #0d221b;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 22px;
+  max-width: 520px;
+  width: 100%;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  color: #f1f5f9;
+}
+
+.mission-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.mission-modal-head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.mission-modal-close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.mission-modal-close-btn:hover {
+  color: #ffffff;
+}
+
+.mission-form-group {
+  margin-bottom: 16px;
+}
+
+.mission-form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mission-form-group input,
+.mission-form-group select,
+.mission-form-group textarea {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #ffffff;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.mission-form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.mission-form-group input:focus,
+.mission-form-group select:focus,
+.mission-form-group textarea:focus {
+  border-color: #34d399;
+}
+
+.mission-inline-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.mission-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.mission-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mission-btn-primary {
+  background: #059669;
+  border: none;
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mission-btn-primary:hover {
+  background: #10b981;
+}
+
+/* Modal Celebração: Missão Cumprida */
+.mission-celebrate-dialog {
+  text-align: center;
+  max-width: 580px;
+  background: linear-gradient(160deg, #0b271d 0%, #071913 100%);
+  border: 2px solid #facc15;
+  box-shadow: 0 0 50px rgba(250, 204, 21, 0.3), 0 24px 60px rgba(0, 0, 0, 0.9);
+}
+
+.mission-celebrate-chest-icon {
+  font-size: 52px;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+
+.mission-celebrate-title {
+  margin: 0 0 10px 0;
+  font-size: 26px;
+  font-weight: 900;
+  color: #facc15;
+  letter-spacing: -0.02em;
+}
+
+.mission-celebrate-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  margin: 0 0 16px 0;
+}
+
+.mission-celebrate-reward-box {
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+}
+
+.mission-celebrate-reward-box b {
+  display: block;
+  font-size: 11px;
+  color: #facc15;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.mission-celebrate-reward-box strong {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+/* ── Tema Gold / Responsividade ─────────────────────────────────────────── */
+body[data-theme="gold"] #mission .mission-card,
+body:not([data-theme="healthy"]) #mission .mission-card {
+  background: #19160d;
+  border-color: rgba(234, 179, 8, 0.25);
+}
+
+body[data-theme="gold"] #mission .mission-card-title,
+body:not([data-theme="healthy"]) #mission .mission-card-title {
+  color: #e0b952;
+}
+
+body[data-theme="gold"] #mission .mission-center-kicker,
+body:not([data-theme="healthy"]) #mission .mission-center-kicker {
+  color: #e0b952;
+}
+
+body[data-theme="gold"] #mission .mission-center-card,
+body:not([data-theme="healthy"]) #mission .mission-center-card {
+  background: rgba(25, 22, 13, 0.92);
+  border-color: rgba(224, 185, 82, 0.35);
+}
+
+body[data-theme="gold"] #mission .mission-start-btn,
+body:not([data-theme="healthy"]) #mission .mission-start-btn,
+body[data-theme="gold"] #mission .mission-mark-trade-btn,
+body:not([data-theme="healthy"]) #mission .mission-mark-trade-btn {
+  background: #b48737;
+}
+
+body[data-theme="gold"] #mission .mission-start-btn:hover,
+body:not([data-theme="healthy"]) #mission .mission-start-btn:hover {
+  background: #c9983e;
+}
+
+body[data-theme="gold"] #mission .mission-hero-progress-pill,
+body:not([data-theme="healthy"]) #mission .mission-hero-progress-pill {
+  border-color: rgba(234, 179, 8, 0.35);
+}
+
+body[data-theme="gold"] #mission .mission-hero-progress-pill b,
+body:not([data-theme="healthy"]) #mission .mission-hero-progress-pill b {
+  color: #facc15;
+}
+
+body[data-theme="gold"] #mission .mission-pill-dot,
+body:not([data-theme="healthy"]) #mission .mission-pill-dot {
+  background: #facc15;
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.8);
+}
+
+body[data-theme="gold"] #mission .mission-waypoint-info-card,
+body:not([data-theme="healthy"]) #mission .mission-waypoint-info-card {
+  border-color: rgba(234, 179, 8, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(234, 179, 8, 0.25);
+}
+
+@media (max-width: 1380px) {
+  .mission-cards-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .mission-center-card {
+    left: 28%;
+    width: min(460px, calc(100% - 300px));
+  }
+}
+
+@media (max-width: 850px) {
+  .mission-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .mission-hero-panorama {
+    min-height: 580px;
+    height: auto;
+  }
+  .mission-center-card {
+    left: 18px;
+    right: 18px;
+    width: auto;
+    top: 145px;
+  }
+  .mission-trail-signs {
+    display: none;
+  }
+}

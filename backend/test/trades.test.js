@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { normalizePlan, validateRareTrade, normalizeExecution, normalizePositionEvent, ratingFromValue } = require('../src/trades');
+const { normalizePlan, validateRareTrade, validateMissionRisk, normalizeExecution, normalizePositionEvent, ratingFromValue } = require('../src/trades');
 
 test('normaliza plano com ticker em caixa alta e contribuições da Rubric', () => {
   const plan = normalizePlan({
@@ -115,4 +115,30 @@ test('normaliza e valida setupTrigger com catálogo oficial dos 5 gatilhos', () 
   });
   assert.equal(legacy.setupTrigger, null);
 });
+
+test('validateMissionRisk: bloqueia trades que excedam o limite de risco da missão ativa', () => {
+  const mission = { status: 'ACTIVE', riskPct: 0.001 }; // 0,10%
+
+  // Trade dentro do limite (0.10%)
+  const planOk = { riskPct: 0.001 };
+  assert.doesNotThrow(() => validateMissionRisk(planOk, mission));
+
+  // Trade com risco dentro da tolerância (+0.02pp, ex: 0.115%)
+  const planTol = { riskPct: 0.00115 };
+  assert.doesNotThrow(() => validateMissionRisk(planTol, mission));
+
+  // Trade com risco acima do limite (0.20%)
+  const planExceeded = { riskPct: 0.0020 };
+  assert.throws(() => validateMissionRisk(planExceeded, mission), /Operação bloqueada: o risco \(0,20%\) excede o limite de 0,10%/);
+
+  // Missão parada (STOPPED) não bloqueia
+  const stoppedMission = { status: 'STOPPED', riskPct: 0.001 };
+  assert.doesNotThrow(() => validateMissionRisk(planExceeded, stoppedMission));
+
+  // Suporte a JSON string e double-stringified JSON
+  assert.doesNotThrow(() => validateMissionRisk(planOk, JSON.stringify(mission)));
+  assert.doesNotThrow(() => validateMissionRisk(planOk, JSON.stringify(JSON.stringify(mission))));
+  assert.throws(() => validateMissionRisk(planExceeded, JSON.stringify(mission)), /Operação bloqueada/);
+});
+
 

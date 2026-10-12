@@ -42,6 +42,7 @@
       const friendly = window.ErrorHandlerModel.createFriendlyError(err, { path: '/api/auth/login', action: 'login', status: err.status });
       element.innerHTML = window.ErrorHandlerModel.renderErrorCardHtml(friendly, {
         onRetry: 'window.retryLogin && window.retryLogin()',
+        onDismiss: 'window.dismissLoginError && window.dismissLoginError()',
         retryId: 'loginRetryBtn'
       });
     } else {
@@ -180,7 +181,11 @@
     setToken(result.token, remember);
     enter(result.user);
   }
-  window.healthyTrendAuth = { completeSession, renderFriendlyLoginError };
+  function dismissLoginError() {
+    renderFriendlyLoginError(null);
+  }
+  window.dismissLoginError = dismissLoginError;
+  window.healthyTrendAuth = { completeSession, renderFriendlyLoginError, dismissLoginError };
 
   let isLoginSubmitting = false;
 

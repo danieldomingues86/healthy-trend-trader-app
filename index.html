@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="frontend/ticker-chart.css" />
 <link rel="stylesheet" href="frontend/trade-simulator.css" />
 <link rel="stylesheet" href="frontend/market-news.css?v=20261005-live-feed" />
+<link rel="stylesheet" href="frontend/mission.css" />
 <script src="frontend/instrument-catalog.js?v=20260924-market-reset-1"></script>
 <script src="frontend/setup-triggers-catalog.js?v=20260929-1"></script>
 <style>
@@ -631,7 +632,6 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
     <button data-page="tradeanatomy"><span class="ico">♜</span>Anatomia dos Trades</button>
     <button data-page="journal"><span class="ico">✎</span>Diário de Trader</button>
     <button data-page="tradertraining"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>Treinamento Trader</button>
-    <button data-page="couragechallenge"><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span>Desafio Grade A</button>
     <button data-page="tradelibrary"><span class="ico">▦</span>Biblioteca de Trades</button>
     <button data-page="mistakesbook"><span class="ico mb-nav-book" aria-hidden="true"></span>Erros e lições</button>
     <button data-page="review"><span class="ico">✓</span>Revisão Mensal</button>
@@ -758,6 +758,8 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <section class="page" id="analytics"><div class="hero"><div><div class="eyebrow">Healthy analytics</div><h1>Descubra onde seu<br>processo realmente funciona.</h1></div><p>Resultados financeiros ganham contexto quando são comparados com direção, mercado, setup e qualidade da decisão.</p></div><div class="grid analytics-grid"><div class="card"><div class="card-head"><div><h3>Resultado por mercado</h3><span>Histórico consolidado 2015–2026</span></div></div><div class="donut-wrap"><div class="donut"></div><div class="legend"><span><i style="background:#4db879"></i>Futuros · R$ 486.959</span><span><i style="background:#b8df73"></i>Ações · R$ 142.685</span><span><i style="background:#e0bd67"></i>FIIs · -R$ 11.642</span><span><i style="background:#d97e72"></i>Outros · -R$ 11.905</span></div></div></div><div class="card"><div class="card-head"><div><h3>Resultado por ano</h3><span>Lucro e perda estimados</span></div></div><div class="bars"><div style="height:35%"><b>30k</b><span>2017</span></div><div style="height:55%"><b>106k</b><span>2018</span></div><div style="height:100%"><b>403k</b><span>2020</span></div><div style="height:25%;background:linear-gradient(#d98b80,#9f4c44)"><b>-95k</b><span>2021</span></div><div style="height:22%;background:linear-gradient(#d98b80,#9f4c44)"><b>-88k</b><span>2022</span></div><div style="height:38%"><b>27k</b><span>2023</span></div><div style="height:72%"><b>193k</b><span>2024</span></div><div style="height:40%"><b>29k</b><span>2025</span></div></div></div></div><div class="grid kpis" style="margin-top:18px"><div class="card kpi"><small>Compras / Long</small><strong>R$ 587.051</strong><div class="delta good">Principal motor de resultado</div></div><div class="card kpi"><small>Vendas / Short</small><strong>R$ 24.360</strong><div class="delta">Profit factor 1,07</div></div><div class="card kpi"><small>Melhor mercado</small><strong>Futuros</strong><div class="delta good">Profit factor 2,02</div></div><div class="card kpi"><small>Melhor ativo</small><strong>CCMX20</strong><div class="delta good">R$ 199.665</div></div></div></section>
 <section class="page" id="tradeanatomy" aria-label="Anatomia dos Trades"></section>
 <section class="page" id="tradertraining" aria-label="Treinamento Trader"><div id="traderTrainingRoot"></div></section>
+<section class="page" id="mission" aria-label="Missão"><div id="missionRoot"></div></section>
+<section class="page" id="rebuild" aria-label="Rebuild Mode"><div id="rebuildRoot"></div></section>
 <section class="page" id="tradesimulator" aria-label="Simulador de Trades"><div id="tradeSimulatorRoot"></div></section>
 <section class="page" id="marketnews" aria-label="Notícias"><div id="marketNewsRoot"></div></section>
 
@@ -1086,8 +1088,8 @@ titles.dailyroutine='Rotina Diária';
 titles.emergingleaders='Líderes Emergentes';
 titles.watchlist='Watchlist';
 titles.about='Sobre';
-titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.tradertraining='Treinamento Trader';titles.tradesimulator='Simulador de Trades';titles.marketnews='Notícias';titles.news='Notícias';
-function go(id, extra){if(id==='news')id='marketnews';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Diário de Trader / <b>Treinamento Trader</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Trades</b>';}else if(id==='forecast'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Equity</b>';}else if(id==='marketnews'||id==='news'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Notícias</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='relativestrength'&&typeof window.renderRelativeStrengthClassesPage==='function'){window.renderRelativeStrengthClassesPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if((id==='marketnews'||id==='news')&&typeof window.MarketNews?.render==='function'){window.MarketNews.render();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
+titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.tradertraining='Treinamento Trader';titles.mission='Missão';titles.rebuild='Rebuild Mode';titles.tradesimulator='Simulador de Trades';titles.marketnews='Notícias';titles.news='Notícias';
+function go(id, extra){if(id==='news')id='marketnews';if(id==='couragechallenge')id='mission';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='mission'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='rebuild'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Rebuild Mode</b>';}else if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Treinamento do Trader</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Trades</b>';}else if(id==='forecast'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Equity</b>';}else if(id==='marketnews'||id==='news'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Notícias</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='relativestrength'&&typeof window.renderRelativeStrengthClassesPage==='function'){window.renderRelativeStrengthClassesPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='mission'&&typeof window.renderMissionPage==='function'){window.renderMissionPage();}if(id==='rebuild'&&typeof window.renderRebuildPage==='function'){window.renderRebuildPage();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if((id==='marketnews'||id==='news')&&typeof window.MarketNews?.render==='function'){window.MarketNews.render();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&typeof updateTradingRubric==='function'){updateTradingRubric();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
 function marketCandles(seed=0,count=16){return Array.from({length:count},(_,i)=>{const h=18+((i*17+seed*11)%46),mb=7+((i*13+seed*7)%38),wick=h+13+((i*7+seed)%20),trend=i>count*.62?'down':'up';return `<i class="market-candle ${trend}" style="--h:${h}px;--mb:${mb}px;--wick:${wick}px"></i>`}).join('')}
 function setMarketRange(button){document.querySelectorAll('.market-range button').forEach(item=>item.classList.toggle('active',item===button));}
 function moneyBRL(value,decimals=2){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(value)}
@@ -2555,10 +2557,15 @@ function calculateExecutableSizing(result,values={}){
   const stop=Number(values.stop??document.getElementById('stop')?.value)||0;
   const atr=Number(values.atr??document.getElementById('atr')?.value)||0;
   const realPositions=(operationalState?.positions||[]).filter(position=>position.mode==='real');
+  let riskBudgetPct=Number(result?.riskBudgetPct??result?.riskPct)||0;
+  const activeMission = (typeof window !== 'undefined' && window.MissionModel?.getActiveMission) ? window.MissionModel.getActiveMission() : null;
+  if(activeMission && activeMission.status === 'ACTIVE' && Number(activeMission.riskPct) > 0){
+    riskBudgetPct = Math.min(riskBudgetPct, Number(activeMission.riskPct));
+  }
   return TradingRubrics.calculatePolicyPositionSizing({
     policy:riskPolicyState,
     profileKey:result?.profile?.key||riskPolicyState.selectedProfile,
-    riskBudgetPct:Number(result?.riskBudgetPct??result?.riskPct)||0,
+    riskBudgetPct,
     currentHeatPct:Number(values.currentHeatPct??currentPortfolioHeatPct())||0,
     openPositions:Number(values.openPositions??realPositions.length)||0,
     equity:Number(values.equity??OPERATIONAL_EQUITY)||0,
@@ -2612,7 +2619,18 @@ currentRubricInput=function(){const profile=selectedRiskProfile(),key=profile.ke
 function recalc(){const entry=Number(document.getElementById('entry')?.value)||0,stop=Number(document.getElementById('stop')?.value)||0,atr=Number(document.getElementById('atr')?.value)||0,riskBudgetPct=Number(document.getElementById('riskPct')?.value)||0,sizing=calculateExecutableSizing({riskBudgetPct,riskPct:riskBudgetPct,profile:selectedRiskProfile()},{entry,stop,atr}),layers=sizing.layers||[];const byKey=key=>layers.find(layer=>layer.key===key)?.quantity||0;const set=(id,value)=>{const node=document.getElementById(id);if(node)node.textContent=value};set('qty',sizing.quantity.toLocaleString('pt-BR')+' ações');set('qtyRisk',Number(sizing.theoreticalQuantity||0).toLocaleString('pt-BR'));set('qtyVol',byKey('volatility').toLocaleString('pt-BR'));set('qtyCapital',byKey('capital').toLocaleString('pt-BR'));set('riskMoney',sizing.initialRisk.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}));set('capital',(sizing.quantity*entry).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}));set('limitingLayer',sizing.limitingLayerName||'—');set('atrpct',entry?((atr/entry)*100).toFixed(2).replace('.',',')+'%':'—');document.querySelectorAll('.mini-layer-row').forEach(node=>{const key=node.querySelector('#qtyRisk')?'budget':node.querySelector('#qtyVol')?'volatility':'capital';node.classList.toggle('selected',key===sizing.limitingLayer)})}
 function updateTradingRubric(){const root=document.getElementById('tradingRubric');if(!root)return;const result=TradingRubrics.calculateRubric(currentRubricInput(),riskPolicyState),score=document.getElementById('rubricScore'),grade=document.getElementById('rubricGrade'),risk=document.getElementById('rubricRisk'),regime=document.getElementById('rubricMarketRegime'),experience=document.querySelector('#tradeRubricStage .rubric-experience')||document.getElementById('tradingRubricExperience'),complete=result.complete;if(score)score.textContent=numBR(result.score,2)+' / '+numBR(result.maximumScore,2);if(grade)grade.textContent=result.grade;if(risk)risk.textContent=numBR(result.riskPct*100,2)+'%';if(regime)regime.textContent=cycleLabel(result.marketCycle)+' · '+numBR(result.marketFactor,2)+'×';result.contributions.forEach(item=>{const node=document.querySelector('[data-rubric-points="'+item.key+'"]');if(node)node.textContent=numBR(item.points,2)+' / '+numBR(item.weight,2);node?.closest('.rubric-criterion')?.querySelectorAll('[data-rating]').forEach(button=>button.classList.toggle('active',manualRubricRatings[item.key]===button.dataset.rating))});if(experience){experience.querySelector('#experienceRiskProfile')?.remove();const isDanger=complete&&(result.grade==='D'||result.grade==='No Trade'||result.riskPct===0);const isApproved=complete&&(Boolean(result.qualityAllowed)||['A'].includes(result.grade));const scoreText=complete?numBR(result.score,2)+' / '+numBR(result.maximumScore,2):'— / '+numBR(result.maximumScore,2),gradeText=complete?result.grade:'—',riskText=complete?numBR(result.riskPct*100,2)+'%':'0,00%';const gradeEl=experience.querySelector('#experienceGrade');if(gradeEl){gradeEl.textContent=gradeText;gradeEl.className='grade-val '+(complete?('grade-'+result.grade.toLowerCase().replace('+','-plus')):'grade-pending')}const scoreEl=experience.querySelector('#experienceScore');if(scoreEl)scoreEl.textContent=scoreText;const riskEl=experience.querySelector('#experienceRisk');if(riskEl)riskEl.textContent=riskText;const statusEl=experience.querySelector('#experienceStatus');if(statusEl){if(!complete){statusEl.className='experience-status status-pending';statusEl.textContent='AVALIE TODOS OS CRITÉRIOS'}else if(isDanger){statusEl.className='experience-status status-danger';statusEl.textContent='🔴 OPERAÇÃO NÃO RECOMENDADA'}else if(result.grade==='C'){statusEl.className='experience-status status-caution';statusEl.textContent='🟡 AMBIENTE DESFAVORÁVEL'}else if(result.grade==='B'){statusEl.className='experience-status status-caution';statusEl.textContent='🟡 AMBIENTE MODERADO'}else if(isApproved){statusEl.className='experience-status status-good';statusEl.textContent='🟢 QUALIDADE APROVADA'}else{statusEl.className='experience-status';statusEl.textContent=tradeGradeMessage(result.grade)}}const hintEl=experience.querySelector('#experienceStatusHint');if(hintEl)hintEl.style.display='none';experience.querySelector('#experienceGauge')?.style.setProperty('--gauge',String(complete?Math.round(result.score/result.maximumScore*100):50));const footer=experience.querySelector('#rubricExperienceFooter');if(footer)footer.innerHTML='<span>SCORE TOTAL <b>'+scoreText+'</b></span><span>GRADE DO SETUP <b>'+gradeText+'</b></span>'}const warning=document.getElementById('rubricNoTrade');if(warning)warning.innerHTML=result.riskPct===0?'<div class="rubric-no-trade">A política não libera risco neste cenário. Registre na watchlist e aguarde uma melhora do contexto.</div>':'<div class="rubric-policy-result"><b>Risco final: '+numBR(result.riskPct*100,2)+'%</b> = menor entre Grade ('+numBR(result.gradeRiskPct*100,2)+'%) e perfil ('+numBR(result.profileCapPct*100,2)+'%) × ciclo ('+numBR(result.marketFactor,2)+'×).</div>';syncRubricRiskBaseControl(result.riskPct);syncQualityRulerExperience(result);recalc();return result}
 const plannerPayloadWithEffectiveRisk=plannerPayload;
-plannerPayload=function(){const plan=plannerPayloadWithEffectiveRisk(),rubric=updateTradingRubric()||TradingRubrics.calculateRubric(currentRubricInput(),riskPolicyState),profile=selectedRiskProfile(),sizing=TradingRubrics.calculatePositionSizing({equity:OPERATIONAL_EQUITY,entry:plan.entry,stop:plan.stop,atr:plan.atr,riskPct:rubric.riskPct,volatilityPct:profile.initialVolatilityPct,capitalPct:profile.capitalPct,lot:100});return{...plan,rubricScore:rubric.score,rubricMaxScore:rubric.maximumScore,grade:rubric.grade,marketCycle:rubric.marketCycle,riskPct:rubric.riskPct,positionSizeFinal:sizing.quantity,initialRisk:sizing.initialRisk,rubricContributions:rubric.contributions,riskProfile:profile.key,marketFactor:rubric.marketFactor}}
+plannerPayload=function(){
+  const plan=plannerPayloadWithEffectiveRisk(),
+  rubric=updateTradingRubric()||TradingRubrics.calculateRubric(currentRubricInput(),riskPolicyState),
+  profile=selectedRiskProfile();
+  let effectiveRiskPct=rubric.riskPct;
+  const activeMission=(typeof window!=='undefined'&&window.MissionModel?.getActiveMission)?window.MissionModel.getActiveMission():null;
+  if(activeMission&&activeMission.status==='ACTIVE'&&Number(activeMission.riskPct)>0){
+    effectiveRiskPct=Math.min(effectiveRiskPct,Number(activeMission.riskPct));
+  }
+  const sizing=TradingRubrics.calculatePositionSizing({equity:OPERATIONAL_EQUITY,entry:plan.entry,stop:plan.stop,atr:plan.atr,riskPct:effectiveRiskPct,volatilityPct:profile.initialVolatilityPct,capitalPct:profile.capitalPct,lot:100});
+  return{...plan,rubricScore:rubric.score,rubricMaxScore:rubric.maximumScore,grade:rubric.grade,marketCycle:rubric.marketCycle,riskPct:effectiveRiskPct,positionSizeFinal:sizing.quantity,initialRisk:sizing.initialRisk,rubricContributions:rubric.contributions,riskProfile:profile.key,marketFactor:rubric.marketFactor}
+}
 function saveEffectiveRiskPolicy(){
   const grid=document.getElementById('effectiveRiskPolicy');if(!grid)return;
   grid.querySelectorAll('[data-profile]').forEach(input=>{
@@ -2658,6 +2676,20 @@ function policyAllowsNewTrade(){
     showToast(validation.heatAllowed?'⚠️ O perfil ativo atingiu o máximo de posições.':'⚠️ O Portfolio Heat do perfil ativo seria ultrapassado.');
     return false;
   }
+  const activeMission=(typeof window!=='undefined'&&window.MissionModel?.getActiveMission)?window.MissionModel.getActiveMission():null;
+  if(activeMission&&activeMission.status==='ACTIVE'&&Number(activeMission.riskPct)>0){
+    const missionLimitPct=Number(activeMission.riskPct)*100;
+    const entry=Number(document.getElementById('entry')?.value||plan.entry)||0;
+    const stop=Number(document.getElementById('stop')?.value||plan.stop)||0;
+    const executedQty=Number(document.getElementById('tradeExecutedQty')?.value||plan.executedQty||plan.positionSizeFinal)||0;
+    const equity=(typeof OPERATIONAL_EQUITY!=='undefined'?OPERATIONAL_EQUITY:(window.OPERATIONAL_EQUITY||1029500));
+    const initialRisk=Math.abs(entry-stop)*executedQty;
+    const actualRiskPct=equity>0?(initialRisk/equity)*100:(plan.riskPct*100);
+    if(actualRiskPct>(missionLimitPct+0.0201)){
+      showToast(`Operação bloqueada: o risco (${actualRiskPct.toFixed(2).replace('.',',')}%) excede o limite de ${missionLimitPct.toFixed(2).replace('.',',')}% definido pela sua Missão ativa. Reduza a quantidade ou ajuste o stop.`);
+      return false;
+    }
+  }
   return true;
 }
 const saveTradePlanWithPolicyGate=saveTradePlan;
@@ -2691,6 +2723,9 @@ function syncWorkbenchRiskSummary(result){
     policyShortcut.removeAttribute('aria-disabled');
     policyShortcut.onclick=()=>go('riskpolicy');
   }
+  const activeMission = (typeof window !== 'undefined' && window.MissionModel?.getActiveMission) ? window.MissionModel.getActiveMission() : null;
+  const missionBadge = sizerHead?.querySelector('.workbench-mission-badge');
+  if (missionBadge) missionBadge.remove();
   const experienceRisk=document.querySelector('.rubric-risk-base');if(experienceRisk){const header=experienceRisk.querySelector('header'),copy=experienceRisk.querySelector('p');if(header)header.innerHTML='RISK BUDGET PELO GRADE <span title="Risco financeiro inicial autorizado pela qualidade">ⓘ</span>';if(copy)copy.textContent='Risco financeiro inicial autorizado exclusivamente por este Grade.'}
   const entry=Number(document.getElementById('entry')?.value)||0;
   const stop=Number(document.getElementById('stop')?.value)||0;
@@ -2754,6 +2789,7 @@ document.addEventListener('input',event=>{if(['entry','stop','atr'].includes(eve
 document.addEventListener('click',event=>{if(event.target.closest('#rubricCriteria [data-rating]'))queueMicrotask(refreshWorkbenchRiskGate)});
 document.addEventListener('input',event=>{if(event.target.closest('#workbenchData'))refreshWorkbenchRiskGate()});
 document.addEventListener('change',event=>{if(event.target.closest('#workbenchData'))refreshWorkbenchRiskGate()});
+window.addEventListener('healthyTrend:missionStateChanged', ()=>{if(typeof updateTradingRubric==='function')updateTradingRubric()});
 const TRADER_PROFILE_STORAGE='healthy-trend-trader-profile-v1';
 const traderProfileTests={
  risk:{icon:'🎯',title:'Perfil de risco',description:'Como você percebe perdas, volatilidade e exposição planejada.',questions:[
@@ -4142,13 +4178,14 @@ renderEffectiveRiskPolicy();
       quantity.disabled=isGradeD;
       quantity.title=isGradeD?'Operação não recomendada pela política.':'Ajuste opcional antes de registrar o trade.';
     }
-    sizer.querySelectorAll('.summary-box button').forEach(button=>{
+    sizer.querySelectorAll('.summary-box button, #missionRegisterTradeBtn').forEach(button=>{
+      const isBlockedByMission = button.id === 'missionRegisterTradeBtn' && button.classList.contains('is-risk-blocked');
       if(!button.dataset.isSubmitting){
-        button.disabled=false;
+        button.disabled = shouldDisable || isBlockedByMission;
       }
       button.classList.toggle('is-pending-gate',shouldDisable);
-      button.setAttribute('aria-disabled',String(shouldDisable));
-      button.title=shouldDisable?hint.textContent.replace(/<[^>]+>/g,''):'Registrar trade planejado';
+      button.setAttribute('aria-disabled',String(shouldDisable || isBlockedByMission));
+      button.title=shouldDisable?hint.textContent.replace(/<[^>]+>/g,''):(isBlockedByMission?'Operação excede o limite de risco da sua Missão ativa.':'Registrar trade planejado');
       button.onclick=(e)=>saveTradePlan(e);
     });
   };
@@ -4294,268 +4331,380 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
     });
   };
 
-  let isSyncingCourageBanner = false;
-  function syncCourageWorkbenchBanner(result) {
-    if (isSyncingCourageBanner) return;
-    isSyncingCourageBanner = true;
+  let isSyncingMissionExperience = false;
+  function syncMissionWorkbenchExperience(result) {
+    if (isSyncingMissionExperience) return;
+    isSyncingMissionExperience = true;
     try {
       const sizer = document.querySelector('.workbench-sizer');
       if (!sizer) return;
-      let banner = document.getElementById('courageActiveTradeBanner');
-      let consciousCard = document.getElementById('courageConsciousRiskCard');
 
-      const isActive = window.CourageChallengeModel && typeof window.CourageChallengeModel.isChallengeActive === 'function' && window.CourageChallengeModel.isChallengeActive();
-      const challengeState = window.CourageChallengeModel ? window.CourageChallengeModel.getState() : null;
-      const isDetached = challengeState ? (challengeState.detachmentMode !== false) : true;
+      const isMissionActive = Boolean(
+        window.MissionModel &&
+        typeof window.MissionModel.isMissionActive === 'function' &&
+        window.MissionModel.isMissionActive()
+      );
+      const activeMission = isMissionActive ? window.MissionModel.getActiveMission() : null;
 
-      let grade = result?.grade || result?.rubricGrade;
-      if (!grade) {
-        const q = document.getElementById('tradeLayerQuality');
-        const b = q?.querySelector('b');
-        if (b) grade = b.textContent.trim();
-      }
-      const isEligibleGrade = grade === 'A';
+      let missionContainer = document.getElementById('missionWorkbenchExperience');
+      const summaryMount = document.getElementById('workbenchSummary');
+      const executionMount = document.getElementById('workbenchExecutionMount');
+      const qtyControl = sizer.querySelector('.executed-quantity-control');
+      const executedInput = document.getElementById('tradeExecutedQty');
 
-      if (isActive && isEligibleGrade) {
-        document.getElementById('newtrade')?.classList.toggle('courage-detachment-active', isDetached);
+      // Limpar resíduos legados do Desafio Grade A
+      document.getElementById('courageActiveTradeBanner')?.remove();
+      document.getElementById('courageConsciousRiskCard')?.remove();
+      document.getElementById('courageQuantityExperience')?.remove();
+      const sizerHeadBadge = document.querySelector('.workbench-mission-badge');
+      if (sizerHeadBadge) sizerHeadBadge.remove();
 
-        const challengeSizing = calculateExecutableSizing(result || {riskBudgetPct:0,riskPct:0,profile:selectedRiskProfile()});
-        const riskBudget = Number(challengeSizing.riskBudgetPct || 0) * 100;
-        const targetRisk = Number(challengeSizing.executableRiskPercent || 0);
-        const limitingLayerName = challengeSizing.limitingLayerName || '—';
+      if (isMissionActive && activeMission && Number(activeMission.riskPct) > 0) {
+        // 1. Ocultar o box de resumo duplicado na coluna de execução
+        if (summaryMount) summaryMount.style.display = 'none';
 
-        // 1. Banner Principal
-        if (!banner) {
-          banner = document.createElement('div');
-          banner.id = 'courageActiveTradeBanner';
-          banner.className = 'courage-active-trade-banner';
-          const mount = document.getElementById('workbenchExecutionMount');
-          if (mount) {
-            mount.prepend(banner);
-          } else {
-            const targetBox = sizer.querySelector('.executed-quantity-control') || sizer.querySelector('.final-size') || sizer.firstChild;
-            sizer.insertBefore(banner, targetBox);
-          }
+        // 2. Ocultar o controle padrão de quantidade
+        if (qtyControl) qtyControl.style.display = 'none';
+
+        // 3. Cálculos centrais com base na política e nos dados informados
+        const sizing = calculateExecutableSizing(result || { riskBudgetPct: 0, riskPct: 0, profile: selectedRiskProfile() });
+        const missionRiskPct = Number(activeMission.riskPct || 0.001) * 100;
+        const targetRisk = Number(sizing.executableRiskPercent || 0);
+        const suggestedQty = Number(sizing.quantity || 0);
+
+        let grade = result?.grade || result?.rubricGrade;
+        if (!grade) {
+          const q = document.getElementById('tradeLayerQuality');
+          const b = q?.querySelector('b');
+          if (b) grade = b.textContent.trim();
         }
-        banner.innerHTML = '<div class="courage-banner-main">' +
-          '<span class="courage-banner-icon" aria-hidden="true">🎯</span>' +
-          '<div class="courage-banner-text">' +
-          '<strong>DESAFIO Grade A ATIVO' + (isDetached ? ' · MODO DESAPEGO' : '') + '</strong>' +
-          '</div>' +
-          '</div>' +
-          '<div class="courage-banner-target">Executável <strong>' + targetRisk.toFixed(2).replace('.', ',') + '%</strong><small>Budget '+riskBudget.toFixed(2).replace('.', ',')+'% · '+limitingLayerName+'</small></div>';
+        if (!grade || grade === '—' || grade === 'Pending') grade = 'A';
+
+        const normalizedPolicy = window.TradingRubrics?.normalizePolicy(window.riskPolicyState || riskPolicyState);
+        const matchedGradeObj = normalizedPolicy?.grades?.find(g => g.grade === grade);
+        const theoreticalGradeRisk = matchedGradeObj ? (matchedGradeObj.riskPct * 100) : (Number(result?.gradeRiskPct || result?.riskBudgetPct || 0.01) * 100);
 
         const entry = Number(document.getElementById('entry')?.value) || 0;
         const stop = Number(document.getElementById('stop')?.value) || 0;
-        const executedInput = document.getElementById('tradeExecutedQty');
-        const finalSizeEl = document.getElementById('tradeFinalSize');
-        const recommendedQty = parseInt(finalSizeEl?.textContent?.replace(/\D/g, '') || '0', 10) || 0;
-        const qty = Number(executedInput?.value) || recommendedQty || 0;
         const equity = (typeof OPERATIONAL_EQUITY !== 'undefined' ? OPERATIONAL_EQUITY : (window.OPERATIONAL_EQUITY || 1029500));
-        const actualRiskPct = (entry > 0 && stop > 0 && equity > 0) ? ((Math.abs(entry - stop) * qty) / equity) * 100 : targetRisk;
-        const isCompliant = Math.abs(actualRiskPct - targetRisk) <= 0.0201;
+        const distance = Math.abs(entry - stop);
 
-        // Função auxiliar de feedback de sizing
-        function renderCourageOverrideFeedback(currentActual, currentTarget) {
-          const feedback = document.getElementById('courageOverrideFeedback');
-          if (!feedback) return;
-          const curRec = parseInt(document.getElementById('tradeFinalSize')?.textContent?.replace(/\D/g, '') || '0', 10) || 0;
-          if (!currentActual || !curRec) {
-            feedback.innerHTML = '';
-            return;
-          }
-          const diff = currentActual - curRec;
-          const diffPct = curRec > 0 ? (diff / curRec) * 100 : 0;
-          const riskOfActual = (entry > 0 && stop > 0 && equity > 0) ? ((Math.abs(entry - stop) * currentActual) / equity) * 100 : currentTarget;
-
-          let compliance = null;
-          if (window.CourageChallengeModel && typeof window.CourageChallengeModel.evaluateSizingCompliance === 'function') {
-            compliance = window.CourageChallengeModel.evaluateSizingCompliance({
-              targetRiskPct: currentTarget,
-              actualRiskPct: riskOfActual,
-              tolerancePp: 0.02
-            });
-          }
-
-          const compliant = compliance ? compliance.isCompliant : Math.abs(riskOfActual - currentTarget) <= 0.0201;
-          const under = compliance ? (compliance.complianceStatus === 'UNDER_SIZING' || compliance.sizingStatus === 'under-sizing') : (diff < 0);
-
-          let badgeHtml = '';
-          let msg = '';
-          if (compliant) {
-            badgeHtml = '<span class="courage-sizing-badge correct">🟢 CORRECT SIZING</span>';
-            msg = '<p class="courage-sizing-reflection">✓ Execução rigorosamente alinhada à política de risco autorizada.</p>';
-          } else if (under) {
-            badgeHtml = '<span class="courage-sizing-badge undersizing">🟡 UNDERSIZING</span>';
-            msg = '<p class="courage-sizing-reflection">Você está boletando <strong>' + Math.abs(diff) + ' ações a menos (' + Math.abs(diffPct).toFixed(1).replace('.', ',') + '%)</strong> do que o dimensionamento planejado. O trade é permitido, mas observe se há receio ou aversão excessiva à perda interferindo na execução de um setup A.</p>';
-          } else {
-            badgeHtml = '<span class="courage-sizing-badge oversizing">🔴 OVERSIZING</span>';
-            msg = '<p class="courage-sizing-reflection">Você está boletando <strong>' + diff + ' ações a mais (+' + diffPct.toFixed(1).replace('.', ',') + '%)</strong> do que o risco autorizado pela política. Lembre-se que disciplina protege sua longevidade de mercado.</p>';
-          }
-
-          feedback.innerHTML = '<div>' + badgeHtml + '<span class="courage-sizing-diff">' + (diff > 0 ? '+' : '') + numBR(diff, 0) + ' ações (' + (diffPct > 0 ? '+' : '') + diffPct.toFixed(1).replace('.', ',') + '%)</span></div>' + msg;
+        const isManualOverride = executedInput?.dataset?.manualOverride === 'true';
+        let currentQty = suggestedQty;
+        if (isManualOverride && executedInput && executedInput.value !== '') {
+          currentQty = Number(executedInput.value) || 0;
+        } else if (executedInput && !isManualOverride) {
+          executedInput.value = String(suggestedQty);
         }
 
-        // 2. Experiência de Quantidade Desafio A
-        const qtyCtrl = sizer.querySelector('.executed-quantity-control');
-        if (qtyCtrl) {
-          const origLabel = qtyCtrl.querySelector(':scope > label');
-          const origSmall = qtyCtrl.querySelector(':scope > small');
-          if (origLabel) origLabel.style.display = 'none';
-          if (origSmall) origSmall.style.display = 'none';
+        const financialRisk = (entry > 0 && stop > 0 && currentQty > 0) ? (distance * currentQty) : sizing.initialRisk;
+        const financialRiskSuggested = (entry > 0 && stop > 0 && suggestedQty > 0) ? (distance * suggestedQty) : sizing.initialRisk;
+        const capitalUsed = (entry > 0 && currentQty > 0) ? (entry * currentQty) : (sizing.quantity * (entry || 48.3));
+        const actualRiskPct = (equity > 0 && financialRisk > 0) ? ((financialRisk / equity) * 100) : targetRisk;
+        const isInitialBlocked = actualRiskPct > (missionRiskPct + 0.0201);
 
-          let customWrap = document.getElementById('courageQuantityExperience');
-          if (!customWrap) {
-            customWrap = document.createElement('div');
-            customWrap.id = 'courageQuantityExperience';
-            customWrap.className = 'courage-policy-qty-card';
+        let ceilingExplanation = '';
+        if (theoreticalGradeRisk > missionRiskPct) {
+          ceilingExplanation = `A qualidade do setup permite até ${numBR(theoreticalGradeRisk, 2)}%, mas a Missão é mais restritiva. Por isso, o risco efetivo desta operação permanece em ${numBR(missionRiskPct, 2)}%. O sistema sempre prioriza o limite mais restritivo para proteger seu capital.`;
+        } else {
+          ceilingExplanation = `A qualidade do setup e a Missão coincidem no teto de ${numBR(missionRiskPct, 2)}%. O sistema sempre prioriza o limite mais restritivo para proteger seu capital.`;
+        }
 
-            customWrap.innerHTML = '<div class="courage-policy-header">' +
-              '<small class="courage-policy-eyebrow">QUANTIDADE SUGERIDA</small>' +
-              '<div class="courage-policy-qty-val"><strong id="couragePolicyQtyNum">' + numBR(recommendedQty, 0) + '</strong> <span class="unit">ações</span></div>' +
-              '</div>' +
-              '<button type="button" class="courage-execute-policy-btn" id="courageExecutePolicyBtn">' +
-              '✓ Usar <span id="courageBtnQtyNum">' + numBR(recommendedQty, 0) + '</span> ações' +
-              '</button>' +
-              '<div class="courage-override-toggle-wrap">' +
-              '<button type="button" class="courage-toggle-override-btn" id="courageToggleOverrideBtn">' +
-              'Alterar quantidade' +
-              '</button>' +
-              '</div>' +
-              '<div class="courage-override-box" id="courageOverrideBox" style="display:none;">' +
-              '<label for="tradeExecutedQty">Informar quantidade personalizada:</label>' +
-              '<div id="courageInputMount"></div>' +
-              '<div class="courage-override-feedback" id="courageOverrideFeedback"></div>' +
-              '</div>';
+        if (!missionContainer) {
+          missionContainer = document.createElement('div');
+          missionContainer.id = 'missionWorkbenchExperience';
+          missionContainer.className = 'mission-workbench-container';
 
-            qtyCtrl.insertBefore(customWrap, qtyCtrl.firstChild);
-            if (executedInput) {
-              customWrap.querySelector('#courageInputMount')?.appendChild(executedInput);
+          if (executionMount) {
+            executionMount.appendChild(missionContainer);
+          } else {
+            sizer.appendChild(missionContainer);
+          }
+        }
+
+        missionContainer.innerHTML = `
+          <!-- Card 1: Missão Ativa em Destaque — Âmbar / Dourado Luminoso -->
+          <div class="mission-workbench-card mission-active-card">
+            <div class="mission-card-top">
+              <div class="mission-shield-badge" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="m9 12 2 2 4-4"/>
+                </svg>
+              </div>
+              <div class="mission-header-info">
+                <h4 class="mission-card-title">MISSÃO ATIVA</h4>
+                <p class="mission-card-subtitle">Operando com risco reduzido conforme sua missão.</p>
+              </div>
+              <div class="mission-status-pill">
+                <span class="status-dot"></span> Ativa
+              </div>
+            </div>
+            <div class="mission-card-bottom">
+              <div class="mission-risk-col">
+                <span class="mission-label-eyebrow">RISCO MÁXIMO POR TRADE</span>
+                <div class="mission-risk-value" id="missionActiveRiskDisplay">${numBR(missionRiskPct, 2)}%</div>
+              </div>
+              <div class="mission-origin-col">
+                <span class="mission-origin-title">Definido pela Missão</span>
+                <span class="mission-origin-sub">Limite em vigor <span class="mission-info-icon" style="color:#f59e0b;font-size:12px;" aria-hidden="true">ⓘ</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Teto Teórico do Grade em Segundo Plano (Ampliado para widescreen) -->
+          <div class="mission-workbench-card mission-ceiling-card">
+            <div class="mission-ceiling-top">
+              <div class="mission-ceiling-title-wrap">
+                <svg class="mission-bars-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                <span class="mission-ceiling-label">Teto teórico pelo Grade ${grade}</span>
+              </div>
+              <span class="mission-ceiling-info-icon" title="O limite da Missão tem precedência sobre o teto do Grade" aria-hidden="true">ⓘ</span>
+            </div>
+            <div class="mission-ceiling-body">
+              <div class="mission-ceiling-val">${numBR(theoreticalGradeRisk, 2)}%</div>
+              <p class="mission-ceiling-desc">${ceilingExplanation}</p>
+            </div>
+          </div>
+
+          <!-- Card 3: Área Unificada de Decisão e Execução -->
+          <div class="mission-workbench-card mission-execution-card">
+            <div class="mission-exec-head">
+              <div class="mission-step-badge">3</div>
+              <div class="mission-exec-head-text">
+                <h4>3. Quantidade e risco da operação</h4>
+                <p>Defina a quantidade. O cálculo respeita o limite da Missão.</p>
+              </div>
+            </div>
+
+            <div class="mission-qty-control-row">
+              <div class="mission-qty-input-col">
+                <label for="tradeExecutedQty" class="mission-qty-label">Quantidade de ações</label>
+                <div class="mission-stepper-wrap">
+                  <div id="missionInputMount" style="flex:1;height:100%;"></div>
+                  <div class="mission-stepper-btns">
+                    <button type="button" class="mission-step-btn" id="missionStepUpBtn" title="Aumentar quantidade (+100)">▲</button>
+                    <button type="button" class="mission-step-btn" id="missionStepDownBtn" title="Diminuir quantidade (-100)">▼</button>
+                  </div>
+                </div>
+              </div>
+              <div class="mission-violation-box" id="missionRiskViolationBox" style="display:${isInitialBlocked ? 'flex' : 'none'};">
+                <div class="mission-violation-icon" aria-hidden="true">▲</div>
+                <div class="mission-violation-content">
+                  <strong class="mission-violation-title">Excede o limite da Missão</strong>
+                  <p class="mission-violation-desc" id="missionViolationDesc">O risco desta operação seria ${numBR(actualRiskPct, 2)}%, acima do limite de ${numBR(missionRiskPct, 2)}%.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mission-exec-metrics-grid">
+              <div class="mission-metric-block">
+                <span class="mission-label-eyebrow">RISCO FINANCEIRO</span>
+                <strong class="mission-metric-main" id="missionRiskMoneyValue">${financialRisk.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+                <span class="mission-metric-sub ${isInitialBlocked ? 'is-risk-blocked' : 'is-risk-allowed'}" id="missionRiskPctSub">${numBR(actualRiskPct, 2)}% do seu capital</span>
+              </div>
+              <div class="mission-metric-block">
+                <span class="mission-label-eyebrow">CAPITAL UTILIZADO</span>
+                <strong class="mission-metric-main" id="missionCapitalUsedValue">${capitalUsed.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}</strong>
+                <span class="mission-metric-sub">Aproximadamente</span>
+              </div>
+            </div>
+
+            <button type="button" class="mission-register-btn ${isInitialBlocked ? 'is-risk-blocked' : ''}" id="missionRegisterTradeBtn" ${isInitialBlocked ? 'disabled aria-disabled="true"' : ''}>
+              ${isInitialBlocked ? '🔒 Registrar trade →' : 'Registrar trade →'}
+            </button>
+
+            <div class="mission-block-banner" id="missionBlockBanner" style="display:${isInitialBlocked ? 'flex' : 'none'};">
+              <div class="mission-block-icon" aria-hidden="true">ⓘ</div>
+              <div class="mission-block-content">
+                <strong class="mission-block-title">Não é possível registrar este trade</strong>
+                <p class="mission-block-desc">A quantidade informada excede o limite de risco definido pela sua Missão (${numBR(missionRiskPct, 2)}%). Ajuste a quantidade para continuar.</p>
+              </div>
+            </div>
+
+            <div class="mission-max-allowed-card" id="missionMaxAllowedCard" title="Clique para restaurar a quantidade máxima permitida" style="cursor:pointer;">
+              <div class="mission-max-allowed-top">
+                <div class="mission-max-allowed-left">
+                  <div class="mission-coin-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="9"/>
+                      <path d="M14.8 9A2 2 0 0 0 13 8h-2a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4h-2a2 2 0 0 1-1.8-1"/>
+                      <path d="M12 6v2m0 8v2"/>
+                    </svg>
+                  </div>
+                  <div class="mission-max-allowed-info">
+                    <small>Position Size Final (máximo permitido)</small>
+                    <strong id="missionMaxQtyNumber">${numBR(suggestedQty, 0)} ações</strong>
+                  </div>
+                </div>
+                <div class="mission-max-allowed-right">
+                  <span class="mission-max-risk-money" id="missionMaxRiskMoney">Risco: ${financialRiskSuggested.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                  <span class="mission-max-risk-pct">(${numBR(missionRiskPct, 2)}% do seu capital)</span>
+                </div>
+              </div>
+              <small class="mission-max-allowed-note">Calculado com base no limite da sua Missão ativa.</small>
+            </div>
+          </div>
+        `;
+
+        if (executedInput) {
+          missionContainer.querySelector('#missionInputMount')?.appendChild(executedInput);
+          executedInput.disabled = false;
+          executedInput.removeAttribute('disabled');
+        }
+
+        document.getElementById('newtrade')?.classList.add('has-mission-active');
+        document.getElementById('newtrade')?.classList.add('courage-detachment-active');
+
+        function recomputeMissionMetrics() {
+          const inputVal = Number(executedInput?.value) || 0;
+          const fRisk = (entry > 0 && stop > 0 && inputVal > 0) ? (distance * inputVal) : sizing.initialRisk;
+          const cUsed = entry > 0 ? (entry * inputVal) : (inputVal * (entry || 48.3));
+          const rPct = equity > 0 ? ((fRisk / equity) * 100) : targetRisk;
+          const isRiskBlocked = rPct > (missionRiskPct + 0.0201);
+
+          const riskMoneyEl = document.getElementById('missionRiskMoneyValue');
+          const riskPctSubEl = document.getElementById('missionRiskPctSub');
+          const capUsedEl = document.getElementById('missionCapitalUsedValue');
+          const violationBox = document.getElementById('missionRiskViolationBox');
+          const violationDesc = document.getElementById('missionViolationDesc');
+          const blockBanner = document.getElementById('missionBlockBanner');
+          const regBtn = document.getElementById('missionRegisterTradeBtn');
+
+          if (riskMoneyEl) riskMoneyEl.textContent = fRisk.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+          if (riskPctSubEl) {
+            riskPctSubEl.textContent = numBR(rPct, 2) + '% do seu capital';
+            riskPctSubEl.classList.toggle('is-risk-blocked', isRiskBlocked);
+            riskPctSubEl.classList.toggle('is-risk-allowed', !isRiskBlocked);
+          }
+          if (capUsedEl) capUsedEl.textContent = cUsed.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+
+          if (violationBox && violationDesc) {
+            violationBox.style.display = isRiskBlocked ? 'flex' : 'none';
+            if (isRiskBlocked) {
+              violationDesc.textContent = `O risco desta operação seria ${numBR(rPct, 2)}%, acima do limite de ${numBR(missionRiskPct, 2)}%.`;
             }
+          }
 
-            const executeBtn = customWrap.querySelector('#courageExecutePolicyBtn');
-            executeBtn?.addEventListener('click', () => {
-              const rec = parseInt(document.getElementById('tradeFinalSize')?.textContent?.replace(/\D/g, '') || '0', 10) || 0;
-              const input = document.getElementById('tradeExecutedQty');
-              if (input && rec > 0) {
-                delete input.dataset.manualOverride;
-                input.value = String(rec);
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-              }
-              executeBtn.classList.add('confirmed');
-              setTimeout(() => executeBtn.classList.remove('confirmed'), 1500);
-              renderCourageOverrideFeedback(Number(input?.value) || rec, targetRisk);
-            });
+          if (blockBanner) {
+            blockBanner.style.display = isRiskBlocked ? 'flex' : 'none';
+          }
 
-            const toggleBtn = customWrap.querySelector('#courageToggleOverrideBtn');
-            const overrideBox = customWrap.querySelector('#courageOverrideBox');
-            toggleBtn?.addEventListener('click', () => {
-              const isHidden = overrideBox.style.display === 'none';
-              overrideBox.style.display = isHidden ? 'block' : 'none';
-              toggleBtn.textContent = isHidden ? 'Ocultar ajuste' : 'Alterar quantidade';
-              const input = document.getElementById('tradeExecutedQty');
-              if (isHidden && input) {
-                input.disabled = false;
-                input.removeAttribute('disabled');
-                input.removeAttribute('aria-disabled');
-                input.focus();
-                input.select();
-                renderCourageOverrideFeedback(Number(input.value) || 0, targetRisk);
-              }
+          if (regBtn) {
+            regBtn.classList.toggle('is-risk-blocked', isRiskBlocked);
+            if (isRiskBlocked) {
+              regBtn.disabled = true;
+              regBtn.setAttribute('aria-disabled', 'true');
+              regBtn.innerHTML = '🔒 Registrar trade →';
+              regBtn.title = `Operação bloqueada: o risco (${numBR(rPct, 2)}%) excede o limite de ${numBR(missionRiskPct, 2)}% da sua Missão ativa.`;
+            } else {
+              regBtn.disabled = false;
+              regBtn.removeAttribute('aria-disabled');
+              regBtn.innerHTML = 'Registrar trade →';
+              regBtn.title = 'Registrar trade planejado';
               if (typeof refreshWorkbenchRiskGate === 'function') {
                 refreshWorkbenchRiskGate();
               }
-            });
-
-            executedInput?.addEventListener('input', () => {
-              renderCourageOverrideFeedback(Number(executedInput.value) || 0, targetRisk);
-            });
-          }
-
-          const overrideBox = customWrap.querySelector('#courageOverrideBox');
-          if (overrideBox && overrideBox.style.display === 'block' && executedInput && grade !== 'D') {
-            executedInput.disabled = false;
-            executedInput.removeAttribute('disabled');
-            executedInput.removeAttribute('aria-disabled');
-          }
-
-          const policyNum = document.getElementById('couragePolicyQtyNum');
-          const btnNum = document.getElementById('courageBtnQtyNum');
-          if (policyNum) policyNum.textContent = numBR(recommendedQty, 0);
-          if (btnNum) btnNum.textContent = numBR(recommendedQty, 0);
-          renderCourageOverrideFeedback(qty, targetRisk);
-        }
-
-        // 3. Card de Aceitação Consciente do Risco (quando Modo Desapego está ON)
-        if (isDetached) {
-          if (!consciousCard) {
-            consciousCard = document.createElement('div');
-            consciousCard.id = 'courageConsciousRiskCard';
-            consciousCard.className = 'courage-conscious-risk-card';
-            const qtyCtrl = sizer.querySelector('.executed-quantity-control');
-            const mount = document.getElementById('workbenchExecutionMount');
-            if (qtyCtrl && qtyCtrl.parentNode) {
-              qtyCtrl.parentNode.insertBefore(consciousCard, qtyCtrl);
-            } else if (mount) {
-              mount.appendChild(consciousCard);
-            } else {
-              sizer.appendChild(consciousCard);
             }
           }
+        }
 
-          consciousCard.innerHTML = '<div class="courage-conscious-title">' +
-            '<span>Confirmação de risco</span>' +
-            '<span class="courage-conscious-status ' + (isCompliant ? 'is-compliant' : 'needs-adjustment') + '">' + (isCompliant ? 'Dentro da política' : 'Ajuste necessário') + '</span>' +
-            '</div>' +
-            '<div class="courage-conscious-target-row">' +
-            '<div><span class="courage-risk-label">Risk Budget</span><div class="courage-conscious-target-val">' + riskBudget.toFixed(2).replace('.', ',') + '%</div></div>' +
-            '<span class="courage-risk-comparison" aria-hidden="true">→</span>' +
-            '<div><span class="courage-risk-label">Risco executável</span><div class="courage-conscious-actual-val">' + targetRisk.toFixed(2).replace('.', ',') + '%</div><small>Limitado por '+limitingLayerName+'</small></div>' +
-            '</div>' +
-            '<label class="courage-conscious-checkbox-wrap">' +
-            '<input type="checkbox" id="courageConsciousCheckbox" checked>' +
-            '<span>Confirmo o risco executável de ' + targetRisk.toFixed(2).replace('.', ',') + '%.</span>' +
-            '</label>' +
-            '<div class="courage-discomfort-row">' +
-            '<span class="courage-discomfort-label">Conforto com o risco</span>' +
-            '<div class="courage-discomfort-scale">' +
-            '<button type="button" class="courage-discomfort-btn ' + (window.selectedCourageDiscomfortLevel === 1 ? 'selected' : '') + '" onclick="selectCourageDiscomfort(1)">1</button>' +
-            '<button type="button" class="courage-discomfort-btn ' + (window.selectedCourageDiscomfortLevel === 2 ? 'selected' : '') + '" onclick="selectCourageDiscomfort(2)">2</button>' +
-            '<button type="button" class="courage-discomfort-btn ' + (window.selectedCourageDiscomfortLevel === 3 ? 'selected' : '') + '" onclick="selectCourageDiscomfort(3)">3</button>' +
-            '<button type="button" class="courage-discomfort-btn ' + (window.selectedCourageDiscomfortLevel === 4 ? 'selected' : '') + '" onclick="selectCourageDiscomfort(4)">4</button>' +
-            '<button type="button" class="courage-discomfort-btn ' + (window.selectedCourageDiscomfortLevel === 5 ? 'selected' : '') + '" onclick="selectCourageDiscomfort(5)">5</button>' +
-            '</div>' +
-            '<div class="courage-discomfort-legend">' +
-            '<span>Tranquilo</span>' +
-            '<span>Desconfortável</span>' +
-            '</div>' +
-            '</div>';
-        } else if (consciousCard) {
-          consciousCard.remove();
+        executedInput?.addEventListener('input', () => {
+          executedInput.dataset.manualOverride = 'true';
+          recomputeMissionMetrics();
+        });
+
+        const stepUpBtn = missionContainer.querySelector('#missionStepUpBtn');
+        const stepDownBtn = missionContainer.querySelector('#missionStepDownBtn');
+
+        stepUpBtn?.addEventListener('click', () => {
+          if (!executedInput) return;
+          executedInput.dataset.manualOverride = 'true';
+          const cur = Number(executedInput.value) || 0;
+          const step = cur >= 100 ? 100 : 10;
+          executedInput.value = String(cur + step);
+          executedInput.dispatchEvent(new Event('input', { bubbles: true }));
+          executedInput.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        stepDownBtn?.addEventListener('click', () => {
+          if (!executedInput) return;
+          executedInput.dataset.manualOverride = 'true';
+          const cur = Number(executedInput.value) || 0;
+          const step = cur > 100 ? 100 : (cur > 10 ? 10 : 1);
+          executedInput.value = String(Math.max(0, cur - step));
+          executedInput.dispatchEvent(new Event('input', { bubbles: true }));
+          executedInput.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        const maxCard = missionContainer.querySelector('#missionMaxAllowedCard');
+        maxCard?.addEventListener('click', () => {
+          if (executedInput) {
+            delete executedInput.dataset.manualOverride;
+            executedInput.value = String(suggestedQty);
+            executedInput.dispatchEvent(new Event('input', { bubbles: true }));
+            executedInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+
+        const regBtn = missionContainer.querySelector('#missionRegisterTradeBtn');
+        regBtn?.addEventListener('click', (e) => {
+          const inputVal = Number(executedInput?.value) || 0;
+          const fRisk = (entry > 0 && stop > 0 && inputVal > 0) ? (distance * inputVal) : sizing.initialRisk;
+          const rPct = equity > 0 ? ((fRisk / equity) * 100) : targetRisk;
+          if (rPct > (missionRiskPct + 0.0201)) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof showToast === 'function') {
+              showToast(`Não é possível registrar este trade: a quantidade informada excede o limite de risco definido pela sua Missão (${numBR(missionRiskPct, 2)}%). Ajuste a quantidade para continuar.`);
+            }
+            return;
+          }
+          saveTradePlan(e);
+        });
+
+        if (typeof refreshWorkbenchRiskGate === 'function') {
+          refreshWorkbenchRiskGate();
         }
       } else {
-        if (banner) banner.remove();
-        if (consciousCard) consciousCard.remove();
-        const customWrap = document.getElementById('courageQuantityExperience');
-        if (customWrap) {
-          const originalInput = document.getElementById('tradeExecutedQty');
-          const qtyCtrl = sizer.querySelector('.executed-quantity-control');
-          if (qtyCtrl && originalInput) {
-            qtyCtrl.appendChild(originalInput);
-            const originalLabel = qtyCtrl.querySelector('label');
-            const originalSmall = qtyCtrl.querySelector('small');
-            if (originalLabel) originalLabel.style.display = '';
-            if (originalSmall) originalSmall.style.display = '';
-          }
-          customWrap.remove();
+        if (missionContainer) {
+          missionContainer.remove();
         }
+        if (summaryMount) {
+          summaryMount.style.display = '';
+        }
+        if (qtyControl) {
+          qtyControl.style.display = '';
+          if (executedInput && !qtyControl.contains(executedInput)) {
+            qtyControl.appendChild(executedInput);
+          }
+          const origLabel = qtyControl.querySelector('label');
+          const origSmall = qtyControl.querySelector('small');
+          if (origLabel) origLabel.style.display = '';
+          if (origSmall) origSmall.style.display = '';
+        }
+        document.getElementById('newtrade')?.classList.remove('has-mission-active');
         document.getElementById('newtrade')?.classList.remove('courage-detachment-active');
       }
     } finally {
-      isSyncingCourageBanner = false;
+      isSyncingMissionExperience = false;
     }
   }
+
+  window.syncMissionWorkbenchExperience = syncMissionWorkbenchExperience;
+  window.syncCourageWorkbenchBanner = syncMissionWorkbenchExperience;
+
+  // Ouvintes de ciclo de vida da missão para atualização reativa instantânea
+  window.addEventListener('healthyTrend:missionStateChanged', () => {
+    if (typeof updateTradingRubric === 'function') updateTradingRubric();
+  });
+  window.addEventListener('healthyTrend:missionUpdated', () => {
+    if (typeof updateTradingRubric === 'function') updateTradingRubric();
+  });
 
   // Hook na atualização da rubric
   if (typeof updateTradingRubric === 'function') {
@@ -4563,7 +4712,7 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
     updateTradingRubric = function() {
       const res = origUpdateTradingRubric.apply(this, arguments);
       try {
-        syncCourageWorkbenchBanner(res);
+        syncMissionWorkbenchExperience(res);
       } catch(e) {}
       return res;
     };
@@ -4675,20 +4824,6 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
       const challengeState = window.CourageChallengeModel ? window.CourageChallengeModel.getState() : null;
       const isDetached = challengeState ? (challengeState.detachmentMode !== false) : true;
       const grade = plan?.grade || plan?.rubricGrade;
-      const isEligible = grade === 'A';
-
-      // Se estiver em modo desapego com Grade A, exigir confirmação de risco consciente
-      if (isChallengeActive && isDetached && isEligible) {
-        const checkbox = document.getElementById('courageConsciousCheckbox');
-        if (checkbox && !checkbox.checked) {
-          if (typeof showToast === 'function') {
-            showToast('⚠️ Por favor, confirme a aceitação consciente do risco planejado antes de executar.');
-          }
-          document.getElementById('courageConsciousRiskCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-      }
-
       const res = await origSaveTradePlan.apply(this, arguments);
 
       try {
@@ -4743,19 +4878,6 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
       const challengeState = window.CourageChallengeModel ? window.CourageChallengeModel.getState() : null;
       const isDetached = challengeState ? (challengeState.detachmentMode !== false) : true;
       const grade = plan?.grade || plan?.rubricGrade;
-      const isEligible = grade === 'A';
-
-      if (isChallengeActive && isDetached && isEligible) {
-        const checkbox = document.getElementById('courageConsciousCheckbox');
-        if (checkbox && !checkbox.checked) {
-          if (typeof showToast === 'function') {
-            showToast('⚠️ Por favor, confirme a aceitação consciente do risco planejado antes de executar.');
-          }
-          document.getElementById('courageConsciousRiskCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-      }
-
       const res = await confirmTradeWithCourage.apply(this, arguments);
 
       try {
@@ -4812,6 +4934,10 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <link rel="stylesheet" href="frontend/trader-training.css?v=20261003-1" />
 <script src="frontend/trader-training-model.js?v=20261003-1"></script>
 <script src="frontend/trader-training.js?v=20261003-1"></script>
+<script src="frontend/rebuild-mode-model.js"></script>
+<script src="frontend/rebuild-mode.js"></script>
+<script src="frontend/mission-model.js"></script>
+<script src="frontend/mission.js"></script>
 <script src="frontend/trade-simulator-model.js"></script>
 <script src="frontend/trade-simulator.js"></script>
 <script src="frontend/market-news-model.js?v=20261005-live-feed"></script>
