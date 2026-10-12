@@ -15,19 +15,11 @@
     targetTrades: 20,
     riskPct: 0.001, // 0,10%
     reward: 'Um jantar especial',
-    status: 'ACTIVE', // 'ACTIVE', 'PAUSED', 'COMPLETED'
+    status: 'NOT_STARTED', // 'NOT_STARTED', 'ACTIVE', 'COMPLETED'
     rebuildModeLinked: true,
-    startDate: '2026-10-01T09:00:00.000Z',
+    startDate: null,
     completedDate: null,
-    trades: [
-      { id: 'mt-1', tradeNumber: 1, date: '10/10/2026', ticker: 'PETR4', result: 'COMPLIANT', status: 'CLOSED', notes: 'Gatilho perfeito, stop respeitado.' },
-      { id: 'mt-2', tradeNumber: 2, date: '13/10/2026', ticker: 'VALE3', result: 'COMPLIANT', status: 'CLOSED', notes: 'Executado com calma.' },
-      { id: 'mt-3', tradeNumber: 3, date: '14/10/2026', ticker: 'ITUB4', result: 'COMPLIANT', status: 'CLOSED', notes: 'Saída disciplinada.' },
-      { id: 'mt-4', tradeNumber: 4, date: '16/10/2026', ticker: 'BBDC4', result: 'COMPLIANT', status: 'CLOSED', notes: 'Risco pequeno sem ansiedade.' },
-      { id: 'mt-5', tradeNumber: 5, date: '17/10/2026', ticker: 'ABEV3', result: 'COMPLIANT', status: 'CLOSED', notes: 'Foco total no processo.' },
-      { id: 'mt-6', tradeNumber: 6, date: '18/10/2026', ticker: 'RENT3', result: 'COMPLIANT', status: 'CLOSED', notes: 'Entrada serena na média.' },
-      { id: 'mt-7', tradeNumber: 7, date: '19/10/2026', ticker: 'PRIO3', result: 'COMPLIANT', status: 'CLOSED', notes: 'Cumprimento das regras.' }
-    ]
+    trades: []
   };
 
   function sanitizeString(val) {
@@ -68,6 +60,9 @@
     // Se digitado em percentual inteiro (ex.: 0.10), converte para decimal 0.001
     if (riskPct > 0.05) riskPct = riskPct / 100;
 
+    const status = params.status || 'NOT_STARTED';
+    const startDate = params.startDate || (status === 'ACTIVE' ? new Date().toISOString() : null);
+
     return {
       id: params.id || 'mission-' + Date.now(),
       title: sanitizeString(params.title) || 'Minha missão é operar pequeno e constante.',
@@ -75,11 +70,11 @@
       targetTrades,
       riskPct,
       reward: sanitizeString(params.reward) || 'Um jantar especial',
-      status: params.status || 'ACTIVE',
+      status,
       rebuildModeLinked: Boolean(params.rebuildModeLinked ?? true),
-      startDate: params.startDate || new Date().toISOString(),
+      startDate,
       completedDate: params.completedDate || null,
-      trades: Array.isArray(params.trades) ? params.trades : []
+      trades: Array.isArray(params.trades) ? [...params.trades] : []
     };
   }
 
@@ -90,8 +85,8 @@
     const targetTrades = Math.max(1, Number(m.targetTrades) || 20);
     const progressPct = Math.min(100, Math.round((completedTrades / targetTrades) * 100));
     const remainingTrades = Math.max(0, targetTrades - completedTrades);
-    const isCompleted = completedTrades >= targetTrades;
-    const daysSinceStart = calculateDaysSince(m.startDate);
+    const isCompleted = m.status === 'COMPLETED' || (m.status === 'ACTIVE' && completedTrades >= targetTrades);
+    const daysSinceStart = m.startDate ? calculateDaysSince(m.startDate) : 0;
 
     const equity = Number(options.equity) || 0;
     const estimatedRiskValue = equity > 0 ? equity * (m.riskPct || 0.001) : null;
@@ -104,7 +99,7 @@
     const activeWp = waypoints.find(w => w.status === 'ACTIVE') || waypoints[waypoints.length - 1];
     const currentStationNumber = isCompleted ? 7 : (activeWp ? activeWp.stationNumber : 1);
     const completedStations = waypoints.filter(w => w.status === 'COMPLETED').length;
-    const currentStationTrades = activeWp ? activeWp.stationTrades : targetTrades;
+    const currentStationTrades = activeWp ? (activeWp.endTrade || activeWp.stationTrades) : targetTrades;
 
     return {
       completedTrades,
@@ -118,13 +113,14 @@
       estimatedRiskValue,
       estimatedRiskValueFormatted: estimatedRiskValue !== null ? formatCurrencyBRL(estimatedRiskValue) : null,
       hasOpenTrade,
-      status: m.status || 'ACTIVE',
-      canAddTrade: !hasOpenTrade && !isCompleted,
+      status: m.status || 'NOT_STARTED',
+      canAddTrade: m.status === 'ACTIVE' && !hasOpenTrade && !isCompleted,
       // Marco da montanha sincronizado com a mesma fonte de verdade
       totalStations: 7,
       completedStations,
       currentStationNumber,
       currentStationTrades,
+      activeWaypoint: activeWp,
       waypoints
     };
   }
@@ -163,10 +159,13 @@
     const nextTrades = [...currentTrades, newTrade];
     const isNowCompleted = nextTrades.length >= mission.targetTrades;
 
+    const nextStatus = isNowCompleted ? 'COMPLETED' : (mission.status === 'NOT_STARTED' ? 'ACTIVE' : mission.status);
+
     const updatedMission = {
       ...mission,
       trades: nextTrades,
-      status: isNowCompleted ? 'COMPLETED' : mission.status,
+      startDate: mission.startDate || new Date().toISOString(),
+      status: nextStatus,
       completedDate: isNowCompleted ? (mission.completedDate || new Date().toISOString()) : mission.completedDate
     };
 
@@ -250,45 +249,131 @@
   }
 
   /**
-   * Gera a lista de 7 waypoints estáticos que compõem a rota na montanha,
+   * Inicia ou atualiza a missão de acordo com as regras de ciclo de vida:
+   * 1. Se a missão ainda não foi iniciada (status !== 'ACTIVE' ou sem startDate):
+   *    - Cria ou ativa a instância da missão
+   *    - Inicializa o progresso estritamente em zero (trades = [])
+   *    - Registra a data de início atual (startDate = now)
+   *    - Aplica as configurações validadas
+   *    - Retorna { mission, isNew: true }
+   * 2. Se a missão já estiver ativa (status === 'ACTIVE'):
+   *    - Proteção contra reinicialização acidental: preserva integralmente os trades e startDate
+   *    - Atualiza apenas a configuração (meta, risco, recompensa, título, motivo)
+   *    - Retorna { mission, isNew: false }
+   */
+  function startMission(mission, config = {}, rebuildState = null) {
+    const base = mission || DEFAULT_MISSION;
+    const updated = updateMissionConfig(base, config, rebuildState);
+
+    if (base.status === 'ACTIVE' && base.startDate) {
+      return {
+        mission: updated,
+        isNew: false
+      };
+    }
+
+    return {
+      mission: {
+        ...updated,
+        status: 'ACTIVE',
+        startDate: new Date().toISOString(),
+        completedDate: null,
+        trades: [] // Inicializa estritamente em zero
+      },
+      isNew: true
+    };
+  }
+
+  const STATION_TITLES = [
+    'Primeiro Passo',
+    'Construindo Base',
+    'Ganhando Consistência',
+    'Disciplina Firme',
+    'Foco Inabalável',
+    'Reta Final',
+    'Missão Cumprida'
+  ];
+
+  /**
+   * Calcula a divisão matemática dos trades da meta ao longo dos 7 marcos.
+   * Exemplo para 20 trades:
+   * Marco 1: 1 a 2 trades (tamanho 2)
+   * Marco 2: 3 a 5 trades (tamanho 3)
+   * Marco 3: 6 a 8 trades (tamanho 3)
+   * Marco 4: 9 a 11 trades (tamanho 3)
+   * Marco 5: 12 a 14 trades (tamanho 3)
+   * Marco 6: 15 a 17 trades (tamanho 3)
+   * Marco 7: 18 a 20 trades (tamanho 3)
+   */
+  function getStationMilestones(targetTrades, totalStations = 7) {
+    const N = Math.max(1, Math.round(Number(targetTrades) || 20));
+    const K = totalStations;
+    const milestones = [];
+
+    if (N <= K) {
+      for (let i = 1; i <= K; i++) {
+        const endTrade = Math.min(N, Math.max(1, Math.round((i * N) / K)));
+        const prevEnd = i === 1 ? 0 : milestones[i - 2].endTrade;
+        const startTrade = Math.min(endTrade, prevEnd + (endTrade > prevEnd ? 1 : 0));
+        milestones.push({
+          stationNumber: i,
+          startTrade: Math.max(1, startTrade),
+          endTrade
+        });
+      }
+    } else {
+      const base = Math.floor(N / K);
+      const remainder = N % K;
+      const sizes = [];
+      for (let i = 0; i < K; i++) {
+        sizes.push(i < (K - remainder) ? base : base + 1);
+      }
+      let currentStart = 1;
+      for (let i = 0; i < K; i++) {
+        const endTrade = (i === K - 1) ? N : (currentStart + sizes[i] - 1);
+        milestones.push({
+          stationNumber: i + 1,
+          startTrade: currentStart,
+          endTrade
+        });
+        currentStart = endTrade + 1;
+      }
+    }
+    return milestones;
+  }
+
+  /**
+   * Gera a lista de 7 waypoints que compõem a rota na montanha,
    * calculando seu estado visual (COMPLETED, ACTIVE, LOCKED) de acordo
    * com a meta de trades e o progresso atual de forma estritamente coerente.
    */
   function generateWaypoints(targetTrades, completedTrades) {
     const target = Math.max(1, Number(targetTrades) || 20);
     const completed = Math.max(0, Number(completedTrades) || 0);
-
     const totalStations = 7;
-    const stations = [];
+    const milestones = getStationMilestones(target, totalStations);
 
-    // Metas de trades de cada estação ao longo do percurso
-    const stationTargets = [];
-    for (let i = 1; i <= totalStations; i++) {
-      const stationTrades = i === totalStations
-        ? target
-        : Math.max(1, Math.round((i / totalStations) * target));
-      stationTargets.push(stationTrades);
-    }
-
-    // Estação ativa atual: primeiro marco cuja meta ainda não foi superada
-    // Se completed >= target: todas concluídas, ativo é o cume (7)
     let activeStationIndex = totalStations;
     if (completed < target) {
       for (let i = 0; i < totalStations; i++) {
-        if (completed < stationTargets[i]) {
+        if (completed < milestones[i].endTrade) {
           activeStationIndex = i + 1;
           break;
         }
       }
     }
 
+    const stations = [];
     for (let i = 1; i <= totalStations; i++) {
-      const stationTrades = stationTargets[i - 1];
-      let status = 'LOCKED';
+      const ms = milestones[i - 1];
+      const startTrade = ms.startTrade;
+      const endTrade = ms.endTrade;
+      const title = STATION_TITLES[i - 1] || `Marco ${i}`;
 
+      let status = 'LOCKED';
       if (completed >= target) {
         status = 'COMPLETED';
-      } else if (completed >= stationTrades && i < activeStationIndex) {
+      } else if (completed >= endTrade) {
         status = 'COMPLETED';
       } else if (i === activeStationIndex) {
         status = 'ACTIVE';
@@ -296,23 +381,42 @@
         status = 'LOCKED';
       }
 
-      let statusDescription = '';
+      const statusLabel = status === 'COMPLETED' ? 'Concluído' : (status === 'ACTIVE' ? 'Em andamento' : 'Bloqueado');
+      const rangeLabel = startTrade === endTrade ? `${startTrade} trade` : `${startTrade} – ${endTrade} trades`;
+      const targetTradesText = `Meta: ${startTrade === endTrade ? `${endTrade} trade concluído` : `${startTrade} a ${endTrade} trades concluídos`}`;
+      const progressText = `Progresso: ${Math.min(completed, endTrade)} de ${endTrade} trades`;
+
+      let remainingText = '';
       if (status === 'COMPLETED') {
-        statusDescription = `Marco ${i} concluído ✓ (${completed} trades realizados — meta do marco: ${stationTrades} trades).`;
+        remainingText = 'Marco concluído com sucesso!';
       } else if (status === 'ACTIVE') {
-        const remainingInStation = Math.max(0, stationTrades - completed);
-        statusDescription = `Você está no Marco ${i}! ★ (${completed} de ${stationTrades} trades da etapa realizados — faltam ${remainingInStation} trades para consolidar).`;
+        const diff = Math.max(0, endTrade - completed);
+        remainingText = diff === 1
+          ? 'Falta 1 trade para concluir este marco.'
+          : `Faltam ${diff} trades para concluir este marco.`;
       } else {
-        statusDescription = `Marco ${i} bloqueado 🔒 (Requer ${stationTrades} trades concluídos para desbloquear).`;
+        const diff = Math.max(0, endTrade - completed);
+        remainingText = diff === 1
+          ? 'Falta 1 trade para alcançar este marco.'
+          : `Faltam ${diff} trades para alcançar este marco.`;
       }
 
       stations.push({
         stationNumber: i,
-        stationTrades,
         stationLabel: `Marco ${i}`,
-        tradesLabel: `${stationTrades} trades`,
+        stationTitle: title,
+        fullName: `Marco ${i}: ${title}`,
+        startTrade,
+        endTrade,
+        stationTrades: endTrade, // Compatibilidade com chamadas existentes
+        tradesLabel: rangeLabel,
+        rangeLabel,
         status, // 'COMPLETED', 'ACTIVE', 'LOCKED'
-        statusDescription,
+        statusLabel,
+        targetTradesText,
+        progressText,
+        remainingText,
+        statusDescription: `${title} (${rangeLabel}): ${statusLabel}. ${progressText}. ${remainingText}`,
         completedTrades: completed,
         isSummit: i === totalStations
       });
@@ -325,12 +429,15 @@
     STORAGE_KEY,
     HISTORY_STORAGE_KEY,
     DEFAULT_MISSION,
+    STATION_TITLES,
     createMission,
+    startMission,
     calculateMissionProgress,
     addMissionTrade,
     closeOpenMissionTrade,
     removeMissionTrade,
     updateMissionConfig,
+    getStationMilestones,
     generateWaypoints,
     formatCurrencyBRL,
     formatPctBR

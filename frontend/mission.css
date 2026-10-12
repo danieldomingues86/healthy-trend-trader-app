@@ -367,7 +367,22 @@ body:has(#mission.page.active) #marketFocusGuard {
 }
 
 .mission-waypoint-node:hover {
-  transform: translate(-50%, -50%) scale(1.15);
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.mission-node-active-crown {
+  position: absolute;
+  top: -12px;
+  font-size: 11px;
+  color: #facc15;
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.95);
+  animation: crownFloat 2s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes crownFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 .mission-node-disc {
@@ -381,6 +396,7 @@ body:has(#mission.page.active) #marketFocusGuard {
   font-weight: 800;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .mission-waypoint-node.completed .mission-node-disc {
@@ -393,9 +409,9 @@ body:has(#mission.page.active) #marketFocusGuard {
 .mission-waypoint-node.active .mission-node-disc {
   width: 36px;
   height: 36px;
-  background: rgba(18, 24, 18, 0.92);
+  background: #111814;
   border: 3px solid #facc15;
-  color: #ffffff;
+  color: #facc15;
   box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.35), 0 0 22px rgba(250, 204, 21, 0.95);
   animation: activeNodePulse 2s infinite ease-in-out;
 }
@@ -407,7 +423,7 @@ body:has(#mission.page.active) #marketFocusGuard {
   }
   50% {
     box-shadow: 0 0 0 6px rgba(250, 204, 21, 0.45), 0 0 26px rgba(250, 204, 21, 1);
-    transform: scale(1.05);
+    transform: scale(1.04);
   }
 }
 
@@ -415,19 +431,69 @@ body:has(#mission.page.active) #marketFocusGuard {
   background: rgba(15, 23, 42, 0.88);
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   color: #94a3b8;
-  font-size: 11px;
 }
 
-.mission-node-num {
-  margin-top: 4px;
-  font-size: 12px;
+/* Placa identificadora de Marco abaixo da bolinha */
+.mission-waypoint-label-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5px;
+  margin-top: 5px;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.mission-waypoint-title {
+  font-size: 11px;
   font-weight: 800;
   color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95);
+  line-height: 1.1;
+}
+
+.mission-waypoint-range {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #cbd5e1;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+  line-height: 1.1;
+}
+
+.mission-waypoint-pill {
+  margin-top: 2px;
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1.5px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.mission-waypoint-pill.completed {
+  background: rgba(5, 150, 105, 0.55);
+  border: 1px solid #10b981;
+  color: #34d399;
+}
+
+.mission-waypoint-pill.active {
+  background: rgba(234, 179, 8, 0.45);
+  border: 1px solid #facc15;
+  color: #fde047;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+}
+
+.mission-waypoint-pill.locked {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
 }
 
 .mission-waypoint-node.is-selected {
-  z-index: 20;
+  z-index: 25;
 }
 
 .mission-waypoint-node.is-selected .mission-node-disc {
@@ -441,13 +507,13 @@ body:has(#mission.page.active) #marketFocusGuard {
   bottom: calc(100% + 14px);
   left: 50%;
   transform: translateX(-50%);
-  width: 260px;
-  background: rgba(10, 24, 18, 0.96);
+  width: 250px;
+  background: rgba(10, 26, 20, 0.96);
   border: 1px solid rgba(52, 211, 153, 0.45);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 20px rgba(16, 185, 129, 0.2);
   border-radius: 14px;
   padding: 12px 14px;
-  z-index: 25;
+  z-index: 30;
   backdrop-filter: blur(14px);
   pointer-events: auto;
   cursor: default;
@@ -467,21 +533,23 @@ body:has(#mission.page.active) #marketFocusGuard {
   left: 50%;
   transform: translateX(-50%);
   border: 6px solid transparent;
-  border-top-color: rgba(10, 24, 18, 0.96);
+  border-top-color: rgba(10, 26, 20, 0.96);
 }
 
 .mission-waypoint-info-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .mission-waypoint-info-head b {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
   color: #ffffff;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
 }
 
 .mission-waypoint-info-close {
@@ -498,51 +566,44 @@ body:has(#mission.page.active) #marketFocusGuard {
   color: #ffffff;
 }
 
-.mission-waypoint-info-desc {
-  margin: 0 0 10px 0;
-  font-size: 11.5px;
-  line-height: 1.45;
-  color: #cbd5e1;
-}
-
-.mission-waypoint-info-foot {
+.mission-waypoint-info-body {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-direction: column;
+  gap: 5px;
 }
 
-.mission-waypoint-badge {
-  font-size: 9.5px;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.mission-waypoint-info-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11px;
+  color: #cbd5e1;
+  line-height: 1.4;
 }
 
-.mission-waypoint-badge.completed {
-  background: rgba(16, 185, 129, 0.2);
+.mission-waypoint-info-line .mission-info-icon {
   color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  font-size: 12px;
+  line-height: 1.2;
 }
 
-.mission-waypoint-badge.active {
-  background: rgba(250, 204, 21, 0.2);
-  color: #facc15;
-  border: 1px solid rgba(250, 204, 21, 0.4);
+.mission-waypoint-info-line.highlight {
+  color: #fde047;
+  font-weight: 600;
+  margin-top: 2px;
 }
 
-.mission-waypoint-badge.locked {
-  background: rgba(148, 163, 184, 0.15);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+.mission-waypoint-info-line.highlight .mission-info-icon {
+  color: #fde047;
 }
 
-.mission-waypoint-info-foot small {
+.mission-config-hint {
+  display: block;
+  margin-top: 8px;
   font-size: 10px;
   color: #94a3b8;
+  text-align: center;
+  line-height: 1.35;
 }
 
 /* ── 4 Cards Inferiores (Grid Horizontal com Alinhamento Preciso) ────────── */

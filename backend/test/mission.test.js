@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..', '..');
 const MissionModel = require('../../frontend/mission-model.js');
 const RebuildModeModel = require('../../frontend/rebuild-mode-model.js');
 
-test('MissionModel: createMission normaliza campos, meta e risco', () => {
+test('MissionModel: createMission normaliza campos, meta e risco com status NOT_STARTED inicial', () => {
   const mission = MissionModel.createMission({
     title: 'Operar pequeno e constante',
     reason: 'Superar o medo de arriscar muito',
@@ -21,8 +21,38 @@ test('MissionModel: createMission normaliza campos, meta e risco', () => {
   assert.equal(mission.targetTrades, 20);
   assert.equal(mission.riskPct, 0.001); // Convertido para decimal 0,10%
   assert.equal(mission.reward, 'Jantar com a família');
-  assert.equal(mission.status, 'ACTIVE');
+  assert.equal(mission.status, 'NOT_STARTED');
+  assert.equal(mission.startDate, null);
   assert.deepEqual(mission.trades, []);
+});
+
+test('MissionModel: startMission inicializa em zero e protege missão ativa contra reinicialização', () => {
+  const draft = MissionModel.createMission({ targetTrades: 20 });
+  assert.equal(draft.status, 'NOT_STARTED');
+
+  // Inicia pela primeira vez: deve inicializar em zero e gravar data de início
+  const started = MissionModel.startMission(draft, { targetTrades: 20, riskPct: 0.001, reward: 'Jantar' });
+  assert.equal(started.isNew, true);
+  assert.equal(started.mission.status, 'ACTIVE');
+  assert.ok(started.mission.startDate !== null);
+  assert.equal(started.mission.trades.length, 0);
+
+  // Registra 3 trades na missão ativa
+  let active = started.mission;
+  active = MissionModel.addMissionTrade(active, { ticker: 'PETR4' }).mission;
+  active = MissionModel.addMissionTrade(active, { ticker: 'VALE3' }).mission;
+  active = MissionModel.addMissionTrade(active, { ticker: 'ITUB4' }).mission;
+  assert.equal(active.trades.length, 3);
+  const activeStartDate = active.startDate;
+
+  // Clica novamente em Iniciar Missão (salvar configuração): NÃO deve zerar progresso
+  const saved = MissionModel.startMission(active, { targetTrades: 25, reward: 'Novo Jantar' });
+  assert.equal(saved.isNew, false);
+  assert.equal(saved.mission.status, 'ACTIVE');
+  assert.equal(saved.mission.startDate, activeStartDate);
+  assert.equal(saved.mission.trades.length, 3, 'Progresso de 3 trades deve ser estritamente preservado');
+  assert.equal(saved.mission.targetTrades, 25);
+  assert.equal(saved.mission.reward, 'Novo Jantar');
 });
 
 test('MissionModel: calculateMissionProgress calcula percentual, trades restantes e risco financeiro', () => {
@@ -209,22 +239,26 @@ test('MissionModel: waypoints progridem monotonicamente e fornecem fonte única 
   const wpStart = MissionModel.generateWaypoints(20, 0);
   assert.equal(wpStart.length, 7);
   assert.equal(wpStart[0].status, 'ACTIVE');
-  assert.equal(wpStart[0].stationTrades, 3);
-  assert.ok(wpStart[0].statusDescription.includes('0 de 3 trades'));
-  assert.ok(wpStart[0].statusDescription.includes('faltam 3 trades'));
+  assert.equal(wpStart[0].stationTrades, 2);
+  assert.equal(wpStart[0].rangeLabel, '1 – 2 trades');
+  assert.ok(wpStart[0].statusDescription.toLowerCase().includes('0 de 2 trades'));
+  assert.ok(wpStart[0].statusDescription.toLowerCase().includes('faltam 2 trades'));
   assert.equal(wpStart.slice(1).every(w => w.status === 'LOCKED'), true);
 
-  // Teste 2: 7 trades concluídos de 20 (cenário clássico)
-  // Estação 1 meta 3 -> concluída
-  // Estação 2 meta 6 -> concluída
-  // Estação 3 meta 9 -> ativa (pois 7 < 9)
-  // Estações 4 a 7 -> bloqueadas
-  const wpMid = MissionModel.generateWaypoints(20, 7);
+  // Teste 2: 6 trades concluídos de 20 (cenário exato da referência visual media_1791835995914.jpg)
+  // Marco 1: 1 a 2 trades (meta 2) -> concluída
+  // Marco 2: 3 a 5 trades (meta 5) -> concluída
+  // Marco 3: 6 a 8 trades (meta 8) -> ativa (6 concluídos, faltam 2)
+  // Marcos 4 a 7 -> bloqueados
+  const wpMid = MissionModel.generateWaypoints(20, 6);
   assert.equal(wpMid[0].status, 'COMPLETED');
+  assert.equal(wpMid[0].rangeLabel, '1 – 2 trades');
   assert.equal(wpMid[1].status, 'COMPLETED');
+  assert.equal(wpMid[1].rangeLabel, '3 – 5 trades');
   assert.equal(wpMid[2].status, 'ACTIVE');
-  assert.equal(wpMid[2].stationTrades, 9);
-  assert.ok(wpMid[2].statusDescription.includes('faltam 2 trades'));
+  assert.equal(wpMid[2].stationTrades, 8);
+  assert.equal(wpMid[2].rangeLabel, '6 – 8 trades');
+  assert.ok(wpMid[2].statusDescription.toLowerCase().includes('faltam 2 trades'));
   assert.equal(wpMid[3].status, 'LOCKED');
   assert.equal(wpMid[6].status, 'LOCKED');
 
@@ -238,7 +272,17 @@ test('MissionModel: waypoints progridem monotonicamente e fornecem fonte única 
   const wpEnd = MissionModel.generateWaypoints(20, 20);
   assert.equal(wpEnd.every(w => w.status === 'COMPLETED'), true);
 
-  // Teste 4: Meta diferente (10 trades)
+  // Teste 4: Meta recalculada dinamicamente (14 trades -> exatamente 2 trades por marco)
+  const wp14 = MissionModel.generateWaypoints(14, 4);
+  assert.equal(wp14.length, 7);
+  assert.equal(wp14[0].rangeLabel, '1 – 2 trades');
+  assert.equal(wp14[1].rangeLabel, '3 – 4 trades');
+  assert.equal(wp14[6].stationTrades, 14);
+  assert.equal(wp14[6].rangeLabel, '13 – 14 trades');
+  assert.equal(wp14[1].status, 'COMPLETED'); // 4 trades conclui o Marco 2 (1-4)
+  assert.equal(wp14[2].status, 'ACTIVE'); // Marco 3 (5-6) ativo
+
+  // Teste 5: Meta de 10 trades
   const wp10 = MissionModel.generateWaypoints(10, 4);
   assert.equal(wp10.length, 7);
   assert.equal(wp10[6].stationTrades, 10);
@@ -249,7 +293,7 @@ test('MissionModel: waypoints progridem monotonicamente e fornecem fonte única 
 test('MissionModel: calculateMissionProgress sincroniza perfeitamente com os waypoints', () => {
   const mission = MissionModel.createMission({
     targetTrades: 20,
-    trades: Array.from({ length: 7 }, (_, i) => ({
+    trades: Array.from({ length: 6 }, (_, i) => ({
       id: `t_${i}`,
       tradeNumber: i + 1,
       ticker: `ATIVO${i}`,
@@ -260,9 +304,10 @@ test('MissionModel: calculateMissionProgress sincroniza perfeitamente com os way
   const progress = MissionModel.calculateMissionProgress(mission);
 
   assert.equal(progress.totalStations, 7);
-  assert.equal(progress.completedStations, 2); // Estações 1 (meta 3) e 2 (meta 6) concluídas
-  assert.equal(progress.currentStationNumber, 3); // Estação 3 (meta 9) é o estágio atual
-  assert.equal(progress.currentStationTrades, 9);
+  assert.equal(progress.completedStations, 2); // Marcos 1 (meta 2) e 2 (meta 5) concluídos
+  assert.equal(progress.currentStationNumber, 3); // Marco 3 (meta 8) é o estágio atual
+  assert.equal(progress.currentStationTrades, 8);
+  assert.equal(progress.progressPct, 30); // 6 / 20 = 30% (conforme Card 2 da referência)
   assert.equal(progress.waypoints.length, 7);
   assert.equal(progress.waypoints[2].status, 'ACTIVE');
 });

@@ -18,6 +18,17 @@
     return root.healthyTrendWorkspace?.storage || (typeof localStorage !== 'undefined' ? localStorage : null);
   }
 
+  function isLegacyMockSeed(mission) {
+    if (!mission) return false;
+    if (mission.id === 'mission-default-1' && Array.isArray(mission.trades)) {
+      const hasMock = mission.trades.some(t => t.id === 'mt-1' || t.id === 'mt-2' || t.id === 'mt-7');
+      if (hasMock && mission.status !== 'COMPLETED') {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function loadMissionData() {
     try {
       const storage = getMissionStorage();
@@ -28,13 +39,18 @@
       if (raw) {
         const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
         if (parsed && typeof parsed === 'object') {
+          if (isLegacyMockSeed(parsed)) {
+            parsed.trades = [];
+            parsed.status = 'NOT_STARTED';
+            parsed.startDate = null;
+          }
           currentMission = parsed;
         }
       }
     } catch (_) {}
 
     if (!currentMission) {
-      currentMission = { ...M.DEFAULT_MISSION };
+      currentMission = { ...M.DEFAULT_MISSION, trades: [] };
     }
 
     try {
@@ -121,13 +137,13 @@
 
     // Coordenadas exatas na montanha para os 7 marcos ao longo da crista
     const waypointCoords = [
-      { left: 31.5, top: 57.5 }, // Marco 1
-      { left: 39.5, top: 53.5 }, // Marco 2
-      { left: 47.5, top: 49.5 }, // Marco 3
-      { left: 58.5, top: 45.0 }, // Marco 4
-      { left: 68.0, top: 40.0 }, // Marco 5
-      { left: 77.8, top: 34.0 }, // Marco 6
-      { left: 83.8, top: 26.5 }  // Marco 7 (Cume / Baú)
+      { left: 36.5, top: 51.5 }, // Marco 1
+      { left: 44.5, top: 48.5 }, // Marco 2
+      { left: 53.5, top: 46.5 }, // Marco 3
+      { left: 61.5, top: 44.0 }, // Marco 4
+      { left: 70.0, top: 40.0 }, // Marco 5
+      { left: 78.0, top: 35.0 }, // Marco 6
+      { left: 83.5, top: 25.5 }  // Marco 7 (Cume / Baú)
     ];
 
     // Cálculos do Gauge Radial
@@ -139,7 +155,7 @@
       <div class="mission-shell">
         <!-- Hero Artístico da Montanha com Soldado e Trilha -->
         <section class="mission-hero-panorama" aria-label="Jornada da Missão" onclick="window.handleSelectWaypoint(null)">
-          <!-- Título Superior Esquerdo com Breadcrumb, Histórico e Pílula de Progresso Integrado -->
+          <!-- Título Superior Esquerdo com Breadcrumb e Histórico -->
           <div class="mission-hero-title-block">
             <div class="mission-hero-nav-row">
               <button class="mission-hero-breadcrumb-btn" type="button" onclick="go('tradertraining')">
@@ -151,10 +167,6 @@
             </div>
             <h1>MISSÃO</h1>
             <p>Disciplina hoje.<br>Um trader melhor amanhã.</p>
-            <div class="mission-hero-progress-pill">
-              <span class="mission-pill-dot"></span>
-              <span>Jornada: <b>${progress.completedTrades} de ${progress.targetTrades} trades</b> (${progress.progressPct}%) • <b>Marco ${progress.currentStationNumber} de 7</b></span>
-            </div>
           </div>
 
           <!-- Placas de Madeira na Trilha à Esquerda -->
@@ -190,39 +202,50 @@
             ${waypoints.map((wp, idx) => {
               const coords = waypointCoords[idx] || { left: 50, top: 50 };
               const isSelected = selectedWaypointNumber === wp.stationNumber;
-              let iconContent = '';
-              if (wp.status === 'COMPLETED') {
-                iconContent = '✓';
-              } else if (wp.status === 'ACTIVE') {
-                iconContent = `${wp.stationNumber}`;
-              } else {
-                if (wp.stationNumber === 7) {
-                  iconContent = `${wp.stationNumber}`;
-                } else {
-                  iconContent = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
-                }
-              }
 
               return `
                 <div class="mission-waypoint-node ${wp.status.toLowerCase()} ${isSelected ? 'is-selected' : ''}"
                      style="left: ${coords.left}%; top: ${coords.top}%;"
                      onclick="window.handleSelectWaypoint(${wp.stationNumber})"
-                     title="${wp.stationLabel}: ${wp.stationTrades} trades (${wp.status})">
-                  <div class="mission-node-disc">${iconContent}</div>
-                  <span class="mission-node-num">${wp.stationNumber}</span>
+                     title="${escapeHtml(wp.fullName)}: ${wp.rangeLabel} (${wp.statusLabel})">
+
+                  ${wp.status === 'ACTIVE' ? '<div class="mission-node-active-crown" aria-hidden="true">◆</div>' : ''}
+
+                  <div class="mission-node-disc">
+                    ${wp.status === 'COMPLETED' ? `
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    ` : (wp.status === 'ACTIVE' ? `
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></line></svg>
+                    ` : `
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    `)}
+                  </div>
+
+                  <div class="mission-waypoint-label-card">
+                    <span class="mission-waypoint-title">Marco ${wp.stationNumber}</span>
+                    <span class="mission-waypoint-range">${wp.rangeLabel}</span>
+                    <span class="mission-waypoint-pill ${wp.status.toLowerCase()}">${wp.statusLabel}</span>
+                  </div>
 
                   ${isSelected ? `
                     <div class="mission-waypoint-info-card" onclick="event.stopPropagation()">
                       <div class="mission-waypoint-info-head">
-                        <b>${wp.stationLabel}: meta de ${wp.stationTrades} trades</b>
+                        <b>${escapeHtml(wp.fullName)}</b>
                         <button type="button" class="mission-waypoint-info-close" onclick="window.handleSelectWaypoint(null)" aria-label="Fechar">✕</button>
                       </div>
-                      <p class="mission-waypoint-info-desc">${escapeHtml(wp.statusDescription)}</p>
-                      <div class="mission-waypoint-info-foot">
-                        <span class="mission-waypoint-badge ${wp.status.toLowerCase()}">
-                          ${wp.status === 'COMPLETED' ? '✓ Concluído' : (wp.status === 'ACTIVE' ? '★ Em andamento' : '🔒 Bloqueado')}
-                        </span>
-                        <small>${progress.completedTrades} de ${progress.targetTrades} trades</small>
+                      <div class="mission-waypoint-info-body">
+                        <div class="mission-waypoint-info-line">
+                          <span class="mission-info-icon">⚑</span>
+                          <span>${escapeHtml(wp.targetTradesText)}</span>
+                        </div>
+                        <div class="mission-waypoint-info-line">
+                          <span class="mission-info-icon">⚑</span>
+                          <span>${escapeHtml(wp.progressText)}</span>
+                        </div>
+                        <div class="mission-waypoint-info-line highlight">
+                          <span class="mission-info-icon">⚑</span>
+                          <span>${escapeHtml(wp.remainingText)}</span>
+                        </div>
                       </div>
                     </div>
                   ` : ''}
@@ -243,7 +266,7 @@
             <div class="mission-config-form">
               <div class="mission-config-field">
                 <label for="missionTargetInput">Número de trades</label>
-                <input id="missionTargetInput" type="number" min="1" max="100" value="${currentMission.targetTrades}">
+                <input id="missionTargetInput" type="number" min="1" max="100" value="${currentMission.targetTrades}" onchange="window.handleTargetTradesChange(this.value)">
               </div>
 
               <div class="mission-config-field">
@@ -273,6 +296,11 @@
               <button class="mission-start-btn ${currentMission.status === 'ACTIVE' ? 'is-active' : ''}" type="button" onclick="window.handleStartOrSaveMission()">
                 ${currentMission.status === 'ACTIVE' ? '✓ Missão Ativa (Salvar)' : '▶ Iniciar Missão'}
               </button>
+              <span class="mission-config-hint">
+                ${currentMission.status === 'ACTIVE'
+                  ? 'Missão em andamento. Configurações salvas sem reiniciar o progresso.'
+                  : 'Ao iniciar, o progresso será zerado e uma nova missão será criada.'}
+              </span>
             </div>
           </section>
 
@@ -296,7 +324,7 @@
               <div class="mission-stats-list">
                 <div class="mission-stat-item">
                   <span class="mission-stat-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                   </span>
                   <div class="mission-stat-content">
                     <strong>${progress.progressPct}%</strong>
@@ -304,12 +332,12 @@
                   </div>
                 </div>
                 <div class="mission-stat-item">
-                  <span class="mission-stat-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                  <span class="mission-stat-icon" style="color:#facc15;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></line></svg>
                   </span>
                   <div class="mission-stat-content">
-                    <strong>Marco ${progress.currentStationNumber} de 7</strong>
-                    <small>Estágio atual (meta: ${progress.currentStationTrades} trades)</small>
+                    <strong>${progress.completedStations} de 7</strong>
+                    <small>marcos concluídos</small>
                   </div>
                 </div>
                 <div class="mission-stat-item">
@@ -319,6 +347,15 @@
                   <div class="mission-stat-content">
                     <strong>${progress.daysSinceStart}</strong>
                     <small>Dias desde o início</small>
+                  </div>
+                </div>
+                <div class="mission-stat-item">
+                  <span class="mission-stat-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m16 10-4 4-2-2"></path></svg>
+                  </span>
+                  <div class="mission-stat-content">
+                    <strong>${progress.riskPctFormatted}</strong>
+                    <small>Risco definido</small>
                   </div>
                 </div>
               </div>
@@ -341,10 +378,10 @@
                 <table class="mission-trades-table">
                   <thead>
                     <tr>
-                      <th>Nº</th>
-                      <th>Data</th>
-                      <th>Ativo</th>
-                      <th>Resultado</th>
+                      <th>#</th>
+                      <th>DATA</th>
+                      <th>ATIVO</th>
+                      <th>RESULTADO</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -361,7 +398,9 @@
               ` : `
                 <div class="mission-empty-trades">
                   Nenhum trade marcado ainda.<br>
-                  Clique em <b>+ Marcar Trade</b> após realizar uma operação dentro das regras.
+                  ${currentMission.status === 'ACTIVE'
+                    ? 'Clique em <b>+ Marcar Trade</b> após realizar uma operação dentro das regras.'
+                    : 'Inicie a sua missão para começar a registrar seus trades.'}
                 </div>
               `}
             </div>
@@ -386,6 +425,12 @@
 
   // ── Ações e Modais ──────────────────────────────────────────────────────────
 
+  window.handleTargetTradesChange = function (val) {
+    const nextVal = Math.max(1, Math.min(100, Math.round(Number(val) || 20)));
+    currentMission = M.updateMissionConfig(currentMission, { targetTrades: nextVal }, RM ? RM.getRebuildState() : null);
+    renderMissionPage();
+  };
+
   window.handleStartOrSaveMission = function () {
     const targetInput = document.getElementById('missionTargetInput');
     const riskSelect = document.getElementById('missionRiskSelect');
@@ -397,31 +442,26 @@
 
     const rebuildState = RM ? RM.getRebuildState() : null;
 
-    // Atualiza a configuração preservando integralmente os trades e histórico existentes
-    currentMission = M.updateMissionConfig(currentMission, {
+    // Inicializa ou atualiza a missão conforme o ciclo de vida
+    const startResult = M.startMission(currentMission, {
       targetTrades: nextTarget,
       riskPct: nextRisk,
       reward: nextReward
     }, rebuildState);
 
-    // Ativa a missão se ainda não estiver ativa, gravando a data de início
-    if (currentMission.status !== 'ACTIVE') {
-      currentMission.status = 'ACTIVE';
-      if (!currentMission.startDate) {
-        currentMission.startDate = new Date().toISOString();
-      }
-    }
-
+    currentMission = startResult.mission;
     saveMissionData();
     renderMissionPage();
 
     const feedback = document.getElementById('missionConfigFeedback');
     if (feedback) {
-      feedback.textContent = 'Configuração salva com sucesso!';
+      feedback.textContent = startResult.isNew
+        ? 'Missão iniciada com sucesso! O progresso começou em zero.'
+        : 'Configuração salva com sucesso! Progresso atual preservado.';
       feedback.style.display = 'block';
       setTimeout(() => {
         if (feedback) feedback.style.display = 'none';
-      }, 3000);
+      }, 3500);
     }
   };
 
@@ -501,6 +541,31 @@
   window.openMarkTradeModal = function () {
     const container = document.getElementById('missionModalContainer');
     if (!container) return;
+
+    if (currentMission.status !== 'ACTIVE') {
+      container.innerHTML = `
+        <div class="mission-modal-backdrop" onclick="window.closeMissionModal(event)">
+          <div class="mission-modal-dialog" onclick="event.stopPropagation()">
+            <div class="mission-modal-head">
+              <h3>Iniciar Missão</h3>
+              <button class="mission-modal-close-btn" type="button" onclick="window.closeMissionModal()" aria-label="Fechar">✕</button>
+            </div>
+            <div class="mission-modal-body">
+              <p style="font-size:13.5px;color:#cbd5e1;line-height:1.55;margin-top:0;">
+                A sua missão ainda não foi iniciada. Para registrar seus trades na trilha, inicie a missão primeiro. O progresso começará em zero com foco total em disciplina e consistência.
+              </p>
+              <div class="mission-modal-actions">
+                <button class="mission-btn-secondary" type="button" onclick="window.closeMissionModal()">Cancelar</button>
+                <button class="mission-btn-primary" type="button" onclick="window.handleStartOrSaveMission(); window.closeMissionModal();">
+                  ▶ Iniciar Missão Agora
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      return;
+    }
 
     const progress = M.calculateMissionProgress(currentMission);
     if (progress.isCompleted) {
