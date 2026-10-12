@@ -22,7 +22,8 @@
     state.loading = true;
     window.renderRelativeStrengthClassesPage();
     try {
-      const response = await fetch(`${window.MARKET_DATA_API_URL || 'http://localhost:8787/api'}/relative-strength/classes`, {cache:'no-store'});
+      const isWeekly = (window.currentRelativeStrengthTimeframe === 'weekly');
+      const response = await fetch(`${window.MARKET_DATA_API_URL || 'http://localhost:8787/api'}/relative-strength/classes${isWeekly ? '?timeframe=weekly' : ''}`, {cache:'no-store'});
       if (!response.ok) throw new Error('Classes indisponíveis');
       const payload = await response.json();
       const source = payload.classes || {};
