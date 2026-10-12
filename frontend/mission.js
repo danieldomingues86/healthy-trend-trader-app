@@ -100,216 +100,219 @@
     const strokeDashoffset = circumference - (progress.progressPct / 100) * circumference;
 
     const html = `
-      <div class="mission-top-bar">
-        <button class="mission-breadcrumb-btn" type="button" onclick="go('tradertraining')">
-          ← Treinamento
-        </button>
-        <div class="mission-top-actions">
-          <button class="mission-history-btn" type="button" onclick="window.openMissionHistoryModal()">
-            Histórico de Missões (${missionHistory.length})
-          </button>
-        </div>
-      </div>
-
-      <!-- Hero Artístico da Montanha com Soldado e Trilha -->
-      <section class="mission-hero-panorama" aria-label="Jornada da Missão">
-        <!-- Título Superior Esquerdo -->
-        <div class="mission-hero-title-block">
-          <h1>MISSÃO</h1>
-          <p>Disciplina hoje. Um trader melhor amanhã.</p>
-        </div>
-
-        <!-- Placas de Madeira na Trilha à Esquerda -->
-        <div class="mission-trail-signs" aria-hidden="true">
-          <div class="mission-sign-wood">DISCIPLINA</div>
-          <div class="mission-sign-wood">FOCO</div>
-          <div class="mission-sign-wood">CONFIANÇA</div>
-          <div class="mission-sign-wood">PRAZER DE OPERAR</div>
-        </div>
-
-        <!-- Card Superior Central: MINHA MISSÃO -->
-        <div class="mission-center-card">
-          <div class="mission-center-head">
-            <span class="mission-center-kicker">MINHA MISSÃO</span>
-            <button class="mission-edit-btn" type="button" onclick="window.openEditMissionModal()">
-              ✎ Editar
-            </button>
-          </div>
-          <h2 class="mission-goal-text">${escapeHtml(currentMission.title)}</h2>
-          <div class="mission-reason-label">MOTIVO / PORQUÊ</div>
-          <p class="mission-reason-text">${escapeHtml(currentMission.reason || 'Sem motivo registrado. Clique em Editar para registrar.')}</p>
-        </div>
-
-        <!-- Destino no Cume (Baú da Recompensa Topo Direito) -->
-        <div class="mission-reward-destination" onclick="window.openEditMissionModal()" title="Clique para editar a recompensa">
-          <span class="mission-reward-kicker">🏆 RECOMPENSA</span>
-          <span class="mission-reward-sub">POR TER CONCLUÍDO A SUA MISSÃO</span>
-          <div class="mission-reward-preview">${escapeHtml(currentMission.reward || 'Definir recompensa')}</div>
-        </div>
-
-        <!-- Trilha SVG Conectando os Waypoints -->
-        <div class="mission-interactive-trail">
-          <svg class="mission-trail-svg" viewBox="0 0 1000 500" preserveAspectRatio="none">
-            <!-- Linha da Trilha Dourada Sinuosa -->
-            <path class="mission-trail-path-glow" d="M 310 280 Q 350 270 390 265 T 470 245 T 560 220 T 680 200 T 780 170 T 840 130" />
-            <path class="mission-trail-path-core" d="M 310 280 Q 350 270 390 265 T 470 245 T 560 220 T 680 200 T 780 170 T 840 130" />
-          </svg>
-
-          <!-- Marcadores / Waypoints -->
-          ${waypoints.map((wp, idx) => {
-            const coords = waypointCoords[idx] || { left: 50, top: 50 };
-            let iconContent = '';
-            if (wp.status === 'COMPLETED') {
-              iconContent = '✓';
-            } else if (wp.status === 'ACTIVE') {
-              iconContent = `${wp.stationNumber}`;
-            } else {
-              iconContent = '🔒';
-            }
-
-            return `
-              <div class="mission-waypoint-node ${wp.status}" style="left: ${coords.left}%; top: ${coords.top}%;" onclick="window.showWaypointDetail(${wp.stationNumber}, '${wp.status}')" title="Etapa ${wp.stationNumber}: ${wp.stationTrades} trades">
-                ${wp.status === 'ACTIVE' ? '<span class="mission-node-hiker-badge">Você está aqui</span>' : ''}
-                <div class="mission-node-disc">${iconContent}</div>
-                <span class="mission-node-num">${wp.stationNumber}</span>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </section>
-
-      <!-- 4 Cards Inferiores -->
-      <div class="mission-cards-grid">
-        <!-- Card 1: CONFIGURAÇÃO DA MISSÃO -->
-        <section class="mission-card mission-config-card">
-          <h3 class="mission-card-title">
-            <span>CONFIGURAÇÃO DA MISSÃO</span>
-            ${rebuildState.isActive ? '<span style="color:#facc15;font-size:10px;">REBUILD MODE ATIVO</span>' : ''}
-          </h3>
-          <form class="mission-config-form" onsubmit="window.handleSaveMissionConfig(event)">
-            <div class="mission-config-field">
-              <label for="missionTargetInput">Número de trades</label>
-              <input id="missionTargetInput" type="number" min="1" max="100" value="${currentMission.targetTrades}">
-            </div>
-
-            <div class="mission-config-field">
-              <label for="missionRiskSelect">Risco por trade</label>
-              <select id="missionRiskSelect">
-                <option value="0.0010" ${Math.abs(currentMission.riskPct - 0.001) < 0.0001 ? 'selected' : ''}>0,10%</option>
-                <option value="0.0015" ${Math.abs(currentMission.riskPct - 0.0015) < 0.0001 ? 'selected' : ''}>0,15%</option>
-                <option value="0.0020" ${Math.abs(currentMission.riskPct - 0.002) < 0.0001 ? 'selected' : ''}>0,20%</option>
-                <option value="0.0025" ${Math.abs(currentMission.riskPct - 0.0025) < 0.0001 ? 'selected' : ''}>0,25%</option>
-              </select>
-            </div>
-
-            <div class="mission-config-field">
-              <label for="missionRewardInput">Recompensa</label>
-              <input id="missionRewardInput" type="text" value="${escapeHtml(currentMission.reward)}" placeholder="Ex: Um jantar especial">
-            </div>
-
-            <div class="mission-rebuild-badge">
-              <strong>Regra de Proteção:</strong> 1 trade por vez.<br>
-              ${progress.estimatedRiskValueFormatted ? `<small>Risco financeiro estipulado: <b>${progress.estimatedRiskValueFormatted}</b></small>` : ''}
-            </div>
-
-            <button class="mission-start-btn ${currentMission.status === 'ACTIVE' ? 'active-mission' : ''}" type="submit">
-              ${currentMission.status === 'ACTIVE' ? '✓ Missão Ativa (Salvar)' : '▶ Iniciar Missão'}
-            </button>
-          </form>
-        </section>
-
-        <!-- Card 2: PROGRESSO DA MISSÃO -->
-        <section class="mission-card mission-progress-card">
-          <h3 class="mission-card-title">PROGRESSO DA MISSÃO</h3>
-          <div class="mission-progress-body">
-            <div class="mission-radial-gauge">
-              <svg class="mission-gauge-svg" viewBox="0 0 120 120">
-                <circle class="mission-gauge-bg" cx="60" cy="60" r="${radius}"></circle>
-                <circle class="mission-gauge-fill" cx="60" cy="60" r="${radius}"
-                        stroke-dasharray="${circumference}"
-                        stroke-dashoffset="${strokeDashoffset}"></circle>
-              </svg>
-              <div class="mission-gauge-text">
-                <strong>${progress.completedTrades} de ${progress.targetTrades}</strong>
-                <small>trades concluídos</small>
-              </div>
-            </div>
-
-            <div class="mission-stats-list">
-              <div class="mission-stat-item">
-                <span class="mission-stat-icon">📈</span>
-                <div>
-                  <strong>${progress.progressPct}%</strong>
-                  <small>Progresso</small>
-                </div>
-              </div>
-              <div class="mission-stat-item">
-                <span class="mission-stat-icon">📅</span>
-                <div>
-                  <strong>${progress.daysSinceStart}</strong>
-                  <small>Dias desde o início</small>
-                </div>
-              </div>
-              <div class="mission-stat-item">
-                <span class="mission-stat-icon">📊</span>
-                <div>
-                  <strong>${progress.riskPctFormatted}</strong>
-                  <small>Risco definido</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Card 3: ÚLTIMOS TRADES DA MISSÃO -->
-        <section class="mission-card mission-trades-card">
-          <div class="mission-card-title">
-            <span>ÚLTIMOS TRADES</span>
-            <div class="mission-trades-head-actions">
-              <button class="mission-mark-trade-btn" type="button" onclick="window.openMarkTradeModal()">
-                + Marcar Trade
+      <div class="mission-shell">
+        <!-- Hero Artístico da Montanha com Soldado e Trilha -->
+        <section class="mission-hero-panorama" aria-label="Jornada da Missão">
+          <!-- Título Superior Esquerdo com Breadcrumb e Histórico -->
+          <div class="mission-hero-title-block">
+            <div class="mission-hero-nav-row">
+              <button class="mission-hero-breadcrumb-btn" type="button" onclick="go('tradertraining')">
+                ← TREINAMENTO
+              </button>
+              <button class="mission-hero-history-btn" type="button" onclick="window.openMissionHistoryModal()" title="Histórico de missões concluídas">
+                📜 Histórico (${missionHistory.length})
               </button>
             </div>
+            <h1>MISSÃO</h1>
+            <p>Disciplina hoje.<br>Um trader melhor amanhã.</p>
           </div>
 
-          <div class="mission-trades-table-wrap">
-            ${currentMission.trades && currentMission.trades.length > 0 ? `
-              <table class="mission-trades-table">
-                <thead>
-                  <tr>
-                    <th>Nº</th>
-                    <th>Data</th>
-                    <th>Ativo</th>
-                    <th>Resultado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${currentMission.trades.slice().reverse().map(trade => `
-                    <tr>
-                      <td>${trade.tradeNumber}</td>
-                      <td>${escapeHtml(trade.date)}</td>
-                      <td><b>${escapeHtml(trade.ticker)}</b></td>
-                      <td><span class="mission-trade-check">✓ Seguiu</span></td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            ` : `
-              <div class="mission-empty-trades">
-                Nenhum trade marcado ainda.<br>
-                Clique em <b>+ Marcar Trade</b> após realizar uma operação dentro das regras.
+          <!-- Placas de Madeira na Trilha à Esquerda -->
+          <div class="mission-trail-signs" aria-hidden="true">
+            <div class="mission-sign-wood">DISCIPLINA</div>
+            <div class="mission-sign-wood">FOCO</div>
+            <div class="mission-sign-wood">CONFIANÇA</div>
+            <div class="mission-sign-wood">PRAZER DE OPERAR</div>
+          </div>
+
+          <!-- Card Superior Central: MINHA MISSÃO Único -->
+          <div class="mission-center-card">
+            <div class="mission-center-head">
+              <span class="mission-center-kicker">MINHA MISSÃO</span>
+              <button class="mission-edit-btn" type="button" onclick="window.openEditMissionModal()">
+                ✎ Editar
+              </button>
+            </div>
+            <h2 class="mission-goal-text">${escapeHtml(currentMission.title)}</h2>
+            <div class="mission-reason-label">MOTIVO / PORQUÊ</div>
+            <p class="mission-reason-text">${escapeHtml(currentMission.reason || 'Sem motivo registrado. Clique em Editar para registrar.')}</p>
+          </div>
+
+          <!-- Destino no Cume (Baú da Recompensa Topo Direito) -->
+          <div class="mission-reward-destination" onclick="window.openEditMissionModal()" title="Clique para editar a recompensa">
+            <span class="mission-reward-kicker">RECOMPENSA</span>
+            <span class="mission-reward-sub">POR TER CONCLUÍDO<br>A SUA MISSÃO</span>
+            ${currentMission.reward ? `<div class="mission-reward-preview">🎁 ${escapeHtml(currentMission.reward)}</div>` : ''}
+          </div>
+
+          <!-- Waypoints Marcados ao Longo da Trilha Natural na Montanha -->
+          <div class="mission-interactive-trail">
+            ${waypoints.map((wp, idx) => {
+              const coords = waypointCoords[idx] || { left: 50, top: 50 };
+              let iconContent = '';
+              if (wp.status === 'COMPLETED') {
+                iconContent = '✓';
+              } else if (wp.status === 'ACTIVE') {
+                iconContent = `${wp.stationNumber}`;
+              } else {
+                if (wp.stationNumber === 7) {
+                  iconContent = `${wp.stationNumber}`;
+                } else {
+                  iconContent = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+                }
+              }
+
+              return `
+                <div class="mission-waypoint-node ${wp.status.toLowerCase()}" style="left: ${coords.left}%; top: ${coords.top}%;" onclick="window.showWaypointDetail(${wp.stationNumber}, '${wp.status}')" title="Etapa ${wp.stationNumber}: ${wp.stationTrades} trades">
+                  <div class="mission-node-disc">${iconContent}</div>
+                  <span class="mission-node-num">${wp.stationNumber}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </section>
+
+        <!-- 4 Cards Inferiores Alinhados Horizontalmente -->
+        <div class="mission-cards-grid">
+          <!-- Card 1: CONFIGURAÇÃO DA MISSÃO -->
+          <section class="mission-card mission-config-card">
+            <h3 class="mission-card-title">
+              <span>CONFIGURAÇÃO DA MISSÃO</span>
+              ${rebuildState.isActive ? '<span class="mission-rebuild-flag">REBUILD MODE</span>' : ''}
+            </h3>
+            <form class="mission-config-form" onsubmit="window.handleSaveMissionConfig(event)">
+              <div class="mission-config-field">
+                <label for="missionTargetInput">Número de trades</label>
+                <input id="missionTargetInput" type="number" min="1" max="100" value="${currentMission.targetTrades}">
               </div>
-            `}
-          </div>
-        </section>
 
-        <!-- Card 4: CITAÇÃO / PILAR EMOCIONAL -->
-        <section class="mission-card mission-quote-card">
-          <p class="mission-quote-text">
-            “O objetivo agora não é fazer muito dinheiro, é recuperar a sua confiança e alegria de operar.”
-          </p>
-          <div class="mission-quote-bar"></div>
-        </section>
+              <div class="mission-config-field">
+                <label for="missionRiskSelect">Risco por trade</label>
+                <select id="missionRiskSelect">
+                  <option value="0.0010" ${Math.abs(currentMission.riskPct - 0.001) < 0.0001 ? 'selected' : ''}>0,10%</option>
+                  <option value="0.0015" ${Math.abs(currentMission.riskPct - 0.0015) < 0.0001 ? 'selected' : ''}>0,15%</option>
+                  <option value="0.0020" ${Math.abs(currentMission.riskPct - 0.002) < 0.0001 ? 'selected' : ''}>0,20%</option>
+                  <option value="0.0025" ${Math.abs(currentMission.riskPct - 0.0025) < 0.0001 ? 'selected' : ''}>0,25%</option>
+                </select>
+              </div>
+
+              <div class="mission-config-field mission-field-reward">
+                <label for="missionRewardInput">Recompensa ao finalizar</label>
+                <input id="missionRewardInput" type="text" value="${escapeHtml(currentMission.reward)}" placeholder="Ex: Um jantar especial">
+              </div>
+
+              ${rebuildState.isActive ? `
+                <div class="mission-rebuild-badge">
+                  <strong>Regra de Proteção:</strong> 1 trade por vez.<br>
+                  <small>Teto de risco travado pelo Rebuild Mode.</small>
+                </div>
+              ` : ''}
+
+              <button class="mission-start-btn ${currentMission.status === 'ACTIVE' ? 'active-mission' : ''}" type="submit">
+                ${currentMission.status === 'ACTIVE' ? '▶ Iniciar Missão' : '▶ Iniciar Missão'}
+              </button>
+            </form>
+          </section>
+
+          <!-- Card 2: PROGRESSO DA MISSÃO -->
+          <section class="mission-card mission-progress-card">
+            <h3 class="mission-card-title">PROGRESSO DA MISSÃO</h3>
+            <div class="mission-progress-body">
+              <div class="mission-radial-gauge">
+                <svg class="mission-gauge-svg" viewBox="0 0 120 120">
+                  <circle class="mission-gauge-bg" cx="60" cy="60" r="${radius}"></circle>
+                  <circle class="mission-gauge-fill" cx="60" cy="60" r="${radius}"
+                          stroke-dasharray="${circumference}"
+                          stroke-dashoffset="${strokeDashoffset}"></circle>
+                </svg>
+                <div class="mission-gauge-text">
+                  <strong>${progress.completedTrades} de ${progress.targetTrades}</strong>
+                  <small>trades concluídos</small>
+                </div>
+              </div>
+
+              <div class="mission-stats-list">
+                <div class="mission-stat-item">
+                  <span class="mission-stat-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  </span>
+                  <div class="mission-stat-content">
+                    <strong>${progress.progressPct}%</strong>
+                    <small>Progresso</small>
+                  </div>
+                </div>
+                <div class="mission-stat-item">
+                  <span class="mission-stat-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  </span>
+                  <div class="mission-stat-content">
+                    <strong>${progress.daysSinceStart}</strong>
+                    <small>Dias desde o início</small>
+                  </div>
+                </div>
+                <div class="mission-stat-item">
+                  <span class="mission-stat-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  </span>
+                  <div class="mission-stat-content">
+                    <strong>${progress.riskPctFormatted}</strong>
+                    <small>Risco definido</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Card 3: ÚLTIMOS TRADES DA MISSÃO -->
+          <section class="mission-card mission-trades-card">
+            <div class="mission-card-title">
+              <span>ÚLTIMOS TRADES DA MISSÃO</span>
+              <div class="mission-trades-head-actions">
+                <button class="mission-mark-trade-btn" type="button" onclick="window.openMarkTradeModal()">
+                  + Marcar Trade
+                </button>
+              </div>
+            </div>
+
+            <div class="mission-trades-table-wrap">
+              ${currentMission.trades && currentMission.trades.length > 0 ? `
+                <table class="mission-trades-table">
+                  <thead>
+                    <tr>
+                      <th>Nº</th>
+                      <th>Data</th>
+                      <th>Ativo</th>
+                      <th>Resultado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${currentMission.trades.slice(0, 8).map(trade => `
+                      <tr>
+                        <td>${trade.tradeNumber}</td>
+                        <td>${escapeHtml(trade.date)}</td>
+                        <td><b>${escapeHtml(trade.ticker)}</b></td>
+                        <td><span class="mission-trade-check">✓</span></td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              ` : `
+                <div class="mission-empty-trades">
+                  Nenhum trade marcado ainda.<br>
+                  Clique em <b>+ Marcar Trade</b> após realizar uma operação dentro das regras.
+                </div>
+              `}
+            </div>
+          </section>
+
+          <!-- Card 4: FRASE MOTIVACIONAL -->
+          <section class="mission-card mission-quote-card">
+            <p class="mission-quote-text">
+              “O objetivo agora não é fazer muito dinheiro, é recuperar a sua confiança e alegria de operar.”
+            </p>
+            <div class="mission-quote-bar"></div>
+          </section>
+        </div>
       </div>
 
       <!-- Container para Modais Dinâmicos -->
