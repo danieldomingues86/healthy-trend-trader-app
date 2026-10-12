@@ -919,8 +919,45 @@ body:not([data-theme="healthy"]) .rs-table tbody tr.rs-data-row.rs-row-laggard t
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.rs-page-nav-group {
+  display: flex;
+  align-items: center;
   gap: 8px;
-  margin-top: 20px;
+}
+
+.rs-pagination-per-page {
+  display: inline-flex;
+  align-items: center;
+}
+
+.rs-pagination-per-page select {
+  height: 38px;
+  padding: 0 14px;
+  font-size: 13px;
+  border-radius: 9px;
+  border: 1.5px solid #d4ded8;
+  background: #ffffff;
+  color: #284436;
+  font-weight: 650;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 4px rgba(13, 38, 28, 0.04);
+}
+
+.rs-pagination-per-page select:hover {
+  border-color: #92bfa7;
+  background: #fbfdfc;
+}
+
+.rs-pagination-per-page select:focus {
+  border-color: #12714c;
+  box-shadow: 0 0 0 3px rgba(18, 113, 76, 0.12);
 }
 
 .rs-page-nav-btn {

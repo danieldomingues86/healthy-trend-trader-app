@@ -11,7 +11,7 @@
   window.currentRelativeStrengthTimeframe = window.currentRelativeStrengthTimeframe || 'daily';
   window.relativeStrengthSearchQuery = '';
   window.relativeStrengthSelectedGroup = '';
-  window.relativeStrengthPageSize = 10;
+  window.relativeStrengthPageSize = 20;
   window.relativeStrengthCurrentPage = 1;
 
   function renderRelativeStrengthClassesPage() {
@@ -228,9 +228,13 @@
   };
 
   window.handleRelativeStrengthPageSizeChange = function (value) {
-    window.relativeStrengthPageSize = value === 'all' ? 'all' : Number(value);
+    window.relativeStrengthPageSize = Number(value) || 20;
     window.relativeStrengthCurrentPage = 1;
     updateTableAndPaginationOnly();
+    const topSelect = document.getElementById('rsPerPageSelect');
+    const bottomSelect = document.getElementById('rsBottomPerPageSelect');
+    if (topSelect) topSelect.value = String(window.relativeStrengthPageSize);
+    if (bottomSelect) bottomSelect.value = String(window.relativeStrengthPageSize);
   };
 
   window.handleRelativeStrengthPageChange = function (page) {
@@ -588,11 +592,12 @@
   }
 
   function renderPaginationControls(currentPage, totalPages, totalCount) {
-    if (totalPages <= 1) return '';
+    if (!totalCount) return '';
+    const pageSize = Number(window.relativeStrengthPageSize) || 20;
 
     let pages = [];
     if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      for (let i = 1; i <= Math.max(1, totalPages); i++) pages.push(i);
     } else {
       if (currentPage <= 4) {
         pages = [1, 2, 3, 4, 5, '...', totalPages];
@@ -605,18 +610,28 @@
 
     return `
       <div class="rs-pagination-bar" aria-label="${text('Paginação da tabela', 'Table pagination')}">
-        <button type="button" class="rs-page-nav-btn prev" ${currentPage === 1 ? 'disabled' : ''} onclick="window.handleRelativeStrengthPageChange(${currentPage - 1})">
-          ‹ ${text('Anterior', 'Previous')}
-        </button>
-        <div class="rs-page-numbers">
-          ${pages.map(p => {
-            if (p === '...') return `<span class="rs-page-ellipsis">…</span>`;
-            return `<button type="button" class="rs-page-btn ${p === currentPage ? 'active' : ''}" onclick="window.handleRelativeStrengthPageChange(${p})">${p}</button>`;
-          }).join('')}
+        <div class="rs-page-nav-group">
+          <button type="button" class="rs-page-nav-btn prev" ${currentPage <= 1 ? 'disabled' : ''} onclick="window.handleRelativeStrengthPageChange(${currentPage - 1})">
+            ‹ ${text('Anterior', 'Previous')}
+          </button>
+          <div class="rs-page-numbers">
+            ${pages.map(p => {
+              if (p === '...') return `<span class="rs-page-ellipsis">…</span>`;
+              return `<button type="button" class="rs-page-btn ${p === currentPage ? 'active' : ''}" onclick="window.handleRelativeStrengthPageChange(${p})">${p}</button>`;
+            }).join('')}
+          </div>
+          <button type="button" class="rs-page-nav-btn next" ${currentPage >= totalPages ? 'disabled' : ''} onclick="window.handleRelativeStrengthPageChange(${currentPage + 1})">
+            ${text('Próximo', 'Next')} ›
+          </button>
         </div>
-        <button type="button" class="rs-page-nav-btn next" ${currentPage === totalPages ? 'disabled' : ''} onclick="window.handleRelativeStrengthPageChange(${currentPage + 1})">
-          ${text('Próximo', 'Next')} ›
-        </button>
+        <div class="rs-per-page-wrap rs-pagination-per-page">
+          <select id="rsBottomPerPageSelect" class="rs-select-per-page" onchange="window.handleRelativeStrengthPageSizeChange(this.value)" aria-label="${text('Itens por página', 'Items per page')}">
+            <option value="10" ${pageSize === 10 ? 'selected' : ''}>10 ${text('por página', 'per page')}</option>
+            <option value="20" ${pageSize === 20 ? 'selected' : ''}>20 ${text('por página', 'per page')}</option>
+            <option value="50" ${pageSize === 50 ? 'selected' : ''}>50 ${text('por página', 'per page')}</option>
+            <option value="100" ${pageSize === 100 ? 'selected' : ''}>100 ${text('por página', 'per page')}</option>
+          </select>
+        </div>
       </div>
     `;
   }
@@ -636,6 +651,14 @@
     }
     if (resultsCountEl) {
       resultsCountEl.textContent = text(`Resultados: ${totalCount} ativos`, `Results: ${totalCount} assets`);
+    }
+    const topSelect = document.getElementById('rsPerPageSelect');
+    if (topSelect) {
+      topSelect.value = String(window.relativeStrengthPageSize);
+    }
+    const bottomSelect = document.getElementById('rsBottomPerPageSelect');
+    if (bottomSelect) {
+      bottomSelect.value = String(window.relativeStrengthPageSize);
     }
   }
 
@@ -767,9 +790,9 @@
                   <div class="rs-per-page-wrap">
                     <select id="rsPerPageSelect" class="rs-select-per-page" onchange="window.handleRelativeStrengthPageSizeChange(this.value)" aria-label="${text('Itens por página', 'Items per page')}">
                       <option value="10" ${window.relativeStrengthPageSize === 10 ? 'selected' : ''}>10 ${text('por página', 'per page')}</option>
-                      <option value="25" ${window.relativeStrengthPageSize === 25 ? 'selected' : ''}>25 ${text('por página', 'per page')}</option>
+                      <option value="20" ${window.relativeStrengthPageSize === 20 ? 'selected' : ''}>20 ${text('por página', 'per page')}</option>
                       <option value="50" ${window.relativeStrengthPageSize === 50 ? 'selected' : ''}>50 ${text('por página', 'per page')}</option>
-                      <option value="all" ${window.relativeStrengthPageSize === 'all' ? 'selected' : ''}>${text('Todos', 'All')}</option>
+                      <option value="100" ${window.relativeStrengthPageSize === 100 ? 'selected' : ''}>100 ${text('por página', 'per page')}</option>
                     </select>
                   </div>
                 </div>

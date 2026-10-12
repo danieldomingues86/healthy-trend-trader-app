@@ -131,3 +131,23 @@ test('Força Relativa: Validação rigorosa das 5 classificações oficiais e cl
   assert.match(jsContent, /rs-row-\$\{leitura\.tierClass\}/, 'Linhas da tabela devem receber rs-row-${leitura.tierClass}');
 });
 
+test('Força Relativa: Paginação default 20 e combo seletor com opções 10, 20, 50, 100 ao lado da paginação', () => {
+  const fs = require('fs');
+  const path = require('path');
+
+  const jsContent = fs.readFileSync(path.join(__dirname, '../../frontend/relative-strength-v3.js'), 'utf8');
+
+  // Verify default page size is 20
+  assert.match(jsContent, /window\.relativeStrengthPageSize\s*=\s*20;/, 'Tamanho default de página deve ser 20');
+
+  // Verify options 10, 20, 50, 100
+  assert.match(jsContent, /value="10"/, 'Deve ter opção 10');
+  assert.match(jsContent, /value="20"/, 'Deve ter opção 20');
+  assert.match(jsContent, /value="50"/, 'Deve ter opção 50');
+  assert.match(jsContent, /value="100"/, 'Deve ter opção 100');
+
+  // Verify bottom combo is rendered in pagination bar
+  assert.match(jsContent, /rsBottomPerPageSelect/, 'Deve existir combo rsBottomPerPageSelect na barra de paginação');
+  assert.match(jsContent, /rs-pagination-per-page/, 'Deve existir container rs-pagination-per-page ao lado da paginação');
+});
+
