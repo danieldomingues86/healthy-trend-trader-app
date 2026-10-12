@@ -2681,3 +2681,667 @@ body:has(#newtrade.active) .content {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ==========================================================================
+   MISSION WORKBENCH EXPERIENCE — ÂMBAR / DOURADO LUMINOSO & BLOQUEIO EFETIVO
+   Fiel à referência visual aprovada (PROPOSTA):
+   1. Card Missão Ativa em destaque no topo (âmbar/dourado luminoso, escudo, status pill, risco grande)
+   2. Teto Teórico do Grade em segundo plano (ampliado para widescreen, barras, valor grande, explicação)
+   3. Área unificada de decisão e execução (stepper direto, violação vermelha, métricas, botão bloqueável)
+   4. Banner de bloqueio inequívoco e Card Position Size Final no rodapé
+   ========================================================================== */
+
+/* Correção do layout da coluna direita quando a Missão está ativa:
+   Elimina o espaço vazio no topo e posiciona a Missão Ativa no topo da coluna */
+#newtrade.courage-detachment-active .workbench-subcol-execution,
+#newtrade.has-mission-active .workbench-subcol-execution {
+  justify-content: flex-start !important;
+  gap: 12px !important;
+}
+
+#newtrade.courage-detachment-active .workbench-subcol-execution .subcol-kicker,
+#newtrade.has-mission-active .workbench-subcol-execution .subcol-kicker {
+  display: none !important;
+}
+
+#newtrade.courage-detachment-active #workbenchExecutionMount,
+#newtrade.has-mission-active #workbenchExecutionMount {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+.mission-workbench-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  margin-top: 0;
+  animation: missionFadeIn 0.25s ease-out;
+}
+
+@keyframes missionFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mission-workbench-card {
+  border-radius: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Card 1: Missão Ativa em Destaque — Âmbar / Dourado Luminoso */
+.mission-active-card {
+  background: linear-gradient(145deg, rgba(58, 29, 8, 0.95) 0%, rgba(28, 14, 4, 0.98) 100%);
+  border: 1.5px solid rgba(245, 158, 11, 0.55);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 0 24px rgba(245, 158, 11, 0.12), inset 0 1px 0 rgba(251, 191, 36, 0.3);
+  padding: 18px 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mission-active-card::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.mission-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.mission-shield-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+}
+
+.mission-header-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mission-card-title {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  margin: 0;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.mission-card-subtitle {
+  color: #dfcf9f;
+  font-size: 12.5px;
+  font-weight: 450;
+  margin: 3px 0 0;
+  line-height: 1.35;
+}
+
+.mission-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  font-size: 12px;
+  font-weight: 750;
+  flex-shrink: 0;
+}
+
+.mission-status-pill .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.9);
+}
+
+.mission-card-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(15, 8, 3, 0.65);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.mission-risk-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.mission-label-eyebrow {
+  color: #f59e0b;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mission-risk-value {
+  color: #fbbf24;
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-top: 3px;
+  text-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+.mission-origin-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.mission-origin-title {
+  color: #fbbf24;
+  font-size: 13.5px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.mission-origin-sub {
+  color: #a4bfae;
+  font-size: 11.5px;
+  font-weight: 500;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+/* Card 2: Teto Teórico em Segundo Plano (Ampliado para widescreen) */
+.mission-ceiling-card {
+  background: rgba(7, 24, 17, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+
+.mission-ceiling-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mission-ceiling-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.mission-bars-icon {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.mission-ceiling-label {
+  font-size: 14.5px;
+  font-weight: 750;
+  color: #ffffff;
+}
+
+.mission-ceiling-info-icon {
+  color: #94a3b8;
+  font-size: 15px;
+  cursor: help;
+}
+
+.mission-ceiling-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mission-ceiling-val {
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffffff;
+  min-width: 85px;
+  line-height: 1;
+}
+
+.mission-ceiling-desc {
+  color: #94a3b8;
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+/* Card 3: Área Unificada de Decisão e Execução */
+.mission-execution-card {
+  background: rgba(7, 24, 17, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px 22px;
+}
+
+.mission-exec-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mission-step-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  font-size: 13px;
+  font-weight: 850;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.mission-exec-head-text h4 {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.mission-exec-head-text p {
+  color: #94a3b8;
+  font-size: 12px;
+  margin: 3px 0 0;
+  line-height: 1.35;
+}
+
+/* Row de controle de quantidade e caixa de violação */
+.mission-qty-control-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(180px, 1.4fr);
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 600px) {
+  .mission-qty-control-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mission-qty-input-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.mission-qty-label {
+  color: #94a3b8;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mission-stepper-wrap {
+  display: flex;
+  align-items: stretch;
+  background: rgba(4, 18, 12, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  height: 44px;
+}
+
+.mission-stepper-wrap:focus-within {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.mission-stepper-wrap input {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: #ffffff !important;
+  font-size: 18px !important;
+  font-weight: 850 !important;
+  padding: 0 12px !important;
+  box-shadow: none !important;
+  -moz-appearance: textfield;
+}
+
+.mission-stepper-wrap input::-webkit-outer-spin-button,
+.mission-stepper-wrap input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.mission-stepper-btns {
+  display: flex;
+  flex-direction: column;
+  width: 28px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.mission-step-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: none;
+  color: #94a3b8;
+  font-size: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+}
+
+.mission-step-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.mission-step-btn:first-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Caixa de violação de risco */
+.mission-violation-box {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  animation: missionFadeIn 0.2s ease-out;
+}
+
+.mission-violation-icon {
+  color: #ef4444;
+  font-size: 13px;
+  line-height: 1.2;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.mission-violation-content {
+  flex: 1;
+}
+
+.mission-violation-title {
+  color: #f87171;
+  font-size: 12px;
+  font-weight: 800;
+  display: block;
+  line-height: 1.2;
+}
+
+.mission-violation-desc {
+  color: #fca5a5;
+  font-size: 11px;
+  line-height: 1.35;
+  margin: 2px 0 0;
+}
+
+/* Métricas financeiras em tempo real */
+.mission-exec-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 14px 0 16px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.mission-metric-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.mission-metric-main {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 850;
+  margin-top: 3px;
+  line-height: 1.2;
+}
+
+.mission-metric-sub {
+  color: #94a3b8;
+  font-size: 11.5px;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.mission-metric-sub.is-risk-allowed {
+  color: #10b981;
+  font-weight: 650;
+}
+
+.mission-metric-sub.is-risk-blocked {
+  color: #f87171;
+  font-weight: 700;
+}
+
+/* Botão Registrar Trade */
+.mission-register-btn {
+  width: 100%;
+  height: 48px;
+  background: #10b981;
+  color: #042617;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mission-register-btn:hover:not(:disabled):not(.is-pending-gate):not(.is-risk-blocked) {
+  background: #059669;
+  color: #ffffff;
+}
+
+.mission-register-btn:active:not(:disabled):not(.is-pending-gate):not(.is-risk-blocked) {
+  transform: scale(0.99);
+}
+
+.mission-register-btn.is-pending-gate {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.mission-register-btn.is-risk-blocked,
+.mission-register-btn:disabled.is-risk-blocked {
+  background: rgba(127, 29, 29, 0.5) !important;
+  border: 1px solid #ef4444 !important;
+  color: #fca5a5 !important;
+  cursor: not-allowed !important;
+  opacity: 0.9 !important;
+}
+
+/* Banner de bloqueio abaixo do botão */
+.mission-block-banner {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: 10px;
+  padding: 11px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 12px;
+  animation: missionFadeIn 0.2s ease-out;
+}
+
+.mission-block-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.mission-block-content {
+  flex: 1;
+}
+
+.mission-block-title {
+  color: #f87171;
+  font-size: 12.5px;
+  font-weight: 800;
+  display: block;
+  line-height: 1.25;
+}
+
+.mission-block-desc {
+  color: #fca5a5;
+  font-size: 11.5px;
+  line-height: 1.4;
+  margin: 3px 0 0;
+}
+
+/* Card Position Size Final no Rodapé */
+.mission-max-allowed-card {
+  background: rgba(4, 20, 14, 0.8);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 16px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.mission-max-allowed-card:hover {
+  background: rgba(6, 26, 18, 0.9);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.mission-max-allowed-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mission-max-allowed-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mission-coin-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #34d399;
+}
+
+.mission-max-allowed-info small {
+  color: #94a3b8;
+  font-size: 10.5px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.mission-max-allowed-info strong {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin-top: 2px;
+  display: block;
+}
+
+.mission-max-allowed-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.mission-max-risk-money {
+  color: #f1f5f9;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.mission-max-risk-pct {
+  color: #34d399;
+  font-size: 11.5px;
+  font-weight: 650;
+  margin-top: 2px;
+}
+
+.mission-max-allowed-note {
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.35;
+  margin: 8px 0 0;
+  display: block;
+}
+

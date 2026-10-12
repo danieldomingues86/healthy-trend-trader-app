@@ -86,6 +86,11 @@
         root.healthyTrendWorkspace.save('missionState', currentMission);
         root.healthyTrendWorkspace.save('missionHistory', missionHistory);
       }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('healthyTrend:missionStateChanged', {
+          detail: { mission: currentMission, active: currentMission?.status === 'ACTIVE' }
+        }));
+      }
     } catch (_) {}
   }
 
@@ -291,20 +296,34 @@
                 </div>
               ` : ''}
 
+              ${currentMission.status === 'STOPPED' ? `
+                <div class="mission-stopped-badge">
+                  <strong>Missão Interrompida</strong><br>
+                  <small>A política de risco normal da conta está ativa no Novo Trade.</small>
+                </div>
+              ` : ''}
+
               <div id="missionConfigFeedback" class="mission-inline-feedback" style="display:none;"></div>
 
               <button class="mission-start-btn ${currentMission.status === 'ACTIVE' ? 'is-active' : ''}" type="button" onclick="window.handleStartOrSaveMission()">
-                ${currentMission.status === 'ACTIVE' ? '✓ Missão Ativa (Salvar)' : '▶ Iniciar Missão'}
+                ${currentMission.status === 'ACTIVE' ? '✓ Missão Ativa (Salvar)' : (currentMission.status === 'STOPPED' ? '▶ Retomar Missão' : '▶ Iniciar Missão')}
               </button>
-              ${(currentMission.status === 'ACTIVE' || currentMission.status === 'COMPLETED') ? `
+              ${currentMission.status === 'ACTIVE' ? `
+                <button class="mission-stop-btn" type="button" onclick="window.openStopMissionModal()">
+                  ⏹ Parar Missão
+                </button>
+              ` : ''}
+              ${(currentMission.status === 'ACTIVE' || currentMission.status === 'STOPPED' || currentMission.status === 'COMPLETED') ? `
                 <button class="mission-reset-btn" type="button" onclick="window.openResetMissionModal()">
-                  ↺ Reiniciar Missão (Zerar)
+                  ↺ ${currentMission.status === 'STOPPED' ? 'Iniciar Nova Missão (Zerar)' : 'Reiniciar Missão (Zerar)'}
                 </button>
               ` : ''}
               <span class="mission-config-hint">
                 ${currentMission.status === 'ACTIVE'
-                  ? 'Missão em andamento. Salve alterações ou reinicie para começar do zero.'
-                  : 'Ao iniciar, o progresso será zerado e uma nova missão será criada.'}
+                  ? `Missão ativa com teto de ${M.formatPctBR(currentMission.riskPct, 2)} por trade no Novo Trade.`
+                  : (currentMission.status === 'STOPPED'
+                    ? 'Missão parada. Ao iniciar uma nova missão, o progresso começará em zero.'
+                    : 'Ao iniciar, o progresso começará em zero e o risco será limitado no Novo Trade.')}
               </span>
             </div>
           </section>
@@ -711,6 +730,67 @@
     saveMissionData();
     window.closeMissionModal();
     renderMissionPage();
+  };
+
+  window.openStopMissionModal = function () {
+    const container = document.getElementById('missionModalContainer');
+    if (!container) return;
+
+    const tradesCount = Array.isArray(currentMission.trades) ? currentMission.trades.length : 0;
+
+    container.innerHTML = `
+      <div class="mission-modal-backdrop" onclick="window.closeMissionModal(event)">
+        <div class="mission-modal-dialog" onclick="event.stopPropagation()">
+          <div class="mission-modal-head">
+            <h3>Parar Missão</h3>
+            <button class="mission-modal-close-btn" type="button" onclick="window.closeMissionModal()" aria-label="Fechar">✕</button>
+          </div>
+          <div class="mission-modal-body">
+            <p style="font-size:13.5px;color:#cbd5e1;line-height:1.55;margin-top:0;">
+              Tem certeza que deseja interromper a sua missão ativa?
+            </p>
+            <div style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;margin-bottom:14px;color:#fca5a5;font-size:12px;line-height:1.45;">
+              ⏹ <strong>O que acontecerá:</strong><br>
+              • O ciclo atual com <b>${tradesCount} trade(s)</b> será arquivado com segurança no seu histórico.<br>
+              • O teto rígido de risco (${M.formatPctBR(currentMission.riskPct, 2)}) será desativado e sua <b>política normal de risco</b> voltará a vigorar no Novo Trade.<br>
+              • Você poderá retomar ou iniciar uma nova jornada quando desejar.
+            </div>
+            <p style="font-size:12.5px;color:#94a3b8;line-height:1.45;margin-bottom:0;">
+              Nenhum registro histórico será perdido.
+            </p>
+            <div class="mission-modal-actions" style="margin-top:18px;">
+              <button class="mission-btn-secondary" type="button" onclick="window.closeMissionModal()">Cancelar</button>
+              <button class="mission-btn-danger" type="button" onclick="window.confirmStopMission()">
+                ⏹ Sim, Parar Missão
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  window.confirmStopMission = function () {
+    // Arquiva no histórico preservando todos os dados
+    missionHistory.unshift({
+      ...currentMission,
+      stoppedAt: new Date().toISOString(),
+      stopReason: 'Missão interrompida pelo usuário'
+    });
+
+    currentMission = M.stopMission(currentMission, 'Missão interrompida pelo usuário');
+    saveMissionData();
+    window.closeMissionModal();
+    renderMissionPage();
+
+    const feedback = document.getElementById('missionConfigFeedback');
+    if (feedback) {
+      feedback.textContent = 'Missão parada com sucesso. Sua política normal de risco foi restabelecida no Novo Trade.';
+      feedback.style.display = 'block';
+      setTimeout(() => {
+        if (feedback) feedback.style.display = 'none';
+      }, 4000);
+    }
   };
 
   window.openResetMissionModal = function () {

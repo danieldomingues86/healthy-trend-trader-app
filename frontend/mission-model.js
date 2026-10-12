@@ -15,9 +15,11 @@
     targetTrades: 20,
     riskPct: 0.001, // 0,10%
     reward: 'Um jantar especial',
-    status: 'NOT_STARTED', // 'NOT_STARTED', 'ACTIVE', 'COMPLETED'
+    status: 'NOT_STARTED', // 'NOT_STARTED', 'ACTIVE', 'STOPPED', 'COMPLETED'
     rebuildModeLinked: true,
     startDate: null,
+    stoppedDate: null,
+    stopReason: null,
     completedDate: null,
     trades: []
   };
@@ -73,6 +75,8 @@
       status,
       rebuildModeLinked: Boolean(params.rebuildModeLinked ?? true),
       startDate,
+      stoppedDate: params.stoppedDate || null,
+      stopReason: params.stopReason || null,
       completedDate: params.completedDate || null,
       trades: Array.isArray(params.trades) ? [...params.trades] : []
     };
@@ -302,8 +306,88 @@
       id: 'mission-' + Date.now(),
       status: 'ACTIVE',
       startDate: new Date().toISOString(),
+      stoppedDate: null,
+      stopReason: null,
       completedDate: null,
       trades: []
+    };
+  }
+
+  /**
+   * Interrompe/para a missão ativa voluntariamente pelo trader:
+   * - Define status como 'STOPPED'
+   * - Registra stoppedDate (ISO) e stopReason
+   * - Preserva integralmente trades, startDate, meta e configurações
+   * - Restaura imediatamente o controle padrão de risco da conta
+   */
+  function stopMission(mission, reason = '') {
+    const base = mission || DEFAULT_MISSION;
+    return {
+      ...base,
+      status: 'STOPPED',
+      stoppedDate: new Date().toISOString(),
+      stopReason: sanitizeString(reason) || 'Missão interrompida voluntariamente pelo trader.'
+    };
+  }
+
+  /**
+   * Retorna a missão ativa no contexto especificado ou no storage global do navegador
+   */
+  function getActiveMission(missionOrState) {
+    if (missionOrState && typeof missionOrState === 'object') {
+      return missionOrState.status === 'ACTIVE' ? missionOrState : null;
+    }
+    if (typeof window !== 'undefined') {
+      if (typeof window.MissionController?.getState === 'function') {
+        const state = window.MissionController.getState();
+        if (state && state.status === 'ACTIVE') return state;
+      }
+      try {
+        const storage = window.healthyTrendWorkspace?.storage || (typeof localStorage !== 'undefined' ? localStorage : null);
+        let raw = storage ? storage.getItem(STORAGE_KEY) : null;
+        if (!raw && typeof localStorage !== 'undefined' && storage !== localStorage) {
+          raw = localStorage.getItem(STORAGE_KEY);
+        }
+        if (raw) {
+          const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          if (parsed && parsed.status === 'ACTIVE') return parsed;
+        }
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  /**
+   * Verifica se há uma missão ativa em andamento
+   */
+  function isMissionActive(missionOrState) {
+    const active = getActiveMission(missionOrState);
+    return Boolean(active && active.status === 'ACTIVE');
+  }
+
+  /**
+   * Valida se um trade respeita o teto de risco imposto pela missão ativa (com tolerância de ±0.02pp)
+   */
+  function validateTradeAgainstMission(mission, options = {}) {
+    const m = (mission && typeof mission === 'object') ? mission : getActiveMission();
+    if (!m || m.status !== 'ACTIVE' || !Number(m.riskPct)) {
+      return { allowed: true };
+    }
+    const actualRiskPct = Number(options.actualRiskPct || 0);
+    const missionLimitPct = Number(m.riskPct) * 100;
+    const tolerance = 0.0201; // Tolerância estrita de ±0.02pp
+    if (actualRiskPct > (missionLimitPct + tolerance)) {
+      return {
+        allowed: false,
+        missionLimitPct,
+        actualRiskPct,
+        message: `Operação bloqueada: o risco excede o limite de ${formatPctBR(m.riskPct, 2)} definido pela sua Missão ativa. Reduza a quantidade ou ajuste o stop.`
+      };
+    }
+    return {
+      allowed: true,
+      missionLimitPct,
+      actualRiskPct
     };
   }
 
@@ -456,6 +540,10 @@
     createMission,
     startMission,
     resetMission,
+    stopMission,
+    isMissionActive,
+    getActiveMission,
+    validateTradeAgainstMission,
     calculateMissionProgress,
     addMissionTrade,
     closeOpenMissionTrade,

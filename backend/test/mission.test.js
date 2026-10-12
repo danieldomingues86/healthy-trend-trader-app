@@ -377,3 +377,150 @@ test('Navegação e Estrutura: submenu Treinamento & Recuperação e sections re
   assert.ok(html.includes('frontend/rebuild-mode-model.js'), 'index.html deve incluir rebuild-mode-model.js');
   assert.ok(html.includes('frontend/rebuild-mode.js'), 'index.html deve incluir rebuild-mode.js');
 });
+
+test('MissionModel: stopMission interrompe missão ativa, registra data e preserva trades e configs', () => {
+  let mission = MissionModel.startMission(null, {
+    title: 'Missão de Disciplina',
+    reason: 'Eliminar ansiedade',
+    targetTrades: 20,
+    riskPct: 0.001
+  }).mission;
+
+  mission = MissionModel.addMissionTrade(mission, { ticker: 'PETR4' }).mission;
+  mission = MissionModel.addMissionTrade(mission, { ticker: 'VALE3' }).mission;
+  assert.equal(mission.status, 'ACTIVE');
+  assert.equal(mission.trades.length, 2);
+
+  const stopped = MissionModel.stopMission(mission, 'Pausa estratégica solicitada pelo usuário');
+  assert.equal(stopped.status, 'STOPPED');
+  assert.ok(stopped.stoppedDate);
+  assert.equal(stopped.stopReason, 'Pausa estratégica solicitada pelo usuário');
+  assert.equal(stopped.trades.length, 2, 'Trades devem ser preservados');
+  assert.equal(stopped.title, 'Missão de Disciplina');
+  assert.equal(stopped.riskPct, 0.001);
+
+  const prog = MissionModel.calculateMissionProgress(stopped);
+  assert.equal(prog.canAddTrade, false, 'Missão parada não pode receber novos trades diretamente');
+  assert.equal(prog.status, 'STOPPED');
+
+  assert.equal(MissionModel.isMissionActive(stopped), false, 'isMissionActive deve retornar false para STOPPED');
+  assert.equal(MissionModel.getActiveMission(stopped), null, 'getActiveMission deve retornar null para STOPPED');
+});
+
+test('MissionModel: validateTradeAgainstMission valida risco com tolerância estrita de ±0.02pp', () => {
+  const activeMission = MissionModel.createMission({
+    status: 'ACTIVE',
+    riskPct: 0.001 // 0,10%
+  });
+
+  // Trade com risco de 0,10% (exato) -> Permitido
+  const resExact = MissionModel.validateTradeAgainstMission(activeMission, { actualRiskPct: 0.10 });
+  assert.equal(resExact.allowed, true);
+
+  // Trade com risco de 0,11% (dentro da tolerância de ±0.02pp) -> Permitido
+  const resWithinTolerance = MissionModel.validateTradeAgainstMission(activeMission, { actualRiskPct: 0.115 });
+  assert.equal(resWithinTolerance.allowed, true);
+
+  // Trade com risco de 0,1201% (no limite exato) -> Permitido
+  const resAtBoundary = MissionModel.validateTradeAgainstMission(activeMission, { actualRiskPct: 0.120 });
+  assert.equal(resAtBoundary.allowed, true);
+
+  // Trade com risco de 0,13% (acima da tolerância de +0.02pp) -> Bloqueado
+  const resOver = MissionModel.validateTradeAgainstMission(activeMission, { actualRiskPct: 0.13 });
+  assert.equal(resOver.allowed, false);
+  assert.ok(resOver.message.includes('Operação bloqueada'));
+  assert.ok(resOver.message.includes('0,10%'));
+
+  // Trade com risco de 0,25% -> Bloqueado
+  const resHigh = MissionModel.validateTradeAgainstMission(activeMission, { actualRiskPct: 0.25 });
+  assert.equal(resHigh.allowed, false);
+
+  // Missão inativa não deve bloquear
+  const inactiveMission = MissionModel.createMission({ status: 'STOPPED', riskPct: 0.001 });
+  const resInactive = MissionModel.validateTradeAgainstMission(inactiveMission, { actualRiskPct: 0.50 });
+  assert.equal(resInactive.allowed, true);
+});
+
+test('Desafio Grade A descontinuado: removido da sidebar e redirecionado para Missão', () => {
+  const navCode = fs.readFileSync(path.join(root, 'frontend', 'sidebar-navigation.js'), 'utf8');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+
+  // couragechallenge NÃO deve mais estar na sidebar de dados e performance
+  assert.equal(navCode.includes("id: 'couragechallenge'"), false, 'couragechallenge deve ser removido de sidebar-navigation.js');
+
+  // go() redireciona couragechallenge para mission
+  assert.ok(html.includes("if(id==='couragechallenge')id='mission';"), 'Navegação legada para couragechallenge deve redirecionar para mission');
+
+  // Botão estático no index.html não deve mais existir
+  assert.equal(html.includes('<button data-page="couragechallenge">'), false, 'Botão data-page couragechallenge não deve existir no index.html');
+});
+
+test('Novo Trade: Missão Ativa simplificada substitui cards redundantes por hierarquia clara', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'frontend', 'trade-workbench-v2.css'), 'utf8');
+
+  // 1. Função unificada implementada
+  assert.ok(html.includes('function syncMissionWorkbenchExperience('), 'Deve conter syncMissionWorkbenchExperience');
+  assert.ok(html.includes('window.syncMissionWorkbenchExperience = syncMissionWorkbenchExperience'), 'syncMissionWorkbenchExperience deve ser exportada');
+
+  // 2. Elementos essenciais presentes na renderização:
+  // Card 1: Missão Ativa em destaque
+  assert.ok(html.includes('class="mission-workbench-card mission-active-card"'), 'Deve renderizar mission-active-card');
+  assert.ok(html.includes('MISSÃO ATIVA'), 'Deve exibir título MISSÃO ATIVA');
+  assert.ok(html.includes('Operando com risco reduzido conforme sua missão.'), 'Deve exibir subtítulo');
+  assert.ok(html.includes('RISCO MÁXIMO POR TRADE'), 'Deve exibir label RISCO MÁXIMO POR TRADE');
+  assert.ok(html.includes('Definido pela Missão'), 'Deve exibir Definido pela Missão');
+  assert.ok(html.includes('Limite em vigor'), 'Deve exibir Limite em vigor');
+
+  // Card 2: Teto Teórico em segundo plano
+  assert.ok(html.includes('class="mission-workbench-card mission-ceiling-card"'), 'Deve renderizar mission-ceiling-card');
+  assert.ok(html.includes('Teto teórico pelo Grade'), 'Deve exibir Teto teórico pelo Grade');
+  assert.ok(html.includes('mas a Missão é mais restritiva. Por isso, o risco efetivo desta operação permanece em'), 'Deve diferenciar o teto teórico da Missão');
+
+  // Card 3: Área Unificada de Decisão e Execução
+  assert.ok(html.includes('class="mission-workbench-card mission-execution-card"'), 'Deve renderizar mission-execution-card');
+  assert.ok(html.includes('3. Quantidade e risco da operação'), 'Deve exibir título 3. Quantidade e risco da operação');
+  assert.ok(html.includes('Quantidade de ações'), 'Deve exibir label Quantidade de ações');
+  assert.ok(html.includes('id="missionStepUpBtn"'), 'Deve conter botão de incremento missionStepUpBtn');
+  assert.ok(html.includes('id="missionStepDownBtn"'), 'Deve conter botão de decremento missionStepDownBtn');
+  assert.ok(html.includes('RISCO FINANCEIRO'), 'Deve exibir RISCO FINANCEIRO');
+  assert.ok(html.includes('CAPITAL UTILIZADO'), 'Deve exibir CAPITAL UTILIZADO');
+  assert.ok(html.includes('id="missionRegisterTradeBtn"'), 'Deve conter botão missionRegisterTradeBtn');
+
+  // Elementos de bloqueio e violação de risco
+  assert.ok(html.includes('id="missionRiskViolationBox"'), 'Deve conter caixa de violação missionRiskViolationBox');
+  assert.ok(html.includes('Excede o limite da Missão'), 'Deve exibir aviso Excede o limite da Missão');
+  assert.ok(html.includes('id="missionBlockBanner"'), 'Deve conter banner de bloqueio missionBlockBanner');
+  assert.ok(html.includes('Não é possível registrar este trade'), 'Deve exibir mensagem Não é possível registrar este trade');
+  assert.ok(html.includes('Position Size Final (máximo permitido)'), 'Deve exibir card Position Size Final (máximo permitido)');
+
+  // 3. Remoção de redundâncias
+  assert.ok(!html.includes('<input type="checkbox" id="courageConsciousCheckbox" checked>'), 'Checkbox redundante de confirmação deve ser removido');
+  assert.ok(!html.includes('class="courage-discomfort-scale"'), 'Escala de desconforto redundante deve ser removida da área principal');
+
+  // 4. CSS dedicado implementado
+  assert.ok(css.includes('.mission-workbench-container'), 'CSS deve conter .mission-workbench-container');
+  assert.ok(css.includes('.mission-active-card'), 'CSS deve conter .mission-active-card');
+  assert.ok(css.includes('.mission-ceiling-card'), 'CSS deve conter .mission-ceiling-card');
+  assert.ok(css.includes('.mission-execution-card'), 'CSS deve conter .mission-execution-card');
+  assert.ok(css.includes('.mission-register-btn'), 'CSS deve conter .mission-register-btn');
+  assert.ok(css.includes('.mission-violation-box'), 'CSS deve conter .mission-violation-box');
+  assert.ok(css.includes('.mission-block-banner'), 'CSS deve conter .mission-block-banner');
+  assert.ok(css.includes('.mission-max-allowed-card'), 'CSS deve conter .mission-max-allowed-card');
+  assert.ok(css.includes('.is-risk-blocked'), 'CSS deve conter .is-risk-blocked');
+});
+
+test('Novo Trade: comportamento dinâmico e integração com ciclo de vida da missão', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+
+  // Reatividade a eventos
+  assert.ok(html.includes("window.addEventListener('healthyTrend:missionStateChanged'"), 'Deve ouvir healthyTrend:missionStateChanged');
+  assert.ok(html.includes("window.addEventListener('healthyTrend:missionUpdated'"), 'Deve ouvir healthyTrend:missionUpdated');
+
+  // Navegação para newtrade atualiza workbench
+  assert.ok(html.includes("if(id==='newtrade'&&typeof updateTradingRubric==='function'){updateTradingRubric();}"), 'go(newtrade) deve acionar updateTradingRubric()');
+
+  // Gating de risco inclui botão da missão
+  assert.ok(html.includes("sizer.querySelectorAll('.summary-box button, #missionRegisterTradeBtn')"), 'Gating de risco deve avaliar #missionRegisterTradeBtn');
+});
+

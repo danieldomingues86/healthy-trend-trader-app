@@ -126,6 +126,44 @@ function validateRareTrade(plan, policy) {
   }
 }
 
+function parseMissionState(missionState) {
+  let m = missionState;
+  while (typeof m === 'string') {
+    try {
+      m = JSON.parse(m);
+    } catch (_) {
+      break;
+    }
+  }
+  return m && typeof m === 'object' ? m : null;
+}
+
+function isMissionStateActive(missionState) {
+  const m = parseMissionState(missionState);
+  return Boolean(m && m.status === 'ACTIVE' && Number(m.riskPct) > 0);
+}
+
+// Valida o risco do trade contra a Missão ativa. Não confia apenas no percentual enviado
+// pelo cliente: quando há equity, recalcula o risco real a partir de entrada, stop e
+// quantidade executada e utiliza o maior valor entre o declarado e o recalculado.
+function validateMissionRisk(plan, missionState, equity) {
+  const m = parseMissionState(missionState);
+  if (!m || m.status !== 'ACTIVE' || !(Number(m.riskPct) > 0)) return;
+  const missionLimitPct = Number(m.riskPct) * 100;
+  const declaredRiskPct = (Number(plan.riskPct) || 0) * 100;
+  const executedQuantity = Number(plan.metadata?.executedQuantity ?? plan.executedQuantity);
+  const distance = Math.abs(Number(plan.entry) - Number(plan.stop));
+  const accountEquity = Number(equity);
+  let computedRiskPct = 0;
+  if (accountEquity > 0 && executedQuantity > 0 && distance > 0) {
+    computedRiskPct = (distance * executedQuantity / accountEquity) * 100;
+  }
+  const executedRiskPct = Math.max(declaredRiskPct, computedRiskPct);
+  if (executedRiskPct > (missionLimitPct + 0.0201)) {
+    throw invalid(`Operação bloqueada: o risco (${executedRiskPct.toFixed(2).replace('.', ',')}%) excede o limite de ${missionLimitPct.toFixed(2).replace('.', ',')}% definido pela sua Missão ativa. Reduza a quantidade ou ajuste o stop.`);
+  }
+}
+
 async function createPlan(userId, payload) {
   const plan = normalizePlan(payload);
   const id = crypto.randomUUID();
@@ -137,6 +175,12 @@ async function createPlan(userId, payload) {
     const activePause = await marketPause.getActive(userId, client);
     if (activePause) {
       throw invalid(`Você está em período de pausa fora do mercado até ${activePause.expectedReturnDate}. Encerre a pausa antes de registrar uma nova operação.`);
+    }
+    const wsRes = await client.query('SELECT state FROM app.workspace_state WHERE user_id = $1', [userId]);
+    const missionState = wsRes.rows[0]?.state?.missionState;
+    if (isMissionStateActive(missionState)) {
+      const equity = await getAccountEquity(userId, client);
+      validateMissionRisk(plan, missionState, equity);
     }
     if (plan.rubricGrade === 'A') {
       const savedPolicy = await client.query('SELECT policy FROM app.risk_policies WHERE user_id = $1', [userId]);
@@ -625,6 +669,7 @@ module.exports = {
   getAccountEquity,
   normalizePlan,
   validateRareTrade,
+  validateMissionRisk,
   normalizeExecution,
   normalizePositionEvent,
   ratingFromValue
