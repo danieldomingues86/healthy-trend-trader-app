@@ -115,23 +115,35 @@
     const trendState = item.weeklyTrend?.state || item.trendState;
 
     if (timeframe === 'weekly') {
+      if (item.classification) {
+        const cls = String(item.classification).trim();
+        if (cls === 'Líder') return { label: text('Líder', 'Leader'), icon: '🏆', tierClass: 'leader' };
+        if (cls === 'Qualificado') return { label: text('Qualificado', 'Qualified'), icon: '📊', tierClass: 'qualified' };
+        if (cls === 'Acompanhar') return { label: text('Acompanhar', 'Watch'), icon: '👁️', tierClass: 'watch' };
+        if (cls === 'Em observação') return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
+        if (cls === 'Abaixo do filtro') return { label: text('Abaixo do filtro', 'Below filter'), icon: '❗', tierClass: 'laggard' };
+      }
       if (score >= 90) {
-        if (trendState === 'BEARISH' || trendState === 'NEUTRAL') {
+        if (trendState === 'BEARISH') {
           return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
         }
-        return score >= 95
-          ? { label: text('Líder Excepcional', 'Exceptional Leader'), icon: '🏆', tierClass: 'leader' }
-          : { label: text('Líder', 'Leader'), icon: '🏆', tierClass: 'leader' };
+        if (trendState === 'NEUTRAL') {
+          return { label: text('Qualificado', 'Qualified'), icon: '📊', tierClass: 'qualified' };
+        }
+        return { label: text('Líder', 'Leader'), icon: '🏆', tierClass: 'leader' };
       }
-      if (score >= 80) return { label: text('Qualificado', 'Qualified'), icon: '📊', tierClass: 'qualified' };
+      if (score >= 80) {
+        if (trendState === 'BEARISH') {
+          return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
+        }
+        return { label: text('Qualificado', 'Qualified'), icon: '📊', tierClass: 'qualified' };
+      }
       if (score >= 70) return { label: text('Acompanhar', 'Watch'), icon: '👁️', tierClass: 'watch' };
       if (score >= 50) return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
       return { label: text('Abaixo do filtro', 'Below filter'), icon: '❗', tierClass: 'laggard' };
     } else {
-      // Swing Trade (Diário)
-      if (score >= 95) return { label: text('Líder Excepcional', 'Exceptional Leader'), icon: '🏆', tierClass: 'leader' };
+      // Swing Trade (Diário) - estritamente as 5 categorias oficiais
       if (score >= 90) return { label: text('Líder', 'Leader'), icon: '🏆', tierClass: 'leader' };
-      if (score >= 85) return { label: text('Força Alta', 'High Strength'), icon: '📊', tierClass: 'qualified' };
       if (score >= 80) return { label: text('Qualificado', 'Qualified'), icon: '📊', tierClass: 'qualified' };
       if (score >= 70) return { label: text('Acompanhar', 'Watch'), icon: '👁️', tierClass: 'watch' };
       if (score >= 50) return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
@@ -390,6 +402,9 @@
 
   // --- Render Sub-Components ---
 
+  const FLAG_BR_SVG = '<svg class="rs-flag-svg" viewBox="0 0 30 30" width="18" height="18" aria-hidden="true"><defs><clipPath id="rs-flag-clip-br"><circle cx="15" cy="15" r="14"/></clipPath></defs><g clip-path="url(#rs-flag-clip-br)"><path fill="#16864b" d="M0 0h30v30H0z"/><path fill="#f3d34d" d="m15 5 13 10-13 10L2 15z"/><circle cx="15" cy="15" r="6" fill="#17436e"/><path d="m9 13 12 4" stroke="white" stroke-width="2"/></g></svg>';
+  const FLAG_US_SVG = '<svg class="rs-flag-svg" viewBox="0 0 30 30" width="18" height="18" aria-hidden="true"><defs><clipPath id="rs-flag-clip-us"><circle cx="15" cy="15" r="14"/></clipPath></defs><g clip-path="url(#rs-flag-clip-us)"><path fill="#fff" d="M0 0h30v30H0z"/><path stroke="#bc3349" stroke-width="2.3" d="M0 2h30M0 7h30M0 12h30M0 17h30M0 22h30M0 27h30"/><path fill="#20456f" d="M0 0h15v16H0z"/><path stroke="white" stroke-dasharray="1 3" d="M2 4h12M2 8h12M2 12h12"/></g></svg>';
+
   function renderSidebarMarkup(activeMarket, activeUniverseKey) {
     const isB3 = activeMarket === 'b3';
     return `
@@ -404,12 +419,12 @@
           <div class="rs-sidebar-options" role="radiogroup" aria-label="Mercado">
             <button type="button" class="rs-sidebar-option ${isB3 ? 'active' : ''}" onclick="window.switchRelativeStrengthMarket('b3')" role="radio" aria-checked="${isB3}">
               <span class="rs-radio-indicator"></span>
-              <span class="rs-flag">🇧🇷</span>
+              <span class="rs-flag">${FLAG_BR_SVG}</span>
               <span class="rs-option-text">B3</span>
             </button>
             <button type="button" class="rs-sidebar-option ${!isB3 ? 'active' : ''}" onclick="window.switchRelativeStrengthMarket('nasdaq')" role="radio" aria-checked="${!isB3}">
               <span class="rs-radio-indicator"></span>
-              <span class="rs-flag">🇺🇸</span>
+              <span class="rs-flag">${FLAG_US_SVG}</span>
               <span class="rs-option-text">Nasdaq-100</span>
             </button>
           </div>
@@ -541,7 +556,7 @@
       const m3Class = Number.isFinite(m3Val) ? (m3Val >= 0 ? 'rs-val-positive' : 'rs-val-negative') : '';
 
       return `
-        <tr class="rs-data-row" data-symbol="${symbol}">
+        <tr class="rs-data-row rs-row-${leitura.tierClass}" data-symbol="${symbol}">
           <td class="td-rank">${rank}</td>
           <td class="td-symbol"><b>${symbol}</b></td>
           <td class="td-company" title="${company}">${company}</td>

@@ -163,9 +163,21 @@ body #relativestrength.rs-workspace-active {
 }
 
 .rs-flag {
-  font-size: 16px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
+  line-height: 1;
+}
+
+.rs-flag-svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
 }
 
 .rs-option-text {
@@ -636,19 +648,89 @@ body #relativestrength.rs-workspace-active {
   white-space: nowrap;
 }
 
+.rs-table thead tr th.th-rank { text-align: center; width: 48px; }
+.rs-table thead tr th.th-symbol { text-align: left; }
+.rs-table thead tr th.th-company { text-align: left; }
+.rs-table thead tr th.th-group { text-align: left; }
+.rs-table thead tr th.th-m1,
+.rs-table thead tr th.th-m3 { text-align: right; }
+.rs-table thead tr th.th-rs { text-align: center; width: 64px; }
+.rs-table thead tr th.th-reading { text-align: left; }
+.rs-table thead tr th.th-actions { text-align: right; width: 240px; }
+
 .rs-table tbody tr td {
   padding: 13px 16px;
-  border-bottom: 1px solid #eef3f0;
+  border-bottom: 1px solid rgba(13, 38, 28, 0.06);
   color: #152d21;
   vertical-align: middle;
-}
-
-.rs-table tbody tr.rs-data-row:hover {
-  background: #f7faf8;
+  transition: background 0.15s ease;
 }
 
 .rs-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+/* --- Classification Row Gradient/Background Tints --- */
+.rs-table tbody tr.rs-data-row.rs-row-leader td {
+  background: rgba(220, 239, 224, 0.76);
+}
+
+.rs-table tbody tr.rs-data-row.rs-row-qualified td {
+  background: rgba(238, 247, 235, 0.72);
+}
+
+.rs-table tbody tr.rs-data-row.rs-row-watch td {
+  background: rgba(255, 249, 232, 0.74);
+}
+
+.rs-table tbody tr.rs-data-row.rs-row-observation td {
+  background: rgba(243, 246, 249, 0.72);
+}
+
+.rs-table tbody tr.rs-data-row.rs-row-laggard td {
+  background: rgba(255, 241, 240, 0.70);
+}
+
+/* Hover States */
+.rs-table tbody tr.rs-data-row:hover td {
+  background: #f7faf8;
+}
+
+.rs-table tbody tr.rs-data-row.rs-row-leader:hover td {
+  background: rgba(206, 234, 212, 0.92);
+}
+
+.rs-table tbody tr.rs-data-row.rs-row-qualified:hover td {
+  background: rgba(226, 242, 222, 0.90);
+}
+
+.rs-table tbody tr.rs-data-row.rs-row-watch:hover td {
+  background: rgba(255, 244, 217, 0.92);
+}
+
+.rs-table tbody tr.rs-data-row.rs-row-observation:hover td {
+  background: rgba(234, 240, 246, 0.90);
+}
+
+.rs-table tbody tr.rs-data-row.rs-row-laggard:hover td {
+  background: rgba(255, 229, 227, 0.90);
+}
+
+/* Gold Theme Overrides */
+body:not([data-theme="healthy"]) .rs-table tbody tr.rs-data-row.rs-row-leader td {
+  background: rgba(28, 44, 28, 0.55);
+}
+body:not([data-theme="healthy"]) .rs-table tbody tr.rs-data-row.rs-row-qualified td {
+  background: rgba(27, 39, 26, 0.45);
+}
+body:not([data-theme="healthy"]) .rs-table tbody tr.rs-data-row.rs-row-watch td {
+  background: rgba(45, 37, 21, 0.55);
+}
+body:not([data-theme="healthy"]) .rs-table tbody tr.rs-data-row.rs-row-observation td {
+  background: rgba(30, 38, 45, 0.50);
+}
+body:not([data-theme="healthy"]) .rs-table tbody tr.rs-data-row.rs-row-laggard td {
+  background: rgba(45, 26, 26, 0.55);
 }
 
 .td-rank {
@@ -663,6 +745,7 @@ body #relativestrength.rs-workspace-active {
   font-weight: 750;
   color: #081a13;
   font-size: 14.5px;
+  text-align: left;
 }
 
 .td-company {
@@ -672,6 +755,7 @@ body #relativestrength.rs-workspace-active {
   text-overflow: ellipsis;
   color: #284436;
   font-size: 13px;
+  text-align: left;
 }
 
 .td-group {
@@ -681,6 +765,7 @@ body #relativestrength.rs-workspace-active {
   text-overflow: ellipsis;
   color: #4b6657;
   font-size: 12.5px;
+  text-align: left;
 }
 
 .td-m1,
@@ -689,6 +774,7 @@ body #relativestrength.rs-workspace-active {
   font-size: 13.5px;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .rs-val-positive {

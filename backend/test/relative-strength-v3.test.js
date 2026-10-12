@@ -110,3 +110,24 @@ test('Força Relativa: Cache estático do frontend contém todos os universos Di
   assert.strictEqual(staticCache.nasdaq.weekly.ranking.length, 100, '100 Nasdaq Semanal');
 });
 
+test('Força Relativa: Validação rigorosa das 5 classificações oficiais e classes de linha (sem Líder Excepcional/Força Alta)', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const vm = require('vm');
+
+  const jsContent = fs.readFileSync(path.join(__dirname, '../../frontend/relative-strength-v3.js'), 'utf8');
+
+  // Assert no invented classifications exist in the source code
+  assert.doesNotMatch(jsContent, /Líder Excepcional/i, 'Líder Excepcional não deve existir no código');
+  assert.doesNotMatch(jsContent, /Exceptional Leader/i, 'Exceptional Leader não deve existir no código');
+  assert.doesNotMatch(jsContent, /Força Alta/i, 'Força Alta não deve existir no código');
+
+  // Verify SVG flags are defined in JS
+  assert.match(jsContent, /rs-flag-svg/, 'Deve conter classe rs-flag-svg para as bandeiras');
+  assert.match(jsContent, /FLAG_BR_SVG/, 'Deve conter FLAG_BR_SVG');
+  assert.match(jsContent, /FLAG_US_SVG/, 'Deve conter FLAG_US_SVG');
+
+  // Verify table rows receive rs-row-${leitura.tierClass}
+  assert.match(jsContent, /rs-row-\$\{leitura\.tierClass\}/, 'Linhas da tabela devem receber rs-row-${leitura.tierClass}');
+});
+
