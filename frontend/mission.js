@@ -296,9 +296,14 @@
               <button class="mission-start-btn ${currentMission.status === 'ACTIVE' ? 'is-active' : ''}" type="button" onclick="window.handleStartOrSaveMission()">
                 ${currentMission.status === 'ACTIVE' ? '✓ Missão Ativa (Salvar)' : '▶ Iniciar Missão'}
               </button>
+              ${(currentMission.status === 'ACTIVE' || currentMission.status === 'COMPLETED') ? `
+                <button class="mission-reset-btn" type="button" onclick="window.openResetMissionModal()">
+                  ↺ Reiniciar Missão (Zerar)
+                </button>
+              ` : ''}
               <span class="mission-config-hint">
                 ${currentMission.status === 'ACTIVE'
-                  ? 'Missão em andamento. Configurações salvas sem reiniciar o progresso.'
+                  ? 'Missão em andamento. Salve alterações ou reinicie para começar do zero.'
                   : 'Ao iniciar, o progresso será zerado e uma nova missão será criada.'}
               </span>
             </div>
@@ -706,6 +711,83 @@
     saveMissionData();
     window.closeMissionModal();
     renderMissionPage();
+  };
+
+  window.openResetMissionModal = function () {
+    const container = document.getElementById('missionModalContainer');
+    if (!container) return;
+
+    const tradesCount = Array.isArray(currentMission.trades) ? currentMission.trades.length : 0;
+
+    container.innerHTML = `
+      <div class="mission-modal-backdrop" onclick="window.closeMissionModal(event)">
+        <div class="mission-modal-dialog" onclick="event.stopPropagation()">
+          <div class="mission-modal-head">
+            <h3>Reiniciar Missão do Zero</h3>
+            <button class="mission-modal-close-btn" type="button" onclick="window.closeMissionModal()" aria-label="Fechar">✕</button>
+          </div>
+          <div class="mission-modal-body">
+            <p style="font-size:13.5px;color:#cbd5e1;line-height:1.55;margin-top:0;">
+              Tem certeza que deseja reiniciar esta missão?
+            </p>
+            <div style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px;margin-bottom:14px;color:#fca5a5;font-size:12px;line-height:1.45;">
+              ⚠️ <strong>Atenção:</strong> ${tradesCount > 0
+                ? `Todos os <b>${tradesCount} trade(s)</b> registrados no ciclo atual serão arquivados com segurança no histórico e o progresso da jornada voltará a <b>0 trades concluídos (0%)</b>.`
+                : 'O progresso da missão será reinicializado para <b>0 trades (0%)</b>.'}
+            </div>
+            <p style="font-size:12.5px;color:#94a3b8;line-height:1.45;margin-bottom:0;">
+              O objetivo central, o motivo e as configurações de risco e meta serão preservados para o novo ciclo.
+            </p>
+            <div class="mission-modal-actions" style="margin-top:18px;">
+              <button class="mission-btn-secondary" type="button" onclick="window.closeMissionModal()">Cancelar</button>
+              <button class="mission-btn-danger" type="button" onclick="window.confirmResetMission()">
+                ↺ Sim, Reiniciar do Zero
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  window.confirmResetMission = function () {
+    const targetInput = document.getElementById('missionTargetInput');
+    const riskSelect = document.getElementById('missionRiskSelect');
+    const rewardInput = document.getElementById('missionRewardInput');
+
+    const nextTarget = Math.max(1, Math.min(100, Math.round(Number(targetInput?.value) || currentMission.targetTrades || 20)));
+    const nextRisk = Number(riskSelect?.value || currentMission.riskPct || 0.001);
+    const nextReward = String(rewardInput?.value || '').trim() || currentMission.reward || 'Um jantar especial';
+
+    const rebuildState = RM ? RM.getRebuildState() : null;
+
+    // Se havia trades registrados, arquiva no histórico para não perder dados
+    if (Array.isArray(currentMission.trades) && currentMission.trades.length > 0) {
+      missionHistory.unshift({
+        ...currentMission,
+        archivedAt: new Date().toISOString(),
+        resetReason: 'Reinício solicitado pelo usuário'
+      });
+    }
+
+    currentMission = M.resetMission(currentMission, {
+      targetTrades: nextTarget,
+      riskPct: nextRisk,
+      reward: nextReward
+    }, rebuildState);
+
+    saveMissionData();
+    window.closeMissionModal();
+    renderMissionPage();
+
+    const feedback = document.getElementById('missionConfigFeedback');
+    if (feedback) {
+      feedback.textContent = 'Missão reiniciada do zero! Nova jornada iniciada.';
+      feedback.style.display = 'block';
+      setTimeout(() => {
+        if (feedback) feedback.style.display = 'none';
+      }, 3500);
+    }
   };
 
   window.openMissionHistoryModal = function () {

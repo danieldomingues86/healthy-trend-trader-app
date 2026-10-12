@@ -55,6 +55,47 @@ test('MissionModel: startMission inicializa em zero e protege missão ativa cont
   assert.equal(saved.mission.reward, 'Novo Jantar');
 });
 
+test('MissionModel: resetMission zera trades e reinicia jornada do zero preservando configs', () => {
+  let mission = MissionModel.startMission(null, {
+    title: 'Missão de Teste',
+    reason: 'Motivo Válido',
+    targetTrades: 20,
+    riskPct: 0.001,
+    reward: 'Recompensa 1'
+  }).mission;
+
+  // Adiciona 5 trades
+  for (let i = 1; i <= 5; i++) {
+    mission = MissionModel.addMissionTrade(mission, { ticker: `ATIVO${i}` }).mission;
+  }
+  assert.equal(mission.trades.length, 5);
+  const oldStartDate = mission.startDate;
+
+  // Reinicia do zero
+  const reset = MissionModel.resetMission(mission, {
+    reward: 'Nova Recompensa'
+  });
+
+  assert.equal(reset.status, 'ACTIVE');
+  assert.equal(reset.trades.length, 0, 'Trades devem ser estritamente zerados');
+  assert.equal(reset.title, 'Missão de Teste');
+  assert.equal(reset.reason, 'Motivo Válido');
+  assert.equal(reset.targetTrades, 20);
+  assert.equal(reset.riskPct, 0.001);
+  assert.equal(reset.reward, 'Nova Recompensa');
+  assert.ok(reset.startDate, 'Nova data de início deve existir');
+  assert.equal(reset.completedDate, null);
+
+  // Progresso do reset deve ser exatamente 0%
+  const prog = MissionModel.calculateMissionProgress(reset);
+  assert.equal(prog.completedTrades, 0);
+  assert.equal(prog.progressPct, 0);
+  assert.equal(prog.completedStations, 0);
+  assert.equal(prog.currentStationNumber, 1);
+  assert.equal(prog.waypoints[0].status, 'ACTIVE');
+  assert.equal(prog.waypoints.slice(1).every(w => w.status === 'LOCKED'), true);
+});
+
 test('MissionModel: calculateMissionProgress calcula percentual, trades restantes e risco financeiro', () => {
   const mission = MissionModel.createMission({
     targetTrades: 20,

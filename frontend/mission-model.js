@@ -284,6 +284,29 @@
     };
   }
 
+  /**
+   * Reinicia a missão atual estritamente do zero:
+   * - Zera a lista de trades (trades = [])
+   * - Registra nova data de início (startDate = now)
+   * - Define status como 'ACTIVE'
+   * - Preserva ou atualiza as configurações (meta, risco, recompensa, título, motivo)
+   * - Limpa completedDate
+   * - Retorna a missão reiniciada
+   */
+  function resetMission(mission, config = {}, rebuildState = null) {
+    const base = mission || DEFAULT_MISSION;
+    const updated = updateMissionConfig(base, config, rebuildState);
+
+    return {
+      ...updated,
+      id: 'mission-' + Date.now(),
+      status: 'ACTIVE',
+      startDate: new Date().toISOString(),
+      completedDate: null,
+      trades: []
+    };
+  }
+
   const STATION_TITLES = [
     'Primeiro Passo',
     'Construindo Base',
@@ -432,6 +455,7 @@
     STATION_TITLES,
     createMission,
     startMission,
+    resetMission,
     calculateMissionProgress,
     addMissionTrade,
     closeOpenMissionTrade,
