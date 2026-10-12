@@ -99,6 +99,13 @@
     // Verifica se há trade em andamento na missão
     const hasOpenTrade = trades.some(t => t.status === 'OPEN');
 
+    // Fonte única da trilha da montanha (7 marcos)
+    const waypoints = generateWaypoints(targetTrades, completedTrades);
+    const activeWp = waypoints.find(w => w.status === 'ACTIVE') || waypoints[waypoints.length - 1];
+    const currentStationNumber = isCompleted ? 7 : (activeWp ? activeWp.stationNumber : 1);
+    const completedStations = waypoints.filter(w => w.status === 'COMPLETED').length;
+    const currentStationTrades = activeWp ? activeWp.stationTrades : targetTrades;
+
     return {
       completedTrades,
       targetTrades,
@@ -112,7 +119,13 @@
       estimatedRiskValueFormatted: estimatedRiskValue !== null ? formatCurrencyBRL(estimatedRiskValue) : null,
       hasOpenTrade,
       status: m.status || 'ACTIVE',
-      canAddTrade: !hasOpenTrade && !isCompleted
+      canAddTrade: !hasOpenTrade && !isCompleted,
+      // Marco da montanha sincronizado com a mesma fonte de verdade
+      totalStations: 7,
+      completedStations,
+      currentStationNumber,
+      currentStationTrades,
+      waypoints
     };
   }
 
@@ -239,44 +252,68 @@
   /**
    * Gera a lista de 7 waypoints estáticos que compõem a rota na montanha,
    * calculando seu estado visual (COMPLETED, ACTIVE, LOCKED) de acordo
-   * com a meta de trades e o progresso atual.
+   * com a meta de trades e o progresso atual de forma estritamente coerente.
    */
   function generateWaypoints(targetTrades, completedTrades) {
     const target = Math.max(1, Number(targetTrades) || 20);
     const completed = Math.max(0, Number(completedTrades) || 0);
 
-    // Mapeia o progresso em 7 estações no percurso (1 a 7)
-    // Se target = 7: estação i corresponde exatamente ao trade i
-    // Se target = 20: interpolação proporcional
     const totalStations = 7;
     const stations = [];
 
-    // Estação ativa atual (onde o soldado / caminhante está)
-    // Se completed == 0: ativo é o 1
-    // Se completed >= target: ativo é o 7 (cumprido)
-    const activeStationIndex = completed >= target
-      ? totalStations
-      : Math.min(totalStations, Math.floor((completed / target) * (totalStations - 1)) + 1);
+    // Metas de trades de cada estação ao longo do percurso
+    const stationTargets = [];
+    for (let i = 1; i <= totalStations; i++) {
+      const stationTrades = i === totalStations
+        ? target
+        : Math.max(1, Math.round((i / totalStations) * target));
+      stationTargets.push(stationTrades);
+    }
+
+    // Estação ativa atual: primeiro marco cuja meta ainda não foi superada
+    // Se completed >= target: todas concluídas, ativo é o cume (7)
+    let activeStationIndex = totalStations;
+    if (completed < target) {
+      for (let i = 0; i < totalStations; i++) {
+        if (completed < stationTargets[i]) {
+          activeStationIndex = i + 1;
+          break;
+        }
+      }
+    }
 
     for (let i = 1; i <= totalStations; i++) {
+      const stationTrades = stationTargets[i - 1];
       let status = 'LOCKED';
-      // Quantidade de trades que essa estação representa
-      const stationTrades = Math.max(1, Math.round((i / totalStations) * target));
 
-      if (completed >= stationTrades || (completed >= target && i === totalStations)) {
+      if (completed >= target) {
+        status = 'COMPLETED';
+      } else if (completed >= stationTrades && i < activeStationIndex) {
         status = 'COMPLETED';
       } else if (i === activeStationIndex) {
         status = 'ACTIVE';
-      } else if (i < activeStationIndex) {
-        status = 'COMPLETED';
       } else {
         status = 'LOCKED';
+      }
+
+      let statusDescription = '';
+      if (status === 'COMPLETED') {
+        statusDescription = `Marco ${i} concluído ✓ (${completed} trades realizados — meta do marco: ${stationTrades} trades).`;
+      } else if (status === 'ACTIVE') {
+        const remainingInStation = Math.max(0, stationTrades - completed);
+        statusDescription = `Você está no Marco ${i}! ★ (${completed} de ${stationTrades} trades da etapa realizados — faltam ${remainingInStation} trades para consolidar).`;
+      } else {
+        statusDescription = `Marco ${i} bloqueado 🔒 (Requer ${stationTrades} trades concluídos para desbloquear).`;
       }
 
       stations.push({
         stationNumber: i,
         stationTrades,
+        stationLabel: `Marco ${i}`,
+        tradesLabel: `${stationTrades} trades`,
         status, // 'COMPLETED', 'ACTIVE', 'LOCKED'
+        statusDescription,
+        completedTrades: completed,
         isSummit: i === totalStations
       });
     }

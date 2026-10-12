@@ -144,6 +144,129 @@ test('RebuildModeModel: ativação, teto de risco seguro e desativação', () =>
   assert.equal(deactivated.isActive, false);
 });
 
+test('MissionModel: updateMissionConfig atualiza título e motivo preservando trades existentes e status', () => {
+  let mission = MissionModel.createMission({
+    title: 'Missão Original',
+    reason: 'Motivo Antigo',
+    targetTrades: 20,
+    riskPct: 0.001
+  });
+
+  // Registra 5 trades
+  for (let i = 1; i <= 5; i++) {
+    mission = MissionModel.addMissionTrade(mission, { ticker: `ATIVO${i}` }).mission;
+  }
+  assert.equal(mission.trades.length, 5);
+  const originalStartDate = mission.startDate;
+
+  // Atualiza título e motivo via updateMissionConfig
+  const updated = MissionModel.updateMissionConfig(mission, {
+    title: 'Novo Título Focado',
+    reason: 'Novo Motivo Claro e Inspirador'
+  });
+
+  assert.equal(updated.title, 'Novo Título Focado');
+  assert.equal(updated.reason, 'Novo Motivo Claro e Inspirador');
+  assert.equal(updated.trades.length, 5, 'Trades existentes devem ser preservados');
+  assert.equal(updated.startDate, originalStartDate, 'Data de início deve ser preservada');
+  assert.equal(updated.status, 'ACTIVE');
+});
+
+test('MissionModel: updateMissionConfig em missão ativa preserva progresso e data de início ao ajustar meta ou recompensa', () => {
+  let mission = MissionModel.createMission({
+    targetTrades: 20,
+    riskPct: 0.001,
+    reward: 'Jantar'
+  });
+
+  for (let i = 1; i <= 8; i++) {
+    mission = MissionModel.addMissionTrade(mission, { ticker: `ATIVO${i}` }).mission;
+  }
+  const originalStartDate = mission.startDate;
+
+  // Atualiza configurações: meta de 25 trades e nova recompensa
+  const updated = MissionModel.updateMissionConfig(mission, {
+    targetTrades: 25,
+    riskPct: 0.0015,
+    reward: 'Viagem de final de semana'
+  });
+
+  assert.equal(updated.targetTrades, 25);
+  assert.equal(updated.riskPct, 0.0015);
+  assert.equal(updated.reward, 'Viagem de final de semana');
+  assert.equal(updated.trades.length, 8, 'Progresso de 8 trades deve ser mantido');
+  assert.equal(updated.startDate, originalStartDate);
+  assert.equal(updated.status, 'ACTIVE');
+
+  const progress = MissionModel.calculateMissionProgress(updated);
+  assert.equal(progress.completedTrades, 8);
+  assert.equal(progress.targetTrades, 25);
+  assert.equal(progress.progressPct, 32); // 8/25 = 32%
+});
+
+test('MissionModel: waypoints progridem monotonicamente e fornecem fonte única de verdade', () => {
+  // Teste 1: 0 trades concluídos de 20
+  const wpStart = MissionModel.generateWaypoints(20, 0);
+  assert.equal(wpStart.length, 7);
+  assert.equal(wpStart[0].status, 'ACTIVE');
+  assert.equal(wpStart[0].stationTrades, 3);
+  assert.ok(wpStart[0].statusDescription.includes('0 de 3 trades'));
+  assert.ok(wpStart[0].statusDescription.includes('faltam 3 trades'));
+  assert.equal(wpStart.slice(1).every(w => w.status === 'LOCKED'), true);
+
+  // Teste 2: 7 trades concluídos de 20 (cenário clássico)
+  // Estação 1 meta 3 -> concluída
+  // Estação 2 meta 6 -> concluída
+  // Estação 3 meta 9 -> ativa (pois 7 < 9)
+  // Estações 4 a 7 -> bloqueadas
+  const wpMid = MissionModel.generateWaypoints(20, 7);
+  assert.equal(wpMid[0].status, 'COMPLETED');
+  assert.equal(wpMid[1].status, 'COMPLETED');
+  assert.equal(wpMid[2].status, 'ACTIVE');
+  assert.equal(wpMid[2].stationTrades, 9);
+  assert.ok(wpMid[2].statusDescription.includes('faltam 2 trades'));
+  assert.equal(wpMid[3].status, 'LOCKED');
+  assert.equal(wpMid[6].status, 'LOCKED');
+
+  // Metas devem ser estritamente monotônicas não decrescentes
+  for (let i = 1; i < wpMid.length; i++) {
+    assert.ok(wpMid[i].stationTrades >= wpMid[i - 1].stationTrades, `Estação ${i+1} deve ter meta >= estação ${i}`);
+  }
+  assert.equal(wpMid[6].stationTrades, 20, 'Última estação deve ter como meta o total de trades (20)');
+
+  // Teste 3: Missão completa (20 de 20)
+  const wpEnd = MissionModel.generateWaypoints(20, 20);
+  assert.equal(wpEnd.every(w => w.status === 'COMPLETED'), true);
+
+  // Teste 4: Meta diferente (10 trades)
+  const wp10 = MissionModel.generateWaypoints(10, 4);
+  assert.equal(wp10.length, 7);
+  assert.equal(wp10[6].stationTrades, 10);
+  const activeWp10 = wp10.find(w => w.status === 'ACTIVE');
+  assert.ok(activeWp10, 'Deve ter uma estação ativa');
+});
+
+test('MissionModel: calculateMissionProgress sincroniza perfeitamente com os waypoints', () => {
+  const mission = MissionModel.createMission({
+    targetTrades: 20,
+    trades: Array.from({ length: 7 }, (_, i) => ({
+      id: `t_${i}`,
+      tradeNumber: i + 1,
+      ticker: `ATIVO${i}`,
+      status: 'CLOSED'
+    }))
+  });
+
+  const progress = MissionModel.calculateMissionProgress(mission);
+
+  assert.equal(progress.totalStations, 7);
+  assert.equal(progress.completedStations, 2); // Estações 1 (meta 3) e 2 (meta 6) concluídas
+  assert.equal(progress.currentStationNumber, 3); // Estação 3 (meta 9) é o estágio atual
+  assert.equal(progress.currentStationTrades, 9);
+  assert.equal(progress.waypoints.length, 7);
+  assert.equal(progress.waypoints[2].status, 'ACTIVE');
+});
+
 test('Navegação e Estrutura: submenu Treinamento & Recuperação e sections registradas', () => {
   const navCode = fs.readFileSync(path.join(root, 'frontend', 'sidebar-navigation.js'), 'utf8');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');

@@ -141,6 +141,34 @@ body:has(#mission.page.active) #marketFocusGuard {
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
 }
 
+.mission-hero-progress-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  background: rgba(8, 20, 16, 0.88);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 11.5px;
+  color: #e2e8f0;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.mission-hero-progress-pill b {
+  color: #34d399;
+}
+
+.mission-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+  display: inline-block;
+}
+
 /* ── Placas de Madeira na Trilha à Esquerda (Signpost) ───────────────────── */
 .mission-trail-signs {
   position: absolute;
@@ -398,6 +426,125 @@ body:has(#mission.page.active) #marketFocusGuard {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
+.mission-waypoint-node.is-selected {
+  z-index: 20;
+}
+
+.mission-waypoint-node.is-selected .mission-node-disc {
+  box-shadow: 0 0 0 3px #ffffff, 0 0 22px rgba(52, 211, 153, 0.95);
+  transform: scale(1.15);
+}
+
+/* Popover informativo do waypoint ao clicar */
+.mission-waypoint-info-card {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  background: rgba(10, 24, 18, 0.96);
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+  padding: 12px 14px;
+  z-index: 25;
+  backdrop-filter: blur(14px);
+  pointer-events: auto;
+  cursor: default;
+  text-align: left;
+  animation: missionPopoverFade 0.16s ease-out;
+}
+
+@keyframes missionPopoverFade {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.mission-waypoint-info-card::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(10, 24, 18, 0.96);
+}
+
+.mission-waypoint-info-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.mission-waypoint-info-head b {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+}
+
+.mission-waypoint-info-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.mission-waypoint-info-close:hover {
+  color: #ffffff;
+}
+
+.mission-waypoint-info-desc {
+  margin: 0 0 10px 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+.mission-waypoint-info-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mission-waypoint-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mission-waypoint-badge.completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.mission-waypoint-badge.active {
+  background: rgba(250, 204, 21, 0.2);
+  color: #facc15;
+  border: 1px solid rgba(250, 204, 21, 0.4);
+}
+
+.mission-waypoint-badge.locked {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.mission-waypoint-info-foot small {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
 /* ── 4 Cards Inferiores (Grid Horizontal com Alinhamento Preciso) ────────── */
 .mission-cards-grid {
   display: grid;
@@ -526,9 +673,22 @@ body:has(#mission.page.active) #marketFocusGuard {
   box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
 }
 
-.mission-start-btn.active-mission {
+.mission-start-btn.active-mission,
+.mission-start-btn.is-active {
   background: #059669;
   color: #ffffff;
+}
+
+.mission-inline-feedback {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-top: 6px;
+  text-align: center;
 }
 
 /* Card 2: Progresso da Missão */
@@ -820,6 +980,18 @@ body:has(#mission.page.active) #marketFocusGuard {
   border-color: #34d399;
 }
 
+.mission-inline-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
 .mission-modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -937,6 +1109,28 @@ body:not([data-theme="healthy"]) #mission .mission-mark-trade-btn {
 body[data-theme="gold"] #mission .mission-start-btn:hover,
 body:not([data-theme="healthy"]) #mission .mission-start-btn:hover {
   background: #c9983e;
+}
+
+body[data-theme="gold"] #mission .mission-hero-progress-pill,
+body:not([data-theme="healthy"]) #mission .mission-hero-progress-pill {
+  border-color: rgba(234, 179, 8, 0.35);
+}
+
+body[data-theme="gold"] #mission .mission-hero-progress-pill b,
+body:not([data-theme="healthy"]) #mission .mission-hero-progress-pill b {
+  color: #facc15;
+}
+
+body[data-theme="gold"] #mission .mission-pill-dot,
+body:not([data-theme="healthy"]) #mission .mission-pill-dot {
+  background: #facc15;
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.8);
+}
+
+body[data-theme="gold"] #mission .mission-waypoint-info-card,
+body:not([data-theme="healthy"]) #mission .mission-waypoint-info-card {
+  border-color: rgba(234, 179, 8, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(234, 179, 8, 0.25);
 }
 
 @media (max-width: 1250px) {
