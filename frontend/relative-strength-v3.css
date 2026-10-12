@@ -19,7 +19,7 @@
 body #relativestrength.rs-workspace-active {
   display: block !important;
   width: 100% !important;
-  max-width: 1600px !important;
+  max-width: 1760px !important;
   margin: 0 auto !important;
   padding: 0 !important;
   background: transparent !important;
@@ -29,7 +29,7 @@ body #relativestrength.rs-workspace-active {
 .rs-container {
   width: 100%;
   margin: 0 auto;
-  padding: 0 4px 48px;
+  padding: 0 12px 64px;
 }
 
 /* --- Breadcrumb --- */
@@ -37,10 +37,10 @@ body #relativestrength.rs-workspace-active {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 500;
   color: #627b6e;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .rs-breadcrumb-root {
@@ -60,12 +60,12 @@ body #relativestrength.rs-workspace-active {
 /* --- Layout Grid: Sidebar + Main Content --- */
 .rs-layout-grid {
   display: grid;
-  grid-template-columns: 215px 1fr;
-  gap: 24px;
+  grid-template-columns: 240px 1fr;
+  gap: 28px;
   align-items: start;
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1100px) {
   .rs-layout-grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -76,13 +76,13 @@ body #relativestrength.rs-workspace-active {
 .rs-internal-sidebar {
   background: #ffffff;
   border: 1.5px solid #dce5df;
-  border-radius: 16px;
-  padding: 20px 14px;
-  box-shadow: 0 2px 10px rgba(13, 38, 28, 0.03);
+  border-radius: 18px;
+  padding: 22px 16px;
+  box-shadow: 0 4px 16px rgba(13, 38, 28, 0.03);
 }
 
 .rs-sidebar-section {
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
 .rs-sidebar-section:last-child {
@@ -93,12 +93,12 @@ body #relativestrength.rs-workspace-active {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: 0.12em;
   color: #4a6859;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   padding-left: 6px;
 }
 
@@ -117,14 +117,14 @@ body #relativestrength.rs-workspace-active {
 .rs-sidebar-option {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 11px 14px;
   border: 1.5px solid transparent;
-  border-radius: 10px;
+  border-radius: 11px;
   background: transparent;
   color: #304a3e;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   text-align: left;
   cursor: pointer;
@@ -144,8 +144,8 @@ body #relativestrength.rs-workspace-active {
 }
 
 .rs-radio-indicator {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   border: 1.5px solid #8fad9d;
   background: #ffffff;
@@ -159,11 +159,11 @@ body #relativestrength.rs-workspace-active {
 .rs-sidebar-option.active .rs-radio-indicator {
   border-color: #0e6b43;
   background: #0e6b43;
-  box-shadow: inset 0 0 0 2.5px #d8f1e3;
+  box-shadow: inset 0 0 0 3px #d8f1e3;
 }
 
 .rs-flag {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1;
   flex-shrink: 0;
 }
@@ -185,24 +185,24 @@ body #relativestrength.rs-workspace-active {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 24px;
-  margin-bottom: 20px;
+  gap: 28px;
+  margin-bottom: 22px;
   flex-wrap: wrap;
 }
 
 .rs-header-info {
-  max-width: 580px;
+  max-width: 620px;
 }
 
 .rs-header-title-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
 .rs-header-title {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 750;
   color: #081a13;
   letter-spacing: -0.025em;
@@ -215,12 +215,12 @@ body #relativestrength.rs-workspace-active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: 1.5px solid #8fab9c;
   color: #4b6b5a;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   cursor: help;
   background: transparent;
@@ -229,7 +229,7 @@ body #relativestrength.rs-workspace-active {
 }
 
 .rs-header-subtitle {
-  font-size: 14.5px;
+  font-size: 15px;
   color: #4a6858;
   margin: 0;
   line-height: 1.45;
@@ -239,7 +239,7 @@ body #relativestrength.rs-workspace-active {
 .rs-modality-selector-group {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 16px;
   flex-shrink: 0;
 }
 
@@ -254,26 +254,26 @@ body #relativestrength.rs-workspace-active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 220px;
+  width: 240px;
 }
 
 .rs-modality-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 9px;
   width: 100%;
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 10px;
+  height: 46px;
+  padding: 0 18px;
+  border-radius: 12px;
   border: 1.5px solid #d4dfd8;
   background: #ffffff;
   color: #283e33;
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 750;
   cursor: pointer;
   transition: all 0.18s ease;
-  box-shadow: 0 2px 6px rgba(13, 38, 28, 0.03);
+  box-shadow: 0 2px 8px rgba(13, 38, 28, 0.04);
 }
 
 .rs-modality-btn:hover {
@@ -285,19 +285,19 @@ body #relativestrength.rs-workspace-active {
   background: #0d3829 !important;
   color: #ffffff !important;
   border-color: #0d3829 !important;
-  box-shadow: 0 4px 12px rgba(13, 56, 41, 0.22);
+  box-shadow: 0 4px 14px rgba(13, 56, 41, 0.25);
 }
 
 .rs-modality-btn-icon {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1;
 }
 
 .rs-modality-card-desc {
-  font-size: 11px;
+  font-size: 11.5px;
   color: #627b6e;
   text-align: center;
-  margin-top: 6px;
+  margin-top: 7px;
   line-height: 1.35;
   padding: 0 4px;
 }
@@ -306,8 +306,8 @@ body #relativestrength.rs-workspace-active {
 .rs-classification-strip {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 @media (max-width: 1200px) {
@@ -319,21 +319,22 @@ body #relativestrength.rs-workspace-active {
 .rs-classification-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 12px;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
   border: 1.5px solid;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-height: 74px;
 }
 
 .rs-card-icon-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  font-size: 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 18px;
   flex-shrink: 0;
   color: #ffffff;
 }
@@ -346,24 +347,24 @@ body #relativestrength.rs-workspace-active {
 .rs-card-title-row {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  margin-bottom: 2px;
+  gap: 8px;
+  margin-bottom: 3px;
 }
 
 .rs-card-title {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 750;
 }
 
 .rs-card-metric {
-  font-size: 11.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 650;
 }
 
 .rs-card-desc {
-  font-size: 10.5px;
+  font-size: 11px;
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 /* Tiers Colors */
@@ -446,12 +447,12 @@ body #relativestrength.rs-workspace-active {
 .rs-context-disclaimer {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  gap: 12px;
+  padding: 12px 18px;
   background: #fef8eb;
   border: 1px solid #f6deb0;
-  border-radius: 10px;
-  margin-bottom: 16px;
+  border-radius: 12px;
+  margin-bottom: 18px;
 }
 
 .rs-disclaimer-icon {
@@ -469,7 +470,7 @@ body #relativestrength.rs-workspace-active {
 }
 
 .rs-disclaimer-text {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 700;
   color: #694907;
 }
@@ -478,46 +479,46 @@ body #relativestrength.rs-workspace-active {
 .rs-ranking-card {
   background: #ffffff;
   border: 1.5px solid #dce5df;
-  border-radius: 16px;
-  padding: 22px 24px;
-  box-shadow: 0 4px 18px rgba(13, 38, 28, 0.03);
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 4px 20px rgba(13, 38, 28, 0.03);
 }
 
 .rs-ranking-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 18px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
 }
 
 .rs-ranking-title-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .rs-ranking-title-group h2 {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 750;
   color: #081a13;
   margin: 0;
 }
 
 .rs-ranking-icon {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .rs-freshness-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 12px;
+  padding: 6px 14px;
   background: #f4f8f5;
   border: 1px solid #cfded6;
-  border-radius: 8px;
-  font-size: 11.5px;
+  border-radius: 9px;
+  font-size: 12px;
   font-weight: 600;
   color: #234d38;
 }
@@ -531,15 +532,15 @@ body #relativestrength.rs-workspace-active {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 18px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
 }
 
 .rs-toolbar-filters {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
@@ -551,19 +552,19 @@ body #relativestrength.rs-workspace-active {
 
 .rs-search-icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   pointer-events: none;
-  font-size: 13px;
+  font-size: 14px;
   opacity: 0.6;
 }
 
 .rs-search-box input {
-  width: 270px;
-  height: 38px;
-  padding: 0 14px 0 34px;
+  width: 320px;
+  height: 42px;
+  padding: 0 16px 0 38px;
   border: 1.5px solid #d4ded8;
-  border-radius: 10px;
-  font-size: 13px;
+  border-radius: 11px;
+  font-size: 13.5px;
   color: #12281e;
   background: #ffffff;
   outline: none;
@@ -577,12 +578,12 @@ body #relativestrength.rs-workspace-active {
 
 .rs-select-group,
 .rs-select-per-page {
-  height: 38px;
-  padding: 0 14px;
+  height: 42px;
+  padding: 0 16px;
   border: 1.5px solid #d4ded8;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 500;
+  border-radius: 11px;
+  font-size: 13.5px;
+  font-weight: 550;
   color: #1c3629;
   background: #ffffff;
   cursor: pointer;
@@ -598,12 +599,12 @@ body #relativestrength.rs-workspace-active {
 .rs-toolbar-meta {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .rs-results-count {
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 650;
   color: #516b5c;
   white-space: nowrap;
 }
@@ -613,20 +614,20 @@ body #relativestrength.rs-workspace-active {
   overflow-x: auto;
   width: 100%;
   border: 1px solid #e1e9e4;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 .rs-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 13px;
+  font-size: 13.5px;
 }
 
 .rs-table thead tr th {
   background: #fafcfb;
-  padding: 11px 14px;
-  font-size: 11px;
+  padding: 13px 16px;
+  font-size: 11.5px;
   font-weight: 750;
   letter-spacing: 0.05em;
   color: #476253;
@@ -636,7 +637,7 @@ body #relativestrength.rs-workspace-active {
 }
 
 .rs-table tbody tr td {
-  padding: 12px 14px;
+  padding: 13px 16px;
   border-bottom: 1px solid #eef3f0;
   color: #152d21;
   vertical-align: middle;
@@ -651,39 +652,41 @@ body #relativestrength.rs-workspace-active {
 }
 
 .td-rank {
-  width: 44px;
+  width: 48px;
   text-align: center;
   color: #597365;
-  font-weight: 600;
+  font-weight: 650;
+  font-size: 13px;
 }
 
 .td-symbol {
   font-weight: 750;
   color: #081a13;
-  font-size: 13.5px;
+  font-size: 14.5px;
 }
 
 .td-company {
-  max-width: 220px;
+  max-width: 260px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: #284436;
-  font-size: 12.5px;
+  font-size: 13px;
 }
 
 .td-group {
-  max-width: 160px;
+  max-width: 180px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: #4b6657;
-  font-size: 12px;
+  font-size: 12.5px;
 }
 
 .td-m1,
 .td-m3 {
   font-weight: 600;
+  font-size: 13.5px;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -697,7 +700,7 @@ body #relativestrength.rs-workspace-active {
 }
 
 .td-rs {
-  width: 60px;
+  width: 64px;
   text-align: center;
 }
 
@@ -705,11 +708,11 @@ body #relativestrength.rs-workspace-active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 38px;
-  height: 26px;
-  padding: 0 8px;
-  border-radius: 13px;
-  font-size: 12px;
+  min-width: 42px;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 14px;
+  font-size: 13px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: #ffffff;
@@ -744,7 +747,7 @@ body #relativestrength.rs-workspace-active {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 650;
 }
 
@@ -769,7 +772,7 @@ body #relativestrength.rs-workspace-active {
 }
 
 .td-actions {
-  width: 220px;
+  width: 240px;
   text-align: right;
 }
 
@@ -784,14 +787,14 @@ body #relativestrength.rs-workspace-active {
 .rs-btn-watchlist {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  height: 30px;
-  padding: 0 10px;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
   border-radius: 8px;
   border: 1.5px solid #c8dbcf;
   background: #ffffff;
   color: #0d4a2f;
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -805,7 +808,7 @@ body #relativestrength.rs-workspace-active {
 }
 
 .rs-btn-icon {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .rs-table-empty {
@@ -835,13 +838,13 @@ body #relativestrength.rs-workspace-active {
 }
 
 .rs-page-nav-btn {
-  height: 34px;
-  padding: 0 14px;
+  height: 38px;
+  padding: 0 16px;
   border: 1.5px solid #d4ded8;
-  border-radius: 8px;
+  border-radius: 9px;
   background: #ffffff;
   color: #284436;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 650;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -860,17 +863,17 @@ body #relativestrength.rs-workspace-active {
 .rs-page-numbers {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .rs-page-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
   border: 1.5px solid transparent;
   background: transparent;
   color: #2b4537;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 650;
   cursor: pointer;
   transition: all 0.15s ease;

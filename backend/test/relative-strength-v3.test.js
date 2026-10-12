@@ -87,3 +87,26 @@ test('Força Relativa: Nasdaq-100 entrega ranking Diário e Semanal', () => {
   assert.strictEqual(nasdaqWeekly.timeframe, 'weekly');
   assert.ok(nasdaqWeekly.ranking[0].weeklyTrend, 'Top ativo da Nasdaq semanal tem weeklyTrend');
 });
+
+test('Força Relativa: Cache estático do frontend contém todos os universos Diários e Semanais', () => {
+  const staticCache = require('../../frontend/relative-strength-data-cache.js');
+  assert.ok(staticCache, 'Cache estático deve carregar');
+  assert.ok(staticCache.dataAsOf, 'Cache estático deve conter dataAsOf');
+
+  // Daily
+  assert.strictEqual(staticCache.daily.stock_ibov.items.length, 76, '76 Ibov Diário');
+  assert.strictEqual(staticCache.daily.stock_other.items.length, 201, '201 Demais ações Diário');
+  assert.strictEqual(staticCache.daily.fii.items.length, 106, '106 FIIs Diário');
+  assert.strictEqual(staticCache.daily.bdr.items.length, 34, '34 BDRs Diário');
+
+  // Weekly
+  assert.strictEqual(staticCache.weekly.stock_ibov.items.length, 76, '76 Ibov Semanal');
+  assert.strictEqual(staticCache.weekly.stock_other.items.length, 201, '201 Demais ações Semanal');
+  assert.strictEqual(staticCache.weekly.fii.items.length, 106, '106 FIIs Semanal');
+  assert.strictEqual(staticCache.weekly.bdr.items.length, 34, '34 BDRs Semanal');
+
+  // Nasdaq
+  assert.strictEqual(staticCache.nasdaq.daily.ranking.length, 100, '100 Nasdaq Diário');
+  assert.strictEqual(staticCache.nasdaq.weekly.ranking.length, 100, '100 Nasdaq Semanal');
+});
+

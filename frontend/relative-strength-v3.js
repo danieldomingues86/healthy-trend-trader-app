@@ -14,6 +14,11 @@
   window.relativeStrengthPageSize = 10;
   window.relativeStrengthCurrentPage = 1;
 
+  function renderRelativeStrengthClassesPage() {
+    return renderRelativeStrengthWorkspace();
+  }
+  window.renderRelativeStrengthClassesPage = renderRelativeStrengthClassesPage;
+
   const text = (pt, en) => window.appLanguage === 'en-US' ? en : pt;
 
   // Reversible sector localization dictionary
@@ -149,7 +154,17 @@
     window.relativeStrengthSearchQuery = '';
     window.relativeStrengthSelectedGroup = '';
     window.relativeStrengthCurrentPage = 1;
+    if (market === 'b3' && window.relativeStrengthClassesState) {
+      if (!['stock_ibov', 'stock_other', 'fii', 'bdr'].includes(window.relativeStrengthClassesState.selected)) {
+        window.relativeStrengthClassesState.selected = 'stock_ibov';
+      }
+    }
     renderRelativeStrengthClassesPage();
+    if (market === 'nasdaq' && typeof window.fetchNasdaqData === 'function') {
+      window.fetchNasdaqData(window.currentRelativeStrengthTimeframe || 'daily').then(() => {
+        renderRelativeStrengthClassesPage();
+      }).catch(() => {});
+    }
   };
 
   window.switchRelativeStrengthTimeframe = async function (timeframe) {
@@ -157,17 +172,24 @@
     window.currentRelativeStrengthTimeframe = timeframe;
     window.relativeStrengthCurrentPage = 1;
 
-    if (window.currentRelativeStrengthMarket === 'nasdaq') {
-      renderRelativeStrengthClassesPage();
-    } else {
-      if (timeframe === 'weekly' && window.relativeStrengthClassesState?.weeklyClasses) {
-        window.relativeStrengthClassesState.classes = window.relativeStrengthClassesState.weeklyClasses;
-        renderRelativeStrengthClassesPage();
-      } else if (timeframe === 'daily' && window.relativeStrengthClassesState?.dailyClasses) {
-        window.relativeStrengthClassesState.classes = window.relativeStrengthClassesState.dailyClasses;
-        renderRelativeStrengthClassesPage();
+    const state = window.relativeStrengthClassesState;
+    if (state) {
+      if (timeframe === 'weekly') {
+        state.classes = state.weeklyClasses || (window.__relativeStrengthStaticCache && window.__relativeStrengthStaticCache.weekly) || state.classes;
       } else {
-        await window.loadRelativeStrengthClassesForTimeframe(timeframe);
+        state.classes = state.dailyClasses || (window.__relativeStrengthStaticCache && window.__relativeStrengthStaticCache.daily) || state.classes;
+      }
+    }
+
+    renderRelativeStrengthClassesPage();
+
+    if (window.currentRelativeStrengthMarket === 'nasdaq') {
+      if (typeof window.fetchNasdaqData === 'function') {
+        window.fetchNasdaqData(timeframe).then(() => renderRelativeStrengthClassesPage()).catch(() => {});
+      }
+    } else {
+      if (typeof window.loadRelativeStrengthClassesForTimeframe === 'function') {
+        window.loadRelativeStrengthClassesForTimeframe(timeframe).catch(() => {});
       }
     }
   };
@@ -176,6 +198,7 @@
     if (window.relativeStrengthClassesState) {
       window.relativeStrengthClassesState.selected = classKey;
     }
+    window.relativeStrengthSelectedGroup = '';
     window.relativeStrengthCurrentPage = 1;
     renderRelativeStrengthClassesPage();
   };
@@ -205,11 +228,9 @@
 
   window.loadRelativeStrengthClassesForTimeframe = async function (timeframe = 'daily') {
     if (!window.relativeStrengthClassesState) return;
-    window.relativeStrengthClassesState.loading = true;
-    renderRelativeStrengthClassesPage();
+    const isWeekly = timeframe === 'weekly';
+    const endpoint = `/api/relative-strength/classes${isWeekly ? '?timeframe=weekly' : ''}`;
     try {
-      const isWeekly = timeframe === 'weekly';
-      const endpoint = `/api/relative-strength/classes${isWeekly ? '?timeframe=weekly' : ''}`;
       let payload;
       if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
         payload = await window.healthyTrendApi.request(endpoint);
@@ -229,14 +250,25 @@
       } else {
         window.relativeStrengthClassesState.dailyClasses = classes;
       }
-      window.relativeStrengthClassesState.classes = classes;
+      if (window.currentRelativeStrengthTimeframe === timeframe) {
+        window.relativeStrengthClassesState.classes = classes;
+        renderRelativeStrengthClassesPage();
+      }
       window.relativeStrengthClassesState.error = false;
     } catch (err) {
-      window.relativeStrengthClassesState.error = true;
-      console.warn('[rs-v3] Falha ao carregar classes de força relativa:', err);
-    } finally {
-      window.relativeStrengthClassesState.loading = false;
-      renderRelativeStrengthClassesPage();
+      console.info('[rs-v3] Cache offline ativo para classes de força relativa (' + timeframe + ').');
+      const staticCache = window.__relativeStrengthStaticCache;
+      if (staticCache && staticCache[timeframe]) {
+        if (isWeekly) {
+          window.relativeStrengthClassesState.weeklyClasses = window.relativeStrengthClassesState.weeklyClasses || staticCache.weekly;
+        } else {
+          window.relativeStrengthClassesState.dailyClasses = window.relativeStrengthClassesState.dailyClasses || staticCache.daily;
+        }
+        if (window.currentRelativeStrengthTimeframe === timeframe && (!window.relativeStrengthClassesState.classes || !window.relativeStrengthClassesState.classes.stock_ibov?.items?.length)) {
+          window.relativeStrengthClassesState.classes = staticCache[timeframe];
+          renderRelativeStrengthClassesPage();
+        }
+      }
     }
   };
 
@@ -247,15 +279,22 @@
     const timeframe = window.currentRelativeStrengthTimeframe;
 
     if (market === 'nasdaq') {
-      const nasdaqCache = window[`__nasdaqRelativeStrengthCache_${timeframe}`] || window.__nasdaqRelativeStrengthCache;
+      const nasdaqCache = window[`__nasdaqRelativeStrengthCache_${timeframe}`] ||
+        (timeframe === 'weekly' ? window.__nasdaqRelativeStrengthCache_weekly : window.__nasdaqRelativeStrengthCache_daily) ||
+        window.__nasdaqRelativeStrengthCache ||
+        window.__relativeStrengthStaticCache?.nasdaq?.[timeframe];
+
       const ranking = nasdaqCache?.ranking || [];
+      const sourceLabel = timeframe === 'weekly' ? 'Twelve Data (Semanal)' : (nasdaqCache?.source || 'Twelve Data');
+      const dateLabel = nasdaqCache?.displayDate || formatDisplayDate(nasdaqCache?.baseDate || '2026-10-07');
+
       return {
         market: 'nasdaq',
         universeKey: 'nasdaq_100',
         universeLabel: 'Nasdaq-100',
         benchmarkLabel: 'QQQ',
-        sourceLabel: 'Twelve Data',
-        dateLabel: nasdaqCache?.displayDate || formatDisplayDate(nasdaqCache?.baseDate),
+        sourceLabel,
+        dateLabel,
         items: ranking.map(item => ({
           ...item,
           name: item.companyName || item.name || item.symbol
@@ -267,7 +306,22 @@
     const state = window.relativeStrengthClassesState || { classes: {}, selected: 'stock_ibov' };
     let key = state.selected || 'stock_ibov';
     if (key === 'stock') key = 'stock_ibov';
-    const activeClass = state.classes[key] || { items: [] };
+
+    const timeframeClasses = (timeframe === 'weekly' ? state.weeklyClasses : state.dailyClasses) || state.classes || {};
+    let activeClass = timeframeClasses[key] || state.classes?.[key];
+
+    if ((!activeClass || !activeClass.items?.length) && key === 'stock_ibov') {
+      activeClass = timeframeClasses.stock || state.classes?.stock;
+    }
+    if ((!activeClass || !activeClass.items?.length) && window.__relativeStrengthStaticCache) {
+      activeClass = window.__relativeStrengthStaticCache[timeframe]?.[key];
+    }
+    if ((!activeClass || !activeClass.items?.length) && key === 'stock_ibov' && typeof relativeStockFallback === 'function') {
+      activeClass = relativeStockFallback();
+    }
+    if (!activeClass) {
+      activeClass = { items: [] };
+    }
 
     const universeLabels = {
       stock_ibov: text('Ações Ibovespa', 'Ibovespa stocks'),
@@ -283,8 +337,9 @@
       bdr: 'Universo BDR'
     };
 
-    const dateLabel = formatDisplayDate(state.dataAsOf || state.updatedAt);
-    const sourceLabel = timeframe === 'weekly' ? 'B3 (Semanal)' : 'B3 (EOD)';
+    const rawDate = state.dataAsOf || state.updatedAt || window.__relativeStrengthStaticCache?.dataAsOf || '2026-10-07';
+    const dateLabel = formatDisplayDate(rawDate);
+    const sourceLabel = timeframe === 'weekly' ? 'B3 (COTAHIST · Semanal)' : 'B3 (COTAHIST)';
 
     return {
       market: 'b3',

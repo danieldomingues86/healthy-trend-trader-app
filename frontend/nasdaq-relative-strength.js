@@ -59,6 +59,11 @@
     if (window[cacheKey] && !forceRefresh) {
       return window[cacheKey];
     }
+    const staticNasdaq = window.__relativeStrengthStaticCache?.nasdaq?.[timeframe];
+    if (staticNasdaq && !window[cacheKey]) {
+      window[cacheKey] = staticNasdaq;
+      window.__nasdaqRelativeStrengthCache = staticNasdaq;
+    }
     window.__nasdaqRelativeStrengthLoading = true;
     try {
       const isWeekly = timeframe === 'weekly';
@@ -76,8 +81,8 @@
       window.__nasdaqRelativeStrengthCache = payload;
       return payload;
     } catch (err) {
-      console.warn('[nasdaq-rs] Falha ao carregar dados remotos do Nasdaq-100, utilizando fallback local.', err);
-      return window[cacheKey] || window.__nasdaqRelativeStrengthCache || null;
+      console.info('[nasdaq-rs] Utilizando cache estático offline do Nasdaq-100.');
+      return window[cacheKey] || window.__nasdaqRelativeStrengthCache || staticNasdaq || null;
     } finally {
       window.__nasdaqRelativeStrengthLoading = false;
     }
