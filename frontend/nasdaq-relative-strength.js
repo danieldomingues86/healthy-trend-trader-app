@@ -54,30 +54,40 @@
   }
 
   // --- API Helper ---
-  async function fetchNasdaqData(forceRefresh = false) {
-    if (window.__nasdaqRelativeStrengthCache && !forceRefresh) {
-      return window.__nasdaqRelativeStrengthCache;
+  async function fetchNasdaqData(timeframe = (window.currentRelativeStrengthTimeframe || 'daily'), forceRefresh = false) {
+    const cacheKey = `__nasdaqRelativeStrengthCache_${timeframe}`;
+    if (window[cacheKey] && !forceRefresh) {
+      return window[cacheKey];
+    }
+    const staticNasdaq = window.__relativeStrengthStaticCache?.nasdaq?.[timeframe];
+    if (staticNasdaq && !window[cacheKey]) {
+      window[cacheKey] = staticNasdaq;
+      window.__nasdaqRelativeStrengthCache = staticNasdaq;
     }
     window.__nasdaqRelativeStrengthLoading = true;
     try {
-      const apiUrl = (window.MARKET_DATA_API_URL || 'http://localhost:8787/api') + '/market-data/nasdaq-relative-strength';
+      const isWeekly = timeframe === 'weekly';
+      const endpoint = `/api/market-data/nasdaq-relative-strength${isWeekly ? '?timeframe=weekly' : ''}`;
       let payload;
       if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
-        payload = await window.healthyTrendApi.request('/api/market-data/nasdaq-relative-strength');
+        payload = await window.healthyTrendApi.request(endpoint);
       } else {
+        const apiUrl = (window.MARKET_DATA_API_URL || 'http://localhost:8787/api') + endpoint;
         const res = await fetch(apiUrl);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         payload = await res.json();
       }
+      window[cacheKey] = payload;
       window.__nasdaqRelativeStrengthCache = payload;
       return payload;
     } catch (err) {
-      console.warn('[nasdaq-rs] Falha ao carregar dados remotos do Nasdaq-100, utilizando fallback local.', err);
-      return window.__nasdaqRelativeStrengthCache || null;
+      console.info('[nasdaq-rs] Utilizando cache estático offline do Nasdaq-100.');
+      return window[cacheKey] || window.__nasdaqRelativeStrengthCache || staticNasdaq || null;
     } finally {
       window.__nasdaqRelativeStrengthLoading = false;
     }
   }
+  window.fetchNasdaqData = fetchNasdaqData;
 
   // --- Filter Items ---
   function getFilteredNasdaqItems(items) {
@@ -619,59 +629,20 @@
   function injectMarketSwitcherIntoB3() {
     const root = document.getElementById('relativestrength');
     if (!root) return;
-
-    let existingSwitcher = root.querySelector('.rs-header-container');
-    if (!existingSwitcher) {
-      const shell = root.querySelector('.rs-simple-shell') || root;
-      shell.insertAdjacentHTML('afterbegin', getMarketSwitcherHtml('b3'));
-    } else {
-      existingSwitcher.querySelectorAll('.rs-market-tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.market === 'b3');
-      });
-    }
+    // Em V3, a seleção de mercado é integrada na barra lateral interna. Remove cabeçalho legado se existir.
+    root.querySelectorAll('.rs-header-container').forEach(el => el.remove());
   }
 
   // --- Global Market Switcher Function ---
   window.switchRelativeStrengthMarket = function (market) {
     window.currentRelativeStrengthMarket = market;
-    if (market === 'nasdaq') {
-      renderNasdaqScreen();
-    } else {
-      // Switch back to B3
-      if (typeof window.__b3OriginalRender === 'function') {
-        window.__b3OriginalRender();
-      } else if (typeof window.renderRelativeStrengthClassesPage === 'function') {
-        window.renderRelativeStrengthClassesPage();
-      }
-      injectMarketSwitcherIntoB3();
+    window.relativeStrengthCurrentPage = 1;
+    if (typeof window.renderRelativeStrengthClassesPage === 'function') {
+      window.renderRelativeStrengthClassesPage();
     }
   };
 
-  // --- Hook Into Existing B3 Lifecycle ---
-  function hookIntoB3Lifecycle() {
-    if (typeof window.renderRelativeStrengthClassesPage === 'function') {
-      const prevRender = window.renderRelativeStrengthClassesPage;
-      window.__b3OriginalRender = prevRender;
-
-      window.renderRelativeStrengthClassesPage = function () {
-        if (window.currentRelativeStrengthMarket === 'nasdaq') {
-          return;
-        }
-        prevRender.apply(this, arguments);
-        injectMarketSwitcherIntoB3();
-      };
-    }
-  }
-
-  // Initialize hooks
-  hookIntoB3Lifecycle();
-
-  // If page loads directly on relativestrength and market is nasdaq, render it
-  if (window.currentRelativeStrengthMarket === 'nasdaq') {
-    renderNasdaqScreen();
-  } else {
-    setTimeout(injectMarketSwitcherIntoB3, 50);
-  }
+  window.renderNasdaqScreen = renderNasdaqScreen;
 
   // --- Hook Into Global Navigation ---
   const baseGo = window.go;
@@ -679,7 +650,9 @@
     window.go = function (id) {
       baseGo.apply(this, arguments);
       if (id === 'relativestrength') {
-        if (window.currentRelativeStrengthMarket === 'nasdaq') {
+        if (typeof window.renderRelativeStrengthClassesPage === 'function') {
+          window.renderRelativeStrengthClassesPage();
+        } else if (window.currentRelativeStrengthMarket === 'nasdaq') {
           renderNasdaqScreen();
         } else {
           injectMarketSwitcherIntoB3();

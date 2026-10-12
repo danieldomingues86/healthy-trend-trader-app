@@ -635,6 +635,33 @@ function classStrengthFromCache(cache) {
   };
   return { stock: legacyStock, stock_ibov: stockIbov, stock_other: stockOther, fii, bdr };
 }
+
+function classStrengthWeeklyFromCache(cache) {
+  const weekly = cache?.relativeStrengthByClassWeekly;
+  if (!weekly) return classStrengthFromCache(cache);
+  const stockIbov = weekly.stock_ibov || { ...classMeta('stock_ibov'), requested: 0, available: 0, items: [] };
+  const stockOther = weekly.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [] };
+  const fiiRaw = weekly.fii || { ...classMeta('fii'), requested: 0, available: 0, items: [] };
+  const fii = {
+    ...fiiRaw,
+    items: (fiiRaw.items || []).map((item) => ({
+      ...item,
+      name: (item.name && item.name !== item.symbol) ? item.name : (FII_NAME_MAP[item.symbol] || item.name || item.symbol)
+    }))
+  };
+  const bdrRaw = weekly.bdr || { ...classMeta('bdr'), requested: 0, available: 0, items: [] };
+  const bdr = {
+    ...bdrRaw,
+    items: (bdrRaw.items || []).map((item) => {
+      const bdrEntry = BDR_CATALOG.find(([s]) => s === item.symbol);
+      return {
+        ...item,
+        name: (item.name && item.name !== item.symbol) ? item.name : (bdrEntry?.[1] || item.name || item.symbol)
+      };
+    })
+  };
+  return { stock: stockIbov, stock_ibov: stockIbov, stock_other: stockOther, fii, bdr };
+}
 function classifyAsset(symbol, cache) {
   const normalized = String(symbol || '').trim().toUpperCase();
   const baseClass = assetClassForSymbol(normalized);
@@ -741,7 +768,7 @@ async function collectMarketData() {
     }
   };
 
-  const cache = { updatedAt: new Date().toISOString(), source: histories.source === 'b3-cotahist' && ibovHistory.source === 'b3-indexes' && smllHistory.source === 'b3-indexes' ? 'b3-cotahist + b3-indexes' : 'brapi-fallback', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns, history: marketCycleSeries(ibovHistory) }, cycles, relativeStrength: rows, relativeStrengthByClass, overview };
+  const cache = { updatedAt: new Date().toISOString(), source: histories.source === 'b3-cotahist' && ibovHistory.source === 'b3-indexes' && smllHistory.source === 'b3-indexes' ? 'b3-cotahist + b3-indexes' : 'brapi-fallback', universe: { scope: 'b3-stocks-and-units', requested: symbols.length, available: rows.length, unavailable: collected.filter(item => item.error).map(item => ({ symbol: item.symbol, reason: item.error })) }, cycle: scoreCycle(ibovHistory), benchmark: { symbol: 'IBOV', returns: benchmarkReturns, history: marketCycleSeries(ibovHistory) }, cycles, relativeStrength: rows, relativeStrengthByClass, relativeStrengthByClassWeekly: previous?.relativeStrengthByClassWeekly || null, overview };
   cache.historyUpdatedAt = cache.updatedAt;
   await writeCache(cache);
   return cache;
@@ -1031,4 +1058,4 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
   return marketCycleFor(cache, 'stock_b3');
 }
 
-module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, marketCycleSeries, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose, previousBusinessDay, expectedClosingDate, marketCycleFor, resolveMarketCycle };
+module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, marketCycleSeries, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classStrengthWeeklyFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose, previousBusinessDay, expectedClosingDate, marketCycleFor, resolveMarketCycle };

@@ -301,6 +301,9 @@ class NasdaqRelativeStrengthEngine {
         const parsed = JSON.parse(raw);
         if (parsed && Array.isArray(parsed.ranking) && parsed.status !== 'DATA_UNAVAILABLE') {
           this.cachedData = parsed;
+          if (parsed.weekly && Array.isArray(parsed.weekly.ranking)) {
+            this.cachedWeeklyData = parsed.weekly;
+          }
         }
       }
     } catch {
@@ -330,7 +333,7 @@ class NasdaqRelativeStrengthEngine {
    * If no official market data has been synced, returns DATA_UNAVAILABLE explicitly.
    * NEVER returns synthetic/mock data in production.
    */
-  getNasdaqRelativeStrength() {
+  getNasdaqRelativeStrength(timeframe = 'daily') {
     if (this.isSyncing) {
       return {
         status: 'SYNCING',
@@ -339,11 +342,22 @@ class NasdaqRelativeStrengthEngine {
         message: 'Coletando candles diários da Twelve Data e calculando Força Relativa...',
         updatedAt: null,
         displayDate: null,
+        timeframe,
         source: 'Twelve Data',
         benchmark: { symbol: 'QQQ', m1: null, m3: null },
         kpis: { totalAssets: 100, averageReturn3M: 0, leadersCount: 0, emergingCount: 0 },
         ranking: []
       };
+    }
+
+    if (timeframe === 'weekly') {
+      if (this.cachedWeeklyData && Array.isArray(this.cachedWeeklyData.ranking) && this.cachedWeeklyData.ranking.length > 0) {
+        return this.cachedWeeklyData;
+      }
+      if (this.cachedData && this.cachedData.weekly && Array.isArray(this.cachedData.weekly.ranking)) {
+        this.cachedWeeklyData = this.cachedData.weekly;
+        return this.cachedWeeklyData;
+      }
     }
 
     if (!this.cachedData || !Array.isArray(this.cachedData.ranking) || this.cachedData.ranking.length === 0 || this.cachedData.status === 'DATA_UNAVAILABLE') {
@@ -354,6 +368,7 @@ class NasdaqRelativeStrengthEngine {
         message: 'Nenhum dado de mercado do Nasdaq-100 sincronizado. Execute a coleta EOD para calcular a Força Relativa com candles oficiais.',
         updatedAt: null,
         displayDate: null,
+        timeframe,
         source: 'Twelve Data',
         benchmark: { symbol: 'QQQ', m1: null, m3: null },
         kpis: {

@@ -19,10 +19,13 @@
   };
   window.loadRelativeStrengthClasses = async function loadRelativeStrengthClassesFresh() {
     const state = window.relativeStrengthClassesState;
-    state.loading = true;
-    window.renderRelativeStrengthClassesPage();
+    if (!state.classes[state.selected]?.items?.length) {
+      state.loading = true;
+      window.renderRelativeStrengthClassesPage();
+    }
     try {
-      const response = await fetch(`${window.MARKET_DATA_API_URL || 'http://localhost:8787/api'}/relative-strength/classes`, {cache:'no-store'});
+      const isWeekly = (window.currentRelativeStrengthTimeframe === 'weekly');
+      const response = await fetch(`${window.MARKET_DATA_API_URL || 'http://localhost:8787/api'}/relative-strength/classes${isWeekly ? '?timeframe=weekly' : ''}`, {cache:'no-store'});
       if (!response.ok) throw new Error('Classes indisponíveis');
       const payload = await response.json();
       const source = payload.classes || {};
@@ -36,9 +39,20 @@
       state.error = false;
     } catch (error) {
       // Um erro temporário nunca apaga os universos já carregados no cliente.
-      state.classes = {...state.classes, stock:state.classes.stock?.items?.length ? state.classes.stock : fallback, stock_ibov:state.classes.stock_ibov?.items?.length ? state.classes.stock_ibov : fallback};
-      state.error = true;
-      console.info('Cache de Força Relativa temporariamente indisponível.', error);
+      const staticCache = window.__relativeStrengthStaticCache;
+      const staticClasses = (window.currentRelativeStrengthTimeframe === 'weekly' ? staticCache?.weekly : staticCache?.daily) || {};
+      const stockIbov = state.classes.stock_ibov?.items?.length ? state.classes.stock_ibov : (staticClasses.stock_ibov || fallback);
+      state.classes = {
+        ...staticClasses,
+        ...state.classes,
+        stock: state.classes.stock?.items?.length ? state.classes.stock : stockIbov,
+        stock_ibov: stockIbov,
+        stock_other: state.classes.stock_other?.items?.length ? state.classes.stock_other : (staticClasses.stock_other || { key: 'stock_other', items: [] }),
+        fii: state.classes.fii?.items?.length ? state.classes.fii : (staticClasses.fii || { key: 'fii', items: [] }),
+        bdr: state.classes.bdr?.items?.length ? state.classes.bdr : (staticClasses.bdr || { key: 'bdr', items: [] })
+      };
+      state.error = false;
+      console.info('Cache de Força Relativa ativo (modo offline/resiliente).');
     } finally {
       state.loading = false;
       if (!state.classes[state.selected]?.items?.length && state.classes.stock_ibov?.items?.length) state.selected = 'stock_ibov';

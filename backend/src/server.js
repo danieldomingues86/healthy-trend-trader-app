@@ -3,7 +3,7 @@ const http = require('node:http');
 const { URL } = require('node:url');
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const { readCache, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, classStrengthFromCache, classifyAsset, resolveMarketCycle } = require('./market-data');
+const { readCache, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, classStrengthFromCache, classStrengthWeeklyFromCache, classifyAsset, resolveMarketCycle } = require('./market-data');
 const { marketScansFromCache } = require('./market-scans');
 const { PLAN_CATALOG } = require('./subscription-plans');
 const { fetchFundamentals } = require('./fundamentals');
@@ -544,7 +544,7 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, { status: 'ok', cachedAt: cached?.updatedAt || null, brapiTokenConfigured: Boolean(process.env.BRAPI_TOKEN), databaseConfigured: database.configured(), provider: await marketDataStatus() });
     }
     if (url.pathname === '/api/relative-strength/nasdaq' || url.pathname === '/api/market-data/nasdaq-relative-strength') {
-      return send(response, 200, nasdaqRelativeStrengthEngine.getNasdaqRelativeStrength());
+      return send(response, 200, nasdaqRelativeStrengthEngine.getNasdaqRelativeStrength(url.searchParams.get('timeframe') || 'daily'));
     }
     if (url.pathname === '/api/nasdaq/status' || url.pathname === '/api/market-data/nasdaq-status') {
       return send(response, 200, await nasdaqRelativeStrengthEngine.provider.getStatus());
@@ -566,16 +566,24 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, marketScansFromCache(cache));
     }
     if (url.pathname === '/api/relative-strength/classes') {
+      const isWeekly = url.searchParams.get('timeframe') === 'weekly';
       cache = await refreshClassStrength(cache);
-      const classes = classStrengthFromCache(cache);
-      return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf: cache.overview?.benchmarkHistory?.at(-1)?.date || null, source: cache.source, classes });
+      const classes = isWeekly ? classStrengthWeeklyFromCache(cache) : classStrengthFromCache(cache);
+      const dataAsOf = isWeekly
+        ? (cache.relativeStrengthByClassWeekly?.dataAsOf || cache.overview?.benchmarkHistory?.at(-1)?.date || null)
+        : (cache.overview?.benchmarkHistory?.at(-1)?.date || null);
+      return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf, timeframe: isWeekly ? 'weekly' : 'daily', source: cache.source, classes });
     }
     if (url.pathname === '/api/relative-strength/classify') return send(response, 200, classifyAsset(url.searchParams.get('ticker'), cache));
     if (url.pathname === '/api/relative-strength') {
+      const isWeekly = url.searchParams.get('timeframe') === 'weekly';
       const assetClass = url.searchParams.get('assetClass') || 'stock';
-      const classes = classStrengthFromCache(cache);
+      const classes = isWeekly ? classStrengthWeeklyFromCache(cache) : classStrengthFromCache(cache);
       const selected = classes[assetClass] || classes.stock;
-      return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf: cache.overview?.benchmarkHistory?.at(-1)?.date || null, source: cache.source, assetClass: selected.key, benchmark: selected.benchmark, universe: { requested: selected.requested, available: selected.available }, ...page(selected.items || [], url.searchParams) });
+      const dataAsOf = isWeekly
+        ? (cache.relativeStrengthByClassWeekly?.dataAsOf || cache.overview?.benchmarkHistory?.at(-1)?.date || null)
+        : (cache.overview?.benchmarkHistory?.at(-1)?.date || null);
+      return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf, timeframe: isWeekly ? 'weekly' : 'daily', source: cache.source, assetClass: selected.key, benchmark: selected.benchmark, universe: { requested: selected.requested, available: selected.available }, ...page(selected.items || [], url.searchParams) });
     }
     return send(response, 404, { error: 'Not found' });
   } catch (error) {
