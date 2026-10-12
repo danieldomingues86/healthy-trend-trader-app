@@ -41,12 +41,6 @@
           page: 'journal'
         },
         {
-          id: 'tradertraining',
-          label: 'Treinamento Trader',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
-          page: 'tradertraining'
-        },
-        {
           id: 'dailyroutine',
           label: 'Rotina Diária',
           icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5H12a1.5 1.5 0 0 1 1.5 1.5v9.5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V4a1.5 1.5 0 0 1 1.5-1.5h1.5"/><rect x="5.5" y="1" width="5" height="3" rx="1"/><path d="M5.5 7.5h5M5.5 11h3.5"/></svg>`,
@@ -63,6 +57,36 @@
           label: 'Hábitos',
           icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
           page: 'habits'
+        }
+      ]
+    },
+    {
+      id: 'training-recovery',
+      isGroup: true,
+      label: 'Treinamento & Recuperação',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+      header: 'TREINAMENTO & RECUPERAÇÃO',
+      items: [
+        {
+          id: 'tradertraining',
+          title: 'Treinamento do Trader',
+          desc: 'Metas e consistência de hábitos.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+          page: 'tradertraining'
+        },
+        {
+          id: 'mission',
+          title: 'Missão',
+          desc: 'Jornada de foco e recuperação.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+          page: 'mission'
+        },
+        {
+          id: 'rebuild',
+          title: 'Rebuild Mode',
+          desc: 'Ciclo de reconstrução e proteção.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+          page: 'rebuild'
         }
       ]
     },
@@ -817,7 +841,9 @@
               positions: 'Posições Abertas',
               closedpositions: 'Posições Encerradas',
               journal: 'Diário de Trader',
-              tradertraining: 'Treinamento Trader',
+              tradertraining: 'Treinamento do Trader',
+              mission: 'Missão',
+              rebuild: 'Rebuild Mode',
               dailyroutine: 'Rotina Diária',
               watchlist: 'Watchlist',
               habits: 'Monitor de Hábitos',
