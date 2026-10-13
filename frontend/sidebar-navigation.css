@@ -1528,6 +1528,16 @@ body[data-theme="healthy"] .topbar .market-focus-guard.closed {
   margin-left: auto;
 }
 
+/* Ensure top navigation controls never display outside of top navigation layout */
+body:not([data-navigation-layout="top"]) #topNavigationControls,
+body:not([data-navigation-layout="top"]) .top-navigation-controls,
+body:not([data-navigation-layout="top"]) .top-navigation-scroll,
+.sidebar:not([data-navigation-layout="top"]) #topNavigationControls,
+.sidebar:not([data-navigation-layout="top"]) .top-navigation-controls,
+.sidebar:not([data-navigation-layout="top"]) .top-navigation-scroll {
+  display: none !important;
+}
+
 /* ── 2. TOP NAVIGATION BAR (MENU SUPERIOR) ── */
 body[data-navigation-layout="top"] #topNavigationMenu {
   display: flex !important;

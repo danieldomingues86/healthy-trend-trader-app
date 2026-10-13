@@ -507,11 +507,22 @@
         </footer>
       `;
 
-      if (existingControls) {
-        sidebar.appendChild(existingControls);
-      }
-      if (existingActions) {
-        sidebar.appendChild(existingActions);
+      const isTopLayout = document.body.dataset.navigationLayout === 'top';
+      if (isTopLayout) {
+        if (existingControls) {
+          sidebar.appendChild(existingControls);
+        }
+        if (existingActions) {
+          sidebar.appendChild(existingActions);
+        }
+      } else {
+        existingControls?.remove();
+        if (existingActions) {
+          const topbar = document.querySelector('.topbar');
+          if (topbar && !topbar.contains(existingActions)) {
+            topbar.appendChild(existingActions);
+          }
+        }
       }
 
       this.bindSidebarEvents(sidebar);
@@ -1009,7 +1020,14 @@
      */
     ensureTopNavigationItems(forceRender = false) {
       const layout = document.body.dataset.navigationLayout;
-      if (layout !== 'top') return;
+      const existingControls = document.getElementById('topNavigationControls');
+      const existingMenu = document.getElementById('topNavigationMenu');
+
+      if (layout !== 'top') {
+        existingControls?.remove();
+        existingMenu?.remove();
+        return;
+      }
 
       const sidebar = document.querySelector('.sidebar');
       if (!sidebar) return;
@@ -1181,8 +1199,12 @@
         }
         if (layout === 'top') {
           self.ensureTopNavigationItems(true);
-        } else if (layout === 'tiles') {
-          self.renderNavigationHub();
+        } else {
+          document.getElementById('topNavigationControls')?.remove();
+          document.getElementById('topNavigationMenu')?.remove();
+          if (layout === 'tiles') {
+            self.renderNavigationHub();
+          }
         }
       });
       observer.observe(document.body, { attributes: true, attributeFilter: ['data-navigation-layout'] });

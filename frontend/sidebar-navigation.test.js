@@ -92,3 +92,13 @@ test('SidebarNavigation e Model: itens de Acesso Rápido não se duplicam dentro
     }
   });
 });
+
+test('SidebarNavigation: botões de rolagem do menu superior são estritamente ocultados/removidos no menu lateral', () => {
+  const css = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.css'), 'utf8');
+  assert.ok(css.includes('body:not([data-navigation-layout="top"]) #topNavigationControls'));
+  assert.ok(css.includes('display: none !important'));
+
+  const js = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.js'), 'utf8');
+  assert.ok(js.includes('existingControls?.remove()'));
+});
+
