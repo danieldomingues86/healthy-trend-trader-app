@@ -1,14 +1,18 @@
 /**
- * HEALTHY TREND TRADER - SIDEBAR NAVIGATION & INTELLIGENT FLYOUTS
+ * HEALTHY TREND TRADER - UNIFIED NAVIGATION SYSTEM
  * 
  * Features:
- * - Structured navigation by trader action cycles
- * - Direct 1-click access for daily operations (Hoje, Rotina Diária, Monitor de Hábitos, Watchlist, Novo Trade)
- * - Hover & click-to-pin flyout submenus with safe hover bridge (no flicker)
- * - Collapsible sidebar (expanded 248px vs. collapsed 72px) with localStorage persistence
- * - Floating tooltips in collapsed mode
- * - Automatic active state synchronization with window.go()
- * - Keyboard accessibility (ESC, Enter, Space)
+ * - Single Source of Truth architecture (consumes NavigationSystemModel)
+ * - Three synchronized presentations:
+ *   1. Menu Lateral (Sidebar with Quick Access & expandable/collapsible categories)
+ *   2. Menu Superior (Top Navigation Bar with Quick Access pills & Category Dropdowns)
+ *   3. Menu em Blocos (Categorized Tiles Hub with Preset toolbar & category card blocks)
+ * - Organization Presets (FAST, TRADER_FOCUS, FULL) — NEVER hides any module
+ * - Trader Personalization (Quick Access toggle ⭐, moving modules between categories)
+ * - Collapsible sidebar (expanded 248px vs collapsed 72px) with flyouts & tooltips
+ * - Active state sync with window.go()
+ * - Full theme support (Healthy Green & Premium Gold)
+ * - Responsive from mobile to widescreen/ultrawide
  */
 
 (function(root) {
@@ -16,7 +20,7 @@
 
   const STORAGE_KEY_COLLAPSED = 'healthy-sidebar-collapsed';
 
-  // Complete navigation structure organized into Trader Action Cycles
+  // Master baseline structures preserved for static test suites & fallback
   const NAV_STRUCTURE = [
     {
       id: 'daily',
@@ -55,7 +59,7 @@
         {
           id: 'habits',
           label: 'Hábitos',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
           page: 'habits'
         }
       ]
@@ -64,14 +68,14 @@
       id: 'training-recovery',
       isGroup: true,
       label: 'Treinamento',
-      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
       header: 'TREINAMENTO',
       items: [
         {
           id: 'tradertraining',
           title: 'Treinamento do Trader',
           desc: 'Metas e consistência de hábitos.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
           page: 'tradertraining'
         },
         {
@@ -291,7 +295,7 @@
     {
       id: 'settings',
       label: 'Configurações',
-      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
       page: 'settings'
     },
     {
@@ -326,11 +330,19 @@
       this.activePageId = 'today';
       this.navStructure = NAV_STRUCTURE;
       this.footerStructure = FOOTER_STRUCTURE;
+      
+      // Connect to unified NavigationSystemModel
+      this.model = root.navigationSystem || (root.NavigationSystemModel ? new root.NavigationSystemModel() : null);
     }
 
     init() {
       const sidebar = document.querySelector('.sidebar');
       if (!sidebar) return;
+
+      // Load model state
+      if (this.model && typeof this.model.load === 'function') {
+        this.model.load();
+      }
 
       // Load collapsed state
       try {
@@ -355,6 +367,9 @@
       this.hookTopNavigation();
       this.observeLayoutChanges();
 
+      // Hook navigation hub and settings integration
+      this.hookUnifiedComponents();
+
       // Ensure top navigation items if layout is already 'top'
       if (document.body.dataset.navigationLayout === 'top') {
         this.ensureTopNavigationItems(true);
@@ -370,6 +385,13 @@
       if (activeSection && activeSection.id) {
         this.setActivePage(activeSection.id);
       }
+    }
+
+    getTree() {
+      if (this.model && typeof this.model.getNavigationTree === 'function') {
+        return this.model.getNavigationTree();
+      }
+      return null;
     }
 
     applyCollapsedState() {
@@ -409,13 +431,21 @@
 
     refresh() {
       const sidebar = document.querySelector('.sidebar');
-      if (!sidebar) return;
-      this.closeFlyout(true);
-      this.renderSidebar(sidebar);
-      this.applyCollapsedState();
+      if (sidebar) {
+        this.closeFlyout(true);
+        this.renderSidebar(sidebar);
+        this.applyCollapsedState();
+      }
       const activeSection = document.querySelector('.page.active');
       this.setActivePage(activeSection?.id || this.activePageId || 'today');
-      this.ensureTopNavigationItems(true);
+      
+      if (document.body.dataset.navigationLayout === 'top') {
+        this.ensureTopNavigationItems(true);
+      }
+      if (document.body.dataset.navigationLayout === 'tiles' && document.getElementById('navigationHub')?.classList.contains('open')) {
+        this.renderNavigationHub();
+      }
+      this.setupNavigationLayoutSettings();
     }
 
     ensureFlyoutElement() {
@@ -492,6 +522,57 @@
     }
 
     renderNavGroups() {
+      const tree = this.getTree();
+
+      // If unified tree is available, render with Quick Access + Categories
+      if (tree) {
+        let html = '';
+
+        // 1. ACESSO RÁPIDO (Always prominent at top of sidebar)
+        if (tree.quickAccess && tree.quickAccess.length > 0) {
+          const quickLabel = root.appLanguage === 'en-US' ? 'Quick Access' : 'Acesso Rápido';
+          html += `
+            <div class="sidebar-group sidebar-quick-access">
+              <span class="sidebar-group-label"><span class="quick-star">★</span> ${quickLabel}</span>
+              ${tree.quickAccess.map((item) => this.renderDirectButton(item)).join('')}
+            </div>
+          `;
+        }
+
+        // 2. CATEGORIES
+        tree.categories.forEach((cat) => {
+          if (cat.id === 'resources') return; // Rendered in footer
+
+          if (this.isCollapsed) {
+            // In collapsed mode, render as group trigger that opens flyout
+            html += this.renderGroupButton({
+              id: cat.id,
+              label: cat.currentLabel || cat.label,
+              icon: cat.icon,
+              items: cat.items
+            });
+          } else {
+            // In expanded mode, render as expandable category accordion
+            const catLabel = cat.currentLabel || cat.label;
+            const isCatCollapsed = cat.isCollapsed;
+            html += `
+              <div class="sidebar-group sidebar-category-group" data-group-id="${cat.id}">
+                <button class="sidebar-category-header" type="button" data-cat-toggle="${cat.id}" aria-expanded="${!isCatCollapsed}">
+                  <span class="sidebar-cat-label">${catLabel}</span>
+                  <span class="sidebar-cat-arrow">${isCatCollapsed ? '›' : '▾'}</span>
+                </button>
+                <div class="sidebar-category-items ${isCatCollapsed ? 'collapsed' : ''}">
+                  ${cat.items.map((item) => this.renderDirectButton(item)).join('')}
+                </div>
+              </div>
+            `;
+          }
+        });
+
+        return html;
+      }
+
+      // Fallback baseline for static tests
       return NAV_STRUCTURE.map((block) => {
         if (block.groupLabel) {
           return `
@@ -524,13 +605,17 @@
     }
 
     renderDirectButton(item) {
-      const label = this.localizedLabel(item.page, item.label);
+      const label = this.localizedLabel(item.page, item.label || item.currentLabel);
+      const isProUser = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
+      const proPages = root.professionalPages || new Set();
+      const isLocked = proPages.has(item.page) && !isProUser;
+      const proBadge = isLocked ? `<span class="sidebar-badge-pro">PRO</span>` : '';
       const arrowHtml = item.hasArrow ? `<span class="sidebar-btn-arrow">›</span>` : '';
-      return `<button class="sidebar-btn nav-btn" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${label}"><span class="sidebar-btn-ico">${item.icon}</span><span class="sidebar-btn-label">${label}</span>${arrowHtml}</button>`;
+      return `<button class="sidebar-btn nav-btn ${isLocked ? 'plan-locked' : ''}" type="button" data-page="${item.page}" data-nav-id="${item.id}" data-label="${label}"><span class="sidebar-btn-ico">${item.icon}</span><span class="sidebar-btn-label">${label}</span>${proBadge}${arrowHtml}</button>`;
     }
 
     renderGroupButton(group) {
-      const label = this.localizedLabel(group.id, group.label);
+      const label = this.localizedLabel(group.id, group.label || group.currentLabel);
       return `<button class="sidebar-btn sidebar-group-trigger" type="button" data-group-id="${group.id}" data-label="${label}" aria-haspopup="true" aria-expanded="false"><span class="sidebar-btn-ico">${group.icon}</span><span class="sidebar-btn-label">${label}</span><span class="sidebar-btn-arrow">›</span></button>`;
     }
 
@@ -560,13 +645,24 @@
         btn.addEventListener('mouseleave', () => this.hideTooltip());
       });
 
-      // Group trigger buttons (Flyouts)
+      // Category accordion headers (expanded mode)
+      sidebar.querySelectorAll('[data-cat-toggle]').forEach((headerBtn) => {
+        headerBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const catId = headerBtn.dataset.catToggle;
+          if (this.model && typeof this.model.toggleCategoryCollapsed === 'function') {
+            this.model.toggleCategoryCollapsed(catId);
+            this.refresh();
+          }
+        });
+      });
+
+      // Group trigger buttons (Flyouts in collapsed mode)
       sidebar.querySelectorAll('.sidebar-group-trigger').forEach((btn) => {
         const groupId = btn.dataset.groupId;
         const groupDef = this.findGroupDef(groupId);
         if (!groupDef) return;
 
-        // Hover opens flyout (desktop)
         btn.addEventListener('mouseenter', () => {
           this.cancelClose();
           if (this.isCollapsed) {
@@ -581,7 +677,6 @@
           }
         });
 
-        // Click toggles / pins flyout
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           if (this.activeFlyoutGroup === groupDef.id && this.isFlyoutPinned) {
@@ -594,6 +689,26 @@
     }
 
     findGroupDef(groupId) {
+      const tree = this.getTree();
+      if (tree) {
+        const cat = tree.categories.find(c => c.id === groupId);
+        if (cat) {
+          return {
+            id: cat.id,
+            label: cat.currentLabel || cat.label,
+            header: (cat.currentLabel || cat.label).toUpperCase(),
+            icon: cat.icon,
+            items: cat.items.map(it => ({
+              id: it.id,
+              page: it.page,
+              title: it.currentLabel || it.label,
+              desc: it.currentDesc || it.desc,
+              icon: it.icon
+            }))
+          };
+        }
+      }
+
       const all = [...NAV_STRUCTURE, ...FOOTER_STRUCTURE];
       for (const item of all) {
         if (item.id === groupId) return item;
@@ -627,7 +742,7 @@
           ${isPinned ? (root.appLanguage === 'en-US' ? '<span style="font-size:9px; color:#638271; font-weight:600; cursor:pointer;" title="Click to unpin">PINNED (ESC)</span>' : '<span style="font-size:9px; color:#638271; font-weight:600; cursor:pointer;" title="Clique para desfixar">FIXADO (ESC)</span>') : ''}
         </div>
         <div class="flyout-items-list nav">
-          ${groupDef.items.map((sub) => {
+          ${(groupDef.items || []).map((sub) => {
             const isActive = this.activePageId === sub.page;
             const isLocked = proPages.has(sub.page) && !isProUser;
             return `
@@ -635,10 +750,10 @@
                 <span class="flyout-item-icon">${sub.icon}</span>
                 <div class="flyout-item-body">
                   <div class="flyout-item-title">
-                    <span>${this.localizedLabel(sub.page, sub.title)}</span>
+                    <span>${this.localizedLabel(sub.page, sub.title || sub.label)}</span>
                     ${isLocked ? '<span class="flyout-badge-pro">PRO</span>' : ''}
                   </div>
-                  <span class="flyout-item-desc${sub.compactDescription ? ' flyout-item-desc-compact' : ''}">${sub.desc}</span>
+                  <span class="flyout-item-desc">${sub.desc || ''}</span>
                 </div>
               </button>
             `;
@@ -668,10 +783,7 @@
       const flyoutHeight = this.flyoutEl.offsetHeight || 300;
       const windowHeight = window.innerHeight;
 
-      // Position to the right of the sidebar
       const left = rect.right + 10;
-
-      // Vertical positioning with bounds checking
       let top = rect.top - 6;
       if (top + flyoutHeight > windowHeight - 16) {
         top = Math.max(16, windowHeight - flyoutHeight - 16);
@@ -730,24 +842,27 @@
     }
 
     bindGlobalEvents() {
-      // Close on outside click
       document.addEventListener('click', (e) => {
         if (!this.activeFlyoutGroup) return;
         const target = e.target;
         if (!this.flyoutEl.contains(target) && !target.closest('.sidebar-group-trigger')) {
           this.closeFlyout(true);
         }
+
+        // Close top dropdowns when clicking outside
+        if (!target.closest('.top-nav-cat-dropdown')) {
+          document.querySelectorAll('.top-nav-cat-dropdown.open').forEach(dd => dd.classList.remove('open'));
+        }
       });
 
-      // ESC key to close
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           this.closeFlyout(true);
           this.hideTooltip();
+          document.querySelectorAll('.top-nav-cat-dropdown.open').forEach(dd => dd.classList.remove('open'));
         }
       });
 
-      // Reposition or close on resize
       window.addEventListener('resize', () => {
         if (this.activeTriggerBtn && this.flyoutEl?.classList.contains('active')) {
           this.positionFlyout(this.activeTriggerBtn);
@@ -768,7 +883,7 @@
     setActivePage(pageId) {
       this.activePageId = pageId;
 
-      // Check all direct items
+      // Update sidebar buttons
       document.querySelectorAll('.sidebar-btn').forEach((btn) => {
         const isDirect = btn.dataset.page === pageId;
         btn.classList.toggle('active', isDirect);
@@ -781,42 +896,42 @@
         });
       }
 
-      // Check which parent group owns this pageId
-      const allGroups = [...NAV_STRUCTURE, ...FOOTER_STRUCTURE].filter((x) => x.isGroup);
-      allGroups.forEach((group) => {
-        const groupBtn = document.querySelector(`.sidebar-group-trigger[data-group-id="${group.id}"]`);
-        if (!groupBtn) return;
-
-        const isChildActive = group.items.some((sub) => sub.page === pageId);
-        groupBtn.classList.toggle('parent-active', isChildActive);
-      });
-
-      // Update flyout active item if open
-      if (this.flyoutEl && this.flyoutEl.classList.contains('active')) {
-        this.flyoutEl.querySelectorAll('.flyout-item-link').forEach((link) => {
-          link.classList.toggle('active', link.dataset.page === pageId);
+      // Check which parent category owns this pageId
+      const tree = this.getTree();
+      if (tree) {
+        tree.categories.forEach((cat) => {
+          const isChildActive = cat.items.some(it => it.page === pageId);
+          document.querySelectorAll(`.sidebar-category-group[data-group-id="${cat.id}"]`).forEach(el => {
+            el.classList.toggle('parent-active', isChildActive);
+          });
+          document.querySelectorAll(`.top-nav-cat-dropdown[data-cat-id="${cat.id}"] .top-nav-cat-trigger`).forEach(el => {
+            el.classList.toggle('parent-active', isChildActive);
+          });
         });
       }
 
-      // Update Top Navigation active item if top navigation exists
-      document.querySelectorAll('#topNavigationMenu button').forEach((btn) => {
+      // Update Top Navigation active state
+      document.querySelectorAll('#topNavigationMenu button[data-page]').forEach((btn) => {
         btn.classList.toggle('active', btn.dataset.page === pageId);
       });
 
-      // Breadcrumb customization for grouped pages
+      // Breadcrumb customization
       const crumb = document.querySelector('.crumb') || document.getElementById('crumb');
       if (crumb) {
         let found = false;
-        for (const group of allGroups) {
-          const matchedItem = group.items.find((sub) => sub.page === pageId);
-          if (matchedItem) {
-            const groupLabel = typeof uiText === 'function' ? uiText(group.label) : group.label;
-            const itemTitle = typeof uiText === 'function' ? uiText(matchedItem.title) : matchedItem.title;
-            crumb.innerHTML = `${groupLabel} / <b>${itemTitle}</b>`;
-            found = true;
-            break;
+        if (tree) {
+          for (const cat of tree.categories) {
+            const matchedItem = cat.items.find(it => it.page === pageId);
+            if (matchedItem) {
+              const catLabel = cat.currentLabel || cat.label;
+              const itemTitle = matchedItem.currentLabel || matchedItem.label;
+              crumb.innerHTML = `${catLabel} / <b>${itemTitle}</b>`;
+              found = true;
+              break;
+            }
           }
         }
+
         if (!found) {
           const mindsetSubPages = new Set(['zen', 'audiolibrary', 'emotionalintelligence', 'traderrules', 'wisdom', 'traderprofile']);
           if (pageId === 'tradertraining') {
@@ -863,10 +978,14 @@
         if (typeof originalSetup === 'function') {
           originalSetup();
         }
-        self.ensureTopNavigationItems();
+        self.ensureTopNavigationItems(true);
       };
     }
 
+    /**
+     * MENU SUPERIOR (TOP NAVIGATION)
+     * Renders Quick Access pills + Category Dropdowns consuming unified tree
+     */
     ensureTopNavigationItems(forceRender = false) {
       const layout = document.body.dataset.navigationLayout;
       if (layout !== 'top') return;
@@ -908,13 +1027,88 @@
         sidebar.appendChild(controls);
       }
 
-      // Popula menu com as páginas se estiver vazio
-      if (forceRender || menu.children.length === 0) {
-        const pages = this.getTopNavPages();
-        const activePage = this.activePageId || 'today';
-        const isPro = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
-        const proPages = root.professionalPages || new Set();
+      const tree = this.getTree();
+      const activePage = this.activePageId || 'today';
+      const isPro = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
+      const proPages = root.professionalPages || new Set();
 
+      if (tree) {
+        let menuHtml = '';
+
+        // 1. QUICK ACCESS DIRECT PILLS
+        if (tree.quickAccess && tree.quickAccess.length > 0) {
+          menuHtml += `<div class="top-nav-quick-group">`;
+          tree.quickAccess.forEach((item) => {
+            const isLocked = proPages.has(item.page) && !isPro;
+            const activeClass = item.page === activePage ? ' active' : '';
+            const lockClass = isLocked ? ' plan-locked' : '';
+            menuHtml += `
+              <button type="button" class="top-nav-quick-pill${activeClass}${lockClass}" data-page="${item.page}" aria-label="${item.currentLabel}" onclick="go('${item.page}')">
+                <span class="top-pill-ico">${item.icon}</span>
+                <span class="top-pill-text">${item.currentLabel}</span>
+              </button>
+            `;
+          });
+          menuHtml += `</div>`;
+          menuHtml += `<div class="top-nav-divider" aria-hidden="true"></div>`;
+        }
+
+        // 2. CATEGORY DROPDOWNS
+        tree.categories.forEach((cat) => {
+          const isChildActive = cat.items.some(it => it.page === activePage);
+          menuHtml += `
+            <div class="top-nav-cat-dropdown" data-cat-id="${cat.id}">
+              <button type="button" class="top-nav-cat-trigger ${isChildActive ? 'parent-active' : ''}" aria-haspopup="true" aria-expanded="false">
+                <span class="cat-ico">${cat.icon}</span>
+                <span>${cat.currentLabel || cat.label}</span>
+                <span class="cat-arrow">▾</span>
+              </button>
+              <div class="top-nav-dropdown-menu" role="menu">
+                <div class="top-nav-dropdown-header">
+                  <strong>${cat.currentLabel || cat.label}</strong>
+                  <small>${cat.desc}</small>
+                </div>
+                <div class="top-nav-dropdown-list">
+                  ${cat.items.map((item) => {
+                    const isActive = item.page === activePage;
+                    const isLocked = proPages.has(item.page) && !isPro;
+                    return `
+                      <button type="button" class="top-nav-dropdown-item ${isActive ? 'active' : ''} ${isLocked ? 'plan-locked' : ''}" data-page="${item.page}" onclick="go('${item.page}')">
+                        <span class="dropdown-item-ico">${item.icon}</span>
+                        <div class="dropdown-item-text">
+                          <div class="dropdown-item-title-row">
+                            <b>${item.currentLabel}</b>
+                            ${isLocked ? '<span class="flyout-badge-pro">PRO</span>' : ''}
+                          </div>
+                          <small>${item.currentDesc}</small>
+                        </div>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        menu.innerHTML = menuHtml;
+
+        // Bind dropdown clicks for touch/click toggling
+        menu.querySelectorAll('.top-nav-cat-trigger').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const parent = btn.closest('.top-nav-cat-dropdown');
+            const wasOpen = parent.classList.contains('open');
+            menu.querySelectorAll('.top-nav-cat-dropdown.open').forEach(dd => dd.classList.remove('open'));
+            if (!wasOpen) {
+              parent.classList.add('open');
+            }
+          });
+        });
+
+      } else {
+        // Fallback for static render
+        const pages = this.getTopNavPages();
         menu.innerHTML = pages.map((item) => {
           const isLocked = proPages.has(item.page) && !isPro;
           const activeClass = item.page === activePage ? ' active' : '';
@@ -933,45 +1127,17 @@
     }
 
     getTopNavPages() {
-      if (Array.isArray(root.navigationTiles) && root.navigationTiles.length > 0) {
-        return root.navigationTiles.map(([pageId, icon, label]) => ({
-          page: pageId,
-          label: this.localizedLabel(pageId, label),
-          icon: (icon && (icon.includes('<svg') || icon.includes('<span'))) ? icon : `<span class="ico">${icon || '•'}</span>`
-        }));
+      const tree = this.getTree();
+      if (tree) {
+        const list = [];
+        tree.categories.forEach(cat => {
+          cat.items.forEach(it => {
+            list.push({ page: it.page, label: it.currentLabel, icon: it.icon });
+          });
+        });
+        return list;
       }
-
-      // Fallback robusto a partir de NAV_STRUCTURE e FOOTER_STRUCTURE
-      const items = [];
-      NAV_STRUCTURE.forEach((block) => {
-        if (block.items) {
-          block.items.forEach((item) => {
-            items.push({
-              page: item.page,
-              label: item.label || item.title,
-              icon: item.icon
-            });
-          });
-        }
-      });
-      FOOTER_STRUCTURE.forEach((item) => {
-        if (item.items) {
-          item.items.forEach((sub) => {
-            items.push({
-              page: sub.page,
-              label: sub.label || sub.title,
-              icon: sub.icon
-            });
-          });
-        } else {
-          items.push({
-            page: item.page,
-            label: item.label || item.title,
-            icon: item.icon
-          });
-        }
-      });
-      return items;
+      return [];
     }
 
     observeLayoutChanges() {
@@ -980,14 +1146,319 @@
         const layout = document.body.dataset.navigationLayout || 'sidebar';
         self.closeFlyout(true);
         self.hideTooltip();
+        if (self.model && typeof self.model.setStyle === 'function') {
+          self.model.setStyle(layout);
+        }
         if (typeof root.placeMarketFocusGuard === 'function') {
           root.placeMarketFocusGuard();
         }
         if (layout === 'top') {
-          self.ensureTopNavigationItems();
+          self.ensureTopNavigationItems(true);
+        } else if (layout === 'tiles') {
+          self.renderNavigationHub();
         }
       });
       observer.observe(document.body, { attributes: true, attributeFilter: ['data-navigation-layout'] });
+    }
+
+    /**
+     * MENU EM BLOCOS (TILES HUB)
+     * Renders Categorized Block Menu with Preset bar, Quick Access block & Category blocks
+     */
+    renderNavigationHub() {
+      if (document.body.dataset.navigationLayout !== 'tiles') return;
+      let hub = document.getElementById('navigationHub');
+      if (!hub) {
+        hub = document.createElement('section');
+        hub.id = 'navigationHub';
+        hub.className = 'navigation-hub';
+        document.body.appendChild(hub);
+      }
+
+      const tree = this.getTree();
+      const isEn = root.appLanguage === 'en-US';
+      const isPro = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
+      const proPages = root.professionalPages || new Set();
+      const currentPreset = tree ? tree.preset : 'fast';
+
+      let quickBlockHtml = '';
+      if (tree && tree.quickAccess && tree.quickAccess.length > 0) {
+        quickBlockHtml = `
+          <div class="navigation-hub-quick-section">
+            <div class="navigation-hub-section-title">
+              <span class="quick-star">★</span>
+              <span>${isEn ? 'QUICK ACCESS' : 'ACESSO RÁPIDO'}</span>
+            </div>
+            <div class="navigation-hub-quick-grid">
+              ${tree.quickAccess.map((item) => {
+                const isLocked = proPages.has(item.page) && !isPro;
+                return `
+                  <button class="nav-hub-card quick-card ${isLocked ? 'plan-locked' : ''}" type="button" onclick="go('${item.page}')">
+                    <span class="nav-card-ico">${item.icon}</span>
+                    <div class="nav-card-info">
+                      <b>${item.currentLabel}</b>
+                      <small>${item.currentDesc}</small>
+                    </div>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      let categoriesBlocksHtml = '';
+      if (tree) {
+        categoriesBlocksHtml = tree.categories.map((cat) => {
+          return `
+            <div class="nav-category-block" data-category="${cat.id}">
+              <header class="nav-category-header">
+                <span class="nav-cat-ico">${cat.icon}</span>
+                <div class="nav-cat-titles">
+                  <h3>${cat.currentLabel || cat.label}</h3>
+                  <p>${cat.desc}</p>
+                </div>
+              </header>
+              <div class="nav-category-cards-grid">
+                ${cat.items.map((item) => {
+                  const isLocked = proPages.has(item.page) && !isPro;
+                  return `
+                    <button class="nav-hub-card ${isLocked ? 'plan-locked' : ''}" type="button" onclick="go('${item.page}')">
+                      <span class="nav-card-ico">${item.icon}</span>
+                      <div class="nav-card-info">
+                        <div class="nav-card-title-row">
+                          <b>${item.currentLabel}</b>
+                          ${isLocked ? '<span class="flyout-badge-pro">PRO</span>' : ''}
+                        </div>
+                        <small>${item.currentDesc}</small>
+                      </div>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      hub.innerHTML = `
+        <div class="navigation-hub-inner">
+          <header class="navigation-hub-header">
+            <div class="navigation-hub-brand">
+              <span class="tile-brand-mark">◢</span>
+              <div><strong>THE HEALTHY TREND</strong><small>TRADER WORKSPACE</small></div>
+            </div>
+            <div class="navigation-hub-title">
+              <div class="eyebrow">${isEn ? 'NAVIGATION' : 'NAVEGAÇÃO'}</div>
+              <h1>${isEn ? 'Where do you want to go <em>today?</em>' : 'Para onde você quer ir <em>hoje?</em>'}</h1>
+              <p>${isEn ? 'Discipline today. Freedom tomorrow.' : 'Disciplina hoje. Liberdade amanhã.'}</p>
+            </div>
+            <aside class="navigation-hub-quote">
+              “${isEn ? 'Consistency is the true advantage.' : 'Consistência é a verdadeira vantagem.'}”
+              <small>— TOM BASSO</small>
+            </aside>
+          </header>
+
+          <!-- PRESET TOOLBAR -->
+          <div class="navigation-hub-preset-bar">
+            <span class="preset-bar-label">${isEn ? 'Preset:' : 'Predefinição:'}</span>
+            <button type="button" class="nav-hub-preset-btn ${currentPreset === 'fast' ? 'active' : ''}" onclick="window.SidebarNavigation.applyPreset('fast')">⚡ Fast</button>
+            <button type="button" class="nav-hub-preset-btn ${currentPreset === 'trader_focus' ? 'active' : ''}" onclick="window.SidebarNavigation.applyPreset('trader_focus')">🎯 Trader Focus</button>
+            <button type="button" class="nav-hub-preset-btn ${currentPreset === 'full' ? 'active' : ''}" onclick="window.SidebarNavigation.applyPreset('full')">🏛️ Professional / Full</button>
+          </div>
+
+          <!-- ACESSO RÁPIDO BLOCK -->
+          ${quickBlockHtml}
+
+          <!-- CATEGORY BLOCKS -->
+          <div class="navigation-hub-categories-container">
+            ${categoriesBlocksHtml}
+          </div>
+
+          <footer class="navigation-hub-philosophy">
+            <span>FOCUS · PROCESS · DISCIPLINE · RESULTS</span>
+            <button type="button" class="nav-hub-settings-link" onclick="go('settings')">⚙ ${isEn ? 'Customize Navigation' : 'Personalizar Navegação'}</button>
+          </footer>
+        </div>
+      `;
+
+      hub.classList.add('open');
+    }
+
+    /**
+     * CONFIGURAÇÕES DE NAVEGAÇÃO EM #settings
+     */
+    setupNavigationLayoutSettings() {
+      const grid = document.querySelector('#settings .settings-grid');
+      if (!grid) return;
+      document.getElementById('navigationLayoutSettings')?.remove();
+
+      const card = document.createElement('section');
+      card.id = 'navigationLayoutSettings';
+      card.className = 'card nav-settings-card';
+
+      const tree = this.getTree();
+      const currentStyle = (this.model ? this.model.state.style : document.body.dataset.navigationLayout) || 'sidebar';
+      const currentPreset = this.model ? this.model.state.preset : 'fast';
+      const isEn = root.appLanguage === 'en-US';
+
+      // Style options
+      const styles = [
+        { id: 'sidebar', icon: '▤', title: isEn ? 'Side menu' : 'Menu lateral', desc: isEn ? 'Traditional navigation always visible on the left.' : 'A navegação tradicional sempre visível à esquerda.' },
+        { id: 'top', icon: '▬', title: isEn ? 'Top menu' : 'Menu superior', desc: isEn ? 'Horizontal bar with quick access and category dropdowns.' : 'Atalhos horizontais com acesso rápido e menus suspensos por categoria.' },
+        { id: 'tiles', icon: '▦', title: isEn ? 'Tile menu' : 'Menu em blocos', desc: isEn ? 'Categorized single-screen panel organized by modules.' : 'Painel visual em tela única organizado por categorias e blocos.' }
+      ];
+
+      const styleButtons = styles.map((s) => `
+        <button type="button" class="navigation-layout-option ${currentStyle === s.id ? 'active' : ''}" onclick="window.SidebarNavigation.setStyle('${s.id}')">
+          <i>${s.icon}</i>
+          <b>${s.title}</b>
+          <span>${s.desc}</span>
+        </button>
+      `).join('');
+
+      // Presets options
+      const presets = [
+        { id: 'fast', label: '⚡ Fast', desc: isEn ? 'Instant access to most frequent tools; streamlined categories.' : 'Acesso ultrarrápido às ferramentas mais frequentes (Desktop, Novo Trade, Diário, Watchlist, Gráficos).' },
+        { id: 'trader_focus', label: '🎯 Trader Focus', desc: isEn ? 'Execution-first organization focusing on Trading, Risk, and Market.' : 'Organização estritamente orientada à execução do pregão, enfatizando Operação, Risco e Mercado.' },
+        { id: 'full', label: '🏛️ Professional / Full', desc: isEn ? 'Comprehensive view of all software dimensions and pillars.' : 'Visão integral de todas as dimensões da plataforma: Operação, Treinamento, Mercado, Simuladores e Risco.' }
+      ];
+
+      const presetButtons = presets.map((p) => `
+        <button type="button" class="nav-preset-btn ${currentPreset === p.id ? 'active' : ''}" onclick="window.SidebarNavigation.applyPreset('${p.id}')">
+          <b>${p.label}</b>
+          <small>${p.desc}</small>
+        </button>
+      `).join('');
+
+      // Interactive Customizer
+      let customizerHtml = '';
+      if (tree) {
+        customizerHtml = `
+          <div class="nav-customizer-wrap">
+            <div class="nav-customizer-header">
+              <div>
+                <b>${isEn ? 'Customize Quick Access & Categories' : 'Personalizar Acesso Rápido & Módulos'}</b>
+                <small>${isEn ? 'Click the star ★ to pin/unpin from Quick Access, or change the category of any module.' : 'Clique na estrela ★ para fixar/desafixar do Acesso Rápido ou altere a categoria de qualquer módulo.'}</small>
+              </div>
+              <button type="button" class="secondary nav-reset-btn" onclick="window.SidebarNavigation.resetPreset()">
+                ${isEn ? 'Reset to Preset' : 'Restaurar Padrão da Predefinição'}
+              </button>
+            </div>
+            <div class="nav-modules-list">
+              ${tree.categories.map((cat) => `
+                <div class="nav-cat-group-row">
+                  <span class="nav-cat-group-title">${cat.icon} ${cat.currentLabel || cat.label}</span>
+                  <div class="nav-cat-group-items">
+                    ${cat.items.map((m) => {
+                      const isQuick = tree.quickAccess.some(q => q.id === m.id);
+                      return `
+                        <div class="nav-module-pill">
+                          <button type="button" class="nav-star-toggle ${isQuick ? 'starred' : ''}" title="${isQuick ? 'Remover do Acesso Rápido' : 'Adicionar ao Acesso Rápido'}" onclick="window.SidebarNavigation.toggleQuickAccess('${m.id}')">
+                            ${isQuick ? '★' : '☆'}
+                          </button>
+                          <span class="nav-module-title">${m.currentLabel}</span>
+                          <select class="nav-module-cat-select" onchange="window.SidebarNavigation.moveModule('${m.id}', this.value)" aria-label="Mover módulo de categoria">
+                            ${this.model.categories.map(c => `
+                              <option value="${c.id}" ${c.id === cat.id ? 'selected' : ''}>${c.label}</option>
+                            `).join('')}
+                          </select>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      card.innerHTML = `
+        <div class="card-head">
+          <div>
+            <h3>${isEn ? 'Navigation Architecture' : 'Arquitetura de Navegação'}</h3>
+            <span>${isEn ? 'Choose presentation format, organization preset, and customize your workflow.' : 'Escolha como navegar pela plataforma, selecione uma predefinição e personalize seu Acesso Rápido.'}</span>
+          </div>
+        </div>
+
+        <div class="nav-settings-block">
+          <label class="nav-settings-label">${isEn ? '1. Presentation Style' : '1. Formato de Exibição'}</label>
+          <div class="navigation-layout-options">${styleButtons}</div>
+        </div>
+
+        <div class="nav-settings-block">
+          <label class="nav-settings-label">${isEn ? '2. Organization Preset' : '2. Predefinição de Organização'}</label>
+          <p class="nav-settings-hint">${isEn ? 'Presets determine grouping and Quick Access without hiding any software capability. 100% of modules remain accessible.' : 'As predefinições reorganizam o agrupamento e o Acesso Rápido sem remover nenhuma funcionalidade do software. 100% dos módulos continuam disponíveis.'}</p>
+          <div class="nav-presets-row">${presetButtons}</div>
+        </div>
+
+        <div class="nav-settings-block">
+          <label class="nav-settings-label">${isEn ? '3. Personalization' : '3. Personalização do Usuário'}</label>
+          ${customizerHtml}
+        </div>
+      `;
+
+      grid.prepend(card);
+    }
+
+    setStyle(style) {
+      if (typeof root.applyNavigationLayout === 'function') {
+        root.applyNavigationLayout(style);
+      } else {
+        document.body.dataset.navigationLayout = style;
+        if (this.model) this.model.setStyle(style);
+        this.refresh();
+      }
+    }
+
+    applyPreset(presetKey) {
+      if (this.model && typeof this.model.applyPreset === 'function') {
+        this.model.applyPreset(presetKey);
+        this.refresh();
+        const p = this.model.presets[presetKey];
+        const name = p ? p.label : presetKey;
+        if (typeof root.showToast === 'function') {
+          root.showToast(`Predefinição ${name} aplicada. Todos os módulos preservados.`);
+        }
+      }
+    }
+
+    toggleQuickAccess(moduleId) {
+      if (this.model && typeof this.model.setQuickAccess === 'function') {
+        const isCurrent = this.model.state.quickAccess.includes(moduleId);
+        this.model.setQuickAccess(moduleId, !isCurrent);
+        this.refresh();
+      }
+    }
+
+    moveModule(moduleId, targetCatId) {
+      if (this.model && typeof this.model.moveModule === 'function') {
+        this.model.moveModule(moduleId, targetCatId);
+        this.refresh();
+      }
+    }
+
+    resetPreset() {
+      if (this.model) {
+        const currentPreset = this.model.state.preset || 'fast';
+        const target = currentPreset === 'custom' ? 'fast' : currentPreset;
+        this.applyPreset(target);
+      }
+    }
+
+    hookUnifiedComponents() {
+      const self = this;
+      
+      // Override openNavigationHub
+      root.openNavigationHub = function() {
+        self.renderNavigationHub();
+      };
+
+      // Override setupNavigationLayoutSettings
+      root.setupNavigationLayoutSettings = function() {
+        self.setupNavigationLayoutSettings();
+      };
     }
   }
 
