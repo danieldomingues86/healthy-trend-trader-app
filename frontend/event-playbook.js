@@ -923,15 +923,19 @@
   };
 
   // Inicializa quando a página for carregada ou quando a tela for acessada
-  document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('eventPlaybookRoot')) {
-      init();
-    }
-  });
+  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.getElementById('eventPlaybookRoot')) {
+        init();
+      }
+    });
+  }
 
-  window.addEventListener('healthyTrend:workspace-loaded', () => {
-    if (document.getElementById('eventPlaybookRoot')) {
-      init();
-    }
-  });
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('healthyTrend:workspace-loaded', () => {
+      if (typeof document !== 'undefined' && document.getElementById('eventPlaybookRoot')) {
+        init();
+      }
+    });
+  }
 })(typeof window !== 'undefined' ? window : this);

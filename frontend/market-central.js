@@ -35,6 +35,7 @@
   }
 
   function getRoot() {
+    if (typeof document === 'undefined') return null;
     return document.getElementById('marketCentralRoot') || document.getElementById('marketcentral');
   }
 
@@ -206,6 +207,7 @@
     const regime = d.regime || {};
     const breadth = d.breadth || {};
     const globalMarkets = d.globalMarkets || [];
+    const marketMap = d.marketMap || [];
     const rawEvents = [...(Model.getCustomEvents?.() || []), ...(d.events || [])];
     const seenEventIds = new Set();
     const events = [];

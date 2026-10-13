@@ -150,3 +150,41 @@ test('MarketCentralModel: getEffectiveChange e sortAssetsByVariation suportam m�
   assert.equal(sorted1m.losers[0].symbol, 'PETR4');
 });
 
+test('MarketCentral: renderMarketCentral renderiza interface sem erros de referência', async () => {
+  const root = { innerHTML: '', querySelectorAll: () => [], querySelector: () => null };
+  const prevDoc = global.document;
+  const prevWin = global.window;
+  const prevLs = global.localStorage;
+
+  global.window = global;
+  global.document = {
+    getElementById: (id) => (id === 'marketCentralRoot' || id === 'marketcentral' ? root : null),
+    querySelectorAll: () => [],
+    querySelector: () => null,
+    body: { appendChild: () => {} }
+  };
+  global.localStorage = { getItem: () => null, setItem: () => {} };
+  global.healthyTrendApi = {
+    request: () => Promise.resolve({ success: true, regime: {}, breadth: {}, globalMarkets: [], marketMap: [], events: [], assets: [], news: [] })
+  };
+
+  require('./event-playbook-model.js');
+  require('./market-central.js');
+
+  assert.doesNotThrow(() => {
+    global.renderMarketCentral();
+  });
+  assert.ok(root.innerHTML.length > 0, 'O markup HTML da Central de Mercado deve ser gerado');
+  assert.ok(root.innerHTML.includes('Central de Mercado'), 'Deve conter o título da tela');
+  assert.ok(root.innerHTML.includes('Regime de Mercado'), 'Deve conter o card de Regime');
+  assert.ok(root.innerHTML.includes('Market Breadth'), 'Deve conter o card de Breadth');
+  assert.ok(root.innerHTML.includes('mcMapContentContainer'), 'Deve conter o container do mapa de mercado');
+
+  await new Promise(resolve => setTimeout(resolve, 50));
+
+  if (prevDoc !== undefined) global.document = prevDoc; else delete global.document;
+  if (prevWin !== undefined) global.window = prevWin; else delete global.window;
+  if (prevLs !== undefined) global.localStorage = prevLs; else delete global.localStorage;
+  delete global.healthyTrendApi;
+});
+
