@@ -87,14 +87,29 @@ test('NavigationSystemModel: Predefinições governam exclusivamente o Acesso R�
   const dailyCat = treeFast.categories.find(c => c.id === 'daily');
   assert.ok(!dailyCat.items.some(i => i.id === 'portfolioheat'), 'Módulo não deve estar fora de sua categoria oficial');
 
+  // REGRA DE NÃO DUPLICAÇÃO: Se está no Acesso Rápido, não pode estar na categoria abaixo
+  const quickIds = new Set(treeFast.quickAccess.map(i => i.id));
+  assert.ok(!dailyCat.items.some(i => quickIds.has(i.id)), 'Itens do Acesso Rápido não devem ser duplicados em Operação Diária');
+  treeFast.categories.forEach(cat => {
+    assert.ok(!cat.items.some(i => quickIds.has(i.id)), `Categoria ${cat.id} não deve conter itens duplicados do Acesso Rápido`);
+  });
+
   // 3. Ao aplicar a predefinição 'trader_focus', Acesso Rápido e ordenação atualizam automaticamente
   model.applyPreset('trader_focus');
   assert.equal(model.state.preset, 'trader_focus');
   assert.deepEqual(model.state.quickAccess, ['today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
 
-  // 4. Integridade segue 100% em todas as predefinições
-  const integrity = model.validateIntegrity(model.getNavigationTree());
+  // REGRA DE NÃO DUPLICAÇÃO em trader_focus
+  const treeFocus = model.getNavigationTree();
+  const focusQuickIds = new Set(treeFocus.quickAccess.map(i => i.id));
+  treeFocus.categories.forEach(cat => {
+    assert.ok(!cat.items.some(i => focusQuickIds.has(i.id)), `Categoria ${cat.id} não deve conter itens duplicados do Acesso Rápido no preset trader_focus`);
+  });
+
+  // 4. Integridade segue 100% em todas as predefinições (todos os módulos continuam presentes)
+  const integrity = model.validateIntegrity(treeFocus);
   assert.equal(integrity.isValid, true);
+  assert.equal(integrity.totalModules, integrity.representedCount);
 });
 
 test('NavigationSystemModel: persistência em mock storage e restauração de estado', () => {

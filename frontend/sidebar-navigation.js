@@ -543,31 +543,22 @@
         // 2. CATEGORIES
         tree.categories.forEach((cat) => {
           if (cat.id === 'resources') return; // Rendered in footer
+          if (!cat.items || cat.items.length === 0) return; // All items in Quick Access or empty
 
-          if (this.isCollapsed) {
-            // In collapsed mode, render as group trigger that opens flyout
-            html += this.renderGroupButton({
-              id: cat.id,
-              label: cat.currentLabel || cat.label,
-              icon: cat.icon,
-              items: cat.items
-            });
-          } else {
-            // In expanded mode, render as expandable category accordion
-            const catLabel = cat.currentLabel || cat.label;
-            const isCatCollapsed = Boolean(cat.isCollapsed);
-            html += `
-              <div class="sidebar-group sidebar-category-group ${isCatCollapsed ? 'is-collapsed' : 'is-expanded'}" data-group-id="${cat.id}">
-                <button class="sidebar-category-header" type="button" data-cat-toggle="${cat.id}" aria-expanded="${!isCatCollapsed}">
-                  <span class="sidebar-cat-label">${catLabel}</span>
-                  <span class="sidebar-cat-arrow">${isCatCollapsed ? '›' : '▾'}</span>
-                </button>
-                <div class="sidebar-category-items ${isCatCollapsed ? 'collapsed' : ''}">
-                  ${cat.items.map((item) => this.renderDirectButton(item)).join('')}
-                </div>
+          // Category accordion (expanded: header with label + items; collapsed: header hidden via CSS, icons only)
+          const catLabel = cat.currentLabel || cat.label;
+          const isCatCollapsed = Boolean(cat.isCollapsed);
+          html += `
+            <div class="sidebar-group sidebar-category-group ${isCatCollapsed ? 'is-collapsed' : 'is-expanded'}" data-group-id="${cat.id}">
+              <button class="sidebar-category-header" type="button" data-cat-toggle="${cat.id}" aria-expanded="${!isCatCollapsed}">
+                <span class="sidebar-cat-label">${catLabel}</span>
+                <span class="sidebar-cat-arrow">${isCatCollapsed ? '›' : '▾'}</span>
+              </button>
+              <div class="sidebar-category-items ${isCatCollapsed ? 'collapsed' : ''}">
+                ${cat.items.map((item) => this.renderDirectButton(item)).join('')}
               </div>
-            `;
-          }
+            </div>
+          `;
         });
 
         return html;
@@ -1085,6 +1076,7 @@
 
         // 2. CATEGORY DROPDOWNS
         tree.categories.forEach((cat) => {
+          if (!cat.items || cat.items.length === 0) return;
           const isChildActive = cat.items.some(it => it.page === activePage);
           menuHtml += `
             <div class="top-nav-cat-dropdown" data-cat-id="${cat.id}">
@@ -1160,6 +1152,11 @@
       const tree = this.getTree();
       if (tree) {
         const list = [];
+        if (tree.quickAccess) {
+          tree.quickAccess.forEach(it => {
+            list.push({ page: it.page, label: it.currentLabel, icon: it.icon });
+          });
+        }
         tree.categories.forEach(cat => {
           cat.items.forEach(it => {
             list.push({ page: it.page, label: it.currentLabel, icon: it.icon });
@@ -1239,7 +1236,7 @@
 
       let categoriesBlocksHtml = '';
       if (tree) {
-        categoriesBlocksHtml = tree.categories.map((cat) => {
+        categoriesBlocksHtml = tree.categories.filter(cat => cat.items && cat.items.length > 0).map((cat) => {
           return `
             <div class="nav-category-block" data-category="${cat.id}">
               <header class="nav-category-header">

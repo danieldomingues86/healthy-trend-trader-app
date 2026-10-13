@@ -664,8 +664,10 @@
         });
       });
 
-      // Group modules by their official assigned category
+      // Group modules by their official assigned category (excluding items already in quickAccess to eliminate duplicates)
+      const quickAccessSet = new Set(state.quickAccess);
       this.modules.forEach(m => {
+        if (quickAccessSet.has(m.id)) return; // Se está no Acesso Rápido, não repete na categoria abaixo
         const cat = categoriesById.get(m.category);
         if (cat) {
           cat.items.push(moduleMap.get(m.id));
@@ -742,12 +744,13 @@
     }
 
     /**
-     * Validates that 100% of modules are accounted for without omissions
+     * Validates that 100% of modules are accounted for without omissions or duplicates
      */
     validateIntegrity(tree = null) {
       const resolved = tree || this.getNavigationTree();
       const representedModules = new Set();
       
+      resolved.quickAccess.forEach(it => representedModules.add(it.id));
       resolved.categories.forEach(cat => {
         cat.items.forEach(it => representedModules.add(it.id));
       });
