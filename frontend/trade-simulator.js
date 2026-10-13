@@ -781,7 +781,7 @@
                 <span>↻</span> <span>Reavaliar Candles</span>
               </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
-                <span>📥</span> <span>Exportar CSV</span>
+                <span>📥</span> <span>Exportar Simulação</span>
               </button>
               <div class="sim-dropdown-divider"></div>
               <button class="sim-dropdown-item danger" type="button" id="simMoreBtnClear">
