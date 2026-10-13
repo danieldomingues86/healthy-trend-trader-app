@@ -1,0 +1,210 @@
+/**
+ * CENTRAL DE MERCADO — DOMAIN & LOGIC MODEL
+ * Healthy Trend Trader
+ *
+ * Filosofia: "Contexto para decidir. Não informação para distrair."
+ * Fornece normalização de dados, cálculos de amplitude, gestão de eventos
+ * macroeconômicos e catálogo de reações ao mercado (Playbook de Eventos).
+ */
+
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.MarketCentralModel = factory();
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const STORAGE_KEY_CUSTOM_EVENTS = 'healthy-trend-central-events-v1';
+  const STORAGE_KEY_EVENT_REACTIONS = 'healthy-trend-central-reactions-v1';
+  const STORAGE_KEY_PREFS = 'healthy-trend-central-prefs-v1';
+
+  const UNIVERSES = [
+    { id: 'stock_b3', label: 'B3 (Todos os ativos)', desc: 'Universo integral de ações monitoradas na B3.' },
+    { id: 'ibov', label: 'Componentes do Ibovespa', desc: 'Ativos que compõem o principal índice brasileiro.' },
+    { id: 'smallcaps', label: 'Small Caps', desc: 'Empresas de menor capitalização fora dos grandes índices.' },
+    { id: 'watchlist', label: 'Minha Watchlist', desc: 'Apenas os ativos salvos na sua Watchlist ativa.' }
+  ];
+
+  const MARKETS = [
+    { id: 'stock_b3', label: 'Ações B3', benchmark: 'IBOV' },
+    { id: 'bdr', label: 'BDRs', benchmark: 'BDRX' },
+    { id: 'fii', label: 'FIIs', benchmark: 'IFIX' }
+  ];
+
+  const PERIODS = [
+    { id: 'today', label: 'Hoje' },
+    { id: '5d', label: '5 dias' },
+    { id: '1m', label: '1 mês' },
+    { id: '3m', label: '3 meses' }
+  ];
+
+  function formatPercent(value, decimals = 1) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return '—';
+    const sign = num > 0 ? '+' : '';
+    return `${sign}${num.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}%`;
+  }
+
+  function formatNumber(value, decimals = 0) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return '—';
+    return num.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  /**
+   * Converte score de 0 a 100 para o ângulo da agulha no gauge semicircular (-90deg a +90deg)
+   */
+  function scoreToGaugeAngle(score) {
+    const clamped = Math.max(0, Math.min(100, Number(score) || 0));
+    // 0 = -90 graus, 50 = 0 graus, 100 = +90 graus
+    return -90 + (clamped / 100) * 180;
+  }
+
+  /**
+   * Resolve a cor temática baseada na classificação do regime
+   */
+  function resolveRegimeColor(state) {
+    switch (state) {
+      case 'healthy':
+        return { hex: '#22c55e', text: '#dcfce7', label: 'Alta (Favorável)' };
+      case 'defensive':
+        return { hex: '#ef4444', text: '#fee2e2', label: 'Baixa (Desfavorável)' };
+      case 'transition':
+      default:
+        return { hex: '#eab308', text: '#fef9c3', label: 'Atenção' };
+    }
+  }
+
+  const memoryStore = new Map();
+
+  function safeStorageGet(key) {
+    try {
+      if (typeof window !== 'undefined' && window.healthyTrendWorkspace?.raw) {
+        const raw = window.healthyTrendWorkspace.raw(key);
+        if (raw) return typeof raw === 'string' ? JSON.parse(raw) : raw;
+      }
+      if (typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
+        const local = localStorage.getItem(key);
+        if (local) return JSON.parse(local);
+      }
+    } catch (e) {
+      // Ignora erro em ambientes sem suporte
+    }
+    return memoryStore.get(key) || null;
+  }
+
+  function safeStorageSet(key, value) {
+    memoryStore.set(key, value);
+    try {
+      if (typeof window !== 'undefined' && window.healthyTrendWorkspace?.save) {
+        window.healthyTrendWorkspace.save(key, value);
+      }
+      if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    } catch (e) {
+      // Memory store já garantiu retenção
+    }
+  }
+
+  /**
+   * Lê eventos customizados do usuário salvos no workspace ou localStorage
+   */
+  function getCustomEvents() {
+    const data = safeStorageGet(STORAGE_KEY_CUSTOM_EVENTS);
+    return Array.isArray(data) ? data : [];
+  }
+
+  /**
+   * Salva um novo evento cadastrado manualmente pelo trader
+   */
+  function addCustomEvent(eventData) {
+    if (!eventData || !eventData.name) {
+      throw new Error('O nome do evento é obrigatório.');
+    }
+    const current = getCustomEvents();
+    const newEvent = {
+      id: 'cust-evt-' + Date.now(),
+      name: String(eventData.name).trim(),
+      date: String(eventData.date || new Date().toISOString().slice(0, 10)),
+      time: String(eventData.time || '10:00'),
+      timezone: String(eventData.timezone || 'America/Sao_Paulo'),
+      impact: eventData.impact === 'ALTO' ? 'ALTO' : 'MÉDIO',
+      country: eventData.country || 'Brasil',
+      relatedAssets: eventData.relatedAssets || 'Geral',
+      description: eventData.description || '',
+      notes: eventData.notes || '',
+      source: 'Manual (Usuário)',
+      createdAt: new Date().toISOString()
+    };
+
+    current.unshift(newEvent);
+    saveCustomEvents(current);
+    return newEvent;
+  }
+
+  function removeCustomEvent(eventId) {
+    const current = getCustomEvents();
+    const filtered = current.filter(it => it.id !== eventId);
+    saveCustomEvents(filtered);
+    return filtered;
+  }
+
+  function saveCustomEvents(eventsList) {
+    safeStorageSet(STORAGE_KEY_CUSTOM_EVENTS, eventsList);
+  }
+
+  /**
+   * Playbook de Eventos: registro da reação do mercado a acontecimentos
+   */
+  function getEventReactions() {
+    const data = safeStorageGet(STORAGE_KEY_EVENT_REACTIONS);
+    return Array.isArray(data) ? data : [];
+  }
+
+  function saveEventReaction(reactionData) {
+    if (!reactionData || !reactionData.eventId) {
+      throw new Error('O ID do evento é obrigatório para registrar a reação.');
+    }
+    const current = getEventReactions();
+    const newReaction = {
+      id: 'reaction-' + Date.now(),
+      eventId: reactionData.eventId,
+      eventName: reactionData.eventName || '',
+      eventDate: reactionData.eventDate || '',
+      preEventScreenshot: reactionData.preEventScreenshot || null,
+      postEventScreenshot: reactionData.postEventScreenshot || null,
+      whatHappened: String(reactionData.whatHappened || '').trim(),
+      affectedAssets: String(reactionData.affectedAssets || '').trim(),
+      volatilityBehavior: reactionData.volatilityBehavior || 'Expansão rápida seguida de absorção',
+      lessonsLearned: String(reactionData.lessonsLearned || '').trim(),
+      recordedAt: new Date().toISOString()
+    };
+
+    current.unshift(newReaction);
+    safeStorageSet(STORAGE_KEY_EVENT_REACTIONS, current);
+    return newReaction;
+  }
+
+  function getReactionsForEvent(eventId) {
+    return getEventReactions().filter(r => r.eventId === eventId);
+  }
+
+  return {
+    UNIVERSES,
+    MARKETS,
+    PERIODS,
+    formatPercent,
+    formatNumber,
+    scoreToGaugeAngle,
+    resolveRegimeColor,
+    getCustomEvents,
+    addCustomEvent,
+    removeCustomEvent,
+    getEventReactions,
+    saveEventReaction,
+    getReactionsForEvent
+  };
+});

@@ -28,6 +28,7 @@ const tickerChart = require('./ticker-chart');
 const traderTraining = require('./trader-training');
 const tradeSimulator = require('./trade-simulator');
 const marketNews = require('./market-news');
+const marketCentral = require('./market-central');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -552,9 +553,15 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/nasdaq/validation') {
       return send(response, 200, await nasdaqRelativeStrengthEngine.validateDataset());
     }
-    if (!['/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
+    if (!['/api/market-central','/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
+    if (url.pathname === '/api/market-central') {
+      const marketParam = url.searchParams.get('market') || 'stock_b3';
+      const universeParam = url.searchParams.get('universe') || 'stock_b3';
+      const payload = await marketCentral.getMarketCentralData({ market: marketParam, universe: universeParam, cache });
+      return send(response, 200, payload);
+    }
     if (url.pathname === '/api/market-cycle') {
       const marketParam = url.searchParams.get('market') || 'stock_b3';
       const payload = await resolveMarketCycle(cache, marketParam);
