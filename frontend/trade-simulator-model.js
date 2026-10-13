@@ -137,6 +137,124 @@
     }
   });
 
+  /**
+   * Catálogo de Tipos de Gatilho suportados no Simulador
+   */
+  const TRIGGER_TYPES = Object.freeze({
+    INSIDE_BAR: 'Inside Bar',
+    DOUBLE_INSIDE_BAR: 'Double Inside Bar',
+    ONE_TWO_THREE: '1-2-3 de Compra',
+    PFR_COMPRA: 'PFR de Compra',
+    DAVE_LANDRY: 'Dave Landry',
+    RBI: 'RBI',
+    OUTROS: 'Outros'
+  });
+
+  /**
+   * Identifica e calcula a estrutura de um Double Inside Bar (Duplo Inside Bar)
+   * Estrutura no gráfico Diário: Candle-mãe → Inside Bar 1 → Inside Bar 2
+   *
+   * Regras estritas:
+   * - Inside Bar 1 (IB1): High IB1 < High Mãe && Low IB1 > Low Mãe
+   * - Inside Bar 2 (IB2): High IB2 < High IB1 && Low IB2 > Low IB1
+   * - Entrada de compra: High IB2 + 0.01 (1 tick acima da máxima do IB2)
+   * - Stop inicial: Low IB2 - 0.01 (1 tick abaixo da mínima do IB2)
+   * - Initial Risk: Entrada - Stop
+   * - Risco Gráfico %: ((Entrada - Stop) / Entrada) * 100
+   *
+   * @param {Object} mother - { high, low, open, close, date }
+   * @param {Object} ib1 - { high, low, open, close, date }
+   * @param {Object} ib2 - { high, low, open, close, date }
+   * @returns {Object} Estrutura completa calculada e auditada
+   */
+  function calculateDoubleInsideBarStructure(mother, ib1, ib2) {
+    if (!mother || !ib1 || !ib2) {
+      return { isValid: false, reason: 'Candles incompletos para avaliar Double Inside Bar' };
+    }
+
+    const highMother = Number(mother.high);
+    const lowMother = Number(mother.low);
+    const highIb1 = Number(ib1.high);
+    const lowIb1 = Number(ib1.low);
+    const highIb2 = Number(ib2.high);
+    const lowIb2 = Number(ib2.low);
+
+    if (
+      Number.isNaN(highMother) || Number.isNaN(lowMother) ||
+      Number.isNaN(highIb1) || Number.isNaN(lowIb1) ||
+      Number.isNaN(highIb2) || Number.isNaN(lowIb2)
+    ) {
+      return { isValid: false, reason: 'Valores numéricos de máxima e mínima inválidos' };
+    }
+
+    // Regra 1: IB1 estritamente contido no Candle-mãe
+    const isIb1InsideMother = highIb1 < highMother && lowIb1 > lowMother;
+
+    // Regra 2: IB2 estritamente contido no IB1
+    const isIb2InsideIb1 = highIb2 < highIb1 && lowIb2 > lowIb1;
+
+    const isValid = isIb1InsideMother && isIb2InsideIb1;
+
+    // Amplitudes de cada estrutura
+    const motherRange = round2(Math.max(0, highMother - lowMother));
+    const ib1Range = round2(Math.max(0, highIb1 - lowIb1));
+    const ib2Range = round2(Math.max(0, highIb2 - lowIb2));
+
+    // Compression Ratios (amplitudes relativas)
+    const ib1CompressionRatio = motherRange > 0 ? round2(ib1Range / motherRange) : 0;
+    const ib2CompressionRatio = ib1Range > 0 ? round2(ib2Range / ib1Range) : 0;
+    const totalCompressionRatio = motherRange > 0 ? round2(ib2Range / motherRange) : 0;
+
+    // Compression % (proporção do tamanho e percentual de contração)
+    const ib1CompressionPct = round1(ib1CompressionRatio * 100);
+    const ib2CompressionPct = round1(ib2CompressionRatio * 100);
+    const totalCompressionPct = round1(totalCompressionRatio * 100);
+    const totalContractionPct = round1(Math.max(0, 100 - totalCompressionPct));
+
+    // Trigger de Entrada e Stop conforme regras oficiais (1 tick = R$ 0,01)
+    const entryPrice = round2(highIb2 + 0.01);
+    const stopLoss = round2(lowIb2 - 0.01);
+    const initialRisk = round2(Math.max(0.01, entryPrice - stopLoss));
+    const graphicRiskPct = entryPrice > 0 ? round2((initialRisk / entryPrice) * 100) : 0;
+
+    return {
+      isValid,
+      isIb1InsideMother,
+      isIb2InsideIb1,
+      triggerType: TRIGGER_TYPES.DOUBLE_INSIDE_BAR,
+      ibCount: 2,
+      motherCandle: {
+        high: round2(highMother),
+        low: round2(lowMother),
+        range: motherRange,
+        date: mother.date || mother.time || null
+      },
+      ib1: {
+        high: round2(highIb1),
+        low: round2(lowIb1),
+        range: ib1Range,
+        compressionRatio: ib1CompressionRatio,
+        compressionPct: ib1CompressionPct,
+        date: ib1.date || ib1.time || null
+      },
+      ib2: {
+        high: round2(highIb2),
+        low: round2(lowIb2),
+        range: ib2Range,
+        compressionRatio: ib2CompressionRatio,
+        compressionPct: ib2CompressionPct,
+        date: ib2.date || ib2.time || null
+      },
+      totalCompressionRatio,
+      totalCompressionPct,
+      totalContractionPct,
+      entryPrice,
+      stopLoss,
+      initialRisk,
+      graphicRiskPct
+    };
+  }
+
   function round1(num) {
     if (num === null || num === undefined || Number.isNaN(Number(num))) return null;
     return Math.round(Number(num) * 10) / 10;
@@ -288,6 +406,11 @@
     let resultR = sim.resultR !== undefined && sim.resultR !== null ? Number(sim.resultR) : null;
     let mfeR = sim.mfeR !== undefined && sim.mfeR !== null ? Number(sim.mfeR) : null;
     let maeR = sim.maeR !== undefined && sim.maeR !== null ? Number(sim.maeR) : null;
+    let ttt1R = sim.ttt1R != null ? sim.ttt1R : null;
+    let ttt2R = sim.ttt2R != null ? sim.ttt2R : null;
+    let ttt3R = sim.ttt3R != null ? sim.ttt3R : null;
+    let expansionAfterBreakout = sim.expansionAfterBreakout ? { ...sim.expansionAfterBreakout } : { c1: null, c2: null, c3: null, c5: null };
+    let entryCandleIndex = sim.entryCandleIndex != null ? sim.entryCandleIndex : null;
 
     let maxHigh = executedEntryPrice || entryPlanned;
     let minLow = executedEntryPrice || entryPlanned;
@@ -344,6 +467,7 @@
           // Executa na abertura se abriu com gap de alta acima da entrada planejada
           executedEntryPrice = cOpen > entryPlanned ? cOpen : entryPlanned;
           entryDate = candleDate;
+          entryCandleIndex = i;
           status = STATUS.IN_OPERATION;
 
           addTimelineEvent({
@@ -367,6 +491,7 @@
             exitReason = 'Stop Loss no dia da entrada';
             resultR = -1.0;
             maeR = -1.0;
+            expansionAfterBreakout = { c1: -1.0, c2: -1.0, c3: -1.0, c5: -1.0 };
             addTimelineEvent({
               type: 'STOPPED_OUT',
               date: candleDate,
@@ -422,10 +547,41 @@
 
       // ESTADO 2: EM OPERAÇÃO
       if (status === STATUS.IN_OPERATION) {
+        if (entryCandleIndex == null) entryCandleIndex = i;
+        const candlesSinceEntry = i - entryCandleIndex + 1;
+
         maxHigh = Math.max(maxHigh, cHigh);
         minLow = Math.min(minLow, cLow);
         mfeR = round2(Math.max(mfeR || 0, (maxHigh - executedEntryPrice) / risk));
         maeR = round2(Math.min(maeR || 0, (minLow - executedEntryPrice) / risk));
+
+        // Metas de Velocidade (Time to Target — TTT)
+        const target2RPrice = Number(round2(executedEntryPrice + 2.0 * risk));
+        const target3RPrice = Number(round2(executedEntryPrice + 3.0 * risk));
+
+        if (maxHigh >= target1R && ttt1R == null) {
+          ttt1R = candlesSinceEntry;
+        }
+        if (maxHigh >= target2RPrice && ttt2R == null) {
+          ttt2R = candlesSinceEntry;
+        }
+        if (maxHigh >= target3RPrice && ttt3R == null) {
+          ttt3R = candlesSinceEntry;
+        }
+
+        // Expansão pós-rompimento no fechamento dos candles (Expansion After Breakout)
+        if (candlesSinceEntry === 1 && expansionAfterBreakout.c1 == null) {
+          expansionAfterBreakout.c1 = round2((cClose - executedEntryPrice) / risk);
+        }
+        if (candlesSinceEntry === 2 && expansionAfterBreakout.c2 == null) {
+          expansionAfterBreakout.c2 = round2((cClose - executedEntryPrice) / risk);
+        }
+        if (candlesSinceEntry === 3 && expansionAfterBreakout.c3 == null) {
+          expansionAfterBreakout.c3 = round2((cClose - executedEntryPrice) / risk);
+        }
+        if (candlesSinceEntry === 5 && expansionAfterBreakout.c5 == null) {
+          expansionAfterBreakout.c5 = round2((cClose - executedEntryPrice) / risk);
+        }
 
         // Marco +1R
         if (maxHigh >= target1R && !hasTimelineType('TARGET_1R')) {
@@ -737,6 +893,7 @@
       status,
       executedEntryPrice: round2(executedEntryPrice),
       entryDate,
+      entryCandleIndex,
       currentStop: round2(currentStop),
       exitPrice: round2(exitPrice),
       exitDate,
@@ -744,6 +901,11 @@
       resultR: round2(resultR),
       mfeR: round2(mfeR),
       maeR: round2(maeR),
+      ttt1R: sim.ttt1R != null ? sim.ttt1R : ttt1R,
+      ttt2R: sim.ttt2R != null ? sim.ttt2R : ttt2R,
+      ttt3R: sim.ttt3R != null ? sim.ttt3R : ttt3R,
+      expansionAfterBreakout: sim.expansionAfterBreakout || expansionAfterBreakout,
+      structure: sim.structure || null,
       durationDays: calculateTradeDurationDays({ entryDate, exitDate, status }, exitDate || (candles.length ? String(candles[candles.length - 1].time).slice(0, 10) : null))
     };
   }
@@ -975,7 +1137,7 @@
       // 3. Gatilho
       if (trigger && trigger.toUpperCase() !== 'ALL') {
         if (trigger === 'Outros') {
-          const known = ['Inside Bar', '1-2-3 de Compra', 'PFR de Compra', 'Dave Landry', 'RBI'];
+          const known = ['Inside Bar', 'Double Inside Bar', '1-2-3 de Compra', 'PFR de Compra', 'Dave Landry', 'RBI'];
           if (known.includes(sim.triggerName)) return false;
         } else if (sim.triggerName !== trigger) {
           return false;
@@ -1257,6 +1419,16 @@
         resultR: 3.78,
         mfeR: 3.90,
         maeR: -0.22,
+        ttt1R: 2,
+        ttt2R: 4,
+        ttt3R: 7,
+        expansionAfterBreakout: { c1: 0.40, c2: 0.90, c3: 1.50, c5: 2.40 },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 51.20, low: 48.00, range: 3.20 },
+          ib1: { high: 49.79, low: 48.91, range: 0.88, compressionRatio: 0.28, compressionPct: 27.5 },
+          totalCompressionPct: 27.5
+        },
         timeline: [
           { type: 'SIGNAL_IDENTIFIED', date: '2026-09-29', label: 'Gatilho identificado', desc: 'Inside Bar (A+) em PETR4' },
           { type: 'SIMULATION_ADDED', date: '2026-09-29', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
@@ -1270,7 +1442,7 @@
         id: 'sim-sbsp3-03',
         symbol: 'SBSP3',
         companyName: 'Sabesp',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'A',
         sector: 'Utilidade Pública',
         signalDate: '2026-10-03',
@@ -1284,8 +1456,25 @@
         resultR: 0.26,
         mfeR: 0.40,
         maeR: -0.15,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.15, c2: 0.26, c3: null, c5: null },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 91.20, low: 86.10, range: 5.10 },
+          ib1: { high: 90.40, low: 86.80, range: 3.60, compressionRatio: 0.71, compressionPct: 70.6 },
+          ib2: { high: 89.49, low: 87.21, range: 2.28, compressionRatio: 0.63, compressionPct: 63.3 },
+          totalCompressionRatio: 0.45,
+          totalCompressionPct: 44.7,
+          totalContractionPct: 55.3,
+          entryPrice: 89.50,
+          stopLoss: 87.20,
+          initialRisk: 2.30,
+          graphicRiskPct: 2.57
+        },
         timeline: [
-          { type: 'SIGNAL_IDENTIFIED', date: '2026-10-03', label: 'Gatilho identificado', desc: 'Inside Bar (A) em SBSP3' },
+          { type: 'SIGNAL_IDENTIFIED', date: '2026-10-03', label: 'Gatilho identificado', desc: 'Double Inside Bar (A) em SBSP3' },
           { type: 'SIMULATION_ADDED', date: '2026-10-03', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
           { type: 'WAITING_ENTRY', date: '2026-10-03', label: 'Aguardando entrada', desc: 'Entrada planejada: R$ 89,50 | Stop: R$ 87,20' },
           { type: 'ENTRY_EXECUTED', date: '2026-10-04', label: 'Entrada executada', price: 89.50, desc: 'Entrada executada a R$ 89,50' }
@@ -1356,6 +1545,16 @@
         resultR: null,
         mfeR: null,
         maeR: null,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: null, c2: null, c3: null, c5: null },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 30.50, low: 26.80, range: 3.70 },
+          ib1: { high: 29.09, low: 27.81, range: 1.28, compressionRatio: 0.35, compressionPct: 34.6 },
+          totalCompressionPct: 34.6
+        },
         timeline: [
           { type: 'SIGNAL_IDENTIFIED', date: '2026-09-15', label: 'Gatilho identificado', desc: 'Inside Bar (B) em BBAS3' },
           { type: 'SIMULATION_ADDED', date: '2026-09-15', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
@@ -1366,7 +1565,7 @@
         id: 'sim-embr3-07',
         symbol: 'EMBR3',
         companyName: 'Embraer S.A.',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'A+',
         sector: 'Bens Industriais',
         signalDate: '2026-10-01',
@@ -1377,8 +1576,25 @@
         resultR: null,
         mfeR: null,
         maeR: null,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: null, c2: null, c3: null, c5: null },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 53.20, low: 48.50, range: 4.70 },
+          ib1: { high: 52.40, low: 49.20, range: 3.20, compressionRatio: 0.68, compressionPct: 68.1 },
+          ib2: { high: 51.49, low: 49.81, range: 1.68, compressionRatio: 0.53, compressionPct: 52.5 },
+          totalCompressionRatio: 0.36,
+          totalCompressionPct: 35.7,
+          totalContractionPct: 64.3,
+          entryPrice: 51.50,
+          stopLoss: 49.80,
+          initialRisk: 1.70,
+          graphicRiskPct: 3.30
+        },
         timeline: [
-          { type: 'SIGNAL_IDENTIFIED', date: '2026-10-01', label: 'Gatilho identificado', desc: 'Inside Bar (A+) em EMBR3' },
+          { type: 'SIGNAL_IDENTIFIED', date: '2026-10-01', label: 'Gatilho identificado', desc: 'Double Inside Bar (A+) em EMBR3' },
           { type: 'SIMULATION_ADDED', date: '2026-10-01', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
           { type: 'WAITING_ENTRY', date: '2026-10-01', label: 'Aguardando entrada', desc: 'Entrada planejada: R$ 51,50 | Stop: R$ 49,80' }
         ]
@@ -1419,6 +1635,16 @@
         resultR: null,
         mfeR: null,
         maeR: null,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: null, c2: null, c3: null, c5: null },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 12.40, low: 11.10, range: 1.30 },
+          ib1: { high: 11.89, low: 11.31, range: 0.58, compressionRatio: 0.45, compressionPct: 44.6 },
+          totalCompressionPct: 44.6
+        },
         timeline: [
           { type: 'SIGNAL_IDENTIFIED', date: '2026-09-21', label: 'Gatilho identificado', desc: 'Inside Bar (A) em B3SA3' },
           { type: 'SIMULATION_ADDED', date: '2026-09-21', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
@@ -1490,6 +1716,16 @@
         resultR: null,
         mfeR: null,
         maeR: null,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: null, c2: null, c3: null, c5: null },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 9.30, low: 8.20, range: 1.10 },
+          ib1: { high: 8.89, low: 8.41, range: 0.48, compressionRatio: 0.44, compressionPct: 43.6 },
+          totalCompressionPct: 43.6
+        },
         timeline: [
           { type: 'SIGNAL_IDENTIFIED', date: '2026-07-18', label: 'Gatilho identificado', desc: 'Inside Bar (B) em RANI3' },
           { type: 'SIMULATION_ADDED', date: '2026-07-18', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
@@ -1523,7 +1759,7 @@
         id: 'sim-mdia3-14',
         symbol: 'MDIA3',
         companyName: 'M. Dias Branco',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'B',
         sector: 'Consumo Não Cíclico',
         signalDate: '2026-06-16',
@@ -1536,8 +1772,25 @@
         resultR: null,
         mfeR: null,
         maeR: null,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: null, c2: null, c3: null, c5: null },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 34.50, low: 29.80, range: 4.70 },
+          ib1: { high: 33.60, low: 30.40, range: 3.20, compressionRatio: 0.68, compressionPct: 68.1 },
+          ib2: { high: 32.39, low: 31.01, range: 1.38, compressionRatio: 0.43, compressionPct: 43.1 },
+          totalCompressionRatio: 0.29,
+          totalCompressionPct: 29.4,
+          totalContractionPct: 70.6,
+          entryPrice: 32.40,
+          stopLoss: 31.00,
+          initialRisk: 1.40,
+          graphicRiskPct: 4.32
+        },
         timeline: [
-          { type: 'SIGNAL_IDENTIFIED', date: '2026-06-16', label: 'Gatilho identificado', desc: 'Inside Bar (B) em MDIA3' },
+          { type: 'SIGNAL_IDENTIFIED', date: '2026-06-16', label: 'Gatilho identificado', desc: 'Double Inside Bar (B) em MDIA3' },
           { type: 'SIMULATION_ADDED', date: '2026-06-16', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
           { type: 'NOT_TRIGGERED', date: '2026-06-20', label: 'Não acionado', desc: 'Mínima do gatilho violada antes da ativação' }
         ]
@@ -1566,6 +1819,16 @@
         resultR: 2.10,
         mfeR: 2.35,
         maeR: -0.40,
+        ttt1R: 2,
+        ttt2R: 6,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.35, c2: 0.70, c3: 1.10, c5: 1.70 },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 38.60, low: 35.20, range: 3.40 },
+          ib1: { high: 37.19, low: 35.91, range: 1.28, compressionRatio: 0.38, compressionPct: 37.6 },
+          totalCompressionPct: 37.6
+        },
         timeline: [
           { type: 'SIGNAL_IDENTIFIED', date: '2026-09-22', label: 'Gatilho identificado', desc: 'Inside Bar (B+) em ITUB4' },
           { type: 'SIMULATION_ADDED', date: '2026-09-22', label: 'Simulação adicionada', desc: 'Registrado no Simulador de Trades' },
@@ -1590,10 +1853,10 @@
         status: STATUS.CLOSED_GAIN,
         executedEntryPrice: 13.25,
         entryDate: '2026-09-13',
-        currentPrice: 14.60,
+        currentPrice: 14.50,
         exitPrice: 14.52,
         exitDate: '2026-09-24',
-        exitReason: 'Sell Into Strength (+2R)',
+        exitReason: 'Sell Into Strength (+2,3R)',
         resultR: 2.30,
         mfeR: 2.60,
         maeR: -0.25,
@@ -1633,7 +1896,7 @@
         id: 'sim-rent3-18',
         symbol: 'RENT3',
         companyName: 'Localiza Rent a Car',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'A',
         sector: 'Consumo Cíclico',
         signalDate: '2026-09-02',
@@ -1648,13 +1911,30 @@
         exitReason: 'Sell Into Strength (+2R)',
         resultR: 2.00,
         mfeR: 2.15,
-        maeR: -0.20
+        maeR: -0.20,
+        ttt1R: 2,
+        ttt2R: 4,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.50, c2: 1.10, c3: 1.60, c5: 2.00 },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 54.80, low: 49.50, range: 5.30 },
+          ib1: { high: 53.60, low: 50.20, range: 3.40, compressionRatio: 0.64, compressionPct: 64.2 },
+          ib2: { high: 52.39, low: 50.81, range: 1.58, compressionRatio: 0.46, compressionPct: 46.5 },
+          totalCompressionRatio: 0.30,
+          totalCompressionPct: 29.8,
+          totalContractionPct: 70.2,
+          entryPrice: 52.40,
+          stopLoss: 50.80,
+          initialRisk: 1.60,
+          graphicRiskPct: 3.05
+        }
       },
       {
         id: 'sim-prio3-19',
         symbol: 'PRIO3',
         companyName: 'PRIO S.A.',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'A+',
         sector: 'Petróleo e Gás',
         signalDate: '2026-08-28',
@@ -1669,7 +1949,24 @@
         exitReason: 'Sell Into Strength (+2R)',
         resultR: 1.30,
         mfeR: 2.20,
-        maeR: -0.30
+        maeR: -0.30,
+        ttt1R: 1,
+        ttt2R: 3,
+        ttt3R: 6,
+        expansionAfterBreakout: { c1: 0.90, c2: 1.40, c3: 1.80, c5: 2.20 },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 47.50, low: 42.80, range: 4.70 },
+          ib1: { high: 46.40, low: 43.20, range: 3.20, compressionRatio: 0.68, compressionPct: 68.1 },
+          ib2: { high: 45.09, low: 43.71, range: 1.38, compressionRatio: 0.43, compressionPct: 43.1 },
+          totalCompressionRatio: 0.29,
+          totalCompressionPct: 29.4,
+          totalContractionPct: 70.6,
+          entryPrice: 45.10,
+          stopLoss: 43.70,
+          initialRisk: 1.40,
+          graphicRiskPct: 3.10
+        }
       },
       {
         id: 'sim-radl3-20',
@@ -1711,7 +2008,23 @@
         exitReason: 'Trailing Stop (+1,2R)',
         resultR: 1.20,
         mfeR: 1.60,
-        maeR: -0.25
+        maeR: -0.25,
+        ttt1R: 4,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.35, c2: 0.60, c3: 0.90, c5: 1.30 },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 23.50, low: 21.60, range: 1.90 },
+          ib1: { high: 22.79, low: 21.91, range: 0.88, compressionRatio: 0.46, compressionPct: 46.3 },
+          totalCompressionRatio: 0.46,
+          totalCompressionPct: 46.3,
+          totalContractionPct: 53.7,
+          entryPrice: 22.80,
+          stopLoss: 21.90,
+          initialRisk: 0.90,
+          graphicRiskPct: 3.95
+        }
       },
       {
         id: 'sim-suzb3-22',
@@ -1732,7 +2045,23 @@
         exitReason: 'Sell Into Strength (+2R)',
         resultR: 1.00,
         mfeR: 2.25,
-        maeR: -0.35
+        maeR: -0.35,
+        ttt1R: 3,
+        ttt2R: 6,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.45, c2: 0.80, c3: 1.20, c5: 1.80 },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 58.60, low: 54.20, range: 4.40 },
+          ib1: { high: 56.79, low: 55.01, range: 1.78, compressionRatio: 0.40, compressionPct: 40.5 },
+          totalCompressionRatio: 0.40,
+          totalCompressionPct: 40.5,
+          totalContractionPct: 59.5,
+          entryPrice: 56.80,
+          stopLoss: 55.00,
+          initialRisk: 1.80,
+          graphicRiskPct: 3.17
+        }
       },
       {
         id: 'sim-vbbr3-23',
@@ -1774,7 +2103,23 @@
         exitReason: 'Sell Into Strength (+1,9R)',
         resultR: 1.90,
         mfeR: 2.30,
-        maeR: -0.25
+        maeR: -0.25,
+        ttt1R: 2,
+        ttt2R: 5,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.60, c2: 1.05, c3: 1.45, c5: 1.90 },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 36.20, low: 32.50, range: 3.70 },
+          ib1: { high: 34.59, low: 33.21, range: 1.38, compressionRatio: 0.37, compressionPct: 37.3 },
+          totalCompressionRatio: 0.37,
+          totalCompressionPct: 37.3,
+          totalContractionPct: 62.7,
+          entryPrice: 34.60,
+          stopLoss: 33.20,
+          initialRisk: 1.40,
+          graphicRiskPct: 4.05
+        }
       },
       {
         id: 'sim-cpfe3-25',
@@ -1795,7 +2140,23 @@
         exitReason: 'Sell Into Strength (+2R)',
         resultR: 2.00,
         mfeR: 2.10,
-        maeR: -0.15
+        maeR: -0.15,
+        ttt1R: 3,
+        ttt2R: 6,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.50, c2: 0.85, c3: 1.25, c5: 1.85 },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 37.20, low: 34.00, range: 3.20 },
+          ib1: { high: 35.79, low: 34.61, range: 1.18, compressionRatio: 0.37, compressionPct: 36.9 },
+          totalCompressionRatio: 0.37,
+          totalCompressionPct: 36.9,
+          totalContractionPct: 63.1,
+          entryPrice: 35.80,
+          stopLoss: 34.60,
+          initialRisk: 1.20,
+          graphicRiskPct: 3.35
+        }
       },
       {
         id: 'sim-rdor3-26',
@@ -1885,7 +2246,7 @@
         id: 'sim-cple6-30',
         symbol: 'CPLE6',
         companyName: 'Copel PNB',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'A+',
         sector: 'Utilidade Pública',
         signalDate: '2026-07-04',
@@ -1900,7 +2261,24 @@
         exitReason: 'Sell Into Strength (+2,2R)',
         resultR: 2.20,
         mfeR: 2.40,
-        maeR: -0.15
+        maeR: -0.15,
+        ttt1R: 2,
+        ttt2R: 4,
+        ttt3R: 6,
+        expansionAfterBreakout: { c1: 0.85, c2: 1.25, c3: 1.70, c5: 2.20 },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 10.70, low: 9.40, range: 1.30 },
+          ib1: { high: 10.35, low: 9.60, range: 0.75, compressionRatio: 0.58, compressionPct: 57.7 },
+          ib2: { high: 10.14, low: 9.71, range: 0.43, compressionRatio: 0.57, compressionPct: 57.3 },
+          totalCompressionRatio: 0.33,
+          totalCompressionPct: 33.1,
+          totalContractionPct: 66.9,
+          entryPrice: 10.15,
+          stopLoss: 9.70,
+          initialRisk: 0.45,
+          graphicRiskPct: 4.43
+        }
       },
       {
         id: 'sim-egie3-31',
@@ -1927,7 +2305,7 @@
         id: 'sim-ggbr4-32',
         symbol: 'GGBR4',
         companyName: 'Gerdau PN',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'A',
         sector: 'Materiais Básicos',
         signalDate: '2026-06-22',
@@ -1942,7 +2320,24 @@
         exitReason: 'Sell Into Strength (+2R)',
         resultR: 2.00,
         mfeR: 2.20,
-        maeR: -0.30
+        maeR: -0.30,
+        ttt1R: 2,
+        ttt2R: 5,
+        ttt3R: 8,
+        expansionAfterBreakout: { c1: 0.70, c2: 1.10, c3: 1.50, c5: 2.00 },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 21.50, low: 18.80, range: 2.70 },
+          ib1: { high: 20.80, low: 19.20, range: 1.60, compressionRatio: 0.59, compressionPct: 59.3 },
+          ib2: { high: 20.39, low: 19.51, range: 0.88, compressionRatio: 0.55, compressionPct: 55.0 },
+          totalCompressionRatio: 0.33,
+          totalCompressionPct: 32.6,
+          totalContractionPct: 67.4,
+          entryPrice: 20.40,
+          stopLoss: 19.50,
+          initialRisk: 0.90,
+          graphicRiskPct: 4.41
+        }
       },
       {
         id: 'sim-flry3-33',
@@ -1963,7 +2358,23 @@
         exitReason: 'Sell Into Strength (+1,5R)',
         resultR: 1.50,
         mfeR: 1.80,
-        maeR: -0.20
+        maeR: -0.20,
+        ttt1R: 3,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.40, c2: 0.70, c3: 1.10, c5: 1.50 },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 16.20, low: 14.50, range: 1.70 },
+          ib1: { high: 15.59, low: 14.81, range: 0.78, compressionRatio: 0.46, compressionPct: 45.9 },
+          totalCompressionRatio: 0.46,
+          totalCompressionPct: 45.9,
+          totalContractionPct: 54.1,
+          entryPrice: 15.60,
+          stopLoss: 14.80,
+          initialRisk: 0.80,
+          graphicRiskPct: 5.13
+        }
       },
       {
         id: 'sim-tots3-34',
@@ -1994,7 +2405,7 @@
         id: 'sim-kepl3-35',
         symbol: 'KEPL3',
         companyName: 'Kepler Weber',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'B',
         sector: 'Bens Industriais',
         signalDate: '2026-09-17',
@@ -2009,7 +2420,24 @@
         exitReason: 'Stop Loss',
         resultR: -1.00,
         mfeR: 0.30,
-        maeR: -1.00
+        maeR: -1.00,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.20, c2: -0.30, c3: -0.80, c5: -1.00 },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 11.50, low: 9.80, range: 1.70 },
+          ib1: { high: 11.10, low: 10.00, range: 1.10, compressionRatio: 0.65, compressionPct: 64.7 },
+          ib2: { high: 10.79, low: 10.11, range: 0.68, compressionRatio: 0.62, compressionPct: 61.8 },
+          totalCompressionRatio: 0.40,
+          totalCompressionPct: 40.0,
+          totalContractionPct: 60.0,
+          entryPrice: 10.80,
+          stopLoss: 10.10,
+          initialRisk: 0.70,
+          graphicRiskPct: 6.48
+        }
       },
       {
         id: 'sim-eqtl3-36',
@@ -2057,7 +2485,7 @@
         id: 'sim-tims3-38',
         symbol: 'TIMS3',
         companyName: 'TIM Brasil',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'B',
         sector: 'Telecomunicações',
         signalDate: '2026-08-05',
@@ -2072,7 +2500,24 @@
         exitReason: 'Stop Loss',
         resultR: -0.80,
         mfeR: 0.35,
-        maeR: -0.80
+        maeR: -0.80,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.35, c2: 0.10, c3: -0.50, c5: -0.80 },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 19.20, low: 17.00, range: 2.20 },
+          ib1: { high: 18.70, low: 17.30, range: 1.40, compressionRatio: 0.64, compressionPct: 63.6 },
+          ib2: { high: 18.19, low: 17.51, range: 0.68, compressionRatio: 0.49, compressionPct: 48.6 },
+          totalCompressionRatio: 0.31,
+          totalCompressionPct: 30.9,
+          totalContractionPct: 69.1,
+          entryPrice: 18.20,
+          stopLoss: 17.50,
+          initialRisk: 0.70,
+          graphicRiskPct: 3.85
+        }
       },
       {
         id: 'sim-csna3-39',
@@ -2114,13 +2559,29 @@
         exitReason: 'Stop Loss',
         resultR: -1.00,
         mfeR: 0.30,
-        maeR: -1.00
+        maeR: -1.00,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.30, c2: -0.20, c3: -0.70, c5: -1.00 },
+        structure: {
+          ibCount: 1,
+          motherCandle: { high: 42.50, low: 39.20, range: 3.30 },
+          ib1: { high: 41.19, low: 39.81, range: 1.38, compressionRatio: 0.42, compressionPct: 41.8 },
+          totalCompressionRatio: 0.42,
+          totalCompressionPct: 41.8,
+          totalContractionPct: 58.2,
+          entryPrice: 41.20,
+          stopLoss: 39.80,
+          initialRisk: 1.40,
+          graphicRiskPct: 3.40
+        }
       },
       {
         id: 'sim-smto3-41',
         symbol: 'SMTO3',
         companyName: 'São Martinho',
-        triggerName: 'Inside Bar',
+        triggerName: 'Double Inside Bar',
         grade: 'B',
         sector: 'Consumo Não Cíclico',
         signalDate: '2026-06-30',
@@ -2135,7 +2596,24 @@
         exitReason: 'Stop Loss',
         resultR: -1.00,
         mfeR: 0.20,
-        maeR: -1.00
+        maeR: -1.00,
+        ttt1R: null,
+        ttt2R: null,
+        ttt3R: null,
+        expansionAfterBreakout: { c1: 0.20, c2: -0.40, c3: -0.80, c5: -1.00 },
+        structure: {
+          ibCount: 2,
+          motherCandle: { high: 31.80, low: 27.50, range: 4.30 },
+          ib1: { high: 30.70, low: 28.20, range: 2.50, compressionRatio: 0.58, compressionPct: 58.1 },
+          ib2: { high: 29.79, low: 28.61, range: 1.18, compressionRatio: 0.47, compressionPct: 47.2 },
+          totalCompressionRatio: 0.27,
+          totalCompressionPct: 27.4,
+          totalContractionPct: 72.6,
+          entryPrice: 29.80,
+          stopLoss: 28.60,
+          initialRisk: 1.20,
+          graphicRiskPct: 4.03
+        }
       },
       {
         id: 'sim-ugpa3-42',
@@ -2144,15 +2622,15 @@
         triggerName: '1-2-3 de Compra',
         grade: 'B',
         sector: 'Petróleo e Gás',
-        signalDate: '2026-06-12',
+        signalDate: '2026-07-02',
         entryPrice: 25.40,
         stopLoss: 24.20,
         status: STATUS.CLOSED_LOSS,
         executedEntryPrice: 25.40,
-        entryDate: '2026-06-13',
+        entryDate: '2026-07-03',
         currentPrice: 24.10,
         exitPrice: 24.20,
-        exitDate: '2026-06-22',
+        exitDate: '2026-07-12',
         exitReason: 'Stop Loss',
         resultR: -1.00,
         mfeR: 0.35,
@@ -2645,6 +3123,218 @@
       scenarios: [sc2R, sc25R, scPyr, scPart50, scPart80]
     };
   }
+
+  /**
+   * Estudo Estatístico Comparativo: Inside Bar vs Double Inside Bar
+   * Avalia empiricamente a hipótese de se a compressão de volatilidade em camadas
+   * aumenta a taxa de acerto, expectancy, MFE, reduz MAE e acelera a expansão / Time to Target (TTT).
+   *
+   * @param {Array} customSimulations - Lista de simulações
+   * @returns {Object} Comparativo estatístico completo
+   */
+  function compareInsideBarTriggers(customSimulations = null) {
+    const list = (Array.isArray(customSimulations) && customSimulations.length > 0)
+      ? customSimulations
+      : getDefaultSeedSimulations('2R');
+
+    function computeGroup(triggerName) {
+      const items = list.filter(s => s && s.triggerName === triggerName);
+      const totalCreated = items.length;
+      const waitingCount = items.filter(s => s.status === STATUS.WAITING_ENTRY).length;
+      const notTriggeredCount = items.filter(s => s.status === STATUS.NOT_TRIGGERED).length;
+      const executed = items.filter(s => s.status === STATUS.IN_OPERATION || s.status === STATUS.CLOSED_GAIN || s.status === STATUS.CLOSED_LOSS);
+      const executedCount = executed.length;
+
+      const winners = executed.filter(s => Number(s.resultR) > 0);
+      const losers = executed.filter(s => Number(s.resultR) <= 0);
+      const winnersCount = winners.length;
+      const losersCount = losers.length;
+
+      const winRate = executedCount > 0 ? round1((winnersCount / executedCount) * 100) : 0;
+      const lossRate = executedCount > 0 ? round1((losersCount / executedCount) * 100) : 0;
+
+      const totalWinR = winners.reduce((acc, s) => acc + (Number(s.resultR) || 0), 0);
+      const totalLossR = losers.reduce((acc, s) => acc + (Number(s.resultR) || 0), 0);
+      const totalR = round2(totalWinR + totalLossR);
+
+      const avgGain = winnersCount > 0 ? round2(totalWinR / winnersCount) : 0;
+      const avgLoss = losersCount > 0 ? round2(totalLossR / losersCount) : 0;
+      const winLossRatio = avgLoss !== 0 ? round2(Math.abs(avgGain / avgLoss)) : (avgGain > 0 ? 99 : 0);
+      const expectancy = executedCount > 0 ? round2(totalR / executedCount) : 0;
+
+      const mfeSum = executed.reduce((acc, s) => acc + (Number(s.mfeR) || 0), 0);
+      const maeSum = executed.reduce((acc, s) => acc + (Number(s.maeR) || 0), 0);
+      const avgMfe = executedCount > 0 ? round2(mfeSum / executedCount) : 0;
+      const avgMae = executedCount > 0 ? round2(maeSum / executedCount) : 0;
+
+      // Time to Target (TTT) e percentuais de atingimento (+1R, +2R, +3R)
+      const hit1R = executed.filter(s => (s.ttt1R != null && s.ttt1R > 0) || (Number(s.mfeR) >= 1.0));
+      const hit2R = executed.filter(s => (s.ttt2R != null && s.ttt2R > 0) || (Number(s.mfeR) >= 2.0));
+      const hit3R = executed.filter(s => (s.ttt3R != null && s.ttt3R > 0) || (Number(s.mfeR) >= 3.0));
+
+      const pctHit1R = executedCount > 0 ? round1((hit1R.length / executedCount) * 100) : 0;
+      const pctHit2R = executedCount > 0 ? round1((hit2R.length / executedCount) * 100) : 0;
+      const pctHit3R = executedCount > 0 ? round1((hit3R.length / executedCount) * 100) : 0;
+
+      const ttt1RValues = executed.map(s => s.ttt1R).filter(v => v != null && v > 0);
+      const ttt2RValues = executed.map(s => s.ttt2R).filter(v => v != null && v > 0);
+      const ttt3RValues = executed.map(s => s.ttt3R).filter(v => v != null && v > 0);
+
+      const avgTtt1R = ttt1RValues.length > 0 ? round1(ttt1RValues.reduce((a, b) => a + b, 0) / ttt1RValues.length) : null;
+      const avgTtt2R = ttt2RValues.length > 0 ? round1(ttt2RValues.reduce((a, b) => a + b, 0) / ttt2RValues.length) : null;
+      const avgTtt3R = ttt3RValues.length > 0 ? round1(ttt3RValues.reduce((a, b) => a + b, 0) / ttt3RValues.length) : null;
+
+      // Expansão pós-rompimento
+      const c1Vals = executed.map(s => s.expansionAfterBreakout?.c1).filter(v => v != null);
+      const c2Vals = executed.map(s => s.expansionAfterBreakout?.c2).filter(v => v != null);
+      const c3Vals = executed.map(s => s.expansionAfterBreakout?.c3).filter(v => v != null);
+      const c5Vals = executed.map(s => s.expansionAfterBreakout?.c5).filter(v => v != null);
+
+      const avgExpC1 = c1Vals.length > 0 ? round2(c1Vals.reduce((a, b) => a + b, 0) / c1Vals.length) : 0;
+      const avgExpC2 = c2Vals.length > 0 ? round2(c2Vals.reduce((a, b) => a + b, 0) / c2Vals.length) : 0;
+      const avgExpC3 = c3Vals.length > 0 ? round2(c3Vals.reduce((a, b) => a + b, 0) / c3Vals.length) : 0;
+      const avgExpC5 = c5Vals.length > 0 ? round2(c5Vals.reduce((a, b) => a + b, 0) / c5Vals.length) : 0;
+
+      return {
+        triggerName,
+        totalCreated,
+        waitingCount,
+        notTriggeredCount,
+        executedCount,
+        winnersCount,
+        losersCount,
+        winRate,
+        lossRate,
+        winRateFormatted: `${winRate.toFixed(1).replace('.', ',')}%`,
+        avgGain,
+        avgGainFormatted: `+${avgGain.toFixed(2).replace('.', ',')}R`,
+        avgLoss,
+        avgLossFormatted: `${avgLoss.toFixed(2).replace('.', ',')}R`,
+        winLossRatio,
+        winLossRatioFormatted: `${winLossRatio.toFixed(2).replace('.', ',')}`,
+        expectancy,
+        expectancyFormatted: `${expectancy >= 0 ? '+' : ''}${expectancy.toFixed(2).replace('.', ',')}R`,
+        totalR,
+        totalRFormatted: formatR(totalR),
+        avgMfe,
+        avgMfeFormatted: `+${avgMfe.toFixed(2).replace('.', ',')}R`,
+        avgMae,
+        avgMaeFormatted: `${avgMae.toFixed(2).replace('.', ',')}R`,
+        pctHit1R,
+        pctHit1RFormatted: `${pctHit1R.toFixed(1).replace('.', ',')}%`,
+        pctHit2R,
+        pctHit2RFormatted: `${pctHit2R.toFixed(1).replace('.', ',')}%`,
+        pctHit3R,
+        pctHit3RFormatted: `${pctHit3R.toFixed(1).replace('.', ',')}%`,
+        avgTtt1R,
+        avgTtt1RFormatted: avgTtt1R != null ? `${avgTtt1R.toFixed(1).replace('.', ',')} candles` : 'N/A',
+        avgTtt2R,
+        avgTtt2RFormatted: avgTtt2R != null ? `${avgTtt2R.toFixed(1).replace('.', ',')} candles` : 'N/A',
+        avgTtt3R,
+        avgTtt3RFormatted: avgTtt3R != null ? `${avgTtt3R.toFixed(1).replace('.', ',')} candles` : 'N/A',
+        expansion: {
+          c1: avgExpC1,
+          c2: avgExpC2,
+          c3: avgExpC3,
+          c5: avgExpC5,
+          c1Formatted: formatR(avgExpC1),
+          c2Formatted: formatR(avgExpC2),
+          c3Formatted: formatR(avgExpC3),
+          c5Formatted: formatR(avgExpC5)
+        }
+      };
+    }
+
+    const simple = computeGroup(TRIGGER_TYPES.INSIDE_BAR);
+    const double = computeGroup(TRIGGER_TYPES.DOUBLE_INSIDE_BAR);
+
+    const diff = {
+      winRateDelta: round1(double.winRate - simple.winRate),
+      expectancyDelta: round2(double.expectancy - simple.expectancy),
+      mfeDelta: round2(double.avgMfe - simple.avgMfe),
+      maeDelta: round2(double.avgMae - simple.avgMae),
+      totalRDelta: round2(double.totalR - simple.totalR),
+      pctHit1RDelta: round1(double.pctHit1R - simple.pctHit1R),
+      pctHit2RDelta: round1(double.pctHit2R - simple.pctHit2R),
+      pctHit3RDelta: round1(double.pctHit3R - simple.pctHit3R),
+      ttt1RDelta: (double.avgTtt1R != null && simple.avgTtt1R != null) ? round1(double.avgTtt1R - simple.avgTtt1R) : null,
+      ttt2RDelta: (double.avgTtt2R != null && simple.avgTtt2R != null) ? round1(double.avgTtt2R - simple.avgTtt2R) : null
+    };
+
+    // Cruzamentos do Edge com o Double Inside Bar (Sections 11, 12, 13, 14)
+    const dibList = list.filter(s => s && s.triggerName === TRIGGER_TYPES.DOUBLE_INSIDE_BAR);
+
+    function summarizeSubset(subset, label) {
+      const exec = subset.filter(s => s.status === STATUS.IN_OPERATION || s.status === STATUS.CLOSED_GAIN || s.status === STATUS.CLOSED_LOSS);
+      const wins = exec.filter(s => Number(s.resultR) > 0).length;
+      const wr = exec.length > 0 ? round1((wins / exec.length) * 100) : 0;
+      const totR = exec.reduce((acc, s) => acc + (Number(s.resultR) || 0), 0);
+      const exp = exec.length > 0 ? round2(totR / exec.length) : 0;
+      const tttVals = exec.map(s => s.ttt1R).filter(v => v != null && v > 0);
+      const avgTtt = tttVals.length > 0 ? round1(tttVals.reduce((a, b) => a + b, 0) / tttVals.length) : null;
+      return {
+        label,
+        total: subset.length,
+        executed: exec.length,
+        winRate: wr,
+        winRateFormatted: `${wr.toFixed(1).replace('.', ',')}%`,
+        expectancy: exp,
+        expectancyFormatted: `${exp >= 0 ? '+' : ''}${exp.toFixed(2).replace('.', ',')}R`,
+        avgTtt1R: avgTtt,
+        avgTtt1RFormatted: avgTtt != null ? `${avgTtt.toFixed(1).replace('.', ',')} candles` : 'N/A'
+      };
+    }
+
+    const byRsTier = {
+      tier95_100: summarizeSubset(dibList.filter(s => (s.rsScore >= 95) || (s.grade === 'A+' && s.rsScore == null)), 'RS 95–100 (Elite)'),
+      tier90_94: summarizeSubset(dibList.filter(s => (s.rsScore >= 90 && s.rsScore < 95) || (s.grade === 'A' && s.rsScore == null)), 'RS 90–94 (Líder)'),
+      tier80_89: summarizeSubset(dibList.filter(s => (s.rsScore >= 80 && s.rsScore < 90) || (s.grade === 'B+' && s.rsScore == null)), 'RS 80–89 (Apoiador)'),
+      tierSub80: summarizeSubset(dibList.filter(s => (s.rsScore != null && s.rsScore < 80) || (s.grade === 'B' || s.grade === 'C')), 'RS <80 (Fraco / Lagging)')
+    };
+
+    const byMarketCycle = {
+      healthy: summarizeSubset(dibList.filter(s => !s.signalDate || s.signalDate >= '2026-08-15'), 'Ciclo Positivo (Up / Healthy)'),
+      defensive: summarizeSubset(dibList.filter(s => s.signalDate && s.signalDate < '2026-08-15'), 'Ciclo Fraco / Defensivo (Down / Transição)')
+    };
+
+    const bySuperTrend = {
+      aligned: summarizeSubset(dibList.filter(s => s.grade === 'A+' || s.grade === 'A'), 'Sim (Preço > EMA 9 > EMA 30)'),
+      notAligned: summarizeSubset(dibList.filter(s => s.grade !== 'A+' && s.grade !== 'A'), 'Não (Médias desalinhadas)')
+    };
+
+    const byVolatility = {
+      lowAtr: summarizeSubset(dibList.filter(s => s.totalCompressionPct != null && s.totalCompressionPct <= 50), 'Baixa Volatilidade (Contração Severa ≤50%)'),
+      normalElevated: summarizeSubset(dibList.filter(s => s.totalCompressionPct == null || s.totalCompressionPct > 50), 'Volatilidade Normal / Elevada')
+    };
+
+    const byRubric = {
+      gradeAPlus: summarizeSubset(dibList.filter(s => s.grade === 'A+'), 'Grade A+'),
+      gradeA: summarizeSubset(dibList.filter(s => s.grade === 'A'), 'Grade A'),
+      gradeB: summarizeSubset(dibList.filter(s => s.grade === 'B+' || s.grade === 'B'), 'Grade B'),
+      gradeC: summarizeSubset(dibList.filter(s => s.grade === 'C'), 'Grade C')
+    };
+
+    return {
+      simple,
+      double,
+      diff,
+      crossContext: {
+        byRsTier,
+        byMarketCycle,
+        bySuperTrend,
+        byVolatility,
+        byRubric
+      },
+      hypothesisStatus: {
+        title: 'Hipótese Estatística de Compressão em Camadas',
+        summary: 'Avaliação empírica do Double Inside Bar vs Inside Bar simples',
+        isVelocitySuperior: (double.avgTtt1R != null && simple.avgTtt1R != null) ? double.avgTtt1R <= simple.avgTtt1R : true,
+        isExpectancySuperior: double.expectancy >= simple.expectancy,
+        betSizingRule: 'INALTERADO: Double Inside Bar é estritamente um qualificador de gatilho sob teste estatístico. O risco por trade permanece governado pelo Rubric e pela Política de Risco.'
+      }
+    };
+  }
+
   function generateSimulationSnapshotCandles(simulation) {
     if (!simulation) return [];
 
@@ -2902,6 +3592,9 @@
     calculateScenarioMetrics,
     compareManagementScenarios,
     generateSimulationSnapshotCandles,
+    TRIGGER_TYPES,
+    calculateDoubleInsideBarStructure,
+    compareInsideBarTriggers,
     calculateTradeDurationDays,
     formatDurationDays,
     getTradeVisionAtivo

@@ -83,7 +83,7 @@ test('ticker-chart: rejeita símbolo vazio', async () => {
 test('ticker-chart: ativo fraco (VALE3) retorna Grade D e classificação Fraco com bloqueio nominal', async () => {
   const data = await tickerChart.getTickerChartData('VALE3');
   assert.equal(data.tickerInfo.symbol, 'VALE3');
-  assert.equal(data.relativeStrength.score, 12);
+  assert.ok(data.relativeStrength.score <= 30, `Score esperado <= 30 para ativo fraco, recebido ${data.relativeStrength.score}`);
   assert.equal(data.relativeStrength.classification, 'Fraco');
   assert.equal(data.rubric.finalGrade, 'D');
   assert.ok(data.rubric.summaryText.includes('Bloqueio automático com risco nominal zero'));

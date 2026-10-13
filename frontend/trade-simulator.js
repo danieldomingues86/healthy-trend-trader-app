@@ -16,9 +16,11 @@
     activeScenario: '2R',
     massModalOpen: false,
     compareModalOpen: false,
+    hypothesisModalOpen: false,
     scenarioModalOpen: false,
     tempScenarioSelection: '2R',
     comparison: null,
+    hypothesisComparison: null,
     filters: {
       days: 120,
       trigger: 'ALL',
@@ -60,10 +62,14 @@
         if (response && Array.isArray(response.simulations) && response.simulations.length > 0) {
           state.simulations = response.simulations.filter(s => s && s.triggerName !== 'Pullback');
           state.comparison = response.comparison || null;
+          state.hypothesisComparison = response.hypothesisComparison || null;
           if (!state.comparison || !Array.isArray(state.comparison.scenarios) || !state.comparison.scenarios.some(s => s.avgDurationDaysFormatted)) {
             if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
               state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
             }
+          }
+          if (!state.hypothesisComparison && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
+            state.hypothesisComparison = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
           }
           if (state.simulations[0]?.managementScenario) {
             state.activeScenario = state.simulations[0].managementScenario;
@@ -92,6 +98,9 @@
           if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
             state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
           }
+          if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
+            state.hypothesisComparison = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
+          }
           state.loading = false;
           return;
         }
@@ -102,6 +111,9 @@
     if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getDefaultSeedSimulations === 'function') {
       state.simulations = root.TradeSimulatorModel.getDefaultSeedSimulations('2R');
       state.comparison = root.TradeSimulatorModel.compareManagementScenarios();
+      if (typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
+        state.hypothesisComparison = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
+      }
       state.activeScenario = '2R';
       state.tempScenarioSelection = '2R';
     } else {
@@ -578,6 +590,7 @@
         ${renderTableSection(filtered, stats)}
         ${renderMassModal()}
         ${renderCompareModal()}
+        ${renderHypothesisModal()}
         ${renderModal()}
         ${renderSnapshotModal()}
       </div>
@@ -635,6 +648,7 @@
             <div class="sim-dropdown-menu ${state.activeDropdown === 'trigger' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.trigger === 'ALL' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="ALL">Todos os gatilhos</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Inside Bar">Inside Bar</button>
+              <button class="sim-dropdown-item ${state.filters.trigger === 'Double Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Double Inside Bar">Double Inside Bar</button>
               <button class="sim-dropdown-item ${state.filters.trigger === '1-2-3 de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="1-2-3 de Compra">1-2-3 de Compra</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Outros' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Outros">Outros</button>
             </div>
@@ -684,6 +698,11 @@
             <span>📊 Comparar Cenários</span>
           </button>
 
+          <!-- Botão Hipótese: Estudo Double Inside Bar -->
+          <button class="sim-btn-hypothesis" type="button" id="simBtnHypothesisModal" title="Estudo Estatístico: Double Inside Bar vs Inside Bar simples">
+            <span>🔬 Estudo: Double Inside Bar</span>
+          </button>
+
           <!-- Botão Mais Opções (···) com Dropdown -->
           <div class="sim-filter-select-wrap">
             <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Massa de teste, Comparador, Reavaliar e Excluir">
@@ -695,6 +714,9 @@
               </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnCompare">
                 <span>📊</span> <span>Comparar Cenários</span>
+              </button>
+              <button class="sim-dropdown-item" type="button" id="simMoreBtnHypothesis">
+                <span>🔬</span> <span>Estudo: Double Inside Bar</span>
               </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate">
                 <span>↻</span> <span>Reavaliar Candles</span>
@@ -1283,7 +1305,7 @@
         </td>
 
         <!-- Gatilho -->
-        <td class="td-trigger">${sim.triggerName}</td>
+        <td class="td-trigger">${sim.triggerName === 'Double Inside Bar' ? '<span class="sim-dib-tag">⚡ Double Inside Bar</span>' : sim.triggerName}</td>
 
         <!-- Nota -->
         <td>
@@ -1966,6 +1988,402 @@
   }
 
   /**
+   * Card da Estrutura Anatômica do Gatilho e Velocidade (Time to Target)
+   */
+  function renderModalStructureCard(sim) {
+    if (!sim.structure && sim.ttt1R == null && !sim.expansionAfterBreakout) return '';
+    const struct = sim.structure || {};
+    const isDib = sim.triggerName === 'Double Inside Bar' || struct.ibCount === 2;
+    const ttt1 = sim.ttt1R != null ? `${sim.ttt1R} candle${sim.ttt1R === 1 ? '' : 's'}` : 'Não atingido';
+    const ttt2 = sim.ttt2R != null ? `${sim.ttt2R} candle${sim.ttt2R === 1 ? '' : 's'}` : 'Não atingido';
+    const ttt3 = sim.ttt3R != null ? `${sim.ttt3R} candle${sim.ttt3R === 1 ? '' : 's'}` : 'Não atingido';
+    const exp = sim.expansionAfterBreakout || {};
+
+    return `
+      <div class="sim-dib-structure-card">
+        <div class="sim-dib-card-header">
+          <span class="sim-dib-card-badge">${isDib ? '⚡ DOUBLE INSIDE BAR • 2 CAMADAS ANINHADAS' : 'INSIDE BAR • 1 CAMADA'}</span>
+          <h4>Anatomia da Estrutura & Velocidade do Movimento</h4>
+        </div>
+
+        ${struct.motherCandle ? `
+          <div class="sim-dib-layers-grid">
+            <div class="sim-dib-layer-item">
+              <small>Candle-mãe</small>
+              <b>R$ ${struct.motherCandle.range ? struct.motherCandle.range.toFixed(2).replace('.', ',') : '—'}</b>
+              <span>${struct.motherCandle.high ? 'Máx: ' + formatMoney(struct.motherCandle.high) : ''}</span>
+            </div>
+            <div class="sim-dib-layer-item">
+              <small>Inside Bar 1</small>
+              <b>R$ ${struct.ib1?.range ? struct.ib1.range.toFixed(2).replace('.', ',') : '—'}</b>
+              <span class="sim-dib-comp-tag">${struct.ib1?.compressionPct ? struct.ib1.compressionPct.toFixed(1).replace('.', ',') + '% do mãe' : '—'}</span>
+            </div>
+            ${isDib ? `
+              <div class="sim-dib-layer-item">
+                <small>Inside Bar 2</small>
+                <b>R$ ${struct.ib2?.range ? struct.ib2.range.toFixed(2).replace('.', ',') : '—'}</b>
+                <span class="sim-dib-comp-tag">${struct.ib2?.compressionPct ? struct.ib2.compressionPct.toFixed(1).replace('.', ',') + '% do IB1' : '—'}</span>
+              </div>
+              <div class="sim-dib-layer-item highlight">
+                <small>Contração Total</small>
+                <b style="color: #10b981;">${struct.totalContractionPct ? struct.totalContractionPct.toFixed(1).replace('.', ',') + '%' : '—'}</b>
+                <span>Risco Gráfico: ${struct.graphicRiskPct ? struct.graphicRiskPct.toFixed(2).replace('.', ',') + '%' : '—'}</span>
+              </div>
+            ` : `
+              <div class="sim-dib-layer-item highlight">
+                <small>Contração Total</small>
+                <b style="color: #10b981;">${struct.totalContractionPct ? struct.totalContractionPct.toFixed(1).replace('.', ',') + '%' : '—'}</b>
+                <span>Risco Gráfico: ${struct.graphicRiskPct ? struct.graphicRiskPct.toFixed(2).replace('.', ',') + '%' : '—'}</span>
+              </div>
+            `}
+          </div>
+        ` : ''}
+
+        <div class="sim-dib-velocity-grid">
+          <div class="sim-dib-vel-box">
+            <small>Time to Target (+1R)</small>
+            <b>${ttt1}</b>
+          </div>
+          <div class="sim-dib-vel-box">
+            <small>Time to Target (+2R)</small>
+            <b>${ttt2}</b>
+          </div>
+          <div class="sim-dib-vel-box">
+            <small>Time to Target (+3R)</small>
+            <b>${ttt3}</b>
+          </div>
+          <div class="sim-dib-vel-box">
+            <small>Expansão Pós-Rompimento</small>
+            <span style="font-size: 11px; font-weight: 600; color: #cbd5e1;">
+              ${exp.c1 != null ? 'C1: ' + formatR(exp.c1) : 'C1: —'}
+              ${exp.c2 != null ? ' • C2: ' + formatR(exp.c2) : ''}
+              ${exp.c3 != null ? ' • C3: ' + formatR(exp.c3) : ''}
+              ${exp.c5 != null ? ' • C5: ' + formatR(exp.c5) : ''}
+            </span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Modal de Estudo Estatístico: Double Inside Bar vs Inside Bar Simples
+   */
+  function renderHypothesisModal() {
+    if (!state.hypothesisModalOpen) return '';
+
+    let hypothesis = state.hypothesisComparison;
+    if (!hypothesis || !hypothesis.simple || !hypothesis.double) {
+      if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
+        hypothesis = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
+        state.hypothesisComparison = hypothesis;
+      }
+    }
+
+    const simple = hypothesis?.simple || {};
+    const double = hypothesis?.double || {};
+    const diff = hypothesis?.diff || {};
+    const cross = hypothesis?.crossContext || {};
+    const status = hypothesis?.hypothesisStatus || {};
+
+    function formatDeltaR(val) {
+      if (val == null) return '—';
+      const n = Number(val);
+      const sign = n > 0 ? '+' : '';
+      return `${sign}${n.toFixed(2).replace('.', ',')}R`;
+    }
+
+    function formatDeltaPct(val) {
+      if (val == null) return '—';
+      const n = Number(val);
+      const sign = n > 0 ? '+' : '';
+      return `${sign}${n.toFixed(1).replace('.', ',')}pp`;
+    }
+
+    function formatDeltaCandles(val) {
+      if (val == null) return '—';
+      const n = Number(val);
+      const sign = n > 0 ? '+' : '';
+      return `${sign}${n.toFixed(1).replace('.', ',')} candles`;
+    }
+
+    return `
+      <div class="sim-compare-modal-overlay open" id="simHypothesisModalOverlay">
+        <div class="sim-compare-modal-box sim-hypothesis-modal-box" id="simHypothesisModalBox">
+          <!-- Cabeçalho do Modal -->
+          <div class="sim-compare-modal-header">
+            <div class="sim-compare-header-left">
+              <div class="sim-compare-header-badge">ESTUDO EMPÍRICO • HIPÓTESE ESTATÍSTICA</div>
+              <h2>🔬 Estudo: Double Inside Bar vs Inside Bar Simples</h2>
+              <p>Avaliação quantitativa da compressão em 2 camadas de volatilidade sob o método Healthy Trend Trader.</p>
+            </div>
+            <div class="sim-compare-header-right">
+              <div class="sim-comparison-badge">
+                Amostra: ${double.totalCreated || 0} Double Inside Bars • ${simple.totalCreated || 0} Inside Bars
+              </div>
+              <button class="sim-modal-close-btn" type="button" id="simHypothesisModalClose" title="Fechar estudo">×</button>
+            </div>
+          </div>
+
+          <!-- Card de Guardrail Inviolável de Bet Sizing -->
+          <div class="sim-hyp-guardrail-card">
+            <div class="sim-hyp-guardrail-icon">⚠️</div>
+            <div class="sim-hyp-guardrail-content">
+              <b>Regra Inviolável de Bet Sizing & Risco Nominal:</b>
+              <p>${status.betSizingRule || 'Double Inside Bar é estritamente um qualificador de gatilho sob teste estatístico. O risco por trade permanece estritamente governado pelo Rubric (Nota do Trade) e pela Política de Risco nominal (A+ = 2%, A = 1,5%, B = 1%, C = 0,5%, D = 0%). O simulador NÃO altera o risco nominal automaticamente.'}</p>
+            </div>
+          </div>
+
+          <!-- Tabela de Comparação Direta -->
+          <div class="sim-compare-table-container">
+            <table class="sim-comparison-table sim-hypothesis-table">
+              <thead>
+                <tr>
+                  <th class="th-metric">MÉTRICA ESTATÍSTICA</th>
+                  <th class="th-scen scen-col-simple">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-blue"></span>
+                        <b>Inside Bar Simples</b>
+                      </div>
+                      <span class="scen-th-badge badge-blue">1 Camada de Contração</span>
+                    </div>
+                  </th>
+                  <th class="th-scen scen-col-double">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-green"></span>
+                        <b>Double Inside Bar</b>
+                      </div>
+                      <span class="scen-th-badge badge-green">2 Camadas Aninhadas</span>
+                    </div>
+                  </th>
+                  <th class="th-scen scen-col-delta">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-yellow"></span>
+                        <b>Delta / Diferença</b>
+                      </div>
+                      <span class="scen-th-badge badge-yellow">DIB vs IB</span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-metric-name"><b>Trades Criados / Executados</b></td>
+                  <td class="td-val">${simple.totalCreated || 0} criados • ${simple.executedCount || 0} exec.</td>
+                  <td class="td-val highlight-val">${double.totalCreated || 0} criados • ${double.executedCount || 0} exec.</td>
+                  <td class="td-val">—</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Taxa de Acerto (Win Rate)</b></td>
+                  <td class="td-val">${simple.winRateFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.winRateFormatted || '—'}</td>
+                  <td class="td-val ${diff.winRateDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaPct(diff.winRateDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Média de Ganho (+R)</b></td>
+                  <td class="td-val">${simple.avgGainFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.avgGainFormatted || '—'}</td>
+                  <td class="td-val">—</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Média de Perda (-R)</b></td>
+                  <td class="td-val">${simple.avgLossFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.avgLossFormatted || '—'}</td>
+                  <td class="td-val">—</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Payoff (Win/Loss Ratio)</b></td>
+                  <td class="td-val">${simple.winLossRatioFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.winLossRatioFormatted || '—'}</td>
+                  <td class="td-val">—</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Expectancy Matemática (+R / trade)</b></td>
+                  <td class="td-val ${simple.expectancy >= 0 ? 'metric-gain' : 'metric-loss'}">${simple.expectancyFormatted || '—'}</td>
+                  <td class="td-val highlight-val ${double.expectancy >= 0 ? 'metric-gain' : 'metric-loss'}">${double.expectancyFormatted || '—'}</td>
+                  <td class="td-val ${diff.expectancyDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaR(diff.expectancyDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Total R Acumulado</b></td>
+                  <td class="td-val metric-gain">${simple.totalRFormatted || '—'}</td>
+                  <td class="td-val highlight-val metric-gain">${double.totalRFormatted || '—'}</td>
+                  <td class="td-val ${diff.totalRDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaR(diff.totalRDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>MFE Médio (Excursão Favorável Máxima)</b></td>
+                  <td class="td-val metric-gain">${simple.avgMfeFormatted || '—'}</td>
+                  <td class="td-val highlight-val metric-gain">${double.avgMfeFormatted || '—'}</td>
+                  <td class="td-val ${diff.mfeDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaR(diff.mfeDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>MAE Médio (Excursão Adversa Máxima)</b></td>
+                  <td class="td-val metric-loss">${simple.avgMaeFormatted || '—'}</td>
+                  <td class="td-val highlight-val metric-loss">${double.avgMaeFormatted || '—'}</td>
+                  <td class="td-val ${diff.maeDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaR(diff.maeDelta)}</td>
+                </tr>
+                <tr class="row-speed-highlight">
+                  <td class="td-metric-name"><b>⚡ Time to Target +1R (Velocidade)</b></td>
+                  <td class="td-val">${simple.avgTtt1RFormatted || 'N/A'}</td>
+                  <td class="td-val highlight-val" style="color: #34d399; font-weight: 800;">${double.avgTtt1RFormatted || 'N/A'}</td>
+                  <td class="td-val ${diff.ttt1RDelta != null && diff.ttt1RDelta <= 0 ? 'metric-gain' : 'metric-neutral'}">
+                    ${diff.ttt1RDelta != null && diff.ttt1RDelta <= 0 ? '⚡ ' + formatDeltaCandles(diff.ttt1RDelta) + ' (Mais Rápido)' : formatDeltaCandles(diff.ttt1RDelta)}
+                  </td>
+                </tr>
+                <tr class="row-speed-highlight">
+                  <td class="td-metric-name"><b>⚡ Time to Target +2R (Velocidade)</b></td>
+                  <td class="td-val">${simple.avgTtt2RFormatted || 'N/A'}</td>
+                  <td class="td-val highlight-val" style="color: #34d399; font-weight: 800;">${double.avgTtt2RFormatted || 'N/A'}</td>
+                  <td class="td-val ${diff.ttt2RDelta != null && diff.ttt2RDelta <= 0 ? 'metric-gain' : 'metric-neutral'}">
+                    ${diff.ttt2RDelta != null && diff.ttt2RDelta <= 0 ? '⚡ ' + formatDeltaCandles(diff.ttt2RDelta) + ' (Mais Rápido)' : formatDeltaCandles(diff.ttt2RDelta)}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Taxa que atingiu +1R (%)</b></td>
+                  <td class="td-val">${simple.pctHit1RFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.pctHit1RFormatted || '—'}</td>
+                  <td class="td-val ${diff.pctHit1RDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaPct(diff.pctHit1RDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Taxa que atingiu +2R (%)</b></td>
+                  <td class="td-val">${simple.pctHit2RFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.pctHit2RFormatted || '—'}</td>
+                  <td class="td-val ${diff.pctHit2RDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaPct(diff.pctHit2RDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Taxa que atingiu +3R (%)</b></td>
+                  <td class="td-val">${simple.pctHit3RFormatted || '—'}</td>
+                  <td class="td-val highlight-val" style="color: #34d399; font-weight: 700;">${double.pctHit3RFormatted || '—'}</td>
+                  <td class="td-val ${diff.pctHit3RDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaPct(diff.pctHit3RDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Expansão Pós-Rompimento (C1 / C2 / C3 / C5)</b></td>
+                  <td class="td-val">${simple.expansion?.c1Formatted || '—'} / ${simple.expansion?.c2Formatted || '—'} / ${simple.expansion?.c3Formatted || '—'} / ${simple.expansion?.c5Formatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.expansion?.c1Formatted || '—'} / ${double.expansion?.c2Formatted || '—'} / ${double.expansion?.c3Formatted || '—'} / ${double.expansion?.c5Formatted || '—'}</td>
+                  <td class="td-val">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Cruzamentos do Edge com o Double Inside Bar -->
+          <div class="sim-hyp-section-title">
+            <h3>Cruzamentos com as Dimensões do Edge (Contexto é Soberano)</h3>
+            <p>O Double Inside Bar é um acelerador de momentum quando apoiado pelo contexto correto, mas vulnerável a ruído quando operado isoladamente.</p>
+          </div>
+
+          <div class="sim-hyp-grid">
+            <!-- 1. Força Relativa -->
+            <div class="sim-hyp-card">
+              <div class="sim-hyp-card-header">
+                <span class="sim-hyp-tag">DIMENSÃO 1</span>
+                <h4>Força Relativa (RS)</h4>
+              </div>
+              <div class="sim-hyp-subset-list">
+                ${renderSubsetRow(cross.byRsTier?.tier95_100, 'RS 95–100 (Elite)')}
+                ${renderSubsetRow(cross.byRsTier?.tier90_94, 'RS 90–94 (Líder)')}
+                ${renderSubsetRow(cross.byRsTier?.tier80_89, 'RS 80–89 (Apoiador)')}
+                ${renderSubsetRow(cross.byRsTier?.tierSub80, 'RS < 80 (Fraco / Lagging)', true)}
+              </div>
+            </div>
+
+            <!-- 2. Ciclo de Mercado -->
+            <div class="sim-hyp-card">
+              <div class="sim-hyp-card-header">
+                <span class="sim-hyp-tag">DIMENSÃO 2</span>
+                <h4>Ciclo de Mercado</h4>
+              </div>
+              <div class="sim-hyp-subset-list">
+                ${renderSubsetRow(cross.byMarketCycle?.healthy, 'Ciclo Positivo (Up / Healthy)')}
+                ${renderSubsetRow(cross.byMarketCycle?.defensive, 'Ciclo Fraco / Defensivo (Down)', true)}
+              </div>
+            </div>
+
+            <!-- 3. Super Trend Diária -->
+            <div class="sim-hyp-card">
+              <div class="sim-hyp-card-header">
+                <span class="sim-hyp-tag">DIMENSÃO 3</span>
+                <h4>Super Trend Diária (EMA 9 / 30)</h4>
+              </div>
+              <div class="sim-hyp-subset-list">
+                ${renderSubsetRow(cross.bySuperTrend?.aligned, 'Alinhado (Preço > EMA 9 > EMA 30)')}
+                ${renderSubsetRow(cross.bySuperTrend?.notAligned, 'Desalinhado / Abaixo das Médias', true)}
+              </div>
+            </div>
+
+            <!-- 4. Contração de Volatilidade -->
+            <div class="sim-hyp-card">
+              <div class="sim-hyp-card-header">
+                <span class="sim-hyp-tag">DIMENSÃO 4</span>
+                <h4>Compressão vs Ruído</h4>
+              </div>
+              <div class="sim-hyp-subset-list">
+                ${renderSubsetRow(cross.byVolatility?.lowAtr, 'Contração Severa (Total ≤ 50%)')}
+                ${renderSubsetRow(cross.byVolatility?.normalElevated, 'Volatilidade Normal / Ruído')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Diagnóstico dos Cenários de Estresse -->
+          <div class="sim-hyp-adverse-box">
+            <h4>🔬 Diagnóstico dos 6 Cenários de Teste Empírico</h4>
+            <div class="sim-hyp-adverse-grid">
+              <div class="sim-hyp-adverse-item good">
+                <b>Cenário 1: RS 95+ & Ciclo Up (Ex: CPLE6, PRIO3)</b>
+                <p>Confirmação da hipótese: a liberação da energia acumulada em 2 camadas acelera o movimento em direção ao alvo (+2R em 2 a 4 candles).</p>
+              </div>
+              <div class="sim-hyp-adverse-item bad">
+                <b>Cenário 2: RS < 80 — Hipótese Adversa (Ex: KEPL3)</b>
+                <p>Falha empírica: sem liderança relativa frente ao IBOV, a contração não tem força compradora institucional para dar seguimento ao rompimento.</p>
+              </div>
+              <div class="sim-hyp-adverse-item bad">
+                <b>Cenários 3 e 5: Ciclo Down / Contra SuperTrend (Ex: TIMS3)</b>
+                <p>Falha empírica: operar rompimento de compressão contra a tendência diária resulta em armadilha de touro e stop rápido.</p>
+              </div>
+              <div class="sim-hyp-adverse-item bad">
+                <b>Cenário 6: Volatilidade Excessiva / Ruído (Ex: SMTO3)</b>
+                <p>Falha empírica: stop excessivamente curto em ativo de volatilidade ruidosa é violado pela oscilação intradiária natural.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rodapé do Modal -->
+          <div class="sim-compare-modal-footer">
+            <span class="sim-compare-footer-info">Healthy Trend Trader • Pesquisa Quantitativa de Gatilhos & Gestão de Risco</span>
+            <button class="sim-btn-seed" type="button" id="simHypothesisModalCloseBtn" style="padding: 6px 16px;">Fechar Estudo</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSubsetRow(subset, defaultLabel, isAdverse = false) {
+    if (!subset) {
+      return `
+        <div class="sim-hyp-row">
+          <span>${defaultLabel}</span>
+          <span style="color: #64748b;">Sem amostra</span>
+        </div>
+      `;
+    }
+    const wrColor = subset.winRate >= 60 ? '#10b981' : (subset.winRate < 40 ? '#ef4444' : '#f59e0b');
+    const expColor = subset.expectancy >= 0.5 ? '#10b981' : (subset.expectancy < 0 ? '#ef4444' : '#f59e0b');
+    return `
+      <div class="sim-hyp-row ${isAdverse ? 'adverse-row' : ''}">
+        <span class="sim-hyp-row-label">${subset.label || defaultLabel}</span>
+        <div class="sim-hyp-row-metrics">
+          <span class="sim-hyp-metric" style="color: ${wrColor};">WR: <b>${subset.winRateFormatted}</b></span>
+          <span class="sim-hyp-metric" style="color: ${expColor};">Exp: <b>${subset.expectancyFormatted}</b></span>
+          <span class="sim-hyp-metric" style="color: #94a3b8;">TTT: <b>${subset.avgTtt1RFormatted}</b></span>
+          <small>(${subset.executed} trades)</small>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
    * 5. Modal de Detalhes da Simulação e Timeline do Trade
    */
   function renderModal() {
@@ -2046,6 +2464,9 @@
               <b style="color: #dc2626; font-size: 16px;">${formatR(sim.maeR)}</b>
             </div>
           </div>
+
+          <!-- Estrutura do Gatilho & Velocidade (Time to Target) -->
+          ${renderModalStructureCard(sim)}
 
           <!-- Timeline Interativa de Eventos -->
           <h4 style="margin: 20px 0 8px; font-size: 14px;">Linha do Tempo da Simulação</h4>
@@ -2669,6 +3090,32 @@
       }
     });
 
+    // 3. Modal do Estudo Estatístico Double Inside Bar
+    container.querySelector('#simBtnHypothesisModal')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.hypothesisModalOpen = true;
+      render();
+    });
+
+    container.querySelector('#simHypothesisModalClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.hypothesisModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simHypothesisModalCloseBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.hypothesisModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simHypothesisModalOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simHypothesisModalOverlay') {
+        state.hypothesisModalOpen = false;
+        render();
+      }
+    });
+
     // Trocar cenário clicando no cabeçalho da tabela comparativa
     container.querySelectorAll('[data-switch-scenario]').forEach(th => {
       th.addEventListener('click', (e) => {
@@ -2693,6 +3140,13 @@
       e.stopPropagation();
       state.activeDropdown = null;
       state.compareModalOpen = true;
+      render();
+    });
+
+    container.querySelector('#simMoreBtnHypothesis')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      state.hypothesisModalOpen = true;
       render();
     });
 

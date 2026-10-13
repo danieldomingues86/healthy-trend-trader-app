@@ -293,6 +293,11 @@ const server = http.createServer(async (request, response) => {
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, await tradeSimulator.compare(user.id));
     }
+    if (url.pathname === '/api/trade-simulations/hypothesis-comparison' && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await tradeSimulator.compareHypothesis(user.id));
+    }
     if (url.pathname === '/api/trade-simulations/reset' && request.method === 'POST') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
