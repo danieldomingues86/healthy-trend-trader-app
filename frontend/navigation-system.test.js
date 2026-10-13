@@ -72,28 +72,29 @@ test('NavigationSystemModel: PREDEFINIÇÃO FULL preserva 100% dos módulos', ()
   assert.equal(integrity.totalModules, integrity.representedCount);
 });
 
-test('NavigationSystemModel: personalização de Acesso Rápido e movimentação de módulo', () => {
+test('NavigationSystemModel: Predefinições governam exclusivamente o Acesso Rápido e Categorias', () => {
   const model = new NavigationSystemModel();
   
-  // 1. Adicionar módulo ao Acesso Rápido
-  assert.equal(model.state.quickAccess.includes('portfolioheat'), false);
-  model.setQuickAccess('portfolioheat', true);
-  assert.equal(model.state.quickAccess.includes('portfolioheat'), true);
-  assert.equal(model.state.preset, 'custom');
+  // 1. Inicia com preset 'fast'
+  assert.equal(model.state.preset, 'fast');
+  assert.deepEqual(model.state.quickAccess, ['today', 'newtrade', 'journal', 'watchlist', 'charts']);
 
-  // 2. Mover módulo entre categorias (ex: portfolioheat para 'daily')
-  model.moveModule('portfolioheat', 'daily');
-  let tree = model.getNavigationTree();
-  const dailyCat = tree.categories.find(c => c.id === 'daily');
-  assert.ok(dailyCat.items.some(i => i.id === 'portfolioheat'));
+  // 2. Módulos pertencem estritamente às suas categorias oficiais (ex: portfolioheat em 'portfolio-risk')
+  const treeFast = model.getNavigationTree();
+  const riskCat = treeFast.categories.find(c => c.id === 'portfolio-risk');
+  assert.ok(riskCat.items.some(i => i.id === 'portfolioheat'));
 
-  // 3. Integridade segue 100% mesmo após movimentação personalizada
-  const integrity = model.validateIntegrity(tree);
+  const dailyCat = treeFast.categories.find(c => c.id === 'daily');
+  assert.ok(!dailyCat.items.some(i => i.id === 'portfolioheat'), 'Módulo não deve estar fora de sua categoria oficial');
+
+  // 3. Ao aplicar a predefinição 'trader_focus', Acesso Rápido e ordenação atualizam automaticamente
+  model.applyPreset('trader_focus');
+  assert.equal(model.state.preset, 'trader_focus');
+  assert.deepEqual(model.state.quickAccess, ['today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
+
+  // 4. Integridade segue 100% em todas as predefinições
+  const integrity = model.validateIntegrity(model.getNavigationTree());
   assert.equal(integrity.isValid, true);
-
-  // 4. Remover do Acesso Rápido
-  model.setQuickAccess('portfolioheat', false);
-  assert.equal(model.state.quickAccess.includes('portfolioheat'), false);
 });
 
 test('NavigationSystemModel: persistência em mock storage e restauração de estado', () => {
@@ -105,14 +106,17 @@ test('NavigationSystemModel: persistência em mock storage e restauração de es
 
   const model1 = new NavigationSystemModel();
   model1.setStyle('tiles');
-  model1.setQuickAccess('tradesimulator', true);
+  model1.applyPreset('full');
+  model1.toggleCategoryCollapsed('mindset');
   model1.save(mockStorage);
 
   const model2 = new NavigationSystemModel();
   model2.load(mockStorage);
 
   assert.equal(model2.state.style, 'tiles');
-  assert.equal(model2.state.quickAccess.includes('tradesimulator'), true);
+  assert.equal(model2.state.preset, 'full');
+  assert.deepEqual(model2.state.quickAccess, ['today', 'newtrade', 'journal', 'watchlist', 'charts', 'dashboard']);
+  assert.ok(model2.isCategoryCollapsed('mindset'));
 });
 
 test('Validação de Paridade 100%: Nenhum item da navegação anterior foi perdido', () => {

@@ -1357,54 +1357,11 @@
         </button>
       `).join('');
 
-      // Interactive Customizer
-      let customizerHtml = '';
-      if (tree) {
-        customizerHtml = `
-          <div class="nav-customizer-wrap">
-            <div class="nav-customizer-header">
-              <div>
-                <b>${isEn ? 'Customize Quick Access & Categories' : 'Personalizar Acesso Rápido & Módulos'}</b>
-                <small>${isEn ? 'Click the star ★ to pin/unpin from Quick Access, or change the category of any module.' : 'Clique na estrela ★ para fixar/desafixar do Acesso Rápido ou altere a categoria de qualquer módulo.'}</small>
-              </div>
-              <button type="button" class="secondary nav-reset-btn" onclick="window.SidebarNavigation.resetPreset()">
-                ${isEn ? 'Reset to Preset' : 'Restaurar Padrão da Predefinição'}
-              </button>
-            </div>
-            <div class="nav-modules-list">
-              ${tree.categories.map((cat) => `
-                <div class="nav-cat-group-row">
-                  <span class="nav-cat-group-title">${cat.icon} ${cat.currentLabel || cat.label}</span>
-                  <div class="nav-cat-group-items">
-                    ${cat.items.map((m) => {
-                      const isQuick = tree.quickAccess.some(q => q.id === m.id);
-                      return `
-                        <div class="nav-module-pill">
-                          <button type="button" class="nav-star-toggle ${isQuick ? 'starred' : ''}" title="${isQuick ? 'Remover do Acesso Rápido' : 'Adicionar ao Acesso Rápido'}" onclick="window.SidebarNavigation.toggleQuickAccess('${m.id}')">
-                            ${isQuick ? '★' : '☆'}
-                          </button>
-                          <span class="nav-module-title">${m.currentLabel}</span>
-                          <select class="nav-module-cat-select" onchange="window.SidebarNavigation.moveModule('${m.id}', this.value)" aria-label="Mover módulo de categoria">
-                            ${this.model.categories.map(c => `
-                              <option value="${c.id}" ${c.id === cat.id ? 'selected' : ''}>${c.label}</option>
-                            `).join('')}
-                          </select>
-                        </div>
-                      `;
-                    }).join('')}
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      }
-
       card.innerHTML = `
         <div class="card-head">
           <div>
             <h3>${isEn ? 'Navigation Architecture' : 'Arquitetura de Navegação'}</h3>
-            <span>${isEn ? 'Choose presentation format, organization preset, and customize your workflow.' : 'Escolha como navegar pela plataforma, selecione uma predefinição e personalize seu Acesso Rápido.'}</span>
+            <span>${isEn ? 'Choose presentation format and navigation organization preset.' : 'Escolha como navegar pela plataforma e selecione a predefinição ideal para o seu dia a dia.'}</span>
           </div>
         </div>
 
@@ -1415,13 +1372,8 @@
 
         <div class="nav-settings-block">
           <label class="nav-settings-label">${isEn ? '2. Organization Preset' : '2. Predefinição de Organização'}</label>
-          <p class="nav-settings-hint">${isEn ? 'Presets determine grouping and Quick Access without hiding any software capability. 100% of modules remain accessible.' : 'As predefinições reorganizam o agrupamento e o Acesso Rápido sem remover nenhuma funcionalidade do software. 100% dos módulos continuam disponíveis.'}</p>
+          <p class="nav-settings-hint">${isEn ? 'Presets determine grouping and Quick Access without hiding any software capability. 100% of modules remain accessible.' : 'As predefinições organizam o agrupamento das categorias e do Acesso Rápido de forma automática. 100% dos módulos continuam disponíveis.'}</p>
           <div class="nav-presets-row">${presetButtons}</div>
-        </div>
-
-        <div class="nav-settings-block">
-          <label class="nav-settings-label">${isEn ? '3. Personalization' : '3. Personalização do Usuário'}</label>
-          ${customizerHtml}
         </div>
       `;
 
@@ -1447,29 +1399,6 @@
         if (typeof root.showToast === 'function') {
           root.showToast(`Predefinição ${name} aplicada. Todos os módulos preservados.`);
         }
-      }
-    }
-
-    toggleQuickAccess(moduleId) {
-      if (this.model && typeof this.model.setQuickAccess === 'function') {
-        const isCurrent = this.model.state.quickAccess.includes(moduleId);
-        this.model.setQuickAccess(moduleId, !isCurrent);
-        this.refresh();
-      }
-    }
-
-    moveModule(moduleId, targetCatId) {
-      if (this.model && typeof this.model.moveModule === 'function') {
-        this.model.moveModule(moduleId, targetCatId);
-        this.refresh();
-      }
-    }
-
-    resetPreset() {
-      if (this.model) {
-        const currentPreset = this.model.state.preset || 'fast';
-        const target = currentPreset === 'custom' ? 'fast' : currentPreset;
-        this.applyPreset(target);
       }
     }
 

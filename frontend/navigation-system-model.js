@@ -617,27 +617,20 @@
 
     getDefaultState(presetKey = 'fast') {
       const preset = this.presets[presetKey] || this.presets.fast;
-      
-      // Default module-to-category mapping from MODULES
-      const moduleCategories = {};
-      this.modules.forEach(m => {
-        moduleCategories[m.id] = m.category;
-      });
+      const key = this.presets[presetKey] ? presetKey : 'fast';
 
       return {
         style: 'sidebar', // 'sidebar' | 'top' | 'tiles'
-        preset: presetKey,
+        preset: key,
         quickAccess: [...preset.quickAccess],
         categoryOrder: [...preset.categoryOrder],
-        moduleCategories: moduleCategories,
-        collapsedCategories: [...(preset.collapsedCategories || [])],
-        customModuleOrder: {} // categoryId -> array of moduleIds
+        collapsedCategories: [...(preset.collapsedCategories || [])]
       };
     }
 
     /**
      * Resolves the navigation tree based on current state.
-     * GUARANTEE: Every registered module is present either in its category and/or quick access.
+     * GUARANTEE: Every registered module is present in its official category, and quick access reflects the active preset.
      */
     getNavigationTree(overrideState = null) {
       const state = overrideState || this.state;
@@ -671,30 +664,11 @@
         });
       });
 
-      // Group modules by their assigned category
+      // Group modules by their official assigned category
       this.modules.forEach(m => {
-        const targetCatId = state.moduleCategories?.[m.id] || m.category;
-        const cat = categoriesById.get(targetCatId) || categoriesById.get(m.category);
+        const cat = categoriesById.get(m.category);
         if (cat) {
           cat.items.push(moduleMap.get(m.id));
-        }
-      });
-
-      // Apply custom order within each category if specified
-      categoriesById.forEach(cat => {
-        const customOrder = state.customModuleOrder?.[cat.id];
-        if (Array.isArray(customOrder) && customOrder.length > 0) {
-          const itemMap = new Map(cat.items.map(it => [it.id, it]));
-          const ordered = [];
-          customOrder.forEach(id => {
-            if (itemMap.has(id)) {
-              ordered.push(itemMap.get(id));
-              itemMap.delete(id);
-            }
-          });
-          // Append any remaining items
-          itemMap.forEach(it => ordered.push(it));
-          cat.items = ordered;
         }
       });
 
@@ -721,44 +695,6 @@
         quickAccess: quickAccessItems,
         categories: orderedCategories
       };
-    }
-
-    /**
-     * Toggles a module in Quick Access
-     */
-    setQuickAccess(moduleId, isQuickAccess) {
-      if (!moduleId) return;
-      const index = this.state.quickAccess.indexOf(moduleId);
-      if (isQuickAccess && index === -1) {
-        this.state.quickAccess.push(moduleId);
-        this.state.preset = 'custom';
-      } else if (!isQuickAccess && index !== -1) {
-        this.state.quickAccess.splice(index, 1);
-        this.state.preset = 'custom';
-      }
-      this.save();
-    }
-
-    /**
-     * Moves a module to another category
-     */
-    moveModule(moduleId, targetCategoryId) {
-      if (!moduleId || !targetCategoryId) return;
-      if (!this.categories.some(c => c.id === targetCategoryId)) return;
-      if (!this.state.moduleCategories) this.state.moduleCategories = {};
-      this.state.moduleCategories[moduleId] = targetCategoryId;
-      this.state.preset = 'custom';
-      this.save();
-    }
-
-    /**
-     * Reorders modules in Quick Access
-     */
-    reorderQuickAccess(newOrderedIds) {
-      if (!Array.isArray(newOrderedIds)) return;
-      this.state.quickAccess = [...newOrderedIds];
-      this.state.preset = 'custom';
-      this.save();
     }
 
     /**
@@ -792,13 +728,6 @@
       this.state.quickAccess = [...preset.quickAccess];
       this.state.categoryOrder = [...preset.categoryOrder];
       this.state.collapsedCategories = [...(preset.collapsedCategories || [])];
-      
-      // Reset module categories to official defaults
-      this.state.moduleCategories = {};
-      this.modules.forEach(m => {
-        this.state.moduleCategories[m.id] = m.category;
-      });
-      this.state.customModuleOrder = {};
       this.save();
     }
 
@@ -844,9 +773,15 @@
 
         if (storedState) {
           const parsed = JSON.parse(storedState);
+          const validPresetKey = (parsed && this.presets[parsed.preset]) ? parsed.preset : 'fast';
+          const defaultPresetState = this.getDefaultState(validPresetKey);
           this.state = {
-            ...this.getDefaultState('fast'),
-            ...parsed
+            ...defaultPresetState,
+            style: (parsed && ['sidebar', 'top', 'tiles'].includes(parsed.style)) ? parsed.style : defaultPresetState.style,
+            preset: validPresetKey,
+            quickAccess: [...defaultPresetState.quickAccess],
+            categoryOrder: [...defaultPresetState.categoryOrder],
+            collapsedCategories: (parsed && Array.isArray(parsed.collapsedCategories)) ? parsed.collapsedCategories : defaultPresetState.collapsedCategories
           };
         }
 
