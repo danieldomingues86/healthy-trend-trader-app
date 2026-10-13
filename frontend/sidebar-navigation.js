@@ -1206,7 +1206,6 @@
       const isEn = root.appLanguage === 'en-US';
       const isPro = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
       const proPages = root.professionalPages || new Set();
-      const currentPreset = tree ? tree.preset : 'fast';
 
       let quickBlockHtml = '';
       if (tree && tree.quickAccess && tree.quickAccess.length > 0) {
@@ -1285,14 +1284,6 @@
               <small>— TOM BASSO</small>
             </aside>
           </header>
-
-          <!-- PRESET TOOLBAR -->
-          <div class="navigation-hub-preset-bar">
-            <span class="preset-bar-label">${isEn ? 'Preset:' : 'Predefinição:'}</span>
-            <button type="button" class="nav-hub-preset-btn ${currentPreset === 'fast' ? 'active' : ''}" onclick="window.SidebarNavigation.applyPreset('fast')">⚡ Fast</button>
-            <button type="button" class="nav-hub-preset-btn ${currentPreset === 'trader_focus' ? 'active' : ''}" onclick="window.SidebarNavigation.applyPreset('trader_focus')">🎯 Trader Focus</button>
-            <button type="button" class="nav-hub-preset-btn ${currentPreset === 'full' ? 'active' : ''}" onclick="window.SidebarNavigation.applyPreset('full')">🏛️ Professional / Full</button>
-          </div>
 
           <!-- ACESSO RÁPIDO BLOCK -->
           ${quickBlockHtml}
