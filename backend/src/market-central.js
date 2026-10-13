@@ -15,6 +15,7 @@
 
 const marketData = require('./market-data');
 const marketNews = require('./market-news');
+const eventPlaybook = require('./event-playbook');
 
 const GLOBAL_BENCHMARKS = [
   {
@@ -468,7 +469,7 @@ function buildSectorMarketMap(assets) {
 /**
  * Monta o pacote de dados analíticos completo da Central de Mercado
  */
-async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3', cache = null } = {}) {
+async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3', cache = null, userId = null } = {}) {
   const loadedCache = cache || await marketData.readCache();
   
   // 1. Regime de Mercado oficial
@@ -567,8 +568,30 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
       };
     });
 
-  // 5. Eventos de Alto Impacto
-  const events = DEFAULT_HIGH_IMPACT_EVENTS;
+  // 5. Eventos de Alto Impacto (compartilhados com o Event Playbook)
+  let events = [];
+  try {
+    const epList = await eventPlaybook.list(userId || 'anonymous');
+    if (Array.isArray(epList) && epList.length > 0) {
+      events = epList.slice(0, 8).map(e => ({
+        id: e.id,
+        name: e.name,
+        date: e.date || e.eventDate,
+        time: e.time || e.eventTime,
+        timezone: e.timezone || 'America/Sao_Paulo',
+        impact: e.impact >= 4 ? 'ALTO' : 'MÉDIO',
+        impactLevel: e.impactLevel,
+        impactScore: e.impact,
+        country: e.country || 'Brasil',
+        relatedAssets: e.relatedAssets || e.affectedAssets || 'Geral',
+        description: e.description,
+        source: e.source || 'Playbook'
+      }));
+    }
+  } catch (_) {}
+  if (!events || events.length === 0) {
+    events = DEFAULT_HIGH_IMPACT_EVENTS;
+  }
 
   // 6. Notícias Relevantes (Top 5 da GDELT) — Resolução rápida não-bloqueante
   let news = [];

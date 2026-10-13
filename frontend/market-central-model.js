@@ -9,11 +9,13 @@
 
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
+    let ep = null;
+    try { ep = require('./event-playbook-model'); } catch (_) {}
+    module.exports = factory(ep);
   } else {
-    root.MarketCentralModel = factory();
+    root.MarketCentralModel = factory(root.EventPlaybookModel);
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (EventPlaybook) {
   'use strict';
 
   const STORAGE_KEY_CUSTOM_EVENTS = 'healthy-trend-central-events-v1';
@@ -135,10 +137,21 @@
     }
   }
 
+  function getPlaybook() {
+    if (typeof EventPlaybook !== 'undefined' && EventPlaybook) return EventPlaybook;
+    if (typeof window !== 'undefined' && window.EventPlaybookModel) return window.EventPlaybookModel;
+    if (typeof globalThis !== 'undefined' && globalThis.EventPlaybookModel) return globalThis.EventPlaybookModel;
+    return null;
+  }
+
   /**
    * Lê eventos customizados do usuário salvos no workspace ou localStorage
    */
   function getCustomEvents() {
+    const pb = getPlaybook();
+    if (pb && typeof pb.getAllEvents === 'function') {
+      return pb.getAllEvents();
+    }
     const data = safeStorageGet(STORAGE_KEY_CUSTOM_EVENTS);
     return Array.isArray(data) ? data : [];
   }
@@ -150,6 +163,20 @@
     if (!eventData || !eventData.name) {
       throw new Error('O nome do evento é obrigatório.');
     }
+    const pb = getPlaybook();
+    if (pb && typeof pb.addEvent === 'function') {
+      const added = pb.addEvent({
+        ...eventData,
+        id: eventData.id || ('cust-evt-' + Date.now()),
+        impact: eventData.impact === 'ALTO' ? 4 : 3,
+        impactLevel: eventData.impact === 'ALTO' ? 'ALTO' : 'MÉDIO'
+      });
+      return {
+        ...added,
+        impact: eventData.impact || (added.impact >= 4 ? 'ALTO' : 'MÉDIO')
+      };
+    }
+
     const current = getCustomEvents();
     const newEvent = {
       id: 'cust-evt-' + Date.now(),
@@ -172,6 +199,10 @@
   }
 
   function removeCustomEvent(eventId) {
+    const pb = getPlaybook();
+    if (pb && typeof pb.deleteEvent === 'function') {
+      return pb.deleteEvent(eventId);
+    }
     const current = getCustomEvents();
     const filtered = current.filter(it => it.id !== eventId);
     saveCustomEvents(filtered);
@@ -194,6 +225,12 @@
     if (!reactionData || !reactionData.eventId) {
       throw new Error('O ID do evento é obrigatório para registrar a reação.');
     }
+
+    const pb = getPlaybook();
+    if (pb && typeof pb.saveReaction === 'function') {
+      pb.saveReaction(reactionData);
+    }
+
     const current = getEventReactions();
     const newReaction = {
       id: 'reaction-' + Date.now(),
@@ -215,6 +252,22 @@
   }
 
   function getReactionsForEvent(eventId) {
+    const pb = getPlaybook();
+    if (pb && typeof pb.getEventById === 'function') {
+      const ev = pb.getEventById(eventId);
+      if (ev && (ev.whatHappened || ev.lessonsLearned)) {
+        return [{
+          id: 'reaction-' + ev.id,
+          eventId: ev.id,
+          eventName: ev.name,
+          eventDate: ev.date,
+          whatHappened: ev.whatHappened,
+          affectedAssets: ev.affectedAssets,
+          volatilityBehavior: ev.volatilityBehavior,
+          lessonsLearned: ev.lessonsLearned
+        }];
+      }
+    }
     return getEventReactions().filter(r => r.eventId === eventId);
   }
 

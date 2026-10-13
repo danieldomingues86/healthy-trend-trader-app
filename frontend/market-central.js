@@ -206,8 +206,16 @@
     const regime = d.regime || {};
     const breadth = d.breadth || {};
     const globalMarkets = d.globalMarkets || [];
-    const marketMap = d.marketMap || [];
-    const events = [...(Model.getCustomEvents?.() || []), ...(d.events || [])].slice(0, 5);
+    const rawEvents = [...(Model.getCustomEvents?.() || []), ...(d.events || [])];
+    const seenEventIds = new Set();
+    const events = [];
+    for (const ev of rawEvents) {
+      if (ev && ev.id && !seenEventIds.has(ev.id)) {
+        seenEventIds.add(ev.id);
+        events.push(ev);
+      }
+    }
+    const displayEvents = events.slice(0, 8);
     const news = (d.news && d.news.length > 0) ? d.news.slice(0, 5) : [];
     const assets = d.assets || [];
 
@@ -474,13 +482,13 @@
                 <span></span>
               </div>
               <div class="mc-events-list">
-                ${events.map(ev => `
+                ${displayEvents.map(ev => `
                   <div class="mc-event-row" data-event-id="${esc(ev.id)}" onclick="window.openEventReactionModal('${esc(ev.id)}')">
-                    <span class="mc-event-date">${formatEventDate(ev.date)}</span>
-                    <span class="mc-event-time">${esc(ev.time)}</span>
+                    <span class="mc-event-date">${formatEventDate(ev.date || ev.eventDate)}</span>
+                    <span class="mc-event-time">${esc(ev.time || ev.eventTime || '10:00')}</span>
                     <span class="mc-event-name">${esc(ev.name)}</span>
-                    <span class="mc-event-badge ${ev.impact === 'ALTO' ? 'alto' : 'medio'}">${esc(ev.impact)}</span>
-                    <span class="mc-event-related">${esc(ev.relatedAssets || 'Geral')}</span>
+                    <span class="mc-event-badge ${(ev.impact === 'ALTO' || ev.impact >= 4) ? 'alto' : 'medio'}">${esc(ev.impact === 'ALTO' || ev.impact >= 4 ? 'ALTO' : 'MÉDIO')}</span>
+                    <span class="mc-event-related">${esc(ev.relatedAssets || ev.affectedAssets || 'Geral')}</span>
                     <span class="mc-event-action" title="Registrar reação do mercado">›</span>
                   </div>
                 `).join('')}
@@ -891,6 +899,9 @@
 
       try {
         Model.addCustomEvent({ name, date, time, impact, relatedAssets, description });
+        if (window.EventPlaybook && typeof window.EventPlaybook.refresh === 'function') {
+          window.EventPlaybook.refresh();
+        }
         modal.remove();
         render();
       } catch (err) {
@@ -908,11 +919,12 @@
 
     const d = state.data || generateFallbackData();
     const allEvents = [...(Model.getCustomEvents?.() || []), ...(d.events || [])];
-    const event = allEvents.find(e => e.id === eventId);
+    const epEvent = (window.EventPlaybookModel?.getEventById && window.EventPlaybookModel.getEventById(eventId)) || null;
+    const event = epEvent || allEvents.find(e => e.id === eventId);
     if (!event) return;
 
     const reactions = Model.getReactionsForEvent ? Model.getReactionsForEvent(eventId) : [];
-    const latestReaction = reactions[0] || null;
+    const latestReaction = epEvent || reactions[0] || null;
 
     const modal = document.createElement('div');
     modal.id = 'mcReactionModal';
@@ -922,7 +934,7 @@
         <div class="mc-modal-header">
           <div>
             <h3>Playbook de Eventos: Reação do Mercado</h3>
-            <span style="font-size:12px;color:#64748b;">${esc(event.name)} (${esc(event.date)} às ${esc(event.time)})</span>
+            <span style="font-size:12px;color:#64748b;">${esc(event.name)} (${esc(event.date || event.eventDate)} às ${esc(event.time || event.eventTime || '10:00')})</span>
           </div>
           <button type="button" class="mc-modal-close-btn" onclick="document.getElementById('mcReactionModal').remove()">✕</button>
         </div>
@@ -954,9 +966,14 @@
             <textarea id="rxLessons" rows="2" placeholder="Ex: Aguardar a primeira vela de 15m fechar antes de considerar qualquer ajuste nos stops...">${esc(latestReaction?.lessonsLearned || '')}</textarea>
           </div>
 
-          <div class="mc-modal-actions">
-            <button type="button" class="mc-modal-cancel-btn" onclick="document.getElementById('mcReactionModal').remove()">Fechar</button>
-            <button type="submit" class="mc-modal-submit-btn">Salvar no Playbook</button>
+          <div class="mc-modal-actions" style="display:flex;justify-content:space-between;align-items:center;">
+            <button type="button" class="mc-modal-link-btn" style="background:transparent;border:none;color:#10b981;cursor:pointer;font-size:13px;font-weight:600;padding:6px 0;display:inline-flex;align-items:center;gap:4px;" onclick="document.getElementById('mcReactionModal')?.remove(); if (window.EventPlaybook && typeof window.EventPlaybook.selectEvent === 'function') { window.EventPlaybook.selectEvent('${esc(event.id)}'); if (window.go) window.go('eventplaybook'); } else if (window.go) { window.go('eventplaybook'); }">
+              Abrir no Event Playbook ↗
+            </button>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="mc-modal-cancel-btn" onclick="document.getElementById('mcReactionModal').remove()">Fechar</button>
+              <button type="submit" class="mc-modal-submit-btn">Salvar no Playbook</button>
+            </div>
           </div>
         </form>
       </div>
@@ -974,12 +991,16 @@
       Model.saveEventReaction({
         eventId: event.id,
         eventName: event.name,
-        eventDate: event.date,
+        eventDate: event.date || event.eventDate,
         whatHappened,
         volatilityBehavior,
         affectedAssets,
         lessonsLearned
       });
+
+      if (window.EventPlaybook && typeof window.EventPlaybook.refresh === 'function') {
+        window.EventPlaybook.refresh();
+      }
 
       modal.remove();
       render();

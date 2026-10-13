@@ -29,6 +29,8 @@ const traderTraining = require('./trader-training');
 const tradeSimulator = require('./trade-simulator');
 const marketNews = require('./market-news');
 const marketCentral = require('./market-central');
+const eventPlaybook = require('./event-playbook');
+const eventPlaybookAttachments = require('./event-playbook-attachments');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -565,13 +567,92 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/nasdaq/validation') {
       return send(response, 200, await nasdaqRelativeStrengthEngine.validateDataset());
     }
+    // Event Playbook - Attachment Content (GET)
+    const epAttContentMatch = url.pathname.match(/^\/api\/event-playbook\/attachments\/([^/]+)\/content$/);
+    if (epAttContentMatch && request.method === 'GET') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const file = await eventPlaybookAttachments.content(user ? user.id : 'anonymous', epAttContentMatch[1]);
+      return sendFile(response, 200, file.bytes, file.content_type, file.original_name);
+    }
+
+    // Event Playbook - Attachment Upload (POST)
+    if (url.pathname === '/api/event-playbook/attachments' && request.method === 'POST') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'anonymous';
+      const attachment = await eventPlaybookAttachments.create(userId, {
+        name: headerText(request.headers['x-file-name']),
+        contentType: request.headers['content-type'],
+        bytes: await binaryBody(request)
+      });
+      return send(response, 201, { attachment });
+    }
+
+    // Event Playbook - List (GET)
+    if (url.pathname === '/api/event-playbook' && request.method === 'GET') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'anonymous';
+      const query = {
+        category: url.searchParams.get('category'),
+        impact: url.searchParams.get('impact'),
+        period: url.searchParams.get('period'),
+        asset: url.searchParams.get('asset'),
+        search: url.searchParams.get('search')
+      };
+      const items = await eventPlaybook.list(userId, query);
+      return send(response, 200, { items, categories: eventPlaybook.CATEGORIES });
+    }
+
+    // Event Playbook - Create (POST)
+    if (url.pathname === '/api/event-playbook' && request.method === 'POST') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'anonymous';
+      const payload = await body(request);
+      const item = await eventPlaybook.create(userId, payload);
+      return send(response, 201, { item });
+    }
+
+    // Event Playbook - Save Reaction (POST /api/event-playbook/reaction)
+    if (url.pathname === '/api/event-playbook/reaction' && request.method === 'POST') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'anonymous';
+      const payload = await body(request);
+      const item = await eventPlaybook.saveReaction(userId, payload);
+      return send(response, 200, { item });
+    }
+
+    // Event Playbook - Single item operations (GET, PUT, DELETE)
+    const epMatch = url.pathname.match(/^\/api\/event-playbook\/([^/]+)$/);
+    if (epMatch) {
+      const eventId = epMatch[1];
+      if (request.method === 'GET') {
+        const user = await auth.session(bearer(request)).catch(() => null);
+        const userId = user ? user.id : 'anonymous';
+        const item = await eventPlaybook.get(userId, eventId);
+        return send(response, 200, { item });
+      }
+      if (request.method === 'PUT') {
+        const user = await auth.session(bearer(request)).catch(() => null);
+        const userId = user ? user.id : 'anonymous';
+        const payload = await body(request);
+        const item = await eventPlaybook.update(userId, eventId, payload);
+        return send(response, 200, { item });
+      }
+      if (request.method === 'DELETE') {
+        const user = await auth.session(bearer(request)).catch(() => null);
+        const userId = user ? user.id : 'anonymous';
+        const res = await eventPlaybook.remove(userId, eventId);
+        return send(response, 200, res);
+      }
+    }
+
     if (!['/api/market-central','/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
     if (url.pathname === '/api/market-central') {
       const marketParam = url.searchParams.get('market') || 'stock_b3';
       const universeParam = url.searchParams.get('universe') || 'stock_b3';
-      const payload = await marketCentral.getMarketCentralData({ market: marketParam, universe: universeParam, cache });
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const payload = await marketCentral.getMarketCentralData({ market: marketParam, universe: universeParam, cache, userId: user ? user.id : null });
       return send(response, 200, payload);
     }
     if (url.pathname === '/api/market-cycle') {
