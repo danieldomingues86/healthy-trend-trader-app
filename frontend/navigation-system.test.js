@@ -177,3 +177,13 @@ test('NavigationSystemModel: controle de recolhimento de categoria (isCategoryCo
   model.toggleCategoryCollapsed('daily_operation');
   assert.equal(model.isCategoryCollapsed('daily_operation'), false);
 });
+
+test('NavigationSystem: Categoria Treinamento tem label exato e ícones do Menu Superior são transparentes', () => {
+  const trainingCat = CATEGORIES.find(c => c.id === 'training-recovery');
+  assert.ok(trainingCat, 'Categoria training-recovery deve existir');
+  assert.equal(trainingCat.label, 'Treinamento', 'Label da categoria deve ser exatamente "Treinamento"');
+
+  const css = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.css'), 'utf8');
+  assert.match(css, /\.dropdown-item-ico\s*\{[^}]*background:\s*transparent/i, 'dropdown-item-ico deve ter background transparente');
+});
+

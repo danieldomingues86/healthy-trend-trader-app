@@ -26,8 +26,8 @@
     },
     {
       id: 'training-recovery',
-      label: 'Treinamento & Recuperação',
-      labelEn: 'Training & Recovery',
+      label: 'Treinamento',
+      labelEn: 'Training',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
       desc: 'Metas, jornada de consistência e proteção operacional.'
     },
@@ -145,7 +145,7 @@
       proOnly: false
     },
 
-    // Treinamento & Recuperação
+    // Treinamento
     {
       id: 'tradertraining',
       page: 'tradertraining',
