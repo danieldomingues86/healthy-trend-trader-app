@@ -38,6 +38,23 @@
     return document.getElementById('marketCentralRoot') || document.getElementById('marketcentral');
   }
 
+  function getEffectiveChange(item, period = 'today') {
+    if (!item) return 0;
+    if (item.returns && typeof item.returns[period] === 'number') {
+      return item.returns[period];
+    }
+    if (period === 'today' && typeof item.changePct === 'number') {
+      return item.changePct;
+    }
+    return typeof item.changePct === 'number' ? item.changePct : 0;
+  }
+
+  function formatChangePct(val) {
+    const num = Number(val) || 0;
+    const sign = num > 0 ? '+' : '';
+    return `${sign}${num.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}%`;
+  }
+
   /**
    * Busca os dados consolidados da Central de Mercado no backend
    */
@@ -57,8 +74,10 @@
         }
       }
     } catch (err) {
-      console.warn('[MarketCentral] Usando fallback resiliente de dados:', err.message);
-      state.data = generateFallbackData();
+      console.warn('[MarketCentral] Usando dados em memória/fallback resiliente:', err.message);
+      if (!state.data) {
+        state.data = generateFallbackData();
+      }
     } finally {
       state.loading = false;
       render();
@@ -68,7 +87,7 @@
   function generateFallbackData() {
     return {
       success: true,
-      dataAsOf: '2026-10-06',
+      dataAsOf: new Date().toISOString().slice(0, 10),
       updatedAt: new Date().toISOString(),
       regime: {
         marketId: state.selectedMarket,
@@ -99,27 +118,27 @@
         dataAvailable: true
       },
       globalMarkets: Model.GLOBAL_BENCHMARKS || [
-        { symbol: 'SPX', name: 'S&P 500', flag: '🇺🇸', value: '5.728,41', changePct: 0.82, trend: 'up', sparkline: [5680, 5695, 5705, 5700, 5715, 5722, 5728.41] },
-        { symbol: 'NDX', name: 'Nasdaq', flag: '🇺🇸', value: '18.024,17', changePct: 1.14, trend: 'up', sparkline: [17810, 17860, 17920, 17890, 17980, 18010, 18024.17] },
-        { symbol: 'DJI', name: 'Dow Jones', flag: '🇺🇸', value: '42.331,12', changePct: 0.42, trend: 'up', sparkline: [42150, 42200, 42240, 42210, 42280, 42310, 42331.12] },
-        { symbol: 'VIX', name: 'VIX', flag: '📊', value: '17,21', changePct: -4.20, trend: 'down', sparkline: [19.8, 19.1, 18.5, 18.9, 17.8, 17.5, 17.21] },
-        { symbol: 'DXY', name: 'Dólar (DXY)', flag: '🇺🇸', value: '101,63', changePct: 0.31, trend: 'up', sparkline: [100.9, 101.1, 101.3, 101.2, 101.5, 101.58, 101.63] },
-        { symbol: 'GOLD', name: 'Ouro', flag: '🪙', value: '2.664,80', changePct: 0.62, trend: 'up', sparkline: [2640, 2646, 2652, 2650, 2658, 2661, 2664.8] },
-        { symbol: 'WTI', name: 'Petróleo (WTI)', flag: '🛢️', value: '73,15', changePct: 1.80, trend: 'up', sparkline: [71.2, 71.8, 72.3, 72.0, 72.6, 72.9, 73.15] },
-        { symbol: 'BTC', name: 'Bitcoin', flag: '₿', value: '62.431,00', changePct: 0.94, trend: 'up', sparkline: [61200, 61600, 61900, 61750, 62100, 62300, 62431] }
+        { symbol: 'SPX', name: 'S&P 500', flag: '🇺🇸', value: '5.728,41', changePct: 0.82, returns: { today: 0.82, '5d': 1.65, '1m': 3.40, '3m': 7.80 }, trend: 'up', sparkline: [5680, 5695, 5705, 5700, 5715, 5722, 5728.41] },
+        { symbol: 'NDX', name: 'Nasdaq', flag: '🇺🇸', value: '18.024,17', changePct: 1.14, returns: { today: 1.14, '5d': 2.30, '1m': 4.80, '3m': 9.20 }, trend: 'up', sparkline: [17810, 17860, 17920, 17890, 17980, 18010, 18024.17] },
+        { symbol: 'DJI', name: 'Dow Jones', flag: '🇺🇸', value: '42.331,12', changePct: 0.42, returns: { today: 0.42, '5d': 0.85, '1m': 2.10, '3m': 5.40 }, trend: 'up', sparkline: [42150, 42200, 42240, 42210, 42280, 42310, 42331.12] },
+        { symbol: 'VIX', name: 'VIX', flag: '📊', value: '17,21', changePct: -4.20, returns: { today: -4.20, '5d': -8.50, '1m': -12.40, '3m': -15.10 }, trend: 'down', sparkline: [19.8, 19.1, 18.5, 18.9, 17.8, 17.5, 17.21] },
+        { symbol: 'DXY', name: 'Dólar (DXY)', flag: '🇺🇸', value: '101,63', changePct: 0.31, returns: { today: 0.31, '5d': 0.72, '1m': 1.15, '3m': -0.80 }, trend: 'up', sparkline: [100.9, 101.1, 101.3, 101.2, 101.5, 101.58, 101.63] },
+        { symbol: 'GOLD', name: 'Ouro', flag: '🪙', value: '2.664,80', changePct: 0.62, returns: { today: 0.62, '5d': 1.80, '1m': 4.20, '3m': 11.50 }, trend: 'up', sparkline: [2640, 2646, 2652, 2650, 2658, 2661, 2664.8] },
+        { symbol: 'WTI', name: 'Petróleo (WTI)', flag: '🛢️', value: '73,15', changePct: 1.80, returns: { today: 1.80, '5d': 3.50, '1m': 5.80, '3m': -4.20 }, trend: 'up', sparkline: [71.2, 71.8, 72.3, 72.0, 72.6, 72.9, 73.15] },
+        { symbol: 'BTC', name: 'Bitcoin', flag: '₿', value: '62.431,00', changePct: 0.94, returns: { today: 0.94, '5d': 4.10, '1m': 8.60, '3m': 18.20 }, trend: 'up', sparkline: [61200, 61600, 61900, 61750, 62100, 62300, 62431] }
       ],
       marketMap: [
-        { name: 'Financeiro', changePct: 2.4, changeFormatted: '+2,4%', assetsCount: 22 },
-        { name: 'Mineração', changePct: 1.8, changeFormatted: '+1,8%', assetsCount: 8 },
-        { name: 'Petróleo e Gás', changePct: 3.1, changeFormatted: '+3,1%', assetsCount: 12 },
-        { name: 'Energia', changePct: 0.7, changeFormatted: '+0,7%', assetsCount: 18 },
-        { name: 'Tecnologia', changePct: 1.2, changeFormatted: '+1,2%', assetsCount: 10 },
-        { name: 'Consumo', changePct: -0.4, changeFormatted: '-0,4%', assetsCount: 20 },
-        { name: 'Bens Industriais', changePct: 0.6, changeFormatted: '+0,6%', assetsCount: 14 },
-        { name: 'Saúde', changePct: -0.2, changeFormatted: '-0,2%', assetsCount: 11 },
-        { name: 'Utilidades', changePct: 0.3, changeFormatted: '+0,3%', assetsCount: 9 },
-        { name: 'Telecom', changePct: 0.8, changeFormatted: '+0,8%', assetsCount: 6 },
-        { name: 'Materiais Básicos', changePct: -0.6, changeFormatted: '-0,6%', assetsCount: 12 }
+        { name: 'Financeiro', changePct: 2.4, changeFormatted: '+2,4%', returns: { today: 2.4, '5d': 3.8, '1m': 7.2, '3m': 12.5 }, assetsCount: 22 },
+        { name: 'Mineração', changePct: 1.8, changeFormatted: '+1,8%', returns: { today: 1.8, '5d': 2.9, '1m': 5.4, '3m': -2.1 }, assetsCount: 8 },
+        { name: 'Petróleo e Gás', changePct: 3.1, changeFormatted: '+3,1%', returns: { today: 3.1, '5d': 5.2, '1m': 9.8, '3m': 18.4 }, assetsCount: 12 },
+        { name: 'Energia', changePct: 0.7, changeFormatted: '+0,7%', returns: { today: 0.7, '5d': 1.6, '1m': 4.1, '3m': 8.2 }, assetsCount: 18 },
+        { name: 'Tecnologia', changePct: 1.2, changeFormatted: '+1,2%', returns: { today: 1.2, '5d': 2.4, '1m': 6.5, '3m': 14.1 }, assetsCount: 10 },
+        { name: 'Consumo', changePct: -0.4, changeFormatted: '-0,4%', returns: { today: -0.4, '5d': -1.2, '1m': -3.5, '3m': -6.8 }, assetsCount: 20 },
+        { name: 'Bens Industriais', changePct: 0.6, changeFormatted: '+0,6%', returns: { today: 0.6, '5d': 1.8, '1m': 4.9, '3m': 10.2 }, assetsCount: 14 },
+        { name: 'Saúde', changePct: -0.2, changeFormatted: '-0,2%', returns: { today: -0.2, '5d': -0.8, '1m': 1.5, '3m': 3.2 }, assetsCount: 11 },
+        { name: 'Utilidades', changePct: 0.3, changeFormatted: '+0,3%', returns: { today: 0.3, '5d': 1.1, '1m': 3.2, '3m': 6.9 }, assetsCount: 9 },
+        { name: 'Telecom', changePct: 0.8, changeFormatted: '+0,8%', returns: { today: 0.8, '5d': 1.9, '1m': 4.4, '3m': 8.6 }, assetsCount: 6 },
+        { name: 'Materiais Básicos', changePct: -0.6, changeFormatted: '-0,6%', returns: { today: -0.6, '5d': -1.5, '1m': -2.8, '3m': -5.4 }, assetsCount: 12 }
       ],
       events: [
         { id: 'evt-payroll', name: 'Payroll (EUA)', date: '2026-10-07', time: '09:30', impact: 'ALTO', relatedAssets: 'EUA / Dólar / Índices' },
@@ -128,24 +147,30 @@
         { id: 'evt-china-pmi', name: 'Produção Industrial (China)', date: '2026-10-12', time: '11:00', impact: 'MÉDIO', relatedAssets: 'Commodities / Mineração' },
         { id: 'evt-copom', name: 'Decisão de Juros (Brasil - Copom)', date: '2026-10-13', time: '10:00', impact: 'ALTO', relatedAssets: 'IBOV / Juros / Bancos' }
       ],
-      news: [
-        { id: 'news-1', title: 'Fed sinaliza que pode manter juros elevados por mais tempo', summary: 'Powell reforça postura cautelosa diante da inflação persistente.', time: '09:12', impact: 'ALTO IMPACTO', image: 'assets/news-hero-fed.jpg' },
-        { id: 'news-2', title: 'Petrobras anuncia novo plano de investimentos', summary: 'Companhia prevê aumento na produção nos próximos anos.', time: '08:45', impact: 'ALTO IMPACTO', image: 'assets/news-thumb-petroleo.jpg' },
-        { id: 'news-3', title: 'Vale divulga dados operacionais acima do esperado', summary: 'Produção de minério cresce 4% no trimestre.', time: '07:30', impact: 'MÉDIO IMPACTO', image: 'assets/news-thumb-mineracao.jpg' },
-        { id: 'news-4', title: 'China anuncia novos estímulos à economia', summary: 'Medidas podem beneficiar commodities e mercados emergentes.', time: '06:55', impact: 'MÉDIO IMPACTO', image: 'assets/news-thumb-china.jpg' },
-        { id: 'news-5', title: 'Ibovespa opera em alta com exterior positivo', summary: 'Índice acompanha bom humor nos mercados globais.', time: '06:20', impact: 'GERAL', image: 'assets/news-thumb-spx.jpg' }
-      ]
+      assets: [
+        { symbol: 'PETR4', name: 'Petrobras PN', sector: 'Petróleo e Gás', price: 37.82, changePct: 3.10, changeFormatted: '+3,10%', returns: { today: 3.10, '5d': 5.20, '1m': 14.00, '3m': 37.70 }, score: 88 },
+        { symbol: 'VALE3', name: 'Vale ON', sector: 'Mineração', price: 61.40, changePct: 1.80, changeFormatted: '+1,80%', returns: { today: 1.80, '5d': 2.90, '1m': 5.10, '3m': -2.50 }, score: 55 },
+        { symbol: 'ITUB4', name: 'Itaú Unibanco', sector: 'Financeiro', price: 34.50, changePct: 2.40, changeFormatted: '+2,40%', returns: { today: 2.40, '5d': 3.90, '1m': 8.20, '3m': 15.60 }, score: 82 },
+        { symbol: 'BBDC4', name: 'Bradesco PN', sector: 'Financeiro', price: 14.92, changePct: 1.15, changeFormatted: '+1,15%', returns: { today: 1.15, '5d': 2.10, '1m': 4.80, '3m': 9.40 }, score: 68 },
+        { symbol: 'BBAS3', name: 'Banco do Brasil', sector: 'Financeiro', price: 28.10, changePct: 2.10, changeFormatted: '+2,10%', returns: { today: 2.10, '5d': 3.50, '1m': 7.60, '3m': 13.80 }, score: 79 },
+        { symbol: 'WEGE3', name: 'WEG ON', sector: 'Bens Industriais', price: 54.20, changePct: 0.60, changeFormatted: '+0,60%', returns: { today: 0.60, '5d': 2.40, '1m': 6.90, '3m': 18.20 }, score: 92 },
+        { symbol: 'PRIO3', name: 'PRIO ON', sector: 'Petróleo e Gás', price: 46.80, changePct: 2.85, changeFormatted: '+2,85%', returns: { today: 2.85, '5d': 4.80, '1m': 11.20, '3m': 22.50 }, score: 85 },
+        { symbol: 'RENT3', name: 'Localiza ON', sector: 'Consumo', price: 42.10, changePct: -1.20, changeFormatted: '-1,20%', returns: { today: -1.20, '5d': -2.50, '1m': -5.10, '3m': -8.90 }, score: 61 },
+        { symbol: 'MGLU3', name: 'Magazine Luiza', sector: 'Consumo', price: 9.30, changePct: -2.40, changeFormatted: '-2,40%', returns: { today: -2.40, '5d': -4.80, '1m': -9.20, '3m': -16.40 }, score: 45 },
+        { symbol: 'GGBR4', name: 'Gerdau PN', sector: 'Materiais Básicos', price: 18.75, changePct: -0.60, changeFormatted: '-0,60%', returns: { today: -0.60, '5d': -1.40, '1m': -2.90, '3m': -6.10 }, score: 58 },
+        { symbol: 'ELET3', name: 'Eletrobras ON', sector: 'Energia', price: 39.40, changePct: 0.70, changeFormatted: '+0,70%', returns: { today: 0.70, '5d': 1.80, '1m': 4.50, '3m': 9.10 }, score: 74 },
+        { symbol: 'VIVT3', name: 'Telefônica Brasil', sector: 'Telecom', price: 51.60, changePct: 0.80, changeFormatted: '+0,80%', returns: { today: 0.80, '5d': 1.90, '1m': 4.20, '3m': 8.50 }, score: 77 }
+      ],
+      news: [],
+      newsStatus: 'loading'
     };
   }
 
-  function getNewsThumbUrl(n) {
-    if (n.image && typeof n.image === 'string' && !n.image.startsWith('http')) return n.image;
-    const title = (n.title || '').toLowerCase();
-    if (title.includes('fed') || title.includes('juros')) return 'assets/news-hero-fed.jpg';
-    if (title.includes('petrobras') || title.includes('petróleo')) return 'assets/news-thumb-petroleo.jpg';
-    if (title.includes('vale') || title.includes('minério')) return 'assets/news-thumb-mineracao.jpg';
-    if (title.includes('china')) return 'assets/news-thumb-china.jpg';
-    return 'assets/news-thumb-spx.jpg';
+  function renderNewsThumb(n) {
+    if (n.image && typeof n.image === 'string' && n.image.startsWith('https://')) {
+      return `<img src="${esc(n.image)}" alt="${esc(n.title)}" class="mc-news-thumb" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="mc-news-thumb-fallback" style="display:none;"><span>${esc((n.source || 'N')[0])}</span></div>`;
+    }
+    return `<div class="mc-news-thumb-fallback"><span>${esc((n.source || 'N')[0])}</span></div>`;
   }
 
   function getFormattedHeaderDate() {
@@ -171,19 +196,38 @@
     const rootEl = getRoot();
     if (!rootEl) return;
 
+    // Dispara a busca em background se ainda não buscou, sem travar a interface
     if (!state.data && !state.loading) {
       fetchData();
-      rootEl.innerHTML = `<div style="text-align:center;padding:80px 20px;color:#64748b;">Carregando Central de Mercado…</div>`;
-      return;
     }
 
     const d = state.data || generateFallbackData();
+    const period = state.selectedPeriod || 'today';
     const regime = d.regime || {};
     const breadth = d.breadth || {};
     const globalMarkets = d.globalMarkets || [];
     const marketMap = d.marketMap || [];
     const events = [...(Model.getCustomEvents?.() || []), ...(d.events || [])].slice(0, 5);
-    const news = (d.news && d.news.length > 0) ? d.news.slice(0, 5) : generateFallbackData().news;
+    const news = (d.news && d.news.length > 0) ? d.news.slice(0, 5) : [];
+    const assets = d.assets || [];
+
+    // Cálculo dinâmico de avanço e queda para o período selecionado
+    let advPct = breadth.advancePct ?? 62;
+    let decPct = breadth.declinePct ?? 38;
+    if (assets && assets.length > 0) {
+      let upCount = 0;
+      let downCount = 0;
+      assets.forEach(it => {
+        const val = getEffectiveChange(it, period);
+        if (val > 0) upCount++;
+        else if (val < 0) downCount++;
+      });
+      const tot = upCount + downCount;
+      if (tot > 0) {
+        advPct = Math.round((upCount / tot) * 100);
+        decPct = 100 - advPct;
+      }
+    }
 
     // Ângulo da agulha do gauge (-90 a +90 deg)
     const gaugeAngle = Model.scoreToGaugeAngle ? Model.scoreToGaugeAngle(regime.score ?? 78) : 50.4;
@@ -202,9 +246,6 @@
               <span><strong>${esc(headerDate.top)}</strong></span>
               <small>${esc(headerDate.bottom)}</small>
             </div>
-            <button type="button" class="market-central-refresh-btn" id="mcRefreshBtn" title="Atualizar dados" aria-label="Atualizar dados">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
-            </button>
             <div class="market-central-period-pills" role="tablist">
               <button type="button" class="market-central-period-btn ${state.selectedPeriod === 'today' ? 'active' : ''}" data-period="today">Hoje</button>
               <button type="button" class="market-central-period-btn ${state.selectedPeriod === '5d' ? 'active' : ''}" data-period="5d">5 dias</button>
@@ -362,13 +403,13 @@
 
             <!-- DUAL ADVANCE / DECLINE BAR -->
             <div class="mc-advance-decline-card">
-              <div class="mc-adv-side" style="flex: ${breadth.advancePct || 62};">
+              <div class="mc-adv-side" style="flex: ${advPct};">
                 <span>Avanço</span>
-                <strong>${breadth.advancePct || 62}%</strong>
+                <strong>${advPct}%</strong>
               </div>
-              <div class="mc-dec-side" style="flex: ${breadth.declinePct || 38};">
+              <div class="mc-dec-side" style="flex: ${decPct};">
                 <span>Queda</span>
-                <strong>${breadth.declinePct || 38}%</strong>
+                <strong>${decPct}%</strong>
               </div>
             </div>
           </article>
@@ -387,7 +428,10 @@
             </div>
 
             <div class="mc-global-grid">
-              ${globalMarkets.map(item => `
+              ${globalMarkets.map(item => {
+                const change = getEffectiveChange(item, period);
+                const isPos = change >= 0;
+                return `
                 <div class="mc-global-item" title="${esc(item.description || item.name)}">
                   <div class="mc-global-head">
                     <span class="mc-global-flag">${item.flag || '🌐'}</span>
@@ -395,15 +439,15 @@
                   </div>
                   <div class="mc-global-value">${esc(item.value)}</div>
                   <div class="mc-global-bottom">
-                    <span class="mc-global-change ${item.changePct >= 0 ? 'up' : 'down'}">
-                      ${item.changePct >= 0 ? '+' : ''}${item.changePct.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%
+                    <span class="mc-global-change ${isPos ? 'up' : 'down'}">
+                      ${formatChangePct(change)}
                     </span>
                     <svg class="mc-mini-spark" viewBox="0 0 52 18">
-                      <polyline points="${generateSparklinePoints(item.sparkline)}" fill="none" stroke="${item.changePct >= 0 ? '#10b981' : '#ef4444'}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                      <polyline points="${generateSparklinePoints(item.sparkline)}" fill="none" stroke="${isPos ? '#10b981' : '#ef4444'}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                   </div>
                 </div>
-              `).join('')}
+              `;}).join('')}
             </div>
           </article>
 
@@ -456,30 +500,17 @@
                 <span class="mc-card-info-icon" title="Visão de calor setorial das ações na B3">ⓘ</span>
               </div>
               <div class="mc-map-controls">
-                <div class="mc-map-tabs">
-                  <button type="button" class="mc-map-tab-btn active">Setores</button>
-                  <button type="button" class="mc-map-tab-btn">Ativos</button>
-                  <button type="button" class="mc-map-tab-btn">Variação do dia</button>
+                <div class="mc-map-tabs" role="tablist" aria-label="Visualização do Mapa de Mercado">
+                  <button type="button" role="tab" id="mcTabSectors" data-tab="sectors" class="mc-map-tab-btn ${state.activeTabMap === 'sectors' ? 'active' : ''}" aria-selected="${state.activeTabMap === 'sectors' ? 'true' : 'false'}" tabindex="${state.activeTabMap === 'sectors' ? '0' : '-1'}">Setores</button>
+                  <button type="button" role="tab" id="mcTabAssets" data-tab="assets" class="mc-map-tab-btn ${state.activeTabMap === 'assets' ? 'active' : ''}" aria-selected="${state.activeTabMap === 'assets' ? 'true' : 'false'}" tabindex="${state.activeTabMap === 'assets' ? '0' : '-1'}">Ativos</button>
+                  <button type="button" role="tab" id="mcTabVariation" data-tab="variation" class="mc-map-tab-btn ${state.activeTabMap === 'variation' ? 'active' : ''}" aria-selected="${state.activeTabMap === 'variation' ? 'true' : 'false'}" tabindex="${state.activeTabMap === 'variation' ? '0' : '-1'}">Variação do dia</button>
                 </div>
               </div>
             </div>
 
-            <!-- MOSAICO VISUAL DE SETORES -->
-            <div class="mc-market-mosaic">
-              ${marketMap.map(sec => {
-                const isPos = (sec.changePct || 0) >= 0;
-                return `
-                  <div class="mc-mosaic-block ${isPos ? 'pos' : 'neg'}" onclick="window.viewSectorDetails('${esc(sec.name)}')">
-                    <div class="mc-mosaic-info">
-                      <span class="mc-mosaic-name">${esc(sec.name)}</span>
-                      <span class="mc-mosaic-change">${esc(sec.changeFormatted)}</span>
-                    </div>
-                    <div class="mc-mosaic-texture">
-                      <span></span><span></span><span></span>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
+            <!-- CONTEÚDO DINÂMICO CONFORME O SELETOR ATIVO -->
+            <div class="mc-map-content-container" id="mcMapContentContainer" role="tabpanel" aria-labelledby="mcTab${state.activeTabMap.charAt(0).toUpperCase() + state.activeTabMap.slice(1)}">
+              ${renderMarketMapContent(state.activeTabMap, marketMap, assets, period)}
             </div>
           </article>
 
@@ -491,27 +522,45 @@
                 <h2>Notícias Relevantes</h2>
                 <span class="mc-card-info-icon" title="Notícias essenciais para o contexto do pregão">ⓘ</span>
               </div>
-              <a class="mc-news-all-btn" onclick="go('marketnews')">Ver todas</a>
             </div>
 
-            <div class="mc-news-list">
-              ${news.slice(0, 5).map(n => `
-                <a class="mc-news-item" href="${esc(n.url || '#')}" target="_blank" rel="noopener noreferrer">
-                  <div class="mc-news-thumb-wrap">
-                    <img src="${getNewsThumbUrl(n)}" alt="${esc(n.title)}" class="mc-news-thumb" onerror="this.onerror=null;this.src='assets/news-hero-fed.jpg'" />
-                  </div>
-                  <div class="mc-news-text">
-                    <div class="mc-news-meta">
-                      <span class="mc-news-badge ${n.impact === 'ALTO IMPACTO' ? 'alto' : n.impact === 'MÉDIO IMPACTO' ? 'medio' : 'geral'}">${esc(n.impact || 'GERAL')}</span>
-                      <span class="mc-news-time">${esc(n.time || '10:00')}</span>
+            ${news && news.length > 0 ? `
+              <div class="mc-news-list">
+                ${news.slice(0, 5).map(n => `
+                  <a class="mc-news-item" href="${esc(n.url || '#')}" target="_blank" rel="noopener noreferrer">
+                    <div class="mc-news-thumb-wrap">
+                      ${renderNewsThumb(n)}
                     </div>
-                    <h3 class="mc-news-headline" title="${esc(n.title)}">${esc(n.title)}</h3>
-                    <p class="mc-news-desc">${esc(n.summary || '')}</p>
-                  </div>
-                  <span class="mc-news-arrow">›</span>
-                </a>
-              `).join('')}
-            </div>
+                    <div class="mc-news-text">
+                      <div class="mc-news-meta">
+                        <span class="mc-news-source">${esc(n.source || 'Mercado')}</span>
+                        <span class="mc-news-badge ${n.impact === 'ALTO IMPACTO' ? 'alto' : n.impact === 'MÉDIO IMPACTO' ? 'medio' : 'geral'}">${esc(n.impact || 'GERAL')}</span>
+                        <span class="mc-news-time">${esc(n.time || '—')}</span>
+                      </div>
+                      <h3 class="mc-news-headline" title="${esc(n.title)}">${esc(n.title)}</h3>
+                      <p class="mc-news-desc">${esc(n.summary || '')}</p>
+                    </div>
+                    <span class="mc-news-arrow">›</span>
+                  </a>
+                `).join('')}
+              </div>
+            ` : (state.loading ? `
+              <div class="mc-news-empty-state">
+                <div class="mc-news-empty-icon">⏳</div>
+                <div class="mc-news-empty-text">
+                  <h4>Sincronizando notícias...</h4>
+                  <p>Buscando atualizações dos veículos credenciados em segundo plano. As análises de regime e amplitude já estão disponíveis.</p>
+                </div>
+              </div>
+            ` : `
+              <div class="mc-news-empty-state">
+                <div class="mc-news-empty-icon">📰</div>
+                <div class="mc-news-empty-text">
+                  <h4>Feed em atualização</h4>
+                  <p>Notícias dos veículos credenciados em processamento. O regime técnico e a saúde de mercado operam normalmente.</p>
+                </div>
+              </div>
+            `)}
           </article>
         </div>
       </div>
@@ -545,9 +594,201 @@
     }).join(' ');
   }
 
+  /**
+   * Renderiza o conteúdo dinâmico do Mapa de Mercado conforme a aba ativa
+   * @param {'sectors'|'assets'|'variation'} activeTab
+   * @param {Array} marketMap
+   * @param {Array} assets
+   * @param {'today'|'5d'|'1m'|'3m'} period
+   */
+  function renderMarketMapContent(activeTab, marketMap, assets, period = 'today') {
+    if (activeTab === 'assets') {
+      if (!assets || assets.length === 0) {
+        return `<div class="mc-map-empty">Nenhum ativo disponível para este universo no momento.</div>`;
+      }
+      return `
+        <div class="mc-market-mosaic mc-assets-mosaic">
+          ${assets.map(it => {
+            const chg = getEffectiveChange(it, period);
+            const isPos = chg >= 0;
+            const chgFormatted = formatChangePct(chg);
+            return `
+              <div class="mc-mosaic-block mc-asset-block ${isPos ? 'pos' : 'neg'}" onclick="go('charts', '${esc(it.symbol)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')go('charts', '${esc(it.symbol)}')" title="${esc(it.symbol)} - ${esc(it.name)} (${esc(it.sector)}): ${esc(chgFormatted)}">
+                <div class="mc-mosaic-info">
+                  <div class="mc-asset-head">
+                    <span class="mc-mosaic-sym">${esc(it.symbol)}</span>
+                    ${it.price ? `<span class="mc-mosaic-price">R$ ${it.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>` : ''}
+                  </div>
+                  <span class="mc-mosaic-change">${esc(chgFormatted)}</span>
+                </div>
+                <div class="mc-mosaic-meta">
+                  <span class="mc-mosaic-sec-name">${esc(it.sector || it.name)}</span>
+                </div>
+                <div class="mc-mosaic-texture">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    if (activeTab === 'variation') {
+      if (!assets || assets.length === 0) {
+        return `<div class="mc-map-empty">Nenhum dado de variação disponível no momento.</div>`;
+      }
+      const periodLabelMap = {
+        today: 'do Dia',
+        '5d': '(5 Dias)',
+        '1m': '(1 Mês)',
+        '3m': '(3 Meses)'
+      };
+      const periodLabel = periodLabelMap[period] || 'do Período';
+      const sorted = [...assets].sort((a, b) => getEffectiveChange(b, period) - getEffectiveChange(a, period));
+      const topGainers = sorted.filter(it => getEffectiveChange(it, period) > 0).slice(0, 8);
+      const topLosers = [...sorted].reverse().filter(it => getEffectiveChange(it, period) < 0).slice(0, 8);
+
+      return `
+        <div class="mc-variation-container">
+          <div class="mc-variation-grid">
+            <!-- COLUNA TOP ALTAS -->
+            <div class="mc-variation-col gainers">
+              <div class="mc-variation-col-head">
+                <span class="mc-var-title-icon">▲</span>
+                <span class="mc-var-col-title">Maiores Altas ${periodLabel}</span>
+                <span class="mc-var-badge up">${topGainers.length} ativos</span>
+              </div>
+              <div class="mc-var-list">
+                ${topGainers.length > 0 ? topGainers.map((it, idx) => {
+                  const chg = getEffectiveChange(it, period);
+                  const chgFormatted = formatChangePct(chg);
+                  return `
+                  <div class="mc-var-row up" onclick="go('charts', '${esc(it.symbol)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')go('charts', '${esc(it.symbol)}')">
+                    <span class="mc-var-rank">${idx + 1}º</span>
+                    <div class="mc-var-info">
+                      <strong class="mc-var-sym">${esc(it.symbol)}</strong>
+                      <span class="mc-var-name">${esc(it.name)}</span>
+                    </div>
+                    ${it.price ? `<span class="mc-var-price">R$ ${it.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>` : ''}
+                    <span class="mc-var-val pos">${esc(chgFormatted)}</span>
+                  </div>
+                `;}).join('') : '<div class="mc-var-empty">Nenhuma alta expressiva no período</div>'}
+              </div>
+            </div>
+
+            <!-- COLUNA TOP BAIXAS -->
+            <div class="mc-variation-col losers">
+              <div class="mc-variation-col-head">
+                <span class="mc-var-title-icon">▼</span>
+                <span class="mc-var-col-title">Maiores Baixas ${periodLabel}</span>
+                <span class="mc-var-badge down">${topLosers.length} ativos</span>
+              </div>
+              <div class="mc-var-list">
+                ${topLosers.length > 0 ? topLosers.map((it, idx) => {
+                  const chg = getEffectiveChange(it, period);
+                  const chgFormatted = formatChangePct(chg);
+                  return `
+                  <div class="mc-var-row down" onclick="go('charts', '${esc(it.symbol)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')go('charts', '${esc(it.symbol)}')">
+                    <span class="mc-var-rank">${idx + 1}º</span>
+                    <div class="mc-var-info">
+                      <strong class="mc-var-sym">${esc(it.symbol)}</strong>
+                      <span class="mc-var-name">${esc(it.name)}</span>
+                    </div>
+                    ${it.price ? `<span class="mc-var-price">R$ ${it.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>` : ''}
+                    <span class="mc-var-val neg">${esc(chgFormatted)}</span>
+                  </div>
+                `;}).join('') : '<div class="mc-var-empty">Nenhuma baixa expressiva no período</div>'}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Default: 'sectors'
+    if (!marketMap || marketMap.length === 0) {
+      return `<div class="mc-map-empty">Nenhum dado setorial disponível no momento.</div>`;
+    }
+    const sortedSectors = [...marketMap].sort((a, b) => getEffectiveChange(b, period) - getEffectiveChange(a, period));
+    return `
+      <div class="mc-market-mosaic">
+        ${sortedSectors.map(sec => {
+          const chg = getEffectiveChange(sec, period);
+          const isPos = chg >= 0;
+          const chgFormatted = formatChangePct(chg);
+          return `
+            <div class="mc-mosaic-block ${isPos ? 'pos' : 'neg'}" onclick="window.viewSectorDetails('${esc(sec.name)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')window.viewSectorDetails('${esc(sec.name)}')">
+              <div class="mc-mosaic-info">
+                <span class="mc-mosaic-name">${esc(sec.name)}</span>
+                <span class="mc-mosaic-change">${esc(chgFormatted)}</span>
+              </div>
+              <div class="mc-mosaic-meta">
+                <span class="mc-mosaic-count">${sec.assetsCount ? `${sec.assetsCount} ativos` : ''}</span>
+              </div>
+              <div class="mc-mosaic-texture">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  /**
+   * Atualiza visualmente o seletor de tabs e troca o conteúdo do mapa
+   */
+  function updateMapTabsUI(rootEl) {
+    const tabBtns = rootEl.querySelectorAll('.mc-map-tab-btn');
+    tabBtns.forEach(btn => {
+      const isSelected = btn.getAttribute('data-tab') === state.activeTabMap;
+      btn.classList.toggle('active', isSelected);
+      btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      btn.setAttribute('tabindex', isSelected ? '0' : '-1');
+    });
+
+    const contentContainer = rootEl.querySelector('#mcMapContentContainer');
+    if (contentContainer) {
+      const d = state.data || generateFallbackData();
+      contentContainer.setAttribute('aria-labelledby', `mcTab${state.activeTabMap.charAt(0).toUpperCase() + state.activeTabMap.slice(1)}`);
+      contentContainer.innerHTML = renderMarketMapContent(state.activeTabMap, d.marketMap || [], d.assets || [], state.selectedPeriod);
+    }
+  }
+
   function bindEvents(rootEl) {
-    rootEl.querySelector('#mcRefreshBtn')?.addEventListener('click', () => {
-      fetchData();
+    // Seletores do Mapa de Mercado (Setores, Ativos, Variação do dia)
+    const tabBtns = Array.from(rootEl.querySelectorAll('.mc-map-tab-btn'));
+    tabBtns.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        const targetTab = btn.getAttribute('data-tab');
+        if (!targetTab || state.activeTabMap === targetTab) return;
+        state.activeTabMap = targetTab;
+        updateMapTabsUI(rootEl);
+      });
+
+      btn.addEventListener('keydown', (e) => {
+        let targetIdx = -1;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          targetIdx = (idx + 1) % tabBtns.length;
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          targetIdx = (idx - 1 + tabBtns.length) % tabBtns.length;
+        } else if (e.key === 'Home') {
+          targetIdx = 0;
+        } else if (e.key === 'End') {
+          targetIdx = tabBtns.length - 1;
+        }
+        if (targetIdx >= 0) {
+          e.preventDefault();
+          const targetBtn = tabBtns[targetIdx];
+          targetBtn.focus();
+          const targetTab = targetBtn.getAttribute('data-tab');
+          if (targetTab && state.activeTabMap !== targetTab) {
+            state.activeTabMap = targetTab;
+            updateMapTabsUI(rootEl);
+          }
+        }
+      });
     });
 
     rootEl.querySelector('#mcGuideCloseBtn')?.addEventListener('click', () => {
@@ -566,11 +807,13 @@
       fetchData();
     });
 
+    // Seletor de Período — atualização instantânea em memória (<16ms)
     rootEl.querySelectorAll('.market-central-period-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        state.selectedPeriod = btn.dataset.period;
-        rootEl.querySelectorAll('.market-central-period-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        const targetPeriod = btn.dataset.period;
+        if (!targetPeriod || state.selectedPeriod === targetPeriod) return;
+        state.selectedPeriod = targetPeriod;
+        render();
       });
     });
 

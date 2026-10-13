@@ -523,8 +523,15 @@ const server = http.createServer(async (request, response) => {
       return send(response, result.success ? 200 : 429, result);
     }
     if (request.method !== 'GET') return send(response, 405, { error: 'Method not allowed' });
-    if (url.pathname === '/api/subscription/plans') return send(response, 200, { currency: 'BRL', plans: PLAN_CATALOG });
-    if (url.pathname === '/api/market-news') return send(response, 200, await marketNews.get());
+    if (url.pathname === '/api/market-news') {
+      try {
+        const payload = await marketNews.get();
+        return send(response, 200, payload);
+      } catch (_) {
+        const fallback = await marketNews.readCache();
+        return send(response, 200, fallback || { provider: 'GDELT / Cache', updatedAt: new Date().toISOString(), stories: [] });
+      }
+    }
     if (url.pathname === '/api/trader-wisdom/assets') {
       const items = await listTraderWisdomAssets();
       const pageNumber = Math.max(1, Number(url.searchParams.get('page')) || 1);

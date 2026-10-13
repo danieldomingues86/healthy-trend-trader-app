@@ -96,3 +96,57 @@ test('MarketCentralModel: Playbook de Eventos salva e consulta reação do merca
   assert.ok(reactionsForEvent.length >= 1);
   assert.equal(reactionsForEvent[0].lessonsLearned, reaction.lessonsLearned);
 });
+
+test('MarketCentralModel: MAP_TABS define exatamente Setores, Ativos e Variação do dia', () => {
+  assert.ok(Array.isArray(MarketCentralModel.MAP_TABS));
+  assert.equal(MarketCentralModel.MAP_TABS.length, 3);
+  const tabIds = MarketCentralModel.MAP_TABS.map(t => t.id);
+  assert.deepEqual(tabIds, ['sectors', 'assets', 'variation']);
+});
+
+test('MarketCentralModel: sortAssetsByVariation separa maiores altas e maiores baixas com integridade', () => {
+  const assets = [
+    { symbol: 'PETR4', changePct: 3.10 },
+    { symbol: 'VALE3', changePct: -1.80 },
+    { symbol: 'ITUB4', changePct: 2.40 },
+    { symbol: 'MGLU3', changePct: -4.50 },
+    { symbol: 'WEGE3', changePct: 0.60 },
+    { symbol: 'BBDC4', changePct: 0.00 }
+  ];
+
+  const { gainers, losers } = MarketCentralModel.sortAssetsByVariation(assets);
+
+  // Gainers: ordenados decrescente (> 0)
+  assert.equal(gainers.length, 3);
+  assert.equal(gainers[0].symbol, 'PETR4'); // 3.10%
+  assert.equal(gainers[1].symbol, 'ITUB4'); // 2.40%
+  assert.equal(gainers[2].symbol, 'WEGE3'); // 0.60%
+
+  // Losers: ordenados pela maior queda (< 0)
+  assert.equal(losers.length, 2);
+  assert.equal(losers[0].symbol, 'MGLU3'); // -4.50%
+  assert.equal(losers[1].symbol, 'VALE3'); // -1.80%
+});
+
+test('MarketCentralModel: getEffectiveChange e sortAssetsByVariation suportam múltiplos períodos em memória', () => {
+  const assetA = { symbol: 'PETR4', changePct: 1.0, returns: { today: 1.0, '5d': 5.0, '1m': -2.0, '3m': 20.0 } };
+  const assetB = { symbol: 'VALE3', changePct: 2.0, returns: { today: 2.0, '5d': -3.0, '1m': 10.0, '3m': -5.0 } };
+
+  assert.equal(MarketCentralModel.getEffectiveChange(assetA, 'today'), 1.0);
+  assert.equal(MarketCentralModel.getEffectiveChange(assetA, '5d'), 5.0);
+  assert.equal(MarketCentralModel.getEffectiveChange(assetA, '1m'), -2.0);
+  assert.equal(MarketCentralModel.getEffectiveChange(assetA, '3m'), 20.0);
+
+  // Fallback caso não haja returns
+  assert.equal(MarketCentralModel.getEffectiveChange({ symbol: 'TEST', changePct: 3.5 }, '5d'), 3.5);
+
+  const assets = [assetA, assetB];
+  const sorted5d = MarketCentralModel.sortAssetsByVariation(assets, '5d');
+  assert.equal(sorted5d.gainers[0].symbol, 'PETR4');
+  assert.equal(sorted5d.losers[0].symbol, 'VALE3');
+
+  const sorted1m = MarketCentralModel.sortAssetsByVariation(assets, '1m');
+  assert.equal(sorted1m.gainers[0].symbol, 'VALE3');
+  assert.equal(sorted1m.losers[0].symbol, 'PETR4');
+});
+

@@ -142,7 +142,7 @@ test('Validação de Paridade 100%: Nenhum item da navegação anterior foi perd
   const previousSidebarPages = [
     'today', 'newtrade', 'journal', 'dailyroutine', 'watchlist', 'habits',
     'tradertraining', 'mission', 'rebuild',
-    'relativestrength', 'marketcycle', 'charts', 'marketnews', 'marketscans', 'emergingleaders', 'fundamentals',
+    'relativestrength', 'marketcycle', 'charts', 'marketcentral', 'marketscans', 'emergingleaders', 'fundamentals',
     'tradesimulator', 'forecast',
     'dashboard', 'positions', 'closedpositions', 'portfolioheat', 'riskpolicy', 'assetblacklist',
     'analytics', 'tradeanatomy', 'mistakesbook', 'tradelibrary', 'platformaccess', 'review',

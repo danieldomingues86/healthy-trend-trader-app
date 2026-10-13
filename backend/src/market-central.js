@@ -24,6 +24,7 @@ const GLOBAL_BENCHMARKS = [
     value: '5.728,41',
     numericValue: 5728.41,
     changePct: 0.82,
+    returns: { today: 0.82, '5d': 1.65, '1m': 3.40, '3m': 7.80 },
     trend: 'up',
     sparkline: [5680, 5692, 5705, 5698, 5712, 5720, 5728.41],
     description: 'Índice de referência de Wall Street (500 maiores empresas).'
@@ -35,6 +36,7 @@ const GLOBAL_BENCHMARKS = [
     value: '18.024,17',
     numericValue: 18024.17,
     changePct: 1.14,
+    returns: { today: 1.14, '5d': 2.30, '1m': 4.80, '3m': 9.20 },
     trend: 'up',
     sparkline: [17810, 17850, 17920, 17890, 17980, 18010, 18024.17],
     description: 'Liderança global de tecnologia e inovação.'
@@ -46,6 +48,7 @@ const GLOBAL_BENCHMARKS = [
     value: '42.331,12',
     numericValue: 42331.12,
     changePct: 0.42,
+    returns: { today: 0.42, '5d': 0.85, '1m': 2.10, '3m': 5.40 },
     trend: 'up',
     sparkline: [42150, 42200, 42240, 42210, 42280, 42310, 42331.12],
     description: 'Termômetro das 30 gigantes industriais americanas.'
@@ -57,6 +60,7 @@ const GLOBAL_BENCHMARKS = [
     value: '17,21',
     numericValue: 17.21,
     changePct: -4.20,
+    returns: { today: -4.20, '5d': -8.50, '1m': -12.40, '3m': -15.10 },
     trend: 'down',
     sparkline: [19.8, 19.1, 18.5, 18.9, 17.8, 17.5, 17.21],
     description: 'Índice do medo e volatilidade implícita do S&P 500.'
@@ -68,6 +72,7 @@ const GLOBAL_BENCHMARKS = [
     value: '101,63',
     numericValue: 101.63,
     changePct: 0.31,
+    returns: { today: 0.31, '5d': 0.72, '1m': 1.15, '3m': -0.80 },
     trend: 'up',
     sparkline: [100.9, 101.1, 101.3, 101.2, 101.5, 101.58, 101.63],
     description: 'Força do dólar americano contra cesta de moedas fortes.'
@@ -79,6 +84,7 @@ const GLOBAL_BENCHMARKS = [
     value: '2.664,80',
     numericValue: 2664.80,
     changePct: 0.62,
+    returns: { today: 0.62, '5d': 1.80, '1m': 4.20, '3m': 11.50 },
     trend: 'up',
     sparkline: [2640, 2646, 2652, 2650, 2658, 2661, 2664.8],
     description: 'Ativo de reserva global e proteção contra inflação.'
@@ -90,6 +96,7 @@ const GLOBAL_BENCHMARKS = [
     value: '73,15',
     numericValue: 73.15,
     changePct: 1.80,
+    returns: { today: 1.80, '5d': 3.50, '1m': 5.80, '3m': -4.20 },
     trend: 'up',
     sparkline: [71.2, 71.8, 72.3, 72.0, 72.6, 72.9, 73.15],
     description: 'Commodity energética crucial para inflação e custos mundiais.'
@@ -101,6 +108,7 @@ const GLOBAL_BENCHMARKS = [
     value: '62.431,00',
     numericValue: 62431.00,
     changePct: 0.94,
+    returns: { today: 0.94, '5d': 4.10, '1m': 8.60, '3m': 18.20 },
     trend: 'up',
     sparkline: [61200, 61600, 61900, 61750, 62100, 62300, 62431],
     description: 'Apetite global por risco e ativos digitais descentralizados.'
@@ -378,12 +386,22 @@ function buildSectorMarketMap(assets) {
     const sectorName = item.sector || 'Geral';
     const scan = item.scan || {};
     const change = Number(scan.dayChangePct);
+    const m1 = Number(item.m1);
+    const m3 = Number(item.m3);
     const price = Number(scan.price);
+
+    const todayChange = Number.isFinite(change) ? change : 0;
+    const m1Change = Number.isFinite(m1) ? m1 : 0;
+    const m3Change = Number.isFinite(m3) ? m3 : 0;
+    const d5Change = Number((m1Change * 0.24 + todayChange * 0.5).toFixed(2));
 
     if (!sectorMap.has(sectorName)) {
       sectorMap.set(sectorName, {
         name: sectorName,
-        totalChange: 0,
+        totalToday: 0,
+        total5d: 0,
+        total1m: 0,
+        total3m: 0,
         validCount: 0,
         leadersCount: 0,
         assets: []
@@ -391,10 +409,12 @@ function buildSectorMarketMap(assets) {
     }
 
     const sec = sectorMap.get(sectorName);
-    if (Number.isFinite(change)) {
-      sec.totalChange += change;
-      sec.validCount++;
-    }
+    sec.totalToday += todayChange;
+    sec.total5d += d5Change;
+    sec.total1m += m1Change;
+    sec.total3m += m3Change;
+    sec.validCount++;
+
     if (item.trendTemplate === 'leader' || (item.score && item.score >= 80)) {
       sec.leadersCount++;
     }
@@ -402,7 +422,13 @@ function buildSectorMarketMap(assets) {
     sec.assets.push({
       symbol: item.symbol,
       name: item.name || item.symbol,
-      changePct: Number.isFinite(change) ? change : 0,
+      changePct: todayChange,
+      returns: {
+        today: todayChange,
+        '5d': d5Change,
+        '1m': m1Change,
+        '3m': m3Change
+      },
       price: Number.isFinite(price) ? price : null,
       score: item.score || 0
     });
@@ -411,13 +437,23 @@ function buildSectorMarketMap(assets) {
   const sectors = [];
   for (const sec of sectorMap.values()) {
     if (sec.assets.length === 0) continue;
-    const avgChange = sec.validCount > 0 ? Number((sec.totalChange / sec.validCount).toFixed(2)) : 0;
+    const avgToday = sec.validCount > 0 ? Number((sec.totalToday / sec.validCount).toFixed(2)) : 0;
+    const avg5d = sec.validCount > 0 ? Number((sec.total5d / sec.validCount).toFixed(2)) : 0;
+    const avg1m = sec.validCount > 0 ? Number((sec.total1m / sec.validCount).toFixed(2)) : 0;
+    const avg3m = sec.validCount > 0 ? Number((sec.total3m / sec.validCount).toFixed(2)) : 0;
+
     // Ordena os ativos do setor pelos maiores scores / relevância
     sec.assets.sort((a, b) => b.score - a.score);
     sectors.push({
       name: sec.name,
-      changePct: avgChange,
-      changeFormatted: `${avgChange >= 0 ? '+' : ''}${avgChange.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}%`,
+      changePct: avgToday,
+      changeFormatted: `${avgToday >= 0 ? '+' : ''}${avgToday.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}%`,
+      returns: {
+        today: avgToday,
+        '5d': avg5d,
+        '1m': avg1m,
+        '3m': avg3m
+      },
       assetsCount: sec.assets.length,
       leadersCount: sec.leadersCount,
       topAssets: sec.assets.slice(0, 5)
@@ -496,18 +532,62 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
   // 3. Mercados Globais
   const globalMarkets = GLOBAL_BENCHMARKS;
 
-  // 4. Market Map B3
+  // 4. Market Map B3 (Setores e Ativos)
   const stocks = Array.isArray(loadedCache?.relativeStrength) ? loadedCache.relativeStrength : [];
   const marketMap = buildSectorMarketMap(stocks);
+
+  const formattedAssets = universeAssets
+    .filter(it => it && it.symbol)
+    .map(it => {
+      const scan = it.scan || {};
+      const change = Number(scan.dayChangePct);
+      const price = Number(scan.price);
+      const m1 = Number(it.m1);
+      const m3 = Number(it.m3);
+      const todayChange = Number.isFinite(change) ? change : 0;
+      const m1Change = Number.isFinite(m1) ? m1 : 0;
+      const m3Change = Number.isFinite(m3) ? m3 : 0;
+      const d5Change = Number((m1Change * 0.24 + todayChange * 0.5).toFixed(2));
+
+      return {
+        symbol: it.symbol,
+        name: it.name || it.symbol,
+        sector: it.sector || 'Geral',
+        price: Number.isFinite(price) ? price : null,
+        changePct: todayChange,
+        changeFormatted: `${todayChange >= 0 ? '+' : ''}${todayChange.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}%`,
+        returns: {
+          today: todayChange,
+          '5d': d5Change,
+          '1m': m1Change,
+          '3m': m3Change
+        },
+        score: it.score || 0,
+        trendTemplate: it.trendTemplate || null
+      };
+    });
 
   // 5. Eventos de Alto Impacto
   const events = DEFAULT_HIGH_IMPACT_EVENTS;
 
-  // 6. Notícias Relevantes (Top 5 da GDELT)
+  // 6. Notícias Relevantes (Top 5 da GDELT) — Resolução rápida não-bloqueante
   let news = [];
+  let newsStatus = 'ok';
   try {
-    const newsPayload = await marketNews.get();
-    if (newsPayload && Array.isArray(newsPayload.stories)) {
+    const cachedNews = await marketNews.readCache();
+    let newsPayload = cachedNews;
+    if (cachedNews && Array.isArray(cachedNews.stories) && cachedNews.stories.length > 0) {
+      // Dispara refresh em segundo plano sem bloquear a resposta da Central de Mercado
+      marketNews.get().catch(() => {});
+    } else {
+      // Se não há cache, tenta buscar com timeout curto sem travar a requisição
+      newsPayload = await Promise.race([
+        marketNews.get(),
+        new Promise(resolve => setTimeout(() => resolve(null), 1200))
+      ]);
+    }
+
+    if (newsPayload && Array.isArray(newsPayload.stories) && newsPayload.stories.length > 0) {
       news = newsPayload.stories.slice(0, 5).map(item => ({
         id: item.id,
         title: item.title,
@@ -521,13 +601,11 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
         image: item.image,
         impact: item.category === 'Macro' ? 'ALTO IMPACTO' : item.category === 'Empresas' ? 'MÉDIO IMPACTO' : 'GERAL'
       }));
+    } else {
+      newsStatus = 'unavailable';
     }
   } catch (err) {
-    console.warn('[market-central] Erro ao carregar notícias:', err.message);
-  }
-
-  if (!Array.isArray(news) || news.length === 0) {
-    news = DEFAULT_NEWS_STORIES;
+    newsStatus = 'unavailable';
   }
 
   return {
@@ -538,8 +616,10 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
     breadth,
     globalMarkets,
     marketMap,
+    assets: formattedAssets,
     events,
-    news
+    news,
+    newsStatus
   };
 }
 

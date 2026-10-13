@@ -3,13 +3,23 @@
    Healthy Trend Trader — Refinamento Visual Clean & Premium (Imagem 2)
    ========================================================================== */
 
+/* Permite que a Central de Mercado utilize toda a largura disponível em telas widescreen */
+body:has(#marketcentral.active) .content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: clamp(20px, 2vw, 32px) clamp(24px, 2.5vw, 48px);
+  box-sizing: border-box;
+}
+
 #marketcentral {
-  padding: clamp(18px, 2.2vw, 36px);
-  max-width: 1600px;
-  margin: 0 auto;
-  background: #f8fafc;
+  padding: 0;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  background: transparent;
   color: #0f172a;
-  min-height: 100vh;
+  min-height: auto;
   box-sizing: border-box;
   font-family: inherit;
 }
@@ -61,27 +71,6 @@
 .market-central-timestamp strong {
   color: #1e293b;
   font-weight: 600;
-}
-
-.market-central-refresh-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-.market-central-refresh-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #cbd5e1;
 }
 
 .market-central-period-pills {
@@ -190,17 +179,17 @@
 .market-central-grid-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: clamp(16px, 1.5vw, 22px);
+  margin-bottom: clamp(16px, 1.5vw, 22px);
 }
 
 /* ── CARDS BASE (BRANCOS, BORDAS SUTIS, SOMBRAS LEVES) ── */
 .mc-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 20px 22px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(15, 42, 32, 0.08);
+  border-radius: 18px;
+  padding: clamp(18px, 1.6vw, 24px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 16px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -262,8 +251,8 @@
 /* ── CARD 1: REGIME DE MERCADO ── */
 .mc-regime-body {
   display: grid;
-  grid-template-columns: 1.18fr 1fr;
-  gap: 20px;
+  grid-template-columns: minmax(250px, 1.15fr) 1fr;
+  gap: clamp(16px, 1.8vw, 24px);
   align-items: center;
   margin-bottom: 8px;
 }
@@ -279,7 +268,7 @@
 
 .mc-gauge-svg {
   width: 100%;
-  max-width: 280px;
+  max-width: 290px;
   height: auto;
   overflow: visible;
 }
@@ -711,11 +700,22 @@
   font-weight: 600;
   color: #64748b;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-map-tab-btn:hover {
+  color: #1e293b;
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .mc-map-tab-btn.active {
   background: #1e293b;
   color: #ffffff;
+}
+
+.mc-map-tab-btn:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 1px;
 }
 
 /* Treemap Mosaic */
@@ -791,6 +791,231 @@
   height: 6px;
   background: #ffffff;
   border-radius: 1px;
+}
+
+.mc-mosaic-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.mc-mosaic-count {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.18);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* Assets Mosaic */
+.mc-assets-mosaic {
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.mc-asset-block {
+  min-height: 72px;
+  padding: 9px 10px;
+}
+
+.mc-asset-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.mc-mosaic-sym {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.mc-mosaic-price {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.mc-mosaic-sec-name {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* Variation Container & Split Grid */
+.mc-variation-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-variation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.mc-variation-col {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mc-variation-col-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.mc-variation-col.gainers .mc-var-title-icon {
+  color: #10b981;
+  font-size: 12px;
+}
+
+.mc-variation-col.losers .mc-var-title-icon {
+  color: #ef4444;
+  font-size: 12px;
+}
+
+.mc-var-col-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  flex: 1;
+}
+
+.mc-var-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.mc-var-badge.up {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.mc-var-badge.down {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.mc-var-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.mc-var-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-var-row:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateX(2px);
+}
+
+.mc-var-row:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 1px;
+}
+
+.mc-var-rank {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  width: 22px;
+  flex-shrink: 0;
+}
+
+.mc-var-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-var-sym {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.mc-var-name {
+  font-size: 10.5px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mc-var-price {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.mc-var-val {
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.mc-var-val.pos {
+  color: #047857;
+  background: #ecfdf5;
+}
+
+.mc-var-val.neg {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.mc-map-empty,
+.mc-var-empty {
+  padding: 24px;
+  text-align: center;
+  color: #64748b;
+  font-size: 12.5px;
+}
+
+@media (max-width: 768px) {
+  .mc-variation-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Card Notícias Relevantes */
@@ -920,6 +1145,72 @@
   color: #94a3b8;
   font-size: 16px;
   flex-shrink: 0;
+}
+
+.mc-news-source {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.mc-news-thumb-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  color: #475569;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.mc-news-empty-state {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 18px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  margin: 6px 0;
+}
+
+.mc-news-empty-icon {
+  font-size: 22px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.mc-news-empty-text h4 {
+  margin: 0 0 3px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.mc-news-empty-text p {
+  margin: 0;
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+@keyframes mcSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.market-central-refresh-btn.is-refreshing svg {
+  animation: mcSpin 0.75s linear infinite;
 }
 
 /* Modais de Eventos e Reações */

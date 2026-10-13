@@ -86,9 +86,12 @@ test('market-central: getMarketCentralData retorna pacote consolidado com todas 
   // 3. Globais
   assert.ok(Array.isArray(data.globalMarkets));
   assert.ok(data.globalMarkets.length >= 7);
-  // 4. Map
+  // 4. Map & Ativos
   assert.ok(Array.isArray(data.marketMap));
   assert.equal(data.marketMap.length, 2);
+  assert.ok(Array.isArray(data.assets));
+  assert.equal(data.assets.length, 2);
+  assert.equal(data.assets[0].symbol, 'PETR4');
   // 5. Eventos
   assert.ok(Array.isArray(data.events));
   assert.ok(data.events.length > 0);

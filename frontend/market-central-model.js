@@ -40,6 +40,32 @@
     { id: '3m', label: '3 meses' }
   ];
 
+  const MAP_TABS = [
+    { id: 'sectors', label: 'Setores', desc: 'Mapa de calor dos setores da B3' },
+    { id: 'assets', label: 'Ativos', desc: 'Desempenho dos ativos individuais do universo' },
+    { id: 'variation', label: 'Variação do dia', desc: 'Ranking de maiores altas e maiores baixas do dia' }
+  ];
+
+  function getEffectiveChange(item, period = 'today') {
+    if (!item) return 0;
+    if (item.returns && typeof item.returns[period] === 'number') {
+      return item.returns[period];
+    }
+    if (period === 'today' && typeof item.changePct === 'number') {
+      return item.changePct;
+    }
+    return typeof item.changePct === 'number' ? item.changePct : 0;
+  }
+
+  function sortAssetsByVariation(assets, period = 'today') {
+    if (!Array.isArray(assets)) return { gainers: [], losers: [] };
+    const valid = assets.filter(it => it && Number.isFinite(Number(getEffectiveChange(it, period))));
+    const sorted = [...valid].sort((a, b) => Number(getEffectiveChange(b, period)) - Number(getEffectiveChange(a, period)));
+    const gainers = sorted.filter(it => Number(getEffectiveChange(it, period)) > 0);
+    const losers = [...sorted].reverse().filter(it => Number(getEffectiveChange(it, period)) < 0);
+    return { gainers, losers };
+  }
+
   function formatPercent(value, decimals = 1) {
     const num = Number(value);
     if (!Number.isFinite(num)) return '—';
@@ -196,6 +222,9 @@
     UNIVERSES,
     MARKETS,
     PERIODS,
+    MAP_TABS,
+    getEffectiveChange,
+    sortAssetsByVariation,
     formatPercent,
     formatNumber,
     scoreToGaugeAngle,
