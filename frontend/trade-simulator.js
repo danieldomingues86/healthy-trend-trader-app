@@ -18,6 +18,9 @@
     compareModalOpen: false,
     hypothesisModalOpen: false,
     scenarioModalOpen: false,
+    exportModalOpen: false,
+    exportFormat: 'DOC', // 'DOC' | 'PDF' | 'ENEX' | 'CSV'
+    exportScope: 'FILTERED', // 'FILTERED' | 'ALL'
     tempScenarioSelection: '2R',
     comparison: null,
     hypothesisComparison: null,
@@ -348,61 +351,116 @@
   }
 
   /**
-   * Exporta os dados filtrados como CSV compatível com Excel e LLMs
+   * Abre o modal de exportação de estudos
    */
-  function exportFilteredCSV() {
-    const filtered = getFilteredSimulations();
-    if (!filtered.length) {
+  function openExportModal() {
+    state.exportModalOpen = true;
+    render();
+  }
+
+  /**
+   * Fecha o modal de exportação de estudos
+   */
+  function closeExportModal() {
+    state.exportModalOpen = false;
+    render();
+  }
+
+  /**
+   * Dispara download de Blob no navegador
+   */
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  /**
+   * Executa a exportação no formato selecionado (DOC, PDF, ENEX, CSV)
+   */
+  function executeExport() {
+    const model = root.TradeSimulatorExportModel;
+    if (!model) {
       if (typeof root.showToast === 'function') {
-        root.showToast('Nenhum dado para exportar.', 'warn');
+        root.showToast('Módulo de exportação não carregado.', 'error');
       }
       return;
     }
 
-    const headers = [
-      'Ativo', 'Gatilho', 'Nota', 'Setor', 'Data do Sinal',
-      'Preço Entrada', 'Stop Loss', 'Status', 'Duração (Dias)', 'Preço Executado', 'Data Entrada',
-      'Preço Saída', 'Data Saída', 'Motivo Saída', 'Resultado (R)', 'MFE (R)', 'MAE (R)'
-    ];
+    const filtered = getFilteredSimulations();
+    const all = state.simulations;
+    const targetSimulations = state.exportScope === 'ALL' ? all : filtered;
 
-    const rows = filtered.map(s => [
-      s.symbol,
-      s.triggerName,
-      s.grade || '—',
-      s.sector || '—',
-      s.signalDate || '—',
-      s.entryPrice != null ? s.entryPrice.toFixed(2).replace('.', ',') : '',
-      s.stopLoss != null ? s.stopLoss.toFixed(2).replace('.', ',') : '',
-      root.TradeSimulatorModel ? (root.TradeSimulatorModel.STATUS_LABELS[s.status] || s.status) : s.status,
-      s.durationDays != null ? s.durationDays : (root.TradeSimulatorModel ? (root.TradeSimulatorModel.calculateTradeDurationDays(s) ?? '') : ''),
-      s.executedEntryPrice != null ? s.executedEntryPrice.toFixed(2).replace('.', ',') : '',
-      s.entryDate || '',
-      s.exitPrice != null ? s.exitPrice.toFixed(2).replace('.', ',') : '',
-      s.exitDate || '',
-      s.exitReason || '',
-      s.resultR != null ? s.resultR.toFixed(2).replace('.', ',') : '',
-      s.mfeR != null ? s.mfeR.toFixed(2).replace('.', ',') : '',
-      s.maeR != null ? s.maeR.toFixed(2).replace('.', ',') : ''
-    ]);
-
-    const csvContent = '\uFEFF' + [
-      headers.join(';'),
-      ...rows.map(r => r.map(val => `"${String(val).replace(/"/g, '""')}"`).join(';'))
-    ].join('\r\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `simulador-de-trades-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    if (typeof root.showToast === 'function') {
-      root.showToast(`✓ Exportado ${filtered.length} trades simulados para CSV.`);
+    if (!targetSimulations.length) {
+      if (typeof root.showToast === 'function') {
+        root.showToast('Nenhum trade encontrado no escopo selecionado para exportar.', 'warn');
+      }
+      return;
     }
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const count = targetSimulations.length;
+
+    try {
+      if (state.exportFormat === 'DOC') {
+        const docContent = model.toDoc(targetSimulations);
+        const blob = new Blob([docContent], { type: 'application/msword;charset=utf-8' });
+        downloadBlob(blob, `simulador-de-trades-estudo-${dateStr}.doc`);
+        if (typeof root.showToast === 'function') {
+          root.showToast(`✓ Exportado ${count} trades para Word (.DOC) com 1 trade por página.`);
+        }
+      } else if (state.exportFormat === 'PDF') {
+        const htmlContent = model.toPrintableHtml(targetSimulations);
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(htmlContent);
+          printWindow.document.close();
+        } else {
+          // Fallback se bloqueador de pop-ups estiver ativo
+          const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+          downloadBlob(blob, `simulador-de-trades-estudo-${dateStr}.html`);
+        }
+        if (typeof root.showToast === 'function') {
+          root.showToast(`✓ Documento gerado com 1 trade por página para salvar como PDF.`);
+        }
+      } else if (state.exportFormat === 'ENEX') {
+        const enexContent = model.toEnex(targetSimulations);
+        const blob = new Blob([enexContent], { type: 'application/xml;charset=utf-8' });
+        downloadBlob(blob, `simulador-de-trades-evernote-${dateStr}.enex`);
+        if (typeof root.showToast === 'function') {
+          root.showToast(`✓ Exportado ${count} notas independentes para Evernote (.ENEX).`);
+        }
+      } else if (state.exportFormat === 'CSV') {
+        const csvContent = model.toCsv(targetSimulations);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        downloadBlob(blob, `simulador-de-trades-${dateStr}.csv`);
+        if (typeof root.showToast === 'function') {
+          root.showToast(`✓ Exportado ${count} trades simulados para CSV.`);
+        }
+      }
+
+      state.exportModalOpen = false;
+      render();
+    } catch (err) {
+      console.error('Erro ao exportar trades:', err);
+      if (typeof root.showToast === 'function') {
+        root.showToast('Erro ao gerar exportação: ' + (err.message || 'Falha interna'), 'error');
+      }
+    }
+  }
+
+  /**
+   * Exporta os dados filtrados como CSV diretamente (compatibilidade de atalho)
+   */
+  function exportFilteredCSV() {
+    state.exportFormat = 'CSV';
+    state.exportScope = 'FILTERED';
+    executeExport();
   }
 
   /**
@@ -593,6 +651,7 @@
         ${renderHypothesisModal()}
         ${renderModal()}
         ${renderSnapshotModal()}
+        ${renderExportModal()}
       </div>
     `;
 
@@ -2709,6 +2768,175 @@
   }
 
   /**
+   * 7. Modal de Exportação de Trades Simulados (DOC, PDF, ENEX, CSV)
+   */
+  function renderExportModal() {
+    if (!state.exportModalOpen) {
+      return '<div class="sim-modal-overlay" id="simExportModal"></div>';
+    }
+
+    const filtered = getFilteredSimulations();
+    const all = state.simulations;
+    const count = state.exportScope === 'ALL' ? all.length : filtered.length;
+
+    let submitBtnLabel = `📥 Baixar Word (.DOC) • ${count} trades`;
+    if (state.exportFormat === 'PDF') {
+      submitBtnLabel = `🖨️ Abrir Visualização / Salvar PDF • ${count} trades`;
+    } else if (state.exportFormat === 'ENEX') {
+      submitBtnLabel = `📥 Baixar Evernote (.ENEX) • ${count} notas`;
+    } else if (state.exportFormat === 'CSV') {
+      submitBtnLabel = `📥 Baixar Planilha (.CSV) • ${count} trades`;
+    }
+
+    return `
+      <div class="sim-modal-overlay open" id="simExportModal">
+        <div class="sim-modal-box sim-export-modal-box">
+          <!-- Cabeçalho do Modal -->
+          <div class="sim-modal-header">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #0f172a;">📚 Exportar Trades Simulados</h2>
+                <span class="sim-export-badge">ESTUDO INDIVIDUAL</span>
+              </div>
+              <p style="margin: 4px 0 0; color: #64748b; font-size: 13px;">
+                Exporte as operações para estudo detalhado, anotações e revisão técnica fora da plataforma.
+              </p>
+            </div>
+            <button class="sim-modal-close-btn" type="button" id="simExportModalClose" title="Fechar">×</button>
+          </div>
+
+          <!-- Escopo dos Trades -->
+          <div class="sim-export-section">
+            <label class="sim-export-section-title">1. Selecione o universo de trades:</label>
+            <div class="sim-export-scope-wrap">
+              <label class="sim-export-scope-opt ${state.exportScope === 'FILTERED' ? 'selected' : ''}">
+                <input type="radio" name="simExportScope" value="FILTERED" ${state.exportScope === 'FILTERED' ? 'checked' : ''} />
+                <span>Filtro Atual na Tela (<b>${filtered.length} trades</b>)</span>
+              </label>
+              <label class="sim-export-scope-opt ${state.exportScope === 'ALL' ? 'selected' : ''}">
+                <input type="radio" name="simExportScope" value="ALL" ${state.exportScope === 'ALL' ? 'checked' : ''} />
+                <span>Todas as Simulações (<b>${all.length} trades</b>)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Formato de Exportação -->
+          <div class="sim-export-section" style="margin-top: 18px;">
+            <label class="sim-export-section-title">2. Escolha o formato de estudo:</label>
+            <div class="sim-export-cards-grid">
+              <!-- DOC Card -->
+              <div class="sim-export-card ${state.exportFormat === 'DOC' ? 'selected' : ''}" data-format="DOC">
+                <div class="sim-export-card-top">
+                  <span class="sim-export-card-icon">📄</span>
+                  <div class="sim-export-card-titles">
+                    <b>Microsoft Word (.DOC)</b>
+                    <small>Documento editável (.doc)</small>
+                  </div>
+                  <span class="sim-export-chip chip-blue">Editável</span>
+                </div>
+                <ul class="sim-export-card-features">
+                  <li><b>1 trade por página</b> com quebra explícita de seção</li>
+                  <li>Tabelas de execução, risco, alvos e timeline</li>
+                  <li>Gráfico de candles e Trading Rubric congelada</li>
+                  <li>Compatível com MS Word e LibreOffice</li>
+                </ul>
+                <div class="sim-export-card-radio">
+                  <span class="sim-radio-circle ${state.exportFormat === 'DOC' ? 'checked' : ''}"></span>
+                  <span>Selecionar Word (.DOC)</span>
+                </div>
+              </div>
+
+              <!-- PDF Card -->
+              <div class="sim-export-card ${state.exportFormat === 'PDF' ? 'selected' : ''}" data-format="PDF">
+                <div class="sim-export-card-top">
+                  <span class="sim-export-card-icon">📑</span>
+                  <div class="sim-export-card-titles">
+                    <b>Impressão / PDF (.PDF)</b>
+                    <small>Pronto para ler, imprimir ou salvar PDF</small>
+                  </div>
+                  <span class="sim-export-chip chip-emerald">Leitura & PDF</span>
+                </div>
+                <ul class="sim-export-card-features">
+                  <li><b>1 trade por página individual A4</b> sem cortes</li>
+                  <li>Abre visualizador pronto para Salvar como PDF</li>
+                  <li>Gráfico de candles vetorial de alta resolução</li>
+                  <li>Design editorial profissional e limpo</li>
+                </ul>
+                <div class="sim-export-card-radio">
+                  <span class="sim-radio-circle ${state.exportFormat === 'PDF' ? 'checked' : ''}"></span>
+                  <span>Selecionar PDF / Impressão</span>
+                </div>
+              </div>
+
+              <!-- ENEX Card -->
+              <div class="sim-export-card ${state.exportFormat === 'ENEX' ? 'selected' : ''}" data-format="ENEX">
+                <div class="sim-export-card-top">
+                  <span class="sim-export-card-icon">🐘</span>
+                  <div class="sim-export-card-titles">
+                    <b>Evernote (.ENEX)</b>
+                    <small>Notas separadas para estudo</small>
+                  </div>
+                  <span class="sim-export-chip chip-purple">Anotações</span>
+                </div>
+                <ul class="sim-export-card-features">
+                  <li><b>1 nota independente por trade simulado</b></li>
+                  <li>Tags automáticas: Ativo, Setup, Grade, Status</li>
+                  <li>Conteúdo formatado em XHTML ENML estrito</li>
+                  <li>Perfeito para diário de estudo contínuo</li>
+                </ul>
+                <div class="sim-export-card-radio">
+                  <span class="sim-radio-circle ${state.exportFormat === 'ENEX' ? 'checked' : ''}"></span>
+                  <span>Selecionar Evernote (.ENEX)</span>
+                </div>
+              </div>
+
+              <!-- CSV Card -->
+              <div class="sim-export-card ${state.exportFormat === 'CSV' ? 'selected' : ''}" data-format="CSV">
+                <div class="sim-export-card-top">
+                  <span class="sim-export-card-icon">📊</span>
+                  <div class="sim-export-card-titles">
+                    <b>Planilha (.CSV)</b>
+                    <small>Tabela de dados consolidada</small>
+                  </div>
+                  <span class="sim-export-chip chip-gray">Dados Brutos</span>
+                </div>
+                <ul class="sim-export-card-features">
+                  <li>Todas as colunas em formato tabular estruturado</li>
+                  <li>Separador ponto e vírgula com UTF-8 BOM</li>
+                  <li>Compatível com Excel, Google Planilhas e LLMs</li>
+                  <li>Ideal para estatísticas e análises quantitativas</li>
+                </ul>
+                <div class="sim-export-card-radio">
+                  <span class="sim-radio-circle ${state.exportFormat === 'CSV' ? 'checked' : ''}"></span>
+                  <span>Selecionar Planilha (.CSV)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Callout Informativo -->
+          <div class="sim-export-info-callout">
+            <span class="sim-info-ico">💡</span>
+            <div style="font-size: 12px; color: #1e3a2f; line-height: 1.45;">
+              <b>Regra de Estudo Isolado:</b> Nos documentos Word (.DOC) e Impressão/PDF, cada trade é isolado em sua própria página por meio de quebra de página explícita. No Evernote (.ENEX), cada trade torna-se uma nota separada com tags de busca. Todos os campos utilizam estritamente dados reais gerados pela simulação.
+            </div>
+          </div>
+
+          <!-- Ações do Modal -->
+          <div class="sim-modal-actions" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="sim-export-btn" style="padding: 0 18px; height: 40px;" type="button" id="simExportModalCancel">
+              Cancelar
+            </button>
+            <button class="sim-btn-seed-dropdown" style="padding: 0 20px; height: 40px; font-size: 13px; font-weight: 700; background: #064e3b; color: #ffffff; border: none; border-radius: 8px; cursor: pointer;" type="button" id="simExportModalSubmit">
+              ${submitBtnLabel}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
    * Renderiza o gráfico vetorial SVG com linhas de gatilho, entrada, stop e alvos
    */
   function renderSnapshotChartSvg(sim) {
@@ -3159,7 +3387,7 @@
     container.querySelector('#simMoreBtnExport')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.activeDropdown = null;
-      exportFilteredCSV();
+      openExportModal();
     });
 
     container.querySelector('#simMoreBtnClear')?.addEventListener('click', (e) => {
@@ -3204,8 +3432,51 @@
       });
     }
 
-    // Botão Exportar CSV
-    container.querySelector('#simExportBtn')?.addEventListener('click', exportFilteredCSV);
+    // Botão Exportar (Toolbar da Tabela)
+    container.querySelector('#simExportBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openExportModal();
+    });
+
+    // Eventos do Modal de Exportação
+    container.querySelector('#simExportModalClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeExportModal();
+    });
+
+    container.querySelector('#simExportModalCancel')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeExportModal();
+    });
+
+    container.querySelector('#simExportModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simExportModal') {
+        closeExportModal();
+      }
+    });
+
+    container.querySelectorAll('input[name="simExportScope"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        state.exportScope = e.target.value;
+        render();
+      });
+    });
+
+    container.querySelectorAll('.sim-export-card[data-format]').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const fmt = card.dataset.format;
+        if (fmt) {
+          state.exportFormat = fmt;
+          render();
+        }
+      });
+    });
+
+    container.querySelector('#simExportModalSubmit')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      executeExport();
+    });
 
     // Botões de Ação na Tabela (Snapshot e Detalhes)
     container.querySelectorAll('.sim-action-btn[data-action="chart"]').forEach(btn => {
@@ -3397,6 +3668,8 @@
     addSimulation,
     resetToDefaults,
     evaluateActive,
+    openExportModal,
+    executeExport,
     getState: () => state
   };
 
