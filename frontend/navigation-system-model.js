@@ -775,6 +775,14 @@
     }
 
     /**
+     * Checks if a category is collapsed
+     */
+    isCategoryCollapsed(categoryId) {
+      if (!Array.isArray(this.state.collapsedCategories)) return false;
+      return this.state.collapsedCategories.includes(categoryId);
+    }
+
+    /**
      * Applies an official preset (FAST, TRADER_FOCUS, FULL)
      */
     applyPreset(presetKey) {

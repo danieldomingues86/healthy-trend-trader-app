@@ -554,9 +554,9 @@
           } else {
             // In expanded mode, render as expandable category accordion
             const catLabel = cat.currentLabel || cat.label;
-            const isCatCollapsed = cat.isCollapsed;
+            const isCatCollapsed = Boolean(cat.isCollapsed);
             html += `
-              <div class="sidebar-group sidebar-category-group" data-group-id="${cat.id}">
+              <div class="sidebar-group sidebar-category-group ${isCatCollapsed ? 'is-collapsed' : 'is-expanded'}" data-group-id="${cat.id}">
                 <button class="sidebar-category-header" type="button" data-cat-toggle="${cat.id}" aria-expanded="${!isCatCollapsed}">
                   <span class="sidebar-cat-label">${catLabel}</span>
                   <span class="sidebar-cat-arrow">${isCatCollapsed ? '›' : '▾'}</span>
@@ -647,9 +647,29 @@
 
       // Category accordion headers (expanded mode)
       sidebar.querySelectorAll('[data-cat-toggle]').forEach((headerBtn) => {
+        const catId = headerBtn.dataset.catToggle;
+        const groupDef = this.findGroupDef(catId);
+
+        // Hover sobre menu recolhido: exibe os subitens em modo flutuante (flyout)
+        headerBtn.addEventListener('mouseenter', () => {
+          const isCollapsed = this.model ? this.model.isCategoryCollapsed(catId) : false;
+          if (isCollapsed && groupDef) {
+            this.cancelClose();
+            this.openFlyout(groupDef, headerBtn, false);
+          }
+        });
+
+        headerBtn.addEventListener('mouseleave', () => {
+          const isCollapsed = this.model ? this.model.isCategoryCollapsed(catId) : false;
+          if (isCollapsed && !this.isFlyoutPinned) {
+            this.scheduleClose();
+          }
+        });
+
+        // Clique: expande/recolhe inline no sidebar e para o modo hover flutuante
         headerBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          const catId = headerBtn.dataset.catToggle;
+          this.closeFlyout(true);
           if (this.model && typeof this.model.toggleCategoryCollapsed === 'function') {
             this.model.toggleCategoryCollapsed(catId);
             this.refresh();
@@ -727,9 +747,11 @@
       this.isFlyoutPinned = isPinned;
 
       // Update trigger visual
-      document.querySelectorAll('.sidebar-group-trigger').forEach((b) => {
+      document.querySelectorAll('.sidebar-group-trigger, .sidebar-category-header').forEach((b) => {
         b.classList.toggle('flyout-open', b === triggerBtn);
-        b.setAttribute('aria-expanded', String(b === triggerBtn));
+        if (b.classList.contains('sidebar-group-trigger')) {
+          b.setAttribute('aria-expanded', String(b === triggerBtn));
+        }
       });
 
       const isProUser = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
@@ -783,7 +805,9 @@
       const flyoutHeight = this.flyoutEl.offsetHeight || 300;
       const windowHeight = window.innerHeight;
 
-      const left = rect.right + 10;
+      const sidebar = document.querySelector('.sidebar');
+      const sidebarRight = sidebar ? sidebar.getBoundingClientRect().right : rect.right;
+      const left = Math.max(rect.right + 10, sidebarRight + 8);
       let top = rect.top - 6;
       if (top + flyoutHeight > windowHeight - 16) {
         top = Math.max(16, windowHeight - flyoutHeight - 16);
@@ -819,9 +843,11 @@
         this.flyoutEl.classList.remove('active');
       }
 
-      document.querySelectorAll('.sidebar-group-trigger').forEach((b) => {
+      document.querySelectorAll('.sidebar-group-trigger, .sidebar-category-header').forEach((b) => {
         b.classList.remove('flyout-open');
-        b.setAttribute('aria-expanded', 'false');
+        if (b.classList.contains('sidebar-group-trigger')) {
+          b.setAttribute('aria-expanded', 'false');
+        }
       });
     }
 

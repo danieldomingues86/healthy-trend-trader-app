@@ -144,3 +144,17 @@ test('Validação de Paridade 100%: Nenhum item da navegação anterior foi perd
     assert.ok(allModulePages.has(page), `Página complementar '${page}' deve estar no novo catálogo de módulos`);
   }
 });
+
+test('NavigationSystemModel: controle de recolhimento de categoria (isCategoryCollapsed e toggleCategoryCollapsed)', () => {
+  const model = new NavigationSystemModel();
+  model.state.collapsedCategories = [];
+  assert.equal(model.isCategoryCollapsed('daily_operation'), false);
+
+  // Recolher 'daily_operation'
+  model.toggleCategoryCollapsed('daily_operation');
+  assert.equal(model.isCategoryCollapsed('daily_operation'), true);
+
+  // Expandir novamente via toggle
+  model.toggleCategoryCollapsed('daily_operation');
+  assert.equal(model.isCategoryCollapsed('daily_operation'), false);
+});
