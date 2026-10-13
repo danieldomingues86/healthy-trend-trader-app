@@ -64,7 +64,7 @@ const GLOBAL_BENCHMARKS = [
   {
     symbol: 'DXY',
     name: 'Dólar (DXY)',
-    flag: '💵',
+    flag: '🇺🇸',
     value: '101,63',
     numericValue: 101.63,
     changePct: 0.31,
@@ -109,76 +109,132 @@ const GLOBAL_BENCHMARKS = [
 
 const DEFAULT_HIGH_IMPACT_EVENTS = [
   {
-    id: 'evt-fed-rate',
-    name: 'Decisão de Juros (EUA - Fed)',
-    date: '2026-10-15',
-    time: '15:00',
-    timezone: 'America/Sao_Paulo',
-    impact: 'ALTO',
-    country: 'EUA',
-    relatedAssets: 'Índices / Dólar / Juros Globais',
-    description: 'Decisão do comitê FOMC sobre a taxa de juros básica americana e coletiva de imprensa.',
-    source: 'Oficial'
-  },
-  {
-    id: 'evt-copom',
-    name: 'Decisão de Juros (Brasil - Copom)',
-    date: '2026-10-21',
-    time: '18:30',
-    timezone: 'America/Sao_Paulo',
-    impact: 'ALTO',
-    country: 'Brasil',
-    relatedAssets: 'IBOV / Juros Futuros (DI) / Bancos',
-    description: 'Divulgação da taxa Selic pelo Banco Central do Brasil com comunicado oficial de diretrizes.',
-    source: 'Oficial'
-  },
-  {
     id: 'evt-payroll',
-    name: 'Payroll (EUA - Emprego Não-Agrícola)',
-    date: '2026-11-06',
+    name: 'Payroll (EUA)',
+    date: '2026-10-07',
     time: '09:30',
     timezone: 'America/Sao_Paulo',
     impact: 'ALTO',
     country: 'EUA',
-    relatedAssets: 'EUA / Dólar / Mercados Globais',
+    relatedAssets: 'EUA / Dólar / Índices',
     description: 'Relatório mensal de criação de empregos e taxa de desemprego nos Estados Unidos.',
     source: 'Oficial'
   },
   {
+    id: 'evt-fed-rate',
+    name: 'Decisão de Juros (EUA - Fed)',
+    date: '2026-10-08',
+    time: '15:00',
+    timezone: 'America/Sao_Paulo',
+    impact: 'ALTO',
+    country: 'EUA',
+    relatedAssets: 'Índices / Dólar / Juros',
+    description: 'Decisão do comitê FOMC sobre a taxa de juros básica americana e coletiva de imprensa.',
+    source: 'Oficial'
+  },
+  {
     id: 'evt-ipca',
-    name: 'IPCA (Brasil - Inflação Oficial)',
+    name: 'IPCA (Brasil)',
     date: '2026-10-10',
     time: '09:00',
     timezone: 'America/Sao_Paulo',
     impact: 'MÉDIO',
     country: 'Brasil',
-    relatedAssets: 'IBOV / Varejo / Consumo / Juros',
+    relatedAssets: 'IBOV / Juros / Bancos',
     description: 'Índice Nacional de Preços ao Consumidor Amplo medido pelo IBGE.',
     source: 'Oficial'
   },
   {
-    id: 'evt-cpi-us',
-    name: 'CPI (EUA - Inflação ao Consumidor)',
-    date: '2026-10-14',
-    time: '09:30',
-    timezone: 'America/Sao_Paulo',
-    impact: 'ALTO',
-    country: 'EUA',
-    relatedAssets: 'S&P 500 / Nasdaq / Dólar',
-    description: 'Índice de preços ao consumidor nos EUA, principal termômetro para a política do Fed.',
-    source: 'Oficial'
-  },
-  {
     id: 'evt-china-pmi',
-    name: 'Produção Industrial & PMI (China)',
-    date: '2026-10-18',
+    name: 'Produção Industrial (China)',
+    date: '2026-10-12',
     time: '11:00',
     timezone: 'America/Sao_Paulo',
     impact: 'MÉDIO',
     country: 'China',
-    relatedAssets: 'Commodities / Vale (VALE3) / Mineração',
+    relatedAssets: 'Commodities / Mineração',
     description: 'Indicadores de atividade e demanda de manufatura da maior compradora mundial de commodities.',
     source: 'Oficial'
+  },
+  {
+    id: 'evt-copom',
+    name: 'Decisão de Juros (Brasil - Copom)',
+    date: '2026-10-13',
+    time: '10:00',
+    timezone: 'America/Sao_Paulo',
+    impact: 'ALTO',
+    country: 'Brasil',
+    relatedAssets: 'IBOV / Juros / Bancos',
+    description: 'Divulgação da taxa Selic pelo Banco Central do Brasil com comunicado oficial de diretrizes.',
+    source: 'Oficial'
+  }
+];
+
+const DEFAULT_NEWS_STORIES = [
+  {
+    id: 'news-fed-rates',
+    title: 'Fed sinaliza que pode manter juros elevados por mais tempo',
+    summary: 'Powell reforça postura cautelosa diante da inflação persistente.',
+    source: 'Bloomberg',
+    time: '09:12',
+    date: 'Hoje',
+    url: '#',
+    category: 'Macro',
+    market: 'us',
+    image: 'assets/news-hero-fed.jpg',
+    impact: 'ALTO IMPACTO'
+  },
+  {
+    id: 'news-petrobras-invest',
+    title: 'Petrobras anuncia novo plano de investimentos',
+    summary: 'Companhia prevê aumento na produção nos próximos anos.',
+    source: 'Reuters',
+    time: '08:45',
+    date: 'Hoje',
+    url: '#',
+    category: 'Empresas',
+    market: 'br',
+    image: 'assets/news-thumb-petroleo.jpg',
+    impact: 'ALTO IMPACTO'
+  },
+  {
+    id: 'news-vale-output',
+    title: 'Vale divulga dados operacionais acima do esperado',
+    summary: 'Produção de minério cresce 4% no trimestre.',
+    source: 'Valor',
+    time: '07:30',
+    date: 'Hoje',
+    url: '#',
+    category: 'Empresas',
+    market: 'br',
+    image: 'assets/news-thumb-mineracao.jpg',
+    impact: 'MÉDIO IMPACTO'
+  },
+  {
+    id: 'news-china-stimulus',
+    title: 'China anuncia novos estímulos à economia',
+    summary: 'Medidas podem beneficiar commodities e mercados emergentes.',
+    source: 'Financial Times',
+    time: '06:55',
+    date: 'Hoje',
+    url: '#',
+    category: 'Macro',
+    market: 'global',
+    image: 'assets/news-thumb-china.jpg',
+    impact: 'MÉDIO IMPACTO'
+  },
+  {
+    id: 'news-ibov-high',
+    title: 'Ibovespa opera em alta com exterior positivo',
+    summary: 'Índice acompanha bom humor nos mercados globais.',
+    source: 'InfoMoney',
+    time: '06:20',
+    date: 'Hoje',
+    url: '#',
+    category: 'Mercado',
+    market: 'br',
+    image: 'assets/news-thumb-spx.jpg',
+    impact: 'GERAL'
   }
 ];
 
@@ -468,6 +524,10 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
     }
   } catch (err) {
     console.warn('[market-central] Erro ao carregar notícias:', err.message);
+  }
+
+  if (!Array.isArray(news) || news.length === 0) {
+    news = DEFAULT_NEWS_STORIES;
   }
 
   return {
