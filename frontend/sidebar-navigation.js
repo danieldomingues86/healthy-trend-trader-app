@@ -1367,12 +1367,12 @@
         </div>
 
         <div class="nav-settings-block">
-          <label class="nav-settings-label">${isEn ? '1. Presentation Style' : '1. Formato de Exibição'}</label>
+          <label class="nav-settings-label">${isEn ? '1. Menu - Presentation Style' : '1. Menu - Formato de Exibição'}</label>
           <div class="navigation-layout-options">${styleButtons}</div>
         </div>
 
         <div class="nav-settings-block">
-          <label class="nav-settings-label">${isEn ? '2. Organization Preset' : '2. Predefinição de Organização'}</label>
+          <label class="nav-settings-label">${isEn ? '2. Menu - Organization Preset' : '2. Menu - Predefinição de Organização'}</label>
           <p class="nav-settings-hint">${isEn ? 'Presets determine grouping and Quick Access without hiding any software capability. 100% of modules remain accessible.' : 'As predefinições organizam o agrupamento das categorias e do Acesso Rápido de forma automática. 100% dos módulos continuam disponíveis.'}</p>
           <div class="nav-presets-row">${presetButtons}</div>
         </div>
