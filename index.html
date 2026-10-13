@@ -1897,7 +1897,7 @@ applyLanguage=function(language){applyLanguageWithNavigationLayout(language);win
 function syncRiskResultPanel(){/* A grade do Position Sizing mantém o painel fixo pelo CSS. */}
 const goWithFixedRiskResult=go;
 go=function(id, ...args){goWithFixedRiskResult(id, ...args);requestAnimationFrame(syncRiskResultPanel)};
-function openSettingsPage(){const settings=document.getElementById('settings');if(!settings)return;closeNavigationHub();document.querySelectorAll('.page').forEach(page=>page.classList.remove('active'));settings.classList.add('active');document.querySelectorAll('.nav button').forEach(button=>button.classList.toggle('active',button.dataset.page==='settings'));const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=typeof uiText==='function'?uiText(titles.settings):titles.settings;window.scrollTo({top:0,behavior:'smooth'})}
+function openSettingsPage(){const settings=document.getElementById('settings');if(!settings)return;closeNavigationHub();document.querySelectorAll('.page').forEach(page=>page.classList.remove('active'));settings.classList.add('active');document.querySelectorAll('.nav button').forEach(button=>button.classList.toggle('active',button.dataset.page==='settings'));const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=typeof uiText==='function'?uiText(titles.settings):titles.settings;setupNavigationLayoutSettings();window.scrollTo({top:0,behavior:'smooth'})}
 const goWithGuaranteedSettings=go;
 go=function(id, ...args){if(id==='settings'){openSettingsPage();return}goWithGuaranteedSettings(id, ...args)};
 window.addEventListener('resize',()=>{if(window.innerWidth<720)syncRiskResultPanel();placeMarketFocusGuard();});

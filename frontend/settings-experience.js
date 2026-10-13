@@ -82,4 +82,5 @@
     };
   });
   decorate();
+  window.decorateSettingsExperience = decorate;
 })();

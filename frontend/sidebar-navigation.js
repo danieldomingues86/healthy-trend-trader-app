@@ -369,6 +369,7 @@
 
       // Hook navigation hub and settings integration
       this.hookUnifiedComponents();
+      this.setupNavigationLayoutSettings();
 
       // Ensure top navigation items if layout is already 'top'
       if (document.body.dataset.navigationLayout === 'top') {
@@ -902,6 +903,9 @@
         root.go = (id) => {
           originalGo(id);
           this.setActivePage(id);
+          if (id === 'settings') {
+            this.setupNavigationLayoutSettings();
+          }
         };
       }
     }
@@ -1378,6 +1382,9 @@
       `;
 
       grid.prepend(card);
+      if (typeof root.decorateSettingsExperience === 'function') {
+        root.decorateSettingsExperience();
+      }
     }
 
     setStyle(style) {
