@@ -898,6 +898,15 @@
                 }).join('')}
               </ul>
             </nav>
+
+            <div class="kc-sidebar-shortcuts">
+              <span class="kc-shortcuts-title">⌨️ Atalhos do Leitor:</span>
+              <div class="kc-shortcuts-pills">
+                <span><kbd>→</kbd> Próxima</span>
+                <span><kbd>←</kbd> Anterior</span>
+                <span><kbd>Esc</kbd> Biblioteca</span>
+              </div>
+            </div>
           </aside>
 
           <!-- CENTER DESK: THE EDITORIAL PAGINATED READING DESK -->
@@ -1064,51 +1073,6 @@
               </footer>
             </article>
           </main>
-
-          <!-- RIGHT CONTEXTUAL SIDEBAR: APOIO E RESUMO -->
-          <aside class="kc-reader-context-sidebar">
-            <!-- SUMMARY CARD -->
-            <div class="kc-ctx-card">
-              <h4 class="kc-ctx-title">${icon('checkCircle', 16)} Síntese do Capítulo</h4>
-              <p class="kc-ctx-desc">Pontos fundamentais que você deve fixar:</p>
-              <ul class="kc-ctx-takeaways">
-                ${(chapter.takeaways || []).map(t => `
-                  <li><span>✓</span> ${esc(t)}</li>
-                `).join('')}
-              </ul>
-            </div>
-
-            <!-- TOOL INTEGRATION CARD -->
-            ${chapter.toolRoute ? `
-              <div class="kc-ctx-card kc-ctx-tool-card">
-                <span class="kc-ctx-tag">Prática Deliberada</span>
-                <h4 class="kc-ctx-title">${icon('monitor', 16)} Ferramenta no Software</h4>
-                <p class="kc-ctx-desc">Abra o módulo correspondente e execute na prática:</p>
-                <button type="button" class="kc-ctx-tool-btn" data-action="launch-route" data-route="${chapter.toolRoute}">
-                  ${esc(chapter.toolLabel || 'Abrir Ferramenta →')}
-                </button>
-              </div>
-            ` : ''}
-
-            <!-- TIP CARD -->
-            ${chapter.tip ? `
-              <div class="kc-ctx-card kc-ctx-tip-card">
-                <h4 class="kc-ctx-title">${icon('lightbulb', 16)} Dica do Método</h4>
-                <p class="kc-ctx-tip-text">${esc(chapter.tip)}</p>
-              </div>
-            ` : ''}
-
-            <!-- KEYBOARD SHORTCUTS CARD -->
-            <div class="kc-ctx-card kc-ctx-shortcuts-card">
-              <h4 class="kc-ctx-title">⌨️ Atalhos de Leitura</h4>
-              <ul class="kc-ctx-shortcuts">
-                <li><kbd>→</kbd> <span>Próxima página</span></li>
-                <li><kbd>←</kbd> <span>Página anterior</span></li>
-                <li><kbd>Esc</kbd> <span>Voltar à biblioteca</span></li>
-                <li><kbd>Ctrl+K</kbd> <span>Buscar no manual</span></li>
-              </ul>
-            </div>
-          </aside>
         </div>
       </div>
     `;
@@ -1289,6 +1253,11 @@
   window.renderKnowledgeCenter = renderApp;
   window.openManualBook = openChapter;
   window.openManualLibrary = openLibrary;
+  window.openManualPage = openPage;
+  window.nextManualPage = nextPage;
+  window.prevManualPage = prevPage;
+  window.nextPage = nextPage;
+  window.prevPage = prevPage;
 
   // Initial render
   renderApp();
