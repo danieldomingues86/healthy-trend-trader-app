@@ -578,8 +578,8 @@ const server = http.createServer(async (request, response) => {
     // Event Playbook - Attachment Upload (POST)
     if (url.pathname === '/api/event-playbook/attachments' && request.method === 'POST') {
       const user = await auth.session(bearer(request)).catch(() => null);
-      const userId = user ? user.id : 'anonymous';
-      const attachment = await eventPlaybookAttachments.create(userId, {
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const attachment = await eventPlaybookAttachments.create(user.id, {
         name: headerText(request.headers['x-file-name']),
         contentType: request.headers['content-type'],
         bytes: await binaryBody(request)
@@ -590,7 +590,7 @@ const server = http.createServer(async (request, response) => {
     // Event Playbook - List (GET)
     if (url.pathname === '/api/event-playbook' && request.method === 'GET') {
       const user = await auth.session(bearer(request)).catch(() => null);
-      const userId = user ? user.id : 'anonymous';
+      const userId = user ? user.id : null;
       const query = {
         category: url.searchParams.get('category'),
         impact: url.searchParams.get('impact'),
@@ -605,18 +605,18 @@ const server = http.createServer(async (request, response) => {
     // Event Playbook - Create (POST)
     if (url.pathname === '/api/event-playbook' && request.method === 'POST') {
       const user = await auth.session(bearer(request)).catch(() => null);
-      const userId = user ? user.id : 'anonymous';
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       const payload = await body(request);
-      const item = await eventPlaybook.create(userId, payload);
+      const item = await eventPlaybook.create(user.id, payload);
       return send(response, 201, { item });
     }
 
     // Event Playbook - Save Reaction (POST /api/event-playbook/reaction)
     if (url.pathname === '/api/event-playbook/reaction' && request.method === 'POST') {
       const user = await auth.session(bearer(request)).catch(() => null);
-      const userId = user ? user.id : 'anonymous';
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       const payload = await body(request);
-      const item = await eventPlaybook.saveReaction(userId, payload);
+      const item = await eventPlaybook.saveReaction(user.id, payload);
       return send(response, 200, { item });
     }
 
@@ -626,21 +626,21 @@ const server = http.createServer(async (request, response) => {
       const eventId = epMatch[1];
       if (request.method === 'GET') {
         const user = await auth.session(bearer(request)).catch(() => null);
-        const userId = user ? user.id : 'anonymous';
+        const userId = user ? user.id : null;
         const item = await eventPlaybook.get(userId, eventId);
         return send(response, 200, { item });
       }
       if (request.method === 'PUT') {
         const user = await auth.session(bearer(request)).catch(() => null);
-        const userId = user ? user.id : 'anonymous';
+        if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
         const payload = await body(request);
-        const item = await eventPlaybook.update(userId, eventId, payload);
+        const item = await eventPlaybook.update(user.id, eventId, payload);
         return send(response, 200, { item });
       }
       if (request.method === 'DELETE') {
         const user = await auth.session(bearer(request)).catch(() => null);
-        const userId = user ? user.id : 'anonymous';
-        const res = await eventPlaybook.remove(userId, eventId);
+        if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+        const res = await eventPlaybook.remove(user.id, eventId);
         return send(response, 200, res);
       }
     }

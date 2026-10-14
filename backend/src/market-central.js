@@ -571,7 +571,7 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
   // 5. Eventos de Alto Impacto (compartilhados com o Event Playbook)
   let events = [];
   try {
-    const epList = await eventPlaybook.list(userId || 'anonymous');
+    const epList = await eventPlaybook.list(userId);
     if (Array.isArray(epList) && epList.length > 0) {
       events = epList.slice(0, 8).map(e => ({
         id: e.id,
