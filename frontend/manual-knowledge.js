@@ -74,6 +74,10 @@
 
   // Guides dictionary (Required by backend/test/manual-knowledge.test.js)
   const additionalGuides = {
+      today: [
+        'A tela Visão Geral é seu centro de comando diário: visualize o status geral do mercado, as posições que demandam atenção imediata e as próximas ações recomendadas.',
+        'Cockpit Matinal: comece seu dia revisando as posições abertas, trailing stops ativos e o alinhamento com a sua Política de Risco antes da abertura do pregão.'
+      ],
       newtrade: [
         'A tela Novo Trade estrutura a operação em duas etapas estritas: Etapa 1 (Parâmetros da Operação: Ativo, Direção, Gatilho Oficial, Entrada, Stop, ATR, Ambiente e Tese) e Etapa 2 (Validação pela Trading Rubric de 100 pontos).',
         'Os 5 Gatilhos Oficiais de Entrada: Inside Bar, PFR (Padrão de Fechamento e Reversão), 1-2-3 de Compra, Dave Landry e RBI (Red Bar Ignored) fornecem timing cirúrgico e stop estrutural objetivo.',
@@ -264,69 +268,6 @@
         'Pesquisa Inteligente: filtre termos por categorias (Tendência, Risco, Psicologia, Setups, Indicadores) ou busque palavras-chave com destaque visual imediato.'
       ]
     };
-    const paragraphs = (additionalGuides[id] || (original ? [...original.querySelectorAll('p')].map(p=>p.textContent).filter(p=>p && !/checklist A\+ antes|classificada como rejeitada/.test(p)) : []));
-    showReader(`<h2 id="kc-reader-title">${title}</h2><p class="kc-reader-lead">${description}</p><img class="kc-reader-screen" src="assets/manual-knowledge/${id}.jpg" alt="Tela ${title}"><span class="kc-eyebrow">COMO USAR</span>${paragraphs.length?paragraphs.map(p=>`<p>${esc(p)}</p>`).join(''):'<p>Consulte a informação da tela, confira seu contexto e siga para a próxima etapa do processo. Mantenha a Política de Risco como referência para suas decisões.</p>'}<button class="kc-open-tool" type="button" data-route="${id}">Abrir ${title} →</button>`);
-  }
-  function concept(index) {
-    const entry=concepts[index]; if(!entry)return;
-    const [,title,description,term]=entry;
-    const glossary=typeof methodGlossary!=='undefined'?methodGlossary:[];
-    const item=glossary.find(x=>normalize(x.term)===normalize(term)) || glossary.find(x=>normalize(x.term).includes(normalize(term)));
-    const fallback={definition:description,role:'Considere este conceito em conjunto com os demais critérios e com a sua Política de Risco.'};
-    const data=item||fallback;
-    showReader(`<div class="kc-reader-symbol">${icon(entry[0])}</div><h2 id="kc-reader-title">${title}</h2><p class="kc-reader-lead">${esc(data.definition)}</p><h3>Por que existe</h3><p>${esc(data.role)}</p>${data.not?`<h3>Não confundir</h3><p>${esc(data.not)}</p>`:''}<button class="kc-open-tool" type="button" data-glossary="${esc(item?.term||term)}">Explorar no Glossário →</button>`);
-  }
-  function scrollToSection(id) {
-    const target=document.getElementById(id); if(!target)return;
-    if(target===legacy)legacy.open=true;
-    if(target.tagName==='DETAILS')target.open=true;
-    const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
-    target.classList.remove('kc-highlight'); void target.offsetWidth; target.classList.add('kc-highlight');
-    setTimeout(()=>target.classList.remove('kc-highlight'),1800);
-  }
-  window.openSellIntoStrengthManual = function () {
-    go('manual');
-    requestAnimationFrame(() => scrollToSection('knowledge-sell-into-strength'));
-  };
-
-  const concepts = [
-    ['star','Empilhamento de Probabilidades','Vários edges, uma decisão.','Empilhamento de Probabilidades'],
-    ['shield','Trading Rubric','A qualidade do setup.','Trading Rubric'],
-    ['cycle','Ciclo de Mercado','Up, Down ou Transição multi-mercado.','Market Cycle'],
-    ['mountain','Contexto Diário','Tendência, volatilidade e estrutura.','Contexto Diário'],
-    ['trend','Força Relativa','Leaders e laggards.','Força Relativa'],
-    ['chart','Fundamentos (6 Dimensões)','Qualidade e Cobertura dos Dados (CVM e SEC).','Score Fundamentalista'],
-    ['pulse','Volatilidade / ATR','Medindo o risco.','ATR'],
-    ['layers','Position Sizing','Transformando risco em posição.','Position Sizing'],
-    ['fire','Portfolio Heat','O risco total da carteira.','Portfolio Heat'],
-    ['gauge','Ongoing Risk','Proteção contínua.','Ongoing Risk'],
-    ['peel','Peel-Off','Redução quando necessário.','Peel-Off'],
-    ['plus','Scale-In (Adição de Risco Zero)','Adição com lucro ≥ +1R e stop no Breakeven.','Scale-In'],
-    ['ramp','Risk Ramp-Up','Aumente a exposição gradualmente.','Risk Ramp-Up'],
-    ['target','5 Gatilhos de Entrada','Inside Bar, PFR, 1-2-3, Dave Landry e RBI.','Gatilhos de Entrada'],
-    ['pause','Modo Fora do Mercado','Pausa deliberada e blindagem contra drawdowns.','Modo Fora do Mercado'],
-    ['check','As 7 Regras de Ouro','Princípios inegociáveis de disciplina e consistência.','Regras do Trader'],
-  ];
-
-  const faq = [
-    ['Por que meu Position Size ficou menor?','O Grade define o Risk Budget e a quantidade teórica pelo stop. Depois, os limitadores de exposição — volatilidade por ATR, capital, Portfolio Heat e máximo de posições — determinam quanto a conta e a carteira podem efetivamente comportar. Confira o limitante destacado no planejamento.'],
-    ['Como o Grade da Rubric define o Risk Budget?','A Trading Rubric avalia os 6 critérios na escala de 100 pontos e determina A, B, C ou D. Para A, a pontuação de pelo menos 95 também exige excelência em todos os critérios. O percentual da grade é o risco financeiro inicial autorizado pela qualidade; não existe um segundo limite de risco inicial na Política.'],
-    ['O que acontece se meu setup for Grade B em vez de Grade A?','O sistema aplica o Risk Budget configurado para B. Em seguida, calcula o risco executável pelo menor limite da política e converte esse valor em quantidade. O Desafio Grade A avalia apenas Rare Trades e compara a execução com o sizing executável, nunca com o orçamento bruto da grade.'],
-    ['O Desafio Grade A altera o tamanho da minha posição?','Não. Somente quando o desafio está ativo, ele mede se uma operação Grade A foi executada na quantidade final autorizada depois de todos os limitadores. Uma redução causada pela política nunca é tratada como undersizing.'],
-    ['Posso registrar um dia sem operar?','Sim. Registre observações, decisões e emoções no Diário mesmo sem operações. Vincular um trade é opcional; um dia de espera também faz parte do processo.'],
-    ['O que acontece se meu Setup não for A?','A Rubric classifica a oportunidade conforme os critérios e pesos da política ativa. Grades diferentes permitem menos risco ou nenhum risco (como Grade D, que bloqueia o trade). Confira a classificação e o risco liberado antes de executar.'],
-    ['Quando devo reduzir meu risco?','Revise a exposição quando o contexto se deteriorar ou os limites da política forem atingidos. Em posições abertas, acompanhe o Ongoing Risk e os alertas de proteção.'],
-    ['O que significa Portfolio Heat?','É o risco agregado do portfólio, apresentado em relação à equity e ao limite da política. Ele mostra quanto risco já está comprometido e a capacidade para novas posições.'],
-    ['Qual a diferença entre risco inicial e Ongoing Risk?','O risco inicial é a distância entre entrada e stop inicial multiplicada pela quantidade. O Ongoing Risk acompanha a distância entre preço atual e stop para a quantidade que ainda está aberta.'],
-    ['Quando ocorre Peel-Off?','É uma redução de proteção quando o Ongoing Risk excede o limite definido. O sistema indica a redução necessária; a execução deve ser registrada. Não é uma realização de lucro automática.'],
-    ['Como funciona o Scale-In (adição à posição) e quando ele é permitido?','O Scale-In permite adicionar lotes a uma posição já vencedora somente quando o preço atingir pelo menos +1R de lucro E o stop da posição já estiver ajustado para o Breakeven (risco zero da posição inicial). O sistema permite no máximo 2 adições, recalcula o preço médio ponderado no lucro realizado e verifica se a nova quantidade respeita a folga do Portfolio Heat e o capital máximo.'],
-    ['O que é o Modo Fora do Mercado (Market Pause) e quando ativá-lo?','É uma blindagem psicológica disponível em Configurações. Quando ativado, o sistema bloqueia voluntariamente a criação de novos planos de trade no Novo Trade por um período escolhido (ex: 2 a 5 dias). É recomendado após uma sequência de perdas, dias de sobrecarga emocional ou quando o mercado estiver hostil.'],
-    ['Como funciona o Override Manual do Ciclo de Mercado no Novo Trade?','Por padrão, o Novo Trade sugere automaticamente o regime do índice benchmark correspondente (IBOV para B3, BDRX para BDRs, IFIX para FIIs). O trader pode sobrescrever manualmente esse regime no seletor da Rubric caso seu ativo pertença a um setor com dinâmica própria ou em caso de divergência técnica intradiária. O score e o Grade recalculam imediatamente.'],
-    ['O que significa a métrica de Cobertura dos Dados no módulo Fundamentalista?','No Healthy Trend Trader, dado ausente não é zero. Quando uma empresa não divulga certos indicadores ou não tem histórico longo de dividendos (como muitas empresas de crescimento ou BDRs da SEC), o sistema repondera matematicamente apenas as dimensões disponíveis e informa com transparência a porcentagem de dados analisados (ex: 82% de cobertura).'],
-    ['Como exportar o Diário do Trader para estudar com Inteligência Artificial (ChatGPT/Claude/Gemini)?','Na tela do Diário do Trader, clique no botão "Exportar Diário". Escolha o período desejado e selecione o formato "Preparar para IA". O sistema gera um texto semântico estruturado por blocos de data com um prompt especializado que orienta a IA a correlacionar seu estado emocional, disciplina e execução do plano com os resultados obtidos.'],
-    ['O que é o novo módulo central de Mentalidade e onde encontro o Trader Zen e as Regras?','O menu lateral agora concentra todo o ecossistema psicológico e comportamental no item "🧠 Mentalidade". Na Home de Mentalidade você encontra os 6 submódulos (Trader Zen, Biblioteca Mental, Psicologia do Trader, Regras do Trader, Sabedoria do Trader e Teste de Perfil), além do seu check-in diário de Estado Mental e o painel de Evolução Mental.'],
-  ];
 
   // Markdown renderer for rich book content
   function renderMarkdown(text) {
