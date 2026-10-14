@@ -88,3 +88,22 @@ test('Manual do Software: seções e botões no index.html possuem integridade e
     assert.ok(html.includes(`data-manual-target="${sec}"`), `index.html deve conter botão para #${sec}`);
   }
 });
+
+test('Manual do Software: Biblioteca Digital Interativa possui os 6 livros e capítulos estruturados', () => {
+  const BooksModel = require(path.join(repoRoot, 'frontend', 'manual-knowledge-books.js'));
+  assert.ok(BooksModel, 'manual-knowledge-books.js deve ser importável');
+  assert.equal(BooksModel.BOOKS.length, 6, 'Deve conter exatamente os 6 livros oficiais');
+
+  const totalChapters = BooksModel.getTotalChapters();
+  assert.ok(totalChapters >= 40, `Deve conter ao menos 40 capítulos (atual: ${totalChapters})`);
+
+  for (const book of BooksModel.BOOKS) {
+    assert.ok(book.id && book.title && book.cover, `Livro ${book.title} deve ter id, título e capa`);
+    assert.ok(book.chapters.length > 0, `Livro ${book.title} deve conter capítulos`);
+    for (const ch of book.chapters) {
+      assert.ok(ch.id && ch.title && ch.number, `Capítulo ${ch.title} do livro ${book.title} deve ter id, título e número`);
+      assert.ok(Array.isArray(ch.sections) && ch.sections.length > 0, `Capítulo ${ch.title} deve possuir seções de conteúdo`);
+    }
+  }
+});
+
