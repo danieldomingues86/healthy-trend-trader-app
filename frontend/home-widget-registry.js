@@ -6,7 +6,7 @@
     { id: 'relative-strength', name: 'Relative Strength', description: 'Líderes do ranking de força relativa.', category: 'Mercado', icon: '↗', defaultSize: 'medium', defaultColumns: 8, defaultOrder: 3, minSize: 'compact', route: 'relativestrength', defaultActive: true, render: (context) => context.renderRelativeStrength() },
     { id: 'next-action', name: 'Próxima ação', description: 'Prioridade operacional calculada pelo seu sistema.', category: 'Trading', icon: '→', defaultSize: 'small', defaultColumns: 5, defaultOrder: 4, minSize: 'compact', route: null, defaultActive: true, render: (context) => context.renderNextAction() },
     { id: 'wealth', name: 'Patrimônio / Equity', description: 'Visão compacta do patrimônio e equity da estratégia.', category: 'Performance', icon: '▥', defaultSize: 'small', defaultColumns: 5, defaultOrder: 5, minSize: 'compact', route: 'dashboard', defaultActive: true, render: (context) => context.renderWealth() },
-    { id: 'courage-challenge', name: 'Desafio Grade A', description: 'Progresso do sizing compliance no desafio atual.', category: 'Disciplina & Rotina', icon: '✓', defaultSize: 'compact', defaultColumns: 6, defaultOrder: 6, minSize: 'compact', route: 'couragechallenge', defaultActive: true, render: (context) => context.renderChallenge() },
+    { id: 'mission', name: 'Missão do Trader', description: 'Progresso da meta de trades e marcos na montanha.', category: 'Disciplina & Rotina', icon: '🎯', defaultSize: 'compact', defaultColumns: 6, defaultOrder: 6, minSize: 'compact', route: 'mission', defaultActive: true, render: (context) => context.renderMission() },
     { id: 'watchlist', name: 'Watchlist', description: 'Ativos acompanhados e seus estados mais relevantes.', category: 'Mercado', icon: '◉', defaultSize: 'medium', minSize: 'compact', route: 'watchlist', defaultActive: false, render: (context) => context.renderWatchlist() },
     { id: 'daily-checklist', name: 'Daily Checklist', description: 'Itens da sua Rotina Diária.', category: 'Organização Pessoal', icon: '☑', defaultSize: 'medium', minSize: 'compact', route: 'dailyroutine', defaultActive: false, render: (context) => context.renderChecklist() },
     { id: 'daily-priorities', name: 'Prioridades do Dia', description: 'Até três coisas que merecem atenção hoje.', category: 'Organização Pessoal', icon: '◎', defaultSize: 'small', minSize: 'compact', route: null, defaultActive: false, render: (context) => context.renderPriorities() },
@@ -18,7 +18,7 @@
   const byId = new Map(widgets.map((widget) => [widget.id, widget]));
   root.HomeWidgetRegistry = Object.freeze({
     all: () => widgets.slice(),
-    get: (id) => byId.get(id),
+    get: (id) => (id === 'courage-challenge' ? byId.get('mission') : byId.get(id)) || byId.get(id),
     defaults: () => widgets.filter((widget) => widget.defaultActive).map((widget, order) => ({ id: widget.id, order, columns: widget.defaultColumns, size: widget.defaultSize, active: true }))
   });
 }(window));

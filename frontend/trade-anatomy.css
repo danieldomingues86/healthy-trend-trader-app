@@ -1,15 +1,21 @@
-body:has(#tradeanatomy.active) .content {
+body:has(#tradeanatomy.active) .content,
+body:has(#tradeanatomy.active) .main,
+body:has(#tradeanatomy.active) {
   max-width: none;
   margin: 0;
   padding: 0;
 }
 
-body[data-theme="healthy"]:has(#tradeanatomy.active) .content {
-  background: #03130d;
+body[data-theme="healthy"]:has(#tradeanatomy.active) .content,
+body[data-theme="healthy"]:has(#tradeanatomy.active) .main,
+body[data-theme="healthy"]:has(#tradeanatomy.active) {
+  background: #020d09 !important;
 }
 
-body:not([data-theme="healthy"]):has(#tradeanatomy.active) .content {
-  background: #0f0c08;
+body:not([data-theme="healthy"]):has(#tradeanatomy.active) .content,
+body:not([data-theme="healthy"]):has(#tradeanatomy.active) .main,
+body:not([data-theme="healthy"]):has(#tradeanatomy.active) {
+  background: #0f0c08 !important;
 }
 
 body:has(#tradeanatomy.active) .topbar {

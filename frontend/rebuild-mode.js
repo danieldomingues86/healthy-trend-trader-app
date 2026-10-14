@@ -4,8 +4,15 @@
   const RM = root.RebuildModeModel;
 
   function renderRebuildPage() {
+    if (typeof root.go === 'function') {
+      root.go('mission');
+      return;
+    }
     const rootEl = document.getElementById('rebuildRoot');
-    if (!rootEl) return;
+    if (!rootEl && typeof root.renderMissionPage === 'function') {
+      root.renderMissionPage();
+      return;
+    }
 
     const state = RM ? RM.getRebuildState() : { isActive: false, maxRiskPct: 0.001 };
 
@@ -13,7 +20,7 @@
       <div style="max-width:1200px;margin:0 auto;padding:24px 28px 60px;color:#f1f5f9;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
           <button type="button" onclick="go('tradertraining')" style="background:transparent;border:none;color:#94a3b8;font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">
-            ← Treinamento & Recuperação
+            ← Treinamento
           </button>
           <span style="font-size:12px;font-weight:700;color:${state.isActive ? '#facc15' : '#64748b'};">
             ${state.isActive ? '● REBUILD MODE ATIVADO' : '○ REBUILD MODE DESATIVADO'}

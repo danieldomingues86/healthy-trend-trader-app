@@ -160,7 +160,8 @@ function validateMissionRisk(plan, missionState, equity) {
   }
   const executedRiskPct = Math.max(declaredRiskPct, computedRiskPct);
   if (executedRiskPct > (missionLimitPct + 0.0201)) {
-    throw invalid(`Operação bloqueada: o risco (${executedRiskPct.toFixed(2).replace('.', ',')}%) excede o limite de ${missionLimitPct.toFixed(2).replace('.', ',')}% definido pela sua Missão ativa. Reduza a quantidade ou ajuste o stop.`);
+    const label = m.mode === 'REBUILD' ? 'pelo seu Modo Recuperação (Rebuild) ativo' : 'pela sua Missão ativa';
+    throw invalid(`Operação bloqueada: o risco (${executedRiskPct.toFixed(2).replace('.', ',')}%) excede o limite de ${missionLimitPct.toFixed(2).replace('.', ',')}% definido ${label}. Reduza a quantidade ou ajuste o stop.`);
   }
 }
 
@@ -181,6 +182,27 @@ async function createPlan(userId, payload) {
     if (isMissionStateActive(missionState)) {
       const equity = await getAccountEquity(userId, client);
       validateMissionRisk(plan, missionState, equity);
+
+      const parsedMission = parseMissionState(missionState);
+      if (parsedMission?.mode === 'REBUILD') {
+        const openPositionsRes = await client.query(
+          "SELECT count(*) as count FROM app.trades WHERE user_id = $1 AND status = 'open'",
+          [userId]
+        );
+        const openPositionsCount = Number(openPositionsRes.rows[0]?.count || 0);
+        if (openPositionsCount >= 1) {
+          throw invalid('Operação bloqueada pelo Modo Recuperação: você já possui uma posição aberta. Durante o Rebuild, é permitido operar apenas uma posição por vez.');
+        }
+        plan.metadata = plan.metadata || {};
+        plan.metadata.missionId = parsedMission.id;
+        plan.metadata.missionMode = 'REBUILD';
+        plan.metadata.rebuild_mode_id = parsedMission.id;
+        plan.metadata.isRebuild = true;
+      } else if (parsedMission) {
+        plan.metadata = plan.metadata || {};
+        plan.metadata.missionId = parsedMission.id;
+        plan.metadata.missionMode = 'STANDARD';
+      }
     }
     if (plan.rubricGrade === 'A') {
       const savedPolicy = await client.query('SELECT policy FROM app.risk_policies WHERE user_id = $1', [userId]);

@@ -226,3 +226,29 @@ test('tradeSimulator backend: reset aceita cenários de gestão e compare retorn
     database.query = originalQuery;
   }
 });
+
+test('tradeSimulator backend: list e compareHypothesis retornam hipótese do Double Inside Bar', async () => {
+  const originalQuery = database.query;
+  database.query = async () => ({ rows: [] }); // Simula banco sem simulações (usa seeds calibradas)
+
+  try {
+    const listData = await tradeSimulator.list('user-test');
+    assert.ok(listData.hypothesisComparison, 'list deve incluir hypothesisComparison');
+    assert.ok(listData.hypothesisComparison.simple);
+    assert.ok(listData.hypothesisComparison.double);
+    assert.equal(listData.hypothesisComparison.double.triggerName, 'Double Inside Bar');
+    assert.ok(listData.hypothesisComparison.diff);
+
+    const hypData = await tradeSimulator.compareHypothesis('user-test');
+    assert.ok(hypData.hypothesisComparison);
+    assert.equal(hypData.hypothesisComparison.double.triggerName, 'Double Inside Bar');
+    assert.ok(hypData.hypothesisComparison.crossContext.byRsTier);
+    assert.ok(hypData.hypothesisComparison.crossContext.byMarketCycle);
+    assert.ok(hypData.hypothesisComparison.crossContext.bySuperTrend);
+    assert.ok(hypData.hypothesisComparison.crossContext.byVolatility);
+    assert.match(hypData.hypothesisComparison.hypothesisStatus.betSizingRule, /INALTERADO/);
+  } finally {
+    database.query = originalQuery;
+  }
+});
+

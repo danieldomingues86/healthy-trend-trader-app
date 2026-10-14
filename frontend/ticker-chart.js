@@ -11,6 +11,8 @@
   let ema9Series = null;
   let ema30Series = null;
   let ema21Series = null;
+  let ema50Series = null;
+  let ema200Series = null;
   let volumeSeries = null;
   let activeBenchmark = null;
   let disciplineState = null;
@@ -170,9 +172,9 @@
   function loadIndicatorPrefs() {
     try {
       const raw = localStorage.getItem(INDICATORS_STORAGE_KEY);
-      if (raw) return Object.assign({ ema9: true, ema30: true, ema21: false, volume: true }, JSON.parse(raw));
+      if (raw) return Object.assign({ ema9: true, ema30: true, ema21: false, ema50: false, ema200: false, volume: true }, JSON.parse(raw));
     } catch (e) {}
-    return { ema9: true, ema30: true, ema21: false, volume: true };
+    return { ema9: true, ema30: true, ema21: false, ema50: false, ema200: false, volume: true };
   }
 
   function saveIndicatorPrefs(prefs) {
@@ -393,6 +395,16 @@
     } else if (indicatorPrefs.ema21 && chartInstance && tickerData?.ohlc) {
       ensureEma21Series();
     }
+    if (ema50Series) {
+      ema50Series.applyOptions({ visible: !!indicatorPrefs.ema50 });
+    } else if (indicatorPrefs.ema50 && chartInstance && tickerData?.ohlc) {
+      ensureEma50Series();
+    }
+    if (ema200Series) {
+      ema200Series.applyOptions({ visible: !!indicatorPrefs.ema200 });
+    } else if (indicatorPrefs.ema200 && chartInstance && tickerData?.ohlc) {
+      ensureEma200Series();
+    }
 
     const lEma9 = document.querySelector('.legend-ema9');
     if (lEma9) lEma9.style.display = indicatorPrefs.ema9 ? 'inline' : 'none';
@@ -402,6 +414,10 @@
     if (lVol) lVol.style.display = indicatorPrefs.volume ? 'inline' : 'none';
     const lEma21 = document.querySelector('.legend-ema21');
     if (lEma21) lEma21.style.display = indicatorPrefs.ema21 ? 'inline' : 'none';
+    const lEma50 = document.querySelector('.legend-ema50');
+    if (lEma50) lEma50.style.display = indicatorPrefs.ema50 ? 'inline' : 'none';
+    const lEma200 = document.querySelector('.legend-ema200');
+    if (lEma200) lEma200.style.display = indicatorPrefs.ema200 ? 'inline' : 'none';
   }
 
   function ensureEma21Series() {
@@ -422,6 +438,48 @@
         value: rawEma[idx]
       })).filter(p => Number.isFinite(p.value));
       ema21Series.setData(data);
+    }
+  }
+
+  function ensureEma50Series() {
+    if (!chartInstance || !tickerData?.ohlc) return;
+    if (!ema50Series) {
+      ema50Series = chartInstance.addLineSeries({
+        color: '#a855f7',
+        lineWidth: 2,
+        title: 'EMA 50',
+        visible: !!indicatorPrefs.ema50
+      });
+    }
+    const closes = tickerData.ohlc.map(c => c.close);
+    if (window.TickerChartModel) {
+      const rawEma = window.TickerChartModel.calculateEma(closes, 50);
+      const data = tickerData.ohlc.map((c, idx) => ({
+        time: c.time,
+        value: rawEma[idx]
+      })).filter(p => Number.isFinite(p.value));
+      ema50Series.setData(data);
+    }
+  }
+
+  function ensureEma200Series() {
+    if (!chartInstance || !tickerData?.ohlc) return;
+    if (!ema200Series) {
+      ema200Series = chartInstance.addLineSeries({
+        color: '#ef4444',
+        lineWidth: 2,
+        title: 'EMA 200',
+        visible: !!indicatorPrefs.ema200
+      });
+    }
+    const closes = tickerData.ohlc.map(c => c.close);
+    if (window.TickerChartModel) {
+      const rawEma = window.TickerChartModel.calculateEma(closes, 200);
+      const data = tickerData.ohlc.map((c, idx) => ({
+        time: c.time,
+        value: rawEma[idx]
+      })).filter(p => Number.isFinite(p.value));
+      ema200Series.setData(data);
     }
   }
 
@@ -1059,40 +1117,25 @@
                     </label>
                     <label class="chart-indicator-item">
                       <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #a855f7;"></span>
+                        <span>EMA 50</span>
+                      </div>
+                      <input type="checkbox" id="chkIndEma50" ${indicatorPrefs.ema50 ? 'checked' : ''} />
+                    </label>
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #ef4444;"></span>
+                        <span>EMA 200</span>
+                      </div>
+                      <input type="checkbox" id="chkIndEma200" ${indicatorPrefs.ema200 ? 'checked' : ''} />
+                    </label>
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
                         <span class="indicator-color-dot" style="background: #10b981;"></span>
                         <span>Volume Diário</span>
                       </div>
                       <input type="checkbox" id="chkIndVolume" ${indicatorPrefs.volume ? 'checked' : ''} />
                     </label>
-                  </div>
-                </div>
-              </div>
-
-              <!-- COMPARAR POPOVER -->
-              <div class="chart-toolbar-btn-wrap">
-                <button class="chart-toolbar-btn" id="btnChartCompare" type="button">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M11 18H8a2 2 0 0 1-2-2V9"/></svg>
-                  Comparar
-                </button>
-                <div class="chart-popover chart-compare-popover" id="popoverCompare">
-                  <div class="chart-popover-head">
-                    <span class="chart-popover-title">Comparar Desempenho</span>
-                    <button class="chart-popover-close" id="btnCloseComparePopover" type="button">✕</button>
-                  </div>
-                  <div class="chart-compare-grid">
-                    <div style="font-size: 11px; color: #64748b; font-weight: 600;">Benchmarks Rápidos:</div>
-                    <div class="compare-pills-row">
-                      <button class="btn-compare-pill" data-bench="IBOV" type="button">IBOV</button>
-                      <button class="btn-compare-pill" data-bench="SMLL" type="button">SMLL</button>
-                      <button class="btn-compare-pill" data-bench="IFIX" type="button">IFIX</button>
-                      <button class="btn-compare-pill" data-bench="BDRX" type="button">BDRX</button>
-                      <button class="btn-compare-pill" data-bench="SPX" type="button">S&P 500</button>
-                    </div>
-                    <div class="compare-input-row">
-                      <input type="text" class="compare-ticker-input" id="compareTickerInput" placeholder="Outro ativo (ex: VALE3)" />
-                      <button class="btn-compare-apply" id="btnApplyCustomCompare" type="button">Comparar</button>
-                    </div>
-                    <div id="compareActiveStatus"></div>
                   </div>
                 </div>
               </div>
@@ -1176,6 +1219,8 @@
                 <span class="legend-ema9" style="display: ${indicatorPrefs.ema9 ? 'inline' : 'none'}">EMA 9: ${formatNumber(tickerData.indicators.ema9.at(-1)?.value)}</span>
                 <span class="legend-ema30" style="display: ${indicatorPrefs.ema30 ? 'inline' : 'none'}">EMA 30: ${formatNumber(tickerData.indicators.ema30.at(-1)?.value)}</span>
                 <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: —</span>
+                <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: —</span>
+                <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: —</span>
                 <span class="legend-vol" style="display: ${indicatorPrefs.volume ? 'inline' : 'none'}">Volume: ${(tickerData.ohlc.at(-1)?.volume / 1e6).toFixed(1)}M</span>
                 <span id="legendCompareTag" style="display: none;"></span>
               </div>
@@ -1879,6 +1924,16 @@
       ensureEma21Series();
     }
 
+    // EMA 50 Line (se ativada pelo usuário)
+    if (indicatorPrefs.ema50) {
+      ensureEma50Series();
+    }
+
+    // EMA 200 Line (se ativada pelo usuário)
+    if (indicatorPrefs.ema200) {
+      ensureEma200Series();
+    }
+
     // Volume Histogram Series (ancorado na base para não sobrepor os candles)
     volumeSeries = chartInstance.addHistogramSeries({
       priceFormat: { type: 'volume' },
@@ -1933,6 +1988,8 @@
           <span class="legend-ema9" style="display: ${indicatorPrefs.ema9 ? 'inline' : 'none'}">EMA 9: ${formatNumber(data.indicators.ema9.at(-1)?.value)}</span>
           <span class="legend-ema30" style="display: ${indicatorPrefs.ema30 ? 'inline' : 'none'}">EMA 30: ${formatNumber(data.indicators.ema30.at(-1)?.value)}</span>
           <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(ema21Series ? data.ohlc.at(-1)?.close : null)}</span>
+          <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: ${formatNumber(ema50Series ? data.ohlc.at(-1)?.close : null)}</span>
+          <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: ${formatNumber(ema200Series ? data.ohlc.at(-1)?.close : null)}</span>
           <span class="legend-vol" style="display: ${indicatorPrefs.volume ? 'inline' : 'none'}">Volume: ${(last?.volume / 1e6).toFixed(1)}M</span>
           <span id="legendCompareTag" style="display: ${activeBenchmark ? 'inline-block' : 'none'};" class="chart-comparison-active-tag">${activeBenchmark ? 'vs ' + activeBenchmark : ''}</span>
         `;
@@ -1943,6 +2000,8 @@
       const e9 = param.seriesData.get(ema9Series);
       const e30 = param.seriesData.get(ema30Series);
       const e21 = ema21Series ? param.seriesData.get(ema21Series) : null;
+      const e50 = ema50Series ? param.seriesData.get(ema50Series) : null;
+      const e200 = ema200Series ? param.seriesData.get(ema200Series) : null;
       const vol = param.seriesData.get(volumeSeries);
 
       if (bar) {
@@ -1959,11 +2018,13 @@
           </span>
         `;
       }
-      if (e9 || e30 || vol || e21) {
+      if (e9 || e30 || vol || e21 || e50 || e200) {
         legendInd.innerHTML = `
           <span class="legend-ema9" style="display: ${indicatorPrefs.ema9 ? 'inline' : 'none'}">EMA 9: ${formatNumber(e9?.value)}</span>
           <span class="legend-ema30" style="display: ${indicatorPrefs.ema30 ? 'inline' : 'none'}">EMA 30: ${formatNumber(e30?.value)}</span>
           <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(e21?.value)}</span>
+          <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: ${formatNumber(e50?.value)}</span>
+          <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: ${formatNumber(e200?.value)}</span>
           <span class="legend-vol" style="display: ${indicatorPrefs.volume ? 'inline' : 'none'}">Volume: ${vol?.value ? (vol.value / 1e6).toFixed(1) + 'M' : '—'}</span>
           <span id="legendCompareTag" style="display: ${activeBenchmark ? 'inline-block' : 'none'};" class="chart-comparison-active-tag">${activeBenchmark ? 'vs ' + activeBenchmark : ''}</span>
         `;
@@ -2202,105 +2263,16 @@
     const chkE9 = document.getElementById('chkIndEma9');
     const chkE30 = document.getElementById('chkIndEma30');
     const chkE21 = document.getElementById('chkIndEma21');
+    const chkE50 = document.getElementById('chkIndEma50');
+    const chkE200 = document.getElementById('chkIndEma200');
     const chkVol = document.getElementById('chkIndVolume');
 
     if (chkE9) chkE9.onchange = () => { indicatorPrefs.ema9 = chkE9.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE30) chkE30.onchange = () => { indicatorPrefs.ema30 = chkE30.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE21) chkE21.onchange = () => { indicatorPrefs.ema21 = chkE21.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    if (chkE50) chkE50.onchange = () => { indicatorPrefs.ema50 = chkE50.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    if (chkE200) chkE200.onchange = () => { indicatorPrefs.ema200 = chkE200.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkVol) chkVol.onchange = () => { indicatorPrefs.volume = chkVol.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
-
-    // 2. Comparar Popover
-    const btnCompare = document.getElementById('btnChartCompare');
-    const btnCloseCompare = document.getElementById('btnCloseComparePopover');
-    if (btnCompare) {
-      btnCompare.onclick = (e) => {
-        e.stopPropagation();
-        togglePopover('popoverCompare', 'btnChartCompare');
-      };
-    }
-    if (btnCloseCompare) {
-      btnCloseCompare.onclick = (e) => {
-        e.stopPropagation();
-        closeAllPopovers();
-      };
-    }
-
-    // Benchmark quick pills
-    document.querySelectorAll('.btn-compare-pill').forEach(btn => {
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        const bench = btn.getAttribute('data-bench');
-        applyComparison(bench);
-      };
-    });
-
-    const btnCustomCompare = document.getElementById('btnApplyCustomCompare');
-    const inputCustomCompare = document.getElementById('compareTickerInput');
-    if (btnCustomCompare && inputCustomCompare) {
-      inputCustomCompare.oninput = (e) => {
-        const raw = e.target.value;
-        const upper = raw.toUpperCase();
-        if (raw !== upper) {
-          const start = e.target.selectionStart;
-          const end = e.target.selectionEnd;
-          e.target.value = upper;
-          if (start !== null && end !== null) {
-            e.target.setSelectionRange(start, end);
-          }
-        }
-      };
-      btnCustomCompare.onclick = (e) => {
-        e.stopPropagation();
-        const sym = inputCustomCompare.value.trim().toUpperCase();
-        if (sym) applyComparison(sym);
-      };
-      inputCustomCompare.onkeydown = (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          const sym = inputCustomCompare.value.trim().toUpperCase();
-          if (sym) applyComparison(sym);
-        }
-      };
-    }
-
-    function applyComparison(bench) {
-      activeBenchmark = bench;
-      document.querySelectorAll('.btn-compare-pill').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-bench') === bench);
-      });
-      const statusDiv = document.getElementById('compareActiveStatus');
-      if (statusDiv) {
-        statusDiv.innerHTML = `
-          <div class="compare-active-banner">
-            <span>Comparando com <b>${bench}</b></span>
-            <button class="btn-compare-remove" id="btnRemoveCompare" type="button">Remover</button>
-          </div>
-        `;
-        const btnRemove = document.getElementById('btnRemoveCompare');
-        if (btnRemove) {
-          btnRemove.onclick = (e) => {
-            e.stopPropagation();
-            removeComparison();
-          };
-        }
-      }
-      const tag = document.getElementById('legendCompareTag');
-      if (tag) {
-        tag.textContent = 'vs ' + bench;
-        tag.style.display = 'inline-block';
-      }
-    }
-
-    function removeComparison() {
-      activeBenchmark = null;
-      document.querySelectorAll('.btn-compare-pill').forEach(b => b.classList.remove('active'));
-      const statusDiv = document.getElementById('compareActiveStatus');
-      if (statusDiv) statusDiv.innerHTML = '';
-      const tag = document.getElementById('legendCompareTag');
-      if (tag) tag.style.display = 'none';
-      const input = document.getElementById('compareTickerInput');
-      if (input) input.value = '';
-    }
 
     // 3. Settings Popover
     const btnSettings = document.getElementById('btnChartSettings');

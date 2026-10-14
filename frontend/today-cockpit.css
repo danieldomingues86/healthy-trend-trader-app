@@ -830,23 +830,29 @@ body[data-theme="healthy"] #today .desktop-header-badge span {
 
 #today .dashboard-edit-toggle,
 body[data-theme="healthy"] #today .dashboard-edit-toggle {
-  background: #f0f7f3 !important;
-  border: 1px solid #b8d9c5 !important;
-  color: #165634 !important;
+  background: linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%) !important;
+  border: 2px solid #34d399 !important;
+  color: #ffffff !important;
   border-radius: 999px !important;
-  padding: 9px 18px !important;
-  font-size: 11px !important;
-  font-weight: 750 !important;
-  transition: all 0.2s ease !important;
-  box-shadow: 0 2px 6px rgba(22, 86, 52, 0.06) !important;
+  padding: 12px 24px !important;
+  font-size: 13.5px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.02em !important;
+  transition: all 0.22s ease !important;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.4), 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
 }
 
 #today .dashboard-edit-toggle:hover,
 body[data-theme="healthy"] #today .dashboard-edit-toggle:hover {
-  background: #15803d !important;
-  border-color: #15803d !important;
+  background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%) !important;
+  border-color: #6ee7b7 !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25) !important;
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.6) !important;
+  transform: translateY(-2px) scale(1.02) !important;
 }
 
 #today .dashboard-edit-status-pill,
@@ -1836,15 +1842,27 @@ body[data-theme="gold"] #today .desktop-header-badge span {
 }
 body:not([data-theme="healthy"]) #today .dashboard-edit-toggle,
 body[data-theme="gold"] #today .dashboard-edit-toggle {
-  background: #241d10 !important;
-  border-color: rgba(214, 170, 80, 0.35) !important;
-  color: #f0ce7a !important;
+  background: linear-gradient(135deg, #854d0e 0%, #ca8a04 50%, #eab308 100%) !important;
+  border: 2px solid #fef08a !important;
+  color: #0f172a !important;
+  border-radius: 999px !important;
+  padding: 12px 24px !important;
+  font-size: 13.5px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em !important;
+  box-shadow: 0 4px 18px rgba(234, 179, 8, 0.45) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
 }
 body:not([data-theme="healthy"]) #today .dashboard-edit-toggle:hover,
 body[data-theme="gold"] #today .dashboard-edit-toggle:hover {
-  background: #362914 !important;
-  border-color: #f0ce7a !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, #a16207 0%, #eab308 50%, #fde047 100%) !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: 0 6px 26px rgba(234, 179, 8, 0.65) !important;
+  transform: translateY(-2px) scale(1.02) !important;
 }
 body:not([data-theme="healthy"]) #today .dashboard-edit-status-pill,
 body[data-theme="gold"] #today .dashboard-edit-status-pill {
@@ -2409,3 +2427,230 @@ body:not([data-theme="healthy"]) .dashboard-done-pill {
   color: #86efac;
   border: 1px solid rgba(74, 222, 128, 0.4);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CARD MAIOR TRADE — Layout Compacto & Equilibrado (4 Colunas)
+   ═══════════════════════════════════════════════════════════════════════ */
+.desktop-stat-item.stat-maior-trade {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 42, 32, 0.08) !important;
+  border-radius: 14px !important;
+  padding: 16px 20px 14px !important;
+  box-shadow: 0 4px 16px rgba(15, 42, 32, 0.04), 0 1px 3px rgba(15, 42, 32, 0.02) !important;
+  position: relative !important;
+}
+
+.stat-maior-trade .maior-trade-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-maior-trade .maior-trade-head svg {
+  width: 17px;
+  height: 17px;
+  color: #10b981;
+  stroke: #10b981;
+  flex-shrink: 0;
+}
+
+.stat-maior-trade .maior-trade-head-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  color: #526b5e;
+  text-transform: uppercase;
+}
+
+.stat-maior-trade .maior-trade-main-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 2px 0 4px;
+}
+
+.stat-maior-trade .maior-trade-left-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.stat-maior-trade .maior-trade-big-val {
+  font-size: clamp(30px, 2.35vw, 36px);
+  font-weight: 900;
+  color: #047857;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  font-variant-numeric: tabular-nums;
+  display: inline-block;
+}
+
+.stat-maior-trade .maior-trade-asset-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  margin-top: 4px;
+}
+
+.stat-maior-trade .maior-trade-ticker {
+  font-size: 14.5px;
+  font-weight: 850;
+  color: #0f2a20;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.stat-maior-trade .maior-trade-company {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-maior-trade .maior-trade-spark-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  flex: 1 1 auto;
+  max-width: 220px;
+  min-width: 100px;
+  height: 60px;
+  position: relative;
+}
+
+.stat-maior-trade .maior-trade-spark-pill {
+  font-size: 10px;
+  font-weight: 800;
+  color: #047857;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: 999px;
+  padding: 1px 7px;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.stat-maior-trade .maior-trade-sparkline-svg {
+  width: 100%;
+  height: 38px;
+  overflow: visible;
+}
+
+.stat-maior-trade .maior-trade-footer-row {
+  display: flex;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid rgba(15, 42, 32, 0.06);
+}
+
+.stat-maior-trade .maior-trade-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+  padding: 3px 10px;
+  line-height: 1.3;
+}
+
+.stat-maior-trade .maior-trade-badge-star {
+  font-size: 8.5px;
+  color: #10b981;
+  display: inline-block;
+  line-height: 1;
+}
+
+.stat-maior-trade .maior-trade-badge-sep {
+  color: #10b981;
+  opacity: 0.55;
+  margin: 0 1px;
+}
+
+.stat-maior-trade .maior-trade-badge-days,
+.stat-maior-trade .maior-trade-days-text {
+  font-weight: 600;
+  color: #4b6354;
+}
+
+/* Gold Theme Override */
+body[data-theme="gold"] .desktop-stat-item.stat-maior-trade,
+body:not([data-theme="healthy"]) .desktop-stat-item.stat-maior-trade {
+  background: rgba(22, 17, 11, 0.85) !important;
+  border-color: rgba(214, 170, 80, 0.22) !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-head-label,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-head-label {
+  color: #d1b87d !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-big-val,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-big-val {
+  color: #f0ce7a !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-ticker,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-ticker {
+  color: #fffaf0 !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-company,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-company {
+  color: #a89a80 !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-spark-pill,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-spark-pill {
+  background: rgba(234, 179, 8, 0.18) !important;
+  color: #facc15 !important;
+  border-color: rgba(234, 179, 8, 0.35) !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-footer-row,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-footer-row {
+  border-top-color: rgba(214, 170, 80, 0.15) !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-badge,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-badge {
+  background: rgba(234, 179, 8, 0.12) !important;
+  color: #facc15 !important;
+  border-color: rgba(234, 179, 8, 0.28) !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-badge-star,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-badge-star {
+  color: #facc15 !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-badge-sep,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-badge-sep {
+  color: #facc15 !important;
+  opacity: 0.6 !important;
+}
+
+body[data-theme="gold"] .stat-maior-trade .maior-trade-badge-days,
+body[data-theme="gold"] .stat-maior-trade .maior-trade-days-text,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-badge-days,
+body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-days-text {
+  color: #d1b87d !important;
+}
+
+

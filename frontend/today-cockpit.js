@@ -95,6 +95,46 @@
     const bestRStr = bestR != null && bestR > 0 ? bestR.toFixed(1) + 'R' : '5,2R';
     const heatClass = currentHeatVal >= currentLimit ? 'critical' : currentHeatVal >= currentLimit * 0.8 ? 'warn' : 'good';
     
+    let bestTradeTicker = 'PETR4';
+    let bestTradeCompany = 'Petrobras PN';
+    let bestTradeDays = 18;
+    let bestTradeEntryDate = '12/06/2026';
+    let bestTradeExitDate = '30/06/2026';
+    let bestTradePctReturn = '+28,4%';
+
+    if (closedReal.length) {
+      let maxR = -Infinity;
+      closedReal.forEach((p) => {
+        const m = operationMetrics(p);
+        const rVal = Number(m.rMultiple) || 0;
+        if (rVal > maxR) {
+          maxR = rVal;
+          if (p.asset) {
+            bestTradeTicker = p.asset;
+            bestTradeCompany = p.company || (p.asset === 'PETR4' ? 'Petrobras PN' : (p.asset + ' SA'));
+          }
+          if (p.entryDate) {
+            const d1 = new Date(p.entryDate);
+            if (!isNaN(d1)) bestTradeEntryDate = d1.toLocaleDateString('pt-BR');
+          }
+          if (p.exitDate) {
+            const d2 = new Date(p.exitDate);
+            if (!isNaN(d2)) bestTradeExitDate = d2.toLocaleDateString('pt-BR');
+          }
+          if (p.entryDate && p.exitDate) {
+            const d1 = new Date(p.entryDate);
+            const d2 = new Date(p.exitDate);
+            const diff = Math.round(Math.abs((d2 - d1) / (1000 * 60 * 60 * 24)));
+            if (diff > 0) bestTradeDays = diff;
+          }
+          if (p.entryPrice && p.exitPrice) {
+            const pct = ((Number(p.exitPrice) - Number(p.entryPrice)) / Number(p.entryPrice)) * 100;
+            bestTradePctReturn = (pct >= 0 ? '+' : '') + pct.toFixed(1).replace('.', ',') + '%';
+          }
+        }
+      });
+    }
+
     return [
       '<div class="desktop-stat-item stat-patrimonio">',
         '<div class="desktop-stat-head">',
@@ -134,15 +174,41 @@
         '</div>',
       '</div>',
       '<div class="desktop-stat-item stat-maior-trade">',
-        '<div class="desktop-stat-head">',
-          '<svg class="stat-icon-trophy" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7a6 6 0 0 1-12 0z M6 4H3a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h1 M18 4h3a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1 M12 16v4 M8 22h8"/></svg>',
-          '<span class="desktop-stat-label">Maior Trade</span>',
+        '<div class="maior-trade-head">',
+          '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7a6 6 0 0 1-12 0z M6 4H3a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h1 M18 4h3a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1 M12 16v4 M8 22h8"/></svg>',
+          '<span class="maior-trade-head-label">Maior Trade</span>',
         '</div>',
-        '<div class="desktop-stat-value-row">',
-          '<strong class="desktop-stat-value gold">' + bestRStr + '</strong>',
+        '<div class="maior-trade-main-row">',
+          '<div class="maior-trade-left-info">',
+            '<strong class="maior-trade-big-val">+' + bestRStr.replace('+', '') + '</strong>',
+            '<div class="maior-trade-asset-block">',
+              '<strong class="maior-trade-ticker">' + bestTradeTicker + '</strong>',
+              '<span class="maior-trade-company">' + bestTradeCompany + '</span>',
+            '</div>',
+          '</div>',
+          '<div class="maior-trade-spark-box">',
+            '<span class="maior-trade-spark-pill">+' + bestRStr.replace('+', '') + '</span>',
+            '<svg viewBox="0 0 120 40" class="maior-trade-sparkline-svg" preserveAspectRatio="none" aria-hidden="true">',
+              '<defs>',
+                '<linearGradient id="maiorSparkGrad" x1="0" y1="0" x2="0" y2="1">',
+                  '<stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>',
+                  '<stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>',
+                '</linearGradient>',
+              '</defs>',
+              '<polygon points="4,34 16,31 28,34 40,25 52,28 64,22 76,24 88,14 100,16 112,6 112,38 4,38" fill="url(#maiorSparkGrad)"/>',
+              '<polyline points="4,34 16,31 28,34 40,25 52,28 64,22 76,24 88,14 100,16 112,6" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>',
+              '<line x1="112" y1="6" x2="112" y2="38" stroke="#10b981" stroke-width="1" stroke-dasharray="2 2" stroke-opacity="0.6"/>',
+              '<circle cx="112" cy="6" r="3" fill="#10b981"/>',
+            '</svg>',
+          '</div>',
         '</div>',
-        '<div class="desktop-stat-sub-trade">',
-          '<span class="desktop-stat-sub">Duração: 18 dias</span>',
+        '<div class="maior-trade-footer-row">',
+          '<span class="maior-trade-badge">',
+            '<span class="maior-trade-badge-star">▲</span>',
+            'Retorno Máximo',
+            '<span class="maior-trade-badge-sep">·</span>',
+            '<span class="maior-trade-badge-days maior-trade-days-text">' + bestTradeDays + ' dias</span>',
+          '</span>',
         '</div>',
       '</div>'
     ].join('');
@@ -496,7 +562,46 @@
           + '</div>';
       },
       renderWealth: () => typeof window.portfolioHeatSnapshot === 'function' ? `<div class="dashboard-wealth"><span>Portfolio Heat</span><strong>${pct(window.portfolioHeatSnapshot()?.heat || 0)}</strong><small>Use a tela de Patrimônio para a evolução completa.</small></div>` : empty('Ainda não há uma leitura de patrimônio disponível.'),
-      renderChallenge: () => window.CourageChallengeModel?.isChallengeActive?.(challenge) ? `<div class="dashboard-challenge"><span class="desktop-challenge-label">Sizing Compliance</span><div class="desktop-challenge-progress"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18"/><circle cx="22" cy="22" r="18" pathLength="100" style="stroke-dasharray:${Math.min(100, Math.max(0, (attemptSummary?.correctExecutions || 0) / Math.max(1, attemptSummary?.targetGoal || challenge?.targetGoal || 1) * 100))} 100"/></svg><strong>${attemptSummary?.correctExecutions || 0} / ${attemptSummary?.targetGoal || challenge?.targetGoal || 0}</strong></div><span>operações dentro do sizing correto</span><small>Under ${attemptSummary?.underSizingCount || 0} · Over ${attemptSummary?.overSizingCount || 0}</small></div>` : empty('Nenhum Desafio Grade A está ativo no momento.')
+      renderMission: () => {
+        let mission = null;
+        if (typeof window.MissionController?.getState === 'function') {
+          mission = window.MissionController.getState();
+        }
+        if (!mission && typeof window.MissionModel?.getActiveMission === 'function') {
+          mission = window.MissionModel.getActiveMission();
+        }
+        if (!mission) {
+          try {
+            const raw = localStorage.getItem('healthy-trend-trader-mission-v1');
+            if (raw) mission = JSON.parse(raw);
+          } catch (_) {}
+        }
+        const prog = window.MissionModel?.calculateMissionProgress?.(mission);
+        if (prog && (prog.status === 'ACTIVE' || prog.isCompleted)) {
+          return `
+            <div class="dashboard-challenge dashboard-mission-widget" data-widget-page="mission" style="cursor:pointer;" title="Clique para abrir a tela Missão">
+              <span class="desktop-challenge-label">Missão Operacional</span>
+              <div class="desktop-challenge-progress">
+                <svg viewBox="0 0 44 44" aria-hidden="true">
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(16,185,129,0.15)" stroke-width="4"/>
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" pathLength="100" style="stroke-dasharray:${prog.progressPct} 100; transform: rotate(-90deg); transform-origin: 50% 50%;"/>
+                </svg>
+                <strong>${prog.completedTrades} / ${prog.targetTrades}</strong>
+              </div>
+              <span style="font-weight:700;">Marco ${prog.currentStationNumber} de 7: ${esc(prog.activeWaypoint?.stationTitle || 'Avançando')}</span>
+              <small>Risco fixo: ${prog.riskPctFormatted} por trade ${prog.isCompleted ? '• Concluída!' : ''}</small>
+            </div>
+          `;
+        }
+        return `
+          <div class="dashboard-challenge dashboard-mission-empty" data-widget-page="mission" style="cursor:pointer; text-align:center;" title="Clique para abrir a tela Missão">
+            <span class="desktop-challenge-label">Missão do Trader</span>
+            <p style="margin: 6px 0; font-size: 11px; color: var(--muted, #64748b);">Nenhuma missão ativa. Defina sua meta de trades constantes.</p>
+            <button type="button" class="btn btn-sm btn-primary" data-widget-page="mission" style="margin-top: 4px; padding: 4px 10px; font-size: 11px;">Iniciar Missão →</button>
+          </div>
+        `;
+      },
+      renderChallenge: function() { return this.renderMission(); }
       ,renderChecklist: () => routineItems.length ? `<div class="personal-checklist">${routineItems.slice(0,6).map(item => `<label class="${item.completed ? 'is-completed' : ''}"><input type="checkbox" data-routine-toggle="${item.id}" ${item.completed ? 'checked' : ''}><span>${esc(item.name)}</span></label>`).join('')}</div>` : empty('Configure a Rotina Diária para começar seu checklist.')
       ,renderPriorities: () => `<div class="personal-list">${personal.priorities.map(item => `<label><input type="checkbox" data-priority-toggle="${item.id}" ${item.done ? 'checked' : ''}><span>${esc(item.text)}</span><button type="button" data-priority-remove="${item.id}">×</button></label>`).join('') || '<p>Nenhuma prioridade definida. Escolha até três coisas importantes.</p>'}<form data-priority-form><input maxlength="90" placeholder="Adicionar prioridade" ${personal.priorities.length >= 3 ? 'disabled' : ''}><button ${personal.priorities.length >= 3 ? 'disabled' : ''}>+</button></form></div>`
       ,renderNotes: () => `<textarea class="personal-notes" data-personal-notes placeholder="Escreva uma nota rápida…">${esc(personal.note)}</textarea><small class="personal-muted">Salvo automaticamente.</small>`
@@ -507,7 +612,7 @@
     const layout = getWidgetLayout();
     const activeLayout = layout.filter((item) => item.active);
     const widgetsMarkup = activeLayout.map((item) => { const widget = widgetRegistry.get(item.id); return widget ? widgetShell(item, widget, widget.render(renderContext)) : ''; }).join('');
-    root.innerHTML = `<main class="today-dashboard"><header class="today-dashboard-header"><div class="today-header-identity"><span class="eyebrow">TRADING DESKTOP</span><h1>${greetingText()}, ${esc(firstName())}.</h1><p>Disciplina hoje. Liberdade amanhã.</p></div><div class="today-header-right"><div class="desktop-header-badge" aria-hidden="true"><span>TENDÊNICA</span><span>DISCIPLINA</span><span>RESULTADOS</span></div><div class="today-dashboard-actions"><button type="button" class="dashboard-edit-toggle ${dashboardEditing ? 'active' : ''}" data-dashboard-edit>${dashboardEditing ? 'Concluir personalização' : 'Personalizar painel'}</button>${dashboardEditing ? '<span class="dashboard-edit-status-pill">Arraste para mover · Bordas redimensionam</span><button type="button" class="dashboard-add-widget" data-gallery-open>+ Adicionar Widget</button><button type="button" class="dashboard-reset" data-dashboard-reset>Restaurar padrão</button>' : ''}</div></div></header><div class="desktop-stat-strip">${statStripMarkup()}</div><div class="today-dashboard-context"><span class="today-source ${source.kind}">${source.label}</span><span>${healthy() ? 'Mercado saudável para observar cenários A' : 'Mercado defensivo: priorize proteção e gestão'}</span><span>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</span></div><section class="dashboard-grid" aria-label="Widgets do painel">${widgetsMarkup}</section>${!activeLayout.length ? '<section class="dashboard-empty"><h2>Seu painel está vazio</h2><p>Abra a galeria ou restaure o painel padrão para exibir os widgets.</p><button type="button" data-gallery-open>Adicionar widget</button></section>' : ''}</main>${galleryMarkup(layout)}`;
+    root.innerHTML = `<main class="today-dashboard"><header class="today-dashboard-header"><div class="today-header-identity"><span class="eyebrow">TRADING DESKTOP</span><h1>${greetingText()}, ${esc(firstName())}.</h1><p>Disciplina hoje. Liberdade amanhã.</p></div><div class="today-header-right"><div class="desktop-header-badge" aria-hidden="true"><span>TENDÊNICA</span><span>DISCIPLINA</span><span>RESULTADOS</span></div><div class="today-dashboard-actions"><button type="button" class="dashboard-edit-toggle ${dashboardEditing ? 'active' : ''}" data-dashboard-edit>${dashboardEditing ? '✓ Concluir personalização' : '⚙ Personalizar painel'}</button>${dashboardEditing ? '<span class="dashboard-edit-status-pill">Arraste para mover · Bordas redimensionam</span><button type="button" class="dashboard-add-widget" data-gallery-open>+ Adicionar Widget</button><button type="button" class="dashboard-reset" data-dashboard-reset>Restaurar padrão</button>' : ''}</div></div></header><div class="desktop-stat-strip">${statStripMarkup()}</div><div class="today-dashboard-context"><span class="today-source ${source.kind}">${source.label}</span><span>${healthy() ? 'Mercado saudável para observar cenários A' : 'Mercado defensivo: priorize proteção e gestão'}</span><span>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</span></div><section class="dashboard-grid" aria-label="Widgets do painel">${widgetsMarkup}</section>${!activeLayout.length ? '<section class="dashboard-empty"><h2>Seu painel está vazio</h2><p>Abra a galeria ou restaure o painel padrão para exibir os widgets.</p><button type="button" data-gallery-open>Adicionar widget</button></section>' : ''}</main>${galleryMarkup(layout)}`;
     // subtitle is baked into the header template
     root.querySelector('.today-dashboard-context').outerHTML = `<section class="desktop-telemetry-bar ${market.cycle?.cycle ? (healthy() ? 'pulse-healthy' : 'pulse-transition') : ''}" aria-label="Status do Sistema"><div class="telemetry-item"><span class="today-source ${source.kind}">${source.label}</span></div><div class="telemetry-item telemetry-pulse"><svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><path d="M1 8h4l3-6 4 12 3-8 3 4h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><b>${market.cycle?.cycle ? (healthy() ? 'Mercado Saudável (Tendência)' : (Number(market.cycle.cycle.price) > Number(market.cycle.cycle.ema200) ? 'Mercado em Transição (Seletividade)' : 'Mercado Defensivo (Proteção)')) : 'Aguardando telemetria...'}</b></div><div class="telemetry-metrics">${market.ranking ? `<span><b>${leaders}</b> líderes RS</span>` : ''}${market.scans ? `<span><b>${candidates}</b> ativos nos scans</span>` : ''}</div><div class="telemetry-time"><small>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</small></div></section>`;
     bindDashboard(root, action);

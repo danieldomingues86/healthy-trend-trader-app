@@ -438,6 +438,7 @@ function scanMetrics(history) {
   }).filter(Number.isFinite);
   const atr = ranges.length >= 15 ? ranges.reduce((sum, value) => sum + value, 0) / ranges.length : null;
   const ema20 = closes.length >= 20 ? ema(closes.slice(-20), 20) : null;
+  const ema50 = closes.length >= 50 ? ema(closes.slice(-50), 50) : null;
   const ema200 = closes.length >= 200 ? ema(closes.slice(-200), 200) : null;
   return {
     price,
@@ -448,6 +449,7 @@ function scanMetrics(history) {
     atr21: atr,
     atrPct: Number.isFinite(atr) && Number.isFinite(price) && price > 0 ? atr / price * 100 : null,
     ema20,
+    ema50,
     ema200,
     healthyTrend: Number.isFinite(price) && Number.isFinite(ema20) && Number.isFinite(ema200) && price > ema20 && ema20 > ema200
   };

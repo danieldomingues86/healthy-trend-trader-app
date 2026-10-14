@@ -2280,3 +2280,624 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   }
 }
 
+/* ==========================================================================
+   DOUBLE INSIDE BAR — HIPÓTESE ESTATÍSTICA & ESTRUTURA
+   ========================================================================== */
+
+/* Botão no Header */
+.sim-btn-hypothesis {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.sim-btn-hypothesis:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #10b981;
+  color: #34d399;
+  transform: translateY(-1px);
+}
+
+/* Tag na tabela */
+.sim-dib-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.14);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  letter-spacing: -0.01em;
+}
+
+/* Card de Guardrail Inviolável de Bet Sizing */
+.sim-hyp-guardrail-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 4px 0 8px;
+}
+
+.sim-hyp-guardrail-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sim-hyp-guardrail-content b {
+  display: block;
+  font-size: 13px;
+  color: #fbbf24;
+  margin-bottom: 2px;
+}
+
+.sim-hyp-guardrail-content p {
+  margin: 0;
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+/* Tabela da Hipótese */
+.sim-hypothesis-table {
+  width: 100%;
+}
+
+.scen-col-simple {
+  border-bottom: 2px solid #38bdf8;
+}
+
+.scen-col-double {
+  border-bottom: 2px solid #34d399;
+  background: rgba(16, 185, 129, 0.04);
+}
+
+.scen-col-delta {
+  border-bottom: 2px solid #fbbf24;
+}
+
+.row-speed-highlight {
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.row-speed-highlight td {
+  border-top: 1px dashed rgba(16, 185, 129, 0.3);
+  border-bottom: 1px dashed rgba(16, 185, 129, 0.3);
+}
+
+.sim-hyp-section-title {
+  margin: 14px 0 8px;
+}
+
+.sim-hyp-section-title h3 {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.sim-hyp-section-title p {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Grid de Cruzamentos do Edge */
+.sim-hyp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.sim-hyp-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sim-hyp-card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 6px;
+}
+
+.sim-hyp-tag {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #34d399;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.sim-hyp-card-header h4 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.sim-hyp-subset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sim-hyp-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+.sim-hyp-row.adverse-row {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.sim-hyp-row-label {
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.sim-hyp-row-metrics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+}
+
+.sim-hyp-metric b {
+  font-weight: 700;
+}
+
+/* Painel de Cenários de Estresse */
+.sim-hyp-adverse-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 6px;
+}
+
+.sim-hyp-adverse-box h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.sim-hyp-adverse-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sim-hyp-adverse-item {
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.sim-hyp-adverse-item.good {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.sim-hyp-adverse-item.good b {
+  color: #34d399;
+  display: block;
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+.sim-hyp-adverse-item.bad {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.sim-hyp-adverse-item.bad b {
+  color: #f87171;
+  display: block;
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+.sim-hyp-adverse-item p {
+  margin: 0;
+  color: #94a3b8;
+}
+
+/* Card de Estrutura no Modal de Detalhes */
+.sim-dib-structure-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sim-dib-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+}
+
+.sim-dib-card-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #34d399;
+}
+
+.sim-dib-card-header h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.sim-dib-layers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sim-dib-layer-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sim-dib-layer-item.highlight {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.sim-dib-layer-item small {
+  font-size: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sim-dib-layer-item b {
+  font-size: 14px;
+  color: #f8fafc;
+}
+
+.sim-dib-layer-item span {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.sim-dib-comp-tag {
+  color: #34d399 !important;
+  font-weight: 600;
+}
+
+.sim-dib-velocity-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+}
+
+.sim-dib-vel-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sim-dib-vel-box small {
+  font-size: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.sim-dib-vel-box b {
+  font-size: 13px;
+  color: #34d399;
+}
+
+@media (max-width: 1100px) {
+  .sim-hyp-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sim-dib-layers-grid,
+  .sim-dib-velocity-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .sim-hyp-grid,
+  .sim-hyp-adverse-grid,
+  .sim-dib-layers-grid,
+  .sim-dib-velocity-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   EXPORT MODAL — ESTUDOS DE TRADES SIMULADOS (DOC, PDF, ENEX, CSV)
+   ========================================================================== */
+
+.sim-export-modal-box {
+  width: min(820px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.28);
+  padding: 26px 28px;
+  position: relative;
+  border: 1px solid rgba(15, 42, 32, 0.12);
+}
+
+.sim-export-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.sim-export-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sim-export-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sim-export-scope-wrap {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sim-export-scope-opt {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: #1e293b;
+  transition: all 0.15s ease;
+}
+
+.sim-export-scope-opt:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.sim-export-scope-opt.selected {
+  background: #f0fdf4;
+  border-color: #10b981;
+  color: #064e3b;
+}
+
+.sim-export-scope-opt input {
+  accent-color: #10b981;
+  cursor: pointer;
+}
+
+.sim-export-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sim-export-card {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  text-align: left;
+}
+
+.sim-export-card:hover {
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.sim-export-card.selected {
+  background: #f0fdf4;
+  border-color: #10b981;
+  box-shadow: 0 0 0 1px #10b981, 0 8px 24px rgba(16, 185, 129, 0.12);
+}
+
+.sim-export-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sim-export-card-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.sim-export-card-titles {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sim-export-card-titles b {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sim-export-card-titles small {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.sim-export-chip {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.chip-blue {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.chip-emerald {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.chip-purple {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.chip-gray {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.sim-export-card-features {
+  margin: 0 0 14px;
+  padding-left: 18px;
+  font-size: 11px;
+  color: #475569;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.sim-export-card-features li {
+  margin-bottom: 3px;
+}
+
+.sim-export-card-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.sim-export-card.selected .sim-export-card-radio {
+  color: #065f46;
+  border-top-color: #bbf7d0;
+}
+
+.sim-radio-circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.sim-radio-circle.checked {
+  border-color: #10b981;
+  background: #10b981;
+  box-shadow: inset 0 0 0 3px #ffffff;
+}
+
+.sim-export-info-callout {
+  margin-top: 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sim-info-ico {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .sim-export-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .sim-export-scope-wrap {
+    flex-direction: column;
+  }
+}
+
+
+

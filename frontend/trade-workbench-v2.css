@@ -2782,7 +2782,7 @@ body:has(#newtrade.active) .content {
   min-width: 0;
 }
 
-.mission-card-title {
+#newtrade .mission-card-title {
   color: #ffffff;
   font-size: 16px;
   font-weight: 850;
@@ -2792,7 +2792,7 @@ body:has(#newtrade.active) .content {
   line-height: 1.2;
 }
 
-.mission-card-subtitle {
+#newtrade .mission-card-subtitle {
   color: #dfcf9f;
   font-size: 12.5px;
   font-weight: 450;
@@ -3344,4 +3344,387 @@ body:has(#newtrade.active) .content {
   margin: 8px 0 0;
   display: block;
 }
+
+/* ── RESUMO DA OPERAÇÃO: PAINEL UNIFICADO & COMPACTO ───────────────────────── */
+#newtrade .workbench-sizer.has-operation-summary {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#newtrade .workbench-sizer.has-operation-summary .workbench-sizer-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+#newtrade .workbench-sizer.has-operation-summary .workbench-subcol-divider,
+#newtrade .workbench-sizer.has-operation-summary #workbenchColSystem {
+  display: none !important;
+}
+
+#newtrade .workbench-sizer-body.is-unified-summary {
+  display: block !important;
+  flex: 1 !important;
+  width: 100% !important;
+}
+
+.op-summary-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Indicador Discreto de Modo Operacional */
+.op-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.op-mode-badge.is-rebuild {
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.op-mode-badge.is-mission {
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.op-mode-badge.is-normal {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+}
+
+/* Painel Container Unificado */
+.op-summary-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  animation: missionFadeIn 0.2s ease-out;
+}
+
+/* Hero: Position Size Final em Destaque */
+.op-hero-card {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.08) 0%, rgba(4, 20, 14, 0.6) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.op-hero-card.is-rebuild-hero {
+  background: linear-gradient(145deg, rgba(245, 158, 11, 0.08) 0%, rgba(26, 20, 4, 0.6) 100%);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.op-hero-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.op-hero-eyebrow {
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #94a3b8;
+}
+
+.op-hero-asset-tag {
+  font-size: 11.5px;
+  font-weight: 750;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+.is-rebuild-hero .op-hero-asset-tag {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.op-hero-qty {
+  font-size: 34px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 2px 0;
+}
+
+.op-hero-limiter {
+  font-size: 12.5px;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* Controle Compacto de Quantidade */
+.op-qty-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.op-qty-label-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.op-qty-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.op-restore-btn {
+  background: none;
+  border: none;
+  color: #34d399;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-top: 2px;
+  text-align: left;
+}
+
+.op-qty-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.op-qty-input-wrap {
+  width: 96px;
+}
+
+.op-qty-input-wrap input {
+  width: 100%;
+  height: 34px;
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 6px !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  text-align: center !important;
+  padding: 0 6px !important;
+  box-sizing: border-box !important;
+}
+
+.op-step-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.op-step-btn {
+  width: 24px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  color: #cbd5e1;
+  font-size: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.op-step-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+/* Resumo Financeiro Compacto (2 Colunas) */
+.op-financial-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.op-fin-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.op-fin-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}
+
+.op-fin-val {
+  font-size: 17px;
+  font-weight: 850;
+  color: #ffffff;
+  margin-top: 3px;
+  line-height: 1.2;
+}
+
+.op-fin-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.op-fin-sub.is-risk-allowed {
+  color: #10b981;
+  font-weight: 650;
+}
+
+.op-fin-sub.is-risk-blocked {
+  color: #f87171;
+  font-weight: 700;
+}
+
+/* Aviso Único de Bloqueio */
+.op-block-notice {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: missionFadeIn 0.2s ease-out;
+}
+
+.op-block-icon {
+  font-size: 15px;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.op-block-title {
+  color: #f87171;
+  font-size: 12px;
+  font-weight: 800;
+  display: block;
+}
+
+.op-block-desc {
+  color: #fca5a5;
+  font-size: 11.5px;
+  margin: 2px 0 0;
+  line-height: 1.35;
+}
+
+/* Detalhes Técnicos Expansíveis */
+.op-calc-details {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 6px;
+}
+
+.op-calc-details summary {
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 2px;
+  list-style: none;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.op-calc-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.op-calc-details summary:hover {
+  color: #e2e8f0;
+}
+
+.op-calc-details[open] summary {
+  color: #cbd5e1;
+  margin-bottom: 6px;
+}
+
+.op-calc-table {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.op-calc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  padding: 3px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.op-calc-row:last-child {
+  border-bottom: none;
+}
+
+.op-calc-row.highlight-row {
+  padding-top: 6px;
+  margin-top: 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: none;
+}
+
+.op-calc-row .op-dt-label {
+  color: #94a3b8;
+}
+
+.op-calc-row .op-dt-val {
+  color: #f1f5f9;
+  font-weight: 650;
+}
+
+.op-calc-row.highlight-row .op-dt-label {
+  color: #e2e8f0;
+  font-weight: 750;
+}
+
+.op-calc-row.highlight-row .op-dt-val {
+  color: #34d399;
+  font-weight: 800;
+}
+
 

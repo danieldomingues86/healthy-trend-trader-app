@@ -64,3 +64,41 @@ test('index.html e catálogo de títulos refletem o nome Simulador de Equity', (
   assert.ok(html.includes("aria-label=\"Simulador de Equity\""), 'section forecast deve ter aria-label Simulador de Equity');
   assert.ok(html.includes("'Simulador de Equity','Equity Simulator'"), 'professionalLabels deve conter Simulador de Equity');
 });
+
+test('sidebar-navigation.css: modo recolhido oculta todos os textos e headers para exibir exclusivamente ícones', () => {
+  const css = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.css'), 'utf8');
+
+  // Headers de categoria e labels devem estar ocultos em body.sidebar-collapsed
+  assert.ok(css.includes('body.sidebar-collapsed .sidebar-category-header'));
+  assert.ok(css.includes('body.sidebar-collapsed .sidebar-cat-label'));
+  assert.ok(css.includes('body.sidebar-collapsed .sidebar-group-label'));
+  assert.ok(css.includes('body.sidebar-collapsed .sidebar-btn-label'));
+});
+
+test('SidebarNavigation e Model: itens de Acesso Rápido não se duplicam dentro das categorias', () => {
+  const { NavigationSystemModel } = require('./navigation-system-model.js');
+  const model = new NavigationSystemModel();
+  
+  ['fast', 'trader_focus', 'full'].forEach(preset => {
+    model.applyPreset(preset);
+    const tree = model.getNavigationTree();
+    const quickIds = new Set(tree.quickAccess.map(i => i.id));
+    
+    // Nenhuma categoria pode conter item que já esteja em quickAccess
+    for (const cat of tree.categories) {
+      for (const item of cat.items) {
+        assert.ok(!quickIds.has(item.id), `Preset ${preset}: item '${item.id}' está duplicado no Acesso Rápido e na categoria '${cat.id}'`);
+      }
+    }
+  });
+});
+
+test('SidebarNavigation: botões de rolagem do menu superior são estritamente ocultados/removidos no menu lateral', () => {
+  const css = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.css'), 'utf8');
+  assert.ok(css.includes('body:not([data-navigation-layout="top"]) #topNavigationControls'));
+  assert.ok(css.includes('display: none !important'));
+
+  const js = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.js'), 'utf8');
+  assert.ok(js.includes('existingControls?.remove()'));
+});
+

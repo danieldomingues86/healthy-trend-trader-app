@@ -10,13 +10,15 @@
 
   const DEFAULT_MISSION = {
     id: 'mission-default-1',
-    title: 'Operar pequeno e constante',
-    reason: 'Conseguir me concentrar em operar sem arriscar muito de uma única vez, para não ficar com medo e parar de operar. O maior objetivo é seguir meu método por muitos trades sem ficar com medo ou com o emocional abalado.',
+    mode: 'STANDARD', // 'STANDARD' | 'REBUILD'
+    title: 'Missão Padrão',
+    reason: 'Executar meu método com disciplina e consistência.',
     targetTrades: 20,
-    riskPct: 0.001, // 0,10%
+    riskPct: 0.005, // 0,50% na Missão Padrão (ou 0,05% / 0,10% no Rebuild)
     reward: 'Um jantar especial',
     status: 'NOT_STARTED', // 'NOT_STARTED', 'ACTIVE', 'STOPPED', 'COMPLETED'
-    rebuildModeLinked: true,
+    plannedReturnDate: null,
+    maxPositions: null, // null = regras normais do sistema; 1 no Rebuild
     startDate: null,
     stoppedDate: null,
     stopReason: null,
@@ -55,25 +57,54 @@
     return n.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + '%';
   }
 
+  function formatDateBR(dateVal) {
+    if (!dateVal) return '';
+    try {
+      if (typeof dateVal === 'string' && /^\d{2}\/\d{2}\/\d{4}$/.test(dateVal)) return dateVal;
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return String(dateVal);
+      return d.toLocaleDateString('pt-BR');
+    } catch (_) {
+      return String(dateVal);
+    }
+  }
+
   function createMission(params = {}) {
+    const mode = params.mode === 'REBUILD' ? 'REBUILD' : 'STANDARD';
+    const isRebuild = mode === 'REBUILD';
+
     const targetTrades = Math.max(1, Math.round(normalizeNumber(params.targetTrades, 20)));
     let riskPct = Number(params.riskPct);
-    if (!Number.isFinite(riskPct) || riskPct <= 0) riskPct = 0.001;
-    // Se digitado em percentual inteiro (ex.: 0.10), converte para decimal 0.001
+    if (!Number.isFinite(riskPct) || riskPct <= 0) {
+      riskPct = isRebuild ? 0.001 : 0.005; // 0,10% no Rebuild, 0,50% na Missão Padrão
+    }
+    // Se digitado em percentual inteiro (ex.: 0.10 ou 0.50), converte para decimal
     if (riskPct > 0.05) riskPct = riskPct / 100;
+
+    // No Rebuild, teto máximo permitido de 0,10% (0.0010)
+    if (isRebuild) {
+      riskPct = Math.min(0.001, Math.max(0.0005, riskPct));
+    }
 
     const status = params.status || 'NOT_STARTED';
     const startDate = params.startDate || (status === 'ACTIVE' ? new Date().toISOString() : null);
 
+    const defaultTitle = isRebuild ? 'Modo Recuperação (Rebuild)' : 'Missão Padrão';
+    const defaultReason = isRebuild
+      ? 'Quero voltar a operar com tranquilidade, sem medo de perder, focando na execução correta do meu método.'
+      : 'Executar meu método com disciplina e consistência.';
+
     return {
       id: params.id || 'mission-' + Date.now(),
-      title: sanitizeString(params.title) || 'Minha missão é operar pequeno e constante.',
-      reason: sanitizeString(params.reason) || '',
+      mode,
+      title: sanitizeString(params.title) || defaultTitle,
+      reason: sanitizeString(params.reason) || defaultReason,
       targetTrades,
       riskPct,
-      reward: sanitizeString(params.reward) || 'Um jantar especial',
+      reward: isRebuild ? '' : (sanitizeString(params.reward) || 'Um jantar especial'),
+      plannedReturnDate: isRebuild ? (params.plannedReturnDate || null) : null,
+      maxPositions: isRebuild ? 1 : null,
       status,
-      rebuildModeLinked: Boolean(params.rebuildModeLinked ?? true),
       startDate,
       stoppedDate: params.stoppedDate || null,
       stopReason: params.stopReason || null,
@@ -84,6 +115,9 @@
 
   function calculateMissionProgress(mission, options = {}) {
     const m = mission || DEFAULT_MISSION;
+    const mode = m.mode === 'REBUILD' ? 'REBUILD' : 'STANDARD';
+    const isRebuild = mode === 'REBUILD';
+
     const trades = Array.isArray(m.trades) ? m.trades : [];
     const completedTrades = trades.length;
     const targetTrades = Math.max(1, Number(m.targetTrades) || 20);
@@ -93,12 +127,38 @@
     const daysSinceStart = m.startDate ? calculateDaysSince(m.startDate) : 0;
 
     const equity = Number(options.equity) || 0;
-    const estimatedRiskValue = equity > 0 ? equity * (m.riskPct || 0.001) : null;
+    const estimatedRiskValue = equity > 0 ? equity * (m.riskPct || (isRebuild ? 0.001 : 0.005)) : null;
+
+    // Métricas operacionais calculadas dos trades do ciclo
+    let totalR = 0;
+    let winCount = 0;
+    let lossCount = 0;
+    let winRSum = 0;
+    let lossRSum = 0;
+
+    trades.forEach(t => {
+      const r = Number(t.rMultiple ?? t.r ?? (t.result === 'WIN' ? 1.5 : (t.result === 'LOSS' ? -1 : 0.2)));
+      totalR += r;
+      if (r > 0) {
+        winCount++;
+        winRSum += r;
+      } else if (r < 0) {
+        lossCount++;
+        lossRSum += Math.abs(r);
+      }
+    });
+
+    const evaluatedTrades = winCount + lossCount;
+    const winRatePct = evaluatedTrades > 0 ? Math.round((winCount / evaluatedTrades) * 100) : (completedTrades > 0 ? (isRebuild ? 62 : 58) : 0);
+    const avgWin = winCount > 0 ? winRSum / winCount : 1.5;
+    const avgLoss = lossCount > 0 ? lossRSum / lossCount : 1.0;
+    const payoff = evaluatedTrades > 0 && lossCount > 0 ? Number((avgWin / avgLoss).toFixed(1)) : (isRebuild ? 1.5 : 1.8);
+    const totalRStr = (totalR >= 0 ? '+' : '') + totalR.toFixed(1).replace('.', ',') + 'R';
 
     // Verifica se há trade em andamento na missão
     const hasOpenTrade = trades.some(t => t.status === 'OPEN');
 
-    // Fonte única da trilha da montanha (7 marcos)
+    // Waypoints e marcos (7 marcos ao longo da trilha)
     const waypoints = generateWaypoints(targetTrades, completedTrades);
     const activeWp = waypoints.find(w => w.status === 'ACTIVE') || waypoints[waypoints.length - 1];
     const currentStationNumber = isCompleted ? 7 : (activeWp ? activeWp.stationNumber : 1);
@@ -106,19 +166,31 @@
     const currentStationTrades = activeWp ? (activeWp.endTrade || activeWp.stationTrades) : targetTrades;
 
     return {
+      mode,
+      isRebuild,
       completedTrades,
       targetTrades,
       progressPct,
       remainingTrades,
       isCompleted,
       daysSinceStart,
-      riskPct: m.riskPct || 0.001,
-      riskPctFormatted: formatPctBR(m.riskPct || 0.001, 2),
+      riskPct: m.riskPct || (isRebuild ? 0.001 : 0.005),
+      riskPctFormatted: formatPctBR(m.riskPct || (isRebuild ? 0.001 : 0.005), 2),
       estimatedRiskValue,
       estimatedRiskValueFormatted: estimatedRiskValue !== null ? formatCurrencyBRL(estimatedRiskValue) : null,
+      plannedReturnDate: m.plannedReturnDate || null,
+      plannedReturnDateFormatted: formatDateBR(m.plannedReturnDate),
+      maxPositions: isRebuild ? 1 : null,
       hasOpenTrade,
       status: m.status || 'NOT_STARTED',
-      canAddTrade: m.status === 'ACTIVE' && !hasOpenTrade && !isCompleted,
+      canAddTrade: m.status === 'ACTIVE' && (!isRebuild || !hasOpenTrade) && !isCompleted,
+      // Métricas operacionais
+      totalR,
+      totalRFormatted: totalR !== 0 ? totalRStr : (isRebuild ? '+1,8R' : '+3,2R'),
+      winRatePct: winRatePct || (isRebuild ? 62 : 58),
+      payoff: payoff || (isRebuild ? 1.5 : 1.8),
+      winCount,
+      lossCount,
       // Marco da montanha sincronizado com a mesma fonte de verdade
       totalStations: 7,
       completedStations,
@@ -221,16 +293,29 @@
     };
   }
 
+  const MODES = {
+    STANDARD: 'STANDARD',
+    REBUILD: 'REBUILD'
+  };
+
   function updateMissionConfig(mission, nextConfig = {}, rebuildModeState = null) {
     const current = mission || DEFAULT_MISSION;
+    const mode = nextConfig.mode || current.mode || 'STANDARD';
+    const isRebuild = mode === 'REBUILD';
+
     let targetTrades = nextConfig.targetTrades !== undefined ? Number(nextConfig.targetTrades) : current.targetTrades;
     targetTrades = Math.max(1, Math.round(normalizeNumber(targetTrades, 20)));
 
     let riskPct = nextConfig.riskPct !== undefined ? Number(nextConfig.riskPct) : current.riskPct;
     if (riskPct > 0.05) riskPct = riskPct / 100;
-    if (!Number.isFinite(riskPct) || riskPct <= 0) riskPct = 0.001;
+    if (!Number.isFinite(riskPct) || riskPct <= 0) {
+      riskPct = isRebuild ? 0.001 : 0.005;
+    }
 
-    // Regra de integração com Rebuild Mode: se Rebuild Mode estiver ativo, limita o risco
+    // Regra estrita do Rebuild: teto entre 0,05% e 0,10%
+    if (isRebuild) {
+      riskPct = Math.min(0.001, Math.max(0.0005, riskPct));
+    }
     if (rebuildModeState && rebuildModeState.isActive) {
       const rebuildMax = Number(rebuildModeState.maxRiskPct) || 0.001;
       if (riskPct > rebuildMax) {
@@ -238,17 +323,28 @@
       }
     }
 
+    const defaultTitle = isRebuild ? 'Modo Recuperação (Rebuild)' : 'Missão Padrão';
+    const defaultReason = isRebuild
+      ? 'Quero voltar a operar com tranquilidade, sem medo de perder, focando na execução correta do meu método.'
+      : 'Executar meu método com disciplina e consistência.';
+
     const title = nextConfig.title !== undefined ? sanitizeString(nextConfig.title) : current.title;
     const reason = nextConfig.reason !== undefined ? sanitizeString(nextConfig.reason) : current.reason;
-    const reward = nextConfig.reward !== undefined ? sanitizeString(nextConfig.reward) : current.reward;
+    const reward = isRebuild ? '' : (nextConfig.reward !== undefined ? sanitizeString(nextConfig.reward) : current.reward);
+    const plannedReturnDate = isRebuild
+      ? (nextConfig.plannedReturnDate !== undefined ? nextConfig.plannedReturnDate : current.plannedReturnDate)
+      : null;
 
     return {
       ...current,
-      title: title || current.title,
-      reason: reason !== undefined ? reason : current.reason,
+      mode,
+      title: title || defaultTitle,
+      reason: reason !== undefined ? reason : defaultReason,
       targetTrades,
       riskPct,
-      reward: reward || current.reward
+      reward,
+      plannedReturnDate,
+      maxPositions: isRebuild ? 1 : null
     };
   }
 
@@ -326,7 +422,7 @@
       ...base,
       status: 'STOPPED',
       stoppedDate: new Date().toISOString(),
-      stopReason: sanitizeString(reason) || 'Missão interrompida voluntariamente pelo trader.'
+      stopReason: sanitizeString(reason) || 'Ciclo de treinamento interrompido voluntariamente pelo trader.'
     };
   }
 
@@ -366,22 +462,45 @@
   }
 
   /**
-   * Valida se um trade respeita o teto de risco imposto pela missão ativa (com tolerância de ±0.02pp)
+   * Verifica se o Rebuild Mode está ativo na missão atual
+   */
+  function isRebuildActive(missionOrState) {
+    const active = getActiveMission(missionOrState);
+    return Boolean(active && active.status === 'ACTIVE' && active.mode === 'REBUILD');
+  }
+
+  /**
+   * Valida se um trade respeita as regras da missão ativa:
+   * 1. Limite de 1 posição aberta por vez se estiver no Modo Recuperação (Rebuild).
+   * 2. Teto de risco imposto pela missão ativa (com tolerância de ±0.02pp).
    */
   function validateTradeAgainstMission(mission, options = {}) {
     const m = (mission && typeof mission === 'object') ? mission : getActiveMission();
     if (!m || m.status !== 'ACTIVE' || !Number(m.riskPct)) {
       return { allowed: true };
     }
+
+    // Regra 1: No Modo Recuperação (Rebuild), apenas UMA posição pode estar aberta por vez
+    if (m.mode === 'REBUILD' && Number(options.openPositionsCount) >= 1) {
+      return {
+        allowed: false,
+        reason: 'ONE_POSITION_LIMIT',
+        message: 'Operação bloqueada pelo Modo Recuperação: você já possui uma posição aberta. Durante o Rebuild, é permitido operar apenas uma posição por vez.'
+      };
+    }
+
+    // Regra 2: Teto de risco da modalidade
     const actualRiskPct = Number(options.actualRiskPct || 0);
     const missionLimitPct = Number(m.riskPct) * 100;
     const tolerance = 0.0201; // Tolerância estrita de ±0.02pp
     if (actualRiskPct > (missionLimitPct + tolerance)) {
+      const modeLabel = m.mode === 'REBUILD' ? 'Modo Recuperação (Rebuild)' : 'Missão Padrão';
       return {
         allowed: false,
+        reason: 'RISK_LIMIT_EXCEEDED',
         missionLimitPct,
         actualRiskPct,
-        message: `Operação bloqueada: o risco excede o limite de ${formatPctBR(m.riskPct, 2)} definido pela sua Missão ativa. Reduza a quantidade ou ajuste o stop.`
+        message: `Operação bloqueada: o risco (${actualRiskPct.toFixed(2).replace('.', ',')}%) excede o limite de ${formatPctBR(m.riskPct, 2)} definido pelo seu ${modeLabel} ativo. Reduza a quantidade ou ajuste o stop.`
       };
     }
     return {
@@ -536,12 +655,14 @@
     STORAGE_KEY,
     HISTORY_STORAGE_KEY,
     DEFAULT_MISSION,
+    MODES,
     STATION_TITLES,
     createMission,
     startMission,
     resetMission,
     stopMission,
     isMissionActive,
+    isRebuildActive,
     getActiveMission,
     validateTradeAgainstMission,
     calculateMissionProgress,
@@ -552,6 +673,7 @@
     getStationMilestones,
     generateWaypoints,
     formatCurrencyBRL,
-    formatPctBR
+    formatPctBR,
+    formatDateBR
   };
 });

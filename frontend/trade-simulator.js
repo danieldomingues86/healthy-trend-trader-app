@@ -16,9 +16,14 @@
     activeScenario: '2R',
     massModalOpen: false,
     compareModalOpen: false,
+    hypothesisModalOpen: false,
     scenarioModalOpen: false,
+    exportModalOpen: false,
+    exportFormat: 'DOC', // 'DOC' | 'PDF' | 'ENEX' | 'CSV'
+    exportScope: 'FILTERED', // 'FILTERED' | 'ALL'
     tempScenarioSelection: '2R',
     comparison: null,
+    hypothesisComparison: null,
     filters: {
       days: 120,
       trigger: 'ALL',
@@ -60,10 +65,14 @@
         if (response && Array.isArray(response.simulations) && response.simulations.length > 0) {
           state.simulations = response.simulations.filter(s => s && s.triggerName !== 'Pullback');
           state.comparison = response.comparison || null;
+          state.hypothesisComparison = response.hypothesisComparison || null;
           if (!state.comparison || !Array.isArray(state.comparison.scenarios) || !state.comparison.scenarios.some(s => s.avgDurationDaysFormatted)) {
             if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
               state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
             }
+          }
+          if (!state.hypothesisComparison && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
+            state.hypothesisComparison = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
           }
           if (state.simulations[0]?.managementScenario) {
             state.activeScenario = state.simulations[0].managementScenario;
@@ -92,6 +101,9 @@
           if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
             state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
           }
+          if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
+            state.hypothesisComparison = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
+          }
           state.loading = false;
           return;
         }
@@ -102,6 +114,9 @@
     if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getDefaultSeedSimulations === 'function') {
       state.simulations = root.TradeSimulatorModel.getDefaultSeedSimulations('2R');
       state.comparison = root.TradeSimulatorModel.compareManagementScenarios();
+      if (typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
+        state.hypothesisComparison = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
+      }
       state.activeScenario = '2R';
       state.tempScenarioSelection = '2R';
     } else {
@@ -336,61 +351,116 @@
   }
 
   /**
-   * Exporta os dados filtrados como CSV compatível com Excel e LLMs
+   * Abre o modal de exportação de estudos
    */
-  function exportFilteredCSV() {
-    const filtered = getFilteredSimulations();
-    if (!filtered.length) {
+  function openExportModal() {
+    state.exportModalOpen = true;
+    render();
+  }
+
+  /**
+   * Fecha o modal de exportação de estudos
+   */
+  function closeExportModal() {
+    state.exportModalOpen = false;
+    render();
+  }
+
+  /**
+   * Dispara download de Blob no navegador
+   */
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  /**
+   * Executa a exportação no formato selecionado (DOC, PDF, ENEX, CSV)
+   */
+  function executeExport() {
+    const model = root.TradeSimulatorExportModel;
+    if (!model) {
       if (typeof root.showToast === 'function') {
-        root.showToast('Nenhum dado para exportar.', 'warn');
+        root.showToast('Módulo de exportação não carregado.', 'error');
       }
       return;
     }
 
-    const headers = [
-      'Ativo', 'Gatilho', 'Nota', 'Setor', 'Data do Sinal',
-      'Preço Entrada', 'Stop Loss', 'Status', 'Duração (Dias)', 'Preço Executado', 'Data Entrada',
-      'Preço Saída', 'Data Saída', 'Motivo Saída', 'Resultado (R)', 'MFE (R)', 'MAE (R)'
-    ];
+    const filtered = getFilteredSimulations();
+    const all = state.simulations;
+    const targetSimulations = state.exportScope === 'ALL' ? all : filtered;
 
-    const rows = filtered.map(s => [
-      s.symbol,
-      s.triggerName,
-      s.grade || '—',
-      s.sector || '—',
-      s.signalDate || '—',
-      s.entryPrice != null ? s.entryPrice.toFixed(2).replace('.', ',') : '',
-      s.stopLoss != null ? s.stopLoss.toFixed(2).replace('.', ',') : '',
-      root.TradeSimulatorModel ? (root.TradeSimulatorModel.STATUS_LABELS[s.status] || s.status) : s.status,
-      s.durationDays != null ? s.durationDays : (root.TradeSimulatorModel ? (root.TradeSimulatorModel.calculateTradeDurationDays(s) ?? '') : ''),
-      s.executedEntryPrice != null ? s.executedEntryPrice.toFixed(2).replace('.', ',') : '',
-      s.entryDate || '',
-      s.exitPrice != null ? s.exitPrice.toFixed(2).replace('.', ',') : '',
-      s.exitDate || '',
-      s.exitReason || '',
-      s.resultR != null ? s.resultR.toFixed(2).replace('.', ',') : '',
-      s.mfeR != null ? s.mfeR.toFixed(2).replace('.', ',') : '',
-      s.maeR != null ? s.maeR.toFixed(2).replace('.', ',') : ''
-    ]);
-
-    const csvContent = '\uFEFF' + [
-      headers.join(';'),
-      ...rows.map(r => r.map(val => `"${String(val).replace(/"/g, '""')}"`).join(';'))
-    ].join('\r\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `simulador-de-trades-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    if (typeof root.showToast === 'function') {
-      root.showToast(`✓ Exportado ${filtered.length} trades simulados para CSV.`);
+    if (!targetSimulations.length) {
+      if (typeof root.showToast === 'function') {
+        root.showToast('Nenhum trade encontrado no escopo selecionado para exportar.', 'warn');
+      }
+      return;
     }
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const count = targetSimulations.length;
+
+    try {
+      if (state.exportFormat === 'DOC') {
+        const docContent = model.toDoc(targetSimulations);
+        const blob = new Blob([docContent], { type: 'application/msword;charset=utf-8' });
+        downloadBlob(blob, `simulador-de-trades-estudo-${dateStr}.doc`);
+        if (typeof root.showToast === 'function') {
+          root.showToast(`✓ Exportado ${count} trades para Word (.DOC) com 1 trade por página.`);
+        }
+      } else if (state.exportFormat === 'PDF') {
+        const htmlContent = model.toPrintableHtml(targetSimulations);
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(htmlContent);
+          printWindow.document.close();
+        } else {
+          // Fallback se bloqueador de pop-ups estiver ativo
+          const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+          downloadBlob(blob, `simulador-de-trades-estudo-${dateStr}.html`);
+        }
+        if (typeof root.showToast === 'function') {
+          root.showToast(`✓ Documento gerado com 1 trade por página para salvar como PDF.`);
+        }
+      } else if (state.exportFormat === 'ENEX') {
+        const enexContent = model.toEnex(targetSimulations);
+        const blob = new Blob([enexContent], { type: 'application/xml;charset=utf-8' });
+        downloadBlob(blob, `simulador-de-trades-evernote-${dateStr}.enex`);
+        if (typeof root.showToast === 'function') {
+          root.showToast(`✓ Exportado ${count} notas independentes para Evernote (.ENEX).`);
+        }
+      } else if (state.exportFormat === 'CSV') {
+        const csvContent = model.toCsv(targetSimulations);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        downloadBlob(blob, `simulador-de-trades-${dateStr}.csv`);
+        if (typeof root.showToast === 'function') {
+          root.showToast(`✓ Exportado ${count} trades simulados para CSV.`);
+        }
+      }
+
+      state.exportModalOpen = false;
+      render();
+    } catch (err) {
+      console.error('Erro ao exportar trades:', err);
+      if (typeof root.showToast === 'function') {
+        root.showToast('Erro ao gerar exportação: ' + (err.message || 'Falha interna'), 'error');
+      }
+    }
+  }
+
+  /**
+   * Exporta os dados filtrados como CSV diretamente (compatibilidade de atalho)
+   */
+  function exportFilteredCSV() {
+    state.exportFormat = 'CSV';
+    state.exportScope = 'FILTERED';
+    executeExport();
   }
 
   /**
@@ -578,8 +648,10 @@
         ${renderTableSection(filtered, stats)}
         ${renderMassModal()}
         ${renderCompareModal()}
+        ${renderHypothesisModal()}
         ${renderModal()}
         ${renderSnapshotModal()}
+        ${renderExportModal()}
       </div>
     `;
 
@@ -635,26 +707,9 @@
             <div class="sim-dropdown-menu ${state.activeDropdown === 'trigger' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.trigger === 'ALL' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="ALL">Todos os gatilhos</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Inside Bar">Inside Bar</button>
+              <button class="sim-dropdown-item ${state.filters.trigger === 'Double Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Double Inside Bar">Double Inside Bar</button>
               <button class="sim-dropdown-item ${state.filters.trigger === '1-2-3 de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="1-2-3 de Compra">1-2-3 de Compra</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Outros' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Outros">Outros</button>
-            </div>
-          </div>
-
-          <!-- Filtro Setor -->
-          <div class="sim-filter-select-wrap">
-            <button class="sim-filter-btn" type="button" data-dropdown="sector">
-              <span class="sim-filter-ico">💼</span>
-              <span>${sectorLabel}</span>
-              <span class="sim-chevron">⌵</span>
-            </button>
-            <div class="sim-dropdown-menu ${state.activeDropdown === 'sector' ? 'open' : ''}">
-              <button class="sim-dropdown-item ${state.filters.sector === 'ALL' ? 'active' : ''}" data-filter-type="sector" data-filter-val="ALL">Todos os setores</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Financeiro' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Financeiro">Financeiro</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Petróleo e Gás' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Petróleo e Gás">Petróleo e Gás</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Utilidade Pública' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Utilidade Pública">Utilidade Pública</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Consumo Não Cíclico' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Consumo Não Cíclico">Consumo Não Cíclico</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Materiais Básicos' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Materiais Básicos">Materiais Básicos</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Saúde' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Saúde">Saúde</button>
             </div>
           </div>
 
@@ -667,21 +722,28 @@
             </button>
             <div class="sim-dropdown-menu ${state.activeDropdown === 'grade' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.grade === 'ALL' ? 'active' : ''}" data-filter-type="grade" data-filter-val="ALL">Todas as notas</button>
-              <button class="sim-dropdown-item ${state.filters.grade === 'A+' ? 'active' : ''}" data-filter-type="grade" data-filter-val="A+">Nota A+</button>
               <button class="sim-dropdown-item ${state.filters.grade === 'A' ? 'active' : ''}" data-filter-type="grade" data-filter-val="A">Nota A</button>
-              <button class="sim-dropdown-item ${state.filters.grade === 'B+' ? 'active' : ''}" data-filter-type="grade" data-filter-val="B+">Nota B+</button>
               <button class="sim-dropdown-item ${state.filters.grade === 'B' ? 'active' : ''}" data-filter-type="grade" data-filter-val="B">Nota B</button>
+              <button class="sim-dropdown-item ${state.filters.grade === 'C' ? 'active' : ''}" data-filter-type="grade" data-filter-val="C">Nota C</button>
+              <button class="sim-dropdown-item ${state.filters.grade === 'D' ? 'active' : ''}" data-filter-type="grade" data-filter-val="D">Nota D</button>
             </div>
           </div>
 
           <!-- Painel Centralizado da Massa de Teste -->
-          <button class="sim-btn-seed-dropdown" type="button" id="simBtnMassModal" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
-            <span>⚡ Massa de Teste ▾</span>
+          <button class="sim-filter-btn" type="button" id="simBtnMassModal" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
+            <span class="sim-filter-ico">⚡</span>
+            <span>Gerar Massa de Teste</span>
+            <span class="sim-chevron">⌵</span>
           </button>
 
           <!-- Botão Estratégico: Comparar Cenários -->
           <button class="sim-btn-compare-scenarios" type="button" id="simBtnCompareModal" title="Comparar cenários de gestão na mesma amostra de trades">
             <span>📊 Comparar Cenários</span>
+          </button>
+
+          <!-- Botão Hipótese: Estudo Double Inside Bar -->
+          <button class="sim-btn-hypothesis" type="button" id="simBtnHypothesisModal" title="Estudo Estatístico: Double Inside Bar vs Inside Bar simples">
+            <span>🔬 Estudo: Double Inside Bar</span>
           </button>
 
           <!-- Botão Mais Opções (···) com Dropdown -->
@@ -691,16 +753,19 @@
             </button>
             <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
               <button class="sim-dropdown-item" type="button" id="simMoreBtnMass">
-                <span>⚡</span> <span>Massa de Teste</span>
+                <span>⚡</span> <span>Gerar Massa de Teste</span>
               </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnCompare">
                 <span>📊</span> <span>Comparar Cenários</span>
+              </button>
+              <button class="sim-dropdown-item" type="button" id="simMoreBtnHypothesis">
+                <span>🔬</span> <span>Estudo: Double Inside Bar</span>
               </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate">
                 <span>↻</span> <span>Reavaliar Candles</span>
               </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
-                <span>📥</span> <span>Exportar CSV</span>
+                <span>📥</span> <span>Exportar Simulação</span>
               </button>
               <div class="sim-dropdown-divider"></div>
               <button class="sim-dropdown-item danger" type="button" id="simMoreBtnClear">
@@ -1283,7 +1348,7 @@
         </td>
 
         <!-- Gatilho -->
-        <td class="td-trigger">${sim.triggerName}</td>
+        <td class="td-trigger">${sim.triggerName === 'Double Inside Bar' ? '<span class="sim-dib-tag">⚡ Double Inside Bar</span>' : sim.triggerName}</td>
 
         <!-- Nota -->
         <td>
@@ -1966,6 +2031,402 @@
   }
 
   /**
+   * Card da Estrutura Anatômica do Gatilho e Velocidade (Time to Target)
+   */
+  function renderModalStructureCard(sim) {
+    if (!sim.structure && sim.ttt1R == null && !sim.expansionAfterBreakout) return '';
+    const struct = sim.structure || {};
+    const isDib = sim.triggerName === 'Double Inside Bar' || struct.ibCount === 2;
+    const ttt1 = sim.ttt1R != null ? `${sim.ttt1R} candle${sim.ttt1R === 1 ? '' : 's'}` : 'Não atingido';
+    const ttt2 = sim.ttt2R != null ? `${sim.ttt2R} candle${sim.ttt2R === 1 ? '' : 's'}` : 'Não atingido';
+    const ttt3 = sim.ttt3R != null ? `${sim.ttt3R} candle${sim.ttt3R === 1 ? '' : 's'}` : 'Não atingido';
+    const exp = sim.expansionAfterBreakout || {};
+
+    return `
+      <div class="sim-dib-structure-card">
+        <div class="sim-dib-card-header">
+          <span class="sim-dib-card-badge">${isDib ? '⚡ DOUBLE INSIDE BAR • 2 CAMADAS ANINHADAS' : 'INSIDE BAR • 1 CAMADA'}</span>
+          <h4>Anatomia da Estrutura & Velocidade do Movimento</h4>
+        </div>
+
+        ${struct.motherCandle ? `
+          <div class="sim-dib-layers-grid">
+            <div class="sim-dib-layer-item">
+              <small>Candle-mãe</small>
+              <b>R$ ${struct.motherCandle.range ? struct.motherCandle.range.toFixed(2).replace('.', ',') : '—'}</b>
+              <span>${struct.motherCandle.high ? 'Máx: ' + formatMoney(struct.motherCandle.high) : ''}</span>
+            </div>
+            <div class="sim-dib-layer-item">
+              <small>Inside Bar 1</small>
+              <b>R$ ${struct.ib1?.range ? struct.ib1.range.toFixed(2).replace('.', ',') : '—'}</b>
+              <span class="sim-dib-comp-tag">${struct.ib1?.compressionPct ? struct.ib1.compressionPct.toFixed(1).replace('.', ',') + '% do mãe' : '—'}</span>
+            </div>
+            ${isDib ? `
+              <div class="sim-dib-layer-item">
+                <small>Inside Bar 2</small>
+                <b>R$ ${struct.ib2?.range ? struct.ib2.range.toFixed(2).replace('.', ',') : '—'}</b>
+                <span class="sim-dib-comp-tag">${struct.ib2?.compressionPct ? struct.ib2.compressionPct.toFixed(1).replace('.', ',') + '% do IB1' : '—'}</span>
+              </div>
+              <div class="sim-dib-layer-item highlight">
+                <small>Contração Total</small>
+                <b style="color: #10b981;">${struct.totalContractionPct ? struct.totalContractionPct.toFixed(1).replace('.', ',') + '%' : '—'}</b>
+                <span>Risco Gráfico: ${struct.graphicRiskPct ? struct.graphicRiskPct.toFixed(2).replace('.', ',') + '%' : '—'}</span>
+              </div>
+            ` : `
+              <div class="sim-dib-layer-item highlight">
+                <small>Contração Total</small>
+                <b style="color: #10b981;">${struct.totalContractionPct ? struct.totalContractionPct.toFixed(1).replace('.', ',') + '%' : '—'}</b>
+                <span>Risco Gráfico: ${struct.graphicRiskPct ? struct.graphicRiskPct.toFixed(2).replace('.', ',') + '%' : '—'}</span>
+              </div>
+            `}
+          </div>
+        ` : ''}
+
+        <div class="sim-dib-velocity-grid">
+          <div class="sim-dib-vel-box">
+            <small>Time to Target (+1R)</small>
+            <b>${ttt1}</b>
+          </div>
+          <div class="sim-dib-vel-box">
+            <small>Time to Target (+2R)</small>
+            <b>${ttt2}</b>
+          </div>
+          <div class="sim-dib-vel-box">
+            <small>Time to Target (+3R)</small>
+            <b>${ttt3}</b>
+          </div>
+          <div class="sim-dib-vel-box">
+            <small>Expansão Pós-Rompimento</small>
+            <span style="font-size: 11px; font-weight: 600; color: #cbd5e1;">
+              ${exp.c1 != null ? 'C1: ' + formatR(exp.c1) : 'C1: —'}
+              ${exp.c2 != null ? ' • C2: ' + formatR(exp.c2) : ''}
+              ${exp.c3 != null ? ' • C3: ' + formatR(exp.c3) : ''}
+              ${exp.c5 != null ? ' • C5: ' + formatR(exp.c5) : ''}
+            </span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Modal de Estudo Estatístico: Double Inside Bar vs Inside Bar Simples
+   */
+  function renderHypothesisModal() {
+    if (!state.hypothesisModalOpen) return '';
+
+    let hypothesis = state.hypothesisComparison;
+    if (!hypothesis || !hypothesis.simple || !hypothesis.double) {
+      if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
+        hypothesis = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
+        state.hypothesisComparison = hypothesis;
+      }
+    }
+
+    const simple = hypothesis?.simple || {};
+    const double = hypothesis?.double || {};
+    const diff = hypothesis?.diff || {};
+    const cross = hypothesis?.crossContext || {};
+    const status = hypothesis?.hypothesisStatus || {};
+
+    function formatDeltaR(val) {
+      if (val == null) return '—';
+      const n = Number(val);
+      const sign = n > 0 ? '+' : '';
+      return `${sign}${n.toFixed(2).replace('.', ',')}R`;
+    }
+
+    function formatDeltaPct(val) {
+      if (val == null) return '—';
+      const n = Number(val);
+      const sign = n > 0 ? '+' : '';
+      return `${sign}${n.toFixed(1).replace('.', ',')}pp`;
+    }
+
+    function formatDeltaCandles(val) {
+      if (val == null) return '—';
+      const n = Number(val);
+      const sign = n > 0 ? '+' : '';
+      return `${sign}${n.toFixed(1).replace('.', ',')} candles`;
+    }
+
+    return `
+      <div class="sim-compare-modal-overlay open" id="simHypothesisModalOverlay">
+        <div class="sim-compare-modal-box sim-hypothesis-modal-box" id="simHypothesisModalBox">
+          <!-- Cabeçalho do Modal -->
+          <div class="sim-compare-modal-header">
+            <div class="sim-compare-header-left">
+              <div class="sim-compare-header-badge">ESTUDO EMPÍRICO • HIPÓTESE ESTATÍSTICA</div>
+              <h2>🔬 Estudo: Double Inside Bar vs Inside Bar Simples</h2>
+              <p>Avaliação quantitativa da compressão em 2 camadas de volatilidade sob o método Healthy Trend Trader.</p>
+            </div>
+            <div class="sim-compare-header-right">
+              <div class="sim-comparison-badge">
+                Amostra: ${double.totalCreated || 0} Double Inside Bars • ${simple.totalCreated || 0} Inside Bars
+              </div>
+              <button class="sim-modal-close-btn" type="button" id="simHypothesisModalClose" title="Fechar estudo">×</button>
+            </div>
+          </div>
+
+          <!-- Card de Guardrail Inviolável de Bet Sizing -->
+          <div class="sim-hyp-guardrail-card">
+            <div class="sim-hyp-guardrail-icon">⚠️</div>
+            <div class="sim-hyp-guardrail-content">
+              <b>Regra Inviolável de Bet Sizing & Risco Nominal:</b>
+              <p>${status.betSizingRule || 'Double Inside Bar é estritamente um qualificador de gatilho sob teste estatístico. O risco por trade permanece estritamente governado pelo Rubric (Nota do Trade) e pela Política de Risco nominal (A+ = 2%, A = 1,5%, B = 1%, C = 0,5%, D = 0%). O simulador NÃO altera o risco nominal automaticamente.'}</p>
+            </div>
+          </div>
+
+          <!-- Tabela de Comparação Direta -->
+          <div class="sim-compare-table-container">
+            <table class="sim-comparison-table sim-hypothesis-table">
+              <thead>
+                <tr>
+                  <th class="th-metric">MÉTRICA ESTATÍSTICA</th>
+                  <th class="th-scen scen-col-simple">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-blue"></span>
+                        <b>Inside Bar Simples</b>
+                      </div>
+                      <span class="scen-th-badge badge-blue">1 Camada de Contração</span>
+                    </div>
+                  </th>
+                  <th class="th-scen scen-col-double">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-green"></span>
+                        <b>Double Inside Bar</b>
+                      </div>
+                      <span class="scen-th-badge badge-green">2 Camadas Aninhadas</span>
+                    </div>
+                  </th>
+                  <th class="th-scen scen-col-delta">
+                    <div class="scen-th-inner">
+                      <div class="scen-th-title-row">
+                        <span class="scen-circle-dot dot-yellow"></span>
+                        <b>Delta / Diferença</b>
+                      </div>
+                      <span class="scen-th-badge badge-yellow">DIB vs IB</span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-metric-name"><b>Trades Criados / Executados</b></td>
+                  <td class="td-val">${simple.totalCreated || 0} criados • ${simple.executedCount || 0} exec.</td>
+                  <td class="td-val highlight-val">${double.totalCreated || 0} criados • ${double.executedCount || 0} exec.</td>
+                  <td class="td-val">—</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Taxa de Acerto (Win Rate)</b></td>
+                  <td class="td-val">${simple.winRateFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.winRateFormatted || '—'}</td>
+                  <td class="td-val ${diff.winRateDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaPct(diff.winRateDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Média de Ganho (+R)</b></td>
+                  <td class="td-val">${simple.avgGainFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.avgGainFormatted || '—'}</td>
+                  <td class="td-val">—</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Média de Perda (-R)</b></td>
+                  <td class="td-val">${simple.avgLossFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.avgLossFormatted || '—'}</td>
+                  <td class="td-val">—</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Payoff (Win/Loss Ratio)</b></td>
+                  <td class="td-val">${simple.winLossRatioFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.winLossRatioFormatted || '—'}</td>
+                  <td class="td-val">—</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Expectancy Matemática (+R / trade)</b></td>
+                  <td class="td-val ${simple.expectancy >= 0 ? 'metric-gain' : 'metric-loss'}">${simple.expectancyFormatted || '—'}</td>
+                  <td class="td-val highlight-val ${double.expectancy >= 0 ? 'metric-gain' : 'metric-loss'}">${double.expectancyFormatted || '—'}</td>
+                  <td class="td-val ${diff.expectancyDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaR(diff.expectancyDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Total R Acumulado</b></td>
+                  <td class="td-val metric-gain">${simple.totalRFormatted || '—'}</td>
+                  <td class="td-val highlight-val metric-gain">${double.totalRFormatted || '—'}</td>
+                  <td class="td-val ${diff.totalRDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaR(diff.totalRDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>MFE Médio (Excursão Favorável Máxima)</b></td>
+                  <td class="td-val metric-gain">${simple.avgMfeFormatted || '—'}</td>
+                  <td class="td-val highlight-val metric-gain">${double.avgMfeFormatted || '—'}</td>
+                  <td class="td-val ${diff.mfeDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaR(diff.mfeDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>MAE Médio (Excursão Adversa Máxima)</b></td>
+                  <td class="td-val metric-loss">${simple.avgMaeFormatted || '—'}</td>
+                  <td class="td-val highlight-val metric-loss">${double.avgMaeFormatted || '—'}</td>
+                  <td class="td-val ${diff.maeDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaR(diff.maeDelta)}</td>
+                </tr>
+                <tr class="row-speed-highlight">
+                  <td class="td-metric-name"><b>⚡ Time to Target +1R (Velocidade)</b></td>
+                  <td class="td-val">${simple.avgTtt1RFormatted || 'N/A'}</td>
+                  <td class="td-val highlight-val" style="color: #34d399; font-weight: 800;">${double.avgTtt1RFormatted || 'N/A'}</td>
+                  <td class="td-val ${diff.ttt1RDelta != null && diff.ttt1RDelta <= 0 ? 'metric-gain' : 'metric-neutral'}">
+                    ${diff.ttt1RDelta != null && diff.ttt1RDelta <= 0 ? '⚡ ' + formatDeltaCandles(diff.ttt1RDelta) + ' (Mais Rápido)' : formatDeltaCandles(diff.ttt1RDelta)}
+                  </td>
+                </tr>
+                <tr class="row-speed-highlight">
+                  <td class="td-metric-name"><b>⚡ Time to Target +2R (Velocidade)</b></td>
+                  <td class="td-val">${simple.avgTtt2RFormatted || 'N/A'}</td>
+                  <td class="td-val highlight-val" style="color: #34d399; font-weight: 800;">${double.avgTtt2RFormatted || 'N/A'}</td>
+                  <td class="td-val ${diff.ttt2RDelta != null && diff.ttt2RDelta <= 0 ? 'metric-gain' : 'metric-neutral'}">
+                    ${diff.ttt2RDelta != null && diff.ttt2RDelta <= 0 ? '⚡ ' + formatDeltaCandles(diff.ttt2RDelta) + ' (Mais Rápido)' : formatDeltaCandles(diff.ttt2RDelta)}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Taxa que atingiu +1R (%)</b></td>
+                  <td class="td-val">${simple.pctHit1RFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.pctHit1RFormatted || '—'}</td>
+                  <td class="td-val ${diff.pctHit1RDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaPct(diff.pctHit1RDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Taxa que atingiu +2R (%)</b></td>
+                  <td class="td-val">${simple.pctHit2RFormatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.pctHit2RFormatted || '—'}</td>
+                  <td class="td-val ${diff.pctHit2RDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaPct(diff.pctHit2RDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Taxa que atingiu +3R (%)</b></td>
+                  <td class="td-val">${simple.pctHit3RFormatted || '—'}</td>
+                  <td class="td-val highlight-val" style="color: #34d399; font-weight: 700;">${double.pctHit3RFormatted || '—'}</td>
+                  <td class="td-val ${diff.pctHit3RDelta >= 0 ? 'metric-gain' : 'metric-loss'}">${formatDeltaPct(diff.pctHit3RDelta)}</td>
+                </tr>
+                <tr>
+                  <td class="td-metric-name"><b>Expansão Pós-Rompimento (C1 / C2 / C3 / C5)</b></td>
+                  <td class="td-val">${simple.expansion?.c1Formatted || '—'} / ${simple.expansion?.c2Formatted || '—'} / ${simple.expansion?.c3Formatted || '—'} / ${simple.expansion?.c5Formatted || '—'}</td>
+                  <td class="td-val highlight-val">${double.expansion?.c1Formatted || '—'} / ${double.expansion?.c2Formatted || '—'} / ${double.expansion?.c3Formatted || '—'} / ${double.expansion?.c5Formatted || '—'}</td>
+                  <td class="td-val">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Cruzamentos do Edge com o Double Inside Bar -->
+          <div class="sim-hyp-section-title">
+            <h3>Cruzamentos com as Dimensões do Edge (Contexto é Soberano)</h3>
+            <p>O Double Inside Bar é um acelerador de momentum quando apoiado pelo contexto correto, mas vulnerável a ruído quando operado isoladamente.</p>
+          </div>
+
+          <div class="sim-hyp-grid">
+            <!-- 1. Força Relativa -->
+            <div class="sim-hyp-card">
+              <div class="sim-hyp-card-header">
+                <span class="sim-hyp-tag">DIMENSÃO 1</span>
+                <h4>Força Relativa (RS)</h4>
+              </div>
+              <div class="sim-hyp-subset-list">
+                ${renderSubsetRow(cross.byRsTier?.tier95_100, 'RS 95–100 (Elite)')}
+                ${renderSubsetRow(cross.byRsTier?.tier90_94, 'RS 90–94 (Líder)')}
+                ${renderSubsetRow(cross.byRsTier?.tier80_89, 'RS 80–89 (Apoiador)')}
+                ${renderSubsetRow(cross.byRsTier?.tierSub80, 'RS < 80 (Fraco / Lagging)', true)}
+              </div>
+            </div>
+
+            <!-- 2. Ciclo de Mercado -->
+            <div class="sim-hyp-card">
+              <div class="sim-hyp-card-header">
+                <span class="sim-hyp-tag">DIMENSÃO 2</span>
+                <h4>Ciclo de Mercado</h4>
+              </div>
+              <div class="sim-hyp-subset-list">
+                ${renderSubsetRow(cross.byMarketCycle?.healthy, 'Ciclo Positivo (Up / Healthy)')}
+                ${renderSubsetRow(cross.byMarketCycle?.defensive, 'Ciclo Fraco / Defensivo (Down)', true)}
+              </div>
+            </div>
+
+            <!-- 3. Super Trend Diária -->
+            <div class="sim-hyp-card">
+              <div class="sim-hyp-card-header">
+                <span class="sim-hyp-tag">DIMENSÃO 3</span>
+                <h4>Super Trend Diária (EMA 9 / 30)</h4>
+              </div>
+              <div class="sim-hyp-subset-list">
+                ${renderSubsetRow(cross.bySuperTrend?.aligned, 'Alinhado (Preço > EMA 9 > EMA 30)')}
+                ${renderSubsetRow(cross.bySuperTrend?.notAligned, 'Desalinhado / Abaixo das Médias', true)}
+              </div>
+            </div>
+
+            <!-- 4. Contração de Volatilidade -->
+            <div class="sim-hyp-card">
+              <div class="sim-hyp-card-header">
+                <span class="sim-hyp-tag">DIMENSÃO 4</span>
+                <h4>Compressão vs Ruído</h4>
+              </div>
+              <div class="sim-hyp-subset-list">
+                ${renderSubsetRow(cross.byVolatility?.lowAtr, 'Contração Severa (Total ≤ 50%)')}
+                ${renderSubsetRow(cross.byVolatility?.normalElevated, 'Volatilidade Normal / Ruído')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Diagnóstico dos Cenários de Estresse -->
+          <div class="sim-hyp-adverse-box">
+            <h4>🔬 Diagnóstico dos 6 Cenários de Teste Empírico</h4>
+            <div class="sim-hyp-adverse-grid">
+              <div class="sim-hyp-adverse-item good">
+                <b>Cenário 1: RS 95+ & Ciclo Up (Ex: CPLE6, PRIO3)</b>
+                <p>Confirmação da hipótese: a liberação da energia acumulada em 2 camadas acelera o movimento em direção ao alvo (+2R em 2 a 4 candles).</p>
+              </div>
+              <div class="sim-hyp-adverse-item bad">
+                <b>Cenário 2: RS < 80 — Hipótese Adversa (Ex: KEPL3)</b>
+                <p>Falha empírica: sem liderança relativa frente ao IBOV, a contração não tem força compradora institucional para dar seguimento ao rompimento.</p>
+              </div>
+              <div class="sim-hyp-adverse-item bad">
+                <b>Cenários 3 e 5: Ciclo Down / Contra SuperTrend (Ex: TIMS3)</b>
+                <p>Falha empírica: operar rompimento de compressão contra a tendência diária resulta em armadilha de touro e stop rápido.</p>
+              </div>
+              <div class="sim-hyp-adverse-item bad">
+                <b>Cenário 6: Volatilidade Excessiva / Ruído (Ex: SMTO3)</b>
+                <p>Falha empírica: stop excessivamente curto em ativo de volatilidade ruidosa é violado pela oscilação intradiária natural.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rodapé do Modal -->
+          <div class="sim-compare-modal-footer">
+            <span class="sim-compare-footer-info">Healthy Trend Trader • Pesquisa Quantitativa de Gatilhos & Gestão de Risco</span>
+            <button class="sim-btn-seed" type="button" id="simHypothesisModalCloseBtn" style="padding: 6px 16px;">Fechar Estudo</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSubsetRow(subset, defaultLabel, isAdverse = false) {
+    if (!subset) {
+      return `
+        <div class="sim-hyp-row">
+          <span>${defaultLabel}</span>
+          <span style="color: #64748b;">Sem amostra</span>
+        </div>
+      `;
+    }
+    const wrColor = subset.winRate >= 60 ? '#10b981' : (subset.winRate < 40 ? '#ef4444' : '#f59e0b');
+    const expColor = subset.expectancy >= 0.5 ? '#10b981' : (subset.expectancy < 0 ? '#ef4444' : '#f59e0b');
+    return `
+      <div class="sim-hyp-row ${isAdverse ? 'adverse-row' : ''}">
+        <span class="sim-hyp-row-label">${subset.label || defaultLabel}</span>
+        <div class="sim-hyp-row-metrics">
+          <span class="sim-hyp-metric" style="color: ${wrColor};">WR: <b>${subset.winRateFormatted}</b></span>
+          <span class="sim-hyp-metric" style="color: ${expColor};">Exp: <b>${subset.expectancyFormatted}</b></span>
+          <span class="sim-hyp-metric" style="color: #94a3b8;">TTT: <b>${subset.avgTtt1RFormatted}</b></span>
+          <small>(${subset.executed} trades)</small>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
    * 5. Modal de Detalhes da Simulação e Timeline do Trade
    */
   function renderModal() {
@@ -2046,6 +2507,9 @@
               <b style="color: #dc2626; font-size: 16px;">${formatR(sim.maeR)}</b>
             </div>
           </div>
+
+          <!-- Estrutura do Gatilho & Velocidade (Time to Target) -->
+          ${renderModalStructureCard(sim)}
 
           <!-- Timeline Interativa de Eventos -->
           <h4 style="margin: 20px 0 8px; font-size: 14px;">Linha do Tempo da Simulação</h4>
@@ -2281,6 +2745,175 @@
                 Fechar
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * 7. Modal de Exportação de Trades Simulados (DOC, PDF, ENEX, CSV)
+   */
+  function renderExportModal() {
+    if (!state.exportModalOpen) {
+      return '<div class="sim-modal-overlay" id="simExportModal"></div>';
+    }
+
+    const filtered = getFilteredSimulations();
+    const all = state.simulations;
+    const count = state.exportScope === 'ALL' ? all.length : filtered.length;
+
+    let submitBtnLabel = `📥 Baixar Word (.DOC) • ${count} trades`;
+    if (state.exportFormat === 'PDF') {
+      submitBtnLabel = `🖨️ Abrir Visualização / Salvar PDF • ${count} trades`;
+    } else if (state.exportFormat === 'ENEX') {
+      submitBtnLabel = `📥 Baixar Evernote (.ENEX) • ${count} notas`;
+    } else if (state.exportFormat === 'CSV') {
+      submitBtnLabel = `📥 Baixar Planilha (.CSV) • ${count} trades`;
+    }
+
+    return `
+      <div class="sim-modal-overlay open" id="simExportModal">
+        <div class="sim-modal-box sim-export-modal-box">
+          <!-- Cabeçalho do Modal -->
+          <div class="sim-modal-header">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #0f172a;">📚 Exportar Trades Simulados</h2>
+                <span class="sim-export-badge">ESTUDO INDIVIDUAL</span>
+              </div>
+              <p style="margin: 4px 0 0; color: #64748b; font-size: 13px;">
+                Exporte as operações para estudo detalhado, anotações e revisão técnica fora da plataforma.
+              </p>
+            </div>
+            <button class="sim-modal-close-btn" type="button" id="simExportModalClose" title="Fechar">×</button>
+          </div>
+
+          <!-- Escopo dos Trades -->
+          <div class="sim-export-section">
+            <label class="sim-export-section-title">1. Selecione o universo de trades:</label>
+            <div class="sim-export-scope-wrap">
+              <label class="sim-export-scope-opt ${state.exportScope === 'FILTERED' ? 'selected' : ''}">
+                <input type="radio" name="simExportScope" value="FILTERED" ${state.exportScope === 'FILTERED' ? 'checked' : ''} />
+                <span>Filtro Atual na Tela (<b>${filtered.length} trades</b>)</span>
+              </label>
+              <label class="sim-export-scope-opt ${state.exportScope === 'ALL' ? 'selected' : ''}">
+                <input type="radio" name="simExportScope" value="ALL" ${state.exportScope === 'ALL' ? 'checked' : ''} />
+                <span>Todas as Simulações (<b>${all.length} trades</b>)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Formato de Exportação -->
+          <div class="sim-export-section" style="margin-top: 18px;">
+            <label class="sim-export-section-title">2. Escolha o formato de estudo:</label>
+            <div class="sim-export-cards-grid">
+              <!-- DOC Card -->
+              <div class="sim-export-card ${state.exportFormat === 'DOC' ? 'selected' : ''}" data-format="DOC">
+                <div class="sim-export-card-top">
+                  <span class="sim-export-card-icon">📄</span>
+                  <div class="sim-export-card-titles">
+                    <b>Microsoft Word (.DOC)</b>
+                    <small>Documento editável (.doc)</small>
+                  </div>
+                  <span class="sim-export-chip chip-blue">Editável</span>
+                </div>
+                <ul class="sim-export-card-features">
+                  <li><b>1 trade por página</b> com quebra explícita de seção</li>
+                  <li>Tabelas de execução, risco, alvos e timeline</li>
+                  <li>Gráfico de candles e Trading Rubric congelada</li>
+                  <li>Compatível com MS Word e LibreOffice</li>
+                </ul>
+                <div class="sim-export-card-radio">
+                  <span class="sim-radio-circle ${state.exportFormat === 'DOC' ? 'checked' : ''}"></span>
+                  <span>Selecionar Word (.DOC)</span>
+                </div>
+              </div>
+
+              <!-- PDF Card -->
+              <div class="sim-export-card ${state.exportFormat === 'PDF' ? 'selected' : ''}" data-format="PDF">
+                <div class="sim-export-card-top">
+                  <span class="sim-export-card-icon">📑</span>
+                  <div class="sim-export-card-titles">
+                    <b>Impressão / PDF (.PDF)</b>
+                    <small>Pronto para ler, imprimir ou salvar PDF</small>
+                  </div>
+                  <span class="sim-export-chip chip-emerald">Leitura & PDF</span>
+                </div>
+                <ul class="sim-export-card-features">
+                  <li><b>1 trade por página individual A4</b> sem cortes</li>
+                  <li>Abre visualizador pronto para Salvar como PDF</li>
+                  <li>Gráfico de candles vetorial de alta resolução</li>
+                  <li>Design editorial profissional e limpo</li>
+                </ul>
+                <div class="sim-export-card-radio">
+                  <span class="sim-radio-circle ${state.exportFormat === 'PDF' ? 'checked' : ''}"></span>
+                  <span>Selecionar PDF / Impressão</span>
+                </div>
+              </div>
+
+              <!-- ENEX Card -->
+              <div class="sim-export-card ${state.exportFormat === 'ENEX' ? 'selected' : ''}" data-format="ENEX">
+                <div class="sim-export-card-top">
+                  <span class="sim-export-card-icon">🐘</span>
+                  <div class="sim-export-card-titles">
+                    <b>Evernote (.ENEX)</b>
+                    <small>Notas separadas para estudo</small>
+                  </div>
+                  <span class="sim-export-chip chip-purple">Anotações</span>
+                </div>
+                <ul class="sim-export-card-features">
+                  <li><b>1 nota independente por trade simulado</b></li>
+                  <li>Tags automáticas: Ativo, Setup, Grade, Status</li>
+                  <li>Conteúdo formatado em XHTML ENML estrito</li>
+                  <li>Perfeito para diário de estudo contínuo</li>
+                </ul>
+                <div class="sim-export-card-radio">
+                  <span class="sim-radio-circle ${state.exportFormat === 'ENEX' ? 'checked' : ''}"></span>
+                  <span>Selecionar Evernote (.ENEX)</span>
+                </div>
+              </div>
+
+              <!-- CSV Card -->
+              <div class="sim-export-card ${state.exportFormat === 'CSV' ? 'selected' : ''}" data-format="CSV">
+                <div class="sim-export-card-top">
+                  <span class="sim-export-card-icon">📊</span>
+                  <div class="sim-export-card-titles">
+                    <b>Planilha (.CSV)</b>
+                    <small>Tabela de dados consolidada</small>
+                  </div>
+                  <span class="sim-export-chip chip-gray">Dados Brutos</span>
+                </div>
+                <ul class="sim-export-card-features">
+                  <li>Todas as colunas em formato tabular estruturado</li>
+                  <li>Separador ponto e vírgula com UTF-8 BOM</li>
+                  <li>Compatível com Excel, Google Planilhas e LLMs</li>
+                  <li>Ideal para estatísticas e análises quantitativas</li>
+                </ul>
+                <div class="sim-export-card-radio">
+                  <span class="sim-radio-circle ${state.exportFormat === 'CSV' ? 'checked' : ''}"></span>
+                  <span>Selecionar Planilha (.CSV)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Callout Informativo -->
+          <div class="sim-export-info-callout">
+            <span class="sim-info-ico">💡</span>
+            <div style="font-size: 12px; color: #1e3a2f; line-height: 1.45;">
+              <b>Regra de Estudo Isolado:</b> Nos documentos Word (.DOC) e Impressão/PDF, cada trade é isolado em sua própria página por meio de quebra de página explícita. No Evernote (.ENEX), cada trade torna-se uma nota separada com tags de busca. Todos os campos utilizam estritamente dados reais gerados pela simulação.
+            </div>
+          </div>
+
+          <!-- Ações do Modal -->
+          <div class="sim-modal-actions" style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="sim-export-btn" style="padding: 0 18px; height: 40px;" type="button" id="simExportModalCancel">
+              Cancelar
+            </button>
+            <button class="sim-btn-seed-dropdown" style="padding: 0 20px; height: 40px; font-size: 13px; font-weight: 700; background: #064e3b; color: #ffffff; border: none; border-radius: 8px; cursor: pointer;" type="button" id="simExportModalSubmit">
+              ${submitBtnLabel}
+            </button>
           </div>
         </div>
       </div>
@@ -2669,6 +3302,32 @@
       }
     });
 
+    // 3. Modal do Estudo Estatístico Double Inside Bar
+    container.querySelector('#simBtnHypothesisModal')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.hypothesisModalOpen = true;
+      render();
+    });
+
+    container.querySelector('#simHypothesisModalClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.hypothesisModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simHypothesisModalCloseBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.hypothesisModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simHypothesisModalOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simHypothesisModalOverlay') {
+        state.hypothesisModalOpen = false;
+        render();
+      }
+    });
+
     // Trocar cenário clicando no cabeçalho da tabela comparativa
     container.querySelectorAll('[data-switch-scenario]').forEach(th => {
       th.addEventListener('click', (e) => {
@@ -2696,6 +3355,13 @@
       render();
     });
 
+    container.querySelector('#simMoreBtnHypothesis')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      state.hypothesisModalOpen = true;
+      render();
+    });
+
     container.querySelector('#simMoreBtnEvaluate')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.activeDropdown = null;
@@ -2705,7 +3371,7 @@
     container.querySelector('#simMoreBtnExport')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.activeDropdown = null;
-      exportFilteredCSV();
+      openExportModal();
     });
 
     container.querySelector('#simMoreBtnClear')?.addEventListener('click', (e) => {
@@ -2750,8 +3416,51 @@
       });
     }
 
-    // Botão Exportar CSV
-    container.querySelector('#simExportBtn')?.addEventListener('click', exportFilteredCSV);
+    // Botão Exportar (Toolbar da Tabela)
+    container.querySelector('#simExportBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openExportModal();
+    });
+
+    // Eventos do Modal de Exportação
+    container.querySelector('#simExportModalClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeExportModal();
+    });
+
+    container.querySelector('#simExportModalCancel')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeExportModal();
+    });
+
+    container.querySelector('#simExportModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simExportModal') {
+        closeExportModal();
+      }
+    });
+
+    container.querySelectorAll('input[name="simExportScope"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        state.exportScope = e.target.value;
+        render();
+      });
+    });
+
+    container.querySelectorAll('.sim-export-card[data-format]').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const fmt = card.dataset.format;
+        if (fmt) {
+          state.exportFormat = fmt;
+          render();
+        }
+      });
+    });
+
+    container.querySelector('#simExportModalSubmit')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      executeExport();
+    });
 
     // Botões de Ação na Tabela (Snapshot e Detalhes)
     container.querySelectorAll('.sim-action-btn[data-action="chart"]').forEach(btn => {
@@ -2943,6 +3652,8 @@
     addSimulation,
     resetToDefaults,
     evaluateActive,
+    openExportModal,
+    executeExport,
     getState: () => state
   };
 

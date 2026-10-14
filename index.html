@@ -24,8 +24,9 @@
 <link rel="stylesheet" href="frontend/mindset-hub.css" />
 <link rel="stylesheet" href="frontend/ticker-chart.css" />
 <link rel="stylesheet" href="frontend/trade-simulator.css" />
-<link rel="stylesheet" href="frontend/market-news.css?v=20261005-live-feed" />
 <link rel="stylesheet" href="frontend/mission.css" />
+<link rel="stylesheet" href="frontend/market-central.css?v=20261013-1" />
+<link rel="stylesheet" href="frontend/event-playbook.css?v=20261013-1" />
 <script src="frontend/instrument-catalog.js?v=20260924-market-reset-1"></script>
 <script src="frontend/setup-triggers-catalog.js?v=20260929-1"></script>
 <style>
@@ -241,6 +242,60 @@ body:not([data-theme="healthy"]) #habits.habit-artistic-page:after{color:rgba(81
 body:not([data-theme="healthy"]) #habits .habit-workspace,body:not([data-theme="healthy"]) #habits .habit-summary-card,body:not([data-theme="healthy"]) #habits .habit-hero,body:not([data-theme="healthy"]) #habits .habit-card{border-color:rgba(128,91,28,.16);background:rgba(255,252,243,.93);box-shadow:0 14px 42px rgba(68,45,9,.1)}
 body:not([data-theme="healthy"]) #habits .habit-workspace-head .eyebrow,body:not([data-theme="healthy"]) #habits .habit-hero .eyebrow,body:not([data-theme="healthy"]) #habits .habit-summary-card small{color:#9a6a17}body:not([data-theme="healthy"]) #habits .habit-workspace-head .eyebrow:before,body:not([data-theme="healthy"]) #habits .habit-hero .eyebrow:before{background:#d1a244}body:not([data-theme="healthy"]) #habits .habit-workspace-head h2,body:not([data-theme="healthy"]) #habits .habit-hero h1,body:not([data-theme="healthy"]) #habits .habit-summary-card b{color:#2a1e0b}
 body:not([data-theme="healthy"]) #habits .habit-grid{border-color:rgba(112,82,31,.17)}body:not([data-theme="healthy"]) #habits .habit-grid-head{background:#f4ead0;color:#725824}body:not([data-theme="healthy"]) #habits .habit-name{background:#fffdf7}body:not([data-theme="healthy"]) #habits .habit-name b{color:#37290f}body:not([data-theme="healthy"]) #habits .habit-category{background:#f8edcf;color:#9b6b16}body:not([data-theme="healthy"]) #habits .habit-day{background:#f0eee7}body:not([data-theme="healthy"]) #habits .habit-day.done{background:#bd8b32!important}body:not([data-theme="healthy"]) #habits .habit-day:hover{box-shadow:inset 0 0 0 2px rgba(180,129,35,.48)}body:not([data-theme="healthy"]) #habits .habit-grid-legend i.done{background:#bd8b32}body:not([data-theme="healthy"]) #habits .habit-summary-card:nth-child(1):before{color:#a5741c;background:#f4e9c7;border-color:#ead8a9}body:not([data-theme="healthy"]) #habits .habit-summary-card:nth-child(2):before{color:#a5741c;background:#f8edcf}body:not([data-theme="healthy"]) #habits .habit-summary-card:nth-child(3):before{color:#aa7617;background:#f7eed8}body:not([data-theme="healthy"]) #habits .habit-routine{background:linear-gradient(135deg,rgba(249,239,210,.95),rgba(255,253,246,.93))}
+
+/* Painel da Verdade Hero Background */
+#analytics .hero,
+.truth-panel .hero,
+.truth-panel-hero {
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 185px !important;
+  background: linear-gradient(90deg, rgba(3, 19, 13, 0.92) 0%, rgba(3, 19, 13, 0.75) 45%, rgba(3, 19, 13, 0.2) 100%), url('assets/truth-mirror-hero.jpg') right center / cover no-repeat !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(22, 69, 50, 0.25) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15) !important;
+}
+#analytics .hero > *,
+.truth-panel .hero > *,
+.truth-panel-hero > * {
+  position: relative !important;
+  z-index: 2 !important;
+}
+#analytics .hero h1,
+.truth-panel .hero h1,
+.truth-panel-hero h1 {
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6) !important;
+}
+#analytics .hero .eyebrow,
+.truth-panel .hero .eyebrow,
+.truth-panel-hero .eyebrow {
+  color: #89d99f !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) !important;
+}
+#analytics .hero p,
+.truth-panel .hero p,
+.truth-panel-hero p {
+  color: #e2f0e7 !important;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6) !important;
+  max-width: 640px !important;
+}
+body:not([data-theme="healthy"]) #analytics .hero,
+body:not([data-theme="healthy"]) .truth-panel .hero,
+body:not([data-theme="healthy"]) .truth-panel-hero {
+  background: linear-gradient(90deg, rgba(15, 12, 8, 0.94) 0%, rgba(15, 12, 8, 0.78) 45%, rgba(15, 12, 8, 0.25) 100%), url('assets/truth-mirror-hero.jpg') right center / cover no-repeat !important;
+  border-color: rgba(214, 170, 80, 0.3) !important;
+}
+body:not([data-theme="healthy"]) #analytics .hero .eyebrow,
+body:not([data-theme="healthy"]) .truth-panel .hero .eyebrow,
+body:not([data-theme="healthy"]) .truth-panel-hero .eyebrow {
+  color: #e2b54f !important;
+}
+body:not([data-theme="healthy"]) #analytics .hero p,
+body:not([data-theme="healthy"]) .truth-panel .hero p,
+body:not([data-theme="healthy"]) .truth-panel-hero p {
+  color: #eedfbf !important;
+}
 
 /* O Manual é uma experiência imersiva e não precisa do aviso operacional. */
 body:has(#manual.active) #marketFocusGuard{display:none}
@@ -676,6 +731,8 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <section class="page" id="avatar"></section>
 <section class="page" id="plan"></section>
 <section class="page" id="upgrade"></section>
+<section class="page" id="marketcentral" aria-label="Central de Mercado"><div id="marketCentralRoot"></div></section>
+<section class="page" id="eventplaybook" aria-label="Playbook de Eventos"><div id="eventPlaybookRoot"></div></section>
 <section class="page" id="marketcycle"></section>
 <section class="page" id="relativestrength"></section>
 <section class="page" id="emergingleaders" aria-label="Emerging Leaders Scan"><div id="emergingLeadersRoot"></div></section>
@@ -755,13 +812,12 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <div class="decision-card" id="psDecision"><div><small>Decisão do motor de risco</small><h3 id="psDecisionTitle">Camada limitante: risco pelo stop</h3><p id="psDecisionText">A menor quantidade entre as três camadas é a quantidade permitida pelo método.</p></div><div class="decision-qty"><strong id="psDecisionQty">400</strong><span id="psDecisionUnit">ações sugeridas</span></div></div>
 </section>
 
-<section class="page" id="analytics"><div class="hero"><div><div class="eyebrow">Healthy analytics</div><h1>Descubra onde seu<br>processo realmente funciona.</h1></div><p>Resultados financeiros ganham contexto quando são comparados com direção, mercado, setup e qualidade da decisão.</p></div><div class="grid analytics-grid"><div class="card"><div class="card-head"><div><h3>Resultado por mercado</h3><span>Histórico consolidado 2015–2026</span></div></div><div class="donut-wrap"><div class="donut"></div><div class="legend"><span><i style="background:#4db879"></i>Futuros · R$ 486.959</span><span><i style="background:#b8df73"></i>Ações · R$ 142.685</span><span><i style="background:#e0bd67"></i>FIIs · -R$ 11.642</span><span><i style="background:#d97e72"></i>Outros · -R$ 11.905</span></div></div></div><div class="card"><div class="card-head"><div><h3>Resultado por ano</h3><span>Lucro e perda estimados</span></div></div><div class="bars"><div style="height:35%"><b>30k</b><span>2017</span></div><div style="height:55%"><b>106k</b><span>2018</span></div><div style="height:100%"><b>403k</b><span>2020</span></div><div style="height:25%;background:linear-gradient(#d98b80,#9f4c44)"><b>-95k</b><span>2021</span></div><div style="height:22%;background:linear-gradient(#d98b80,#9f4c44)"><b>-88k</b><span>2022</span></div><div style="height:38%"><b>27k</b><span>2023</span></div><div style="height:72%"><b>193k</b><span>2024</span></div><div style="height:40%"><b>29k</b><span>2025</span></div></div></div></div><div class="grid kpis" style="margin-top:18px"><div class="card kpi"><small>Compras / Long</small><strong>R$ 587.051</strong><div class="delta good">Principal motor de resultado</div></div><div class="card kpi"><small>Vendas / Short</small><strong>R$ 24.360</strong><div class="delta">Profit factor 1,07</div></div><div class="card kpi"><small>Melhor mercado</small><strong>Futuros</strong><div class="delta good">Profit factor 2,02</div></div><div class="card kpi"><small>Melhor ativo</small><strong>CCMX20</strong><div class="delta good">R$ 199.665</div></div></div></section>
+<section class="page" id="analytics"><div class="hero truth-panel-hero"><div><div class="eyebrow">Painel da Verdade · Healthy Analytics</div><h1>O Espelho do Seu Trading.<br><span style="font-size: 26px; font-weight: 500; opacity: 0.9;">Descubra onde seu processo realmente funciona.</span></h1></div><p>Resultados financeiros ganham clareza absoluta quando confrontados com disciplina, setup, direção e qualidade da decisão.</p></div><div class="grid analytics-grid"><div class="card"><div class="card-head"><div><h3>Resultado por mercado</h3><span>Histórico consolidado 2015–2026</span></div></div><div class="donut-wrap"><div class="donut"></div><div class="legend"><span><i style="background:#4db879"></i>Futuros · R$ 486.959</span><span><i style="background:#b8df73"></i>Ações · R$ 142.685</span><span><i style="background:#e0bd67"></i>FIIs · -R$ 11.642</span><span><i style="background:#d97e72"></i>Outros · -R$ 11.905</span></div></div></div><div class="card"><div class="card-head"><div><h3>Resultado por ano</h3><span>Lucro e perda estimados</span></div></div><div class="bars"><div style="height:35%"><b>30k</b><span>2017</span></div><div style="height:55%"><b>106k</b><span>2018</span></div><div style="height:100%"><b>403k</b><span>2020</span></div><div style="height:25%;background:linear-gradient(#d98b80,#9f4c44)"><b>-95k</b><span>2021</span></div><div style="height:22%;background:linear-gradient(#d98b80,#9f4c44)"><b>-88k</b><span>2022</span></div><div style="height:38%"><b>27k</b><span>2023</span></div><div style="height:72%"><b>193k</b><span>2024</span></div><div style="height:40%"><b>29k</b><span>2025</span></div></div></div></div><div class="grid kpis" style="margin-top:18px"><div class="card kpi"><small>Compras / Long</small><strong>R$ 587.051</strong><div class="delta good">Principal motor de resultado</div></div><div class="card kpi"><small>Vendas / Short</small><strong>R$ 24.360</strong><div class="delta">Profit factor 1,07</div></div><div class="card kpi"><small>Melhor mercado</small><strong>Futuros</strong><div class="delta good">Profit factor 2,02</div></div><div class="card kpi"><small>Melhor ativo</small><strong>CCMX20</strong><div class="delta good">R$ 199.665</div></div></div></section>
 <section class="page" id="tradeanatomy" aria-label="Anatomia dos Trades"></section>
 <section class="page" id="tradertraining" aria-label="Treinamento Trader"><div id="traderTrainingRoot"></div></section>
 <section class="page" id="mission" aria-label="Missão"><div id="missionRoot"></div></section>
 <section class="page" id="rebuild" aria-label="Rebuild Mode"><div id="rebuildRoot"></div></section>
 <section class="page" id="tradesimulator" aria-label="Simulador de Trades"><div id="tradeSimulatorRoot"></div></section>
-<section class="page" id="marketnews" aria-label="Notícias"><div id="marketNewsRoot"></div></section>
 
 <section class="page" id="journal">
   <div class="hero"><div><div class="eyebrow">Trader journal</div><h1>Registre o dia.<br>Preserve a verdade.</h1></div><div><p>Um diário independente das posições para documentar o ciclo do mercado, decisões, emoções, aprendizados e prints de qualquer sessão.</p><button class="primary" onclick="openJournalEditor()">＋ Novo registro</button></div></div>
@@ -1088,8 +1144,8 @@ titles.dailyroutine='Rotina Diária';
 titles.emergingleaders='Líderes Emergentes';
 titles.watchlist='Watchlist';
 titles.about='Sobre';
-titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.tradertraining='Treinamento Trader';titles.mission='Missão';titles.rebuild='Rebuild Mode';titles.tradesimulator='Simulador de Trades';titles.marketnews='Notícias';titles.news='Notícias';
-function go(id, extra){if(id==='news')id='marketnews';if(id==='couragechallenge')id='mission';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='mission'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='rebuild'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Rebuild Mode</b>';}else if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Treinamento do Trader</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Trades</b>';}else if(id==='forecast'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Equity</b>';}else if(id==='marketnews'||id==='news'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Notícias</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='relativestrength'&&typeof window.renderRelativeStrengthClassesPage==='function'){window.renderRelativeStrengthClassesPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='mission'&&typeof window.renderMissionPage==='function'){window.renderMissionPage();}if(id==='rebuild'&&typeof window.renderRebuildPage==='function'){window.renderRebuildPage();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if((id==='marketnews'||id==='news')&&typeof window.MarketNews?.render==='function'){window.MarketNews.render();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&typeof updateTradingRubric==='function'){updateTradingRubric();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
+titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.tradertraining='Prática Deliberada';titles.mission='Missão';titles.rebuild='Rebuild Mode';titles.tradesimulator='Simulador de Trades';titles.marketnews='Notícias';titles.news='Notícias';titles.marketcentral='Central de Mercado';titles.eventplaybook='Playbook de Eventos';
+function go(id, extra){if(id==='news'||id==='marketnews')id='marketcentral';if(id==='couragechallenge')id='mission';if(id==='rebuild')id='mission';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='mission'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='rebuild'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Prática Deliberada</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Trades</b>';}else if(id==='forecast'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Equity</b>';}else if(id==='marketcentral'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Central de Mercado</b>';}else if(id==='eventplaybook'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Playbook de Eventos</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='marketcentral'&&typeof window.renderMarketCentral==='function'){window.renderMarketCentral();}if(id==='eventplaybook'&&typeof window.EventPlaybook?.render==='function'){window.EventPlaybook.render();}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='emergingleaders'&&typeof window.renderEmergingLeaders==='function'){window.renderEmergingLeaders();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='relativestrength'&&typeof window.renderRelativeStrengthClassesPage==='function'){window.renderRelativeStrengthClassesPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='mission'&&typeof window.renderMissionPage==='function'){window.renderMissionPage();}if(id==='rebuild'&&typeof window.renderRebuildPage==='function'){window.renderRebuildPage();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&typeof updateTradingRubric==='function'){updateTradingRubric();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
 function marketCandles(seed=0,count=16){return Array.from({length:count},(_,i)=>{const h=18+((i*17+seed*11)%46),mb=7+((i*13+seed*7)%38),wick=h+13+((i*7+seed)%20),trend=i>count*.62?'down':'up';return `<i class="market-candle ${trend}" style="--h:${h}px;--mb:${mb}px;--wick:${wick}px"></i>`}).join('')}
 function setMarketRange(button){document.querySelectorAll('.market-range button').forEach(item=>item.classList.toggle('active',item===button));}
 function moneyBRL(value,decimals=2){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(value)}
@@ -1880,12 +1936,12 @@ const openNavigationHubWithoutProductSlogan=openNavigationHub;
 openNavigationHub=function(){openNavigationHubWithoutProductSlogan();document.querySelector('#navigationHub .product-promise')?.remove()};
 function closeNavigationHub(){document.getElementById('navigationHub')?.classList.remove('open')}
 function setupTileBrandBar(){let bar=document.getElementById('tileBrandBar');if(!bar){bar=document.createElement('header');bar.id='tileBrandBar';bar.className='tile-brand-bar';bar.innerHTML=`<div class="tile-brand"><span class="tile-brand-mark"></span><div><strong><em>Healthy</em> Trend Trader</strong><small>TRADER WORKSPACE</small></div></div>`;document.body.appendChild(bar)}return bar}
-function setupNavigationHubTrigger(){const bar=setupTileBrandBar();let trigger=document.getElementById('navigationHubTrigger');if(!trigger){trigger=document.createElement('button');trigger.id='navigationHubTrigger';trigger.className='navigation-hub-trigger';trigger.type='button';trigger.addEventListener('click',openNavigationHub)}bar.appendChild(trigger);trigger.textContent=window.appLanguage==='en-US'?'▦ Tile menu':'▦ Menu em blocos'}
-function openNavigationHub(){if(navigationLayout!=='tiles')return;let hub=document.getElementById('navigationHub');if(!hub){hub=document.createElement('section');hub.id='navigationHub';hub.className='navigation-hub';document.body.appendChild(hub)}const supportIds=new Set(['settings','riskpolicy','manual','glossary']),supportIcons={settings:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,riskpolicy:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,manual:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>`,glossary:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`},tile=([id,icon,title,description,position])=>{const locked=typeof professionalPages!=='undefined'&&professionalPages.has(id)&&!isProfessional(),wisdom=id==='wisdom',texture=wisdom?"url('assets/navigation-menu-wisdom-card-v1.png')":"url('assets/navigation-menu-card-textures-v1.png')",label=navigationLabel(id,title),tileIcon=supportIcons[id]||icon;return `<button class="navigation-hub-tile tile-${id} ${wisdom?'tile-wisdom':''} ${locked?'plan-locked':''}" style="--tile-texture:${texture};--tile-position:${position}" type="button" onclick="go('${id}')"><i>${tileIcon}</i><b>${label}</b><span>${description}</span></button>`},workspaceTiles=navigationTiles.filter(([id])=>!supportIds.has(id)).map(tile).join(''),supportTiles=navigationTiles.filter(([id])=>supportIds.has(id)).map(tile).join(''),english=window.appLanguage==='en-US';hub.innerHTML=`<div class="navigation-hub-inner"><header class="navigation-hub-header"><div class="navigation-hub-brand"><span class="tile-brand-mark">◢</span><div><strong>THE HEALTHY TREND</strong><small>TRADER WORKSPACE</small></div></div><div class="navigation-hub-title"><div class="eyebrow">${english?'NAVIGATION':'NAVEGAÇÃO'}</div><h1>${english?'Where do you want to go <em>today?</em>':'Para onde você quer ir <em>hoje?</em>'}</h1><p>${english?'Discipline today. Freedom tomorrow.':'Disciplina hoje. Liberdade amanhã.'}</p></div><aside class="navigation-hub-quote">“${english?'Consistency is the true advantage.':'Consistência é a verdadeira vantagem.'}”<small>— TOM BASSO</small></aside></header><div class="navigation-hub-layout"><div class="navigation-hub-grid">${workspaceTiles}</div><aside class="navigation-hub-support" aria-label="${english?'Trader resources':'Recursos do Trader'}"><small>${english?'RESOURCES & SYSTEM':'RECURSOS DO TRADER'}</small>${supportTiles}</aside></div><footer class="navigation-hub-philosophy">${english?'FOCUS · PROCESS · DISCIPLINE · RESULTS':'FOCO · PROCESSO · DISCIPLINA · RESULTADOS'}</footer></div>`;hub.classList.add('open')}
-function setupNavigationLayoutSettings(){const grid=document.querySelector('#settings .settings-grid');if(!grid)return;document.getElementById('navigationLayoutSettings')?.remove();const card=document.createElement('section');card.id='navigationLayoutSettings';card.className='card';const options=Object.entries(navigationLayouts).map(([id,layout])=>{const [title,description]=navigationText(layout);return `<button type="button" class="navigation-layout-option ${navigationLayout===id?'active':''}" onclick="applyNavigationLayout('${id}')"><i>${layout.icon}</i><b>${title}</b><span>${description}</span></button>`}).join('');card.innerHTML=`<div class="card-head"><div><h3>${window.appLanguage==='en-US'?'Navigation layout':'Formato do menu'}</h3><span>${window.appLanguage==='en-US'?'Choose how you want to navigate the platform.':'Escolha como prefere navegar pela plataforma.'}</span></div></div><div class="navigation-layout-options">${options}</div>`;grid.prepend(card)}
+function setupNavigationHubTrigger(){const bar=setupTileBrandBar();let trigger=document.getElementById('navigationHubTrigger');if(!trigger){trigger=document.createElement('button');trigger.id='navigationHubTrigger';trigger.className='navigation-hub-trigger';trigger.type='button';trigger.addEventListener('click',()=>openNavigationHub())}bar.appendChild(trigger);trigger.textContent=window.appLanguage==='en-US'?'▦ Tile menu':'▦ Menu em blocos'}
+function openNavigationHub(){if(window.SidebarNavigation&&typeof window.SidebarNavigation.renderNavigationHub==='function'){window.SidebarNavigation.renderNavigationHub();return;}if(navigationLayout!=='tiles')return;let hub=document.getElementById('navigationHub');if(!hub){hub=document.createElement('section');hub.id='navigationHub';hub.className='navigation-hub';document.body.appendChild(hub)}const supportIds=new Set(['settings','riskpolicy','manual','glossary']),supportIcons={settings:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,riskpolicy:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,manual:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>`,glossary:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`},tile=([id,icon,title,description,position])=>{const locked=typeof professionalPages!=='undefined'&&professionalPages.has(id)&&!isProfessional(),wisdom=id==='wisdom',texture=wisdom?"url('assets/navigation-menu-wisdom-card-v1.png')":"url('assets/navigation-menu-card-textures-v1.png')",label=navigationLabel(id,title),tileIcon=supportIcons[id]||icon;return `<button class="navigation-hub-tile tile-${id} ${wisdom?'tile-wisdom':''} ${locked?'plan-locked':''}" style="--tile-texture:${texture};--tile-position:${position}" type="button" onclick="go('${id}')"><i>${tileIcon}</i><b>${label}</b><span>${description}</span></button>`},workspaceTiles=navigationTiles.filter(([id])=>!supportIds.has(id)).map(tile).join(''),supportTiles=navigationTiles.filter(([id])=>supportIds.has(id)).map(tile).join(''),english=window.appLanguage==='en-US';hub.innerHTML=`<div class="navigation-hub-inner"><header class="navigation-hub-header"><div class="navigation-hub-brand"><span class="tile-brand-mark">◢</span><div><strong>THE HEALTHY TREND</strong><small>TRADER WORKSPACE</small></div></div><div class="navigation-hub-title"><div class="eyebrow">${english?'NAVIGATION':'NAVEGAÇÃO'}</div><h1>${english?'Where do you want to go <em>today?</em>':'Para onde você quer ir <em>hoje?</em>'}</h1><p>${english?'Discipline today. Freedom tomorrow.':'Disciplina hoje. Liberdade amanhã.'}</p></div><aside class="navigation-hub-quote">“${english?'Consistency is the true advantage.':'Consistência é a verdadeira vantagem.'}”<small>— TOM BASSO</small></aside></header><div class="navigation-hub-layout"><div class="navigation-hub-grid">${workspaceTiles}</div><aside class="navigation-hub-support" aria-label="${english?'Trader resources':'Recursos do Trader'}"><small>${english?'RESOURCES & SYSTEM':'RECURSOS DO TRADER'}</small>${supportTiles}</aside></div><footer class="navigation-hub-philosophy">${english?'FOCUS · PROCESS · DISCIPLINE · RESULTS':'FOCO · PROCESSO · DISCIPLINA · RESULTADOS'}</footer></div>`;hub.classList.add('open')}
+function setupNavigationLayoutSettings(){if(window.SidebarNavigation&&typeof window.SidebarNavigation.setupNavigationLayoutSettings==='function'){window.SidebarNavigation.setupNavigationLayoutSettings();return;}const grid=document.querySelector('#settings .settings-grid');if(!grid)return;document.getElementById('navigationLayoutSettings')?.remove();const card=document.createElement('section');card.id='navigationLayoutSettings';card.className='card';const options=Object.entries(navigationLayouts).map(([id,layout])=>{const [title,description]=navigationText(layout);return `<button type="button" class="navigation-layout-option ${navigationLayout===id?'active':''}" onclick="applyNavigationLayout('${id}')"><i>${layout.icon}</i><b>${title}</b><span>${description}</span></button>`}).join('');card.innerHTML=`<div class="card-head"><div><h3>${window.appLanguage==='en-US'?'Navigation layout':'Formato do menu'}</h3><span>${window.appLanguage==='en-US'?'Choose how you want to navigate the platform.':'Escolha como prefere navegar pela plataforma.'}</span></div></div><div class="navigation-layout-options">${options}</div>`;grid.prepend(card)}
 function updateTopNavigationScrollState(){const menu=document.getElementById('topNavigationMenu'),previous=document.getElementById('topNavigationPrevious'),next=document.getElementById('topNavigationNext');if(!menu||!previous||!next)return;const limit=Math.max(0,menu.scrollWidth-menu.clientWidth);previous.disabled=menu.scrollLeft<=2;next.disabled=menu.scrollLeft>=limit-2}
 function scrollTopNavigation(direction){const menu=document.getElementById('topNavigationMenu');if(!menu)return;menu.scrollBy({left:direction*Math.max(280,menu.clientWidth*.72),behavior:'smooth'});window.setTimeout(updateTopNavigationScrollState,240)}
-function setupTopNavigation(){const sidebar=document.querySelector('.sidebar');if(!sidebar)return;let menu=document.getElementById('topNavigationMenu'),controls=document.getElementById('topNavigationControls');if(navigationLayout!=='top'){controls?.remove();menu?.remove();return}if(!menu){menu=document.createElement('nav');menu.id='topNavigationMenu';menu.className='top-navigation-menu'}if(!controls){controls=document.createElement('div');controls.id='topNavigationControls';controls.className='top-navigation-controls';controls.innerHTML='<button class="top-navigation-scroll" id="topNavigationPrevious" type="button" aria-label="Ver atalhos anteriores" title="Ver atalhos anteriores" onclick="scrollTopNavigation(-1)">‹</button><button class="top-navigation-scroll" id="topNavigationNext" type="button" aria-label="Ver próximos atalhos" title="Ver próximos atalhos" onclick="scrollTopNavigation(1)">›</button>'}const sourceButtons=[...sidebar.querySelectorAll('.nav-group .nav button[data-page]')];menu.innerHTML=sourceButtons.map(button=>{const label=button.textContent.trim();return `<button type="button" data-page="${button.dataset.page}" data-menu-label="${label}" aria-label="${label}" onclick="go('${button.dataset.page}')">${button.innerHTML}</button>`}).join('');controls.insertBefore(menu,controls.querySelector('#topNavigationNext'));const actions=sidebar.querySelector('.top-actions');sidebar.insertBefore(controls,actions||null);menu.onscroll=updateTopNavigationScrollState;requestAnimationFrame(updateTopNavigationScrollState);if(typeof applySubscriptionAccess==='function')applySubscriptionAccess()}
+function setupTopNavigation(){if(window.SidebarNavigation&&typeof window.SidebarNavigation.ensureTopNavigationItems==='function'){window.SidebarNavigation.ensureTopNavigationItems(true);return;}const sidebar=document.querySelector('.sidebar');if(!sidebar)return;let menu=document.getElementById('topNavigationMenu'),controls=document.getElementById('topNavigationControls');if(navigationLayout!=='top'){controls?.remove();menu?.remove();return}if(!menu){menu=document.createElement('nav');menu.id='topNavigationMenu';menu.className='top-navigation-menu'}if(!controls){controls=document.createElement('div');controls.id='topNavigationControls';controls.className='top-navigation-controls';controls.innerHTML='<button class="top-navigation-scroll" id="topNavigationPrevious" type="button" aria-label="Ver atalhos anteriores" title="Ver atalhos anteriores" onclick="scrollTopNavigation(-1)">‹</button><button class="top-navigation-scroll" id="topNavigationNext" type="button" aria-label="Ver próximos atalhos" title="Ver próximos atalhos" onclick="scrollTopNavigation(1)">›</button>'}const sourceButtons=[...sidebar.querySelectorAll('.nav-group .nav button[data-page]')];menu.innerHTML=sourceButtons.map(button=>{const label=button.textContent.trim();return `<button type="button" data-page="${button.dataset.page}" data-menu-label="${label}" aria-label="${label}" onclick="go('${button.dataset.page}')">${button.innerHTML}</button>`}).join('');controls.insertBefore(menu,controls.querySelector('#topNavigationNext'));const actions=sidebar.querySelector('.top-actions');sidebar.insertBefore(controls,actions||null);menu.onscroll=updateTopNavigationScrollState;requestAnimationFrame(updateTopNavigationScrollState);if(typeof applySubscriptionAccess==='function')applySubscriptionAccess()}
 function placeNavigationTopActions(){const actions=document.querySelector('.top-actions'),sidebar=document.querySelector('.sidebar'),topbar=document.querySelector('.topbar');if(!actions||!sidebar||!topbar)return;if(navigationLayout==='top')sidebar.appendChild(actions);else if(navigationLayout==='tiles')setupTileBrandBar().appendChild(actions);else topbar.appendChild(actions)}
 function placeMarketFocusGuard(){const guard=document.getElementById('marketFocusGuard'),topbar=document.querySelector('.topbar'),content=document.querySelector('.content');if(!guard||!topbar||!content)return;const layout=document.body.dataset.navigationLayout||(typeof navigationLayout!=='undefined'?navigationLayout:'sidebar');const isSidebarDesktop=layout==='sidebar'&&(typeof window==='undefined'||window.innerWidth>800);if(isSidebarDesktop){if(topbar.contains(guard))return;const actions=topbar.querySelector('.top-actions');if(actions)topbar.insertBefore(guard,actions);else topbar.appendChild(guard);}else{if(content.contains(guard))return;const first=content.firstElementChild;if(first&&first!==guard)content.insertBefore(guard,first);else content.prepend(guard);}}
 window.placeMarketFocusGuard=placeMarketFocusGuard;
@@ -1897,7 +1953,7 @@ applyLanguage=function(language){applyLanguageWithNavigationLayout(language);win
 function syncRiskResultPanel(){/* A grade do Position Sizing mantém o painel fixo pelo CSS. */}
 const goWithFixedRiskResult=go;
 go=function(id, ...args){goWithFixedRiskResult(id, ...args);requestAnimationFrame(syncRiskResultPanel)};
-function openSettingsPage(){const settings=document.getElementById('settings');if(!settings)return;closeNavigationHub();document.querySelectorAll('.page').forEach(page=>page.classList.remove('active'));settings.classList.add('active');document.querySelectorAll('.nav button').forEach(button=>button.classList.toggle('active',button.dataset.page==='settings'));const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=typeof uiText==='function'?uiText(titles.settings):titles.settings;window.scrollTo({top:0,behavior:'smooth'})}
+function openSettingsPage(){const settings=document.getElementById('settings');if(!settings)return;closeNavigationHub();document.querySelectorAll('.page').forEach(page=>page.classList.remove('active'));settings.classList.add('active');document.querySelectorAll('.nav button').forEach(button=>button.classList.toggle('active',button.dataset.page==='settings'));const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=typeof uiText==='function'?uiText(titles.settings):titles.settings;setupNavigationLayoutSettings();window.scrollTo({top:0,behavior:'smooth'})}
 const goWithGuaranteedSettings=go;
 go=function(id, ...args){if(id==='settings'){openSettingsPage();return}goWithGuaranteedSettings(id, ...args)};
 window.addEventListener('resize',()=>{if(window.innerWidth<720)syncRiskResultPanel();placeMarketFocusGuard();});
@@ -1946,7 +2002,7 @@ function tradeFlowSizing(result){const entry=Number(document.getElementById('ent
 function updateTradeFlowPresentation(result){const stage=document.getElementById('tradeRubricStage');if(!stage||!result)return;stage.classList.remove('grade-a','grade-b','grade-c','grade-d','grade-no-trade');stage.classList.add(tradeGradeClass(result.grade));const redScoreThreshold=(typeof tradingRubricPolicy!=='undefined'&&tradingRubricPolicy?.grades?.find(g=>g.grade==='C')?.minScore)||65;const yellowScoreThreshold=(typeof tradingRubricPolicy!=='undefined'&&tradingRubricPolicy?.grades?.find(g=>g.grade==='A')?.minScore)||95;const isDanger=result.grade==='D'||result.grade==='No Trade'||result.riskPct===0;const isApproved=Boolean(result.qualityAllowed||['A'].includes(result.grade));const gauge=document.getElementById('tradeRubricGauge');if(gauge){gauge.style.setProperty('--gauge-red-deg',(redScoreThreshold*1.8)+'deg');gauge.style.setProperty('--gauge-yellow-deg',(yellowScoreThreshold*1.8)+'deg');gauge.style.setProperty('--gauge',Math.max(0,Math.min(100,Math.round(result.score))));let needleColor='#eab308';if(isDanger){needleColor='#ef4444'}else if(isApproved){needleColor='#22c55e'}else{needleColor='#eab308'}gauge.style.setProperty('--needle-color',needleColor)}const gaugeGrade=document.getElementById('tradeGaugeGrade'),gaugeScore=document.getElementById('tradeGaugeScore'),gaugeMessage=document.getElementById('tradeGaugeMessage');if(gaugeGrade)gaugeGrade.textContent=result.grade;if(gaugeScore)gaugeScore.textContent=`${result.score} / 100`;if(gaugeMessage){gaugeMessage.textContent=tradeGradeMessage(result.grade);gaugeMessage.className=tradeGradeClass(result.grade)}const sizing=tradeFlowSizing(result);const realPositions=operationalState.positions.filter(position=>position.mode==='real');const currentHeat=realPositions.reduce((total,position)=>total+operationMetrics(position).riskPct,0);const portfolio=TradingRubrics.validatePortfolio({currentHeatPct:currentHeat,additionalRiskPct:sizing.initialRisk/POSITION_SIZE_CONFIG.equity*100,openPositions:realPositions.length,maximumHeatPct:POSITION_SIZE_CONFIG.heatMax,maximumPositions:POSITION_SIZE_CONFIG.maximumPositions});const quality=document.getElementById('tradeLayerQuality'),volatility=document.getElementById('tradeLayerVolatility'),portfolioLayer=document.getElementById('tradeLayerPortfolio'),final=document.getElementById('tradeFinalSize'),details=document.getElementById('tradeFinalDetails');const isCaution=['C','B'].includes(result.grade);if(quality)quality.innerHTML=`<i>1</i><h3>Qualidade da oportunidade</h3><p>Grade <b>${result.grade}</b> · Risco-base <b>${numBR(result.riskPct*100,2)}%</b><br><span class="layer-status ${isDanger?'status-danger':(isCaution?'status-caution':'status-good')}">${isDanger?'🔴 OPERAÇÃO NÃO RECOMENDADA':tradeGradeMessage(result.grade)}</span></p>`;if(volatility)volatility.innerHTML=`<i>2</i><h3>Volatilidade e stop</h3><p>Stop: ${numBR(Math.abs(Number(document.getElementById('entry')?.value)-Number(document.getElementById('stop')?.value)),2)} · ATR: ${numBR(Number(document.getElementById('atr')?.value),2)}<br>Camada limitante: <b>${sizing.limitingLayer||'—'}</b></p>`;if(portfolioLayer)portfolioLayer.innerHTML=`<i>3</i><h3>Controle do portfólio</h3><p>Heat projetado: <b>${numBR(portfolio.projectedHeatPct,2)}%</b> / ${numBR(POSITION_SIZE_CONFIG.heatMax,2)}%<br>Posições: <b>${portfolio.projectedPositions}</b> / ${POSITION_SIZE_CONFIG.maximumPositions} · ${portfolio.allowed?'Dentro dos limites':'Limite atingido'}</p>`;if(final)final.textContent=`${numBR(sizing.quantity,0)} ações`;const finalContainer=final?.closest('.final-size')||document.querySelector('.final-size');if(finalContainer)finalContainer.classList.toggle('zero-size',sizing.quantity===0||result.riskPct===0);const finalNote=sizing.quantity===0||result.riskPct===0?'A política não autorizou risco para este setup.':!portfolio.allowed?(portfolio.heatAllowed?'Limite de posições atingido.':'Limite de Portfolio Heat atingido.'):!result.qualityAllowed?`Operação fora dos critérios ideais (Grade ${result.grade})`:'✓ Dentro dos limites de risco';if(details)details.textContent=`Investimento: ${moneyBR(sizing.quantity*Number(document.getElementById('entry')?.value||0))} · Risco inicial: ${moneyBR(sizing.initialRisk)} · ${finalNote}`}
 function setupTradeFlow(){const layout=document.querySelector('#newtrade .trade-layout'),form=document.querySelector('#newtrade .form-card'),rubric=document.getElementById('tradingRubric'),summary=document.querySelector('#newtrade .summary-box');if(!layout||!form||!rubric||!summary||document.getElementById('tradeFlow'))return;layout.querySelector('.steps')?.remove();const flow=document.createElement('section');flow.id='tradeFlow';flow.className='trade-flow';flow.innerHTML=`<header class="trade-flow-head"><div class="eyebrow">Planejamento consciente</div><h2>Um fluxo em 3 etapas para um trade mais consciente</h2><p>Dados do Trade → Qualidade do Cenário → Nivelador de Risco em 3 Camadas</p><div class="trade-flow-steps"><div class="trade-flow-step active" data-trade-flow-step="1"><i>1</i><span>Dados do Trade</span></div><div class="trade-flow-step" data-trade-flow-step="2"><i>2</i><span>Qualidade do Cenário</span></div><div class="trade-flow-step" data-trade-flow-step="3"><i>3</i><span>Nivelador de Risco</span></div></div></header><section class="trade-flow-panel active" data-trade-flow-panel="1"><div id="tradeFlowData"></div><div class="trade-flow-actions"><button class="secondary" type="button" onclick="go('today')">Cancelar</button><button class="primary" type="button" onclick="setTradeFlowStep(2)">Próxima etapa →</button></div></section><section class="trade-flow-panel rubric-stage" id="tradeRubricStage" data-trade-flow-panel="2"><div class="rubric-gauge" id="tradeRubricGauge"><div><strong id="tradeGaugeGrade">—</strong><span id="tradeGaugeScore">0 / 0</span></div></div><p id="tradeGaugeMessage" style="text-align:center;font-weight:800;letter-spacing:.08em">AVALIE O CENÁRIO</p><div id="tradeFlowRubric"></div><div class="trade-flow-actions"><button class="secondary" type="button" onclick="setTradeFlowStep(1)">← Voltar</button><button class="primary" type="button" onclick="setTradeFlowStep(3)">Próxima etapa →</button></div></section><section class="trade-flow-panel three-layer-stage" data-trade-flow-panel="3"><div class="eyebrow">Nivelador de risco em 3 camadas</div><h2>Três dimensões, um Position Size final.</h2><div class="three-layers"><article class="layer-prism" id="tradeLayerQuality"></article><article class="layer-prism" id="tradeLayerVolatility"></article><article class="layer-prism" id="tradeLayerPortfolio"></article></div><div class="final-size"><small>POSITION SIZE FINAL</small><strong id="tradeFinalSize">0 ações</strong><span id="tradeFinalDetails">Preencha os dados para calcular.</span></div><div id="tradeFlowSummary"></div><div class="trade-flow-actions"><button class="secondary" type="button" onclick="setTradeFlowStep(2)">← Voltar</button></div></section>`;flow.querySelector('#tradeFlowData').append(form);flow.querySelector('#tradeFlowRubric').append(rubric);flow.querySelector('#tradeFlowSummary').append(summary);layout.replaceWith(flow);updateTradingRubric();setTradeFlowStep(1)}
 setupTradingRubric();setupTradingRubricSettings();setupTradeFlow();
-function setupTradeWorkbench(){const flow=document.getElementById('tradeFlow'),form=document.querySelector('#newtrade .form-card'),rubric=document.getElementById('tradingRubric'),summary=document.querySelector('#newtrade .summary-box');if(!flow||!form||!rubric||!summary||flow.dataset.workbench==='true')return;flow.dataset.workbench='true';flow.className='trade-workbench';flow.innerHTML=`<header class="trade-workbench-head"><div class="eyebrow">Planejamento consciente</div><h2>Um fluxo em 3 etapas para um trade mais consciente</h2></header><div class="trade-workbench-grid"><section class="workbench-card workbench-trade-data" id="tradeDataStage"><div class="eyebrow">1 · Dados do Trade</div><h3>O que vou operar?</h3><p class="workbench-stage-subtitle">Defina os parâmetros essenciais da operação antes de calcular sua posição.</p><div id="workbenchData"></div></section><section class="workbench-card workbench-rubric-stage" id="tradeRubricStage"><div class="eyebrow">2 · Qualidade do Cenário</div><h3>Qualidade da Oportunidade</h3><p class="workbench-stage-subtitle">Avalie os critérios antes de liberar o risco-base.</p><div class="quality-ruler-container" id="qualityRulerContainer"><div class="quality-ruler-pointer-track"><div class="quality-ruler-pointer pointer-pending" id="qualityRulerPointer" style="left:0%"><span class="pointer-score" id="tradeGaugeScore">— / 100,00</span><span class="pointer-arrow" aria-hidden="true">▼</span></div></div><div class="quality-ruler-bar" id="qualityRulerBar"><div class="ruler-zone zone-red" id="rulerZoneRed" style="width:60%"><span class="zone-label">D</span></div><div class="ruler-zone zone-yellow" id="rulerZoneYellow" style="width:20%"><span class="zone-label">C / B</span></div><div class="ruler-zone zone-green" id="rulerZoneGreen" style="width:20%"><span class="zone-label">A</span></div><div class="ruler-divider" id="rulerDividerRed" style="left:60%"></div><div class="ruler-divider" id="rulerDividerYellow" style="left:80%"></div></div><div class="quality-ruler-axis"><span class="axis-mark axis-0">0</span><span class="axis-mark axis-red" id="axisMarkRed" style="left:60%">60</span><span class="axis-mark axis-yellow" id="axisMarkYellow" style="left:80%">80</span></div></div><div class="quality-ruler-grade-display"><span class="grade-label">GRADE</span><strong class="grade-val" id="tradeGaugeGrade">—</strong></div><b class="experience-status status-pending" id="tradeGaugeMessage">○ AVALIE TODOS OS CRITÉRIOS</b><div id="workbenchRubric"></div></section><section class="workbench-card workbench-sizer"><div class="workbench-sizer-head"><div class="eyebrow">3 · Nivelador de Risco</div><h3>As três camadas do seu Position Size</h3><p class="workbench-stage-subtitle">Mais segurança, mais consciência, melhores decisões.</p></div><div class="workbench-sizer-body"><div class="workbench-subcol workbench-subcol-system" id="workbenchColSystem"><div class="subcol-kicker"><span class="subcol-tag">O SISTEMA</span><span class="subcol-desc">Quanto posso operar?</span></div><div class="three-layers"><article class="layer-prism" id="tradeLayerQuality"></article><article class="layer-prism" id="tradeLayerVolatility"></article><article class="layer-prism" id="tradeLayerPortfolio"></article></div><div class="final-size"><small>POSITION SIZE FINAL</small><strong id="tradeFinalSize">0 ações</strong><span id="tradeFinalDetails">Preencha os dados para calcular.</span></div></div><div class="workbench-subcol-divider" aria-hidden="true"></div><div class="workbench-subcol workbench-subcol-execution" id="workbenchColExecution"><div class="subcol-kicker"><span class="subcol-tag">VOCÊ</span><span class="subcol-desc">Decisão e Execução</span></div><div id="workbenchExecutionMount"></div><div id="workbenchSummary"></div></div></div></section></div>`;flow.querySelector('#workbenchData').append(form);flow.querySelector('#workbenchRubric').append(rubric);flow.querySelector('#workbenchSummary').append(summary);if(typeof injectTradeFormDividers==='function')injectTradeFormDividers();updateTradingRubric()}
+function setupTradeWorkbench(){const flow=document.getElementById('tradeFlow'),form=document.querySelector('#newtrade .form-card'),rubric=document.getElementById('tradingRubric'),summary=document.querySelector('#newtrade .summary-box');if(!flow||!form||!rubric||!summary||flow.dataset.workbench==='true')return;flow.dataset.workbench='true';flow.className='trade-workbench';flow.innerHTML=`<header class="trade-workbench-head"><div class="eyebrow">Planejamento consciente</div><h2>Um fluxo em 3 etapas para um trade mais consciente</h2></header><div class="trade-workbench-grid"><section class="workbench-card workbench-trade-data" id="tradeDataStage"><div class="eyebrow">1 · Dados do Trade</div><h3>O que vou operar?</h3><p class="workbench-stage-subtitle">Defina os parâmetros essenciais da operação antes de calcular sua posição.</p><div id="workbenchData"></div></section><section class="workbench-card workbench-rubric-stage" id="tradeRubricStage"><div class="eyebrow">2 · Qualidade do Cenário</div><h3>Qualidade da Oportunidade</h3><p class="workbench-stage-subtitle">Avalie os critérios antes de liberar o risco-base.</p><div class="quality-ruler-container" id="qualityRulerContainer"><div class="quality-ruler-pointer-track"><div class="quality-ruler-pointer pointer-pending" id="qualityRulerPointer" style="left:0%"><span class="pointer-score" id="tradeGaugeScore">— / 100,00</span><span class="pointer-arrow" aria-hidden="true">▼</span></div></div><div class="quality-ruler-bar" id="qualityRulerBar"><div class="ruler-zone zone-red" id="rulerZoneRed" style="width:60%"><span class="zone-label">D</span></div><div class="ruler-zone zone-yellow" id="rulerZoneYellow" style="width:20%"><span class="zone-label">C / B</span></div><div class="ruler-zone zone-green" id="rulerZoneGreen" style="width:20%"><span class="zone-label">A</span></div><div class="ruler-divider" id="rulerDividerRed" style="left:60%"></div><div class="ruler-divider" id="rulerDividerYellow" style="left:80%"></div></div><div class="quality-ruler-axis"><span class="axis-mark axis-0">0</span><span class="axis-mark axis-red" id="axisMarkRed" style="left:60%">60</span><span class="axis-mark axis-yellow" id="axisMarkYellow" style="left:80%">80</span></div></div><div class="quality-ruler-grade-display"><span class="grade-label">GRADE</span><strong class="grade-val" id="tradeGaugeGrade">—</strong></div><b class="experience-status status-pending" id="tradeGaugeMessage">○ AVALIE TODOS OS CRITÉRIOS</b><div id="workbenchRubric"></div></section><section class="workbench-card workbench-sizer"><div class="workbench-sizer-head"><div class="eyebrow">3 · Nivelador de Risco</div><h3>Resumo da Operação</h3><p class="workbench-stage-subtitle">Validação de risco e dimensionamento da posição para execução.</p><span class="op-mode-badge is-normal" id="opModeBadge">Operação Normal</span></div><div class="workbench-sizer-body"><div class="workbench-subcol workbench-subcol-system" id="workbenchColSystem"><div class="subcol-kicker"><span class="subcol-tag">O SISTEMA</span><span class="subcol-desc">Quanto posso operar?</span></div><div class="three-layers"><article class="layer-prism" id="tradeLayerQuality"></article><article class="layer-prism" id="tradeLayerVolatility"></article><article class="layer-prism" id="tradeLayerPortfolio"></article></div><div class="final-size"><small>POSITION SIZE FINAL</small><strong id="tradeFinalSize">0 ações</strong><span id="tradeFinalDetails">Preencha os dados para calcular.</span></div></div><div class="workbench-subcol-divider" aria-hidden="true"></div><div class="workbench-subcol workbench-subcol-execution" id="workbenchColExecution"><div class="subcol-kicker"><span class="subcol-tag">VOCÊ</span><span class="subcol-desc">Decisão e Execução</span></div><div id="workbenchExecutionMount"></div><div id="workbenchSummary"></div></div></div></section></div>`;flow.querySelector('#workbenchData').append(form);flow.querySelector('#workbenchRubric').append(rubric);flow.querySelector('#workbenchSummary').append(summary);if(typeof injectTradeFormDividers==='function')injectTradeFormDividers();updateTradingRubric()}
 setupTradeWorkbench();
 function moveExecutedQuantityToRiskStage(){const input=document.getElementById('tradeExecutedQty'),sizer=document.querySelector('.workbench-sizer');const field=input?.closest('.field');if(!field||!sizer)return;field.classList.add('executed-quantity-control');field.querySelector('label').textContent='Quantidade da operação';const hint=field.querySelector('small');if(hint)hint.textContent='Sugestão calculada pelo menor limitador da política. Você pode ajustar antes de registrar o trade.';const mount=document.getElementById('workbenchExecutionMount');if(mount){mount.appendChild(field)}else{sizer.querySelector('.final-size')?.after(field)}}
 moveExecutedQuantityToRiskStage();
@@ -2307,7 +2363,7 @@ go=function(id, ...args){const destination=id==='risk'?'newtrade':id;goWithEmbed
 <style>
 .analytics-real-list{display:grid;gap:13px;padding:6px 0}.analytics-real-list>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;font-size:13px}.analytics-real-list>div span{font-weight:700}.analytics-real-list>div b{text-align:right}.analytics-real-list i{grid-column:1/-1;height:7px;border-radius:99px;background:var(--line);overflow:hidden}.analytics-real-list i em{display:block;height:100%;border-radius:inherit;background:var(--primary)}
 .relative-controls .relative-data-freshness{margin:0 0 0 auto}.relative-data-freshness{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid color-mix(in srgb,var(--good) 26%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--good) 8%,var(--paper));color:var(--muted);font-size:10px;font-weight:700;line-height:1.35}.relative-data-freshness i{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px color-mix(in srgb,var(--good) 16%,transparent)}.relative-filter-guide .guide-item b{font-size:14px}.relative-filter-guide .guide-item p{font-size:12px}.relative-table .rs-band-divider td{font-size:13px!important;letter-spacing:.1em}body:not([data-theme="healthy"]) .relative-data-freshness{border-color:rgba(220,179,84,.34);background:rgba(220,179,84,.1);color:#d9c899}body:not([data-theme="healthy"]) .relative-data-freshness i{background:#e0b952;box-shadow:0 0 0 4px rgba(224,185,82,.13)}@media(max-width:850px){.relative-controls .relative-data-freshness{width:100%;margin:0;justify-content:flex-start}}
-.truth-panel{position:relative;isolation:isolate;padding:12px 8px 30px;overflow:hidden}.truth-panel:before{content:"";position:absolute;z-index:-2;inset:-70px -90px -90px;background:radial-gradient(ellipse 44% 50% at 80% 10%,rgba(151,214,176,.26),transparent 70%),radial-gradient(ellipse 36% 44% at 10% 82%,rgba(239,212,158,.26),transparent 72%),linear-gradient(135deg,rgba(255,255,255,.36),rgba(235,241,231,.3));border-radius:38px}.truth-panel:after{content:"";position:absolute;z-index:-1;width:min(56vw,790px);height:min(56vw,790px);right:-23%;top:145px;border:1px solid rgba(50,101,76,.13);border-radius:48% 52% 44% 56%;box-shadow:inset 0 0 0 18px rgba(255,255,255,.12),inset 0 0 80px rgba(68,125,94,.11);transform:rotate(-16deg);opacity:.9}.truth-panel .hero{position:relative;min-height:150px;align-items:center;margin:0 0 20px;padding:25px 28px;border:1px solid rgba(22,69,50,.1);border-radius:24px;background:linear-gradient(105deg,rgba(255,255,255,.78),rgba(255,255,255,.34));backdrop-filter:blur(13px);overflow:hidden}.truth-panel .hero:after{content:"";position:absolute;width:180px;height:1px;right:36px;bottom:22px;background:linear-gradient(90deg,transparent,#5a9c77,transparent);transform:rotate(-6deg)}.truth-panel .hero h1{font-size:clamp(38px,4vw,58px)}.truth-panel .hero p{padding-right:160px}.truth-reflection{position:absolute;right:45px;top:26px;width:185px;text-align:center;color:rgba(27,81,59,.72);font-size:9px;letter-spacing:.42em;line-height:1.8}.truth-reflection span,.truth-reflection b{display:block}.truth-reflection b{font-size:10px;letter-spacing:.3em}.truth-reflection i{display:block;width:76px;height:28px;margin:9px auto 0;border-top:2px solid rgba(61,131,91,.72);border-radius:50%;transform:rotate(-7deg)}.truth-panel .card{background:rgba(255,255,255,.75);backdrop-filter:blur(9px)}.analytics-monthly .empty-month td{color:#9aa69f;background:rgba(246,246,240,.34)}.analytics-monthly .has-data td:first-child{box-shadow:inset 3px 0 0 var(--mint)}
+.truth-panel{position:relative;isolation:isolate;padding:12px 8px 30px;overflow:hidden}.truth-panel:before{content:"";position:absolute;z-index:-2;inset:-70px -90px -90px;background:radial-gradient(ellipse 44% 50% at 80% 10%,rgba(151,214,176,.26),transparent 70%),radial-gradient(ellipse 36% 44% at 10% 82%,rgba(239,212,158,.26),transparent 72%),linear-gradient(135deg,rgba(255,255,255,.36),rgba(235,241,231,.3));border-radius:38px}.truth-panel:after{content:"";position:absolute;z-index:-1;width:min(56vw,790px);height:min(56vw,790px);right:-23%;top:145px;border:1px solid rgba(50,101,76,.13);border-radius:48% 52% 44% 56%;box-shadow:inset 0 0 0 18px rgba(255,255,255,.12),inset 0 0 80px rgba(68,125,94,.11);transform:rotate(-16deg);opacity:.9}.truth-panel .hero{position:relative;min-height:185px;align-items:center;margin:0 0 20px;padding:25px 28px;border:1px solid rgba(22,69,50,.1);border-radius:24px;overflow:hidden}.truth-panel .hero:after{content:"";position:absolute;width:180px;height:1px;right:36px;bottom:22px;background:linear-gradient(90deg,transparent,#5a9c77,transparent);transform:rotate(-6deg)}.truth-panel .hero h1{font-size:clamp(38px,4vw,58px)}.truth-panel .hero p{padding-right:160px}.truth-reflection{position:absolute;right:45px;top:26px;width:185px;text-align:center;color:rgba(180,230,200,.85);font-size:9px;letter-spacing:.42em;line-height:1.8;z-index:3}.truth-reflection span,.truth-reflection b{display:block}.truth-reflection b{font-size:10px;letter-spacing:.3em;color:#fff}.truth-reflection i{display:block;width:76px;height:28px;margin:9px auto 0;border-top:2px solid rgba(137,217,159,.8);border-radius:50%;transform:rotate(-7deg)}.truth-panel .card{background:rgba(255,255,255,.75);backdrop-filter:blur(9px)}.analytics-monthly .empty-month td{color:#9aa69f;background:rgba(246,246,240,.34)}.analytics-monthly .has-data td:first-child{box-shadow:inset 3px 0 0 var(--mint)}
 .truth-filter-card{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:center;margin-bottom:18px;padding:18px 20px}.truth-filter-card p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.5}.truth-filter-fields{display:flex;flex-wrap:wrap;align-items:end;gap:9px}.truth-filter-fields label{display:grid;gap:5px;min-width:125px}.truth-filter-fields label span{font-size:9px;font-weight:850;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}.truth-filter-fields select{height:36px;border:1px solid var(--line);border-radius:10px;padding:0 28px 0 10px;background:rgba(255,255,255,.75);color:var(--ink);font:600 11px/1 Inter,system-ui,sans-serif}.truth-filter-actions{display:flex;align-items:center;gap:8px;margin-left:auto}.truth-filter-actions button{font-size:11px;white-space:nowrap}.analytics-advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.truth-chart-card{min-height:315px;padding:22px}.truth-chart-card:last-child{grid-column:1/-1;min-height:300px}.truth-chart-card h3{margin:5px 0 0;font-size:21px}.truth-chart-card .card-head{align-items:start}.truth-line-chart,.truth-distribution-chart{display:block;width:100%;height:220px;margin-top:17px;overflow:visible}.truth-chart-grid{fill:none;stroke:var(--line);stroke-width:1}.truth-chart-line{fill:none;stroke:var(--chart-color);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}.truth-chart-area{fill:var(--chart-color);opacity:.12}.truth-histogram-bars rect{fill:color-mix(in srgb,var(--good) 44%,#fff);stroke:color-mix(in srgb,var(--good) 16%,transparent)}.truth-distribution-line{fill:none;stroke:var(--ink-3);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.truth-distribution-chart text{fill:var(--muted);font-size:11px;font-weight:700}.truth-payoff{padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--good) 14%,var(--paper));color:var(--ink-3);font-size:12px;white-space:nowrap}.truth-chart-empty{display:grid;place-items:center;min-height:200px;margin-top:17px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:13px;text-align:center;padding:24px}.truth-panel .analytics-advanced-grid+.analytics-breakdown-grid{margin-top:18px}@media(max-width:1180px){.truth-filter-card{grid-template-columns:1fr}.truth-filter-actions{margin-left:0}}@media(max-width:850px){.analytics-advanced-grid{grid-template-columns:1fr}.truth-chart-card:last-child{grid-column:auto}.truth-filter-actions{width:100%;flex-wrap:wrap}.truth-filter-fields label{flex:1 1 145px}}
 .analytics-breakdown-grid{grid-template-columns:1fr 1fr;margin-top:18px}.truth-breakdown{padding:23px}.truth-breakdown .eyebrow{font-size:12px}.truth-breakdown .card-head{margin:8px 0 15px}.truth-breakdown .card-head h3{font-size:21px}.truth-breakdown .card-head span{font-size:13px;line-height:1.5}.truth-breakdown-list{display:grid;gap:2px}.truth-breakdown-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 2px;border-top:1px solid var(--line)}.truth-breakdown-row:first-child{border-top:0}.truth-breakdown-row b,.truth-breakdown-row strong,.truth-breakdown-row small{display:block}.truth-breakdown-row b{font-size:15px}.truth-breakdown-row strong{text-align:right;font-size:17px}.truth-breakdown-row small{margin-top:4px;color:var(--muted);font-size:12px}.truth-breakdown-row>div:last-child{min-width:150px;text-align:right}.truth-breakdown-empty{margin:8px 0;color:var(--muted);font-size:14px}.truth-breakdown-market-cycle{border-color:color-mix(in srgb,var(--good) 30%,var(--line))}.truth-grade-breakdown{grid-column:1/-1;border-color:color-mix(in srgb,var(--good) 34%,var(--line));background:linear-gradient(135deg,rgba(255,255,255,.8),color-mix(in srgb,var(--good) 7%,rgba(255,255,255,.8)))!important}.truth-grade-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}.truth-grade-setup{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.42)}.truth-grade-setup header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;background:color-mix(in srgb,var(--good) 9%,var(--paper));border-bottom:1px solid var(--line)}.truth-grade-setup header b{font-size:14px}.truth-grade-setup header span{color:var(--muted);font-size:11px;white-space:nowrap}.truth-grade-head,.truth-grade-row{display:grid;grid-template-columns:82px 62px minmax(105px,1fr) minmax(175px,1.45fr);align-items:center;gap:10px;padding:11px 15px}.truth-grade-head{color:var(--muted);font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.truth-grade-row{border-top:1px solid var(--line);font-size:13px}.truth-grade-row>span{font-weight:750}.truth-grade-row strong{font-size:14px}.truth-grade-row em{font-style:normal;font-weight:800;font-size:14px}.truth-grade-row em small{display:inline;margin-left:4px;color:var(--muted);font-weight:650;font-size:10px}.truth-grade-badge{display:inline-flex;justify-content:center;align-items:center;width:max-content;min-width:34px;padding:4px 7px;border-radius:999px;background:#e5f4e9;color:#237246;font-size:11px}.truth-grade-badge.grade-a{background:#d7f4dc;color:#16603a}.truth-grade-badge.grade-b{background:#fff0ca;color:#8a6413}.truth-grade-badge.grade-c,.truth-grade-badge.grade-d{background:#f9dfd8;color:#9a473f}@media(max-width:900px){.analytics-breakdown-grid{grid-template-columns:1fr}.truth-grade-breakdown{grid-column:auto}}@media(max-width:610px){.truth-grade-list{grid-template-columns:1fr}.truth-grade-head{display:none}.truth-grade-row{grid-template-columns:52px 1fr;gap:6px;padding:12px 14px}.truth-grade-row>span{grid-column:2}.truth-grade-row strong,.truth-grade-row em{grid-column:2}.truth-grade-row em small{display:block;margin:3px 0 0}.truth-grade-setup header{align-items:flex-start;flex-direction:column;gap:4px}}
 .analytics-summary-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}.analytics-summary-grid .card{padding:18px}.analytics-summary-grid small,.analytics-summary-grid span{display:block;color:var(--muted);font-size:11px}.analytics-summary-grid small{text-transform:uppercase;letter-spacing:.1em;font-weight:800}.analytics-summary-grid strong{display:block;margin:9px 0 6px;font-size:26px}.analytics-monthly{margin-top:18px}.analytics-table-wrap{overflow:auto}.analytics-monthly table{width:100%;border-collapse:collapse;font-size:12px;min-width:850px}.analytics-monthly th,.analytics-monthly td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right}.analytics-monthly th:first-child,.analytics-monthly td:first-child{text-align:left}.analytics-monthly th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em}.analytics-truth{padding:22px}.analytics-truth h3{margin:8px 0 16px}.analytics-truth p{color:var(--muted);line-height:1.6;font-size:13px}@media(max-width:1100px){.analytics-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.truth-panel .hero p{padding-right:0}.truth-reflection{right:24px}}@media(max-width:700px){.truth-panel{padding:0}.truth-panel .hero{padding:24px 20px;min-height:0}.truth-panel .hero:after,.truth-reflection{display:none}.truth-panel .hero h1{font-size:38px}}@media(max-width:560px){.analytics-summary-grid{grid-template-columns:1fr}}
@@ -2562,6 +2618,10 @@ function calculateExecutableSizing(result,values={}){
   if(activeMission && activeMission.status === 'ACTIVE' && Number(activeMission.riskPct) > 0){
     riskBudgetPct = Math.min(riskBudgetPct, Number(activeMission.riskPct));
   }
+  const rebuildState = (typeof window !== 'undefined' && window.RebuildModeModel?.getRebuildState) ? window.RebuildModeModel.getRebuildState() : null;
+  if(rebuildState && rebuildState.isActive && Number(rebuildState.maxRiskPct) > 0){
+    riskBudgetPct = Math.min(riskBudgetPct, Number(rebuildState.maxRiskPct));
+  }
   return TradingRubrics.calculatePolicyPositionSizing({
     policy:riskPolicyState,
     profileKey:result?.profile?.key||riskPolicyState.selectedProfile,
@@ -2707,8 +2767,8 @@ function refreshWorkbenchRiskGate(){const sizer=document.querySelector('.workben
 const updateTradingRubricWithWorkbenchGate=updateTradingRubric;
 function syncWorkbenchRiskSummary(result){
   if(!result)return;
-  const sizerHeading=document.querySelector('.workbench-sizer-head h3');if(sizerHeading)sizerHeading.textContent='Do Risk Budget ao Position Size final';
-  const sizerSubtitle=document.querySelector('.workbench-sizer-head .workbench-stage-subtitle');if(sizerSubtitle)sizerSubtitle.textContent='Qualidade primeiro; exposição da conta e da carteira em seguida.';
+  const sizerHeading=document.querySelector('.workbench-sizer-head h3');if(sizerHeading)sizerHeading.textContent='Resumo da Operação';
+  const sizerSubtitle=document.querySelector('.workbench-sizer-head .workbench-stage-subtitle');if(sizerSubtitle)sizerSubtitle.textContent='Validação de risco e dimensionamento da posição para execução.';
   const sizerHead=document.querySelector('.workbench-sizer-head');
   let policyShortcut=sizerHead?.querySelector('.risk-policy-shortcut');
   if(sizerHead&&!policyShortcut){
@@ -2887,6 +2947,21 @@ policyAllowsNewTrade=function(){
   if(plan.limitingLayer==='portfolio'){showToast('TRADE BLOQUEADO POR RISCO: não há capacidade disponível no Portfolio Heat.');return false}
   if(plan.riskPct<=0){showToast('A Política de Risco não possui capacidade executável para uma nova posição.');return false}
   if(!validation.allowed){showToast(validation.heatAllowed?'Limite de posições atingido.':'TRADE BLOQUEADO POR RISCO: o Portfolio Heat seria ultrapassado.');return false}
+  const activeMission=(typeof window!=='undefined'&&window.MissionModel?.getActiveMission)?window.MissionModel.getActiveMission():null;
+  if(activeMission&&activeMission.status==='ACTIVE'){
+    if(activeMission.mode==='REBUILD'&&real.length>=1){
+      showToast('Operação bloqueada pelo Modo Recuperação: você já possui uma posição aberta. Durante o Rebuild, é permitido operar apenas uma posição por vez.');
+      return false;
+    }
+    if(Number(activeMission.riskPct)>0){
+      const missionLimitPct=Number(activeMission.riskPct)*100;
+      if(effectiveRiskPct>(missionLimitPct+0.0201)){
+        const modeLabel = activeMission.mode === 'REBUILD' ? 'do seu Modo Recuperação (Rebuild)' : 'da sua Missão ativa';
+        showToast(`Operação bloqueada: o risco (${effectiveRiskPct.toFixed(2).replace('.',',')}%) excede o limite de ${missionLimitPct.toFixed(2).replace('.',',')}% definido ${modeLabel}. Reduza a quantidade ou ajuste o stop.`);
+        return false;
+      }
+    }
+  }
   return true
 };
 rebuildRiskRubric();updateTradingRubric();
@@ -4243,9 +4318,9 @@ renderEffectiveRiskPolicy();
       const stageSubtitle=document.querySelector('#tradeRubricStage .workbench-stage-subtitle');
       if(stageSubtitle)stageSubtitle.textContent='Avalie os critérios para definir o Risk Budget da oportunidade.';
       const sizingTitle=document.querySelector('.workbench-sizer-head h3');
-      if(sizingTitle)sizingTitle.textContent='Do Risk Budget ao Position Size final';
+      if(sizingTitle)sizingTitle.textContent='Resumo da Operação';
       const sizingSubtitle=document.querySelector('.workbench-sizer-head .workbench-stage-subtitle');
-      if(sizingSubtitle)sizingSubtitle.textContent='O sistema calcula quanto a conta e a carteira podem efetivamente comportar.';
+      if(sizingSubtitle)sizingSubtitle.textContent='Validação de risco e dimensionamento da posição para execução.';
       const experienceIntro=document.querySelector('.rubric-experience-header p');
       if(experienceIntro)experienceIntro.textContent='Avalie os critérios para definir o Risk Budget da oportunidade.';
       const experienceSteps=document.querySelectorAll('.rubric-experience-stepper span');
@@ -4352,343 +4427,459 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
       const qtyControl = sizer.querySelector('.executed-quantity-control');
       const executedInput = document.getElementById('tradeExecutedQty');
 
-      // Limpar resíduos legados do Desafio Grade A
+      sizer.classList.add('has-operation-summary');
+
+      const isMissionActive = Boolean(
+        window.MissionModel &&
+        typeof window.MissionModel.isMissionActive === 'function' &&
+        window.MissionModel.isMissionActive()
+      );
+      const activeMission = isMissionActive ? window.MissionModel.getActiveMission() : null;
+      const rebuildState = (typeof window !== 'undefined' && window.RebuildModeModel?.getRebuildState) ? window.RebuildModeModel.getRebuildState() : null;
+      const isRebuild = Boolean((activeMission && activeMission.mode === 'REBUILD') || (rebuildState && rebuildState.isActive));
+      const isMission = Boolean(isMissionActive && !isRebuild);
+
+      let missionContainer = document.getElementById('missionWorkbenchExperience');
+      const summaryMount = document.getElementById('workbenchSummary');
+      const executionMount = document.getElementById('workbenchExecutionMount');
+      const qtyControl = sizer.querySelector('.executed-quantity-control');
+      const executedInput = document.getElementById('tradeExecutedQty');
+
+      // Limpar resíduos legados
       document.getElementById('courageActiveTradeBanner')?.remove();
       document.getElementById('courageConsciousRiskCard')?.remove();
       document.getElementById('courageQuantityExperience')?.remove();
-      const sizerHeadBadge = document.querySelector('.workbench-mission-badge');
-      if (sizerHeadBadge) sizerHeadBadge.remove();
+      document.getElementById('missionBlockBanner')?.remove();
+      const legacyMissionBadge = document.querySelector('.workbench-mission-badge');
+      if (legacyMissionBadge) legacyMissionBadge.remove();
 
-      if (isMissionActive && activeMission && Number(activeMission.riskPct) > 0) {
-        // 1. Ocultar o box de resumo duplicado na coluna de execução
-        if (summaryMount) summaryMount.style.display = 'none';
+      // Ocultar resumo duplicado e controle antigo
+      if (summaryMount) summaryMount.style.display = 'none';
+      if (qtyControl) qtyControl.style.display = 'none';
 
-        // 2. Ocultar o controle padrão de quantidade
-        if (qtyControl) qtyControl.style.display = 'none';
+      // 1. Indicador de modo operacional no cabeçalho
+      const sizerHead = sizer.querySelector('.workbench-sizer-head');
+      if (sizerHead) {
+        const sizerHeading = sizerHead.querySelector('h3');
+        if (sizerHeading) sizerHeading.textContent = 'Resumo da Operação';
+        const sizerSubtitle = sizerHead.querySelector('.workbench-stage-subtitle');
+        if (sizerSubtitle) sizerSubtitle.textContent = 'Validação de risco e dimensionamento da posição para execução.';
 
-        // 3. Cálculos centrais com base na política e nos dados informados
-        const sizing = calculateExecutableSizing(result || { riskBudgetPct: 0, riskPct: 0, profile: selectedRiskProfile() });
-        const missionRiskPct = Number(activeMission.riskPct || 0.001) * 100;
-        const targetRisk = Number(sizing.executableRiskPercent || 0);
-        const suggestedQty = Number(sizing.quantity || 0);
-
-        let grade = result?.grade || result?.rubricGrade;
-        if (!grade) {
-          const q = document.getElementById('tradeLayerQuality');
-          const b = q?.querySelector('b');
-          if (b) grade = b.textContent.trim();
-        }
-        if (!grade || grade === '—' || grade === 'Pending') grade = 'A';
-
-        const normalizedPolicy = window.TradingRubrics?.normalizePolicy(window.riskPolicyState || riskPolicyState);
-        const matchedGradeObj = normalizedPolicy?.grades?.find(g => g.grade === grade);
-        const theoreticalGradeRisk = matchedGradeObj ? (matchedGradeObj.riskPct * 100) : (Number(result?.gradeRiskPct || result?.riskBudgetPct || 0.01) * 100);
-
-        const entry = Number(document.getElementById('entry')?.value) || 0;
-        const stop = Number(document.getElementById('stop')?.value) || 0;
-        const equity = (typeof OPERATIONAL_EQUITY !== 'undefined' ? OPERATIONAL_EQUITY : (window.OPERATIONAL_EQUITY || 1029500));
-        const distance = Math.abs(entry - stop);
-
-        const isManualOverride = executedInput?.dataset?.manualOverride === 'true';
-        let currentQty = suggestedQty;
-        if (isManualOverride && executedInput && executedInput.value !== '') {
-          currentQty = Number(executedInput.value) || 0;
-        } else if (executedInput && !isManualOverride) {
-          executedInput.value = String(suggestedQty);
-        }
-
-        const financialRisk = (entry > 0 && stop > 0 && currentQty > 0) ? (distance * currentQty) : sizing.initialRisk;
-        const financialRiskSuggested = (entry > 0 && stop > 0 && suggestedQty > 0) ? (distance * suggestedQty) : sizing.initialRisk;
-        const capitalUsed = (entry > 0 && currentQty > 0) ? (entry * currentQty) : (sizing.quantity * (entry || 48.3));
-        const actualRiskPct = (equity > 0 && financialRisk > 0) ? ((financialRisk / equity) * 100) : targetRisk;
-        const isInitialBlocked = actualRiskPct > (missionRiskPct + 0.0201);
-
-        let ceilingExplanation = '';
-        if (theoreticalGradeRisk > missionRiskPct) {
-          ceilingExplanation = `A qualidade do setup permite até ${numBR(theoreticalGradeRisk, 2)}%, mas a Missão é mais restritiva. Por isso, o risco efetivo desta operação permanece em ${numBR(missionRiskPct, 2)}%. O sistema sempre prioriza o limite mais restritivo para proteger seu capital.`;
-        } else {
-          ceilingExplanation = `A qualidade do setup e a Missão coincidem no teto de ${numBR(missionRiskPct, 2)}%. O sistema sempre prioriza o limite mais restritivo para proteger seu capital.`;
-        }
-
-        if (!missionContainer) {
-          missionContainer = document.createElement('div');
-          missionContainer.id = 'missionWorkbenchExperience';
-          missionContainer.className = 'mission-workbench-container';
-
-          if (executionMount) {
-            executionMount.appendChild(missionContainer);
+        let modeBadge = sizerHead.querySelector('#opModeBadge');
+        if (!modeBadge) {
+          modeBadge = document.createElement('span');
+          modeBadge.id = 'opModeBadge';
+          const shortcut = sizerHead.querySelector('.risk-policy-shortcut');
+          if (shortcut) {
+            shortcut.before(modeBadge);
           } else {
-            sizer.appendChild(missionContainer);
+            sizerHead.append(modeBadge);
           }
         }
+        modeBadge.className = `op-mode-badge ${isRebuild ? 'is-rebuild' : (isMission ? 'is-mission' : 'is-normal')}`;
+        modeBadge.textContent = isRebuild ? '🦅 Rebuild Ativo' : (isMission ? '🎯 Missão Ativa' : 'Operação Normal');
 
-        missionContainer.innerHTML = `
-          <!-- Card 1: Missão Ativa em Destaque — Âmbar / Dourado Luminoso -->
-          <div class="mission-workbench-card mission-active-card">
-            <div class="mission-card-top">
-              <div class="mission-shield-badge" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  <path d="m9 12 2 2 4-4"/>
-                </svg>
-              </div>
-              <div class="mission-header-info">
-                <h4 class="mission-card-title">MISSÃO ATIVA</h4>
-                <p class="mission-card-subtitle">Operando com risco reduzido conforme sua missão.</p>
-              </div>
-              <div class="mission-status-pill">
-                <span class="status-dot"></span> Ativa
-              </div>
-            </div>
-            <div class="mission-card-bottom">
-              <div class="mission-risk-col">
-                <span class="mission-label-eyebrow">RISCO MÁXIMO POR TRADE</span>
-                <div class="mission-risk-value" id="missionActiveRiskDisplay">${numBR(missionRiskPct, 2)}%</div>
-              </div>
-              <div class="mission-origin-col">
-                <span class="mission-origin-title">Definido pela Missão</span>
-                <span class="mission-origin-sub">Limite em vigor <span class="mission-info-icon" style="color:#f59e0b;font-size:12px;" aria-hidden="true">ⓘ</span></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 2: Teto Teórico do Grade em Segundo Plano (Ampliado para widescreen) -->
-          <div class="mission-workbench-card mission-ceiling-card">
-            <div class="mission-ceiling-top">
-              <div class="mission-ceiling-title-wrap">
-                <svg class="mission-bars-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <line x1="18" y1="20" x2="18" y2="10"/>
-                  <line x1="12" y1="20" x2="12" y2="4"/>
-                  <line x1="6" y1="20" x2="6" y2="14"/>
-                </svg>
-                <span class="mission-ceiling-label">Teto teórico pelo Grade ${grade}</span>
-              </div>
-              <span class="mission-ceiling-info-icon" title="O limite da Missão tem precedência sobre o teto do Grade" aria-hidden="true">ⓘ</span>
-            </div>
-            <div class="mission-ceiling-body">
-              <div class="mission-ceiling-val">${numBR(theoreticalGradeRisk, 2)}%</div>
-              <p class="mission-ceiling-desc">${ceilingExplanation}</p>
-            </div>
-          </div>
-
-          <!-- Card 3: Área Unificada de Decisão e Execução -->
-          <div class="mission-workbench-card mission-execution-card">
-            <div class="mission-exec-head">
-              <div class="mission-step-badge">3</div>
-              <div class="mission-exec-head-text">
-                <h4>3. Quantidade e risco da operação</h4>
-                <p>Defina a quantidade. O cálculo respeita o limite da Missão.</p>
-              </div>
-            </div>
-
-            <div class="mission-qty-control-row">
-              <div class="mission-qty-input-col">
-                <label for="tradeExecutedQty" class="mission-qty-label">Quantidade de ações</label>
-                <div class="mission-stepper-wrap">
-                  <div id="missionInputMount" style="flex:1;height:100%;"></div>
-                  <div class="mission-stepper-btns">
-                    <button type="button" class="mission-step-btn" id="missionStepUpBtn" title="Aumentar quantidade (+100)">▲</button>
-                    <button type="button" class="mission-step-btn" id="missionStepDownBtn" title="Diminuir quantidade (-100)">▼</button>
-                  </div>
-                </div>
-              </div>
-              <div class="mission-violation-box" id="missionRiskViolationBox" style="display:${isInitialBlocked ? 'flex' : 'none'};">
-                <div class="mission-violation-icon" aria-hidden="true">▲</div>
-                <div class="mission-violation-content">
-                  <strong class="mission-violation-title">Excede o limite da Missão</strong>
-                  <p class="mission-violation-desc" id="missionViolationDesc">O risco desta operação seria ${numBR(actualRiskPct, 2)}%, acima do limite de ${numBR(missionRiskPct, 2)}%.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="mission-exec-metrics-grid">
-              <div class="mission-metric-block">
-                <span class="mission-label-eyebrow">RISCO FINANCEIRO</span>
-                <strong class="mission-metric-main" id="missionRiskMoneyValue">${financialRisk.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
-                <span class="mission-metric-sub ${isInitialBlocked ? 'is-risk-blocked' : 'is-risk-allowed'}" id="missionRiskPctSub">${numBR(actualRiskPct, 2)}% do seu capital</span>
-              </div>
-              <div class="mission-metric-block">
-                <span class="mission-label-eyebrow">CAPITAL UTILIZADO</span>
-                <strong class="mission-metric-main" id="missionCapitalUsedValue">${capitalUsed.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}</strong>
-                <span class="mission-metric-sub">Aproximadamente</span>
-              </div>
-            </div>
-
-            <button type="button" class="mission-register-btn ${isInitialBlocked ? 'is-risk-blocked' : ''}" id="missionRegisterTradeBtn" ${isInitialBlocked ? 'disabled aria-disabled="true"' : ''}>
-              ${isInitialBlocked ? '🔒 Registrar trade →' : 'Registrar trade →'}
-            </button>
-
-            <div class="mission-block-banner" id="missionBlockBanner" style="display:${isInitialBlocked ? 'flex' : 'none'};">
-              <div class="mission-block-icon" aria-hidden="true">ⓘ</div>
-              <div class="mission-block-content">
-                <strong class="mission-block-title">Não é possível registrar este trade</strong>
-                <p class="mission-block-desc">A quantidade informada excede o limite de risco definido pela sua Missão (${numBR(missionRiskPct, 2)}%). Ajuste a quantidade para continuar.</p>
-              </div>
-            </div>
-
-            <div class="mission-max-allowed-card" id="missionMaxAllowedCard" title="Clique para restaurar a quantidade máxima permitida" style="cursor:pointer;">
-              <div class="mission-max-allowed-top">
-                <div class="mission-max-allowed-left">
-                  <div class="mission-coin-icon" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="9"/>
-                      <path d="M14.8 9A2 2 0 0 0 13 8h-2a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4h-2a2 2 0 0 1-1.8-1"/>
-                      <path d="M12 6v2m0 8v2"/>
-                    </svg>
-                  </div>
-                  <div class="mission-max-allowed-info">
-                    <small>Position Size Final (máximo permitido)</small>
-                    <strong id="missionMaxQtyNumber">${numBR(suggestedQty, 0)} ações</strong>
-                  </div>
-                </div>
-                <div class="mission-max-allowed-right">
-                  <span class="mission-max-risk-money" id="missionMaxRiskMoney">Risco: ${financialRiskSuggested.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                  <span class="mission-max-risk-pct">(${numBR(missionRiskPct, 2)}% do seu capital)</span>
-                </div>
-              </div>
-              <small class="mission-max-allowed-note">Calculado com base no limite da sua Missão ativa.</small>
-            </div>
-          </div>
-        `;
-
-        if (executedInput) {
-          missionContainer.querySelector('#missionInputMount')?.appendChild(executedInput);
-          executedInput.disabled = false;
-          executedInput.removeAttribute('disabled');
+        let policyShortcut = sizerHead.querySelector('.risk-policy-shortcut');
+        if (!policyShortcut) {
+          policyShortcut = document.createElement('button');
+          policyShortcut.type = 'button';
+          policyShortcut.className = 'secondary risk-policy-shortcut';
+          policyShortcut.innerHTML = '<span aria-hidden="true">⚙</span> Consultar Política de Risco <b aria-hidden="true">→</b>';
+          policyShortcut.onclick = () => go('riskpolicy');
+          sizerHead.append(policyShortcut);
         }
+      }
 
-        document.getElementById('newtrade')?.classList.add('has-mission-active');
-        document.getElementById('newtrade')?.classList.add('courage-detachment-active');
+      // 2. Cálculos centrais com base na política de risco e no ativo
+      const entry = Number(document.getElementById('entry')?.value) || 0;
+      const stop = Number(document.getElementById('stop')?.value) || 0;
+      const atr = Number(document.getElementById('atr')?.value) || 0;
+      const equity = (typeof OPERATIONAL_EQUITY !== 'undefined' ? OPERATIONAL_EQUITY : (window.OPERATIONAL_EQUITY || 1029500));
+      const distance = Math.abs(entry - stop);
 
-        function recomputeMissionMetrics() {
-          const inputVal = Number(executedInput?.value) || 0;
-          const fRisk = (entry > 0 && stop > 0 && inputVal > 0) ? (distance * inputVal) : sizing.initialRisk;
-          const cUsed = entry > 0 ? (entry * inputVal) : (inputVal * (entry || 48.3));
-          const rPct = equity > 0 ? ((fRisk / equity) * 100) : targetRisk;
-          const isRiskBlocked = rPct > (missionRiskPct + 0.0201);
+      const sizing = calculateExecutableSizing(result || { riskBudgetPct: 0, riskPct: 0, profile: selectedRiskProfile() }, { entry, stop, atr });
+      const suggestedQty = Number(sizing.quantity || 0);
 
-          const riskMoneyEl = document.getElementById('missionRiskMoneyValue');
-          const riskPctSubEl = document.getElementById('missionRiskPctSub');
-          const capUsedEl = document.getElementById('missionCapitalUsedValue');
-          const violationBox = document.getElementById('missionRiskViolationBox');
-          const violationDesc = document.getElementById('missionViolationDesc');
-          const blockBanner = document.getElementById('missionBlockBanner');
-          const regBtn = document.getElementById('missionRegisterTradeBtn');
+      const assetInput = document.getElementById('tradeAsset');
+      const assetName = (assetInput?.value || '').trim().toUpperCase() || 'o ativo';
 
-          if (riskMoneyEl) riskMoneyEl.textContent = fRisk.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-          if (riskPctSubEl) {
-            riskPctSubEl.textContent = numBR(rPct, 2) + '% do seu capital';
-            riskPctSubEl.classList.toggle('is-risk-blocked', isRiskBlocked);
-            riskPctSubEl.classList.toggle('is-risk-allowed', !isRiskBlocked);
-          }
-          if (capUsedEl) capUsedEl.textContent = cUsed.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+      let grade = result?.grade || result?.rubricGrade;
+      if (!grade) {
+        const q = document.getElementById('tradeLayerQuality');
+        const b = q?.querySelector('b');
+        if (b) grade = b.textContent.trim();
+      }
+      if (!grade || grade === '—' || grade === 'Pending') grade = 'A';
 
-          if (violationBox && violationDesc) {
-            violationBox.style.display = isRiskBlocked ? 'flex' : 'none';
-            if (isRiskBlocked) {
-              violationDesc.textContent = `O risco desta operação seria ${numBR(rPct, 2)}%, acima do limite de ${numBR(missionRiskPct, 2)}%.`;
-            }
-          }
+      const normalizedPolicy = window.TradingRubrics?.normalizePolicy(window.riskPolicyState || riskPolicyState);
+      const matchedGradeObj = normalizedPolicy?.grades?.find(g => g.grade === grade);
+      const theoreticalGradeRisk = matchedGradeObj ? (matchedGradeObj.riskPct * 100) : (Number(result?.gradeRiskPct || result?.riskBudgetPct || 0.01) * 100);
 
-          if (blockBanner) {
-            blockBanner.style.display = isRiskBlocked ? 'flex' : 'none';
-          }
+      let missionRiskPct = 0;
+      if (activeMission && Number(activeMission.riskPct) > 0) {
+        missionRiskPct = Number(activeMission.riskPct) * 100;
+      } else if (rebuildState && Number(rebuildState.maxRiskPct) > 0) {
+        missionRiskPct = Number(rebuildState.maxRiskPct) * 100;
+      }
 
-          if (regBtn) {
-            regBtn.classList.toggle('is-risk-blocked', isRiskBlocked);
-            if (isRiskBlocked) {
-              regBtn.disabled = true;
-              regBtn.setAttribute('aria-disabled', 'true');
-              regBtn.innerHTML = '🔒 Registrar trade →';
-              regBtn.title = `Operação bloqueada: o risco (${numBR(rPct, 2)}%) excede o limite de ${numBR(missionRiskPct, 2)}% da sua Missão ativa.`;
-            } else {
-              regBtn.disabled = false;
-              regBtn.removeAttribute('aria-disabled');
-              regBtn.innerHTML = 'Registrar trade →';
-              regBtn.title = 'Registrar trade planejado';
-              if (typeof refreshWorkbenchRiskGate === 'function') {
-                refreshWorkbenchRiskGate();
-              }
-            }
-          }
-        }
+      const maxAllowedRiskPct = isRebuild ? (missionRiskPct || 0.10) : (isMission ? missionRiskPct : theoreticalGradeRisk);
 
-        executedInput?.addEventListener('input', () => {
-          executedInput.dataset.manualOverride = 'true';
-          recomputeMissionMetrics();
-        });
+      // Quantidade atual e manual override
+      const isManualOverride = executedInput?.dataset?.manualOverride === 'true';
+      let currentQty = suggestedQty;
+      if (isManualOverride && executedInput && executedInput.value !== '') {
+        currentQty = Math.max(0, Number(executedInput.value) || 0);
+      } else if (executedInput && !isManualOverride) {
+        executedInput.value = String(suggestedQty);
+      }
 
-        const stepUpBtn = missionContainer.querySelector('#missionStepUpBtn');
-        const stepDownBtn = missionContainer.querySelector('#missionStepDownBtn');
+      const financialRisk = (entry > 0 && stop > 0 && currentQty > 0) ? (distance * currentQty) : sizing.initialRisk;
+      const capitalUsed = (entry > 0 && currentQty > 0) ? (entry * currentQty) : (suggestedQty * (entry || 48.3));
+      const actualRiskPct = (equity > 0 && financialRisk > 0) ? ((financialRisk / equity) * 100) : Number(sizing.executableRiskPercent || 0);
 
-        stepUpBtn?.addEventListener('click', () => {
-          if (!executedInput) return;
-          executedInput.dataset.manualOverride = 'true';
-          const cur = Number(executedInput.value) || 0;
-          const step = cur >= 100 ? 100 : 10;
-          executedInput.value = String(cur + step);
-          executedInput.dispatchEvent(new Event('input', { bubbles: true }));
-          executedInput.dispatchEvent(new Event('change', { bubbles: true }));
-        });
+      const realPositions = (operationalState?.positions || []).filter(p => p.mode === 'real');
+      const openPositionsCount = realPositions.length;
+      const profile = sizing.profile || { maximumPositions: 6 };
+      const portfolio = window.TradingRubrics ? window.TradingRubrics.validatePortfolio({
+        currentHeatPct: sizing.currentHeatPct || 0,
+        additionalRiskPct: sizing.executableRiskPercent || 0,
+        openPositions: openPositionsCount,
+        maximumHeatPct: sizing.maximumHeatPct || 6,
+        maximumPositions: profile.maximumPositions
+      }) : { allowed: true, heatAllowed: true, positionAllowed: true, projectedHeatPct: sizing.currentHeatPct || 0, projectedPositions: openPositionsCount };
 
-        stepDownBtn?.addEventListener('click', () => {
-          if (!executedInput) return;
-          executedInput.dataset.manualOverride = 'true';
-          const cur = Number(executedInput.value) || 0;
-          const step = cur > 100 ? 100 : (cur > 10 ? 10 : 1);
-          executedInput.value = String(Math.max(0, cur - step));
-          executedInput.dispatchEvent(new Event('input', { bubbles: true }));
-          executedInput.dispatchEvent(new Event('change', { bubbles: true }));
-        });
+      const isRebuildPosBlocked = isRebuild && openPositionsCount >= 1;
+      const isRiskExceeded = actualRiskPct > (maxAllowedRiskPct + 0.0201);
+      const isGradeD = result?.grade === 'D' || result?.grade === 'No Trade' || (result?.riskBudgetPct ?? result?.riskPct) <= 0;
+      const isPortfolioBlocked = !portfolio.allowed;
+      const isDataMissing = !(workbenchStageOneReady() && workbenchStageTwoReady());
 
-        const maxCard = missionContainer.querySelector('#missionMaxAllowedCard');
-        maxCard?.addEventListener('click', () => {
-          if (executedInput) {
-            delete executedInput.dataset.manualOverride;
-            executedInput.value = String(suggestedQty);
-            executedInput.dispatchEvent(new Event('input', { bubbles: true }));
-            executedInput.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-        });
-
-        const regBtn = missionContainer.querySelector('#missionRegisterTradeBtn');
-        regBtn?.addEventListener('click', (e) => {
-          const inputVal = Number(executedInput?.value) || 0;
-          const fRisk = (entry > 0 && stop > 0 && inputVal > 0) ? (distance * inputVal) : sizing.initialRisk;
-          const rPct = equity > 0 ? ((fRisk / equity) * 100) : targetRisk;
-          if (rPct > (missionRiskPct + 0.0201)) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof showToast === 'function') {
-              showToast(`Não é possível registrar este trade: a quantidade informada excede o limite de risco definido pela sua Missão (${numBR(missionRiskPct, 2)}%). Ajuste a quantidade para continuar.`);
-            }
-            return;
-          }
-          saveTradePlan(e);
-        });
-
-        if (typeof refreshWorkbenchRiskGate === 'function') {
-          refreshWorkbenchRiskGate();
-        }
+      // Limitador dinâmico curto
+      let limiterText = '';
+      let limitingSummaryLabel = '';
+      if (isGradeD) {
+        limiterText = 'Bloqueado: setup sem vantagem estatística (Grade D).';
+        limitingSummaryLabel = 'Trading Rubric (Grade D)';
+      } else if (isRebuild && (theoreticalGradeRisk > (maxAllowedRiskPct + 0.0001) || sizing.limitingLayer === 'grade')) {
+        limiterText = `Limitado pelo risco de recuperação de ${numBR(maxAllowedRiskPct, 2)}%.`;
+        limitingSummaryLabel = `Modo Recuperação (${numBR(maxAllowedRiskPct, 2)}%)`;
+      } else if (isMission && (theoreticalGradeRisk > (maxAllowedRiskPct + 0.0001) || sizing.limitingLayer === 'grade')) {
+        limiterText = `Limitado pelo risco da Missão de ${numBR(maxAllowedRiskPct, 2)}%.`;
+        limitingSummaryLabel = `Missão Ativa (${numBR(maxAllowedRiskPct, 2)}%)`;
+      } else if (sizing.limitingLayer === 'volatility') {
+        limiterText = 'Limitado pela volatilidade da operação (stop ATR).';
+        limitingSummaryLabel = 'Volatilidade (Stop ATR)';
+      } else if (sizing.limitingLayer === 'capital') {
+        limiterText = 'Limitado pelo capital máximo por operação.';
+        limitingSummaryLabel = 'Capital máximo por operação';
+      } else if (sizing.limitingLayer === 'portfolio') {
+        limiterText = 'Limitado pela capacidade do Portfolio Heat.';
+        limitingSummaryLabel = 'Portfolio Heat';
+      } else if (sizing.limitingLayer === 'positions') {
+        limiterText = 'Limitado pelo número máximo de posições permitidas.';
+        limitingSummaryLabel = 'Limite de posições';
+      } else if (isRebuild) {
+        limiterText = `Limitado pelo risco de recuperação de ${numBR(maxAllowedRiskPct, 2)}%.`;
+        limitingSummaryLabel = `Modo Recuperação (${numBR(maxAllowedRiskPct, 2)}%)`;
+      } else if (isMission) {
+        limiterText = `Limitado pelo risco da Missão de ${numBR(maxAllowedRiskPct, 2)}%.`;
+        limitingSummaryLabel = `Missão Ativa (${numBR(maxAllowedRiskPct, 2)}%)`;
       } else {
-        if (missionContainer) {
-          missionContainer.remove();
+        limiterText = `Definido pelo Risk Budget do Grade ${grade} (${numBR(theoreticalGradeRisk, 2)}%).`;
+        limitingSummaryLabel = `Grade ${grade} (${numBR(theoreticalGradeRisk, 2)}%)`;
+      }
+
+      // Mensagem única de bloqueio
+      let isBlocked = false;
+      let violationTitle = '';
+      let violationDesc = '';
+
+      if (isRebuildPosBlocked) {
+        isBlocked = true;
+        violationTitle = 'Posição em andamento no Rebuild Mode';
+        violationDesc = `Você já possui ${openPositionsCount} posição aberta. Durante o Rebuild Mode, finalize a operação atual antes de iniciar outra.`;
+      } else if (isRiskExceeded) {
+        isBlocked = true;
+        violationTitle = 'Risco acima do limite permitido';
+        violationDesc = `A quantidade informada resulta em risco de ${numBR(actualRiskPct, 2)}%, excedendo o limite de ${numBR(maxAllowedRiskPct, 2)}%. Reduza a quantidade de ações para continuar.`;
+      } else if (isGradeD) {
+        isBlocked = true;
+        violationTitle = 'Operação não autorizada pela Trading Rubric';
+        violationDesc = 'Setups classificados como Grade D não possuem vantagem estatística comprovada (Risco nominal zero).';
+      } else if (isPortfolioBlocked) {
+        isBlocked = true;
+        violationTitle = 'Capacidade do portfólio atingida';
+        violationDesc = portfolio.heatAllowed ? 'Limite máximo de posições atingido.' : 'Limite máximo de Portfolio Heat atingido.';
+      } else if (isDataMissing) {
+        isBlocked = true;
+        violationTitle = 'Preenchimento incompleto';
+        violationDesc = 'Preencha os dados essenciais da Etapa 1 e escolha uma opção em cada critério da Trading Rubric para liberar o registro.';
+      }
+
+      const qtyVolatility = sizing.layers?.find(l => l.key === 'volatility')?.quantity || 0;
+      const qtyCapital = sizing.layers?.find(l => l.key === 'capital')?.quantity || 0;
+
+      if (!missionContainer) {
+        missionContainer = document.createElement('div');
+        missionContainer.id = 'missionWorkbenchExperience';
+        missionContainer.className = 'mission-workbench-container';
+
+        if (executionMount) {
+          executionMount.appendChild(missionContainer);
+        } else {
+          sizer.appendChild(missionContainer);
         }
-        if (summaryMount) {
-          summaryMount.style.display = '';
+      }
+
+      missionContainer.innerHTML = `
+        <div class="op-summary-panel">
+          <!-- B. Position Size Final — informação principal -->
+          <div class="op-hero-card">
+            <span class="op-hero-eyebrow">POSITION SIZE FINAL</span>
+            <div class="op-hero-qty" id="opHeroQty">${numBR(suggestedQty, 0)} ações</div>
+            <div class="op-hero-asset-tag" id="opHeroAssetTag">Quantidade máxima calculada para ${assetName}</div>
+            <p class="op-hero-limiter" id="opHeroLimiter">${limiterText}</p>
+          </div>
+
+          <!-- Controle de Quantidade com Stepper e Link de Restauração -->
+          <div class="op-qty-row">
+            <div class="op-qty-label-wrap">
+              <label for="tradeExecutedQty" class="op-qty-label">Quantidade de ações</label>
+              <button type="button" class="op-restore-btn" id="missionMaxAllowedCard" title="Restaurar quantidade máxima calculada">↺ Restaurar máximo (${numBR(suggestedQty, 0)} ações)</button>
+            </div>
+            <div class="op-qty-stepper">
+              <div class="op-qty-input-wrap" id="missionInputMount"></div>
+              <div class="op-step-btns">
+                <button type="button" class="op-step-btn" id="missionStepUpBtn" title="Aumentar quantidade (+100)">▲</button>
+                <button type="button" class="op-step-btn" id="missionStepDownBtn" title="Diminuir quantidade (-100)">▼</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- C. Resumo financeiro compacto (2 indicadores) -->
+          <div class="op-financial-grid">
+            <div class="op-fin-card">
+              <span class="op-fin-eyebrow">RISCO FINANCEIRO</span>
+              <span class="op-fin-val" id="missionRiskMoneyValue">${financialRisk.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+              <span class="op-fin-sub ${isRiskExceeded ? 'is-risk-blocked' : 'is-risk-allowed'}" id="missionRiskPctSub">${numBR(actualRiskPct, 2)}% do seu capital</span>
+            </div>
+            <div class="op-fin-card">
+              <span class="op-fin-eyebrow">CAPITAL UTILIZADO</span>
+              <span class="op-fin-val" id="missionCapitalUsedValue">${capitalUsed.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })}</span>
+              <span class="op-fin-sub">Aproximadamente</span>
+            </div>
+          </div>
+
+          <!-- D. Aviso Único de Bloqueio (sem duplicidade) -->
+          <div class="op-block-notice" id="missionRiskViolationBox" style="display:${isBlocked ? 'flex' : 'none'};">
+            <span class="op-block-icon" aria-hidden="true">⚠️</span>
+            <div class="op-block-content">
+              <strong class="op-block-title" id="missionViolationTitle">${violationTitle}</strong>
+              <p class="op-block-desc" id="missionViolationDesc">${violationDesc}</p>
+            </div>
+          </div>
+
+          <!-- D. Ação Principal -->
+          <button type="button" class="primary mission-register-btn ${isBlocked ? 'is-risk-blocked' : ''}" id="missionRegisterTradeBtn" ${isBlocked ? 'disabled aria-disabled="true"' : ''}>
+            ${isBlocked ? '🔒 Registrar Trade →' : 'Registrar Trade →'}
+          </button>
+
+          <!-- 4. Detalhes técnicos recolhidos -->
+          <details class="op-calc-details" id="opCalcDetails">
+            <summary class="op-calc-summary">
+              <span>Ver detalhes do cálculo</span>
+              <span class="op-calc-arrow" aria-hidden="true">▾</span>
+            </summary>
+            <div class="op-calc-table">
+              <div class="op-calc-row">
+                <span class="op-dt-label">Grade e Risk Budget autorizado</span>
+                <span class="op-dt-val">Grade ${grade} · ${numBR(theoreticalGradeRisk, 2)}%</span>
+              </div>
+              ${(isRebuild || isMission) ? `
+              <div class="op-calc-row">
+                <span class="op-dt-label">Limite de risco ${isRebuild ? '(Rebuild Mode)' : '(Missão Ativa)'}</span>
+                <span class="op-dt-val">${numBR(maxAllowedRiskPct, 2)}%</span>
+              </div>` : ''}
+              <div class="op-calc-row">
+                <span class="op-dt-label">Tamanho por volatilidade (ATR)</span>
+                <span class="op-dt-val">${numBR(qtyVolatility, 0)} ações</span>
+              </div>
+              <div class="op-calc-row">
+                <span class="op-dt-label">Tamanho por limite de capital</span>
+                <span class="op-dt-val">${numBR(qtyCapital, 0)} ações</span>
+              </div>
+              <div class="op-calc-row">
+                <span class="op-dt-label">Capacidade no Portfolio Heat</span>
+                <span class="op-dt-val">${numBR(sizing.currentHeatPct || 0, 2)}% → ${numBR(portfolio.projectedHeatPct || 0, 2)}% (máx: ${numBR(sizing.maximumHeatPct || 6, 2)}%)</span>
+              </div>
+              <div class="op-calc-row">
+                <span class="op-dt-label">Número de posições abertas / limite</span>
+                <span class="op-dt-val">${openPositionsCount} / ${isRebuild ? 1 : profile.maximumPositions}</span>
+              </div>
+              <div class="op-calc-row highlight-row">
+                <span class="op-dt-label">Limitador que definiu o tamanho</span>
+                <span class="op-dt-val">${limitingSummaryLabel}</span>
+              </div>
+            </div>
+          </details>
+        </div>
+      `;
+
+      if (executedInput) {
+        missionContainer.querySelector('#missionInputMount')?.appendChild(executedInput);
+        executedInput.disabled = false;
+        executedInput.removeAttribute('disabled');
+      }
+
+      document.getElementById('newtrade')?.classList.toggle('has-rebuild-active', isRebuild);
+      document.getElementById('newtrade')?.classList.toggle('has-mission-active', isMission || isRebuild);
+
+      function recomputeMetrics() {
+        const inputVal = Number(executedInput?.value) || 0;
+        const fRisk = (entry > 0 && stop > 0 && inputVal > 0) ? (distance * inputVal) : sizing.initialRisk;
+        const cUsed = entry > 0 ? (entry * inputVal) : (inputVal * (entry || 48.3));
+        const rPct = equity > 0 ? ((fRisk / equity) * 100) : Number(sizing.executableRiskPercent || 0);
+
+        const riskExceeded = rPct > (maxAllowedRiskPct + 0.0201);
+        let localBlocked = false;
+        let localTitle = '';
+        let localDesc = '';
+
+        if (isRebuildPosBlocked) {
+          localBlocked = true;
+          localTitle = 'Posição em andamento no Rebuild Mode';
+          localDesc = `Você já possui ${openPositionsCount} posição aberta. Durante o Rebuild Mode, finalize a operação atual antes de iniciar outra.`;
+        } else if (riskExceeded) {
+          localBlocked = true;
+          localTitle = 'Risco acima do limite permitido';
+          localDesc = `A quantidade informada resulta em risco de ${numBR(rPct, 2)}%, excedendo o limite de ${numBR(maxAllowedRiskPct, 2)}%. Reduza a quantidade de ações para continuar.`;
+        } else if (isGradeD) {
+          localBlocked = true;
+          localTitle = 'Operação não autorizada pela Trading Rubric';
+          localDesc = 'Setups classificados como Grade D não possuem vantagem estatística comprovada (Risco nominal zero).';
+        } else if (isPortfolioBlocked) {
+          localBlocked = true;
+          localTitle = 'Capacidade do portfólio atingida';
+          localDesc = portfolio.heatAllowed ? 'Limite máximo de posições atingido.' : 'Limite máximo de Portfolio Heat atingido.';
+        } else if (isDataMissing) {
+          localBlocked = true;
+          localTitle = 'Preenchimento incompleto';
+          localDesc = 'Preencha os dados essenciais da Etapa 1 e escolha uma opção em cada critério da Trading Rubric para liberar o registro.';
         }
-        if (qtyControl) {
-          qtyControl.style.display = '';
-          if (executedInput && !qtyControl.contains(executedInput)) {
-            qtyControl.appendChild(executedInput);
+
+        const riskMoneyEl = document.getElementById('missionRiskMoneyValue');
+        const riskPctSubEl = document.getElementById('missionRiskPctSub');
+        const capUsedEl = document.getElementById('missionCapitalUsedValue');
+        const violationBox = document.getElementById('missionRiskViolationBox');
+        const violationTitleEl = document.getElementById('missionViolationTitle');
+        const violationDescEl = document.getElementById('missionViolationDesc');
+        const regBtn = document.getElementById('missionRegisterTradeBtn');
+
+        if (riskMoneyEl) riskMoneyEl.textContent = fRisk.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        if (riskPctSubEl) {
+          riskPctSubEl.textContent = numBR(rPct, 2) + '% do seu capital';
+          riskPctSubEl.classList.toggle('is-risk-blocked', riskExceeded);
+          riskPctSubEl.classList.toggle('is-risk-allowed', !riskExceeded);
+        }
+        if (capUsedEl) capUsedEl.textContent = cUsed.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+
+        if (violationBox) {
+          violationBox.style.display = localBlocked ? 'flex' : 'none';
+          if (violationTitleEl) violationTitleEl.textContent = localTitle;
+          if (violationDescEl) violationDescEl.textContent = localDesc;
+        }
+
+        if (regBtn) {
+          regBtn.classList.toggle('is-risk-blocked', localBlocked);
+          regBtn.disabled = localBlocked;
+          if (localBlocked) {
+            regBtn.setAttribute('aria-disabled', 'true');
+            regBtn.innerHTML = '🔒 Registrar Trade →';
+            regBtn.title = localDesc;
+          } else {
+            regBtn.removeAttribute('aria-disabled');
+            regBtn.innerHTML = 'Registrar Trade →';
+            regBtn.title = 'Registrar trade planejado';
+            if (typeof refreshWorkbenchRiskGate === 'function') {
+              refreshWorkbenchRiskGate();
+            }
           }
-          const origLabel = qtyControl.querySelector('label');
-          const origSmall = qtyControl.querySelector('small');
-          if (origLabel) origLabel.style.display = '';
-          if (origSmall) origSmall.style.display = '';
         }
-        document.getElementById('newtrade')?.classList.remove('has-mission-active');
-        document.getElementById('newtrade')?.classList.remove('courage-detachment-active');
+      }
+
+      executedInput?.addEventListener('input', () => {
+        executedInput.dataset.manualOverride = 'true';
+        recomputeMetrics();
+      });
+
+      const stepUpBtn = missionContainer.querySelector('#missionStepUpBtn');
+      const stepDownBtn = missionContainer.querySelector('#missionStepDownBtn');
+
+      stepUpBtn?.addEventListener('click', () => {
+        if (!executedInput) return;
+        executedInput.dataset.manualOverride = 'true';
+        const cur = Number(executedInput.value) || 0;
+        const step = cur >= 100 ? 100 : 10;
+        executedInput.value = String(cur + step);
+        executedInput.dispatchEvent(new Event('input', { bubbles: true }));
+        executedInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      stepDownBtn?.addEventListener('click', () => {
+        if (!executedInput) return;
+        executedInput.dataset.manualOverride = 'true';
+        const cur = Number(executedInput.value) || 0;
+        const step = cur > 100 ? 100 : (cur > 10 ? 10 : 1);
+        executedInput.value = String(Math.max(0, cur - step));
+        executedInput.dispatchEvent(new Event('input', { bubbles: true }));
+        executedInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      const maxCard = missionContainer.querySelector('#missionMaxAllowedCard');
+      maxCard?.addEventListener('click', () => {
+        if (executedInput) {
+          delete executedInput.dataset.manualOverride;
+          executedInput.value = String(suggestedQty);
+          executedInput.dispatchEvent(new Event('input', { bubbles: true }));
+          executedInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+
+      const regBtn = missionContainer.querySelector('#missionRegisterTradeBtn');
+      regBtn?.addEventListener('click', (e) => {
+        const inputVal = Number(executedInput?.value) || 0;
+        const fRisk = (entry > 0 && stop > 0 && inputVal > 0) ? (distance * inputVal) : sizing.initialRisk;
+        const rPct = equity > 0 ? ((fRisk / equity) * 100) : Number(sizing.executableRiskPercent || 0);
+
+        if (isRebuildPosBlocked) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (typeof showToast === 'function') {
+            showToast(`Você já possui ${openPositionsCount} posição aberta. Durante o Rebuild Mode, finalize a operação atual antes de iniciar outra.`);
+          }
+          return;
+        }
+        if (rPct > (maxAllowedRiskPct + 0.0201)) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (typeof showToast === 'function') {
+            showToast(`A quantidade informada excede o limite de risco autorizado (${numBR(maxAllowedRiskPct, 2)}%). Ajuste a quantidade para continuar.`);
+          }
+          return;
+        }
+        if (isGradeD || isPortfolioBlocked || isDataMissing) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (typeof showToast === 'function') {
+            showToast('Operação bloqueada pelas regras de risco. Verifique os critérios antes de registrar.');
+          }
+          return;
+        }
+        saveTradePlan(e);
+      });
+
+      if (typeof refreshWorkbenchRiskGate === 'function') {
+        refreshWorkbenchRiskGate();
       }
     } finally {
       isSyncingMissionExperience = false;
@@ -4920,6 +5111,7 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <link rel="stylesheet" href="frontend/trade-anatomy.css?v=20260929-layout-1" />
 <script src="frontend/trade-anatomy-model.js?v=20260924-1"></script>
 <script src="frontend/trade-anatomy.js?v=20260924-2"></script>
+<script src="frontend/navigation-system-model.js"></script>
 <script src="frontend/sidebar-navigation.js?v=20260924-trade-anatomy-1"></script>
 <script src="frontend/asset-blacklist.js?v=20261001-blacklist-click-2"></script>
 <link rel="stylesheet" href="frontend/market-pause.css?v=20260929-1" />
@@ -4939,7 +5131,10 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <script src="frontend/mission-model.js"></script>
 <script src="frontend/mission.js"></script>
 <script src="frontend/trade-simulator-model.js"></script>
+<script src="frontend/trade-simulator-export-model.js"></script>
 <script src="frontend/trade-simulator.js"></script>
-<script src="frontend/market-news-model.js?v=20261005-live-feed"></script>
-<script src="frontend/market-news.js?v=20261005-live-feed"></script>
+<script src="frontend/event-playbook-model.js?v=20261013-1"></script>
+<script src="frontend/market-central-model.js?v=20261013-1"></script>
+<script src="frontend/market-central.js?v=20261013-1"></script>
+<script src="frontend/event-playbook.js?v=20261013-1"></script>
 </body></html>

@@ -1,3 +1,4 @@
+body:has(#settings.active){overflow:hidden!important}
 body:has(#settings.active) .main{background:#f1f2e7 url('../assets/settings/environment.png') center top/100% 960px no-repeat;min-height:0;height:100vh}
 body:has(#settings.active) .topbar{background:transparent;border:0;min-height:64px;backdrop-filter:none}
 body:has(#settings.active) .content{display:flex;flex-direction:column;flex:1;min-height:0;height:calc(100vh - 64px);gap:0;overflow-y:auto;overflow-x:hidden;max-width:none;width:100%;padding:0 clamp(24px,3vw,48px) 18px;margin:0;scrollbar-width:thin}

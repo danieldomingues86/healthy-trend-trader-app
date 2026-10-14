@@ -52,7 +52,14 @@ function mapSimulation(row) {
     scaleIn: row.scale_in ? (typeof row.scale_in === 'string' ? JSON.parse(row.scale_in) : row.scale_in) : null,
     notes: row.notes || '',
     createdAt: row.created_at ? (row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at)) : null,
-    updatedAt: row.updated_at ? (row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at)) : null
+    updatedAt: row.updated_at ? (row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at)) : null,
+    structure: row.structure ? (typeof row.structure === 'string' ? JSON.parse(row.structure) : row.structure) : null,
+    ttt1R: row.ttt_1r != null ? Number(row.ttt_1r) : (row.ttt1R != null ? Number(row.ttt1R) : null),
+    ttt2R: row.ttt_2r != null ? Number(row.ttt_2r) : (row.ttt2R != null ? Number(row.ttt2R) : null),
+    ttt3R: row.ttt_3r != null ? Number(row.ttt_3r) : (row.ttt3R != null ? Number(row.ttt3R) : null),
+    expansionAfterBreakout: row.expansion_after_breakout
+      ? (typeof row.expansion_after_breakout === 'string' ? JSON.parse(row.expansion_after_breakout) : row.expansion_after_breakout)
+      : (row.expansionAfterBreakout || null)
   };
   mapped.durationDays = row.duration_days != null
     ? Number(row.duration_days)
@@ -87,10 +94,14 @@ async function list(userId, client = database) {
 
   const stats = model.calculateSimulatorStats(simulations);
   const comparison = model.compareManagementScenarios(simulations);
+  const hypothesisComparison = (typeof model.compareInsideBarTriggers === 'function')
+    ? model.compareInsideBarTriggers(simulations)
+    : null;
   return {
     simulations,
     stats,
-    comparison
+    comparison,
+    hypothesisComparison
   };
 }
 
@@ -367,6 +378,17 @@ async function clearAll(userId, client = database) {
   };
 }
 
+/**
+ * Retorna a comparação estatística da hipótese do Double Inside Bar vs Inside Bar simples
+ */
+async function compareHypothesis(userId, client = database) {
+  if (!userId) throw invalid('Usuário não autenticado.', 401);
+  const data = await list(userId, client);
+  return {
+    hypothesisComparison: model.compareInsideBarTriggers(data.simulations)
+  };
+}
+
 module.exports = {
   list,
   create,
@@ -376,5 +398,6 @@ module.exports = {
   clearAll,
   evaluate,
   compare,
+  compareHypothesis,
   mapSimulation
 };

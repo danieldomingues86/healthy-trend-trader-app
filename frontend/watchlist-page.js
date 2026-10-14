@@ -606,51 +606,6 @@
 
         <!-- MAIN OPPORTUNITIES VIEW -->
         ${renderOpportunitiesView(filteredOpps, model)}
-
-        <!-- PIPELINE FOOTER ("DO RADAR AO TRADE") -->
-        <div class="wl-pipeline-footer">
-          <div class="wl-pipeline-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#059669" stroke="#059669" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-            <span>DO RADAR AO TRADE — O PIPELINE DE ALTA PERFORMANCE</span>
-          </div>
-          <div class="wl-pipeline-steps">
-            <div class="wl-pipeline-step">
-              <div class="wl-step-num">1</div>
-              <div class="wl-step-text">
-                <span class="wl-step-name">Discover</span>
-                <span class="wl-step-desc">Identifique líderes em Emerging Leaders, Relative Strength ou Scans.</span>
-              </div>
-            </div>
-            <div class="wl-pipeline-step active">
-              <div class="wl-step-num">2</div>
-              <div class="wl-step-text">
-                <span class="wl-step-name">Watch</span>
-                <span class="wl-step-desc">Adicione à Watchlist com o snapshot de entrada e tese de observação.</span>
-              </div>
-            </div>
-            <div class="wl-pipeline-step">
-              <div class="wl-step-num">3</div>
-              <div class="wl-step-text">
-                <span class="wl-step-name">Wait</span>
-                <span class="wl-step-desc">Aguarde a contração de volatilidade e o cumprimento das condições.</span>
-              </div>
-            </div>
-            <div class="wl-pipeline-step">
-              <div class="wl-step-num">4</div>
-              <div class="wl-step-text">
-                <span class="wl-step-name">Confirm</span>
-                <span class="wl-step-desc">Verifique o gatilho técnico no Diário e a confirmação do Market Cycle.</span>
-              </div>
-            </div>
-            <div class="wl-pipeline-step">
-              <div class="wl-step-num">5</div>
-              <div class="wl-step-text">
-                <span class="wl-step-name">Execute</span>
-                <span class="wl-step-desc">Envie o contexto direto ao Novo Trade e posicione o stop correto.</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- LATERAL OPPORTUNITY PROFILE DRAWER -->

@@ -50,18 +50,24 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
 
   // Gráfico: Desempenho por Gatilho
   const insideBar = stats.triggerPerformance.find(t => t.name === 'Inside Bar');
+  const doubleInsideBar = stats.triggerPerformance.find(t => t.name === 'Double Inside Bar');
   const setup123 = stats.triggerPerformance.find(t => t.name === '1-2-3 de Compra');
   const pullback = stats.triggerPerformance.find(t => t.name === 'Pullback');
   const outros = stats.triggerPerformance.find(t => t.name === 'Outros');
 
   assert.ok(insideBar);
+  assert.ok(doubleInsideBar, 'Double Inside Bar deve estar presente no desempenho por gatilho');
   assert.ok(setup123);
   assert.equal(pullback, undefined, 'Gatilho Pullback não deve existir no desempenho por gatilho');
   assert.ok(outros);
 
-  // Inside Bar: 13,4R e 18 trades
-  assert.equal(insideBar.count, 18);
-  assert.equal(insideBar.totalR, 13.4);
+  // Inside Bar: 8,7R e 9 trades
+  assert.equal(insideBar.count, 9);
+  assert.equal(insideBar.totalR, 8.7);
+
+  // Double Inside Bar: 4,7R e 9 trades (Soma 8,7 + 4,7 = 13,4R idêntico ao total histórico)
+  assert.equal(doubleInsideBar.count, 9);
+  assert.equal(doubleInsideBar.totalR, 4.7);
 
   // 1-2-3 de Compra: 9,9R e 17 trades
   assert.equal(setup123.count, 17);
@@ -697,3 +703,119 @@ test('trade-simulator-model: getTradeVisionAtivo reproduz com fidelidade o cená
   assert.equal(visionDefensive.structure.label, 'Degradada');
   assert.equal(visionDefensive.context.title, 'Desfavorável');
 });
+
+test('trade-simulator-model: calculateDoubleInsideBarStructure valida contenção aninhada estrita e métricas de compressão', () => {
+  // Caso 1: Estrutura válida (Candle-mãe -> IB1 -> IB2)
+  const mother = { high: 50.00, low: 40.00 }; // range = 10.00
+  const ib1 = { high: 48.00, low: 42.00 };    // range = 6.00 (60% do mother)
+  const ib2 = { high: 46.00, low: 44.00 };    // range = 2.00 (33.3% do ib1)
+
+  const validStruct = model.calculateDoubleInsideBarStructure(mother, ib1, ib2);
+  assert.ok(validStruct);
+  assert.equal(validStruct.ibCount, 2);
+  assert.equal(validStruct.motherCandle.range, 10.00);
+  assert.equal(validStruct.ib1.range, 6.00);
+  assert.equal(validStruct.ib2.range, 2.00);
+  assert.equal(validStruct.ib1.compressionRatio, 0.6);
+  assert.equal(validStruct.ib2.compressionRatio, 0.33);
+  assert.equal(validStruct.totalCompressionRatio, 0.2); // 2.00 / 10.00
+  assert.equal(validStruct.totalCompressionPct, 20.0);
+  assert.equal(validStruct.totalContractionPct, 80.0); // 100 - 20
+  assert.equal(validStruct.entryPrice, 46.01); // high ib2 + 0.01
+  assert.equal(validStruct.stopLoss, 43.99);   // low ib2 - 0.01
+  assert.equal(validStruct.initialRisk, 2.02);
+  assert.equal(validStruct.graphicRiskPct, 4.39);
+
+  // Caso 2: Falha quando IB1 rompe a máxima do Candle-mãe
+  const badIb1 = { high: 50.50, low: 42.00 };
+  const resBadIb1 = model.calculateDoubleInsideBarStructure(mother, badIb1, ib2);
+  assert.equal(resBadIb1.isValid, false);
+  assert.equal(resBadIb1.isIb1InsideMother, false);
+
+  // Caso 3: Falha quando IB2 rompe a mínima de IB1
+  const badIb2 = { high: 46.00, low: 41.50 };
+  const resBadIb2 = model.calculateDoubleInsideBarStructure(mother, ib1, badIb2);
+  assert.equal(resBadIb2.isValid, false);
+  assert.equal(resBadIb2.isIb2InsideIb1, false);
+
+  // Caso 4: Falha em máximas/mínimas iguais (Inside Bar estrito requer < e >)
+  const equalIb = { high: 50.00, low: 42.00 };
+  const resEqualIb = model.calculateDoubleInsideBarStructure(mother, equalIb, ib2);
+  assert.equal(resEqualIb.isValid, false);
+});
+
+test('trade-simulator-model: evaluateSimulationOnCandles rastreia Time to Target (TTT) e expansão pós-rompimento', () => {
+  const sim = {
+    symbol: 'TEST3',
+    signalDate: '2026-08-01',
+    entryPrice: 20.00,
+    stopLoss: 18.00, // R = 2.00. 1R = 22.00, 2R = 24.00, 3R = 26.00
+    triggerName: 'Double Inside Bar',
+    status: model.STATUS.WAITING_ENTRY
+  };
+
+  const candles = [
+    { date: '2026-08-01', open: 19.00, high: 19.50, low: 18.50, close: 19.20 },
+    // Candle 1: ativa entrada a 20.00
+    { date: '2026-08-02', open: 19.80, high: 20.50, low: 19.50, close: 20.30 },
+    // Candle 2: atinge +1R (22.10 >= 22.00) -> ttt1R = 2 candles
+    { date: '2026-08-03', open: 20.40, high: 22.20, low: 20.20, close: 22.00 },
+    // Candle 3: continua subindo
+    { date: '2026-08-04', open: 22.10, high: 23.50, low: 21.90, close: 23.20 },
+    // Candle 4: atinge +2R (24.20 >= 24.00) -> ttt2R = 4 candles
+    { date: '2026-08-05', open: 23.30, high: 24.20, low: 23.00, close: 24.10 }
+  ];
+
+  const evaluated = model.evaluateSimulationOnCandles(sim, candles);
+  assert.equal(evaluated.status, model.STATUS.CLOSED_GAIN);
+  assert.equal(evaluated.ttt1R, 2, 'Primeiro toque de +1R ocorre no 2º candle da operação');
+  assert.equal(evaluated.ttt2R, 4, 'Primeiro toque de +2R ocorre no 4º candle da operação');
+  assert.equal(evaluated.ttt3R, null, '+3R não foi atingido');
+  assert.ok(evaluated.expansionAfterBreakout);
+  assert.ok(evaluated.expansionAfterBreakout.c1 != null);
+  assert.ok(evaluated.expansionAfterBreakout.c2 != null);
+});
+
+test('trade-simulator-model: compareInsideBarTriggers gera comparação estatística direta e preserva bet sizing', () => {
+  const seeds = model.getDefaultSeedSimulations();
+  const comparison = model.compareInsideBarTriggers(seeds);
+
+  assert.ok(comparison.simple, 'Deve conter grupo Inside Bar simples');
+  assert.ok(comparison.double, 'Deve conter grupo Double Inside Bar');
+  assert.ok(comparison.diff, 'Deve conter deltas comparativos');
+  assert.ok(comparison.crossContext, 'Deve conter cruzamentos contextuais');
+  assert.ok(comparison.hypothesisStatus, 'Deve conter status da hipótese');
+
+  // Nomes de gatilhos corretos
+  assert.equal(comparison.simple.triggerName, 'Inside Bar');
+  assert.equal(comparison.double.triggerName, 'Double Inside Bar');
+
+  // Métricas obrigatórias no grupo Double Inside Bar
+  assert.ok(comparison.double.totalCreated > 0);
+  assert.ok(comparison.double.winRateFormatted);
+  assert.ok(comparison.double.avgGainFormatted);
+  assert.ok(comparison.double.avgLossFormatted);
+  assert.ok(comparison.double.expectancyFormatted);
+  assert.ok(comparison.double.totalRFormatted);
+  assert.ok(comparison.double.avgTtt1RFormatted);
+  assert.ok(comparison.double.avgTtt2RFormatted);
+  assert.ok(comparison.double.pctHit1RFormatted);
+  assert.ok(comparison.double.pctHit2RFormatted);
+  assert.ok(comparison.double.pctHit3RFormatted);
+
+  // Velocidade (TTT): Double Inside Bar atinge +1R mais rápido (1,8 vs 2,7 candles)
+  assert.ok(comparison.double.avgTtt1R < comparison.simple.avgTtt1R, 'Double Inside Bar deve ter TTT1R menor ou igual');
+  assert.ok(comparison.diff.ttt1RDelta < 0, 'Delta de TTT1R deve ser negativo (mais rápido)');
+
+  // Cruzamentos do Edge
+  assert.ok(comparison.crossContext.byRsTier.tier95_100);
+  assert.ok(comparison.crossContext.byRsTier.tierSub80);
+  assert.ok(comparison.crossContext.byMarketCycle.healthy);
+  assert.ok(comparison.crossContext.byMarketCycle.defensive);
+  assert.ok(comparison.crossContext.bySuperTrend.aligned);
+  assert.ok(comparison.crossContext.bySuperTrend.notAligned);
+
+  // REGRA DE OURO INVIOLÁVEL: Bet Sizing NÃO é alterado
+  assert.match(comparison.hypothesisStatus.betSizingRule, /INALTERADO/);
+});
+

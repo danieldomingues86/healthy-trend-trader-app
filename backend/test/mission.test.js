@@ -360,9 +360,8 @@ test('Navegação e Estrutura: submenu Treinamento & Recuperação e sections re
   // Submenu unificado em sidebar-navigation.js
   assert.ok(navCode.includes("id: 'training-recovery'"), 'Deve existir grupo training-recovery');
   assert.ok(navCode.includes("label: 'Treinamento'"), 'Label do grupo deve ser Treinamento');
-  assert.ok(navCode.includes("page: 'tradertraining'"), 'Deve conter tradertraining');
   assert.ok(navCode.includes("page: 'mission'"), 'Deve conter mission');
-  assert.ok(navCode.includes("page: 'rebuild'"), 'Deve conter rebuild');
+  assert.ok(!navCode.includes("page: 'rebuild'"), 'Submenu Rebuild Mode deve estar removido pois foi integrado na Missão');
 
   // Sections em index.html
   assert.ok(html.includes('id="mission"'), 'index.html deve conter section #mission');
@@ -455,58 +454,62 @@ test('Desafio Grade A descontinuado: removido da sidebar e redirecionado para Mi
   assert.equal(html.includes('<button data-page="couragechallenge">'), false, 'Botão data-page couragechallenge não deve existir no index.html');
 });
 
-test('Novo Trade: Missão Ativa simplificada substitui cards redundantes por hierarquia clara', () => {
+test('Novo Trade: Resumo da Operação unificado substitui cards redundantes por painel compacto', () => {
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const css = fs.readFileSync(path.join(root, 'frontend', 'trade-workbench-v2.css'), 'utf8');
 
   // 1. Função unificada implementada
   assert.ok(html.includes('function syncMissionWorkbenchExperience('), 'Deve conter syncMissionWorkbenchExperience');
   assert.ok(html.includes('window.syncMissionWorkbenchExperience = syncMissionWorkbenchExperience'), 'syncMissionWorkbenchExperience deve ser exportada');
+  assert.ok(html.includes('Resumo da Operação'), 'Deve conter título Resumo da Operação');
 
-  // 2. Elementos essenciais presentes na renderização:
-  // Card 1: Missão Ativa em destaque
-  assert.ok(html.includes('class="mission-workbench-card mission-active-card"'), 'Deve renderizar mission-active-card');
-  assert.ok(html.includes('MISSÃO ATIVA'), 'Deve exibir título MISSÃO ATIVA');
-  assert.ok(html.includes('Operando com risco reduzido conforme sua missão.'), 'Deve exibir subtítulo');
-  assert.ok(html.includes('RISCO MÁXIMO POR TRADE'), 'Deve exibir label RISCO MÁXIMO POR TRADE');
-  assert.ok(html.includes('Definido pela Missão'), 'Deve exibir Definido pela Missão');
-  assert.ok(html.includes('Limite em vigor'), 'Deve exibir Limite em vigor');
+  // 2. Elementos essenciais do painel único Resumo da Operação
+  // A. Indicador de modo operacional discreto no cabeçalho
+  assert.ok(html.includes('id="opModeBadge"'), 'Deve conter badge de modo id="opModeBadge"');
+  assert.ok(html.includes('🦅 Rebuild Ativo'), 'Deve suportar badge Rebuild Ativo');
+  assert.ok(html.includes('Operação Normal'), 'Deve suportar badge Operação Normal');
 
-  // Card 2: Teto Teórico em segundo plano
-  assert.ok(html.includes('class="mission-workbench-card mission-ceiling-card"'), 'Deve renderizar mission-ceiling-card');
-  assert.ok(html.includes('Teto teórico pelo Grade'), 'Deve exibir Teto teórico pelo Grade');
-  assert.ok(html.includes('mas a Missão é mais restritiva. Por isso, o risco efetivo desta operação permanece em'), 'Deve diferenciar o teto teórico da Missão');
+  // B. Position Size Final — informação principal em destaque
+  assert.ok(html.includes('class="op-hero-card"'), 'Deve conter card hero com o Position Size Final');
+  assert.ok(html.includes('POSITION SIZE FINAL'), 'Deve exibir label POSITION SIZE FINAL');
+  assert.ok(html.includes('Quantidade máxima calculada para'), 'Deve indicar o ativo na tag de quantidade');
+  assert.ok(html.includes('id="opHeroLimiter"'), 'Deve conter elemento explicativo do limitador ativo');
 
-  // Card 3: Área Unificada de Decisão e Execução
-  assert.ok(html.includes('class="mission-workbench-card mission-execution-card"'), 'Deve renderizar mission-execution-card');
-  assert.ok(html.includes('3. Quantidade e risco da operação'), 'Deve exibir título 3. Quantidade e risco da operação');
+  // C. Controle de quantidade e resumo financeiro compacto
   assert.ok(html.includes('Quantidade de ações'), 'Deve exibir label Quantidade de ações');
   assert.ok(html.includes('id="missionStepUpBtn"'), 'Deve conter botão de incremento missionStepUpBtn');
   assert.ok(html.includes('id="missionStepDownBtn"'), 'Deve conter botão de decremento missionStepDownBtn');
-  assert.ok(html.includes('RISCO FINANCEIRO'), 'Deve exibir RISCO FINANCEIRO');
-  assert.ok(html.includes('CAPITAL UTILIZADO'), 'Deve exibir CAPITAL UTILIZADO');
+  assert.ok(html.includes('id="missionMaxAllowedCard"'), 'Deve conter link de restauração missionMaxAllowedCard');
+  assert.ok(html.includes('Restaurar máximo'), 'Deve exibir texto Restaurar máximo');
+  assert.ok(html.includes('RISCO FINANCEIRO'), 'Deve exibir indicador RISCO FINANCEIRO');
+  assert.ok(html.includes('CAPITAL UTILIZADO'), 'Deve exibir indicador CAPITAL UTILIZADO');
+  assert.ok(html.includes('id="missionRiskMoneyValue"'), 'Deve conter valor de risco financeiro em reais');
+  assert.ok(html.includes('id="missionCapitalUsedValue"'), 'Deve conter valor de capital utilizado em reais');
+
+  // D. Ação principal e aviso único de bloqueio objetivo
   assert.ok(html.includes('id="missionRegisterTradeBtn"'), 'Deve conter botão missionRegisterTradeBtn');
+  assert.ok(html.includes('id="missionRiskViolationBox"'), 'Deve conter caixa de aviso de bloqueio missionRiskViolationBox');
+  assert.ok(html.includes('Durante o Rebuild Mode, finalize a operação atual antes de iniciar outra'), 'Deve conter mensagem objetiva de bloqueio de posição');
 
-  // Elementos de bloqueio e violação de risco
-  assert.ok(html.includes('id="missionRiskViolationBox"'), 'Deve conter caixa de violação missionRiskViolationBox');
-  assert.ok(html.includes('Excede o limite da Missão'), 'Deve exibir aviso Excede o limite da Missão');
-  assert.ok(html.includes('id="missionBlockBanner"'), 'Deve conter banner de bloqueio missionBlockBanner');
-  assert.ok(html.includes('Não é possível registrar este trade'), 'Deve exibir mensagem Não é possível registrar este trade');
-  assert.ok(html.includes('Position Size Final (máximo permitido)'), 'Deve exibir card Position Size Final (máximo permitido)');
+  // E. Detalhes técnicos recolhidos em accordion fechado por padrão
+  assert.ok(html.includes('Ver detalhes do cálculo'), 'Deve conter accordion Ver detalhes do cálculo');
+  assert.ok(html.includes('class="op-calc-details"'), 'Deve conter elemento de detalhes técnicos op-calc-details');
+  assert.ok(html.includes('Limitador que definiu o tamanho'), 'Deve conter linha de limitador nos detalhes técnicos');
 
-  // 3. Remoção de redundâncias
+  // 3. Remoção de redundâncias e cards concorrentes
+  assert.ok(!html.includes('class="mission-workbench-card mission-active-card"'), 'Cards concorrentes legados devem ser removidos');
+  assert.ok(!html.includes('class="mission-workbench-card mission-ceiling-card"'), 'Card legado de teto teórico deve ser removido');
   assert.ok(!html.includes('<input type="checkbox" id="courageConsciousCheckbox" checked>'), 'Checkbox redundante de confirmação deve ser removido');
   assert.ok(!html.includes('class="courage-discomfort-scale"'), 'Escala de desconforto redundante deve ser removida da área principal');
 
-  // 4. CSS dedicado implementado
-  assert.ok(css.includes('.mission-workbench-container'), 'CSS deve conter .mission-workbench-container');
-  assert.ok(css.includes('.mission-active-card'), 'CSS deve conter .mission-active-card');
-  assert.ok(css.includes('.mission-ceiling-card'), 'CSS deve conter .mission-ceiling-card');
-  assert.ok(css.includes('.mission-execution-card'), 'CSS deve conter .mission-execution-card');
+  // 4. CSS dedicado ao Resumo da Operação implementado
+  assert.ok(css.includes('.op-summary-panel'), 'CSS deve conter .op-summary-panel');
+  assert.ok(css.includes('.op-mode-badge'), 'CSS deve conter .op-mode-badge');
+  assert.ok(css.includes('.op-hero-card'), 'CSS deve conter .op-hero-card');
+  assert.ok(css.includes('.op-financial-grid'), 'CSS deve conter .op-financial-grid');
+  assert.ok(css.includes('.op-block-notice'), 'CSS deve conter .op-block-notice');
+  assert.ok(css.includes('.op-calc-details'), 'CSS deve conter .op-calc-details');
   assert.ok(css.includes('.mission-register-btn'), 'CSS deve conter .mission-register-btn');
-  assert.ok(css.includes('.mission-violation-box'), 'CSS deve conter .mission-violation-box');
-  assert.ok(css.includes('.mission-block-banner'), 'CSS deve conter .mission-block-banner');
-  assert.ok(css.includes('.mission-max-allowed-card'), 'CSS deve conter .mission-max-allowed-card');
   assert.ok(css.includes('.is-risk-blocked'), 'CSS deve conter .is-risk-blocked');
 });
 
@@ -522,5 +525,62 @@ test('Novo Trade: comportamento dinâmico e integração com ciclo de vida da mi
 
   // Gating de risco inclui botão da missão
   assert.ok(html.includes("sizer.querySelectorAll('.summary-box button, #missionRegisterTradeBtn')"), 'Gating de risco deve avaliar #missionRegisterTradeBtn');
+});
+
+test('UX/UI Missão Rebuild: Botão Editar abre modal, persiste alterações e Hero possui área de leitura independente', () => {
+  const missionJs = fs.readFileSync(path.join(root, 'frontend', 'mission.js'), 'utf8');
+  const missionCss = fs.readFileSync(path.join(root, 'frontend', 'mission.css'), 'utf8');
+
+  // 1. Botão Editar conectado e impedindo propagação de eventos
+  assert.ok(missionJs.includes('window.openEditMissionModal(event)'), 'Botão Editar deve chamar openEditMissionModal(event)');
+  assert.ok(missionJs.includes('window.openEditMissionModal = function (event)'), 'openEditMissionModal deve aceitar event');
+  assert.ok(missionJs.includes('event.stopPropagation()'), 'openEditMissionModal deve interromper propagação');
+  assert.ok(missionJs.includes('window.handleSaveEditMissionModal(event)'), 'Salvar alterações deve chamar handleSaveEditMissionModal(event)');
+
+  // 2. Campos editáveis presentes no modal de edição
+  assert.ok(missionJs.includes('id="editMissionTitle"'), 'Modal de edição deve conter editMissionTitle');
+  assert.ok(missionJs.includes('id="editMissionReason"'), 'Modal de edição deve conter editMissionReason');
+  assert.ok(missionJs.includes('id="editMissionPlannedDate"'), 'Modal de edição deve conter editMissionPlannedDate para Rebuild');
+  assert.ok(missionJs.includes('Salvar alterações'), 'Modal deve ter botão Salvar alterações');
+  assert.ok(missionJs.includes('Cancelar'), 'Modal deve ter botão Cancelar');
+
+  // 3. Atualização e persistência no salvamento
+  assert.ok(missionJs.includes('M.updateMissionConfig(currentMission'), 'Salvamento deve atualizar configuração da missão');
+  assert.ok(missionJs.includes('saveMissionData()'), 'Salvamento deve persistir dados');
+  assert.ok(missionJs.includes('openEditMissionModal: window.openEditMissionModal'), 'MissionController deve expor openEditMissionModal');
+
+  // 4. Hero com área de leitura independente e sem concorrência visual
+  assert.ok(missionJs.includes('class="mission-hero-readability-overlay"'), 'HTML do Hero deve incluir overlay de legibilidade');
+  assert.ok(missionJs.includes('class="mission-hero-briefing"'), 'HTML do Hero deve incluir coluna independente mission-hero-briefing');
+  assert.ok(missionJs.includes('class="mission-recovery-principles"'), 'HTML do Hero deve incluir princípios de recuperação organizados');
+  assert.ok(missionJs.includes('class="mission-principle-tag"'), 'HTML deve conter tags refinadas para os princípios');
+
+  // 5. CSS do Hero e Card de Recuperação
+  assert.ok(missionCss.includes('.mission-hero-readability-overlay'), 'CSS deve estilizar overlay escuro com gradiente');
+  assert.ok(missionCss.includes('.mission-hero-briefing'), 'CSS deve definir coluna independente de leitura');
+  assert.ok(missionCss.includes('.mission-recovery-principles'), 'CSS deve estilizar área dos princípios');
+  assert.ok(missionCss.includes('.mission-center-card'), 'CSS deve definir card de configuração');
+  assert.ok(missionCss.includes('.mission-form-help'), 'CSS deve conter estilos para dicas de formulário');
+
+  // 6. Resolução de bloqueio de cliques e enquadramento harmonioso do Hero
+  assert.ok(missionCss.includes('.mission-interactive-trail') && missionCss.includes('pointer-events: none;'), 'Trilha deve ter pointer-events: none para não bloquear cliques no botão Editar');
+  assert.ok(missionCss.includes('.mission-edit-btn') && missionCss.includes('cursor: pointer !important;'), 'Botão Editar deve ter cursor pointer e pointer-events auto');
+  assert.ok(missionCss.includes('center 20% / cover no-repeat'), 'Hero deve subir a imagem de fundo para enquadramento harmonioso');
+  assert.ok(missionCss.includes('height: clamp(380px, 24vw, 420px);'), 'Hero deve ter altura compacta');
+
+  // 7. Campo Risco por Trade estritamente com valores, sem textos redundantes cortados
+  assert.ok(!missionJs.includes('0,05% (Proteção Máxima'), 'Opções de risco não devem ter texto explicativo longo');
+  assert.ok(!missionJs.includes('0,10% (Proteção Moderada)'), 'Opções de risco não devem conter textos explicativos que cortem no layout');
+  assert.ok(missionJs.includes('<option value="0.0005" selected>0,05%</option>'), 'Opção de 0,05% deve conter apenas o valor percentual');
+  assert.ok(missionJs.includes('<option value="0.0010">0,10%</option>'), 'Opção de 0,10% deve conter apenas o valor percentual');
+
+  // 8. Redesign Oficial — Tema Claro, 3 Cards e remoção de Histórico do Hero
+  assert.ok(!missionJs.includes('mission-hero-history-btn'), 'Botão Histórico (4) deve ser estritamente removido do Hero');
+  assert.ok(missionJs.includes('mission-card-quote-box'), 'Frase motivacional deve ser integrada no Card 2');
+  assert.ok(!missionJs.includes('mission-card mission-quote-card'), 'Card 4 legado deve ser completamente eliminado da grid');
+  assert.ok(missionCss.includes('31fr 32fr 37fr'), 'Grid inferior deve ter exatamente 3 colunas proporcionais (31% / 32% / 37%)');
+  assert.ok(missionCss.includes('#F7F9FC'), 'CSS deve definir fundo geral claro #F7F9FC');
+  assert.ok(missionCss.includes('#00A878'), 'CSS deve utilizar verde principal #00A878');
+  assert.ok(missionCss.includes('#F08A00'), 'CSS deve utilizar laranja de ação #F08A00 para o botão Marcar Trade');
 });
 
