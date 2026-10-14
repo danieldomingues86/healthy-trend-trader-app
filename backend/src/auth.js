@@ -153,6 +153,46 @@ function cleanOldThrottleEntries() {
   }
 }
 
+function resolveResetPasswordUrl(rawToken, appUrl) {
+  let candidateUrl = '';
+  if (appUrl && typeof appUrl === 'string') {
+    const trimmed = appUrl.trim();
+    if (!trimmed.startsWith('file:') && !trimmed.includes('null') && (trimmed.startsWith('http://') || trimmed.startsWith('https://'))) {
+      candidateUrl = trimmed;
+    }
+  }
+
+  if (!candidateUrl) {
+    candidateUrl = process.env.APP_BASE_URL;
+  }
+
+  if (!candidateUrl) {
+    const port = Number(process.env.PORT || 8787);
+    candidateUrl = `http://localhost:${port}`;
+  }
+
+  let baseUrl = candidateUrl;
+  try {
+    const parsed = new URL(candidateUrl);
+    if (!['localhost', '127.0.0.1'].includes(parsed.hostname) && parsed.protocol === 'http:') {
+      parsed.protocol = 'https:';
+    }
+    parsed.search = '';
+    parsed.hash = '';
+    parsed.pathname = parsed.pathname.replace(/\/index\.html$/i, '').replace(/\/+$/, '');
+    baseUrl = parsed.toString().replace(/\/+$/, '');
+  } catch (_) {
+    baseUrl = String(candidateUrl).split('?')[0].split('#')[0].replace(/\/index\.html$/i, '').replace(/\/+$/, '');
+  }
+
+  if (baseUrl.startsWith('file:') || baseUrl.includes('null')) {
+    const port = Number(process.env.PORT || 8787);
+    baseUrl = `http://localhost:${port}`;
+  }
+
+  return `${baseUrl}/reset-password?token=${encodeURIComponent(rawToken)}`;
+}
+
 async function requestPasswordReset(rawEmail, appUrl) {
   const email = normalizeEmail(rawEmail);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
@@ -201,20 +241,7 @@ async function requestPasswordReset(rawEmail, appUrl) {
         );
       });
 
-      let baseUrl = appUrl || process.env.APP_BASE_URL || 'http://localhost:8787';
-      try {
-        const parsed = new URL(baseUrl);
-        if (!['localhost', '127.0.0.1'].includes(parsed.hostname) && parsed.protocol === 'http:') {
-          parsed.protocol = 'https:';
-        }
-        parsed.search = '';
-        parsed.hash = '';
-        baseUrl = parsed.toString().replace(/\/+$/, '');
-      } catch (_) {
-        baseUrl = String(baseUrl).split('?')[0].split('#')[0].replace(/\/+$/, '');
-      }
-
-      const resetUrl = `${baseUrl}?reset_token=${encodeURIComponent(rawToken)}`;
+      const resetUrl = resolveResetPasswordUrl(rawToken, appUrl);
 
       emailService.sendPasswordResetEmail({
         email: user.email,
@@ -338,6 +365,7 @@ module.exports = {
   requestPasswordReset,
   verifyPasswordResetToken,
   resetPassword,
+  resolveResetPasswordUrl,
   TRIAL_DAYS,
   RESET_TOKEN_MINUTES
 };

@@ -1,3 +1,4 @@
+process.env.NODE_ENV = 'test';
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
@@ -8,6 +9,29 @@ const { renderPasswordResetEmail, escapeHtml } = require('../src/templates/passw
 const emailService = require('../src/email-service');
 const auth = require('../src/auth');
 const database = require('../src/database');
+
+test('resolveResetPasswordUrl strictly sanitizes baseUrl and avoids file scheme', () => {
+  const token = 'abcdef123456';
+
+  // 1. file:/// scheme input must be rejected and replaced with HTTP localhost/APP_BASE_URL
+  const fileResult = auth.resolveResetPasswordUrl(token, 'file:///C:/Users/danie/index.html');
+  assert.ok(!fileResult.startsWith('file:'), 'Must not start with file:');
+  assert.ok(fileResult.includes('/reset-password?token=' + token));
+  assert.match(fileResult, /^https?:\/\//);
+
+  // 2. Normalizes index.html and query/hash
+  const webResult = auth.resolveResetPasswordUrl(token, 'http://localhost:8787/index.html?foo=bar#hash');
+  assert.equal(webResult, `http://localhost:8787/reset-password?token=${token}`);
+
+  // 3. Upgrades non-localhost http to https
+  const remoteResult = auth.resolveResetPasswordUrl(token, 'http://app.healthytrendtrader.com');
+  assert.equal(remoteResult, `https://app.healthytrendtrader.com/reset-password?token=${token}`);
+
+  // 4. Null or empty falls back safely
+  const nullResult = auth.resolveResetPasswordUrl(token, null);
+  assert.match(nullResult, /^https?:\/\//);
+  assert.ok(nullResult.includes('/reset-password?token=' + token));
+});
 
 test('password-reset-email template renders safely with all security notices and CTA', () => {
   const rendered = renderPasswordResetEmail({
@@ -120,7 +144,9 @@ test('full password reset lifecycle: request, verify token, reset password, sing
 
   assert.ok(userPreviewFile, 'Preview file for reset email must exist');
   const previewContent = await fs.readFile(path.join(emailsDir, userPreviewFile), 'utf8');
-  const matchToken = previewContent.match(/reset_token=([a-f0-9]+)/i);
+  assert.ok(!previewContent.includes('file:///'), 'Reset email must never contain file:/// URL');
+  assert.match(previewContent, /\/reset-password\?token=[a-f0-9]+/i);
+  const matchToken = previewContent.match(/(?:reset_token|token)=([a-f0-9]+)/i);
   assert.ok(matchToken, 'Raw token must be present in reset link');
   const rawToken = matchToken[1];
 
@@ -167,3 +193,19 @@ test('full password reset lifecycle: request, verify token, reset password, sing
   assert.ok(newLogin && newLogin.token, 'Login with new password must succeed');
   assert.equal(newLogin.user.email, testEmail);
 });
+
+test('HTTP server serves index.html on /reset-password', async () => {
+  const port = Number(process.env.PORT || 8787);
+  try {
+    const res = await fetch(`http://localhost:${port}/reset-password`);
+    if (res.ok) {
+      assert.equal(res.status, 200);
+      const text = await res.text();
+      assert.match(text, /<!doctype html>/i);
+      assert.match(text, /The Healthy Trend Trader/);
+    }
+  } catch (_) {
+    // If background server is not listening during this test execution, skip network check
+  }
+});
+

@@ -88,9 +88,90 @@ function headerText(value) {
   catch { const error = new Error('Cabeçalho de arquivo inválido.'); error.status = 400; throw error; }
 }
 
+const ROOT_DIR = path.resolve(__dirname, '..', '..');
+const STATIC_MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.txt': 'text/plain; charset=utf-8'
+};
+
+async function handleStaticOrSpa(request, response, url) {
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return send(response, 405, { error: 'Method not allowed' });
+  }
+
+  let pathname = decodeURIComponent(url.pathname);
+  if (pathname === '/' || pathname === '/index.html' || pathname === '/reset-password') {
+    pathname = '/index.html';
+  }
+
+  const resolved = path.normalize(path.join(ROOT_DIR, pathname));
+  if (!resolved.startsWith(ROOT_DIR)) {
+    return send(response, 403, { error: 'Forbidden' });
+  }
+
+  try {
+    const stat = await fs.stat(resolved);
+    let filePath = resolved;
+    if (stat.isDirectory()) {
+      filePath = path.join(resolved, 'index.html');
+      await fs.stat(filePath);
+    }
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = STATIC_MIME_TYPES[ext] || 'application/octet-stream';
+    const content = await fs.readFile(filePath);
+    response.writeHead(200, {
+      'Content-Type': contentType,
+      'Content-Length': content.length,
+      'X-Content-Type-Options': 'nosniff',
+      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
+      ...cors
+    });
+    if (request.method === 'HEAD') {
+      response.end();
+    } else {
+      response.end(content);
+    }
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      if (!path.extname(pathname)) {
+        try {
+          const indexHtml = await fs.readFile(path.join(ROOT_DIR, 'index.html'));
+          response.writeHead(200, {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Content-Length': indexHtml.length,
+            'X-Content-Type-Options': 'nosniff',
+            'Cache-Control': 'no-cache',
+            ...cors
+          });
+          response.end(indexHtml);
+          return;
+        } catch (_) {}
+      }
+      return send(response, 404, { error: 'Not found' });
+    }
+    return send(response, 500, { error: 'Failed to serve static file' });
+  }
+}
+
 const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
   if (request.method === 'OPTIONS') return send(response, 204, {});
+  if (!url.pathname.startsWith('/api/')) {
+    return handleStaticOrSpa(request, response, url);
+  }
   try {
     if (request.method === 'POST' && url.pathname === '/api/auth/login') {
       if (!database.configured()) return send(response, 503, { error: 'Autenticação ainda não configurada no servidor.' });
@@ -118,7 +199,7 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, result);
     }
     if (request.method === 'GET' && url.pathname === '/api/auth/verify-reset-token') {
-      const token = url.searchParams.get('token');
+      const token = url.searchParams.get('token') || url.searchParams.get('reset_token');
       const result = await auth.verifyPasswordResetToken(token);
       return send(response, 200, result);
     }

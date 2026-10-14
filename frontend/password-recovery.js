@@ -114,7 +114,10 @@
     }
 
     try {
-      const appUrl = window.location.origin + window.location.pathname;
+      let appUrl = null;
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        appUrl = window.location.origin;
+      }
       const api = window.healthyTrendApi;
       if (api && typeof api.request === 'function') {
         await api.request('/api/auth/forgot-password', {
@@ -149,10 +152,13 @@
   /* ── 2. Fluxo da Tela de Redefinição de Senha ────────────────────────── */
   function getResetTokenFromUrl() {
     const searchParams = new URLSearchParams(window.location.search);
-    let token = searchParams.get('reset_token');
-    if (!token && window.location.hash.includes('reset_token=')) {
-      const hashQuery = window.location.hash.split('?')[1] || window.location.hash.replace(/^#/, '');
-      token = new URLSearchParams(hashQuery).get('reset_token');
+    let token = searchParams.get('token') || searchParams.get('reset_token');
+    if (!token && window.location.hash) {
+      const hashQuery = window.location.hash.includes('?')
+        ? window.location.hash.split('?')[1]
+        : window.location.hash.replace(/^#/, '');
+      const hashParams = new URLSearchParams(hashQuery);
+      token = hashParams.get('token') || hashParams.get('reset_token');
     }
     return token ? token.trim() : null;
   }
@@ -160,8 +166,10 @@
   function clearResetTokenFromUrl() {
     try {
       const url = new URL(window.location.href);
+      url.searchParams.delete('token');
       url.searchParams.delete('reset_token');
-      window.history.replaceState(null, '', url.pathname + (url.search || ''));
+      const cleanPath = url.pathname.replace(/\/reset-password\/?$/, '/');
+      window.history.replaceState(null, '', cleanPath + (url.search || ''));
     } catch (_) {}
   }
 
