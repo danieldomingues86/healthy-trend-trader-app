@@ -2653,15 +2653,21 @@ function calculateExecutableSizing(result,values={}){
   const atr=Number(values.atr??document.getElementById('atr')?.value)||0;
   const realPositions=(operationalState?.positions||[]).filter(position=>position.mode==='real');
   let riskBudgetPct=Number(result?.riskBudgetPct??result?.riskPct)||0;
+  const gradeRiskBudgetPct=riskBudgetPct;
   const activeMission = (typeof window !== 'undefined' && window.MissionModel?.getActiveMission) ? window.MissionModel.getActiveMission() : null;
-  if(activeMission && activeMission.status === 'ACTIVE' && Number(activeMission.riskPct) > 0){
-    riskBudgetPct = Math.min(riskBudgetPct, Number(activeMission.riskPct));
-  }
+  const isMissionActive = Boolean(activeMission && activeMission.status === 'ACTIVE' && Number(activeMission.riskPct) > 0);
+  const missionRiskPct = isMissionActive ? Number(activeMission.riskPct) : null;
   const rebuildState = (typeof window !== 'undefined' && window.RebuildModeModel?.getRebuildState) ? window.RebuildModeModel.getRebuildState() : null;
-  if(rebuildState && rebuildState.isActive && Number(rebuildState.maxRiskPct) > 0){
-    riskBudgetPct = Math.min(riskBudgetPct, Number(rebuildState.maxRiskPct));
+  const isRebuildActive = Boolean(rebuildState && rebuildState.isActive && Number(rebuildState.maxRiskPct) > 0);
+  const rebuildRiskPct = isRebuildActive ? Number(rebuildState.maxRiskPct) : null;
+
+  const effectiveMissionLimitPct = isRebuildActive ? rebuildRiskPct : (isMissionActive ? missionRiskPct : null);
+  const isMissionCapped = Boolean(effectiveMissionLimitPct !== null && effectiveMissionLimitPct < (gradeRiskBudgetPct - 0.00001));
+
+  if(isMissionCapped){
+    riskBudgetPct = effectiveMissionLimitPct;
   }
-  return TradingRubrics.calculatePolicyPositionSizing({
+  const sizing = TradingRubrics.calculatePolicyPositionSizing({
     policy:riskPolicyState,
     profileKey:result?.profile?.key||riskPolicyState.selectedProfile,
     riskBudgetPct,
@@ -2669,7 +2675,20 @@ function calculateExecutableSizing(result,values={}){
     openPositions:Number(values.openPositions??realPositions.length)||0,
     equity:Number(values.equity??OPERATIONAL_EQUITY)||0,
     entry,stop,atr,lot:Number(values.lot??100)||100
-  })
+  });
+
+  if (isMissionCapped && sizing.limitingLayer === 'budget') {
+    sizing.limitingLayerName = isRebuildActive ? 'Rebuild Mode (Risco por Trade)' : 'Missão (Risco por Trade)';
+  }
+
+  return {
+    ...sizing,
+    gradeRiskBudgetPct,
+    effectiveMissionLimitPct,
+    isMissionActive,
+    isRebuildActive,
+    isMissionCapped
+  };
 }
 async function persistRiskPolicy(){
   try{
@@ -2846,7 +2865,53 @@ function syncWorkbenchRiskSummary(result){
   const details=document.getElementById('tradeFinalDetails');
   const isDanger=result.grade==='D'||result.grade==='No Trade'||result.riskPct===0;
   const isCaution=['C','B'].includes(result.grade);
-  if(quality)quality.innerHTML='<i>1</i><h3>Grade & Risk Budget</h3><div class="layer-content layer-quality-content"><span class="layer-grade"><small>GRADE</small><b>'+result.grade+'</b></span><span class="layer-metric"><small>RISK BUDGET</small><b>'+numBR(sizing.riskBudgetPct*100,2)+'%</b></span><span class="layer-metric layer-theoretical"><small>POSITION SIZE TEÓRICO</small><b>'+numBR(sizing.theoreticalQuantity,0)+' ações</b></span><span class="layer-status '+(isDanger?'status-danger':(isCaution?'status-caution':'status-good'))+'">'+(isDanger?'OPERAÇÃO NÃO RECOMENDADA':'Definido pela qualidade da oportunidade')+'</span></div>';
+  if(quality){
+    if(sizing.isMissionCapped && !isDanger){
+      quality.innerHTML='<i>1</i><h3>Grade & Risk Budget</h3><div class="layer-content layer-quality-content has-mission-block">'
+        +'<span class="layer-grade"><small>GRADE</small><b>'+result.grade+'</b></span>'
+        +'<span class="layer-metric layer-grade-budget-metric"><small>Budget autorizado pelo Grade</small><b>'+numBR(sizing.gradeRiskBudgetPct*100,2)+'%</b></span>'
+        +'<div class="mission-risk-limit-block">'
+          +'<div class="mrl-header">'
+            +'<span class="mrl-icon">i</span>'
+            +'<span class="mrl-title">'+(sizing.isRebuildActive ? 'MODO RECUPERAÇÃO — LIMITE DE RISCO APLICADO' : 'MISSÃO ATIVA — LIMITE DE RISCO APLICADO')+'</span>'
+          +'</div>'
+          +'<div class="mrl-comparison-grid">'
+            +'<div class="mrl-comp-box">'
+              +'<span class="mrl-comp-label">Budget autorizado pelo Grade '+result.grade+'</span>'
+              +'<span class="mrl-comp-val" style="color:#34d399;">'+numBR(sizing.gradeRiskBudgetPct*100,2)+'%</span>'
+            +'</div>'
+            +'<div class="mrl-comp-box">'
+              +'<span class="mrl-comp-label">'+(sizing.isRebuildActive ? 'Limite do Modo Recuperação' : 'Limite de risco da Missão')+'</span>'
+              +'<span class="mrl-comp-val" style="color:#facc15;">'+numBR(sizing.effectiveMissionLimitPct*100,2)+'%</span>'
+            +'</div>'
+          +'</div>'
+          +'<div class="mrl-effective-row">'
+            +'<span class="mrl-effective-label">RISCO EFETIVO DA OPERAÇÃO</span>'
+            +'<span class="mrl-effective-val">'+numBR(sizing.riskBudgetPct*100,2)+'%</span>'
+          +'</div>'
+          +'<p class="mrl-explanation">A qualidade do setup autoriza até '+numBR(sizing.gradeRiskBudgetPct*100,2)+'%, mas sua '+(sizing.isRebuildActive ? 'política de Recuperação' : 'Missão')+' limita o risco por operação a '+numBR(sizing.effectiveMissionLimitPct*100,2)+'%. O sistema utiliza o menor limite permitido e ajusta automaticamente o tamanho da posição.</p>'
+        +'</div>'
+        +'<span class="layer-metric layer-theoretical" style="grid-column: 1 / -1;"><small>POSITION SIZE TEÓRICO</small><b>'+numBR(sizing.theoreticalQuantity,0)+' ações</b></span>'
+        +'<span class="layer-status status-good" style="grid-column: 1 / -1;">Definido pelo risco efetivo ('+numBR(sizing.riskBudgetPct*100,2)+'%) e demais limitadores.</span>'
+      +'</div>';
+    }else if(sizing.effectiveMissionLimitPct !== null && !isDanger){
+      quality.innerHTML='<i>1</i><h3>Grade & Risk Budget</h3><div class="layer-content layer-quality-content has-mission-block">'
+        +'<span class="layer-grade"><small>GRADE</small><b>'+result.grade+'</b></span>'
+        +'<span class="layer-metric"><small>RISK BUDGET</small><b>'+numBR(sizing.riskBudgetPct*100,2)+'%</b></span>'
+        +'<div class="mission-risk-limit-block mrl-not-limiting">'
+          +'<div class="mrl-header">'
+            +'<span class="mrl-icon">✓</span>'
+            +'<span class="mrl-title">'+(sizing.isRebuildActive ? 'MODO RECUPERAÇÃO ATIVO' : 'MISSÃO ATIVA')+' — RISCO AUTORIZADO</span>'
+          +'</div>'
+          +'<p class="mrl-explanation">O budget do Grade '+result.grade+' ('+numBR(sizing.gradeRiskBudgetPct*100,2)+'%) está dentro do teto permitido pela Missão ('+numBR(sizing.effectiveMissionLimitPct*100,2)+'%). O risco autorizado pela qualidade prevalece.</p>'
+        +'</div>'
+        +'<span class="layer-metric layer-theoretical" style="grid-column: 1 / -1;"><small>POSITION SIZE TEÓRICO</small><b>'+numBR(sizing.theoreticalQuantity,0)+' ações</b></span>'
+        +'<span class="layer-status status-good" style="grid-column: 1 / -1;">Definido pela qualidade da oportunidade</span>'
+      +'</div>';
+    }else{
+      quality.innerHTML='<i>1</i><h3>Grade & Risk Budget</h3><div class="layer-content layer-quality-content"><span class="layer-grade"><small>GRADE</small><b>'+result.grade+'</b></span><span class="layer-metric"><small>RISK BUDGET</small><b>'+numBR(sizing.riskBudgetPct*100,2)+'%</b></span><span class="layer-metric layer-theoretical"><small>POSITION SIZE TEÓRICO</small><b>'+numBR(sizing.theoreticalQuantity,0)+' ações</b></span><span class="layer-status '+(isDanger?'status-danger':(isCaution?'status-caution':'status-good'))+'">'+(isDanger?'OPERAÇÃO NÃO RECOMENDADA':'Definido pela qualidade da oportunidade')+'</span></div>';
+    }
+  }
   const layerLine=layer=>{const limiting=sizing.limitingLayer===layer.key;const okIcon='<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3.5 8.5 6.5 11.5 12.5 4.5"/></svg>';return '<span class="execution-limit '+(limiting?'is-limiting':'')+'"><small>'+({volatility:'Volatilidade',capital:'Capital'})[layer.key]+'</small><b>'+numBR(layer.quantity,0)+' ações</b><em class="'+(limiting?'is-limiting':'is-ok')+'" title="'+(limiting?'Limitador ativo':'Dentro do limite')+'">'+(limiting?'LIMITANTE':okIcon)+'</em></span>'};
   const exposureStatus=sizing.limitingLayer==='volatility'||sizing.limitingLayer==='capital'?'O menor limite definiu o tamanho executável.':'✓ Nenhum limitador reduziu a posição.';
   if(volatility)volatility.innerHTML='<i>2</i><h3>Limitadores de exposição</h3><div class="layer-content layer-exposure-content">'+sizing.layers.map(layerLine).join('')+'<span class="layer-status '+(sizing.limitingLayer==='volatility'||sizing.limitingLayer==='capital'?'status-caution':'status-good')+'">'+exposureStatus+'</span></div>';
@@ -2868,6 +2933,8 @@ function syncWorkbenchRiskSummary(result){
     statusNote='A Política de Risco não possui capacidade executável.';
   }else if(!portfolio.allowed){
     statusNote=portfolio.heatAllowed?'Limite de posições atingido.':'Limite de Portfolio Heat atingido.';
+  }else if(sizing.isMissionCapped){
+    statusNote='Operação Grade '+result.grade+' · Risco efetivo: '+numBR(sizing.riskBudgetPct*100,2)+'% ('+(sizing.isRebuildActive?'Rebuild':'Missão')+')';
   }else if(!result.qualityAllowed){
     statusNote='Operação Grade '+result.grade+' · Risk Budget '+numBR(sizing.riskBudgetPct*100,2)+'%';
   }
@@ -4600,12 +4667,12 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
       if (isGradeD) {
         limiterText = 'Bloqueado: setup sem vantagem estatística (Grade D).';
         limitingSummaryLabel = 'Trading Rubric (Grade D)';
-      } else if (isRebuild && (theoreticalGradeRisk > (maxAllowedRiskPct + 0.0001) || sizing.limitingLayer === 'grade')) {
+      } else if (isRebuild && (theoreticalGradeRisk > (maxAllowedRiskPct + 0.0001) || sizing.limitingLayer === 'grade' || sizing.limitingLayer === 'budget')) {
         limiterText = `Limitado pelo risco de recuperação de ${numBR(maxAllowedRiskPct, 2)}%.`;
-        limitingSummaryLabel = `Modo Recuperação (${numBR(maxAllowedRiskPct, 2)}%)`;
-      } else if (isMission && (theoreticalGradeRisk > (maxAllowedRiskPct + 0.0001) || sizing.limitingLayer === 'grade')) {
+        limitingSummaryLabel = `Rebuild Mode (Risco por Trade)`;
+      } else if (isMission && (theoreticalGradeRisk > (maxAllowedRiskPct + 0.0001) || sizing.limitingLayer === 'grade' || sizing.limitingLayer === 'budget')) {
         limiterText = `Limitado pelo risco da Missão de ${numBR(maxAllowedRiskPct, 2)}%.`;
-        limitingSummaryLabel = `Missão Ativa (${numBR(maxAllowedRiskPct, 2)}%)`;
+        limitingSummaryLabel = `Missão (Risco por Trade)`;
       } else if (sizing.limitingLayer === 'volatility') {
         limiterText = 'Limitado pela volatilidade da operação (stop ATR).';
         limitingSummaryLabel = 'Volatilidade (Stop ATR)';
@@ -4620,10 +4687,10 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
         limitingSummaryLabel = 'Limite de posições';
       } else if (isRebuild) {
         limiterText = `Limitado pelo risco de recuperação de ${numBR(maxAllowedRiskPct, 2)}%.`;
-        limitingSummaryLabel = `Modo Recuperação (${numBR(maxAllowedRiskPct, 2)}%)`;
+        limitingSummaryLabel = `Rebuild Mode (Risco por Trade)`;
       } else if (isMission) {
         limiterText = `Limitado pelo risco da Missão de ${numBR(maxAllowedRiskPct, 2)}%.`;
-        limitingSummaryLabel = `Missão Ativa (${numBR(maxAllowedRiskPct, 2)}%)`;
+        limitingSummaryLabel = `Missão (Risco por Trade)`;
       } else {
         limiterText = `Definido pelo Risk Budget do Grade ${grade} (${numBR(theoreticalGradeRisk, 2)}%).`;
         limitingSummaryLabel = `Grade ${grade} (${numBR(theoreticalGradeRisk, 2)}%)`;
