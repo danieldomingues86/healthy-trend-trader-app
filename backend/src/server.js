@@ -111,6 +111,22 @@ const server = http.createServer(async (request, response) => {
       if (database.configured()) await auth.logout(bearer(request));
       return send(response, 200, { ok: true });
     }
+    if (request.method === 'POST' && url.pathname === '/api/auth/forgot-password') {
+      const payload = await body(request);
+      const appUrl = payload.appUrl || request.headers.origin || request.headers.referer || null;
+      const result = await auth.requestPasswordReset(payload.email, appUrl);
+      return send(response, 200, result);
+    }
+    if (request.method === 'GET' && url.pathname === '/api/auth/verify-reset-token') {
+      const token = url.searchParams.get('token');
+      const result = await auth.verifyPasswordResetToken(token);
+      return send(response, 200, result);
+    }
+    if (request.method === 'POST' && url.pathname === '/api/auth/reset-password') {
+      const payload = await body(request);
+      const result = await auth.resetPassword(payload.token, payload.newPassword);
+      return send(response, 200, result);
+    }
     if (request.method === 'GET' && url.pathname === '/api/workspace-state') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request));

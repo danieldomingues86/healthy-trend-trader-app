@@ -142,4 +142,202 @@ async function logout(token) {
   if (token) await database.query('DELETE FROM app.app_sessions WHERE token_hash = $1', [hashToken(token)]);
 }
 
-module.exports = { ensureAdmin, hashPassword, login, logout, session, register, verifyPassword, validateRegistration, normalizePlanType, TRIAL_DAYS };
+const RESET_TOKEN_MINUTES = 30;
+const RESET_RATE_LIMIT_MS = 60 * 1000;
+const resetRequestsThrottle = new Map();
+
+function cleanOldThrottleEntries() {
+  const cutoff = Date.now() - RESET_RATE_LIMIT_MS;
+  for (const [key, timestamp] of resetRequestsThrottle.entries()) {
+    if (timestamp < cutoff) resetRequestsThrottle.delete(key);
+  }
+}
+
+async function requestPasswordReset(rawEmail, appUrl) {
+  const email = normalizeEmail(rawEmail);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+    const error = new Error('Informe um e-mail válido.');
+    error.status = 400;
+    throw error;
+  }
+
+  const genericResponse = {
+    ok: true,
+    message: 'Se este e-mail estiver cadastrado, você receberá as instruções para redefinir sua senha em instantes.'
+  };
+
+  cleanOldThrottleEntries();
+  const lastRequest = resetRequestsThrottle.get(email);
+  if (lastRequest && Date.now() - lastRequest < RESET_RATE_LIMIT_MS) {
+    return genericResponse;
+  }
+
+  if (!database.configured()) {
+    return genericResponse;
+  }
+
+  try {
+    const result = await database.query(
+      'SELECT id, email, display_name FROM app.app_users WHERE email = $1 AND active = true',
+      [email]
+    );
+
+    const user = result.rows[0];
+    if (user) {
+      resetRequestsThrottle.set(email, Date.now());
+
+      const rawToken = crypto.randomBytes(32).toString('hex');
+      const tokenHash = hashToken(rawToken);
+      const expiresAt = new Date(Date.now() + RESET_TOKEN_MINUTES * 60 * 1000);
+
+      await database.transaction(async (client) => {
+        await client.query(
+          'UPDATE app.password_reset_tokens SET used_at = now() WHERE user_id = $1 AND used_at IS NULL',
+          [user.id]
+        );
+        await client.query(
+          'INSERT INTO app.password_reset_tokens (token_hash, user_id, expires_at) VALUES ($1, $2, $3)',
+          [tokenHash, user.id, expiresAt]
+        );
+      });
+
+      let baseUrl = appUrl || process.env.APP_BASE_URL || 'http://localhost:8787';
+      try {
+        const parsed = new URL(baseUrl);
+        if (!['localhost', '127.0.0.1'].includes(parsed.hostname) && parsed.protocol === 'http:') {
+          parsed.protocol = 'https:';
+        }
+        parsed.search = '';
+        parsed.hash = '';
+        baseUrl = parsed.toString().replace(/\/+$/, '');
+      } catch (_) {
+        baseUrl = String(baseUrl).split('?')[0].split('#')[0].replace(/\/+$/, '');
+      }
+
+      const resetUrl = `${baseUrl}?reset_token=${encodeURIComponent(rawToken)}`;
+
+      emailService.sendPasswordResetEmail({
+        email: user.email,
+        displayName: user.display_name,
+        resetUrl,
+        expiresInMinutes: RESET_TOKEN_MINUTES
+      }).catch(err => {
+        console.warn('[auth.requestPasswordReset] Erro ao enviar e-mail de recuperação:', err.message);
+      });
+    }
+  } catch (err) {
+    console.error('[auth.requestPasswordReset] Erro interno:', err.message);
+  }
+
+  return genericResponse;
+}
+
+async function verifyPasswordResetToken(token) {
+  if (!token || typeof token !== 'string' || !token.trim()) {
+    return { valid: false, error: 'Token de recuperação não fornecido.' };
+  }
+
+  if (!database.configured()) {
+    return { valid: false, error: 'Serviço de banco de dados indisponível.' };
+  }
+
+  const tokenHash = hashToken(token.trim());
+  const result = await database.query(
+    `SELECT prt.token_hash, prt.user_id, prt.expires_at, prt.used_at, u.email, u.display_name
+       FROM app.password_reset_tokens prt
+       JOIN app.app_users u ON u.id = prt.user_id
+      WHERE prt.token_hash = $1 AND u.active = true`,
+    [tokenHash]
+  );
+
+  const row = result.rows[0];
+  if (!row) {
+    return { valid: false, error: 'Link de recuperação inválido.' };
+  }
+  if (row.used_at) {
+    return { valid: false, error: 'Este link de recuperação já foi utilizado.' };
+  }
+  if (new Date(row.expires_at).getTime() < Date.now()) {
+    return { valid: false, error: 'Este link de recuperação expirou.' };
+  }
+
+  return { valid: true, email: row.email };
+}
+
+async function resetPassword(token, newPassword) {
+  if (!token || typeof token !== 'string' || !token.trim()) {
+    const error = new Error('Token de recuperação não fornecido.');
+    error.status = 400;
+    throw error;
+  }
+
+  if (!newPassword || String(newPassword).length < 10) {
+    const error = new Error('A nova senha precisa ter ao menos 10 caracteres.');
+    error.status = 400;
+    throw error;
+  }
+
+  if (!database.configured()) {
+    const error = new Error('Banco de dados não configurado.');
+    error.status = 503;
+    throw error;
+  }
+
+  const tokenHash = hashToken(token.trim());
+  const result = await database.query(
+    `SELECT prt.token_hash, prt.user_id, prt.expires_at, prt.used_at, u.email
+       FROM app.password_reset_tokens prt
+       JOIN app.app_users u ON u.id = prt.user_id
+      WHERE prt.token_hash = $1 AND u.active = true`,
+    [tokenHash]
+  );
+
+  const row = result.rows[0];
+  if (!row || row.used_at || new Date(row.expires_at).getTime() < Date.now()) {
+    const error = new Error('Link de recuperação inválido, expirado ou já utilizado. Por favor, solicite um novo link.');
+    error.status = 400;
+    throw error;
+  }
+
+  const newHash = await hashPassword(String(newPassword));
+  await database.transaction(async (client) => {
+    await client.query(
+      'UPDATE app.app_users SET password_hash = $1 WHERE id = $2',
+      [newHash, row.user_id]
+    );
+    await client.query(
+      'UPDATE app.password_reset_tokens SET used_at = now() WHERE token_hash = $1',
+      [tokenHash]
+    );
+    await client.query(
+      'UPDATE app.password_reset_tokens SET used_at = now() WHERE user_id = $1 AND used_at IS NULL',
+      [row.user_id]
+    );
+    await client.query(
+      'DELETE FROM app.app_sessions WHERE user_id = $1',
+      [row.user_id]
+    );
+  });
+
+  return {
+    ok: true,
+    message: 'Senha redefinida com sucesso. Você já pode acessar seu workspace com a nova senha.'
+  };
+}
+
+module.exports = {
+  ensureAdmin,
+  hashPassword,
+  login,
+  logout,
+  session,
+  register,
+  verifyPassword,
+  validateRegistration,
+  normalizePlanType,
+  requestPasswordReset,
+  verifyPasswordResetToken,
+  resetPassword,
+  TRIAL_DAYS,
+  RESET_TOKEN_MINUTES
+};

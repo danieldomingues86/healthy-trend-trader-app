@@ -6,6 +6,7 @@ try {
 } catch (_) {}
 
 const { renderWelcomeEmail, getBackgroundBase64, DEFAULT_BG_URL } = require('./templates/welcome-email');
+const { renderPasswordResetEmail } = require('./templates/password-reset-email');
 
 function isConfigured() {
   return Boolean(
@@ -40,13 +41,13 @@ function createTransporter() {
   });
 }
 
-async function saveEmailPreview(to, subject, html, text) {
+async function saveEmailPreview(to, subject, html, text, prefix = 'welcome') {
   try {
     const dir = path.resolve(__dirname, '..', 'data', 'emails');
     await fs.mkdir(dir, { recursive: true });
     const cleanTo = String(to || 'unknown').replace(/[^a-z0-9]/gi, '_');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `welcome-${cleanTo}-${timestamp}.html`;
+    const filename = `${prefix}-${cleanTo}-${timestamp}.html`;
     const filePath = path.join(dir, filename);
 
     await fs.writeFile(filePath, html, 'utf8');
@@ -113,9 +114,46 @@ async function sendWelcomeEmail({ email, displayName, planType, appUrl, backgrou
   }
 }
 
+async function sendPasswordResetEmail({ email, displayName, resetUrl, expiresInMinutes = 30, backgroundUrl }) {
+  if (!email) {
+    return { sent: false, error: 'E-mail do destinatário não informado.' };
+  }
+
+  const { subject, html, text } = renderPasswordResetEmail({
+    displayName,
+    email,
+    resetUrl,
+    expiresInMinutes,
+    backgroundUrl
+  });
+
+  try {
+    if (isConfigured() && process.env.NODE_ENV !== 'test') {
+      const transporter = createTransporter();
+      const info = await transporter.sendMail({
+        from: getFromAddress(),
+        to: email,
+        subject,
+        html,
+        text
+      });
+      console.log(`[email-service] 🚀 E-mail de recuperação de senha enviado para ${email} (ID: ${info.messageId})`);
+      return { sent: true, mode: 'smtp', messageId: info.messageId };
+    }
+
+    return await saveEmailPreview(email, subject, html, text, 'password-reset');
+  } catch (err) {
+    console.error(`[email-service] ⚠️ Erro ao disparar e-mail de recuperação para ${email}:`, err.message);
+    await saveEmailPreview(email, subject, html, text, 'password-reset');
+    return { sent: false, mode: 'smtp_error', error: err.message };
+  }
+}
+
 module.exports = {
   sendWelcomeEmail,
+  sendPasswordResetEmail,
   isConfigured,
   renderWelcomeEmail,
+  renderPasswordResetEmail,
   saveEmailPreview
 };
