@@ -2847,8 +2847,121 @@
       if (!book) return null;
       return book.chapters.find(function (c) { return c.id === chapterId; });
     },
+    getChapterPages: function (chapter) {
+      if (!chapter) return [];
+      if (Array.isArray(chapter.pages) && chapter.pages.length > 0) {
+        return chapter.pages;
+      }
+      var secs = Array.isArray(chapter.sections) ? chapter.sections : [];
+      var pages = [];
+
+      if (secs.length <= 1) {
+        pages.push({
+          pageIndex: 0,
+          number: 1,
+          id: 'p-1',
+          title: secs[0] ? secs[0].title : (chapter.title + ' — Introdução'),
+          type: 'intro',
+          takeaways: chapter.takeaways || [],
+          sections: secs[0] ? [secs[0]] : [],
+          contentLead: chapter.subtitle
+        });
+        pages.push({
+          pageIndex: 1,
+          number: 2,
+          id: 'p-2',
+          title: 'Aplicação Prática & Síntese',
+          type: 'practice',
+          tip: chapter.tip,
+          toolRoute: chapter.toolRoute,
+          toolLabel: chapter.toolLabel,
+          relatedLinks: chapter.relatedLinks || []
+        });
+      } else if (secs.length === 2) {
+        pages.push({
+          pageIndex: 0,
+          number: 1,
+          id: 'p-1',
+          title: secs[0].title,
+          type: 'intro',
+          takeaways: chapter.takeaways || [],
+          sections: [secs[0]],
+          contentLead: chapter.subtitle
+        });
+        pages.push({
+          pageIndex: 1,
+          number: 2,
+          id: 'p-2',
+          title: secs[1].title,
+          type: 'practice',
+          sections: [secs[1]],
+          tip: chapter.tip,
+          toolRoute: chapter.toolRoute,
+          toolLabel: chapter.toolLabel,
+          relatedLinks: chapter.relatedLinks || []
+        });
+      } else if (secs.length === 3) {
+        pages.push({
+          pageIndex: 0,
+          number: 1,
+          id: 'p-1',
+          title: secs[0].title,
+          type: 'intro',
+          takeaways: chapter.takeaways || [],
+          sections: [secs[0]],
+          contentLead: chapter.subtitle
+        });
+        pages.push({
+          pageIndex: 1,
+          number: 2,
+          id: 'p-2',
+          title: secs[1].title,
+          type: 'explanation',
+          sections: [secs[1]]
+        });
+        pages.push({
+          pageIndex: 2,
+          number: 3,
+          id: 'p-3',
+          title: secs[2].title,
+          type: 'practice',
+          sections: [secs[2]],
+          tip: chapter.tip,
+          toolRoute: chapter.toolRoute,
+          toolLabel: chapter.toolLabel,
+          relatedLinks: chapter.relatedLinks || []
+        });
+      } else {
+        for (var i = 0; i < secs.length; i++) {
+          var isFirst = i === 0;
+          var isLast = i === secs.length - 1;
+          pages.push({
+            pageIndex: i,
+            number: i + 1,
+            id: 'p-' + (i + 1),
+            title: secs[i].title,
+            type: isFirst ? 'intro' : (isLast ? 'practice' : 'explanation'),
+            takeaways: isFirst ? (chapter.takeaways || []) : [],
+            sections: [secs[i]],
+            tip: isLast ? chapter.tip : null,
+            toolRoute: isLast ? chapter.toolRoute : null,
+            toolLabel: isLast ? chapter.toolLabel : null,
+            relatedLinks: isLast ? (chapter.relatedLinks || []) : []
+          });
+        }
+      }
+      return pages;
+    },
     getTotalChapters: function () {
       return BOOKS.reduce(function (sum, b) { return sum + b.chapters.length; }, 0);
+    },
+    getTotalPages: function () {
+      var self = this;
+      return BOOKS.reduce(function (sum, b) {
+        return sum + b.chapters.reduce(function (cSum, c) {
+          return cSum + self.getChapterPages(c).length;
+        }, 0);
+      }, 0);
     }
   };
 }));

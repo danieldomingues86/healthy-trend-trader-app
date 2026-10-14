@@ -408,24 +408,33 @@
   function loadProgress() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          completed: Array.isArray(parsed.completed) ? parsed.completed : [],
+          completedPages: parsed.completedPages && typeof parsed.completedPages === 'object' ? parsed.completedPages : {},
+          lastRead: parsed.lastRead || null
+        };
+      }
     } catch (_) {}
-    return { completed: [], lastRead: null };
+    return { completed: [], completedPages: {}, lastRead: null };
   }
 
   function saveProgress(state) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
       if (window.healthyTrendWorkspace && typeof window.healthyTrendWorkspace.save === 'function') {
-        window.healthyTrendWorkspace.save('manualProgress', state);
+        window.healthyTrendWorkspace.save('manualProgress', state.progress);
       }
     } catch (_) {}
   }
 
   const appState = {
     view: 'library', // 'library' | 'reader'
+    selectedBookFilter: 'all',
     bookId: 'livro-1',
     chapterId: 'livro-1-cap-1',
+    pageIndex: 0,
     searchQuery: '',
     progress: loadProgress()
   };
@@ -434,7 +443,9 @@
     BOOKS: [],
     getBook: () => null,
     getChapter: () => null,
-    getTotalChapters: () => 0
+    getTotalChapters: () => 0,
+    getChapterPages: () => [],
+    getTotalPages: () => 0
   };
 
   function isChapterCompleted(id) {
@@ -450,6 +461,20 @@
     }
     saveProgress(appState);
     renderApp();
+  }
+
+  function markPageVisited(chapterId, pageIndex, totalPages) {
+    if (!appState.progress.completedPages[chapterId]) {
+      appState.progress.completedPages[chapterId] = [];
+    }
+    if (!appState.progress.completedPages[chapterId].includes(pageIndex)) {
+      appState.progress.completedPages[chapterId].push(pageIndex);
+    }
+    // If user reached last page of chapter, mark chapter completed
+    if (pageIndex === totalPages - 1 && !appState.progress.completed.includes(chapterId)) {
+      appState.progress.completed.push(chapterId);
+    }
+    saveProgress(appState);
   }
 
   function getBookProgress(book) {
@@ -468,20 +493,110 @@
   }
 
   // Navigation handlers
-  function openBook(bookId, chapterId) {
+  function openChapter(bookId, chapterId, pageIndex = 0) {
     const book = BooksModel.getBook(bookId);
     if (!book) return;
+    const chapter = chapterId ? BooksModel.getChapter(bookId, chapterId) : book.chapters[0];
+    if (!chapter) return;
+
+    const pages = BooksModel.getChapterPages(chapter);
+    const validPageIndex = Math.max(0, Math.min(pageIndex, Math.max(0, pages.length - 1)));
+
     appState.view = 'reader';
     appState.bookId = bookId;
-    appState.chapterId = chapterId || (book.chapters[0] ? book.chapters[0].id : null);
-    appState.progress.lastRead = { bookId: appState.bookId, chapterId: appState.chapterId };
+    appState.chapterId = chapter.id;
+    appState.pageIndex = validPageIndex;
+
+    markPageVisited(chapter.id, validPageIndex, pages.length);
+
+    appState.progress.lastRead = {
+      bookId: appState.bookId,
+      chapterId: appState.chapterId,
+      pageIndex: validPageIndex
+    };
     saveProgress(appState);
+
     renderApp();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function openLibrary() {
+  function openPage(pageIndex) {
+    const book = BooksModel.getBook(appState.bookId);
+    const chapter = BooksModel.getChapter(appState.bookId, appState.chapterId);
+    if (!book || !chapter) return;
+    const pages = BooksModel.getChapterPages(chapter);
+    if (pageIndex < 0 || pageIndex >= pages.length) return;
+
+    appState.pageIndex = pageIndex;
+    markPageVisited(chapter.id, pageIndex, pages.length);
+
+    appState.progress.lastRead = {
+      bookId: appState.bookId,
+      chapterId: appState.chapterId,
+      pageIndex: pageIndex
+    };
+    saveProgress(appState);
+
+    renderApp();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextPage() {
+    const book = BooksModel.getBook(appState.bookId);
+    const chapter = BooksModel.getChapter(appState.bookId, appState.chapterId);
+    if (!book || !chapter) return;
+    const pages = BooksModel.getChapterPages(chapter);
+
+    if (appState.pageIndex < pages.length - 1) {
+      openPage(appState.pageIndex + 1);
+    } else {
+      // Advance to next chapter
+      const chIdx = book.chapters.findIndex(c => c.id === chapter.id);
+      if (chIdx >= 0 && chIdx < book.chapters.length - 1) {
+        const nextCh = book.chapters[chIdx + 1];
+        openChapter(book.id, nextCh.id, 0);
+      } else {
+        // Next book if available
+        const bIdx = BooksModel.BOOKS.findIndex(b => b.id === book.id);
+        if (bIdx >= 0 && bIdx < BooksModel.BOOKS.length - 1) {
+          const nextBook = BooksModel.BOOKS[bIdx + 1];
+          openChapter(nextBook.id, nextBook.chapters[0].id, 0);
+        } else {
+          openLibrary();
+        }
+      }
+    }
+  }
+
+  function prevPage() {
+    const book = BooksModel.getBook(appState.bookId);
+    const chapter = BooksModel.getChapter(appState.bookId, appState.chapterId);
+    if (!book || !chapter) return;
+
+    if (appState.pageIndex > 0) {
+      openPage(appState.pageIndex - 1);
+    } else {
+      // Go to previous chapter (last page)
+      const chIdx = book.chapters.findIndex(c => c.id === chapter.id);
+      if (chIdx > 0) {
+        const prevCh = book.chapters[chIdx - 1];
+        const prevPages = BooksModel.getChapterPages(prevCh);
+        openChapter(book.id, prevCh.id, Math.max(0, prevPages.length - 1));
+      } else {
+        openLibrary();
+      }
+    }
+  }
+
+  function openBook(bookId, chapterId) {
+    openChapter(bookId, chapterId, 0);
+  }
+
+  function openLibrary(filterBookId) {
     appState.view = 'library';
+    if (filterBookId) {
+      appState.selectedBookFilter = filterBookId;
+    }
     renderApp();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -489,12 +604,12 @@
   // Compatibility routes
   window.openSellIntoStrengthManual = function () {
     if (typeof go === 'function') go('manual');
-    setTimeout(() => openBook('livro-6', 'livro-6-cap-2'), 100);
+    setTimeout(() => openChapter('livro-6', 'livro-6-cap-2', 0), 100);
   };
 
   window.openScaleInManual = function () {
     if (typeof go === 'function') go('manual');
-    setTimeout(() => openBook('livro-3', 'livro-3-cap-13'), 100);
+    setTimeout(() => openChapter('livro-3', 'livro-3-cap-13', 0), 100);
   };
 
   // Main UI Container
@@ -506,21 +621,21 @@
   // Search Catalog builder
   function buildSearchCatalog() {
     const list = [];
-    // Books & Chapters
     for (const b of BooksModel.BOOKS) {
       for (const c of b.chapters) {
+        const pages = BooksModel.getChapterPages(c);
         list.push({
           type: 'chapter',
           bookId: b.id,
           chapterId: c.id,
+          pageIndex: 0,
           title: c.title,
           badge: `${b.title} · Cap. ${c.number}`,
-          subtitle: c.subtitle,
+          subtitle: `${pages.length} páginas · ${c.subtitle}`,
           text: [c.subtitle, ...(c.takeaways || []), ...(c.sections || []).map(s => s.title + ' ' + s.content)].join(' ')
         });
       }
     }
-    // Software tools
     for (const [id, title, subtitle, , desc] of software) {
       list.push({
         type: 'tool',
@@ -531,7 +646,6 @@
         text: `${desc} ${(additionalGuides[id] || []).join(' ')}`
       });
     }
-    // Glossary terms
     const glossary = typeof methodGlossary !== 'undefined' ? methodGlossary : [];
     for (const g of glossary) {
       list.push({
@@ -559,9 +673,33 @@
     }).slice(0, 15);
   }
 
-  // Renderers
+  // =========================================================================
+  // NÍVEL 1 — BIBLIOTECA DO MANUAL
+  // =========================================================================
   function renderLibraryView() {
     const overall = getOverallProgress();
+    const resumeLast = appState.progress.lastRead;
+    const resumeBook = resumeLast ? BooksModel.getBook(resumeLast.bookId) : null;
+    const resumeChapter = resumeLast && resumeBook ? BooksModel.getChapter(resumeLast.bookId, resumeLast.chapterId) : null;
+
+    // Filter displayed chapters
+    let displayedChapters = [];
+    if (appState.selectedBookFilter === 'all') {
+      for (const b of BooksModel.BOOKS) {
+        for (const c of b.chapters) {
+          displayedChapters.push({ book: b, chapter: c });
+        }
+      }
+    } else {
+      const b = BooksModel.getBook(appState.selectedBookFilter) || BooksModel.BOOKS[0];
+      if (b) {
+        for (const c of b.chapters) {
+          displayedChapters.push({ book: b, chapter: c });
+        }
+      }
+    }
+
+    const selectedBook = appState.selectedBookFilter !== 'all' ? BooksModel.getBook(appState.selectedBookFilter) : null;
 
     return `
       <div class="kc-library-view">
@@ -569,13 +707,13 @@
         <section class="kc-lib-hero">
           <div class="kc-lib-hero-copy">
             <span class="kc-lib-eyebrow">CENTRAL DE CONHECIMENTO</span>
-            <h1 class="kc-lib-title">Central de Conhecimento</h1>
+            <h1 class="kc-lib-title">Biblioteca Digital do Trader</h1>
             <p class="kc-lib-subtitle">Domine o software. Entenda o método. Execute com intenção.</p>
-            <p class="kc-lib-description">Uma biblioteca completa para você aprender, consultar e evoluir como trader, com conteúdo organizado, prático e direto ao ponto.</p>
+            <p class="kc-lib-description">Uma experiência editorial paginada, organizada em livros, capítulos e páginas independentes para seu estudo diário.</p>
             
             <div class="kc-lib-search-box">
               <span class="kc-lib-search-icon">${icon('search', 20)}</span>
-              <input type="text" class="kc-lib-search-input" id="kcSearchInput" placeholder="O que você quer aprender hoje?" autocomplete="off" />
+              <input type="text" class="kc-lib-search-input" id="kcSearchInput" placeholder="O que você quer aprender hoje? (ex: Força Relativa, Rubric, Stop, Risco...)" autocomplete="off" />
               <button type="button" class="kc-lib-search-clear" id="kcSearchClear" hidden title="Limpar busca">×</button>
               <button type="button" class="kc-lib-search-submit" id="kcSearchSubmit" aria-label="Pesquisar">${icon('arrowRight', 18)}</button>
               <div class="kc-search-dropdown" id="kcSearchDropdown" hidden></div>
@@ -586,135 +724,192 @@
           </div>
         </section>
 
-        <!-- 3 QUICK PATH CARDS -->
-        <section class="kc-quick-paths">
-          <div class="kc-path-card" data-action="open-book" data-book-id="livro-1">
-            <div class="kc-path-icon kc-path-icon-gold">${icon('play', 24)}</div>
-            <div class="kc-path-copy">
-              <h3>Começar Agora</h3>
-              <p>Uma trilha guiada para conhecer a plataforma e começar do jeito certo.</p>
+        <!-- STATS & RESUME BAR -->
+        <section class="kc-stats-row">
+          <div class="kc-stat-card">
+            <div class="kc-stat-icon kc-stat-icon-green">${icon('book', 24)}</div>
+            <div>
+              <span class="kc-stat-val">6 Livros</span>
+              <span class="kc-stat-lbl">Acervo Completo</span>
             </div>
-            <button type="button" class="kc-path-btn" aria-label="Começar Agora">${icon('arrowRight', 18)}</button>
           </div>
-
-          <div class="kc-path-card" data-action="open-book" data-book-id="livro-2">
-            <div class="kc-path-icon kc-path-icon-teal">${icon('monitor', 24)}</div>
-            <div class="kc-path-copy">
-              <h3>Explorar o Software</h3>
-              <p>Conheça todas as ferramentas da plataforma, organizadas por categoria.</p>
+          <div class="kc-stat-card">
+            <div class="kc-stat-icon kc-stat-icon-gold">${icon('chart', 24)}</div>
+            <div>
+              <span class="kc-stat-val">80 Capítulos</span>
+              <span class="kc-stat-lbl">Páginas Independentes</span>
             </div>
-            <button type="button" class="kc-path-btn" aria-label="Explorar o Software">${icon('arrowRight', 18)}</button>
           </div>
-
-          <div class="kc-path-card" data-action="open-book" data-book-id="livro-3">
-            <div class="kc-path-icon kc-path-icon-amber">${icon('chart', 24)}</div>
-            <div class="kc-path-copy">
-              <h3>Dominar o Método</h3>
-              <p>Estude os conceitos, regras e estratégias que fundamentam suas decisões.</p>
+          <div class="kc-stat-card kc-stat-card-progress">
+            <div class="kc-stat-prog-top">
+              <span class="kc-stat-lbl">Progresso da Leitura</span>
+              <span class="kc-stat-prog-val">${overall.percent}%</span>
             </div>
-            <button type="button" class="kc-path-btn" aria-label="Dominar o Método">${icon('arrowRight', 18)}</button>
+            <div class="kc-progress-track">
+              <div class="kc-progress-fill" style="width: ${overall.percent}%"></div>
+            </div>
+            <span class="kc-stat-sub">${overall.completed} de ${overall.total} capítulos concluídos</span>
           </div>
+          ${(resumeBook && resumeChapter) ? `
+            <div class="kc-stat-card kc-stat-card-resume" data-action="resume-reading" data-book-id="${resumeBook.id}" data-chapter-id="${resumeChapter.id}" data-page-index="${resumeLast.pageIndex || 0}">
+              <div>
+                <span class="kc-stat-resume-tag">Retomar Leitura</span>
+                <strong class="kc-stat-resume-title">${esc(resumeChapter.title)}</strong>
+                <span class="kc-stat-resume-sub">Pág. ${(resumeLast.pageIndex || 0) + 1} · ${esc(resumeBook.title)}</span>
+              </div>
+              <button type="button" class="kc-stat-resume-btn" aria-label="Continuar">${icon('arrowRight', 16)}</button>
+            </div>
+          ` : `
+            <div class="kc-stat-card kc-stat-card-quickstart" data-action="open-chapter" data-book-id="livro-1" data-chapter-id="livro-1-cap-1" data-page-index="0">
+              <div>
+                <span class="kc-stat-resume-tag">Primeira Leitura</span>
+                <strong class="kc-stat-resume-title">Começar pelo Livro 1</strong>
+                <span class="kc-stat-resume-sub">Visão Geral & Primeiros Passos</span>
+              </div>
+              <button type="button" class="kc-stat-resume-btn" aria-label="Começar">${icon('arrowRight', 16)}</button>
+            </div>
+          `}
         </section>
 
-        <!-- BOOKS GRID SECTION -->
+        <!-- SELEÇÃO DE LIVROS (BOOK FILTER TABS) -->
         <section class="kc-books-section">
-          <div class="kc-books-header">
+          <div class="kc-section-head">
             <div>
-              <h2 class="kc-books-title">Biblioteca de Livros</h2>
-              <p class="kc-books-subtitle">Conhecimento organizado em uma sequência lógica para você aprender, consultar e evoluir.</p>
-            </div>
-            <div class="kc-overall-progress-card">
-              <div class="kc-overall-top">
-                <span class="kc-overall-label">Seu progresso geral</span>
-                <span class="kc-overall-pct">${overall.percent}%</span>
-              </div>
-              <div class="kc-progress-track">
-                <div class="kc-progress-fill" style="width: ${overall.percent}%"></div>
-              </div>
-              <span class="kc-overall-detail">${overall.completed} de ${overall.total} capítulos concluídos</span>
+              <h2 class="kc-section-title">Biblioteca de Livros & Capítulos</h2>
+              <p class="kc-section-subtitle">Filtre por livro ou explore o acervo completo de capítulos e páginas editoriais.</p>
             </div>
           </div>
 
-          <div class="kc-books-grid">
-            ${BooksModel.BOOKS.map(book => {
-              const bProg = getBookProgress(book);
-              const isStarted = bProg.completed > 0;
-              const isComplete = bProg.completed === bProg.total && bProg.total > 0;
-              const btnLabel = isStarted && !isComplete ? 'Continuar' : 'Acessar';
-
+          <div class="kc-book-filter-tabs">
+            <button type="button" class="kc-filter-tab ${appState.selectedBookFilter === 'all' ? 'active' : ''}" data-action="filter-book" data-book-id="all">
+              Todos os Livros (80)
+            </button>
+            ${BooksModel.BOOKS.map(b => {
+              const bProg = getBookProgress(b);
               return `
-                <article class="kc-book-card" data-action="open-book" data-book-id="${book.id}">
-                  <div class="kc-book-cover-frame">
-                    <img src="${book.cover}" alt="Capa ${esc(book.title)}" loading="lazy" />
-                  </div>
-                  <div class="kc-book-body">
-                    <div class="kc-book-meta-top">
-                      <span class="kc-book-number">${book.number}</span>
-                      <span class="kc-book-chapters-badge">${book.chapters.length} capítulos</span>
-                    </div>
-                    <h3 class="kc-book-name">${esc(book.title)}</h3>
-                    <p class="kc-book-sub">${esc(book.subtitle)}</p>
-                    
-                    <div class="kc-book-progress-row">
-                      <div class="kc-progress-track">
-                        <div class="kc-progress-fill" style="width: ${bProg.percent}%"></div>
-                      </div>
-                      <span class="kc-book-pct">${bProg.percent}%</span>
-                    </div>
-
-                    <button type="button" class="kc-book-btn ${isStarted ? 'kc-btn-continue' : 'kc-btn-access'}">
-                      ${btnLabel}
-                    </button>
-                  </div>
-                </article>
+                <button type="button" class="kc-filter-tab ${appState.selectedBookFilter === b.id ? 'active' : ''}" data-action="filter-book" data-book-id="${b.id}">
+                  <span class="kc-tab-num">${b.number}.</span> ${esc(b.title)}
+                  <span class="kc-tab-count">${b.chapters.length} cap.</span>
+                  ${bProg.completed > 0 ? `<span class="kc-tab-pct">${bProg.percent}%</span>` : ''}
+                </button>
               `;
             }).join('')}
+          </div>
+
+          <!-- GRADE DE CAPÍTULOS (EDITORIAL CARDS) -->
+          <div class="kc-chapters-grid-wrap">
+            <div class="kc-chapters-grid-head">
+              <h3 class="kc-ch-grid-title">${selectedBook ? `${selectedBook.number}. ${selectedBook.title} — Capítulos` : 'Todos os Capítulos Disponíveis'}</h3>
+              <span class="kc-ch-grid-count">${displayedChapters.length} capítulos</span>
+            </div>
+
+            <div class="kc-chapters-grid">
+              ${displayedChapters.map(({ book: b, chapter: c }) => {
+                const pages = BooksModel.getChapterPages(c);
+                const isDone = isChapterCompleted(c.id);
+                const visitedPages = appState.progress.completedPages[c.id] || [];
+                const isStarted = visitedPages.length > 0 && !isDone;
+
+                return `
+                  <article class="kc-ch-card" data-action="open-chapter" data-book-id="${b.id}" data-chapter-id="${c.id}" data-page-index="0">
+                    <div class="kc-ch-card-cover-frame">
+                      <img src="${c.cover || b.cover}" alt="Capa ${esc(c.title)}" loading="lazy" />
+                      <span class="kc-ch-card-badge">${b.number}. ${esc(b.title)}</span>
+                      <span class="kc-ch-pages-tag">📄 ${pages.length} páginas</span>
+                    </div>
+                    <div class="kc-ch-card-body">
+                      <div class="kc-ch-card-meta">
+                        <span class="kc-ch-card-num">Capítulo ${c.number}</span>
+                        ${isDone ? `
+                          <span class="kc-ch-status-pill kc-status-done">${icon('check', 12)} Concluído</span>
+                        ` : (isStarted ? `
+                          <span class="kc-ch-status-pill kc-status-started">Pág. ${visitedPages.length} de ${pages.length}</span>
+                        ` : `
+                          <span class="kc-ch-status-pill kc-status-unread">Não iniciado</span>
+                        `)}
+                      </div>
+                      <h4 class="kc-ch-card-title">${esc(c.title)}</h4>
+                      <p class="kc-ch-card-desc">${esc(c.subtitle)}</p>
+
+                      ${c.takeaways && c.takeaways.length ? `
+                        <ul class="kc-ch-card-takeaways">
+                          ${c.takeaways.slice(0, 2).map(t => `
+                            <li><span class="kc-ch-card-dot">•</span> ${esc(t)}</li>
+                          `).join('')}
+                        </ul>
+                      ` : ''}
+
+                      <div class="kc-ch-card-footer">
+                        <button type="button" class="kc-ch-card-btn ${isStarted ? 'kc-btn-resume' : ''}">
+                          ${isDone ? 'Revisar Capítulo →' : (isStarted ? 'Continuar Leitura →' : 'Ler Capítulo →')}
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                `;
+              }).join('')}
+            </div>
           </div>
         </section>
       </div>
     `;
   }
 
+  // =========================================================================
+  // NÍVEL 2 & NÍVEL 3 — LEITOR DO CAPÍTULO E PÁGINAS INDEPENDENTES
+  // =========================================================================
   function renderReaderView() {
     const book = BooksModel.getBook(appState.bookId) || BooksModel.BOOKS[0];
     const chapter = BooksModel.getChapter(appState.bookId, appState.chapterId) || book.chapters[0];
     if (!book || !chapter) return '<p>Capítulo não encontrado.</p>';
 
+    const pages = BooksModel.getChapterPages(chapter);
+    const validPageIndex = Math.max(0, Math.min(appState.pageIndex, Math.max(0, pages.length - 1)));
+    const currentPage = pages[validPageIndex] || pages[0];
+
     const bProg = getBookProgress(book);
     const chapterIdx = book.chapters.findIndex(c => c.id === chapter.id);
     const prevChapter = chapterIdx > 0 ? book.chapters[chapterIdx - 1] : null;
     const nextChapter = chapterIdx < book.chapters.length - 1 ? book.chapters[chapterIdx + 1] : null;
-    const isCompleted = isChapterCompleted(chapter.id);
+    const isDone = isChapterCompleted(chapter.id);
 
     return `
       <div class="kc-reader-view">
         <!-- TOP BREADCRUMB BAR -->
         <header class="kc-reader-topbar">
-          <nav class="kc-breadcrumbs" aria-label="Navegação de migalhas">
+          <nav class="kc-breadcrumbs" aria-label="Navegação editorial">
             <button type="button" class="kc-crumb-back" data-action="open-library">
-              ${icon('arrowLeft', 16)} Central de Conhecimento
+              ${icon('arrowLeft', 16)} Biblioteca do Manual
             </button>
             <span class="kc-crumb-sep">/</span>
-            <span class="kc-crumb-book">${esc(book.title)}</span>
+            <span class="kc-crumb-book">${book.number}. ${esc(book.title)}</span>
             <span class="kc-crumb-sep">/</span>
-            <span class="kc-crumb-current">${chapter.number}. ${esc(chapter.title)}</span>
+            <span class="kc-crumb-current">Cap. ${chapter.number}: ${esc(chapter.title)}</span>
           </nav>
 
-          <div class="kc-reader-top-search">
-            <span class="kc-top-search-icon">${icon('search', 16)}</span>
-            <input type="text" class="kc-top-search-input" id="kcReaderSearchInput" placeholder="Buscar neste livro..." autocomplete="off" />
-            <div class="kc-search-dropdown" id="kcReaderSearchDropdown" hidden></div>
+          <div class="kc-reader-topbar-controls">
+            <span class="kc-reader-page-indicator-pill">
+              Página <strong>${validPageIndex + 1}</strong> de <strong>${pages.length}</strong>
+            </span>
+            <div class="kc-reader-top-search">
+              <span class="kc-top-search-icon">${icon('search', 16)}</span>
+              <input type="text" class="kc-top-search-input" id="kcReaderSearchInput" placeholder="Buscar neste livro..." autocomplete="off" />
+              <div class="kc-search-dropdown" id="kcReaderSearchDropdown" hidden></div>
+            </div>
+            <button type="button" class="kc-reader-close-btn" data-action="open-library" title="Voltar à Biblioteca">
+              ${icon('close', 18)}
+            </button>
           </div>
         </header>
 
         <div class="kc-reader-layout">
-          <!-- LEFT SIDEBAR: CHAPTER INDEX -->
+          <!-- LEFT SIDEBAR: BOOK CHAPTERS & PAGES INDEX -->
           <aside class="kc-reader-sidebar">
             <div class="kc-sidebar-book-card">
               <div class="kc-sidebar-book-header">
                 <span class="kc-sidebar-book-icon">${icon('book', 20)}</span>
                 <div>
-                  <h3 class="kc-sidebar-book-title">${esc(book.title)}</h3>
+                  <h3 class="kc-sidebar-book-title">${book.number}. ${esc(book.title)}</h3>
                   <span class="kc-sidebar-book-count">${book.chapters.length} capítulos</span>
                 </div>
               </div>
@@ -722,32 +917,40 @@
                 <div class="kc-progress-track">
                   <div class="kc-progress-fill" style="width: ${bProg.percent}%"></div>
                 </div>
-                <span class="kc-sidebar-pct">${bProg.completed} de ${bProg.total} (${bProg.percent}%)</span>
+                <span class="kc-sidebar-pct">${bProg.completed} de ${bProg.total} capítulos (${bProg.percent}%)</span>
               </div>
             </div>
 
             <nav class="kc-chapter-nav" aria-label="Índice de Capítulos">
               <ul class="kc-chapter-list">
                 ${book.chapters.map(c => {
-                  const isActive = c.id === chapter.id;
-                  const done = isChapterCompleted(c.id);
+                  const isChActive = c.id === chapter.id;
+                  const isChDone = isChapterCompleted(c.id);
+                  const chPages = BooksModel.getChapterPages(c);
+
                   return `
-                    <li class="kc-chapter-item ${isActive ? 'active' : ''} ${done ? 'completed' : ''}">
-                      <button type="button" class="kc-chapter-btn" data-action="select-chapter" data-chapter-id="${c.id}">
-                        <span class="kc-ch-status">${done ? icon('checkCircle', 16) : icon('circle', 16)}</span>
+                    <li class="kc-chapter-item ${isChActive ? 'active' : ''} ${isChDone ? 'completed' : ''}">
+                      <button type="button" class="kc-chapter-btn" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${c.id}" data-page-index="0">
+                        <span class="kc-ch-status">${isChDone ? icon('checkCircle', 16) : icon('circle', 16)}</span>
                         <span class="kc-ch-num">${c.number}.</span>
                         <span class="kc-ch-title">${esc(c.title)}</span>
                       </button>
-                      ${isActive && c.sections && c.sections.length ? `
-                        <ul class="kc-subsections-list">
-                          ${c.sections.map(sec => `
-                            <li>
-                              <a href="#sec-${sec.id}" class="kc-subsec-link">
-                                ${esc(sec.title)}
-                              </a>
-                            </li>
-                          `).join('')}
-                        </ul>
+
+                      ${isChActive ? `
+                        <!-- SUB-PAGES OF ACTIVE CHAPTER -->
+                        <div class="kc-active-pages-panel">
+                          <span class="kc-active-pages-label">Páginas deste capítulo:</span>
+                          <ul class="kc-active-pages-list">
+                            ${chPages.map((p, pIdx) => `
+                              <li class="kc-page-nav-item ${pIdx === validPageIndex ? 'active' : ''}">
+                                <button type="button" class="kc-page-nav-btn" data-action="go-to-page" data-page-index="${pIdx}">
+                                  <span class="kc-p-step">${pIdx + 1}</span>
+                                  <span class="kc-p-label">${esc(p.title.replace(/^\d+(\.\d+)?\s*/, ''))}</span>
+                                </button>
+                              </li>
+                            `).join('')}
+                          </ul>
+                        </div>
                       ` : ''}
                     </li>
                   `;
@@ -756,147 +959,215 @@
             </nav>
           </aside>
 
-          <!-- MAIN READING ARTICLE -->
+          <!-- CENTER DESK: THE EDITORIAL PAGINATED READING DESK -->
           <main class="kc-reader-main">
-            <article class="kc-chapter-article">
-              <!-- CHAPTER HEADER -->
-              <div class="kc-art-header">
-                <div>
-                  <span class="kc-art-eyebrow">Capítulo ${chapter.number}</span>
-                  <h1 class="kc-art-title">${esc(chapter.title)}</h1>
-                  <p class="kc-art-subtitle">${esc(chapter.subtitle)}</p>
-                </div>
-                <div class="kc-art-complete-wrap">
-                  <button type="button" class="kc-btn-toggle-complete ${isCompleted ? 'is-completed' : ''}" data-action="toggle-complete" data-chapter-id="${chapter.id}">
-                    <span class="kc-toggle-icon">${isCompleted ? icon('check', 16) : ''}</span>
-                    <span class="kc-toggle-label">${isCompleted ? 'Capítulo concluído' : 'Marcar como concluído'}</span>
+            <!-- PAGE STEPPER / TABS -->
+            <nav class="kc-page-stepper-bar" aria-label="Páginas do capítulo">
+              ${pages.map((p, pIdx) => `
+                <button type="button" class="kc-stepper-btn ${pIdx === validPageIndex ? 'active' : ''} ${pIdx < validPageIndex ? 'completed' : ''}" data-action="go-to-page" data-page-index="${pIdx}">
+                  <span class="kc-step-dot">${pIdx + 1}</span>
+                  <span class="kc-step-text">${esc(p.title.replace(/^\d+(\.\d+)?\s*/, ''))}</span>
+                </button>
+              `).join('')}
+            </nav>
+
+            <!-- THE INDEPENDENT PAGE SURFACE (ONLY THIS PAGE IS RENDERED) -->
+            <article class="kc-page-surface kc-page-turn-enter" id="kcPageSurface">
+              <!-- PAGE HEADER -->
+              <header class="kc-page-header">
+                <div class="kc-page-header-top">
+                  <span class="kc-page-eyebrow">
+                    LIVRO ${book.number} · CAPÍTULO ${chapter.number} · PÁGINA ${validPageIndex + 1} DE ${pages.length}
+                  </span>
+                  <button type="button" class="kc-btn-toggle-chapter ${isDone ? 'is-completed' : ''}" data-action="toggle-complete" data-chapter-id="${chapter.id}">
+                    <span class="kc-toggle-icon">${isDone ? icon('check', 14) : ''}</span>
+                    <span class="kc-toggle-label">${isDone ? 'Capítulo concluído' : 'Marcar capítulo como concluído'}</span>
                   </button>
                 </div>
-              </div>
+                <h1 class="kc-page-title">${esc(currentPage.title)}</h1>
+                ${currentPage.contentLead ? `<p class="kc-page-lead">${esc(currentPage.contentLead)}</p>` : ''}
+              </header>
 
-              <!-- HERO ROW: COVER ART + TAKEAWAYS -->
-              <div class="kc-art-featured-row">
-                <div class="kc-art-cover-box">
-                  <img src="${chapter.cover || book.cover}" alt="${esc(chapter.title)}" />
-                </div>
-                ${chapter.takeaways && chapter.takeaways.length ? `
-                  <div class="kc-art-takeaways-card">
-                    <h3>Neste capítulo você vai aprender:</h3>
-                    <ul class="kc-takeaways-list">
-                      ${chapter.takeaways.map(t => `
-                        <li>
-                          <span class="kc-takeaway-check">${icon('check', 14)}</span>
-                          <span>${esc(t)}</span>
-                        </li>
-                      `).join('')}
-                    </ul>
-                  </div>
-                ` : ''}
-              </div>
-
-              <!-- SECTIONS CONTENT -->
-              <div class="kc-art-body">
-                ${(chapter.sections || []).map(sec => `
-                  <section class="kc-art-section" id="sec-${sec.id}">
-                    <h2 class="kc-sec-heading">${esc(sec.title)}</h2>
-                    <div class="kc-sec-content">${renderMarkdown(sec.content)}</div>
-                  </section>
-                `).join('')}
-              </div>
-
-              <!-- CALLOUT: DICA IMPORTANTE -->
-              ${chapter.tip ? `
-                <aside class="kc-tip-callout">
-                  <div class="kc-tip-icon">${icon('lightbulb', 22)}</div>
-                  <div class="kc-tip-copy">
-                    <strong>Dica importante</strong>
-                    <p>${esc(chapter.tip)}</p>
-                  </div>
-                </aside>
-              ` : ''}
-
-              <!-- RELATED LINKS / TOOL ACCESS -->
-              ${(chapter.toolRoute || (chapter.relatedLinks && chapter.relatedLinks.length)) ? `
-                <div class="kc-related-section">
-                  <div class="kc-related-box">
-                    ${chapter.toolRoute ? `
-                      <div class="kc-tool-launch-card">
-                        <div>
-                          <span class="kc-tool-tag">Ferramenta Integrada</span>
-                          <h4>Coloque este conhecimento em prática agora</h4>
-                        </div>
-                        <button type="button" class="kc-launch-tool-btn" data-action="launch-route" data-route="${chapter.toolRoute}">
-                          ${esc(chapter.toolLabel || 'Abrir Ferramenta →')}
-                        </button>
-                      </div>
-                    ` : ''}
-
-                    ${chapter.relatedLinks && chapter.relatedLinks.length ? `
-                      <div class="kc-related-links-list">
-                        <h5>Links e tópicos relacionados:</h5>
-                        <ul>
-                          ${chapter.relatedLinks.map(link => {
-                            if (link.bookId && link.chapterId) {
-                              return `
-                                <li>
-                                  <button type="button" class="kc-rel-link-btn" data-action="open-chapter" data-book-id="${link.bookId}" data-chapter-id="${link.chapterId}">
-                                    ${icon('book', 14)} ${esc(link.label)}
-                                  </button>
-                                </li>
-                              `;
-                            }
-                            if (link.route) {
-                              return `
-                                <li>
-                                  <button type="button" class="kc-rel-link-btn" data-action="launch-route" data-route="${link.route}">
-                                    ${icon('external', 14)} ${esc(link.label)}
-                                  </button>
-                                </li>
-                              `;
-                            }
-                            return '';
-                          }).join('')}
+              <!-- PAGE CONTENT CONTAINER -->
+              <div class="kc-page-content-wrap">
+                ${currentPage.type === 'intro' ? `
+                  <div class="kc-page-hero-row">
+                    <div class="kc-page-cover-box">
+                      <img src="${chapter.cover || book.cover}" alt="${esc(chapter.title)}" />
+                    </div>
+                    ${(currentPage.takeaways && currentPage.takeaways.length) ? `
+                      <div class="kc-page-takeaways-card">
+                        <h3>🎯 O que você vai aprender neste capítulo:</h3>
+                        <ul class="kc-page-takeaways-list">
+                          ${currentPage.takeaways.map(t => `
+                            <li>
+                              <span class="kc-takeaway-check">${icon('check', 14)}</span>
+                              <span>${esc(t)}</span>
+                            </li>
+                          `).join('')}
                         </ul>
                       </div>
                     ` : ''}
                   </div>
-                </div>
-              ` : ''}
+                ` : ''}
 
-              <!-- READER FOOTER BAR: PREV / NEXT -->
-              <footer class="kc-reader-footer-nav">
-                <div class="kc-nav-prev">
-                  ${prevChapter ? `
-                    <button type="button" class="kc-btn-nav-prev" data-action="select-chapter" data-chapter-id="${prevChapter.id}">
-                      ${icon('arrowLeft', 16)}
-                      <div>
-                        <small>Capítulo anterior</small>
-                        <span>${prevChapter.number}. ${esc(prevChapter.title)}</span>
-                      </div>
+                <!-- SECTIONS CONTENT OF THIS PAGE ONLY -->
+                ${(currentPage.sections || []).map(sec => `
+                  <section class="kc-page-section" id="sec-${sec.id}">
+                    ${sec.title && sec.title !== currentPage.title ? `<h2 class="kc-page-sec-title">${esc(sec.title)}</h2>` : ''}
+                    <div class="kc-page-sec-body">${renderMarkdown(sec.content)}</div>
+                  </section>
+                `).join('')}
+
+                <!-- PRACTICE / FINAL PAGE CALLOUTS -->
+                ${currentPage.tip ? `
+                  <aside class="kc-tip-callout">
+                    <div class="kc-tip-icon">${icon('lightbulb', 22)}</div>
+                    <div class="kc-tip-copy">
+                      <strong>💡 Dica importante do método</strong>
+                      <p>${esc(currentPage.tip)}</p>
+                    </div>
+                  </aside>
+                ` : ''}
+
+                ${(currentPage.toolRoute || (currentPage.relatedLinks && currentPage.relatedLinks.length)) ? `
+                  <div class="kc-related-section">
+                    <div class="kc-related-box">
+                      ${currentPage.toolRoute ? `
+                        <div class="kc-tool-launch-card">
+                          <div>
+                            <span class="kc-tool-tag">⚡ Ferramenta Integrada no Software</span>
+                            <h4>Coloque este conhecimento em prática agora</h4>
+                            <p>Acesse o módulo no Healthy Trend Trader e aplique as regras deste capítulo.</p>
+                          </div>
+                          <button type="button" class="kc-launch-tool-btn" data-action="launch-route" data-route="${currentPage.toolRoute}">
+                            ${esc(currentPage.toolLabel || 'Abrir Ferramenta →')}
+                          </button>
+                        </div>
+                      ` : ''}
+
+                      ${currentPage.relatedLinks && currentPage.relatedLinks.length ? `
+                        <div class="kc-related-links-list">
+                          <h5>Links e capítulos relacionados:</h5>
+                          <ul>
+                            ${currentPage.relatedLinks.map(link => {
+                              if (link.bookId && link.chapterId) {
+                                return `
+                                  <li>
+                                    <button type="button" class="kc-rel-link-btn" data-action="open-chapter" data-book-id="${link.bookId}" data-chapter-id="${link.chapterId}" data-page-index="0">
+                                      ${icon('book', 14)} ${esc(link.label)}
+                                    </button>
+                                  </li>
+                                `;
+                              }
+                              if (link.route) {
+                                return `
+                                  <li>
+                                    <button type="button" class="kc-rel-link-btn" data-action="launch-route" data-route="${link.route}">
+                                      ${icon('external', 14)} ${esc(link.label)}
+                                    </button>
+                                  </li>
+                                `;
+                              }
+                              return '';
+                            }).join('')}
+                          </ul>
+                        </div>
+                      ` : ''}
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+
+              <!-- BOTTOM PAGE NAVIGATION BAR -->
+              <footer class="kc-page-footer-nav">
+                <div class="kc-pf-left">
+                  ${validPageIndex > 0 ? `
+                    <button type="button" class="kc-pnav-btn kc-pnav-prev" data-action="prev-page">
+                      ${icon('arrowLeft', 16)} Página Anterior (${validPageIndex} de ${pages.length})
                     </button>
-                  ` : ''}
-                </div>
-
-                <div class="kc-nav-center">
-                  <button type="button" class="kc-btn-nav-index" data-action="open-library">
-                    ${icon('menu', 16)} Índice de Livros
-                  </button>
-                </div>
-
-                <div class="kc-nav-next">
-                  ${nextChapter ? `
-                    <button type="button" class="kc-btn-nav-next" data-action="select-chapter" data-chapter-id="${nextChapter.id}">
-                      <div>
-                        <small>Próximo capítulo</small>
-                        <span>${nextChapter.number}. ${esc(nextChapter.title)}</span>
-                      </div>
-                      ${icon('arrowRight', 16)}
+                  ` : (prevChapter ? `
+                    <button type="button" class="kc-pnav-btn kc-pnav-prev-ch" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${prevChapter.id}" data-page-index="0">
+                      ${icon('arrowLeft', 16)} Cap. Anterior: ${prevChapter.number}. ${esc(prevChapter.title)}
                     </button>
-                  ` : ''}
+                  ` : `
+                    <button type="button" class="kc-pnav-btn kc-pnav-to-lib" data-action="open-library">
+                      ${icon('arrowLeft', 16)} Voltar à Biblioteca
+                    </button>
+                  `)}
+                </div>
+
+                <div class="kc-pf-center">
+                  <span class="kc-pf-page-text">Página ${validPageIndex + 1} de ${pages.length}</span>
+                  <div class="kc-pf-track">
+                    <div class="kc-pf-fill" style="width: ${Math.round(((validPageIndex + 1) / pages.length) * 100)}%"></div>
+                  </div>
+                  <small class="kc-pf-hint">Use ← e → no teclado para virar a página</small>
+                </div>
+
+                <div class="kc-pf-right">
+                  ${validPageIndex < pages.length - 1 ? `
+                    <button type="button" class="kc-pnav-btn kc-pnav-next" data-action="next-page">
+                      Próxima Página (${validPageIndex + 2} de ${pages.length}) ${icon('arrowRight', 16)}
+                    </button>
+                  ` : (nextChapter ? `
+                    <button type="button" class="kc-pnav-btn kc-pnav-next-ch" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${nextChapter.id}" data-page-index="0">
+                      Concluir & Próximo Cap. ${nextChapter.number} ${icon('arrowRight', 16)}
+                    </button>
+                  ` : `
+                    <button type="button" class="kc-pnav-btn kc-pnav-finish" data-action="open-library">
+                      ✓ Concluir Livro & Biblioteca ${icon('arrowRight', 16)}
+                    </button>
+                  `)}
                 </div>
               </footer>
             </article>
           </main>
+
+          <!-- RIGHT CONTEXTUAL SIDEBAR: APOIO E RESUMO -->
+          <aside class="kc-reader-context-sidebar">
+            <!-- SUMMARY CARD -->
+            <div class="kc-ctx-card">
+              <h4 class="kc-ctx-title">${icon('checkCircle', 16)} Síntese do Capítulo</h4>
+              <p class="kc-ctx-desc">Pontos fundamentais que você deve fixar:</p>
+              <ul class="kc-ctx-takeaways">
+                ${(chapter.takeaways || []).map(t => `
+                  <li><span>✓</span> ${esc(t)}</li>
+                `).join('')}
+              </ul>
+            </div>
+
+            <!-- TOOL INTEGRATION CARD -->
+            ${chapter.toolRoute ? `
+              <div class="kc-ctx-card kc-ctx-tool-card">
+                <span class="kc-ctx-tag">Prática Deliberada</span>
+                <h4 class="kc-ctx-title">${icon('monitor', 16)} Ferramenta no Software</h4>
+                <p class="kc-ctx-desc">Abra o módulo correspondente e execute na prática:</p>
+                <button type="button" class="kc-ctx-tool-btn" data-action="launch-route" data-route="${chapter.toolRoute}">
+                  ${esc(chapter.toolLabel || 'Abrir Ferramenta →')}
+                </button>
+              </div>
+            ` : ''}
+
+            <!-- TIP CARD -->
+            ${chapter.tip ? `
+              <div class="kc-ctx-card kc-ctx-tip-card">
+                <h4 class="kc-ctx-title">${icon('lightbulb', 16)} Dica do Método</h4>
+                <p class="kc-ctx-tip-text">${esc(chapter.tip)}</p>
+              </div>
+            ` : ''}
+
+            <!-- KEYBOARD SHORTCUTS CARD -->
+            <div class="kc-ctx-card kc-ctx-shortcuts-card">
+              <h4 class="kc-ctx-title">⌨️ Atalhos de Leitura</h4>
+              <ul class="kc-ctx-shortcuts">
+                <li><kbd>→</kbd> <span>Próxima página</span></li>
+                <li><kbd>←</kbd> <span>Página anterior</span></li>
+                <li><kbd>Esc</kbd> <span>Voltar à biblioteca</span></li>
+                <li><kbd>Ctrl+K</kbd> <span>Buscar no manual</span></li>
+              </ul>
+            </div>
+          </aside>
         </div>
       </div>
     `;
@@ -923,7 +1194,7 @@
       let actionAttr = '';
       if (m.type === 'chapter') {
         iconSvg = icon('book', 16);
-        actionAttr = `data-action="open-chapter" data-book-id="${m.bookId}" data-chapter-id="${m.chapterId}"`;
+        actionAttr = `data-action="open-chapter" data-book-id="${m.bookId}" data-chapter-id="${m.chapterId}" data-page-index="${m.pageIndex || 0}"`;
       } else if (m.type === 'tool') {
         iconSvg = icon('monitor', 16);
         actionAttr = `data-action="launch-route" data-route="${m.route}"`;
@@ -1000,7 +1271,6 @@
     container.onclick = function (e) {
       const target = e.target.closest('[data-action]');
       if (!target) {
-        // If clicking outside search dropdowns, close them
         if (searchDropdown && !e.target.closest('.kc-lib-search-box')) searchDropdown.hidden = true;
         if (readerSearchDropdown && !e.target.closest('.kc-reader-top-search')) readerSearchDropdown.hidden = true;
         return;
@@ -1010,16 +1280,27 @@
 
       if (action === 'open-library') {
         openLibrary();
-      } else if (action === 'open-book') {
+      } else if (action === 'filter-book') {
         const bookId = target.dataset.bookId;
-        openBook(bookId);
-      } else if (action === 'select-chapter') {
-        const chapterId = target.dataset.chapterId;
-        openBook(appState.bookId, chapterId);
+        appState.selectedBookFilter = bookId;
+        renderApp();
       } else if (action === 'open-chapter') {
         const bId = target.dataset.bookId;
         const cId = target.dataset.chapterId;
-        openBook(bId, cId);
+        const pIdx = parseInt(target.dataset.pageIndex || '0', 10);
+        openChapter(bId, cId, pIdx);
+      } else if (action === 'go-to-page') {
+        const pIdx = parseInt(target.dataset.pageIndex || '0', 10);
+        openPage(pIdx);
+      } else if (action === 'next-page') {
+        nextPage();
+      } else if (action === 'prev-page') {
+        prevPage();
+      } else if (action === 'resume-reading') {
+        const bId = target.dataset.bookId;
+        const cId = target.dataset.chapterId;
+        const pIdx = parseInt(target.dataset.pageIndex || '0', 10);
+        openChapter(bId, cId, pIdx);
       } else if (action === 'toggle-complete') {
         const cId = target.dataset.chapterId;
         toggleChapterCompleted(cId);
@@ -1036,9 +1317,24 @@
     };
   }
 
-  // Keyboard shortcut Ctrl + K
+  // Keyboard navigation: ArrowLeft (prev), ArrowRight (next), Escape (library)
   document.addEventListener('keydown', event => {
-    if (root.classList.contains('active') && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+    if (!root.classList.contains('active')) return;
+
+    // Ignore if typing in an input
+    const tag = (event.target && event.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+    if (event.key === 'Escape' && appState.view === 'reader') {
+      event.preventDefault();
+      openLibrary();
+    } else if (event.key === 'ArrowRight' && appState.view === 'reader') {
+      event.preventDefault();
+      nextPage();
+    } else if (event.key === 'ArrowLeft' && appState.view === 'reader') {
+      event.preventDefault();
+      prevPage();
+    } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
       const input = container.querySelector('#kcSearchInput') || container.querySelector('#kcReaderSearchInput');
       if (input) {
@@ -1050,7 +1346,7 @@
 
   // Expose global methods
   window.renderKnowledgeCenter = renderApp;
-  window.openManualBook = openBook;
+  window.openManualBook = openChapter;
   window.openManualLibrary = openLibrary;
 
   // Initial render

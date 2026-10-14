@@ -107,3 +107,35 @@ test('Manual do Software: Biblioteca Digital Interativa possui os 6 livros e cap
   }
 });
 
+test('Manual do Software: Arquitetura paginada decompõe capítulos em páginas editoriais independentes', () => {
+  const BooksModel = require(path.join(repoRoot, 'frontend', 'manual-knowledge-books.js'));
+  assert.equal(typeof BooksModel.getChapterPages, 'function', 'getChapterPages deve ser uma função');
+  assert.equal(typeof BooksModel.getTotalPages, 'function', 'getTotalPages deve ser uma função');
+
+  const totalPages = BooksModel.getTotalPages();
+  assert.ok(totalPages >= 160, `Deve conter ao menos 160 páginas no acervo global (atual: ${totalPages})`);
+
+  for (const book of BooksModel.BOOKS) {
+    for (const ch of book.chapters) {
+      const pages = BooksModel.getChapterPages(ch);
+      assert.ok(Array.isArray(pages), `Capítulo ${ch.title} deve retornar array de páginas`);
+      assert.ok(pages.length >= 2, `Capítulo ${ch.title} deve possuir ao menos 2 páginas independentes (atual: ${pages.length})`);
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i];
+        assert.equal(page.pageIndex, i, `Página deve possuir pageIndex ${i}`);
+        assert.equal(page.number, i + 1, `Página deve possuir number ${i + 1}`);
+        assert.ok(page.title, `Página ${i + 1} do capítulo ${ch.title} deve possuir título`);
+        assert.ok(['intro', 'explanation', 'practice', 'content'].includes(page.type), `Tipo inválido de página: ${page.type}`);
+      }
+    }
+  }
+
+  // Verifica que o manual-knowledge.js isola a página ativa sem despejar o manual inteiro
+  const mkCode = fs.readFileSync(path.join(repoRoot, 'frontend', 'manual-knowledge.js'), 'utf8');
+  assert.ok(mkCode.includes('kc-page-surface'), 'Deve conter surface editorial para a página ativa');
+  assert.ok(mkCode.includes('kc-page-stepper-bar'), 'Deve conter barra de stepper/navegação de páginas');
+  assert.ok(mkCode.includes('kc-page-footer-nav'), 'Deve conter barra de navegação anterior/próxima página');
+  assert.ok(mkCode.includes('nextPage'), 'Deve conter manipulador de próxima página');
+  assert.ok(mkCode.includes('prevPage'), 'Deve conter manipulador de página anterior');
+});
+
