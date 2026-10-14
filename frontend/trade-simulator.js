@@ -713,24 +713,6 @@
             </div>
           </div>
 
-          <!-- Filtro Setor -->
-          <div class="sim-filter-select-wrap">
-            <button class="sim-filter-btn" type="button" data-dropdown="sector">
-              <span class="sim-filter-ico">💼</span>
-              <span>${sectorLabel}</span>
-              <span class="sim-chevron">⌵</span>
-            </button>
-            <div class="sim-dropdown-menu ${state.activeDropdown === 'sector' ? 'open' : ''}">
-              <button class="sim-dropdown-item ${state.filters.sector === 'ALL' ? 'active' : ''}" data-filter-type="sector" data-filter-val="ALL">Todos os setores</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Financeiro' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Financeiro">Financeiro</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Petróleo e Gás' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Petróleo e Gás">Petróleo e Gás</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Utilidade Pública' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Utilidade Pública">Utilidade Pública</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Consumo Não Cíclico' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Consumo Não Cíclico">Consumo Não Cíclico</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Materiais Básicos' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Materiais Básicos">Materiais Básicos</button>
-              <button class="sim-dropdown-item ${state.filters.sector === 'Saúde' ? 'active' : ''}" data-filter-type="sector" data-filter-val="Saúde">Saúde</button>
-            </div>
-          </div>
-
           <!-- Filtro Notas -->
           <div class="sim-filter-select-wrap">
             <button class="sim-filter-btn" type="button" data-dropdown="grade">
@@ -740,16 +722,18 @@
             </button>
             <div class="sim-dropdown-menu ${state.activeDropdown === 'grade' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.grade === 'ALL' ? 'active' : ''}" data-filter-type="grade" data-filter-val="ALL">Todas as notas</button>
-              <button class="sim-dropdown-item ${state.filters.grade === 'A+' ? 'active' : ''}" data-filter-type="grade" data-filter-val="A+">Nota A+</button>
               <button class="sim-dropdown-item ${state.filters.grade === 'A' ? 'active' : ''}" data-filter-type="grade" data-filter-val="A">Nota A</button>
-              <button class="sim-dropdown-item ${state.filters.grade === 'B+' ? 'active' : ''}" data-filter-type="grade" data-filter-val="B+">Nota B+</button>
               <button class="sim-dropdown-item ${state.filters.grade === 'B' ? 'active' : ''}" data-filter-type="grade" data-filter-val="B">Nota B</button>
+              <button class="sim-dropdown-item ${state.filters.grade === 'C' ? 'active' : ''}" data-filter-type="grade" data-filter-val="C">Nota C</button>
+              <button class="sim-dropdown-item ${state.filters.grade === 'D' ? 'active' : ''}" data-filter-type="grade" data-filter-val="D">Nota D</button>
             </div>
           </div>
 
           <!-- Painel Centralizado da Massa de Teste -->
-          <button class="sim-btn-seed-dropdown" type="button" id="simBtnMassModal" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
-            <span>⚡ Massa de Teste ▾</span>
+          <button class="sim-filter-btn" type="button" id="simBtnMassModal" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
+            <span class="sim-filter-ico">⚡</span>
+            <span>Gerar Massa de Teste</span>
+            <span class="sim-chevron">⌵</span>
           </button>
 
           <!-- Botão Estratégico: Comparar Cenários -->
@@ -769,7 +753,7 @@
             </button>
             <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
               <button class="sim-dropdown-item" type="button" id="simMoreBtnMass">
-                <span>⚡</span> <span>Massa de Teste</span>
+                <span>⚡</span> <span>Gerar Massa de Teste</span>
               </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnCompare">
                 <span>📊</span> <span>Comparar Cenários</span>

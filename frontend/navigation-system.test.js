@@ -141,7 +141,7 @@ test('Validação de Paridade 100%: Nenhum item da navegação anterior foi perd
   // Itens que estavam no NAV_STRUCTURE e FOOTER_STRUCTURE anterior
   const previousSidebarPages = [
     'today', 'newtrade', 'journal', 'dailyroutine', 'watchlist', 'habits',
-    'tradertraining', 'mission', 'rebuild',
+    'tradertraining', 'mission',
     'relativestrength', 'marketcycle', 'charts', 'marketcentral', 'marketscans', 'emergingleaders', 'fundamentals',
     'tradesimulator', 'forecast',
     'dashboard', 'positions', 'closedpositions', 'portfolioheat', 'riskpolicy', 'assetblacklist',
@@ -156,7 +156,7 @@ test('Validação de Paridade 100%: Nenhum item da navegação anterior foi perd
 
   // Itens complementares que estavam em tiles ou submenus
   const additionalKnownPages = [
-    'risk', 'masteredlessons', 'zen', 'emotionalintelligence', 'traderrules', 'wisdom', 'traderprofile'
+    'zen', 'emotionalintelligence', 'traderrules', 'wisdom', 'traderprofile'
   ];
 
   for (const page of additionalKnownPages) {

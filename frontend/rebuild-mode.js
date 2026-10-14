@@ -4,8 +4,15 @@
   const RM = root.RebuildModeModel;
 
   function renderRebuildPage() {
+    if (typeof root.go === 'function') {
+      root.go('mission');
+      return;
+    }
     const rootEl = document.getElementById('rebuildRoot');
-    if (!rootEl) return;
+    if (!rootEl && typeof root.renderMissionPage === 'function') {
+      root.renderMissionPage();
+      return;
+    }
 
     const state = RM ? RM.getRebuildState() : { isActive: false, maxRiskPct: 0.001 };
 

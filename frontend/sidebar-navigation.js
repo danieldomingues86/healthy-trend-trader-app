@@ -72,13 +72,6 @@
       header: 'TREINAMENTO',
       items: [
         {
-          id: 'tradertraining',
-          title: 'Treinamento do Trader',
-          desc: 'Metas e consistência de hábitos.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
-          page: 'tradertraining'
-        },
-        {
           id: 'mission',
           title: 'Missão',
           desc: 'Jornada de foco e recuperação.',
@@ -86,11 +79,18 @@
           page: 'mission'
         },
         {
-          id: 'rebuild',
-          title: 'Rebuild Mode',
-          desc: 'Ciclo de reconstrução e proteção.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-          page: 'rebuild'
+          id: 'tradertraining',
+          title: 'Prática Deliberada',
+          desc: 'Metas e consistência de hábitos.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+          page: 'tradertraining'
+        },
+        {
+          id: 'mistakesbook',
+          title: 'Erros & Lições',
+          desc: 'Falhas e aprendizados.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M10 10l4 4M14 10l-4 4"/></svg>`,
+          page: 'mistakesbook'
         }
       ]
     },
@@ -107,20 +107,6 @@
           desc: 'Veja quem está liderando.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
           page: 'relativestrength'
-        },
-        {
-          id: 'marketcentral',
-          title: 'Central de Mercado',
-          desc: 'Observatório geral do ambiente.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
-          page: 'marketcentral'
-        },
-        {
-          id: 'eventplaybook',
-          title: 'Event Playbook',
-          desc: 'Biblioteca histórica de eventos.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
-          page: 'eventplaybook'
         },
         {
           id: 'marketcycle',
@@ -142,6 +128,20 @@
           desc: 'Encontre movimentos relevantes.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
           page: 'marketscans'
+        },
+        {
+          id: 'marketcentral',
+          title: 'Central de Mercado',
+          desc: 'Observatório geral do ambiente.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
+          page: 'marketcentral'
+        },
+        {
+          id: 'eventplaybook',
+          title: 'Playbook de Eventos',
+          desc: 'Biblioteca histórica de eventos.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
+          page: 'eventplaybook'
         },
         {
           id: 'emergingleaders',
@@ -253,13 +253,6 @@
           desc: 'Vencedores e perdedores.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/><path d="m3 8 6-5 6 7 6-5"/></svg>`,
           page: 'tradeanatomy'
-        },
-        {
-          id: 'mistakesbook',
-          title: 'Erros e Lições',
-          desc: 'Falhas e aprendizados.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M10 10l4 4M14 10l-4 4"/></svg>`,
-          page: 'mistakesbook'
         },
         {
           id: 'tradelibrary',

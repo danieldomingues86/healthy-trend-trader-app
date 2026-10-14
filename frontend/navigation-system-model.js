@@ -147,17 +147,6 @@
 
     // Treinamento
     {
-      id: 'tradertraining',
-      page: 'tradertraining',
-      label: 'Treinamento do Trader',
-      labelEn: 'Trader Training',
-      category: 'training-recovery',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
-      desc: 'Metas e consistência de hábitos operacionais.',
-      descEn: 'Goals and consistency of trading habits.',
-      proOnly: false
-    },
-    {
       id: 'mission',
       page: 'mission',
       label: 'Missão',
@@ -169,15 +158,26 @@
       proOnly: false
     },
     {
-      id: 'rebuild',
-      page: 'rebuild',
-      label: 'Rebuild Mode',
-      labelEn: 'Rebuild Mode',
+      id: 'tradertraining',
+      page: 'tradertraining',
+      label: 'Prática Deliberada',
+      labelEn: 'Deliberate Practice',
       category: 'training-recovery',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-      desc: 'Ciclo de reconstrução e proteção de capital.',
-      descEn: 'Reconstruction cycle and capital protection.',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+      desc: 'Metas e consistência de hábitos operacionais.',
+      descEn: 'Goals and consistency of trading habits.',
       proOnly: false
+    },
+    {
+      id: 'mistakesbook',
+      page: 'mistakesbook',
+      label: 'Erros & Lições',
+      labelEn: 'Mistakes Book',
+      category: 'training-recovery',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M10 10l4 4M14 10l-4 4"/></svg>`,
+      desc: 'Transforme falhas operacionais em aprendizado.',
+      descEn: 'Turn operational mistakes into wisdom.',
+      proOnly: true
     },
 
     // Análise de Mercado
@@ -191,28 +191,6 @@
       desc: 'Descubra quais ativos estão liderando o mercado.',
       descEn: 'Discover which assets are leading the market.',
       proOnly: true
-    },
-    {
-      id: 'marketcentral',
-      page: 'marketcentral',
-      label: 'Central de Mercado',
-      labelEn: 'Market Central',
-      category: 'market-analysis',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
-      desc: 'Observatório geral do ambiente e condições de mercado.',
-      descEn: 'Market environment observatory and conditions.',
-      proOnly: false
-    },
-    {
-      id: 'eventplaybook',
-      page: 'eventplaybook',
-      label: 'Event Playbook',
-      labelEn: 'Event Playbook',
-      category: 'market-analysis',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
-      desc: 'Biblioteca histórica de eventos e comportamento do mercado.',
-      descEn: 'Historical market events and behavior library.',
-      proOnly: false
     },
     {
       id: 'marketcycle',
@@ -246,6 +224,28 @@
       desc: 'Radar de acontecimentos e setups em formação.',
       descEn: 'Radar of events and emerging setups.',
       proOnly: true
+    },
+    {
+      id: 'marketcentral',
+      page: 'marketcentral',
+      label: 'Central de Mercado',
+      labelEn: 'Market Central',
+      category: 'market-analysis',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
+      desc: 'Observatório geral do ambiente e condições de mercado.',
+      descEn: 'Market environment observatory and conditions.',
+      proOnly: false
+    },
+    {
+      id: 'eventplaybook',
+      page: 'eventplaybook',
+      label: 'Playbook de Eventos',
+      labelEn: 'Event Playbook',
+      category: 'market-analysis',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
+      desc: 'Biblioteca histórica de eventos e comportamento do mercado.',
+      descEn: 'Historical market events and behavior library.',
+      proOnly: false
     },
     {
       id: 'emergingleaders',
@@ -302,17 +302,6 @@
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="m9 14 2 2 4-4"/></svg>`,
       desc: 'Histórico consolidado e revisão de trades.',
       descEn: 'Consolidated history and trade reviews.',
-      proOnly: false
-    },
-    {
-      id: 'risk',
-      page: 'risk',
-      label: 'Position Sizing',
-      labelEn: 'Position Sizing',
-      category: 'portfolio-risk',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>`,
-      desc: 'Dimensionamento de risco e lote operacional.',
-      descEn: 'Risk budgeting and position sizing calculations.',
       proOnly: false
     },
     {
@@ -394,28 +383,6 @@
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/><path d="m3 8 6-5 6 7 6-5"/></svg>`,
       desc: 'Estatísticas de payoff, gatilhos e duração.',
       descEn: 'Payoff, trigger and holding time statistics.',
-      proOnly: true
-    },
-    {
-      id: 'mistakesbook',
-      page: 'mistakesbook',
-      label: 'Erros e Lições',
-      labelEn: 'Mistakes Book',
-      category: 'data-performance',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M10 10l4 4M14 10l-4 4"/></svg>`,
-      desc: 'Transforme falhas operacionais em aprendizado.',
-      descEn: 'Turn operational mistakes into wisdom.',
-      proOnly: true
-    },
-    {
-      id: 'masteredlessons',
-      page: 'masteredlessons',
-      label: 'Lições Dominadas',
-      labelEn: 'Mastered Lessons',
-      category: 'data-performance',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>`,
-      desc: 'Histórico de princípios internalizados com sucesso.',
-      descEn: 'Log of principles successfully internalized.',
       proOnly: true
     },
     {

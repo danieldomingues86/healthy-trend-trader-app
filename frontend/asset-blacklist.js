@@ -38,7 +38,7 @@
     <header class="ab-hero"><div class="ab-hero-content"><span class="ab-eyebrow">CARTEIRA & RISCO</span><div class="ab-title"><span aria-hidden="true">☠</span><h1>Ativos <em>Blacklist</em></h1></div><p>Opere o que combina com você.<br>Evite o que cobra um preço que não aparece no gráfico.</p></div></header>
     <section class="ab-panel" aria-label="Meus ativos em Blacklist"><div class="ab-panel-head"><h2>Meus Ativos em Blacklist <span id="abCount">0</span></h2><div class="ab-tools"><label class="ab-search"><span aria-hidden="true">⌕</span><input id="abSearch" type="search" placeholder="Buscar ativo..." aria-label="Buscar ativo"></label><button class="ab-add" id="abAdd" type="button">⊕ &nbsp;Adicionar Ativo</button></div></div><div id="abList"></div></section>
     <aside class="ab-focus"><span class="ab-focus-icon" aria-hidden="true">◎</span><div><h2>Foco no que funciona para você</h2><p>Identifique os ativos que não combinam com seu perfil e mantenha sua operação mais alinhada, consistente e tranquila.</p></div></aside>
-    </div><div class="ab-modal-backdrop" id="abModal" hidden><div class="ab-modal" role="dialog" aria-modal="true" aria-labelledby="abModalTitle"><header><div><small>CARTEIRA & RISCO</small><h2 id="abModalTitle">Adicionar ativo</h2></div><button type="button" class="ab-close" id="abClose" aria-label="Fechar">×</button></header><form id="abForm"><input type="hidden" name="id"><div class="ab-form-grid"><label>Mercado<select name="market" required></select></label><label>Ticker / símbolo<input name="symbol" list="abInstrumentSuggestions" maxlength="20" required placeholder="Ex.: WDO" autocomplete="off"></label><label class="ab-wide">Nome do ativo<input name="name" maxlength="120" placeholder="Ex.: Mini Dólar"></label><label class="ab-wide">Por que prefere evitar este ativo?<textarea name="reason" maxlength="2000" required rows="4" placeholder="Registre o motivo com suas próprias palavras."></textarea></label><label class="ab-wide">Categoria<select name="category" required></select></label></div><fieldset><legend>Restrição pessoal</legend><label class="ab-choice ab-choice-alert"><input type="radio" name="restrictionLevel" value="alert" checked><span><b>⚠ Alertar</b><small>O sistema avisa no Novo Trade e pede confirmação para continuar.</small></span></label><label class="ab-choice ab-choice-block"><input type="radio" name="restrictionLevel" value="block"><span><b>☠ Bloquear</b><small>Impede registrar uma operação com este ativo enquanto a regra existir.</small></span></label></fieldset><footer><button type="button" class="secondary" id="abCancel">Cancelar</button><button type="submit" class="ab-add" id="abSubmit">Salvar ativo</button></footer></form></div></div><datalist id="abInstrumentSuggestions"></datalist>`;
+    </div><div class="ab-modal-backdrop" id="abModal" hidden><div class="ab-modal" role="dialog" aria-modal="true" aria-labelledby="abModalTitle"><header><div><small>CARTEIRA & RISCO</small><h2 id="abModalTitle">Adicionar ativo</h2></div><button type="button" class="ab-close" id="abClose" aria-label="Fechar">×</button></header><form id="abForm"><input type="hidden" name="id"><input type="hidden" name="restrictionLevel" value="block"><div class="ab-form-grid"><label>Mercado<select name="market" required></select></label><label>Ticker / símbolo<input name="symbol" list="abInstrumentSuggestions" maxlength="20" required placeholder="Ex.: WDO" autocomplete="off"></label><label class="ab-wide">Nome do ativo<input name="name" maxlength="120" placeholder="Ex.: Mini Dólar"></label><label class="ab-wide">Por que prefere evitar este ativo?<textarea name="reason" maxlength="2000" required rows="4" placeholder="Registre o motivo com suas próprias palavras."></textarea></label><label class="ab-wide">Categoria<select name="category" required></select></label></div><div class="ab-block-notice-box" style="margin-top: 12px; padding: 12px 14px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; font-size: 13px; color: #b91c1c;"><b>☠ Bloqueio Automático</b><div style="font-size: 12px; color: #7f1d1d; margin-top: 2px;">Ativos na Blacklist são estritamente bloqueados de serem operados pelo sistema.</div></div><footer><button type="button" class="secondary" id="abCancel">Cancelar</button><button type="submit" class="ab-add" id="abSubmit">Salvar ativo</button></footer></form></div></div><datalist id="abInstrumentSuggestions"></datalist>`;
   const list = root.querySelector('#abList');
   const modal = root.querySelector('#abModal');
   const form = root.querySelector('#abForm');
@@ -74,7 +74,7 @@
       list.innerHTML = `<div class="ab-empty"><p>${term ? 'Nenhum ativo encontrado para esta busca.' : 'Registre ativos que você prefere evitar e deixe o sistema lembrá-lo antes da próxima operação.'}</p>${term ? '' : '<button type="button" class="ab-add" data-action="add">Adicionar primeiro ativo</button>'}</div>`;
       return;
     }
-    list.innerHTML = `<div class="ab-table-wrap"><table class="ab-table"><thead><tr><th>ATIVO</th><th>MERCADO</th><th>MOTIVO</th><th>CATEGORIA</th><th>RESTRIÇÃO</th><th>DATA</th><th>AÇÕES</th></tr></thead><tbody>${items.map(item => `<tr><td data-label="ATIVO"><b>${escape(item.symbol)}</b><small>${escape(item.name || item.symbol)}</small></td><td data-label="MERCADO"><span class="ab-market">${escape(item.market)}</span></td><td class="ab-reason" data-label="MOTIVO">${escape(item.reason)}</td><td data-label="CATEGORIA"><span class="ab-category">${escape(item.category)}</span></td><td data-label="RESTRIÇÃO"><span class="ab-restriction ${item.restrictionLevel === 'block' ? 'block' : 'alert'}">${item.restrictionLevel === 'block' ? '☠ Bloquear' : '⚠ Alertar'}</span></td><td data-label="DATA">${date(item.createdAt)}</td><td data-label="AÇÕES"><div class="ab-actions"><button type="button" data-action="edit" data-id="${escape(item.id)}" aria-label="Editar ${escape(item.symbol)}" title="Editar ativo">✎</button><button type="button" data-action="delete" data-id="${escape(item.id)}" aria-label="Excluir ${escape(item.symbol)}" title="Remover da Blacklist">🗑</button></div></td></tr>`).join('')}</tbody></table></div>`;
+    list.innerHTML = `<div class="ab-table-wrap"><table class="ab-table"><thead><tr><th>ATIVO</th><th>MERCADO</th><th>MOTIVO</th><th>CATEGORIA</th><th>RESTRIÇÃO</th><th>DATA</th><th>AÇÕES</th></tr></thead><tbody>${items.map(item => `<tr><td data-label="ATIVO"><b>${escape(item.symbol)}</b><small>${escape(item.name || item.symbol)}</small></td><td data-label="MERCADO"><span class="ab-market">${escape(item.market)}</span></td><td class="ab-reason" data-label="MOTIVO">${escape(item.reason)}</td><td data-label="CATEGORIA"><span class="ab-category">${escape(item.category)}</span></td><td data-label="RESTRIÇÃO"><span class="ab-restriction block">☠ Bloquear</span></td><td data-label="DATA">${date(item.createdAt)}</td><td data-label="AÇÕES"><div class="ab-actions"><button type="button" data-action="edit" data-id="${escape(item.id)}" aria-label="Editar ${escape(item.symbol)}" title="Editar ativo">✎</button><button type="button" data-action="delete" data-id="${escape(item.id)}" aria-label="Excluir ${escape(item.symbol)}" title="Remover da Blacklist">🗑</button></div></td></tr>`).join('')}</tbody></table></div>`;
   }
 
   async function open(item) {
@@ -83,7 +83,7 @@
     form.reset();
     form.elements.id.value = item?.id || '';
     for (const key of ['market', 'symbol', 'name', 'reason', 'category']) if (item?.[key] != null) form.elements[key].value = item[key];
-    if (item) form.querySelector(`[name="restrictionLevel"][value="${item.restrictionLevel}"]`).checked = true;
+    if (form.elements.restrictionLevel) form.elements.restrictionLevel.value = 'block';
     syncInstrumentOptions();
     root.querySelector('#abModalTitle').textContent = item ? `Editar ${item.symbol}` : 'Adicionar ativo';
     modal.hidden = false;
@@ -112,6 +112,7 @@
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const values = Object.fromEntries(new FormData(form));
+    values.restrictionLevel = 'block';
     const id = values.id; delete values.id;
     const submit = root.querySelector('#abSubmit'); submit.disabled = true;
     try {
@@ -127,7 +128,7 @@
   function syncRegisterBlockState(item) {
     const button = registerButton();
     if (!button) return;
-    const blocked = item?.restrictionLevel === 'block';
+    const blocked = Boolean(item);
     let message = document.getElementById('blacklistRegisterBlock');
     if (!message) {
       message = document.createElement('div');
@@ -162,8 +163,8 @@
       stage.querySelector('#workbenchData')?.before(notice);
     }
     const item = current();
-    stage.classList.toggle('is-blacklist-blocked', item?.restrictionLevel === 'block');
-    stage.classList.toggle('has-blacklist-alert', item?.restrictionLevel === 'alert');
+    stage.classList.toggle('is-blacklist-blocked', Boolean(item));
+    stage.classList.remove('has-blacklist-alert');
     if (!item) {
       notice.hidden = true;
       state.acknowledgedSymbol = '';
@@ -171,11 +172,10 @@
       refreshFinalGate();
       return;
     }
-    const blocked = item.restrictionLevel === 'block';
     const selectedSymbol = tradeSymbol();
     notice.hidden = false;
-    notice.classList.toggle('blocked', blocked);
-    notice.innerHTML = `<div class="ab-notice-copy"><b>${blocked ? '☠ ATIVO NA SUA BLACKLIST' : '⚠ ATIVO NA SUA BLACKLIST'} — ${escape(selectedSymbol)}${item.name ? ' · ' + escape(item.name) : ''}</b><p>Você decidiu evitar esta família de ativos porque: <q>${escape(item.reason)}</q></p></div><div class="ab-notice-actions"><button type="button" data-choice="other">Escolher outro ativo</button>${blocked ? '<button type="button" data-choice="list">Consultar Blacklist →</button>' : '<button type="button" data-choice="continue">Continuar mesmo assim</button>'}</div><small class="ab-notice-reminder">Lembre-se por que você decidiu não operar este ativo.</small>${blocked ? '' : `<label class="ab-ack" ${isAcknowledged() ? '' : 'hidden'}><input type="checkbox" ${isAcknowledged() ? 'checked' : ''}> Estou ciente de que este ativo está na minha Blacklist e desejo continuar.</label>`}`;
+    notice.classList.add('blocked');
+    notice.innerHTML = `<div class="ab-notice-copy"><b>☠ ATIVO NA SUA BLACKLIST — ${escape(selectedSymbol)}${item.name ? ' · ' + escape(item.name) : ''}</b><p>Você decidiu evitar esta família de ativos porque: <q>${escape(item.reason)}</q></p></div><div class="ab-notice-actions"><button type="button" data-choice="other">Escolher outro ativo</button><button type="button" data-choice="list">Consultar Blacklist →</button></div><small class="ab-notice-reminder">Operação estritamente bloqueada pelas suas regras pessoais de proteção.</small>`;
     syncRegisterBlockState(item);
     refreshFinalGate();
   }
@@ -185,21 +185,18 @@
     const button = event.target.closest('#tradeBlacklistNotice [data-choice]'); if (!button) return;
     if (button.dataset.choice === 'list') return window.go('assetblacklist');
     if (button.dataset.choice === 'other') { const asset = document.getElementById('tradeAsset'); asset.value = ''; asset.focus(); asset.dispatchEvent(new Event('input', { bubbles: true })); return; }
-    const label = document.querySelector('#tradeBlacklistNotice .ab-ack'); if (label) { label.hidden = false; label.querySelector('input')?.focus(); }
   });
-  document.addEventListener('change', event => { if (event.target.matches('#tradeBlacklistNotice .ab-ack input')) state.acknowledgedSymbol = event.target.checked ? tradeSymbol() : ''; });
 
   const oldPayload = window.plannerPayload;
-  if (typeof oldPayload === 'function') window.plannerPayload = function (...args) { const plan = oldPayload.apply(this, args); plan.blacklistOverride = Boolean(current()?.restrictionLevel === 'alert' && isAcknowledged()); return plan; };
+  if (typeof oldPayload === 'function') window.plannerPayload = function (...args) { const plan = oldPayload.apply(this, args); plan.blacklistOverride = false; return plan; };
   async function allowed() {
     if (!state.loaded) await load();
     if (!state.loaded) { notify('Não foi possível verificar a Blacklist. Tente novamente antes de registrar.'); return false; }
     const item = current();
     if (!item) return true;
     renderTradeNotice();
-    if (item.restrictionLevel === 'block') { notify(`${tradeSymbol()} está bloqueado pela sua regra pessoal. Consulte a Blacklist.`); return false; }
-    if (!isAcknowledged()) { notify('Confirme que deseja continuar com este ativo da Blacklist.'); return false; }
-    return true;
+    notify(`${tradeSymbol()} está bloqueado pela sua regra pessoal. Consulte a Blacklist.`);
+    return false;
   }
   const oldSave = window.saveTradePlan;
   if (typeof oldSave === 'function') window.saveTradePlan = async function (...args) { if (!await allowed()) return; return oldSave.apply(this, args); };

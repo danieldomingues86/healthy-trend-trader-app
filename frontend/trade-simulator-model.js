@@ -1108,7 +1108,7 @@
       const d = new Date(now.getTime() - 90 * 24 * 3600 * 1000);
       minDateStr = d.toISOString().slice(0, 10);
     } else if (days === 120 || days === '120' || days === '4m' || days === '120d') {
-      const d = new Date(now.getTime() - 120 * 24 * 3600 * 1000);
+      const d = new Date(now.getTime() - 130 * 24 * 3600 * 1000);
       minDateStr = d.toISOString().slice(0, 10);
     } else if (days === 180 || days === '180' || days === '6m') {
       const d = new Date(now.getTime() - 180 * 24 * 3600 * 1000);
