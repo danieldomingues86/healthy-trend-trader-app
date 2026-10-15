@@ -53,22 +53,30 @@
   function notifyEquityUpdated(newEquity) {
     // 1. Recalculate operational open positions and Portfolio Heat
     if (typeof root.operationalState !== 'undefined' && root.operationalState) {
-      root.saveOperationalState?.();
+      try { root.saveOperationalState?.(); } catch (e) { console.warn('saveOperationalState error:', e); }
     }
 
-    // 2. Refresh UI components
-    root.renderOperationalApp?.();
-    root.renderTodayCockpit?.();
-    root.renderTopHeat?.();
-    root.calcPositionSizing?.();
-    root.recalc?.();
-    root.renderEffectiveRiskPolicy?.();
-    root.renderPortfolioHeat?.();
-    root.renderWealth?.();
+    // 2. Refresh UI components defensively
+    try { root.renderOperationalApp?.(); } catch (e) { console.warn('renderOperationalApp error:', e); }
+    try { root.renderTodayCockpit?.(); } catch (e) { console.warn('renderTodayCockpit error:', e); }
+    try { root.renderTopHeat?.(); } catch (e) { console.warn('renderTopHeat error:', e); }
+    try { root.calcPositionSizing?.(); } catch (e) { console.warn('calcPositionSizing error:', e); }
+    try { root.recalc?.(); } catch (e) { console.warn('recalc error:', e); }
+    try { root.renderEffectiveRiskPolicy?.(); } catch (e) { console.warn('renderEffectiveRiskPolicy error:', e); }
+    try { root.renderPortfolioHeat?.(); } catch (e) { console.warn('renderPortfolioHeat error:', e); }
+    try { root.renderWealth?.(); } catch (e) { console.warn('renderWealth error:', e); }
 
-    // 3. Dispatch events
-    root.dispatchEvent(new CustomEvent('healthyTrend:equityUpdated', { detail: { newEquity } }));
-    root.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
+    // 3. Dispatch events defensively
+    try {
+      root.dispatchEvent(new CustomEvent('healthyTrend:equityUpdated', { detail: { newEquity } }));
+    } catch (e) {
+      console.warn('healthyTrend:equityUpdated error:', e);
+    }
+    try {
+      root.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
+    } catch (e) {
+      console.warn('healthyTrend:tradesUpdated error:', e);
+    }
   }
 
   function closeEquityAdjustModal() {
@@ -176,14 +184,14 @@
       errorEl.textContent = '';
 
       const validation = (root.EquityAdjustmentModel?.validateAdjustment || ((p) => ({ valid: true, amount: parseFloat(p.amount) })))({
-        amount: input.value,
-        reason: reasonInput.value
+        amount: input?.value || '',
+        reason: reasonInput?.value || ''
       }, currentVal);
 
       if (!validation.valid) {
         errorEl.textContent = validation.error || 'Valor inválido.';
         errorEl.classList.add('show');
-        input.focus();
+        input?.focus?.();
         return;
       }
 
@@ -222,7 +230,7 @@
         } catch (_) {}
 
         // Trigger wealth reload if on or visiting dashboard
-        root.loadWealth?.();
+        try { root.loadWealth?.(); } catch (e) { console.warn('loadWealth error:', e); }
 
         notifyEquityUpdated(validation.amount);
         closeEquityAdjustModal();

@@ -1352,10 +1352,12 @@ function renderOperationalApp(){const ps=operationalState.positions;const real=p
 function resetOperationalDemo(){}
 function roundLot(q,lot=100){return Math.max(0,Math.floor(q/lot)*lot)}
 function recalc(){
-  const entry=+document.getElementById('entry').value||0;
-  const stop=+document.getElementById('stop').value||0;
-  const atr=+document.getElementById('atr').value||0;
-  const riskPct=+document.getElementById('riskPct').value||0;
+  const entryEl=document.getElementById('entry');
+  if(!entryEl) return;
+  const entry=+entryEl.value||0;
+  const stop=+document.getElementById('stop')?.value||0;
+  const atr=+document.getElementById('atr')?.value||0;
+  const riskPct=+document.getElementById('riskPct')?.value||0;
   const profile=typeof selectedRiskProfile==='function'?selectedRiskProfile():{initialVolatilityPct:0.003,capitalPct:0.10};
   const equity=getOperationalEquity(), volatilityPct=profile.initialVolatilityPct||.003, capitalPct=profile.capitalPct||.10, lot=100;
   const stopDistance=Math.abs(entry-stop)||Infinity;
@@ -1366,15 +1368,16 @@ function recalc(){
   const chosen=layers.reduce((a,b)=>b.q<a.q?b:a);
   const q=chosen.q;
   const actualRisk=q*stopDistance;
-  document.getElementById('qty').textContent=q.toLocaleString('pt-BR')+' ações';
-  document.getElementById('qtyRisk').textContent=qRisk.toLocaleString('pt-BR');
-  document.getElementById('qtyVol').textContent=qVol.toLocaleString('pt-BR');
-  document.getElementById('qtyCapital').textContent=qCapital.toLocaleString('pt-BR');
-  document.getElementById('riskMoney').textContent=actualRisk.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-  document.getElementById('capital').textContent=(q*entry).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
-  document.getElementById('limitingLayer').textContent=chosen.name;
-  document.getElementById('atrpct').textContent=entry?((atr/entry)*100).toFixed(2).replace('.',',')+'%':'—';
-  document.querySelectorAll('.mini-layer-row').forEach((el,i)=>el.classList.toggle('selected',layers[i].name===chosen.name));
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  set('qty',q.toLocaleString('pt-BR')+' ações');
+  set('qtyRisk',qRisk.toLocaleString('pt-BR'));
+  set('qtyVol',qVol.toLocaleString('pt-BR'));
+  set('qtyCapital',qCapital.toLocaleString('pt-BR'));
+  set('riskMoney',actualRisk.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}));
+  set('capital',(q*entry).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}));
+  set('limitingLayer',chosen.name);
+  set('atrpct',entry?((atr/entry)*100).toFixed(2).replace('.',',')+'%':'—');
+  document.querySelectorAll('.mini-layer-row').forEach((el,i)=>el.classList.toggle('selected',layers[i]?.name===chosen.name));
 }
 ['entry','stop','atr','riskPct'].forEach(id=>document.getElementById(id).addEventListener('input',recalc));recalc();
 document.querySelectorAll('#checks input').forEach(c=>c.addEventListener('change',()=>{let ok=[...document.querySelectorAll('#checks input')].every(x=>x.checked),box=document.getElementById('aplus');box.innerHTML=ok?'<b>A CONTEXT</b><small>Todos os critérios obrigatórios foram atendidos.</small>':'<b>CONTEXTO REJEITADO</b><small>Existem critérios obrigatórios não atendidos.</small>';box.style.background=ok?'#e9f7ed':'#f7e4e0';box.style.color=ok?'#286943':'#8e473d';}));
@@ -1575,16 +1578,20 @@ const POSITION_SIZE_CONFIG={
   maximumPositions:10
 };
 function calcPositionSizing(){
-  const get=id=>Number(document.getElementById(id).value)||0;
+  const marketEl=document.getElementById('psMarket');
+  if(!marketEl) return;
+  const get=id=>{const el=document.getElementById(id);return el?Number(el.value)||0:0;};
   const entry=get('psEntry'), stop=get('psStop'), atr=get('psAtr');
   const {equity,riskPct,volatilityPct,capitalPct,lot,portfolioHeat,heatMax}=POSITION_SIZE_CONFIG;
-  const market=document.getElementById('psMarket').value;
+  const market=marketEl.value;
   const unit=market==='futuros'?'contratos':'ações';
   const distance=Math.abs(entry-stop);
   const valid=entry>0&&stop>0&&distance>0&&atr>0;
   const warning=document.getElementById('psWarning');
-  warning.classList.toggle('show',!valid);
-  warning.textContent=distance===0?'Entrada e stop precisam ser diferentes.':'Preencha valores positivos para entrada, stop e ATR.';
+  if(warning){
+    warning.classList.toggle('show',!valid);
+    warning.textContent=distance===0?'Entrada e stop precisam ser diferentes.':'Preencha valores positivos para entrada, stop e ATR.';
+  }
   if(!valid) return;
   const rawRisk=(equity*riskPct)/distance;
   const rawVol=(equity*volatilityPct)/atr;
@@ -1600,22 +1607,28 @@ function calcPositionSizing(){
   const actualRiskPct=actualRisk/equity*100, newHeat=portfolioHeat+actualRiskPct;
   const ids={risk:'psQtyRisk',vol:'psQtyVol',capital:'psQtyCapital'};
   layers.forEach(l=>{
-    document.getElementById(ids[l.key]).innerHTML=numBR(l.q)+' <small>'+unit+'</small>';
-    const card=document.getElementById(l.el);card.classList.toggle('winner',l.key===chosen.key);
-    const old=card.querySelector('.limit-ribbon');if(old)old.remove();
-    if(l.key===chosen.key){const r=document.createElement('div');r.className='limit-ribbon';r.textContent='Limitante';card.appendChild(r)}
+    const qEl=document.getElementById(ids[l.key]);
+    if(qEl) qEl.innerHTML=numBR(l.q)+' <small>'+unit+'</small>';
+    const card=document.getElementById(l.el);
+    if(card){
+      card.classList.toggle('winner',l.key===chosen.key);
+      const old=card.querySelector('.limit-ribbon');if(old)old.remove();
+      if(l.key===chosen.key){const r=document.createElement('div');r.className='limit-ribbon';r.textContent='Limitante';card.appendChild(r)}
+    }
   });
-  document.getElementById('psFinalQty').textContent=numBR(q);
-  document.getElementById('psFinalUnit').textContent=unit+' · arredondadas conservadoramente';
-  document.getElementById('psReason').innerHTML='A camada limitante é <b>'+chosen.name+'</b>. Como gerou '+numBR(chosen.q)+' '+unit+', o menor valor entre as três camadas, ela define a quantidade permitida.';
-  document.getElementById('psLimitingMetric').textContent=chosen.name;
-  document.getElementById('psRiskMoney').textContent=moneyBR(actualRisk);
-  document.getElementById('psCapitalUsed').textContent=moneyBR(exposure,0);
-  document.getElementById('psNewHeat').textContent=numBR(newHeat,2)+'%'+(newHeat>heatMax?' · excedido':'');
-  document.getElementById('psDecisionTitle').textContent='Camada limitante: '+chosen.name.toLowerCase();
-  document.getElementById('psDecisionText').innerHTML='Resultados: '+layers.map(l=>numBR(l.q)).join(' · ')+' '+unit+'. O sistema selecionou <b>'+numBR(q)+' '+unit+'</b>, sempre pelo menor risco.';
-  document.getElementById('psDecisionQty').textContent=numBR(q);
-  document.getElementById('psDecisionUnit').textContent=unit+' sugeridas';
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  const setHtml=(id,val)=>{const el=document.getElementById(id);if(el)el.innerHTML=val;};
+  set('psFinalQty',numBR(q));
+  set('psFinalUnit',unit+' · arredondadas conservadoramente');
+  setHtml('psReason','A camada limitante é <b>'+chosen.name+'</b>. Como gerou '+numBR(chosen.q)+' '+unit+', o menor valor entre as três camadas, ela define a quantidade permitida.');
+  set('psLimitingMetric',chosen.name);
+  set('psRiskMoney',moneyBR(actualRisk));
+  set('psCapitalUsed',moneyBR(exposure,0));
+  set('psNewHeat',numBR(newHeat,2)+'%'+(newHeat>heatMax?' · excedido':''));
+  set('psDecisionTitle','Camada limitante: '+chosen.name.toLowerCase());
+  setHtml('psDecisionText','Resultados: '+layers.map(l=>numBR(l.q)).join(' · ')+' '+unit+'. O sistema selecionou <b>'+numBR(q)+' '+unit+'</b>, sempre pelo menor risco.');
+  set('psDecisionQty',numBR(q));
+  set('psDecisionUnit',unit+' sugeridas');
 }
 ['psMarket','psDirection','psEntry','psStop','psAtr'].forEach(id=>document.getElementById(id).addEventListener('input',calcPositionSizing));
 calcPositionSizing();
