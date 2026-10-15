@@ -683,27 +683,9 @@ async function deleteTrade(userId, tradeId) {
   if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
   return database.transaction(async (client) => {
     const tradeRes = await client.query(
-      `SELECT t.*,
-              COALESCE(events.items, '[]'::jsonb) AS events,
-              COALESCE(entries.items, '[]'::jsonb) AS entries
-         FROM app.trades t
-         LEFT JOIN LATERAL (
-           SELECT jsonb_agg(jsonb_build_object(
-             'id', e.id, 'type', e.event_type, 'qty', e.quantity, 'price', e.price,
-             'stop', e.stop_price, 'atr', e.atr, 'note', e.note, 'at', e.occurred_at
-           ) ORDER BY e.occurred_at, e.created_at) AS items
-           FROM app.trade_events e WHERE e.trade_id = t.id
-         ) events ON true
-         LEFT JOIN LATERAL (
-           SELECT jsonb_agg(jsonb_build_object(
-             'id', en.id, 'type', en.entry_type, 'date', en.entry_date, 'time', en.entry_time,
-             'price', en.price, 'qty', en.quantity, 'capital', en.capital_allocated,
-             'stop', en.initial_stop, 'riskAmount', en.risk_amount, 'riskPct', en.risk_percent,
-             'rAtEntry', en.r_multiple_at_entry, 'note', en.note, 'createdAt', en.created_at
-           ) ORDER BY en.created_at) AS items
-           FROM app.trade_entries en WHERE en.trade_id = t.id
-         ) entries ON true
-        WHERE t.id = $1 AND t.user_id = $2
+      `SELECT id, user_id, ticker, status, scale_in_count, metadata
+         FROM app.trades
+        WHERE id = $1 AND user_id = $2
         FOR UPDATE`,
       [tradeId, userId]
     );
@@ -711,7 +693,31 @@ async function deleteTrade(userId, tradeId) {
     if (!tradeRes.rowCount) throw invalid('Posição não encontrada.');
     const trade = tradeRes.rows[0];
 
-    const validation = management.canDeletePosition(trade);
+    if (trade.status !== 'open') {
+      throw invalid('Apenas posições em aberto podem ser excluídas.');
+    }
+
+    const eventsRes = await client.query(
+      `SELECT event_type AS type, quantity AS qty, price
+         FROM app.trade_events
+        WHERE trade_id = $1`,
+      [tradeId]
+    );
+
+    const entriesRes = await client.query(
+      `SELECT entry_type AS type, quantity AS qty
+         FROM app.trade_entries
+        WHERE trade_id = $1`,
+      [tradeId]
+    );
+
+    const positionData = {
+      ...trade,
+      events: eventsRes.rows,
+      entries: entriesRes.rows
+    };
+
+    const validation = management.canDeletePosition(positionData);
     if (!validation.eligible) {
       throw invalid(validation.reason);
     }
@@ -727,6 +733,7 @@ async function deleteTrade(userId, tradeId) {
     };
   });
 }
+
 
 module.exports = {
   createPlan,

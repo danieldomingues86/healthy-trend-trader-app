@@ -184,8 +184,17 @@ test('deleteTrade: bloqueia exclusão de trade já encerrado ou com saídas/parc
       if (sql.includes('FROM app.trades')) {
         return {
           rowCount: 1,
-          rows: [{ id: tradeId, ticker: 'WEGE3', status: 'open', events: [{ type: 'peeloff', qty: 100 }], entries: [] }]
+          rows: [{ id: tradeId, ticker: 'WEGE3', status: 'open', scale_in_count: 0, metadata: {} }]
         };
+      }
+      if (sql.includes('FROM app.trade_events')) {
+        return {
+          rowCount: 1,
+          rows: [{ type: 'peeloff', qty: 100 }]
+        };
+      }
+      if (sql.includes('FROM app.trade_entries')) {
+        return { rowCount: 0, rows: [] };
       }
       throw new Error(`Unexpected: ${sql}`);
     }
@@ -202,8 +211,17 @@ test('deleteTrade: bloqueia exclusão de trade já encerrado ou com saídas/parc
       if (sql.includes('FROM app.trades')) {
         return {
           rowCount: 1,
-          rows: [{ id: tradeId, ticker: 'WEGE3', status: 'open', scale_in_count: 1, events: [{ type: 'scale_in', qty: 100 }], entries: [] }]
+          rows: [{ id: tradeId, ticker: 'WEGE3', status: 'open', scale_in_count: 1, metadata: {} }]
         };
+      }
+      if (sql.includes('FROM app.trade_events')) {
+        return {
+          rowCount: 1,
+          rows: [{ type: 'scale_in', qty: 100 }]
+        };
+      }
+      if (sql.includes('FROM app.trade_entries')) {
+        return { rowCount: 0, rows: [] };
       }
       throw new Error(`Unexpected: ${sql}`);
     }
@@ -223,7 +241,7 @@ test('deleteTrade: exclui com sucesso posição aberta registrada por engano e r
   database.transaction = async work => work({
     query: async (sql, values) => {
       queries.push({ sql, values });
-      if (sql.includes('SELECT t.*') && sql.includes('FROM app.trades t')) {
+      if (sql.includes('FROM app.trades') && !sql.includes('DELETE')) {
         return {
           rowCount: 1,
           rows: [{
@@ -231,10 +249,20 @@ test('deleteTrade: exclui com sucesso posição aberta registrada por engano e r
             ticker: 'WEGE3',
             status: 'open',
             scale_in_count: 0,
-            metadata: { mode: 'real' },
-            events: [{ type: 'entry', qty: 400, price: 48.3 }],
-            entries: [{ type: 'INITIAL', qty: 400 }]
+            metadata: { mode: 'real' }
           }]
+        };
+      }
+      if (sql.includes('FROM app.trade_events')) {
+        return {
+          rowCount: 1,
+          rows: [{ type: 'entry', qty: 400, price: 48.3 }]
+        };
+      }
+      if (sql.includes('FROM app.trade_entries')) {
+        return {
+          rowCount: 1,
+          rows: [{ type: 'INITIAL', qty: 400 }]
         };
       }
       if (sql.includes('DELETE FROM app.trades')) {
@@ -258,6 +286,7 @@ test('deleteTrade: exclui com sucesso posição aberta registrada por engano e r
     database.transaction = original;
   }
 });
+
 
 
 
