@@ -97,6 +97,7 @@
 
     overlay.innerHTML = `
       <div class="equity-adjust-modal-card">
+        <button type="button" class="equity-adjust-close-btn" id="equityAdjustCloseBtn" aria-label="Fechar" title="Fechar">×</button>
         <header class="equity-adjust-modal-header">
           <span class="equity-adjust-modal-eyebrow">Patrimônio Operacional</span>
           <h2 class="equity-adjust-modal-title" id="equityAdjustModalTitle">Atualizar Equity Total</h2>
@@ -156,6 +157,9 @@
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) closeEquityAdjustModal();
     });
+
+    const closeBtn = overlay.querySelector('#equityAdjustCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', closeEquityAdjustModal);
 
     const cancelBtn = overlay.querySelector('#equityAdjustCancelBtn');
     if (cancelBtn) cancelBtn.addEventListener('click', closeEquityAdjustModal);
