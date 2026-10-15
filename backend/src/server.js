@@ -619,6 +619,15 @@ const server = http.createServer(async (request, response) => {
       const trade = await trades.updateTrade(user.id, tradeUpdateMatch[1], await body(request));
       return send(response, 200, { trade });
     }
+    const tradeDeleteMatch = url.pathname.match(/^\/api\/trades\/([^/]+)$/);
+    if (tradeDeleteMatch && request.method === 'DELETE') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const result = await trades.deleteTrade(user.id, tradeDeleteMatch[1]);
+      return send(response, 200, result);
+    }
+
     if ((url.pathname === '/api/nasdaq/refresh' || url.pathname === '/api/nasdaq/sync' || url.pathname === '/api/market-data/nasdaq-refresh') && request.method === 'POST') {
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });

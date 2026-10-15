@@ -103,5 +103,36 @@
     if (positionState.sellAvailable) items.push({ type: 'sell-into-strength', label: 'SELL INTO STRENGTH', detail: `Zona ${positionState.sell.startR}R–${positionState.sell.endR}R`, priority: 'opportunity' });
     return items;
   }
-  return { DEFAULT_SELL, settings, isSellIntoStrength, initial, currentR, metricsFromEvents, state, preview, actions };
+  function canDeletePosition(position) {
+    if (!position) return { eligible: false, reason: 'Posição inválida ou não encontrada.' };
+    const status = position.status || (position.closedAt ? 'closed' : 'open');
+    if (status === 'closed') {
+      return { eligible: false, reason: 'Apenas posições em aberto podem ser excluídas.' };
+    }
+    const events = Array.isArray(position.events) ? position.events : [];
+    const hasExits = events.some(e => e.type === 'peeloff' || e.type === 'close');
+    if (hasExits) {
+      return {
+        eligible: false,
+        reason: 'Esta posição possui saídas ou parciais já registradas e não pode ser excluída diretamente. Para finalizá-la, registre o encerramento da posição.'
+      };
+    }
+    const hasScaleIns = Number(position.scale_in_count || position.scaleInCount || 0) > 0 || events.some(e => e.type === 'scale_in');
+    if (hasScaleIns) {
+      return {
+        eligible: false,
+        reason: 'Esta posição possui entradas parciais (scale-ins) registradas e não pode ser excluída diretamente.'
+      };
+    }
+    const entries = Array.isArray(position.entries) ? position.entries : [];
+    if (entries.some(e => e.type && e.type !== 'INITIAL')) {
+      return {
+        eligible: false,
+        reason: 'Esta posição possui registros financeiros vinculados e não pode ser excluída diretamente.'
+      };
+    }
+    return { eligible: true };
+  }
+  return { DEFAULT_SELL, settings, isSellIntoStrength, initial, currentR, metricsFromEvents, state, preview, actions, canDeletePosition };
 }));
+

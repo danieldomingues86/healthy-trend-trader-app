@@ -671,6 +671,11 @@
   window.addEventListener('healthyTrend:routineUpdated', () => {
     if (document.getElementById('today')?.classList.contains('active')) render();
   });
+  window.addEventListener('healthyTrend:tradesUpdated', () => {
+    renderTopHeat();
+    if (document.getElementById('today')?.classList.contains('active')) render();
+  });
+
   renderCurrentDate();
   render();
   if (document.getElementById('today')?.classList.contains('active')) load();
