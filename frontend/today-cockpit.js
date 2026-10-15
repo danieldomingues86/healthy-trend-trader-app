@@ -85,7 +85,7 @@
     const tradesCount = closedReal.length;
     const currentHeatVal = heat();
     const currentLimit = heatLimit();
-    const patrimonio = (typeof window.getOperationalEquity === 'function' ? window.getOperationalEquity() : (window.OPERATIONAL_EQUITY || snap?.equity ?? snap?.patrimonio ?? 1029500));
+    const patrimonio = (typeof window.getOperationalEquity === 'function' ? window.getOperationalEquity() : (window.OPERATIONAL_EQUITY || snap?.equity || snap?.patrimonio || 1029500));
     const patrimonioStr = patrimonio != null
       ? patrimonio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
       : 'R$ 1.029.500';
