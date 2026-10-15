@@ -138,3 +138,43 @@ test('expõe somente as ações pendentes na posição', () => {
   });
   assert.deepEqual(peelActions.map(action => action.type), ['peeloff']);
 });
+
+test('canDeletePosition permite excluir posições em aberto sem eventos financeiros parciais ou saídas', () => {
+  const p = position(55, 45);
+  const result = model.canDeletePosition(p);
+  assert.equal(result.eligible, true);
+
+  // Permite com evento update de stop ou preço
+  p.events.push({ type: 'update', price: 56, stop: 48 });
+  assert.equal(model.canDeletePosition(p).eligible, true);
+});
+
+test('canDeletePosition bloqueia posições já encerradas', () => {
+  const p = position(55, 45);
+  p.status = 'closed';
+  const result = model.canDeletePosition(p);
+  assert.equal(result.eligible, false);
+  assert.match(result.reason, /Apenas posições em aberto/);
+
+  const pClosed = { ...position(55, 45), closedAt: '2026-09-01T10:00:00Z' };
+  assert.equal(model.canDeletePosition(pClosed).eligible, false);
+});
+
+test('canDeletePosition bloqueia posições com parciais ou saídas registradas', () => {
+  const p = position(55, 45);
+  p.events.push({ type: 'peeloff', qty: 200, price: 54 });
+  const result = model.canDeletePosition(p);
+  assert.equal(result.eligible, false);
+  assert.match(result.reason, /saídas ou parciais já registradas/);
+});
+
+test('canDeletePosition bloqueia posições com entradas parciais (scale-ins)', () => {
+  const p = position(55, 45);
+  p.events.push({ type: 'scale_in', qty: 200, price: 52 });
+  const result = model.canDeletePosition(p);
+  assert.equal(result.eligible, false);
+  assert.match(result.reason, /entradas parciais \(scale-ins\)/);
+
+  const pWithCount = { ...position(55, 45), scaleInCount: 1 };
+  assert.equal(model.canDeletePosition(pWithCount).eligible, false);
+});

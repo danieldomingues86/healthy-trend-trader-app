@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { normalizePlan, validateRareTrade, validateMissionRisk, normalizeExecution, normalizePositionEvent, ratingFromValue } = require('../src/trades');
+const database = require('../src/database');
+const { normalizePlan, validateRareTrade, validateMissionRisk, normalizeExecution, normalizePositionEvent, ratingFromValue, deleteTrade } = require('../src/trades');
 
 test('normaliza plano com ticker em caixa alta e contribuições da Rubric', () => {
   const plan = normalizePlan({
@@ -140,5 +141,152 @@ test('validateMissionRisk: bloqueia trades que excedam o limite de risco da miss
   assert.doesNotThrow(() => validateMissionRisk(planOk, JSON.stringify(JSON.stringify(mission))));
   assert.throws(() => validateMissionRisk(planExceeded, JSON.stringify(mission)), /Operação bloqueada/);
 });
+
+test('deleteTrade: valida UUID do trade e existência no banco', async () => {
+  await assert.rejects(() => deleteTrade('user-1', 'invalid-uuid'), /Trade inválido/);
+
+  const original = database.transaction;
+  database.transaction = async work => work({
+    query: async () => ({ rowCount: 0, rows: [] })
+  });
+  try {
+    await assert.rejects(() => deleteTrade('user-1', '00000000-0000-0000-0000-000000000001'), /Posição não encontrada/);
+  } finally {
+    database.transaction = original;
+  }
+});
+
+test('deleteTrade: bloqueia exclusão de trade já encerrado ou com saídas/parciais/scale-in', async () => {
+  const original = database.transaction;
+  const tradeId = '00000000-0000-0000-0000-000000000001';
+
+  // Cenário 1: status closed
+  database.transaction = async work => work({
+    query: async sql => {
+      if (sql.includes('FROM app.trades')) {
+        return {
+          rowCount: 1,
+          rows: [{ id: tradeId, ticker: 'WEGE3', status: 'closed', events: [], entries: [] }]
+        };
+      }
+      throw new Error(`Unexpected: ${sql}`);
+    }
+  });
+  try {
+    await assert.rejects(() => deleteTrade('user-1', tradeId), /Apenas posições em aberto/);
+  } finally {
+    database.transaction = original;
+  }
+
+  // Cenário 2: com peeloff (saída parcial)
+  database.transaction = async work => work({
+    query: async sql => {
+      if (sql.includes('FROM app.trades')) {
+        return {
+          rowCount: 1,
+          rows: [{ id: tradeId, ticker: 'WEGE3', status: 'open', scale_in_count: 0, metadata: {} }]
+        };
+      }
+      if (sql.includes('FROM app.trade_events')) {
+        return {
+          rowCount: 1,
+          rows: [{ type: 'peeloff', qty: 100 }]
+        };
+      }
+      if (sql.includes('FROM app.trade_entries')) {
+        return { rowCount: 0, rows: [] };
+      }
+      throw new Error(`Unexpected: ${sql}`);
+    }
+  });
+  try {
+    await assert.rejects(() => deleteTrade('user-1', tradeId), /saídas ou parciais já registradas/);
+  } finally {
+    database.transaction = original;
+  }
+
+  // Cenário 3: com scale_in
+  database.transaction = async work => work({
+    query: async sql => {
+      if (sql.includes('FROM app.trades')) {
+        return {
+          rowCount: 1,
+          rows: [{ id: tradeId, ticker: 'WEGE3', status: 'open', scale_in_count: 1, metadata: {} }]
+        };
+      }
+      if (sql.includes('FROM app.trade_events')) {
+        return {
+          rowCount: 1,
+          rows: [{ type: 'scale_in', qty: 100 }]
+        };
+      }
+      if (sql.includes('FROM app.trade_entries')) {
+        return { rowCount: 0, rows: [] };
+      }
+      throw new Error(`Unexpected: ${sql}`);
+    }
+  });
+  try {
+    await assert.rejects(() => deleteTrade('user-1', tradeId), /entradas parciais \(scale-ins\)/);
+  } finally {
+    database.transaction = original;
+  }
+});
+
+test('deleteTrade: exclui com sucesso posição aberta registrada por engano e retorna metadados', async () => {
+  const original = database.transaction;
+  const tradeId = 'a1234567-89ab-cdef-0123-456789abcdef';
+  const queries = [];
+
+  database.transaction = async work => work({
+    query: async (sql, values) => {
+      queries.push({ sql, values });
+      if (sql.includes('FROM app.trades') && !sql.includes('DELETE')) {
+        return {
+          rowCount: 1,
+          rows: [{
+            id: tradeId,
+            ticker: 'WEGE3',
+            status: 'open',
+            scale_in_count: 0,
+            metadata: { mode: 'real' }
+          }]
+        };
+      }
+      if (sql.includes('FROM app.trade_events')) {
+        return {
+          rowCount: 1,
+          rows: [{ type: 'entry', qty: 400, price: 48.3 }]
+        };
+      }
+      if (sql.includes('FROM app.trade_entries')) {
+        return {
+          rowCount: 1,
+          rows: [{ type: 'INITIAL', qty: 400 }]
+        };
+      }
+      if (sql.includes('DELETE FROM app.trades')) {
+        return { rowCount: 1 };
+      }
+      throw new Error(`Unexpected SQL: ${sql}`);
+    }
+  });
+
+  try {
+    const result = await deleteTrade('user-42', tradeId);
+    assert.equal(result.success, true);
+    assert.equal(result.deletedId, tradeId);
+    assert.equal(result.ticker, 'WEGE3');
+    assert.equal(result.mode, 'real');
+
+    const deleteQuery = queries.find(q => q.sql.includes('DELETE FROM app.trades'));
+    assert.ok(deleteQuery, 'Deve executar DELETE query');
+    assert.deepEqual(deleteQuery.values, [tradeId, 'user-42']);
+  } finally {
+    database.transaction = original;
+  }
+});
+
+
 
 

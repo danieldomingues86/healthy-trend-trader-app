@@ -110,3 +110,45 @@ test('event-playbook-attachments: upload, leitura e exclusão de screenshot', as
   const del = await attachments.remove('user-test', att.id);
   assert.equal(del.id, att.id);
 });
+
+test('event-playbook: proteção contra user_id não-UUID (anonymous / null) com persistência configurada', async () => {
+  let queryCalled = false;
+  const mockConfiguredPersistence = {
+    configured: () => true,
+    query: async () => {
+      queryCalled = true;
+      throw new Error('Should not execute SQL for invalid/anonymous UUID');
+    }
+  };
+
+  // 1. Listagem para usuário anônimo ou null retorna DEFAULT_SEEDS sem disparar SQL
+  const anonList = await eventPlaybook.list('anonymous', {}, mockConfiguredPersistence);
+  assert.ok(Array.isArray(anonList));
+  assert.ok(anonList.length >= 5);
+  assert.equal(queryCalled, false);
+
+  const nullList = await eventPlaybook.list(null, {}, mockConfiguredPersistence);
+  assert.ok(Array.isArray(nullList));
+  assert.equal(queryCalled, false);
+
+  // 2. Consulta get para usuário anônimo busca seed sem disparar SQL
+  const payroll = await eventPlaybook.get('anonymous', 'evt-payroll', mockConfiguredPersistence);
+  assert.equal(payroll.name, 'Payroll (EUA)');
+  assert.equal(queryCalled, false);
+
+  // 3. Operações mutantes (create, update, remove) rejeitam com 401 sem disparar SQL
+  await assert.rejects(async () => {
+    await eventPlaybook.create('anonymous', { name: 'Novo' }, mockConfiguredPersistence);
+  }, (err) => err.status === 401);
+
+  await assert.rejects(async () => {
+    await eventPlaybook.update('anonymous', 'evt-payroll', { name: 'Editado' }, mockConfiguredPersistence);
+  }, (err) => err.status === 401);
+
+  await assert.rejects(async () => {
+    await eventPlaybook.remove('anonymous', 'evt-payroll', mockConfiguredPersistence);
+  }, (err) => err.status === 401);
+
+  assert.equal(queryCalled, false);
+});
+

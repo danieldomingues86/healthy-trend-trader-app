@@ -587,7 +587,7 @@
       return `
         <tr class="rs-data-row rs-row-${leitura.tierClass}" data-symbol="${symbol}">
           <td class="td-rank">${rank}</td>
-          <td class="td-symbol" onclick="window.openTickerAnalysis && window.openTickerAnalysis('${symbol}')" style="cursor:pointer;" title="${text(`Ver análise de ${symbol}`, `View analysis for ${symbol}`)}"><b>${symbol}</b></td>
+          <td class="td-symbol"><b>${symbol}</b></td>
           <td class="td-company" title="${company}">${company}</td>
           <td class="td-group" title="${sector}">${sector}</td>
           <td class="td-m1 ${m1Class}">${m1Formatted}</td>
@@ -603,8 +603,8 @@
           </td>
           <td class="td-actions">
             <div class="rs-row-actions">
-              <button type="button" class="rs-btn-analysis" onclick="window.openTickerAnalysis && window.openTickerAnalysis('${symbol}')" title="${text(`Ver análise de ${symbol}`, `View analysis for ${symbol}`)}">
-                <span class="rs-btn-icon">📊</span> ${text('Ver análise', 'View analysis')}
+              <button type="button" class="rs-btn-analysis" onclick="window.openTickerAnalysis && window.openTickerAnalysis('${symbol}')" title="${text(`Ver gráfico de ${symbol}`, `View chart for ${symbol}`)}">
+                <span class="rs-btn-icon">📊</span> ${text('Ver gráfico', 'View chart')}
               </button>
               <button type="button" class="rs-btn-watchlist" onclick="window.addToWatchlist && window.addToWatchlist('${symbol}', { origin: 'relative-strength', rsScore: ${score} })" title="${text(`Adicionar ${symbol} à Watchlist`, `Add ${symbol} to Watchlist`)}">
                 + Watchlist

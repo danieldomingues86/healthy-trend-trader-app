@@ -88,9 +88,90 @@ function headerText(value) {
   catch { const error = new Error('Cabeçalho de arquivo inválido.'); error.status = 400; throw error; }
 }
 
+const ROOT_DIR = path.resolve(__dirname, '..', '..');
+const STATIC_MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.txt': 'text/plain; charset=utf-8'
+};
+
+async function handleStaticOrSpa(request, response, url) {
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return send(response, 405, { error: 'Method not allowed' });
+  }
+
+  let pathname = decodeURIComponent(url.pathname);
+  if (pathname === '/' || pathname === '/index.html' || pathname === '/reset-password') {
+    pathname = '/index.html';
+  }
+
+  const resolved = path.normalize(path.join(ROOT_DIR, pathname));
+  if (!resolved.startsWith(ROOT_DIR)) {
+    return send(response, 403, { error: 'Forbidden' });
+  }
+
+  try {
+    const stat = await fs.stat(resolved);
+    let filePath = resolved;
+    if (stat.isDirectory()) {
+      filePath = path.join(resolved, 'index.html');
+      await fs.stat(filePath);
+    }
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = STATIC_MIME_TYPES[ext] || 'application/octet-stream';
+    const content = await fs.readFile(filePath);
+    response.writeHead(200, {
+      'Content-Type': contentType,
+      'Content-Length': content.length,
+      'X-Content-Type-Options': 'nosniff',
+      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
+      ...cors
+    });
+    if (request.method === 'HEAD') {
+      response.end();
+    } else {
+      response.end(content);
+    }
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      if (!path.extname(pathname)) {
+        try {
+          const indexHtml = await fs.readFile(path.join(ROOT_DIR, 'index.html'));
+          response.writeHead(200, {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Content-Length': indexHtml.length,
+            'X-Content-Type-Options': 'nosniff',
+            'Cache-Control': 'no-cache',
+            ...cors
+          });
+          response.end(indexHtml);
+          return;
+        } catch (_) {}
+      }
+      return send(response, 404, { error: 'Not found' });
+    }
+    return send(response, 500, { error: 'Failed to serve static file' });
+  }
+}
+
 const server = http.createServer(async (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
   if (request.method === 'OPTIONS') return send(response, 204, {});
+  if (!url.pathname.startsWith('/api/')) {
+    return handleStaticOrSpa(request, response, url);
+  }
   try {
     if (request.method === 'POST' && url.pathname === '/api/auth/login') {
       if (!database.configured()) return send(response, 503, { error: 'Autenticação ainda não configurada no servidor.' });
@@ -110,6 +191,22 @@ const server = http.createServer(async (request, response) => {
     if (request.method === 'POST' && url.pathname === '/api/auth/logout') {
       if (database.configured()) await auth.logout(bearer(request));
       return send(response, 200, { ok: true });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/auth/forgot-password') {
+      const payload = await body(request);
+      const appUrl = payload.appUrl || request.headers.origin || request.headers.referer || null;
+      const result = await auth.requestPasswordReset(payload.email, appUrl);
+      return send(response, 200, result);
+    }
+    if (request.method === 'GET' && url.pathname === '/api/auth/verify-reset-token') {
+      const token = url.searchParams.get('token') || url.searchParams.get('reset_token');
+      const result = await auth.verifyPasswordResetToken(token);
+      return send(response, 200, result);
+    }
+    if (request.method === 'POST' && url.pathname === '/api/auth/reset-password') {
+      const payload = await body(request);
+      const result = await auth.resetPassword(payload.token, payload.newPassword);
+      return send(response, 200, result);
     }
     if (request.method === 'GET' && url.pathname === '/api/workspace-state') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
@@ -522,6 +619,15 @@ const server = http.createServer(async (request, response) => {
       const trade = await trades.updateTrade(user.id, tradeUpdateMatch[1], await body(request));
       return send(response, 200, { trade });
     }
+    const tradeDeleteMatch = url.pathname.match(/^\/api\/trades\/([^/]+)$/);
+    if (tradeDeleteMatch && request.method === 'DELETE') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const result = await trades.deleteTrade(user.id, tradeDeleteMatch[1]);
+      return send(response, 200, result);
+    }
+
     if ((url.pathname === '/api/nasdaq/refresh' || url.pathname === '/api/nasdaq/sync' || url.pathname === '/api/market-data/nasdaq-refresh') && request.method === 'POST') {
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
@@ -578,8 +684,8 @@ const server = http.createServer(async (request, response) => {
     // Event Playbook - Attachment Upload (POST)
     if (url.pathname === '/api/event-playbook/attachments' && request.method === 'POST') {
       const user = await auth.session(bearer(request)).catch(() => null);
-      const userId = user ? user.id : 'anonymous';
-      const attachment = await eventPlaybookAttachments.create(userId, {
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const attachment = await eventPlaybookAttachments.create(user.id, {
         name: headerText(request.headers['x-file-name']),
         contentType: request.headers['content-type'],
         bytes: await binaryBody(request)
@@ -590,7 +696,7 @@ const server = http.createServer(async (request, response) => {
     // Event Playbook - List (GET)
     if (url.pathname === '/api/event-playbook' && request.method === 'GET') {
       const user = await auth.session(bearer(request)).catch(() => null);
-      const userId = user ? user.id : 'anonymous';
+      const userId = user ? user.id : null;
       const query = {
         category: url.searchParams.get('category'),
         impact: url.searchParams.get('impact'),
@@ -605,18 +711,18 @@ const server = http.createServer(async (request, response) => {
     // Event Playbook - Create (POST)
     if (url.pathname === '/api/event-playbook' && request.method === 'POST') {
       const user = await auth.session(bearer(request)).catch(() => null);
-      const userId = user ? user.id : 'anonymous';
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       const payload = await body(request);
-      const item = await eventPlaybook.create(userId, payload);
+      const item = await eventPlaybook.create(user.id, payload);
       return send(response, 201, { item });
     }
 
     // Event Playbook - Save Reaction (POST /api/event-playbook/reaction)
     if (url.pathname === '/api/event-playbook/reaction' && request.method === 'POST') {
       const user = await auth.session(bearer(request)).catch(() => null);
-      const userId = user ? user.id : 'anonymous';
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       const payload = await body(request);
-      const item = await eventPlaybook.saveReaction(userId, payload);
+      const item = await eventPlaybook.saveReaction(user.id, payload);
       return send(response, 200, { item });
     }
 
@@ -626,21 +732,21 @@ const server = http.createServer(async (request, response) => {
       const eventId = epMatch[1];
       if (request.method === 'GET') {
         const user = await auth.session(bearer(request)).catch(() => null);
-        const userId = user ? user.id : 'anonymous';
+        const userId = user ? user.id : null;
         const item = await eventPlaybook.get(userId, eventId);
         return send(response, 200, { item });
       }
       if (request.method === 'PUT') {
         const user = await auth.session(bearer(request)).catch(() => null);
-        const userId = user ? user.id : 'anonymous';
+        if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
         const payload = await body(request);
-        const item = await eventPlaybook.update(userId, eventId, payload);
+        const item = await eventPlaybook.update(user.id, eventId, payload);
         return send(response, 200, { item });
       }
       if (request.method === 'DELETE') {
         const user = await auth.session(bearer(request)).catch(() => null);
-        const userId = user ? user.id : 'anonymous';
-        const res = await eventPlaybook.remove(userId, eventId);
+        if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+        const res = await eventPlaybook.remove(user.id, eventId);
         return send(response, 200, res);
       }
     }

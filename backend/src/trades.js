@@ -679,11 +679,68 @@ async function listScaleIns(userId, tradeId) {
   return result.rows;
 }
 
+async function deleteTrade(userId, tradeId) {
+  if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
+  return database.transaction(async (client) => {
+    const tradeRes = await client.query(
+      `SELECT id, user_id, ticker, status, scale_in_count, metadata
+         FROM app.trades
+        WHERE id = $1 AND user_id = $2
+        FOR UPDATE`,
+      [tradeId, userId]
+    );
+
+    if (!tradeRes.rowCount) throw invalid('Posição não encontrada.');
+    const trade = tradeRes.rows[0];
+
+    if (trade.status !== 'open') {
+      throw invalid('Apenas posições em aberto podem ser excluídas.');
+    }
+
+    const eventsRes = await client.query(
+      `SELECT event_type AS type, quantity AS qty, price
+         FROM app.trade_events
+        WHERE trade_id = $1`,
+      [tradeId]
+    );
+
+    const entriesRes = await client.query(
+      `SELECT entry_type AS type, quantity AS qty
+         FROM app.trade_entries
+        WHERE trade_id = $1`,
+      [tradeId]
+    );
+
+    const positionData = {
+      ...trade,
+      events: eventsRes.rows,
+      entries: entriesRes.rows
+    };
+
+    const validation = management.canDeletePosition(positionData);
+    if (!validation.eligible) {
+      throw invalid(validation.reason);
+    }
+
+    await client.query(`DELETE FROM app.trades WHERE id = $1 AND user_id = $2`, [tradeId, userId]);
+
+    const metadata = trade.metadata && typeof trade.metadata === 'object' ? trade.metadata : {};
+    return {
+      success: true,
+      deletedId: tradeId,
+      ticker: trade.ticker,
+      mode: metadata.mode === 'paper' ? 'paper' : 'real'
+    };
+  });
+}
+
+
 module.exports = {
   createPlan,
   listPlans,
   executePlan,
   updateTrade,
+  deleteTrade,
   recordPositionEvent,
   canExecuteScaleIn: validateScaleIn,
   addScaleIn,
@@ -696,3 +753,4 @@ module.exports = {
   normalizePositionEvent,
   ratingFromValue
 };
+

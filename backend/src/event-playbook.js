@@ -361,6 +361,10 @@ function invalid(message, status = 400) {
   return err;
 }
 
+function isUuid(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value || '').trim());
+}
+
 function normalizeImpact(value) {
   if (typeof value === 'number') {
     return Math.max(1, Math.min(5, Math.round(value)));
@@ -442,7 +446,7 @@ function normalizeRow(row) {
 }
 
 async function list(userId, query = {}, persistence = database) {
-  if (!persistence.configured()) {
+  if (!persistence.configured() || !isUuid(userId)) {
     return filterItems(DEFAULT_SEEDS, query);
   }
 
@@ -464,7 +468,7 @@ async function list(userId, query = {}, persistence = database) {
             volatility_behavior, initial_direction, gap, volume, atr, impact_duration,
             trading_implications, lessons_learned, cover_image, tags, sources, screenshots, source, notes
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)
-          ON CONFLICT (id) DO NOTHING`,
+          ON CONFLICT DO NOTHING`,
           [
             seed.id, userId, seed.name, seed.eventDate, seed.eventTime, seed.timezone, seed.category,
             seed.impact, seed.impactLevel, seed.country, seed.relatedAssets, seed.affectedAssets,
@@ -547,7 +551,7 @@ function filterItems(items, query = {}) {
 }
 
 async function get(userId, id, persistence = database) {
-  if (!persistence.configured()) {
+  if (!persistence.configured() || !isUuid(userId)) {
     const item = DEFAULT_SEEDS.find(e => e.id === id);
     if (!item) throw invalid('Evento não encontrado.', 404);
     return item;
@@ -614,6 +618,10 @@ async function create(userId, data, persistence = database) {
     return newSeed;
   }
 
+  if (!isUuid(userId)) {
+    throw invalid('Usuário não autenticado ou inválido.', 401);
+  }
+
   const result = await persistence.query(
     `INSERT INTO app.event_playbook (
       id, user_id, name, event_date, event_time, timezone, category, impact, impact_level,
@@ -642,6 +650,10 @@ async function update(userId, id, data, persistence = database) {
     if (!existing) throw invalid('Evento não encontrado.', 404);
     Object.assign(existing, data, { updatedAt: new Date().toISOString() });
     return existing;
+  }
+
+  if (!isUuid(userId)) {
+    throw invalid('Usuário não autenticado ou inválido.', 401);
   }
 
   // Busca registro atual
@@ -721,6 +733,10 @@ async function remove(userId, id, persistence = database) {
     const idx = DEFAULT_SEEDS.findIndex(e => e.id === id);
     if (idx !== -1) DEFAULT_SEEDS.splice(idx, 1);
     return { success: true, id };
+  }
+
+  if (!isUuid(userId)) {
+    throw invalid('Usuário não autenticado ou inválido.', 401);
   }
 
   const result = await persistence.query(
