@@ -1,0 +1,297 @@
+/* ==========================================================================
+   EQUITY ADJUSTMENT — STYLES & MODAL
+   ========================================================================== */
+
+/* Trigger button inside card headers (Meu Desktop & Patrimônio) */
+.equity-adjust-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  margin-left: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--muted, #7ea28d);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  vertical-align: middle;
+}
+
+.equity-adjust-trigger-btn:hover {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--accent, #10b981);
+}
+
+.equity-adjust-trigger-btn:focus-visible {
+  outline: 2px solid var(--accent, #10b981);
+  outline-offset: 1px;
+}
+
+/* Modal Overlay */
+.equity-adjust-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(4, 15, 9, 0.78);
+  backdrop-filter: blur(8px);
+  animation: equityModalFadeIn 0.2s ease-out;
+}
+
+@keyframes equityModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Modal Card */
+.equity-adjust-modal-card {
+  position: relative;
+  width: min(520px, 100%);
+  padding: 28px 28px 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: var(--paper, #0e1e16);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  color: var(--ink, #e4ede7);
+  animation: equityModalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body:not([data-theme="healthy"]) .equity-adjust-modal-card {
+  background: #191610;
+  border-color: rgba(224, 189, 103, 0.35);
+}
+
+@keyframes equityModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.equity-adjust-modal-header {
+  margin-bottom: 16px;
+}
+
+.equity-adjust-modal-eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent, #10b981);
+  margin-bottom: 4px;
+}
+
+.equity-adjust-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink, #e4ede7);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.01em;
+}
+
+.equity-adjust-modal-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted, #7ea28d);
+  margin: 0;
+}
+
+/* Current value meta box */
+.equity-adjust-meta-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  margin-bottom: 18px;
+}
+
+.equity-adjust-meta-box span {
+  font-size: 12px;
+  color: var(--muted, #7ea28d);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.equity-adjust-meta-box strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink, #e4ede7);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Form inputs */
+.equity-adjust-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.equity-adjust-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.equity-adjust-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink, #e4ede7);
+}
+
+.equity-adjust-field label small {
+  color: var(--muted, #7ea28d);
+  font-weight: 400;
+}
+
+.equity-adjust-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.equity-adjust-currency-prefix {
+  position: absolute;
+  left: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted, #7ea28d);
+  pointer-events: none;
+}
+
+.equity-adjust-input {
+  width: 100%;
+  padding: 12px 14px;
+  padding-left: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--ink, #e4ede7);
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.equity-adjust-input:focus {
+  border-color: var(--accent, #10b981);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.equity-adjust-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--ink, #e4ede7);
+  font-size: 13px;
+  line-height: 1.45;
+  outline: none;
+  resize: vertical;
+  min-height: 56px;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.equity-adjust-textarea:focus {
+  border-color: var(--accent, #10b981);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.equity-adjust-error {
+  display: none;
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 2px;
+}
+
+.equity-adjust-error.show {
+  display: block;
+}
+
+/* Modal Actions */
+.equity-adjust-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.equity-adjust-btn-cancel {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: var(--muted, #7ea28d);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.equity-adjust-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink, #e4ede7);
+}
+
+.equity-adjust-btn-save {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent, #10b981);
+  color: #040f09;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.equity-adjust-btn-save:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.equity-adjust-btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* History list adjustment badge */
+.snapshot-type.adjustment {
+  background: rgba(224, 189, 103, 0.15);
+  color: #e0bd67;
+  border: 1px solid rgba(224, 189, 103, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  .equity-adjust-modal-card {
+    padding: 22px 18px;
+  }
+  .equity-adjust-modal-actions {
+    flex-direction: column-reverse;
+  }
+  .equity-adjust-btn-cancel,
+  .equity-adjust-btn-save {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}

@@ -484,15 +484,28 @@ async function updateTrade(userId, tradeId, payload = {}) {
 
 async function getAccountEquity(userId, client = database) {
   try {
+    const adj = await client.query(
+      `SELECT new_amount FROM app.wealth_adjustments WHERE user_id = $1 ORDER BY adjusted_at DESC, created_at DESC LIMIT 1`,
+      [userId]
+    ).catch(() => ({ rowCount: 0, rows: [] }));
+    if (adj.rowCount && Number(adj.rows[0].new_amount) > 0) return Number(adj.rows[0].new_amount);
+
     const snap = await client.query(
+      `SELECT amount FROM app.wealth_snapshots WHERE user_id = $1 AND snapshot_type = 'real_wealth' ORDER BY occurred_at DESC, created_at DESC LIMIT 1`,
+      [userId]
+    ).catch(() => ({ rowCount: 0, rows: [] }));
+    if (snap.rowCount && Number(snap.rows[0].amount) > 0) return Number(snap.rows[0].amount);
+
+    const stratSnap = await client.query(
       `SELECT amount FROM app.wealth_snapshots WHERE user_id = $1 AND snapshot_type = 'strategy_equity' ORDER BY occurred_at DESC, created_at DESC LIMIT 1`,
       [userId]
-    );
-    if (snap.rowCount && Number(snap.rows[0].amount) > 0) return Number(snap.rows[0].amount);
+    ).catch(() => ({ rowCount: 0, rows: [] }));
+    if (stratSnap.rowCount && Number(stratSnap.rows[0].amount) > 0) return Number(stratSnap.rows[0].amount);
+
     const set = await client.query(
       `SELECT strategy_base FROM app.wealth_settings WHERE user_id = $1`,
       [userId]
-    );
+    ).catch(() => ({ rowCount: 0, rows: [] }));
     if (set.rowCount && Number(set.rows[0].strategy_base) > 0) return Number(set.rows[0].strategy_base);
   } catch (_) {}
   return 1029500;

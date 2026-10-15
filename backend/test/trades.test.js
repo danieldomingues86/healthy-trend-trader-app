@@ -287,6 +287,27 @@ test('deleteTrade: exclui com sucesso posição aberta registrada por engano e r
   }
 });
 
+test('getAccountEquity: prioriza ajuste manual de equity em app.wealth_adjustments', async () => {
+  const { getAccountEquity } = require('../src/trades');
+  const fakeClientWithAdj = {
+    query: async (sql) => {
+      if (sql.includes('FROM app.wealth_adjustments')) {
+        return { rowCount: 1, rows: [{ new_amount: '1100000' }] };
+      }
+      return { rowCount: 0, rows: [] };
+    }
+  };
+  const equityFromAdj = await getAccountEquity('user-1', fakeClientWithAdj);
+  assert.equal(equityFromAdj, 1100000);
+
+  const fakeClientFallback = {
+    query: async () => ({ rowCount: 0, rows: [] })
+  };
+  const equityFallback = await getAccountEquity('user-1', fakeClientFallback);
+  assert.equal(equityFallback, 1029500);
+});
+
+
 
 
 

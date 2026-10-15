@@ -561,6 +561,12 @@ const server = http.createServer(async (request, response) => {
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 201, { allocation: await wealth.createAllocation(user.id, await body(request)) });
     }
+    if (request.method === 'POST' && url.pathname === '/api/wealth/adjustments') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await wealth.adjustEquity(user.id, await body(request)));
+    }
     const allocationMatch = url.pathname.match(/^\/api\/wealth\/allocations\/([^/]+)$/);
     if (request.method === 'PUT' && allocationMatch) {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
