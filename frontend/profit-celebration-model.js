@@ -308,6 +308,14 @@
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth(); // 0-11
 
+    const filterYear = (options.filterYear != null && options.filterYear !== 'all') ? Number(options.filterYear) : null;
+    const effectiveList = filterYear
+      ? list.filter((c) => {
+          const dateStr = String(c.conquestDate || c.conquest_date || c.createdAt || c.created_at || '').slice(0, 4);
+          return Number(dateStr) === filterYear;
+        })
+      : list;
+
     let totalRealizedProfit = 0;
     let totalRealizedProfitThisMonth = 0;
     let totalRealizedProfitLastMonth = 0;
@@ -322,16 +330,27 @@
     const rewardUsageMap = new Map();
     const monthlyMap = new Map(); // 'YYYY-MM' -> { profit, count, complied }
 
-    // Inicializa últimos 6 meses para garantir gráfico sem buracos
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(currentYear, currentMonth - i, 1);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const key = `${y}-${m}`;
-      monthlyMap.set(key, { key, year: y, monthNum: d.getMonth() + 1, profit: 0, conquestsCount: 0, compliedCount: 0 });
+    // Inicializa meses do período
+    if (filterYear) {
+      const targetYear = filterYear;
+      const endMonth = targetYear === currentYear ? Math.max(currentMonth, 0) : 11;
+      for (let m = 0; m <= endMonth; m++) {
+        const mStr = String(m + 1).padStart(2, '0');
+        const key = `${targetYear}-${mStr}`;
+        monthlyMap.set(key, { key, year: targetYear, monthNum: m + 1, profit: 0, conquestsCount: 0, compliedCount: 0 });
+      }
+    } else {
+      // Padrão: últimos 6 meses para garantir gráfico sem buracos
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(currentYear, currentMonth - i, 1);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const key = `${y}-${m}`;
+        monthlyMap.set(key, { key, year: y, monthNum: d.getMonth() + 1, profit: 0, conquestsCount: 0, compliedCount: 0 });
+      }
     }
 
-    list.forEach((c) => {
+    effectiveList.forEach((c) => {
       const realized = Number(c.realizedAmount ?? c.realized_amount ?? 0);
       if (Number.isFinite(realized)) {
         totalRealizedProfit += realized;
@@ -398,7 +417,7 @@
       profitGrowthPct = round2(((totalRealizedProfitThisMonth - totalRealizedProfitLastMonth) / totalRealizedProfitLastMonth) * 100);
     }
 
-    const streaks = calculateDisciplineStreak(list);
+    const streaks = calculateDisciplineStreak(effectiveList);
     const milestones = calculateMilestones(totalPlansComplied);
 
     // Ranking de recompensas mais escolhidas
@@ -417,12 +436,15 @@
         label: `${monthNames[item.monthNum - 1]}`
       }));
 
+    const hasAnyMonthlyData = monthlyEvolution.some(m => m.profit > 0 || m.conquestsCount > 0);
+
     return {
-      totalConquests: list.length,
+      filterYear,
+      totalConquests: effectiveList.length,
       totalPlansComplied,
       plansCompliedThisMonth,
       plansViolated,
-      disciplineRatePct: list.length > 0 ? round2((totalPlansComplied / list.length) * 100) : 100,
+      disciplineRatePct: effectiveList.length > 0 ? round2((totalPlansComplied / effectiveList.length) * 100) : 100,
       totalRealizedProfit,
       totalRealizedProfitFormatted: formatMoneyBR(totalRealizedProfit),
       totalRealizedProfitThisMonth: round2(totalRealizedProfitThisMonth),
@@ -434,7 +456,8 @@
       avgRFormatted: formatMultipleR(avgR),
       milestones,
       topRewards,
-      monthlyEvolution
+      monthlyEvolution,
+      hasAnyMonthlyData
     };
   }
 

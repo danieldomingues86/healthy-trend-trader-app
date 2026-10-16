@@ -141,3 +141,37 @@ test('profit-celebration-model: validação de recompensas personalizadas', () =
   const valid = model.validateRewardPayload({ title: 'Comprar um livro novo', category: 'lazer' });
   assert.equal(valid.isValid, true);
 });
+
+test('profit-celebration-model: calculateConquestsStats filtra por ano e detecta ausência de dados no período', () => {
+  const sample = [
+    {
+      realizedAmount: 1000.00,
+      rMultiple: 2.0,
+      planAdhered: 'yes',
+      conquestDate: '2025-04-14',
+      rewardTitle: 'Tomar um café especial',
+      rewardIcon: '☕'
+    },
+    {
+      realizedAmount: 2000.00,
+      rMultiple: 2.5,
+      planAdhered: 'yes',
+      conquestDate: '2026-05-10',
+      rewardTitle: 'Assistir a um filme',
+      rewardIcon: '🎬'
+    }
+  ];
+
+  // Filtro 2025: apenas 1 conquista
+  const stats2025 = model.calculateConquestsStats(sample, { filterYear: 2025 });
+  assert.equal(stats2025.totalConquests, 1);
+  assert.equal(stats2025.totalRealizedProfit, 1000.00);
+  assert.equal(stats2025.hasAnyMonthlyData, true);
+
+  // Filtro 2024: 0 conquistas, hasAnyMonthlyData é false
+  const stats2024 = model.calculateConquestsStats(sample, { filterYear: 2024 });
+  assert.equal(stats2024.totalConquests, 0);
+  assert.equal(stats2024.totalRealizedProfit, 0);
+  assert.equal(stats2024.hasAnyMonthlyData, false);
+});
+

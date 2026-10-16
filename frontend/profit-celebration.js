@@ -385,13 +385,37 @@
     return `
       <div class="pc-trophy-banner">
         <div class="pc-trophy-glow">
-          <svg class="pc-trophy-svg" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-            <path d="M4 22h16"/>
-            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
-            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
-            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+          <svg class="pc-trophy-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="pcModalTrophyCupGold" cx="45%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#FFF9C4"/>
+                <stop offset="25%" stop-color="#FFD54F"/>
+                <stop offset="60%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#B45309"/>
+              </radialGradient>
+              <linearGradient id="pcModalTrophyHandle" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFE082"/>
+                <stop offset="50%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#78350F"/>
+              </linearGradient>
+              <linearGradient id="pcModalTrophyBase" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#FFD54F"/>
+                <stop offset="40%" stop-color="#B45309"/>
+                <stop offset="100%" stop-color="#451A03"/>
+              </linearGradient>
+            </defs>
+            <path d="M28 88 L72 88 L68 76 L32 76 Z" fill="url(#pcModalTrophyBase)"/>
+            <rect x="24" y="88" width="52" height="6" rx="2" fill="#78350F"/>
+            <rect x="25" y="88" width="50" height="2" fill="#FFE082" opacity="0.8"/>
+            <path d="M42 66 L58 66 L54 76 L46 76 Z" fill="url(#pcModalTrophyCupGold)"/>
+            <ellipse cx="50" cy="66" rx="9" ry="3" fill="#D97706"/>
+            <path d="M30 24 C14 24 14 50 34 54 C32 50 32 30 36 28 Z" fill="url(#pcModalTrophyHandle)"/>
+            <path d="M70 24 C86 24 86 50 66 54 C68 50 68 30 64 28 Z" fill="url(#pcModalTrophyHandle)"/>
+            <path d="M28 20 C28 48 38 64 50 64 C62 64 72 48 72 20 Z" fill="url(#pcModalTrophyCupGold)"/>
+            <ellipse cx="50" cy="20" rx="22" ry="6" fill="#FDE047"/>
+            <ellipse cx="50" cy="20" rx="20" ry="4.5" fill="#B45309"/>
+            <path d="M34 26 C33 38 38 52 44 58 C41 52 38 40 38 26 Z" fill="#FFFFFF" opacity="0.45"/>
+            <polygon points="50,14 52,19 57,20 53,23 54,28 50,25 46,28 47,23 43,20 48,19" fill="#FFF9C4" opacity="0.9"/>
           </svg>
         </div>
         <h2 id="pcCelebrationModalTitle" class="pc-celebration-title">VOCÊ FEZ A SUA PARTE!</h2>
@@ -1012,6 +1036,10 @@
      PAINEL "MINHAS CONQUISTAS" (PÁGINA PRINCIPAL)
      ========================================================================== */
 
+  /* ==========================================================================
+     PAINEL "MINHAS CONQUISTAS" (PÁGINA PRINCIPAL)
+     ========================================================================== */
+
   function renderPage(containerOrId) {
     const container = typeof containerOrId === 'string'
       ? document.getElementById(containerOrId)
@@ -1024,9 +1052,27 @@
       fetchAllData().then(() => renderPage(container));
     }
 
-    const stats = state.stats || M.calculateConquestsStats(state.conquests);
+    // Calcula estatísticas considerando o filtro de ano selecionado
+    const stats = M.calculateConquestsStats(state.conquests, { filterYear: state.filterYear });
+    state.stats = stats;
     const milestones = stats.milestones;
     const special = state.specialReward || { targetConquests: 20, title: 'Fim de semana especial', description: '' };
+
+    // Anos disponíveis para o seletor (garante ano atual, 2025 e anos presentes nas conquistas)
+    const currentYr = new Date().getFullYear();
+    const recordedYears = state.conquests.map((c) => {
+      const dStr = String(c.conquestDate || c.conquest_date || c.createdAt || c.created_at || '').slice(0, 4);
+      return Number(dStr);
+    }).filter((y) => Number.isFinite(y) && y > 2000);
+    const availableYears = Array.from(new Set([currentYr, 2025, ...recordedYears])).sort((a, b) => b - a);
+
+    // Conquistas filtradas para a tabela
+    const displayedConquests = state.filterYear === 'all'
+      ? state.conquests
+      : state.conquests.filter((c) => {
+          const dStr = String(c.conquestDate || c.conquest_date || c.createdAt || c.created_at || '').slice(0, 4);
+          return Number(dStr) === state.filterYear;
+        });
 
     // Progresso para a recompensa especial
     const specialTarget = special.targetConquests || 20;
@@ -1034,17 +1080,18 @@
 
     container.innerHTML = `
       <!-- Breadcrumb & Top Bar -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
         <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#94a3b8">
           <span>Treinamento do Trader</span>
-          <span>&gt;</span>
+          <span style="color:#64748b">&gt;</span>
           <strong style="color:#f8fafc">Minhas Conquistas</strong>
         </div>
         <div style="display:flex;align-items:center;gap:12px">
-          <select id="pcYearFilterSelect" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 12px;color:#f8fafc;font-size:12px;font-weight:700" onchange="window.ProfitCelebration.changeFilterYear(this.value)">
-            <option value="2026" ${state.filterYear === 2026 ? 'selected' : ''}>📅 2026</option>
-            <option value="2025" ${state.filterYear === 2025 ? 'selected' : ''}>📅 2025</option>
-            <option value="all">📅 Todos os anos</option>
+          <select id="pcYearFilterSelect" style="background:#0A2224;border:1px solid #13373b;border-radius:10px;padding:7px 14px;color:#f8fafc;font-size:12px;font-weight:700;cursor:pointer;outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.25)" onchange="window.ProfitCelebration.changeFilterYear(this.value)">
+            ${availableYears.map((yr) => `
+              <option value="${yr}" ${state.filterYear === yr ? 'selected' : ''}>📅 ${yr}</option>
+            `).join('')}
+            <option value="all" ${state.filterYear === 'all' ? 'selected' : ''}>📅 Todos os anos</option>
           </select>
         </div>
       </div>
@@ -1052,14 +1099,50 @@
       <!-- Header Banner Hero -->
       <section class="pc-page-header">
         <div class="pc-page-header-left">
-          <svg class="pc-page-trophy-icon" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-            <path d="M4 22h16"/>
-            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
-            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
-            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+          <!-- Troféu 3D Dourado em Alta Resolução -->
+          <svg class="pc-page-trophy-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="pcTrophyCupGold" cx="45%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#FFF9C4"/>
+                <stop offset="25%" stop-color="#FFD54F"/>
+                <stop offset="60%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#B45309"/>
+              </radialGradient>
+              <linearGradient id="pcTrophyHandle" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFE082"/>
+                <stop offset="50%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#78350F"/>
+              </linearGradient>
+              <linearGradient id="pcTrophyBase" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#FFD54F"/>
+                <stop offset="40%" stop-color="#B45309"/>
+                <stop offset="100%" stop-color="#451A03"/>
+              </linearGradient>
+              <filter id="pcTrophyGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              </filter>
+            </defs>
+            <!-- Base Pedestal -->
+            <path d="M28 88 L72 88 L68 76 L32 76 Z" fill="url(#pcTrophyBase)"/>
+            <rect x="24" y="88" width="52" height="6" rx="2" fill="#78350F"/>
+            <rect x="25" y="88" width="50" height="2" fill="#FFE082" opacity="0.8"/>
+            <!-- Stem -->
+            <path d="M42 66 L58 66 L54 76 L46 76 Z" fill="url(#pcTrophyCupGold)"/>
+            <ellipse cx="50" cy="66" rx="9" ry="3" fill="#D97706"/>
+            <!-- Handles Left & Right -->
+            <path d="M30 24 C14 24 14 50 34 54 C32 50 32 30 36 28 Z" fill="url(#pcTrophyHandle)"/>
+            <path d="M70 24 C86 24 86 50 66 54 C68 50 68 30 64 28 Z" fill="url(#pcTrophyHandle)"/>
+            <!-- Cup Body -->
+            <path d="M28 20 C28 48 38 64 50 64 C62 64 72 48 72 20 Z" fill="url(#pcTrophyCupGold)" filter="url(#pcTrophyGlow)"/>
+            <!-- Rim Top -->
+            <ellipse cx="50" cy="20" rx="22" ry="6" fill="#FDE047"/>
+            <ellipse cx="50" cy="20" rx="20" ry="4.5" fill="#B45309"/>
+            <!-- Specular highlight -->
+            <path d="M34 26 C33 38 38 52 44 58 C41 52 38 40 38 26 Z" fill="#FFFFFF" opacity="0.45"/>
+            <polygon points="50,14 52,19 57,20 53,23 54,28 50,25 46,28 47,23 43,20 48,19" fill="#FFF9C4" opacity="0.9"/>
           </svg>
+
           <div class="pc-page-header-title-box">
             <h1>Minhas Conquistas</h1>
             <h2>Embolsei. Cumpri. Comemorei.</h2>
@@ -1079,10 +1162,16 @@
         <!-- KPI 1: Planos cumpridos -->
         <div class="pc-kpi-card">
           <div class="pc-kpi-card-head">
-            <span class="pc-kpi-card-icon">📊</span>
+            <div class="pc-kpi-badge-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </div>
           </div>
           <div>
-            <div class="pc-kpi-card-val green">${esc(stats.totalPlansComplied)}</div>
+            <div class="pc-kpi-card-val">${esc(stats.totalPlansComplied)}</div>
             <div class="pc-kpi-card-lbl">Planos cumpridos</div>
           </div>
           <div class="pc-kpi-card-sub">
@@ -1093,13 +1182,19 @@
         <!-- KPI 2: Lucro realizado -->
         <div class="pc-kpi-card">
           <div class="pc-kpi-card-head">
-            <span class="pc-kpi-card-icon">🪙</span>
+            <div class="pc-kpi-badge-icon gold">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8"/>
+                <path d="M12 8v8"/>
+                <path d="M9.5 10a2.5 2.5 0 0 1 5 0c0 1.5-1.5 2-2.5 2s-2.5.5-2.5 2a2.5 2.5 0 0 0 5 0"/>
+              </svg>
+            </div>
           </div>
           <div>
             <div class="pc-kpi-card-val">${esc(stats.totalRealizedProfitFormatted)}</div>
             <div class="pc-kpi-card-lbl">Lucro realizado</div>
           </div>
-          <div class="pc-kpi-card-sub ${stats.profitGrowthPct >= 0 ? '' : 'neutral'}">
+          <div class="pc-kpi-card-sub ${stats.profitGrowthPct > 0 ? '' : 'neutral'}">
             <span>${stats.profitGrowthPct >= 0 ? '+' : ''}${esc(stats.profitGrowthPct)}% vs mês anterior</span>
           </div>
         </div>
@@ -1107,10 +1202,14 @@
         <!-- KPI 3: Sequência de disciplina -->
         <div class="pc-kpi-card">
           <div class="pc-kpi-card-head">
-            <span class="pc-kpi-card-icon">🔥</span>
+            <div class="pc-kpi-badge-icon gold">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+              </svg>
+            </div>
           </div>
           <div>
-            <div class="pc-kpi-card-val gold">${esc(stats.currentStreakDays)} dias</div>
+            <div class="pc-kpi-card-val">${esc(stats.currentStreakDays)} dias</div>
             <div class="pc-kpi-card-lbl">Sequência de disciplina</div>
           </div>
           <div class="pc-kpi-card-sub">
@@ -1121,10 +1220,16 @@
         <!-- KPI 4: Média de R -->
         <div class="pc-kpi-card">
           <div class="pc-kpi-card-head">
-            <span class="pc-kpi-card-icon">🎯</span>
+            <div class="pc-kpi-badge-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
           </div>
           <div>
-            <div class="pc-kpi-card-val green">${esc(stats.avgRFormatted)}</div>
+            <div class="pc-kpi-card-val">${esc(stats.avgRFormatted)}</div>
             <div class="pc-kpi-card-lbl">Média de R por conquista</div>
           </div>
           <div class="pc-kpi-card-sub">
@@ -1135,17 +1240,22 @@
         <!-- KPI 5: Próximo marco -->
         <div class="pc-kpi-card">
           <div class="pc-kpi-card-head">
-            <span class="pc-kpi-card-icon">🏅</span>
+            <div class="pc-kpi-badge-icon gold">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="6"/>
+                <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+              </svg>
+            </div>
           </div>
           <div>
-            <div class="pc-kpi-card-val gold">${esc(milestones.summaryText)}</div>
+            <div class="pc-kpi-card-val">${esc(milestones.summaryText)}</div>
             <div class="pc-kpi-card-lbl">Próximo marco</div>
           </div>
           <div style="margin-top:4px">
             <div class="pc-special-reward-progress-bar">
               <div class="pc-special-reward-progress-fill" style="width:${milestones.progressPct}%"></div>
             </div>
-            <div class="pc-kpi-card-sub neutral" style="margin-top:2px">
+            <div class="pc-kpi-card-sub gold" style="margin-top:2px">
               <span>${esc(milestones.remainingText)}</span>
             </div>
           </div>
@@ -1171,7 +1281,7 @@
           </div>
 
           <div class="pc-svg-chart-container">
-            ${renderEvolutionChart(stats.monthlyEvolution)}
+            ${renderEvolutionChart(stats.monthlyEvolution, stats.hasAnyMonthlyData)}
           </div>
         </div>
 
@@ -1179,7 +1289,7 @@
         <div class="pc-card-box">
           <div class="pc-card-head">
             <h3>Marcos de Disciplina</h3>
-            <button type="button" class="pc-special-reward-edit-btn" onclick="window.ProfitCelebration.openAllMilestonesModal()">Ver todos</button>
+            <button type="button" class="pc-link-btn" onclick="window.ProfitCelebration.openAllMilestonesModal()">Ver todos</button>
           </div>
 
           <!-- Stepper de Marcos (1, 5, 10, 20, 50, 100) -->
@@ -1207,7 +1317,7 @@
               </div>
               <div class="pc-special-reward-info">
                 <div class="pc-special-reward-title">${esc(special.title)}</div>
-                <div class="pc-special-reward-desc">${esc(special.description || `Quando eu completar ${specialTarget} conquistas, vou me presentear.`)}</div>
+                <div class="pc-special-reward-desc">${esc(special.description || `Quando eu completar ${specialTarget} conquistas, vou me presentear com um momento especial.`)}</div>
                 <div class="pc-special-reward-progress-bar">
                   <div class="pc-special-reward-progress-fill" style="width:${specialProgressPct}%"></div>
                 </div>
@@ -1227,15 +1337,15 @@
         <div class="pc-card-box">
           <div class="pc-card-head">
             <h3>Últimas Conquistas</h3>
-            ${state.conquests.length > 5 ? `<button type="button" class="pc-special-reward-edit-btn" onclick="window.ProfitCelebration.openAllConquestsModal()">Ver todas (${state.conquests.length})</button>` : ''}
+            ${displayedConquests.length > 5 ? `<button type="button" class="pc-link-btn" onclick="window.ProfitCelebration.openAllConquestsModal()">Ver todas (${displayedConquests.length})</button>` : ''}
           </div>
 
-          ${state.conquests.length === 0 ? `
-            <div style="text-align:center;padding:40px 20px;color:#94a3b8">
-              <div style="font-size:40px;margin-bottom:12px">🏆</div>
-              <h4 style="font-size:15px;color:#ffffff;margin:0 0 6px">Nenhuma conquista registrada ainda</h4>
-              <p style="font-size:12px;margin:0 0 16px;max-width:360px;margin-inline:auto">
-                Quando você realizar um lucro conforme seu plano, clique em <strong>"Embolsar Lucro"</strong> na tela da operação para iniciar seu Ritual de Vitória.
+          ${displayedConquests.length === 0 ? `
+            <div style="text-align:center;padding:48px 20px;color:#94a3b8">
+              <div style="font-size:42px;margin-bottom:12px">🏆</div>
+              <h4 style="font-size:16px;color:#ffffff;margin:0 0 6px;font-weight:800">Nenhuma conquista registrada ${state.filterYear === 'all' ? 'ainda' : `em ${state.filterYear}`}</h4>
+              <p style="font-size:12px;margin:0 0 16px;max-width:380px;margin-inline:auto;line-height:1.5">
+                Quando você realizar um lucro conforme seu plano, clique em <strong style="color:#F5CD65">"Embolsar Lucro"</strong> na tela da operação para iniciar seu Ritual de Vitória.
               </p>
             </div>
           ` : `
@@ -1253,21 +1363,21 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${state.conquests.slice(0, 7).map((c) => {
+                  ${displayedConquests.slice(0, 7).map((c) => {
                     const isCompleted = c.rewardStatus === 'completed';
                     const adheredLabel = c.planAdhered === 'yes' ? '✓ Sim' : (c.planAdhered === 'partial' ? '⚠ Parcial' : '✕ Não');
-                    const adheredColor = c.planAdhered === 'yes' ? '#34d399' : (c.planAdhered === 'partial' ? '#fbbf24' : '#f87171');
+                    const adheredColor = c.planAdhered === 'yes' ? '#34D6AB' : (c.planAdhered === 'partial' ? '#F5CD65' : '#EF4444');
                     return `
                       <tr style="cursor:pointer" onclick="window.ProfitCelebration.openConquestDetailModal('${esc(c.id)}')">
                         <td>${esc(M.formatDateBR(c.conquestDate))}</td>
                         <td><strong style="color:#ffffff">${esc(c.ticker)}</strong></td>
-                        <td style="color:#34d399;font-weight:700">+ ${esc(M.formatMoneyBR(c.realizedAmount))}</td>
-                        <td style="color:#34d399;font-weight:700">${esc(M.formatMultipleR(c.rMultiple))}</td>
+                        <td style="color:#34D6AB;font-weight:700">+ ${esc(M.formatMoneyBR(c.realizedAmount))}</td>
+                        <td style="color:#34D6AB;font-weight:700">${esc(M.formatMultipleR(c.rMultiple))}</td>
                         <td style="color:${adheredColor};font-weight:700">${esc(adheredLabel)}</td>
                         <td>
                           <div style="display:flex;align-items:center;gap:8px">
-                            <span>${esc(c.rewardIcon || '🎁')}</span>
-                            <span>${esc(c.rewardTitle || 'Recompensa pessoal')}</span>
+                            <span style="font-size:16px">${esc(c.rewardIcon || '🎁')}</span>
+                            <span style="color:#e2e8f0">${esc(c.rewardTitle || 'Recompensa pessoal')}</span>
                           </div>
                         </td>
                         <td onclick="event.stopPropagation()">
@@ -1291,11 +1401,12 @@
           <div class="pc-card-box">
             <div class="pc-card-head">
               <h3>Recompensas mais escolhidas</h3>
+              <button type="button" class="pc-link-btn" onclick="window.ProfitCelebration.openRewardsManagerModal()">Ver todas</button>
             </div>
 
             <div class="pc-top-rewards-list">
               ${stats.topRewards.length === 0 ? `
-                <div style="font-size:12px;color:#94a3b8;text-align:center;padding:20px 0">
+                <div style="font-size:12px;color:#94a3b8;text-align:center;padding:24px 0">
                   Nenhuma recompensa registrada ainda.
                 </div>
               ` : stats.topRewards.map((item) => {
@@ -1305,10 +1416,10 @@
                   <div class="pc-top-reward-item">
                     <div class="pc-top-reward-info">
                       <div style="display:flex;align-items:center;gap:8px">
-                        <span>${esc(item.icon)}</span>
+                        <span style="font-size:15px">${esc(item.icon)}</span>
                         <span>${esc(item.title)}</span>
                       </div>
-                      <strong style="color:#d4af37">${item.count}</strong>
+                      <strong style="color:#F5CD65">${item.count}</strong>
                     </div>
                     <div class="pc-top-reward-bar-track">
                       <div class="pc-top-reward-bar-fill" style="width:${fillPct}%"></div>
@@ -1323,18 +1434,19 @@
           <div class="pc-card-box">
             <div class="pc-card-head">
               <h3>Meu catálogo de recompensas</h3>
+              <button type="button" class="pc-link-btn" onclick="window.ProfitCelebration.openRewardsManagerModal()">Ver todas</button>
             </div>
 
             <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;margin-bottom:16px">
               ${state.rewards.slice(0, 4).map((r) => `
-                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px;min-width:110px;text-align:center">
+                <div style="background:#071d1f;border:1px solid #143e42;border-radius:12px;padding:12px;min-width:110px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.25)">
                   <div style="font-size:26px;margin-bottom:4px">${esc(r.icon)}</div>
                   <div style="font-size:11px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.title)}</div>
                 </div>
               `).join('')}
             </div>
 
-            <button type="button" class="pc-cta-btn-primary" style="width:100%;font-size:13px;padding:12px" onclick="window.ProfitCelebration.openRewardsManagerModal()">
+            <button type="button" class="pc-cta-btn-primary" style="background:linear-gradient(135deg, #F5CD65 0%, #EAB308 100%) !important;color:#06171A !important;font-weight:800;border-radius:12px;padding:12px;border:none;box-shadow:0 4px 14px rgba(245,205,101,0.25);cursor:pointer" onclick="window.ProfitCelebration.openRewardsManagerModal()">
               <span>+ Gerenciar recompensas</span>
             </button>
           </div>
@@ -1344,27 +1456,49 @@
   }
 
   /* --- RENDERIZADOR DO GRÁFICO SVG RESPONSIVO (DUAL AXIS) --- */
-  function renderEvolutionChart(monthlyData = []) {
-    if (!Array.isArray(monthlyData) || monthlyData.length === 0) {
+  function renderEvolutionChart(monthlyData = [], hasAnyData = true) {
+    const width = 640;
+    const height = 230;
+    const padding = { top: 25, right: 45, bottom: 35, left: 65 };
+    const chartW = width - padding.left - padding.right;
+    const chartH = height - padding.top - padding.bottom;
+
+    // Se não houver dados no período, renderiza Estado Vazio Elegante (com eixos sutis ao fundo)
+    if (!hasAnyData || !Array.isArray(monthlyData) || monthlyData.length === 0) {
+      const yearLabel = state.filterYear === 'all' ? 'no histórico geral' : `em ${state.filterYear}`;
       return `
-        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:12px">
-          Sem dados históricos suficientes para o período.
+        <div class="pc-chart-empty-state">
+          <svg class="pc-chart-empty-backdrop" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+            <line x1="${padding.left}" y1="${padding.top}" x2="${width - padding.right}" y2="${padding.top}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" />
+            <line x1="${padding.left}" y1="${padding.top + chartH / 2}" x2="${width - padding.right}" y2="${padding.top + chartH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" />
+            <line x1="${padding.left}" y1="${padding.top + chartH}" x2="${width - padding.right}" y2="${padding.top + chartH}" stroke="rgba(255,255,255,0.12)" />
+            <text x="${padding.left - 10}" y="${padding.top + 4}" text-anchor="end" fill="#475569" font-size="10">R$ 5.000</text>
+            <text x="${padding.left - 10}" y="${padding.top + chartH / 2 + 4}" text-anchor="end" fill="#475569" font-size="10">R$ 2.500</text>
+            <text x="${padding.left - 10}" y="${padding.top + chartH + 4}" text-anchor="end" fill="#475569" font-size="10">R$ 0</text>
+            <text x="${width - padding.right + 10}" y="${padding.top + 4}" text-anchor="start" fill="#475569" font-size="10">20</text>
+            <text x="${width - padding.right + 10}" y="${padding.top + chartH / 2 + 4}" text-anchor="start" fill="#475569" font-size="10">10</text>
+            <text x="${width - padding.right + 10}" y="${padding.top + chartH + 4}" text-anchor="start" fill="#475569" font-size="10">0</text>
+          </svg>
+          <div class="pc-chart-empty-card">
+            <div class="pc-chart-empty-icon">📈</div>
+            <div class="pc-chart-empty-title">Sem realizações de lucro registradas ${yearLabel}</div>
+            <p class="pc-chart-empty-desc">
+              Ao realizar o lucro de uma operação e cumprir o Ritual de Vitória, a evolução mensal de ganhos e quantidade de conquistas será exibida aqui.
+            </p>
+          </div>
         </div>
       `;
     }
 
-    const maxProfit = Math.max(1000, ...monthlyData.map(d => d.profit));
-    const maxCount = Math.max(5, ...monthlyData.map(d => d.conquestsCount));
+    const rawMaxProfit = Math.max(1000, ...monthlyData.map((d) => d.profit));
+    // Arredonda para um patamar visualmente harmônico (ex: 2000, 4000, 8000...)
+    const maxProfit = Math.ceil(rawMaxProfit / 1000) * 1000;
 
-    // Dimensões do viewBox do SVG
-    const width = 640;
-    const height = 220;
-    const padding = { top: 20, right: 40, bottom: 30, left: 55 };
-    const chartW = width - padding.left - padding.right;
-    const chartH = height - padding.top - padding.bottom;
+    const rawMaxCount = Math.max(5, ...monthlyData.map((d) => d.conquestsCount));
+    const maxCount = Math.ceil(rawMaxCount / 5) * 5;
 
     const n = monthlyData.length;
-    const barWidth = Math.max(12, Math.floor(chartW / (n * 2.2)));
+    const barWidth = Math.max(14, Math.min(28, Math.floor(chartW / (n * 2.2))));
 
     // Pontos para a linha de contagem
     const linePoints = [];
@@ -1379,17 +1513,17 @@
       linePoints.push({ x: xCenter, y: countY, count: d.conquestsCount, profit: d.profit, label: d.label });
 
       return `
-        <rect x="${barX}" y="${barY}" width="${barWidth}" height="${barH}" rx="3" fill="#10b981" opacity="0.85">
+        <rect x="${barX}" y="${barY}" width="${barWidth}" height="${barH}" rx="4" fill="#34D6AB" opacity="0.9" style="filter:drop-shadow(0 2px 6px rgba(52,214,171,0.25))">
           <title>${esc(d.label)}: ${M.formatMoneyBR(d.profit)} (${d.conquestsCount} conquistas)</title>
         </rect>
-        <text x="${xCenter}" y="${height - 8}" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600">${esc(d.label)}</text>
+        <text x="${xCenter}" y="${height - 10}" text-anchor="middle" fill="#94A3B8" font-size="11" font-weight="600">${esc(d.label)}</text>
       `;
     }).join('');
 
     const linePathD = linePoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
-    const dotsMarkup = linePoints.map(p => `
-      <circle cx="${p.x}" cy="${p.y}" r="4" fill="#d4af37" stroke="#041610" stroke-width="2">
+    const dotsMarkup = linePoints.map((p) => `
+      <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#F5CD65" stroke="#0A2224" stroke-width="2.5" style="filter:drop-shadow(0 0 6px rgba(245,205,101,0.6))">
         <title>${p.count} conquista(s)</title>
       </circle>
     `).join('');
@@ -1397,21 +1531,23 @@
     // Eixos Y
     const yAxisLabels = [
       { y: padding.top, leftVal: M.formatMoneyBR(maxProfit), rightVal: maxCount },
-      { y: padding.top + chartH / 2, leftVal: M.formatMoneyBR(maxProfit / 2), rightVal: Math.round(maxCount / 2) },
+      { y: padding.top + chartH * 0.25, leftVal: M.formatMoneyBR(maxProfit * 0.75), rightVal: Math.round(maxCount * 0.75) },
+      { y: padding.top + chartH * 0.5, leftVal: M.formatMoneyBR(maxProfit * 0.5), rightVal: Math.round(maxCount * 0.5) },
+      { y: padding.top + chartH * 0.75, leftVal: M.formatMoneyBR(maxProfit * 0.25), rightVal: Math.round(maxCount * 0.25) },
       { y: padding.top + chartH, leftVal: 'R$ 0', rightVal: '0' }
     ];
 
-    const yAxisMarkup = yAxisLabels.map(l => `
-      <line x1="${padding.left}" y1="${l.y}" x2="${width - padding.right}" y2="${l.y}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" />
-      <text x="${padding.left - 8}" y="${l.y + 4}" text-anchor="end" fill="#64748b" font-size="10">${esc(l.leftVal)}</text>
-      <text x="${width - padding.right + 8}" y="${l.y + 4}" text-anchor="start" fill="#d4af37" font-size="10">${l.rightVal}</text>
+    const yAxisMarkup = yAxisLabels.map((l) => `
+      <line x1="${padding.left}" y1="${l.y}" x2="${width - padding.right}" y2="${l.y}" stroke="rgba(255,255,255,0.08)" stroke-dasharray="3 3" />
+      <text x="${padding.left - 10}" y="${l.y + 4}" text-anchor="end" fill="#64748B" font-size="10" font-weight="500">${esc(l.leftVal)}</text>
+      <text x="${width - padding.right + 10}" y="${l.y + 4}" text-anchor="start" fill="#F5CD65" font-size="10" font-weight="700">${l.rightVal}</text>
     `).join('');
 
     return `
       <svg class="pc-svg-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
         ${yAxisMarkup}
         ${barsMarkup}
-        <path d="${linePathD}" fill="none" stroke="#d4af37" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="${linePathD}" fill="none" stroke="#F5CD65" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 8px rgba(245,205,101,0.35))" />
         ${dotsMarkup}
       </svg>
     `;
