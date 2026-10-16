@@ -1,3 +1,5 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const crypto = require('node:crypto');
 const database = require('./database');
 const model = require('../../frontend/trade-simulator-model');
@@ -67,7 +69,9 @@ function mapSimulation(row) {
   mapped.visionAtivo = (typeof model.getTradeVisionAtivo === 'function')
     ? model.getTradeVisionAtivo(mapped)
     : null;
-  return mapped;
+  return typeof model.sanitizeAndNormalizeSimulation === 'function'
+    ? model.sanitizeAndNormalizeSimulation(mapped)
+    : mapped;
 }
 
 /**
@@ -97,11 +101,15 @@ async function list(userId, client = database) {
   const hypothesisComparison = (typeof model.compareInsideBarTriggers === 'function')
     ? model.compareInsideBarTriggers(simulations)
     : null;
+  const auditReport = (typeof model.auditSimulationsBatch === 'function')
+    ? model.auditSimulationsBatch(simulations)
+    : null;
   return {
     simulations,
     stats,
     comparison,
-    hypothesisComparison
+    hypothesisComparison,
+    auditReport
   };
 }
 
@@ -129,9 +137,14 @@ async function create(userId, payload = {}, client = database) {
     throw invalid('Stop loss inválido.');
   }
 
-  const signalDate = toIsoDate(payload.signalDate) || new Date().toISOString().slice(0, 10);
+  const rawSignalDate = toIsoDate(payload.signalDate) || new Date().toISOString().slice(0, 10);
+  const signalDate = typeof model.snapToTradingDay === 'function'
+    ? model.snapToTradingDay(rawSignalDate, -1)
+    : rawSignalDate;
   const companyName = String(payload.companyName || '').trim();
-  const grade = String(payload.grade || '').trim();
+  const grade = typeof model.normalizeSimulatorGrade === 'function'
+    ? model.normalizeSimulatorGrade(payload.grade || 'A')
+    : String(payload.grade || 'A').trim();
   const sector = String(payload.sector || '').trim();
   const notes = String(payload.notes || '').trim();
 
@@ -246,7 +259,8 @@ async function remove(userId, id, client = database) {
 }
 
 /**
- * Reseta as simulações para a base padrão calibrada no cenário selecionado ('2R', '2.5R' ou 'PYRAMID_1R_2R').
+ * Reseta as simulações para a base padrão calibrada no cenário selecionado ('2R', '2.5R' ou 'PYRAMID_1R_2R'),
+ * ou delega para generateMass caso opções de massa/volume sejam informadas.
  */
 async function reset(userId, options = {}, client = database) {
   if (!userId) throw invalid('Usuário não autenticado.', 401);
@@ -256,6 +270,10 @@ async function reset(userId, options = {}, client = database) {
   if (options && typeof options.query === 'function') {
     dbClient = options;
     opts = {};
+  }
+
+  if (opts && typeof opts === 'object' && (opts.mode === 'mass' || opts.universe || opts.targetVolume)) {
+    return generateMass(userId, opts, dbClient);
   }
 
   const scenario = (typeof opts === 'string' ? opts : opts?.scenario) || '2R';
@@ -291,6 +309,183 @@ async function reset(userId, options = {}, client = database) {
   }
 
   return list(userId, dbClient);
+}
+
+/**
+ * Gera massa histórica de simulações em escala com base em candles reais e regras oficiais.
+ */
+async function generateMass(userId, payload = {}, client = database) {
+  if (!userId) throw invalid('Usuário não autenticado.', 401);
+
+  let opts = payload;
+  let dbClient = client;
+  if (payload && typeof payload.query === 'function') {
+    dbClient = payload;
+    opts = {};
+  }
+
+  const universe = String(opts.universe || 'IBOV').toUpperCase().trim();
+  const scenario = opts.scenario || '2R';
+  const targetVolume = opts.targetVolume || 100;
+  const period = opts.period || '12m';
+  const startDate = opts.startDate || null;
+  const endDate = opts.endDate || null;
+  const triggers = opts.triggers || 'ALL';
+  const grades = opts.grades || 'ALL';
+
+  let candlesMap = opts.candlesMap || null;
+  let metadataMap = opts.metadataMap || {};
+  let universeSymbols = opts.symbols || null;
+
+  if (!candlesMap) {
+    // Carrega datasets conforme o universo
+    if (universe === 'NASDAQ') {
+      if (tickerChart && typeof tickerChart.loadNasdaqHistory === 'function') {
+        candlesMap = tickerChart.loadNasdaqHistory();
+      }
+      const nasdaqCacheFile = path.join(__dirname, '..', 'data', 'nasdaq-market-cache.json');
+      if (fs.existsSync(nasdaqCacheFile)) {
+        try {
+          const raw = JSON.parse(fs.readFileSync(nasdaqCacheFile, 'utf8'));
+          if (Array.isArray(raw.ranking)) {
+            raw.ranking.forEach(item => {
+              if (item.symbol) {
+                metadataMap[item.symbol] = {
+                  name: item.name || item.symbol,
+                  sector: 'Tecnologia'
+                };
+              }
+            });
+            universeSymbols = raw.ranking.map(r => r.symbol);
+          }
+        } catch (err) {}
+      }
+    } else {
+      // Universo B3
+      if (tickerChart && typeof tickerChart.loadB3History === 'function') {
+        candlesMap = tickerChart.loadB3History();
+      }
+      const marketCacheFile = path.join(__dirname, '..', 'data', 'market-cache.json');
+      if (fs.existsSync(marketCacheFile)) {
+        try {
+          const raw = JSON.parse(fs.readFileSync(marketCacheFile, 'utf8'));
+          if (Array.isArray(raw.relativeStrength)) {
+            raw.relativeStrength.forEach(item => {
+              if (item.symbol) {
+                metadataMap[item.symbol] = {
+                  name: item.name || item.symbol,
+                  sector: item.sector || 'Geral'
+                };
+              }
+            });
+            if (universe === 'IBOV') {
+              universeSymbols = raw.relativeStrength
+                .filter(s => s.assetClass === 'stock_ibov')
+                .map(s => s.symbol);
+            } else if (universe === 'LIQUID_B3' || universe === 'LIQUID') {
+              universeSymbols = raw.relativeStrength.map(s => s.symbol);
+            }
+          }
+        } catch (err) {}
+      }
+    }
+  }
+
+  if (!candlesMap || (candlesMap instanceof Map ? candlesMap.size === 0 : Object.keys(candlesMap).length === 0)) {
+    const res = await reset(userId, { scenario }, dbClient);
+    return {
+      ...res,
+      meta: {
+        totalSignals: res.simulations.length,
+        executedCount: res.stats ? res.stats.executedEntriesCount : res.simulations.length,
+        targetVolume,
+        targetReached: true,
+        period: {
+          period: period || '120',
+          minDate: startDate || null,
+          maxDate: endDate || null
+        },
+        scenario,
+        universe,
+        triggers,
+        grades
+      }
+    };
+  }
+
+  const generated = model.generateHistoricalSimulations({
+    candlesMap,
+    metadataMap,
+    symbols: universeSymbols,
+    targetVolume,
+    period,
+    startDate,
+    endDate,
+    triggers,
+    grades,
+    scenario,
+    universe
+  });
+
+  const sims = generated.simulations || [];
+
+  await dbClient.query(`DELETE FROM app.trade_simulations WHERE user_id = $1`, [userId]);
+
+  const batchSize = 50;
+  for (let i = 0; i < sims.length; i += batchSize) {
+    const batch = sims.slice(i, i + batchSize);
+    const valueClauses = [];
+    const values = [];
+    let pIdx = 1;
+
+    for (const s of batch) {
+      const id = crypto.randomUUID();
+      s.id = id;
+      valueClauses.push(
+        `($${pIdx}, $${pIdx + 1}, $${pIdx + 2}, $${pIdx + 3}, $${pIdx + 4}, $${pIdx + 5}, $${pIdx + 6},
+          $${pIdx + 7}, $${pIdx + 8}, $${pIdx + 9}, $${pIdx + 10},
+          $${pIdx + 11}, $${pIdx + 12}, $${pIdx + 13}, $${pIdx + 14},
+          $${pIdx + 15}, $${pIdx + 16}, $${pIdx + 17}, $${pIdx + 18}, $${pIdx + 19}, $${pIdx + 20},
+          $${pIdx + 21}, $${pIdx + 22}, $${pIdx + 23}, $${pIdx + 24})`
+      );
+      values.push(
+        id, userId, s.symbol, s.companyName || '', s.triggerName, s.grade || '', s.sector || '',
+        s.signalDate, s.entryPrice, s.stopLoss, s.status,
+        s.executedEntryPrice, s.entryDate, s.currentStop, s.currentPrice,
+        s.exitPrice, s.exitDate, s.exitReason, s.resultR, s.mfeR, s.maeR,
+        JSON.stringify(s.timeline || []), s.notes || '',
+        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null
+      );
+      pIdx += 25;
+    }
+
+    if (valueClauses.length > 0) {
+      await dbClient.query(
+        `INSERT INTO app.trade_simulations (
+          id, user_id, symbol, company_name, trigger_name, grade, sector,
+          signal_date, entry_price, stop_loss, status,
+          executed_entry_price, entry_date, current_stop, current_price,
+          exit_price, exit_date, exit_reason, result_r, mfe_r, mae_r,
+          timeline, notes, management_scenario, scale_in
+        ) VALUES ${valueClauses.join(', ')}`,
+        values
+      );
+    }
+  }
+
+  const comparison = model.compareManagementScenarios(sims);
+  const hypothesisComparison = (typeof model.compareInsideBarTriggers === 'function')
+    ? model.compareInsideBarTriggers(sims)
+    : null;
+
+  return {
+    simulations: sims,
+    stats: generated.stats,
+    comparison,
+    hypothesisComparison,
+    auditReport: generated.auditReport,
+    meta: generated.meta
+  };
 }
 
 /**
@@ -370,12 +565,16 @@ async function evaluate(userId, client = database) {
  */
 async function clearAll(userId, client = database) {
   if (!userId) throw invalid('Usuário não autenticado.', 401);
-  await client.query(`DELETE FROM app.trade_simulations WHERE user_id = $1`, [userId]);
+  await dbClientQuery(client, `DELETE FROM app.trade_simulations WHERE user_id = $1`, [userId]);
   return {
     deleted: true,
     simulations: [],
     stats: model.calculateSimulatorStats([])
   };
+}
+
+async function dbClientQuery(client, sql, params) {
+  return client.query(sql, params);
 }
 
 /**
@@ -395,6 +594,7 @@ module.exports = {
   update,
   remove,
   reset,
+  generateMass,
   clearAll,
   evaluate,
   compare,

@@ -16,10 +16,12 @@ test('tradeSimulator backend: listagem retorna seeds quando banco vazio', async 
     const res = await tradeSimulator.list('test-user-1');
     assert.equal(res.simulations.length, 42);
     assert.equal(res.stats.totalCreated, 42);
-    assert.equal(res.stats.executedEntriesCount, 36);
+    assert.equal(res.stats.executedEntriesCount, 32);
     assert.equal(res.stats.waitingCount, 6);
-    assert.equal(res.stats.totalR, 23.4);
-    assert.equal(res.stats.avgR, 0.65);
+    assert.equal(res.stats.totalR, 26.1);
+    assert.equal(res.stats.avgR, 0.93);
+    assert.ok(res.auditReport, 'Deve incluir relatório de auditoria');
+    assert.equal(res.auditReport.isConsistent, true);
   } finally {
     database.query = originalQuery;
   }
@@ -76,7 +78,7 @@ test('tradeSimulator backend: criação sempre inicia em WAITING_ENTRY e valida 
       symbol: 'PETR4',
       companyName: 'Petrobras PN',
       triggerName: 'Inside Bar',
-      grade: 'A+',
+      grade: 'A',
       sector: 'Petróleo e Gás',
       entryPrice: 49.80,
       stopLoss: 48.90
@@ -251,4 +253,70 @@ test('tradeSimulator backend: list e compareHypothesis retornam hipótese do Dou
     database.query = originalQuery;
   }
 });
+
+test('tradeSimulator backend: generateMass gera lote de trades em escala e armazena no banco', async () => {
+  const originalQuery = database.query;
+  const store = [];
+
+  database.query = async (sql, values) => {
+    if (sql.includes('DELETE FROM app.trade_simulations')) {
+      store.length = 0;
+      return { rows: [] };
+    }
+    if (sql.includes('INSERT INTO app.trade_simulations')) {
+      // Divide parâmetros por 25
+      const numRows = values.length / 25;
+      for (let i = 0; i < numRows; i++) {
+        const offset = i * 25;
+        store.push({
+          id: values[offset],
+          user_id: values[offset + 1],
+          symbol: values[offset + 2],
+          trigger_name: values[offset + 4],
+          status: values[offset + 10],
+          result_r: values[offset + 18]
+        });
+      }
+      return { rows: store };
+    }
+    return { rows: [] };
+  };
+
+  try {
+    const res = await tradeSimulator.generateMass('user-test-scale', {
+      period: 120,
+      universe: 'IBOV',
+      triggers: 'ALL',
+      grades: 'ALL',
+      targetVolume: 50,
+      scenario: '2R'
+    });
+
+    assert.ok(res.simulations.length > 0, 'Deve gerar simulações');
+    assert.ok(res.stats, 'Deve retornar stats calculadas');
+    assert.ok(res.meta, 'Deve retornar metadados da execução');
+    assert.equal(res.meta.universe, 'IBOV');
+    assert.equal(res.meta.scenario, '2R');
+    assert.ok(store.length > 0, 'Simulações devem ter sido gravadas no banco');
+    assert.equal(store.length, res.simulations.length);
+
+    // Teste de 12 meses (365 dias): deve cobrir o horizonte anual e respeitar o target
+    const res12m = await tradeSimulator.generateMass('user-test-scale', {
+      period: 365,
+      universe: 'IBOV',
+      targetVolume: 100,
+      scenario: '2R'
+    });
+    assert.ok(res12m.simulations.length >= 100, 'Deve conter a amostra solicitada de 100 trades');
+    assert.equal(res12m.meta.executedCount, 100, 'Meta de 100 executados deve ser atingida');
+    const executedSims = res12m.simulations.filter(s => s.status === 'IN_OPERATION' || s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS');
+    assert.equal(executedSims.length, 100);
+    const sortedDates = executedSims.map(s => s.signalDate).sort();
+    assert.ok(sortedDates[0].startsWith('2025-'), 'Trade mais antigo deve ser de 2025 (início dos 12 meses)');
+    assert.ok(sortedDates[sortedDates.length - 1].startsWith('2026-'), 'Trade mais recente deve ser de 2026 (fim dos 12 meses)');
+  } finally {
+    database.query = originalQuery;
+  }
+});
+
 

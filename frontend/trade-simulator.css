@@ -2899,5 +2899,715 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   }
 }
 
+/* ==========================================================================
+   SIMULADOR DE TRADES: MASSA DE DADOS EM ESCALA & ESTATÍSTICAS AVANÇADAS
+   ========================================================================== */
 
+/* Barra de Filtro Personalizado Inline */
+.sim-custom-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #334155;
+  animation: simModalFadeIn 0.2s ease-out;
+}
 
+.sim-custom-filter-label {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.sim-custom-filter-sep {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.sim-date-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 13px;
+  color: #1e293b;
+  background: #ffffff;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.sim-date-input:focus {
+  border-color: #10b981;
+}
+
+.sim-date-apply-btn {
+  background: #1b5336;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-date-apply-btn:hover {
+  background: #143e28;
+}
+
+/* Banner de Resumo da Massa Gerada */
+.sim-mass-summary-banner {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  animation: simModalFadeIn 0.2s ease-out;
+}
+
+.sim-mass-summary-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sim-mass-summary-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sim-mass-summary-badge.success {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.sim-mass-summary-badge.info {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.sim-mass-summary-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sim-mass-summary-title {
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.sim-mass-summary-desc {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.sim-mass-fidelity-note {
+  color: #b45309;
+  font-style: normal;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.sim-mass-summary-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.sim-mass-summary-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #334155;
+}
+
+/* Linha 2 de KPIs: Estatísticas Avançadas */
+.sim-kpis-advanced-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 2px;
+}
+
+.sim-kpi-card.advanced {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.sim-kpi-card.advanced:hover {
+  background: #ffffff;
+}
+
+/* Tabs dos Gráficos */
+.sim-chart-tab-group {
+  display: inline-flex;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.sim-chart-tab-btn {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-chart-tab-btn:hover {
+  color: #1e293b;
+}
+
+.sim-chart-tab-btn.active {
+  background: #ffffff;
+  color: #1b5336;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Histograma em R */
+.sim-r-hist-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 160px;
+  padding: 10px 4px 4px;
+}
+
+.sim-r-hist-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.sim-r-hist-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.sim-r-hist-bar {
+  width: 22px;
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+  transition: height 0.3s ease;
+}
+
+.sim-r-hist-bar.bar-green {
+  background: #10b981;
+}
+
+.sim-r-hist-bar.bar-red {
+  background: #ef4444;
+}
+
+.sim-r-hist-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #64748b;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.sim-r-hist-pct {
+  font-size: 9px;
+  color: #94a3b8;
+}
+
+.negative-bar {
+  background: #ef4444 !important;
+}
+
+.sim-no-data-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* Modal da Massa de Teste — Novos Controles */
+.sim-mass-modal-box {
+  max-width: 780px !important;
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+.sim-mass-param-group {
+  margin-bottom: 16px;
+}
+
+.sim-mass-param-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.sim-mass-param-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: #64748b;
+}
+
+.sim-mass-pills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sim-mass-pill {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sim-mass-pill small {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.sim-mass-pill:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.sim-mass-pill.active {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #065f46;
+  font-weight: 700;
+}
+
+.sim-mass-pill.active small {
+  color: #047857;
+}
+
+.sim-mass-custom-dates {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.sim-mass-date-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.sim-mass-coverage-note {
+  font-size: 11.5px;
+  color: #475569;
+  background: #f8fafc;
+  border-left: 3px solid #10b981;
+  padding: 6px 12px;
+  border-radius: 0 6px 6px 0;
+  margin-top: 8px;
+  line-height: 1.45;
+}
+
+.sim-mass-dual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sim-mass-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sim-mass-chip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-mass-chip:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.sim-mass-chip.active {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #065f46;
+  font-weight: 700;
+}
+
+/* Card Pre-flight */
+.sim-mass-preflight-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.sim-mass-preflight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+  margin-bottom: 12px;
+}
+
+.sim-mass-preflight-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sim-mass-pf-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.sim-mass-pf-val {
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.sim-mass-preflight-integrity {
+  font-size: 11.5px;
+  color: #334155;
+  line-height: 1.5;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+/* Progresso de Execução */
+.sim-mass-progress-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  animation: simModalFadeIn 0.2s ease-out;
+}
+
+.sim-mass-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #a7f3d0;
+  border-top-color: #059669;
+  border-radius: 50%;
+  animation: simSpin 0.7s linear infinite;
+}
+
+@keyframes simSpin {
+  to { transform: rotate(360deg); }
+}
+
+.sim-mass-progress-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #065f46;
+}
+
+.sim-btn-confirm-scenario.disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background: #94a3b8;
+}
+
+@media (max-width: 900px) {
+  .sim-kpis-advanced-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sim-mass-dual-grid {
+    grid-template-columns: 1fr;
+  }
+  .sim-mass-preflight-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   RELATÓRIO DE AUDITORIA E CONSISTÊNCIA AUTOMÁTICA
+   ========================================================================== */
+
+.sim-audit-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 6px;
+}
+
+.sim-audit-status-pill.consistent {
+  background: rgba(16, 185, 129, 0.14);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.sim-audit-status-pill.consistent:hover {
+  background: rgba(16, 185, 129, 0.24);
+  border-color: #059669;
+  transform: translateY(-1px);
+}
+
+.sim-audit-status-pill.inconsistent {
+  background: rgba(239, 68, 68, 0.14);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.sim-banner-audit-link {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.sim-banner-audit-link:hover {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+.sim-audit-modal-box {
+  max-width: 1080px;
+}
+
+.sim-audit-summary-banner {
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sim-audit-summary-banner.pass {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.sim-audit-summary-banner.fail {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.sim-audit-summary-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #34d399;
+  letter-spacing: 0.02em;
+}
+
+.sim-audit-summary-banner.fail .sim-audit-summary-title {
+  color: #f87171;
+}
+
+.sim-audit-summary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.sim-audit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.sim-audit-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.sim-audit-card h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.sim-audit-checks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sim-audit-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sim-audit-check-row.pass {
+  border-left: 3px solid #10b981;
+}
+
+.sim-audit-check-row.fail {
+  border-left: 3px solid #ef4444;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.sim-audit-check-ico {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.sim-audit-check-row.fail .sim-audit-check-ico {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.sim-audit-check-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sim-audit-check-main b {
+  font-size: 12px;
+  color: #f1f5f9;
+}
+
+.sim-audit-check-main span {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.sim-audit-check-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.sim-audit-check-tag.pass {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+}
+
+.sim-audit-check-tag.fail {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.sim-audit-invalid-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.sim-audit-invalid-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-size: 11px;
+  color: #e2e8f0;
+}
+
+.sim-audit-invalid-row code {
+  font-size: 10.5px;
+  color: #fca5a5;
+}
+
+@media (max-width: 900px) {
+  .sim-audit-grid {
+    grid-template-columns: 1fr;
+  }
+}

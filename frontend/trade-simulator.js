@@ -13,19 +13,38 @@
   const state = {
     simulations: [],
     loading: false,
+    generatingMass: false,
+    massProgressText: '',
+    massResultSummary: null,
+    auditReport: null,
+    auditModalOpen: false,
     activeScenario: '2R',
     massModalOpen: false,
     compareModalOpen: false,
     hypothesisModalOpen: false,
     scenarioModalOpen: false,
     exportModalOpen: false,
+    customDateFilterOpen: false,
+    distView: 'overview', // 'overview' | 'r_buckets'
+    breakdownView: 'triggers', // 'triggers' | 'grades' | 'period'
     exportFormat: 'DOC', // 'DOC' | 'PDF' | 'ENEX' | 'CSV'
     exportScope: 'FILTERED', // 'FILTERED' | 'ALL'
     tempScenarioSelection: '2R',
+    massConfig: {
+      period: 120, // 30, 90, 120, 180, 365, 730, 1095, 'CUSTOM', 'ALL'
+      startDate: '',
+      endDate: '',
+      universe: 'IBOV', // 'IBOV', 'LIQUID_B3', 'ALL_B3', 'NASDAQ'
+      triggers: 'ALL', // 'ALL' ou array
+      grades: 'ALL', // 'ALL' ou array
+      targetVolume: 100 // 100, 250, 500, 1000, 'MAX'
+    },
     comparison: null,
     hypothesisComparison: null,
     filters: {
       days: 120,
+      startDate: null,
+      endDate: null,
       trigger: 'ALL',
       sector: 'ALL',
       grade: 'ALL',
@@ -41,6 +60,15 @@
     selectedSimId: null,
     snapshotSimId: null
   };
+
+  function sanitizeSimulationsList(list) {
+    if (!Array.isArray(list)) return [];
+    const filtered = list.filter(s => s && s.triggerName !== 'Pullback');
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.sanitizeAndNormalizeSimulation === 'function') {
+      return filtered.map(s => root.TradeSimulatorModel.sanitizeAndNormalizeSimulation(s));
+    }
+    return filtered;
+  }
 
   /**
    * Inicialização do módulo
@@ -63,9 +91,10 @@
       if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
         const response = await root.healthyTrendApi.request(API_ENDPOINT, { method: 'GET' });
         if (response && Array.isArray(response.simulations) && response.simulations.length > 0) {
-          state.simulations = response.simulations.filter(s => s && s.triggerName !== 'Pullback');
+          state.simulations = sanitizeSimulationsList(response.simulations);
           state.comparison = response.comparison || null;
           state.hypothesisComparison = response.hypothesisComparison || null;
+          state.auditReport = response.auditReport || (root.TradeSimulatorModel?.auditSimulationsBatch ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations) : null);
           if (!state.comparison || !Array.isArray(state.comparison.scenarios) || !state.comparison.scenarios.some(s => s.avgDurationDaysFormatted)) {
             if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
               state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
@@ -87,13 +116,13 @@
       // Falha de rede ou sem backend, continua para fallback local
     }
 
-    // Fallback: localStorage
+    // Fallback: localStorage (higieniza registros legados automaticamente)
     try {
       const cached = localStorage.getItem(STORAGE_KEY);
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          state.simulations = parsed.filter(s => s && s.triggerName !== 'Pullback');
+          state.simulations = sanitizeSimulationsList(parsed);
           if (state.simulations[0]?.managementScenario) {
             state.activeScenario = state.simulations[0].managementScenario;
             state.tempScenarioSelection = state.simulations[0].managementScenario;
@@ -104,6 +133,10 @@
           if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
             state.hypothesisComparison = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
           }
+          if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function') {
+            state.auditReport = root.TradeSimulatorModel.auditSimulationsBatch(state.simulations);
+          }
+          saveLocalCache();
           state.loading = false;
           return;
         }
@@ -116,6 +149,9 @@
       state.comparison = root.TradeSimulatorModel.compareManagementScenarios();
       if (typeof root.TradeSimulatorModel.compareInsideBarTriggers === 'function') {
         state.hypothesisComparison = root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations);
+      }
+      if (typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function') {
+        state.auditReport = root.TradeSimulatorModel.auditSimulationsBatch(state.simulations);
       }
       state.activeScenario = '2R';
       state.tempScenarioSelection = '2R';
@@ -148,14 +184,22 @@
       await loadData();
     }
 
+    const normalizedGrade = root.TradeSimulatorModel?.normalizeSimulatorGrade
+      ? root.TradeSimulatorModel.normalizeSimulatorGrade(params.grade || 'A')
+      : 'A';
+    const rawSignalDate = params.signalDate || new Date().toISOString().slice(0, 10);
+    const sanitizedSignalDate = root.TradeSimulatorModel?.snapToTradingDay
+      ? root.TradeSimulatorModel.snapToTradingDay(rawSignalDate, -1)
+      : rawSignalDate;
+
     const newSim = {
       id: 'sim-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
       symbol: String(params.symbol).toUpperCase().trim(),
       companyName: params.companyName || params.symbol,
       triggerName: params.triggerName,
-      grade: params.grade || 'A',
+      grade: normalizedGrade,
       sector: params.sector || 'Geral',
-      signalDate: params.signalDate || new Date().toISOString().slice(0, 10),
+      signalDate: sanitizedSignalDate,
       entryPrice: Number(params.entryPrice) || 0,
       stopLoss: Number(params.stopLoss) || 0,
       status: root.TradeSimulatorModel ? root.TradeSimulatorModel.STATUS.WAITING_ENTRY : 'WAITING_ENTRY',
@@ -169,25 +213,25 @@
       resultR: null,
       mfeR: null,
       maeR: null,
-      visionAtivo: params.visionAtivo || (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getTradeVisionAtivo === 'function' ? root.TradeSimulatorModel.getTradeVisionAtivo(params) : null),
+      visionAtivo: params.visionAtivo || (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getTradeVisionAtivo === 'function' ? root.TradeSimulatorModel.getTradeVisionAtivo({ ...params, grade: normalizedGrade, signalDate: sanitizedSignalDate }) : null),
       notes: params.notes || '',
       candles: Array.isArray(params.candles) ? params.candles : [],
       timeline: [
         {
           type: 'SIGNAL_IDENTIFIED',
-          date: params.signalDate || new Date().toISOString().slice(0, 10),
+          date: sanitizedSignalDate,
           label: 'Gatilho identificado',
-          desc: `${params.triggerName} (${params.grade || 'A'}) em ${params.symbol}`
+          desc: `${params.triggerName} (${normalizedGrade}) em ${params.symbol}`
         },
         {
           type: 'SIMULATION_ADDED',
-          date: new Date().toISOString().slice(0, 10),
+          date: sanitizedSignalDate,
           label: 'Simulação adicionada',
           desc: 'Registrado no Simulador de Trades'
         },
         {
           type: 'WAITING_ENTRY',
-          date: new Date().toISOString().slice(0, 10),
+          date: sanitizedSignalDate,
           label: 'Aguardando entrada',
           desc: `Entrada planejada: R$ ${Number(params.entryPrice).toFixed(2).replace('.', ',')} | Stop: R$ ${Number(params.stopLoss).toFixed(2).replace('.', ',')}`
         }
@@ -202,7 +246,7 @@
           body: JSON.stringify(newSim)
         });
         if (res && res.simulation) {
-          state.simulations.unshift(res.simulation);
+          state.simulations.unshift(sanitizeSimulationsList([res.simulation])[0] || res.simulation);
           saveLocalCache();
           render();
           if (typeof root.showToast === 'function') {
@@ -227,12 +271,85 @@
   /**
    * Gera massa de teste no cenário de gestão selecionado ('2R', '2.5R' ou 'PYRAMID_1R_2R')
    */
-  async function generateScenarioMass(scenarioId = '2R') {
+  async function generateScenarioMass(scenarioId = '2R', options = null) {
     state.loading = true;
+    state.generatingMass = true;
+    state.massProgressText = 'Varrendo histórico e identificando operações...';
     state.activeScenario = scenarioId;
     state.tempScenarioSelection = scenarioId;
     state.scenarioModalOpen = false;
     render();
+
+    const config = options || state.massConfig || {};
+    const payload = {
+      scenario: scenarioId,
+      period: config.period || 120,
+      startDate: config.startDate || null,
+      endDate: config.endDate || null,
+      universe: config.universe || 'IBOV',
+      triggers: config.triggers || 'ALL',
+      grades: config.grades || 'ALL',
+      targetVolume: config.targetVolume || 100
+    };
+
+    try {
+      if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
+        const res = await root.healthyTrendApi.request(API_ENDPOINT + '/generate-mass', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
+          state.simulations = sanitizeSimulationsList(res.simulations);
+          state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
+          state.hypothesisComparison = res.hypothesisComparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations) : null);
+          state.auditReport = res.auditReport || (root.TradeSimulatorModel?.auditSimulationsBatch ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload }) : null);
+          state.massResultSummary = res.meta || null;
+
+          // Sincroniza os filtros do topo com o período gerado para que a amostra completa seja exibida na tela
+          if (payload.period === 'CUSTOM') {
+            state.filters.days = 'CUSTOM';
+            state.filters.startDate = payload.startDate || null;
+            state.filters.endDate = payload.endDate || null;
+          } else if (payload.period === 'ALL') {
+            state.filters.days = 'ALL';
+            state.filters.startDate = null;
+            state.filters.endDate = null;
+          } else {
+            state.filters.days = Number(payload.period);
+            state.filters.startDate = null;
+            state.filters.endDate = null;
+          }
+          state.massConfig.period = payload.period;
+          state.massConfig.startDate = payload.startDate || '';
+          state.massConfig.endDate = payload.endDate || '';
+          if (payload.triggers && payload.triggers !== 'ALL') {
+            state.filters.trigger = Array.isArray(payload.triggers) ? payload.triggers[0] : payload.triggers;
+          } else {
+            state.filters.trigger = 'ALL';
+          }
+          if (payload.grades && payload.grades !== 'ALL') {
+            const rawG = Array.isArray(payload.grades) ? payload.grades[0] : payload.grades;
+            state.filters.grade = root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(rawG) : rawG;
+          } else {
+            state.filters.grade = 'ALL';
+          }
+
+          state.loading = false;
+          state.generatingMass = false;
+          state.massModalOpen = false;
+          saveLocalCache();
+          render();
+          if (typeof root.showToast === 'function') {
+            const count = res.meta?.executedCount || state.simulations.filter(s => s.status === 'IN_OPERATION' || s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS').length;
+            const pText = formatPeriodLabel(payload.period, payload.startDate, payload.endDate);
+            root.showToast(`✓ Massa histórica auditada: ${count} trades executados cobrindo ${pText}.`);
+          }
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao chamar generate-mass:', e);
+    }
 
     try {
       if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
@@ -241,8 +358,9 @@
           body: JSON.stringify({ scenario: scenarioId })
         });
         if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
-          state.simulations = res.simulations.filter(s => s && s.triggerName !== 'Pullback');
+          state.simulations = sanitizeSimulationsList(res.simulations);
           state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
+          state.auditReport = res.auditReport || (root.TradeSimulatorModel?.auditSimulationsBatch ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload }) : null);
           if (!state.comparison || !Array.isArray(state.comparison.scenarios) || !state.comparison.scenarios.some(s => s.avgDurationDaysFormatted)) {
             if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
               state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
@@ -250,6 +368,8 @@
           }
           saveLocalCache();
           state.loading = false;
+          state.generatingMass = false;
+          state.massModalOpen = false;
           render();
           if (typeof root.showToast === 'function') {
             const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
@@ -260,17 +380,53 @@
       }
     } catch (e) {}
 
-    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.generateSeedSimulationsForScenario === 'function') {
-      state.simulations = root.TradeSimulatorModel.generateSeedSimulationsForScenario(scenarioId);
+    if (root.TradeSimulatorModel) {
+      if (typeof root.TradeSimulatorModel.generateExpandedSeeds === 'function') {
+        state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateExpandedSeeds(scenarioId, payload));
+      } else if (typeof root.TradeSimulatorModel.generateSeedSimulationsForScenario === 'function') {
+        state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateSeedSimulationsForScenario(scenarioId));
+      }
       state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
+      if (typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function') {
+        state.auditReport = root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload });
+      }
+      if (payload.period === 'CUSTOM') {
+        state.filters.days = 'CUSTOM';
+        state.filters.startDate = payload.startDate || null;
+        state.filters.endDate = payload.endDate || null;
+      } else if (payload.period === 'ALL') {
+        state.filters.days = 'ALL';
+        state.filters.startDate = null;
+        state.filters.endDate = null;
+      } else {
+        state.filters.days = Number(payload.period);
+        state.filters.startDate = null;
+        state.filters.endDate = null;
+      }
+      state.massConfig.period = payload.period;
     }
     saveLocalCache();
     state.loading = false;
+    state.generatingMass = false;
+    state.massModalOpen = false;
     render();
     if (typeof root.showToast === 'function') {
       const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
       root.showToast(`✓ Massa de teste gerada para o cenário: ${meta.name}`);
     }
+  }
+
+  function formatPeriodLabel(period, startDate, endDate) {
+    if (period === 30 || period === '30') return 'os últimos 30 dias';
+    if (period === 90 || period === '90') return 'os últimos 90 dias';
+    if (period === 120 || period === '120') return 'os últimos 120 dias (4 meses)';
+    if (period === 180 || period === '180') return 'os últimos 6 meses';
+    if (period === 365 || period === '365' || period === '12m') return 'os últimos 12 meses';
+    if (period === 730 || period === '730' || period === '24m') return 'os últimos 24 meses';
+    if (period === 1095 || period === '1095' || period === '36m') return 'os últimos 36 meses';
+    if (period === 'ALL') return 'todo o histórico disponível';
+    if (period === 'CUSTOM' && startDate && endDate) return `o período de ${formatDateBR(startDate)} a ${formatDateBR(endDate)}`;
+    return 'o período selecionado';
   }
 
   async function resetToDefaults() {
@@ -288,6 +444,9 @@
     } catch (e) {}
 
     state.simulations = [];
+    state.auditReport = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function'
+      ? root.TradeSimulatorModel.auditSimulationsBatch([])
+      : null;
     saveLocalCache();
     state.selectedSimId = null;
     state.snapshotSimId = null;
@@ -336,6 +495,8 @@
         }
       }
       if (updated > 0) {
+        state.simulations = sanitizeSimulationsBatch(state.simulations);
+        refreshAuditReport(state.simulations);
         saveLocalCache();
         render();
         if (typeof root.showToast === 'function') {
@@ -472,6 +633,8 @@
     }
     return root.TradeSimulatorModel.filterSimulations(state.simulations, {
       days: state.filters.days,
+      startDate: state.filters.startDate,
+      endDate: state.filters.endDate,
       trigger: state.filters.trigger,
       sector: state.filters.sector,
       grade: state.filters.grade,
@@ -502,7 +665,7 @@
           valB = (b.triggerName || '').toLowerCase();
           break;
         case 'grade': {
-          const gradeRank = { 'A+': 5, 'A': 4, 'B+': 3, 'B': 2, 'C': 1, 'D': 0 };
+          const gradeRank = { 'A': 4, 'B': 3, 'C': 2, 'D': 1 };
           valA = gradeRank[a.grade] ?? -1;
           valB = gradeRank[b.grade] ?? -1;
           break;
@@ -649,6 +812,7 @@
         ${renderMassModal()}
         ${renderCompareModal()}
         ${renderHypothesisModal()}
+        ${renderAuditModal()}
         ${renderModal()}
         ${renderSnapshotModal()}
         ${renderExportModal()}
@@ -662,14 +826,33 @@
    * 1. Header com Título, Botão da Massa de Teste, Filtros e Botão Comparar Cenários
    */
   function renderHeader() {
-    const daysLabel = state.filters.days === 120
-      ? 'Últimos 120 dias (4 meses)'
-      : (state.filters.days === 90
-        ? 'Últimos 90 dias'
-        : (state.filters.days === 30 ? 'Últimos 30 dias' : 'Todo o período'));
+    let daysLabel = 'Últimos 120 dias (4 meses)';
+    if (state.filters.days === 30) daysLabel = 'Últimos 30 dias';
+    else if (state.filters.days === 90) daysLabel = 'Últimos 90 dias';
+    else if (state.filters.days === 120) daysLabel = 'Últimos 120 dias (4 meses)';
+    else if (state.filters.days === 180) daysLabel = 'Últimos 6 meses';
+    else if (state.filters.days === 365) daysLabel = 'Últimos 12 meses';
+    else if (state.filters.days === 730) daysLabel = 'Últimos 24 meses';
+    else if (state.filters.days === 1095) daysLabel = 'Últimos 36 meses';
+    else if (state.filters.days === 'CUSTOM') {
+      if (state.filters.startDate && state.filters.endDate) {
+        daysLabel = `${formatDateBR(state.filters.startDate)} a ${formatDateBR(state.filters.endDate)}`;
+      } else {
+        daysLabel = 'Período Personalizado';
+      }
+    } else if (state.filters.days === 'ALL') {
+      daysLabel = 'Todo o período';
+    }
+
     const triggerLabel = state.filters.trigger === 'ALL' ? 'Todos os gatilhos' : state.filters.trigger;
     const sectorLabel = state.filters.sector === 'ALL' ? 'Todos os setores' : state.filters.sector;
     const gradeLabel = state.filters.grade === 'ALL' ? 'Todas as notas' : `Nota ${state.filters.grade}`;
+
+    const audit = state.auditReport || (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function'
+      ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { scenario: state.activeScenario })
+      : null);
+    const isConsistent = !audit || audit.isConsistent !== false;
+    const invalidCount = audit ? (audit.invalidTradesCount || 0) : 0;
 
     return `
       <div class="sim-header">
@@ -677,6 +860,9 @@
           <div class="sim-title-row">
             <h1>Simulador de Trades</h1>
             <span class="sim-beta-badge">BETA</span>
+            <button type="button" class="sim-audit-status-pill ${isConsistent ? 'consistent' : 'inconsistent'}" id="simBtnAuditModal" title="Abrir Relatório de Auditoria e Consistência dos Dados">
+              <span>${isConsistent ? '🛡️ Auditoria: 100% Consistente' : `⚠️ Auditoria: ${invalidCount} inconsistência(s)`}</span>
+            </button>
           </div>
           <p>Acompanhe como seus trades teriam performado seguindo as regras do seu método.</p>
         </div>
@@ -693,6 +879,11 @@
               <button class="sim-dropdown-item ${state.filters.days === 30 ? 'active' : ''}" data-filter-type="days" data-filter-val="30">Últimos 30 dias</button>
               <button class="sim-dropdown-item ${state.filters.days === 90 ? 'active' : ''}" data-filter-type="days" data-filter-val="90">Últimos 90 dias</button>
               <button class="sim-dropdown-item ${state.filters.days === 120 ? 'active' : ''}" data-filter-type="days" data-filter-val="120">Últimos 120 dias (4 meses)</button>
+              <button class="sim-dropdown-item ${state.filters.days === 180 ? 'active' : ''}" data-filter-type="days" data-filter-val="180">Últimos 6 meses</button>
+              <button class="sim-dropdown-item ${state.filters.days === 365 ? 'active' : ''}" data-filter-type="days" data-filter-val="365">Últimos 12 meses</button>
+              <button class="sim-dropdown-item ${state.filters.days === 730 ? 'active' : ''}" data-filter-type="days" data-filter-val="730">Últimos 24 meses</button>
+              <button class="sim-dropdown-item ${state.filters.days === 1095 ? 'active' : ''}" data-filter-type="days" data-filter-val="1095">Últimos 36 meses</button>
+              <button class="sim-dropdown-item ${state.filters.days === 'CUSTOM' ? 'active' : ''}" data-filter-type="days" data-filter-val="CUSTOM">Personalizado...</button>
               <button class="sim-dropdown-item ${state.filters.days === 'ALL' ? 'active' : ''}" data-filter-type="days" data-filter-val="ALL">Todo o período</button>
             </div>
           </div>
@@ -709,11 +900,14 @@
               <button class="sim-dropdown-item ${state.filters.trigger === 'Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Inside Bar">Inside Bar</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Double Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Double Inside Bar">Double Inside Bar</button>
               <button class="sim-dropdown-item ${state.filters.trigger === '1-2-3 de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="1-2-3 de Compra">1-2-3 de Compra</button>
+              <button class="sim-dropdown-item ${state.filters.trigger === 'PFR de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="PFR de Compra">PFR de Compra</button>
+              <button class="sim-dropdown-item ${state.filters.trigger === 'Dave Landry' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Dave Landry">Dave Landry</button>
+              <button class="sim-dropdown-item ${state.filters.trigger === 'Red Bar Ignored' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Red Bar Ignored">Red Bar Ignored</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Outros' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Outros">Outros</button>
             </div>
           </div>
 
-          <!-- Filtro Notas -->
+          <!-- Filtro Notas (Fonte de Verdade: Novo Trade / Rubric: A, B, C, D) -->
           <div class="sim-filter-select-wrap">
             <button class="sim-filter-btn" type="button" data-dropdown="grade">
               <span class="sim-filter-ico">🏷️</span>
@@ -748,7 +942,7 @@
 
           <!-- Botão Mais Opções (···) com Dropdown -->
           <div class="sim-filter-select-wrap">
-            <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Massa de teste, Comparador, Reavaliar e Excluir">
+            <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Massa de teste, Comparador, Auditoria, Reavaliar e Excluir">
               <span>···</span>
             </button>
             <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
@@ -760,6 +954,9 @@
               </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnHypothesis">
                 <span>🔬</span> <span>Estudo: Double Inside Bar</span>
+              </button>
+              <button class="sim-dropdown-item" type="button" id="simMoreBtnAudit">
+                <span>🛡️</span> <span>Relatório de Auditoria</span>
               </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate">
                 <span>↻</span> <span>Reavaliar Candles</span>
@@ -775,17 +972,53 @@
           </div>
         </div>
       </div>
+
+      <!-- Barra de Período Personalizado Inline (quando ativo) -->
+      ${state.filters.days === 'CUSTOM' ? `
+        <div class="sim-custom-filter-bar">
+          <span class="sim-custom-filter-label">📅 Intervalo personalizado:</span>
+          <input type="date" id="simCustomFilterStart" value="${state.filters.startDate || ''}" class="sim-date-input" />
+          <span class="sim-custom-filter-sep">até</span>
+          <input type="date" id="simCustomFilterEnd" value="${state.filters.endDate || ''}" class="sim-date-input" />
+          <button type="button" id="simCustomFilterApply" class="sim-date-apply-btn">Aplicar Filtro</button>
+        </div>
+      ` : ''}
+
+      <!-- Banner Informativo de Massa Gerada / Metadados -->
+      ${state.massResultSummary ? `
+        <div class="sim-mass-summary-banner">
+          <div class="sim-mass-summary-left">
+            <span class="sim-mass-summary-badge ${state.massResultSummary.targetReached ? 'success' : 'info'}">
+              ${state.massResultSummary.targetReached ? '✓ META ALCANÇADA' : 'ℹ️ AMOSTRA FINAL'}
+            </span>
+            <div class="sim-mass-summary-main">
+              <span class="sim-mass-summary-title">
+                <strong>${state.massResultSummary.executedCount || 0} trades executados</strong>
+                de ${state.massResultSummary.totalSignals || 0} sinais detectados
+                ${state.massResultSummary.targetVolume && state.massResultSummary.targetVolume !== 'MAX' ? `(Meta: ${state.massResultSummary.targetVolume})` : '(Varredura Máxima)'}
+              </span>
+              <span class="sim-mass-summary-desc">
+                Período: <strong>${formatDateBR(state.massResultSummary.period?.minDate)}</strong> a <strong>${formatDateBR(state.massResultSummary.period?.maxDate)}</strong> (${state.massResultSummary.period?.totalTradingSessions || 0} pregões reais). Universo: <strong>${state.massResultSummary.universe || 'IBOV'}</strong>. Cenário: <strong>${state.massResultSummary.scenario || '2R'}</strong>.
+                <button type="button" class="sim-banner-audit-link" id="simBannerBtnAudit">${isConsistent ? '🛡️ Auditoria: 0 inconsistências' : `⚠️ Ver ${invalidCount} inconsistência(s)`}</button>
+                ${!state.massResultSummary.targetReached && state.massResultSummary.targetVolume !== 'MAX' ? '<br><em class="sim-mass-fidelity-note">⚠️ Nota de Fidelidade Estatística: O número de trades executados foi delimitado pela cobertura histórica disponível e pelos critérios rigorosos do método. O sistema não inventa dados artificiais para preencher metas.</em>' : ''}
+              </span>
+            </div>
+          </div>
+          <button type="button" class="sim-mass-summary-close" id="simDismissMassSummary" title="Fechar aviso">×</button>
+        </div>
+      ` : ''}
     `;
   }
 
   /**
-   * 2. Conjunto de 7 KPI Cards (Rigorosamente conforme referência visual)
+   * 2. Conjunto de KPI Cards (Primários e Secundários Estatísticos)
    */
   function renderKpiCards(stats) {
     const totalRClass = stats.totalR > 0 ? 'positive' : (stats.totalR < 0 ? 'negative' : 'neutral');
     const avgRClass = stats.avgR > 0 ? 'positive' : (stats.avgR < 0 ? 'negative' : 'neutral');
 
     return `
+      <!-- Linha 1: 8 KPIs Operacionais Primários -->
       <div class="sim-kpis-container">
         <!-- Card 1: Simulações criadas -->
         <div class="sim-kpi-card">
@@ -800,7 +1033,7 @@
             <span class="sim-kpi-title">Simulações criadas</span>
           </div>
           <div class="sim-kpi-val">${stats.totalCreated}</div>
-          <p class="sim-kpi-sub">Sinais adicionados ao simulador.</p>
+          <p class="sim-kpi-sub">Sinais detectados no período.</p>
         </div>
 
         <!-- Card 2: Entradas executadas -->
@@ -814,7 +1047,7 @@
             <span class="sim-kpi-title">Entradas executadas</span>
           </div>
           <div class="sim-kpi-val">${stats.executedEntriesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.executedPct.toFixed(1).replace('.', ',')}%</strong> das simulações acionaram a entrada.</p>
+          <p class="sim-kpi-sub"><strong>${stats.executedPct.toFixed(1).replace('.', ',')}%</strong> acionaram entrada.</p>
         </div>
 
         <!-- Card 3: Trades vencedores -->
@@ -832,7 +1065,7 @@
             <span class="sim-kpi-title">Trades vencedores</span>
           </div>
           <div class="sim-kpi-val">${stats.winningTradesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.winRate.toFixed(1).replace('.', ',')}%</strong> de win rate<br>sobre trades executados.</p>
+          <p class="sim-kpi-sub"><strong>${stats.winRate.toFixed(1).replace('.', ',')}%</strong> de win rate.</p>
         </div>
 
         <!-- Card 4: Trades perdedores -->
@@ -847,7 +1080,7 @@
             <span class="sim-kpi-title">Trades perdedores</span>
           </div>
           <div class="sim-kpi-val">${stats.losingTradesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.lossRate.toFixed(1).replace('.', ',')}%</strong> de loss rate<br>sobre trades executados.</p>
+          <p class="sim-kpi-sub"><strong>${stats.lossRate.toFixed(1).replace('.', ',')}%</strong> de loss rate.</p>
         </div>
 
         <!-- Card 5: Resultado total -->
@@ -859,7 +1092,7 @@
             <span class="sim-kpi-title">Resultado total</span>
           </div>
           <div class="sim-kpi-val ${totalRClass}">${stats.totalRFormatted}</div>
-          <p class="sim-kpi-sub">Soma dos trades encerrados (ganhos e perdedores).</p>
+          <p class="sim-kpi-sub">Soma de ganhos e perdas.</p>
         </div>
 
         <!-- Card 6: R médio / trade -->
@@ -874,7 +1107,7 @@
             <span class="sim-kpi-title">R médio / trade</span>
           </div>
           <div class="sim-kpi-val ${avgRClass}">${stats.avgRFormatted}</div>
-          <p class="sim-kpi-sub">Expectancy do método.</p>
+          <p class="sim-kpi-sub">Expectativa matemática.</p>
         </div>
 
         <!-- Card 7: Duração média -->
@@ -889,7 +1122,7 @@
             <span class="sim-kpi-title">Duração média</span>
           </div>
           <div class="sim-kpi-val">${stats.avgDurationDaysFormatted || '—'}</div>
-          <p class="sim-kpi-sub">Tempo médio em operação dos trades encerrados.</p>
+          <p class="sim-kpi-sub">Tempo em operação.</p>
         </div>
 
         <!-- Card 8: Aguardando entrada -->
@@ -906,14 +1139,85 @@
             <span class="sim-kpi-title">Aguardando entrada</span>
           </div>
           <div class="sim-kpi-val">${stats.waitingCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.waitingPct.toFixed(1).replace('.', ',')}%</strong> das simulações ainda não entraram.</p>
+          <p class="sim-kpi-sub"><strong>${stats.waitingPct.toFixed(1).replace('.', ',')}%</strong> ainda não ativaram.</p>
+        </div>
+      </div>
+
+      <!-- Linha 2: 4 KPIs Estatísticos Avançados (Validação em Escala) -->
+      <div class="sim-kpis-advanced-row">
+        <!-- Card 9: Profit Factor -->
+        <div class="sim-kpi-card advanced">
+          <div class="sim-kpi-top">
+            <span class="sim-kpi-icon icon-green">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </span>
+            <span class="sim-kpi-title">Profit Factor</span>
+          </div>
+          <div class="sim-kpi-val ${(stats.profitFactor || 0) >= 1.5 ? 'positive' : ((stats.profitFactor || 0) < 1 ? 'negative' : 'neutral')}">
+            ${stats.profitFactorFormatted || (stats.profitFactor ? stats.profitFactor.toFixed(2).replace('.', ',') : '—')}
+          </div>
+          <p class="sim-kpi-sub">Ganhos (${stats.totalGainsR != null ? '+' + stats.totalGainsR.toFixed(1).replace('.', ',') + 'R' : '—'}) / Perdas (${stats.totalLossesR != null ? '-' + stats.totalLossesR.toFixed(1).replace('.', ',') + 'R' : '—'}).</p>
+        </div>
+
+        <!-- Card 10: Drawdown Máximo -->
+        <div class="sim-kpi-card advanced">
+          <div class="sim-kpi-top">
+            <span class="sim-kpi-icon icon-red">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                <polyline points="17 18 23 18 23 12"></polyline>
+              </svg>
+            </span>
+            <span class="sim-kpi-title">Drawdown Máximo</span>
+          </div>
+          <div class="sim-kpi-val negative">
+            ${stats.maxDrawdownRFormatted || (stats.maxDrawdownR != null ? '-' + Math.abs(stats.maxDrawdownR).toFixed(1).replace('.', ',') + 'R' : '0,0R')}
+          </div>
+          <p class="sim-kpi-sub">Maior rebaixamento acumulado de capital.</p>
+        </div>
+
+        <!-- Card 11: Sequência Máxima de Perdas -->
+        <div class="sim-kpi-card advanced">
+          <div class="sim-kpi-top">
+            <span class="sim-kpi-icon icon-orange">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+              </svg>
+            </span>
+            <span class="sim-kpi-title">Sequência de Stops</span>
+          </div>
+          <div class="sim-kpi-val">
+            ${stats.maxConsecutiveLosses != null ? stats.maxConsecutiveLosses + (stats.maxConsecutiveLosses === 1 ? ' trade' : ' trades') : '0 trades'}
+          </div>
+          <p class="sim-kpi-sub">Pior série consecutiva de perdas registrada.</p>
+        </div>
+
+        <!-- Card 12: Sinais Não Acionados -->
+        <div class="sim-kpi-card advanced">
+          <div class="sim-kpi-top">
+            <span class="sim-kpi-icon icon-gray">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+              </svg>
+            </span>
+            <span class="sim-kpi-title">Sinais Não Acionados</span>
+          </div>
+          <div class="sim-kpi-val">
+            ${stats.notTriggeredCount != null ? stats.notTriggeredCount : 0}
+          </div>
+          <p class="sim-kpi-sub">Expiraram ou stop foi violado antes da entrada.</p>
         </div>
       </div>
     `;
   }
 
   /**
-   * 3. Linha de 3 Gráficos: Curva de Resultados, Distribuição e Desempenho por Gatilho
+   * 3. Linha de 3 Gráficos: Curva de Resultados, Distribuição e Desempenho
    */
   function renderChartsRow(stats) {
     const isUnitRS = state.filters.unit === 'RS';
@@ -926,24 +1230,83 @@
     const curvePoints = stats.equityCurve && stats.equityCurve.length > 0 ? stats.equityCurve : [];
     const svgChartHtml = renderEquitySvgChart(curvePoints, isUnitRS, riskNominal);
 
-    // 2. Gráfico Distribuição de Resultados (Barras Verticais Dinâmicas)
+    // 2. Gráfico Distribuição de Resultados
     const dist = stats.distribution || {
-      winners: { count: 12, label: 'Vencedores (66,7%)' },
-      losers: { count: 6, label: 'Perdedores (33,3%)' },
-      notTriggered: { count: 6, label: 'Não acionados (25,0%)' }
+      winners: { count: 0, label: 'Vencedores (0%)' },
+      losers: { count: 0, label: 'Perdedores (0%)' },
+      notTriggered: { count: 0, label: 'Não acionados (0%)' }
     };
     const maxDistCount = Math.max(1, dist.winners.count || 0, dist.losers.count || 0, dist.notTriggered.count || 0);
     const hWinners = Math.max(8, Math.min(100, Math.round(((dist.winners.count || 0) / maxDistCount) * 82)));
     const hLosers = Math.max(8, Math.min(100, Math.round(((dist.losers.count || 0) / maxDistCount) * 82)));
     const hNotTrig = Math.max(8, Math.min(100, Math.round(((dist.notTriggered.count || 0) / maxDistCount) * 82)));
 
-    // 3. Gráfico Desempenho por Gatilho (Barras Horizontais)
-    const triggers = stats.triggerPerformance || [
-      { name: 'Inside Bar', totalRFormatted: '+8,4R', tradesText: '8 trades', totalR: 8.4 },
-      { name: '1-2-3 de Compra', totalRFormatted: '+5,1R', tradesText: '7 trades', totalR: 5.1 },
-      { name: 'Outros', totalRFormatted: '+0,1R', tradesText: '1 trade', totalR: 0.1 }
-    ];
-    const maxTriggerR = Math.max(...triggers.map(t => Math.max(0.1, t.totalR || 0)), 10);
+    // 3. Gráficos de Desempenho (Gatilhos, Notas do Rubric ou Período)
+    const breakdownView = state.breakdownView || 'triggers';
+    let breakdownTitle = 'Desempenho por Gatilho';
+    let breakdownItemsHtml = '';
+
+    if (breakdownView === 'grades') {
+      breakdownTitle = 'Desempenho por Nota do Rubric';
+      const grades = stats.gradePerformance || [];
+      const maxGradeR = Math.max(...grades.map(g => Math.max(0.1, Math.abs(g.totalR || 0))), 10);
+      breakdownItemsHtml = grades.map(g => {
+        const widthPct = Math.max(2, Math.min(100, Math.round((Math.abs(g.totalR || 0) / maxGradeR) * 100)));
+        const colorClass = (g.totalR || 0) >= 0 ? '' : 'negative-bar';
+        return `
+          <div class="sim-trigger-row">
+            <span class="sim-trigger-name" title="${g.name}">Nota ${g.name}</span>
+            <div class="sim-trigger-bar-bg">
+              <div class="sim-trigger-bar-fill ${colorClass}" style="width: ${widthPct}%;"></div>
+            </div>
+            <div class="sim-trigger-right">
+              <span class="sim-trigger-val">${g.totalRFormatted}</span>
+              <span class="sim-trigger-count">${g.tradesText}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else if (breakdownView === 'period') {
+      breakdownTitle = 'Desempenho por Período';
+      const periods = stats.periodPerformance || [];
+      const maxPerR = Math.max(...periods.map(p => Math.max(0.1, Math.abs(p.totalR || 0))), 10);
+      breakdownItemsHtml = periods.map(p => {
+        const widthPct = Math.max(2, Math.min(100, Math.round((Math.abs(p.totalR || 0) / maxPerR) * 100)));
+        const colorClass = (p.totalR || 0) >= 0 ? '' : 'negative-bar';
+        return `
+          <div class="sim-trigger-row">
+            <span class="sim-trigger-name" title="${p.name}">${p.name}</span>
+            <div class="sim-trigger-bar-bg">
+              <div class="sim-trigger-bar-fill ${colorClass}" style="width: ${widthPct}%;"></div>
+            </div>
+            <div class="sim-trigger-right">
+              <span class="sim-trigger-val">${p.totalRFormatted}</span>
+              <span class="sim-trigger-count">${p.tradesText}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      breakdownTitle = 'Desempenho por Gatilho';
+      const triggers = stats.triggerPerformance || [];
+      const maxTriggerR = Math.max(...triggers.map(t => Math.max(0.1, Math.abs(t.totalR || 0))), 10);
+      breakdownItemsHtml = triggers.map(t => {
+        const widthPct = Math.max(2, Math.min(100, Math.round((Math.abs(t.totalR || 0) / maxTriggerR) * 100)));
+        const colorClass = (t.totalR || 0) >= 0 ? '' : 'negative-bar';
+        return `
+          <div class="sim-trigger-row">
+            <span class="sim-trigger-name" title="${t.name}">${t.name}</span>
+            <div class="sim-trigger-bar-bg">
+              <div class="sim-trigger-bar-fill ${colorClass}" style="width: ${widthPct}%;"></div>
+            </div>
+            <div class="sim-trigger-right">
+              <span class="sim-trigger-val">${t.totalRFormatted}</span>
+              <span class="sim-trigger-count">${t.tradesText}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
     return `
       <div class="sim-charts-row">
@@ -971,58 +1334,73 @@
           </div>
         </div>
 
-        <!-- Gráfico 2: Distribuição de Resultados -->
+        <!-- Gráfico 2: Distribuição de Resultados (Geral vs Histograma R) -->
         <div class="sim-chart-card">
           <div class="sim-chart-head">
             <h3 class="sim-chart-title">
               <span>📊</span> Distribuição de Resultados
             </h3>
-          </div>
-          <div class="sim-dist-bars-wrap">
-            <!-- Vencedores -->
-            <div class="sim-dist-col">
-              <span class="sim-dist-count">${dist.winners.count}</span>
-              <div class="sim-dist-bar bar-green" style="height: ${hWinners}%;"></div>
-              <span class="sim-dist-label">${dist.winners.label.replace(' (', '<br>(')}</span>
-            </div>
-            <!-- Perdedores -->
-            <div class="sim-dist-col">
-              <span class="sim-dist-count">${dist.losers.count}</span>
-              <div class="sim-dist-bar bar-red" style="height: ${hLosers}%;"></div>
-              <span class="sim-dist-label">${dist.losers.label.replace(' (', '<br>(')}</span>
-            </div>
-            <!-- Não acionados -->
-            <div class="sim-dist-col">
-              <span class="sim-dist-count">${dist.notTriggered.count}</span>
-              <div class="sim-dist-bar bar-gray" style="height: ${hNotTrig}%;"></div>
-              <span class="sim-dist-label">${dist.notTriggered.label.replace(' (', '<br>(')}</span>
+            <div class="sim-chart-tab-group">
+              <button class="sim-chart-tab-btn ${state.distView === 'overview' ? 'active' : ''}" type="button" data-dist-tab="overview">Geral</button>
+              <button class="sim-chart-tab-btn ${state.distView === 'r_buckets' ? 'active' : ''}" type="button" data-dist-tab="r_buckets">Histograma R</button>
             </div>
           </div>
+
+          ${state.distView === 'r_buckets' ? `
+            <div class="sim-r-hist-wrap">
+              ${(stats.rDistribution || []).map(b => {
+                const isNeg = b.bucket.includes('-') && !b.bucket.startsWith('0');
+                const barColor = isNeg ? 'bar-red' : 'bar-green';
+                const maxCount = Math.max(1, ...((stats.rDistribution || []).map(x => x.count || 0)));
+                const hPct = Math.max(8, Math.min(100, Math.round(((b.count || 0) / maxCount) * 82)));
+                return `
+                  <div class="sim-r-hist-col">
+                    <span class="sim-r-hist-count">${b.count}</span>
+                    <div class="sim-r-hist-bar ${barColor}" style="height: ${hPct}%;"></div>
+                    <span class="sim-r-hist-label">${b.bucket}</span>
+                    <span class="sim-r-hist-pct">${b.pctFormatted}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          ` : `
+            <div class="sim-dist-bars-wrap">
+              <!-- Vencedores -->
+              <div class="sim-dist-col">
+                <span class="sim-dist-count">${dist.winners.count}</span>
+                <div class="sim-dist-bar bar-green" style="height: ${hWinners}%;"></div>
+                <span class="sim-dist-label">${dist.winners.label.replace(' (', '<br>(')}</span>
+              </div>
+              <!-- Perdedores -->
+              <div class="sim-dist-col">
+                <span class="sim-dist-count">${dist.losers.count}</span>
+                <div class="sim-dist-bar bar-red" style="height: ${hLosers}%;"></div>
+                <span class="sim-dist-label">${dist.losers.label.replace(' (', '<br>(')}</span>
+              </div>
+              <!-- Não acionados -->
+              <div class="sim-dist-col">
+                <span class="sim-dist-count">${dist.notTriggered.count}</span>
+                <div class="sim-dist-bar bar-gray" style="height: ${hNotTrig}%;"></div>
+                <span class="sim-dist-label">${dist.notTriggered.label.replace(' (', '<br>(')}</span>
+              </div>
+            </div>
+          `}
         </div>
 
-        <!-- Gráfico 3: Desempenho por Gatilho -->
+        <!-- Gráfico 3: Desempenho por Gatilho, Nota ou Período -->
         <div class="sim-chart-card">
           <div class="sim-chart-head">
             <h3 class="sim-chart-title">
-              <span>🎯</span> Desempenho por Gatilho
+              <span>🎯</span> ${breakdownTitle}
             </h3>
+            <div class="sim-chart-tab-group">
+              <button class="sim-chart-tab-btn ${breakdownView === 'triggers' ? 'active' : ''}" type="button" data-breakdown-tab="triggers">Gatilhos</button>
+              <button class="sim-chart-tab-btn ${breakdownView === 'grades' ? 'active' : ''}" type="button" data-breakdown-tab="grades">Notas</button>
+              <button class="sim-chart-tab-btn ${breakdownView === 'period' ? 'active' : ''}" type="button" data-breakdown-tab="period">Período</button>
+            </div>
           </div>
           <div class="sim-trigger-list">
-            ${triggers.map(t => {
-              const widthPct = Math.max(2, Math.min(100, Math.round(((t.totalR || 0) / maxTriggerR) * 100)));
-              return `
-                <div class="sim-trigger-row">
-                  <span class="sim-trigger-name" title="${t.name}">${t.name}</span>
-                  <div class="sim-trigger-bar-bg">
-                    <div class="sim-trigger-bar-fill" style="width: ${widthPct}%;"></div>
-                  </div>
-                  <div class="sim-trigger-right">
-                    <span class="sim-trigger-val">${t.totalRFormatted}</span>
-                    <span class="sim-trigger-count">${t.tradesText}</span>
-                  </div>
-                </div>
-              `;
-            }).join('')}
+            ${breakdownItemsHtml || '<div class="sim-no-data-sub">Nenhum dado com os filtros atuais.</div>'}
           </div>
         </div>
       </div>
@@ -1163,6 +1541,9 @@
    */
   function renderTableSection(simulations, stats) {
     const activeTab = state.filters.tab;
+    const tableStats = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.calculateSimulatorStats === 'function'
+      ? root.TradeSimulatorModel.calculateSimulatorStats(simulations)
+      : stats;
 
     return `
       <div class="sim-table-card">
@@ -1229,12 +1610,12 @@
                 <td colspan="7">
                   <div class="sim-tfoot-summary-title">
                     <span>Média / Total Geral</span>
-                    <small>(${simulations.length} trade${simulations.length === 1 ? '' : 's'})</small>
+                    <small id="simTableFooterCount">(${simulations.length} trade${simulations.length === 1 ? '' : 's'})</small>
                   </div>
                 </td>
-                <td class="td-num td-duration"><strong>${stats.avgDurationDaysFormatted || '—'}</strong></td>
+                <td class="td-num td-duration" id="simTableFooterDuration"><strong>${tableStats.avgDurationDaysFormatted || '—'}</strong></td>
                 <td class="td-num">—</td>
-                <td class="td-num ${stats.totalR > 0 ? 'metric-gain' : (stats.totalR < 0 ? 'metric-loss' : 'metric-neutral')}"><strong>${stats.totalRFormatted}</strong></td>
+                <td class="td-num ${tableStats.totalR > 0 ? 'metric-gain' : (tableStats.totalR < 0 ? 'metric-loss' : 'metric-neutral')}" id="simTableFooterTotalR"><strong>${tableStats.totalRFormatted}</strong></td>
                 <td class="td-num">—</td>
                 <td class="td-num">—</td>
                 <td></td>
@@ -1422,10 +1803,10 @@
   }
 
   function getGradeBadgeClass(grade) {
-    const g = String(grade || '').toUpperCase();
-    if (g === 'A+') return 'grade-a-plus';
+    const g = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.normalizeSimulatorGrade === 'function'
+      ? root.TradeSimulatorModel.normalizeSimulatorGrade(grade)
+      : String(grade || '').toUpperCase();
     if (g === 'A') return 'grade-a';
-    if (g === 'B+') return 'grade-b-plus';
     if (g === 'B') return 'grade-b';
     if (g === 'C') return 'grade-c';
     return 'grade-d';
@@ -1537,14 +1918,52 @@
   }
 
   /**
-   * Modal / Painel Centralizado da Massa de Teste
-   * Agrupa: 1. Gerar Massa de Teste (Cenários 2R, 2.5R e Pirâmide)
-   *         2. Ações da Massa Atual (Reavaliar candles e Excluir com confirmação)
+   * Modal / Painel Centralizado da Massa de Teste em Escala
+   * Configura dimensão completa: Período, Universo, Gatilhos, Grades, Volume e Cenário de Gestão.
    */
   function renderMassModal() {
     if (!state.massModalOpen) return '';
 
     const sel = state.tempScenarioSelection || state.activeScenario || '2R';
+    const cfg = state.massConfig || {};
+    const period = cfg.period ?? 120;
+    const universe = cfg.universe || 'IBOV';
+    const triggers = cfg.triggers || 'ALL';
+    const grades = cfg.grades || 'ALL';
+    const target = cfg.targetVolume ?? 100;
+
+    // Rótulo amigável do período para o resumo
+    let periodDesc = 'Últimos 120 dias (4 meses)';
+    if (period === 30) periodDesc = 'Últimos 30 dias';
+    else if (period === 90) periodDesc = 'Últimos 90 dias';
+    else if (period === 120) periodDesc = 'Últimos 120 dias (4 meses)';
+    else if (period === 180) periodDesc = 'Últimos 6 meses';
+    else if (period === 365) periodDesc = 'Últimos 12 meses';
+    else if (period === 730) periodDesc = 'Últimos 24 meses';
+    else if (period === 1095) periodDesc = 'Últimos 36 meses';
+    else if (period === 'CUSTOM') {
+      periodDesc = cfg.startDate && cfg.endDate
+        ? `Personalizado (${formatDateBR(cfg.startDate)} a ${formatDateBR(cfg.endDate)})`
+        : 'Período Personalizado';
+    } else if (period === 'ALL') {
+      periodDesc = 'Todo o histórico disponível';
+    }
+
+    // Rótulo amigável do universo
+    const universeLabels = {
+      'IBOV': 'IBOV — Índice Bovespa (~86 ativos líderes)',
+      'LIQUID_B3': 'B3 Líquidas (Maiores volumes e liquidez)',
+      'ALL_B3': 'B3 Geral (Todos os ativos com cobertura)',
+      'NASDAQ': 'NASDAQ (Ações dos EUA com cotação diária)'
+    };
+    const universeDesc = universeLabels[universe] || universe;
+
+    // Rótulo dos gatilhos e notas (Fonte de verdade: Novo Trade / Rubric: A, B, C, D)
+    const triggerDesc = triggers === 'ALL' ? 'Todos os gatilhos implementados' : triggers;
+    const gradeDesc = grades === 'ALL' ? 'Todas as notas (A, B, C e D)' : `Nota ${grades}`;
+    const targetDesc = target === 'MAX' ? 'Máximo disponível no histórico' : `${target} trades executados`;
+
+    const scenarioMeta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[sel]) || { name: sel, description: '' };
 
     return `
       <div class="sim-scenario-modal-overlay open" id="simMassModalOverlay">
@@ -1552,127 +1971,286 @@
           <!-- Cabeçalho do Painel -->
           <div class="sim-scenario-modal-header">
             <div>
-              <div class="sim-mass-header-badge">PAINEL DE CONTROLE</div>
-              <h2>⚡ Massa de Teste</h2>
-              <p>Gere cenários históricos para o seu setup ou gerencie os dados atualmente em análise.</p>
+              <div class="sim-mass-header-badge">LABORATÓRIO DE SIMULAÇÃO EM ESCALA</div>
+              <h2>⚡ Gerador de Massa de Testes</h2>
+              <p>Configure a dimensão do teste histórico para validar seu Edge estatístico com dados reais de mercado.</p>
             </div>
             <button class="sim-modal-close-btn" type="button" id="simMassModalClose" title="Fechar">×</button>
           </div>
 
-          <!-- BLOCO 1: GERAR MASSA DE TESTE -->
+          <!-- BLOCO 1: CONFIGURAÇÃO DE DIMENSÃO DA SIMULAÇÃO -->
           <div class="sim-mass-modal-section">
             <div class="sim-mass-section-eyebrow">
-              <span>GERAR MASSA DE TESTE</span>
+              <span>1. DIMENSÃO E PARÂMETROS DA AMOSTRA</span>
             </div>
 
-            <!-- Período -->
-            <div class="sim-scenario-period-section">
-              <label class="sim-scen-period-label">Período</label>
-              <div class="sim-scen-period-pill">
-                <span>📅</span>
-                <span>Últimos 120 dias (4 meses)</span>
-                <span class="sim-scen-sample-tag">Amostra de 42 trades</span>
+            <!-- 1.1 Período Histórico -->
+            <div class="sim-mass-param-group">
+              <label class="sim-mass-param-label">
+                <span>Período Histórico</span>
+                <span class="sim-mass-param-hint">Respeita calendário oficial de negociação (exclui feriados/fins de semana)</span>
+              </label>
+              <div class="sim-mass-pills-grid">
+                <button type="button" class="sim-mass-pill ${period === 30 ? 'active' : ''}" data-mass-period="30">30 dias</button>
+                <button type="button" class="sim-mass-pill ${period === 90 ? 'active' : ''}" data-mass-period="90">90 dias</button>
+                <button type="button" class="sim-mass-pill ${period === 120 ? 'active' : ''}" data-mass-period="120">120 dias (4m)</button>
+                <button type="button" class="sim-mass-pill ${period === 180 ? 'active' : ''}" data-mass-period="180">6 meses</button>
+                <button type="button" class="sim-mass-pill ${period === 365 ? 'active' : ''}" data-mass-period="365">12 meses</button>
+                <button type="button" class="sim-mass-pill ${period === 730 ? 'active' : ''}" data-mass-period="730">24 meses</button>
+                <button type="button" class="sim-mass-pill ${period === 1095 ? 'active' : ''}" data-mass-period="1095">36 meses</button>
+                <button type="button" class="sim-mass-pill ${period === 'CUSTOM' ? 'active' : ''}" data-mass-period="CUSTOM">Personalizado...</button>
+                <button type="button" class="sim-mass-pill ${period === 'ALL' ? 'active' : ''}" data-mass-period="ALL">Todo o Histórico</button>
+              </div>
+
+              <!-- Inputs de Data Personalizada -->
+              ${period === 'CUSTOM' ? `
+                <div class="sim-mass-custom-dates">
+                  <div class="sim-mass-date-field">
+                    <label>Data Inicial:</label>
+                    <input type="date" id="simMassStartDate" value="${cfg.startDate || ''}" class="sim-date-input" />
+                  </div>
+                  <div class="sim-mass-date-field">
+                    <label>Data Final:</label>
+                    <input type="date" id="simMassEndDate" value="${cfg.endDate || ''}" class="sim-date-input" />
+                  </div>
+                </div>
+              ` : ''}
+
+              <div class="sim-mass-coverage-note">
+                ℹ️ <strong>Cobertura real:</strong> B3 (COTAHIST) Jan/2025 a Out/2026 (~22 meses, 446 pregões). Nasdaq: Out/2025 a Out/2026 (250 pregões). Períodos acima da cobertura real utilizarão o máximo disponível.
               </div>
             </div>
 
-            <!-- Cenário de Gestão -->
-            <div class="sim-scenario-options-group">
-              <label class="sim-scen-period-label">Cenário de Gestão</label>
-              <div class="sim-scenario-options-list">
-                <!-- Opção 1: Gestão 2R — Base -->
-                <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
-                  <div class="sim-scen-opt-left">
-                    <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
-                      <span class="sim-scen-radio-dot"></span>
-                    </div>
-                    <div class="sim-scen-opt-texts">
-                      <div class="sim-scen-opt-title">Gestão 2R — Base</div>
-                      <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2R. Sem piramidagem.</div>
-                    </div>
-                  </div>
-                  <div class="sim-scen-opt-diagram">
-                    ${getScenarioMiniDiagramSvg('2R')}
-                  </div>
-                </div>
+            <!-- 1.2 Universo de Ativos -->
+            <div class="sim-mass-param-group">
+              <label class="sim-mass-param-label">
+                <span>Universo de Ativos</span>
+                <span class="sim-mass-param-hint">Mercado e cesta de papéis para varredura</span>
+              </label>
+              <div class="sim-mass-pills-grid">
+                <button type="button" class="sim-mass-pill ${universe === 'IBOV' ? 'active' : ''}" data-mass-universe="IBOV">
+                  <strong>IBOV</strong> <small>(Índice Bovespa)</small>
+                </button>
+                <button type="button" class="sim-mass-pill ${universe === 'LIQUID_B3' ? 'active' : ''}" data-mass-universe="LIQUID_B3">
+                  <strong>B3 Líquidas</strong> <small>(Alta Liquidez)</small>
+                </button>
+                <button type="button" class="sim-mass-pill ${universe === 'ALL_B3' ? 'active' : ''}" data-mass-universe="ALL_B3">
+                  <strong>B3 Geral</strong> <small>(Base Completa)</small>
+                </button>
+                <button type="button" class="sim-mass-pill ${universe === 'NASDAQ' ? 'active' : ''}" data-mass-universe="NASDAQ">
+                  <strong>NASDAQ</strong> <small>(Mercado EUA)</small>
+                </button>
+              </div>
+            </div>
 
-                <!-- Opção 2: Gestão 2,5R — Alvo Estendido -->
-                <div class="sim-scenario-option ${sel === '2.5R' ? 'selected' : ''}" data-scenario-select="2.5R">
-                  <div class="sim-scen-opt-left">
-                    <div class="sim-scen-radio ${sel === '2.5R' ? 'checked' : ''}">
-                      <span class="sim-scen-radio-dot"></span>
-                    </div>
-                    <div class="sim-scen-opt-texts">
-                      <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
-                      <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2,5R. Sem piramidagem.</div>
-                    </div>
-                  </div>
-                  <div class="sim-scen-opt-diagram">
-                    ${getScenarioMiniDiagramSvg('2.5R')}
-                  </div>
+            <!-- 1.3 Gatilhos e Notas do Rubric em Grid Duplo -->
+            <div class="sim-mass-dual-grid">
+              <!-- Gatilhos -->
+              <div class="sim-mass-param-group">
+                <label class="sim-mass-param-label">
+                  <span>Gatilho Operacional</span>
+                </label>
+                <div class="sim-mass-chips-wrap">
+                  <button type="button" class="sim-mass-chip ${triggers === 'ALL' ? 'active' : ''}" data-mass-trigger="ALL">Todos os gatilhos</button>
+                  <button type="button" class="sim-mass-chip ${triggers === 'Inside Bar' ? 'active' : ''}" data-mass-trigger="Inside Bar">Inside Bar</button>
+                  <button type="button" class="sim-mass-chip ${triggers === 'Double Inside Bar' ? 'active' : ''}" data-mass-trigger="Double Inside Bar">Double Inside Bar</button>
+                  <button type="button" class="sim-mass-chip ${triggers === '1-2-3 de Compra' ? 'active' : ''}" data-mass-trigger="1-2-3 de Compra">1-2-3 de Compra</button>
+                  <button type="button" class="sim-mass-chip ${triggers === 'PFR de Compra' ? 'active' : ''}" data-mass-trigger="PFR de Compra">PFR de Compra</button>
+                  <button type="button" class="sim-mass-chip ${triggers === 'Dave Landry' ? 'active' : ''}" data-mass-trigger="Dave Landry">Dave Landry</button>
+                  <button type="button" class="sim-mass-chip ${triggers === 'Red Bar Ignored' ? 'active' : ''}" data-mass-trigger="Red Bar Ignored">Red Bar Ignored</button>
                 </div>
+              </div>
 
-                <!-- Opção 3: Gestão Pirâmide — 1R → 2R -->
-                <div class="sim-scenario-option ${sel === 'PYRAMID_1R_2R' ? 'selected' : ''}" data-scenario-select="PYRAMID_1R_2R">
-                  <div class="sim-scen-opt-left">
-                    <div class="sim-scen-radio ${sel === 'PYRAMID_1R_2R' ? 'checked' : ''}">
-                      <span class="sim-scen-radio-dot"></span>
-                    </div>
-                    <div class="sim-scen-opt-texts">
-                      <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
-                      <div class="sim-scen-opt-desc">Risco inicial de 1R. Ao atingir +1R adiciona posição +1R e encerra tudo em +2R.</div>
-                    </div>
-                  </div>
-                  <div class="sim-scen-opt-diagram">
-                    ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
-                  </div>
-                </div>
-
-                <!-- Opção 4: Gestão Parcial 50% (2R) + Média 9 -->
-                <div class="sim-scenario-option ${sel === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_50_2R_EMA9">
-                  <div class="sim-scen-opt-left">
-                    <div class="sim-scen-radio ${sel === 'PARTIAL_50_2R_EMA9' ? 'checked' : ''}">
-                      <span class="sim-scen-radio-dot"></span>
-                    </div>
-                    <div class="sim-scen-opt-texts">
-                      <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
-                      <div class="sim-scen-opt-desc">Embolsa 50% em +2R e move o stop para breakeven. Conduz os 50% restantes até perder a média de 9 períodos.</div>
-                    </div>
-                  </div>
-                  <div class="sim-scen-opt-diagram">
-                    ${getScenarioMiniDiagramSvg('PARTIAL_50_2R_EMA9')}
-                  </div>
-                </div>
-
-                <!-- Opção 5: Gestão Parcial 80% (2R) + Média 9 -->
-                <div class="sim-scenario-option ${sel === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_80_2R_EMA9">
-                  <div class="sim-scen-opt-left">
-                    <div class="sim-scen-radio ${sel === 'PARTIAL_80_2R_EMA9' ? 'checked' : ''}">
-                      <span class="sim-scen-radio-dot"></span>
-                    </div>
-                    <div class="sim-scen-opt-texts">
-                      <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
-                      <div class="sim-scen-opt-desc">Embolsa 80% em +2R e move o stop para breakeven. Conduz os 20% restantes até perder a média de 9 períodos.</div>
-                    </div>
-                  </div>
-                  <div class="sim-scen-opt-diagram">
-                    ${getScenarioMiniDiagramSvg('PARTIAL_80_2R_EMA9')}
-                  </div>
+              <!-- Notas do Rubric (Fonte de Verdade: Novo Trade: A, B, C e D) -->
+              <div class="sim-mass-param-group">
+                <label class="sim-mass-param-label">
+                  <span>Notas do Rubric</span>
+                </label>
+                <div class="sim-mass-chips-wrap">
+                  <button type="button" class="sim-mass-chip ${grades === 'ALL' ? 'active' : ''}" data-mass-grade="ALL">Todas as Notas (A, B, C, D)</button>
+                  <button type="button" class="sim-mass-chip ${grades === 'A' ? 'active' : ''}" data-mass-grade="A">Nota A (High Quality)</button>
+                  <button type="button" class="sim-mass-chip ${grades === 'B' ? 'active' : ''}" data-mass-grade="B">Nota B (Good Edge)</button>
+                  <button type="button" class="sim-mass-chip ${grades === 'C' ? 'active' : ''}" data-mass-grade="C">Nota C (Small Edge)</button>
+                  <button type="button" class="sim-mass-chip ${grades === 'D' ? 'active' : ''}" data-mass-grade="D">Nota D (No Edge)</button>
                 </div>
               </div>
             </div>
 
-            <!-- Botão de Ação -->
+            <!-- 1.4 Volume da Amostra (Meta de Trades Executados) -->
+            <div class="sim-mass-param-group">
+              <label class="sim-mass-param-label">
+                <span>Volume da Amostra (Meta de Trades Executados)</span>
+                <span class="sim-mass-param-hint">Refere-se a entradas efetivamente ativadas pelas regras operacionais</span>
+              </label>
+              <div class="sim-mass-pills-grid">
+                <button type="button" class="sim-mass-pill ${target === 100 ? 'active' : ''}" data-mass-target="100">
+                  <strong>100 trades</strong> <small>(Validação de Regras)</small>
+                </button>
+                <button type="button" class="sim-mass-pill ${target === 250 ? 'active' : ''}" data-mass-target="250">
+                  <strong>250 trades</strong> <small>(Amostra Intermediária)</small>
+                </button>
+                <button type="button" class="sim-mass-pill ${target === 500 ? 'active' : ''}" data-mass-target="500">
+                  <strong>500 trades</strong> <small>(Validação Estatística)</small>
+                </button>
+                <button type="button" class="sim-mass-pill ${target === 1000 ? 'active' : ''}" data-mass-target="1000">
+                  <strong>1.000 trades</strong> <small>(Grande Amostra)</small>
+                </button>
+                <button type="button" class="sim-mass-pill ${target === 'MAX' ? 'active' : ''}" data-mass-target="MAX">
+                  <strong>Máximo</strong> <small>(Varredura Total)</small>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- BLOCO 2: CENÁRIO DE GESTÃO DE RISCO -->
+          <div class="sim-mass-modal-section">
+            <div class="sim-mass-section-eyebrow">
+              <span>2. CENÁRIO DE GESTÃO DE RISCO</span>
+            </div>
+
+            <div class="sim-scenario-options-list">
+              <!-- Opção 1: Gestão 2R — Base -->
+              <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
+                <div class="sim-scen-opt-left">
+                  <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
+                    <span class="sim-scen-radio-dot"></span>
+                  </div>
+                  <div class="sim-scen-opt-texts">
+                    <div class="sim-scen-opt-title">Gestão 2R — Base</div>
+                    <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2R. Sem piramidagem.</div>
+                  </div>
+                </div>
+                <div class="sim-scen-opt-diagram">
+                  ${getScenarioMiniDiagramSvg('2R')}
+                </div>
+              </div>
+
+              <!-- Opção 2: Gestão 2,5R — Alvo Estendido -->
+              <div class="sim-scenario-option ${sel === '2.5R' ? 'selected' : ''}" data-scenario-select="2.5R">
+                <div class="sim-scen-opt-left">
+                  <div class="sim-scen-radio ${sel === '2.5R' ? 'checked' : ''}">
+                    <span class="sim-scen-radio-dot"></span>
+                  </div>
+                  <div class="sim-scen-opt-texts">
+                    <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
+                    <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2,5R. Sem piramidagem.</div>
+                  </div>
+                </div>
+                <div class="sim-scen-opt-diagram">
+                  ${getScenarioMiniDiagramSvg('2.5R')}
+                </div>
+              </div>
+
+              <!-- Opção 3: Gestão Pirâmide — 1R → 2R -->
+              <div class="sim-scenario-option ${sel === 'PYRAMID_1R_2R' ? 'selected' : ''}" data-scenario-select="PYRAMID_1R_2R">
+                <div class="sim-scen-opt-left">
+                  <div class="sim-scen-radio ${sel === 'PYRAMID_1R_2R' ? 'checked' : ''}">
+                    <span class="sim-scen-radio-dot"></span>
+                  </div>
+                  <div class="sim-scen-opt-texts">
+                    <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
+                    <div class="sim-scen-opt-desc">Risco inicial 1R. Em +1R adiciona +1R e encerra tudo em +2R.</div>
+                  </div>
+                </div>
+                <div class="sim-scen-opt-diagram">
+                  ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
+                </div>
+              </div>
+
+              <!-- Opção 4: Gestão Parcial 50% (2R) + Média 9 -->
+              <div class="sim-scenario-option ${sel === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_50_2R_EMA9">
+                <div class="sim-scen-opt-left">
+                  <div class="sim-scen-radio ${sel === 'PARTIAL_50_2R_EMA9' ? 'checked' : ''}">
+                    <span class="sim-scen-radio-dot"></span>
+                  </div>
+                  <div class="sim-scen-opt-texts">
+                    <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
+                    <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 9.</div>
+                  </div>
+                </div>
+                <div class="sim-scen-opt-diagram">
+                  ${getScenarioMiniDiagramSvg('PARTIAL_50_2R_EMA9')}
+                </div>
+              </div>
+
+              <!-- Opção 5: Gestão Parcial 80% (2R) + Média 9 -->
+              <div class="sim-scenario-option ${sel === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_80_2R_EMA9">
+                <div class="sim-scen-opt-left">
+                  <div class="sim-scen-radio ${sel === 'PARTIAL_80_2R_EMA9' ? 'checked' : ''}">
+                    <span class="sim-scen-radio-dot"></span>
+                  </div>
+                  <div class="sim-scen-opt-texts">
+                    <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
+                    <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 9.</div>
+                  </div>
+                </div>
+                <div class="sim-scen-opt-diagram">
+                  ${getScenarioMiniDiagramSvg('PARTIAL_80_2R_EMA9')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BLOCO 3: RESUMO PRÉ-EXECUÇÃO E GARANTIA METODOLÓGICA -->
+          <div class="sim-mass-modal-section">
+            <div class="sim-mass-section-eyebrow">
+              <span>3. RESUMO ANTES DE INICIAR</span>
+            </div>
+
+            <div class="sim-mass-preflight-card">
+              <div class="sim-mass-preflight-grid">
+                <div class="sim-mass-preflight-item">
+                  <span class="sim-mass-pf-label">Período:</span>
+                  <span class="sim-mass-pf-val">${periodDesc}</span>
+                </div>
+                <div class="sim-mass-preflight-item">
+                  <span class="sim-mass-pf-label">Universo:</span>
+                  <span class="sim-mass-pf-val">${universeDesc}</span>
+                </div>
+                <div class="sim-mass-preflight-item">
+                  <span class="sim-mass-pf-label">Gatilhos:</span>
+                  <span class="sim-mass-pf-val">${triggerDesc}</span>
+                </div>
+                <div class="sim-mass-preflight-item">
+                  <span class="sim-mass-pf-label">Notas do Rubric:</span>
+                  <span class="sim-mass-pf-val">${gradeDesc}</span>
+                </div>
+                <div class="sim-mass-preflight-item">
+                  <span class="sim-mass-pf-label">Meta de Executados:</span>
+                  <span class="sim-mass-pf-val"><strong>${targetDesc}</strong></span>
+                </div>
+                <div class="sim-mass-preflight-item">
+                  <span class="sim-mass-pf-label">Gestão de Risco:</span>
+                  <span class="sim-mass-pf-val">${scenarioMeta.name}</span>
+                </div>
+              </div>
+              <div class="sim-mass-preflight-integrity">
+                🛡️ <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a 1 posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
+              </div>
+            </div>
+
+            <!-- Botão de Ação / Indicador de Progresso -->
             <div class="sim-scenario-action-wrap">
-              <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
-                <span>🚀 Gerar Massa de Teste</span>
-              </button>
+              ${state.generatingMass ? `
+                <div class="sim-mass-progress-box">
+                  <div class="sim-mass-spinner"></div>
+                  <div class="sim-mass-progress-text">${state.massProgressText || 'Processando varredura histórica...'}</div>
+                </div>
+                <button class="sim-btn-confirm-scenario disabled" type="button" disabled>
+                  <span>⏳ Gerando Massa...</span>
+                </button>
+              ` : `
+                <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
+                  <span>🚀 Iniciar Simulação em Escala</span>
+                </button>
+              `}
             </div>
           </div>
 
           <!-- DIVISOR VISUAL -->
           <div class="sim-mass-modal-divider"></div>
 
-          <!-- BLOCO 2: AÇÕES DA MASSA ATUAL -->
+          <!-- BLOCO 4: AÇÕES DA MASSA ATUAL -->
           <div class="sim-mass-modal-section">
             <div class="sim-mass-section-eyebrow">
               <span>AÇÕES DA MASSA ATUAL</span>
@@ -1694,7 +2272,7 @@
                 <div class="sim-mass-action-icon danger">🗑</div>
                 <div class="sim-mass-action-info">
                   <div class="sim-mass-action-title danger">Excluir massa atual</div>
-                  <div class="sim-mass-action-desc">Excluir as simulações atualmente carregadas.</div>
+                  <div class="sim-mass-action-desc">Excluir todas as simulações atualmente carregadas.</div>
                 </div>
                 <button class="sim-mass-action-trigger-btn danger" type="button" id="simMassActionClearBtn">Excluir</button>
               </div>
@@ -2173,7 +2751,7 @@
             <div class="sim-hyp-guardrail-icon">⚠️</div>
             <div class="sim-hyp-guardrail-content">
               <b>Regra Inviolável de Bet Sizing & Risco Nominal:</b>
-              <p>${status.betSizingRule || 'Double Inside Bar é estritamente um qualificador de gatilho sob teste estatístico. O risco por trade permanece estritamente governado pelo Rubric (Nota do Trade) e pela Política de Risco nominal (A+ = 2%, A = 1,5%, B = 1%, C = 0,5%, D = 0%). O simulador NÃO altera o risco nominal automaticamente.'}</p>
+              <p>${status.betSizingRule || 'Double Inside Bar é estritamente um qualificador de gatilho sob teste estatístico. O risco por trade permanece estritamente governado pelo Rubric (Nota do Trade) e pela Política de Risco nominal (A, B, C e D). O simulador NÃO altera o risco nominal automaticamente.'}</p>
             </div>
           </div>
 
@@ -2421,6 +2999,159 @@
           <span class="sim-hyp-metric" style="color: ${expColor};">Exp: <b>${subset.expectancyFormatted}</b></span>
           <span class="sim-hyp-metric" style="color: #94a3b8;">TTT: <b>${subset.avgTtt1RFormatted}</b></span>
           <small>(${subset.executed} trades)</small>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Modal de Relatório de Auditoria e Consistência Automática por Execução
+   */
+  function renderAuditModal() {
+    if (!state.auditModalOpen) return '';
+
+    const audit = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function')
+      ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, {
+          scenario: state.activeScenario,
+          universe: state.massConfig?.universe || 'IBOV',
+          period: state.massConfig?.period || state.filters.days
+        })
+      : state.auditReport;
+
+    if (!audit) return '';
+    state.auditReport = audit;
+
+    const recon = audit.reconciliation || {};
+    const stats = audit.stats || {};
+    const breakdown = audit.errorBreakdown || {};
+    const invalidTrades = Array.isArray(audit.invalidTrades) ? audit.invalidTrades : [];
+
+    const checkRow = (label, ok, detail) => `
+      <div class="sim-audit-check-row ${ok ? 'pass' : 'fail'}">
+        <span class="sim-audit-check-ico">${ok ? '✓' : '✕'}</span>
+        <div class="sim-audit-check-main">
+          <b>${label}</b>
+          <span>${detail}</span>
+        </div>
+        <span class="sim-audit-check-tag ${ok ? 'pass' : 'fail'}">${ok ? 'CONFORME' : 'FALHA'}</span>
+      </div>
+    `;
+
+    return `
+      <div class="sim-compare-modal-overlay open" id="simAuditModalOverlay">
+        <div class="sim-compare-modal-box sim-audit-modal-box" id="simAuditModalBox">
+          <div class="sim-compare-modal-header">
+            <div class="sim-compare-header-left">
+              <div class="sim-compare-header-badge">AUDITORIA AUTOMÁTICA DE CONSISTÊNCIA E PRECISÃO</div>
+              <h2>🛡️ Relatório de Integridade do Simulador</h2>
+              <p>Verificação automática de notas (Rubric), calendário de pregão, matemática de R e reconciliação estatística.</p>
+            </div>
+            <div class="sim-compare-header-right">
+              <div class="sim-comparison-badge">
+                Engine ${audit.engineVersion || '4.2.0-audited'} • ID: ${audit.executionId || '—'}
+              </div>
+              <button class="sim-modal-close-btn" type="button" id="simAuditModalClose" title="Fechar relatório">×</button>
+            </div>
+          </div>
+
+          <div class="sim-audit-summary-banner ${audit.isConsistent ? 'pass' : 'fail'}">
+            <div class="sim-audit-summary-title">
+              <span>${audit.isConsistent ? '✓ AMOSTRA 100% CONSISTENTE E AUDITADA' : `⚠️ FORAM DETECTADAS ${audit.invalidTradesCount || 0} INCONSISTÊNCIA(S)`}</span>
+            </div>
+            <div class="sim-audit-summary-meta">
+              <span>Total avaliado: <b>${audit.totalEvaluated} simulações</b></span>
+              <span>Válidas: <b>${audit.validTradesCount}</b></span>
+              <span>Inconsistentes: <b>${audit.invalidTradesCount}</b></span>
+              <span>Duplicatas: <b>${audit.duplicateSignalsCount}</b></span>
+              <span>Executados: <b>${stats.executedEntriesCount || 0}</b> (${stats.inOperationCount || 0} abertos + ${stats.closedTradesCount || 0} encerrados)</span>
+            </div>
+          </div>
+
+          <div class="sim-audit-grid">
+            <div class="sim-audit-card">
+              <h4>1. Regras Auditadas por Trade</h4>
+              <div class="sim-audit-checks-list">
+                ${checkRow(
+                  'Fonte de Verdade das Notas (A, B, C e D)',
+                  (breakdown.INVALID_GRADE || 0) === 0,
+                  `Apenas notas oficiais do Novo Trade / Rubric permitidas. Notas inválidas: ${breakdown.INVALID_GRADE || 0}.`
+                )}
+                ${checkRow(
+                  'Calendário Oficial de Pregão & Cronologia',
+                  (breakdown.SIGNAL_NON_TRADING_DAY || 0) === 0 &&
+                  (breakdown.ENTRY_NON_TRADING_DAY || 0) === 0 &&
+                  (breakdown.EXIT_NON_TRADING_DAY || 0) === 0 &&
+                  (breakdown.CHRONOLOGY_ENTRY_BEFORE_SIGNAL || 0) === 0 &&
+                  (breakdown.CHRONOLOGY_EXIT_BEFORE_ENTRY || 0) === 0,
+                  `Bloqueio de entradas/saídas em sábados, domingos e feriados B3. Violações de calendário: ${(breakdown.SIGNAL_NON_TRADING_DAY || 0) + (breakdown.ENTRY_NON_TRADING_DAY || 0) + (breakdown.EXIT_NON_TRADING_DAY || 0)}.`
+                )}
+                ${checkRow(
+                  'Coerência de Resultado em R, Gain/Loss e Preços',
+                  (breakdown.GAIN_ZERO_OR_NEGATIVE_R || 0) === 0 &&
+                  (breakdown.LOSS_POSITIVE_R || 0) === 0 &&
+                  (breakdown.RESULT_R_PRICE_MISMATCH || 0) === 0 &&
+                  (breakdown.CLOSED_CURRENT_PRICE_MISMATCH || 0) === 0,
+                  `Nenhum trade encerrado como Gain com ≤ 0,00R. Divergências preço vs R: ${(breakdown.GAIN_ZERO_OR_NEGATIVE_R || 0) + (breakdown.RESULT_R_PRICE_MISMATCH || 0)}.`
+                )}
+                ${checkRow(
+                  'Integridade de MFE, MAE e Sem Duplicidade',
+                  (breakdown.MFE_LESS_THAN_RESULT || 0) === 0 &&
+                  (breakdown.MAE_GREATER_THAN_RESULT || 0) === 0 &&
+                  (audit.duplicateSignalsCount || 0) === 0,
+                  `MFE ≥ Resultado ≥ MAE em todos os trades; sinais duplicados: ${audit.duplicateSignalsCount || 0}.`
+                )}
+              </div>
+            </div>
+
+            <div class="sim-audit-card">
+              <h4>2. Reconciliação Matemática das Estatísticas</h4>
+              <div class="sim-audit-checks-list">
+                ${checkRow(
+                  'Partição Total da Amostra',
+                  Boolean(recon.statusPartitionMatchesTotal),
+                  `Aguardando (${stats.waitingCount || 0}) + Não Acionados (${stats.notTriggeredCount || 0}) + Em Operação (${stats.inOperationCount || 0}) + Encerrados (${stats.closedTradesCount || 0}) = ${stats.totalCreated || 0} criados.`
+                )}
+                ${checkRow(
+                  'Entradas Executadas Reais',
+                  Boolean(recon.executedMatchesOpenPlusClosed),
+                  `Em Operação (${stats.inOperationCount || 0}) + Encerrados (${stats.closedTradesCount || 0}) = ${stats.executedEntriesCount || 0} executados (exclui não acionados).`
+                )}
+                ${checkRow(
+                  'Reconciliação de Vencedores e Perdedores',
+                  Boolean(recon.closedMatchesWinnersPlusLosers) && Boolean(recon.winLossPctMatches100),
+                  `Vencedores (${stats.winningTradesCount || 0}) + Perdedores (${stats.losingTradesCount || 0}) = ${stats.closedTradesCount || 0} encerrados (WR ${stats.winRate || 0}% + LR ${stats.lossRate || 0}%).`
+                )}
+                ${checkRow(
+                  'Soma Global de R por Gatilho, Nota e Período',
+                  Boolean(recon.triggerSumMatchesTotalR) && Boolean(recon.gradeSumMatchesTotalR) && Boolean(recon.periodSumMatchesTotalR),
+                  `Total Global: ${stats.totalRFormatted || '+0,00R'} | Soma Gatilhos: ${formatR(recon.triggerSumR || 0)} | Soma Notas: ${formatR(recon.gradeSumR || 0)} | Soma Períodos: ${formatR(recon.periodSumR || 0)}.`
+                )}
+              </div>
+            </div>
+          </div>
+
+          ${invalidTrades.length > 0 ? `
+            <div class="sim-audit-card" style="margin-top: 14px;">
+              <h4>Trades com Inconsistências Detectadas (${invalidTrades.length})</h4>
+              <div class="sim-audit-invalid-list">
+                ${invalidTrades.map(item => `
+                  <div class="sim-audit-invalid-row">
+                    <b>${item.symbol} (${item.id})</b>
+                    <span>Sinal: ${formatDateBR(item.signalDate)} | Status: ${item.status}</span>
+                    <code>${item.errors.map(e => e.code + ': ' + e.message).join(' • ')}</code>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="sim-compare-modal-footer">
+            <span class="sim-compare-footer-info">Auditado em ${new Date(audit.timestamp).toLocaleString('pt-BR')} • ${audit.engineVersion}</span>
+            <div style="display: flex; gap: 10px;">
+              <button class="sim-export-btn" type="button" id="simAuditRevalidateBtn">↻ Sanitizar & Revalidar Amostra</button>
+              <button class="sim-btn-seed" type="button" id="simAuditModalCloseBtn" style="padding: 6px 16px;">Fechar Relatório</button>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -3204,8 +3935,57 @@
         e.stopPropagation();
         const fType = btn.dataset.filterType;
         const fVal = btn.dataset.filterVal;
-        state.filters[fType] = fVal === 'ALL' ? 'ALL' : (fType === 'days' ? Number(fVal) : fVal);
+        if (fType === 'days') {
+          if (fVal === 'CUSTOM') {
+            state.filters.days = 'CUSTOM';
+          } else if (fVal === 'ALL') {
+            state.filters.days = 'ALL';
+            state.filters.startDate = null;
+            state.filters.endDate = null;
+          } else {
+            state.filters.days = Number(fVal);
+            state.filters.startDate = null;
+            state.filters.endDate = null;
+          }
+        } else {
+          state.filters[fType] = fVal;
+        }
         state.activeDropdown = null;
+        render();
+      });
+    });
+
+    // Filtro de data personalizado inline
+    container.querySelector('#simCustomFilterApply')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const s = container.querySelector('#simCustomFilterStart')?.value;
+      const end = container.querySelector('#simCustomFilterEnd')?.value;
+      state.filters.startDate = s || null;
+      state.filters.endDate = end || null;
+      render();
+    });
+
+    // Fechar banner de resumo da massa
+    container.querySelector('#simDismissMassSummary')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.massResultSummary = null;
+      render();
+    });
+
+    // Abas de distribuição de resultados (Geral vs Histograma R)
+    container.querySelectorAll('[data-dist-tab]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.distView = btn.dataset.distTab;
+        render();
+      });
+    });
+
+    // Abas de detalhamento de desempenho (Gatilhos, Notas, Período)
+    container.querySelectorAll('[data-breakdown-tab]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.breakdownView = btn.dataset.breakdownTab;
         render();
       });
     });
@@ -3239,7 +4019,58 @@
       }
     });
 
-    // Seleção de opção no modal de Massa de Teste
+    // Controles de Parâmetros do Modal de Massa de Teste
+    container.querySelectorAll('[data-mass-period]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const p = btn.dataset.massPeriod;
+        state.massConfig.period = (p === 'CUSTOM' || p === 'ALL') ? p : Number(p);
+        render();
+      });
+    });
+
+    container.querySelector('#simMassStartDate')?.addEventListener('change', (e) => {
+      state.massConfig.startDate = e.target.value;
+    });
+
+    container.querySelector('#simMassEndDate')?.addEventListener('change', (e) => {
+      state.massConfig.endDate = e.target.value;
+    });
+
+    container.querySelectorAll('[data-mass-universe]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.massConfig.universe = btn.dataset.massUniverse;
+        render();
+      });
+    });
+
+    container.querySelectorAll('[data-mass-trigger]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.massConfig.triggers = btn.dataset.massTrigger;
+        render();
+      });
+    });
+
+    container.querySelectorAll('[data-mass-grade]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.massConfig.grades = btn.dataset.massGrade;
+        render();
+      });
+    });
+
+    container.querySelectorAll('[data-mass-target]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const t = btn.dataset.massTarget;
+        state.massConfig.targetVolume = t === 'MAX' ? 'MAX' : Number(t);
+        render();
+      });
+    });
+
+    // Seleção de opção de cenário de risco no modal
     container.querySelectorAll('[data-scenario-select]').forEach(opt => {
       opt.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -3251,11 +4082,17 @@
       });
     });
 
-    // Confirmar geração de massa de teste
+    // Confirmar geração de massa de teste em escala
     container.querySelector('#simModalConfirmScenario')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      state.massModalOpen = false;
-      generateScenarioMass(state.tempScenarioSelection || '2R');
+      const cfg = { ...state.massConfig };
+      if (cfg.period === 'CUSTOM') {
+        const sVal = container.querySelector('#simMassStartDate')?.value;
+        const eVal = container.querySelector('#simMassEndDate')?.value;
+        if (sVal) cfg.startDate = sVal;
+        if (eVal) cfg.endDate = eVal;
+      }
+      generateScenarioMass(state.tempScenarioSelection || '2R', cfg);
     });
 
     // Ações da massa atual no painel
@@ -3325,6 +4162,47 @@
       if (e.target.id === 'simHypothesisModalOverlay') {
         state.hypothesisModalOpen = false;
         render();
+      }
+    });
+
+    // 4. Modal do Relatório de Auditoria e Consistência
+    const openAuditModal = (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      state.auditModalOpen = true;
+      render();
+    };
+    container.querySelector('#simBtnAuditModal')?.addEventListener('click', openAuditModal);
+    container.querySelector('#simMoreBtnAudit')?.addEventListener('click', openAuditModal);
+    container.querySelector('#simBannerBtnAudit')?.addEventListener('click', openAuditModal);
+
+    container.querySelector('#simAuditModalClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.auditModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simAuditModalCloseBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.auditModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simAuditModalOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simAuditModalOverlay') {
+        state.auditModalOpen = false;
+        render();
+      }
+    });
+
+    container.querySelector('#simAuditRevalidateBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.simulations = sanitizeSimulationsBatch(state.simulations);
+      refreshAuditReport(state.simulations);
+      saveLocalCache();
+      render();
+      if (typeof root.showToast === 'function') {
+        root.showToast('✓ Amostra sanitizada e revalidada com sucesso.');
       }
     });
 
@@ -3579,6 +4457,19 @@
       ? filtered.map(sim => renderTableRow(sim)).join('')
       : renderEmptyRow();
 
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.calculateSimulatorStats === 'function') {
+      const tableStats = root.TradeSimulatorModel.calculateSimulatorStats(filtered);
+      const countEl = document.getElementById('simTableFooterCount');
+      const durEl = document.getElementById('simTableFooterDuration');
+      const totalREl = document.getElementById('simTableFooterTotalR');
+      if (countEl) countEl.textContent = `(${filtered.length} trade${filtered.length === 1 ? '' : 's'})`;
+      if (durEl) durEl.innerHTML = `<strong>${tableStats.avgDurationDaysFormatted || '—'}</strong>`;
+      if (totalREl) {
+        totalREl.className = `td-num ${tableStats.totalR > 0 ? 'metric-gain' : (tableStats.totalR < 0 ? 'metric-loss' : 'metric-neutral')}`;
+        totalREl.innerHTML = `<strong>${tableStats.totalRFormatted}</strong>`;
+      }
+    }
+
     // Re-bind click handlers da tabela
     tbody.querySelectorAll('.sim-action-btn[data-action="chart"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -3616,6 +4507,7 @@
     } catch (e) {}
 
     state.simulations = state.simulations.filter(s => s.id !== id);
+    refreshAuditReport(state.simulations);
     saveLocalCache();
     state.selectedSimId = null;
     render();
@@ -3667,3 +4559,4 @@
   }
 
 })(typeof window !== 'undefined' ? window : globalThis);
+
