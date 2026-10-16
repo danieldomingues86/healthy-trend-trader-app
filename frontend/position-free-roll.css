@@ -140,11 +140,13 @@
   font-size: 14px;
   line-height: 1;
   flex-shrink: 0;
+  pointer-events: none;
 }
 
 .position-management .pm-btn-text {
   font-weight: 850;
   color: #ffffff;
+  pointer-events: none;
 }
 
 .position-management .pm-btn-arrow {
@@ -153,6 +155,7 @@
   line-height: 1;
   color: #ffffff;
   transition: transform 0.18s ease;
+  pointer-events: none;
 }
 
 .position-management .pm-realizar-parcial-btn:hover .pm-btn-arrow {

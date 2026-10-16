@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const model = window.PositionManagementModel;
-  const locate = id => operationalState.positions.find(position => position.id === id);
+  const locate = id => (operationalState?.positions || []).find(position => String(position.id) === String(id));
   const money = value => moneyBR(value);
   const units = value => numBR(value);
   const multiple = value => value == null ? '—' : `${value >= 0 ? '+' : ''}${numBR(value, 2)}R`;
@@ -192,11 +192,13 @@
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-pm-partial]');
     if (!button) return;
+    event.preventDefault();
     const position = locate(button.dataset.pmPartial), dialog = document.getElementById('pm-dialog');
     if (!position || !dialog) return;
     const metric = operationMetrics(position), suggested = config().suggestedPercent, qty = Math.min(metric.remaining - 1, Math.max(1, Math.floor(metric.remaining * suggested / 100)));
     const usablePercent = Math.min(suggested, qty / metric.remaining * 100);
     const remainingPercentVal = Math.max(0, 100 - usablePercent).toFixed(1);
+    const now = new Date(), local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     dialog.innerHTML = `
       <div class="pm-dialog-header">
         <div class="pm-dialog-title-wrap">
@@ -221,7 +223,7 @@
           </label>
           <label class="pm-field">
             <span class="pm-field-label">Preço da realização (R$)</span>
-            <input name="price" type="number" min=".000001" step="any" value="${position.currentPrice}" required>
+            <input name="price" type="number" min=".000001" step="any" value="${position.currentPrice ?? position.entry ?? ''}" required>
           </label>
           <label class="pm-field">
             <span class="pm-field-label">Percentual remanescente <small class="pm-field-badge">Somente leitura</small></span>
@@ -238,12 +240,27 @@
           <button type="button" class="secondary" data-pm-cancel>CANCELAR</button>
         </div>
       </form>`;
-    dialog.showModal(); renderPreview(dialog, position);
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+    renderPreview(dialog, position);
   });
   document.addEventListener('click', event => {
-    if (event.target.closest('[data-pm-cancel]')) document.getElementById('pm-dialog')?.close();
+    if (event.target.closest('[data-pm-cancel]')) {
+      document.getElementById('pm-dialog')?.close();
+      return;
+    }
     const dialog = document.getElementById('pm-dialog');
-    if (dialog && event.target === dialog) dialog.close();
+    if (dialog && dialog.open && event.target === dialog) {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = (
+        rect.top <= event.clientY &&
+        event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.left + rect.width
+      );
+      if (!isInDialog) dialog.close();
+    }
   });
   document.addEventListener('click', event => { if (event.target.closest('[data-pm-manual="sell-into-strength"]')) window.openSellIntoStrengthManual?.(); });
   document.addEventListener('input', event => {
