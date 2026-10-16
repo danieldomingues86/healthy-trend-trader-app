@@ -31,6 +31,7 @@ const marketNews = require('./market-news');
 const marketCentral = require('./market-central');
 const eventPlaybook = require('./event-playbook');
 const eventPlaybookAttachments = require('./event-playbook-attachments');
+const profitCelebration = require('./profit-celebration');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -371,6 +372,61 @@ const server = http.createServer(async (request, response) => {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, await traderTraining.deleteRecord(user.id, trainingRecordMatch[1]));
+    }
+    // Profit Celebration & Minhas Conquistas
+    if (url.pathname === '/api/profit-celebration/conquests' && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await profitCelebration.listConquests(user.id));
+    }
+    if (url.pathname === '/api/profit-celebration/conquests' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, await profitCelebration.createConquest(user.id, await body(request)));
+    }
+    const conquestStatusMatch = url.pathname.match(/^\/api\/profit-celebration\/conquests\/([^/]+)\/status$/);
+    if (conquestStatusMatch && request.method === 'PUT') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const b = await body(request);
+      return send(response, 200, await profitCelebration.updateConquestStatus(user.id, conquestStatusMatch[1], b.status));
+    }
+    if (url.pathname === '/api/profit-celebration/rewards' && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, { rewards: await profitCelebration.listRewards(user.id) });
+    }
+    if (url.pathname === '/api/profit-celebration/rewards' && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, await profitCelebration.createReward(user.id, await body(request)));
+    }
+    const rewardItemMatch = url.pathname.match(/^\/api\/profit-celebration\/rewards\/([^/]+)$/);
+    if (rewardItemMatch && request.method === 'PUT') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await profitCelebration.updateReward(user.id, rewardItemMatch[1], await body(request)));
+    }
+    if (rewardItemMatch && request.method === 'DELETE') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await profitCelebration.deleteReward(user.id, rewardItemMatch[1]));
+    }
+    if (url.pathname === '/api/profit-celebration/special-reward' && request.method === 'GET') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await profitCelebration.getSpecialReward(user.id));
+    }
+    if (url.pathname === '/api/profit-celebration/special-reward' && request.method === 'PUT') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await profitCelebration.saveSpecialReward(user.id, await body(request)));
+    }
+    const pocketProfitMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/pocket-profit$/);
+    if (pocketProfitMatch && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await profitCelebration.pocketProfit(user.id, pocketProfitMatch[1], await body(request)));
     }
     if (url.pathname === '/api/trade-simulations' && request.method === 'GET') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
