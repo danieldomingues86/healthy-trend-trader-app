@@ -422,12 +422,6 @@ const server = http.createServer(async (request, response) => {
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, await profitCelebration.saveSpecialReward(user.id, await body(request)));
     }
-    const pocketProfitMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/pocket-profit$/);
-    if (pocketProfitMatch && request.method === 'POST') {
-      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
-      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
-      return send(response, 200, await profitCelebration.pocketProfit(user.id, pocketProfitMatch[1], await body(request)));
-    }
     if (url.pathname === '/api/trade-simulations' && request.method === 'GET') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });

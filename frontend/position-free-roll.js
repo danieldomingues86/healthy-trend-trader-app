@@ -224,9 +224,26 @@
     if (!window.healthyTrendApi?.isAuthenticated()) { showToast('Entre no workspace para salvar a parcial.'); return; }
     const submit = form.querySelector('[type=submit]'); submit.disabled = true;
     try {
-      await window.healthyTrendApi.request(`/api/trades/${p.id}/events`, { method: 'POST', body: JSON.stringify({ type: 'peeloff', source: 'sell_into_strength', qty: preview.quantity, price: preview.price,
+      const savedEvent = await window.healthyTrendApi.request(`/api/trades/${p.id}/events`, { method: 'POST', body: JSON.stringify({ type: 'peeloff', source: 'sell_into_strength', qty: preview.quantity, price: preview.price,
         occurredAt: new Date(form.elements.occurredAt.value).toISOString(), note: `Sell Into Strength · parcial de ${numBR(preview.percent, 1)}% registrada manualmente.` }) });
       form.closest('dialog').close(); await syncOperationalFromDatabase(); openPosition(p.id); showToast('Parcial registrada. O Runner permanece sob as regras normais de gestão.');
+      if (preview.realizedProfit > 0 && typeof window.ProfitCelebration?.openCelebrationModal === 'function') {
+        window.ProfitCelebration.openCelebrationModal({
+          tradeId: p.id,
+          eventId: savedEvent?.id || ('evt-' + Date.now()),
+          ticker: p.asset,
+          direction: p.direction || 'long',
+          entryPrice: p.entry,
+          exitPrice: preview.price,
+          initialStop: p.initialStop || p.currentStop,
+          quantity: preview.quantity,
+          riskAmount: Math.abs(p.entry - (p.initialStop || p.currentStop || p.entry * 0.98)) * preview.quantity,
+          realizedAmount: preview.realizedProfit,
+          rMultiple: preview.rAtExit,
+          targetReached: true,
+          planComplied: true
+        });
+      }
     } catch (error) { showToast(error.message || 'Não foi possível registrar a parcial.'); submit.disabled = false; }
   });
   renderEffectiveRiskPolicy();

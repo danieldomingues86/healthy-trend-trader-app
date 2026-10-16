@@ -1,7 +1,6 @@
 const crypto = require('node:crypto');
 const database = require('./database');
 const model = require('../../frontend/profit-celebration-model');
-const trades = require('./trades');
 
 function invalid(message, status = 400) {
   const error = new Error(message);
@@ -346,59 +345,6 @@ async function saveSpecialReward(userId, payload = {}, client = database) {
   };
 }
 
-/**
- * Ação "Embolsar Lucro":
- * Realiza saída parcial ou total do trade e prepara os dados de celebração.
- */
-async function pocketProfit(userId, tradeId, payload = {}) {
-  const type = payload.type === 'close' ? 'close' : 'peeloff';
-  const eventPayload = {
-    type,
-    qty: payload.quantity ?? payload.qty,
-    price: payload.price,
-    note: payload.note || (type === 'close' ? 'Encerramento de posição via Embolsar Lucro.' : 'Parcial realizada via Embolsar Lucro.')
-  };
-
-  // Registra o evento de saída na tabela de trades
-  const result = await trades.recordPositionEvent(userId, tradeId, type, eventPayload);
-
-  // Calcula dados para o modal de celebração
-  const tradeRes = await database.query('SELECT * FROM app.trades WHERE id = $1 AND user_id = $2', [tradeId, userId]);
-  const trade = tradeRes.rows[0];
-
-  const execPrice = Number(payload.price || trade.current_price || trade.entry_price);
-  const entryPrice = Number(trade.average_entry_price || trade.execution_price || trade.entry_price);
-  const qty = Number(payload.quantity ?? payload.qty ?? trade.total_quantity);
-  const initialStop = Number(trade.stop_price);
-  const unitRisk = Math.abs(entryPrice - initialStop);
-  const realizedAmount = model.round2((execPrice - entryPrice) * qty);
-  const rMultiple = unitRisk > 0 ? model.round2((execPrice - entryPrice) / unitRisk) : null;
-  const targetReached = rMultiple != null && rMultiple >= 2.0;
-
-  return {
-    success: true,
-    event: result,
-    celebrationData: {
-      tradeId,
-      eventId: result.id,
-      ticker: trade.ticker,
-      direction: trade.direction || 'long',
-      entryPrice,
-      exitPrice: execPrice,
-      initialStop,
-      quantity: qty,
-      riskAmount: model.round2(unitRisk * qty),
-      realizedAmount,
-      realizedAmountFormatted: model.formatMoneyBR(realizedAmount),
-      rMultiple,
-      rMultipleFormatted: model.formatMultipleR(rMultiple),
-      targetReached,
-      status: result.status,
-      timestamp: new Date().toISOString()
-    }
-  };
-}
-
 module.exports = {
   listConquests,
   createConquest,
@@ -408,6 +354,5 @@ module.exports = {
   updateReward,
   deleteReward,
   getSpecialReward,
-  saveSpecialReward,
-  pocketProfit
+  saveSpecialReward
 };

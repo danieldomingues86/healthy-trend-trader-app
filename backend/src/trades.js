@@ -377,10 +377,11 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
       freeRollActive: after.freeRoll, peakR: Math.max(previousPeak, r ?? -Infinity),
       troughR: Math.min(previousTrough, r ?? Infinity), milestones
     };
+    const eventId = crypto.randomUUID();
     await client.query(
       `INSERT INTO app.trade_events (id, trade_id, event_type, quantity, price, stop_price, atr, note, context, occurred_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, COALESCE($10::timestamptz, now()))`,
-      [crypto.randomUUID(), tradeId, event.type, event.quantity || null, event.price, event.stop || null, event.atr || null, event.note, JSON.stringify(context), event.occurredAt || null]
+      [eventId, tradeId, event.type, event.quantity || null, event.price, event.stop || null, event.atr || null, event.note, JSON.stringify(context), event.occurredAt || null]
     );
     const shouldClose = event.type === 'close' && event.quantity === remaining;
     if (event.type === 'update') {
@@ -391,7 +392,7 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
       const remainingCapital = Math.max(0, after.remaining * avgEntry);
       await client.query(`UPDATE app.trades SET total_allocated_capital = $3, updated_at = now() WHERE id = $1 AND user_id = $2`, [tradeId, userId, remainingCapital]);
     }
-    return { ...event, context, remaining: remaining - (event.quantity || 0), status: shouldClose ? 'closed' : 'open' };
+    return { id: eventId, ...event, context, remaining: remaining - (event.quantity || 0), status: shouldClose ? 'closed' : 'open' };
   });
 }
 
