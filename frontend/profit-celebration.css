@@ -881,9 +881,18 @@ body:has(#conquests.page.active) .content,
 
 body:has(#conquests.active) .content,
 body:has(#conquests.page.active) .content {
-  max-width: 1600px !important;
+  max-width: none !important;
   width: 100% !important;
+  margin: 0 !important;
   padding: 24px 32px 60px 32px !important;
+  box-sizing: border-box !important;
+}
+
+#conquests.page,
+#conquestsRoot {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
   box-sizing: border-box !important;
 }
 
@@ -943,6 +952,8 @@ body:has(#conquests.page.active) .topbar .pill {
   position: relative;
   overflow: hidden;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .pc-page-header-left {
@@ -1005,17 +1016,24 @@ body:has(#conquests.page.active) .topbar .pill {
 /* 5 KPIs Row */
 .pc-kpis-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 24px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1300px) {
   .pc-kpis-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .pc-kpis-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
   .pc-kpis-grid {
     grid-template-columns: 1fr;
   }
@@ -1031,6 +1049,8 @@ body:has(#conquests.page.active) .topbar .pill {
   justify-content: space-between;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .pc-kpi-card:hover {
@@ -1100,8 +1120,10 @@ body:has(#conquests.page.active) .topbar .pill {
 /* Duas colunas do Painel */
 .pc-dashboard-row {
   display: grid;
-  grid-template-columns: 1fr 440px;
+  grid-template-columns: minmax(0, 1.85fr) minmax(360px, 1.15fr);
   gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 24px;
 }
 
@@ -1119,6 +1141,8 @@ body:has(#conquests.page.active) .topbar .pill {
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .pc-card-head {
@@ -1504,6 +1528,39 @@ body:has(#conquests.page.active) .topbar .pill {
   height: 100%;
   background: linear-gradient(90deg, #F5CD65 0%, #EAB308 100%);
   border-radius: 4px;
+}
+
+/* Catálogo de Recompensas Preview (Grade Fluida) */
+.pc-catalog-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .pc-catalog-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pc-catalog-preview-item {
+  background: #071d1f;
+  border: 1px solid #143e42;
+  border-radius: 12px;
+  padding: 12px 8px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  min-width: 0;
+  box-sizing: border-box;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.pc-catalog-preview-item:hover {
+  border-color: rgba(245, 205, 101, 0.4);
+  transform: translateY(-2px);
 }
 
 /* Botão "Embolsar Lucro" dourado na tela do trade */

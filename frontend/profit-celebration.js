@@ -1437,11 +1437,11 @@
               <button type="button" class="pc-link-btn" onclick="window.ProfitCelebration.openRewardsManagerModal()">Ver todas</button>
             </div>
 
-            <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:12px;margin-bottom:16px">
+            <div class="pc-catalog-preview-grid">
               ${state.rewards.slice(0, 4).map((r) => `
-                <div style="background:#071d1f;border:1px solid #143e42;border-radius:12px;padding:12px;min-width:110px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.25)">
+                <div class="pc-catalog-preview-item">
                   <div style="font-size:26px;margin-bottom:4px">${esc(r.icon)}</div>
-                  <div style="font-size:11px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.title)}</div>
+                  <div style="font-size:11px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(r.title)}">${esc(r.title)}</div>
                 </div>
               `).join('')}
             </div>
@@ -1457,9 +1457,9 @@
 
   /* --- RENDERIZADOR DO GRÁFICO SVG RESPONSIVO (DUAL AXIS) --- */
   function renderEvolutionChart(monthlyData = [], hasAnyData = true) {
-    const width = 640;
+    const width = 800;
     const height = 230;
-    const padding = { top: 25, right: 45, bottom: 35, left: 65 };
+    const padding = { top: 25, right: 50, bottom: 35, left: 65 };
     const chartW = width - padding.left - padding.right;
     const chartH = height - padding.top - padding.bottom;
 
