@@ -360,12 +360,12 @@
 .pc-quote-banner,
 .pc-reinforcement-quote {
   text-align: center;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 600;
   color: #f5cd65;
   font-family: Georgia, 'Times New Roman', serif;
-  margin: 10px 0 12px;
-  line-height: 1.4;
+  margin: 16px 0 20px;
+  line-height: 1.45;
   text-shadow: 0 1px 8px rgba(245, 205, 101, 0.25);
 }
 
@@ -746,8 +746,8 @@
 }
 
 .pc-reward-card-visual {
-  height: 80px;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(16, 185, 129, 0.2) 100%);
+  height: 96px;
+  background: #041812;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -756,6 +756,27 @@
   margin-bottom: 10px;
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pc-reward-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 9px;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: block;
+}
+
+.pc-reward-card:hover .pc-reward-card-img {
+  transform: scale(1.06);
+}
+
+.pc-reward-card-fallback-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
 }
 
 .pc-reward-card-title {
@@ -773,16 +794,15 @@
 }
 
 .pc-reward-card-custom-add {
-  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border: 1px dashed rgba(245, 205, 101, 0.35);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  flex-direction: column;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .pc-reward-card-custom-add:hover {
-  border-color: #d4af37;
-  background: rgba(212, 175, 55, 0.08);
+  border-color: #f5cd65;
+  background: rgba(245, 205, 101, 0.08);
 }
 
 /* Coluna Direita: Detalhe e Justificativa da Recompensa */
@@ -796,14 +816,53 @@
 }
 
 .pc-selected-visual {
-  height: 120px;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(6, 78, 59, 0.4) 100%);
+  height: 140px;
+  background: #041812;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 48px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.pc-selected-visual-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 11px;
+  display: block;
+}
+
+.pc-selected-fallback-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+
+.pc-step3-reward-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: #041812;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-step3-reward-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .pc-selected-title {
@@ -878,22 +937,22 @@
 .pc-ritual-questions-grid {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .pc-question-box {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 18px 20px;
+  border-radius: 14px;
+  padding: 12px 16px;
 }
 
 .pc-question-title {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 800;
   color: #f8fafc;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -901,20 +960,20 @@
 
 .pc-options-group {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
 }
 
 .pc-option-btn {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 9px 12px;
   cursor: pointer;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   transition: all 0.2s;
 }
 

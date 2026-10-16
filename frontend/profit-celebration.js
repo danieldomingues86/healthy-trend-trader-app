@@ -396,6 +396,21 @@
     return reward?.icon || '🎁';
   }
 
+  function getRewardImageUrl(r) {
+    if (!r) return 'assets/rewards/minha-recompensa.png';
+    if (r.imageUrl) return r.imageUrl;
+    const id = String(r.id || '').toLowerCase();
+    if (id.includes('cafe')) return 'assets/rewards/cafe.png';
+    if (id.includes('filme')) return 'assets/rewards/filme.png';
+    if (id.includes('refeicao')) return 'assets/rewards/refeicao.png';
+    if (id.includes('passeio')) return 'assets/rewards/passeio.png';
+    if (id.includes('descanso')) return 'assets/rewards/descanso.png';
+    if (id.includes('treino')) return 'assets/rewards/treino.png';
+    if (id.includes('livro')) return 'assets/rewards/livro.png';
+    if (id.includes('game')) return 'assets/rewards/game.png';
+    return 'assets/rewards/minha-recompensa.png';
+  }
+
   /* --- ETAPA 1 DO MODAL: CELEBRAÇÃO PRINCIPAL --- */
   function renderModalStep1(c) {
     const formattedAmount = M.formatMoneyBR(c.realizedAmount);
@@ -539,52 +554,6 @@
         Hoje você não precisa ganhar mais.<br>Você já cumpriu sua missão.
       </div>
 
-      <div class="pc-quick-rewards-head">
-        <span class="pc-quick-rewards-gift-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f5cd65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 12 20 22 4 22 4 12"/>
-            <rect x="2" y="7" width="20" height="5"/>
-            <line x1="12" y1="22" x2="12" y2="7"/>
-            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
-            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
-          </svg>
-        </span>
-        <div>
-          <h4>Como você quer comemorar esta conquista?</h4>
-          <p>Escolha uma recompensa para marcar este momento.</p>
-        </div>
-      </div>
-
-      <div class="pc-quick-cards-grid">
-        ${state.rewards.slice(0, 5).map((r, idx) => {
-          const isSelected = state.selectedReward && state.selectedReward.id === r.id;
-          return `
-            <div class="pc-quick-card ${isSelected ? 'selected' : ''}" 
-                 role="button" 
-                 tabindex="0"
-                 onclick="window.ProfitCelebration.selectQuickReward('${esc(r.id)}')"
-                 onkeydown="if(event.key==='Enter'||event.key===' ')window.ProfitCelebration.selectQuickReward('${esc(r.id)}')">
-              <div class="pc-quick-card-icon">${getQuickRewardIcon(r, idx)}</div>
-              <div class="pc-quick-card-title">${esc(r.title)}</div>
-            </div>
-          `;
-        }).join('')}
-        <div class="pc-quick-card ${state.selectedReward?.isCustom ? 'selected' : ''}" 
-             role="button" 
-             tabindex="0"
-             onclick="window.ProfitCelebration.goToStep2Custom()"
-             onkeydown="if(event.key==='Enter'||event.key===' ')window.ProfitCelebration.goToStep2Custom()">
-          <div class="pc-quick-card-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="16"/>
-              <line x1="8" y1="12" x2="16" y2="12"/>
-            </svg>
-          </div>
-          <div class="pc-quick-card-title">Minha recompensa</div>
-        </div>
-      </div>
-
       <button type="button" class="pc-cta-btn-primary" onclick="window.ProfitCelebration.setModalStep(2)">
         <span>Registrar minha conquista</span>
         <span class="pc-cta-arrow">→</span>
@@ -605,6 +574,7 @@
       : state.rewards.filter(r => r.category === state.activeCategoryFilter);
 
     const sel = state.selectedReward || state.rewards[0] || M.DEFAULT_REWARDS[0];
+    const selImgUrl = getRewardImageUrl(sel);
 
     return `
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
@@ -691,10 +661,20 @@
           <div class="pc-rewards-grid">
             ${filteredRewards.map((r) => {
               const isSelected = sel && sel.id === r.id;
+              const imgUrl = getRewardImageUrl(r);
               return `
-                <div class="pc-reward-card ${isSelected ? 'selected' : ''}" onclick="window.ProfitCelebration.selectRewardCard('${esc(r.id)}')">
+                <div class="pc-reward-card ${isSelected ? 'selected' : ''}" 
+                     role="button"
+                     tabindex="0"
+                     onclick="window.ProfitCelebration.selectRewardCard('${esc(r.id)}')"
+                     onkeydown="if(event.key==='Enter'||event.key===' ')window.ProfitCelebration.selectRewardCard('${esc(r.id)}')">
                   <div class="pc-reward-card-visual">
-                    <span>${esc(r.icon)}</span>
+                    <img src="${esc(imgUrl)}" 
+                         class="pc-reward-card-img" 
+                         alt="${esc(r.title)}" 
+                         loading="lazy"
+                         onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex'">
+                    <span class="pc-reward-card-fallback-icon" style="display:none">${esc(r.icon || '🎁')}</span>
                   </div>
                   <div class="pc-reward-card-title">${esc(r.title)}</div>
                   <div class="pc-reward-card-desc">${esc(r.description)}</div>
@@ -702,9 +682,20 @@
               `;
             }).join('')}
 
-            <div class="pc-reward-card pc-reward-card-custom-add" onclick="window.ProfitCelebration.openCustomRewardModal()">
-              <div style="font-size:28px;margin-bottom:4px;color:#d4af37">⊕</div>
-              <div class="pc-reward-card-title" style="color:#d4af37">Minha recompensa</div>
+            <div class="pc-reward-card pc-reward-card-custom-add" 
+                 role="button"
+                 tabindex="0"
+                 onclick="window.ProfitCelebration.openCustomRewardModal()"
+                 onkeydown="if(event.key==='Enter'||event.key===' ')window.ProfitCelebration.openCustomRewardModal()">
+              <div class="pc-reward-card-visual">
+                <img src="assets/rewards/minha-recompensa.png" 
+                     class="pc-reward-card-img" 
+                     alt="Minha recompensa personalizada" 
+                     loading="lazy"
+                     onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex'">
+                <span class="pc-reward-card-fallback-icon" style="display:none">🎁</span>
+              </div>
+              <div class="pc-reward-card-title" style="color:#f5cd65">Minha recompensa</div>
               <div class="pc-reward-card-desc">Crie sua própria recompensa personalizada.</div>
             </div>
           </div>
@@ -713,7 +704,11 @@
         <!-- Coluna Direita: Detalhe e Justificativa da Recompensa -->
         <div class="pc-selected-reward-panel">
           <div class="pc-selected-visual">
-            <span>${esc(sel.icon || '🎁')}</span>
+            <img src="${esc(selImgUrl)}" 
+                 class="pc-selected-visual-img" 
+                 alt="${esc(sel.title)}"
+                 onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex'">
+            <span class="pc-selected-fallback-icon" style="display:none">${esc(sel.icon || '🎁')}</span>
           </div>
           <div class="pc-selected-title">${esc(sel.title)}</div>
           <div class="pc-selected-desc">${esc(sel.description)}</div>
@@ -742,6 +737,7 @@
   /* --- ETAPA 3 DO MODAL: RITUAL DE VITÓRIA (AVALIAÇÃO DE DISCIPLINA) --- */
   function renderModalStep3(c) {
     const sel = state.selectedReward || state.rewards[0] || M.DEFAULT_REWARDS[0];
+    const selImgUrl = getRewardImageUrl(sel);
     const isGreedUrge = state.feelingChoice === 'greed_urge';
 
     return `
@@ -808,9 +804,15 @@
       </div>
 
       <!-- Resumo do Compromisso -->
-      <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:14px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="font-size:32px">${esc(sel.icon || '🎁')}</div>
+      <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:14px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="pc-step3-reward-thumb">
+            <img src="${esc(selImgUrl)}" 
+                 class="pc-step3-reward-img" 
+                 alt="${esc(sel.title)}" 
+                 onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'">
+            <div style="font-size:32px;display:none">${esc(sel.icon || '🎁')}</div>
+          </div>
           <div>
             <div style="font-size:11px;font-weight:700;color:#d4af37;text-transform:uppercase">Recompensa Selecionada</div>
             <div style="font-size:15px;font-weight:800;color:#ffffff">${esc(sel.title)}</div>

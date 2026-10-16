@@ -31,7 +31,7 @@
       category: 'gastronomia',
       icon: '☕',
       description: 'Uma pausa para aproveitar o momento e celebrar sua vitória.',
-      imageUrl: 'assets/rewards/cafe.jpg',
+      imageUrl: 'assets/rewards/cafe.png',
       isDefault: true
     },
     {
@@ -40,7 +40,7 @@
       category: 'lazer',
       icon: '🎬',
       description: 'Desconectar do mercado e curtir o tempo livre com tranquilidade.',
-      imageUrl: 'assets/rewards/filme.jpg',
+      imageUrl: 'assets/rewards/filme.png',
       isDefault: true
     },
     {
@@ -49,7 +49,7 @@
       category: 'gastronomia',
       icon: '🍽️',
       description: 'Comemorar com algo saboroso fora do horário de pregão.',
-      imageUrl: 'assets/rewards/refeicao.jpg',
+      imageUrl: 'assets/rewards/refeicao.png',
       isDefault: true
     },
     {
@@ -58,7 +58,7 @@
       category: 'lazer',
       icon: '🌲',
       description: 'Sair, caminhar e aproveitar o dia ao ar livre.',
-      imageUrl: 'assets/rewards/passeio.jpg',
+      imageUrl: 'assets/rewards/passeio.png',
       isDefault: true
     },
     {
@@ -67,7 +67,7 @@
       category: 'bem-estar',
       icon: '🛏️',
       description: 'Valorizar a tranquilidade depois da operação e descansar a mente.',
-      imageUrl: 'assets/rewards/descanso.jpg',
+      imageUrl: 'assets/rewards/descanso.png',
       isDefault: true
     },
     {
@@ -76,7 +76,7 @@
       category: 'bem-estar',
       icon: '🏋️',
       description: 'Cuidar da saúde, do corpo e renovar a energia positiva.',
-      imageUrl: 'assets/rewards/treino.jpg',
+      imageUrl: 'assets/rewards/treino.png',
       isDefault: true
     },
     {
@@ -85,7 +85,7 @@
       category: 'lazer',
       icon: '📖',
       description: 'Investir tempo em aprendizado e prazer longe das telas.',
-      imageUrl: 'assets/rewards/livro.jpg',
+      imageUrl: 'assets/rewards/livro.png',
       isDefault: true
     },
     {
@@ -94,7 +94,7 @@
       category: 'lazer',
       icon: '🎮',
       description: 'Relaxar, se divertir e mudar o foco mental.',
-      imageUrl: 'assets/rewards/game.jpg',
+      imageUrl: 'assets/rewards/game.png',
       isDefault: true
     }
   ];
