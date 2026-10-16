@@ -376,46 +376,113 @@
     }
   }
 
+  function getQuickRewardIcon(reward, index) {
+    const id = reward?.id || '';
+    if (id.includes('cafe') || index === 0) {
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`;
+    }
+    if (id.includes('filme') || index === 1) {
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 4v16"/><path d="M17 4v16"/><path d="M2 12h20"/><path d="M2 8h5"/><path d="M2 16h5"/><path d="M17 8h5"/><path d="M17 16h5"/></svg>`;
+    }
+    if (id.includes('refeicao') || index === 2) {
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/><path d="M4 2v7a3 3 0 0 0 6 0V2"/><path d="M7 2v20"/></svg>`;
+    }
+    if (id.includes('passeio') || index === 3) {
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L6 9h3l-4 7h4l-3 4h14l-3-4h4l-4-7h3L12 2z"/><line x1="12" y1="20" x2="12" y2="22"/></svg>`;
+    }
+    if (id.includes('descanso') || index === 4) {
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><circle cx="6" cy="12" r="2"/></svg>`;
+    }
+    return reward?.icon || '🎁';
+  }
+
   /* --- ETAPA 1 DO MODAL: CELEBRAÇÃO PRINCIPAL --- */
   function renderModalStep1(c) {
     const formattedAmount = M.formatMoneyBR(c.realizedAmount);
     const formattedR = M.formatMultipleR(c.rMultiple);
     const conquestNumber = c.totalConquestsBefore + 1;
+    const rDisplay = c.rMultiple != null ? `${c.rMultiple >= 0 ? '+' : ''}${formattedR.replace('+', '')}` : '+2R';
 
     return `
       <div class="pc-trophy-banner">
         <div class="pc-trophy-glow">
-          <svg class="pc-trophy-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="pc-trophy-svg" viewBox="0 0 280 150" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <radialGradient id="pcModalTrophyCupGold" cx="45%" cy="35%" r="65%">
-                <stop offset="0%" stop-color="#FFF9C4"/>
-                <stop offset="25%" stop-color="#FFD54F"/>
-                <stop offset="60%" stop-color="#F59E0B"/>
-                <stop offset="100%" stop-color="#B45309"/>
+              <radialGradient id="pcBgGlow" cx="50%" cy="55%" r="50%">
+                <stop offset="0%" stop-color="#FFD54F" stop-opacity="0.45"/>
+                <stop offset="35%" stop-color="#D4AF37" stop-opacity="0.22"/>
+                <stop offset="70%" stop-color="#064E3B" stop-opacity="0.05"/>
+                <stop offset="100%" stop-color="#064E3B" stop-opacity="0"/>
               </radialGradient>
-              <linearGradient id="pcModalTrophyHandle" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#FFE082"/>
+              <linearGradient id="pcTrophyGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFF9C4"/>
+                <stop offset="20%" stop-color="#FFE082"/>
                 <stop offset="50%" stop-color="#F59E0B"/>
+                <stop offset="85%" stop-color="#B45309"/>
                 <stop offset="100%" stop-color="#78350F"/>
               </linearGradient>
-              <linearGradient id="pcModalTrophyBase" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#FFD54F"/>
-                <stop offset="40%" stop-color="#B45309"/>
-                <stop offset="100%" stop-color="#451A03"/>
+              <linearGradient id="pcTrophyGoldAlt" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#FFFDE7"/>
+                <stop offset="30%" stop-color="#FFD54F"/>
+                <stop offset="70%" stop-color="#D97706"/>
+                <stop offset="100%" stop-color="#92400E"/>
               </linearGradient>
+              <radialGradient id="pcShelfFlare" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#FFFDE7" stop-opacity="1"/>
+                <stop offset="25%" stop-color="#FDE047" stop-opacity="0.85"/>
+                <stop offset="60%" stop-color="#D4AF37" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+              </radialGradient>
             </defs>
-            <path d="M28 88 L72 88 L68 76 L32 76 Z" fill="url(#pcModalTrophyBase)"/>
-            <rect x="24" y="88" width="52" height="6" rx="2" fill="#78350F"/>
-            <rect x="25" y="88" width="50" height="2" fill="#FFE082" opacity="0.8"/>
-            <path d="M42 66 L58 66 L54 76 L46 76 Z" fill="url(#pcModalTrophyCupGold)"/>
-            <ellipse cx="50" cy="66" rx="9" ry="3" fill="#D97706"/>
-            <path d="M30 24 C14 24 14 50 34 54 C32 50 32 30 36 28 Z" fill="url(#pcModalTrophyHandle)"/>
-            <path d="M70 24 C86 24 86 50 66 54 C68 50 68 30 64 28 Z" fill="url(#pcModalTrophyHandle)"/>
-            <path d="M28 20 C28 48 38 64 50 64 C62 64 72 48 72 20 Z" fill="url(#pcModalTrophyCupGold)"/>
-            <ellipse cx="50" cy="20" rx="22" ry="6" fill="#FDE047"/>
-            <ellipse cx="50" cy="20" rx="20" ry="4.5" fill="#B45309"/>
-            <path d="M34 26 C33 38 38 52 44 58 C41 52 38 40 38 26 Z" fill="#FFFFFF" opacity="0.45"/>
-            <polygon points="50,14 52,19 57,20 53,23 54,28 50,25 46,28 47,23 43,20 48,19" fill="#FFF9C4" opacity="0.9"/>
+
+            <circle cx="140" cy="72" r="68" fill="url(#pcBgGlow)"/>
+
+            <!-- Confetes e Fitas Douradas -->
+            <path d="M48,22 C56,42 38,66 52,86 C57,93 67,89 62,81 C54,66 72,46 60,27 Z" fill="url(#pcTrophyGold)" opacity="0.85"/>
+            <path d="M78,36 C88,51 73,71 85,91" stroke="#FFD54F" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.75"/>
+            <polygon points="32,46 38,44 40,50 34,52" fill="#FFE082" opacity="0.9"/>
+            <polygon points="68,16 75,14 77,21 70,23" fill="#F59E0B" opacity="0.8"/>
+            <circle cx="42" cy="72" r="2.5" fill="#FFF9C4" opacity="0.85"/>
+            <circle cx="88" cy="26" r="2" fill="#FFE082" opacity="0.8"/>
+
+            <path d="M232,22 C224,42 242,66 228,86 C223,93 213,89 218,81 C226,66 208,46 220,27 Z" fill="url(#pcTrophyGoldAlt)" opacity="0.85"/>
+            <path d="M202,36 C192,51 207,71 195,91" stroke="#FFD54F" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.75"/>
+            <polygon points="248,46 242,44 240,50 246,52" fill="#FFE082" opacity="0.9"/>
+            <polygon points="212,16 205,14 203,21 210,23" fill="#F59E0B" opacity="0.8"/>
+            <circle cx="238" cy="72" r="2.5" fill="#FFF9C4" opacity="0.85"/>
+            <circle cx="192" cy="26" r="2" fill="#FFE082" opacity="0.8"/>
+
+            <!-- Linha de Brilho / Shelf Flare na base do Troféu -->
+            <ellipse cx="140" cy="130" rx="95" ry="3.5" fill="url(#pcShelfFlare)"/>
+            <ellipse cx="140" cy="130" rx="42" ry="1.5" fill="#FFFFFF" opacity="0.95"/>
+
+            <!-- Base do Troféu -->
+            <rect x="112" y="123" width="56" height="7" rx="2" fill="url(#pcTrophyGold)"/>
+            <rect x="114" y="123" width="52" height="2" fill="#FFFDE7" opacity="0.7"/>
+            <path d="M118 123 L162 123 L156 111 L124 111 Z" fill="url(#pcTrophyGoldAlt)"/>
+            <rect x="133" y="101" width="14" height="11" rx="1.5" fill="url(#pcTrophyGold)"/>
+            <ellipse cx="140" cy="101" rx="10" ry="3.5" fill="#F59E0B"/>
+            <ellipse cx="140" cy="111" rx="12" ry="3.5" fill="#B45309"/>
+
+            <!-- Alças -->
+            <path d="M106 38 C75 38 74 80 114 85 C111 78 108 48 116 44 Z" fill="url(#pcTrophyGold)"/>
+            <path d="M106 42 C82 42 82 76 112 80 C110 74 108 50 114 46 Z" fill="#78350F" opacity="0.7"/>
+            <path d="M174 38 C205 38 206 80 166 85 C169 78 172 48 164 44 Z" fill="url(#pcTrophyGoldAlt)"/>
+            <path d="M174 42 C198 42 198 76 168 80 C170 74 172 50 166 46 Z" fill="#78350F" opacity="0.7"/>
+
+            <!-- Cálice -->
+            <path d="M104 32 C104 78 120 102 140 102 C160 102 176 78 176 32 Z" fill="url(#pcTrophyGold)"/>
+            <ellipse cx="140" cy="32" rx="36" ry="9" fill="url(#pcTrophyGoldAlt)"/>
+            <ellipse cx="140" cy="32" rx="32" ry="6.5" fill="#78350F"/>
+            <ellipse cx="140" cy="32.5" rx="30" ry="5.5" fill="#F59E0B"/>
+
+            <!-- Reflexos -->
+            <path d="M112 38 C111 58 118 78 126 88 C122 78 117 60 118 38 Z" fill="#FFFFFF" opacity="0.45"/>
+            <path d="M168 38 C169 58 162 78 154 88 C158 78 163 60 162 38 Z" fill="#FFE082" opacity="0.3"/>
+
+            <!-- Estrela Dourada no centro -->
+            <polygon points="140,50 144,61 155,61 146,68 149,79 140,73 131,79 134,68 125,61 136,61" fill="#78350F" opacity="0.5" transform="translate(0, 1.5)"/>
+            <polygon points="140,50 144,61 155,61 146,68 149,79 140,73 131,79 134,68 125,61 136,61" fill="#FFF9C4" stroke="#F59E0B" stroke-width="1.2" stroke-linejoin="round"/>
           </svg>
         </div>
         <h2 id="pcCelebrationModalTitle" class="pc-celebration-title">VOCÊ FEZ A SUA PARTE!</h2>
@@ -427,60 +494,100 @@
         <div class="pc-realized-amount">+ ${esc(formattedAmount)}</div>
         <div class="pc-realized-multiple">(${esc(formattedR)})</div>
         <div class="pc-realized-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="pc-realized-badge-icon">✓</span>
           <span>${c.targetReached ? 'Alvo atingido' : 'Lucro embolsado'} • Plano respeitado</span>
         </div>
       </div>
 
       <div class="pc-stats-row">
         <div class="pc-stat-item">
-          <div class="pc-stat-icon">🎯</div>
-          <div class="pc-stat-val">${esc(formattedR)}</div>
+          <div class="pc-stat-top">
+            <span class="pc-stat-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f5cd65" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+              </svg>
+            </span>
+            <span class="pc-stat-val">${esc(rDisplay)}</span>
+          </div>
           <div class="pc-stat-lbl">Alvo atingido</div>
         </div>
         <div class="pc-stat-item">
-          <div class="pc-stat-icon">🛡️</div>
-          <div class="pc-stat-val">100%</div>
+          <div class="pc-stat-top">
+            <span class="pc-stat-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f5cd65" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/>
+              </svg>
+            </span>
+            <span class="pc-stat-val">100%</span>
+          </div>
           <div class="pc-stat-lbl">Disciplina</div>
         </div>
         <div class="pc-stat-item">
-          <div class="pc-stat-icon">📊</div>
-          <div class="pc-stat-val">${conquestNumber}</div>
+          <div class="pc-stat-top">
+            <span class="pc-stat-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f5cd65" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </span>
+            <span class="pc-stat-val">${conquestNumber}</span>
+          </div>
           <div class="pc-stat-lbl">Conquista</div>
         </div>
       </div>
 
       <div class="pc-quote-banner">
-        "Hoje você não precisa ganhar mais. Você já cumpriu sua missão."
+        Hoje você não precisa ganhar mais.<br>Você já cumpriu sua missão.
       </div>
 
       <div class="pc-quick-rewards-head">
-        <span style="font-size:20px">🎁</span>
+        <span class="pc-quick-rewards-gift-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f5cd65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 12 20 22 4 22 4 12"/>
+            <rect x="2" y="7" width="20" height="5"/>
+            <line x1="12" y1="22" x2="12" y2="7"/>
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+          </svg>
+        </span>
         <div>
           <h4>Como você quer comemorar esta conquista?</h4>
           <p>Escolha uma recompensa para marcar este momento.</p>
         </div>
       </div>
 
-      <div class="pc-quick-pills-row" style="margin-bottom:24px">
-        ${state.rewards.slice(0, 5).map((r) => {
+      <div class="pc-quick-cards-grid">
+        ${state.rewards.slice(0, 5).map((r, idx) => {
           const isSelected = state.selectedReward && state.selectedReward.id === r.id;
           return `
-            <button type="button" class="pc-quick-pill ${isSelected ? 'selected' : ''}" onclick="window.ProfitCelebration.selectQuickReward('${esc(r.id)}')">
-              <span>${esc(r.icon)}</span>
-              <span>${esc(r.title)}</span>
-            </button>
+            <div class="pc-quick-card ${isSelected ? 'selected' : ''}" 
+                 role="button" 
+                 tabindex="0"
+                 onclick="window.ProfitCelebration.selectQuickReward('${esc(r.id)}')"
+                 onkeydown="if(event.key==='Enter'||event.key===' ')window.ProfitCelebration.selectQuickReward('${esc(r.id)}')">
+              <div class="pc-quick-card-icon">${getQuickRewardIcon(r, idx)}</div>
+              <div class="pc-quick-card-title">${esc(r.title)}</div>
+            </div>
           `;
         }).join('')}
-        <button type="button" class="pc-quick-pill" onclick="window.ProfitCelebration.goToStep2Custom()">
-          <span>➕</span>
-          <span>Minha recompensa</span>
-        </button>
+        <div class="pc-quick-card ${state.selectedReward?.isCustom ? 'selected' : ''}" 
+             role="button" 
+             tabindex="0"
+             onclick="window.ProfitCelebration.goToStep2Custom()"
+             onkeydown="if(event.key==='Enter'||event.key===' ')window.ProfitCelebration.goToStep2Custom()">
+          <div class="pc-quick-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="16"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+          </div>
+          <div class="pc-quick-card-title">Minha recompensa</div>
+        </div>
       </div>
 
       <button type="button" class="pc-cta-btn-primary" onclick="window.ProfitCelebration.setModalStep(2)">
         <span>Registrar minha conquista</span>
-        <span>→</span>
+        <span class="pc-cta-arrow">→</span>
       </button>
     `;
   }
@@ -731,7 +838,7 @@
     const found = state.rewards.find(r => r.id === rewardId);
     if (found) {
       state.selectedReward = found;
-      setModalStep(2);
+      renderModalContent();
     }
   }
 
