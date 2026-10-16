@@ -713,24 +713,51 @@
 
     if (state.tab === 'history') {
       const items = (data.snapshots || []).slice().sort((a, b) => String(b.occurredAt).localeCompare(String(a.occurredAt)));
+      const adjustments = (data.adjustments || []).slice().sort((a, b) => String(b.adjustedAt).localeCompare(String(a.adjustedAt)));
       return `
         <section class="wealth-card wealth-panel wealth-tab-panel">
           <header class="tab-panel-header">
             <div>
               <h2>Histórico de Snapshots Patrimoniais</h2>
-              <p>Registros mensais oficiais de Equity da Estratégia e Patrimônio Real que alimentam as curvas de evolução.</p>
+              <p>Registros oficiais de Equity da Estratégia, Patrimônio Real e ajustes manuais para auditoria.</p>
             </div>
+            <button type="button" class="primary btn-compact" onclick="window.openEquityAdjustModal()">+ Atualizar Equity Total</button>
           </header>
-          <div class="wealth-record-list">
-            ${items.length ? items.map(i => `
-              <div class="record-item snapshot">
-                <div class="record-meta">
-                  <span class="snapshot-type ${i.type}">${i.type === 'strategy_equity' ? 'Equity da Estratégia' : 'Patrimônio Real'}</span>
-                  <span class="record-date">${esc(String(i.occurredAt).slice(0, 10))}</span>
-                </div>
-                <strong class="record-amount">${fmt(i.amount)}</strong>
+          ${adjustments.length ? `
+            <div style="margin-bottom: 24px;">
+              <h3 style="font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <span>Ajustes Manuais de Equity (${adjustments.length})</span>
+              </h3>
+              <div class="wealth-record-list">
+                ${adjustments.map(adj => `
+                  <div class="record-item snapshot">
+                    <div class="record-meta">
+                      <span class="snapshot-type adjustment">Ajuste Manual</span>
+                      <span class="record-date">${esc(String(adj.adjustedAt).slice(0, 16).replace('T', ' '))}</span>
+                      <small class="record-note">${esc(adj.reason || 'Atualização de saldo da conta')}</small>
+                    </div>
+                    <div style="text-align: right;">
+                      <strong class="record-amount">${fmt(adj.newAmount)}</strong>
+                      <small style="display: block; font-size: 11px; color: var(--muted);">Anterior: ${fmt(adj.previousAmount)}</small>
+                    </div>
+                  </div>
+                `).join('')}
               </div>
-            `).join('') : '<p class="wealth-empty">Nenhum snapshot histórico registrado.</p>'}
+            </div>
+          ` : ''}
+          <div>
+            <h3 style="font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 12px;">Snapshots Históricos (${items.length})</h3>
+            <div class="wealth-record-list">
+              ${items.length ? items.map(i => `
+                <div class="record-item snapshot">
+                  <div class="record-meta">
+                    <span class="snapshot-type ${i.type}">${i.type === 'strategy_equity' ? 'Equity da Estratégia' : 'Patrimônio Real'}</span>
+                    <span class="record-date">${esc(String(i.occurredAt).slice(0, 10))}</span>
+                  </div>
+                  <strong class="record-amount">${fmt(i.amount)}</strong>
+                </div>
+              `).join('') : '<p class="wealth-empty">Nenhum snapshot histórico registrado.</p>'}
+            </div>
           </div>
         </section>
       `;
@@ -797,7 +824,7 @@
     const validStrat = strategySeries.filter(Number.isFinite);
 
     const baseInit = s.strategyBase || 1086604.57;
-    const currentReal = s.realWealth || (validReal.at(-1) ?? 1031309.50);
+    const currentReal = (typeof window.getOperationalEquity === 'function' ? window.getOperationalEquity() : (s.operationalEquity || s.realWealth || (validReal.at(-1) ?? 1031309.50)));
     const currentStrat = s.strategyEquity || (validStrat.at(-1) ?? 1112309.50);
 
     // Variation in the year vs start of year or base
@@ -849,15 +876,23 @@
       <section class="wealth-kpis" aria-label="Indicadores principais">
         <!-- CARD 1: PATRIMÔNIO REAL -->
         <article class="wealth-card wealth-kpi">
-          <div class="kpi-icon-badge coins">
+          <div class="kpi-icon-badge coins" style="cursor:pointer;" onclick="window.openEquityAdjustModal()" title="Atualizar Equity Total (Patrimônio Real)" role="button" aria-label="Atualizar Equity Total">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <ellipse cx="12" cy="6" rx="8" ry="3"/>
               <path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>
               <path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>
             </svg>
           </div>
-          <small class="kpi-label">PATRIMÔNIO REAL</small>
-          <strong class="kpi-value">${fmt(currentReal)}</strong>
+          <div class="kpi-label-row" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;">
+            <small class="kpi-label" style="margin-bottom:0;">PATRIMÔNIO REAL</small>
+            <button type="button" class="equity-adjust-trigger-btn" onclick="window.openEquityAdjustModal()" title="Atualizar Equity Total" aria-label="Atualizar Equity Total">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </button>
+          </div>
+          <strong class="kpi-value" style="cursor:pointer;" onclick="window.openEquityAdjustModal()" title="Clique para atualizar o Patrimônio Real">${fmt(currentReal)}</strong>
           <p class="kpi-desc">Saldos reais registrados nas contas</p>
           <div class="kpi-badge-wrap">
             <span class="kpi-badge-pill ${realYtdVar >= 0 ? 'good' : 'bad'}">${realYtdVar >= 0 ? '▲' : '▼'} ${pct(realYtdVar, true)}</span>
@@ -1222,6 +1257,10 @@
 
         if (wealthRes) {
           state.wealth = wealthRes;
+          const opEq = Number(wealthRes.summary?.operationalEquity ?? wealthRes.summary?.realWealth);
+          if (Number.isFinite(opEq) && opEq > 0) {
+            window.setOperationalEquity?.(opEq);
+          }
           try { localStorage.setItem('healthy-trend-wealth-cache', JSON.stringify(wealthRes)); } catch (_) {}
         }
         if (riskRes) state.risk = riskRes;
@@ -1251,6 +1290,14 @@
   };
 
   window.addEventListener('healthyTrend:authenticated', loadWealthData);
+  window.addEventListener('healthyTrend:equityUpdated', (e) => {
+    if (state.wealth?.summary && e?.detail?.newEquity) {
+      state.wealth.summary.realWealth = e.detail.newEquity;
+      state.wealth.summary.operationalEquity = e.detail.newEquity;
+      render();
+    }
+    loadWealthData();
+  });
 
   const originalGo = window.go;
   if (typeof originalGo === 'function') {

@@ -702,6 +702,9 @@ module.exports = {
   getSearchUniverse,
   formatLargeNumber,
   refreshB3HistoryIfDue,
-  warmup
+  warmup,
+  loadB3History,
+  loadNasdaqHistory
 };
+
 

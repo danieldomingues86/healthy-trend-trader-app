@@ -11,42 +11,42 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   // Card 1: Simulações criadas = 42
   assert.equal(stats.totalCreated, 42);
 
-  // Card 2: Entradas executadas = 36
-  assert.equal(stats.executedEntriesCount, 36);
-  assert.equal(stats.executedPct, 85.71);
+  // Card 2: Entradas executadas = 32 (4 em operação + 28 encerrados)
+  assert.equal(stats.executedEntriesCount, 32);
+  assert.equal(stats.executedPct, 76.19);
 
   // Card 7: Aguardando entrada = 6
   assert.equal(stats.waitingCount, 6);
   assert.equal(stats.waitingPct, 14.29);
 
-  // Abas: Em Operação (4), Encerrados (32)
+  // Abas: Em Operação (4), Encerrados (32 = 28 executados + 4 não acionados)
   assert.equal(stats.inOperationCount, 4);
   assert.equal(stats.closedCount, 32);
 
-  // Card 3: Trades vencedores = 20 (55,6% win rate)
+  // Card 3: Trades vencedores = 20 (71,4% win rate sobre os 28 trades executados e encerrados)
   assert.equal(stats.winningTradesCount, 20);
-  assert.equal(stats.winRate, 55.6);
+  assert.equal(stats.winRate, 71.4);
 
-  // Card 4: Trades perdedores = 16 (44,4% loss rate)
-  assert.equal(stats.losingTradesCount, 16);
-  assert.equal(stats.lossRate, 44.4);
+  // Card 4: Trades perdedores = 8 (28,6% loss rate)
+  assert.equal(stats.losingTradesCount, 8);
+  assert.equal(stats.lossRate, 28.6);
 
-  // Card 5: Resultado total = +23,4R
-  assert.equal(stats.totalR, 23.4);
-  assert.equal(stats.totalRFormatted, '+23,40R');
+  // Card 5: Resultado total = +26,1R
+  assert.equal(stats.totalR, 26.1);
+  assert.equal(stats.totalRFormatted, '+26,10R');
 
-  // Card 6: R médio / trade = +0,65R (23,4 / 36 ≈ 0,65R)
-  assert.equal(stats.avgR, 0.65);
-  assert.equal(stats.avgRFormatted, '+0,65R');
+  // Card 6: R médio / trade = +0,93R (26,1 / 28 ≈ 0,93R)
+  assert.equal(stats.avgR, 0.93);
+  assert.equal(stats.avgRFormatted, '+0,93R');
 
-  // Card 7: Duração média = 10,7 dias
-  assert.equal(stats.avgDurationDays, 10.7);
-  assert.equal(stats.avgDurationDaysFormatted, '10,7 dias');
+  // Card 7: Duração média = 10,6 dias
+  assert.equal(stats.avgDurationDays, 10.6);
+  assert.equal(stats.avgDurationDaysFormatted, '10,6 dias');
 
   // Gráfico: Distribuição de Resultados
   assert.equal(stats.distribution.winners.count, 20);
-  assert.equal(stats.distribution.losers.count, 16);
-  assert.equal(stats.distribution.notTriggered.count, 6);
+  assert.equal(stats.distribution.losers.count, 8);
+  assert.equal(stats.distribution.notTriggered.count, 10);
 
   // Gráfico: Desempenho por Gatilho
   const insideBar = stats.triggerPerformance.find(t => t.name === 'Inside Bar');
@@ -61,17 +61,17 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   assert.equal(pullback, undefined, 'Gatilho Pullback não deve existir no desempenho por gatilho');
   assert.ok(outros);
 
-  // Inside Bar: 8,7R e 9 trades
-  assert.equal(insideBar.count, 9);
-  assert.equal(insideBar.totalR, 8.7);
+  // Inside Bar: 9,7R e 7 trades encerrados
+  assert.equal(insideBar.count, 7);
+  assert.equal(insideBar.totalR, 9.7);
 
-  // Double Inside Bar: 4,7R e 9 trades (Soma 8,7 + 4,7 = 13,4R idêntico ao total histórico)
-  assert.equal(doubleInsideBar.count, 9);
-  assert.equal(doubleInsideBar.totalR, 4.7);
+  // Double Inside Bar: 5,4R e 7 trades encerrados
+  assert.equal(doubleInsideBar.count, 7);
+  assert.equal(doubleInsideBar.totalR, 5.4);
 
-  // 1-2-3 de Compra: 9,9R e 17 trades
-  assert.equal(setup123.count, 17);
-  assert.equal(setup123.totalR, 9.9);
+  // 1-2-3 de Compra: 10,9R e 13 trades encerrados
+  assert.equal(setup123.count, 13);
+  assert.equal(setup123.totalR, 10.9);
 
   // Outros: 0,1R e 1 trade
   assert.equal(outros.count, 1);
@@ -221,9 +221,9 @@ test('trade-simulator-model: filterSimulations filtra por abas, texto e critéri
   assert.equal(petrOnly.length, 1);
   assert.equal(petrOnly[0].symbol, 'PETR4');
 
-  const gradeAPlus = model.filterSimulations(seeds, { grade: 'A+' });
-  assert.ok(gradeAPlus.length > 0);
-  assert.ok(gradeAPlus.every(s => s.grade === 'A+'));
+  const gradeA = model.filterSimulations(seeds, { grade: 'A' });
+  assert.ok(gradeA.length > 0);
+  assert.ok(gradeA.every(s => s.grade === 'A'));
 });
 
 test('trade-simulator-model: filterSimulations é 100% compatível com filtros da UI (trade-simulator.js)', () => {
@@ -372,7 +372,7 @@ test('trade-simulator-model: adaptSimulationToScenario adapta regras de 2R, 2.5R
   };
   const adapted25RStopped = model.adaptSimulationToScenario(baseSimPartialGain, '2.5R');
   assert.equal(adapted25RStopped.resultR, 0); // Breakeven protetivo
-  assert.equal(adapted25RStopped.exitReason, 'Proteção / Breakeven');
+  assert.equal(adapted25RStopped.exitReason, 'Proteção / Breakeven (0,00R)');
 
   // 4. Cenário Pirâmide 1R -> 2R com MFE >= 2.0 (atinge alvo final)
   const adaptedPyr = model.adaptSimulationToScenario(baseSimGain, 'PYRAMID_1R_2R');
@@ -434,57 +434,57 @@ test('trade-simulator-model: compareManagementScenarios consolida 10 métricas o
   // 1. Cenário 2R Base
   assert.equal(sc2R.id, '2R');
   assert.equal(sc2R.totalTrades, 42);
-  assert.equal(sc2R.winRate, 55.6);
-  assert.equal(sc2R.lossRate, 44.4);
-  assert.equal(sc2R.avgR, 0.65);
-  assert.equal(sc2R.expectancy, 0.65);
-  assert.equal(sc2R.totalR, 23.40);
+  assert.equal(sc2R.winRate, 71.4);
+  assert.equal(sc2R.lossRate, 28.6);
+  assert.equal(sc2R.avgR, 0.93);
+  assert.equal(sc2R.expectancy, 0.93);
+  assert.equal(sc2R.totalR, 26.10);
   assert.equal(sc2R.winnersCount, 20);
-  assert.equal(sc2R.losersCount, 16);
+  assert.equal(sc2R.losersCount, 8);
 
   // 2. Cenário 2.5R Alvo Estendido
   assert.equal(sc25R.id, '2.5R');
   assert.equal(sc25R.totalTrades, 42);
-  assert.equal(sc25R.winRate, 27.8);
-  assert.equal(sc25R.lossRate, 72.2);
-  assert.equal(sc25R.avgR, 0.48);
-  assert.equal(sc25R.expectancy, 0.48);
+  assert.equal(sc25R.winRate, 35.7);
+  assert.equal(sc25R.lossRate, 64.3);
+  assert.equal(sc25R.avgR, 0.61);
+  assert.equal(sc25R.expectancy, 0.61);
   assert.equal(sc25R.totalR, 17.20);
   assert.equal(sc25R.winnersCount, 10);
-  assert.equal(sc25R.losersCount, 26);
+  assert.equal(sc25R.losersCount, 18);
 
   // 3. Cenário Pirâmide 1R -> 2R
   assert.equal(scPyr.id, 'PYRAMID_1R_2R');
   assert.equal(scPyr.totalTrades, 42);
-  assert.equal(scPyr.winRate, 36.1);
-  assert.equal(scPyr.lossRate, 63.9);
-  assert.equal(scPyr.avgR, 0.67);
-  assert.equal(scPyr.expectancy, 0.67);
+  assert.equal(scPyr.winRate, 46.4);
+  assert.equal(scPyr.lossRate, 53.6);
+  assert.equal(scPyr.avgR, 0.86);
+  assert.equal(scPyr.expectancy, 0.86);
   assert.equal(scPyr.totalR, 24.20);
   assert.equal(scPyr.winnersCount, 13);
-  assert.equal(scPyr.losersCount, 23);
+  assert.equal(scPyr.losersCount, 15);
 
   // 4. Cenário Parcial 50% em 2R + Condução por MM9
   assert.equal(scPart50.id, 'PARTIAL_50_2R_EMA9');
   assert.equal(scPart50.totalTrades, 42);
-  assert.equal(scPart50.winRate, 55.6);
-  assert.equal(scPart50.lossRate, 44.4);
-  assert.equal(scPart50.avgR, 0.70);
-  assert.equal(scPart50.expectancy, 0.70);
+  assert.equal(scPart50.winRate, 71.4);
+  assert.equal(scPart50.lossRate, 28.6);
+  assert.equal(scPart50.avgR, 0.90);
+  assert.equal(scPart50.expectancy, 0.90);
   assert.equal(scPart50.totalR, 25.13);
   assert.equal(scPart50.winnersCount, 20);
-  assert.equal(scPart50.losersCount, 16);
+  assert.equal(scPart50.losersCount, 8);
 
   // 5. Cenário Parcial 80% em 2R + Condução por MM9
   assert.equal(scPart80.id, 'PARTIAL_80_2R_EMA9');
   assert.equal(scPart80.totalTrades, 42);
-  assert.equal(scPart80.winRate, 55.6);
-  assert.equal(scPart80.lossRate, 44.4);
-  assert.equal(scPart80.avgR, 0.71);
-  assert.equal(scPart80.expectancy, 0.71);
+  assert.equal(scPart80.winRate, 71.4);
+  assert.equal(scPart80.lossRate, 28.6);
+  assert.equal(scPart80.avgR, 0.91);
+  assert.equal(scPart80.expectancy, 0.91);
   assert.equal(scPart80.totalR, 25.46);
   assert.equal(scPart80.winnersCount, 20);
-  assert.equal(scPart80.losersCount, 16);
+  assert.equal(scPart80.losersCount, 8);
 });
 
 test('trade-simulator-model: evaluateSimulationOnCandles simula Pirâmide, 2.5R e Parciais com física real de candles', () => {
@@ -612,10 +612,10 @@ test('trade-simulator-model: calcula duração de dias de cada trade e duração
     }
   });
 
-  // 7. Estatísticas consolidadas calculam a média geral dos trades encerrados (10,7 dias)
+  // 7. Estatísticas consolidadas calculam a média geral dos trades encerrados (10,6 dias)
   const stats = model.calculateSimulatorStats(seeds);
-  assert.equal(stats.avgDurationDays, 10.7);
-  assert.equal(stats.avgDurationDaysFormatted, '10,7 dias');
+  assert.equal(stats.avgDurationDays, 10.6);
+  assert.equal(stats.avgDurationDaysFormatted, '10,6 dias');
 
   // 8. Comparador de cenários reporta duração média para todos os cenários
   const comp = model.compareManagementScenarios(seeds);
@@ -635,13 +635,13 @@ test('trade-simulator-model: getTradeVisionAtivo reproduz com fidelidade o cená
     entryPrice: 37.20,
     stopLoss: 35.90,
     triggerName: 'Inside Bar',
-    grade: 'B+',
+    grade: 'B',
     status: model.STATUS.CLOSED_GAIN
   };
 
   const visionItub = model.getTradeVisionAtivo(itub);
   assert.ok(visionItub, 'Visão do Ativo deve ser gerada');
-  assert.equal(visionItub.grade, 'B+');
+  assert.equal(visionItub.grade, 'B');
   assert.equal(visionItub.gradeBoxClass, 'grade-b');
 
   // 1. Força Relativa: Neutro (67)
@@ -662,8 +662,8 @@ test('trade-simulator-model: getTradeVisionAtivo reproduz com fidelidade o cená
   assert.equal(visionItub.structure.label, 'Correção');
   assert.equal(visionItub.structure.status, 'good');
 
-  // 5. Gatilho: Inside Bar (B+)
-  assert.equal(visionItub.trigger.display, 'Inside Bar (B+)');
+  // 5. Gatilho: Inside Bar (B)
+  assert.equal(visionItub.trigger.display, 'Inside Bar (B)');
   assert.equal(visionItub.trigger.status, 'good');
 
   // 6. Volatilidade: Normal (ATR 1,30 | 3,49%)
@@ -817,5 +817,285 @@ test('trade-simulator-model: compareInsideBarTriggers gera comparação estatís
 
   // REGRA DE OURO INVIOLÁVEL: Bet Sizing NÃO é alterado
   assert.match(comparison.hypothesisStatus.betSizingRule, /INALTERADO/);
+});
+
+test('trade-simulator-model: calculateSimulatorStats calcula profit factor, max drawdown, sequências e distribuição em R', () => {
+  const seeds = model.getDefaultSeedSimulations('2R');
+  const stats = model.calculateSimulatorStats(seeds);
+
+  // Métricas estatísticas avançadas
+  assert.ok(stats.profitFactor !== undefined);
+  assert.ok(stats.profitFactorFormatted);
+  assert.ok(stats.maxDrawdownR !== undefined);
+  assert.ok(stats.maxDrawdownRFormatted);
+  assert.ok(stats.maxConsecutiveLosses !== undefined);
+  assert.ok(stats.totalGainsR > 0);
+  assert.ok(stats.totalLossesR > 0);
+
+  // 6 Buckets de distribuição em R
+  assert.ok(Array.isArray(stats.rDistribution));
+  assert.equal(stats.rDistribution.length, 6);
+  assert.equal(stats.rDistribution[0].bucket, '< -1R');
+  assert.equal(stats.rDistribution[1].bucket, '-1R');
+  assert.equal(stats.rDistribution[2].bucket, '-0.99R a 0R');
+  assert.equal(stats.rDistribution[3].bucket, '0R a +1R');
+  assert.equal(stats.rDistribution[4].bucket, '+1R a +2R');
+  assert.equal(stats.rDistribution[5].bucket, '> +2R');
+
+  // Performance por Grade do Rubric
+  assert.ok(Array.isArray(stats.gradePerformance));
+  const gradeA = stats.gradePerformance.find(g => g.name === 'A');
+  assert.ok(gradeA);
+
+  // Performance por Período
+  assert.ok(Array.isArray(stats.periodPerformance));
+});
+
+test('trade-simulator-model: filterSimulations suporta períodos de 6m, 12m, 24m, 36m e datas personalizadas', () => {
+  const seeds = model.getDefaultSeedSimulations('2R');
+
+  // Filtro 365 dias
+  const f365 = model.filterSimulations(seeds, { days: 365 });
+  assert.ok(f365.length > 0);
+
+  // Filtro 730 dias (24 meses)
+  const f730 = model.filterSimulations(seeds, { days: 730 });
+  assert.ok(f730.length > 0);
+
+  // Filtro 1095 dias (36 meses)
+  const f1095 = model.filterSimulations(seeds, { days: 1095 });
+  assert.ok(f1095.length > 0);
+
+  // Filtro CUSTOM com intervalo específico
+  const customFiltered = model.filterSimulations(seeds, {
+    days: 'CUSTOM',
+    startDate: '2026-07-01',
+    endDate: '2026-08-31'
+  });
+  assert.ok(Array.isArray(customFiltered));
+  assert.ok(customFiltered.every(s => s.signalDate >= '2026-07-01' && s.signalDate <= '2026-08-31'));
+});
+
+test('trade-simulator-model: detectSetupTrigger identifica Inside Bar, Double Inside Bar e 1-2-3 de Compra', () => {
+  // 1. Inside Bar clássico (candle 2 contido em candle 1 e acima da EMA9/EMA30)
+  const ibCandles = [
+    { date: '2026-01-01', open: 20, high: 22, low: 19, close: 21, ema9: 20, ema30: 18 },
+    { date: '2026-01-02', open: 20.5, high: 21.5, low: 20, close: 21, ema9: 20.2, ema30: 18.2 }
+  ];
+  const ib = model.detectSetupTrigger(ibCandles);
+  assert.ok(ib);
+  assert.equal(ib.name, 'Inside Bar');
+  assert.equal(ib.entry, 21.51); // high + 0.01
+  assert.equal(ib.stop, 19.99); // low - 0.01
+
+  // 2. Double Inside Bar (candle 3 contido em 2, que está contido em 1)
+  const dibCandles = [
+    { date: '2026-01-01', open: 20, high: 24, low: 18, close: 22, ema9: 20, ema30: 18 },
+    { date: '2026-01-02', open: 21, high: 23, low: 19, close: 22, ema9: 20.5, ema30: 18.2 },
+    { date: '2026-01-03', open: 21.5, high: 22.5, low: 20, close: 22, ema9: 21, ema30: 18.5 }
+  ];
+  const dib = model.detectSetupTrigger(dibCandles);
+  assert.ok(dib);
+  assert.equal(dib.name, 'Double Inside Bar');
+
+  // 3. 1-2-3 de Compra (Fundo em V: c1.low > c2.low e c3.low > c2.low)
+  const setup123Candles = [
+    { date: '2026-01-01', open: 22, high: 23, low: 20, close: 21, ema9: 20, ema30: 18 },
+    { date: '2026-01-02', open: 20.5, high: 21.5, low: 19, close: 20, ema9: 20, ema30: 18 }, // fundo
+    { date: '2026-01-03', open: 20.2, high: 22, low: 19.8, close: 21.8, ema9: 20.3, ema30: 18.2 }
+  ];
+  const s123 = model.detectSetupTrigger(setup123Candles);
+  assert.ok(s123);
+  assert.equal(s123.name, '1-2-3 de Compra');
+  assert.equal(s123.entry, 22.01);
+  assert.equal(s123.stop, 18.99); // Mínima do candle 2 - 0.01
+});
+
+test('trade-simulator-model: generateHistoricalSimulations gera massa de trades sem look-ahead e respeita concorrência de ativos', () => {
+  // Cria dados sintéticos para 3 ativos ao longo de 60 pregões
+  const dates = [];
+  const start = new Date('2026-01-05');
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    if (d.getDay() !== 0 && d.getDay() !== 6) {
+      dates.push(d.toISOString().slice(0, 10));
+    }
+  }
+
+  const candlesMap = new Map();
+  ['VALE3', 'PETR4', 'ITUB4'].forEach(sym => {
+    let price = 50;
+    const candles = dates.map((date, idx) => {
+      // Cria alternâncias que disparam setups
+      const mod = idx % 5;
+      let high, low, close, open;
+      if (mod === 0) {
+        open = price; high = price + 2; low = price - 1; close = price + 1;
+      } else if (mod === 1) {
+        // Inside bar
+        open = price + 0.5; high = price + 1; low = price; close = price + 0.8;
+      } else {
+        open = price + 0.8; high = price + 3; low = price + 0.5; close = price + 2.5;
+        price += 1;
+      }
+      return {
+        date,
+        open,
+        high,
+        low,
+        close,
+        ema9: price - 1,
+        ema30: price - 3,
+        volume: 1000000
+      };
+    });
+    candlesMap.set(sym, candles);
+  });
+
+  const res = model.generateHistoricalSimulations({
+    candlesMap,
+    metadataMap: {
+      VALE3: { name: 'Vale', sector: 'Mineração' },
+      PETR4: { name: 'Petrobras', sector: 'Petróleo' },
+      ITUB4: { name: 'Itaú', sector: 'Financeiro' }
+    },
+    targetVolume: 10,
+    period: 'ALL',
+    scenario: '2R'
+  });
+
+  assert.ok(res.simulations.length > 0, 'Deve gerar simulações');
+  assert.ok(res.stats, 'Deve retornar stats calculadas');
+  assert.ok(res.meta, 'Deve retornar metadados da execução');
+
+  // Separar distinções fundamentais
+  assert.ok(res.stats.totalCreated >= res.stats.executedEntriesCount, 'Sinais identificados >= Entradas executadas');
+  assert.ok(res.stats.executedEntriesCount === (res.stats.winningTradesCount + res.stats.losingTradesCount + res.stats.inOperationCount),
+    'Entradas executadas = Vencedores + Perdedores + Em Operação');
+
+  // Concorrência: nenhum ativo pode ter 2 posições sobrepostas
+  const simByAsset = {};
+  res.simulations.forEach(sim => {
+    if (!simByAsset[sim.symbol]) simByAsset[sim.symbol] = [];
+    simByAsset[sim.symbol].push(sim);
+  });
+
+  for (const [sym, list] of Object.entries(simByAsset)) {
+    list.sort((a, b) => String(a.signalDate).localeCompare(String(b.signalDate)));
+    for (let i = 0; i < list.length - 1; i++) {
+      const current = list[i];
+      const next = list[i + 1];
+      if (current.exitDate) {
+        assert.ok(
+          String(next.signalDate) >= String(current.exitDate),
+          `Ativo ${sym} não pode abrir trade em ${next.signalDate} antes da saída do trade anterior em ${current.exitDate}`
+        );
+      }
+    }
+  }
+});
+
+test('trade-simulator-model: calendário B3 rejeita fins de semana e feriados e faz snap determinístico', () => {
+  // Sábado e Domingo
+  assert.equal(model.isTradingDay('2026-09-19'), false, '19/09/2026 é sábado');
+  assert.equal(model.isTradingDay('2026-09-20'), false, '20/09/2026 é domingo');
+  assert.equal(model.isTradingDay('2026-09-21'), true, '21/09/2026 é segunda-feira');
+
+  // Feriados B3
+  assert.equal(model.isHolidayB3('2026-01-01'), true, 'Confraternização Universal');
+  assert.equal(model.isHolidayB3('2026-04-21'), true, 'Tiradentes');
+  assert.equal(model.isHolidayB3('2026-05-01'), true, 'Dia do Trabalho');
+  assert.equal(model.isHolidayB3('2026-09-07'), true, 'Independência do Brasil');
+  assert.equal(model.isHolidayB3('2026-10-12'), true, 'N. Sra. Aparecida');
+  assert.equal(model.isHolidayB3('2026-11-02'), true, 'Finados');
+  assert.equal(model.isHolidayB3('2026-11-15'), true, 'Proclamação da República');
+  assert.equal(model.isHolidayB3('2026-11-20'), true, 'Dia da Consciência Negra');
+  assert.equal(model.isHolidayB3('2026-12-25'), true, 'Natal');
+
+  // Snap to trading day: sábado 19/09 avança para segunda 21/09
+  assert.equal(model.snapToTradingDay('2026-09-19'), '2026-09-21');
+  assert.equal(model.snapToTradingDay('2026-09-20'), '2026-09-21');
+  assert.equal(model.snapToTradingDay('2026-09-21'), '2026-09-21');
+
+  // Feriado 07/09/2026 (segunda-feira) avança para terça 08/09/2026
+  assert.equal(model.snapToTradingDay('2026-09-07'), '2026-09-08');
+});
+
+test('trade-simulator-model: validateSimulation identifica inconsistências de notas, calendário e integridade de trade', () => {
+  // Trade válido (deve ser válido e ter 0 erros)
+  const validTrade = {
+    symbol: 'PETR4',
+    triggerName: 'Inside Bar',
+    grade: 'A',
+    signalDate: '2026-09-21',
+    entryDate: '2026-09-22',
+    exitDate: '2026-09-25',
+    entryPrice: 30.00,
+    stopLoss: 28.50,
+    executedEntryPrice: 30.00,
+    currentStop: 28.50,
+    exitPrice: 33.00,
+    status: model.STATUS.CLOSED_GAIN,
+    resultR: 2.0,
+    mfeR: 2.5,
+    maeR: -0.3,
+    durationDays: 3
+  };
+  const resValid = model.validateSimulation(validTrade);
+  assert.equal(resValid.isValid, true);
+  assert.equal(resValid.errors.length, 0, 'Trade válido não deve ter erros');
+
+  // 1. Nota inválida (A+ ou outra classificação fora de A, B, C, D)
+  const invalidGrade = { ...validTrade, grade: 'A+' };
+  const resGrade = model.validateSimulation(invalidGrade);
+  assert.equal(resGrade.isValid, false);
+  assert.ok(resGrade.errors.some(i => i.field === 'grade' && i.code === 'INVALID_GRADE'));
+
+  // 2. Data em final de semana (sábado 19/09/2026)
+  const weekendSignal = { ...validTrade, signalDate: '2026-09-19' };
+  const resWeekend = model.validateSimulation(weekendSignal);
+  assert.equal(resWeekend.isValid, false);
+  assert.ok(resWeekend.errors.some(i => i.field === 'signalDate' && i.code === 'NON_TRADING_DAY_SIGNAL'));
+
+  // 3. Feriado sem pregão (07/09/2026)
+  const holidayEntry = { ...validTrade, entryDate: '2026-09-07' };
+  const resHoliday = model.validateSimulation(holidayEntry);
+  assert.equal(resHoliday.isValid, false);
+  assert.ok(resHoliday.errors.some(i => i.field === 'entryDate' && i.code === 'NON_TRADING_DAY_ENTRY'));
+
+  // 4. Inconsistência de Gain com 0,00R ou negativo
+  const gainZeroR = { ...validTrade, status: model.STATUS.CLOSED_GAIN, resultR: 0.0 };
+  const resGainZero = model.validateSimulation(gainZeroR);
+  assert.equal(resGainZero.isValid, false);
+  assert.ok(resGainZero.errors.some(i => i.code === 'ZERO_OR_NEGATIVE_GAIN'));
+
+  // 5. Inversão cronológica: saída antes da entrada
+  const invertedChronology = { ...validTrade, entryDate: '2026-09-25', exitDate: '2026-09-22' };
+  const resChronology = model.validateSimulation(invertedChronology);
+  assert.equal(resChronology.isValid, false);
+  assert.ok(resChronology.errors.some(i => i.code === 'CHRONOLOGY_ERROR'));
+});
+
+test('trade-simulator-model: auditSimulationsBatch audita integridade global e reconciliação estatística', () => {
+  const seeds = model.getDefaultSeedSimulations();
+  const report = model.auditSimulationsBatch(seeds);
+
+  assert.equal(report.isConsistent, true, 'Lote padrão de seeds deve ser 100% consistente na auditoria');
+  assert.equal(report.invalidRecords.length, 0, 'Zero registros inválidos no lote padrão');
+  assert.equal(report.summary.totalEvaluated, 42);
+  assert.equal(report.summary.executedEntriesCount, 32);
+  assert.equal(report.summary.closedTradesCount, 28);
+
+  // Invariantes matemáticas da reconciliação estatística
+  const reconciliation = report.reconciliation;
+  assert.equal(reconciliation.isReconciled, true, 'Reconciliação global deve ser verdadeira');
+  assert.equal(reconciliation.countsMatch, true, 'Total criado = soma de todos os estados');
+  assert.equal(reconciliation.executedMatch, true, 'executedEntriesCount = inOperation + closed');
+  assert.equal(reconciliation.closedMatch, true, 'closedTrades = winners + losers');
+  assert.equal(reconciliation.onlyValidGradesPresent, true, 'Apenas notas válidas presentes');
+  assert.equal(reconciliation.globalTotalR, 26.1);
+  assert.equal(reconciliation.triggerSumR, 26.1);
+  assert.equal(reconciliation.gradeSumR, 26.1);
 });
 

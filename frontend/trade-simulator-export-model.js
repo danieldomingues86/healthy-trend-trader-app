@@ -144,12 +144,24 @@
     }
   }
 
+  function normalizeExportGrade(grade) {
+    const m = getModel();
+    if (m && typeof m.normalizeSimulatorGrade === 'function') {
+      return m.normalizeSimulatorGrade(grade);
+    }
+    const g = String(grade || '').trim().toUpperCase();
+    if (g.startsWith('A')) return 'A';
+    if (g.startsWith('B')) return 'B';
+    if (g.startsWith('C')) return 'C';
+    if (g.startsWith('D')) return 'D';
+    return 'B';
+  }
+
   function getGradeBadgeColor(grade) {
-    const g = String(grade || '').toUpperCase();
-    if (g === 'A+' || g.startsWith('A+')) return { bg: '#14532d', text: '#86efac', border: '#22c55e' };
-    if (g.startsWith('A')) return { bg: '#064e3b', text: '#6ee7b7', border: '#10b981' };
-    if (g.startsWith('B')) return { bg: '#78350f', text: '#fde68a', border: '#f59e0b' };
-    if (g.startsWith('C')) return { bg: '#713f12', text: '#fed7aa', border: '#ea580c' };
+    const g = normalizeExportGrade(grade);
+    if (g === 'A') return { bg: '#064e3b', text: '#6ee7b7', border: '#10b981' };
+    if (g === 'B') return { bg: '#78350f', text: '#fde68a', border: '#f59e0b' };
+    if (g === 'C') return { bg: '#713f12', text: '#fed7aa', border: '#ea580c' };
     return { bg: '#7f1d1d', text: '#fecaca', border: '#ef4444' };
   }
 
