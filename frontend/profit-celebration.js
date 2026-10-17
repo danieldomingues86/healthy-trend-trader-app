@@ -320,11 +320,12 @@
     if (!c) return;
 
     const step = c.step || 1;
-    const isWide = step === 2;
+    const isWide = step === 2 || step === 3;
+    const stepClass = `step${step}`;
 
     overlay.innerHTML = `
       <canvas id="pcConfettiCanvas" class="pc-confetti-canvas"></canvas>
-      <div class="pc-modal-box ${isWide ? 'wide' : ''}" onclick="event.stopPropagation()">
+      <div class="pc-modal-box ${isWide ? 'wide' : ''} ${stepClass}" onclick="event.stopPropagation()">
         <header class="pc-modal-header">
           ${step === 1 ? `
             <div style="display:flex;align-items:center;gap:8px">
@@ -337,12 +338,12 @@
                 <div class="pc-step-circle">${step > 1 ? '✓' : '1'}</div>
                 <span>Vitória Registrada</span>
               </div>
-              <div class="pc-step-line"></div>
+              <div class="pc-step-line ${step > 1 ? 'completed' : ''}"></div>
               <div class="pc-step-item ${step >= 2 ? (step > 2 ? 'completed' : 'active') : ''}">
                 <div class="pc-step-circle">${step > 2 ? '✓' : '2'}</div>
                 <span>Escolher Recompensa</span>
               </div>
-              <div class="pc-step-line"></div>
+              <div class="pc-step-line ${step > 2 ? 'completed' : ''}"></div>
               <div class="pc-step-item ${step === 3 ? 'active' : ''}">
                 <div class="pc-step-circle">3</div>
                 <span>Finalizar Ritual</span>
@@ -741,26 +742,51 @@
     const isGreedUrge = state.feelingChoice === 'greed_urge';
 
     return `
-      <div style="text-align:center;margin-bottom:20px">
-        <small style="font-size:11px;font-weight:800;color:#d4af37;letter-spacing:0.06em;text-transform:uppercase">PROFIT CELEBRATION · ETAPA FINAL</small>
-        <h2 style="font-size:24px;font-weight:900;margin:4px 0 0;color:#ffffff">Conclusão do Ritual de Vitória</h2>
-        <p style="font-size:13px;color:#94a3b8;margin:4px 0 0">Reflita sobre sua disciplina para consolidar o hábito correto.</p>
+      <div class="pc-step3-header-banner">
+        <small class="pc-step3-eyebrow">PROFIT CELEBRATION · ETAPA FINAL</small>
+        <h2 class="pc-step3-title">Conclusão do Ritual de Vitória</h2>
+        <p class="pc-step3-subtitle">Reflita sobre sua disciplina para consolidar o hábito correto e ancorar sua vitória.</p>
       </div>
 
       <div class="pc-ritual-questions-grid">
-        <!-- Pergunta 1: Plano -->
+        <!-- Bloco 1: Avaliação do Plano -->
         <div class="pc-question-box">
-          <div class="pc-question-title">
-            <span>🎯</span>
-            <span>Você cumpriu 100% o seu plano?</span>
+          <div class="pc-question-header">
+            <div class="pc-question-title">
+              <span class="pc-question-icon">🎯</span>
+              <span>Você cumpriu 100% o seu plano?</span>
+            </div>
+            <span class="pc-question-hint-badge">Fidelidade Operacional</span>
           </div>
-          <div class="pc-options-group">
+          
+          <div class="pc-options-group" role="radiogroup" aria-label="Você cumpriu 100% o seu plano?">
             ${M.PLAN_ADHERENCE_OPTIONS.map((opt) => {
               const isSelected = state.planAdheredChoice === opt.id;
+              let badgeText = '100% Plano';
+              let optIcon = '✓';
+              if (opt.id === 'partial') {
+                badgeText = 'Ajuste Previsto';
+                optIcon = '⚖️';
+              } else if (opt.id === 'no') {
+                badgeText = 'Desvio do Plano';
+                optIcon = '✕';
+              }
+
               return `
-                <div class="pc-option-btn ${isSelected ? `selected ${opt.badgeClass}` : ''}" onclick="window.ProfitCelebration.setPlanAdherenceChoice('${opt.id}')">
+                <div class="pc-option-btn ${isSelected ? `selected ${opt.badgeClass}` : ''}" 
+                     role="radio"
+                     aria-checked="${isSelected ? 'true' : 'false'}"
+                     tabindex="0"
+                     onclick="window.ProfitCelebration.setPlanAdherenceChoice('${opt.id}')"
+                     onkeydown="if(event.key==='Enter'||event.key===' ')window.ProfitCelebration.setPlanAdherenceChoice('${opt.id}')">
+                  <div class="pc-option-top-row">
+                    <div class="pc-option-radio-indicator">
+                      ${isSelected ? `<span class="pc-radio-dot"></span>` : ''}
+                    </div>
+                    <span class="pc-option-tag ${opt.badgeClass}">${badgeText}</span>
+                  </div>
                   <div class="pc-option-btn-title">
-                    <span>${isSelected ? '●' : '○'}</span>
+                    <span class="pc-option-symbol">${optIcon}</span>
                     <span>${esc(opt.label)}</span>
                   </div>
                   <div class="pc-option-btn-desc">${esc(opt.desc)}</div>
@@ -770,19 +796,44 @@
           </div>
         </div>
 
-        <!-- Pergunta 2: Sentimento -->
+        <!-- Bloco 2: Estado Emocional -->
         <div class="pc-question-box">
-          <div class="pc-question-title">
-            <span>🧠</span>
-            <span>Como você está se sentindo agora?</span>
+          <div class="pc-question-header">
+            <div class="pc-question-title">
+              <span class="pc-question-icon">🧠</span>
+              <span>Como você está se sentindo agora?</span>
+            </div>
+            <span class="pc-question-hint-badge">Auto-observação Emocional</span>
           </div>
-          <div class="pc-options-group">
+
+          <div class="pc-options-group" role="radiogroup" aria-label="Como você está se sentindo agora?">
             ${M.FEELING_OPTIONS.map((opt) => {
               const isSelected = state.feelingChoice === opt.id;
+              let badgeText = 'Equilíbrio';
+              let badgeClass = 'good';
+              if (opt.id === 'relief') {
+                badgeText = 'Paz Mental';
+                badgeClass = 'good';
+              } else if (opt.id === 'greed_urge') {
+                badgeText = 'Atenção';
+                badgeClass = 'warn';
+              }
+
               return `
-                <div class="pc-option-btn ${isSelected ? (opt.id === 'greed_urge' ? 'selected warn' : 'selected') : ''}" onclick="window.ProfitCelebration.setFeelingChoice('${opt.id}')">
+                <div class="pc-option-btn ${isSelected ? (opt.id === 'greed_urge' ? 'selected warn' : 'selected') : ''}" 
+                     role="radio"
+                     aria-checked="${isSelected ? 'true' : 'false'}"
+                     tabindex="0"
+                     onclick="window.ProfitCelebration.setFeelingChoice('${opt.id}')"
+                     onkeydown="if(event.key==='Enter'||event.key===' ')window.ProfitCelebration.setFeelingChoice('${opt.id}')">
+                  <div class="pc-option-top-row">
+                    <div class="pc-option-radio-indicator">
+                      ${isSelected ? `<span class="pc-radio-dot"></span>` : ''}
+                    </div>
+                    <span class="pc-option-tag ${badgeClass}">${badgeText}</span>
+                  </div>
                   <div class="pc-option-btn-title">
-                    <span>${opt.icon}</span>
+                    <span class="pc-option-symbol">${opt.icon}</span>
                     <span>${esc(opt.label)}</span>
                   </div>
                   <div class="pc-option-btn-desc">${esc(opt.hint)}</div>
@@ -793,33 +844,47 @@
 
           ${isGreedUrge ? `
             <div class="pc-greed-alert">
-              <span style="font-size:18px">⚠️</span>
-              <div>
+              <div class="pc-greed-alert-icon">⚠️</div>
+              <div class="pc-greed-alert-content">
                 <strong>Atenção ao Overtrading e à Ganância:</strong>
-                <div>Você já cumpriu seu objetivo nesta operação. Tentar buscar mais no mesmo dia geralmente devolve o lucro ao mercado. Feche a plataforma e comemore.</div>
+                <p>Você já cumpriu seu objetivo nesta operação. Tentar buscar mais no mesmo dia geralmente devolve o lucro ao mercado. Feche a plataforma e comemore sua vitória.</p>
               </div>
             </div>
           ` : ''}
         </div>
       </div>
 
-      <!-- Resumo do Compromisso -->
-      <div style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.3);border-radius:14px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:14px">
+      <!-- Bloco 3: Recompensa Selecionada (Card Premium) -->
+      <div class="pc-step3-reward-card">
+        <div class="pc-step3-reward-main">
           <div class="pc-step3-reward-thumb">
             <img src="${esc(selImgUrl)}" 
                  class="pc-step3-reward-img" 
                  alt="${esc(sel.title)}" 
-                 onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='block'">
-            <div style="font-size:32px;display:none">${esc(sel.icon || '🎁')}</div>
+                 onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex'">
+            <div class="pc-step3-reward-fallback" style="display:none">${esc(sel.icon || '🎁')}</div>
           </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:#d4af37;text-transform:uppercase">Recompensa Selecionada</div>
-            <div style="font-size:15px;font-weight:800;color:#ffffff">${esc(sel.title)}</div>
+          <div class="pc-step3-reward-info">
+            <div class="pc-step3-reward-eyebrow">
+              <span class="pc-sparkle">✨</span>
+              <span>RECOMPENSA ESCOLHIDA</span>
+              <span class="pc-step3-reward-cat-tag">${esc(sel.category ? sel.category.toUpperCase() : 'GERAL')}</span>
+            </div>
+            <div class="pc-step3-reward-title">${esc(sel.title)}</div>
+            ${state.rewardReason ? `
+              <div class="pc-step3-reward-reason">
+                <span class="pc-reason-quote-icon">“</span>
+                <span>${esc(state.rewardReason)}</span>
+                <span class="pc-reason-quote-icon">”</span>
+              </div>
+            ` : `
+              <div class="pc-step3-reward-desc">${esc(sel.description || '')}</div>
+            `}
           </div>
         </div>
-        <div style="font-size:12px;font-style:italic;color:#fef08a;max-width:280px;text-align:right">
-          "Hoje você não precisa ganhar mais. Você já cumpriu sua missão."
+        <div class="pc-step3-quote-callout">
+          <div class="pc-quote-symbol">“</div>
+          <div class="pc-quote-text">Hoje você não precisa ganhar mais. Você já cumpriu sua missão.</div>
         </div>
       </div>
 
@@ -827,9 +892,9 @@
         <button type="button" class="pc-cta-btn-secondary" onclick="window.ProfitCelebration.setModalStep(2)">
           ← Voltar
         </button>
-        <button type="button" class="pc-cta-btn-primary" style="width:auto;min-width:260px" id="pcBtnSubmitConquest" onclick="window.ProfitCelebration.submitConquest()">
+        <button type="button" class="pc-cta-btn-primary" style="width:auto;min-width:280px" id="pcBtnSubmitConquest" onclick="window.ProfitCelebration.submitConquest()">
           <span>Concluir Ritual e Salvar Conquista</span>
-          <span>🏆</span>
+          <span style="font-size:18px">🏆</span>
         </button>
       </div>
     `;
