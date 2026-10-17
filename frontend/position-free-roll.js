@@ -292,7 +292,7 @@
       if (preview.realizedProfit > 0 && typeof window.ProfitCelebration?.openCelebrationModal === 'function') {
         window.ProfitCelebration.openCelebrationModal({
           tradeId: p.id,
-          eventId: savedEvent?.id || ('evt-' + Date.now()),
+          eventId: savedEvent?.event?.id || savedEvent?.id || null,
           ticker: p.asset,
           direction: p.direction || 'long',
           entryPrice: p.entry,

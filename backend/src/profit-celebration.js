@@ -78,6 +78,12 @@ async function listConquests(userId, client = database) {
   };
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isUuid(val) {
+  return typeof val === 'string' && UUID_REGEX.test(val.trim());
+}
+
 /**
  * Cria uma nova conquista resultante do ritual de vitória.
  * Garante idempotência para evitar registros duplicados em cliques repetidos.
@@ -88,16 +94,59 @@ async function createConquest(userId, payload = {}, client = database) {
     throw invalid(validation.errors.join(' '));
   }
 
-  const tradeId = payload.tradeId || payload.trade_id || null;
-  const eventId = payload.eventId || payload.event_id || null;
+  const rawTradeId = payload.tradeId || payload.trade_id || null;
+  const rawEventId = payload.eventId || payload.event_id || null;
+  const rawRewardId = payload.rewardId || payload.reward_id || null;
+
+  let safeTradeId = null;
+  let safeEventId = null;
+  let safeRewardId = null;
+
+  if (isUuid(rawTradeId)) {
+    try {
+      const tradeCheck = await client.query(
+        `SELECT id FROM app.trades WHERE id = $1 AND user_id = $2 LIMIT 1`,
+        [rawTradeId, userId]
+      );
+      if (tradeCheck.rowCount > 0) {
+        safeTradeId = rawTradeId;
+        if (isUuid(rawEventId)) {
+          const eventCheck = await client.query(
+            `SELECT id FROM app.trade_events WHERE id = $1 AND trade_id = $2 LIMIT 1`,
+            [rawEventId, safeTradeId]
+          );
+          if (eventCheck.rowCount > 0) {
+            safeEventId = rawEventId;
+          }
+        }
+      }
+    } catch (_) {
+      safeTradeId = null;
+      safeEventId = null;
+    }
+  }
+
+  if (isUuid(rawRewardId)) {
+    try {
+      const rewardCheck = await client.query(
+        `SELECT id FROM app.rewards_catalog WHERE id = $1 AND user_id = $2 LIMIT 1`,
+        [rawRewardId, userId]
+      );
+      if (rewardCheck.rowCount > 0) {
+        safeRewardId = rawRewardId;
+      }
+    } catch (_) {
+      safeRewardId = null;
+    }
+  }
 
   // Proteção de duplicidade: se tradeId e eventId forem informados e já existir conquista, retorna a existente
-  if (tradeId && eventId) {
+  if (safeTradeId && safeEventId) {
     const existing = await client.query(
       `SELECT * FROM app.profit_conquests
        WHERE user_id = $1 AND trade_id = $2 AND event_id = $3
        LIMIT 1`,
-      [userId, tradeId, eventId]
+      [userId, safeTradeId, safeEventId]
     );
     if (existing.rowCount > 0) {
       return {
@@ -119,7 +168,6 @@ async function createConquest(userId, payload = {}, client = database) {
   const planAdhered = String(payload.planAdhered ?? payload.plan_adhered ?? 'yes').toLowerCase();
   const feeling = String(payload.feeling ?? 'pride').toLowerCase();
 
-  const rewardId = payload.rewardId || payload.reward_id || null;
   const rewardTitle = String(payload.rewardTitle ?? payload.reward_title ?? '').trim();
   const rewardCategory = String(payload.rewardCategory ?? payload.reward_category ?? 'outras').toLowerCase();
   const rewardIcon = String(payload.rewardIcon ?? payload.reward_icon ?? '🎁').trim();
@@ -148,8 +196,8 @@ async function createConquest(userId, payload = {}, client = database) {
        $17, $18, $19, $20, $21, $22
      ) RETURNING *`,
     [
-      id, userId, tradeId, eventId, ticker, direction, realizedAmount,
-      rMultiple, targetReached, planAdhered, feeling, rewardId,
+      id, userId, safeTradeId, safeEventId, ticker, direction, realizedAmount,
+      rMultiple, targetReached, planAdhered, feeling, safeRewardId,
       rewardTitle, rewardCategory, rewardIcon, rewardReason,
       entryPrice, exitPrice, initialStop, riskAmount, conquestDate, notes
     ]

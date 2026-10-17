@@ -282,6 +282,8 @@
     renderModalContent();
 
     const overlay = getModalOverlay();
+    overlay.style.display = 'flex';
+    void overlay.offsetHeight;
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
 
@@ -297,6 +299,7 @@
     const overlay = document.getElementById('pcCelebrationModalOverlay');
     if (overlay) {
       overlay.classList.remove('open');
+      overlay.style.display = 'none';
     }
     document.body.style.overflow = '';
     state.activeCelebration = null;
@@ -894,7 +897,7 @@
         </button>
         <button type="button" class="pc-cta-btn-primary" style="width:auto;min-width:280px" id="pcBtnSubmitConquest" onclick="window.ProfitCelebration.submitConquest()">
           <span>Concluir Ritual e Salvar Conquista</span>
-          <span style="font-size:18px">🏆</span>
+          <span style="font-size:18px">🍾</span>
         </button>
       </div>
     `;
@@ -942,22 +945,23 @@
     const btn = document.getElementById('pcBtnSubmitConquest');
     if (btn) {
       btn.disabled = true;
-      btn.textContent = 'Salvando conquista...';
+      btn.innerHTML = '<span>Salvando conquista...</span>';
     }
 
     const c = state.activeCelebration;
+    const targetTradeId = c?.tradeId || null;
     const sel = state.selectedReward || state.rewards[0] || M.DEFAULT_REWARDS[0];
 
     const payload = {
-      tradeId: c?.tradeId || null,
+      tradeId: targetTradeId,
       eventId: c?.eventId || null,
       ticker: c?.ticker || 'ATIVO',
       direction: c?.direction || 'long',
       realizedAmount: c?.realizedAmount || 0,
       rMultiple: c?.rMultiple != null ? c.rMultiple : null,
       targetReached: Boolean(c?.targetReached),
-      planAdhered: state.planAdheredChoice,
-      feeling: state.feelingChoice,
+      planAdhered: state.planAdheredChoice || 'yes',
+      feeling: state.feelingChoice || 'pride',
       rewardId: sel.id,
       rewardTitle: sel.title,
       rewardCategory: sel.category,
@@ -972,18 +976,29 @@
 
     try {
       if (root.healthyTrendApi?.isAuthenticated()) {
-        const res = await root.healthyTrendApi.request('/api/profit-celebration/conquests', {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
-        if (res && res.conquest) {
-          // Atualiza lista local prevenindo duplicação
-          const existingIdx = state.conquests.findIndex(item => item.id === res.conquest.id);
-          if (existingIdx >= 0) {
-            state.conquests[existingIdx] = res.conquest;
-          } else {
-            state.conquests.unshift(res.conquest);
+        try {
+          const res = await root.healthyTrendApi.request('/api/profit-celebration/conquests', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          if (res && res.conquest) {
+            // Atualiza lista local prevenindo duplicação
+            const existingIdx = state.conquests.findIndex(item => item.id === res.conquest.id);
+            if (existingIdx >= 0) {
+              state.conquests[existingIdx] = res.conquest;
+            } else {
+              state.conquests.unshift(res.conquest);
+            }
           }
+        } catch (apiErr) {
+          console.warn('[ProfitCelebration] Falha na persistência via API, utilizando fallback local:', apiErr);
+          const localConquest = {
+            id: 'local-' + Date.now(),
+            ...payload,
+            rewardStatus: 'pending',
+            createdAt: new Date().toISOString()
+          };
+          state.conquests.unshift(localConquest);
         }
       } else {
         // Fallback local
@@ -999,6 +1014,7 @@
       state.stats = M.calculateConquestsStats(state.conquests);
       saveLocalCache();
 
+      // Fecha o modal completamente
       closeCelebrationModal();
 
       if (typeof root.showToast === 'function') {
@@ -1009,14 +1025,37 @@
       window.dispatchEvent(new CustomEvent('healthyTrend:conquestCreated', { detail: payload }));
       window.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
 
-      // Se a página de conquistas estiver aberta, atualiza a view
-      if (document.getElementById('conquestsRoot')?.offsetParent !== null) {
-        renderPage();
+      // Se a página de conquistas estiver no DOM, atualiza a view
+      const conquestsRoot = document.getElementById('conquestsRoot');
+      if (conquestsRoot && typeof renderPage === 'function') {
+        renderPage(conquestsRoot);
+      }
+
+      // Retorno ao trade em aberto da onde começou o fluxo:
+      if (targetTradeId) {
+        if (typeof window.syncOperationalFromDatabase === 'function') {
+          try {
+            await window.syncOperationalFromDatabase();
+          } catch (syncErr) {
+            console.warn('[ProfitCelebration] Erro ao sincronizar operações:', syncErr);
+          }
+        }
+        if (typeof window.openPosition === 'function') {
+          window.openPosition(targetTradeId);
+        } else if (typeof window.go === 'function') {
+          window.go('positiondetail');
+        }
+      } else if (typeof window.go === 'function') {
+        const currentActive = document.querySelector('.page.active');
+        if (!currentActive) {
+          window.go('positions');
+        }
       }
     } catch (err) {
+      console.error('[ProfitCelebration] Erro ao salvar conquista:', err);
       if (btn) {
         btn.disabled = false;
-        btn.textContent = 'Concluir Ritual e Salvar Conquista 🏆';
+        btn.innerHTML = '<span>Concluir Ritual e Salvar Conquista</span> <span style="font-size:18px">🍾</span>';
       }
       if (typeof root.showToast === 'function') {
         root.showToast(err.message || 'Erro ao registrar conquista.');

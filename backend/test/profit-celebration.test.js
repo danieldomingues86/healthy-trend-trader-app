@@ -53,8 +53,16 @@ test('profitCelebration backend: listConquests retorna lista, stats e specialRew
 test('profitCelebration backend: createConquest valida payload e previne duplicidade', async () => {
   const originalQuery = database.query;
   const store = [];
+  const testTradeId = crypto.randomUUID();
+  const testEventId = crypto.randomUUID();
 
   database.query = async (sql, values) => {
+    if (sql.includes('FROM app.trades')) {
+      return { rows: [{ id: values[0] }], rowCount: 1 };
+    }
+    if (sql.includes('FROM app.trade_events')) {
+      return { rows: [{ id: values[0] }], rowCount: 1 };
+    }
     if (sql.includes('FROM app.profit_conquests') && sql.includes('trade_id = $2')) {
       const found = store.find(s => s.user_id === values[0] && s.trade_id === values[1] && s.event_id === values[2]);
       return { rows: found ? [found] : [], rowCount: found ? 1 : 0 };
@@ -100,16 +108,17 @@ test('profitCelebration backend: createConquest valida payload e previne duplici
       /Lucro realizado deve ser um valor positivo/
     );
 
-    // 3. Sucesso na criação
+    // 3. Sucesso na criação com recompensa padrão (não-UUID) e tradeId/eventId válidos
     const payload = {
-      tradeId: 'trade-123',
-      eventId: 'event-456',
+      tradeId: testTradeId,
+      eventId: testEventId,
       ticker: 'PETR4',
       realizedAmount: 980.50,
       rMultiple: 1.5,
       targetReached: true,
       planAdhered: 'yes',
       feeling: 'relief',
+      rewardId: 'default-filme',
       rewardTitle: 'Assistir a um filme',
       rewardCategory: 'lazer',
       rewardIcon: '🎬'
@@ -118,6 +127,10 @@ test('profitCelebration backend: createConquest valida payload e previne duplici
     assert.equal(res.created, true);
     assert.equal(res.conquest.ticker, 'PETR4');
     assert.equal(res.conquest.realizedAmount, 980.5);
+    assert.equal(res.conquest.tradeId, testTradeId);
+    assert.equal(res.conquest.eventId, testEventId);
+    assert.equal(res.conquest.rewardId, null, 'Recompensa default-filme (não-UUID) deve mapear rewardId como null');
+    assert.equal(res.conquest.rewardTitle, 'Assistir a um filme');
 
     // 4. Idempotência: re-tentar com os mesmos tradeId e eventId não duplica
     const dupRes = await profitCelebration.createConquest('user-1', payload);
