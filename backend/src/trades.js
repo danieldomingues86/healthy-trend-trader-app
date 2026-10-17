@@ -36,6 +36,7 @@ function entryTimestamp(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw invalid('Data de entrada é inválida.');
   const timestamp = new Date(date + 'T12:00:00-03:00');
   if (Number.isNaN(timestamp.getTime())) throw invalid('Data de entrada é inválida.');
+  if (timestamp > new Date()) return new Date().toISOString();
   return timestamp.toISOString();
 }
 
@@ -266,8 +267,8 @@ async function listPlans(userId) {
        LEFT JOIN LATERAL (
          SELECT jsonb_agg(jsonb_build_object(
            'id', e.id, 'type', e.event_type, 'qty', e.quantity, 'price', e.price,
-           'stop', e.stop_price, 'atr', e.atr, 'note', e.note, 'at', e.occurred_at, 'context', e.context
-         ) ORDER BY e.occurred_at, e.created_at) AS items
+           'stop', e.stop_price, 'atr', e.atr, 'note', e.note, 'at', e.occurred_at, 'createdAt', e.created_at, 'context', e.context
+         ) ORDER BY CASE WHEN e.event_type = 'entry' THEN 0 ELSE 1 END, e.occurred_at, e.created_at) AS items
          FROM app.trade_events e WHERE e.trade_id = t.id
        ) events ON true
        LEFT JOIN LATERAL (
@@ -340,14 +341,16 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
     if (event.type === 'peeloff' && event.quantity >= remaining) throw invalid('Para encerrar toda a posição, registre um encerramento.');
     const history = await client.query(
       `SELECT event_type AS type, quantity AS qty, price, stop_price AS stop, context
-         FROM app.trade_events WHERE trade_id = $1 ORDER BY occurred_at, created_at`, [tradeId]
+         FROM app.trade_events WHERE trade_id = $1 ORDER BY CASE WHEN event_type = 'entry' THEN 0 ELSE 1 END, occurred_at, created_at`, [tradeId]
     );
     const trade = current.rows[0];
     const entryEvent = history.rows.find(item => item.type === 'entry');
     const events = entryEvent ? history.rows : [{ type: 'entry', qty: trade.executed_quantity, price: trade.execution_price ?? trade.entry_price, stop: trade.stop_price }, ...history.rows];
     const entry = Number(entryEvent?.price ?? trade.execution_price ?? trade.entry_price);
     const avgEntry = Number(trade.average_entry_price || entry);
-    const currentPrice = Number([...events].reverse().find(item => Number(item.price) > 0)?.price ?? entry);
+    const priceBearingEvents = events.filter(item => Number(item.price) > 0);
+    const latestUpdateEvent = priceBearingEvents.filter(item => item.type === 'update').pop();
+    const currentPrice = Number(latestUpdateEvent?.price ?? priceBearingEvents.pop()?.price ?? entry);
     const basis = { entry, initialStop: Number(entryEvent?.stop ?? trade.stop_price), initialQty: Number(entryEvent?.qty ?? trade.executed_quantity),
       direction: trade.direction || 'long', currentPrice, currentStop: Number(trade.stop_price), events };
     const before = management.state(basis, management.metricsFromEvents(basis));
@@ -377,10 +380,11 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
       freeRollActive: after.freeRoll, peakR: Math.max(previousPeak, r ?? -Infinity),
       troughR: Math.min(previousTrough, r ?? Infinity), milestones
     };
+    const eventId = crypto.randomUUID();
     await client.query(
       `INSERT INTO app.trade_events (id, trade_id, event_type, quantity, price, stop_price, atr, note, context, occurred_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, COALESCE($10::timestamptz, now()))`,
-      [crypto.randomUUID(), tradeId, event.type, event.quantity || null, event.price, event.stop || null, event.atr || null, event.note, JSON.stringify(context), event.occurredAt || null]
+      [eventId, tradeId, event.type, event.quantity || null, event.price, event.stop || null, event.atr || null, event.note, JSON.stringify(context), event.occurredAt || null]
     );
     const shouldClose = event.type === 'close' && event.quantity === remaining;
     if (event.type === 'update') {
@@ -391,7 +395,7 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
       const remainingCapital = Math.max(0, after.remaining * avgEntry);
       await client.query(`UPDATE app.trades SET total_allocated_capital = $3, updated_at = now() WHERE id = $1 AND user_id = $2`, [tradeId, userId, remainingCapital]);
     }
-    return { ...event, context, remaining: remaining - (event.quantity || 0), status: shouldClose ? 'closed' : 'open' };
+    return { id: eventId, ...event, context, remaining: remaining - (event.quantity || 0), status: shouldClose ? 'closed' : 'open' };
   });
 }
 
@@ -524,7 +528,7 @@ async function validateScaleIn(userId, tradeId, payload = {}, clientOverride = n
          SELECT jsonb_agg(jsonb_build_object(
            'id', e.id, 'type', e.event_type, 'qty', e.quantity, 'price', e.price,
            'stop', e.stop_price, 'atr', e.atr, 'note', e.note, 'at', e.occurred_at, 'context', e.context
-         ) ORDER BY e.occurred_at, e.created_at) AS items
+         ) ORDER BY CASE WHEN e.event_type = 'entry' THEN 0 ELSE 1 END, e.occurred_at, e.created_at) AS items
          FROM app.trade_events e WHERE e.trade_id = t.id
        ) events ON true
        LEFT JOIN LATERAL (
@@ -556,7 +560,7 @@ async function validateScaleIn(userId, tradeId, payload = {}, clientOverride = n
            SELECT jsonb_agg(jsonb_build_object(
              'id', e.id, 'type', e.event_type, 'qty', e.quantity, 'price', e.price,
              'stop', e.stop_price, 'atr', e.atr, 'note', e.note, 'at', e.occurred_at
-           ) ORDER BY e.occurred_at, e.created_at) AS items
+           ) ORDER BY CASE WHEN e.event_type = 'entry' THEN 0 ELSE 1 END, e.occurred_at, e.created_at) AS items
            FROM app.trade_events e WHERE e.trade_id = t.id
          ) events ON true
          WHERE t.user_id = $1 AND t.status = 'open'`,

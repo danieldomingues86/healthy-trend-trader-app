@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const model = window.PositionManagementModel;
-  const locate = id => operationalState.positions.find(position => position.id === id);
+  const locate = id => (operationalState?.positions || []).find(position => String(position.id) === String(id));
   const money = value => moneyBR(value);
   const units = value => numBR(value);
   const multiple = value => value == null ? '—' : `${value >= 0 ? '+' : ''}${numBR(value, 2)}R`;
@@ -192,28 +192,90 @@
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-pm-partial]');
     if (!button) return;
+    event.preventDefault();
     const position = locate(button.dataset.pmPartial), dialog = document.getElementById('pm-dialog');
     if (!position || !dialog) return;
     const metric = operationMetrics(position), suggested = config().suggestedPercent, qty = Math.min(metric.remaining - 1, Math.max(1, Math.floor(metric.remaining * suggested / 100)));
     const usablePercent = Math.min(suggested, qty / metric.remaining * 100);
+    const remainingPercentVal = Math.max(0, 100 - usablePercent).toFixed(1);
     const now = new Date(), local = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    dialog.innerHTML = `<h3>Sell Into Strength · realizar parcial</h3><form data-pm-trade="${safe(position.id)}">
-      <div class="pm-form-grid"><label>Quantidade atual<input readonly value="${metric.remaining}"></label>
-      <label>Percentual da parcial<input name="percent" type="number" min="1" max="100" step="any" value="${usablePercent}" required></label>
-      <label>Quantidade a vender<input name="quantity" type="number" min="1" max="${metric.remaining - 1}" step="1" value="${qty}" required></label>
-      <label>Preço da realização<input name="price" type="number" min=".000001" step="any" value="${position.currentPrice}" required></label>
-      <label>Data/hora<input name="occurredAt" type="datetime-local" value="${local}" required></label></div>
-      <div class="pm-preview" aria-live="polite"></div><div class="pm-form-actions"><button type="submit" class="primary">CONFIRMAR PARCIAL</button><button type="button" class="secondary" data-pm-cancel>CANCELAR</button></div></form>`;
-    dialog.showModal(); renderPreview(dialog, position);
+    dialog.innerHTML = `
+      <div class="pm-dialog-header">
+        <div class="pm-dialog-title-wrap">
+          <span class="pm-dialog-title-icon" aria-hidden="true">💰</span>
+          <h3>Sell Into Strength · realizar parcial</h3>
+        </div>
+        <button type="button" class="pm-dialog-close-btn" data-pm-cancel aria-label="Fechar modal">×</button>
+      </div>
+      <form data-pm-trade="${safe(position.id)}">
+        <div class="pm-form-grid">
+          <label class="pm-field">
+            <span class="pm-field-label">Quantidade atual <small class="pm-field-badge">Somente leitura</small></span>
+            <input readonly value="${metric.remaining}">
+          </label>
+          <label class="pm-field">
+            <span class="pm-field-label">Percentual da parcial (%)</span>
+            <input name="percent" type="number" min="1" max="100" step="any" value="${usablePercent}" required>
+          </label>
+          <label class="pm-field">
+            <span class="pm-field-label">Quantidade a vender (unidades)</span>
+            <input name="quantity" type="number" min="1" max="${metric.remaining - 1}" step="1" value="${qty}" required>
+          </label>
+          <label class="pm-field">
+            <span class="pm-field-label">Preço da realização (R$)</span>
+            <input name="price" type="number" min=".000001" step="any" value="${position.currentPrice ?? position.entry ?? ''}" required>
+          </label>
+          <label class="pm-field">
+            <span class="pm-field-label">Percentual remanescente <small class="pm-field-badge">Somente leitura</small></span>
+            <input name="remainingPercent" readonly value="${numBR(remainingPercentVal, 1)}%">
+          </label>
+          <label class="pm-field">
+            <span class="pm-field-label">Data e hora da execução</span>
+            <input name="occurredAt" type="datetime-local" value="${local}" required>
+          </label>
+        </div>
+        <div class="pm-preview" aria-live="polite"></div>
+        <div class="pm-form-actions">
+          <button type="submit" class="primary">CONFIRMAR PARCIAL</button>
+          <button type="button" class="secondary" data-pm-cancel>CANCELAR</button>
+        </div>
+      </form>`;
+    if (!dialog.open) {
+      dialog.showModal();
+    }
+    renderPreview(dialog, position);
   });
-  document.addEventListener('click', event => { if (event.target.closest('[data-pm-cancel]')) document.getElementById('pm-dialog')?.close(); });
+  document.addEventListener('click', event => {
+    if (event.target.closest('[data-pm-cancel]')) {
+      document.getElementById('pm-dialog')?.close();
+      return;
+    }
+    const dialog = document.getElementById('pm-dialog');
+    if (dialog && dialog.open && event.target === dialog) {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = (
+        rect.top <= event.clientY &&
+        event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.left + rect.width
+      );
+      if (!isInDialog) dialog.close();
+    }
+  });
   document.addEventListener('click', event => { if (event.target.closest('[data-pm-manual="sell-into-strength"]')) window.openSellIntoStrengthManual?.(); });
   document.addEventListener('input', event => {
     const form = event.target.closest('form[data-pm-trade]');
     if (!form) return;
-    if (event.target.name === 'percent') form.elements.quantity.value = Math.floor(operationMetrics(locate(form.dataset.pmTrade)).remaining * Number(event.target.value) / 100);
-    if (event.target.name === 'quantity') form.elements.percent.value = (100 * Number(event.target.value) / operationMetrics(locate(form.dataset.pmTrade)).remaining).toFixed(1);
-    renderPreview(form.closest('dialog'), locate(form.dataset.pmTrade));
+    const p = locate(form.dataset.pmTrade);
+    if (!p) return;
+    const rem = operationMetrics(p).remaining;
+    if (event.target.name === 'percent') form.elements.quantity.value = Math.floor(rem * Number(event.target.value) / 100);
+    if (event.target.name === 'quantity') form.elements.percent.value = (100 * Number(event.target.value) / rem).toFixed(1);
+    if (form.elements.remainingPercent) {
+      const pVal = Number(form.elements.percent?.value) || 0;
+      form.elements.remainingPercent.value = `${numBR(Math.max(0, 100 - pVal), 1)}%`;
+    }
+    renderPreview(form.closest('dialog'), p);
   });
   document.addEventListener('submit', async event => {
     const form = event.target.closest('form[data-pm-trade]');
@@ -224,9 +286,26 @@
     if (!window.healthyTrendApi?.isAuthenticated()) { showToast('Entre no workspace para salvar a parcial.'); return; }
     const submit = form.querySelector('[type=submit]'); submit.disabled = true;
     try {
-      await window.healthyTrendApi.request(`/api/trades/${p.id}/events`, { method: 'POST', body: JSON.stringify({ type: 'peeloff', source: 'sell_into_strength', qty: preview.quantity, price: preview.price,
+      const savedEvent = await window.healthyTrendApi.request(`/api/trades/${p.id}/events`, { method: 'POST', body: JSON.stringify({ type: 'peeloff', source: 'sell_into_strength', qty: preview.quantity, price: preview.price,
         occurredAt: new Date(form.elements.occurredAt.value).toISOString(), note: `Sell Into Strength · parcial de ${numBR(preview.percent, 1)}% registrada manualmente.` }) });
       form.closest('dialog').close(); await syncOperationalFromDatabase(); openPosition(p.id); showToast('Parcial registrada. O Runner permanece sob as regras normais de gestão.');
+      if (preview.realizedProfit > 0 && typeof window.ProfitCelebration?.openCelebrationModal === 'function') {
+        window.ProfitCelebration.openCelebrationModal({
+          tradeId: p.id,
+          eventId: savedEvent?.event?.id || savedEvent?.id || null,
+          ticker: p.asset,
+          direction: p.direction || 'long',
+          entryPrice: p.entry,
+          exitPrice: preview.price,
+          initialStop: p.initialStop || p.currentStop,
+          quantity: preview.quantity,
+          riskAmount: Math.abs(p.entry - (p.initialStop || p.currentStop || p.entry * 0.98)) * preview.quantity,
+          realizedAmount: preview.realizedProfit,
+          rMultiple: preview.rAtExit,
+          targetReached: true,
+          planComplied: true
+        });
+      }
     } catch (error) { showToast(error.message || 'Não foi possível registrar a parcial.'); submit.disabled = false; }
   });
   renderEffectiveRiskPolicy();

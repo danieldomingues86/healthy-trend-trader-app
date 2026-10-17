@@ -36,6 +36,7 @@
     ['habits','Monitor de Hábitos','Disciplina que constrói o trader.',null,'Monitore diariamente a execução dos hábitos de alta performance e transforme disciplina em métricas visíveis de consistência.'],
     ['mission','Missão / Rebuild','Jornada de foco e recuperação.','manual-mission','Conclua o ciclo de 10 a 20 trades com risco controlado, acompanhe os marcos da montanha e ative o Rebuild Mode para reconstruir a confiança após drawdowns.'],
     ['tradertraining','Prática Deliberada','Metas e hábitos de excelência.','manual-tradertraining','Treine seu processo operacional com metas deliberadas, critérios objetivos de execução e acompanhamento diário de evolução técnica.'],
+    ['conquests','Minhas Conquistas','Ritual de vitória e recompensas.',null,'Comemore o lucro realizado conforme o plano, escolha recompensas pessoais e acompanhe seus marcos de disciplina.'],
     ['mistakesbook','Erros e Lições','Catálogo de aprendizados.',null,'Registre erros operacionais e comportamentais para identificar padrões e consolidar lições aprendidas.'],
     ['charts','Gráficos','Leitura técnica e benchmarking.','manual-charts','Analise candles diários com médias móveis, volume institucional, benchmarking automático (IBOV, BDRX, IFIX) e avaliação instantânea de Grade pela Trading Rubric.'],
     ['marketcentral','Central de Mercado','Observatório macro e breadth.','manual-marketcentral','Acompanhe em tempo real o regime do mercado, indicadores de breadth, mercados globais (S&P 500, Nasdaq, Dólar, US10Y), notícias do dia e mapa setorial.'],
@@ -96,6 +97,11 @@
         'A tela de Prática Deliberada estrutura o desenvolvimento profissional do trader por meio de metas deliberadas de processo, e não apenas de resultados financeiros imediatos.',
         'Ciclos de Aperfeiçoamento: estabeleça objetivos específicos (como respeitar 100% dos stops ou preencher o diário por 20 pregões consecutivos) e avalie sua aderência com rigor estatístico.',
         'Consistência de Hábitos: conecte sua prática diária aos indicadores de disciplina da plataforma, transformando repetição consciente em maestria operacional.'
+      ],
+      conquests: [
+        'A tela Minhas Conquistas consolida suas realizações operacionais com foco na disciplina: embolsar o lucro conforme o plano sem deixar a ganância decidir.',
+        'Ao clicar em "Embolsar Lucro" em qualquer trade aberto, o sistema abre o modal de celebração para você registrar sua recompensa pessoal e cumprir o Ritual de Vitória.',
+        'Marcos de Disciplina: acompanhe sua evolução em 6 patamares (1, 5, 10, 20, 50, 100 conquistas) e vincule recompensas especiais ao cumprimento de metas de consistência.'
       ],
       dailyroutine: [
         'A Rotina Diária estrutura a jornada do trader em três fases sagradas: Pré-Mercado (checagem de ciclo, revisão de posições, trailing stops e atualização da watchlist), Intra-Mercado (disciplina de execução e paciência) e Pós-Mercado (diário, registro de métricas e reflexão).',

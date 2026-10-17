@@ -64,3 +64,48 @@ test('API rejeita Sell Into Strength fora da zona e parcial que zeraria Runner',
     await assert.rejects(recordPositionEvent('user', id, 'peeloff', { qty: 1, price: 55, source: 'sell_into_strength' }), /zona configurada/);
   } finally { database.transaction = original; }
 });
+
+test('atualização de preço reflete no R múltiplo e permite Sell Into Strength mesmo com entrada em timestamp posterior', async () => {
+  const original = database.transaction;
+  const trade = { id: 'b52f72d0-7c8b-4858-bf18-299598822999', status: 'open', executed_quantity: 1400,
+    execution_price: 48.30, entry_price: 48.30, stop_price: 45.80, direction: 'long' };
+  // Simulando histórico onde o entry teve timestamp no futuro (17/10 12:00) vs update anterior (16/10 22:38)
+  const history = [
+    { type: 'entry', qty: 1400, price: 48.30, stop: 45.80, occurred_at: '2026-10-17T15:00:00.000Z', created_at: '2026-10-16T22:15:00.000Z', context: {} }
+  ];
+  const client = { query: async (sql, values) => {
+    if (sql.includes('FROM app.trades') && sql.includes('FOR UPDATE')) return { rowCount: 1, rows: [{ ...trade }] };
+    if (sql.includes('COALESCE(SUM(quantity)')) return { rows: [{ total: 0 }] };
+    if (sql.includes('FROM app.trade_events') && sql.includes('ORDER BY')) {
+      const sorted = [...history].sort((a, b) => {
+        if (a.type === 'entry' && b.type !== 'entry') return -1;
+        if (b.type === 'entry' && a.type !== 'entry') return 1;
+        return new Date(a.occurred_at) - new Date(b.occurred_at);
+      });
+      return { rows: sorted };
+    }
+    if (sql.includes('FROM app.risk_policies')) return { rows: [{ policy: { sellIntoStrength: { enabled: true, startR: 2, endR: 3, suggestedPercent: 50 } } }] };
+    if (sql.includes('INSERT INTO app.trade_events')) {
+      history.push({ type: values[2], qty: values[3], price: values[4], stop: values[5], context: JSON.parse(values[8]), occurred_at: '2026-10-16T22:38:00.000Z', created_at: '2026-10-16T22:38:00.000Z' });
+      return { rowCount: 1 };
+    }
+    if (sql.includes('UPDATE app.trades')) {
+      if (sql.includes('stop_price')) trade.stop_price = values[2];
+      return { rowCount: 1 };
+    }
+    throw new Error(`Unexpected query: ${sql}`);
+  } };
+  database.transaction = async work => work(client);
+  try {
+    // Atualiza preço para 55.00 (+2.68R)
+    const update = await recordPositionEvent('user', trade.id, 'update', { price: 55.00, stop: 45.80 });
+    assert.ok(update.context.rAtEvent > 2.6);
+    assert.deepEqual(update.context.milestones, ['2R']);
+
+    // Agora Sell Into Strength deve ser aceito na zona configurada (+2R a +3R)
+    const partial = await recordPositionEvent('user', trade.id, 'peeloff', { qty: 700, price: 55.00, source: 'sell_into_strength' });
+    assert.ok(partial.context.rAtExit > 2.6);
+    assert.equal(partial.remaining, 700);
+  } finally { database.transaction = original; }
+});
+

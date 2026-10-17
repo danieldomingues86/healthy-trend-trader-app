@@ -140,11 +140,13 @@
   font-size: 14px;
   line-height: 1;
   flex-shrink: 0;
+  pointer-events: none;
 }
 
 .position-management .pm-btn-text {
   font-weight: 850;
   color: #ffffff;
+  pointer-events: none;
 }
 
 .position-management .pm-btn-arrow {
@@ -153,6 +155,7 @@
   line-height: 1;
   color: #ffffff;
   transition: transform 0.18s ease;
+  pointer-events: none;
 }
 
 .position-management .pm-realizar-parcial-btn:hover .pm-btn-arrow {
@@ -177,14 +180,303 @@
     max-width: 100%;
   }
 }
-.pm-dialog { position: fixed; inset: 0; margin: auto; box-sizing: border-box; border: 1px solid var(--line, #39483e); border-radius: 14px; padding: 22px; background: var(--surface, #19281f); color: inherit; width: min(calc(100vw - 32px), 720px); max-height: min(calc(100vh - 32px), 720px); overflow: auto; box-shadow: 0 26px 80px rgba(0,0,0,.38); }
-.pm-dialog::backdrop { background: rgba(0,0,0,.65); }
-.pm-dialog h3 { margin: 0 0 15px; }
-.pm-dialog .pm-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.pm-dialog label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
-.pm-dialog input { width: 100%; box-sizing: border-box; }
-.pm-dialog .pm-preview { margin: 18px 0; padding: 14px; border-radius: 10px; border: 1px solid var(--line, #39483e); line-height: 1.7; }
-.pm-dialog .pm-form-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Modal Sell Into Strength · realizar parcial */
+.pm-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  width: min(calc(100vw - 32px), 640px);
+  max-height: min(calc(100vh - 40px), 820px);
+  padding: 24px 28px;
+  border-radius: 20px;
+  border: 1px solid var(--line, #cbd8ce);
+  background: var(--surface, #ffffff);
+  color: var(--ink, #11251b);
+  overflow: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.pm-dialog::backdrop {
+  background: rgba(4, 20, 13, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.pm-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line, rgba(0, 0, 0, 0.08));
+}
+
+.pm-dialog-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pm-dialog-title-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.pm-dialog h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink, #11251b);
+}
+
+.pm-dialog-close-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--muted, #6e7d74);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pm-dialog-close-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--ink, #11251b);
+}
+
+/* Form Grid */
+.pm-dialog .pm-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+/* Field & Label */
+.pm-dialog .pm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pm-dialog .pm-field-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted, #556b60);
+  user-select: none;
+}
+
+.pm-dialog .pm-field-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--muted, #6e7d74);
+}
+
+/* Polished Inputs */
+.pm-dialog input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 11px;
+  border: 1px solid var(--line, #cbd8ce);
+  background: var(--paper, #ffffff);
+  color: var(--ink, #11251b);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  color-scheme: light;
+}
+
+.pm-dialog input:hover:not(:disabled):not([readonly]) {
+  border-color: #2e8b57;
+}
+
+.pm-dialog input:focus:not(:disabled):not([readonly]) {
+  border-color: #2e8b57;
+  box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.18);
+  background: #ffffff;
+}
+
+/* Readonly Inputs */
+.pm-dialog input[readonly] {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: var(--muted, #6e7d74);
+  font-weight: 700;
+  cursor: default;
+  user-select: all;
+}
+
+.pm-dialog input[readonly]:focus {
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: none;
+}
+
+/* Number spinners subtle styling */
+.pm-dialog input[type="number"]::-webkit-inner-spin-button,
+.pm-dialog input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.55;
+  cursor: pointer;
+  height: 28px;
+}
+
+.pm-dialog input[type="number"]:hover::-webkit-inner-spin-button,
+.pm-dialog input[type="number"]:hover::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+/* Datetime-local input */
+.pm-dialog input[type="datetime-local"] {
+  font-size: 13.5px;
+}
+
+.pm-dialog input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 4px;
+  border-radius: 6px;
+  transition: opacity 0.2s;
+}
+
+.pm-dialog input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background: rgba(46, 125, 88, 0.1);
+}
+
+/* Preview Box */
+.pm-dialog .pm-preview {
+  margin: 18px 0 16px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(46, 125, 88, 0.22);
+  background: linear-gradient(145deg, rgba(46, 125, 88, 0.06), rgba(16, 185, 129, 0.02));
+  color: var(--ink, #11251b);
+  font-size: 13px;
+  line-height: 1.8;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.pm-dialog .pm-preview b {
+  color: var(--ink, #11251b);
+  font-weight: 750;
+}
+
+/* Actions */
+.pm-dialog .pm-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pm-dialog .pm-form-actions .primary {
+  font-size: 13px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.pm-dialog .pm-form-actions .secondary {
+  font-size: 13px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+/* Dark / Gold Theme Support */
+body:not([data-theme="healthy"]) .pm-dialog {
+  background: linear-gradient(160deg, #10261c 0%, #081812 100%);
+  border-color: rgba(212, 175, 55, 0.28);
+  color: #f7f0e3;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.65), 0 0 50px rgba(16, 185, 129, 0.1);
+}
+
+body:not([data-theme="healthy"]) .pm-dialog-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body:not([data-theme="healthy"]) .pm-dialog h3 {
+  color: #ffffff;
+}
+
+body:not([data-theme="healthy"]) .pm-dialog-close-btn {
+  color: #a7bcae;
+}
+
+body:not([data-theme="healthy"]) .pm-dialog-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+body:not([data-theme="healthy"]) .pm-dialog .pm-field-label {
+  color: #a7d9b9;
+}
+
+body:not([data-theme="healthy"]) .pm-dialog .pm-field-badge {
+  background: rgba(255, 255, 255, 0.1);
+  color: #c4bfb4;
+}
+
+body:not([data-theme="healthy"]) .pm-dialog input {
+  background: rgba(4, 16, 11, 0.85);
+  border-color: rgba(46, 229, 157, 0.24);
+  color: #ffffff;
+  color-scheme: dark;
+}
+
+body:not([data-theme="healthy"]) .pm-dialog input:hover:not(:disabled):not([readonly]) {
+  border-color: #34d6ab;
+}
+
+body:not([data-theme="healthy"]) .pm-dialog input:focus:not(:disabled):not([readonly]) {
+  border-color: #34d6ab;
+  box-shadow: 0 0 0 3px rgba(52, 214, 171, 0.25);
+  background: rgba(6, 24, 16, 0.95);
+}
+
+body:not([data-theme="healthy"]) .pm-dialog input[readonly] {
+  background: rgba(0, 0, 0, 0.45);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #8fa899;
+}
+
+body:not([data-theme="healthy"]) .pm-dialog input[readonly]:focus {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body:not([data-theme="healthy"]) .pm-dialog .pm-preview {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(46, 229, 157, 0.2);
+  color: #d1ded6;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+body:not([data-theme="healthy"]) .pm-dialog .pm-preview b {
+  color: #ffffff;
+}
 .pm-policy {
   margin-top: 15px;
   width: 100%;
