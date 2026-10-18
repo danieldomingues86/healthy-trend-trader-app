@@ -255,3 +255,27 @@ test('TickerChartModel: buildTradeContext e inferRubricRatingsFromContext respei
   assert.equal(petrRatings.fundamentalScore, 'good');
 });
 
+test('TickerChartModel: fins de semana liberam o gráfico para estudos sem modal de disciplina', () => {
+  // Sábado
+  assert.equal(TickerChartModel.isWeekend('2026-10-03T10:00:00-03:00'), true);
+  // Domingo
+  assert.equal(TickerChartModel.isWeekend('2026-10-04T15:00:00-03:00'), true);
+  // Segunda (útil)
+  assert.equal(TickerChartModel.isWeekend('2026-10-05T09:00:00-03:00'), false);
+
+  const satState = TickerChartModel.createInitialState('2026-10-03');
+  satState.sessionsToday = 2; // Já atingiu 2 sessões
+  satState.lastInteractionAt = new Date('2026-10-03T10:00:00-03:00').getTime();
+
+  // Tentativa de 3ª sessão no sábado (1 hora depois)
+  const satThird = TickerChartModel.registerChartAccess(satState, {
+    now: new Date('2026-10-03T11:30:00-03:00').getTime()
+  });
+
+  assert.equal(satThird.isNewSession, true);
+  assert.equal(satThird.isWeekend, true);
+  assert.equal(satThird.shouldShowDisciplineModal, false, 'Modal de disciplina NUNCA deve aparecer no fim de semana');
+  assert.equal(satThird.state.sessionsToday, 3, 'Deve permitir navegar livremente nos estudos de fim de semana');
+});
+
+

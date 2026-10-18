@@ -1,0 +1,554 @@
+/**
+ * HEALTHY TREND TRADER - FOCUS GUARDIAN STYLES (Guardião do Foco)
+ */
+
+/* Widget Body */
+.focus-guardian-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.focus-guardian-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Status Badges */
+.focus-guardian-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.focus-guardian-badge .badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Light / Healthy Theme (Default) */
+.focus-guardian-badge.good {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.focus-guardian-badge.warning {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.focus-guardian-badge.critical {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  animation: pulse-critical 2s infinite ease-in-out;
+}
+
+.focus-guardian-badge.neutral {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+@keyframes pulse-critical {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+}
+
+/* Limits Config Button */
+.focus-guardian-cfg-btn {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  border-radius: 7px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.focus-guardian-cfg-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+/* KPIs (Aberturas hoje / Tempo de tela hoje) */
+.focus-guardian-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.focus-guardian-kpi {
+  padding: 12px 14px;
+  border: 1px solid #e1ebe4;
+  border-radius: 10px;
+  background: #f7faf8;
+  transition: all 0.15s ease;
+}
+
+.focus-guardian-kpis:hover .focus-guardian-kpi {
+  border-color: #b7e0c8;
+  background: #f0f7f3;
+}
+
+.focus-guardian-kpi small {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #557262;
+  letter-spacing: 0.05em;
+  font-weight: 750;
+}
+
+.focus-guardian-kpi b {
+  display: block;
+  font-size: 24px;
+  font-weight: 850;
+  color: #0f2a20;
+  margin-top: 3px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* Messages / Notifications */
+.focus-guardian-message {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-left: 3px solid #10b981;
+  color: #166534;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.focus-guardian-message.warning {
+  border: 1px solid #fde68a;
+  border-left: 3px solid #f59e0b;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.focus-guardian-message.critical {
+  border: 1px solid #fecaca;
+  border-left: 3px solid #ef4444;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.focus-guardian-message.neutral {
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #94a3b8;
+  background: #f8fafc;
+  color: #475569;
+}
+
+/* Gold Theme Overrides */
+body:not([data-theme="healthy"]) .focus-guardian-badge.good,
+body[data-theme="gold"] .focus-guardian-badge.good {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-badge.warning,
+body[data-theme="gold"] .focus-guardian-badge.warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-badge.critical,
+body[data-theme="gold"] .focus-guardian-badge.critical {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-badge.neutral,
+body[data-theme="gold"] .focus-guardian-badge.neutral {
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-cfg-btn,
+body[data-theme="gold"] .focus-guardian-cfg-btn {
+  background: rgba(26, 21, 14, 0.8);
+  border-color: rgba(214, 170, 80, 0.28);
+  color: #e8c45e;
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-cfg-btn:hover,
+body[data-theme="gold"] .focus-guardian-cfg-btn:hover {
+  background: rgba(45, 36, 22, 0.9);
+  color: #fffaf0;
+  border-color: #e8c45e;
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-kpi,
+body[data-theme="gold"] .focus-guardian-kpi {
+  background: rgba(22, 17, 11, 0.8);
+  border-color: rgba(214, 170, 80, 0.18);
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-kpis:hover .focus-guardian-kpi,
+body[data-theme="gold"] .focus-guardian-kpis:hover .focus-guardian-kpi {
+  border-color: rgba(214, 170, 80, 0.38);
+  background: rgba(28, 22, 14, 0.9);
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-kpi small,
+body[data-theme="gold"] .focus-guardian-kpi small {
+  color: #9c8e73;
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-kpi b,
+body[data-theme="gold"] .focus-guardian-kpi b {
+  color: #fffaf0;
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-message,
+body[data-theme="gold"] .focus-guardian-message {
+  background: rgba(8, 42, 29, 0.5);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-left: 3px solid #52b788;
+  color: #c4ded0;
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-message.warning,
+body[data-theme="gold"] .focus-guardian-message.warning {
+  background: rgba(45, 33, 5, 0.4);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-left: 3px solid #f59e0b;
+  color: #fde68a;
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-message.critical,
+body[data-theme="gold"] .focus-guardian-message.critical {
+  background: rgba(45, 12, 12, 0.45);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-left: 3px solid #ef4444;
+  color: #fecaca;
+}
+
+body:not([data-theme="healthy"]) .focus-guardian-message.neutral,
+body[data-theme="gold"] .focus-guardian-message.neutral {
+  background: rgba(30, 41, 59, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-left: 3px solid #64748b;
+  color: #94a3b8;
+}
+
+/* Modal Backdrop & Container */
+.focus-guardian-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 15, 10, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.focus-guardian-modal {
+  width: min(540px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: 20px;
+  background: linear-gradient(150deg, #130a0a, #1a0f0f 40%, #0d1e16);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(239, 68, 68, 0.25);
+  color: #f1f7f2;
+  padding: 28px;
+  box-sizing: border-box;
+  animation: modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.focus-guardian-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.focus-guardian-modal-eyebrow {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f87171;
+}
+
+.focus-guardian-modal h2 {
+  margin: 4px 0 0;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.focus-guardian-modal-close {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.focus-guardian-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.focus-guardian-question {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fef08a;
+  line-height: 1.4;
+}
+
+.focus-guardian-lead {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.focus-guardian-modal-data {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 20px;
+}
+
+.focus-guardian-modal-data .metric-block small {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.focus-guardian-modal-data .metric-block b {
+  display: block;
+  font-size: 22px;
+  color: #fff;
+  margin-top: 2px;
+}
+
+.focus-guardian-modal-reason {
+  grid-column: 1 / -1;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  color: #fca5a5;
+  font-weight: 600;
+}
+
+.focus-guardian-reflections {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 22px;
+}
+
+.focus-guardian-reflections strong {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #93c5fd;
+  margin-bottom: 10px;
+}
+
+.focus-guardian-reflections ul {
+  margin: 0;
+  padding: 0 0 0 16px;
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  color: #e2e8f0;
+  line-height: 1.45;
+}
+
+.focus-guardian-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.focus-guardian-btn-primary {
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: #10b981;
+  color: #042f1b;
+  font-weight: 800;
+  font-size: 13px;
+  border: 0;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-align: center;
+}
+
+.focus-guardian-btn-primary:hover {
+  background: #34d399;
+}
+
+.focus-guardian-btn-secondary {
+  padding: 11px 18px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  font-weight: 700;
+  font-size: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-align: center;
+}
+
+.focus-guardian-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* Settings Modal */
+.focus-guardian-settings-modal {
+  width: min(480px, 100%);
+  border: 1px solid rgba(116, 182, 139, 0.35);
+  background: linear-gradient(145deg, #07251a, #051912);
+  border-radius: 18px;
+  padding: 24px;
+  color: #edf8ef;
+}
+
+.focus-guardian-settings-grid {
+  display: grid;
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.focus-guardian-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.focus-guardian-setting-row label {
+  font-size: 12px;
+  color: #c3d9c9;
+}
+
+.focus-guardian-setting-row input[type="number"] {
+  width: 75px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #0b3524;
+  border: 1px solid rgba(116, 182, 139, 0.35);
+  color: #fff;
+  font: inherit;
+  text-align: center;
+}
+
+.focus-guardian-sound-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(11, 53, 36, 0.4);
+}
+
+.focus-guardian-sound-info b {
+  display: block;
+  font-size: 13px;
+  color: #eef8ef;
+}
+
+.focus-guardian-sound-info small {
+  display: block;
+  font-size: 11px;
+  color: #92bca0;
+}
+
+.focus-guardian-settings-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(116, 182, 139, 0.2);
+}
+
+.focus-guardian-btn-save {
+  padding: 9px 18px;
+  border-radius: 8px;
+  background: #10b981;
+  color: #042e1a;
+  font-weight: 800;
+  font-size: 12px;
+  border: 0;
+  cursor: pointer;
+}
+
+.focus-guardian-btn-save:hover {
+  background: #34d399;
+}
+
+.focus-guardian-btn-reset {
+  background: transparent;
+  border: 1px solid rgba(116, 182, 139, 0.3);
+  color: #a7d0b5;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.focus-guardian-btn-reset:hover {
+  background: rgba(116, 182, 139, 0.15);
+  color: #fff;
+}

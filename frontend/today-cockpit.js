@@ -609,6 +609,8 @@
       ,renderReminders: () => `<div class="personal-list">${personal.reminders.map(item => `<span>${esc(item.text)}<button type="button" data-reminder-remove="${item.id}">×</button></span>`).join('') || '<p>Nenhum lembrete para hoje.</p>'}<form data-reminder-form><input maxlength="80" placeholder="Novo lembrete"><button>+</button></form></div>`
       ,renderHabits: () => habits.length ? `<div class="personal-checklist">${habits.slice(0,5).map(item => { const done = window.habitState?.records?.[window.habitKey?.(item.id, new Date().getDate())] === 'done'; return `<label><input type="checkbox" data-habit-toggle="${item.id}" ${done ? 'checked' : ''}><span>${esc(item.name || item.title)}</span></label>`; }).join('')}</div>` : empty('Adicione hábitos para acompanhar sua consistência.')
       ,renderFocus: () => `<div class="personal-focus"><input data-focus-title value="${esc(personal.focus.title)}" aria-label="Intenção do foco"><textarea data-focus-text aria-label="Frase do foco">${esc(personal.focus.text)}</textarea></div>`
+      ,renderFocusGuardian: () => window.FocusGuardianController ? window.FocusGuardianController.renderWidget() : '<div class="dashboard-widget-state">Carregando Guardião do Foco…</div>'
+      ,renderDailyWisdom: () => window.DailyWisdomController ? window.DailyWisdomController.renderWidget() : '<div class="dashboard-widget-state">Carregando Sabedoria do Dia…</div>'
     };
     const layout = getWidgetLayout();
     const activeLayout = layout.filter((item) => item.active);
