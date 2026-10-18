@@ -142,7 +142,7 @@ test('Validação de Paridade 100%: Nenhum item da navegação anterior foi perd
   const previousSidebarPages = [
     'today', 'newtrade', 'journal', 'dailyroutine', 'watchlist', 'habits',
     'tradertraining', 'mission',
-    'relativestrength', 'marketcycle', 'charts', 'marketcentral', 'marketscans', 'emergingleaders', 'fundamentals',
+    'relativestrength', 'marketcycle', 'charts', 'marketcentral', 'opportunityradar', 'fundamentals',
     'tradesimulator', 'forecast',
     'dashboard', 'positions', 'closedpositions', 'portfolioheat', 'riskpolicy', 'assetblacklist',
     'analytics', 'tradeanatomy', 'mistakesbook', 'tradelibrary', 'platformaccess', 'review',
@@ -185,5 +185,47 @@ test('NavigationSystem: Categoria Treinamento tem label exato e ícones do Menu 
 
   const css = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.css'), 'utf8');
   assert.match(css, /\.dropdown-item-ico\s*\{[^}]*background:\s*transparent/i, 'dropdown-item-ico deve ter background transparente');
+});
+
+test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita de prioridade diária', () => {
+  const model = new NavigationSystemModel();
+  const tree = model.getNavigationTree();
+  const marketCat = tree.categories.find(c => c.id === 'market-analysis');
+  assert.ok(marketCat, 'Categoria market-analysis deve existir');
+  
+  const pageOrder = marketCat.items.map(i => i.page);
+  assert.deepEqual(pageOrder, [
+    'opportunityradar',
+    'relativestrength',
+    'marketcycle',
+    'marketcentral',
+    'eventplaybook',
+    'fundamentals'
+  ], 'Itens de Análise de Mercado devem respeitar a ordem prioritária de uso diário');
+
+  // Validação dos textos e descrições do menu
+  const radar = marketCat.items.find(i => i.page === 'opportunityradar');
+  assert.equal(radar.label, 'Radar de Oportunidades');
+  assert.equal(radar.desc, 'Encontrar ativos prontos para entrada no gráfico Diário.');
+
+  const rs = marketCat.items.find(i => i.page === 'relativestrength');
+  assert.equal(rs.label, 'Força Relativa');
+  assert.equal(rs.desc, 'Identificar os ativos líderes do mercado.');
+
+  const cycle = marketCat.items.find(i => i.page === 'marketcycle');
+  assert.equal(cycle.label, 'Ciclo de Mercado');
+  assert.equal(cycle.desc, 'Verificar o regime de mercado e o sinal de permissão para operar.');
+
+  const central = marketCat.items.find(i => i.page === 'marketcentral');
+  assert.equal(central.label, 'Central de Mercado');
+  assert.equal(central.desc, 'Consultar a visão geral do ambiente de mercado.');
+
+  const events = marketCat.items.find(i => i.page === 'eventplaybook');
+  assert.equal(events.label, 'Registro de Eventos');
+  assert.equal(events.desc, 'Acompanhar eventos relevantes que podem afetar as operações.');
+
+  const fund = marketCat.items.find(i => i.page === 'fundamentals');
+  assert.equal(fund.label, 'Análise Fundamentalista');
+  assert.equal(fund.desc, 'Consultar os fundamentos e a qualidade dos ativos.');
 });
 

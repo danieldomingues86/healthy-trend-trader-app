@@ -73,6 +73,22 @@ async function getOpportunityRadarData(cache) {
 
   readyItems.sort((a, b) => (b.rsScore - a.rsScore) || a.symbol.localeCompare(b.symbol));
 
+  // Sincroniza a Rubric dos ativos prontos com o motor oficial e fundamentos do tickerChart (100% de paridade com a tela Gráficos)
+  await Promise.all(
+    readyItems.map(async (readyItem) => {
+      try {
+        const chartData = await tickerChart.getTickerChartData(readyItem.symbol, cache);
+        if (chartData?.rubric?.finalGrade) {
+          readyItem.grade = chartData.rubric.finalGrade;
+          readyItem.rubricScore = chartData.rubric.score;
+          readyItem.rubricSummary = chartData.rubric.summaryText;
+        }
+      } catch {
+        // Preserva avaliação padrão em caso de exceção isolada
+      }
+    })
+  );
+
   const latestCandleDates = readyItems.map((i) => i.lastCandleDate).filter(Boolean).sort();
   const dataAsOf = latestCandleDates.at(-1)
     || cache.overview?.benchmarkHistory?.at(-1)?.date

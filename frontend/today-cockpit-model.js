@@ -29,7 +29,7 @@
       return { kind: 'position', title: `Revisar ${position.asset || 'posição aberta'}`, detail: 'Confirme preço, stop e risco em andamento antes de procurar algo novo.', page: 'position', positionId: position.id, action: 'Gerenciar posição' };
     }
     if (drafts.length) return { kind: 'draft', title: 'Retomar plano salvo', detail: `${drafts.length} plano(s) aguardando sua decisão.`, page: 'newtrade', action: 'Abrir planejamento' };
-    if (healthyMarket && opportunityCount > 0) return { kind: 'opportunity', title: 'Revisar oportunidades', detail: `${opportunityCount} ativo(s) passaram pelos filtros atuais.`, page: 'marketscans', action: 'Abrir scans' };
+    if (healthyMarket && opportunityCount > 0) return { kind: 'opportunity', title: 'Revisar oportunidades', detail: `${opportunityCount} ativo(s) passaram pelos filtros atuais.`, page: 'opportunityradar', action: 'Abrir Radar de Oportunidades' };
     if (healthyMarket) return { kind: 'plan', title: 'Planejar somente um cenário A', detail: 'O mercado permite procurar oportunidades, mas nenhum scan substitui a validação do setup.', page: 'newtrade', action: 'Planejar trade' };
     return { kind: 'wait', title: 'Preservar capital e observar', detail: 'Revise o Ciclo de Mercado antes de considerar uma nova exposição.', page: 'marketcycle', action: 'Ver ciclo de mercado' };
   }

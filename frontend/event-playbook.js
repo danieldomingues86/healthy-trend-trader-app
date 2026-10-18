@@ -474,7 +474,7 @@
         <!-- HEADER -->
         <header class="ep-header">
           <div class="ep-title-col">
-            <h1>Playbook de Eventos</h1>
+            <h1>Registro de Eventos</h1>
             <p>Biblioteca histórica de eventos e comportamento do mercado.</p>
           </div>
           <div class="ep-header-actions">

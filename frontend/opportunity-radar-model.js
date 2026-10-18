@@ -227,7 +227,7 @@
    * Avalia estritamente se um ativo cumpre TODOS os critérios obrigatórios para entrada no gráfico Diário.
    * Retorna null caso qualquer critério não seja atendido.
    */
-  function evaluateAssetReadiness(item, candles, marketCycleState = 'healthy') {
+  function evaluateAssetReadiness(item, candles, marketCycleState = 'healthy', policy) {
     if (!item || !item.symbol || !Array.isArray(candles) || candles.length < 30) {
       return null;
     }
@@ -241,9 +241,9 @@
       return null;
     }
 
-    // 2. Força Relativa (3M) mínima obrigatória (>= 70)
+    // 2. Força Relativa (3M) mínima obrigatória (> 80)
     const rsScore = Math.round(Number(item.score ?? item.rsScore ?? 0));
-    if (!Number.isFinite(rsScore) || rsScore < 70) {
+    if (!Number.isFinite(rsScore) || rsScore <= 80) {
       return null;
     }
 
@@ -288,10 +288,76 @@
     const sector = translateSector(item.sector);
     const triggerLabel = formatTriggerDisplayName(trigger);
 
+    // 5. Avaliação oficial da Rubric (Grade do Ativo) com 100% de paridade com o Gráfico e Novo Trade
+    let grade = 'B';
+    let rubricScore = 80;
+    let rubricSummary = '';
+
+    if (TickerChartModel && typeof TickerChartModel.evaluateChartRubric === 'function') {
+      const atrInfo = typeof TickerChartModel.calculateAtr === 'function' ? TickerChartModel.calculateAtr(candles, 21) : null;
+      const latestAtr = atrInfo?.latestAtr ?? null;
+      const latestAtrPct = atrInfo?.latestAtrPct ?? null;
+
+      const tickerData = {
+        tickerInfo: {
+          symbol: String(item.symbol).trim().toUpperCase(),
+          name: item.name || item.symbol,
+          price: latestClose
+        },
+        trigger: {
+          hasTrigger: true,
+          id: trigger.id,
+          name: trigger.name,
+          grade: trigger.grade || 'A',
+          entry,
+          stop
+        },
+        relativeStrength: {
+          score: rsScore,
+          classification: rsClass.label
+        },
+        marketCycle: {
+          regime: cycleNorm,
+          description: cycleNorm === 'transition' ? 'Transição' : 'Positivo'
+        },
+        trend: {
+          status: 'Alta',
+          priceAboveEma9: true,
+          ema9AboveEma30: true
+        },
+        volatility: {
+          atr21: latestAtr,
+          atrPct: latestAtrPct
+        },
+        indicators: {
+          atr21: latestAtr,
+          atrPct: latestAtrPct,
+          ema9: latestEma9,
+          ema30: latestEma30
+        },
+        fundamentals: item.fundamentals || (
+          (market === 'IFIX' || item.assetClass === 'fii' || /11$/.test(String(item.symbol).trim()))
+            ? { available: false, status: 'neutral', evaluation: 'Neutro' }
+            : undefined
+        )
+      };
+
+      const activePolicy = policy || (typeof window !== 'undefined' ? (window.riskPolicyState || window.tradingRubricPolicy) : undefined);
+      const evalRubric = TickerChartModel.evaluateChartRubric(tickerData, activePolicy);
+      if (evalRubric && evalRubric.finalGrade) {
+        grade = evalRubric.finalGrade;
+        rubricScore = evalRubric.score;
+        rubricSummary = evalRubric.summaryText;
+      }
+    }
+
     return {
       symbol: String(item.symbol).trim().toUpperCase(),
       name: cleanCompanyName(item.symbol, item.name),
       fullName: String(item.name || item.symbol).trim(),
+      grade,
+      rubricScore,
+      rubricSummary,
       market,
       sector,
       rawSector: String(item.sector || '').trim(),
@@ -325,6 +391,7 @@
     const marketFilter = String(filters.market || 'ALL').trim().toUpperCase();
     const sectorFilter = String(filters.sector || 'ALL').trim();
     const triggerFilter = String(filters.trigger || 'ALL').trim();
+    const gradeFilter = String(filters.grade || 'ALL').trim().toUpperCase();
     const searchQuery = String(filters.search || '').trim().toLowerCase();
 
     return items.filter((item) => {
@@ -344,6 +411,10 @@
         item.triggerName !== triggerFilter &&
         item.triggerRawName !== triggerFilter
       ) {
+        return false;
+      }
+
+      if (gradeFilter !== 'ALL' && String(item.grade || '').toUpperCase() !== gradeFilter) {
         return false;
       }
 
@@ -371,10 +442,16 @@
       }
     }
     const triggers = [...triggersMap.entries()].map(([id, name]) => ({ id, name }));
+    const gradesSet = new Set(list.map((i) => String(i.grade || '').trim().toUpperCase()).filter(Boolean));
+    const gradeOrder = ['A', 'B', 'C', 'D'];
+    const presentGrades = gradeOrder.filter((g) => gradesSet.has(g));
+    const grades = presentGrades.length > 0 ? presentGrades : ['A', 'B', 'C', 'D'];
+
     return {
       markets: ['IBOV', 'IFIX', 'BDRs'],
       sectors,
-      triggers
+      triggers,
+      grades
     };
   }
 

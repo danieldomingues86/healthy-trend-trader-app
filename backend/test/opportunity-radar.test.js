@@ -25,7 +25,8 @@ test('getOpportunityRadarData consolida apenas ativos prontos para entrada usand
 
   for (const item of result.items) {
     assert.ok(['IBOV', 'IFIX', 'BDRs'].includes(item.market), `Mercado inválido: ${item.market}`);
-    assert.ok(item.rsScore >= 70, `RS deve ser >= 70, recebido: ${item.rsScore}`);
+    assert.ok(item.rsScore > 80, `RS deve ser estritamente > 80, recebido: ${item.rsScore}`);
+    assert.ok(['A', 'B', 'C', 'D'].includes(item.grade), `Grade deve ser válido, recebido: ${item.grade}`);
     assert.equal(item.trend, 'Alinhada');
     assert.equal(item.status, 'Pronto para entrada');
     assert.ok(item.entry > item.stop, 'Entrada planejada deve ser maior que stop inicial');
