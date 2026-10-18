@@ -604,11 +604,11 @@
           ${renderDonutMini(disciplineState)}
           <div class="discipline-info-wrap">
             <div class="discipline-info-title">Disciplina do Diário</div>
-            <div class="discipline-info-sub">${disciplineState ? disciplineState.sessionsToday : 1} / 2 visualizações hoje</div>
+            <div class="discipline-info-sub">${getDisciplineSubText(disciplineState)}</div>
           </div>
           <div class="discipline-status-pill ${getDisciplinePillClass(disciplineState)}">
             <div class="discipline-status-headline"><span>●</span> ${getDisciplinePillText(disciplineState)}</div>
-            <div class="discipline-status-subtext">Próxima análise: amanhã, após o fechamento</div>
+            <div class="discipline-status-subtext">${getDisciplineNextText()}</div>
           </div>
         </div>
       </div>
@@ -1032,11 +1032,11 @@
           ${renderDonutMini(disciplineState)}
           <div class="discipline-info-wrap">
             <div class="discipline-info-title">Disciplina do Diário</div>
-            <div class="discipline-info-sub">${disciplineState ? disciplineState.sessionsToday : 1} / 2 visualizações hoje</div>
+            <div class="discipline-info-sub">${getDisciplineSubText(disciplineState)}</div>
           </div>
           <div class="discipline-status-pill ${getDisciplinePillClass(disciplineState)}">
             <div class="discipline-status-headline"><span>●</span> ${getDisciplinePillText(disciplineState)}</div>
-            <div class="discipline-status-subtext">Próxima análise: amanhã, após o fechamento</div>
+            <div class="discipline-status-subtext">${getDisciplineNextText()}</div>
           </div>
         </div>
       </div>
@@ -1689,10 +1689,17 @@
           <button class="discipline-drawer-close" id="btnCloseDisciplineDrawer">✕</button>
         </div>
 
+        ${window.TickerChartModel?.isWeekend?.() ? `
         <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px; font-size: 13px; color: #166534;">
-          <b>● Dentro da regra</b><br>
+          <b>● Fim de Semana · Estudo Livre</b><br>
+          O mercado B3 está fechado. Aproveite o fim de semana para estudar gráficos, revisar seu diário e testar hipóteses com total liberdade.
+        </div>
+        ` : `
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px; font-size: 13px; color: #166534;">
+          <b>● ${getDisciplinePillText(disciplineState)}</b><br>
           Você já analisou o <b>Diário</b> hoje. O próximo momento planejado de análise é às <b>18:00</b> (após o fechamento).
         </div>
+        `}
 
         <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #334155;">
           <div style="display: flex; justify-content: space-between;">
@@ -1704,8 +1711,8 @@
             <b>${getDurationSince(disciplineState?.lastInteractionAt)}</b>
           </div>
           <div style="display: flex; justify-content: space-between;">
-            <span style="color: #64748b;">📅 Próxima análise permitida:</span>
-            <b>18:00 (Fechamento)</b>
+            <span style="color: #64748b;">📅 ${window.TickerChartModel?.isWeekend?.() ? 'Mercado reabre:' : 'Próxima análise permitida:'}</span>
+            <b>${window.TickerChartModel?.isWeekend?.() ? 'Segunda-feira às 10:00' : '18:00 (Fechamento)'}</b>
           </div>
         </div>
 
@@ -1771,6 +1778,20 @@
   }
 
   function renderDonutMini(state) {
+    const isWeekend = window.TickerChartModel?.isWeekend?.();
+    if (isWeekend) {
+      return `
+        <div class="discipline-donut-wrap" title="Fim de semana: plataforma liberada para estudos">
+          <svg class="discipline-donut-svg" viewBox="0 0 38 38">
+            <circle class="discipline-donut-bg" cx="19" cy="19" r="15"></circle>
+            <circle class="discipline-donut-fg" cx="19" cy="19" r="15"
+              style="stroke: #059669; stroke-dasharray: ${2 * Math.PI * 15}; stroke-dashoffset: 0;"></circle>
+          </svg>
+          <span class="discipline-donut-text">✓</span>
+        </div>
+      `;
+    }
+
     const sessions = state ? state.sessionsToday : 1;
     const max = 2;
     const pct = Math.min(1, sessions / max);
@@ -1790,7 +1811,25 @@
     `;
   }
 
+  function getDisciplineSubText(state) {
+    const isWeekend = window.TickerChartModel?.isWeekend?.();
+    const sessions = state ? state.sessionsToday : 1;
+    if (isWeekend) {
+      return `${sessions} visualizaç${sessions === 1 ? 'ão' : 'ões'} · Estudo Livre`;
+    }
+    return `${sessions} / 2 visualizações hoje`;
+  }
+
+  function getDisciplineNextText() {
+    const isWeekend = window.TickerChartModel?.isWeekend?.();
+    if (isWeekend) {
+      return 'Fim de semana: mercado fechado';
+    }
+    return 'Próxima análise: amanhã, após o fechamento';
+  }
+
   function getDisciplinePillClass(state) {
+    if (window.TickerChartModel?.isWeekend?.()) return '';
     const s = state ? state.sessionsToday : 1;
     if (s <= 2) return '';
     if (s <= 5) return 'warn';
@@ -1798,6 +1837,7 @@
   }
 
   function getDisciplinePillText(state) {
+    if (window.TickerChartModel?.isWeekend?.()) return 'Mercado Fechado · Estudo Livre';
     const s = state ? state.sessionsToday : 1;
     if (s <= 2) return 'Dentro da regra';
     if (s <= 5) return 'Atenção';
@@ -2063,6 +2103,8 @@
 
   // Mostra o Modal de Disciplina ("SUA ANÁLISE JÁ FOI FEITA")
   function showDisciplineModal(targetTicker) {
+    if (window.TickerChartModel?.isWeekend?.()) return;
+
     // Remove modal anterior se houver
     const old = document.getElementById('disciplineModalOverlay');
     if (old) old.remove();

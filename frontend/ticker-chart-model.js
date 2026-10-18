@@ -31,6 +31,21 @@
     return `${year}-${month}-${day}`;
   }
 
+  function isWeekend(date = new Date()) {
+    try {
+      const d = date ? new Date(date) : new Date();
+      const str = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Sao_Paulo',
+        weekday: 'short'
+      }).format(d).toLowerCase();
+      return str.startsWith('sat') || str.startsWith('sun');
+    } catch (_) {
+      const d = date ? new Date(date) : new Date();
+      const day = d.getDay();
+      return day === 0 || day === 6;
+    }
+  }
+
   function getNowTimeFormatted(date = new Date()) {
     const d = new Date(date);
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -122,11 +137,12 @@
     const lastInteraction = state.lastInteractionAt ? Number(state.lastInteractionAt) : 0;
     const isNewSession = !lastInteraction || (now - lastInteraction) > SESSION_INACTIVITY_TIMEOUT_MS;
 
+    const weekend = isWeekend(new Date(now));
     let shouldShowDisciplineModal = false;
 
     if (isNewSession) {
-      // Se já atingiu ou superou o limite de 2 sessões e está iniciando uma nova sessão
-      if (state.sessionsToday >= MAX_PLANNED_SESSIONS_PER_DAY && !options.bypassApproved) {
+      // Se já atingiu ou superou o limite de 2 sessões em dia útil e está iniciando uma nova sessão
+      if (!weekend && state.sessionsToday >= MAX_PLANNED_SESSIONS_PER_DAY && !options.bypassApproved) {
         shouldShowDisciplineModal = true;
       } else {
         state.sessionsToday += 1;
@@ -146,7 +162,8 @@
     return {
       state,
       isNewSession,
-      shouldShowDisciplineModal
+      shouldShowDisciplineModal,
+      isWeekend: weekend
     };
   }
 
@@ -927,6 +944,7 @@
     MOTIVE_OPTIONS,
     getTodayIsoDate,
     getNowTimeFormatted,
+    isWeekend,
     createInitialState,
     loadDisciplineState,
     saveDisciplineState,
