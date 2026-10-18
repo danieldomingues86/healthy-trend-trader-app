@@ -1501,6 +1501,7 @@
 /* ── Container da Página & Background Dark Escuro ────────────────────────── */
 body:has(#conquests.active),
 body:has(#conquests.page.active),
+body.page-conquests-active,
 body:has(#conquests.active) .app,
 body:has(#conquests.active) .main,
 body:has(#conquests.active) .content,
@@ -1512,11 +1513,12 @@ body:has(#conquests.page.active) .content,
 }
 
 body:has(#conquests.active) .content,
-body:has(#conquests.page.active) .content {
+body:has(#conquests.page.active) .content,
+body.page-conquests-active .content {
   max-width: none !important;
   width: 100% !important;
   margin: 0 !important;
-  padding: 24px 32px 60px 32px !important;
+  padding: 24px clamp(24px, 3.2vw, 48px) 60px !important;
   box-sizing: border-box !important;
 }
 
@@ -1536,7 +1538,8 @@ body:has(#conquests.page.active) #marketFocusGuard {
 
 /* Adaptação da Topbar para Dark quando Minhas Conquistas está ativa */
 body:has(#conquests.active) .topbar,
-body:has(#conquests.page.active) .topbar {
+body:has(#conquests.page.active) .topbar,
+body.page-conquests-active .topbar {
   background: rgba(6, 23, 26, 0.95) !important;
   backdrop-filter: blur(14px) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -1544,17 +1547,20 @@ body:has(#conquests.page.active) .topbar {
 }
 
 body:has(#conquests.active) .topbar .crumb,
-body:has(#conquests.page.active) .topbar .crumb {
+body:has(#conquests.page.active) .topbar .crumb,
+body.page-conquests-active .topbar .crumb {
   color: #94a3b8 !important;
 }
 
 body:has(#conquests.active) .topbar .crumb b,
-body:has(#conquests.page.active) .topbar .crumb b {
+body:has(#conquests.page.active) .topbar .crumb b,
+body.page-conquests-active .topbar .crumb b {
   color: #f8fafc !important;
 }
 
 body:has(#conquests.active) .topbar .pill,
-body:has(#conquests.page.active) .topbar .pill {
+body:has(#conquests.page.active) .topbar .pill,
+body.page-conquests-active .topbar .pill {
   background: rgba(255, 255, 255, 0.06) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: #f8fafc !important;
@@ -1571,19 +1577,19 @@ body:has(#conquests.page.active) .topbar .pill {
 
 /* Header Banner Hero com Hiker ao Entardecer */
 .pc-page-header {
-  background: linear-gradient(90deg, #06171a 0%, #06171a 45%, rgba(6, 23, 26, 0.75) 75%, rgba(6, 23, 26, 0.35) 100%),
-              url('../assets/mission-hero-clean.jpg') right center / cover no-repeat !important;
-  border: 1px solid #143e42 !important;
+  background: linear-gradient(90deg, #06171a 0%, #06171a 38%, rgba(6, 23, 26, 0.7) 62%, rgba(6, 23, 26, 0.15) 100%),
+              url('../assets/courage-hero-landscape.jpg') right center / cover no-repeat !important;
+  border: 1px solid rgba(212, 175, 55, 0.28) !important;
   border-radius: 20px;
-  padding: 28px 36px;
+  padding: 30px 38px;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 28px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
   width: 100%;
   box-sizing: border-box;
 }
@@ -1591,58 +1597,64 @@ body:has(#conquests.page.active) .topbar .pill {
 .pc-page-header-left {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 26px;
   z-index: 2;
+  min-width: 0;
 }
 
-.pc-page-trophy-icon {
-  width: 68px;
-  height: 68px;
-  filter: drop-shadow(0 8px 24px rgba(245, 205, 101, 0.45));
+.pc-page-trophy-img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 24px rgba(245, 205, 101, 0.45));
   flex-shrink: 0;
 }
 
 .pc-page-header-title-box h1 {
-  font-size: 32px;
-  font-weight: 800;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 34px;
+  font-weight: 700;
   margin: 0 0 4px;
   color: #ffffff;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .pc-page-header-title-box h2 {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #F5CD65;
   margin: 0 0 6px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .pc-page-header-title-box p {
-  font-size: 13px;
-  color: #94a3b8;
+  font-size: 13.5px;
+  color: #cbd5e1;
   margin: 0;
-  max-width: 520px;
-  line-height: 1.45;
+  max-width: 580px;
+  line-height: 1.5;
 }
 
 .pc-page-header-right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 16px;
   z-index: 2;
+  flex-shrink: 0;
 }
 
 .pc-header-quote-card {
   background: transparent;
   border: none;
-  max-width: 260px;
-  font-size: 14px;
+  max-width: 230px;
+  font-size: 16px;
+  font-family: Georgia, 'Times New Roman', serif;
   font-style: italic;
   color: #F5CD65;
   line-height: 1.45;
   text-align: right;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95);
 }
 
 /* 5 KPIs Row */
@@ -1675,10 +1687,11 @@ body:has(#conquests.page.active) .topbar .pill {
   background: #0A2224 !important;
   border: 1px solid #13373b !important;
   border-radius: 16px;
-  padding: 18px 20px;
+  padding: 20px 22px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   min-width: 0;
@@ -1687,28 +1700,22 @@ body:has(#conquests.page.active) .topbar .pill {
 
 .pc-kpi-card:hover {
   background: #0d2a2c !important;
-  border-color: rgba(52, 214, 171, 0.3) !important;
+  border-color: rgba(52, 214, 171, 0.35) !important;
   transform: translateY(-2px);
-}
-
-.pc-kpi-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
 }
 
 .pc-kpi-badge-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
   background: rgba(52, 214, 171, 0.12);
   border: 1px solid rgba(52, 214, 171, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #34D6AB;
-  font-size: 18px;
+  flex-shrink: 0;
 }
 
 .pc-kpi-badge-icon.gold {
@@ -1717,28 +1724,45 @@ body:has(#conquests.page.active) .topbar .pill {
   color: #F5CD65;
 }
 
+.pc-kpi-card-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
 .pc-kpi-card-val {
   font-size: 26px;
   font-weight: 800;
   color: #ffffff;
   letter-spacing: -0.01em;
-  margin-bottom: 2px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pc-kpi-card-lbl {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #94a3b8;
-  margin-bottom: 8px;
+  color: #cbd5e1;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pc-kpi-card-sub {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #34D6AB;
+  margin-top: 6px;
   display: flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pc-kpi-card-sub.gold {
@@ -1749,17 +1773,39 @@ body:has(#conquests.page.active) .topbar .pill {
   color: #94a3b8;
 }
 
+.pc-kpi-progress-bar {
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.pc-kpi-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F5CD65 0%, #EAB308 100%);
+  border-radius: 3px;
+}
+
 /* Duas colunas do Painel */
 .pc-dashboard-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(360px, 1.15fr);
+  grid-template-columns: minmax(0, 1.75fr) minmax(380px, 1.25fr);
   gap: 20px;
   width: 100%;
   box-sizing: border-box;
   margin-bottom: 24px;
 }
 
-@media (max-width: 1100px) {
+@media (min-width: 1600px) {
+  .pc-dashboard-row {
+    grid-template-columns: minmax(0, 1.8fr) minmax(420px, 1.2fr);
+    gap: 24px;
+  }
+}
+
+@media (max-width: 1120px) {
   .pc-dashboard-row {
     grid-template-columns: 1fr;
   }
@@ -1769,7 +1815,7 @@ body:has(#conquests.page.active) .topbar .pill {
   background: #0A2224 !important;
   border: 1px solid #13373b !important;
   border-radius: 18px;
-  padding: 22px 24px;
+  padding: 24px 26px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
@@ -1781,21 +1827,22 @@ body:has(#conquests.page.active) .topbar .pill {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .pc-card-head h3 {
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 800;
   color: #ffffff;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .pc-link-btn {
   background: none;
   border: none;
   color: #F5CD65;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   padding: 2px 4px;
@@ -1810,16 +1857,16 @@ body:has(#conquests.page.active) .topbar .pill {
 .pc-chart-legend {
   display: flex;
   align-items: center;
-  gap: 16px;
-  font-size: 11px;
-  color: #94a3b8;
+  gap: 20px;
+  font-size: 12px;
+  color: #cbd5e1;
   font-weight: 600;
 }
 
 .pc-legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .pc-legend-bar-sample {
@@ -1830,7 +1877,7 @@ body:has(#conquests.page.active) .topbar .pill {
 }
 
 .pc-legend-line-sample {
-  width: 14px;
+  width: 16px;
   height: 3px;
   background: #F5CD65;
   border-radius: 2px;
@@ -1840,10 +1887,10 @@ body:has(#conquests.page.active) .topbar .pill {
 .pc-legend-line-sample::after {
   content: '';
   position: absolute;
-  top: -2.5px;
-  left: 3px;
-  width: 8px;
-  height: 8px;
+  top: -3px;
+  left: 4px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: #F5CD65;
 }
@@ -1851,7 +1898,7 @@ body:has(#conquests.page.active) .topbar .pill {
 /* Gráfico SVG de Evolução das Conquistas */
 .pc-svg-chart-container {
   width: 100%;
-  height: 250px;
+  height: 340px;
   position: relative;
   display: flex;
   align-items: center;
@@ -1918,21 +1965,31 @@ body:has(#conquests.page.active) .topbar .pill {
 /* Marcos de Disciplina Stepper */
 .pc-milestones-stepper {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin: 12px 0 24px;
+  margin: 14px 0 28px;
   position: relative;
 }
 
-.pc-milestones-stepper::before {
-  content: '';
+.pc-milestones-track-bg {
   position: absolute;
-  top: 18px;
-  left: 20px;
-  right: 20px;
+  top: 21px;
+  left: 28px;
+  right: 28px;
   height: 2px;
   background: rgba(255, 255, 255, 0.12);
   z-index: 1;
+}
+
+.pc-milestones-track-fill {
+  position: absolute;
+  top: 21px;
+  left: 28px;
+  height: 2px;
+  background: #F5CD65;
+  box-shadow: 0 0 10px rgba(245, 205, 101, 0.5);
+  z-index: 1;
+  transition: width 0.3s ease;
 }
 
 .pc-milestone-node {
@@ -1942,52 +1999,77 @@ body:has(#conquests.page.active) .topbar .pill {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 6px;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .pc-milestone-circle {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: #071d1f;
-  border: 2px solid rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   color: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .pc-milestone-node.completed .pc-milestone-circle {
   background: #F5CD65;
   border-color: #F5CD65;
   color: #06171A;
-  box-shadow: 0 0 14px rgba(245, 205, 101, 0.45);
+  box-shadow: 0 0 16px rgba(245, 205, 101, 0.5);
 }
 
 .pc-milestone-node.current .pc-milestone-circle {
   background: #0A2224;
-  border-color: #F5CD65;
+  border: 2.5px solid #F5CD65;
   color: #F5CD65;
-  box-shadow: 0 0 14px rgba(245, 205, 101, 0.4);
+  box-shadow: 0 0 18px rgba(245, 205, 101, 0.55), inset 0 0 8px rgba(245, 205, 101, 0.2);
+}
+
+.pc-milestone-node-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.pc-milestone-target-num {
+  font-size: 13px;
+  font-weight: 800;
+  color: #64748b;
+}
+
+.pc-milestone-node.completed .pc-milestone-target-num {
+  color: #F5CD65;
+}
+
+.pc-milestone-node.current .pc-milestone-target-num {
+  color: #F5CD65;
 }
 
 .pc-milestone-lbl {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: #64748b;
-  max-width: 65px;
   line-height: 1.25;
+  text-align: center;
 }
 
 .pc-milestone-node.completed .pc-milestone-lbl {
-  color: #ffffff;
+  color: #cbd5e1;
 }
 
 .pc-milestone-node.current .pc-milestone-lbl {
   color: #F5CD65;
+  font-weight: 700;
 }
 
 /* Card Próxima Recompensa Especial */
@@ -1995,94 +2077,94 @@ body:has(#conquests.page.active) .topbar .pill {
   background: #071d1f;
   border: 1px solid #143e42;
   border-radius: 14px;
-  padding: 16px;
+  padding: 16px 20px;
   display: flex;
-  gap: 16px;
+  gap: 18px;
   align-items: center;
 }
 
-.pc-special-reward-img {
-  width: 72px;
-  height: 72px;
+.pc-special-reward-thumb {
+  width: 84px;
+  height: 64px;
   border-radius: 10px;
-  background: linear-gradient(135deg, rgba(52, 214, 171, 0.15) 0%, rgba(245, 205, 101, 0.2) 100%);
-  border: 1px solid rgba(245, 205, 101, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 34px;
+  object-fit: cover;
+  border: 1px solid rgba(245, 205, 101, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   flex-shrink: 0;
+  background: #06171A;
 }
 
 .pc-special-reward-info {
   flex: 1;
+  min-width: 0;
 }
 
 .pc-special-reward-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
-  color: #F5CD65;
-  margin-bottom: 2px;
+  color: #ffffff;
+  margin-bottom: 3px;
 }
 
 .pc-special-reward-desc {
-  font-size: 11px;
-  color: #cbd5e1;
-  margin-bottom: 8px;
-  line-height: 1.35;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+.pc-special-reward-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .pc-special-reward-progress-bar {
-  width: 100%;
-  height: 6px;
+  width: 140px;
+  height: 7px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 4px;
 }
 
 .pc-special-reward-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34D6AB 0%, #F5CD65 100%);
-  border-radius: 3px;
-}
-
-.pc-special-reward-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 11px;
-  color: #94a3b8;
+  background: #F5CD65;
+  border-radius: 4px;
 }
 
 .pc-special-reward-edit-btn {
-  background: transparent;
-  border: 1px solid rgba(245, 205, 101, 0.4);
-  color: #F5CD65;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 11px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .pc-special-reward-edit-btn:hover {
   background: rgba(245, 205, 101, 0.15);
-  color: #fde047;
+  border-color: rgba(245, 205, 101, 0.45);
+  color: #F5CD65;
 }
 
 /* Tabela de Últimas Conquistas */
 .pc-conquests-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 13.5px;
 }
 
 .pc-conquests-table th {
   text-align: left;
-  padding: 10px 12px;
-  font-size: 11px;
+  padding: 12px 14px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
@@ -2091,28 +2173,54 @@ body:has(#conquests.page.active) .topbar .pill {
 }
 
 .pc-conquests-table td {
-  padding: 13px 12px;
+  padding: 14px 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   color: #e2e8f0;
   vertical-align: middle;
 }
 
+.pc-conquests-table tr {
+  transition: background 0.15s ease;
+}
+
 .pc-conquests-table tr:hover td {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.pc-table-reward-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+  background: #041812;
+}
+
+.pc-plan-adhered-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+
+.pc-plan-adhered-badge svg {
+  flex-shrink: 0;
 }
 
 .pc-status-pill-toggle {
   background: rgba(245, 158, 11, 0.15);
   color: #F5CD65;
   border: 1px solid rgba(245, 158, 11, 0.35);
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 11px;
+  padding: 5px 14px;
+  border-radius: 14px;
+  font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
   transition: all 0.2s;
 }
 
@@ -2126,26 +2234,41 @@ body:has(#conquests.page.active) .topbar .pill {
   border-color: rgba(52, 214, 171, 0.35);
 }
 
+.pc-table-row-arrow {
+  color: #64748b;
+  font-size: 16px;
+  font-weight: 700;
+  transition: color 0.15s;
+}
+
+.pc-conquests-table tr:hover .pc-table-row-arrow {
+  color: #F5CD65;
+}
+
 /* Ranking de Recompensas */
 .pc-top-rewards-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .pc-top-reward-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: 140px 1fr 24px;
+  align-items: center;
+  gap: 14px;
 }
 
-.pc-top-reward-info {
+.pc-top-reward-left {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
+  gap: 10px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pc-top-reward-bar-track {
@@ -2158,41 +2281,90 @@ body:has(#conquests.page.active) .topbar .pill {
 
 .pc-top-reward-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #F5CD65 0%, #EAB308 100%);
+  background: #F5CD65;
   border-radius: 4px;
 }
 
-/* Catálogo de Recompensas Preview (Grade Fluida) */
-.pc-catalog-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+.pc-top-reward-count {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: right;
+}
+
+/* Catálogo de Recompensas Preview */
+.pc-catalog-preview-row {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
-  width: 100%;
-  box-sizing: border-box;
+  margin-bottom: 18px;
 }
 
-@media (max-width: 480px) {
-  .pc-catalog-preview-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.pc-catalog-preview-item {
-  background: #071d1f;
-  border: 1px solid #143e42;
+.pc-catalog-preview-card {
+  width: 62px;
+  height: 62px;
   border-radius: 12px;
-  padding: 12px 8px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  min-width: 0;
-  box-sizing: border-box;
-  transition: border-color 0.2s, transform 0.2s;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  background: #071d1f;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.pc-catalog-preview-item:hover {
-  border-color: rgba(245, 205, 101, 0.4);
+.pc-catalog-preview-card:hover {
   transform: translateY(-2px);
+  border-color: rgba(245, 205, 101, 0.45);
+}
+
+.pc-catalog-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pc-catalog-preview-arrow {
+  color: #64748b;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-catalog-preview-arrow:hover {
+  color: #F5CD65;
+}
+
+.pc-catalog-manage-btn {
+  width: 100%;
+  background: #F5CD65 !important;
+  color: #06171A !important;
+  font-weight: 800;
+  font-size: 13.5px;
+  border-radius: 12px;
+  padding: 13px 20px;
+  border: none;
+  box-shadow: 0 4px 16px rgba(245, 205, 101, 0.35);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pc-catalog-manage-btn:hover {
+  background: #fde047 !important;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(245, 205, 101, 0.45);
 }
 
 /* Modais de Edição/Criação de Recompensas */
