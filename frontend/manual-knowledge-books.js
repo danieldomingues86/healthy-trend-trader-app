@@ -487,11 +487,11 @@
       {
         "id": "livro-2-cap-9",
         "number": 9,
-        "title": "Playbook de Eventos",
+        "title": "Registro de Eventos",
         "subtitle": "Biblioteca histórica de catalisadores (Copom, FOMC, CPI e Payroll).",
         "cover": "assets/manual-knowledge/eventplaybook.jpg",
         "takeaways": [
-          "Finalidade e papel da ferramenta Playbook de Eventos no ecossistema operacional",
+          "Finalidade e papel da ferramenta Registro de Eventos no ecossistema operacional",
           "Como interpretar as métricas e indicadores exibidos na tela",
           "Boas práticas de uso diário e integração com as demais etapas do método",
           "Erros operacionais comuns a serem evitados durante a utilização"
@@ -500,15 +500,15 @@
           {
             "id": "funcionalidade-eventplaybook",
             "title": "9.1 Como Utilizar a Ferramenta",
-            "content": "A tela **Playbook de Eventos** foi desenvolvida para apoiar o trader na etapa de governança e execução:\n- **Objetivo Central:** Fornecer dados claros e acionáveis para que você tome decisões embasadas em fatos, e não em impulsos.\n- **Integração:** Conecta-se automaticamente com a Política de Risco, o Ciclo de Mercado e a timeline de posições da carteira.\n- **Uso Recomendado:** Acesse regularmente como parte do seu checklist operacional antes de enviar qualquer ordem ao mercado."
+            "content": "A tela **Registro de Eventos** foi desenvolvida para apoiar o trader na etapa de governança e execução:\n- **Objetivo Central:** Fornecer dados claros e acionáveis para que você tome decisões embasadas em fatos, e não em impulsos.\n- **Integração:** Conecta-se automaticamente com a Política de Risco, o Ciclo de Mercado e a timeline de posições da carteira.\n- **Uso Recomendado:** Acesse regularmente como parte do seu checklist operacional antes de enviar qualquer ordem ao mercado."
           }
         ],
-        "tip": "Mantenha a disciplina de utilizar a ferramenta Playbook de Eventos de acordo com as regras estabelecidas na sua rotina diária.",
+        "tip": "Mantenha a disciplina de utilizar a ferramenta Registro de Eventos de acordo com as regras estabelecidas na sua rotina diária.",
         "toolRoute": "eventplaybook",
-        "toolLabel": "Abrir Playbook de Eventos →",
+        "toolLabel": "Abrir Registro de Eventos →",
         "relatedLinks": [
           {
-            "label": "Playbook de Eventos (Ferramenta)",
+            "label": "Registro de Eventos (Ferramenta)",
             "route": "eventplaybook"
           },
           {

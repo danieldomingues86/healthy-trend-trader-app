@@ -109,18 +109,46 @@
       header: 'ANÁLISE DE MERCADO',
       items: [
         {
+          id: 'opportunityradar',
+          title: 'Radar de Oportunidades',
+          desc: 'Encontrar ativos prontos para entrada no gráfico Diário.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
+          page: 'opportunityradar'
+        },
+        {
           id: 'relativestrength',
           title: 'Força Relativa',
-          desc: 'Veja quem está liderando.',
+          desc: 'Identificar os ativos líderes do mercado.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
           page: 'relativestrength'
         },
         {
           id: 'marketcycle',
           title: 'Ciclo de Mercado',
-          desc: 'Entenda o ambiente atual.',
+          desc: 'Verificar o regime de mercado e o sinal de permissão para operar.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
           page: 'marketcycle'
+        },
+        {
+          id: 'marketcentral',
+          title: 'Central de Mercado',
+          desc: 'Consultar a visão geral do ambiente de mercado.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
+          page: 'marketcentral'
+        },
+        {
+          id: 'eventplaybook',
+          title: 'Registro de Eventos',
+          desc: 'Acompanhar eventos relevantes que podem afetar as operações.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
+          page: 'eventplaybook'
+        },
+        {
+          id: 'fundamentals',
+          title: 'Análise Fundamentalista',
+          desc: 'Consultar os fundamentos e a qualidade dos ativos.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20L12 2Z"/></svg>`,
+          page: 'fundamentals'
         },
         {
           id: 'charts',
@@ -128,48 +156,6 @@
           desc: 'Central de análise do ticker.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="M4 14l5-5 4 4 7-7"/></svg>`,
           page: 'charts'
-        },
-        {
-          id: 'marketscans',
-          title: 'Scans de Mercado',
-          desc: 'Encontre movimentos relevantes.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
-          page: 'marketscans'
-        },
-        {
-          id: 'marketcentral',
-          title: 'Central de Mercado',
-          desc: 'Observatório geral do ambiente.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
-          page: 'marketcentral'
-        },
-        {
-          id: 'eventplaybook',
-          title: 'Playbook de Eventos',
-          desc: 'Biblioteca histórica de eventos.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
-          page: 'eventplaybook'
-        },
-        {
-          id: 'emergingleaders',
-          title: 'Líderes Emergentes',
-          desc: 'Descubra novos líderes.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="m3 9 4-4 4 4 6-6"/></svg>`,
-          page: 'emergingleaders'
-        },
-        {
-          id: 'opportunityradar',
-          title: 'Radar de Oportunidades',
-          desc: 'Ativos prontos para entrada.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
-          page: 'opportunityradar'
-        },
-        {
-          id: 'fundamentals',
-          title: 'Fundamentalista',
-          desc: 'Avalie a qualidade do ativo.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20L12 2Z"/></svg>`,
-          page: 'fundamentals'
         }
       ]
     },

@@ -193,14 +193,25 @@
 
     // Análise de Mercado
     {
+      id: 'opportunityradar',
+      page: 'opportunityradar',
+      label: 'Radar de Oportunidades',
+      labelEn: 'Opportunity Radar',
+      category: 'market-analysis',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
+      desc: 'Encontrar ativos prontos para entrada no gráfico Diário.',
+      descEn: 'Find assets ready for entry on the Daily chart.',
+      proOnly: false
+    },
+    {
       id: 'relativestrength',
       page: 'relativestrength',
       label: 'Força Relativa',
       labelEn: 'Relative Strength',
       category: 'market-analysis',
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
-      desc: 'Descubra quais ativos estão liderando o mercado.',
-      descEn: 'Discover which assets are leading the market.',
+      desc: 'Identificar os ativos líderes do mercado.',
+      descEn: 'Identify leading market assets.',
       proOnly: true
     },
     {
@@ -210,8 +221,41 @@
       labelEn: 'Market Cycle',
       category: 'market-analysis',
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
-      desc: 'Entenda o regime atual e o sinal de permissão.',
-      descEn: 'Understand the current regime and permission gate.',
+      desc: 'Verificar o regime de mercado e o sinal de permissão para operar.',
+      descEn: 'Check market regime and permission gate to trade.',
+      proOnly: true
+    },
+    {
+      id: 'marketcentral',
+      page: 'marketcentral',
+      label: 'Central de Mercado',
+      labelEn: 'Market Central',
+      category: 'market-analysis',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
+      desc: 'Consultar a visão geral do ambiente de mercado.',
+      descEn: 'Overview of market environment and conditions.',
+      proOnly: false
+    },
+    {
+      id: 'eventplaybook',
+      page: 'eventplaybook',
+      label: 'Registro de Eventos',
+      labelEn: 'Event Log',
+      category: 'market-analysis',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
+      desc: 'Acompanhar eventos relevantes que podem afetar as operações.',
+      descEn: 'Track relevant events that may affect operations.',
+      proOnly: false
+    },
+    {
+      id: 'fundamentals',
+      page: 'fundamentals',
+      label: 'Análise Fundamentalista',
+      labelEn: 'Fundamentals',
+      category: 'market-analysis',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20L12 2Z"/></svg>`,
+      desc: 'Consultar os fundamentos e a qualidade dos ativos.',
+      descEn: 'Financial fundamentals and asset quality.',
       proOnly: true
     },
     {
@@ -224,72 +268,6 @@
       desc: 'Central de análise do ticker com guardrails.',
       descEn: 'Ticker analysis workstation with guardrails.',
       proOnly: false
-    },
-    {
-      id: 'marketscans',
-      page: 'marketscans',
-      label: 'Scans de Mercado',
-      labelEn: 'Market Scans',
-      category: 'market-analysis',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
-      desc: 'Radar de acontecimentos e setups em formação.',
-      descEn: 'Radar of events and emerging setups.',
-      proOnly: true
-    },
-    {
-      id: 'marketcentral',
-      page: 'marketcentral',
-      label: 'Central de Mercado',
-      labelEn: 'Market Central',
-      category: 'market-analysis',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
-      desc: 'Observatório geral do ambiente e condições de mercado.',
-      descEn: 'Market environment observatory and conditions.',
-      proOnly: false
-    },
-    {
-      id: 'eventplaybook',
-      page: 'eventplaybook',
-      label: 'Playbook de Eventos',
-      labelEn: 'Event Playbook',
-      category: 'market-analysis',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
-      desc: 'Biblioteca histórica de eventos e comportamento do mercado.',
-      descEn: 'Historical market events and behavior library.',
-      proOnly: false
-    },
-    {
-      id: 'emergingleaders',
-      page: 'emergingleaders',
-      label: 'Líderes Emergentes',
-      labelEn: 'Emerging Leaders',
-      category: 'market-analysis',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="m3 9 4-4 4 4 6-6"/></svg>`,
-      desc: 'Scoring de 6 dimensões descobrindo novos líderes.',
-      descEn: '6-dimension scoring finding next-generation leaders.',
-      proOnly: true
-    },
-    {
-      id: 'opportunityradar',
-      page: 'opportunityradar',
-      label: 'Radar de Oportunidades',
-      labelEn: 'Opportunity Radar',
-      category: 'market-analysis',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
-      desc: 'Ativos prontos para entrada no gráfico Diário.',
-      descEn: 'Assets ready for entry on the Daily chart.',
-      proOnly: false
-    },
-    {
-      id: 'fundamentals',
-      page: 'fundamentals',
-      label: 'Análise Fundamentalista',
-      labelEn: 'Fundamentals',
-      category: 'market-analysis',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20L12 2Z"/></svg>`,
-      desc: 'Demonstrações financeiras e score de qualidade.',
-      descEn: 'Financial statements and quality score.',
-      proOnly: true
     },
 
     // Carteira & Risco

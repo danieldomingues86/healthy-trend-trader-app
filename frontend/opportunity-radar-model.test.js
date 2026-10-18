@@ -74,6 +74,7 @@ test('OpportunityRadarModel.evaluateAssetReadiness aprova apenas ativo que cumpr
   assert.equal(result.market, 'IBOV');
   assert.equal(result.rsScore, 92);
   assert.equal(result.rsLabel, 'Líder');
+  assert.ok(['A', 'B', 'C', 'D'].includes(result.grade), 'Deve calcular Grade oficial via motor da Rubric');
   assert.equal(result.marketCycle, 'Ciclo Positivo');
   assert.equal(result.trend, 'Alinhada');
   assert.equal(result.triggerName, 'Inside Bar');
@@ -83,7 +84,7 @@ test('OpportunityRadarModel.evaluateAssetReadiness aprova apenas ativo que cumpr
   assert.equal(result.status, 'Pronto para entrada');
 });
 
-test('OpportunityRadarModel.evaluateAssetReadiness rejeita ativo sem gatilho, com RS baixo ou em ciclo defensivo', () => {
+test('OpportunityRadarModel.evaluateAssetReadiness rejeita ativo sem gatilho, com RS <= 80 ou em ciclo defensivo', () => {
   const candles = generateUptrendWithInsideBar();
   const asset = {
     symbol: 'VALE3',
@@ -96,7 +97,10 @@ test('OpportunityRadarModel.evaluateAssetReadiness rejeita ativo sem gatilho, co
   // Rejeita ciclo defensivo
   assert.equal(OpportunityRadarModel.evaluateAssetReadiness(asset, candles, 'defensive'), null);
 
-  // Rejeita RS abaixo de 70
+  // Rejeita RS menor ou igual a 80 (exigência estrita de RS > 80)
+  assert.equal(OpportunityRadarModel.evaluateAssetReadiness({ ...asset, score: 80 }, candles, 'healthy'), null);
+  assert.equal(OpportunityRadarModel.evaluateAssetReadiness({ ...asset, score: 79 }, candles, 'healthy'), null);
+  assert.equal(OpportunityRadarModel.evaluateAssetReadiness({ ...asset, score: 70 }, candles, 'healthy'), null);
   assert.equal(OpportunityRadarModel.evaluateAssetReadiness({ ...asset, score: 62 }, candles, 'healthy'), null);
 
   // Rejeita quando não há candles suficientes
@@ -113,6 +117,7 @@ test('OpportunityRadarModel.filterOpportunities filtra por Mercado (IBOV, IFIX, 
       sector: 'Petróleo, Gás e Energia',
       triggerId: 'INSIDE_BAR',
       triggerName: 'Inside Bar',
+      grade: 'A',
       status: 'Pronto para entrada'
     },
     {
@@ -123,6 +128,7 @@ test('OpportunityRadarModel.filterOpportunities filtra por Mercado (IBOV, IFIX, 
       sector: 'Logística',
       triggerId: 'PFR_COMPRA',
       triggerName: 'PFR de Compra',
+      grade: 'B',
       status: 'Pronto para entrada'
     },
     {
@@ -133,6 +139,7 @@ test('OpportunityRadarModel.filterOpportunities filtra por Mercado (IBOV, IFIX, 
       sector: 'Tecnologia',
       triggerId: '123_COMPRA',
       triggerName: '123 Buy',
+      grade: 'B',
       status: 'Pronto para entrada'
     }
   ];
@@ -141,7 +148,16 @@ test('OpportunityRadarModel.filterOpportunities filtra por Mercado (IBOV, IFIX, 
   assert.equal(OpportunityRadarModel.filterOpportunities(items, { market: 'IBOV' }).length, 1);
   assert.equal(OpportunityRadarModel.filterOpportunities(items, { market: 'IFIX' })[0].symbol, 'HGLG11');
   assert.equal(OpportunityRadarModel.filterOpportunities(items, { market: 'BDRs' })[0].symbol, 'AAPL34');
+  assert.equal(OpportunityRadarModel.filterOpportunities(items, { grade: 'A' }).length, 1);
+  assert.equal(OpportunityRadarModel.filterOpportunities(items, { grade: 'A' })[0].symbol, 'PETR4');
+  assert.equal(OpportunityRadarModel.filterOpportunities(items, { grade: 'B' }).length, 2);
   assert.equal(OpportunityRadarModel.filterOpportunities(items, { sector: 'Tecnologia' })[0].symbol, 'AAPL34');
   assert.equal(OpportunityRadarModel.filterOpportunities(items, { trigger: '123 Buy' })[0].symbol, 'AAPL34');
   assert.equal(OpportunityRadarModel.filterOpportunities(items, { search: 'petr' })[0].symbol, 'PETR4');
+
+  const options = OpportunityRadarModel.extractFilterOptions(items);
+  assert.ok(Array.isArray(options.grades));
+  assert.ok(options.grades.includes('A'));
+  assert.ok(options.grades.includes('B'));
+  assert.ok(!options.grades.includes('A+'));
 });

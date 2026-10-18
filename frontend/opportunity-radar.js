@@ -10,7 +10,7 @@
     items: [],
     filters: {
       market: 'ALL',
-      sector: 'ALL',
+      grade: 'ALL',
       trigger: 'ALL',
       search: ''
     }
@@ -167,7 +167,7 @@
     if (root.OpportunityRadarModel && typeof root.OpportunityRadarModel.extractFilterOptions === 'function') {
       return root.OpportunityRadarModel.extractFilterOptions(state.items);
     }
-    return { markets: ['IBOV', 'IFIX', 'BDRs'], sectors: [], triggers: [] };
+    return { markets: ['IBOV', 'IFIX', 'BDRs'], sectors: [], triggers: [], grades: ['A', 'B', 'C', 'D'] };
   }
 
   function renderTableRows(filteredItems) {
@@ -212,6 +212,11 @@
                 <span class="radar-asset-name">${esc(item.name)}</span>
               </div>
             </div>
+          </td>
+          <td class="col-center">
+            <span class="radar-grade-badge grade-${esc(String(item.grade || 'B').toLowerCase())}" title="${esc(item.rubricSummary || ('Grade ' + (item.grade || 'B')))}">
+              ${esc(item.grade || 'B')}
+            </span>
           </td>
           <td class="col-center">
             <span class="radar-market-badge market-${esc(marketLower)}">${esc(item.market)}</span>
@@ -264,6 +269,7 @@
           <thead>
             <tr>
               <th>ATIVO</th>
+              <th class="col-center">GRADE</th>
               <th class="col-center">MERCADO</th>
               <th class="col-center">RS (3M)</th>
               <th class="col-center">CICLO DE MERCADO</th>
@@ -292,9 +298,17 @@
     const options = getFilterOptions();
     const updatedLabel = formatUpdatedAt(state.updatedAt, state.dataAsOf);
 
-    const sectorOptionsHtml = options.sectors.map((sec) => {
-      const selected = state.filters.sector === sec ? 'selected' : '';
-      return `<option value="${esc(sec)}" ${selected}>${esc(sec)}</option>`;
+    const gradeLabels = {
+      'A': 'Grade A (Alta Qualidade)',
+      'B': 'Grade B (Bom Edge)',
+      'C': 'Grade C (Edge Pequeno)',
+      'D': 'Grade D (Sem Edge)'
+    };
+    const availableGrades = options.grades && options.grades.length > 0 ? options.grades : ['A', 'B', 'C', 'D'];
+    const gradeOptionsHtml = availableGrades.map((g) => {
+      const selected = state.filters.grade === g ? 'selected' : '';
+      const label = gradeLabels[g] || `Grade ${g}`;
+      return `<option value="${esc(g)}" ${selected}>${esc(label)}</option>`;
     }).join('');
 
     const triggerOptionsHtml = options.triggers.map((trig) => {
@@ -334,7 +348,7 @@
               </div>
               <div class="radar-engine-text">
                 <strong>Baseado em todo o motor do sistema</strong>
-                <span>RS · Ciclo · Tendência · Gatilhos · Tipo de Mercado</span>
+                <span>RS &gt; 80 · Ciclo · Tendência · Gatilhos · Grade Oficial</span>
               </div>
             </div>
 
@@ -375,10 +389,10 @@
           </div>
 
           <div class="radar-filter-card">
-            <label for="radarFilterSector">Setor</label>
-            <select id="radarFilterSector">
-              <option value="ALL" ${state.filters.sector === 'ALL' ? 'selected' : ''}>Todos</option>
-              ${sectorOptionsHtml}
+            <label for="radarFilterGrade">Grade</label>
+            <select id="radarFilterGrade">
+              <option value="ALL" ${state.filters.grade === 'ALL' ? 'selected' : ''}>Todos</option>
+              ${gradeOptionsHtml}
             </select>
           </div>
 
@@ -433,7 +447,7 @@
             <div class="radar-info-body">
               <h3>Critérios utilizados</h3>
               <ul class="radar-criteria-list">
-                <li><span class="radar-check-icon">✓</span> Força Relativa (3M)</li>
+                <li><span class="radar-check-icon">✓</span> Força Relativa (3M) &gt; 80</li>
                 <li><span class="radar-check-icon">✓</span> Ciclo de Mercado</li>
                 <li><span class="radar-check-icon">✓</span> Preço &gt; EMA 9 &gt; EMA 30 (Diário)</li>
                 <li><span class="radar-check-icon">✓</span> Gatilhos: Inside Bar, 123 Buy, PFR de Compra</li>
@@ -491,7 +505,7 @@
 
   function bindFilterEvents() {
     const marketEl = document.getElementById('radarFilterMarket');
-    const sectorEl = document.getElementById('radarFilterSector');
+    const gradeEl = document.getElementById('radarFilterGrade');
     const triggerEl = document.getElementById('radarFilterTrigger');
     const searchEl = document.getElementById('radarSearchInput');
 
@@ -501,9 +515,9 @@
         updateTableAndCounterOnly();
       });
     }
-    if (sectorEl) {
-      sectorEl.addEventListener('change', (e) => {
-        state.filters.sector = e.target.value || 'ALL';
+    if (gradeEl) {
+      gradeEl.addEventListener('change', (e) => {
+        state.filters.grade = e.target.value || 'ALL';
         updateTableAndCounterOnly();
       });
     }

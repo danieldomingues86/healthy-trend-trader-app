@@ -40,12 +40,10 @@
     ['mistakesbook','Erros e Lições','Catálogo de aprendizados.',null,'Registre erros operacionais e comportamentais para identificar padrões e consolidar lições aprendidas.'],
     ['charts','Gráficos','Leitura técnica e benchmarking.','manual-charts','Analise candles diários com médias móveis, volume institucional, benchmarking automático (IBOV, BDRX, IFIX) e avaliação instantânea de Grade pela Trading Rubric.'],
     ['marketcentral','Central de Mercado','Observatório macro e breadth.','manual-marketcentral','Acompanhe em tempo real o regime do mercado, indicadores de breadth, mercados globais (S&P 500, Nasdaq, Dólar, US10Y), notícias do dia e mapa setorial.'],
-    ['eventplaybook','Playbook de Eventos','Biblioteca histórica de catalisadores.','manual-eventplaybook','Estude a reação histórica dos preços a eventos macroeconômicos (FOMC, Copom, CPI, Payroll) e utilize roteiros testados para proteger seu capital.'],
+    ['eventplaybook','Registro de Eventos','Biblioteca histórica de catalisadores.','manual-eventplaybook','Estude a reação histórica dos preços a eventos macroeconômicos (FOMC, Copom, CPI, Payroll) e utilize roteiros testados para proteger seu capital.'],
     ['marketcycle','Ciclo de Mercado','Entenda o ambiente.','manual-permission','Leia o regime multi-mercado independente (Ações B3, BDRs e FIIs) e a atualização dos dados antes de procurar uma oportunidade.'],
-    ['emergingleaders','Líderes Emergentes','Descubra a próxima geração de líderes.','manual-emergingleaders','Identifique ações com alta Força Relativa, aceleração e proximidade da máxima durante correções. Acompanhe a força coletiva dos setores antes da entrada.'],
     ['opportunityradar','Radar de Oportunidades','Ativos prontos para entrada no Diário.',null,'Consolide em uma visão rápida e objetiva somente os ativos que cumprem todos os critérios obrigatórios do método e possuem gatilho confirmado no gráfico Diário.'],
     ['relativestrength','Força Relativa','Encontre líderes.',null,'Compare os ativos dentro do seu universo. Força relativa indica liderança; a entrada ainda depende do setup.'],
-    ['marketscans','Scans de Mercado','Filtros inteligentes de setups.',null,'Filtre ações em rompimento de 52 semanas, contração de volatilidade ou forte momentum no universo B3 para abastecer seu radar.'],
     ['fundamentals','Fundamentalista','Score em 6 dimensões com CVM e SEC.',null,'Pesquise ações B3 ou BDRs internacionais. Score ponderado de 0 a 10 com régua de 5 patamares e Cobertura dos Dados (dado ausente não é zero).'],
     ['dashboard','Patrimônio','Visão patrimonial e alocações.',null,'Acompanhe a curva de capital da estratégia, separe o rendimento real dos aportes e gerencie as alocações da sua carteira.'],
     ['positions','Posições','Acompanhe e gerencie.','manual-positions','Abra a posição para consultar a linha do tempo, atualizar o stop e registrar reduções ou encerramento.'],
@@ -167,7 +165,7 @@
         'Mapa Setorial: visualize a força relativa de cada setor da economia para focar o capital nos setores líderes.'
       ],
       eventplaybook: [
-        'O Playbook de Eventos é uma biblioteca histórica e viva dos principais catalisadores macroeconômicos do mercado.',
+        'O Registro de Eventos é uma biblioteca histórica e viva dos principais catalisadores macroeconômicos do mercado.',
         'Estudo Histórico de Reação: consulte o comportamento histórico dos preços durante Super Quartas, decisões do Copom/FOMC, divulgação de CPI e crises de volatilidade.',
         'Roteiro Operacional: estabeleça antes da abertura se o plano para o dia do evento é ficar líquido, reduzir o Portfolio Heat ou aguardar a digestão do mercado nas primeiras horas pós-divulgação.',
         'Anexos e Lições: documente reações atípicas e anexe gráficos de estudos para enriquecer seu repertório de padrões.'

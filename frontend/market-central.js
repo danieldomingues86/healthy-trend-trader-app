@@ -935,7 +935,7 @@
       <div class="mc-modal-card" style="max-width: 620px;">
         <div class="mc-modal-header">
           <div>
-            <h3>Playbook de Eventos: Reação do Mercado</h3>
+            <h3>Registro de Eventos: Reação do Mercado</h3>
             <span style="font-size:12px;color:#64748b;">${esc(event.name)} (${esc(event.date || event.eventDate)} às ${esc(event.time || event.eventTime || '10:00')})</span>
           </div>
           <button type="button" class="mc-modal-close-btn" onclick="document.getElementById('mcReactionModal').remove()">✕</button>
