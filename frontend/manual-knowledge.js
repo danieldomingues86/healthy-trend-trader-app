@@ -43,6 +43,7 @@
     ['eventplaybook','Playbook de Eventos','Biblioteca histórica de catalisadores.','manual-eventplaybook','Estude a reação histórica dos preços a eventos macroeconômicos (FOMC, Copom, CPI, Payroll) e utilize roteiros testados para proteger seu capital.'],
     ['marketcycle','Ciclo de Mercado','Entenda o ambiente.','manual-permission','Leia o regime multi-mercado independente (Ações B3, BDRs e FIIs) e a atualização dos dados antes de procurar uma oportunidade.'],
     ['emergingleaders','Líderes Emergentes','Descubra a próxima geração de líderes.','manual-emergingleaders','Identifique ações com alta Força Relativa, aceleração e proximidade da máxima durante correções. Acompanhe a força coletiva dos setores antes da entrada.'],
+    ['opportunityradar','Radar de Oportunidades','Ativos prontos para entrada no Diário.',null,'Consolide em uma visão rápida e objetiva somente os ativos que cumprem todos os critérios obrigatórios do método e possuem gatilho confirmado no gráfico Diário.'],
     ['relativestrength','Força Relativa','Encontre líderes.',null,'Compare os ativos dentro do seu universo. Força relativa indica liderança; a entrada ainda depende do setup.'],
     ['marketscans','Scans de Mercado','Filtros inteligentes de setups.',null,'Filtre ações em rompimento de 52 semanas, contração de volatilidade ou forte momentum no universo B3 para abastecer seu radar.'],
     ['fundamentals','Fundamentalista','Score em 6 dimensões com CVM e SEC.',null,'Pesquise ações B3 ou BDRs internacionais. Score ponderado de 0 a 10 com régua de 5 patamares e Cobertura dos Dados (dado ausente não é zero).'],
@@ -179,6 +180,11 @@
         'A tela de Líderes Emergentes combina 6 dimensões em um Score único de 0 a 100: Força Relativa (25%), Aceleração de RS (15%), Proximidade da Máxima de 52S (20%), Resiliência na Correção (15%), Força de Recuperação (15%) e Liderança Setorial (10%).',
         'Use esta ferramenta para descobrir quais ações estão sustentando preço enquanto a maioria do mercado cai. Veja os setores com maior concentração de força (Grupos Fortes) e selecione os melhores candidatos.',
         'REGRA DE OURO: Descoberta NÃO é compra imediata. Um score alto serve para você colocar o ativo na sua Watchlist de acompanhamento. A compra só deve ser planejada quando a ação formar uma contração no gráfico com setup A e gatilho técnico confirmado.'
+      ],
+      opportunityradar: [
+        'O Radar de Oportunidades consolida em uma visão rápida e objetiva somente os ativos PRONTOS PARA ENTRADA para o próximo pregão, reutilizando os motores de Força Relativa (3M), Ciclo de Mercado, Tendência Diária (Preço > EMA 9 > EMA 30) e Gatilhos Oficiais.',
+        'Filtre por categoria de mercado (IBOV, IFIX ou BDRs), setor e tipo de gatilho (Inside Bar, 123 Buy, PFR de Compra, Dave Landry, RBI) e abra diretamente o gráfico do ativo com um clique.',
+        'Segurança Operacional: gatilho identificado no fechamento não garante entrada disponível no próximo pregão. Sempre valide o preço de abertura, stop inicial, risco e dimensionamento da posição antes de operar.'
       ],
       relativestrength: ['Escolha o universo de ativos e compare sua força relativa. Confira a data de atualização antes de interpretar a classificação.', 'Use os líderes para organizar sua pesquisa. Depois avalie o contexto técnico e a Rubric em Novo Trade; liderança não substitui um gatilho de entrada.'],
       marketscans: [

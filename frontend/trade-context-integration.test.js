@@ -227,3 +227,53 @@ test('TradeContext: buildTradeContext resolve classes de ativos especiais (BDR e
   const fiiCtx = TickerChartModel.buildTradeContext(fiiData);
   assert.equal(fiiCtx.marketClass, 'FII');
 });
+
+test('TradeContext: Gráficos e Novo Trade produzem a mesma Nota e Score na Rubric (ex: RCSL3)', async () => {
+  const { getTickerChartData } = require('../backend/src/ticker-chart.js');
+  const TradingRubrics = require('./trading-rubrics.js');
+
+  const tickerData = await getTickerChartData('RCSL3');
+  const ctx = TickerChartModel.buildTradeContext(tickerData);
+  const ratings = TickerChartModel.inferRubricRatingsFromContext(ctx);
+  const entry = Number(Number(ctx.entryPrice || ctx.currentPrice || 0).toFixed(2));
+  const atr = Number(Number(ctx.volatility?.atr21 || 0).toFixed(2));
+
+  // 1. Com política padrão
+  const newTradeDefault = TradingRubrics.calculateRubric({
+    ratings,
+    marketCycleRegime: ratings.marketCycle,
+    entry,
+    atr
+  });
+  assert.equal(tickerData.rubric.finalGrade, newTradeDefault.grade, 'Grade na tela Gráficos deve ser idêntico ao Novo Trade');
+  assert.equal(tickerData.rubric.score, newTradeDefault.score, 'Score na tela Gráficos deve ser idêntico ao Novo Trade');
+  assert.equal(tickerData.rubric.finalGrade, 'B', 'RCSL3 com volatilidade elevada e fundamentos fracos deve ser Grade B, não A');
+
+  // 2. Com política customizada do usuário (ex: pesos 20/30/20/10/15/5)
+  const customPolicy = {
+    rubricWeights: {
+      marketCycle: 20,
+      trendQuality: 30,
+      relativeStrength: 20,
+      volatility: 10,
+      setupQuality: 15,
+      fundamentalScore: 5
+    }
+  };
+  const chartCustom = TickerChartModel.evaluateChartRubric(tickerData, customPolicy);
+  const newTradeCustom = TradingRubrics.calculateRubric({
+    ratings,
+    marketCycleRegime: ratings.marketCycle,
+    entry,
+    atr
+  }, customPolicy);
+  assert.equal(chartCustom.finalGrade, newTradeCustom.grade);
+  assert.equal(chartCustom.score, newTradeCustom.score);
+
+  // 3. Tese gerada reflete a nota real da Rubric
+  tickerData.rubric.finalGrade = chartCustom.finalGrade;
+  const updatedCtx = TickerChartModel.buildTradeContext(tickerData);
+  const thesis = TickerChartModel.formatTradeThesis(updatedCtx);
+  assert.ok(thesis.includes(`(Grade ${chartCustom.finalGrade})`), 'Tese importada no Novo Trade deve refletir a Grade real da Rubric');
+});
+

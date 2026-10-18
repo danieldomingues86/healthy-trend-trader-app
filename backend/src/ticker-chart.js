@@ -520,21 +520,76 @@ async function getTickerChartData(rawSymbol) {
   const financialVolume21 = volumeAvg21 * currentPrice;
   const volumeAvg21Formatted = formatLargeNumber(financialVolume21);
 
-  // 6. Avaliação da Rubric Oficial
-  const rubricEvaluation = TradingRubrics.calculateRubric({
-    ratings: {
-      trendQuality: priceAboveEma9 && ema9AboveEma30 ? 'healthy' : 'transition',
-      marketCycle: cycleInfo.state || 'healthy',
-      relativeStrength: rsInfo.status === 'good' ? 'good' : (rsInfo.status === 'neutral' ? 'medium' : 'bad'),
-      volatility: atrPctVal <= 4.5 ? 'good' : 'medium',
-      setupQuality: trigger.hasTrigger ? (trigger.grade === 'A+' || trigger.grade === 'A' ? 'good' : 'medium') : 'bad',
-      fundamentalScore: rubricFundRating
+  // 6. Avaliação da Rubric Oficial (unificada com Novo Trade via TickerChartModel.evaluateChartRubric)
+  const chartRubricEval = TickerChartModel.evaluateChartRubric({
+    tickerInfo: {
+      symbol,
+      price: currentPrice,
+      date: latestCandle.time,
+      sessionDate: latestCandle.time,
+      assetClass: normalizeAssetClassLabel(assetClass)
     },
-    entry: currentPrice,
-    atr: atrVal
+    indicators: {
+      atr21: atrVal,
+      atrPct: atrPctVal
+    },
+    relativeStrength: {
+      score: rsScore,
+      rank: rsRank,
+      totalUniverse,
+      percentile: rsPercentile,
+      classification: rsClassification,
+      rs3m
+    },
+    marketCycle: {
+      regime: cycleState,
+      description: cycleDesc,
+      benchmark: benchmarkSymbol,
+      score: cycleInfo.score || 88
+    },
+    trend: {
+      status: trendStatus,
+      formula: trendFormula,
+      priceAboveEma9,
+      ema9AboveEma30,
+      bothSlopingUp
+    },
+    volatility: {
+      atr21: atrVal,
+      atrPct: atrPctVal,
+      regime: atrRegime,
+      evaluation: 'Normal'
+    },
+    structure: {
+      label: structureLabel,
+      description: structureDesc,
+      isPullback: structureLabel === 'Correção'
+    },
+    trigger: {
+      id: trigger.id,
+      name: trigger.name,
+      grade: trigger.grade,
+      hasTrigger: Boolean(trigger.hasTrigger),
+      entry: trigger.entry,
+      stop: trigger.stop,
+      entryLabel: trigger.entryLabel,
+      stopLabel: trigger.stopLabel
+    },
+    fundamentals: {
+      score: fundScore,
+      classification: fundClassification,
+      evaluation: fundEvaluation,
+      status: fundStatus,
+      dataCoveragePct: fundAnalysis?.dataCoveragePct || 0,
+      isPartial: fundAnalysis?.isPartial || false,
+      roe: { value: roeVal, tag: roeTag, status: roeStatus, positive: roeStatus === 'good' },
+      netMargin: { value: netMarginVal, tag: netMarginTag, status: netMarginStatus, positive: netMarginStatus === 'good' },
+      netDebtToEbitda: { value: netDebtVal, tag: netDebtTag, status: netDebtStatus, positive: netDebtStatus === 'good' },
+      available: hasRealFunds
+    }
   });
 
-  const finalGrade = (priceAboveEma9 && ema9AboveEma30 && rsScore >= 80 && cycleState === 'Positivo') ? 'A' : (rubricEvaluation.grade || 'B');
+  const finalGrade = chartRubricEval.finalGrade || 'B';
   const gradeVisual = TradingRubrics.getRubricGradeVisual(finalGrade);
 
   const criteriaTable = [
@@ -542,9 +597,9 @@ async function getTickerChartData(rawSymbol) {
     { name: 'Ciclo de Mercado', status: cycleState === 'Positivo', obs: cycleState },
     { name: 'Preço > EMA 9', status: priceAboveEma9, obs: priceAboveEma9 ? 'Sim' : 'Não' },
     { name: 'EMA 9 > EMA 30', status: ema9AboveEma30, obs: ema9AboveEma30 ? 'Sim' : 'Não' },
-    { name: 'Volatilidade (ATR)', status: atrPctVal <= 5.0, obs: `${atrRegime} (${atrPctVal.toFixed(1)}%)` },
+    { name: 'Volatilidade (ATR)', status: atrPctVal < 5.0, obs: `${atrRegime} (${atrPctVal.toFixed(1)}%)` },
     { name: 'Estrutura', status: true, obs: structureLabel },
-    { name: 'Gatilho', status: trigger.hasTrigger === true, obs: trigger.hasTrigger ? `${trigger.name} (${trigger.grade})` : 'Nenhum' },
+    { name: 'Gatilho', status: trigger.hasTrigger === true, obs: trigger.hasTrigger ? `${trigger.name} (${finalGrade})` : 'Nenhum' },
     { name: 'Fundamentos', status: fundCriteriaStatus, obs: fundEvaluation }
   ];
 
@@ -620,7 +675,7 @@ async function getTickerChartData(rawSymbol) {
     },
     rubric: {
       finalGrade,
-      score: rubricEvaluation.score || 92,
+      score: Number.isFinite(Number(chartRubricEval.score)) ? Number(chartRubricEval.score) : 92,
       summaryText: gradeVisual.summaryText,
       criteria: criteriaTable
     },

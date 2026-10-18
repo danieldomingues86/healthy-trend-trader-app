@@ -629,9 +629,11 @@
     const entryPrice = Number.isFinite(Number(trig.entry)) ? Number(trig.entry) : null;
     const stopLoss = Number.isFinite(Number(trig.stop)) ? Number(trig.stop) : null;
 
+    const hasTrigger = Boolean(trig.hasTrigger);
     const triggerKey = trig.id || null;
-    const triggerName = trig.name || (trig.hasTrigger ? 'Gatilho de Compra' : null);
-    const triggerGrade = trig.grade || 'A';
+    const triggerName = trig.name || (hasTrigger ? 'Gatilho de Compra' : null);
+    const triggerGrade = trig.grade || (hasTrigger ? 'A' : 'Neutro');
+    const rubricGrade = tickerData.rubric?.finalGrade || null;
 
     const ema9Val = resolveLastIndicatorValue(inds.ema9);
     const ema30Val = resolveLastIndicatorValue(inds.ema30);
@@ -660,9 +662,11 @@
       currentPrice,
       entryPrice,
       stopLoss,
+      hasTrigger,
       triggerKey,
       triggerName,
       triggerGrade,
+      rubricGrade,
       relativeStrength: {
         score: Number.isFinite(Number(rs.score)) ? Number(rs.score) : null,
         classification: rs.classification || (rs.score >= 70 ? 'Forte' : 'Neutro')
@@ -740,7 +744,9 @@
       const reg = String(ctx.marketCycle.regime || '').toLowerCase();
       if (reg.includes('defens') || reg.includes('down') || reg.includes('baixa')) {
         marketCycle = 'defensive';
-      } else if (reg.includes('trans') || reg.includes('neutr') || (ctx.marketCycle.score != null && ctx.marketCycle.score < 70)) {
+      } else if (reg.includes('trans') || reg.includes('neutr') || reg.includes('recup') || reg.includes('improv')) {
+        marketCycle = 'transition';
+      } else if (!reg.includes('positiv') && !reg.includes('health') && !reg.includes('saud') && ctx.marketCycle.score != null && ctx.marketCycle.score < 70) {
         marketCycle = 'transition';
       } else {
         marketCycle = 'healthy';
@@ -763,13 +769,17 @@
 
     // 4. Gatilho de Entrada - setupQuality
     let setupQuality = 'good';
-    const grade = String(ctx.triggerGrade || 'A').toUpperCase();
-    if (grade === 'A+' || grade === 'A') {
-      setupQuality = 'good';
-    } else if (grade === 'B') {
-      setupQuality = 'medium';
-    } else {
+    if (ctx.hasTrigger === false || String(ctx.triggerKey || '').toUpperCase() === 'NONE') {
       setupQuality = 'bad';
+    } else {
+      const grade = String(ctx.triggerGrade || 'A').toUpperCase();
+      if (grade === 'A+' || grade === 'A') {
+        setupQuality = 'good';
+      } else if (grade === 'B') {
+        setupQuality = 'medium';
+      } else {
+        setupQuality = 'bad';
+      }
     }
 
     // 5. Fundamentos - fundamentalScore
@@ -819,6 +829,54 @@
     };
   }
 
+  /**
+   * Avalia a Rubric de um ativo na tela Gráficos usando exatamente os mesmos
+   * critérios, arredondamentos (entry/atr) e motor (TradingRubrics.calculateRubric)
+   * que a tela Novo Trade utiliza ao importar o contexto.
+   */
+  function evaluateChartRubric(tickerData = {}, policy) {
+    const ctx = buildTradeContext(tickerData);
+    const ratings = inferRubricRatingsFromContext(ctx);
+    const hasTrigger = Boolean(tickerData?.trigger?.hasTrigger);
+    if (!hasTrigger) {
+      ratings.setupQuality = 'bad';
+    }
+    const rawEntry = (hasTrigger && ctx.entryPrice != null && Number(ctx.entryPrice) > 0)
+      ? Number(ctx.entryPrice)
+      : Number(ctx.currentPrice || 0);
+    const entry = rawEntry > 0 ? Number(rawEntry.toFixed(2)) : 0;
+    const rawAtr = Number(ctx.volatility?.atr21 ?? tickerData?.indicators?.atr21 ?? 0);
+    const atr = rawAtr > 0 ? Number(rawAtr.toFixed(2)) : 0;
+
+    if (TradingRubrics && typeof TradingRubrics.calculateRubric === 'function') {
+      const evalResult = TradingRubrics.calculateRubric({
+        ratings,
+        marketCycleRegime: ratings.marketCycle,
+        entry,
+        atr
+      }, policy);
+      const finalGrade = evalResult.grade || 'D';
+      const gradeVisual = getRubricGradeVisual(finalGrade);
+      return {
+        finalGrade,
+        score: evalResult.score,
+        summaryText: gradeVisual.summaryText,
+        ratings,
+        evaluation: evalResult
+      };
+    }
+
+    const fallbackGrade = 'B';
+    const gradeVisual = getRubricGradeVisual(fallbackGrade);
+    return {
+      finalGrade: fallbackGrade,
+      score: 80,
+      summaryText: gradeVisual.summaryText,
+      ratings,
+      evaluation: null
+    };
+  }
+
   function formatTradeThesis(ctx) {
     if (!ctx) return '';
     const parts = [];
@@ -826,7 +884,8 @@
     const name = ctx.companyName && ctx.companyName !== sym ? ` (${ctx.companyName})` : '';
     parts.push(`• Ativo: ${sym}${name} — Timeframe: ${ctx.timeframe || 'Diário'}`);
     if (ctx.triggerName) {
-      parts.push(`• Gatilho: ${ctx.triggerName} (Grade ${ctx.triggerGrade || 'A'})`);
+      const displayGrade = ctx.rubricGrade || ctx.triggerGrade || 'A';
+      parts.push(`• Gatilho: ${ctx.triggerName} (Grade ${displayGrade})`);
     }
     if (ctx.entryPrice != null && ctx.stopLoss != null) {
       parts.push(`• Entrada sugerida: R$ ${formatContextNum(ctx.entryPrice)} | Stop inicial: R$ ${formatContextNum(ctx.stopLoss)}`);
@@ -882,6 +941,7 @@
     getRubricGradeColor,
     buildTradeContext,
     inferRubricRatingsFromContext,
+    evaluateChartRubric,
     formatTradeThesis
   };
 });

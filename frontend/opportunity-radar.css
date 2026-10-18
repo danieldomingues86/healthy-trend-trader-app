@@ -1,0 +1,840 @@
+/* ==========================================================================
+   RADAR DE OPORTUNIDADES — Consolidação de ativos prontos para entrada
+   ========================================================================== */
+
+#opportunityradar.page.active {
+  display: block;
+  width: 100%;
+  max-width: none;
+  padding: 20px 28px 40px;
+  box-sizing: border-box;
+}
+
+.radar-shell {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: #10241b;
+  font-family: inherit;
+}
+
+/* Breadcrumb */
+.radar-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #5b7265;
+  margin-bottom: -4px;
+}
+
+.radar-breadcrumb span {
+  color: #8fa397;
+  font-size: 14px;
+}
+
+.radar-breadcrumb strong {
+  color: #10241b;
+  font-weight: 700;
+}
+
+/* Header */
+.radar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.radar-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 280px;
+  flex: 1 1 auto;
+}
+
+.radar-target-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #19a974 0%, #0f8256 100%);
+  box-shadow: 0 6px 16px rgba(15, 130, 86, 0.24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.radar-header-titles h1 {
+  margin: 0 0 4px 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0b2117;
+  line-height: 1.15;
+}
+
+.radar-header-titles p {
+  margin: 0;
+  font-size: 14px;
+  color: #4f675a;
+  font-weight: 500;
+}
+
+.radar-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Engine badge */
+.radar-engine-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eaf6ef;
+  border: 1px solid #cde6d7;
+  border-radius: 14px;
+  padding: 10px 18px;
+}
+
+.radar-engine-icon {
+  color: #126b46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.radar-engine-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.radar-engine-text strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #126b46;
+}
+
+.radar-engine-text span {
+  font-size: 12px;
+  color: #436957;
+  font-weight: 500;
+}
+
+/* Updated Card */
+.radar-updated-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e1eae4;
+  border-radius: 14px;
+  padding: 8px 12px 8px 16px;
+  box-shadow: 0 2px 8px rgba(12, 34, 24, 0.04);
+}
+
+.radar-updated-icon {
+  color: #4a6356;
+  display: flex;
+  align-items: center;
+}
+
+.radar-updated-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-right: 4px;
+}
+
+.radar-updated-info small {
+  font-size: 11.5px;
+  color: #698073;
+  font-weight: 500;
+}
+
+.radar-updated-info strong {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0e2319;
+  font-variant-numeric: tabular-nums;
+}
+
+.radar-refresh-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #dce6e0;
+  background: #f7faf8;
+  color: #264436;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  padding: 0;
+}
+
+.radar-refresh-btn:hover {
+  background: #eaf5ef;
+  border-color: #b7d8c6;
+  color: #0f7a4f;
+}
+
+.radar-refresh-btn.spinning svg {
+  animation: radarSpin 0.8s linear infinite;
+}
+
+@keyframes radarSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Filters Row */
+.radar-filters-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr)) minmax(220px, 1.15fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.radar-filter-card {
+  background: #ffffff;
+  border: 1px solid #e2ebe5;
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(12, 34, 24, 0.03);
+}
+
+.radar-filter-card label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #365043;
+}
+
+.radar-filter-card select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 9px;
+  border: 1px solid #dce6e0;
+  background-color: #f9fbfa;
+  color: #10241b;
+  font-size: 13.5px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.radar-filter-card select:focus {
+  border-color: #19a974;
+  background-color: #ffffff;
+}
+
+.radar-search-card {
+  background: #ffffff;
+  border: 1px solid #e2ebe5;
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(12, 34, 24, 0.03);
+}
+
+.radar-search-input-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f9fbfa;
+  border: 1px solid #dce6e0;
+  border-radius: 9px;
+  padding: 8px 12px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.radar-search-input-wrap:focus-within {
+  border-color: #19a974;
+  background: #ffffff;
+}
+
+.radar-search-input-wrap svg {
+  color: #6c8276;
+  flex-shrink: 0;
+}
+
+.radar-search-input-wrap input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 13.5px;
+  color: #10241b;
+  outline: none;
+  font-weight: 500;
+}
+
+.radar-search-input-wrap input::placeholder {
+  color: #7d9287;
+}
+
+/* Main Table Card */
+.radar-main-card {
+  background: #ffffff;
+  border: 1px solid #dce7e0;
+  border-radius: 18px;
+  box-shadow: 0 6px 22px rgba(12, 34, 24, 0.05);
+  overflow: hidden;
+}
+
+/* Ready Banner inside Main Card */
+.radar-ready-banner {
+  background: linear-gradient(90deg, #eaf7f0 0%, #f3faf6 100%);
+  border-bottom: 1px solid #d8ece0;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.radar-ready-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.radar-ready-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #159967;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.radar-ready-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0d261b;
+}
+
+.radar-ready-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #159967;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.radar-ready-desc {
+  font-size: 13.5px;
+  color: #466355;
+  font-weight: 500;
+}
+
+/* Table Wrapper */
+.radar-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.radar-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.radar-table thead th {
+  padding: 13px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #5b7265;
+  background: #fbfdfc;
+  border-bottom: 1px solid #e7efea;
+  white-space: nowrap;
+}
+
+.radar-table thead th.col-center,
+.radar-table tbody td.col-center {
+  text-align: center;
+}
+
+.radar-table thead th.col-right,
+.radar-table tbody td.col-right {
+  text-align: right;
+}
+
+.radar-table tbody tr {
+  border-bottom: 1px solid #edf3ef;
+  transition: background-color 0.14s ease;
+}
+
+.radar-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.radar-table tbody tr:hover {
+  background-color: #f6fbf8;
+}
+
+.radar-table tbody td {
+  padding: 13px 16px;
+  vertical-align: middle;
+  font-size: 13.5px;
+  color: #142a20;
+  white-space: nowrap;
+}
+
+/* Asset Cell */
+.radar-asset-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.radar-asset-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.radar-asset-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.radar-asset-symbol {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0b2117;
+}
+
+.radar-asset-name {
+  font-size: 12px;
+  color: #698073;
+  font-weight: 500;
+}
+
+/* Market Badges (IBOV, IFIX, BDRs) */
+.radar-market-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  padding: 4px 10px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.radar-market-badge.market-ibov {
+  background: #e6f0ff;
+  color: #1c58b8;
+  border: 1px solid #c9dfff;
+}
+
+.radar-market-badge.market-ifix {
+  background: #eee8ff;
+  color: #5b32ad;
+  border: 1px solid #d8ccff;
+}
+
+.radar-market-badge.market-bdrs {
+  background: #ffefd8;
+  color: #b55e10;
+  border: 1px solid #fad9ad;
+}
+
+/* RS (3M) Cell */
+.radar-rs-cell {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.radar-rs-score {
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #12291e;
+}
+
+.radar-rs-cell.tier-leader .radar-rs-score {
+  color: #0e8755;
+}
+
+.radar-rs-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #5d7467;
+}
+
+.radar-rs-cell.tier-leader .radar-rs-label {
+  color: #149662;
+}
+
+/* Cycle & Trend Pills */
+.radar-green-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: #e3f5ec;
+  color: #117348;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+/* Trigger Cell */
+.radar-trigger-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #10241b;
+  font-size: 13.5px;
+}
+
+.radar-candle-svg {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Price & Stop Cells */
+.radar-price-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: #172e23;
+  font-variant-numeric: tabular-nums;
+}
+
+.radar-stop-cell {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.radar-stop-pct {
+  font-size: 11.5px;
+  color: #6d8377;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* R:R Cell */
+.radar-rr-val {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #118250;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Status Pill */
+.radar-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 8px;
+  background: #e3f5ec;
+  color: #117348;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+/* Action Button */
+.radar-btn-chart {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: #0c261c;
+  color: #ffffff;
+  border: 1px solid #0c261c;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.radar-btn-chart:hover {
+  background: #164432;
+  border-color: #164432;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(12, 38, 28, 0.18);
+}
+
+/* Empty State */
+.radar-empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.radar-empty-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #eff6f2;
+  color: #159967;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.radar-empty-state h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #10241b;
+}
+
+.radar-empty-state p {
+  margin: 0;
+  max-width: 520px;
+  font-size: 13.5px;
+  color: #587063;
+  line-height: 1.5;
+}
+
+/* Bottom Info Cards */
+.radar-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.15fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.radar-info-card {
+  background: #ffffff;
+  border: 1px solid #e1eae4;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: 0 2px 8px rgba(12, 34, 24, 0.03);
+}
+
+.radar-info-card.radar-warn-card {
+  background: #fdf6e9;
+  border-color: #f2dfb9;
+}
+
+.radar-info-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #f0f6f2;
+  color: #1b3d2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.radar-warn-card .radar-info-icon {
+  background: #faeccf;
+  color: #c87316;
+}
+
+.radar-info-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.radar-info-body h3 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0e2319;
+}
+
+.radar-warn-card .radar-info-body h3 {
+  color: #b55e10;
+}
+
+.radar-criteria-list,
+.radar-markets-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.radar-criteria-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #3a5246;
+  font-weight: 500;
+}
+
+.radar-check-icon {
+  color: #159967;
+  font-weight: 800;
+  display: inline-flex;
+}
+
+.radar-markets-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #3a5246;
+  font-weight: 500;
+}
+
+.radar-warn-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #4a3d28;
+  font-weight: 500;
+}
+
+/* Gold Theme Compatibility */
+body[data-theme="gold"] .radar-shell {
+  color: #f3ede0;
+}
+
+body[data-theme="gold"] .radar-breadcrumb {
+  color: #a89f8d;
+}
+
+body[data-theme="gold"] .radar-breadcrumb strong,
+body[data-theme="gold"] .radar-header-titles h1,
+body[data-theme="gold"] .radar-updated-info strong,
+body[data-theme="gold"] .radar-ready-title,
+body[data-theme="gold"] .radar-asset-symbol,
+body[data-theme="gold"] .radar-trigger-cell,
+body[data-theme="gold"] .radar-price-val,
+body[data-theme="gold"] .radar-info-body h3 {
+  color: #f5efe2;
+}
+
+body[data-theme="gold"] .radar-header-titles p,
+body[data-theme="gold"] .radar-ready-desc,
+body[data-theme="gold"] .radar-criteria-list li,
+body[data-theme="gold"] .radar-markets-list li {
+  color: #bfb6a4;
+}
+
+body[data-theme="gold"] .radar-updated-card,
+body[data-theme="gold"] .radar-filter-card,
+body[data-theme="gold"] .radar-search-card,
+body[data-theme="gold"] .radar-main-card,
+body[data-theme="gold"] .radar-info-card {
+  background: #181612;
+  border-color: rgba(212, 175, 55, 0.22);
+}
+
+body[data-theme="gold"] .radar-filter-card select,
+body[data-theme="gold"] .radar-search-input-wrap {
+  background: #221f19;
+  border-color: rgba(212, 175, 55, 0.25);
+  color: #f5efe2;
+}
+
+body[data-theme="gold"] .radar-search-input-wrap input {
+  color: #f5efe2;
+}
+
+body[data-theme="gold"] .radar-ready-banner {
+  background: linear-gradient(90deg, rgba(21, 153, 103, 0.18) 0%, rgba(21, 153, 103, 0.06) 100%);
+  border-bottom-color: rgba(21, 153, 103, 0.28);
+}
+
+body[data-theme="gold"] .radar-table thead th {
+  background: #1d1a15;
+  color: #b5ab97;
+  border-bottom-color: rgba(212, 175, 55, 0.16);
+}
+
+body[data-theme="gold"] .radar-table tbody tr {
+  border-bottom-color: rgba(212, 175, 55, 0.1);
+}
+
+body[data-theme="gold"] .radar-table tbody tr:hover {
+  background: rgba(212, 175, 55, 0.05);
+}
+
+body[data-theme="gold"] .radar-info-card.radar-warn-card {
+  background: rgba(200, 115, 22, 0.12);
+  border-color: rgba(200, 115, 22, 0.35);
+}
+
+body[data-theme="gold"] .radar-warn-text {
+  color: #e4d4b7;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1200px) {
+  .radar-filters-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .radar-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  #opportunityradar.page.active {
+    padding: 14px 14px 32px;
+  }
+  .radar-filters-row {
+    grid-template-columns: 1fr;
+  }
+  .radar-header-titles h1 {
+    font-size: 24px;
+  }
+}
