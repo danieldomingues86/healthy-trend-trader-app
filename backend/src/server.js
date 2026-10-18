@@ -32,6 +32,7 @@ const marketCentral = require('./market-central');
 const eventPlaybook = require('./event-playbook');
 const eventPlaybookAttachments = require('./event-playbook-attachments');
 const profitCelebration = require('./profit-celebration');
+const opportunityRadar = require('./opportunity-radar');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -812,9 +813,13 @@ const server = http.createServer(async (request, response) => {
       }
     }
 
-    if (!['/api/market-central','/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
+    if (!['/api/opportunity-radar','/api/market-central','/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
+    if (url.pathname === '/api/opportunity-radar') {
+      const payload = await opportunityRadar.getOpportunityRadarData(cache);
+      return send(response, 200, payload);
+    }
     if (url.pathname === '/api/market-central') {
       const marketParam = url.searchParams.get('market') || 'stock_b3';
       const universeParam = url.searchParams.get('universe') || 'stock_b3';

@@ -270,6 +270,17 @@
       proOnly: true
     },
     {
+      id: 'opportunityradar',
+      page: 'opportunityradar',
+      label: 'Radar de Oportunidades',
+      labelEn: 'Opportunity Radar',
+      category: 'market-analysis',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
+      desc: 'Ativos prontos para entrada no gráfico Diário.',
+      descEn: 'Assets ready for entry on the Daily chart.',
+      proOnly: false
+    },
+    {
       id: 'fundamentals',
       page: 'fundamentals',
       label: 'Análise Fundamentalista',

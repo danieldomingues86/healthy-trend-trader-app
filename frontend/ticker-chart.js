@@ -779,8 +779,9 @@
     }
   }
 
-  function renderTriggerBanner(trigger) {
+  function renderTriggerBanner(trigger, displayGrade) {
     if (!trigger || !trigger.hasTrigger) return '';
+    const effectiveGrade = displayGrade || trigger.grade || 'A';
 
     const entryPriceFormatted = trigger.entry ? `R$ ${formatNumber(trigger.entry)}` : '';
     const stopPriceFormatted = trigger.stop ? `R$ ${formatNumber(trigger.stop)}` : '';
@@ -797,7 +798,7 @@
           <div class="trigger-alert-info">
             <div class="trigger-alert-title-row">
               <span class="trigger-alert-title">🎯 GATILHO DE COMPRA IDENTIFICADO</span>
-              <span class="trigger-alert-pattern-badge">${escapeHtml(trigger.name)} (${escapeHtml(trigger.grade || 'A')})</span>
+              <span class="trigger-alert-pattern-badge">${escapeHtml(trigger.name)} (${escapeHtml(effectiveGrade)})</span>
               <span class="trigger-alert-rule-tag">Acima da EMA 9 e EMA 30</span>
             </div>
             <div class="trigger-alert-desc">
@@ -945,6 +946,26 @@
     const sessionDateRaw = tickerData.tickerInfo.sessionDate || tickerData.tickerInfo.date || lastCandleDate;
     const sessionDateFormatted = formatSessionDate(sessionDateRaw);
 
+    // Sincroniza a nota e score da Rubric com a política ativa e com o mesmo motor do Novo Trade
+    if (window.TickerChartModel && typeof window.TickerChartModel.evaluateChartRubric === 'function') {
+      const activePolicy = window.riskPolicyState || window.tradingRubricPolicy || undefined;
+      const evaluated = window.TickerChartModel.evaluateChartRubric(tickerData, activePolicy);
+      if (evaluated && evaluated.finalGrade) {
+        if (!tickerData.rubric) tickerData.rubric = {};
+        tickerData.rubric.finalGrade = evaluated.finalGrade;
+        tickerData.rubric.score = evaluated.score;
+        tickerData.rubric.summaryText = evaluated.summaryText;
+        if (Array.isArray(tickerData.rubric.criteria)) {
+          const trigCrit = tickerData.rubric.criteria.find(c => c && c.name === 'Gatilho');
+          if (trigCrit && tickerData.trigger?.hasTrigger) {
+            trigCrit.obs = `${tickerData.trigger.name} (${evaluated.finalGrade})`;
+          }
+        }
+      }
+    }
+
+    const effectiveOpportunityGrade = tickerData.rubric?.finalGrade || tickerData.trigger?.grade || 'A';
+
     // Avalia status semânticos (good = verde, neutral = cinza, bad = vermelho)
     const gradeVisual = getRubricGradeVisual(tickerData.rubric?.finalGrade);
     const rsStatus = getRsStatus(tickerData.relativeStrength?.score, tickerData.relativeStrength?.classification);
@@ -1069,7 +1090,7 @@
       </div>
 
       <!-- 2.5 BANNER DE DESTAQUE: GATILHO IDENTIFICADO (apenas quando houver gatilho de compra válido) -->
-      ${renderTriggerBanner(tickerData.trigger)}
+      ${renderTriggerBanner(tickerData.trigger, effectiveOpportunityGrade)}
 
       <!-- 3. MAIN CHART & VISÃO DO ATIVO GRID -->
       <div class="ticker-main-grid">
@@ -1282,7 +1303,7 @@
               </div>
               <div class="summary-check-right">
                 ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger)
-                  ? `<span class="vision-status good">● ${escapeHtml(tickerData.trigger.name)} (${escapeHtml(tickerData.trigger.grade || 'A')})</span>`
+                  ? `<span class="vision-status good">● ${escapeHtml(tickerData.trigger.name)} (${escapeHtml(effectiveOpportunityGrade)})</span>`
                   : `<span class="vision-status neutral">● Nenhum gatilho</span>`
                 }
               </div>
@@ -1476,7 +1497,7 @@
               <div class="method-card-title">Gatilho</div>
             </div>
             ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger)
-              ? `<div class="method-trigger-grade-badge">${escapeHtml(tickerData.trigger.grade || 'A')}</div>`
+              ? `<div class="method-trigger-grade-badge">${escapeHtml(effectiveOpportunityGrade)}</div>`
               : `<div class="method-trigger-neutral-badge">Neutro</div>`
             }
           </div>
@@ -2433,12 +2454,13 @@
         const sym = tickerData?.tickerInfo?.symbol || currentTicker;
         if (window.TradeSimulator && typeof window.TradeSimulator.addSimulation === 'function') {
           let liveVision = null;
+          const simGrade = tickerData?.rubric?.finalGrade || trig.grade || 'A';
           if (tickerData && window.TradeSimulatorModel && typeof window.TradeSimulatorModel.getTradeVisionAtivo === 'function') {
             liveVision = window.TradeSimulatorModel.getTradeVisionAtivo({
               symbol: sym,
               signalDate: tickerData?.tickerInfo?.sessionDate || tickerData?.tickerInfo?.date || new Date().toISOString().slice(0, 10),
               triggerName: trig.name,
-              grade: trig.grade || 'A',
+              grade: simGrade,
               entryPrice: trig.entry,
               stopLoss: trig.stop,
               sector: tickerData?.tickerInfo?.sector || 'Geral'
@@ -2448,7 +2470,7 @@
           await window.TradeSimulator.addSimulation({
             symbol: sym,
             triggerName: trig.name,
-            grade: trig.grade || 'A',
+            grade: simGrade,
             sector: tickerData?.tickerInfo?.sector || 'Geral',
             companyName: tickerData?.tickerInfo?.name || sym,
             signalDate: tickerData?.tickerInfo?.sessionDate || tickerData?.tickerInfo?.date || new Date().toISOString().slice(0, 10),
