@@ -230,7 +230,7 @@ test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita d
   assert.equal(fund.desc, 'Consultar os fundamentos e a qualidade dos ativos.');
 
   const treemap = marketCat.items.find(i => i.page === 'markettreemap');
-  assert.equal(treemap.label, 'Mapa de Setores');
+  assert.equal(treemap.label, 'Setores');
   assert.equal(treemap.desc, 'Treemap interativo de todo o mercado acionário da B3.');
 });
 

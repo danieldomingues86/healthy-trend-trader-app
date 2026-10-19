@@ -177,3 +177,12 @@ test('market-treemap-model: formatação de números grandes e percentuais', () 
   assert.equal(MarketTreemapModel.formatPrice(67.42), 'R$ 67,42');
   assert.equal(MarketTreemapModel.formatPrice(null), '—');
 });
+
+test('market-treemap: preserva data real de atualização dos dados do cache', async () => {
+  const data = await getMarketTreemapData();
+  assert.ok(data.summary.updatedAt, 'updatedAt está preenchido');
+  // Deve refletir a data do cache mais recente (2026-10-16) e não uma data defasada
+  assert.ok(data.summary.updatedAt.startsWith('2026-10-16'), 'Preserva timestamp real do market-cache (2026-10-16)');
+  assert.equal(data.summary.period, '1d', 'Período padrão do mapa é 1D');
+});
+

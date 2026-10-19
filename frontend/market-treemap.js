@@ -118,13 +118,13 @@
               </svg>
             </div>
             <div class="treemap-header-text">
-              <h1>Mapa de Setores da B3</h1>
-              <p>Visualize o mercado brasileiro por setor, com o tamanho das empresas proporcional ao seu Market Cap.</p>
+              <h1>Setores</h1>
+              <p>Panorama do mercado acionário da B3 por setor econômico, com tamanho proporcional ao Market Cap e variação diária.</p>
             </div>
           </header>
 
           <!-- Barra de Controles e Filtros -->
-          <nav class="treemap-controls-bar" aria-label="Filtros do Mapa de Setores">
+          <nav class="treemap-controls-bar" aria-label="Filtros da tela de Setores">
             <div class="treemap-filters-left">
               <!-- Universo -->
               <div class="treemap-select-wrap">
@@ -181,27 +181,31 @@
             </div>
 
             <div class="treemap-controls-right">
-              <!-- Períodos (1D, 1S, 1M, 3M, 6M, 1A) -->
-              <div class="treemap-period-pills" role="radiogroup" aria-label="Selecione o período de variação">
-                <button type="button" class="treemap-period-btn ${state.filters.period === '1d' ? 'active' : ''}" data-period="1d">1D</button>
-                <button type="button" class="treemap-period-btn ${state.filters.period === '1w' ? 'active' : ''}" data-period="1w">1S</button>
-                <button type="button" class="treemap-period-btn ${state.filters.period === '1m' ? 'active' : ''}" data-period="1m">1M</button>
-                <button type="button" class="treemap-period-btn ${state.filters.period === '3m' ? 'active' : ''}" data-period="3m">3M</button>
-                <button type="button" class="treemap-period-btn ${state.filters.period === '6m' ? 'active' : ''}" data-period="6m">6M</button>
-                <button type="button" class="treemap-period-btn ${state.filters.period === '1y' ? 'active' : ''}" data-period="1y">1A</button>
-              </div>
-
-              <!-- Escala de Cores / Legenda -->
-              <div class="treemap-color-scale" aria-hidden="true">
-                <div class="treemap-scale-bar"></div>
-                <div class="treemap-scale-labels">
-                  <span>-10%</span>
-                  <span>-5%</span>
-                  <span>-2%</span>
-                  <span>0%</span>
-                  <span>+2%</span>
-                  <span>+5%</span>
-                  <span>+10%</span>
+              <!-- Escala de Cores e Legenda Explicativa do Gradiente -->
+              <div class="treemap-scale-container" aria-label="Legenda do mapa de calor de variação diária">
+                <div class="treemap-scale-bar-wrap">
+                  <div class="treemap-scale-bar" role="img" aria-label="Gradiente de -10% a +10%"></div>
+                  <div class="treemap-scale-labels" aria-hidden="true">
+                    <span>−10%</span>
+                    <span>−5%</span>
+                    <span>0%</span>
+                    <span>+5%</span>
+                    <span>+10%</span>
+                  </div>
+                </div>
+                <div class="treemap-scale-legend-items">
+                  <div class="treemap-scale-legend-item negative" title="Variação diária negativa expressiva">
+                    <span class="legend-swatch swatch-negative"></span>
+                    <span class="legend-text"><strong>−10%</strong> Maiores perdedores</span>
+                  </div>
+                  <div class="treemap-scale-legend-item neutral" title="Variação diária neutra ou estável">
+                    <span class="legend-swatch swatch-neutral"></span>
+                    <span class="legend-text"><strong>0%</strong> Neutro</span>
+                  </div>
+                  <div class="treemap-scale-legend-item positive" title="Variação diária positiva expressiva">
+                    <span class="legend-swatch swatch-positive"></span>
+                    <span class="legend-text"><strong>+10%</strong> Maiores vencedores</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -239,7 +243,6 @@
     const sectorSelect = document.getElementById('treemapFilterSector');
     const searchInput = document.getElementById('treemapSearchInput');
     const searchClear = document.getElementById('treemapSearchClear');
-    const periodPills = document.querySelectorAll('.treemap-period-btn');
 
     if (universeSelect) {
       universeSelect.addEventListener('change', (e) => {
@@ -278,18 +281,6 @@
       });
     }
 
-    periodPills.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const period = btn.dataset.period;
-        if (!period || period === state.filters.period) return;
-        state.filters.period = period;
-
-        periodPills.forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        fetchTreemapData();
-      });
-    });
 
     // Fecha o popover ao clicar fora ou rolar
     document.addEventListener('scroll', hidePopoverImmediate, { passive: true });
@@ -321,14 +312,19 @@
     const formattedMcap = model.formatMarketCap(sum.totalMarketCap);
     const avgChangeFormatted = model.formatSignedPercent(sum.avgChangePct);
     const avgChangeClass = Number(sum.avgChangePct) > 0 ? 'positive' : (Number(sum.avgChangePct) < 0 ? 'negative' : '');
-    const periodLabel = (sum.period || '1d').toUpperCase();
-
-    // Data de atualização formatada
+    // Data de atualização formatada no fuso de São Paulo
     let dateStr = '—';
     if (sum.updatedAt) {
       try {
         const d = new Date(sum.updatedAt);
-        dateStr = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        dateStr = d.toLocaleString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
       } catch {
         dateStr = String(sum.updatedAt);
       }
@@ -387,7 +383,7 @@
         </div>
       </article>
 
-      <!-- Card 4: Variação média -->
+      <!-- Card 4: Variação média diária -->
       <article class="treemap-kpi-card">
         <div class="treemap-kpi-icon" aria-hidden="true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -396,7 +392,7 @@
           </svg>
         </div>
         <div class="treemap-kpi-data">
-          <span class="treemap-kpi-label">Variação média (${periodLabel})</span>
+          <span class="treemap-kpi-label">Variação média (Dia)</span>
           <strong class="treemap-kpi-value ${avgChangeClass}">${avgChangeFormatted}</strong>
         </div>
       </article>
@@ -653,8 +649,6 @@
     const popover = document.getElementById('treemapPopover');
     if (!popover || !stock) return;
 
-    const model = getModel();
-    const periodLabel = (state.filters.period || '1d').toUpperCase();
     const mcapFormatted = model.formatMarketCap(stock.companyMarketCap || stock.marketCap);
     const priceFormatted = model.formatPrice(stock.price);
     const changeFormatted = model.formatSignedPercent(stock.changePct);
@@ -664,7 +658,14 @@
     if (stock.updatedAt) {
       try {
         const d = new Date(stock.updatedAt);
-        dateStr = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        dateStr = d.toLocaleString('pt-BR', {
+          timeZone: 'America/Sao_Paulo',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
       } catch {
         dateStr = String(stock.updatedAt);
       }
@@ -699,7 +700,7 @@
           <span>${esc(priceFormatted)}</span>
         </div>
         <div class="treemap-popover-row">
-          <span>Variação (${periodLabel})</span>
+          <span>Variação (Dia)</span>
           <span class="change-val ${changeClass}">${changeFormatted}</span>
         </div>
         <div class="treemap-popover-row">
@@ -799,7 +800,7 @@
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
-        <p><strong>Não foi possível carregar o Mapa de Setores:</strong> ${esc(message)}</p>
+        <p><strong>Não foi possível carregar a tela de Setores:</strong> ${esc(message)}</p>
         <button type="button" class="treemap-focus-back-btn" onclick="window.refreshMarketTreemap()">Tentar novamente</button>
       </div>
     `;

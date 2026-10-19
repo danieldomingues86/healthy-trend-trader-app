@@ -45,7 +45,7 @@
     ['opportunityradar','Radar de Oportunidades','Ativos prontos para entrada no Diário.',null,'Consolide em uma visão rápida e objetiva somente os ativos que cumprem todos os critérios obrigatórios do método e possuem gatilho confirmado no gráfico Diário.'],
     ['relativestrength','Força Relativa','Encontre líderes.',null,'Compare os ativos dentro do seu universo. Força relativa indica liderança; a entrada ainda depende do setup.'],
     ['fundamentals','Fundamentalista','Score em 6 dimensões com CVM e SEC.',null,'Pesquise ações B3 ou BDRs internacionais. Score ponderado de 0 a 10 com régua de 5 patamares e Cobertura dos Dados (dado ausente não é zero).'],
-    ['markettreemap','Mapa de Setores','Treemap interativo de todo o mercado acionário da B3.',null,'Visualize o mercado brasileiro por setor com o tamanho das empresas proporcional ao seu Market Cap, variação em múltiplos períodos (1D a 1A) e navegação direta para análise gráfica.'],
+    ['markettreemap','Setores','Treemap interativo de todo o mercado acionário da B3.',null,'Visualize o mercado brasileiro por setor com o tamanho das empresas proporcional ao seu Market Cap, variação diária e navegação direta para análise gráfica.'],
     ['dashboard','Patrimônio','Visão patrimonial e alocações.',null,'Acompanhe a curva de capital da estratégia, separe o rendimento real dos aportes e gerencie as alocações da sua carteira.'],
     ['positions','Posições','Acompanhe e gerencie.','manual-positions','Abra a posição para consultar a linha do tempo, atualizar o stop e registrar reduções ou encerramento.'],
     ['closedpositions','Posições Encerradas','Histórico e revisão de trades.','manual-closedpositions','Consulte o histórico completo de trades finalizados com auditoria de eventos, R-múltiplo real alcançado, duração e diário vinculado.'],
@@ -198,8 +198,8 @@
         'Régua Horizontal de 5 Patamares (RUIM, FRACO, MÉDIO, BOM, EXCELENTE) e Raio-X agrupado por categorias econômicas com Market Cap humanizado.'
       ],
       markettreemap: [
-        'O Mapa de Setores da B3 é um Treemap interativo de inteligência de mercado, permitindo entender rapidamente a distribuição das empresas por setor econômico e comparar portes por Market Cap.',
-        'Área Proporcional & Cores: A área de cada retângulo reflete rigorosamente o Market Cap da empresa em R$, enquanto as cores expressam a variação percentual do período selecionado (-10% a +10%).',
+        'A tela de Setores da B3 é um Treemap interativo de inteligência de mercado, permitindo entender rapidamente a distribuição das empresas por setor econômico e comparar portes por Market Cap.',
+        'Área Proporcional & Cores: A área de cada retângulo reflete rigorosamente o Market Cap da empresa em R$, enquanto as cores expressam a variação percentual diária (-10% a +10%).',
         'Filtros e Interação: Alterne entre Mercado Completo, Ibovespa e Small Caps, pesquise por ticker ou nome, expanda setores específicos e abra a análise técnica diretamente no gráfico diário.'
       ],
       analytics: [

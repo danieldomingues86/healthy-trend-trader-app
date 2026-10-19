@@ -446,7 +446,8 @@ async function getMarketTreemapData(options = {}) {
   } else {
     const { fundData, marketData, candlesData } = await loadSourceFiles();
     baseStocks = buildEnrichedStocks(fundData, marketData, candlesData);
-    dataUpdatedAt = fundData.updatedAt || marketData.updatedAt || new Date().toISOString();
+    // Preserva o timestamp real do cache de mercado (market-cache.json)
+    dataUpdatedAt = marketData?.updatedAt || fundData?.updatedAt || new Date().toISOString();
 
     memoryCache = {
       timestamp: now,
