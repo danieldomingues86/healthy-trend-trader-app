@@ -200,7 +200,8 @@ test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita d
     'marketcycle',
     'marketcentral',
     'eventplaybook',
-    'fundamentals'
+    'fundamentals',
+    'markettreemap'
   ], 'Itens de Análise de Mercado devem respeitar a ordem prioritária de uso diário');
 
   // Validação dos textos e descrições do menu
@@ -227,5 +228,9 @@ test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita d
   const fund = marketCat.items.find(i => i.page === 'fundamentals');
   assert.equal(fund.label, 'Análise Fundamentalista');
   assert.equal(fund.desc, 'Consultar os fundamentos e a qualidade dos ativos.');
+
+  const treemap = marketCat.items.find(i => i.page === 'markettreemap');
+  assert.equal(treemap.label, 'Mapa de Setores');
+  assert.equal(treemap.desc, 'Treemap interativo de todo o mercado acionário da B3.');
 });
 

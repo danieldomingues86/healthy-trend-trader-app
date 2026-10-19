@@ -33,6 +33,7 @@ const eventPlaybook = require('./event-playbook');
 const eventPlaybookAttachments = require('./event-playbook-attachments');
 const profitCelebration = require('./profit-celebration');
 const opportunityRadar = require('./opportunity-radar');
+const marketTreemap = require('./market-treemap');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -811,6 +812,17 @@ const server = http.createServer(async (request, response) => {
         const res = await eventPlaybook.remove(user.id, eventId);
         return send(response, 200, res);
       }
+    }
+
+    if (url.pathname === '/api/market-treemap') {
+      const query = {
+        universe: url.searchParams.get('universe') || 'ALL',
+        sector: url.searchParams.get('sector') || 'ALL',
+        period: url.searchParams.get('period') || '1d',
+        search: url.searchParams.get('search') || ''
+      };
+      const payload = await marketTreemap.getMarketTreemapData(query);
+      return send(response, 200, payload);
     }
 
     if (!['/api/opportunity-radar','/api/market-central','/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
