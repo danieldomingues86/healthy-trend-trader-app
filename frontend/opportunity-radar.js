@@ -1198,8 +1198,14 @@
             </div>
 
             <div class="paper-pending-field">
-              <label for="paperPendingQty">Quantidade (ações)</label>
-              <input type="number" id="paperPendingQty" step="100" min="1" value="${initialQty}" required oninput="window.recalculatePendingModalRisk()" />
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label for="paperPendingQty">Quantidade (ações)</label>
+                <div style="display: flex; gap: 4px;">
+                  <button type="button" class="paper-pending-stepper-btn" onclick="window.adjustPendingModalQty(-100)" title="Diminuir 100 ações">-100</button>
+                  <button type="button" class="paper-pending-stepper-btn" onclick="window.adjustPendingModalQty(100)" title="Aumentar 100 ações">+100</button>
+                </div>
+              </div>
+              <input type="number" id="paperPendingQty" step="1" min="1" value="${initialQty}" required oninput="window.recalculatePendingModalRisk()" />
             </div>
 
             <div class="paper-pending-field">
@@ -1354,6 +1360,15 @@
     }
   };
 
+  root.adjustPendingModalQty = function (delta) {
+    const qtyEl = document.getElementById('paperPendingQty');
+    if (!qtyEl) return;
+    const current = Number(qtyEl.value) || 0;
+    const next = Math.max(1, current + delta);
+    qtyEl.value = next;
+    root.recalculatePendingModalRisk();
+  };
+
   root.renderOpportunityRadar = renderOpportunityRadar;
   root.refreshOpportunityRadar = refreshOpportunityRadar;
   root.openRadarTickerChart = openRadarTickerChart;
@@ -1365,5 +1380,6 @@
   root.closeAddToPaperTradingModal = root.closeAddToPaperTradingModal;
   root.submitAddToPaperTradingModal = root.submitAddToPaperTradingModal;
   root.recalculatePendingModalRisk = root.recalculatePendingModalRisk;
+  root.adjustPendingModalQty = root.adjustPendingModalQty;
 
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -211,6 +211,31 @@ body[data-theme="gold"] .paper-pending-modal-card {
   color: #a3baa9;
 }
 
+.paper-pending-stepper-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 5px;
+  color: #c9dbce;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.paper-pending-stepper-btn:hover {
+  background: #168448;
+  color: #ffffff;
+  border-color: #168448;
+}
+
+body[data-theme="gold"] .paper-pending-stepper-btn:hover {
+  background: #d4af37;
+  color: #110e08;
+  border-color: #d4af37;
+}
+
 .paper-pending-field input,
 .paper-pending-field select,
 .paper-pending-field textarea {
