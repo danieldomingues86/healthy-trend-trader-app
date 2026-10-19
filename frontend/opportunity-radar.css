@@ -541,40 +541,75 @@
   font-weight: 500;
 }
 
-/* Grade Badge */
+/* Grade Badges (Rubric Engine Parity) */
 .radar-grade-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
+  min-width: 36px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 7px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.radar-grade-badge:hover {
+  transform: scale(1.06);
 }
 
 .radar-grade-badge.grade-a {
-  background: #e6f9ee;
-  color: #0e854e;
-  border: 1px solid #b7eccb;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  box-shadow: 0 1px 3px rgba(21, 128, 61, 0.1);
 }
 
 .radar-grade-badge.grade-b {
-  background: #f1f7f4;
-  color: #276246;
-  border: 1px solid #cbe0d5;
+  background: #fefce8;
+  color: #a16207;
+  border: 1px solid #fef08a;
+  box-shadow: 0 1px 3px rgba(161, 98, 7, 0.1);
 }
 
 .radar-grade-badge.grade-c {
-  background: #fef8eb;
-  color: #b46b14;
-  border: 1px solid #f6deb3;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
 }
 
 .radar-grade-badge.grade-d {
-  background: #feecef;
-  color: #c92a2a;
-  border: 1px solid #fcc2d7;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+[data-theme="gold"] .radar-grade-badge.grade-a {
+  background: rgba(21, 128, 61, 0.16);
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.35);
+}
+
+[data-theme="gold"] .radar-grade-badge.grade-b {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+[data-theme="gold"] .radar-grade-badge.grade-c {
+  background: rgba(234, 88, 12, 0.16);
+  color: #fb923c;
+  border-color: rgba(251, 146, 60, 0.35);
+}
+
+[data-theme="gold"] .radar-grade-badge.grade-d {
+  background: rgba(220, 38, 38, 0.16);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.35);
 }
 
 /* Market Badge */

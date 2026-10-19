@@ -404,8 +404,8 @@
           classification: rsClass.label
         },
         marketCycle: {
-          regime: 'healthy',
-          description: 'Positivo'
+          regime: cycleNorm,
+          description: cycleNorm === 'transition' ? 'Transição' : 'Positivo'
         },
         trend: {
           status: 'Alta',

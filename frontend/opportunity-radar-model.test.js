@@ -103,7 +103,6 @@ test('OpportunityRadarModel.evaluateAssetReadiness rejeita ativo sem gatilho, co
   assert.equal(OpportunityRadarModel.evaluateAssetReadiness(asset, candles, 'Em Transição'), null);
   assert.equal(OpportunityRadarModel.evaluateAssetReadiness({ ...asset, marketCycleState: 'transition' }, candles, 'healthy'), null);
   assert.equal(OpportunityRadarModel.evaluateAssetReadiness({ ...asset, cycle: 'Em Transição' }, candles, 'healthy'), null);
-
   // Rejeita RS menor ou igual a 80 (exigência estrita de RS > 80)
   assert.equal(OpportunityRadarModel.evaluateAssetReadiness({ ...asset, score: 80 }, candles, 'healthy'), null);
   assert.equal(OpportunityRadarModel.evaluateAssetReadiness({ ...asset, score: 79 }, candles, 'healthy'), null);
