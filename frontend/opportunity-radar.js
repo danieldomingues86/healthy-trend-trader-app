@@ -454,7 +454,7 @@
             <span class="radar-rr-val">${formatNumberPt(item.rr, 1)}</span>
           </td>
           <td class="col-center">
-            <span class="radar-status-pill">↗ Pronto para entrada</span>
+            <span class="radar-status-pill" title="Ativo pronto para entrada">↗ Pronto</span>
           </td>
           <td class="col-actions">
             <div class="radar-row-actions">
