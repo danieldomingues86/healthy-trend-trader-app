@@ -3474,29 +3474,9 @@ body:has(#newtrade.active) .content {
   display: block;
 }
 
-/* ── RESUMO DA OPERAÇÃO: PAINEL UNIFICADO & COMPACTO ───────────────────────── */
+/* ── RESUMO DA OPERAÇÃO: ESTILOS AUXILIARES ───────────────────────── */
 #newtrade .workbench-sizer.has-operation-summary {
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-#newtrade .workbench-sizer.has-operation-summary .workbench-sizer-head {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 12px !important;
-  margin-bottom: 12px !important;
-}
-
-#newtrade .workbench-sizer.has-operation-summary .workbench-subcol-divider,
-#newtrade .workbench-sizer.has-operation-summary #workbenchColSystem {
-  display: none !important;
-}
-
-#newtrade .workbench-sizer-body.is-unified-summary {
-  display: block !important;
-  flex: 1 !important;
-  width: 100% !important;
+  /* Preserva grid canônico da bancada de 2 subcolunas */
 }
 
 .op-summary-head-actions {

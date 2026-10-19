@@ -92,7 +92,7 @@ body:has(#watchlist.active) #marketFocusGuard {
     margin-inline:auto!important;
   }
 
-  .page.active:not(#today):not(#journal):not(#zen):not(#manual):not(#wisdom):not(#tradelibrary):not(#emotionalintelligence):not(#emergingleaders):not(#watchlist):not(#marketcycle){
+  .page.active:not(#today):not(#journal):not(#zen):not(#manual):not(#wisdom):not(#tradelibrary):not(#emotionalintelligence):not(#emergingleaders):not(#watchlist):not(#marketcycle):not(#tradesimulator):not(#riskofruin){
     width:min(100%,var(--workspace-max-width));
     margin-inline:auto!important;
   }
@@ -109,7 +109,9 @@ body:has(#watchlist.active) #marketFocusGuard {
   #forecast,
   #fundamentals,
   #marketscans,
-  #materials{max-width:none!important;width:100%;margin-inline:auto!important}
+  #materials,
+  #tradesimulator,
+  #riskofruin{max-width:none!important;width:100%!important;margin-inline:auto!important}
 
   #today.today-cockpit-page .today-cockpit,
   #habits .habit-shell,

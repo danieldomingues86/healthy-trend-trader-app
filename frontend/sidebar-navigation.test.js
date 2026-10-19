@@ -33,9 +33,9 @@ test('SidebarNavigation reúne Simulador de Trades e Simulador de Equity no menu
   assert.equal(simulatorsGroup.label, 'Simuladores');
   assert.equal(simulatorsGroup.isGroup, true);
 
-  // 2. Simuladores deve conter exatamente as duas telas
+  // 2. Simuladores deve conter as telas de simulação (Simulador de Trades, Simulador de Equity e Risco de Ruína)
   const itemIds = Array.from(simulatorsGroup.items.map(item => item.id));
-  assert.deepEqual([...itemIds], ['tradesimulator', 'forecast']);
+  assert.deepEqual([...itemIds], ['tradesimulator', 'forecast', 'riskofruin']);
 
   const tradeSim = simulatorsGroup.items.find(item => item.id === 'tradesimulator');
   assert.equal(tradeSim.title, 'Simulador de Trades');
@@ -44,6 +44,10 @@ test('SidebarNavigation reúne Simulador de Trades e Simulador de Equity no menu
   const equitySim = simulatorsGroup.items.find(item => item.id === 'forecast');
   assert.equal(equitySim.title, 'Simulador de Equity');
   assert.equal(equitySim.page, 'forecast');
+
+  const rorSim = simulatorsGroup.items.find(item => item.id === 'riskofruin');
+  assert.equal(rorSim.title, 'Risco de Ruína');
+  assert.equal(rorSim.page, 'riskofruin');
 
   // 3. forecast não deve mais estar em data-performance
   const dataPerformanceGroup = nav.navStructure.find(g => g.id === 'data-performance');

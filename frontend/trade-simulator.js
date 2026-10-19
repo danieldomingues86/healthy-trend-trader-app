@@ -820,6 +820,9 @@
     `;
 
     bindLocalEvents(rootEl);
+    if (root.RiskOfRuinController && typeof root.RiskOfRuinController.renderTradeSimulatorScenarioSection === 'function') {
+      try { root.RiskOfRuinController.renderTradeSimulatorScenarioSection(); } catch (_) {}
+    }
   }
 
   /**

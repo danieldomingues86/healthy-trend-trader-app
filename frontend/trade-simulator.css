@@ -3,10 +3,21 @@
    Visual Premium SaaS inspirado na referência visual (media_1791154800919.png)
    ========================================================================== */
 
+/* Layout expansivo para telas widescreen e monitores maiores */
+body:has(#tradesimulator.active) .content {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 20px clamp(20px, 2.2vw, 48px) 60px !important;
+  box-sizing: border-box !important;
+}
+
 #tradesimulator {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 20px 28px 60px;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .simulator-page {

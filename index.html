@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="frontend/login-cinematic.css?v=20260927-1" />
 <link rel="stylesheet" href="frontend/mindset-hub.css" />
 <link rel="stylesheet" href="frontend/ticker-chart.css" />
-<link rel="stylesheet" href="frontend/trade-simulator.css" />
+<link rel="stylesheet" href="frontend/trade-simulator.css?v=20261018-widescreen-1" />
 <link rel="stylesheet" href="frontend/mission.css" />
 <link rel="stylesheet" href="frontend/market-central.css?v=20261013-1" />
 <link rel="stylesheet" href="frontend/event-playbook.css?v=20261013-1" />
@@ -1126,6 +1126,7 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 <section class="page" id="riskpolicy"><div class="hero"><div><div class="eyebrow">Livro de regras</div><h1>Política de<br>risco.</h1></div><p>Defina o Risk Budget por Grade e os limitadores que transformam esse teto em risco executável.</p></div><div class="grid settings-grid" id="riskPolicyGrid"><section class="card"><div class="card-head"><div><h3>Proteção da conta</h3><span>Limites permanentes da operação</span></div></div><div class="setting-row"><div><b>Volatilidade alvo</b><small>Modelo baseado em ATR</small></div><strong>0,20%</strong></div><div class="setting-row"><div><b>Limite de capital</b><small>Máximo por posição</small></div><strong>10%</strong></div><div class="setting-row"><div><b>Portfolio Heat máximo</b><small>Risco agregado</small></div><strong>12,5%</strong></div><div class="setting-row"><div><b>Máximo de posições</b><small>Simultâneas</small></div><strong>10</strong></div></section><section class="card"><div class="card-head"><div><h3>Regras A</h3><span>Critérios obrigatórios do método</span></div></div><div class="setting-row"><div><b>Diário saudável</b><small>Médias totalmente alinhadas</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>ATR% abaixo de 2%</b><small>Zona verde</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>Contração no 4H</b><small>Não comprar expansão</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>Gatilho confirmado</b><small>Execução objetiva</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>Bloquear trade rejeitado</b><small>Permitir apenas com justificativa</small></div><div class="toggle"><span></span></div></div></section></div></section>
 <section class="page" id="portfolioheat" aria-label="Controle de Portfolio Heat"><div id="portfolioHeatRoot"></div></section>
 <section class="page" id="forecast" aria-label="Simulador de Equity"><div id="forecastRoot"></div></section>
+<section class="page" id="riskofruin" aria-label="Risco de Ruína"><div id="riskOfRuinRoot"></div></section>
 </div>
 </main></div>
 
@@ -1184,8 +1185,8 @@ titles.dailyroutine='Rotina Diária';
 titles.opportunityradar='Radar de Oportunidades';
 titles.watchlist='Watchlist';
 titles.about='Sobre';
-titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.tradertraining='Prática Deliberada';titles.mission='Missão';titles.rebuild='Rebuild Mode';titles.tradesimulator='Simulador de Trades';titles.marketnews='Notícias';titles.news='Notícias';titles.marketcentral='Central de Mercado';titles.eventplaybook='Registro de Eventos';titles.conquests='Minhas Conquistas';
-function go(id, extra){if(id==='news'||id==='marketnews')id='marketcentral';if(id==='marketscans')id='opportunityradar';if(id==='emergingleaders')id='relativestrength';if(id==='couragechallenge')id='mission';if(id==='rebuild')id='mission';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='mission'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='rebuild'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Prática Deliberada</b>';}else if(id==='conquests'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Minhas Conquistas</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Trades</b>';}else if(id==='forecast'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Equity</b>';}else if(id==='marketcentral'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Central de Mercado</b>';}else if(id==='eventplaybook'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Registro de Eventos</b>';}else if(id==='opportunityradar'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Radar de Oportunidades</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='marketcentral'&&typeof window.renderMarketCentral==='function'){window.renderMarketCentral();}if(id==='eventplaybook'&&typeof window.EventPlaybook?.render==='function'){window.EventPlaybook.render();}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='opportunityradar'&&typeof window.renderOpportunityRadar==='function'){window.renderOpportunityRadar();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='relativestrength'&&typeof window.renderRelativeStrengthClassesPage==='function'){window.renderRelativeStrengthClassesPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='conquests'&&typeof window.ProfitCelebration?.renderPage==='function'){window.ProfitCelebration.renderPage();}if(id==='mission'&&typeof window.renderMissionPage==='function'){window.renderMissionPage();}if(id==='rebuild'&&typeof window.renderRebuildPage==='function'){window.renderRebuildPage();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&typeof updateTradingRubric==='function'){updateTradingRubric();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(id==='manual'&&typeof window.renderKnowledgeCenter==='function'){window.renderKnowledgeCenter();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
+titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.tradertraining='Prática Deliberada';titles.mission='Missão';titles.rebuild='Rebuild Mode';titles.tradesimulator='Simulador de Trades';titles.riskofruin='Risco de Ruína';titles.marketnews='Notícias';titles.news='Notícias';titles.marketcentral='Central de Mercado';titles.eventplaybook='Registro de Eventos';titles.conquests='Minhas Conquistas';
+function go(id, extra){if(id==='news'||id==='marketnews')id='marketcentral';if(id==='marketscans')id='opportunityradar';if(id==='emergingleaders')id='relativestrength';if(id==='couragechallenge')id='mission';if(id==='rebuild')id='mission';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='mission'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='rebuild'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Prática Deliberada</b>';}else if(id==='conquests'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Minhas Conquistas</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Trades</b>';}else if(id==='forecast'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Equity</b>';}else if(id==='riskofruin'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Risco de Ruína</b>';}else if(id==='marketcentral'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Central de Mercado</b>';}else if(id==='eventplaybook'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Registro de Eventos</b>';}else if(id==='opportunityradar'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Radar de Oportunidades</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Meu Desktop')+'</b>';}}if(id==='marketcentral'&&typeof window.renderMarketCentral==='function'){window.renderMarketCentral();}if(id==='eventplaybook'&&typeof window.EventPlaybook?.render==='function'){window.EventPlaybook.render();}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='opportunityradar'&&typeof window.renderOpportunityRadar==='function'){window.renderOpportunityRadar();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='relativestrength'&&typeof window.renderRelativeStrengthClassesPage==='function'){window.renderRelativeStrengthClassesPage();}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='conquests'&&typeof window.ProfitCelebration?.renderPage==='function'){window.ProfitCelebration.renderPage();}if(id==='mission'&&typeof window.renderMissionPage==='function'){window.renderMissionPage();}if(id==='rebuild'&&typeof window.renderRebuildPage==='function'){window.renderRebuildPage();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if(id==='riskofruin'&&typeof window.renderRiskOfRuinPage==='function'){window.renderRiskOfRuinPage();}if(id==='riskpolicy'&&typeof window.RiskOfRuinController?.renderRiskPolicySection==='function'){window.RiskOfRuinController.renderRiskPolicySection();}if(id==='analytics'&&typeof window.RiskOfRuinController?.renderAnalyticsSummarySection==='function'){window.RiskOfRuinController.renderAnalyticsSummarySection();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&typeof updateTradingRubric==='function'){updateTradingRubric();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(id==='manual'&&typeof window.renderKnowledgeCenter==='function'){window.renderKnowledgeCenter();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
 function marketCandles(seed=0,count=16){return Array.from({length:count},(_,i)=>{const h=18+((i*17+seed*11)%46),mb=7+((i*13+seed*7)%38),wick=h+13+((i*7+seed)%20),trend=i>count*.62?'down':'up';return `<i class="market-candle ${trend}" style="--h:${h}px;--mb:${mb}px;--wick:${wick}px"></i>`}).join('')}
 function setMarketRange(button){document.querySelectorAll('.market-range button').forEach(item=>item.classList.toggle('active',item===button));}
 function moneyBRL(value,decimals=2){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(value)}
@@ -1759,7 +1760,7 @@ Object.assign(ptToEn,{
 Object.assign(ptToEn,{
  'Print do planejamento':'Planning screenshot','Registre a imagem do gráfico que justificou o plano. Este anexo é opcional.':'Record the chart image that supported the plan. This attachment is optional.','Arraste um print aqui ou clique para escolher uma imagem':'Drop a screenshot here or click to choose an image','PNG, JPG ou WEBP · opcional':'PNG, JPG or WEBP · optional','Remover imagem':'Remove image','Imagem registrada antes da abertura da posição.':'Image recorded before opening the position.','Checklist pendente':'Checklist pending','Confirme cada critério antes de classificar o contexto como A.':'Confirm each criterion before classifying the context as A.','Price Action: fluido de ler ou errático?':'Price action: clear to read or erratic?','Preço acima das médias relevantes':'Price above the relevant moving averages','Selecione uma imagem (PNG, JPG ou WEBP).':'Select an image (PNG, JPG or WEBP).','Use uma imagem de até 6 MB.':'Use an image up to 6 MB.'
 });
-Object.assign(ptToEn,{'Panorama de Mercado':'Market Overview','Patrimônio':'Wealth','Inteligência de Mercado':'Market Intelligence','Ciclo de Mercado':'Market Cycle','Força Relativa':'Relative Strength','Acompanhamento':'Monitoring','Configuração e suporte':'Settings & support','Análise de Mercado':'Market Analysis','Simuladores':'Simulators','Simulador de Trades':'Trade Simulator','Simulador de Equity':'Equity Simulator','Carteira & Risco':'Portfolio & Risk','Dados & Performance':'Data & Performance','Mentalidade & Zen':'Mindset & Zen','Operação Diária':'Daily Operation'});
+Object.assign(ptToEn,{'Panorama de Mercado':'Market Overview','Patrimônio':'Wealth','Inteligência de Mercado':'Market Intelligence','Ciclo de Mercado':'Market Cycle','Força Relativa':'Relative Strength','Acompanhamento':'Monitoring','Configuração e suporte':'Settings & support','Análise de Mercado':'Market Analysis','Simuladores':'Simulators','Simulador de Trades':'Trade Simulator','Simulador de Equity':'Equity Simulator','Risco de Ruína':'Risk of Ruin','Carteira & Risco':'Portfolio & Risk','Dados & Performance':'Data & Performance','Mentalidade & Zen':'Mindset & Zen','Operação Diária':'Daily Operation'});
 Object.assign(ptToEn,{'Realize a parcial de':'Take a partial of','unidades, para ficar dentro do seu limite de risco':'units to stay within your risk limit'});
 Object.assign(ptToEn,{
   'Alta Performance':'High Performance',
@@ -4533,7 +4534,7 @@ renderEffectiveRiskPolicy();
 <script src="frontend/watchlist-page.js?v=20260923-watchlist-compact-2"></script>
 <link rel="stylesheet" href="frontend/about-page.css?v=20260924-centered-canvas-1" />
 <script src="frontend/about-page.js?v=20260924-centered-canvas-1"></script>
-<link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20261002-responsive-workbench-1" />
+<link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20261018-2" />
 <script>
 const goWithAboutPage=go;
 go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAboutPage()};
@@ -4560,20 +4561,8 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
       const sizer = document.querySelector('.workbench-sizer');
       if (!sizer) return;
 
-      const isMissionActive = Boolean(
-        window.MissionModel &&
-        typeof window.MissionModel.isMissionActive === 'function' &&
-        window.MissionModel.isMissionActive()
-      );
-      const activeMission = isMissionActive ? window.MissionModel.getActiveMission() : null;
-
-      let missionContainer = document.getElementById('missionWorkbenchExperience');
-      const summaryMount = document.getElementById('workbenchSummary');
-      const executionMount = document.getElementById('workbenchExecutionMount');
-      const qtyControl = sizer.querySelector('.executed-quantity-control');
-      const executedInput = document.getElementById('tradeExecutedQty');
-
-      sizer.classList.add('has-operation-summary');
+      // Preserva o layout canônico de duas subcolunas da bancada
+      // sizer.classList.add('has-operation-summary');
 
       const isMissionActive = Boolean(
         window.MissionModel &&
@@ -4599,8 +4588,7 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
       const legacyMissionBadge = document.querySelector('.workbench-mission-badge');
       if (legacyMissionBadge) legacyMissionBadge.remove();
 
-      // Ocultar resumo duplicado e controle antigo
-      if (summaryMount) summaryMount.style.display = 'none';
+      // Preservar summaryMount para exibir métricas e painel de Risco de Ruína
       if (qtyControl) qtyControl.style.display = 'none';
 
       // 1. Indicador de modo operacional no cabeçalho
@@ -5049,7 +5037,9 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
     updateTradingRubric = function() {
       const res = origUpdateTradingRubric.apply(this, arguments);
       try {
-        syncMissionWorkbenchExperience(res);
+        if (typeof syncWorkbenchRiskSummary === 'function') {
+          syncWorkbenchRiskSummary(res);
+        }
       } catch(e) {}
       return res;
     };
@@ -5257,8 +5247,8 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <link rel="stylesheet" href="frontend/trade-anatomy.css?v=20260929-layout-1" />
 <script src="frontend/trade-anatomy-model.js?v=20260924-1"></script>
 <script src="frontend/trade-anatomy.js?v=20260924-2"></script>
-<script src="frontend/navigation-system-model.js?v=20261018-3"></script>
-<script src="frontend/sidebar-navigation.js?v=20261018-3"></script>
+<script src="frontend/navigation-system-model.js?v=20261018-5"></script>
+<script src="frontend/sidebar-navigation.js?v=20261018-5"></script>
 <script src="frontend/asset-blacklist.js?v=20261001-blacklist-click-2"></script>
 <link rel="stylesheet" href="frontend/market-pause.css?v=20260929-1" />
 <script src="frontend/market-pause-model.js?v=20260929-1"></script>
@@ -5288,6 +5278,9 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <script src="frontend/profit-celebration.js?v=20261017-1"></script>
 <script src="frontend/opportunity-radar-model.js?v=20261018-4"></script>
 <script src="frontend/opportunity-radar.js?v=20261018-4"></script>
+<link rel="stylesheet" href="frontend/risk-of-ruin.css?v=20261018-5" />
+<script src="frontend/risk-of-ruin-model.js?v=20261018-2"></script>
+<script src="frontend/risk-of-ruin.js?v=20261018-4"></script>
 <script src="frontend/browser-history-navigation-model.js?v=20261018-1"></script>
 <script src="frontend/browser-history-navigation.js?v=20261018-1"></script>
 </body></html>

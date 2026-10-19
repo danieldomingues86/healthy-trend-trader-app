@@ -54,6 +54,7 @@
     ['assetblacklist','Ativos Blacklist','Blindagem comportamental.',null,'Cadastre ativos proibidos, ilíquidos ou fora do seu perfil para bloquear compras acidentais no sistema.'],
     ['tradesimulator','Simulador de Trades','Ambiente de testes e cenários.',null,'Simule a execução do seu método em dados reais, teste cenários de gestão (2R, 2.5R, Pirâmide, Parciais) e compare métricas de payoff.'],
     ['forecast','Simulador de Equity','Projeções probabilísticas.',null,'Simule a evolução matemática da sua curva de capital combinando taxa de acerto, payoff (R médio) e volume operacional.'],
+    ['riskofruin','Risco de Ruína','Proteção patrimonial e sobrevivência estatística.',null,'Estime via Monte Carlo (10.000 trajetórias por reamostragem em R) a probabilidade de atingir o drawdown limite da conta em 250 trades e receba recomendações consultivas de redução de mão.'],
     ['analytics','Painel da Verdade','Descubra onde você tem edge.','manual-analytics','Revise os resultados das operações registradas e procure padrões de qualidade e execução.'],
     ['tradeanatomy','Anatomia dos Trades','Decomposição do seu edge.',null,'Examine a anatomia estatística dos seus trades vencedores vs perdedores, relação de R múltiplo, permanência e setups mais lucrativos.'],
     ['journal','Diário do Trader','Registro e exportação para IA.','manual-journal','Registre o processo técnico e emocional. Exporte notas em múltiplos formatos ou com prompt formatado para análise com IA (ChatGPT/Claude/Gemini).'],
@@ -233,6 +234,10 @@
       tradesimulator: [
         'O Simulador de Trades permite testar regras de execução e gestão de risco em um ambiente controlado e sem viés de look-ahead.',
         'Comparação de Cenários: avalie estratégias como 2R, 2.5R, Pirâmide e Parciais com condução por EMA 9 para descobrir qual abordagem maximiza o seu retorno ajustado ao risco.'
+      ],
+      riskofruin: [
+        'O módulo Risco de Ruína estima via simulação de Monte Carlo (10.000 trajetórias por reamostragem com reposição dos resultados históricos em R) a probabilidade de atingir o drawdown máximo configurado em um horizonte de 250 operações.',
+        'Proteção Patrimonial Transversal: integra-se ao Dashboard Patrimonial, Novo Trade, Simulador de Trades, Painel da Verdade e Política de Risco, oferecendo recomendações consultivas de redução de mão quando o risco excede a tolerância configurada.'
       ],
       mindset: [
         'O módulo central Mentalidade (Mente de Trader) unifica todo o ecossistema comportamental, psicológico e de foco do Healthy Trend Trader em um único ambiente moderno e integrado.',

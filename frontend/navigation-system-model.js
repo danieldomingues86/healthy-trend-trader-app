@@ -361,6 +361,17 @@
       descEn: 'Probabilistic capital curves and projections.',
       proOnly: true
     },
+    {
+      id: 'riskofruin',
+      page: 'riskofruin',
+      label: 'Risco de Ruína',
+      labelEn: 'Risk of Ruin',
+      category: 'simulators',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>`,
+      desc: 'Simulação Monte Carlo de drawdown e sobrevivência estatística.',
+      descEn: 'Monte Carlo drawdown simulation and statistical survival.',
+      proOnly: false
+    },
 
     // Dados & Performance
     {

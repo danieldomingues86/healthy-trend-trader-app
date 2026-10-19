@@ -1167,6 +1167,7 @@
         <div class="wealth-dashboard-body">
           ${state.tab === 'overview' ? `
             ${kpisMarkup}
+            ${typeof window !== 'undefined' && window.RiskOfRuinController && typeof window.RiskOfRuinController.buildWealthDashboardCardHtml === 'function' ? window.RiskOfRuinController.buildWealthDashboardCardHtml() : ''}
             ${chartsRow1}
             ${chartsRow2}
             ${bottomBlocks}
