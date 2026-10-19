@@ -199,7 +199,6 @@ test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita d
     'relativestrength',
     'marketcycle',
     'marketcentral',
-    'eventplaybook',
     'fundamentals',
     'markettreemap'
   ], 'Itens de Análise de Mercado devem respeitar a ordem prioritária de uso diário');
@@ -207,7 +206,7 @@ test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita d
   // Validação dos textos e descrições do menu
   const radar = marketCat.items.find(i => i.page === 'opportunityradar');
   assert.equal(radar.label, 'Radar de Oportunidades');
-  assert.equal(radar.desc, 'Encontrar ativos prontos para entrada no gráfico Diário.');
+  assert.equal(radar.desc, 'Ativos prontos para entrada no gráfico Diário.');
 
   const rs = marketCat.items.find(i => i.page === 'relativestrength');
   assert.equal(rs.label, 'Força Relativa');
@@ -221,10 +220,6 @@ test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita d
   assert.equal(central.label, 'Central de Mercado');
   assert.equal(central.desc, 'Consultar a visão geral do ambiente de mercado.');
 
-  const events = marketCat.items.find(i => i.page === 'eventplaybook');
-  assert.equal(events.label, 'Registro de Eventos');
-  assert.equal(events.desc, 'Acompanhar eventos relevantes que podem afetar as operações.');
-
   const fund = marketCat.items.find(i => i.page === 'fundamentals');
   assert.equal(fund.label, 'Análise Fundamentalista');
   assert.equal(fund.desc, 'Consultar os fundamentos e a qualidade dos ativos.');
@@ -232,5 +227,27 @@ test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita d
   const treemap = marketCat.items.find(i => i.page === 'markettreemap');
   assert.equal(treemap.label, 'Setores');
   assert.equal(treemap.desc, 'Treemap interativo de todo o mercado acionário da B3.');
+});
+
+test('NavigationSystemModel: Categoria Dados & Performance inclui Registro de Eventos e mantém integridade', () => {
+  const model = new NavigationSystemModel();
+  const tree = model.getNavigationTree();
+  const dataCat = tree.categories.find(c => c.id === 'data-performance');
+  assert.ok(dataCat, 'Categoria data-performance deve existir');
+
+  const pageOrder = dataCat.items.map(i => i.page);
+  assert.deepEqual(pageOrder, [
+    'analytics',
+    'tradeanatomy',
+    'tradelibrary',
+    'platformaccess',
+    'review',
+    'eventplaybook'
+  ], 'Dados & Performance deve conter Registro de Eventos');
+
+  const events = dataCat.items.find(i => i.page === 'eventplaybook');
+  assert.ok(events, 'Registro de Eventos deve existir em Dados & Performance');
+  assert.equal(events.label, 'Registro de Eventos');
+  assert.equal(events.desc, 'Acompanhar eventos relevantes que podem afetar suas operações.');
 });
 

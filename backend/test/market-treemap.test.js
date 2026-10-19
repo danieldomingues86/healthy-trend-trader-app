@@ -179,10 +179,12 @@ test('market-treemap-model: formatação de números grandes e percentuais', () 
 });
 
 test('market-treemap: preserva data real de atualização dos dados do cache', async () => {
+  const fs = require('node:fs/promises');
+  const marketCache = JSON.parse(await fs.readFile(path.join(__dirname, '..', 'data', 'market-cache.json'), 'utf8'));
   const data = await getMarketTreemapData();
   assert.ok(data.summary.updatedAt, 'updatedAt está preenchido');
-  // Deve refletir a data do cache mais recente (2026-10-16) e não uma data defasada
-  assert.ok(data.summary.updatedAt.startsWith('2026-10-16'), 'Preserva timestamp real do market-cache (2026-10-16)');
+  // Deve refletir a data do cache mais recente e não uma data defasada
+  assert.equal(data.summary.updatedAt, marketCache.updatedAt, 'Preserva timestamp real do market-cache');
   assert.equal(data.summary.period, '1d', 'Período padrão do mapa é 1D');
 });
 
