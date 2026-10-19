@@ -125,10 +125,11 @@
     }
 
     // Posiciona e fixa a linha/coluna no retângulo corrente
-    function layoutRow(row, container, isHorizontal) {
+    function layoutRow(row, container, alongWidth) {
       const rowArea = row.reduce((s, n) => s + n.area, 0);
 
-      if (isHorizontal) {
+      if (alongWidth) {
+        // A menor aresta é a largura (container.w <= container.h). A linha é uma faixa horizontal.
         const rowHeight = rowArea / container.w;
         let currX = container.x;
         for (const item of row) {
@@ -142,6 +143,7 @@
         container.y += rowHeight;
         container.h -= rowHeight;
       } else {
+        // A menor aresta é a altura (container.h < container.w). A coluna é uma faixa vertical.
         const rowWidth = rowArea / container.h;
         let currY = container.y;
         for (const item of row) {
@@ -157,10 +159,11 @@
       }
     }
 
-    // Loop de particionamento guloso (Squarify)
+    // Loop de particionamento guloso (Squarify - Bruls et al. 2000)
+    // Particiona sempre ao longo da menor aresta do sub-retângulo restante para minimizar aspect ratio
     while (remaining.length > 0) {
-      const isHorizontal = currentRect.w >= currentRect.h;
-      const sideLength = isHorizontal ? currentRect.w : currentRect.h;
+      const alongWidth = currentRect.w <= currentRect.h;
+      const sideLength = alongWidth ? currentRect.w : currentRect.h;
 
       if (sideLength <= 0) break;
 
@@ -181,7 +184,7 @@
         }
       }
 
-      layoutRow(row, currentRect, isHorizontal);
+      layoutRow(row, currentRect, alongWidth);
       remaining = remaining.slice(row.length);
     }
 
@@ -189,8 +192,8 @@
     return nodes.map((n) => {
       const x = Math.round(n.x * 10) / 10;
       const y = Math.round(n.y * 10) / 10;
-      const w = Math.max(0, Math.round((n.w - gap) * 10) / 10);
-      const h = Math.max(0, Math.round((n.h - gap) * 10) / 10);
+      const w = Math.max(1, Math.round((n.w - gap) * 10) / 10);
+      const h = Math.max(1, Math.round((n.h - gap) * 10) / 10);
 
       return {
         ...n,

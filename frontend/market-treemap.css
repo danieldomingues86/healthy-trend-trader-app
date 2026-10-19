@@ -19,10 +19,10 @@ body:has(#markettreemap.active) .main {
 
 body:has(#markettreemap.active) .content {
   background: transparent !important;
-  max-width: 1720px !important;
+  max-width: 100% !important;
   width: 100% !important;
-  margin: 0 auto !important;
-  padding: 16px clamp(16px, 2vw, 36px) 52px !important;
+  margin: 0 !important;
+  padding: 12px 18px 36px !important;
   box-sizing: border-box !important;
 }
 
@@ -75,7 +75,7 @@ body:has(#markettreemap.active) #marketFocusGuard {
 .treemap-page-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
   width: 100%;
   box-sizing: border-box;
   color: #e2e8f0;
@@ -84,17 +84,17 @@ body:has(#markettreemap.active) #marketFocusGuard {
 .treemap-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 2px 0 6px;
+  gap: 14px;
+  padding: 0 0 2px;
 }
 
 .treemap-header-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.12));
   border: 1px solid rgba(16, 185, 129, 0.35);
   color: #34d399;
@@ -103,15 +103,15 @@ body:has(#markettreemap.active) #marketFocusGuard {
 
 .treemap-header-text h1 {
   margin: 0;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: -0.025em;
   color: #ffffff;
 }
 
 .treemap-header-text p {
-  margin: 4px 0 0;
-  font-size: 13.5px;
+  margin: 2px 0 0;
+  font-size: 13px;
   color: #94a99d;
 }
 
@@ -124,12 +124,12 @@ body:has(#markettreemap.active) #marketFocusGuard {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 14px 18px;
+  gap: 12px;
+  padding: 10px 16px;
   background: linear-gradient(180deg, #0e1e17 0%, #08140f 100%);
   border: 1px solid rgba(143, 224, 170, 0.14);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .treemap-filters-left {
@@ -337,18 +337,18 @@ body:has(#markettreemap.active) #marketFocusGuard {
 .treemap-kpi-bar {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 14px;
+  gap: 10px;
 }
 
 .treemap-kpi-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
+  gap: 12px;
+  padding: 10px 14px;
   background: linear-gradient(145deg, #0d1e16 0%, #08140f 100%);
   border: 1px solid rgba(143, 224, 170, 0.12);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   transition: transform 0.2s, border-color 0.2s;
 }
 
@@ -361,9 +361,9 @@ body:has(#markettreemap.active) #marketFocusGuard {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
   background: rgba(16, 185, 129, 0.12);
   border: 1px solid rgba(16, 185, 129, 0.25);
   color: #34d399;
@@ -373,15 +373,15 @@ body:has(#markettreemap.active) #marketFocusGuard {
 .treemap-kpi-data {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
 }
 
 .treemap-kpi-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 650;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   color: #7d9688;
   white-space: nowrap;
   overflow: hidden;
@@ -389,7 +389,7 @@ body:has(#markettreemap.active) #marketFocusGuard {
 }
 
 .treemap-kpi-value {
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #ffffff;
@@ -412,13 +412,14 @@ body:has(#markettreemap.active) #marketFocusGuard {
 
 .treemap-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: 10px;
   width: 100%;
 }
 
 .treemap-grid.focus-mode {
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr !important;
 }
 
 .treemap-sector-card {
@@ -426,25 +427,26 @@ body:has(#markettreemap.active) #marketFocusGuard {
   flex-direction: column;
   background: #08130e;
   border: 1px solid rgba(143, 224, 170, 0.12);
-  border-radius: 16px;
-  padding: 14px 16px 16px;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  padding: 8px 10px 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   box-sizing: border-box;
   transition: border-color 0.18s, box-shadow 0.18s;
+  min-width: 0;
 }
 
 .treemap-sector-card:hover {
   border-color: rgba(143, 224, 170, 0.25);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
 }
 
 .treemap-sector-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
   border-bottom: 1px solid rgba(143, 224, 170, 0.08);
 }
 
@@ -457,14 +459,14 @@ body:has(#markettreemap.active) #marketFocusGuard {
 
 .treemap-sector-accent {
   width: 4px;
-  height: 16px;
+  height: 15px;
   border-radius: 99px;
   background: var(--sector-accent, #10b981);
   flex-shrink: 0;
 }
 
 .treemap-sector-title {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 750;
   color: #ffffff;
   letter-spacing: -0.01em;
@@ -476,8 +478,8 @@ body:has(#markettreemap.active) #marketFocusGuard {
 .treemap-sector-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 11.5px;
+  gap: 8px;
+  font-size: 11px;
   font-weight: 600;
   color: #94a99d;
   flex-shrink: 0;
@@ -487,8 +489,8 @@ body:has(#markettreemap.active) #marketFocusGuard {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border: 1px solid rgba(143, 224, 170, 0.2);
   border-radius: 6px;
   background: rgba(16, 185, 129, 0.08);
@@ -507,15 +509,19 @@ body:has(#markettreemap.active) #marketFocusGuard {
 .treemap-sector-body {
   position: relative;
   width: 100%;
-  height: 250px;
+  height: 300px;
   background: #040906;
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
   border: 1px solid rgba(143, 224, 170, 0.08);
 }
 
+.treemap-grid.focus-mode .treemap-sector-card {
+  grid-column: 1 / -1 !important;
+}
+
 .treemap-grid.focus-mode .treemap-sector-body {
-  height: 640px;
+  height: 640px !important;
 }
 
 /* =========================================================================
@@ -530,14 +536,24 @@ body:has(#markettreemap.active) #marketFocusGuard {
   align-items: center;
   text-align: center;
   box-sizing: border-box;
-  padding: 3px 5px;
-  border-radius: 4px;
-  border: 1.5px solid #060e0a;
+  padding: 2px 3px;
+  border-radius: 3px;
+  border: 1px solid #060e0a;
   cursor: pointer;
   user-select: none;
   overflow: hidden;
   transition: filter 0.15s, transform 0.15s, box-shadow 0.15s, z-index 0.15s;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.treemap-cell.cell-compact {
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+.treemap-cell.cell-micro {
+  padding: 0;
+  border-radius: 1px;
 }
 
 .treemap-cell:hover {
@@ -567,21 +583,28 @@ body:has(#markettreemap.active) #marketFocusGuard {
 /* Tipografia dentro do retângulo */
 .treemap-cell-ticker {
   font-weight: 850;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   color: #ffffff;
-  line-height: 1.1;
+  line-height: 1.05;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 96%;
+}
+
+.treemap-cell.cell-compact .treemap-cell-ticker {
+  letter-spacing: -0.035em;
 }
 
 .treemap-cell-name {
   font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
-  line-height: 1.15;
+  line-height: 1.1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 90%;
+  max-width: 92%;
   margin-top: 1px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
@@ -589,8 +612,8 @@ body:has(#markettreemap.active) #marketFocusGuard {
 .treemap-cell-mcap {
   font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
-  margin-top: 2px;
-  line-height: 1.1;
+  margin-top: 1px;
+  line-height: 1.05;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
   white-space: nowrap;
 }
@@ -599,7 +622,7 @@ body:has(#markettreemap.active) #marketFocusGuard {
   font-weight: 750;
   color: #ffffff;
   margin-top: 1px;
-  line-height: 1.1;
+  line-height: 1.05;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
   white-space: nowrap;
 }
@@ -787,50 +810,174 @@ body:has(#markettreemap.active) #marketFocusGuard {
 }
 
 /* =========================================================================
-   10. RESPONSIVIDADE (DESKTOP, NOTEBOOK, TABLET, MOBILE)
+   10. RESPONSIVIDADE (WIDESCREEN, DESKTOP, NOTEBOOK, TABLET, MOBILE)
    ========================================================================= */
 
-@media (max-width: 1400px) {
+/* Widescreen (>= 1500px): Grid de 12 colunas com 3 linhas balanceadas */
+@media (min-width: 1500px) {
   .treemap-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  /* Setores densos e de grande porte: 4 colunas (1/3 da linha) */
+  .treemap-sector-card.dense,
+  .treemap-sector-card.large,
+  .treemap-sector-card[data-sector-name="Financeiro"],
+  .treemap-sector-card[data-sector-name="Petróleo, Gás e Biocombustíveis"],
+  .treemap-sector-card[data-sector-name="Consumo Cíclico"],
+  .treemap-sector-card[data-sector-name="Materiais Básicos"],
+  .treemap-sector-card[data-sector-name="Utilidade Pública"],
+  .treemap-sector-card[data-sector-name="Bens Industriais"] {
+    grid-column: span 4;
+  }
+
+  .treemap-sector-card.dense .treemap-sector-body,
+  .treemap-sector-card.large .treemap-sector-body {
+    height: 330px;
+  }
+
+  /* Setores médios: 3 colunas */
+  .treemap-sector-card.medium,
+  .treemap-sector-card[data-sector-name="Consumo Não Cíclico"],
+  .treemap-sector-card[data-sector-name="Outros"] {
+    grid-column: span 3;
+  }
+
+  .treemap-sector-card.medium .treemap-sector-body {
+    height: 270px;
+  }
+
+  /* Setores compactos: 2 colunas */
+  .treemap-sector-card.compact,
+  .treemap-sector-card[data-sector-name="Tecnologia da Informação"],
+  .treemap-sector-card[data-sector-name="Saúde"],
+  .treemap-sector-card[data-sector-name="Telecomunicações"] {
+    grid-column: span 2;
+  }
+
+  .treemap-sector-card.compact .treemap-sector-body {
+    height: 270px;
   }
 }
 
-@media (max-width: 1100px) {
+/* Telas Ultra-Wide / 2K / 4K (>= 1900px): Altura estendida para máxima legibilidade */
+@media (min-width: 1900px) {
+  .treemap-grid {
+    gap: 12px;
+  }
+
+  .treemap-sector-card.dense .treemap-sector-body,
+  .treemap-sector-card.large .treemap-sector-body {
+    height: 370px;
+  }
+
+  .treemap-sector-card.medium .treemap-sector-body,
+  .treemap-sector-card.compact .treemap-sector-body {
+    height: 300px;
+  }
+}
+
+/* Desktop convencional (1100px a 1499px) */
+@media (min-width: 1100px) and (max-width: 1499px) {
+  .treemap-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  /* Setores densos e grandes: 6 colunas (2 por linha) */
+  .treemap-sector-card.dense,
+  .treemap-sector-card.large,
+  .treemap-sector-card[data-sector-name="Financeiro"],
+  .treemap-sector-card[data-sector-name="Petróleo, Gás e Biocombustíveis"],
+  .treemap-sector-card[data-sector-name="Consumo Cíclico"],
+  .treemap-sector-card[data-sector-name="Materiais Básicos"],
+  .treemap-sector-card[data-sector-name="Utilidade Pública"],
+  .treemap-sector-card[data-sector-name="Bens Industriais"] {
+    grid-column: span 6;
+  }
+
+  .treemap-sector-card.medium,
+  .treemap-sector-card[data-sector-name="Consumo Não Cíclico"],
+  .treemap-sector-card[data-sector-name="Outros"] {
+    grid-column: span 6;
+  }
+
+  /* Setores compactos: 4 colunas (3 por linha) */
+  .treemap-sector-card.compact,
+  .treemap-sector-card[data-sector-name="Tecnologia da Informação"],
+  .treemap-sector-card[data-sector-name="Saúde"],
+  .treemap-sector-card[data-sector-name="Telecomunicações"] {
+    grid-column: span 4;
+  }
+
+  .treemap-sector-body {
+    height: 290px;
+  }
+}
+
+/* Tablets e Notebooks menores (768px a 1099px) */
+@media (min-width: 768px) and (max-width: 1099px) {
   .treemap-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
+
+  .treemap-sector-card {
+    grid-column: span 1 !important;
+  }
+
   .treemap-kpi-bar {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .treemap-sector-body {
+    height: 270px;
+  }
 }
 
-@media (max-width: 800px) {
+/* Telas móveis (< 768px) */
+@media (max-width: 767px) {
+  .treemap-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .treemap-sector-card {
+    grid-column: span 1 !important;
+  }
+
+  .treemap-kpi-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .treemap-controls-bar {
     flex-direction: column;
     align-items: stretch;
   }
+
   .treemap-filters-left {
     flex-direction: column;
     align-items: stretch;
   }
+
   .treemap-controls-right {
     justify-content: center;
     width: 100%;
   }
+
   .treemap-scale-container {
     align-items: center;
     width: 100%;
   }
+
   .treemap-scale-bar-wrap {
     width: 100%;
     max-width: 320px;
   }
-  .treemap-kpi-bar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .treemap-grid {
-    grid-template-columns: 1fr;
+
+  .treemap-sector-body {
+    height: 250px;
   }
 }
 

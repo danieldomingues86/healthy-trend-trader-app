@@ -30,19 +30,24 @@ let memoryCache = {
   data: null
 };
 
-// Cores de destaque e ordem oficial dos setores da B3
+// Cores de destaque e ordem dos setores da B3 para composição ótima do grid
 const SECTOR_METADATA = {
+  // Linha 1 (12 colunas no widescreen: 4 + 4 + 4)
   'Financeiro': { accent: '#10b981', order: 1 },
   'Petróleo, Gás e Biocombustíveis': { accent: '#059669', order: 2 },
-  'Materiais Básicos': { accent: '#ef4444', order: 3 },
-  'Consumo Cíclico': { accent: '#f59e0b', order: 4 },
+  'Consumo Cíclico': { accent: '#f59e0b', order: 3 },
+
+  // Linha 2 (12 colunas no widescreen: 4 + 4 + 4)
+  'Materiais Básicos': { accent: '#ef4444', order: 4 },
   'Utilidade Pública': { accent: '#14b8a6', order: 5 },
-  'Consumo Não Cíclico': { accent: '#f97316', order: 6 },
-  'Bens Industriais': { accent: '#22c55e', order: 7 },
-  'Tecnologia da Informação': { accent: '#06b6d4', order: 8 },
-  'Saúde': { accent: '#3b82f6', order: 9 },
-  'Telecomunicações': { accent: '#f43f5e', order: 10 },
-  'Outros': { accent: '#8b5cf6', order: 11 },
+  'Bens Industriais': { accent: '#22c55e', order: 6 },
+
+  // Linha 3 (12 colunas no widescreen: 3 + 3 + 2 + 2 + 2)
+  'Consumo Não Cíclico': { accent: '#f97316', order: 7 },
+  'Outros': { accent: '#8b5cf6', order: 8 },
+  'Tecnologia da Informação': { accent: '#06b6d4', order: 9 },
+  'Saúde': { accent: '#3b82f6', order: 10 },
+  'Telecomunicações': { accent: '#f43f5e', order: 11 },
   'Não Classificado': { accent: '#6b7280', order: 12 }
 };
 

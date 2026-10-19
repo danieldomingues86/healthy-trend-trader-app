@@ -464,10 +464,21 @@
     grid.innerHTML = sectors.map((sec) => {
       const formattedMcap = model.formatMarketCap(sec.totalMarketCap);
       const isFocused = state.focusSector === sec.name;
+      const count = sec.companyCount || sec.companies?.length || 0;
+
+      // Classificação do setor para layout responsivo ótimo no grid
+      let tierClass = 'compact';
+      if (count >= 30) {
+        tierClass = 'dense';
+      } else if (count >= 20 || (sec.totalMarketCap && sec.totalMarketCap >= 500e9)) {
+        tierClass = 'large';
+      } else if (count >= 14) {
+        tierClass = 'medium';
+      }
 
       return `
         <article
-          class="treemap-sector-card"
+          class="treemap-sector-card ${tierClass}"
           data-sector-name="${esc(sec.name)}"
           style="--sector-accent: ${sec.accentColor};"
         >
@@ -477,7 +488,7 @@
               <strong class="treemap-sector-title" title="${esc(sec.name)}">${esc(sec.name)}</strong>
             </div>
             <div class="treemap-sector-meta">
-              <span>${formattedMcap} | ${sec.companyCount} ${sec.companyCount === 1 ? 'empresa' : 'empresas'}</span>
+              <span>${formattedMcap} | ${count} ${count === 1 ? 'empresa' : 'empresas'}</span>
               <button
                 type="button"
                 class="treemap-sector-zoom-btn"
@@ -528,8 +539,8 @@
       return;
     }
 
-    // Calcula coordenadas squarified
-    const layout = model.layoutTreemap(companies, width, height, 2);
+    // Calcula coordenadas squarified com gap sutil de 1px
+    const layout = model.layoutTreemap(companies, width, height, 1);
 
     const searchQuery = (state.filters.search || '').trim().toLowerCase();
 
@@ -544,23 +555,27 @@
         box.name.toLowerCase().includes(searchQuery)
       );
 
-      // Adapta tipografia ao tamanho do retângulo
-      const showTicker = box.w >= 26 && box.h >= 18;
-      const showName = box.w >= 68 && box.h >= 46;
-      const showMcap = box.w >= 54 && box.h >= 38;
-      const showChange = box.w >= 40 && box.h >= 28;
+      // Adaptação progressiva da tipografia ao tamanho do retângulo
+      const showTicker = box.w >= 26 && box.h >= 14;
+      const showName = box.w >= 64 && box.h >= 44;
+      const showMcap = box.w >= 50 && box.h >= 36;
+      const showChange = box.w >= 36 && box.h >= 24;
 
       let fontSize = '11px';
-      if (box.w >= 140 && box.h >= 90) fontSize = '16px';
-      else if (box.w >= 90 && box.h >= 65) fontSize = '14px';
-      else if (box.w >= 60 && box.h >= 45) fontSize = '12px';
-      else if (box.w < 35 || box.h < 25) fontSize = '9px';
+      if (box.w >= 130 && box.h >= 75) fontSize = '15px';
+      else if (box.w >= 85 && box.h >= 52) fontSize = '13px';
+      else if (box.w >= 54 && box.h >= 36) fontSize = '11px';
+      else if (box.w >= 36 && box.h >= 22) fontSize = '9.5px';
+      else fontSize = '8.5px';
+
+      const isCompact = box.w < 48 || box.h < 32;
+      const isMicro = box.w < 28 || box.h < 18;
 
       const jsonStr = esc(JSON.stringify(box));
 
       return `
         <div
-          class="treemap-cell ${isMatch ? 'highlighted' : ''} ${searchQuery && !isMatch ? 'dimmed' : ''}"
+          class="treemap-cell ${isMatch ? 'highlighted' : ''} ${searchQuery && !isMatch ? 'dimmed' : ''} ${isCompact ? 'cell-compact' : ''} ${isMicro ? 'cell-micro' : ''}"
           style="
             left: ${box.x}px;
             top: ${box.y}px;
