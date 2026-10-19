@@ -582,10 +582,25 @@ const server = http.createServer(async (request, response) => {
       const trade = await trades.createPlan(user.id, await body(request));
       return send(response, 201, { trade });
     }
+    if (request.method === 'POST' && url.pathname === '/api/trades/pending') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const trade = await trades.createPendingOrder(user.id, await body(request));
+      return send(response, 201, { trade });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/trades/verify-pending') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const verification = await trades.verifyPendingOrders(user.id);
+      return send(response, 200, verification);
+    }
     if (request.method === 'GET' && url.pathname === '/api/trades') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      await trades.verifyPendingOrders(user.id).catch(() => null);
       return send(response, 200, { trades: await trades.listPlans(user.id) });
     }
     if (request.method === 'GET' && url.pathname === '/api/wealth') {

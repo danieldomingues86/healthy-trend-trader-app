@@ -458,6 +458,9 @@
           </td>
           <td class="col-actions">
             <div class="radar-row-actions">
+              <button type="button" class="radar-btn-paper-trading" onclick="window.openAddToPaperTradingModal('${esc(sym)}')">
+                + Paper Trading
+              </button>
               <button type="button" class="radar-btn-view-chart" onclick="window.openRadarTickerChart('${esc(sym)}')">
                 Ver gráfico <span aria-hidden="true">→</span>
               </button>
@@ -1110,6 +1113,247 @@
     return state.selectedTickers || loadSelectionFromStorage();
   };
 
+  root.openAddToPaperTradingModal = function (symbol) {
+    const sym = String(symbol || '').trim().toUpperCase();
+    const item = state.items.find(x => x.symbol === sym);
+    if (!item) {
+      if (typeof root.showToast === 'function') root.showToast('Oportunidade não encontrada no Radar.');
+      return;
+    }
+
+    const existing = document.getElementById('paperPendingModal');
+    if (existing) existing.remove();
+
+    const equity = typeof root.getOperationalEquity === 'function' ? root.getOperationalEquity() : (root.OPERATIONAL_EQUITY || 100000);
+    let riskPct = 0.002;
+    if (root.TradingRubrics && typeof root.TradingRubrics.normalizePolicy === 'function' && root.riskPolicyState) {
+      const pol = root.TradingRubrics.normalizePolicy(root.riskPolicyState);
+      const gradeObj = (pol.grades || []).find(g => g.grade === (item.grade || 'A'));
+      if (gradeObj && Number(gradeObj.riskPct) > 0) riskPct = Number(gradeObj.riskPct);
+    }
+
+    const suggestedQty = root.PaperTradingPendingModel
+      ? root.PaperTradingPendingModel.calculatePendingQuantity({
+          equity,
+          riskPct,
+          entry: item.entry,
+          stop: item.stop,
+          lot: 100
+        })
+      : Math.max(100, Math.floor((equity * riskPct) / (Math.abs(item.entry - item.stop) || 1) / 100) * 100);
+
+    const initialQty = suggestedQty > 0 ? suggestedQty : 100;
+    const initialRisk = Math.abs(item.entry - item.stop) * initialQty;
+    const initialRiskPct = equity > 0 ? (initialRisk / equity) * 100 : 0;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'paperPendingModal';
+    overlay.className = 'paper-pending-modal-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'paperPendingModalTitle');
+
+    overlay.innerHTML = `
+      <div class="paper-pending-modal-card" onclick="event.stopPropagation()">
+        <header class="paper-pending-modal-header">
+          <div class="paper-pending-asset-brand">
+            <div class="paper-pending-logo-wrap">
+              ${renderAssetLogo(sym)}
+            </div>
+            <div class="paper-pending-asset-titles">
+              <h2 id="paperPendingModalTitle">${esc(sym)}</h2>
+              <p>${esc(item.name || sym)} · ${esc(item.market || 'B3')}</p>
+            </div>
+          </div>
+          <button type="button" class="paper-pending-modal-close" onclick="window.closeAddToPaperTradingModal()" aria-label="Fechar">×</button>
+        </header>
+
+        <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px;">
+          <span class="paper-pending-trigger-badge">
+            Gatilho: ${esc(item.triggerName || item.triggerId || 'Gatilho Técnico')}
+          </span>
+          <span class="radar-grade-badge grade-${esc(String(item.grade || 'B').toLowerCase())}">
+            Grade ${esc(item.grade || 'B')}
+          </span>
+        </div>
+
+        <div class="paper-pending-callout">
+          <span class="paper-pending-callout-icon">⏱</span>
+          <div>
+            <strong>Aguardando execução no pregão</strong>
+            <p>A posição será adicionada ao Paper Trading em modo pendente. No fechamento diário, o sistema avaliará se a máxima atingiu o preço planejado sem violar o stop.</p>
+          </div>
+        </div>
+
+        <form id="paperPendingForm" onsubmit="window.submitAddToPaperTradingModal(event, '${esc(sym)}')">
+          <div class="paper-pending-form-grid">
+            <div class="paper-pending-field">
+              <label for="paperPendingEntry">Preço de Entrada (R$)</label>
+              <input type="number" id="paperPendingEntry" step="0.01" min="0.01" value="${Number(item.entry).toFixed(2)}" required oninput="window.recalculatePendingModalRisk()" />
+            </div>
+
+            <div class="paper-pending-field">
+              <label for="paperPendingStop">Stop Inicial (R$)</label>
+              <input type="number" id="paperPendingStop" step="0.01" min="0.01" value="${Number(item.stop).toFixed(2)}" required oninput="window.recalculatePendingModalRisk()" />
+            </div>
+
+            <div class="paper-pending-field">
+              <label for="paperPendingQty">Quantidade (ações)</label>
+              <input type="number" id="paperPendingQty" step="100" min="1" value="${initialQty}" required oninput="window.recalculatePendingModalRisk()" />
+            </div>
+
+            <div class="paper-pending-field">
+              <label for="paperPendingValidity">Validade da ordem</label>
+              <select id="paperPendingValidity">
+                <option value="1" selected>1 pregão (fechamento de hoje)</option>
+                <option value="2">2 pregões</option>
+                <option value="3">3 pregões</option>
+              </select>
+            </div>
+
+            <div class="paper-pending-risk-summary" id="paperPendingRiskSummary">
+              <span>Distância Stop: <strong id="paperPendingDistVal">R$ ${(Math.abs(item.entry - item.stop)).toFixed(2)}</strong></span>
+              <span>Risco Estimado: <strong id="paperPendingRiskVal">R$ ${initialRisk.toFixed(2)} (${initialRiskPct.toFixed(2)}%)</strong></span>
+            </div>
+
+            <div class="paper-pending-field full-width">
+              <label for="paperPendingNotes">Observações / Tese (opcional)</label>
+              <textarea id="paperPendingNotes" rows="2" placeholder="Ex: Gatilho confirmado com volume no gráfico diário...">${esc(item.notes || '')}</textarea>
+            </div>
+          </div>
+
+          <div class="paper-pending-modal-actions">
+            <button type="button" class="paper-pending-btn-cancel" onclick="window.closeAddToPaperTradingModal()">Cancelar</button>
+            <button type="submit" class="paper-pending-btn-submit" id="paperPendingSubmitBtn">
+              + Adicionar ao Paper Trading
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) window.closeAddToPaperTradingModal();
+    });
+
+    document.body.appendChild(overlay);
+    setTimeout(() => {
+      document.getElementById('paperPendingQty')?.focus();
+    }, 50);
+  };
+
+  root.recalculatePendingModalRisk = function () {
+    const entryEl = document.getElementById('paperPendingEntry');
+    const stopEl = document.getElementById('paperPendingStop');
+    const qtyEl = document.getElementById('paperPendingQty');
+    const distVal = document.getElementById('paperPendingDistVal');
+    const riskVal = document.getElementById('paperPendingRiskVal');
+    if (!entryEl || !stopEl || !qtyEl || !distVal || !riskVal) return;
+
+    const entry = Number(entryEl.value) || 0;
+    const stop = Number(stopEl.value) || 0;
+    const qty = Number(qtyEl.value) || 0;
+    const equity = typeof root.getOperationalEquity === 'function' ? root.getOperationalEquity() : (root.OPERATIONAL_EQUITY || 100000);
+
+    const dist = Math.abs(entry - stop);
+    const risk = dist * qty;
+    const riskPct = equity > 0 ? (risk / equity) * 100 : 0;
+
+    distVal.textContent = 'R$ ' + dist.toFixed(2);
+    riskVal.textContent = `R$ ${risk.toFixed(2)} (${riskPct.toFixed(2)}%)`;
+  };
+
+  root.closeAddToPaperTradingModal = function () {
+    const el = document.getElementById('paperPendingModal');
+    if (el) el.remove();
+  };
+
+  root.submitAddToPaperTradingModal = async function (event, symbol) {
+    if (event && event.preventDefault) event.preventDefault();
+    const sym = String(symbol || '').trim().toUpperCase();
+    const item = state.items.find(x => x.symbol === sym);
+    if (!item) return;
+
+    const entryEl = document.getElementById('paperPendingEntry');
+    const stopEl = document.getElementById('paperPendingStop');
+    const qtyEl = document.getElementById('paperPendingQty');
+    const valEl = document.getElementById('paperPendingValidity');
+    const notesEl = document.getElementById('paperPendingNotes');
+    const submitBtn = document.getElementById('paperPendingSubmitBtn');
+
+    const entry = Number(entryEl?.value) || 0;
+    const stop = Number(stopEl?.value) || 0;
+    const qty = Number(qtyEl?.value) || 0;
+    const validitySessions = Number(valEl?.value) || 1;
+    const notes = String(notesEl?.value || '').trim();
+
+    if (entry <= 0 || stop <= 0 || qty <= 0) {
+      if (typeof root.showToast === 'function') root.showToast('Preencha entrada, stop e quantidade válidos.');
+      return;
+    }
+
+    if (stop >= entry) {
+      if (typeof root.showToast === 'function') root.showToast('Para compra, o stop deve estar abaixo da entrada.');
+      return;
+    }
+
+    if (!root.healthyTrendApi?.isAuthenticated()) {
+      if (typeof root.showToast === 'function') root.showToast('Entre no workspace para salvar ordens no Paper Trading.');
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Salvando…';
+    }
+
+    try {
+      const payload = {
+        ticker: sym,
+        name: item.name || sym,
+        market: item.market || 'Ações',
+        direction: 'long',
+        setup: item.triggerName || item.triggerId || 'Setup Técnico',
+        setupTrigger: item.triggerId || '123_COMPRA',
+        entryPrice: entry,
+        stopPrice: stop,
+        plannedQuantity: qty,
+        grade: item.grade || 'A',
+        rubricScore: item.rubricScore || 85,
+        rsScore: item.rsScore || 80,
+        notes,
+        validitySessions,
+        mode: 'paper'
+      };
+
+      await root.healthyTrendApi.request('/api/trades/pending', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      root.closeAddToPaperTradingModal();
+      if (typeof root.showToast === 'function') {
+        root.showToast(`Ordem de ${sym} adicionada ao Paper Trading (Aguardando execução).`);
+      }
+
+      if (typeof root.syncOperationalFromDatabase === 'function') {
+        await root.syncOperationalFromDatabase();
+      }
+
+      if (typeof root.go === 'function') {
+        root.go('positions');
+      }
+    } catch (err) {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '+ Adicionar ao Paper Trading';
+      }
+      if (typeof root.showToast === 'function') {
+        root.showToast(err.message || 'Erro ao adicionar ordem ao Paper Trading.');
+      }
+    }
+  };
+
   root.renderOpportunityRadar = renderOpportunityRadar;
   root.refreshOpportunityRadar = refreshOpportunityRadar;
   root.openRadarTickerChart = openRadarTickerChart;
@@ -1117,5 +1361,9 @@
   root.removeRadarSelectionTicker = removeRadarSelectionTicker;
   root.clearRadarSelectionWithConfirm = clearRadarSelectionWithConfirm;
   root.exportRadarSelectionProfitCsv = exportRadarSelectionProfitCsv;
+  root.openAddToPaperTradingModal = root.openAddToPaperTradingModal;
+  root.closeAddToPaperTradingModal = root.closeAddToPaperTradingModal;
+  root.submitAddToPaperTradingModal = root.submitAddToPaperTradingModal;
+  root.recalculatePendingModalRisk = root.recalculatePendingModalRisk;
 
 })(typeof globalThis !== 'undefined' ? globalThis : this);
