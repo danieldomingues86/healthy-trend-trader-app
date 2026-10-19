@@ -108,6 +108,88 @@
     MRVE3: 'MRV'
   };
 
+  const BRAND_LOGOS = {
+    PETR4: { bg: '#008542', fg: '#ffd100', text: 'BR' },
+    PETR3: { bg: '#008542', fg: '#ffd100', text: 'BR' },
+    WEGE3: { bg: '#00579d', fg: '#ffffff', text: 'WEG' },
+    ITUB4: { bg: '#003399', fg: '#ff7800', text: 'itaú' },
+    ITSA4: { bg: '#003399', fg: '#ffd100', text: 'ITSA' },
+    VALE3: { bg: '#007e7a', fg: '#e5a93c', text: 'VALE' },
+    ABEV3: { bg: '#1446a0', fg: '#ffffff', text: 'ambev' },
+    SANB11: { bg: '#ec0000', fg: '#ffffff', text: 'SAN' },
+    GGBR4: { bg: '#002b49', fg: '#ffffff', text: 'GO' },
+    GOAU4: { bg: '#002b49', fg: '#ffffff', text: 'GO' },
+    SUZB3: { bg: '#00965e', fg: '#ffffff', text: 'SUZ' },
+    MGLU3: { bg: '#0086ff', fg: '#ffffff', text: 'MGLU' },
+    BPAC11: { bg: '#001e62', fg: '#ffffff', text: 'BTG' },
+    RENT3: { bg: '#008744', fg: '#ffffff', text: 'LOC' },
+    RAIL3: { bg: '#1b365d', fg: '#ffffff', text: 'RUMO' },
+    ENGI11: { bg: '#0073cf', fg: '#ff6b00', text: 'ENGI' },
+    TOTS3: { bg: '#112233', fg: '#00d1b2', text: 'TOTV' },
+    YDUQ3: { bg: '#004b87', fg: '#00c389', text: 'YDUQ' },
+    COGN3: { bg: '#5c2d91', fg: '#ffffff', text: 'COGN' },
+    SMFT3: { bg: '#1c1c1c', fg: '#ffb800', text: 'SMFT' },
+    CEAB3: { bg: '#1f2937', fg: '#ffffff', text: 'C&A' },
+    LJQQ3: { bg: '#007a33', fg: '#ffd100', text: 'QQ' },
+    MOVI3: { bg: '#f26522', fg: '#ffffff', text: 'MOVI' },
+    ARML3: { bg: '#1d428a', fg: '#fdb927', text: 'ARML' },
+    BBAS3: { bg: '#fcf000', fg: '#0038a8', text: 'BB' },
+    BBDC4: { bg: '#cc092f', fg: '#ffffff', text: 'BRAD' },
+    PRIO3: { bg: '#0f2c59', fg: '#00b4d8', text: 'PRIO' }
+  };
+
+  const FALLBACK_PALETTE = [
+    { bg: '#134e4a', fg: '#ffffff' },
+    { bg: '#1e3a8a', fg: '#ffffff' },
+    { bg: '#3b0764', fg: '#ffffff' },
+    { bg: '#14532d', fg: '#ffffff' },
+    { bg: '#7c2d12', fg: '#ffffff' },
+    { bg: '#0f172a', fg: '#e2e8f0' }
+  ];
+
+  /**
+   * Resolve a URL de alta fidelidade do logo oficial para qualquer ativo negociado na B3.
+   * Suporta ações ON/PN, Units, FIIs e BDRs, tratando frações (PETR4F -> PETR4).
+   */
+  function resolveAssetLogoUrl(symbol) {
+    if (!symbol) return null;
+    const raw = String(symbol).trim().toUpperCase();
+    if (!raw) return null;
+    // Remove sufixo fracionário 'F' (ex: PETR4F -> PETR4)
+    const cleanSym = (/^[A-Z]{4}[0-9]{1,2}F$/i.test(raw)) ? raw.slice(0, -1) : raw;
+    if (!/^[A-Z0-9]{4,8}$/.test(cleanSym)) return null;
+    return `https://icons.brapi.dev/icons/${cleanSym}.svg`;
+  }
+
+  /**
+   * Obtém detalhes de identidade visual da marca (iniciais e paleta corporativa)
+   * para exibição imediata e fallback elegante caso a imagem esteja indisponível.
+   */
+  function getAssetBrandDetails(symbol) {
+    const sym = String(symbol || '').trim().toUpperCase();
+    const brand = BRAND_LOGOS[sym];
+    if (brand) {
+      return {
+        brandText: brand.text,
+        bg: brand.bg,
+        fg: brand.fg,
+        hasCustomBrand: true
+      };
+    }
+    const prefix = sym.replace(/[0-9]+$/, '').slice(0, 3) || sym.slice(0, 2);
+    let hash = 0;
+    for (let i = 0; i < sym.length; i++) {
+      hash = (hash * 31 + sym.charCodeAt(i)) % FALLBACK_PALETTE.length;
+    }
+    const palette = FALLBACK_PALETTE[Math.abs(hash) % FALLBACK_PALETTE.length];
+    return {
+      brandText: prefix || sym.slice(0, 2),
+      bg: palette.bg,
+      fg: palette.fg,
+      hasCustomBrand: false
+    };
+  }
+
   function translateSector(rawSector) {
     const clean = String(rawSector || '').trim();
     if (!clean) return 'Outros';
@@ -235,9 +317,14 @@
       return null;
     }
 
-    // 1. Ciclo de mercado não pode ser defensivo (proteção de capital bloqueia novas compras)
+    // 1. Ciclo de mercado: somente Ciclo Positivo é aceito no Radar de Oportunidades.
+    // Ativos em ciclo 'defensive', 'riskoff' ou 'transition' (Em Transição) são rigorosamente excluídos.
     const cycleNorm = String(marketCycleState || 'healthy').trim().toLowerCase();
-    if (cycleNorm === 'defensive' || cycleNorm === 'riskoff') {
+    if (cycleNorm !== 'healthy' && cycleNorm !== 'positive' && !cycleNorm.includes('positivo')) {
+      return null;
+    }
+    const itemCycle = String(item.marketCycleState || item.cycleState || item.cycle || item.marketCycle || '').trim().toLowerCase();
+    if (itemCycle && itemCycle !== 'healthy' && itemCycle !== 'positive' && !itemCycle.includes('positivo')) {
       return null;
     }
 
@@ -317,8 +404,8 @@
           classification: rsClass.label
         },
         marketCycle: {
-          regime: cycleNorm,
-          description: cycleNorm === 'transition' ? 'Transição' : 'Positivo'
+          regime: 'healthy',
+          description: 'Positivo'
         },
         trend: {
           status: 'Alta',
@@ -355,6 +442,7 @@
       symbol: String(item.symbol).trim().toUpperCase(),
       name: cleanCompanyName(item.symbol, item.name),
       fullName: String(item.name || item.symbol).trim(),
+      logoUrl: resolveAssetLogoUrl(item.symbol),
       grade,
       rubricScore,
       rubricSummary,
@@ -365,8 +453,8 @@
       rsLabel: rsClass.label,
       rsTier: rsClass.tier,
       rs3m: Number.isFinite(Number(item.m3)) ? Number(Number(item.m3).toFixed(1)) : null,
-      marketCycle: cycleNorm === 'transition' ? 'Em Transição' : 'Ciclo Positivo',
-      marketCycleState: cycleNorm,
+      marketCycle: 'Ciclo Positivo',
+      marketCycleState: 'healthy',
       trend: 'Alinhada',
       trendFormula: 'Preço > EMA 9 > EMA 30',
       triggerId: trigger.id,
@@ -396,6 +484,16 @@
 
     return items.filter((item) => {
       if (!item || item.status !== 'Pronto para entrada') return false;
+
+      // Salvaguarda: somente ativos em Ciclo Positivo são elegíveis no Radar de Oportunidades.
+      // Ativos com ciclo em transição ou defensivo são estritamente excluídos.
+      const cycleNorm = String(item.marketCycleState || item.cycleState || item.cycle || item.marketCycle || '').trim().toLowerCase();
+      if (cycleNorm.includes('transi') || cycleNorm.includes('defens') || cycleNorm === 'riskoff') {
+        return false;
+      }
+      if (item.marketCycle && !String(item.marketCycle).toLowerCase().includes('positivo')) {
+        return false;
+      }
 
       if (marketFilter !== 'ALL' && String(item.market || '').toUpperCase() !== marketFilter) {
         return false;
@@ -455,7 +553,191 @@
     };
   }
 
+  const STORAGE_KEY_SELECTION = 'healthy-trend-radar-selection-v1';
+
+  function normalizeTicker(val) {
+    if (!val) return '';
+    const clean = String(val).trim().toUpperCase();
+    if (!/^[A-Z0-9]{4,8}$/.test(clean)) return '';
+    return clean;
+  }
+
+  function isSelected(selectedTickers, symbol) {
+    const sym = normalizeTicker(symbol);
+    if (!sym || !Array.isArray(selectedTickers)) return false;
+    return selectedTickers.includes(sym);
+  }
+
+  function addSelection(selectedTickers, symbol) {
+    const list = Array.isArray(selectedTickers) ? [...selectedTickers] : [];
+    const sym = normalizeTicker(symbol);
+    if (!sym) return list;
+    if (!list.includes(sym)) {
+      list.push(sym);
+    }
+    return list;
+  }
+
+  function removeSelection(selectedTickers, symbol) {
+    const list = Array.isArray(selectedTickers) ? [...selectedTickers] : [];
+    const sym = normalizeTicker(symbol);
+    if (!sym) return list;
+    return list.filter((s) => s !== sym);
+  }
+
+  function toggleSelection(selectedTickers, symbol) {
+    if (isSelected(selectedTickers, symbol)) {
+      return removeSelection(selectedTickers, symbol);
+    }
+    return addSelection(selectedTickers, symbol);
+  }
+
+  function clearSelection() {
+    return [];
+  }
+
+  function formatDateIso(dateObj = new Date()) {
+    const d = dateObj instanceof Date ? dateObj : new Date(dateObj);
+    if (Number.isNaN(d.getTime())) return new Date().toISOString().slice(0, 10);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  /**
+   * Gera o conteúdo CSV para importação direta no Nelogica Profit Chart.
+   * Formato padrão: lista de tickers limpos, um por linha, separados por CRLF,
+   * sem cabeçalho (para evitar que o Profit tente carregar o ticker "ATIVO" ou "TICKER").
+   * Nome do arquivo: watchlist_profit_YYYY-MM-DD.csv
+   */
+  function generateProfitChartCsv(tickers, date = new Date()) {
+    const list = Array.isArray(tickers) ? tickers : [];
+    const uniqueTickers = [];
+    const seen = new Set();
+
+    for (const raw of list) {
+      const sym = normalizeTicker(raw);
+      if (sym && !seen.has(sym)) {
+        seen.add(sym);
+        uniqueTickers.push(sym);
+      }
+    }
+
+    if (uniqueTickers.length === 0) {
+      return {
+        success: false,
+        error: 'Nenhum ativo selecionado para exportação.',
+        csvContent: '',
+        count: 0,
+        filename: ''
+      };
+    }
+
+    const dateStr = formatDateIso(date);
+    const filename = `watchlist_profit_${dateStr}.csv`;
+    // Nelogica Profit Chart importa listas de cotações com um ticker por linha (CRLF).
+    const csvContent = uniqueTickers.join('\r\n') + '\r\n';
+
+    return {
+      success: true,
+      filename,
+      csvContent,
+      count: uniqueTickers.length,
+      tickers: uniqueTickers,
+      mimeType: 'text/csv;charset=utf-8'
+    };
+  }
+
+  /**
+   * Enriquece os tickers selecionados para exibição nos cards da seção "Minha seleção",
+   * buscando informações de preço, variação e setor na lista de oportunidades
+   * ou em catálogo/cache prévio para não apagar o card caso o ativo deixe de ser "Pronto para entrada".
+   */
+  function enrichSelectedItems(selectedTickers, opportunities = [], fallbackCatalog = {}) {
+    const list = Array.isArray(selectedTickers) ? selectedTickers : [];
+    const oppMap = new Map();
+    if (Array.isArray(opportunities)) {
+      for (const item of opportunities) {
+        if (item && item.symbol) {
+          oppMap.set(String(item.symbol).toUpperCase(), item);
+        }
+      }
+    }
+
+    return list.map((raw) => {
+      const sym = normalizeTicker(raw);
+      const found = oppMap.get(sym);
+      if (found) {
+        return {
+          symbol: sym,
+          name: found.name || cleanCompanyName(sym, found.fullName),
+          fullName: found.fullName || found.name,
+          price: found.lastPrice || found.entry || null,
+          change1dPct: found.change1dPct ?? (Number.isFinite(Number(found.changePct)) ? Number(found.changePct) : (Number.isFinite(Number(found.dayChangePct)) ? Number(found.dayChangePct) : null)),
+          sector: found.sector || 'Ações B3',
+          market: found.market || resolveMarketCategory(found),
+          isReady: true,
+          triggerName: found.triggerName || null
+        };
+      }
+
+      const catalogInfo = fallbackCatalog && fallbackCatalog[sym];
+      return {
+        symbol: sym,
+        name: cleanCompanyName(sym, catalogInfo?.name || sym),
+        fullName: catalogInfo?.name || sym,
+        price: catalogInfo?.price || null,
+        change1dPct: catalogInfo?.change1dPct || null,
+        sector: translateSector(catalogInfo?.sector) || 'Ações B3',
+        market: catalogInfo?.market || (/(31|32|33|34|35|39)$/.test(sym) ? 'BDRs' : (/11$/.test(sym) ? 'IFIX' : 'IBOV')),
+        isReady: false,
+        triggerName: null
+      };
+    });
+  }
+
+  /**
+   * Migra tickers salvos da Watchlist legada (localStorage ou backend) para a seleção do Radar,
+   * garantindo que nenhum ativo prévio do trader seja perdido.
+   */
+  function migrateLegacyWatchlist(legacyItems, currentSelection = []) {
+    const set = new Set();
+    const result = [];
+
+    const existing = Array.isArray(currentSelection) ? currentSelection : [];
+    for (const raw of existing) {
+      const sym = normalizeTicker(raw);
+      if (sym && !set.has(sym)) {
+        set.add(sym);
+        result.push(sym);
+      }
+    }
+
+    let migratedCount = 0;
+    const legacy = Array.isArray(legacyItems) ? legacyItems : [];
+    for (const item of legacy) {
+      const tickerVal = typeof item === 'string' ? item : (item?.ticker || item?.symbol);
+      const sym = normalizeTicker(tickerVal);
+      if (sym && !set.has(sym)) {
+        set.add(sym);
+        result.push(sym);
+        migratedCount++;
+      }
+    }
+
+    return {
+      migratedCount,
+      combinedSelection: result
+    };
+  }
+
   return {
+    STORAGE_KEY_SELECTION,
+    BRAND_LOGOS,
+    FALLBACK_PALETTE,
+    resolveAssetLogoUrl,
+    getAssetBrandDetails,
     resolveMarketCategory,
     formatTriggerDisplayName,
     classifyRsScore,
@@ -464,6 +746,15 @@
     filterOpportunities,
     extractFilterOptions,
     translateSector,
-    cleanCompanyName
+    cleanCompanyName,
+    normalizeTicker,
+    isSelected,
+    addSelection,
+    removeSelection,
+    toggleSelection,
+    clearSelection,
+    generateProfitChartCsv,
+    enrichSelectedItems,
+    migrateLegacyWatchlist
   };
 });

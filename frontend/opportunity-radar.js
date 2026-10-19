@@ -1,6 +1,8 @@
 (function (root) {
   'use strict';
 
+  const SESSION_KEY_SELECTION = 'healthy-trend-radar-selection-session';
+
   const state = {
     loaded: false,
     loading: false,
@@ -13,10 +15,13 @@
       grade: 'ALL',
       trigger: 'ALL',
       search: ''
-    }
+    },
+    selectedTickers: [],
+    selectionExpanded: false,
+    fallbackCatalog: {}
   };
 
-  const BRAND_LOGOS = {
+  const BRAND_LOGOS = (root.OpportunityRadarModel && root.OpportunityRadarModel.BRAND_LOGOS) || {
     PETR4: { bg: '#008542', fg: '#ffd100', text: 'BR' },
     PETR3: { bg: '#008542', fg: '#ffd100', text: 'BR' },
     WEGE3: { bg: '#00579d', fg: '#ffffff', text: 'WEG' },
@@ -46,7 +51,7 @@
     PRIO3: { bg: '#0f2c59', fg: '#00b4d8', text: 'PRIO' }
   };
 
-  const FALLBACK_PALETTE = [
+  const FALLBACK_PALETTE = (root.OpportunityRadarModel && root.OpportunityRadarModel.FALLBACK_PALETTE) || [
     { bg: '#134e4a', fg: '#ffffff' },
     { bg: '#1e3a8a', fg: '#ffffff' },
     { bg: '#3b0764', fg: '#ffffff' },
@@ -54,6 +59,99 @@
     { bg: '#7c2d12', fg: '#ffffff' },
     { bg: '#0f172a', fg: '#e2e8f0' }
   ];
+
+  const LOGO_CACHE_KEY = 'htt_asset_logos_status_v1';
+
+  // Cache persistente na sessão do navegador para evitar requisições redundantes ou 404 repetidos
+  const logoStatusCache = (function initLogoStatusCache() {
+    const memory = new Map();
+    try {
+      const raw = sessionStorage.getItem(LOGO_CACHE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          for (const [k, v] of Object.entries(parsed)) {
+            memory.set(k, v);
+          }
+        }
+      }
+    } catch {
+      // sessionStorage indisponível ou inacessível
+    }
+
+    function save() {
+      try {
+        const obj = Object.fromEntries(memory.entries());
+        sessionStorage.setItem(LOGO_CACHE_KEY, JSON.stringify(obj));
+      } catch {
+        // quota ou restrições de storage
+      }
+    }
+
+    return {
+      isLoaded(sym) {
+        return memory.get(sym) === 'loaded';
+      },
+      isFailed(sym) {
+        return memory.get(sym) === 'failed';
+      },
+      markLoaded(sym) {
+        if (!sym) return;
+        memory.set(sym, 'loaded');
+        save();
+      },
+      markFailed(sym) {
+        if (!sym) return;
+        memory.set(sym, 'failed');
+        save();
+      }
+    };
+  })();
+
+  // Handlers globais reutilizáveis para eventos de carregamento assíncrono das imagens de ativos
+  root.handleAssetLogoLoad = function (imgEl, symbol) {
+    if (!imgEl) return;
+    const sym = String(symbol || '').trim().toUpperCase();
+    logoStatusCache.markLoaded(sym);
+    imgEl.classList.add('is-loaded');
+    const container = imgEl.closest('.radar-asset-logo');
+    if (container) {
+      container.classList.add('has-loaded-logo');
+      const fallback = container.querySelector('.radar-asset-logo-fallback');
+      if (fallback) fallback.style.display = 'none';
+    }
+  };
+
+  root.handleAssetLogoError = function (imgEl, symbol) {
+    if (!imgEl) return;
+    const sym = String(symbol || '').trim().toUpperCase();
+    logoStatusCache.markFailed(sym);
+    imgEl.style.display = 'none';
+    const container = imgEl.closest('.radar-asset-logo');
+    if (container) {
+      container.classList.add('has-failed-logo');
+      const fallback = container.querySelector('.radar-asset-logo-fallback');
+      if (fallback) fallback.style.display = 'flex';
+    }
+  };
+
+  root.handleRadarLogoLoad = root.handleAssetLogoLoad;
+  root.handleRadarLogoError = root.handleAssetLogoError;
+
+  function initRenderedLogos(rootEl) {
+    if (!rootEl) return;
+    const imgs = rootEl.querySelectorAll('.radar-asset-logo-img:not(.is-loaded)');
+    imgs.forEach((img) => {
+      const sym = img.getAttribute('data-ticker') || img.getAttribute('alt');
+      if (img.complete) {
+        if (img.naturalWidth > 0) {
+          root.handleAssetLogoLoad(img, sym);
+        } else {
+          root.handleAssetLogoError(img, sym);
+        }
+      }
+    });
+  }
 
   function esc(val) {
     return String(val ?? '')
@@ -76,6 +174,13 @@
     return num.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   }
 
+  function formatSignedPercent(val) {
+    const num = Number(val);
+    if (!Number.isFinite(num)) return '—';
+    const sign = num > 0 ? '+' : '';
+    return sign + num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+  }
+
   function formatUpdatedAt(isoString, fallbackDate) {
     const raw = isoString || fallbackDate;
     if (!raw) return 'Dados em cache';
@@ -90,18 +195,68 @@
   }
 
   function renderAssetLogo(symbol) {
-    const sym = String(symbol || '').trim().toUpperCase();
-    const brand = BRAND_LOGOS[sym];
-    if (brand) {
-      return `<div class="radar-asset-logo" style="background:${brand.bg};color:${brand.fg};">${esc(brand.text)}</div>`;
+    const sym = root.OpportunityRadarModel?.normalizeTicker(symbol) || String(symbol || '').trim().toUpperCase();
+    const brand = root.OpportunityRadarModel?.getAssetBrandDetails(sym) || (function () {
+      const b = BRAND_LOGOS[sym];
+      if (b) return { brandText: b.text, bg: b.bg, fg: b.fg };
+      const prefix = sym.replace(/[0-9]+$/, '').slice(0, 3) || sym.slice(0, 2);
+      let hash = 0;
+      for (let i = 0; i < sym.length; i++) hash = (hash * 31 + sym.charCodeAt(i)) % FALLBACK_PALETTE.length;
+      const pal = FALLBACK_PALETTE[Math.abs(hash) % FALLBACK_PALETTE.length];
+      return { brandText: prefix || sym.slice(0, 2), bg: pal.bg, fg: pal.fg };
+    })();
+    const logoUrl = root.OpportunityRadarModel?.resolveAssetLogoUrl(sym) || (sym ? `https://icons.brapi.dev/icons/${sym}.svg` : null);
+
+    // 1. Caso sem URL ou já confirmado como falho/indisponível nesta sessão: exibe fallback direto sem requisitar imagem
+    if (!logoUrl || logoStatusCache.isFailed(sym)) {
+      return `
+        <div class="radar-asset-logo has-failed-logo is-fallback" data-ticker="${esc(sym)}" title="${esc(sym)}">
+          <div class="radar-asset-logo-fallback" style="background:${brand.bg};color:${brand.fg};">
+            <span class="radar-asset-logo-fallback-text">${esc(brand.brandText)}</span>
+          </div>
+        </div>
+      `;
     }
-    const prefix = sym.replace(/[0-9]+$/, '').slice(0, 3) || sym.slice(0, 2);
-    let hash = 0;
-    for (let i = 0; i < sym.length; i++) {
-      hash = (hash * 31 + sym.charCodeAt(i)) % FALLBACK_PALETTE.length;
+
+    // 2. Caso já validado e confirmado em cache: renderiza imagem pronta diretamente
+    if (logoStatusCache.isLoaded(sym)) {
+      return `
+        <div class="radar-asset-logo has-loaded-logo" data-ticker="${esc(sym)}" title="${esc(sym)}">
+          <div class="radar-asset-logo-fallback" style="display:none;background:${brand.bg};color:${brand.fg};">
+            <span class="radar-asset-logo-fallback-text">${esc(brand.brandText)}</span>
+          </div>
+          <img
+            src="${esc(logoUrl)}"
+            alt="${esc(sym)}"
+            data-ticker="${esc(sym)}"
+            class="radar-asset-logo-img is-loaded"
+            loading="lazy"
+            decoding="async"
+            onload="window.handleAssetLogoLoad && window.handleAssetLogoLoad(this, '${esc(sym)}')"
+            onerror="window.handleAssetLogoError && window.handleAssetLogoError(this, '${esc(sym)}')"
+          />
+        </div>
+      `;
     }
-    const palette = FALLBACK_PALETTE[Math.abs(hash) % FALLBACK_PALETTE.length];
-    return `<div class="radar-asset-logo" style="background:${palette.bg};color:${palette.fg};">${esc(prefix)}</div>`;
+
+    // 3. Primeiro carregamento: fallback pronto no DOM + imagem carregando de forma assíncrona com transição suave
+    return `
+      <div class="radar-asset-logo" data-ticker="${esc(sym)}" title="${esc(sym)}">
+        <div class="radar-asset-logo-fallback" style="background:${brand.bg};color:${brand.fg};">
+          <span class="radar-asset-logo-fallback-text">${esc(brand.brandText)}</span>
+        </div>
+        <img
+          src="${esc(logoUrl)}"
+          alt="${esc(sym)}"
+          data-ticker="${esc(sym)}"
+          class="radar-asset-logo-img"
+          loading="lazy"
+          decoding="async"
+          onload="window.handleAssetLogoLoad && window.handleAssetLogoLoad(this, '${esc(sym)}')"
+          onerror="window.handleAssetLogoError && window.handleAssetLogoError(this, '${esc(sym)}')"
+        />
+      </div>
+    `;
   }
 
   function renderCandleIcon(triggerId) {
@@ -118,6 +273,46 @@
       </span>
     `;
   }
+
+  // =========================================================================
+  // PERSISTENCE (SESSION-BASED: STARTS EMPTY ON FRESH SESSIONS, PRESERVES DURING NAVIGATION)
+  // =========================================================================
+
+  function loadSelectionFromStorage() {
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY_SELECTION);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.map((t) => String(t || '').trim().toUpperCase()).filter(Boolean);
+        }
+      }
+    } catch {
+      // Ignora erro de JSON corrompido
+    }
+    return [];
+  }
+
+  function saveSelectionToStorage(tickers) {
+    try {
+      const clean = Array.isArray(tickers)
+        ? tickers.map((t) => String(t || '').trim().toUpperCase()).filter(Boolean)
+        : [];
+      sessionStorage.setItem(SESSION_KEY_SELECTION, JSON.stringify(clean));
+    } catch (e) {
+      console.warn('[Radar de Oportunidades] Erro ao salvar seleção na sessão:', e);
+    }
+  }
+
+  function initSelection() {
+    // A seleção inicia sempre vazia em uma nova sessão do usuário.
+    // Preserva apenas as seleções explícitas feitas pelo usuário nesta sessão de trabalho.
+    state.selectedTickers = loadSelectionFromStorage();
+  }
+
+  // =========================================================================
+  // DATA FETCHING
+  // =========================================================================
 
   async function fetchRadarData(force = false) {
     if (state.loading) return;
@@ -170,6 +365,10 @@
     return { markets: ['IBOV', 'IFIX', 'BDRs'], sectors: [], triggers: [], grades: ['A', 'B', 'C', 'D'] };
   }
 
+  // =========================================================================
+  // TABLE RENDERING
+  // =========================================================================
+
   function renderTableRows(filteredItems) {
     if (state.loading && !state.loaded) {
       return `
@@ -200,15 +399,18 @@
     }
 
     const rowsHtml = filteredItems.map((item) => {
+      const sym = item.symbol;
       const marketLower = String(item.market || 'IBOV').toLowerCase();
       const tierClass = item.rsTier === 'leader' ? 'tier-leader' : '';
+      const isSelected = root.OpportunityRadarModel.isSelected(state.selectedTickers, sym);
+
       return `
-        <tr data-ticker="${esc(item.symbol)}">
+        <tr data-ticker="${esc(sym)}">
           <td>
-            <div class="radar-asset-cell">
-              ${renderAssetLogo(item.symbol)}
+            <div class="radar-asset-cell" onclick="window.openRadarTickerChart('${esc(sym)}')" style="cursor: pointer;" title="Abrir gráfico diário de ${esc(sym)}">
+              ${renderAssetLogo(sym)}
               <div class="radar-asset-info">
-                <span class="radar-asset-symbol">${esc(item.symbol)}</span>
+                <span class="radar-asset-symbol">${esc(sym)}</span>
                 <span class="radar-asset-name">${esc(item.name)}</span>
               </div>
             </div>
@@ -254,10 +456,15 @@
           <td class="col-center">
             <span class="radar-status-pill">↗ Pronto para entrada</span>
           </td>
-          <td class="col-right">
-            <button type="button" class="radar-btn-chart" onclick="window.openRadarTickerChart('${esc(item.symbol)}')">
-              Ver gráfico <span aria-hidden="true">→</span>
-            </button>
+          <td class="col-actions">
+            <div class="radar-row-actions">
+              <button type="button" class="radar-btn-view-chart" onclick="window.openRadarTickerChart('${esc(sym)}')">
+                Ver gráfico <span aria-hidden="true">→</span>
+              </button>
+              <button type="button" class="radar-btn-select ${isSelected ? 'selected' : ''}" onclick="window.toggleRadarRowSelection('${esc(sym)}')">
+                ${isSelected ? '✓ Selecionado' : '+ Selecionar'}
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -279,7 +486,7 @@
               <th>STOP INICIAL</th>
               <th class="col-center">R:R</th>
               <th class="col-center">SITUAÇÃO</th>
-              <th class="col-right"></th>
+              <th class="col-actions">AÇÕES</th>
             </tr>
           </thead>
           <tbody>
@@ -289,6 +496,300 @@
       </div>
     `;
   }
+
+  // =========================================================================
+  // "MINHA SELEÇÃO" SECTION (TOP VISIBLE BAR, CHIPS & PROFIT CSV EXPORT)
+  // =========================================================================
+
+  function renderMinhaSelecaoSection() {
+    const tickers = state.selectedTickers || [];
+    const count = tickers.length;
+    const enriched = root.OpportunityRadarModel.enrichSelectedItems(tickers, state.items, state.fallbackCatalog);
+
+    if (count === 0) {
+      return `
+        <section class="radar-selection-bar is-empty" id="radarSelectionBar" aria-label="Minha seleção para o próximo pregão">
+          <div class="radar-sel-bar-main">
+            <div class="radar-sel-bar-title-wrap">
+              <div class="radar-sel-target-badge" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <circle cx="12" cy="12" r="9"/>
+                  <circle cx="12" cy="12" r="4"/>
+                  <path d="M15.5 8.5L19 5"/>
+                </svg>
+              </div>
+              <div class="radar-sel-bar-label">
+                <div class="radar-sel-bar-title-row">
+                  <strong>Ativos selecionados <span class="radar-sel-count-pill empty">(0)</span></strong>
+                </div>
+                <span class="radar-sel-empty-text">Nenhum ativo selecionado. Clique em <strong>+ Selecionar</strong> em qualquer oportunidade na tabela abaixo.</span>
+              </div>
+            </div>
+            <div class="radar-sel-bar-actions">
+              <button type="button" class="radar-btn-sel-export disabled" disabled title="Selecione ao menos um ativo na tabela para exportar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Exportar CSV (Profit)
+              </button>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    const chipsHtml = enriched.map((item) => {
+      const sym = item.symbol;
+      const changeVal = item.change1dPct;
+      const changeClass = Number(changeVal) >= 0 ? 'positive' : 'negative';
+      const changeFormatted = Number.isFinite(Number(changeVal)) ? formatSignedPercent(changeVal) : '';
+
+      return `
+        <div class="radar-sel-chip" data-ticker="${esc(sym)}">
+          <span class="radar-sel-chip-sym" onclick="window.openRadarTickerChart('${esc(sym)}')" title="Abrir gráfico diário de ${esc(sym)}">${esc(sym)}</span>
+          <span class="radar-sel-chip-price">${formatCurrency(item.price)}</span>
+          ${changeFormatted ? `<span class="radar-sel-chip-change ${changeClass}">${esc(changeFormatted)}</span>` : ''}
+          <button type="button" class="radar-sel-chip-remove" onclick="window.removeRadarSelectionTicker('${esc(sym)}')" title="Remover ${esc(sym)} da seleção" aria-label="Remover ${esc(sym)}">✕</button>
+        </div>
+      `;
+    }).join('');
+
+    const cardsHtml = enriched.map((item) => {
+      const sym = item.symbol;
+      const changeVal = item.change1dPct;
+      const changeClass = Number(changeVal) >= 0 ? 'positive' : 'negative';
+      const changeFormatted = Number.isFinite(Number(changeVal)) ? formatSignedPercent(changeVal) : '';
+
+      return `
+        <div class="radar-sel-card" data-ticker="${esc(sym)}">
+          <div class="radar-sel-card-logo" onclick="window.openRadarTickerChart('${esc(sym)}')" style="cursor: pointer;" title="Abrir gráfico diário de ${esc(sym)}">
+            ${renderAssetLogo(sym)}
+          </div>
+          <div class="radar-sel-card-content">
+            <div class="radar-sel-card-top">
+              <strong class="radar-sel-card-symbol" onclick="window.openRadarTickerChart('${esc(sym)}')" title="Ver gráfico de ${esc(sym)}">${esc(sym)}</strong>
+              <button type="button" class="radar-sel-card-remove" onclick="window.removeRadarSelectionTicker('${esc(sym)}')" title="Remover ${esc(sym)} da seleção" aria-label="Remover ${esc(sym)}">✕</button>
+            </div>
+            <div class="radar-sel-card-name">${esc(item.name || sym)}</div>
+            <div class="radar-sel-card-price-row">
+              <span class="radar-sel-card-price">${formatCurrency(item.price)}</span>
+              ${changeFormatted ? `<span class="radar-sel-card-change ${changeClass}">${esc(changeFormatted)}</span>` : ''}
+            </div>
+            <div class="radar-sel-card-sector">${esc(item.sector || 'Ações B3')}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <section class="radar-selection-bar has-items" id="radarSelectionBar" aria-label="Minha seleção para o próximo pregão">
+        <div class="radar-sel-bar-main">
+          <div class="radar-sel-bar-title-wrap">
+            <div class="radar-sel-target-badge active" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div class="radar-sel-bar-label">
+              <div class="radar-sel-bar-title-row">
+                <strong>Ativos selecionados <span class="radar-sel-count-pill active" id="radarSelCountPill">(${count})</span></strong>
+                <span class="radar-sel-hint">Prontos para exportar ao Profit Chart</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="radar-sel-bar-actions">
+            <button type="button" class="radar-btn-sel-toggle-expand" onclick="window.toggleRadarSelectionDetails()" title="Expandir ou recolher detalhes dos ativos">
+              <span>${state.selectionExpanded ? 'Recolher detalhes ▲' : 'Ver detalhes ▼'}</span>
+            </button>
+            <button type="button" class="radar-btn-sel-clear" onclick="window.clearRadarSelectionWithConfirm()" title="Limpar todos os ativos selecionados">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Limpar seleção
+            </button>
+            <button type="button" class="radar-btn-sel-export active" onclick="window.exportRadarSelectionProfitCsv()" title="Exportar arquivo CSV com os ativos selecionados para o Profit Chart">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar CSV (Profit)
+            </button>
+          </div>
+        </div>
+
+        <div class="radar-sel-chips-row" id="radarSelChipsRow">
+          ${chipsHtml}
+        </div>
+
+        ${state.selectionExpanded ? `
+          <div class="radar-sel-details-panel">
+            <div class="radar-selection-cards-wrap">
+              ${cardsHtml}
+            </div>
+            <div class="radar-selection-disclaimer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+              <span>O arquivo CSV será gerado apenas com os tickers selecionados, no formato compatível com a importação de listas do Profit Chart.</span>
+            </div>
+          </div>
+        ` : ''}
+      </section>
+    `;
+  }
+
+  // =========================================================================
+  // ACTIONS & INTERACTIONS
+  // =========================================================================
+
+  function toggleRadarRowSelection(symbol) {
+    const sym = root.OpportunityRadarModel.normalizeTicker(symbol);
+    if (!sym) return;
+
+    state.selectedTickers = root.OpportunityRadarModel.toggleSelection(state.selectedTickers, sym);
+    saveSelectionToStorage(state.selectedTickers);
+
+    // Salva fallback se disponível
+    const found = state.items.find((i) => i.symbol === sym);
+    if (found) {
+      state.fallbackCatalog[sym] = {
+        name: found.name,
+        price: found.lastPrice || found.entry,
+        change1dPct: found.change1dPct,
+        sector: found.sector,
+        market: found.market
+      };
+    }
+
+    updateRowSelectionButtonsOnly();
+    updateSelectionUiOnly();
+  }
+
+  function removeRadarSelectionTicker(symbol) {
+    const sym = root.OpportunityRadarModel.normalizeTicker(symbol);
+    if (!sym) return;
+
+    state.selectedTickers = root.OpportunityRadarModel.removeSelection(state.selectedTickers, sym);
+    saveSelectionToStorage(state.selectedTickers);
+
+    updateRowSelectionButtonsOnly();
+    updateSelectionUiOnly();
+  }
+
+  function clearRadarSelectionWithConfirm() {
+    const count = state.selectedTickers.length;
+    if (count === 0) return;
+
+    const confirmed = window.confirm(`Deseja realmente limpar todos os ${count} ativo(s) da sua seleção?`);
+    if (!confirmed) return;
+
+    state.selectedTickers = [];
+    saveSelectionToStorage(state.selectedTickers);
+
+    updateRowSelectionButtonsOnly();
+    updateSelectionUiOnly();
+
+    if (typeof root.showToast === 'function') {
+      root.showToast('Seleção de ativos esvaziada.', 'info');
+    }
+  }
+
+  function exportRadarSelectionProfitCsv() {
+    const count = state.selectedTickers.length;
+    if (count === 0) {
+      if (typeof root.showToast === 'function') {
+        root.showToast('Nenhum ativo selecionado para exportação.', 'warn');
+      } else {
+        alert('Nenhum ativo selecionado para exportação.');
+      }
+      return;
+    }
+
+    const result = root.OpportunityRadarModel.generateProfitChartCsv(state.selectedTickers, new Date());
+    if (!result.success) {
+      if (typeof root.showToast === 'function') {
+        root.showToast(result.error, 'error');
+      } else {
+        alert(result.error);
+      }
+      return;
+    }
+
+    try {
+      const blob = new Blob([result.csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', result.filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      if (typeof root.showToast === 'function') {
+        root.showToast(`Exportação concluída! ${result.count} ativo(s) prontos para o Profit Chart.`, 'success');
+      }
+    } catch (err) {
+      console.error('[Radar de Oportunidades] Falha no download do CSV:', err);
+      if (typeof root.showToast === 'function') {
+        root.showToast('Erro ao baixar o arquivo CSV.', 'error');
+      }
+    }
+  }
+
+  /**
+   * Navega diretamente para a tela Gráficos existente carregando o ticker selecionado no gráfico Diário.
+   */
+  function openRadarTickerChart(symbol) {
+    const sym = String(symbol || '').trim().toUpperCase();
+    if (!sym) return;
+
+    root.__chartReturnSource = 'opportunityradar';
+    root.__radarLastViewedTicker = sym;
+    root.__pendingChartsTicker = sym;
+    if (typeof root.go === 'function') {
+      root.go('charts', sym);
+    }
+    if (typeof root.loadTickerChart === 'function') {
+      root.loadTickerChart(sym);
+    }
+  }
+
+  // =========================================================================
+  // DOM UPDATES (TARGETED TO PRESERVE FOCUS & FILTERS)
+  // =========================================================================
+
+  function updateRowSelectionButtonsOnly() {
+    const rows = document.querySelectorAll('#radarTableRegion tr[data-ticker]');
+    rows.forEach((row) => {
+      const sym = row.getAttribute('data-ticker');
+      const btn = row.querySelector('.radar-btn-select');
+      if (btn) {
+        const isSel = root.OpportunityRadarModel.isSelected(state.selectedTickers, sym);
+        btn.classList.toggle('selected', isSel);
+        btn.textContent = isSel ? '✓ Selecionado' : '+ Selecionar';
+      }
+    });
+  }
+
+  function updateSelectionUiOnly() {
+    const container = document.getElementById('radarSelectionContainer');
+    if (container) {
+      container.innerHTML = renderMinhaSelecaoSection();
+      initRenderedLogos(container);
+    }
+  }
+
+  function updateTableAndCounterOnly() {
+    const filteredItems = getFilteredItems();
+    const countEl = document.getElementById('radarReadyCountBadge');
+    if (countEl) countEl.textContent = String(filteredItems.length);
+    const tableRegion = document.getElementById('radarTableRegion');
+    if (tableRegion) {
+      tableRegion.innerHTML = renderTableRows(filteredItems);
+      initRenderedLogos(tableRegion);
+    }
+  }
+
+  // =========================================================================
+  // MAIN SCREEN DOM SHELL
+  // =========================================================================
 
   function renderOpportunityRadarDom() {
     const container = document.getElementById('opportunityRadarRoot');
@@ -410,11 +911,17 @@
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
-              <input type="text" id="radarSearchInput" placeholder="Buscar ativo..." value="${esc(state.filters.search)}" autocomplete="off" />
+              <input type="text" id="radarSearchInput" placeholder="Buscar por ticker ou nome..." value="${esc(state.filters.search)}" autocomplete="off" />
             </div>
           </div>
         </section>
 
+        <!-- Seção Persistente no Topo: Minha Seleção para Monitoramento e Exportação Profit Chart -->
+        <div id="radarSelectionContainer">
+          ${renderMinhaSelecaoSection()}
+        </div>
+
+        <!-- Tabela Principal de Ativos Prontos para Entrada (Largura total sem painel lateral) -->
         <section class="radar-main-card">
           <div class="radar-ready-banner">
             <div class="radar-ready-left">
@@ -436,6 +943,7 @@
           </div>
         </section>
 
+        <!-- Cards informativos inferiores -->
         <section class="radar-bottom-grid" aria-label="Informações e avisos operacionais">
           <div class="radar-info-card">
             <div class="radar-info-icon" aria-hidden="true">
@@ -448,7 +956,7 @@
               <h3>Critérios utilizados</h3>
               <ul class="radar-criteria-list">
                 <li><span class="radar-check-icon">✓</span> Força Relativa (3M) &gt; 80</li>
-                <li><span class="radar-check-icon">✓</span> Ciclo de Mercado</li>
+                <li><span class="radar-check-icon">✓</span> Ciclo de Mercado Positivo</li>
                 <li><span class="radar-check-icon">✓</span> Preço &gt; EMA 9 &gt; EMA 30 (Diário)</li>
                 <li><span class="radar-check-icon">✓</span> Gatilhos: Inside Bar, 123 Buy, PFR de Compra</li>
               </ul>
@@ -483,7 +991,7 @@
             <div class="radar-info-body">
               <h3>Importante</h3>
               <p class="radar-warn-text">
-                Gatilho identificado no fechamento não significa entrada disponível no próximo pregão.
+                Gatilho identificado no fechamento não significa entrada automática no próximo pregão.
                 Sempre valide o preço de entrada, stop, risco e gestão da posição antes de operar.
               </p>
             </div>
@@ -493,14 +1001,7 @@
     `;
 
     bindFilterEvents();
-  }
-
-  function updateTableAndCounterOnly() {
-    const filteredItems = getFilteredItems();
-    const countEl = document.getElementById('radarReadyCountBadge');
-    if (countEl) countEl.textContent = String(filteredItems.length);
-    const region = document.getElementById('radarTableRegion');
-    if (region) region.innerHTML = renderTableRows(filteredItems);
+    initRenderedLogos(container);
   }
 
   function bindFilterEvents() {
@@ -535,7 +1036,12 @@
     }
   }
 
+  // =========================================================================
+  // PUBLIC API & EXTERNAL BRIDGE
+  // =========================================================================
+
   function renderOpportunityRadar() {
+    initSelection();
     renderOpportunityRadarDom();
     if (!state.loaded && !state.loading) {
       fetchRadarData(false);
@@ -546,20 +1052,70 @@
     fetchRadarData(true);
   }
 
-  function openRadarTickerChart(symbol) {
+  // Bridge global para que todas as outras telas (Emerging Leaders, Fundamentos,
+  // Relative Strength, Market Scans, Gráficos) adicionem ativos diretamente à Minha Seleção
+  root.addToWatchlist = async function (symbol, context = {}) {
+    const sym = root.OpportunityRadarModel
+      ? root.OpportunityRadarModel.normalizeTicker(symbol)
+      : String(symbol || '').trim().toUpperCase();
+    if (!sym) return;
+
+    const prev = loadSelectionFromStorage();
+    const next = root.OpportunityRadarModel
+      ? root.OpportunityRadarModel.addSelection(prev, sym)
+      : (prev.includes(sym) ? prev : [...prev, sym]);
+
+    saveSelectionToStorage(next);
+    state.selectedTickers = next;
+
+    if (context && (context.name || context.price || context.sector)) {
+      state.fallbackCatalog[sym] = {
+        name: context.name,
+        price: context.price,
+        change1dPct: context.change1dPct ?? context.changePct,
+        sector: context.sector,
+        market: context.market
+      };
+    }
+
+    updateRowSelectionButtonsOnly();
+    updateSelectionUiOnly();
+
+    if (typeof root.showToast === 'function') {
+      root.showToast(`${sym} adicionado à Minha Seleção no Radar de Oportunidades.`, 'success');
+    }
+  };
+
+  root.toggleRadarSelectionDetails = function () {
+    state.selectionExpanded = !state.selectionExpanded;
+    updateSelectionUiOnly();
+  };
+
+  root.highlightRadarTickerRow = function (symbol) {
     const sym = String(symbol || '').trim().toUpperCase();
     if (!sym) return;
-    root.__pendingChartsTicker = sym;
-    if (typeof root.go === 'function') {
-      root.go('charts', sym);
+    const row = document.querySelector(`#radarTableRegion tr[data-ticker="${sym}"]`);
+    if (row) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.classList.remove('radar-row-highlight');
+      void row.offsetWidth; // trigger reflow
+      row.classList.add('radar-row-highlight');
+      setTimeout(() => {
+        row.classList.remove('radar-row-highlight');
+      }, 2500);
     }
-    if (typeof root.loadTickerChart === 'function' && root.__pendingChartsTicker === sym) {
-      root.__pendingChartsTicker = null;
-      root.loadTickerChart(sym);
-    }
-  }
+  };
+
+  root.getRadarSelectedTickers = function () {
+    return state.selectedTickers || loadSelectionFromStorage();
+  };
 
   root.renderOpportunityRadar = renderOpportunityRadar;
   root.refreshOpportunityRadar = refreshOpportunityRadar;
   root.openRadarTickerChart = openRadarTickerChart;
+  root.toggleRadarRowSelection = toggleRadarRowSelection;
+  root.removeRadarSelectionTicker = removeRadarSelectionTicker;
+  root.clearRadarSelectionWithConfirm = clearRadarSelectionWithConfirm;
+  root.exportRadarSelectionProfitCsv = exportRadarSelectionProfitCsv;
+
 })(typeof globalThis !== 'undefined' ? globalThis : this);
