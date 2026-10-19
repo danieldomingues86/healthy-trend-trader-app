@@ -211,7 +211,7 @@
   background: #ffffff;
   border: 1px solid #e2ebe5;
   border-radius: 14px;
-  padding: 10px 14px;
+  padding: 12px 18px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -248,7 +248,7 @@
   background: #ffffff;
   border: 1px solid #e2ebe5;
   border-radius: 14px;
-  padding: 10px 14px;
+  padding: 12px 18px;
   display: flex;
   align-items: center;
   box-shadow: 0 2px 6px rgba(12, 34, 24, 0.03);
@@ -290,20 +290,21 @@
   color: #7d9287;
 }
 
-/* Main Table Card */
+/* Main Card */
 .radar-main-card {
   background: #ffffff;
   border: 1px solid #dce7e0;
   border-radius: 18px;
   box-shadow: 0 6px 22px rgba(12, 34, 24, 0.05);
   overflow: hidden;
+  width: 100%;
 }
 
 /* Ready Banner inside Main Card */
 .radar-ready-banner {
   background: linear-gradient(90deg, #eaf7f0 0%, #f3faf6 100%);
   border-bottom: 1px solid #d8ece0;
-  padding: 14px 22px;
+  padding: 16px 28px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -359,16 +360,38 @@
 .radar-table-wrap {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #b9d8c8 #f1f7f4;
+}
+
+.radar-table-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+
+.radar-table-wrap::-webkit-scrollbar-track {
+  background: #f1f7f4;
+  border-radius: 4px;
+}
+
+.radar-table-wrap::-webkit-scrollbar-thumb {
+  background: #b9d8c8;
+  border-radius: 4px;
+}
+
+.radar-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #89bfa2;
 }
 
 .radar-table {
   width: 100%;
+  min-width: 1100px;
   border-collapse: collapse;
   text-align: left;
 }
 
 .radar-table thead th {
-  padding: 13px 16px;
+  padding: 13px 14px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -379,6 +402,11 @@
   white-space: nowrap;
 }
 
+.radar-table thead th:first-child,
+.radar-table tbody td:first-child {
+  padding-left: 28px;
+}
+
 .radar-table thead th.col-center,
 .radar-table tbody td.col-center {
   text-align: center;
@@ -387,6 +415,16 @@
 .radar-table thead th.col-right,
 .radar-table tbody td.col-right {
   text-align: right;
+}
+
+.radar-table thead th.col-actions,
+.radar-table tbody td.col-actions {
+  width: 236px;
+  min-width: 236px;
+  max-width: 236px;
+  text-align: right;
+  padding-right: 28px;
+  white-space: nowrap;
 }
 
 .radar-table tbody tr {
@@ -403,9 +441,9 @@
 }
 
 .radar-table tbody td {
-  padding: 13px 16px;
+  padding: 12px 14px;
   vertical-align: middle;
-  font-size: 13.5px;
+  font-size: 13px;
   color: #142a20;
   white-space: nowrap;
 }
@@ -418,8 +456,9 @@
 }
 
 .radar-asset-logo {
-  width: 36px;
-  height: 36px;
+  position: relative;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -428,8 +467,60 @@
   font-size: 11px;
   letter-spacing: -0.02em;
   flex-shrink: 0;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  background: transparent;
+  border: none;
+  box-shadow: none;
   overflow: hidden;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.radar-asset-logo-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  z-index: 1;
+  border-radius: 8px;
+}
+
+.radar-asset-logo-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0;
+  box-sizing: border-box;
+  background: transparent;
+  border-radius: 8px;
+  display: block;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.18s ease-in-out;
+}
+
+.radar-asset-logo-img.is-loaded {
+  opacity: 1;
+}
+
+.radar-asset-logo.has-loaded-logo .radar-asset-logo-fallback {
+  display: none !important;
+}
+
+.radar-asset-logo.has-failed-logo .radar-asset-logo-img {
+  display: none !important;
+}
+
+.radar-asset-logo.has-failed-logo .radar-asset-logo-fallback {
+  display: flex !important;
 }
 
 .radar-asset-info {
@@ -521,76 +612,67 @@
   border-color: rgba(248, 113, 113, 0.35);
 }
 
-/* Market Badges (IBOV, IFIX, BDRs) */
+/* Market Badge */
 .radar-market-badge {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 48px;
-  padding: 4px 10px;
-  border-radius: 7px;
-  font-size: 11.5px;
-  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.03em;
 }
 
 .radar-market-badge.market-ibov {
-  background: #e6f0ff;
-  color: #1c58b8;
-  border: 1px solid #c9dfff;
+  background: #eef2ff;
+  color: #3b5998;
+  border: 1px solid #d5ddf8;
 }
 
 .radar-market-badge.market-ifix {
-  background: #eee8ff;
-  color: #5b32ad;
-  border: 1px solid #d8ccff;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
 }
 
 .radar-market-badge.market-bdrs {
-  background: #ffefd8;
-  color: #b55e10;
-  border: 1px solid #fad9ad;
+  background: #f3e8ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
 }
 
-/* RS (3M) Cell */
+/* Relative Strength Cell */
 .radar-rs-cell {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  line-height: 1.2;
+  gap: 1px;
 }
 
 .radar-rs-score {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 800;
+  color: #128250;
   font-variant-numeric: tabular-nums;
-  color: #12291e;
-}
-
-.radar-rs-cell.tier-leader .radar-rs-score {
-  color: #0e8755;
 }
 
 .radar-rs-label {
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 600;
-  color: #5d7467;
+  color: #637a6d;
 }
 
-.radar-rs-cell.tier-leader .radar-rs-label {
-  color: #149662;
+.radar-rs-cell.tier-leader .radar-rs-score {
+  color: #0b9e58;
 }
 
-/* Cycle & Trend Pills */
+/* Green Pills for Market Cycle & Trend */
 .radar-green-pill {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 12px;
-  border-radius: 8px;
-  background: #e3f5ec;
-  color: #117348;
-  font-size: 12.5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eaf7f0;
+  color: #107a4a;
+  font-size: 11.5px;
   font-weight: 700;
 }
 
@@ -644,75 +726,521 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 13px;
+  padding: 6px 12px;
   border-radius: 8px;
   background: #e3f5ec;
   color: #117348;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
 }
 
-/* Action Button */
-.radar-btn-chart {
+/* Row Actions (Ver gráfico + Selecionar) */
+.radar-row-actions {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
-  padding: 8px 16px;
-  border-radius: 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.radar-btn-view-chart {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 7px;
   background: #0c261c;
   color: #ffffff;
   border: 1px solid #0c261c;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.radar-btn-chart:hover {
+.radar-btn-view-chart:hover {
   background: #164432;
   border-color: #164432;
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(12, 38, 28, 0.18);
+  box-shadow: 0 3px 8px rgba(12, 38, 28, 0.18);
 }
 
-/* Empty State */
-.radar-empty-state {
-  padding: 48px 24px;
-  text-align: center;
+.radar-btn-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 7px;
+  background: #f0f8f4;
+  color: #0f7a4f;
+  border: 1px solid #a3d9bc;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.radar-btn-select:hover {
+  background: #e1f4ea;
+  border-color: #159967;
+}
+
+.radar-btn-select.selected {
+  background: #159967;
+  color: #ffffff;
+  border-color: #159967;
+}
+
+.radar-btn-select.selected:hover {
+  background: #0f8256;
+}
+
+/* =========================================================================
+   TOP SELECTION BAR ("MINHA SELEÇÃO" PERSISTENT & PROFIT CSV EXPORT)
+   ========================================================================= */
+
+.radar-selection-bar {
+  background: #ffffff;
+  border: 1px solid #dce7e0;
+  border-radius: 16px;
+  padding: 16px 28px;
+  box-shadow: 0 4px 16px rgba(12, 34, 24, 0.04);
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 10px;
+  transition: all 0.2s ease;
 }
 
-.radar-empty-icon {
-  width: 52px;
-  height: 52px;
+.radar-selection-bar.has-items {
+  border-color: #b7e2cc;
+  background: linear-gradient(180deg, #f7fcf9 0%, #ffffff 100%);
+}
+
+.radar-sel-bar-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.radar-sel-bar-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.radar-sel-target-badge {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: #eff6f2;
-  color: #159967;
+  background: #eaf3ee;
+  color: #4a6656;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 4px;
+  flex-shrink: 0;
 }
 
-.radar-empty-state h3 {
-  margin: 0;
-  font-size: 17px;
+.radar-sel-target-badge.active {
+  background: #159967;
+  color: #ffffff;
+}
+
+.radar-sel-bar-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.radar-sel-bar-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.radar-sel-bar-title-row strong,
+.radar-sel-bar-label strong {
+  font-size: 14.5px;
   font-weight: 800;
-  color: #10241b;
+  color: #0d261b;
 }
 
-.radar-empty-state p {
-  margin: 0;
-  max-width: 520px;
-  font-size: 13.5px;
-  color: #587063;
-  line-height: 1.5;
+.radar-sel-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Bottom Info Cards */
+.radar-sel-count-pill.empty {
+  background: #edf3ef;
+  color: #6d8478;
+}
+
+.radar-sel-count-pill.active {
+  background: #159967;
+  color: #ffffff;
+}
+
+.radar-sel-empty-text {
+  font-size: 12.5px;
+  color: #5c7568;
+}
+
+.radar-sel-empty-text strong {
+  color: #107a4f;
+  font-weight: 700;
+}
+
+.radar-sel-hint {
+  font-size: 12px;
+  color: #537464;
+  font-weight: 500;
+}
+
+.radar-sel-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.radar-btn-sel-toggle-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1px solid #d8e5de;
+  background: #fbfdfc;
+  color: #2b4d3d;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.radar-btn-sel-toggle-expand:hover {
+  background: #edf5f0;
+  border-color: #b9d8c7;
+}
+
+.radar-btn-sel-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1px solid #e5d5d5;
+  background: #fcf9f9;
+  color: #993b3b;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.radar-btn-sel-clear:hover {
+  background: #fbeeee;
+  border-color: #dca8a8;
+  color: #b32626;
+}
+
+.radar-btn-sel-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 15px;
+  border-radius: 7px;
+  background: #159967;
+  color: #ffffff;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 7px rgba(21, 153, 103, 0.28);
+  white-space: nowrap;
+}
+
+.radar-btn-sel-export:hover:not(:disabled) {
+  background: #108557;
+  box-shadow: 0 4px 10px rgba(21, 153, 103, 0.38);
+  transform: translateY(-1px);
+}
+
+.radar-btn-sel-export.disabled,
+.radar-btn-sel-export:disabled {
+  background: #e2ede7;
+  color: #8fa89b;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Chips Row */
+.radar-sel-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+.radar-sel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #c2e2d1;
+  border-radius: 999px;
+  padding: 4px 7px 4px 11px;
+  font-size: 12px;
+  box-shadow: 0 1px 3px rgba(12, 34, 24, 0.05);
+  transition: all 0.15s ease;
+}
+
+.radar-sel-chip:hover {
+  border-color: #159967;
+  box-shadow: 0 2px 6px rgba(21, 153, 103, 0.15);
+}
+
+.radar-sel-chip-sym {
+  font-weight: 800;
+  color: #0b2117;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+
+.radar-sel-chip-sym:hover {
+  color: #159967;
+  text-decoration: underline;
+}
+
+.radar-sel-chip-price {
+  font-weight: 600;
+  color: #4a6456;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.radar-sel-chip-change {
+  font-weight: 700;
+  font-size: 11px;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.radar-sel-chip-change.positive {
+  background: #e8f7ee;
+  color: #128051;
+}
+
+.radar-sel-chip-change.negative {
+  background: #fde8e8;
+  color: #c53030;
+}
+
+.radar-sel-chip-remove {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: none;
+  background: #eaf1ed;
+  color: #557262;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.14s ease;
+}
+
+.radar-sel-chip-remove:hover {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+/* Details Panel (Expanded) */
+.radar-sel-details-panel {
+  border-top: 1px dashed #d5e6dc;
+  padding-top: 12px;
+  margin-top: 2px;
+  animation: radarDetailsFadeIn 0.2s ease-out;
+}
+
+@keyframes radarDetailsFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.radar-selection-cards-wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.radar-sel-card {
+  background: #ffffff;
+  border: 1px solid #e2ebe5;
+  border-radius: 11px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.radar-sel-card:hover {
+  border-color: #b7d8c6;
+  box-shadow: 0 3px 10px rgba(12, 34, 24, 0.05);
+}
+
+.radar-sel-card-logo {
+  flex-shrink: 0;
+}
+
+.radar-sel-card-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.radar-sel-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.radar-sel-card-symbol {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0b2117;
+  cursor: pointer;
+}
+
+.radar-sel-card-symbol:hover {
+  color: #159967;
+  text-decoration: underline;
+}
+
+.radar-sel-card-remove {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #8fa397;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
+}
+
+.radar-sel-card-remove:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.radar-sel-card-name {
+  font-size: 11px;
+  color: #698073;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.radar-sel-card-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.radar-sel-card-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: #12281e;
+  font-variant-numeric: tabular-nums;
+}
+
+.radar-sel-card-change {
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.radar-sel-card-change.positive { color: #159967; }
+.radar-sel-card-change.negative { color: #e03e3e; }
+
+.radar-sel-card-sector {
+  font-size: 10.5px;
+  color: #8fa397;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.radar-selection-disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #6d8577;
+  padding-top: 8px;
+}
+
+.radar-selection-disclaimer svg {
+  flex-shrink: 0;
+  color: #8fa397;
+}
+
+/* Row Highlight Pulse when returning from Charts */
+@keyframes radarHighlightRowPulse {
+  0% {
+    background-color: #bbf7d0;
+    box-shadow: inset 0 0 0 2px #10b981;
+  }
+  40% {
+    background-color: #dcfce7;
+    box-shadow: inset 0 0 0 2px #34d399;
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+.radar-table tbody tr.radar-row-highlight {
+  animation: radarHighlightRowPulse 2.5s ease-out forwards;
+}
+
+/* =========================================================================
+   BOTTOM INFO CARDS
+   ========================================================================= */
+
 .radar-bottom-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1.15fr;
@@ -813,7 +1341,47 @@
   font-weight: 500;
 }
 
-/* Gold Theme Compatibility */
+/* Empty State in Table */
+.radar-empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.radar-empty-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #eff6f2;
+  color: #159967;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.radar-empty-state h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #10241b;
+}
+
+.radar-empty-state p {
+  margin: 0;
+  max-width: 520px;
+  font-size: 13.5px;
+  color: #587063;
+  line-height: 1.5;
+}
+
+/* =========================================================================
+   GOLD THEME COMPATIBILITY
+   ========================================================================= */
+
 body[data-theme="gold"] .radar-shell {
   color: #f3ede0;
 }
@@ -829,14 +1397,20 @@ body[data-theme="gold"] .radar-ready-title,
 body[data-theme="gold"] .radar-asset-symbol,
 body[data-theme="gold"] .radar-trigger-cell,
 body[data-theme="gold"] .radar-price-val,
-body[data-theme="gold"] .radar-info-body h3 {
+body[data-theme="gold"] .radar-info-body h3,
+body[data-theme="gold"] .radar-selection-headings h2,
+body[data-theme="gold"] .radar-sel-card-symbol,
+body[data-theme="gold"] .radar-sel-card-price {
   color: #f5efe2;
 }
 
 body[data-theme="gold"] .radar-header-titles p,
 body[data-theme="gold"] .radar-ready-desc,
 body[data-theme="gold"] .radar-criteria-list li,
-body[data-theme="gold"] .radar-markets-list li {
+body[data-theme="gold"] .radar-markets-list li,
+body[data-theme="gold"] .radar-selection-headings p,
+body[data-theme="gold"] .radar-sel-card-name,
+body[data-theme="gold"] .radar-selection-disclaimer {
   color: #bfb6a4;
 }
 
@@ -844,7 +1418,8 @@ body[data-theme="gold"] .radar-updated-card,
 body[data-theme="gold"] .radar-filter-card,
 body[data-theme="gold"] .radar-search-card,
 body[data-theme="gold"] .radar-main-card,
-body[data-theme="gold"] .radar-info-card {
+body[data-theme="gold"] .radar-info-card,
+body[data-theme="gold"] .radar-selection-section {
   background: #181612;
   border-color: rgba(212, 175, 55, 0.22);
 }
@@ -879,6 +1454,34 @@ body[data-theme="gold"] .radar-table tbody tr:hover {
   background: rgba(212, 175, 55, 0.05);
 }
 
+body[data-theme="gold"] .radar-btn-view-chart {
+  background: #2a251e;
+  border-color: rgba(212, 175, 55, 0.3);
+  color: #f5efe2;
+}
+
+body[data-theme="gold"] .radar-asset-logo {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+body[data-theme="gold"] .radar-sel-card {
+  background: #221f19;
+  border-color: rgba(212, 175, 55, 0.2);
+}
+
+body[data-theme="gold"] .radar-sel-card:hover {
+  border-color: rgba(212, 175, 55, 0.45);
+  background: #28241d;
+}
+
+body[data-theme="gold"] .radar-btn-sel-clear {
+  background: #221f19;
+  border-color: rgba(212, 175, 55, 0.25);
+  color: #f5efe2;
+}
+
 body[data-theme="gold"] .radar-info-card.radar-warn-card {
   background: rgba(200, 115, 22, 0.12);
   border-color: rgba(200, 115, 22, 0.35);
@@ -888,7 +1491,10 @@ body[data-theme="gold"] .radar-warn-text {
   color: #e4d4b7;
 }
 
-/* Responsive Breakpoints */
+/* =========================================================================
+   RESPONSIVE BREAKPOINTS
+   ========================================================================= */
+
 @media (max-width: 1200px) {
   .radar-filters-row {
     grid-template-columns: repeat(2, 1fr);
@@ -907,5 +1513,9 @@ body[data-theme="gold"] .radar-warn-text {
   }
   .radar-header-titles h1 {
     font-size: 24px;
+  }
+  .radar-selection-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

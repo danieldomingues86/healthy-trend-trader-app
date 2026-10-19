@@ -156,6 +156,13 @@
           desc: 'Central de análise do ticker.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="M4 14l5-5 4 4 7-7"/></svg>`,
           page: 'charts'
+        },
+        {
+          id: 'markettreemap',
+          title: 'Setores',
+          desc: 'Treemap interativo de todo o mercado acionário da B3.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
+          page: 'markettreemap'
         }
       ]
     },
@@ -179,6 +186,13 @@
           desc: 'Projeções e curvas de capital.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 7-8.5 8.5-5-5L2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
           page: 'forecast'
+        },
+        {
+          id: 'riskofruin',
+          title: 'Risco de Ruína',
+          desc: 'Monte Carlo e proteção patrimonial.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>`,
+          page: 'riskofruin'
         }
       ]
     },

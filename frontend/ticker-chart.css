@@ -3250,5 +3250,142 @@ body:has(#charts.page.active) #marketFocusGuard {
   }
 }
 
+/* =========================================================================
+   CONTEXTUAL RETURN BANNER TO OPPORTUNITY RADAR
+   ========================================================================= */
+
+.chart-radar-return-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(90deg, #0b261b 0%, #113626 100%);
+  border: 1px solid #1a543b;
+  border-radius: 14px;
+  padding: 10px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 14px rgba(6, 26, 17, 0.22);
+  animation: chartReturnBannerFadeIn 0.22s ease-out;
+}
+
+@keyframes chartReturnBannerFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chart-radar-return-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-return-to-radar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #10b981;
+  color: #062316;
+  border: none;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+  white-space: nowrap;
+}
+
+.btn-return-to-radar:hover {
+  background: #34d399;
+  transform: translateX(-2px);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.45);
+}
+
+.btn-return-arrow {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.chart-radar-return-info {
+  font-size: 13px;
+  color: #c4ded2;
+}
+
+.chart-radar-return-info strong {
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.chart-radar-return-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-radar-quick-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2f4ec;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-radar-quick-select:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #34d399;
+  color: #ffffff;
+}
+
+.btn-radar-quick-select.selected {
+  background: #10b981;
+  color: #062316;
+  border-color: #10b981;
+  font-weight: 800;
+}
+
+[data-theme="gold"] .chart-radar-return-banner {
+  background: linear-gradient(90deg, #241d0f 0%, #352a14 100%);
+  border-color: #635024;
+}
+
+[data-theme="gold"] .btn-return-to-radar {
+  background: #d4a340;
+  color: #1f1807;
+  box-shadow: 0 2px 6px rgba(212, 163, 64, 0.35);
+}
+
+[data-theme="gold"] .btn-return-to-radar:hover {
+  background: #e5b958;
+}
+
+[data-theme="gold"] .btn-radar-quick-select.selected {
+  background: #d4a340;
+  color: #1f1807;
+  border-color: #d4a340;
+}
+
+@media (max-width: 800px) {
+  .chart-radar-return-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .chart-radar-return-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
 
 

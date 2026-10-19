@@ -1,0 +1,1021 @@
+/**
+ * HEALTHY TREND TRADER — SETORES (MAPA DE SETORES DA B3)
+ * Dark Trading Workspace / Identidade Visual Healthy Trend Trader
+ */
+
+/* =========================================================================
+   1. OVERRIDES DE CONTAINER (DARK WORKSPACE FULL-BLEED)
+   ========================================================================= */
+
+body:has(#markettreemap.active) {
+  background-color: #060e0a !important;
+}
+
+body:has(#markettreemap.active) .main {
+  background: #060e0a !important;
+  background-color: #060e0a !important;
+  min-height: 100vh;
+}
+
+body:has(#markettreemap.active) .content {
+  background: transparent !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 12px 18px 36px !important;
+  box-sizing: border-box !important;
+}
+
+body:has(#markettreemap.active) .topbar {
+  background: rgba(6, 14, 10, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid rgba(143, 224, 170, 0.12) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+body:has(#markettreemap.active) .topbar .crumb {
+  color: #8fa699 !important;
+}
+
+body:has(#markettreemap.active) .topbar .crumb b {
+  color: #e6f4ec !important;
+}
+
+body:has(#markettreemap.active) .topbar .crumb span {
+  color: #557063 !important;
+}
+
+body:has(#markettreemap.active) .topbar .pill {
+  border-color: rgba(143, 224, 170, 0.22) !important;
+  background: rgba(15, 34, 25, 0.75) !important;
+  color: #e6f4ec !important;
+}
+
+body:has(#markettreemap.active) .topbar .avatar {
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  background: linear-gradient(135deg, #133927, #10b981) !important;
+  color: #ffffff !important;
+}
+
+body:has(#markettreemap.active) #marketFocusGuard {
+  display: none !important;
+}
+
+/* =========================================================================
+   2. CASCA PRINCIPAL E CABEÇALHO
+   ========================================================================= */
+
+#markettreemap {
+  background: transparent;
+  color: #e2e8f0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.treemap-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  color: #e2e8f0;
+}
+
+.treemap-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 0 2px;
+}
+
+.treemap-header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.12));
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  flex-shrink: 0;
+}
+
+.treemap-header-text h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+}
+
+.treemap-header-text p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #94a99d;
+}
+
+/* =========================================================================
+   3. BARRA DE CONTROLE E FILTROS
+   ========================================================================= */
+
+.treemap-controls-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, #0e1e17 0%, #08140f 100%);
+  border: 1px solid rgba(143, 224, 170, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.treemap-filters-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 500px;
+}
+
+.treemap-select-wrap {
+  position: relative;
+  min-width: 165px;
+}
+
+.treemap-select-wrap select {
+  width: 100%;
+  height: 40px;
+  padding: 0 32px 0 14px;
+  background: #11241b;
+  border: 1px solid rgba(143, 224, 170, 0.2);
+  border-radius: 10px;
+  color: #f1f5f9;
+  font-size: 13px;
+  font-weight: 550;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+
+.treemap-select-wrap select:hover {
+  background: #142c21;
+  border-color: rgba(143, 224, 170, 0.35);
+}
+
+.treemap-select-wrap select:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.treemap-select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #718d7e;
+  font-size: 10px;
+}
+
+.treemap-search-wrap {
+  position: relative;
+  flex: 1 1 240px;
+  min-width: 220px;
+}
+
+.treemap-search-wrap .search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #718d7e;
+  pointer-events: none;
+}
+
+.treemap-search-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 34px 0 36px;
+  background: #11241b;
+  border: 1px solid rgba(143, 224, 170, 0.2);
+  border-radius: 10px;
+  color: #f1f5f9;
+  font-size: 13px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+
+.treemap-search-input::placeholder {
+  color: #5c796b;
+}
+
+.treemap-search-input:focus {
+  background: #142c21;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.treemap-search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 0;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.treemap-search-clear:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Controles da Direita: Legenda Explicativa do Gradiente */
+.treemap-controls-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.treemap-scale-container {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-items: flex-end;
+}
+
+.treemap-scale-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 290px;
+}
+
+.treemap-scale-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    #7f1d1d 0%,
+    #b91c1c 25%,
+    #2d3748 50%,
+    #16a34a 75%,
+    #22c55e 100%
+  );
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.treemap-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 650;
+  color: #8fa699;
+  letter-spacing: 0.02em;
+  padding: 0 2px;
+}
+
+.treemap-scale-legend-items {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  color: #a3b8ad;
+}
+
+.treemap-scale-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.legend-swatch.swatch-negative {
+  background: #b91c1c;
+  box-shadow: 0 0 5px rgba(185, 28, 28, 0.5);
+}
+
+.legend-swatch.swatch-neutral {
+  background: #475569;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.legend-swatch.swatch-positive {
+  background: #22c55e;
+  box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+}
+
+.treemap-scale-legend-item strong {
+  color: #e2e8f0;
+  font-weight: 700;
+  margin-right: 2px;
+}
+
+/* =========================================================================
+   4. CARDS DE INDICADORES DO TOPO (5 KPIS)
+   ========================================================================= */
+
+.treemap-kpi-bar {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.treemap-kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: linear-gradient(145deg, #0d1e16 0%, #08140f 100%);
+  border: 1px solid rgba(143, 224, 170, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.treemap-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(143, 224, 170, 0.25);
+}
+
+.treemap-kpi-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  flex-shrink: 0;
+}
+
+.treemap-kpi-data {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.treemap-kpi-label {
+  font-size: 10.5px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #7d9688;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.treemap-kpi-value {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.treemap-kpi-value.positive {
+  color: #34d399;
+}
+
+.treemap-kpi-value.negative {
+  color: #f87171;
+}
+
+/* =========================================================================
+   5. GRID DE SETORES DO TREEMAP
+   ========================================================================= */
+
+.treemap-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: 10px;
+  width: 100%;
+}
+
+.treemap-grid.focus-mode {
+  grid-template-columns: 1fr !important;
+}
+
+.treemap-sector-card {
+  display: flex;
+  flex-direction: column;
+  background: #08130e;
+  border: 1px solid rgba(143, 224, 170, 0.12);
+  border-radius: 12px;
+  padding: 8px 10px 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  min-width: 0;
+}
+
+.treemap-sector-card:hover {
+  border-color: rgba(143, 224, 170, 0.25);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.treemap-sector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(143, 224, 170, 0.08);
+}
+
+.treemap-sector-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.treemap-sector-accent {
+  width: 4px;
+  height: 15px;
+  border-radius: 99px;
+  background: var(--sector-accent, #10b981);
+  flex-shrink: 0;
+}
+
+.treemap-sector-title {
+  font-size: 13px;
+  font-weight: 750;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.treemap-sector-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a99d;
+  flex-shrink: 0;
+}
+
+.treemap-sector-zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(143, 224, 170, 0.2);
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.08);
+  color: #86efac;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.treemap-sector-zoom-btn:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.treemap-sector-body {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  background: #040906;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(143, 224, 170, 0.08);
+}
+
+.treemap-grid.focus-mode .treemap-sector-card {
+  grid-column: 1 / -1 !important;
+}
+
+.treemap-grid.focus-mode .treemap-sector-body {
+  height: 640px !important;
+}
+
+/* =========================================================================
+   6. CÉLULAS DO TREEMAP (AÇÕES / RETÂNGULOS DO MAPA DE CALOR)
+   ========================================================================= */
+
+.treemap-cell {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 2px 3px;
+  border-radius: 3px;
+  border: 1px solid #060e0a;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  transition: filter 0.15s, transform 0.15s, box-shadow 0.15s, z-index 0.15s;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.treemap-cell.cell-compact {
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+.treemap-cell.cell-micro {
+  padding: 0;
+  border-radius: 1px;
+}
+
+.treemap-cell:hover {
+  z-index: 10;
+  filter: brightness(1.22);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65), inset 0 0 0 1.5px #ffffff;
+  transform: scale(1.02);
+}
+
+.treemap-cell.highlighted {
+  z-index: 12;
+  box-shadow: 0 0 0 2px #34d399, 0 0 16px rgba(52, 211, 153, 0.7);
+  animation: treemapPulse 1.8s infinite;
+}
+
+.treemap-cell.dimmed {
+  opacity: 0.28;
+  filter: grayscale(0.6);
+}
+
+@keyframes treemapPulse {
+  0% { box-shadow: 0 0 0 2px #34d399, 0 0 8px rgba(52, 211, 153, 0.4); }
+  50% { box-shadow: 0 0 0 3px #34d399, 0 0 18px rgba(52, 211, 153, 0.85); }
+  100% { box-shadow: 0 0 0 2px #34d399, 0 0 8px rgba(52, 211, 153, 0.4); }
+}
+
+/* Tipografia dentro do retângulo */
+.treemap-cell-ticker {
+  font-weight: 850;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  line-height: 1.05;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 96%;
+}
+
+.treemap-cell.cell-compact .treemap-cell-ticker {
+  letter-spacing: -0.035em;
+}
+
+.treemap-cell-name {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 92%;
+  margin-top: 1px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+}
+
+.treemap-cell-mcap {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-top: 1px;
+  line-height: 1.05;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+  white-space: nowrap;
+}
+
+.treemap-cell-change {
+  font-weight: 750;
+  color: #ffffff;
+  margin-top: 1px;
+  line-height: 1.05;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+}
+
+/* =========================================================================
+   7. TOOLTIP / POPOVER FLUTUANTE
+   ========================================================================= */
+
+.treemap-popover {
+  position: fixed;
+  z-index: 1000;
+  width: 275px;
+  background: linear-gradient(160deg, #0e2017 0%, #06110a 100%);
+  border: 1px solid rgba(143, 224, 170, 0.25);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(0, 0, 0, 0.5);
+  color: #f1f5f9;
+  font-family: inherit;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  backdrop-filter: blur(20px);
+}
+
+.treemap-popover.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.treemap-popover-header {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(143, 224, 170, 0.12);
+}
+
+.treemap-popover-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.treemap-popover-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.treemap-popover-ext-icon {
+  color: #34d399;
+}
+
+.treemap-popover-company {
+  font-size: 12px;
+  color: #94a99d;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.treemap-popover-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.treemap-popover-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.treemap-popover-row span:first-child {
+  color: #8fa699;
+}
+
+.treemap-popover-row span:last-child {
+  font-weight: 600;
+  color: #f8fafc;
+  text-align: right;
+}
+
+.treemap-popover-row .change-val.positive {
+  color: #34d399;
+}
+
+.treemap-popover-row .change-val.negative {
+  color: #f87171;
+}
+
+.treemap-popover-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 38px;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border: none;
+  border-radius: 9px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.treemap-popover-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+}
+
+/* =========================================================================
+   8. BARRA DE RETORNO DO MODO FOCO (SETOR ÚNICO)
+   ========================================================================= */
+
+.treemap-focus-back-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  margin-bottom: 4px;
+  color: #e6f4ec;
+}
+
+.treemap-focus-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.treemap-focus-back-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* =========================================================================
+   9. ESTADO DE CARREGAMENTO E ERRO
+   ========================================================================= */
+
+.treemap-loading-state,
+.treemap-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #94a99d;
+  gap: 14px;
+}
+
+.treemap-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(143, 224, 170, 0.15);
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: treemapSpin 0.8s linear infinite;
+}
+
+@keyframes treemapSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================================
+   10. RESPONSIVIDADE (WIDESCREEN, DESKTOP, NOTEBOOK, TABLET, MOBILE)
+   ========================================================================= */
+
+/* Widescreen (>= 1500px): Grid de 12 colunas com 3 linhas balanceadas */
+@media (min-width: 1500px) {
+  .treemap-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  /* Setores densos e de grande porte: 4 colunas (1/3 da linha) */
+  .treemap-sector-card.dense,
+  .treemap-sector-card.large,
+  .treemap-sector-card[data-sector-name="Financeiro"],
+  .treemap-sector-card[data-sector-name="Petróleo, Gás e Biocombustíveis"],
+  .treemap-sector-card[data-sector-name="Consumo Cíclico"],
+  .treemap-sector-card[data-sector-name="Materiais Básicos"],
+  .treemap-sector-card[data-sector-name="Utilidade Pública"],
+  .treemap-sector-card[data-sector-name="Bens Industriais"] {
+    grid-column: span 4;
+  }
+
+  .treemap-sector-card.dense .treemap-sector-body,
+  .treemap-sector-card.large .treemap-sector-body {
+    height: 330px;
+  }
+
+  /* Setores médios: 3 colunas */
+  .treemap-sector-card.medium,
+  .treemap-sector-card[data-sector-name="Consumo Não Cíclico"],
+  .treemap-sector-card[data-sector-name="Outros"] {
+    grid-column: span 3;
+  }
+
+  .treemap-sector-card.medium .treemap-sector-body {
+    height: 270px;
+  }
+
+  /* Setores compactos: 2 colunas */
+  .treemap-sector-card.compact,
+  .treemap-sector-card[data-sector-name="Tecnologia da Informação"],
+  .treemap-sector-card[data-sector-name="Saúde"],
+  .treemap-sector-card[data-sector-name="Telecomunicações"] {
+    grid-column: span 2;
+  }
+
+  .treemap-sector-card.compact .treemap-sector-body {
+    height: 270px;
+  }
+}
+
+/* Telas Ultra-Wide / 2K / 4K (>= 1900px): Altura estendida para máxima legibilidade */
+@media (min-width: 1900px) {
+  .treemap-grid {
+    gap: 12px;
+  }
+
+  .treemap-sector-card.dense .treemap-sector-body,
+  .treemap-sector-card.large .treemap-sector-body {
+    height: 370px;
+  }
+
+  .treemap-sector-card.medium .treemap-sector-body,
+  .treemap-sector-card.compact .treemap-sector-body {
+    height: 300px;
+  }
+}
+
+/* Desktop convencional (1100px a 1499px) */
+@media (min-width: 1100px) and (max-width: 1499px) {
+  .treemap-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  /* Setores densos e grandes: 6 colunas (2 por linha) */
+  .treemap-sector-card.dense,
+  .treemap-sector-card.large,
+  .treemap-sector-card[data-sector-name="Financeiro"],
+  .treemap-sector-card[data-sector-name="Petróleo, Gás e Biocombustíveis"],
+  .treemap-sector-card[data-sector-name="Consumo Cíclico"],
+  .treemap-sector-card[data-sector-name="Materiais Básicos"],
+  .treemap-sector-card[data-sector-name="Utilidade Pública"],
+  .treemap-sector-card[data-sector-name="Bens Industriais"] {
+    grid-column: span 6;
+  }
+
+  .treemap-sector-card.medium,
+  .treemap-sector-card[data-sector-name="Consumo Não Cíclico"],
+  .treemap-sector-card[data-sector-name="Outros"] {
+    grid-column: span 6;
+  }
+
+  /* Setores compactos: 4 colunas (3 por linha) */
+  .treemap-sector-card.compact,
+  .treemap-sector-card[data-sector-name="Tecnologia da Informação"],
+  .treemap-sector-card[data-sector-name="Saúde"],
+  .treemap-sector-card[data-sector-name="Telecomunicações"] {
+    grid-column: span 4;
+  }
+
+  .treemap-sector-body {
+    height: 290px;
+  }
+}
+
+/* Tablets e Notebooks menores (768px a 1099px) */
+@media (min-width: 768px) and (max-width: 1099px) {
+  .treemap-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .treemap-sector-card {
+    grid-column: span 1 !important;
+  }
+
+  .treemap-kpi-bar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .treemap-sector-body {
+    height: 270px;
+  }
+}
+
+/* Telas móveis (< 768px) */
+@media (max-width: 767px) {
+  .treemap-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .treemap-sector-card {
+    grid-column: span 1 !important;
+  }
+
+  .treemap-kpi-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .treemap-controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .treemap-filters-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .treemap-controls-right {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .treemap-scale-container {
+    align-items: center;
+    width: 100%;
+  }
+
+  .treemap-scale-bar-wrap {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .treemap-sector-body {
+    height: 250px;
+  }
+}
+
+@media (max-width: 500px) {
+  .treemap-kpi-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================================
+   11. COMPATIBILIDADE COM O TEMA GOLD
+   ========================================================================= */
+
+body:not([data-theme="healthy"]) .treemap-controls-bar,
+body:not([data-theme="healthy"]) .treemap-kpi-card,
+body:not([data-theme="healthy"]) .treemap-sector-card {
+  border-color: rgba(220, 179, 84, 0.18);
+  background: linear-gradient(180deg, #16120b 0%, #0d0a07 100%);
+}
+
+body:not([data-theme="healthy"]) .treemap-sector-header {
+  background: rgba(30, 26, 17, 0.7);
+  border-bottom-color: rgba(220, 179, 84, 0.12);
+}
+
+body:not([data-theme="healthy"]) .treemap-popover {
+  background: linear-gradient(160deg, #1a150c 0%, #0d0a07 100%);
+  border-color: rgba(220, 179, 84, 0.35);
+}
+
+body:not([data-theme="healthy"]) .treemap-header-icon {
+  background: linear-gradient(135deg, rgba(220, 179, 84, 0.2), rgba(180, 140, 50, 0.15));
+  border-color: rgba(220, 179, 84, 0.4);
+  color: #f3d47c;
+}
+
+body:not([data-theme="healthy"]) .treemap-popover-btn,
+body:not([data-theme="healthy"]) .treemap-focus-back-btn {
+  background: linear-gradient(90deg, #d4a737 0%, #b8861b 100%);
+  color: #12100a;
+}

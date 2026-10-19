@@ -40,6 +40,11 @@ async function getOpportunityRadarData(cache) {
     ? cache.relativeStrengthByClass.bdr.items
     : [];
 
+  const isPositiveCycle = (state) => {
+    const s = String(state || '').trim().toLowerCase();
+    return s === 'healthy' || s === 'positive' || s.includes('positivo');
+  };
+
   const groups = [
     { market: 'IBOV', cycleState: stockCycleState, list: stockItems },
     { market: 'IFIX', cycleState: fiiCycleState, list: fiiItems },
@@ -50,6 +55,12 @@ async function getOpportunityRadarData(cache) {
   const seenSymbols = new Set();
 
   for (const group of groups) {
+    // Somente mercados em Ciclo Positivo são elegíveis para o Radar de Oportunidades.
+    // Mercados em transição ou defensivos não autorizam novos setups.
+    if (!isPositiveCycle(group.cycleState)) {
+      continue;
+    }
+
     for (const item of group.list) {
       if (!item || !item.symbol) continue;
       const symbol = String(item.symbol).trim().toUpperCase();
@@ -78,6 +89,11 @@ async function getOpportunityRadarData(cache) {
     readyItems.map(async (readyItem) => {
       try {
         const chartData = await tickerChart.getTickerChartData(readyItem.symbol, cache);
+        const chartCycleRegime = String(chartData?.marketCycle?.regime || '').trim().toLowerCase();
+        if (chartCycleRegime && (chartCycleRegime.includes('transi') || chartCycleRegime.includes('defens') || chartCycleRegime === 'riskoff')) {
+          readyItem.__excludedByCycle = true;
+          return;
+        }
         if (chartData?.rubric?.finalGrade) {
           readyItem.grade = chartData.rubric.finalGrade;
           readyItem.rubricScore = chartData.rubric.score;
@@ -89,7 +105,9 @@ async function getOpportunityRadarData(cache) {
     })
   );
 
-  const latestCandleDates = readyItems.map((i) => i.lastCandleDate).filter(Boolean).sort();
+  const filteredReadyItems = readyItems.filter((i) => !i.__excludedByCycle);
+
+  const latestCandleDates = filteredReadyItems.map((i) => i.lastCandleDate).filter(Boolean).sort();
   const dataAsOf = latestCandleDates.at(-1)
     || cache.overview?.benchmarkHistory?.at(-1)?.date
     || null;
@@ -98,8 +116,8 @@ async function getOpportunityRadarData(cache) {
     updatedAt: cache.updatedAt || cache.historyUpdatedAt || null,
     dataAsOf,
     marketCycleState: stockCycleState,
-    totalReady: readyItems.length,
-    items: readyItems
+    totalReady: filteredReadyItems.length,
+    items: filteredReadyItems
   };
 }
 

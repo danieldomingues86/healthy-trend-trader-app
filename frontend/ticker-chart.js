@@ -577,12 +577,48 @@
     }
   }
 
+  // Banner contextual de retorno quando o usuário navega do Radar de Oportunidades
+  function renderReturnToRadarBanner(sym) {
+    if (window.__chartReturnSource !== 'opportunityradar') return '';
+    const targetSym = String(sym || currentTicker || '').trim().toUpperCase();
+    let isSelected = false;
+    try {
+      const raw = sessionStorage.getItem('healthy-trend-radar-selection-session');
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) isSelected = arr.includes(targetSym);
+      }
+    } catch {}
+
+    return `
+      <!-- Banner contextual de retorno para o Radar de Oportunidades -->
+      <div class="chart-radar-return-banner" id="chartRadarReturnBanner">
+        <div class="chart-radar-return-left">
+          <button type="button" class="btn-return-to-radar" onclick="window.returnToOpportunityRadar()" title="Voltar ao Radar de Oportunidades">
+            <span class="btn-return-arrow" aria-hidden="true">←</span>
+            <span>Voltar ao Radar de Oportunidades</span>
+          </button>
+          <div class="chart-radar-return-info">
+            <span>Analisando oportunidade do Radar: <strong>${escapeHtml(targetSym)}</strong></span>
+          </div>
+        </div>
+        <div class="chart-radar-return-right">
+          <button type="button" class="btn-radar-quick-select ${isSelected ? 'selected' : ''}" id="btnRadarQuickSelectFromChart" onclick="window.toggleRadarSelectionFromChart('${escapeHtml(targetSym)}')">
+            ${isSelected ? '✓ Selecionado no Radar' : '+ Selecionar este ativo'}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
   // Renderiza imediatamente o skeleton da tela para eliminar qualquer tela em branco
   function renderLoadingSkeleton(sym) {
     const root = document.getElementById('tickerChartRoot');
     if (!root) return;
 
     root.innerHTML = `
+      ${renderReturnToRadarBanner(sym)}
+
       <!-- 1. HEADER & SEARCH -->
       <div class="ticker-chart-header">
         <div class="ticker-chart-title-area">
@@ -1011,6 +1047,8 @@
 
     // Constrói HTML estrutural
     root.innerHTML = `
+      ${renderReturnToRadarBanner(tickerData.tickerInfo.symbol)}
+
       <!-- 1. HEADER & SEARCH -->
       <div class="ticker-chart-header">
         <div class="ticker-chart-title-area">
@@ -2765,6 +2803,58 @@
     }
   }
 
+  window.returnToOpportunityRadar = function () {
+    const sym = currentTicker;
+    window.__chartReturnSource = null;
+    if (typeof window.go === 'function') {
+      window.go('opportunityradar');
+    }
+    setTimeout(() => {
+      if (typeof window.highlightRadarTickerRow === 'function') {
+        window.highlightRadarTickerRow(sym);
+      }
+    }, 120);
+  };
+
+  window.toggleRadarSelectionFromChart = function (symbol) {
+    const sym = String(symbol || currentTicker || '').trim().toUpperCase();
+    if (!sym) return;
+
+    if (typeof window.toggleRadarRowSelection === 'function') {
+      window.toggleRadarRowSelection(sym);
+    } else {
+      let current = [];
+      try {
+        const raw = sessionStorage.getItem('healthy-trend-radar-selection-session');
+        if (raw) current = JSON.parse(raw);
+      } catch {}
+      const isSel = current.includes(sym);
+      const next = isSel ? current.filter(t => t !== sym) : [...current, sym];
+      try {
+        sessionStorage.setItem('healthy-trend-radar-selection-session', JSON.stringify(next));
+      } catch {}
+    }
+
+    let isSelected = false;
+    try {
+      const raw = sessionStorage.getItem('healthy-trend-radar-selection-session');
+      if (raw) isSelected = JSON.parse(raw).includes(sym);
+    } catch {}
+
+    const btn = document.getElementById('btnRadarQuickSelectFromChart');
+    if (btn) {
+      btn.classList.toggle('selected', isSelected);
+      btn.textContent = isSelected ? '✓ Selecionado no Radar' : '+ Selecionar este ativo';
+    }
+
+    if (typeof window.showToast === 'function') {
+      const msg = isSelected
+        ? `${sym} adicionado à sua seleção no Radar.`
+        : `${sym} removido da sua seleção no Radar.`;
+      window.showToast(msg, isSelected ? 'success' : 'info');
+    }
+  };
+
   window.applyTradeContext = applyTradeContext;
   window.TickerChart = {
     loadTicker: (ticker) => {
@@ -2779,6 +2869,8 @@
   window.addEventListener('healthyTrend:navigate', (e) => {
     if (e.detail?.page === 'charts') {
       onOpenChartsPage(e.detail?.ticker);
+    } else if (e.detail?.page !== 'opportunityradar') {
+      window.__chartReturnSource = null;
     }
   });
 
