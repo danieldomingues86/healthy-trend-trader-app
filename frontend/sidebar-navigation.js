@@ -829,7 +829,8 @@
 
       const sidebar = document.querySelector('.sidebar');
       const sidebarRight = sidebar ? sidebar.getBoundingClientRect().right : rect.right;
-      const left = Math.max(rect.right + 10, sidebarRight + 8);
+      // Colado diretamente na borda direita do menu principal (zero gap)
+      const left = Math.round(sidebarRight) - 1;
       
       const maxAvailableWidth = Math.max(280, windowWidth - left - 24);
       const targetWidth = Math.min(idealWidth, maxAvailableWidth);
@@ -849,9 +850,9 @@
       }
 
       const flyoutHeight = this.flyoutEl.offsetHeight || 300;
-      let top = rect.top - 6;
+      let top = Math.max(12, rect.top - 6);
       if (top + flyoutHeight > windowHeight - 16) {
-        top = Math.max(16, windowHeight - flyoutHeight - 16);
+        top = Math.max(12, windowHeight - flyoutHeight - 16);
       }
 
       this.flyoutEl.style.left = `${left}px`;

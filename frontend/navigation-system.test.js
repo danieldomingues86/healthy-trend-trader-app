@@ -266,4 +266,8 @@ test('Flyout Submenu Grid: max 3 colunas em telas grandes, adaptando para 2 e 1 
   // JS idealWidth e maxCols
   assert.ok(js.includes('Math.min(itemCount, 3)'), 'JS deve limitar maxCols a 3 no maximo');
   assert.ok(js.includes('idealWidth = 660'), 'idealWidth default deve ser 660px para acomodar 3 colunas perfeitamente');
+
+  // Docking / Fixação colada no menu principal sem vão/gap
+  assert.ok(js.includes('Math.round(sidebarRight) - 1'), 'Flyout deve estar colado diretamente na borda do sidebar sem gap');
+  assert.ok(css.includes('border-radius: 0 16px 16px 0'), 'Borda esquerda do flyout deve ser reta para encaixe perfeito no sidebar');
 });
