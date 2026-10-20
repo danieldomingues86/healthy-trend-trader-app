@@ -6,6 +6,7 @@ const scaleInModel = require('../../frontend/scale-in-model');
 const assetBlacklist = require('./asset-blacklist');
 const marketPause = require('./market-pause');
 const setupTriggers = require('../../frontend/setup-triggers-catalog');
+const paperPendingModel = require('../../frontend/paper-trading-pending-model');
 
 function invalid(message) {
   const error = new Error(message);
@@ -255,10 +256,232 @@ async function createPlan(userId, payload) {
   return { id, ticker: plan.ticker, status: 'open', rubricGrade: plan.rubricGrade, setupTrigger: plan.setupTrigger, executionPrice: plan.entry, executedQuantity: plan.metadata.executedQuantity };
 }
 
+async function createPendingOrder(userId, payload) {
+  const norm = paperPendingModel.normalizePendingOrderPayload(payload);
+
+  return database.transaction(async (client) => {
+    // 1. Impede ordens pendentes duplicadas para o mesmo ativo no Paper Trading
+    const existing = await client.query(
+      `SELECT id, ticker, status FROM app.trades
+        WHERE user_id = $1 AND ticker = $2 AND status = 'pending'
+        LIMIT 1`,
+      [userId, norm.ticker]
+    );
+    if (existing.rowCount > 0) {
+      throw invalid(`Já existe uma ordem pendente para o ativo ${norm.ticker} aguardando execução no Paper Trading.`);
+    }
+
+    const id = crypto.randomUUID();
+    const metadata = {
+      gradingVersion: 2,
+      mode: 'paper',
+      isPendingOrder: true,
+      thesis: norm.notes,
+      signalDate: norm.signalDate,
+      triggerId: norm.setupTrigger,
+      triggerName: norm.setup,
+      snapshotMarketData: norm.snapshotMarketData
+    };
+
+    const pendingSnapshot = {
+      signalDate: norm.signalDate,
+      createdAt: new Date().toISOString(),
+      plannedEntry: norm.entry,
+      plannedStop: norm.stop,
+      plannedQuantity: norm.quantity,
+      trigger: norm.setupTrigger,
+      triggerName: norm.setup,
+      validitySessions: norm.validitySessions,
+      rule: 'buy_stop_above_level',
+      snapshotMarketData: norm.snapshotMarketData
+    };
+
+    await client.query(
+      `INSERT INTO app.trades (
+        id, user_id, ticker, market, direction, setup, entry_price, stop_price, atr,
+        planned_quantity, risk_pct, rubric_score, rubric_max_score, rubric_grade,
+        rubric_responses, status, metadata, pending_snapshot, setup_trigger,
+        scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9,
+        $10, $11, $12, $13, $14, $15::jsonb, 'pending', $16::jsonb, $17::jsonb, $18,
+        false, 0, $10, $7, 0, 0
+      )`,
+      [
+        id, userId, norm.ticker, norm.market, norm.direction, norm.setup, norm.entry, norm.stop,
+        norm.snapshotMarketData.lastPrice ? Number(norm.snapshotMarketData.lastPrice) : null,
+        norm.quantity, norm.riskPct, norm.snapshotMarketData.rubricScore, 100, norm.snapshotMarketData.grade,
+        JSON.stringify({}), JSON.stringify(metadata), JSON.stringify(pendingSnapshot), norm.setupTrigger
+      ]
+    );
+
+    return {
+      id,
+      ticker: norm.ticker,
+      status: 'pending',
+      mode: 'paper',
+      entry: norm.entry,
+      stop: norm.stop,
+      quantity: norm.quantity,
+      setup: norm.setup,
+      setupTrigger: norm.setupTrigger,
+      signalDate: norm.signalDate,
+      pendingSnapshot
+    };
+  });
+}
+
+async function verifyPendingOrders(userId, options = {}) {
+  let b3Histories = null;
+  if (options.candlesMap) {
+    b3Histories = options.candlesMap;
+  } else {
+    try {
+      const tickerChart = options.tickerChart || require('./ticker-chart');
+      if (tickerChart && typeof tickerChart.loadB3History === 'function') {
+        b3Histories = tickerChart.loadB3History();
+      }
+    } catch (_) {}
+  }
+
+  const queryParams = userId ? [userId] : [];
+  const whereClause = userId
+    ? `WHERE user_id = $1 AND status = 'pending' AND (metadata->>'mode') = 'paper'`
+    : `WHERE status = 'pending' AND (metadata->>'mode') = 'paper'`;
+
+  const pendingRows = await database.query(
+    `SELECT id, user_id, ticker, market, direction, setup, setup_trigger,
+            entry_price, stop_price, planned_quantity, risk_pct, metadata, pending_snapshot
+       FROM app.trades
+       ${whereClause}
+       ORDER BY created_at ASC`,
+    queryParams
+  );
+
+  const results = [];
+  let executedCount = 0;
+  let discardedCount = 0;
+  let pendingCount = 0;
+
+  for (const trade of pendingRows.rows) {
+    const symbol = String(trade.ticker || '').trim().toUpperCase();
+    const candles = b3Histories ? (b3Histories.get(symbol) || []) : [];
+    const evaluation = paperPendingModel.verifyPendingOrder(trade, candles, options);
+
+    if (evaluation.outcome === 'EXECUTED') {
+      await database.transaction(async (client) => {
+        const totalCapital = evaluation.executionPrice * evaluation.executedQuantity;
+        const executedAt = evaluation.executedAt || new Date().toISOString().slice(0, 10);
+        const executionTimestamp = new Date(executedAt + 'T17:00:00-03:00').toISOString();
+
+        await client.query(
+          `UPDATE app.trades
+              SET status = 'open',
+                  execution_price = $1,
+                  executed_quantity = $2,
+                  executed_at = $3,
+                  total_quantity = $2,
+                  average_entry_price = $1,
+                  total_allocated_capital = $4,
+                  current_risk_percent = risk_pct,
+                  verified_at = now(),
+                  metadata = jsonb_set(
+                    jsonb_set(metadata, '{executedAt}', to_jsonb($5::text), true),
+                    '{verificationLog}', to_jsonb($6::text)::jsonb, true
+                  ),
+                  updated_at = now()
+            WHERE id = $7 AND status = 'pending'`,
+          [
+            evaluation.executionPrice,
+            evaluation.executedQuantity,
+            executionTimestamp,
+            totalCapital,
+            executedAt,
+            JSON.stringify(evaluation),
+            trade.id
+          ]
+        );
+
+        await client.query(
+          `INSERT INTO app.trade_entries (
+            id, trade_id, entry_type, entry_date, entry_time, price, quantity,
+            capital_allocated, initial_stop, risk_amount, risk_percent,
+            r_multiple_at_entry, note, context, created_at, updated_at
+          ) VALUES ($1, $2, 'INITIAL', $3, '17:00:00', $4, $5, $6, $7, $8, $9, 0, $10, $11::jsonb, $12, $12)`,
+          [
+            crypto.randomUUID(),
+            trade.id,
+            executedAt,
+            evaluation.executionPrice,
+            evaluation.executedQuantity,
+            totalCapital,
+            trade.stop_price,
+            Math.abs(evaluation.executionPrice - Number(trade.stop_price)) * evaluation.executedQuantity,
+            trade.risk_pct,
+            'Entrada executada automaticamente no fechamento do pregão.',
+            JSON.stringify({ verifiedOutcome: 'EXECUTED', candle: evaluation.dataSnapshot }),
+            executionTimestamp
+          ]
+        );
+
+        await client.query(
+          `INSERT INTO app.trade_events (
+            id, trade_id, event_type, quantity, price, stop_price, note, occurred_at
+          ) VALUES ($1, $2, 'entry', $3, $4, $5, $6, $7)`,
+          [
+            crypto.randomUUID(),
+            trade.id,
+            evaluation.executedQuantity,
+            evaluation.executionPrice,
+            trade.stop_price,
+            'Entrada confirmada automaticamente após fechamento do pregão.',
+            executionTimestamp
+          ]
+        );
+      });
+
+      executedCount++;
+      results.push({ id: trade.id, ticker: trade.ticker, outcome: 'EXECUTED', status: 'open', details: evaluation });
+    } else if (evaluation.isDiscarded) {
+      await database.transaction(async (client) => {
+        await client.query(
+          `UPDATE app.trades
+              SET status = 'cancelled',
+                  discard_reason = $1,
+                  verified_at = now(),
+                  metadata = jsonb_set(metadata, '{discardLog}', to_jsonb($2::text)::jsonb, true),
+                  updated_at = now()
+            WHERE id = $3 AND status = 'pending'`,
+          [
+            evaluation.discardReason || evaluation.reason,
+            JSON.stringify(evaluation),
+            trade.id
+          ]
+        );
+      });
+
+      discardedCount++;
+      results.push({ id: trade.id, ticker: trade.ticker, outcome: evaluation.outcome, status: 'cancelled', details: evaluation });
+    } else {
+      pendingCount++;
+      results.push({ id: trade.id, ticker: trade.ticker, outcome: 'PENDING', status: 'pending', details: evaluation });
+    }
+  }
+
+  return {
+    verifiedCount: pendingRows.rowCount || 0,
+    executedCount,
+    discardedCount,
+    pendingCount,
+    results
+  };
+}
+
 async function listPlans(userId) {
   const result = await database.query(
     `SELECT t.id, t.ticker, t.market, t.direction, t.setup, t.setup_trigger, t.entry_price, t.stop_price, t.atr, t.planned_quantity,
             t.risk_pct, t.rubric_score, t.rubric_max_score, t.rubric_grade, t.rubric_responses, t.status, t.metadata,
+            t.pending_snapshot, t.discard_reason, t.verified_at,
             t.execution_price, t.executed_quantity, t.executed_at, t.created_at, t.updated_at,
             t.scale_in_enabled, t.scale_in_count, t.total_quantity, t.average_entry_price, t.total_allocated_capital, t.current_risk_percent,
             COALESCE(events.items, '[]'::jsonb) AS events,
@@ -287,6 +510,9 @@ async function listPlans(userId) {
   return result.rows.map(row => ({
     ...row,
     setupTrigger: row.setup_trigger || setupTriggers.normalizeKey(row.setup) || null,
+    pending_snapshot: row.pending_snapshot || row.metadata?.pendingSnapshot || null,
+    discard_reason: row.discard_reason || null,
+    verified_at: row.verified_at || null,
     scale_in_enabled: row.scale_in_enabled !== false,
     scale_in_count: Number(row.scale_in_count || 0),
     total_quantity: Number(row.total_quantity || row.executed_quantity || row.planned_quantity || 0),
@@ -710,8 +936,8 @@ async function deleteTrade(userId, tradeId) {
     if (!tradeRes.rowCount) throw invalid('Posição não encontrada.');
     const trade = tradeRes.rows[0];
 
-    if (trade.status !== 'open') {
-      throw invalid('Apenas posições em aberto podem ser excluídas.');
+    if (trade.status !== 'open' && trade.status !== 'pending') {
+      throw invalid('Apenas posições em aberto ou pendentes podem ser excluídas.');
     }
 
     const eventsRes = await client.query(
@@ -754,6 +980,8 @@ async function deleteTrade(userId, tradeId) {
 
 module.exports = {
   createPlan,
+  createPendingOrder,
+  verifyPendingOrders,
   listPlans,
   executePlan,
   updateTrade,

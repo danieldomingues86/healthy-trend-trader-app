@@ -111,7 +111,7 @@
         {
           id: 'opportunityradar',
           title: 'Radar de Oportunidades',
-          desc: 'Encontrar ativos prontos para entrada no gráfico Diário.',
+          desc: 'Ativos prontos para entrada no gráfico Diário.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
           page: 'opportunityradar'
         },
@@ -137,25 +137,11 @@
           page: 'marketcentral'
         },
         {
-          id: 'eventplaybook',
-          title: 'Registro de Eventos',
-          desc: 'Acompanhar eventos relevantes que podem afetar as operações.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
-          page: 'eventplaybook'
-        },
-        {
           id: 'fundamentals',
           title: 'Análise Fundamentalista',
           desc: 'Consultar os fundamentos e a qualidade dos ativos.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20L12 2Z"/></svg>`,
           page: 'fundamentals'
-        },
-        {
-          id: 'charts',
-          title: 'Gráficos',
-          desc: 'Central de análise do ticker.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><path d="M4 14l5-5 4 4 7-7"/></svg>`,
-          page: 'charts'
         },
         {
           id: 'markettreemap',
@@ -257,37 +243,44 @@
         {
           id: 'analytics',
           title: 'Painel da Verdade',
-          desc: 'Métricas de performance.',
+          desc: 'Métricas objetivas de performance e processo.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
           page: 'analytics'
         },
         {
           id: 'tradeanatomy',
           title: 'Anatomia dos Trades',
-          desc: 'Vencedores e perdedores.',
+          desc: 'Estatísticas de payoff, gatilhos e duração.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20V7"/><path d="m3 8 6-5 6 7 6-5"/></svg>`,
           page: 'tradeanatomy'
         },
         {
           id: 'tradelibrary',
           title: 'Biblioteca de Trades',
-          desc: 'Trades de referência.',
+          desc: 'Revise prints e estudos por ativo e período.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>`,
           page: 'tradelibrary'
         },
         {
           id: 'platformaccess',
           title: 'Uso da Plataforma',
-          desc: 'Uso e foco na plataforma.',
+          desc: 'Métricas de foco e consistência de uso.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
           page: 'platformaccess'
         },
         {
           id: 'review',
           title: 'Revisão Mensal',
-          desc: 'Fechamento do mês.',
+          desc: 'Fechamento do mês e plano de melhoria contínua.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`,
           page: 'review'
+        },
+        {
+          id: 'eventplaybook',
+          title: 'Registro de Eventos',
+          desc: 'Acompanhar eventos relevantes que podem afetar suas operações.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
+          page: 'eventplaybook'
         }
       ]
     },
@@ -773,26 +766,38 @@
 
       const isProUser = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
       const proPages = root.professionalPages || new Set();
+      const isEn = root.appLanguage === 'en-US';
+      const items = groupDef.items || [];
+      const itemCount = items.length;
+      // No maximo 3 cards por linha em telas grandes
+      const maxCols = Math.min(itemCount, 3);
+      // 3 colunas: ~660px, 2 colunas: ~460px, 1 coluna: ~280px
+      const idealWidth = maxCols === 1 ? 280 : (maxCols === 2 ? 460 : 660);
 
-      // Render flyout content
+      // Render flyout content (Responsive Cards Grid — Max 3 colunas)
       this.flyoutEl.innerHTML = `
         <div class="flyout-header">
-          <span>${this.localizedLabel(groupDef.id, groupDef.header || groupDef.label)}</span>
-          ${isPinned ? (root.appLanguage === 'en-US' ? '<span style="font-size:9px; color:#638271; font-weight:600; cursor:pointer;" title="Click to unpin">PINNED (ESC)</span>' : '<span style="font-size:9px; color:#638271; font-weight:600; cursor:pointer;" title="Clique para desfixar">FIXADO (ESC)</span>') : ''}
+          <span class="flyout-header-title">${this.localizedLabel(groupDef.id, groupDef.header || groupDef.label)}</span>
+          ${isPinned ? `<span class="flyout-pin-badge" style="font-size:9px; color:#638271; font-weight:600; cursor:pointer;" title="${isEn ? 'Click to unpin (ESC)' : 'Clique para desfixar (ESC)'}">${isEn ? 'PINNED (ESC)' : 'FIXADO (ESC)'}</span>` : ''}
         </div>
-        <div class="flyout-items-list nav">
-          ${(groupDef.items || []).map((sub) => {
+        <div class="flyout-cards-grid flyout-items-list nav" data-grid-cols="${maxCols}" role="menu">
+          ${items.map((sub) => {
             const isActive = this.activePageId === sub.page;
             const isLocked = proPages.has(sub.page) && !isProUser;
             return `
-              <button class="flyout-item-link nav-btn ${isActive ? 'active' : ''} ${isLocked ? 'plan-locked' : ''}" type="button" data-page="${sub.page}" role="menuitem">
-                <span class="flyout-item-icon">${sub.icon}</span>
-                <div class="flyout-item-body">
-                  <div class="flyout-item-title">
-                    <span>${this.localizedLabel(sub.page, sub.title || sub.label)}</span>
+              <button class="flyout-card-btn flyout-item-link nav-btn ${isActive ? 'active' : ''} ${isLocked ? 'plan-locked' : ''}" type="button" data-page="${sub.page}" role="menuitem" tabindex="0">
+                <div class="flyout-card-top">
+                  <span class="flyout-card-icon flyout-item-icon">${sub.icon}</span>
+                  <span class="flyout-card-arrow" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </span>
+                </div>
+                <div class="flyout-card-content flyout-item-body">
+                  <div class="flyout-card-title-row flyout-item-title">
+                    <strong class="flyout-card-title"><span>${this.localizedLabel(sub.page, sub.title || sub.label)}</span></strong>
                     ${isLocked ? '<span class="flyout-badge-pro">PRO</span>' : ''}
                   </div>
-                  <span class="flyout-item-desc">${sub.desc || ''}</span>
+                  <span class="flyout-card-desc flyout-item-desc">${sub.desc || ''}</span>
                 </div>
               </button>
             `;
@@ -801,7 +806,7 @@
       `;
 
       // Bind item clicks
-      this.flyoutEl.querySelectorAll('.flyout-item-link').forEach((link) => {
+      this.flyoutEl.querySelectorAll('.flyout-item-link, .flyout-card-btn').forEach((link) => {
         link.addEventListener('click', () => {
           const page = link.dataset.page;
           this.closeFlyout(true);
@@ -811,23 +816,43 @@
         });
       });
 
-      // Calculate position
-      this.positionFlyout(triggerBtn);
+      // Calculate position & dynamic width
+      this.positionFlyout(triggerBtn, idealWidth);
 
       this.flyoutEl.classList.add('active');
     }
 
-    positionFlyout(triggerBtn) {
+    positionFlyout(triggerBtn, idealWidth = 660) {
       const rect = triggerBtn.getBoundingClientRect();
-      const flyoutHeight = this.flyoutEl.offsetHeight || 300;
       const windowHeight = window.innerHeight;
+      const windowWidth = window.innerWidth;
 
       const sidebar = document.querySelector('.sidebar');
       const sidebarRight = sidebar ? sidebar.getBoundingClientRect().right : rect.right;
-      const left = Math.max(rect.right + 10, sidebarRight + 8);
-      let top = rect.top - 6;
+      // Colado diretamente na borda direita do menu principal (zero gap)
+      const left = Math.round(sidebarRight) - 1;
+      
+      const maxAvailableWidth = Math.max(280, windowWidth - left - 24);
+      const targetWidth = Math.min(idealWidth, maxAvailableWidth);
+      this.flyoutEl.style.width = `${targetWidth}px`;
+      this.flyoutEl.style.maxWidth = `${Math.min(680, maxAvailableWidth)}px`;
+
+      // Ajusta data-grid-cols conforme largura real disponivel do flyout
+      const gridEl = this.flyoutEl.querySelector('.flyout-cards-grid');
+      if (gridEl) {
+        let cols = 3;
+        if (targetWidth < 360) {
+          cols = 1;
+        } else if (targetWidth < 540) {
+          cols = 2;
+        }
+        gridEl.dataset.gridCols = String(cols);
+      }
+
+      const flyoutHeight = this.flyoutEl.offsetHeight || 300;
+      let top = Math.max(12, rect.top - 6);
       if (top + flyoutHeight > windowHeight - 16) {
-        top = Math.max(16, windowHeight - flyoutHeight - 16);
+        top = Math.max(12, windowHeight - flyoutHeight - 16);
       }
 
       this.flyoutEl.style.left = `${left}px`;
@@ -908,7 +933,11 @@
 
       window.addEventListener('resize', () => {
         if (this.activeTriggerBtn && this.flyoutEl?.classList.contains('active')) {
-          this.positionFlyout(this.activeTriggerBtn);
+          const group = this.findGroupDef(this.activeFlyoutGroup);
+          const itemCount = group ? (group.items || []).length : 6;
+          const maxCols = Math.min(itemCount, 3);
+          const idealWidth = maxCols === 1 ? 280 : (maxCols === 2 ? 460 : 660);
+          this.positionFlyout(this.activeTriggerBtn, idealWidth);
         }
       });
     }

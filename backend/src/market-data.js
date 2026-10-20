@@ -715,7 +715,13 @@ async function collectMarketData() {
   const otherBenchmarkHistory = peerBenchmarkHistory(new Map(otherEntries.map(item => [item.symbol, item.history])));
   const residualRows = otherEntries.length && Number.isFinite(returns(otherBenchmarkHistory).m3) ? scoreStockGroup(otherEntries, otherBenchmarkHistory, 'B3 fora de IBOV/SMLL') : [];
   const clean = item => { const { history, ...value } = item; return value; };
-  const rows = [...ibovRows, ...smallRows, ...residualRows].map(clean);
+  // Unifica e ranqueia globalmente o universo stock_other (Demais ações) com posições estritamente únicas
+  const unifiedStockOther = rank([...smallRows, ...residualRows].map(clean)).map(item => ({
+    ...item,
+    trendTemplate: templateReading(item.score, item.relativeTrend),
+    assetClass: 'stock_other'
+  }));
+  const rows = [...ibovRows.map(clean), ...unifiedStockOther];
   if (!rows.length || (previous?.relativeStrength?.length && rows.length < previous.relativeStrength.length * .8)) throw new Error('Atualização incompleta: cache anterior preservado.');
   const catalogFii = catalogItems(FII_CATALOG, 'fii');
   const catalogBdr = bdrCatalogFromCache(previous).length ? bdrCatalogFromCache(previous) : catalogItems(BDR_CATALOG, 'bdr');
@@ -730,7 +736,7 @@ async function collectMarketData() {
   }
   const relativeStrengthByClass = {
     stock_ibov: { ...classMeta('stock_ibov'), returns: benchmarkReturns, requested: groups.ibov.length, available: ibovRows.length, items: ibovRows.map(clean) },
-    stock_other: { ...classMeta('stock_other'), requested: groups.small.length + groups.other.length, available: smallRows.length + residualRows.length, items: [...smallRows, ...residualRows].map(clean) },
+    stock_other: { ...classMeta('stock_other'), requested: groups.small.length + groups.other.length, available: unifiedStockOther.length, items: unifiedStockOther },
     fii: fiiResult.status === 'fulfilled' && fiiResult.value.available > 0 ? fiiResult.value : { ...(previous?.relativeStrengthByClass?.fii || { ...classMeta('fii'), requested: catalogFii.length, available: 0, items: [] }), error: fiiResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt },
     bdr: bdrResult.status === 'fulfilled' && bdrResult.value.available > 0 ? bdrResult.value : { ...(previous?.relativeStrengthByClass?.bdr || { ...classMeta('bdr'), requested: catalogBdr.length, available: 0, items: [] }), error: bdrResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt }
   };

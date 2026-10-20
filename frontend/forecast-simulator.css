@@ -1,18 +1,1156 @@
-body:has(#forecast.active) .content{max-width:none;margin:0;padding:18px clamp(24px,3vw,58px) 48px;background:radial-gradient(circle at 76% 5%,rgba(67,151,99,.1),transparent 28%),var(--bg)}
-#forecast{width:100%;max-width:1640px;margin:0 auto}.forecast-page{display:grid;gap:16px;color:var(--ink)}
-.forecast-hero{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(320px,.85fr) minmax(560px,1.3fr);min-height:238px;overflow:hidden;padding:32px 38px;border:1px solid rgba(107,181,132,.34);border-radius:22px;background:linear-gradient(105deg,#06271b 0%,#073624 45%,rgba(7,54,36,.88) 100%);color:#fff;box-shadow:0 20px 48px rgba(18,58,37,.13)}
-.forecast-hero:before{content:"";position:absolute;z-index:-1;inset:0;background:radial-gradient(circle at 72% 18%,rgba(119,232,155,.18),transparent 28%),repeating-radial-gradient(ellipse at 90% 120%,transparent 0 35px,rgba(153,222,174,.08) 36px 37px)}
-.forecast-eyebrow{display:flex;align-items:center;gap:11px;color:#8ce1a7;font-size:10px;font-weight:850;letter-spacing:.25em;text-transform:uppercase}.forecast-eyebrow:before{content:"";width:32px;height:1px;background:#7dd49a}.forecast-hero h1{margin:14px 0 12px;color:#fff;font:700 clamp(42px,4vw,66px)/.94 Georgia,serif;letter-spacing:-.055em}.forecast-hero-copy p{max-width:540px;color:#cde1d4;font-size:14px;line-height:1.55}
-.forecast-process{align-self:center;display:grid;grid-template-columns:repeat(6,1fr);gap:6px}.forecast-process div{position:relative;text-align:center}.forecast-process div:not(:last-child):after{content:"";position:absolute;top:20px;left:63%;width:74%;height:1px;background:linear-gradient(90deg,#78d69a,#34d399)}.forecast-process i{position:relative;z-index:1;display:grid;place-items:center;width:42px;height:42px;margin:0 auto 10px;border:1px solid #85dca2;border-radius:50%;background:#0c4931;color:#6ee7b7;font-style:normal;box-shadow:0 0 0 5px rgba(9,58,39,.8)}.forecast-process b{display:block;color:#e7f5ea;font-size:9px;letter-spacing:.1em;text-transform:uppercase}.forecast-process small{display:block;margin-top:3px;color:#9fc0ab;font-size:8px}
-.forecast-workbench{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.forecast-controls,.forecast-chart-card,.forecast-metric,.forecast-scenario,.forecast-method,.forecast-warning{border:1px solid var(--line);border-radius:17px;background:var(--paper);box-shadow:var(--soft)}
-.forecast-controls{padding:20px}.forecast-section-label{color:var(--good);font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}.forecast-controls h2,.forecast-chart-head h2{margin:6px 0 4px;font:700 25px/1.05 Georgia,serif}.forecast-controls>p,.forecast-chart-head p{color:var(--muted);font-size:11px;line-height:1.45}.forecast-mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:17px 0}.forecast-mode button{padding:10px 8px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--muted);font-size:10px;font-weight:800}.forecast-mode button.active{border-color:var(--good);background:color-mix(in srgb,var(--good) 13%,var(--paper));color:var(--good)}
-.forecast-field{display:grid;gap:6px;margin-top:12px}.forecast-field label{color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.forecast-field input,.forecast-field select{width:100%;height:40px;padding:0 11px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font:700 12px Inter,sans-serif}.forecast-field-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.forecast-run{width:100%;margin-top:16px;padding:12px;border:0;border-radius:10px;background:var(--good);color:#fff;font-weight:850;cursor:pointer}.forecast-source{margin-top:13px;padding:10px;border-radius:9px;background:color-mix(in srgb,var(--good) 8%,var(--paper));color:var(--muted);font-size:9px;line-height:1.45}.forecast-source b{display:block;color:var(--good);margin-bottom:3px}
-.forecast-main{display:grid;gap:14px;min-width:0}.forecast-metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}.forecast-metric{min-height:88px;padding:13px}.forecast-metric span{color:var(--muted);font-size:8px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.forecast-metric strong{display:block;margin-top:8px;font-size:21px;letter-spacing:-.04em}.forecast-metric small{display:block;margin-top:4px;color:var(--muted);font-size:8px}
-.forecast-chart-card{padding:18px}.forecast-chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}.forecast-legend{display:flex;gap:13px;color:var(--muted);font-size:9px}.forecast-legend i{display:inline-block;width:17px;height:3px;margin-right:5px;vertical-align:middle}.forecast-legend .median{background:var(--good)}.forecast-legend .range{height:8px;background:color-mix(in srgb,var(--good) 20%,transparent)}.forecast-legend .target{background:#c8a24d}.forecast-chart{width:100%;height:320px;margin-top:10px}.forecast-grid-line{stroke:var(--line);stroke-width:1}.forecast-band{fill:color-mix(in srgb,var(--good) 15%,transparent)}.forecast-median{fill:none;stroke:var(--good);stroke-width:3}.forecast-path{fill:none;stroke:color-mix(in srgb,var(--good) 24%,transparent);stroke-width:1}.forecast-target-line{stroke:#c8a24d;stroke-width:1.5;stroke-dasharray:7 6}.forecast-axis{fill:var(--muted);font:9px Inter,sans-serif}.forecast-chart-empty{display:grid;height:300px;place-items:center;color:var(--muted)}
-.forecast-bottom{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:14px}.forecast-scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.forecast-scenario{padding:15px}.forecast-scenario header{display:flex;align-items:center;justify-content:space-between}.forecast-scenario h3{font-size:14px}.forecast-scenario header span{padding:5px 7px;border-radius:999px;background:color-mix(in srgb,var(--good) 10%,var(--paper));color:var(--good);font-size:9px;font-weight:800}.forecast-scenario dl{display:grid;grid-template-columns:1fr auto;gap:7px;margin:13px 0 0;font-size:10px}.forecast-scenario dt{color:var(--muted)}.forecast-scenario dd{margin:0;font-weight:800}.forecast-side{display:grid;gap:10px}.forecast-method,.forecast-warning{padding:16px}.forecast-method h3,.forecast-warning h3{margin:0 0 8px;font:700 17px Georgia,serif}.forecast-method-flow{display:flex;flex-wrap:wrap;align-items:center;gap:5px;color:var(--good);font-size:9px;font-weight:800}.forecast-warning{border-color:rgba(201,162,77,.42);background:color-mix(in srgb,#d3a94a 8%,var(--paper))}.forecast-warning p{margin:0;color:var(--muted);font-size:10px;line-height:1.5}
-body:not([data-theme="healthy"]) .forecast-hero{border-color:#5f4924;background:linear-gradient(105deg,#110d06,#241807)}body:not([data-theme="healthy"]) .forecast-eyebrow,body:not([data-theme="healthy"]) .forecast-section-label{color:#e4bd61}body:not([data-theme="healthy"]) .forecast-eyebrow:before{background:#d1a442}body:not([data-theme="healthy"]) .forecast-process i{border-color:#c89c3b;background:#2e210d;color:#f1d27d}body:not([data-theme="healthy"]) .forecast-process div:not(:last-child):after{background:#b58a32}body:not([data-theme="healthy"]) .forecast-run{background:#c99c3c;color:#160f05}body:not([data-theme="healthy"]) .forecast-band{fill:rgba(211,169,73,.14)}body:not([data-theme="healthy"]) .forecast-median{stroke:#ddb557}body:not([data-theme="healthy"]) .forecast-path{stroke:rgba(222,183,91,.2)}
-@media(max-width:1180px){.forecast-workbench{grid-template-columns:1fr}.forecast-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.forecast-controls>h2,.forecast-controls>p,.forecast-mode,.forecast-source,.forecast-run,.forecast-section-label{grid-column:1/-1}.forecast-metrics{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){body:has(#forecast.active) .content{padding:12px}.forecast-hero{grid-template-columns:1fr;padding:25px 22px}.forecast-process{grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}.forecast-process div:after{display:none}.forecast-controls{display:block}.forecast-metrics{grid-template-columns:repeat(2,1fr)}.forecast-bottom{grid-template-columns:1fr}.forecast-scenarios{grid-template-columns:1fr}.forecast-chart-head{display:block}.forecast-legend{margin-top:10px;flex-wrap:wrap}}
+/**
+ * HEALTHY TREND TRADER — SIMULADOR DE RESULTADOS
+ * Estilos visuais de alta fidelidade para o simulador probabilístico de Monte Carlo
+ */
 
-/* Forecast readability refinement */
-.forecast-eyebrow{font-size:11px;letter-spacing:.22em}.forecast-hero-copy p{font-size:16px}.forecast-process b{font-size:10px}.forecast-process small{font-size:9px}.forecast-workbench{grid-template-columns:340px minmax(0,1fr)}.forecast-controls{padding:22px}.forecast-section-label{font-size:10px}.forecast-controls h2,.forecast-chart-head h2{font-size:29px}.forecast-controls>p,.forecast-chart-head p{font-size:13px}.forecast-mode button{padding:12px 9px;font-size:12px}.forecast-field{gap:7px;margin-top:14px}.forecast-field label{font-size:10px}.forecast-field input,.forecast-field select{height:44px;font-size:14px}.forecast-run{padding:14px;font-size:13px}.forecast-source{padding:12px;font-size:11px}.forecast-metric{min-height:102px;padding:15px}.forecast-metric span{font-size:10px}.forecast-metric strong{font-size:25px}.forecast-metric small{font-size:10px}.forecast-chart-card{padding:21px}.forecast-legend{font-size:11px}.forecast-chart{height:340px}.forecast-axis{font-size:10px}.forecast-scenario{padding:17px}.forecast-scenario h3{font-size:16px}.forecast-scenario header span{font-size:10px}.forecast-scenario dl{gap:9px;font-size:12px}.forecast-method,.forecast-warning{padding:18px}.forecast-method h3,.forecast-warning h3{font-size:19px}.forecast-method-flow{font-size:11px}.forecast-warning p{font-size:12px}
-@media(max-width:1180px){.forecast-workbench{grid-template-columns:1fr}}@media(max-width:760px){.forecast-controls h2,.forecast-chart-head h2{font-size:25px}}
+body:has(#forecast.active) .content {
+  max-width: none;
+  margin: 0;
+  padding: 16px clamp(20px, 2.5vw, 48px) 48px;
+  background: radial-gradient(circle at 76% 5%, rgba(67, 151, 99, 0.08), transparent 28%), var(--bg);
+}
+
+#forecast {
+  width: 100%;
+  max-width: 1640px;
+  margin: 0 auto;
+}
+
+.forecast-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--ink);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   1. TOPO DA PÁGINA: TÍTULO, BADGE BETA, SUBTÍTULO E CONTROLES SUPERIORES
+   ========================================================================== */
+.forecast-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 2px;
+}
+
+.forecast-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.forecast-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.forecast-title-row h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.forecast-beta-badge {
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.forecast-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.forecast-top-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.forecast-help-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 14px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.forecast-help-pill:hover {
+  background: #bae6fd;
+  color: #0284c7;
+}
+
+.forecast-help-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  background: #0284c7;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.forecast-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.forecast-filter-item label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.forecast-select-wrapper {
+  position: relative;
+}
+
+.forecast-top-select {
+  height: 38px;
+  padding: 0 28px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.forecast-more-btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  letter-spacing: -1px;
+}
+
+/* ==========================================================================
+   2. HERO BANNER: PROCESSO PROBABILÍSTICO (LUXURY EMERALD)
+   ========================================================================== */
+.forecast-hero-banner {
+  background: linear-gradient(135deg, #032b1d 0%, #06402b 50%, #022317 100%);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  border-radius: 18px;
+  padding: 26px 36px;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(520px, 1.4fr);
+  align-items: center;
+  gap: 32px;
+  box-shadow: 0 16px 40px rgba(2, 43, 29, 0.22);
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.forecast-hero-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 75% 20%, rgba(52, 211, 153, 0.15), transparent 35%);
+  pointer-events: none;
+}
+
+.forecast-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.forecast-hero-eyebrow {
+  color: #34d399;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.forecast-hero-title {
+  font-family: Georgia, serif;
+  font-size: clamp(32px, 3.2vw, 46px);
+  font-weight: 700;
+  line-height: 1.02;
+  margin: 0 0 10px 0;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+}
+
+.forecast-hero-desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #a7d5b8;
+  margin: 0;
+  max-width: 440px;
+}
+
+.forecast-hero-nodes {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.forecast-node-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 105px;
+}
+
+.forecast-node-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #10b981;
+  background: #063825;
+  color: #34d399;
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+  box-shadow: 0 0 0 4px rgba(6, 64, 43, 0.6);
+}
+
+.forecast-node-title {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #e2f2e7;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.forecast-node-sub {
+  font-size: 8.5px;
+  color: #8ebfa0;
+  line-height: 1.25;
+}
+
+.forecast-node-connector {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+  opacity: 0.5;
+  margin-bottom: 24px;
+}
+
+/* ==========================================================================
+   3. FAIXA DE 7 CARDS KPI
+   ========================================================================== */
+.forecast-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.forecast-kpi-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 13px 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 94px;
+}
+
+.forecast-kpi-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forecast-kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.forecast-kpi-ico {
+  font-size: 13px;
+}
+.forecast-kpi-ico.green { color: #059669; }
+.forecast-kpi-ico.blue { color: #0284c7; }
+.forecast-kpi-ico.gray { color: #64748b; }
+.forecast-kpi-ico.coral { color: #ea580c; }
+.forecast-kpi-ico.red { color: #dc2626; }
+.forecast-kpi-ico.emerald { color: #10b981; }
+
+.forecast-kpi-val {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 5px 0 2px 0;
+  letter-spacing: -0.02em;
+}
+
+.forecast-kpi-val.pos { color: #059669; }
+.forecast-kpi-val.neg { color: #dc2626; }
+
+.forecast-kpi-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   4. WORKBENCH PRINCIPAL (2 COLUNAS)
+   ========================================================================== */
+.forecast-workbench-grid {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.forecast-sidebar-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forecast-panel-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.forecast-panel-overline {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #059669;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.forecast-panel-heading {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 5px 0;
+}
+
+.forecast-panel-desc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+  margin: 0 0 16px 0;
+}
+
+.forecast-mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.forecast-mode-btn {
+  padding: 9px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.forecast-mode-btn.active {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.forecast-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forecast-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.forecast-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.forecast-input-group label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.forecast-input,
+.forecast-select {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.forecast-action-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #059669;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.forecast-action-btn:hover {
+  background: #047857;
+}
+
+.forecast-source-info-card {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.forecast-source-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.forecast-source-details strong {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.forecast-source-details p {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
+  margin: 0 0 6px 0;
+}
+
+.forecast-source-link {
+  font-size: 11px;
+  font-weight: 700;
+  color: #059669;
+  text-decoration: none;
+}
+.forecast-source-link:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   5. COLUNA PRINCIPAL: GRÁFICO E CARDS INFERIORES
+   ========================================================================== */
+.forecast-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.forecast-chart-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.forecast-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.forecast-chart-title {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 3px 0 2px 0;
+}
+
+.forecast-chart-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.forecast-chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.forecast-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.forecast-legend-line.median {
+  width: 16px;
+  height: 3px;
+  background: #059669;
+  border-radius: 2px;
+}
+
+.forecast-legend-box.range {
+  width: 14px;
+  height: 8px;
+  background: rgba(16, 185, 129, 0.25);
+  border-radius: 2px;
+}
+
+.forecast-legend-line.target {
+  width: 16px;
+  height: 0;
+  border-top: 2px dashed #eab308;
+}
+
+.forecast-chart-body {
+  width: 100%;
+}
+
+.forecast-chart-svg {
+  width: 100%;
+  height: 300px;
+  overflow: visible;
+}
+
+.forecast-grid-line {
+  stroke: var(--line);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.forecast-axis-y {
+  fill: var(--muted);
+  font-size: 10px;
+  font-family: Inter, sans-serif;
+}
+
+.forecast-axis-x {
+  fill: var(--muted);
+  font-size: 10px;
+  font-family: Inter, sans-serif;
+}
+
+.forecast-axis-title {
+  fill: var(--muted);
+  font-size: 10px;
+  font-family: Inter, sans-serif;
+}
+
+.forecast-single-path {
+  fill: none;
+  stroke: rgba(16, 185, 129, 0.22);
+  stroke-width: 1;
+}
+
+.forecast-median-line {
+  fill: none;
+  stroke: #059669;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+}
+
+.forecast-target-dash {
+  stroke: #eab308;
+  stroke-width: 1.8;
+  stroke-dasharray: 6 5;
+}
+
+.forecast-target-badge-bg {
+  fill: #fef08a;
+  stroke: #ca8a04;
+  stroke-width: 1;
+}
+
+.forecast-target-badge-text {
+  fill: #854d0e;
+  font-size: 9.5px;
+  font-weight: 700;
+  font-family: Inter, sans-serif;
+}
+
+.forecast-chart-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  min-height: 260px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--paper) 95%, var(--line));
+}
+
+.forecast-empty-icon {
+  font-size: 32px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.forecast-chart-empty-state h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 6px 0;
+}
+
+.forecast-chart-empty-state p {
+  font-size: 12px;
+  color: var(--muted);
+  max-width: 440px;
+  margin: 0 0 18px 0;
+  line-height: 1.5;
+}
+
+.forecast-empty-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   6. GRID COM OS 3 CARDS INFERIORES
+   ========================================================================== */
+.forecast-bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.forecast-subcard {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.forecast-subcard-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.forecast-subcard-icon {
+  font-size: 16px;
+}
+
+.forecast-subcard-head h4 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+
+.forecast-subcard-head p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 2px 0 0 0;
+}
+
+/* Card 1: Histograma de R */
+.forecast-hist-wrapper {
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.forecast-hist-bars {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.forecast-hist-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.forecast-hist-value {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.forecast-hist-bar-track {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.forecast-hist-bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+}
+
+.forecast-hist-bar.loss-deep { background: #fca5a5; }
+.forecast-hist-bar.loss { background: #f87171; }
+.forecast-hist-bar.neutral { background: #cbd5e1; }
+.forecast-hist-bar.win-light { background: #a7f3d0; }
+.forecast-hist-bar.win-medium { background: #6ee7b7; }
+.forecast-hist-bar.win { background: #34d399; }
+.forecast-hist-bar.win-strong { background: #10b981; }
+
+.forecast-hist-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+  margin-top: 4px;
+}
+
+.forecast-histogram-empty,
+.forecast-trigger-empty {
+  display: grid;
+  place-items: center;
+  height: 140px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+/* Card 2: Estatísticas 2x4 */
+.forecast-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.forecast-stat-cell {
+  background: color-mix(in srgb, var(--paper) 92%, var(--line));
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.forecast-stat-cell span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.forecast-stat-cell strong {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.forecast-stat-cell strong.pos { color: #059669; }
+.forecast-stat-cell strong.neg { color: #dc2626; }
+
+/* Card 3: Resultado por Gatilho */
+.forecast-trigger-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.forecast-trigger-head {
+  display: grid;
+  grid-template-columns: 1.1fr 1.2fr 0.5fr;
+  color: var(--muted);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.forecast-trigger-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.forecast-trigger-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1.2fr 0.5fr;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.forecast-trigger-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.forecast-trigger-bar-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.forecast-trigger-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: color-mix(in srgb, var(--line) 40%, transparent);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.forecast-trigger-bar-fill.pos {
+  height: 100%;
+  background: #059669;
+  border-radius: 3px;
+}
+
+.forecast-trigger-bar-fill.neg {
+  height: 100%;
+  background: #dc2626;
+  border-radius: 3px;
+}
+
+.forecast-trigger-val {
+  font-weight: 700;
+  font-size: 11px;
+  min-width: 36px;
+  text-align: right;
+}
+
+.forecast-trigger-val.pos { color: #059669; }
+.forecast-trigger-val.neg { color: #dc2626; }
+
+.forecast-trigger-count {
+  text-align: right;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* ==========================================================================
+   7. MODAIS: COMO FUNCIONA & DETALHES DA AMOSTRA
+   ========================================================================== */
+.forecast-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.forecast-modal-box {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 640px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  color: var(--ink);
+}
+
+.forecast-sample-box {
+  max-width: 820px;
+}
+
+.forecast-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.forecast-modal-badge {
+  font-size: 9px;
+  font-weight: 800;
+  color: #059669;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.forecast-modal-header h2 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0;
+}
+
+.forecast-modal-header p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 4px 0 0 0;
+}
+
+.forecast-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.forecast-modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forecast-help-card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: color-mix(in srgb, var(--paper) 90%, var(--line));
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.forecast-help-step {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #059669;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.forecast-help-card h3 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 4px 0;
+}
+
+.forecast-help-card p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+}
+
+.forecast-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.forecast-modal-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.forecast-modal-btn.primary {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.forecast-sample-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.forecast-sample-table th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--muted);
+  font-size: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.forecast-sample-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.pos-cell { color: #059669; }
+.neg-cell { color: #dc2626; }
+
+/* ==========================================================================
+   8. TEMA GOLD / DARK FALLBACK
+   ========================================================================== */
+body:not([data-theme="healthy"]) .forecast-hero-banner {
+  border-color: #5f4924;
+  background: linear-gradient(135deg, #110d06 0%, #241807 50%, #0c0903 100%);
+}
+
+body:not([data-theme="healthy"]) .forecast-hero-eyebrow,
+body:not([data-theme="healthy"]) .forecast-panel-overline,
+body:not([data-theme="healthy"]) .forecast-modal-badge,
+body:not([data-theme="healthy"]) .forecast-source-link {
+  color: #e4bd61;
+}
+
+body:not([data-theme="healthy"]) .forecast-action-btn,
+body:not([data-theme="healthy"]) .forecast-mode-btn.active,
+body:not([data-theme="healthy"]) .forecast-modal-btn.primary {
+  background: #c99c3c;
+  border-color: #c99c3c;
+  color: #160f05;
+}
+
+body:not([data-theme="healthy"]) .forecast-node-circle {
+  border-color: #c89c3b;
+  background: #2e210d;
+  color: #f1d27d;
+  box-shadow: 0 0 0 4px rgba(46, 33, 13, 0.6);
+}
+
+body:not([data-theme="healthy"]) .forecast-node-connector {
+  background: linear-gradient(90deg, #c89c3b 0%, #f1d27d 100%);
+}
+
+body:not([data-theme="healthy"]) .forecast-median-line {
+  stroke: #ddb557;
+}
+
+/* ==========================================================================
+   9. RESPONSIVIDADE
+   ========================================================================== */
+@media (max-width: 1280px) {
+  .forecast-kpi-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .forecast-workbench-grid {
+    grid-template-columns: 1fr;
+  }
+  .forecast-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .forecast-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .forecast-top-controls {
+    flex-wrap: wrap;
+  }
+  .forecast-hero-banner {
+    grid-template-columns: 1fr;
+    padding: 22px 20px;
+  }
+  .forecast-hero-nodes {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+  .forecast-node-connector {
+    display: none;
+  }
+  .forecast-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .forecast-chart-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

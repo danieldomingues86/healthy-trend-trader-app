@@ -1,3 +1,4 @@
+const { adjustHistoricalSeries } = require('./corporate-events');
 const fs=require('node:fs/promises');
 const path=require('node:path');
 const {inflateRawSync}=require('node:zlib');
@@ -77,6 +78,6 @@ async function archive(year,{fetchImpl=fetch,cacheDirectory,force=false}={}){
 async function fetchHistories(symbols,{years,fetchImpl,cacheDirectory,force=false}={}){
   const merged=new Map();
   for(const year of years){for(const [symbol,items] of (await parseQuotes(await archive(year,{fetchImpl,cacheDirectory,force}),symbols)).entries())merged.set(symbol,[...(merged.get(symbol)||[]),...items])}
-  return new Map([...merged].map(([symbol,items])=>[symbol,items.sort((a,b)=>a.date.localeCompare(b.date)).map(item=>({date:item.date,close:item.close}))]));
+  return new Map([...merged].map(([symbol,items])=>[symbol,adjustHistoricalSeries(items.sort((a,b)=>a.date.localeCompare(b.date)), symbol).map(item=>({date:item.date,close:item.close}))]));
 }
 module.exports={parseLine,parseQuotes,fetchHistories,extractZip};

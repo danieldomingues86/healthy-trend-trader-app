@@ -199,8 +199,8 @@
       labelEn: 'Opportunity Radar',
       category: 'market-analysis',
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
-      desc: 'Encontrar ativos prontos para entrada no gráfico Diário.',
-      descEn: 'Find assets ready for entry on the Daily chart.',
+      desc: 'Ativos prontos para entrada no gráfico Diário.',
+      descEn: 'Assets ready for entry on the Daily chart.',
       proOnly: false
     },
     {
@@ -234,17 +234,6 @@
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
       desc: 'Consultar a visão geral do ambiente de mercado.',
       descEn: 'Overview of market environment and conditions.',
-      proOnly: false
-    },
-    {
-      id: 'eventplaybook',
-      page: 'eventplaybook',
-      label: 'Registro de Eventos',
-      labelEn: 'Event Log',
-      category: 'market-analysis',
-      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
-      desc: 'Acompanhar eventos relevantes que podem afetar as operações.',
-      descEn: 'Track relevant events that may affect operations.',
       proOnly: false
     },
     {
@@ -439,6 +428,17 @@
       desc: 'Fechamento do mês e plano de melhoria contínua.',
       descEn: 'Monthly close and continuous improvement plan.',
       proOnly: true
+    },
+    {
+      id: 'eventplaybook',
+      page: 'eventplaybook',
+      label: 'Registro de Eventos',
+      labelEn: 'Event Log',
+      category: 'data-performance',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>`,
+      desc: 'Acompanhar eventos relevantes que podem afetar suas operações.',
+      descEn: 'Track relevant events that may affect your operations.',
+      proOnly: false
     },
 
     // Mentalidade & Zen

@@ -1,0 +1,463 @@
+/* =========================================================================
+   PAPER TRADING — ORDENS E POSIÇÕES PENDENTES
+   Identidade visual Healthy Trend Trader: Dark Emerald & Warm Gold
+   ========================================================================= */
+
+/* Botão "+ Paper Trading" no Radar de Oportunidades */
+.radar-btn-paper-trading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(22, 132, 72, 0.45);
+  background: rgba(22, 132, 72, 0.12);
+  color: #199450;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.radar-btn-paper-trading:hover {
+  background: #168448;
+  color: #ffffff;
+  border-color: #168448;
+  box-shadow: 0 3px 8px rgba(22, 132, 72, 0.25);
+  transform: translateY(-1px);
+}
+
+.radar-btn-paper-trading:active {
+  transform: translateY(0);
+}
+
+body[data-theme="gold"] .radar-btn-paper-trading {
+  border-color: rgba(212, 175, 55, 0.45);
+  background: rgba(212, 175, 55, 0.12);
+  color: #d4af37;
+}
+
+body[data-theme="gold"] .radar-btn-paper-trading:hover {
+  background: #d4af37;
+  color: #110e08;
+  border-color: #d4af37;
+  box-shadow: 0 3px 8px rgba(212, 175, 55, 0.28);
+}
+
+/* Modal "+ Paper Trading" */
+.paper-pending-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(5, 14, 10, 0.78);
+  backdrop-filter: blur(8px);
+  animation: paperPendingFadeIn 0.18s ease-out;
+}
+
+@keyframes paperPendingFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.paper-pending-modal-card {
+  position: relative;
+  width: min(580px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(143, 224, 170, 0.22);
+  background: #0d1e17;
+  color: #eaf3ed;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  padding: 26px 28px;
+  box-sizing: border-box;
+}
+
+body[data-theme="gold"] .paper-pending-modal-card {
+  background: #17140f;
+  border-color: rgba(214, 170, 80, 0.25);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+}
+
+.paper-pending-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.paper-pending-asset-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.paper-pending-logo-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.paper-pending-logo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.paper-pending-asset-titles h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.paper-pending-asset-titles p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #8da495;
+}
+
+.paper-pending-modal-close {
+  background: transparent;
+  border: none;
+  color: #8da495;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+.paper-pending-modal-close:hover {
+  color: #ffffff;
+}
+
+/* Callout informativo */
+.paper-pending-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 18px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(214, 170, 80, 0.09);
+  border: 1px solid rgba(214, 170, 80, 0.25);
+  color: #e5cb91;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.paper-pending-callout-icon {
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.paper-pending-trigger-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(22, 132, 72, 0.18);
+  border: 1px solid rgba(22, 132, 72, 0.4);
+  color: #5edb92;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Grid do Formulário */
+.paper-pending-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.paper-pending-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.paper-pending-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.paper-pending-field label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a3baa9;
+}
+
+.paper-pending-stepper-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 5px;
+  color: #c9dbce;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.paper-pending-stepper-btn:hover {
+  background: #168448;
+  color: #ffffff;
+  border-color: #168448;
+}
+
+body[data-theme="gold"] .paper-pending-stepper-btn:hover {
+  background: #d4af37;
+  color: #110e08;
+  border-color: #d4af37;
+}
+
+.paper-pending-field input,
+.paper-pending-field select,
+.paper-pending-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 17, 12, 0.6);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.paper-pending-field input:focus,
+.paper-pending-field select:focus,
+.paper-pending-field textarea:focus {
+  outline: none;
+  border-color: #168448;
+}
+
+.paper-pending-risk-summary {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+}
+
+.paper-pending-risk-summary span {
+  color: #8da495;
+}
+
+.paper-pending-risk-summary strong {
+  color: #ffffff;
+}
+
+.paper-pending-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.paper-pending-btn-cancel {
+  padding: 10px 18px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #c9dbce;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.paper-pending-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.paper-pending-btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: 9px;
+  border: none;
+  background: #168448;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 14px rgba(22, 132, 72, 0.3);
+}
+
+.paper-pending-btn-submit:hover {
+  background: #1bb05f;
+  transform: translateY(-1px);
+}
+
+/* =========================================================================
+   PÁGINA DE TRADES ABERTOS (POSITIONS) — CARDS E NOTIFICAÇÃO
+   ========================================================================= */
+
+/* Banner informativo no topo do Paper Trading */
+.pending-paper-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: linear-gradient(105deg, rgba(214, 170, 80, 0.12), rgba(214, 170, 80, 0.04));
+  border: 1px solid rgba(214, 170, 80, 0.32);
+  color: #f0e6cf;
+}
+
+.pending-paper-notice-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pending-paper-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.pending-paper-notice-content strong {
+  display: block;
+  font-size: 13px;
+  color: #f7dfa4;
+  font-weight: 750;
+}
+
+.pending-paper-notice-content p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #c9bea7;
+  line-height: 1.4;
+}
+
+.pending-verify-btn {
+  white-space: nowrap;
+  padding: 8px 14px;
+  font-size: 11px !important;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1px solid rgba(214, 170, 80, 0.4) !important;
+  background: rgba(214, 170, 80, 0.15) !important;
+  color: #f7dfa4 !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pending-verify-btn:hover {
+  background: #d4af37 !important;
+  color: #110e08 !important;
+  border-color: #d4af37 !important;
+}
+
+/* Estilo do Card Pendente */
+.position-card.is-pending {
+  border-color: rgba(214, 170, 80, 0.35);
+  background: linear-gradient(180deg, rgba(214, 170, 80, 0.04) 0%, transparent 40%);
+  position: relative;
+}
+
+.position-card.is-pending:hover {
+  border-color: rgba(214, 170, 80, 0.6);
+  box-shadow: 0 10px 24px rgba(214, 170, 80, 0.08);
+}
+
+.mode-badge.pending {
+  background: rgba(214, 170, 80, 0.18) !important;
+  color: #f5d78f !important;
+  border: 1px solid rgba(214, 170, 80, 0.35) !important;
+}
+
+.position-card.is-pending .position-progress-pending {
+  height: 4px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(214, 170, 80, 0.5) 0 8px,
+    transparent 8px 16px
+  );
+  margin-top: 12px;
+}
+
+/* Tela de Detalhe da Posição Pendente */
+.pending-detail-callout {
+  padding: 18px 22px;
+  border-radius: 14px;
+  background: rgba(214, 170, 80, 0.08);
+  border: 1px solid rgba(214, 170, 80, 0.3);
+  margin: 18px 0;
+}
+
+.pending-detail-callout h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: #f5d78f;
+}
+
+.pending-detail-callout p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #d7c9a8;
+}
+
+.pending-cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 16px;
+  border-radius: 9px;
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  background: rgba(220, 38, 38, 0.12);
+  color: #f87171;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pending-cancel-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}

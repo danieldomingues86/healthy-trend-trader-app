@@ -385,7 +385,7 @@
 
 .radar-table {
   width: 100%;
-  min-width: 1100px;
+  min-width: 1240px;
   border-collapse: collapse;
   text-align: left;
 }
@@ -419,11 +419,11 @@
 
 .radar-table thead th.col-actions,
 .radar-table tbody td.col-actions {
-  width: 236px;
-  min-width: 236px;
-  max-width: 236px;
+  width: 340px;
+  min-width: 340px;
   text-align: right;
   padding-right: 28px;
+  padding-left: 12px;
   white-space: nowrap;
 }
 
@@ -725,21 +725,23 @@
 .radar-status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 8px;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
   background: #e3f5ec;
   color: #117348;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
-/* Row Actions (Ver gráfico + Selecionar) */
+/* Row Actions (Paper Trading + Ver gráfico + Selecionar) */
 .radar-row-actions {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -747,13 +749,16 @@
 .radar-btn-view-chart {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 11px;
-  border-radius: 7px;
+  justify-content: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
   background: #0c261c;
   color: #ffffff;
   border: 1px solid #0c261c;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -771,13 +776,16 @@
 .radar-btn-select {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 11px;
-  border-radius: 7px;
+  justify-content: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
   background: #f0f8f4;
   color: #0f7a4f;
   border: 1px solid #a3d9bc;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -1243,7 +1251,7 @@
 
 .radar-bottom-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.15fr;
+  grid-template-columns: 1.55fr 0.85fr 1.05fr;
   gap: 16px;
   align-items: stretch;
 }
@@ -1262,6 +1270,49 @@
 .radar-info-card.radar-warn-card {
   background: #fdf6e9;
   border-color: #f2dfb9;
+}
+
+.radar-info-card.radar-requirements-card {
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.radar-info-card.radar-requirements-card .radar-info-icon,
+.radar-info-card.radar-requirements-card .radar-info-body {
+  position: relative;
+  z-index: 3;
+}
+
+.radar-info-card.radar-requirements-card .radar-info-body {
+  max-width: 52%;
+}
+
+.radar-info-card.radar-requirements-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 58%;
+  background: linear-gradient(90deg, #ffffff 72%, rgba(255, 255, 255, 0.95) 86%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.radar-info-card.radar-requirements-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  background-image: url('../assets/radar-entry-requirements-bull.png');
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: cover;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .radar-info-icon {
@@ -1288,11 +1339,26 @@
   flex: 1;
 }
 
+.radar-info-header {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
 .radar-info-body h3 {
   margin: 0;
   font-size: 14.5px;
   font-weight: 800;
   color: #0e2319;
+  letter-spacing: -0.01em;
+}
+
+.radar-info-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #5a7266;
+  font-weight: 450;
 }
 
 .radar-warn-card .radar-info-body h3 {
@@ -1319,9 +1385,16 @@
 }
 
 .radar-check-icon {
-  color: #159967;
-  font-weight: 800;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radar-check-icon svg {
+  display: block;
 }
 
 .radar-markets-list li {
@@ -1410,7 +1483,8 @@ body[data-theme="gold"] .radar-criteria-list li,
 body[data-theme="gold"] .radar-markets-list li,
 body[data-theme="gold"] .radar-selection-headings p,
 body[data-theme="gold"] .radar-sel-card-name,
-body[data-theme="gold"] .radar-selection-disclaimer {
+body[data-theme="gold"] .radar-selection-disclaimer,
+body[data-theme="gold"] .radar-info-desc {
   color: #bfb6a4;
 }
 
@@ -1487,6 +1561,19 @@ body[data-theme="gold"] .radar-info-card.radar-warn-card {
   border-color: rgba(200, 115, 22, 0.35);
 }
 
+body[data-theme="gold"] .radar-info-card.radar-requirements-card {
+  background-color: #181612;
+}
+
+body[data-theme="gold"] .radar-info-card.radar-requirements-card::before {
+  background: linear-gradient(90deg, #181612 72%, rgba(24, 22, 18, 0.95) 86%, rgba(24, 22, 18, 0) 100%);
+}
+
+body[data-theme="gold"] .radar-info-card.radar-requirements-card::after {
+  opacity: 0.92;
+  mix-blend-mode: screen;
+}
+
 body[data-theme="gold"] .radar-warn-text {
   color: #e4d4b7;
 }
@@ -1505,6 +1592,10 @@ body[data-theme="gold"] .radar-warn-text {
 }
 
 @media (max-width: 768px) {
+  .radar-info-card.radar-requirements-card::after {
+    opacity: 0.22;
+    width: 65%;
+  }
   #opportunityradar.page.active {
     padding: 14px 14px 32px;
   }
