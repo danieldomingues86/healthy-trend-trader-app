@@ -251,3 +251,19 @@ test('NavigationSystemModel: Categoria Dados & Performance inclui Registro de Ev
   assert.equal(events.desc, 'Acompanhar eventos relevantes que podem afetar suas operações.');
 });
 
+
+test('Flyout Submenu Grid: max 3 colunas em telas grandes, adaptando para 2 e 1 coluna', () => {
+  const css = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.css'), 'utf8');
+  const js = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.js'), 'utf8');
+
+  // CSS Flyout limite maximo de 3 colunas e nunca linha unica horizontal
+  assert.ok(css.includes('grid-template-columns: repeat(3, minmax(0, 1fr))'), 'Grid deve usar no maximo 3 colunas');
+  assert.ok(!css.includes('repeat(auto-fit, minmax(180px, 1fr))'), 'Nao deve mais usar auto-fit sem limite que gerava linha unica');
+  assert.ok(css.includes('container-type: inline-size'), 'Flyout deve suportar Container Queries');
+  assert.ok(css.includes('@container flyout (max-width: 540px)'), 'Deve ter container query para 2 colunas');
+  assert.ok(css.includes('@container flyout (max-width: 350px)'), 'Deve ter container query para 1 coluna');
+
+  // JS idealWidth e maxCols
+  assert.ok(js.includes('Math.min(itemCount, 3)'), 'JS deve limitar maxCols a 3 no maximo');
+  assert.ok(js.includes('idealWidth = 660'), 'idealWidth default deve ser 660px para acomodar 3 colunas perfeitamente');
+});

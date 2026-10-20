@@ -769,16 +769,18 @@
       const isEn = root.appLanguage === 'en-US';
       const items = groupDef.items || [];
       const itemCount = items.length;
-      const maxCols = Math.min(itemCount, 6);
-      const idealWidth = Math.min(1220, Math.max(380, maxCols * 200 + 40));
+      // No maximo 3 cards por linha em telas grandes
+      const maxCols = Math.min(itemCount, 3);
+      // 3 colunas: ~660px, 2 colunas: ~460px, 1 coluna: ~280px
+      const idealWidth = maxCols === 1 ? 280 : (maxCols === 2 ? 460 : 660);
 
-      // Render flyout content (Responsive Cards Grid)
+      // Render flyout content (Responsive Cards Grid — Max 3 colunas)
       this.flyoutEl.innerHTML = `
         <div class="flyout-header">
           <span class="flyout-header-title">${this.localizedLabel(groupDef.id, groupDef.header || groupDef.label)}</span>
           ${isPinned ? `<span class="flyout-pin-badge" style="font-size:9px; color:#638271; font-weight:600; cursor:pointer;" title="${isEn ? 'Click to unpin (ESC)' : 'Clique para desfixar (ESC)'}">${isEn ? 'PINNED (ESC)' : 'FIXADO (ESC)'}</span>` : ''}
         </div>
-        <div class="flyout-cards-grid flyout-items-list nav" role="menu">
+        <div class="flyout-cards-grid flyout-items-list nav" data-grid-cols="${maxCols}" role="menu">
           ${items.map((sub) => {
             const isActive = this.activePageId === sub.page;
             const isLocked = proPages.has(sub.page) && !isProUser;
@@ -820,7 +822,7 @@
       this.flyoutEl.classList.add('active');
     }
 
-    positionFlyout(triggerBtn, idealWidth = 1200) {
+    positionFlyout(triggerBtn, idealWidth = 660) {
       const rect = triggerBtn.getBoundingClientRect();
       const windowHeight = window.innerHeight;
       const windowWidth = window.innerWidth;
@@ -829,10 +831,22 @@
       const sidebarRight = sidebar ? sidebar.getBoundingClientRect().right : rect.right;
       const left = Math.max(rect.right + 10, sidebarRight + 8);
       
-      const maxAvailableWidth = Math.max(300, windowWidth - left - 24);
+      const maxAvailableWidth = Math.max(280, windowWidth - left - 24);
       const targetWidth = Math.min(idealWidth, maxAvailableWidth);
       this.flyoutEl.style.width = `${targetWidth}px`;
-      this.flyoutEl.style.maxWidth = `${maxAvailableWidth}px`;
+      this.flyoutEl.style.maxWidth = `${Math.min(680, maxAvailableWidth)}px`;
+
+      // Ajusta data-grid-cols conforme largura real disponivel do flyout
+      const gridEl = this.flyoutEl.querySelector('.flyout-cards-grid');
+      if (gridEl) {
+        let cols = 3;
+        if (targetWidth < 360) {
+          cols = 1;
+        } else if (targetWidth < 540) {
+          cols = 2;
+        }
+        gridEl.dataset.gridCols = String(cols);
+      }
 
       const flyoutHeight = this.flyoutEl.offsetHeight || 300;
       let top = rect.top - 6;
@@ -920,8 +934,8 @@
         if (this.activeTriggerBtn && this.flyoutEl?.classList.contains('active')) {
           const group = this.findGroupDef(this.activeFlyoutGroup);
           const itemCount = group ? (group.items || []).length : 6;
-          const maxCols = Math.min(itemCount, 6);
-          const idealWidth = Math.min(1220, Math.max(380, maxCols * 200 + 40));
+          const maxCols = Math.min(itemCount, 3);
+          const idealWidth = maxCols === 1 ? 280 : (maxCols === 2 ? 460 : 660);
           this.positionFlyout(this.activeTriggerBtn, idealWidth);
         }
       });
