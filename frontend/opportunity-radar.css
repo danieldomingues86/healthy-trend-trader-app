@@ -1251,7 +1251,7 @@
 
 .radar-bottom-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.15fr;
+  grid-template-columns: 1.55fr 0.85fr 1.05fr;
   gap: 16px;
   align-items: stretch;
 }
@@ -1270,6 +1270,51 @@
 .radar-info-card.radar-warn-card {
   background: #fdf6e9;
   border-color: #f2dfb9;
+}
+
+.radar-info-card.radar-requirements-card {
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.radar-info-card.radar-requirements-card .radar-info-icon,
+.radar-info-card.radar-requirements-card .radar-info-body {
+  position: relative;
+  z-index: 3;
+}
+
+.radar-info-card.radar-requirements-card .radar-info-body {
+  max-width: 59%;
+}
+
+.radar-info-card.radar-requirements-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 67%;
+  background: linear-gradient(90deg, #ffffff 68%, rgba(255, 255, 255, 0.96) 88%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.radar-info-card.radar-requirements-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 42%;
+  min-width: 150px;
+  max-width: 240px;
+  background-image: url('../assets/radar-entry-requirements-bull.png');
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: contain;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .radar-info-icon {
@@ -1518,6 +1563,19 @@ body[data-theme="gold"] .radar-info-card.radar-warn-card {
   border-color: rgba(200, 115, 22, 0.35);
 }
 
+body[data-theme="gold"] .radar-info-card.radar-requirements-card {
+  background-color: #181612;
+}
+
+body[data-theme="gold"] .radar-info-card.radar-requirements-card::before {
+  background: linear-gradient(90deg, #181612 68%, rgba(24, 22, 18, 0.96) 88%, rgba(24, 22, 18, 0) 100%);
+}
+
+body[data-theme="gold"] .radar-info-card.radar-requirements-card::after {
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+
 body[data-theme="gold"] .radar-warn-text {
   color: #e4d4b7;
 }
@@ -1536,6 +1594,10 @@ body[data-theme="gold"] .radar-warn-text {
 }
 
 @media (max-width: 768px) {
+  .radar-info-card.radar-requirements-card::after {
+    opacity: 0.22;
+    width: 65%;
+  }
   #opportunityradar.page.active {
     padding: 14px 14px 32px;
   }

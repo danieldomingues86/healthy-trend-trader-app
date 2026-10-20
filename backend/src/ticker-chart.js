@@ -124,7 +124,7 @@ function loadB3History() {
         deduped.push(c);
       }
     }
-    merged.set(sym, adjustCandles(deduped, sym));
+    merged.set(sym, deduped);
   }
 
   // Salva no arquivo de cache persistente para as próximas inicializações
