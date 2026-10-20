@@ -948,7 +948,7 @@
 
         <!-- Cards informativos inferiores -->
         <section class="radar-bottom-grid" aria-label="Informações e avisos operacionais">
-          <div class="radar-info-card">
+          <div class="radar-info-card radar-requirements-card">
             <div class="radar-info-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"/>
@@ -956,12 +956,15 @@
               </svg>
             </div>
             <div class="radar-info-body">
-              <h3>Critérios utilizados</h3>
+              <div class="radar-info-header">
+                <h3>Requisitos Obrigatórios de Entrada</h3>
+                <p class="radar-info-desc">O ativo deve atender a todos os critérios abaixo para ser considerado uma oportunidade.</p>
+              </div>
               <ul class="radar-criteria-list">
-                <li><span class="radar-check-icon">✓</span> Força Relativa (3M) &gt; 80</li>
-                <li><span class="radar-check-icon">✓</span> Ciclo de Mercado Positivo</li>
-                <li><span class="radar-check-icon">✓</span> Preço &gt; EMA 9 &gt; EMA 30 (Diário)</li>
-                <li><span class="radar-check-icon">✓</span> Gatilhos: Inside Bar, 123 Buy, PFR de Compra</li>
+                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Força Relativa (3M) &gt; 80</li>
+                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Ciclo de Mercado Positivo</li>
+                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Preço &gt; EMA 9 &gt; EMA 30 (Diário)</li>
+                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Gatilhos: Inside Bar, 123 Buy, PFR de Compra</li>
               </ul>
             </div>
           </div>

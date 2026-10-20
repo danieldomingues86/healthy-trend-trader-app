@@ -1296,11 +1296,26 @@
   flex: 1;
 }
 
+.radar-info-header {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
 .radar-info-body h3 {
   margin: 0;
   font-size: 14.5px;
   font-weight: 800;
   color: #0e2319;
+  letter-spacing: -0.01em;
+}
+
+.radar-info-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #5a7266;
+  font-weight: 450;
 }
 
 .radar-warn-card .radar-info-body h3 {
@@ -1327,9 +1342,16 @@
 }
 
 .radar-check-icon {
-  color: #159967;
-  font-weight: 800;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radar-check-icon svg {
+  display: block;
 }
 
 .radar-markets-list li {
@@ -1418,7 +1440,8 @@ body[data-theme="gold"] .radar-criteria-list li,
 body[data-theme="gold"] .radar-markets-list li,
 body[data-theme="gold"] .radar-selection-headings p,
 body[data-theme="gold"] .radar-sel-card-name,
-body[data-theme="gold"] .radar-selection-disclaimer {
+body[data-theme="gold"] .radar-selection-disclaimer,
+body[data-theme="gold"] .radar-info-desc {
   color: #bfb6a4;
 }
 
