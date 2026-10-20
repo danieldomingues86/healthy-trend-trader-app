@@ -784,724 +784,14 @@
       "benchmark": "SMLL + B3",
       "items": [
         {
-          "symbol": "LJQQ3",
-          "name": "LOJAS QUERO-QUERO S/A",
-          "sector": "Retail Trade",
-          "m1": 120.30075187969925,
-          "m3": 146.218487394958,
-          "score": 100,
-          "benchmark": "SMLL",
-          "rank": 1
-        },
-        {
-          "symbol": "JSLG3",
-          "name": "JSL S.A.",
-          "sector": "Transportation",
-          "m1": 114.00000000000001,
-          "m3": 130.93525179856118,
-          "score": 99,
-          "benchmark": "SMLL",
-          "rank": 2
-        },
-        {
-          "symbol": "MOVI3",
-          "name": "MOVIDA PARTICIPACOES SA",
-          "sector": "Finance",
-          "m1": 133.82716049382717,
-          "m3": 116.21004566210047,
-          "score": 97,
-          "benchmark": "SMLL",
-          "rank": 3
-        },
-        {
-          "symbol": "SIMH3",
-          "name": "SIMPAR S.A.",
-          "sector": "Transportation",
-          "m1": 118.75792141951842,
-          "m3": 117.65447667087012,
-          "score": 96,
-          "benchmark": "SMLL",
-          "rank": 4
-        },
-        {
-          "symbol": "DASA3",
-          "name": "DIAGNOSTICOS DA AMERICA S.A.",
-          "sector": "Health Services",
-          "m1": 88.44765342960288,
-          "m3": 103.90625,
-          "score": 94,
-          "benchmark": "SMLL",
-          "rank": 5
-        },
-        {
-          "symbol": "ECOR3",
-          "name": "ECORODOVIAS INFRAESTRUTURA E LOGÍSTICA S.A.",
-          "sector": "Transportation",
-          "m1": 79.44038929440387,
-          "m3": 92.55874673629243,
-          "score": 93,
-          "benchmark": "SMLL",
-          "rank": 6
-        },
-        {
-          "symbol": "ANIM3",
-          "name": "ANIMA HOLDING S.A.",
-          "sector": "Consumer Services",
-          "m1": 82.41379310344827,
-          "m3": 87.58865248226952,
-          "score": 91,
-          "benchmark": "SMLL",
-          "rank": 7
-        },
-        {
-          "symbol": "ARML3",
-          "name": "ARMAC LOCAÇÃO. LOGÍSTICA E SERVIÇOS S.A.",
-          "sector": "Finance",
-          "m1": 68.31168831168833,
-          "m3": 90.58823529411765,
-          "score": 90,
-          "benchmark": "SMLL",
-          "rank": 8
-        },
-        {
-          "symbol": "RAPT4",
-          "name": "RANDONCORP S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 54.296875,
-          "m3": 66.31578947368422,
-          "score": 88,
-          "benchmark": "SMLL",
-          "rank": 9
-        },
-        {
-          "symbol": "QUAL3",
-          "name": "QUALICORP CONSULTORIA E CORRETORA DE SEGUROS S.A.",
-          "sector": "Health Services",
-          "m1": 63.08724832214767,
-          "m3": 46.38554216867472,
-          "score": 87,
-          "benchmark": "SMLL",
-          "rank": 10
-        },
-        {
-          "symbol": "EZTC3",
-          "name": "EZ TEC EMPREEND. E PARTICIPACOES S.A.",
-          "sector": "Finance",
-          "m1": 50.38051750380519,
-          "m3": 52,
-          "score": 86,
-          "benchmark": "SMLL",
-          "rank": 11
-        },
-        {
-          "symbol": "PGMN3",
-          "name": "EMPREENDIMENTOS PAGUE MENOS S.A.",
-          "sector": "Retail Trade",
-          "m1": 43.603133159268936,
-          "m3": 55.367231638418076,
-          "score": 84,
-          "benchmark": "SMLL",
-          "rank": 12
-        },
-        {
-          "symbol": "DXCO3",
-          "name": "DEXCO S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 36.29893238434163,
-          "m3": 54.74747474747475,
-          "score": 83,
-          "benchmark": "SMLL",
-          "rank": 13
-        },
-        {
-          "symbol": "VTRU3",
-          "name": "VITRU EDUCAÇÃO S.A",
-          "sector": "Commercial Services",
-          "m1": 34.00000000000001,
-          "m3": 53.43511450381682,
-          "score": 81,
-          "benchmark": "SMLL",
-          "rank": 14
-        },
-        {
-          "symbol": "AUAU3",
-          "name": "UNIÃO PET PARTICIPAÇÕES S.A.",
-          "sector": "Process Industries",
-          "m1": 23.32506203473943,
-          "m3": 57.27848101265822,
-          "score": 80,
-          "benchmark": "SMLL",
-          "rank": 15
-        },
-        {
-          "symbol": "LAVV3",
-          "name": "LAVVI EMPREENDIMENTOS IMOBILIÁRIOS S.A.",
-          "sector": "Finance",
-          "m1": 46.09800362976409,
-          "m3": 44.91449144914495,
-          "score": 78,
-          "benchmark": "SMLL",
-          "rank": 16
-        },
-        {
-          "symbol": "INTB3",
-          "name": "INTELBRAS S.A. IND DE TELEC ELETRONICA BRASILEIRA",
-          "sector": "Technology Services",
-          "m1": 28.358208955223894,
-          "m3": 52.741312741312754,
-          "score": 77,
-          "benchmark": "SMLL",
-          "rank": 17
-        },
-        {
-          "symbol": "TGMA3",
-          "name": "TEGMA GESTAO LOGISTICA S.A.",
-          "sector": "Transportation",
-          "m1": 30.230547550432263,
-          "m3": 49.63576158940397,
-          "score": 75,
-          "benchmark": "SMLL",
-          "rank": 18
-        },
-        {
-          "symbol": "BMOB3",
-          "name": "BEMOBI MOBILE TECH S.A.",
-          "sector": "Technology Services",
-          "m1": 31.81991606257153,
-          "m3": 48.2832618025751,
-          "score": 74,
-          "benchmark": "SMLL",
-          "rank": 19
-        },
-        {
-          "symbol": "LWSA3",
-          "name": "LWSA S.A.",
-          "sector": "Technology Services",
-          "m1": 41.481481481481495,
-          "m3": 40.78624078624078,
-          "score": 72,
-          "benchmark": "SMLL",
-          "rank": 20
-        },
-        {
-          "symbol": "SEER3",
-          "name": "SER EDUCACIONAL S.A.",
-          "sector": "Consumer Services",
-          "m1": 23.758865248226947,
-          "m3": 45.17470881863561,
-          "score": 71,
-          "benchmark": "SMLL",
-          "rank": 21
-        },
-        {
-          "symbol": "GGPS3",
-          "name": "GPS PARTICIPACOES E EMPREENDIMENTOS S.A.",
-          "sector": "Commercial Services",
-          "m1": 35.05311077389985,
-          "m3": 37.66434648105184,
-          "score": 70,
-          "benchmark": "SMLL",
-          "rank": 22
-        },
-        {
-          "symbol": "PNVL3",
-          "name": "DIMED S.A. DISTRIBUIDORA DE MEDICAMENTOS",
-          "sector": "Retail Trade",
-          "m1": 22.374429223744265,
-          "m3": 43.957027752909575,
-          "score": 68,
-          "benchmark": "SMLL",
-          "rank": 23
-        },
-        {
-          "symbol": "GMAT3",
-          "name": "GRUPO MATEUS S.A.",
-          "sector": "Retail Trade",
-          "m1": 18.012422360248447,
-          "m3": 44.67005076142132,
-          "score": 67,
-          "benchmark": "SMLL",
-          "rank": 24
-        },
-        {
-          "symbol": "CAML3",
-          "name": "CAMIL ALIMENTOS S.A.",
-          "sector": "Process Industries",
-          "m1": 34.57943925233646,
-          "m3": 34.8314606741573,
-          "score": 65,
-          "benchmark": "SMLL",
-          "rank": 25
-        },
-        {
-          "symbol": "ALPA4",
-          "name": "ALPARGATAS S.A.",
-          "sector": "Consumer Non-Durables",
-          "m1": 25.811320754716995,
-          "m3": 38.3402489626556,
-          "score": 64,
-          "benchmark": "SMLL",
-          "rank": 26
-        },
-        {
-          "symbol": "SOJA3",
-          "name": "BOA SAFRA SEMENTES S.A.",
-          "sector": "Process Industries",
-          "m1": 12.28978007761965,
-          "m3": 43.94693200663349,
-          "score": 62,
-          "benchmark": "SMLL",
-          "rank": 27
-        },
-        {
-          "symbol": "POSI3",
-          "name": "POSITIVO TECNOLOGIA S.A.",
-          "sector": "Electronic Technology",
-          "m1": 43.58974358974359,
-          "m3": 26.315789473684205,
-          "score": 61,
-          "benchmark": "SMLL",
-          "rank": 28
-        },
-        {
-          "symbol": "RIAA3",
-          "name": "RIACHUELO S.A.",
-          "sector": "Distribution Services",
-          "m1": 47.1311475409836,
-          "m3": 23.367697594501703,
-          "score": 59,
-          "benchmark": "SMLL",
-          "rank": 29
-        },
-        {
-          "symbol": "JHSF3",
-          "name": "JHSF PARTICIPACOES S.A.",
-          "sector": "Finance",
-          "m1": 21.786310517529216,
-          "m3": 35.97390493942216,
-          "score": 58,
-          "benchmark": "SMLL",
-          "rank": 30
-        },
-        {
-          "symbol": "BRBI11",
-          "name": "BRBI BR PARTNERS S.A.",
-          "sector": "Finance",
-          "m1": 33.10344827586207,
-          "m3": 29.183400267737625,
-          "score": 57,
-          "benchmark": "SMLL",
-          "rank": 31
-        },
-        {
-          "symbol": "FRAS3",
-          "name": "FRASLE MOBILITY S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 18.657033574160643,
-          "m3": 35.20581113801455,
-          "score": 55,
-          "benchmark": "SMLL",
-          "rank": 32
-        },
-        {
-          "symbol": "PINE4",
-          "name": "BCO PINE S.A.",
-          "sector": "Finance",
-          "m1": 31.891433418150996,
-          "m3": 27.773212818405923,
-          "score": 54,
-          "benchmark": "SMLL",
-          "rank": 33
-        },
-        {
-          "symbol": "TUPY3",
-          "name": "TUPY S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 27.420362273579002,
-          "m3": 29.606099110546367,
-          "score": 52,
-          "benchmark": "SMLL",
-          "rank": 34
-        },
-        {
-          "symbol": "BRSR6",
-          "name": "BCO ESTADO DO RIO GRANDE DO SUL S.A.",
-          "sector": "Finance",
-          "m1": 22.215025906735764,
-          "m3": 30.950728660652338,
-          "score": 51,
-          "benchmark": "SMLL",
-          "rank": 35
-        },
-        {
-          "symbol": "CVCB3",
-          "name": "CVC BRASIL OPERADORA E AGÊNCIA DE VIAGENS S.A.",
-          "sector": "Consumer Services",
-          "m1": 7.499999999999996,
-          "m3": 37.59999999999999,
-          "score": 49,
-          "benchmark": "SMLL",
-          "rank": 36
-        },
-        {
-          "symbol": "HBOR3",
-          "name": "HELBOR EMPREENDIMENTOS S.A.",
-          "sector": "Consumer Durables",
-          "m1": 26.046511627906987,
-          "m3": 27.230046948356822,
-          "score": 48,
-          "benchmark": "SMLL",
-          "rank": 37
-        },
-        {
-          "symbol": "MDNE3",
-          "name": "MOURA DUBEUX ENGENHARIA S/A",
-          "sector": "Finance",
-          "m1": 25.248281130634066,
-          "m3": 25.296140619029405,
-          "score": 46,
-          "benchmark": "SMLL",
-          "rank": 38
-        },
-        {
-          "symbol": "EVEN3",
-          "name": "EVEN CONSTRUTORA E INCORPORADORA S.A.",
-          "sector": "Finance",
-          "m1": 47.85714285714284,
-          "m3": 10.301953818827702,
-          "score": 45,
-          "benchmark": "SMLL",
-          "rank": 39
-        },
-        {
-          "symbol": "SAPR11",
-          "name": "CIA SANEAMENTO DO PARANA - SANEPAR",
-          "sector": "Utilities",
-          "m1": 25.858698687517446,
-          "m3": 21.81081081081082,
-          "score": 43,
-          "benchmark": "SMLL",
-          "rank": 40
-        },
-        {
-          "symbol": "LOGG3",
-          "name": "LOG COMMERCIAL PROPERTIES",
-          "sector": "Industrial Services",
-          "m1": 27.20259845716606,
-          "m3": 19.99234009957871,
-          "score": 42,
-          "benchmark": "SMLL",
-          "rank": 41
-        },
-        {
-          "symbol": "GRND3",
-          "name": "GRENDENE S.A.",
-          "sector": "Consumer Non-Durables",
-          "m1": 24.668435013262613,
-          "m3": 21.134020618556715,
-          "score": 41,
-          "benchmark": "SMLL",
-          "rank": 42
-        },
-        {
-          "symbol": "ABCB4",
-          "name": "BCO ABC BRASIL S.A.",
-          "sector": "Finance",
-          "m1": 18.239999999999988,
-          "m3": 24.25388818831442,
-          "score": 39,
-          "benchmark": "SMLL",
-          "rank": 43
-        },
-        {
-          "symbol": "IRBR3",
-          "name": "IRB - BRASIL RESSEGUROS S.A.",
-          "sector": "Finance",
-          "m1": 16.18937262042708,
-          "m3": 24.804409672830708,
-          "score": 38,
-          "benchmark": "SMLL",
-          "rank": 44
-        },
-        {
-          "symbol": "PRNR3",
-          "name": "PRINER SERVIÇOS INDUSTRIAIS S.A.",
-          "sector": "Industrial Services",
-          "m1": 24.244090159428254,
-          "m3": 19.072708113804016,
-          "score": 36,
-          "benchmark": "SMLL",
-          "rank": 45
-        },
-        {
-          "symbol": "VULC3",
-          "name": "VULCABRAS S.A.",
-          "sector": "Consumer Non-Durables",
-          "m1": 24.679245283018858,
-          "m3": 15.041782729805009,
-          "score": 35,
-          "benchmark": "SMLL",
-          "rank": 46
-        },
-        {
-          "symbol": "HBSA3",
-          "name": "HIDROVIAS DO BRASIL S.A.",
-          "sector": "Transportation",
-          "m1": 19.648093841642233,
-          "m3": 17.579250720461093,
-          "score": 33,
-          "benchmark": "SMLL",
-          "rank": 47
-        },
-        {
-          "symbol": "SBFG3",
-          "name": "GRUPO SBF SA",
-          "sector": "Retail Trade",
-          "m1": 25.027442371020882,
-          "m3": 13.900000000000002,
-          "score": 32,
-          "benchmark": "SMLL",
-          "rank": 48
-        },
-        {
-          "symbol": "ALUP11",
-          "name": "ALUPAR INVESTIMENTO S/A",
-          "sector": "Utilities",
-          "m1": 16.857899382171215,
-          "m3": 17.828537525956676,
-          "score": 30,
-          "benchmark": "SMLL",
-          "rank": 49
-        },
-        {
-          "symbol": "MDIA3",
-          "name": "M.DIAS BRANCO S.A. IND COM DE ALIMENTOS",
-          "sector": "Consumer Non-Durables",
-          "m1": 19.825581395348845,
-          "m3": 15.786516853932575,
-          "score": 29,
-          "benchmark": "SMLL",
-          "rank": 50
-        },
-        {
-          "symbol": "SMTO3",
-          "name": "SAO MARTINHO S.A.",
-          "sector": "Process Industries",
-          "m1": -1.4285714285714346,
-          "m3": 26.450824679291387,
-          "score": 28,
-          "benchmark": "SMLL",
-          "rank": 51
-        },
-        {
-          "symbol": "KEPL3",
-          "name": "KEPLER WEBER S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 15.292353823088467,
-          "m3": 16.8693009118541,
-          "score": 26,
-          "benchmark": "SMLL",
-          "rank": 52
-        },
-        {
-          "symbol": "SLCE3",
-          "name": "SLC AGRICOLA S.A.",
-          "sector": "Process Industries",
-          "m1": -4.503526858383067,
-          "m3": 26.8925739005047,
-          "score": 25,
-          "benchmark": "SMLL",
-          "rank": 53
-        },
-        {
-          "symbol": "PLPL3",
-          "name": "PLANO & PLANO DESENVOLVIMENTO IMOBILIÁRIO S.A.",
-          "sector": "Finance",
-          "m1": 24.583333333333336,
-          "m3": 10.740740740740762,
-          "score": 23,
-          "benchmark": "SMLL",
-          "rank": 54
-        },
-        {
-          "symbol": "LEVE3",
-          "name": "MAHLE-METAL LEVE S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 13.456304807983077,
-          "m3": 16.413279553211325,
-          "score": 22,
-          "benchmark": "SMLL",
-          "rank": 55
-        },
-        {
-          "symbol": "MYPK3",
-          "name": "IOCHPE MAXION S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 8.208208208208202,
-          "m3": 16.86486486486487,
-          "score": 20,
-          "benchmark": "SMLL",
-          "rank": 56
-        },
-        {
-          "symbol": "RECV3",
-          "name": "PETRORECÔNCAVO S.A.",
-          "sector": "Energy Minerals",
-          "m1": 4.355251921434666,
-          "m3": 18.640776699029125,
-          "score": 19,
-          "benchmark": "SMLL",
-          "rank": 57
-        },
-        {
-          "symbol": "VLID3",
-          "name": "VALID SOLUÇÕES S.A.",
-          "sector": "Commercial Services",
-          "m1": 13.941769316909314,
-          "m3": 12.555309734513287,
-          "score": 17,
-          "benchmark": "SMLL",
-          "rank": 58
-        },
-        {
-          "symbol": "FESA4",
-          "name": "CIA FERRO LIGAS DA BAHIA - FERBASA",
-          "sector": "Non-Energy Minerals",
-          "m1": 12.82051282051282,
-          "m3": 12.05432937181663,
-          "score": 16,
-          "benchmark": "SMLL",
-          "rank": 59
-        },
-        {
-          "symbol": "TFCO4",
-          "name": "TRACK & FIELD CO S.A.",
-          "sector": "Retail Trade",
-          "m1": 18.697318007662833,
-          "m3": 3.12916111850865,
-          "score": 14,
-          "benchmark": "SMLL",
-          "rank": 60
-        },
-        {
-          "symbol": "DESK3",
-          "name": "DESKTOP S.A.",
-          "sector": "Communications",
-          "m1": 1.4084507042253502,
-          "m3": 8.907563025210074,
-          "score": 13,
-          "benchmark": "SMLL",
-          "rank": 61
-        },
-        {
-          "symbol": "RANI3",
-          "name": "IRANI PAPEL E EMBALAGEM S.A.",
-          "sector": "Process Industries",
-          "m1": 6.751592356687919,
-          "m3": 5.40880503144654,
-          "score": 12,
-          "benchmark": "SMLL",
-          "rank": 62
-        },
-        {
-          "symbol": "MILS3",
-          "name": "MILLS LOCAÇÃO. SERVIÇOS E LOGÍSTICA S.A",
-          "sector": "Finance",
-          "m1": 1.953371140516702,
-          "m3": 5.064935064935061,
-          "score": 10,
-          "benchmark": "SMLL",
-          "rank": 63
-        },
-        {
-          "symbol": "CBAV3",
-          "name": "COMPANHIA BRASILEIRA DE ALUMÍNIO",
-          "sector": "Non-Energy Minerals",
-          "m1": 0.3571428571428559,
-          "m3": 3.9777983348751045,
-          "score": 9,
-          "benchmark": "SMLL",
-          "rank": 64
-        },
-        {
-          "symbol": "CASH3",
-          "name": "MÉLIUZ S.A.",
-          "sector": "Commercial Services",
-          "m1": -4.545454545454552,
-          "m3": 5.882352941176472,
-          "score": 7,
-          "benchmark": "SMLL",
-          "rank": 65
-        },
-        {
-          "symbol": "UNIP6",
-          "name": "UNIPAR CARBOCLORO S.A.",
-          "sector": "Process Industries",
-          "m1": 7.730234196161301,
-          "m3": -1.1791309966079688,
-          "score": 6,
-          "benchmark": "SMLL",
-          "rank": 66
-        },
-        {
-          "symbol": "OPCT3",
-          "name": "OCEANPACT SERVICOS MARITIMOS S.A.",
-          "sector": "Commercial Services",
-          "m1": -2.331838565022415,
-          "m3": -2.506714413607869,
-          "score": 4,
-          "benchmark": "SMLL",
-          "rank": 67
-        },
-        {
-          "symbol": "TTEN3",
-          "name": "TRÊS TENTOS AGROINDUSTRIAL S/A",
-          "sector": "Commercial Services",
-          "m1": 15.01272264631044,
-          "m3": -12.233009708737852,
-          "score": 3,
-          "benchmark": "SMLL",
-          "rank": 68
-        },
-        {
-          "symbol": "POMO3",
-          "name": "MARCOPOLO S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 8.450704225352123,
-          "m3": -11.494252873563216,
-          "score": 1,
-          "benchmark": "SMLL",
-          "rank": 69
-        },
-        {
-          "symbol": "ORVR3",
-          "name": "ORIZON VALORIZACAO DE RESIDUOS S.A.",
-          "sector": "Utilities",
-          "m1": 24.900737379466833,
-          "m3": -70.95753099446056,
-          "score": 0,
-          "benchmark": "SMLL",
-          "rank": 70
-        },
-        {
-          "symbol": "ENJU3",
-          "name": "ENJOEI S.A.",
-          "sector": "Retail Trade",
-          "m1": 970.1298701298703,
-          "m3": 956.4102564102564,
-          "score": 100,
-          "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 1
-        },
-        {
           "symbol": "AZEV3",
           "name": "AZEVEDO E TRAVASSOS S.A.",
           "sector": "Industrial Services",
           "m1": 50.14619883040936,
           "m3": 603.4246575342465,
-          "score": 99,
+          "score": 100,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 2
+          "rank": 1
         },
         {
           "symbol": "RCSL3",
@@ -1509,19 +799,9 @@
           "sector": "Producer Manufacturing",
           "m1": 371.42857142857144,
           "m3": 407.6923076923077,
-          "score": 98,
+          "score": 100,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 3
-        },
-        {
-          "symbol": "LUPA3",
-          "name": "LUPATECH S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 14.08839779005524,
-          "m3": 498.5507246376811,
-          "score": 98,
-          "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 4
+          "rank": 2
         },
         {
           "symbol": "DOTZ3",
@@ -1529,9 +809,39 @@
           "sector": "Technology Services",
           "m1": 26.69902912621358,
           "m3": 239.84375000000006,
-          "score": 97,
+          "score": 99,
           "benchmark": "B3 fora de IBOV/SMLL",
+          "rank": 3
+        },
+        {
+          "symbol": "LJQQ3",
+          "name": "LOJAS QUERO-QUERO S/A",
+          "sector": "Retail Trade",
+          "m1": 120.30075187969925,
+          "m3": 146.218487394958,
+          "score": 99,
+          "benchmark": "SMLL",
+          "rank": 4
+        },
+        {
+          "symbol": "JSLG3",
+          "name": "JSL S.A.",
+          "sector": "Transportation",
+          "m1": 114.00000000000001,
+          "m3": 130.93525179856118,
+          "score": 98,
+          "benchmark": "SMLL",
           "rank": 5
+        },
+        {
+          "symbol": "MOVI3",
+          "name": "MOVIDA PARTICIPACOES SA",
+          "sector": "Finance",
+          "m1": 133.82716049382717,
+          "m3": 116.21004566210047,
+          "score": 98,
+          "benchmark": "SMLL",
+          "rank": 6
         },
         {
           "symbol": "RCSL4",
@@ -1539,9 +849,19 @@
           "sector": "Producer Manufacturing",
           "m1": 132.50000000000003,
           "m3": 116.27906976744188,
-          "score": 96,
+          "score": 97,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 6
+          "rank": 7
+        },
+        {
+          "symbol": "SIMH3",
+          "name": "SIMPAR S.A.",
+          "sector": "Transportation",
+          "m1": 118.75792141951842,
+          "m3": 117.65447667087012,
+          "score": 97,
+          "benchmark": "SMLL",
+          "rank": 8
         },
         {
           "symbol": "TASA3",
@@ -1549,9 +869,19 @@
           "sector": "Electronic Technology",
           "m1": 87.75510204081631,
           "m3": 110.68702290076335,
-          "score": 95,
+          "score": 96,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 7
+          "rank": 9
+        },
+        {
+          "symbol": "DASA3",
+          "name": "DIAGNOSTICOS DA AMERICA S.A.",
+          "sector": "Health Services",
+          "m1": 88.44765342960288,
+          "m3": 103.90625,
+          "score": 96,
+          "benchmark": "SMLL",
+          "rank": 10
         },
         {
           "symbol": "PTBL3",
@@ -1561,7 +891,27 @@
           "m3": 85.31073446327682,
           "score": 95,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 8
+          "rank": 11
+        },
+        {
+          "symbol": "ECOR3",
+          "name": "ECORODOVIAS INFRAESTRUTURA E LOGÍSTICA S.A.",
+          "sector": "Transportation",
+          "m1": 79.44038929440387,
+          "m3": 92.55874673629243,
+          "score": 95,
+          "benchmark": "SMLL",
+          "rank": 12
+        },
+        {
+          "symbol": "ANIM3",
+          "name": "ANIMA HOLDING S.A.",
+          "sector": "Consumer Services",
+          "m1": 82.41379310344827,
+          "m3": 87.58865248226952,
+          "score": 94,
+          "benchmark": "SMLL",
+          "rank": 13
         },
         {
           "symbol": "RAPT3",
@@ -1571,7 +921,7 @@
           "m3": 121.505376344086,
           "score": 94,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 9
+          "rank": 14
         },
         {
           "symbol": "TASA4",
@@ -1581,7 +931,17 @@
           "m3": 95.0207468879668,
           "score": 93,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 10
+          "rank": 15
+        },
+        {
+          "symbol": "ARML3",
+          "name": "ARMAC LOCAÇÃO. LOGÍSTICA E SERVIÇOS S.A.",
+          "sector": "Finance",
+          "m1": 68.31168831168833,
+          "m3": 90.58823529411765,
+          "score": 93,
+          "benchmark": "SMLL",
+          "rank": 16
         },
         {
           "symbol": "WEST3",
@@ -1591,7 +951,17 @@
           "m3": 55.367231638418076,
           "score": 92,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 11
+          "rank": 17
+        },
+        {
+          "symbol": "RAPT4",
+          "name": "RANDONCORP S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 54.296875,
+          "m3": 66.31578947368422,
+          "score": 92,
+          "benchmark": "SMLL",
+          "rank": 18
         },
         {
           "symbol": "VVEO3",
@@ -1599,9 +969,9 @@
           "sector": "Distribution Services",
           "m1": 24.35897435897436,
           "m3": 70.17543859649125,
-          "score": 92,
+          "score": 91,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 12
+          "rank": 19
         },
         {
           "symbol": "CSED3",
@@ -1611,7 +981,17 @@
           "m3": 66.90476190476188,
           "score": 91,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 13
+          "rank": 20
+        },
+        {
+          "symbol": "QUAL3",
+          "name": "QUALICORP CONSULTORIA E CORRETORA DE SEGUROS S.A.",
+          "sector": "Health Services",
+          "m1": 63.08724832214767,
+          "m3": 46.38554216867472,
+          "score": 90,
+          "benchmark": "SMLL",
+          "rank": 21
         },
         {
           "symbol": "CYRE4",
@@ -1621,7 +1001,7 @@
           "m3": 60.55528961225465,
           "score": 90,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 14
+          "rank": 22
         },
         {
           "symbol": "TRIS3",
@@ -1631,7 +1011,77 @@
           "m3": 59.628770301624144,
           "score": 89,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 15
+          "rank": 23
+        },
+        {
+          "symbol": "EZTC3",
+          "name": "EZ TEC EMPREEND. E PARTICIPACOES S.A.",
+          "sector": "Finance",
+          "m1": 50.38051750380519,
+          "m3": 52,
+          "score": 89,
+          "benchmark": "SMLL",
+          "rank": 24
+        },
+        {
+          "symbol": "PGMN3",
+          "name": "EMPREENDIMENTOS PAGUE MENOS S.A.",
+          "sector": "Retail Trade",
+          "m1": 43.603133159268936,
+          "m3": 55.367231638418076,
+          "score": 88,
+          "benchmark": "SMLL",
+          "rank": 25
+        },
+        {
+          "symbol": "DXCO3",
+          "name": "DEXCO S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 36.29893238434163,
+          "m3": 54.74747474747475,
+          "score": 88,
+          "benchmark": "SMLL",
+          "rank": 26
+        },
+        {
+          "symbol": "VTRU3",
+          "name": "VITRU EDUCAÇÃO S.A",
+          "sector": "Commercial Services",
+          "m1": 34.00000000000001,
+          "m3": 53.43511450381682,
+          "score": 87,
+          "benchmark": "SMLL",
+          "rank": 27
+        },
+        {
+          "symbol": "AUAU3",
+          "name": "UNIÃO PET PARTICIPAÇÕES S.A.",
+          "sector": "Process Industries",
+          "m1": 23.32506203473943,
+          "m3": 57.27848101265822,
+          "score": 87,
+          "benchmark": "SMLL",
+          "rank": 28
+        },
+        {
+          "symbol": "LAVV3",
+          "name": "LAVVI EMPREENDIMENTOS IMOBILIÁRIOS S.A.",
+          "sector": "Finance",
+          "m1": 46.09800362976409,
+          "m3": 44.91449144914495,
+          "score": 86,
+          "benchmark": "SMLL",
+          "rank": 29
+        },
+        {
+          "symbol": "INTB3",
+          "name": "INTELBRAS S.A. IND DE TELEC ELETRONICA BRASILEIRA",
+          "sector": "Technology Services",
+          "m1": 28.358208955223894,
+          "m3": 52.741312741312754,
+          "score": 86,
+          "benchmark": "SMLL",
+          "rank": 30
         },
         {
           "symbol": "VIVR3",
@@ -1639,9 +1089,29 @@
           "sector": "Consumer Durables",
           "m1": 58.38926174496643,
           "m3": 36.41618497109826,
-          "score": 88,
+          "score": 85,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 16
+          "rank": 31
+        },
+        {
+          "symbol": "TGMA3",
+          "name": "TEGMA GESTAO LOGISTICA S.A.",
+          "sector": "Transportation",
+          "m1": 30.230547550432263,
+          "m3": 49.63576158940397,
+          "score": 85,
+          "benchmark": "SMLL",
+          "rank": 32
+        },
+        {
+          "symbol": "BMOB3",
+          "name": "BEMOBI MOBILE TECH S.A.",
+          "sector": "Technology Services",
+          "m1": 31.81991606257153,
+          "m3": 48.2832618025751,
+          "score": 84,
+          "benchmark": "SMLL",
+          "rank": 33
         },
         {
           "symbol": "ALPK3",
@@ -1649,9 +1119,19 @@
           "sector": "Consumer Services",
           "m1": 37.49999999999998,
           "m3": 44.047619047619044,
-          "score": 88,
+          "score": 84,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 17
+          "rank": 34
+        },
+        {
+          "symbol": "LWSA3",
+          "name": "LWSA S.A.",
+          "sector": "Technology Services",
+          "m1": 41.481481481481495,
+          "m3": 40.78624078624078,
+          "score": 83,
+          "benchmark": "SMLL",
+          "rank": 35
         },
         {
           "symbol": "RENT4",
@@ -1659,9 +1139,9 @@
           "sector": "Finance",
           "m1": 46.72561481072122,
           "m3": 37.2093023255814,
-          "score": 87,
+          "score": 83,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 18
+          "rank": 36
         },
         {
           "symbol": "ENGI4",
@@ -1669,9 +1149,9 @@
           "sector": "Utilities",
           "m1": 37.97979797979798,
           "m3": 40.82474226804125,
-          "score": 86,
+          "score": 82,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 19
+          "rank": 37
         },
         {
           "symbol": "MATD3",
@@ -1679,9 +1159,19 @@
           "sector": "Health Services",
           "m1": 36.182902584493036,
           "m3": 39.511201629327886,
-          "score": 85,
+          "score": 82,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 20
+          "rank": 38
+        },
+        {
+          "symbol": "SEER3",
+          "name": "SER EDUCACIONAL S.A.",
+          "sector": "Consumer Services",
+          "m1": 23.758865248226947,
+          "m3": 45.17470881863561,
+          "score": 81,
+          "benchmark": "SMLL",
+          "rank": 39
         },
         {
           "symbol": "MLAS3",
@@ -1689,9 +1179,19 @@
           "sector": "Electronic Technology",
           "m1": 28.494623655913976,
           "m3": 41.42011834319528,
-          "score": 85,
+          "score": 81,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 21
+          "rank": 40
+        },
+        {
+          "symbol": "GGPS3",
+          "name": "GPS PARTICIPACOES E EMPREENDIMENTOS S.A.",
+          "sector": "Commercial Services",
+          "m1": 35.05311077389985,
+          "m3": 37.66434648105184,
+          "score": 80,
+          "benchmark": "SMLL",
+          "rank": 41
         },
         {
           "symbol": "HBRE3",
@@ -1699,9 +1199,9 @@
           "sector": "Finance",
           "m1": 26.119402985074625,
           "m3": 42.01680672268908,
-          "score": 84,
+          "score": 80,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 22
+          "rank": 42
         },
         {
           "symbol": "JALL3",
@@ -1709,9 +1209,19 @@
           "sector": "Process Industries",
           "m1": 14.828897338403046,
           "m3": 48.03921568627452,
-          "score": 83,
+          "score": 79,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 23
+          "rank": 43
+        },
+        {
+          "symbol": "PNVL3",
+          "name": "DIMED S.A. DISTRIBUIDORA DE MEDICAMENTOS",
+          "sector": "Retail Trade",
+          "m1": 22.374429223744265,
+          "m3": 43.957027752909575,
+          "score": 79,
+          "benchmark": "SMLL",
+          "rank": 44
         },
         {
           "symbol": "AMOB3",
@@ -1719,9 +1229,29 @@
           "sector": "Retail Trade",
           "m1": 41.96502914238136,
           "m3": 33.30727130570761,
-          "score": 82,
+          "score": 78,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 24
+          "rank": 45
+        },
+        {
+          "symbol": "GMAT3",
+          "name": "GRUPO MATEUS S.A.",
+          "sector": "Retail Trade",
+          "m1": 18.012422360248447,
+          "m3": 44.67005076142132,
+          "score": 78,
+          "benchmark": "SMLL",
+          "rank": 46
+        },
+        {
+          "symbol": "CAML3",
+          "name": "CAMIL ALIMENTOS S.A.",
+          "sector": "Process Industries",
+          "m1": 34.57943925233646,
+          "m3": 34.8314606741573,
+          "score": 77,
+          "benchmark": "SMLL",
+          "rank": 47
         },
         {
           "symbol": "ONCO3",
@@ -1729,9 +1259,19 @@
           "sector": "Health Services",
           "m1": 4.587155963302725,
           "m3": 49.99999999999998,
-          "score": 82,
+          "score": 77,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 25
+          "rank": 48
+        },
+        {
+          "symbol": "ALPA4",
+          "name": "ALPARGATAS S.A.",
+          "sector": "Consumer Non-Durables",
+          "m1": 25.811320754716995,
+          "m3": 38.3402489626556,
+          "score": 76,
+          "benchmark": "SMLL",
+          "rank": 49
         },
         {
           "symbol": "BPAC5",
@@ -1739,9 +1279,9 @@
           "sector": "Finance",
           "m1": 29.24205378973106,
           "m3": 35.53846153846154,
-          "score": 81,
+          "score": 76,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 26
+          "rank": 50
         },
         {
           "symbol": "PCAR3",
@@ -1749,9 +1289,29 @@
           "sector": "Retail Trade",
           "m1": 23.448275862068968,
           "m3": 38.223938223938234,
-          "score": 80,
+          "score": 75,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 27
+          "rank": 51
+        },
+        {
+          "symbol": "SOJA3",
+          "name": "BOA SAFRA SEMENTES S.A.",
+          "sector": "Process Industries",
+          "m1": 12.28978007761965,
+          "m3": 43.94693200663349,
+          "score": 75,
+          "benchmark": "SMLL",
+          "rank": 52
+        },
+        {
+          "symbol": "POSI3",
+          "name": "POSITIVO TECNOLOGIA S.A.",
+          "sector": "Electronic Technology",
+          "m1": 43.58974358974359,
+          "m3": 26.315789473684205,
+          "score": 74,
+          "benchmark": "SMLL",
+          "rank": 53
         },
         {
           "symbol": "CLSC4",
@@ -1759,9 +1319,29 @@
           "sector": "Utilities",
           "m1": 19.544829310991616,
           "m3": 38.91310665504215,
-          "score": 79,
+          "score": 74,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 28
+          "rank": 54
+        },
+        {
+          "symbol": "RIAA3",
+          "name": "RIACHUELO S.A.",
+          "sector": "Distribution Services",
+          "m1": 47.1311475409836,
+          "m3": 23.367697594501703,
+          "score": 73,
+          "benchmark": "SMLL",
+          "rank": 55
+        },
+        {
+          "symbol": "JHSF3",
+          "name": "JHSF PARTICIPACOES S.A.",
+          "sector": "Finance",
+          "m1": 21.786310517529216,
+          "m3": 35.97390493942216,
+          "score": 73,
+          "benchmark": "SMLL",
+          "rank": 56
         },
         {
           "symbol": "ALLD3",
@@ -1769,9 +1349,29 @@
           "sector": "Technology Services",
           "m1": 21.9607843137255,
           "m3": 35.21739130434782,
-          "score": 78,
+          "score": 72,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 29
+          "rank": 57
+        },
+        {
+          "symbol": "BRBI11",
+          "name": "BRBI BR PARTNERS S.A.",
+          "sector": "Finance",
+          "m1": 33.10344827586207,
+          "m3": 29.183400267737625,
+          "score": 72,
+          "benchmark": "SMLL",
+          "rank": 58
+        },
+        {
+          "symbol": "FRAS3",
+          "name": "FRASLE MOBILITY S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 18.657033574160643,
+          "m3": 35.20581113801455,
+          "score": 71,
+          "benchmark": "SMLL",
+          "rank": 59
         },
         {
           "symbol": "ROMI3",
@@ -1779,9 +1379,9 @@
           "sector": "Producer Manufacturing",
           "m1": 31.438127090301005,
           "m3": 28.221859706362153,
-          "score": 78,
+          "score": 71,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 30
+          "rank": 60
         },
         {
           "symbol": "MEAL3",
@@ -1789,9 +1389,29 @@
           "sector": "Consumer Services",
           "m1": 27.16049382716048,
           "m3": 30.379746835443044,
-          "score": 77,
+          "score": 70,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 31
+          "rank": 61
+        },
+        {
+          "symbol": "PINE4",
+          "name": "BCO PINE S.A.",
+          "sector": "Finance",
+          "m1": 31.891433418150996,
+          "m3": 27.773212818405923,
+          "score": 70,
+          "benchmark": "SMLL",
+          "rank": 62
+        },
+        {
+          "symbol": "TUPY3",
+          "name": "TUPY S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 27.420362273579002,
+          "m3": 29.606099110546367,
+          "score": 69,
+          "benchmark": "SMLL",
+          "rank": 63
         },
         {
           "symbol": "PFRM3",
@@ -1799,9 +1419,9 @@
           "sector": "Distribution Services",
           "m1": 14.739517153748395,
           "m3": 36.404833836857996,
-          "score": 76,
+          "score": 69,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 32
+          "rank": 64
         },
         {
           "symbol": "BMEB4",
@@ -1809,9 +1429,9 @@
           "sector": "Finance",
           "m1": 25.80805569368474,
           "m3": 30.144032921810716,
-          "score": 75,
+          "score": 68,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 33
+          "rank": 65
         },
         {
           "symbol": "SAPR3",
@@ -1819,9 +1439,9 @@
           "sector": "Utilities",
           "m1": 33.204633204633204,
           "m3": 25.45454545454544,
-          "score": 75,
+          "score": 68,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 34
+          "rank": 66
         },
         {
           "symbol": "LAND3",
@@ -1829,9 +1449,39 @@
           "sector": "Finance",
           "m1": 15.399999999999991,
           "m3": 34.81308411214952,
-          "score": 74,
+          "score": 67,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 35
+          "rank": 67
+        },
+        {
+          "symbol": "BRSR6",
+          "name": "BCO ESTADO DO RIO GRANDE DO SUL S.A.",
+          "sector": "Finance",
+          "m1": 22.215025906735764,
+          "m3": 30.950728660652338,
+          "score": 67,
+          "benchmark": "SMLL",
+          "rank": 68
+        },
+        {
+          "symbol": "CVCB3",
+          "name": "CVC BRASIL OPERADORA E AGÊNCIA DE VIAGENS S.A.",
+          "sector": "Consumer Services",
+          "m1": 7.499999999999996,
+          "m3": 37.59999999999999,
+          "score": 66,
+          "benchmark": "SMLL",
+          "rank": 69
+        },
+        {
+          "symbol": "HBOR3",
+          "name": "HELBOR EMPREENDIMENTOS S.A.",
+          "sector": "Consumer Durables",
+          "m1": 26.046511627906987,
+          "m3": 27.230046948356822,
+          "score": 66,
+          "benchmark": "SMLL",
+          "rank": 70
         },
         {
           "symbol": "BRST3",
@@ -1839,9 +1489,9 @@
           "sector": "Communications",
           "m1": 25.52447552447552,
           "m3": 27.304964539007102,
-          "score": 73,
+          "score": 65,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 36
+          "rank": 71
         },
         {
           "symbol": "ALPA3",
@@ -1849,9 +1499,9 @@
           "sector": "Consumer Non-Durables",
           "m1": 18.913480885311884,
           "m3": 30.752212389380553,
-          "score": 72,
+          "score": 65,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 37
+          "rank": 72
         },
         {
           "symbol": "TPIS3",
@@ -1859,9 +1509,9 @@
           "sector": "Transportation",
           "m1": 14.915572232645392,
           "m3": 32.863340563991315,
-          "score": 72,
+          "score": 64,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 38
+          "rank": 73
         },
         {
           "symbol": "BMGB4",
@@ -1869,9 +1519,9 @@
           "sector": "Finance",
           "m1": 15.51155115511551,
           "m3": 32.32514177693761,
-          "score": 71,
+          "score": 64,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 39
+          "rank": 74
         },
         {
           "symbol": "MTRE3",
@@ -1879,9 +1529,9 @@
           "sector": "Finance",
           "m1": 16.85714285714286,
           "m3": 31.5112540192926,
-          "score": 70,
+          "score": 63,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 40
+          "rank": 75
         },
         {
           "symbol": "GFSA3",
@@ -1889,9 +1539,19 @@
           "sector": "Finance",
           "m1": 119.99999999999997,
           "m3": -24.13793103448275,
-          "score": 69,
+          "score": 63,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 41
+          "rank": 76
+        },
+        {
+          "symbol": "MDNE3",
+          "name": "MOURA DUBEUX ENGENHARIA S/A",
+          "sector": "Finance",
+          "m1": 25.248281130634066,
+          "m3": 25.296140619029405,
+          "score": 62,
+          "benchmark": "SMLL",
+          "rank": 77
         },
         {
           "symbol": "BAZA3",
@@ -1899,9 +1559,9 @@
           "sector": "Finance",
           "m1": 15.247700978937996,
           "m3": 30.369127516778516,
-          "score": 68,
+          "score": 62,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 42
+          "rank": 78
         },
         {
           "symbol": "IGTI3",
@@ -1909,9 +1569,9 @@
           "sector": "Finance",
           "m1": 28.440366972477072,
           "m3": 22.44897959183674,
-          "score": 68,
+          "score": 61,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 43
+          "rank": 79
         },
         {
           "symbol": "CSUD3",
@@ -1919,9 +1579,9 @@
           "sector": "Commercial Services",
           "m1": 24.270462633451963,
           "m3": 24.358974358974383,
-          "score": 67,
+          "score": 61,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 44
+          "rank": 80
         },
         {
           "symbol": "BLAU3",
@@ -1929,9 +1589,39 @@
           "sector": "Health Technology",
           "m1": 25.848303393213577,
           "m3": 22.427184466019412,
-          "score": 66,
+          "score": 60,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 45
+          "rank": 81
+        },
+        {
+          "symbol": "EVEN3",
+          "name": "EVEN CONSTRUTORA E INCORPORADORA S.A.",
+          "sector": "Finance",
+          "m1": 47.85714285714284,
+          "m3": 10.301953818827702,
+          "score": 60,
+          "benchmark": "SMLL",
+          "rank": 82
+        },
+        {
+          "symbol": "SAPR11",
+          "name": "CIA SANEAMENTO DO PARANA - SANEPAR",
+          "sector": "Utilities",
+          "m1": 25.858698687517446,
+          "m3": 21.81081081081082,
+          "score": 59,
+          "benchmark": "SMLL",
+          "rank": 83
+        },
+        {
+          "symbol": "LOGG3",
+          "name": "LOG COMMERCIAL PROPERTIES",
+          "sector": "Industrial Services",
+          "m1": 27.20259845716606,
+          "m3": 19.99234009957871,
+          "score": 59,
+          "benchmark": "SMLL",
+          "rank": 84
         },
         {
           "symbol": "WDCN3",
@@ -1939,9 +1629,19 @@
           "sector": "Distribution Services",
           "m1": 11.567164179104484,
           "m3": 28.326180257510725,
-          "score": 65,
+          "score": 58,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 46
+          "rank": 85
+        },
+        {
+          "symbol": "GRND3",
+          "name": "GRENDENE S.A.",
+          "sector": "Consumer Non-Durables",
+          "m1": 24.668435013262613,
+          "m3": 21.134020618556715,
+          "score": 58,
+          "benchmark": "SMLL",
+          "rank": 86
         },
         {
           "symbol": "RAIZ4",
@@ -1949,9 +1649,29 @@
           "sector": "Retail Trade",
           "m1": 35.7142857142857,
           "m3": 15.151515151515138,
-          "score": 65,
+          "score": 57,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 47
+          "rank": 87
+        },
+        {
+          "symbol": "ABCB4",
+          "name": "BCO ABC BRASIL S.A.",
+          "sector": "Finance",
+          "m1": 18.239999999999988,
+          "m3": 24.25388818831442,
+          "score": 57,
+          "benchmark": "SMLL",
+          "rank": 88
+        },
+        {
+          "symbol": "IRBR3",
+          "name": "IRB - BRASIL RESSEGUROS S.A.",
+          "sector": "Finance",
+          "m1": 16.18937262042708,
+          "m3": 24.804409672830708,
+          "score": 56,
+          "benchmark": "SMLL",
+          "rank": 89
         },
         {
           "symbol": "SAPR4",
@@ -1959,9 +1679,9 @@
           "sector": "Utilities",
           "m1": 24.81962481962483,
           "m3": 19.806094182825483,
-          "score": 64,
+          "score": 56,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 48
+          "rank": 90
         },
         {
           "symbol": "COCE5",
@@ -1969,9 +1689,19 @@
           "sector": "Utilities",
           "m1": 17.909496494582534,
           "m3": 23.33333333333334,
-          "score": 63,
+          "score": 55,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 49
+          "rank": 91
+        },
+        {
+          "symbol": "PRNR3",
+          "name": "PRINER SERVIÇOS INDUSTRIAIS S.A.",
+          "sector": "Industrial Services",
+          "m1": 24.244090159428254,
+          "m3": 19.072708113804016,
+          "score": 55,
+          "benchmark": "SMLL",
+          "rank": 92
         },
         {
           "symbol": "PINE3",
@@ -1979,9 +1709,9 @@
           "sector": "Finance",
           "m1": 29.42271880819367,
           "m3": 15.833333333333343,
-          "score": 62,
+          "score": 54,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 50
+          "rank": 93
         },
         {
           "symbol": "PASS3",
@@ -1989,9 +1719,9 @@
           "sector": "Utilities",
           "m1": 21.62275198661647,
           "m3": 17.400080742834078,
-          "score": 62,
+          "score": 54,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 51
+          "rank": 94
         },
         {
           "symbol": "LPSB3",
@@ -1999,9 +1729,29 @@
           "sector": "Commercial Services",
           "m1": 27.692307692307683,
           "m3": 13.698630136986289,
-          "score": 61,
+          "score": 53,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 52
+          "rank": 95
+        },
+        {
+          "symbol": "VULC3",
+          "name": "VULCABRAS S.A.",
+          "sector": "Consumer Non-Durables",
+          "m1": 24.679245283018858,
+          "m3": 15.041782729805009,
+          "score": 53,
+          "benchmark": "SMLL",
+          "rank": 96
+        },
+        {
+          "symbol": "HBSA3",
+          "name": "HIDROVIAS DO BRASIL S.A.",
+          "sector": "Transportation",
+          "m1": 19.648093841642233,
+          "m3": 17.579250720461093,
+          "score": 52,
+          "benchmark": "SMLL",
+          "rank": 97
         },
         {
           "symbol": "AMAR3",
@@ -2009,9 +1759,9 @@
           "sector": "Retail Trade",
           "m1": -7.86516853932585,
           "m3": 32.258064516129025,
-          "score": 60,
+          "score": 52,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 53
+          "rank": 98
         },
         {
           "symbol": "ITUB3",
@@ -2019,9 +1769,29 @@
           "sector": "Finance",
           "m1": 16.903837861147043,
           "m3": 18.591426071741026,
-          "score": 59,
+          "score": 51,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 54
+          "rank": 99
+        },
+        {
+          "symbol": "SBFG3",
+          "name": "GRUPO SBF SA",
+          "sector": "Retail Trade",
+          "m1": 25.027442371020882,
+          "m3": 13.900000000000002,
+          "score": 51,
+          "benchmark": "SMLL",
+          "rank": 100
+        },
+        {
+          "symbol": "ALUP11",
+          "name": "ALUPAR INVESTIMENTO S/A",
+          "sector": "Utilities",
+          "m1": 16.857899382171215,
+          "m3": 17.828537525956676,
+          "score": 50,
+          "benchmark": "SMLL",
+          "rank": 101
         },
         {
           "symbol": "BMEB3",
@@ -2029,9 +1799,9 @@
           "sector": "Finance",
           "m1": 13.070259865255052,
           "m3": 19.85309120587635,
-          "score": 58,
+          "score": 50,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 55
+          "rank": 102
         },
         {
           "symbol": "VITT3",
@@ -2039,9 +1809,9 @@
           "sector": "Process Industries",
           "m1": 18.885448916408663,
           "m3": 16.71732522796352,
-          "score": 58,
+          "score": 49,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 56
+          "rank": 103
         },
         {
           "symbol": "BPAC3",
@@ -2049,9 +1819,19 @@
           "sector": "Finance",
           "m1": 17.43697478991595,
           "m3": 17.141659681475275,
-          "score": 57,
+          "score": 49,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 57
+          "rank": 104
+        },
+        {
+          "symbol": "MDIA3",
+          "name": "M.DIAS BRANCO S.A. IND COM DE ALIMENTOS",
+          "sector": "Consumer Non-Durables",
+          "m1": 19.825581395348845,
+          "m3": 15.786516853932575,
+          "score": 48,
+          "benchmark": "SMLL",
+          "rank": 105
         },
         {
           "symbol": "EUCA4",
@@ -2059,9 +1839,9 @@
           "sector": "Non-Energy Minerals",
           "m1": 24.47916666666665,
           "m3": 13.27014218009477,
-          "score": 56,
+          "score": 48,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 58
+          "rank": 106
         },
         {
           "symbol": "ALUP3",
@@ -2069,9 +1849,9 @@
           "sector": "Utilities",
           "m1": 20.86882453151617,
           "m3": 15.17857142857142,
-          "score": 55,
+          "score": 47,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 59
+          "rank": 107
         },
         {
           "symbol": "EMAE4",
@@ -2079,9 +1859,19 @@
           "sector": "Utilities",
           "m1": 22.034867104887113,
           "m3": 14.140604116546406,
-          "score": 55,
+          "score": 47,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 60
+          "rank": 108
+        },
+        {
+          "symbol": "SMTO3",
+          "name": "SAO MARTINHO S.A.",
+          "sector": "Process Industries",
+          "m1": -1.4285714285714346,
+          "m3": 26.450824679291387,
+          "score": 46,
+          "benchmark": "SMLL",
+          "rank": 109
         },
         {
           "symbol": "ENGI3",
@@ -2089,9 +1879,9 @@
           "sector": "Utilities",
           "m1": 16.694214876033065,
           "m3": 16.5016501650165,
-          "score": 54,
+          "score": 45,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 61
+          "rank": 110
         },
         {
           "symbol": "MELK3",
@@ -2099,9 +1889,19 @@
           "sector": "Industrial Services",
           "m1": 20.598006644518275,
           "m3": 14.1509433962264,
-          "score": 53,
+          "score": 45,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 62
+          "rank": 111
+        },
+        {
+          "symbol": "KEPL3",
+          "name": "KEPLER WEBER S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 15.292353823088467,
+          "m3": 16.8693009118541,
+          "score": 44,
+          "benchmark": "SMLL",
+          "rank": 112
         },
         {
           "symbol": "ALUP4",
@@ -2109,9 +1909,9 @@
           "sector": "Utilities",
           "m1": 14.027149321266963,
           "m3": 17.537313432835823,
-          "score": 52,
+          "score": 44,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 63
+          "rank": 113
         },
         {
           "symbol": "ITSA3",
@@ -2119,9 +1919,39 @@
           "sector": "Finance",
           "m1": 14.466292134831459,
           "m3": 17.097701149425305,
-          "score": 52,
+          "score": 44,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 64
+          "rank": 114
+        },
+        {
+          "symbol": "SLCE3",
+          "name": "SLC AGRICOLA S.A.",
+          "sector": "Process Industries",
+          "m1": -4.503526858383067,
+          "m3": 26.8925739005047,
+          "score": 43,
+          "benchmark": "SMLL",
+          "rank": 115
+        },
+        {
+          "symbol": "PLPL3",
+          "name": "PLANO & PLANO DESENVOLVIMENTO IMOBILIÁRIO S.A.",
+          "sector": "Finance",
+          "m1": 24.583333333333336,
+          "m3": 10.740740740740762,
+          "score": 43,
+          "benchmark": "SMLL",
+          "rank": 116
+        },
+        {
+          "symbol": "LEVE3",
+          "name": "MAHLE-METAL LEVE S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 13.456304807983077,
+          "m3": 16.413279553211325,
+          "score": 42,
+          "benchmark": "SMLL",
+          "rank": 117
         },
         {
           "symbol": "BIOM3",
@@ -2129,9 +1959,9 @@
           "sector": "Health Technology",
           "m1": 11.550151975683898,
           "m3": 17.252396166134186,
-          "score": 51,
+          "score": 42,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 65
+          "rank": 118
         },
         {
           "symbol": "SHUL4",
@@ -2139,9 +1969,9 @@
           "sector": "Producer Manufacturing",
           "m1": 17.555555555555546,
           "m3": 13.763440860215038,
-          "score": 50,
+          "score": 41,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 66
+          "rank": 119
         },
         {
           "symbol": "HAGA4",
@@ -2149,9 +1979,9 @@
           "sector": "Consumer Durables",
           "m1": 2.7027027027026973,
           "m3": 21.019108280254773,
-          "score": 49,
+          "score": 41,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 67
+          "rank": 120
         },
         {
           "symbol": "VSTE3",
@@ -2159,9 +1989,9 @@
           "sector": "Consumer Non-Durables",
           "m1": 29.795918367346943,
           "m3": 6.000000000000005,
-          "score": 48,
+          "score": 40,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 68
+          "rank": 121
         },
         {
           "symbol": "AXIA7",
@@ -2169,9 +1999,29 @@
           "sector": "Utilities",
           "m1": 7.1965628356605915,
           "m3": 17.411764705882348,
-          "score": 48,
+          "score": 40,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 69
+          "rank": 122
+        },
+        {
+          "symbol": "MYPK3",
+          "name": "IOCHPE MAXION S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 8.208208208208202,
+          "m3": 16.86486486486487,
+          "score": 39,
+          "benchmark": "SMLL",
+          "rank": 123
+        },
+        {
+          "symbol": "RECV3",
+          "name": "PETRORECÔNCAVO S.A.",
+          "sector": "Energy Minerals",
+          "m1": 4.355251921434666,
+          "m3": 18.640776699029125,
+          "score": 39,
+          "benchmark": "SMLL",
+          "rank": 124
         },
         {
           "symbol": "TECN3",
@@ -2179,9 +2029,9 @@
           "sector": "Consumer Durables",
           "m1": 11.665004985044858,
           "m3": 14.63664278403276,
-          "score": 47,
+          "score": 38,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 70
+          "rank": 125
         },
         {
           "symbol": "RNEW4",
@@ -2189,9 +2039,19 @@
           "sector": "Utilities",
           "m1": 2.1739130434782483,
           "m3": 18.98734177215189,
-          "score": 46,
+          "score": 38,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 71
+          "rank": 126
+        },
+        {
+          "symbol": "VLID3",
+          "name": "VALID SOLUÇÕES S.A.",
+          "sector": "Commercial Services",
+          "m1": 13.941769316909314,
+          "m3": 12.555309734513287,
+          "score": 37,
+          "benchmark": "SMLL",
+          "rank": 127
         },
         {
           "symbol": "DEXP3",
@@ -2199,9 +2059,9 @@
           "sector": "Process Industries",
           "m1": 11.051212938005396,
           "m3": 13.812154696132595,
-          "score": 45,
+          "score": 37,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 72
+          "rank": 128
         },
         {
           "symbol": "TAEE3",
@@ -2209,9 +2069,19 @@
           "sector": "Industrial Services",
           "m1": 13.072378138847874,
           "m3": 11.997073884418441,
-          "score": 45,
+          "score": 36,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 73
+          "rank": 129
+        },
+        {
+          "symbol": "FESA4",
+          "name": "CIA FERRO LIGAS DA BAHIA - FERBASA",
+          "sector": "Non-Energy Minerals",
+          "m1": 12.82051282051282,
+          "m3": 12.05432937181663,
+          "score": 36,
+          "benchmark": "SMLL",
+          "rank": 130
         },
         {
           "symbol": "CMIG3",
@@ -2219,9 +2089,9 @@
           "sector": "Utilities",
           "m1": 5.9873344847438,
           "m3": 14.347826086956506,
-          "score": 44,
+          "score": 35,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 74
+          "rank": 131
         },
         {
           "symbol": "FIQE3",
@@ -2229,9 +2099,9 @@
           "sector": "Communications",
           "m1": 21.568627450980404,
           "m3": 5.802047781569963,
-          "score": 43,
+          "score": 35,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 75
+          "rank": 132
         },
         {
           "symbol": "TAEE4",
@@ -2239,9 +2109,9 @@
           "sector": "Industrial Services",
           "m1": 11.679884643114647,
           "m3": 11.039426523297502,
-          "score": 42,
+          "score": 34,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 76
+          "rank": 133
         },
         {
           "symbol": "OFSA3",
@@ -2249,9 +2119,9 @@
           "sector": "Health Technology",
           "m1": 9.329446064139946,
           "m3": 11.940298507462677,
-          "score": 42,
+          "score": 34,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 77
+          "rank": 134
         },
         {
           "symbol": "LOGN3",
@@ -2259,9 +2129,9 @@
           "sector": "Transportation",
           "m1": 10.678571428571427,
           "m3": 11.075268817204309,
-          "score": 41,
+          "score": 33,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 78
+          "rank": 135
         },
         {
           "symbol": "ISAE3",
@@ -2269,9 +2139,9 @@
           "sector": "Utilities",
           "m1": 6.951871657754016,
           "m3": 12.923462986198242,
-          "score": 40,
+          "score": 33,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 79
+          "rank": 136
         },
         {
           "symbol": "SEQL3",
@@ -2279,9 +2149,9 @@
           "sector": "Transportation",
           "m1": 0,
           "m3": 16.666666666666675,
-          "score": 39,
+          "score": 32,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 80
+          "rank": 137
         },
         {
           "symbol": "BEES3",
@@ -2289,9 +2159,9 @@
           "sector": "Finance",
           "m1": 8.539325842696632,
           "m3": 10.526315789473673,
-          "score": 38,
+          "score": 32,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 81
+          "rank": 138
         },
         {
           "symbol": "WIZC3",
@@ -2299,9 +2169,9 @@
           "sector": "Finance",
           "m1": 13.15136476426797,
           "m3": 7.547169811320731,
-          "score": 38,
+          "score": 31,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 82
+          "rank": 139
         },
         {
           "symbol": "PDTC3",
@@ -2309,9 +2179,9 @@
           "sector": "Electronic Technology",
           "m1": 13.855421686746983,
           "m3": 6.779661016949157,
-          "score": 37,
+          "score": 31,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 83
+          "rank": 140
         },
         {
           "symbol": "RNEW3",
@@ -2319,9 +2189,9 @@
           "sector": "Utilities",
           "m1": 1.098901098901095,
           "m3": 13.58024691358024,
-          "score": 36,
+          "score": 30,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 84
+          "rank": 141
         },
         {
           "symbol": "GOAU3",
@@ -2329,9 +2199,9 @@
           "sector": "Non-Energy Minerals",
           "m1": 1.4591439688715901,
           "m3": 13.3695652173913,
-          "score": 35,
+          "score": 30,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 85
+          "rank": 142
         },
         {
           "symbol": "BRSR3",
@@ -2339,9 +2209,9 @@
           "sector": "Finance",
           "m1": 5.979155238617673,
           "m3": 10.716332378223491,
-          "score": 35,
+          "score": 29,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 86
+          "rank": 143
         },
         {
           "symbol": "CGRA4",
@@ -2349,9 +2219,19 @@
           "sector": "Retail Trade",
           "m1": 13.333333333333353,
           "m3": 6.554690700532584,
-          "score": 34,
+          "score": 29,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 87
+          "rank": 144
+        },
+        {
+          "symbol": "TFCO4",
+          "name": "TRACK & FIELD CO S.A.",
+          "sector": "Retail Trade",
+          "m1": 18.697318007662833,
+          "m3": 3.12916111850865,
+          "score": 28,
+          "benchmark": "SMLL",
+          "rank": 145
         },
         {
           "symbol": "NUTR3",
@@ -2359,9 +2239,9 @@
           "sector": "Process Industries",
           "m1": 9.170305676855882,
           "m3": 7.758620689655182,
-          "score": 33,
+          "score": 28,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 88
+          "rank": 146
         },
         {
           "symbol": "BMKS3",
@@ -2369,9 +2249,9 @@
           "sector": "Consumer Durables",
           "m1": 10.885771543086165,
           "m3": 6.683976451836804,
-          "score": 32,
+          "score": 27,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 89
+          "rank": 147
         },
         {
           "symbol": "UCAS3",
@@ -2379,9 +2259,9 @@
           "sector": "Consumer Durables",
           "m1": 8.547008547008561,
           "m3": 7.6271186440677985,
-          "score": 32,
+          "score": 27,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 90
+          "rank": 148
         },
         {
           "symbol": "BEES4",
@@ -2389,9 +2269,9 @@
           "sector": "Finance",
           "m1": 5.87583148558759,
           "m3": 8.399545970488088,
-          "score": 31,
+          "score": 26,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 91
+          "rank": 149
         },
         {
           "symbol": "GGBR3",
@@ -2399,9 +2279,9 @@
           "sector": "Non-Energy Minerals",
           "m1": -0.7692307692307776,
           "m3": 11.48957803762074,
-          "score": 30,
+          "score": 26,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 92
+          "rank": 150
         },
         {
           "symbol": "AERI3",
@@ -2409,9 +2289,9 @@
           "sector": "Producer Manufacturing",
           "m1": 5.660377358490565,
           "m3": 7.692307692307709,
-          "score": 29,
+          "score": 25,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 93
+          "rank": 151
         },
         {
           "symbol": "CEBR3",
@@ -2419,9 +2299,29 @@
           "sector": "Utilities",
           "m1": 9.47589098532493,
           "m3": 5.452342487883666,
-          "score": 28,
+          "score": 25,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 94
+          "rank": 152
+        },
+        {
+          "symbol": "DESK3",
+          "name": "DESKTOP S.A.",
+          "sector": "Communications",
+          "m1": 1.4084507042253502,
+          "m3": 8.907563025210074,
+          "score": 24,
+          "benchmark": "SMLL",
+          "rank": 153
+        },
+        {
+          "symbol": "RANI3",
+          "name": "IRANI PAPEL E EMBALAGEM S.A.",
+          "sector": "Process Industries",
+          "m1": 6.751592356687919,
+          "m3": 5.40880503144654,
+          "score": 24,
+          "benchmark": "SMLL",
+          "rank": 154
         },
         {
           "symbol": "AZEV4",
@@ -2429,9 +2329,9 @@
           "sector": "Industrial Services",
           "m1": 1.4598540145985162,
           "m3": 6.923076923076921,
-          "score": 28,
+          "score": 23,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 95
+          "rank": 155
         },
         {
           "symbol": "OBTC3",
@@ -2439,9 +2339,9 @@
           "sector": "Technology Services",
           "m1": -8.321964529331517,
           "m3": 11.627906976744185,
-          "score": 27,
+          "score": 23,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 96
+          "rank": 156
         },
         {
           "symbol": "ESPA3",
@@ -2449,9 +2349,9 @@
           "sector": "Consumer Services",
           "m1": 10.277777777777786,
           "m3": 1.0178117048346147,
-          "score": 26,
+          "score": 22,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 97
+          "rank": 157
         },
         {
           "symbol": "SANB3",
@@ -2459,9 +2359,9 @@
           "sector": "Finance",
           "m1": -3.6838580040187474,
           "m3": 8.446455505279049,
-          "score": 25,
+          "score": 22,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 98
+          "rank": 158
         },
         {
           "symbol": "EQPA3",
@@ -2469,9 +2369,19 @@
           "sector": "Utilities",
           "m1": 2.914389799635697,
           "m3": 4.629629629629628,
-          "score": 25,
+          "score": 21,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 99
+          "rank": 159
+        },
+        {
+          "symbol": "MILS3",
+          "name": "MILLS LOCAÇÃO. SERVIÇOS E LOGÍSTICA S.A",
+          "sector": "Finance",
+          "m1": 1.953371140516702,
+          "m3": 5.064935064935061,
+          "score": 21,
+          "benchmark": "SMLL",
+          "rank": 160
         },
         {
           "symbol": "EALT4",
@@ -2479,9 +2389,9 @@
           "sector": "Producer Manufacturing",
           "m1": 7.826086956521738,
           "m3": 1.7227235438884492,
-          "score": 24,
+          "score": 20,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 100
+          "rank": 161
         },
         {
           "symbol": "CEBR5",
@@ -2489,9 +2399,19 @@
           "sector": "Utilities",
           "m1": 6.1681453316434265,
           "m3": 2.5295797633618777,
-          "score": 23,
+          "score": 20,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 101
+          "rank": 162
+        },
+        {
+          "symbol": "CBAV3",
+          "name": "COMPANHIA BRASILEIRA DE ALUMÍNIO",
+          "sector": "Non-Energy Minerals",
+          "m1": 0.3571428571428559,
+          "m3": 3.9777983348751045,
+          "score": 19,
+          "benchmark": "SMLL",
+          "rank": 163
         },
         {
           "symbol": "SAUD3",
@@ -2499,9 +2419,29 @@
           "sector": "Health Services",
           "m1": 1.3548387096774306,
           "m3": 3.0163934426229666,
-          "score": 22,
+          "score": 19,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 102
+          "rank": 164
+        },
+        {
+          "symbol": "CASH3",
+          "name": "MÉLIUZ S.A.",
+          "sector": "Commercial Services",
+          "m1": -4.545454545454552,
+          "m3": 5.882352941176472,
+          "score": 18,
+          "benchmark": "SMLL",
+          "rank": 165
+        },
+        {
+          "symbol": "UNIP6",
+          "name": "UNIPAR CARBOCLORO S.A.",
+          "sector": "Process Industries",
+          "m1": 7.730234196161301,
+          "m3": -1.1791309966079688,
+          "score": 18,
+          "benchmark": "SMLL",
+          "rank": 166
         },
         {
           "symbol": "SYNE3",
@@ -2509,9 +2449,9 @@
           "sector": "Finance",
           "m1": 8.48806366047745,
           "m3": -1.6826923076923128,
-          "score": 22,
+          "score": 17,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 103
+          "rank": 167
         },
         {
           "symbol": "WHRL4",
@@ -2519,9 +2459,9 @@
           "sector": "Consumer Durables",
           "m1": 6.970509383378021,
           "m3": -1.2376237623762387,
-          "score": 21,
+          "score": 17,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 104
+          "rank": 168
         },
         {
           "symbol": "MNPR3",
@@ -2529,9 +2469,9 @@
           "sector": "Process Industries",
           "m1": -0.4975124378109319,
           "m3": 2.564102564102577,
-          "score": 20,
+          "score": 16,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 105
+          "rank": 169
         },
         {
           "symbol": "KLBN3",
@@ -2539,9 +2479,9 @@
           "sector": "Non-Energy Minerals",
           "m1": -9.443099273607736,
           "m3": 6.857142857142873,
-          "score": 19,
+          "score": 16,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 106
+          "rank": 170
         },
         {
           "symbol": "UNIP3",
@@ -2549,9 +2489,9 @@
           "sector": "Process Industries",
           "m1": 4.605498036415567,
           "m3": -0.8795669824086527,
-          "score": 18,
+          "score": 15,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 107
+          "rank": 171
         },
         {
           "symbol": "DMVF3",
@@ -2559,9 +2499,9 @@
           "sector": "Distribution Services",
           "m1": 3.076923076923088,
           "m3": -0.29761904761904656,
-          "score": 18,
+          "score": 15,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 108
+          "rank": 172
         },
         {
           "symbol": "SCAR3",
@@ -2569,9 +2509,9 @@
           "sector": "Finance",
           "m1": -0.23201856148491462,
           "m3": 1.2558869701726927,
-          "score": 17,
+          "score": 14,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 109
+          "rank": 173
         },
         {
           "symbol": "KLBN4",
@@ -2579,9 +2519,9 @@
           "sector": "Non-Energy Minerals",
           "m1": -5.46875,
           "m3": 4.011461318051568,
-          "score": 16,
+          "score": 14,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 110
+          "rank": 174
         },
         {
           "symbol": "CEBR6",
@@ -2589,9 +2529,9 @@
           "sector": "Utilities",
           "m1": 2.306306306306305,
           "m3": -0.5604203152364318,
-          "score": 15,
+          "score": 13,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 111
+          "rank": 175
         },
         {
           "symbol": "SANB4",
@@ -2599,9 +2539,9 @@
           "sector": "Finance",
           "m1": -3.1735313977042545,
           "m3": 2.0640569395017794,
-          "score": 15,
+          "score": 13,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 112
+          "rank": 176
         },
         {
           "symbol": "ETER3",
@@ -2609,9 +2549,9 @@
           "sector": "Non-Energy Minerals",
           "m1": 0,
           "m3": -0.7999999999999896,
-          "score": 14,
+          "score": 12,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 113
+          "rank": 177
         },
         {
           "symbol": "BRAP3",
@@ -2619,9 +2559,9 @@
           "sector": "Finance",
           "m1": -3.4357105674128086,
           "m3": 1.0348583877995754,
-          "score": 13,
+          "score": 12,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 114
+          "rank": 178
         },
         {
           "symbol": "AGRO3",
@@ -2629,9 +2569,9 @@
           "sector": "Finance",
           "m1": -1.0373443983402675,
           "m3": -0.31347962382446415,
-          "score": 12,
+          "score": 11,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 115
+          "rank": 179
         },
         {
           "symbol": "AZTE3",
@@ -2639,9 +2579,29 @@
           "sector": "Energy Minerals",
           "m1": -10.909090909090901,
           "m3": 4.255319148936176,
-          "score": 12,
+          "score": 11,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 116
+          "rank": 180
+        },
+        {
+          "symbol": "OPCT3",
+          "name": "OCEANPACT SERVICOS MARITIMOS S.A.",
+          "sector": "Commercial Services",
+          "m1": -2.331838565022415,
+          "m3": -2.506714413607869,
+          "score": 10,
+          "benchmark": "SMLL",
+          "rank": 181
+        },
+        {
+          "symbol": "TTEN3",
+          "name": "TRÊS TENTOS AGROINDUSTRIAL S/A",
+          "sector": "Commercial Services",
+          "m1": 15.01272264631044,
+          "m3": -12.233009708737852,
+          "score": 10,
+          "benchmark": "SMLL",
+          "rank": 182
         },
         {
           "symbol": "PDGR3",
@@ -2649,9 +2609,19 @@
           "sector": "Finance",
           "m1": 0,
           "m3": -5.511811023622048,
-          "score": 11,
+          "score": 9,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 117
+          "rank": 183
+        },
+        {
+          "symbol": "POMO3",
+          "name": "MARCOPOLO S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 8.450704225352123,
+          "m3": -11.494252873563216,
+          "score": 9,
+          "benchmark": "SMLL",
+          "rank": 184
         },
         {
           "symbol": "USIM3",
@@ -2659,9 +2629,9 @@
           "sector": "Non-Energy Minerals",
           "m1": -0.8474576271186529,
           "m3": -7.509881422924902,
-          "score": 10,
+          "score": 8,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 118
+          "rank": 185
         },
         {
           "symbol": "TCSA3",
@@ -2669,9 +2639,9 @@
           "sector": "Finance",
           "m1": 0,
           "m3": -10.8108108108108,
-          "score": 9,
+          "score": 8,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 119
+          "rank": 186
         },
         {
           "symbol": "AALR3",
@@ -2679,9 +2649,9 @@
           "sector": "Health Services",
           "m1": -10.882352941176476,
           "m3": -5.312500000000009,
-          "score": 8,
+          "score": 7,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 120
+          "rank": 187
         },
         {
           "symbol": "CAMB3",
@@ -2689,9 +2659,9 @@
           "sector": "Consumer Non-Durables",
           "m1": -4.098360655737698,
           "m3": -12.872340425531926,
-          "score": 8,
+          "score": 7,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 121
+          "rank": 188
         },
         {
           "symbol": "AZUL3",
@@ -2699,9 +2669,9 @@
           "sector": "Transportation",
           "m1": 0.4432132963988922,
           "m3": -19.458018658374066,
-          "score": 7,
+          "score": 6,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 122
+          "rank": 189
         },
         {
           "symbol": "BRKM3",
@@ -2711,7 +2681,7 @@
           "m3": -22.438162544169614,
           "score": 6,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 123
+          "rank": 190
         },
         {
           "symbol": "EPAR3",
@@ -2721,7 +2691,7 @@
           "m3": -18.666666666666664,
           "score": 5,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 124
+          "rank": 191
         },
         {
           "symbol": "BSLI4",
@@ -2731,7 +2701,7 @@
           "m3": -20.666666666666668,
           "score": 5,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 125
+          "rank": 192
         },
         {
           "symbol": "AXIA6",
@@ -2741,7 +2711,7 @@
           "m3": -16.584417526544048,
           "score": 4,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 126
+          "rank": 193
         },
         {
           "symbol": "IFCM3",
@@ -2749,9 +2719,9 @@
           "sector": "Distribution Services",
           "m1": -7.14285714285714,
           "m3": -24.271844660194176,
-          "score": 3,
+          "score": 4,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 127
+          "rank": 194
         },
         {
           "symbol": "INEP4",
@@ -2759,9 +2729,9 @@
           "sector": "Producer Manufacturing",
           "m1": -8.633093525179847,
           "m3": -24.852071005917153,
-          "score": 2,
+          "score": 3,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 128
+          "rank": 195
         },
         {
           "symbol": "INEP3",
@@ -2769,9 +2739,9 @@
           "sector": "Producer Manufacturing",
           "m1": -7.142857142857128,
           "m3": -27.37430167597765,
-          "score": 2,
+          "score": 3,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 129
+          "rank": 196
         },
         {
           "symbol": "BSLI3",
@@ -2779,9 +2749,9 @@
           "sector": "Finance",
           "m1": -19.083969465648853,
           "m3": -29.333333333333332,
-          "score": 1,
+          "score": 2,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 130
+          "rank": 197
         },
         {
           "symbol": "BRKM5",
@@ -2789,9 +2759,41 @@
           "sector": "Process Industries",
           "m1": -17.85714285714286,
           "m3": -37.031700288184446,
+          "score": 2,
+          "benchmark": "B3 fora de IBOV/SMLL",
+          "rank": 198
+        },
+        {
+          "symbol": "ENJU3",
+          "name": "ENJOEI S.A.",
+          "sector": "Retail Trade",
+          "m1": -2.3076923076923075,
+          "m3": -18.06451612903226,
+          "score": 1,
+          "benchmark": "B3 fora de IBOV/SMLL",
+          "rank": 199,
+          "relativeScore": -33.13
+        },
+        {
+          "symbol": "ORVR3",
+          "name": "ORIZON VALORIZACAO DE RESIDUOS S.A.",
+          "sector": "Utilities",
+          "m1": 24.900737379466833,
+          "m3": -70.95753099446056,
+          "score": 1,
+          "benchmark": "SMLL",
+          "rank": 200
+        },
+        {
+          "symbol": "LUPA3",
+          "name": "LUPATECH S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 14.08839779005524,
+          "m3": -39.42857142857143,
           "score": 0,
           "benchmark": "B3 fora de IBOV/SMLL",
-          "rank": 131
+          "rank": 201,
+          "relativeScore": -41.28
         }
       ]
     },
@@ -5072,19 +5074,6 @@
       "benchmark": "SMLL + B3",
       "items": [
         {
-          "symbol": "ENJU3",
-          "name": "ENJOEI S.A.",
-          "sector": "Retail Trade",
-          "m1": 970.1298701298703,
-          "m3": 943.0379746835443,
-          "score": 100,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 1
-        },
-        {
           "symbol": "AZEV3",
           "name": "AZEVEDO E TRAVASSOS S.A.",
           "sector": "Industrial Services",
@@ -5095,7 +5084,7 @@
             "state": "BULLISH"
           },
           "benchmark": "SMLL",
-          "rank": 2
+          "rank": 1
         },
         {
           "symbol": "RCSL3",
@@ -5103,6 +5092,19 @@
           "sector": "Producer Manufacturing",
           "m1": 350,
           "m3": 382.9268292682927,
+          "score": 100,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 2
+        },
+        {
+          "symbol": "DOTZ3",
+          "name": "DOTZ S.A.",
+          "sector": "Technology Services",
+          "m1": 28.571428571428577,
+          "m3": 232.90816326530614,
           "score": 99,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5111,11 +5113,11 @@
           "rank": 3
         },
         {
-          "symbol": "LUPA3",
-          "name": "LUPATECH S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 13.150684931506849,
-          "m3": 489.99999999999994,
+          "symbol": "LJQQ3",
+          "name": "LOJAS QUERO-QUERO S/A",
+          "sector": "Retail Trade",
+          "m1": 115.44117647058823,
+          "m3": 132.53968253968256,
           "score": 99,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5124,24 +5126,24 @@
           "rank": 4
         },
         {
-          "symbol": "DOTZ3",
-          "name": "DOTZ S.A.",
-          "sector": "Technology Services",
-          "m1": 28.571428571428577,
-          "m3": 232.90816326530614,
+          "symbol": "RCSL4",
+          "name": "RECRUSUL S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 132.5,
+          "m3": 116.27906976744187,
           "score": 98,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 5
         },
         {
-          "symbol": "LJQQ3",
-          "name": "LOJAS QUERO-QUERO S/A",
-          "sector": "Retail Trade",
-          "m1": 115.44117647058823,
-          "m3": 132.53968253968256,
+          "symbol": "JSLG3",
+          "name": "JSL S.A.",
+          "sector": "Transportation",
+          "m1": 115.07537688442211,
+          "m3": 123.30434782608694,
           "score": 98,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5150,24 +5152,24 @@
           "rank": 6
         },
         {
-          "symbol": "RCSL4",
-          "name": "RECRUSUL S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 132.5,
-          "m3": 116.27906976744187,
+          "symbol": "MOVI3",
+          "name": "MOVIDA PARTICIPACOES SA",
+          "sector": "Finance",
+          "m1": 137.34335839598998,
+          "m3": 109.97782705099782,
           "score": 97,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 7
         },
         {
-          "symbol": "JSLG3",
-          "name": "JSL S.A.",
+          "symbol": "SIMH3",
+          "name": "SIMPAR S.A.",
           "sector": "Transportation",
-          "m1": 115.07537688442211,
-          "m3": 123.30434782608694,
+          "m1": 127.40447957839265,
+          "m3": 111.00244498777509,
           "score": 97,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5176,11 +5178,11 @@
           "rank": 8
         },
         {
-          "symbol": "MOVI3",
-          "name": "MOVIDA PARTICIPACOES SA",
-          "sector": "Finance",
-          "m1": 137.34335839598998,
-          "m3": 109.97782705099782,
+          "symbol": "TASA3",
+          "name": "TAURUS ARMAS S.A.",
+          "sector": "Electronic Technology",
+          "m1": 82.17821782178217,
+          "m3": 106.74157303370787,
           "score": 96,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5189,11 +5191,11 @@
           "rank": 9
         },
         {
-          "symbol": "SIMH3",
-          "name": "SIMPAR S.A.",
-          "sector": "Transportation",
-          "m1": 127.40447957839265,
-          "m3": 111.00244498777509,
+          "symbol": "DASA3",
+          "name": "DIAGNOSTICOS DA AMERICA S.A.",
+          "sector": "Health Services",
+          "m1": 96.98113207547169,
+          "m3": 98.47908745247148,
           "score": 96,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5202,11 +5204,11 @@
           "rank": 10
         },
         {
-          "symbol": "TASA3",
-          "name": "TAURUS ARMAS S.A.",
-          "sector": "Electronic Technology",
-          "m1": 82.17821782178217,
-          "m3": 106.74157303370787,
+          "symbol": "PTBL3",
+          "name": "PBG S/A",
+          "sector": "Producer Manufacturing",
+          "m1": 100,
+          "m3": 87.42857142857142,
           "score": 95,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5215,11 +5217,11 @@
           "rank": 11
         },
         {
-          "symbol": "DASA3",
-          "name": "DIAGNOSTICOS DA AMERICA S.A.",
-          "sector": "Health Services",
-          "m1": 96.98113207547169,
-          "m3": 98.47908745247148,
+          "symbol": "ARML3",
+          "name": "ARMAC LOCAÇÃO. LOGÍSTICA E SERVIÇOS S.A.",
+          "sector": "Finance",
+          "m1": 70.97625329815304,
+          "m3": 97.56097560975611,
           "score": 95,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5228,11 +5230,11 @@
           "rank": 12
         },
         {
-          "symbol": "PTBL3",
-          "name": "PBG S/A",
-          "sector": "Producer Manufacturing",
-          "m1": 100,
-          "m3": 87.42857142857142,
+          "symbol": "ECOR3",
+          "name": "ECORODOVIAS INFRAESTRUTURA E LOGÍSTICA S.A.",
+          "sector": "Transportation",
+          "m1": 81.20393120393119,
+          "m3": 89.83268983268984,
           "score": 94,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5241,11 +5243,11 @@
           "rank": 13
         },
         {
-          "symbol": "ARML3",
-          "name": "ARMAC LOCAÇÃO. LOGÍSTICA E SERVIÇOS S.A.",
-          "sector": "Finance",
-          "m1": 70.97625329815304,
-          "m3": 97.56097560975611,
+          "symbol": "RAPT3",
+          "name": "RANDONCORP S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 19.90686845168802,
+          "m3": 119.14893617021278,
           "score": 94,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5254,11 +5256,11 @@
           "rank": 14
         },
         {
-          "symbol": "ECOR3",
-          "name": "ECORODOVIAS INFRAESTRUTURA E LOGÍSTICA S.A.",
-          "sector": "Transportation",
-          "m1": 81.20393120393119,
-          "m3": 89.83268983268984,
+          "symbol": "ANIM3",
+          "name": "ANIMA HOLDING S.A.",
+          "sector": "Consumer Services",
+          "m1": 80.54607508532422,
+          "m3": 84.3205574912892,
           "score": 93,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5267,11 +5269,11 @@
           "rank": 15
         },
         {
-          "symbol": "RAPT3",
-          "name": "RANDONCORP S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 19.90686845168802,
-          "m3": 119.14893617021278,
+          "symbol": "TASA4",
+          "name": "TAURUS ARMAS S.A.",
+          "sector": "Electronic Technology",
+          "m1": 55.88723051409619,
+          "m3": 88.75502008032127,
           "score": 93,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5280,24 +5282,24 @@
           "rank": 16
         },
         {
-          "symbol": "ANIM3",
-          "name": "ANIMA HOLDING S.A.",
-          "sector": "Consumer Services",
-          "m1": 80.54607508532422,
-          "m3": 84.3205574912892,
+          "symbol": "WEST3",
+          "name": "WESTWING COMERCIO VAREJISTA S.A.",
+          "sector": "Retail Trade",
+          "m1": 80.32786885245903,
+          "m3": 61.29032258064515,
           "score": 92,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 17
         },
         {
-          "symbol": "TASA4",
-          "name": "TAURUS ARMAS S.A.",
-          "sector": "Electronic Technology",
-          "m1": 55.88723051409619,
-          "m3": 88.75502008032127,
+          "symbol": "RAPT4",
+          "name": "RANDONCORP S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 53.99610136452243,
+          "m3": 66.66666666666666,
           "score": 92,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5306,24 +5308,24 @@
           "rank": 18
         },
         {
-          "symbol": "WEST3",
-          "name": "WESTWING COMERCIO VAREJISTA S.A.",
-          "sector": "Retail Trade",
-          "m1": 80.32786885245903,
-          "m3": 61.29032258064515,
+          "symbol": "CSED3",
+          "name": "CRUZEIRO DO SUL EDUCACIONAL S.A.",
+          "sector": "Consumer Services",
+          "m1": 31.273408239700373,
+          "m3": 69.73365617433413,
           "score": 91,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 19
         },
         {
-          "symbol": "RAPT4",
-          "name": "RANDONCORP S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 53.99610136452243,
-          "m3": 66.66666666666666,
+          "symbol": "EZTC3",
+          "name": "EZ TEC EMPREEND. E PARTICIPACOES S.A.",
+          "sector": "Finance",
+          "m1": 50.95492742551567,
+          "m3": 50.2661596958175,
           "score": 91,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5332,24 +5334,24 @@
           "rank": 20
         },
         {
-          "symbol": "CSED3",
-          "name": "CRUZEIRO DO SUL EDUCACIONAL S.A.",
-          "sector": "Consumer Services",
-          "m1": 31.273408239700373,
-          "m3": 69.73365617433413,
+          "symbol": "VVEO3",
+          "name": "CM HOSPITALAR S.A.",
+          "sector": "Distribution Services",
+          "m1": 24.35897435897435,
+          "m3": 64.40677966101696,
           "score": 90,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 21
         },
         {
-          "symbol": "EZTC3",
-          "name": "EZ TEC EMPREEND. E PARTICIPACOES S.A.",
-          "sector": "Finance",
-          "m1": 50.95492742551567,
-          "m3": 50.2661596958175,
+          "symbol": "TRIS3",
+          "name": "TRISUL S.A.",
+          "sector": "Consumer Durables",
+          "m1": 39.55375253549696,
+          "m3": 53.914988814317674,
           "score": 90,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5358,24 +5360,24 @@
           "rank": 22
         },
         {
-          "symbol": "VVEO3",
-          "name": "CM HOSPITALAR S.A.",
-          "sector": "Distribution Services",
-          "m1": 24.35897435897435,
-          "m3": 64.40677966101696,
+          "symbol": "CYRE4",
+          "name": "CYRELA BRAZIL REALTY S.A.EMPREEND E PART",
+          "sector": "Finance",
+          "m1": 35.24193548387096,
+          "m3": 55.8550185873606,
           "score": 89,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 23
         },
         {
-          "symbol": "TRIS3",
-          "name": "TRISUL S.A.",
-          "sector": "Consumer Durables",
-          "m1": 39.55375253549696,
-          "m3": 53.914988814317674,
+          "symbol": "QUAL3",
+          "name": "QUALICORP CONSULTORIA E CORRETORA DE SEGUROS S.A.",
+          "sector": "Health Services",
+          "m1": 59.86842105263159,
+          "m3": 42.105263157894754,
           "score": 89,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5384,11 +5386,11 @@
           "rank": 24
         },
         {
-          "symbol": "CYRE4",
-          "name": "CYRELA BRAZIL REALTY S.A.EMPREEND E PART",
-          "sector": "Finance",
-          "m1": 35.24193548387096,
-          "m3": 55.8550185873606,
+          "symbol": "DXCO3",
+          "name": "DEXCO S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 38.018018018018026,
+          "m3": 53.50701402805611,
           "score": 88,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5397,24 +5399,24 @@
           "rank": 25
         },
         {
-          "symbol": "QUAL3",
-          "name": "QUALICORP CONSULTORIA E CORRETORA DE SEGUROS S.A.",
-          "sector": "Health Services",
-          "m1": 59.86842105263159,
-          "m3": 42.105263157894754,
+          "symbol": "PGMN3",
+          "name": "EMPREENDIMENTOS PAGUE MENOS S.A.",
+          "sector": "Retail Trade",
+          "m1": 44.736842105263165,
+          "m3": 46.666666666666664,
           "score": 88,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 26
         },
         {
-          "symbol": "DXCO3",
-          "name": "DEXCO S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 38.018018018018026,
-          "m3": 53.50701402805611,
+          "symbol": "AUAU3",
+          "name": "UNIÃO PET PARTICIPAÇÕES S.A.",
+          "sector": "Process Industries",
+          "m1": 24.561403508771917,
+          "m3": 55.79937304075234,
           "score": 87,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5423,24 +5425,24 @@
           "rank": 27
         },
         {
-          "symbol": "PGMN3",
-          "name": "EMPREENDIMENTOS PAGUE MENOS S.A.",
-          "sector": "Retail Trade",
-          "m1": 44.736842105263165,
-          "m3": 46.666666666666664,
+          "symbol": "LAVV3",
+          "name": "LAVVI EMPREENDIMENTOS IMOBILIÁRIOS S.A.",
+          "sector": "Finance",
+          "m1": 49.76744186046513,
+          "m3": 41.975308641975325,
           "score": 87,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 28
         },
         {
-          "symbol": "AUAU3",
-          "name": "UNIÃO PET PARTICIPAÇÕES S.A.",
-          "sector": "Process Industries",
-          "m1": 24.561403508771917,
-          "m3": 55.79937304075234,
+          "symbol": "VTRU3",
+          "name": "VITRU EDUCAÇÃO S.A",
+          "sector": "Commercial Services",
+          "m1": 37.201365187713314,
+          "m3": 48.55875831485589,
           "score": 86,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5449,11 +5451,11 @@
           "rank": 29
         },
         {
-          "symbol": "LAVV3",
-          "name": "LAVVI EMPREENDIMENTOS IMOBILIÁRIOS S.A.",
-          "sector": "Finance",
-          "m1": 49.76744186046513,
-          "m3": 41.975308641975325,
+          "symbol": "INTB3",
+          "name": "INTELBRAS S.A. IND DE TELEC ELETRONICA BRASILEIRA",
+          "sector": "Technology Services",
+          "m1": 31.25414731254148,
+          "m3": 49.848484848484865,
           "score": 86,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5462,11 +5464,11 @@
           "rank": 30
         },
         {
-          "symbol": "VTRU3",
-          "name": "VITRU EDUCAÇÃO S.A",
-          "sector": "Commercial Services",
-          "m1": 37.201365187713314,
-          "m3": 48.55875831485589,
+          "symbol": "LWSA3",
+          "name": "LWSA S.A.",
+          "sector": "Technology Services",
+          "m1": 41.83168316831684,
+          "m3": 41.83168316831684,
           "score": 85,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5475,11 +5477,11 @@
           "rank": 31
         },
         {
-          "symbol": "INTB3",
-          "name": "INTELBRAS S.A. IND DE TELEC ELETRONICA BRASILEIRA",
-          "sector": "Technology Services",
-          "m1": 31.25414731254148,
-          "m3": 49.848484848484865,
+          "symbol": "TGMA3",
+          "name": "TEGMA GESTAO LOGISTICA S.A.",
+          "sector": "Transportation",
+          "m1": 30.230547550432256,
+          "m3": 48.018342613822455,
           "score": 85,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5488,11 +5490,11 @@
           "rank": 32
         },
         {
-          "symbol": "LWSA3",
-          "name": "LWSA S.A.",
-          "sector": "Technology Services",
-          "m1": 41.83168316831684,
-          "m3": 41.83168316831684,
+          "symbol": "VIVR3",
+          "name": "VIVER INCORPORADORA E CONSTRUTORA S.A.",
+          "sector": "Consumer Durables",
+          "m1": 51.28205128205126,
+          "m3": 36.41618497109826,
           "score": 84,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5501,11 +5503,11 @@
           "rank": 33
         },
         {
-          "symbol": "TGMA3",
-          "name": "TEGMA GESTAO LOGISTICA S.A.",
-          "sector": "Transportation",
-          "m1": 30.230547550432256,
-          "m3": 48.018342613822455,
+          "symbol": "RENT4",
+          "name": "LOCALIZA RENT A CAR S.A.",
+          "sector": "Finance",
+          "m1": 53.29099307159354,
+          "m3": 33.989401968205904,
           "score": 84,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5514,11 +5516,11 @@
           "rank": 34
         },
         {
-          "symbol": "VIVR3",
-          "name": "VIVER INCORPORADORA E CONSTRUTORA S.A.",
-          "sector": "Consumer Durables",
-          "m1": 51.28205128205126,
-          "m3": 36.41618497109826,
+          "symbol": "BMOB3",
+          "name": "BEMOBI MOBILE TECH S.A.",
+          "sector": "Technology Services",
+          "m1": 31.51884278644841,
+          "m3": 44.742354419773754,
           "score": 83,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5527,11 +5529,11 @@
           "rank": 35
         },
         {
-          "symbol": "RENT4",
-          "name": "LOCALIZA RENT A CAR S.A.",
-          "sector": "Finance",
-          "m1": 53.29099307159354,
-          "m3": 33.989401968205904,
+          "symbol": "MATD3",
+          "name": "HOSPITAL MATER DEI S/A",
+          "sector": "Health Services",
+          "m1": 36.99999999999999,
+          "m3": 41.52892561983471,
           "score": 83,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5540,11 +5542,11 @@
           "rank": 36
         },
         {
-          "symbol": "BMOB3",
-          "name": "BEMOBI MOBILE TECH S.A.",
-          "sector": "Technology Services",
-          "m1": 31.51884278644841,
-          "m3": 44.742354419773754,
+          "symbol": "HBRE3",
+          "name": "HBR REALTY EMPREENDIMENTOS IMOBILIARIOS S/A",
+          "sector": "Finance",
+          "m1": 26.591760299625467,
+          "m3": 46.956521739130444,
           "score": 82,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5553,11 +5555,11 @@
           "rank": 37
         },
         {
-          "symbol": "MATD3",
-          "name": "HOSPITAL MATER DEI S/A",
-          "sector": "Health Services",
-          "m1": 36.99999999999999,
-          "m3": 41.52892561983471,
+          "symbol": "ENGI4",
+          "name": "ENERGISA S.A.",
+          "sector": "Utilities",
+          "m1": 43.78947368421053,
+          "m3": 36.6,
           "score": 82,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5566,11 +5568,11 @@
           "rank": 38
         },
         {
-          "symbol": "HBRE3",
-          "name": "HBR REALTY EMPREENDIMENTOS IMOBILIARIOS S/A",
-          "sector": "Finance",
-          "m1": 26.591760299625467,
-          "m3": 46.956521739130444,
+          "symbol": "GGPS3",
+          "name": "GPS PARTICIPACOES E EMPREENDIMENTOS S.A.",
+          "sector": "Commercial Services",
+          "m1": 36.398467432950184,
+          "m3": 38.84555382215289,
           "score": 81,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5579,11 +5581,11 @@
           "rank": 39
         },
         {
-          "symbol": "ENGI4",
-          "name": "ENERGISA S.A.",
-          "sector": "Utilities",
-          "m1": 43.78947368421053,
-          "m3": 36.6,
+          "symbol": "JALL3",
+          "name": "JALLES MACHADO S.A.",
+          "sector": "Process Industries",
+          "m1": 21.285140562248987,
+          "m3": 46.60194174757281,
           "score": 81,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5592,11 +5594,11 @@
           "rank": 40
         },
         {
-          "symbol": "GGPS3",
-          "name": "GPS PARTICIPACOES E EMPREENDIMENTOS S.A.",
-          "sector": "Commercial Services",
-          "m1": 36.398467432950184,
-          "m3": 38.84555382215289,
+          "symbol": "SEER3",
+          "name": "SER EDUCACIONAL S.A.",
+          "sector": "Consumer Services",
+          "m1": 26.632801161103046,
+          "m3": 43.38537387017255,
           "score": 80,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5605,11 +5607,11 @@
           "rank": 41
         },
         {
-          "symbol": "JALL3",
-          "name": "JALLES MACHADO S.A.",
-          "sector": "Process Industries",
-          "m1": 21.285140562248987,
-          "m3": 46.60194174757281,
+          "symbol": "ALPK3",
+          "name": "ALLPARK EMPREENDIMENTOS PARTICIPACOES SERVICOS S.A",
+          "sector": "Consumer Services",
+          "m1": 39.08045977011495,
+          "m3": 35.65022421524663,
           "score": 80,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5618,11 +5620,11 @@
           "rank": 42
         },
         {
-          "symbol": "SEER3",
-          "name": "SER EDUCACIONAL S.A.",
-          "sector": "Consumer Services",
-          "m1": 26.632801161103046,
-          "m3": 43.38537387017255,
+          "symbol": "MLAS3",
+          "name": "GRUPO MULTI S.A.",
+          "sector": "Electronic Technology",
+          "m1": 29.18918918918919,
+          "m3": 39.76608187134504,
           "score": 79,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5631,11 +5633,11 @@
           "rank": 43
         },
         {
-          "symbol": "ALPK3",
-          "name": "ALLPARK EMPREENDIMENTOS PARTICIPACOES SERVICOS S.A",
-          "sector": "Consumer Services",
-          "m1": 39.08045977011495,
-          "m3": 35.65022421524663,
+          "symbol": "PNVL3",
+          "name": "DIMED S.A. DISTRIBUIDORA DE MEDICAMENTOS",
+          "sector": "Retail Trade",
+          "m1": 24.265842349304474,
+          "m3": 42.30088495575219,
           "score": 79,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5644,11 +5646,11 @@
           "rank": 44
         },
         {
-          "symbol": "MLAS3",
-          "name": "GRUPO MULTI S.A.",
-          "sector": "Electronic Technology",
-          "m1": 29.18918918918919,
-          "m3": 39.76608187134504,
+          "symbol": "AMOB3",
+          "name": "AUTOMOB PARTICIPAÇÕES S.A.",
+          "sector": "Retail Trade",
+          "m1": 44.125105663567204,
+          "m3": 31.053036126056888,
           "score": 78,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5657,11 +5659,11 @@
           "rank": 45
         },
         {
-          "symbol": "PNVL3",
-          "name": "DIMED S.A. DISTRIBUIDORA DE MEDICAMENTOS",
-          "sector": "Retail Trade",
-          "m1": 24.265842349304474,
-          "m3": 42.30088495575219,
+          "symbol": "BPAC5",
+          "name": "BCO BTG PACTUAL S.A.",
+          "sector": "Finance",
+          "m1": 33.75506072874493,
+          "m3": 35.53846153846153,
           "score": 78,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5670,11 +5672,11 @@
           "rank": 46
         },
         {
-          "symbol": "AMOB3",
-          "name": "AUTOMOB PARTICIPAÇÕES S.A.",
+          "symbol": "GMAT3",
+          "name": "GRUPO MATEUS S.A.",
           "sector": "Retail Trade",
-          "m1": 44.125105663567204,
-          "m3": 31.053036126056888,
+          "m1": 16.803278688524596,
+          "m3": 43.57682619647355,
           "score": 77,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5683,24 +5685,24 @@
           "rank": 47
         },
         {
-          "symbol": "BPAC5",
-          "name": "BCO BTG PACTUAL S.A.",
-          "sector": "Finance",
-          "m1": 33.75506072874493,
-          "m3": 35.53846153846153,
+          "symbol": "ONCO3",
+          "name": "ONCOCLINICAS DO BRASIL SERVICOS MEDICOS  S.A.",
+          "sector": "Health Services",
+          "m1": 0,
+          "m3": 51.99999999999999,
           "score": 77,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "BEARISH"
           },
           "benchmark": "SMLL",
           "rank": 48
         },
         {
-          "symbol": "GMAT3",
-          "name": "GRUPO MATEUS S.A.",
-          "sector": "Retail Trade",
-          "m1": 16.803278688524596,
-          "m3": 43.57682619647355,
+          "symbol": "CAML3",
+          "name": "CAMIL ALIMENTOS S.A.",
+          "sector": "Process Industries",
+          "m1": 34.57943925233646,
+          "m3": 32.84132841328414,
           "score": 76,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5709,24 +5711,24 @@
           "rank": 49
         },
         {
-          "symbol": "ONCO3",
-          "name": "ONCOCLINICAS DO BRASIL SERVICOS MEDICOS  S.A.",
-          "sector": "Health Services",
-          "m1": 0,
-          "m3": 51.99999999999999,
+          "symbol": "POSI3",
+          "name": "POSITIVO TECNOLOGIA S.A.",
+          "sector": "Electronic Technology",
+          "m1": 44.41260744985673,
+          "m3": 26.952141057934504,
           "score": 76,
           "weeklyTrend": {
-            "state": "BEARISH"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 50
         },
         {
-          "symbol": "CAML3",
-          "name": "CAMIL ALIMENTOS S.A.",
-          "sector": "Process Industries",
-          "m1": 34.57943925233646,
-          "m3": 32.84132841328414,
+          "symbol": "ALPA4",
+          "name": "ALPARGATAS S.A.",
+          "sector": "Consumer Non-Durables",
+          "m1": 25.056264066016514,
+          "m3": 36.86371100164205,
           "score": 75,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5735,11 +5737,11 @@
           "rank": 51
         },
         {
-          "symbol": "POSI3",
-          "name": "POSITIVO TECNOLOGIA S.A.",
-          "sector": "Electronic Technology",
-          "m1": 44.41260744985673,
-          "m3": 26.952141057934504,
+          "symbol": "CLSC4",
+          "name": "CENTRAIS ELET DE SANTA CATARINA S.A.",
+          "sector": "Utilities",
+          "m1": 19.52988247061764,
+          "m3": 38.05054151624548,
           "score": 75,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5748,11 +5750,11 @@
           "rank": 52
         },
         {
-          "symbol": "ALPA4",
-          "name": "ALPARGATAS S.A.",
-          "sector": "Consumer Non-Durables",
-          "m1": 25.056264066016514,
-          "m3": 36.86371100164205,
+          "symbol": "HBOR3",
+          "name": "HELBOR EMPREENDIMENTOS S.A.",
+          "sector": "Consumer Durables",
+          "m1": 26.04651162790698,
+          "m3": 34.15841584158416,
           "score": 74,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5761,11 +5763,11 @@
           "rank": 53
         },
         {
-          "symbol": "CLSC4",
-          "name": "CENTRAIS ELET DE SANTA CATARINA S.A.",
-          "sector": "Utilities",
-          "m1": 19.52988247061764,
-          "m3": 38.05054151624548,
+          "symbol": "SOJA3",
+          "name": "BOA SAFRA SEMENTES S.A.",
+          "sector": "Process Industries",
+          "m1": 12.581063553826196,
+          "m3": 40.9090909090909,
           "score": 74,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5774,43 +5776,17 @@
           "rank": 54
         },
         {
-          "symbol": "HBOR3",
-          "name": "HELBOR EMPREENDIMENTOS S.A.",
-          "sector": "Consumer Durables",
-          "m1": 26.04651162790698,
-          "m3": 34.15841584158416,
-          "score": 73,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 55
-        },
-        {
-          "symbol": "SOJA3",
-          "name": "BOA SAFRA SEMENTES S.A.",
-          "sector": "Process Industries",
-          "m1": 12.581063553826196,
-          "m3": 40.9090909090909,
-          "score": 73,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 56
-        },
-        {
           "symbol": "RIAA3",
           "name": "RIACHUELO S.A.",
           "sector": "Distribution Services",
           "m1": 51.90409026798307,
           "m3": 17.704918032786875,
-          "score": 72,
+          "score": 73,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 57
+          "rank": 55
         },
         {
           "symbol": "ALLD3",
@@ -5818,12 +5794,12 @@
           "sector": "Technology Services",
           "m1": 22.682445759368825,
           "m3": 33.19057815845824,
-          "score": 72,
+          "score": 73,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 58
+          "rank": 56
         },
         {
           "symbol": "FRAS3",
@@ -5831,6 +5807,32 @@
           "sector": "Producer Manufacturing",
           "m1": 21.233174120712118,
           "m3": 32.95238095238096,
+          "score": 72,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 57
+        },
+        {
+          "symbol": "LAND3",
+          "name": "TERRA SANTA PROPRIEDADES AGRICOLAS S.A.",
+          "sector": "Finance",
+          "m1": 16.096579476861166,
+          "m3": 35.28722157092614,
+          "score": 72,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 58
+        },
+        {
+          "symbol": "BRBI11",
+          "name": "BRBI BR PARTNERS S.A.",
+          "sector": "Finance",
+          "m1": 32.92011019283748,
+          "m3": 25.896934116112202,
           "score": 71,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5839,24 +5841,24 @@
           "rank": 59
         },
         {
-          "symbol": "LAND3",
-          "name": "TERRA SANTA PROPRIEDADES AGRICOLAS S.A.",
+          "symbol": "BMEB4",
+          "name": "BCO MERCANTIL DO BRASIL S.A.",
           "sector": "Finance",
-          "m1": 16.096579476861166,
-          "m3": 35.28722157092614,
+          "m1": 29.257493188010912,
+          "m3": 27.541589648798535,
           "score": 71,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 60
         },
         {
-          "symbol": "BRBI11",
-          "name": "BRBI BR PARTNERS S.A.",
-          "sector": "Finance",
-          "m1": 32.92011019283748,
-          "m3": 25.896934116112202,
+          "symbol": "ROMI3",
+          "name": "ROMI S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 30.782029950083206,
+          "m3": 26.570048309178752,
           "score": 70,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5865,24 +5867,24 @@
           "rank": 61
         },
         {
-          "symbol": "BMEB4",
-          "name": "BCO MERCANTIL DO BRASIL S.A.",
+          "symbol": "BRSR6",
+          "name": "BCO ESTADO DO RIO GRANDE DO SUL S.A.",
           "sector": "Finance",
-          "m1": 29.257493188010912,
-          "m3": 27.541589648798535,
+          "m1": 23.413996075866592,
+          "m3": 30.227743271221534,
           "score": 70,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 62
         },
         {
-          "symbol": "ROMI3",
-          "name": "ROMI S.A.",
+          "symbol": "TUPY3",
+          "name": "TUPY S.A.",
           "sector": "Producer Manufacturing",
-          "m1": 30.782029950083206,
-          "m3": 26.570048309178752,
+          "m1": 27.819548872180434,
+          "m3": 27.659574468085097,
           "score": 69,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5891,11 +5893,11 @@
           "rank": 63
         },
         {
-          "symbol": "BRSR6",
-          "name": "BCO ESTADO DO RIO GRANDE DO SUL S.A.",
-          "sector": "Finance",
-          "m1": 23.413996075866592,
-          "m3": 30.227743271221534,
+          "symbol": "BRST3",
+          "name": "BRISANET SERVIÇOS DE TELECOMUNICAÇÕES S.A.",
+          "sector": "Communications",
+          "m1": 25.964912280701746,
+          "m3": 28.21428571428572,
           "score": 69,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5904,11 +5906,11 @@
           "rank": 64
         },
         {
-          "symbol": "TUPY3",
-          "name": "TUPY S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 27.819548872180434,
-          "m3": 27.659574468085097,
+          "symbol": "PCAR3",
+          "name": "CIA BRASILEIRA DE DISTRIBUICAO",
+          "sector": "Retail Trade",
+          "m1": 20.538720538720533,
+          "m3": 31.135531135531142,
           "score": 68,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5917,11 +5919,11 @@
           "rank": 65
         },
         {
-          "symbol": "BRST3",
-          "name": "BRISANET SERVIÇOS DE TELECOMUNICAÇÕES S.A.",
-          "sector": "Communications",
-          "m1": 25.964912280701746,
-          "m3": 28.21428571428572,
+          "symbol": "JHSF3",
+          "name": "JHSF PARTICIPACOES S.A.",
+          "sector": "Finance",
+          "m1": 19.983552631578945,
+          "m3": 30.852017937219728,
           "score": 68,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5930,24 +5932,24 @@
           "rank": 66
         },
         {
-          "symbol": "PCAR3",
-          "name": "CIA BRASILEIRA DE DISTRIBUICAO",
-          "sector": "Retail Trade",
-          "m1": 20.538720538720533,
-          "m3": 31.135531135531142,
+          "symbol": "CVCB3",
+          "name": "CVC BRASIL OPERADORA E AGÊNCIA DE VIAGENS S.A.",
+          "sector": "Consumer Services",
+          "m1": 6.832298136645955,
+          "m3": 37.6,
           "score": 67,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 67
         },
         {
-          "symbol": "JHSF3",
-          "name": "JHSF PARTICIPACOES S.A.",
+          "symbol": "PINE4",
+          "name": "BCO PINE S.A.",
           "sector": "Finance",
-          "m1": 19.983552631578945,
-          "m3": 30.852017937219728,
+          "m1": 30.125523012552314,
+          "m3": 24.69927826784282,
           "score": 67,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5956,11 +5958,11 @@
           "rank": 68
         },
         {
-          "symbol": "CVCB3",
-          "name": "CVC BRASIL OPERADORA E AGÊNCIA DE VIAGENS S.A.",
-          "sector": "Consumer Services",
-          "m1": 6.832298136645955,
-          "m3": 37.6,
+          "symbol": "SAPR3",
+          "name": "CIA SANEAMENTO DO PARANA - SANEPAR",
+          "sector": "Utilities",
+          "m1": 34.41558441558441,
+          "m3": 21.908127208480558,
           "score": 66,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -5969,11 +5971,11 @@
           "rank": 69
         },
         {
-          "symbol": "PINE4",
-          "name": "BCO PINE S.A.",
+          "symbol": "BMGB4",
+          "name": "BANCO BMG S.A.",
           "sector": "Finance",
-          "m1": 30.125523012552314,
-          "m3": 24.69927826784282,
+          "m1": 14.942528735632187,
+          "m3": 31.578947368421044,
           "score": 66,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -5982,24 +5984,24 @@
           "rank": 70
         },
         {
-          "symbol": "SAPR3",
-          "name": "CIA SANEAMENTO DO PARANA - SANEPAR",
-          "sector": "Utilities",
-          "m1": 34.41558441558441,
-          "m3": 21.908127208480558,
+          "symbol": "PFRM3",
+          "name": "PROFARMA DISTRIB PROD FARMACEUTICOS S.A.",
+          "sector": "Distribution Services",
+          "m1": 13.584905660377347,
+          "m3": 30.869565217391287,
           "score": 65,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 71
         },
         {
-          "symbol": "BMGB4",
-          "name": "BANCO BMG S.A.",
+          "symbol": "MDNE3",
+          "name": "MOURA DUBEUX ENGENHARIA S/A",
           "sector": "Finance",
-          "m1": 14.942528735632187,
-          "m3": 31.578947368421044,
+          "m1": 30.119047619047617,
+          "m3": 21.354552183567726,
           "score": 65,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6008,43 +6010,17 @@
           "rank": 72
         },
         {
-          "symbol": "PFRM3",
-          "name": "PROFARMA DISTRIB PROD FARMACEUTICOS S.A.",
-          "sector": "Distribution Services",
-          "m1": 13.584905660377347,
-          "m3": 30.869565217391287,
-          "score": 64,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 73
-        },
-        {
-          "symbol": "MDNE3",
-          "name": "MOURA DUBEUX ENGENHARIA S/A",
-          "sector": "Finance",
-          "m1": 30.119047619047617,
-          "m3": 21.354552183567726,
-          "score": 64,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 74
-        },
-        {
           "symbol": "EVEN3",
           "name": "EVEN CONSTRUTORA E INCORPORADORA S.A.",
           "sector": "Finance",
           "m1": 52.57985257985257,
           "m3": 8.376963350785331,
-          "score": 63,
+          "score": 64,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 75
+          "rank": 73
         },
         {
           "symbol": "CSUD3",
@@ -6052,12 +6028,12 @@
           "sector": "Commercial Services",
           "m1": 24.44761225944406,
           "m3": 23.47949080622348,
-          "score": 63,
+          "score": 64,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 76
+          "rank": 74
         },
         {
           "symbol": "IGTI3",
@@ -6065,6 +6041,32 @@
           "sector": "Finance",
           "m1": 28.834355828220872,
           "m3": 20.689655172413797,
+          "score": 63,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 75
+        },
+        {
+          "symbol": "BAZA3",
+          "name": "BCO AMAZONIA S.A.",
+          "sector": "Finance",
+          "m1": 11.397849462365595,
+          "m3": 29.93311036789299,
+          "score": 63,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 76
+        },
+        {
+          "symbol": "TPIS3",
+          "name": "TPI - TRIUNFO PARTICIP. E INVEST. S.A.",
+          "sector": "Transportation",
+          "m1": 15.02347417840375,
+          "m3": 27.604166666666675,
           "score": 62,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6073,24 +6075,24 @@
           "rank": 77
         },
         {
-          "symbol": "BAZA3",
-          "name": "BCO AMAZONIA S.A.",
-          "sector": "Finance",
-          "m1": 11.397849462365595,
-          "m3": 29.93311036789299,
+          "symbol": "SAPR11",
+          "name": "CIA SANEAMENTO DO PARANA - SANEPAR",
+          "sector": "Utilities",
+          "m1": 30.410879629629623,
+          "m3": 19.075297225891674,
           "score": 62,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 78
         },
         {
-          "symbol": "TPIS3",
-          "name": "TPI - TRIUNFO PARTICIP. E INVEST. S.A.",
-          "sector": "Transportation",
-          "m1": 15.02347417840375,
-          "m3": 27.604166666666675,
+          "symbol": "ALPA3",
+          "name": "ALPARGATAS S.A.",
+          "sector": "Consumer Non-Durables",
+          "m1": 18.200000000000003,
+          "m3": 25.344644750795343,
           "score": 61,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6099,11 +6101,11 @@
           "rank": 79
         },
         {
-          "symbol": "SAPR11",
-          "name": "CIA SANEAMENTO DO PARANA - SANEPAR",
-          "sector": "Utilities",
-          "m1": 30.410879629629623,
-          "m3": 19.075297225891674,
+          "symbol": "GRND3",
+          "name": "GRENDENE S.A.",
+          "sector": "Consumer Non-Durables",
+          "m1": 25.66844919786096,
+          "m3": 20.822622107969153,
           "score": 61,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6112,43 +6114,17 @@
           "rank": 80
         },
         {
-          "symbol": "ALPA3",
-          "name": "ALPARGATAS S.A.",
-          "sector": "Consumer Non-Durables",
-          "m1": 18.200000000000003,
-          "m3": 25.344644750795343,
-          "score": 60,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 81
-        },
-        {
-          "symbol": "GRND3",
-          "name": "GRENDENE S.A.",
-          "sector": "Consumer Non-Durables",
-          "m1": 25.66844919786096,
-          "m3": 20.822622107969153,
-          "score": 60,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 82
-        },
-        {
           "symbol": "SAPR4",
           "name": "CIA SANEAMENTO DO PARANA - SANEPAR",
           "sector": "Utilities",
           "m1": 27.581120943952804,
           "m3": 18.982118294360397,
-          "score": 59,
+          "score": 60,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 83
+          "rank": 81
         },
         {
           "symbol": "MEAL3",
@@ -6156,6 +6132,32 @@
           "sector": "Consumer Services",
           "m1": 14.444444444444446,
           "m3": 25.609756097560986,
+          "score": 60,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 82
+        },
+        {
+          "symbol": "LOGG3",
+          "name": "LOG COMMERCIAL PROPERTIES",
+          "sector": "Industrial Services",
+          "m1": 31.36268343815512,
+          "m3": 16.3818722139673,
+          "score": 59,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 83
+        },
+        {
+          "symbol": "COCE5",
+          "name": "CIA ENERGETICA DO CEARA - COELCE",
+          "sector": "Utilities",
+          "m1": 19.509043927648577,
+          "m3": 22.11221122112211,
           "score": 59,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6164,11 +6166,11 @@
           "rank": 84
         },
         {
-          "symbol": "LOGG3",
-          "name": "LOG COMMERCIAL PROPERTIES",
-          "sector": "Industrial Services",
-          "m1": 31.36268343815512,
-          "m3": 16.3818722139673,
+          "symbol": "MTRE3",
+          "name": "MITRE REALTY EMPREENDIMENTOS E PARTICIPAÇÕES S.A.",
+          "sector": "Finance",
+          "m1": 17.86743515850143,
+          "m3": 22.822822822822815,
           "score": 58,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6177,11 +6179,11 @@
           "rank": 85
         },
         {
-          "symbol": "COCE5",
-          "name": "CIA ENERGETICA DO CEARA - COELCE",
-          "sector": "Utilities",
-          "m1": 19.509043927648577,
-          "m3": 22.11221122112211,
+          "symbol": "BLAU3",
+          "name": "BLAU FARMACÊUTICA S.A.",
+          "sector": "Health Technology",
+          "m1": 23.870333988212177,
+          "m3": 19.526066350710888,
           "score": 58,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6190,24 +6192,24 @@
           "rank": 86
         },
         {
-          "symbol": "MTRE3",
-          "name": "MITRE REALTY EMPREENDIMENTOS E PARTICIPAÇÕES S.A.",
+          "symbol": "PINE3",
+          "name": "BCO PINE S.A.",
           "sector": "Finance",
-          "m1": 17.86743515850143,
-          "m3": 22.822822822822815,
+          "m1": 30.271790065604502,
+          "m3": 15.833333333333336,
           "score": 57,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 87
         },
         {
-          "symbol": "BLAU3",
-          "name": "BLAU FARMACÊUTICA S.A.",
-          "sector": "Health Technology",
-          "m1": 23.870333988212177,
-          "m3": 19.526066350710888,
+          "symbol": "PRNR3",
+          "name": "PRINER SERVIÇOS INDUSTRIAIS S.A.",
+          "sector": "Industrial Services",
+          "m1": 25.00000000000002,
+          "m3": 17.769671704012506,
           "score": 57,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6216,24 +6218,24 @@
           "rank": 88
         },
         {
-          "symbol": "PINE3",
-          "name": "BCO PINE S.A.",
+          "symbol": "IRBR3",
+          "name": "IRB - BRASIL RESSEGUROS S.A.",
           "sector": "Finance",
-          "m1": 30.271790065604502,
-          "m3": 15.833333333333336,
+          "m1": 16.1509184180043,
+          "m3": 22.4956369982548,
           "score": 56,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 89
         },
         {
-          "symbol": "PRNR3",
-          "name": "PRINER SERVIÇOS INDUSTRIAIS S.A.",
-          "sector": "Industrial Services",
-          "m1": 25.00000000000002,
-          "m3": 17.769671704012506,
+          "symbol": "WDCN3",
+          "name": "WDC NETWORKS (LIVETECH DA BAHIA S.A.)",
+          "sector": "Distribution Services",
+          "m1": 8.727272727272736,
+          "m3": 26.160337552742618,
           "score": 56,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6242,11 +6244,11 @@
           "rank": 90
         },
         {
-          "symbol": "IRBR3",
-          "name": "IRB - BRASIL RESSEGUROS S.A.",
-          "sector": "Finance",
-          "m1": 16.1509184180043,
-          "m3": 22.4956369982548,
+          "symbol": "HBSA3",
+          "name": "HIDROVIAS DO BRASIL S.A.",
+          "sector": "Transportation",
+          "m1": 21.428571428571434,
+          "m3": 18.260869565217387,
           "score": 55,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6255,11 +6257,11 @@
           "rank": 91
         },
         {
-          "symbol": "WDCN3",
-          "name": "WDC NETWORKS (LIVETECH DA BAHIA S.A.)",
-          "sector": "Distribution Services",
-          "m1": 8.727272727272736,
-          "m3": 26.160337552742618,
+          "symbol": "AMAR3",
+          "name": "MARISA LOJAS S.A.",
+          "sector": "Retail Trade",
+          "m1": -6.818181818181825,
+          "m3": 32.258064516129025,
           "score": 55,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6268,11 +6270,11 @@
           "rank": 92
         },
         {
-          "symbol": "HBSA3",
-          "name": "HIDROVIAS DO BRASIL S.A.",
-          "sector": "Transportation",
-          "m1": 21.428571428571434,
-          "m3": 18.260869565217387,
+          "symbol": "ABCB4",
+          "name": "BCO ABC BRASIL S.A.",
+          "sector": "Finance",
+          "m1": 17.768924302788832,
+          "m3": 18.524458700882107,
           "score": 54,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6281,24 +6283,24 @@
           "rank": 93
         },
         {
-          "symbol": "AMAR3",
-          "name": "MARISA LOJAS S.A.",
+          "symbol": "RAIZ4",
+          "name": "RAIZEN S.A.",
           "sector": "Retail Trade",
-          "m1": -6.818181818181825,
-          "m3": 32.258064516129025,
+          "m1": 35.7142857142857,
+          "m3": 8.57142857142858,
           "score": 54,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 94
         },
         {
-          "symbol": "ABCB4",
-          "name": "BCO ABC BRASIL S.A.",
-          "sector": "Finance",
-          "m1": 17.768924302788832,
-          "m3": 18.524458700882107,
+          "symbol": "SMTO3",
+          "name": "SAO MARTINHO S.A.",
+          "sector": "Process Industries",
+          "m1": 1.2720156555772897,
+          "m3": 26.450824679291372,
           "score": 53,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6307,11 +6309,11 @@
           "rank": 95
         },
         {
-          "symbol": "RAIZ4",
-          "name": "RAIZEN S.A.",
-          "sector": "Retail Trade",
-          "m1": 35.7142857142857,
-          "m3": 8.57142857142858,
+          "symbol": "LPSB3",
+          "name": "LPS BRASIL - CONSULTORIA DE IMOVEIS S.A.",
+          "sector": "Commercial Services",
+          "m1": 28.68217054263565,
+          "m3": 11.409395973154357,
           "score": 53,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6320,11 +6322,11 @@
           "rank": 96
         },
         {
-          "symbol": "SMTO3",
-          "name": "SAO MARTINHO S.A.",
-          "sector": "Process Industries",
-          "m1": 1.2720156555772897,
-          "m3": 26.450824679291372,
+          "symbol": "EUCA4",
+          "name": "EUCATEX S.A. INDUSTRIA E COMERCIO",
+          "sector": "Non-Energy Minerals",
+          "m1": 24.833808167141505,
+          "m3": 13.27014218009478,
           "score": 52,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6333,11 +6335,11 @@
           "rank": 97
         },
         {
-          "symbol": "LPSB3",
-          "name": "LPS BRASIL - CONSULTORIA DE IMOVEIS S.A.",
-          "sector": "Commercial Services",
-          "m1": 28.68217054263565,
-          "m3": 11.409395973154357,
+          "symbol": "VULC3",
+          "name": "VULCABRAS S.A.",
+          "sector": "Consumer Non-Durables",
+          "m1": 25.246398786959816,
+          "m3": 12.995896032831741,
           "score": 52,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6346,11 +6348,11 @@
           "rank": 98
         },
         {
-          "symbol": "EUCA4",
-          "name": "EUCATEX S.A. INDUSTRIA E COMERCIO",
-          "sector": "Non-Energy Minerals",
-          "m1": 24.833808167141505,
-          "m3": 13.27014218009478,
+          "symbol": "AZTE3",
+          "name": "AZEVEDO & TRAVASSOS ENERGIA S.A.",
+          "sector": "Energy Minerals",
+          "m1": -6.962025316455701,
+          "m3": 30.08849557522125,
           "score": 51,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6359,43 +6361,17 @@
           "rank": 99
         },
         {
-          "symbol": "VULC3",
-          "name": "VULCABRAS S.A.",
-          "sector": "Consumer Non-Durables",
-          "m1": 25.246398786959816,
-          "m3": 12.995896032831741,
-          "score": 51,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 100
-        },
-        {
-          "symbol": "AZTE3",
-          "name": "AZEVEDO & TRAVASSOS ENERGIA S.A.",
-          "sector": "Energy Minerals",
-          "m1": -6.962025316455701,
-          "m3": 30.08849557522125,
-          "score": 50,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 101
-        },
-        {
           "symbol": "ALUP11",
           "name": "ALUPAR INVESTIMENTO S/A",
           "sector": "Utilities",
           "m1": 17.723770005927673,
           "m3": 16.754850088183407,
-          "score": 50,
+          "score": 51,
           "weeklyTrend": {
             "state": "BULLISH"
           },
           "benchmark": "SMLL",
-          "rank": 102
+          "rank": 100
         },
         {
           "symbol": "SBFG3",
@@ -6403,12 +6379,12 @@
           "sector": "Retail Trade",
           "m1": 27.69058295964126,
           "m3": 11.121951219512201,
-          "score": 49,
+          "score": 50,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 103
+          "rank": 101
         },
         {
           "symbol": "MDIA3",
@@ -6416,6 +6392,32 @@
           "sector": "Consumer Non-Durables",
           "m1": 20.5968402574605,
           "m3": 14.69115191986645,
+          "score": 50,
+          "weeklyTrend": {
+            "state": "NEUTRAL"
+          },
+          "benchmark": "SMLL",
+          "rank": 102
+        },
+        {
+          "symbol": "ITUB3",
+          "name": "ITAU UNIBANCO HOLDING S.A.",
+          "sector": "Finance",
+          "m1": 16.277074844520687,
+          "m3": 16.70253981919931,
+          "score": 49,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 103
+        },
+        {
+          "symbol": "VITT3",
+          "name": "VITTIA S.A.",
+          "sector": "Process Industries",
+          "m1": 22.683706070287542,
+          "m3": 12.941176470588234,
           "score": 49,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6424,24 +6426,24 @@
           "rank": 104
         },
         {
-          "symbol": "ITUB3",
-          "name": "ITAU UNIBANCO HOLDING S.A.",
-          "sector": "Finance",
-          "m1": 16.277074844520687,
-          "m3": 16.70253981919931,
+          "symbol": "MELK3",
+          "name": "MELNICK DESENVOLVIMENTO IMOBILIÁRIO S.A.",
+          "sector": "Industrial Services",
+          "m1": 23.050847457627107,
+          "m3": 12.732919254658375,
           "score": 48,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 105
         },
         {
-          "symbol": "VITT3",
-          "name": "VITTIA S.A.",
-          "sector": "Process Industries",
-          "m1": 22.683706070287542,
-          "m3": 12.941176470588234,
+          "symbol": "PLPL3",
+          "name": "PLANO & PLANO DESENVOLVIMENTO IMOBILIÁRIO S.A.",
+          "sector": "Finance",
+          "m1": 27.960057061340954,
+          "m3": 10.061349693251536,
           "score": 48,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6450,24 +6452,24 @@
           "rank": 106
         },
         {
-          "symbol": "MELK3",
-          "name": "MELNICK DESENVOLVIMENTO IMOBILIÁRIO S.A.",
-          "sector": "Industrial Services",
-          "m1": 23.050847457627107,
-          "m3": 12.732919254658375,
+          "symbol": "ALUP3",
+          "name": "ALUPAR INVESTIMENTO S/A",
+          "sector": "Utilities",
+          "m1": 20.25423728813558,
+          "m3": 14.067524115755628,
           "score": 47,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 107
         },
         {
-          "symbol": "PLPL3",
-          "name": "PLANO & PLANO DESENVOLVIMENTO IMOBILIÁRIO S.A.",
-          "sector": "Finance",
-          "m1": 27.960057061340954,
-          "m3": 10.061349693251536,
+          "symbol": "KEPL3",
+          "name": "KEPLER WEBER S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 15.987933634992466,
+          "m3": 16.16314199395771,
           "score": 47,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6476,24 +6478,24 @@
           "rank": 108
         },
         {
-          "symbol": "ALUP3",
-          "name": "ALUPAR INVESTIMENTO S/A",
-          "sector": "Utilities",
-          "m1": 20.25423728813558,
-          "m3": 14.067524115755628,
+          "symbol": "SHUL4",
+          "name": "SCHULZ S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 19.954648526077097,
+          "m3": 14.008620689655181,
           "score": 46,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 109
         },
         {
-          "symbol": "KEPL3",
-          "name": "KEPLER WEBER S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 15.987933634992466,
-          "m3": 16.16314199395771,
+          "symbol": "PASS3",
+          "name": "COMPASS GAS E ENERGIA S.A.",
+          "sector": "Utilities",
+          "m1": 19.670781893004104,
+          "m3": 14.039215686274503,
           "score": 45,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6502,43 +6504,17 @@
           "rank": 110
         },
         {
-          "symbol": "SHUL4",
-          "name": "SCHULZ S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 19.954648526077097,
-          "m3": 14.008620689655181,
-          "score": 45,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 111
-        },
-        {
-          "symbol": "PASS3",
-          "name": "COMPASS GAS E ENERGIA S.A.",
-          "sector": "Utilities",
-          "m1": 19.670781893004104,
-          "m3": 14.039215686274503,
-          "score": 44,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 112
-        },
-        {
           "symbol": "SLCE3",
           "name": "SLC AGRICOLA S.A.",
           "sector": "Process Industries",
           "m1": -1.8952062430323289,
           "m3": 25.53495007132669,
-          "score": 44,
+          "score": 45,
           "weeklyTrend": {
             "state": "BULLISH"
           },
           "benchmark": "SMLL",
-          "rank": 113
+          "rank": 111
         },
         {
           "symbol": "ALUP4",
@@ -6551,7 +6527,7 @@
             "state": "BULLISH"
           },
           "benchmark": "SMLL",
-          "rank": 114
+          "rank": 112
         },
         {
           "symbol": "EMAE4",
@@ -6559,6 +6535,32 @@
           "sector": "Utilities",
           "m1": 18.61111111111112,
           "m3": 14.140604116546395,
+          "score": 44,
+          "weeklyTrend": {
+            "state": "NEUTRAL"
+          },
+          "benchmark": "SMLL",
+          "rank": 113
+        },
+        {
+          "symbol": "RECV3",
+          "name": "PETRORECÔNCAVO S.A.",
+          "sector": "Energy Minerals",
+          "m1": 7.570422535211279,
+          "m3": 19.569471624266143,
+          "score": 44,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 114
+        },
+        {
+          "symbol": "BPAC3",
+          "name": "BCO BTG PACTUAL S.A.",
+          "sector": "Finance",
+          "m1": 17.98227100042211,
+          "m3": 13.849287169042764,
           "score": 43,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6567,43 +6569,17 @@
           "rank": 115
         },
         {
-          "symbol": "RECV3",
-          "name": "PETRORECÔNCAVO S.A.",
-          "sector": "Energy Minerals",
-          "m1": 7.570422535211279,
-          "m3": 19.569471624266143,
-          "score": 43,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 116
-        },
-        {
-          "symbol": "BPAC3",
-          "name": "BCO BTG PACTUAL S.A.",
-          "sector": "Finance",
-          "m1": 17.98227100042211,
-          "m3": 13.849287169042764,
-          "score": 42,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 117
-        },
-        {
           "symbol": "BIOM3",
           "name": "BIOMM S.A.",
           "sector": "Health Technology",
           "m1": 9.552238805970143,
           "m3": 18.38709677419354,
-          "score": 42,
+          "score": 43,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 118
+          "rank": 116
         },
         {
           "symbol": "ITSA3",
@@ -6611,6 +6587,32 @@
           "sector": "Finance",
           "m1": 14.707952146375792,
           "m3": 15.52090715804395,
+          "score": 42,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 117
+        },
+        {
+          "symbol": "LEVE3",
+          "name": "MAHLE-METAL LEVE S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 15.446153846153857,
+          "m3": 15.092024539877306,
+          "score": 42,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 118
+        },
+        {
+          "symbol": "ENGI3",
+          "name": "ENERGISA S.A.",
+          "sector": "Utilities",
+          "m1": 15.832649712879407,
+          "m3": 14.703493095044667,
           "score": 41,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6619,11 +6621,11 @@
           "rank": 119
         },
         {
-          "symbol": "LEVE3",
-          "name": "MAHLE-METAL LEVE S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 15.446153846153857,
-          "m3": 15.092024539877306,
+          "symbol": "TECN3",
+          "name": "TECHNOS S.A.",
+          "sector": "Consumer Durables",
+          "m1": 11.999999999999993,
+          "m3": 16.666666666666664,
           "score": 41,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6632,37 +6634,37 @@
           "rank": 120
         },
         {
-          "symbol": "ENGI3",
-          "name": "ENERGISA S.A.",
-          "sector": "Utilities",
-          "m1": 15.832649712879407,
-          "m3": 14.703493095044667,
-          "score": 40,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 121
-        },
-        {
-          "symbol": "TECN3",
-          "name": "TECHNOS S.A.",
-          "sector": "Consumer Durables",
-          "m1": 11.999999999999993,
-          "m3": 16.666666666666664,
-          "score": 40,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 122
-        },
-        {
           "symbol": "VSTE3",
           "name": "VESTE S.A. ESTILO",
           "sector": "Consumer Non-Durables",
           "m1": 29.795918367346935,
           "m3": 6.354515050167222,
+          "score": 40,
+          "weeklyTrend": {
+            "state": "NEUTRAL"
+          },
+          "benchmark": "SMLL",
+          "rank": 121
+        },
+        {
+          "symbol": "BMEB3",
+          "name": "BCO MERCANTIL DO BRASIL S.A.",
+          "sector": "Finance",
+          "m1": 15.108759553203999,
+          "m3": 14.05825242718447,
+          "score": 40,
+          "weeklyTrend": {
+            "state": "NEUTRAL"
+          },
+          "benchmark": "SMLL",
+          "rank": 122
+        },
+        {
+          "symbol": "VLID3",
+          "name": "VALID SOLUÇÕES S.A.",
+          "sector": "Commercial Services",
+          "m1": 13.560267857142854,
+          "m3": 13.687150837988844,
           "score": 39,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6671,37 +6673,37 @@
           "rank": 123
         },
         {
-          "symbol": "BMEB3",
-          "name": "BCO MERCANTIL DO BRASIL S.A.",
-          "sector": "Finance",
-          "m1": 15.108759553203999,
-          "m3": 14.05825242718447,
-          "score": 39,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 124
-        },
-        {
-          "symbol": "VLID3",
-          "name": "VALID SOLUÇÕES S.A.",
-          "sector": "Commercial Services",
-          "m1": 13.560267857142854,
-          "m3": 13.687150837988844,
-          "score": 38,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 125
-        },
-        {
           "symbol": "MYPK3",
           "name": "IOCHPE MAXION S.A.",
           "sector": "Producer Manufacturing",
           "m1": 9.08173562058527,
           "m3": 15.987124463519315,
+          "score": 39,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 124
+        },
+        {
+          "symbol": "TAEE3",
+          "name": "TRANSMISSORA ALIANÇA DE ENERGIA ELÉTRICA S.A.",
+          "sector": "Industrial Services",
+          "m1": 13.913690476190485,
+          "m3": 12.079062957540266,
+          "score": 38,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 125
+        },
+        {
+          "symbol": "ISAE3",
+          "name": "ISA ENERGIA BRASIL S.A",
+          "sector": "Utilities",
+          "m1": 11.420612813370466,
+          "m3": 12.464854732895978,
           "score": 38,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6710,11 +6712,11 @@
           "rank": 126
         },
         {
-          "symbol": "TAEE3",
-          "name": "TRANSMISSORA ALIANÇA DE ENERGIA ELÉTRICA S.A.",
-          "sector": "Industrial Services",
-          "m1": 13.913690476190485,
-          "m3": 12.079062957540266,
+          "symbol": "HAGA4",
+          "name": "HAGA S.A. INDUSTRIA E COMERCIO",
+          "sector": "Consumer Durables",
+          "m1": 3.2608695652173822,
+          "m3": 16.564417177914113,
           "score": 37,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6723,11 +6725,11 @@
           "rank": 127
         },
         {
-          "symbol": "ISAE3",
-          "name": "ISA ENERGIA BRASIL S.A",
-          "sector": "Utilities",
-          "m1": 11.420612813370466,
-          "m3": 12.464854732895978,
+          "symbol": "DEXP3",
+          "name": "DEXXOS PARTICIPACOES S.A.",
+          "sector": "Process Industries",
+          "m1": 9.866666666666669,
+          "m3": 12.876712328767129,
           "score": 37,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6736,11 +6738,11 @@
           "rank": 128
         },
         {
-          "symbol": "HAGA4",
-          "name": "HAGA S.A. INDUSTRIA E COMERCIO",
-          "sector": "Consumer Durables",
-          "m1": 3.2608695652173822,
-          "m3": 16.564417177914113,
+          "symbol": "AXIA7",
+          "name": "AXIA ENERGIA S.A.",
+          "sector": "Utilities",
+          "m1": 8.912331757002558,
+          "m3": 13.301797540208138,
           "score": 36,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6749,11 +6751,11 @@
           "rank": 129
         },
         {
-          "symbol": "DEXP3",
-          "name": "DEXXOS PARTICIPACOES S.A.",
-          "sector": "Process Industries",
-          "m1": 9.866666666666669,
-          "m3": 12.876712328767129,
+          "symbol": "PDTC3",
+          "name": "PADTEC HOLDING S.A.",
+          "sector": "Electronic Technology",
+          "m1": 12.499999999999998,
+          "m3": 11.176470588235292,
           "score": 36,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6762,43 +6764,17 @@
           "rank": 130
         },
         {
-          "symbol": "AXIA7",
-          "name": "AXIA ENERGIA S.A.",
-          "sector": "Utilities",
-          "m1": 8.912331757002558,
-          "m3": 13.301797540208138,
-          "score": 35,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 131
-        },
-        {
-          "symbol": "PDTC3",
-          "name": "PADTEC HOLDING S.A.",
-          "sector": "Electronic Technology",
-          "m1": 12.499999999999998,
-          "m3": 11.176470588235292,
-          "score": 35,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 132
-        },
-        {
           "symbol": "FESA4",
           "name": "CIA FERRO LIGAS DA BAHIA - FERBASA",
           "sector": "Non-Energy Minerals",
           "m1": 14.186851211072653,
           "m3": 9.999999999999993,
-          "score": 34,
+          "score": 35,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 133
+          "rank": 131
         },
         {
           "symbol": "FIQE3",
@@ -6806,12 +6782,12 @@
           "sector": "Communications",
           "m1": 23.260437375745525,
           "m3": 5.0847457627118615,
-          "score": 34,
+          "score": 35,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 134
+          "rank": 132
         },
         {
           "symbol": "TAEE4",
@@ -6819,6 +6795,32 @@
           "sector": "Industrial Services",
           "m1": 12.165097755249816,
           "m3": 10.95988538681948,
+          "score": 34,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 133
+        },
+        {
+          "symbol": "NUTR3",
+          "name": "NUTRIPLANT INDUSTRIA E COMERCIO S.A.",
+          "sector": "Process Industries",
+          "m1": 10.13215859030837,
+          "m3": 11.607142857142847,
+          "score": 34,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 134
+        },
+        {
+          "symbol": "AZEV4",
+          "name": "AZEVEDO E TRAVASSOS S.A.",
+          "sector": "Industrial Services",
+          "m1": 2.962962962962949,
+          "m3": 14.876033057851235,
           "score": 33,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6827,43 +6829,17 @@
           "rank": 135
         },
         {
-          "symbol": "NUTR3",
-          "name": "NUTRIPLANT INDUSTRIA E COMERCIO S.A.",
-          "sector": "Process Industries",
-          "m1": 10.13215859030837,
-          "m3": 11.607142857142847,
-          "score": 33,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 136
-        },
-        {
-          "symbol": "AZEV4",
-          "name": "AZEVEDO E TRAVASSOS S.A.",
-          "sector": "Industrial Services",
-          "m1": 2.962962962962949,
-          "m3": 14.876033057851235,
-          "score": 32,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 137
-        },
-        {
           "symbol": "LOGN3",
           "name": "LOG-IN LOGISTICA INTERMODAL S.A.",
           "sector": "Transportation",
           "m1": 10.678571428571423,
           "m3": 10.678571428571423,
-          "score": 32,
+          "score": 33,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 138
+          "rank": 136
         },
         {
           "symbol": "RNEW4",
@@ -6871,12 +6847,12 @@
           "sector": "Utilities",
           "m1": -2.0833333333333353,
           "m3": 17.49999999999999,
-          "score": 31,
+          "score": 32,
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
-          "rank": 139
+          "rank": 137
         },
         {
           "symbol": "WIZC3",
@@ -6884,6 +6860,32 @@
           "sector": "Finance",
           "m1": 16.624040920716098,
           "m3": 7.168037602820205,
+          "score": 32,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 138
+        },
+        {
+          "symbol": "OFSA3",
+          "name": "OUROFINO S.A.",
+          "sector": "Health Technology",
+          "m1": 11.193476649369902,
+          "m3": 9.489051094890517,
+          "score": 31,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 139
+        },
+        {
+          "symbol": "BEES3",
+          "name": "BANESTES S.A. - BCO EST ESPIRITO SANTO",
+          "sector": "Finance",
+          "m1": 6.976744186046521,
+          "m3": 11.290322580645167,
           "score": 31,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6892,11 +6894,11 @@
           "rank": 140
         },
         {
-          "symbol": "OFSA3",
-          "name": "OUROFINO S.A.",
-          "sector": "Health Technology",
-          "m1": 11.193476649369902,
-          "m3": 9.489051094890517,
+          "symbol": "CMIG3",
+          "name": "CIA ENERGETICA DE MINAS GERAIS - CEMIG",
+          "sector": "Utilities",
+          "m1": 5.13992004568817,
+          "m3": 11.575757575757576,
           "score": 30,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6905,11 +6907,11 @@
           "rank": 141
         },
         {
-          "symbol": "BEES3",
-          "name": "BANESTES S.A. - BCO EST ESPIRITO SANTO",
-          "sector": "Finance",
-          "m1": 6.976744186046521,
-          "m3": 11.290322580645167,
+          "symbol": "GOAU3",
+          "name": "METALURGICA GERDAU S.A.",
+          "sector": "Non-Energy Minerals",
+          "m1": 0.48169556840076044,
+          "m3": 13.36956521739131,
           "score": 30,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6918,11 +6920,11 @@
           "rank": 142
         },
         {
-          "symbol": "CMIG3",
-          "name": "CIA ENERGETICA DE MINAS GERAIS - CEMIG",
-          "sector": "Utilities",
-          "m1": 5.13992004568817,
-          "m3": 11.575757575757576,
+          "symbol": "BRSR3",
+          "name": "BCO ESTADO DO RIO GRANDE DO SUL S.A.",
+          "sector": "Finance",
+          "m1": 5.51611141452759,
+          "m3": 10.400000000000002,
           "score": 29,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6931,11 +6933,11 @@
           "rank": 143
         },
         {
-          "symbol": "GOAU3",
-          "name": "METALURGICA GERDAU S.A.",
+          "symbol": "GGBR3",
+          "name": "GERDAU S.A.",
           "sector": "Non-Energy Minerals",
-          "m1": 0.48169556840076044,
-          "m3": 13.36956521739131,
+          "m1": 0.5041246562786409,
+          "m3": 12.924819773429444,
           "score": 29,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6944,24 +6946,24 @@
           "rank": 144
         },
         {
-          "symbol": "BRSR3",
-          "name": "BCO ESTADO DO RIO GRANDE DO SUL S.A.",
-          "sector": "Finance",
-          "m1": 5.51611141452759,
-          "m3": 10.400000000000002,
+          "symbol": "TFCO4",
+          "name": "TRACK & FIELD CO S.A.",
+          "sector": "Retail Trade",
+          "m1": 18.97081413210446,
+          "m3": 2.514890800794181,
           "score": 28,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 145
         },
         {
-          "symbol": "GGBR3",
-          "name": "GERDAU S.A.",
-          "sector": "Non-Energy Minerals",
-          "m1": 0.5041246562786409,
-          "m3": 12.924819773429444,
+          "symbol": "BMKS3",
+          "name": "BICICLETAS MONARK S.A.",
+          "sector": "Consumer Durables",
+          "m1": 10.193839617631435,
+          "m3": 7.232558139534887,
           "score": 28,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -6970,11 +6972,11 @@
           "rank": 146
         },
         {
-          "symbol": "TFCO4",
-          "name": "TRACK & FIELD CO S.A.",
-          "sector": "Retail Trade",
-          "m1": 18.97081413210446,
-          "m3": 2.514890800794181,
+          "symbol": "RNEW3",
+          "name": "RENOVA ENERGIA S.A.",
+          "sector": "Utilities",
+          "m1": -2.1276595744680753,
+          "m3": 13.580246913580243,
           "score": 27,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -6983,37 +6985,37 @@
           "rank": 147
         },
         {
-          "symbol": "BMKS3",
-          "name": "BICICLETAS MONARK S.A.",
-          "sector": "Consumer Durables",
-          "m1": 10.193839617631435,
-          "m3": 7.232558139534887,
-          "score": 27,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 148
-        },
-        {
-          "symbol": "RNEW3",
-          "name": "RENOVA ENERGIA S.A.",
-          "sector": "Utilities",
-          "m1": -2.1276595744680753,
-          "m3": 13.580246913580243,
-          "score": 26,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 149
-        },
-        {
           "symbol": "CGRA4",
           "name": "GRAZZIOTIN S.A.",
           "sector": "Retail Trade",
           "m1": 12.160413971539457,
           "m3": 5.731707317073171,
+          "score": 27,
+          "weeklyTrend": {
+            "state": "NEUTRAL"
+          },
+          "benchmark": "SMLL",
+          "rank": 148
+        },
+        {
+          "symbol": "BEES4",
+          "name": "BANESTES S.A. - BCO EST ESPIRITO SANTO",
+          "sector": "Finance",
+          "m1": 5.875831485587596,
+          "m3": 8.522727272727272,
+          "score": 26,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 149
+        },
+        {
+          "symbol": "CEBR3",
+          "name": "CIA ENERGETICA DE BRASILIA",
+          "sector": "Utilities",
+          "m1": 9.201171058134669,
+          "m3": 4.94372990353698,
           "score": 26,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7022,11 +7024,11 @@
           "rank": 150
         },
         {
-          "symbol": "BEES4",
-          "name": "BANESTES S.A. - BCO EST ESPIRITO SANTO",
-          "sector": "Finance",
-          "m1": 5.875831485587596,
-          "m3": 8.522727272727272,
+          "symbol": "DESK3",
+          "name": "DESKTOP S.A.",
+          "sector": "Communications",
+          "m1": 0.7253886010362723,
+          "m3": 8.542713567839202,
           "score": 25,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -7035,43 +7037,17 @@
           "rank": 151
         },
         {
-          "symbol": "CEBR3",
-          "name": "CIA ENERGETICA DE BRASILIA",
-          "sector": "Utilities",
-          "m1": 9.201171058134669,
-          "m3": 4.94372990353698,
-          "score": 25,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 152
-        },
-        {
-          "symbol": "DESK3",
-          "name": "DESKTOP S.A.",
-          "sector": "Communications",
-          "m1": 0.7253886010362723,
-          "m3": 8.542713567839202,
-          "score": 24,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 153
-        },
-        {
           "symbol": "AERI3",
           "name": "AERIS IND. E COM. DE EQUIP. GERACAO DE ENERGIA S/A",
           "sector": "Producer Manufacturing",
           "m1": 2.7522935779816535,
           "m3": 7.177033492822985,
-          "score": 24,
+          "score": 25,
           "weeklyTrend": {
             "state": "BEARISH"
           },
           "benchmark": "SMLL",
-          "rank": 154
+          "rank": 152
         },
         {
           "symbol": "UCAS3",
@@ -7079,6 +7055,32 @@
           "sector": "Consumer Durables",
           "m1": 9.482758620689664,
           "m3": 3.2520325203252063,
+          "score": 24,
+          "weeklyTrend": {
+            "state": "NEUTRAL"
+          },
+          "benchmark": "SMLL",
+          "rank": 153
+        },
+        {
+          "symbol": "EALT4",
+          "name": "ELECTRO ACO ALTONA S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 8.771929824561402,
+          "m3": 3.161397670549092,
+          "score": 24,
+          "weeklyTrend": {
+            "state": "NEUTRAL"
+          },
+          "benchmark": "SMLL",
+          "rank": 154
+        },
+        {
+          "symbol": "RANI3",
+          "name": "IRANI PAPEL E EMBALAGEM S.A.",
+          "sector": "Process Industries",
+          "m1": 5.408805031446549,
+          "m3": 4.619225967540587,
           "score": 23,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7087,11 +7089,11 @@
           "rank": 155
         },
         {
-          "symbol": "EALT4",
-          "name": "ELECTRO ACO ALTONA S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 8.771929824561402,
-          "m3": 3.161397670549092,
+          "symbol": "EQPA3",
+          "name": "EQUATORIAL PARA DISTRIBUIDORA DE ENERGIA S.A.",
+          "sector": "Utilities",
+          "m1": 3.102189781021896,
+          "m3": 5.214152700186224,
           "score": 23,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7100,24 +7102,24 @@
           "rank": 156
         },
         {
-          "symbol": "RANI3",
-          "name": "IRANI PAPEL E EMBALAGEM S.A.",
-          "sector": "Process Industries",
-          "m1": 5.408805031446549,
-          "m3": 4.619225967540587,
+          "symbol": "MILS3",
+          "name": "MILLS LOCAÇÃO. SERVIÇOS E LOGÍSTICA S.A",
+          "sector": "Finance",
+          "m1": 2.4050632911392342,
+          "m3": 4.792746113989639,
           "score": 22,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 157
         },
         {
-          "symbol": "EQPA3",
-          "name": "EQUATORIAL PARA DISTRIBUIDORA DE ENERGIA S.A.",
-          "sector": "Utilities",
-          "m1": 3.102189781021896,
-          "m3": 5.214152700186224,
+          "symbol": "OBTC3",
+          "name": "ORANJEBTC S.A. - EDUCAÇÃO E INVESTIMENTO",
+          "sector": "Technology Services",
+          "m1": -10.400000000000004,
+          "m3": 11.258278145695359,
           "score": 22,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7126,24 +7128,24 @@
           "rank": 158
         },
         {
-          "symbol": "MILS3",
-          "name": "MILLS LOCAÇÃO. SERVIÇOS E LOGÍSTICA S.A",
+          "symbol": "SANB3",
+          "name": "BCO SANTANDER (BRASIL) S.A.",
           "sector": "Finance",
-          "m1": 2.4050632911392342,
-          "m3": 4.792746113989639,
+          "m1": -6.013071895424836,
+          "m3": 8.528301886792459,
           "score": 21,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 159
         },
         {
-          "symbol": "OBTC3",
-          "name": "ORANJEBTC S.A. - EDUCAÇÃO E INVESTIMENTO",
-          "sector": "Technology Services",
-          "m1": -10.400000000000004,
-          "m3": 11.258278145695359,
+          "symbol": "CASH3",
+          "name": "MÉLIUZ S.A.",
+          "sector": "Commercial Services",
+          "m1": -3.9999999999999996,
+          "m3": 7.0063694267515935,
           "score": 21,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7152,11 +7154,11 @@
           "rank": 160
         },
         {
-          "symbol": "SANB3",
-          "name": "BCO SANTANDER (BRASIL) S.A.",
-          "sector": "Finance",
-          "m1": -6.013071895424836,
-          "m3": 8.528301886792459,
+          "symbol": "WHRL4",
+          "name": "WHIRLPOOL S.A.",
+          "sector": "Consumer Durables",
+          "m1": 11.142061281337059,
+          "m3": -1.4814814814814719,
           "score": 20,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7165,24 +7167,24 @@
           "rank": 161
         },
         {
-          "symbol": "CASH3",
-          "name": "MÉLIUZ S.A.",
-          "sector": "Commercial Services",
-          "m1": -3.9999999999999996,
-          "m3": 7.0063694267515935,
+          "symbol": "CBAV3",
+          "name": "COMPANHIA BRASILEIRA DE ALUMÍNIO",
+          "sector": "Non-Energy Minerals",
+          "m1": 0.08904719501335517,
+          "m3": 3.977798334875113,
           "score": 20,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 162
         },
         {
-          "symbol": "WHRL4",
-          "name": "WHIRLPOOL S.A.",
-          "sector": "Consumer Durables",
-          "m1": 11.142061281337059,
-          "m3": -1.4814814814814719,
+          "symbol": "CEBR5",
+          "name": "CIA ENERGETICA DE BRASILIA",
+          "sector": "Utilities",
+          "m1": 6.4830508474576165,
+          "m3": 0.519999999999996,
           "score": 19,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7191,11 +7193,11 @@
           "rank": 163
         },
         {
-          "symbol": "CBAV3",
-          "name": "COMPANHIA BRASILEIRA DE ALUMÍNIO",
-          "sector": "Non-Energy Minerals",
-          "m1": 0.08904719501335517,
-          "m3": 3.977798334875113,
+          "symbol": "SAUD3",
+          "name": "BRADSAÚDE S.A.",
+          "sector": "Health Services",
+          "m1": 2.1456436931079326,
+          "m3": 1.6828478964401397,
           "score": 19,
           "weeklyTrend": {
             "state": "BULLISH"
@@ -7204,11 +7206,11 @@
           "rank": 164
         },
         {
-          "symbol": "CEBR5",
-          "name": "CIA ENERGETICA DE BRASILIA",
-          "sector": "Utilities",
-          "m1": 6.4830508474576165,
-          "m3": 0.519999999999996,
+          "symbol": "UNIP6",
+          "name": "UNIPAR CARBOCLORO S.A.",
+          "sector": "Process Industries",
+          "m1": 8.2640240665369,
+          "m3": -2.6571201272871945,
           "score": 18,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7217,37 +7219,37 @@
           "rank": 165
         },
         {
-          "symbol": "SAUD3",
-          "name": "BRADSAÚDE S.A.",
-          "sector": "Health Services",
-          "m1": 2.1456436931079326,
-          "m3": 1.6828478964401397,
-          "score": 18,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 166
-        },
-        {
-          "symbol": "UNIP6",
-          "name": "UNIPAR CARBOCLORO S.A.",
-          "sector": "Process Industries",
-          "m1": 8.2640240665369,
-          "m3": -2.6571201272871945,
-          "score": 17,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 167
-        },
-        {
           "symbol": "KLBN3",
           "name": "KLABIN S.A.",
           "sector": "Non-Energy Minerals",
           "m1": -8.33333333333333,
           "m3": 6.250000000000005,
+          "score": 18,
+          "weeklyTrend": {
+            "state": "NEUTRAL"
+          },
+          "benchmark": "SMLL",
+          "rank": 166
+        },
+        {
+          "symbol": "ESPA3",
+          "name": "MPM CORPÓREOS S.A.",
+          "sector": "Consumer Services",
+          "m1": 7.297297297297297,
+          "m3": -2.5766871165644165,
+          "score": 17,
+          "weeklyTrend": {
+            "state": "BULLISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 167
+        },
+        {
+          "symbol": "AGRO3",
+          "name": "BRASILAGRO - CIA BRAS DE PROP AGRICOLAS",
+          "sector": "Finance",
+          "m1": 1.7599999999999907,
+          "m3": 0.3682272488163952,
           "score": 17,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7256,24 +7258,24 @@
           "rank": 168
         },
         {
-          "symbol": "ESPA3",
-          "name": "MPM CORPÓREOS S.A.",
-          "sector": "Consumer Services",
-          "m1": 7.297297297297297,
-          "m3": -2.5766871165644165,
+          "symbol": "MNPR3",
+          "name": "MINUPAR PARTICIPACOES S.A.",
+          "sector": "Process Industries",
+          "m1": 1.52284263959391,
+          "m3": 0.25062656641603476,
           "score": 16,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "BEARISH"
           },
           "benchmark": "SMLL",
           "rank": 169
         },
         {
-          "symbol": "AGRO3",
-          "name": "BRASILAGRO - CIA BRAS DE PROP AGRICOLAS",
-          "sector": "Finance",
-          "m1": 1.7599999999999907,
-          "m3": 0.3682272488163952,
+          "symbol": "KLBN4",
+          "name": "KLABIN S.A.",
+          "sector": "Non-Energy Minerals",
+          "m1": -5.714285714285719,
+          "m3": 4.011461318051566,
           "score": 16,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7282,24 +7284,24 @@
           "rank": 170
         },
         {
-          "symbol": "MNPR3",
-          "name": "MINUPAR PARTICIPACOES S.A.",
-          "sector": "Process Industries",
-          "m1": 1.52284263959391,
-          "m3": 0.25062656641603476,
+          "symbol": "CEBR6",
+          "name": "CIA ENERGETICA DE BRASILIA",
+          "sector": "Utilities",
+          "m1": 4.298310066127853,
+          "m3": -1.4236111111111116,
           "score": 15,
           "weeklyTrend": {
-            "state": "BEARISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 171
         },
         {
-          "symbol": "KLBN4",
-          "name": "KLABIN S.A.",
-          "sector": "Non-Energy Minerals",
-          "m1": -5.714285714285719,
-          "m3": 4.011461318051566,
+          "symbol": "UNIP3",
+          "name": "UNIPAR CARBOCLORO S.A.",
+          "sector": "Process Industries",
+          "m1": 5.4905490549054985,
+          "m3": -2.251876563803172,
           "score": 15,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7308,24 +7310,24 @@
           "rank": 172
         },
         {
-          "symbol": "CEBR6",
-          "name": "CIA ENERGETICA DE BRASILIA",
-          "sector": "Utilities",
-          "m1": 4.298310066127853,
-          "m3": -1.4236111111111116,
+          "symbol": "ETER3",
+          "name": "ETERNIT S.A.",
+          "sector": "Non-Energy Minerals",
+          "m1": 0.540540540540541,
+          "m3": 0,
           "score": 14,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BEARISH"
           },
           "benchmark": "SMLL",
           "rank": 173
         },
         {
-          "symbol": "UNIP3",
-          "name": "UNIPAR CARBOCLORO S.A.",
-          "sector": "Process Industries",
-          "m1": 5.4905490549054985,
-          "m3": -2.251876563803172,
+          "symbol": "SYNE3",
+          "name": "SYN PROP E TECH S.A.",
+          "sector": "Finance",
+          "m1": 10.84010840108401,
+          "m3": -5.76036866359447,
           "score": 14,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7334,10 +7336,10 @@
           "rank": 174
         },
         {
-          "symbol": "ETER3",
-          "name": "ETERNIT S.A.",
-          "sector": "Non-Energy Minerals",
-          "m1": 0.540540540540541,
+          "symbol": "SEQL3",
+          "name": "SEQUOIA LOGISTICA E TRANSPORTES S.A",
+          "sector": "Transportation",
+          "m1": 0,
           "m3": 0,
           "score": 13,
           "weeklyTrend": {
@@ -7347,37 +7349,37 @@
           "rank": 175
         },
         {
-          "symbol": "SYNE3",
-          "name": "SYN PROP E TECH S.A.",
-          "sector": "Finance",
-          "m1": 10.84010840108401,
-          "m3": -5.76036866359447,
-          "score": 13,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "SMLL",
-          "rank": 176
-        },
-        {
-          "symbol": "SEQL3",
-          "name": "SEQUOIA LOGISTICA E TRANSPORTES S.A",
-          "sector": "Transportation",
-          "m1": 0,
-          "m3": 0,
-          "score": 12,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "SMLL",
-          "rank": 177
-        },
-        {
           "symbol": "SCAR3",
           "name": "SAO CARLOS EMPREEND E PARTICIPACOES S.A.",
           "sector": "Finance",
           "m1": 0,
           "m3": -0.7692307692307665,
+          "score": 13,
+          "weeklyTrend": {
+            "state": "BEARISH"
+          },
+          "benchmark": "SMLL",
+          "rank": 176
+        },
+        {
+          "symbol": "DMVF3",
+          "name": "D1000 VAREJO FARMA PARTICIPAÇÕES S.A.",
+          "sector": "Distribution Services",
+          "m1": 5.345911949685532,
+          "m3": -4.69416785206259,
+          "score": 12,
+          "weeklyTrend": {
+            "state": "NEUTRAL"
+          },
+          "benchmark": "SMLL",
+          "rank": 177
+        },
+        {
+          "symbol": "BRAP3",
+          "name": "BRADESPAR S.A.",
+          "sector": "Finance",
+          "m1": -3.5361414456578246,
+          "m3": -0.3224073078989722,
           "score": 12,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7386,24 +7388,24 @@
           "rank": 178
         },
         {
-          "symbol": "DMVF3",
-          "name": "D1000 VAREJO FARMA PARTICIPAÇÕES S.A.",
-          "sector": "Distribution Services",
-          "m1": 5.345911949685532,
-          "m3": -4.69416785206259,
+          "symbol": "PDGR3",
+          "name": "PDG REALTY S.A. EMPREEND E PARTICIPACOES",
+          "sector": "Finance",
+          "m1": 4.347826086956526,
+          "m3": -4.761904761904765,
           "score": 11,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BEARISH"
           },
           "benchmark": "SMLL",
           "rank": 179
         },
         {
-          "symbol": "BRAP3",
-          "name": "BRADESPAR S.A.",
+          "symbol": "SANB4",
+          "name": "BCO SANTANDER (BRASIL) S.A.",
           "sector": "Finance",
-          "m1": -3.5361414456578246,
-          "m3": -0.3224073078989722,
+          "m1": -5.843729481286937,
+          "m3": 0.27972027972027375,
           "score": 11,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7412,24 +7414,24 @@
           "rank": 180
         },
         {
-          "symbol": "PDGR3",
-          "name": "PDG REALTY S.A. EMPREEND E PARTICIPACOES",
-          "sector": "Finance",
-          "m1": 4.347826086956526,
-          "m3": -4.761904761904765,
+          "symbol": "TTEN3",
+          "name": "TRÊS TENTOS AGROINDUSTRIAL S/A",
+          "sector": "Commercial Services",
+          "m1": 18.947368421052634,
+          "m3": -13.685550604710379,
           "score": 10,
           "weeklyTrend": {
-            "state": "BEARISH"
+            "state": "NEUTRAL"
           },
           "benchmark": "SMLL",
           "rank": 181
         },
         {
-          "symbol": "SANB4",
-          "name": "BCO SANTANDER (BRASIL) S.A.",
+          "symbol": "GFSA3",
+          "name": "GAFISA S.A.",
           "sector": "Finance",
-          "m1": -5.843729481286937,
-          "m3": 0.27972027972027375,
+          "m1": 46.66666666666667,
+          "m3": -30.158730158730158,
           "score": 10,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7438,11 +7440,11 @@
           "rank": 182
         },
         {
-          "symbol": "TTEN3",
-          "name": "TRÊS TENTOS AGROINDUSTRIAL S/A",
+          "symbol": "OPCT3",
+          "name": "OCEANPACT SERVICOS MARITIMOS S.A.",
           "sector": "Commercial Services",
-          "m1": 18.947368421052634,
-          "m3": -13.685550604710379,
+          "m1": -3.79858657243816,
+          "m3": -3.6283185840707977,
           "score": 9,
           "weeklyTrend": {
             "state": "NEUTRAL"
@@ -7451,11 +7453,11 @@
           "rank": 183
         },
         {
-          "symbol": "GFSA3",
-          "name": "GAFISA S.A.",
+          "symbol": "TCSA3",
+          "name": "TECNISA S.A.",
           "sector": "Finance",
-          "m1": 46.66666666666667,
-          "m3": -30.158730158730158,
+          "m1": 3.1250000000000027,
+          "m3": -8.333333333333325,
           "score": 9,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7464,24 +7466,24 @@
           "rank": 184
         },
         {
-          "symbol": "OPCT3",
-          "name": "OCEANPACT SERVICOS MARITIMOS S.A.",
-          "sector": "Commercial Services",
-          "m1": -3.79858657243816,
-          "m3": -3.6283185840707977,
+          "symbol": "USIM3",
+          "name": "USINAS SID DE MINAS GERAIS S.A.-USIMINAS",
+          "sector": "Non-Energy Minerals",
+          "m1": 2.18340611353711,
+          "m3": -7.8740157480315025,
           "score": 8,
           "weeklyTrend": {
-            "state": "NEUTRAL"
+            "state": "BEARISH"
           },
           "benchmark": "SMLL",
           "rank": 185
         },
         {
-          "symbol": "TCSA3",
-          "name": "TECNISA S.A.",
-          "sector": "Finance",
-          "m1": 3.1250000000000027,
-          "m3": -8.333333333333325,
+          "symbol": "POMO3",
+          "name": "MARCOPOLO S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 8.70588235294118,
+          "m3": -14.602587800369687,
           "score": 8,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7490,11 +7492,11 @@
           "rank": 186
         },
         {
-          "symbol": "USIM3",
-          "name": "USINAS SID DE MINAS GERAIS S.A.-USIMINAS",
-          "sector": "Non-Energy Minerals",
-          "m1": 2.18340611353711,
-          "m3": -7.8740157480315025,
+          "symbol": "AALR3",
+          "name": "ALLIANÇA SAÚDE E PARTICIPAÇÕES S.A.",
+          "sector": "Health Services",
+          "m1": -11.403508771929829,
+          "m3": -6.7692307692307745,
           "score": 7,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7503,11 +7505,11 @@
           "rank": 187
         },
         {
-          "symbol": "POMO3",
-          "name": "MARCOPOLO S.A.",
-          "sector": "Producer Manufacturing",
-          "m1": 8.70588235294118,
-          "m3": -14.602587800369687,
+          "symbol": "CAMB3",
+          "name": "CAMBUCI S.A.",
+          "sector": "Consumer Non-Durables",
+          "m1": -2.150537634408599,
+          "m3": -13.60759493670887,
           "score": 7,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7516,11 +7518,11 @@
           "rank": 188
         },
         {
-          "symbol": "AALR3",
-          "name": "ALLIANÇA SAÚDE E PARTICIPAÇÕES S.A.",
-          "sector": "Health Services",
-          "m1": -11.403508771929829,
-          "m3": -6.7692307692307745,
+          "symbol": "BRKM3",
+          "name": "BRASKEM S.A.",
+          "sector": "Process Industries",
+          "m1": 0.6880733944953982,
+          "m3": -20.036429872495457,
           "score": 6,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7529,11 +7531,11 @@
           "rank": 189
         },
         {
-          "symbol": "CAMB3",
-          "name": "CAMBUCI S.A.",
-          "sector": "Consumer Non-Durables",
-          "m1": -2.150537634408599,
-          "m3": -13.60759493670887,
+          "symbol": "AXIA6",
+          "name": "AXIA ENERGIA S.A.",
+          "sector": "Não classificado",
+          "m1": -13.613133033916668,
+          "m3": -13.23689531808991,
           "score": 6,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7542,11 +7544,11 @@
           "rank": 190
         },
         {
-          "symbol": "BRKM3",
-          "name": "BRASKEM S.A.",
-          "sector": "Process Industries",
-          "m1": 0.6880733944953982,
-          "m3": -20.036429872495457,
+          "symbol": "AZUL3",
+          "name": "AZUL S.A.",
+          "sector": "Transportation",
+          "m1": 3.4817351598173487,
+          "m3": -22.85106382978724,
           "score": 5,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7555,11 +7557,11 @@
           "rank": 191
         },
         {
-          "symbol": "AXIA6",
-          "name": "AXIA ENERGIA S.A.",
-          "sector": "Não classificado",
-          "m1": -13.613133033916668,
-          "m3": -13.23689531808991,
+          "symbol": "BSLI4",
+          "name": "BRB BCO DE BRASILIA S.A.",
+          "sector": "Finance",
+          "m1": -7.031250000000005,
+          "m3": -20.40133779264215,
           "score": 5,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7568,24 +7570,24 @@
           "rank": 192
         },
         {
-          "symbol": "AZUL3",
-          "name": "AZUL S.A.",
-          "sector": "Transportation",
-          "m1": 3.4817351598173487,
-          "m3": -22.85106382978724,
+          "symbol": "IFCM3",
+          "name": "INFRACOMMERCE CXAAS S.A.",
+          "sector": "Distribution Services",
+          "m1": -6.586826347305381,
+          "m3": -23.902439024390233,
           "score": 4,
           "weeklyTrend": {
-            "state": "BEARISH"
+            "state": "BULLISH"
           },
           "benchmark": "SMLL",
           "rank": 193
         },
         {
-          "symbol": "BSLI4",
-          "name": "BRB BCO DE BRASILIA S.A.",
-          "sector": "Finance",
-          "m1": -7.031250000000005,
-          "m3": -20.40133779264215,
+          "symbol": "EPAR3",
+          "name": "EMBPAR PARTICIPACOES S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": -6.8702290076335935,
+          "m3": -24.691358024691365,
           "score": 4,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7594,24 +7596,24 @@
           "rank": 194
         },
         {
-          "symbol": "IFCM3",
-          "name": "INFRACOMMERCE CXAAS S.A.",
-          "sector": "Distribution Services",
-          "m1": -6.586826347305381,
-          "m3": -23.902439024390233,
+          "symbol": "INEP3",
+          "name": "INEPAR S.A. INDUSTRIA E CONSTRUCOES",
+          "sector": "Producer Manufacturing",
+          "m1": -10.958904109589037,
+          "m3": -27.77777777777778,
           "score": 3,
           "weeklyTrend": {
-            "state": "BULLISH"
+            "state": "BEARISH"
           },
           "benchmark": "SMLL",
           "rank": 195
         },
         {
-          "symbol": "EPAR3",
-          "name": "EMBPAR PARTICIPACOES S.A.",
+          "symbol": "INEP4",
+          "name": "INEPAR S.A. INDUSTRIA E CONSTRUCOES",
           "sector": "Producer Manufacturing",
-          "m1": -6.8702290076335935,
-          "m3": -24.691358024691365,
+          "m1": -10.563380281690135,
+          "m3": -29.05027932960894,
           "score": 3,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7620,11 +7622,11 @@
           "rank": 196
         },
         {
-          "symbol": "INEP3",
-          "name": "INEPAR S.A. INDUSTRIA E CONSTRUCOES",
-          "sector": "Producer Manufacturing",
-          "m1": -10.958904109589037,
-          "m3": -27.77777777777778,
+          "symbol": "BSLI3",
+          "name": "BRB BCO DE BRASILIA S.A.",
+          "sector": "Finance",
+          "m1": -19.083969465648853,
+          "m3": -29.33333333333333,
           "score": 2,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7633,11 +7635,11 @@
           "rank": 197
         },
         {
-          "symbol": "INEP4",
-          "name": "INEPAR S.A. INDUSTRIA E CONSTRUCOES",
-          "sector": "Producer Manufacturing",
-          "m1": -10.563380281690135,
-          "m3": -29.05027932960894,
+          "symbol": "BRKM5",
+          "name": "BRASKEM S.A.",
+          "sector": "Process Industries",
+          "m1": -17.07779886148007,
+          "m3": -34.08748114630467,
           "score": 2,
           "weeklyTrend": {
             "state": "BEARISH"
@@ -7646,30 +7648,32 @@
           "rank": 198
         },
         {
-          "symbol": "BSLI3",
-          "name": "BRB BCO DE BRASILIA S.A.",
-          "sector": "Finance",
-          "m1": -19.083969465648853,
-          "m3": -29.33333333333333,
+          "symbol": "ENJU3",
+          "name": "ENJOEI S.A.",
+          "sector": "Retail Trade",
+          "m1": -2.3076923076923075,
+          "m3": -18.06451612903226,
           "score": 1,
           "weeklyTrend": {
             "state": "BEARISH"
           },
           "benchmark": "SMLL",
-          "rank": 199
+          "rank": 199,
+          "relativeScore": -28.5
         },
         {
-          "symbol": "BRKM5",
-          "name": "BRASKEM S.A.",
-          "sector": "Process Industries",
-          "m1": -17.07779886148007,
-          "m3": -34.08748114630467,
+          "symbol": "LUPA3",
+          "name": "LUPATECH S.A.",
+          "sector": "Producer Manufacturing",
+          "m1": 13.150684931506849,
+          "m3": -41,
           "score": 1,
           "weeklyTrend": {
             "state": "BEARISH"
           },
           "benchmark": "SMLL",
-          "rank": 200
+          "rank": 200,
+          "relativeScore": -35.2
         },
         {
           "symbol": "ORVR3",
@@ -11838,15 +11842,16 @@
     }
   }
 };
+
   root.__relativeStrengthStaticCache = staticCache;
 
-  // Hidratação imediata do estado global para inicialização instantânea
+  // Hidratação imediata para garantir renderização síncrona
   if (!root.relativeStrengthClassesState) {
     root.relativeStrengthClassesState = {
-      selected: 'stock_ibov',
       classes: staticCache.daily,
       dailyClasses: staticCache.daily,
       weeklyClasses: staticCache.weekly,
+      selected: 'stock_ibov',
       updatedAt: staticCache.updatedAt,
       dataAsOf: staticCache.dataAsOf,
       source: staticCache.source,

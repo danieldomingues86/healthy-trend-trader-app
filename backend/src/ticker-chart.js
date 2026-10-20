@@ -5,6 +5,7 @@ const path = require('node:path');
 const { extractZip } = require('./b3-historical');
 const { fetchFundamentals } = require('./fundamentals');
 const marketData = require('./market-data');
+const { adjustCandles } = require('./corporate-events');
 const TradingRubrics = require('../../frontend/trading-rubrics');
 const TickerChartModel = require('../../frontend/ticker-chart-model');
 const FundamentalScore = require('../../frontend/fundamental-score');
@@ -82,7 +83,7 @@ function loadB3History() {
       if (!needsRebuild) {
         const raw = fs.readFileSync(SPOT_CANDLES_CACHE_FILE, 'utf8');
         const parsed = JSON.parse(raw);
-        b3StocksCache = new Map(Object.entries(parsed));
+        b3StocksCache = new Map(Object.entries(parsed).map(([sym, candles]) => [sym, adjustCandles(candles, sym)]));
         return b3StocksCache;
       }
     } catch (err) {
@@ -123,7 +124,7 @@ function loadB3History() {
         deduped.push(c);
       }
     }
-    merged.set(sym, deduped);
+    merged.set(sym, adjustCandles(deduped, sym));
   }
 
   // Salva no arquivo de cache persistente para as próximas inicializações
@@ -285,7 +286,7 @@ async function getTickerChartData(rawSymbol) {
   const cache = await marketData.readCache().catch(() => ({}));
   const rsItems = cache.relativeStrength || [];
 
-  // 1. Obtém velas diárias do ativo
+  // 1. Obtém velas diárias do ativo (já ajustadas para eventos corporativos via loadB3History)
   let candles = b3Histories.get(symbol) || nasdaqHistories.get(symbol) || [];
 
   // Se não houver velas no arquivo COTAHIST ou NASDAQ, gera histórico com base nos preços de fechamento conhecidos

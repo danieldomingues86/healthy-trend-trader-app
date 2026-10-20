@@ -336,9 +336,10 @@
         benchmarkLabel: 'QQQ',
         sourceLabel,
         dateLabel,
-        items: ranking.map(item => ({
+        items: ranking.map((item, idx) => ({
           ...item,
-          name: item.companyName || item.name || item.symbol
+          name: item.companyName || item.name || item.symbol,
+          globalRank: Number.isFinite(item.rank) && item.rank > 0 ? item.rank : (idx + 1)
         }))
       };
     }
@@ -382,6 +383,39 @@
     const dateLabel = formatDisplayDate(rawDate);
     const sourceLabel = timeframe === 'weekly' ? 'B3 (COTAHIST · Semanal)' : 'B3 (COTAHIST)';
 
+    // Normalização defensiva: assegura posições globais imutáveis 1..N e ordenação consistente por força relativa
+    const rawItems = activeClass.items || [];
+    const hasDuplicateRanks = (() => {
+      const seen = new Set();
+      for (const it of rawItems) {
+        if (it.rank != null) {
+          if (seen.has(it.rank)) return true;
+          seen.add(it.rank);
+        }
+      }
+      return false;
+    })();
+
+    let items;
+    if (hasDuplicateRanks) {
+      items = [...rawItems].sort((a, b) => {
+        const scoreDiff = (Number(b.score ?? b.rsScore ?? 0)) - (Number(a.score ?? a.rsScore ?? 0));
+        if (scoreDiff !== 0) return scoreDiff;
+        const m3Diff = (Number(b.m3 ?? 0)) - (Number(a.m3 ?? 0));
+        if (m3Diff !== 0) return m3Diff;
+        return String(a.symbol || '').localeCompare(String(b.symbol || ''));
+      }).map((item, idx) => ({
+        ...item,
+        rank: idx + 1,
+        globalRank: idx + 1
+      }));
+    } else {
+      items = rawItems.map((item, idx) => ({
+        ...item,
+        globalRank: Number.isFinite(item.rank) && item.rank > 0 ? item.rank : (idx + 1)
+      }));
+    }
+
     return {
       market: 'b3',
       universeKey: key,
@@ -389,7 +423,7 @@
       benchmarkLabel: benchmarkLabels[key] || 'IBOV',
       sourceLabel,
       dateLabel,
-      items: activeClass.items || []
+      items
     };
   }
 
@@ -569,7 +603,7 @@
     }
 
     return pagedItems.map((item, index) => {
-      const rank = item.rank || (index + 1);
+      const rank = item.globalRank || item.rank || (index + 1);
       const symbol = item.symbol;
       const company = item.name || item.companyName || symbol;
       const sector = localizedSector(item.sector || '—');
@@ -850,14 +884,30 @@
   }
 
   // Hook into the global render pipeline
-  window.renderRelativeStrengthClassesPage = renderRelativeStrengthWorkspace;
+  if (typeof window !== 'undefined') {
+    window.renderRelativeStrengthClassesPage = renderRelativeStrengthWorkspace;
+  }
 
   // Initial call if document is already ready
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(renderRelativeStrengthWorkspace, 20);
-  } else {
-    document.addEventListener('DOMContentLoaded', () => {
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
       setTimeout(renderRelativeStrengthWorkspace, 20);
-    });
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(renderRelativeStrengthWorkspace, 20);
+      });
+    }
+  }
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      getActiveDataset,
+      getFilteredAndPagedItems,
+      getLeituraInfo,
+      getScoreBadgeClass,
+      localizedSector,
+      renderTableRows,
+      renderPaginationControls
+    };
   }
 }());
