@@ -905,7 +905,7 @@ server.listen(port, async () => {
   console.log(`Market data API em http://localhost:${port}`);
   tickerChart.warmup().catch((error) => console.error('[ticker-chart warmup]', error.message));
 });
-setInterval(() => refreshIfDue().catch((error) => console.error('[scheduler]', error.message)), 60 * 60 * 1000);
+setInterval(() => refreshIfDue().catch((error) => console.error('[scheduler]', error.message)), 15 * 60 * 1000);
 refreshIfDue().catch((error) => console.error('[startup]', error.message));
 setInterval(() => refreshFundamentusIfDue().catch((error) => console.error('[fundamentus scheduler]', error.message)), 24 * 60 * 60 * 1000);
 refreshFundamentusIfDue().catch((error) => console.error('[fundamentus startup]', error.message));
