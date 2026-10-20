@@ -27,19 +27,23 @@
 
   const ICONS = {
     search: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`,
-    trophy: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
-    relativeStrength: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
-    marketCycle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
-    trend: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`,
-    structure: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
-    trigger: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
-    volatility: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
-    fundamentals: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="12" y1="14" x2="12" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>`,
-    context: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-    rubric: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><polyline points="9 11 12 14 22 4"/></svg>`,
-    liquidity: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+    trophy: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+    relativeStrength: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+    marketCycle: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>`,
+    trend: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`,
+    structure: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+    trigger: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
+    volatility: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+    fundamentals: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>`,
+    context: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>`,
+    compass: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+    rubric: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><polyline points="9 11 12 14 22 4"/></svg>`,
+    liquidity: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
     chevronDown: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
     check: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+    checkCircle: `<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#10b981"/><path d="M6 10.2L8.7 13L14.2 7.5" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    crossCircle: `<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#ef4444"/><path d="M7 7L13 13M13 7L7 13" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    dashCircle: `<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#cbd5e1"/><line x1="6" y1="10" x2="14" y2="10" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/></svg>`,
     star: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
     starFilled: `<svg width="14" height="14" viewBox="0 0 24 24" fill="#059669" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
     trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
@@ -745,17 +749,17 @@
       <!-- 4. METHOD INDICATORS ROW SKELETON -->
       <div class="method-widgets-row">
         ${[
-          { name: 'Força Relativa', icon: ICONS.relativeStrength },
-          { name: 'Ciclo de Mercado', icon: ICONS.marketCycle },
-          { name: 'Tendência', icon: ICONS.trend },
-          { name: 'Volatilidade (ATR)', icon: ICONS.volatility },
-          { name: 'Estrutura', icon: ICONS.structure },
-          { name: 'Gatilho', icon: ICONS.trigger }
+          { name: 'Força Relativa', icon: ICONS.relativeStrength, cls: 'card-icon-container--rs' },
+          { name: 'Ciclo de Mercado', icon: ICONS.marketCycle, cls: 'card-icon-container--cycle' },
+          { name: 'Tendência', icon: ICONS.trend, cls: 'card-icon-container--trend' },
+          { name: 'Volatilidade (ATR)', icon: ICONS.volatility, cls: 'card-icon-container--volatility' },
+          { name: 'Estrutura', icon: ICONS.structure, cls: 'card-icon-container--structure' },
+          { name: 'Gatilho', icon: ICONS.trigger, cls: 'card-icon-container--trigger neutral' }
         ].map((item) => `
           <div class="method-card ticker-skeleton-loading">
             <div class="method-card-head">
               <div class="method-card-head-left">
-                <div class="method-card-icon">${item.icon}</div>
+                <div class="card-icon-container ${item.cls}">${item.icon}</div>
                 <span class="method-card-title">${item.name}</span>
               </div>
             </div>
@@ -1380,10 +1384,9 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">${ICONS.relativeStrength}</div>
+              <div class="card-icon-container card-icon-container--rs">${ICONS.relativeStrength}</div>
               <div class="method-card-title">Força Relativa</div>
             </div>
-            <div class="method-card-badge ${rsStatus}">${escapeHtml(tickerData.relativeStrength.classification)}</div>
           </div>
           <div class="method-card-body">
             <div class="method-rs-top-split">
@@ -1401,7 +1404,7 @@
             </div>
             <div class="method-rs-badge-row">
               <span class="method-leader-pill ${rsStatus}">${escapeHtml(tickerData.relativeStrength.classification)}</span>
-              <span class="method-percentile-text">${tickerData.relativeStrength.percentile}</span>
+              <span class="method-percentile-text">${escapeHtml(tickerData.relativeStrength.percentile)}</span>
             </div>
             <div class="method-micro-visual">
               ${renderRsSparkline(rsStatus)}
@@ -1413,20 +1416,16 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">${ICONS.marketCycle}</div>
+              <div class="card-icon-container card-icon-container--cycle">${ICONS.marketCycle}</div>
               <div class="method-card-title">Ciclo de Mercado</div>
             </div>
-            <div class="method-card-badge neutral">${escapeHtml(tickerData.marketCycle.benchmark)}</div>
           </div>
           <div class="method-card-body">
             <div class="method-cycle-status ${cycleStatus}">
-              <span>●</span> ${escapeHtml(tickerData.marketCycle.regime)}
+              <span class="cycle-bullet ${cycleStatus}">●</span> ${escapeHtml(tickerData.marketCycle.regime)}
             </div>
             <div class="method-card-desc">${escapeHtml(tickerData.marketCycle.description)}</div>
-            <div class="method-card-subline">
-              Score Institucional: <b>${tickerData.marketCycle.score} / 100</b>
-            </div>
-            <div class="method-micro-visual">
+            <div class="method-micro-visual" style="justify-content: flex-end;">
               <div class="mini-volume-bars">
                 <span class="vol-bar" style="height: 8px;"></span>
                 <span class="vol-bar" style="height: 12px;"></span>
@@ -1441,26 +1440,25 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">${ICONS.trend}</div>
+              <div class="card-icon-container card-icon-container--trend">${ICONS.trend}</div>
               <div class="method-card-title">Tendência</div>
             </div>
-            <div class="method-card-badge ${trendStatus}">${escapeHtml(tickerData.trend.status)}</div>
           </div>
           <div class="method-card-body">
             <div class="method-trend-headline ${trendStatus}">${escapeHtml(tickerData.trend.status)}</div>
             <div class="trend-formula-pill ${trendStatus}">${escapeHtml(tickerData.trend.formula)}</div>
             <div class="method-checklist-mini">
               <div>
-                <span class="check-icon ${tickerData.trend.priceAboveEma9 ? 'good' : 'neutral'}">${tickerData.trend.priceAboveEma9 ? ICONS.check : '—'}</span>
-                Preço acima da EMA 9
+                <span class="check-icon-circle">${tickerData.trend.priceAboveEma9 ? ICONS.checkCircle : ICONS.dashCircle}</span>
+                <span>Preço acima da EMA 9</span>
               </div>
               <div>
-                <span class="check-icon ${tickerData.trend.ema9AboveEma30 ? 'good' : 'neutral'}">${tickerData.trend.ema9AboveEma30 ? ICONS.check : '—'}</span>
-                EMA 9 acima da EMA 30
+                <span class="check-icon-circle">${tickerData.trend.ema9AboveEma30 ? ICONS.checkCircle : ICONS.dashCircle}</span>
+                <span>EMA 9 acima da EMA 30</span>
               </div>
               <div>
-                <span class="check-icon ${tickerData.trend.bothSlopingUp ? 'good' : 'neutral'}">${tickerData.trend.bothSlopingUp ? ICONS.check : '—'}</span>
-                Ambas inclinadas para cima
+                <span class="check-icon-circle">${tickerData.trend.bothSlopingUp ? ICONS.checkCircle : ICONS.dashCircle}</span>
+                <span>Ambas inclinadas para cima</span>
               </div>
             </div>
           </div>
@@ -1470,35 +1468,34 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">${ICONS.volatility}</div>
+              <div class="card-icon-container card-icon-container--volatility">${ICONS.volatility}</div>
               <div class="method-card-title">Volatilidade (ATR)</div>
             </div>
-            <div class="method-card-badge ${volStatus}">${escapeHtml(tickerData.volatility.regime)}</div>
           </div>
           <div class="method-card-body">
             <div class="method-atr-table">
               <div class="method-atr-row">
-                <span class="atr-label">ATR (21):</span>
-                <b>R$ ${formatNumber(tickerData.volatility.atr21)}</b>
+                <span class="atr-label">ATR (21)</span>
+                <span class="atr-val">R$ ${formatNumber(tickerData.volatility.atr21)}</span>
               </div>
               <div class="method-atr-row">
-                <span class="atr-label">ATR %:</span>
-                <b>${formatNumber(tickerData.volatility.atrPct)}%</b>
+                <span class="atr-label">ATR %</span>
+                <span class="atr-val">${formatNumber(tickerData.volatility.atrPct)}%</span>
               </div>
               <div class="method-atr-row">
-                <span class="atr-label">Regime:</span>
-                <b class="atr-regime-val ${volStatus}">${escapeHtml(tickerData.volatility.regime)}</b>
+                <span class="atr-label">Regime</span>
+                <span class="atr-val atr-regime-val ${volStatus}">${escapeHtml(tickerData.volatility.regime)}</span>
               </div>
             </div>
-            <div class="method-micro-visual">
+            <div class="method-micro-visual" style="justify-content: flex-end;">
               <div class="mini-atr-histogram">
                 <span style="height: 6px;"></span>
                 <span style="height: 8px;"></span>
                 <span style="height: 10px;"></span>
                 <span style="height: 7px;"></span>
                 <span style="height: 9px;"></span>
-                <span style="height: 12px; background: ${volStatus === 'good' ? '#10b981' : (volStatus === 'bad' ? '#ef4444' : '#38bdf8')};"></span>
-                <span style="height: 11px; background: ${volStatus === 'good' ? '#10b981' : (volStatus === 'bad' ? '#ef4444' : '#38bdf8')};"></span>
+                <span style="height: 12px; background: ${volStatus === 'good' ? '#10b981' : (volStatus === 'bad' ? '#ef4444' : '#059669')};"></span>
+                <span style="height: 11px; background: ${volStatus === 'good' ? '#10b981' : (volStatus === 'bad' ? '#ef4444' : '#059669')};"></span>
               </div>
             </div>
           </div>
@@ -1508,10 +1505,9 @@
         <div class="method-card">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon">${ICONS.structure}</div>
+              <div class="card-icon-container card-icon-container--structure">${ICONS.structure}</div>
               <div class="method-card-title">Estrutura</div>
             </div>
-            <div class="method-card-badge ${structureStatus}">${tickerData.structure.label === 'Contração' || tickerData.structure.label === 'Correção' ? 'Saudável' : escapeHtml(tickerData.structure.label)}</div>
           </div>
           <div class="method-card-body">
             <div class="method-structure-label ${structureStatus}">
@@ -1520,8 +1516,7 @@
             <div class="method-card-desc">${escapeHtml(tickerData.structure.description)}</div>
             <div class="method-micro-visual">
               <svg width="100%" height="24" viewBox="0 0 120 24" fill="none">
-                <path d="M5 20 L35 6 L65 16 L95 4 L115 8" stroke="${structureStatus === 'bad' ? '#ef4444' : (structureStatus === 'neutral' ? '#94a3b8' : '#10b981')}" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="65" cy="16" r="3" fill="#f59e0b" stroke="#ffffff" stroke-width="1.5"/>
+                <path d="M5 20 L35 6 L65 16 L95 4 L115 8" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
           </div>
@@ -1531,7 +1526,7 @@
         <div class="method-card ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? 'method-card-trigger-highlight' : 'method-card-trigger-neutral'}">
           <div class="method-card-head">
             <div class="method-card-head-left">
-              <div class="method-card-icon trigger-icon ${!Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? 'neutral-icon' : ''}">${ICONS.trigger}</div>
+              <div class="card-icon-container card-icon-container--trigger ${!Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? 'neutral' : ''}">${ICONS.trigger}</div>
               <div class="method-card-title">Gatilho</div>
             </div>
             ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger)
@@ -1545,12 +1540,12 @@
             </div>
             <div class="method-card-desc">
               ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger)
-                ? escapeHtml(tickerData.trigger.description || 'Padrão válido de compra acima da EMA 9 e EMA 30.')
+                ? escapeHtml(tickerData.trigger.description || 'Candle dentro do candle anterior.')
                 : 'Nenhum padrão de entrada válido identificado no gráfico Diário.'
               }
             </div>
             ${Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? `
-            <div class="method-micro-visual" style="display: flex; justify-content: flex-end; padding-right: 12px;">
+            <div class="method-micro-visual" style="display: flex; justify-content: flex-end; padding-right: 6px;">
               <div class="mini-candlestick-diagram">
                 <div class="mini-candle mother">
                   <div class="mini-candle-wick"></div>
@@ -1577,17 +1572,18 @@
         <div class="detailed-card">
           <div class="detailed-card-head">
             <div class="detailed-card-head-left">
-              <span class="detailed-card-icon">${ICONS.rubric}</span>
-              <span class="detailed-card-title">Rubric do Ativo</span>
+              <div class="card-icon-container card-icon-container--rubric">${ICONS.rubric}</div>
+              <div class="detailed-card-title">Rubric do Ativo</div>
             </div>
+            <a class="detailed-card-link" href="javascript:void(0)" onclick="if (typeof window.go === 'function') { window.go('rubric'); }">Ver detalhes →</a>
           </div>
           <div class="rubric-split-layout">
             <table class="rubric-criteria-table">
               <thead>
                 <tr>
-                  <th style="text-align: left; font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; padding: 2px 6px 6px;">Critério</th>
-                  <th style="text-align: center; font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; padding: 2px 6px 6px;">Status</th>
-                  <th style="text-align: right; font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; padding: 2px 6px 6px;">Observação</th>
+                  <th style="text-align: left;">Critério</th>
+                  <th style="text-align: center;">Status</th>
+                  <th style="text-align: right;">Observação</th>
                 </tr>
               </thead>
               <tbody>
@@ -1596,11 +1592,11 @@
                   const isFail = c.status === false;
                   return `
                     <tr>
-                      <td style="color: #475569; font-weight: 500;">${escapeHtml(c.name)}</td>
-                      <td class="rubric-check-td ${isPass ? 'pass' : (isFail ? 'fail' : 'neutral')}">
-                        ${isPass ? ICONS.check : (isFail ? `<span class="rubric-fail-dot">✕</span>` : '—')}
+                      <td class="rubric-crit-name">${escapeHtml(c.name)}</td>
+                      <td class="rubric-check-td">
+                        ${isPass ? ICONS.checkCircle : (isFail ? ICONS.crossCircle : ICONS.dashCircle)}
                       </td>
-                      <td class="rubric-obs-td ${isPass ? 'pass' : (isFail ? 'fail' : 'neutral')}" style="font-weight: 600; text-align: right;">${escapeHtml(c.obs)}</td>
+                      <td class="rubric-obs-td ${isPass ? 'pass' : (isFail ? 'fail' : 'neutral')}">${escapeHtml(c.obs)}</td>
                     </tr>
                   `;
                 }).join('')}
@@ -1618,9 +1614,8 @@
         <div class="detailed-card">
           <div class="detailed-card-head">
             <div class="detailed-card-head-left">
-              <span class="detailed-card-icon">${ICONS.fundamentals}</span>
-              <span class="detailed-card-title">Fundamentos</span>
-              ${tickerData.fundamentals?.score != null ? `<span class="ticker-search-score-badge ${fundStatus}" style="font-size: 10px; margin-left: 6px;">${tickerData.fundamentals.score.toFixed(1).replace('.', ',')} • ${escapeHtml(tickerData.fundamentals.classification || fundEvaluation)}</span>` : ''}
+              <div class="card-icon-container card-icon-container--fundamentals">${ICONS.fundamentals}</div>
+              <div class="detailed-card-title">Fundamentos</div>
             </div>
             <a class="detailed-card-link" id="btnGoFundamentals" href="javascript:void(0)" onclick="if (typeof window.openFundamentalsForTicker === 'function') { window.openFundamentalsForTicker('${escapeHtml(tickerData.tickerInfo.symbol)}'); } else if (typeof window.go === 'function') { window.go('fundamentals'); }">Ver mais →</a>
           </div>
@@ -1636,7 +1631,7 @@
               <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.netMargin)}">${escapeHtml(tickerData.fundamentals?.netMargin?.tag || '—')}</span>
             </div>
             <div class="fundamental-metric-box">
-              <span class="fundamental-label">Dív. Líq/EBITDA</span>
+              <span class="fundamental-label">Dívida Líq/EBITDA</span>
               <span class="fundamental-val">${tickerData.fundamentals?.netDebtToEbitda?.value || '—'}</span>
               <span class="fundamental-tag ${getMetricTagClass(tickerData.fundamentals?.netDebtToEbitda)}">${escapeHtml(tickerData.fundamentals?.netDebtToEbitda?.tag || '—')}</span>
             </div>
@@ -1662,37 +1657,39 @@
         <div class="detailed-card">
           <div class="detailed-card-head">
             <div class="detailed-card-head-left">
-              <span class="detailed-card-icon">${ICONS.liquidity}</span>
-              <span class="detailed-card-title">Liquidez</span>
+              <div class="card-icon-container card-icon-container--liquidity">${ICONS.liquidity}</div>
+              <div class="detailed-card-title">Liquidez</div>
             </div>
           </div>
           <div class="liquidity-rows">
-            <div class="liquidity-row">
-              <span class="liquidity-label">Volume Médio (21d)</span>
-              <span class="liquidity-val">${tickerData.liquidity.volumeAvg21Formatted}</span>
-            </div>
-            <div class="liquidity-row">
-              <span class="liquidity-label">Liquidez Financeira</span>
-              <span class="liquidity-val">${tickerData.liquidity.financialLiquidity}</span>
-            </div>
-            <div class="liquidity-row">
-              <span class="liquidity-label">Spread Médio</span>
-              <span class="liquidity-val">
-                ${tickerData.liquidity.spread}
-                <span class="ticker-search-score-badge good" style="font-size: 10px;">${tickerData.liquidity.spreadRating}</span>
-              </span>
+            <div class="liquidity-metrics-group">
+              <div class="liquidity-row">
+                <span class="liquidity-label">Volume Médio (21d)</span>
+                <span class="liquidity-val">${tickerData.liquidity.volumeAvg21Formatted}</span>
+              </div>
+              <div class="liquidity-row">
+                <span class="liquidity-label">Liquidez Financeira</span>
+                <span class="liquidity-val">${tickerData.liquidity.financialLiquidity}</span>
+              </div>
+              <div class="liquidity-row">
+                <span class="liquidity-label">Spread Médio</span>
+                <div class="liquidity-val-row">
+                  <span class="liquidity-val-main">${tickerData.liquidity.spread}</span>
+                  <span class="liquidity-spread-badge good">${tickerData.liquidity.spreadRating}</span>
+                </div>
+              </div>
             </div>
             <div class="liquidity-micro-bars">
-              <svg width="100%" height="20" viewBox="0 0 120 20" fill="none">
-                <rect x="10" y="8" width="5" height="12" rx="1" fill="#cbd5e1"/>
-                <rect x="22" y="10" width="5" height="10" rx="1" fill="#cbd5e1"/>
-                <rect x="34" y="6" width="5" height="14" rx="1" fill="#cbd5e1"/>
-                <rect x="46" y="11" width="5" height="9" rx="1" fill="#cbd5e1"/>
-                <rect x="58" y="4" width="5" height="16" rx="1" fill="#cbd5e1"/>
-                <rect x="70" y="7" width="5" height="13" rx="1" fill="#cbd5e1"/>
-                <rect x="82" y="3" width="5" height="17" rx="1" fill="#10b981"/>
-                <rect x="94" y="5" width="5" height="15" rx="1" fill="#10b981"/>
-                <rect x="106" y="2" width="5" height="18" rx="1" fill="#10b981"/>
+              <svg width="100%" height="22" viewBox="0 0 120 22" fill="none">
+                <rect x="10" y="10" width="5" height="12" rx="1.5" fill="#cbd5e1"/>
+                <rect x="22" y="12" width="5" height="10" rx="1.5" fill="#cbd5e1"/>
+                <rect x="34" y="8" width="5" height="14" rx="1.5" fill="#cbd5e1"/>
+                <rect x="46" y="13" width="5" height="9" rx="1.5" fill="#cbd5e1"/>
+                <rect x="58" y="6" width="5" height="16" rx="1.5" fill="#cbd5e1"/>
+                <rect x="70" y="9" width="5" height="13" rx="1.5" fill="#cbd5e1"/>
+                <rect x="82" y="5" width="5" height="17" rx="1.5" fill="#10b981"/>
+                <rect x="94" y="7" width="5" height="15" rx="1.5" fill="#10b981"/>
+                <rect x="106" y="4" width="5" height="18" rx="1.5" fill="#10b981"/>
               </svg>
             </div>
           </div>
@@ -1702,22 +1699,28 @@
         <div class="detailed-card">
           <div class="detailed-card-head">
             <div class="detailed-card-head-left">
-              <span class="detailed-card-icon">${ICONS.context}</span>
-              <span class="detailed-card-title">Contexto</span>
+              <div class="card-icon-container card-icon-container--context">${ICONS.context}</div>
+              <div class="detailed-card-title">Contexto</div>
             </div>
           </div>
           <div class="context-content">
-            <div class="context-title">${tickerData.context.title}</div>
-            <div class="context-desc">${tickerData.context.description}</div>
+            <div class="context-top-block">
+              <div class="context-title-row">
+                <div class="context-sub-icon">${ICONS.compass}</div>
+                <div class="context-title">${escapeHtml(tickerData.context.title)}</div>
+              </div>
+              <div class="context-desc">${escapeHtml(tickerData.context.description)}</div>
+            </div>
             <div class="context-checklist">
-              <div><span class="check-icon">${ICONS.check}</span> Preço acima da EMA 10</div>
-              <div><span class="check-icon">${ICONS.check}</span> EMA 10 > EMA 20 > EMA 50</div>
-              <div><span class="check-icon">${ICONS.check}</span> Rumo às máximas históricas</div>
-              <div><span class="check-icon">${ICONS.check}</span> Líder do setor</div>
+              <div><span class="check-icon-circle">${ICONS.checkCircle}</span> <span>Preço acima da EMA 10</span></div>
+              <div><span class="check-icon-circle">${ICONS.checkCircle}</span> <span>EMA 10 > EMA 20 > EMA 50</span></div>
+              <div><span class="check-icon-circle">${ICONS.checkCircle}</span> <span>Rumo às máximas históricas</span></div>
+              <div><span class="check-icon-circle">${ICONS.checkCircle}</span> <span>Líder do setor</span></div>
             </div>
           </div>
         </div>
       </div>
+
 
       <!-- DISCIPLINA FLYOUT DRAWER & OVERLAY -->
       <div class="discipline-drawer-overlay" id="disciplineDrawerOverlay"></div>
