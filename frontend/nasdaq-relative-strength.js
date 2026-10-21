@@ -354,7 +354,7 @@
         ` : ''}
 
         <div class="rs-simple-toolbar">
-          <input type="text" id="rsNasdaqSearch" placeholder="Buscar ticker ou empresa..." aria-label="Buscar ativo" value="${filterSearch}">
+          <input type="text" id="rsNasdaqSearch" placeholder="Buscar ticker ou empresa..." aria-label="Buscar ativo" value="${filterSearch}" style="text-transform: uppercase;">
           
           <select id="rsNasdaqSector" aria-label="Filtrar por setor">
             <option value="">Todos os setores</option>

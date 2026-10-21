@@ -271,3 +271,15 @@ test('Flyout Submenu Grid: max 3 colunas em telas grandes, adaptando para 2 e 1 
   assert.ok(js.includes('Math.round(sidebarRight) - 1'), 'Flyout deve estar colado diretamente na borda do sidebar sem gap');
   assert.ok(css.includes('border-radius: 0 16px 16px 0'), 'Borda esquerda do flyout deve ser reta para encaixe perfeito no sidebar');
 });
+
+test('NavigationSystemModel: Categoria Análise de Mercado fica posicionada acima de Operação Diária', () => {
+  const cat0 = CATEGORIES[0];
+  const cat1 = CATEGORIES[1];
+  assert.equal(cat0.id, 'market-analysis', 'Primeira categoria deve ser Análise de Mercado');
+  assert.equal(cat1.id, 'daily', 'Segunda categoria deve ser Operação Diária');
+
+  const model = new NavigationSystemModel();
+  const tree = model.getNavigationTree();
+  assert.equal(tree.categories[0].id, 'market-analysis', 'Árvore de navegação deve ter Análise de Mercado em primeiro lugar');
+  assert.equal(tree.categories[1].id, 'daily', 'Árvore de navegação deve ter Operação Diária após Análise de Mercado');
+});

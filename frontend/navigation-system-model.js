@@ -18,6 +18,13 @@
   // 1. OFFICIAL MASTER CATEGORIES
   const CATEGORIES = [
     {
+      id: 'market-analysis',
+      label: 'Análise de Mercado',
+      labelEn: 'Market Analysis',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+      desc: 'Força relativa, ciclo de mercado, gráficos e inteligência.'
+    },
+    {
       id: 'daily',
       label: 'Operação Diária',
       labelEn: 'Daily Operation',
@@ -576,7 +583,7 @@
       desc: 'Acesso ultrarrápido às ferramentas mais frequentes (Desktop, Novo Trade, Diário, Watchlist, Gráficos), com categorias organizadas para fluxo ágil.',
       descEn: 'Lightning-fast access to most frequent tools with streamlined categories.',
       quickAccess: ['today', 'newtrade', 'journal', 'watchlist', 'charts'],
-      categoryOrder: ['daily', 'portfolio-risk', 'market-analysis', 'training-recovery', 'simulators', 'data-performance', 'mindset', 'resources'],
+      categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'simulators', 'data-performance', 'mindset', 'resources'],
       collapsedCategories: ['simulators', 'data-performance', 'mindset', 'resources']
     },
     trader_focus: {
@@ -586,7 +593,7 @@
       desc: 'Organização estritamente orientada à execução do pregão, enfatizando Operação, Risco, Mercado e Treinamento.',
       descEn: 'Strict execution-focused hierarchy emphasizing Daily Trading, Risk, Market and Training.',
       quickAccess: ['today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal'],
-      categoryOrder: ['daily', 'portfolio-risk', 'market-analysis', 'training-recovery', 'data-performance', 'simulators', 'mindset', 'resources'],
+      categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'data-performance', 'simulators', 'mindset', 'resources'],
       collapsedCategories: ['data-performance', 'simulators', 'mindset', 'resources']
     },
     full: {
@@ -596,7 +603,7 @@
       desc: 'Visão integral de todas as dimensões da plataforma: Operação, Treinamento, Mercado, Simuladores, Risco, Performance e Mindset.',
       descEn: 'Complete structured view of all platform pillars.',
       quickAccess: ['today', 'newtrade', 'journal', 'watchlist', 'charts', 'dashboard'],
-      categoryOrder: ['daily', 'training-recovery', 'market-analysis', 'simulators', 'portfolio-risk', 'data-performance', 'mindset', 'resources'],
+      categoryOrder: ['market-analysis', 'daily', 'training-recovery', 'simulators', 'portfolio-risk', 'data-performance', 'mindset', 'resources'],
       collapsedCategories: []
     }
   };
