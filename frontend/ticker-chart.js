@@ -985,6 +985,16 @@
     const lastCandleDate = (tickerData.ohlc && tickerData.ohlc.length) ? tickerData.ohlc[tickerData.ohlc.length - 1].time : null;
     const sessionDateRaw = tickerData.tickerInfo.sessionDate || tickerData.tickerInfo.date || lastCandleDate;
     const sessionDateFormatted = formatSessionDate(sessionDateRaw);
+    const syncTimeFormatted = (() => {
+      if (!tickerData.tickerInfo?.syncTime) return null;
+      try {
+        const d = new Date(tickerData.tickerInfo.syncTime);
+        if (Number.isNaN(d.getTime())) return null;
+        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
+      } catch {
+        return null;
+      }
+    })();
 
     // Sincroniza a nota e score da Rubric com a política ativa e com o mesmo motor do Novo Trade
     if (window.TickerChartModel && typeof window.TickerChartModel.evaluateChartRubric === 'function') {
@@ -1095,14 +1105,21 @@
                 ${tickerData.tickerInfo.dayChange >= 0 ? '+' : ''}${formatNumber(tickerData.tickerInfo.dayChange)} (${tickerData.tickerInfo.dayChangePct >= 0 ? '+' : ''}${formatNumber(tickerData.tickerInfo.dayChangePct)}%) ${tickerData.tickerInfo.dayChange >= 0 ? '▲' : '▼'}
               </span>
             </div>
-            <div class="ticker-hero-name">${tickerData.tickerInfo.name} <span class="ticker-session-dot">•</span> <span class="ticker-session-tag">Fechamento: ${sessionDateFormatted}</span></div>
+            <div class="ticker-hero-name">${tickerData.tickerInfo.name} <span class="ticker-session-dot">•</span> <span class="ticker-session-tag">Fechamento: ${sessionDateFormatted}</span> <span class="ticker-session-dot">•</span> <span class="ticker-sync-tag" title="Fonte dos dados: ${tickerData.tickerInfo.syncSource || 'B3 (COTAHIST)'}">Fonte: ${tickerData.tickerInfo.syncSource || 'B3 (COTAHIST)'}${syncTimeFormatted ? ` · Sincronizado às ${syncTimeFormatted}` : ''}</span></div>
           </div>
         </div>
 
         <div class="ticker-hero-meta-columns">
           <div class="ticker-meta-col">
             <span class="ticker-meta-label">Último Pregão</span>
-            <span class="ticker-meta-value highlight-session">${sessionDateFormatted}</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="ticker-meta-value highlight-session">${sessionDateFormatted}</span>
+              ${tickerData.tickerInfo.isEodPending ? `
+                <span class="ticker-status-pill pending" title="Aguardando publicação do arquivo oficial COTAHIST pela B3 (previsto entre 20h40 e 22h00)">⏳ Aguardando B3 EOD</span>
+              ` : `
+                <span class="ticker-status-pill synced" title="Fechamento diário oficial sincronizado via B3 COTAHIST">✓ B3 Sincronizado</span>
+              `}
+            </div>
           </div>
           <div class="ticker-meta-col">
             <span class="ticker-meta-label">Setor</span>

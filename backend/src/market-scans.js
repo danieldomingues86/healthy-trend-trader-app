@@ -99,7 +99,7 @@ function marketScansFromCache(cache) {
   ];
   return {
     updatedAt: cache.updatedAt || null,
-    dataAsOf: cache.overview?.benchmarkHistory?.at(-1)?.date || null,
+    dataAsOf: cache.dataAsOf || cache.b3CotahistDate || cache.relativeStrengthByClass?.dataAsOf || cache.overview?.benchmarkHistory?.at(-1)?.date || null,
     source: cache.source || null,
     universe: { total: assets.length, byClass: { stocks: cache.relativeStrength?.length || 0, fii: cache.relativeStrengthByClass?.fii?.items?.length || 0, bdr: cache.relativeStrengthByClass?.bdr?.items?.length || 0 } },
     cards,

@@ -58,14 +58,26 @@ async function archive(year,{fetchImpl=fetch,cacheDirectory,force=false}={}){
   const currentYear=new Date().getFullYear();
   const isCurrentYear=Number(year)===currentYear;
   if(file&&!isCurrentYear&&!force){try{return extractZip(await fs.readFile(file))}catch{}}
+  let localStat=null;
   if(file&&isCurrentYear&&!force){
     try{
-      const stat=await fs.stat(file);
-      if(Date.now()-stat.mtimeMs<4*3600000){return extractZip(await fs.readFile(file))}
+      localStat=await fs.stat(file);
+      if(Date.now()-localStat.mtimeMs<15*60*1000){return extractZip(await fs.readFile(file))}
     }catch{}
   }
   try{
-    const response=await fetchImpl(`${ARCHIVE}${year}.ZIP`);
+    const headers={};
+    if(localStat?.mtime&&!force){
+      headers['If-Modified-Since']=localStat.mtime.toUTCString();
+    }
+    const response=await fetchImpl(`${ARCHIVE}${year}.ZIP`,{headers});
+    if(response.status===304&&file){
+      try{
+        const now=new Date();
+        await fs.utimes(file,now,now);
+      }catch{}
+      return extractZip(await fs.readFile(file));
+    }
     if(!response.ok)throw Object.assign(new Error(`B3 HTTP ${response.status}`),{status:response.status});
     const zip=Buffer.from(await response.arrayBuffer());
     if(file){await fs.mkdir(cacheDirectory,{recursive:true});await fs.writeFile(file,zip)}

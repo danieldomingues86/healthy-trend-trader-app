@@ -16,7 +16,36 @@ const SPOT_CANDLES_CACHE_FILE = path.join(__dirname, '..', 'data', 'b3-spot-cand
 
 // In-memory cache de velas históricas indexadas por ticker
 let b3StocksCache = null;
+let b3StocksLoadedAt = 0;
 let nasdaqStocksCache = null;
+
+function invalidateB3HistoryCache() {
+  b3StocksCache = null;
+  b3StocksLoadedAt = 0;
+}
+
+function isAfterMarketCloseAndPending(candleDateIso) {
+  if (!candleDateIso) return false;
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Sao_Paulo',
+    hour: 'numeric',
+    weekday: 'short',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour12: false
+  }).formatToParts(now).reduce((acc, p) => ({ ...acc, [p.type]: p.value }), {});
+
+  const isWeekend = ['Sat', 'Sun'].includes(parts.weekday);
+  if (isWeekend) return false;
+
+  const currentHour = Number(parts.hour);
+  if (currentHour < 18) return false;
+
+  const todayIso = `${parts.year}-${parts.month}-${parts.day}`;
+  return candleDateIso < todayIso;
+}
 let searchUniverseCache = null;
 let searchUniverseLoadedAt = 0;
 
@@ -61,7 +90,20 @@ function parseSpotStocksFromBuffer(buffer) {
 }
 
 function loadB3History() {
-  if (b3StocksCache) return b3StocksCache;
+  const currentYear = new Date().getFullYear();
+  const zipFile = path.join(B3_HISTORY_CACHE, `cotahist-${currentYear}.zip`);
+
+  if (b3StocksCache) {
+    if (fs.existsSync(zipFile)) {
+      try {
+        const zipStat = fs.statSync(zipFile);
+        if (zipStat.mtimeMs > b3StocksLoadedAt) {
+          b3StocksCache = null;
+        }
+      } catch {}
+    }
+    if (b3StocksCache) return b3StocksCache;
+  }
 
   // 1. Carregamento ultra-rápido via cache persistente JSON (~1s em vez de 17s descompactando 1.5GB)
   if (fs.existsSync(SPOT_CANDLES_CACHE_FILE)) {
@@ -84,6 +126,7 @@ function loadB3History() {
         const raw = fs.readFileSync(SPOT_CANDLES_CACHE_FILE, 'utf8');
         const parsed = JSON.parse(raw);
         b3StocksCache = new Map(Object.entries(parsed).map(([sym, candles]) => [sym, adjustCandles(candles, sym)]));
+        b3StocksLoadedAt = Date.now();
         return b3StocksCache;
       }
     } catch (err) {
@@ -93,7 +136,6 @@ function loadB3History() {
 
   // 2. Extração de contingência a partir dos zips brutos do COTAHIST
   const merged = new Map();
-  const currentYear = new Date().getFullYear();
   const years = [currentYear - 1, currentYear];
 
   for (const year of years) {
@@ -136,6 +178,7 @@ function loadB3History() {
   }
 
   b3StocksCache = merged;
+  b3StocksLoadedAt = Date.now();
   return b3StocksCache;
 }
 
@@ -615,6 +658,9 @@ async function getTickerChartData(rawSymbol) {
       dayChangePct,
       date: latestCandle.time,
       sessionDate: latestCandle.time,
+      syncSource: isNasdaq ? 'Twelve Data' : 'B3 (COTAHIST)',
+      syncTime: cache.historyUpdatedAt || cache.updatedAt || new Date().toISOString(),
+      isEodPending: !isNasdaq && isAfterMarketCloseAndPending(latestCandle.time),
       marketCap: marketCapNum,
       marketCapFormatted,
       volumeAvg21,
@@ -720,7 +766,7 @@ async function refreshB3HistoryIfDue({ force = false } = {}) {
   if (!shouldCheck && fs.existsSync(zipFile)) {
     try {
       const stat = fs.statSync(zipFile);
-      if (Date.now() - stat.mtimeMs > 4 * 3600 * 1000) {
+      if (Date.now() - stat.mtimeMs > 15 * 60 * 1000) {
         shouldCheck = true;
       }
     } catch {
@@ -760,7 +806,9 @@ module.exports = {
   refreshB3HistoryIfDue,
   warmup,
   loadB3History,
-  loadNasdaqHistory
+  loadNasdaqHistory,
+  invalidateB3HistoryCache,
+  isAfterMarketCloseAndPending
 };
 
 

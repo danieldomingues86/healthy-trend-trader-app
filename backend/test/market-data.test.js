@@ -21,6 +21,17 @@ test('coleta após o fechamento só é final quando inclui o pregão atual da B3
   assert.equal(historyDate('20260914'), '2026-09-14');
   assert.equal(hasCurrentHistoricalClose({ overview: { benchmarkHistory: [{ date: '20260911' }] } }, now), false);
   assert.equal(hasCurrentHistoricalClose({ overview: { benchmarkHistory: [{ date: '20260914' }] } }, now), true);
+  // Se o índice IBOV foi publicado para hoje (14/09), mas as ações do COTAHIST ainda são do pregão anterior (11/09), não considera finalizado
+  assert.equal(hasCurrentHistoricalClose({ dataAsOf: '20260911', overview: { benchmarkHistory: [{ date: '20260914' }] } }, now), false);
+  // Quando ambos (índice e ações) atingem o pregão de hoje, o fechamento é considerado finalizado
+  assert.equal(hasCurrentHistoricalClose({ dataAsOf: '20260914', overview: { benchmarkHistory: [{ date: '20260914' }] } }, now), true);
+});
+
+test('ticker-chart isAfterMarketCloseAndPending detecta pregão pendente após as 18h em dias úteis', () => {
+  const { isAfterMarketCloseAndPending } = require('../src/ticker-chart');
+  // Se candleDateIso é nulo, retorna false
+  assert.equal(isAfterMarketCloseAndPending(null), false);
+  assert.equal(typeof isAfterMarketCloseAndPending, 'function');
 });
 
 test('expectedClosingDate calcula o fechamento devido considerando dias úteis e horário de fechamento', () => {

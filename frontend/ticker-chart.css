@@ -444,6 +444,36 @@ body:has(#charts.page.active) #marketFocusGuard {
   font-weight: 600;
 }
 
+.ticker-sync-tag {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.ticker-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.ticker-status-pill.pending {
+  background: rgba(234, 179, 8, 0.12);
+  color: #ca8a04;
+  border: 1px solid rgba(234, 179, 8, 0.28);
+}
+
+.ticker-status-pill.synced {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
 .ticker-hero-meta-columns {
   display: flex;
   align-items: center;
@@ -3310,6 +3340,22 @@ body:has(#charts.page.active) #marketFocusGuard {
 [data-theme="gold"] .ticker-session-tag,
 [data-theme="gold"] .ticker-meta-value.highlight-session {
   color: #2dd4bf;
+}
+
+[data-theme="gold"] .ticker-sync-tag {
+  color: #94a3b8;
+}
+
+[data-theme="gold"] .ticker-status-pill.pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+[data-theme="gold"] .ticker-status-pill.synced {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.28);
 }
 
 /* Responsividade do Banner de Gatilho */

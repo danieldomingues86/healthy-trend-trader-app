@@ -68,9 +68,10 @@ test('corporate-events: corrige EMA 30 de LUPA3 para 4,12 (conforme Profit) e el
   const realCandles = cache['LUPA3'];
   if (!realCandles || realCandles.length < 50) return;
 
-  const adjustedCandles = adjustCandles(realCandles, 'LUPA3');
+  const targetCandles = realCandles.filter(c => c.time <= '2026-10-19');
+  const adjustedCandles = adjustCandles(targetCandles, 'LUPA3');
 
-  const unadjustedEma30 = calcEma(realCandles, 30);
+  const unadjustedEma30 = calcEma(targetCandles, 30);
   const adjustedEma30 = calcEma(adjustedCandles, 30);
 
   // Sem ajuste: EMA 30 resulta em 3.83
@@ -80,7 +81,7 @@ test('corporate-events: corrige EMA 30 de LUPA3 para 4,12 (conforme Profit) e el
   assert.equal(Number(adjustedEma30.toFixed(2)), 4.12);
 
   // 3 meses atrás (64 pregões antes de 19/10/2026):
-  const p3mUnadjusted = realCandles[realCandles.length - 64].close; // ~0.69
+  const p3mUnadjusted = targetCandles[targetCandles.length - 64].close; // ~0.69
   const p3mAdjusted = adjustedCandles[adjustedCandles.length - 64].close; // ~6.90
   const latestClose = adjustedCandles[adjustedCandles.length - 1].close; // 4.24
 
