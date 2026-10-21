@@ -48,6 +48,7 @@
     if (!sym) return;
 
     hidePopoverImmediate();
+    hideGroupModalImmediate();
 
     root.__chartReturnSource = 'markettreemap';
     root.__pendingChartsTicker = sym;
@@ -167,6 +168,7 @@
                   class="treemap-search-input"
                   placeholder="Buscar por ticker ou nome da empresa..."
                   value="${esc(state.filters.search)}"
+                  style="text-transform: uppercase;"
                   autocomplete="off"
                 />
                 <button
@@ -223,6 +225,8 @@
 
         <!-- Tooltip Popover Flutuante Compartilhado -->
         <div class="treemap-popover" id="treemapPopover" role="dialog" aria-hidden="true"></div>
+        <!-- Modal Flutuante de Grupo / Setor (Estilo Finviz) -->
+        <div class="treemap-group-modal" id="treemapGroupModal" role="dialog" aria-label="Ativos do Grupo" aria-hidden="true"></div>
       `;
 
       bindUiEvents();
@@ -261,7 +265,8 @@
 
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
-        const val = e.target.value || '';
+        const val = (e.target.value || '').toUpperCase();
+        e.target.value = val;
         state.filters.search = val;
         if (searchClear) searchClear.style.display = val ? 'flex' : 'none';
 
@@ -482,10 +487,23 @@
           data-sector-name="${esc(sec.name)}"
           style="--sector-accent: ${sec.accentColor};"
         >
-          <header class="treemap-sector-header">
+          <header
+            class="treemap-sector-header"
+            data-sector-name="${esc(sec.name)}"
+            onmouseenter="window.handleTreemapGroupHover(event, this, '${esc(sec.name)}')"
+            onmouseleave="window.handleTreemapGroupLeave(event)"
+            title="Passe o mouse para ver a lista de ativos e resultados diários de ${esc(sec.name)}"
+          >
             <div class="treemap-sector-title-wrap">
               <span class="treemap-sector-accent"></span>
-              <strong class="treemap-sector-title" title="${esc(sec.name)}">${esc(sec.name)}</strong>
+              <strong class="treemap-sector-title">${esc(sec.name)}</strong>
+              <span class="treemap-group-peek-hint" aria-hidden="true">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                  <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+                Ativos
+              </span>
             </div>
             <div class="treemap-sector-meta">
               <span>${formattedMcap} | ${count} ${count === 1 ? 'empresa' : 'empresas'}</span>
@@ -765,6 +783,163 @@
     }
   }
 
+
+  // =========================================================================
+  // MODAL FLUTUANTE DE GRUPO / SETOR (ESTILO FINVIZ)
+  // =========================================================================
+
+  let groupModalHideTimer = null;
+
+  function handleTreemapGroupHover(event, headerEl, sectorName) {
+    clearTimeout(groupModalHideTimer);
+    showGroupModal(sectorName, headerEl);
+  }
+
+  function handleTreemapGroupLeave() {
+    groupModalHideTimer = setTimeout(() => {
+      hideGroupModalImmediate();
+    }, 180);
+  }
+
+  function hideGroupModalImmediate() {
+    const modal = document.getElementById('treemapGroupModal');
+    if (modal) {
+      modal.classList.remove('visible');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  function showGroupModal(sectorName, anchorEl) {
+    const modal = document.getElementById('treemapGroupModal');
+    if (!modal || !state.data?.sectors) return;
+
+    const sec = state.data.sectors.find((s) => s.name === sectorName);
+    if (!sec || !sec.companies || sec.companies.length === 0) return;
+
+    const model = getModel();
+    if (!model) return;
+
+    hidePopoverImmediate();
+
+    const companies = [...sec.companies].sort((a, b) => {
+      const mcapA = Number(a.companyMarketCap || a.marketCap || 0);
+      const mcapB = Number(b.companyMarketCap || b.marketCap || 0);
+      return mcapB - mcapA;
+    });
+
+    const validChanges = companies.map((c) => Number(c.changePct)).filter(Number.isFinite);
+    const avgChange = validChanges.length
+      ? validChanges.reduce((sum, v) => sum + v, 0) / validChanges.length
+      : 0;
+    const avgFormatted = model.formatSignedPercent(avgChange);
+    const avgClass = avgChange > 0 ? 'pos' : (avgChange < 0 ? 'neg' : 'neu');
+
+    const posCount = companies.filter((c) => Number(c.changePct) > 0).length;
+    const negCount = companies.filter((c) => Number(c.changePct) < 0).length;
+    const formattedMcap = model.formatMarketCap(sec.totalMarketCap);
+
+    modal.innerHTML = `
+      <div class="tgm-header" style="--sector-color: ${sec.accentColor};">
+        <div class="tgm-top-row">
+          <div class="tgm-title-block">
+            <span class="tgm-dot"></span>
+            <strong class="tgm-sector-name">${esc(sec.name.toUpperCase())}</strong>
+          </div>
+          <div class="tgm-perf-badge ${avgClass}" title="Retorno médio diário do grupo">
+            ${avgFormatted}
+          </div>
+        </div>
+        <div class="tgm-sub-row">
+          <span class="tgm-meta-text">${formattedMcap} • ${companies.length} ativos</span>
+          <span class="tgm-breadth-tags">
+            <span class="tgm-tag-pos" title="Ativos em alta no dia">▲ ${posCount}</span>
+            <span class="tgm-tag-neg" title="Ativos em baixa no dia">▼ ${negCount}</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="tgm-table-wrap">
+        <table class="tgm-table">
+          <thead>
+            <tr>
+              <th class="tgm-th-sym">ATIVO</th>
+              <th class="tgm-th-name">EMPRESA</th>
+              <th class="tgm-th-price">PREÇO</th>
+              <th class="tgm-th-ret">VARIAÇÃO (DIA)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${companies.map((c) => {
+              const ret = Number(c.changePct);
+              const retClass = ret > 0 ? 'pos' : (ret < 0 ? 'neg' : 'neu');
+              const retFormatted = model.formatSignedPercent(ret);
+              const price = Number.isFinite(Number(c.price)) ? `R$ ${Number(c.price).toFixed(2).replace('.', ',')}` : '—';
+              const companyName = esc(c.name || c.fullName || c.ticker);
+              return `
+                <tr
+                  class="tgm-row"
+                  onclick="window.openTreemapTickerChart('${esc(c.ticker)}')"
+                  title="Abrir gráfico de ${esc(c.ticker)}"
+                  tabindex="0"
+                  role="button"
+                >
+                  <td class="tgm-sym-cell">
+                    <b>${esc(c.ticker)}</b>
+                  </td>
+                  <td class="tgm-name-cell" title="${esc(c.fullName || c.name)}">
+                    <span class="tgm-company-title">${companyName}</span>
+                  </td>
+                  <td class="tgm-price-cell">
+                    <span>${price}</span>
+                  </td>
+                  <td class="tgm-ret-cell">
+                    <span class="tgm-ret-pill ${retClass}">${retFormatted}</span>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tgm-footer">
+        <span class="tgm-footer-hint">Clique em um ativo para abrir no gráfico Diário</span>
+        <span class="tgm-footer-esc">ESC</span>
+      </div>
+    `;
+
+    modal.onmouseenter = () => clearTimeout(groupModalHideTimer);
+    modal.onmouseleave = () => handleTreemapGroupLeave();
+
+    const rect = anchorEl.getBoundingClientRect();
+    const modalWidth = 430;
+    const modalHeight = Math.min(480, window.innerHeight - 32);
+
+    let left = rect.left;
+    if (left + modalWidth > window.innerWidth - 16) {
+      left = window.innerWidth - modalWidth - 16;
+    }
+    if (left < 16) left = 16;
+
+    let top = rect.bottom + 6;
+    if (top + modalHeight > window.innerHeight - 16) {
+      const altTop = rect.top - modalHeight - 6;
+      if (altTop >= 16) {
+        top = altTop;
+      } else {
+        top = Math.max(16, window.innerHeight - modalHeight - 16);
+      }
+    }
+
+    modal.style.width = `${modalWidth}px`;
+    modal.style.maxHeight = `${modalHeight}px`;
+    modal.style.left = `${left}px`;
+    modal.style.top = `${top}px`;
+
+    modal.classList.add('visible');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
   // =========================================================================
   // FOCO E EXPANSÃO DE SETOR
   // =========================================================================
@@ -830,6 +1005,9 @@
   root.refreshMarketTreemap = refreshMarketTreemap;
   root.openTreemapTickerChart = openTreemapTickerChart;
   root.focusTreemapSector = focusTreemapSector;
+  root.handleTreemapGroupHover = handleTreemapGroupHover;
+  root.handleTreemapGroupLeave = handleTreemapGroupLeave;
+  root.hideGroupModalImmediate = hideGroupModalImmediate;
   root.clearTreemapFocus = clearTreemapFocus;
   root.handleTreemapCellHover = handleTreemapCellHover;
   root.handleTreemapCellLeave = handleTreemapCellLeave;

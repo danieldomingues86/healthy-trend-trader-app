@@ -277,6 +277,7 @@
 }
 
 .radar-search-input-wrap input {
+  text-transform: uppercase;
   width: 100%;
   border: none;
   background: transparent;
@@ -1506,6 +1507,7 @@ body[data-theme="gold"] .radar-search-input-wrap {
 }
 
 body[data-theme="gold"] .radar-search-input-wrap input {
+  text-transform: uppercase;
   color: #f5efe2;
 }
 

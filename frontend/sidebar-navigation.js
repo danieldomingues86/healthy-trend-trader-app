@@ -23,6 +23,57 @@
   // Master baseline structures preserved for static test suites & fallback
   const NAV_STRUCTURE = [
     {
+      id: 'market-analysis',
+      isGroup: true,
+      label: 'Análise de Mercado',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+      header: 'ANÁLISE DE MERCADO',
+      items: [
+        {
+          id: 'opportunityradar',
+          title: 'Radar de Oportunidades',
+          desc: 'Ativos prontos para entrada no gráfico Diário.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
+          page: 'opportunityradar'
+        },
+        {
+          id: 'relativestrength',
+          title: 'Força Relativa',
+          desc: 'Identificar os ativos líderes do mercado.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+          page: 'relativestrength'
+        },
+        {
+          id: 'marketcycle',
+          title: 'Ciclo de Mercado',
+          desc: 'Verificar o regime de mercado e o sinal de permissão para operar.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+          page: 'marketcycle'
+        },
+        {
+          id: 'marketcentral',
+          title: 'Central de Mercado',
+          desc: 'Consultar a visão geral do ambiente de mercado.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
+          page: 'marketcentral'
+        },
+        {
+          id: 'fundamentals',
+          title: 'Análise Fundamentalista',
+          desc: 'Consultar os fundamentos e a qualidade dos ativos.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20L12 2Z"/></svg>`,
+          page: 'fundamentals'
+        },
+        {
+          id: 'markettreemap',
+          title: 'Setores',
+          desc: 'Treemap interativo de todo o mercado acionário da B3.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
+          page: 'markettreemap'
+        }
+      ]
+    },
+    {
       id: 'daily',
       groupLabel: 'Operação Diária',
       items: [
@@ -101,57 +152,7 @@
         }
       ]
     },
-    {
-      id: 'market-analysis',
-      isGroup: true,
-      label: 'Análise de Mercado',
-      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
-      header: 'ANÁLISE DE MERCADO',
-      items: [
-        {
-          id: 'opportunityradar',
-          title: 'Radar de Oportunidades',
-          desc: 'Ativos prontos para entrada no gráfico Diário.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
-          page: 'opportunityradar'
-        },
-        {
-          id: 'relativestrength',
-          title: 'Força Relativa',
-          desc: 'Identificar os ativos líderes do mercado.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
-          page: 'relativestrength'
-        },
-        {
-          id: 'marketcycle',
-          title: 'Ciclo de Mercado',
-          desc: 'Verificar o regime de mercado e o sinal de permissão para operar.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
-          page: 'marketcycle'
-        },
-        {
-          id: 'marketcentral',
-          title: 'Central de Mercado',
-          desc: 'Consultar a visão geral do ambiente de mercado.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="3"/></svg>`,
-          page: 'marketcentral'
-        },
-        {
-          id: 'fundamentals',
-          title: 'Análise Fundamentalista',
-          desc: 'Consultar os fundamentos e a qualidade dos ativos.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20L12 2Z"/></svg>`,
-          page: 'fundamentals'
-        },
-        {
-          id: 'markettreemap',
-          title: 'Setores',
-          desc: 'Treemap interativo de todo o mercado acionário da B3.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
-          page: 'markettreemap'
-        }
-      ]
-    },
+
     {
       id: 'simulators',
       isGroup: true,

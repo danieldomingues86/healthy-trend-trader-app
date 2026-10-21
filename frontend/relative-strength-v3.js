@@ -241,7 +241,7 @@
   };
 
   window.handleRelativeStrengthSearch = function (value) {
-    window.relativeStrengthSearchQuery = String(value || '');
+    window.relativeStrengthSearchQuery = String(value || '').toUpperCase();
     window.relativeStrengthCurrentPage = 1;
     updateTableAndPaginationOnly();
   };
@@ -827,7 +827,7 @@
                 <div class="rs-toolbar-filters">
                   <div class="rs-search-box">
                     <span class="rs-search-icon" aria-hidden="true">🔍</span>
-                    <input type="text" id="rsSearchInput" placeholder="${text('Buscar ativo, empresa ou setor...', 'Search asset, company or sector...')}" value="${window.relativeStrengthSearchQuery}" oninput="window.handleRelativeStrengthSearch(this.value)" aria-label="${text('Buscar ativo', 'Search asset')}">
+                    <input type="text" id="rsSearchInput" placeholder="${text('Buscar ativo, empresa ou setor...', 'Search asset, company or sector...')}" value="${window.relativeStrengthSearchQuery}" oninput="this.value = this.value.toUpperCase(); window.handleRelativeStrengthSearch(this.value)" style="text-transform: uppercase;" aria-label="${text('Buscar ativo', 'Search asset')}">
                   </div>
                   <div class="rs-select-wrap">
                     <select id="rsGroupSelect" class="rs-select-group" onchange="window.handleRelativeStrengthGroupChange(this.value)" aria-label="${text('Filtrar por grupo ou setor', 'Filter by group or sector')}">

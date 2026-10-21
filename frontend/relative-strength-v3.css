@@ -571,6 +571,7 @@ body #relativestrength.rs-workspace-active.active {
 }
 
 .rs-search-box input {
+  text-transform: uppercase;
   width: 320px;
   height: 42px;
   padding: 0 16px 0 38px;
@@ -581,6 +582,10 @@ body #relativestrength.rs-workspace-active.active {
   background: #ffffff;
   outline: none;
   transition: border-color 0.15s ease;
+}
+
+.rs-search-box input::placeholder {
+  text-transform: none;
 }
 
 .rs-search-box input:focus {
