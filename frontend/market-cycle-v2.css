@@ -488,16 +488,21 @@ body:not([data-theme="healthy"]) #marketcycle .mcv2-hero {
 #marketcycle .mcv2-ranges button.active{background:#0e4830;color:#fff}
 
 #marketcycle .mcv2-chart-scroll{overflow-x:auto}
-#marketcycle .mcv2-chart{display:block;width:100%;min-width:680px;height:350px}
-#marketcycle .mcv2-chart text{fill:#64748b;font:9px Inter,sans-serif}
+#marketcycle .mcv2-chart{display:block;width:100%;min-width:680px;height:380px}
+#marketcycle .mcv2-chart text{fill:#64748b;font:9.5px Inter,sans-serif}
 #marketcycle .mcv2-plot-bg{fill:#fcfdfd;stroke:#f1f5f9;stroke-width:1}
 #marketcycle .mcv2-gridline{stroke:#e2e8f0;stroke-width:1;stroke-dasharray:2 5}
-#marketcycle .mcv2-candles-group{shape-rendering:crispEdges}
-#marketcycle .mcv2-candle.up line,#marketcycle .mcv2-candle.up rect{stroke:#10b981;fill:#10b981}
-#marketcycle .mcv2-candle.down line,#marketcycle .mcv2-candle.down rect{stroke:#ef4444;fill:#ef4444}
+#marketcycle .mcv2-candles-group{shape-rendering:geometricPrecision}
+#marketcycle .mcv2-candle{outline:0;cursor:pointer}
+#marketcycle .mcv2-candle.up line{stroke:#10b981;stroke-width:1.8}
+#marketcycle .mcv2-candle.up rect{stroke:#059669;fill:#10b981;stroke-width:0.8}
+#marketcycle .mcv2-candle.down line{stroke:#ef4444;stroke-width:1.8}
+#marketcycle .mcv2-candle.down rect{stroke:#dc2626;fill:#ef4444;stroke-width:0.8}
+#marketcycle .mcv2-candle:hover rect,#marketcycle .mcv2-candle:focus rect{filter:brightness(1.18);stroke-width:1.2}
+#marketcycle .mcv2-candle:hover line,#marketcycle .mcv2-candle:focus line{stroke-width:2.2}
 #marketcycle .mcv2-line{fill:none;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
-#marketcycle .mcv2-line.ema9{stroke:#2563eb;stroke-width:2.4}
-#marketcycle .mcv2-line.ema30{stroke:#f97316;stroke-width:2.4}
+#marketcycle .mcv2-line.ema9{stroke:#2563eb;stroke-width:2.0;stroke-opacity:0.92}
+#marketcycle .mcv2-line.ema30{stroke:#f97316;stroke-width:2.0;stroke-opacity:0.92}
 #marketcycle .mcv2-axis-badge rect{filter:drop-shadow(0 2px 5px rgba(0,0,0,.15))}
 #marketcycle .mcv2-axis-badge text{fill:#ffffff;font:700 9px/1 Inter,sans-serif;letter-spacing:-.01em}
 #marketcycle .mcv2-hit{fill:transparent;stroke:transparent;cursor:crosshair}
