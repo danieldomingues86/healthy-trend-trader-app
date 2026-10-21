@@ -151,6 +151,15 @@
   });
 
   /**
+   * Gatilhos EXPERIMENTAIS da validação estatística 1-2-3 + Inside Bar (não pertencem ao catálogo operacional).
+   */
+  const EXPERIMENTAL_TRIGGERS = Object.freeze({
+    COMBO_IB_STOP: { id: 'EXP_123_IB', name: '1-2-3 + Inside Bar (stop da Inside Bar)' },
+    COMBO_VERTEX_STOP: { id: 'EXP_123_IB_VERTEX', name: '1-2-3 + Inside Bar (stop do vértice do 1-2-3)' },
+    STRUCTURAL_123_NO_IB: { id: 'EXP_123_SEM_IB', name: '1-2-3 estrutural sem Inside Bar (stop do vértice)' }
+  });
+
+  /**
    * Fonte de verdade das Notas do Trading Rubric (alinhado com Novo Trade / TradingRubrics)
    * As únicas notas válidas no método são A, B, C e D.
    */
@@ -4019,18 +4028,21 @@
   }
 
   /**
-   * Detecção de Gatilhos Técnicos Oficiais nos candles passados (sem look-ahead).
+   * Avalia TODOS os gatilhos oficiais de compra no último candle da fatia (sem look-ahead),
+   * na mesma ordem de prioridade histórica do detector. Cada regra é avaliada de forma
+   * independente (sem "first match wins"), permitindo testar cada gatilho isoladamente.
+   * Fonte única das regras: detectSetupTrigger() devolve apenas o primeiro item desta lista.
    * Produz exclusivamente notas válidas do Rubric: A, B, C, D.
    */
-  function detectSetupTrigger(candles) {
-    if (!Array.isArray(candles) || candles.length < 2) return null;
+  function detectAllSetupTriggers(candles, options = {}) {
+    if (!Array.isArray(candles) || candles.length < 2) return [];
     const len = candles.length;
     const c1 = candles[len - 1];
     const c2 = candles[len - 2];
     const c3 = len >= 3 ? candles[len - 3] : null;
 
     if (!c1 || !c2 || Number(c1.close) < 1.5 || Number(c1.high) <= Number(c1.low) || Number(c2.high) <= Number(c2.low)) {
-      return null;
+      return [];
     }
 
     function isAcceptableGraphicRisk(entry, stop) {
@@ -4048,111 +4060,78 @@
     const latestEma30 = c1.ema30 != null ? Number(c1.ema30) : ema30Series[ema30Series.length - 1];
 
     const isAboveBothEmas = (latestEma9 == null || c1.close >= latestEma9) && (latestEma30 == null || c1.close >= latestEma30);
-    if (!isAboveBothEmas) return null;
+    if (!isAboveBothEmas) return [];
+
+    const found = [];
+    function push(id, name, entry, stop, baseQuality, structure) {
+      if (!isAcceptableGraphicRisk(entry, stop)) return;
+      const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma9, latestEma30, prevEma9, baseQuality);
+      const item = { id, name, grade, hasTrigger: true, entry, stop };
+      if (structure) item.structure = structure;
+      found.push(item);
+    }
 
     // 1. Double Inside Bar (prioridade sobre Inside Bar simples)
     if (c3 && Number(c3.high) > Number(c3.low)) {
       const dib = calculateDoubleInsideBarStructure(c3, c2, c1);
-      if (dib && dib.isValid && isAcceptableGraphicRisk(dib.entryPrice, dib.stopLoss)) {
-        const grade = classifyTriggerRubricGrade(dib.entryPrice, dib.stopLoss, c1.close, latestEma9, latestEma30, prevEma9, 'A');
-        return {
-          id: 'DOUBLE_INSIDE_BAR',
-          name: TRIGGER_TYPES.DOUBLE_INSIDE_BAR,
-          grade,
-          hasTrigger: true,
-          entry: dib.entryPrice,
-          stop: dib.stopLoss,
-          structure: dib
-        };
+      if (dib && dib.isValid) {
+        push('DOUBLE_INSIDE_BAR', TRIGGER_TYPES.DOUBLE_INSIDE_BAR, dib.entryPrice, dib.stopLoss, 'A', dib);
       }
     }
 
     // 2. Inside Bar simples
     if (c1.high <= c2.high && c1.low >= c2.low) {
-      const entry = Number((c1.high + 0.01).toFixed(2));
-      const stop = Number((c1.low - 0.01).toFixed(2));
-      if (isAcceptableGraphicRisk(entry, stop)) {
-        const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma9, latestEma30, prevEma9, 'A');
-        return {
-          id: 'INSIDE_BAR',
-          name: TRIGGER_TYPES.INSIDE_BAR,
-          grade,
-          hasTrigger: true,
-          entry,
-          stop
-        };
-      }
+      push('INSIDE_BAR', TRIGGER_TYPES.INSIDE_BAR, Number((c1.high + 0.01).toFixed(2)), Number((c1.low - 0.01).toFixed(2)), 'A');
     }
 
     // 3. 1-2-3 de Compra
     if (c3 && c2.low < c3.low && c1.low > c2.low && c1.close > c2.high) {
-      const entry = Number((c1.high + 0.01).toFixed(2));
-      const stop = Number((c2.low - 0.01).toFixed(2));
-      if (isAcceptableGraphicRisk(entry, stop)) {
-        const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma9, latestEma30, prevEma9, 'A');
-        return {
-          id: '123_COMPRA',
-          name: TRIGGER_TYPES.ONE_TWO_THREE,
-          grade,
-          hasTrigger: true,
-          entry,
-          stop
-        };
-      }
+      push('123_COMPRA', TRIGGER_TYPES.ONE_TWO_THREE, Number((c1.high + 0.01).toFixed(2)), Number((c2.low - 0.01).toFixed(2)), 'A');
     }
 
     // 4. PFR de Compra
     if (c1.low < c2.low && c1.close > c2.close) {
-      const entry = Number((c1.high + 0.01).toFixed(2));
-      const stop = Number((c1.low - 0.01).toFixed(2));
-      if (isAcceptableGraphicRisk(entry, stop)) {
-        const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma9, latestEma30, prevEma9, 'A');
-        return {
-          id: 'PFR_COMPRA',
-          name: TRIGGER_TYPES.PFR_COMPRA,
-          grade,
-          hasTrigger: true,
-          entry,
-          stop
-        };
-      }
+      push('PFR_COMPRA', TRIGGER_TYPES.PFR_COMPRA, Number((c1.high + 0.01).toFixed(2)), Number((c1.low - 0.01).toFixed(2)), 'A');
     }
 
     // 5. Dave Landry
     if (c3 && c2.low < c3.low && c1.low < c2.low) {
-      const entry = Number((c1.high + 0.01).toFixed(2));
-      const stop = Number((c1.low - 0.01).toFixed(2));
-      if (isAcceptableGraphicRisk(entry, stop)) {
-        const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma9, latestEma30, prevEma9, 'B');
-        return {
-          id: 'DAVE_LANDRY',
-          name: TRIGGER_TYPES.DAVE_LANDRY,
-          grade,
-          hasTrigger: true,
-          entry,
-          stop
-        };
-      }
+      push('DAVE_LANDRY', TRIGGER_TYPES.DAVE_LANDRY, Number((c1.high + 0.01).toFixed(2)), Number((c1.low - 0.01).toFixed(2)), 'B');
     }
 
     // 6. RBI (Barra Vermelha Ignorada)
     if (c2.close < c2.open && c1.close > c1.open && c1.close > c2.high) {
+      push('RBI', TRIGGER_TYPES.RBI, Number((c1.high + 0.01).toFixed(2)), Number((c2.low - 0.01).toFixed(2)), 'A');
+    }
+
+    // Regras EXPERIMENTAIS (somente sob demanda; não fazem parte do catálogo de gatilhos nem de TRIGGER_TYPES).
+    // Usadas exclusivamente pela validação estatística 1-2-3 + Inside Bar. Estrutura do 1-2-3 conforme o catálogo
+    // (Candle 2 é o vértice: mínima estritamente menor que a do Candle 1 e do Candle 3), sem a condição adicional
+    // "fechamento > máxima do candle 2" do detector canônico, que é matematicamente incompatível com uma Inside Bar
+    // (um candle contido na máxima do Candle 2 não pode fechar acima dela).
+    if (options.includeExperimental === true && c3) {
+      const structural123 = c2.low < c3.low && c1.low > c2.low;
+      const isInsideBar = c1.high <= c2.high && c1.low >= c2.low;
       const entry = Number((c1.high + 0.01).toFixed(2));
-      const stop = Number((c2.low - 0.01).toFixed(2));
-      if (isAcceptableGraphicRisk(entry, stop)) {
-        const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma9, latestEma30, prevEma9, 'A');
-        return {
-          id: 'RBI',
-          name: TRIGGER_TYPES.RBI,
-          grade,
-          hasTrigger: true,
-          entry,
-          stop
-        };
+      if (structural123 && isInsideBar) {
+        push(EXPERIMENTAL_TRIGGERS.COMBO_IB_STOP.id, EXPERIMENTAL_TRIGGERS.COMBO_IB_STOP.name, entry, Number((c1.low - 0.01).toFixed(2)), 'A');
+        push(EXPERIMENTAL_TRIGGERS.COMBO_VERTEX_STOP.id, EXPERIMENTAL_TRIGGERS.COMBO_VERTEX_STOP.name, entry, Number((c2.low - 0.01).toFixed(2)), 'A');
+      }
+      if (structural123 && !isInsideBar) {
+        push(EXPERIMENTAL_TRIGGERS.STRUCTURAL_123_NO_IB.id, EXPERIMENTAL_TRIGGERS.STRUCTURAL_123_NO_IB.name, entry, Number((c2.low - 0.01).toFixed(2)), 'A');
       }
     }
 
-    return null;
+    return found;
+  }
+
+  /**
+   * Detecção de Gatilhos Técnicos Oficiais nos candles passados (sem look-ahead).
+   * Retorna o gatilho de maior prioridade (comportamento histórico preservado).
+   */
+  function detectSetupTrigger(candles) {
+    const all = detectAllSetupTriggers(candles);
+    return all.length ? all[0] : null;
   }
 
   /**
@@ -4769,7 +4748,9 @@
 
         // Slice estrito sem look-ahead
         const slice = candles.slice(0, candleIdx + 1);
-        const trigger = detectSetupTrigger(slice);
+        const trigger = typeof options.detectTrigger === 'function'
+          ? options.detectTrigger(slice, { symbol: sym, date: d })
+          : detectSetupTrigger(slice);
 
         if (!trigger || !trigger.hasTrigger) continue;
 
@@ -4780,6 +4761,10 @@
         }
 
         if (selectedGrades && !selectedGrades.includes(normalizedTriggerGrade)) {
+          continue;
+        }
+
+        if (typeof options.signalFilter === 'function' && !options.signalFilter({ symbol: sym, date: d, trigger, slice })) {
           continue;
         }
 
@@ -4955,6 +4940,9 @@
     formatDurationDays,
     getTradeVisionAtivo,
     detectSetupTrigger,
+    detectAllSetupTriggers,
+    EXPERIMENTAL_TRIGGERS,
+    classifyTriggerRubricGrade,
     sanitizeAndNormalizeSimulation,
     validateSimulation,
     auditSimulationsBatch,
