@@ -805,7 +805,16 @@
     </div>`;
   }
 
+  function normalizeMarketId(marketId) {
+    const s = String(marketId || '').trim().toLowerCase();
+    if (s.includes('bdr')) return 'bdr';
+    if (s.includes('fii') || s.includes('ifix')) return 'fii';
+    if (s.includes('ibov') || s.includes('stock') || s.includes('ac') || s.includes('aç')) return 'stock_b3';
+    return MARKET_REGISTRY[marketId] ? marketId : 'stock_b3';
+  }
+
   async function load(marketId = state.currentMarket, force = false) {
+    marketId = normalizeMarketId(marketId);
     if (!MARKET_REGISTRY[marketId]) marketId = 'stock_b3';
     state.currentMarket = marketId;
     const current = state.markets[marketId];
@@ -820,7 +829,7 @@
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
       const history = Array.isArray(payload?.benchmark?.history) ? payload.benchmark.history : [];
-      let range = current.range || '1y';
+      let range = current?.range || '1y';
       if (!ranges.some(([id, days]) => id === range && history.length >= days)) {
         range = ranges.filter(([, days]) => history.length >= days).at(-1)?.[0] || '1m';
       }
@@ -857,9 +866,12 @@
 
   window.renderMarketCycle = render;
   window.loadMarketCycleV2 = load;
+  window.normalizeMarketCycleId = normalizeMarketId;
   window.MARKET_REGISTRY = MARKET_REGISTRY;
   window.getMarketCycleSnapshot = getMarketSnapshot;
   window.persistMarketCycleSnapshot = persistMarketSnapshot;
   window.addEventListener('healthyTrend:authenticated', () => load(state.currentMarket, true));
-  load();
+  const initialMarket = normalizeMarketId(window.__pendingMarketCycle || state.currentMarket);
+  window.__pendingMarketCycle = null;
+  load(initialMarket);
 }());
