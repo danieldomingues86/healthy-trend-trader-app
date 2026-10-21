@@ -1,0 +1,1037 @@
+/**
+ * HEALTHY TREND TRADER - DIÁRIO DO MERECIMENTO CSS
+ * 
+ * Estilos da tela Diário do Merecimento (Treinamento do Trader).
+ * Identidade visual acolhedora, serena e premium: fundo claro, tons sutis de dourado,
+ * tipografia refinada e acabamento SaaS financeiro profissional.
+ */
+
+/* =========================================================================
+   CONTAINER PRINCIPAL E CABEÇALHO HERO
+   ========================================================================= */
+
+.deserving-diary-wrapper {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 24px 28px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  color: #1a251e;
+  box-sizing: border-box;
+}
+
+/* Hero Banner com imagem da montanha ao nascer do sol e caligrafia dourada */
+.dd-hero-banner {
+  position: relative;
+  min-height: 140px;
+  border-radius: 20px;
+  padding: 26px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  overflow: hidden;
+  background: linear-gradient(105deg, rgba(254, 252, 246, 0.97) 0%, rgba(254, 249, 238, 0.90) 45%, rgba(250, 238, 212, 0.5) 100%),
+              url('../assets/deserving-diary/deserving-hero.jpg') right 5% top 8% / 1050px auto no-repeat;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  box-shadow: 0 4px 24px rgba(180, 140, 50, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.dd-hero-left {
+  max-width: 650px;
+  z-index: 2;
+}
+
+.dd-hero-title {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #3b2813;
+  line-height: 1.15;
+}
+
+.dd-hero-title span {
+  color: #8a6a2a;
+}
+
+.dd-hero-quote {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #4a584e;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.dd-hero-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  z-index: 2;
+}
+
+.dd-hero-calligraphy {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 600;
+  color: #4a3617;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.dd-hero-calligraphy span {
+  display: block;
+  font-size: 22px;
+  color: #6d4e1d;
+}
+
+/* =========================================================================
+   GRID PRINCIPAL DE DUAS COLUNAS
+   ========================================================================= */
+
+.dd-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 1180px) {
+  .dd-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================================
+   COLUNA ESQUERDA — FORMULÁRIO DE REGISTRO
+   ========================================================================= */
+
+.dd-card {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+  padding: 26px 28px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.dd-form-card {
+  border-top: 3px solid #10b981;
+}
+
+.dd-card-header {
+  margin-bottom: 22px;
+}
+
+.dd-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dd-card-icon {
+  width: 24px;
+  height: 24px;
+  color: #b48530;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dd-card-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: #1a271f;
+  letter-spacing: -0.01em;
+}
+
+.dd-card-subtitle {
+  margin: 5px 0 0 34px;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Formulário de Registro */
+.dd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Linha 1: Data e Ativo */
+.dd-form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .dd-form-row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dd-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.dd-field-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.dd-field-label svg {
+  color: #8a6a2a;
+}
+
+.dd-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dd-input-text,
+.dd-input-date,
+.dd-select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: #1e293b;
+  background: #fdfdfd;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.dd-input-text:focus,
+.dd-input-date:focus,
+.dd-select:focus,
+.dd-textarea:focus {
+  border-color: #10b981;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+}
+
+.dd-ticker-input {
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Seletor rápido de trade fechado */
+.dd-trade-picker-btn {
+  font-size: 11.5px;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  transition: all 0.15s ease;
+}
+
+.dd-trade-picker-btn:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+}
+
+/* Seletor de Emoções (Chips / Pills) */
+.dd-emotions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 2px;
+}
+
+.dd-emotion-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.dd-emotion-chip svg {
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
+.dd-emotion-chip:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.dd-emotion-chip.active {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.28);
+}
+
+.dd-emotion-chip.active svg {
+  stroke: #ffffff;
+}
+
+/* Chips com cores semânticas personalizadas quando ativos */
+.dd-emotion-chip[data-id="anxious_tense"].active {
+  background: #ea580c;
+  border-color: #ea580c;
+  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.28);
+}
+
+.dd-emotion-chip[data-id="surprised_speed"].active {
+  background: #d97706;
+  border-color: #d97706;
+  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.28);
+}
+
+.dd-emotion-chip[data-id="fear_giveback"].active {
+  background: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.28);
+}
+
+.dd-emotion-chip[data-id="greed_more"].active {
+  background: #ca8a04;
+  border-color: #ca8a04;
+  box-shadow: 0 3px 10px rgba(202, 138, 4, 0.28);
+}
+
+/* Slider de Intensidade */
+.dd-slider-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fafaf9;
+  border: 1px solid #e7e5e4;
+  border-radius: 12px;
+}
+
+.dd-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #44403c;
+}
+
+.dd-intensity-badge {
+  font-size: 14px;
+  font-weight: 700;
+  color: #b48530;
+}
+
+.dd-range-input {
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  outline: none;
+  background: linear-gradient(to right, #10b981 0%, #f59e0b 60%, #ef4444 100%);
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.dd-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #b48530;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.dd-range-input::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.dd-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #78716c;
+  font-weight: 500;
+}
+
+/* Áreas de Texto (Reflexão Psicológica) */
+.dd-textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #1e293b;
+  background: #fdfdfd;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  outline: none;
+  resize: vertical;
+  line-height: 1.5;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.dd-textarea::placeholder {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* Área de Upload / Imagem Opcional */
+.dd-attachment-box {
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #fafaf9;
+  transition: border-color 0.15s ease;
+}
+
+.dd-attachment-box:hover {
+  border-color: #94a3b8;
+}
+
+.dd-attachment-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dd-attachment-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dd-attachment-info strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.dd-attachment-info small {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.dd-attach-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.dd-attach-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.dd-preview-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.dd-preview-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #cbd5e1;
+}
+
+.dd-preview-remove-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Botões do Formulário */
+.dd-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.dd-btn-clean {
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.dd-btn-clean:hover {
+  background: #f8fafc;
+  color: #334155;
+  border-color: #94a3b8;
+}
+
+.dd-btn-save {
+  padding: 10px 24px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #10b981;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 3px 12px rgba(16, 185, 129, 0.28);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dd-btn-save:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(16, 185, 129, 0.35);
+}
+
+.dd-btn-save:active {
+  transform: translateY(0);
+}
+
+/* =========================================================================
+   COLUNA DIREITA — EVOLUÇÃO, INSPIRAÇÃO E HISTÓRICO
+   ========================================================================= */
+
+.dd-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Card Minha Evolução */
+.dd-evolution-card {
+  border-top: 3px solid #b48530;
+}
+
+.dd-evolution-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.dd-period-select {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* 4 KPIs de Evolução */
+.dd-kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 640px) {
+  .dd-kpis-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.dd-kpi-item {
+  background: #fafaf9;
+  border: 1px solid #e7e5e4;
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.dd-kpi-icon {
+  font-size: 16px;
+  color: #b48530;
+}
+
+.dd-kpi-val {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1c1917;
+  letter-spacing: -0.01em;
+}
+
+.dd-kpi-label {
+  font-size: 11px;
+  color: #78716c;
+  font-weight: 500;
+}
+
+/* Gráfico de Evolução SVG */
+.dd-chart-box {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dd-chart-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.dd-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dd-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.dd-legend-dot.anxiety { background: #ea580c; }
+.dd-legend-dot.tranquility { background: #10b981; }
+
+.dd-evolution-svg {
+  width: 100%;
+  height: 140px;
+  overflow: visible;
+}
+
+.dd-chart-empty-state {
+  padding: 24px 16px;
+  text-align: center;
+  color: #64748b;
+  font-size: 12.5px;
+  line-height: 1.5;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+/* Card Frase de Inspiração */
+.dd-inspiration-card {
+  background: linear-gradient(135deg, #fefcf6 0%, #f9f1de 100%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 18px;
+  padding: 24px 26px;
+  box-shadow: 0 4px 18px rgba(180, 140, 50, 0.08);
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.dd-quote-marks {
+  font-family: Georgia, serif;
+  font-size: 34px;
+  font-weight: 700;
+  color: #b48530;
+  line-height: 1;
+}
+
+.dd-inspiration-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #3b2813;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.dd-inspiration-body {
+  font-size: 13px;
+  color: #574328;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 520px;
+}
+
+.dd-lotus-icon {
+  margin-top: 6px;
+  color: #b48530;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dd-quote-rotate-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #8a6a2a;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.dd-quote-rotate-btn:hover {
+  background: rgba(212, 175, 55, 0.15);
+}
+
+/* Card Histórico de Experiências */
+.dd-history-card {
+  border-top: 3px solid #64748b;
+}
+
+.dd-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.dd-see-all-link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #047857;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.dd-see-all-link:hover {
+  text-decoration: underline;
+}
+
+.dd-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dd-history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #fafaf9;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dd-history-item:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateX(2px);
+}
+
+.dd-history-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.dd-history-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dd-history-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.dd-history-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.dd-history-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dd-history-date {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.dd-history-ticker {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.dd-result-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  white-space: nowrap;
+}
+
+.dd-history-snippet {
+  margin: 0;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dd-history-arrow {
+  color: #94a3b8;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* =========================================================================
+   MODAL DE HISTÓRICO COMPLETO E DETALHE DA ENTRADA
+   ========================================================================= */
+
+.dd-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.dd-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.dd-modal-dialog {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  transform: translateY(12px);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dd-modal-overlay.open .dd-modal-dialog {
+  transform: translateY(0);
+}
+
+.dd-modal-header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fafaf9;
+}
+
+.dd-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.dd-modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.dd-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dd-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dd-detail-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dd-detail-value {
+  font-size: 13.5px;
+  color: #1e293b;
+  line-height: 1.5;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.dd-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafaf9;
+}
+
+.dd-modal-del-btn {
+  background: none;
+  border: 1px solid #fecaca;
+  color: #ef4444;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dd-modal-del-btn:hover {
+  background: #fef2f2;
+}
+
+/* =========================================================================
+   TEMA GOLD OVERRIDES
+   ========================================================================= */
+
+body.theme-gold .dd-card {
+  border-color: rgba(212, 175, 55, 0.25);
+}
+
+body.theme-gold .dd-form-card {
+  border-top-color: #d4af37;
+}
+
+body.theme-gold .dd-btn-save {
+  background: #b48530;
+  box-shadow: 0 3px 12px rgba(180, 133, 48, 0.28);
+}
+
+body.theme-gold .dd-btn-save:hover {
+  background: #966c22;
+}

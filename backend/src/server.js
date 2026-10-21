@@ -34,6 +34,7 @@ const eventPlaybookAttachments = require('./event-playbook-attachments');
 const profitCelebration = require('./profit-celebration');
 const opportunityRadar = require('./opportunity-radar');
 const marketTreemap = require('./market-treemap');
+const deservingDiary = require('./deserving-diary');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -423,6 +424,53 @@ const server = http.createServer(async (request, response) => {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, await profitCelebration.saveSpecialReward(user.id, await body(request)));
+    }
+    if (url.pathname === '/api/deserving-diary' && request.method === 'GET') {
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const query = Object.fromEntries(url.searchParams.entries());
+      return send(response, 200, await deservingDiary.listEntries(user.id, query));
+    }
+    if (url.pathname === '/api/deserving-diary' && request.method === 'POST') {
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 201, await deservingDiary.createEntry(user.id, await body(request)));
+    }
+    if (url.pathname === '/api/deserving-diary/attachments' && request.method === 'POST') {
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const attachment = await deservingDiary.saveAttachment(user.id, {
+        name: headerText(request.headers['x-file-name']),
+        contentType: request.headers['content-type'],
+        bytes: await binaryBody(request)
+      });
+      return send(response, 201, { attachment });
+    }
+    const deservingAttachMatch = url.pathname.match(/^\/api\/deserving-diary\/attachments\/([^/]+)\/([^/]+)$/);
+    if (deservingAttachMatch && request.method === 'GET') {
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const attachUserId = deservingAttachMatch[1];
+      const attachFileName = deservingAttachMatch[2];
+      if (attachUserId !== user.id) return send(response, 403, { error: 'Acesso negado ao anexo.' });
+      const filePath = path.resolve(__dirname, '..', 'data', 'deserving-diary-attachments', attachUserId, attachFileName);
+      try {
+        const bytes = await fs.readFile(filePath);
+        const ext = path.extname(attachFileName).toLowerCase();
+        const contentType = ext === '.png' ? 'image/png' : (ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : (ext === '.webp' ? 'image/webp' : 'application/octet-stream'));
+        return sendFile(response, 200, bytes, contentType, attachFileName);
+      } catch (err) {
+        return send(response, 404, { error: 'Anexo não encontrado.' });
+      }
+    }
+    const deservingDiaryMatch = url.pathname.match(/^\/api\/deserving-diary\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i);
+    if (deservingDiaryMatch && request.method === 'GET') {
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await deservingDiary.getEntry(user.id, deservingDiaryMatch[1]));
+    }
+    if (deservingDiaryMatch && request.method === 'PUT') {
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await deservingDiary.updateEntry(user.id, deservingDiaryMatch[1], await body(request)));
+    }
+    if (deservingDiaryMatch && request.method === 'DELETE') {
+      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      return send(response, 200, await deservingDiary.deleteEntry(user.id, deservingDiaryMatch[1]));
     }
     if (url.pathname === '/api/trade-simulations' && request.method === 'GET') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
