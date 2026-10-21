@@ -488,23 +488,37 @@ body:not([data-theme="healthy"]) #marketcycle .mcv2-hero {
 #marketcycle .mcv2-ranges button.active{background:#0e4830;color:#fff}
 
 #marketcycle .mcv2-chart-scroll{overflow-x:auto}
-#marketcycle .mcv2-chart{display:block;width:100%;min-width:680px;height:330px}
+#marketcycle .mcv2-chart{display:block;width:100%;min-width:680px;height:350px}
 #marketcycle .mcv2-chart text{fill:#64748b;font:9px Inter,sans-serif}
-#marketcycle .mcv2-plot-bg{fill:#f8faf8}
+#marketcycle .mcv2-plot-bg{fill:#fcfdfd;stroke:#f1f5f9;stroke-width:1}
 #marketcycle .mcv2-gridline{stroke:#e2e8f0;stroke-width:1;stroke-dasharray:2 5}
-#marketcycle .mcv2-price-area{fill:url(#mcv2-area)}
+#marketcycle .mcv2-candles-group{shape-rendering:crispEdges}
+#marketcycle .mcv2-candle.up line,#marketcycle .mcv2-candle.up rect{stroke:#10b981;fill:#10b981}
+#marketcycle .mcv2-candle.down line,#marketcycle .mcv2-candle.down rect{stroke:#ef4444;fill:#ef4444}
 #marketcycle .mcv2-line{fill:none;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
-#marketcycle .mcv2-line.price{stroke:#208c58;stroke-width:2.5}
-#marketcycle .mcv2-line.ema9{stroke:#10b981;stroke-width:2.2} #marketcycle .mcv2-line.ema20{stroke:#eab308;stroke-width:2.2}
-#marketcycle .mcv2-line.ema30{stroke:#eab308;stroke-width:2.2} #marketcycle .mcv2-line.ema200{stroke:#718c7c;stroke-width:1.5;stroke-dasharray:7 6}
+#marketcycle .mcv2-line.ema9{stroke:#2563eb;stroke-width:2.4}
+#marketcycle .mcv2-line.ema30{stroke:#f97316;stroke-width:2.4}
+#marketcycle .mcv2-axis-badge rect{filter:drop-shadow(0 2px 5px rgba(0,0,0,.15))}
+#marketcycle .mcv2-axis-badge text{fill:#ffffff;font:700 9px/1 Inter,sans-serif;letter-spacing:-.01em}
 #marketcycle .mcv2-hit{fill:transparent;stroke:transparent;cursor:crosshair}
 #marketcycle .mcv2-hit:focus{fill:#fff;stroke:#145d3c;stroke-width:2;outline:0}
 
-#marketcycle .mcv2-legend{display:flex;gap:22px;margin:0 0 12px;color:#475569;font-size:10px}
-#marketcycle .mcv2-legend span{display:flex;align-items:center;gap:6px}
-#marketcycle .mcv2-legend i{display:block;width:24px;height:2px;background:#208c58}
-#marketcycle .mcv2-legend .ema9 i{background:#10b981} #marketcycle .mcv2-legend .ema20 i{background:#eab308}
-#marketcycle .mcv2-legend .ema30 i{background:#eab308}
+/* Rodapé do Gráfico: Legenda Visual dos Elementos e Leitura Rápida */
+#marketcycle .mcv2-chart-footer-row{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1.2fr);gap:14px;margin-top:14px;align-items:stretch}
+#marketcycle .mcv2-legend-card{display:flex;align-items:center;gap:18px;padding:12px 18px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;flex-wrap:wrap}
+#marketcycle .mcv2-legend-item{display:flex;align-items:center;gap:9px}
+#marketcycle .mcv2-candlestick-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:20px;flex:none}
+#marketcycle .mcv2-line-swatch{display:inline-block;width:24px;height:3.5px;border-radius:2px;flex:none}
+#marketcycle .mcv2-line-swatch.ema9{background:#2563eb}
+#marketcycle .mcv2-line-swatch.ema30{background:#f97316}
+#marketcycle .mcv2-legend-text{display:flex;flex-direction:column;line-height:1.25}
+#marketcycle .mcv2-legend-text strong{font-size:11px;font-weight:700;color:#1e293b}
+#marketcycle .mcv2-legend-text span{font-size:9.5px;color:#64748b}
+#marketcycle .mcv2-quick-reading-card{display:flex;flex-direction:column;justify-content:center;padding:12px 18px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}
+#marketcycle .mcv2-quick-reading-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+#marketcycle .mcv2-quick-reading-icon{font-size:14px}
+#marketcycle .mcv2-quick-reading-head strong{font-size:11px;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:.05em}
+#marketcycle .mcv2-quick-reading-card p{margin:0;font-size:10.5px;line-height:1.45;color:#475569}
 
 #marketcycle .mcv2-evidence{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 #marketcycle .mcv2-evidence article{display:grid;min-height:72px;padding:11px 13px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}
@@ -556,6 +570,7 @@ body:not([data-theme="healthy"]) #marketcycle .mcv2-hero {
   #marketcycle .mcv2-regime{margin:12px 0}
   #marketcycle .mcv2-analysis{grid-template-columns:1fr}
   #marketcycle .mcv2-chart-card,#marketcycle .mcv2-reading{border-radius:14px}
+  #marketcycle .mcv2-chart-footer-row{grid-template-columns:1fr;gap:10px}
   #marketcycle .mcv2-breadth>div{grid-template-columns:repeat(2,minmax(0,1fr))}
   #marketcycle .mcv2-evidence{grid-template-columns:repeat(2,1fr)}
 }

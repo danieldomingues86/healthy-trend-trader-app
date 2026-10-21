@@ -364,11 +364,29 @@
   function MarketDailyChart(history, source, marketInfo, currentRange) {
     const rows = visibleSeries(history, currentRange);
     if (rows.length < 2) return `<div class="mcv2-empty">${t('Histórico insuficiente para desenhar o gráfico.', 'Insufficient history to draw the chart.')}</div>`;
-    const values = rows.flatMap(row => [row.close, row.ema9 ?? row.ema10, row.ema30 ?? row.ema20]).map(Number).filter(Number.isFinite);
-    const min = Math.min(...values), max = Math.max(...values), spread = max - min || 1;
-    const W = 1000, H = 330, left = 66, right = 16, top = 18, bottom = 48;
-    const x = index => left + index / Math.max(1, rows.length - 1) * (W - left - right);
+    const values = rows.flatMap(row => {
+      const c = Number(row.close);
+      const o = Number(row.open ?? c);
+      const h = Number(row.high ?? Math.max(c, o));
+      const l = Number(row.low ?? Math.min(c, o));
+      const e9 = Number(row.ema9 ?? row.ema10);
+      const e30 = Number(row.ema30 ?? row.ema20);
+      return [c, o, h, l, e9, e30];
+    }).filter(Number.isFinite);
+    const rawMin = Math.min(...values);
+    const rawMax = Math.max(...values);
+    const padding = (rawMax - rawMin) * 0.05 || 1;
+    const min = rawMin - padding;
+    const max = rawMax + padding;
+    const spread = max - min || 1;
+
+    const W = 1000, H = 350, left = 66, right = 76, top = 22, bottom = 46;
+    const plotW = W - left - right;
+    const x = index => left + index / Math.max(1, rows.length - 1) * plotW;
     const y = value => top + (max - value) / spread * (H - top - bottom);
+    const step = plotW / Math.max(1, rows.length - 1);
+    const bodyW = Math.max(2.5, Math.min(10, step * 0.72));
+
     const ticks = Array.from({ length: 5 }, (_, index) => min + spread * index / 4).reverse();
     const dateTicks = Array.from(new Set(Array.from({ length: 6 }, (_, index) => Math.round(index * (rows.length - 1) / 5))));
     const availableRanges = ranges.filter(([, days]) => history.length >= days);
@@ -376,30 +394,128 @@
     const sourceCopy = officialB3 ? t('série oficial B3', 'official B3 series') : t('fonte de contingência', 'contingency source');
     const chartLabel = `${esc(marketInfo.benchmarkSymbol)} · ${t('Diário', 'Daily')}`;
 
+    // Candlesticks Diários
+    const candleElements = rows.map((row, index) => {
+      const cx = x(index);
+      const c = Number(row.close);
+      const prevClose = index > 0 ? Number(rows[index - 1].close) : c;
+      const o = Number.isFinite(Number(row.open)) ? Number(row.open) : prevClose;
+      const h = Number.isFinite(Number(row.high)) ? Number(row.high) : Math.max(o, c);
+      const l = Number.isFinite(Number(row.low)) ? Number(row.low) : Math.min(o, c);
+      const isUp = c >= o;
+      const color = isUp ? '#10b981' : '#ef4444';
+      const topBody = y(Math.max(o, c));
+      const bottomBody = y(Math.min(o, c));
+      const bodyH = Math.max(1.8, bottomBody - topBody);
+      const wickTop = y(h);
+      const wickBottom = y(l);
+
+      return `<g class="mcv2-candle ${isUp ? 'up' : 'down'}">
+        <line x1="${cx.toFixed(1)}" y1="${wickTop.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${wickBottom.toFixed(1)}" stroke="${color}" stroke-width="1.3" />
+        <rect x="${(cx - bodyW / 2).toFixed(1)}" y="${topBody.toFixed(1)}" width="${bodyW.toFixed(1)}" height="${bodyH.toFixed(1)}" rx="1" fill="${color}" stroke="${color}" stroke-width="0.5" />
+      </g>`;
+    }).join('');
+
+    // Badges de valor atual no eixo lateral direito (Preço, EMA 9, EMA 30)
+    const lastRow = rows[rows.length - 1];
+    const lastClose = Number(lastRow?.close);
+    const lastE9 = Number(lastRow?.ema9 ?? lastRow?.ema10);
+    const lastE30 = Number(lastRow?.ema30 ?? lastRow?.ema20);
+    const lastUp = lastClose >= (Number(rows[rows.length - 2]?.close) || lastClose);
+
+    const badgeList = [
+      { id: 'price', val: lastClose, rawY: y(lastClose), bg: lastUp ? '#10b981' : '#ef4444', label: number(lastClose) },
+      { id: 'ema9', val: lastE9, rawY: y(lastE9), bg: '#2563eb', label: number(lastE9) },
+      { id: 'ema30', val: lastE30, rawY: y(lastE30), bg: '#f97316', label: number(lastE30) }
+    ].filter(b => Number.isFinite(b.val)).sort((a, b) => a.rawY - b.rawY);
+
+    for (let i = 1; i < badgeList.length; i++) {
+      if (badgeList[i].rawY - badgeList[i - 1].rawY < 19) {
+        badgeList[i].rawY = badgeList[i - 1].rawY + 19;
+      }
+    }
+
+    const badgeElements = badgeList.map(b => {
+      const badgeY = Math.max(top + 8, Math.min(H - bottom - 10, b.rawY));
+      return `
+        <g class="mcv2-axis-badge ${b.id}">
+          <line x1="${(W - right).toFixed(1)}" y1="${y(b.val).toFixed(1)}" x2="${(W - right + 5).toFixed(1)}" y2="${badgeY.toFixed(1)}" stroke="${b.bg}" stroke-width="1.2" stroke-dasharray="2 2" />
+          <rect x="${(W - right + 5).toFixed(1)}" y="${(badgeY - 8.5).toFixed(1)}" width="64" height="17" rx="4" fill="${b.bg}" />
+          <text x="${(W - right + 37).toFixed(1)}" y="${(badgeY + 3.5).toFixed(1)}" fill="#ffffff" font-size="9" font-weight="700" text-anchor="middle">${b.label}</text>
+        </g>
+      `;
+    }).join('');
+
     return `<div class="mcv2-chart-head">
       <div>
         <h2>${chartLabel}</h2>
-        <p>${t('Preço e médias móveis (EMA 9 e EMA 30)', 'Price and moving averages (9 and 30 EMA)')} · ${sourceCopy}</p>
+        <p>${t('Preço em candles e médias móveis (EMA 9 e EMA 30)', 'Price in candles and moving averages (9 and 30 EMA)')} · ${sourceCopy}</p>
       </div>
       <div class="mcv2-ranges" role="group" aria-label="${t('Período do gráfico', 'Chart period')}">
         ${availableRanges.map(([id,, label]) => `<button type="button" data-market-range="${id}" class="${currentRange === id ? 'active' : ''}" aria-pressed="${currentRange === id}">${label}</button>`).join('')}
       </div>
     </div>
     <div class="mcv2-chart-scroll">
-      <svg class="mcv2-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('Gráfico diário de', 'Daily chart of')} ${esc(marketInfo.benchmarkSymbol)} ${t('com EMA 9 e EMA 30', 'with 9 and 30 EMA')}">
-        <defs><linearGradient id="mcv2-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#21945d" stop-opacity=".22"/><stop offset="1" stop-color="#21945d" stop-opacity="0"/></linearGradient></defs>
+      <svg class="mcv2-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('Gráfico diário de', 'Daily chart of')} ${esc(marketInfo.benchmarkSymbol)} ${t('com candles japoneses, EMA 9 e EMA 30', 'with Japanese candlesticks, 9 and 30 EMA')}">
         <rect x="${left}" y="${top}" width="${W-left-right}" height="${H-top-bottom}" rx="8" class="mcv2-plot-bg"/>
-        ${ticks.map(value => `<line x1="${left}" y1="${y(value)}" x2="${W-right}" y2="${y(value)}" class="mcv2-gridline"/><text x="${left-10}" y="${y(value)+4}" text-anchor="end">${number(value)}</text>`).join('')}
-        ${dateTicks.map(index => `<text x="${x(index)}" y="${H-18}" text-anchor="${index === 0 ? 'start' : index === rows.length-1 ? 'end' : 'middle'}">${dateLabel(rows[index].date).replace(/ de /g,' ')}</text>`).join('')}
-        <path class="mcv2-price-area" d="${linePath(rows,'close',x,y)} L${x(rows.length-1)},${H-bottom} L${left},${H-bottom} Z"/>
-        <path class="mcv2-line ema30" d="${linePath(rows,'ema30',x,y) || linePath(rows,'ema20',x,y)}"/><path class="mcv2-line ema9" d="${linePath(rows,'ema9',x,y) || linePath(rows,'ema10',x,y)}"/><path class="mcv2-line price" d="${linePath(rows,'close',x,y)}"/>
-        ${rows.map((row,index) => `<circle tabindex="0" cx="${x(index)}" cy="${y(row.close)}" r="7" class="mcv2-hit"><title>${dateLabel(row.date)}\n${esc(marketInfo.benchmarkSymbol)}: ${number(row.close)}\nEMA 9: ${number(row.ema9 ?? row.ema10)}\nEMA 30: ${number(row.ema30 ?? row.ema20)}\nScore: ${number(row.score)}/100</title></circle>`).join('')}
+        ${ticks.map(value => `<line x1="${left}" y1="${y(value).toFixed(1)}" x2="${W-right}" y2="${y(value).toFixed(1)}" class="mcv2-gridline"/><text x="${left-10}" y="${(y(value)+4).toFixed(1)}" text-anchor="end">${number(value)}</text>`).join('')}
+        ${dateTicks.map(index => `<text x="${x(index).toFixed(1)}" y="${H-18}" text-anchor="${index === 0 ? 'start' : index === rows.length-1 ? 'end' : 'middle'}">${dateLabel(rows[index].date).replace(/ de /g,' ')}</text>`).join('')}
+        
+        <!-- Candlesticks Diários -->
+        <g class="mcv2-candles-group">
+          ${candleElements}
+        </g>
+
+        <!-- Médias Móveis Sobrepostas -->
+        <path class="mcv2-line ema30" d="${linePath(rows,'ema30',x,y) || linePath(rows,'ema20',x,y)}"/>
+        <path class="mcv2-line ema9" d="${linePath(rows,'ema9',x,y) || linePath(rows,'ema10',x,y)}"/>
+
+        <!-- Badges de valor atual no eixo lateral direito -->
+        ${badgeElements}
+
+        <!-- Tooltip interativo -->
+        ${rows.map((row,index) => `<circle tabindex="0" cx="${x(index).toFixed(1)}" cy="${y(row.close).toFixed(1)}" r="7" class="mcv2-hit"><title>${dateLabel(row.date)}\n${esc(marketInfo.benchmarkSymbol)}: ${number(row.close)}\nEMA 9: ${number(row.ema9 ?? row.ema10)}\nEMA 30: ${number(row.ema30 ?? row.ema20)}\nScore: ${number(row.score)}/100</title></circle>`).join('')}
       </svg>
     </div>
-    <div class="mcv2-legend">
-      <span class="price"><i></i>${t('Preço', 'Price')}</span>
-      <span class="ema9"><i></i>EMA 9</span>
-      <span class="ema30"><i></i>EMA 30</span>
+    <div class="mcv2-chart-footer-row">
+      <div class="mcv2-legend-card">
+        <div class="mcv2-legend-item">
+          <span class="mcv2-candlestick-icon" aria-hidden="true">
+            <svg width="20" height="18" viewBox="0 0 20 18" fill="none">
+              <line x1="5.5" y1="1" x2="5.5" y2="17" stroke="#10b981" stroke-width="1.4" stroke-linecap="round"/>
+              <rect x="3.2" y="4" width="4.6" height="8" rx="0.8" fill="#10b981"/>
+              <line x1="14.5" y1="2" x2="14.5" y2="16" stroke="#ef4444" stroke-width="1.4" stroke-linecap="round"/>
+              <rect x="12.2" y="6" width="4.6" height="7" rx="0.8" fill="#ef4444"/>
+            </svg>
+          </span>
+          <div class="mcv2-legend-text">
+            <strong>${t('Preço (Candles)', 'Price (Candles)')}</strong>
+            <span>${t('Verde = alta · Vermelho = baixa', 'Green = up · Red = down')}</span>
+          </div>
+        </div>
+        <div class="mcv2-legend-item">
+          <span class="mcv2-line-swatch ema9"></span>
+          <div class="mcv2-legend-text">
+            <strong>EMA 9 (${t('Curto prazo', 'Short term')})</strong>
+            <span>${t('Média rápida (curto prazo)', 'Fast short-term average')}</span>
+          </div>
+        </div>
+        <div class="mcv2-legend-item">
+          <span class="mcv2-line-swatch ema30"></span>
+          <div class="mcv2-legend-text">
+            <strong>EMA 30 (${t('Médio prazo', 'Medium term')})</strong>
+            <span>${t('Média direcional (médio prazo)', 'Directional medium-term average')}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mcv2-quick-reading-card">
+        <div class="mcv2-quick-reading-head">
+          <span class="mcv2-quick-reading-icon" aria-hidden="true">💡</span>
+          <strong>${t('Leitura rápida', 'Quick reading')}</strong>
+        </div>
+        <p>${t('Mercado SAUDÁVEL quando Preço > EMA 9 e Preço > EMA 30. Modo DEFESA se o preço estiver entre as médias ou abaixo de ambas.', 'HEALTHY market when Price > 9 EMA and Price > 30 EMA. DEFENCE mode if price is between averages or below both.')}</p>
+      </div>
     </div>`;
   }
 

@@ -94,6 +94,96 @@
   flex-wrap: wrap;
 }
 
+/* Header Cycle Status Pill */
+.radar-cycle-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+
+.radar-cycle-status-pill.healthy {
+  background: rgba(16, 185, 129, 0.09);
+  border: 1px solid rgba(16, 185, 129, 0.32);
+}
+
+.radar-cycle-status-pill.defensive {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.38);
+}
+
+.radar-cycle-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.radar-cycle-status-pill.healthy .radar-cycle-status-dot {
+  background: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.22);
+}
+
+.radar-cycle-status-pill.defensive .radar-cycle-status-dot {
+  background: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.25);
+  animation: radar-defense-pulse 2s infinite ease-in-out;
+}
+
+@keyframes radar-defense-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.25); }
+  50% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0.12); }
+}
+
+.radar-cycle-status-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+  line-height: 1.2;
+}
+
+.radar-cycle-status-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.radar-cycle-status-pill.healthy .radar-cycle-status-label {
+  color: #065f46;
+}
+
+.radar-cycle-status-pill.healthy .radar-cycle-status-label strong {
+  color: #047857;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+}
+
+.radar-cycle-status-pill.defensive .radar-cycle-status-label {
+  color: #991b1b;
+}
+
+.radar-cycle-status-pill.defensive .radar-cycle-status-label strong {
+  color: #dc2626;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+}
+
+.radar-cycle-status-sub {
+  font-size: 10px;
+  font-weight: 550;
+}
+
+.radar-cycle-status-pill.healthy .radar-cycle-status-sub {
+  color: #059669;
+}
+
+.radar-cycle-status-pill.defensive .radar-cycle-status-sub {
+  color: #b91c1c;
+}
+
 /* Engine badge */
 .radar-engine-badge {
   display: flex;
@@ -1450,6 +1540,198 @@
   font-size: 13.5px;
   color: #587063;
   line-height: 1.5;
+}
+
+/* =========================================================================
+   DEFENSE MODE PANEL (BEAR MARKET STATE)
+   ========================================================================= */
+
+.radar-main-card.is-defensive {
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 28px rgba(239, 68, 68, 0.1);
+  overflow: hidden;
+}
+
+.radar-defense-panel {
+  display: grid;
+  grid-template-columns: minmax(320px, 460px) minmax(0, 1fr);
+  align-items: stretch;
+  min-height: 420px;
+  background: linear-gradient(135deg, #18080a 0%, #120507 55%, #0b0304 100%);
+  border-radius: 0 0 20px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.radar-defense-art {
+  position: relative;
+  overflow: hidden;
+  min-height: 360px;
+  display: flex;
+  background: #0b0304;
+}
+
+.radar-defense-bear-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+  display: block;
+  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0.85) 72%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0.85) 72%, rgba(0,0,0,0) 100%);
+}
+
+.radar-defense-art-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 10% 45%, rgba(239, 68, 68, 0.18), transparent 65%);
+}
+
+.radar-defense-content {
+  padding: 42px 48px 42px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+  color: #eff6ff;
+}
+
+.radar-defense-shield-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  align-self: flex-start;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.15);
+}
+
+.radar-defense-shield-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.radar-defense-title {
+  margin: 0;
+  font: 700 clamp(24px, 2.4vw, 36px)/1.15 Georgia, serif;
+  letter-spacing: -0.035em;
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.radar-defense-desc {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #cbd5e1;
+  max-width: 640px;
+}
+
+.radar-defense-desc strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.radar-defense-callout {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  max-width: 640px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+.radar-defense-callout-icon {
+  color: #f87171;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radar-defense-callout-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.radar-defense-callout-text strong {
+  color: #fee2e2;
+  font-size: 13.5px;
+  font-weight: 750;
+}
+
+.radar-defense-callout-text span {
+  color: #f87171;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.radar-defense-footer {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.radar-defense-btn-cycle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(185, 28, 28, 0.45) 100%);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
+}
+
+.radar-defense-btn-cycle:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.4) 0%, rgba(185, 28, 28, 0.6) 100%);
+  border-color: rgba(239, 68, 68, 0.7);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
+}
+
+.radar-defense-rule-hint {
+  font: italic 11.5px/1.4 Georgia, serif;
+  color: #94a3b8;
+}
+
+@media (max-width: 900px) {
+  .radar-defense-panel {
+    grid-template-columns: 1fr;
+  }
+  .radar-defense-art {
+    min-height: 240px;
+    max-height: 260px;
+  }
+  .radar-defense-bear-img {
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 100%);
+  }
+  .radar-defense-content {
+    padding: 24px;
+  }
 }
 
 /* =========================================================================

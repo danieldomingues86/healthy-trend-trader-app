@@ -250,9 +250,24 @@ function marketCycleSeries(history) {
   return history.map((candle, index) => {
     if (index < 29) return null;
     const reading = scoreCycle(history.slice(0, index + 1));
+    const close = reading.price;
+    const prevCandle = index > 0 ? history[index - 1] : null;
+    const open = candle.open !== undefined && Number.isFinite(Number(candle.open))
+      ? Number(candle.open)
+      : (prevCandle && Number.isFinite(Number(prevCandle.close)) ? Number(prevCandle.close) : close);
+    const high = candle.high !== undefined && Number.isFinite(Number(candle.high))
+      ? Number(candle.high)
+      : Math.max(open, close) + Math.abs(close - open) * 0.25 + (close * 0.001);
+    const low = candle.low !== undefined && Number.isFinite(Number(candle.low))
+      ? Number(candle.low)
+      : Math.min(open, close) - Math.abs(close - open) * 0.25 - (close * 0.001);
+
     return {
       date: candle.date,
-      close: reading.price,
+      open,
+      high,
+      low,
+      close,
       ema9: reading.ema9,
       ema30: reading.ema30,
       atr21: reading.atr21,

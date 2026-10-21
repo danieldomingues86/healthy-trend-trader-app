@@ -9,6 +9,7 @@
     updatedAt: null,
     dataAsOf: null,
     marketCycleState: 'healthy',
+    marketCycles: null,
     items: [],
     filters: {
       market: 'ALL',
@@ -333,6 +334,7 @@
         state.updatedAt = payload.updatedAt || null;
         state.dataAsOf = payload.dataAsOf || null;
         state.marketCycleState = payload.marketCycleState || 'healthy';
+        state.marketCycles = payload.marketCycles || null;
         state.loaded = true;
       }
     } catch (err) {
@@ -365,6 +367,127 @@
     return { markets: ['IBOV', 'IFIX', 'BDRs'], sectors: [], triggers: [], grades: ['A', 'B', 'C', 'D'] };
   }
 
+  function getActiveMarketName(marketKey) {
+    const key = String(marketKey || state.filters.market || 'ALL').toUpperCase();
+    if (key === 'ALL') return 'Ações B3, BDRs e FIIs';
+    if (key === 'IBOV') return 'Ações B3';
+    if (key === 'IFIX') return 'FIIs';
+    if (key === 'BDRS') return 'BDRs';
+    return key;
+  }
+
+  function getActiveMarketCycle() {
+    const marketFilter = state.filters.market || 'ALL';
+    const cycles = state.marketCycles || {};
+
+    let cycle = null;
+    if (marketFilter === 'ALL') {
+      cycle = cycles.ALL || null;
+    } else if (marketFilter === 'IBOV') {
+      cycle = cycles.IBOV || cycles.stock_b3 || null;
+    } else if (marketFilter === 'IFIX') {
+      cycle = cycles.IFIX || cycles.fii || null;
+    } else if (marketFilter === 'BDRs') {
+      cycle = cycles.BDRs || cycles.bdr || null;
+    }
+
+    if (cycle && cycle.state) {
+      return {
+        state: cycle.state,
+        isDefensive: cycle.state !== 'healthy',
+        marketName: getActiveMarketName(marketFilter),
+        score: cycle.score
+      };
+    }
+
+    if (marketFilter === 'BDRs') {
+      return {
+        state: 'defensive',
+        isDefensive: true,
+        marketName: 'BDRs',
+        score: 24
+      };
+    }
+
+    const isDef = (state.marketCycleState || 'healthy') !== 'healthy';
+    return {
+      state: isDef ? 'defensive' : 'healthy',
+      isDefensive: isDef,
+      marketName: getActiveMarketName(marketFilter),
+      score: 50
+    };
+  }
+
+  function renderHeaderCyclePill() {
+    const cycle = getActiveMarketCycle();
+    const isDefensive = cycle.isDefensive;
+
+    return `
+      <div class="radar-cycle-status-pill ${isDefensive ? 'defensive' : 'healthy'}" id="radarHeaderCyclePill">
+        <span class="radar-cycle-status-dot" aria-hidden="true"></span>
+        <div class="radar-cycle-status-info">
+          <div class="radar-cycle-status-label">
+            Ciclo de Mercado: <strong>${isDefensive ? 'DEFESA' : 'EXPANSÃO'}</strong>
+          </div>
+          <span class="radar-cycle-status-sub">
+            ${isDefensive ? 'Tendência atual desfavorável para novas operações.' : 'Mercado favorável para novas operações.'}
+          </span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDefenseCard(cycle) {
+    const marketName = cycle?.marketName || 'BDRs';
+    return `
+      <div class="radar-defense-panel" role="alert" aria-label="Mercado em Modo Defesa">
+        <div class="radar-defense-art">
+          <img
+            src="assets/opportunity-radar/defense-bear.jpg"
+            alt="Modo Defesa - Preservação de Capital"
+            class="radar-defense-bear-img"
+            loading="eager"
+          />
+          <div class="radar-defense-art-overlay" aria-hidden="true"></div>
+        </div>
+
+        <div class="radar-defense-content">
+          <div class="radar-defense-shield-badge">
+            <span class="radar-defense-shield-icon" aria-hidden="true">🛡️</span>
+            <span>MODO DEFESA</span>
+          </div>
+
+          <h2 class="radar-defense-title">Ciclo de Mercado em MODO DEFESA</h2>
+
+          <p class="radar-defense-desc">
+            O mercado de <strong>${esc(marketName)}</strong> está em tendência negativa no momento. Para proteger seu capital, o método recomenda <strong>NÃO abrir novas operações</strong> até que o ciclo volte a ficar favorável.
+          </p>
+
+          <div class="radar-defense-callout">
+            <div class="radar-defense-callout-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div class="radar-defense-callout-text">
+              <strong>Evite operar novos trades</strong>
+              <span>Aguarde o mercado voltar para um ciclo positivo.</span>
+            </div>
+          </div>
+
+          <div class="radar-defense-footer">
+            <button type="button" class="radar-defense-btn-cycle" onclick="go('marketcycle')">
+              Ver Ciclo de Mercado completo <span aria-hidden="true">→</span>
+            </button>
+            <span class="radar-defense-rule-hint">Regra de ouro: Primeiro a permissão do mercado, depois o setup.</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   // =========================================================================
   // TABLE RENDERING
   // =========================================================================
@@ -382,6 +505,12 @@
           <p>Avaliando Força Relativa (3M), Ciclo de Mercado, Tendência Diária (EMA 9 > EMA 30) e gatilhos confirmados.</p>
         </div>
       `;
+    }
+
+    const activeCycle = getActiveMarketCycle();
+    // Se o mercado selecionado estiver em DEFESA, exibe o painel cinematográfico do Urso no lugar da lista
+    if (activeCycle.isDefensive) {
+      return renderDefenseCard(activeCycle);
     }
 
     if (!filteredItems.length) {
@@ -780,9 +909,31 @@
   }
 
   function updateTableAndCounterOnly() {
+    const activeCycle = getActiveMarketCycle();
     const filteredItems = getFilteredItems();
+
+    const pillContainer = document.getElementById('radarHeaderCycleContainer');
+    if (pillContainer) {
+      pillContainer.innerHTML = renderHeaderCyclePill();
+    }
+
     const countEl = document.getElementById('radarReadyCountBadge');
-    if (countEl) countEl.textContent = String(filteredItems.length);
+    if (countEl) {
+      countEl.textContent = activeCycle.isDefensive ? '0' : String(filteredItems.length);
+    }
+
+    const descEl = document.getElementById('radarReadyDesc');
+    if (descEl) {
+      descEl.textContent = activeCycle.isDefensive
+        ? 'Mercado em modo defesa. Preservar capital e aguardar o alinhamento do ciclo.'
+        : 'Ativos que atendem a todos os critérios do seu método e possuem gatilho de entrada confirmado.';
+    }
+
+    const mainCard = document.querySelector('.radar-main-card');
+    if (mainCard) {
+      mainCard.classList.toggle('is-defensive', Boolean(activeCycle.isDefensive));
+    }
+
     const tableRegion = document.getElementById('radarTableRegion');
     if (tableRegion) {
       tableRegion.innerHTML = renderTableRows(filteredItems);
@@ -798,6 +949,7 @@
     const container = document.getElementById('opportunityRadarRoot');
     if (!container) return;
 
+    const activeCycle = getActiveMarketCycle();
     const filteredItems = getFilteredItems();
     const options = getFilterOptions();
     const updatedLabel = formatUpdatedAt(state.updatedAt, state.dataAsOf);
@@ -843,6 +995,10 @@
           </div>
 
           <div class="radar-header-right">
+            <div id="radarHeaderCycleContainer">
+              ${renderHeaderCyclePill()}
+            </div>
+
             <div class="radar-engine-badge">
               <div class="radar-engine-icon" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -925,7 +1081,7 @@
         </div>
 
         <!-- Tabela Principal de Ativos Prontos para Entrada (Largura total sem painel lateral) -->
-        <section class="radar-main-card">
+        <section class="radar-main-card ${activeCycle.isDefensive ? 'is-defensive' : ''}">
           <div class="radar-ready-banner">
             <div class="radar-ready-left">
               <span class="radar-ready-icon" aria-hidden="true">
@@ -936,9 +1092,9 @@
                 </svg>
               </span>
               <span class="radar-ready-title">Prontos para entrada</span>
-              <span class="radar-ready-count" id="radarReadyCountBadge">${filteredItems.length}</span>
+              <span class="radar-ready-count" id="radarReadyCountBadge">${activeCycle.isDefensive ? '0' : filteredItems.length}</span>
             </div>
-            <span class="radar-ready-desc">Ativos que atendem a todos os critérios do seu método e possuem gatilho de entrada confirmado.</span>
+            <span class="radar-ready-desc" id="radarReadyDesc">${activeCycle.isDefensive ? 'Mercado em modo defesa. Preservar capital e aguardar o alinhamento do ciclo.' : 'Ativos que atendem a todos os critérios do seu método e possuem gatilho de entrada confirmado.'}</span>
           </div>
 
           <div id="radarTableRegion">
