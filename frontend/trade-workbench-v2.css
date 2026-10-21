@@ -2005,9 +2005,23 @@ body:has(#newtrade.active) .content {
 
 #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission,
 #newtrade #rubricCriteria .rubric-criterion.rubric-market-permission {
-  grid-template-columns: minmax(0, 1fr) minmax(156px, 190px) 76px !important;
-  grid-template-rows: minmax(38px, auto) !important;
-  padding: 6px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  grid-column: 1 / -1 !important;
+  min-height: auto !important;
+  padding: 16px 18px !important;
+  background: rgba(10, 34, 24, 0.6) !important;
+  border: 1px solid rgba(84, 226, 154, 0.25) !important;
+  border-radius: 14px !important;
+  gap: 12px !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission.is-defensive,
+#newtrade #rubricCriteria .rubric-criterion.rubric-market-permission.is-defensive {
+  background: rgba(42, 16, 20, 0.6) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
 }
 
 #newtrade .rubric-source-divider {
@@ -2024,9 +2038,7 @@ body:has(#newtrade.active) .content {
 @media (max-width: 850px) {
   #newtrade .rubric-experience-host .rubric-criterion,
   #newtrade .rubric-experience-inline .rubric-criterion,
-  #newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission,
-  #newtrade #rubricCriteria .rubric-criterion,
-  #newtrade #rubricCriteria .rubric-criterion.rubric-market-permission {
+  #newtrade #rubricCriteria .rubric-criterion {
     grid-template-columns: minmax(0, 1fr) 64px !important;
     grid-template-rows: auto 32px !important;
   }

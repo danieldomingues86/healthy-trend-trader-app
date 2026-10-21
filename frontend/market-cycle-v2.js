@@ -102,22 +102,36 @@
         evaluatedAt: new Date().toISOString(),
         dataDate: cycle.date || history.at(-1)?.date || null,
         dataVersion: payload.source || 'b3-indexes',
+        ema9: Number(cycle.ema9) || null,
+        ema30: Number(cycle.ema30) || null,
+        above9: Boolean(cycle.above9),
+        above30: Boolean(cycle.above30),
+        structure: Boolean(cycle.structure),
         indicators: {
           price: Number(cycle.price) || null,
-          ema10: Number(cycle.ema10) || null,
-          ema20: Number(cycle.ema20) || null,
-          ema200: Number(cycle.ema200) || null,
-          above10: Boolean(cycle.above10),
-          above20: Boolean(cycle.above20),
-          above200: Boolean(cycle.above200),
+          ema9: Number(cycle.ema9) || null,
+          ema30: Number(cycle.ema30) || null,
+          above9: Boolean(cycle.above9),
+          above30: Boolean(cycle.above30),
+          structure: Boolean(cycle.structure),
           atr21: hasNumber(cycle.atr21) ? Number(cycle.atr21) : null,
           atrPct: hasNumber(cycle.atrPct) ? Number(cycle.atrPct) : null,
-          ema20Slope: hasNumber(cycle.ema20Slope) ? Number(cycle.ema20Slope) : null,
-          ema200Slope: hasNumber(cycle.ema200Slope) ? Number(cycle.ema200Slope) : null
+          ema9Slope: hasNumber(cycle.ema9Slope) ? Number(cycle.ema9Slope) : null,
+          ema30Slope: hasNumber(cycle.ema30Slope) ? Number(cycle.ema30Slope) : null,
+          ema10: Number(cycle.ema9) || null,
+          ema20: Number(cycle.ema30) || null,
+          ema200: Number(cycle.ema200) || null,
+          above10: Boolean(cycle.above9),
+          above20: Boolean(cycle.above30)
         }
       };
       saved[marketId] = snapshot;
       localStorage.setItem(SNAPSHOTS_STORAGE_KEY, JSON.stringify(saved));
+      if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+        try {
+          window.dispatchEvent(new CustomEvent('healthyTrend:marketCycleUpdated', { detail: { marketId, snapshot } }));
+        } catch (_) {}
+      }
       return snapshot;
     } catch (err) {
       console.warn('Erro ao salvar snapshot de ciclo:', err);
@@ -143,25 +157,19 @@
   setTimeout(syncActiveLayout, 0);
 
   function regime(cycle) {
-    const key = cycle?.state === 'healthy' ? 'healthy' : cycle?.state === 'defensive' ? 'defensive' : 'transition';
+    const key = cycle?.state === 'healthy' ? 'healthy' : 'defensive';
     return {
       healthy: {
-        label: t('Mercado saudável', 'Healthy market'),
-        interpretation: t('O contexto está a favor. Procure somente cenários A que respeitem integralmente o seu plano.', 'The context is favourable. Look only for A setups that fully respect your plan.'),
+        label: t('Mercado em expansão', 'Market in expansion'),
+        interpretation: t('O preço está acima da EMA 9 e da EMA 30. Ambiente favorável para buscar oportunidades nos ativos.', 'Price is above 9 EMA and 30 EMA. Favourable environment to seek opportunities in assets.'),
         permission: t('Somente A', 'A only'),
-        context: t('O preço e a estrutura das médias sustentam uma leitura favorável. Ainda assim, cada nova posição precisa confirmar o setup e respeitar o risco.', 'Price and moving-average structure support a favourable reading. Every new position must still confirm the setup and respect risk.')
-      },
-      transition: {
-        label: t('Mercado em transição', 'Market in transition'),
-        interpretation: t('O ambiente exige atenção e seletividade. Preserve capital e aceite apenas oportunidades com evidências claras.', 'The environment calls for attention and selectivity. Preserve capital and accept only opportunities with clear evidence.'),
-        permission: t('Seletividade máxima', 'Maximum selectivity'),
-        context: t('Preço e médias ainda não confirmam uma estrutura totalmente alinhada. A prioridade é observar a evolução antes de ampliar exposição.', 'Price and averages do not yet confirm a fully aligned structure. Observe the evolution before increasing exposure.')
+        context: t('O preço do índice está estritamente acima da EMA 9 e da EMA 30 no gráfico diário. O mercado está saudável para buscar oportunidades e operar ativos que atendam aos demais critérios do método.', 'The index price is strictly above 9 EMA and 30 EMA on the daily chart. Market is healthy to seek opportunities and trade assets meeting method criteria.')
       },
       defensive: {
-        label: t('Mercado defensivo', 'Defensive market'),
-        interpretation: t('O ambiente pede proteção. Preserve capital e evite novas exposições até a estrutura melhorar.', 'The environment calls for protection. Preserve capital and avoid new exposure until structure improves.'),
+        label: t('Mercado em modo defesa', 'Market in defensive mode'),
+        interpretation: t('Preço abaixo ou entre as médias EMA 9 e EMA 30. Preservar capital e evitar novas operações nesse mercado.', 'Price below or between 9 EMA and 30 EMA. Preserve capital and avoid new trades in this market.'),
         permission: t('Preservar capital', 'Preserve capital'),
-        context: t('O índice está abaixo das referências de tendência acompanhadas pelo método. O foco deve permanecer na defesa e na gestão do risco.', 'The index is below the trend references tracked by the method. Keep the focus on defence and risk management.')
+        context: t('O preço do índice está abaixo ou localizado entre as médias EMA 9 e EMA 30 (ou igual a uma delas). A recomendação do método é modo Defesa: preservar capital e evitar novas exposições até a estrutura melhorar.', 'The index price is below or located between 9 EMA and 30 EMA. Method recommendation is Defensive mode: preserve capital and avoid new exposure.')
       }
     }[key];
   }
@@ -248,13 +256,14 @@
   }
 
   function MarketCycleFactors(cycle, info) {
-    const slopePositive = hasNumber(cycle.ema20Slope) && Number(cycle.ema20Slope) > 0 && (!hasNumber(cycle.ema200Slope) || Number(cycle.ema200Slope) >= 0);
-    const structure = cycle.ema20 > cycle.ema200;
-    const shortTerm = cycle.above10 ? t('EMA 10 ascendente', 'EMA 10 rising') : t('recuo abaixo da EMA 10', 'pullback below EMA 10');
+    const isHealthy = cycle?.state === 'healthy';
+    const slopePositive = hasNumber(cycle.ema9Slope) && Number(cycle.ema9Slope) > 0;
+    const structure = (Number(cycle.ema9) > Number(cycle.ema30)) || Boolean(cycle.structure);
+    const shortTerm = cycle.above9 ? t('Preço > EMA 9', 'Price > 9 EMA') : t('Preço ≤ EMA 9', 'Price ≤ 9 EMA');
     return `<aside class="mcv2-factors"><p>${t('Principais fatores', 'Main factors')}</p>
       <div>${icon('trend')}<span><small>${t('Tendência', 'Trend')}</small><b>${info.label} · ${shortTerm}</b></span></div>
-      <div>${icon('averages')}<span><small>${t('Estrutura de médias', 'Moving-average structure')}</small><b>EMA 20 ${structure ? '>' : '≤'} EMA 200 · ${slopePositive ? t('ascendente', 'rising') : t('sem confirmação', 'unconfirmed')}</b></span></div>
-      <div>${icon('permission')}<span><small>${t('Permissão operacional', 'Trading permission')}</small><b>${info.permission}</b></span></div>
+      <div>${icon('averages')}<span><small>${t('Estrutura de médias', 'Moving-average structure')}</small><b>EMA 9 ${structure ? '>' : '≤'} EMA 30 · ${slopePositive ? t('ascendente', 'rising') : t('sem confirmação', 'unconfirmed')}</b></span></div>
+      <div>${icon('permission')}<span><small>${t('Permissão operacional', 'Trading permission')}</small><b>${isHealthy ? t('Sim (Expansão)', 'Yes (Expansion)') : t('Não (Modo Defesa)', 'No (Defensive Mode)')}</b></span></div>
     </aside>`;
   }
 
@@ -290,8 +299,18 @@
 
   function MarketRegimeBar(cycle) {
     const position = Math.max(4, Math.min(96, Number(cycle.score) || 50));
-    const activeSegment = cycle?.state === 'healthy' ? 'expansion' : cycle?.state === 'defensive' ? 'defence' : 'transition';
-    return `<section class="mcv2-regime" aria-label="${t('Posição atual no regime de mercado', 'Current market regime position')}"><div class="mcv2-regime-item defence ${activeSegment === 'defence' ? 'active' : ''}"><span class="mcv2-regime-icon">${regimeIcon('defence')}</span><div><b>${t('Defesa', 'Defence')}</b><span>${t('Preservar capital. Ficar de fora.', 'Preserve capital. Stay out.')}</span></div></div><div class="mcv2-regime-item transition ${activeSegment === 'transition' ? 'active' : ''}"><span class="mcv2-regime-icon">${regimeIcon('transition')}</span><div><b>${t('Transição', 'Transition')}</b><span>${t('Atenção e seletividade.', 'Attention and selectivity.')}</span></div></div><div class="mcv2-regime-item expansion ${activeSegment === 'expansion' ? 'active' : ''}"><span class="mcv2-regime-icon">${regimeIcon('expansion')}</span><div><b>${t('Expansão', 'Expansion')}</b><span>${t('Ambiente favorável para oportunidades.', 'Favourable environment for opportunities.')}</span></div></div><i style="left:${position}%" title="${t('Score atual', 'Current score')}: ${number(cycle.score)}/100"></i></section>`;
+    const activeSegment = cycle?.state === 'healthy' ? 'expansion' : 'defence';
+    return `<section class="mcv2-regime" aria-label="${t('Posição atual no regime de mercado', 'Current market regime position')}">
+      <div class="mcv2-regime-item defence ${activeSegment === 'defence' ? 'active' : ''}">
+        <span class="mcv2-regime-icon">${regimeIcon('defence')}</span>
+        <div><b>${t('Defesa', 'Defence')}</b><span>${t('Preservar capital. Evitar novas operações.', 'Preserve capital. Avoid new trades.')}</span></div>
+      </div>
+      <div class="mcv2-regime-item expansion ${activeSegment === 'expansion' ? 'active' : ''}">
+        <span class="mcv2-regime-icon">${regimeIcon('expansion')}</span>
+        <div><b>${t('Expansão', 'Expansion')}</b><span>${t('Ambiente favorável para operar os ativos.', 'Favourable environment for trading assets.')}</span></div>
+      </div>
+      <i style="left:${position}%" title="${t('Score atual', 'Current score')}: ${number(cycle.score)}/100"></i>
+    </section>`;
   }
 
   function MarketBreadth(breadth, marketInfo) {
@@ -345,7 +364,7 @@
   function MarketDailyChart(history, source, marketInfo, currentRange) {
     const rows = visibleSeries(history, currentRange);
     if (rows.length < 2) return `<div class="mcv2-empty">${t('Histórico insuficiente para desenhar o gráfico.', 'Insufficient history to draw the chart.')}</div>`;
-    const values = rows.flatMap(row => [row.close, row.ema20, row.ema200]).map(Number).filter(Number.isFinite);
+    const values = rows.flatMap(row => [row.close, row.ema9 ?? row.ema10, row.ema30 ?? row.ema20]).map(Number).filter(Number.isFinite);
     const min = Math.min(...values), max = Math.max(...values), spread = max - min || 1;
     const W = 1000, H = 330, left = 66, right = 16, top = 18, bottom = 48;
     const x = index => left + index / Math.max(1, rows.length - 1) * (W - left - right);
@@ -360,27 +379,27 @@
     return `<div class="mcv2-chart-head">
       <div>
         <h2>${chartLabel}</h2>
-        <p>${t('Preço e médias móveis', 'Price and moving averages')} · ${sourceCopy}</p>
+        <p>${t('Preço e médias móveis (EMA 9 e EMA 30)', 'Price and moving averages (9 and 30 EMA)')} · ${sourceCopy}</p>
       </div>
       <div class="mcv2-ranges" role="group" aria-label="${t('Período do gráfico', 'Chart period')}">
         ${availableRanges.map(([id,, label]) => `<button type="button" data-market-range="${id}" class="${currentRange === id ? 'active' : ''}" aria-pressed="${currentRange === id}">${label}</button>`).join('')}
       </div>
     </div>
     <div class="mcv2-chart-scroll">
-      <svg class="mcv2-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('Gráfico diário de', 'Daily chart of')} ${esc(marketInfo.benchmarkSymbol)} ${t('com EMA 20 e EMA 200', 'with 20 and 200 EMA')}">
+      <svg class="mcv2-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('Gráfico diário de', 'Daily chart of')} ${esc(marketInfo.benchmarkSymbol)} ${t('com EMA 9 e EMA 30', 'with 9 and 30 EMA')}">
         <defs><linearGradient id="mcv2-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#21945d" stop-opacity=".22"/><stop offset="1" stop-color="#21945d" stop-opacity="0"/></linearGradient></defs>
         <rect x="${left}" y="${top}" width="${W-left-right}" height="${H-top-bottom}" rx="8" class="mcv2-plot-bg"/>
         ${ticks.map(value => `<line x1="${left}" y1="${y(value)}" x2="${W-right}" y2="${y(value)}" class="mcv2-gridline"/><text x="${left-10}" y="${y(value)+4}" text-anchor="end">${number(value)}</text>`).join('')}
         ${dateTicks.map(index => `<text x="${x(index)}" y="${H-18}" text-anchor="${index === 0 ? 'start' : index === rows.length-1 ? 'end' : 'middle'}">${dateLabel(rows[index].date).replace(/ de /g,' ')}</text>`).join('')}
         <path class="mcv2-price-area" d="${linePath(rows,'close',x,y)} L${x(rows.length-1)},${H-bottom} L${left},${H-bottom} Z"/>
-        <path class="mcv2-line ema200" d="${linePath(rows,'ema200',x,y)}"/><path class="mcv2-line ema20" d="${linePath(rows,'ema20',x,y)}"/><path class="mcv2-line price" d="${linePath(rows,'close',x,y)}"/>
-        ${rows.map((row,index) => `<circle tabindex="0" cx="${x(index)}" cy="${y(row.close)}" r="7" class="mcv2-hit"><title>${dateLabel(row.date)}\n${esc(marketInfo.benchmarkSymbol)}: ${number(row.close)}\nEMA 20: ${number(row.ema20)}\nEMA 200: ${number(row.ema200)}\nScore: ${number(row.score)}/100</title></circle>`).join('')}
+        <path class="mcv2-line ema30" d="${linePath(rows,'ema30',x,y) || linePath(rows,'ema20',x,y)}"/><path class="mcv2-line ema9" d="${linePath(rows,'ema9',x,y) || linePath(rows,'ema10',x,y)}"/><path class="mcv2-line price" d="${linePath(rows,'close',x,y)}"/>
+        ${rows.map((row,index) => `<circle tabindex="0" cx="${x(index)}" cy="${y(row.close)}" r="7" class="mcv2-hit"><title>${dateLabel(row.date)}\n${esc(marketInfo.benchmarkSymbol)}: ${number(row.close)}\nEMA 9: ${number(row.ema9 ?? row.ema10)}\nEMA 30: ${number(row.ema30 ?? row.ema20)}\nScore: ${number(row.score)}/100</title></circle>`).join('')}
       </svg>
     </div>
     <div class="mcv2-legend">
       <span class="price"><i></i>${t('Preço', 'Price')}</span>
-      <span class="ema20"><i></i>EMA 20</span>
-      <span class="ema200"><i></i>EMA 200</span>
+      <span class="ema9"><i></i>EMA 9</span>
+      <span class="ema30"><i></i>EMA 30</span>
     </div>`;
   }
 
@@ -390,16 +409,23 @@
 
   function MarketTransparentReading(cycle, marketInfo) {
     const info = regime(cycle);
-    const slopes = hasNumber(cycle.ema20Slope) && Number(cycle.ema20Slope) > 0 && (!hasNumber(cycle.ema200Slope) || Number(cycle.ema200Slope) >= 0);
+    const slopes = hasNumber(cycle.ema9Slope) && Number(cycle.ema9Slope) > 0 && (!hasNumber(cycle.ema30Slope) || Number(cycle.ema30Slope) >= 0);
     const hasAtr = hasNumber(cycle.atr21);
+    const isHealthy = cycle?.state === 'healthy';
+    const ema9Val = hasNumber(cycle.ema9) ? Number(cycle.ema9) : Number(cycle.ema10);
+    const ema30Val = hasNumber(cycle.ema30) ? Number(cycle.ema30) : Number(cycle.ema20);
+    const structureVal = (ema9Val > ema30Val) || Boolean(cycle.structure);
+    const above9Val = hasNumber(cycle.above9) ? Boolean(cycle.above9) : (Number(cycle.price) > ema9Val);
+    const above30Val = hasNumber(cycle.above30) ? Boolean(cycle.above30) : (Number(cycle.price) > ema30Val);
+
     return `<aside class="mcv2-reading">
       <section>
         <h3>${t('Leitura transparente', 'Transparent reading')} · ${esc(marketInfo.benchmarkSymbol)}</h3>
-        ${hasNumber(cycle.ema10) ? checkRow(t('Preço acima da EMA 10 (Curto prazo)','Price above 10 EMA (Short term)'), number(cycle.price), cycle.above10) : ''}
-        ${checkRow(t('Preço acima da EMA 20 (Médio prazo)','Price above 20 EMA (Medium term)'), number(cycle.price), cycle.above20)}
-        ${checkRow(t('Preço acima da EMA 200 (Longo prazo)','Price above 200 EMA (Long term)'), number(cycle.price), cycle.above200)}
-        ${hasNumber(cycle.ema10) ? checkRow(t('Alinhamento das médias curtas','Short averages alignment'), cycle.ema10Above20 ? 'EMA 10 > EMA 20' : 'EMA 10 ≤ EMA 20', cycle.ema10Above20) : ''}
+        ${checkRow(t('Preço acima da EMA 9 (Curto prazo)','Price above 9 EMA (Short term)'), number(cycle.price), above9Val)}
+        ${checkRow(t('Preço acima da EMA 30 (Médio prazo)','Price above 30 EMA (Medium term)'), number(cycle.price), above30Val)}
+        ${checkRow(t('Estrutura das médias','Moving-average structure'), structureVal ? 'EMA 9 > EMA 30' : 'EMA 9 ≤ EMA 30', structureVal)}
         ${checkRow(t('Inclinação das médias','Moving-average slope'), slopes ? t('Positiva','Positive') : t('Sem confirmação','Unconfirmed'), slopes)}
+        ${checkRow(t('Permissão operacional','Trading permission'), isHealthy ? t('Sim (Expansão)','Yes (Expansion)') : t('Não (Modo Defesa)','No (Defensive Mode)'), isHealthy)}
         ${hasAtr ? checkRow('ATR 21 (Volatilidade)', `${number(cycle.atr21, 0)} (${percent(cycle.atrPct)})`, true) : ''}
         ${checkRow(t('Score do mercado','Market score'), `${number(cycle.score)}/100`, cycle.score >= 70)}
       </section>
@@ -419,15 +445,23 @@
   function MarketEvidenceCards(cycle, history, marketInfo) {
     const current = history.at(-1), previous = history.at(-2);
     const score = scoreChange(history);
-    const hasEma10 = hasNumber(cycle.ema10);
+    const ema9Val = hasNumber(cycle.ema9) ? Number(cycle.ema9) : Number(cycle.ema10);
+    const ema30Val = hasNumber(cycle.ema30) ? Number(cycle.ema30) : Number(cycle.ema20);
+    const above9Val = hasNumber(cycle.above9) ? Boolean(cycle.above9) : (Number(cycle.price) > ema9Val);
+    const above30Val = hasNumber(cycle.above30) ? Boolean(cycle.above30) : (Number(cycle.price) > ema30Val);
+
     const cards = [
       [t('Preço atual','Current price'), number(cycle.price), percent(changeFrom(current,previous,'close'))],
       [
-        hasEma10 ? 'EMA 10 (Curto)' : 'EMA 20',
-        hasEma10 ? number(cycle.ema10) : number(cycle.ema20),
-        hasEma10 ? (cycle.above10 ? t('↗ Acima da média', '↗ Above average') : t('↘ Abaixo da média', '↘ Below average')) : percent(changeFrom(current,previous,'ema20'))
+        'EMA 9 (Curto)',
+        number(ema9Val),
+        above9Val ? t('↗ Acima da média', '↗ Above average') : t('↘ Abaixo da média', '↘ Below average')
       ],
-      ['EMA 200 (Longo)', number(cycle.ema200), percent(changeFrom(current,previous,'ema200'))],
+      [
+        'EMA 30 (Médio)',
+        number(ema30Val),
+        above30Val ? t('↗ Acima da média', '↗ Above average') : t('↘ Abaixo da média', '↘ Below average')
+      ],
       [
         t('Variação do score','Score change'),
         score ? `${score.value > 0 ? '+' : ''}${number(score.value)} ${t('pontos','points')}` : '—',
@@ -520,7 +554,7 @@
 
     const snapshot = getMarketSnapshot(currentMarket);
     const info = regime(cycle);
-    const activeRegime = cycle?.state === 'healthy' ? 'healthy' : cycle?.state === 'defensive' ? 'defensive' : 'transition';
+    const activeRegime = cycle?.state === 'healthy' ? 'healthy' : 'defensive';
     root.innerHTML = `<div class="mcv2-page regime-${activeRegime}" data-market-regime="${activeRegime}">
       <div class="mcv2-shell">
         <header class="mcv2-heading">

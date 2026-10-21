@@ -83,9 +83,9 @@ test('BUG CRÍTICO: score 11/100 resulta em Grade D, risco 0% e bloqueio de posi
     setupQuality: 'bad',
     fundamentalScore: 'bad'
   };
-  // Market cycle transition gives 11 points out of 20
-  const result = calculateRubric({ ratings, marketCycleRegime: 'transition' });
-  assert.equal(result.score, 11);
+  // Modo Defesa mapeia pontuação zero para o contexto de mercado
+  const result = calculateRubric({ ratings, marketCycleRegime: 'defensive' });
+  assert.equal(result.score, 0);
   assert.equal(result.rawGrade, 'D');
   assert.equal(result.grade, 'D');
   assert.equal(result.riskPct, 0);
@@ -136,9 +136,9 @@ test('Proteção contra escala legada de 10 pontos não corrompe thresholds nem 
       setupQuality: 'bad',
       fundamentalScore: 'bad'
     },
-    marketCycleRegime: 'transition'
+    marketCycleRegime: 'defensive'
   }, normalized);
-  assert.equal(result.score, 11);
+  assert.equal(result.score, 0);
   assert.equal(result.grade, 'D');
   assert.equal(result.riskPct, 0);
   assert.equal(result.qualityAllowed, false);
@@ -208,24 +208,26 @@ test('Migração preserva o risco configurado de A mesmo quando igual ao de B', 
   assert.equal(migrated.grades.length, 4);
 });
 
-test('marketCycleKey normaliza os 3 estados operacionais oficiais e preserva compatibilidade com legados', () => {
-  // 3 Estados Oficiais
+test('marketCycleKey normaliza os 2 estados operacionais binários (healthy vs defensive) e elimina transição', () => {
+  // 2 Estados Oficiais Binários
   assert.equal(marketCycleKey('healthy'), 'healthy');
   assert.equal(marketCycleKey('Saudável'), 'healthy');
   assert.equal(marketCycleKey('saudavel'), 'healthy');
-  assert.equal(marketCycleKey('transition'), 'transition');
-  assert.equal(marketCycleKey('Transição'), 'transition');
-  assert.equal(marketCycleKey('transicao'), 'transition');
+  assert.equal(marketCycleKey('expansão'), 'healthy');
+  assert.equal(marketCycleKey('expansao'), 'healthy');
+  assert.equal(marketCycleKey('expansion'), 'healthy');
+
+  // Defensivo e Eliminação de Transição (normaliza para defensive)
   assert.equal(marketCycleKey('defensive'), 'defensive');
   assert.equal(marketCycleKey('Defensivo'), 'defensive');
-
-  // Mapeamentos de Legado
-  assert.equal(marketCycleKey('improving'), 'transition');
-  assert.equal(marketCycleKey('Melhorando'), 'transition');
-  assert.equal(marketCycleKey('Em recuperação'), 'transition');
-  assert.equal(marketCycleKey('Transição saudável'), 'transition');
+  assert.equal(marketCycleKey('defesa'), 'defensive');
+  assert.equal(marketCycleKey('transition'), 'defensive');
+  assert.equal(marketCycleKey('Transição'), 'defensive');
+  assert.equal(marketCycleKey('transicao'), 'defensive');
+  assert.equal(marketCycleKey('improving'), 'defensive');
+  assert.equal(marketCycleKey('Melhorando'), 'defensive');
+  assert.equal(marketCycleKey('Em recuperação'), 'defensive');
   assert.equal(marketCycleKey('riskOff'), 'defensive');
-  assert.equal(marketCycleKey('Risk-Off'), 'defensive');
   assert.equal(marketCycleKey('doente'), 'defensive');
   assert.equal(marketCycleKey('down'), 'defensive');
 
@@ -237,29 +239,29 @@ test('marketCycleKey normaliza os 3 estados operacionais oficiais e preserva com
   assert.equal(marketCycleKey(''), null);
 });
 
-test('Rubric calcula pontos corretos para os 3 estados (20, 11 e 4 pontos) e 0 para indisponível', () => {
+test('Rubric calcula pontos corretos para os 2 estados binários (20 para Saudável e 0 para Defesa) e 0 para indisponível', () => {
   const ratings = { trendQuality: 'good', relativeStrength: 'good', volatility: 'good', setupQuality: 'good', fundamentalScore: 'good' };
   
-  // Healthy: 20 pts -> total 100 pts -> Grade A
+  // Healthy (Expansão): 20 pts -> total 100 pts -> Grade A
   const resHealthy = calculateRubric({ ratings, marketCycleRegime: 'healthy' });
   const itemHealthy = resHealthy.contributions.find(c => c.key === 'marketCycle');
   assert.equal(itemHealthy.points, 20);
   assert.equal(resHealthy.score, 100);
   assert.equal(resHealthy.grade, 'A');
 
-  // Transition: 11 pts -> total 91 pts -> Grade B
-  const resTransition = calculateRubric({ ratings, marketCycleRegime: 'transition' });
-  const itemTransition = resTransition.contributions.find(c => c.key === 'marketCycle');
-  assert.equal(itemTransition.points, 11);
-  assert.equal(resTransition.score, 91);
-  assert.equal(resTransition.grade, 'B');
-
-  // Defensive: 4 pts -> total 84 pts -> Grade B
+  // Modo Defesa: 0 pts -> total 80 pts -> Grade B (bloqueado de Grade A)
   const resDefensive = calculateRubric({ ratings, marketCycleRegime: 'defensive' });
   const itemDefensive = resDefensive.contributions.find(c => c.key === 'marketCycle');
-  assert.equal(itemDefensive.points, 4);
-  assert.equal(resDefensive.score, 84);
+  assert.equal(itemDefensive.points, 0);
+  assert.equal(resDefensive.score, 80);
   assert.equal(resDefensive.grade, 'B');
+  assert.ok(resDefensive.gates.some(g => g.key === 'market' && g.message.includes('Modo Defesa: novos trades devem ser evitados')));
+
+  // Transição legada: normalizada estritamente para Modo Defesa (0 pts -> total 80 pts)
+  const resTransition = calculateRubric({ ratings, marketCycleRegime: 'transition' });
+  assert.equal(resTransition.marketCycle, 'defensive');
+  assert.equal(resTransition.score, 80);
+  assert.equal(resTransition.grade, 'B');
 
   // Unavailable: 0 pts -> total 80 pts -> Grade B, sem inflar artificialmente para Grade A
   const resUnavailable = calculateRubric({ ratings, marketCycleRegime: 'unavailable' });
@@ -270,7 +272,7 @@ test('Rubric calcula pontos corretos para os 3 estados (20, 11 e 4 pontos) e 0 p
   assert.ok(resUnavailable.gates.some(g => g.key === 'market' && g.message.includes('Não foi possível obter o ciclo de mercado atual')));
 });
 
-test('Override manual do Contexto de Mercado recalcula Score e Grade dinamicamente', () => {
+test('Override manual do Contexto de Mercado recalcula Score e Grade dinamicamente entre Saudável e Modo Defesa', () => {
   const ratings = { trendQuality: 'good', relativeStrength: 'good', volatility: 'good', setupQuality: 'good', fundamentalScore: 'good' };
 
   // Contexto automático inicial: Saudável (100 pts -> Grade A)
@@ -278,14 +280,9 @@ test('Override manual do Contexto de Mercado recalcula Score e Grade dinamicamen
   assert.equal(autoResult.score, 100);
   assert.equal(autoResult.grade, 'A');
 
-  // Override manual para Transição (91 pts -> Grade B)
-  const overrideTransition = calculateRubric({ ratings, marketCycleRegime: 'transition' });
-  assert.equal(overrideTransition.score, 91);
-  assert.equal(overrideTransition.grade, 'B');
-
-  // Override manual para Defensivo (84 pts -> Grade B)
+  // Override manual para Modo Defesa (80 pts -> Grade B)
   const overrideDefensive = calculateRubric({ ratings, marketCycleRegime: 'defensive' });
-  assert.equal(overrideDefensive.score, 84);
+  assert.equal(overrideDefensive.score, 80);
   assert.equal(overrideDefensive.grade, 'B');
 
 // Reversão para automático (restaura 100 pts -> Grade A)
