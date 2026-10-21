@@ -443,29 +443,32 @@
       <div class="radar-defense-panel" role="alert" aria-label="Mercado em Modo Defesa">
         <div class="radar-defense-art">
           <img
-            src="assets/opportunity-radar/defense-bear.jpg"
+            src="assets/opportunity-radar/defense-bear.png"
             alt="Modo Defesa - Preservação de Capital"
             class="radar-defense-bear-img"
             loading="eager"
           />
-          <div class="radar-defense-art-overlay" aria-hidden="true"></div>
         </div>
 
         <div class="radar-defense-content">
           <div class="radar-defense-shield-badge">
-            <span class="radar-defense-shield-icon" aria-hidden="true">🛡️</span>
+            <span class="radar-defense-shield-icon" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#dc2626" stroke="#dc2626" stroke-width="1.2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </span>
             <span>MODO DEFESA</span>
           </div>
 
-          <h2 class="radar-defense-title">Ciclo de Mercado em MODO DEFESA</h2>
+          <h2 class="radar-defense-title">Ciclo de Mercado em <span class="radar-defense-title-highlight">MODO DEFESA</span></h2>
 
           <p class="radar-defense-desc">
-            O mercado de <strong>${esc(marketName)}</strong> está em tendência negativa no momento. Para proteger seu capital, o método recomenda <strong>NÃO abrir novas operações</strong> até que o ciclo volte a ficar favorável.
+            O mercado de ${esc(marketName)} está em tendência negativa no momento.<br>Por isso, não há oportunidades que atendam aos critérios do seu método.
           </p>
 
           <div class="radar-defense-callout">
             <div class="radar-defense-callout-icon" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/>
                 <line x1="12" y1="8" x2="12" y2="12"/>
                 <line x1="12" y1="16" x2="12.01" y2="16"/>
