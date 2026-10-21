@@ -233,7 +233,8 @@ const server = http.createServer(async (request, response) => {
     }
     if (request.method === 'GET' && url.pathname === '/api/habits') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
-      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const token = bearer(request) || url.searchParams.get('token') || '';
+      const user = await auth.session(token); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, await habits.list(user.id));
     }
     if (request.method === 'POST' && url.pathname === '/api/habits') {

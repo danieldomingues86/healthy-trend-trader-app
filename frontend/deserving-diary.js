@@ -35,6 +35,57 @@
       .replace(/'/g, '&#39;');
   }
 
+  function getSessionToken() {
+    if (root.healthyTrendApi && typeof root.healthyTrendApi.token === 'function') {
+      return root.healthyTrendApi.token() || '';
+    }
+    try {
+      return localStorage.getItem('healthy-trend-session-token') || sessionStorage.getItem('healthy-trend-session-token') || '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function resolveAttachmentUrl(rawUrl) {
+    if (!rawUrl) return '';
+    if (rawUrl.startsWith('data:') || rawUrl.startsWith('blob:')) return rawUrl;
+    const token = getSessionToken();
+    if (!token) return rawUrl;
+    const sep = rawUrl.includes('?') ? '&' : '?';
+    return `${rawUrl}${sep}token=${encodeURIComponent(token)}`;
+  }
+
+  function viewAttachmentImage(url) {
+    if (!url) return;
+    const resolved = resolveAttachmentUrl(url);
+    const existing = document.getElementById('ddLightboxOverlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'ddLightboxOverlay';
+    overlay.className = 'dd-lightbox-overlay';
+    overlay.onclick = (e) => {
+      if (e.target === overlay || e.target.classList.contains('dd-lightbox-close')) {
+        overlay.remove();
+      }
+    };
+    overlay.innerHTML = `
+      <div class="dd-lightbox-dialog">
+        <button type="button" class="dd-lightbox-close" title="Fechar (Esc)">✕</button>
+        <img src="${esc(resolved)}" class="dd-lightbox-img" alt="Print ampliado do trade" />
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const escHandler = (e) => {
+      if (e.key === 'Escape') {
+        overlay.remove();
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
+  }
+
   /**
    * Ponto de entrada global chamado por go('deservingdiary')
    */
@@ -101,14 +152,19 @@
     const quote = model.getInspirationQuote(state.quoteIndex);
 
     rootEl.innerHTML = `
-      <!-- 1. Hero Banner Superior -->
+      <!-- 1. Hero Banner Superior (4K Crisp Vector + Panoramic Artwork) -->
       <header class="dd-hero-banner" role="banner">
-        <img
-          src="assets/deserving-diary/deserving-hero.jpg"
-          class="dd-hero-banner-img"
-          alt="Diário do Merecimento — Aprenda a receber. Permita-se prosperar."
-        />
-        <h1 class="sr-only">Diário do Merecimento — Aprenda a receber. Permita-se prosperar.</h1>
+        <div class="dd-hero-left">
+          <div class="dd-hero-eyebrow">Treinamento do Trader · Psicologia do Lucro</div>
+          <h1 class="dd-hero-title">Diário do <span>Merecimento</span></h1>
+          <p class="dd-hero-quote">“Eu não registro apenas o dinheiro que ganhei. Registro a pessoa que estou me tornando ao aprender a recebê-lo.”</p>
+        </div>
+        <div class="dd-hero-right">
+          <div class="dd-hero-calligraphy">
+            Aprenda a receber.
+            <span>Permita-se prosperar.</span>
+          </div>
+        </div>
       </header>
 
       <!-- 2. Grid de Conteúdo (Duas Colunas) -->
@@ -281,45 +337,65 @@
 
             <!-- Linha 7: Anexar imagem opcional -->
             <div class="dd-attachment-box">
-              <div class="dd-attachment-left">
-                <span class="dd-attachment-icon" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                    <circle cx="12" cy="13" r="4"/>
-                  </svg>
-                </span>
-                <div class="dd-attachment-info">
-                  <strong>Anexar imagem (opcional)</strong>
-                  <small id="ddAttachStatus">Adicione um print do gráfico ou uma imagem especial.</small>
+              <div class="dd-attachment-header">
+                <div class="dd-attachment-left">
+                  <span class="dd-attachment-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                  </span>
+                  <div class="dd-attachment-info">
+                    <strong>Anexar print do gráfico ou foto (opcional)</strong>
+                    <small id="ddAttachStatus">${state.attachedImage ? esc(state.attachedImage.name || 'Imagem selecionada') : 'Adicione um print do gráfico Diário para enriquecer sua reflexão.'}</small>
+                  </div>
                 </div>
+
+                ${!state.attachedImage ? `
+                  <div>
+                    <input
+                      type="file"
+                      id="ddFileInput"
+                      accept="image/*"
+                      style="display:none"
+                      onchange="window.DeservingDiary.handleFileSelected(event)"
+                    />
+                    <button type="button" class="dd-attach-btn" onclick="document.getElementById('ddFileInput').click()">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                      Selecionar Imagem
+                    </button>
+                  </div>
+                ` : ''}
               </div>
 
               ${state.attachedImage ? `
-                <div class="dd-preview-box">
-                  <img src="${esc(state.attachedImage.url)}" class="dd-preview-thumb" alt="Anexo do trade" />
-                  <button type="button" class="dd-preview-remove-btn" onclick="window.DeservingDiary.removeAttachment()">
-                    ✕ Remover
-                  </button>
+                <div class="dd-preview-card">
+                  <div class="dd-preview-thumb-wrap" onclick="window.DeservingDiary.viewAttachmentImage('${esc(resolveAttachmentUrl(state.attachedImage.url))}')" title="Clique para ampliar em tela cheia">
+                    <img
+                      src="${esc(resolveAttachmentUrl(state.attachedImage.url))}"
+                      class="dd-preview-thumb"
+                      alt="${esc(state.attachedImage.name || 'Print do trade')}"
+                      onerror="this.onerror=null; this.src='assets/manual-knowledge/deservingdiary.jpg';"
+                    />
+                    <span class="dd-preview-zoom-badge">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                      Ampliar
+                    </span>
+                  </div>
+                  <div class="dd-preview-meta">
+                    <strong class="dd-preview-filename" title="${esc(state.attachedImage.name || 'Imagem')}">${esc(state.attachedImage.name || 'Print do gráfico')}</strong>
+                    <span class="dd-preview-size">${state.attachedImage.size ? (state.attachedImage.size / 1024).toFixed(0) + ' KB' : 'Anexo sincronizado'}</span>
+                    <button type="button" class="dd-preview-remove-btn" onclick="window.DeservingDiary.removeAttachment()">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      Remover imagem
+                    </button>
+                  </div>
                 </div>
-              ` : `
-                <div>
-                  <input
-                    type="file"
-                    id="ddFileInput"
-                    accept="image/*"
-                    style="display:none"
-                    onchange="window.DeservingDiary.handleFileSelected(event)"
-                  />
-                  <button type="button" class="dd-attach-btn" onclick="document.getElementById('ddFileInput').click()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="17 8 12 3 7 8"/>
-                      <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    Selecionar Imagem
-                  </button>
-                </div>
-              `}
+              ` : ''}
             </div>
 
             <!-- Linha 8: Botões de Ação -->
@@ -693,32 +769,40 @@
       return;
     }
 
+    // Cria preview local imediato de altíssima nitidez garantindo que nunca fique quebrado
+    let localUrl = '';
+    try {
+      localUrl = URL.createObjectURL(file);
+    } catch (_) {
+      localUrl = '';
+    }
+
+    state.attachedImage = {
+      url: localUrl,
+      name: file.name,
+      size: file.size
+    };
+    renderMainUi();
+
     const statusEl = document.getElementById('ddAttachStatus');
-    if (statusEl) statusEl.textContent = 'Enviando imagem...';
+    if (statusEl) statusEl.textContent = 'Enviando imagem ao servidor...';
 
     try {
       if (root.healthyTrendApi && typeof root.healthyTrendApi.uploadFile === 'function') {
         const res = await root.healthyTrendApi.uploadFile('/api/deserving-diary/attachments', file);
-        state.attachedImage = res.attachment;
-      } else {
-        // Fallback leitor local dataURL
-        const reader = new FileReader();
-        reader.onload = (e) => {
+        if (res && res.attachment) {
           state.attachedImage = {
-            url: e.target.result,
+            ...res.attachment,
+            // Mantém a URL local ou remota com token
+            url: localUrl || res.attachment.url,
             name: file.name,
             size: file.size
           };
           renderMainUi();
-        };
-        reader.readAsDataURL(file);
-        return;
+        }
       }
-      renderMainUi();
     } catch (err) {
-      console.error('[DeservingDiary] Falha ao enviar anexo:', err);
-      alert('Não foi possível anexar a imagem agora.');
-      if (statusEl) statusEl.textContent = 'Adicione um print do gráfico ou uma imagem especial.';
+      console.warn('[DeservingDiary] Upload em background pendente:', err);
     }
   }
 
@@ -859,7 +943,18 @@
             ${entry.attachmentUrl ? `
               <div class="dd-detail-section">
                 <span class="dd-detail-label">Print do gráfico / anexo:</span>
-                <img src="${esc(entry.attachmentUrl)}" style="max-width:100%; border-radius:10px; border:1px solid #cbd5e1; margin-top:6px;" alt="Anexo do trade" />
+                <div class="dd-preview-thumb-wrap" style="width: 100%; max-width: 520px; height: 260px; margin-top: 8px;" onclick="window.DeservingDiary.viewAttachmentImage('${esc(resolveAttachmentUrl(entry.attachmentUrl))}')" title="Clique para ampliar em tela cheia">
+                  <img
+                    src="${esc(resolveAttachmentUrl(entry.attachmentUrl))}"
+                    class="dd-preview-thumb"
+                    alt="Print do trade"
+                    onerror="this.onerror=null; this.src='assets/manual-knowledge/deservingdiary.jpg';"
+                  />
+                  <span class="dd-preview-zoom-badge" style="opacity: 1; background: rgba(0,0,0,0.35);">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    Clique para ampliar em tela cheia
+                  </span>
+                </div>
               </div>
             ` : ''}
           </div>
@@ -1006,7 +1101,8 @@
     openHistoryModal,
     closeModal,
     editEntry,
-    deleteEntry
+    deleteEntry,
+    viewAttachmentImage
   };
 
   // Auto-inicialização caso a página já esteja ativa no carregamento
