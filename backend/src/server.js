@@ -3,7 +3,7 @@ const http = require('node:http');
 const { URL } = require('node:url');
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const { readCache, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, classStrengthFromCache, classStrengthWeeklyFromCache, classifyAsset, resolveMarketCycle } = require('./market-data');
+const { readCache, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, classStrengthFromCache, classStrengthWeeklyFromCache, classifyAsset, resolveMarketCycle, getStocksDataAsOf } = require('./market-data');
 const { marketScansFromCache } = require('./market-scans');
 const { PLAN_CATALOG } = require('./subscription-plans');
 const { fetchFundamentals } = require('./fundamentals');
@@ -869,8 +869,8 @@ const server = http.createServer(async (request, response) => {
       cache = await refreshClassStrength(cache);
       const classes = isWeekly ? classStrengthWeeklyFromCache(cache) : classStrengthFromCache(cache);
       const dataAsOf = isWeekly
-        ? (cache.relativeStrengthByClassWeekly?.dataAsOf || cache.overview?.benchmarkHistory?.at(-1)?.date || null)
-        : (cache.overview?.benchmarkHistory?.at(-1)?.date || null);
+        ? (cache.relativeStrengthByClassWeekly?.dataAsOf || cache.dataAsOf || cache.b3CotahistDate || cache.overview?.benchmarkHistory?.at(-1)?.date || null)
+        : (cache.dataAsOf || cache.b3CotahistDate || cache.relativeStrengthByClass?.dataAsOf || (typeof getStocksDataAsOf === 'function' ? getStocksDataAsOf(cache) : null) || null);
       return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf, timeframe: isWeekly ? 'weekly' : 'daily', source: cache.source, classes });
     }
     if (url.pathname === '/api/relative-strength/classify') return send(response, 200, classifyAsset(url.searchParams.get('ticker'), cache));
@@ -880,8 +880,8 @@ const server = http.createServer(async (request, response) => {
       const classes = isWeekly ? classStrengthWeeklyFromCache(cache) : classStrengthFromCache(cache);
       const selected = classes[assetClass] || classes.stock;
       const dataAsOf = isWeekly
-        ? (cache.relativeStrengthByClassWeekly?.dataAsOf || cache.overview?.benchmarkHistory?.at(-1)?.date || null)
-        : (cache.overview?.benchmarkHistory?.at(-1)?.date || null);
+        ? (cache.relativeStrengthByClassWeekly?.dataAsOf || cache.dataAsOf || cache.b3CotahistDate || cache.overview?.benchmarkHistory?.at(-1)?.date || null)
+        : (cache.dataAsOf || cache.b3CotahistDate || cache.relativeStrengthByClass?.dataAsOf || (typeof getStocksDataAsOf === 'function' ? getStocksDataAsOf(cache) : null) || null);
       return send(response, 200, { updatedAt: cache.updatedAt, dataAsOf, timeframe: isWeekly ? 'weekly' : 'daily', source: cache.source, assetClass: selected.key, benchmark: selected.benchmark, universe: { requested: selected.requested, available: selected.available }, ...page(selected.items || [], url.searchParams) });
     }
     return send(response, 404, { error: 'Not found' });

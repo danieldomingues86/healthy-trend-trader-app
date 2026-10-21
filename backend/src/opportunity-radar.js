@@ -109,7 +109,9 @@ async function getOpportunityRadarData(cache) {
 
   const latestCandleDates = filteredReadyItems.map((i) => i.lastCandleDate).filter(Boolean).sort();
   const dataAsOf = latestCandleDates.at(-1)
-    || cache.overview?.benchmarkHistory?.at(-1)?.date
+    || cache.dataAsOf
+    || cache.b3CotahistDate
+    || cache.relativeStrengthByClass?.dataAsOf
     || null;
 
   return {

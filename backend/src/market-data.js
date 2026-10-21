@@ -833,6 +833,22 @@ function historyDate(value) {
   const parsed = new Date(raw);
   return Number.isFinite(parsed.getTime()) ? isoDate(parsed) : null;
 }
+function getStocksDataAsOf(cache) {
+  if (cache?.dataAsOf) return cache.dataAsOf;
+  if (cache?.b3CotahistDate) return cache.b3CotahistDate;
+  if (cache?.relativeStrengthByClass?.dataAsOf) return cache.relativeStrengthByClass.dataAsOf;
+  try {
+    const tickerChart = require('./ticker-chart');
+    const b3Hist = tickerChart.loadB3History();
+    const petr = b3Hist?.get('PETR4');
+    if (petr && petr.length) {
+      const d = petr[petr.length - 1]?.time;
+      if (d) return d.replace(/-/g, '');
+    }
+  } catch {}
+  return cache?.overview?.benchmarkHistory?.at(-1)?.date || null;
+}
+
 function hasCurrentHistoricalClose(cache, now = new Date()) {
   const targetDate = isoDate(now);
   const benchmarkDate = historyDate(cache?.overview?.benchmarkHistory?.at(-1)?.date);
@@ -1090,4 +1106,4 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
   return marketCycleFor(cache, 'stock_b3');
 }
 
-module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, marketCycleSeries, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classStrengthWeeklyFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose, previousBusinessDay, expectedClosingDate, marketCycleFor, resolveMarketCycle };
+module.exports = { fetchHistory, fetchBenchmarkHistory, fetchHistories, readCache, refreshMarketData, refreshIfDue, refreshClassStrength, refreshLiveScanQuotes, marketDataStatus, scoreCycle, marketCycleSeries, returns, relativeTrend, templateReading, scanMetrics, rank, overviewFrom, assetClassForSymbol, classMeta, classStrengthFromCache, classStrengthWeeklyFromCache, classifyAsset, historyRangeFor, mergeLiveQuote, historyDate, hasCurrentHistoricalClose, previousBusinessDay, expectedClosingDate, marketCycleFor, resolveMarketCycle, getStocksDataAsOf };
