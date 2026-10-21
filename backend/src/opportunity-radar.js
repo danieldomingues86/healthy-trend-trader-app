@@ -118,6 +118,15 @@ async function getOpportunityRadarData(cache) {
     updatedAt: cache.updatedAt || cache.historyUpdatedAt || null,
     dataAsOf,
     marketCycleState: stockCycleState,
+    marketCycles: {
+      ALL: [stockCycleState, fiiCycleState, bdrCycleState].every(s => !isPositiveCycle(s)) ? 'defensive' : (isPositiveCycle(stockCycleState) ? stockCycleState : (isPositiveCycle(fiiCycleState) ? fiiCycleState : bdrCycleState)),
+      IBOV: stockCycleState,
+      IFIX: fiiCycleState,
+      BDRs: bdrCycleState,
+      stock_b3: stockCycleState,
+      fii: fiiCycleState,
+      bdr: bdrCycleState
+    },
     totalReady: filteredReadyItems.length,
     items: filteredReadyItems
   };

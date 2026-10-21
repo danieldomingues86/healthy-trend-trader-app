@@ -489,17 +489,17 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
   let volatilityLabel = 'Controlada';
 
   if (regimeState === 'defensive') {
-    regimeLabel = 'BAIXA — DESFAVORÁVEL';
-    regimeBadge = 'Baixa (Desfavorável)';
-    regimeDescription = 'O ambiente pede proteção. Preserve capital e evite novas exposições até a estrutura técnica melhorar.';
+    regimeLabel = 'DEFESA — EVITAR OPERAR';
+    regimeBadge = 'Modo Defesa';
+    regimeDescription = 'Preço abaixo ou entre as médias EMA 9 e EMA 30. Preservar capital e evitar novas operações.';
     trendLabel = 'Defensiva';
     volatilityLabel = 'Elevada';
-  } else if (regimeState === 'transition') {
-    regimeLabel = 'TRANSIÇÃO — ATENÇÃO';
-    regimeBadge = 'Atenção';
-    regimeDescription = 'O ambiente exige atenção e seletividade. Preserve capital e aceite apenas oportunidades com evidências claras.';
-    trendLabel = 'Em transição';
-    volatilityLabel = 'Moderada';
+  } else {
+    regimeLabel = 'EXPANSÃO — MERCADO SAUDÁVEL';
+    regimeBadge = 'Expansão (Saudável)';
+    regimeDescription = 'Preço acima da EMA 9 e da EMA 30. Mercado saudável para buscar oportunidades nos ativos.';
+    trendLabel = 'Positiva';
+    volatilityLabel = 'Controlada';
   }
 
   const marketRegime = {
@@ -513,14 +513,14 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
     volatility: volatilityLabel,
     indicators: {
       price: cycle.price || null,
-      ema20: cycle.ema20 || null,
-      ema200: cycle.ema200 || null,
-      above20: Boolean(cycle.above20),
-      above200: Boolean(cycle.above200),
-      structure: (Number(cycle.ema20) > Number(cycle.ema200)) ? 'Alinhada (EMA 20 > EMA 200)' : 'Desalinhada',
+      ema9: cycle.ema9 || null,
+      ema30: cycle.ema30 || null,
+      above9: Boolean(cycle.above9),
+      above30: Boolean(cycle.above30),
+      structure: (Number(cycle.ema9) > Number(cycle.ema30)) ? 'Alinhada (EMA 9 > EMA 30)' : 'Desalinhada',
       atrPct: isFiniteNumber(cycle.atrPct) ? Number(cycle.atrPct) : null
     },
-    permission: regimeState === 'healthy' ? 'Somente A' : regimeState === 'transition' ? 'Seletividade máxima' : 'Preservar capital',
+    permission: regimeState === 'healthy' ? 'Somente A' : 'Preservar capital',
     dataDate: cycle.date || (loadedCache?.overview?.benchmarkHistory?.at(-1)?.date) || null,
     evaluatedAt: cyclePayload?.evaluatedAt || new Date().toISOString()
   };

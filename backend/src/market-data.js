@@ -146,17 +146,35 @@ function ema(values, period) {
   const multiplier = 2 / (period + 1);
   return values.reduce((current, value, index) => index === 0 ? value : (value - current) * multiplier + current, values[0]);
 }
+function calculateEmaSeries(values, period) {
+  if (!Array.isArray(values) || values.length < period) return [];
+  const k = 2 / (period + 1);
+  const result = new Array(values.length).fill(null);
+  let sum = 0;
+  for (let i = 0; i < period; i++) sum += Number(values[i]);
+  let currentEma = sum / period;
+  result[period - 1] = Number(currentEma.toFixed(4));
+  for (let i = period; i < values.length; i++) {
+    currentEma = Number(values[i]) * k + currentEma * (1 - k);
+    result[i] = Number(currentEma.toFixed(4));
+  }
+  return result;
+}
 function scoreCycle(history) {
   const candles = history.filter((item) => Number.isFinite(item.adjustedClose ?? item.close));
   const closes = candles.map((item) => item.adjustedClose ?? item.close);
-  if (closes.length < 25) return { state: 'transition', score: 50, reason: 'Histórico insuficiente para leitura completa.' };
+  if (closes.length < 30) return { state: 'defensive', score: 25, reason: 'Histórico insuficiente para leitura completa (mínimo 30 pregões).' };
   const price = closes.at(-1);
-  const ema10 = ema(closes.slice(-10), 10);
-  const ema20 = ema(closes.slice(-20), 20);
-  const ema200 = closes.length >= 200 ? ema(closes.slice(-200), 200) : ema(closes, closes.length);
-  const previous10 = closes.length > 10 ? ema(closes.slice(-11, -1), 10) : ema10;
-  const previous20 = closes.length > 20 ? ema(closes.slice(-21, -1), 20) : null;
-  const previous200 = closes.length > 200 ? ema(closes.slice(-201, -1), 200) : null;
+
+  const ema9Arr = calculateEmaSeries(closes, 9);
+  const ema30Arr = calculateEmaSeries(closes, 30);
+  const ema9 = ema9Arr[ema9Arr.length - 1];
+  const ema30 = ema30Arr[ema30Arr.length - 1];
+  const prevEma9 = ema9Arr.length > 1 ? ema9Arr[ema9Arr.length - 2] : ema9;
+  const prevEma30 = ema30Arr.length > 1 ? ema30Arr[ema30Arr.length - 2] : ema30;
+  const ema9Slope = Number.isFinite(prevEma9) ? ema9 - prevEma9 : 0;
+  const ema30Slope = Number.isFinite(prevEma30) ? ema30 - prevEma30 : 0;
+
   const ranges = candles.slice(-21).map((item, index, rows) => {
     const high = Number(item.high), low = Number(item.low);
     const prior = rows[index - 1]?.adjustedClose ?? rows[index - 1]?.close;
@@ -164,88 +182,102 @@ function scoreCycle(history) {
     return Number.isFinite(prior) ? Math.max(high - low, Math.abs(high - prior), Math.abs(low - prior)) : high - low;
   }).filter(Number.isFinite);
   const atr21 = ranges.length >= 15 ? ranges.reduce((sum, value) => sum + value, 0) / ranges.length : null;
-  const above10 = price > ema10;
-  const above20 = price > ema20;
-  const above200 = price > ema200;
-  const ema10Above20 = ema10 > ema20;
-  const structure = ema20 > ema200;
-  const ema10Slope = Number.isFinite(previous10) ? ema10 - previous10 : 0;
-  const ema20Slope = Number.isFinite(previous20) ? ema20 - previous20 : 0;
-  const ema200Slope = Number.isFinite(previous200) ? ema200 - previous200 : 0;
-  const roc10 = closes.length >= 11 ? ((price / closes.at(-11)) - 1) * 100 : 0;
 
-  // Regime primário
-  const state = above20 && above200 ? 'healthy' : (!above20 && !above200 ? 'defensive' : 'transition');
+  // Regra oficial do Ciclo de Mercado (exclusivamente EMA 9 e EMA 30 no gráfico Diário):
+  // EXPANSÃO (mercado saudável): Preço > EMA 9 e Preço > EMA 30 (estritamente acima de ambas)
+  // DEFESA (evitar operar): Preço <= EMA 9 ou Preço <= EMA 30 (abaixo, entre as médias, ou igual a uma delas)
+  const above9 = price > ema9;
+  const above30 = price > ema30;
+  const structure = ema9 > ema30;
+  const isExpansion = above9 && above30;
+  const state = isExpansion ? 'healthy' : 'defensive';
+
+  const roc10 = closes.length >= 11 ? ((price / closes.at(-11)) - 1) * 100 : 0;
 
   // Score contínuo e responsivo (0 a 100)
   let score = 50;
   if (state === 'healthy') {
-    // Mercado saudável: base 76, modulação de 70 a 95
+    // Mercado em expansão: base 76, modulação de 70 a 95
     score = 76;
-    if (above10) score += 5; else score -= 5;
-    if (ema10Above20) score += 3; else score -= 2;
-    if (ema10Slope > 0) score += 3; else score -= 3;
-    if (ema20Slope > 0) score += 3; else score -= 2;
-    if (ema200Slope >= 0) score += 2;
-    const rocAdj = Math.max(-5, Math.min(5, Math.round(roc10 * 1.2)));
+    if (structure) score += 4; else score -= 2;
+    if (ema9Slope > 0) score += 3; else score -= 2;
+    if (ema30Slope > 0) score += 3; else score -= 2;
+    const rocAdj = Math.max(-4, Math.min(6, Math.round(roc10 * 1.2)));
     score += rocAdj;
     score = Math.max(70, Math.min(95, score));
-  } else if (state === 'transition') {
-    // Mercado em transição: base 54, modulação de 45 a 68
-    score = 54;
-    if (above20) score += 6;
-    if (above200) score += 4;
-    if (above10) score += 3; else score -= 3;
-    if (ema10Slope > 0) score += 2; else score -= 2;
-    const rocAdj = Math.max(-4, Math.min(4, Math.round(roc10 * 1.0)));
-    score += rocAdj;
-    score = Math.max(45, Math.min(68, score));
   } else {
-    // Mercado defensivo: base 26, modulação de 10 a 40
+    // Mercado em modo defesa: base 26, modulação de 10 a 48 (abaixo de 50)
     score = 26;
-    if (above10) score += 5;
-    if (ema10Slope > 0) score += 3;
+    if (above9) score += 6;
+    if (above30) score += 4;
+    if (ema9Slope > 0) score += 3;
     if (structure) score += 3;
     const rocAdj = Math.max(-5, Math.min(5, Math.round(roc10 * 1.0)));
     score += rocAdj;
-    score = Math.max(10, Math.min(40, score));
+    score = Math.max(10, Math.min(48, score));
   }
+
+  const ema200Val = closes.length >= 200 ? ema(closes.slice(-200), 200) : ema30;
 
   return {
     state,
     score,
     price,
-    ema10,
-    ema20,
-    ema200,
-    above10,
-    above20,
-    above200,
-    ema10Above20,
+    ema9,
+    ema30,
+    above9,
+    above30,
     structure,
+    ema9Slope,
+    ema30Slope,
     atr21,
     atrPct: Number.isFinite(atr21) && price > 0 ? atr21 / price * 100 : null,
-    ema10Slope,
-    ema20Slope: Number.isFinite(previous20) ? ema20 - previous20 : null,
-    ema200Slope: Number.isFinite(previous200) ? ema200 - previous200 : null,
     roc10,
-    date: candles.at(-1)?.date || null
+    date: candles.at(-1)?.date || null,
+    // Compatibilidade retroativa para consumidores legados:
+    ema10: ema9,
+    ema20: ema30,
+    ema200: ema200Val,
+    above10: above9,
+    above20: above30,
+    above200: price > ema200Val,
+    ema10Above20: structure,
+    ema20Slope: ema30Slope,
+    ema200Slope: 0
   };
 }
 function marketCycleSeries(history) {
   return history.map((candle, index) => {
-    if (index < 24) return null;
+    if (index < 29) return null;
     const reading = scoreCycle(history.slice(0, index + 1));
+    const close = reading.price;
+    const prevCandle = index > 0 ? history[index - 1] : null;
+    const open = candle.open !== undefined && Number.isFinite(Number(candle.open))
+      ? Number(candle.open)
+      : (prevCandle && Number.isFinite(Number(prevCandle.close)) ? Number(prevCandle.close) : close);
+    const high = candle.high !== undefined && Number.isFinite(Number(candle.high))
+      ? Number(candle.high)
+      : Math.max(open, close) + Math.abs(close - open) * 0.25 + (close * 0.001);
+    const low = candle.low !== undefined && Number.isFinite(Number(candle.low))
+      ? Number(candle.low)
+      : Math.min(open, close) - Math.abs(close - open) * 0.25 - (close * 0.001);
+
     return {
       date: candle.date,
-      close: reading.price,
-      ema10: reading.ema10,
-      ema20: reading.ema20,
-      ema200: reading.ema200,
+      open,
+      high,
+      low,
+      close,
+      ema9: reading.ema9,
+      ema30: reading.ema30,
       atr21: reading.atr21,
       atrPct: reading.atrPct,
       score: reading.score,
-      state: reading.state
+      state: reading.state,
+      // Compatibilidade legada
+      ema10: reading.ema9,
+      ema20: reading.ema30,
+      ema200: reading.ema200
     };
   }).filter(Boolean);
 }
@@ -970,7 +1002,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
     return {
       updatedAt: cache?.updatedAt || new Date().toISOString(),
       source: cache?.source || 'b3-indexes',
-      cycle: { state: 'transition', score: 50, reason: 'Histórico do BDRX indisponível no momento.' },
+      cycle: { state: 'defensive', score: 25, reason: 'Histórico do BDRX indisponível no momento.' },
       benchmark: { symbol: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', returns: { m1: 0, m3: 0 }, history: [] },
       breadth: null,
       market: 'bdr',
@@ -993,7 +1025,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
     return {
       updatedAt: cache?.updatedAt || new Date().toISOString(),
       source: cache?.source || 'b3-indexes',
-      cycle: { state: 'transition', score: 50, reason: 'Histórico do IFIX indisponível no momento.' },
+      cycle: { state: 'defensive', score: 25, reason: 'Histórico do IFIX indisponível no momento.' },
       benchmark: { symbol: 'IFIX', name: 'Índice de Fundos de Investimentos Imobiliários (IFIX)', returns: { m1: 0, m3: 0 }, history: [] },
       breadth: null,
       market: 'fii',
@@ -1015,7 +1047,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
 async function resolveMarketCycle(cache, market = 'stock_b3') {
   const normalized = String(market || 'stock_b3').trim().toLowerCase();
   if (['bdr', 'bdrx'].includes(normalized)) {
-    if (!cache?.cycles?.bdr?.cycle?.ema10 || !cache?.cycles?.bdr?.benchmark?.history?.length) {
+    if (!cache?.cycles?.bdr?.cycle?.ema9 || !cache?.cycles?.bdr?.benchmark?.history?.length) {
       try {
         const bdrxHistory = await fetchBenchmarkHistory('BDRX');
         if (bdrxHistory?.length >= 25) {
@@ -1045,7 +1077,7 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
   }
 
   if (['fii', 'fiis', 'ifix'].includes(normalized)) {
-    if (!cache?.cycles?.fii?.cycle?.ema10 || !cache?.cycles?.fii?.benchmark?.history?.length) {
+    if (!cache?.cycles?.fii?.cycle?.ema9 || !cache?.cycles?.fii?.benchmark?.history?.length) {
       try {
         const ifixHistory = await fetchBenchmarkHistory('IFIX');
         if (ifixHistory?.length >= 25) {
@@ -1074,7 +1106,7 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
     return marketCycleFor(cache, 'fii');
   }
 
-  if (!cache?.cycles?.stock_b3?.cycle?.ema10 || !cache?.cycle?.ema10) {
+  if (!cache?.cycles?.stock_b3?.cycle?.ema9 || !cache?.cycle?.ema9) {
     try {
       const ibovHistory = await fetchBenchmarkHistory('^BVSP');
       if (ibovHistory?.length >= 25) {

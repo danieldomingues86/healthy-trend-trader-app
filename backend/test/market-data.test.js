@@ -54,11 +54,11 @@ test('série do Ciclo de Mercado é derivada do histórico real sem inventar obs
     close: 100000 + index * 100
   }));
   const series = marketCycleSeries(history);
-  assert.equal(series.length, history.length - 24);
+  assert.equal(series.length, history.length - 29);
   assert.equal(series.at(-1).date, history.at(-1).date);
   assert.equal(series.at(-1).close, history.at(-1).close);
-  assert.ok(Number.isFinite(series.at(-1).ema20));
-  assert.ok(Number.isFinite(series.at(-1).ema200));
+  assert.ok(Number.isFinite(series.at(-1).ema9));
+  assert.ok(Number.isFinite(series.at(-1).ema30));
   assert.equal(series.at(-1).atr21, null);
 });
 

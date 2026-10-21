@@ -461,17 +461,14 @@ async function getTickerChartData(rawSymbol) {
   const benchmarkInfo = resolvedCycle?.benchmark || {};
   const benchmarkSymbol = benchmarkInfo?.symbol || (cycleMarket === 'bdr' ? 'BDRX' : (cycleMarket === 'fii' ? 'IFIX' : 'IBOV'));
 
-  let cycleState = 'Positivo';
-  let cycleDesc = 'Tendência de alta e força institucional.';
+  let cycleState = 'Expansão';
+  let cycleDesc = 'Mercado saudável. Preço acima da EMA 9 e da EMA 30.';
   if (cycleInfo.state === 'healthy') {
-    cycleState = 'Positivo';
-    cycleDesc = 'Tendência de alta e força institucional.';
-  } else if (cycleInfo.state === 'transition') {
-    cycleState = 'Transição';
-    cycleDesc = 'Mercado em recuperação, seletividade máxima.';
+    cycleState = 'Expansão';
+    cycleDesc = 'Mercado saudável. Preço acima da EMA 9 e da EMA 30.';
   } else {
-    cycleState = 'Defensivo';
-    cycleDesc = 'Proteção de capital, sem novos trades longos.';
+    cycleState = 'Defesa';
+    cycleDesc = 'Modo defesa. Preço abaixo ou entre as médias EMA 9 e EMA 30.';
   }
 
   // 5. Fundamentos da CVM / Fundamentus / BDR

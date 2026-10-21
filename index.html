@@ -1220,14 +1220,14 @@ async function loadLiveMarketData(){
   if(refresh){refresh.disabled=false;refresh.textContent=marketText('Atualizar dados','Refresh data')}
 }
 function renderMarketMap(){const page=document.getElementById('marketmap');if(!page)return;const us=[['S&P 500','+0,72%',1],['Nasdaq','+1,43%',2],['Dow Jones','+0,33%',3],['Russell 2000','+0,32%',4]];const tiles=(items)=>items.map(([symbol,move,kind,size=''])=>`<div class="heat-tile ${kind} ${size}"><b>${symbol}</b><small>${move}</small></div>`).join('');page.innerHTML=`<div class="market-map-header"><div><div class="eyebrow">Panorama de mercado</div><h1>Mapa do Dia.</h1></div><div><div class="market-status">Prévia de dados de mercado</div><p>Brasil e Estados Unidos em uma leitura rápida para você entender o contexto antes de procurar oportunidades.</p></div></div><div class="market-map-grid"><article class="card market-main-index"><div class="market-index-top"><div><small>Brasil · Índice principal</small><h2>Ibovespa</h2></div><div style="text-align:right"><div class="market-index-value">175.222 <span>+0,36%</span></div><small>Atualizado às 15:45 · prévia</small><div class="market-range" style="margin-top:10px"><button class="active" onclick="setMarketRange(this)">Dia</button><button onclick="setMarketRange(this)">Mês</button><button onclick="setMarketRange(this)">Semestre</button><button onclick="setMarketRange(this)">Ano</button></div></div></div><div class="market-candle-chart">${marketCandles(1,28)}</div><div class="market-index-meta"><span>Máxima <b>175.890</b></span><span>Mínima <b>174.583</b></span><span>Volume <b>R$ 19,4 bi</b></span></div></article><article class="card market-movers"><div class="market-panel-head"><h3>Movimentos da B3</h3><small>maiores variações</small></div><div class="movers-grid"><div class="mover-list"><b>↑ Maiores altas</b><ul><li><span>WEGE3</span><span>+3,18%</span></li><li><span>VALE3</span><span>+2,42%</span></li><li><span>ITUB4</span><span>+1,86%</span></li><li><span>PETR4</span><span>+1,35%</span></li></ul></div><div class="mover-list losses"><b>↓ Maiores baixas</b><ul><li><span>HAPV3</span><span>-2,63%</span></li><li><span>ASAI3</span><span>-1,91%</span></li><li><span>CRFB3</span><span>-1,47%</span></li><li><span>GOLL4</span><span>-1,12%</span></li></ul></div></div><div class="market-note"><b>Leitura do dia:</b> fluxo comprador seletivo em bancos e exportadoras; atenção à volatilidade em consumo e varejo.</div></article></div><div class="us-candle-grid">${us.map(([name,change,seed])=>`<article class="card us-index-card"><div class="us-index-head"><b>${name}</b><span>${change}</span></div><div class="market-candle-chart">${marketCandles(seed,14)}</div></article>`).join('')}</div><section class="heatmap-section"><div class="heatmap-tabs"><button class="active">Mapa de setores</button><button>Brasil + EUA</button><button>Principais ativos</button></div><div class="market-heatmaps"><article class="card heatmap-card"><header><h3>Brasil · principais ativos</h3><small>variação do dia</small></header><div class="heatmap-grid">${tiles([['VALE3','+2,42%','strong-positive','wide'],['PETR4','+1,35%','positive','tall'],['ITUB4','+1,86%','positive'],['WEGE3','+3,18%','strong-positive'],['BBAS3','+0,71%','positive'],['ABEV3','-0,62%','negative'],['B3SA3','-1,12%','negative'],['RENT3','+0,28%','neutral'],['HAPV3','-2,63%','negative'],['SUZB3','+1,09%','positive']])}</div></article><article class="card heatmap-card"><header><h3>Estados Unidos · principais ativos</h3><small>variação do dia</small></header><div class="heatmap-grid">${tiles([['NVDA','+9,08%','strong-positive','wide'],['AAPL','+0,44%','positive'],['MSFT','+1,67%','positive','tall'],['AMZN','-1,69%','negative'],['AVGO','+3,55%','strong-positive'],['META','-0,92%','negative'],['GOOGL','+0,62%','positive'],['TSLA','+1,24%','positive'],['AMD','-2,15%','negative'],['JPM','+0,35%','neutral']])}</div></article></div></section><div class="market-map-foot"><article class="card market-panel"><div class="market-panel-head"><h3>Moedas</h3><small>referência BRL</small></div><div class="market-row"><b>Dólar (USD)</b><span class="up">R$ 5,16</span></div><div class="market-row"><b>Euro (EUR)</b><span>R$ 6,02</span></div><div class="market-row"><b>Libra (GBP)</b><span>R$ 7,01</span></div></article><article class="card market-panel"><div class="market-panel-head"><h3>Criptoativos</h3><small>24 horas</small></div><div class="market-row"><b>Bitcoin</b><span class="up">+2,48%</span></div><div class="market-row"><b>Ethereum</b><span class="up">+1,73%</span></div><div class="market-row"><b>Solana</b><span class="down">-0,42%</span></div></article></div>`;if(window.appLanguage==='en-US'&&typeof localizeDocument==='function')localizeDocument()}
-let marketCycleBenchmark={symbol:'IBOV',price:141900,ema20:138420,ema200:128760,returns:{m1:2.8,m3:7.4,m6:12.1,m12:18.6}};
+let marketCycleBenchmark={symbol:'IBOV',price:141900,ema9:138420,ema30:128760,returns:{m1:2.8,m3:7.4,m6:12.1,m12:18.6}};
 let marketCycleDataAvailable=false;
-function hasCompleteMarketCycle(cycle){return ['price','ema20','ema200'].every(key=>Number.isFinite(Number(cycle?.[key])))}
+function hasCompleteMarketCycle(cycle){return ['price','ema9','ema30'].every(key=>Number.isFinite(Number(cycle?.[key])))}
 let marketCycleUniverse=[['WEGE3','WEG','Industrial',7.2,15.8,28.4,46.2],['PRIO3','PRIO','Petróleo e gás',6.5,14.2,35.1,58.4],['ITUB4','Itaú Unibanco','Financeiro',5.1,11.8,19.4,31.2],['VALE3','Vale','Materiais',4.9,10.7,17.9,25.8],['BBAS3','Banco do Brasil','Financeiro',4.4,9.8,16.2,29.5],['PETR4','Petrobras','Petróleo e gás',3.6,8.3,14.8,21.4],['RADL3','Raia Drogasil','Saúde',2.9,6.1,11.5,18.2],['B3SA3','B3','Financeiro',2.4,4.2,8.6,15.9],['RENT3','Localiza','Consumo',1.6,3.5,7.4,12.8],['SUZB3','Suzano','Materiais',1.2,2.9,5.2,10.6],['ABEV3','Ambev','Consumo',0.7,1.6,4.4,8.1],['LREN3','Lojas Renner','Consumo',-0.8,-1.9,1.2,4.8],['MGLU3','Magazine Luiza','Consumo',-1.7,-3.8,-9.6,-16.4],['HAPV3','Hapvida','Saúde',-2.4,-5.3,-11.8,-23.5],['ASAI3','Assaí','Consumo',-3.1,-6.4,-13.2,-28.1]];
 function cycleText(pt,en){return window.appLanguage==='en-US'?en:pt}
 function marketCycleRanked(){const useLongHorizon=marketCycleUniverse.some(([, , , , ,m6,m12])=>m6||m12);const weighted=marketCycleUniverse.map(([symbol,name,sector,m1,m3,m6,m12,trendTemplate,relativeTrend])=>({symbol,name,sector,m1,m3,m6,m12,trendTemplate,relativeTrend,raw:useLongHorizon?(m1-marketCycleBenchmark.returns.m1)*.1+(m3-marketCycleBenchmark.returns.m3)*.2+(m6-marketCycleBenchmark.returns.m6)*.3+(m12-marketCycleBenchmark.returns.m12)*.4:(m1-marketCycleBenchmark.returns.m1)*.35+(m3-marketCycleBenchmark.returns.m3)*.65})).sort((a,b)=>b.raw-a.raw);return weighted.map((item,index)=>({...item,score:Math.round(100-index/(weighted.length-1)*100)}))}
 function cycleScoreClass(score){return score>=70?'rs-strong':score>=35?'rs-neutral':'rs-weak'}
-function renderMarketCycle(){const root=document.getElementById('marketcycle');if(!root)return;const healthy=marketCycleBenchmark.price>marketCycleBenchmark.ema20&&marketCycleBenchmark.price>marketCycleBenchmark.ema200;const sectors=[...new Set(marketCycleUniverse.map(item=>item[2]))];root.innerHTML=`<div class="cycle-shell"><header class="cycle-hero"><div><div class="eyebrow">${cycleText('Permissão antes da oportunidade','Permission before opportunity')}</div><h1>${cycleText('Ciclo & Força Relativa.','Market Cycle & Relative Strength.')}</h1><div class="cycle-route"><b>${cycleText('CICLO','CYCLE')}</b><span>→</span><b>${cycleText('FORÇA RELATIVA','RELATIVE STRENGTH')}</b><span>→</span><span>${cycleText('GRÁFICO → DECISÃO','CHART → DECISION')}</span></div></div><p>${cycleText('Primeiro, identifique se o IBOV permite procurar operações. Depois, encontre as ações que lideram o mercado antes de aplicar o seu setup técnico.','First, identify whether IBOV permits looking for trades. Then find the stocks leading the market before applying your technical setup.')}</p></header><div class="cycle-grid"><article class="card cycle-permission"><small>${cycleText('Market Cycle Score · IBOV','Market Cycle Score · IBOV')}</small><h2>${healthy?cycleText('Mercado saudável','Healthy market'):cycleText('Mercado em transição','Market in transition')}</h2><p>${healthy?cycleText('O contexto está a favor. Procure somente cenários A que respeitem integralmente o seu plano.','The context is favourable. Look only for A scenarios that fully follow your plan.'):cycleText('O contexto pede seletividade. Priorize a proteção do capital e a gestão das posições abertas.','The context calls for selectivity. Prioritize capital protection and the management of open positions.')}</p><div class="operations-actions" style="margin-top:17px"><button class="primary" onclick="go('newtrade')">${cycleText('Planejar trade →','Plan trade →')}</button><button class="secondary" onclick="showToast(cycleText('Abra o gráfico do ativo para validar o setup.','Open the asset chart to validate the setup.'))">${cycleText('Abrir gráfico','Open chart')}</button></div></article><article class="card cycle-score"><div class="cycle-score-top"><div><div class="eyebrow">${cycleText('Leitura transparente','Transparent reading')}</div><h3>IBOV</h3></div><div class="cycle-number">${healthy?'82':'48'}<small>/100</small></div></div><div class="cycle-checks"><div class="cycle-check"><b>${cycleText('Preço acima da EMA 20','Price above EMA 20')}</b><span>${healthy?'✓ '+marketCycleBenchmark.price.toLocaleString('pt-BR'):'—'}</span></div><div class="cycle-check"><b>${cycleText('Preço acima da EMA 200','Price above EMA 200')}</b><span>${healthy?'✓ '+marketCycleBenchmark.price.toLocaleString('pt-BR'):'—'}</span></div><div class="cycle-check"><b>${cycleText('Permissão operacional','Trading permission')}</b><span>${healthy?cycleText('Somente A','A only'):cycleText('Aguardar','Wait')}</span></div></div></article></div><section class="card relative-panel"><div class="relative-header"><div><div class="eyebrow">${cycleText('Ações & units da B3','B3 stocks & units')}</div><h2>${cycleText('Onde está a força agora?','Where is strength now?')}</h2></div><p>${cycleText('Score de 0 a 100 calculado pelo retorno relativo ao IBOV em 1, 3, 6 e 12 meses, com maior peso para os horizontes longos.','Score from 0 to 100 calculated from relative return versus IBOV over 1, 3, 6 and 12 months, with higher weight on longer horizons.')}</p></div><div class="relative-controls"><input id="rsSearch" oninput="filterRelativeStrength()" placeholder="${cycleText('Buscar ativo ou setor','Search ticker or sector')}"><select id="rsSector" onchange="filterRelativeStrength()"><option value="">${cycleText('Todos os setores','All sectors')}</option>${sectors.map(sector=>`<option>${sector}</option>`).join('')}</select><button class="secondary" onclick="showToast(cycleText('A integração BRAPI será usada para atualizar o ranking diário.','The BRAPI integration will update the daily ranking.'))">${cycleText('Atualizar dados','Refresh data')}</button></div><div class="relative-table-wrap"><table class="relative-table"><thead><tr><th>#</th><th>${cycleText('Ativo','Asset')}</th><th>${cycleText('Setor','Sector')}</th><th>1M</th><th>3M</th><th>6M</th><th>12M</th><th>RS</th></tr></thead><tbody id="relativeStrengthRows"></tbody></table></div><p class="relative-note"><b>${cycleText('Como ler:','How to read:')}</b> ${cycleText('o ranking revela desempenho relativo, não um sinal de compra. A decisão só acontece depois da validação do gráfico e do setup Healthy Trend Trader.','the ranking shows relative performance, not a buy signal. The decision only happens after chart and Healthy Trend Trader setup validation.')}</p></section></div>`;renderRelativeStrengthRows()}
+function renderMarketCycle(){const root=document.getElementById('marketcycle');if(!root)return;const healthy=marketCycleBenchmark.price>marketCycleBenchmark.ema9&&marketCycleBenchmark.price>marketCycleBenchmark.ema30;const sectors=[...new Set(marketCycleUniverse.map(item=>item[2]))];root.innerHTML=`<div class="cycle-shell"><header class="cycle-hero"><div><div class="eyebrow">${cycleText('Permissão antes da oportunidade','Permission before opportunity')}</div><h1>${cycleText('Ciclo & Força Relativa.','Market Cycle & Relative Strength.')}</h1><div class="cycle-route"><b>${cycleText('CICLO','CYCLE')}</b><span>→</span><b>${cycleText('FORÇA RELATIVA','RELATIVE STRENGTH')}</b><span>→</span><span>${cycleText('GRÁFICO → DECISÃO','CHART → DECISION')}</span></div></div><p>${cycleText('Primeiro, identifique se o IBOV permite procurar operações. Depois, encontre as ações que lideram o mercado antes de aplicar o seu setup técnico.','First, identify whether IBOV permits looking for trades. Then find the stocks leading the market before applying your technical setup.')}</p></header><div class="cycle-grid"><article class="card cycle-permission"><small>${cycleText('Market Cycle Score · IBOV','Market Cycle Score · IBOV')}</small><h2>${healthy?cycleText('Expansão — Mercado saudável','Expansion — Healthy market'):cycleText('Modo Defesa — Evitar operar','Defense mode — Avoid trading')}</h2><p>${healthy?cycleText('O contexto está a favor. Procure somente cenários A que respeitem integralmente o seu plano.','The context is favourable. Look only for A scenarios that fully follow your plan.'):cycleText('O contexto pede preservação de capital. Evite novas operações e proteja as posições existentes.','The context calls for capital preservation. Avoid new trades and protect open positions.')}</p><div class="operations-actions" style="margin-top:17px"><button class="primary" onclick="go('newtrade')">${cycleText('Planejar trade →','Plan trade →')}</button><button class="secondary" onclick="showToast(cycleText('Abra o gráfico do ativo para validar o setup.','Open the asset chart to validate the setup.'))">${cycleText('Abrir gráfico','Open chart')}</button></div></article><article class="card cycle-score"><div class="cycle-score-top"><div><div class="eyebrow">${cycleText('Leitura transparente','Transparent reading')}</div><h3>IBOV</h3></div><div class="cycle-number">${healthy?'82':'48'}<small>/100</small></div></div><div class="cycle-checks"><div class="cycle-check"><b>${cycleText('Preço acima da EMA 9','Price above EMA 9')}</b><span>${healthy?'✓ '+marketCycleBenchmark.price.toLocaleString('pt-BR'):'—'}</span></div><div class="cycle-check"><b>${cycleText('Preço acima da EMA 30','Price above EMA 30')}</b><span>${healthy?'✓ '+marketCycleBenchmark.price.toLocaleString('pt-BR'):'—'}</span></div><div class="cycle-check"><b>${cycleText('Permissão operacional','Trading permission')}</b><span>${healthy?cycleText('Permitida (Expansão)','Allowed (Expansion)'):cycleText('Evitar (Defesa)','Avoid (Defense)')}</span></div></div></article></div><section class="card relative-panel"><div class="relative-header"><div><div class="eyebrow">${cycleText('Ações & units da B3','B3 stocks & units')}</div><h2>${cycleText('Onde está a força agora?','Where is strength now?')}</h2></div><p>${cycleText('Score de 0 a 100 calculado pelo retorno relativo ao IBOV em 1, 3, 6 e 12 meses, com maior peso para os horizontes longos.','Score from 0 to 100 calculated from relative return versus IBOV over 1, 3, 6 and 12 months, with higher weight on longer horizons.')}</p></div><div class="relative-controls"><input id="rsSearch" oninput="filterRelativeStrength()" placeholder="${cycleText('Buscar ativo ou setor','Search ticker or sector')}"><select id="rsSector" onchange="filterRelativeStrength()"><option value="">${cycleText('Todos os setores','All sectors')}</option>${sectors.map(sector=>`<option>${sector}</option>`).join('')}</select><button class="secondary" onclick="showToast(cycleText('A integração BRAPI será usada para atualizar o ranking diário.','The BRAPI integration will update the daily ranking.'))">${cycleText('Atualizar dados','Refresh data')}</button></div><div class="relative-table-wrap"><table class="relative-table"><thead><tr><th>#</th><th>${cycleText('Ativo','Asset')}</th><th>${cycleText('Setor','Sector')}</th><th>1M</th><th>3M</th><th>6M</th><th>12M</th><th>RS</th></tr></thead><tbody id="relativeStrengthRows"></tbody></table></div><p class="relative-note"><b>${cycleText('Como ler:','How to read:')}</b> ${cycleText('o ranking revela desempenho relativo, não um sinal de compra. A decisão só acontece depois da validação do gráfico e do setup Healthy Trend Trader.','the ranking shows relative performance, not a buy signal. The decision only happens after chart and Healthy Trend Trader setup validation.')}</p></section></div>`;renderRelativeStrengthRows()}
 function renderRelativeStrengthRows(){const target=document.getElementById('relativeStrengthRows');if(!target)return;const search=(document.getElementById('rsSearch')?.value||'').toLowerCase(),sector=document.getElementById('rsSector')?.value||'';const items=marketCycleRanked().filter(item=>!search||`${item.symbol} ${item.name} ${item.sector}`.toLowerCase().includes(search)).filter(item=>!sector||item.sector===sector);target.innerHTML=items.map((item,index)=>`<tr><td>${index+1}</td><td><b>${item.symbol}</b><br><small>${item.name}</small></td><td>${item.sector}</td><td class="${item.m1>=marketCycleBenchmark.returns.m1?'rs-positive':'rs-negative'}">${item.m1>=0?'+':''}${item.m1.toFixed(1)}%</td><td class="${item.m3>=marketCycleBenchmark.returns.m3?'rs-positive':'rs-negative'}">${item.m3>=0?'+':''}${item.m3.toFixed(1)}%</td><td class="${item.m6>=marketCycleBenchmark.returns.m6?'rs-positive':'rs-negative'}">${item.m6>=0?'+':''}${item.m6.toFixed(1)}%</td><td class="${item.m12>=marketCycleBenchmark.returns.m12?'rs-positive':'rs-negative'}">${item.m12>=0?'+':''}${item.m12.toFixed(1)}%</td><td><span class="rs-score ${cycleScoreClass(item.score)}">${item.score}</span></td></tr>`).join('')||`<tr><td colspan="8">${cycleText('Nenhum ativo encontrado.','No assets found.')}</td></tr>`}
 function relativeStrengthEmptyMessage(){
  const active=relativeStrengthClassesState.classes[relativeStrengthClassesState.selected]||{};
@@ -1237,8 +1237,8 @@ function relativeStrengthEmptyMessage(){
  return rsClassText('Nenhum histórico utilizável disponível nesta classe. Consulte a atualização do cache.','No usable history is available in this class. Check the cache update.');
 }
 function filterRelativeStrength(){renderRelativeStrengthRows()}
-function renderTodayCycleBrief(){const today=document.getElementById('today');if(!today)return;today.querySelector('.today-cycle-brief')?.remove();const hero=today.querySelector('.hero');if(!hero)return;const healthy=marketCycleBenchmark.price>marketCycleBenchmark.ema20&&marketCycleBenchmark.price>marketCycleBenchmark.ema200;const brief=document.createElement('button');brief.type='button';brief.className='card today-cycle-brief';brief.onclick=()=>go('marketcycle');brief.innerHTML=`<div class="today-cycle-copy"><span class="today-cycle-orb"></span><div><b>${healthy?cycleText('Mercado saudável · permissão para procurar somente A','Healthy market · permission to look for A only'):cycleText('Mercado em transição · priorize proteção','Market in transition · prioritize protection')}</b><p>${healthy?cycleText('IBOV acima da EMA 20 e EMA 200. Clique para ler o gráfico e os detalhes do ciclo.','IBOV is above the 20 EMA and 200 EMA. Click to read the chart and cycle details.'):cycleText('Leia o gráfico do IBOV antes de procurar uma nova operação.','Read the IBOV chart before looking for a new trade.')}</p></div></div><span class="today-cycle-link">${cycleText('Ver Ciclo de Mercado →','View Market Cycle →')}</span>`;hero.after(brief)}
-renderTodayCycleBrief=function(){const today=document.getElementById('today');if(!today)return;today.querySelector('.today-cycle-brief')?.remove();const hero=today.querySelector('.hero');if(!hero)return;const healthy=marketCycleBenchmark.price>marketCycleBenchmark.ema20&&marketCycleBenchmark.price>marketCycleBenchmark.ema200;const state=healthy?'healthy':'defensive';const title=healthy?cycleText('Mercado saudável','Healthy market'):cycleText('Mercado defensivo','Defensive market');const detail=healthy?cycleText('O IBOV está acima da EMA 20 e da EMA 200. O contexto permite procurar somente cenários A completos.','IBOV is above the 20 EMA and 200 EMA. The context permits looking only for complete A scenarios.'):cycleText('O contexto pede proteção de capital. Evite novas posições até que a estrutura volte a ficar favorável.','The context calls for capital protection. Avoid new positions until the structure becomes favourable again.');const brief=document.createElement('button');brief.type='button';brief.className=`card today-cycle-brief ${state}`;brief.onclick=()=>go('marketcycle');brief.innerHTML=`<div class="today-cycle-copy"><span class="today-cycle-orb"></span><div><small class="today-cycle-status">${cycleText('Ciclo de mercado · IBOV','Market cycle · IBOV')}</small><b>${title}</b><p>${detail}</p></div></div><span class="today-cycle-link">${cycleText('Ver detalhes do ciclo →','View cycle details →')}</span>`;hero.after(brief)}
+function renderTodayCycleBrief(){const today=document.getElementById('today');if(!today)return;today.querySelector('.today-cycle-brief')?.remove();const hero=today.querySelector('.hero');if(!hero)return;const healthy=marketCycleBenchmark.price>marketCycleBenchmark.ema9&&marketCycleBenchmark.price>marketCycleBenchmark.ema30;const brief=document.createElement('button');brief.type='button';brief.className='card today-cycle-brief';brief.onclick=()=>go('marketcycle');brief.innerHTML=`<div class="today-cycle-copy"><span class="today-cycle-orb"></span><div><b>${healthy?cycleText('Mercado saudável · permissão para operar','Healthy market · trading permission active'):cycleText('Modo Defesa · priorize proteção','Defensive mode · prioritize protection')}</b><p>${healthy?cycleText('IBOV acima da EMA 9 e EMA 30. Clique para ler o gráfico e os detalhes do ciclo.','IBOV is above the 9 EMA and 30 EMA. Click to read the chart and cycle details.'):cycleText('Leia o gráfico do IBOV antes de procurar uma nova operação.','Read the IBOV chart before looking for a new trade.')}</p></div></div><span class="today-cycle-link">${cycleText('Ver Ciclo de Mercado →','View Market Cycle →')}</span>`;hero.after(brief)}
+renderTodayCycleBrief=function(){const today=document.getElementById('today');if(!today)return;today.querySelector('.today-cycle-brief')?.remove();const hero=today.querySelector('.hero');if(!hero)return;const healthy=marketCycleBenchmark.price>marketCycleBenchmark.ema9&&marketCycleBenchmark.price>marketCycleBenchmark.ema30;const state=healthy?'healthy':'defensive';const title=healthy?cycleText('Mercado saudável (Expansão)','Healthy market (Expansion)'):cycleText('Modo Defesa (Evitar operar)','Defensive mode (Avoid trading)');const detail=healthy?cycleText('O IBOV está acima da EMA 9 e da EMA 30. Ambiente favorável para operar os ativos.','IBOV is above the 9 EMA and 30 EMA. Favourable environment for trading assets.'):cycleText('O contexto pede proteção de capital. Evite novas posições até que o preço supere a EMA 9 e a EMA 30.','The context calls for capital protection. Avoid new positions until price rises above 9 and 30 EMA.');const brief=document.createElement('button');brief.type='button';brief.className=`card today-cycle-brief ${state}`;brief.onclick=()=>go('marketcycle');brief.innerHTML=`<div class="today-cycle-copy"><span class="today-cycle-orb"></span><div><small class="today-cycle-status">${cycleText('Ciclo de mercado · IBOV','Market cycle · IBOV')}</small><b>${title}</b><p>${detail}</p></div></div><span class="today-cycle-link">${cycleText('Ver detalhes do ciclo →','View cycle details →')}</span>`;hero.after(brief)}
 renderMarketMap();renderMarketCycle();
 const renderMarketCycleCombined=renderMarketCycle;
 renderMarketCycle=function(){renderMarketCycleCombined();const cycle=document.getElementById('marketcycle'),relative=document.getElementById('relativestrength');if(!cycle||!relative)return;const heading=cycle.querySelector('.cycle-hero h1'),description=cycle.querySelector('.cycle-hero p'),route=cycle.querySelector('.cycle-route'),permission=cycle.querySelector('.cycle-permission'),relativePanel=cycle.querySelector('.relative-panel');if(heading)heading.textContent=cycleText('Ciclo de Mercado.','Market Cycle.');if(description)description.textContent=cycleText('Leia o gráfico diário do IBOV antes de procurar oportunidades. O ciclo informa se o contexto está a favor, em transição ou pedindo defesa.','Read the IBOV daily chart before looking for opportunities. The cycle tells you whether the context is favourable, transitioning or calling for defence.');if(route)route.innerHTML=`<b>${cycleText('IBOV','IBOV')}</b><span>→</span><b>${cycleText('MÉDIAS MÓVEIS','MOVING AVERAGES')}</b><span>→</span><span>${cycleText('PERMISSÃO','PERMISSION')}</span>`;if(permission){const buttons=permission.querySelectorAll('button');if(buttons[1]){buttons[1].textContent=cycleText('Ver Força Relativa →','View Relative Strength →');buttons[1].onclick=()=>go('relativestrength')}}const chartMarkup=`<section class="card cycle-chart-card"><div class="cycle-chart-head"><div><div class="eyebrow">${cycleText('Leitura diária do índice','Daily index reading')}</div><h2>Ibovespa · Diário</h2></div><p>${cycleText('O preço acima da EMA 20 e da EMA 200 sustenta a leitura saudável. A estrutura deve ser revisada antes de qualquer nova posição.','Price above the 20 EMA and 200 EMA supports a healthy reading. The structure must be reviewed before any new position.')}</p></div><div class="cycle-chart"><svg viewBox="0 0 900 270" preserveAspectRatio="none"><path class="grid" d="M0 45H900M0 105H900M0 165H900M0 225H900"/><path class="ema200" d="M0 210 C120 207 190 203 280 195 S420 177 520 166 S700 148 900 128"/><path class="ema20" d="M0 188 C80 182 130 190 205 168 S315 174 385 145 S495 152 565 125 S688 130 760 92 S850 84 900 67"/><path class="price" d="M0 202 L35 194 L72 200 L110 181 L147 189 L185 164 L222 172 L259 149 L296 157 L334 132 L370 143 L409 119 L445 131 L483 108 L520 117 L557 95 L595 106 L632 83 L670 91 L708 67 L746 76 L784 51 L821 60 L859 38 L900 45"/></svg></div><div class="cycle-legend"><span><i></i>${cycleText('Preço','Price')}</span><span><i class="ema20"></i>EMA 20</span><span><i class="ema200"></i>EMA 200</span></div></section>`;if(!cycle.querySelector('.cycle-chart-card'))cycle.querySelector('.cycle-grid').insertAdjacentHTML('afterend',chartMarkup);if(relativePanel){relative.innerHTML=`<header class="relative-page-head"><div class="eyebrow">${cycleText('Líderes antes do setup','Leaders before the setup')}</div><h1>${cycleText('Força Relativa.','Relative Strength.')}</h1><p>${cycleText('Compare ações e units da B3 contra o IBOV, encontre os líderes e só então abra o gráfico para validar o seu setup.','Compare B3 stocks and units against IBOV, find the leaders and only then open the chart to validate your setup.')}</p><button class="secondary" type="button" onclick="go('marketcycle')">← ${cycleText('Voltar ao Ciclo de Mercado','Back to Market Cycle')}</button></header>`;relative.append(relativePanel);relativePanel.style.marginTop='0'}};
@@ -1260,7 +1260,7 @@ let marketDataUpdatedAt=null;
 let marketDataAsOf=null;
 let marketDataSource=null;
 function translateMarketSector(sector){const source=String(sector||'').trim(),key=source.toLowerCase();const translations={'retail trade':'Comércio varejista','electronic technology':'Tecnologia eletrônica','non-energy minerals':'Materiais não energéticos','health services':'Serviços de saúde','finance':'Financeiro','producer manufacturing':'Indústria de transformação','process industries':'Indústrias de processo','consumer non-durables':'Bens de consumo não duráveis','distribution services':'Serviços de distribuição','commercial services':'Serviços comerciais','consumer services':'Serviços ao consumidor','energy minerals':'Energia e minerais','transportation':'Transportes','technology services':'Serviços de tecnologia','utilities':'Serviços públicos','industrial services':'Serviços industriais','communications':'Comunicações'};return translations[key]||source||'Não classificado'}
-async function loadMarketCycleBackend(){if(marketDataLoaded)return;try{const [cycleResponse,rankingResponse]=await Promise.all([fetch(`${MARKET_DATA_API_URL}/market-cycle`),fetch(`${MARKET_DATA_API_URL}/relative-strength?limit=100`)]);if(!cycleResponse.ok||!rankingResponse.ok)return;const cyclePayload=await cycleResponse.json(),rankingPayload=await rankingResponse.json();if(!Array.isArray(rankingPayload.items)||!rankingPayload.items.length)return;const cycle=cyclePayload.cycle||{};marketCycleDataAvailable=hasCompleteMarketCycle(cycle);marketCycleBenchmark={symbol:'IBOV',price:Number(cycle.price),ema20:Number(cycle.ema20),ema200:Number(cycle.ema200),returns:{m1:cyclePayload.benchmark.returns.m1,m3:cyclePayload.benchmark.returns.m3,m6:0,m12:0}};marketCycleUniverse=rankingPayload.items.map(item=>[item.symbol,item.name||item.symbol,translateMarketSector(item.sector),item.m1,item.m3,0,0,item.trendTemplate,item.relativeTrend]);marketDataUpdatedAt=rankingPayload.updatedAt||cyclePayload.updatedAt||null;marketDataAsOf=rankingPayload.dataAsOf||null;marketDataSource=rankingPayload.source||null;marketDataLoaded=true;renderMarketCycle();renderTodayCycleBrief()}catch(error){marketCycleDataAvailable=false;renderMarketCycle();renderTodayCycleBrief();console.info('Dados de mercado em cache ainda indisponíveis.',error)}}
+async function loadMarketCycleBackend(){if(marketDataLoaded)return;try{const [cycleResponse,rankingResponse]=await Promise.all([fetch(`${MARKET_DATA_API_URL}/market-cycle`),fetch(`${MARKET_DATA_API_URL}/relative-strength?limit=100`)]);if(!cycleResponse.ok||!rankingResponse.ok)return;const cyclePayload=await cycleResponse.json(),rankingPayload=await rankingResponse.json();if(!Array.isArray(rankingPayload.items)||!rankingPayload.items.length)return;const cycle=cyclePayload.cycle||{};marketCycleDataAvailable=hasCompleteMarketCycle(cycle);marketCycleBenchmark={symbol:'IBOV',price:Number(cycle.price),ema9:Number(cycle.ema9||cycle.ema10),ema30:Number(cycle.ema30||cycle.ema20),returns:{m1:cyclePayload.benchmark.returns.m1,m3:cyclePayload.benchmark.returns.m3,m6:0,m12:0}};marketCycleUniverse=rankingPayload.items.map(item=>[item.symbol,item.name||item.symbol,translateMarketSector(item.sector),item.m1,item.m3,0,0,item.trendTemplate,item.relativeTrend]);marketDataUpdatedAt=rankingPayload.updatedAt||cyclePayload.updatedAt||null;marketDataAsOf=rankingPayload.dataAsOf||null;marketDataSource=rankingPayload.source||null;marketDataLoaded=true;renderMarketCycle();renderTodayCycleBrief()}catch(error){marketCycleDataAvailable=false;renderMarketCycle();renderTodayCycleBrief();console.info('Dados de mercado em cache ainda indisponíveis.',error)}}
 function relativeDataFreshness(){return relativeStrengthDataLabel(marketDataAsOf,marketDataSource)}
 function relativeStrengthDataLabel(value,source){const raw=String(value||''),date=/^\d{8}$/.test(raw)?new Date(`${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}T12:00:00Z`):new Date(raw),provider=String(source||'B3').startsWith('b3-')?'B3':source||'B3';if(Number.isNaN(date.getTime()))return cycleText(`Último fechamento indisponível · Fonte: ${provider}`,`Latest close unavailable · Source: ${provider}`);const formatted=date.toLocaleDateString(window.appLanguage==='en-US'?'en-US':'pt-BR',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'});return cycleText(`Último fechamento: ${formatted} · Fonte: ${provider}`,`Latest close: ${formatted} · Source: ${provider}`)}
 const renderMarketCycleWithDataFreshness=renderMarketCycle;
@@ -2101,7 +2101,7 @@ function tradeFlowSizing(result){const entry=Number(document.getElementById('ent
 function updateTradeFlowPresentation(result){const stage=document.getElementById('tradeRubricStage');if(!stage||!result)return;stage.classList.remove('grade-a','grade-b','grade-c','grade-d','grade-no-trade');stage.classList.add(tradeGradeClass(result.grade));const redScoreThreshold=(typeof tradingRubricPolicy!=='undefined'&&tradingRubricPolicy?.grades?.find(g=>g.grade==='C')?.minScore)||65;const yellowScoreThreshold=(typeof tradingRubricPolicy!=='undefined'&&tradingRubricPolicy?.grades?.find(g=>g.grade==='A')?.minScore)||95;const isDanger=result.grade==='D'||result.grade==='No Trade'||result.riskPct===0;const isApproved=Boolean(result.qualityAllowed||['A'].includes(result.grade));const gauge=document.getElementById('tradeRubricGauge');if(gauge){gauge.style.setProperty('--gauge-red-deg',(redScoreThreshold*1.8)+'deg');gauge.style.setProperty('--gauge-yellow-deg',(yellowScoreThreshold*1.8)+'deg');gauge.style.setProperty('--gauge',Math.max(0,Math.min(100,Math.round(result.score))));let needleColor='#eab308';if(isDanger){needleColor='#ef4444'}else if(isApproved){needleColor='#22c55e'}else{needleColor='#eab308'}gauge.style.setProperty('--needle-color',needleColor)}const gaugeGrade=document.getElementById('tradeGaugeGrade'),gaugeScore=document.getElementById('tradeGaugeScore'),gaugeMessage=document.getElementById('tradeGaugeMessage');if(gaugeGrade)gaugeGrade.textContent=result.grade;if(gaugeScore)gaugeScore.textContent=`${result.score} / 100`;if(gaugeMessage){gaugeMessage.textContent=tradeGradeMessage(result.grade);gaugeMessage.className=tradeGradeClass(result.grade)}const sizing=tradeFlowSizing(result);const realPositions=operationalState.positions.filter(position=>position.mode==='real');const currentHeat=realPositions.reduce((total,position)=>total+operationMetrics(position).riskPct,0);const portfolio=TradingRubrics.validatePortfolio({currentHeatPct:currentHeat,additionalRiskPct:sizing.initialRisk/POSITION_SIZE_CONFIG.equity*100,openPositions:realPositions.length,maximumHeatPct:POSITION_SIZE_CONFIG.heatMax,maximumPositions:POSITION_SIZE_CONFIG.maximumPositions});const quality=document.getElementById('tradeLayerQuality'),volatility=document.getElementById('tradeLayerVolatility'),portfolioLayer=document.getElementById('tradeLayerPortfolio'),final=document.getElementById('tradeFinalSize'),details=document.getElementById('tradeFinalDetails');const isCaution=['C','B'].includes(result.grade);if(quality)quality.innerHTML=`<i>1</i><h3>Qualidade da oportunidade</h3><p>Grade <b>${result.grade}</b> · Risco-base <b>${numBR(result.riskPct*100,2)}%</b><br><span class="layer-status ${isDanger?'status-danger':(isCaution?'status-caution':'status-good')}">${isDanger?'🔴 OPERAÇÃO NÃO RECOMENDADA':tradeGradeMessage(result.grade)}</span></p>`;if(volatility)volatility.innerHTML=`<i>2</i><h3>Volatilidade e stop</h3><p>Stop: ${numBR(Math.abs(Number(document.getElementById('entry')?.value)-Number(document.getElementById('stop')?.value)),2)} · ATR: ${numBR(Number(document.getElementById('atr')?.value),2)}<br>Camada limitante: <b>${sizing.limitingLayer||'—'}</b></p>`;if(portfolioLayer)portfolioLayer.innerHTML=`<i>3</i><h3>Controle do portfólio</h3><p>Heat projetado: <b>${numBR(portfolio.projectedHeatPct,2)}%</b> / ${numBR(POSITION_SIZE_CONFIG.heatMax,2)}%<br>Posições: <b>${portfolio.projectedPositions}</b> / ${POSITION_SIZE_CONFIG.maximumPositions} · ${portfolio.allowed?'Dentro dos limites':'Limite atingido'}</p>`;if(final)final.textContent=`${numBR(sizing.quantity,0)} ações`;const finalContainer=final?.closest('.final-size')||document.querySelector('.final-size');if(finalContainer)finalContainer.classList.toggle('zero-size',sizing.quantity===0||result.riskPct===0);const finalNote=sizing.quantity===0||result.riskPct===0?'A política não autorizou risco para este setup.':!portfolio.allowed?(portfolio.heatAllowed?'Limite de posições atingido.':'Limite de Portfolio Heat atingido.'):!result.qualityAllowed?`Operação fora dos critérios ideais (Grade ${result.grade})`:'✓ Dentro dos limites de risco';if(details)details.textContent=`Investimento: ${moneyBR(sizing.quantity*Number(document.getElementById('entry')?.value||0))} · Risco inicial: ${moneyBR(sizing.initialRisk)} · ${finalNote}`}
 function setupTradeFlow(){const layout=document.querySelector('#newtrade .trade-layout'),form=document.querySelector('#newtrade .form-card'),rubric=document.getElementById('tradingRubric'),summary=document.querySelector('#newtrade .summary-box');if(!layout||!form||!rubric||!summary||document.getElementById('tradeFlow'))return;layout.querySelector('.steps')?.remove();const flow=document.createElement('section');flow.id='tradeFlow';flow.className='trade-flow';flow.innerHTML=`<header class="trade-flow-head"><div class="eyebrow">Planejamento consciente</div><h2>Um fluxo em 3 etapas para um trade mais consciente</h2><p>Dados do Trade → Qualidade do Cenário → Nivelador de Risco em 3 Camadas</p><div class="trade-flow-steps"><div class="trade-flow-step active" data-trade-flow-step="1"><i>1</i><span>Dados do Trade</span></div><div class="trade-flow-step" data-trade-flow-step="2"><i>2</i><span>Qualidade do Cenário</span></div><div class="trade-flow-step" data-trade-flow-step="3"><i>3</i><span>Nivelador de Risco</span></div></div></header><section class="trade-flow-panel active" data-trade-flow-panel="1"><div id="tradeFlowData"></div><div class="trade-flow-actions"><button class="secondary" type="button" onclick="go('today')">Cancelar</button><button class="primary" type="button" onclick="setTradeFlowStep(2)">Próxima etapa →</button></div></section><section class="trade-flow-panel rubric-stage" id="tradeRubricStage" data-trade-flow-panel="2"><div class="rubric-gauge" id="tradeRubricGauge"><div><strong id="tradeGaugeGrade">—</strong><span id="tradeGaugeScore">0 / 0</span></div></div><p id="tradeGaugeMessage" style="text-align:center;font-weight:800;letter-spacing:.08em">AVALIE O CENÁRIO</p><div id="tradeFlowRubric"></div><div class="trade-flow-actions"><button class="secondary" type="button" onclick="setTradeFlowStep(1)">← Voltar</button><button class="primary" type="button" onclick="setTradeFlowStep(3)">Próxima etapa →</button></div></section><section class="trade-flow-panel three-layer-stage" data-trade-flow-panel="3"><div class="eyebrow">Nivelador de risco em 3 camadas</div><h2>Três dimensões, um Position Size final.</h2><div class="three-layers"><article class="layer-prism" id="tradeLayerQuality"></article><article class="layer-prism" id="tradeLayerVolatility"></article><article class="layer-prism" id="tradeLayerPortfolio"></article></div><div class="final-size"><small>POSITION SIZE FINAL</small><strong id="tradeFinalSize">0 ações</strong><span id="tradeFinalDetails">Preencha os dados para calcular.</span></div><div id="tradeFlowSummary"></div><div class="trade-flow-actions"><button class="secondary" type="button" onclick="setTradeFlowStep(2)">← Voltar</button></div></section>`;flow.querySelector('#tradeFlowData').append(form);flow.querySelector('#tradeFlowRubric').append(rubric);flow.querySelector('#tradeFlowSummary').append(summary);layout.replaceWith(flow);updateTradingRubric();setTradeFlowStep(1)}
 setupTradingRubric();setupTradingRubricSettings();setupTradeFlow();
-function setupTradeWorkbench(){const flow=document.getElementById('tradeFlow'),form=document.querySelector('#newtrade .form-card'),rubric=document.getElementById('tradingRubric'),summary=document.querySelector('#newtrade .summary-box');if(!flow||!form||!rubric||!summary||flow.dataset.workbench==='true')return;flow.dataset.workbench='true';flow.className='trade-workbench';flow.innerHTML=`<header class="trade-workbench-head"><div class="eyebrow">Planejamento consciente</div><h2>Um fluxo em 3 etapas para um trade mais consciente</h2></header><div class="trade-workbench-grid"><section class="workbench-card workbench-trade-data" id="tradeDataStage"><div class="eyebrow">1 · Dados do Trade</div><h3>O que vou operar?</h3><p class="workbench-stage-subtitle">Defina os parâmetros essenciais da operação antes de calcular sua posição.</p><div id="workbenchData"></div></section><section class="workbench-card workbench-rubric-stage" id="tradeRubricStage"><div class="eyebrow">2 · Qualidade do Cenário</div><h3>Qualidade da Oportunidade</h3><p class="workbench-stage-subtitle">Avalie os critérios antes de liberar o risco-base.</p><div class="quality-ruler-container" id="qualityRulerContainer"><div class="quality-ruler-pointer-track"><div class="quality-ruler-pointer pointer-pending" id="qualityRulerPointer" style="left:0%"><span class="pointer-score" id="tradeGaugeScore">— / 100,00</span><span class="pointer-arrow" aria-hidden="true">▼</span></div></div><div class="quality-ruler-bar" id="qualityRulerBar"><div class="ruler-zone zone-red" id="rulerZoneRed" style="width:60%"><span class="zone-label">D</span></div><div class="ruler-zone zone-yellow" id="rulerZoneYellow" style="width:20%"><span class="zone-label">C / B</span></div><div class="ruler-zone zone-green" id="rulerZoneGreen" style="width:20%"><span class="zone-label">A</span></div><div class="ruler-divider" id="rulerDividerRed" style="left:60%"></div><div class="ruler-divider" id="rulerDividerYellow" style="left:80%"></div></div><div class="quality-ruler-axis"><span class="axis-mark axis-0">0</span><span class="axis-mark axis-red" id="axisMarkRed" style="left:60%">60</span><span class="axis-mark axis-yellow" id="axisMarkYellow" style="left:80%">80</span></div></div><div class="quality-ruler-grade-display"><span class="grade-label">GRADE</span><strong class="grade-val" id="tradeGaugeGrade">—</strong></div><b class="experience-status status-pending" id="tradeGaugeMessage">○ AVALIE TODOS OS CRITÉRIOS</b><div id="workbenchRubric"></div></section><section class="workbench-card workbench-sizer"><div class="workbench-sizer-head"><div class="eyebrow">3 · Nivelador de Risco</div><h3>Resumo da Operação</h3><p class="workbench-stage-subtitle">Validação de risco e dimensionamento da posição para execução.</p><span class="op-mode-badge is-normal" id="opModeBadge">Operação Normal</span></div><div class="workbench-sizer-body"><div class="workbench-subcol workbench-subcol-system" id="workbenchColSystem"><div class="subcol-kicker"><span class="subcol-tag">O SISTEMA</span><span class="subcol-desc">Quanto posso operar?</span></div><div class="three-layers"><article class="layer-prism" id="tradeLayerQuality"></article><article class="layer-prism" id="tradeLayerVolatility"></article><article class="layer-prism" id="tradeLayerPortfolio"></article></div><div class="final-size"><small>POSITION SIZE FINAL</small><strong id="tradeFinalSize">0 ações</strong><span id="tradeFinalDetails">Preencha os dados para calcular.</span></div></div><div class="workbench-subcol-divider" aria-hidden="true"></div><div class="workbench-subcol workbench-subcol-execution" id="workbenchColExecution"><div class="subcol-kicker"><span class="subcol-tag">VOCÊ</span><span class="subcol-desc">Decisão e Execução</span></div><div id="workbenchExecutionMount"></div><div id="workbenchSummary"></div></div></div></section></div>`;flow.querySelector('#workbenchData').append(form);flow.querySelector('#workbenchRubric').append(rubric);flow.querySelector('#workbenchSummary').append(summary);if(typeof injectTradeFormDividers==='function')injectTradeFormDividers();updateTradingRubric()}
+function setupTradeWorkbench(){const flow=document.getElementById('tradeFlow'),form=document.querySelector('#newtrade .form-card'),rubric=document.getElementById('tradingRubric'),summary=document.querySelector('#newtrade .summary-box');if(!flow||!form||!rubric||!summary||flow.dataset.workbench==='true')return;flow.dataset.workbench='true';flow.className='trade-workbench';flow.innerHTML=`<header class="trade-workbench-head"><div class="trade-workbench-head-left"><div class="eyebrow">Planejamento consciente</div><h2>Um fluxo em 3 etapas para um trade mais consciente</h2></div><div id="newTradeCyclePill" class="newtrade-cycle-pill" onclick="go('marketcycle')" title="Clique para ver o Ciclo de Mercado"></div></header><div class="trade-workbench-grid"><section class="workbench-card workbench-trade-data" id="tradeDataStage"><div class="eyebrow">1 · Dados do Trade</div><h3>O que vou operar?</h3><p class="workbench-stage-subtitle">Defina os parâmetros essenciais da operação antes de calcular sua posição.</p><div id="workbenchData"></div></section><section class="workbench-card workbench-rubric-stage" id="tradeRubricStage"><div class="eyebrow">2 · Qualidade do Cenário</div><h3>Qualidade da Oportunidade</h3><p class="workbench-stage-subtitle">Avalie os critérios antes de liberar o risco-base.</p><div class="quality-ruler-container" id="qualityRulerContainer"><div class="quality-ruler-pointer-track"><div class="quality-ruler-pointer pointer-pending" id="qualityRulerPointer" style="left:0%"><span class="pointer-score" id="tradeGaugeScore">— / 100,00</span><span class="pointer-arrow" aria-hidden="true">▼</span></div></div><div class="quality-ruler-bar" id="qualityRulerBar"><div class="ruler-zone zone-red" id="rulerZoneRed" style="width:60%"><span class="zone-label">D</span></div><div class="ruler-zone zone-yellow" id="rulerZoneYellow" style="width:20%"><span class="zone-label">C / B</span></div><div class="ruler-zone zone-green" id="rulerZoneGreen" style="width:20%"><span class="zone-label">A</span></div><div class="ruler-divider" id="rulerDividerRed" style="left:60%"></div><div class="ruler-divider" id="rulerDividerYellow" style="left:80%"></div></div><div class="quality-ruler-axis"><span class="axis-mark axis-0">0</span><span class="axis-mark axis-red" id="axisMarkRed" style="left:60%">60</span><span class="axis-mark axis-yellow" id="axisMarkYellow" style="left:80%">80</span></div></div><div class="quality-ruler-grade-display"><span class="grade-label">GRADE</span><strong class="grade-val" id="tradeGaugeGrade">—</strong></div><b class="experience-status status-pending" id="tradeGaugeMessage">○ AVALIE TODOS OS CRITÉRIOS</b><div id="workbenchRubric"></div></section><section class="workbench-card workbench-sizer"><div class="workbench-sizer-head"><div class="eyebrow">3 · Nivelador de Risco</div><h3>Resumo da Operação</h3><p class="workbench-stage-subtitle">Validação de risco e dimensionamento da posição para execução.</p><span class="op-mode-badge is-normal" id="opModeBadge">Operação Normal</span></div><div class="workbench-sizer-body"><div class="workbench-subcol workbench-subcol-system" id="workbenchColSystem"><div class="subcol-kicker"><span class="subcol-tag">O SISTEMA</span><span class="subcol-desc">Quanto posso operar?</span></div><div class="three-layers"><article class="layer-prism" id="tradeLayerQuality"></article><article class="layer-prism" id="tradeLayerVolatility"></article><article class="layer-prism" id="tradeLayerPortfolio"></article></div><div class="final-size"><small>POSITION SIZE FINAL</small><strong id="tradeFinalSize">0 ações</strong><span id="tradeFinalDetails">Preencha os dados para calcular.</span></div></div><div class="workbench-subcol-divider" aria-hidden="true"></div><div class="workbench-subcol workbench-subcol-execution" id="workbenchColExecution"><div class="subcol-kicker"><span class="subcol-tag">VOCÊ</span><span class="subcol-desc">Decisão e Execução</span></div><div id="workbenchExecutionMount"></div><div id="workbenchSummary"></div></div></div></section></div>`;flow.querySelector('#workbenchData').append(form);flow.querySelector('#workbenchRubric').append(rubric);flow.querySelector('#workbenchSummary').append(summary);if(typeof injectTradeFormDividers==='function')injectTradeFormDividers();updateTradingRubric()}
 setupTradeWorkbench();
 function moveExecutedQuantityToRiskStage(){const input=document.getElementById('tradeExecutedQty'),sizer=document.querySelector('.workbench-sizer');const field=input?.closest('.field');if(!field||!sizer)return;field.classList.add('executed-quantity-control');field.querySelector('label').textContent='Quantidade da operação';const hint=field.querySelector('small');if(hint)hint.textContent='Sugestão calculada pelo menor limitador da política. Você pode ajustar antes de registrar o trade.';const mount=document.getElementById('workbenchExecutionMount');if(mount){mount.appendChild(field)}else{sizer.querySelector('.final-size')?.after(field)}}
 moveExecutedQuantityToRiskStage();
@@ -2633,7 +2633,7 @@ renderTodayCycleBrief=function(){
   today.querySelector('.today-cycle-brief')?.remove();
   const hero=today.querySelector('.hero');if(!hero)return;
   const brief=document.createElement('button');brief.type='button';brief.className='card today-cycle-brief defensive';brief.onclick=()=>go('marketcycle');
-  brief.innerHTML=`<div class="today-cycle-copy"><span class="today-cycle-orb"></span><div><small class="today-cycle-status">${cycleText('Ciclo de mercado · IBOV','Market cycle · IBOV')}</small><b>${cycleText('Leitura de mercado indisponível','Market reading unavailable')}</b><p>${cycleText('Preço, EMA 20 e EMA 200 precisam estar disponíveis antes de classificar o ciclo.','Price, 20 EMA and 200 EMA must be available before the cycle can be classified.')}</p></div></div><span class="today-cycle-link">${cycleText('Ver detalhes do ciclo →','View cycle details →')}</span>`;
+  brief.innerHTML=`<div class="today-cycle-copy"><span class="today-cycle-orb"></span><div><small class="today-cycle-status">${cycleText('Ciclo de mercado · IBOV','Market cycle · IBOV')}</small><b>${cycleText('Leitura de mercado indisponível','Market reading unavailable')}</b><p>${cycleText('Preço, EMA 9 e EMA 30 precisam estar disponíveis antes de classificar o ciclo.','Price, 20 EMA and 200 EMA must be available before the cycle can be classified.')}</p></div></div><span class="today-cycle-link">${cycleText('Ver detalhes do ciclo →','View cycle details →')}</span>`;
   hero.after(brief);
 };
 const renderMarketCycleWithAvailability=renderMarketCycle;
@@ -2646,12 +2646,12 @@ renderMarketCycle=function(){
     const label=permission.querySelector('small'),title=permission.querySelector('h2'),detail=permission.querySelector('p');
     if(label)label.textContent=cycleText('Leitura indisponível · IBOV','Reading unavailable · IBOV');
     if(title)title.textContent=cycleText('Dados do ciclo indisponíveis','Cycle data unavailable');
-    if(detail)detail.textContent=cycleText('O ciclo só será classificado quando preço, EMA 20 e EMA 200 estiverem disponíveis.','The cycle will only be classified when price, 20 EMA and 200 EMA are available.');
+    if(detail)detail.textContent=cycleText('O ciclo só será classificado quando preço, EMA 9 e EMA 30 estiverem disponíveis.','The cycle will only be classified when price, 20 EMA and 200 EMA are available.');
     permission.querySelector('.operations-actions')?.remove();
   }
   const score=cycle.querySelector('.cycle-number');if(score)score.innerHTML='—<small>/100</small>';
   cycle.querySelectorAll('.cycle-check span').forEach(item=>item.textContent='—');
-  const chartText=cycle.querySelector('.cycle-chart-head p');if(chartText)chartText.textContent=cycleText('Aguardando preço, EMA 20 e EMA 200 válidos para exibir uma leitura operacional.','Waiting for valid price, 20 EMA and 200 EMA before showing an operational reading.');
+  const chartText=cycle.querySelector('.cycle-chart-head p');if(chartText)chartText.textContent=cycleText('Aguardando preço, EMA 9 e EMA 30 válidos para exibir uma leitura operacional.','Waiting for valid price, 20 EMA and 200 EMA before showing an operational reading.');
 };
 renderMarketCycle();renderTodayCycleBrief();
 </script>
@@ -2790,13 +2790,13 @@ async function loadRiskPolicy(){
   }catch(error){console.warn('Não foi possível carregar a política de risco.',error)}
 }
 window.addEventListener('healthyTrend:authenticated',loadRiskPolicy);
-function cycleLabel(key){return({healthy:'Saudável',improving:'Melhorando',transition:'Transição',defensive:'Defensivo',riskOff:'Risk-Off'})[key]||'Transição'}
+function cycleLabel(key){return({healthy:'Saudável',defensive:'Modo Defesa'})[key]||'Modo Defesa'}
 function atrPercentForRubric(){const entry=Number(document.getElementById('entry')?.value)||0,atr=Number(document.getElementById('atr')?.value)||0;return entry>0&&atr>0?atr/entry*100:null}
 function syncAutomaticAtrRating(){const atrPct=atrPercentForRubric();if(atrPct===null)return;const rating=atrPct<=2?'good':atrPct<=3.5?'medium':'bad';manualRubricRatings={...manualRubricRatings,volatility:rating}}
-function rebuildRiskRubric(){const root=document.getElementById('rubricCriteria');if(!root)return;const profile=selectedRiskProfile(),cycle=profile.key==='standard'?'healthy':'improving',priority=['marketCycle','relativeStrength','fundamentalScore','volatility'],criteria=[...tradingRubricPolicy.criteria].sort((a,b)=>{const ai=priority.indexOf(a.key),bi=priority.indexOf(b.key);return(ai<0?99:ai)-(bi<0?99:bi)});syncAutomaticAtrRating();manualRubricRatings={...manualRubricRatings,marketCycle:cycle};root.innerHTML=criteria.map((criterion,index)=>{const sourceHeading=index===0?'<div class="rubric-source-divider automatic">Dados integrados automaticamente</div>':index===4?'<div class="rubric-source-divider manual">Validação manual do trader</div>':'';const atrPct=criterion.key==='volatility'?atrPercentForRubric():null;const autoDetail=atrPct===null?'':('<small class="rubric-auto-detail">Calculado automaticamente: '+numBR(atrPct,2)+'%</small>');const content=criterion.key==='marketCycle'?'<label class="rubric-criterion rubric-market-permission"><span>Contexto do Mercado<small class="rubric-active-profile">Definido pelo perfil ativo · '+profile.label+'</small></span><b data-rubric-points="'+criterion.key+'">—</b></label>':'<label class="rubric-criterion"><span>'+criterion.label+autoDetail+'</span><div class="manual-rubric-controls">'+['bad','medium','good'].map(rating=>'<button type="button" data-rating="'+rating+'" onclick="setPolicyRubricRating(\''+criterion.key+'\',\''+rating+'\')">'+({bad:'Ruim',medium:'Médio',good:'Bom'})[rating]+'</button>').join('')+'</div><b data-rubric-points="'+criterion.key+'">—</b></label>';return sourceHeading+content}).join('')}
+function rebuildRiskRubric(){const root=document.getElementById('rubricCriteria');if(!root)return;const profile=selectedRiskProfile(),cycle=profile.key==='standard'?'healthy':'defensive',priority=['marketCycle','relativeStrength','fundamentalScore','volatility'],criteria=[...tradingRubricPolicy.criteria].sort((a,b)=>{const ai=priority.indexOf(a.key),bi=priority.indexOf(b.key);return(ai<0?99:ai)-(bi<0?99:bi)});syncAutomaticAtrRating();manualRubricRatings={...manualRubricRatings,marketCycle:cycle};root.innerHTML=criteria.map((criterion,index)=>{const sourceHeading=index===0?'<div class="rubric-source-divider automatic">Dados integrados automaticamente</div>':index===4?'<div class="rubric-source-divider manual">Validação manual do trader</div>':'';const atrPct=criterion.key==='volatility'?atrPercentForRubric():null;const autoDetail=atrPct===null?'':('<small class="rubric-auto-detail">Calculado automaticamente: '+numBR(atrPct,2)+'%</small>');const content=criterion.key==='marketCycle'?'<label class="rubric-criterion rubric-market-permission"><span>Contexto do Mercado<small class="rubric-active-profile">Definido pelo perfil ativo · '+profile.label+'</small></span><b data-rubric-points="'+criterion.key+'">—</b></label>':'<label class="rubric-criterion"><span>'+criterion.label+autoDetail+'</span><div class="manual-rubric-controls">'+['bad','medium','good'].map(rating=>'<button type="button" data-rating="'+rating+'" onclick="setPolicyRubricRating(\''+criterion.key+'\',\''+rating+'\')">'+({bad:'Ruim',medium:'Médio',good:'Bom'})[rating]+'</button>').join('')+'</div><b data-rubric-points="'+criterion.key+'">—</b></label>';return sourceHeading+content}).join('')}
 function setPolicyRubricRating(key,rating){manualRubricRatings={...manualRubricRatings,[key]:rating};updateTradingRubric()}
 function setMarketCyclePermission(key){manualRubricRatings={...manualRubricRatings,marketCycle:key};updateTradingRubric()}
-currentRubricInput=function(){const profile=selectedRiskProfile(),key=profile.key==='standard'?'healthy':'improving';return{ratings:{...manualRubricRatings,marketCycle:key},marketCycleRegime:key,profileKey:profile.key}}
+currentRubricInput=function(){const profile=selectedRiskProfile(),key=profile.key==='standard'?'healthy':'defensive';return{ratings:{...manualRubricRatings,marketCycle:key},marketCycleRegime:key,profileKey:profile.key}}
 function recalc(){const entry=Number(document.getElementById('entry')?.value)||0,stop=Number(document.getElementById('stop')?.value)||0,atr=Number(document.getElementById('atr')?.value)||0,riskBudgetPct=Number(document.getElementById('riskPct')?.value)||0,sizing=calculateExecutableSizing({riskBudgetPct,riskPct:riskBudgetPct,profile:selectedRiskProfile()},{entry,stop,atr}),layers=sizing.layers||[];const byKey=key=>layers.find(layer=>layer.key===key)?.quantity||0;const set=(id,value)=>{const node=document.getElementById(id);if(node)node.textContent=value};set('qty',sizing.quantity.toLocaleString('pt-BR')+' ações');set('qtyRisk',Number(sizing.theoreticalQuantity||0).toLocaleString('pt-BR'));set('qtyVol',byKey('volatility').toLocaleString('pt-BR'));set('qtyCapital',byKey('capital').toLocaleString('pt-BR'));set('riskMoney',sizing.initialRisk.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}));set('capital',(sizing.quantity*entry).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}));set('limitingLayer',sizing.limitingLayerName||'—');set('atrpct',entry?((atr/entry)*100).toFixed(2).replace('.',',')+'%':'—');document.querySelectorAll('.mini-layer-row').forEach(node=>{const key=node.querySelector('#qtyRisk')?'budget':node.querySelector('#qtyVol')?'volatility':'capital';node.classList.toggle('selected',key===sizing.limitingLayer)})}
 function updateTradingRubric(){const root=document.getElementById('tradingRubric');if(!root)return;const result=TradingRubrics.calculateRubric(currentRubricInput(),riskPolicyState),score=document.getElementById('rubricScore'),grade=document.getElementById('rubricGrade'),risk=document.getElementById('rubricRisk'),regime=document.getElementById('rubricMarketRegime'),experience=document.querySelector('#tradeRubricStage .rubric-experience')||document.getElementById('tradingRubricExperience'),complete=result.complete;if(score)score.textContent=numBR(result.score,2)+' / '+numBR(result.maximumScore,2);if(grade)grade.textContent=result.grade;if(risk)risk.textContent=numBR(result.riskPct*100,2)+'%';if(regime)regime.textContent=cycleLabel(result.marketCycle)+' · '+numBR(result.marketFactor,2)+'×';result.contributions.forEach(item=>{const node=document.querySelector('[data-rubric-points="'+item.key+'"]');if(node)node.textContent=numBR(item.points,2)+' / '+numBR(item.weight,2);node?.closest('.rubric-criterion')?.querySelectorAll('[data-rating]').forEach(button=>button.classList.toggle('active',manualRubricRatings[item.key]===button.dataset.rating))});if(experience){experience.querySelector('#experienceRiskProfile')?.remove();const isDanger=complete&&(result.grade==='D'||result.grade==='No Trade'||result.riskPct===0);const isApproved=complete&&(Boolean(result.qualityAllowed)||['A'].includes(result.grade));const scoreText=complete?numBR(result.score,2)+' / '+numBR(result.maximumScore,2):'— / '+numBR(result.maximumScore,2),gradeText=complete?result.grade:'—',riskText=complete?numBR(result.riskPct*100,2)+'%':'0,00%';const gradeEl=experience.querySelector('#experienceGrade');if(gradeEl){gradeEl.textContent=gradeText;gradeEl.className='grade-val '+(complete?('grade-'+result.grade.toLowerCase().replace('+','-plus')):'grade-pending')}const scoreEl=experience.querySelector('#experienceScore');if(scoreEl)scoreEl.textContent=scoreText;const riskEl=experience.querySelector('#experienceRisk');if(riskEl)riskEl.textContent=riskText;const statusEl=experience.querySelector('#experienceStatus');if(statusEl){if(!complete){statusEl.className='experience-status status-pending';statusEl.textContent='AVALIE TODOS OS CRITÉRIOS'}else if(isDanger){statusEl.className='experience-status status-danger';statusEl.textContent='🔴 OPERAÇÃO NÃO RECOMENDADA'}else if(result.grade==='C'){statusEl.className='experience-status status-caution';statusEl.textContent='🟡 AMBIENTE DESFAVORÁVEL'}else if(result.grade==='B'){statusEl.className='experience-status status-caution';statusEl.textContent='🟡 AMBIENTE MODERADO'}else if(isApproved){statusEl.className='experience-status status-good';statusEl.textContent='🟢 QUALIDADE APROVADA'}else{statusEl.className='experience-status';statusEl.textContent=tradeGradeMessage(result.grade)}}const hintEl=experience.querySelector('#experienceStatusHint');if(hintEl)hintEl.style.display='none';experience.querySelector('#experienceGauge')?.style.setProperty('--gauge',String(complete?Math.round(result.score/result.maximumScore*100):50));const footer=experience.querySelector('#rubricExperienceFooter');if(footer)footer.innerHTML='<span>SCORE TOTAL <b>'+scoreText+'</b></span><span>GRADE DO SETUP <b>'+gradeText+'</b></span>'}const warning=document.getElementById('rubricNoTrade');if(warning)warning.innerHTML=result.riskPct===0?'<div class="rubric-no-trade">A política não libera risco neste cenário. Registre na watchlist e aguarde uma melhora do contexto.</div>':'<div class="rubric-policy-result"><b>Risco final: '+numBR(result.riskPct*100,2)+'%</b> = menor entre Grade ('+numBR(result.gradeRiskPct*100,2)+'%) e perfil ('+numBR(result.profileCapPct*100,2)+'%) × ciclo ('+numBR(result.marketFactor,2)+'×).</div>';syncRubricRiskBaseControl(result.riskPct);syncQualityRulerExperience(result);recalc();return result}
 const plannerPayloadWithEffectiveRisk=plannerPayload;
@@ -3080,11 +3080,10 @@ renderEffectiveRiskPolicy();rebuildRiskRubric();updateTradingRubric();loadRiskPo
 <script>
 /* Position Trend Following: a Rubric mede qualidade; o sizing decide exposição. */
 function rubricMarketRegime(){
-  if(!marketCycleDataAvailable||!hasCompleteMarketCycle(marketCycleBenchmark))return'transition';
-  const price=Number(marketCycleBenchmark.price),ema20=Number(marketCycleBenchmark.ema20),ema200=Number(marketCycleBenchmark.ema200);
-  if(price>ema20&&price>ema200&&ema20>=ema200)return'healthy';
-  if(price<ema20&&price<ema200&&ema20<ema200)return'defensive';
-  return'transition';
+  if(!marketCycleDataAvailable||!hasCompleteMarketCycle(marketCycleBenchmark))return'defensive';
+  const price=Number(marketCycleBenchmark.price),ema9=Number(marketCycleBenchmark.ema9),ema30=Number(marketCycleBenchmark.ema30);
+  if(price>ema9&&price>ema30)return'healthy';
+  return'defensive';
 }
 let selectedRubricMarketCycle=null;
 function setRubricMarketCycle(regime){selectedRubricMarketCycle=regime;manualRubricRatings={...manualRubricRatings,marketCycle:regime};rebuildRiskRubric();updateTradingRubric()}
@@ -3092,7 +3091,7 @@ function syncAutomaticAtrRating(){const atrPct=atrPercentForRubric();if(atrPct==
 function rebuildRiskRubric(){
   const root=document.getElementById('rubricCriteria');if(!root)return;syncAutomaticAtrRating();
   const criteria=tradingRubricPolicy.criteria,suggestedRegime=rubricMarketRegime(),regime=selectedRubricMarketCycle||suggestedRegime;manualRubricRatings={...manualRubricRatings,marketCycle:regime};
-  root.innerHTML=criteria.map((criterion,index)=>{const automatic=criterion.key==='volatility';const divider=index===0?'<div class="rubric-source-divider automatic">Dados integrados automaticamente</div>':index===2?'<div class="rubric-source-divider manual">Validação da oportunidade</div>':'';const atrPct=criterion.key==='volatility'?atrPercentForRubric():null;const volatilityRating=manualRubricRatings.volatility||'medium';const detail=criterion.key==='marketCycle'?'<small class="rubric-active-profile">Sugestão do módulo: '+cycleLabel(suggestedRegime)+'</small>':atrPct===null?'':'<small class="rubric-auto-detail">ATR%: '+numBR(atrPct,2)+'% · &lt;2% bom · 2–&lt;4% médio · ≥4% ruim</small>';const controls=criterion.key==='marketCycle'?'<select class="market-cycle-select" aria-label="Regime de mercado" onchange="setRubricMarketCycle(this.value)">'+[['healthy','Saudável'],['transition','Transição'],['defensive','Defensivo'],['riskOff','Risk-Off']].map(([key,label])=>'<option value="'+key+'" '+(regime===key?'selected':'')+'>'+label+'</option>').join('')+'</select>':automatic?'<span class="rubric-auto-rating '+volatilityRating+'">'+({bad:'Volatilidade alta',medium:'Volatilidade moderada',good:'Volatilidade controlada'})[volatilityRating]+'</span>':'<div class="manual-rubric-controls">'+['bad','medium','good'].map(rating=>'<button type="button" data-rating="'+rating+'" onclick="setPolicyRubricRating(\''+criterion.key+'\',\''+rating+'\')">'+({bad:'Ruim',medium:'Médio',good:'Bom'})[rating]+'</button>').join('')+'</div>';return divider+'<label class="rubric-criterion '+(criterion.key==='marketCycle'?'rubric-market-permission':'')+'"><span>'+criterion.label+detail+'</span>'+controls+'<b data-rubric-points="'+criterion.key+'">—</b></label>'}).join('');
+  root.innerHTML=criteria.map((criterion,index)=>{const automatic=criterion.key==='volatility';const divider=index===0?'<div class="rubric-source-divider automatic">Dados integrados automaticamente</div>':index===2?'<div class="rubric-source-divider manual">Validação da oportunidade</div>':'';const atrPct=criterion.key==='volatility'?atrPercentForRubric():null;const volatilityRating=manualRubricRatings.volatility||'medium';const detail=criterion.key==='marketCycle'?'<small class="rubric-active-profile">Sugestão do módulo: '+cycleLabel(suggestedRegime)+'</small>':atrPct===null?'':'<small class="rubric-auto-detail">ATR%: '+numBR(atrPct,2)+'% · &lt;2% bom · 2–&lt;4% médio · ≥4% ruim</small>';const controls=criterion.key==='marketCycle'?'<select class="market-cycle-select" aria-label="Regime de mercado" onchange="setRubricMarketCycle(this.value)">'+[['healthy','Saudável'],['defensive','Modo Defesa']].map(([key,label])=>'<option value="'+key+'" '+(regime===key?'selected':'')+'>'+label+'</option>').join('')+'</select>':automatic?'<span class="rubric-auto-rating '+volatilityRating+'">'+({bad:'Volatilidade alta',medium:'Volatilidade moderada',good:'Volatilidade controlada'})[volatilityRating]+'</span>':'<div class="manual-rubric-controls">'+['bad','medium','good'].map(rating=>'<button type="button" data-rating="'+rating+'" onclick="setPolicyRubricRating(\''+criterion.key+'\',\''+rating+'\')">'+({bad:'Ruim',medium:'Médio',good:'Bom'})[rating]+'</button>').join('')+'</div>';return divider+'<label class="rubric-criterion '+(criterion.key==='marketCycle'?'rubric-market-permission':'')+'"><span>'+criterion.label+detail+'</span>'+controls+'<b data-rubric-points="'+criterion.key+'">—</b></label>'}).join('');
 }
 currentRubricInput=function(){const profile=selectedRiskProfile(),regime=selectedRubricMarketCycle||rubricMarketRegime();return{ratings:{...manualRubricRatings,marketCycle:regime},marketCycleRegime:regime,profileKey:profile.key}}
 function updateTradingRubric(){
@@ -4017,6 +4016,120 @@ renderEffectiveRiskPolicy();
 #newtrade .rubric-experience-host .rubric-criterion .rubric-market-sync-indicator.state-unavailable{
   background-color:rgba(100,116,139,.22);border-color:rgba(148,163,184,.35);color:#cbd5e1;
 }
+
+/* Novo Trade — Rubric do Trade: Ciclo de Mercado Binário (EMA 9 e EMA 30) */
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  grid-column:1 / -1!important;padding:16px 18px!important;min-height:auto!important;
+  background:rgba(10,34,24,.6)!important;border:1px solid rgba(84,226,154,.25)!important;
+  border-radius:14px!important;gap:12px!important;box-sizing:border-box!important;
+}
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission.is-defensive{
+  background:rgba(42,16,20,.6)!important;border-color:rgba(239,68,68,.3)!important;
+}
+.rubric-market-header-row{
+  display:flex!important;align-items:center;justify-content:space-between;gap:14px;width:100%;
+}
+.rubric-market-title-col{
+  display:flex;align-items:center;gap:12px;flex:1;min-width:0;
+}
+.rubric-market-circle-icon{
+  width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:900;flex-shrink:0;color:#fff;
+}
+.rubric-market-circle-icon.ok{background:#10b981;box-shadow:0 0 12px rgba(16,185,129,.4)}
+.rubric-market-circle-icon.fail{background:#ef4444;box-shadow:0 0 12px rgba(239,68,68,.4)}
+.rubric-market-title-text strong{
+  display:block;font-size:15px;font-weight:800;color:#fff;line-height:1.2;
+}
+.rubric-market-title-text small{
+  display:block;font-size:12px;color:#a4ceb5;margin-top:2px;
+}
+.rubric-market-title-text small.defensive{color:#fca5a5}
+.rubric-market-badge-box{
+  display:flex;align-items:center;gap:10px;position:relative;flex-shrink:0;
+}
+.rubric-market-pill-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 18px;border-radius:10px;font-weight:800;text-align:center;
+  line-height:1.2;cursor:pointer;position:relative;min-width:130px;
+  user-select:none;transition:transform .12s ease,box-shadow .12s ease;
+}
+.rubric-market-pill-btn:hover{transform:translateY(-1px)}
+.rubric-market-pill-btn.ok{
+  background:#10b981;color:#fff;box-shadow:0 3px 12px rgba(16,185,129,.35);
+}
+.rubric-market-pill-btn.fail{
+  background:#ef4444;color:#fff;box-shadow:0 3px 12px rgba(239,68,68,.35);
+}
+.rubric-market-pill-btn .pill-main{
+  font-size:12px;letter-spacing:0.04em;text-transform:uppercase;font-weight:900;
+}
+.rubric-market-pill-btn .pill-sub{
+  font-size:10px;opacity:0.92;font-weight:600;
+}
+.rubric-market-select-hidden{
+  position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;
+}
+.rubric-market-points{
+  font-size:13px!important;font-weight:800!important;min-width:75px;text-align:right;
+}
+.rubric-market-points.ok{color:#10b981!important}
+.rubric-market-points.fail{color:#ef4444!important}
+.rubric-market-subcriteria{
+  display:flex;flex-direction:column;gap:7px;padding:9px 0;
+  border-top:1px solid rgba(255,255,255,.09);
+  border-bottom:1px solid rgba(255,255,255,.09);
+}
+.rubric-market-sub-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:12px;padding:3px 0;
+}
+.rubric-market-sub-row .sub-name{
+  color:#cbd5e1;font-weight:500;flex:1;
+}
+.rubric-market-sub-row .sub-val{
+  color:#f8fafc;font-weight:700;font-variant-numeric:tabular-nums;
+}
+.rubric-market-sub-row .sub-ico{
+  width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:900;color:#fff;flex-shrink:0;margin-left:8px;
+}
+.rubric-market-sub-row .sub-ico.ok{background:#10b981;box-shadow:0 0 6px rgba(16,185,129,.4)}
+.rubric-market-sub-row .sub-ico.fail{background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.4)}
+.rubric-market-rule-box{
+  background:rgba(15,23,42,.75);border:1px solid rgba(56,189,248,.3);
+  border-radius:10px;padding:11px 14px;font-size:11.5px;line-height:1.5;color:#94a3b8;
+}
+.rubric-market-rule-box strong{
+  display:flex;align-items:center;gap:6px;color:#38bdf8;font-weight:700;margin-bottom:4px;font-size:12px;
+}
+.rubric-market-rule-box p{
+  margin:0;color:#cbd5e1;
+}
+.rubric-market-rule-box p b{
+  color:#f8fafc;font-weight:700;
+}
+.newtrade-cycle-pill{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;
+  font-size:12px;font-weight:700;cursor:pointer;user-select:none;
+  background:rgba(15,23,42,.6);border:1px solid rgba(255,255,255,.12);
+  transition:all .15s ease;
+}
+.newtrade-cycle-pill:hover{
+  background:rgba(15,23,42,.85);border-color:rgba(255,255,255,.25);
+}
+.newtrade-cycle-pill.is-healthy{
+  color:#c9f7db;border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.12);
+}
+.newtrade-cycle-pill.is-defensive{
+  color:#fecaca;border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.12);
+}
+.newtrade-cycle-pill .pill-dot{font-size:12px;line-height:1}
+.newtrade-cycle-pill.is-healthy .pill-dot{color:#10b981}
+.newtrade-cycle-pill.is-defensive .pill-dot{color:#ef4444}
+.newtrade-cycle-pill .pill-info{opacity:.75;font-size:13px;margin-left:2px}
+
 .rubric-sync-restore-btn{
   display:inline-flex!important;align-items:center;justify-content:center;
   width:28px;height:28px;flex-shrink:0;padding:0;
@@ -4120,7 +4233,8 @@ renderEffectiveRiskPolicy();
     let snapshot = null;
     if (typeof window.getMarketCycleSnapshot === 'function') {
       snapshot = window.getMarketCycleSnapshot(marketId);
-    } else {
+    }
+    if (!snapshot) {
       try {
         const saved = JSON.parse(localStorage.getItem('healthy-trend-market-cycle-snapshots-v1') || '{}');
         snapshot = saved[marketId] || null;
@@ -4149,43 +4263,43 @@ renderEffectiveRiskPolicy();
 
     if (!snapshot && typeof window.loadMarketCycleV2 === 'function') {
       window.loadMarketCycleV2(mapping.marketId).then(() => {
+        if (typeof rebuildRiskRubric === 'function') rebuildRiskRubric();
         if (typeof updateTradingRubric === 'function') updateTradingRubric();
       }).catch(() => {});
     }
 
     const stateLabels = {
       healthy: 'Saudável',
-      transition: 'Transição',
-      defensive: 'Defensivo',
+      defensive: 'Modo Defesa',
       unavailable: 'Não disponível'
     };
 
     if (!snapshot || !snapshot.classification) {
       const manualOverride = marketCycleManualOverrides[mapping.marketId] || null;
       const isOverridden = Boolean(manualOverride);
-      const effectiveState = manualOverride || 'unavailable';
+      const effectiveState = manualOverride || 'defensive';
       return {
         available: false,
         marketId: mapping.marketId,
         benchmarkSymbol: mapping.benchmarkSymbol,
         state: effectiveState,
-        label: stateLabels[effectiveState] || 'Não disponível',
-        suggestedState: 'unavailable',
-        suggestedLabel: 'Não disponível',
+        label: stateLabels[effectiveState] || 'Modo Defesa',
+        suggestedState: 'defensive',
+        suggestedLabel: 'Modo Defesa',
         isOverridden,
         description: isOverridden
           ? `Alterado manualmente · ${mapping.benchmarkSymbol} indisponível`
-          : 'Não foi possível obter o ciclo de mercado atual.'
+          : 'Ciclo de mercado aguardando sincronização (Modo Defesa ativo por segurança).'
       };
     }
 
     const rawState = snapshot.classification;
     const normalizedState = (typeof TradingRubrics !== 'undefined' && TradingRubrics.marketCycleKey)
       ? TradingRubrics.marketCycleKey(rawState)
-      : rawState;
+      : (rawState === 'healthy' ? 'healthy' : 'defensive');
 
-    const suggestedState = normalizedState || 'transition';
-    const suggestedLabel = stateLabels[suggestedState] || 'Transição';
+    const suggestedState = normalizedState === 'healthy' ? 'healthy' : 'defensive';
+    const suggestedLabel = suggestedState === 'healthy' ? 'Saudável' : 'Modo Defesa';
     const manualOverride = marketCycleManualOverrides[mapping.marketId] || null;
     const isOverridden = Boolean(manualOverride && manualOverride !== suggestedState);
     const effectiveState = isOverridden ? manualOverride : suggestedState;
@@ -4195,13 +4309,19 @@ renderEffectiveRiskPolicy();
       marketId: mapping.marketId,
       benchmarkSymbol: mapping.benchmarkSymbol,
       state: effectiveState,
-      label: stateLabels[effectiveState] || 'Transição',
+      label: effectiveState === 'healthy' ? 'Saudável' : 'Modo Defesa',
       suggestedState,
       suggestedLabel,
       isOverridden,
       description: isOverridden
         ? `Alterado manualmente · ${mapping.benchmarkSymbol} sugere ${suggestedLabel}`
-        : `${mapping.benchmarkSymbol} · sincronizado com Ciclo de Mercado`
+        : `${mapping.benchmarkSymbol} · sincronizado com Ciclo de Mercado`,
+      score: snapshot.score,
+      ema9: snapshot.ema9,
+      ema30: snapshot.ema30,
+      above9: snapshot.above9,
+      above30: snapshot.above30,
+      structure: snapshot.structure
     };
   }
 
@@ -4213,7 +4333,7 @@ renderEffectiveRiskPolicy();
       const rawState = snapshot?.classification;
       const suggestedState = (typeof TradingRubrics !== 'undefined' && TradingRubrics.marketCycleKey)
         ? TradingRubrics.marketCycleKey(rawState)
-        : (rawState || 'transition');
+        : (rawState === 'healthy' ? 'healthy' : 'defensive');
 
       if (state === suggestedState) {
         delete marketCycleManualOverrides[mapping.marketId];
@@ -4306,30 +4426,81 @@ renderEffectiveRiskPolicy();
     root.innerHTML=tradingRubricPolicy.criteria.map((criterion,index)=>{
       if(criterion.key==='marketCycle'){
         const isOverridden = cycleInfo.isOverridden;
-        const options = [
-          { value: 'healthy', label: '🟢 Saudável' },
-          { value: 'transition', label: '🟡 Transição' },
-          { value: 'defensive', label: '🔴 Defensivo' }
-        ];
-        if (cycleInfo.state === 'unavailable') {
-          options.unshift({ value: 'unavailable', label: '⚪ Não disponível' });
-        }
-        const selectOptions = options.map(opt => `<option value="${opt.value}" ${cycleInfo.state === opt.value ? 'selected' : ''}>${opt.label}</option>`).join('');
+        const isHealthy = cycleInfo.state === 'healthy';
+        const snapshot = getMarketCycleSnapshotForMarket(cycleInfo.marketId);
+
+        const ind = snapshot?.indicators || snapshot || {};
+        const above9 = typeof ind.above9 === 'boolean' ? ind.above9 : isHealthy;
+        const above30 = typeof ind.above30 === 'boolean' ? ind.above30 : isHealthy;
+        const trendOk = isHealthy && above9 && above30;
+        const trendVal = isHealthy ? 'Preço > EMA 9 > EMA 30' : (above9 && !above30 ? 'Preço entre EMA 9 e EMA 30' : !above9 && above30 ? 'Preço entre EMA 30 e EMA 9' : 'Preço ≤ EMA 9 e ≤ EMA 30');
+
+        const structureOk = typeof ind.structure === 'boolean' ? ind.structure : (isHealthy || (ind.ema9 && ind.ema30 && Number(ind.ema9) > Number(ind.ema30)));
+        const structureVal = structureOk ? 'EMA 9 > EMA 30' : 'EMA 9 ≤ EMA 30';
+
+        const permissionVal = isHealthy ? 'Sim' : 'Não';
+        const subtitleText = isHealthy ? 'Preço acima da EMA 9 e da EMA 30' : 'Preço abaixo ou entre as médias EMA 9 e EMA 30';
+
         const restoreBtn = isOverridden
-          ? `<button type="button" class="rubric-sync-restore-btn" onclick="restoreAutomaticMarketCycle()" title="Restaurar ciclo de mercado automático (${cycleInfo.benchmarkSymbol}: ${cycleInfo.suggestedLabel})">↻</button>`
+          ? `<button type="button" class="rubric-sync-restore-btn" onclick="restoreAutomaticMarketCycle()" title="Restaurar ciclo automático (${cycleInfo.benchmarkSymbol}: ${cycleInfo.suggestedLabel})">↻</button>`
           : '';
         const subClass = isOverridden ? 'rubric-sync-sub is-override' : 'rubric-sync-sub';
 
-        return '<div class="rubric-criterion rubric-market-permission" data-rubric-key="marketCycle">'
-          +'<span>Contexto do Mercado<small class="'+subClass+'">'+cycleInfo.description+'</small></span>'
-          +'<div class="rubric-market-control">'
-            +'<select class="rubric-market-sync-indicator state-'+cycleInfo.state+'" onchange="setManualMarketCycleOverride(this.value)" title="'+cycleInfo.description+'">'
-              +selectOptions
-            +'</select>'
-            +restoreBtn
-          +'</div>'
-          +'<b data-rubric-points="marketCycle">—</b>'
-          +'</div>';
+        // Atualiza pill no cabeçalho se existir
+        const headerPill = document.getElementById('newTradeCyclePill');
+        if (headerPill) {
+          headerPill.className = `newtrade-cycle-pill ${isHealthy ? 'is-healthy' : 'is-defensive'}`;
+          headerPill.innerHTML = `<span class="pill-dot">●</span> Ciclo de Mercado: ${isHealthy ? 'Expansão' : 'Defesa'} <span class="pill-info" title="Regra Diário EMA 9 e EMA 30. Clique para abrir tela Ciclo de Mercado">ⓘ</span>`;
+        }
+
+        return `<div class="rubric-criterion rubric-market-permission ${isHealthy ? 'is-healthy' : 'is-defensive'}" data-rubric-key="marketCycle">
+          <div class="rubric-market-header-row">
+            <div class="rubric-market-title-col">
+              <span class="rubric-market-circle-icon ${isHealthy ? 'ok' : 'fail'}">${isHealthy ? '✔' : '✖'}</span>
+              <div class="rubric-market-title-text">
+                <strong>Ciclo de Mercado</strong>
+                <small class="${isHealthy ? '' : 'defensive'}">${subtitleText}</small>
+                <small class="${subClass}">${cycleInfo.description}</small>
+              </div>
+            </div>
+            <div class="rubric-market-badge-box">
+              <div class="rubric-market-pill-btn ${isHealthy ? 'ok' : 'fail'}" title="Clique para alternar o regime ou selecionar manualmente">
+                <span class="pill-main">${isHealthy ? 'SAUDÁVEL' : 'MODO DEFESA'}</span>
+                <span class="pill-sub">${isHealthy ? 'Pode operar' : 'Evitar operar'}</span>
+                <select class="rubric-market-select-hidden" onchange="setManualMarketCycleOverride(this.value)" title="${cycleInfo.description}">
+                  <option value="healthy" ${isHealthy ? 'selected' : ''}>🟢 SAUDÁVEL · Pode operar</option>
+                  <option value="defensive" ${!isHealthy ? 'selected' : ''}>🔴 MODO DEFESA · Evitar operar</option>
+                </select>
+              </div>
+              ${restoreBtn}
+              <b data-rubric-points="marketCycle" class="rubric-market-points ${isHealthy ? 'ok' : 'fail'}">—</b>
+            </div>
+          </div>
+          <div class="rubric-market-subcriteria">
+            <div class="rubric-market-sub-row">
+              <span class="sub-name">Tendência (Preço x Médias)</span>
+              <span class="sub-val">${trendVal}</span>
+              <span class="sub-ico ${trendOk ? 'ok' : 'fail'}">${trendOk ? '✔' : '✖'}</span>
+            </div>
+            <div class="rubric-market-sub-row">
+              <span class="sub-name">Estrutura de Médias</span>
+              <span class="sub-val">${structureVal}</span>
+              <span class="sub-ico ${structureOk ? 'ok' : 'fail'}">${structureOk ? '✔' : '✖'}</span>
+            </div>
+            <div class="rubric-market-sub-row">
+              <span class="sub-name">Permissão Operacional</span>
+              <span class="sub-val">${permissionVal}</span>
+              <span class="sub-ico ${isHealthy ? 'ok' : 'fail'}">${isHealthy ? '✔' : '✖'}</span>
+            </div>
+          </div>
+          <div class="rubric-market-rule-box">
+            <strong>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Regra do Ciclo de Mercado
+            </strong>
+            <p>Operar apenas quando o preço estiver acima da EMA 9 e da EMA 30. Se o preço estiver abaixo, entre as médias ou exatamente sobre uma delas, o mercado entra em modo Defesa e <b>novos trades devem ser evitados</b>.</p>
+          </div>
+        </div>`;
       }
       if(criterion.key==='volatility'){
         const classification=syncAutomaticAtrRating();
@@ -4528,6 +4699,10 @@ renderEffectiveRiskPolicy();
   document.addEventListener('change',event=>{
     if(event.target&&event.target.id==='tradeMarket'){rebuildRiskRubric();updateTradingRubric()}
     if(event.target&&['entry','stop','atr'].includes(event.target.id)){syncAutomaticAtrRating();updateTradingRubric()}
+  });
+  window.addEventListener('healthyTrend:marketCycleUpdated', () => {
+    rebuildRiskRubric();
+    updateTradingRubric();
   });
 })();
 </script>

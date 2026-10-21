@@ -34,7 +34,7 @@ test('marketCycleFor retorna dados independentes para stock_b3, bdr e fii sem mi
       fii: {
         market: 'fii',
         benchmark: { symbol: 'IFIX', name: 'Índice de Fundos de Investimentos Imobiliários (IFIX)', returns: { m1: 0.5, m3: 1.2 }, history: [{ date: '20260924', close: 3420 }] },
-        cycle: { state: 'transition', score: 55, price: 3420, ema20: 3410, ema200: 3380 },
+        cycle: { state: 'defensive', score: 35, price: 3420, ema9: 3410, ema30: 3380 },
         breadth: null
       }
     }
@@ -61,14 +61,15 @@ test('marketCycleFor retorna dados independentes para stock_b3, bdr e fii sem mi
   const fiiResult = marketCycleFor(mockCache, 'fii');
   assert.equal(fiiResult.market, 'fii');
   assert.equal(fiiResult.benchmark.symbol, 'IFIX');
-  assert.equal(fiiResult.cycle.state, 'transition');
-  assert.equal(fiiResult.cycle.score, 55);
+  assert.equal(fiiResult.cycle.state, 'defensive');
+  assert.equal(fiiResult.cycle.score, 35);
   assert.equal(fiiResult.breadth, null);
 
   // Garantir que os dados não vazaram entre os três mercados
   assert.notEqual(stockResult.cycle.state, bdrResult.cycle.state);
+  // fii e bdr defensivos, stock healthy
   assert.notEqual(stockResult.cycle.state, fiiResult.cycle.state);
-  assert.notEqual(bdrResult.cycle.state, fiiResult.cycle.state);
+  assert.notEqual(bdrResult.cycle.score, fiiResult.cycle.score);
   assert.notEqual(stockResult.benchmark.symbol, fiiResult.benchmark.symbol);
 });
 
@@ -86,7 +87,7 @@ test('resolveMarketCycle carrega histórico do IFIX sob demanda quando ausente n
   assert.ok(fiiPayload.cycle, 'Ciclo do IFIX deve ter sido calculado');
   assert.ok(Number.isFinite(fiiPayload.cycle.score), 'Score do IFIX deve ser numérico');
   assert.ok(Number.isFinite(fiiPayload.cycle.price), 'Preço do IFIX deve ser numérico');
-  assert.ok(['healthy', 'transition', 'defensive'].includes(fiiPayload.cycle.state), 'Regime válido para IFIX');
+  assert.ok(['healthy', 'defensive'].includes(fiiPayload.cycle.state), 'Regime válido para IFIX');
   assert.ok(Array.isArray(fiiPayload.benchmark.history), 'Série histórica do IFIX deve existir');
 });
 
@@ -104,7 +105,7 @@ test('resolveMarketCycle carrega histórico do BDRX sob demanda quando ausente n
   assert.ok(bdrPayload.cycle, 'Ciclo do BDRX deve ter sido calculado');
   assert.ok(Number.isFinite(bdrPayload.cycle.score), 'Score do BDRX deve ser numérico');
   assert.ok(Number.isFinite(bdrPayload.cycle.price), 'Preço do BDRX deve ser numérico');
-  assert.ok(['healthy', 'transition', 'defensive'].includes(bdrPayload.cycle.state), 'Regime válido para BDRX');
+  assert.ok(['healthy', 'defensive'].includes(bdrPayload.cycle.state), 'Regime válido para BDRX');
   assert.ok(Array.isArray(bdrPayload.benchmark.history), 'Série histórica do BDRX deve existir');
 });
 
@@ -119,10 +120,10 @@ test('scoreCycle calcula ciclos de IBOV, BDRX e IFIX de forma independente', asy
   const bdrxCycle = scoreCycle(bdrx);
   const ifixCycle = scoreCycle(ifix);
 
-  assert.ok(ibovCycle.ema10, 'IBOV deve calcular EMA 10');
-  assert.ok(bdrxCycle.ema10, 'BDRX deve calcular EMA 10');
-  assert.ok(ifixCycle.ema10, 'IFIX deve calcular EMA 10');
+  assert.ok(ibovCycle.ema9, 'IBOV deve calcular EMA 9');
+  assert.ok(bdrxCycle.ema9, 'BDRX deve calcular EMA 9');
+  assert.ok(ifixCycle.ema9, 'IFIX deve calcular EMA 9');
   assert.ok(Number.isFinite(ifixCycle.score), 'Score do IFIX deve ser numérico');
-  assert.ok(['healthy', 'transition', 'defensive'].includes(ifixCycle.state), 'Estado do IFIX deve ser válido');
+  assert.ok(['healthy', 'defensive'].includes(ifixCycle.state), 'Estado do IFIX deve ser válido');
 });
 
