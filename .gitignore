@@ -1,5 +1,6 @@
 # Private files uploaded through the Journal in local development.
 backend/data/journal-attachments/
+backend/data/deserving-diary-attachments/
 backend/data/brapi-cache/
 backend/data/b3-history-cache/
 backend/data/b3-spot-candles-cache.json
