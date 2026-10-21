@@ -7,10 +7,12 @@
 
 (function (root, factory) {
   'use strict';
+  const api = factory();
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
-  } else {
-    root.DeservingDiaryModel = factory();
+    module.exports = api;
+  }
+  if (root) {
+    root.DeservingDiaryModel = api;
   }
 })(typeof window !== 'undefined' ? window : global, function () {
   'use strict';

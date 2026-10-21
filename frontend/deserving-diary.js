@@ -42,17 +42,16 @@
     const container = document.getElementById('deservingdiary');
     if (!container) return;
 
-    if (!container.querySelector('.deserving-diary-wrapper')) {
+    if (!container.querySelector('#deservingDiaryRoot')) {
       container.innerHTML = `
-        <div class="deserving-diary-wrapper" id="deservingDiaryRoot">
-          <!-- O conteúdo dinâmico é injetado aqui -->
-          <div class="dd-loading-placeholder" style="padding: 40px; text-align: center; color: #64748b;">
-            Carregando Diário do Merecimento...
-          </div>
-        </div>
+        <div class="deserving-diary-wrapper" id="deservingDiaryRoot"></div>
       `;
     }
 
+    // Renderiza a estrutura da interface imediatamente para que a tela nunca fique em branco
+    renderMainUi();
+
+    // Carrega dados da API em segundo plano e re-renderiza com os dados do usuário
     await loadInitialData();
     renderMainUi();
   }
@@ -104,16 +103,12 @@
     rootEl.innerHTML = `
       <!-- 1. Hero Banner Superior -->
       <header class="dd-hero-banner" role="banner">
-        <div class="dd-hero-left">
-          <h1 class="dd-hero-title">Diário do <span>Merecimento</span></h1>
-          <p class="dd-hero-quote">“Eu não registro apenas o dinheiro que ganhei. Registro a pessoa que estou me tornando ao aprender a recebê-lo.”</p>
-        </div>
-        <div class="dd-hero-right">
-          <div class="dd-hero-calligraphy">
-            Aprenda a receber.
-            <span>Permita-se prosperar.</span>
-          </div>
-        </div>
+        <img
+          src="assets/deserving-diary/deserving-hero.jpg"
+          class="dd-hero-banner-img"
+          alt="Diário do Merecimento — Aprenda a receber. Permita-se prosperar."
+        />
+        <h1 class="sr-only">Diário do Merecimento — Aprenda a receber. Permita-se prosperar.</h1>
       </header>
 
       <!-- 2. Grid de Conteúdo (Duas Colunas) -->
@@ -1013,5 +1008,32 @@
     editEntry,
     deleteEntry
   };
+
+  // Auto-inicialização caso a página já esteja ativa no carregamento
+  function autoInitIfActive() {
+    const container = document.getElementById('deservingdiary');
+    if (container && container.classList.contains('active')) {
+      renderDeservingDiaryPage();
+    }
+  }
+
+  autoInitIfActive();
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', autoInitIfActive);
+    } else {
+      setTimeout(autoInitIfActive, 50);
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('healthyTrend:authenticated', () => {
+      const container = document.getElementById('deservingdiary');
+      if (container && container.classList.contains('active')) {
+        loadInitialData().then(() => renderMainUi());
+      }
+    });
+  }
 
 })(typeof window !== 'undefined' ? window : global);

@@ -24,70 +24,31 @@
 /* Hero Banner com imagem da montanha ao nascer do sol e caligrafia dourada */
 .dd-hero-banner {
   position: relative;
-  min-height: 140px;
+  width: 100%;
   border-radius: 20px;
-  padding: 26px 36px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
   overflow: hidden;
-  background: linear-gradient(105deg, rgba(254, 252, 246, 0.97) 0%, rgba(254, 249, 238, 0.90) 45%, rgba(250, 238, 212, 0.5) 100%),
-              url('../assets/deserving-diary/deserving-hero.jpg') right 5% top 8% / 1050px auto no-repeat;
-  border: 1px solid rgba(212, 175, 55, 0.28);
+  border: 1px solid rgba(212, 175, 55, 0.32);
   box-shadow: 0 4px 24px rgba(180, 140, 50, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: #fffcf6;
 }
 
-.dd-hero-left {
-  max-width: 650px;
-  z-index: 2;
-}
-
-.dd-hero-title {
-  margin: 0 0 8px 0;
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #3b2813;
-  line-height: 1.15;
-}
-
-.dd-hero-title span {
-  color: #8a6a2a;
-}
-
-.dd-hero-quote {
-  margin: 0;
-  font-size: 14.5px;
-  font-weight: 500;
-  color: #4a584e;
-  line-height: 1.5;
-  font-style: italic;
-}
-
-.dd-hero-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  text-align: right;
-  z-index: 2;
-}
-
-.dd-hero-calligraphy {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 26px;
-  font-style: italic;
-  font-weight: 600;
-  color: #4a3617;
-  letter-spacing: 0.01em;
-  line-height: 1.25;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-}
-
-.dd-hero-calligraphy span {
+.dd-hero-banner-img {
+  width: 100%;
+  height: auto;
   display: block;
-  font-size: 22px;
-  color: #6d4e1d;
+  border-radius: 20px;
+}
+
+.dd-hero-banner .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* =========================================================================
