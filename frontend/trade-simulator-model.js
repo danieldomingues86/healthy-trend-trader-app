@@ -4234,7 +4234,7 @@
    * Reenquadra a janela do snapshot de acordo com o preset de zoom selecionado (1M, 3M, 6M, 1A, 2A).
    * Não altera a integridade dos dados históricos nem o cálculo de EMAs/pivôs.
    */
-  function sliceSnapshotByZoom(snap, zoomPreset = '3M') {
+  function sliceSnapshotByZoom(snap, zoomPreset = '1M') {
     if (!snap || !Array.isArray(snap.allCandles) || !snap.allCandles.length) return snap;
     const history = snap.allCandles;
     const signalIdx = snap.signalIdxInHistory != null

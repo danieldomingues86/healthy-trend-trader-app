@@ -61,7 +61,7 @@
     selectedSimId: null,
     snapshotSimId: null,
     snapshotData: null,
-    snapshotZoom: '3M',
+    snapshotZoom: '1M',
     snapshotAuditModalOpen: false
   };
 
@@ -3729,7 +3729,7 @@
   async function openSnapshot(simId) {
     const sim = state.simulations.find(s => s.id === simId);
     state.snapshotSimId = simId;
-    state.snapshotZoom = '3M';
+    state.snapshotZoom = '1M';
     state.snapshotAuditModalOpen = false;
     state.snapshotData = { simId, status: 'loading', snapshot: null, error: null };
     render();
@@ -3917,7 +3917,7 @@
       return renderSnapshotUnavailable('Snapshot indisponível — fidelidade não verificada', baseSnap.message || 'Histórico insuficiente.');
     }
 
-    const zoomPreset = state.snapshotZoom || '3M';
+    const zoomPreset = state.snapshotZoom || '1M';
     const snap = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.sliceSnapshotByZoom === 'function'
       ? root.TradeSimulatorModel.sliceSnapshotByZoom(baseSnap, zoomPreset)
       : baseSnap;
