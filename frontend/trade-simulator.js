@@ -3518,7 +3518,10 @@
               ${renderSnapshotChartSvg(sim)}
             </div>
             <div class="sim-snapshot-vision-container">
-              \\r\n            </div>\r\n          </div>\r\n          \
+              ${renderTradeVisionAtivoCard(sim)}
+            </div>
+          </div>
+          ${renderSnapshotAuditModal(sim)}
 
           <!-- Rodapé do Snapshot -->
           <div class="sim-snapshot-footer">
