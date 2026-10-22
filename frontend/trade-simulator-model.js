@@ -1026,7 +1026,7 @@
     let winningTradesCount = 0;
     let losingTradesCount = 0;
     let closedTradesCount = 0;
-    let closedCount = 0; // closedTradesCount + notTriggeredCount (para aba Encerrados)
+    let closedCount = 0;
     let totalR = 0;
     let openR = 0;
     let totalGainsR = 0;
@@ -1063,7 +1063,6 @@
         waitingCount++;
       } else if (status === STATUS.NOT_TRIGGERED) {
         notTriggeredCount++;
-        closedCount++;
       } else if (status === STATUS.IN_OPERATION) {
         inOperationCount++;
         openR += Number(sim.resultR) || 0;
@@ -1233,9 +1232,9 @@
       })
       .sort((a, b) => String(a.period).localeCompare(String(b.period)));
 
-    // Distribuição de Resultados
-    const nonExecutedCount = notTriggeredCount + waitingCount;
-    const nonExecutedPct = totalCreated > 0 ? (nonExecutedCount / totalCreated) * 100 : 0;
+    // Distribuição de Resultados (considera exclusivamente sinais não acionados no 3º bucket)
+    const nonExecutedCount = notTriggeredCount;
+    const nonExecutedPct = totalCreated > 0 ? (notTriggeredCount / totalCreated) * 100 : 0;
     const distribution = {
       winners: {
         count: winningTradesCount,
@@ -1248,9 +1247,9 @@
         label: `Perdedores (${round1(lossRate).toFixed(1).replace('.', ',')}%)`
       },
       notTriggered: {
-        count: nonExecutedCount,
-        pct: round1(nonExecutedPct),
-        label: `Não acionados (${round1(nonExecutedPct).toFixed(1).replace('.', ',')}%)`
+        count: notTriggeredCount,
+        pct: round1(notTriggeredPct),
+        label: `Não acionados (${round1(notTriggeredPct).toFixed(1).replace('.', ',')}%)`
       }
     };
 
@@ -1384,6 +1383,7 @@
     const list = Array.isArray(simulations) ? simulations : [];
 
     const tab = String(filters.tab || filters.statusTab || 'ALL').trim().toUpperCase();
+    const resultFilter = String(filters.result || filters.resultFilter || filters.outcome || 'ALL').trim().toUpperCase();
     const trigger = String(filters.trigger || 'ALL').trim();
     const sector = String(filters.sector || 'ALL').trim();
     const grade = String(filters.grade || 'ALL').trim().toUpperCase();
@@ -1430,15 +1430,33 @@
 
     return list.filter(sim => {
       if (!sim) return false;
-      // 1. Aba de Status
+      // 1. Aba de Status (Aguardando Entrada, Em Operação, Encerrados e Não Acionados)
       if (tab === 'WAITING_ENTRY' || tab === 'WAITING') {
         if (sim.status !== STATUS.WAITING_ENTRY) return false;
       } else if (tab === 'IN_OPERATION' || tab === 'IN_OP') {
         if (sim.status !== STATUS.IN_OPERATION) return false;
       } else if (tab === 'CLOSED') {
-        if (sim.status !== STATUS.CLOSED_GAIN && sim.status !== STATUS.CLOSED_LOSS && sim.status !== STATUS.NOT_TRIGGERED) return false;
+        if (sim.status !== STATUS.CLOSED_GAIN && sim.status !== STATUS.CLOSED_LOSS) return false;
+      } else if (tab === 'NOT_TRIGGERED' || tab === 'NOT_TRIGGER') {
+        if (sim.status !== STATUS.NOT_TRIGGERED) return false;
       } else if (tab !== 'ALL' && tab !== '' && sim.status !== tab) {
         return false;
+      }
+
+      // 1.1. Filtro de Resultado em Operações Encerradas (Gain, Loss, Breakeven)
+      if (resultFilter && resultFilter !== 'ALL') {
+        const isClosed = sim.status === STATUS.CLOSED_GAIN || sim.status === STATUS.CLOSED_LOSS;
+        if (!isClosed) return false;
+
+        const resR = Number(sim.resultR) || 0;
+        const isBe = resR === 0 || Math.abs(resR) < 0.0001;
+        if (resultFilter === 'GAIN') {
+          if (resR <= 0 || isBe) return false;
+        } else if (resultFilter === 'LOSS') {
+          if (resR >= 0 || isBe) return false;
+        } else if (resultFilter === 'BREAKEVEN') {
+          if (!isBe) return false;
+        }
       }
 
       // 2. Período

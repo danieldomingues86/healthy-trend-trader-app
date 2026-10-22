@@ -49,6 +49,7 @@
       sector: 'ALL',
       grade: 'ALL',
       tab: 'ALL',
+      result: 'ALL',
       query: '',
       unit: 'R' // 'R' ou 'RS'
     },
@@ -1544,30 +1545,55 @@
    */
   function renderTableSection(simulations, stats) {
     const activeTab = state.filters.tab;
+    const activeResult = state.filters.result || 'ALL';
     const tableStats = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.calculateSimulatorStats === 'function'
       ? root.TradeSimulatorModel.calculateSimulatorStats(simulations)
       : stats;
+
+    // Contagens específicas dos filtros de resultado em Encerrados
+    let closedCounts = { all: 0, gain: 0, loss: 0, breakeven: 0 };
+    if (activeTab === 'CLOSED' && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.filterSimulations === 'function') {
+      const closedBase = root.TradeSimulatorModel.filterSimulations(state.simulations, {
+        days: state.filters.days,
+        startDate: state.filters.startDate,
+        endDate: state.filters.endDate,
+        trigger: state.filters.trigger,
+        sector: state.filters.sector,
+        grade: state.filters.grade,
+        query: state.filters.query,
+        tab: 'CLOSED',
+        result: 'ALL'
+      });
+      closedCounts.all = closedBase.length;
+      closedCounts.gain = closedBase.filter(s => Number(s.resultR) > 0).length;
+      closedCounts.loss = closedBase.filter(s => Number(s.resultR) < 0 && Math.abs(Number(s.resultR) || 0) >= 0.0001).length;
+      closedCounts.breakeven = closedBase.filter(s => Number(s.resultR) === 0 || Math.abs(Number(s.resultR) || 0) < 0.0001).length;
+    }
 
     return `
       <div class="sim-table-card">
         <div class="sim-table-toolbar">
           <!-- Abas de Status -->
           <div class="sim-status-tabs">
-            <button class="sim-tab-btn ${activeTab === 'ALL' ? 'active' : ''}" data-tab="ALL">
+            <button class="sim-tab-btn ${activeTab === 'ALL' ? 'active' : ''}" data-tab="ALL" type="button">
               <span>●</span>
               <span>Todos (${stats.totalCreated})</span>
             </button>
-            <button class="sim-tab-btn ${activeTab === 'WAITING_ENTRY' ? 'active' : ''}" data-tab="WAITING_ENTRY">
+            <button class="sim-tab-btn ${activeTab === 'WAITING_ENTRY' ? 'active' : ''}" data-tab="WAITING_ENTRY" type="button">
               <span class="sim-tab-dot dot-orange"></span>
               <span>Aguardando Entrada (${stats.waitingCount})</span>
             </button>
-            <button class="sim-tab-btn ${activeTab === 'IN_OPERATION' ? 'active' : ''}" data-tab="IN_OPERATION">
+            <button class="sim-tab-btn ${activeTab === 'IN_OPERATION' ? 'active' : ''}" data-tab="IN_OPERATION" type="button">
               <span class="sim-tab-dot dot-green"></span>
               <span>Em Operação (${stats.inOperationCount})</span>
             </button>
-            <button class="sim-tab-btn ${activeTab === 'CLOSED' ? 'active' : ''}" data-tab="CLOSED">
+            <button class="sim-tab-btn ${activeTab === 'CLOSED' ? 'active' : ''}" data-tab="CLOSED" type="button">
+              <span class="sim-tab-dot dot-blue"></span>
+              <span>Encerrados (${stats.closedTradesCount != null ? stats.closedTradesCount : stats.closedCount})</span>
+            </button>
+            <button class="sim-tab-btn ${activeTab === 'NOT_TRIGGERED' ? 'active' : ''}" data-tab="NOT_TRIGGERED" type="button">
               <span class="sim-tab-dot dot-gray"></span>
-              <span>Encerrados (${stats.closedCount})</span>
+              <span>Não Acionados (${stats.notTriggeredCount})</span>
             </button>
           </div>
 
@@ -1584,6 +1610,30 @@
             </button>
           </div>
         </div>
+
+        <!-- Filtros de Resultado em Operações Encerradas (Gain, Loss, Breakeven) -->
+        ${activeTab === 'CLOSED' ? `
+          <div class="sim-result-filter-bar">
+            <span class="sim-result-filter-label">Resultado:</span>
+            <div class="sim-result-pills">
+              <button class="sim-result-pill ${activeResult === 'ALL' ? 'active' : ''}" data-result-filter="ALL" type="button" title="Exibir todas as operações encerradas">
+                <span>Todos os resultados (${closedCounts.all})</span>
+              </button>
+              <button class="sim-result-pill pill-gain ${activeResult === 'GAIN' ? 'active' : ''}" data-result-filter="GAIN" type="button" title="Exibir apenas operações encerradas no positivo">
+                <span class="sim-tab-dot dot-green"></span>
+                <span>Gain (${closedCounts.gain})</span>
+              </button>
+              <button class="sim-result-pill pill-loss ${activeResult === 'LOSS' ? 'active' : ''}" data-result-filter="LOSS" type="button" title="Exibir apenas operações encerradas no stop">
+                <span class="sim-tab-dot dot-red"></span>
+                <span>Loss (${closedCounts.loss})</span>
+              </button>
+              <button class="sim-result-pill pill-breakeven ${activeResult === 'BREAKEVEN' ? 'active' : ''}" data-result-filter="BREAKEVEN" type="button" title="Exibir apenas operações no zero a zero">
+                <span class="sim-tab-dot dot-gray"></span>
+                <span>Breakeven (${closedCounts.breakeven})</span>
+              </button>
+            </div>
+          </div>
+        ` : ''}
 
         <!-- Tabela -->
         <div class="sim-table-wrap">
@@ -1714,7 +1764,7 @@
    */
   function renderTableRow(sim) {
     const gradeClass = getGradeBadgeClass(sim.grade);
-    const statusPill = renderStatusPill(sim.status);
+    const statusPill = renderStatusPill(sim.status, sim);
     const logoInfo = getTickerLogoInfo(sim.symbol);
 
     const resultClass = sim.resultR > 0 ? 'metric-gain' : (sim.resultR < 0 ? 'metric-loss' : 'metric-neutral');
@@ -1789,7 +1839,10 @@
     `;
   }
 
-  function renderStatusPill(status) {
+  function renderStatusPill(status, sim) {
+    if (sim && (status === 'CLOSED_LOSS' || status === 'CLOSED_GAIN') && (Number(sim.resultR) === 0 || Math.abs(Number(sim.resultR) || 0) < 0.0001)) {
+      return `<span class="sim-status-pill pill-breakeven"><span class="pill-dot"></span> Encerrado (Breakeven)</span>`;
+    }
     switch (status) {
       case 'IN_OPERATION':
         return `<span class="sim-status-pill pill-in-op"><span class="pill-dot"></span> Em operação</span>`;
@@ -4272,7 +4325,19 @@
     // Abas de status
     container.querySelectorAll('[data-tab]').forEach(btn => {
       btn.addEventListener('click', () => {
-        state.filters.tab = btn.dataset.tab;
+        const nextTab = btn.dataset.tab;
+        if (state.filters.tab !== nextTab && nextTab !== 'CLOSED') {
+          state.filters.result = 'ALL';
+        }
+        state.filters.tab = nextTab;
+        render();
+      });
+    });
+
+    // Filtros de resultado em Encerrados (Todos os resultados, Gain, Loss, Breakeven)
+    container.querySelectorAll('[data-result-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.filters.result = btn.dataset.resultFilter;
         render();
       });
     });
@@ -4470,6 +4535,36 @@
       if (totalREl) {
         totalREl.className = `td-num ${tableStats.totalR > 0 ? 'metric-gain' : (tableStats.totalR < 0 ? 'metric-loss' : 'metric-neutral')}`;
         totalREl.innerHTML = `<strong>${tableStats.totalRFormatted}</strong>`;
+      }
+
+      // Sincroniza contagens dos botões de resultado se a aba for Encerrados
+      const activeTab = state.filters.tab;
+      if (activeTab === 'CLOSED' && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.filterSimulations === 'function') {
+        const closedBase = root.TradeSimulatorModel.filterSimulations(state.simulations, {
+          days: state.filters.days,
+          startDate: state.filters.startDate,
+          endDate: state.filters.endDate,
+          trigger: state.filters.trigger,
+          sector: state.filters.sector,
+          grade: state.filters.grade,
+          query: state.filters.query,
+          tab: 'CLOSED',
+          result: 'ALL'
+        });
+        const cAll = closedBase.length;
+        const cGain = closedBase.filter(s => Number(s.resultR) > 0).length;
+        const cLoss = closedBase.filter(s => Number(s.resultR) < 0 && Math.abs(Number(s.resultR) || 0) >= 0.0001).length;
+        const cBe = closedBase.filter(s => Number(s.resultR) === 0 || Math.abs(Number(s.resultR) || 0) < 0.0001).length;
+
+        const btnAll = document.querySelector('[data-result-filter="ALL"] span');
+        const btnGain = document.querySelector('[data-result-filter="GAIN"] span:last-child');
+        const btnLoss = document.querySelector('[data-result-filter="LOSS"] span:last-child');
+        const btnBe = document.querySelector('[data-result-filter="BREAKEVEN"] span:last-child');
+
+        if (btnAll) btnAll.textContent = `Todos os resultados (${cAll})`;
+        if (btnGain) btnGain.textContent = `Gain (${cGain})`;
+        if (btnLoss) btnLoss.textContent = `Loss (${cLoss})`;
+        if (btnBe) btnBe.textContent = `Breakeven (${cBe})`;
       }
     }
 
