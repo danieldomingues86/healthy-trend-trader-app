@@ -59,7 +59,8 @@
     },
     activeDropdown: null,
     selectedSimId: null,
-    snapshotSimId: null
+    snapshotSimId: null,
+    snapshotData: null
   };
 
   function sanitizeSimulationsList(list) {
@@ -3522,7 +3523,7 @@
           <!-- Rodapé do Snapshot -->
           <div class="sim-snapshot-footer">
             <div class="sim-snapshot-footer-note">
-              <span>📷 Foto congelada dos parâmetros da captura e execução da oportunidade.</span>
+              <span>📷 Candles diários reais (OHLCV) da fonte de dados do simulador. Sem candles sintéticos; eventos posteriores ao sinal são destacados à parte.</span>
             </div>
             <div class="sim-snapshot-footer-actions">
               <button class="sim-action-btn" style="width: auto; padding: 0 16px; height: 38px; font-size: 12px; font-weight: 700;" type="button" id="simSnapshotOpenInteractive" data-ticker="${sim.symbol}">
@@ -3708,266 +3709,321 @@
   }
 
   /**
-   * Renderiza o gráfico vetorial SVG com linhas de gatilho, entrada, stop e alvos
+   * Escapa texto para inserção segura em HTML/SVG
+   */
+  function snapEsc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /**
+   * Abre o snapshot do trade carregando o histórico diário REAL do ativo no servidor.
+   * Nunca monta candles localmente: sem dados, o modal exibe indisponibilidade explícita.
+   */
+  async function openSnapshot(simId) {
+    const sim = state.simulations.find(s => s.id === simId);
+    state.snapshotSimId = simId;
+    state.snapshotData = { simId, status: 'loading', snapshot: null, error: null };
+    render();
+    if (!sim) return;
+    try {
+      if (!root.healthyTrendApi || typeof root.healthyTrendApi.request !== 'function') {
+        throw new Error('Cliente de API indisponível para carregar o histórico real.');
+      }
+      const res = await root.healthyTrendApi.request(API_ENDPOINT + '/snapshot', {
+        method: 'POST',
+        body: JSON.stringify({ simulation: sim })
+      });
+      if (state.snapshotSimId !== simId) return;
+      state.snapshotData = { simId, status: 'ready', snapshot: res && res.snapshot ? res.snapshot : null, error: null };
+    } catch (e) {
+      if (state.snapshotSimId !== simId) return;
+      state.snapshotData = {
+        simId,
+        status: 'error',
+        snapshot: null,
+        error: (e && e.message) || 'Falha ao carregar o histórico diário real do ativo.'
+      };
+    }
+    render();
+  }
+
+  function renderSnapshotUnavailable(title, message) {
+    return `
+      <div class="sim-snapshot-unavailable" role="alert">
+        <div class="sim-snapshot-unavailable-icon">⚠</div>
+        <div>
+          <strong>${snapEsc(title)}</strong>
+          <p>${snapEsc(message)}</p>
+          <p class="sim-snapshot-unavailable-hint">Nenhum candle é gerado artificialmente. Sem dados reais, a fidelidade do gráfico não pode ser verificada.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Painel de auditoria do snapshot: o que foi conferido contra o histórico real
+   */
+  function renderSnapshotVerification(snap) {
+    const v = snap.verification || { status: 'UNVERIFIED', checks: [], notes: [] };
+    const meta = {
+      VERIFIED: { cls: 'verified', icon: '✓', text: 'Fidelidade verificada com o histórico real' },
+      DIVERGENT: { cls: 'divergent', icon: '✕', text: 'Divergência detectada entre o registro e o histórico real' },
+      UNVERIFIED: { cls: 'unverified', icon: '!', text: 'Fidelidade não verificada' }
+    }[v.status] || { cls: 'unverified', icon: '!', text: 'Fidelidade não verificada' };
+    const levelIcon = { ok: '✓', warn: '⚠', fail: '✕' };
+    const checksHtml = (v.checks || []).map(c => `
+      <li class="lvl-${snapEsc(c.level)}">
+        <span class="chk-icon">${levelIcon[c.level] || '•'}</span>
+        <span><b>${snapEsc(c.label)}</b> — ${snapEsc(c.detail)}</span>
+      </li>
+    `).join('');
+    const notesHtml = (v.notes || []).length
+      ? `<ul class="sim-snapshot-verify-notes">${v.notes.map(n => `<li>${snapEsc(n)}</li>`).join('')}</ul>`
+      : '';
+    const markersHtml = (snap.patternMarkers || []).length
+      ? `<div class="sim-snapshot-pattern-legend"><b>Pontos do padrão (${snapEsc(snap.triggerName)}):</b> ${snap.patternMarkers.map(m => `<span><i>${snapEsc(m.role)}</i> ${snapEsc(m.label)} · ${formatDateBR(m.time)} · ${formatMoney(m.price)}</span>`).join('')}</div>`
+      : '';
+    return `
+      <div class="sim-snapshot-verify ${meta.cls}">
+        <div class="sim-snapshot-verify-head">
+          <span class="sim-snapshot-verify-badge">${meta.icon}</span>
+          <strong>${meta.text}</strong>
+          <small>${snapEsc(snap.source || 'Fonte não informada')} • ${snapEsc(snap.timeframe)} • ${formatDateBR(snap.window.firstDate)} a ${formatDateBR(snap.window.lastDate)} (${snap.window.contextBars} candles de contexto + ${snap.window.postBars} posteriores)</small>
+        </div>
+        ${markersHtml}
+        <ul class="sim-snapshot-verify-checks">${checksHtml}</ul>
+        ${notesHtml}
+      </div>
+    `;
+  }
+
+  /**
+   * Renderiza o snapshot do trade a partir do histórico diário REAL (candles OHLCV originais, EMAs causais,
+   * pontos do padrão re-detectados sem look-ahead e níveis/eventos conforme registrados na simulação).
    */
   function renderSnapshotChartSvg(sim) {
     if (!sim) return '';
-    const candles = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.generateSimulationSnapshotCandles === 'function'
-      ? root.TradeSimulatorModel.generateSimulationSnapshotCandles(sim)
-      : [];
-    if (!candles.length) {
-      return '<div style="color: #94a3b8; text-align: center; padding: 40px;">Candles indisponíveis para este trade.</div>';
+    const data = state.snapshotData;
+    if (!data || data.simId !== sim.id || data.status === 'loading') {
+      return '<div class="sim-snapshot-loading">Carregando histórico diário real do ativo…</div>';
+    }
+    if (data.status === 'error' || !data.snapshot) {
+      return renderSnapshotUnavailable('Snapshot indisponível', data.error || 'Não foi possível carregar o histórico diário real do ativo.');
+    }
+    const snap = data.snapshot;
+    if (!snap.available) {
+      return renderSnapshotUnavailable('Snapshot indisponível — fidelidade não verificada', snap.message || 'Histórico insuficiente.');
     }
 
-    const entry = Number(sim.entryPrice) || 0;
-    const stop = Number(sim.stopLoss) || 0;
-    const risk = Math.max(0.01, Math.abs(entry - stop));
-    const scenario = sim.managementScenario || '2R';
-    const isPyramid = scenario === 'PYRAMID_1R_2R';
-    const isExtended = scenario === '2.5R';
-    const targetMult = isExtended ? 2.5 : 2.0;
-    const targetExitPrice = Number((entry + targetMult * risk).toFixed(2));
-    const target1R = Number((entry + risk).toFixed(2));
-    const target2R = Number((entry + 2 * risk).toFixed(2));
+    const candles = snap.candles;
+    const lv = snap.levels || {};
+    const n = candles.length;
 
     // Dimensões do SVG
     const svgW = 960;
-    const svgH = 430;
-    const padLeft = 40;
-    const padRight = 135;
-    const padTop = 35;
-    const padBottom = 40;
+    const svgH = 470;
+    const padLeft = 54;
+    const padRight = 150;
+    const padTop = 46;
+    const padBottom = 44;
     const plotW = svgW - padLeft - padRight;
     const plotH = svgH - padTop - padBottom;
 
-    // Escala de preços
-    let allPrices = [entry, stop, target1R, targetExitPrice];
+    // Escala de preços: candles reais, EMAs e níveis registrados (alvos só entram se estiverem na faixa)
+    const prices = [];
     candles.forEach(c => {
-      allPrices.push(Number(c.high), Number(c.low));
-      if (c.ema9) allPrices.push(Number(c.ema9));
-      if (c.ema30) allPrices.push(Number(c.ema30));
+      prices.push(c.high, c.low);
+      if (c.ema9 != null) prices.push(c.ema9);
+      if (c.ema30 != null) prices.push(c.ema30);
     });
-    if (sim.executedEntryPrice) allPrices.push(Number(sim.executedEntryPrice));
-    if (sim.exitPrice) allPrices.push(Number(sim.exitPrice));
-
-    let minP = Math.min(...allPrices);
-    let maxP = Math.max(...allPrices);
-    const pMargin = (maxP - minP) * 0.08 || 1;
+    [lv.entryPlanned, lv.stopInitial, lv.executedEntry, lv.exitPrice].forEach(p => {
+      if (Number.isFinite(p)) prices.push(p);
+    });
+    let minP = Math.min(...prices);
+    let maxP = Math.max(...prices);
+    const pMargin = (maxP - minP) * 0.07 || 1;
     minP -= pMargin;
     maxP += pMargin;
 
-    function getY(price) {
-      if (maxP === minP) return padTop + plotH / 2;
-      return padTop + plotH - ((price - minP) / (maxP - minP)) * plotH;
-    }
-
-    const n = candles.length;
+    const getY = (price) => padTop + plotH - ((price - minP) / (maxP - minP)) * plotH;
     const colW = plotW / n;
-    const bodyW = Math.max(4, Math.min(22, colW * 0.65));
+    const bodyW = Math.max(3, Math.min(14, colW * 0.7));
+    const getX = (idx) => padLeft + (idx + 0.5) * colW;
+    const sigIdx = snap.signalIndex;
+    const sigX = getX(sigIdx);
+    const dividerX = padLeft + (sigIdx + 1) * colW;
 
-    function getX(idx) {
-      return padLeft + (idx + 0.5) * colW;
-    }
-
-    // Linhas de Grade Horizontal
-    const gridSteps = 5;
-    let gridLinesSvg = '';
-    for (let i = 0; i <= gridSteps; i++) {
-      const p = minP + (i / gridSteps) * (maxP - minP);
+    // Grade e eixo de preços (esquerda)
+    let gridSvg = '';
+    for (let i = 0; i <= 6; i++) {
+      const p = minP + (i / 6) * (maxP - minP);
       const y = getY(p);
-      gridLinesSvg += `
-        <line x1="${padLeft}" y1="${y}" x2="${padLeft + plotW}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="3,3" />
-        <text x="${svgW - 5}" y="${y + 4}" fill="#64748b" font-size="10" text-anchor="end" font-family="monospace">R$ ${p.toFixed(2)}</text>
-      `;
+      gridSvg += `<line x1="${padLeft}" y1="${y}" x2="${padLeft + plotW}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="3,3" />`;
+      gridSvg += `<text x="${padLeft - 6}" y="${y + 3}" fill="#64748b" font-size="10" text-anchor="end" font-family="monospace">${p.toFixed(2)}</text>`;
     }
 
-    // Linhas de Referência: Target Exit, Target 1R / Adição, Entrada, Stop Loss
-    const yExit = getY(targetExitPrice);
-    const yT1 = getY(target1R);
-    const yEnt = getY(entry);
-    const yStp = getY(stop);
-
-    const isGain = sim.status === 'CLOSED_GAIN';
-    const isLoss = sim.status === 'CLOSED_LOSS';
-
-    let targetLabel = isGain ? '★ +2R ATINGIDO' : 'ALVO 2R: ' + targetExitPrice.toFixed(2);
-    let targetBg = isGain ? '#10b981' : '#064e3b';
-    let targetStroke = '#10b981';
-
-    if (isExtended) {
-      targetLabel = isGain ? '★ +2,5R ATINGIDO' : 'ALVO 2,5R: ' + targetExitPrice.toFixed(2);
-      targetBg = isGain ? '#f59e0b' : '#78350f';
-      targetStroke = '#f59e0b';
-    } else if (isPyramid) {
-      targetLabel = isGain ? '★ ALVO (+3,00R CONSOL.)' : 'ALVO 2R: ' + targetExitPrice.toFixed(2);
-      targetBg = isGain ? '#0284c7' : '#0c4a6e';
-      targetStroke = '#0284c7';
-    } else if (scenario === 'PARTIAL_50_2R_EMA9') {
-      targetLabel = isGain ? '★ PARCIAL 50% (+2R)' : 'PARCIAL 50%: ' + targetExitPrice.toFixed(2);
-      targetBg = isGain ? '#8b5cf6' : '#4c1d95';
-      targetStroke = '#8b5cf6';
-    } else if (scenario === 'PARTIAL_80_2R_EMA9') {
-      targetLabel = isGain ? '★ PARCIAL 80% (+2R)' : 'PARCIAL 80%: ' + targetExitPrice.toFixed(2);
-      targetBg = isGain ? '#06b6d4' : '#164e63';
-      targetStroke = '#06b6d4';
-    }
-
-    const t1BadgeLabel = (isPyramid && sim.scaleIn && sim.scaleIn.executed)
-      ? '▶ ADIÇÃO (+1R FEITA)'
-      : `ALVO 1R: R$ ${target1R.toFixed(2)}`;
-    const t1BadgeBg = (isPyramid && sim.scaleIn && sim.scaleIn.executed) ? '#0284c7' : '#134e4a';
-    const t1BadgeColor = (isPyramid && sim.scaleIn && sim.scaleIn.executed) ? '#ffffff' : '#5eead4';
-
-    const refLinesSvg = `
-      <!-- Alvo Saída (${scenario}) -->
-      <line x1="${padLeft}" y1="${yExit}" x2="${padLeft + plotW}" y2="${yExit}" stroke="${targetStroke}" stroke-width="1.5" stroke-dasharray="4,4" />
-      <g transform="translate(${padLeft + plotW + 6}, ${yExit - 9})">
-        <rect width="126" height="18" rx="4" fill="${targetBg}" />
-        <text x="63" y="13" fill="#ffffff" font-size="9" font-weight="700" text-anchor="middle" font-family="system-ui">
-          ${targetLabel}
-        </text>
-      </g>
-
-      <!-- Alvo 1R / Adição -->
-      <line x1="${padLeft}" y1="${yT1}" x2="${padLeft + plotW}" y2="${yT1}" stroke="${isPyramid ? '#0284c7' : '#14b8a6'}" stroke-width="1.2" stroke-dasharray="3,3" />
-      <g transform="translate(${padLeft + plotW + 6}, ${yT1 - 9})">
-        <rect width="126" height="18" rx="4" fill="${t1BadgeBg}" />
-        <text x="63" y="13" fill="${t1BadgeColor}" font-size="9" font-weight="700" text-anchor="middle" font-family="system-ui">
-          ${t1BadgeLabel}
-        </text>
-      </g>
-
-      <!-- Entrada -->
-      <line x1="${padLeft}" y1="${yEnt}" x2="${padLeft + plotW}" y2="${yEnt}" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="5,4" />
-      <g transform="translate(${padLeft + plotW + 6}, ${yEnt - 9})">
-        <rect width="118" height="18" rx="4" fill="#0369a1" />
-        <text x="59" y="13" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle" font-family="system-ui">
-          ▶ ENTRADA: R$ ${entry.toFixed(2)}
-        </text>
-      </g>
-
-      <!-- Stop Loss -->
-      <line x1="${padLeft}" y1="${yStp}" x2="${padLeft + plotW}" y2="${yStp}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,4" />
-      <g transform="translate(${padLeft + plotW + 6}, ${yStp - 9})">
-        <rect width="118" height="18" rx="4" fill="${isLoss ? '#ef4444' : '#7f1d1d'}" />
-        <text x="59" y="13" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle" font-family="system-ui">
-          ${isLoss ? '✕ STOP EXECUTADO' : 'STOP: R$ ' + stop.toFixed(2)}
-        </text>
-      </g>
+    // Região posterior ao sinal (não conhecida no momento da decisão)
+    const postW = padLeft + plotW - dividerX;
+    const regionSvg = postW > 2 ? `
+      <rect x="${dividerX}" y="${padTop}" width="${postW}" height="${plotH}" fill="rgba(56,189,248,0.045)" />
+      <line x1="${dividerX}" y1="${padTop - 6}" x2="${dividerX}" y2="${padTop + plotH}" stroke="#38bdf8" stroke-width="1" stroke-dasharray="5,4" stroke-opacity="0.7" />
+      <text x="${dividerX + 6}" y="${padTop - 10}" fill="#7dd3fc" font-size="9.5" font-weight="700" font-family="system-ui">Evolução posterior ao sinal ▶</text>
+      <text x="${dividerX - 6}" y="${padTop - 10}" fill="#94a3b8" font-size="9.5" font-weight="700" text-anchor="end" font-family="system-ui">◀ Contexto conhecido no sinal</text>
+    ` : `
+      <text x="${padLeft + plotW}" y="${padTop - 10}" fill="#94a3b8" font-size="9.5" font-weight="700" text-anchor="end" font-family="system-ui">Contexto conhecido no sinal</text>
     `;
 
-    // Caminhos das EMAs
+    // Níveis registrados: entrada planejada, stop inicial e alvos (a partir do candle do sinal)
+    const isGain = sim.status === 'CLOSED_GAIN';
+    const isLoss = sim.status === 'CLOSED_LOSS';
+    const levelLine = (price, color, dash, label, bg, width = 1.4) => {
+      if (!Number.isFinite(price) || price < minP || price > maxP) return '';
+      const y = getY(price);
+      return `
+        <line x1="${sigX}" y1="${y}" x2="${padLeft + plotW}" y2="${y}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" />
+        <g transform="translate(${padLeft + plotW + 6}, ${y - 9})">
+          <rect width="138" height="18" rx="4" fill="${bg}" />
+          <text x="69" y="12.5" fill="#ffffff" font-size="9.2" font-weight="700" text-anchor="middle" font-family="system-ui">${snapEsc(label)}</text>
+        </g>`;
+    };
+    const levelsSvg = [
+      levelLine(lv.target2R, '#10b981', '2,5', `ALVO +2R: R$ ${Number(lv.target2R).toFixed(2)}`, '#064e3b', 1),
+      levelLine(lv.target1R, '#14b8a6', '2,5', `ALVO +1R: R$ ${Number(lv.target1R).toFixed(2)}`, '#134e4a', 1),
+      levelLine(lv.entryPlanned, '#38bdf8', '5,4', `ENTRADA: R$ ${Number(lv.entryPlanned).toFixed(2)}`, '#0369a1', 1.8),
+      levelLine(lv.stopInitial, '#ef4444', '4,4', `STOP INICIAL: R$ ${Number(lv.stopInitial).toFixed(2)}`, isLoss ? '#dc2626' : '#7f1d1d', 1.5)
+    ].join('');
+
+    // EMAs causais
     let ema9Path = '';
     let ema30Path = '';
     candles.forEach((c, idx) => {
-      const cx = getX(idx);
-      if (c.ema9) {
-        const cy9 = getY(c.ema9);
-        ema9Path += idx === 0 ? `M ${cx} ${cy9}` : ` L ${cx} ${cy9}`;
-      }
-      if (c.ema30) {
-        const cy30 = getY(c.ema30);
-        ema30Path += idx === 0 ? `M ${cx} ${cy30}` : ` L ${cx} ${cy30}`;
-      }
+      const x = getX(idx);
+      if (c.ema9 != null) ema9Path += `${ema9Path ? ' L' : 'M'} ${x} ${getY(c.ema9)}`;
+      if (c.ema30 != null) ema30Path += `${ema30Path ? ' L' : 'M'} ${x} ${getY(c.ema30)}`;
     });
-
     const emaSvg = `
-      ${ema30Path ? `<path d="${ema30Path}" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.85" />` : ''}
-      ${ema9Path ? `<path d="${ema9Path}" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-opacity="0.9" />` : ''}
+      ${ema30Path ? `<path d="${ema30Path}" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.9" />` : ''}
+      ${ema9Path ? `<path d="${ema9Path}" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.95" />` : ''}
     `;
 
-    // Candlesticks e Anotações
+    // Candles reais (OHLC originais)
     let candlesSvg = '';
-    let calloutsSvg = '';
-
+    let axisSvg = '';
+    const specialIdx = new Set();
+    candles.forEach((c, idx) => { if (c.isSignal || c.isEntry || c.isExit) specialIdx.add(idx); });
+    const tickStep = Math.max(1, Math.ceil(n / 10));
+    let lastSpecialLabelIdx = null;
     candles.forEach((c, idx) => {
       const cx = getX(idx);
-      const cOpen = Number(c.open);
-      const cClose = Number(c.close);
-      const cHigh = Number(c.high);
-      const cLow = Number(c.low);
-      const isBull = cClose >= cOpen;
+      const isBull = c.close >= c.open;
       const color = isBull ? '#10b981' : '#ef4444';
-
-      const yH = getY(cHigh);
-      const yL = getY(cLow);
-      const yO = getY(cOpen);
-      const yC = getY(cClose);
+      const yH = getY(c.high);
+      const yL = getY(c.low);
+      const yO = getY(c.open);
+      const yC = getY(c.close);
       const topY = Math.min(yO, yC);
-      const bodyH = Math.max(2, Math.abs(yO - yC));
-
-      // Pavio (Wick)
-      candlesSvg += `<line x1="${cx}" y1="${yH}" x2="${cx}" y2="${yL}" stroke="${color}" stroke-width="1.2" />`;
-      // Corpo (Body)
-      candlesSvg += `<rect x="${cx - bodyW / 2}" y="${topY}" width="${bodyW}" height="${bodyH}" fill="${color}" rx="1" />`;
-
-      // Data no eixo X (a cada 2 ou em pontos-chave)
-      if (idx % 2 === 0 || c.isSignal || c.isEntry || c.isExit) {
-        const dText = String(c.time || '').slice(5).replace('-', '/');
-        candlesSvg += `<text x="${cx}" y="${svgH - 12}" fill="#64748b" font-size="9" text-anchor="middle" font-family="monospace">${dText}</text>`;
-      }
-
-      // Callouts nos candles
+      const bodyH = Math.max(1.5, Math.abs(yO - yC));
       if (c.isSignal) {
-        calloutsSvg += `
-          <g transform="translate(${cx}, ${yL + 16})">
-            <polygon points="0,-6 -5,0 5,0" fill="#38bdf8" />
-            <rect x="-45" y="0" width="90" height="16" rx="4" fill="#0284c7" />
-            <text x="0" y="11" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">🎯 GATILHO</text>
-          </g>
-        `;
+        candlesSvg += `<rect x="${cx - colW / 2}" y="${padTop}" width="${colW}" height="${plotH}" fill="rgba(56,189,248,0.12)" />`;
       }
+      candlesSvg += `<g><title>${snapEsc(c.time)} • A ${c.open} • M ${c.high} • m ${c.low} • F ${c.close}</title>`
+        + `<line x1="${cx}" y1="${yH}" x2="${cx}" y2="${yL}" stroke="${color}" stroke-width="1.4" />`
+        + `<rect x="${cx - bodyW / 2}" y="${topY}" width="${bodyW}" height="${bodyH}" fill="${color}" /></g>`;
 
-      if (c.isEntry) {
-        calloutsSvg += `
-          <g transform="translate(${cx}, ${yL + 18})">
-            <polygon points="0,-6 -5,0 5,0" fill="#10b981" />
-            <rect x="-48" y="0" width="96" height="16" rx="4" fill="#059669" />
-            <text x="0" y="11" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">▶ ENTRADA</text>
-          </g>
-        `;
-      }
-
-      if (c.isTarget2R || (c.isExit && isGain)) {
-        calloutsSvg += `
-          <g transform="translate(${cx}, ${yH - 24})">
-            <rect x="-56" y="0" width="112" height="17" rx="4" fill="#10b981" />
-            <polygon points="0,23 -5,17 5,17" fill="#10b981" />
-            <text x="0" y="12" fill="#ffffff" font-size="8.5" font-weight="800" text-anchor="middle" font-family="system-ui">★ +2R ATINGIDO</text>
-          </g>
-        `;
-      } else if (c.isStop || (c.isExit && isLoss)) {
-        calloutsSvg += `
-          <g transform="translate(${cx}, ${yL + 18})">
-            <polygon points="0,-6 -5,0 5,0" fill="#ef4444" />
-            <rect x="-45" y="0" width="90" height="16" rx="4" fill="#dc2626" />
-            <text x="0" y="11" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">✕ STOP LOSS</text>
-          </g>
-        `;
+      const nearSpecial = [...specialIdx].some(s => s !== idx && Math.abs(s - idx) < 4);
+      if (specialIdx.has(idx) || (idx % tickStep === 0 && !nearSpecial)) {
+        const parts = String(c.time).split('-');
+        const label = `${parts[2]}/${parts[1]}`;
+        const isSpecial = specialIdx.has(idx);
+        // datas de eventos muito próximas são empilhadas em duas linhas para não se sobreporem
+        const stacked = isSpecial && lastSpecialLabelIdx != null && idx - lastSpecialLabelIdx < 4;
+        if (isSpecial) lastSpecialLabelIdx = idx;
+        axisSvg += `<text x="${cx}" y="${svgH - (stacked ? 8 : 22)}" fill="${isSpecial ? '#e2e8f0' : '#64748b'}" font-size="9" font-weight="${isSpecial ? 700 : 400}" text-anchor="middle" font-family="monospace">${label}</text>`;
+        axisSvg += `<line x1="${cx}" y1="${padTop + plotH}" x2="${cx}" y2="${padTop + plotH + 4}" stroke="#475569" stroke-width="1" />`;
       }
     });
 
-    // Legenda no canto superior esquerdo
+    // Pontos do padrão (re-detectados com a lógica do simulador, sem candles futuros)
+    let markersSvg = '';
+    let signalMarkerAnchor = 'low';
+    (snap.patternMarkers || []).forEach(m => {
+      const c = candles[m.index];
+      if (!c) return;
+      const cx = getX(m.index);
+      const r = m.role.length > 1 ? 11 : 9;
+      const above = m.anchor === 'high';
+      if (m.index === sigIdx) signalMarkerAnchor = m.anchor;
+      const yAnchor = above ? getY(c.high) : getY(c.low);
+      const my = above ? yAnchor - 14 - r : yAnchor + 14 + r;
+      markersSvg += `<g><title>${snapEsc(m.label)} • ${snapEsc(m.time)} • R$ ${m.price}</title>`
+        + `<line x1="${cx}" y1="${yAnchor + (above ? -2 : 2)}" x2="${cx}" y2="${my + (above ? r : -r)}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,2" />`
+        + `<circle cx="${cx}" cy="${my}" r="${r}" fill="#0b1f17" stroke="#f8fafc" stroke-width="1.5" />`
+        + `<text x="${cx}" y="${my + 3.4}" fill="#f8fafc" font-size="${m.role.length > 1 ? 8 : 10}" font-weight="800" text-anchor="middle" font-family="system-ui">${snapEsc(m.role)}</text></g>`;
+    });
+
+    // Gatilho (candle do sinal) — callout no lado oposto aos marcadores do padrão
+    const sigCandle = candles[sigIdx];
+    const gatilhoAbove = signalMarkerAnchor === 'low';
+    const gy = gatilhoAbove ? getY(sigCandle.high) - 34 : getY(sigCandle.low) + 34;
+    const gatilhoSvg = `
+      <g transform="translate(${sigX}, ${gy})">
+        <rect x="-62" y="-9" width="124" height="18" rx="4" fill="#0284c7" />
+        <text x="0" y="4" fill="#ffffff" font-size="9" font-weight="800" text-anchor="middle" font-family="system-ui">GATILHO • ${snapEsc(snap.triggerName).slice(0, 18)}</text>
+        <polygon points="${gatilhoAbove ? '0,15 -5,9 5,9' : '0,-15 -5,-9 5,-9'}" fill="#0284c7" />
+      </g>`;
+
+    // Eventos registrados na simulação (entrada, adição, parcial e saída)
+    let eventsSvg = '';
+    (snap.events || []).forEach(ev => {
+      if (ev.type === 'SIGNAL') return;
+      const idx = candles.findIndex(c => c.time === ev.time);
+      if (idx < 0 || !Number.isFinite(ev.price)) return;
+      const x = getX(idx);
+      const y = getY(ev.price);
+      const dateTxt = String(ev.time).slice(8, 10) + '/' + String(ev.time).slice(5, 7);
+      const tag = (txt, color, dy) => `<g transform="translate(${x}, ${y + dy})"><rect x="-58" y="-8" width="116" height="16" rx="4" fill="${color}" /><text x="0" y="3.5" fill="#fff" font-size="8.6" font-weight="700" text-anchor="middle" font-family="system-ui">${snapEsc(txt)}</text></g>`;
+      if (ev.type === 'ENTRY') {
+        eventsSvg += `<polygon points="${x},${y - 6} ${x - 6},${y + 5} ${x + 6},${y + 5}" fill="#22c55e" stroke="#052e16" stroke-width="1" />` + tag(`▶ ENTRADA ${dateTxt} • R$ ${ev.price.toFixed(2)}`, '#059669', 20);
+      } else if (ev.type === 'SCALE_IN') {
+        eventsSvg += `<circle cx="${x}" cy="${y}" r="5" fill="#0284c7" stroke="#fff" stroke-width="1.2" />` + tag(`＋ ADIÇÃO ${dateTxt} • R$ ${ev.price.toFixed(2)}`, '#0284c7', -20);
+      } else if (ev.type === 'PARTIAL_EXIT') {
+        eventsSvg += `<circle cx="${x}" cy="${y}" r="5" fill="#8b5cf6" stroke="#fff" stroke-width="1.2" />` + tag(`${ev.label} ${dateTxt} • R$ ${ev.price.toFixed(2)}`, '#7c3aed', -20);
+      } else if (ev.type === 'EXIT') {
+        const col = isGain ? '#10b981' : (isLoss ? '#ef4444' : '#94a3b8');
+        eventsSvg += `<rect x="${x - 5}" y="${y - 5}" width="10" height="10" fill="${col}" stroke="#fff" stroke-width="1.2" transform="rotate(45 ${x} ${y})" />` + tag(`${isGain ? '★' : '✕'} ${ev.label.toUpperCase()} ${dateTxt} • R$ ${ev.price.toFixed(2)}`, isGain ? '#047857' : '#b91c1c', isGain ? -22 : 22);
+      } else if (ev.type === 'NOT_TRIGGERED') {
+        eventsSvg += `<g transform="translate(${x}, ${getY(candles[idx].high) - 16})"><rect x="-44" y="-8" width="88" height="16" rx="4" fill="#475569" /><text x="0" y="3.5" fill="#fff" font-size="8.6" font-weight="700" text-anchor="middle" font-family="system-ui">NÃO ACIONADO ${dateTxt}</text></g>`;
+      }
+    });
+
     const legendSvg = `
-      <g transform="translate(${padLeft + 10}, 18)">
-        <line x1="0" y1="5" x2="16" y2="5" stroke="#06b6d4" stroke-width="2" />
-        <text x="22" y="9" fill="#06b6d4" font-size="10" font-weight="600" font-family="system-ui">EMA 9</text>
-        
-        <line x1="75" y1="5" x2="91" y2="5" stroke="#f59e0b" stroke-width="2" />
-        <text x="97" y="9" fill="#f59e0b" font-size="10" font-weight="600" font-family="system-ui">EMA 30</text>
-      </g>
-    `;
+      <g transform="translate(${padLeft + 8}, 16)">
+        <text x="0" y="4" fill="#e2e8f0" font-size="12" font-weight="800" font-family="system-ui">${snapEsc(snap.symbol)} • ${snapEsc(snap.timeframe)}</text>
+        <line x1="92" y1="1" x2="108" y2="1" stroke="#38bdf8" stroke-width="2" />
+        <text x="114" y="4" fill="#38bdf8" font-size="10" font-weight="600" font-family="system-ui">EMA 9</text>
+        <line x1="164" y1="1" x2="180" y2="1" stroke="#f59e0b" stroke-width="2" />
+        <text x="186" y="4" fill="#f59e0b" font-size="10" font-weight="600" font-family="system-ui">EMA 30</text>
+      </g>`;
 
     return `
-      <svg class="sim-snapshot-chart-svg" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet">
+      <svg class="sim-snapshot-chart-svg" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Candles diários reais de ${snapEsc(snap.symbol)} no momento do sinal">
         <rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#06150f" rx="10" />
-        ${gridLinesSvg}
-        ${refLinesSvg}
+        ${gridSvg}
+        ${regionSvg}
+        ${levelsSvg}
         ${emaSvg}
         ${candlesSvg}
-        ${calloutsSvg}
+        ${markersSvg}
+        ${gatilhoSvg}
+        ${eventsSvg}
+        ${axisSvg}
         ${legendSvg}
       </svg>
+      ${renderSnapshotVerification(snap)}
     `;
   }
 
@@ -4412,8 +4468,7 @@
     container.querySelectorAll('.sim-action-btn[data-action="chart"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        state.snapshotSimId = btn.dataset.simId;
-        render();
+        openSnapshot(btn.dataset.simId);
       });
     });
 
@@ -4454,8 +4509,7 @@
     container.querySelector('#simModalViewChart')?.addEventListener('click', (e) => {
       const simId = e.currentTarget.dataset.simId;
       state.selectedSimId = null;
-      state.snapshotSimId = simId;
-      render();
+      openSnapshot(simId);
     });
 
     container.querySelector('#simModalDelete')?.addEventListener('click', async (e) => {
@@ -4572,8 +4626,7 @@
     tbody.querySelectorAll('.sim-action-btn[data-action="chart"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        state.snapshotSimId = btn.dataset.simId;
-        render();
+        openSnapshot(btn.dataset.simId);
       });
     });
 

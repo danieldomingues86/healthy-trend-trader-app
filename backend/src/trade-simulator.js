@@ -588,6 +588,62 @@ async function compareHypothesis(userId, client = database) {
   };
 }
 
+/**
+ * Snapshot fiel do trade: reconstrói o gráfico a partir do histórico diário REAL do ativo (mesma fonte
+ * usada pela geração em massa: COTAHIST/B3 ajustado ou Nasdaq). Nunca sintetiza candles; sem dados,
+ * devolve snapshot indisponível com motivo explícito. Aceita o registro da simulação enviado pelo cliente
+ * (inclui sementes e simulações locais) e confere todos os níveis contra o histórico.
+ */
+async function buildSnapshot(userId, payload = {}, options = {}) {
+  if (!userId) throw invalid('Usuário não autenticado.', 401);
+  const raw = payload && payload.simulation;
+  if (!raw || typeof raw !== 'object' || !raw.symbol) throw invalid('Simulação inválida para snapshot.');
+
+  const symbol = String(raw.symbol).toUpperCase().trim();
+  const simulation = {
+    id: raw.id ? String(raw.id) : null,
+    symbol,
+    triggerName: raw.triggerName,
+    signalDate: raw.signalDate ? String(raw.signalDate).slice(0, 10) : null,
+    entryPrice: Number(raw.entryPrice),
+    stopLoss: Number(raw.stopLoss),
+    status: raw.status,
+    executedEntryPrice: raw.executedEntryPrice != null ? Number(raw.executedEntryPrice) : null,
+    entryDate: raw.entryDate ? String(raw.entryDate).slice(0, 10) : null,
+    exitPrice: raw.exitPrice != null ? Number(raw.exitPrice) : null,
+    exitDate: raw.exitDate ? String(raw.exitDate).slice(0, 10) : null,
+    exitReason: raw.exitReason || null,
+    currentStop: raw.currentStop != null ? Number(raw.currentStop) : null,
+    scaleIn: raw.scaleIn && typeof raw.scaleIn === 'object' ? raw.scaleIn : null,
+    partialExit: raw.partialExit && typeof raw.partialExit === 'object' ? raw.partialExit : null
+  };
+
+  let history = null;
+  let source = null;
+  if (options.histories instanceof Map) {
+    history = options.histories.get(symbol) || null;
+    source = options.source || 'Histórico diário injetado';
+  } else if (tickerChart) {
+    try {
+      const b3 = typeof tickerChart.loadB3History === 'function' ? tickerChart.loadB3History() : null;
+      if (b3 && b3.get(symbol)) {
+        history = b3.get(symbol);
+        source = 'B3 (COTAHIST, ajustado a eventos corporativos)';
+      } else {
+        const nasdaq = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
+        if (nasdaq && nasdaq.get(symbol)) {
+          history = nasdaq.get(symbol);
+          source = 'Nasdaq (Twelve Data)';
+        }
+      }
+    } catch {
+      history = null;
+    }
+  }
+
+  return { snapshot: model.buildSimulationSnapshot(simulation, history || [], { source }) };
+}
+
 module.exports = {
   list,
   create,
@@ -597,6 +653,7 @@ module.exports = {
   generateMass,
   clearAll,
   evaluate,
+  buildSnapshot,
   compare,
   compareHypothesis,
   mapSimulation
