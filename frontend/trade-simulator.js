@@ -60,7 +60,9 @@
     activeDropdown: null,
     selectedSimId: null,
     snapshotSimId: null,
-    snapshotData: null
+    snapshotData: null,
+    snapshotZoom: '3M',
+    snapshotAuditModalOpen: false
   };
 
   function sanitizeSimulationsList(list) {
@@ -3516,9 +3518,7 @@
               ${renderSnapshotChartSvg(sim)}
             </div>
             <div class="sim-snapshot-vision-container">
-              ${renderTradeVisionAtivoCard(sim)}
-            </div>
-          </div>
+              \\r\n            </div>\r\n          </div>\r\n          \
 
           <!-- Rodapé do Snapshot -->
           <div class="sim-snapshot-footer">
@@ -3726,6 +3726,8 @@
   async function openSnapshot(simId) {
     const sim = state.simulations.find(s => s.id === simId);
     state.snapshotSimId = simId;
+    state.snapshotZoom = '3M';
+    state.snapshotAuditModalOpen = false;
     state.snapshotData = { simId, status: 'loading', snapshot: null, error: null };
     render();
     if (!sim) return;
@@ -3767,13 +3769,38 @@
   /**
    * Painel de auditoria do snapshot: o que foi conferido contra o histórico real
    */
-  function renderSnapshotVerification(snap) {
+  function formatSnapshotAxisDate(dateStr) {
+    if (!dateStr) return '';
+    const parts = String(dateStr).split('-');
+    if (parts.length < 3) return dateStr;
+    const months = ['jan.', 'fev.', 'mar.', 'abr.', 'mai.', 'jun.', 'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'];
+    const d = parts[2];
+    const m = months[parseInt(parts[1], 10) - 1] || parts[1];
+    const y = parts[0];
+    return `${d} ${m} ${y}`;
+  }
+
+  function circledRole(role) {
+    const map = { '1': '①', '2': '②', '3': '③', 'M': 'M', 'IB': 'IB' };
+    return map[role] || role;
+  }
+
+  /**
+   * Modal de Auditoria Completa de Fidelidade Sob Demanda
+   */
+  function renderSnapshotAuditModal(sim) {
+    if (!state.snapshotAuditModalOpen) return '';
+    const data = state.snapshotData;
+    if (!data || !data.snapshot) return '';
+    const snap = data.snapshot;
+    const sm = snap.summary || {};
     const v = snap.verification || { status: 'UNVERIFIED', checks: [], notes: [] };
     const meta = {
       VERIFIED: { cls: 'verified', icon: '✓', text: 'Fidelidade verificada com o histórico real' },
       DIVERGENT: { cls: 'divergent', icon: '✕', text: 'Divergência detectada entre o registro e o histórico real' },
       UNVERIFIED: { cls: 'unverified', icon: '!', text: 'Fidelidade não verificada' }
     }[v.status] || { cls: 'unverified', icon: '!', text: 'Fidelidade não verificada' };
+
     const levelIcon = { ok: '✓', warn: '⚠', fail: '✕' };
     const checksHtml = (v.checks || []).map(c => `
       <li class="lvl-${snapEsc(c.level)}">
@@ -3781,29 +3808,97 @@
         <span><b>${snapEsc(c.label)}</b> — ${snapEsc(c.detail)}</span>
       </li>
     `).join('');
-    const notesHtml = (v.notes || []).length
-      ? `<ul class="sim-snapshot-verify-notes">${v.notes.map(n => `<li>${snapEsc(n)}</li>`).join('')}</ul>`
-      : '';
-    const markersHtml = (snap.patternMarkers || []).length
-      ? `<div class="sim-snapshot-pattern-legend"><b>Pontos do padrão (${snapEsc(snap.triggerName)}):</b> ${snap.patternMarkers.map(m => `<span><i>${snapEsc(m.role)}</i> ${snapEsc(m.label)} · ${formatDateBR(m.time)} · ${formatMoney(m.price)}</span>`).join('')}</div>`
-      : '';
+
     return `
-      <div class="sim-snapshot-verify ${meta.cls}">
-        <div class="sim-snapshot-verify-head">
-          <span class="sim-snapshot-verify-badge">${meta.icon}</span>
-          <strong>${meta.text}</strong>
-          <small>${snapEsc(snap.source || 'Fonte não informada')} • ${snapEsc(snap.timeframe)} • ${formatDateBR(snap.window.firstDate)} a ${formatDateBR(snap.window.lastDate)} (${snap.window.contextBars} candles de contexto + ${snap.window.postBars} posteriores)</small>
+      <div class="sim-modal-overlay open" id="simSnapshotAuditModalOverlay" style="z-index: 1200;">
+        <div class="sim-snap-audit-modal-box">
+          <div class="sim-snap-audit-modal-head">
+            <div>
+              <h3>Auditoria de Fidelidade Histórica — ${snapEsc(sim.symbol)}</h3>
+              <p>Conferência rigorosa dos dados exibidos contra a fonte histórica oficial e os registros da simulação.</p>
+            </div>
+            <button class="sim-modal-close-btn" type="button" id="simSnapshotAuditModalClose" title="Fechar auditoria">×</button>
+          </div>
+
+          <div class="sim-snap-audit-modal-body">
+            <table class="sim-snap-audit-table">
+              <tbody>
+                <tr>
+                  <td>Status da Fidelidade</td>
+                  <td><span class="sim-snap-audit-status-pill ${meta.cls}">${meta.icon} ${meta.text}</span></td>
+                </tr>
+                <tr>
+                  <td>Fonte de Dados</td>
+                  <td><b>${snapEsc(sm.source || snap.source || 'B3 (COTAHIST, ajustado)')}</b></td>
+                </tr>
+                <tr>
+                  <td>Timeframe</td>
+                  <td>${snapEsc(sm.timeframe || snap.timeframe || 'Diário (1D)')}</td>
+                </tr>
+                <tr>
+                  <td>Candles de Contexto</td>
+                  <td>${sm.contextBars ?? snap.window?.contextBars} candles (exclusivamente anteriores ao sinal)</td>
+                </tr>
+                <tr>
+                  <td>Candles Posteriores</td>
+                  <td>${sm.postBars ?? snap.window?.postBars} candles (após a identificação do sinal)</td>
+                </tr>
+                <tr>
+                  <td>Período Avaliado</td>
+                  <td>${snapEsc(sm.periodFormatted || '')}</td>
+                </tr>
+                <tr>
+                  <td>Última Data Avaliada no Sinal</td>
+                  <td>${snapEsc(sm.lastEvaluatedDate || formatDateBR(snap.signalDate))}</td>
+                </tr>
+                <tr>
+                  <td>Look-ahead / Vazamento Futuro</td>
+                  <td><span style="color: #34d399; font-weight: 700;">${snapEsc(sm.lookAhead || 'Não identificado')}</span> — nenhum candle posterior foi usado para calcular EMAs, gatilhos ou stops</td>
+                </tr>
+                <tr>
+                  <td>Padrão e Pivôs Re-detectados</td>
+                  <td><code>${snapEsc(sm.patternPivotsFormatted || 'Não aplicável')}</code></td>
+                </tr>
+                <tr>
+                  <td>Gatilho e Setup</td>
+                  <td><b>${snapEsc(sm.triggerFormatted || sim.triggerName)}</b></td>
+                </tr>
+                <tr>
+                  <td>Entrada e Stop</td>
+                  <td>${snapEsc(sm.entryFormatted || '')} | Stop Inicial: ${snapEsc(sm.stopFormatted || '')}</td>
+                </tr>
+                <tr>
+                  <td>Saída e Resultado</td>
+                  <td>${snapEsc(sm.exitFormatted || '')} ${sim.resultR != null ? `(${formatR(sim.resultR)})` : ''}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="sim-snap-audit-checks-section">
+              <h4>Verificações Automáticas de Integridade</h4>
+              <ul class="sim-snapshot-verify-checks">
+                ${checksHtml}
+              </ul>
+            </div>
+
+            <div class="sim-snap-audit-notes-section">
+              <p>ℹ ${snapEsc(sm.notesFormatted || 'Preços ajustados a eventos corporativos. Sem dados sintéticos.')}</p>
+            </div>
+          </div>
+
+          <div class="sim-snap-audit-modal-foot">
+            <button class="sim-export-btn" type="button" id="simSnapshotAuditModalCloseBtn">
+              Fechar Auditoria
+            </button>
+          </div>
         </div>
-        ${markersHtml}
-        <ul class="sim-snapshot-verify-checks">${checksHtml}</ul>
-        ${notesHtml}
       </div>
     `;
   }
 
   /**
-   * Renderiza o snapshot do trade a partir do histórico diário REAL (candles OHLCV originais, EMAs causais,
-   * pontos do padrão re-detectados sem look-ahead e níveis/eventos conforme registrados na simulação).
+   * Renderiza o snapshot do trade a partir do histórico diário REAL com gráfico limpo, zoom contextual
+   * instantâneo e auditoria sob demanda.
    */
   function renderSnapshotChartSvg(sim) {
     if (!sim) return '';
@@ -3814,26 +3909,42 @@
     if (data.status === 'error' || !data.snapshot) {
       return renderSnapshotUnavailable('Snapshot indisponível', data.error || 'Não foi possível carregar o histórico diário real do ativo.');
     }
-    const snap = data.snapshot;
-    if (!snap.available) {
-      return renderSnapshotUnavailable('Snapshot indisponível — fidelidade não verificada', snap.message || 'Histórico insuficiente.');
+    const baseSnap = data.snapshot;
+    if (!baseSnap.available) {
+      return renderSnapshotUnavailable('Snapshot indisponível — fidelidade não verificada', baseSnap.message || 'Histórico insuficiente.');
     }
 
-    const candles = snap.candles;
+    const zoomPreset = state.snapshotZoom || '3M';
+    const snap = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.sliceSnapshotByZoom === 'function'
+      ? root.TradeSimulatorModel.sliceSnapshotByZoom(baseSnap, zoomPreset)
+      : baseSnap;
+
+    const candles = snap.candles || [];
     const lv = snap.levels || {};
     const n = candles.length;
+    if (n < 2) {
+      return renderSnapshotUnavailable('Snapshot indisponível', 'Histórico diário insuficiente para a janela de zoom selecionada.');
+    }
+
+    // Status da auditoria para o indicador do cabeçalho
+    const v = snap.verification || { status: 'UNVERIFIED', checks: [], notes: [] };
+    const meta = {
+      VERIFIED: { cls: 'verified', icon: '✓', shortText: 'Dados verificados', text: 'Fidelidade verificada com o histórico real' },
+      DIVERGENT: { cls: 'divergent', icon: '✕', shortText: 'Divergência detectada', text: 'Divergência detectada entre o registro e o histórico real' },
+      UNVERIFIED: { cls: 'unverified', icon: '!', shortText: 'Não verificado', text: 'Fidelidade não verificada' }
+    }[v.status] || { cls: 'unverified', icon: '!', shortText: 'Não verificado', text: 'Fidelidade não verificada' };
 
     // Dimensões do SVG
     const svgW = 960;
-    const svgH = 470;
-    const padLeft = 54;
-    const padRight = 150;
-    const padTop = 46;
-    const padBottom = 44;
+    const svgH = 460;
+    const padLeft = 48;
+    const padRight = 68;
+    const padTop = 38;
+    const padBottom = 38;
     const plotW = svgW - padLeft - padRight;
     const plotH = svgH - padTop - padBottom;
 
-    // Escala de preços: candles reais, EMAs e níveis registrados (alvos só entram se estiverem na faixa)
+    // Escala de preços: candles reais, EMAs e níveis operacionais
     const prices = [];
     candles.forEach(c => {
       prices.push(c.high, c.low);
@@ -3845,13 +3956,13 @@
     });
     let minP = Math.min(...prices);
     let maxP = Math.max(...prices);
-    const pMargin = (maxP - minP) * 0.07 || 1;
+    const pMargin = (maxP - minP) * 0.08 || 1;
     minP -= pMargin;
     maxP += pMargin;
 
     const getY = (price) => padTop + plotH - ((price - minP) / (maxP - minP)) * plotH;
     const colW = plotW / n;
-    const bodyW = Math.max(3, Math.min(14, colW * 0.7));
+    const bodyW = Math.max(3, Math.min(13, colW * 0.72));
     const getX = (idx) => padLeft + (idx + 0.5) * colW;
     const sigIdx = snap.signalIndex;
     const sigX = getX(sigIdx);
@@ -3862,39 +3973,41 @@
     for (let i = 0; i <= 6; i++) {
       const p = minP + (i / 6) * (maxP - minP);
       const y = getY(p);
-      gridSvg += `<line x1="${padLeft}" y1="${y}" x2="${padLeft + plotW}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="1" stroke-dasharray="3,3" />`;
-      gridSvg += `<text x="${padLeft - 6}" y="${y + 3}" fill="#64748b" font-size="10" text-anchor="end" font-family="monospace">${p.toFixed(2)}</text>`;
+      gridSvg += `<line x1="${padLeft}" y1="${y}" x2="${padLeft + plotW}" y2="${y}" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="3,3" />`;
+      gridSvg += `<text x="${padLeft - 6}" y="${y + 3}" fill="#64748b" font-size="9.5" text-anchor="end" font-family="monospace">${p.toFixed(2)}</text>`;
     }
 
     // Região posterior ao sinal (não conhecida no momento da decisão)
     const postW = padLeft + plotW - dividerX;
     const regionSvg = postW > 2 ? `
-      <rect x="${dividerX}" y="${padTop}" width="${postW}" height="${plotH}" fill="rgba(56,189,248,0.045)" />
-      <line x1="${dividerX}" y1="${padTop - 6}" x2="${dividerX}" y2="${padTop + plotH}" stroke="#38bdf8" stroke-width="1" stroke-dasharray="5,4" stroke-opacity="0.7" />
-      <text x="${dividerX + 6}" y="${padTop - 10}" fill="#7dd3fc" font-size="9.5" font-weight="700" font-family="system-ui">Evolução posterior ao sinal ▶</text>
-      <text x="${dividerX - 6}" y="${padTop - 10}" fill="#94a3b8" font-size="9.5" font-weight="700" text-anchor="end" font-family="system-ui">◀ Contexto conhecido no sinal</text>
+      <rect x="${dividerX}" y="${padTop}" width="${postW}" height="${plotH}" fill="rgba(56,189,248,0.035)" />
+      <line x1="${dividerX}" y1="${padTop}" x2="${dividerX}" y2="${padTop + plotH}" stroke="#38bdf8" stroke-width="1" stroke-dasharray="4,4" stroke-opacity="0.6" />
+      <text x="${dividerX + 8}" y="${padTop - 8}" fill="#7dd3fc" font-size="9.5" font-weight="700" font-family="system-ui">Evolução posterior ao sinal ▶</text>
+      <text x="${dividerX - 8}" y="${padTop - 8}" fill="#94a3b8" font-size="9.5" font-weight="700" text-anchor="end" font-family="system-ui">◀ Contexto conhecido no sinal</text>
     ` : `
-      <text x="${padLeft + plotW}" y="${padTop - 10}" fill="#94a3b8" font-size="9.5" font-weight="700" text-anchor="end" font-family="system-ui">Contexto conhecido no sinal</text>
+      <text x="${padLeft + plotW}" y="${padTop - 8}" fill="#94a3b8" font-size="9.5" font-weight="700" text-anchor="end" font-family="system-ui">Contexto conhecido no sinal</text>
     `;
 
-    // Níveis registrados: entrada planejada, stop inicial e alvos (a partir do candle do sinal)
+    // Linhas finas de níveis operacionais e badges compactos no eixo direito
     const isGain = sim.status === 'CLOSED_GAIN';
     const isLoss = sim.status === 'CLOSED_LOSS';
-    const levelLine = (price, color, dash, label, bg, width = 1.4) => {
+    const rightBadge = (price, color, bg, width = 1.3, dash = '4,3') => {
       if (!Number.isFinite(price) || price < minP || price > maxP) return '';
       const y = getY(price);
       return `
         <line x1="${sigX}" y1="${y}" x2="${padLeft + plotW}" y2="${y}" stroke="${color}" stroke-width="${width}" stroke-dasharray="${dash}" />
-        <g transform="translate(${padLeft + plotW + 6}, ${y - 9})">
-          <rect width="138" height="18" rx="4" fill="${bg}" />
-          <text x="69" y="12.5" fill="#ffffff" font-size="9.2" font-weight="700" text-anchor="middle" font-family="system-ui">${snapEsc(label)}</text>
+        <g transform="translate(${padLeft + plotW + 4}, ${y - 8})">
+          <rect width="58" height="16" rx="3" fill="${bg}" />
+          <text x="29" y="11.5" fill="#ffffff" font-size="9.2" font-weight="700" text-anchor="middle" font-family="monospace">${Number(price).toFixed(2).replace('.', ',')}</text>
         </g>`;
     };
     const levelsSvg = [
-      levelLine(lv.target2R, '#10b981', '2,5', `ALVO +2R: R$ ${Number(lv.target2R).toFixed(2)}`, '#064e3b', 1),
-      levelLine(lv.target1R, '#14b8a6', '2,5', `ALVO +1R: R$ ${Number(lv.target1R).toFixed(2)}`, '#134e4a', 1),
-      levelLine(lv.entryPlanned, '#38bdf8', '5,4', `ENTRADA: R$ ${Number(lv.entryPlanned).toFixed(2)}`, '#0369a1', 1.8),
-      levelLine(lv.stopInitial, '#ef4444', '4,4', `STOP INICIAL: R$ ${Number(lv.stopInitial).toFixed(2)}`, isLoss ? '#dc2626' : '#7f1d1d', 1.5)
+      rightBadge(lv.target2R, '#10b981', '#064e3b', 1, '2,4'),
+      rightBadge(lv.entryPlanned, '#38bdf8', '#0284c7', 1.4, '4,3'),
+      rightBadge(lv.stopInitial, '#ef4444', isLoss ? '#dc2626' : '#7f1d1d', 1.4, '4,3'),
+      (lv.exitPrice != null && Math.abs(lv.exitPrice - lv.stopInitial) > 0.05 && Math.abs(lv.exitPrice - (lv.target2R || 0)) > 0.05)
+        ? rightBadge(lv.exitPrice, isGain ? '#10b981' : '#ef4444', isGain ? '#059669' : '#dc2626', 1.4, '3,3')
+        : ''
     ].join('');
 
     // EMAs causais
@@ -3906,17 +4019,14 @@
       if (c.ema30 != null) ema30Path += `${ema30Path ? ' L' : 'M'} ${x} ${getY(c.ema30)}`;
     });
     const emaSvg = `
-      ${ema30Path ? `<path d="${ema30Path}" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.9" />` : ''}
-      ${ema9Path ? `<path d="${ema9Path}" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.95" />` : ''}
+      ${ema30Path ? `<path d="${ema30Path}" fill="none" stroke="#f59e0b" stroke-width="1.4" stroke-opacity="0.9" />` : ''}
+      ${ema9Path ? `<path d="${ema9Path}" fill="none" stroke="#38bdf8" stroke-width="1.4" stroke-opacity="0.95" />` : ''}
     `;
 
     // Candles reais (OHLC originais)
     let candlesSvg = '';
     let axisSvg = '';
-    const specialIdx = new Set();
-    candles.forEach((c, idx) => { if (c.isSignal || c.isEntry || c.isExit) specialIdx.add(idx); });
-    const tickStep = Math.max(1, Math.ceil(n / 10));
-    let lastSpecialLabelIdx = null;
+    const tickStep = Math.max(1, Math.ceil(n / 8));
     candles.forEach((c, idx) => {
       const cx = getX(idx);
       const isBull = c.close >= c.open;
@@ -3928,55 +4038,54 @@
       const topY = Math.min(yO, yC);
       const bodyH = Math.max(1.5, Math.abs(yO - yC));
       if (c.isSignal) {
-        candlesSvg += `<rect x="${cx - colW / 2}" y="${padTop}" width="${colW}" height="${plotH}" fill="rgba(56,189,248,0.12)" />`;
+        candlesSvg += `<rect x="${cx - colW / 2}" y="${padTop}" width="${colW}" height="${plotH}" fill="rgba(56,189,248,0.08)" />`;
       }
       candlesSvg += `<g><title>${snapEsc(c.time)} • A ${c.open} • M ${c.high} • m ${c.low} • F ${c.close}</title>`
-        + `<line x1="${cx}" y1="${yH}" x2="${cx}" y2="${yL}" stroke="${color}" stroke-width="1.4" />`
+        + `<line x1="${cx}" y1="${yH}" x2="${cx}" y2="${yL}" stroke="${color}" stroke-width="1.3" />`
         + `<rect x="${cx - bodyW / 2}" y="${topY}" width="${bodyW}" height="${bodyH}" fill="${color}" /></g>`;
 
-      const nearSpecial = [...specialIdx].some(s => s !== idx && Math.abs(s - idx) < 4);
-      if (specialIdx.has(idx) || (idx % tickStep === 0 && !nearSpecial)) {
-        const parts = String(c.time).split('-');
-        const label = `${parts[2]}/${parts[1]}`;
-        const isSpecial = specialIdx.has(idx);
-        // datas de eventos muito próximas são empilhadas em duas linhas para não se sobreporem
-        const stacked = isSpecial && lastSpecialLabelIdx != null && idx - lastSpecialLabelIdx < 4;
-        if (isSpecial) lastSpecialLabelIdx = idx;
-        axisSvg += `<text x="${cx}" y="${svgH - (stacked ? 8 : 22)}" fill="${isSpecial ? '#e2e8f0' : '#64748b'}" font-size="9" font-weight="${isSpecial ? 700 : 400}" text-anchor="middle" font-family="monospace">${label}</text>`;
-        axisSvg += `<line x1="${cx}" y1="${padTop + plotH}" x2="${cx}" y2="${padTop + plotH + 4}" stroke="#475569" stroke-width="1" />`;
+      if (idx % tickStep === 0 || idx === n - 1) {
+        const label = formatSnapshotAxisDate(c.time);
+        axisSvg += `<text x="${cx}" y="${svgH - 12}" fill="#64748b" font-size="9" text-anchor="middle" font-family="system-ui">${label}</text>`;
+        axisSvg += `<line x1="${cx}" y1="${padTop + plotH}" x2="${cx}" y2="${padTop + plotH + 4}" stroke="#334155" stroke-width="1" />`;
       }
     });
 
-    // Pontos do padrão (re-detectados com a lógica do simulador, sem candles futuros)
+    // Marcadores de pivô e linha tracejada conectando ①, ②, ③
     let markersSvg = '';
     let signalMarkerAnchor = 'low';
+    const pivotPoints = [];
     (snap.patternMarkers || []).forEach(m => {
       const c = candles[m.index];
       if (!c) return;
       const cx = getX(m.index);
-      const r = m.role.length > 1 ? 11 : 9;
       const above = m.anchor === 'high';
       if (m.index === sigIdx) signalMarkerAnchor = m.anchor;
       const yAnchor = above ? getY(c.high) : getY(c.low);
-      const my = above ? yAnchor - 14 - r : yAnchor + 14 + r;
+      const my = above ? yAnchor - 12 : yAnchor + 12;
+      const roleTxt = circledRole(m.role);
+      pivotPoints.push({ x: cx, y: my });
       markersSvg += `<g><title>${snapEsc(m.label)} • ${snapEsc(m.time)} • R$ ${m.price}</title>`
-        + `<line x1="${cx}" y1="${yAnchor + (above ? -2 : 2)}" x2="${cx}" y2="${my + (above ? r : -r)}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,2" />`
-        + `<circle cx="${cx}" cy="${my}" r="${r}" fill="#0b1f17" stroke="#f8fafc" stroke-width="1.5" />`
-        + `<text x="${cx}" y="${my + 3.4}" fill="#f8fafc" font-size="${m.role.length > 1 ? 8 : 10}" font-weight="800" text-anchor="middle" font-family="system-ui">${snapEsc(m.role)}</text></g>`;
+        + `<circle cx="${cx}" cy="${my}" r="8" fill="#06150f" stroke="#38bdf8" stroke-width="1.3" />`
+        + `<text x="${cx}" y="${my + 3}" fill="#38bdf8" font-size="8.5" font-weight="800" text-anchor="middle" font-family="system-ui">${snapEsc(roleTxt)}</text></g>`;
     });
+    if (pivotPoints.length >= 2) {
+      const pts = pivotPoints.map(p => `${p.x},${p.y}`).join(' ');
+      markersSvg = `<polyline points="${pts}" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="3,3" fill="none" opacity="0.75" />` + markersSvg;
+    }
 
-    // Gatilho (candle do sinal) — callout no lado oposto aos marcadores do padrão
+    // Gatilho (candle do sinal) — pill discreto com seta
     const sigCandle = candles[sigIdx];
     const gatilhoAbove = signalMarkerAnchor === 'low';
-    const gy = gatilhoAbove ? getY(sigCandle.high) - 34 : getY(sigCandle.low) + 34;
+    const gy = gatilhoAbove ? getY(sigCandle.high) - 20 : getY(sigCandle.low) + 20;
     const gatilhoSvg = `
       <g transform="translate(${sigX}, ${gy})">
-        <rect x="-62" y="-9" width="124" height="18" rx="4" fill="#0284c7" />
-        <text x="0" y="4" fill="#ffffff" font-size="9" font-weight="800" text-anchor="middle" font-family="system-ui">GATILHO • ${snapEsc(snap.triggerName).slice(0, 18)}</text>
-        <polygon points="${gatilhoAbove ? '0,15 -5,9 5,9' : '0,-15 -5,-9 5,-9'}" fill="#0284c7" />
+        <rect x="-24" y="-8" width="48" height="16" rx="4" fill="#0284c7" />
+        <text x="0" y="3.5" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">Gatilho</text>
+        <polygon points="${gatilhoAbove ? '0,12 -3,8 3,8' : '0,-12 -3,-8 3,-8'}" fill="#0284c7" />
       </g>`;
 
-    // Eventos registrados na simulação (entrada, adição, parcial e saída)
+    // Eventos discretos sobre candles (entrada e saída)
     let eventsSvg = '';
     (snap.events || []).forEach(ev => {
       if (ev.type === 'SIGNAL') return;
@@ -3984,32 +4093,92 @@
       if (idx < 0 || !Number.isFinite(ev.price)) return;
       const x = getX(idx);
       const y = getY(ev.price);
-      const dateTxt = String(ev.time).slice(8, 10) + '/' + String(ev.time).slice(5, 7);
-      const tag = (txt, color, dy) => `<g transform="translate(${x}, ${y + dy})"><rect x="-58" y="-8" width="116" height="16" rx="4" fill="${color}" /><text x="0" y="3.5" fill="#fff" font-size="8.6" font-weight="700" text-anchor="middle" font-family="system-ui">${snapEsc(txt)}</text></g>`;
       if (ev.type === 'ENTRY') {
-        eventsSvg += `<polygon points="${x},${y - 6} ${x - 6},${y + 5} ${x + 6},${y + 5}" fill="#22c55e" stroke="#052e16" stroke-width="1" />` + tag(`▶ ENTRADA ${dateTxt} • R$ ${ev.price.toFixed(2)}`, '#059669', 20);
-      } else if (ev.type === 'SCALE_IN') {
-        eventsSvg += `<circle cx="${x}" cy="${y}" r="5" fill="#0284c7" stroke="#fff" stroke-width="1.2" />` + tag(`＋ ADIÇÃO ${dateTxt} • R$ ${ev.price.toFixed(2)}`, '#0284c7', -20);
-      } else if (ev.type === 'PARTIAL_EXIT') {
-        eventsSvg += `<circle cx="${x}" cy="${y}" r="5" fill="#8b5cf6" stroke="#fff" stroke-width="1.2" />` + tag(`${ev.label} ${dateTxt} • R$ ${ev.price.toFixed(2)}`, '#7c3aed', -20);
+        eventsSvg += `
+          <g transform="translate(${x}, ${y + (isLoss ? -14 : 14)})">
+            <rect x="-44" y="-8" width="88" height="16" rx="4" fill="#059669" />
+            <text x="0" y="3.5" fill="#fff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">▲ Entrada R$ ${ev.price.toFixed(2).replace('.', ',')}</text>
+          </g>`;
       } else if (ev.type === 'EXIT') {
-        const col = isGain ? '#10b981' : (isLoss ? '#ef4444' : '#94a3b8');
-        eventsSvg += `<rect x="${x - 5}" y="${y - 5}" width="10" height="10" fill="${col}" stroke="#fff" stroke-width="1.2" transform="rotate(45 ${x} ${y})" />` + tag(`${isGain ? '★' : '✕'} ${ev.label.toUpperCase()} ${dateTxt} • R$ ${ev.price.toFixed(2)}`, isGain ? '#047857' : '#b91c1c', isGain ? -22 : 22);
+        const outColor = isGain ? '#059669' : (isLoss ? '#dc2626' : '#64748b');
+        const outIcon = isGain ? '★' : (isLoss ? '✕' : '•');
+        eventsSvg += `
+          <g transform="translate(${x}, ${y + (isGain ? -14 : 14)})">
+            <rect x="-44" y="-8" width="88" height="16" rx="4" fill="${outColor}" />
+            <text x="0" y="3.5" fill="#fff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">${outIcon} Saída R$ ${ev.price.toFixed(2).replace('.', ',')}</text>
+          </g>`;
+      } else if (ev.type === 'SCALE_IN') {
+        eventsSvg += `<circle cx="${x}" cy="${y}" r="4" fill="#0284c7" stroke="#fff" stroke-width="1.2" />`;
+      } else if (ev.type === 'PARTIAL_EXIT') {
+        eventsSvg += `<circle cx="${x}" cy="${y}" r="4" fill="#8b5cf6" stroke="#fff" stroke-width="1.2" />`;
       } else if (ev.type === 'NOT_TRIGGERED') {
-        eventsSvg += `<g transform="translate(${x}, ${getY(candles[idx].high) - 16})"><rect x="-44" y="-8" width="88" height="16" rx="4" fill="#475569" /><text x="0" y="3.5" fill="#fff" font-size="8.6" font-weight="700" text-anchor="middle" font-family="system-ui">NÃO ACIONADO ${dateTxt}</text></g>`;
+        eventsSvg += `
+          <g transform="translate(${x}, ${getY(candles[idx].high) - 14})">
+            <rect x="-40" y="-7" width="80" height="14" rx="3" fill="#475569" />
+            <text x="0" y="3" fill="#fff" font-size="8" font-weight="700" text-anchor="middle" font-family="system-ui">Não Acionado</text>
+          </g>`;
       }
     });
 
-    const legendSvg = `
-      <g transform="translate(${padLeft + 8}, 16)">
-        <text x="0" y="4" fill="#e2e8f0" font-size="12" font-weight="800" font-family="system-ui">${snapEsc(snap.symbol)} • ${snapEsc(snap.timeframe)}</text>
-        <line x1="92" y1="1" x2="108" y2="1" stroke="#38bdf8" stroke-width="2" />
-        <text x="114" y="4" fill="#38bdf8" font-size="10" font-weight="600" font-family="system-ui">EMA 9</text>
-        <line x1="164" y1="1" x2="180" y2="1" stroke="#f59e0b" stroke-width="2" />
-        <text x="186" y="4" fill="#f59e0b" font-size="10" font-weight="600" font-family="system-ui">EMA 30</text>
-      </g>`;
+    const headerHtml = `
+      <div class="sim-snapshot-chart-header">
+        <div class="sim-snap-title-group">
+          <span class="sim-snap-ticker">${snapEsc(snap.symbol)} • ${snapEsc(snap.timeframe || '1D')}</span>
+          <span class="sim-snap-ema-leg" style="color: #38bdf8;">— EMA 9</span>
+          <span class="sim-snap-ema-leg" style="color: #f59e0b;">— EMA 30</span>
+        </div>
+        <div class="sim-snapshot-zoom-group">
+          ${['1M', '3M', '6M', '1A', '2A'].map(z => `
+            <button type="button" class="sim-snap-zoom-btn ${zoomPreset === z ? 'active' : ''}" data-snap-zoom="${z}">${z}</button>
+          `).join('')}
+        </div>
+        <div class="sim-snapshot-audit-wrap">
+          <button type="button" class="sim-snap-audit-btn ${meta.cls}" id="simSnapshotAuditBtn" title="Clique para abrir auditoria completa de integridade">
+            <span class="sim-snap-audit-badge-icon">${meta.icon}</span>
+            <span>${meta.shortText}</span>
+            <span class="sim-snap-audit-info-icon">ⓘ</span>
+          </button>
+          <div class="sim-snap-audit-tooltip" id="simSnapshotAuditTooltip">
+            <div class="sim-snap-tooltip-head ${meta.cls}">
+              <span class="sim-snap-tooltip-icon">${meta.icon}</span>
+              <strong>${meta.text}</strong>
+            </div>
+            <div class="sim-snap-tooltip-grid">
+              <div class="sim-snap-tooltip-row">
+                <span>Fonte:</span>
+                <b>${snapEsc(snap.summary?.source || snap.source || 'B3')}</b>
+              </div>
+              <div class="sim-snap-tooltip-row">
+                <span>Timeframe:</span>
+                <b>${snapEsc(snap.summary?.timeframe || snap.timeframe || 'Diário (1D)')}</b>
+              </div>
+              <div class="sim-snap-tooltip-row">
+                <span>Candles:</span>
+                <b>${snap.summary?.contextBars ?? snap.window?.contextBars} contexto + ${snap.summary?.postBars ?? snap.window?.postBars} post</b>
+              </div>
+              <div class="sim-snap-tooltip-row">
+                <span>Período:</span>
+                <b>${snapEsc(snap.summary?.periodFormatted || '')}</b>
+              </div>
+              <div class="sim-snap-tooltip-row">
+                <span>Data no sinal:</span>
+                <b>${snapEsc(snap.summary?.lastEvaluatedDate || formatDateBR(snap.signalDate))}</b>
+              </div>
+              <div class="sim-snap-tooltip-row">
+                <span>Look-ahead:</span>
+                <b style="color: #34d399;">${snapEsc(snap.summary?.lookAhead || 'Não identificado')}</b>
+              </div>
+            </div>
+            <button type="button" class="sim-snap-audit-cta" id="simSnapshotOpenAuditLink">
+              Ver auditoria completa →
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
 
     return `
+      ${headerHtml}
       <svg class="sim-snapshot-chart-svg" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Candles diários reais de ${snapEsc(snap.symbol)} no momento do sinal">
         <rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#06150f" rx="10" />
         ${gridSvg}
@@ -4021,16 +4190,9 @@
         ${gatilhoSvg}
         ${eventsSvg}
         ${axisSvg}
-        ${legendSvg}
       </svg>
-      ${renderSnapshotVerification(snap)}
     `;
-  }
-
-  /**
-   * Eventos locais do container
-   */
-  function bindLocalEvents(container) {
+  }  function bindLocalEvents(container) {
     // Dropdowns do topo
     container.querySelectorAll('[data-dropdown]').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -4518,20 +4680,67 @@
       await deleteSimulation(id);
     });
 
+    // Zoom contextual instantâneo no snapshot (1M, 3M, 6M, 1A, 2A)
+    container.querySelectorAll('[data-snap-zoom]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const zoom = btn.dataset.snapZoom;
+        if (zoom && state.snapshotZoom !== zoom) {
+          state.snapshotZoom = zoom;
+          render();
+        }
+      });
+    });
+
+    // Abrir e fechar auditoria detalhada sob demanda
+    container.querySelector('#simSnapshotAuditBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.snapshotAuditModalOpen = true;
+      render();
+    });
+
+    container.querySelector('#simSnapshotOpenAuditLink')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.snapshotAuditModalOpen = true;
+      render();
+    });
+
+    container.querySelector('#simSnapshotAuditModalClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.snapshotAuditModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simSnapshotAuditModalCloseBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.snapshotAuditModalOpen = false;
+      render();
+    });
+
+    container.querySelector('#simSnapshotAuditModalOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simSnapshotAuditModalOverlay') {
+        state.snapshotAuditModalOpen = false;
+        render();
+      }
+    });
+
     // Fechar snapshot modal
     container.querySelector('#simSnapshotClose')?.addEventListener('click', () => {
       state.snapshotSimId = null;
+      state.snapshotAuditModalOpen = false;
       render();
     });
 
     container.querySelector('#simSnapshotCloseBtn')?.addEventListener('click', () => {
       state.snapshotSimId = null;
+      state.snapshotAuditModalOpen = false;
       render();
     });
 
     container.querySelector('#simSnapshotModal')?.addEventListener('click', (e) => {
       if (e.target.id === 'simSnapshotModal') {
         state.snapshotSimId = null;
+        state.snapshotAuditModalOpen = false;
         render();
       }
     });

@@ -24,7 +24,7 @@ function tradingDates(startIso, count) {
 }
 
 function buildHistory(kind = '123') {
-  const dates = tradingDates('2026-03-02', 52);
+  const dates = tradingDates('2026-03-02', 53);
   const rows = [];
   for (let i = 0; i < 40; i++) {
     const base = 20 + i * 0.3;
@@ -293,4 +293,38 @@ test('snapshot: adição de posição e saída parcial vêm dos registros, nunca
 test('snapshot: generateSimulationSnapshotCandles nunca sintetiza candles a partir de entrada/stop', () => {
   const sim = { symbol: 'PRIO3', signalDate: '2026-09-28', entryPrice: 62.11, stopLoss: 59.07, status: model.STATUS.CLOSED_LOSS };
   assert.deepEqual(model.generateSimulationSnapshotCandles(sim), []);
+});
+
+test('snapshot: zoom contextual e sumário estruturado para auditoria sob demanda', () => {
+  const history = buildHistory();
+  const sim = evaluatedSim(history, '123_COMPRA');
+  const snap = model.buildSimulationSnapshot(sim, history);
+
+  // Validação do objeto summary
+  assert.ok(snap.summary, 'summary deve existir no snapshot');
+  assert.equal(snap.summary.status, 'VERIFIED');
+  assert.ok(snap.summary.source);
+  assert.ok(snap.summary.periodFormatted);
+  assert.ok(snap.summary.triggerFormatted.includes('1-2-3'));
+
+  // allCandles deve conter todo o histórico sem truncamento
+  assert.equal(snap.allCandles.length, history.length);
+  assert.equal(snap.signalIdxInHistory, 42);
+
+  // Testar presets de zoom
+  const z1M = model.sliceSnapshotByZoom(snap, '1M');
+  assert.ok(z1M.candles.length <= 40, `1M deve ter recorte compacto (teve ${z1M.candles.length})`);
+  assert.ok(z1M.signalIndex <= 20);
+
+  const z3M = model.sliceSnapshotByZoom(snap, '3M');
+  assert.ok(z3M.candles.length >= z1M.candles.length);
+  assert.equal(z3M.signalIndex, 42); // no mock, signalIdx é 42 <= 50
+
+  const z2A = model.sliceSnapshotByZoom(snap, '2A');
+  assert.equal(z2A.candles.length, history.length);
+  assert.equal(z2A.signalIndex, snap.signalIdxInHistory);
+
+  // Marcadores de pivô devem manter coerência de deslocamento
+  assert.equal(z3M.patternMarkers.length, snap.patternMarkers.length);
+  assert.deepEqual(z3M.patternMarkers.map(m => m.role), ['1', '2', '3']);
 });

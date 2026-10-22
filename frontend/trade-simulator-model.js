@@ -4161,6 +4161,47 @@
       target2R: riskUnit != null ? round2(entryPlanned + 2 * riskUnit) : null
     };
 
+    // Série histórica completa com EMAs causais para zoom contextual instantâneo
+    const allCloses = history.map(c => c.close);
+    const allEma9 = calculateEmaSeries(allCloses, 9);
+    const allEma30 = calculateEmaSeries(allCloses, 30);
+    const allCandles = history.map((c, idx) => ({
+      time: c.time,
+      open: c.open,
+      high: c.high,
+      low: c.low,
+      close: c.close,
+      volume: c.volume,
+      ema9: allEma9[idx],
+      ema30: allEma30[idx],
+      phase: idx <= signalIdx ? 'context' : 'post',
+      isSignal: idx === signalIdx,
+      isEntry: isExecuted && idx === entryIdx,
+      isExit: (isClosed || status === STATUS.NOT_TRIGGERED) && idx === exitIdx
+    }));
+
+    const summary = {
+      status: verificationStatus,
+      source: source || 'B3 (COTAHIST, ajustado a eventos corporativos)',
+      timeframe,
+      contextBars: signalDisplayIdx,
+      postBars: displayed.length - 1 - signalDisplayIdx,
+      totalBars: displayed.length,
+      totalHistoryBars: history.length,
+      periodFormatted: `${formatDateBR(displayed[0].time)} a ${formatDateBR(displayed[displayed.length - 1].time)}`,
+      historyPeriodFormatted: `${formatDateBR(history[0].time)} a ${formatDateBR(history[history.length - 1].time)}`,
+      lastEvaluatedDate: formatDateBR(detectionSeries[detectionSeries.length - 1].time),
+      lookAhead: 'Não identificado',
+      patternPivotsFormatted: patternMarkers.length
+        ? patternMarkers.map(m => `${m.role} ${formatDateBR(m.time).slice(0, 5)}: R$ ${Number(m.price).toFixed(2).replace('.', ',')}`).join('   ')
+        : 'Não aplicável',
+      triggerFormatted: `${simulation.triggerName} (${simulation.grade || 'A'})`,
+      entryFormatted: `R$ ${entryPlanned.toFixed(2).replace('.', ',')}${isExecuted && entryDate ? ` (executada em ${formatDateBR(entryDate)})` : ''}`,
+      stopFormatted: `R$ ${stopInitial.toFixed(2).replace('.', ',')}`,
+      exitFormatted: simulation.exitPrice != null ? `R$ ${Number(simulation.exitPrice).toFixed(2).replace('.', ',')}${exitDate ? ` (${formatDateBR(exitDate)})` : ''}` : '—',
+      notesFormatted: 'Preços ajustados a eventos corporativos. Sem dados sintéticos.'
+    };
+
     return {
       available: true,
       symbol,
@@ -4168,9 +4209,13 @@
       source,
       signalDate,
       signalIndex: signalDisplayIdx,
+      signalIdxInHistory: signalIdx,
+      entryIdxInHistory: entryIdx,
+      exitIdxInHistory: exitIdx,
       triggerName,
       triggerId: detected ? detected.id : null,
       candles: displayed,
+      allCandles,
       patternMarkers,
       events,
       levels,
@@ -4180,7 +4225,75 @@
         contextBars: signalDisplayIdx,
         postBars: displayed.length - 1 - signalDisplayIdx
       },
-      verification: { status: verificationStatus, checks, notes }
+      summary,
+      verification: { status: verificationStatus, checks, notes, summary }
+    };
+  }
+
+  /**
+   * Reenquadra a janela do snapshot de acordo com o preset de zoom selecionado (1M, 3M, 6M, 1A, 2A).
+   * Não altera a integridade dos dados históricos nem o cálculo de EMAs/pivôs.
+   */
+  function sliceSnapshotByZoom(snap, zoomPreset = '3M') {
+    if (!snap || !Array.isArray(snap.allCandles) || !snap.allCandles.length) return snap;
+    const history = snap.allCandles;
+    const signalIdx = snap.signalIdxInHistory != null
+      ? snap.signalIdxInHistory
+      : history.findIndex(c => c.time === snap.signalDate);
+    if (signalIdx < 0) return snap;
+
+    let contextBars = 50;
+    if (zoomPreset === '1M') contextBars = 20;
+    else if (zoomPreset === '3M') contextBars = 50;
+    else if (zoomPreset === '6M') contextBars = 110;
+    else if (zoomPreset === '1A') contextBars = 220;
+    else if (zoomPreset === '2A') contextBars = history.length;
+
+    const exitIdx = snap.exitIdxInHistory != null ? snap.exitIdxInHistory : -1;
+    const startIdx = Math.max(0, signalIdx - contextBars);
+    let endIdx;
+    if (zoomPreset === '2A') {
+      endIdx = history.length - 1;
+    } else if (exitIdx > signalIdx) {
+      endIdx = Math.min(history.length - 1, exitIdx + SNAPSHOT_TAIL_BARS);
+    } else {
+      endIdx = Math.min(history.length - 1, signalIdx + SNAPSHOT_MAX_POST_BARS);
+    }
+
+    const candles = history.slice(startIdx, endIdx + 1);
+    const newSignalDisplayIdx = signalIdx - startIdx;
+
+    // Re-mapear índice dos marcadores de pivôs no novo recorte
+    const patternMarkers = (snap.patternMarkers || []).map(m => {
+      const offset = m.index - snap.signalIndex;
+      const newIdx = newSignalDisplayIdx + offset;
+      return { ...m, index: newIdx };
+    }).filter(m => m.index >= 0 && m.index < candles.length);
+
+    const summary = {
+      ...(snap.summary || {}),
+      contextBars: newSignalDisplayIdx,
+      postBars: candles.length - 1 - newSignalDisplayIdx,
+      totalBars: candles.length,
+      periodFormatted: `${formatDateBR(candles[0].time)} a ${formatDateBR(candles[candles.length - 1].time)}`
+    };
+
+    return {
+      ...snap,
+      candles,
+      signalIndex: newSignalDisplayIdx,
+      patternMarkers,
+      window: {
+        firstDate: candles[0].time,
+        lastDate: candles[candles.length - 1].time,
+        contextBars: newSignalDisplayIdx,
+        postBars: candles.length - 1 - newSignalDisplayIdx
+      },
+      summary,
+      verification: {
+        ...(snap.verification || {}),
+        summary
+      }
     };
   }
 
@@ -5130,6 +5243,7 @@
     compareManagementScenarios,
     generateSimulationSnapshotCandles,
   buildSimulationSnapshot,
+  sliceSnapshotByZoom,
   normalizeSnapshotHistory,
     TRIGGER_TYPES,
     calculateDoubleInsideBarStructure,
