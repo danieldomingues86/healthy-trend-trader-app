@@ -19,9 +19,11 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   assert.equal(stats.waitingCount, 6);
   assert.equal(stats.waitingPct, 14.29);
 
-  // Abas: Em Operação (4), Encerrados (32 = 28 executados + 4 não acionados)
+  // Abas: Em Operação (4), Encerrados (28 executados e finalizados), Não Acionados (4)
   assert.equal(stats.inOperationCount, 4);
-  assert.equal(stats.closedCount, 32);
+  assert.equal(stats.closedCount, 28);
+  assert.equal(stats.closedTradesCount, 28);
+  assert.equal(stats.notTriggeredCount, 4);
 
   // Card 3: Trades vencedores = 20 (71,4% win rate sobre os 28 trades executados e encerrados)
   assert.equal(stats.winningTradesCount, 20);
@@ -46,7 +48,7 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   // Gráfico: Distribuição de Resultados
   assert.equal(stats.distribution.winners.count, 20);
   assert.equal(stats.distribution.losers.count, 8);
-  assert.equal(stats.distribution.notTriggered.count, 10);
+  assert.equal(stats.distribution.notTriggered.count, 4);
 
   // Gráfico: Desempenho por Gatilho
   const insideBar = stats.triggerPerformance.find(t => t.name === 'Inside Bar');
@@ -215,7 +217,12 @@ test('trade-simulator-model: filterSimulations filtra por abas, texto e critéri
   assert.ok(inOpOnly.every(s => s.status === model.STATUS.IN_OPERATION));
 
   const closedOnly = model.filterSimulations(seeds, { statusTab: 'closed' });
-  assert.equal(closedOnly.length, 32);
+  assert.equal(closedOnly.length, 28);
+  assert.ok(closedOnly.every(s => s.status === model.STATUS.CLOSED_GAIN || s.status === model.STATUS.CLOSED_LOSS));
+
+  const notTriggeredOnly = model.filterSimulations(seeds, { statusTab: 'not_triggered' });
+  assert.equal(notTriggeredOnly.length, 4);
+  assert.ok(notTriggeredOnly.every(s => s.status === model.STATUS.NOT_TRIGGERED));
 
   const petrOnly = model.filterSimulations(seeds, { search: 'PETR4' });
   assert.equal(petrOnly.length, 1);
@@ -251,7 +258,27 @@ test('trade-simulator-model: filterSimulations é 100% compatível com filtros d
   assert.ok(inOpTab.every(s => s.status === model.STATUS.IN_OPERATION));
 
   const closedTab = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'CLOSED' });
-  assert.equal(closedTab.length, 32, 'Aba CLOSED deve trazer exatamente 32 simulações');
+  assert.equal(closedTab.length, 28, 'Aba CLOSED deve trazer exatamente 28 simulações encerradas (sem não acionados)');
+  assert.ok(closedTab.every(s => s.status === model.STATUS.CLOSED_GAIN || s.status === model.STATUS.CLOSED_LOSS));
+
+  const notTriggeredTab = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'NOT_TRIGGERED' });
+  assert.equal(notTriggeredTab.length, 4, 'Aba NOT_TRIGGERED deve trazer exatamente 4 simulações não acionadas');
+  assert.ok(notTriggeredTab.every(s => s.status === model.STATUS.NOT_TRIGGERED));
+
+  // Filtros de resultado na aba Encerrados: Gain, Loss e Breakeven
+  const gainClosed = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'CLOSED', result: 'GAIN' });
+  assert.equal(gainClosed.length, 20, 'Filtro Gain deve trazer apenas os 20 trades vencedores');
+  assert.ok(gainClosed.every(s => Number(s.resultR) > 0));
+
+  const lossClosed = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'CLOSED', result: 'LOSS' });
+  assert.equal(lossClosed.length, 8, 'Filtro Loss deve trazer apenas os 8 trades perdedores');
+  assert.ok(lossClosed.every(s => Number(s.resultR) < 0));
+
+  const beClosed = model.filterSimulations(seeds, { ...defaultUiFilters, tab: 'CLOSED', result: 'BREAKEVEN' });
+  assert.equal(beClosed.length, 0, 'Filtro Breakeven deve trazer 0 quando não houver trades 0,00R');
+
+  // Garante que o somatório dos resultados Gain + Loss + Breakeven é identicamente o total de Encerrados
+  assert.equal(gainClosed.length + lossClosed.length + beClosed.length, closedTab.length);
 
   // 3. Busca por texto usando propriedade `query`
   const querySearch = model.filterSimulations(seeds, { ...defaultUiFilters, query: 'VALE3' });

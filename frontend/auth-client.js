@@ -112,7 +112,7 @@
     }
     return response.blob();
   }
-  window.healthyTrendApi = { request, uploadFile, requestBlob, isAuthenticated: () => Boolean(token()) };
+  window.healthyTrendApi = { request, uploadFile, requestBlob, token: () => token(), isAuthenticated: () => Boolean(token()) };
   function createAccessSessionId() {
     if (window.crypto?.randomUUID) return window.crypto.randomUUID();
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {

@@ -600,6 +600,87 @@ body:has(#tradesimulator.active) .content {
 .sim-tab-dot.dot-orange { background: #f59e0b; }
 .sim-tab-dot.dot-green { background: #10b981; }
 .sim-tab-dot.dot-gray { background: #94a3b8; }
+.sim-tab-dot.dot-blue { background: #0284c7; }
+.sim-tab-dot.dot-red { background: #ef4444; }
+
+/* Result Filter Bar (Encerrados Sub-filters) */
+.sim-result-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.sim-result-filter-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.sim-result-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sim-result-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-result-pill:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.sim-result-pill.active {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.2);
+}
+
+.sim-result-pill.active .sim-tab-dot {
+  background: #ffffff !important;
+}
+
+.sim-result-pill.pill-gain.active {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.sim-result-pill.pill-loss.active {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.sim-result-pill.pill-breakeven.active {
+  background: #475569;
+  border-color: #475569;
+  color: #ffffff;
+}
 
 /* Search & Export Toolbar Right */
 .sim-toolbar-right {
@@ -896,6 +977,13 @@ body:has(#tradesimulator.active) .content {
 }
 .sim-status-pill.pill-loss .pill-dot { background: #dc2626; }
 
+.sim-status-pill.pill-breakeven {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+.sim-status-pill.pill-breakeven .pill-dot { background: #64748b; }
+
 .sim-status-pill.pill-not-triggered {
   background: #f1f5f9;
   color: #475569;
@@ -1143,6 +1231,38 @@ body:not([data-theme="healthy"]) .sim-more-btn,
 body:not([data-theme="healthy"]) .sim-search-input,
 body:not([data-theme="healthy"]) .sim-export-btn,
 body:not([data-theme="healthy"]) .sim-tab-btn,
+body:not([data-theme="healthy"]) .sim-result-pill,
+body:not([data-theme="healthy"]) .sim-result-filter-bar {
+  background: rgba(20, 40, 32, 0.65);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body:not([data-theme="healthy"]) .sim-result-filter-label {
+  color: rgba(241, 237, 227, 0.6);
+}
+
+body:not([data-theme="healthy"]) .sim-result-pill.active {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+body:not([data-theme="healthy"]) .sim-result-pill.pill-loss.active {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+body:not([data-theme="healthy"]) .sim-result-pill.pill-breakeven.active {
+  background: #475569;
+  border-color: #475569;
+}
+
+body:not([data-theme="healthy"]) .sim-status-pill.pill-breakeven {
+  background: #1e3a2f;
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
 body:not([data-theme="healthy"]) .sim-metric-box {
   background: #193329;
   border-color: rgba(255, 255, 255, 0.12);
