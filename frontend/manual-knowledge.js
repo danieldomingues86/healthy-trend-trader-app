@@ -37,6 +37,7 @@
     ['mission','Missão / Rebuild','Jornada de foco e recuperação.','manual-mission','Conclua o ciclo de 10 a 20 trades com risco controlado, acompanhe os marcos da montanha e ative o Rebuild Mode para reconstruir a confiança após drawdowns.'],
     ['tradertraining','Prática Deliberada','Metas e hábitos de excelência.','manual-tradertraining','Treine seu processo operacional com metas deliberadas, critérios objetivos de execução e acompanhamento diário de evolução técnica.'],
     ['conquests','Minhas Conquistas','Ritual de vitória e recompensas.',null,'Comemore o lucro realizado conforme o plano, escolha recompensas pessoais e acompanhe seus marcos de disciplina.'],
+    ['deservingdiary','Diário do Merecimento','Psicologia do lucro e merecimento.',null,'Registre e revise a experiência psicológica ao embolsar lucros, observe suas emoções e pratique uma relação serena e próspera com o recebimento de resultados positivos.'],
     ['mistakesbook','Erros e Lições','Catálogo de aprendizados.',null,'Registre erros operacionais e comportamentais para identificar padrões e consolidar lições aprendidas.'],
     ['charts','Gráficos','Leitura técnica e benchmarking.','manual-charts','Analise candles diários com médias móveis, volume institucional, benchmarking automático (IBOV, BDRX, IFIX) e avaliação instantânea de Grade pela Trading Rubric.'],
     ['marketcentral','Central de Mercado','Observatório macro e breadth.','manual-marketcentral','Acompanhe em tempo real o regime do mercado, indicadores de breadth, mercados globais (S&P 500, Nasdaq, Dólar, US10Y), notícias do dia e mapa setorial.'],
@@ -103,6 +104,11 @@
         'A tela Minhas Conquistas consolida suas realizações operacionais com foco na disciplina: embolsar o lucro conforme o plano sem deixar a ganância decidir.',
         'Ao clicar em "Embolsar Lucro" em qualquer trade aberto, o sistema abre o modal de celebração para você registrar sua recompensa pessoal e cumprir o Ritual de Vitória.',
         'Marcos de Disciplina: acompanhe sua evolução em 6 patamares (1, 5, 10, 20, 50, 100 conquistas) e vincule recompensas especiais ao cumprimento de metas de consistência.'
+      ],
+      deservingdiary: [
+        'O Diário do Merecimento é uma área de reflexão psicológica em Treinamento do Trader dedicada a registrar a experiência de embolsar lucros com tranquilidade e naturalidade.',
+        'Aprenda a Receber: registre emoções, intensidade de 0 a 10, pensamentos no momento da realização, reconhecimento de comportamento profissional e aprendizados para os próximos pregões.',
+        'Minha Evolução: acompanhe o gráfico e as métricas reais de ansiedade vs tranquilidade derivadas exclusivamente dos seus registros, fortalecendo sua identidade como trader consistente.'
       ],
       dailyroutine: [
         'A Rotina Diária estrutura a jornada do trader em três fases sagradas: Pré-Mercado (checagem de ciclo, revisão de posições, trailing stops e atualização da watchlist), Intra-Mercado (disciplina de execução e paciência) e Pós-Mercado (diário, registro de métricas e reflexão).',
