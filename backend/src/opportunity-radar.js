@@ -42,7 +42,7 @@ async function getOpportunityRadarData(cache) {
 
   const isPositiveCycle = (state) => {
     const s = String(state || '').trim().toLowerCase();
-    return s === 'healthy' || s === 'positive' || s.includes('positivo');
+    return s === 'healthy' || s === 'positive' || s.includes('positivo') || s.includes('expans');
   };
 
   const groups = [
@@ -114,18 +114,65 @@ async function getOpportunityRadarData(cache) {
     || cache.relativeStrengthByClass?.dataAsOf
     || null;
 
+  const allIsPositive = [stockCycleState, fiiCycleState, bdrCycleState].some(s => isPositiveCycle(s));
+  const allCycleState = allIsPositive ? 'healthy' : 'defensive';
+  const allScore = Math.max(
+    isPositiveCycle(stockCycleState) ? (stockCycleRes?.cycle?.score || 0) : 0,
+    isPositiveCycle(fiiCycleState) ? (fiiCycleRes?.cycle?.score || 0) : 0,
+    isPositiveCycle(bdrCycleState) ? (bdrCycleRes?.cycle?.score || 0) : 0
+  ) || (allIsPositive ? 70 : 30);
+
+  const stockScore = Number.isFinite(Number(stockCycleRes?.cycle?.score)) ? Number(stockCycleRes.cycle.score) : (isPositiveCycle(stockCycleState) ? 75 : 33);
+  const fiiScore = Number.isFinite(Number(fiiCycleRes?.cycle?.score)) ? Number(fiiCycleRes.cycle.score) : (isPositiveCycle(fiiCycleState) ? 87 : 33);
+  const bdrScore = Number.isFinite(Number(bdrCycleRes?.cycle?.score)) ? Number(bdrCycleRes.cycle.score) : (isPositiveCycle(bdrCycleState) ? 75 : 22);
+
   return {
     updatedAt: cache.updatedAt || cache.historyUpdatedAt || null,
     dataAsOf,
     marketCycleState: stockCycleState,
     marketCycles: {
-      ALL: [stockCycleState, fiiCycleState, bdrCycleState].every(s => !isPositiveCycle(s)) ? 'defensive' : (isPositiveCycle(stockCycleState) ? stockCycleState : (isPositiveCycle(fiiCycleState) ? fiiCycleState : bdrCycleState)),
-      IBOV: stockCycleState,
-      IFIX: fiiCycleState,
-      BDRs: bdrCycleState,
-      stock_b3: stockCycleState,
-      fii: fiiCycleState,
-      bdr: bdrCycleState
+      ALL: {
+        state: allCycleState,
+        score: allScore,
+        marketId: isPositiveCycle(stockCycleState) ? 'stock_b3' : (isPositiveCycle(fiiCycleState) ? 'fii' : 'bdr'),
+        name: 'Todos os Mercados'
+      },
+      IBOV: {
+        state: stockCycleState,
+        score: stockScore,
+        marketId: 'stock_b3',
+        name: 'Ações B3 (IBOV)'
+      },
+      IFIX: {
+        state: fiiCycleState,
+        score: fiiScore,
+        marketId: 'fii',
+        name: 'FIIs (IFIX)'
+      },
+      BDRs: {
+        state: bdrCycleState,
+        score: bdrScore,
+        marketId: 'bdr',
+        name: 'BDRs (BDRX)'
+      },
+      stock_b3: {
+        state: stockCycleState,
+        score: stockScore,
+        marketId: 'stock_b3',
+        name: 'Ações B3 (IBOV)'
+      },
+      fii: {
+        state: fiiCycleState,
+        score: fiiScore,
+        marketId: 'fii',
+        name: 'FIIs (IFIX)'
+      },
+      bdr: {
+        state: bdrCycleState,
+        score: bdrScore,
+        marketId: 'bdr',
+        name: 'BDRs (BDRX)'
+      }
     },
     totalReady: filteredReadyItems.length,
     items: filteredReadyItems

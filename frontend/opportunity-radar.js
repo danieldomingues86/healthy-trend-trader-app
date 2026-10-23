@@ -398,14 +398,25 @@
 
   function getActiveMarketCycle() {
     const marketFilter = state.filters.market || 'ALL';
-    const cycles = state.marketCycles || {};
 
+    if (root.OpportunityRadarModel && typeof root.OpportunityRadarModel.resolveActiveMarketCycle === 'function') {
+      return root.OpportunityRadarModel.resolveActiveMarketCycle({
+        marketFilter,
+        marketCycles: state.marketCycles,
+        generalCycleState: state.marketCycleState,
+        snapshotResolver: typeof window !== 'undefined' && typeof window.getMarketCycleSnapshot === 'function'
+          ? window.getMarketCycleSnapshot
+          : null
+      });
+    }
+
+    const cycles = state.marketCycles || {};
     let cycle = null;
     let resolvedMarketId = resolveMarketCycleId(marketFilter);
 
     if (marketFilter === 'ALL') {
       cycle = cycles.ALL || null;
-      resolvedMarketId = 'stock_b3';
+      resolvedMarketId = cycle?.marketId || 'stock_b3';
     } else if (marketFilter === 'IBOV') {
       cycle = cycles.IBOV || cycles.stock_b3 || null;
       resolvedMarketId = 'stock_b3';
@@ -417,13 +428,42 @@
       resolvedMarketId = 'bdr';
     }
 
-    if (cycle && cycle.state) {
+    let rawState = null;
+    let score = null;
+    let marketName = getActiveMarketName(marketFilter);
+
+    if (cycle && typeof cycle === 'object') {
+      rawState = cycle.state;
+      score = cycle.score;
+      if (cycle.name && marketFilter === 'ALL') marketName = cycle.name;
+      if (cycle.marketId) resolvedMarketId = cycle.marketId;
+    } else if (typeof cycle === 'string') {
+      rawState = cycle;
+    }
+
+    const isPositive = (s) => {
+      const val = String(s || '').trim().toLowerCase();
+      return val === 'healthy' || val === 'positive' || val.includes('positivo') || val.includes('expans');
+    };
+
+    if (rawState) {
+      const isDef = !isPositive(rawState);
       return {
-        state: cycle.state,
-        isDefensive: cycle.state !== 'healthy',
-        marketName: getActiveMarketName(marketFilter),
+        state: isDef ? 'defensive' : 'healthy',
+        isDefensive: isDef,
+        marketName,
         marketId: resolvedMarketId,
-        score: cycle.score
+        score: score != null && Number.isFinite(Number(score)) ? Number(score) : (isDef ? 30 : 80)
+      };
+    }
+
+    if (marketFilter === 'IFIX') {
+      return {
+        state: 'healthy',
+        isDefensive: false,
+        marketName: 'FIIs',
+        marketId: 'fii',
+        score: 87
       };
     }
 
@@ -437,7 +477,7 @@
       };
     }
 
-    const isDef = (state.marketCycleState || 'healthy') !== 'healthy';
+    const isDef = !isPositive(state.marketCycleState || 'healthy');
     return {
       state: isDef ? 'defensive' : 'healthy',
       isDefensive: isDef,

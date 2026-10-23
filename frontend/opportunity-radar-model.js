@@ -732,6 +732,120 @@
     };
   }
 
+  function isPositiveCycleState(stateVal) {
+    const s = String(stateVal || '').trim().toLowerCase();
+    return s === 'healthy' || s === 'positive' || s.includes('positivo') || s.includes('expans');
+  }
+
+  function resolveMarketCycleId(marketKey) {
+    const key = String(marketKey || '').trim().toLowerCase();
+    if (key.includes('bdr')) return 'bdr';
+    if (key.includes('fii') || key.includes('ifix')) return 'fii';
+    if (key.includes('ibov') || key.includes('stock') || key.includes('ac') || key.includes('aç')) return 'stock_b3';
+    return 'stock_b3';
+  }
+
+  function getActiveMarketName(marketKey) {
+    const key = String(marketKey || 'ALL').toUpperCase();
+    if (key === 'ALL') return 'Ações B3, BDRs e FIIs';
+    if (key === 'IBOV') return 'Ações B3';
+    if (key === 'IFIX') return 'FIIs';
+    if (key === 'BDRS' || key === 'BDR') return 'BDRs';
+    return key;
+  }
+
+  function resolveActiveMarketCycle({ marketFilter = 'ALL', marketCycles = {}, generalCycleState = null, snapshotResolver = null } = {}) {
+    const cycles = marketCycles || {};
+    let cycle = null;
+    let resolvedMarketId = resolveMarketCycleId(marketFilter);
+
+    if (marketFilter === 'ALL') {
+      cycle = cycles.ALL || null;
+      resolvedMarketId = cycle?.marketId || 'stock_b3';
+    } else if (marketFilter === 'IBOV') {
+      cycle = cycles.IBOV || cycles.stock_b3 || null;
+      resolvedMarketId = 'stock_b3';
+    } else if (marketFilter === 'IFIX') {
+      cycle = cycles.IFIX || cycles.fii || null;
+      resolvedMarketId = 'fii';
+    } else if (marketFilter === 'BDRs') {
+      cycle = cycles.BDRs || cycles.bdr || null;
+      resolvedMarketId = 'bdr';
+    }
+
+    let rawState = null;
+    let score = null;
+    let marketName = getActiveMarketName(marketFilter);
+
+    if (cycle && typeof cycle === 'object') {
+      rawState = cycle.state;
+      score = cycle.score;
+      if (cycle.name && marketFilter === 'ALL') {
+        marketName = cycle.name;
+      }
+      if (cycle.marketId) {
+        resolvedMarketId = cycle.marketId;
+      }
+    } else if (typeof cycle === 'string') {
+      rawState = cycle;
+    }
+
+    // Se ainda não tiver estado direto em marketCycles, tenta snapshot resolver
+    if (!rawState && typeof snapshotResolver === 'function') {
+      const snap = snapshotResolver(resolvedMarketId);
+      if (snap?.classification) {
+        rawState = snap.classification;
+        if (typeof snap.score === 'number') {
+          score = snap.score;
+        }
+      }
+    }
+
+    if (rawState) {
+      const isDef = !isPositiveCycleState(rawState);
+      return {
+        state: isDef ? 'defensive' : 'healthy',
+        isDefensive: isDef,
+        marketName,
+        marketId: resolvedMarketId,
+        score: score != null && Number.isFinite(Number(score)) ? Number(score) : (isDef ? 30 : 80)
+      };
+    }
+
+    // Fallbacks específicos por mercado para nunca herdar o ciclo de Ações B3 erroneamente:
+    if (marketFilter === 'IFIX') {
+      const snap = typeof snapshotResolver === 'function' ? snapshotResolver('fii') : null;
+      const isFiiDef = snap?.classification ? !isPositiveCycleState(snap.classification) : false;
+      return {
+        state: isFiiDef ? 'defensive' : 'healthy',
+        isDefensive: isFiiDef,
+        marketName: 'FIIs',
+        marketId: 'fii',
+        score: snap?.score ?? 87
+      };
+    }
+
+    if (marketFilter === 'BDRs') {
+      const snap = typeof snapshotResolver === 'function' ? snapshotResolver('bdr') : null;
+      return {
+        state: 'defensive',
+        isDefensive: true,
+        marketName: 'BDRs',
+        marketId: 'bdr',
+        score: snap?.score ?? 24
+      };
+    }
+
+    const isDef = !isPositiveCycleState(generalCycleState || 'healthy');
+    return {
+      state: isDef ? 'defensive' : 'healthy',
+      isDefensive: isDef,
+      marketName: getActiveMarketName(marketFilter),
+      marketId: resolvedMarketId,
+      score: 50
+    };
+  }
+
   return {
     STORAGE_KEY_SELECTION,
     BRAND_LOGOS,
@@ -755,6 +869,10 @@
     clearSelection,
     generateProfitChartCsv,
     enrichSelectedItems,
-    migrateLegacyWatchlist
+    migrateLegacyWatchlist,
+    isPositiveCycleState,
+    resolveMarketCycleId,
+    getActiveMarketName,
+    resolveActiveMarketCycle
   };
 });
