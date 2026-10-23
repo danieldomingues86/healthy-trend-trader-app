@@ -111,10 +111,10 @@
     },
     'PARTIAL_50_2R_EMA9': {
       id: 'PARTIAL_50_2R_EMA9',
-      name: 'Gestão Parcial 50% (2R) + Média 9',
-      shortLabel: 'Parcial 50% + MM9',
-      sub: '50% em 2R → 50% na MM9',
-      description: 'Risco 1R. Embolsa metade (50%) em +2R e move o stop para breakeven. Os 50% restantes correm até o preço perder a média móvel de 9 períodos.',
+      name: 'Gestão Parcial 50% (2R) + Média 10',
+      shortLabel: 'Parcial 50% + MM10',
+      sub: '50% em 2R → 50% na MM10',
+      description: 'Risco 1R. Embolsa metade (50%) em +2R e move o stop para breakeven. Os 50% restantes correm até o preço perder a média móvel de 10 períodos.',
       targetR: 2.0,
       hasPyramid: false,
       hasPartial: true,
@@ -124,10 +124,10 @@
     },
     'PARTIAL_80_2R_EMA9': {
       id: 'PARTIAL_80_2R_EMA9',
-      name: 'Gestão Parcial 80% (2R) + Média 9',
-      shortLabel: 'Parcial 80% + MM9',
-      sub: '80% em 2R → 20% na MM9',
-      description: 'Risco 1R. Embolsa 80% em +2R e move o stop para breakeven. Os 20% restantes correm até o preço perder a média móvel de 9 períodos.',
+      name: 'Gestão Parcial 80% (2R) + Média 10',
+      shortLabel: 'Parcial 80% + MM10',
+      sub: '80% em 2R → 20% na MM10',
+      description: 'Risco 1R. Embolsa 80% em +2R e move o stop para breakeven. Os 20% restantes correm até o preço perder a média móvel de 10 períodos.',
       targetR: 2.0,
       hasPyramid: false,
       hasPartial: true,
@@ -493,7 +493,8 @@
     };
 
     const closes = validCandles.map(c => Number(c.close));
-    const ema9Series = calculateEmaSeries(closes, 9);
+    const ema10Series = calculateEmaSeries(closes, 10);
+    const ema9Series = ema10Series;
 
     const entryPlanned = Number(sim.entryPrice);
     const stopInitial = Number(sim.stopLoss);
@@ -842,7 +843,7 @@
           }
         }
 
-        // 3. Marco de Saída no Alvo (+2R, +2,5R, Pirâmide ou Parcial 50%/80% + MM9)
+        // 3. Marco de Saída no Alvo (+2R, +2,5R, Pirâmide ou Parcial 50%/80% + MM10)
         if (isPartialEma9) {
           let partialExecutedOnThisBar = false;
           if (!sim.partialExit?.executed && cHigh >= targetExitPrice) {
@@ -877,10 +878,10 @@
             });
           }
 
-          // Fase 2: se a parcial já foi executada em pregão anterior, monitora saída do runner pela MM9
+          // Fase 2: se a parcial já foi executada em pregão anterior, monitora saída do runner pela MM10
           if (sim.partialExit?.executed && !partialExecutedOnThisBar) {
-            const cEma9 = ema9Series[i] || targetExitPrice;
-            if (cClose < cEma9) {
+            const cEma10 = ema9Series[i] || targetExitPrice;
+            if (cClose < cEma10) {
               const runnerExitPrice = round2(cClose);
               exitDate = candleDate;
               const runnerR = Math.max(0, round2((runnerExitPrice - executedEntryPrice) / risk));
@@ -888,7 +889,7 @@
               exitPrice = round2(executedEntryPrice + resultR * risk);
               sim.currentPrice = exitPrice;
               status = STATUS.CLOSED_GAIN;
-              exitReason = `Parcial ${partialPercent}% no 2R + Saída na EMA 9 (${formatR(runnerR)} no restante)`;
+              exitReason = `Parcial ${partialPercent}% no 2R + Saída na EMA 10 (${formatR(runnerR)} no restante)`;
               sim.partialExit.runnerExitPrice = runnerExitPrice;
               sim.partialExit.runnerExitR = runnerR;
               sim.partialExit.consolidatedResultR = resultR;
@@ -896,9 +897,9 @@
               addTimelineEvent({
                 type: 'RUNNER_EXIT',
                 date: candleDate,
-                label: 'Saída pela Média de 9 (MM9)',
+                label: 'Saída pela Média de 10 (MM10)',
                 price: runnerExitPrice,
-                desc: `Fechamento a ${formatPrice(runnerExitPrice)} abaixo da EMA 9 (${formatPrice(cEma9)}). Runner: ${formatR(runnerR)}.`
+                desc: `Fechamento a ${formatPrice(runnerExitPrice)} abaixo da EMA 10 (${formatPrice(cEma10)}). Runner: ${formatR(runnerR)}.`
               });
               addTimelineEvent({
                 type: 'CLOSED',
@@ -1610,13 +1611,13 @@
     }
 
     // 4. Tendência
-    let trendFormula = 'Preço > EMA 9 > EMA 30';
+    let trendFormula = 'Preço > EMA 10 > EMA 72';
     let trendStatus = 'good';
     if (cycleStatus === 'bad' || (isLoss && sDate < '2026-07-01')) {
-      trendFormula = 'Preço < EMA 9';
+      trendFormula = 'Preço < EMA 10';
       trendStatus = 'bad';
     } else if (cycleStatus === 'neutral' || grade === 'C') {
-      trendFormula = 'Preço > EMA 9';
+      trendFormula = 'Preço > EMA 10';
       trendStatus = 'neutral';
     }
 
@@ -3179,12 +3180,12 @@
       const target2Price = round2(entry + 2.0 * risk);
 
       if (sim.status === STATUS.CLOSED_GAIN && mfe >= 2.0) {
-        // Runner sai quando preço perde a EMA 9 (estimado em média móvel rápida em relação ao pico)
+        // Runner sai quando preço perde a EMA 10 (estimado em média móvel rápida em relação ao pico)
         const runnerExitR = round2(Math.max(0, mfe >= 2.3 ? (mfe - 0.65) : (mfe >= 2.0 ? 1.4 : 0)));
         cloned.resultR = round2(pct * 2.0 + runnerPct * runnerExitR);
         cloned.exitPrice = round2(entry + cloned.resultR * risk);
         cloned.currentPrice = cloned.exitPrice;
-        cloned.exitReason = `Parcial ${Math.round(pct * 100)}% em +2R + Saída na EMA 9`;
+        cloned.exitReason = `Parcial ${Math.round(pct * 100)}% em +2R + Saída na EMA 10`;
         cloned.partialExit = {
           executed: true,
           percent: Math.round(pct * 100),
@@ -3211,14 +3212,14 @@
               newTimeline.push({
                 type: 'RUNNER_EXIT',
                 date: sim.exitDate || evt.date,
-                label: 'Saída pela Média de 9 (MM9)',
-                desc: `Encerramento dos ${Math.round(runnerPct * 100)}% restantes após perda da EMA 9 (+${runnerExitR.toFixed(2).replace('.', ',')}R no runner).`
+                label: 'Saída pela Média de 10 (MM10)',
+                desc: `Encerramento dos ${Math.round(runnerPct * 100)}% restantes após perda da EMA 10 (+${runnerExitR.toFixed(2).replace('.', ',')}R no runner).`
               });
             }
           }
           cloned.timeline = newTimeline.map(evt => {
             if (evt.type === 'SELL_INTO_STRENGTH') {
-              return { ...evt, desc: `Realização parcial e condução por MM9 (${formatR(cloned.resultR)})` };
+              return { ...evt, desc: `Realização parcial e condução por MM10 (${formatR(cloned.resultR)})` };
             }
             if (evt.type === 'CLOSED') {
               return { ...evt, resultR: cloned.resultR, desc: `Operação concluída com resultado de ${formatR(cloned.resultR)}` };
@@ -3747,7 +3748,7 @@
     };
 
     const bySuperTrend = {
-      aligned: summarizeSubset(dibList.filter(s => normalizeSimulatorGrade(s.grade) === 'A'), 'Sim (Preço > EMA 9 > EMA 30)'),
+      aligned: summarizeSubset(dibList.filter(s => normalizeSimulatorGrade(s.grade) === 'A'), 'Sim (Preço > EMA 10 > EMA 72)'),
       notAligned: summarizeSubset(dibList.filter(s => normalizeSimulatorGrade(s.grade) !== 'A'), 'Não (Médias desalinhadas)')
     };
 
@@ -3828,13 +3829,15 @@
     if (!simulation || !Array.isArray(simulation.candles) || !simulation.candles.length) return [];
     const { candles } = normalizeSnapshotHistory(simulation.candles);
     const closes = candles.map(c => c.close);
-    const ema9 = calculateEmaSeries(closes, 9);
-    const ema30 = calculateEmaSeries(closes, 30);
+    const ema10 = calculateEmaSeries(closes, 10);
+    const ema72 = calculateEmaSeries(closes, 72);
     const signalDate = String(simulation.signalDate || '').slice(0, 10);
     return candles.map((c, idx) => ({
       ...c,
-      ema9: ema9[idx],
-      ema30: ema30[idx],
+      ema10: ema10[idx],
+      ema72: ema72[idx],
+      ema9: ema10[idx],
+      ema30: ema72[idx],
       isSignal: c.time === signalDate
     }));
   }
@@ -3969,8 +3972,10 @@
     // EMAs causais: cada valor só depende de candles até a própria data (mesma semente do motor do simulador).
     const upToEnd = history.slice(0, endIdx + 1);
     const closes = upToEnd.map(c => c.close);
-    const ema9All = calculateEmaSeries(closes, 9);
-    const ema30All = calculateEmaSeries(closes, 30);
+    const ema10All = calculateEmaSeries(closes, 10);
+    const ema72All = calculateEmaSeries(closes, 72);
+    const ema9All = ema10All;
+    const ema30All = ema72All;
 
     const entryPlanned = Number(simulation.entryPrice);
     const stopInitial = Number(simulation.stopLoss);
@@ -3986,6 +3991,8 @@
         low: c.low,
         close: c.close,
         volume: c.volume,
+        ema10: ema10All[i],
+        ema72: ema72All[i],
         ema9: ema9All[i],
         ema30: ema30All[i],
         phase: i <= signalIdx ? 'context' : 'post',
@@ -4163,8 +4170,10 @@
 
     // Série histórica completa com EMAs causais para zoom contextual instantâneo
     const allCloses = history.map(c => c.close);
-    const allEma9 = calculateEmaSeries(allCloses, 9);
-    const allEma30 = calculateEmaSeries(allCloses, 30);
+    const allEma10 = calculateEmaSeries(allCloses, 10);
+    const allEma72 = calculateEmaSeries(allCloses, 72);
+    const allEma9 = allEma10;
+    const allEma30 = allEma72;
     const allCandles = history.map((c, idx) => ({
       time: c.time,
       open: c.open,
@@ -4172,6 +4181,8 @@
       low: c.low,
       close: c.close,
       volume: c.volume,
+      ema10: allEma10[idx],
+      ema72: allEma72[idx],
       ema9: allEma9[idx],
       ema30: allEma30[idx],
       phase: idx <= signalIdx ? 'context' : 'post',
@@ -4313,18 +4324,18 @@
 
   /**
    * Classifica a Nota do Rubric (A, B, C ou D) com base nos critérios reais do candle slice (sem look-ahead):
-   * - Alinhamento de tendência (Preço > EMA 9 > EMA 30 e inclinação da EMA 9)
+   * - Alinhamento de tendência (Preço > EMA 10 > EMA 72 e inclinação da EMA 10)
    * - Risco gráfico percentual (distância entre entrada e stop inicial)
    * - Qualidade da contração de volatilidade
    */
-  function classifyTriggerRubricGrade(entryPrice, stopLoss, latestClose, latestEma9, latestEma30, prevEma9, baseQuality = 'A') {
+  function classifyTriggerRubricGrade(entryPrice, stopLoss, latestClose, latestEma10, latestEma72, prevEma10, baseQuality = 'A') {
     const entry = Number(entryPrice) || 1;
     const stop = Number(stopLoss) || entry;
     const riskPct = ((entry - stop) / entry) * 100;
-    const emaAligned = (latestEma9 == null || latestEma30 == null) ? true : (latestEma9 >= latestEma30);
-    const emaRising = (latestEma9 == null || prevEma9 == null) ? true : (latestEma9 >= prevEma9 * 0.998);
+    const emaAligned = (latestEma10 == null || latestEma72 == null) ? true : (latestEma10 >= latestEma72);
+    const emaRising = (latestEma10 == null || prevEma10 == null) ? true : (latestEma10 >= prevEma10 * 0.998);
 
-    if (riskPct > 8.5 || latestClose < (latestEma30 || 0) * 0.97) {
+    if (riskPct > 8.5 || latestClose < (latestEma72 || 0) * 0.97) {
       return 'D';
     }
     if (!emaAligned || riskPct > 5.2) {
@@ -4360,21 +4371,21 @@
       return riskPct >= 0.5 && riskPct <= 16.0;
     }
 
-    // Closes e EMAs
+    // Closes e EMAs (Configuração Oficial Diário: EMA 10 + EMA 72)
     const closes = candles.map(c => Number(c.close));
-    const ema9Series = calculateEmaSeries(closes, 9);
-    const ema30Series = calculateEmaSeries(closes, Math.min(30, closes.length));
-    const latestEma9 = c1.ema9 != null ? Number(c1.ema9) : ema9Series[ema9Series.length - 1];
-    const prevEma9 = len >= 2 ? (c2.ema9 != null ? Number(c2.ema9) : ema9Series[ema9Series.length - 2]) : latestEma9;
-    const latestEma30 = c1.ema30 != null ? Number(c1.ema30) : ema30Series[ema30Series.length - 1];
+    const ema10Series = calculateEmaSeries(closes, 10);
+    const ema72Series = calculateEmaSeries(closes, 72);
+    const latestEma10 = c1.ema10 != null ? Number(c1.ema10) : (c1.ema9 != null ? Number(c1.ema9) : ema10Series[ema10Series.length - 1]);
+    const prevEma10 = len >= 2 ? (c2.ema10 != null ? Number(c2.ema10) : (c2.ema9 != null ? Number(c2.ema9) : ema10Series[ema10Series.length - 2])) : latestEma10;
+    const latestEma72 = c1.ema72 != null ? Number(c1.ema72) : (c1.ema30 != null ? Number(c1.ema30) : ema72Series[ema72Series.length - 1]);
 
-    const isAboveBothEmas = (latestEma9 == null || c1.close >= latestEma9) && (latestEma30 == null || c1.close >= latestEma30);
+    const isAboveBothEmas = (latestEma10 == null || c1.close >= latestEma10) && (latestEma72 == null || c1.close >= latestEma72);
     if (!isAboveBothEmas) return [];
 
     const found = [];
     function push(id, name, entry, stop, baseQuality, structure) {
       if (!isAcceptableGraphicRisk(entry, stop)) return;
-      const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma9, latestEma30, prevEma9, baseQuality);
+      const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma10, latestEma72, prevEma10, baseQuality);
       const item = { id, name, grade, hasTrigger: true, entry, stop };
       if (structure) item.structure = structure;
       found.push(item);

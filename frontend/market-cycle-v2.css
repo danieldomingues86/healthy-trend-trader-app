@@ -501,8 +501,8 @@ body:not([data-theme="healthy"]) #marketcycle .mcv2-hero {
 #marketcycle .mcv2-candle:hover rect,#marketcycle .mcv2-candle:focus rect{filter:brightness(1.18);stroke-width:1.2}
 #marketcycle .mcv2-candle:hover line,#marketcycle .mcv2-candle:focus line{stroke-width:2.2}
 #marketcycle .mcv2-line{fill:none;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
-#marketcycle .mcv2-line.ema9{stroke:#2563eb;stroke-width:2.0;stroke-opacity:0.92}
-#marketcycle .mcv2-line.ema30{stroke:#f97316;stroke-width:2.0;stroke-opacity:0.92}
+#marketcycle .mcv2-line.ema9, #marketcycle .mcv2-line.ema10{stroke:#2563eb;stroke-width:2.0;stroke-opacity:0.92}
+#marketcycle .mcv2-line.ema30, #marketcycle .mcv2-line.ema72{stroke:#f97316;stroke-width:2.0;stroke-opacity:0.92}
 #marketcycle .mcv2-axis-badge rect{filter:drop-shadow(0 2px 5px rgba(0,0,0,.15))}
 #marketcycle .mcv2-axis-badge text{fill:#ffffff;font:700 9px/1 Inter,sans-serif;letter-spacing:-.01em}
 #marketcycle .mcv2-hit{fill:transparent;stroke:transparent;cursor:crosshair}
@@ -514,8 +514,8 @@ body:not([data-theme="healthy"]) #marketcycle .mcv2-hero {
 #marketcycle .mcv2-legend-item{display:flex;align-items:center;gap:9px}
 #marketcycle .mcv2-candlestick-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:20px;flex:none}
 #marketcycle .mcv2-line-swatch{display:inline-block;width:24px;height:3.5px;border-radius:2px;flex:none}
-#marketcycle .mcv2-line-swatch.ema9{background:#2563eb}
-#marketcycle .mcv2-line-swatch.ema30{background:#f97316}
+#marketcycle .mcv2-line-swatch.ema9, #marketcycle .mcv2-line-swatch.ema10{background:#2563eb}
+#marketcycle .mcv2-line-swatch.ema30, #marketcycle .mcv2-line-swatch.ema72{background:#f97316}
 #marketcycle .mcv2-legend-text{display:flex;flex-direction:column;line-height:1.25}
 #marketcycle .mcv2-legend-text strong{font-size:11px;font-weight:700;color:#1e293b}
 #marketcycle .mcv2-legend-text span{font-size:9.5px;color:#64748b}

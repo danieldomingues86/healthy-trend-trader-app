@@ -524,16 +524,16 @@ test('trade-simulator-model: evaluateSimulationOnCandles simula Pirâmide, 2.5R 
   assert.equal(eval25Gain.resultR, 2.5);
   assert.equal(eval25Gain.exitPrice, 35.00);
 
-  // Cenário D: Parcial 50% em 2R + condução por MM9
+  // Cenário D: Parcial 50% em 2R + condução por MM10
   // Dia 4: atinge 2R (34.00) -> realiza 50% (+1.00R garantido), stop = 30.00
-  // Dia 5: preço fecha a 31.00 (abaixo da EMA 9 que está em ~31.04) -> runner encerra a 31.00 (+0.50R no runner)
+  // Dia 5: preço fecha a 31.00 (abaixo da EMA 10 que está em ~31.15) -> runner encerra a 31.00 (+0.50R no runner)
   // Consolidado: 0.5 * 2.0 + 0.5 * 0.5 = 1.0 + 0.25 = +1.25R
   const candlesPart50 = [
-    { time: '2026-09-01', open: 29.50, high: 29.90, low: 28.50, close: 29.60 },
+    { time: '2026-09-01', open: 29.80, high: 30.20, low: 29.50, close: 30.00 },
     { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 },
-    { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.20 },
+    { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.50 },
     { time: '2026-09-04', open: 32.20, high: 34.50, low: 31.80, close: 34.20 }, // Atinge +2R (34.00)
-    { time: '2026-09-05', open: 33.00, high: 33.10, low: 30.80, close: 31.00 }  // Fecha abaixo da EMA 9
+    { time: '2026-09-05', open: 33.00, high: 33.10, low: 30.80, close: 31.00 }  // Fecha abaixo da EMA 10
   ];
   const evalPart50 = model.evaluateSimulationOnCandles(baseSim, candlesPart50, 'PARTIAL_50_2R_EMA9');
   assert.equal(evalPart50.status, model.STATUS.CLOSED_GAIN);
@@ -643,8 +643,8 @@ test('trade-simulator-model: getTradeVisionAtivo reproduz com fidelidade o cená
   assert.equal(visionItub.marketCycle.regime, 'Positivo');
   assert.equal(visionItub.marketCycle.status, 'good');
 
-  // 3. Tendência: Preço > EMA 9 > EMA 30
-  assert.equal(visionItub.trend.formula, 'Preço > EMA 9 > EMA 30');
+  // 3. Tendência: Preço > EMA 10 > EMA 72
+  assert.equal(visionItub.trend.formula, 'Preço > EMA 10 > EMA 72');
   assert.equal(visionItub.trend.status, 'good');
 
   // 4. Estrutura: Correção

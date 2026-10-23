@@ -103,8 +103,12 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
       state,
       score,
       price,
+      ema10: above9 ? price * 0.99 : price * 1.01,
+      ema72: price * 0.98,
       ema9: above9 ? price * 0.99 : price * 1.01,
       ema30: price * 0.98,
+      above10: above9,
+      above72: true,
       above9,
       above30: true,
       structure: above9,
@@ -121,6 +125,8 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
       history: Array.from({ length: 300 }, (_, i) => ({
         date: `2026010${(i % 28) + 1}`,
         close: price + i,
+        ema10: price + i * 0.99,
+        ema72: price + i * 0.98,
         ema9: price + i * 0.99,
         ema30: price + i * 0.98,
         score,
@@ -175,7 +181,7 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   assert.ok(env.rootElement.innerHTML.includes('Ações B3'), 'Deve renderizar Ações B3');
   assert.ok(env.rootElement.innerHTML.includes('IBOV · Diário'), 'Deve renderizar título diário do IBOV');
   assert.ok(env.rootElement.innerHTML.includes('183.966') || env.rootElement.innerHTML.includes('183.965'), 'Preço do IBOV');
-  assert.ok(env.rootElement.innerHTML.includes('EMA 9') && env.rootElement.innerHTML.includes('EMA 30'), 'Deve exibir EMA 9 e EMA 30 para IBOV');
+  assert.ok(env.rootElement.innerHTML.includes('EMA 10') && env.rootElement.innerHTML.includes('EMA 72'), 'Deve exibir EMA 10 e EMA 72 para IBOV');
   assert.ok(env.rootElement.innerHTML.includes('data-market-regime="healthy"'), 'Deve conter data-market-regime="healthy"');
   assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item expansion active'), 'Segmento de Expansão deve estar ativo na régua');
   assert.ok(env.rootElement.innerHTML.includes('mcv2-hero-title-row'), 'Hero deve conter linha de título com ícone do regime');
@@ -196,7 +202,7 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   assert.ok(env.rootElement.innerHTML.includes('BDRX · Diário'), 'Deve renderizar título diário do BDRX');
   assert.ok(env.rootElement.innerHTML.includes('28.503'), 'Preço do BDRX');
   assert.ok(env.rootElement.innerHTML.includes('BDRs'), 'Rótulo BDRs');
-  assert.ok(env.rootElement.innerHTML.includes('EMA 9') && env.rootElement.innerHTML.includes('EMA 30'), 'Deve indicar EMA 9 e EMA 30 para BDRX');
+  assert.ok(env.rootElement.innerHTML.includes('EMA 10') && env.rootElement.innerHTML.includes('EMA 72'), 'Deve indicar EMA 10 e EMA 72 para BDRX');
   assert.ok(!env.rootElement.innerHTML.includes('Como está a base do IBOV?'), 'Não deve exibir breadth do IBOV na tela de BDRs');
   assert.ok(env.rootElement.innerHTML.includes('data-market-regime="healthy"'), 'BDRX com estado saudável');
   assert.ok(env.rootElement.innerHTML.includes('mcv2-regime-item expansion active'), 'Segmento de Expansão ativo para BDRX');

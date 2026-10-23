@@ -8,6 +8,8 @@
   let chartInstance = null;
   let candleSeries = null;
   let lineSeries = null;
+  let ema10Series = null;
+  let ema72Series = null;
   let ema9Series = null;
   let ema30Series = null;
   let ema21Series = null;
@@ -87,8 +89,10 @@
       atrPct: d.volatility?.atrPct ?? null,
       fundamentals: fundamentals.evaluation || fundamentals.classification || '—',
       context: d.context?.title || d.context?.description || '—',
-      ema9: d.indicators?.ema9?.at?.(-1)?.value ?? null,
-      ema30: d.indicators?.ema30?.at?.(-1)?.value ?? null
+      ema10: d.indicators?.ema10?.at?.(-1)?.value ?? d.indicators?.ema9?.at?.(-1)?.value ?? null,
+      ema72: d.indicators?.ema72?.at?.(-1)?.value ?? d.indicators?.ema30?.at?.(-1)?.value ?? null,
+      ema9: d.indicators?.ema10?.at?.(-1)?.value ?? d.indicators?.ema9?.at?.(-1)?.value ?? null,
+      ema30: d.indicators?.ema72?.at?.(-1)?.value ?? d.indicators?.ema30?.at?.(-1)?.value ?? null
     };
   }
 
@@ -176,9 +180,19 @@
   function loadIndicatorPrefs() {
     try {
       const raw = localStorage.getItem(INDICATORS_STORAGE_KEY);
-      if (raw) return Object.assign({ ema9: true, ema30: true, ema21: false, ema50: false, ema200: false, volume: true }, JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return Object.assign({
+          ema10: parsed.ema10 ?? parsed.ema9 ?? true,
+          ema72: parsed.ema72 ?? parsed.ema30 ?? true,
+          ema21: false,
+          ema50: false,
+          ema200: false,
+          volume: true
+        }, parsed);
+      }
     } catch (e) {}
-    return { ema9: true, ema30: true, ema21: false, ema50: false, ema200: false, volume: true };
+    return { ema10: true, ema72: true, ema21: false, ema50: false, ema200: false, volume: true };
   }
 
   function saveIndicatorPrefs(prefs) {
@@ -391,8 +405,12 @@
   }
 
   function applyIndicatorVisibility() {
-    if (ema9Series) ema9Series.applyOptions({ visible: !!indicatorPrefs.ema9 });
-    if (ema30Series) ema30Series.applyOptions({ visible: !!indicatorPrefs.ema30 });
+    const isEma10Vis = !!(indicatorPrefs.ema10 ?? indicatorPrefs.ema9);
+    const isEma72Vis = !!(indicatorPrefs.ema72 ?? indicatorPrefs.ema30);
+    if (ema10Series) ema10Series.applyOptions({ visible: isEma10Vis });
+    if (ema72Series) ema72Series.applyOptions({ visible: isEma72Vis });
+    if (ema9Series) ema9Series.applyOptions({ visible: isEma10Vis });
+    if (ema30Series) ema30Series.applyOptions({ visible: isEma72Vis });
     if (volumeSeries) volumeSeries.applyOptions({ visible: !!indicatorPrefs.volume });
     if (ema21Series) {
       ema21Series.applyOptions({ visible: !!indicatorPrefs.ema21 });
@@ -410,10 +428,10 @@
       ensureEma200Series();
     }
 
-    const lEma9 = document.querySelector('.legend-ema9');
-    if (lEma9) lEma9.style.display = indicatorPrefs.ema9 ? 'inline' : 'none';
-    const lEma30 = document.querySelector('.legend-ema30');
-    if (lEma30) lEma30.style.display = indicatorPrefs.ema30 ? 'inline' : 'none';
+    const lEma10 = document.querySelector('.legend-ema10, .legend-ema9');
+    if (lEma10) lEma10.style.display = isEma10Vis ? 'inline' : 'none';
+    const lEma72 = document.querySelector('.legend-ema72, .legend-ema30');
+    if (lEma72) lEma72.style.display = isEma72Vis ? 'inline' : 'none';
     const lVol = document.querySelector('.legend-vol');
     if (lVol) lVol.style.display = indicatorPrefs.volume ? 'inline' : 'none';
     const lEma21 = document.querySelector('.legend-ema21');
@@ -839,7 +857,7 @@
             <div class="trigger-alert-title-row">
               <span class="trigger-alert-title">🎯 GATILHO DE COMPRA IDENTIFICADO</span>
               <span class="trigger-alert-pattern-badge">${escapeHtml(trigger.name)} (${escapeHtml(effectiveGrade)})</span>
-              <span class="trigger-alert-rule-tag">Acima da EMA 9 e EMA 30</span>
+              <span class="trigger-alert-rule-tag">Acima da EMA 10 e EMA 72</span>
             </div>
             <div class="trigger-alert-desc">
               ${escapeHtml(trigger.detail || trigger.description || 'Condição de entrada válida no gráfico Diário segundo as regras do método.')}
@@ -1177,16 +1195,16 @@
                     <label class="chart-indicator-item">
                       <div class="chart-indicator-left">
                         <span class="indicator-color-dot" style="background: #0d9488;"></span>
-                        <span>EMA 9 (Curta / Rastreio)</span>
+                        <span>EMA 10 (Curta / Rastreio)</span>
                       </div>
-                      <input type="checkbox" id="chkIndEma9" ${indicatorPrefs.ema9 ? 'checked' : ''} />
+                      <input type="checkbox" id="chkIndEma10" ${(indicatorPrefs.ema10 ?? indicatorPrefs.ema9) ? 'checked' : ''} />
                     </label>
                     <label class="chart-indicator-item">
                       <div class="chart-indicator-left">
                         <span class="indicator-color-dot" style="background: #d97706;"></span>
-                        <span>EMA 30 (Média do Método)</span>
+                        <span>EMA 72 (Longa / Estrutural)</span>
                       </div>
-                      <input type="checkbox" id="chkIndEma30" ${indicatorPrefs.ema30 ? 'checked' : ''} />
+                      <input type="checkbox" id="chkIndEma72" ${(indicatorPrefs.ema72 ?? indicatorPrefs.ema30) ? 'checked' : ''} />
                     </label>
                     <label class="chart-indicator-item">
                       <div class="chart-indicator-left">
@@ -1296,8 +1314,8 @@
                 </span>
               </div>
               <div class="legend-row-indicators" id="legendIndicatorsRow">
-                <span class="legend-ema9" style="display: ${indicatorPrefs.ema9 ? 'inline' : 'none'}">EMA 9: ${formatNumber(tickerData.indicators.ema9.at(-1)?.value)}</span>
-                <span class="legend-ema30" style="display: ${indicatorPrefs.ema30 ? 'inline' : 'none'}">EMA 30: ${formatNumber(tickerData.indicators.ema30.at(-1)?.value)}</span>
+                <span class="legend-ema10" style="display: ${(indicatorPrefs.ema10 ?? indicatorPrefs.ema9) ? 'inline' : 'none'}">EMA 10: ${formatNumber(tickerData.indicators.ema10?.at(-1)?.value ?? tickerData.indicators.ema9?.at(-1)?.value)}</span>
+                <span class="legend-ema72" style="display: ${(indicatorPrefs.ema72 ?? indicatorPrefs.ema30) ? 'inline' : 'none'}">EMA 72: ${formatNumber(tickerData.indicators.ema72?.at(-1)?.value ?? tickerData.indicators.ema30?.at(-1)?.value)}</span>
                 <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: —</span>
                 <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: —</span>
                 <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: —</span>
@@ -1466,12 +1484,12 @@
             <div class="trend-formula-pill ${trendStatus}">${escapeHtml(tickerData.trend.formula)}</div>
             <div class="method-checklist-mini">
               <div>
-                <span class="check-icon-circle">${tickerData.trend.priceAboveEma9 ? ICONS.checkCircle : ICONS.dashCircle}</span>
-                <span>Preço acima da EMA 9</span>
+                <span class="check-icon-circle">${(tickerData.trend.priceAboveEma10 ?? tickerData.trend.priceAboveEma9) ? ICONS.checkCircle : ICONS.dashCircle}</span>
+                <span>Preço acima da EMA 10</span>
               </div>
               <div>
-                <span class="check-icon-circle">${tickerData.trend.ema9AboveEma30 ? ICONS.checkCircle : ICONS.dashCircle}</span>
-                <span>EMA 9 acima da EMA 30</span>
+                <span class="check-icon-circle">${(tickerData.trend.ema10AboveEma72 ?? tickerData.trend.ema9AboveEma30) ? ICONS.checkCircle : ICONS.dashCircle}</span>
+                <span>EMA 10 acima da EMA 72</span>
               </div>
               <div>
                 <span class="check-icon-circle">${tickerData.trend.bothSlopingUp ? ICONS.checkCircle : ICONS.dashCircle}</span>
@@ -1577,7 +1595,7 @@
               </div>
             </div>
             ` : `
-            <div class="method-trigger-neutral-hint">Aguardando padrão com preço acima da EMA 9 e EMA 30</div>
+            <div class="method-trigger-neutral-hint">Aguardando padrão com preço acima da EMA 10 e EMA 72</div>
             `}
           </div>
         </div>
@@ -1815,7 +1833,7 @@
             <button type="button" class="note-cat-pill" data-cat="aviso">Aviso / Risco</button>
             <button type="button" class="note-cat-pill" data-cat="geral">Geral</button>
           </div>
-          <textarea class="chart-note-textarea" id="txtChartNote" placeholder="Ex: Rompimento de pivô na EMA 9 com confirmação de volume. Stop inicial abaixo de 36.20."></textarea>
+          <textarea class="chart-note-textarea" id="txtChartNote" placeholder="Ex: Rompimento de pivô na EMA 10 com confirmação de volume. Stop inicial abaixo de 36.20."></textarea>
           <button type="button" class="btn-chart-save-note" id="btnSaveChartNote">+ Salvar Anotação</button>
         </div>
 
@@ -2020,23 +2038,27 @@
     const lineData = data.ohlc.map(c => ({ time: c.time, value: c.close }));
     lineSeries.setData(lineData);
 
-    // EMA 9 Line
-    ema9Series = chartInstance.addLineSeries({
+    // EMA 10 Line (Curta / Rastreio)
+    const isEma10Vis = !!(indicatorPrefs.ema10 ?? indicatorPrefs.ema9);
+    ema10Series = chartInstance.addLineSeries({
       color: '#0d9488',
       lineWidth: 2,
-      title: 'EMA 9',
-      visible: !!indicatorPrefs.ema9
+      title: 'EMA 10',
+      visible: isEma10Vis
     });
-    ema9Series.setData(data.indicators.ema9);
+    ema10Series.setData(data.indicators.ema10 || data.indicators.ema9);
+    ema9Series = ema10Series;
 
-    // EMA 30 Line
-    ema30Series = chartInstance.addLineSeries({
+    // EMA 72 Line (Longa / Estrutural)
+    const isEma72Vis = !!(indicatorPrefs.ema72 ?? indicatorPrefs.ema30);
+    ema72Series = chartInstance.addLineSeries({
       color: '#d97706',
       lineWidth: 2,
-      title: 'EMA 30',
-      visible: !!indicatorPrefs.ema30
+      title: 'EMA 72',
+      visible: isEma72Vis
     });
-    ema30Series.setData(data.indicators.ema30);
+    ema72Series.setData(data.indicators.ema72 || data.indicators.ema30);
+    ema30Series = ema72Series;
 
     // EMA 21 Line (se ativada pelo usuário)
     if (indicatorPrefs.ema21) {
@@ -2103,9 +2125,11 @@
             ${data.tickerInfo.dayChange >= 0 ? '+' : ''}${formatNumber(data.tickerInfo.dayChange)} (${data.tickerInfo.dayChangePct >= 0 ? '+' : ''}${formatNumber(data.tickerInfo.dayChangePct)}%)
           </span>
         `;
+        const isEma10Vis = !!(indicatorPrefs.ema10 ?? indicatorPrefs.ema9);
+        const isEma72Vis = !!(indicatorPrefs.ema72 ?? indicatorPrefs.ema30);
         legendInd.innerHTML = `
-          <span class="legend-ema9" style="display: ${indicatorPrefs.ema9 ? 'inline' : 'none'}">EMA 9: ${formatNumber(data.indicators.ema9.at(-1)?.value)}</span>
-          <span class="legend-ema30" style="display: ${indicatorPrefs.ema30 ? 'inline' : 'none'}">EMA 30: ${formatNumber(data.indicators.ema30.at(-1)?.value)}</span>
+          <span class="legend-ema10" style="display: ${isEma10Vis ? 'inline' : 'none'}">EMA 10: ${formatNumber(data.indicators.ema10?.at(-1)?.value ?? data.indicators.ema9?.at(-1)?.value)}</span>
+          <span class="legend-ema72" style="display: ${isEma72Vis ? 'inline' : 'none'}">EMA 72: ${formatNumber(data.indicators.ema72?.at(-1)?.value ?? data.indicators.ema30?.at(-1)?.value)}</span>
           <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(ema21Series ? data.ohlc.at(-1)?.close : null)}</span>
           <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: ${formatNumber(ema50Series ? data.ohlc.at(-1)?.close : null)}</span>
           <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: ${formatNumber(ema200Series ? data.ohlc.at(-1)?.close : null)}</span>
@@ -2116,8 +2140,8 @@
       }
 
       const bar = param.seriesData.get(candleSeries) || param.seriesData.get(lineSeries);
-      const e9 = param.seriesData.get(ema9Series);
-      const e30 = param.seriesData.get(ema30Series);
+      const e10 = (ema10Series && param.seriesData.get(ema10Series)) || (ema9Series && param.seriesData.get(ema9Series));
+      const e72 = (ema72Series && param.seriesData.get(ema72Series)) || (ema30Series && param.seriesData.get(ema30Series));
       const e21 = ema21Series ? param.seriesData.get(ema21Series) : null;
       const e50 = ema50Series ? param.seriesData.get(ema50Series) : null;
       const e200 = ema200Series ? param.seriesData.get(ema200Series) : null;
@@ -2137,10 +2161,12 @@
           </span>
         `;
       }
-      if (e9 || e30 || vol || e21 || e50 || e200) {
+      if (e10 || e72 || vol || e21 || e50 || e200) {
+        const isEma10Vis = !!(indicatorPrefs.ema10 ?? indicatorPrefs.ema9);
+        const isEma72Vis = !!(indicatorPrefs.ema72 ?? indicatorPrefs.ema30);
         legendInd.innerHTML = `
-          <span class="legend-ema9" style="display: ${indicatorPrefs.ema9 ? 'inline' : 'none'}">EMA 9: ${formatNumber(e9?.value)}</span>
-          <span class="legend-ema30" style="display: ${indicatorPrefs.ema30 ? 'inline' : 'none'}">EMA 30: ${formatNumber(e30?.value)}</span>
+          <span class="legend-ema10" style="display: ${isEma10Vis ? 'inline' : 'none'}">EMA 10: ${formatNumber(e10?.value)}</span>
+          <span class="legend-ema72" style="display: ${isEma72Vis ? 'inline' : 'none'}">EMA 72: ${formatNumber(e72?.value)}</span>
           <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(e21?.value)}</span>
           <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: ${formatNumber(e50?.value)}</span>
           <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: ${formatNumber(e200?.value)}</span>
@@ -2381,15 +2407,15 @@
       };
     }
 
-    const chkE9 = document.getElementById('chkIndEma9');
-    const chkE30 = document.getElementById('chkIndEma30');
+    const chkE10 = document.getElementById('chkIndEma10') || document.getElementById('chkIndEma9');
+    const chkE72 = document.getElementById('chkIndEma72') || document.getElementById('chkIndEma30');
     const chkE21 = document.getElementById('chkIndEma21');
     const chkE50 = document.getElementById('chkIndEma50');
     const chkE200 = document.getElementById('chkIndEma200');
     const chkVol = document.getElementById('chkIndVolume');
 
-    if (chkE9) chkE9.onchange = () => { indicatorPrefs.ema9 = chkE9.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
-    if (chkE30) chkE30.onchange = () => { indicatorPrefs.ema30 = chkE30.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    if (chkE10) chkE10.onchange = () => { indicatorPrefs.ema10 = chkE10.checked; indicatorPrefs.ema9 = chkE10.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    if (chkE72) chkE72.onchange = () => { indicatorPrefs.ema72 = chkE72.checked; indicatorPrefs.ema30 = chkE72.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE21) chkE21.onchange = () => { indicatorPrefs.ema21 = chkE21.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE50) chkE50.onchange = () => { indicatorPrefs.ema50 = chkE50.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE200) chkE200.onchange = () => { indicatorPrefs.ema200 = chkE200.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };

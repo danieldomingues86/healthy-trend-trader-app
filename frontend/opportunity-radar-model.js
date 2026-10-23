@@ -334,26 +334,29 @@
       return null;
     }
 
-    // 3. Tendência no Diário: Preço > EMA 9 > EMA 30
+    // 3. Tendência no Diário: Preço > EMA 10 > EMA 72
     const closes = candles.map((c) => Number(c.close));
-    const ema9Arr = TickerChartModel.calculateEma(closes, 9);
-    const ema30Arr = TickerChartModel.calculateEma(closes, 30);
+    const ema10Arr = TickerChartModel.calculateEma(closes, 10);
+    let ema72Arr = TickerChartModel.calculateEma(closes, 72);
+    if ((!Array.isArray(ema72Arr) || ema72Arr.length === 0) && closes.length >= 30) {
+      ema72Arr = TickerChartModel.calculateEma(closes, closes.length);
+    }
     const latestCandle = candles[candles.length - 1];
     const latestClose = Number(latestCandle?.close);
-    const latestEma9 = ema9Arr[ema9Arr.length - 1];
-    const latestEma30 = ema30Arr[ema30Arr.length - 1];
+    const latestEma10 = ema10Arr[ema10Arr.length - 1];
+    const latestEma72 = ema72Arr[ema72Arr.length - 1];
 
     if (
       !Number.isFinite(latestClose) ||
-      latestEma9 === null ||
-      latestEma30 === null ||
-      !(latestClose > latestEma9 && latestEma9 > latestEma30)
+      latestEma10 === null ||
+      latestEma72 === null ||
+      !(latestClose > latestEma10 && latestEma10 > latestEma72)
     ) {
       return null;
     }
 
     // 4. Gatilho de entrada válido e confirmado pelo motor oficial
-    const trigger = TickerChartModel.detectSetupTriggers(candles, ema9Arr, ema30Arr);
+    const trigger = TickerChartModel.detectSetupTriggers(candles, ema10Arr, ema72Arr);
     if (!trigger || !trigger.hasTrigger || !trigger.id || trigger.id === 'NONE') {
       return null;
     }
@@ -409,6 +412,8 @@
         },
         trend: {
           status: 'Alta',
+          priceAboveEma10: true,
+          ema10AboveEma72: true,
           priceAboveEma9: true,
           ema9AboveEma30: true
         },
@@ -419,8 +424,10 @@
         indicators: {
           atr21: latestAtr,
           atrPct: latestAtrPct,
-          ema9: latestEma9,
-          ema30: latestEma30
+          ema10: latestEma10,
+          ema72: latestEma72,
+          ema9: latestEma10,
+          ema30: latestEma72
         },
         fundamentals: item.fundamentals || (
           (market === 'IFIX' || item.assetClass === 'fii' || /11$/.test(String(item.symbol).trim()))
@@ -456,7 +463,11 @@
       marketCycle: 'Ciclo Positivo',
       marketCycleState: 'healthy',
       trend: 'Alinhada',
-      trendFormula: 'Preço > EMA 9 > EMA 30',
+      trendFormula: 'Preço > EMA 10 > EMA 72',
+      ema10: latestEma10,
+      ema72: latestEma72,
+      ema9: latestEma10,
+      ema30: latestEma72,
       triggerId: trigger.id,
       triggerName: triggerLabel,
       triggerRawName: trigger.name,

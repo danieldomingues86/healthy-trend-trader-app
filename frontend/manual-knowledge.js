@@ -188,7 +188,7 @@
         'REGRA DE OURO: Descoberta NÃO é compra imediata. Um score alto serve para você colocar o ativo na sua Watchlist de acompanhamento. A compra só deve ser planejada quando a ação formar uma contração no gráfico com setup A e gatilho técnico confirmado.'
       ],
       opportunityradar: [
-        'O Radar de Oportunidades consolida em uma visão rápida e objetiva somente os ativos PRONTOS PARA ENTRADA para o próximo pregão, reutilizando os motores de Força Relativa (3M), Ciclo de Mercado, Tendência Diária (Preço > EMA 9 > EMA 30) e Gatilhos Oficiais.',
+        'O Radar de Oportunidades consolida em uma visão rápida e objetiva somente os ativos PRONTOS PARA ENTRADA para o próximo pregão, reutilizando os motores de Força Relativa (3M), Ciclo de Mercado, Tendência Diária (Preço > EMA 10 > EMA 72) e Gatilhos Oficiais.',
         'Filtre por categoria de mercado (IBOV, IFIX ou BDRs), setor e tipo de gatilho (Inside Bar, 123 Buy, PFR de Compra, Dave Landry, RBI) e abra diretamente o gráfico do ativo com um clique.',
         'Segurança Operacional: gatilho identificado no fechamento não garante entrada disponível no próximo pregão. Sempre valide o preço de abertura, stop inicial, risco e dimensionamento da posição antes de operar.'
       ],
@@ -245,7 +245,7 @@
       ],
       tradesimulator: [
         'O Simulador de Trades permite testar regras de execução e gestão de risco em um ambiente controlado e sem viés de look-ahead.',
-        'Comparação de Cenários: avalie estratégias como 2R, 2.5R, Pirâmide e Parciais com condução por EMA 9 para descobrir qual abordagem maximiza o seu retorno ajustado ao risco.'
+        'Comparação de Cenários: avalie estratégias como 2R, 2.5R, Pirâmide e Parciais com condução por EMA 10 para descobrir qual abordagem maximiza o seu retorno ajustado ao risco.'
       ],
       riskofruin: [
         'O módulo Risco de Ruína estima via simulação de Monte Carlo (10.000 trajetórias por reamostragem com reposição dos resultados históricos em R) a probabilidade de atingir o drawdown máximo configurado em um horizonte de 250 operações.',

@@ -28,7 +28,7 @@ test('Radar de Oportunidades: Card do rodapé exibe "Requisitos Obrigatórios de
   // 3. Critérios preservados
   assert.ok(radarJs.includes('Força Relativa (3M) &gt; 80'), 'Deve manter Força Relativa (3M) > 80');
   assert.ok(radarJs.includes('Ciclo de Mercado Positivo'), 'Deve manter Ciclo de Mercado Positivo');
-  assert.ok(radarJs.includes('Preço &gt; EMA 9 &gt; EMA 30 (Diário)'), 'Deve manter Preço > EMA 9 > EMA 30 (Diário)');
+  assert.ok(radarJs.includes('Preço &gt; EMA 10 &gt; EMA 72 (Diário)'), 'Deve manter Preço > EMA 10 > EMA 72 (Diário)');
   assert.ok(radarJs.includes('Gatilhos: Inside Bar, 123 Buy, PFR de Compra'), 'Deve manter os gatilhos oficiais');
 
   // 4. Preservação dos demais cards do rodapé

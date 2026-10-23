@@ -993,7 +993,7 @@
           {
             "id": "como-utilizar",
             "title": "5.2 Como utilizar",
-            "content": "A Força Relativa no Healthy Trend Trader é apresentada com base no desempenho dos últimos 3 meses (3M), permitindo identificar rapidamente os ativos que estão liderando o mercado.\n\n### Passo a passo operacional:\n1. **Acesse a ferramenta:** Abra a tela Força Relativa no menu Análise de Mercado.\n2. **Analise o ranking:** Utilize os filtros disponíveis para encontrar os ativos com maior RS (percentil 80+).\n3. **Confirme com o gráfico Diário:** Verifique se o ativo também apresenta tendência de alta no gráfico Diário (preço > EMA 9 > EMA 30).\n4. **Procure o gatilho de entrada:** Aguarde um dos cinco gatilhos de entrada para executar a operação."
+            "content": "A Força Relativa no Healthy Trend Trader é apresentada com base no desempenho dos últimos 3 meses (3M), permitindo identificar rapidamente os ativos que estão liderando o mercado.\n\n### Passo a passo operacional:\n1. **Acesse a ferramenta:** Abra a tela Força Relativa no menu Análise de Mercado.\n2. **Analise o ranking:** Utilize os filtros disponíveis para encontrar os ativos com maior RS (percentil 80+).\n3. **Confirme com o gráfico Diário:** Verifique se o ativo também apresenta tendência de alta no gráfico Diário (preço > EMA 10 > EMA 72).\n4. **Procure o gatilho de entrada:** Aguarde um dos cinco gatilhos de entrada para executar a operação."
           },
           {
             "id": "leitura-interpretacao",
@@ -2052,11 +2052,11 @@
       {
         "id": "livro-5-cap-4",
         "number": 4,
-        "title": "Condução com Médias Móveis (EMA 9 e EMA 30)",
+        "title": "Condução com Médias Móveis (EMA 10 e EMA 72)",
         "subtitle": "O método clássico de condução de tendência sem ansiedade",
         "cover": "assets/manual-knowledge/portfolioheat.jpg",
         "takeaways": [
-          "Papel fundamental de Condução com Médias Móveis (EMA 9 e EMA 30) na condução profissional do trade",
+          "Papel fundamental de Condução com Médias Móveis (EMA 10 e EMA 72) na condução profissional do trade",
           "Como os algoritmos da plataforma monitoram e alertam sobre ajustes necessários",
           "Preservação do payoff positivo da estratégia ao longo de múltiplos ciclos",
           "Checklist prático de tomada de decisão sem estresse intradiário"

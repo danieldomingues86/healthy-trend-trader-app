@@ -102,27 +102,35 @@
         evaluatedAt: new Date().toISOString(),
         dataDate: cycle.date || history.at(-1)?.date || null,
         dataVersion: payload.source || 'b3-indexes',
-        ema9: Number(cycle.ema9) || null,
-        ema30: Number(cycle.ema30) || null,
-        above9: Boolean(cycle.above9),
-        above30: Boolean(cycle.above30),
+        ema10: Number(cycle.ema10 ?? cycle.ema9) || null,
+        ema72: Number(cycle.ema72 ?? cycle.ema30) || null,
+        ema9: Number(cycle.ema10 ?? cycle.ema9) || null,
+        ema30: Number(cycle.ema72 ?? cycle.ema30) || null,
+        above10: cycle.above10 !== undefined ? Boolean(cycle.above10) : Boolean(cycle.above9),
+        above72: cycle.above72 !== undefined ? Boolean(cycle.above72) : Boolean(cycle.above30),
+        above9: cycle.above10 !== undefined ? Boolean(cycle.above10) : Boolean(cycle.above9),
+        above30: cycle.above72 !== undefined ? Boolean(cycle.above72) : Boolean(cycle.above30),
         structure: Boolean(cycle.structure),
         indicators: {
           price: Number(cycle.price) || null,
-          ema9: Number(cycle.ema9) || null,
-          ema30: Number(cycle.ema30) || null,
-          above9: Boolean(cycle.above9),
-          above30: Boolean(cycle.above30),
+          ema10: Number(cycle.ema10 ?? cycle.ema9) || null,
+          ema72: Number(cycle.ema72 ?? cycle.ema30) || null,
+          ema9: Number(cycle.ema10 ?? cycle.ema9) || null,
+          ema30: Number(cycle.ema72 ?? cycle.ema30) || null,
+          above10: cycle.above10 !== undefined ? Boolean(cycle.above10) : Boolean(cycle.above9),
+          above72: cycle.above72 !== undefined ? Boolean(cycle.above72) : Boolean(cycle.above30),
+          above9: cycle.above10 !== undefined ? Boolean(cycle.above10) : Boolean(cycle.above9),
+          above30: cycle.above72 !== undefined ? Boolean(cycle.above72) : Boolean(cycle.above30),
           structure: Boolean(cycle.structure),
           atr21: hasNumber(cycle.atr21) ? Number(cycle.atr21) : null,
           atrPct: hasNumber(cycle.atrPct) ? Number(cycle.atrPct) : null,
-          ema9Slope: hasNumber(cycle.ema9Slope) ? Number(cycle.ema9Slope) : null,
-          ema30Slope: hasNumber(cycle.ema30Slope) ? Number(cycle.ema30Slope) : null,
-          ema10: Number(cycle.ema9) || null,
-          ema20: Number(cycle.ema30) || null,
+          ema10Slope: hasNumber(cycle.ema10Slope) ? Number(cycle.ema10Slope) : (hasNumber(cycle.ema9Slope) ? Number(cycle.ema9Slope) : null),
+          ema72Slope: hasNumber(cycle.ema72Slope) ? Number(cycle.ema72Slope) : (hasNumber(cycle.ema30Slope) ? Number(cycle.ema30Slope) : null),
+          ema9Slope: hasNumber(cycle.ema10Slope) ? Number(cycle.ema10Slope) : (hasNumber(cycle.ema9Slope) ? Number(cycle.ema9Slope) : null),
+          ema30Slope: hasNumber(cycle.ema72Slope) ? Number(cycle.ema72Slope) : (hasNumber(cycle.ema30Slope) ? Number(cycle.ema30Slope) : null),
+          ema20: Number(cycle.ema72 ?? cycle.ema30) || null,
           ema200: Number(cycle.ema200) || null,
-          above10: Boolean(cycle.above9),
-          above20: Boolean(cycle.above30)
+          above20: cycle.above72 !== undefined ? Boolean(cycle.above72) : Boolean(cycle.above30)
         }
       };
       saved[marketId] = snapshot;
@@ -161,15 +169,15 @@
     return {
       healthy: {
         label: t('Mercado em expansão', 'Market in expansion'),
-        interpretation: t('O preço está acima da EMA 9 e da EMA 30. Ambiente favorável para buscar oportunidades nos ativos.', 'Price is above 9 EMA and 30 EMA. Favourable environment to seek opportunities in assets.'),
+        interpretation: t('O preço está acima da EMA 10 e da EMA 72. Ambiente favorável para buscar oportunidades nos ativos.', 'Price is above 10 EMA and 72 EMA. Favourable environment to seek opportunities in assets.'),
         permission: t('Somente A', 'A only'),
-        context: t('O preço do índice está estritamente acima da EMA 9 e da EMA 30 no gráfico diário. O mercado está saudável para buscar oportunidades e operar ativos que atendam aos demais critérios do método.', 'The index price is strictly above 9 EMA and 30 EMA on the daily chart. Market is healthy to seek opportunities and trade assets meeting method criteria.')
+        context: t('O preço do índice está estritamente acima da EMA 10 e da EMA 72 no gráfico diário. O mercado está saudável para buscar oportunidades e operar ativos que atendam aos demais critérios do método.', 'The index price is strictly above 10 EMA and 72 EMA on the daily chart. Market is healthy to seek opportunities and trade assets meeting method criteria.')
       },
       defensive: {
         label: t('Mercado em modo defesa', 'Market in defensive mode'),
-        interpretation: t('Preço abaixo ou entre as médias EMA 9 e EMA 30. Preservar capital e evitar novas operações nesse mercado.', 'Price below or between 9 EMA and 30 EMA. Preserve capital and avoid new trades in this market.'),
+        interpretation: t('Preço abaixo ou entre as médias EMA 10 e EMA 72. Preservar capital e evitar novas operações nesse mercado.', 'Price below or between 10 EMA and 72 EMA. Preserve capital and avoid new trades in this market.'),
         permission: t('Preservar capital', 'Preserve capital'),
-        context: t('O preço do índice está abaixo ou localizado entre as médias EMA 9 e EMA 30 (ou igual a uma delas). A recomendação do método é modo Defesa: preservar capital e evitar novas exposições até a estrutura melhorar.', 'The index price is below or located between 9 EMA and 30 EMA. Method recommendation is Defensive mode: preserve capital and avoid new exposure.')
+        context: t('O preço do índice está abaixo ou localizado entre as médias EMA 10 e EMA 72 (ou igual a uma delas). A recomendação do método é modo Defesa: preservar capital e evitar novas exposições até a estrutura melhorar.', 'The index price is below or located between 10 EMA and 72 EMA. Method recommendation is Defensive mode: preserve capital and avoid new exposure.')
       }
     }[key];
   }
@@ -257,12 +265,12 @@
 
   function MarketCycleFactors(cycle, info) {
     const isHealthy = cycle?.state === 'healthy';
-    const slopePositive = hasNumber(cycle.ema9Slope) && Number(cycle.ema9Slope) > 0;
-    const structure = (Number(cycle.ema9) > Number(cycle.ema30)) || Boolean(cycle.structure);
-    const shortTerm = cycle.above9 ? t('Preço > EMA 9', 'Price > 9 EMA') : t('Preço ≤ EMA 9', 'Price ≤ 9 EMA');
+    const slopePositive = (hasNumber(cycle.ema10Slope) ? Number(cycle.ema10Slope) : Number(cycle.ema9Slope)) > 0;
+    const structure = (Number(cycle.ema10 ?? cycle.ema9) > Number(cycle.ema72 ?? cycle.ema30)) || Boolean(cycle.structure);
+    const shortTerm = (cycle.above10 ?? cycle.above9) ? t('Preço > EMA 10', 'Price > 10 EMA') : t('Preço ≤ EMA 10', 'Price ≤ 10 EMA');
     return `<aside class="mcv2-factors"><p>${t('Principais fatores', 'Main factors')}</p>
       <div>${icon('trend')}<span><small>${t('Tendência', 'Trend')}</small><b>${info.label} · ${shortTerm}</b></span></div>
-      <div>${icon('averages')}<span><small>${t('Estrutura de médias', 'Moving-average structure')}</small><b>EMA 9 ${structure ? '>' : '≤'} EMA 30 · ${slopePositive ? t('ascendente', 'rising') : t('sem confirmação', 'unconfirmed')}</b></span></div>
+      <div>${icon('averages')}<span><small>${t('Estrutura de médias', 'Moving-average structure')}</small><b>EMA 10 ${structure ? '>' : '≤'} EMA 72 · ${slopePositive ? t('ascendente', 'rising') : t('sem confirmação', 'unconfirmed')}</b></span></div>
       <div>${icon('permission')}<span><small>${t('Permissão operacional', 'Trading permission')}</small><b>${isHealthy ? t('Sim (Expansão)', 'Yes (Expansion)') : t('Não (Modo Defesa)', 'No (Defensive Mode)')}</b></span></div>
     </aside>`;
   }
@@ -419,8 +427,10 @@
         close: last.close,
         high: chunkHigh,
         low: chunkLow,
-        ema9: last.ema9 ?? last.ema10,
-        ema30: last.ema30 ?? last.ema20,
+        ema10: last.ema10 ?? last.ema9,
+        ema72: last.ema72 ?? last.ema30,
+        ema9: last.ema10 ?? last.ema9,
+        ema30: last.ema72 ?? last.ema30,
         date: last.date,
         barCount: chunk.length
       });
@@ -451,9 +461,9 @@
       const o = Number(row.open ?? c);
       const h = Number(row.high ?? Math.max(c, o));
       const l = Number(row.low ?? Math.min(c, o));
-      const e9 = Number(row.ema9 ?? row.ema10);
-      const e30 = Number(row.ema30 ?? row.ema20);
-      return [c, o, h, l, e9, e30];
+      const e10 = Number(row.ema10 ?? row.ema9);
+      const e72 = Number(row.ema72 ?? row.ema30);
+      return [c, o, h, l, e10, e72];
     }).filter(Number.isFinite);
     const rawMin = Math.min(...values);
     const rawMax = Math.max(...values);
@@ -506,7 +516,7 @@
       const wickBottom = y(l);
 
       const dateStr = dateLabel(row.date);
-      const tooltipText = `${dateStr}\n${t('Abertura', 'Open')}: ${number(o)}\n${t('Máxima', 'High')}: ${number(h)}\n${t('Mínima', 'Low')}: ${number(l)}\n${t('Fechamento', 'Close')}: ${number(c)}\nEMA 9: ${number(row.ema9 ?? row.ema10)}\nEMA 30: ${number(row.ema30 ?? row.ema20)}`;
+      const tooltipText = `${dateStr}\n${t('Abertura', 'Open')}: ${number(o)}\n${t('Máxima', 'High')}: ${number(h)}\n${t('Mínima', 'Low')}: ${number(l)}\n${t('Fechamento', 'Close')}: ${number(c)}\nEMA 10: ${number(row.ema10 ?? row.ema9)}\nEMA 72: ${number(row.ema72 ?? row.ema30)}`;
 
       return `<g class="mcv2-candle ${isUp ? 'up' : 'down'}" tabindex="0">
         <title>${tooltipText}</title>
@@ -517,17 +527,17 @@
       </g>`;
     }).join('');
 
-    // Badges de valor atual no eixo lateral direito (Preço, EMA 9, EMA 30)
+    // Badges de valor atual no eixo lateral direito (Preço, EMA 10, EMA 72)
     const lastRow = rows[rows.length - 1];
     const lastClose = Number(lastRow?.close);
-    const lastE9 = Number(lastRow?.ema9 ?? lastRow?.ema10);
-    const lastE30 = Number(lastRow?.ema30 ?? lastRow?.ema20);
+    const lastE10 = Number(lastRow?.ema10 ?? lastRow?.ema9);
+    const lastE72 = Number(lastRow?.ema72 ?? lastRow?.ema30);
     const lastUp = lastClose >= (Number(rows[rows.length - 2]?.close) || lastClose);
 
     const badgeList = [
       { id: 'price', val: lastClose, rawY: y(lastClose), bg: lastUp ? '#10b981' : '#ef4444', label: number(lastClose) },
-      { id: 'ema9', val: lastE9, rawY: y(lastE9), bg: '#2563eb', label: number(lastE9) },
-      { id: 'ema30', val: lastE30, rawY: y(lastE30), bg: '#f97316', label: number(lastE30) }
+      { id: 'ema10', val: lastE10, rawY: y(lastE10), bg: '#2563eb', label: number(lastE10) },
+      { id: 'ema72', val: lastE72, rawY: y(lastE72), bg: '#f97316', label: number(lastE72) }
     ].filter(b => Number.isFinite(b.val)).sort((a, b) => a.rawY - b.rawY);
 
     for (let i = 1; i < badgeList.length; i++) {
@@ -550,21 +560,21 @@
     return `<div class="mcv2-chart-head">
       <div>
         <h2>${chartLabel}</h2>
-        <p>${t('Preço em candles e médias móveis (EMA 9 e EMA 30)', 'Price in candles and moving averages (9 and 30 EMA)')} · ${sourceCopy}</p>
+        <p>${t('Preço em candles e médias móveis (EMA 10 e EMA 72)', 'Price in candles and moving averages (10 and 72 EMA)')} · ${sourceCopy}</p>
       </div>
       <div class="mcv2-ranges" role="group" aria-label="${t('Período do gráfico', 'Chart period')}">
         ${availableRanges.map(([id,, label]) => `<button type="button" data-market-range="${id}" class="${currentRange === id ? 'active' : ''}" aria-pressed="${currentRange === id}">${label}</button>`).join('')}
       </div>
     </div>
     <div class="mcv2-chart-scroll">
-      <svg class="mcv2-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('Gráfico diário de', 'Daily chart of')} ${esc(marketInfo.benchmarkSymbol)} ${t('com candles japoneses, EMA 9 e EMA 30', 'with Japanese candlesticks, 9 and 30 EMA')}">
+      <svg class="mcv2-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${t('Gráfico diário de', 'Daily chart of')} ${esc(marketInfo.benchmarkSymbol)} ${t('com candles japoneses, EMA 10 e EMA 72', 'with Japanese candlesticks, 10 and 72 EMA')}">
         <rect x="${left}" y="${top}" width="${W-left-right}" height="${H-top-bottom}" rx="8" class="mcv2-plot-bg"/>
         ${ticks.map(value => `<line x1="${left}" y1="${y(value).toFixed(1)}" x2="${W-right}" y2="${y(value).toFixed(1)}" class="mcv2-gridline"/><text x="${left-10}" y="${(y(value)+4).toFixed(1)}" text-anchor="end">${number(value)}</text>`).join('')}
         ${dateTicks.map(index => `<text x="${x(index).toFixed(1)}" y="${H-16}" text-anchor="${index === 0 ? 'start' : index === rows.length-1 ? 'end' : 'middle'}">${dateLabel(rows[index].date).replace(/ de /g,' ')}</text>`).join('')}
         
         <!-- Médias Móveis em Segundo Plano (atrás dos candles para não ofuscar) -->
-        <path class="mcv2-line ema30" d="${linePath(rows,'ema30',x,y) || linePath(rows,'ema20',x,y)}"/>
-        <path class="mcv2-line ema9" d="${linePath(rows,'ema9',x,y) || linePath(rows,'ema10',x,y)}"/>
+        <path class="mcv2-line ema30 ema72" d="${linePath(rows,'ema72',x,y) || linePath(rows,'ema30',x,y) || linePath(rows,'ema20',x,y)}"/>
+        <path class="mcv2-line ema9 ema10" d="${linePath(rows,'ema10',x,y) || linePath(rows,'ema9',x,y)}"/>
 
         <!-- Candlesticks Diários em Primeiro Plano (Elemento Visual Dominante) -->
         <g class="mcv2-candles-group">
@@ -575,7 +585,7 @@
         ${badgeElements}
 
         <!-- Tooltip interativo -->
-        ${rows.map((row,index) => `<circle tabindex="0" cx="${x(index).toFixed(1)}" cy="${y(row.close).toFixed(1)}" r="7" class="mcv2-hit"><title>${dateLabel(row.date)}\n${esc(marketInfo.benchmarkSymbol)}: ${number(row.close)}\nEMA 9: ${number(row.ema9 ?? row.ema10)}\nEMA 30: ${number(row.ema30 ?? row.ema20)}\nScore: ${number(row.score)}/100</title></circle>`).join('')}
+        ${rows.map((row,index) => `<circle tabindex="0" cx="${x(index).toFixed(1)}" cy="${y(row.close).toFixed(1)}" r="7" class="mcv2-hit"><title>${dateLabel(row.date)}\n${esc(marketInfo.benchmarkSymbol)}: ${number(row.close)}\nEMA 10: ${number(row.ema10 ?? row.ema9)}\nEMA 72: ${number(row.ema72 ?? row.ema30)}\nScore: ${number(row.score)}/100</title></circle>`).join('')}
       </svg>
     </div>
     <div class="mcv2-chart-footer-row">
@@ -595,17 +605,17 @@
           </div>
         </div>
         <div class="mcv2-legend-item">
-          <span class="mcv2-line-swatch ema9"></span>
+          <span class="mcv2-line-swatch ema9 ema10"></span>
           <div class="mcv2-legend-text">
-            <strong>EMA 9 (${t('Curto prazo', 'Short term')})</strong>
-            <span>${t('Média rápida (curto prazo)', 'Fast short-term average')}</span>
+            <strong>EMA 10 (${t('Curto prazo', 'Short term')})</strong>
+            <span>${t('Média rápida de rastreio (curto prazo)', 'Fast tracking average (short term)')}</span>
           </div>
         </div>
         <div class="mcv2-legend-item">
-          <span class="mcv2-line-swatch ema30"></span>
+          <span class="mcv2-line-swatch ema30 ema72"></span>
           <div class="mcv2-legend-text">
-            <strong>EMA 30 (${t('Médio prazo', 'Medium term')})</strong>
-            <span>${t('Média direcional (médio prazo)', 'Directional medium-term average')}</span>
+            <strong>EMA 72 (${t('Longo prazo', 'Long term')})</strong>
+            <span>${t('Média estrutural (longo prazo)', 'Structural average (long term)')}</span>
           </div>
         </div>
       </div>
@@ -615,7 +625,7 @@
           <span class="mcv2-quick-reading-icon" aria-hidden="true">💡</span>
           <strong>${t('Leitura rápida', 'Quick reading')}</strong>
         </div>
-        <p>${t('Mercado SAUDÁVEL quando Preço > EMA 9 e Preço > EMA 30. Modo DEFESA se o preço estiver entre as médias ou abaixo de ambas.', 'HEALTHY market when Price > 9 EMA and Price > 30 EMA. DEFENCE mode if price is between averages or below both.')}</p>
+        <p>${t('Mercado SAUDÁVEL quando Preço > EMA 10 e Preço > EMA 72. Modo DEFESA se o preço estiver entre as médias ou abaixo de ambas.', 'HEALTHY market when Price > 10 EMA and Price > 72 EMA. DEFENCE mode if price is between averages or below both.')}</p>
       </div>
     </div>`;
   }
@@ -626,21 +636,22 @@
 
   function MarketTransparentReading(cycle, marketInfo) {
     const info = regime(cycle);
-    const slopes = hasNumber(cycle.ema9Slope) && Number(cycle.ema9Slope) > 0 && (!hasNumber(cycle.ema30Slope) || Number(cycle.ema30Slope) >= 0);
+    const slopes = ((hasNumber(cycle.ema10Slope) ? Number(cycle.ema10Slope) : Number(cycle.ema9Slope)) > 0) &&
+      (!hasNumber(cycle.ema72Slope) || Number(cycle.ema72Slope) >= 0);
     const hasAtr = hasNumber(cycle.atr21);
     const isHealthy = cycle?.state === 'healthy';
-    const ema9Val = hasNumber(cycle.ema9) ? Number(cycle.ema9) : Number(cycle.ema10);
-    const ema30Val = hasNumber(cycle.ema30) ? Number(cycle.ema30) : Number(cycle.ema20);
-    const structureVal = (ema9Val > ema30Val) || Boolean(cycle.structure);
-    const above9Val = hasNumber(cycle.above9) ? Boolean(cycle.above9) : (Number(cycle.price) > ema9Val);
-    const above30Val = hasNumber(cycle.above30) ? Boolean(cycle.above30) : (Number(cycle.price) > ema30Val);
+    const ema10Val = hasNumber(cycle.ema10) ? Number(cycle.ema10) : Number(cycle.ema9);
+    const ema72Val = hasNumber(cycle.ema72) ? Number(cycle.ema72) : Number(cycle.ema30);
+    const structureVal = (ema10Val > ema72Val) || Boolean(cycle.structure);
+    const above10Val = hasNumber(cycle.above10) ? Boolean(cycle.above10) : (hasNumber(cycle.above9) ? Boolean(cycle.above9) : (Number(cycle.price) > ema10Val));
+    const above72Val = hasNumber(cycle.above72) ? Boolean(cycle.above72) : (hasNumber(cycle.above30) ? Boolean(cycle.above30) : (Number(cycle.price) > ema72Val));
 
     return `<aside class="mcv2-reading">
       <section>
         <h3>${t('Leitura transparente', 'Transparent reading')} · ${esc(marketInfo.benchmarkSymbol)}</h3>
-        ${checkRow(t('Preço acima da EMA 9 (Curto prazo)','Price above 9 EMA (Short term)'), number(cycle.price), above9Val)}
-        ${checkRow(t('Preço acima da EMA 30 (Médio prazo)','Price above 30 EMA (Medium term)'), number(cycle.price), above30Val)}
-        ${checkRow(t('Estrutura das médias','Moving-average structure'), structureVal ? 'EMA 9 > EMA 30' : 'EMA 9 ≤ EMA 30', structureVal)}
+        ${checkRow(t('Preço acima da EMA 10 (Curto prazo)','Price above 10 EMA (Short term)'), number(cycle.price), above10Val)}
+        ${checkRow(t('Preço acima da EMA 72 (Longo prazo)','Price above 72 EMA (Long term)'), number(cycle.price), above72Val)}
+        ${checkRow(t('Estrutura das médias','Moving-average structure'), structureVal ? 'EMA 10 > EMA 72' : 'EMA 10 ≤ EMA 72', structureVal)}
         ${checkRow(t('Inclinação das médias','Moving-average slope'), slopes ? t('Positiva','Positive') : t('Sem confirmação','Unconfirmed'), slopes)}
         ${checkRow(t('Permissão operacional','Trading permission'), isHealthy ? t('Sim (Expansão)','Yes (Expansion)') : t('Não (Modo Defesa)','No (Defensive Mode)'), isHealthy)}
         ${hasAtr ? checkRow('ATR 21 (Volatilidade)', `${number(cycle.atr21, 0)} (${percent(cycle.atrPct)})`, true) : ''}
@@ -662,22 +673,22 @@
   function MarketEvidenceCards(cycle, history, marketInfo) {
     const current = history.at(-1), previous = history.at(-2);
     const score = scoreChange(history);
-    const ema9Val = hasNumber(cycle.ema9) ? Number(cycle.ema9) : Number(cycle.ema10);
-    const ema30Val = hasNumber(cycle.ema30) ? Number(cycle.ema30) : Number(cycle.ema20);
-    const above9Val = hasNumber(cycle.above9) ? Boolean(cycle.above9) : (Number(cycle.price) > ema9Val);
-    const above30Val = hasNumber(cycle.above30) ? Boolean(cycle.above30) : (Number(cycle.price) > ema30Val);
+    const ema10Val = hasNumber(cycle.ema10) ? Number(cycle.ema10) : Number(cycle.ema9);
+    const ema72Val = hasNumber(cycle.ema72) ? Number(cycle.ema72) : Number(cycle.ema30);
+    const above10Val = hasNumber(cycle.above10) ? Boolean(cycle.above10) : (hasNumber(cycle.above9) ? Boolean(cycle.above9) : (Number(cycle.price) > ema10Val));
+    const above72Val = hasNumber(cycle.above72) ? Boolean(cycle.above72) : (hasNumber(cycle.above30) ? Boolean(cycle.above30) : (Number(cycle.price) > ema72Val));
 
     const cards = [
       [t('Preço atual','Current price'), number(cycle.price), percent(changeFrom(current,previous,'close'))],
       [
-        'EMA 9 (Curto)',
-        number(ema9Val),
-        above9Val ? t('↗ Acima da média', '↗ Above average') : t('↘ Abaixo da média', '↘ Below average')
+        'EMA 10 (Curto)',
+        number(ema10Val),
+        above10Val ? t('↗ Acima da média', '↗ Above average') : t('↘ Abaixo da média', '↘ Below average')
       ],
       [
-        'EMA 30 (Médio)',
-        number(ema30Val),
-        above30Val ? t('↗ Acima da média', '↗ Above average') : t('↘ Abaixo da média', '↘ Below average')
+        'EMA 72 (Longo)',
+        number(ema72Val),
+        above72Val ? t('↗ Acima da média', '↗ Above average') : t('↘ Abaixo da média', '↘ Below average')
       ],
       [
         t('Variação do score','Score change'),

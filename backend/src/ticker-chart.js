@@ -350,18 +350,18 @@ async function getTickerChartData(rawSymbol) {
     throw new Error(`Nenhum dado histórico diário encontrado para o ticker ${symbol}.`);
   }
 
-  // 2. Cálculos técnicos com TickerChartModel
+  // 2. Cálculos técnicos com TickerChartModel (EMA 10 e EMA 72 no Diário)
   const closePrices = candles.map(c => c.close);
-  const ema9Array = TickerChartModel.calculateEma(closePrices, 9);
-  const ema30Array = TickerChartModel.calculateEma(closePrices, 30);
+  const ema10Array = TickerChartModel.calculateEma(closePrices, 10);
+  const ema72Array = TickerChartModel.calculateEma(closePrices, 72);
   const { latestAtr, latestAtrPct } = TickerChartModel.calculateAtr(candles, 21);
 
   // Formata séries para o Lightweight Charts
-  const ema9Series = [];
-  const ema30Series = [];
+  const ema10Series = [];
+  const ema72Series = [];
   for (let i = 0; i < candles.length; i++) {
-    if (ema9Array[i] !== null) ema9Series.push({ time: candles[i].time, value: ema9Array[i] });
-    if (ema30Array[i] !== null) ema30Series.push({ time: candles[i].time, value: ema30Array[i] });
+    if (ema10Array[i] !== null) ema10Series.push({ time: candles[i].time, value: ema10Array[i] });
+    if (ema72Array[i] !== null) ema72Series.push({ time: candles[i].time, value: ema72Array[i] });
   }
 
   // Volume médio 21 dias
@@ -376,23 +376,23 @@ async function getTickerChartData(rawSymbol) {
   const dayChange = Number((currentPrice - prevCandle.close).toFixed(2));
   const dayChangePct = prevCandle.close > 0 ? Number(((dayChange / prevCandle.close) * 100).toFixed(2)) : 0;
 
-  const latestEma9 = ema9Array[ema9Array.length - 1];
-  const prevEma9 = ema9Array.length > 1 ? ema9Array[ema9Array.length - 2] : latestEma9;
-  const latestEma30 = ema30Array[ema30Array.length - 1];
-  const prevEma30 = ema30Array.length > 1 ? ema30Array[ema30Array.length - 2] : latestEma30;
+  const latestEma10 = ema10Array[ema10Array.length - 1];
+  const prevEma10 = ema10Array.length > 1 ? ema10Array[ema10Array.length - 2] : latestEma10;
+  const latestEma72 = ema72Array[ema72Array.length - 1];
+  const prevEma72 = ema72Array.length > 1 ? ema72Array[ema72Array.length - 2] : latestEma72;
 
-  const priceAboveEma9 = latestEma9 !== null && currentPrice > latestEma9;
-  const ema9AboveEma30 = latestEma9 !== null && latestEma30 !== null && latestEma9 > latestEma30;
-  const bothSlopingUp = (latestEma9 > prevEma9) && (latestEma30 > prevEma30);
+  const priceAboveEma10 = latestEma10 !== null && currentPrice > latestEma10;
+  const ema10AboveEma72 = latestEma10 !== null && latestEma72 !== null && latestEma10 > latestEma72;
+  const bothSlopingUp = (latestEma10 > prevEma10) && (latestEma72 > prevEma72);
 
   // Tendência
   let trendStatus = 'Alta';
-  let trendFormula = 'Preço > EMA 9 > EMA 30';
-  if (priceAboveEma9 && ema9AboveEma30) {
+  let trendFormula = 'Preço > EMA 10 > EMA 72';
+  if (priceAboveEma10 && ema10AboveEma72) {
     trendStatus = 'Alta';
-  } else if (!priceAboveEma9 && !ema9AboveEma30) {
+  } else if (!priceAboveEma10 && !ema10AboveEma72) {
     trendStatus = 'Baixa';
-    trendFormula = 'Preço < EMA 9 < EMA 30';
+    trendFormula = 'Preço < EMA 10 < EMA 72';
   } else {
     trendStatus = 'Neutra';
     trendFormula = 'Médias em transição';
@@ -406,7 +406,7 @@ async function getTickerChartData(rawSymbol) {
   else if (atrPctVal > 6.0) atrRegime = 'Elevada';
 
   // Detecção de gatilhos
-  const trigger = TickerChartModel.detectSetupTriggers(candles, ema9Array, ema30Array);
+  const trigger = TickerChartModel.detectSetupTriggers(candles, ema10Array, ema72Array);
 
   // Estrutura
   let structureLabel = 'Correção';
@@ -414,7 +414,7 @@ async function getTickerChartData(rawSymbol) {
   if (trigger.id === 'INSIDE_BAR') {
     structureLabel = 'Contração';
     structureDesc = 'Compressão de volatilidade em região de suporte.';
-  } else if (currentPrice > (latestEma9 || 0) * 1.05) {
+  } else if (currentPrice > (latestEma10 || 0) * 1.05) {
     structureLabel = 'Expansão';
     structureDesc = 'Perna de alta esticada em relação às médias.';
   }
@@ -462,13 +462,13 @@ async function getTickerChartData(rawSymbol) {
   const benchmarkSymbol = benchmarkInfo?.symbol || (cycleMarket === 'bdr' ? 'BDRX' : (cycleMarket === 'fii' ? 'IFIX' : 'IBOV'));
 
   let cycleState = 'Expansão';
-  let cycleDesc = 'Mercado saudável. Preço acima da EMA 9 e da EMA 30.';
+  let cycleDesc = 'Mercado saudável. Preço acima da EMA 10 e da EMA 72.';
   if (cycleInfo.state === 'healthy') {
     cycleState = 'Expansão';
-    cycleDesc = 'Mercado saudável. Preço acima da EMA 9 e da EMA 30.';
+    cycleDesc = 'Mercado saudável. Preço acima da EMA 10 e da EMA 72.';
   } else {
     cycleState = 'Defesa';
-    cycleDesc = 'Modo defesa. Preço abaixo ou entre as médias EMA 9 e EMA 30.';
+    cycleDesc = 'Modo defesa. Preço abaixo ou entre as médias EMA 10 e EMA 72.';
   }
 
   // 5. Fundamentos da CVM / Fundamentus / BDR
@@ -591,9 +591,12 @@ async function getTickerChartData(rawSymbol) {
     trend: {
       status: trendStatus,
       formula: trendFormula,
-      priceAboveEma9,
-      ema9AboveEma30,
-      bothSlopingUp
+      priceAboveEma10,
+      ema10AboveEma72,
+      bothSlopingUp,
+      // Compatibilidade legada
+      priceAboveEma9: priceAboveEma10,
+      ema9AboveEma30: ema10AboveEma72
     },
     volatility: {
       atr21: atrVal,
@@ -636,8 +639,8 @@ async function getTickerChartData(rawSymbol) {
   const criteriaTable = [
     { name: 'Força Relativa', status: rsInfo.status === 'good', obs: `${rsClassification} (${rsScore})` },
     { name: 'Ciclo de Mercado', status: cycleState === 'Positivo', obs: cycleState },
-    { name: 'Preço > EMA 9', status: priceAboveEma9, obs: priceAboveEma9 ? 'Sim' : 'Não' },
-    { name: 'EMA 9 > EMA 30', status: ema9AboveEma30, obs: ema9AboveEma30 ? 'Sim' : 'Não' },
+    { name: 'Preço > EMA 10', status: priceAboveEma10, obs: priceAboveEma10 ? 'Sim' : 'Não' },
+    { name: 'EMA 10 > EMA 72', status: ema10AboveEma72, obs: ema10AboveEma72 ? 'Sim' : 'Não' },
     { name: 'Volatilidade (ATR)', status: atrPctVal < 5.0, obs: `${atrRegime} (${atrPctVal.toFixed(1)}%)` },
     { name: 'Estrutura', status: true, obs: structureLabel },
     { name: 'Gatilho', status: trigger.hasTrigger === true, obs: trigger.hasTrigger ? `${trigger.name} (${finalGrade})` : 'Nenhum' },
@@ -666,8 +669,10 @@ async function getTickerChartData(rawSymbol) {
     },
     ohlc: candles,
     indicators: {
-      ema9: ema9Series,
-      ema30: ema30Series,
+      ema10: ema10Series,
+      ema72: ema72Series,
+      ema9: ema10Series,
+      ema30: ema72Series,
       atr21: atrVal,
       atrPct: atrPctVal,
       volumeAvg21
@@ -690,9 +695,12 @@ async function getTickerChartData(rawSymbol) {
     trend: {
       status: trendStatus,
       formula: trendFormula,
-      priceAboveEma9,
-      ema9AboveEma30,
-      bothSlopingUp
+      priceAboveEma10,
+      ema10AboveEma72,
+      bothSlopingUp,
+      // Compatibilidade legada
+      priceAboveEma9: priceAboveEma10,
+      ema9AboveEma30: ema10AboveEma72
     },
     volatility: {
       atr21: atrVal,
@@ -748,8 +756,8 @@ async function getTickerChartData(rawSymbol) {
     context: {
       title: 'Super Contexto',
       description: 'Ativo em tendência, próximo das máximas históricas.',
-      priceAboveEma10: priceAboveEma9,
-      emasAligned: ema9AboveEma30,
+      priceAboveEma10,
+      emasAligned: ema10AboveEma72,
       nearAllTimeHigh: true,
       isSectorLeader: rsScore >= 85
     }
