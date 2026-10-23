@@ -3784,226 +3784,517 @@
     };
   }
 
+  // ============================================================================
+  // SNAPSHOT FIEL DO TRADE (candles diários REAIS, sem qualquer geração artificial)
+  // ============================================================================
+  const SNAPSHOT_CONTEXT_BARS = 50;
+  const SNAPSHOT_MAX_POST_BARS = 40;
+  const SNAPSHOT_TAIL_BARS = 2;
+  const SNAPSHOT_PRICE_TOLERANCE = 0.005;
+
+  /**
+   * Normaliza o histórico recebido SEM alterar valores OHLCV originais: descarta apenas registros
+   * inválidos (data malformada, OHLC não numérico, máxima < mínima), remove duplicatas por data e ordena.
+   * Nunca interpola nem cria candles.
+   */
+  function normalizeSnapshotHistory(rawHistory) {
+    const byDate = new Map();
+    let rejectedCount = 0;
+    (Array.isArray(rawHistory) ? rawHistory : []).forEach((c) => {
+      const time = String((c && (c.time || c.date)) || '').slice(0, 10);
+      const open = Number(c && c.open);
+      const high = Number(c && c.high);
+      const low = Number(c && c.low);
+      const close = Number(c && c.close);
+      const valid = /^\d{4}-\d{2}-\d{2}$/.test(time)
+        && [open, high, low, close].every(Number.isFinite)
+        && low > 0 && high >= low;
+      if (!valid) {
+        rejectedCount++;
+        return;
+      }
+      const volume = c.volume != null && Number.isFinite(Number(c.volume)) ? Number(c.volume) : null;
+      byDate.set(time, { time, open, high, low, close, volume });
+    });
+    const candles = Array.from(byDate.values()).sort((a, b) => (a.time < b.time ? -1 : (a.time > b.time ? 1 : 0)));
+    return { candles, rejectedCount };
+  }
+
+  /**
+   * Compatibilidade: devolve SOMENTE candles reais já anexados à simulação (com EMAs causais).
+   * Não fabrica candles. Sem dados reais anexados, retorna lista vazia.
+   */
   function generateSimulationSnapshotCandles(simulation) {
-    if (!simulation) return [];
+    if (!simulation || !Array.isArray(simulation.candles) || !simulation.candles.length) return [];
+    const { candles } = normalizeSnapshotHistory(simulation.candles);
+    const closes = candles.map(c => c.close);
+    const ema9 = calculateEmaSeries(closes, 9);
+    const ema30 = calculateEmaSeries(closes, 30);
+    const signalDate = String(simulation.signalDate || '').slice(0, 10);
+    return candles.map((c, idx) => ({
+      ...c,
+      ema9: ema9[idx],
+      ema30: ema30[idx],
+      isSignal: c.time === signalDate
+    }));
+  }
 
-    const entryPrice = Number(simulation.entryPrice) || 50.0;
-    const stopLoss = Number(simulation.stopLoss) || (entryPrice * 0.95);
-    const risk = Math.max(0.1, Math.abs(entryPrice - stopLoss));
-    const target1R = round2(entryPrice + risk);
-    const target2R = round2(entryPrice + 2 * risk);
+  /**
+   * Pontos do padrão conforme a lógica EFETIVA de detectAllSetupTriggers (offset relativo ao candle do sinal,
+   * que é o último candle da fatia). Nunca referencia candles posteriores ao sinal.
+   */
+  function getSnapshotPatternSpec(triggerId) {
+    switch (triggerId) {
+      case '123_COMPRA':
+      case 'EXP_123_IB':
+      case 'EXP_123_IB_VERTEX':
+      case 'EXP_123_SEM_IB':
+        return [
+          { offset: -2, role: '1', label: 'Candle 1 (anterior ao vértice)', anchor: 'low' },
+          { offset: -1, role: '2', label: 'Candle 2 (vértice: mínima mais baixa)', anchor: 'low' },
+          { offset: 0, role: '3', label: 'Candle 3 (sinal: mínima acima do vértice)', anchor: 'low' }
+        ];
+      case 'INSIDE_BAR':
+        return [
+          { offset: -1, role: 'M', label: 'Candle-mãe', anchor: 'high' },
+          { offset: 0, role: 'IB', label: 'Inside Bar (sinal)', anchor: 'high' }
+        ];
+      case 'DOUBLE_INSIDE_BAR':
+        return [
+          { offset: -2, role: 'M', label: 'Candle-mãe', anchor: 'high' },
+          { offset: -1, role: 'IB1', label: 'Inside Bar 1', anchor: 'high' },
+          { offset: 0, role: 'IB2', label: 'Inside Bar 2 (sinal)', anchor: 'high' }
+        ];
+      case 'PFR_COMPRA':
+        return [
+          { offset: -1, role: 'Ref', label: 'Candle de referência', anchor: 'low' },
+          { offset: 0, role: 'PFR', label: 'PFR (mínima abaixo e fechamento acima)', anchor: 'low' }
+        ];
+      case 'DAVE_LANDRY':
+        return [
+          { offset: -2, role: '1', label: 'Candle 1', anchor: 'low' },
+          { offset: -1, role: '2', label: 'Candle 2 (mínima menor)', anchor: 'low' },
+          { offset: 0, role: '3', label: 'Candle 3 (sinal: nova mínima menor)', anchor: 'low' }
+        ];
+      case 'RBI':
+        return [
+          { offset: -1, role: 'V', label: 'Barra vermelha ignorada', anchor: 'low' },
+          { offset: 0, role: 'RBI', label: 'Fechamento acima da máxima da vermelha (sinal)', anchor: 'low' }
+        ];
+      default:
+        return [];
+    }
+  }
+
+  function snapshotKnownTriggerNames() {
+    const names = new Set(Object.values(TRIGGER_TYPES));
+    Object.values(EXPERIMENTAL_TRIGGERS).forEach(t => { names.add(t.name); names.add(t.id); });
+    return names;
+  }
+
+  /**
+   * Constrói o snapshot auditável de uma simulação a partir do histórico diário REAL do ativo.
+   * - Candles reais com OHLCV originais; EMAs 9/30 causais (cada ponto só usa dados até a própria data).
+   * - O padrão é RE-DETECTADO com a mesma lógica do simulador usando apenas candles <= data do sinal (sem look-ahead).
+   * - Entrada, stop, adições e saída vêm dos registros da simulação e são conferidos contra os candles.
+   * - Sem histórico/contexto suficiente: devolve { available:false } com motivo explícito (nunca candles artificiais).
+   *
+   * @param {Object} simulation Simulação registrada
+   * @param {Array} rawHistory Candles diários reais [{time|date, open, high, low, close, volume}]
+   * @param {Object} [options] { source, contextBars, maxPostBars }
+   */
+  function buildSimulationSnapshot(simulation, rawHistory, options = {}) {
+    const timeframe = '1D';
+    const symbol = simulation && simulation.symbol ? String(simulation.symbol).toUpperCase() : null;
+    const source = options.source || null;
+    const unavailable = (reason, message, extra = {}) => ({
+      available: false,
+      reason,
+      message,
+      symbol,
+      timeframe,
+      source,
+      verification: { status: 'UNVERIFIED', checks: [], notes: [message] },
+      ...extra
+    });
+
+    if (!simulation || !symbol) {
+      return unavailable('INVALID_SIMULATION', 'Simulação inválida: snapshot indisponível.');
+    }
+
+    const { candles: history, rejectedCount } = normalizeSnapshotHistory(rawHistory);
+    if (!history.length) {
+      return unavailable(
+        'NO_HISTORY',
+        `Histórico diário real indisponível para ${symbol}. Nenhum candle foi gerado artificialmente; a fidelidade do gráfico não pode ser verificada.`
+      );
+    }
+
+    const signalDate = String(simulation.signalDate || '').slice(0, 10);
+    const signalIdx = history.findIndex(c => c.time === signalDate);
+    if (signalIdx < 0) {
+      return unavailable(
+        'SIGNAL_DATE_NOT_IN_HISTORY',
+        `A data do sinal (${signalDate || 'ausente'}) não existe no histórico diário real de ${symbol} (${history[0].time} a ${history[history.length - 1].time}). Registro possivelmente inconsistente com a fonte de dados.`
+      );
+    }
+    if (signalIdx < 2) {
+      return unavailable(
+        'INSUFFICIENT_CONTEXT',
+        `Histórico anterior ao sinal insuficiente para reconstruir o padrão de ${symbol} em ${signalDate}.`
+      );
+    }
+
     const status = simulation.status || STATUS.WAITING_ENTRY;
-    const signalDate = snapToTradingDay(simulation.signalDate || '2026-09-21', -1);
-    const entryDate = simulation.entryDate ? snapToTradingDay(simulation.entryDate, 1) : addTradingDays(signalDate, 1);
-    const exitDate = simulation.exitDate ? snapToTradingDay(simulation.exitDate, 1) : addTradingDays(entryDate, 4);
+    const isExecuted = status === STATUS.IN_OPERATION || status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS;
+    const isClosed = status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS;
+    const entryDate = simulation.entryDate ? String(simulation.entryDate).slice(0, 10) : null;
+    const exitDate = simulation.exitDate ? String(simulation.exitDate).slice(0, 10) : null;
 
-    // Se já houver candles reais vinculados à simulação
-    if (Array.isArray(simulation.candles) && simulation.candles.length >= 5) {
-      const validRaw = simulation.candles.filter(c => {
-        const d = String(c.time || c.date || '').slice(0, 10);
-        return !d || isTradingDay(d);
-      });
-      const closes = validRaw.map(c => Number(c.close));
-      const ema9 = calculateEmaSeries(closes, 9);
-      const ema30 = calculateEmaSeries(closes, Math.min(30, closes.length));
-      return validRaw.map((c, idx) => {
-        const t = c.time || c.date || addTradingDays('2026-09-01', idx);
-        return {
-          time: t,
-          open: round2(c.open),
-          high: round2(c.high),
-          low: round2(c.low),
-          close: round2(c.close),
-          ema9: ema9[idx],
-          ema30: ema30[idx],
-          isSignal: t === signalDate,
-          isEntry: t === entryDate && (status === STATUS.IN_OPERATION || status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS),
-          isExit: t === exitDate && (status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS),
-          isTarget1R: Number(c.high) >= target1R,
-          isTarget2R: Number(c.high) >= target2R && status === STATUS.CLOSED_GAIN,
-          isStop: Number(c.low) <= stopLoss && status === STATUS.CLOSED_LOSS
-        };
-      });
-    }
+    const idxOfDate = (d) => (d ? history.findIndex(c => c.time === d) : -1);
+    const entryIdx = idxOfDate(entryDate);
+    const exitIdx = idxOfDate(exitDate);
 
-    // Geração determinística de candles para o snapshot da oportunidade (exclusivamente em pregões B3 válidos)
-    const candles = [];
-
-    // 10 pregões anteriores ao sinal: tendência de alta saudável com recuo
-    const preCount = 10;
-    for (let i = preCount; i >= 1; i--) {
-      const dStr = addTradingDays(signalDate, -i);
-      const prog = (preCount - i) / preCount; // 0 até 1
-      const mid = entryPrice - (1.6 - prog * 1.1) * risk;
-      const cOpen = round2(mid - 0.2 * risk);
-      const cClose = round2(mid + 0.2 * risk);
-      const cLow = round2(mid - 0.35 * risk);
-      const cHigh = round2(mid + 0.35 * risk);
-
-      candles.push({
-        time: dStr,
-        open: cOpen,
-        high: cHigh,
-        low: cLow,
-        close: cClose,
-        isSignal: false,
-        isEntry: false,
-        isExit: false
-      });
-    }
-
-    // Candle do Sinal (signalDate): forma o gatilho exatamente nos parâmetros operacionais
-    const signalCandle = {
-      time: signalDate,
-      open: round2(entryPrice - 0.5 * risk),
-      high: round2(entryPrice - 0.01), // Máxima logo abaixo do gatilho de rompimento
-      low: round2(stopLoss + 0.05 * risk), // Mínima preservando o stop inicial planejado
-      close: round2(entryPrice - 0.08 * risk),
-      isSignal: true,
-      isEntry: false,
-      isExit: false
-    };
-    candles.push(signalCandle);
-
-    // Pregão seguinte (ativação ou espera)
-    const postDate1 = addTradingDays(signalDate, 1);
-    if (status === STATUS.WAITING_ENTRY) {
-      candles.push({
-        time: postDate1,
-        open: round2(entryPrice - 0.25 * risk),
-        high: round2(entryPrice - 0.04), // Não rompeu a entrada ainda
-        low: round2(stopLoss + 0.2 * risk),
-        close: round2(entryPrice - 0.15 * risk),
-        isSignal: false,
-        isEntry: false,
-        isExit: false
-      });
-      const postDate2 = addTradingDays(signalDate, 2);
-      candles.push({
-        time: postDate2,
-        open: round2(entryPrice - 0.18 * risk),
-        high: round2(entryPrice - 0.03),
-        low: round2(stopLoss + 0.3 * risk),
-        close: round2(entryPrice - 0.1 * risk),
-        isSignal: false,
-        isEntry: false,
-        isExit: false
-      });
-    } else if (status === STATUS.NOT_TRIGGERED) {
-      candles.push({
-        time: simulation.exitDate ? snapToTradingDay(simulation.exitDate, 1) : postDate1,
-        open: round2(stopLoss + 0.15 * risk),
-        high: round2(stopLoss + 0.3 * risk),
-        low: round2(stopLoss - 0.15 * risk), // Perdeu o stop antes de acionar entrada
-        close: round2(stopLoss - 0.1 * risk),
-        isSignal: false,
-        isEntry: false,
-        isExit: true,
-        isStop: true
-      });
+    const contextBars = Number.isFinite(options.contextBars) ? options.contextBars : SNAPSHOT_CONTEXT_BARS;
+    const maxPostBars = Number.isFinite(options.maxPostBars) ? options.maxPostBars : SNAPSHOT_MAX_POST_BARS;
+    const startIdx = Math.max(0, signalIdx - contextBars);
+    let endIdx;
+    if (exitIdx > signalIdx) {
+      endIdx = Math.min(history.length - 1, exitIdx + SNAPSHOT_TAIL_BARS);
     } else {
-      // Trades com entrada executada (IN_OPERATION, CLOSED_GAIN, CLOSED_LOSS)
-      const eDate = entryDate > signalDate ? entryDate : postDate1;
-      candles.push({
-        time: eDate,
-        open: round2(entryPrice - 0.1 * risk),
-        high: round2(entryPrice + 0.45 * risk), // Rompeu e executou entrada!
-        low: round2(stopLoss + 0.25 * risk),
-        close: round2(entryPrice + 0.35 * risk),
-        isSignal: false,
-        isEntry: true,
-        isExit: false
+      endIdx = Math.min(history.length - 1, signalIdx + maxPostBars);
+    }
+    if (entryIdx > endIdx) endIdx = Math.min(history.length - 1, entryIdx + SNAPSHOT_TAIL_BARS);
+
+    // EMAs causais: cada valor só depende de candles até a própria data (mesma semente do motor do simulador).
+    const upToEnd = history.slice(0, endIdx + 1);
+    const closes = upToEnd.map(c => c.close);
+    const ema9All = calculateEmaSeries(closes, 9);
+    const ema30All = calculateEmaSeries(closes, 30);
+
+    const entryPlanned = Number(simulation.entryPrice);
+    const stopInitial = Number(simulation.stopLoss);
+    const riskUnit = Number.isFinite(entryPlanned) && Number.isFinite(stopInitial) ? Math.abs(entryPlanned - stopInitial) : null;
+
+    const displayed = [];
+    for (let i = startIdx; i <= endIdx; i++) {
+      const c = history[i];
+      displayed.push({
+        time: c.time,
+        open: c.open,
+        high: c.high,
+        low: c.low,
+        close: c.close,
+        volume: c.volume,
+        ema9: ema9All[i],
+        ema30: ema30All[i],
+        phase: i <= signalIdx ? 'context' : 'post',
+        isSignal: i === signalIdx,
+        isEntry: isExecuted && i === entryIdx,
+        isExit: (isClosed || status === STATUS.NOT_TRIGGERED) && i === exitIdx
       });
+    }
+    const signalDisplayIdx = signalIdx - startIdx;
 
-      if (status === STATUS.CLOSED_GAIN) {
-        const d2 = addTradingDays(eDate, 1);
-        const d3 = addTradingDays(eDate, 2);
-        const d4 = addTradingDays(eDate, 3);
-        const xDate = exitDate > d4 ? exitDate : addTradingDays(eDate, 4);
+    // ---- Re-detecção sem look-ahead (mesma lógica da geração em massa: fatia estrita até a data do sinal) ----
+    const detectionSeries = history.slice(0, signalIdx + 1).filter(c => isTradingDay(c.time));
+    const checks = [];
+    const notes = [];
+    const addCheck = (id, level, label, detail) => checks.push({ id, level, label, detail });
 
-        candles.push({
-          time: d2,
-          open: round2(entryPrice + 0.3 * risk),
-          high: round2(entryPrice + 0.8 * risk),
-          low: round2(entryPrice + 0.15 * risk),
-          close: round2(entryPrice + 0.7 * risk)
-        });
-        candles.push({
-          time: d3,
-          open: round2(entryPrice + 0.65 * risk),
-          high: round2(target1R + 0.1 * risk), // Atinge +1R
-          low: round2(entryPrice + 0.5 * risk),
-          close: round2(target1R),
-          isTarget1R: true
-        });
-        candles.push({
-          time: d4,
-          open: round2(target1R),
-          high: round2(entryPrice + 1.5 * risk),
-          low: round2(target1R - 0.1 * risk),
-          close: round2(entryPrice + 1.45 * risk)
-        });
-        candles.push({
-          time: xDate,
-          open: round2(entryPrice + 1.4 * risk),
-          high: round2(target2R + 0.25 * risk), // Atinge Alvo +2R (Sell into Strength)!
-          low: round2(entryPrice + 1.3 * risk),
-          close: round2(target2R + 0.1 * risk),
-          isExit: true,
-          isTarget2R: true
-        });
-      } else if (status === STATUS.CLOSED_LOSS) {
-        const d2 = addTradingDays(eDate, 1);
-        const xDate = exitDate > d2 ? exitDate : addTradingDays(eDate, 2);
+    addCheck(
+      'HISTORY',
+      'ok',
+      'Candles históricos reais',
+      `${history.length} candles diários reais de ${symbol} (${history[0].time} a ${history[history.length - 1].time})${rejectedCount ? `; ${rejectedCount} registro(s) inválido(s) descartado(s)` : ''}.`
+    );
+    addCheck('TIMEFRAME', 'ok', 'Timeframe', 'Diário (EOD).');
+    addCheck('SIGNAL_DATE', 'ok', 'Data do sinal presente no histórico', `Candle de ${signalDate} encontrado.`);
 
-        candles.push({
-          time: d2,
-          open: round2(entryPrice + 0.2 * risk),
-          high: round2(entryPrice + 0.3 * risk),
-          low: round2(entryPrice - 0.3 * risk),
-          close: round2(entryPrice - 0.2 * risk)
-        });
-        candles.push({
-          time: xDate,
-          open: round2(entryPrice - 0.3 * risk),
-          high: round2(entryPrice - 0.1 * risk),
-          low: round2(stopLoss - 0.05 * risk), // Atinge Stop Loss
-          close: round2(stopLoss),
-          isExit: true,
-          isStop: true
-        });
-      } else if (status === STATUS.IN_OPERATION) {
-        const d2 = addTradingDays(eDate, 1);
-        const d3 = addTradingDays(eDate, 2);
-        const curP = Number(simulation.currentPrice) || round2(entryPrice + 0.7 * risk);
+    const lastDetectionTime = detectionSeries.length ? detectionSeries[detectionSeries.length - 1].time : null;
+    addCheck(
+      'NO_LOOKAHEAD',
+      lastDetectionTime && lastDetectionTime <= signalDate ? 'ok' : 'fail',
+      'Sem look-ahead',
+      `Detecção usou ${detectionSeries.length} candles, o último em ${lastDetectionTime || '—'} (data do sinal: ${signalDate}).`
+    );
 
-        candles.push({
-          time: d2,
-          open: round2(entryPrice + 0.2 * risk),
-          high: round2(entryPrice + 0.6 * risk),
-          low: round2(entryPrice + 0.1 * risk),
-          close: round2(entryPrice + 0.5 * risk)
-        });
-        candles.push({
-          time: d3,
-          open: round2(entryPrice + 0.45 * risk),
-          high: round2(Math.max(curP + 0.1 * risk, entryPrice + 0.9 * risk)),
-          low: round2(entryPrice + 0.3 * risk),
-          close: round2(curP)
-        });
+    const triggerName = simulation.triggerName;
+    const knownNames = snapshotKnownTriggerNames();
+    let detected = null;
+    let triggerVerifiable = knownNames.has(triggerName);
+    if (!triggerVerifiable) {
+      addCheck('TRIGGER_REDETECTED', 'warn', 'Gatilho reconhecido pelo detector', `O gatilho "${triggerName}" não pertence ao catálogo do detector; não é possível reconstruí-lo.`);
+      notes.push(`Gatilho "${triggerName}" fora do catálogo: fidelidade do padrão não verificada.`);
+    } else {
+      const all = detectAllSetupTriggers(detectionSeries, { includeExperimental: true });
+      detected = all.find(t => t.name === triggerName || t.id === triggerName) || null;
+      if (!detected) {
+        addCheck(
+          'TRIGGER_REDETECTED',
+          'fail',
+          'Padrão re-detectado nos dados históricos',
+          `O gatilho "${triggerName}" NÃO é reproduzido pelas regras do simulador nos candles reais até ${signalDate}. O registro diverge do histórico.`
+        );
+        notes.push('Divergência: o padrão registrado não existe nos candles reais disponíveis na data do sinal.');
+      } else {
+        addCheck('TRIGGER_REDETECTED', 'ok', 'Padrão re-detectado nos dados históricos', `"${detected.name}" reproduzido com os candles até ${signalDate}.`);
+        const entryOk = Math.abs(Number(detected.entry) - entryPlanned) <= SNAPSHOT_PRICE_TOLERANCE;
+        const stopOk = Math.abs(Number(detected.stop) - stopInitial) <= SNAPSHOT_PRICE_TOLERANCE;
+        addCheck(
+          'ENTRY_LEVEL',
+          entryOk ? 'ok' : 'fail',
+          'Entrada planejada = nível do gatilho',
+          `Registrada: ${entryPlanned}; recalculada: ${detected.entry}.`
+        );
+        addCheck(
+          'STOP_LEVEL',
+          stopOk ? 'ok' : 'fail',
+          'Stop inicial = nível do gatilho',
+          `Registrado: ${stopInitial}; recalculado: ${detected.stop}.`
+        );
       }
     }
 
-    // Calcula EMAs
-    const closes = candles.map(c => c.close);
-    const ema9Series = calculateEmaSeries(closes, 9);
-    const ema30Series = calculateEmaSeries(closes, Math.min(30, closes.length));
+    if (isExecuted) {
+      if (entryIdx < 0) {
+        addCheck('ENTRY_EXECUTION', 'fail', 'Execução da entrada', `A data de entrada registrada (${entryDate || 'ausente'}) não existe no histórico real.`);
+      } else {
+        const ec = history[entryIdx];
+        const after = entryIdx > signalIdx;
+        const broke = ec.high + SNAPSHOT_PRICE_TOLERANCE >= entryPlanned;
+        addCheck(
+          'ENTRY_EXECUTION',
+          after && broke ? 'ok' : 'fail',
+          'Entrada executada após o sinal e com rompimento',
+          `Candle de ${entryDate}: máxima ${ec.high} ${broke ? '≥' : '<'} entrada planejada ${entryPlanned}${after ? '' : '; entrada não é posterior ao sinal'}.`
+        );
+        if (ec.open > entryPlanned + SNAPSHOT_PRICE_TOLERANCE) {
+          notes.push(`O candle de entrada abriu acima do gatilho (gap: abertura ${ec.open}); o simulador registra a entrada no preço planejado.`);
+        }
+      }
+    }
 
-    return candles.map((c, idx) => ({
-      ...c,
-      ema9: ema9Series[idx],
-      ema30: ema30Series[idx]
+    if (isClosed && simulation.exitPrice != null) {
+      if (exitIdx < 0) {
+        addCheck('EXIT_EVENT', 'fail', 'Saída registrada', `A data de saída registrada (${exitDate || 'ausente'}) não existe no histórico real.`);
+      } else {
+        const xc = history[exitIdx];
+        const xp = Number(simulation.exitPrice);
+        const inRange = xp >= xc.low - SNAPSHOT_PRICE_TOLERANCE && xp <= xc.high + SNAPSHOT_PRICE_TOLERANCE;
+        addCheck(
+          'EXIT_EVENT',
+          inRange ? 'ok' : 'warn',
+          'Preço de saída dentro da faixa do candle',
+          `Candle de ${exitDate}: faixa ${xc.low}–${xc.high}; saída registrada ${xp}${inRange ? '' : ' (possível gap; o simulador executa no nível da regra)'}.`
+        );
+      }
+    }
+
+    const hasFail = checks.some(c => c.level === 'fail');
+    const hasWarnUnverifiable = !triggerVerifiable;
+    const verificationStatus = hasFail ? 'DIVERGENT' : (hasWarnUnverifiable ? 'UNVERIFIED' : 'VERIFIED');
+
+    // ---- Marcadores do padrão (somente quando o padrão foi realmente reproduzido) ----
+    const patternMarkers = [];
+    if (detected) {
+      getSnapshotPatternSpec(detected.id).forEach((spec) => {
+        const idx = signalDisplayIdx + spec.offset;
+        const candle = displayed[idx];
+        if (!candle || idx > signalDisplayIdx) return;
+        patternMarkers.push({
+          index: idx,
+          time: candle.time,
+          role: spec.role,
+          label: spec.label,
+          anchor: spec.anchor,
+          price: spec.anchor === 'high' ? candle.high : candle.low
+        });
+      });
+    }
+
+    // ---- Eventos registrados (distintos do contexto de decisão) ----
+    const events = [];
+    const inWindow = (d) => d && displayed.some(c => c.time === d);
+    events.push({ type: 'SIGNAL', time: signalDate, price: entryPlanned, label: 'Sinal (decisão)' });
+    if (isExecuted && inWindow(entryDate)) {
+      events.push({
+        type: 'ENTRY',
+        time: entryDate,
+        price: simulation.executedEntryPrice != null ? Number(simulation.executedEntryPrice) : entryPlanned,
+        label: 'Entrada executada'
+      });
+    }
+    if (simulation.scaleIn && simulation.scaleIn.executed && inWindow(String(simulation.scaleIn.date || '').slice(0, 10))) {
+      events.push({
+        type: 'SCALE_IN',
+        time: String(simulation.scaleIn.date).slice(0, 10),
+        price: Number(simulation.scaleIn.price),
+        label: 'Adição de posição'
+      });
+    }
+    if (simulation.partialExit && simulation.partialExit.executed && inWindow(String(simulation.partialExit.date || '').slice(0, 10))) {
+      events.push({
+        type: 'PARTIAL_EXIT',
+        time: String(simulation.partialExit.date).slice(0, 10),
+        price: Number(simulation.partialExit.partialPrice),
+        label: `Saída parcial ${simulation.partialExit.percent || ''}%`.trim()
+      });
+    }
+    if ((isClosed || status === STATUS.NOT_TRIGGERED) && inWindow(exitDate)) {
+      events.push({
+        type: status === STATUS.NOT_TRIGGERED ? 'NOT_TRIGGERED' : 'EXIT',
+        time: exitDate,
+        price: simulation.exitPrice != null ? Number(simulation.exitPrice) : null,
+        label: status === STATUS.NOT_TRIGGERED ? 'Não acionado' : (status === STATUS.CLOSED_GAIN ? 'Saída (gain)' : 'Saída (stop/loss)'),
+        reason: simulation.exitReason || null
+      });
+    }
+
+    const levels = {
+      entryPlanned: Number.isFinite(entryPlanned) ? entryPlanned : null,
+      stopInitial: Number.isFinite(stopInitial) ? stopInitial : null,
+      executedEntry: simulation.executedEntryPrice != null ? Number(simulation.executedEntryPrice) : null,
+      exitPrice: simulation.exitPrice != null ? Number(simulation.exitPrice) : null,
+      riskUnit: riskUnit != null ? round2(riskUnit) : null,
+      target1R: riskUnit != null ? round2(entryPlanned + riskUnit) : null,
+      target2R: riskUnit != null ? round2(entryPlanned + 2 * riskUnit) : null
+    };
+
+    // Série histórica completa com EMAs causais para zoom contextual instantâneo
+    const allCloses = history.map(c => c.close);
+    const allEma9 = calculateEmaSeries(allCloses, 9);
+    const allEma30 = calculateEmaSeries(allCloses, 30);
+    const allCandles = history.map((c, idx) => ({
+      time: c.time,
+      open: c.open,
+      high: c.high,
+      low: c.low,
+      close: c.close,
+      volume: c.volume,
+      ema9: allEma9[idx],
+      ema30: allEma30[idx],
+      phase: idx <= signalIdx ? 'context' : 'post',
+      isSignal: idx === signalIdx,
+      isEntry: isExecuted && idx === entryIdx,
+      isExit: (isClosed || status === STATUS.NOT_TRIGGERED) && idx === exitIdx
     }));
+
+    const summary = {
+      status: verificationStatus,
+      source: source || 'B3 (COTAHIST, ajustado a eventos corporativos)',
+      timeframe,
+      contextBars: signalDisplayIdx,
+      postBars: displayed.length - 1 - signalDisplayIdx,
+      totalBars: displayed.length,
+      totalHistoryBars: history.length,
+      periodFormatted: `${formatDateBR(displayed[0].time)} a ${formatDateBR(displayed[displayed.length - 1].time)}`,
+      historyPeriodFormatted: `${formatDateBR(history[0].time)} a ${formatDateBR(history[history.length - 1].time)}`,
+      lastEvaluatedDate: formatDateBR(detectionSeries[detectionSeries.length - 1].time),
+      lookAhead: 'Não identificado',
+      patternPivotsFormatted: patternMarkers.length
+        ? patternMarkers.map(m => `${m.role} ${formatDateBR(m.time).slice(0, 5)}: R$ ${Number(m.price).toFixed(2).replace('.', ',')}`).join('   ')
+        : 'Não aplicável',
+      triggerFormatted: `${simulation.triggerName} (${simulation.grade || 'A'})`,
+      entryFormatted: `R$ ${entryPlanned.toFixed(2).replace('.', ',')}${isExecuted && entryDate ? ` (executada em ${formatDateBR(entryDate)})` : ''}`,
+      stopFormatted: `R$ ${stopInitial.toFixed(2).replace('.', ',')}`,
+      exitFormatted: simulation.exitPrice != null ? `R$ ${Number(simulation.exitPrice).toFixed(2).replace('.', ',')}${exitDate ? ` (${formatDateBR(exitDate)})` : ''}` : '—',
+      notesFormatted: 'Preços ajustados a eventos corporativos. Sem dados sintéticos.'
+    };
+
+    return {
+      available: true,
+      symbol,
+      timeframe,
+      source,
+      signalDate,
+      signalIndex: signalDisplayIdx,
+      signalIdxInHistory: signalIdx,
+      entryIdxInHistory: entryIdx,
+      exitIdxInHistory: exitIdx,
+      triggerName,
+      triggerId: detected ? detected.id : null,
+      candles: displayed,
+      allCandles,
+      patternMarkers,
+      events,
+      levels,
+      window: {
+        firstDate: displayed[0].time,
+        lastDate: displayed[displayed.length - 1].time,
+        contextBars: signalDisplayIdx,
+        postBars: displayed.length - 1 - signalDisplayIdx
+      },
+      summary,
+      verification: { status: verificationStatus, checks, notes, summary }
+    };
+  }
+
+  /**
+   * Reenquadra a janela do snapshot de acordo com o preset de zoom selecionado (1M, 3M, 6M, 1A, 2A).
+   * Não altera a integridade dos dados históricos nem o cálculo de EMAs/pivôs.
+   */
+  function sliceSnapshotByZoom(snap, zoomPreset = '1M') {
+    if (!snap || !Array.isArray(snap.allCandles) || !snap.allCandles.length) return snap;
+    const history = snap.allCandles;
+    const signalIdx = snap.signalIdxInHistory != null
+      ? snap.signalIdxInHistory
+      : history.findIndex(c => c.time === snap.signalDate);
+    if (signalIdx < 0) return snap;
+
+    let contextBars = 50;
+    if (zoomPreset === '1M') contextBars = 20;
+    else if (zoomPreset === '3M') contextBars = 50;
+    else if (zoomPreset === '6M') contextBars = 110;
+    else if (zoomPreset === '1A') contextBars = 220;
+    else if (zoomPreset === '2A') contextBars = history.length;
+
+    const exitIdx = snap.exitIdxInHistory != null ? snap.exitIdxInHistory : -1;
+    const startIdx = Math.max(0, signalIdx - contextBars);
+    let endIdx;
+    if (zoomPreset === '2A') {
+      endIdx = history.length - 1;
+    } else if (exitIdx > signalIdx) {
+      endIdx = Math.min(history.length - 1, exitIdx + SNAPSHOT_TAIL_BARS);
+    } else {
+      endIdx = Math.min(history.length - 1, signalIdx + SNAPSHOT_MAX_POST_BARS);
+    }
+
+    const candles = history.slice(startIdx, endIdx + 1);
+    const newSignalDisplayIdx = signalIdx - startIdx;
+
+    // Re-mapear índice dos marcadores de pivôs no novo recorte
+    const patternMarkers = (snap.patternMarkers || []).map(m => {
+      const offset = m.index - snap.signalIndex;
+      const newIdx = newSignalDisplayIdx + offset;
+      return { ...m, index: newIdx };
+    }).filter(m => m.index >= 0 && m.index < candles.length);
+
+    const summary = {
+      ...(snap.summary || {}),
+      contextBars: newSignalDisplayIdx,
+      postBars: candles.length - 1 - newSignalDisplayIdx,
+      totalBars: candles.length,
+      periodFormatted: `${formatDateBR(candles[0].time)} a ${formatDateBR(candles[candles.length - 1].time)}`
+    };
+
+    return {
+      ...snap,
+      candles,
+      signalIndex: newSignalDisplayIdx,
+      patternMarkers,
+      window: {
+        firstDate: candles[0].time,
+        lastDate: candles[candles.length - 1].time,
+        contextBars: newSignalDisplayIdx,
+        postBars: candles.length - 1 - newSignalDisplayIdx
+      },
+      summary,
+      verification: {
+        ...(snap.verification || {}),
+        summary
+      }
+    };
   }
 
   function calculateEmaSeries(values, period) {
@@ -4951,6 +5242,9 @@
     calculateScenarioMetrics,
     compareManagementScenarios,
     generateSimulationSnapshotCandles,
+  buildSimulationSnapshot,
+  sliceSnapshotByZoom,
+  normalizeSnapshotHistory,
     TRIGGER_TYPES,
     calculateDoubleInsideBarStructure,
     compareInsideBarTriggers,

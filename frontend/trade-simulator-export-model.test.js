@@ -11,8 +11,19 @@ const TradeSimulatorModel = require('./trade-simulator-model.js');
 
 describe('TradeSimulatorExportModel — Suíte de Testes', () => {
 
+  // Candles de FIXTURE (valores de teste) anexados ao registro: o export só desenha candles reais anexados,
+  // nunca candles sintéticos gerados a partir de entrada/stop.
+  const fixtureCandles = (dates, base) => dates.map((time, i) => ({
+    time,
+    open: base + i * 0.2,
+    high: base + i * 0.2 + 0.9,
+    low: base + i * 0.2 - 0.6,
+    close: base + i * 0.2 + 0.4
+  }));
+
   const mockTradeGain = {
     id: 'sim-test-01',
+    candles: fixtureCandles(['2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25', '2026-09-28', '2026-09-29', '2026-09-30', '2026-10-01', '2026-10-02', '2026-10-05', '2026-10-06', '2026-10-07'], 47),
     symbol: 'PETR4',
     companyName: 'Petrobras PN',
     triggerName: 'Inside Bar',
@@ -50,6 +61,7 @@ describe('TradeSimulatorExportModel — Suíte de Testes', () => {
 
   const mockTradeLoss = {
     id: 'sim-test-02',
+    candles: fixtureCandles(['2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11', '2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18'], 62),
     symbol: 'VALE3',
     companyName: 'Vale S.A.',
     triggerName: 'Double Inside Bar',

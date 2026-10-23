@@ -376,19 +376,45 @@
     return key;
   }
 
+  function resolveMarketCycleId(marketKey) {
+    const key = String(marketKey || '').trim().toLowerCase();
+    if (key.includes('bdr')) return 'bdr';
+    if (key.includes('fii') || key.includes('ifix')) return 'fii';
+    if (key.includes('ibov') || key.includes('stock') || key.includes('ac') || key.includes('aç')) return 'stock_b3';
+    return 'stock_b3';
+  }
+
+  function openMarketCycleFromRadar(marketKey) {
+    const target = resolveMarketCycleId(marketKey);
+    if (typeof root.loadMarketCycleV2 === 'function') {
+      root.loadMarketCycleV2(target);
+    } else if (typeof window !== 'undefined') {
+      window.__pendingMarketCycle = target;
+    }
+    if (typeof root.go === 'function') {
+      root.go('marketcycle', target);
+    }
+  }
+
   function getActiveMarketCycle() {
     const marketFilter = state.filters.market || 'ALL';
     const cycles = state.marketCycles || {};
 
     let cycle = null;
+    let resolvedMarketId = resolveMarketCycleId(marketFilter);
+
     if (marketFilter === 'ALL') {
       cycle = cycles.ALL || null;
+      resolvedMarketId = 'stock_b3';
     } else if (marketFilter === 'IBOV') {
       cycle = cycles.IBOV || cycles.stock_b3 || null;
+      resolvedMarketId = 'stock_b3';
     } else if (marketFilter === 'IFIX') {
       cycle = cycles.IFIX || cycles.fii || null;
+      resolvedMarketId = 'fii';
     } else if (marketFilter === 'BDRs') {
       cycle = cycles.BDRs || cycles.bdr || null;
+      resolvedMarketId = 'bdr';
     }
 
     if (cycle && cycle.state) {
@@ -396,6 +422,7 @@
         state: cycle.state,
         isDefensive: cycle.state !== 'healthy',
         marketName: getActiveMarketName(marketFilter),
+        marketId: resolvedMarketId,
         score: cycle.score
       };
     }
@@ -405,6 +432,7 @@
         state: 'defensive',
         isDefensive: true,
         marketName: 'BDRs',
+        marketId: 'bdr',
         score: 24
       };
     }
@@ -414,6 +442,7 @@
       state: isDef ? 'defensive' : 'healthy',
       isDefensive: isDef,
       marketName: getActiveMarketName(marketFilter),
+      marketId: resolvedMarketId,
       score: 50
     };
   }
@@ -421,9 +450,13 @@
   function renderHeaderCyclePill() {
     const cycle = getActiveMarketCycle();
     const isDefensive = cycle.isDefensive;
+    const marketId = cycle.marketId || 'stock_b3';
 
     return `
-      <div class="radar-cycle-status-pill ${isDefensive ? 'defensive' : 'healthy'}" id="radarHeaderCyclePill">
+      <div class="radar-cycle-status-pill ${isDefensive ? 'defensive' : 'healthy'}" id="radarHeaderCyclePill"
+           onclick="window.openMarketCycleFromRadar('${esc(marketId)}')"
+           style="cursor: pointer;"
+           title="Ver Ciclo de Mercado de ${esc(cycle.marketName || 'Mercado')}">
         <span class="radar-cycle-status-dot" aria-hidden="true"></span>
         <div class="radar-cycle-status-info">
           <div class="radar-cycle-status-label">
@@ -439,33 +472,37 @@
 
   function renderDefenseCard(cycle) {
     const marketName = cycle?.marketName || 'BDRs';
+    const marketId = cycle?.marketId || resolveMarketCycleId(marketName);
     return `
       <div class="radar-defense-panel" role="alert" aria-label="Mercado em Modo Defesa">
         <div class="radar-defense-art">
           <img
-            src="assets/opportunity-radar/defense-bear.jpg"
+            src="assets/opportunity-radar/defense-bear.png"
             alt="Modo Defesa - Preservação de Capital"
             class="radar-defense-bear-img"
             loading="eager"
           />
-          <div class="radar-defense-art-overlay" aria-hidden="true"></div>
         </div>
 
         <div class="radar-defense-content">
           <div class="radar-defense-shield-badge">
-            <span class="radar-defense-shield-icon" aria-hidden="true">🛡️</span>
+            <span class="radar-defense-shield-icon" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#dc2626" stroke="#dc2626" stroke-width="1.2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </span>
             <span>MODO DEFESA</span>
           </div>
 
-          <h2 class="radar-defense-title">Ciclo de Mercado em MODO DEFESA</h2>
+          <h2 class="radar-defense-title">Ciclo de Mercado em <span class="radar-defense-title-highlight">MODO DEFESA</span></h2>
 
           <p class="radar-defense-desc">
-            O mercado de <strong>${esc(marketName)}</strong> está em tendência negativa no momento. Para proteger seu capital, o método recomenda <strong>NÃO abrir novas operações</strong> até que o ciclo volte a ficar favorável.
+            O mercado de ${esc(marketName)} está em tendência negativa no momento.<br>Por isso, não há oportunidades que atendam aos critérios do seu método.
           </p>
 
           <div class="radar-defense-callout">
             <div class="radar-defense-callout-icon" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/>
                 <line x1="12" y1="8" x2="12" y2="12"/>
                 <line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -478,7 +515,7 @@
           </div>
 
           <div class="radar-defense-footer">
-            <button type="button" class="radar-defense-btn-cycle" onclick="go('marketcycle')">
+            <button type="button" class="radar-defense-btn-cycle" onclick="window.openMarketCycleFromRadar('${esc(marketId)}')">
               Ver Ciclo de Mercado completo <span aria-hidden="true">→</span>
             </button>
             <span class="radar-defense-rule-hint">Regra de ouro: Primeiro a permissão do mercado, depois o setup.</span>
@@ -1541,5 +1578,6 @@
   root.submitAddToPaperTradingModal = root.submitAddToPaperTradingModal;
   root.recalculatePendingModalRisk = root.recalculatePendingModalRisk;
   root.adjustPendingModalQty = root.adjustPendingModalQty;
+  root.openMarketCycleFromRadar = openMarketCycleFromRadar;
 
 })(typeof globalThis !== 'undefined' ? globalThis : this);

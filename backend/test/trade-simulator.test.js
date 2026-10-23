@@ -319,4 +319,62 @@ test('tradeSimulator backend: generateMass gera lote de trades em escala e armaz
   }
 });
 
+test('tradeSimulator backend: buildSnapshot usa histórico real injetado e nunca sintetiza candles', async () => {
+  const model = require('../../frontend/trade-simulator-model');
+  const dates = [];
+  const d = new Date('2026-03-02T12:00:00Z');
+  while (dates.length < 50) {
+    const iso = d.toISOString().slice(0, 10);
+    if (model.isTradingDay(iso)) dates.push(iso);
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  const rows = [];
+  for (let i = 0; i < 40; i++) { const b = 20 + i * 0.3; rows.push([b - 0.1, b + 0.4, b - 0.35, b + 0.15]); }
+  rows.push([31.9, 32.3, 31.4, 32.0], [32.0, 32.2, 30.8, 31.6], [31.5, 32.6, 31.1, 32.5], [32.4, 32.9, 32.2, 32.8], [32.8, 34.0, 32.7, 33.9]);
+  const history = rows.map((r, i) => ({ time: dates[i], open: r[0], high: r[1], low: r[2], close: r[3], volume: 1 }));
+  const histories = new Map([['TEST3', history]]);
 
+  const sim = {
+    id: 'sim-x', symbol: 'test3', triggerName: '1-2-3 de Compra', signalDate: dates[42],
+    entryPrice: 32.61, stopLoss: 30.79, status: 'WAITING_ENTRY'
+  };
+  const { snapshot } = await tradeSimulator.buildSnapshot('user-1', { simulation: sim }, { histories, source: 'fixture' });
+  assert.equal(snapshot.available, true);
+  assert.equal(snapshot.symbol, 'TEST3');
+  assert.equal(snapshot.timeframe, '1D');
+  assert.equal(snapshot.source, 'fixture');
+  assert.equal(snapshot.verification.status, 'VERIFIED');
+  assert.deepEqual(snapshot.patternMarkers.map(m => m.role), ['1', '2', '3']);
+
+  // Ativo sem histórico: indisponível, sem candles
+  const none = await tradeSimulator.buildSnapshot('user-1', { simulation: { ...sim, symbol: 'SEMDADOS9' } }, { histories });
+  assert.equal(none.snapshot.available, false);
+  assert.equal(none.snapshot.reason, 'NO_HISTORY');
+  assert.equal(none.snapshot.candles, undefined);
+
+  await assert.rejects(() => tradeSimulator.buildSnapshot(null, { simulation: sim }), /não autenticado/);
+  await assert.rejects(() => tradeSimulator.buildSnapshot('user-1', {}), /inválida/);
+});
+
+test('tradeSimulator backend: snapshot do PRIO3 em 28/09/2026 reproduz o 1-2-3 real do histórico B3 (quando o cache existe)', async (t) => {
+  let tickerChart;
+  try { tickerChart = require('../src/ticker-chart'); } catch { return t.skip('ticker-chart indisponível'); }
+  const history = tickerChart.loadB3History().get('PRIO3');
+  if (!history || !history.some(c => c.time === '2026-09-28')) return t.skip('histórico real de PRIO3 indisponível');
+
+  const sim = {
+    id: 'sim-prio3', symbol: 'PRIO3', triggerName: '1-2-3 de Compra', signalDate: '2026-09-28',
+    entryPrice: 62.11, stopLoss: 59.07, status: 'WAITING_ENTRY'
+  };
+  const { snapshot } = await tradeSimulator.buildSnapshot('user-1', { simulation: sim });
+  assert.equal(snapshot.available, true);
+  assert.equal(snapshot.verification.status, 'VERIFIED', JSON.stringify(snapshot.verification.checks));
+  const byDate = new Map(history.map(c => [c.time, c]));
+  snapshot.candles.forEach(c => {
+    const real = byDate.get(c.time);
+    assert.ok(real);
+    assert.equal(c.close, real.close);
+    assert.equal(c.low, real.low);
+  });
+  assert.deepEqual(snapshot.patternMarkers.map(m => m.time), ['2026-09-24', '2026-09-25', '2026-09-28']);
+});

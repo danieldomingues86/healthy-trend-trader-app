@@ -208,7 +208,7 @@
     if (!sim) return '';
     const candles = resolveCandles(sim);
     if (!candles || !candles.length) {
-      return '<div style="color: #64748b; text-align: center; padding: 24px; font-size: 11px;">Candles indisponíveis para este trade.</div>';
+      return '<div style="color: #64748b; text-align: center; padding: 24px; font-size: 11px;">Candles reais indisponíveis para este trade (histórico não anexado ao export). Nenhum candle sintético é gerado.</div>';
     }
 
     const entry = Number(sim.entryPrice) || 0;

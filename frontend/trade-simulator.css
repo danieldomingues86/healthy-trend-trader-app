@@ -1434,6 +1434,447 @@ body:not([data-theme="healthy"]) .sim-table td.td-duration {
   height: auto;
   border-radius: 8px;
 }
+/* Top bar refinada: ativo, EMAs, zoom contextual e auditoria sob demanda */
+.sim-snapshot-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 6px 14px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.sim-snap-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sim-snap-ticker {
+  color: #f8fafc;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.sim-snap-ema-leg {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sim-snapshot-zoom-group {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.sim-snap-zoom-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-snap-zoom-btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sim-snap-zoom-btn.active {
+  background: #10b981;
+  color: #042f1a;
+  font-weight: 800;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.35);
+}
+
+.sim-snapshot-audit-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.sim-snap-audit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: 1px solid transparent;
+}
+
+.sim-snap-audit-btn.verified {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #34d399;
+}
+
+.sim-snap-audit-btn.verified:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #10b981;
+}
+
+.sim-snap-audit-btn.divergent {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #f87171;
+}
+
+.sim-snap-audit-btn.unverified {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+}
+
+.sim-snap-audit-badge-icon {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sim-snap-audit-info-icon {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* Tooltip flutuante de auditoria ao passar o mouse */
+.sim-snap-audit-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 330px;
+  background: #091a13;
+  border: 1px solid #1a4231;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.75);
+  z-index: 100;
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+}
+
+.sim-snapshot-audit-wrap:hover .sim-snap-audit-tooltip,
+.sim-snap-audit-tooltip:hover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.sim-snap-tooltip-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+}
+
+.sim-snap-tooltip-head.verified { color: #34d399; }
+.sim-snap-tooltip-head.divergent { color: #f87171; }
+.sim-snap-tooltip-head.unverified { color: #fbbf24; }
+
+.sim-snap-tooltip-grid {
+  display: grid;
+  gap: 6px;
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.sim-snap-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sim-snap-tooltip-row span {
+  color: #94a3b8;
+}
+
+.sim-snap-tooltip-row b {
+  color: #f1f5f9;
+  text-align: right;
+}
+
+.sim-snap-audit-cta {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-snap-audit-cta:hover {
+  background: #10b981;
+  color: #042f1a;
+}
+
+/* Modal de Auditoria Completa de Fidelidade Histórica */
+.sim-snap-audit-modal-box {
+  position: relative;
+  width: 90%;
+  max-width: 820px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #091a13;
+  border: 1px solid #1a4231;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85);
+  color: #e2e8f0;
+  margin: auto;
+}
+
+.sim-snap-audit-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 16px;
+}
+
+.sim-snap-audit-modal-head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.sim-snap-audit-modal-head p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.sim-snap-audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.sim-snap-audit-table tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sim-snap-audit-table td {
+  padding: 9px 12px;
+  vertical-align: top;
+}
+
+.sim-snap-audit-table td:first-child {
+  width: 32%;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.sim-snap-audit-table td:last-child {
+  color: #f1f5f9;
+}
+
+.sim-snap-audit-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sim-snap-audit-status-pill.verified {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.sim-snap-audit-status-pill.divergent {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.sim-snap-audit-status-pill.unverified {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.sim-snap-audit-checks-section {
+  margin-top: 14px;
+  padding: 14px;
+  background: rgba(15, 33, 24, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.sim-snap-audit-checks-section h4 {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.sim-snap-audit-notes-section {
+  margin-top: 12px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.sim-snap-audit-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Snapshot fiel: estados de carregamento / indisponibilidade e painel de auditoria */
+.sim-snapshot-loading {
+  color: #94a3b8;
+  text-align: center;
+  padding: 56px 16px;
+  font-size: 13px;
+}
+
+.sim-snapshot-unavailable {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 24px 20px;
+  color: #e2e8f0;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: 10px;
+}
+
+.sim-snapshot-unavailable-icon {
+  font-size: 26px;
+  color: #f59e0b;
+  line-height: 1;
+}
+
+.sim-snapshot-unavailable p {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: #cbd5e1;
+}
+
+.sim-snapshot-unavailable .sim-snapshot-unavailable-hint {
+  color: #94a3b8;
+  font-size: 11.5px;
+}
+
+.sim-snapshot-verify {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 33, 24, 0.7);
+  color: #cbd5e1;
+  font-size: 11.5px;
+}
+
+.sim-snapshot-verify.verified { border-color: rgba(16, 185, 129, 0.55); }
+.sim-snapshot-verify.divergent { border-color: rgba(239, 68, 68, 0.7); background: rgba(127, 29, 29, 0.25); }
+.sim-snapshot-verify.unverified { border-color: rgba(245, 158, 11, 0.6); }
+
+.sim-snapshot-verify-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.sim-snapshot-verify-head strong { color: #f1f5f9; font-size: 12.5px; }
+.sim-snapshot-verify-head small { color: #94a3b8; font-size: 10.5px; flex-basis: 100%; }
+
+.sim-snapshot-verify-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 12px;
+  color: #fff;
+  background: #64748b;
+}
+
+.sim-snapshot-verify.verified .sim-snapshot-verify-badge { background: #059669; }
+.sim-snapshot-verify.divergent .sim-snapshot-verify-badge { background: #dc2626; }
+.sim-snapshot-verify.unverified .sim-snapshot-verify-badge { background: #d97706; }
+
+.sim-snapshot-verify-checks,
+.sim-snapshot-verify-notes {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.sim-snapshot-verify-checks li { display: flex; gap: 8px; align-items: flex-start; }
+.sim-snapshot-verify-checks .chk-icon { flex: 0 0 14px; font-weight: 800; }
+.sim-snapshot-verify-checks .lvl-ok .chk-icon { color: #34d399; }
+.sim-snapshot-verify-checks .lvl-warn .chk-icon { color: #fbbf24; }
+.sim-snapshot-verify-checks .lvl-fail .chk-icon { color: #f87171; }
+.sim-snapshot-verify-checks b { color: #e2e8f0; }
+
+.sim-snapshot-verify-notes li {
+  color: #fbbf24;
+  padding-left: 10px;
+  border-left: 2px solid rgba(251, 191, 36, 0.6);
+}
+
+.sim-snapshot-pattern-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 4px;
+  color: #cbd5e1;
+}
+
+.sim-snapshot-pattern-legend b { color: #f1f5f9; flex-basis: 100%; }
+.sim-snapshot-pattern-legend span i {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 4px;
+  margin-right: 4px;
+  border: 1px solid #f8fafc;
+  border-radius: 9px;
+  text-align: center;
+  font-style: normal;
+  font-weight: 800;
+  color: #f8fafc;
+}
 
 .sim-snapshot-footer {
   display: flex;
