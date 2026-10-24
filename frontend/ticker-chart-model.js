@@ -357,6 +357,91 @@
   const OFFICIAL_EMA_SLOW = 72;
 
   /**
+   * Validação estrita do padrão geométrico PFR de Compra (Preço de Fechamento de Reversão de fundo)
+   *
+   * Regra Oficial de 3 candles (Alexandre Wolwacz / Stormer):
+   * 1. Estrutura geométrica de fundo: a mínima do candle sinal deve ser estritamente inferior às
+   *    mínimas dos dois candles anteriores (c1.low < c2.low E c1.low < c3.low).
+   *    Isto impede categoricamente que sequências de candles ascendentes (continuidade de alta)
+   *    sejam confundidas com reversão.
+   * 2. Fechamento de reversão: o fechamento do candle sinal deve superar o fechamento do candle
+   *    imediatamente anterior (c1.close > c2.close).
+   * 3. Reação compradora: o candle sinal deve fechar em alta ou estável em relação à sua abertura
+   *    (c1.close >= c1.open), comprovando absorção da pressão vendedora e rejeição do fundo.
+   */
+  function validatePfrBuyPattern(c1, c2, c3) {
+    if (!c1 || !c2 || !c3) {
+      return {
+        isValid: false,
+        reason: 'Histórico insuficiente: requer pelo menos 3 candles para validar o padrão de reversão de fundo (PFR).',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    const c1Low = Number(c1.low);
+    const c2Low = Number(c2.low);
+    const c3Low = Number(c3.low);
+    const c1Close = Number(c1.close);
+    const c2Close = Number(c2.close);
+    const c1High = Number(c1.high);
+    const c1Open = Number(c1.open != null ? c1.open : c1Close);
+
+    const isLowerThanC2 = c1Low < c2Low;
+    const isLowerThanC3 = c1Low < c3Low;
+    const isBottomStructure = isLowerThanC2 && isLowerThanC3;
+    const closesAboveC2 = c1Close > c2Close;
+    const isBullishReversal = c1Close >= c1Open;
+
+    const audit = {
+      hasRequiredCandles: true,
+      candles: {
+        c1: { low: c1Low, high: c1High, open: c1Open, close: c1Close },
+        c2: { low: c2Low, high: Number(c2.high), open: Number(c2.open != null ? c2.open : c2Close), close: c2Close },
+        c3: { low: c3Low, high: Number(c3.high), open: Number(c3.open != null ? c3.open : Number(c3.close)), close: Number(c3.close) }
+      },
+      checks: {
+        lowerThanC2: { pass: isLowerThanC2, expected: `${c1Low.toFixed(2)} < ${c2Low.toFixed(2)}` },
+        lowerThanC3: { pass: isLowerThanC3, expected: `${c1Low.toFixed(2)} < ${c3Low.toFixed(2)} (estrutura de fundo)` },
+        closesAboveC2: { pass: closesAboveC2, expected: `${c1Close.toFixed(2)} > ${c2Close.toFixed(2)}` },
+        bullishReaction: { pass: isBullishReversal, expected: `${c1Close.toFixed(2)} >= ${c1Open.toFixed(2)}` }
+      }
+    };
+
+    if (!isBottomStructure) {
+      const reason = !isLowerThanC2
+        ? `Mínima atual (${c1Low.toFixed(2)}) não é menor que a mínima anterior (${c2Low.toFixed(2)}).`
+        : `Mínima atual (${c1Low.toFixed(2)}) não renovou o fundo em relação ao candle prévio c3 (${c3Low.toFixed(2)}). Sequência ascendente sem reversão de fundo.`;
+      return {
+        isValid: false,
+        reason,
+        audit
+      };
+    }
+
+    if (!closesAboveC2) {
+      return {
+        isValid: false,
+        reason: `Fechamento atual (${c1Close.toFixed(2)}) não superou o fechamento anterior (${c2Close.toFixed(2)}). Reversão não confirmada.`,
+        audit
+      };
+    }
+
+    if (!isBullishReversal) {
+      return {
+        isValid: false,
+        reason: `Candle de sinal fechou abaixo de sua abertura (${c1Close.toFixed(2)} < ${c1Open.toFixed(2)}). Barra vendedora sem rejeição de fundo.`,
+        audit
+      };
+    }
+
+    return {
+      isValid: true,
+      reason: null,
+      audit
+    };
+  }
+
+  /**
    * Detecção de Gatilhos Técnicos Oficiais nos últimos candles
    * Regra Obrigatória: Para ser considerado um gatilho válido de compra,
    * o preço precisa estar estritamente acima da EMA 10 e acima da EMA 72.
@@ -467,8 +552,9 @@
       };
     }
 
-    // 3. PFR de Compra: mínima mais baixa que o candle anterior, mas fechamento acima do fechamento anterior
-    if (c1.low < c2.low && c1.close > c2.close) {
+    // 3. PFR de Compra: padrão oficial de reversão de fundo de 3 candles (menor mínima e fechamento de reversão)
+    const pfrValidation = validatePfrBuyPattern(c1, c2, c3);
+    if (pfrValidation.isValid) {
       if (!isAboveBothEmas) {
         return {
           id: 'NONE',
@@ -477,11 +563,12 @@
           hasTrigger: false,
           patternDetected: 'PFR de Compra (rejeitado: abaixo das médias)',
           description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Reversão abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
+          detail: 'Padrão PFR de Compra confirmado geometricamente, porém rejeitado por estar abaixo da EMA 10 ou EMA 72.',
           entry: null,
           stop: null,
           entryLabel: null,
-          stopLabel: null
+          stopLabel: null,
+          audit: pfrValidation
         };
       }
       return {
@@ -490,11 +577,12 @@
         grade: 'A',
         hasTrigger: true,
         description: 'Padrão de Fechamento de Reversão de fundo.',
-        detail: 'Rejeição de mínimas com fechamento forte acima do candle anterior e acima das médias EMA 10 e EMA 72.',
+        detail: 'Reversão de fundo com menor mínima dos 3 candles e fechamento acima do candle anterior, confirmado acima da EMA 10 e EMA 72.',
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c1.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do candle de reversão',
-        stopLabel: '1 tick abaixo da mínima do candle de reversão'
+        stopLabel: '1 tick abaixo da mínima do candle de reversão',
+        audit: pfrValidation
       };
     }
 
@@ -968,6 +1056,7 @@
     calculateAtr,
     OFFICIAL_EMA_FAST,
     OFFICIAL_EMA_SLOW,
+    validatePfrBuyPattern,
     detectSetupTriggers,
     classifyRelativeStrength,
     getRubricGradeVisual,

@@ -1088,3 +1088,55 @@ test('trade-simulator-model: auditSimulationsBatch audita integridade global e r
   assert.equal(reconciliation.gradeSumR, 26.1);
 });
 
+test('trade-simulator-model: detectAllSetupTriggers e detectSetupTrigger validam PFR de Compra de 3 candles e eliminam falsos positivos', () => {
+  // 1. Sequência ascendente (caso HGRE11): c1.low (126.99) não é menor que c3.low (126.07)
+  const ascendingCandles = [
+    { open: 126.62, high: 129.17, low: 126.07, close: 128.69 }, // c3
+    { open: 128.69, high: 129.74, low: 127.70, close: 127.70 }, // c2
+    { open: 128.40, high: 129.92, low: 126.99, close: 129.00 }  // c1: alta
+  ];
+  const triggersAscending = model.detectAllSetupTriggers(ascendingCandles);
+  assert.equal(triggersAscending.some(t => t.id === 'PFR_COMPRA'), false, 'Não pode gerar PFR em sequência ascendente');
+
+  // 2. Reversão genuína de 3 candles com menor mínima e fechamento comprador
+  const pfrCandles = [
+    { open: 30.0, high: 31.0, low: 29.5, close: 30.2, ema10: 28.0, ema72: 26.0 }, // c3
+    { open: 30.2, high: 30.5, low: 28.5, close: 28.8, ema10: 28.0, ema72: 26.0 }, // c2: queda
+    { open: 28.0, high: 30.0, low: 27.5, close: 29.8, ema10: 28.0, ema72: 26.0 }  // c1: menor mínima e fecha acima de c2
+  ];
+  const triggersPfr = model.detectAllSetupTriggers(pfrCandles);
+  const pfr = triggersPfr.find(t => t.id === 'PFR_COMPRA');
+  assert.ok(pfr, 'Deve detectar PFR de Compra em reversão legítima de 3 candles');
+  assert.equal(pfr.entry, 30.01, 'Entrada 1 tick acima da máxima do candle sinal');
+  assert.equal(pfr.stop, 27.49, 'Stop 1 tick abaixo da mínima do candle sinal');
+
+  // 3. Marcadores de snapshot para PFR de Compra retornam os 3 candles (Ref2, Ref1, PFR)
+  const base = [];
+  for (let i = 0; i < 15; i++) {
+    const p = 20 + i * 0.5;
+    base.push({
+      time: '2026-08-' + String(i + 1).padStart(2, '0'),
+      open: p, high: p + 0.5, low: p - 0.5, close: p + 0.2, volume: 1000
+    });
+  }
+  const snapHistory = [
+    ...base,
+    { time: '2026-09-01', open: 30.0, high: 31.0, low: 29.5, close: 30.2, volume: 1000 },
+    { time: '2026-09-02', open: 30.2, high: 30.5, low: 28.5, close: 28.8, volume: 1000 },
+    { time: '2026-09-03', open: 28.0, high: 30.0, low: 27.5, close: 29.8, volume: 1000 }
+  ];
+  const snap = model.buildSimulationSnapshot({
+    symbol: 'PETR4',
+    triggerName: 'PFR de Compra',
+    triggerKey: 'PFR_COMPRA',
+    signalDate: '2026-09-03',
+    entryPrice: 30.01,
+    stopLoss: 27.49,
+    status: model.STATUS.WAITING_ENTRY
+  }, snapHistory);
+
+  assert.equal(snap.available, true);
+  assert.equal(snap.verification.status, 'VERIFIED');
+  assert.deepEqual(snap.patternMarkers.map(m => m.role), ['Ref2', 'Ref1', 'PFR']);
+});
+

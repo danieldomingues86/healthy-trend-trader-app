@@ -3870,8 +3870,9 @@
         ];
       case 'PFR_COMPRA':
         return [
-          { offset: -1, role: 'Ref', label: 'Candle de referência', anchor: 'low' },
-          { offset: 0, role: 'PFR', label: 'PFR (mínima abaixo e fechamento acima)', anchor: 'low' }
+          { offset: -2, role: 'Ref2', label: 'Referência prévia', anchor: 'low' },
+          { offset: -1, role: 'Ref1', label: 'Referência anterior', anchor: 'low' },
+          { offset: 0, role: 'PFR', label: 'PFR (menor mínima e reversão)', anchor: 'low' }
         ];
       case 'DAVE_LANDRY':
         return [
@@ -4348,6 +4349,82 @@
   }
 
   /**
+   * Validação estrita do padrão geométrico PFR de Compra (Preço de Fechamento de Reversão de fundo)
+   *
+   * Regra Oficial de 3 candles (Alexandre Wolwacz / Stormer):
+   * 1. c1.low < c2.low E c1.low < c3.low: menor mínima dos 3 candles (estrutura de fundo).
+   *    Impede categoricamente que sequências ascendentes contínuas sejam confundidas com reversão.
+   * 2. c1.close > c2.close: fechamento de reversão (supera o fechamento do candle imediatamente anterior).
+   * 3. c1.close >= c1.open: candle comprador ou positivo confirmando reação compradora.
+   */
+  function validatePfrBuyPattern(c1, c2, c3) {
+    if (typeof TickerChartModel !== 'undefined' && typeof TickerChartModel.validatePfrBuyPattern === 'function') {
+      return TickerChartModel.validatePfrBuyPattern(c1, c2, c3);
+    }
+    if (!c1 || !c2 || !c3) {
+      return {
+        isValid: false,
+        reason: 'Histórico insuficiente: requer pelo menos 3 candles para validar o padrão de reversão de fundo (PFR).',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    const c1Low = Number(c1.low);
+    const c2Low = Number(c2.low);
+    const c3Low = Number(c3.low);
+    const c1Close = Number(c1.close);
+    const c2Close = Number(c2.close);
+    const c1High = Number(c1.high);
+    const c1Open = Number(c1.open != null ? c1.open : c1Close);
+
+    const isLowerThanC2 = c1Low < c2Low;
+    const isLowerThanC3 = c1Low < c3Low;
+    const isBottomStructure = isLowerThanC2 && isLowerThanC3;
+    const closesAboveC2 = c1Close > c2Close;
+    const isBullishReversal = c1Close >= c1Open;
+
+    const audit = {
+      hasRequiredCandles: true,
+      candles: {
+        c1: { low: c1Low, high: c1High, open: c1Open, close: c1Close },
+        c2: { low: c2Low, high: Number(c2.high), open: Number(c2.open != null ? c2.open : c2Close), close: c2Close },
+        c3: { low: c3Low, high: Number(c3.high), open: Number(c3.open != null ? c3.open : Number(c3.close)), close: Number(c3.close) }
+      },
+      checks: {
+        lowerThanC2: { pass: isLowerThanC2, expected: `${c1Low.toFixed(2)} < ${c2Low.toFixed(2)}` },
+        lowerThanC3: { pass: isLowerThanC3, expected: `${c1Low.toFixed(2)} < ${c3Low.toFixed(2)} (estrutura de fundo)` },
+        closesAboveC2: { pass: closesAboveC2, expected: `${c1Close.toFixed(2)} > ${c2Close.toFixed(2)}` },
+        bullishReaction: { pass: isBullishReversal, expected: `${c1Close.toFixed(2)} >= ${c1Open.toFixed(2)}` }
+      }
+    };
+
+    if (!isBottomStructure) {
+      const reason = !isLowerThanC2
+        ? `Mínima atual (${c1Low.toFixed(2)}) não é menor que a mínima anterior (${c2Low.toFixed(2)}).`
+        : `Mínima atual (${c1Low.toFixed(2)}) não renovou o fundo em relação ao candle prévio c3 (${c3Low.toFixed(2)}). Sequência ascendente sem reversão de fundo.`;
+      return { isValid: false, reason, audit };
+    }
+
+    if (!closesAboveC2) {
+      return {
+        isValid: false,
+        reason: `Fechamento atual (${c1Close.toFixed(2)}) não superou o fechamento anterior (${c2Close.toFixed(2)}). Reversão não confirmada.`,
+        audit
+      };
+    }
+
+    if (!isBullishReversal) {
+      return {
+        isValid: false,
+        reason: `Candle de sinal fechou abaixo de sua abertura (${c1Close.toFixed(2)} < ${c1Open.toFixed(2)}). Barra vendedora sem rejeição de fundo.`,
+        audit
+      };
+    }
+
+    return { isValid: true, reason: null, audit };
+  }
+
+  /**
    * Avalia TODOS os gatilhos oficiais de compra no último candle da fatia (sem look-ahead),
    * na mesma ordem de prioridade histórica do detector. Cada regra é avaliada de forma
    * independente (sem "first match wins"), permitindo testar cada gatilho isoladamente.
@@ -4409,9 +4486,12 @@
       push('123_COMPRA', TRIGGER_TYPES.ONE_TWO_THREE, Number((c1.high + 0.01).toFixed(2)), Number((c2.low - 0.01).toFixed(2)), 'A');
     }
 
-    // 4. PFR de Compra
-    if (c1.low < c2.low && c1.close > c2.close) {
-      push('PFR_COMPRA', TRIGGER_TYPES.PFR_COMPRA, Number((c1.high + 0.01).toFixed(2)), Number((c1.low - 0.01).toFixed(2)), 'A');
+    // 4. PFR de Compra: padrão oficial de reversão de fundo de 3 candles
+    if (c3) {
+      const pfrValidation = validatePfrBuyPattern(c1, c2, c3);
+      if (pfrValidation.isValid) {
+        push('PFR_COMPRA', TRIGGER_TYPES.PFR_COMPRA, Number((c1.high + 0.01).toFixed(2)), Number((c1.low - 0.01).toFixed(2)), 'A', pfrValidation);
+      }
     }
 
     // 5. Dave Landry
@@ -5262,6 +5342,7 @@
     calculateTradeDurationDays,
     formatDurationDays,
     getTradeVisionAtivo,
+    validatePfrBuyPattern,
     detectSetupTrigger,
     detectAllSetupTriggers,
     EXPERIMENTAL_TRIGGERS,

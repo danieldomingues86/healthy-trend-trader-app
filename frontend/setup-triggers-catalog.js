@@ -38,26 +38,27 @@
       id: 'PFR_COMPRA',
       name: 'PFR de Compra',
       shortLabel: 'PFR de Compra',
-      whatIs: 'Padrão de Fechamento de Reversão de fundo formado por 2 ou 3 candles. No modelo mais clássico de 2 candles: o candle atual faz uma mínima mais baixa que a mínima do candle anterior, porém fecha com um fechamento maior que o fechamento anterior.',
-      howToIdentify: 'Observe uma perna de recuo corretivo. O candle de sinal renova a mínima do candle anterior (fazendo uma nova mínima local), mas os compradores reagem com força e fecham o candle acima do fechamento do candle prévio.',
-      concept: 'Mostra que os vendedores tentaram empurrar o preço para baixo, mas os compradores absorveram a pressão e fecharam o candle acima do patamar anterior, rejeitando as cotações mais baixas e confirmando suporte.',
+      whatIs: 'Padrão de Fechamento de Reversão de fundo formado por 3 candles. A mínima do candle de sinal deve ser estritamente inferior às mínimas dos dois candles anteriores (formando a menor mínima do recuo / fundo local), e o fechamento do candle de sinal deve superar o fechamento do candle imediatamente anterior com reação compradora.',
+      howToIdentify: 'Observe uma perna de recuo corretivo. O candle de sinal renova a mínima dos dois candles anteriores (fazendo a menor mínima da formação de 3 candles), mas os compradores reagem com força e fecham o candle acima do fechamento do candle prévio.',
+      concept: 'Mostra que os vendedores tentaram empurrar o preço para baixo fazendo a menor mínima local, mas os compradores absorveram toda a pressão vendedora e fecharam o candle acima do patamar anterior, rejeitando as cotações mais baixas e confirmando suporte de reversão.',
       conditions: [
-        'Ocorre após um recuo corretivo em direção a uma média ascendente (ex: EMA 20 ou EMA 21).',
-        'Mínima do candle de sinal é menor que a mínima do candle anterior.',
-        'Fechamento do candle de sinal é estritamente maior que o fechamento do candle anterior.'
+        'Ocorre após um recuo corretivo em direção a uma média ascendente (ex: EMA 10 ou EMA 72).',
+        'Mínima do candle de sinal é estritamente menor que as mínimas dos dois candles anteriores (c1.low < c2.low e c1.low < c3.low).',
+        'Fechamento do candle de sinal é estritamente maior que o fechamento do candle anterior (c1.close > c2.close).',
+        'Candle de sinal apresenta fechamento comprador ou positivo (c1.close >= c1.open).'
       ],
       entryTrigger: 'Compra na superação da máxima do candle que confirmou o PFR.',
       stop: 'Abaixo da mínima desse candle de sinal.',
       visualExample: [
-        '     [Candle 1]           [Candle 2 - PFR]',
-        '         |                     | Máxima  <-- Superação = COMPRA',
-        '       ┌───┐                 ┌───┐ (Fechamento > Fechamento 1)',
-        '       │   │                 │   │',
-        '       └───┘                 │   │',
-        '         | Mínima            └───┘',
-        '                               | Mínima mais baixa (fundo) <-- STOP'
+        '     [Candle 3]        [Candle 2]           [Candle 1 - PFR]',
+        '         |                 |                     | Máxima  <-- Superação = COMPRA',
+        '       ┌───┐             ┌───┐                 ┌───┐ (Fechamento > Fechamento 2)',
+        '       │   │             │   │                 │   │',
+        '       └───┘             └───┘                 │   │',
+        '         | Mínima          | Mínima            └───┘',
+        '                                                 | Menor Mínima (< Mínima 2 e < Mínima 3) <-- STOP'
       ].join('\n'),
-      observations: 'O PFR é especialmente potente quando ocorre com cauda inferior evidente (rejeição de preço) em suporte de médias móveis ou retração de Fibonacci.'
+      observations: 'O PFR é especialmente potente quando ocorre com cauda inferior evidente (rejeição de preço) em suporte de médias móveis (EMA 10 / EMA 72) ou retração de Fibonacci. Sequências ascendentes contínuas sem formação de fundo são categoricamente rejeitadas.'
     },
     {
       id: '123_COMPRA',
