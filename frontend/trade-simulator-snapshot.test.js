@@ -134,7 +134,7 @@ test('snapshot: entrada, stop, entrada executada e saída correspondem ao regist
   assert.equal(snap.verification.status, 'VERIFIED', JSON.stringify(snap.verification.checks));
 });
 
-test('snapshot: EMAs 9/30 são calculadas com os dados disponíveis em cada data', () => {
+test('snapshot: EMAs 10/72 são calculadas com os dados disponíveis em cada data', () => {
   const history = buildHistory();
   const sim = evaluatedSim(history, '123_COMPRA');
   const snap = model.buildSimulationSnapshot(sim, history);
@@ -146,12 +146,12 @@ test('snapshot: EMAs 9/30 são calculadas com os dados disponíveis em cada data
     for (let i = 1; i < closes.length; i++) out.push(closes[i] * k + out[i - 1] * (1 - k));
     return out;
   };
-  const r9 = ref(9);
-  const r30 = ref(30);
+  const r10 = ref(10);
+  const r72 = ref(72);
   snap.candles.forEach((c) => {
     const i = history.findIndex(h => h.time === c.time);
-    assert.ok(Math.abs(c.ema9 - r9[i]) <= 0.006, `EMA9 em ${c.time}`);
-    assert.ok(Math.abs(c.ema30 - r30[i]) <= 0.006, `EMA30 em ${c.time}`);
+    assert.ok(Math.abs((c.ema10 ?? c.ema9) - r10[i]) <= 0.006, `EMA10 em ${c.time}`);
+    assert.ok(Math.abs((c.ema72 ?? c.ema30) - r72[i]) <= 0.006, `EMA72 em ${c.time}`);
   });
 });
 

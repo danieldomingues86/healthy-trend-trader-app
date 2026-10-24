@@ -351,12 +351,18 @@
   }
 
   /**
+   * Configuração Oficial do Healthy Trend Trader no gráfico Diário
+   */
+  const OFFICIAL_EMA_FAST = 10;
+  const OFFICIAL_EMA_SLOW = 72;
+
+  /**
    * Detecção de Gatilhos Técnicos Oficiais nos últimos candles
    * Regra Obrigatória: Para ser considerado um gatilho válido de compra,
-   * o preço precisa estar estritamente acima da EMA 9 e acima da EMA 30.
+   * o preço precisa estar estritamente acima da EMA 10 e acima da EMA 72.
    * Se qualquer condição falhar, retorna "Nenhum gatilho encontrado" (sem falsos positivos).
    */
-  function detectSetupTriggers(candles, ema9Values = [], ema30Values = []) {
+  function detectSetupTriggers(candles, ema10Values = [], ema72Values = []) {
     if (!Array.isArray(candles) || candles.length < 3) {
       return {
         id: 'NONE',
@@ -376,26 +382,28 @@
     const c2 = candles[candles.length - 2]; // candle anterior
     const c3 = candles[candles.length - 3]; // candle prévio
 
-    let ema9Arr = ema9Values;
-    let ema30Arr = ema30Values;
-    if ((!Array.isArray(ema9Arr) || ema9Arr.length === 0) && candles.length >= 9) {
-      ema9Arr = calculateEma(candles.map(c => c.close), 9);
+    let ema10Arr = ema10Values;
+    let ema72Arr = ema72Values;
+    if ((!Array.isArray(ema10Arr) || ema10Arr.length === 0) && candles.length >= 10) {
+      ema10Arr = calculateEma(candles.map(c => c.close), 10);
     }
-    if ((!Array.isArray(ema30Arr) || ema30Arr.length === 0) && candles.length >= 30) {
-      ema30Arr = calculateEma(candles.map(c => c.close), 30);
+    if ((!Array.isArray(ema72Arr) || ema72Arr.length === 0) && candles.length >= 72) {
+      ema72Arr = calculateEma(candles.map(c => c.close), 72);
+    } else if ((!Array.isArray(ema72Arr) || ema72Arr.length === 0) && candles.length >= 30) {
+      ema72Arr = calculateEma(candles.map(c => c.close), candles.length);
     }
 
-    const latestEma9 = (Array.isArray(ema9Arr) && ema9Arr.length > 0)
-      ? ema9Arr[ema9Arr.length - 1]
+    const latestEma10 = (Array.isArray(ema10Arr) && ema10Arr.length > 0)
+      ? ema10Arr[ema10Arr.length - 1]
       : null;
-    const latestEma30 = (Array.isArray(ema30Arr) && ema30Arr.length > 0)
-      ? ema30Arr[ema30Arr.length - 1]
+    const latestEma72 = (Array.isArray(ema72Arr) && ema72Arr.length > 0)
+      ? ema72Arr[ema72Arr.length - 1]
       : null;
 
-    const hasEmaContext = latestEma9 !== null && latestEma30 !== null;
+    const hasEmaContext = latestEma10 !== null && latestEma72 !== null;
     const isAboveBothEmas = hasEmaContext
-      ? (c1.close > latestEma9 && c1.close > latestEma30)
-      : true;
+      ? (c1.close > latestEma10 && c1.close > latestEma72)
+      : (latestEma10 !== null ? c1.close > latestEma10 : true);
 
     // 1. Inside Bar: candle atual completamente contido dentro da amplitude do anterior
     if (c1.high <= c2.high && c1.low >= c2.low) {
@@ -407,7 +415,7 @@
           hasTrigger: false,
           patternDetected: 'Inside Bar (rejeitado: abaixo das médias)',
           description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Padrão Inside Bar abaixo da EMA 9 ou EMA 30 não qualifica como gatilho de compra pelo método.',
+          detail: 'Padrão Inside Bar abaixo da EMA 10 ou EMA 72 não qualifica como gatilho de compra pelo método.',
           entry: null,
           stop: null,
           entryLabel: null,
@@ -420,7 +428,7 @@
         grade: 'A+',
         hasTrigger: true,
         description: 'Candle dentro do candle anterior.',
-        detail: 'Contração de volatilidade acima da EMA 9 e EMA 30. Rompimento da máxima ativa compra.',
+        detail: 'Contração de volatilidade acima da EMA 10 e EMA 72. Rompimento da máxima ativa compra.',
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c1.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do Inside Bar',
@@ -438,7 +446,7 @@
           hasTrigger: false,
           patternDetected: '1-2-3 de Compra (rejeitado: abaixo das médias)',
           description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Formação 1-2-3 de compra abaixo da EMA 9 ou EMA 30 não qualifica como gatilho pelo método.',
+          detail: 'Formação 1-2-3 de compra abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
           entry: null,
           stop: null,
           entryLabel: null,
@@ -451,7 +459,7 @@
         grade: 'A',
         hasTrigger: true,
         description: 'Formação de fundo de 3 candles.',
-        detail: 'Candle 2 fez o fundo e candle 3 confirmou sustentação acima da EMA 9 e EMA 30.',
+        detail: 'Candle 2 fez o fundo e candle 3 confirmou sustentação acima da EMA 10 e EMA 72.',
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c2.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do candle 3',
@@ -469,7 +477,7 @@
           hasTrigger: false,
           patternDetected: 'PFR de Compra (rejeitado: abaixo das médias)',
           description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Reversão abaixo da EMA 9 ou EMA 30 não qualifica como gatilho pelo método.',
+          detail: 'Reversão abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
           entry: null,
           stop: null,
           entryLabel: null,
@@ -482,7 +490,7 @@
         grade: 'A',
         hasTrigger: true,
         description: 'Padrão de Fechamento de Reversão de fundo.',
-        detail: 'Rejeição de mínimas com fechamento forte acima do candle anterior e acima das médias.',
+        detail: 'Rejeição de mínimas com fechamento forte acima do candle anterior e acima das médias EMA 10 e EMA 72.',
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c1.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do candle de reversão',
@@ -500,7 +508,7 @@
           hasTrigger: false,
           patternDetected: 'Dave Landry (rejeitado: abaixo das médias)',
           description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Recuo abaixo da EMA 9 ou EMA 30 não qualifica como gatilho pelo método.',
+          detail: 'Recuo abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
           entry: null,
           stop: null,
           entryLabel: null,
@@ -513,7 +521,7 @@
         grade: 'B',
         hasTrigger: true,
         description: 'Recuo ordenado para média móvel.',
-        detail: 'Duas ou mais mínimas consecutivas mais baixas com sustentação acima da EMA 9 e EMA 30.',
+        detail: 'Duas ou mais mínimas consecutivas mais baixas com sustentação acima da EMA 10 e EMA 72.',
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c1.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do candle gatilho',
@@ -531,7 +539,7 @@
           hasTrigger: false,
           patternDetected: 'Barra Vermelha Ignorada (rejeitado: abaixo das médias)',
           description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Superação abaixo da EMA 9 ou EMA 30 não qualifica como gatilho pelo método.',
+          detail: 'Superação abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
           entry: null,
           stop: null,
           entryLabel: null,
@@ -544,7 +552,7 @@
         grade: 'A',
         hasTrigger: true,
         description: 'Retomada imediata após breve correção.',
-        detail: 'Superação imediata da máxima da barra vendedora acima da EMA 9 e EMA 30.',
+        detail: 'Superação imediata da máxima da barra vendedora acima da EMA 10 e EMA 72.',
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c2.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima da barra compradora',
@@ -559,7 +567,7 @@
       grade: 'Neutro',
       hasTrigger: false,
       description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-      detail: 'Aguarde a formação de um padrão com fechamento acima da EMA 9 e EMA 30.',
+      detail: 'Aguarde a formação de um padrão com fechamento acima da EMA 10 e EMA 72.',
       entry: null,
       stop: null,
       entryLabel: null,
@@ -652,8 +660,8 @@
     const triggerGrade = trig.grade || (hasTrigger ? 'A' : 'Neutro');
     const rubricGrade = tickerData.rubric?.finalGrade || null;
 
-    const ema9Val = resolveLastIndicatorValue(inds.ema9);
-    const ema30Val = resolveLastIndicatorValue(inds.ema30);
+    const ema10Val = resolveLastIndicatorValue(inds.ema10 || inds.ema9);
+    const ema72Val = resolveLastIndicatorValue(inds.ema72 || inds.ema30);
     const atr21Val = Number.isFinite(Number(vol.atr21)) ? Number(vol.atr21) : (Number.isFinite(Number(inds.atr21)) ? Number(inds.atr21) : null);
     const atrPctVal = Number.isFinite(Number(vol.atrPct)) ? Number(vol.atrPct) : (Number.isFinite(Number(inds.atrPct)) ? Number(inds.atrPct) : null);
 
@@ -696,10 +704,13 @@
       },
       trend: {
         status: trend.status || 'Alta',
-        formula: trend.formula || 'Preço > EMA 9 > EMA 30',
-        priceAboveEma9: trend.priceAboveEma9 !== false,
-        ema9AboveEma30: trend.ema9AboveEma30 !== false,
-        bothSlopingUp: trend.bothSlopingUp !== false
+        formula: trend.formula || 'Preço > EMA 10 > EMA 72',
+        priceAboveEma10: trend.priceAboveEma10 !== false && trend.priceAboveEma9 !== false,
+        ema10AboveEma72: trend.ema10AboveEma72 !== false && trend.ema9AboveEma30 !== false,
+        bothSlopingUp: trend.bothSlopingUp !== false,
+        // Compatibilidade legada
+        priceAboveEma9: trend.priceAboveEma10 !== false && trend.priceAboveEma9 !== false,
+        ema9AboveEma30: trend.ema10AboveEma72 !== false && trend.ema9AboveEma30 !== false
       },
       structure: {
         label: struct.label || 'Correção',
@@ -711,8 +722,10 @@
         regime: vol.regime || (atrPctVal && atrPctVal < 3 ? 'Baixa' : 'Normal')
       },
       technicals: {
-        ema9: ema9Val,
-        ema30: ema30Val
+        ema10: ema10Val,
+        ema72: ema72Val,
+        ema9: ema10Val,
+        ema30: ema72Val
       },
       fundamentals: {
         available: funds.available !== false,
@@ -742,7 +755,7 @@
     // 1. Contexto do Ativo (Diário) - trendQuality
     let trendQuality = 'good';
     if (ctx.trend) {
-      const isStrong = ctx.trend.priceAboveEma9 && ctx.trend.ema9AboveEma30;
+      const isStrong = (ctx.trend.priceAboveEma10 ?? ctx.trend.priceAboveEma9) && (ctx.trend.ema10AboveEma72 ?? ctx.trend.ema9AboveEma30);
       const isPullback = ctx.structure?.label?.toLowerCase().includes('pullback') || ctx.structure?.label?.toLowerCase().includes('contração');
       if (isStrong && isPullback) {
         trendQuality = 'good';
@@ -953,6 +966,8 @@
     evaluatePatienceIndex,
     calculateEma,
     calculateAtr,
+    OFFICIAL_EMA_FAST,
+    OFFICIAL_EMA_SLOW,
     detectSetupTriggers,
     classifyRelativeStrength,
     getRubricGradeVisual,

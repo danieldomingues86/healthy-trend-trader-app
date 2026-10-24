@@ -4,7 +4,7 @@
  * Princípios:
  *  - Somente candles Diários (EOD); informação disponível até o fechamento da data do sinal.
  *  - Reutiliza o motor do simulador (detecção, entrada, stop, saída 2R, ambiguidade conservadora, métricas).
- *  - Ciclo de Mercado: scoreCycle() canônico (Preço > EMA 9 e > EMA 30 do índice) sobre o histórico até a data.
+ *  - Ciclo de Mercado: scoreCycle() canônico (Preço > EMA 10 e > EMA 72 do índice) sobre o histórico até a data.
  *  - Força Relativa: score canônico (rank percentil 0-100 de 0,35*(m1-bench)+0,65*(m3-bench)) recalculado
  *    ponto-a-ponto com histórico até a data do sinal. Filtros apenas incluem/excluem sinais; nunca alteram o RS.
  *  - Não altera regras de entrada/saída, política de risco nem Bet Sizing.
@@ -332,9 +332,9 @@ function runEdgeValidation(inputs = loadDefaultInputs(), options = {}) {
       universe: `Ações IBOV (${symbols.length} ativos, composição atual do Ibovespa — vide viés de sobrevivência)`,
       period: { start: startDate, end: endDate, tradingSessions: sortedDates.filter(d => d >= startDate && d <= endDate).length, firstSessionInDataset: sortedDates[0] },
       contextRules: {
-        cycle: 'Ciclo positivo = scoreCycle(IBOV) "healthy" (fechamento > EMA 9 e > EMA 30) com histórico até a data do sinal.',
+        cycle: 'Ciclo positivo = scoreCycle(IBOV) "healthy" (fechamento > EMA 10 e > EMA 72) com histórico até a data do sinal.',
         rs: `RS alta = score canônico de Força Relativa (rank percentil 0-100, 0,35*Δ1M + 0,65*Δ3M vs IBOV) > ${RS_HIGH_THRESHOLD}, recalculado ponto-a-ponto na data do sinal entre os ativos do universo (mín. ${MIN_PEERS_FOR_RS} pares).`,
-        trend: 'Preço >= EMA 9 e >= EMA 30 do ativo é pré-condição do detector canônico e vale para TODOS os cenários.'
+        trend: 'Preço >= EMA 10 e >= EMA 72 do ativo é pré-condição do detector canônico e vale para TODOS os cenários.'
       },
       minClosedForConclusion: MIN_CLOSED_FOR_CONCLUSION
     },

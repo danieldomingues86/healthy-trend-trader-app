@@ -1933,7 +1933,7 @@
           <circle cx="88" cy="18" r="3.5" fill="#a78bfa" />
           <text x="88" y="10" fill="#a78bfa" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">50% em 2R</text>
           <circle cx="170" cy="18" r="3.5" fill="#8b5cf6" />
-          <text x="170" y="10" fill="#8b5cf6" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
+          <text x="170" y="10" fill="#8b5cf6" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM10</text>
           <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
           <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
           <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
@@ -1952,7 +1952,7 @@
           <circle cx="88" cy="18" r="3.5" fill="#38bdf8" />
           <text x="88" y="10" fill="#38bdf8" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">80% em 2R</text>
           <circle cx="170" cy="18" r="3.5" fill="#06b6d4" />
-          <text x="170" y="10" fill="#06b6d4" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
+          <text x="170" y="10" fill="#06b6d4" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM10</text>
           <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
           <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
           <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
@@ -2444,18 +2444,18 @@
                     <div class="scen-th-inner">
                       <div class="scen-th-title-row">
                         <span class="scen-circle-dot dot-purple"></span>
-                        <b>Parcial 50% + MM9</b>
+                        <b>Parcial 50% + MM10</b>
                       </div>
-                      <span class="scen-th-badge badge-purple">50% em 2R → 50% MM9</span>
+                      <span class="scen-th-badge badge-purple">50% em 2R → 50% MM10</span>
                     </div>
                   </th>
                   <th class="th-scen scen-col-part80 ${state.activeScenario === 'PARTIAL_80_2R_EMA9' ? 'active-col' : ''}" data-switch-scenario="PARTIAL_80_2R_EMA9" title="Clique para simular este cenário">
                     <div class="scen-th-inner">
                       <div class="scen-th-title-row">
                         <span class="scen-circle-dot dot-cyan"></span>
-                        <b>Parcial 80% + MM9</b>
+                        <b>Parcial 80% + MM10</b>
                       </div>
-                      <span class="scen-th-badge badge-cyan">80% em 2R → 20% MM9</span>
+                      <span class="scen-th-badge badge-cyan">80% em 2R → 20% MM10</span>
                     </div>
                   </th>
                 </tr>
@@ -2620,12 +2620,12 @@
                 <div class="sim-expl-item-body">
                   <div class="sim-expl-title-row">
                     <span class="scen-circle-dot dot-purple"></span>
-                    <b>Parcial 50% + MM9</b>
+                    <b>Parcial 50% + MM10</b>
                   </div>
                   <ul class="sim-expl-bullets">
                     <li>Entrada: Risco inicial 1R</li>
                     <li>Em +2R: 50% (+1R) e stop p/ BE</li>
-                    <li>Runner: 50% conduzidos na MM9</li>
+                    <li>Runner: 50% conduzidos na MM10</li>
                   </ul>
                 </div>
                 <div class="sim-expl-item-diagram">
@@ -2633,17 +2633,17 @@
                 </div>
               </div>
 
-              <!-- Card 5: Parcial 80% (2R) + Média 9 -->
+              <!-- Card 5: Parcial 80% (2R) + Média 10 -->
               <div class="sim-expl-item item-part80">
                 <div class="sim-expl-item-body">
                   <div class="sim-expl-title-row">
                     <span class="scen-circle-dot dot-cyan"></span>
-                    <b>Parcial 80% + MM9</b>
+                    <b>Parcial 80% + MM10</b>
                   </div>
                   <ul class="sim-expl-bullets">
                     <li>Entrada: Risco inicial 1R</li>
                     <li>Em +2R: 80% (+1,6R) e stop p/ BE</li>
-                    <li>Runner: 20% conduzidos na MM9</li>
+                    <li>Runner: 20% conduzidos na MM10</li>
                   </ul>
                 </div>
                 <div class="sim-expl-item-diagram">
@@ -2985,10 +2985,10 @@
             <div class="sim-hyp-card">
               <div class="sim-hyp-card-header">
                 <span class="sim-hyp-tag">DIMENSÃO 3</span>
-                <h4>Super Trend Diária (EMA 9 / 30)</h4>
+                <h4>Super Trend Diária (EMA 10 / 72)</h4>
               </div>
               <div class="sim-hyp-subset-list">
-                ${renderSubsetRow(cross.bySuperTrend?.aligned, 'Alinhado (Preço > EMA 9 > EMA 30)')}
+                ${renderSubsetRow(cross.bySuperTrend?.aligned, 'Alinhado (Preço > EMA 10 > EMA 72)')}
                 ${renderSubsetRow(cross.bySuperTrend?.notAligned, 'Desalinhado / Abaixo das Médias', true)}
               </div>
             </div>
@@ -3951,8 +3951,10 @@
     const prices = [];
     candles.forEach(c => {
       prices.push(c.high, c.low);
-      if (c.ema9 != null) prices.push(c.ema9);
-      if (c.ema30 != null) prices.push(c.ema30);
+      const v10 = c.ema10 != null ? c.ema10 : c.ema9;
+      const v72 = c.ema72 != null ? c.ema72 : c.ema30;
+      if (v10 != null) prices.push(v10);
+      if (v72 != null) prices.push(v72);
     });
     [lv.entryPlanned, lv.stopInitial, lv.executedEntry, lv.exitPrice].forEach(p => {
       if (Number.isFinite(p)) prices.push(p);
@@ -4013,17 +4015,19 @@
         : ''
     ].join('');
 
-    // EMAs causais
-    let ema9Path = '';
-    let ema30Path = '';
+    // EMAs causais (EMA 10 azul, EMA 72 laranja)
+    let ema10Path = '';
+    let ema72Path = '';
     candles.forEach((c, idx) => {
       const x = getX(idx);
-      if (c.ema9 != null) ema9Path += `${ema9Path ? ' L' : 'M'} ${x} ${getY(c.ema9)}`;
-      if (c.ema30 != null) ema30Path += `${ema30Path ? ' L' : 'M'} ${x} ${getY(c.ema30)}`;
+      const v10 = c.ema10 != null ? c.ema10 : c.ema9;
+      const v72 = c.ema72 != null ? c.ema72 : c.ema30;
+      if (v10 != null) ema10Path += `${ema10Path ? ' L' : 'M'} ${x} ${getY(v10)}`;
+      if (v72 != null) ema72Path += `${ema72Path ? ' L' : 'M'} ${x} ${getY(v72)}`;
     });
     const emaSvg = `
-      ${ema30Path ? `<path d="${ema30Path}" fill="none" stroke="#f59e0b" stroke-width="1.4" stroke-opacity="0.9" />` : ''}
-      ${ema9Path ? `<path d="${ema9Path}" fill="none" stroke="#38bdf8" stroke-width="1.4" stroke-opacity="0.95" />` : ''}
+      ${ema72Path ? `<path d="${ema72Path}" fill="none" stroke="#f59e0b" stroke-width="1.4" stroke-opacity="0.9" />` : ''}
+      ${ema10Path ? `<path d="${ema10Path}" fill="none" stroke="#38bdf8" stroke-width="1.4" stroke-opacity="0.95" />` : ''}
     `;
 
     // Candles reais (OHLC originais)
@@ -4127,8 +4131,8 @@
       <div class="sim-snapshot-chart-header">
         <div class="sim-snap-title-group">
           <span class="sim-snap-ticker">${snapEsc(snap.symbol)} • ${snapEsc(snap.timeframe || '1D')}</span>
-          <span class="sim-snap-ema-leg" style="color: #38bdf8;">— EMA 9</span>
-          <span class="sim-snap-ema-leg" style="color: #f59e0b;">— EMA 30</span>
+          <span class="sim-snap-ema-leg" style="color: #38bdf8;">— EMA 10</span>
+          <span class="sim-snap-ema-leg" style="color: #f59e0b;">— EMA 72</span>
         </div>
         <div class="sim-snapshot-zoom-group">
           ${['1M', '3M', '6M', '1A', '2A'].map(z => `

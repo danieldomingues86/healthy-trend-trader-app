@@ -363,3 +363,76 @@ test('OpportunityRadarModel.getAssetBrandDetails fornece dados de branding e fal
   assert.equal(fatn.hasCustomBrand, false);
 });
 
+test('OpportunityRadarModel.resolveActiveMarketCycle reflete com fidelidade o ciclo canônico de FIIs (IFIX)', () => {
+  const backendCycles = {
+    ALL: { state: 'healthy', score: 87, marketId: 'fii', name: 'Todos os Mercados' },
+    IBOV: { state: 'defensive', score: 33, marketId: 'stock_b3', name: 'Ações B3 (IBOV)' },
+    IFIX: { state: 'healthy', score: 87, marketId: 'fii', name: 'FIIs (IFIX)' },
+    BDRs: { state: 'defensive', score: 22, marketId: 'bdr', name: 'BDRs (BDRX)' }
+  };
+
+  // 1. IFIX selecionado com backendCycles: NÃO pode ser defensivo, deve ser EXPANSÃO (healthy)
+  const fiiActive = OpportunityRadarModel.resolveActiveMarketCycle({
+    marketFilter: 'IFIX',
+    marketCycles: backendCycles,
+    generalCycleState: 'defensive'
+  });
+  assert.equal(fiiActive.state, 'healthy');
+  assert.equal(fiiActive.isDefensive, false);
+  assert.equal(fiiActive.marketName, 'FIIs');
+  assert.equal(fiiActive.marketId, 'fii');
+  assert.equal(fiiActive.score, 87);
+
+  // 2. IBOV selecionado com backendCycles: Deve ser DEFESA (defensive)
+  const ibovActive = OpportunityRadarModel.resolveActiveMarketCycle({
+    marketFilter: 'IBOV',
+    marketCycles: backendCycles,
+    generalCycleState: 'defensive'
+  });
+  assert.equal(ibovActive.state, 'defensive');
+  assert.equal(ibovActive.isDefensive, true);
+  assert.equal(ibovActive.marketName, 'Ações B3');
+  assert.equal(ibovActive.marketId, 'stock_b3');
+  assert.equal(ibovActive.score, 33);
+
+  // 3. ALL selecionado quando FIIs está saudável: NÃO pode ser defensivo
+  const allActive = OpportunityRadarModel.resolveActiveMarketCycle({
+    marketFilter: 'ALL',
+    marketCycles: backendCycles,
+    generalCycleState: 'defensive'
+  });
+  assert.equal(allActive.state, 'healthy');
+  assert.equal(allActive.isDefensive, false);
+
+  // 4. Compatibilidade com cycles como strings simples ('healthy' / 'defensive')
+  const stringCycles = { IFIX: 'healthy', IBOV: 'defensive', ALL: 'healthy' };
+  const fiiStringActive = OpportunityRadarModel.resolveActiveMarketCycle({
+    marketFilter: 'IFIX',
+    marketCycles: stringCycles,
+    generalCycleState: 'defensive'
+  });
+  assert.equal(fiiStringActive.state, 'healthy');
+  assert.equal(fiiStringActive.isDefensive, false);
+  assert.equal(fiiStringActive.marketName, 'FIIs');
+
+  // 5. Fallback com snapshotResolver (market-cycle-v2 em localStorage)
+  const fiiSnapshotActive = OpportunityRadarModel.resolveActiveMarketCycle({
+    marketFilter: 'IFIX',
+    marketCycles: null,
+    generalCycleState: 'defensive',
+    snapshotResolver: (id) => id === 'fii' ? { classification: 'healthy', score: 87 } : null
+  });
+  assert.equal(fiiSnapshotActive.state, 'healthy');
+  assert.equal(fiiSnapshotActive.isDefensive, false);
+  assert.equal(fiiSnapshotActive.score, 87);
+
+  // 6. Quando IFIX realmente entrar em modo defesa no futuro:
+  const fiiDefensive = OpportunityRadarModel.resolveActiveMarketCycle({
+    marketFilter: 'IFIX',
+    marketCycles: { IFIX: { state: 'defensive', score: 25, marketId: 'fii' } }
+  });
+  assert.equal(fiiDefensive.state, 'defensive');
+  assert.equal(fiiDefensive.isDefensive, true);
+  assert.equal(fiiDefensive.score, 25);
+});
+

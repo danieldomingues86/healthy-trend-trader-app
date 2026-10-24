@@ -34,3 +34,27 @@ test('getOpportunityRadarData consolida apenas ativos prontos para entrada usand
     assert.ok(item.triggerName && item.triggerId !== 'NONE', 'Deve possuir gatilho confirmado');
   }
 });
+
+test('getOpportunityRadarData expõe marketCycles canônico por mercado e reflete IFIX em Expansão independentemente de IBOV', async () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const cacheFile = path.join(__dirname, '..', 'data', 'market-cache.json');
+  if (!fs.existsSync(cacheFile)) return;
+
+  const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+  const result = await getOpportunityRadarData(cache);
+
+  assert.ok(result.marketCycles, 'marketCycles deve existir no payload');
+  assert.ok(result.marketCycles.ALL, 'Deve possuir ciclo ALL');
+  assert.ok(result.marketCycles.IBOV, 'Deve possuir ciclo IBOV');
+  assert.ok(result.marketCycles.IFIX, 'Deve possuir ciclo IFIX');
+  assert.ok(result.marketCycles.BDRs, 'Deve possuir ciclo BDRs');
+
+  // IFIX deve refletir status healthy (Expansão) com score >= 70
+  assert.equal(result.marketCycles.IFIX.state, 'healthy');
+  assert.equal(result.marketCycles.IFIX.marketId, 'fii');
+  assert.ok(result.marketCycles.IFIX.score >= 70, `Score IFIX deve ser >= 70, recebido: ${result.marketCycles.IFIX.score}`);
+
+  // ALL não pode ser defensivo se houver mercado saudável com oportunidades
+  assert.equal(result.marketCycles.ALL.state, 'healthy');
+});

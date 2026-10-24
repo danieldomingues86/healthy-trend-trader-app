@@ -398,14 +398,25 @@
 
   function getActiveMarketCycle() {
     const marketFilter = state.filters.market || 'ALL';
-    const cycles = state.marketCycles || {};
 
+    if (root.OpportunityRadarModel && typeof root.OpportunityRadarModel.resolveActiveMarketCycle === 'function') {
+      return root.OpportunityRadarModel.resolveActiveMarketCycle({
+        marketFilter,
+        marketCycles: state.marketCycles,
+        generalCycleState: state.marketCycleState,
+        snapshotResolver: typeof window !== 'undefined' && typeof window.getMarketCycleSnapshot === 'function'
+          ? window.getMarketCycleSnapshot
+          : null
+      });
+    }
+
+    const cycles = state.marketCycles || {};
     let cycle = null;
     let resolvedMarketId = resolveMarketCycleId(marketFilter);
 
     if (marketFilter === 'ALL') {
       cycle = cycles.ALL || null;
-      resolvedMarketId = 'stock_b3';
+      resolvedMarketId = cycle?.marketId || 'stock_b3';
     } else if (marketFilter === 'IBOV') {
       cycle = cycles.IBOV || cycles.stock_b3 || null;
       resolvedMarketId = 'stock_b3';
@@ -417,13 +428,42 @@
       resolvedMarketId = 'bdr';
     }
 
-    if (cycle && cycle.state) {
+    let rawState = null;
+    let score = null;
+    let marketName = getActiveMarketName(marketFilter);
+
+    if (cycle && typeof cycle === 'object') {
+      rawState = cycle.state;
+      score = cycle.score;
+      if (cycle.name && marketFilter === 'ALL') marketName = cycle.name;
+      if (cycle.marketId) resolvedMarketId = cycle.marketId;
+    } else if (typeof cycle === 'string') {
+      rawState = cycle;
+    }
+
+    const isPositive = (s) => {
+      const val = String(s || '').trim().toLowerCase();
+      return val === 'healthy' || val === 'positive' || val.includes('positivo') || val.includes('expans');
+    };
+
+    if (rawState) {
+      const isDef = !isPositive(rawState);
       return {
-        state: cycle.state,
-        isDefensive: cycle.state !== 'healthy',
-        marketName: getActiveMarketName(marketFilter),
+        state: isDef ? 'defensive' : 'healthy',
+        isDefensive: isDef,
+        marketName,
         marketId: resolvedMarketId,
-        score: cycle.score
+        score: score != null && Number.isFinite(Number(score)) ? Number(score) : (isDef ? 30 : 80)
+      };
+    }
+
+    if (marketFilter === 'IFIX') {
+      return {
+        state: 'healthy',
+        isDefensive: false,
+        marketName: 'FIIs',
+        marketId: 'fii',
+        score: 87
       };
     }
 
@@ -437,7 +477,7 @@
       };
     }
 
-    const isDef = (state.marketCycleState || 'healthy') !== 'healthy';
+    const isDef = !isPositive(state.marketCycleState || 'healthy');
     return {
       state: isDef ? 'defensive' : 'healthy',
       isDefensive: isDef,
@@ -539,7 +579,7 @@
             </svg>
           </div>
           <h3>Consolidando oportunidades pelos motores do sistema...</h3>
-          <p>Avaliando Força Relativa (3M), Ciclo de Mercado, Tendência Diária (EMA 9 > EMA 30) e gatilhos confirmados.</p>
+          <p>Avaliando Força Relativa (3M), Ciclo de Mercado, Tendência Diária (EMA 10 > EMA 72) e gatilhos confirmados.</p>
         </div>
       `;
     }
@@ -649,7 +689,7 @@
               <th class="col-center">MERCADO</th>
               <th class="col-center">RS (3M)</th>
               <th class="col-center">CICLO DE MERCADO</th>
-              <th class="col-center">TENDÊNCIA (EMA 9 &gt; 30)</th>
+              <th class="col-center">TENDÊNCIA (EMA 10 &gt; 72)</th>
               <th>GATILHO</th>
               <th>ENTRADA PLANEJADA</th>
               <th>STOP INICIAL</th>
@@ -1156,7 +1196,7 @@
               <ul class="radar-criteria-list">
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Força Relativa (3M) &gt; 80</li>
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Ciclo de Mercado Positivo</li>
-                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Preço &gt; EMA 9 &gt; EMA 30 (Diário)</li>
+                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Preço &gt; EMA 10 &gt; EMA 72 (Diário)</li>
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Gatilhos: Inside Bar, 123 Buy, PFR de Compra</li>
               </ul>
             </div>

@@ -334,26 +334,29 @@
       return null;
     }
 
-    // 3. Tendência no Diário: Preço > EMA 9 > EMA 30
+    // 3. Tendência no Diário: Preço > EMA 10 > EMA 72
     const closes = candles.map((c) => Number(c.close));
-    const ema9Arr = TickerChartModel.calculateEma(closes, 9);
-    const ema30Arr = TickerChartModel.calculateEma(closes, 30);
+    const ema10Arr = TickerChartModel.calculateEma(closes, 10);
+    let ema72Arr = TickerChartModel.calculateEma(closes, 72);
+    if ((!Array.isArray(ema72Arr) || ema72Arr.length === 0) && closes.length >= 30) {
+      ema72Arr = TickerChartModel.calculateEma(closes, closes.length);
+    }
     const latestCandle = candles[candles.length - 1];
     const latestClose = Number(latestCandle?.close);
-    const latestEma9 = ema9Arr[ema9Arr.length - 1];
-    const latestEma30 = ema30Arr[ema30Arr.length - 1];
+    const latestEma10 = ema10Arr[ema10Arr.length - 1];
+    const latestEma72 = ema72Arr[ema72Arr.length - 1];
 
     if (
       !Number.isFinite(latestClose) ||
-      latestEma9 === null ||
-      latestEma30 === null ||
-      !(latestClose > latestEma9 && latestEma9 > latestEma30)
+      latestEma10 === null ||
+      latestEma72 === null ||
+      !(latestClose > latestEma10 && latestEma10 > latestEma72)
     ) {
       return null;
     }
 
     // 4. Gatilho de entrada válido e confirmado pelo motor oficial
-    const trigger = TickerChartModel.detectSetupTriggers(candles, ema9Arr, ema30Arr);
+    const trigger = TickerChartModel.detectSetupTriggers(candles, ema10Arr, ema72Arr);
     if (!trigger || !trigger.hasTrigger || !trigger.id || trigger.id === 'NONE') {
       return null;
     }
@@ -409,6 +412,8 @@
         },
         trend: {
           status: 'Alta',
+          priceAboveEma10: true,
+          ema10AboveEma72: true,
           priceAboveEma9: true,
           ema9AboveEma30: true
         },
@@ -419,8 +424,10 @@
         indicators: {
           atr21: latestAtr,
           atrPct: latestAtrPct,
-          ema9: latestEma9,
-          ema30: latestEma30
+          ema10: latestEma10,
+          ema72: latestEma72,
+          ema9: latestEma10,
+          ema30: latestEma72
         },
         fundamentals: item.fundamentals || (
           (market === 'IFIX' || item.assetClass === 'fii' || /11$/.test(String(item.symbol).trim()))
@@ -456,7 +463,11 @@
       marketCycle: 'Ciclo Positivo',
       marketCycleState: 'healthy',
       trend: 'Alinhada',
-      trendFormula: 'Preço > EMA 9 > EMA 30',
+      trendFormula: 'Preço > EMA 10 > EMA 72',
+      ema10: latestEma10,
+      ema72: latestEma72,
+      ema9: latestEma10,
+      ema30: latestEma72,
       triggerId: trigger.id,
       triggerName: triggerLabel,
       triggerRawName: trigger.name,
@@ -732,6 +743,120 @@
     };
   }
 
+  function isPositiveCycleState(stateVal) {
+    const s = String(stateVal || '').trim().toLowerCase();
+    return s === 'healthy' || s === 'positive' || s.includes('positivo') || s.includes('expans');
+  }
+
+  function resolveMarketCycleId(marketKey) {
+    const key = String(marketKey || '').trim().toLowerCase();
+    if (key.includes('bdr')) return 'bdr';
+    if (key.includes('fii') || key.includes('ifix')) return 'fii';
+    if (key.includes('ibov') || key.includes('stock') || key.includes('ac') || key.includes('aç')) return 'stock_b3';
+    return 'stock_b3';
+  }
+
+  function getActiveMarketName(marketKey) {
+    const key = String(marketKey || 'ALL').toUpperCase();
+    if (key === 'ALL') return 'Ações B3, BDRs e FIIs';
+    if (key === 'IBOV') return 'Ações B3';
+    if (key === 'IFIX') return 'FIIs';
+    if (key === 'BDRS' || key === 'BDR') return 'BDRs';
+    return key;
+  }
+
+  function resolveActiveMarketCycle({ marketFilter = 'ALL', marketCycles = {}, generalCycleState = null, snapshotResolver = null } = {}) {
+    const cycles = marketCycles || {};
+    let cycle = null;
+    let resolvedMarketId = resolveMarketCycleId(marketFilter);
+
+    if (marketFilter === 'ALL') {
+      cycle = cycles.ALL || null;
+      resolvedMarketId = cycle?.marketId || 'stock_b3';
+    } else if (marketFilter === 'IBOV') {
+      cycle = cycles.IBOV || cycles.stock_b3 || null;
+      resolvedMarketId = 'stock_b3';
+    } else if (marketFilter === 'IFIX') {
+      cycle = cycles.IFIX || cycles.fii || null;
+      resolvedMarketId = 'fii';
+    } else if (marketFilter === 'BDRs') {
+      cycle = cycles.BDRs || cycles.bdr || null;
+      resolvedMarketId = 'bdr';
+    }
+
+    let rawState = null;
+    let score = null;
+    let marketName = getActiveMarketName(marketFilter);
+
+    if (cycle && typeof cycle === 'object') {
+      rawState = cycle.state;
+      score = cycle.score;
+      if (cycle.name && marketFilter === 'ALL') {
+        marketName = cycle.name;
+      }
+      if (cycle.marketId) {
+        resolvedMarketId = cycle.marketId;
+      }
+    } else if (typeof cycle === 'string') {
+      rawState = cycle;
+    }
+
+    // Se ainda não tiver estado direto em marketCycles, tenta snapshot resolver
+    if (!rawState && typeof snapshotResolver === 'function') {
+      const snap = snapshotResolver(resolvedMarketId);
+      if (snap?.classification) {
+        rawState = snap.classification;
+        if (typeof snap.score === 'number') {
+          score = snap.score;
+        }
+      }
+    }
+
+    if (rawState) {
+      const isDef = !isPositiveCycleState(rawState);
+      return {
+        state: isDef ? 'defensive' : 'healthy',
+        isDefensive: isDef,
+        marketName,
+        marketId: resolvedMarketId,
+        score: score != null && Number.isFinite(Number(score)) ? Number(score) : (isDef ? 30 : 80)
+      };
+    }
+
+    // Fallbacks específicos por mercado para nunca herdar o ciclo de Ações B3 erroneamente:
+    if (marketFilter === 'IFIX') {
+      const snap = typeof snapshotResolver === 'function' ? snapshotResolver('fii') : null;
+      const isFiiDef = snap?.classification ? !isPositiveCycleState(snap.classification) : false;
+      return {
+        state: isFiiDef ? 'defensive' : 'healthy',
+        isDefensive: isFiiDef,
+        marketName: 'FIIs',
+        marketId: 'fii',
+        score: snap?.score ?? 87
+      };
+    }
+
+    if (marketFilter === 'BDRs') {
+      const snap = typeof snapshotResolver === 'function' ? snapshotResolver('bdr') : null;
+      return {
+        state: 'defensive',
+        isDefensive: true,
+        marketName: 'BDRs',
+        marketId: 'bdr',
+        score: snap?.score ?? 24
+      };
+    }
+
+    const isDef = !isPositiveCycleState(generalCycleState || 'healthy');
+    return {
+      state: isDef ? 'defensive' : 'healthy',
+      isDefensive: isDef,
+      marketName: getActiveMarketName(marketFilter),
+      marketId: resolvedMarketId,
+      score: 50
+    };
+  }
+
   return {
     STORAGE_KEY_SELECTION,
     BRAND_LOGOS,
@@ -755,6 +880,10 @@
     clearSelection,
     generateProfitChartCsv,
     enrichSelectedItems,
-    migrateLegacyWatchlist
+    migrateLegacyWatchlist,
+    isPositiveCycleState,
+    resolveMarketCycleId,
+    getActiveMarketName,
+    resolveActiveMarketCycle
   };
 });
