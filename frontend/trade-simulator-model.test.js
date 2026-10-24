@@ -294,7 +294,7 @@ test('trade-simulator-model: filterSimulations é 100% compatível com filtros d
     triggerName: '1-2-3 de Compra',
     triggerKey: '123_COMPRA',
     grade: 'A',
-    signalDate: new Date().toISOString().slice(0, 10),
+    signalDate: seeds[0].signalDate || new Date().toISOString().slice(0, 10),
     entryPrice: 66.03,
     stopLoss: 63.06,
     status: model.STATUS.WAITING_ENTRY,
