@@ -103,6 +103,27 @@
     return `${d} dias`;
   }
 
+  function resolveMarketCycleName(sim) {
+    const m = getModel();
+    if (m && typeof m.resolveSimulationMarketCycle === 'function') {
+      const res = m.resolveSimulationMarketCycle(sim);
+      return res.classification || 'Indeterminado';
+    }
+    if (sim && sim.marketCycle) return String(sim.marketCycle);
+    return 'Indeterminado';
+  }
+
+  function getMarketCycleColor(classification) {
+    const c = String(classification || '').toLowerCase();
+    if (c === 'positivo') {
+      return { bg: '#dcfce7', text: '#15803d', border: '#86efac', dot: '#22c55e' };
+    }
+    if (c === 'defensivo') {
+      return { bg: '#fee2e2', text: '#b91c1c', border: '#fca5a5', dot: '#ef4444' };
+    }
+    return { bg: '#f1f5f9', text: '#64748b', border: '#cbd5e1', dot: '#94a3b8' };
+  }
+
   /**
    * Converte data ISO/string para o formato UTC estrito do Evernote: YYYYMMDDTHHMMSSZ
    */
@@ -582,6 +603,8 @@
     const statusLabel = getStatusLabel(sim.status);
     const statusCol = getStatusColor(sim.status);
     const gradeCol = getGradeBadgeColor(sim.grade);
+    const cycleName = resolveMarketCycleName(sim);
+    const cycleCol = getMarketCycleColor(cycleName);
     const duration = calculateDurationDays(sim);
 
     const entry = Number(sim.entryPrice) || 0;
@@ -604,10 +627,13 @@
                 <span style="font-size: 13px; font-weight: 600; color: #64748b; margin-left: 6px;">${escapeHtml(sim.companyName || '')}</span>
               </div>
               <div style="font-size: 11px; color: #475569; margin-top: 3px;">
-                <b>Gatilho:</b> ${escapeHtml(formatTriggerName(sim.triggerName))} • <b>Setor:</b> ${escapeHtml(sim.sector || 'Geral')} • <b>Data do Sinal:</b> ${formatDateBR(sim.signalDate)}
+                <b>Gatilho:</b> ${escapeHtml(formatTriggerName(sim.triggerName))} • <b>Ciclo:</b> ${escapeHtml(cycleName)} • <b>Setor:</b> ${escapeHtml(sim.sector || 'Geral')} • <b>Data do Sinal:</b> ${formatDateBR(sim.signalDate)}
               </div>
             </td>
             <td style="text-align: right; vertical-align: middle;">
+              <span style="display: inline-block; background: ${cycleCol.bg}; color: ${cycleCol.text}; border: 1px solid ${cycleCol.border}; font-weight: 700; font-size: 11px; padding: 4px 8px; border-radius: 6px; margin-right: 6px;">
+                ● ${escapeHtml(cycleName)}
+              </span>
               <span style="display: inline-block; background: ${gradeCol.bg}; color: ${gradeCol.text}; border: 1px solid ${gradeCol.border}; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 6px; margin-right: 6px;">
                 GRADE ${escapeHtml(sim.grade || '—')}
               </span>
@@ -910,6 +936,7 @@
     const statusLabel = getStatusLabel(sim.status);
     const duration = calculateDurationDays(sim);
     const vision = resolveVisionAtivo(sim);
+    const cycleName = resolveMarketCycleName(sim);
 
     const entry = Number(sim.entryPrice) || 0;
     const stop = Number(sim.stopLoss) || 0;
@@ -935,7 +962,7 @@
       ${escapeXml(sim.symbol)} <span style="font-size: 14px; color: #64748b;">${escapeXml(sim.companyName || '')}</span>
     </div>
     <div style="font-size: 12px; color: #475569; margin-top: 4px;">
-      <b>Gatilho:</b> ${escapeXml(formatTriggerName(sim.triggerName))} | <b>Nota:</b> Grade ${escapeXml(sim.grade || '—')} | <b>Status:</b> ${escapeXml(statusLabel)} | <b>Setor:</b> ${escapeXml(sim.sector || 'Geral')}
+      <b>Gatilho:</b> ${escapeXml(formatTriggerName(sim.triggerName))} | <b>Nota:</b> Grade ${escapeXml(sim.grade || '—')} | <b>Ciclo:</b> ${escapeXml(cycleName)} | <b>Status:</b> ${escapeXml(statusLabel)} | <b>Setor:</b> ${escapeXml(sim.sector || 'Geral')}
     </div>
     <div style="font-size: 12px; color: #475569; margin-top: 2px;">
       <b>Data do Sinal:</b> ${formatDateBR(sim.signalDate)} | <b>Data de Entrada:</b> ${formatDateBR(sim.entryDate)} | <b>Data de Saída:</b> ${formatDateBR(sim.exitDate)} | <b>Duração:</b> ${formatDurationDays(duration)}
@@ -1064,7 +1091,7 @@ ${notesXml}
     if (!list.length) return '';
 
     const headers = [
-      'Ativo', 'Gatilho', 'Nota', 'Setor', 'Data do Sinal',
+      'Ativo', 'Gatilho', 'Nota', 'Ciclo de Mercado', 'Setor', 'Data do Sinal',
       'Preço Entrada', 'Stop Loss', 'Status', 'Duração (Dias)', 'Preço Executado', 'Data Entrada',
       'Preço Saída', 'Data Saída', 'Motivo Saída', 'Resultado (R)', 'MFE (R)', 'MAE (R)'
     ];
@@ -1073,6 +1100,7 @@ ${notesXml}
       s.symbol,
       formatTriggerName(s.triggerName),
       s.grade || '—',
+      resolveMarketCycleName(s),
       s.sector || '—',
       s.signalDate || '—',
       s.entryPrice != null ? s.entryPrice.toFixed(2).replace('.', ',') : '',
@@ -1117,6 +1145,8 @@ ${notesXml}
     getStatusLabel,
     getStatusColor,
     getGradeBadgeColor,
+    resolveMarketCycleName,
+    getMarketCycleColor,
     resolveVisionAtivo,
     resolveCandles,
     calculateDurationDays

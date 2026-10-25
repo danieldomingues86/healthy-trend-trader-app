@@ -111,6 +111,10 @@ function mapSimulation(row) {
     entryPrice: Number(row.entry_price),
     stopLoss: Number(row.stop_loss),
     status: row.status,
+    marketCycle: row.market_cycle || 'Positivo',
+    marketPermission: row.market_permission
+      ? (typeof row.market_permission === 'string' ? JSON.parse(row.market_permission) : row.market_permission)
+      : null,
     executedEntryPrice: row.executed_entry_price != null ? Number(row.executed_entry_price) : null,
     entryDate: toIsoDate(row.entry_date),
     currentStop: row.current_stop != null ? Number(row.current_stop) : null,
@@ -272,6 +276,9 @@ async function create(userId, payload = {}, client = database) {
   const sector = String(payload.sector || '').trim();
   const notes = String(payload.notes || '').trim();
 
+  let marketCycle = 'Positivo';
+  let marketPermission = null;
+
   // REGRA MANDATÓRIA (P0): Ciclo de Mercado Defensivo BLOQUEIA entradas de compra
   if (MarketCycleModel) {
     const benchInfo = MarketCycleModel.getBenchmarkForAsset(symbol, sector);
@@ -281,6 +288,10 @@ async function create(userId, payload = {}, client = database) {
       throw invalid(`ENTRADA BLOQUEADA — ${perm.reason || 'CICLO DE MERCADO DEFENSIVO'}`, 422);
     } else if (!perm && signalDate && signalDate < '2026-07-01') {
       throw invalid('ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO', 422);
+    }
+    if (perm) {
+      marketPermission = perm;
+      marketCycle = perm.isPermitted ? 'Positivo' : (perm.isUndetermined ? 'Indeterminado' : 'Defensivo');
     }
   }
 
@@ -312,16 +323,17 @@ async function create(userId, payload = {}, client = database) {
     `INSERT INTO app.trade_simulations (
       id, user_id, symbol, company_name, trigger_name, grade, sector,
       signal_date, entry_price, stop_loss, status,
-      timeline, notes
+      timeline, notes, market_cycle, market_permission
     ) VALUES (
       $1, $2, $3, $4, $5, $6, $7,
       $8, $9, $10, $11,
-      $12, $13
+      $12, $13, $14, $15
     )`,
     [
       id, userId, symbol, companyName, triggerName, grade, sector,
       signalDate, entryPrice, stopLoss, initialStatus,
-      JSON.stringify(timeline), notes
+      JSON.stringify(timeline), notes,
+      marketCycle, marketPermission ? JSON.stringify(marketPermission) : null
     ]
   );
 
@@ -419,19 +431,32 @@ async function reset(userId, options = {}, client = database) {
   const seeds = model.generateSeedSimulationsForScenario(scenario);
   for (const s of seeds) {
     const id = crypto.randomUUID();
+    const cycleInfo = model.resolveSimulationMarketCycle ? model.resolveSimulationMarketCycle(s) : { classification: 'Positivo' };
+    const mCycle = s.marketCycle || cycleInfo.classification || 'Positivo';
+    const mPerm = s.marketPermission ? JSON.stringify(s.marketPermission) : (cycleInfo.isVerified ? JSON.stringify({
+      isPermitted: cycleInfo.isPermitted,
+      benchmarkSymbol: cycleInfo.benchmarkSymbol,
+      evalDate: cycleInfo.evalDate,
+      price: cycleInfo.price,
+      ema10: cycleInfo.ema10,
+      ema72: cycleInfo.ema72
+    }) : null);
+
     await dbClient.query(
       `INSERT INTO app.trade_simulations (
         id, user_id, symbol, company_name, trigger_name, grade, sector,
         signal_date, entry_price, stop_loss, status,
         executed_entry_price, entry_date, current_stop, current_price,
         exit_price, exit_date, exit_reason, result_r, mfe_r, mae_r,
-        timeline, notes, management_scenario, scale_in
+        timeline, notes, management_scenario, scale_in,
+        market_cycle, market_permission
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11,
         $12, $13, $14, $15,
         $16, $17, $18, $19, $20, $21,
-        $22, $23, $24, $25
+        $22, $23, $24, $25,
+        $26, $27
       )`,
       [
         id, userId, s.symbol, s.companyName || '', s.triggerName, s.grade || '', s.sector || '',
@@ -439,7 +464,8 @@ async function reset(userId, options = {}, client = database) {
         s.executedEntryPrice, s.entryDate, s.currentStop, s.currentPrice,
         s.exitPrice, s.exitDate, s.exitReason, s.resultR, s.mfeR, s.maeR,
         JSON.stringify(s.timeline || []), s.notes || '',
-        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null
+        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null,
+        mCycle, mPerm
       ]
     );
   }
@@ -580,12 +606,23 @@ async function generateMass(userId, payload = {}, client = database) {
     for (const s of batch) {
       const id = crypto.randomUUID();
       s.id = id;
+      const cycleInfo = model.resolveSimulationMarketCycle ? model.resolveSimulationMarketCycle(s) : { classification: 'Positivo' };
+      const mCycle = s.marketCycle || cycleInfo.classification || 'Positivo';
+      const mPerm = s.marketPermission ? JSON.stringify(s.marketPermission) : (cycleInfo.isVerified ? JSON.stringify({
+        isPermitted: cycleInfo.isPermitted,
+        benchmarkSymbol: cycleInfo.benchmarkSymbol,
+        evalDate: cycleInfo.evalDate,
+        price: cycleInfo.price,
+        ema10: cycleInfo.ema10,
+        ema72: cycleInfo.ema72
+      }) : null);
       valueClauses.push(
         `($${pIdx}, $${pIdx + 1}, $${pIdx + 2}, $${pIdx + 3}, $${pIdx + 4}, $${pIdx + 5}, $${pIdx + 6},
           $${pIdx + 7}, $${pIdx + 8}, $${pIdx + 9}, $${pIdx + 10},
           $${pIdx + 11}, $${pIdx + 12}, $${pIdx + 13}, $${pIdx + 14},
           $${pIdx + 15}, $${pIdx + 16}, $${pIdx + 17}, $${pIdx + 18}, $${pIdx + 19}, $${pIdx + 20},
-          $${pIdx + 21}, $${pIdx + 22}, $${pIdx + 23}, $${pIdx + 24})`
+          $${pIdx + 21}, $${pIdx + 22}, $${pIdx + 23}, $${pIdx + 24},
+          $${pIdx + 25}, $${pIdx + 26})`
       );
       values.push(
         id, userId, s.symbol, s.companyName || '', s.triggerName, s.grade || '', s.sector || '',
@@ -593,9 +630,10 @@ async function generateMass(userId, payload = {}, client = database) {
         s.executedEntryPrice, s.entryDate, s.currentStop, s.currentPrice,
         s.exitPrice, s.exitDate, s.exitReason, s.resultR, s.mfeR, s.maeR,
         JSON.stringify(s.timeline || []), s.notes || '',
-        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null
+        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null,
+        mCycle, mPerm
       );
-      pIdx += 25;
+      pIdx += 27;
     }
 
     if (valueClauses.length > 0) {
@@ -605,7 +643,8 @@ async function generateMass(userId, payload = {}, client = database) {
           signal_date, entry_price, stop_loss, status,
           executed_entry_price, entry_date, current_stop, current_price,
           exit_price, exit_date, exit_reason, result_r, mfe_r, mae_r,
-          timeline, notes, management_scenario, scale_in
+          timeline, notes, management_scenario, scale_in,
+          market_cycle, market_permission
         ) VALUES ${valueClauses.join(', ')}`,
         values
       );

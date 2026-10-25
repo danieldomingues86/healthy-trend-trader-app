@@ -28,6 +28,7 @@ describe('TradeSimulatorExportModel — Suíte de Testes', () => {
     companyName: 'Petrobras PN',
     triggerName: 'Inside Bar',
     grade: 'A+',
+    marketCycle: 'Positivo',
     sector: 'Petróleo e Gás',
     signalDate: '2026-09-29',
     entryPrice: 49.80,
@@ -66,6 +67,7 @@ describe('TradeSimulatorExportModel — Suíte de Testes', () => {
     companyName: 'Vale S.A.',
     triggerName: 'Double Inside Bar',
     grade: 'B',
+    marketCycle: 'Positivo',
     sector: 'Materiais Básicos',
     signalDate: '2026-09-15',
     entryPrice: 65.00,
@@ -206,9 +208,9 @@ describe('TradeSimulatorExportModel — Suíte de Testes', () => {
     const csv = TradeSimulatorExportModel.toCsv([mockTradeGain, mockTradeLoss]);
 
     assert.ok(csv.startsWith('\uFEFF'));
-    assert.ok(csv.includes('Ativo;Gatilho;Nota;Setor;Data do Sinal'));
-    assert.ok(csv.includes('"PETR4";"Inside Bar";"A+"'));
-    assert.ok(csv.includes('"VALE3";"Double Inside Bar";"B"'));
+    assert.ok(csv.includes('Ativo;Gatilho;Nota;Ciclo de Mercado;Setor;Data do Sinal'));
+    assert.ok(csv.includes('"PETR4";"Inside Bar";"A+";"Positivo"'));
+    assert.ok(csv.includes('"VALE3";"Double Inside Bar";"B";"Positivo"'));
   });
 
   test('Lida graciosamente com listas vazias e dados parciais', () => {

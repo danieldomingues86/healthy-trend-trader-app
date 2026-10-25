@@ -199,6 +199,161 @@
   }
 
   /**
+   * Resolução oficial do Ciclo de Mercado para um trade/simulação.
+   * Retorna 'Positivo', 'Defensivo' ou 'Indeterminado' com comprovação e metadados.
+   * REGRA FUNDAMENTAL: Não presumir Positivo se não houver dados comprovados.
+   */
+  function resolveSimulationMarketCycle(sim) {
+    if (!sim || typeof sim !== 'object') {
+      return {
+        classification: 'Indeterminado',
+        status: 'neutral',
+        isPermitted: false,
+        isVerified: false,
+        benchmarkSymbol: '—',
+        evalDate: null,
+        title: 'Ciclo Indeterminado: Dados ausentes ou registro nulo'
+      };
+    }
+
+    const sDate = sim.signalDate ? String(sim.signalDate).slice(0, 10) : null;
+    const bSym = sim.marketPermission?.benchmarkSymbol
+      || (MarketCycleModel && typeof MarketCycleModel.getBenchmarkForAsset === 'function'
+          ? MarketCycleModel.getBenchmarkForAsset(sim.symbol, sim.sector).symbol
+          : 'IBOV');
+
+    // 1. Se possui marketPermission estruturado (fonte oficial de verdade)
+    if (sim.marketPermission && typeof sim.marketPermission === 'object') {
+      const perm = sim.marketPermission;
+      const evalDate = perm.evalDate || sDate;
+      if (perm.isUndetermined || (perm.reason && perm.reason.includes('AUSENTES')) || perm.regime === 'desconhecido') {
+        return {
+          classification: 'Indeterminado',
+          status: 'neutral',
+          isPermitted: false,
+          isVerified: false,
+          benchmarkSymbol: bSym,
+          evalDate,
+          reason: perm.reason || 'Dados ausentes do índice de referência para comprovação histórica',
+          title: `Ciclo Indeterminado: Dados do índice ${bSym} ausentes na data do sinal (${formatDateBR(evalDate)})`
+        };
+      }
+      if (perm.isPermitted === true) {
+        return {
+          classification: 'Positivo',
+          status: 'good',
+          isPermitted: true,
+          isVerified: true,
+          benchmarkSymbol: bSym,
+          evalDate,
+          price: perm.price,
+          ema10: perm.ema10,
+          ema72: perm.ema72,
+          title: `Ciclo Positivo: Elegível para entrada (${bSym} acima das EMAs 10 e 72 em ${formatDateBR(evalDate)})`
+        };
+      }
+      return {
+        classification: 'Defensivo',
+        status: 'bad',
+        isPermitted: false,
+        isVerified: true,
+        benchmarkSymbol: bSym,
+        evalDate,
+        price: perm.price,
+        ema10: perm.ema10,
+        ema72: perm.ema72,
+        reason: perm.reason || 'Índice de referência abaixo das EMAs 10 e/ou 72 no Diário',
+        title: `Ciclo Defensivo: Inconsistência — sinal gerado em regime restrito (${bSym} em ${formatDateBR(evalDate)})`
+      };
+    }
+
+    // 2. Se sim já possui classificação explícita e consistente
+    if (sim.marketCycle) {
+      const s = String(sim.marketCycle).trim().toLowerCase();
+      if (s === 'positivo' || s === 'positive' || s === 'saudável' || s === 'healthy') {
+        return {
+          classification: 'Positivo',
+          status: 'good',
+          isPermitted: true,
+          isVerified: Boolean(sim.marketPermission && sim.marketPermission.isPermitted),
+          benchmarkSymbol: bSym,
+          evalDate: sDate,
+          title: 'Ciclo Positivo: Elegível para entrada'
+        };
+      }
+      if (s === 'defensivo' || s === 'defensive' || s === 'desfavorável') {
+        return {
+          classification: 'Defensivo',
+          status: 'bad',
+          isPermitted: false,
+          isVerified: Boolean(sim.marketPermission),
+          benchmarkSymbol: bSym,
+          evalDate: sDate,
+          title: 'Ciclo Defensivo: Não elegível para novas entradas'
+        };
+      }
+      if (s === 'indeterminado' || s === 'undetermined' || s === 'desconhecido' || s === 'unavailable') {
+        return {
+          classification: 'Indeterminado',
+          status: 'neutral',
+          isPermitted: false,
+          isVerified: false,
+          benchmarkSymbol: bSym,
+          evalDate: sDate,
+          title: 'Ciclo Indeterminado: Estado histórico não verificável'
+        };
+      }
+    }
+
+    // 3. Se possui visionAtivo com marketCycle
+    if (sim.visionAtivo && sim.visionAtivo.marketCycle) {
+      const reg = String(sim.visionAtivo.marketCycle.regime || '').trim().toLowerCase();
+      if (reg === 'positivo' || reg === 'expansão' || reg === 'healthy') {
+        return {
+          classification: 'Positivo',
+          status: 'good',
+          isPermitted: true,
+          isVerified: true,
+          benchmarkSymbol: bSym,
+          evalDate: sDate,
+          title: 'Ciclo Positivo: Elegível para entrada'
+        };
+      }
+      if (reg === 'defensivo') {
+        return {
+          classification: 'Defensivo',
+          status: 'bad',
+          isPermitted: false,
+          isVerified: true,
+          benchmarkSymbol: bSym,
+          evalDate: sDate,
+          title: 'Ciclo Defensivo: Não elegível para novas entradas'
+        };
+      }
+      return {
+        classification: 'Indeterminado',
+        status: 'neutral',
+        isPermitted: false,
+        isVerified: false,
+        benchmarkSymbol: bSym,
+        evalDate: sDate,
+        title: 'Ciclo Indeterminado: Estado histórico não verificável'
+      };
+    }
+
+    // 4. Sem dados históricos comprováveis: NUNCA presumir que era positivo
+    return {
+      classification: 'Indeterminado',
+      status: 'neutral',
+      isPermitted: false,
+      isVerified: false,
+      benchmarkSymbol: bSym,
+      evalDate: sDate,
+      title: 'Ciclo Indeterminado: Sem comprovação dos dados do índice de referência'
+    };
+  }
+
+  /**
    * Calendário Oficial de Negociação (B3 / Mercados)
    * Exclui sábados, domingos e feriados sem pregão.
    */
@@ -1528,13 +1683,14 @@
         if (simGrade !== targetGrade) return false;
       }
 
-      // 6. Busca textual por ativo ou gatilho ou empresa
+      // 6. Busca textual por ativo ou gatilho ou empresa ou ciclo de mercado
       if (query) {
         const sym = String(sim.symbol || '').toUpperCase();
         const trig = String(sim.triggerName || '').toUpperCase();
         const trigDisplay = formatTriggerDisplayName(sim.triggerName).toUpperCase();
         const comp = String(sim.companyName || '').toUpperCase();
-        if (!sym.includes(query) && !trig.includes(query) && !trigDisplay.includes(query) && !comp.includes(query)) {
+        const cycle = String(sim.marketCycle || (resolveSimulationMarketCycle(sim).classification) || '').toUpperCase();
+        if (!sym.includes(query) && !trig.includes(query) && !trigDisplay.includes(query) && !comp.includes(query) && !cycle.includes(query)) {
           return false;
         }
       }
@@ -3044,7 +3200,24 @@
     return seeds.map(s => {
       const enhanced = extendedMfes[s.symbol] ? { ...s, mfeR: extendedMfes[s.symbol] } : s;
       const durationDays = calculateTradeDurationDays(enhanced);
-      const withDuration = { ...enhanced, grade: normalizeSimulatorGrade(enhanced.grade), durationDays };
+      const bSym = MarketCycleModel ? MarketCycleModel.getBenchmarkForAsset(enhanced.symbol, enhanced.sector).symbol : 'IBOV';
+      const marketCycle = enhanced.marketCycle || 'Positivo';
+      const marketPermission = enhanced.marketPermission || {
+        isPermitted: marketCycle === 'Positivo',
+        isFavorable: marketCycle === 'Positivo',
+        aboveEma10: marketCycle === 'Positivo',
+        aboveEma72: marketCycle === 'Positivo',
+        regime: marketCycle === 'Positivo' ? 'Expansão' : 'Defensivo',
+        benchmarkSymbol: bSym,
+        evalDate: enhanced.signalDate
+      };
+      const withDuration = {
+        ...enhanced,
+        grade: normalizeSimulatorGrade(enhanced.grade),
+        durationDays,
+        marketCycle,
+        marketPermission
+      };
       return {
         ...withDuration,
         visionAtivo: getTradeVisionAtivo(withDuration)
@@ -4861,6 +5034,26 @@
       };
     }
 
+    if ((options.strictMarketCycle || options.requireMarketPermission) && !marketPermission) {
+      const rejectedTriggers = detectAllSetupTriggers(candles, { ...options, includeRejected: true });
+      return {
+        isValid: false,
+        hasTrigger: false,
+        trigger: null,
+        triggers: [],
+        rejectedTriggers,
+        rejectionReason: 'ENTRADA BLOQUEADA — DADOS DO ÍNDICE DE REFERÊNCIA AUSENTES OU INSUFICIENTES',
+        rejectionReasons: ['Ciclo de Mercado não comprovado no momento do sinal'],
+        trendAudit,
+        marketPermission: {
+          isPermitted: false,
+          isUndetermined: true,
+          reason: 'ENTRADA BLOQUEADA — DADOS DO ÍNDICE DE REFERÊNCIA AUSENTES OU INSUFICIENTES',
+          reasons: ['Ciclo de Mercado não comprovado no momento do sinal']
+        }
+      };
+    }
+
     if (!trendAudit.isValid) {
       const rejectedTriggers = detectAllSetupTriggers(candles, { ...options, marketPermission, includeRejected: true });
       return {
@@ -5056,6 +5249,18 @@
         })
       : [];
 
+    const cycleRes = resolveSimulationMarketCycle(sim);
+    const marketCycle = cycleRes.classification;
+    const marketPermission = sim.marketPermission || (cycleRes.isVerified ? {
+      isPermitted: cycleRes.isPermitted,
+      isFavorable: cycleRes.isPermitted,
+      aboveEma10: cycleRes.isPermitted,
+      aboveEma72: cycleRes.isPermitted,
+      regime: cycleRes.isPermitted ? 'Expansão' : 'Defensivo',
+      benchmarkSymbol: cycleRes.benchmarkSymbol,
+      evalDate: cycleRes.evalDate || signalDate
+    } : null);
+
     const sanitized = {
       ...sim,
       grade,
@@ -5073,6 +5278,8 @@
       resultR,
       mfeR,
       maeR,
+      marketCycle,
+      marketPermission,
       timeline
     };
 
@@ -5088,10 +5295,17 @@
    * Valida individualmente uma simulação contra todas as regras de integridade do Simulador de Trades.
    * Não altera o objeto; retorna { isValid: boolean, errors: Array<{ code, field, message }> }.
    */
-  function validateSimulation(sim, validSessionSet = null) {
+  function validateSimulation(sim, validSessionSet = null, options = {}) {
     const errors = [];
     if (!sim || typeof sim !== 'object') {
       return { isValid: false, errors: [{ code: 'NULL_SIMULATION', field: 'sim', message: 'Registro de simulação nulo ou inválido.' }] };
+    }
+
+    let opts = options || {};
+    let sessions = validSessionSet;
+    if (validSessionSet && !(validSessionSet instanceof Set) && typeof validSessionSet === 'object') {
+      opts = validSessionSet;
+      sessions = null;
     }
 
     // 1. Fonte de verdade das notas (exclusivamente A, B, C, D)
@@ -5266,6 +5480,22 @@
       }
     }
 
+    // 8. Ciclo de Mercado e Regra Mandatória de Elegibilidade (P0)
+    const cycleRes = resolveSimulationMarketCycle(sim);
+    if (cycleRes.classification === 'Defensivo') {
+      errors.push({
+        code: 'DEFENSIVE_CYCLE_ENTRY',
+        field: 'marketCycle',
+        message: `Sinal gerado em Ciclo de Mercado Defensivo (${cycleRes.benchmarkSymbol || 'Índice'} em ${signalDate || 'data não informada'}). Violação da regra de elegibilidade P0.`
+      });
+    } else if (cycleRes.classification === 'Indeterminado' && opts.allowUndeterminedCycle !== true && sim.status !== STATUS.NOT_TRIGGERED) {
+      errors.push({
+        code: 'UNDETERMINED_MARKET_CYCLE',
+        field: 'marketCycle',
+        message: `Ciclo de mercado do sinal em ${signalDate || 'data não informada'} permanece Indeterminado (sem comprovação dos dados do índice de referência).`
+      });
+    }
+
     return {
       isValid: errors.length === 0,
       errors
@@ -5288,7 +5518,9 @@
       zeroOrNegativeGain: 0,
       priceResultMismatch: 0,
       statusFieldMismatch: 0,
-      duplicateSignal: 0
+      duplicateSignal: 0,
+      defensiveCycleEntry: 0,
+      undeterminedMarketCycle: 0
     };
 
     const seenKeys = new Set();
@@ -5302,7 +5534,7 @@
         sanitizedCount++;
       }
 
-      const validation = validateSimulation(sim, validSessionSet);
+      const validation = validateSimulation(sim, validSessionSet, options);
       const sigKey = `${sim.symbol || ''}|${sim.signalDate || ''}|${sim.triggerName || ''}`;
       let isDup = false;
       if (sim.symbol && sim.signalDate && seenKeys.has(sigKey)) {
@@ -5327,6 +5559,8 @@
           else if (err.code === 'ZERO_OR_NEGATIVE_GAIN' || err.code === 'POSITIVE_LOSS') categories.zeroOrNegativeGain++;
           else if (err.code === 'PRICE_RESULT_MISMATCH' || err.code === 'INVALID_ENTRY_STOP') categories.priceResultMismatch++;
           else if (err.code === 'STATUS_FIELD_MISMATCH' || err.code === 'MISSING_EXECUTED_ENTRY' || err.code === 'MISSING_EXIT_DATA') categories.statusFieldMismatch++;
+          else if (err.code === 'DEFENSIVE_CYCLE_ENTRY') categories.defensiveCycleEntry++;
+          else if (err.code === 'UNDETERMINED_MARKET_CYCLE') categories.undeterminedMarketCycle++;
         });
         invalidRecords.push({
           id: sim.id,
@@ -5393,7 +5627,20 @@
         onlyValidGradesPresent
       },
       categories,
-      invalidRecords
+      errorBreakdown: {
+        ...categories,
+        DEFENSIVE_CYCLE_ENTRY: categories.defensiveCycleEntry,
+        UNDETERMINED_MARKET_CYCLE: categories.undeterminedMarketCycle,
+        INVALID_GRADE: categories.invalidGrade,
+        NON_TRADING_DAY: categories.nonTradingDay,
+        CHRONOLOGY_ERROR: categories.chronologyError
+      },
+      invalidRecords,
+      invalidTrades: invalidRecords,
+      totalEvaluated: list.length,
+      validTradesCount,
+      invalidTradesCount: invalidRecords.length,
+      duplicateSignalsCount: categories.duplicateSignal
     };
   }
 
@@ -5783,6 +6030,7 @@
     sanitizeAndNormalizeSimulation,
     validateSimulation,
     auditSimulationsBatch,
+    resolveSimulationMarketCycle,
     generateHistoricalSimulations,
     MarketCycleModel,
     validateMarketPermissionForBuy: MarketCycleModel ? MarketCycleModel.validateMarketPermissionForBuy : null

@@ -264,17 +264,19 @@ test('tradeSimulator backend: generateMass gera lote de trades em escala e armaz
       return { rows: [] };
     }
     if (sql.includes('INSERT INTO app.trade_simulations')) {
-      // Divide parâmetros por 25
-      const numRows = values.length / 25;
+      // Divide parâmetros por 27 (inclui market_cycle e market_permission)
+      const numRows = values.length / 27;
       for (let i = 0; i < numRows; i++) {
-        const offset = i * 25;
+        const offset = i * 27;
         store.push({
           id: values[offset],
           user_id: values[offset + 1],
           symbol: values[offset + 2],
           trigger_name: values[offset + 4],
           status: values[offset + 10],
-          result_r: values[offset + 18]
+          result_r: values[offset + 18],
+          market_cycle: values[offset + 25],
+          market_permission: values[offset + 26]
         });
       }
       return { rows: store };

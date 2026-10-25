@@ -690,6 +690,19 @@
           valB = gradeRank[b.grade] ?? -1;
           break;
         }
+        case 'marketCycle': {
+          const cycleRank = { 'Positivo': 3, 'Defensivo': 2, 'Indeterminado': 1 };
+          const getCycle = s => {
+            if (s.marketCycle) return s.marketCycle;
+            if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.resolveSimulationMarketCycle === 'function') {
+              return root.TradeSimulatorModel.resolveSimulationMarketCycle(s).classification;
+            }
+            return 'Indeterminado';
+          };
+          valA = cycleRank[getCycle(a)] ?? 0;
+          valB = cycleRank[getCycle(b)] ?? 0;
+          break;
+        }
         case 'signalDate':
           valA = a.signalDate || '';
           valB = b.signalDate || '';
@@ -1724,6 +1737,7 @@
                 ${getSortHeader('symbol', 'Ativo')}
                 ${getSortHeader('triggerName', 'Gatilho')}
                 ${getSortHeader('grade', 'Nota')}
+                ${getSortHeader('marketCycle', 'Ciclo de Mercado')}
                 ${getSortHeader('signalDate', 'Data do Sinal')}
                 ${getSortHeader('entryPrice', 'Entrada')}
                 ${getSortHeader('stopLoss', 'Stop')}
@@ -1741,7 +1755,7 @@
             </tbody>
             <tfoot>
               <tr class="sim-table-summary-row">
-                <td colspan="7">
+                <td colspan="8">
                   <div class="sim-tfoot-summary-title">
                     <span>Média / Total Geral</span>
                     <small id="simTableFooterCount">(${simulations.length} trade${simulations.length === 1 ? '' : 's'})</small>
@@ -1870,6 +1884,9 @@
           <span class="sim-grade-badge ${gradeClass}">${sim.grade || '—'}</span>
         </td>
 
+        <!-- Ciclo de Mercado -->
+        <td class="td-cycle">${renderMarketCyclePill(sim)}</td>
+
         <!-- Data do Sinal -->
         <td class="td-date">${formatDateBR(sim.signalDate)}</td>
 
@@ -1939,6 +1956,87 @@
     }
   }
 
+  function resolveSimulationMarketCycle(sim) {
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.resolveSimulationMarketCycle === 'function') {
+      return root.TradeSimulatorModel.resolveSimulationMarketCycle(sim);
+    }
+    const c = String(sim?.marketCycle || '').trim();
+    if (c.toLowerCase() === 'positivo') {
+      return { classification: 'Positivo', status: 'good', isPermitted: true, isVerified: true, title: 'Ciclo Positivo: Elegível para entrada' };
+    }
+    if (c.toLowerCase() === 'defensivo') {
+      return { classification: 'Defensivo', status: 'bad', isPermitted: false, isVerified: true, title: 'Ciclo Defensivo: Bloqueio P0' };
+    }
+    return { classification: 'Indeterminado', status: 'neutral', isPermitted: false, isVerified: false, title: 'Ciclo Indeterminado' };
+  }
+
+  function renderMarketCyclePill(sim) {
+    const cycle = resolveSimulationMarketCycle(sim);
+    const cls = cycle.classification || 'Indeterminado';
+
+    let pillClass = 'cycle-neutral';
+    let dotClass = 'dot-neutral';
+    if (cls === 'Positivo') {
+      pillClass = 'cycle-positive';
+      dotClass = 'dot-positive';
+    } else if (cls === 'Defensivo') {
+      pillClass = 'cycle-defensive';
+      dotClass = 'dot-defensive';
+    }
+
+    const titleAttr = (cycle.title || `Ciclo ${cls} no momento do sinal`)
+      .replace(/"/g, '&quot;');
+
+    return `
+      <span class="sim-cycle-pill ${pillClass}" title="${titleAttr}">
+        <span class="sim-cycle-dot ${dotClass}"></span>
+        <span class="sim-cycle-text">${cls}</span>
+      </span>
+    `;
+  }
+
+  function renderMarketCycleDetailsCard(sim) {
+    const cycle = resolveSimulationMarketCycle(sim);
+    const cls = cycle.classification || 'Indeterminado';
+    const isGood = cls === 'Positivo';
+    const isBad = cls === 'Defensivo';
+
+    const bg = isGood ? 'rgba(34, 197, 94, 0.08)' : (isBad ? 'rgba(239, 68, 68, 0.08)' : 'rgba(148, 163, 184, 0.08)');
+    const border = isGood ? '#166534' : (isBad ? '#991b1b' : '#334155');
+    const badgeBg = isGood ? '#14532d' : (isBad ? '#7f1d1d' : '#1e293b');
+    const badgeColor = isGood ? '#86efac' : (isBad ? '#fca5a5' : '#94a3b8');
+
+    const bench = cycle.benchmarkSymbol || (sim.marketPermission?.benchmarkSymbol) || 'IBOV';
+    const evalDate = cycle.evalDate ? formatDateBR(cycle.evalDate) : (sim.signalDate ? formatDateBR(sim.signalDate) : '—');
+    const emaStatus = (cycle.price && cycle.ema10 && cycle.ema72)
+      ? `Índice R$ ${Number(cycle.price).toFixed(2)} | EMA10 R$ ${Number(cycle.ema10).toFixed(2)} | EMA72 R$ ${Number(cycle.ema72).toFixed(2)}`
+      : (isGood ? `Índice ${bench} acima das EMAs 10 e 72` : (isBad ? `Índice ${bench} abaixo das EMAs 10 e/ou 72` : 'Sem dados suficientes do índice no momento do sinal'));
+
+    const verdict = isGood
+      ? '✅ Elegível para Entrada — Mercado em regime favorável e preço do índice acima das EMAs 10 e 72.'
+      : (isBad
+        ? '🚨 Inconsistência de Regra: Operação registrada em Ciclo Defensivo (bloqueio P0).'
+        : '⚪ Não Comprovado: Dados históricos do benchmark ausentes na data do sinal.');
+
+    return `
+      <div class="sim-modal-cycle-box" style="background: ${bg}; border: 1px solid ${border}; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 13px; font-weight: 700; color: inherit;">🏛️ Ciclo de Mercado no Momento do Sinal</span>
+            <span style="background: ${badgeBg}; color: ${badgeColor}; font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px;">
+              ${cls.toUpperCase()}
+            </span>
+          </div>
+          <small style="color: var(--muted, #94a3b8); font-size: 11px;">Benchmark: <b>${bench}</b> • Data: <b>${evalDate}</b></small>
+        </div>
+        <div style="font-size: 11.5px; color: inherit; line-height: 1.4; opacity: 0.9;">
+          <div><b>Status das Médias:</b> ${emaStatus}</div>
+          <div style="margin-top: 3px;"><b>Veredito Operacional:</b> ${verdict}</div>
+        </div>
+      </div>
+    `;
+  }
+
   function getGradeBadgeClass(grade) {
     const g = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.normalizeSimulatorGrade === 'function'
       ? root.TradeSimulatorModel.normalizeSimulatorGrade(grade)
@@ -1952,7 +2050,7 @@
   function renderEmptyRow() {
     return `
       <tr>
-        <td colspan="13">
+        <td colspan="14">
           <div class="sim-empty-state">
             <p>Nenhuma simulação encontrada com os filtros selecionados.</p>
           </div>
@@ -3561,6 +3659,11 @@
                   `Apenas notas oficiais do Novo Trade / Rubric permitidas. Notas inválidas: ${breakdown.INVALID_GRADE || 0}.`
                 )}
                 ${checkRow(
+                  'Ciclo de Mercado Obrigatório (Regra P0)',
+                  (breakdown.DEFENSIVE_CYCLE_ENTRY || 0) === 0,
+                  `Bloqueio estrito de novas entradas em Ciclo Defensivo. Violações de ciclo: ${breakdown.DEFENSIVE_CYCLE_ENTRY || 0}.`
+                )}
+                ${checkRow(
                   'Calendário Oficial de Pregão & Cronologia',
                   (breakdown.SIGNAL_NON_TRADING_DAY || 0) === 0 &&
                   (breakdown.ENTRY_NON_TRADING_DAY || 0) === 0 &&
@@ -3661,15 +3764,19 @@
         <div class="sim-modal-box">
           <div class="sim-modal-header">
             <div>
-              <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <h2 style="margin: 0; font-size: 22px;">${sim.symbol}</h2>
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
                 ${renderStatusPill(sim.status)}
+                ${renderMarketCyclePill(sim)}
               </div>
               <p style="margin: 4px 0 0; color: var(--muted); font-size: 12px;">${sim.companyName || sim.symbol} • ${formatTriggerDisplayName(sim.triggerName)} • Setor: ${sim.sector || 'Geral'}</p>
             </div>
             <button class="sim-modal-close-btn" type="button" id="simModalClose">×</button>
           </div>
+
+          <!-- Card de Auditoria do Ciclo de Mercado -->
+          ${renderMarketCycleDetailsCard(sim)}
 
           <!-- Grade de Parâmetros -->
           <div class="sim-modal-metrics-grid">
@@ -3893,6 +4000,7 @@
                 <span>${sim.symbol}</span>
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
                 ${renderStatusPill(sim.status)}
+                ${renderMarketCyclePill(sim)}
               </h2>
               <p>${sim.companyName || sim.symbol} • Gatilho: <b>${formatTriggerDisplayName(sim.triggerName)}</b> • Setor: ${sim.sector || 'Geral'}</p>
             </div>
@@ -3904,6 +4012,10 @@
             <div class="sim-snapshot-param-item">
               <small>Data do Sinal</small>
               <b>${formatDateBR(sim.signalDate)}</b>
+            </div>
+            <div class="sim-snapshot-param-item">
+              <small>Ciclo de Mercado</small>
+              <div style="margin-top: 2px;">${renderMarketCyclePill(sim)}</div>
             </div>
             <div class="sim-snapshot-param-item">
               <small>Entrada Planejada</small>
@@ -4282,6 +4394,10 @@
                 <tr>
                   <td>Look-ahead / Vazamento Futuro</td>
                   <td><span style="color: #34d399; font-weight: 700;">${snapEsc(sm.lookAhead || 'Não identificado')}</span> — nenhum candle posterior foi usado para calcular EMAs, gatilhos ou stops</td>
+                </tr>
+                <tr>
+                  <td>Ciclo de Mercado (Benchmark)</td>
+                  <td>${renderMarketCyclePill(sim)} <small style="margin-left: 8px; color: #94a3b8;">${snapEsc((sim.marketPermission?.reason) || (sim.marketCycle === 'Positivo' ? 'Elegível: Índice acima das EMAs 10 e 72 no Diário' : 'Verificado na data do sinal'))}</small></td>
                 </tr>
                 <tr>
                   <td>Padrão e Pivôs Re-detectados</td>

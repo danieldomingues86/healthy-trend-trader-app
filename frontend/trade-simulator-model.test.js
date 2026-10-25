@@ -1017,6 +1017,7 @@ test('trade-simulator-model: validateSimulation identifica inconsistências de n
     symbol: 'PETR4',
     triggerName: 'Inside Bar',
     grade: 'A',
+    marketCycle: 'Positivo',
     signalDate: '2026-09-21',
     entryDate: '2026-09-22',
     exitDate: '2026-09-25',
@@ -1226,5 +1227,152 @@ test('trade-simulator-model: bloqueia sinais de compra quando EMA 10 e EMA 72 n�
   assert.equal(dexpAudit.hasTrigger, false);
   assert.equal(dexpAudit.rejectionReason, 'Rejeitado: EMA 10 abaixo da EMA 72');
   assert.ok(dexpAudit.rejectionReasons.includes('Rejeitado: EMA 10 abaixo da EMA 72'));
+});
+
+test('trade-simulator-model: Ciclo de Mercado — Cenários A, B, C, D e E (Comprovação e Bloqueios Mandatórios P0)', () => {
+  // Cenário A: Mercado Positivo -> Elegível, registra e exibe "Positivo"
+  const positivePerm = {
+    isPermitted: true,
+    isFavorable: true,
+    aboveEma10: true,
+    aboveEma72: true,
+    regime: 'Expansão',
+    benchmarkSymbol: 'IBOV',
+    evalDate: '2026-09-21',
+    price: 132000,
+    ema10: 130000,
+    ema72: 126000
+  };
+  const simA = {
+    symbol: 'PETR4',
+    triggerName: 'Inside Bar',
+    grade: 'A',
+    signalDate: '2026-09-21',
+    entryPrice: 30.00,
+    stopLoss: 28.50,
+    marketPermission: positivePerm
+  };
+  const cycleA = model.resolveSimulationMarketCycle(simA);
+  assert.equal(cycleA.classification, 'Positivo');
+  assert.equal(cycleA.isPermitted, true);
+  assert.equal(cycleA.isVerified, true);
+  assert.equal(cycleA.benchmarkSymbol, 'IBOV');
+  const normalizedA = model.sanitizeAndNormalizeSimulation(simA);
+  assert.equal(normalizedA.marketCycle, 'Positivo');
+  assert.equal(normalizedA.marketPermission.isPermitted, true);
+  const valA = model.validateSimulation(normalizedA);
+  assert.equal(valA.isValid, true);
+  assert.equal(valA.errors.length, 0);
+
+  // Cenário B: Mercado Defensivo -> Engine bloqueia entrada mesmo com gatilho técnico válido
+  const defensivePerm = {
+    isPermitted: false,
+    isFavorable: false,
+    aboveEma10: false,
+    aboveEma72: false,
+    regime: 'Defensivo',
+    benchmarkSymbol: 'IBOV',
+    evalDate: '2026-03-10',
+    reason: 'ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO'
+  };
+  const candlesWithValidIb = [
+    { time: '2026-03-06', open: 20.0, high: 22.0, low: 19.5, close: 21.0, ema10: 20.5, ema72: 19.0 },
+    { time: '2026-03-09', open: 21.0, high: 21.5, low: 20.2, close: 20.8, ema10: 20.6, ema72: 19.1 },
+    { time: '2026-03-10', open: 20.8, high: 21.2, low: 20.4, close: 20.9, ema10: 20.7, ema72: 19.2 }
+  ];
+  // 1. evaluateSetupTriggerWithAudit bloqueia o gatilho
+  const auditBlockedB = model.evaluateSetupTriggerWithAudit(candlesWithValidIb, { marketPermission: defensivePerm });
+  assert.equal(auditBlockedB.isValid, false);
+  assert.equal(auditBlockedB.hasTrigger, false);
+  assert.ok(auditBlockedB.rejectionReason.includes('ENTRADA BLOQUEADA'));
+  assert.equal(auditBlockedB.marketPermission.isPermitted, false);
+
+  // 2. resolveSimulationMarketCycle reporta Defensivo e não permitido
+  const cycleB = model.resolveSimulationMarketCycle({ marketPermission: defensivePerm });
+  assert.equal(cycleB.classification, 'Defensivo');
+  assert.equal(cycleB.isPermitted, false);
+  assert.equal(cycleB.status, 'bad');
+
+  // Cenário C: Dados ausentes / não verificados do índice -> "Indeterminado", bloqueio estrito
+  const undeterminedPerm = {
+    isPermitted: false,
+    isUndetermined: true,
+    regime: 'desconhecido',
+    benchmarkSymbol: 'IBOV',
+    reason: 'DADOS DO ÍNDICE DE REFERÊNCIA AUSENTES'
+  };
+  const cycleC = model.resolveSimulationMarketCycle({ marketPermission: undeterminedPerm });
+  assert.equal(cycleC.classification, 'Indeterminado');
+  assert.equal(cycleC.isPermitted, false);
+  assert.equal(cycleC.isVerified, false);
+  // Bloqueia com requireMarketPermission
+  const auditBlockedC = model.evaluateSetupTriggerWithAudit(candlesWithValidIb, {
+    marketPermission: undeterminedPerm,
+    requireMarketPermission: true
+  });
+  assert.equal(auditBlockedC.isValid, false);
+  assert.ok(auditBlockedC.rejectionReason.includes('DADOS DO ÍNDICE'));
+
+  // Cenário D: Mercado vira defensivo após a entrada -> trade congelado na data do sinal permanece 'Positivo', posição segue gestão
+  const initialOpenTrade = {
+    symbol: 'PETR4',
+    triggerName: 'Inside Bar',
+    grade: 'A',
+    signalDate: '2026-09-21',
+    entryDate: '2026-09-22',
+    entryPrice: 30.00,
+    stopLoss: 28.50,
+    executedEntryPrice: 30.00,
+    currentStop: 28.50,
+    currentPrice: 31.00,
+    status: model.STATUS.IN_OPERATION,
+    resultR: 0.67,
+    marketCycle: 'Positivo',
+    marketPermission: positivePerm
+  };
+  // O trade preserva seu ciclo histórico de sinal inalterado
+  const cycleD = model.resolveSimulationMarketCycle(initialOpenTrade);
+  assert.equal(cycleD.classification, 'Positivo');
+  assert.equal(initialOpenTrade.marketCycle, 'Positivo');
+
+  // A simulação diária continua executando normalmente regras de stop/alvo nos candles subsequentes
+  const laterCandles = [
+    { time: '2026-09-21', open: 29.5, high: 30.0, low: 28.5, close: 29.8 },
+    { time: '2026-09-22', open: 29.9, high: 30.5, low: 29.8, close: 30.3 }, // entrada ativada
+    { time: '2026-09-23', open: 30.3, high: 33.5, low: 30.2, close: 33.2 }  // atinge alvo +2R (33.00)
+  ];
+  const evalD = model.evaluateSimulationOnCandles(initialOpenTrade, laterCandles);
+  assert.equal(evalD.status, model.STATUS.CLOSED_GAIN);
+  assert.equal(evalD.exitPrice, 33.00);
+  assert.equal(evalD.marketCycle, 'Positivo', 'Ciclo de mercado do trade permanece congelado como Positivo');
+
+  // Cenário E: Trade histórico inconsistente (gerado em regime defensivo) -> Auditoria acusa inconsistência DEFENSIVE_CYCLE_ENTRY
+  const badTradeE = {
+    symbol: 'JGPX11',
+    triggerName: 'Inside Bar',
+    grade: 'A',
+    signalDate: '2026-03-10',
+    entryDate: '2026-03-11',
+    entryPrice: 100.00,
+    stopLoss: 98.00,
+    executedEntryPrice: 100.00,
+    currentStop: 98.00,
+    exitPrice: 104.00,
+    status: model.STATUS.CLOSED_GAIN,
+    resultR: 2.0,
+    mfeR: 2.5,
+    maeR: -0.2,
+    marketCycle: 'Defensivo',
+    marketPermission: defensivePerm
+  };
+  const valE = model.validateSimulation(badTradeE);
+  assert.equal(valE.isValid, false, 'Trade gerado em regime defensivo não pode ser validado como conforme');
+  assert.ok(valE.errors.some(e => e.code === 'DEFENSIVE_CYCLE_ENTRY' && e.field === 'marketCycle'));
+
+  const batchAudit = model.auditSimulationsBatch([normalizedA, badTradeE]);
+  assert.equal(batchAudit.isConsistent, false);
+  assert.equal(batchAudit.invalidTradesCount, 1);
+  assert.equal(batchAudit.errorBreakdown.DEFENSIVE_CYCLE_ENTRY, 1);
+  assert.ok(batchAudit.invalidTrades.some(t => t.symbol === 'JGPX11'));
 });
 
