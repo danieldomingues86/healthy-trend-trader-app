@@ -2028,7 +2028,7 @@
       <div class="sim-scenario-modal-overlay open" id="simMassModalOverlay">
         <div class="sim-scenario-modal-box sim-mass-modal-box" id="simMassModalBox">
           <!-- Cabeçalho do Painel -->
-          <div class="sim-scenario-modal-header">
+          <div class="sim-scenario-modal-header sim-mass-modal-header">
             <div>
               <div class="sim-mass-header-badge">LABORATÓRIO DE SIMULAÇÃO EM ESCALA</div>
               <h2>⚡ Gerador de Massa de Testes</h2>
@@ -2037,303 +2037,315 @@
             <button class="sim-modal-close-btn" type="button" id="simMassModalClose" title="Fechar">×</button>
           </div>
 
-          <!-- BLOCO 1: CONFIGURAÇÃO DE DIMENSÃO DA SIMULAÇÃO -->
-          <div class="sim-mass-modal-section">
-            <div class="sim-mass-section-eyebrow">
-              <span>1. DIMENSÃO E PARÂMETROS DA AMOSTRA</span>
-            </div>
-
-            <!-- 1.1 Período Histórico -->
-            <div class="sim-mass-param-group">
-              <label class="sim-mass-param-label">
-                <span>Período Histórico</span>
-                <span class="sim-mass-param-hint">Respeita calendário oficial de negociação (exclui feriados/fins de semana)</span>
-              </label>
-              <div class="sim-mass-pills-grid">
-                <button type="button" class="sim-mass-pill ${period === 30 ? 'active' : ''}" data-mass-period="30">30 dias</button>
-                <button type="button" class="sim-mass-pill ${period === 90 ? 'active' : ''}" data-mass-period="90">90 dias</button>
-                <button type="button" class="sim-mass-pill ${period === 120 ? 'active' : ''}" data-mass-period="120">120 dias (4m)</button>
-                <button type="button" class="sim-mass-pill ${period === 180 ? 'active' : ''}" data-mass-period="180">6 meses</button>
-                <button type="button" class="sim-mass-pill ${period === 365 ? 'active' : ''}" data-mass-period="365">12 meses</button>
-                <button type="button" class="sim-mass-pill ${period === 730 ? 'active' : ''}" data-mass-period="730">24 meses</button>
-                <button type="button" class="sim-mass-pill ${period === 1095 ? 'active' : ''}" data-mass-period="1095">36 meses</button>
-                <button type="button" class="sim-mass-pill ${period === 'CUSTOM' ? 'active' : ''}" data-mass-period="CUSTOM">Personalizado...</button>
-                <button type="button" class="sim-mass-pill ${period === 'ALL' ? 'active' : ''}" data-mass-period="ALL">Todo o Histórico</button>
-              </div>
-
-              <!-- Inputs de Data Personalizada -->
-              ${period === 'CUSTOM' ? `
-                <div class="sim-mass-custom-dates">
-                  <div class="sim-mass-date-field">
-                    <label>Data Inicial:</label>
-                    <input type="date" id="simMassStartDate" value="${cfg.startDate || ''}" class="sim-date-input" />
-                  </div>
-                  <div class="sim-mass-date-field">
-                    <label>Data Final:</label>
-                    <input type="date" id="simMassEndDate" value="${cfg.endDate || ''}" class="sim-date-input" />
-                  </div>
+          <!-- Corpo do Modal com Scroll Interno Seguro -->
+          <div class="sim-mass-modal-body">
+            <!-- Grid Principal Superior: Etapa 1 e Etapa 2 em Colunas Widescreen -->
+            <div class="sim-mass-main-grid">
+              <!-- BLOCO 1: CONFIGURAÇÃO DE DIMENSÃO DA SIMULAÇÃO (Coluna 1) -->
+              <div class="sim-mass-modal-section sim-mass-col-sample">
+                <div class="sim-mass-section-eyebrow">
+                  <span>1. DIMENSÃO E PARÂMETROS DA AMOSTRA</span>
                 </div>
-              ` : ''}
 
-              <div class="sim-mass-coverage-note">
-                ℹ️ <strong>Cobertura real:</strong> B3 (COTAHIST) Jan/2025 a Out/2026 (~22 meses, 446 pregões). Nasdaq: Out/2025 a Out/2026 (250 pregões). Períodos acima da cobertura real utilizarão o máximo disponível.
-              </div>
-            </div>
-
-            <!-- 1.2 Universo de Ativos -->
-            <div class="sim-mass-param-group">
-              <label class="sim-mass-param-label">
-                <span>Universo de Ativos</span>
-                <span class="sim-mass-param-hint">Mercado e cesta de papéis para varredura</span>
-              </label>
-              <div class="sim-mass-pills-grid">
-                <button type="button" class="sim-mass-pill ${universe === 'IBOV' ? 'active' : ''}" data-mass-universe="IBOV">
-                  <strong>IBOV</strong> <small>(Índice Bovespa)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${universe === 'LIQUID_B3' ? 'active' : ''}" data-mass-universe="LIQUID_B3">
-                  <strong>B3 Líquidas</strong> <small>(Alta Liquidez)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${universe === 'ALL_B3' ? 'active' : ''}" data-mass-universe="ALL_B3">
-                  <strong>B3 Geral</strong> <small>(Base Completa)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${universe === 'NASDAQ' ? 'active' : ''}" data-mass-universe="NASDAQ">
-                  <strong>NASDAQ</strong> <small>(Mercado EUA)</small>
-                </button>
-              </div>
-            </div>
-
-            <!-- 1.3 Gatilhos e Notas do Rubric em Grid Duplo -->
-            <div class="sim-mass-dual-grid">
-              <!-- Gatilhos -->
-              <div class="sim-mass-param-group">
-                <label class="sim-mass-param-label">
-                  <span>Gatilho Operacional</span>
-                </label>
-                <div class="sim-mass-chips-wrap">
-                  <button type="button" class="sim-mass-chip ${triggers === 'ALL' ? 'active' : ''}" data-mass-trigger="ALL">Todos os gatilhos</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'Inside Bar' ? 'active' : ''}" data-mass-trigger="Inside Bar">Inside Bar</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'Double Inside Bar' ? 'active' : ''}" data-mass-trigger="Double Inside Bar">Double Inside Bar</button>
-                  <button type="button" class="sim-mass-chip ${triggers === '1-2-3 de Compra' ? 'active' : ''}" data-mass-trigger="1-2-3 de Compra">1-2-3 de Compra</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'PFR de Compra' ? 'active' : ''}" data-mass-trigger="PFR de Compra">PFR de Compra</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'Dave Landry' ? 'active' : ''}" data-mass-trigger="Dave Landry">Dave Landry</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'Red Bar Ignored' ? 'active' : ''}" data-mass-trigger="Red Bar Ignored">Red Bar Ignored</button>
-                </div>
-              </div>
-
-              <!-- Notas do Rubric (Fonte de Verdade: Novo Trade: A, B, C e D) -->
-              <div class="sim-mass-param-group">
-                <label class="sim-mass-param-label">
-                  <span>Notas do Rubric</span>
-                </label>
-                <div class="sim-mass-chips-wrap">
-                  <button type="button" class="sim-mass-chip ${grades === 'ALL' ? 'active' : ''}" data-mass-grade="ALL">Todas as Notas (A, B, C, D)</button>
-                  <button type="button" class="sim-mass-chip ${grades === 'A' ? 'active' : ''}" data-mass-grade="A">Nota A (High Quality)</button>
-                  <button type="button" class="sim-mass-chip ${grades === 'B' ? 'active' : ''}" data-mass-grade="B">Nota B (Good Edge)</button>
-                  <button type="button" class="sim-mass-chip ${grades === 'C' ? 'active' : ''}" data-mass-grade="C">Nota C (Small Edge)</button>
-                  <button type="button" class="sim-mass-chip ${grades === 'D' ? 'active' : ''}" data-mass-grade="D">Nota D (No Edge)</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 1.4 Volume da Amostra (Meta de Trades Executados) -->
-            <div class="sim-mass-param-group">
-              <label class="sim-mass-param-label">
-                <span>Volume da Amostra (Meta de Trades Executados)</span>
-                <span class="sim-mass-param-hint">Refere-se a entradas efetivamente ativadas pelas regras operacionais</span>
-              </label>
-              <div class="sim-mass-pills-grid">
-                <button type="button" class="sim-mass-pill ${target === 100 ? 'active' : ''}" data-mass-target="100">
-                  <strong>100 trades</strong> <small>(Validação de Regras)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${target === 250 ? 'active' : ''}" data-mass-target="250">
-                  <strong>250 trades</strong> <small>(Amostra Intermediária)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${target === 500 ? 'active' : ''}" data-mass-target="500">
-                  <strong>500 trades</strong> <small>(Validação Estatística)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${target === 1000 ? 'active' : ''}" data-mass-target="1000">
-                  <strong>1.000 trades</strong> <small>(Grande Amostra)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${target === 'MAX' ? 'active' : ''}" data-mass-target="MAX">
-                  <strong>Máximo</strong> <small>(Varredura Total)</small>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- BLOCO 2: CENÁRIO DE GESTÃO DE RISCO -->
-          <div class="sim-mass-modal-section">
-            <div class="sim-mass-section-eyebrow">
-              <span>2. CENÁRIO DE GESTÃO DE RISCO</span>
-            </div>
-
-            <div class="sim-scenario-options-list">
-              <!-- Opção 1: Gestão 2R — Base -->
-              <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
+                <!-- 1.1 Período Histórico -->
+                <div class="sim-mass-param-group">
+                  <label class="sim-mass-param-label">
+                    <span>Período Histórico</span>
+                    <span class="sim-mass-param-hint">Respeita calendário oficial de negociação (exclui feriados/fins de semana)</span>
+                  </label>
+                  <div class="sim-mass-pills-grid">
+                    <button type="button" class="sim-mass-pill ${period === 30 ? 'active' : ''}" data-mass-period="30">30 dias</button>
+                    <button type="button" class="sim-mass-pill ${period === 90 ? 'active' : ''}" data-mass-period="90">90 dias</button>
+                    <button type="button" class="sim-mass-pill ${period === 120 ? 'active' : ''}" data-mass-period="120">120 dias (4m)</button>
+                    <button type="button" class="sim-mass-pill ${period === 180 ? 'active' : ''}" data-mass-period="180">6 meses</button>
+                    <button type="button" class="sim-mass-pill ${period === 365 ? 'active' : ''}" data-mass-period="365">12 meses</button>
+                    <button type="button" class="sim-mass-pill ${period === 730 ? 'active' : ''}" data-mass-period="730">24 meses</button>
+                    <button type="button" class="sim-mass-pill ${period === 1095 ? 'active' : ''}" data-mass-period="1095">36 meses</button>
+                    <button type="button" class="sim-mass-pill ${period === 'CUSTOM' ? 'active' : ''}" data-mass-period="CUSTOM">Personalizado...</button>
+                    <button type="button" class="sim-mass-pill ${period === 'ALL' ? 'active' : ''}" data-mass-period="ALL">Todo o Histórico</button>
                   </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão 2R — Base</div>
-                    <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2R. Sem piramidagem.</div>
+
+                  <!-- Inputs de Data Personalizada -->
+                  ${period === 'CUSTOM' ? `
+                    <div class="sim-mass-custom-dates">
+                      <div class="sim-mass-date-field">
+                        <label>Data Inicial:</label>
+                        <input type="date" id="simMassStartDate" value="${cfg.startDate || ''}" class="sim-date-input" />
+                      </div>
+                      <div class="sim-mass-date-field">
+                        <label>Data Final:</label>
+                        <input type="date" id="simMassEndDate" value="${cfg.endDate || ''}" class="sim-date-input" />
+                      </div>
+                    </div>
+                  ` : ''}
+
+                  <div class="sim-mass-coverage-note">
+                    ℹ️ <strong>Cobertura real:</strong> B3 (COTAHIST) Jan/2025 a Out/2026 (~22 meses, 446 pregões). Nasdaq: Out/2025 a Out/2026 (250 pregões). Períodos acima da cobertura real utilizarão o máximo disponível.
                   </div>
                 </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('2R')}
+
+                <!-- 1.2 Universo de Ativos -->
+                <div class="sim-mass-param-group">
+                  <label class="sim-mass-param-label">
+                    <span>Universo de Ativos</span>
+                    <span class="sim-mass-param-hint">Mercado e cesta de papéis para varredura</span>
+                  </label>
+                  <div class="sim-mass-pills-grid">
+                    <button type="button" class="sim-mass-pill ${universe === 'IBOV' ? 'active' : ''}" data-mass-universe="IBOV">
+                      <strong>IBOV</strong> <small>(Índice Bovespa)</small>
+                    </button>
+                    <button type="button" class="sim-mass-pill ${universe === 'LIQUID_B3' ? 'active' : ''}" data-mass-universe="LIQUID_B3">
+                      <strong>B3 Líquidas</strong> <small>(Alta Liquidez)</small>
+                    </button>
+                    <button type="button" class="sim-mass-pill ${universe === 'ALL_B3' ? 'active' : ''}" data-mass-universe="ALL_B3">
+                      <strong>B3 Geral</strong> <small>(Base Completa)</small>
+                    </button>
+                    <button type="button" class="sim-mass-pill ${universe === 'NASDAQ' ? 'active' : ''}" data-mass-universe="NASDAQ">
+                      <strong>NASDAQ</strong> <small>(Mercado EUA)</small>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 1.3 Gatilhos e Notas do Rubric em Grid Duplo -->
+                <div class="sim-mass-dual-grid">
+                  <!-- Gatilhos -->
+                  <div class="sim-mass-param-group">
+                    <label class="sim-mass-param-label">
+                      <span>Gatilho Operacional</span>
+                    </label>
+                    <div class="sim-mass-chips-wrap">
+                      <button type="button" class="sim-mass-chip ${triggers === 'ALL' ? 'active' : ''}" data-mass-trigger="ALL">Todos os gatilhos</button>
+                      <button type="button" class="sim-mass-chip ${triggers === 'Inside Bar' ? 'active' : ''}" data-mass-trigger="Inside Bar">Inside Bar</button>
+                      <button type="button" class="sim-mass-chip ${triggers === 'Double Inside Bar' ? 'active' : ''}" data-mass-trigger="Double Inside Bar">Double Inside Bar</button>
+                      <button type="button" class="sim-mass-chip ${triggers === '1-2-3 de Compra' ? 'active' : ''}" data-mass-trigger="1-2-3 de Compra">1-2-3 de Compra</button>
+                      <button type="button" class="sim-mass-chip ${triggers === 'PFR de Compra' ? 'active' : ''}" data-mass-trigger="PFR de Compra">PFR de Compra</button>
+                      <button type="button" class="sim-mass-chip ${triggers === 'Dave Landry' ? 'active' : ''}" data-mass-trigger="Dave Landry">Dave Landry</button>
+                      <button type="button" class="sim-mass-chip ${triggers === 'Red Bar Ignored' ? 'active' : ''}" data-mass-trigger="Red Bar Ignored">Red Bar Ignored</button>
+                    </div>
+                  </div>
+
+                  <!-- Notas do Rubric (Fonte de Verdade: Novo Trade: A, B, C e D) -->
+                  <div class="sim-mass-param-group">
+                    <label class="sim-mass-param-label">
+                      <span>Notas do Rubric</span>
+                    </label>
+                    <div class="sim-mass-chips-wrap">
+                      <button type="button" class="sim-mass-chip ${grades === 'ALL' ? 'active' : ''}" data-mass-grade="ALL">Todas as Notas (A, B, C, D)</button>
+                      <button type="button" class="sim-mass-chip ${grades === 'A' ? 'active' : ''}" data-mass-grade="A">Nota A (High Quality)</button>
+                      <button type="button" class="sim-mass-chip ${grades === 'B' ? 'active' : ''}" data-mass-grade="B">Nota B (Good Edge)</button>
+                      <button type="button" class="sim-mass-chip ${grades === 'C' ? 'active' : ''}" data-mass-grade="C">Nota C (Small Edge)</button>
+                      <button type="button" class="sim-mass-chip ${grades === 'D' ? 'active' : ''}" data-mass-grade="D">Nota D (No Edge)</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 1.4 Volume da Amostra (Meta de Trades Executados) -->
+                <div class="sim-mass-param-group">
+                  <label class="sim-mass-param-label">
+                    <span>Volume da Amostra (Meta de Trades Executados)</span>
+                    <span class="sim-mass-param-hint">Refere-se a entradas efetivamente ativadas pelas regras operacionais</span>
+                  </label>
+                  <div class="sim-mass-pills-grid">
+                    <button type="button" class="sim-mass-pill ${target === 100 ? 'active' : ''}" data-mass-target="100">
+                      <strong>100 trades</strong> <small>(Validação de Regras)</small>
+                    </button>
+                    <button type="button" class="sim-mass-pill ${target === 250 ? 'active' : ''}" data-mass-target="250">
+                      <strong>250 trades</strong> <small>(Amostra Intermediária)</small>
+                    </button>
+                    <button type="button" class="sim-mass-pill ${target === 500 ? 'active' : ''}" data-mass-target="500">
+                      <strong>500 trades</strong> <small>(Validação Estatística)</small>
+                    </button>
+                    <button type="button" class="sim-mass-pill ${target === 1000 ? 'active' : ''}" data-mass-target="1000">
+                      <strong>1.000 trades</strong> <small>(Grande Amostra)</small>
+                    </button>
+                    <button type="button" class="sim-mass-pill ${target === 'MAX' ? 'active' : ''}" data-mass-target="MAX">
+                      <strong>Máximo</strong> <small>(Varredura Total)</small>
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <!-- Opção 2: Gestão 2,5R — Alvo Estendido -->
-              <div class="sim-scenario-option ${sel === '2.5R' ? 'selected' : ''}" data-scenario-select="2.5R">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === '2.5R' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
-                  </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
-                    <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2,5R. Sem piramidagem.</div>
-                  </div>
+              <!-- BLOCO 2: CENÁRIO DE GESTÃO DE RISCO (Coluna 2) -->
+              <div class="sim-mass-modal-section sim-mass-col-risk">
+                <div class="sim-mass-section-eyebrow">
+                  <span>2. CENÁRIO DE GESTÃO DE RISCO</span>
                 </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('2.5R')}
-                </div>
-              </div>
 
-              <!-- Opção 3: Gestão Pirâmide — 1R → 2R -->
-              <div class="sim-scenario-option ${sel === 'PYRAMID_1R_2R' ? 'selected' : ''}" data-scenario-select="PYRAMID_1R_2R">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === 'PYRAMID_1R_2R' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
+                <div class="sim-scenario-options-list">
+                  <!-- Opção 1: Gestão 2R — Base -->
+                  <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão 2R — Base</div>
+                        <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2R. Sem piramidagem.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('2R')}
+                    </div>
                   </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
-                    <div class="sim-scen-opt-desc">Risco inicial 1R. Em +1R adiciona +1R e encerra tudo em +2R.</div>
-                  </div>
-                </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
-                </div>
-              </div>
 
-              <!-- Opção 4: Gestão Parcial 50% (2R) + Média 9 -->
-              <div class="sim-scenario-option ${sel === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_50_2R_EMA9">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === 'PARTIAL_50_2R_EMA9' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
+                  <!-- Opção 2: Gestão 2,5R — Alvo Estendido -->
+                  <div class="sim-scenario-option ${sel === '2.5R' ? 'selected' : ''}" data-scenario-select="2.5R">
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === '2.5R' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
+                        <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2,5R. Sem piramidagem.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('2.5R')}
+                    </div>
                   </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
-                    <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 9.</div>
-                  </div>
-                </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('PARTIAL_50_2R_EMA9')}
-                </div>
-              </div>
 
-              <!-- Opção 5: Gestão Parcial 80% (2R) + Média 9 -->
-              <div class="sim-scenario-option ${sel === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_80_2R_EMA9">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === 'PARTIAL_80_2R_EMA9' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
+                  <!-- Opção 3: Gestão Pirâmide — 1R → 2R -->
+                  <div class="sim-scenario-option ${sel === 'PYRAMID_1R_2R' ? 'selected' : ''}" data-scenario-select="PYRAMID_1R_2R">
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === 'PYRAMID_1R_2R' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
+                        <div class="sim-scen-opt-desc">Risco inicial 1R. Em +1R adiciona +1R e encerra tudo em +2R.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
+                    </div>
                   </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
-                    <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 9.</div>
+
+                  <!-- Opção 4: Gestão Parcial 50% (2R) + Média 9 -->
+                  <div class="sim-scenario-option ${sel === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_50_2R_EMA9">
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === 'PARTIAL_50_2R_EMA9' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
+                        <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 9.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('PARTIAL_50_2R_EMA9')}
+                    </div>
+                  </div>
+
+                  <!-- Opção 5: Gestão Parcial 80% (2R) + Média 9 -->
+                  <div class="sim-scenario-option ${sel === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_80_2R_EMA9">
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === 'PARTIAL_80_2R_EMA9' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
+                        <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 9.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('PARTIAL_80_2R_EMA9')}
+                    </div>
                   </div>
                 </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('PARTIAL_80_2R_EMA9')}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- BLOCO 3: RESUMO PRÉ-EXECUÇÃO E GARANTIA METODOLÓGICA -->
-          <div class="sim-mass-modal-section">
-            <div class="sim-mass-section-eyebrow">
-              <span>3. RESUMO ANTES DE INICIAR</span>
-            </div>
-
-            <div class="sim-mass-preflight-card">
-              <div class="sim-mass-preflight-grid">
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Período:</span>
-                  <span class="sim-mass-pf-val">${periodDesc}</span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Universo:</span>
-                  <span class="sim-mass-pf-val">${universeDesc}</span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Gatilhos:</span>
-                  <span class="sim-mass-pf-val">${triggerDesc}</span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Notas do Rubric:</span>
-                  <span class="sim-mass-pf-val">${gradeDesc}</span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Meta de Executados:</span>
-                  <span class="sim-mass-pf-val"><strong>${targetDesc}</strong></span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Gestão de Risco:</span>
-                  <span class="sim-mass-pf-val">${scenarioMeta.name}</span>
-                </div>
-              </div>
-              <div class="sim-mass-preflight-integrity">
-                🛡️ <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a 1 posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
               </div>
             </div>
 
-            <!-- Botão de Ação / Indicador de Progresso -->
-            <div class="sim-scenario-action-wrap">
-              ${state.generatingMass ? `
-                <div class="sim-mass-progress-box">
-                  <div class="sim-mass-spinner"></div>
-                  <div class="sim-mass-progress-text">${state.massProgressText || 'Processando varredura histórica...'}</div>
+            <!-- SEÇÃO INFERIOR: RESUMO PRÉ-EXECUÇÃO & AÇÕES DA MASSA ATUAL -->
+            <div class="sim-mass-bottom-section">
+              <!-- BLOCO 3: RESUMO ANTES DE INICIAR -->
+              <div class="sim-mass-modal-section sim-mass-summary-section">
+                <div class="sim-mass-section-eyebrow">
+                  <span>3. RESUMO ANTES DE INICIAR</span>
                 </div>
-                <button class="sim-btn-confirm-scenario disabled" type="button" disabled>
-                  <span>⏳ Gerando Massa...</span>
-                </button>
-              ` : `
-                <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
-                  <span>🚀 Iniciar Simulação em Escala</span>
-                </button>
-              `}
-            </div>
-          </div>
 
-          <!-- DIVISOR VISUAL -->
-          <div class="sim-mass-modal-divider"></div>
+                <div class="sim-mass-preflight-card">
+                  <div class="sim-mass-preflight-grid">
+                    <div class="sim-mass-preflight-item">
+                      <span class="sim-mass-pf-label">Período:</span>
+                      <span class="sim-mass-pf-val">${periodDesc}</span>
+                    </div>
+                    <div class="sim-mass-preflight-item">
+                      <span class="sim-mass-pf-label">Universo:</span>
+                      <span class="sim-mass-pf-val">${universeDesc}</span>
+                    </div>
+                    <div class="sim-mass-preflight-item">
+                      <span class="sim-mass-pf-label">Gatilhos:</span>
+                      <span class="sim-mass-pf-val">${triggerDesc}</span>
+                    </div>
+                    <div class="sim-mass-preflight-item">
+                      <span class="sim-mass-pf-label">Notas do Rubric:</span>
+                      <span class="sim-mass-pf-val">${gradeDesc}</span>
+                    </div>
+                    <div class="sim-mass-preflight-item">
+                      <span class="sim-mass-pf-label">Meta de Executados:</span>
+                      <span class="sim-mass-pf-val"><strong>${targetDesc}</strong></span>
+                    </div>
+                    <div class="sim-mass-preflight-item">
+                      <span class="sim-mass-pf-label">Gestão de Risco:</span>
+                      <span class="sim-mass-pf-val">${scenarioMeta.name}</span>
+                    </div>
+                  </div>
 
-          <!-- BLOCO 4: AÇÕES DA MASSA ATUAL -->
-          <div class="sim-mass-modal-section">
-            <div class="sim-mass-section-eyebrow">
-              <span>AÇÕES DA MASSA ATUAL</span>
-            </div>
+                  <div class="sim-mass-preflight-footer">
+                    <div class="sim-mass-preflight-integrity">
+                      🛡️ <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a 1 posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
+                    </div>
 
-            <div class="sim-mass-actions-list">
-              <!-- Reavaliar candles -->
-              <div class="sim-mass-action-card" id="simMassActionEvaluate">
-                <div class="sim-mass-action-icon">↻</div>
-                <div class="sim-mass-action-info">
-                  <div class="sim-mass-action-title">Reavaliar candles</div>
-                  <div class="sim-mass-action-desc">Reprocessar as simulações existentes utilizando os candles disponíveis.</div>
+                    <!-- Botão de Ação / Indicador de Progresso -->
+                    <div class="sim-scenario-action-wrap">
+                      ${state.generatingMass ? `
+                        <div class="sim-mass-progress-box">
+                          <div class="sim-mass-spinner"></div>
+                          <div class="sim-mass-progress-text">${state.massProgressText || 'Processando varredura histórica...'}</div>
+                        </div>
+                        <button class="sim-btn-confirm-scenario disabled" type="button" disabled>
+                          <span>⏳ Gerando Massa...</span>
+                        </button>
+                      ` : `
+                        <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
+                          <span>🚀 Iniciar Simulação em Escala</span>
+                        </button>
+                      `}
+                    </div>
+                  </div>
                 </div>
-                <button class="sim-mass-action-trigger-btn" type="button" id="simMassActionEvaluateBtn">Executar</button>
               </div>
 
-              <!-- Excluir massa atual -->
-              <div class="sim-mass-action-card danger" id="simMassActionClear">
-                <div class="sim-mass-action-icon danger">🗑</div>
-                <div class="sim-mass-action-info">
-                  <div class="sim-mass-action-title danger">Excluir massa atual</div>
-                  <div class="sim-mass-action-desc">Excluir todas as simulações atualmente carregadas.</div>
+              <!-- DIVISOR VISUAL -->
+              <div class="sim-mass-modal-divider"></div>
+
+              <!-- BLOCO 4: AÇÕES DA MASSA ATUAL -->
+              <div class="sim-mass-modal-section sim-mass-current-actions-section">
+                <div class="sim-mass-section-eyebrow">
+                  <span>AÇÕES DA MASSA ATUAL</span>
                 </div>
-                <button class="sim-mass-action-trigger-btn danger" type="button" id="simMassActionClearBtn">Excluir</button>
+
+                <div class="sim-mass-actions-list sim-mass-actions-grid">
+                  <!-- Reavaliar candles -->
+                  <div class="sim-mass-action-card" id="simMassActionEvaluate">
+                    <div class="sim-mass-action-icon">↻</div>
+                    <div class="sim-mass-action-info">
+                      <div class="sim-mass-action-title">Reavaliar candles</div>
+                      <div class="sim-mass-action-desc">Reprocessar as simulações existentes utilizando os candles disponíveis.</div>
+                    </div>
+                    <button class="sim-mass-action-trigger-btn" type="button" id="simMassActionEvaluateBtn">Executar</button>
+                  </div>
+
+                  <!-- Excluir massa atual -->
+                  <div class="sim-mass-action-card danger" id="simMassActionClear">
+                    <div class="sim-mass-action-icon danger">🗑</div>
+                    <div class="sim-mass-action-info">
+                      <div class="sim-mass-action-title danger">Excluir massa atual</div>
+                      <div class="sim-mass-action-desc">Excluir todas as simulações atualmente carregadas.</div>
+                    </div>
+                    <button class="sim-mass-action-trigger-btn danger" type="button" id="simMassActionClearBtn">Excluir</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

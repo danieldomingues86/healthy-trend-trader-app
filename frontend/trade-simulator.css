@@ -2038,9 +2038,7 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   padding: 24px 28px;
 }
 
-.sim-mass-modal-box {
-  max-width: 640px;
-}
+/* .sim-mass-modal-box configurado no bloco dedicado widescreen abaixo */
 
 .sim-mass-header-badge {
   font-size: 10px;
@@ -3730,29 +3728,89 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   padding: 24px 0;
 }
 
-/* Modal da Massa de Teste — Novos Controles */
+/* Modal da Massa de Teste — Widescreen, Layout Multicolunas e Otimização de Espaço */
 .sim-mass-modal-box {
-  max-width: 780px !important;
-  max-height: 92vh;
+  width: min(96vw, 1540px) !important;
+  max-width: 1540px !important;
+  max-height: 94vh !important;
+  height: auto;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 22px 28px !important;
+  overflow: hidden !important;
+  box-sizing: border-box;
+}
+
+.sim-mass-modal-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(27, 83, 54, 0.12);
+}
+
+.sim-mass-modal-body {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.sim-mass-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sim-mass-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sim-mass-modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.sim-mass-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Grid Principal: Etapa 1 e Etapa 2 em Colunas Widescreen */
+.sim-mass-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  margin-bottom: 4px;
+}
+
+.sim-mass-col-sample,
+.sim-mass-col-risk {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .sim-mass-param-group {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .sim-mass-param-label {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .sim-mass-param-hint {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 400;
   color: #64748b;
 }
@@ -3760,26 +3818,27 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 .sim-mass-pills-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .sim-mass-pill {
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 12px;
+  border-radius: 9px;
+  padding: 6px 11px;
+  font-size: 11.5px;
   color: #334155;
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
   gap: 5px;
+  user-select: none;
 }
 
 .sim-mass-pill small {
   color: #64748b;
-  font-size: 11px;
+  font-size: 10.5px;
 }
 
 .sim-mass-pill:hover {
@@ -3801,55 +3860,56 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 .sim-mass-custom-dates {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 10px;
-  padding: 10px 14px;
+  gap: 14px;
+  margin-top: 8px;
+  padding: 8px 12px;
   background: #f1f5f9;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .sim-mass-date-field {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #334155;
 }
 
 .sim-mass-coverage-note {
-  font-size: 11.5px;
+  font-size: 11px;
   color: #475569;
   background: #f8fafc;
   border-left: 3px solid #10b981;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 0 6px 6px 0;
-  margin-top: 8px;
-  line-height: 1.45;
+  margin-top: 6px;
+  line-height: 1.4;
 }
 
 .sim-mass-dual-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 .sim-mass-chips-wrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
 }
 
 .sim-mass-chip {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 11.5px;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font-size: 11px;
   font-weight: 600;
   color: #334155;
   cursor: pointer;
   transition: all 0.15s ease;
+  user-select: none;
 }
 
 .sim-mass-chip:hover {
@@ -3864,47 +3924,106 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   font-weight: 700;
 }
 
-/* Card Pre-flight */
+/* Otimização da Coluna Lateral de Gestão de Risco */
+.sim-mass-col-risk .sim-scenario-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 0;
+  margin-top: 6px;
+}
+
+.sim-mass-col-risk .sim-scenario-option {
+  padding: 8px 12px;
+  border-radius: 11px;
+}
+
+.sim-mass-col-risk .sim-scen-diagram-svg {
+  height: 38px;
+}
+
+/* Seção Inferior: Etapa 3 (Resumo e Início) e Ações de Manutenção */
+.sim-mass-bottom-section {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(27, 83, 54, 0.12);
+}
+
 .sim-mass-preflight-card {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 16px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
 }
 
 .sim-mass-preflight-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 16px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px 14px;
+  margin-bottom: 10px;
 }
 
 .sim-mass-preflight-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .sim-mass-pf-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sim-mass-pf-val {
-  font-size: 13px;
+  font-size: 12.5px;
   color: #0f172a;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sim-mass-preflight-footer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
 }
 
 .sim-mass-preflight-integrity {
   font-size: 11.5px;
   color: #334155;
-  line-height: 1.5;
-  padding-top: 10px;
-  border-top: 1px dashed #cbd5e1;
+  line-height: 1.45;
+}
+
+.sim-mass-preflight-cta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.sim-mass-preflight-cta .sim-btn-confirm-scenario {
+  margin: 0;
+  white-space: nowrap;
+  padding: 12px 24px;
+  font-size: 13.5px;
+}
+
+.sim-mass-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 10px;
 }
 
 /* Progresso de Execução */
@@ -3946,15 +4065,67 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   background: #94a3b8;
 }
 
-@media (max-width: 900px) {
+/* Responsividade Adaptativa Widescreen / Notebook / Mobile */
+@media (max-width: 1380px) {
+  .sim-mass-modal-box {
+    width: min(98vw, 1340px) !important;
+    max-width: 1340px !important;
+    padding: 20px 24px !important;
+  }
+  .sim-mass-main-grid {
+    gap: 20px;
+  }
+  .sim-mass-preflight-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 12px;
+  }
+}
+
+@media (max-width: 1024px) {
   .sim-kpis-advanced-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sim-mass-modal-box {
+    width: 96vw !important;
+    max-height: 94vh !important;
+  }
+  .sim-mass-main-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .sim-mass-preflight-footer {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .sim-mass-preflight-cta {
+    justify-content: stretch;
+  }
+  .sim-mass-preflight-cta .sim-btn-confirm-scenario {
+    width: 100%;
+  }
+  .sim-mass-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .sim-mass-modal-box {
+    padding: 16px 18px !important;
   }
   .sim-mass-dual-grid {
     grid-template-columns: 1fr;
   }
   .sim-mass-preflight-grid {
     grid-template-columns: 1fr;
+  }
+  .sim-mass-custom-dates {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sim-scenario-option {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }
 
