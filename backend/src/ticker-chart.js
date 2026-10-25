@@ -381,21 +381,34 @@ async function getTickerChartData(rawSymbol) {
   const latestEma72 = ema72Array[ema72Array.length - 1];
   const prevEma72 = ema72Array.length > 1 ? ema72Array[ema72Array.length - 2] : latestEma72;
 
-  const priceAboveEma10 = latestEma10 !== null && currentPrice > latestEma10;
-  const ema10AboveEma72 = latestEma10 !== null && latestEma72 !== null && latestEma10 > latestEma72;
-  const bothSlopingUp = (latestEma10 > prevEma10) && (latestEma72 > prevEma72);
+  const emaAlignment = typeof TickerChartModel.validateDailyEmaAlignment === 'function'
+    ? TickerChartModel.validateDailyEmaAlignment(candles, ema10Array, ema72Array)
+    : null;
+
+  const priceAboveEma10 = emaAlignment
+    ? emaAlignment.checks.priceAboveEma10
+    : (latestEma10 !== null && currentPrice > latestEma10);
+  const ema10AboveEma72 = emaAlignment
+    ? emaAlignment.checks.ema10AboveEma72
+    : (latestEma10 !== null && latestEma72 !== null && latestEma10 > latestEma72);
+  const bothSlopingUp = emaAlignment
+    ? emaAlignment.checks.bothAscending
+    : ((latestEma10 > prevEma10) && (latestEma72 > prevEma72));
 
   // Tendência
   let trendStatus = 'Alta';
   let trendFormula = 'Preço > EMA 10 > EMA 72';
-  if (priceAboveEma10 && ema10AboveEma72) {
+  if (priceAboveEma10 && ema10AboveEma72 && bothSlopingUp) {
     trendStatus = 'Alta';
+    trendFormula = 'Preço > EMA 10 > EMA 72';
   } else if (!priceAboveEma10 && !ema10AboveEma72) {
     trendStatus = 'Baixa';
     trendFormula = 'Preço < EMA 10 < EMA 72';
   } else {
     trendStatus = 'Neutra';
-    trendFormula = 'Médias em transição';
+    trendFormula = emaAlignment && emaAlignment.reason
+      ? emaAlignment.reason.replace(/^Rejeitado:\s*/i, '')
+      : 'Médias em transição';
   }
 
   // Volatilidade ATR

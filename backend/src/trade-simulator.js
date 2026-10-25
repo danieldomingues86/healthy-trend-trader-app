@@ -94,6 +94,35 @@ async function list(userId, client = database) {
     simulations = model.getDefaultSeedSimulations('2R');
   } else {
     simulations = result.rows.map(mapSimulation).filter(s => s && s.triggerName !== 'Pullback');
+    if (tickerChart && typeof model.validateDailyEmaAlignment === 'function') {
+      try {
+        const seedKeys = new Set(
+          (model.getDefaultSeedSimulations('2R') || []).map(s => `${String(s.symbol).toUpperCase()}:${String(s.signalDate).slice(0, 10)}`)
+        );
+        const b3 = typeof tickerChart.loadB3History === 'function' ? tickerChart.loadB3History() : null;
+        const nasdaq = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
+        simulations = simulations.filter(s => {
+          const sym = String(s.symbol || '').toUpperCase().trim();
+          const sDate = String(s.signalDate || '').slice(0, 10);
+          if (seedKeys.has(`${sym}:${sDate}`)) return true;
+          const hist = (b3 && b3.get(sym)) || (nasdaq && nasdaq.get(sym)) || null;
+          if (!hist || !sDate) return true;
+          const idx = hist.findIndex(c => c.time === sDate);
+          if (idx < 2) return true;
+          const alignment = model.validateDailyEmaAlignment(hist.slice(0, idx + 1));
+          if (alignment && alignment.isValid) {
+            s.trendAlignment = alignment;
+            if (typeof model.getTradeVisionAtivo === 'function') {
+              s.visionAtivo = model.getTradeVisionAtivo(s);
+            }
+            return true;
+          }
+          return false;
+        });
+      } catch {
+        // Mantém lista mapeada se histórico diário não estiver acessível no ambiente
+      }
+    }
   }
 
   const stats = model.calculateSimulatorStats(simulations);

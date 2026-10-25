@@ -442,9 +442,183 @@
   }
 
   /**
+   * Calcula série causal de EMA com precisão de 4 casas decimais para todos os candles disponíveis (sem look-ahead).
+   */
+  function calculateCausalEmaSeries(values, period) {
+    if (!Array.isArray(values) || values.length === 0) return [];
+    const k = 2 / (period + 1);
+    const result = new Array(values.length);
+    let prev = Number(values[0]);
+    result[0] = Number(prev.toFixed(4));
+    for (let i = 1; i < values.length; i++) {
+      prev = Number(values[i]) * k + prev * (1 - k);
+      result[i] = Number(prev.toFixed(4));
+    }
+    return result;
+  }
+
+  /**
+   * Valida o alinhamento estrutural e a inclinação altista das médias móveis oficiais EMA 10 e EMA 72 no Diário.
+   *
+   * Regra operacional obrigatória (Diário — 1D, estritamente com candles fechados até a data do sinal, zero look-ahead):
+   * 1. Preço acima da EMA 10 e da EMA 72 (close >= EMA 10 e close >= EMA 72).
+   * 2. Alinhamento estrutural altista: EMA 10 estritamente acima da EMA 72 (EMA 10 > EMA 72).
+   * 3. Inclinação altista confirmada nas duas médias:
+   *    - EMA 10 ascendente no momento do sinal (EMA10[t] > EMA10[t-1] e, quando disponíveis candles anteriores da janela,
+   *      EMA10[t] > EMA10[t-2] e EMA10[t] > EMA10[t-3]).
+   *    - EMA 72 ascendente no momento do sinal (EMA72[t] > EMA72[t-1] e, quando disponíveis candles anteriores da janela,
+   *      EMA72[t] > EMA72[t-2] e EMA72[t] > EMA72[t-3]).
+   *
+   * Se qualquer condição falhar, bloqueia o sinal de compra e retorna motivo explícito para auditoria.
+   */
+  function validateDailyEmaAlignment(candles, ema10Values = [], ema72Values = []) {
+    if (!Array.isArray(candles) || candles.length < 2) {
+      const msg = 'Rejeitado: Histórico diário insuficiente para validar alinhamento das EMAs 10 e 72';
+      return {
+        isValid: false,
+        reason: msg,
+        reasons: [msg],
+        timeframe: '1D',
+        checks: {
+          priceAboveEma10: false,
+          priceAboveEma72: false,
+          ema10AboveEma72: false,
+          ema10Ascending: false,
+          ema72Ascending: false,
+          bothAscending: false
+        },
+        values: null
+      };
+    }
+
+    const len = candles.length;
+    const lastCandle = candles[len - 1];
+    const latestClose = Number(lastCandle.close);
+    const signalDate = lastCandle.time || lastCandle.date || null;
+    const closes = candles.map(c => Number(c.close));
+
+    let e10Series = [];
+    if (Array.isArray(ema10Values) && ema10Values.some(v => v != null && Number.isFinite(Number(v)))) {
+      e10Series = ema10Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+    } else if (candles.some(c => c && (c.ema10 != null || c.ema9 != null))) {
+      e10Series = candles
+        .map(c => (c.ema10 != null ? Number(c.ema10) : (c.ema9 != null ? Number(c.ema9) : null)))
+        .filter(v => v != null && Number.isFinite(v));
+    } else {
+      e10Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_FAST);
+    }
+
+    let e72Series = [];
+    if (Array.isArray(ema72Values) && ema72Values.some(v => v != null && Number.isFinite(Number(v)))) {
+      e72Series = ema72Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+    } else if (candles.some(c => c && (c.ema72 != null || c.ema30 != null))) {
+      e72Series = candles
+        .map(c => (c.ema72 != null ? Number(c.ema72) : (c.ema30 != null ? Number(c.ema30) : null)))
+        .filter(v => v != null && Number.isFinite(v));
+    } else {
+      e72Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_SLOW);
+    }
+
+    if (e10Series.length < 2) {
+      e10Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_FAST);
+    }
+    if (e72Series.length < 2) {
+      e72Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_SLOW);
+    }
+
+    if (e10Series.length < 2 || e72Series.length < 2) {
+      const msg = 'Rejeitado: Série de EMAs insuficiente para confirmar inclinação no Diário';
+      return {
+        isValid: false,
+        reason: msg,
+        reasons: [msg],
+        timeframe: '1D',
+        checks: {
+          priceAboveEma10: false,
+          priceAboveEma72: false,
+          ema10AboveEma72: false,
+          ema10Ascending: false,
+          ema72Ascending: false,
+          bothAscending: false
+        },
+        values: null
+      };
+    }
+
+    const e10_0 = e10Series[e10Series.length - 1];
+    const e10_1 = e10Series[e10Series.length - 2];
+
+    const e72_0 = e72Series[e72Series.length - 1];
+    const e72_1 = e72Series[e72Series.length - 2];
+
+    const priceAboveEma10 = Number.isFinite(latestClose) && latestClose >= e10_0;
+    const priceAboveEma72 = Number.isFinite(latestClose) && latestClose >= e72_0;
+    const ema10AboveEma72 = e10_0 > e72_0;
+
+    const ema10Ascending = e10_0 > e10_1;
+    const ema72Ascending = e72_0 > e72_1;
+    const ema10Descending = e10_0 < e10_1;
+    const ema72Descending = e72_0 < e72_1;
+    const bothAscending = ema10Ascending && ema72Ascending;
+
+    const reasons = [];
+    if (ema10Descending && ema72Descending) {
+      reasons.push('Rejeitado: EMA 10 e EMA 72 descendentes');
+    } else {
+      if (ema10Descending) {
+        reasons.push('Rejeitado: EMA 10 descendente');
+      } else if (!ema10Ascending) {
+        reasons.push('Rejeitado: Médias sem inclinação altista confirmada (EMA 10 sem inclinação positiva)');
+      }
+      if (ema72Descending) {
+        reasons.push('Rejeitado: EMA 72 descendente');
+      } else if (!ema72Ascending) {
+        reasons.push('Rejeitado: Médias sem inclinação altista confirmada (EMA 72 sem inclinação positiva)');
+      }
+    }
+
+    if (!ema10AboveEma72) {
+      reasons.push('Rejeitado: EMA 10 abaixo da EMA 72');
+    }
+
+    if (!priceAboveEma10 || !priceAboveEma72) {
+      reasons.push('Rejeitado: Preço abaixo da EMA 10 ou EMA 72');
+    }
+
+    const isValid = priceAboveEma10 && priceAboveEma72 && ema10AboveEma72 && bothAscending;
+    const reason = isValid ? null : (reasons[0] || 'Rejeitado: Médias sem inclinação altista confirmada');
+
+    return {
+      isValid,
+      reason,
+      reasons,
+      timeframe: '1D',
+      signalDate,
+      checks: {
+        priceAboveEma10,
+        priceAboveEma72,
+        ema10AboveEma72,
+        ema10Ascending,
+        ema72Ascending,
+        bothAscending
+      },
+      values: {
+        close: latestClose,
+        ema10: Number(e10_0.toFixed(4)),
+        prevEma10: Number(e10_1.toFixed(4)),
+        ema10Slope: Number((e10_0 - e10_1).toFixed(4)),
+        ema72: Number(e72_0.toFixed(4)),
+        prevEma72: Number(e72_1.toFixed(4)),
+        ema72Slope: Number((e72_0 - e72_1).toFixed(4))
+      }
+    };
+  }
+
+  /**
    * Detecção de Gatilhos Técnicos Oficiais nos últimos candles
    * Regra Obrigatória: Para ser considerado um gatilho válido de compra,
-   * o preço precisa estar estritamente acima da EMA 10 e acima da EMA 72.
+   * o preço precisa estar acima da EMA 10 e da EMA 72, com EMA 10 > EMA 72
+   * e ambas as médias ascendentes no gráfico Diário.
    * Se qualquer condição falhar, retorna "Nenhum gatilho encontrado" (sem falsos positivos).
    */
   function detectSetupTriggers(candles, ema10Values = [], ema72Values = []) {
@@ -467,45 +641,48 @@
     const c2 = candles[candles.length - 2]; // candle anterior
     const c3 = candles[candles.length - 3]; // candle prévio
 
-    let ema10Arr = ema10Values;
-    let ema72Arr = ema72Values;
-    if ((!Array.isArray(ema10Arr) || ema10Arr.length === 0) && candles.length >= 10) {
-      ema10Arr = calculateEma(candles.map(c => c.close), 10);
-    }
-    if ((!Array.isArray(ema72Arr) || ema72Arr.length === 0) && candles.length >= 72) {
-      ema72Arr = calculateEma(candles.map(c => c.close), 72);
-    } else if ((!Array.isArray(ema72Arr) || ema72Arr.length === 0) && candles.length >= 30) {
-      ema72Arr = calculateEma(candles.map(c => c.close), candles.length);
-    }
+    const hasExplicitEmaArrays = (Array.isArray(ema10Values) && ema10Values.length > 0) || (Array.isArray(ema72Values) && ema72Values.length > 0);
+    const hasCandleEmaProps = candles.some(c => c && (c.ema10 != null || c.ema9 != null || c.ema72 != null || c.ema30 != null));
+    const hasEmaContext = hasExplicitEmaArrays || hasCandleEmaProps || candles.length >= 10;
 
-    const latestEma10 = (Array.isArray(ema10Arr) && ema10Arr.length > 0)
-      ? ema10Arr[ema10Arr.length - 1]
-      : null;
-    const latestEma72 = (Array.isArray(ema72Arr) && ema72Arr.length > 0)
-      ? ema72Arr[ema72Arr.length - 1]
-      : null;
+    const emaAlignment = hasEmaContext ? validateDailyEmaAlignment(candles, ema10Values, ema72Values) : null;
+    const isAboveBothEmas = emaAlignment
+      ? (emaAlignment.checks.priceAboveEma10 && emaAlignment.checks.priceAboveEma72 && c1.close > emaAlignment.values.ema10 && c1.close > emaAlignment.values.ema72)
+      : true;
+    const isTrendAligned = emaAlignment ? (emaAlignment.isValid && isAboveBothEmas) : true;
 
-    const hasEmaContext = latestEma10 !== null && latestEma72 !== null;
-    const isAboveBothEmas = hasEmaContext
-      ? (c1.close > latestEma10 && c1.close > latestEma72)
-      : (latestEma10 !== null ? c1.close > latestEma10 : true);
+    function buildRejectedTrigger(patternName, defaultBelowMsg, extra = {}) {
+      const rejReason = !isAboveBothEmas
+        ? (emaAlignment && emaAlignment.reason ? emaAlignment.reason : 'Rejeitado: Preço abaixo da EMA 10 ou EMA 72')
+        : (emaAlignment && emaAlignment.reason ? emaAlignment.reason : 'Rejeitado: Médias sem alinhamento altista');
+      const patternDetected = !isAboveBothEmas
+        ? `${patternName} (rejeitado: abaixo das médias)`
+        : `${patternName} (${rejReason})`;
+      return {
+        id: 'NONE',
+        name: 'Nenhum gatilho encontrado',
+        grade: 'Neutro',
+        hasTrigger: false,
+        patternDetected,
+        rejectionReason: rejReason,
+        description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
+        detail: !isAboveBothEmas ? defaultBelowMsg : `Padrão ${patternName} bloqueado pelo filtro de tendência no Diário (${rejReason}).`,
+        entry: null,
+        stop: null,
+        entryLabel: null,
+        stopLabel: null,
+        trendAudit: emaAlignment,
+        ...extra
+      };
+    }
 
     // 1. Inside Bar: candle atual completamente contido dentro da amplitude do anterior
     if (c1.high <= c2.high && c1.low >= c2.low) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: 'Inside Bar (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Padrão Inside Bar abaixo da EMA 10 ou EMA 72 não qualifica como gatilho de compra pelo método.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null
-        };
+      if (!isTrendAligned) {
+        return buildRejectedTrigger(
+          'Inside Bar',
+          'Padrão Inside Bar abaixo da EMA 10 ou EMA 72 não qualifica como gatilho de compra pelo método.'
+        );
       }
       return {
         id: 'INSIDE_BAR',
@@ -517,26 +694,18 @@
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c1.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do Inside Bar',
-        stopLabel: '1 tick abaixo da mínima do Inside Bar'
+        stopLabel: '1 tick abaixo da mínima do Inside Bar',
+        trendAudit: emaAlignment
       };
     }
 
     // 2. 1-2-3 de Compra: candle 2 é a mínima mais baixa entre 1 e 3; candle 1 (mais recente) fecha acima da máxima do candle 2
     if (c2.low < c3.low && c1.low > c2.low && c1.close > c2.high) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: '1-2-3 de Compra (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Formação 1-2-3 de compra abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null
-        };
+      if (!isTrendAligned) {
+        return buildRejectedTrigger(
+          '1-2-3 de Compra',
+          'Formação 1-2-3 de compra abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.'
+        );
       }
       return {
         id: '123_COMPRA',
@@ -548,28 +717,20 @@
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c2.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do candle 3',
-        stopLabel: '1 tick abaixo da mínima do candle 2 (fundo)'
+        stopLabel: '1 tick abaixo da mínima do candle 2 (fundo)',
+        trendAudit: emaAlignment
       };
     }
 
     // 3. PFR de Compra: padrão oficial de reversão de fundo de 3 candles (menor mínima e fechamento de reversão)
     const pfrValidation = validatePfrBuyPattern(c1, c2, c3);
     if (pfrValidation.isValid) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: 'PFR de Compra (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Padrão PFR de Compra confirmado geometricamente, porém rejeitado por estar abaixo da EMA 10 ou EMA 72.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null,
-          audit: pfrValidation
-        };
+      if (!isTrendAligned) {
+        return buildRejectedTrigger(
+          'PFR de Compra',
+          'Padrão PFR de Compra confirmado geometricamente, porém rejeitado por estar abaixo da EMA 10 ou EMA 72.',
+          { audit: pfrValidation }
+        );
       }
       return {
         id: 'PFR_COMPRA',
@@ -582,26 +743,18 @@
         stop: Number((c1.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do candle de reversão',
         stopLabel: '1 tick abaixo da mínima do candle de reversão',
-        audit: pfrValidation
+        audit: pfrValidation,
+        trendAudit: emaAlignment
       };
     }
 
     // 4. Dave Landry: 2 mínimas descendentes com médias apontando para cima
     if (c2.low < c3.low && c1.low < c2.low) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: 'Dave Landry (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Recuo abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null
-        };
+      if (!isTrendAligned) {
+        return buildRejectedTrigger(
+          'Dave Landry',
+          'Recuo abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.'
+        );
       }
       return {
         id: 'DAVE_LANDRY',
@@ -613,26 +766,18 @@
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c1.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do candle gatilho',
-        stopLabel: '1 tick abaixo da mínima do candle gatilho'
+        stopLabel: '1 tick abaixo da mínima do candle gatilho',
+        trendAudit: emaAlignment
       };
     }
 
     // 5. Barra Vermelha Ignorada (RBI): candle anterior vermelho pequeno seguido de fechamento positivo
     if (c2.close < c2.open && c1.close > c1.open && c1.close > c2.high) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: 'Barra Vermelha Ignorada (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Superação abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null
-        };
+      if (!isTrendAligned) {
+        return buildRejectedTrigger(
+          'Barra Vermelha Ignorada',
+          'Superação abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.'
+        );
       }
       return {
         id: 'RBI',
@@ -644,7 +789,8 @@
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c2.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima da barra compradora',
-        stopLabel: '1 tick abaixo da mínima da barra vermelha'
+        stopLabel: '1 tick abaixo da mínima da barra vermelha',
+        trendAudit: emaAlignment
       };
     }
 
@@ -659,7 +805,8 @@
       entry: null,
       stop: null,
       entryLabel: null,
-      stopLabel: null
+      stopLabel: null,
+      trendAudit: emaAlignment
     };
   }
 
@@ -1053,10 +1200,12 @@
     logBypassMotive,
     evaluatePatienceIndex,
     calculateEma,
+    calculateCausalEmaSeries,
     calculateAtr,
     OFFICIAL_EMA_FAST,
     OFFICIAL_EMA_SLOW,
     validatePfrBuyPattern,
+    validateDailyEmaAlignment,
     detectSetupTriggers,
     classifyRelativeStrength,
     getRubricGradeVisual,

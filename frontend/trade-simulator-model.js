@@ -1613,7 +1613,15 @@
     // 4. Tendência
     let trendFormula = 'Preço > EMA 10 > EMA 72';
     let trendStatus = 'good';
-    if (cycleStatus === 'bad' || (isLoss && sDate < '2026-07-01')) {
+    if (sim.trendAlignment && typeof sim.trendAlignment === 'object') {
+      if (sim.trendAlignment.isValid) {
+        trendFormula = 'Preço > EMA 10 > EMA 72';
+        trendStatus = 'good';
+      } else {
+        trendFormula = sim.trendAlignment.reason || 'Preço < EMA 10';
+        trendStatus = 'bad';
+      }
+    } else if (cycleStatus === 'bad' || (isLoss && sDate < '2026-07-01')) {
       trendFormula = 'Preço < EMA 10';
       trendStatus = 'bad';
     } else if (cycleStatus === 'neutral' || grade === 'C') {
@@ -4027,6 +4035,19 @@
       `Detecção usou ${detectionSeries.length} candles, o último em ${lastDetectionTime || '—'} (data do sinal: ${signalDate}).`
     );
 
+    const emaAlignment = validateDailyEmaAlignment(detectionSeries);
+    addCheck(
+      'EMA_ALIGNMENT',
+      emaAlignment.isValid ? 'ok' : 'fail',
+      'Alinhamento altista EMA 10 e EMA 72 no Diário',
+      emaAlignment.isValid && emaAlignment.values
+        ? `Preço (${emaAlignment.values.close}) > EMA 10 (${emaAlignment.values.ema10}) > EMA 72 (${emaAlignment.values.ema72}), ambas ascendentes.`
+        : `${emaAlignment.reason || 'Médias desalinhadas'}${emaAlignment.reasons && emaAlignment.reasons.length > 1 ? ` (${emaAlignment.reasons.join('; ')})` : ''}.`
+    );
+    if (!emaAlignment.isValid) {
+      notes.push(`Filtro de tendência no Diário reprovado em ${signalDate}: ${emaAlignment.reason}.`);
+    }
+
     const triggerName = simulation.triggerName;
     const knownNames = snapshotKnownTriggerNames();
     let detected = null;
@@ -4038,13 +4059,20 @@
       const all = detectAllSetupTriggers(detectionSeries, { includeExperimental: true });
       detected = all.find(t => t.name === triggerName || t.id === triggerName) || null;
       if (!detected) {
+        const rejectedList = detectAllSetupTriggers(detectionSeries, { includeExperimental: true, includeRejected: true });
+        const rejectedMatch = rejectedList.find(t => t.name === triggerName || t.id === triggerName) || null;
+        const failDetail = rejectedMatch && rejectedMatch.rejectionReason
+          ? `O gatilho "${triggerName}" foi bloqueado pelo filtro de tendência nos candles reais até ${signalDate} (${rejectedMatch.rejectionReason}).`
+          : `O gatilho "${triggerName}" NÃO é reproduzido pelas regras do simulador nos candles reais até ${signalDate}. O registro diverge do histórico.`;
         addCheck(
           'TRIGGER_REDETECTED',
           'fail',
           'Padrão re-detectado nos dados históricos',
-          `O gatilho "${triggerName}" NÃO é reproduzido pelas regras do simulador nos candles reais até ${signalDate}. O registro diverge do histórico.`
+          failDetail
         );
-        notes.push('Divergência: o padrão registrado não existe nos candles reais disponíveis na data do sinal.');
+        notes.push(rejectedMatch && rejectedMatch.rejectionReason
+          ? `Divergência: o gatilho foi bloqueado na data do sinal (${rejectedMatch.rejectionReason}).`
+          : 'Divergência: o padrão registrado não existe nos candles reais disponíveis na data do sinal.');
       } else {
         addCheck('TRIGGER_REDETECTED', 'ok', 'Padrão re-detectado nos dados históricos', `"${detected.name}" reproduzido com os candles até ${signalDate}.`);
         const entryOk = Math.abs(Number(detected.entry) - entryPlanned) <= SNAPSHOT_PRICE_TOLERANCE;
@@ -4324,6 +4352,182 @@
   }
 
   /**
+   * Calcula série causal de EMA com precisão de 4 casas decimais para preservar a leitura exata
+   * de inclinação (slope) na EMA 10 e na EMA 72 sem truncamento de centavos.
+   */
+  function calculateEmaSeriesRaw(values, period) {
+    if (!Array.isArray(values) || values.length === 0) return [];
+    const k = 2 / (period + 1);
+    const result = new Array(values.length);
+    let prev = Number(values[0]);
+    result[0] = Number(prev.toFixed(4));
+    for (let i = 1; i < values.length; i++) {
+      prev = Number(values[i]) * k + prev * (1 - k);
+      result[i] = Number(prev.toFixed(4));
+    }
+    return result;
+  }
+
+  /**
+   * Valida o alinhamento estrutural e a inclinação altista das médias oficiais EMA 10 e EMA 72 no Diário.
+   *
+   * Regra Operacional Obrigatória (Timeframe Diário — 1D, somente com candles fechados até a data do sinal):
+   * 1. Preço acima da EMA 10 e da EMA 72 (close >= EMA 10 e close >= EMA 72).
+   * 2. Alinhamento estrutural altista: EMA 10 estritamente acima da EMA 72 (EMA 10 > EMA 72).
+   * 3. Inclinação altista confirmada nas duas médias:
+   *    - EMA 10 ascendente no momento do sinal (EMA10[t] > EMA10[t-1] e, quando disponíveis candles prévios da janela,
+   *      EMA10[t] > EMA10[t-2] e EMA10[t] > EMA10[t-3]).
+   *    - EMA 72 ascendente no momento do sinal (EMA72[t] > EMA72[t-1] e, quando disponíveis candles prévios da janela,
+   *      EMA72[t] > EMA72[t-2] e EMA72[t] > EMA72[t-3]).
+   */
+  function validateDailyEmaAlignment(candles, ema10Values = [], ema72Values = []) {
+    if (typeof TickerChartModel !== 'undefined' && typeof TickerChartModel.validateDailyEmaAlignment === 'function') {
+      return TickerChartModel.validateDailyEmaAlignment(candles, ema10Values, ema72Values);
+    }
+
+    if (!Array.isArray(candles) || candles.length < 2) {
+      const msg = 'Rejeitado: Histórico diário insuficiente para validar alinhamento das EMAs 10 e 72';
+      return {
+        isValid: false,
+        reason: msg,
+        reasons: [msg],
+        timeframe: '1D',
+        checks: {
+          priceAboveEma10: false,
+          priceAboveEma72: false,
+          ema10AboveEma72: false,
+          ema10Ascending: false,
+          ema72Ascending: false,
+          bothAscending: false
+        },
+        values: null
+      };
+    }
+
+    const len = candles.length;
+    const lastCandle = candles[len - 1];
+    const latestClose = Number(lastCandle.close);
+    const signalDate = lastCandle.time || lastCandle.date || null;
+    const closes = candles.map(c => Number(c.close));
+
+    let e10Series = [];
+    if (Array.isArray(ema10Values) && ema10Values.some(v => v != null && Number.isFinite(Number(v)))) {
+      e10Series = ema10Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+    } else if (candles.some(c => c && (c.ema10 != null || c.ema9 != null))) {
+      e10Series = candles
+        .map(c => (c.ema10 != null ? Number(c.ema10) : (c.ema9 != null ? Number(c.ema9) : null)))
+        .filter(v => v != null && Number.isFinite(v));
+    } else {
+      e10Series = calculateEmaSeriesRaw(closes, 10);
+    }
+
+    let e72Series = [];
+    if (Array.isArray(ema72Values) && ema72Values.some(v => v != null && Number.isFinite(Number(v)))) {
+      e72Series = ema72Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+    } else if (candles.some(c => c && (c.ema72 != null || c.ema30 != null))) {
+      e72Series = candles
+        .map(c => (c.ema72 != null ? Number(c.ema72) : (c.ema30 != null ? Number(c.ema30) : null)))
+        .filter(v => v != null && Number.isFinite(v));
+    } else {
+      e72Series = calculateEmaSeriesRaw(closes, 72);
+    }
+
+    if (e10Series.length < 2) {
+      e10Series = calculateEmaSeriesRaw(closes, 10);
+    }
+    if (e72Series.length < 2) {
+      e72Series = calculateEmaSeriesRaw(closes, 72);
+    }
+
+    if (e10Series.length < 2 || e72Series.length < 2) {
+      const msg = 'Rejeitado: Série de EMAs insuficiente para confirmar inclinação no Diário';
+      return {
+        isValid: false,
+        reason: msg,
+        reasons: [msg],
+        timeframe: '1D',
+        checks: {
+          priceAboveEma10: false,
+          priceAboveEma72: false,
+          ema10AboveEma72: false,
+          ema10Ascending: false,
+          ema72Ascending: false,
+          bothAscending: false
+        },
+        values: null
+      };
+    }
+
+    const e10_0 = e10Series[e10Series.length - 1];
+    const e10_1 = e10Series[e10Series.length - 2];
+
+    const e72_0 = e72Series[e72Series.length - 1];
+    const e72_1 = e72Series[e72Series.length - 2];
+
+    const priceAboveEma10 = Number.isFinite(latestClose) && latestClose >= e10_0;
+    const priceAboveEma72 = Number.isFinite(latestClose) && latestClose >= e72_0;
+    const ema10AboveEma72 = e10_0 > e72_0;
+
+    const ema10Ascending = e10_0 > e10_1;
+    const ema72Ascending = e72_0 > e72_1;
+    const ema10Descending = e10_0 < e10_1;
+    const ema72Descending = e72_0 < e72_1;
+    const bothAscending = ema10Ascending && ema72Ascending;
+
+    const reasons = [];
+    if (ema10Descending && ema72Descending) {
+      reasons.push('Rejeitado: EMA 10 e EMA 72 descendentes');
+    } else {
+      if (ema10Descending) {
+        reasons.push('Rejeitado: EMA 10 descendente');
+      } else if (!ema10Ascending) {
+        reasons.push('Rejeitado: Médias sem inclinação altista confirmada (EMA 10 sem inclinação positiva)');
+      }
+      if (ema72Descending) {
+        reasons.push('Rejeitado: EMA 72 descendente');
+      } else if (!ema72Ascending) {
+        reasons.push('Rejeitado: Médias sem inclinação altista confirmada (EMA 72 sem inclinação positiva)');
+      }
+    }
+
+    if (!ema10AboveEma72) {
+      reasons.push('Rejeitado: EMA 10 abaixo da EMA 72');
+    }
+
+    if (!priceAboveEma10 || !priceAboveEma72) {
+      reasons.push('Rejeitado: Preço abaixo da EMA 10 ou EMA 72');
+    }
+
+    const isValid = priceAboveEma10 && priceAboveEma72 && ema10AboveEma72 && bothAscending;
+    const reason = isValid ? null : (reasons[0] || 'Rejeitado: Médias sem inclinação altista confirmada');
+
+    return {
+      isValid,
+      reason,
+      reasons,
+      timeframe: '1D',
+      signalDate,
+      checks: {
+        priceAboveEma10,
+        priceAboveEma72,
+        ema10AboveEma72,
+        ema10Ascending,
+        ema72Ascending,
+        bothAscending
+      },
+      values: {
+        close: latestClose,
+        ema10: Number(e10_0.toFixed(4)),
+        prevEma10: Number(e10_1.toFixed(4)),
+        ema10Slope: Number((e10_0 - e10_1).toFixed(4)),
+        ema72: Number(e72_0.toFixed(4)),
+        prevEma72: Number(e72_1.toFixed(4)),
+        ema72Slope: Number((e72_0 - e72_1).toFixed(4))
+      }
+    };
+  }
+
+  /**
    * Classifica a Nota do Rubric (A, B, C ou D) com base nos critérios reais do candle slice (sem look-ahead):
    * - Alinhamento de tendência (Preço > EMA 10 > EMA 72 e inclinação da EMA 10)
    * - Risco gráfico percentual (distância entre entrada e stop inicial)
@@ -4333,16 +4537,16 @@
     const entry = Number(entryPrice) || 1;
     const stop = Number(stopLoss) || entry;
     const riskPct = ((entry - stop) / entry) * 100;
-    const emaAligned = (latestEma10 == null || latestEma72 == null) ? true : (latestEma10 >= latestEma72);
-    const emaRising = (latestEma10 == null || prevEma10 == null) ? true : (latestEma10 >= prevEma10 * 0.998);
+    const emaAligned = (latestEma10 == null || latestEma72 == null) ? true : (latestEma10 > latestEma72);
+    const emaRising = (latestEma10 == null || prevEma10 == null) ? true : (latestEma10 > prevEma10);
 
-    if (riskPct > 8.5 || latestClose < (latestEma72 || 0) * 0.97) {
+    if (!emaAligned || !emaRising || riskPct > 8.5 || latestClose < (latestEma72 || 0) * 0.97) {
       return 'D';
     }
-    if (!emaAligned || riskPct > 5.2) {
+    if (riskPct > 5.2) {
       return 'C';
     }
-    if (baseQuality === 'B' || !emaRising || riskPct > 3.6) {
+    if (baseQuality === 'B' || riskPct > 3.6) {
       return 'B';
     }
     return 'A';
@@ -4428,8 +4632,12 @@
    * Avalia TODOS os gatilhos oficiais de compra no último candle da fatia (sem look-ahead),
    * na mesma ordem de prioridade histórica do detector. Cada regra é avaliada de forma
    * independente (sem "first match wins"), permitindo testar cada gatilho isoladamente.
-   * Fonte única das regras: detectSetupTrigger() devolve apenas o primeiro item desta lista.
-   * Produz exclusivamente notas válidas do Rubric: A, B, C, D.
+   *
+   * Regra Operacional Obrigatória:
+   * Antes de autorizar qualquer sinal de compra, valida o alinhamento altista da EMA 10 e da EMA 72
+   * no gráfico Diário (Preço > EMA 10 > EMA 72 e ambas as médias inclinadas para cima).
+   * Se o filtro de tendência reprovar, bloqueia a compra (não gera entrada nem stop).
+   * Quando `options.includeRejected === true`, retorna os candidatos bloqueados com `rejectionReason` explícito.
    */
   function detectAllSetupTriggers(candles, options = {}) {
     if (!Array.isArray(candles) || candles.length < 2) return [];
@@ -4448,22 +4656,38 @@
       return riskPct >= 0.5 && riskPct <= 16.0;
     }
 
-    // Closes e EMAs (Configuração Oficial Diário: EMA 10 + EMA 72)
-    const closes = candles.map(c => Number(c.close));
-    const ema10Series = calculateEmaSeries(closes, 10);
-    const ema72Series = calculateEmaSeries(closes, 72);
-    const latestEma10 = c1.ema10 != null ? Number(c1.ema10) : (c1.ema9 != null ? Number(c1.ema9) : ema10Series[ema10Series.length - 1]);
-    const prevEma10 = len >= 2 ? (c2.ema10 != null ? Number(c2.ema10) : (c2.ema9 != null ? Number(c2.ema9) : ema10Series[ema10Series.length - 2])) : latestEma10;
-    const latestEma72 = c1.ema72 != null ? Number(c1.ema72) : (c1.ema30 != null ? Number(c1.ema30) : ema72Series[ema72Series.length - 1]);
+    // Validação independente de tendência no Diário: EMA 10 e EMA 72 alinhadas e ambas ascendentes
+    const emaAlignment = validateDailyEmaAlignment(candles, options.ema10Values, options.ema72Values);
+    const latestEma10 = emaAlignment.values ? emaAlignment.values.ema10 : null;
+    const prevEma10 = emaAlignment.values ? emaAlignment.values.prevEma10 : null;
+    const latestEma72 = emaAlignment.values ? emaAlignment.values.ema72 : null;
 
-    const isAboveBothEmas = (latestEma10 == null || c1.close >= latestEma10) && (latestEma72 == null || c1.close >= latestEma72);
-    if (!isAboveBothEmas) return [];
+    if (!emaAlignment.isValid && options.includeRejected !== true) {
+      return [];
+    }
 
     const found = [];
     function push(id, name, entry, stop, baseQuality, structure) {
       if (!isAcceptableGraphicRisk(entry, stop)) return;
+      if (!emaAlignment.isValid) {
+        const rejectedItem = {
+          id,
+          name,
+          grade: 'D',
+          hasTrigger: false,
+          rejected: true,
+          rejectionReason: emaAlignment.reason,
+          rejectionReasons: emaAlignment.reasons,
+          entry: null,
+          stop: null,
+          trendAudit: emaAlignment
+        };
+        if (structure) rejectedItem.structure = structure;
+        found.push(rejectedItem);
+        return;
+      }
       const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma10, latestEma72, prevEma10, baseQuality);
-      const item = { id, name, grade, hasTrigger: true, entry, stop };
+      const item = { id, name, grade, hasTrigger: true, entry, stop, trendAudit: emaAlignment };
       if (structure) item.structure = structure;
       found.push(item);
     }
@@ -4505,10 +4729,6 @@
     }
 
     // Regras EXPERIMENTAIS (somente sob demanda; não fazem parte do catálogo de gatilhos nem de TRIGGER_TYPES).
-    // Usadas exclusivamente pela validação estatística 1-2-3 + Inside Bar. Estrutura do 1-2-3 conforme o catálogo
-    // (Candle 2 é o vértice: mínima estritamente menor que a do Candle 1 e do Candle 3), sem a condição adicional
-    // "fechamento > máxima do candle 2" do detector canônico, que é matematicamente incompatível com uma Inside Bar
-    // (um candle contido na máxima do Candle 2 não pode fechar acima dela).
     if (options.includeExperimental === true && c3) {
       const structural123 = c2.low < c3.low && c1.low > c2.low;
       const isInsideBar = c1.high <= c2.high && c1.low >= c2.low;
@@ -4526,11 +4746,43 @@
   }
 
   /**
+   * Avalia gatilhos com trilha completa de auditoria (incluindo o motivo explícito quando o gatilho
+   * geométrico foi bloqueado pelo filtro de alinhamento/inclinação da EMA 10 e EMA 72 no Diário).
+   */
+  function evaluateSetupTriggerWithAudit(candles, options = {}) {
+    const trendAudit = validateDailyEmaAlignment(candles, options.ema10Values, options.ema72Values);
+    if (!trendAudit.isValid) {
+      const rejectedTriggers = detectAllSetupTriggers(candles, { ...options, includeRejected: true });
+      return {
+        isValid: false,
+        hasTrigger: false,
+        trigger: null,
+        triggers: [],
+        rejectedTriggers,
+        rejectionReason: trendAudit.reason,
+        rejectionReasons: trendAudit.reasons,
+        trendAudit
+      };
+    }
+    const triggers = detectAllSetupTriggers(candles, options);
+    return {
+      isValid: triggers.length > 0,
+      hasTrigger: triggers.length > 0,
+      trigger: triggers.length > 0 ? triggers[0] : null,
+      triggers,
+      rejectedTriggers: [],
+      rejectionReason: triggers.length > 0 ? null : 'Rejeitado: Nenhum gatilho válido confirmado no fechamento diário',
+      rejectionReasons: triggers.length > 0 ? [] : ['Rejeitado: Nenhum gatilho válido confirmado no fechamento diário'],
+      trendAudit
+    };
+  }
+
+  /**
    * Detecção de Gatilhos Técnicos Oficiais nos candles passados (sem look-ahead).
    * Retorna o gatilho de maior prioridade (comportamento histórico preservado).
    */
-  function detectSetupTrigger(candles) {
-    const all = detectAllSetupTriggers(candles);
+  function detectSetupTrigger(candles, options = {}) {
+    const all = detectAllSetupTriggers(candles, options);
     return all.length ? all[0] : null;
   }
 
@@ -5186,6 +5438,7 @@
           status: STATUS.WAITING_ENTRY,
           managementScenario: scenario,
           structure: trigger.structure || null,
+          trendAlignment: trigger.trendAudit || null,
           timeline: []
         };
 
@@ -5342,7 +5595,11 @@
     calculateTradeDurationDays,
     formatDurationDays,
     getTradeVisionAtivo,
+    calculateEmaSeries,
+    calculateEmaSeriesRaw,
     validatePfrBuyPattern,
+    validateDailyEmaAlignment,
+    evaluateSetupTriggerWithAudit,
     detectSetupTrigger,
     detectAllSetupTriggers,
     EXPERIMENTAL_TRIGGERS,

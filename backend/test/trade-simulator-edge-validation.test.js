@@ -26,9 +26,9 @@ test('Validação de Edge: detectAllSetupTriggers detecta combo 1-2-3 + Inside B
   // Candle 1: alta=20.5 (<= c2.high), baixa=18.5 (>= c2.low), fecha=20 (Inside Bar em relação a c2, e c1.low > c2.low)
   // Médias: EMA 9 = 17, EMA 30 = 16 (Preço acima de ambas)
   const candles = [
-    { time: '2026-01-02', open: 19, high: 22, low: 20, close: 21, ema9: 17, ema30: 16 },
-    { time: '2026-01-05', open: 21, high: 21, low: 18, close: 19, ema9: 17, ema30: 16 },
-    { time: '2026-01-06', open: 19, high: 20.5, low: 18.5, close: 20, ema9: 17, ema30: 16 }
+    { time: '2026-01-02', open: 19, high: 22, low: 20, close: 21, ema10: 17.0, ema72: 16.0 },
+    { time: '2026-01-05', open: 21, high: 21, low: 18, close: 19, ema10: 17.2, ema72: 16.1 },
+    { time: '2026-01-06', open: 19, high: 20.5, low: 18.5, close: 20, ema10: 17.5, ema72: 16.3 }
   ];
 
   const standard = model.detectAllSetupTriggers(candles);

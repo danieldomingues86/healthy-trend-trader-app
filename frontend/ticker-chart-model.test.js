@@ -190,8 +190,8 @@ test('TickerChartModel: reconhece PFR de Compra quando cumpre integralmente a de
     { open: 30.2, high: 30.5, low: 28.5, close: 28.8 }, // c2: queda
     { open: 28.0, high: 30.0, low: 27.5, close: 29.8 }  // c1: mínima (27.5) < c2 e c3, fechamento (29.8) > c2.close (28.8) e >= open (28.0)
   ];
-  const ema10 = [28.0, 27.8, 27.6];
-  const ema72 = [26.0, 26.0, 26.0];
+  const ema10 = [27.5, 27.8, 28.0];
+  const ema72 = [25.6, 25.8, 26.0];
   const trigger = TickerChartModel.detectSetupTriggers(candles, ema10, ema72);
 
   assert.equal(trigger.id, 'PFR_COMPRA');
@@ -398,6 +398,40 @@ test('TickerChartModel: fins de semana liberam o gráfico para estudos sem modal
   assert.equal(satThird.isWeekend, true);
   assert.equal(satThird.shouldShowDisciplineModal, false, 'Modal de disciplina NUNCA deve aparecer no fim de semana');
   assert.equal(satThird.state.sessionsToday, 3, 'Deve permitir navegar livremente nos estudos de fim de semana');
+  // Validação adicional de alinhamento e inclinação das EMAs 10 e 72 no Diário
+  const validPfrCandles = [
+    { time: '2025-11-14', open: 30.0, high: 31.0, low: 29.5, close: 30.2 },
+    { time: '2025-11-17', open: 30.2, high: 30.5, low: 28.5, close: 28.8 },
+    { time: '2025-11-18', open: 28.0, high: 30.0, low: 27.5, close: 29.8 }
+  ];
+  const bothDown = TickerChartModel.detectSetupTriggers(validPfrCandles, [29.0, 28.5, 28.0], [27.0, 26.5, 26.0]);
+  assert.equal(bothDown.hasTrigger, false);
+  assert.equal(bothDown.entry, null);
+  assert.equal(bothDown.stop, null);
+  assert.equal(bothDown.rejectionReason, 'Rejeitado: EMA 10 e EMA 72 descendentes');
+
+  const ema10Down = TickerChartModel.detectSetupTriggers(validPfrCandles, [29.0, 28.5, 28.0], [25.5, 25.8, 26.0]);
+  assert.equal(ema10Down.hasTrigger, false);
+  assert.equal(ema10Down.rejectionReason, 'Rejeitado: EMA 10 descendente');
+
+  const ema72Down = TickerChartModel.detectSetupTriggers(validPfrCandles, [27.5, 27.8, 28.0], [26.8, 26.4, 26.0]);
+  assert.equal(ema72Down.hasTrigger, false);
+  assert.equal(ema72Down.rejectionReason, 'Rejeitado: EMA 72 descendente');
+
+  const flatEmas = TickerChartModel.detectSetupTriggers(validPfrCandles, [28.0, 28.0, 28.0], [26.0, 26.0, 26.0]);
+  assert.equal(flatEmas.hasTrigger, false);
+  assert.ok(flatEmas.rejectionReason.includes('Rejeitado: Médias sem inclinação altista confirmada'));
+
+  const misaligned = TickerChartModel.detectSetupTriggers(validPfrCandles, [25.5, 25.8, 26.0], [27.5, 27.8, 28.0]);
+  assert.equal(misaligned.hasTrigger, false);
+  assert.equal(misaligned.rejectionReason, 'Rejeitado: EMA 10 abaixo da EMA 72');
+
+  const approved = TickerChartModel.detectSetupTriggers(validPfrCandles, [27.5, 27.8, 28.0], [25.5, 25.8, 26.0]);
+  assert.equal(approved.hasTrigger, true);
+  assert.equal(approved.id, 'PFR_COMPRA');
+  assert.equal(approved.entry, 30.01);
+  assert.equal(approved.stop, 27.49);
+  assert.equal(approved.trendAudit.isValid, true);
 });
 
 

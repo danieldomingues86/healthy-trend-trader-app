@@ -934,8 +934,8 @@ test('trade-simulator-model: generateHistoricalSimulations gera massa de trades 
         high,
         low,
         close,
-        ema9: price - 1,
-        ema30: price - 3,
+        ema10: Number((48 + idx * 0.5).toFixed(2)),
+        ema72: Number((45 + idx * 0.4).toFixed(2)),
         volume: 1000000
       };
     });
@@ -1098,10 +1098,10 @@ test('trade-simulator-model: detectAllSetupTriggers e detectSetupTrigger validam
   const triggersAscending = model.detectAllSetupTriggers(ascendingCandles);
   assert.equal(triggersAscending.some(t => t.id === 'PFR_COMPRA'), false, 'Não pode gerar PFR em sequência ascendente');
 
-  // 2. Reversão genuína de 3 candles com menor mínima e fechamento comprador
+  // 2. Reversão genuína de 3 candles com menor mínima, fechamento comprador e EMAs alinhadas e ascendentes
   const pfrCandles = [
-    { open: 30.0, high: 31.0, low: 29.5, close: 30.2, ema10: 28.0, ema72: 26.0 }, // c3
-    { open: 30.2, high: 30.5, low: 28.5, close: 28.8, ema10: 28.0, ema72: 26.0 }, // c2: queda
+    { open: 30.0, high: 31.0, low: 29.5, close: 30.2, ema10: 27.5, ema72: 25.6 }, // c3
+    { open: 30.2, high: 30.5, low: 28.5, close: 28.8, ema10: 27.8, ema72: 25.8 }, // c2: queda
     { open: 28.0, high: 30.0, low: 27.5, close: 29.8, ema10: 28.0, ema72: 26.0 }  // c1: menor mínima e fecha acima de c2
   ];
   const triggersPfr = model.detectAllSetupTriggers(pfrCandles);
@@ -1138,5 +1138,93 @@ test('trade-simulator-model: detectAllSetupTriggers e detectSetupTrigger validam
   assert.equal(snap.available, true);
   assert.equal(snap.verification.status, 'VERIFIED');
   assert.deepEqual(snap.patternMarkers.map(m => m.role), ['Ref2', 'Ref1', 'PFR']);
+});
+
+test('trade-simulator-model: bloqueia sinais de compra quando EMA 10 e EMA 72 não estão alinhadas e ascendentes no Diário (incluindo DEXP4 em 18/11/2025)', () => {
+  // Base geométrica de PFR de Compra válido (menor mínima dos 3 candles e fechamento > c2.close)
+  const makePfrSlice = (e10List, e72List) => [
+    { time: '2025-11-14', open: 30.0, high: 31.0, low: 29.5, close: 30.2, ema10: e10List[0], ema72: e72List[0] },
+    { time: '2025-11-17', open: 30.2, high: 30.5, low: 28.5, close: 28.8, ema10: e10List[1], ema72: e72List[1] },
+    { time: '2025-11-18', open: 28.0, high: 30.0, low: 27.5, close: 29.8, ema10: e10List[2], ema72: e72List[2] }
+  ];
+
+  // 1. EMA 10 e EMA 72 ambas descendentes: bloquear compra
+  const sliceBothDown = makePfrSlice([29.2, 28.9, 28.5], [27.0, 26.8, 26.5]);
+  assert.equal(model.detectSetupTrigger(sliceBothDown), null);
+  assert.deepEqual(model.detectAllSetupTriggers(sliceBothDown), []);
+  const auditBothDown = model.evaluateSetupTriggerWithAudit(sliceBothDown);
+  assert.equal(auditBothDown.isValid, false);
+  assert.equal(auditBothDown.hasTrigger, false);
+  assert.equal(auditBothDown.rejectionReason, 'Rejeitado: EMA 10 e EMA 72 descendentes');
+  assert.equal(auditBothDown.rejectedTriggers[0].entry, null);
+  assert.equal(auditBothDown.rejectedTriggers[0].stop, null);
+
+  // 2. EMA 10 descendente e EMA 72 ascendente: bloquear compra
+  const sliceEma10Down = makePfrSlice([29.2, 28.9, 28.5], [26.0, 26.2, 26.5]);
+  assert.equal(model.detectSetupTrigger(sliceEma10Down), null);
+  const auditEma10Down = model.evaluateSetupTriggerWithAudit(sliceEma10Down);
+  assert.equal(auditEma10Down.isValid, false);
+  assert.equal(auditEma10Down.rejectionReason, 'Rejeitado: EMA 10 descendente');
+
+  // 3. EMA 10 ascendente e EMA 72 descendente: bloquear compra
+  const sliceEma72Down = makePfrSlice([27.5, 27.8, 28.2], [26.8, 26.5, 26.2]);
+  assert.equal(model.detectSetupTrigger(sliceEma72Down), null);
+  const auditEma72Down = model.evaluateSetupTriggerWithAudit(sliceEma72Down);
+  assert.equal(auditEma72Down.isValid, false);
+  assert.equal(auditEma72Down.rejectionReason, 'Rejeitado: EMA 72 descendente');
+
+  // 4. Médias sem inclinação altista confirmada (horizontais): bloquear compra
+  const sliceFlat = makePfrSlice([28.0, 28.0, 28.0], [26.0, 26.0, 26.0]);
+  assert.equal(model.detectSetupTrigger(sliceFlat), null);
+  const auditFlat = model.evaluateSetupTriggerWithAudit(sliceFlat);
+  assert.equal(auditFlat.isValid, false);
+  assert.ok(auditFlat.rejectionReason.includes('Rejeitado: Médias sem inclinação altista confirmada'));
+
+  // 5. EMA 10 abaixo da EMA 72 (mesmo com ambas subindo no dia): bloquear compra
+  const sliceMisaligned = makePfrSlice([25.5, 25.8, 26.1], [27.0, 27.2, 27.5]);
+  assert.equal(model.detectSetupTrigger(sliceMisaligned), null);
+  const auditMisaligned = model.evaluateSetupTriggerWithAudit(sliceMisaligned);
+  assert.equal(auditMisaligned.isValid, false);
+  assert.equal(auditMisaligned.rejectionReason, 'Rejeitado: EMA 10 abaixo da EMA 72');
+
+  // 6. EMA 10 acima da EMA 72 e ambas ascendentes, com gatilho válido: permitir que o sinal prossiga
+  const sliceValid = makePfrSlice([27.5, 27.8, 28.2], [25.5, 25.8, 26.1]);
+  const validTrigger = model.detectSetupTrigger(sliceValid);
+  assert.ok(validTrigger);
+  assert.equal(validTrigger.id, 'PFR_COMPRA');
+  assert.equal(validTrigger.entry, 30.01);
+  assert.equal(validTrigger.stop, 27.49);
+  const auditValid = model.evaluateSetupTriggerWithAudit(sliceValid);
+  assert.equal(auditValid.isValid, true);
+  assert.equal(auditValid.hasTrigger, true);
+  assert.equal(auditValid.rejectionReason, null);
+
+  // 7. Gatilho inválido com médias alinhadas e ascendentes: não gerar sinal
+  const sliceNoPattern = [
+    { time: '2025-11-14', open: 28.0, high: 29.0, low: 27.8, close: 28.8, ema10: 27.0, ema72: 25.0 },
+    { time: '2025-11-17', open: 28.8, high: 29.6, low: 28.5, close: 29.4, ema10: 27.5, ema72: 25.3 },
+    { time: '2025-11-18', open: 29.4, high: 30.2, low: 29.1, close: 30.0, ema10: 28.0, ema72: 25.6 }
+  ];
+  assert.equal(model.detectSetupTrigger(sliceNoPattern), null);
+  assert.deepEqual(model.detectAllSetupTriggers(sliceNoPattern), []);
+
+  // 8. Caso real de referência: DEXP4 em 18/11/2025 (EMA 10 < EMA 72 e EMA 72 descendente na janela)
+  const dexp4Candles = [
+    { time: '2025-11-11', open: 7.77, high: 8.31, low: 7.77, close: 8.29, ema10: 8.0332, ema72: 8.1787 },
+    { time: '2025-11-12', open: 8.21, high: 8.21, low: 7.91, close: 7.95, ema10: 8.0181, ema72: 8.1724 },
+    { time: '2025-11-13', open: 8.01, high: 8.02, low: 7.79, close: 7.86, ema10: 7.9893, ema72: 8.1639 },
+    { time: '2025-11-14', open: 7.86, high: 8.08, low: 7.86, close: 8.00, ema10: 7.9913, ema72: 8.1594 },
+    { time: '2025-11-17', open: 8.00, high: 8.08, low: 7.95, close: 8.05, ema10: 8.0019, ema72: 8.1564 },
+    { time: '2025-11-18', open: 7.97, high: 8.43, low: 7.84, close: 8.38, ema10: 8.0707, ema72: 8.1625 }
+  ];
+  // Apesar de o PFR de 3 candles (14/11, 17/11, 18/11) ser geometricamente válido, o filtro de tendência bloqueia:
+  const dexpPfrGeom = model.validatePfrBuyPattern(dexp4Candles[5], dexp4Candles[4], dexp4Candles[3]);
+  assert.equal(dexpPfrGeom.isValid, true, 'Geometria isolada do PFR ocorreu em 18/11/2025');
+  assert.equal(model.detectSetupTrigger(dexp4Candles), null, 'DEXP4 em 18/11/2025 DEVE ser bloqueado pelo filtro de EMAs');
+  const dexpAudit = model.evaluateSetupTriggerWithAudit(dexp4Candles);
+  assert.equal(dexpAudit.isValid, false);
+  assert.equal(dexpAudit.hasTrigger, false);
+  assert.equal(dexpAudit.rejectionReason, 'Rejeitado: EMA 10 abaixo da EMA 72');
+  assert.ok(dexpAudit.rejectionReasons.includes('Rejeitado: EMA 10 abaixo da EMA 72'));
 });
 

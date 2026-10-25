@@ -129,17 +129,28 @@ async function refreshTrialStatus(user) {
 
 async function session(token) {
   if (!token) return null;
-  const result = await database.query(
-    `SELECT u.id, u.email, u.display_name, u.role, u.plan_type, u.account_status, u.trial_start_date, u.trial_end_date
-       FROM app.app_sessions s JOIN app.app_users u ON u.id = s.user_id
-      WHERE s.token_hash = $1 AND s.expires_at > now() AND u.active = true`,
-    [hashToken(token)]
-  );
-  return result.rows[0] ? publicUser(await refreshTrialStatus(result.rows[0])) : null;
+  try {
+    const result = await database.query(
+      `SELECT u.id, u.email, u.display_name, u.role, u.plan_type, u.account_status, u.trial_start_date, u.trial_end_date
+         FROM app.app_sessions s JOIN app.app_users u ON u.id = s.user_id
+        WHERE s.token_hash = $1 AND s.expires_at > now() AND u.active = true`,
+      [hashToken(token)]
+    );
+    return result.rows[0] ? publicUser(await refreshTrialStatus(result.rows[0])) : null;
+  } catch (error) {
+    console.error(`[auth session] Falha ao verificar sessão no banco: ${error.message}`);
+    return null;
+  }
 }
 
 async function logout(token) {
-  if (token) await database.query('DELETE FROM app.app_sessions WHERE token_hash = $1', [hashToken(token)]);
+  if (token) {
+    try {
+      await database.query('DELETE FROM app.app_sessions WHERE token_hash = $1', [hashToken(token)]);
+    } catch (error) {
+      console.error(`[auth logout] Falha ao encerrar sessão no banco: ${error.message}`);
+    }
+  }
 }
 
 const RESET_TOKEN_MINUTES = 30;
