@@ -11,12 +11,21 @@
 
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
+    module.exports = factory(root);
   } else {
-    root.TradeSimulatorModel = factory();
+    root.TradeSimulatorModel = factory(root);
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (root) {
   'use strict';
+
+  let MarketCycleModel = (typeof root !== 'undefined' && root && root.MarketCycleModel) || null;
+  if (!MarketCycleModel && typeof require === 'function') {
+    try {
+      MarketCycleModel = require('./market-cycle-model');
+    } catch {
+      // Ignora se não estiver acessível
+    }
+  }
 
   const STATUS = {
     WAITING_ENTRY: 'WAITING_ENTRY',         // Aguardando entrada (amarelo)
@@ -1602,7 +1611,10 @@
     // 3. Ciclo de Mercado
     let cycleRegime = 'Positivo';
     let cycleStatus = 'good';
-    if (sDate && sDate < '2026-07-01') {
+    if (sim.marketPermission && typeof sim.marketPermission === 'object') {
+      cycleRegime = sim.marketPermission.isPermitted ? 'Positivo' : 'Defensivo';
+      cycleStatus = sim.marketPermission.isPermitted ? 'good' : 'bad';
+    } else if (sDate && sDate < '2026-07-01') {
       cycleRegime = 'Defensivo';
       cycleStatus = 'bad';
     } else if (sDate && sDate < '2026-08-15') {
@@ -4662,6 +4674,25 @@
     const prevEma10 = emaAlignment.values ? emaAlignment.values.prevEma10 : null;
     const latestEma72 = emaAlignment.values ? emaAlignment.values.ema72 : null;
 
+    let marketPermission = options.marketPermission || null;
+    if (!marketPermission && (options.benchmarkCandles || options.benchmarkReading) && MarketCycleModel) {
+      if (options.benchmarkCandles) {
+        marketPermission = MarketCycleModel.validateMarketPermissionForBuy({
+          indexCandles: options.benchmarkCandles,
+          benchmarkSymbol: options.benchmarkSymbol
+        });
+      } else if (options.benchmarkReading) {
+        marketPermission = MarketCycleModel.validateMarketPermissionForBuy({
+          ...options.benchmarkReading,
+          benchmarkSymbol: options.benchmarkSymbol
+        });
+      }
+    }
+
+    if (marketPermission && !marketPermission.isPermitted && options.includeRejected !== true) {
+      return [];
+    }
+
     if (!emaAlignment.isValid && options.includeRejected !== true) {
       return [];
     }
@@ -4669,6 +4700,24 @@
     const found = [];
     function push(id, name, entry, stop, baseQuality, structure) {
       if (!isAcceptableGraphicRisk(entry, stop)) return;
+      if (marketPermission && !marketPermission.isPermitted) {
+        const rejectedItem = {
+          id,
+          name,
+          grade: 'D',
+          hasTrigger: false,
+          rejected: true,
+          rejectionReason: marketPermission.reason || 'ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO',
+          rejectionReasons: marketPermission.reasons || [marketPermission.reason || 'ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO'],
+          entry: null,
+          stop: null,
+          trendAudit: emaAlignment,
+          marketPermission
+        };
+        if (structure) rejectedItem.structure = structure;
+        found.push(rejectedItem);
+        return;
+      }
       if (!emaAlignment.isValid) {
         const rejectedItem = {
           id,
@@ -4680,14 +4729,15 @@
           rejectionReasons: emaAlignment.reasons,
           entry: null,
           stop: null,
-          trendAudit: emaAlignment
+          trendAudit: emaAlignment,
+          marketPermission
         };
         if (structure) rejectedItem.structure = structure;
         found.push(rejectedItem);
         return;
       }
       const grade = classifyTriggerRubricGrade(entry, stop, c1.close, latestEma10, latestEma72, prevEma10, baseQuality);
-      const item = { id, name, grade, hasTrigger: true, entry, stop, trendAudit: emaAlignment };
+      const item = { id, name, grade, hasTrigger: true, entry, stop, trendAudit: emaAlignment, marketPermission };
       if (structure) item.structure = structure;
       found.push(item);
     }
@@ -4747,12 +4797,44 @@
 
   /**
    * Avalia gatilhos com trilha completa de auditoria (incluindo o motivo explícito quando o gatilho
-   * geométrico foi bloqueado pelo filtro de alinhamento/inclinação da EMA 10 e EMA 72 no Diário).
+   * geométrico foi bloqueado pelo filtro de alinhamento/inclinação da EMA 10 e EMA 72 no Diário
+   * ou pelo filtro obrigatório de regime de mercado do índice de referência).
    */
   function evaluateSetupTriggerWithAudit(candles, options = {}) {
     const trendAudit = validateDailyEmaAlignment(candles, options.ema10Values, options.ema72Values);
+
+    let marketPermission = options.marketPermission || null;
+    if (!marketPermission && (options.benchmarkCandles || options.benchmarkReading) && MarketCycleModel) {
+      if (options.benchmarkCandles) {
+        marketPermission = MarketCycleModel.validateMarketPermissionForBuy({
+          indexCandles: options.benchmarkCandles,
+          benchmarkSymbol: options.benchmarkSymbol
+        });
+      } else if (options.benchmarkReading) {
+        marketPermission = MarketCycleModel.validateMarketPermissionForBuy({
+          ...options.benchmarkReading,
+          benchmarkSymbol: options.benchmarkSymbol
+        });
+      }
+    }
+
+    if (marketPermission && !marketPermission.isPermitted) {
+      const rejectedTriggers = detectAllSetupTriggers(candles, { ...options, marketPermission, includeRejected: true });
+      return {
+        isValid: false,
+        hasTrigger: false,
+        trigger: null,
+        triggers: [],
+        rejectedTriggers,
+        rejectionReason: marketPermission.reason || 'ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO',
+        rejectionReasons: marketPermission.reasons || [marketPermission.reason || 'ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO'],
+        trendAudit,
+        marketPermission
+      };
+    }
+
     if (!trendAudit.isValid) {
-      const rejectedTriggers = detectAllSetupTriggers(candles, { ...options, includeRejected: true });
+      const rejectedTriggers = detectAllSetupTriggers(candles, { ...options, marketPermission, includeRejected: true });
       return {
         isValid: false,
         hasTrigger: false,
@@ -4761,10 +4843,11 @@
         rejectedTriggers,
         rejectionReason: trendAudit.reason,
         rejectionReasons: trendAudit.reasons,
-        trendAudit
+        trendAudit,
+        marketPermission
       };
     }
-    const triggers = detectAllSetupTriggers(candles, options);
+    const triggers = detectAllSetupTriggers(candles, { ...options, marketPermission });
     return {
       isValid: triggers.length > 0,
       hasTrigger: triggers.length > 0,
@@ -4773,7 +4856,8 @@
       rejectedTriggers: [],
       rejectionReason: triggers.length > 0 ? null : 'Rejeitado: Nenhum gatilho válido confirmado no fechamento diário',
       rejectionReasons: triggers.length > 0 ? [] : ['Rejeitado: Nenhum gatilho válido confirmado no fechamento diário'],
-      trendAudit
+      trendAudit,
+      marketPermission
     };
   }
 
@@ -5385,10 +5469,67 @@
 
     const sortedDates = Array.from(datesSet).sort();
 
+    // Mapa pré-calculado de permissão de mercado por índice e data diária
+    const benchmarkCycleMap = new Map();
+    if (options.benchmarkCycleByDate instanceof Map) {
+      for (const [k, v] of options.benchmarkCycleByDate.entries()) {
+        benchmarkCycleMap.set(k, v);
+      }
+    } else if (options.benchmarkCycleByDate && typeof options.benchmarkCycleByDate === 'object') {
+      for (const [k, v] of Object.entries(options.benchmarkCycleByDate)) {
+        benchmarkCycleMap.set(k, v);
+      }
+    } else if (options.benchmarkCandlesMap && MarketCycleModel) {
+      const bMap = options.benchmarkCandlesMap instanceof Map
+        ? options.benchmarkCandlesMap
+        : new Map(Object.entries(options.benchmarkCandlesMap || {}));
+      for (const [bSym, bCandles] of bMap.entries()) {
+        if (Array.isArray(bCandles) && bCandles.length >= 30) {
+          for (let i = 29; i < bCandles.length; i++) {
+            const rawD = bCandles[i].date || bCandles[i].time;
+            const s = String(rawD).trim();
+            const dIso = /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}` : s.slice(0, 10);
+            const reading = MarketCycleModel.scoreMarketCycleFromCandles(bCandles.slice(0, i + 1));
+            const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: bSym });
+            benchmarkCycleMap.set(`${bSym}:${dIso}`, perm);
+          }
+        }
+      }
+    }
+
     for (const d of sortedDates) {
       for (const sym of symbols) {
         const busyUntil = symbolBusyUntil.get(sym);
         if (busyUntil && d <= busyUntil) {
+          continue;
+        }
+
+        const meta = metadataMap[sym] || {};
+        const benchmarkInfo = (MarketCycleModel && typeof MarketCycleModel.getBenchmarkForAsset === 'function')
+          ? MarketCycleModel.getBenchmarkForAsset(sym, meta.sector || meta.assetClass)
+          : { symbol: 'IBOV' };
+
+        let marketPerm = benchmarkCycleMap.get(`${benchmarkInfo.symbol}:${d}`);
+        if (!marketPerm && typeof options.getMarketPermission === 'function') {
+          marketPerm = options.getMarketPermission(benchmarkInfo.symbol, d);
+        }
+
+        // Se não houver dados específicos no mapa de benchmark
+        if (!marketPerm) {
+          if (benchmarkCycleMap.size > 0 || options.strictMarketCycle === true) {
+            marketPerm = {
+              isPermitted: false,
+              reason: 'ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO',
+              reasons: ['Ciclo de Mercado do índice de referência não confirmou permissão de compra']
+            };
+          } else {
+            marketPerm = { isPermitted: true, isFavorable: true, aboveEma10: true, aboveEma72: true };
+          }
+        }
+
+        // REGRA MANDATÓRIA (P0): Ciclo de Mercado Defensivo BLOQUEIA entradas de compra
+        if (!marketPerm.isPermitted) {
+          rejectedSignalsCount++;
           continue;
         }
 
@@ -5401,8 +5542,8 @@
         // Slice estrito sem look-ahead
         const slice = candles.slice(0, candleIdx + 1);
         const trigger = typeof options.detectTrigger === 'function'
-          ? options.detectTrigger(slice, { symbol: sym, date: d })
-          : detectSetupTrigger(slice);
+          ? options.detectTrigger(slice, { symbol: sym, date: d, marketPermission: marketPerm })
+          : detectSetupTrigger(slice, { marketPermission: marketPerm });
 
         if (!trigger || !trigger.hasTrigger) continue;
 
@@ -5416,13 +5557,12 @@
           continue;
         }
 
-        if (typeof options.signalFilter === 'function' && !options.signalFilter({ symbol: sym, date: d, trigger, slice })) {
+        if (typeof options.signalFilter === 'function' && !options.signalFilter({ symbol: sym, date: d, trigger, slice, marketPermission: marketPerm })) {
           continue;
         }
 
         totalSignalsFound++;
 
-        const meta = metadataMap[sym] || {};
         const simId = `sim-hist-${sym}-${d}-${trigger.id || 'trig'}`;
 
         const rawSim = {
@@ -5439,6 +5579,7 @@
           managementScenario: scenario,
           structure: trigger.structure || null,
           trendAlignment: trigger.trendAudit || null,
+          marketPermission: marketPerm,
           timeline: []
         };
 
@@ -5607,6 +5748,8 @@
     sanitizeAndNormalizeSimulation,
     validateSimulation,
     auditSimulationsBatch,
-    generateHistoricalSimulations
+    generateHistoricalSimulations,
+    MarketCycleModel,
+    validateMarketPermissionForBuy: MarketCycleModel ? MarketCycleModel.validateMarketPermissionForBuy : null
   };
 });

@@ -3,6 +3,7 @@
 const marketData = require('./market-data');
 const tickerChart = require('./ticker-chart');
 const OpportunityRadarModel = require('../../frontend/opportunity-radar-model');
+const MarketCycleModel = require('../../frontend/market-cycle-model');
 
 async function getOpportunityRadarData(cache) {
   if (!cache || typeof cache !== 'object') {
@@ -21,9 +22,25 @@ async function getOpportunityRadarData(cache) {
     marketData.resolveMarketCycle(cache, 'bdr').catch(() => null)
   ]);
 
-  const stockCycleState = stockCycleRes?.cycle?.state || cache?.cycle?.state || 'healthy';
-  const fiiCycleState = fiiCycleRes?.cycle?.state || 'healthy';
-  const bdrCycleState = bdrCycleRes?.cycle?.state || 'healthy';
+  const stockPerm = MarketCycleModel.validateMarketPermissionForBuy({
+    ...(stockCycleRes?.cycle || cache?.cycle || {}),
+    indexCandles: stockCycleRes?.benchmark?.history || cache?.benchmark?.history,
+    benchmarkSymbol: 'IBOV'
+  });
+  const fiiPerm = MarketCycleModel.validateMarketPermissionForBuy({
+    ...(fiiCycleRes?.cycle || cache?.cycles?.fii?.cycle || {}),
+    indexCandles: fiiCycleRes?.benchmark?.history || cache?.cycles?.fii?.benchmark?.history,
+    benchmarkSymbol: 'IFIX'
+  });
+  const bdrPerm = MarketCycleModel.validateMarketPermissionForBuy({
+    ...(bdrCycleRes?.cycle || cache?.cycles?.bdr?.cycle || {}),
+    indexCandles: bdrCycleRes?.benchmark?.history || cache?.cycles?.bdr?.benchmark?.history,
+    benchmarkSymbol: 'BDRX'
+  });
+
+  const stockCycleState = stockPerm.isPermitted ? 'healthy' : 'defensive';
+  const fiiCycleState = fiiPerm.isPermitted ? 'healthy' : 'defensive';
+  const bdrCycleState = bdrPerm.isPermitted ? 'healthy' : 'defensive';
 
   const b3Histories = tickerChart.loadB3History();
 
@@ -46,9 +63,9 @@ async function getOpportunityRadarData(cache) {
   };
 
   const groups = [
-    { market: 'IBOV', cycleState: stockCycleState, list: stockItems },
-    { market: 'IFIX', cycleState: fiiCycleState, list: fiiItems },
-    { market: 'BDRs', cycleState: bdrCycleState, list: bdrItems }
+    { market: 'IBOV', cycleState: stockCycleState, isPermitted: stockPerm.isPermitted, list: stockItems },
+    { market: 'IFIX', cycleState: fiiCycleState, isPermitted: fiiPerm.isPermitted, list: fiiItems },
+    { market: 'BDRs', cycleState: bdrCycleState, isPermitted: bdrPerm.isPermitted, list: bdrItems }
   ];
 
   const readyItems = [];
@@ -57,7 +74,7 @@ async function getOpportunityRadarData(cache) {
   for (const group of groups) {
     // Somente mercados em Ciclo Positivo são elegíveis para o Radar de Oportunidades.
     // Mercados em transição ou defensivos não autorizam novos setups.
-    if (!isPositiveCycle(group.cycleState)) {
+    if (!group.isPermitted || !isPositiveCycle(group.cycleState)) {
       continue;
     }
 

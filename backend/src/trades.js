@@ -167,7 +167,14 @@ function validateMissionRisk(plan, missionState, equity) {
   }
 }
 
-async function createPlan(userId, payload) {
+async function createPlan(userId, payload = {}) {
+  const direction = payload.direction || 'long';
+  if (direction !== 'short') {
+    const rawCycle = payload.rubricResponses?.marketCycle || payload.marketCycle || payload.marketCycleRegime;
+    if (rawCycle === 'defensive' || rawCycle === 'unavailable') {
+      throw invalid('ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO');
+    }
+  }
   const plan = normalizePlan(payload);
   const id = crypto.randomUUID();
   await database.transaction(async (client) => {
@@ -256,7 +263,14 @@ async function createPlan(userId, payload) {
   return { id, ticker: plan.ticker, status: 'open', rubricGrade: plan.rubricGrade, setupTrigger: plan.setupTrigger, executionPrice: plan.entry, executedQuantity: plan.metadata.executedQuantity };
 }
 
-async function createPendingOrder(userId, payload) {
+async function createPendingOrder(userId, payload = {}) {
+  const direction = payload.direction || 'long';
+  if (direction !== 'short') {
+    const rawCycle = payload.marketCycle || payload.snapshotMarketData?.marketCycle || payload.snapshotMarketData?.rubricResponses?.marketCycle;
+    if (rawCycle === 'defensive' || rawCycle === 'unavailable') {
+      throw invalid('ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO');
+    }
+  }
   const norm = paperPendingModel.normalizePendingOrderPayload(payload);
 
   return database.transaction(async (client) => {

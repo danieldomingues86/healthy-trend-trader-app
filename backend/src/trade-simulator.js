@@ -3,11 +3,83 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const database = require('./database');
 const model = require('../../frontend/trade-simulator-model');
+let MarketCycleModel = null;
+try {
+  MarketCycleModel = require('../../frontend/market-cycle-model');
+} catch {
+  // Opcional para ambientes de teste isolados
+}
+const { parseYearMatrix } = require('./b3-index-history');
 let tickerChart = null;
 try {
   tickerChart = require('./ticker-chart');
 } catch {
   // Opcional para ambientes de teste isolados
+}
+
+let _cachedBenchmarkCycleMap = null;
+
+function isoFromCompact(value) {
+  const s = String(value);
+  return /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}` : s.slice(0, 10);
+}
+
+function loadIndexSeries(symbol = 'IBOV', cacheDirectory = path.join(__dirname, '..', 'data', 'b3-index-history-cache')) {
+  const rows = [];
+  if (!fs.existsSync(cacheDirectory)) return rows;
+  for (const file of fs.readdirSync(cacheDirectory)) {
+    const m = file.match(new RegExp(`^b3-index-${symbol}-(\\d{4})\\.json$`));
+    if (!m) continue;
+    try {
+      const payload = JSON.parse(fs.readFileSync(path.join(cacheDirectory, file), 'utf8'));
+      for (const item of parseYearMatrix(Number(m[1]), payload)) {
+        rows.push({ date: isoFromCompact(item.date), close: item.close });
+      }
+    } catch {
+      // Ignora arquivo corrompido
+    }
+  }
+  rows.sort((a, b) => a.date.localeCompare(b.date));
+  return rows;
+}
+
+function getPrecomputedBenchmarkCycleMap() {
+  if (_cachedBenchmarkCycleMap) return _cachedBenchmarkCycleMap;
+  const map = new Map();
+  if (!MarketCycleModel) return map;
+
+  for (const bSym of ['IBOV', 'IFIX', 'BDRX']) {
+    try {
+      const series = loadIndexSeries(bSym);
+      for (let i = 29; i < series.length; i++) {
+        const reading = MarketCycleModel.scoreMarketCycleFromCandles(series.slice(0, i + 1));
+        const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: bSym });
+        map.set(`${bSym}:${series[i].date}`, perm);
+      }
+    } catch {
+      // Ignora erro de índice específico
+    }
+  }
+
+  if (tickerChart) {
+    try {
+      const nasdaq = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
+      if (nasdaq && nasdaq.has('QQQ')) {
+        const qqq = nasdaq.get('QQQ');
+        for (let i = 29; i < qqq.length; i++) {
+          const d = qqq[i].time || qqq[i].date;
+          const reading = MarketCycleModel.scoreMarketCycleFromCandles(qqq.slice(0, i + 1));
+          const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: 'QQQ' });
+          map.set(`QQQ:${d}`, perm);
+        }
+      }
+    } catch {
+      // Ignora se Nasdaq não estiver carregado
+    }
+  }
+
+  _cachedBenchmarkCycleMap = map;
+  return map;
 }
 
 function invalid(message, status = 400) {
@@ -94,6 +166,7 @@ async function list(userId, client = database) {
     simulations = model.getDefaultSeedSimulations('2R');
   } else {
     simulations = result.rows.map(mapSimulation).filter(s => s && s.triggerName !== 'Pullback');
+    const benchmarkCycleMap = getPrecomputedBenchmarkCycleMap();
     if (tickerChart && typeof model.validateDailyEmaAlignment === 'function') {
       try {
         const seedKeys = new Set(
@@ -105,6 +178,19 @@ async function list(userId, client = database) {
           const sym = String(s.symbol || '').toUpperCase().trim();
           const sDate = String(s.signalDate || '').slice(0, 10);
           if (seedKeys.has(`${sym}:${sDate}`)) return true;
+
+          // REGRA MANDATÓRIA (P0): Ciclo de Mercado Defensivo BLOQUEIA entradas de compra
+          if (MarketCycleModel) {
+            const benchInfo = MarketCycleModel.getBenchmarkForAsset(sym, s.sector);
+            const perm = benchmarkCycleMap.get(`${benchInfo.symbol}:${sDate}`);
+            if (perm) {
+              if (!perm.isPermitted) return false;
+              s.marketPermission = perm;
+            } else if (sDate && sDate < '2026-07-01') {
+              return false;
+            }
+          }
+
           const hist = (b3 && b3.get(sym)) || (nasdaq && nasdaq.get(sym)) || null;
           if (!hist || !sDate) return true;
           const idx = hist.findIndex(c => c.time === sDate);
@@ -122,6 +208,15 @@ async function list(userId, client = database) {
       } catch {
         // Mantém lista mapeada se histórico diário não estiver acessível no ambiente
       }
+    } else if (MarketCycleModel) {
+      simulations = simulations.filter(s => {
+        const sym = String(s.symbol || '').toUpperCase().trim();
+        const sDate = String(s.signalDate || '').slice(0, 10);
+        const benchInfo = MarketCycleModel.getBenchmarkForAsset(sym, s.sector);
+        const perm = benchmarkCycleMap.get(`${benchInfo.symbol}:${sDate}`);
+        if (perm) return perm.isPermitted;
+        return !(sDate && sDate < '2026-07-01');
+      });
     }
   }
 
@@ -176,6 +271,18 @@ async function create(userId, payload = {}, client = database) {
     : String(payload.grade || 'A').trim();
   const sector = String(payload.sector || '').trim();
   const notes = String(payload.notes || '').trim();
+
+  // REGRA MANDATÓRIA (P0): Ciclo de Mercado Defensivo BLOQUEIA entradas de compra
+  if (MarketCycleModel) {
+    const benchInfo = MarketCycleModel.getBenchmarkForAsset(symbol, sector);
+    const benchmarkCycleMap = getPrecomputedBenchmarkCycleMap();
+    const perm = benchmarkCycleMap.get(`${benchInfo.symbol}:${signalDate}`);
+    if (perm && !perm.isPermitted) {
+      throw invalid(`ENTRADA BLOQUEADA — ${perm.reason || 'CICLO DE MERCADO DEFENSIVO'}`, 422);
+    } else if (!perm && signalDate && signalDate < '2026-07-01') {
+      throw invalid('ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO', 422);
+    }
+  }
 
   const id = crypto.randomUUID();
   const initialStatus = model.STATUS.WAITING_ENTRY;
@@ -442,6 +549,8 @@ async function generateMass(userId, payload = {}, client = database) {
     };
   }
 
+  const benchmarkCycleByDate = getPrecomputedBenchmarkCycleMap();
+
   const generated = model.generateHistoricalSimulations({
     candlesMap,
     metadataMap,
@@ -453,7 +562,8 @@ async function generateMass(userId, payload = {}, client = database) {
     triggers,
     grades,
     scenario,
-    universe
+    universe,
+    benchmarkCycleByDate
   });
 
   const sims = generated.simulations || [];
@@ -673,6 +783,48 @@ async function buildSnapshot(userId, payload = {}, options = {}) {
   return { snapshot: model.buildSimulationSnapshot(simulation, history || [], { source }) };
 }
 
+/**
+ * Purga simulações salvas no banco cujas entradas foram geradas em regimes de mercado defensivos.
+ */
+async function purgeDefensiveSimulations(userId = null, client = database) {
+  const query = userId
+    ? 'SELECT id, symbol, sector, signal_date FROM app.trade_simulations WHERE user_id = $1'
+    : 'SELECT id, symbol, sector, signal_date FROM app.trade_simulations';
+  const params = userId ? [userId] : [];
+  const res = await client.query(query, params);
+  const rows = res.rows || [];
+  const cycleMap = getPrecomputedBenchmarkCycleMap();
+
+  const idsToDelete = [];
+  for (const row of rows) {
+    const sym = String(row.symbol || '').toUpperCase().trim();
+    const sDate = toIsoDate(row.signal_date);
+    const sector = row.sector || '';
+    if (MarketCycleModel) {
+      const benchInfo = MarketCycleModel.getBenchmarkForAsset(sym, sector);
+      const perm = cycleMap.get(`${benchInfo.symbol}:${sDate}`);
+      if (perm) {
+        if (!perm.isPermitted) {
+          idsToDelete.push(row.id);
+        }
+      } else if (sDate && sDate < '2026-07-01') {
+        idsToDelete.push(row.id);
+      }
+    }
+  }
+
+  if (idsToDelete.length > 0) {
+    const batchSize = 100;
+    for (let i = 0; i < idsToDelete.length; i += batchSize) {
+      const batch = idsToDelete.slice(i, i + batchSize);
+      const placeholders = batch.map((_, idx) => '$' + (idx + 1)).join(', ');
+      await client.query(`DELETE FROM app.trade_simulations WHERE id IN (${placeholders})`, batch);
+    }
+  }
+
+  return { purgedCount: idsToDelete.length };
+}
+
 module.exports = {
   list,
   create,
@@ -685,5 +837,7 @@ module.exports = {
   buildSnapshot,
   compare,
   compareHypothesis,
-  mapSimulation
+  mapSimulation,
+  getPrecomputedBenchmarkCycleMap,
+  purgeDefensiveSimulations
 };

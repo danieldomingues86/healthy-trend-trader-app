@@ -362,7 +362,8 @@
     const gradeRiskPct=gradeObj.riskPct;
     const riskBudgetPct=(weightsValid&&complete&&grade!=='D')?gradeRiskPct:0;
     const qualityAllowed=weightsValid&&complete&&grade==='A';
-    return{score,maximumScore:100,rawGrade,grade,gradeRiskPct,riskBudgetPct,riskPct:riskBudgetPct,marketCycle:cycleKey,profile,complete,contributions,gates,weightsTotal,weightsValid,qualityAllowed};
+    const isBuyPermitted = cycleKey !== 'defensive' && cycleKey !== 'unavailable';
+    return{score,maximumScore:100,rawGrade,grade,gradeRiskPct,riskBudgetPct,riskPct:riskBudgetPct,marketCycle:cycleKey,profile,complete,contributions,gates,weightsTotal,weightsValid,qualityAllowed,isBuyPermitted};
   }
 
   function riskBaseOptions(policy={}){return normalizePolicy(policy).grades.map(item=>item.riskPct);}

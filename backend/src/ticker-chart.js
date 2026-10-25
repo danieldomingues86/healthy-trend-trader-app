@@ -649,14 +649,17 @@ async function getTickerChartData(rawSymbol) {
   const finalGrade = chartRubricEval.finalGrade || 'B';
   const gradeVisual = TradingRubrics.getRubricGradeVisual(finalGrade);
 
+  const isMarketFavorable = cycleState === 'Expansão' || cycleState === 'Positivo' || cycleState === 'healthy';
+  const triggerHasTrigger = trigger.hasTrigger === true && isMarketFavorable;
+
   const criteriaTable = [
     { name: 'Força Relativa', status: rsInfo.status === 'good', obs: `${rsClassification} (${rsScore})` },
-    { name: 'Ciclo de Mercado', status: cycleState === 'Positivo', obs: cycleState },
+    { name: 'Ciclo de Mercado', status: isMarketFavorable, obs: cycleState },
     { name: 'Preço > EMA 10', status: priceAboveEma10, obs: priceAboveEma10 ? 'Sim' : 'Não' },
     { name: 'EMA 10 > EMA 72', status: ema10AboveEma72, obs: ema10AboveEma72 ? 'Sim' : 'Não' },
     { name: 'Volatilidade (ATR)', status: atrPctVal < 5.0, obs: `${atrRegime} (${atrPctVal.toFixed(1)}%)` },
     { name: 'Estrutura', status: true, obs: structureLabel },
-    { name: 'Gatilho', status: trigger.hasTrigger === true, obs: trigger.hasTrigger ? `${trigger.name} (${finalGrade})` : 'Nenhum' },
+    { name: 'Gatilho', status: triggerHasTrigger, obs: triggerHasTrigger ? `${trigger.name} (${finalGrade})` : (trigger.hasTrigger ? `${trigger.name} (Bloqueado — Ciclo Defensivo)` : 'Nenhum') },
     { name: 'Fundamentos', status: fundCriteriaStatus, obs: fundEvaluation }
   ];
 
