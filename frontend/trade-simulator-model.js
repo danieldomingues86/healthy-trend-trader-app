@@ -186,6 +186,19 @@
   }
 
   /**
+   * Mapeamento centralizado de nomenclatura visível de gatilhos (apresentação em português).
+   * Preserva identificadores técnicos internos ('RBI', 'INSIDE_BAR', etc.).
+   */
+  function formatTriggerDisplayName(triggerName) {
+    if (!triggerName) return '';
+    const s = String(triggerName).trim();
+    if (s === 'RBI' || s === 'Red Bar Ignored' || s === 'Barra Vermelha Ignorada') {
+      return 'Barra Vermelha Ignorada';
+    }
+    return s;
+  }
+
+  /**
    * Calendário Oficial de Negociação (B3 / Mercados)
    * Exclui sábados, domingos e feriados sem pregão.
    */
@@ -1051,12 +1064,24 @@
     list.forEach(sim => {
       if (!sim) return;
       const status = sim.status;
-      const trigName = sim.triggerName || 'Outros';
+      const rawTrigName = sim.triggerName || 'Outros';
+      const trigKey = (rawTrigName === 'RBI' || rawTrigName === 'Red Bar Ignored' || rawTrigName === 'Barra Vermelha Ignorada') ? 'RBI' : rawTrigName;
       const grade = normalizeSimulatorGrade(sim.grade);
       const pKey = sim.signalDate ? String(sim.signalDate).slice(0, 7) : 'Sem data';
 
-      if (!triggerMap[trigName]) {
-        triggerMap[trigName] = { name: trigName, totalR: 0, count: 0, signals: 0, executed: 0, open: 0, closed: 0, winners: 0, losers: 0 };
+      if (!triggerMap[trigKey]) {
+        triggerMap[trigKey] = {
+          id: trigKey,
+          name: formatTriggerDisplayName(rawTrigName),
+          totalR: 0,
+          count: 0,
+          signals: 0,
+          executed: 0,
+          open: 0,
+          closed: 0,
+          winners: 0,
+          losers: 0
+        };
       }
       if (!gradeMap[grade]) {
         gradeMap[grade] = { grade, totalR: 0, count: 0, signals: 0, executed: 0, open: 0, closed: 0, winners: 0, losers: 0 };
@@ -1065,7 +1090,7 @@
         periodMap[pKey] = { period: pKey, totalR: 0, count: 0, signals: 0, executed: 0, open: 0, closed: 0, winners: 0, losers: 0 };
       }
 
-      triggerMap[trigName].signals++;
+      triggerMap[trigKey].signals++;
       gradeMap[grade].signals++;
       periodMap[pKey].signals++;
 
@@ -1076,8 +1101,8 @@
       } else if (status === STATUS.IN_OPERATION) {
         inOperationCount++;
         openR += Number(sim.resultR) || 0;
-        triggerMap[trigName].executed++;
-        triggerMap[trigName].open++;
+        triggerMap[trigKey].executed++;
+        triggerMap[trigKey].open++;
         gradeMap[grade].executed++;
         gradeMap[grade].open++;
         periodMap[pKey].executed++;
@@ -1088,9 +1113,9 @@
         const r = Number(sim.resultR) || 0;
         totalR += r;
 
-        triggerMap[trigName].executed++;
-        triggerMap[trigName].closed++;
-        triggerMap[trigName].totalR += r;
+        triggerMap[trigKey].executed++;
+        triggerMap[trigKey].closed++;
+        triggerMap[trigKey].totalR += r;
 
         gradeMap[grade].executed++;
         gradeMap[grade].closed++;
@@ -1103,13 +1128,13 @@
         if (r > 0) {
           winningTradesCount++;
           totalGainsR += r;
-          triggerMap[trigName].winners++;
+          triggerMap[trigKey].winners++;
           gradeMap[grade].winners++;
           periodMap[pKey].winners++;
         } else {
           losingTradesCount++;
           totalLossesR += Math.abs(r);
-          triggerMap[trigName].losers++;
+          triggerMap[trigKey].losers++;
           gradeMap[grade].losers++;
           periodMap[pKey].losers++;
         }
@@ -1479,12 +1504,14 @@
 
       // 3. Gatilho
       if (trigger && trigger.toUpperCase() !== 'ALL') {
+        const normFilterTrigger = formatTriggerDisplayName(trigger);
+        const normSimTrigger = formatTriggerDisplayName(sim.triggerName);
         if (trigger === 'Outros') {
-          const known = ['Inside Bar', 'Double Inside Bar', '1-2-3 de Compra', 'PFR de Compra', 'Dave Landry', 'RBI'];
-          if (known.includes(sim.triggerName)) return false;
-        } else if (sim.triggerName === 'RBI' && trigger === 'Red Bar Ignored') {
-          // Equivalência de nomenclatura RBI / Red Bar Ignored
-        } else if (sim.triggerName !== trigger) {
+          const known = ['Inside Bar', 'Double Inside Bar', '1-2-3 de Compra', 'PFR de Compra', 'Dave Landry', 'RBI', 'Barra Vermelha Ignorada', 'Red Bar Ignored'];
+          if (known.includes(sim.triggerName) || known.includes(normSimTrigger)) return false;
+        } else if (normFilterTrigger === 'Barra Vermelha Ignorada' && normSimTrigger === 'Barra Vermelha Ignorada') {
+          // Equivalência de nomenclatura Barra Vermelha Ignorada / RBI / Red Bar Ignored
+        } else if (sim.triggerName !== trigger && normSimTrigger !== normFilterTrigger) {
           return false;
         }
       }
@@ -1505,8 +1532,9 @@
       if (query) {
         const sym = String(sim.symbol || '').toUpperCase();
         const trig = String(sim.triggerName || '').toUpperCase();
+        const trigDisplay = formatTriggerDisplayName(sim.triggerName).toUpperCase();
         const comp = String(sim.companyName || '').toUpperCase();
-        if (!sym.includes(query) && !trig.includes(query) && !comp.includes(query)) {
+        if (!sym.includes(query) && !trig.includes(query) && !trigDisplay.includes(query) && !comp.includes(query)) {
           return false;
         }
       }
@@ -1653,7 +1681,7 @@
     }
 
     // 6. Gatilho
-    const triggerDisplay = `${triggerName} (${grade})`;
+    const triggerDisplay = `${formatTriggerDisplayName(triggerName)} (${grade})`;
     const triggerStatus = grade === 'D' ? 'bad' : 'good';
 
     // 7. Volatilidade
@@ -4247,7 +4275,7 @@
       patternPivotsFormatted: patternMarkers.length
         ? patternMarkers.map(m => `${m.role} ${formatDateBR(m.time).slice(0, 5)}: R$ ${Number(m.price).toFixed(2).replace('.', ',')}`).join('   ')
         : 'Não aplicável',
-      triggerFormatted: `${simulation.triggerName} (${simulation.grade || 'A'})`,
+      triggerFormatted: `${formatTriggerDisplayName(simulation.triggerName)} (${simulation.grade || 'A'})`,
       entryFormatted: `R$ ${entryPlanned.toFixed(2).replace('.', ',')}${isExecuted && entryDate ? ` (executada em ${formatDateBR(entryDate)})` : ''}`,
       stopFormatted: `R$ ${stopInitial.toFixed(2).replace('.', ',')}`,
       exitFormatted: simulation.exitPrice != null ? `R$ ${Number(simulation.exitPrice).toFixed(2).replace('.', ',')}${exitDate ? ` (${formatDateBR(exitDate)})` : ''}` : '—',
@@ -5549,8 +5577,14 @@
 
         const normalizedTriggerGrade = normalizeSimulatorGrade(trigger.grade);
 
-        if (selectedTriggers && !selectedTriggers.includes(trigger.name)) {
-          continue;
+        if (selectedTriggers) {
+          const match = selectedTriggers.some(t => {
+            if (t === trigger.name || t === trigger.id) return true;
+            const normT = formatTriggerDisplayName(t);
+            const normTrig = formatTriggerDisplayName(trigger.name);
+            return normT === normTrig;
+          });
+          if (!match) continue;
         }
 
         if (selectedGrades && !selectedGrades.includes(normalizedTriggerGrade)) {
@@ -5713,6 +5747,7 @@
     formatPrice,
     formatDateBR,
     normalizeSimulatorGrade,
+    formatTriggerDisplayName,
     isHolidayB3,
     isTradingDay,
     snapToTradingDay,

@@ -481,7 +481,7 @@ body:has(#tradesimulator.active) .content {
 
 .sim-trigger-row {
   display: grid;
-  grid-template-columns: 105px 1fr 65px;
+  grid-template-columns: 145px 1fr 65px;
   align-items: center;
   gap: 10px;
 }

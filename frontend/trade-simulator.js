@@ -75,6 +75,22 @@
   }
 
   /**
+   * Mapeamento centralizado de nomenclatura visível de gatilhos (apresentação em português).
+   * Substitui 'RBI' / 'Red Bar Ignored' por 'Barra Vermelha Ignorada' na camada visual.
+   */
+  function formatTriggerDisplayName(triggerName) {
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.formatTriggerDisplayName === 'function') {
+      return root.TradeSimulatorModel.formatTriggerDisplayName(triggerName);
+    }
+    if (!triggerName) return '';
+    const s = String(triggerName).trim();
+    if (s === 'RBI' || s === 'Red Bar Ignored' || s === 'Barra Vermelha Ignorada') {
+      return 'Barra Vermelha Ignorada';
+    }
+    return s;
+  }
+
+  /**
    * Inicialização do módulo
    */
   async function init() {
@@ -851,7 +867,9 @@
       daysLabel = 'Todo o período';
     }
 
-    const triggerLabel = state.filters.trigger === 'ALL' ? 'Todos os gatilhos' : state.filters.trigger;
+    const triggerLabel = state.filters.trigger === 'ALL'
+      ? 'Todos os gatilhos'
+      : formatTriggerDisplayName(state.filters.trigger);
     const sectorLabel = state.filters.sector === 'ALL' ? 'Todos os setores' : state.filters.sector;
     const gradeLabel = state.filters.grade === 'ALL' ? 'Todas as notas' : `Nota ${state.filters.grade}`;
 
@@ -909,7 +927,7 @@
               <button class="sim-dropdown-item ${state.filters.trigger === '1-2-3 de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="1-2-3 de Compra">1-2-3 de Compra</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'PFR de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="PFR de Compra">PFR de Compra</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Dave Landry' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Dave Landry">Dave Landry</button>
-              <button class="sim-dropdown-item ${state.filters.trigger === 'Red Bar Ignored' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Red Bar Ignored">Red Bar Ignored</button>
+              <button class="sim-dropdown-item ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'Red Bar Ignored' || state.filters.trigger === 'RBI') ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Barra Vermelha Ignorada">Barra Vermelha Ignorada</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Outros' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Outros">Outros</button>
             </div>
           </div>
@@ -1300,9 +1318,10 @@
       breakdownItemsHtml = triggers.map(t => {
         const widthPct = Math.max(2, Math.min(100, Math.round((Math.abs(t.totalR || 0) / maxTriggerR) * 100)));
         const colorClass = (t.totalR || 0) >= 0 ? '' : 'negative-bar';
+        const displayName = formatTriggerDisplayName(t.name);
         return `
           <div class="sim-trigger-row">
-            <span class="sim-trigger-name" title="${t.name}">${t.name}</span>
+            <span class="sim-trigger-name" title="${displayName}">${displayName}</span>
             <div class="sim-trigger-bar-bg">
               <div class="sim-trigger-bar-fill ${colorClass}" style="width: ${widthPct}%;"></div>
             </div>
@@ -1420,17 +1439,34 @@
   function renderEquitySvgChart(points, isUnitRS, riskNominal) {
     const width = 640;
     const height = 180;
-    const pad = { top: 16, right: 25, bottom: 25, left: 38 };
+    const pad = { top: 16, right: 20, bottom: 25, left: 54 };
 
-    let yMinR = -5;
-    let yMaxR = 25;
-    if (points.length > 0) {
+    let minVal = 0;
+    let maxVal = 25;
+    if (points && points.length > 0) {
       const vals = points.map(p => Number(p.cumulativeR) || 0);
-      const minVal = Math.min(0, ...vals);
-      const maxVal = Math.max(0, ...vals);
-      yMinR = Math.min(-5, Math.floor(minVal / 5) * 5);
-      yMaxR = Math.max(25, Math.ceil(maxVal / 5) * 5);
+      minVal = Math.min(0, ...vals);
+      maxVal = Math.max(0, ...vals);
     }
+
+    const rawSpan = Math.max(20, maxVal - minVal);
+    const candidateSteps = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
+    let stepR = 50;
+    for (const c of candidateSteps) {
+      if (rawSpan / c <= 5.5) {
+        stepR = c;
+        break;
+      }
+    }
+
+    let yMinR = Math.min(0, Math.floor(minVal / stepR) * stepR);
+    let yMaxR = Math.max(stepR, Math.ceil(maxVal / stepR) * stepR);
+
+    // Garantir pelo menos 3 divisões visíveis
+    if (yMaxR - yMinR < stepR * 2) {
+      yMaxR += stepR;
+    }
+
     const yRange = yMaxR - yMinR || 30;
 
     const getY = (rVal) => {
@@ -1443,33 +1479,75 @@
       return pad.left + (idx / (total - 1)) * (width - pad.left - pad.right);
     };
 
-    // Linhas de Grade Horizontais
+    // Linhas de Grade Horizontais calculadas dinamicamente
     const gridLevels = [];
-    for (let l = yMaxR; l >= yMinR; l -= 5) {
+    for (let l = yMaxR; l >= yMinR; l -= stepR) {
       gridLevels.push(l);
     }
+    if (!gridLevels.includes(0) && yMinR <= 0 && yMaxR >= 0) {
+      gridLevels.push(0);
+      gridLevels.sort((a, b) => b - a);
+    }
+
+    const formatYLabel = (level) => {
+      if (isUnitRS) {
+        const nominal = Number(riskNominal) || 1000;
+        const totalMoney = level * nominal;
+        const absMoney = Math.abs(totalMoney);
+        if (absMoney === 0) return 'R$ 0';
+        const sign = totalMoney > 0 ? '+' : '-';
+        if (absMoney >= 1000) {
+          const kVal = (absMoney / 1000).toFixed(absMoney % 1000 === 0 ? 0 : 1).replace('.0', '');
+          return `${sign}R$ ${kVal}k`;
+        }
+        return `${sign}R$ ${absMoney.toFixed(0)}`;
+      }
+      if (level === 0) return '0R';
+      return `${level > 0 ? '+' : ''}${level}R`;
+    };
+
     const gridLines = gridLevels.map(level => {
       const y = getY(level);
       const isBaseline = level === 0;
-      const label = isUnitRS
-        ? `${level > 0 ? '+' : ''}${(level * riskNominal / 1000).toFixed(0)}k`
-        : `${level > 0 ? '+' : ''}${level}R`;
+      const label = formatYLabel(level);
       return `
         <line x1="${pad.left}" y1="${y}" x2="${width - pad.right}" y2="${y}"
               stroke="${isBaseline ? 'rgba(16, 185, 129, 0.45)' : '#e2e8f0'}"
               stroke-dasharray="${isBaseline ? '4,4' : '2,2'}" stroke-width="${isBaseline ? '1.2' : '1'}" />
-        <text x="${pad.left - 6}" y="${y + 3.5}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${label}</text>
+        <text x="${pad.left - 8}" y="${y + 3.5}" text-anchor="end" font-size="9.5" fill="${isBaseline ? '#10b981' : '#94a3b8'}" font-family="Inter, sans-serif" font-weight="${isBaseline ? '600' : '500'}">${label}</text>
       `;
     }).join('');
 
     // Datas no eixo X
-    const dates = ['Jul 1', 'Jul 15', 'Ago 1', 'Ago 15', 'Set 1', 'Set 15', 'Out 1'];
-    const dateLabels = dates.map((d, i) => {
-      const x = pad.left + (i / (dates.length - 1)) * (width - pad.left - pad.right);
-      return `
-        <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d}</text>
-      `;
-    }).join('');
+    let dates = ['Jul 1', 'Jul 15', 'Ago 1', 'Ago 15', 'Set 1', 'Set 15', 'Out 1'];
+    if (points && points.length >= 2) {
+      const numDateTicks = Math.min(7, points.length);
+      const sampledDates = [];
+      for (let i = 0; i < numDateTicks; i++) {
+        const ptIndex = Math.round((i / (numDateTicks - 1)) * (points.length - 1));
+        const pt = points[ptIndex];
+        if (pt && pt.dateFormatted) {
+          sampledDates.push({ idx: ptIndex, label: pt.dateFormatted.slice(0, 5) });
+        }
+      }
+      if (sampledDates.length >= 2) {
+        dates = sampledDates;
+      }
+    }
+
+    const dateLabels = Array.isArray(dates) && typeof dates[0] === 'string'
+      ? dates.map((d, i) => {
+          const x = pad.left + (i / (dates.length - 1)) * (width - pad.left - pad.right);
+          return `
+            <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d}</text>
+          `;
+        }).join('')
+      : dates.map(d => {
+          const x = getX(d.idx, points.length);
+          return `
+            <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d.label}</text>
+          `;
+        }).join('');
 
     // Traçado da Curva com base nos trades reais acumulados
     let pathD = '';
@@ -1785,7 +1863,7 @@
         </td>
 
         <!-- Gatilho -->
-        <td class="td-trigger">${sim.triggerName === 'Double Inside Bar' ? '<span class="sim-dib-tag">⚡ Double Inside Bar</span>' : sim.triggerName}</td>
+        <td class="td-trigger">${sim.triggerName === 'Double Inside Bar' ? '<span class="sim-dib-tag">⚡ Double Inside Bar</span>' : formatTriggerDisplayName(sim.triggerName)}</td>
 
         <!-- Nota -->
         <td>
@@ -2025,7 +2103,7 @@
     const universeSub = universeSubMap[universe] || '';
 
     // Rótulo dos gatilhos e notas (Fonte de verdade: Novo Trade / Rubric: A, B, C, D)
-    const triggerDesc = triggers === 'ALL' ? 'Todos os gatilhos implementados' : triggers;
+    const triggerDesc = triggers === 'ALL' ? 'Todos os gatilhos implementados' : formatTriggerDisplayName(triggers);
     const gradeDesc = grades === 'ALL' ? 'Todas as notas (A, B, C e D)' : `Nota ${grades}`;
 
     const targetPrimaryMap = {
@@ -2300,8 +2378,8 @@
                         <button type="button" class="sim-mass-chip ${triggers === 'Dave Landry' ? 'active' : ''}" data-mass-trigger="Dave Landry">
                           ${triggers === 'Dave Landry' ? checkIconSvg : ''}<span>Dave Landry</span>
                         </button>
-                        <button type="button" class="sim-mass-chip ${triggers === 'Red Bar Ignored' ? 'active' : ''}" data-mass-trigger="Red Bar Ignored">
-                          ${triggers === 'Red Bar Ignored' ? checkIconSvg : ''}<span>Red Bar Ignored</span>
+                        <button type="button" class="sim-mass-chip ${(triggers === 'Barra Vermelha Ignorada' || triggers === 'Red Bar Ignored' || triggers === 'RBI') ? 'active' : ''}" data-mass-trigger="Barra Vermelha Ignorada">
+                          ${(triggers === 'Barra Vermelha Ignorada' || triggers === 'Red Bar Ignored' || triggers === 'RBI') ? checkIconSvg : ''}<span>Barra Vermelha Ignorada</span>
                         </button>
                       </div>
                     </div>
@@ -3588,7 +3666,7 @@
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
                 ${renderStatusPill(sim.status)}
               </div>
-              <p style="margin: 4px 0 0; color: var(--muted); font-size: 12px;">${sim.companyName || sim.symbol} • ${sim.triggerName} • Setor: ${sim.sector || 'Geral'}</p>
+              <p style="margin: 4px 0 0; color: var(--muted); font-size: 12px;">${sim.companyName || sim.symbol} • ${formatTriggerDisplayName(sim.triggerName)} • Setor: ${sim.sector || 'Geral'}</p>
             </div>
             <button class="sim-modal-close-btn" type="button" id="simModalClose">×</button>
           </div>
@@ -3816,7 +3894,7 @@
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
                 ${renderStatusPill(sim.status)}
               </h2>
-              <p>${sim.companyName || sim.symbol} • Gatilho: <b>${sim.triggerName}</b> • Setor: ${sim.sector || 'Geral'}</p>
+              <p>${sim.companyName || sim.symbol} • Gatilho: <b>${formatTriggerDisplayName(sim.triggerName)}</b> • Setor: ${sim.sector || 'Geral'}</p>
             </div>
             <button class="sim-modal-close-btn" type="button" id="simSnapshotClose" title="Fechar snapshot">×</button>
           </div>
@@ -4211,7 +4289,7 @@
                 </tr>
                 <tr>
                   <td>Gatilho e Setup</td>
-                  <td><b>${snapEsc(sm.triggerFormatted || sim.triggerName)}</b></td>
+                  <td><b>${snapEsc(sm.triggerFormatted || formatTriggerDisplayName(sim.triggerName))}</b></td>
                 </tr>
                 <tr>
                   <td>Entrada e Stop</td>

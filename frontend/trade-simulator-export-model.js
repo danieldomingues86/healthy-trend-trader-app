@@ -62,6 +62,19 @@
     return 'R$ ' + Number(val).toFixed(2).replace('.', ',');
   }
 
+  function formatTriggerName(triggerName) {
+    const m = getModel();
+    if (m && typeof m.formatTriggerDisplayName === 'function') {
+      return m.formatTriggerDisplayName(triggerName);
+    }
+    if (!triggerName) return '';
+    const s = String(triggerName).trim();
+    if (s === 'RBI' || s === 'Red Bar Ignored' || s === 'Barra Vermelha Ignorada') {
+      return 'Barra Vermelha Ignorada';
+    }
+    return s;
+  }
+
   function formatR(val) {
     if (val == null || isNaN(val)) return '—';
     const num = Number(val);
@@ -456,7 +469,7 @@
     return `
       <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-top: 14px; font-size: 11px;">
         <div style="font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-          <span>📦 Estrutura Gráfica &amp; Compressão (${escapeHtml(sim.triggerName)})</span>
+          <span>📦 Estrutura Gráfica &amp; Compressão (${escapeHtml(formatTriggerName(sim.triggerName))})</span>
           ${st.totalCompressionPct != null ? `<span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 700;">Contração: ${st.totalCompressionPct}%</span>` : ''}
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 10.5px;">
@@ -513,7 +526,7 @@
           </tr>
           <tr style="border-bottom: 1px solid #e2e8f0;">
             <td style="padding: 4px; color: #64748b;"><b>Gatilho:</b></td>
-            <td style="padding: 4px; color: #0f172a;">${escapeHtml(vision.trigger?.display || sim.triggerName || '—')}</td>
+            <td style="padding: 4px; color: #0f172a;">${escapeHtml(vision.trigger?.display ? formatTriggerName(vision.trigger.display) : (formatTriggerName(sim.triggerName) || '—'))}</td>
             <td style="padding: 4px; color: #64748b;"><b>Volatilidade:</b></td>
             <td style="padding: 4px; color: #0f172a;">${escapeHtml(vision.volatility?.text || '—')}</td>
           </tr>
@@ -591,7 +604,7 @@
                 <span style="font-size: 13px; font-weight: 600; color: #64748b; margin-left: 6px;">${escapeHtml(sim.companyName || '')}</span>
               </div>
               <div style="font-size: 11px; color: #475569; margin-top: 3px;">
-                <b>Gatilho:</b> ${escapeHtml(sim.triggerName)} • <b>Setor:</b> ${escapeHtml(sim.sector || 'Geral')} • <b>Data do Sinal:</b> ${formatDateBR(sim.signalDate)}
+                <b>Gatilho:</b> ${escapeHtml(formatTriggerName(sim.triggerName))} • <b>Setor:</b> ${escapeHtml(sim.sector || 'Geral')} • <b>Data do Sinal:</b> ${formatDateBR(sim.signalDate)}
               </div>
             </td>
             <td style="text-align: right; vertical-align: middle;">
@@ -908,7 +921,7 @@
     const resultColor = sim.resultR > 0 ? '#16a34a' : (sim.resultR < 0 ? '#dc2626' : '#475569');
     const resultStr = formatR(sim.resultR);
 
-    const noteTitle = `${sim.symbol} — ${sim.triggerName} [Grade ${sim.grade || '—'}] (${resultStr !== '—' ? resultStr : statusLabel})`;
+    const noteTitle = `${sim.symbol} — ${formatTriggerName(sim.triggerName)} [Grade ${sim.grade || '—'}] (${resultStr !== '—' ? resultStr : statusLabel})`;
 
     const createdDate = toEvernoteDate(sim.signalDate || sim.entryDate);
     const updatedDate = toEvernoteDate(sim.exitDate || sim.entryDate || sim.signalDate);
@@ -922,7 +935,7 @@
       ${escapeXml(sim.symbol)} <span style="font-size: 14px; color: #64748b;">${escapeXml(sim.companyName || '')}</span>
     </div>
     <div style="font-size: 12px; color: #475569; margin-top: 4px;">
-      <b>Gatilho:</b> ${escapeXml(sim.triggerName)} | <b>Nota:</b> Grade ${escapeXml(sim.grade || '—')} | <b>Status:</b> ${escapeXml(statusLabel)} | <b>Setor:</b> ${escapeXml(sim.sector || 'Geral')}
+      <b>Gatilho:</b> ${escapeXml(formatTriggerName(sim.triggerName))} | <b>Nota:</b> Grade ${escapeXml(sim.grade || '—')} | <b>Status:</b> ${escapeXml(statusLabel)} | <b>Setor:</b> ${escapeXml(sim.sector || 'Geral')}
     </div>
     <div style="font-size: 12px; color: #475569; margin-top: 2px;">
       <b>Data do Sinal:</b> ${formatDateBR(sim.signalDate)} | <b>Data de Entrada:</b> ${formatDateBR(sim.entryDate)} | <b>Data de Saída:</b> ${formatDateBR(sim.exitDate)} | <b>Duração:</b> ${formatDurationDays(duration)}
@@ -976,7 +989,7 @@
 
   ${sim.structure ? `
   <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 16px; font-size: 11px;">
-    <div style="font-weight: bold; margin-bottom: 6px;">📦 Estrutura de Compressão (${escapeXml(sim.triggerName)})</div>
+    <div style="font-weight: bold; margin-bottom: 6px;">📦 Estrutura de Compressão (${escapeXml(formatTriggerName(sim.triggerName))})</div>
     <div>Candle-mãe: Máx ${formatMoney(sim.structure.motherCandle?.high)} / Mín ${formatMoney(sim.structure.motherCandle?.low)} (Range: ${formatMoney(sim.structure.motherCandle?.range)})</div>
     ${sim.structure.ib1 ? `<div>Inside Bar 1: Máx ${formatMoney(sim.structure.ib1.high)} / Mín ${formatMoney(sim.structure.ib1.low)} (Contração: ${sim.structure.ib1.compressionPct || '—'}%)</div>` : ''}
     ${sim.structure.ib2 ? `<div>Inside Bar 2: Máx ${formatMoney(sim.structure.ib2.high)} / Mín ${formatMoney(sim.structure.ib2.low)} (Contração: ${sim.structure.ib2.compressionPct || '—'}%)</div>` : ''}
@@ -1018,7 +1031,7 @@
     <tag>HealthyTrendTrader</tag>
     <tag>Simulador</tag>
     <tag>${escapeXml(sim.symbol)}</tag>
-    <tag>${escapeXml(sim.triggerName)}</tag>
+    <tag>${escapeXml(formatTriggerName(sim.triggerName))}</tag>
     <tag>Grade ${escapeXml(sim.grade || '—')}</tag>
     <tag>${escapeXml(statusLabel)}</tag>
     <note-attributes>
@@ -1058,7 +1071,7 @@ ${notesXml}
 
     const rows = list.map(s => [
       s.symbol,
-      s.triggerName,
+      formatTriggerName(s.triggerName),
       s.grade || '—',
       s.sector || '—',
       s.signalDate || '—',
