@@ -1889,89 +1889,89 @@
   function getScenarioMiniDiagramSvg(scenarioId) {
     if (scenarioId === '2.5R') {
       return `
-        <svg width="170" height="42" viewBox="0 0 170 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="28" y1="18" x2="132" y2="18" stroke="#f59e0b" stroke-width="2" />
-          <polygon points="132,14 140,18 132,22" fill="#f59e0b" />
-          <circle cx="28" cy="18" r="3.5" fill="#f59e0b" />
-          <text x="28" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
-          <circle cx="140" cy="18" r="3.5" fill="#f59e0b" />
-          <text x="140" y="10" fill="#f59e0b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2,5R)</text>
-          <line x1="28" y1="18" x2="28" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-          <line x1="24" y1="34" x2="32" y2="34" stroke="#ef4444" stroke-width="2" />
-          <text x="36" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="26" y1="18" x2="148" y2="18" stroke="#f59e0b" stroke-width="2" />
+          <polygon points="146,14.5 153,18 146,21.5" fill="#f59e0b" />
+          <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
+          <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="155" cy="18" r="3.5" fill="#f59e0b" />
+          <text x="152" y="10" fill="#d97706" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2,5R)</text>
+          <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+          <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+          <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
         </svg>
       `;
     }
 
     if (scenarioId === 'PYRAMID_1R_2R') {
       return `
-        <svg width="190" height="42" viewBox="0 0 190 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="24" y1="18" x2="78" y2="18" stroke="#0284c7" stroke-width="2" />
-          <line x1="78" y1="18" x2="152" y2="18" stroke="#0284c7" stroke-width="2" />
-          <polygon points="152,14 160,18 152,22" fill="#0284c7" />
-          <circle cx="24" cy="18" r="3.5" fill="#0284c7" />
-          <text x="24" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada 1</text>
-          <circle cx="78" cy="18" r="3.5" fill="#10b981" />
-          <text x="78" y="10" fill="#10b981" font-size="8" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Add +1R</text>
-          <circle cx="160" cy="18" r="3.5" fill="#0284c7" />
-          <text x="160" y="10" fill="#0284c7" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
-          <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-          <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
-          <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#0284c7" stroke-width="2" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#0284c7" stroke-width="2" />
+          <polygon points="148,14.5 155,18 148,21.5" fill="#0284c7" />
+          <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
+          <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="88" cy="18" r="3.5" fill="#0284c7" />
+          <text x="88" y="10" fill="#0284c7" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Add +1R</text>
+          <circle cx="157" cy="18" r="3.5" fill="#0284c7" />
+          <text x="155" y="10" fill="#0369a1" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
+          <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+          <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+          <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
         </svg>
       `;
     }
 
     if (scenarioId === 'PARTIAL_50_2R_EMA9') {
       return `
-        <svg width="200" height="42" viewBox="0 0 200 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="24" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2" />
-          <line x1="88" y1="18" x2="162" y2="18" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3 2" />
-          <polygon points="162,14 170,18 162,22" fill="#8b5cf6" />
-          <circle cx="24" cy="18" r="3.5" fill="#8b5cf6" />
-          <text x="24" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
-          <circle cx="88" cy="18" r="3.5" fill="#a78bfa" />
-          <text x="88" y="10" fill="#a78bfa" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">50% em 2R</text>
-          <circle cx="170" cy="18" r="3.5" fill="#8b5cf6" />
-          <text x="170" y="10" fill="#8b5cf6" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
-          <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-          <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
-          <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3 2" />
+          <polygon points="148,14.5 155,18 148,21.5" fill="#8b5cf6" />
+          <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
+          <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="88" cy="18" r="3.5" fill="#8b5cf6" />
+          <text x="88" y="10" fill="#7c3aed" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">50% em 2R</text>
+          <circle cx="157" cy="18" r="3.5" fill="#8b5cf6" />
+          <text x="155" y="10" fill="#6d28d9" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
+          <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+          <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+          <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
         </svg>
       `;
     }
 
     if (scenarioId === 'PARTIAL_80_2R_EMA9') {
       return `
-        <svg width="200" height="42" viewBox="0 0 200 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="24" y1="18" x2="88" y2="18" stroke="#06b6d4" stroke-width="2" />
-          <line x1="88" y1="18" x2="162" y2="18" stroke="#06b6d4" stroke-width="2" stroke-dasharray="3 2" />
-          <polygon points="162,14 170,18 162,22" fill="#06b6d4" />
-          <circle cx="24" cy="18" r="3.5" fill="#06b6d4" />
-          <text x="24" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
-          <circle cx="88" cy="18" r="3.5" fill="#38bdf8" />
-          <text x="88" y="10" fill="#38bdf8" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">80% em 2R</text>
-          <circle cx="170" cy="18" r="3.5" fill="#06b6d4" />
-          <text x="170" y="10" fill="#06b6d4" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
-          <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-          <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
-          <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#3b82f6" stroke-width="2" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#6366f1" stroke-width="2" stroke-dasharray="3 2" />
+          <polygon points="148,14.5 155,18 148,21.5" fill="#6366f1" />
+          <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
+          <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="88" cy="18" r="3.5" fill="#3b82f6" />
+          <text x="88" y="10" fill="#0284c7" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">80% em 2R</text>
+          <circle cx="157" cy="18" r="3.5" fill="#6366f1" />
+          <text x="155" y="10" fill="#1d4ed8" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
+          <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+          <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+          <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
         </svg>
       `;
     }
 
     // Default: '2R' Base
     return `
-      <svg width="170" height="42" viewBox="0 0 170 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="28" y1="18" x2="132" y2="18" stroke="#10b981" stroke-width="2" />
-        <polygon points="132,14 140,18 132,22" fill="#10b981" />
-        <circle cx="28" cy="18" r="3.5" fill="#10b981" />
-        <text x="28" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
-        <circle cx="140" cy="18" r="3.5" fill="#10b981" />
-        <text x="140" y="10" fill="#10b981" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
-        <line x1="28" y1="18" x2="28" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-        <line x1="24" y1="34" x2="32" y2="34" stroke="#ef4444" stroke-width="2" />
-        <text x="36" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+      <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="26" y1="18" x2="148" y2="18" stroke="#10b981" stroke-width="2" />
+        <polygon points="146,14.5 153,18 146,21.5" fill="#10b981" />
+        <circle cx="26" cy="18" r="3.5" fill="#10b981" />
+        <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+        <circle cx="155" cy="18" r="3.5" fill="#10b981" />
+        <text x="152" y="10" fill="#047857" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
+        <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+        <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+        <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
       </svg>
     `;
   }
@@ -2008,21 +2008,46 @@
       periodDesc = 'Todo o histórico disponível';
     }
 
-    // Rótulo amigável do universo
-    const universeLabels = {
-      'IBOV': 'IBOV — Índice Bovespa (~86 ativos líderes)',
-      'LIQUID_B3': 'B3 Líquidas (Maiores volumes e liquidez)',
-      'ALL_B3': 'B3 Geral (Todos os ativos com cobertura)',
-      'NASDAQ': 'NASDAQ (Ações dos EUA com cotação diária)'
+    // Rótulo amigável do universo (título principal + subtexto)
+    const universePrimaryMap = {
+      'IBOV': 'IBOV — Índice Bovespa',
+      'LIQUID_B3': 'B3 Líquidas — Alta Liquidez',
+      'ALL_B3': 'B3 Geral — Base Completa',
+      'NASDAQ': 'NASDAQ — Mercado EUA'
     };
-    const universeDesc = universeLabels[universe] || universe;
+    const universeSubMap = {
+      'IBOV': '~86 ativos líderes',
+      'LIQUID_B3': 'Maiores volumes diários',
+      'ALL_B3': 'Todos os ativos cobertos',
+      'NASDAQ': 'Ações dos EUA com cotação'
+    };
+    const universePrimary = universePrimaryMap[universe] || universe;
+    const universeSub = universeSubMap[universe] || '';
 
     // Rótulo dos gatilhos e notas (Fonte de verdade: Novo Trade / Rubric: A, B, C, D)
     const triggerDesc = triggers === 'ALL' ? 'Todos os gatilhos implementados' : triggers;
     const gradeDesc = grades === 'ALL' ? 'Todas as notas (A, B, C e D)' : `Nota ${grades}`;
-    const targetDesc = target === 'MAX' ? 'Máximo disponível no histórico' : `${target} trades executados`;
+
+    const targetPrimaryMap = {
+      100: '100 trades',
+      250: '250 trades',
+      500: '500 trades',
+      1000: '1.000 trades',
+      'MAX': 'Máximo disponível'
+    };
+    const targetSubMap = {
+      100: 'Validação de Regras',
+      250: 'Amostra Intermediária',
+      500: 'Validação Estatística',
+      1000: 'Grande Amostra',
+      'MAX': 'Varredura Total'
+    };
+    const targetPrimary = targetPrimaryMap[target] || `${target} trades`;
+    const targetSub = targetSubMap[target] || 'Meta de execução';
 
     const scenarioMeta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[sel]) || { name: sel, description: '' };
+
+    const checkIconSvg = `<svg class="sim-pill-check-svg" width="13" height="13" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M6 10.2L8.6 12.8L14.2 7.2" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
     return `
       <div class="sim-scenario-modal-overlay open" id="simMassModalOverlay">
@@ -2031,30 +2056,31 @@
           <div class="sim-scenario-modal-header sim-mass-modal-header">
             <div class="sim-mass-header-brand">
               <div class="sim-mass-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M10 2v7.31L4.2 18.2A2 2 0 0 0 6 21h12a2 2 0 0 0 1.8-2.8L14 9.31V2"/>
-                  <path d="M8.5 2h7"/>
-                  <path d="M14 9.3a6.5 6.5 0 1 1-4 0"/>
-                  <circle cx="10" cy="15" r="1" fill="currentColor"/>
-                  <circle cx="14" cy="17" r="1" fill="currentColor"/>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 3H15M10 3V8.4L4.4 17.6C3.6 18.9 4.5 20.6 6.1 20.6H17.9C19.5 20.6 20.4 18.9 19.6 17.6L14 8.4V3" stroke="#0d8a5e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M6.4 15H17.6L19.1 17.5C19.6 18.3 19 19.4 18 19.4H6C5 19.4 4.4 18.3 4.9 17.5L6.4 15Z" fill="#10b981" fill-opacity="0.85"/>
+                  <circle cx="11" cy="12" r="1.2" fill="#0d8a5e"/>
+                  <circle cx="13.5" cy="13.5" r="0.9" fill="#0d8a5e"/>
                 </svg>
               </div>
               <div class="sim-mass-title-group">
-                <div class="sim-mass-header-badge">
-                  <span class="sim-mass-badge-dot"></span>
-                  <span>LABORATÓRIO DE SIMULAÇÃO EM ESCALA</span>
-                </div>
+                <div class="sim-mass-header-badge">LABORATÓRIO DE SIMULAÇÃO EM ESCALA</div>
                 <h2>Gerador de Massa de Testes</h2>
                 <p>Configure a dimensão do teste histórico para validar seu Edge estatístico com dados reais de mercado.</p>
               </div>
             </div>
             <div class="sim-mass-header-actions">
               <div class="sim-mass-header-tip">
-                <span class="sim-mass-tip-icon">💡</span>
+                <span class="sim-mass-tip-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#10b981" fill-opacity="0.18" stroke="#0d8a5e" stroke-width="1.8"/>
+                    <path d="M9 12L11 14L15 10" stroke="#0d8a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
                 <span class="sim-mass-tip-text">Simulações em escala ajudam a identificar padrões, validar hipóteses e aprimorar seu PlayBook com evidências.</span>
               </div>
               <button class="sim-modal-close-btn" type="button" id="simMassModalClose" title="Fechar">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -2062,9 +2088,9 @@
             </div>
           </div>
 
-          <!-- Corpo do Modal com Scroll Interno Seguro -->
+          <!-- Corpo do Modal -->
           <div class="sim-mass-modal-body">
-            <!-- Grid Principal Superior: Etapa 1 e Etapa 2 em Colunas Widescreen -->
+            <!-- Grid Principal Superior: Etapa 1 e Etapa 2 Lado a Lado -->
             <div class="sim-mass-main-grid">
               <!-- BLOCO 1: CONFIGURAÇÃO DE DIMENSÃO DA SIMULAÇÃO (Coluna 1) -->
               <div class="sim-mass-modal-section sim-mass-col-sample">
@@ -2076,49 +2102,57 @@
                   </div>
                 </div>
 
-                <div class="sim-mass-step-card">
-                  <!-- 1.1 Período Histórico -->
-                  <div class="sim-mass-param-group">
-                    <div class="sim-mass-param-label">
-                      <div class="sim-mass-label-title">
-                        <span class="sim-mass-label-icon">📅</span>
-                        <span>Período Histórico</span>
+                <div class="sim-mass-step-cards-stack">
+                  <!-- Card 1.1: Período Histórico -->
+                  <div class="sim-mass-group-card">
+                    <div class="sim-mass-card-head-row">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon blue">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#dbeafe" fill-opacity="0.5"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Período Histórico</span>
+                          <span class="sim-mass-card-hint">Respeita calendário oficial de negociação (exclui feriados/fins de semana).</span>
+                        </div>
                       </div>
-                      <span class="sim-mass-param-hint">Respeita calendário oficial de negociação (exclui feriados/fins de semana)</span>
-                    </div>
-                    <div class="sim-mass-period-segmented-wrap">
-                      <div class="sim-mass-period-grid">
-                        <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 30 ? 'active' : ''}" data-mass-period="30">
-                          <span class="sim-mass-period-name">30 dias</span>
-                        </button>
-                        <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 90 ? 'active' : ''}" data-mass-period="90">
-                          <span class="sim-mass-period-name">90 dias</span>
-                        </button>
-                        <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 120 ? 'active' : ''}" data-mass-period="120">
-                          <span class="sim-mass-period-name">120 dias <small>(4m)</small></span>
-                        </button>
-                        <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 180 ? 'active' : ''}" data-mass-period="180">
-                          <span class="sim-mass-period-name">6 meses</span>
-                        </button>
-                        <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 365 ? 'active' : ''}" data-mass-period="365">
-                          <span class="sim-mass-period-name">12 meses</span>
-                        </button>
-                        <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 730 ? 'active' : ''}" data-mass-period="730">
-                          <span class="sim-mass-period-name">24 meses</span>
-                        </button>
-                        <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 1095 ? 'active' : ''}" data-mass-period="1095">
-                          <span class="sim-mass-period-name">36 meses</span>
-                        </button>
-                        <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 'CUSTOM' ? 'active' : ''}" data-mass-period="CUSTOM">
-                          <span class="sim-mass-period-name">Personalizado</span>
-                        </button>
-                        <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 'ALL' ? 'active' : ''}" data-mass-period="ALL">
-                          <span class="sim-mass-period-name">Todo o Histórico</span>
-                        </button>
-                      </div>
+                      <span class="sim-mass-card-info-badge" title="Filtra pregões oficiais negociados na B3 e Nasdaq">ⓘ</span>
                     </div>
 
-                    <!-- Inputs de Data Personalizada -->
+                    <div class="sim-mass-period-pills-row">
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 30 ? 'active' : ''}" data-mass-period="30">
+                        ${period === 30 ? checkIconSvg : ''}<span>30 dias</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 90 ? 'active' : ''}" data-mass-period="90">
+                        ${period === 90 ? checkIconSvg : ''}<span>90 dias</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 120 ? 'active' : ''}" data-mass-period="120">
+                        ${period === 120 ? checkIconSvg : ''}<span>120 dias (4m)</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 180 ? 'active' : ''}" data-mass-period="180">
+                        ${period === 180 ? checkIconSvg : ''}<span>6 meses</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 365 ? 'active' : ''}" data-mass-period="365">
+                        ${period === 365 ? checkIconSvg : ''}<span>12 meses</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 730 ? 'active' : ''}" data-mass-period="730">
+                        ${period === 730 ? checkIconSvg : ''}<span>24 meses</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 1095 ? 'active' : ''}" data-mass-period="1095">
+                        ${period === 1095 ? checkIconSvg : ''}<span>36 meses</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 'CUSTOM' ? 'active' : ''}" data-mass-period="CUSTOM">
+                        ${period === 'CUSTOM' ? checkIconSvg : ''}<span>Personalizado</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 'ALL' ? 'active' : ''}" data-mass-period="ALL">
+                        ${period === 'ALL' ? checkIconSvg : ''}<span>Todo o Histórico</span>
+                      </button>
+                    </div>
+
                     ${period === 'CUSTOM' ? `
                       <div class="sim-mass-custom-dates">
                         <div class="sim-mass-date-field">
@@ -2133,49 +2167,94 @@
                     ` : ''}
 
                     <div class="sim-mass-coverage-callout">
-                      <div class="sim-mass-callout-icon">ℹ️</div>
+                      <span class="sim-mass-callout-icon">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                          <circle cx="10" cy="10" r="9" fill="#2563eb"/>
+                          <path d="M10 9V14M10 6.5H10.01" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                      </span>
                       <div class="sim-mass-callout-text">
                         <strong>Cobertura real:</strong> B3 (COTAHIST) Jan/2025 a Out/2026 (~22 meses, 446 pregões). Nasdaq: Out/2025 a Out/2026 (250 pregões). Períodos acima da cobertura real utilizarão o máximo disponível.
                       </div>
                     </div>
                   </div>
 
-                  <!-- 1.2 Universo de Ativos -->
-                  <div class="sim-mass-param-group">
-                    <div class="sim-mass-param-label">
-                      <div class="sim-mass-label-title">
-                        <span class="sim-mass-label-icon">📊</span>
-                        <span>Universo de Ativos</span>
+                  <!-- Card 1.2: Universo de Ativos -->
+                  <div class="sim-mass-group-card">
+                    <div class="sim-mass-card-head-row">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon blue">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <rect x="4" y="12" width="4" height="8" rx="1" fill="#3b82f6"/>
+                            <rect x="10" y="7" width="4" height="13" rx="1" fill="#2563eb"/>
+                            <rect x="16" y="3" width="4" height="17" rx="1" fill="#1d4ed8"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Universo de Ativos</span>
+                          <span class="sim-mass-card-hint">Mercado e cesta de papéis para varredura</span>
+                        </div>
                       </div>
-                      <span class="sim-mass-param-hint">Mercado e cesta de papéis para varredura</span>
+                      <span class="sim-mass-card-info-badge" title="Define o conjunto de ativos elegíveis para varredura">ⓘ</span>
                     </div>
+
                     <div class="sim-mass-universe-cards-grid">
                       <button type="button" class="sim-mass-universe-card sim-mass-pill ${universe === 'IBOV' ? 'active' : ''}" data-mass-universe="IBOV">
-                        <div class="sim-mass-universe-icon">📈</div>
+                        <div class="sim-mass-universe-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="13" width="4" height="7" rx="1" fill="#10b981"/>
+                            <rect x="9.5" y="9" width="4" height="11" rx="1" fill="#059669"/>
+                            <rect x="16" y="4" width="4" height="16" rx="1" fill="#047857"/>
+                          </svg>
+                        </div>
                         <div class="sim-mass-universe-info">
                           <span class="sim-mass-universe-title">IBOV</span>
                           <span class="sim-mass-universe-sub">Índice Bovespa</span>
                         </div>
                         <div class="sim-mass-universe-check">✓</div>
                       </button>
+
                       <button type="button" class="sim-mass-universe-card sim-mass-pill ${universe === 'LIQUID_B3' ? 'active' : ''}" data-mass-universe="LIQUID_B3">
-                        <div class="sim-mass-universe-icon">💧</div>
+                        <div class="sim-mass-universe-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2.69L17.66 8.35C20.78 11.47 20.78 16.53 17.66 19.65C14.54 22.77 9.46 22.77 6.34 19.65C3.22 16.53 3.22 11.47 6.34 8.35L12 2.69Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
+                          </svg>
+                        </div>
                         <div class="sim-mass-universe-info">
                           <span class="sim-mass-universe-title">B3 Líquidas</span>
                           <span class="sim-mass-universe-sub">Alta Liquidez</span>
                         </div>
                         <div class="sim-mass-universe-check">✓</div>
                       </button>
+
                       <button type="button" class="sim-mass-universe-card sim-mass-pill ${universe === 'ALL_B3' ? 'active' : ''}" data-mass-universe="ALL_B3">
-                        <div class="sim-mass-universe-icon">🏛️</div>
+                        <div class="sim-mass-universe-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2" fill="#dbeafe"/>
+                            <polyline points="2 12 12 17 22 12"/>
+                            <polyline points="2 17 12 22 22 17"/>
+                          </svg>
+                        </div>
                         <div class="sim-mass-universe-info">
                           <span class="sim-mass-universe-title">B3 Geral</span>
                           <span class="sim-mass-universe-sub">Base Completa</span>
                         </div>
                         <div class="sim-mass-universe-check">✓</div>
                       </button>
+
                       <button type="button" class="sim-mass-universe-card sim-mass-pill ${universe === 'NASDAQ' ? 'active' : ''}" data-mass-universe="NASDAQ">
-                        <div class="sim-mass-universe-icon">🇺🇸</div>
+                        <div class="sim-mass-universe-icon">
+                          <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+                            <rect width="22" height="16" rx="2.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.6"/>
+                            <path d="M0 2H22M0 5.2H22M0 8.4H22M0 11.6H22M0 14.8H22" stroke="#dc2626" stroke-width="1.5"/>
+                            <rect width="10" height="8.5" rx="1.5" fill="#1e3a8a"/>
+                            <circle cx="3" cy="2.8" r="0.7" fill="#ffffff"/>
+                            <circle cx="5.2" cy="2.8" r="0.7" fill="#ffffff"/>
+                            <circle cx="7.4" cy="2.8" r="0.7" fill="#ffffff"/>
+                            <circle cx="4.1" cy="5.5" r="0.7" fill="#ffffff"/>
+                            <circle cx="6.3" cy="5.5" r="0.7" fill="#ffffff"/>
+                          </svg>
+                        </div>
                         <div class="sim-mass-universe-info">
                           <span class="sim-mass-universe-title">NASDAQ</span>
                           <span class="sim-mass-universe-sub">Mercado EUA</span>
@@ -2185,112 +2264,134 @@
                     </div>
                   </div>
 
-                  <!-- 1.3 Gatilhos e Notas do Rubric em Grid Duplo Moderno -->
+                  <!-- Card 1.3: Gatilhos e Notas do Rubric em Grid Duplo -->
                   <div class="sim-mass-dual-grid">
                     <!-- Gatilhos -->
-                    <div class="sim-mass-subpanel">
-                      <div class="sim-mass-subpanel-header">
-                        <span class="sim-mass-subpanel-icon">🎯</span>
-                        <div>
-                          <span class="sim-mass-subpanel-title">Gatilho Operacional</span>
-                          <span class="sim-mass-subpanel-hint">Selecione um ou mais gatilhos</span>
+                    <div class="sim-mass-group-card sim-mass-subpanel">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon red">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2" fill="#fee2e2"/>
+                            <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
+                            <circle cx="12" cy="12" r="2" fill="#ef4444"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Gatilho Operacional</span>
+                          <span class="sim-mass-card-hint">Selecione um ou mais gatilhos de entrada</span>
                         </div>
                       </div>
                       <div class="sim-mass-chips-wrap">
                         <button type="button" class="sim-mass-chip ${triggers === 'ALL' ? 'active' : ''}" data-mass-trigger="ALL">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Todos os gatilhos</span>
+                          ${triggers === 'ALL' ? checkIconSvg : ''}<span>Todos os gatilhos</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${triggers === 'Inside Bar' ? 'active' : ''}" data-mass-trigger="Inside Bar">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Inside Bar</span>
+                          ${triggers === 'Inside Bar' ? checkIconSvg : ''}<span>Inside Bar</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${triggers === 'Double Inside Bar' ? 'active' : ''}" data-mass-trigger="Double Inside Bar">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Double Inside Bar</span>
+                          ${triggers === 'Double Inside Bar' ? checkIconSvg : ''}<span>Double Inside Bar</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${triggers === '1-2-3 de Compra' ? 'active' : ''}" data-mass-trigger="1-2-3 de Compra">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>1-2-3 de Compra</span>
+                          ${triggers === '1-2-3 de Compra' ? checkIconSvg : ''}<span>1-2-3 de Compra</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${triggers === 'PFR de Compra' ? 'active' : ''}" data-mass-trigger="PFR de Compra">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>PFR de Compra</span>
+                          ${triggers === 'PFR de Compra' ? checkIconSvg : ''}<span>PFR de Compra</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${triggers === 'Dave Landry' ? 'active' : ''}" data-mass-trigger="Dave Landry">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Dave Landry</span>
+                          ${triggers === 'Dave Landry' ? checkIconSvg : ''}<span>Dave Landry</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${triggers === 'Red Bar Ignored' ? 'active' : ''}" data-mass-trigger="Red Bar Ignored">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Red Bar Ignored</span>
+                          ${triggers === 'Red Bar Ignored' ? checkIconSvg : ''}<span>Red Bar Ignored</span>
                         </button>
                       </div>
                     </div>
 
                     <!-- Notas do Rubric -->
-                    <div class="sim-mass-subpanel">
-                      <div class="sim-mass-subpanel-header">
-                        <span class="sim-mass-subpanel-icon">⭐</span>
-                        <div>
-                          <span class="sim-mass-subpanel-title">Notas do Rubric</span>
-                          <span class="sim-mass-subpanel-hint">Selecione uma ou mais categorias</span>
+                    <div class="sim-mass-group-card sim-mass-subpanel">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon gold">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#d97706" stroke-width="1.5">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Notas do Rubric</span>
+                          <span class="sim-mass-card-hint">Selecione uma ou mais categorias</span>
                         </div>
                       </div>
                       <div class="sim-mass-chips-wrap">
                         <button type="button" class="sim-mass-chip ${grades === 'ALL' ? 'active' : ''}" data-mass-grade="ALL">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Todas as Notas (A, B, C, D)</span>
+                          ${grades === 'ALL' ? checkIconSvg : ''}<span>Todas as Notas (A, B, C, D)</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${grades === 'A' ? 'active' : ''}" data-mass-grade="A">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Nota A <small>(High Quality)</small></span>
+                          ${grades === 'A' ? checkIconSvg : ''}<span>Nota A (High Quality)</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${grades === 'B' ? 'active' : ''}" data-mass-grade="B">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Nota B <small>(Good Edge)</small></span>
+                          ${grades === 'B' ? checkIconSvg : ''}<span>Nota B (Good Edge)</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${grades === 'C' ? 'active' : ''}" data-mass-grade="C">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Nota C <small>(Small Edge)</small></span>
+                          ${grades === 'C' ? checkIconSvg : ''}<span>Nota C (Small Edge)</span>
                         </button>
                         <button type="button" class="sim-mass-chip ${grades === 'D' ? 'active' : ''}" data-mass-grade="D">
-                          <span class="sim-mass-chip-check">✓</span>
-                          <span>Nota D <small>(No Edge)</small></span>
+                          ${grades === 'D' ? checkIconSvg : ''}<span>Nota D (No Edge)</span>
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  <!-- 1.4 Volume da Amostra (Meta de Trades Executados) -->
-                  <div class="sim-mass-param-group" style="margin-top: 12px; margin-bottom: 0;">
-                    <div class="sim-mass-param-label">
-                      <div class="sim-mass-label-title">
-                        <span class="sim-mass-label-icon">🎯</span>
-                        <span>Volume da Amostra (Meta de Trades Executados)</span>
+                  <!-- Card 1.4: Volume da Amostra -->
+                  <div class="sim-mass-group-card">
+                    <div class="sim-mass-card-head-row">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon blue">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Volume da Amostra (Meta de Trades Executados)</span>
+                          <span class="sim-mass-card-hint">Refere-se a entradas efetivamente ativadas pelas regras operacionais</span>
+                        </div>
                       </div>
-                      <span class="sim-mass-param-hint">Refere-se a entradas efetivamente ativadas pelas regras operacionais</span>
                     </div>
+
                     <div class="sim-mass-volume-cards-grid">
                       <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 100 ? 'active' : ''}" data-mass-target="100">
-                        <span class="sim-mass-vol-val">100 trades</span>
-                        <span class="sim-mass-vol-desc">Validação de Regras</span>
+                        ${target === 100 ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">100 trades</span>
+                          <span class="sim-mass-vol-desc">Validação de Regras</span>
+                        </div>
                       </button>
                       <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 250 ? 'active' : ''}" data-mass-target="250">
-                        <span class="sim-mass-vol-val">250 trades</span>
-                        <span class="sim-mass-vol-desc">Amostra Intermediária</span>
+                        ${target === 250 ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">250 trades</span>
+                          <span class="sim-mass-vol-desc">Amostra Intermediária</span>
+                        </div>
                       </button>
                       <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 500 ? 'active' : ''}" data-mass-target="500">
-                        <span class="sim-mass-vol-val">500 trades</span>
-                        <span class="sim-mass-vol-desc">Validação Estatística</span>
+                        ${target === 500 ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">500 trades</span>
+                          <span class="sim-mass-vol-desc">Validação Estatística</span>
+                        </div>
                       </button>
                       <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 1000 ? 'active' : ''}" data-mass-target="1000">
-                        <span class="sim-mass-vol-val">1.000 trades</span>
-                        <span class="sim-mass-vol-desc">Grande Amostra</span>
+                        ${target === 1000 ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">1.000 trades</span>
+                          <span class="sim-mass-vol-desc">Grande Amostra</span>
+                        </div>
                       </button>
                       <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 'MAX' ? 'active' : ''}" data-mass-target="MAX">
-                        <span class="sim-mass-vol-val">Máximo</span>
-                        <span class="sim-mass-vol-desc">Varredura Total</span>
+                        ${target === 'MAX' ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">Máximo</span>
+                          <span class="sim-mass-vol-desc">Varredura Total</span>
+                        </div>
                       </button>
                     </div>
                   </div>
@@ -2303,22 +2404,20 @@
                   <div class="sim-mass-step-num">2</div>
                   <div class="sim-mass-step-texts">
                     <div class="sim-mass-step-title">Cenário de Gestão de Risco</div>
-                    <div class="sim-mass-step-desc">Escolha a política de gestão de posição que será aplicada no teste histórico.</div>
+                    <div class="sim-mass-step-desc">Escolha a política de gestão de posição que será aplicada no teste.</div>
                   </div>
                 </div>
 
                 <div class="sim-scenario-options-list">
                   <!-- Opção 1: Gestão 2R — Base -->
                   <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
+                    <span class="sim-scen-tag-pill">Mais utilizado</span>
                     <div class="sim-scen-opt-left">
                       <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
                         <span class="sim-scen-radio-dot"></span>
                       </div>
                       <div class="sim-scen-opt-texts">
-                        <div class="sim-scen-header-line">
-                          <span class="sim-scen-opt-title">Gestão 2R — Base</span>
-                          <span class="sim-scen-tag-pill">Mais utilizado</span>
-                        </div>
+                        <div class="sim-scen-opt-title">Gestão 2R — Base</div>
                         <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2R. Sem piramidagem.</div>
                       </div>
                     </div>
@@ -2334,9 +2433,7 @@
                         <span class="sim-scen-radio-dot"></span>
                       </div>
                       <div class="sim-scen-opt-texts">
-                        <div class="sim-scen-header-line">
-                          <span class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</span>
-                        </div>
+                        <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
                         <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2,5R. Sem piramidagem.</div>
                       </div>
                     </div>
@@ -2352,10 +2449,8 @@
                         <span class="sim-scen-radio-dot"></span>
                       </div>
                       <div class="sim-scen-opt-texts">
-                        <div class="sim-scen-header-line">
-                          <span class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</span>
-                        </div>
-                        <div class="sim-scen-opt-desc">Risco inicial 1R. Em +1R adiciona +1R e encerra tudo em +2R.</div>
+                        <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
+                        <div class="sim-scen-opt-desc">Risco inicial de 1R. Em +1R adiciona +1R e encerra tudo em +2R.</div>
                       </div>
                     </div>
                     <div class="sim-scen-opt-diagram">
@@ -2370,9 +2465,7 @@
                         <span class="sim-scen-radio-dot"></span>
                       </div>
                       <div class="sim-scen-opt-texts">
-                        <div class="sim-scen-header-line">
-                          <span class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</span>
-                        </div>
+                        <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
                         <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 9.</div>
                       </div>
                     </div>
@@ -2388,9 +2481,7 @@
                         <span class="sim-scen-radio-dot"></span>
                       </div>
                       <div class="sim-scen-opt-texts">
-                        <div class="sim-scen-header-line">
-                          <span class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</span>
-                        </div>
+                        <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
                         <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 9.</div>
                       </div>
                     </div>
@@ -2406,65 +2497,111 @@
             <div class="sim-mass-bottom-section">
               <!-- BLOCO 3: RESUMO ANTES DE INICIAR -->
               <div class="sim-mass-modal-section sim-mass-summary-section">
-                <div class="sim-mass-step-header">
-                  <div class="sim-mass-step-num">3</div>
-                  <div class="sim-mass-step-texts">
-                    <div class="sim-mass-step-title">Resumo antes de iniciar</div>
-                    <div class="sim-mass-step-desc">Confira as configurações da simulação em escala. Valide os parâmetros e inicie a execução.</div>
-                  </div>
-                </div>
-
                 <div class="sim-mass-preflight-card">
+                  <div class="sim-mass-step-header sim-mass-step-header-summary">
+                    <div class="sim-mass-step-num step-3">3</div>
+                    <div class="sim-mass-step-texts">
+                      <div class="sim-mass-step-title">Resumo antes de iniciar</div>
+                      <div class="sim-mass-step-desc">Confira as configurações da simulação em escala. Valide os parâmetros e inicie a execução.</div>
+                    </div>
+                  </div>
+
                   <div class="sim-mass-preflight-grid">
                     <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-header">
-                        <span class="sim-mass-pf-icon">📅</span>
+                      <div class="sim-mass-pf-icon-box green">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#d1fae5"/>
+                          <line x1="16" y1="2" x2="16" y2="6"/>
+                          <line x1="8" y1="2" x2="8" y2="6"/>
+                          <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
                         <span class="sim-mass-pf-label">Período</span>
+                        <span class="sim-mass-pf-val">${periodDesc}</span>
                       </div>
-                      <span class="sim-mass-pf-val">${periodDesc}</span>
                     </div>
+
                     <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-header">
-                        <span class="sim-mass-pf-icon">📊</span>
-                        <span class="sim-mass-pf-label">Universo</span>
+                      <div class="sim-mass-pf-icon-box blue">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <rect x="4" y="12" width="4" height="8" rx="1" fill="#3b82f6"/>
+                          <rect x="10" y="7" width="4" height="13" rx="1" fill="#2563eb"/>
+                          <rect x="16" y="3" width="4" height="17" rx="1" fill="#1d4ed8"/>
+                        </svg>
                       </div>
-                      <span class="sim-mass-pf-val">${universeDesc}</span>
+                      <div class="sim-mass-pf-content">
+                        <span class="sim-mass-pf-label">Universo de Ativos</span>
+                        <span class="sim-mass-pf-val">${universePrimary}</span>
+                        ${universeSub ? `<span class="sim-mass-pf-sub">${universeSub}</span>` : ''}
+                      </div>
                     </div>
+
                     <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-header">
-                        <span class="sim-mass-pf-icon">🎯</span>
+                      <div class="sim-mass-pf-icon-box red">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2" fill="#fee2e2"/>
+                          <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
+                          <circle cx="12" cy="12" r="2" fill="#ef4444"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
                         <span class="sim-mass-pf-label">Gatilhos</span>
+                        <span class="sim-mass-pf-val">${triggerDesc}</span>
                       </div>
-                      <span class="sim-mass-pf-val">${triggerDesc}</span>
                     </div>
+
                     <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-header">
-                        <span class="sim-mass-pf-icon">⭐</span>
+                      <div class="sim-mass-pf-icon-box gold">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#d97706" stroke-width="1.5">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
                         <span class="sim-mass-pf-label">Notas do Rubric</span>
+                        <span class="sim-mass-pf-val">${gradeDesc}</span>
                       </div>
-                      <span class="sim-mass-pf-val">${gradeDesc}</span>
                     </div>
-                    <div class="sim-mass-preflight-item highlight">
-                      <div class="sim-mass-pf-header">
-                        <span class="sim-mass-pf-icon">🎯</span>
-                        <span class="sim-mass-pf-label">Meta de Trades</span>
-                      </div>
-                      <span class="sim-mass-pf-val"><strong>${targetDesc}</strong></span>
-                    </div>
+
                     <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-header">
-                        <span class="sim-mass-pf-icon">⚙️</span>
-                        <span class="sim-mass-pf-label">Gestão de Risco</span>
+                      <div class="sim-mass-pf-icon-box blue">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                          <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
+                          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                        </svg>
                       </div>
-                      <span class="sim-mass-pf-val">${scenarioMeta.name}</span>
+                      <div class="sim-mass-pf-content">
+                        <span class="sim-mass-pf-label">Meta de Trades</span>
+                        <span class="sim-mass-pf-val">${targetPrimary}</span>
+                        <span class="sim-mass-pf-sub">${targetSub}</span>
+                      </div>
+                    </div>
+
+                    <div class="sim-mass-preflight-item">
+                      <div class="sim-mass-pf-icon-box blue">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="3" fill="#dbeafe"/>
+                          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
+                        <span class="sim-mass-pf-label">Gestão de Risco</span>
+                        <span class="sim-mass-pf-val">${scenarioMeta.name}</span>
+                      </div>
                     </div>
                   </div>
 
                   <div class="sim-mass-preflight-footer">
                     <div class="sim-mass-preflight-integrity">
-                      <span class="sim-mass-integrity-shield">🛡️</span>
+                      <span class="sim-mass-integrity-shield">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
+                          <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </span>
                       <div class="sim-mass-integrity-text">
-                        <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a 1 posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
+                        <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a <strong>1</strong> posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
                       </div>
                     </div>
 
@@ -2480,10 +2617,13 @@
                         </button>
                       ` : `
                         <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                          </svg>
+                          <span class="sim-cta-play-circle">
+                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                              <polygon points="3,1.5 10.5,6 3,10.5" fill="#0d6845"/>
+                            </svg>
+                          </span>
                           <span>Iniciar Simulação em Escala</span>
+                          <span class="sim-cta-arrow">→</span>
                         </button>
                       `}
                     </div>
@@ -2491,21 +2631,27 @@
                 </div>
               </div>
 
-              <!-- DIVISOR VISUAL -->
-              <div class="sim-mass-modal-divider"></div>
-
-              <!-- BLOCO 4: AÇÕES DA MASSA ATUAL (MANUTENÇÃO SECUNDÁRIA) -->
-              <div class="sim-mass-modal-section sim-mass-current-actions-section">
-                <div class="sim-mass-section-eyebrow">
-                  <span class="sim-mass-eyebrow-icon">🗂️</span>
-                  <span>AÇÕES DA MASSA ATUAL</span>
+              <!-- BLOCO 4: BARRA HORIZONTAL DE AÇÕES DA MASSA ATUAL -->
+              <div class="sim-mass-current-actions-bar">
+                <div class="sim-mass-actions-bar-left">
+                  <div class="sim-mass-actions-bar-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d7a52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="16" rx="2" fill="#d1fae5"/>
+                      <line x1="7" y1="9" x2="17" y2="9"/>
+                      <line x1="7" y1="13" x2="13" y2="13"/>
+                    </svg>
+                  </div>
+                  <div class="sim-mass-actions-bar-texts">
+                    <div class="sim-mass-actions-bar-title">Ações da Massa Atual</div>
+                    <div class="sim-mass-actions-bar-desc">Gerencie as simulações existentes utilizando os candles disponíveis.</div>
+                  </div>
                 </div>
 
-                <div class="sim-mass-actions-list sim-mass-actions-grid">
+                <div class="sim-mass-actions-bar-right">
                   <!-- Reavaliar candles -->
-                  <div class="sim-mass-action-card" id="simMassActionEvaluate">
+                  <div class="sim-mass-action-card" id="simMassActionEvaluate" role="button" tabindex="0">
                     <div class="sim-mass-action-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="23 4 23 10 17 10"></polyline>
                         <polyline points="1 20 1 14 7 14"></polyline>
                         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -2513,15 +2659,15 @@
                     </div>
                     <div class="sim-mass-action-info">
                       <div class="sim-mass-action-title">Reavaliar candles</div>
-                      <div class="sim-mass-action-desc">Reprocessar as simulações existentes utilizando os candles disponíveis.</div>
+                      <div class="sim-mass-action-desc">Reprocessar as simulações existentes</div>
                     </div>
-                    <button class="sim-mass-action-trigger-btn" type="button" id="simMassActionEvaluateBtn">Executar</button>
+                    <button class="sim-mass-action-trigger-btn sr-only-btn" type="button" id="simMassActionEvaluateBtn" aria-label="Reavaliar candles">Executar</button>
                   </div>
 
                   <!-- Excluir massa atual -->
-                  <div class="sim-mass-action-card danger" id="simMassActionClear">
+                  <div class="sim-mass-action-card danger" id="simMassActionClear" role="button" tabindex="0">
                     <div class="sim-mass-action-icon danger">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -2530,9 +2676,9 @@
                     </div>
                     <div class="sim-mass-action-info">
                       <div class="sim-mass-action-title danger">Excluir massa atual</div>
-                      <div class="sim-mass-action-desc">Excluir todas as simulações atualmente carregadas.</div>
+                      <div class="sim-mass-action-desc danger">Excluir todas as simulações carregadas</div>
                     </div>
-                    <button class="sim-mass-action-trigger-btn danger" type="button" id="simMassActionClearBtn">Excluir</button>
+                    <button class="sim-mass-action-trigger-btn danger sr-only-btn" type="button" id="simMassActionClearBtn" aria-label="Excluir massa atual">Excluir</button>
                   </div>
                 </div>
               </div>
