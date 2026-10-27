@@ -381,21 +381,34 @@ async function getTickerChartData(rawSymbol) {
   const latestEma72 = ema72Array[ema72Array.length - 1];
   const prevEma72 = ema72Array.length > 1 ? ema72Array[ema72Array.length - 2] : latestEma72;
 
-  const priceAboveEma10 = latestEma10 !== null && currentPrice > latestEma10;
-  const ema10AboveEma72 = latestEma10 !== null && latestEma72 !== null && latestEma10 > latestEma72;
-  const bothSlopingUp = (latestEma10 > prevEma10) && (latestEma72 > prevEma72);
+  const emaAlignment = typeof TickerChartModel.validateDailyEmaAlignment === 'function'
+    ? TickerChartModel.validateDailyEmaAlignment(candles, ema10Array, ema72Array)
+    : null;
+
+  const priceAboveEma10 = emaAlignment
+    ? emaAlignment.checks.priceAboveEma10
+    : (latestEma10 !== null && currentPrice > latestEma10);
+  const ema10AboveEma72 = emaAlignment
+    ? emaAlignment.checks.ema10AboveEma72
+    : (latestEma10 !== null && latestEma72 !== null && latestEma10 > latestEma72);
+  const bothSlopingUp = emaAlignment
+    ? emaAlignment.checks.bothAscending
+    : ((latestEma10 > prevEma10) && (latestEma72 > prevEma72));
 
   // Tendência
   let trendStatus = 'Alta';
   let trendFormula = 'Preço > EMA 10 > EMA 72';
-  if (priceAboveEma10 && ema10AboveEma72) {
+  if (priceAboveEma10 && ema10AboveEma72 && bothSlopingUp) {
     trendStatus = 'Alta';
+    trendFormula = 'Preço > EMA 10 > EMA 72';
   } else if (!priceAboveEma10 && !ema10AboveEma72) {
     trendStatus = 'Baixa';
     trendFormula = 'Preço < EMA 10 < EMA 72';
   } else {
     trendStatus = 'Neutra';
-    trendFormula = 'Médias em transição';
+    trendFormula = emaAlignment && emaAlignment.reason
+      ? emaAlignment.reason.replace(/^Rejeitado:\s*/i, '')
+      : 'Médias em transição';
   }
 
   // Volatilidade ATR
@@ -636,14 +649,17 @@ async function getTickerChartData(rawSymbol) {
   const finalGrade = chartRubricEval.finalGrade || 'B';
   const gradeVisual = TradingRubrics.getRubricGradeVisual(finalGrade);
 
+  const isMarketFavorable = cycleState === 'Expansão' || cycleState === 'Positivo' || cycleState === 'healthy';
+  const triggerHasTrigger = trigger.hasTrigger === true && isMarketFavorable;
+
   const criteriaTable = [
     { name: 'Força Relativa', status: rsInfo.status === 'good', obs: `${rsClassification} (${rsScore})` },
-    { name: 'Ciclo de Mercado', status: cycleState === 'Positivo', obs: cycleState },
+    { name: 'Ciclo de Mercado', status: isMarketFavorable, obs: cycleState },
     { name: 'Preço > EMA 10', status: priceAboveEma10, obs: priceAboveEma10 ? 'Sim' : 'Não' },
     { name: 'EMA 10 > EMA 72', status: ema10AboveEma72, obs: ema10AboveEma72 ? 'Sim' : 'Não' },
     { name: 'Volatilidade (ATR)', status: atrPctVal < 5.0, obs: `${atrRegime} (${atrPctVal.toFixed(1)}%)` },
     { name: 'Estrutura', status: true, obs: structureLabel },
-    { name: 'Gatilho', status: trigger.hasTrigger === true, obs: trigger.hasTrigger ? `${trigger.name} (${finalGrade})` : 'Nenhum' },
+    { name: 'Gatilho', status: triggerHasTrigger, obs: triggerHasTrigger ? `${trigger.name} (${finalGrade})` : (trigger.hasTrigger ? `${trigger.name} (Bloqueado — Ciclo Defensivo)` : 'Nenhum') },
     { name: 'Fundamentos', status: fundCriteriaStatus, obs: fundEvaluation }
   ];
 

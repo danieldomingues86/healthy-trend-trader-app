@@ -129,7 +129,7 @@
   function marketCycleKey(value){
     if(value===null||value===undefined||value==='')return null;
     const normalized=String(value||'').trim().toLowerCase();
-    if(['healthy','saudável','saudavel','expansão','expansao','expansion','risk-on','up'].includes(normalized))return'healthy';
+    if(['healthy','saudável','saudavel','expansão','expansao','expansion','risk-on','up','positivo','alta','bull'].includes(normalized))return'healthy';
     if(['unavailable','não disponível','nao disponivel','indisponível','indisponivel','none'].includes(normalized))return'unavailable';
     // Regra binária oficial: qualquer outro estado (incluindo transição legada ou defensivo) mapeia para 'defensive'
     return'defensive';
@@ -362,7 +362,8 @@
     const gradeRiskPct=gradeObj.riskPct;
     const riskBudgetPct=(weightsValid&&complete&&grade!=='D')?gradeRiskPct:0;
     const qualityAllowed=weightsValid&&complete&&grade==='A';
-    return{score,maximumScore:100,rawGrade,grade,gradeRiskPct,riskBudgetPct,riskPct:riskBudgetPct,marketCycle:cycleKey,profile,complete,contributions,gates,weightsTotal,weightsValid,qualityAllowed};
+    const isBuyPermitted = cycleKey !== 'defensive' && cycleKey !== 'unavailable';
+    return{score,maximumScore:100,rawGrade,grade,gradeRiskPct,riskBudgetPct,riskPct:riskBudgetPct,marketCycle:cycleKey,profile,complete,contributions,gates,weightsTotal,weightsValid,qualityAllowed,isBuyPermitted};
   }
 
   function riskBaseOptions(policy={}){return normalizePolicy(policy).grades.map(item=>item.riskPct);}

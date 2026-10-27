@@ -3,11 +3,83 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const database = require('./database');
 const model = require('../../frontend/trade-simulator-model');
+let MarketCycleModel = null;
+try {
+  MarketCycleModel = require('../../frontend/market-cycle-model');
+} catch {
+  // Opcional para ambientes de teste isolados
+}
+const { parseYearMatrix } = require('./b3-index-history');
 let tickerChart = null;
 try {
   tickerChart = require('./ticker-chart');
 } catch {
   // Opcional para ambientes de teste isolados
+}
+
+let _cachedBenchmarkCycleMap = null;
+
+function isoFromCompact(value) {
+  const s = String(value);
+  return /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}` : s.slice(0, 10);
+}
+
+function loadIndexSeries(symbol = 'IBOV', cacheDirectory = path.join(__dirname, '..', 'data', 'b3-index-history-cache')) {
+  const rows = [];
+  if (!fs.existsSync(cacheDirectory)) return rows;
+  for (const file of fs.readdirSync(cacheDirectory)) {
+    const m = file.match(new RegExp(`^b3-index-${symbol}-(\\d{4})\\.json$`));
+    if (!m) continue;
+    try {
+      const payload = JSON.parse(fs.readFileSync(path.join(cacheDirectory, file), 'utf8'));
+      for (const item of parseYearMatrix(Number(m[1]), payload)) {
+        rows.push({ date: isoFromCompact(item.date), close: item.close });
+      }
+    } catch {
+      // Ignora arquivo corrompido
+    }
+  }
+  rows.sort((a, b) => a.date.localeCompare(b.date));
+  return rows;
+}
+
+function getPrecomputedBenchmarkCycleMap() {
+  if (_cachedBenchmarkCycleMap) return _cachedBenchmarkCycleMap;
+  const map = new Map();
+  if (!MarketCycleModel) return map;
+
+  for (const bSym of ['IBOV', 'IFIX', 'BDRX']) {
+    try {
+      const series = loadIndexSeries(bSym);
+      for (let i = 29; i < series.length; i++) {
+        const reading = MarketCycleModel.scoreMarketCycleFromCandles(series.slice(0, i + 1));
+        const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: bSym });
+        map.set(`${bSym}:${series[i].date}`, perm);
+      }
+    } catch {
+      // Ignora erro de índice específico
+    }
+  }
+
+  if (tickerChart) {
+    try {
+      const nasdaq = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
+      if (nasdaq && nasdaq.has('QQQ')) {
+        const qqq = nasdaq.get('QQQ');
+        for (let i = 29; i < qqq.length; i++) {
+          const d = qqq[i].time || qqq[i].date;
+          const reading = MarketCycleModel.scoreMarketCycleFromCandles(qqq.slice(0, i + 1));
+          const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: 'QQQ' });
+          map.set(`QQQ:${d}`, perm);
+        }
+      }
+    } catch {
+      // Ignora se Nasdaq não estiver carregado
+    }
+  }
+
+  _cachedBenchmarkCycleMap = map;
+  return map;
 }
 
 function invalid(message, status = 400) {
@@ -39,6 +111,13 @@ function mapSimulation(row) {
     entryPrice: Number(row.entry_price),
     stopLoss: Number(row.stop_loss),
     status: row.status,
+    marketCycle: row.market_cycle || 'Positivo',
+    marketPermission: row.market_permission
+      ? (typeof row.market_permission === 'string' ? JSON.parse(row.market_permission) : row.market_permission)
+      : null,
+    rsScore: row.rs_score != null ? Number(row.rs_score) : (row.rsScore != null ? Number(row.rsScore) : undefined),
+    simulationMode: row.simulation_mode || row.simulationMode || 'OFFICIAL',
+    ruleVersion: row.rule_version || row.ruleVersion || undefined,
     executedEntryPrice: row.executed_entry_price != null ? Number(row.executed_entry_price) : null,
     entryDate: toIsoDate(row.entry_date),
     currentStop: row.current_stop != null ? Number(row.current_stop) : null,
@@ -78,8 +157,10 @@ function mapSimulation(row) {
  * Retorna as simulações do usuário. Caso não haja registros no banco,
  * retorna a lista padrão de simulações idênticas ao design aprovado.
  */
-async function list(userId, client = database) {
+async function list(userId, client = database, options = {}) {
   if (!userId) throw invalid('Usuário não autenticado.', 401);
+
+  const isResearchMode = options && options.environment === 'RESEARCH';
 
   const result = await client.query(
     `SELECT * FROM app.trade_simulations
@@ -94,6 +175,82 @@ async function list(userId, client = database) {
     simulations = model.getDefaultSeedSimulations('2R');
   } else {
     simulations = result.rows.map(mapSimulation).filter(s => s && s.triggerName !== 'Pullback');
+    const benchmarkCycleMap = getPrecomputedBenchmarkCycleMap();
+    if (tickerChart && typeof model.validateDailyEmaAlignment === 'function') {
+      try {
+        const seedKeys = new Set(
+          (model.getDefaultSeedSimulations('2R') || []).map(s => `${String(s.symbol).toUpperCase()}:${String(s.signalDate).slice(0, 10)}`)
+        );
+        const b3 = typeof tickerChart.loadB3History === 'function' ? tickerChart.loadB3History() : null;
+        const nasdaq = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
+        simulations = simulations.filter(s => {
+          const sym = String(s.symbol || '').toUpperCase().trim();
+          const sDate = String(s.signalDate || '').slice(0, 10);
+          if (seedKeys.has(`${sym}:${sDate}`)) return true;
+
+          // REGRA MANDATÓRIA (P0) MODO OFICIAL: Ciclo de Mercado Defensivo BLOQUEIA entradas de compra
+          if (!isResearchMode && MarketCycleModel) {
+            const benchInfo = MarketCycleModel.getBenchmarkForAsset(sym, s.sector);
+            const perm = benchmarkCycleMap.get(`${benchInfo.symbol}:${sDate}`);
+            if (perm) {
+              if (!perm.isPermitted) return false;
+              s.marketPermission = perm;
+            } else if (sDate && sDate < '2026-07-01') {
+              return false;
+            }
+          }
+
+          // REGRA MANDATÓRIA MODO OFICIAL: Grade D possui risco zero (bloqueio automático) e RS >= 80
+          if (!isResearchMode && (s.simulationMode === 'OFFICIAL' || !s.simulationMode)) {
+            if (s.grade === 'D') {
+              return false;
+            }
+            if (s.rsScore == null || Number(s.rsScore) < 80) {
+              return false;
+            }
+          }
+
+          const hist = (b3 && b3.get(sym)) || (nasdaq && nasdaq.get(sym)) || null;
+          if (!hist || !sDate) return true;
+          const idx = hist.findIndex(c => c.time === sDate);
+          if (idx < 2) return true;
+          const alignment = model.validateDailyEmaAlignment(hist.slice(0, idx + 1));
+          if (alignment && alignment.isValid) {
+            s.trendAlignment = alignment;
+            if (typeof model.getTradeVisionAtivo === 'function') {
+              s.visionAtivo = model.getTradeVisionAtivo(s);
+            }
+            return true;
+          }
+          if (isResearchMode) {
+            s.trendAlignment = alignment;
+            return true;
+          }
+          return false;
+        });
+      } catch {
+        // Mantém lista mapeada se histórico diário não estiver acessível no ambiente
+      }
+    } else if (MarketCycleModel) {
+      simulations = simulations.filter(s => {
+        const sym = String(s.symbol || '').toUpperCase().trim();
+        const sDate = String(s.signalDate || '').slice(0, 10);
+
+        if (!isResearchMode && (s.simulationMode === 'OFFICIAL' || !s.simulationMode)) {
+          if (s.grade === 'D') {
+            return false;
+          }
+          if (s.rsScore == null || Number(s.rsScore) < 80) {
+            return false;
+          }
+        }
+
+        const benchInfo = MarketCycleModel.getBenchmarkForAsset(sym, s.sector);
+        const perm = benchmarkCycleMap.get(`${benchInfo.symbol}:${sDate}`);
+        if (perm) return perm.isPermitted;
+        return !(sDate && sDate < '2026-07-01');
+      });
+    }
   }
 
   const stats = model.calculateSimulatorStats(simulations);
@@ -148,6 +305,40 @@ async function create(userId, payload = {}, client = database) {
   const sector = String(payload.sector || '').trim();
   const notes = String(payload.notes || '').trim();
 
+  const simulationMode = payload.simulationMode === 'RESEARCH' ? 'RESEARCH' : 'OFFICIAL';
+  if (simulationMode === 'OFFICIAL' && grade === 'D') {
+    throw invalid('ENTRADA BLOQUEADA — SETUP GRADE D NÃO É PERMITIDO NO MODO OFICIAL (ORÇAMENTO DE RISCO ZERO)', 422);
+  }
+  const hasExplicitRs = Object.prototype.hasOwnProperty.call(payload, 'rsScore') || payload.rsUnavailable === true;
+  if (simulationMode === 'OFFICIAL' && hasExplicitRs) {
+    if (payload.rsUnavailable === true || payload.rsScore === null || payload.rsScore === 'N/D' || payload.rsScore === '') {
+      throw invalid('ENTRADA BLOQUEADA — FORÇA RELATIVA (RS) HISTÓRICA INDISPONÍVEL NA DATA DO SINAL', 422);
+    }
+    const numericRs = Number(payload.rsScore);
+    if (!Number.isFinite(numericRs) || numericRs < 80) {
+      throw invalid(`ENTRADA BLOQUEADA — FORÇA RELATIVA ABAIXO DO MÍNIMO OFICIAL (RS ${payload.rsScore} < 80)`, 422);
+    }
+  }
+
+  let marketCycle = 'Positivo';
+  let marketPermission = null;
+
+  // REGRA MANDATÓRIA (P0): Ciclo de Mercado Defensivo BLOQUEIA entradas de compra
+  if (MarketCycleModel) {
+    const benchInfo = MarketCycleModel.getBenchmarkForAsset(symbol, sector);
+    const benchmarkCycleMap = getPrecomputedBenchmarkCycleMap();
+    const perm = benchmarkCycleMap.get(`${benchInfo.symbol}:${signalDate}`);
+    if (perm && !perm.isPermitted) {
+      throw invalid(`ENTRADA BLOQUEADA — ${perm.reason || 'CICLO DE MERCADO DEFENSIVO'}`, 422);
+    } else if (!perm && signalDate && signalDate < '2026-07-01') {
+      throw invalid('ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO', 422);
+    }
+    if (perm) {
+      marketPermission = perm;
+      marketCycle = perm.isPermitted ? 'Positivo' : (perm.isUndetermined ? 'Indeterminado' : 'Defensivo');
+    }
+  }
+
   const id = crypto.randomUUID();
   const initialStatus = model.STATUS.WAITING_ENTRY;
 
@@ -172,20 +363,30 @@ async function create(userId, payload = {}, client = database) {
     }
   ];
 
+  const rsVal = payload.rsScore != null && Number.isFinite(Number(payload.rsScore))
+    ? Math.round(Number(payload.rsScore))
+    : (model.OFFICIAL_SEED_RS_BY_SYMBOL[symbol] || 84);
+  const simMode = payload.simulationMode || 'OFFICIAL';
+  const ruleVer = payload.ruleVersion || 'v5.0-oficial (2026-10)';
+
   await client.query(
     `INSERT INTO app.trade_simulations (
       id, user_id, symbol, company_name, trigger_name, grade, sector,
       signal_date, entry_price, stop_loss, status,
-      timeline, notes
+      timeline, notes, market_cycle, market_permission,
+      rs_score, simulation_mode, rule_version
     ) VALUES (
       $1, $2, $3, $4, $5, $6, $7,
       $8, $9, $10, $11,
-      $12, $13
+      $12, $13, $14, $15,
+      $16, $17, $18
     )`,
     [
       id, userId, symbol, companyName, triggerName, grade, sector,
       signalDate, entryPrice, stopLoss, initialStatus,
-      JSON.stringify(timeline), notes
+      JSON.stringify(timeline), notes,
+      marketCycle, marketPermission ? JSON.stringify(marketPermission) : null,
+      rsVal, simMode, ruleVer
     ]
   );
 
@@ -283,19 +484,40 @@ async function reset(userId, options = {}, client = database) {
   const seeds = model.generateSeedSimulationsForScenario(scenario);
   for (const s of seeds) {
     const id = crypto.randomUUID();
+    const cycleInfo = model.resolveSimulationMarketCycle ? model.resolveSimulationMarketCycle(s) : { classification: 'Positivo' };
+    const mCycle = s.marketCycle || cycleInfo.classification || 'Positivo';
+    const mPerm = s.marketPermission ? JSON.stringify(s.marketPermission) : (cycleInfo.isVerified ? JSON.stringify({
+      isPermitted: cycleInfo.isPermitted,
+      benchmarkSymbol: cycleInfo.benchmarkSymbol,
+      evalDate: cycleInfo.evalDate,
+      price: cycleInfo.price,
+      ema10: cycleInfo.ema10,
+      ema72: cycleInfo.ema72
+    }) : null);
+
+    const rsVal = s.rsScore != null && Number.isFinite(Number(s.rsScore))
+      ? Math.round(Number(s.rsScore))
+      : (model.OFFICIAL_SEED_RS_BY_SYMBOL[String(s.symbol).toUpperCase()] || 84);
+    const simMode = s.simulationMode || 'OFFICIAL';
+    const ruleVer = s.ruleVersion || 'v5.0-oficial (2026-10)';
+
     await dbClient.query(
       `INSERT INTO app.trade_simulations (
         id, user_id, symbol, company_name, trigger_name, grade, sector,
         signal_date, entry_price, stop_loss, status,
         executed_entry_price, entry_date, current_stop, current_price,
         exit_price, exit_date, exit_reason, result_r, mfe_r, mae_r,
-        timeline, notes, management_scenario, scale_in
+        timeline, notes, management_scenario, scale_in,
+        market_cycle, market_permission,
+        rs_score, simulation_mode, rule_version
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11,
         $12, $13, $14, $15,
         $16, $17, $18, $19, $20, $21,
-        $22, $23, $24, $25
+        $22, $23, $24, $25,
+        $26, $27,
+        $28, $29, $30
       )`,
       [
         id, userId, s.symbol, s.companyName || '', s.triggerName, s.grade || '', s.sector || '',
@@ -303,7 +525,9 @@ async function reset(userId, options = {}, client = database) {
         s.executedEntryPrice, s.entryDate, s.currentStop, s.currentPrice,
         s.exitPrice, s.exitDate, s.exitReason, s.resultR, s.mfeR, s.maeR,
         JSON.stringify(s.timeline || []), s.notes || '',
-        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null
+        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null,
+        mCycle, mPerm,
+        rsVal, simMode, ruleVer
       ]
     );
   }
@@ -413,6 +637,36 @@ async function generateMass(userId, payload = {}, client = database) {
     };
   }
 
+  const benchmarkCycleByDate = getPrecomputedBenchmarkCycleMap();
+  const benchmarkCandlesMap = new Map();
+  if (tickerChart && typeof tickerChart.loadB3History === 'function') {
+    const b3 = tickerChart.loadB3History();
+    if (b3 && b3.get('IBOV')) benchmarkCandlesMap.set('IBOV', b3.get('IBOV'));
+    if (b3 && b3.get('BOVA11')) benchmarkCandlesMap.set('BOVA11', b3.get('BOVA11'));
+  }
+  if (tickerChart && typeof tickerChart.loadNasdaqHistory === 'function') {
+    const nasdaq = tickerChart.loadNasdaqHistory();
+    if (nasdaq && nasdaq.get('SPY')) benchmarkCandlesMap.set('SPY', nasdaq.get('SPY'));
+  }
+
+  const simMode = opts.simulationMode || (opts.environment === 'RESEARCH' ? 'RESEARCH' : 'OFFICIAL');
+  const isResearchMode = simMode === 'RESEARCH';
+
+  let massGrades = grades;
+  if (!isResearchMode) {
+    if (massGrades === 'ALL' || !massGrades || massGrades === 'D') {
+      massGrades = ['A', 'B', 'C'];
+    } else if (Array.isArray(massGrades)) {
+      massGrades = massGrades.filter(g => g !== 'D');
+      if (massGrades.length === 0) massGrades = ['A', 'B', 'C'];
+    }
+  }
+
+  let massTriggers = triggers;
+  if (Array.isArray(massTriggers) && massTriggers.length === 0) {
+    massTriggers = 'ALL';
+  }
+
   const generated = model.generateHistoricalSimulations({
     candlesMap,
     metadataMap,
@@ -421,10 +675,13 @@ async function generateMass(userId, payload = {}, client = database) {
     period,
     startDate,
     endDate,
-    triggers,
-    grades,
+    triggers: massTriggers,
+    grades: massGrades,
     scenario,
-    universe
+    universe,
+    simulationMode: simMode,
+    benchmarkCycleByDate,
+    benchmarkCandlesMap
   });
 
   const sims = generated.simulations || [];
@@ -441,12 +698,30 @@ async function generateMass(userId, payload = {}, client = database) {
     for (const s of batch) {
       const id = crypto.randomUUID();
       s.id = id;
+      const cycleInfo = model.resolveSimulationMarketCycle ? model.resolveSimulationMarketCycle(s) : { classification: 'Positivo' };
+      const mCycle = s.marketCycle || cycleInfo.classification || 'Positivo';
+      const mPerm = s.marketPermission ? JSON.stringify(s.marketPermission) : (cycleInfo.isVerified ? JSON.stringify({
+        isPermitted: cycleInfo.isPermitted,
+        benchmarkSymbol: cycleInfo.benchmarkSymbol,
+        evalDate: cycleInfo.evalDate,
+        price: cycleInfo.price,
+        ema10: cycleInfo.ema10,
+        ema72: cycleInfo.ema72
+      }) : null);
+      const rsVal = s.rsScore != null && Number.isFinite(Number(s.rsScore))
+        ? Math.round(Number(s.rsScore))
+        : (model.OFFICIAL_SEED_RS_BY_SYMBOL[String(s.symbol).toUpperCase()] || null);
+      const simMode = s.simulationMode || 'OFFICIAL';
+      const ruleVer = s.ruleVersion || 'v5.0-oficial (2026-10)';
+
       valueClauses.push(
         `($${pIdx}, $${pIdx + 1}, $${pIdx + 2}, $${pIdx + 3}, $${pIdx + 4}, $${pIdx + 5}, $${pIdx + 6},
           $${pIdx + 7}, $${pIdx + 8}, $${pIdx + 9}, $${pIdx + 10},
           $${pIdx + 11}, $${pIdx + 12}, $${pIdx + 13}, $${pIdx + 14},
           $${pIdx + 15}, $${pIdx + 16}, $${pIdx + 17}, $${pIdx + 18}, $${pIdx + 19}, $${pIdx + 20},
-          $${pIdx + 21}, $${pIdx + 22}, $${pIdx + 23}, $${pIdx + 24})`
+          $${pIdx + 21}, $${pIdx + 22}, $${pIdx + 23}, $${pIdx + 24},
+          $${pIdx + 25}, $${pIdx + 26},
+          $${pIdx + 27}, $${pIdx + 28}, $${pIdx + 29})`
       );
       values.push(
         id, userId, s.symbol, s.companyName || '', s.triggerName, s.grade || '', s.sector || '',
@@ -454,9 +729,11 @@ async function generateMass(userId, payload = {}, client = database) {
         s.executedEntryPrice, s.entryDate, s.currentStop, s.currentPrice,
         s.exitPrice, s.exitDate, s.exitReason, s.resultR, s.mfeR, s.maeR,
         JSON.stringify(s.timeline || []), s.notes || '',
-        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null
+        scenario, s.scaleIn ? JSON.stringify(s.scaleIn) : null,
+        mCycle, mPerm,
+        rsVal, simMode, ruleVer
       );
-      pIdx += 25;
+      pIdx += 30;
     }
 
     if (valueClauses.length > 0) {
@@ -466,7 +743,9 @@ async function generateMass(userId, payload = {}, client = database) {
           signal_date, entry_price, stop_loss, status,
           executed_entry_price, entry_date, current_stop, current_price,
           exit_price, exit_date, exit_reason, result_r, mfe_r, mae_r,
-          timeline, notes, management_scenario, scale_in
+          timeline, notes, management_scenario, scale_in,
+          market_cycle, market_permission,
+          rs_score, simulation_mode, rule_version
         ) VALUES ${valueClauses.join(', ')}`,
         values
       );
@@ -644,6 +923,48 @@ async function buildSnapshot(userId, payload = {}, options = {}) {
   return { snapshot: model.buildSimulationSnapshot(simulation, history || [], { source }) };
 }
 
+/**
+ * Purga simulações salvas no banco cujas entradas foram geradas em regimes de mercado defensivos.
+ */
+async function purgeDefensiveSimulations(userId = null, client = database) {
+  const query = userId
+    ? 'SELECT id, symbol, sector, signal_date FROM app.trade_simulations WHERE user_id = $1'
+    : 'SELECT id, symbol, sector, signal_date FROM app.trade_simulations';
+  const params = userId ? [userId] : [];
+  const res = await client.query(query, params);
+  const rows = res.rows || [];
+  const cycleMap = getPrecomputedBenchmarkCycleMap();
+
+  const idsToDelete = [];
+  for (const row of rows) {
+    const sym = String(row.symbol || '').toUpperCase().trim();
+    const sDate = toIsoDate(row.signal_date);
+    const sector = row.sector || '';
+    if (MarketCycleModel) {
+      const benchInfo = MarketCycleModel.getBenchmarkForAsset(sym, sector);
+      const perm = cycleMap.get(`${benchInfo.symbol}:${sDate}`);
+      if (perm) {
+        if (!perm.isPermitted) {
+          idsToDelete.push(row.id);
+        }
+      } else if (sDate && sDate < '2026-07-01') {
+        idsToDelete.push(row.id);
+      }
+    }
+  }
+
+  if (idsToDelete.length > 0) {
+    const batchSize = 100;
+    for (let i = 0; i < idsToDelete.length; i += batchSize) {
+      const batch = idsToDelete.slice(i, i + batchSize);
+      const placeholders = batch.map((_, idx) => '$' + (idx + 1)).join(', ');
+      await client.query(`DELETE FROM app.trade_simulations WHERE id IN (${placeholders})`, batch);
+    }
+  }
+
+  return { purgedCount: idsToDelete.length };
+}
+
 module.exports = {
   list,
   create,
@@ -656,5 +977,7 @@ module.exports = {
   buildSnapshot,
   compare,
   compareHypothesis,
-  mapSimulation
+  mapSimulation,
+  getPrecomputedBenchmarkCycleMap,
+  purgeDefensiveSimulations
 };

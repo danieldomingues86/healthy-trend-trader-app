@@ -119,7 +119,6 @@
       { id: 'INSIDE_BAR', name: 'Inside Bar', shortLabel: 'Inside Bar' },
       { id: 'PFR_COMPRA', name: 'PFR de Compra', shortLabel: 'PFR de Compra' },
       { id: '123_COMPRA', name: '1-2-3 de Compra', shortLabel: '1-2-3 de Compra' },
-      { id: 'DAVE_LANDRY', name: 'Dave Landry', shortLabel: 'Dave Landry' },
       { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)', shortLabel: 'RBI' }
     ];
 
@@ -173,7 +172,6 @@
     { key: 'triggerInsideBar', label: 'Gatilho: Inside Bar', read: item => item.setupTrigger ? item.setupTrigger === 'INSIDE_BAR' : null },
     { key: 'triggerPfr', label: 'Gatilho: PFR de Compra', read: item => item.setupTrigger ? item.setupTrigger === 'PFR_COMPRA' : null },
     { key: 'trigger123', label: 'Gatilho: 1-2-3 de Compra', read: item => item.setupTrigger ? item.setupTrigger === '123_COMPRA' : null },
-    { key: 'triggerDaveLandry', label: 'Gatilho: Dave Landry', read: item => item.setupTrigger ? item.setupTrigger === 'DAVE_LANDRY' : null },
     { key: 'triggerRbi', label: 'Gatilho: RBI', read: item => item.setupTrigger ? item.setupTrigger === 'RBI' : null },
     { key: 'long', label: 'Direção Long', read: item => item.direction ? item.direction === 'long' : null }
   ];
@@ -194,4 +192,3 @@
 
   return { analyzeTrade, filtersFor, filterTrades, metrics, metricsByTrigger, ranking, dna, compare, ratingLabel };
 });
-

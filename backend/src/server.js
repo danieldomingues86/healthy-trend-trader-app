@@ -476,7 +476,8 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/trade-simulations' && request.method === 'GET') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
-      return send(response, 200, await tradeSimulator.list(user.id));
+      const envParam = (url.searchParams.get('env') || url.searchParams.get('mode') || 'OFFICIAL').toUpperCase();
+      return send(response, 200, await tradeSimulator.list(user.id, database, { environment: envParam }));
     }
     if (url.pathname === '/api/trade-simulations' && request.method === 'POST') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
@@ -514,9 +515,8 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, await tradeSimulator.clearAll(user.id));
     }
     if (url.pathname === '/api/trade-simulations/snapshot' && request.method === 'POST') {
-      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
-      const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
-      return send(response, 200, await tradeSimulator.buildSnapshot(user.id, await body(request)));
+      const user = auth ? await auth.session(bearer(request)).catch(() => null) : null;
+      return send(response, 200, await tradeSimulator.buildSnapshot(user ? user.id : 'guest', await body(request)));
     }
     const tradeSimMatch = url.pathname.match(/^\/api\/trade-simulations\/([^/]+)$/);
     if (tradeSimMatch && request.method === 'PATCH') {

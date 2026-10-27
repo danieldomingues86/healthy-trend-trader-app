@@ -54,7 +54,6 @@
     const rounded = Math.floor(rawQty / lotSize) * lotSize;
 
     if (rounded >= lotSize) return rounded;
-    // Se o capital de risco autoriza menos de 1 lote padrão, usa unidades fracionárias se permitido ou pelo menos 1 lote mínimo se rawQty >= 1
     if (rawQty >= 1) return Math.floor(rawQty);
     return 0;
   }
@@ -82,7 +81,6 @@
       throw new Error('Preço de entrada e stop inicial não podem ser iguais.');
     }
 
-    // No modelo Healthy Trend Trader, compras no Radar são long (Stop abaixo da entrada)
     const direction = ['long', 'short'].includes(payload.direction) ? payload.direction : 'long';
     if (direction === 'long' && stop >= entry) {
       throw new Error('Para compra (Long), o stop inicial deve estar abaixo do preço de entrada.');
@@ -97,7 +95,6 @@
     let setupTrigger = rawTrigger.toUpperCase().replace(/\s+/g, '_');
     if (setupTrigger.includes('123') || setupTrigger.includes('1-2-3')) setupTrigger = '123_COMPRA';
     else if (setupTrigger.includes('PFR')) setupTrigger = 'PFR_COMPRA';
-    else if (setupTrigger.includes('DAVE') || setupTrigger.includes('LANDRY')) setupTrigger = 'DAVE_LANDRY';
     else if (setupTrigger.includes('RBI') || setupTrigger.includes('VERMELHA')) setupTrigger = 'RBI';
     else if (setupTrigger.includes('INSIDE')) setupTrigger = 'INSIDE_BAR';
 
@@ -105,7 +102,6 @@
       'INSIDE_BAR': 'Inside Bar',
       '123_COMPRA': '1-2-3 de Compra',
       'PFR_COMPRA': 'PFR de Compra',
-      'DAVE_LANDRY': 'Dave Landry',
       'RBI': 'Barra Vermelha Ignorada (RBI)'
     };
     const setupLabel = payload.setup || triggerLabels[setupTrigger] || 'Setup Técnico';
@@ -148,15 +144,6 @@
 
   /**
    * Verifica o status de uma ordem pendente contra as cotações diárias após o sinal.
-   * 
-   * Retorna um objeto com a decisão:
-   * - outcome: 'EXECUTED' | 'EXPIRED' | 'CONFLICT_SAME_CANDLE' | 'PENDING' | 'ALREADY_PROCESSED'
-   * - status: 'open' | 'cancelled' | 'pending'
-   * - executionPrice
-   * - executedQuantity
-   * - executedAt
-   * - reason
-   * - dataSnapshot: dados do candle que fundamentou a decisão
    */
   function verifyPendingOrder(order, candles = [], options = {}) {
     if (!order || typeof order !== 'object') {
@@ -194,7 +181,6 @@
       };
     }
 
-    // Normaliza candles cronologicamente
     const normalizedCandles = candles
       .filter(c => c && (c.time || c.date))
       .map(c => ({
@@ -208,7 +194,6 @@
       .filter(c => c.date && Number.isFinite(c.open) && Number.isFinite(c.high) && Number.isFinite(c.low) && Number.isFinite(c.close))
       .sort((a, b) => a.date.localeCompare(b.date));
 
-    // Filtra candles estritamente posteriores ao sinal do Radar
     const candidateCandles = normalizedCandles.filter(c => c.date > signalDate);
 
     if (candidateCandles.length === 0) {
@@ -219,7 +204,6 @@
       };
     }
 
-    // Avalia o primeiro pregão da janela de validade (ou os pregões até o limite da validade)
     for (let i = 0; i < candidateCandles.length && i < validitySessions; i++) {
       const candle = candidateCandles[i];
       const isLastValidSession = (i === validitySessions - 1) || (i === candidateCandles.length - 1 && candidateCandles.length >= validitySessions);
@@ -227,9 +211,6 @@
       const hitEntry = candle.high >= entryPrice;
       const hitStop = candle.low <= stopPrice;
 
-      // 1. Caso Ambíguo / Conflito no mesmo candle:
-      // Se entrada e stop foram atingidos na mesma sessão diária, não presumir execução favorável!
-      // Regra conservadora documental: invalida a operação e descarta a ordem pendente.
       if (hitEntry && hitStop) {
         return {
           outcome: 'CONFLICT_SAME_CANDLE',
@@ -243,10 +224,7 @@
         };
       }
 
-      // 2. Execução confirmada com sucesso:
-      // Atingiu ou superou o preço de compra e NÃO violou o stop.
       if (hitEntry && !hitStop) {
-        // Se abriu em gap acima da entrada, executa no preço de abertura; caso contrário, no preço do gatilho
         const executionPrice = candle.open >= entryPrice ? candle.open : entryPrice;
         return {
           outcome: 'EXECUTED',
@@ -262,8 +240,6 @@
         };
       }
 
-      // 3. Entrada não atingida neste pregão:
-      // Se este era o último pregão da janela de validade, expira e remove.
       if (!hitEntry && isLastValidSession) {
         return {
           outcome: 'EXPIRED',
@@ -278,7 +254,6 @@
       }
     }
 
-    // Se ainda está dentro da janela de validade e nenhum pregão atingiu a entrada nem expirou
     return {
       outcome: 'PENDING',
       status: 'pending',
@@ -287,10 +262,6 @@
     };
   }
 
-  /**
-   * Sanitiza métricas operacionais para posições pendentes.
-   * Assegura que posições com status 'pending' não adicionem risco, heat ou P&L.
-   */
   function sanitizePendingMetrics(position, baseMetrics = {}) {
     if (!position || (position.status !== 'pending' && !position.isPending)) {
       return baseMetrics;

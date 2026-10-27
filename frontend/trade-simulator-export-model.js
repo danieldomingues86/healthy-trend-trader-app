@@ -62,6 +62,19 @@
     return 'R$ ' + Number(val).toFixed(2).replace('.', ',');
   }
 
+  function formatTriggerName(triggerName) {
+    const m = getModel();
+    if (m && typeof m.formatTriggerDisplayName === 'function') {
+      return m.formatTriggerDisplayName(triggerName);
+    }
+    if (!triggerName) return '';
+    const s = String(triggerName).trim();
+    if (s === 'RBI' || s === 'Red Bar Ignored' || s === 'Barra Vermelha Ignorada') {
+      return 'Barra Vermelha Ignorada';
+    }
+    return s;
+  }
+
   function formatR(val) {
     if (val == null || isNaN(val)) return '—';
     const num = Number(val);
@@ -88,6 +101,69 @@
     if (d === 0) return 'Mesmo dia (0 d)';
     if (d === 1) return '1 dia';
     return `${d} dias`;
+  }
+
+  function resolveMarketCycleName(sim) {
+    const m = getModel();
+    if (m && typeof m.resolveSimulationMarketCycle === 'function') {
+      const res = m.resolveSimulationMarketCycle(sim);
+      return res.classification || 'Indeterminado';
+    }
+    if (sim && sim.marketCycle) return String(sim.marketCycle);
+    return 'Indeterminado';
+  }
+
+  function getMarketCycleColor(classification) {
+    const c = String(classification || '').toLowerCase();
+    if (c === 'positivo') {
+      return { bg: '#dcfce7', text: '#15803d', border: '#86efac', dot: '#22c55e' };
+    }
+    if (c === 'defensivo') {
+      return { bg: '#fee2e2', text: '#b91c1c', border: '#fca5a5', dot: '#ef4444' };
+    }
+    return { bg: '#f1f5f9', text: '#64748b', border: '#cbd5e1', dot: '#94a3b8' };
+  }
+
+  function resolveEntryRsInfo(sim) {
+    const m = getModel();
+    if (m && typeof m.resolveSimulationEntryRs === 'function') {
+      return m.resolveSimulationEntryRs(sim);
+    }
+    if (!sim || sim.rsUnavailable === true || sim.rsScore === null || sim.rsScore === 'N/D') {
+      return {
+        rsScore: null,
+        formatted: 'N/D',
+        badgeText: 'N/D • Sem RS',
+        isAvailable: false,
+        isEligible: false
+      };
+    }
+    const val = Number(sim.rsScore ?? sim.entryRs ?? 84);
+    const num = Number.isFinite(val) ? Math.round(val) : null;
+    if (num === null) {
+      return {
+        rsScore: null,
+        formatted: 'N/D',
+        badgeText: 'N/D • Sem RS',
+        isAvailable: false,
+        isEligible: false
+      };
+    }
+    return {
+      rsScore: num,
+      formatted: String(num),
+      badgeText: num >= 80 ? `${num} • ≥ 80` : `${num} • < 80`,
+      isAvailable: true,
+      isEligible: num >= 80
+    };
+  }
+
+  function resolveSimulationModeLabel(sim, options = {}) {
+    const mode = options.simulationMode || sim?.simulationMode || 'OFFICIAL';
+    if (mode === 'RESEARCH') {
+      return 'MODO PESQUISA — REGRAS ABERTAS';
+    }
+    return 'MODO OFICIAL';
   }
 
   /**
@@ -456,7 +532,7 @@
     return `
       <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-top: 14px; font-size: 11px;">
         <div style="font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-          <span>📦 Estrutura Gráfica &amp; Compressão (${escapeHtml(sim.triggerName)})</span>
+          <span>📦 Estrutura Gráfica &amp; Compressão (${escapeHtml(formatTriggerName(sim.triggerName))})</span>
           ${st.totalCompressionPct != null ? `<span style="background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 700;">Contração: ${st.totalCompressionPct}%</span>` : ''}
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 10.5px;">
@@ -513,7 +589,7 @@
           </tr>
           <tr style="border-bottom: 1px solid #e2e8f0;">
             <td style="padding: 4px; color: #64748b;"><b>Gatilho:</b></td>
-            <td style="padding: 4px; color: #0f172a;">${escapeHtml(vision.trigger?.display || sim.triggerName || '—')}</td>
+            <td style="padding: 4px; color: #0f172a;">${escapeHtml(vision.trigger?.display ? formatTriggerName(vision.trigger.display) : (formatTriggerName(sim.triggerName) || '—'))}</td>
             <td style="padding: 4px; color: #64748b;"><b>Volatilidade:</b></td>
             <td style="padding: 4px; color: #0f172a;">${escapeHtml(vision.volatility?.text || '—')}</td>
           </tr>
@@ -569,6 +645,17 @@
     const statusLabel = getStatusLabel(sim.status);
     const statusCol = getStatusColor(sim.status);
     const gradeCol = getGradeBadgeColor(sim.grade);
+    const cycleName = resolveMarketCycleName(sim);
+    const cycleCol = getMarketCycleColor(cycleName);
+    const rsInfo = resolveEntryRsInfo(sim);
+    const rsCol = rsInfo.isEligible
+      ? { bg: '#dcfce7', text: '#15803d', border: '#86efac' }
+      : (rsInfo.isAvailable ? { bg: '#fee2e2', text: '#b91c1c', border: '#fca5a5' } : { bg: '#f1f5f9', text: '#64748b', border: '#cbd5e1' });
+    const modeLabel = resolveSimulationModeLabel(sim, options);
+    const isResearch = modeLabel.includes('PESQUISA');
+    const modeCol = isResearch
+      ? { bg: '#fffbeb', text: '#b45309', border: '#fcd34d' }
+      : { bg: '#ecfdf5', text: '#047857', border: '#6ee7b7' };
     const duration = calculateDurationDays(sim);
 
     const entry = Number(sim.entryPrice) || 0;
@@ -589,12 +676,21 @@
               <div style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">
                 ${escapeHtml(sim.symbol)}
                 <span style="font-size: 13px; font-weight: 600; color: #64748b; margin-left: 6px;">${escapeHtml(sim.companyName || '')}</span>
+                <span style="display: inline-block; background: ${modeCol.bg}; color: ${modeCol.text}; border: 1px solid ${modeCol.border}; font-weight: 800; font-size: 10px; padding: 2px 7px; border-radius: 5px; margin-left: 8px; vertical-align: middle;">
+                  ${escapeHtml(modeLabel)}
+                </span>
               </div>
               <div style="font-size: 11px; color: #475569; margin-top: 3px;">
-                <b>Gatilho:</b> ${escapeHtml(sim.triggerName)} • <b>Setor:</b> ${escapeHtml(sim.sector || 'Geral')} • <b>Data do Sinal:</b> ${formatDateBR(sim.signalDate)}
+                <b>Gatilho:</b> ${escapeHtml(formatTriggerName(sim.triggerName))} • <b>Ciclo:</b> ${escapeHtml(cycleName)} • <b>RS na Entrada:</b> ${escapeHtml(rsInfo.badgeText)} • <b>Setor:</b> ${escapeHtml(sim.sector || 'Geral')} • <b>Data do Sinal:</b> ${formatDateBR(sim.signalDate)}
               </div>
             </td>
             <td style="text-align: right; vertical-align: middle;">
+              <span style="display: inline-block; background: ${rsCol.bg}; color: ${rsCol.text}; border: 1px solid ${rsCol.border}; font-weight: 700; font-size: 11px; padding: 4px 8px; border-radius: 6px; margin-right: 6px;">
+                RS ${escapeHtml(rsInfo.badgeText)}
+              </span>
+              <span style="display: inline-block; background: ${cycleCol.bg}; color: ${cycleCol.text}; border: 1px solid ${cycleCol.border}; font-weight: 700; font-size: 11px; padding: 4px 8px; border-radius: 6px; margin-right: 6px;">
+                ● ${escapeHtml(cycleName)}
+              </span>
               <span style="display: inline-block; background: ${gradeCol.bg}; color: ${gradeCol.text}; border: 1px solid ${gradeCol.border}; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 6px; margin-right: 6px;">
                 GRADE ${escapeHtml(sim.grade || '—')}
               </span>
@@ -897,6 +993,9 @@
     const statusLabel = getStatusLabel(sim.status);
     const duration = calculateDurationDays(sim);
     const vision = resolveVisionAtivo(sim);
+    const cycleName = resolveMarketCycleName(sim);
+    const rsInfo = resolveEntryRsInfo(sim);
+    const modeLabel = resolveSimulationModeLabel(sim);
 
     const entry = Number(sim.entryPrice) || 0;
     const stop = Number(sim.stopLoss) || 0;
@@ -908,7 +1007,7 @@
     const resultColor = sim.resultR > 0 ? '#16a34a' : (sim.resultR < 0 ? '#dc2626' : '#475569');
     const resultStr = formatR(sim.resultR);
 
-    const noteTitle = `${sim.symbol} — ${sim.triggerName} [Grade ${sim.grade || '—'}] (${resultStr !== '—' ? resultStr : statusLabel})`;
+    const noteTitle = `${sim.symbol} — ${formatTriggerName(sim.triggerName)} [Grade ${sim.grade || '—'}] (${resultStr !== '—' ? resultStr : statusLabel})`;
 
     const createdDate = toEvernoteDate(sim.signalDate || sim.entryDate);
     const updatedDate = toEvernoteDate(sim.exitDate || sim.entryDate || sim.signalDate);
@@ -922,7 +1021,7 @@
       ${escapeXml(sim.symbol)} <span style="font-size: 14px; color: #64748b;">${escapeXml(sim.companyName || '')}</span>
     </div>
     <div style="font-size: 12px; color: #475569; margin-top: 4px;">
-      <b>Gatilho:</b> ${escapeXml(sim.triggerName)} | <b>Nota:</b> Grade ${escapeXml(sim.grade || '—')} | <b>Status:</b> ${escapeXml(statusLabel)} | <b>Setor:</b> ${escapeXml(sim.sector || 'Geral')}
+      <b>Modo:</b> ${escapeXml(modeLabel)} | <b>Gatilho:</b> ${escapeXml(formatTriggerName(sim.triggerName))} | <b>Nota:</b> Grade ${escapeXml(sim.grade || '—')} | <b>Ciclo:</b> ${escapeXml(cycleName)} | <b>RS na Entrada:</b> ${escapeXml(rsInfo.badgeText)} | <b>Status:</b> ${escapeXml(statusLabel)} | <b>Setor:</b> ${escapeXml(sim.sector || 'Geral')}
     </div>
     <div style="font-size: 12px; color: #475569; margin-top: 2px;">
       <b>Data do Sinal:</b> ${formatDateBR(sim.signalDate)} | <b>Data de Entrada:</b> ${formatDateBR(sim.entryDate)} | <b>Data de Saída:</b> ${formatDateBR(sim.exitDate)} | <b>Duração:</b> ${formatDurationDays(duration)}
@@ -976,7 +1075,7 @@
 
   ${sim.structure ? `
   <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 16px; font-size: 11px;">
-    <div style="font-weight: bold; margin-bottom: 6px;">📦 Estrutura de Compressão (${escapeXml(sim.triggerName)})</div>
+    <div style="font-weight: bold; margin-bottom: 6px;">📦 Estrutura de Compressão (${escapeXml(formatTriggerName(sim.triggerName))})</div>
     <div>Candle-mãe: Máx ${formatMoney(sim.structure.motherCandle?.high)} / Mín ${formatMoney(sim.structure.motherCandle?.low)} (Range: ${formatMoney(sim.structure.motherCandle?.range)})</div>
     ${sim.structure.ib1 ? `<div>Inside Bar 1: Máx ${formatMoney(sim.structure.ib1.high)} / Mín ${formatMoney(sim.structure.ib1.low)} (Contração: ${sim.structure.ib1.compressionPct || '—'}%)</div>` : ''}
     ${sim.structure.ib2 ? `<div>Inside Bar 2: Máx ${formatMoney(sim.structure.ib2.high)} / Mín ${formatMoney(sim.structure.ib2.low)} (Contração: ${sim.structure.ib2.compressionPct || '—'}%)</div>` : ''}
@@ -1018,7 +1117,7 @@
     <tag>HealthyTrendTrader</tag>
     <tag>Simulador</tag>
     <tag>${escapeXml(sim.symbol)}</tag>
-    <tag>${escapeXml(sim.triggerName)}</tag>
+    <tag>${escapeXml(formatTriggerName(sim.triggerName))}</tag>
     <tag>Grade ${escapeXml(sim.grade || '—')}</tag>
     <tag>${escapeXml(statusLabel)}</tag>
     <note-attributes>
@@ -1051,30 +1150,38 @@ ${notesXml}
     if (!list.length) return '';
 
     const headers = [
-      'Ativo', 'Gatilho', 'Nota', 'Setor', 'Data do Sinal',
+      'Ativo', 'Gatilho', 'Nota', 'Ciclo de Mercado', 'Setor', 'Data do Sinal',
       'Preço Entrada', 'Stop Loss', 'Status', 'Duração (Dias)', 'Preço Executado', 'Data Entrada',
-      'Preço Saída', 'Data Saída', 'Motivo Saída', 'Resultado (R)', 'MFE (R)', 'MAE (R)'
+      'Preço Saída', 'Data Saída', 'Motivo Saída', 'Resultado (R)', 'MFE (R)', 'MAE (R)',
+      'RS na Entrada', 'Modo da Simulação'
     ];
 
-    const rows = list.map(s => [
-      s.symbol,
-      s.triggerName,
-      s.grade || '—',
-      s.sector || '—',
-      s.signalDate || '—',
-      s.entryPrice != null ? s.entryPrice.toFixed(2).replace('.', ',') : '',
-      s.stopLoss != null ? s.stopLoss.toFixed(2).replace('.', ',') : '',
-      getStatusLabel(s.status),
-      calculateDurationDays(s) ?? '',
-      s.executedEntryPrice != null ? s.executedEntryPrice.toFixed(2).replace('.', ',') : '',
-      s.entryDate || '',
-      s.exitPrice != null ? s.exitPrice.toFixed(2).replace('.', ',') : '',
-      s.exitDate || '',
-      s.exitReason || '',
-      s.resultR != null ? s.resultR.toFixed(2).replace('.', ',') : '',
-      s.mfeR != null ? s.mfeR.toFixed(2).replace('.', ',') : '',
-      s.maeR != null ? s.maeR.toFixed(2).replace('.', ',') : ''
-    ]);
+    const rows = list.map(s => {
+      const rsInfo = resolveEntryRsInfo(s);
+      const modeLabel = resolveSimulationModeLabel(s, options);
+      return [
+        s.symbol,
+        formatTriggerName(s.triggerName),
+        s.grade || '—',
+        resolveMarketCycleName(s),
+        s.sector || '—',
+        s.signalDate || '—',
+        s.entryPrice != null ? s.entryPrice.toFixed(2).replace('.', ',') : '',
+        s.stopLoss != null ? s.stopLoss.toFixed(2).replace('.', ',') : '',
+        getStatusLabel(s.status),
+        calculateDurationDays(s) ?? '',
+        s.executedEntryPrice != null ? s.executedEntryPrice.toFixed(2).replace('.', ',') : '',
+        s.entryDate || '',
+        s.exitPrice != null ? s.exitPrice.toFixed(2).replace('.', ',') : '',
+        s.exitDate || '',
+        s.exitReason || '',
+        s.resultR != null ? s.resultR.toFixed(2).replace('.', ',') : '',
+        s.mfeR != null ? s.mfeR.toFixed(2).replace('.', ',') : '',
+        s.maeR != null ? s.maeR.toFixed(2).replace('.', ',') : '',
+        rsInfo.formatted,
+        modeLabel
+      ];
+    });
 
     return '\uFEFF' + [
       headers.join(';'),
@@ -1104,6 +1211,10 @@ ${notesXml}
     getStatusLabel,
     getStatusColor,
     getGradeBadgeColor,
+    resolveMarketCycleName,
+    getMarketCycleColor,
+    resolveEntryRsInfo,
+    resolveSimulationModeLabel,
     resolveVisionAtivo,
     resolveCandles,
     calculateDurationDays

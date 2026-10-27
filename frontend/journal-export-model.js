@@ -159,6 +159,12 @@
 
       lines.push('========================================');
       lines.push(`${dateFormatted}${weekday ? ' — ' + weekday : ''}`);
+      if (r.title) {
+        const tagPart = r.dayTag ? ` [${r.dayTag}]` : (r.dayColor ? ` [${r.dayColor}]` : '');
+        lines.push(`Título: ${r.title}${tagPart}`);
+      } else if (r.dayTag) {
+        lines.push(`Label do dia: ${r.dayTag}`);
+      }
       lines.push('========================================');
       lines.push('');
 

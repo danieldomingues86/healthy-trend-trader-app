@@ -2776,3 +2776,793 @@ body[data-theme="gold"] #journal .jv-training-option-btn.opt-na.is-selected .jv-
   background: #6c757d !important;
   color: #ffffff !important;
 }
+
+
+/* ==========================================================================
+   Título do Dia, Labels/Cores e Gravação de Áudio no Diário (Design Premium)
+   ========================================================================== */
+
+#journal .jv-day-identity {
+  padding: 14px 36px 16px;
+  background: linear-gradient(90deg, #e8dfcc 0%, #f7f2e4 43%, #d5c8af 49.5%, #c5b89e 50%, #f5eedd 56%, #e6ddc9 100%) !important;
+  border-bottom: 1px solid rgba(139, 115, 85, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 2;
+}
+
+#journal .jv-day-identity.is-red {
+  border-left: 5px solid #ef4444;
+  background: linear-gradient(90deg, #faeeee 0%, #f8f3e7 43%, #d5c8af 49.5%, #c5b89e 50%, #f5eedd 56%, #e6ddc9 100%) !important;
+}
+#journal .jv-day-identity.is-green {
+  border-left: 5px solid #10b981;
+  background: linear-gradient(90deg, #ecf9f2 0%, #f8f3e7 43%, #d5c8af 49.5%, #c5b89e 50%, #f5eedd 56%, #e6ddc9 100%) !important;
+}
+#journal .jv-day-identity.is-yellow {
+  border-left: 5px solid #f59e0b;
+  background: linear-gradient(90deg, #fdf8eb 0%, #f8f3e7 43%, #d5c8af 49.5%, #c5b89e 50%, #f5eedd 56%, #e6ddc9 100%) !important;
+}
+#journal .jv-day-identity.is-blue {
+  border-left: 5px solid #3b82f6;
+  background: linear-gradient(90deg, #eef5ff 0%, #f8f3e7 43%, #d5c8af 49.5%, #c5b89e 50%, #f5eedd 56%, #e6ddc9 100%) !important;
+}
+#journal .jv-day-identity.is-purple {
+  border-left: 5px solid #8b5cf6;
+  background: linear-gradient(90deg, #f6f0ff 0%, #f8f3e7 43%, #d5c8af 49.5%, #c5b89e 50%, #f5eedd 56%, #e6ddc9 100%) !important;
+}
+
+#journal .jv-day-title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+#journal .jv-day-title-icon {
+  font-size: 18px;
+  color: #7a5e3a;
+  flex-shrink: 0;
+}
+
+#journal .jv-day-title-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 2px dashed rgba(120, 95, 60, 0.4);
+  padding: 5px 2px;
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a271d !important;
+  letter-spacing: -0.01em;
+  outline: none;
+  transition: all 0.18s ease;
+}
+
+#journal .jv-day-title-input::placeholder {
+  font-style: italic;
+  font-weight: 400;
+  color: #7b8875 !important;
+  font-size: 15px;
+}
+
+#journal .jv-day-title-input:focus {
+  border-bottom: 2px solid #0f643b;
+  color: #0d1e13 !important;
+}
+
+#journal .jv-day-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-top: 2px;
+}
+
+#journal .jv-day-color-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#journal .jv-meta-label {
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #55442e !important;
+}
+
+#journal .jv-color-bead {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(120, 95, 60, 0.4);
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+#journal .jv-color-bead:hover {
+  transform: scale(1.18);
+  border-color: #3b2c19;
+}
+
+#journal .jv-color-bead.is-selected {
+  border-color: #1a271d;
+  box-shadow: 0 0 0 2.5px #d4af37, 0 2px 7px rgba(0, 0, 0, 0.22);
+  transform: scale(1.22);
+}
+
+#journal .jv-bead-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.7), 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+#journal .jv-color-clear-btn {
+  margin-left: 4px;
+  padding: 3px 8px;
+  background: #f4eee2;
+  border: 1px solid rgba(120, 95, 60, 0.35);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #55442e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#journal .jv-color-clear-btn:hover {
+  background: #e9e0ce;
+  color: #1a271d;
+}
+
+#journal .jv-day-tag-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#journal .jv-day-tag-pill-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1.5px solid rgba(120, 95, 60, 0.35);
+  padding: 4px 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.16s ease;
+}
+
+#journal .jv-day-tag-pill-input-wrap.is-red {
+  background: #fff5f5;
+  border-color: #ef4444;
+}
+#journal .jv-day-tag-pill-input-wrap.is-green {
+  background: #f0fdf4;
+  border-color: #10b981;
+}
+#journal .jv-day-tag-pill-input-wrap.is-yellow {
+  background: #fffbeb;
+  border-color: #f59e0b;
+}
+#journal .jv-day-tag-pill-input-wrap.is-blue {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+#journal .jv-day-tag-pill-input-wrap.is-purple {
+  background: #faf5ff;
+  border-color: #8b5cf6;
+}
+
+#journal .jv-day-tag-input {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a271d !important;
+  width: 150px;
+  outline: none;
+}
+
+#journal .jv-day-tag-pill-input-wrap.is-red .jv-day-tag-input { color: #b91c1c !important; }
+#journal .jv-day-tag-pill-input-wrap.is-green .jv-day-tag-input { color: #047857 !important; }
+#journal .jv-day-tag-pill-input-wrap.is-yellow .jv-day-tag-input { color: #b45309 !important; }
+#journal .jv-day-tag-pill-input-wrap.is-blue .jv-day-tag-input { color: #1d4ed8 !important; }
+#journal .jv-day-tag-pill-input-wrap.is-purple .jv-day-tag-input { color: #6d28d9 !important; }
+
+/* Force readable contrast in Gold/Dark theme */
+body:not([data-theme="healthy"]) #journal .jv-day-identity,
+body[data-theme="gold"] #journal .jv-day-identity {
+  background: linear-gradient(90deg, #e8dfcc 0%, #f7f2e4 43%, #d5c8af 49.5%, #c5b89e 50%, #f5eedd 56%, #e6ddc9 100%) !important;
+}
+body:not([data-theme="healthy"]) #journal .jv-day-title-input,
+body[data-theme="gold"] #journal .jv-day-title-input {
+  color: #1a271d !important;
+}
+body:not([data-theme="healthy"]) #journal .jv-meta-label,
+body[data-theme="gold"] #journal .jv-meta-label {
+  color: #55442e !important;
+}
+body:not([data-theme="healthy"]) #journal .jv-day-tag-input,
+body[data-theme="gold"] #journal .jv-day-tag-input {
+  color: #1a271d !important;
+}
+body:not([data-theme="healthy"]) #journal .jv-day-tag-pill-input-wrap.is-red .jv-day-tag-input,
+body[data-theme="gold"] #journal .jv-day-tag-pill-input-wrap.is-red .jv-day-tag-input {
+  color: #b91c1c !important;
+}
+
+/* Sidebar History Filter and Badges */
+#journal .jv-history-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0 10px;
+  padding: 4px 8px;
+  background: rgba(6, 32, 18, 0.65);
+  border: 1px solid rgba(114, 170, 123, 0.22);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+}
+
+#journal .jv-filter-pill {
+  padding: 3px 9px;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #a4c4a8;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+#journal .jv-filter-pill.is-active,
+#journal .jv-filter-pill:hover {
+  background: linear-gradient(135deg, #075731, #0a6c3d);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+#journal .jv-filter-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#journal .jv-filter-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+#journal .jv-filter-dot:hover {
+  transform: scale(1.15);
+}
+
+#journal .jv-filter-dot.is-active {
+  border-color: #dfc482;
+  box-shadow: 0 0 0 2px rgba(223, 196, 130, 0.35);
+  transform: scale(1.12);
+}
+
+#journal .jv-dot-circle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+#journal .jv-dot-badge {
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  min-width: 13px;
+  height: 13px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: #dfc482;
+  color: #0c2217;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 13px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+#journal .jv-history-btn {
+  width: 100%;
+  background: transparent;
+  color: var(--jv-tone-d2dfce, #d2dfce);
+  border: 0;
+  border-left: 3px solid transparent;
+  border-radius: 5px;
+  padding: 7px 8px;
+  text-align: left;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.35;
+  cursor: pointer;
+  transition: background 0.16s ease;
+}
+
+#journal .jv-history-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#journal .jv-history-btn[aria-current] {
+  background: var(--jv-tone-b5d8af16, rgba(181, 216, 175, 0.12));
+  border-left-color: var(--jv-tone-a1caa3, #a1caa3);
+  color: #ffffff;
+}
+
+#journal .jv-history-btn.jv-btn-color-red {
+  border-left-color: #ef4444 !important;
+}
+#journal .jv-history-btn.jv-btn-color-green {
+  border-left-color: #10b981 !important;
+}
+#journal .jv-history-btn.jv-btn-color-yellow {
+  border-left-color: #f59e0b !important;
+}
+#journal .jv-history-btn.jv-btn-color-blue {
+  border-left-color: #3b82f6 !important;
+}
+#journal .jv-history-btn.jv-btn-color-purple {
+  border-left-color: #8b5cf6 !important;
+}
+
+#journal .jv-history-btn time {
+  flex-shrink: 0;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #a4bba1;
+  margin-top: 1px;
+  min-width: 52px;
+}
+
+#journal .jv-history-item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+#journal .jv-history-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
+}
+
+#journal .jv-history-item-title {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #e8f0e5;
+  flex: 1;
+  min-width: 0;
+}
+
+#journal .jv-history-today-pill {
+  display: inline-block;
+  padding: 1px 4px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+#journal .jv-history-tag-pill {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 3px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+#journal .jv-history-tag-pill.jv-tag-red {
+  background: rgba(239, 68, 68, 0.22);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+#journal .jv-history-tag-pill.jv-tag-green {
+  background: rgba(16, 185, 129, 0.22);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+}
+
+#journal .jv-history-tag-pill.jv-tag-yellow {
+  background: rgba(245, 158, 11, 0.22);
+  color: #fde68a;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+#journal .jv-history-tag-pill.jv-tag-blue {
+  background: rgba(59, 130, 246, 0.22);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+}
+
+#journal .jv-history-tag-pill.jv-tag-purple {
+  background: rgba(139, 92, 246, 0.22);
+  color: #d8b4fe;
+  border: 1px solid rgba(139, 92, 246, 0.45);
+}
+
+/* Audio Recording & Evidence Strip */
+#journal .jv-evidence-record-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  width: 90px;
+  height: 90px;
+  border: 1px dashed rgba(88, 124, 75, 0.55);
+  border-radius: 8px;
+  background: rgba(235, 243, 233, 0.7);
+  color: var(--jv-tone-194f31, #194f31);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+#journal .jv-evidence-record-btn:hover {
+  background: rgba(220, 238, 218, 0.9);
+  border-color: #27ae60;
+  transform: translateY(-1px);
+}
+
+#journal .jv-evidence-record-btn.is-recording {
+  border-color: #ef4444;
+  background: rgba(254, 226, 226, 0.85);
+  color: #b91c1c;
+  animation: jv-pulse-rec 1.4s infinite ease-in-out;
+}
+
+#journal .jv-evidence-record-btn .jv-mic-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+}
+
+@keyframes jv-pulse-rec {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+}
+
+#journal .jv-audio-recording-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 18px;
+  background: linear-gradient(90deg, #fff1f2 0%, #ffe4e6 100%);
+  border: 1px solid #fecdd3;
+  border-left: 4px solid #ef4444;
+  border-radius: 10px;
+  margin: 12px 0 16px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+#journal .jv-recording-pulse {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#journal .jv-pulse-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  animation: jv-pulse-dot 1.2s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+
+@keyframes jv-pulse-dot {
+  to { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+}
+
+#journal .jv-rec-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #991b1b;
+  text-transform: uppercase;
+}
+
+#journal .jv-rec-timer {
+  font-family: monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+#journal .jv-rec-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#journal .jv-btn-save-audio {
+  background: #dc2626;
+  color: #ffffff;
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.16s ease;
+}
+
+#journal .jv-btn-save-audio:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+#journal .jv-btn-cancel-audio {
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#journal .jv-btn-cancel-audio:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #374151;
+}
+
+#journal .jv-audio-player-list {
+  margin-top: 14px;
+}
+
+#journal .jv-audio-list-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--jv-tone-194f31, #194f31);
+  margin-bottom: 8px;
+}
+
+#journal .jv-audio-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+#journal .jv-audio-card {
+  background: #faf8f2;
+  border: 1px solid rgba(122, 105, 76, 0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+#journal .jv-audio-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#journal .jv-audio-card-icon {
+  font-size: 18px;
+}
+
+#journal .jv-audio-card-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+#journal .jv-audio-card-title {
+  display: block;
+  font-size: 13px;
+  color: #1f2d24;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#journal .jv-audio-card-time {
+  display: block;
+  font-size: 11px;
+  color: #65745c;
+}
+
+#journal .jv-audio-delete-btn {
+  background: transparent;
+  border: 0;
+  color: #9ca3af;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+#journal .jv-audio-delete-btn:hover {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+#journal .jv-inline-audio-player {
+  width: 100%;
+  height: 38px;
+  border-radius: 6px;
+  outline: none;
+}
+
+@media (max-width: 900px) {
+  #journal .jv-day-identity {
+    padding: 10px 18px 12px;
+  }
+  #journal .jv-day-meta-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+
+/* Top of the Day Audio Recording Button & Players */
+#journal .jv-top-audio-record-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #075731 0%, #0c6a3c 100%);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(7, 87, 49, 0.25);
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+#journal .jv-top-audio-record-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(7, 87, 49, 0.35);
+  filter: brightness(1.08);
+}
+
+#journal .jv-top-audio-record-btn.is-recording {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  border-color: #ef4444;
+  animation: jv-pulse-rec 1.4s infinite ease-in-out;
+}
+
+#journal .jv-top-mic-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+
+#journal .jv-top-mic-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+#journal .jv-audio-count-pill {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+#journal .jv-top-audio-players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+  width: 100%;
+}
+
+#journal .jv-top-audio-item {
+  flex: 1 1 320px;
+  max-width: 520px;
+  background: #ffffff;
+  border: 1.5px solid rgba(120, 95, 60, 0.3);
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+#journal .jv-top-audio-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+#journal .jv-top-audio-icon {
+  font-size: 15px;
+}
+
+#journal .jv-top-audio-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a271d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+#journal .jv-top-audio-time {
+  font-size: 11px;
+  color: #7b8875;
+  font-weight: 600;
+}
+
+#journal .jv-top-player {
+  width: 100%;
+  height: 32px;
+}
+
+@media (max-width: 768px) {
+  #journal .jv-day-title-container {
+    flex-wrap: wrap;
+  }
+  #journal .jv-top-audio-record-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

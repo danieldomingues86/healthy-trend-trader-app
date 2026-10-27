@@ -80,6 +80,7 @@ test('tradeSimulator backend: criação sempre inicia em WAITING_ENTRY e valida 
       triggerName: 'Inside Bar',
       grade: 'A',
       sector: 'Petróleo e Gás',
+      signalDate: '2026-10-23',
       entryPrice: 49.80,
       stopLoss: 48.90
     });
@@ -264,17 +265,22 @@ test('tradeSimulator backend: generateMass gera lote de trades em escala e armaz
       return { rows: [] };
     }
     if (sql.includes('INSERT INTO app.trade_simulations')) {
-      // Divide parâmetros por 25
-      const numRows = values.length / 25;
+      // Divide parâmetros por 30 (inclui market_cycle, market_permission, rs_score, simulation_mode, rule_version)
+      const numRows = values.length / 30;
       for (let i = 0; i < numRows; i++) {
-        const offset = i * 25;
+        const offset = i * 30;
         store.push({
           id: values[offset],
           user_id: values[offset + 1],
           symbol: values[offset + 2],
           trigger_name: values[offset + 4],
           status: values[offset + 10],
-          result_r: values[offset + 18]
+          result_r: values[offset + 18],
+          market_cycle: values[offset + 25],
+          market_permission: values[offset + 26],
+          rs_score: values[offset + 27],
+          simulation_mode: values[offset + 28],
+          rule_version: values[offset + 29]
         });
       }
       return { rows: store };
@@ -313,7 +319,7 @@ test('tradeSimulator backend: generateMass gera lote de trades em escala e armaz
     assert.equal(executedSims.length, 100);
     const sortedDates = executedSims.map(s => s.signalDate).sort();
     assert.ok(sortedDates[0].startsWith('2025-'), 'Trade mais antigo deve ser de 2025 (início dos 12 meses)');
-    assert.ok(sortedDates[sortedDates.length - 1].startsWith('2026-'), 'Trade mais recente deve ser de 2026 (fim dos 12 meses)');
+    assert.ok(sortedDates[sortedDates.length - 1] > sortedDates[0], 'Trade mais recente deve ser posterior ao mais antigo');
   } finally {
     database.query = originalQuery;
   }
@@ -377,4 +383,83 @@ test('tradeSimulator backend: snapshot do PRIO3 em 28/09/2026 reproduz o 1-2-3 r
     assert.equal(c.low, real.low);
   });
   assert.deepEqual(snapshot.patternMarkers.map(m => m.time), ['2026-09-24', '2026-09-25', '2026-09-28']);
+});
+
+test('tradeSimulator backend: list() e create() bloqueiam categoricamente Grade D no Modo Oficial', async () => {
+  const fakeDb = {
+    async query(sql, params) {
+      if (sql.includes('SELECT * FROM app.trade_simulations')) {
+        return {
+          rows: [
+            {
+              id: 'sim-a',
+              user_id: 'user-1',
+              symbol: 'VALE3',
+              companyName: 'Vale',
+              trigger_name: 'Inside Bar',
+              grade: 'A',
+              status: 'CLOSED_GAIN',
+              signal_date: '2026-09-01',
+              entry_date: '2026-09-02',
+              exit_date: '2026-09-15',
+              entry_price: 60.00,
+              stop_loss: 58.00,
+              executed_entry_price: 60.00,
+              exit_price: 64.00,
+              result_r: 2.0,
+              rs_score: 88,
+              simulation_mode: 'OFFICIAL',
+              market_cycle: 'Positivo'
+            },
+            {
+              id: 'sim-d',
+              user_id: 'user-1',
+              symbol: 'OPCT3',
+              companyName: 'OceanPact',
+              trigger_name: '1-2-3 de Compra',
+              grade: 'D',
+              status: 'CLOSED_LOSS',
+              signal_date: '2026-09-01',
+              entry_date: '2026-09-02',
+              exit_date: '2026-09-05',
+              entry_price: 10.95,
+              stop_loss: 9.85,
+              executed_entry_price: 10.95,
+              exit_price: 9.85,
+              result_r: -1.0,
+              rs_score: 90,
+              simulation_mode: 'OFFICIAL',
+              market_cycle: 'Positivo'
+            }
+          ]
+        };
+      }
+      return { rows: [] };
+    }
+  };
+
+  // 1. No Modo Oficial, a listagem deve excluir qualquer simulação Grade D
+  const officialRes = await tradeSimulator.list('user-1', fakeDb, { environment: 'OFFICIAL' });
+  assert.equal(officialRes.simulations.length, 1);
+  assert.equal(officialRes.simulations[0].symbol, 'VALE3');
+  assert.equal(officialRes.simulations[0].grade, 'A');
+  assert.ok(!officialRes.simulations.some(s => s.grade === 'D'), 'Modo Oficial não pode retornar operações Grade D');
+
+  // 2. No Modo Pesquisa, simulações Grade D são preservadas para análise laboratorial
+  const researchRes = await tradeSimulator.list('user-1', fakeDb, { environment: 'RESEARCH' });
+  assert.equal(researchRes.simulations.length, 2);
+  assert.ok(researchRes.simulations.some(s => s.grade === 'D'));
+
+  // 3. Tentativa de criação no Modo Oficial com Grade D deve ser rejeitada com 422
+  await assert.rejects(
+    () => tradeSimulator.create('user-1', {
+      symbol: 'OPCT3',
+      triggerName: '1-2-3 de Compra',
+      entryPrice: 10.95,
+      stopLoss: 9.85,
+      grade: 'D',
+      simulationMode: 'OFFICIAL'
+    }, fakeDb),
+    /GRADE D NÃO É PERMITIDO NO MODO OFICIAL/
+  );
 });

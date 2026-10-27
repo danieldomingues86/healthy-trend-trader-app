@@ -255,7 +255,6 @@
     if (id === 'INSIDE_BAR') return 'Inside Bar';
     if (id === '123_COMPRA') return '123 Buy';
     if (id === 'PFR_COMPRA') return 'PFR de Compra';
-    if (id === 'DAVE_LANDRY') return 'Dave Landry';
     if (id === 'RBI') return 'Barra Vermelha Ignorada';
     return String(trigger.name || id);
   }

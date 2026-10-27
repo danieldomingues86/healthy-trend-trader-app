@@ -170,9 +170,16 @@
         {
           id: 'tradesimulator',
           title: 'Simulador de Trades',
-          desc: 'Ambiente de testes e cenários.',
+          desc: 'Modo Oficial — Regras vigentes do método.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 7 13 11 18 6"/></svg>`,
           page: 'tradesimulator'
+        },
+        {
+          id: 'researchlab',
+          title: 'Laboratório de Pesquisa',
+          desc: 'Modo Aberto — Descobertas e regras candidatas.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2v7.31M14 9.3V1.99M8.5 2h7M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>`,
+          page: 'researchlab'
         },
         {
           id: 'forecast',
@@ -1044,6 +1051,7 @@
               manual: 'Manual do Software',
               about: 'Sobre',
               tradesimulator: 'Simulador de Trades',
+              researchlab: 'Laboratório de Pesquisa',
               forecast: 'Simulador de Equity'
             };
             const t = titleMap[pageId] || (typeof titles !== 'undefined' && titles[pageId]) || 'Meu Desktop';

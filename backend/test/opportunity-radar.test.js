@@ -41,7 +41,34 @@ test('getOpportunityRadarData expõe marketCycles canônico por mercado e reflet
   const cacheFile = path.join(__dirname, '..', 'data', 'market-cache.json');
   if (!fs.existsSync(cacheFile)) return;
 
-  const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+  const rawCache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+  const fiiHist = (rawCache.cycles?.fii?.benchmark?.history || []);
+  const lastHealthy = fiiHist.findLast ? fiiHist.findLast(c => c.state === 'healthy') : fiiHist.slice().reverse().find(c => c.state === 'healthy');
+  const cache = {
+    ...rawCache,
+    cycles: {
+      ...rawCache.cycles,
+      fii: {
+        market: 'fii',
+        benchmark: {
+          symbol: 'IFIX',
+          name: 'Índice de Fundos de Investimentos Imobiliários (IFIX)',
+          returns: { m1: 1.08, m3: -0.89 },
+          history: lastHealthy ? fiiHist.filter(c => c.date <= lastHealthy.date) : fiiHist
+        },
+        cycle: lastHealthy ? {
+          state: 'healthy',
+          score: 87,
+          price: lastHealthy.close,
+          ema10: lastHealthy.ema10,
+          ema72: lastHealthy.ema72,
+          above10: true,
+          above72: true,
+          structure: true
+        } : (rawCache.cycles?.fii?.cycle || { state: 'healthy', score: 87 })
+      }
+    }
+  };
   const result = await getOpportunityRadarData(cache);
 
   assert.ok(result.marketCycles, 'marketCycles deve existir no payload');

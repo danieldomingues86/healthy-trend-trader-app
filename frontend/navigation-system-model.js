@@ -364,8 +364,19 @@
       labelEn: 'Trade Simulator',
       category: 'simulators',
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 7 13 11 18 6"/></svg>`,
-      desc: 'Ambiente de testes e cenários de gestão.',
-      descEn: 'Testing environment and management scenarios.',
+      desc: 'Modo Oficial — Regras vigentes do método.',
+      descEn: 'Official Mode — Active method rules.',
+      proOnly: false
+    },
+    {
+      id: 'researchlab',
+      page: 'researchlab',
+      label: 'Laboratório de Pesquisa',
+      labelEn: 'Research Lab',
+      category: 'simulators',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2v7.31M14 9.3V1.99M8.5 2h7M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>`,
+      desc: 'Modo Aberto — Descobertas e regras candidatas.',
+      descEn: 'Open Mode — Discoveries and candidate rules.',
       proOnly: false
     },
     {

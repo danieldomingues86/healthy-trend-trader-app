@@ -1135,12 +1135,12 @@
       {
         "id": "livro-3-cap-9",
         "number": 9,
-        "title": "Cinco Gatilhos de Entrada",
-        "subtitle": "Inside Bar, PFR, 1-2-3, Dave Landry e Barra de Ignição (RBI)",
+        "title": "Quatro Gatilhos de Entrada",
+        "subtitle": "Inside Bar, PFR, 1-2-3 e Barra Vermelha Ignorada (RBI)",
         "cover": "assets/manual-knowledge/newtrade.jpg",
         "takeaways": [
           "Por que um setup precisa de um gatilho de execução claro e objetivo",
-          "Os 5 gatilhos oficiais rastreados pelo Healthy Trend Trader",
+          "Os 4 gatilhos oficiais rastreados pelo Healthy Trend Trader",
           "Onde posicionar a ordem start de compra e o stop técnico de perda",
           "A regra da barra de confirmação e a tolerância de rompimento"
         ],
@@ -1148,7 +1148,7 @@
           {
             "id": "visao-geral-gatilhos",
             "title": "9.1 O Papel dos Gatilhos Técnicos",
-            "content": "Um gatilho de entrada é a faísca que aciona a operação. Ele transforma a ideia de trade em um plano milimétrico de execução:\n1. **Inside Bar:** Barra contida na amplitude da barra anterior. Ativação no rompimento da máxima com stop na mínima da barra interna.\n2. **PFR (Preço de Fechamento de Reversão):** Barra que faz a menor mínima do movimento corretivo mas fecha acima do fechamento anterior.\n3. **1-2-3 de Fundo:** Pivô clássico de reversão de correção em direção à tendência principal.\n4. **Setup Dave Landry:** Correção em direção à EMA 21 com duas mínimas descendentes consecutivas.\n5. **RBI (Retração com Barra de Ignição):** Forte candle de convicção compradora rejeitando o suporte das médias."
+            "content": "Um gatilho de entrada é a faísca que aciona a operação. Ele transforma a ideia de trade em um plano milimétrico de execução:\n1. **Inside Bar:** Contração de volatilidade com barra contida. Ativação no rompimento da máxima (+0,01). **Regra Obrigatória do Método:** NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe).\n2. **PFR (Preço de Fechamento de Reversão):** Barra que faz a menor mínima do movimento corretivo mas fecha acima do fechamento anterior.\n3. **1-2-3 de Compra:** Pivô clássico de reversão de correção em direção à tendência principal.\n4. **RBI (Barra Vermelha Ignorada):** Forte candle de convicção compradora superando a máxima da barra vermelha corretiva."
           }
         ],
         "tip": "Nunca compre antes da máxima do gatilho ser superada. Comprar adiantado para economizar centavos é uma das maiores causas de stop em falso pivô.",
@@ -1877,11 +1877,11 @@
       {
         "id": "livro-4-cap-15",
         "number": 15,
-        "title": "Os 5 Gatilhos Oficiais de Entrada",
-        "subtitle": "Inside Bar, PFR, 1-2-3, Dave Landry e RBI com stops estruturais",
+        "title": "Os 4 Gatilhos Oficiais de Entrada",
+        "subtitle": "Inside Bar, PFR, 1-2-3 e RBI com stops estruturais",
         "cover": "assets/manual-knowledge/couragechallenge.jpg",
         "takeaways": [
-          "Fundamento matemático e conceitual de Os 5 Gatilhos Oficiais de Entrada",
+          "Fundamento matemático e conceitual de Os 4 Gatilhos Oficiais de Entrada",
           "Aplicação prática no motor de dimensionamento do Healthy Trend Trader",
           "Como a política de risco protege o patrimônio contra drawdowns severos",
           "Exemplos de cálculo e regras inegociáveis de governança"
@@ -1966,7 +1966,7 @@
           {
             "id": "sec-1",
             "title": "1.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -1999,7 +1999,7 @@
           {
             "id": "sec-2",
             "title": "2.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2032,7 +2032,7 @@
           {
             "id": "sec-3",
             "title": "3.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2065,7 +2065,7 @@
           {
             "id": "sec-4",
             "title": "4.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2098,7 +2098,7 @@
           {
             "id": "sec-5",
             "title": "5.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2131,7 +2131,7 @@
           {
             "id": "sec-6",
             "title": "6.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2164,7 +2164,7 @@
           {
             "id": "sec-7",
             "title": "7.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2197,7 +2197,7 @@
           {
             "id": "sec-8",
             "title": "8.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2230,7 +2230,7 @@
           {
             "id": "sec-9",
             "title": "9.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2263,7 +2263,7 @@
           {
             "id": "sec-10",
             "title": "10.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2296,7 +2296,7 @@
           {
             "id": "sec-11",
             "title": "11.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2329,7 +2329,7 @@
           {
             "id": "sec-12",
             "title": "12.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",
@@ -2362,7 +2362,7 @@
           {
             "id": "sec-13",
             "title": "13.1 Diretrizes de Gestão",
-            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
+            "content": "A condução de posições no Healthy Trend Trader baseia-se em regras estritas:\n- **Respeito ao Stop:** O stop inicial nunca é movido para trás. Ele apenas avança a favor da tendência conforme novas estruturas se formam.\n- **Stop Técnico por Gatilho (Regra Inegociável para Inside Bar):** Para o gatilho Inside Bar, NUNCA posicionar o stop no mesmo candle que dispara o trade. O stop inicial sempre deve ficar 0,01 centavo abaixo da mínima do CANDLE ANTERIOR ao gatilho (barra-mãe). Isso protege a operação contra falsos rompimentos e ruídos intradiários normais dentro da contração.\n- **Proteção do Lucro:** Ao atingir +2R, o stop é obrigatoriamente elevado para o Breakeven, eliminando o risco da conta.\n- **Risco Contínuo:** O Ongoing Risk acompanha a distância até o stop atual para a quantidade em aberto, alertando sobre qualquer exposição anômala."
           }
         ],
         "tip": "Deixe o mercado tirar você da posição. Nunca encerre um trade vencedor por ansiedade antes que o stop técnico ou a média de condução seja rompida.",

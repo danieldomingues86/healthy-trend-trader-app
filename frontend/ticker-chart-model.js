@@ -357,9 +357,665 @@
   const OFFICIAL_EMA_SLOW = 72;
 
   /**
+   * Validação estrita do padrão geométrico PFR de Compra (Preço de Fechamento de Reversão de fundo)
+   *
+   * Regra Oficial de 3 candles (Alexandre Wolwacz / Stormer):
+   * 1. Estrutura geométrica de fundo: a mínima do candle sinal deve ser estritamente inferior às
+   *    mínimas dos dois candles anteriores (c1.low < c2.low E c1.low < c3.low).
+   *    Isto impede categoricamente que sequências de candles ascendentes (continuidade de alta)
+   *    sejam confundidas com reversão.
+   * 2. Fechamento de reversão: o fechamento do candle sinal deve superar o fechamento do candle
+   *    imediatamente anterior (c1.close > c2.close).
+   * 3. Reação compradora: o candle sinal deve fechar em alta ou estável em relação à sua abertura
+   *    (c1.close >= c1.open), comprovando absorção da pressão vendedora e rejeição do fundo.
+   */
+  function validatePfrBuyPattern(c1, c2, c3) {
+    if (!c1 || !c2 || !c3) {
+      return {
+        isValid: false,
+        reason: 'Histórico insuficiente: requer pelo menos 3 candles para validar o padrão de reversão de fundo (PFR).',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    const c1Low = Number(c1.low);
+    const c2Low = Number(c2.low);
+    const c3Low = Number(c3.low);
+    const c1Close = Number(c1.close);
+    const c2Close = Number(c2.close);
+    const c1High = Number(c1.high);
+    const c1Open = Number(c1.open != null ? c1.open : c1Close);
+
+    if (
+      Number.isNaN(c1Low) || Number.isNaN(c2Low) || Number.isNaN(c3Low) ||
+      Number.isNaN(c1Close) || Number.isNaN(c2Close) || Number.isNaN(c1High) ||
+      c1High <= c1Low || Number(c2.high) <= c2Low || (c3.high != null && Number(c3.high) <= c3Low)
+    ) {
+      return {
+        isValid: false,
+        reason: 'Valores numéricos de OHLC inválidos ou corrompidos nos candles da formação de PFR.',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    const isLowerThanC2 = c1Low < c2Low;
+    const isLowerThanC3 = c1Low < c3Low;
+    const isBottomStructure = isLowerThanC2 && isLowerThanC3;
+    const closesAboveC2 = c1Close > c2Close;
+    const isBullishReversal = c1Close >= c1Open;
+
+    const audit = {
+      hasRequiredCandles: true,
+      candles: {
+        c1: { low: c1Low, high: c1High, open: c1Open, close: c1Close },
+        c2: { low: c2Low, high: Number(c2.high), open: Number(c2.open != null ? c2.open : c2Close), close: c2Close },
+        c3: { low: c3Low, high: Number(c3.high), open: Number(c3.open != null ? c3.open : Number(c3.close)), close: Number(c3.close) }
+      },
+      checks: {
+        lowerThanC2: { pass: isLowerThanC2, expected: `${c1Low.toFixed(2)} < ${c2Low.toFixed(2)}` },
+        lowerThanC3: { pass: isLowerThanC3, expected: `${c1Low.toFixed(2)} < ${c3Low.toFixed(2)} (estrutura de fundo)` },
+        closesAboveC2: { pass: closesAboveC2, expected: `${c1Close.toFixed(2)} > ${c2Close.toFixed(2)}` },
+        bullishReaction: { pass: isBullishReversal, expected: `${c1Close.toFixed(2)} >= ${c1Open.toFixed(2)}` }
+      }
+    };
+
+    if (!isBottomStructure) {
+      const reason = !isLowerThanC2
+        ? `Mínima atual (${c1Low.toFixed(2)}) não é menor que a mínima anterior (${c2Low.toFixed(2)}).`
+        : `Mínima atual (${c1Low.toFixed(2)}) não renovou o fundo em relação ao candle prévio c3 (${c3Low.toFixed(2)}). Sequência ascendente sem reversão de fundo.`;
+      return {
+        isValid: false,
+        reason,
+        audit
+      };
+    }
+
+    if (!closesAboveC2) {
+      return {
+        isValid: false,
+        reason: `Fechamento atual (${c1Close.toFixed(2)}) não superou o fechamento anterior (${c2Close.toFixed(2)}). Reversão não confirmada.`,
+        audit
+      };
+    }
+
+    if (!isBullishReversal) {
+      return {
+        isValid: false,
+        reason: `Candle de sinal fechou abaixo de sua abertura (${c1Close.toFixed(2)} < ${c1Open.toFixed(2)}). Barra vendedora sem rejeição de fundo.`,
+        audit
+      };
+    }
+
+    const entryPrice = Math.round((c1High + 0.01) * 100) / 100;
+    const stopLoss = Math.round((c1Low - 0.01) * 100) / 100;
+    const initialRisk = Math.round(Math.max(0.01, entryPrice - stopLoss) * 100) / 100;
+    const graphicRiskPct = entryPrice > 0 ? Math.round(((initialRisk / entryPrice) * 100) * 100) / 100 : 0;
+
+    return {
+      isValid: true,
+      reason: null,
+      triggerType: 'PFR de Compra',
+      entryPrice,
+      stopLoss,
+      initialRisk,
+      graphicRiskPct,
+      audit
+    };
+  }
+
+  /**
+   * Validação estrita da estrutura geométrica do padrão Double Inside Bar
+   * 
+   * Estrutura de três candles consecutivos no gráfico Diário:
+   * - mother (Candle 1 da formação / Candle-mãe): delimita a amplitude externa inicial.
+   * - ib1 (Candle 2 da formação / Inside Bar 1): estritamente contido no Candle-mãe (High IB1 < High mãe e Low IB1 > Low mãe).
+   * - ib2 (Candle 3 da formação / Inside Bar 2): estritamente contido no Inside Bar 1 (High IB2 < High IB1 e Low IB2 > Low IB1).
+   * 
+   * Níveis de Entrada e Stop:
+   * - Entrada: 1 tick (+R$ 0,01) acima da máxima do Inside Bar 2 (ib2.high + 0.01).
+   * - Stop Inicial Oficial HTT: 1 tick (-R$ 0,01) abaixo da mínima do CANDLE ANTERIOR ao gatilho (ib1.low - 0.01).
+   *   Regra mandatória: NUNCA posicionar o stop no mesmo candle que dispara o trade.
+   * - Stop Inicial Alternativo (Clássico): 1 tick (-R$ 0,01) abaixo da mínima de IB2 (ib2.low - 0.01).
+   * - Stop Mãe: 1 tick (-R$ 0,01) abaixo da mínima da barra-mãe (mother.low - 0.01).
+   * - Risco Gráfico: ((Entrada - Stop) / Entrada) * 100.
+   */
+  function calculateDoubleInsideBarStructure(mother, ib1, ib2) {
+    if (!mother || !ib1 || !ib2) {
+      return {
+        isValid: false,
+        reason: 'Candles incompletos para avaliar Double Inside Bar: requer 3 candles (mãe, ib1 e ib2).',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    const highMother = Number(mother.high);
+    const lowMother = Number(mother.low);
+    const highIb1 = Number(ib1.high);
+    const lowIb1 = Number(ib1.low);
+    const highIb2 = Number(ib2.high);
+    const lowIb2 = Number(ib2.low);
+
+    if (
+      Number.isNaN(highMother) || Number.isNaN(lowMother) ||
+      Number.isNaN(highIb1) || Number.isNaN(lowIb1) ||
+      Number.isNaN(highIb2) || Number.isNaN(lowIb2) ||
+      highMother <= lowMother || highIb1 <= lowIb1 || highIb2 <= lowIb2
+    ) {
+      return {
+        isValid: false,
+        reason: 'Valores numéricos de máxima e mínima inválidos ou corrompidos nos candles da estrutura Double Inside Bar.',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    const isIb1InsideMother = highIb1 < highMother && lowIb1 > lowMother;
+    const isIb2InsideIb1 = highIb2 < highIb1 && lowIb2 > lowIb1;
+    const isValid = isIb1InsideMother && isIb2InsideIb1;
+
+    let reason = null;
+    if (!isIb1InsideMother) {
+      if (highIb1 >= highMother && lowIb1 <= lowMother) {
+        reason = `Inside Bar 1 violou os limites da barra-mãe (High ${highIb1.toFixed(2)} >= ${highMother.toFixed(2)} e Low ${lowIb1.toFixed(2)} <= ${lowMother.toFixed(2)}).`;
+      } else if (highIb1 >= highMother) {
+        reason = `Inside Bar 1 não está contido na barra-mãe: máxima ${highIb1.toFixed(2)} >= máxima mãe ${highMother.toFixed(2)}.`;
+      } else {
+        reason = `Inside Bar 1 não está contido na barra-mãe: mínima ${lowIb1.toFixed(2)} <= mínima mãe ${lowMother.toFixed(2)}.`;
+      }
+    } else if (!isIb2InsideIb1) {
+      if (highIb2 >= highIb1 && lowIb2 <= lowIb1) {
+        reason = `Inside Bar 2 violou os limites do Inside Bar 1 (High ${highIb2.toFixed(2)} >= ${highIb1.toFixed(2)} e Low ${lowIb2.toFixed(2)} <= ${lowIb1.toFixed(2)}).`;
+      } else if (highIb2 >= highIb1) {
+        reason = `Inside Bar 2 não está contido no Inside Bar 1: máxima ${highIb2.toFixed(2)} >= máxima IB1 ${highIb1.toFixed(2)}.`;
+      } else {
+        reason = `Inside Bar 2 não está contido no Inside Bar 1: mínima ${lowIb2.toFixed(2)} <= mínima IB1 ${lowIb1.toFixed(2)}.`;
+      }
+    }
+
+    const motherRange = Math.round(Math.max(0, highMother - lowMother) * 100) / 100;
+    const ib1Range = Math.round(Math.max(0, highIb1 - lowIb1) * 100) / 100;
+    const ib2Range = Math.round(Math.max(0, highIb2 - lowIb2) * 100) / 100;
+
+    const ib1CompressionRatio = motherRange > 0 ? Math.round((ib1Range / motherRange) * 100) / 100 : 0;
+    const ib2CompressionRatio = ib1Range > 0 ? Math.round((ib2Range / ib1Range) * 100) / 100 : 0;
+    const totalCompressionRatio = motherRange > 0 ? Math.round((ib2Range / motherRange) * 100) / 100 : 0;
+
+    const ib1CompressionPct = Math.round(ib1CompressionRatio * 1000) / 10;
+    const ib2CompressionPct = Math.round(ib2CompressionRatio * 1000) / 10;
+    const totalCompressionPct = Math.round(totalCompressionRatio * 1000) / 10;
+    const totalContractionPct = Math.round(Math.max(0, 100 - totalCompressionPct) * 10) / 10;
+
+    const entryPrice = Math.round((highIb2 + 0.01) * 100) / 100;
+    const stopLoss = Math.round((lowIb1 - 0.01) * 100) / 100;
+    const stopLossIb1 = stopLoss;
+    const stopLossIb2 = Math.round((lowIb2 - 0.01) * 100) / 100;
+    const stopLossMother = Math.round((lowMother - 0.01) * 100) / 100;
+    const initialRisk = Math.round(Math.max(0.01, entryPrice - stopLoss) * 100) / 100;
+    const graphicRiskPct = entryPrice > 0 ? Math.round(((initialRisk / entryPrice) * 100) * 100) / 100 : 0;
+
+    const audit = {
+      hasRequiredCandles: true,
+      checks: {
+        ib1InsideMother: {
+          pass: isIb1InsideMother,
+          expected: `High IB1 (${highIb1.toFixed(2)}) < High Mãe (${highMother.toFixed(2)}) e Low IB1 (${lowIb1.toFixed(2)}) > Low Mãe (${lowMother.toFixed(2)})`
+        },
+        ib2InsideIb1: {
+          pass: isIb2InsideIb1,
+          expected: `High IB2 (${highIb2.toFixed(2)}) < High IB1 (${highIb1.toFixed(2)}) e Low IB2 (${lowIb2.toFixed(2)}) > Low IB1 (${lowIb1.toFixed(2)})`
+        },
+        nestedStructure: { pass: isValid }
+      }
+    };
+
+    return {
+      isValid,
+      reason,
+      isIb1InsideMother,
+      isIb2InsideIb1,
+      triggerType: 'Double Inside Bar',
+      ibCount: 2,
+      motherCandle: {
+        high: highMother,
+        low: lowMother,
+        range: motherRange,
+        date: mother.date || mother.time || null
+      },
+      ib1: {
+        high: highIb1,
+        low: lowIb1,
+        range: ib1Range,
+        compressionRatio: ib1CompressionRatio,
+        compressionPct: ib1CompressionPct,
+        date: ib1.date || ib1.time || null
+      },
+      ib2: {
+        high: highIb2,
+        low: lowIb2,
+        range: ib2Range,
+        compressionRatio: ib2CompressionRatio,
+        compressionPct: ib2CompressionPct,
+        date: ib2.date || ib2.time || null
+      },
+      totalCompressionRatio,
+      totalCompressionPct,
+      totalContractionPct,
+      entryPrice,
+      stopLoss,
+      stopLossIb1,
+      stopLossIb2,
+      stopLossMother,
+      initialRisk,
+      graphicRiskPct,
+      audit
+    };
+  }
+
+  /**
+   * Validação estrita da estrutura geométrica do padrão 1-2-3 de Compra
+   *
+   * Formação clássica de fundo em 3 candles consecutivos no gráfico Diário:
+   * - c3 (Candle 1 da formação / Referência prévia): estabelece a referência do recuo.
+   * - c2 (Candle 2 da formação / Vértice do Fundo): mínima estritamente menor que c3 (c2.low < c3.low), formando o fundo.
+   * - c1 (Candle 3 da formação / Candle Sinal): mínima estritamente maior que c2 (c1.low > c2.low), sustentando o suporte,
+   *      e fechamento confirmando a reação compradora superando a máxima do candle 2 (c1.close > c2.high).
+   *
+   * Entrada e Stop:
+   * - Entrada: 1 tick (+R$ 0,01) acima da máxima do candle sinal (c1.high + 0.01).
+   * - Stop Inicial: 1 tick (-R$ 0,01) abaixo da mínima do vértice do fundo (c2.low - 0.01).
+   * - Risco Gráfico: ((Entrada - Stop) / Entrada) * 100.
+   */
+  function validateOneTwoThreeBuyPattern(c1, c2, c3, options = {}) {
+    if (!c1 || !c2 || !c3) {
+      return {
+        isValid: false,
+        reason: 'Histórico insuficiente: requer pelo menos 3 candles para validar o padrão 1-2-3 de Compra.',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    const c1Low = Number(c1.low);
+    const c1High = Number(c1.high);
+    const c1Close = Number(c1.close);
+    const c1Open = Number(c1.open != null ? c1.open : c1Close);
+
+    const c2Low = Number(c2.low);
+    const c2High = Number(c2.high);
+    const c2Close = Number(c2.close);
+
+    const c3Low = Number(c3.low);
+    const c3High = Number(c3.high);
+    const c3Close = Number(c3.close);
+
+    if (
+      Number.isNaN(c1Low) || Number.isNaN(c1High) || Number.isNaN(c1Close) ||
+      Number.isNaN(c2Low) || Number.isNaN(c2High) || Number.isNaN(c2Close) ||
+      Number.isNaN(c3Low) || Number.isNaN(c3High) || Number.isNaN(c3Close) ||
+      c1High <= c1Low || c2High <= c2Low || c3High <= c3Low
+    ) {
+      return {
+        isValid: false,
+        reason: 'Valores numéricos de OHLC inválidos ou corrompidos nos candles da formação 1-2-3.',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    // 1. Pivô 2 é o vértice do fundo: mínima de c2 menor que a mínima de c3
+    const isPivot2LowerThanC3 = c2Low < c3Low;
+
+    // 2. Pivô 3 sustenta o fundo: mínima de c1 maior que a mínima de c2 (fundo mais alto)
+    const isPivot3HigherThanC2 = c1Low > c2Low;
+
+    // 3. Confirmação do pivô: c1 fecha superando a máxima do candle 2
+    const isConfirmationCloseAboveC2High = c1Close > c2High;
+
+    const audit = {
+      hasRequiredCandles: true,
+      candles: {
+        pivot1: { high: c3High, low: c3Low, close: c3Close, date: c3.date || c3.time || null },
+        pivot2: { high: c2High, low: c2Low, close: c2Close, date: c2.date || c2.time || null },
+        pivot3: { high: c1High, low: c1Low, close: c1Close, date: c1.date || c1.time || null }
+      },
+      checks: {
+        pivot2IsBottom: { pass: isPivot2LowerThanC3, expected: `${c2Low.toFixed(2)} < ${c3Low.toFixed(2)} (c2 faz nova mínima)` },
+        pivot3HoldsFloor: { pass: isPivot3HigherThanC2, expected: `${c1Low.toFixed(2)} > ${c2Low.toFixed(2)} (c1 sustenta fundo)` },
+        confirmationClose: { pass: isConfirmationCloseAboveC2High, expected: `${c1Close.toFixed(2)} > ${c2High.toFixed(2)} (c1 fecha acima da máxima de c2)` }
+      }
+    };
+
+    if (!isPivot2LowerThanC3) {
+      return {
+        isValid: false,
+        reason: `Candle 2 (${c2Low.toFixed(2)}) não fez mínima mais baixa que o Candle 1 de referência (${c3Low.toFixed(2)}). Fundo em V não formado.`,
+        audit
+      };
+    }
+
+    if (!isPivot3HigherThanC2) {
+      return {
+        isValid: false,
+        reason: `Candle 3 (${c1Low.toFixed(2)}) perdeu ou igualou a mínima do fundo no Candle 2 (${c2Low.toFixed(2)}). Suporte rompido.`,
+        audit
+      };
+    }
+
+    if (!isConfirmationCloseAboveC2High) {
+      return {
+        isValid: false,
+        reason: `Candle 3 (${c1Close.toFixed(2)}) não fechou acima da máxima do Candle 2 (${c2High.toFixed(2)}). Confirmação de rompimento não acionada.`,
+        audit
+      };
+    }
+
+    const entryPrice = Math.round((c1High + 0.01) * 100) / 100;
+    const stopLoss = Math.round((c2Low - 0.01) * 100) / 100;
+    const initialRisk = Math.round(Math.max(0.01, entryPrice - stopLoss) * 100) / 100;
+    const graphicRiskPct = entryPrice > 0 ? Math.round(((initialRisk / entryPrice) * 100) * 100) / 100 : 0;
+
+    return {
+      isValid: true,
+      reason: null,
+      triggerType: '1-2-3 de Compra',
+      entryPrice,
+      stopLoss,
+      initialRisk,
+      graphicRiskPct,
+      audit
+    };
+  }
+
+  /**
+   * Validação estrita da estrutura geométrica do padrão Barra Vermelha Ignorada (RBI / Red Bar Ignored)
+   *
+   * Formação clássica de continuidade de alta em 2 ou 3 candles no gráfico Diário:
+   * - c2 (Barra Vermelha Ignorada / Candle Anterior): candle corretivo vendedor (c2.close < c2.open).
+   * - c1 (Barra Sinal de Ignição / Candle Atual): candle comprador de convicção (c1.close > c1.open)
+   *      cujo fechamento supera estritamente a máxima da barra vermelha (c1.close > c2.high).
+   * - c3 (Opcional / Contexto Prévia): se fornecido, valida que não há duas barras vermelhas consecutivas
+   *      com mínimas descendentes.
+   *
+   * Níveis de Entrada e Stop:
+   * - Entrada: 1 tick (+R$ 0,01) acima da máxima do candle sinal c1 (c1.high + 0.01).
+   * - Stop Inicial: 1 tick (-R$ 0,01) abaixo da mínima da barra vermelha ignorada c2 (c2.low - 0.01).
+   * - Risco Gráfico: ((Entrada - Stop) / Entrada) * 100.
+   */
+  function validateRedBarIgnoredPattern(c1, c2, c3 = null, options = {}) {
+    if (!c1 || !c2) {
+      return {
+        isValid: false,
+        reason: 'Histórico insuficiente: requer pelo menos 2 candles (barra vermelha e barra sinal) para validar a Barra Vermelha Ignorada.',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    const c1Low = Number(c1.low);
+    const c1High = Number(c1.high);
+    const c1Open = Number(c1.open != null ? c1.open : c1.close);
+    const c1Close = Number(c1.close);
+
+    const c2Low = Number(c2.low);
+    const c2High = Number(c2.high);
+    const c2Open = Number(c2.open != null ? c2.open : c2.close);
+    const c2Close = Number(c2.close);
+
+    if (
+      Number.isNaN(c1Low) || Number.isNaN(c1High) || Number.isNaN(c1Open) || Number.isNaN(c1Close) ||
+      Number.isNaN(c2Low) || Number.isNaN(c2High) || Number.isNaN(c2Open) || Number.isNaN(c2Close) ||
+      c1High <= c1Low || c2High <= c2Low
+    ) {
+      return {
+        isValid: false,
+        reason: 'Valores numéricos de OHLC inválidos ou corrompidos nos candles da Barra Vermelha Ignorada.',
+        audit: { hasRequiredCandles: false }
+      };
+    }
+
+    // 1. Candle c2 deve ser uma barra vermelha/vendedora (fechamento estritamente menor que abertura)
+    const isC2RedBar = c2Close < c2Open;
+
+    // 2. Candle c1 deve ser uma barra verde/compradora (fechamento estritamente maior que abertura)
+    const isC1GreenBar = c1Close > c1Open;
+
+    // 3. Candle c1 deve fechar estritamente acima da máxima de c2 (ignora a barra vermelha)
+    const isConfirmationCloseAboveC2High = c1Close > c2High;
+
+    // 4. Se c3 for fornecido e for vermelho com mínima maior que c2, pode indicar recuo consecutivo
+    const hasPrecedingRedBar = c3 && Number(c3.close) < Number(c3.open) && c2Low < Number(c3.low);
+
+    const audit = {
+      hasRequiredCandles: true,
+      candles: {
+        redBar: { high: c2High, low: c2Low, open: c2Open, close: c2Close, date: c2.date || c2.time || null },
+        ignitionBar: { high: c1High, low: c1Low, open: c1Open, close: c1Close, date: c1.date || c1.time || null },
+        precedingCandle: c3 ? { high: Number(c3.high), low: Number(c3.low), open: Number(c3.open), close: Number(c3.close), date: c3.date || c3.time || null } : null
+      },
+      checks: {
+        c2IsRedBar: { pass: isC2RedBar, expected: `${c2Close.toFixed(2)} < ${c2Open.toFixed(2)} (c2 é barra vermelha)` },
+        c1IsGreenBar: { pass: isC1GreenBar, expected: `${c1Close.toFixed(2)} > ${c1Open.toFixed(2)} (c1 é barra verde)` },
+        closeAboveRedBarHigh: { pass: isConfirmationCloseAboveC2High, expected: `${c1Close.toFixed(2)} > ${c2High.toFixed(2)} (c1 fecha acima da máxima da barra vermelha)` }
+      }
+    };
+
+    if (!isC2RedBar) {
+      return {
+        isValid: false,
+        reason: `Candle anterior (Close ${c2Close.toFixed(2)} >= Open ${c2Open.toFixed(2)}) não é uma barra vermelha.`,
+        audit
+      };
+    }
+
+    if (!isC1GreenBar) {
+      return {
+        isValid: false,
+        reason: `Candle atual de sinal (Close ${c1Close.toFixed(2)} <= Open ${c1Open.toFixed(2)}) não é uma barra verde/compradora.`,
+        audit
+      };
+    }
+
+    if (!isConfirmationCloseAboveC2High) {
+      return {
+        isValid: false,
+        reason: `Fechamento do candle sinal (${c1Close.toFixed(2)}) não superou a máxima da barra vermelha (${c2High.toFixed(2)}).`,
+        audit
+      };
+    }
+
+    const entryPrice = Math.round((c1High + 0.01) * 100) / 100;
+    const stopLoss = Math.round((c2Low - 0.01) * 100) / 100;
+    const initialRisk = Math.round(Math.max(0.01, entryPrice - stopLoss) * 100) / 100;
+    const graphicRiskPct = entryPrice > 0 ? Math.round(((initialRisk / entryPrice) * 100) * 100) / 100 : 0;
+
+    return {
+      isValid: true,
+      reason: null,
+      triggerType: 'RBI',
+      triggerDisplayName: 'Barra Vermelha Ignorada',
+      entryPrice,
+      stopLoss,
+      initialRisk,
+      graphicRiskPct,
+      hasPrecedingRedBar: Boolean(hasPrecedingRedBar),
+      audit
+    };
+  }
+
+  /**
+   * Calcula série causal de EMA com precisão de 4 casas decimais para todos os candles disponíveis (sem look-ahead).
+   */
+  function calculateCausalEmaSeries(values, period) {
+    if (!Array.isArray(values) || values.length === 0) return [];
+    const k = 2 / (period + 1);
+    const result = new Array(values.length);
+    let prev = Number(values[0]);
+    result[0] = Number(prev.toFixed(4));
+    for (let i = 1; i < values.length; i++) {
+      prev = Number(values[i]) * k + prev * (1 - k);
+      result[i] = Number(prev.toFixed(4));
+    }
+    return result;
+  }
+
+  /**
+   * Valida o alinhamento estrutural e a inclinação altista das médias móveis oficiais EMA 10 e EMA 72 no Diário.
+   *
+   * Regra operacional obrigatória (Diário — 1D, estritamente com candles fechados até a data do sinal, zero look-ahead):
+   * 1. Preço acima da EMA 10 e da EMA 72 (close >= EMA 10 e close >= EMA 72).
+   * 2. Alinhamento estrutural altista: EMA 10 estritamente acima da EMA 72 (EMA 10 > EMA 72).
+   * 3. Inclinação altista confirmada nas duas médias:
+   *    - EMA 10 ascendente no momento do sinal (EMA10[t] > EMA10[t-1] e, quando disponíveis candles anteriores da janela,
+   *      EMA10[t] > EMA10[t-2] e EMA10[t] > EMA10[t-3]).
+   *    - EMA 72 ascendente no momento do sinal (EMA72[t] > EMA72[t-1] e, quando disponíveis candles anteriores da janela,
+   *      EMA72[t] > EMA72[t-2] e EMA72[t] > EMA72[t-3]).
+   *
+   * Se qualquer condição falhar, bloqueia o sinal de compra e retorna motivo explícito para auditoria.
+   */
+  function validateDailyEmaAlignment(candles, ema10Values = [], ema72Values = []) {
+    if (!Array.isArray(candles) || candles.length < 2) {
+      const msg = 'Rejeitado: Histórico diário insuficiente para validar alinhamento das EMAs 10 e 72';
+      return {
+        isValid: false,
+        reason: msg,
+        reasons: [msg],
+        timeframe: '1D',
+        checks: {
+          priceAboveEma10: false,
+          priceAboveEma72: false,
+          ema10AboveEma72: false,
+          ema10Ascending: false,
+          ema72Ascending: false,
+          bothAscending: false
+        },
+        values: null
+      };
+    }
+
+    const len = candles.length;
+    const lastCandle = candles[len - 1];
+    const latestClose = Number(lastCandle.close);
+    const signalDate = lastCandle.time || lastCandle.date || null;
+    const closes = candles.map(c => Number(c.close));
+
+    let e10Series = [];
+    if (Array.isArray(ema10Values) && ema10Values.some(v => v != null && Number.isFinite(Number(v)))) {
+      e10Series = ema10Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+    } else if (candles.some(c => c && (c.ema10 != null || c.ema9 != null))) {
+      e10Series = candles
+        .map(c => (c.ema10 != null ? Number(c.ema10) : (c.ema9 != null ? Number(c.ema9) : null)))
+        .filter(v => v != null && Number.isFinite(v));
+    } else {
+      e10Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_FAST);
+    }
+
+    let e72Series = [];
+    if (Array.isArray(ema72Values) && ema72Values.some(v => v != null && Number.isFinite(Number(v)))) {
+      e72Series = ema72Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+    } else if (candles.some(c => c && (c.ema72 != null || c.ema30 != null))) {
+      e72Series = candles
+        .map(c => (c.ema72 != null ? Number(c.ema72) : (c.ema30 != null ? Number(c.ema30) : null)))
+        .filter(v => v != null && Number.isFinite(v));
+    } else {
+      e72Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_SLOW);
+    }
+
+    if (e10Series.length < 2) {
+      e10Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_FAST);
+    }
+    if (e72Series.length < 2) {
+      e72Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_SLOW);
+    }
+
+    if (e10Series.length < 2 || e72Series.length < 2) {
+      const msg = 'Rejeitado: Série de EMAs insuficiente para confirmar inclinação no Diário';
+      return {
+        isValid: false,
+        reason: msg,
+        reasons: [msg],
+        timeframe: '1D',
+        checks: {
+          priceAboveEma10: false,
+          priceAboveEma72: false,
+          ema10AboveEma72: false,
+          ema10Ascending: false,
+          ema72Ascending: false,
+          bothAscending: false
+        },
+        values: null
+      };
+    }
+
+    const e10_0 = e10Series[e10Series.length - 1];
+    const e10_1 = e10Series[e10Series.length - 2];
+
+    const e72_0 = e72Series[e72Series.length - 1];
+    const e72_1 = e72Series[e72Series.length - 2];
+
+    const priceAboveEma10 = Number.isFinite(latestClose) && latestClose >= e10_0;
+    const priceAboveEma72 = Number.isFinite(latestClose) && latestClose >= e72_0;
+    const ema10AboveEma72 = e10_0 > e72_0;
+
+    const ema10Ascending = e10_0 > e10_1;
+    const ema72Ascending = e72_0 > e72_1;
+    const ema10Descending = e10_0 < e10_1;
+    const ema72Descending = e72_0 < e72_1;
+    const bothAscending = ema10Ascending && ema72Ascending;
+
+    const reasons = [];
+    if (ema10Descending && ema72Descending) {
+      reasons.push('Rejeitado: EMA 10 e EMA 72 descendentes');
+    } else {
+      if (ema10Descending) {
+        reasons.push('Rejeitado: EMA 10 descendente');
+      } else if (!ema10Ascending) {
+        reasons.push('Rejeitado: Médias sem inclinação altista confirmada (EMA 10 sem inclinação positiva)');
+      }
+      if (ema72Descending) {
+        reasons.push('Rejeitado: EMA 72 descendente');
+      } else if (!ema72Ascending) {
+        reasons.push('Rejeitado: Médias sem inclinação altista confirmada (EMA 72 sem inclinação positiva)');
+      }
+    }
+
+    if (!ema10AboveEma72) {
+      reasons.push('Rejeitado: EMA 10 abaixo da EMA 72');
+    }
+
+    if (!priceAboveEma10 || !priceAboveEma72) {
+      reasons.push('Rejeitado: Preço abaixo da EMA 10 ou EMA 72');
+    }
+
+    const isValid = priceAboveEma10 && priceAboveEma72 && ema10AboveEma72 && bothAscending;
+    const reason = isValid ? null : (reasons[0] || 'Rejeitado: Médias sem inclinação altista confirmada');
+
+    return {
+      isValid,
+      reason,
+      reasons,
+      timeframe: '1D',
+      signalDate,
+      checks: {
+        priceAboveEma10,
+        priceAboveEma72,
+        ema10AboveEma72,
+        ema10Ascending,
+        ema72Ascending,
+        bothAscending
+      },
+      values: {
+        close: latestClose,
+        ema10: Number(e10_0.toFixed(4)),
+        prevEma10: Number(e10_1.toFixed(4)),
+        ema10Slope: Number((e10_0 - e10_1).toFixed(4)),
+        ema72: Number(e72_0.toFixed(4)),
+        prevEma72: Number(e72_1.toFixed(4)),
+        ema72Slope: Number((e72_0 - e72_1).toFixed(4))
+      }
+    };
+  }
+
+  /**
    * Detecção de Gatilhos Técnicos Oficiais nos últimos candles
    * Regra Obrigatória: Para ser considerado um gatilho válido de compra,
-   * o preço precisa estar estritamente acima da EMA 10 e acima da EMA 72.
+   * o preço precisa estar acima da EMA 10 e da EMA 72, com EMA 10 > EMA 72
+   * e ambas as médias ascendentes no gráfico Diário.
    * Se qualquer condição falhar, retorna "Nenhum gatilho encontrado" (sem falsos positivos).
    */
   function detectSetupTriggers(candles, ema10Values = [], ema72Values = []) {
@@ -382,45 +1038,48 @@
     const c2 = candles[candles.length - 2]; // candle anterior
     const c3 = candles[candles.length - 3]; // candle prévio
 
-    let ema10Arr = ema10Values;
-    let ema72Arr = ema72Values;
-    if ((!Array.isArray(ema10Arr) || ema10Arr.length === 0) && candles.length >= 10) {
-      ema10Arr = calculateEma(candles.map(c => c.close), 10);
+    const hasExplicitEmaArrays = (Array.isArray(ema10Values) && ema10Values.length > 0) || (Array.isArray(ema72Values) && ema72Values.length > 0);
+    const hasCandleEmaProps = candles.some(c => c && (c.ema10 != null || c.ema9 != null || c.ema72 != null || c.ema30 != null));
+    const hasEmaContext = hasExplicitEmaArrays || hasCandleEmaProps || candles.length >= 10;
+
+    const emaAlignment = hasEmaContext ? validateDailyEmaAlignment(candles, ema10Values, ema72Values) : null;
+    const isAboveBothEmas = emaAlignment
+      ? (emaAlignment.checks.priceAboveEma10 && emaAlignment.checks.priceAboveEma72 && c1.close > emaAlignment.values.ema10 && c1.close > emaAlignment.values.ema72)
+      : true;
+    const isTrendAligned = emaAlignment ? (emaAlignment.isValid && isAboveBothEmas) : true;
+
+    function buildRejectedTrigger(patternName, defaultBelowMsg, extra = {}) {
+      const rejReason = !isAboveBothEmas
+        ? (emaAlignment && emaAlignment.reason ? emaAlignment.reason : 'Rejeitado: Preço abaixo da EMA 10 ou EMA 72')
+        : (emaAlignment && emaAlignment.reason ? emaAlignment.reason : 'Rejeitado: Médias sem alinhamento altista');
+      const patternDetected = !isAboveBothEmas
+        ? `${patternName} (rejeitado: abaixo das médias)`
+        : `${patternName} (${rejReason})`;
+      return {
+        id: 'NONE',
+        name: 'Nenhum gatilho encontrado',
+        grade: 'Neutro',
+        hasTrigger: false,
+        patternDetected,
+        rejectionReason: rejReason,
+        description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
+        detail: !isAboveBothEmas ? defaultBelowMsg : `Padrão ${patternName} bloqueado pelo filtro de tendência no Diário (${rejReason}).`,
+        entry: null,
+        stop: null,
+        entryLabel: null,
+        stopLabel: null,
+        trendAudit: emaAlignment,
+        ...extra
+      };
     }
-    if ((!Array.isArray(ema72Arr) || ema72Arr.length === 0) && candles.length >= 72) {
-      ema72Arr = calculateEma(candles.map(c => c.close), 72);
-    } else if ((!Array.isArray(ema72Arr) || ema72Arr.length === 0) && candles.length >= 30) {
-      ema72Arr = calculateEma(candles.map(c => c.close), candles.length);
-    }
 
-    const latestEma10 = (Array.isArray(ema10Arr) && ema10Arr.length > 0)
-      ? ema10Arr[ema10Arr.length - 1]
-      : null;
-    const latestEma72 = (Array.isArray(ema72Arr) && ema72Arr.length > 0)
-      ? ema72Arr[ema72Arr.length - 1]
-      : null;
-
-    const hasEmaContext = latestEma10 !== null && latestEma72 !== null;
-    const isAboveBothEmas = hasEmaContext
-      ? (c1.close > latestEma10 && c1.close > latestEma72)
-      : (latestEma10 !== null ? c1.close > latestEma10 : true);
-
-    // 1. Inside Bar: candle atual completamente contido dentro da amplitude do anterior
-    if (c1.high <= c2.high && c1.low >= c2.low) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: 'Inside Bar (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Padrão Inside Bar abaixo da EMA 10 ou EMA 72 não qualifica como gatilho de compra pelo método.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null
-        };
+    // 1. Inside Bar: candle atual estritamente contido dentro da amplitude do anterior (High < High Mãe e Low > Low Mãe)
+    if (c1.high < c2.high && c1.low > c2.low) {
+      if (!isTrendAligned) {
+        return buildRejectedTrigger(
+          'Inside Bar',
+          'Padrão Inside Bar abaixo da EMA 10 ou EMA 72 não qualifica como gatilho de compra pelo método.'
+        );
       }
       return {
         id: 'INSIDE_BAR',
@@ -430,28 +1089,22 @@
         description: 'Candle dentro do candle anterior.',
         detail: 'Contração de volatilidade acima da EMA 10 e EMA 72. Rompimento da máxima ativa compra.',
         entry: Number((c1.high + 0.01).toFixed(2)),
-        stop: Number((c1.low - 0.01).toFixed(2)),
+        stop: Number((c2.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do Inside Bar',
-        stopLabel: '1 tick abaixo da mínima do Inside Bar'
+        stopLabel: '1 tick abaixo da mínima do candle anterior (barra-mãe)',
+        trendAudit: emaAlignment
       };
     }
 
-    // 2. 1-2-3 de Compra: candle 2 é a mínima mais baixa entre 1 e 3; candle 1 (mais recente) fecha acima da máxima do candle 2
-    if (c2.low < c3.low && c1.low > c2.low && c1.close > c2.high) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: '1-2-3 de Compra (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Formação 1-2-3 de compra abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null
-        };
+    // 2. 1-2-3 de Compra: formação clássica de fundo em 3 candles
+    const s123Validation = validateOneTwoThreeBuyPattern(c1, c2, c3);
+    if (s123Validation.isValid) {
+      if (!isTrendAligned) {
+        return buildRejectedTrigger(
+          '1-2-3 de Compra',
+          'Formação 1-2-3 de compra abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
+          { audit: s123Validation.audit }
+        );
       }
       return {
         id: '123_COMPRA',
@@ -460,29 +1113,24 @@
         hasTrigger: true,
         description: 'Formação de fundo de 3 candles.',
         detail: 'Candle 2 fez o fundo e candle 3 confirmou sustentação acima da EMA 10 e EMA 72.',
-        entry: Number((c1.high + 0.01).toFixed(2)),
-        stop: Number((c2.low - 0.01).toFixed(2)),
+        entry: s123Validation.entryPrice,
+        stop: s123Validation.stopLoss,
         entryLabel: '1 tick acima da máxima do candle 3',
-        stopLabel: '1 tick abaixo da mínima do candle 2 (fundo)'
+        stopLabel: '1 tick abaixo da mínima do candle 2 (fundo)',
+        audit: s123Validation.audit,
+        trendAudit: emaAlignment
       };
     }
 
-    // 3. PFR de Compra: mínima mais baixa que o candle anterior, mas fechamento acima do fechamento anterior
-    if (c1.low < c2.low && c1.close > c2.close) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: 'PFR de Compra (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Reversão abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null
-        };
+    // 3. PFR de Compra: padrão oficial de reversão de fundo de 3 candles (menor mínima e fechamento de reversão)
+    const pfrValidation = validatePfrBuyPattern(c1, c2, c3);
+    if (pfrValidation.isValid) {
+      if (!isTrendAligned) {
+        return buildRejectedTrigger(
+          'PFR de Compra',
+          'Padrão PFR de Compra confirmado geometricamente, porém rejeitado por estar abaixo da EMA 10 ou EMA 72.',
+          { audit: pfrValidation }
+        );
       }
       return {
         id: 'PFR_COMPRA',
@@ -490,61 +1138,25 @@
         grade: 'A',
         hasTrigger: true,
         description: 'Padrão de Fechamento de Reversão de fundo.',
-        detail: 'Rejeição de mínimas com fechamento forte acima do candle anterior e acima das médias EMA 10 e EMA 72.',
+        detail: 'Reversão de fundo com menor mínima dos 3 candles e fechamento acima do candle anterior, confirmado acima da EMA 10 e EMA 72.',
         entry: Number((c1.high + 0.01).toFixed(2)),
         stop: Number((c1.low - 0.01).toFixed(2)),
         entryLabel: '1 tick acima da máxima do candle de reversão',
-        stopLabel: '1 tick abaixo da mínima do candle de reversão'
+        stopLabel: '1 tick abaixo da mínima do candle de reversão',
+        audit: pfrValidation,
+        trendAudit: emaAlignment
       };
     }
 
-    // 4. Dave Landry: 2 mínimas descendentes com médias apontando para cima
-    if (c2.low < c3.low && c1.low < c2.low) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: 'Dave Landry (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Recuo abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null
-        };
-      }
-      return {
-        id: 'DAVE_LANDRY',
-        name: 'Dave Landry',
-        grade: 'B',
-        hasTrigger: true,
-        description: 'Recuo ordenado para média móvel.',
-        detail: 'Duas ou mais mínimas consecutivas mais baixas com sustentação acima da EMA 10 e EMA 72.',
-        entry: Number((c1.high + 0.01).toFixed(2)),
-        stop: Number((c1.low - 0.01).toFixed(2)),
-        entryLabel: '1 tick acima da máxima do candle gatilho',
-        stopLabel: '1 tick abaixo da mínima do candle gatilho'
-      };
-    }
-
-    // 5. Barra Vermelha Ignorada (RBI): candle anterior vermelho pequeno seguido de fechamento positivo
-    if (c2.close < c2.open && c1.close > c1.open && c1.close > c2.high) {
-      if (!isAboveBothEmas) {
-        return {
-          id: 'NONE',
-          name: 'Nenhum gatilho encontrado',
-          grade: 'Neutro',
-          hasTrigger: false,
-          patternDetected: 'Barra Vermelha Ignorada (rejeitado: abaixo das médias)',
-          description: 'Nenhum padrão de entrada válido identificado no gráfico Diário.',
-          detail: 'Superação abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
-          entry: null,
-          stop: null,
-          entryLabel: null,
-          stopLabel: null
-        };
+    // 4. Barra Vermelha Ignorada (RBI)
+    const rbiValidation = validateRedBarIgnoredPattern(c1, c2, c3);
+    if (rbiValidation && rbiValidation.isValid) {
+      if (!isTrendAligned) {
+        return buildRejectedTrigger(
+          'Barra Vermelha Ignorada',
+          'Superação abaixo da EMA 10 ou EMA 72 não qualifica como gatilho pelo método.',
+          { audit: rbiValidation }
+        );
       }
       return {
         id: 'RBI',
@@ -553,10 +1165,12 @@
         hasTrigger: true,
         description: 'Retomada imediata após breve correção.',
         detail: 'Superação imediata da máxima da barra vendedora acima da EMA 10 e EMA 72.',
-        entry: Number((c1.high + 0.01).toFixed(2)),
-        stop: Number((c2.low - 0.01).toFixed(2)),
+        entry: rbiValidation.entryPrice,
+        stop: rbiValidation.stopLoss,
         entryLabel: '1 tick acima da máxima da barra compradora',
-        stopLabel: '1 tick abaixo da mínima da barra vermelha'
+        stopLabel: '1 tick abaixo da mínima da barra vermelha',
+        audit: rbiValidation,
+        trendAudit: emaAlignment
       };
     }
 
@@ -571,7 +1185,8 @@
       entry: null,
       stop: null,
       entryLabel: null,
-      stopLabel: null
+      stopLabel: null,
+      trendAudit: emaAlignment
     };
   }
 
@@ -965,9 +1580,18 @@
     logBypassMotive,
     evaluatePatienceIndex,
     calculateEma,
+    calculateCausalEmaSeries,
     calculateAtr,
     OFFICIAL_EMA_FAST,
     OFFICIAL_EMA_SLOW,
+    validatePfrBuyPattern,
+    calculateDoubleInsideBarStructure,
+    validateDoubleInsideBarPattern: calculateDoubleInsideBarStructure,
+    validateOneTwoThreeBuyPattern,
+    calculateOneTwoThreeBuyStructure: validateOneTwoThreeBuyPattern,
+    validateRedBarIgnoredPattern,
+    calculateRedBarIgnoredStructure: validateRedBarIgnoredPattern,
+    validateDailyEmaAlignment,
     detectSetupTriggers,
     classifyRelativeStrength,
     getRubricGradeVisual,

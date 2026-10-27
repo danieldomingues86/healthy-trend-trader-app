@@ -56,7 +56,7 @@ test('filtra por setupTrigger e calcula métricas por gatilho', () => {
   assert.equal(pfrFiltered.length, 0);
 
   const byTrigger = model.metricsByTrigger(items.map(model.analyzeTrade));
-  assert.equal(byTrigger.length, 5);
+  assert.equal(byTrigger.length, 4);
 
   const insideBarStats = byTrigger.find(t => t.id === 'INSIDE_BAR');
   assert.equal(insideBarStats.total, 1);

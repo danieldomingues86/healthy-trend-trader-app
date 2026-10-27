@@ -66,7 +66,7 @@ test('corporate-events: corrige EMA 30 de LUPA3 para 4,12 (conforme Profit) e el
 
   const cache = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
   const realCandles = cache['LUPA3'];
-  if (!realCandles || realCandles.length < 50) return;
+  if (!realCandles || realCandles.length < 50 || !realCandles.some(c => c.time === '2026-10-19')) return;
 
   const targetCandles = realCandles.filter(c => c.time <= '2026-10-19');
   const adjustedCandles = adjustCandles(targetCandles, 'LUPA3');

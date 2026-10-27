@@ -4,14 +4,12 @@ const model = require('../../frontend/trade-simulator-model');
 const edgeValidation = require('../src/trade-simulator-edge-validation');
 
 test('Validação de Edge: inventário canônico e tipos experimentais', () => {
-  assert.equal(edgeValidation.CANONICAL_INVENTORY.length, 6);
+  assert.equal(edgeValidation.CANONICAL_INVENTORY.length, 4);
   const ids = edgeValidation.CANONICAL_INVENTORY.map(i => i.id);
   assert.deepEqual(ids, [
-    'DOUBLE_INSIDE_BAR',
     'INSIDE_BAR',
     '123_COMPRA',
     'PFR_COMPRA',
-    'DAVE_LANDRY',
     'RBI'
   ]);
 
@@ -26,9 +24,9 @@ test('Validação de Edge: detectAllSetupTriggers detecta combo 1-2-3 + Inside B
   // Candle 1: alta=20.5 (<= c2.high), baixa=18.5 (>= c2.low), fecha=20 (Inside Bar em relação a c2, e c1.low > c2.low)
   // Médias: EMA 9 = 17, EMA 30 = 16 (Preço acima de ambas)
   const candles = [
-    { time: '2026-01-02', open: 19, high: 22, low: 20, close: 21, ema9: 17, ema30: 16 },
-    { time: '2026-01-05', open: 21, high: 21, low: 18, close: 19, ema9: 17, ema30: 16 },
-    { time: '2026-01-06', open: 19, high: 20.5, low: 18.5, close: 20, ema9: 17, ema30: 16 }
+    { time: '2026-01-02', open: 19, high: 22, low: 20, close: 21, ema10: 17.0, ema72: 16.0 },
+    { time: '2026-01-05', open: 21, high: 21, low: 18, close: 19, ema10: 17.2, ema72: 16.1 },
+    { time: '2026-01-06', open: 19, high: 20.5, low: 18.5, close: 20, ema10: 17.5, ema72: 16.3 }
   ];
 
   const standard = model.detectAllSetupTriggers(candles);
@@ -52,12 +50,12 @@ test('Validação de Edge: detectAllSetupTriggers detecta combo 1-2-3 + Inside B
   assert.equal(comboVertex.stop, 17.99); // c2.low - 0.01 (stop do vértice)
 });
 
-test('Validação de Edge: buildScenarios cria os 15 cenários de validação (P1-P6, X1-X5, C1-C4)', () => {
+test('Validação de Edge: buildScenarios cria os 13 cenários de validação (P1-P4, X1-X5, C1-C4)', () => {
   const scenarios = edgeValidation.buildScenarios();
-  assert.equal(scenarios.length, 15);
+  assert.equal(scenarios.length, 13);
   const keys = scenarios.map(s => s.key);
   assert.deepEqual(keys, [
-    'P1', 'P2', 'P3', 'P4', 'P5', 'P6',
+    'P1', 'P2', 'P3', 'P4',
     'X1', 'X2', 'X3', 'X4', 'X5',
     'C1', 'C2', 'C3', 'C4'
   ]);

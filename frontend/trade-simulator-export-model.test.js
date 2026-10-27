@@ -28,6 +28,7 @@ describe('TradeSimulatorExportModel — Suíte de Testes', () => {
     companyName: 'Petrobras PN',
     triggerName: 'Inside Bar',
     grade: 'A+',
+    marketCycle: 'Positivo',
     sector: 'Petróleo e Gás',
     signalDate: '2026-09-29',
     entryPrice: 49.80,
@@ -64,8 +65,9 @@ describe('TradeSimulatorExportModel — Suíte de Testes', () => {
     candles: fixtureCandles(['2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11', '2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18'], 62),
     symbol: 'VALE3',
     companyName: 'Vale S.A.',
-    triggerName: 'Double Inside Bar',
+    triggerName: 'Inside Bar',
     grade: 'B',
+    marketCycle: 'Positivo',
     sector: 'Materiais Básicos',
     signalDate: '2026-09-15',
     entryPrice: 65.00,
@@ -140,7 +142,7 @@ describe('TradeSimulatorExportModel — Suíte de Testes', () => {
     assert.ok(doc.includes('+3,78R'));
     assert.ok(doc.includes('-1,00R'));
     assert.ok(doc.includes('GRADE A+'));
-    assert.ok(doc.includes('Double Inside Bar'));
+    assert.ok(doc.includes('Inside Bar'));
 
     // Verifica inclusão do SVG gráfico
     assert.ok(doc.includes('<svg class="sim-snapshot-chart-svg"'));
@@ -181,7 +183,7 @@ describe('TradeSimulatorExportModel — Suíte de Testes', () => {
 
     // Cada nota deve ter título descritivo, data de criação e conteúdo CDATA com en-note
     assert.ok(enex.includes('<title>PETR4 — Inside Bar [Grade A+] (+3,78R)</title>'));
-    assert.ok(enex.includes('<title>VALE3 — Double Inside Bar [Grade B] (-1,00R)</title>'));
+    assert.ok(enex.includes('<title>VALE3 — Inside Bar [Grade B] (-1,00R)</title>'));
     assert.ok(enex.includes('<title>WEGE3 — 1-2-3 de Compra [Grade A] (Aguardando entrada)</title>'));
 
     // Formato de data do Evernote YYYYMMDDTHHMMSSZ
@@ -202,13 +204,35 @@ describe('TradeSimulatorExportModel — Suíte de Testes', () => {
     assert.ok(enex.includes('<tag>VALE3</tag>'));
   });
 
-  test('CSV (.csv) gera formato tabular correto com UTF-8 BOM e ponto e vírgula', () => {
-    const csv = TradeSimulatorExportModel.toCsv([mockTradeGain, mockTradeLoss]);
+  test('CSV (.csv) gera formato tabular correto com UTF-8 BOM, Modo da Simulação e RS na Entrada', () => {
+    const csv = TradeSimulatorExportModel.toCsv([
+      { ...mockTradeGain, rsScore: 91, simulationMode: 'OFFICIAL', ruleVersion: 'v5.0-oficial (2026-10)' },
+      { ...mockTradeLoss, rsScore: 74, simulationMode: 'RESEARCH', ruleVersion: 'RESEARCH-LAB' }
+    ]);
 
     assert.ok(csv.startsWith('\uFEFF'));
-    assert.ok(csv.includes('Ativo;Gatilho;Nota;Setor;Data do Sinal'));
-    assert.ok(csv.includes('"PETR4";"Inside Bar";"A+"'));
-    assert.ok(csv.includes('"VALE3";"Double Inside Bar";"B"'));
+    assert.ok(csv.includes('Ativo;Gatilho;Nota;Ciclo de Mercado;Setor;Data do Sinal'));
+    assert.ok(csv.includes('RS na Entrada;Modo da Simulação'));
+    assert.ok(csv.includes('"PETR4";"Inside Bar";"A+";"Positivo"'));
+    assert.ok(csv.includes(';"91";"MODO OFICIAL"'));
+    assert.ok(csv.includes(';"74";"MODO PESQUISA — REGRAS ABERTAS"'));
+  });
+
+  test('DOC, PDF e ENEX identificam explicitamente MODO OFICIAL vs MODO PESQUISA e RS na Entrada', () => {
+    const officialTrade = { ...mockTradeGain, rsScore: 88, simulationMode: 'OFFICIAL' };
+    const researchTrade = { ...mockTradeLoss, rsScore: 73, simulationMode: 'RESEARCH' };
+
+    const docOfficial = TradeSimulatorExportModel.toDoc([officialTrade], { simulationMode: 'OFFICIAL' });
+    assert.ok(docOfficial.includes('MODO OFICIAL'));
+    assert.ok(docOfficial.includes('88 • ≥ 80'));
+
+    const htmlResearch = TradeSimulatorExportModel.toPrintableHtml([researchTrade], { simulationMode: 'RESEARCH' });
+    assert.ok(htmlResearch.includes('MODO PESQUISA — REGRAS ABERTAS'));
+    assert.ok(htmlResearch.includes('73 • &lt; 80') || htmlResearch.includes('73 • < 80'));
+
+    const enexResearch = TradeSimulatorExportModel.toEnex([researchTrade], { simulationMode: 'RESEARCH' });
+    assert.ok(enexResearch.includes('MODO PESQUISA — REGRAS ABERTAS'));
+    assert.ok(enexResearch.includes('RS na Entrada:'));
   });
 
   test('Lida graciosamente com listas vazias e dados parciais', () => {

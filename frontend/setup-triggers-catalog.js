@@ -21,16 +21,16 @@
         'O candle anterior (mãe) estabelece o intervalo máximo de referência para o rompimento.'
       ],
       entryTrigger: 'Compra 1 tick/ponto acima da máxima da Inside Bar.',
-      stop: '1 tick/ponto abaixo da mínima da Inside Bar (ou abaixo da mínima do candle-mãe para um stop técnico mais folgado).',
+      stop: '1 tick/ponto (R$ 0,01) abaixo da mínima do candle anterior (barra-mãe). Regra mandatória do método: NUNCA posicionar o stop no mesmo candle que dispara o trade.',
       visualExample: [
         '    [Candle Mãe]       [Inside Bar]',
         '        | Máxima',
         '      ┌───┐                  | Máxima (menor) <-- Superação = COMPRA',
         '      │   │                ┌───┐',
         '      │   │                └───┘',
-        '      │   │                  | Mínima (maior) <-- Stop 1 tick abaixo',
+        '      │   │                  | Mínima (maior) [NÃO posicionar stop aqui]',
         '      └───┘',
-        '        | Mínima'
+        '        | Mínima <-- STOP 1 tick (0,01) abaixo da mínima do CANDLE ANTERIOR (barra-mãe)'
       ].join('\n'),
       observations: 'Evite Inside Bars excessivamente amplas ou em mercados laterais sem direção definida. O setup ganha alta probabilidade quando acompanhado de volume decrescente durante a contração e expansão de volume no rompimento.'
     },
@@ -38,26 +38,27 @@
       id: 'PFR_COMPRA',
       name: 'PFR de Compra',
       shortLabel: 'PFR de Compra',
-      whatIs: 'Padrão de Fechamento de Reversão de fundo formado por 2 ou 3 candles. No modelo mais clássico de 2 candles: o candle atual faz uma mínima mais baixa que a mínima do candle anterior, porém fecha com um fechamento maior que o fechamento anterior.',
-      howToIdentify: 'Observe uma perna de recuo corretivo. O candle de sinal renova a mínima do candle anterior (fazendo uma nova mínima local), mas os compradores reagem com força e fecham o candle acima do fechamento do candle prévio.',
-      concept: 'Mostra que os vendedores tentaram empurrar o preço para baixo, mas os compradores absorveram a pressão e fecharam o candle acima do patamar anterior, rejeitando as cotações mais baixas e confirmando suporte.',
+      whatIs: 'Padrão de Fechamento de Reversão de fundo formado por 3 candles. A mínima do candle de sinal deve ser estritamente inferior às mínimas dos dois candles anteriores (formando a menor mínima do recuo / fundo local), e o fechamento do candle de sinal deve superar o fechamento do candle imediatamente anterior com reação compradora.',
+      howToIdentify: 'Observe uma perna de recuo corretivo. O candle de sinal renova a mínima dos dois candles anteriores (fazendo a menor mínima da formação de 3 candles), mas os compradores reagem com força e fecharam o candle acima do fechamento do candle prévio.',
+      concept: 'Mostra que os vendedores tentaram empurrar o preço para baixo fazendo a menor mínima local, mas os compradores absorveram toda a pressão vendedora e fecharam o candle acima do patamar anterior, rejeitando as cotações mais baixas e confirmando suporte de reversão.',
       conditions: [
-        'Ocorre após um recuo corretivo em direção a uma média ascendente (ex: EMA 20 ou EMA 21).',
-        'Mínima do candle de sinal é menor que a mínima do candle anterior.',
-        'Fechamento do candle de sinal é estritamente maior que o fechamento do candle anterior.'
+        'Ocorre após um recuo corretivo em direção a uma média ascendente (ex: EMA 10 ou EMA 72).',
+        'Mínima do candle de sinal é estritamente menor que as mínimas dos dois candles anteriores (c1.low < c2.low e c1.low < c3.low).',
+        'Fechamento do candle de sinal é estritamente maior que o fechamento do candle anterior (c1.close > c2.close).',
+        'Candle de sinal apresenta fechamento comprador ou positivo (c1.close >= c1.open).'
       ],
       entryTrigger: 'Compra na superação da máxima do candle que confirmou o PFR.',
       stop: 'Abaixo da mínima desse candle de sinal.',
       visualExample: [
-        '     [Candle 1]           [Candle 2 - PFR]',
-        '         |                     | Máxima  <-- Superação = COMPRA',
-        '       ┌───┐                 ┌───┐ (Fechamento > Fechamento 1)',
-        '       │   │                 │   │',
-        '       └───┘                 │   │',
-        '         | Mínima            └───┘',
-        '                               | Mínima mais baixa (fundo) <-- STOP'
+        '     [Candle 3]        [Candle 2]           [Candle 1 - PFR]',
+        '         |                 |                     | Máxima  <-- Superação = COMPRA',
+        '       ┌───┐             ┌───┐                 ┌───┐ (Fechamento > Fechamento 2)',
+        '       │   │             │   │                 │   │',
+        '       └───┘             └───┘                 │   │',
+        '         | Mínima          | Mínima            └───┘',
+        '                                                 | Menor Mínima (< Mínima 2 e < Mínima 3) <-- STOP'
       ].join('\n'),
-      observations: 'O PFR é especialmente potente quando ocorre com cauda inferior evidente (rejeição de preço) em suporte de médias móveis ou retração de Fibonacci.'
+      observations: 'O PFR é especialmente potente quando ocorre com cauda inferior evidente (rejeição de preço) em suporte de médias móveis (EMA 10 / EMA 72) ou retração de Fibonacci. Sequências ascendentes contínuas sem formação de fundo são categoricamente rejeitadas.'
     },
     {
       id: '123_COMPRA',
@@ -84,35 +85,6 @@
         '           | Mínima mais baixa (Fundo 2) <-- STOP'
       ].join('\n'),
       observations: 'Se o Candle 3 for violado para baixo antes de acionar a compra na máxima, o setup fica cancelado ou recalculado se uma nova mínima for estabelecida.'
-    },
-    {
-      id: 'DAVE_LANDRY',
-      name: 'Dave Landry',
-      shortLabel: 'Dave Landry',
-      whatIs: 'Setup clássico de correção para média móvel em tendência. Identifica um respiro saudável da tendência primária até a região de suporte das médias.',
-      howToIdentify: 'Com a média móvel (EMA 20 ou EMA 21) inclinada para cima, observe o ativo realizando um recuo ordenado com pelo menos duas mínimas consecutivas mais baixas (mínimas descendentes).',
-      concept: 'Identifica um respiro saudável da tendência primária até a região de suporte das médias, permitindo entrar na tendência pagando um preço menor e com stop curto.',
-      conditions: [
-        'A média móvel (geralmente EMA 20 ou EMA 21) deve estar nitidamente inclinada para cima.',
-        'O mercado realiza um recuo com duas ou mais mínimas consecutivas mais baixas.',
-        'O preço se aproxima ou toca a região de suporte dinâmico da média.'
-      ],
-      entryTrigger: 'Compra no rompimento da máxima do primeiro candle que tiver sua máxima superada após a sequência de mínimas descendentes.',
-      stop: 'Abaixo da mínima do candle que gerou o gatilho (ou mínima do recuo).',
-      visualExample: [
-        '    [Tendência Alta / EMA 20 ↗]',
-        '         |',
-        '       ┌───┐',
-        '       └───┘  [Mínima 1 menor]',
-        '         |       |',
-        '               ┌───┐  [Mínima 2 menor]',
-        '               └───┘     |',
-        '                 |     ┌───┐  <-- Superação da máxima = COMPRA',
-        '                       └───┘',
-        '              ~~~~~~~~~~~|~~~~~~~~~~ (EMA 20 / EMA 21)',
-        '                         Stop abaixo da mínima do recuo'
-      ].join('\n'),
-      observations: 'Dave Landry enfatiza: nunca opere o setup se a média de 20 períodos estiver horizontal ou descendente. A inclinação da média é o filtro essencial de alinhamento com a força compradora dominante.'
     },
     {
       id: 'RBI',
@@ -182,9 +154,6 @@
     if (normalized.includes('1-2-3') || normalized.includes('123') || normalized.includes('contracao 1-2-3')) {
       return '123_COMPRA';
     }
-    if (normalized.includes('dave') || normalized.includes('landry')) {
-      return 'DAVE_LANDRY';
-    }
 
     return null;
   }
@@ -195,7 +164,6 @@
     if (key && TRIGGER_MAP.has(key)) {
       return TRIGGER_MAP.get(key).name;
     }
-    // Se for um texto legado que não mapeou para nenhum dos 5, exibe o fallback conforme regra de trades antigos
     return fallback;
   }
 

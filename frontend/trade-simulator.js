@@ -19,6 +19,15 @@
     auditReport: null,
     auditModalOpen: false,
     activeScenario: '2R',
+    activeEnvironment: 'OFFICIAL', // 'OFFICIAL' | 'RESEARCH'
+    officialRulesExpanded: false,
+    researchConfig: {
+      rsFilterMode: 'RS_LT_80', // 'RS_GTE_80' | 'RS_LT_80' | 'RS_70_79' | 'RS_LT_70' | 'ALL_RS'
+      cycleFilterMode: 'OFFICIAL', // 'OFFICIAL' | 'ALLOW_DEFENSIVE'
+      trendFilterMode: 'OFFICIAL', // 'OFFICIAL' | 'RELAXED'
+      triggerMode: 'OFFICIAL', // 'OFFICIAL' | 'INSIDE_BAR_ONLY' | 'DOUBLE_IB_ONLY' | 'EXPERIMENTAL_123_IB'
+      scenario: '2R'
+    },
     massModalOpen: false,
     compareModalOpen: false,
     hypothesisModalOpen: false,
@@ -62,16 +71,44 @@
     snapshotSimId: null,
     snapshotData: null,
     snapshotZoom: '1M',
-    snapshotAuditModalOpen: false
+    snapshotAuditModalOpen: false,
+    snapshotSelectedPolicyId: 'TARGET_2R',
+    snapshotExitSort: 'DEFAULT',
+    snapshotExitFilter: 'ALL',
+    rubricMode: (function() {
+      try {
+        const saved = localStorage.getItem('healthy-trade-simulator-rubric-mode');
+        return saved !== null ? saved === 'true' : true;
+      } catch {
+        return true;
+      }
+    })(),
+    rubricComparisonExpanded: false
   };
 
   function sanitizeSimulationsList(list) {
     if (!Array.isArray(list)) return [];
-    const filtered = list.filter(s => s && s.triggerName !== 'Pullback');
+    const filtered = list.filter(s => s && s.triggerName !== 'Pullback' && s.triggerName !== 'Dave Landry' && s.triggerName !== 'David Landry');
     if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.sanitizeAndNormalizeSimulation === 'function') {
       return filtered.map(s => root.TradeSimulatorModel.sanitizeAndNormalizeSimulation(s));
     }
     return filtered;
+  }
+
+  /**
+   * Mapeamento centralizado de nomenclatura visível de gatilhos (apresentação em português).
+   * Substitui 'RBI' / 'Red Bar Ignored' por 'Barra Vermelha Ignorada' na camada visual.
+   */
+  function formatTriggerDisplayName(triggerName) {
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.formatTriggerDisplayName === 'function') {
+      return root.TradeSimulatorModel.formatTriggerDisplayName(triggerName);
+    }
+    if (!triggerName) return '';
+    const s = String(triggerName).trim();
+    if (s === 'RBI' || s === 'Red Bar Ignored' || s === 'Barra Vermelha Ignorada') {
+      return 'Barra Vermelha Ignorada';
+    }
+    return s;
   }
 
   /**
@@ -191,6 +228,13 @@
     const normalizedGrade = root.TradeSimulatorModel?.normalizeSimulatorGrade
       ? root.TradeSimulatorModel.normalizeSimulatorGrade(params.grade || 'A')
       : 'A';
+
+    if (state.activeEnvironment !== 'RESEARCH' && normalizedGrade === 'D') {
+      if (typeof root.showToast === 'function') {
+        root.showToast('Operação não recomendada: setups Grade D possuem orçamento de risco zero (0%) no Modo Oficial.', 'warn');
+      }
+      return null;
+    }
     const rawSignalDate = params.signalDate || new Date().toISOString().slice(0, 10);
     const sanitizedSignalDate = root.TradeSimulatorModel?.snapToTradingDay
       ? root.TradeSimulatorModel.snapToTradingDay(rawSignalDate, -1)
@@ -327,13 +371,14 @@
           state.massConfig.startDate = payload.startDate || '';
           state.massConfig.endDate = payload.endDate || '';
           if (payload.triggers && payload.triggers !== 'ALL') {
-            state.filters.trigger = Array.isArray(payload.triggers) ? payload.triggers[0] : payload.triggers;
+            const trigs = Array.isArray(payload.triggers) ? payload.triggers : [payload.triggers];
+            state.filters.trigger = trigs.length === 1 ? trigs[0] : 'ALL';
           } else {
             state.filters.trigger = 'ALL';
           }
           if (payload.grades && payload.grades !== 'ALL') {
-            const rawG = Array.isArray(payload.grades) ? payload.grades[0] : payload.grades;
-            state.filters.grade = root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(rawG) : rawG;
+            const grs = Array.isArray(payload.grades) ? payload.grades : [payload.grades];
+            state.filters.grade = grs.length === 1 ? (root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(grs[0]) : grs[0]) : 'ALL';
           } else {
             state.filters.grade = 'ALL';
           }
@@ -408,6 +453,18 @@
         state.filters.endDate = null;
       }
       state.massConfig.period = payload.period;
+      if (payload.triggers && payload.triggers !== 'ALL') {
+        const trigs = Array.isArray(payload.triggers) ? payload.triggers : [payload.triggers];
+        state.filters.trigger = trigs.length === 1 ? trigs[0] : 'ALL';
+      } else {
+        state.filters.trigger = 'ALL';
+      }
+      if (payload.grades && payload.grades !== 'ALL') {
+        const grs = Array.isArray(payload.grades) ? payload.grades : [payload.grades];
+        state.filters.grade = grs.length === 1 ? (root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(grs[0]) : grs[0]) : 'ALL';
+      } else {
+        state.filters.grade = 'ALL';
+      }
     }
     saveLocalCache();
     state.loading = false;
@@ -557,9 +614,19 @@
       return;
     }
 
-    const filtered = getFilteredSimulations();
-    const all = state.simulations;
-    const targetSimulations = state.exportScope === 'ALL' ? all : filtered;
+    const isResearchEnv = state.activeEnvironment === 'RESEARCH';
+    let targetSimulations;
+    if (isResearchEnv && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runResearchLabExperiment === 'function') {
+      const expResult = root.TradeSimulatorModel.runResearchLabExperiment({
+        ...state.researchConfig,
+        officialSimulations: state.simulations
+      });
+      targetSimulations = expResult.researchExperiment.simulations || [];
+    } else {
+      const filtered = getFilteredSimulations();
+      const all = state.simulations;
+      targetSimulations = state.exportScope === 'ALL' ? all : filtered;
+    }
 
     if (!targetSimulations.length) {
       if (typeof root.showToast === 'function') {
@@ -570,17 +637,19 @@
 
     const dateStr = new Date().toISOString().slice(0, 10);
     const count = targetSimulations.length;
+    const exportOpts = { simulationMode: isResearchEnv ? 'RESEARCH' : 'OFFICIAL' };
+    const prefix = isResearchEnv ? 'laboratorio-pesquisa-trades' : 'simulador-oficial-trades';
 
     try {
       if (state.exportFormat === 'DOC') {
-        const docContent = model.toDoc(targetSimulations);
+        const docContent = model.toDoc(targetSimulations, exportOpts);
         const blob = new Blob([docContent], { type: 'application/msword;charset=utf-8' });
-        downloadBlob(blob, `simulador-de-trades-estudo-${dateStr}.doc`);
+        downloadBlob(blob, `${prefix}-estudo-${dateStr}.doc`);
         if (typeof root.showToast === 'function') {
           root.showToast(`✓ Exportado ${count} trades para Word (.DOC) com 1 trade por página.`);
         }
       } else if (state.exportFormat === 'PDF') {
-        const htmlContent = model.toPrintableHtml(targetSimulations);
+        const htmlContent = model.toPrintableHtml(targetSimulations, exportOpts);
         const printWindow = window.open('', '_blank');
         if (printWindow) {
           printWindow.document.write(htmlContent);
@@ -588,22 +657,22 @@
         } else {
           // Fallback se bloqueador de pop-ups estiver ativo
           const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-          downloadBlob(blob, `simulador-de-trades-estudo-${dateStr}.html`);
+          downloadBlob(blob, `${prefix}-estudo-${dateStr}.html`);
         }
         if (typeof root.showToast === 'function') {
           root.showToast(`✓ Documento gerado com 1 trade por página para salvar como PDF.`);
         }
       } else if (state.exportFormat === 'ENEX') {
-        const enexContent = model.toEnex(targetSimulations);
+        const enexContent = model.toEnex(targetSimulations, exportOpts);
         const blob = new Blob([enexContent], { type: 'application/xml;charset=utf-8' });
-        downloadBlob(blob, `simulador-de-trades-evernote-${dateStr}.enex`);
+        downloadBlob(blob, `${prefix}-evernote-${dateStr}.enex`);
         if (typeof root.showToast === 'function') {
           root.showToast(`✓ Exportado ${count} notas independentes para Evernote (.ENEX).`);
         }
       } else if (state.exportFormat === 'CSV') {
-        const csvContent = model.toCsv(targetSimulations);
+        const csvContent = model.toCsv(targetSimulations, exportOpts);
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        downloadBlob(blob, `simulador-de-trades-${dateStr}.csv`);
+        downloadBlob(blob, `${prefix}-${dateStr}.csv`);
         if (typeof root.showToast === 'function') {
           root.showToast(`✓ Exportado ${count} trades simulados para CSV.`);
         }
@@ -630,12 +699,26 @@
 
   /**
    * Obtém simulações no escopo dos filtros do topo (dias, gatilho, setor, nota)
+   * No Modo Oficial: restringe estritamente aos sinais elegíveis (Ciclo Positivo e RS >= 80).
    */
   function getScopedSimulations() {
-    if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.filterSimulations !== 'function') {
-      return state.simulations;
+    let source = Array.isArray(state.simulations) ? state.simulations : [];
+    if (state.activeEnvironment !== 'RESEARCH') {
+      source = source.filter(s => {
+        // Bloqueio categórico de Grade D no Modo Oficial (orçamento de risco zero)
+        if (s.grade === 'D') return false;
+        const cycle = s.marketCycle || (root.TradeSimulatorModel?.resolveSimulationMarketCycle?.(s)?.classification);
+        if (cycle !== 'Positivo') return false;
+        const rsInfo = resolveSimulationEntryRs(s);
+        if (!rsInfo.isAvailable || !rsInfo.isEligible) return false;
+        return true;
+      });
     }
-    return root.TradeSimulatorModel.filterSimulations(state.simulations, {
+
+    if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.filterSimulations !== 'function') {
+      return source;
+    }
+    return root.TradeSimulatorModel.filterSimulations(source, {
       days: state.filters.days,
       startDate: state.filters.startDate,
       endDate: state.filters.endDate,
@@ -672,6 +755,31 @@
           const gradeRank = { 'A': 4, 'B': 3, 'C': 2, 'D': 1 };
           valA = gradeRank[a.grade] ?? -1;
           valB = gradeRank[b.grade] ?? -1;
+          break;
+        }
+        case 'marketCycle': {
+          const cycleRank = { 'Positivo': 3, 'Defensivo': 2, 'Indeterminado': 1 };
+          const getCycle = s => {
+            if (s.marketCycle) return s.marketCycle;
+            if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.resolveSimulationMarketCycle === 'function') {
+              return root.TradeSimulatorModel.resolveSimulationMarketCycle(s).classification;
+            }
+            return 'Indeterminado';
+          };
+          valA = cycleRank[getCycle(a)] ?? 0;
+          valB = cycleRank[getCycle(b)] ?? 0;
+          break;
+        }
+        case 'rsScore': {
+          const getRs = s => {
+            if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.resolveSimulationEntryRs === 'function') {
+              const info = root.TradeSimulatorModel.resolveSimulationEntryRs(s);
+              return info.isAvailable ? Number(info.rsScore) : -1;
+            }
+            return s.rsScore != null ? Number(s.rsScore) : -1;
+          };
+          valA = getRs(a);
+          valB = getRs(b);
           break;
         }
         case 'signalDate':
@@ -737,11 +845,22 @@
    * Aplica filtros atuais completos (incluindo aba de status e busca textual) e ordenação
    */
   function getFilteredSimulations() {
+    let source = Array.isArray(state.simulations) ? state.simulations : [];
+    if (state.activeEnvironment !== 'RESEARCH') {
+      source = source.filter(s => {
+        if (s.grade === 'D') return false;
+        const cycle = s.marketCycle || (root.TradeSimulatorModel?.resolveSimulationMarketCycle?.(s)?.classification);
+        if (cycle !== 'Positivo') return false;
+        const rsInfo = resolveSimulationEntryRs(s);
+        if (!rsInfo.isAvailable || !rsInfo.isEligible) return false;
+        return true;
+      });
+    }
     let filtered;
     if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.filterSimulations !== 'function') {
-      filtered = state.simulations;
+      filtered = source;
     } else {
-      filtered = root.TradeSimulatorModel.filterSimulations(state.simulations, state.filters);
+      filtered = root.TradeSimulatorModel.filterSimulations(source, state.filters);
     }
     return sortSimulations(filtered, state.sort);
   }
@@ -752,6 +871,10 @@
   function formatMoney(val) {
     if (val === null || val === undefined || Number.isNaN(Number(val))) return '—';
     return `R$ ${Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  function formatPrice(val) {
+    return formatMoney(val);
   }
 
   function formatR(val) {
@@ -775,6 +898,571 @@
   }
 
   /**
+   * Barra de Navegação de Ambiente — Os modos agora são telas separadas no menu Simuladores
+   */
+  function renderEnvironmentNavBar() {
+    return '';
+  }
+
+  /**
+   * Banner Resumo e Comparativo Auditável do Modo Rubric (Com Rubric vs Sem Rubric)
+   */
+  function renderRubricSummaryBanner(comparison, rubricReport) {
+    if (!comparison || !rubricReport) return '';
+    const wr = comparison.withRubric?.performance || {};
+    const wor = comparison.withoutRubric?.performance || {};
+    const risk = comparison.withRubric?.risk || {};
+    const deltas = comparison.deltas || {};
+    const qs = rubricReport.qualityAndSizing || {};
+    const rsBands = qs.rsBandBreakdown || {};
+    const grades = qs.gradeBreakdown || {};
+    const blocked = qs.blockedStats || {};
+    const expanded = Boolean(state.rubricComparisonExpanded);
+
+    const fmtDelta = (val, suffix = '') => {
+      const n = Number(val || 0);
+      const sign = n > 0 ? '+' : '';
+      return `${sign}${n.toFixed(2).replace('.', ',')}${suffix}`;
+    };
+
+    return `
+      <div class="sim-rubric-summary-banner" id="simRubricSummaryBanner">
+        <div class="sim-rubric-banner-header">
+          <div class="sim-rubric-banner-title-group">
+            <div class="sim-rubric-seal-row">
+              <span class="sim-rubric-seal-pill">
+                <span class="sim-seal-dot"></span>
+                <strong>MODO RUBRIC ATIVADO</strong>
+              </span>
+              <span class="sim-rubric-badge-version">Trading Rubric & Risk Engine v5.0</span>
+            </div>
+            <h3 class="sim-rubric-banner-heading">Aplicação do Método: Trading Rubric, Bet Sizing e Gestão de Risco</h3>
+            <p class="sim-rubric-banner-sub">
+              Dimensionamento causal trade a trade no Diário: Orçamento por Grade (A+/A/B/C), prioridade por Força Relativa (RS 95-100), bloqueio categórico de Grade D e controle de Portfolio Heat.
+            </p>
+          </div>
+          <div class="sim-rubric-banner-actions">
+            <button type="button" class="sim-btn-toggle-rubric-details" id="simToggleRubricComparison">
+              <span>${expanded ? '▲ Ocultar Comparação e Segmentações' : '📊 Comparar Com vs Sem Rubric'}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Badges de Destaque da Aplicação do Método -->
+        <div class="sim-rubric-kpis-strip">
+          <div class="sim-rubric-mini-kpi">
+            <span class="mini-kpi-label">Efeito Seleção (Win Rate)</span>
+            <strong class="mini-kpi-val ${deltas.winRateDeltaPct >= 0 ? 'good' : 'warn'}">
+              ${wr.winRate ? wr.winRate.toFixed(1).replace('.', ',') : 0}%
+              <small class="mini-delta">(${fmtDelta(deltas.winRateDeltaPct, 'pp')})</small>
+            </strong>
+            <span class="mini-kpi-desc">Filtro de edge do método ativo</span>
+          </div>
+
+          <div class="sim-rubric-mini-kpi">
+            <span class="mini-kpi-label">Expectância Matemática</span>
+            <strong class="mini-kpi-val ${deltas.expectancyDeltaR >= 0 ? 'good' : 'warn'}">
+              ${formatR(wr.expectancyR || 0)}
+              <small class="mini-delta">(${fmtDelta(deltas.expectancyDeltaR, 'R')})</small>
+            </strong>
+            <span class="mini-kpi-desc">Por trade autorizado</span>
+          </div>
+
+          <div class="sim-rubric-mini-kpi">
+            <span class="mini-kpi-label">Efeito Dimensionamento (Drawdown)</span>
+            <strong class="mini-kpi-val good">
+              -${risk.maxDrawdownPct ? risk.maxDrawdownPct.toFixed(2).replace('.', ',') : '0,00'}%
+              <small class="mini-delta">(${deltas.maxDrawdownDeltaPct <= 0 ? fmtDelta(deltas.maxDrawdownDeltaPct, 'pp') : `+${deltas.maxDrawdownDeltaPct}pp`})</small>
+            </strong>
+            <span class="mini-kpi-desc">Max Portfolio Heat: ${risk.maxPortfolioHeatPct || 0}%</span>
+          </div>
+
+          <div class="sim-rubric-mini-kpi">
+            <span class="mini-kpi-label">Patrimônio Líquido Acumulado</span>
+            <strong class="mini-kpi-val ${wr.netReturnPct >= 0 ? 'good' : 'bad'}">
+              ${wr.netReturnPct ? (wr.netReturnPct >= 0 ? '+' : '') + wr.netReturnPct.toFixed(2).replace('.', ',') + '%' : '0,00%'}
+              <small class="mini-delta">(${formatMoney(rubricReport.finalEquity || 100000)})</small>
+            </strong>
+            <span class="mini-kpi-desc">Capital inicial R$ 100.000 + custos reais</span>
+          </div>
+        </div>
+
+        ${expanded ? `
+          <!-- Comparativo Lado a Lado Auditável (Com Rubric vs Sem Rubric) -->
+          <div class="sim-rubric-comparison-grid">
+            <div class="sim-rubric-col with-rubric">
+              <div class="sim-col-header">
+                <span class="sim-col-badge good">COM RUBRIC (MÉTODO OFICIAL)</span>
+                <h4>Bet Sizing Dinâmico & Filtro Rigoroso</h4>
+              </div>
+              <table class="sim-comp-table">
+                <tbody>
+                  <tr><td>Trades Executados:</td><td><strong>${wr.executedCount || 0}</strong> de ${wr.totalSignals || 0}</td></tr>
+                  <tr><td>Trades Bloqueados:</td><td><strong class="bad">${wr.blockedCount || 0}</strong> (Grade D: ${blocked.byGradeD || 0}, RS: ${blocked.byRsBelow80 || 0})</td></tr>
+                  <tr><td>Taxa de Acerto:</td><td><strong class="good">${wr.winRate ? wr.winRate.toFixed(1).replace('.', ',') : 0}%</strong></td></tr>
+                  <tr><td>Expectância (R):</td><td><strong class="good">${formatR(wr.expectancyR || 0)}</strong></td></tr>
+                  <tr><td>Profit Factor:</td><td><strong>${wr.profitFactor ? wr.profitFactor.toFixed(2).replace('.', ',') : '—'}</strong></td></tr>
+                  <tr><td>Drawdown Máximo:</td><td><strong class="good">-${risk.maxDrawdownPct ? risk.maxDrawdownPct.toFixed(2).replace('.', ',') : '0,00'}%</strong></td></tr>
+                  <tr><td>Maior Sequência de Perdas:</td><td><strong>${risk.maxLosingStreak || 0} perdas</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="sim-rubric-col without-rubric">
+              <div class="sim-col-header">
+                <span class="sim-col-badge neutral">SEM RUBRIC (RISCO FIXO)</span>
+                <h4>Risco Padrão 0,5% sem Filtro de Qualidade</h4>
+              </div>
+              <table class="sim-comp-table">
+                <tbody>
+                  <tr><td>Trades Executados:</td><td><strong>${wor.executedCount || 0}</strong> (todos)</td></tr>
+                  <tr><td>Trades Bloqueados:</td><td><strong>0</strong> (nenhum filtro)</td></tr>
+                  <tr><td>Taxa de Acerto:</td><td><strong>${wor.winRate ? wor.winRate.toFixed(1).replace('.', ',') : 0}%</strong></td></tr>
+                  <tr><td>Expectância (R):</td><td><strong>${formatR(wor.expectancyR || 0)}</strong></td></tr>
+                  <tr><td>Profit Factor:</td><td><strong>${wor.profitFactor ? wor.profitFactor.toFixed(2).replace('.', ',') : '—'}</strong></td></tr>
+                  <tr><td>Drawdown Máximo:</td><td><strong class="warn">-${comparison.withoutRubric?.risk?.maxDrawdownPct ? comparison.withoutRubric.risk.maxDrawdownPct.toFixed(2).replace('.', ',') : '0,00'}%</strong></td></tr>
+                  <tr><td>Maior Sequência de Perdas:</td><td><strong>${comparison.withoutRubric?.risk?.maxLosingStreak || 0} perdas</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Segmentações por Faixa de RS e por Grade -->
+          <div class="sim-rubric-segments-row">
+            <!-- Segmentação por Força Relativa -->
+            <div class="sim-segment-card">
+              <h4>🎯 Priorização de Capital por Força Relativa (RS)</h4>
+              <div class="sim-segment-table-wrap">
+                <table class="sim-segment-table">
+                  <thead>
+                    <tr><th>Faixa de RS</th><th>Prioridade</th><th>Trades</th><th>Win Rate</th><th>Expectancy</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="rs-band-chip band-95-100">RS 95-100</span></td>
+                      <td>Líder Excepcional (Máxima)</td>
+                      <td>${rsBands['95-100']?.count || 0}</td>
+                      <td>${rsBands['95-100']?.winRate || 0}%</td>
+                      <td>${formatR(rsBands['95-100']?.expectancyR || 0)}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="rs-band-chip band-90-94">RS 90-94</span></td>
+                      <td>Líder (Muito Alta)</td>
+                      <td>${rsBands['90-94']?.count || 0}</td>
+                      <td>${rsBands['90-94']?.winRate || 0}%</td>
+                      <td>${formatR(rsBands['90-94']?.expectancyR || 0)}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="rs-band-chip band-80-89">RS 80-89</span></td>
+                      <td>Força Alta (Alta)</td>
+                      <td>${rsBands['80-89']?.count || 0}</td>
+                      <td>${rsBands['80-89']?.winRate || 0}%</td>
+                      <td>${formatR(rsBands['80-89']?.expectancyR || 0)}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="rs-band-chip band-sub80">RS &lt; 80</span></td>
+                      <td>Abaixo do Filtro (Bloqueado)</td>
+                      <td>${rsBands['<80']?.count || 0}</td>
+                      <td>${rsBands['<80']?.winRate || 0}%</td>
+                      <td>${formatR(rsBands['<80']?.expectancyR || 0)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Segmentação por Grade de Setup -->
+            <div class="sim-segment-card">
+              <h4>🏷️ Desempenho por Nota do Setup (Trading Rubric)</h4>
+              <div class="sim-segment-table-wrap">
+                <table class="sim-segment-table">
+                  <thead>
+                    <tr><th>Grade</th><th>Qualidade</th><th>Trades</th><th>Win Rate</th><th>Expectancy</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="sim-grade-badge grade-a">A+</span></td>
+                      <td>Rare Trade (Confluência Máxima)</td>
+                      <td>${grades['A+']?.count || 0}</td>
+                      <td>${grades['A+']?.winRate || 0}%</td>
+                      <td>${formatR(grades['A+']?.expectancyR || 0)}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="sim-grade-badge grade-a">A</span></td>
+                      <td>Alta Qualidade (Edge Forte)</td>
+                      <td>${grades['A']?.count || 0}</td>
+                      <td>${grades['A']?.winRate || 0}%</td>
+                      <td>${formatR(grades['A']?.expectancyR || 0)}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="sim-grade-badge grade-b">B</span></td>
+                      <td>Bom Edge (Moderado)</td>
+                      <td>${grades['B']?.count || 0}</td>
+                      <td>${grades['B']?.winRate || 0}%</td>
+                      <td>${formatR(grades['B']?.expectancyR || 0)}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="sim-grade-badge grade-c">C</span></td>
+                      <td>Pequeno Edge (Reduzido)</td>
+                      <td>${grades['C']?.count || 0}</td>
+                      <td>${grades['C']?.winRate || 0}%</td>
+                      <td>${formatR(grades['C']?.expectancyR || 0)}</td>
+                    </tr>
+                    <tr>
+                      <td><span class="sim-grade-badge grade-d">D</span></td>
+                      <td>Sem Edge (Bloqueio Automático)</td>
+                      <td>0</td>
+                      <td>—</td>
+                      <td>Risco 0,00%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  /**
+   * Painel Sempre Acessível "REGRAS OFICIAIS EM TESTE" (Exclusivo do Modo Oficial)
+   */
+  function renderOfficialRulesPanel(scopedSimulations) {
+    const panelData = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.buildOfficialRulesPanelData === 'function')
+      ? root.TradeSimulatorModel.buildOfficialRulesPanelData(scopedSimulations, state.massResultSummary, {
+          scenario: state.activeScenario,
+          universe: state.massConfig?.universe || 'IBOV / Brasil (B3)'
+        })
+      : null;
+
+    if (!panelData) return '';
+
+    const blocked = panelData.blockedSummary || {};
+    const expanded = Boolean(state.officialRulesExpanded);
+
+    return `
+      <div class="sim-official-rules-panel" id="simOfficialRulesPanel">
+        <div class="sim-official-rules-header">
+          <div class="sim-official-rules-left">
+            <div class="sim-official-rules-title-row">
+              <span class="sim-mode-pill official">MODO OFICIAL</span>
+              <h3 class="sim-official-rules-title">REGRAS OFICIAIS EM TESTE</h3>
+              <span class="sim-official-version-tag">Versão: ${panelData.ruleVersion}</span>
+              <span class="sim-official-readonly-tag">🔒 Regras Oficiais Protegidas (Somente Leitura)</span>
+            </div>
+            <p class="sim-official-rules-explanation">${panelData.explanatoryText}</p>
+          </div>
+
+          <div class="sim-official-rules-actions">
+            <button type="button" class="sim-btn-toggle-rules" id="simToggleOfficialRulesDetails">
+              <span>${expanded ? '▲ Ocultar regras completas' : '📋 Ver regras completas (10 filtros)'}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Resumo Compacto Sempre Visível -->
+        <div class="sim-official-rules-chips-bar">
+          <span class="sim-official-rule-chip active" title="Regra 1: Somente entradas com Ciclo de Mercado Positivo">
+            <span class="chip-dot"></span> <b>1. Ciclo:</b> Somente Positivo (Ativa)
+          </span>
+          <span class="sim-official-rule-chip active" title="Regra 2: Índice de referência acima das EMAs 10 e 72 no Diário">
+            <span class="chip-dot"></span> <b>2. Índice:</b> Acima de EMA 10 e EMA 72 (Ativa)
+          </span>
+          <span class="sim-official-rule-chip active" title="Regra 3: Timeframe Diário (1D)">
+            <span class="chip-dot"></span> <b>3. Timeframe:</b> Diário 1D (Ativa)
+          </span>
+          <span class="sim-official-rule-chip active" title="Regra 4: Somente ativos com Força Relativa histórica RS >= 80 na data do sinal">
+            <span class="chip-dot"></span> <b>4. Força Relativa:</b> RS ≥ 80 na Entrada (Ativa)
+          </span>
+          <span class="sim-official-rule-chip active" title="Regra 5: Preço > EMA 10 > EMA 72, ambas ascendentes">
+            <span class="chip-dot"></span> <b>5. Tendência:</b> Preço &gt; EMA 10 &gt; EMA 72 ↑ (Ativa)
+          </span>
+          <span class="sim-official-rule-chip active" title="Regra 7 e 8: Gestão de Risco e Cenário Oficial">
+            <span class="chip-dot"></span> <b>Gestão:</b> ${panelData.scenarioShortLabel} • Universo: ${panelData.universe}
+          </span>
+        </div>
+
+        <!-- Grade Completa Auditável das 10 Regras Oficiais -->
+        ${expanded ? `
+          <div class="sim-official-rules-grid">
+            ${panelData.rules.map(rule => `
+              <div class="sim-official-rule-card status-${rule.statusKey}">
+                <div class="sim-official-rule-card-top">
+                  <span class="sim-official-rule-num">#${rule.number}</span>
+                  <strong class="sim-official-rule-name">${rule.title}</strong>
+                  <span class="sim-official-rule-status-badge ${rule.statusKey}">${rule.status}</span>
+                </div>
+                <p class="sim-official-rule-summary">${rule.summary}</p>
+                <div class="sim-official-rule-foot">
+                  <span>${rule.detail}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  /**
+   * Ambiente Isolado: "Descobertas & Regras Candidatas — Laboratório de Pesquisa Quantitativa"
+   */
+  function renderResearchLabView() {
+    const exp = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runResearchLabExperiment === 'function')
+      ? root.TradeSimulatorModel.runResearchLabExperiment({
+          ...state.researchConfig,
+          officialSimulations: state.simulations
+        })
+      : null;
+
+    if (!exp) return '';
+
+    const cfg = state.researchConfig;
+    const base = exp.officialBaseline;
+    const res = exp.researchExperiment;
+    const deltas = exp.deltas;
+    const blocked = exp.blockedInExperiment;
+    const expSimulations = sortSimulations(res.simulations || [], state.sort);
+
+    const fmtDelta = (val, suffix = '') => {
+      const n = Number(val) || 0;
+      const sign = n > 0 ? '+' : '';
+      return `${sign}${n.toFixed(2).replace('.', ',')}${suffix}`;
+    };
+
+    return `
+      <div class="sim-research-lab-container" id="simResearchLabContainer">
+        <!-- Cabeçalho do Laboratório de Pesquisa Quantitativa -->
+        <div class="sim-research-lab-header">
+          <div class="sim-research-lab-titles">
+            <div class="sim-research-badge-row">
+              <span class="sim-mode-pill research">MODO PESQUISA — REGRAS ABERTAS</span>
+              <span class="sim-research-version-tag">Versão Experimental: ${exp.parameters.ruleVersion}</span>
+              <span class="sim-research-isolation-tag">🔬 Isolado do Simulador Oficial & Portfólio Real</span>
+            </div>
+            <h1>${exp.labTitle}</h1>
+            <p class="sim-research-explanation">${exp.explanatoryText}</p>
+          </div>
+
+          <div class="sim-research-header-actions">
+            <button type="button" class="sim-btn-CompareLab" id="simResearchBtnScenarios">
+              <span>📊 Comparar 5 Cenários de Saída</span>
+            </button>
+            <button type="button" class="sim-export-btn" id="simResearchExportBtn">
+              <span>⤓ Exportar Experimento</span>
+            </button>
+            <button type="button" class="sim-btn-back-official" id="simBackToOfficialBtn">
+              <span>🛡️ Voltar ao Simulador Oficial</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Aviso Obrigatório Quando Qualquer Regra Oficial é Relaxada ou Desativada -->
+        <div class="sim-research-warning-banner ${exp.hasRelaxedOfficialRules ? 'relaxed' : 'aligned'}">
+          <div class="sim-research-warning-main">
+            <strong>${exp.warningBannerText}</strong>
+            ${exp.alteredRules.length > 0 ? `
+              <div class="sim-research-altered-list">
+                <span><b>Regras alteradas ou desativadas em relação ao Modo Oficial:</b></span>
+                <ul>
+                  ${exp.alteredRules.map(r => `<li>${r}</li>`).join('')}
+                </ul>
+              </div>
+            ` : `
+              <div class="sim-research-altered-list">
+                <span>Nenhuma regra oficial desativada no momento — exibindo parâmetros equivalentes ao baseline oficial.</span>
+              </div>
+            `}
+          </div>
+        </div>
+
+        <!-- Painel de Controles de Hipóteses e Filtros Experimentais -->
+        <div class="sim-research-controls-card">
+          <div class="sim-research-controls-head">
+            <h3>🎛️ Configuração de Filtros & Hipóteses em Teste</h3>
+            <span>Altere um filtro por vez mantendo período, universo, gatilhos e gestão comparáveis para medir o impacto isolado de cada regra.</span>
+          </div>
+
+          <div class="sim-research-controls-grid">
+            <!-- Controle 1: Força Relativa (RS) -->
+            <div class="sim-research-control-group">
+              <label>1. Filtro de Força Relativa (RS na Entrada)</label>
+              <select id="simResearchRsFilter" class="sim-research-select">
+                <option value="RS_LT_80" ${cfg.rsFilterMode === 'RS_LT_80' ? 'selected' : ''}>🧪 RS &lt; 80 (Abaixo do Filtro Oficial — Hipótese Contraste)</option>
+                <option value="RS_70_79" ${cfg.rsFilterMode === 'RS_70_79' ? 'selected' : ''}>🧪 RS 70 a 79 (Faixa Intermediária)</option>
+                <option value="RS_LT_70" ${cfg.rsFilterMode === 'RS_LT_70' ? 'selected' : ''}>🧪 RS &lt; 70 (Ativos Fracos / Laggards)</option>
+                <option value="ALL_RS" ${cfg.rsFilterMode === 'ALL_RS' ? 'selected' : ''}>🧪 Todas as Faixas de RS (Sem Filtro de RS)</option>
+                <option value="RS_GTE_80" ${cfg.rsFilterMode === 'RS_GTE_80' ? 'selected' : ''}>🛡️ RS ≥ 80 (Regra Oficial de Controle)</option>
+              </select>
+            </div>
+
+            <!-- Controle 2: Ciclo de Mercado -->
+            <div class="sim-research-control-group">
+              <label>2. Filtro de Ciclo de Mercado</label>
+              <select id="simResearchCycleFilter" class="sim-research-select">
+                <option value="OFFICIAL" ${cfg.cycleFilterMode === 'OFFICIAL' ? 'selected' : ''}>🛡️ Somente Ciclo Positivo (Regra Oficial)</option>
+                <option value="ALLOW_DEFENSIVE" ${cfg.cycleFilterMode === 'ALLOW_DEFENSIVE' ? 'selected' : ''}>🧪 Permitir Ciclo Defensivo / Transição (Experimental)</option>
+              </select>
+            </div>
+
+            <!-- Controle 3: Alinhamento de Tendência -->
+            <div class="sim-research-control-group">
+              <label>3. Alinhamento de Tendência (EMAs 10/72)</label>
+              <select id="simResearchTrendFilter" class="sim-research-select">
+                <option value="OFFICIAL" ${cfg.trendFilterMode === 'OFFICIAL' ? 'selected' : ''}>🛡️ Preço &gt; EMA 10 &gt; EMA 72 Ascendentes (Oficial)</option>
+                <option value="RELAXED" ${cfg.trendFilterMode === 'RELAXED' ? 'selected' : ''}>🧪 Relaxar Exigência de Inclinação (Experimental)</option>
+              </select>
+            </div>
+
+            <!-- Controle 4: Gatilhos -->
+            <div class="sim-research-control-group">
+              <label>4. Escopo de Gatilhos em Teste</label>
+              <select id="simResearchTriggerMode" class="sim-research-select">
+                <option value="OFFICIAL" ${cfg.triggerMode === 'OFFICIAL' ? 'selected' : ''}>🛡️ Todos os Gatilhos Oficiais</option>
+                <option value="INSIDE_BAR_ONLY" ${cfg.triggerMode === 'INSIDE_BAR_ONLY' ? 'selected' : ''}>🔬 Somente Inside Bar (1 IB)</option>
+                <option value="EXPERIMENTAL_123_IB" ${cfg.triggerMode === 'EXPERIMENTAL_123_IB' ? 'selected' : ''}>🧪 Incluir 1-2-3 + Inside Bar Híbrido (Experimental)</option>
+              </select>
+            </div>
+
+            <!-- Controle 5: Cenário de Saída -->
+            <div class="sim-research-control-group">
+              <label>5. Cenário de Saída / Gestão</label>
+              <select id="simResearchScenario" class="sim-research-select">
+                <option value="2R" ${cfg.scenario === '2R' ? 'selected' : ''}>Gestão 2R — Base (Saída em +2R)</option>
+                <option value="2.5R" ${cfg.scenario === '2.5R' ? 'selected' : ''}>Gestão 2,5R — Alvo Estendido</option>
+                <option value="PYRAMID_1R_2R" ${cfg.scenario === 'PYRAMID_1R_2R' ? 'selected' : ''}>Gestão Pirâmide — 1R → 2R</option>
+                <option value="PARTIAL_50_2R_EMA9" ${cfg.scenario === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}>Parcial 50% (2R) + Média 10</option>
+                <option value="PARTIAL_80_2R_EMA9" ${cfg.scenario === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}>Parcial 80% (2R) + Média 10</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparativo Lado a Lado: Resultados Oficiais vs Resultados de Pesquisa (Sem Misturar Amostras) -->
+        <div class="sim-research-comparison-grid">
+          <!-- Coluna 1: Resultados Oficiais (Baseline) -->
+          <div class="sim-research-comp-card official-card">
+            <div class="sim-research-comp-head">
+              <div>
+                <span class="sim-mode-pill official">MODO OFICIAL</span>
+                <h4>${base.label}</h4>
+                <small>Filtro obrigatório RS ≥ 80 • Ciclo Positivo • EMAs 10/72 ↑ • ${base.ruleVersion}</small>
+              </div>
+            </div>
+            <div class="sim-research-metrics-row">
+              <div class="sim-research-metric-item">
+                <span>Trades Executados</span>
+                <strong>${base.tradesCount}</strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Taxa de Acerto (Win Rate)</span>
+                <strong class="metric-gain">${base.winRate.toFixed(1).replace('.', ',')}%</strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Expectância Matemática</span>
+                <strong class="${base.expectancyR >= 0 ? 'metric-gain' : 'metric-loss'}">${formatR(base.expectancyR)}</strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Profit Factor</span>
+                <strong>${base.profitFactorR != null ? Number(base.profitFactorR).toFixed(2).replace('.', ',') : '—'}</strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Drawdown Máximo</span>
+                <strong class="metric-loss">-${Number(base.maxDrawdownR || 0).toFixed(2).replace('.', ',')}R</strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Resultado Total Acumulado</span>
+                <strong class="${base.totalR >= 0 ? 'metric-gain' : 'metric-loss'}">${formatR(base.totalR)}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna 2: Resultados de Pesquisa (Experimento Isolado) -->
+          <div class="sim-research-comp-card research-card">
+            <div class="sim-research-comp-head">
+              <div>
+                <span class="sim-mode-pill research">MODO PESQUISA — REGRAS ABERTAS</span>
+                <h4>${res.label}</h4>
+                <small>Amostra Experimental Isolada • Cenário: ${exp.parameters.scenarioName} • ${res.ruleVersion}</small>
+              </div>
+            </div>
+            <div class="sim-research-metrics-row">
+              <div class="sim-research-metric-item">
+                <span>Trades Executados</span>
+                <strong>${res.tradesCount} <small class="delta-tag">(${deltas.tradesDelta >= 0 ? '+' : ''}${deltas.tradesDelta})</small></strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Taxa de Acerto (Win Rate)</span>
+                <strong class="${res.winRate >= 50 ? 'metric-gain' : 'metric-loss'}">${res.winRate.toFixed(1).replace('.', ',')}% <small class="delta-tag">(${fmtDelta(deltas.winRateDelta, 'pp')})</small></strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Expectância Matemática</span>
+                <strong class="${res.expectancyR >= 0 ? 'metric-gain' : 'metric-loss'}">${formatR(res.expectancyR)} <small class="delta-tag">(${fmtDelta(deltas.expectancyDeltaR, 'R')})</small></strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Profit Factor</span>
+                <strong>${res.profitFactorR != null ? Number(res.profitFactorR).toFixed(2).replace('.', ',') : '—'}</strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Drawdown Máximo</span>
+                <strong class="metric-loss">-${Number(res.maxDrawdownR || 0).toFixed(2).replace('.', ',')}R</strong>
+              </div>
+              <div class="sim-research-metric-item">
+                <span>Resultado Total Acumulado</span>
+                <strong class="${res.totalR >= 0 ? 'metric-gain' : 'metric-loss'}">${formatR(res.totalR)} <small class="delta-tag">(${fmtDelta(deltas.totalRDelta, 'R')})</small></strong>
+              </div>
+            </div>
+            <div class="sim-research-blocked-foot">
+              <span>📊 <b>Impacto dos Filtros nesta Execução:</b></span>
+              <span>Bloqueados pelo filtro de RS selecionado: <b>${blocked.blockedByRsFilter}</b></span>
+              <span>Bloqueados por Ciclo Defensivo: <b>${blocked.blockedByMarketCycle}</b></span>
+              <span>Bloqueados por Escopo de Gatilho: <b>${blocked.blockedByTriggerFilter}</b></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela Isolada da Amostra Experimental -->
+        <div class="sim-table-card sim-research-table-card">
+          <div class="sim-table-toolbar">
+            <div class="sim-research-table-title">
+              <span class="sim-mode-pill research">AMOSTRA EXPERIMENTAL ISOLADA</span>
+              <strong>Operações da Hipótese em Teste (${expSimulations.length} registros)</strong>
+              <small>Estes registros pertencem exclusivamente ao Laboratório de Pesquisa e não alteram o Modo Oficial.</small>
+            </div>
+          </div>
+          <div class="sim-table-wrap">
+            <table class="sim-table">
+              <thead>
+                <tr>
+                  ${getSortHeader('symbol', 'Ativo')}
+                  ${getSortHeader('triggerName', 'Gatilho')}
+                  ${getSortHeader('grade', 'Nota')}
+                  ${getSortHeader('marketCycle', 'Ciclo de Mercado')}
+                  ${getSortHeader('rsScore', 'RS na Entrada')}
+                  ${getSortHeader('signalDate', 'Data do Sinal')}
+                  ${getSortHeader('entryPrice', 'Entrada')}
+                  ${getSortHeader('stopLoss', 'Stop')}
+                  ${getSortHeader('status', 'Status')}
+                  ${getSortHeader('durationDays', 'Duração')}
+                  ${getSortHeader('currentPrice', 'Preço Atual')}
+                  ${getSortHeader('resultR', 'Resultado (R)')}
+                  ${getSortHeader('mfeR', 'MFE (R)')}
+                  ${getSortHeader('maeR', 'MAE (R)')}
+                  <th style="text-align: center;">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${expSimulations.length > 0 ? expSimulations.map(sim => renderTableRow(sim)).join('') : renderEmptyRow()}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
    * Renderização Principal
    */
   function render() {
@@ -782,34 +1470,65 @@
     if (!rootEl) return;
 
     const scoped = getScopedSimulations();
-    const stats = root.TradeSimulatorModel
-      ? root.TradeSimulatorModel.calculateSimulatorStats(scoped)
-      : {
-          totalCreated: scoped.length,
-          executedEntriesCount: 0,
-          executedPct: 0,
-          winningTradesCount: 0,
-          winRate: 0,
-          losingTradesCount: 0,
-          lossRate: 0,
-          totalR: 0,
-          totalRFormatted: '+0,00R',
-          avgR: 0,
-          avgRFormatted: '+0,00R',
-          waitingCount: 0,
-          waitingPct: 0,
-          inOperationCount: 0,
-          closedCount: 0,
-          distribution: { winners: { count: 0, label: '0%' }, losers: { count: 0, label: '0%' }, notTriggered: { count: 0, label: '0%' } },
-          triggerPerformance: [],
-          equityCurve: []
-        };
+    let stats = null;
+    let rubricReport = null;
+    let rubricComparison = null;
+
+    if (state.rubricMode && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runRubricPortfolioSimulation === 'function') {
+      rubricReport = root.TradeSimulatorModel.runRubricPortfolioSimulation(scoped, { rubricMode: true, officialMode: true });
+      rubricComparison = root.TradeSimulatorModel.compareRubricModes(scoped);
+
+      const baseStats = root.TradeSimulatorModel.calculateSimulatorStats(scoped);
+      stats = {
+        ...baseStats,
+        executedEntriesCount: rubricReport.performance.executedCount,
+        executedPct: scoped.length > 0 ? (rubricReport.performance.executedCount / scoped.length) * 100 : 0,
+        winningTradesCount: rubricReport.performance.winsCount,
+        winRate: rubricReport.performance.winRate,
+        losingTradesCount: rubricReport.performance.lossesCount,
+        lossRate: rubricReport.performance.executedCount > 0 ? (rubricReport.performance.lossesCount / rubricReport.performance.executedCount) * 100 : 0,
+        totalR: rubricReport.performance.totalR,
+        totalRFormatted: formatR(rubricReport.performance.totalR),
+        avgR: rubricReport.performance.expectancyR,
+        avgRFormatted: formatR(rubricReport.performance.expectancyR),
+        profitFactor: rubricReport.performance.profitFactor,
+        maxDrawdownPct: rubricReport.risk.maxDrawdownPct,
+        finalEquity: rubricReport.finalEquity,
+        netReturnPct: rubricReport.netReturnPct,
+        equityCurve: rubricReport.equityCurve
+      };
+    } else {
+      stats = root.TradeSimulatorModel
+        ? root.TradeSimulatorModel.calculateSimulatorStats(scoped)
+        : {
+            totalCreated: scoped.length,
+            executedEntriesCount: 0,
+            executedPct: 0,
+            winningTradesCount: 0,
+            winRate: 0,
+            losingTradesCount: 0,
+            lossRate: 0,
+            totalR: 0,
+            totalRFormatted: '+0,00R',
+            avgR: 0,
+            avgRFormatted: '+0,00R',
+            waitingCount: 0,
+            waitingPct: 0,
+            inOperationCount: 0,
+            closedCount: 0,
+            distribution: { winners: { count: 0, label: '0%' }, losers: { count: 0, label: '0%' }, notTriggered: { count: 0, label: '0%' } },
+            triggerPerformance: [],
+            equityCurve: []
+          };
+    }
 
     const filtered = getFilteredSimulations();
 
     rootEl.innerHTML = `
-      <div class="simulator-page">
+      <div class="simulator-page env-official-mode">
         ${renderHeader()}
+        ${renderOfficialRulesPanel(scoped)}
+        ${state.rubricMode && rubricComparison ? renderRubricSummaryBanner(rubricComparison, rubricReport) : ''}
         ${renderKpiCards(stats)}
         ${renderChartsRow(stats)}
         ${renderTableSection(filtered, stats)}
@@ -851,13 +1570,16 @@
       daysLabel = 'Todo o período';
     }
 
-    const triggerLabel = state.filters.trigger === 'ALL' ? 'Todos os gatilhos' : state.filters.trigger;
+    const triggerLabel = state.filters.trigger === 'ALL'
+      ? 'Todos os gatilhos'
+      : formatTriggerDisplayName(state.filters.trigger);
     const sectorLabel = state.filters.sector === 'ALL' ? 'Todos os setores' : state.filters.sector;
     const gradeLabel = state.filters.grade === 'ALL' ? 'Todas as notas' : `Nota ${state.filters.grade}`;
 
-    const audit = state.auditReport || (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function'
-      ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { scenario: state.activeScenario })
-      : null);
+    const scopedForAudit = getScopedSimulations();
+    const audit = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function')
+      ? root.TradeSimulatorModel.auditSimulationsBatch(scopedForAudit, { scenario: state.activeScenario })
+      : state.auditReport;
     const isConsistent = !audit || audit.isConsistent !== false;
     const invalidCount = audit ? (audit.invalidTradesCount || 0) : 0;
 
@@ -866,12 +1588,17 @@
         <div class="sim-header-titles">
           <div class="sim-title-row">
             <h1>Simulador de Trades</h1>
+            <span class="sim-mode-pill official" id="simOfficialModeBadge">MODO OFICIAL</span>
             <span class="sim-beta-badge">BETA</span>
+            <button type="button" class="sim-rubric-mode-toggle ${state.rubricMode ? 'active' : ''}" id="simBtnRubricModeToggle" title="Alternar Modo Rubric: aplica Trading Rubric, Bet Sizing por RS e limites da Política de Risco">
+              <span class="sim-rubric-toggle-indicator"></span>
+              <span class="sim-rubric-toggle-text">Modo Rubric: <strong>${state.rubricMode ? 'ATIVADO' : 'DESATIVADO'}</strong></span>
+            </button>
             <button type="button" class="sim-audit-status-pill ${isConsistent ? 'consistent' : 'inconsistent'}" id="simBtnAuditModal" title="Abrir Relatório de Auditoria e Consistência dos Dados">
               <span>${isConsistent ? '🛡️ Auditoria: 100% Consistente' : `⚠️ Auditoria: ${invalidCount} inconsistência(s)`}</span>
             </button>
           </div>
-          <p>Acompanhe como seus trades teriam performado seguindo as regras do seu método.</p>
+          <p>Simulação oficial do método Healthy Trend Trader — executando exclusivamente sinais elegíveis (Ciclo Positivo e Força Relativa RS ≥ 80 na data do sinal).</p>
         </div>
 
         <div class="sim-top-filters">
@@ -905,11 +1632,9 @@
             <div class="sim-dropdown-menu ${state.activeDropdown === 'trigger' ? 'open' : ''}">
               <button class="sim-dropdown-item ${state.filters.trigger === 'ALL' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="ALL">Todos os gatilhos</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Inside Bar">Inside Bar</button>
-              <button class="sim-dropdown-item ${state.filters.trigger === 'Double Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Double Inside Bar">Double Inside Bar</button>
               <button class="sim-dropdown-item ${state.filters.trigger === '1-2-3 de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="1-2-3 de Compra">1-2-3 de Compra</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'PFR de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="PFR de Compra">PFR de Compra</button>
-              <button class="sim-dropdown-item ${state.filters.trigger === 'Dave Landry' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Dave Landry">Dave Landry</button>
-              <button class="sim-dropdown-item ${state.filters.trigger === 'Red Bar Ignored' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Red Bar Ignored">Red Bar Ignored</button>
+              <button class="sim-dropdown-item ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'Red Bar Ignored' || state.filters.trigger === 'RBI') ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Barra Vermelha Ignorada">Barra Vermelha Ignorada</button>
               <button class="sim-dropdown-item ${state.filters.trigger === 'Outros' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Outros">Outros</button>
             </div>
           </div>
@@ -942,26 +1667,12 @@
             <span>📊 Comparar Cenários</span>
           </button>
 
-          <!-- Botão Hipótese: Estudo Double Inside Bar -->
-          <button class="sim-btn-hypothesis" type="button" id="simBtnHypothesisModal" title="Estudo Estatístico: Double Inside Bar vs Inside Bar simples">
-            <span>🔬 Estudo: Double Inside Bar</span>
-          </button>
-
           <!-- Botão Mais Opções (···) com Dropdown -->
           <div class="sim-filter-select-wrap">
-            <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Massa de teste, Comparador, Auditoria, Reavaliar e Excluir">
+            <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Auditoria, Reavaliar, Exportar e Excluir">
               <span>···</span>
             </button>
             <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
-              <button class="sim-dropdown-item" type="button" id="simMoreBtnMass">
-                <span>⚡</span> <span>Gerar Massa de Teste</span>
-              </button>
-              <button class="sim-dropdown-item" type="button" id="simMoreBtnCompare">
-                <span>📊</span> <span>Comparar Cenários</span>
-              </button>
-              <button class="sim-dropdown-item" type="button" id="simMoreBtnHypothesis">
-                <span>🔬</span> <span>Estudo: Double Inside Bar</span>
-              </button>
               <button class="sim-dropdown-item" type="button" id="simMoreBtnAudit">
                 <span>🛡️</span> <span>Relatório de Auditoria</span>
               </button>
@@ -1006,7 +1717,6 @@
               </span>
               <span class="sim-mass-summary-desc">
                 Período: <strong>${formatDateBR(state.massResultSummary.period?.minDate)}</strong> a <strong>${formatDateBR(state.massResultSummary.period?.maxDate)}</strong> (${state.massResultSummary.period?.totalTradingSessions || 0} pregões reais). Universo: <strong>${state.massResultSummary.universe || 'IBOV'}</strong>. Cenário: <strong>${state.massResultSummary.scenario || '2R'}</strong>.
-                <button type="button" class="sim-banner-audit-link" id="simBannerBtnAudit">${isConsistent ? '🛡️ Auditoria: 0 inconsistências' : `⚠️ Ver ${invalidCount} inconsistência(s)`}</button>
                 ${!state.massResultSummary.targetReached && state.massResultSummary.targetVolume !== 'MAX' ? '<br><em class="sim-mass-fidelity-note">⚠️ Nota de Fidelidade Estatística: O número de trades executados foi delimitado pela cobertura histórica disponível e pelos critérios rigorosos do método. O sistema não inventa dados artificiais para preencher metas.</em>' : ''}
               </span>
             </div>
@@ -1027,23 +1737,21 @@
     return `
       <!-- Linha 1: 8 KPIs Operacionais Primários -->
       <div class="sim-kpis-container">
-        <!-- Card 1: Simulações criadas -->
+        <!-- Card 1: Trades encerrados -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
             <span class="sim-kpi-icon icon-blue">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <circle cx="12" cy="12" r="6"></circle>
-                <circle cx="12" cy="12" r="2"></circle>
+                <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </span>
-            <span class="sim-kpi-title">Simulações criadas</span>
+            <span class="sim-kpi-title">Trades encerrados</span>
           </div>
-          <div class="sim-kpi-val">${stats.totalCreated}</div>
-          <p class="sim-kpi-sub">Sinais detectados no período.</p>
+          <div class="sim-kpi-val">${stats.closedTradesCount}</div>
+          <p class="sim-kpi-sub">Operações finalizadas no período.</p>
         </div>
 
-        <!-- Card 2: Entradas executadas -->
+        <!-- Card 2: Trades em aberto -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
             <span class="sim-kpi-icon icon-green">
@@ -1051,10 +1759,10 @@
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
             </span>
-            <span class="sim-kpi-title">Entradas executadas</span>
+            <span class="sim-kpi-title">Trades em aberto</span>
           </div>
-          <div class="sim-kpi-val">${stats.executedEntriesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.executedPct.toFixed(1).replace('.', ',')}%</strong> acionaram entrada.</p>
+          <div class="sim-kpi-val">${stats.inOperationCount}</div>
+          <p class="sim-kpi-sub">${stats.inOperationCount > 0 ? 'Posições em andamento no gráfico.' : 'Nenhuma posição aberta.'}</p>
         </div>
 
         <!-- Card 3: Trades vencedores -->
@@ -1072,7 +1780,7 @@
             <span class="sim-kpi-title">Trades vencedores</span>
           </div>
           <div class="sim-kpi-val">${stats.winningTradesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.winRate.toFixed(1).replace('.', ',')}%</strong> de win rate.</p>
+          <p class="sim-kpi-sub"><strong>${stats.winRate.toFixed(1).replace('.', ',')}%</strong> de ${stats.closedTradesCount} encerrados.</p>
         </div>
 
         <!-- Card 4: Trades perdedores -->
@@ -1087,7 +1795,7 @@
             <span class="sim-kpi-title">Trades perdedores</span>
           </div>
           <div class="sim-kpi-val">${stats.losingTradesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.lossRate.toFixed(1).replace('.', ',')}%</strong> de loss rate.</p>
+          <p class="sim-kpi-sub"><strong>${stats.lossRate.toFixed(1).replace('.', ',')}%</strong> de ${stats.closedTradesCount} encerrados.</p>
         </div>
 
         <!-- Card 5: Resultado total -->
@@ -1300,9 +2008,10 @@
       breakdownItemsHtml = triggers.map(t => {
         const widthPct = Math.max(2, Math.min(100, Math.round((Math.abs(t.totalR || 0) / maxTriggerR) * 100)));
         const colorClass = (t.totalR || 0) >= 0 ? '' : 'negative-bar';
+        const displayName = formatTriggerDisplayName(t.name);
         return `
           <div class="sim-trigger-row">
-            <span class="sim-trigger-name" title="${t.name}">${t.name}</span>
+            <span class="sim-trigger-name" title="${displayName}">${displayName}</span>
             <div class="sim-trigger-bar-bg">
               <div class="sim-trigger-bar-fill ${colorClass}" style="width: ${widthPct}%;"></div>
             </div>
@@ -1420,17 +2129,34 @@
   function renderEquitySvgChart(points, isUnitRS, riskNominal) {
     const width = 640;
     const height = 180;
-    const pad = { top: 16, right: 25, bottom: 25, left: 38 };
+    const pad = { top: 16, right: 20, bottom: 25, left: 54 };
 
-    let yMinR = -5;
-    let yMaxR = 25;
-    if (points.length > 0) {
+    let minVal = 0;
+    let maxVal = 25;
+    if (points && points.length > 0) {
       const vals = points.map(p => Number(p.cumulativeR) || 0);
-      const minVal = Math.min(0, ...vals);
-      const maxVal = Math.max(0, ...vals);
-      yMinR = Math.min(-5, Math.floor(minVal / 5) * 5);
-      yMaxR = Math.max(25, Math.ceil(maxVal / 5) * 5);
+      minVal = Math.min(0, ...vals);
+      maxVal = Math.max(0, ...vals);
     }
+
+    const rawSpan = Math.max(20, maxVal - minVal);
+    const candidateSteps = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
+    let stepR = 50;
+    for (const c of candidateSteps) {
+      if (rawSpan / c <= 5.5) {
+        stepR = c;
+        break;
+      }
+    }
+
+    let yMinR = Math.min(0, Math.floor(minVal / stepR) * stepR);
+    let yMaxR = Math.max(stepR, Math.ceil(maxVal / stepR) * stepR);
+
+    // Garantir pelo menos 3 divisões visíveis
+    if (yMaxR - yMinR < stepR * 2) {
+      yMaxR += stepR;
+    }
+
     const yRange = yMaxR - yMinR || 30;
 
     const getY = (rVal) => {
@@ -1443,33 +2169,75 @@
       return pad.left + (idx / (total - 1)) * (width - pad.left - pad.right);
     };
 
-    // Linhas de Grade Horizontais
+    // Linhas de Grade Horizontais calculadas dinamicamente
     const gridLevels = [];
-    for (let l = yMaxR; l >= yMinR; l -= 5) {
+    for (let l = yMaxR; l >= yMinR; l -= stepR) {
       gridLevels.push(l);
     }
+    if (!gridLevels.includes(0) && yMinR <= 0 && yMaxR >= 0) {
+      gridLevels.push(0);
+      gridLevels.sort((a, b) => b - a);
+    }
+
+    const formatYLabel = (level) => {
+      if (isUnitRS) {
+        const nominal = Number(riskNominal) || 1000;
+        const totalMoney = level * nominal;
+        const absMoney = Math.abs(totalMoney);
+        if (absMoney === 0) return 'R$ 0';
+        const sign = totalMoney > 0 ? '+' : '-';
+        if (absMoney >= 1000) {
+          const kVal = (absMoney / 1000).toFixed(absMoney % 1000 === 0 ? 0 : 1).replace('.0', '');
+          return `${sign}R$ ${kVal}k`;
+        }
+        return `${sign}R$ ${absMoney.toFixed(0)}`;
+      }
+      if (level === 0) return '0R';
+      return `${level > 0 ? '+' : ''}${level}R`;
+    };
+
     const gridLines = gridLevels.map(level => {
       const y = getY(level);
       const isBaseline = level === 0;
-      const label = isUnitRS
-        ? `${level > 0 ? '+' : ''}${(level * riskNominal / 1000).toFixed(0)}k`
-        : `${level > 0 ? '+' : ''}${level}R`;
+      const label = formatYLabel(level);
       return `
         <line x1="${pad.left}" y1="${y}" x2="${width - pad.right}" y2="${y}"
               stroke="${isBaseline ? 'rgba(16, 185, 129, 0.45)' : '#e2e8f0'}"
               stroke-dasharray="${isBaseline ? '4,4' : '2,2'}" stroke-width="${isBaseline ? '1.2' : '1'}" />
-        <text x="${pad.left - 6}" y="${y + 3.5}" text-anchor="end" font-size="9" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${label}</text>
+        <text x="${pad.left - 8}" y="${y + 3.5}" text-anchor="end" font-size="9.5" fill="${isBaseline ? '#10b981' : '#94a3b8'}" font-family="Inter, sans-serif" font-weight="${isBaseline ? '600' : '500'}">${label}</text>
       `;
     }).join('');
 
     // Datas no eixo X
-    const dates = ['Jul 1', 'Jul 15', 'Ago 1', 'Ago 15', 'Set 1', 'Set 15', 'Out 1'];
-    const dateLabels = dates.map((d, i) => {
-      const x = pad.left + (i / (dates.length - 1)) * (width - pad.left - pad.right);
-      return `
-        <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d}</text>
-      `;
-    }).join('');
+    let dates = ['Jul 1', 'Jul 15', 'Ago 1', 'Ago 15', 'Set 1', 'Set 15', 'Out 1'];
+    if (points && points.length >= 2) {
+      const numDateTicks = Math.min(7, points.length);
+      const sampledDates = [];
+      for (let i = 0; i < numDateTicks; i++) {
+        const ptIndex = Math.round((i / (numDateTicks - 1)) * (points.length - 1));
+        const pt = points[ptIndex];
+        if (pt && pt.dateFormatted) {
+          sampledDates.push({ idx: ptIndex, label: pt.dateFormatted.slice(0, 5) });
+        }
+      }
+      if (sampledDates.length >= 2) {
+        dates = sampledDates;
+      }
+    }
+
+    const dateLabels = Array.isArray(dates) && typeof dates[0] === 'string'
+      ? dates.map((d, i) => {
+          const x = pad.left + (i / (dates.length - 1)) * (width - pad.left - pad.right);
+          return `
+            <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d}</text>
+          `;
+        }).join('')
+      : dates.map(d => {
+          const x = getX(d.idx, points.length);
+          return `
+            <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d.label}</text>
+          `;
+        }).join('');
 
     // Traçado da Curva com base nos trades reais acumulados
     let pathD = '';
@@ -1646,6 +2414,8 @@
                 ${getSortHeader('symbol', 'Ativo')}
                 ${getSortHeader('triggerName', 'Gatilho')}
                 ${getSortHeader('grade', 'Nota')}
+                ${getSortHeader('marketCycle', 'Ciclo de Mercado')}
+                ${getSortHeader('rsScore', 'RS na Entrada')}
                 ${getSortHeader('signalDate', 'Data do Sinal')}
                 ${getSortHeader('entryPrice', 'Entrada')}
                 ${getSortHeader('stopLoss', 'Stop')}
@@ -1663,7 +2433,7 @@
             </tbody>
             <tfoot>
               <tr class="sim-table-summary-row">
-                <td colspan="7">
+                <td colspan="9">
                   <div class="sim-tfoot-summary-title">
                     <span>Média / Total Geral</span>
                     <small id="simTableFooterCount">(${simulations.length} trade${simulations.length === 1 ? '' : 's'})</small>
@@ -1785,12 +2555,18 @@
         </td>
 
         <!-- Gatilho -->
-        <td class="td-trigger">${sim.triggerName === 'Double Inside Bar' ? '<span class="sim-dib-tag">⚡ Double Inside Bar</span>' : sim.triggerName}</td>
+        <td class="td-trigger">${formatTriggerDisplayName(sim.triggerName)}</td>
 
         <!-- Nota -->
         <td>
           <span class="sim-grade-badge ${gradeClass}">${sim.grade || '—'}</span>
         </td>
+
+        <!-- Ciclo de Mercado -->
+        <td class="td-cycle">${renderMarketCyclePill(sim)}</td>
+
+        <!-- RS na Entrada (Força Relativa Histórica na Data do Sinal) -->
+        <td class="td-rs">${renderEntryRsPill(sim)}</td>
 
         <!-- Data do Sinal -->
         <td class="td-date">${formatDateBR(sim.signalDate)}</td>
@@ -1843,6 +2619,12 @@
   }
 
   function renderStatusPill(status, sim) {
+    if (state.rubricMode && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.evaluateTradeRubricAndSizing === 'function') {
+      const evalInfo = sim?.evaluation || root.TradeSimulatorModel.evaluateTradeRubricAndSizing(sim, {}, { officialMode: true });
+      if (!evalInfo.isEligible) {
+        return `<span class="sim-status-pill pill-blocked" title="${evalInfo.blockReason || 'Bloqueado pelo Trading Rubric'}"><span class="pill-dot"></span> Bloqueado (${evalInfo.blockCode || 'Rubric'})</span>`;
+      }
+    }
     if (sim && (status === 'CLOSED_LOSS' || status === 'CLOSED_GAIN') && (Number(sim.resultR) === 0 || Math.abs(Number(sim.resultR) || 0) < 0.0001)) {
       return `<span class="sim-status-pill pill-breakeven"><span class="pill-dot"></span> Encerrado (Breakeven)</span>`;
     }
@@ -1861,6 +2643,87 @@
     }
   }
 
+  function resolveSimulationMarketCycle(sim) {
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.resolveSimulationMarketCycle === 'function') {
+      return root.TradeSimulatorModel.resolveSimulationMarketCycle(sim);
+    }
+    const c = String(sim?.marketCycle || '').trim();
+    if (c.toLowerCase() === 'positivo') {
+      return { classification: 'Positivo', status: 'good', isPermitted: true, isVerified: true, title: 'Ciclo Positivo: Elegível para entrada' };
+    }
+    if (c.toLowerCase() === 'defensivo') {
+      return { classification: 'Defensivo', status: 'bad', isPermitted: false, isVerified: true, title: 'Ciclo Defensivo: Bloqueio P0' };
+    }
+    return { classification: 'Indeterminado', status: 'neutral', isPermitted: false, isVerified: false, title: 'Ciclo Indeterminado' };
+  }
+
+  function renderMarketCyclePill(sim) {
+    const cycle = resolveSimulationMarketCycle(sim);
+    const cls = cycle.classification || 'Indeterminado';
+
+    let pillClass = 'cycle-neutral';
+    let dotClass = 'dot-neutral';
+    if (cls === 'Positivo') {
+      pillClass = 'cycle-positive';
+      dotClass = 'dot-positive';
+    } else if (cls === 'Defensivo') {
+      pillClass = 'cycle-defensive';
+      dotClass = 'dot-defensive';
+    }
+
+    const titleAttr = (cycle.title || `Ciclo ${cls} no momento do sinal`)
+      .replace(/"/g, '&quot;');
+
+    return `
+      <span class="sim-cycle-pill ${pillClass}" title="${titleAttr}">
+        <span class="sim-cycle-dot ${dotClass}"></span>
+        <span class="sim-cycle-text">${cls}</span>
+      </span>
+    `;
+  }
+
+  function renderMarketCycleDetailsCard(sim) {
+    const cycle = resolveSimulationMarketCycle(sim);
+    const cls = cycle.classification || 'Indeterminado';
+    const isGood = cls === 'Positivo';
+    const isBad = cls === 'Defensivo';
+
+    const bg = isGood ? 'rgba(34, 197, 94, 0.08)' : (isBad ? 'rgba(239, 68, 68, 0.08)' : 'rgba(148, 163, 184, 0.08)');
+    const border = isGood ? '#166534' : (isBad ? '#991b1b' : '#334155');
+    const badgeBg = isGood ? '#14532d' : (isBad ? '#7f1d1d' : '#1e293b');
+    const badgeColor = isGood ? '#86efac' : (isBad ? '#fca5a5' : '#94a3b8');
+
+    const bench = cycle.benchmarkSymbol || (sim.marketPermission?.benchmarkSymbol) || 'IBOV';
+    const evalDate = cycle.evalDate ? formatDateBR(cycle.evalDate) : (sim.signalDate ? formatDateBR(sim.signalDate) : '—');
+    const emaStatus = (cycle.price && cycle.ema10 && cycle.ema72)
+      ? `Índice R$ ${Number(cycle.price).toFixed(2)} | EMA10 R$ ${Number(cycle.ema10).toFixed(2)} | EMA72 R$ ${Number(cycle.ema72).toFixed(2)}`
+      : (isGood ? `Índice ${bench} acima das EMAs 10 e 72` : (isBad ? `Índice ${bench} abaixo das EMAs 10 e/ou 72` : 'Sem dados suficientes do índice no momento do sinal'));
+
+    const verdict = isGood
+      ? '✅ Elegível para Entrada — Mercado em regime favorável e preço do índice acima das EMAs 10 e 72.'
+      : (isBad
+        ? '🚨 Inconsistência de Regra: Operação registrada em Ciclo Defensivo (bloqueio P0).'
+        : '⚪ Não Comprovado: Dados históricos do benchmark ausentes na data do sinal.');
+
+    return `
+      <div class="sim-modal-cycle-box" style="background: ${bg}; border: 1px solid ${border}; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 13px; font-weight: 700; color: inherit;">🏛️ Ciclo de Mercado no Momento do Sinal</span>
+            <span style="background: ${badgeBg}; color: ${badgeColor}; font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px;">
+              ${cls.toUpperCase()}
+            </span>
+          </div>
+          <small style="color: var(--muted, #94a3b8); font-size: 11px;">Benchmark: <b>${bench}</b> • Data: <b>${evalDate}</b></small>
+        </div>
+        <div style="font-size: 11.5px; color: inherit; line-height: 1.4; opacity: 0.9;">
+          <div><b>Status das Médias:</b> ${emaStatus}</div>
+          <div style="margin-top: 3px;"><b>Veredito Operacional:</b> ${verdict}</div>
+        </div>
+      </div>
+    `;
+  }
+
   function getGradeBadgeClass(grade) {
     const g = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.normalizeSimulatorGrade === 'function'
       ? root.TradeSimulatorModel.normalizeSimulatorGrade(grade)
@@ -1871,10 +2734,101 @@
     return 'grade-d';
   }
 
+  function resolveSimulationEntryRs(sim) {
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.resolveSimulationEntryRs === 'function') {
+      return root.TradeSimulatorModel.resolveSimulationEntryRs(sim);
+    }
+    const raw = sim && Object.prototype.hasOwnProperty.call(sim, 'rsScore') ? sim.rsScore : (sim?.entryRs ?? 84);
+    if (sim?.rsUnavailable === true || raw === null || raw === 'N/D' || Number.isNaN(Number(raw))) {
+      return {
+        rsScore: null,
+        formatted: 'N/D',
+        badgeText: 'N/D • Sem RS',
+        classification: 'Indisponível',
+        status: 'neutral',
+        isAvailable: false,
+        isEligible: false,
+        title: 'RS na Entrada: N/D (Dado histórico indisponível)'
+      };
+    }
+    const num = Math.round(Number(raw));
+    const isEligible = num >= 80;
+    return {
+      rsScore: num,
+      formatted: String(num),
+      badgeText: isEligible ? `${num} • ≥ 80` : `${num} • < 80`,
+      classification: isEligible ? 'Elegível (RS ≥ 80)' : 'Abaixo do Mínimo (RS < 80)',
+      status: isEligible ? 'good' : 'bad',
+      isAvailable: true,
+      isEligible,
+      title: isEligible
+        ? `RS na Entrada: ${num} — Elegível pela regra oficial (RS ≥ 80)`
+        : `RS na Entrada: ${num} — Abaixo do mínimo oficial (RS < 80)`
+    };
+  }
+
+  function renderEntryRsPill(sim) {
+    const rs = resolveSimulationEntryRs(sim);
+    let pillClass = 'rs-neutral';
+    let iconText = '⚪';
+    if (rs.isAvailable && rs.isEligible) {
+      pillClass = 'rs-eligible';
+      iconText = '✓';
+    } else if (rs.isAvailable && !rs.isEligible) {
+      pillClass = 'rs-below';
+      iconText = '⚠';
+    }
+
+    const titleAttr = (rs.title || `RS na Entrada: ${rs.badgeText}`).replace(/"/g, '&quot;');
+    return `
+      <span class="sim-rs-pill ${pillClass}" title="${titleAttr}">
+        <span class="sim-rs-icon">${iconText}</span>
+        <strong class="sim-rs-val">${rs.formatted}</strong>
+        <span class="sim-rs-rule-tag">${rs.isAvailable ? (rs.isEligible ? '≥ 80' : '&lt; 80') : 'Sem RS'}</span>
+      </span>
+    `;
+  }
+
+  function renderEntryRsDetailsCard(sim) {
+    const rs = resolveSimulationEntryRs(sim);
+    const isGood = rs.isAvailable && rs.isEligible;
+    const isBad = rs.isAvailable && !rs.isEligible;
+
+    const bg = isGood ? 'rgba(16, 185, 129, 0.08)' : (isBad ? 'rgba(245, 158, 11, 0.1)' : 'rgba(148, 163, 184, 0.08)');
+    const border = isGood ? '#059669' : (isBad ? '#d97706' : '#334155');
+    const badgeBg = isGood ? '#065f46' : (isBad ? '#92400e' : '#1e293b');
+    const badgeColor = isGood ? '#a7f3d0' : (isBad ? '#fde68a' : '#94a3b8');
+    const evalDate = sim.signalDate ? formatDateBR(sim.signalDate) : '—';
+
+    const verdict = isGood
+      ? `✅ Elegível no Modo Oficial — Ativo apresentava Força Relativa histórica de ${rs.formatted} (≥ 80) na data do sinal (${evalDate}).`
+      : (isBad
+        ? `🧪 Exclusivo para Pesquisa — Ativo apresentava RS ${rs.formatted} (< 80) na data do sinal (${evalDate}). Bloqueado no Modo Oficial.`
+        : `🚫 Dados Ausentes ("N/D") — Sem série histórica suficiente na data do sinal (${evalDate}). Bloqueado no Modo Oficial.`);
+
+    return `
+      <div class="sim-modal-rs-box" style="background: ${bg}; border: 1px solid ${border}; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 13px; font-weight: 700; color: inherit;">🚀 Força Relativa (RS na Entrada — Data do Sinal)</span>
+            <span style="background: ${badgeBg}; color: ${badgeColor}; font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px;">
+              RS ${rs.badgeText}
+            </span>
+          </div>
+          <small style="color: var(--muted, #94a3b8); font-size: 11px;">Regra Oficial: <b>RS ≥ 80</b> • Data: <b>${evalDate}</b></small>
+        </div>
+        <div style="font-size: 11.5px; color: inherit; line-height: 1.4; opacity: 0.92;">
+          <div><b>Classificação Histórica:</b> ${rs.classification} (apurada sem look-ahead bias na barra do sinal)</div>
+          <div style="margin-top: 3px;"><b>Veredito de Elegibilidade:</b> ${verdict}</div>
+        </div>
+      </div>
+    `;
+  }
+
   function renderEmptyRow() {
     return `
       <tr>
-        <td colspan="13">
+        <td colspan="15">
           <div class="sim-empty-state">
             <p>Nenhuma simulação encontrada com os filtros selecionados.</p>
           </div>
@@ -1889,89 +2843,89 @@
   function getScenarioMiniDiagramSvg(scenarioId) {
     if (scenarioId === '2.5R') {
       return `
-        <svg width="170" height="42" viewBox="0 0 170 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="28" y1="18" x2="132" y2="18" stroke="#f59e0b" stroke-width="2" />
-          <polygon points="132,14 140,18 132,22" fill="#f59e0b" />
-          <circle cx="28" cy="18" r="3.5" fill="#f59e0b" />
-          <text x="28" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
-          <circle cx="140" cy="18" r="3.5" fill="#f59e0b" />
-          <text x="140" y="10" fill="#f59e0b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2,5R)</text>
-          <line x1="28" y1="18" x2="28" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-          <line x1="24" y1="34" x2="32" y2="34" stroke="#ef4444" stroke-width="2" />
-          <text x="36" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="26" y1="18" x2="148" y2="18" stroke="#f59e0b" stroke-width="2" />
+          <polygon points="146,14.5 153,18 146,21.5" fill="#f59e0b" />
+          <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
+          <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="155" cy="18" r="3.5" fill="#f59e0b" />
+          <text x="152" y="10" fill="#d97706" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2,5R)</text>
+          <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+          <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+          <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
         </svg>
       `;
     }
 
     if (scenarioId === 'PYRAMID_1R_2R') {
       return `
-        <svg width="190" height="42" viewBox="0 0 190 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="24" y1="18" x2="78" y2="18" stroke="#0284c7" stroke-width="2" />
-          <line x1="78" y1="18" x2="152" y2="18" stroke="#0284c7" stroke-width="2" />
-          <polygon points="152,14 160,18 152,22" fill="#0284c7" />
-          <circle cx="24" cy="18" r="3.5" fill="#0284c7" />
-          <text x="24" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada 1</text>
-          <circle cx="78" cy="18" r="3.5" fill="#10b981" />
-          <text x="78" y="10" fill="#10b981" font-size="8" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Add +1R</text>
-          <circle cx="160" cy="18" r="3.5" fill="#0284c7" />
-          <text x="160" y="10" fill="#0284c7" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
-          <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-          <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
-          <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#0284c7" stroke-width="2" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#0284c7" stroke-width="2" />
+          <polygon points="148,14.5 155,18 148,21.5" fill="#0284c7" />
+          <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
+          <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="88" cy="18" r="3.5" fill="#0284c7" />
+          <text x="88" y="10" fill="#0284c7" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Add +1R</text>
+          <circle cx="157" cy="18" r="3.5" fill="#0284c7" />
+          <text x="155" y="10" fill="#0369a1" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
+          <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+          <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+          <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
         </svg>
       `;
     }
 
-    if (scenarioId === 'PARTIAL_50_2R_EMA9') {
+        if (scenarioId === 'PARTIAL_50_2R_EMA9') {
       return `
-        <svg width="200" height="42" viewBox="0 0 200 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="24" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2" />
-          <line x1="88" y1="18" x2="162" y2="18" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3 2" />
-          <polygon points="162,14 170,18 162,22" fill="#8b5cf6" />
-          <circle cx="24" cy="18" r="3.5" fill="#8b5cf6" />
-          <text x="24" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
-          <circle cx="88" cy="18" r="3.5" fill="#a78bfa" />
-          <text x="88" y="10" fill="#a78bfa" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">50% em 2R</text>
-          <circle cx="170" cy="18" r="3.5" fill="#8b5cf6" />
-          <text x="170" y="10" fill="#8b5cf6" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM10</text>
-          <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-          <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
-          <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3 2" />
+          <polygon points="148,14.5 155,18 148,21.5" fill="#8b5cf6" />
+          <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
+          <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="88" cy="18" r="3.5" fill="#8b5cf6" />
+          <text x="88" y="10" fill="#7c3aed" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">50% em 2R</text>
+          <circle cx="157" cy="18" r="3.5" fill="#8b5cf6" />
+          <text x="155" y="10" fill="#6d28d9" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM10</text>
+          <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+          <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+          <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
         </svg>
       `;
     }
 
-    if (scenarioId === 'PARTIAL_80_2R_EMA9') {
+        if (scenarioId === 'PARTIAL_80_2R_EMA9') {
       return `
-        <svg width="200" height="42" viewBox="0 0 200 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="24" y1="18" x2="88" y2="18" stroke="#06b6d4" stroke-width="2" />
-          <line x1="88" y1="18" x2="162" y2="18" stroke="#06b6d4" stroke-width="2" stroke-dasharray="3 2" />
-          <polygon points="162,14 170,18 162,22" fill="#06b6d4" />
-          <circle cx="24" cy="18" r="3.5" fill="#06b6d4" />
-          <text x="24" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
-          <circle cx="88" cy="18" r="3.5" fill="#38bdf8" />
-          <text x="88" y="10" fill="#38bdf8" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">80% em 2R</text>
-          <circle cx="170" cy="18" r="3.5" fill="#06b6d4" />
-          <text x="170" y="10" fill="#06b6d4" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM10</text>
-          <line x1="24" y1="18" x2="24" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-          <line x1="20" y1="34" x2="28" y2="34" stroke="#ef4444" stroke-width="2" />
-          <text x="32" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+        <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#3b82f6" stroke-width="2" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#6366f1" stroke-width="2" stroke-dasharray="3 2" />
+          <polygon points="148,14.5 155,18 148,21.5" fill="#6366f1" />
+          <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
+          <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+          <circle cx="88" cy="18" r="3.5" fill="#3b82f6" />
+          <text x="88" y="10" fill="#0284c7" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">80% em 2R</text>
+          <circle cx="157" cy="18" r="3.5" fill="#6366f1" />
+          <text x="155" y="10" fill="#1d4ed8" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM10</text>
+          <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+          <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+          <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
         </svg>
       `;
     }
 
     // Default: '2R' Base
     return `
-      <svg width="170" height="42" viewBox="0 0 170 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="28" y1="18" x2="132" y2="18" stroke="#10b981" stroke-width="2" />
-        <polygon points="132,14 140,18 132,22" fill="#10b981" />
-        <circle cx="28" cy="18" r="3.5" fill="#10b981" />
-        <text x="28" y="10" fill="#64748b" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
-        <circle cx="140" cy="18" r="3.5" fill="#10b981" />
-        <text x="140" y="10" fill="#10b981" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
-        <line x1="28" y1="18" x2="28" y2="34" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2 2" />
-        <line x1="24" y1="34" x2="32" y2="34" stroke="#ef4444" stroke-width="2" />
-        <text x="36" y="37" fill="#ef4444" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
+      <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="26" y1="18" x2="148" y2="18" stroke="#10b981" stroke-width="2" />
+        <polygon points="146,14.5 153,18 146,21.5" fill="#10b981" />
+        <circle cx="26" cy="18" r="3.5" fill="#10b981" />
+        <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
+        <circle cx="155" cy="18" r="3.5" fill="#10b981" />
+        <text x="152" y="10" fill="#047857" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída (+2R)</text>
+        <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
+        <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
+        <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
       </svg>
     `;
   }
@@ -1983,12 +2937,43 @@
   function renderMassModal() {
     if (!state.massModalOpen) return '';
 
+    const isOfficialEnv = state.activeEnvironment !== 'RESEARCH';
     const sel = state.tempScenarioSelection || state.activeScenario || '2R';
     const cfg = state.massConfig || {};
     const period = cfg.period ?? 120;
     const universe = cfg.universe || 'IBOV';
-    const triggers = cfg.triggers || 'ALL';
-    const grades = cfg.grades || 'ALL';
+
+    // Normalização de gatilhos selecionados (múltipla escolha)
+    let selectedTriggersList = [];
+    if (Array.isArray(cfg.triggers)) {
+      selectedTriggersList = cfg.triggers.filter(t => t && t !== 'ALL');
+    } else if (cfg.triggers && cfg.triggers !== 'ALL') {
+      selectedTriggersList = [cfg.triggers];
+    }
+    const isAllTriggers = selectedTriggersList.length === 0 || cfg.triggers === 'ALL';
+
+    // Normalização de notas selecionadas (múltipla escolha)
+    let selectedGradesList = [];
+    if (Array.isArray(cfg.grades)) {
+      selectedGradesList = cfg.grades.filter(g => g && g !== 'ALL');
+    } else if (cfg.grades && cfg.grades !== 'ALL') {
+      selectedGradesList = [cfg.grades];
+    }
+    if (isOfficialEnv) {
+      selectedGradesList = selectedGradesList.filter(g => g !== 'D');
+    }
+    const isAllGrades = selectedGradesList.length === 0 || cfg.grades === 'ALL';
+
+    const isTriggerActive = (name) => {
+      if (name === 'ALL') return isAllTriggers;
+      return selectedTriggersList.includes(name);
+    };
+
+    const isGradeActive = (grade) => {
+      if (grade === 'ALL') return isAllGrades;
+      return selectedGradesList.includes(grade);
+    };
+
     const target = cfg.targetVolume ?? 100;
 
     // Rótulo amigável do período para o resumo
@@ -2008,332 +2993,694 @@
       periodDesc = 'Todo o histórico disponível';
     }
 
-    // Rótulo amigável do universo
-    const universeLabels = {
-      'IBOV': 'IBOV — Índice Bovespa (~86 ativos líderes)',
-      'LIQUID_B3': 'B3 Líquidas (Maiores volumes e liquidez)',
-      'ALL_B3': 'B3 Geral (Todos os ativos com cobertura)',
-      'NASDAQ': 'NASDAQ (Ações dos EUA com cotação diária)'
+    // Rótulo amigável do universo (título principal + subtexto)
+    const universePrimaryMap = {
+      'IBOV': 'IBOV — Índice Bovespa',
+      'LIQUID_B3': 'B3 Líquidas — Alta Liquidez',
+      'ALL_B3': 'B3 Geral — Base Completa',
+      'NASDAQ': 'NASDAQ — Mercado EUA'
     };
-    const universeDesc = universeLabels[universe] || universe;
+    const universeSubMap = {
+      'IBOV': '~86 ativos líderes',
+      'LIQUID_B3': 'Maiores volumes diários',
+      'ALL_B3': 'Todos os ativos cobertos',
+      'NASDAQ': 'Ações dos EUA com cotação'
+    };
+    const universePrimary = universePrimaryMap[universe] || universe;
+    const universeSub = universeSubMap[universe] || '';
 
-    // Rótulo dos gatilhos e notas (Fonte de verdade: Novo Trade / Rubric: A, B, C, D)
-    const triggerDesc = triggers === 'ALL' ? 'Todos os gatilhos implementados' : triggers;
-    const gradeDesc = grades === 'ALL' ? 'Todas as notas (A, B, C e D)' : `Nota ${grades}`;
-    const targetDesc = target === 'MAX' ? 'Máximo disponível no histórico' : `${target} trades executados`;
+    // Rótulo dos gatilhos e notas (Fonte de verdade: Novo Trade / Rubric: A, B, C; D bloqueada no Oficial)
+    let triggerDesc = 'Todos os gatilhos implementados';
+    if (!isAllTriggers) {
+      if (selectedTriggersList.length === 1) {
+        triggerDesc = formatTriggerDisplayName(selectedTriggersList[0]);
+      } else {
+        triggerDesc = `${selectedTriggersList.length} selecionados (${selectedTriggersList.map(t => formatTriggerDisplayName(t)).join(', ')})`;
+      }
+    }
+
+    let gradeDesc = isOfficialEnv ? 'Todas as notas elegíveis (A, B e C)' : 'Todas as notas (A, B, C e D)';
+    if (!isAllGrades) {
+      if (selectedGradesList.length === 1) {
+        gradeDesc = `Nota ${selectedGradesList[0]}`;
+      } else {
+        gradeDesc = `Notas: ${selectedGradesList.join(', ')}`;
+      }
+    }
+
+    const targetPrimaryMap = {
+      100: '100 trades',
+      250: '250 trades',
+      500: '500 trades',
+      1000: '1.000 trades',
+      'MAX': 'Máximo disponível'
+    };
+    const targetSubMap = {
+      100: 'Validação de Regras',
+      250: 'Amostra Intermediária',
+      500: 'Validação Estatística',
+      1000: 'Grande Amostra',
+      'MAX': 'Varredura Total'
+    };
+    const targetPrimary = targetPrimaryMap[target] || `${target} trades`;
+    const targetSub = targetSubMap[target] || 'Meta de execução';
 
     const scenarioMeta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[sel]) || { name: sel, description: '' };
+
+    const checkIconSvg = `<svg class="sim-pill-check-svg" width="13" height="13" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M6 10.2L8.6 12.8L14.2 7.2" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
     return `
       <div class="sim-scenario-modal-overlay open" id="simMassModalOverlay">
         <div class="sim-scenario-modal-box sim-mass-modal-box" id="simMassModalBox">
-          <!-- Cabeçalho do Painel -->
-          <div class="sim-scenario-modal-header">
-            <div>
-              <div class="sim-mass-header-badge">LABORATÓRIO DE SIMULAÇÃO EM ESCALA</div>
-              <h2>⚡ Gerador de Massa de Testes</h2>
-              <p>Configure a dimensão do teste histórico para validar seu Edge estatístico com dados reais de mercado.</p>
-            </div>
-            <button class="sim-modal-close-btn" type="button" id="simMassModalClose" title="Fechar">×</button>
-          </div>
-
-          <!-- BLOCO 1: CONFIGURAÇÃO DE DIMENSÃO DA SIMULAÇÃO -->
-          <div class="sim-mass-modal-section">
-            <div class="sim-mass-section-eyebrow">
-              <span>1. DIMENSÃO E PARÂMETROS DA AMOSTRA</span>
-            </div>
-
-            <!-- 1.1 Período Histórico -->
-            <div class="sim-mass-param-group">
-              <label class="sim-mass-param-label">
-                <span>Período Histórico</span>
-                <span class="sim-mass-param-hint">Respeita calendário oficial de negociação (exclui feriados/fins de semana)</span>
-              </label>
-              <div class="sim-mass-pills-grid">
-                <button type="button" class="sim-mass-pill ${period === 30 ? 'active' : ''}" data-mass-period="30">30 dias</button>
-                <button type="button" class="sim-mass-pill ${period === 90 ? 'active' : ''}" data-mass-period="90">90 dias</button>
-                <button type="button" class="sim-mass-pill ${period === 120 ? 'active' : ''}" data-mass-period="120">120 dias (4m)</button>
-                <button type="button" class="sim-mass-pill ${period === 180 ? 'active' : ''}" data-mass-period="180">6 meses</button>
-                <button type="button" class="sim-mass-pill ${period === 365 ? 'active' : ''}" data-mass-period="365">12 meses</button>
-                <button type="button" class="sim-mass-pill ${period === 730 ? 'active' : ''}" data-mass-period="730">24 meses</button>
-                <button type="button" class="sim-mass-pill ${period === 1095 ? 'active' : ''}" data-mass-period="1095">36 meses</button>
-                <button type="button" class="sim-mass-pill ${period === 'CUSTOM' ? 'active' : ''}" data-mass-period="CUSTOM">Personalizado...</button>
-                <button type="button" class="sim-mass-pill ${period === 'ALL' ? 'active' : ''}" data-mass-period="ALL">Todo o Histórico</button>
+          <!-- Cabeçalho Premium do Laboratório -->
+          <div class="sim-scenario-modal-header sim-mass-modal-header">
+            <div class="sim-mass-header-brand">
+              <div class="sim-mass-icon-box">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 3H15M10 3V8.4L4.4 17.6C3.6 18.9 4.5 20.6 6.1 20.6H17.9C19.5 20.6 20.4 18.9 19.6 17.6L14 8.4V3" stroke="#0d8a5e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M6.4 15H17.6L19.1 17.5C19.6 18.3 19 19.4 18 19.4H6C5 19.4 4.4 18.3 4.9 17.5L6.4 15Z" fill="#10b981" fill-opacity="0.85"/>
+                  <circle cx="11" cy="12" r="1.2" fill="#0d8a5e"/>
+                  <circle cx="13.5" cy="13.5" r="0.9" fill="#0d8a5e"/>
+                </svg>
               </div>
-
-              <!-- Inputs de Data Personalizada -->
-              ${period === 'CUSTOM' ? `
-                <div class="sim-mass-custom-dates">
-                  <div class="sim-mass-date-field">
-                    <label>Data Inicial:</label>
-                    <input type="date" id="simMassStartDate" value="${cfg.startDate || ''}" class="sim-date-input" />
-                  </div>
-                  <div class="sim-mass-date-field">
-                    <label>Data Final:</label>
-                    <input type="date" id="simMassEndDate" value="${cfg.endDate || ''}" class="sim-date-input" />
-                  </div>
-                </div>
-              ` : ''}
-
-              <div class="sim-mass-coverage-note">
-                ℹ️ <strong>Cobertura real:</strong> B3 (COTAHIST) Jan/2025 a Out/2026 (~22 meses, 446 pregões). Nasdaq: Out/2025 a Out/2026 (250 pregões). Períodos acima da cobertura real utilizarão o máximo disponível.
+              <div class="sim-mass-title-group">
+                <div class="sim-mass-header-badge">LABORATÓRIO DE SIMULAÇÃO EM ESCALA</div>
+                <h2>Gerador de Massa de Testes</h2>
+                <p>Configure a dimensão do teste histórico para validar seu Edge estatístico com dados reais de mercado.</p>
               </div>
             </div>
-
-            <!-- 1.2 Universo de Ativos -->
-            <div class="sim-mass-param-group">
-              <label class="sim-mass-param-label">
-                <span>Universo de Ativos</span>
-                <span class="sim-mass-param-hint">Mercado e cesta de papéis para varredura</span>
-              </label>
-              <div class="sim-mass-pills-grid">
-                <button type="button" class="sim-mass-pill ${universe === 'IBOV' ? 'active' : ''}" data-mass-universe="IBOV">
-                  <strong>IBOV</strong> <small>(Índice Bovespa)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${universe === 'LIQUID_B3' ? 'active' : ''}" data-mass-universe="LIQUID_B3">
-                  <strong>B3 Líquidas</strong> <small>(Alta Liquidez)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${universe === 'ALL_B3' ? 'active' : ''}" data-mass-universe="ALL_B3">
-                  <strong>B3 Geral</strong> <small>(Base Completa)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${universe === 'NASDAQ' ? 'active' : ''}" data-mass-universe="NASDAQ">
-                  <strong>NASDAQ</strong> <small>(Mercado EUA)</small>
-                </button>
+            <div class="sim-mass-header-actions">
+              <div class="sim-mass-header-tip">
+                <span class="sim-mass-tip-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#10b981" fill-opacity="0.18" stroke="#0d8a5e" stroke-width="1.8"/>
+                    <path d="M9 12L11 14L15 10" stroke="#0d8a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="sim-mass-tip-text">Simulações em escala ajudam a identificar padrões, validar hipóteses e aprimorar seu PlayBook com evidências.</span>
               </div>
-            </div>
-
-            <!-- 1.3 Gatilhos e Notas do Rubric em Grid Duplo -->
-            <div class="sim-mass-dual-grid">
-              <!-- Gatilhos -->
-              <div class="sim-mass-param-group">
-                <label class="sim-mass-param-label">
-                  <span>Gatilho Operacional</span>
-                </label>
-                <div class="sim-mass-chips-wrap">
-                  <button type="button" class="sim-mass-chip ${triggers === 'ALL' ? 'active' : ''}" data-mass-trigger="ALL">Todos os gatilhos</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'Inside Bar' ? 'active' : ''}" data-mass-trigger="Inside Bar">Inside Bar</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'Double Inside Bar' ? 'active' : ''}" data-mass-trigger="Double Inside Bar">Double Inside Bar</button>
-                  <button type="button" class="sim-mass-chip ${triggers === '1-2-3 de Compra' ? 'active' : ''}" data-mass-trigger="1-2-3 de Compra">1-2-3 de Compra</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'PFR de Compra' ? 'active' : ''}" data-mass-trigger="PFR de Compra">PFR de Compra</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'Dave Landry' ? 'active' : ''}" data-mass-trigger="Dave Landry">Dave Landry</button>
-                  <button type="button" class="sim-mass-chip ${triggers === 'Red Bar Ignored' ? 'active' : ''}" data-mass-trigger="Red Bar Ignored">Red Bar Ignored</button>
-                </div>
-              </div>
-
-              <!-- Notas do Rubric (Fonte de Verdade: Novo Trade: A, B, C e D) -->
-              <div class="sim-mass-param-group">
-                <label class="sim-mass-param-label">
-                  <span>Notas do Rubric</span>
-                </label>
-                <div class="sim-mass-chips-wrap">
-                  <button type="button" class="sim-mass-chip ${grades === 'ALL' ? 'active' : ''}" data-mass-grade="ALL">Todas as Notas (A, B, C, D)</button>
-                  <button type="button" class="sim-mass-chip ${grades === 'A' ? 'active' : ''}" data-mass-grade="A">Nota A (High Quality)</button>
-                  <button type="button" class="sim-mass-chip ${grades === 'B' ? 'active' : ''}" data-mass-grade="B">Nota B (Good Edge)</button>
-                  <button type="button" class="sim-mass-chip ${grades === 'C' ? 'active' : ''}" data-mass-grade="C">Nota C (Small Edge)</button>
-                  <button type="button" class="sim-mass-chip ${grades === 'D' ? 'active' : ''}" data-mass-grade="D">Nota D (No Edge)</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- 1.4 Volume da Amostra (Meta de Trades Executados) -->
-            <div class="sim-mass-param-group">
-              <label class="sim-mass-param-label">
-                <span>Volume da Amostra (Meta de Trades Executados)</span>
-                <span class="sim-mass-param-hint">Refere-se a entradas efetivamente ativadas pelas regras operacionais</span>
-              </label>
-              <div class="sim-mass-pills-grid">
-                <button type="button" class="sim-mass-pill ${target === 100 ? 'active' : ''}" data-mass-target="100">
-                  <strong>100 trades</strong> <small>(Validação de Regras)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${target === 250 ? 'active' : ''}" data-mass-target="250">
-                  <strong>250 trades</strong> <small>(Amostra Intermediária)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${target === 500 ? 'active' : ''}" data-mass-target="500">
-                  <strong>500 trades</strong> <small>(Validação Estatística)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${target === 1000 ? 'active' : ''}" data-mass-target="1000">
-                  <strong>1.000 trades</strong> <small>(Grande Amostra)</small>
-                </button>
-                <button type="button" class="sim-mass-pill ${target === 'MAX' ? 'active' : ''}" data-mass-target="MAX">
-                  <strong>Máximo</strong> <small>(Varredura Total)</small>
-                </button>
-              </div>
+              <button class="sim-modal-close-btn" type="button" id="simMassModalClose" title="Fechar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             </div>
           </div>
 
-          <!-- BLOCO 2: CENÁRIO DE GESTÃO DE RISCO -->
-          <div class="sim-mass-modal-section">
-            <div class="sim-mass-section-eyebrow">
-              <span>2. CENÁRIO DE GESTÃO DE RISCO</span>
+          <!-- Corpo do Modal -->
+          <div class="sim-mass-modal-body">
+            <!-- Grid Principal Superior: Etapa 1 e Etapa 2 Lado a Lado -->
+            <div class="sim-mass-main-grid">
+              <!-- BLOCO 1: CONFIGURAÇÃO DE DIMENSÃO DA SIMULAÇÃO (Coluna 1) -->
+              <div class="sim-mass-modal-section sim-mass-col-sample">
+                <div class="sim-mass-step-header">
+                  <div class="sim-mass-step-num">1</div>
+                  <div class="sim-mass-step-texts">
+                    <div class="sim-mass-step-title">Dimensão e Parâmetros da Amostra</div>
+                    <div class="sim-mass-step-desc">Defina o período, ativos, gatilhos, notas e o volume de trades para o teste histórico.</div>
+                  </div>
+                </div>
+
+                <div class="sim-mass-step-cards-stack">
+                  <!-- Card 1.1: Período Histórico -->
+                  <div class="sim-mass-group-card">
+                    <div class="sim-mass-card-head-row">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon blue">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#dbeafe" fill-opacity="0.5"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Período Histórico</span>
+                          <span class="sim-mass-card-hint">Respeita calendário oficial de negociação (exclui feriados/fins de semana).</span>
+                        </div>
+                      </div>
+                      <span class="sim-mass-card-info-badge" title="Filtra pregões oficiais negociados na B3 e Nasdaq">ⓘ</span>
+                    </div>
+
+                    <div class="sim-mass-period-pills-row">
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 30 ? 'active' : ''}" data-mass-period="30">
+                        ${period === 30 ? checkIconSvg : ''}<span>30 dias</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 90 ? 'active' : ''}" data-mass-period="90">
+                        ${period === 90 ? checkIconSvg : ''}<span>90 dias</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 120 ? 'active' : ''}" data-mass-period="120">
+                        ${period === 120 ? checkIconSvg : ''}<span>120 dias (4m)</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 180 ? 'active' : ''}" data-mass-period="180">
+                        ${period === 180 ? checkIconSvg : ''}<span>6 meses</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 365 ? 'active' : ''}" data-mass-period="365">
+                        ${period === 365 ? checkIconSvg : ''}<span>12 meses</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 730 ? 'active' : ''}" data-mass-period="730">
+                        ${period === 730 ? checkIconSvg : ''}<span>24 meses</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 1095 ? 'active' : ''}" data-mass-period="1095">
+                        ${period === 1095 ? checkIconSvg : ''}<span>36 meses</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 'CUSTOM' ? 'active' : ''}" data-mass-period="CUSTOM">
+                        ${period === 'CUSTOM' ? checkIconSvg : ''}<span>Personalizado</span>
+                      </button>
+                      <button type="button" class="sim-mass-period-btn sim-mass-pill ${period === 'ALL' ? 'active' : ''}" data-mass-period="ALL">
+                        ${period === 'ALL' ? checkIconSvg : ''}<span>Todo o Histórico</span>
+                      </button>
+                    </div>
+
+                    ${period === 'CUSTOM' ? `
+                      <div class="sim-mass-custom-dates">
+                        <div class="sim-mass-date-field">
+                          <label>Data Inicial:</label>
+                          <input type="date" id="simMassStartDate" value="${cfg.startDate || ''}" class="sim-date-input" />
+                        </div>
+                        <div class="sim-mass-date-field">
+                          <label>Data Final:</label>
+                          <input type="date" id="simMassEndDate" value="${cfg.endDate || ''}" class="sim-date-input" />
+                        </div>
+                      </div>
+                    ` : ''}
+
+                    <div class="sim-mass-coverage-callout">
+                      <span class="sim-mass-callout-icon">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                          <circle cx="10" cy="10" r="9" fill="#2563eb"/>
+                          <path d="M10 9V14M10 6.5H10.01" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                      </span>
+                      <div class="sim-mass-callout-text">
+                        <strong>Cobertura real:</strong> B3 (COTAHIST) Jan/2025 a Out/2026 (~22 meses, 446 pregões). Nasdaq: Out/2025 a Out/2026 (250 pregões). Períodos acima da cobertura real utilizarão o máximo disponível.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card 1.2: Universo de Ativos -->
+                  <div class="sim-mass-group-card">
+                    <div class="sim-mass-card-head-row">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon blue">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <rect x="4" y="12" width="4" height="8" rx="1" fill="#3b82f6"/>
+                            <rect x="10" y="7" width="4" height="13" rx="1" fill="#2563eb"/>
+                            <rect x="16" y="3" width="4" height="17" rx="1" fill="#1d4ed8"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Universo de Ativos</span>
+                          <span class="sim-mass-card-hint">Mercado e cesta de papéis para varredura</span>
+                        </div>
+                      </div>
+                      <span class="sim-mass-card-info-badge" title="Define o conjunto de ativos elegíveis para varredura">ⓘ</span>
+                    </div>
+
+                    <div class="sim-mass-universe-cards-grid">
+                      <button type="button" class="sim-mass-universe-card sim-mass-pill ${universe === 'IBOV' ? 'active' : ''}" data-mass-universe="IBOV">
+                        <div class="sim-mass-universe-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="13" width="4" height="7" rx="1" fill="#10b981"/>
+                            <rect x="9.5" y="9" width="4" height="11" rx="1" fill="#059669"/>
+                            <rect x="16" y="4" width="4" height="16" rx="1" fill="#047857"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-universe-info">
+                          <span class="sim-mass-universe-title">IBOV</span>
+                          <span class="sim-mass-universe-sub">Índice Bovespa</span>
+                        </div>
+                        <div class="sim-mass-universe-check">✓</div>
+                      </button>
+
+                      <button type="button" class="sim-mass-universe-card sim-mass-pill ${universe === 'LIQUID_B3' ? 'active' : ''}" data-mass-universe="LIQUID_B3">
+                        <div class="sim-mass-universe-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2.69L17.66 8.35C20.78 11.47 20.78 16.53 17.66 19.65C14.54 22.77 9.46 22.77 6.34 19.65C3.22 16.53 3.22 11.47 6.34 8.35L12 2.69Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-universe-info">
+                          <span class="sim-mass-universe-title">B3 Líquidas</span>
+                          <span class="sim-mass-universe-sub">Alta Liquidez</span>
+                        </div>
+                        <div class="sim-mass-universe-check">✓</div>
+                      </button>
+
+                      <button type="button" class="sim-mass-universe-card sim-mass-pill ${universe === 'ALL_B3' ? 'active' : ''}" data-mass-universe="ALL_B3">
+                        <div class="sim-mass-universe-icon">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2" fill="#dbeafe"/>
+                            <polyline points="2 12 12 17 22 12"/>
+                            <polyline points="2 17 12 22 22 17"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-universe-info">
+                          <span class="sim-mass-universe-title">B3 Geral</span>
+                          <span class="sim-mass-universe-sub">Base Completa</span>
+                        </div>
+                        <div class="sim-mass-universe-check">✓</div>
+                      </button>
+
+                      <button type="button" class="sim-mass-universe-card sim-mass-pill ${universe === 'NASDAQ' ? 'active' : ''}" data-mass-universe="NASDAQ">
+                        <div class="sim-mass-universe-icon">
+                          <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+                            <rect width="22" height="16" rx="2.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.6"/>
+                            <path d="M0 2H22M0 5.2H22M0 8.4H22M0 11.6H22M0 14.8H22" stroke="#dc2626" stroke-width="1.5"/>
+                            <rect width="10" height="8.5" rx="1.5" fill="#1e3a8a"/>
+                            <circle cx="3" cy="2.8" r="0.7" fill="#ffffff"/>
+                            <circle cx="5.2" cy="2.8" r="0.7" fill="#ffffff"/>
+                            <circle cx="7.4" cy="2.8" r="0.7" fill="#ffffff"/>
+                            <circle cx="4.1" cy="5.5" r="0.7" fill="#ffffff"/>
+                            <circle cx="6.3" cy="5.5" r="0.7" fill="#ffffff"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-universe-info">
+                          <span class="sim-mass-universe-title">NASDAQ</span>
+                          <span class="sim-mass-universe-sub">Mercado EUA</span>
+                        </div>
+                        <div class="sim-mass-universe-check">✓</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Card 1.3: Gatilhos e Notas do Rubric em Grid Duplo -->
+                  <div class="sim-mass-dual-grid">
+                    <!-- Gatilhos -->
+                    <div class="sim-mass-group-card sim-mass-subpanel">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon red">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2" fill="#fee2e2"/>
+                            <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
+                            <circle cx="12" cy="12" r="2" fill="#ef4444"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Gatilho Operacional</span>
+                          <span class="sim-mass-card-hint">Selecione um ou mais gatilhos de entrada</span>
+                        </div>
+                      </div>
+                      <div class="sim-mass-chips-wrap">
+                        <button type="button" class="sim-mass-chip ${isTriggerActive('ALL') ? 'active' : ''}" data-mass-trigger="ALL">
+                          ${isTriggerActive('ALL') ? checkIconSvg : ''}<span>Todos os gatilhos</span>
+                        </button>
+                        <button type="button" class="sim-mass-chip ${isTriggerActive('Inside Bar') ? 'active' : ''}" data-mass-trigger="Inside Bar">
+                          ${isTriggerActive('Inside Bar') ? checkIconSvg : ''}<span>Inside Bar</span>
+                        </button>
+                        <button type="button" class="sim-mass-chip ${isTriggerActive('1-2-3 de Compra') ? 'active' : ''}" data-mass-trigger="1-2-3 de Compra">
+                          ${isTriggerActive('1-2-3 de Compra') ? checkIconSvg : ''}<span>1-2-3 de Compra</span>
+                        </button>
+                        <button type="button" class="sim-mass-chip ${isTriggerActive('PFR de Compra') ? 'active' : ''}" data-mass-trigger="PFR de Compra">
+                          ${isTriggerActive('PFR de Compra') ? checkIconSvg : ''}<span>PFR de Compra</span>
+                        </button>
+                        <button type="button" class="sim-mass-chip ${isTriggerActive('Barra Vermelha Ignorada') ? 'active' : ''}" data-mass-trigger="Barra Vermelha Ignorada">
+                          ${isTriggerActive('Barra Vermelha Ignorada') ? checkIconSvg : ''}<span>Barra Vermelha Ignorada</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Notas do Rubric -->
+                    <div class="sim-mass-group-card sim-mass-subpanel">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon gold">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#d97706" stroke-width="1.5">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Notas do Rubric</span>
+                          <span class="sim-mass-card-hint">Selecione uma ou mais categorias</span>
+                        </div>
+                      </div>
+                      <div class="sim-mass-chips-wrap">
+                        <button type="button" class="sim-mass-chip ${isGradeActive('ALL') ? 'active' : ''}" data-mass-grade="ALL">
+                          ${isGradeActive('ALL') ? checkIconSvg : ''}<span>${isOfficialEnv ? 'Todas as Notas Elegíveis (A, B, C)' : 'Todas as Notas (A, B, C, D)'}</span>
+                        </button>
+                        <button type="button" class="sim-mass-chip ${isGradeActive('A') ? 'active' : ''}" data-mass-grade="A">
+                          ${isGradeActive('A') ? checkIconSvg : ''}<span>Nota A (High Quality)</span>
+                        </button>
+                        <button type="button" class="sim-mass-chip ${isGradeActive('B') ? 'active' : ''}" data-mass-grade="B">
+                          ${isGradeActive('B') ? checkIconSvg : ''}<span>Nota B (Good Edge)</span>
+                        </button>
+                        <button type="button" class="sim-mass-chip ${isGradeActive('C') ? 'active' : ''}" data-mass-grade="C">
+                          ${isGradeActive('C') ? checkIconSvg : ''}<span>Nota C (Small Edge)</span>
+                        </button>
+                        ${isOfficialEnv ? `
+                        <button type="button" class="sim-mass-chip sim-mass-chip-disabled" disabled title="Bloqueado no Modo Oficial: setups Grade D possuem risco nominal zero (0%) e não podem ser executados pelo método." style="opacity: 0.45; cursor: not-allowed; border-style: dashed;">
+                          <span>Nota D (Bloqueio Automático · Risco 0%)</span>
+                        </button>
+                        ` : `
+                        <button type="button" class="sim-mass-chip ${isGradeActive('D') ? 'active' : ''}" data-mass-grade="D">
+                          ${isGradeActive('D') ? checkIconSvg : ''}<span>Nota D (Pesquisa / Risco Experimental)</span>
+                        </button>
+                        `}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card 1.4: Volume da Amostra -->
+                  <div class="sim-mass-group-card">
+                    <div class="sim-mass-card-head-row">
+                      <div class="sim-mass-card-head-left">
+                        <div class="sim-mass-feature-icon blue">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                          </svg>
+                        </div>
+                        <div class="sim-mass-card-head-titles">
+                          <span class="sim-mass-card-title">Volume da Amostra (Meta de Trades Executados)</span>
+                          <span class="sim-mass-card-hint">Refere-se a entradas efetivamente ativadas pelas regras operacionais</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="sim-mass-volume-cards-grid">
+                      <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 100 ? 'active' : ''}" data-mass-target="100">
+                        ${target === 100 ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">100 trades</span>
+                          <span class="sim-mass-vol-desc">Validação de Regras</span>
+                        </div>
+                      </button>
+                      <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 250 ? 'active' : ''}" data-mass-target="250">
+                        ${target === 250 ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">250 trades</span>
+                          <span class="sim-mass-vol-desc">Amostra Intermediária</span>
+                        </div>
+                      </button>
+                      <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 500 ? 'active' : ''}" data-mass-target="500">
+                        ${target === 500 ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">500 trades</span>
+                          <span class="sim-mass-vol-desc">Validação Estatística</span>
+                        </div>
+                      </button>
+                      <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 1000 ? 'active' : ''}" data-mass-target="1000">
+                        ${target === 1000 ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">1.000 trades</span>
+                          <span class="sim-mass-vol-desc">Grande Amostra</span>
+                        </div>
+                      </button>
+                      <button type="button" class="sim-mass-volume-card sim-mass-pill ${target === 'MAX' ? 'active' : ''}" data-mass-target="MAX">
+                        ${target === 'MAX' ? `<span class="sim-mass-vol-check">${checkIconSvg}</span>` : ''}
+                        <div class="sim-mass-vol-texts">
+                          <span class="sim-mass-vol-val">Máximo</span>
+                          <span class="sim-mass-vol-desc">Varredura Total</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BLOCO 2: CENÁRIO DE GESTÃO DE RISCO (Coluna 2) -->
+              <div class="sim-mass-modal-section sim-mass-col-risk">
+                <div class="sim-mass-step-header">
+                  <div class="sim-mass-step-num">2</div>
+                  <div class="sim-mass-step-texts">
+                    <div class="sim-mass-step-title">Cenário de Gestão de Risco</div>
+                    <div class="sim-mass-step-desc">Escolha a política de gestão de posição que será aplicada no teste.</div>
+                  </div>
+                </div>
+
+                <div class="sim-scenario-options-list">
+                  <!-- Opção 1: Gestão 2R — Base -->
+                  <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
+                    <span class="sim-scen-tag-pill">Mais utilizado</span>
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão 2R — Base</div>
+                        <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2R. Sem piramidagem.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('2R')}
+                    </div>
+                  </div>
+
+                  <!-- Opção 2: Gestão 2,5R — Alvo Estendido -->
+                  <div class="sim-scenario-option ${sel === '2.5R' ? 'selected' : ''}" data-scenario-select="2.5R">
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === '2.5R' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
+                        <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2,5R. Sem piramidagem.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('2.5R')}
+                    </div>
+                  </div>
+
+                  <!-- Opção 3: Gestão Pirâmide — 1R → 2R -->
+                  <div class="sim-scenario-option ${sel === 'PYRAMID_1R_2R' ? 'selected' : ''}" data-scenario-select="PYRAMID_1R_2R">
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === 'PYRAMID_1R_2R' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
+                        <div class="sim-scen-opt-desc">Risco inicial de 1R. Em +1R adiciona +1R e encerra tudo em +2R.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
+                    </div>
+                  </div>
+
+                  <!-- Opção 4: Gestão Parcial 50% (2R) + Média 9 -->
+                  <div class="sim-scenario-option ${sel === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_50_2R_EMA9">
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === 'PARTIAL_50_2R_EMA9' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
+                        <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 9.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('PARTIAL_50_2R_EMA9')}
+                    </div>
+                  </div>
+
+                  <!-- Opção 5: Gestão Parcial 80% (2R) + Média 9 -->
+                  <div class="sim-scenario-option ${sel === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_80_2R_EMA9">
+                    <div class="sim-scen-opt-left">
+                      <div class="sim-scen-radio ${sel === 'PARTIAL_80_2R_EMA9' ? 'checked' : ''}">
+                        <span class="sim-scen-radio-dot"></span>
+                      </div>
+                      <div class="sim-scen-opt-texts">
+                        <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
+                        <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 9.</div>
+                      </div>
+                    </div>
+                    <div class="sim-scen-opt-diagram">
+                      ${getScenarioMiniDiagramSvg('PARTIAL_80_2R_EMA9')}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="sim-scenario-options-list">
-              <!-- Opção 1: Gestão 2R — Base -->
-              <div class="sim-scenario-option ${sel === '2R' ? 'selected' : ''}" data-scenario-select="2R">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === '2R' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
+            <!-- SEÇÃO INFERIOR: RESUMO PRÉ-EXECUÇÃO & AÇÕES DA MASSA ATUAL -->
+            <div class="sim-mass-bottom-section">
+              <!-- BLOCO 3: RESUMO ANTES DE INICIAR -->
+              <div class="sim-mass-modal-section sim-mass-summary-section">
+                <div class="sim-mass-preflight-card">
+                  <div class="sim-mass-step-header sim-mass-step-header-summary">
+                    <div class="sim-mass-step-num step-3">3</div>
+                    <div class="sim-mass-step-texts">
+                      <div class="sim-mass-step-title">Resumo antes de iniciar</div>
+                      <div class="sim-mass-step-desc">Confira as configurações da simulação em escala. Valide os parâmetros e inicie a execução.</div>
+                    </div>
                   </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão 2R — Base</div>
-                    <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2R. Sem piramidagem.</div>
+
+                  <div class="sim-mass-preflight-grid">
+                    <div class="sim-mass-preflight-item">
+                      <div class="sim-mass-pf-icon-box green">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#d1fae5"/>
+                          <line x1="16" y1="2" x2="16" y2="6"/>
+                          <line x1="8" y1="2" x2="8" y2="6"/>
+                          <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
+                        <span class="sim-mass-pf-label">Período</span>
+                        <span class="sim-mass-pf-val">${periodDesc}</span>
+                      </div>
+                    </div>
+
+                    <div class="sim-mass-preflight-item">
+                      <div class="sim-mass-pf-icon-box blue">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <rect x="4" y="12" width="4" height="8" rx="1" fill="#3b82f6"/>
+                          <rect x="10" y="7" width="4" height="13" rx="1" fill="#2563eb"/>
+                          <rect x="16" y="3" width="4" height="17" rx="1" fill="#1d4ed8"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
+                        <span class="sim-mass-pf-label">Universo de Ativos</span>
+                        <span class="sim-mass-pf-val">${universePrimary}</span>
+                        ${universeSub ? `<span class="sim-mass-pf-sub">${universeSub}</span>` : ''}
+                      </div>
+                    </div>
+
+                    <div class="sim-mass-preflight-item">
+                      <div class="sim-mass-pf-icon-box red">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2" fill="#fee2e2"/>
+                          <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
+                          <circle cx="12" cy="12" r="2" fill="#ef4444"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
+                        <span class="sim-mass-pf-label">Gatilhos</span>
+                        <span class="sim-mass-pf-val">${triggerDesc}</span>
+                      </div>
+                    </div>
+
+                    <div class="sim-mass-preflight-item">
+                      <div class="sim-mass-pf-icon-box gold">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#d97706" stroke-width="1.5">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
+                        <span class="sim-mass-pf-label">Notas do Rubric</span>
+                        <span class="sim-mass-pf-val">${gradeDesc}</span>
+                      </div>
+                    </div>
+
+                    <div class="sim-mass-preflight-item">
+                      <div class="sim-mass-pf-icon-box blue">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                          <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
+                          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
+                        <span class="sim-mass-pf-label">Meta de Trades</span>
+                        <span class="sim-mass-pf-val">${targetPrimary}</span>
+                        <span class="sim-mass-pf-sub">${targetSub}</span>
+                      </div>
+                    </div>
+
+                    <div class="sim-mass-preflight-item">
+                      <div class="sim-mass-pf-icon-box blue">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="3" fill="#dbeafe"/>
+                          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                      </div>
+                      <div class="sim-mass-pf-content">
+                        <span class="sim-mass-pf-label">Gestão de Risco</span>
+                        <span class="sim-mass-pf-val">${scenarioMeta.name}</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('2R')}
+
+                  <div class="sim-mass-preflight-footer">
+                    <div class="sim-mass-preflight-integrity">
+                      <span class="sim-mass-integrity-shield">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
+                          <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </span>
+                      <div class="sim-mass-integrity-text">
+                        <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a <strong>1</strong> posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
+                      </div>
+                    </div>
+
+                    <!-- Botão de Ação / Indicador de Progresso -->
+                    <div class="sim-scenario-action-wrap">
+                      ${state.generatingMass ? `
+                        <div class="sim-mass-progress-box">
+                          <div class="sim-mass-spinner"></div>
+                          <div class="sim-mass-progress-text">${state.massProgressText || 'Processando varredura histórica...'}</div>
+                        </div>
+                        <button class="sim-btn-confirm-scenario disabled" type="button" disabled>
+                          <span>⏳ Gerando Massa...</span>
+                        </button>
+                      ` : `
+                        <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
+                          <span class="sim-cta-play-circle">
+                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                              <polygon points="3,1.5 10.5,6 3,10.5" fill="#0d6845"/>
+                            </svg>
+                          </span>
+                          <span>Iniciar Simulação em Escala</span>
+                          <span class="sim-cta-arrow">→</span>
+                        </button>
+                      `}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <!-- Opção 2: Gestão 2,5R — Alvo Estendido -->
-              <div class="sim-scenario-option ${sel === '2.5R' ? 'selected' : ''}" data-scenario-select="2.5R">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === '2.5R' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
+              <!-- BLOCO 4: BARRA HORIZONTAL DE AÇÕES DA MASSA ATUAL -->
+              <div class="sim-mass-current-actions-bar">
+                <div class="sim-mass-actions-bar-left">
+                  <div class="sim-mass-actions-bar-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d7a52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="16" rx="2" fill="#d1fae5"/>
+                      <line x1="7" y1="9" x2="17" y2="9"/>
+                      <line x1="7" y1="13" x2="13" y2="13"/>
+                    </svg>
                   </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão 2,5R — Alvo Estendido</div>
-                    <div class="sim-scen-opt-desc">Risco inicial de 1R e saída total em +2,5R. Sem piramidagem.</div>
-                  </div>
-                </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('2.5R')}
-                </div>
-              </div>
-
-              <!-- Opção 3: Gestão Pirâmide — 1R → 2R -->
-              <div class="sim-scenario-option ${sel === 'PYRAMID_1R_2R' ? 'selected' : ''}" data-scenario-select="PYRAMID_1R_2R">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === 'PYRAMID_1R_2R' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
-                  </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão Pirâmide — 1R → 2R</div>
-                    <div class="sim-scen-opt-desc">Risco inicial 1R. Em +1R adiciona +1R e encerra tudo em +2R.</div>
+                  <div class="sim-mass-actions-bar-texts">
+                    <div class="sim-mass-actions-bar-title">Ações da Massa Atual</div>
+                    <div class="sim-mass-actions-bar-desc">Gerencie as simulações existentes utilizando os candles disponíveis.</div>
                   </div>
                 </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('PYRAMID_1R_2R')}
-                </div>
-              </div>
 
-              <!-- Opção 4: Gestão Parcial 50% (2R) + Média 9 -->
-              <div class="sim-scenario-option ${sel === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_50_2R_EMA9">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === 'PARTIAL_50_2R_EMA9' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
+                <div class="sim-mass-actions-bar-right">
+                  <!-- Reavaliar candles -->
+                  <div class="sim-mass-action-card" id="simMassActionEvaluate" role="button" tabindex="0">
+                    <div class="sim-mass-action-icon">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                      </svg>
+                    </div>
+                    <div class="sim-mass-action-info">
+                      <div class="sim-mass-action-title">Reavaliar candles</div>
+                      <div class="sim-mass-action-desc">Reprocessar as simulações existentes</div>
+                    </div>
+                    <button class="sim-mass-action-trigger-btn sr-only-btn" type="button" id="simMassActionEvaluateBtn" aria-label="Reavaliar candles">Executar</button>
                   </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
-                    <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 9.</div>
+
+                  <!-- Excluir massa atual -->
+                  <div class="sim-mass-action-card danger" id="simMassActionClear" role="button" tabindex="0">
+                    <div class="sim-mass-action-icon danger">
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                    </div>
+                    <div class="sim-mass-action-info">
+                      <div class="sim-mass-action-title danger">Excluir massa atual</div>
+                      <div class="sim-mass-action-desc danger">Excluir todas as simulações carregadas</div>
+                    </div>
+                    <button class="sim-mass-action-trigger-btn danger sr-only-btn" type="button" id="simMassActionClearBtn" aria-label="Excluir massa atual">Excluir</button>
                   </div>
                 </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('PARTIAL_50_2R_EMA9')}
-                </div>
-              </div>
-
-              <!-- Opção 5: Gestão Parcial 80% (2R) + Média 9 -->
-              <div class="sim-scenario-option ${sel === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_80_2R_EMA9">
-                <div class="sim-scen-opt-left">
-                  <div class="sim-scen-radio ${sel === 'PARTIAL_80_2R_EMA9' ? 'checked' : ''}">
-                    <span class="sim-scen-radio-dot"></span>
-                  </div>
-                  <div class="sim-scen-opt-texts">
-                    <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
-                    <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 9.</div>
-                  </div>
-                </div>
-                <div class="sim-scen-opt-diagram">
-                  ${getScenarioMiniDiagramSvg('PARTIAL_80_2R_EMA9')}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- BLOCO 3: RESUMO PRÉ-EXECUÇÃO E GARANTIA METODOLÓGICA -->
-          <div class="sim-mass-modal-section">
-            <div class="sim-mass-section-eyebrow">
-              <span>3. RESUMO ANTES DE INICIAR</span>
-            </div>
-
-            <div class="sim-mass-preflight-card">
-              <div class="sim-mass-preflight-grid">
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Período:</span>
-                  <span class="sim-mass-pf-val">${periodDesc}</span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Universo:</span>
-                  <span class="sim-mass-pf-val">${universeDesc}</span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Gatilhos:</span>
-                  <span class="sim-mass-pf-val">${triggerDesc}</span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Notas do Rubric:</span>
-                  <span class="sim-mass-pf-val">${gradeDesc}</span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Meta de Executados:</span>
-                  <span class="sim-mass-pf-val"><strong>${targetDesc}</strong></span>
-                </div>
-                <div class="sim-mass-preflight-item">
-                  <span class="sim-mass-pf-label">Gestão de Risco:</span>
-                  <span class="sim-mass-pf-val">${scenarioMeta.name}</span>
-                </div>
-              </div>
-              <div class="sim-mass-preflight-integrity">
-                🛡️ <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a 1 posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
-              </div>
-            </div>
-
-            <!-- Botão de Ação / Indicador de Progresso -->
-            <div class="sim-scenario-action-wrap">
-              ${state.generatingMass ? `
-                <div class="sim-mass-progress-box">
-                  <div class="sim-mass-spinner"></div>
-                  <div class="sim-mass-progress-text">${state.massProgressText || 'Processando varredura histórica...'}</div>
-                </div>
-                <button class="sim-btn-confirm-scenario disabled" type="button" disabled>
-                  <span>⏳ Gerando Massa...</span>
-                </button>
-              ` : `
-                <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
-                  <span>🚀 Iniciar Simulação em Escala</span>
-                </button>
-              `}
-            </div>
-          </div>
-
-          <!-- DIVISOR VISUAL -->
-          <div class="sim-mass-modal-divider"></div>
-
-          <!-- BLOCO 4: AÇÕES DA MASSA ATUAL -->
-          <div class="sim-mass-modal-section">
-            <div class="sim-mass-section-eyebrow">
-              <span>AÇÕES DA MASSA ATUAL</span>
-            </div>
-
-            <div class="sim-mass-actions-list">
-              <!-- Reavaliar candles -->
-              <div class="sim-mass-action-card" id="simMassActionEvaluate">
-                <div class="sim-mass-action-icon">↻</div>
-                <div class="sim-mass-action-info">
-                  <div class="sim-mass-action-title">Reavaliar candles</div>
-                  <div class="sim-mass-action-desc">Reprocessar as simulações existentes utilizando os candles disponíveis.</div>
-                </div>
-                <button class="sim-mass-action-trigger-btn" type="button" id="simMassActionEvaluateBtn">Executar</button>
-              </div>
-
-              <!-- Excluir massa atual -->
-              <div class="sim-mass-action-card danger" id="simMassActionClear">
-                <div class="sim-mass-action-icon danger">🗑</div>
-                <div class="sim-mass-action-info">
-                  <div class="sim-mass-action-title danger">Excluir massa atual</div>
-                  <div class="sim-mass-action-desc">Excluir todas as simulações atualmente carregadas.</div>
-                </div>
-                <button class="sim-mass-action-trigger-btn danger" type="button" id="simMassActionClearBtn">Excluir</button>
               </div>
             </div>
           </div>
@@ -3136,6 +4483,16 @@
                   `Apenas notas oficiais do Novo Trade / Rubric permitidas. Notas inválidas: ${breakdown.INVALID_GRADE || 0}.`
                 )}
                 ${checkRow(
+                  'Ciclo de Mercado Obrigatório (Regra P0)',
+                  (breakdown.DEFENSIVE_CYCLE_ENTRY || 0) === 0,
+                  `Bloqueio estrito de novas entradas em Ciclo Defensivo. Violações de ciclo: ${breakdown.DEFENSIVE_CYCLE_ENTRY || 0}.`
+                )}
+                ${checkRow(
+                  'Força Relativa Oficial na Entrada (RS ≥ 80)',
+                  (breakdown.RS_BELOW_80_OFFICIAL || 0) === 0 && (breakdown.RS_UNAVAILABLE_OFFICIAL || 0) === 0,
+                  `Modo Oficial exige RS histórico ≥ 80 na data do sinal (sem look-ahead). Violações RS < 80: ${breakdown.RS_BELOW_80_OFFICIAL || 0} • RS indisponível: ${breakdown.RS_UNAVAILABLE_OFFICIAL || 0}.`
+                )}
+                ${checkRow(
                   'Calendário Oficial de Pregão & Cronologia',
                   (breakdown.SIGNAL_NON_TRADING_DAY || 0) === 0 &&
                   (breakdown.ENTRY_NON_TRADING_DAY || 0) === 0 &&
@@ -3216,13 +4573,27 @@
     `;
   }
 
+  function findSimulationById(simId) {
+    if (!simId) return null;
+    const officialMatch = (state.simulations || []).find(s => s.id === simId);
+    if (officialMatch) return officialMatch;
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runResearchLabExperiment === 'function') {
+      const exp = root.TradeSimulatorModel.runResearchLabExperiment(state.researchConfig || {});
+      const researchMatch = (exp && exp.researchExperiment && Array.isArray(exp.researchExperiment.simulations))
+        ? exp.researchExperiment.simulations.find(s => s.id === simId)
+        : null;
+      if (researchMatch) return researchMatch;
+    }
+    return null;
+  }
+
   /**
    * 5. Modal de Detalhes da Simulação e Timeline do Trade
    */
   function renderModal() {
     if (!state.selectedSimId) return '<div class="sim-modal-overlay" id="simModal"></div>';
 
-    const sim = state.simulations.find(s => s.id === state.selectedSimId);
+    const sim = findSimulationById(state.selectedSimId);
     if (!sim) return '<div class="sim-modal-overlay" id="simModal"></div>';
 
     const risk = sim.entryPrice && sim.stopLoss ? Math.abs(sim.entryPrice - sim.stopLoss) : 0;
@@ -3230,21 +4601,29 @@
     const target2R = sim.entryPrice && risk ? (sim.entryPrice + 2 * risk) : null;
 
     const timeline = sim.timeline || [];
+    const isResearchTrade = String(sim.simulationMode || '').toUpperCase() === 'RESEARCH';
 
     return `
       <div class="sim-modal-overlay open" id="simModal">
         <div class="sim-modal-box">
           <div class="sim-modal-header">
             <div>
-              <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <h2 style="margin: 0; font-size: 22px;">${sim.symbol}</h2>
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
                 ${renderStatusPill(sim.status)}
+                ${renderMarketCyclePill(sim)}
+                ${renderEntryRsPill(sim)}
+                <span class="sim-mode-pill ${isResearchTrade ? 'sim-mode-research' : 'sim-mode-official'}">${isResearchTrade ? '🧪 MODO PESQUISA' : '🛡️ MODO OFICIAL'}</span>
               </div>
-              <p style="margin: 4px 0 0; color: var(--muted); font-size: 12px;">${sim.companyName || sim.symbol} • ${sim.triggerName} • Setor: ${sim.sector || 'Geral'}</p>
+              <p style="margin: 4px 0 0; color: var(--muted); font-size: 12px;">${sim.companyName || sim.symbol} • ${formatTriggerDisplayName(sim.triggerName)} • Setor: ${sim.sector || 'Geral'}</p>
             </div>
             <button class="sim-modal-close-btn" type="button" id="simModalClose">×</button>
           </div>
+
+          <!-- Cards de Auditoria do Ciclo de Mercado e Força Relativa (RS na Entrada) -->
+          ${renderMarketCycleDetailsCard(sim)}
+          ${renderEntryRsDetailsCard(sim)}
 
           <!-- Grade de Parâmetros -->
           <div class="sim-modal-metrics-grid">
@@ -3350,12 +4729,11 @@
    */
   function renderTradeVisionAtivoCard(sim) {
     if (!sim) return '';
-    const vision = (sim.visionAtivo && sim.visionAtivo.relativeStrength)
-      ? sim.visionAtivo
-      : (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getTradeVisionAtivo === 'function'
-          ? root.TradeSimulatorModel.getTradeVisionAtivo(sim)
-          : null);
+    const vision = root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getTradeVisionAtivo === 'function'
+      ? root.TradeSimulatorModel.getTradeVisionAtivo(sim)
+      : (sim.visionAtivo || null);
     if (!vision) return '';
+    sim.visionAtivo = vision;
 
     return `
       <div class="ticker-summary-card sim-snapshot-vision-card">
@@ -3445,12 +4823,259 @@
   /**
    * 6. Modal de Snapshot / Foto do Trade no Momento da Captura e Execução
    */
+  function formatExitStatusLabel(status) {
+    switch (status) {
+      case 'TARGET_HIT': return 'Alvo Atingido';
+      case 'STOP_LOSS': return 'Stop Loss';
+      case 'BREAKEVEN': return 'Breakeven (0,0R)';
+      case 'TRAILING_STOP': return 'Trailing MM10';
+      case 'IN_OPERATION': return 'Em Aberto';
+      case 'THEORETICAL': return 'Pico MFE (Teórico)';
+      default: return status || '—';
+    }
+  }
+
+  /**
+   * Renderiza a seção de Análise de Saídas no modal de snapshot do trade.
+   * Compara o mesmo trade sob 10 políticas de encerramento distintas mantendo
+   * rigorosamente a mesma entrada e stop inicial.
+   */
+  function renderSnapshotExitPolicyAnalysis(sim) {
+    if (!sim) return '';
+    // A tabela de Análise de Saídas aplica-se exclusivamente a trades com ganho (Gain).
+    // Em operações encerradas por Stop Loss (-1,00R), todas as políticas convergem
+    // identicamente para a saída defensiva inicial, tornando a comparação redundante.
+    const isGainTrade = sim.status === 'CLOSED_GAIN' || (sim.resultR != null && Number(sim.resultR) > 0);
+    if (!isGainTrade) return '';
+
+    const data = state.snapshotData;
+    if (!data || data.simId !== sim.id || data.status === 'loading') {
+      return `
+        <div class="sim-exit-analysis-card">
+          <div class="sim-exit-analysis-loading">
+            <span class="sim-loading-spinner-sm"></span>
+            <span>Calculando análise de saídas com histórico diário real...</span>
+          </div>
+        </div>
+      `;
+    }
+    if (data.status === 'error' || !data.snapshot) {
+      return '';
+    }
+
+    const baseSnap = data.snapshot;
+    const rawHistory = baseSnap.allCandles || baseSnap.candles || [];
+    if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.calculateExitPolicyAnalysis !== 'function') {
+      return '';
+    }
+
+    const analysis = root.TradeSimulatorModel.calculateExitPolicyAnalysis(sim, rawHistory, {
+      selectedPolicyId: state.snapshotSelectedPolicyId || 'TARGET_2R',
+      sortBy: state.snapshotExitSort || 'DEFAULT'
+    });
+
+    if (!analysis.available) {
+      return `
+        <div class="sim-exit-analysis-card">
+          <div class="sim-exit-analysis-unavailable">
+            <span class="sim-exit-icon-warn">⚠</span>
+            <div>
+              <strong>Análise de Saídas indisponível</strong>
+              <p>${snapEsc(analysis.reason || 'Histórico diário insuficiente para calcular o comparativo de saídas.')}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (!analysis.isExecutable) {
+      return `
+        <div class="sim-exit-analysis-card">
+          <div class="sim-exit-analysis-info-box">
+            <span class="sim-exit-icon-info">ℹ</span>
+            <div>
+              <strong>Operação não acionada</strong>
+              <p>${snapEsc(analysis.reason || 'Esta ordem não foi executada no mercado real. A análise comparativa de saídas requer uma operação com entrada efetiva.')}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    let policies = analysis.policies || [];
+    const currentFilter = state.snapshotExitFilter || 'ALL';
+    if (currentFilter === 'FIXED') {
+      policies = policies.filter(p => p.type === 'FIXED_TARGET' || p.isTheoretical);
+    } else if (currentFilter === 'DYNAMIC') {
+      policies = policies.filter(p => p.type !== 'FIXED_TARGET');
+    }
+
+    const currentSort = state.snapshotExitSort || 'DEFAULT';
+    const selectedPolicyId = state.snapshotSelectedPolicyId || 'TARGET_2R';
+    const sm = analysis.summary || {};
+
+    return `
+      <div class="sim-exit-analysis-card" id="simExitAnalysisSection">
+        <!-- Cabeçalho da Seção -->
+        <div class="sim-exit-analysis-header">
+          <div class="sim-exit-analysis-title-group">
+            <div class="sim-exit-analysis-badge">TRADING LOG</div>
+            <h3 class="sim-exit-analysis-title">Análise de Saídas (Comparativo Multiestratégia)</h3>
+            <p class="sim-exit-analysis-subtitle">
+              Mesma entrada (<b>${formatMoney(analysis.entryPrice)}</b>) e mesmo stop inicial (<b>${formatMoney(analysis.stopInitial)}</b> • 1R = ${formatMoney(analysis.initialRisk)}) sob 10 políticas de encerramento distintas.
+            </p>
+          </div>
+
+          <!-- Controles de Filtro e Ordenação -->
+          <div class="sim-exit-analysis-controls">
+            <div class="sim-exit-filter-group" role="group" aria-label="Filtrar políticas">
+              <button class="sim-exit-pill-btn ${currentFilter === 'ALL' ? 'active' : ''}" type="button" data-sim-exit-filter="ALL">Todas (10)</button>
+              <button class="sim-exit-pill-btn ${currentFilter === 'FIXED' ? 'active' : ''}" type="button" data-sim-exit-filter="FIXED">Alvos Fixos</button>
+              <button class="sim-exit-pill-btn ${currentFilter === 'DYNAMIC' ? 'active' : ''}" type="button" data-sim-exit-filter="DYNAMIC">Trailing / Parciais</button>
+            </div>
+            <div class="sim-exit-sort-group" role="group" aria-label="Ordenar resultados">
+              <span class="sim-exit-sort-label">Ordenar:</span>
+              <button class="sim-exit-pill-btn ${currentSort === 'DEFAULT' ? 'active' : ''}" type="button" data-sim-exit-sort="DEFAULT" title="Ordem do catálogo">Padrão</button>
+              <button class="sim-exit-pill-btn ${currentSort === 'RESULT_DESC' ? 'active' : ''}" type="button" data-sim-exit-sort="RESULT_DESC" title="Maior retorno em R">Maior R ↓</button>
+              <button class="sim-exit-pill-btn ${currentSort === 'GIVEBACK_ASC' ? 'active' : ''}" type="button" data-sim-exit-sort="GIVEBACK_ASC" title="Menor devolução de lucro">Menor Giveback ↑</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card de Resumo dos Achados e Alerta Educacional -->
+        <div class="sim-exit-summary-grid">
+          <div class="sim-exit-kpi-card best">
+            <small>Melhor Saída Executável</small>
+            <div class="sim-exit-kpi-val" style="color: #10b981;">
+              ${formatR(sm.bestPolicyR)}
+            </div>
+            <span class="sim-exit-kpi-name">${snapEsc(sm.bestPolicyName || '—')}</span>
+          </div>
+
+          <div class="sim-exit-kpi-card giveback">
+            <small>Menor Devolução (Giveback)</small>
+            <div class="sim-exit-kpi-val" style="color: #0284c7;">
+              ${formatR(sm.lowestGivebackR)}
+            </div>
+            <span class="sim-exit-kpi-name">${snapEsc(sm.lowestGivebackName || '—')}</span>
+          </div>
+
+          <div class="sim-exit-kpi-card peak">
+            <small>MFE Máximo (Topo Absoluto)</small>
+            <div class="sim-exit-kpi-val" style="color: #f43f5e;">
+              ${formatR(analysis.mfeR)}
+            </div>
+            <span class="sim-exit-kpi-tag theoretical">REFERÊNCIA TEÓRICA</span>
+          </div>
+
+          <div class="sim-exit-kpi-card official">
+            <small>Saída Oficial (+2,0R Base)</small>
+            <div class="sim-exit-kpi-val" style="color: #059669;">
+              ${formatR(sm.officialPolicyR)}
+            </div>
+            <span class="sim-exit-kpi-tag official">MÉTODO OFICIAL</span>
+          </div>
+        </div>
+
+        <!-- Alerta Pedagógico Metodológico -->
+        <div class="sim-exit-verdict-box">
+          <div class="sim-exit-verdict-content">
+            <p class="sim-exit-verdict-text">
+              <b>Diagnóstico da operação:</b> ${snapEsc(sm.verdictText || '')}
+            </p>
+            <p class="sim-exit-pedagogical-text">
+              🛡️ <b>Alerta Metodológico:</b> ${snapEsc(sm.educationalNote || '')}
+            </p>
+          </div>
+        </div>
+
+        <!-- Tabela Comparativa Detalhada -->
+        <div class="sim-exit-table-wrap">
+          <table class="sim-exit-table">
+            <thead>
+              <tr>
+                <th style="min-width: 220px;">Política de Saída</th>
+                <th>Preço Saída</th>
+                <th>Resultado</th>
+                <th>Acionamento / Status</th>
+                <th>Duração</th>
+                <th>MFE / MAE</th>
+                <th>Giveback</th>
+                <th>Captura do MFE</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${policies.map(p => {
+                const isGain = (p.resultR || 0) > 0;
+                const isLoss = (p.resultR || 0) < 0;
+                const resColor = isGain ? '#10b981' : (isLoss ? '#ef4444' : '#64748b');
+
+                return `
+                  <tr class="sim-exit-row ${p.isTheoretical ? 'theoretical-row' : ''}">
+                    <td class="sim-exit-td-name">
+                      <div class="sim-exit-name-wrap">
+                        <span class="sim-exit-color-bullet" style="background-color: ${p.color};"></span>
+                        <div>
+                          <div class="sim-exit-policy-title">
+                            <b>${snapEsc(p.name)}</b>
+                            ${p.isOfficialMethod ? '<span class="sim-exit-badge-official">OFICIAL</span>' : ''}
+                            ${p.isTheoretical ? '<span class="sim-exit-badge-theoretical">TEÓRICA</span>' : ''}
+                          </div>
+                          <small class="sim-exit-policy-sub">${snapEsc(p.sub || '')}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="sim-exit-mono">
+                      <b>${formatMoney(p.exitPrice)}</b>
+                    </td>
+                    <td>
+                      <span class="sim-exit-r-pill" style="color: ${resColor}; border-color: ${resColor}40; background-color: ${resColor}10;">
+                        <b>${formatR(p.resultR)}</b>
+                      </span>
+                      ${p.financialResult != null ? `<small class="sim-exit-fin-val" style="display: block; color: ${resColor};">${formatMoney(p.financialResult)}</small>` : ''}
+                    </td>
+                    <td>
+                      <span class="sim-exit-status-chip status-${p.exitStatus.toLowerCase()}">
+                        ${formatExitStatusLabel(p.exitStatus)}
+                      </span>
+                      <small class="sim-exit-reason-text">${snapEsc(p.exitReason)}</small>
+                    </td>
+                    <td class="sim-exit-mono">
+                      ${p.durationDays} pregões
+                      <small class="sim-exit-date-text">${formatDateBR(p.exitDate)}</small>
+                    </td>
+                    <td class="sim-exit-mono">
+                      <span style="color: #10b981;">${formatR(analysis.mfeR)}</span> /
+                      <span style="color: #ef4444;">${formatR(analysis.maeR)}</span>
+                    </td>
+                    <td class="sim-exit-mono" style="color: ${p.givebackR > 0 ? '#f59e0b' : '#64748b'};">
+                      ${p.givebackR > 0 ? formatR(-p.givebackR) : '0,00R'}
+                    </td>
+                    <td>
+                      <div class="sim-exit-progress-wrap">
+                        <div class="sim-exit-progress-bar">
+                          <div class="sim-exit-progress-fill" style="width: ${Math.min(100, Math.max(0, p.mfeCapturePct))}%; background-color: ${p.color};"></div>
+                        </div>
+                        <span class="sim-exit-progress-text">${p.mfeCapturePct.toFixed(1).replace('.', ',')}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
   function renderSnapshotModal() {
     if (!state.snapshotSimId) return '<div class="sim-modal-overlay" id="simSnapshotModal"></div>';
 
-    const sim = state.simulations.find(s => s.id === state.snapshotSimId);
+    const sim = findSimulationById(state.snapshotSimId);
     if (!sim) return '<div class="sim-modal-overlay" id="simSnapshotModal"></div>';
 
+    const nav = getSnapshotNavInfo();
     const entry = Number(sim.entryPrice) || 0;
     const stop = Number(sim.stopLoss) || 0;
     const risk = entry && stop ? Math.abs(entry - stop) : 0;
@@ -3468,10 +5093,31 @@
                 <span>${sim.symbol}</span>
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
                 ${renderStatusPill(sim.status)}
+                ${renderMarketCyclePill(sim)}
+                ${renderEntryRsPill(sim)}
               </h2>
-              <p>${sim.companyName || sim.symbol} • Gatilho: <b>${sim.triggerName}</b> • Setor: ${sim.sector || 'Geral'}</p>
+              <p>${sim.companyName || sim.symbol} • Gatilho: <b>${formatTriggerDisplayName(sim.triggerName)}</b> • Setor: ${sim.sector || 'Geral'}</p>
             </div>
-            <button class="sim-modal-close-btn" type="button" id="simSnapshotClose" title="Fechar snapshot">×</button>
+            <div class="sim-snapshot-header-controls">
+              ${nav.list.length > 1 ? `
+                <div class="sim-snapshot-nav-group" role="group" aria-label="Navegação entre trades">
+                  <button class="sim-snapshot-nav-btn ${!nav.hasPrev ? 'disabled' : ''}" type="button" id="simSnapshotPrevBtn" title="Trade Anterior (tecla seta para esquerda ←)" ${!nav.hasPrev ? 'disabled' : ''}>
+                    <kbd class="sim-kbd-pill">←</kbd>
+                    <span class="sim-nav-btn-text">Anterior</span>
+                  </button>
+                  <span class="sim-snapshot-counter-badge" title="Posição no universo filtrado">
+                    <span class="sim-snapshot-counter-cur">${nav.currentIndex + 1}</span>
+                    <span class="sim-snapshot-counter-sep">/</span>
+                    <span class="sim-snapshot-counter-tot">${nav.list.length}</span>
+                  </span>
+                  <button class="sim-snapshot-nav-btn ${!nav.hasNext ? 'disabled' : ''}" type="button" id="simSnapshotNextBtn" title="Próximo Trade (tecla seta para direita →)" ${!nav.hasNext ? 'disabled' : ''}>
+                    <span class="sim-nav-btn-text">Próximo</span>
+                    <kbd class="sim-kbd-pill">→</kbd>
+                  </button>
+                </div>
+              ` : ''}
+              <button class="sim-modal-close-btn" type="button" id="simSnapshotClose" title="Fechar snapshot (Esc)">×</button>
+            </div>
           </div>
 
           <!-- Barra de Parâmetros Congelados da Captura -->
@@ -3479,6 +5125,14 @@
             <div class="sim-snapshot-param-item">
               <small>Data do Sinal</small>
               <b>${formatDateBR(sim.signalDate)}</b>
+            </div>
+            <div class="sim-snapshot-param-item">
+              <small>Ciclo de Mercado</small>
+              <div style="margin-top: 2px;">${renderMarketCyclePill(sim)}</div>
+            </div>
+            <div class="sim-snapshot-param-item">
+              <small>RS na Entrada</small>
+              <div style="margin-top: 2px;">${renderEntryRsPill(sim)}</div>
             </div>
             <div class="sim-snapshot-param-item">
               <small>Entrada Planejada</small>
@@ -3521,6 +5175,7 @@
               ${renderTradeVisionAtivoCard(sim)}
             </div>
           </div>
+          ${renderSnapshotExitPolicyAnalysis(sim)}
           ${renderSnapshotAuditModal(sim)}
 
           <!-- Rodapé do Snapshot -->
@@ -3528,13 +5183,31 @@
             <div class="sim-snapshot-footer-note">
               <span>📷 Candles diários reais (OHLCV) da fonte de dados do simulador. Sem candles sintéticos; eventos posteriores ao sinal são destacados à parte.</span>
             </div>
-            <div class="sim-snapshot-footer-actions">
-              <button class="sim-action-btn" style="width: auto; padding: 0 16px; height: 38px; font-size: 12px; font-weight: 700;" type="button" id="simSnapshotOpenInteractive" data-ticker="${sim.symbol}">
-                📈 Abrir no Gráfico Interativo Diário
-              </button>
-              <button class="sim-export-btn" style="padding: 0 16px; height: 38px;" type="button" id="simSnapshotCloseBtn">
-                Fechar
-              </button>
+            <div class="sim-snapshot-footer-bar">
+              <div class="sim-snapshot-footer-left">
+                <span class="sim-snapshot-keyboard-guide">💡 Dica: navegue com <b>←</b> e <b>→</b> (ou <b>Esc</b>)</span>
+              </div>
+              <div class="sim-snapshot-footer-center">
+                ${nav.list.length > 1 ? `
+                  <div class="sim-snapshot-footer-nav" role="group" aria-label="Navegação entre trades">
+                    <button class="sim-snapshot-footer-nav-btn ${!nav.hasPrev ? 'disabled' : ''}" type="button" id="simSnapshotFooterPrevBtn" title="Trade Anterior (tecla ←)" ${!nav.hasPrev ? 'disabled' : ''}>
+                      ← Anterior
+                    </button>
+                    <span class="sim-snapshot-footer-counter">${nav.positionLabel}</span>
+                    <button class="sim-snapshot-footer-nav-btn ${!nav.hasNext ? 'disabled' : ''}" type="button" id="simSnapshotFooterNextBtn" title="Próximo Trade (tecla →)" ${!nav.hasNext ? 'disabled' : ''}>
+                      Próximo →
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+              <div class="sim-snapshot-footer-right">
+                <button class="sim-action-btn" style="width: auto; padding: 0 16px; height: 38px; font-size: 12px; font-weight: 700;" type="button" id="simSnapshotOpenInteractive" data-ticker="${sim.symbol}">
+                  📈 Abrir no Gráfico Interativo Diário
+                </button>
+                <button class="sim-export-btn" style="padding: 0 16px; height: 38px;" type="button" id="simSnapshotCloseBtn">
+                  Fechar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -3550,9 +5223,19 @@
       return '<div class="sim-modal-overlay" id="simExportModal"></div>';
     }
 
-    const filtered = getFilteredSimulations();
-    const all = state.simulations;
+    const isResearchEnv = state.activeEnvironment === 'RESEARCH';
+    let filtered = getFilteredSimulations();
+    let all = state.simulations;
+    if (isResearchEnv && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runResearchLabExperiment === 'function') {
+      const exp = root.TradeSimulatorModel.runResearchLabExperiment(state.researchConfig || {});
+      const expSims = (exp && exp.researchExperiment && Array.isArray(exp.researchExperiment.simulations))
+        ? exp.researchExperiment.simulations
+        : [];
+      filtered = expSims;
+      all = expSims;
+    }
     const count = state.exportScope === 'ALL' ? all.length : filtered.length;
+    const modeBadgeText = isResearchEnv ? 'MODO PESQUISA — REGRAS ABERTAS' : 'MODO OFICIAL';
 
     let submitBtnLabel = `📥 Baixar Word (.DOC) • ${count} trades`;
     if (state.exportFormat === 'PDF') {
@@ -3569,9 +5252,9 @@
           <!-- Cabeçalho do Modal -->
           <div class="sim-modal-header">
             <div>
-              <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #0f172a;">📚 Exportar Trades Simulados</h2>
-                <span class="sim-export-badge">ESTUDO INDIVIDUAL</span>
+                <span class="sim-export-badge">${modeBadgeText}</span>
               </div>
               <p style="margin: 4px 0 0; color: #64748b; font-size: 13px;">
                 Exporte as operações para estudo detalhado, anotações e revisão técnica fora da plataforma.
@@ -3723,11 +5406,73 @@
   }
 
   /**
+   * Obtém a lista ativa de trades para navegação trade-a-trade nos snapshots
+   */
+  function getSnapshotNavList() {
+    const isResearch = state.activeEnvironment === 'RESEARCH';
+    if (isResearch && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runResearchLabExperiment === 'function') {
+      const exp = root.TradeSimulatorModel.runResearchLabExperiment(state.researchConfig || {});
+      const expSims = (exp && exp.researchExperiment && Array.isArray(exp.researchExperiment.simulations))
+        ? exp.researchExperiment.simulations
+        : [];
+      if (expSims.length > 0) return expSims;
+    }
+    const filtered = getFilteredSimulations();
+    if (Array.isArray(filtered) && filtered.length > 0) return filtered;
+    return Array.isArray(state.simulations) ? state.simulations : [];
+  }
+
+  /**
+   * Retorna metadados de navegação do snapshot atual (índice, anterior, próximo, total)
+   */
+  function getSnapshotNavInfo() {
+    const list = getSnapshotNavList();
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.computeSnapshotNavInfo === 'function') {
+      return root.TradeSimulatorModel.computeSnapshotNavInfo({ list, currentId: state.snapshotSimId });
+    }
+    const currentIndex = list.findIndex(s => s && s.id === state.snapshotSimId);
+    const hasPrev = currentIndex > 0;
+    const hasNext = currentIndex !== -1 && currentIndex < list.length - 1;
+    return {
+      list,
+      currentIndex,
+      hasPrev,
+      hasNext,
+      prevSim: hasPrev ? list[currentIndex - 1] : null,
+      nextSim: hasNext ? list[currentIndex + 1] : null,
+      positionLabel: currentIndex !== -1 ? `${currentIndex + 1} de ${list.length}` : ''
+    };
+  }
+
+  function navigateToPrevSnapshot() {
+    const nav = getSnapshotNavInfo();
+    if (nav.hasPrev && nav.prevSim) {
+      openSnapshot(nav.prevSim.id);
+    }
+  }
+
+  function navigateToNextSnapshot() {
+    const nav = getSnapshotNavInfo();
+    if (nav.hasNext && nav.nextSim) {
+      openSnapshot(nav.nextSim.id);
+    }
+  }
+
+  function closeSnapshotModal() {
+    state.snapshotSimId = null;
+    state.snapshotAuditModalOpen = false;
+    state.snapshotSelectedPolicyId = 'TARGET_2R';
+    state.snapshotExitSort = 'DEFAULT';
+    state.snapshotExitFilter = 'ALL';
+    render();
+  }
+
+  /**
    * Abre o snapshot do trade carregando o histórico diário REAL do ativo no servidor.
    * Nunca monta candles localmente: sem dados, o modal exibe indisponibilidade explícita.
    */
   async function openSnapshot(simId) {
-    const sim = state.simulations.find(s => s.id === simId);
+    const sim = findSimulationById(simId);
     state.snapshotSimId = simId;
     state.snapshotZoom = '1M';
     state.snapshotAuditModalOpen = false;
@@ -3735,13 +5480,31 @@
     render();
     if (!sim) return;
     try {
-      if (!root.healthyTrendApi || typeof root.healthyTrendApi.request !== 'function') {
+      let res = null;
+      if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
+        try {
+          res = await root.healthyTrendApi.request(API_ENDPOINT + '/snapshot', {
+            method: 'POST',
+            body: JSON.stringify({ simulation: sim })
+          });
+        } catch (apiErr) {
+          // Fallback resiliente: carregar candles via ticker-chart se /snapshot falhar ou exigir login
+          if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.buildSimulationSnapshot === 'function') {
+            try {
+              const chartRes = await root.healthyTrendApi.request(`/api/market-data/ticker-chart?ticker=${encodeURIComponent(sim.symbol)}`);
+              if (chartRes && Array.isArray(chartRes.candles) && chartRes.candles.length > 0) {
+                const clientSnap = root.TradeSimulatorModel.buildSimulationSnapshot(sim, chartRes.candles, {
+                  source: chartRes.source || 'B3 (COTAHIST, ajustado a eventos corporativos)'
+                });
+                res = { snapshot: clientSnap };
+              }
+            } catch (_) {}
+          }
+          if (!res) throw apiErr;
+        }
+      } else {
         throw new Error('Cliente de API indisponível para carregar o histórico real.');
       }
-      const res = await root.healthyTrendApi.request(API_ENDPOINT + '/snapshot', {
-        method: 'POST',
-        body: JSON.stringify({ simulation: sim })
-      });
       if (state.snapshotSimId !== simId) return;
       state.snapshotData = { simId, status: 'ready', snapshot: res && res.snapshot ? res.snapshot : null, error: null };
     } catch (e) {
@@ -3753,7 +5516,11 @@
         error: (e && e.message) || 'Falha ao carregar o histórico diário real do ativo.'
       };
     }
-    render();
+    try {
+      render();
+    } catch (renderErr) {
+      console.error('[TradeSimulator] Erro ao renderizar snapshot:', renderErr);
+    }
   }
 
   function renderSnapshotUnavailable(title, message) {
@@ -3859,12 +5626,20 @@
                   <td><span style="color: #34d399; font-weight: 700;">${snapEsc(sm.lookAhead || 'Não identificado')}</span> — nenhum candle posterior foi usado para calcular EMAs, gatilhos ou stops</td>
                 </tr>
                 <tr>
+                  <td>Ciclo de Mercado (Benchmark)</td>
+                  <td>${renderMarketCyclePill(sim)} <small style="margin-left: 8px; color: #94a3b8;">${snapEsc((sim.marketPermission?.reason) || (sim.marketCycle === 'Positivo' ? 'Elegível: Índice acima das EMAs 10 e 72 no Diário' : 'Verificado na data do sinal'))}</small></td>
+                </tr>
+                <tr>
+                  <td>Força Relativa (RS na Entrada)</td>
+                  <td>${renderEntryRsPill(sim)} <small style="margin-left: 8px; color: #94a3b8;">${snapEsc(resolveSimulationEntryRs(sim).reason || 'RS histórico avaliado na data do sinal (sem look-ahead)')}</small></td>
+                </tr>
+                <tr>
                   <td>Padrão e Pivôs Re-detectados</td>
                   <td><code>${snapEsc(sm.patternPivotsFormatted || 'Não aplicável')}</code></td>
                 </tr>
                 <tr>
                   <td>Gatilho e Setup</td>
-                  <td><b>${snapEsc(sm.triggerFormatted || sim.triggerName)}</b></td>
+                  <td><b>${snapEsc(sm.triggerFormatted || formatTriggerDisplayName(sim.triggerName))}</b></td>
                 </tr>
                 <tr>
                   <td>Entrada e Stop</td>
@@ -4200,6 +5975,83 @@
       </svg>
     `;
   }  function bindLocalEvents(container) {
+    // Alternância entre Modo Oficial e Laboratório de Pesquisa Quantitativa
+    const switchToOfficial = (e) => {
+      e.stopPropagation();
+      state.activeEnvironment = 'OFFICIAL';
+      render();
+    };
+    const switchToResearch = (e) => {
+      e.stopPropagation();
+      state.activeEnvironment = 'RESEARCH';
+      render();
+    };
+    container.querySelector('#simSwitchEnvOfficial')?.addEventListener('click', switchToOfficial);
+    container.querySelector('#simBackToOfficialBtn')?.addEventListener('click', switchToOfficial);
+    container.querySelector('#simSwitchEnvResearch')?.addEventListener('click', switchToResearch);
+    container.querySelector('#simOpenResearchLabBtn')?.addEventListener('click', switchToResearch);
+
+    // Expandir / recolher detalhes das Regras Oficiais em Teste
+    container.querySelector('#simToggleOfficialRulesDetails')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.officialRulesExpanded = !state.officialRulesExpanded;
+      render();
+    });
+
+    // Alternância do Modo Rubric (ATIVADO / DESATIVADO)
+    container.querySelector('#simBtnRubricModeToggle')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.rubricMode = !state.rubricMode;
+      try {
+        localStorage.setItem('healthy-trade-simulator-rubric-mode', String(state.rubricMode));
+      } catch (_) {}
+      render();
+    });
+
+    // Expandir / recolher comparação do Modo Rubric
+    container.querySelector('#simToggleRubricComparison')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.rubricComparisonExpanded = !state.rubricComparisonExpanded;
+      render();
+    });
+
+    // Controles do Laboratório de Pesquisa Quantitativa
+    container.querySelector('#simResearchRsFilter')?.addEventListener('change', (e) => {
+      state.researchConfig.rsFilterMode = e.target.value;
+      render();
+    });
+    container.querySelector('#simResearchCycleFilter')?.addEventListener('change', (e) => {
+      state.researchConfig.cycleFilterMode = e.target.value;
+      render();
+    });
+    container.querySelector('#simResearchTrendFilter')?.addEventListener('change', (e) => {
+      state.researchConfig.trendFilterMode = e.target.value;
+      render();
+    });
+    container.querySelector('#simResearchTriggerMode')?.addEventListener('change', (e) => {
+      state.researchConfig.triggerMode = e.target.value;
+      render();
+    });
+    container.querySelector('#simResearchScenario')?.addEventListener('change', (e) => {
+      state.researchConfig.scenario = e.target.value;
+      render();
+    });
+
+    container.querySelector('#simResearchBtnHypothesis')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.hypothesisModalOpen = true;
+      render();
+    });
+    container.querySelector('#simResearchBtnScenarios')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.compareModalOpen = true;
+      render();
+    });
+    container.querySelector('#simResearchExportBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openExportModal();
+    });
+
     // Dropdowns do topo
     container.querySelectorAll('[data-dropdown]').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -4329,7 +6181,24 @@
     container.querySelectorAll('[data-mass-trigger]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        state.massConfig.triggers = btn.dataset.massTrigger;
+        const trig = btn.dataset.massTrigger;
+        if (!trig) return;
+
+        let current = Array.isArray(state.massConfig.triggers)
+          ? [...state.massConfig.triggers]
+          : (state.massConfig.triggers && state.massConfig.triggers !== 'ALL' ? [state.massConfig.triggers] : []);
+
+        if (trig === 'ALL') {
+          state.massConfig.triggers = 'ALL';
+        } else {
+          const idx = current.indexOf(trig);
+          if (idx >= 0) {
+            current.splice(idx, 1);
+          } else {
+            current.push(trig);
+          }
+          state.massConfig.triggers = current.length > 0 ? current : 'ALL';
+        }
         render();
       });
     });
@@ -4337,7 +6206,31 @@
     container.querySelectorAll('[data-mass-grade]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        state.massConfig.grades = btn.dataset.massGrade;
+        const gr = btn.dataset.massGrade;
+        if (!gr) return;
+
+        const isOfficial = state.activeEnvironment !== 'RESEARCH';
+        if (isOfficial && gr === 'D') return;
+
+        let current = Array.isArray(state.massConfig.grades)
+          ? [...state.massConfig.grades]
+          : (state.massConfig.grades && state.massConfig.grades !== 'ALL' ? [state.massConfig.grades] : []);
+
+        if (isOfficial) {
+          current = current.filter(g => g !== 'D');
+        }
+
+        if (gr === 'ALL') {
+          state.massConfig.grades = 'ALL';
+        } else {
+          const idx = current.indexOf(gr);
+          if (idx >= 0) {
+            current.splice(idx, 1);
+          } else {
+            current.push(gr);
+          }
+          state.massConfig.grades = current.length > 0 ? current : 'ALL';
+        }
         render();
       });
     });
@@ -4499,28 +6392,6 @@
     });
 
     // Dropdown de mais opções (···)
-    container.querySelector('#simMoreBtnMass')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.activeDropdown = null;
-      state.massModalOpen = true;
-      state.tempScenarioSelection = state.activeScenario || '2R';
-      render();
-    });
-
-    container.querySelector('#simMoreBtnCompare')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.activeDropdown = null;
-      state.compareModalOpen = true;
-      render();
-    });
-
-    container.querySelector('#simMoreBtnHypothesis')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      state.activeDropdown = null;
-      state.hypothesisModalOpen = true;
-      render();
-    });
-
     container.querySelector('#simMoreBtnEvaluate')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.activeDropdown = null;
@@ -4731,24 +6602,36 @@
       }
     });
 
+    // Navegação trade a trade no snapshot modal (botões do cabeçalho e rodapé)
+    container.querySelector('#simSnapshotPrevBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateToPrevSnapshot();
+    });
+    container.querySelector('#simSnapshotNextBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateToNextSnapshot();
+    });
+    container.querySelector('#simSnapshotFooterPrevBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateToPrevSnapshot();
+    });
+    container.querySelector('#simSnapshotFooterNextBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateToNextSnapshot();
+    });
+
     // Fechar snapshot modal
     container.querySelector('#simSnapshotClose')?.addEventListener('click', () => {
-      state.snapshotSimId = null;
-      state.snapshotAuditModalOpen = false;
-      render();
+      closeSnapshotModal();
     });
 
     container.querySelector('#simSnapshotCloseBtn')?.addEventListener('click', () => {
-      state.snapshotSimId = null;
-      state.snapshotAuditModalOpen = false;
-      render();
+      closeSnapshotModal();
     });
 
     container.querySelector('#simSnapshotModal')?.addEventListener('click', (e) => {
       if (e.target.id === 'simSnapshotModal') {
-        state.snapshotSimId = null;
-        state.snapshotAuditModalOpen = false;
-        render();
+        closeSnapshotModal();
       }
     });
 
@@ -4763,6 +6646,21 @@
           state.sort.column = col;
           state.sort.direction = (col === 'symbol' || col === 'triggerName') ? 'asc' : 'desc';
         }
+        render();
+      });
+    });
+
+    // Interatividade da Análise de Saídas (Filtros e Ordenação)
+    container.querySelectorAll('[data-sim-exit-sort]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        state.snapshotExitSort = e.currentTarget.dataset.simExitSort;
+        render();
+      });
+    });
+
+    container.querySelectorAll('[data-sim-exit-filter]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        state.snapshotExitFilter = e.currentTarget.dataset.simExitFilter;
         render();
       });
     });
@@ -4884,13 +6782,41 @@
   }
 
   /**
-   * Fecha dropdowns ao clicar fora
+   * Fecha dropdowns ao clicar fora e escuta atalhos de navegação
    */
   function bindGlobalEvents() {
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.sim-filter-select-wrap') && state.activeDropdown) {
         state.activeDropdown = null;
         render();
+      }
+    });
+
+    // Navegação por teclado (Setas Esquerda/Direita e Esc) para Trade Snapshots
+    window.addEventListener('keydown', (e) => {
+      // Se não há snapshot aberto, não intercepta
+      if (!state.snapshotSimId) return;
+
+      // Não intercepta se o usuário estiver digitando em campo de formulário
+      const target = e.target;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) {
+        return;
+      }
+
+      if (e.key === 'ArrowRight' || e.key === 'Right') {
+        e.preventDefault();
+        navigateToNextSnapshot();
+      } else if (e.key === 'ArrowLeft' || e.key === 'Left') {
+        e.preventDefault();
+        navigateToPrevSnapshot();
+      } else if (e.key === 'Escape' || e.key === 'Esc') {
+        e.preventDefault();
+        if (state.snapshotAuditModalOpen) {
+          state.snapshotAuditModalOpen = false;
+          render();
+        } else {
+          closeSnapshotModal();
+        }
       }
     });
 
@@ -4913,6 +6839,20 @@
     evaluateActive,
     openExportModal,
     executeExport,
+    openSnapshot,
+    closeSnapshotModal,
+    navigateToPrevSnapshot,
+    navigateToNextSnapshot,
+    getSnapshotNavInfo,
+    openOfficialMode: () => {
+      state.activeEnvironment = 'OFFICIAL';
+      if (typeof root.go === 'function') root.go('tradesimulator');
+      else render();
+    },
+    openResearchLab: () => {
+      state.activeEnvironment = 'RESEARCH';
+      if (typeof root.go === 'function') root.go('researchlab');
+    },
     getState: () => state
   };
 

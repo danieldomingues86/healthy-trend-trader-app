@@ -9,20 +9,45 @@ function configured() {
   return Boolean(process.env.DATABASE_URL);
 }
 
+function formatDbError(error) {
+  if (!error) return error;
+  if (error.code === 'ENOTFOUND' && error.hostname && error.hostname.includes('supabase.co')) {
+    const message = `Falha de resolução DNS (${error.hostname}). Conexões diretas do Supabase exigem conectividade IPv6. Em redes IPv4, configure a URL do Connection Pooler (ex: aws-0-sa-east-1.pooler.supabase.com:5432) no DATABASE_URL.`;
+    const wrapped = new Error(message);
+    wrapped.code = error.code;
+    wrapped.syscall = error.syscall;
+    wrapped.hostname = error.hostname;
+    return wrapped;
+  }
+  return error;
+}
+
 function getPool() {
   if (!configured()) throw new Error('Banco de dados não configurado. Defina DATABASE_URL no .env do backend.');
   if (!pool) {
     pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+    pool.on('error', (err) => {
+      console.error('[database pool error]', formatDbError(err).message);
+    });
   }
   return pool;
 }
 
 async function query(text, values) {
-  return getPool().query(text, values);
+  try {
+    return await getPool().query(text, values);
+  } catch (error) {
+    throw formatDbError(error);
+  }
 }
 
 async function transaction(work) {
-  const client = await getPool().connect();
+  let client;
+  try {
+    client = await getPool().connect();
+  } catch (error) {
+    throw formatDbError(error);
+  }
   try {
     await client.query('BEGIN');
     const result = await work({ query: (text, values) => client.query(text, values) });
@@ -30,7 +55,7 @@ async function transaction(work) {
     return result;
   } catch (error) {
     await client.query('ROLLBACK');
-    throw error;
+    throw formatDbError(error);
   } finally {
     client.release();
   }

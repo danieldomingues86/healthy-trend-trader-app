@@ -13,7 +13,8 @@
     technical: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V11M10 19V6M16 19V9M22 19V3"/><path d="m3 8 5-4 5 3 8-6"/></svg>',
     emotional: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4a4 4 0 0 0-7 2 4 4 0 0 0 1 7 4 4 0 0 0 5 6h1M15 4a4 4 0 0 1 7 2 4 4 0 0 1-1 7 4 4 0 0 1-5 6h-1M12 4v16M8 8h1m6 0h1M7 13h2m6 0h2"/></svg>',
     lessons: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H11v17H5.5A2.5 2.5 0 0 0 3 22.5zM21 5.5A2.5 2.5 0 0 0 18.5 3H13v17h5.5a2.5 2.5 0 0 1 2.5 2.5z"/></svg>',
-    patterns: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 1 5"/><path d="M20 4v7h-7"/></svg>'
+    patterns: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 1 5"/><path d="M20 4v7h-7"/></svg>',
+    mic: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>'
   };
   const storage = window.healthyTrendWorkspace?.storage;
   const tradeLocalUrls = new Map();
@@ -30,6 +31,32 @@
   }
   let data, selected, pane = 'technical', month, saveError = '', busy = false, activeView = 'day';
   let evidenceUrls = [];
+  let activeColorFilter = 'all';
+  let isRecordingAudio = false;
+  let audioMediaRecorder = null;
+  let audioStream = null;
+  let audioChunks = [];
+  let audioElapsedSeconds = 0;
+  let audioTimerInterval = null;
+  let audioRecordingStartTime = 0;
+
+  function formatAudioDuration(sec) {
+    const s = Math.max(0, Math.floor(Number(sec) || 0));
+    const m = Math.floor(s / 60);
+    const rem = s % 60;
+    return `${String(m).padStart(2, '0')}:${String(rem).padStart(2, '0')}`;
+  }
+
+  function defaultColorTag(color) {
+    switch (color) {
+      case 'red': return text('Dia Ruim', 'Bad Day');
+      case 'green': return text('Excelente', 'Great Day');
+      case 'yellow': return text('Atenção', 'Caution');
+      case 'blue': return text('Observação', 'Study');
+      case 'purple': return text('Aprendizado', 'Learning');
+      default: return '';
+    }
+  }
   try {
     data = M.load(storage, []);
     stripDataUrls(data);
@@ -218,10 +245,305 @@
   }
   function evidenceKind(item) { return item.kind === 'market' ? 'market' : 'asset'; }
   function evidenceKindLabel(kind) { return kind === 'market' ? text('Mercado / índice', 'Market / index') : text('Ativo / trade', 'Asset / trade'); }
+  function renderDayIdentityBar(e) {
+    const colors = [
+      { id: 'red', name: text('Vermelho', 'Red'), label: text('Dia Ruim', 'Bad Day'), bg: '#ef4444' },
+      { id: 'green', name: text('Verde', 'Green'), label: text('Excelente', 'Great Day'), bg: '#10b981' },
+      { id: 'yellow', name: text('Amarelo', 'Yellow'), label: text('Atenção', 'Caution'), bg: '#f59e0b' },
+      { id: 'blue', name: text('Azul', 'Blue'), label: text('Observação', 'Study'), bg: '#3b82f6' },
+      { id: 'purple', name: text('Roxo', 'Purple'), label: text('Aprendizado', 'Learning'), bg: '#8b5cf6' }
+    ];
+    const curColor = e.dayColor || '';
+    const curTag = e.dayTag || '';
+    const curTitle = e.title || '';
+    const activeColorObj = colors.find(c => c.id === curColor);
+    const audios = (e.evidence || []).filter(item => item.type && item.type.startsWith('audio/'));
+
+    return `
+      <section class="jv-day-identity ${curColor ? `is-${curColor}` : ''}" aria-label="${text('Identidade, Título e Áudio do Dia', 'Day Identity, Title and Audio')}">
+        ${isRecordingAudio ? `
+          <div class="jv-audio-recording-banner" role="alert" aria-live="polite">
+            <div class="jv-recording-pulse">
+              <span class="jv-pulse-dot"></span>
+              <strong class="jv-rec-label">${text('Gravando áudio do dia…', 'Recording day audio…')}</strong>
+              <span id="jv-audio-rec-timer" class="jv-rec-timer">${formatAudioDuration(audioElapsedSeconds)}</span>
+            </div>
+            <div class="jv-rec-btn-group">
+              <button type="button" class="jv-btn-save-audio" data-action="stop-save-audio">
+                <span>⏹</span>
+                <span>${text('Parar e Salvar', 'Stop & Save')}</span>
+              </button>
+              <button type="button" class="jv-btn-cancel-audio" data-action="cancel-audio">
+                <span>✕ ${text('Descartar', 'Discard')}</span>
+              </button>
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="jv-day-title-container">
+          <span class="jv-day-title-icon" aria-hidden="true">✎</span>
+          <input id="jv-day-title-input" class="jv-day-title-input" type="text" data-field="title" value="${esc(curTitle)}" placeholder="${text('Dê um título para marcar este dia (ex: O erro de ficar posicionado antes de uma eleição)...', 'Give this day a title (e.g. The mistake of holding into elections)...')}" maxlength="120" spellcheck="false">
+          <button type="button" class="jv-top-audio-record-btn ${isRecordingAudio ? 'is-recording' : ''}" data-action="toggle-audio-recorder" title="${text('Gravar áudio com reflexões deste dia', 'Record audio note for this day')}">
+            <span class="jv-top-mic-icon">${icons.mic}</span>
+            <span>${isRecordingAudio ? text('Gravando…', 'Recording…') : text('Gravar Áudio', 'Record Audio')}</span>
+            ${audios.length ? `<span class="jv-audio-count-pill">${audios.length}</span>` : ''}
+          </button>
+        </div>
+
+        <div class="jv-day-meta-row">
+          <div class="jv-day-color-cluster" role="radiogroup" aria-label="${text('Cor de destaque do dia', 'Day highlight color')}">
+            <span class="jv-meta-label">${text('Cor:', 'Color:')}</span>
+            ${colors.map(c => `
+              <button type="button" class="jv-color-bead chip-${c.id} ${curColor === c.id ? 'is-selected' : ''}" data-action="set-day-color" data-color="${c.id}" title="${esc(c.name)}: ${esc(c.label)}" aria-label="${esc(c.name)}" aria-pressed="${curColor === c.id}">
+                <span class="jv-bead-dot" style="background:${c.bg}"></span>
+              </button>
+            `).join('')}
+            ${curColor ? `
+              <button type="button" class="jv-color-clear-btn" data-action="set-day-color" data-color="" title="${text('Remover cor', 'Remove color')}" aria-label="${text('Sem cor', 'No color')}">✕</button>
+            ` : ''}
+          </div>
+
+          <div class="jv-day-tag-cluster">
+            <span class="jv-meta-label">${text('Tag / Rótulo:', 'Tag / Label:')}</span>
+            <div class="jv-day-tag-pill-input-wrap ${curColor ? `is-${curColor}` : ''}">
+              <input id="jv-day-tag-input" class="jv-day-tag-input" type="text" data-field="dayTag" value="${esc(curTag)}" placeholder="${activeColorObj ? activeColorObj.label : text('Ex: Dia Ruim, Alerta...', 'E.g. Bad Day, Alert...')}" maxlength="30">
+            </div>
+          </div>
+        </div>
+
+        ${audios.length ? `
+          <div class="jv-top-audio-players">
+            ${audios.map(a => `
+              <div class="jv-top-audio-item" data-audio-id="${esc(a.id)}">
+                <div class="jv-top-audio-header">
+                  <span class="jv-top-audio-icon">🎙️</span>
+                  <span class="jv-top-audio-name" title="${esc(a.name)}">${esc(a.name)}</span>
+                  <span class="jv-top-audio-time">${a.createdAt ? new Date(a.createdAt).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                  <button type="button" class="jv-audio-delete-btn" data-action="remove-audio" data-evidence-id="${esc(a.id)}" title="${text('Remover áudio', 'Remove audio')}" aria-label="${text('Remover', 'Remove')}">✕</button>
+                </div>
+                <audio class="jv-inline-audio-player jv-top-player" controls preload="metadata" data-audio-src-id="${esc(a.id)}"></audio>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </section>
+    `;
+  }
+
+  async function startAudioRecording() {
+    if (isRecordingAudio) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert(text('Seu navegador não suporta gravação de áudio.', 'Your browser does not support audio recording.'));
+      return;
+    }
+    try {
+      audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunks = [];
+      let mimeType = '';
+      if (typeof MediaRecorder !== 'undefined') {
+        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mimeType = 'audio/webm;codecs=opus';
+        else if (MediaRecorder.isTypeSupported('audio/webm')) mimeType = 'audio/webm';
+        else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+      }
+      audioMediaRecorder = mimeType ? new MediaRecorder(audioStream, { mimeType }) : new MediaRecorder(audioStream);
+
+      audioMediaRecorder.ondataavailable = event => {
+        if (event.data && event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+
+      audioMediaRecorder.onstop = async () => {
+        if (audioStream) {
+          audioStream.getTracks().forEach(track => track.stop());
+          audioStream = null;
+        }
+        clearInterval(audioTimerInterval);
+        audioTimerInterval = null;
+        isRecordingAudio = false;
+
+        if (audioChunks.length === 0) {
+          render(true);
+          return;
+        }
+
+        const actualMime = audioMediaRecorder?.mimeType || 'audio/webm';
+        const blob = new Blob(audioChunks, { type: actualMime });
+        audioChunks = [];
+        const day = current()?.date || M.today();
+        const timeNow = new Date();
+        const timeStr = `${String(timeNow.getHours()).padStart(2, '0')}h${String(timeNow.getMinutes()).padStart(2, '0')}`;
+        const ext = actualMime.includes('mp4') ? 'm4a' : (actualMime.includes('ogg') ? 'ogg' : 'webm');
+        const filename = `audio_${day}_${timeStr}.${ext}`;
+        const audioFile = new File([blob], filename, { type: actualMime });
+
+        await saveAudioFile(audioFile, blob);
+      };
+
+      audioMediaRecorder.start(250);
+      isRecordingAudio = true;
+      audioRecordingStartTime = Date.now();
+      audioElapsedSeconds = 0;
+      clearInterval(audioTimerInterval);
+      audioTimerInterval = setInterval(() => {
+        audioElapsedSeconds = Math.floor((Date.now() - audioRecordingStartTime) / 1000);
+        const timerEl = root.querySelector('#jv-audio-rec-timer');
+        if (timerEl) {
+          timerEl.textContent = formatAudioDuration(audioElapsedSeconds);
+        }
+      }, 500);
+
+      render(true);
+    } catch (err) {
+      console.error('Falha ao iniciar gravação de áudio:', err);
+      alert(text('Não foi possível acessar o microfone. Verifique as permissões do navegador.', 'Could not access the microphone. Please check browser permissions.'));
+      isRecordingAudio = false;
+      render(true);
+    }
+  }
+
+  function stopAndSaveAudioRecording() {
+    if (!isRecordingAudio || !audioMediaRecorder) return;
+    if (audioMediaRecorder.state !== 'inactive') {
+      audioMediaRecorder.stop();
+    }
+  }
+
+  function cancelAudioRecording() {
+    if (!isRecordingAudio) return;
+    clearInterval(audioTimerInterval);
+    audioTimerInterval = null;
+    isRecordingAudio = false;
+    audioChunks = [];
+    if (audioStream) {
+      audioStream.getTracks().forEach(track => track.stop());
+      audioStream = null;
+    }
+    if (audioMediaRecorder && audioMediaRecorder.state !== 'inactive') {
+      audioMediaRecorder.ondataavailable = null;
+      audioMediaRecorder.onstop = null;
+      try { audioMediaRecorder.stop(); } catch (_) {}
+    }
+    audioMediaRecorder = null;
+    render(true);
+  }
+
+  async function saveAudioFile(file, blob) {
+    if (busy) return;
+    busy = true;
+    const e = current();
+    const tempId = `aud_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const tempUrl = URL.createObjectURL(blob);
+    tradeLocalUrls.set(tempId, tempUrl);
+
+    try {
+      if (window.healthyTrendApi?.uploadFile) {
+        status(text('Salvando áudio na nuvem…', 'Saving audio to cloud…'));
+        const result = await window.healthyTrendApi.uploadFile('/api/journal-attachments', file, { 'X-Journal-Record': e.id });
+        e.evidence = Array.isArray(e.evidence) ? e.evidence : [];
+        const recordAttachment = { ...result.attachment, kind: 'asset' };
+        e.evidence.push(recordAttachment);
+        tradeLocalUrls.set(result.attachment.id, tempUrl);
+        if (!persist(true)) {
+          throw new Error(saveError);
+        }
+        status(text('Áudio gravado e salvo com sucesso.', 'Audio recorded and saved successfully.'));
+      } else {
+        e.evidence = Array.isArray(e.evidence) ? e.evidence : [];
+        e.evidence.push({
+          id: tempId,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          kind: 'asset',
+          createdAt: new Date().toISOString()
+        });
+        persist(true);
+        status(text('Áudio gravado localmente.', 'Audio recorded locally.'));
+      }
+    } catch (err) {
+      console.warn('Falha no upload do áudio, mantendo referência local:', err);
+      e.evidence = Array.isArray(e.evidence) ? e.evidence : [];
+      e.evidence.push({
+        id: tempId,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        kind: 'asset',
+        createdAt: new Date().toISOString()
+      });
+      persist(true);
+      status(text('Áudio salvo no caderno local.', 'Audio saved to local notebook.'));
+    } finally {
+      busy = false;
+      render(true);
+    }
+  }
+
+  function renderAudioSection(evidenceList = []) {
+    const audios = (evidenceList || []).filter(item => item.type && item.type.startsWith('audio/'));
+    if (!audios.length && !isRecordingAudio) return '';
+    return `
+      <div class="jv-audio-section">
+        <h4 class="jv-audio-section-title">
+          <span>🎙️</span>
+          <span>${text('Áudios gravados no diário', 'Recorded audio notes')} (${audios.length})</span>
+        </h4>
+        <div class="jv-audio-grid">
+          ${audios.map(a => `
+            <div class="jv-audio-card" data-audio-id="${esc(a.id)}">
+              <div class="jv-audio-card-head">
+                <span class="jv-audio-icon">🎧</span>
+                <div class="jv-audio-meta">
+                  <strong class="jv-audio-title">${esc(a.name)}</strong>
+                  <small class="jv-audio-time">${a.createdAt ? new Date(a.createdAt).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : ''}</small>
+                </div>
+                <button type="button" class="jv-audio-delete-btn" data-action="remove-audio" data-evidence-id="${esc(a.id)}" title="${text('Remover áudio', 'Remove audio')}" aria-label="${text('Remover', 'Remove')}">✕</button>
+              </div>
+              <audio class="jv-inline-audio-player" controls preload="metadata" data-audio-src-id="${esc(a.id)}"></audio>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  async function hydrateAudioPlayers() {
+    const audioEls = root.querySelectorAll('audio[data-audio-src-id]');
+    for (const audio of audioEls) {
+      const id = audio.dataset.audioSrcId;
+      if (!id || audio.src) continue;
+      const localUrl = tradeLocalUrls.get(id);
+      if (localUrl) {
+        audio.src = localUrl;
+        continue;
+      }
+      const item = current()?.evidence?.find(candidate => candidate.id === id);
+      if (!item) continue;
+      try {
+        const blob = await evidenceBlob(item);
+        if (!blob || !audio.isConnected) continue;
+        const url = URL.createObjectURL(blob);
+        evidenceUrls.push(url);
+        tradeLocalUrls.set(id, url);
+        audio.src = url;
+      } catch (err) {
+        console.warn('Não foi possível carregar o áudio:', id, err);
+      }
+    }
+  }
+
   function evidenceStrip() {
     const items = current().evidence.slice(0, 3);
     const imageCount = current().evidence.filter(item => item.type?.startsWith('image/') && item.type !== 'image/svg+xml').length;
-    return `<div class="jv-evidence-strip">${items.map(item => `<button type="button" class="jv-evidence-thumb" data-evidence-id="${esc(item.id)}" title="${esc(item.name)}" aria-label="${text('Abrir', 'Open')} ${esc(item.name)}">${item.type.startsWith('image/') ? `<img data-evidence-thumb="${esc(item.id)}" alt="${esc(item.name)}">` : `<span>${item.type.startsWith('audio/') ? '♫' : '📎'}</span>`}<small>${esc(item.name)}</small></button>`).join('')}${current().evidence.length > 3 ? `<div class="jv-evidence-more">+${current().evidence.length - 3}</div>` : ''}<button type="button" class="jv-evidence-add" data-action="evidence" aria-label="${text('Anexar arquivo ou colar print', 'Attach a file or paste a screenshot')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 6-6a3 3 0 1 1 4 4l-8 8a5 5 0 0 1-7-7l8-8"/></svg><small>${text('Anexar / Ctrl+V', 'Attach / Ctrl+V')}</small></button></div>${imageCount > 1 ? `<small class="jv-evidence-keyboard-hint">← → ${text('Abra um print e use as setas do teclado para navegar entre as imagens.', 'Open a screenshot and use the keyboard arrows to browse images.')}</small>` : ''}`;
+    return `
+      <div class="jv-evidence-strip">
+        ${items.map(item => `<button type="button" class="jv-evidence-thumb" data-evidence-id="${esc(item.id)}" title="${esc(item.name)}" aria-label="${text('Abrir', 'Open')} ${esc(item.name)}">${item.type.startsWith('image/') ? `<img data-evidence-thumb="${esc(item.id)}" alt="${esc(item.name)}">` : `<span>${item.type.startsWith('audio/') ? '🎙️' : '📎'}</span>`}<small>${esc(item.name)}</small></button>`).join('')}
+        ${current().evidence.length > 3 ? `<div class="jv-evidence-more">+${current().evidence.length - 3}</div>` : ''}
+        <button type="button" class="jv-evidence-add" data-action="evidence" aria-label="${text('Anexar arquivo ou colar print', 'Attach a file or paste a screenshot')}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 12 6-6a3 3 0 1 1 4 4l-8 8a5 5 0 0 1-7-7l8-8"/></svg><small>${text('Anexar / Ctrl+V', 'Attach / Ctrl+V')}</small></button>
+      </div>
+      ${imageCount > 1 ? `<small class="jv-evidence-keyboard-hint">← → ${text('Abra um print e use as setas do teclado para navegar entre as imagens.', 'Open a screenshot and use the keyboard arrows to browse images.')}</small>` : ''}
+    `;
   }
   function analysisHistory(record) {
     const analyses = Array.isArray(record.technical?.analyses) ? record.technical.analyses : [];
@@ -471,7 +793,6 @@
                       { id: 'INSIDE_BAR', name: 'Inside Bar' },
                       { id: 'PFR_COMPRA', name: 'PFR de Compra' },
                       { id: '123_COMPRA', name: '1-2-3 de Compra' },
-                      { id: 'DAVE_LANDRY', name: 'Dave Landry' },
                       { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)' }
                     ];
                     const currentSetup = trade.setup;
@@ -719,7 +1040,6 @@
                   { id: 'INSIDE_BAR', name: 'Inside Bar' },
                   { id: 'PFR_COMPRA', name: 'PFR de Compra' },
                   { id: '123_COMPRA', name: '1-2-3 de Compra' },
-                  { id: 'DAVE_LANDRY', name: 'Dave Landry' },
                   { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)' }
                 ];
                 return triggers.map(t => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
@@ -920,12 +1240,63 @@
     const records = [...data.records].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     const months = [...new Set(records.map(item => (item.date || '').slice(0, 7)))];
     const visible = records.filter(item => (item.date || '').slice(0, 7) === month);
+    const colorCounts = { red: 0, green: 0, yellow: 0, blue: 0, purple: 0 };
+    visible.forEach(r => {
+      if (r.dayColor && colorCounts[r.dayColor] !== undefined) colorCounts[r.dayColor]++;
+    });
+    const filteredVisible = visible.filter(item => {
+      if (activeColorFilter === 'all') return true;
+      return item.dayColor === activeColorFilter;
+    });
     const allEmotions = [...new Set([...emotions, ...emotional.states])];
     const legacyLabels = e.legacyEntries.flatMap(item => Array.isArray(item.attachments) ? item.attachments : []);
     root.innerHTML = `<div class="jv-workspace">
       <header class="jv-heading"><div><span class="jv-kicker">${text('Observar · Registrar · Entender · Evoluir', 'Observe · Record · Understand · Grow')}</span><h1>${text('Diário do Trader', 'Trader Journal')}</h1><p>${text('Mais que registros. Um processo de evolução.', 'More than entries. A process of growth.')}</p></div><p class="jv-heading-quote">${text('Conheça o mercado.<br>Conheça a si mesmo.<br>E evolua todos os dias.', 'Know the market.<br>Know yourself.<br>Grow every day.')}</p></header>
-      <div class="jv-layout"><aside class="jv-history"><h2>${text('Meu Caderno', 'My Notebook')}</h2><label class="jv-sr" for="jv-month">${text('Mês do histórico', 'History month')}</label><select id="jv-month">${months.map(value => `<option value="${value}" ${value === month ? 'selected' : ''}>${value ? dateLabel(`${value}-01`, { month: 'long', year: 'numeric' }) : text('Datas a revisar', 'Dates to review')}</option>`).join('')}</select><small>${visible.length} ${text(visible.length === 1 ? 'dia registrado' : 'dias registrados', visible.length === 1 ? 'recorded day' : 'recorded days')}</small><button type="button" class="jv-new" data-action="today">＋ ${text('Registro de hoje', 'Today’s entry')}</button><nav aria-label="${text('Histórico do diário', 'Journal history')}">${visible.map(item => `<button type="button" data-day="${esc(item.id)}" ${item.id === selected ? 'aria-current="date"' : ''}><time>${item.date ? dateLabel(item.date, { day: '2-digit', month: 'short' }) : '—'}</time><span>${esc(item.date === M.today() ? text('Hoje', 'Today') : item.title || item.emotional.states[0] || text('Registro', 'Entry'))}</span></button>`).join('')}</nav><button type="button" class="jv-export-trigger" data-action="export-journal" title="${text('Exportar Diário (preparado para IA)', 'Export Journal (AI ready)')}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>${text('Exportar Diário', 'Export Journal')}</span></button><p>${text('Um dia. Duas perspectivas.<br>Um só aprendizado.', 'One day. Two perspectives.<br>One shared lesson.')}</p></aside>
+      <div class="jv-layout"><aside class="jv-history"><h2>${text('Meu Caderno', 'My Notebook')}</h2><label class="jv-sr" for="jv-month">${text('Mês do histórico', 'History month')}</label><select id="jv-month">${months.map(value => `<option value="${value}" ${value === month ? 'selected' : ''}>${value ? dateLabel(`${value}-01`, { month: 'long', year: 'numeric' }) : text('Datas a revisar', 'Dates to review')}</option>`).join('')}</select>
+        <div class="jv-history-filter-bar" role="radiogroup" aria-label="${text('Filtrar histórico por cor', 'Filter history by color')}">
+          <button type="button" class="jv-filter-pill ${activeColorFilter === 'all' ? 'is-active' : ''}" data-action="filter-color" data-color="all" title="${text('Todos os registros', 'All entries')}">
+            ${text('Todos', 'All')}
+          </button>
+          <div class="jv-filter-dots">
+            ${['red', 'green', 'yellow', 'blue', 'purple'].map(colorKey => {
+              const count = colorCounts[colorKey] || 0;
+              const colorNames = {
+                red: text('Vermelho (Dia Ruim)', 'Red (Bad Day)'),
+                green: text('Verde (Excelente)', 'Green (Great Day)'),
+                yellow: text('Amarelo (Atenção)', 'Yellow (Caution)'),
+                blue: text('Azul (Estudo)', 'Blue (Study)'),
+                purple: text('Roxo (Aprendizado)', 'Purple (Learning)')
+              };
+              const hexColors = { red: '#ef4444', green: '#10b981', yellow: '#f59e0b', blue: '#3b82f6', purple: '#8b5cf6' };
+              return `
+                <button type="button" class="jv-filter-dot is-${colorKey} ${activeColorFilter === colorKey ? 'is-active' : ''}" data-action="filter-color" data-color="${colorKey}" title="${colorNames[colorKey]}${count ? ` (${count})` : ''}">
+                  <span class="jv-dot-circle" style="background:${hexColors[colorKey]}"></span>
+                  ${count > 0 ? `<span class="jv-dot-badge">${count}</span>` : ''}
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+        <small>${filteredVisible.length} ${text(filteredVisible.length === 1 ? 'dia registrado' : 'dias registrados', filteredVisible.length === 1 ? 'recorded day' : 'recorded days')}</small>
+        <button type="button" class="jv-new" data-action="today">＋ ${text('Registro de hoje', 'Today’s entry')}</button>
+        <nav aria-label="${text('Histórico do diário', 'Journal history')}">${filteredVisible.map(item => {
+          const isToday = item.date === M.today();
+          const itemTag = item.dayTag || defaultColorTag(item.dayColor);
+          const dayColor = item.dayColor || '';
+          const itemTitle = item.title || (item.emotional?.states?.[0] ? item.emotional.states[0] : (isToday ? text('Hoje', 'Today') : text('Registro', 'Entry')));
+          return `<button type="button" class="jv-history-btn ${dayColor ? `jv-btn-color-${dayColor}` : ''}" data-day="${esc(item.id)}" ${item.id === selected ? 'aria-current="date"' : ''}>
+            <time>${item.date ? dateLabel(item.date, { day: '2-digit', month: 'short' }) : '—'}</time>
+            <div class="jv-history-item-body">
+              <div class="jv-history-item-title-row">
+                ${isToday ? `<span class="jv-history-today-pill">${text('Hoje', 'Today')}</span>` : ''}
+                <span class="jv-history-item-title" title="${esc(item.title || itemTitle)}">${esc(itemTitle)}</span>
+              </div>
+              ${itemTag ? `<span class="jv-history-tag-pill ${dayColor ? `jv-tag-${dayColor}` : ''}">${esc(itemTag)}</span>` : ''}
+            </div>
+          </button>`;
+        }).join('')}</nav><button type="button" class="jv-export-trigger" data-action="export-journal" title="${text('Exportar Diário (preparado para IA)', 'Export Journal (AI ready)')}"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>${text('Exportar Diário', 'Export Journal')}</span></button><p>${text('Um dia. Duas perspectivas.<br>Um só aprendizado.', 'One day. Two perspectives.<br>One shared lesson.')}</p></aside>
       <main class="jv-notebook"><header class="jv-book-header"><div><span class="jv-kicker">${text('Seu Caderno de Processo', 'Your Process Notebook')}</span><h2>${dateLabel(e.date)}</h2></div><div class="jv-date-nav"><button type="button" data-action="previous" aria-label="${text('Registro anterior', 'Previous entry')}">‹</button><label><span class="jv-sr">${text('Abrir registro de uma data', 'Open a date')}</span><input id="jv-date" type="date" value="${e.date || ''}"></label><button type="button" data-action="next" aria-label="${text('Próximo registro', 'Next entry')}">›</button></div></header>
+      ${renderDayIdentityBar(e)}
       ${renderSessionNav(e)}
       ${activeView === 'day' ? `
         <div class="jv-tabs" role="tablist" aria-label="${text('Página do caderno', 'Notebook page')}"><button type="button" id="jv-tab-technical" role="tab" aria-controls="jv-technical" aria-selected="${pane === 'technical'}" tabindex="${pane === 'technical' ? 0 : -1}" data-pane="technical">▥ ${text('Técnico', 'Technical')}</button><button type="button" id="jv-tab-emotional" role="tab" aria-controls="jv-emotional" aria-selected="${pane === 'emotional'}" tabindex="${pane === 'emotional' ? 0 : -1}" data-pane="emotional">◉ ${text('Emocional', 'Emotional')}</button></div>
@@ -959,11 +1330,12 @@
       </main></div><dialog id="jv-dialog" aria-labelledby="jv-dialog-title"><header><h2 id="jv-dialog-title"></h2><button type="button" data-action="close-dialog" aria-label="${text('Fechar', 'Close')}">×</button></header><div id="jv-dialog-body"></div></dialog>
     </div>`;
     hydrateEvidenceStrip();
+    hydrateAudioPlayers();
     hydrateTradeImages();
     root.querySelector('.jv-lessons')?.remove();
   }
   function setValue(path, value, debounce = false) {
-    const allowed = ['title', 'technical.market', 'technical.markets', 'technical.marketState', 'technical.marketStates', 'technical.session', 'technical.executionScore', 'technical.planRespected', 'technical.permissionMoney', 'emotional.intensity', 'emotional.note', 'emotional.impact', 'emotional.impactNote', 'shared.lesson', 'shared.patterns', 'shared.observations', 'shared.phrase'];
+    const allowed = ['title', 'dayColor', 'dayTag', 'technical.market', 'technical.markets', 'technical.marketState', 'technical.marketStates', 'technical.session', 'technical.executionScore', 'technical.planRespected', 'technical.permissionMoney', 'emotional.intensity', 'emotional.note', 'emotional.impact', 'emotional.impactNote', 'shared.lesson', 'shared.patterns', 'shared.observations', 'shared.phrase'];
     if (!allowed.includes(path)) return;
     const keys = path.split('.');
     let target = current(); if (keys.length === 2) target = target[keys.shift()];
@@ -1106,6 +1478,7 @@
     try {
       if (!window.healthyTrendApi?.request) throw new Error(text('Entre novamente antes de remover um arquivo.', 'Sign in again before removing a file.'));
       const removed = current().evidence.find(item => item.id === id);
+      tradeLocalUrls.delete(id);
       current().evidence = current().evidence.filter(item => item.id !== id);
       if (!persist()) { if (removed) current().evidence.push(removed); throw new Error(saveError); }
       try { await window.healthyTrendApi.request(`/api/journal-attachments/${encodeURIComponent(id)}`, { method: 'DELETE' }); }
@@ -1668,6 +2041,41 @@
       }
       persist();
       render(true);
+      return;
+    }
+    if (button.dataset.action === 'set-day-color') {
+      const col = button.dataset.color || null;
+      current().dayColor = col;
+      if (col && !current().dayTag) {
+        current().dayTag = defaultColorTag(col);
+      }
+      persist();
+      render(true);
+      return;
+    }
+    if (button.dataset.action === 'filter-color') {
+      activeColorFilter = button.dataset.color || 'all';
+      render(true);
+      return;
+    }
+    if (button.dataset.action === 'toggle-audio-recorder') {
+      if (isRecordingAudio) stopAndSaveAudioRecording();
+      else startAudioRecording();
+      return;
+    }
+    if (button.dataset.action === 'stop-save-audio') {
+      stopAndSaveAudioRecording();
+      return;
+    }
+    if (button.dataset.action === 'cancel-audio') {
+      cancelAudioRecording();
+      return;
+    }
+    if (button.dataset.action === 'remove-audio') {
+      const id = button.dataset.evidenceId;
+      if (id && confirm(text('Deseja realmente remover esta gravação de áudio?', 'Are you sure you want to delete this audio recording?'))) {
+        removeEvidence(id);
+      }
       return;
     }
     switch (button.dataset.action) {

@@ -55,6 +55,7 @@
     ['couragechallenge','Desafio Grade A','Treinamento do Modo Desapego.','manual-courage','Acompanhe a execução dos Rare Trades de Grade A em relação ao sizing executável autorizado pelo sistema, somente com o desafio ativo.'],
     ['assetblacklist','Ativos Blacklist','Blindagem comportamental.',null,'Cadastre ativos proibidos, ilíquidos ou fora do seu perfil para bloquear compras acidentais no sistema.'],
     ['tradesimulator','Simulador de Trades','Ambiente de testes e cenários.',null,'Simule a execução do seu método em dados reais, teste cenários de gestão (2R, 2.5R, Pirâmide, Parciais) e compare métricas de payoff.'],
+    ['researchlab','Laboratório de Pesquisa','Descobertas e regras candidatas.',null,'Ambiente quantitativo isolado para testar hipóteses, comparar regras alternativas (Força Relativa RS, gatilhos e cenários) sem alterar a política oficial.'],
     ['forecast','Simulador de Equity','Projeções probabilísticas.',null,'Simule a evolução matemática da sua curva de capital combinando taxa de acerto, payoff (R médio) e volume operacional.'],
     ['riskofruin','Risco de Ruína','Proteção patrimonial e sobrevivência estatística.',null,'Estime via Monte Carlo (10.000 trajetórias por reamostragem em R) a probabilidade de atingir o drawdown limite da conta em 250 trades e receba recomendações consultivas de redução de mão.'],
     ['analytics','Painel da Verdade','Descubra onde você tem edge.','manual-analytics','Revise os resultados das operações registradas e procure padrões de qualidade e execução.'],
@@ -83,7 +84,7 @@
       ],
       newtrade: [
         'A tela Novo Trade estrutura a operação em duas etapas estritas: Etapa 1 (Parâmetros da Operação: Ativo, Direção, Gatilho Oficial, Entrada, Stop, ATR, Ambiente e Tese) e Etapa 2 (Validação pela Trading Rubric de 100 pontos).',
-        'Os 5 Gatilhos Oficiais de Entrada: Inside Bar, PFR (Padrão de Fechamento e Reversão), 1-2-3 de Compra, Dave Landry e RBI (Red Bar Ignored) fornecem timing cirúrgico e stop estrutural objetivo.',
+        'Os Gatilhos Oficiais de Entrada: Inside Bar, PFR (Padrão de Fechamento e Reversão), 1-2-3 de Compra e RBI (Barra Vermelha Ignorada) fornecem timing cirúrgico e stop estrutural objetivo.',
         'Override Manual do Ciclo de Mercado: caso a dinâmica setorial ou intradiária do ativo divirja do índice benchmark geral, o trader pode ajustar manualmente o regime no seletor da Rubric, recalculando pontos, Grade e Risk Budget em tempo real.',
         'Risk Budget por Grade: a Rubric consulta na Política de Risco o orçamento configurado para A, B, C ou D. Cada avaliação recalcula Qualidade → Risk Budget → limitadores da política → risco executável → Position Size.',
         'Dimensionamento: o Risk Budget produz o Position Size teórico pela distância até o stop. Em seguida, volatilidade por ATR, capital, Portfolio Heat e máximo de posições limitam a quantidade executável quando necessário.',
@@ -189,7 +190,7 @@
       ],
       opportunityradar: [
         'O Radar de Oportunidades consolida em uma visão rápida e objetiva somente os ativos PRONTOS PARA ENTRADA para o próximo pregão, reutilizando os motores de Força Relativa (3M), Ciclo de Mercado, Tendência Diária (Preço > EMA 10 > EMA 72) e Gatilhos Oficiais.',
-        'Filtre por categoria de mercado (IBOV, IFIX ou BDRs), setor e tipo de gatilho (Inside Bar, 123 Buy, PFR de Compra, Dave Landry, RBI) e abra diretamente o gráfico do ativo com um clique.',
+        'Filtre por categoria de mercado (IBOV, IFIX ou BDRs), setor e tipo de gatilho (Inside Bar, 123 Buy, PFR de Compra, RBI) e abra diretamente o gráfico do ativo com um clique.',
         'Segurança Operacional: gatilho identificado no fechamento não garante entrada disponível no próximo pregão. Sempre valide o preço de abertura, stop inicial, risco e dimensionamento da posição antes de operar.'
       ],
       relativestrength: ['Escolha o universo de ativos e compare sua força relativa. Confira a data de atualização antes de interpretar a classificação.', 'Use os líderes para organizar sua pesquisa. Depois avalie o contexto técnico e a Rubric em Novo Trade; liderança não substitui um gatilho de entrada.'],
@@ -246,6 +247,10 @@
       tradesimulator: [
         'O Simulador de Trades permite testar regras de execução e gestão de risco em um ambiente controlado e sem viés de look-ahead.',
         'Comparação de Cenários: avalie estratégias como 2R, 2.5R, Pirâmide e Parciais com condução por EMA 10 para descobrir qual abordagem maximiza o seu retorno ajustado ao risco.'
+      ],
+      researchlab: [
+        'O Laboratório de Pesquisa Quantitativa é o ambiente dedicado à descoberta empírica e investigação de hipóteses no Healthy Trend Trader.',
+        'Isolamento e Comparabilidade: teste regras candidatas, variações de Força Relativa e gatilhos alternativos mantendo o histórico oficial rigorosamente protegido.'
       ],
       riskofruin: [
         'O módulo Risco de Ruína estima via simulação de Monte Carlo (10.000 trajetórias por reamostragem com reposição dos resultados históricos em R) a probabilidade de atingir o drawdown máximo configurado em um horizonte de 250 operações.',
