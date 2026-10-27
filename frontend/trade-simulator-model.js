@@ -2093,6 +2093,7 @@
 
     const tab = String(filters.tab || filters.statusTab || 'ALL').trim().toUpperCase();
     const resultFilter = String(filters.result || filters.resultFilter || filters.outcome || 'ALL').trim().toUpperCase();
+    const symbol = String(filters.symbol || filters.ticker || 'ALL').trim().toUpperCase();
     const trigger = String(filters.trigger || 'ALL').trim();
     const sector = String(filters.sector || 'ALL').trim();
     const grade = String(filters.grade || 'ALL').trim().toUpperCase();
@@ -2175,6 +2176,12 @@
       }
       if (maxDateStr && sim.signalDate && String(sim.signalDate).slice(0, 10) > maxDateStr) {
         return false;
+      }
+
+      // 2.1. Ativo / Símbolo
+      if (symbol && symbol !== 'ALL') {
+        const simSym = String(sim.symbol || '').trim().toUpperCase();
+        if (simSym !== symbol) return false;
       }
 
       // 3. Gatilho
@@ -8646,18 +8653,135 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     });
 
     const gradeBreakdown = {};
+    let topPositiveGrade = null;
+    let maxGradePnL = 0;
+
     ['A+', 'A', 'B', 'C', 'D'].forEach(gr => {
-      const gTrades = executedTrades.filter(t => t.evaluation.grade === gr);
-      const gWins = gTrades.filter(t => t.netPnL > 0);
-      const gTotalR = gTrades.reduce((acc, t) => acc + t.netResultR, 0);
+      const gTrades = executedTrades.filter(t => (t.evaluation && t.evaluation.grade === gr) || t.grade === gr);
+      const gWins = gTrades.filter(t => (t.netPnL != null ? t.netPnL : 0) > 0);
+      const gTotalR = gTrades.reduce((acc, t) => acc + (t.netResultR != null ? t.netResultR : (t.resultR != null ? t.resultR : 0)), 0);
+      const gNetPnL = gTrades.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0);
+      const gGrossPnL = gTrades.reduce((acc, t) => acc + (t.grossPnL != null ? t.grossPnL : 0), 0);
+      const gTotalCosts = gTrades.reduce((acc, t) => acc + (t.totalCosts != null ? t.totalCosts : 0), 0);
+      const gTotalRiskCash = gTrades.reduce((acc, t) => acc + (t.authorizedRiskCash != null ? t.authorizedRiskCash : 0), 0);
+      const gTotalRiskPct = gTrades.reduce((acc, t) => acc + (t.authorizedRiskPct != null ? t.authorizedRiskPct : 0), 0);
+
+      const avgRiskCash = gTrades.length > 0 ? gTotalRiskCash / gTrades.length : 0;
+      const defaultRiskPct = gr === 'A+' ? 0.50 : (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : (gr === 'C' ? 0.10 : 0.00)));
+      const avgRiskPct = gTrades.length > 0 ? gTotalRiskPct / gTrades.length : defaultRiskPct;
+      const contribPct = totalNetPnL !== 0 ? Number(((gNetPnL / totalNetPnL) * 100).toFixed(1)) : 0;
+
+      if (gNetPnL > maxGradePnL && gTrades.length > 0) {
+        maxGradePnL = gNetPnL;
+        topPositiveGrade = gr;
+      }
+
       gradeBreakdown[gr] = {
+        grade: gr,
         count: gTrades.length,
         winRate: gTrades.length > 0 ? Number(((gWins.length / gTrades.length) * 100).toFixed(1)) : 0,
         totalR: Number(gTotalR.toFixed(2)),
         expectancyR: gTrades.length > 0 ? Number((gTotalR / gTrades.length).toFixed(2)) : 0,
-        netPnL: Number(gTrades.reduce((acc, t) => acc + t.netPnL, 0).toFixed(2))
+        netPnL: Number(gNetPnL.toFixed(2)),
+        grossPnL: Number(gGrossPnL.toFixed(2)),
+        totalCosts: Number(gTotalCosts.toFixed(2)),
+        avgRiskCash: Number(avgRiskCash.toFixed(2)),
+        avgRiskPct: Number(avgRiskPct.toFixed(2)),
+        contribPct
       };
     });
+
+    if (!topPositiveGrade && executedTrades.length > 0) {
+      let bestPnL = -Infinity;
+      ['A+', 'A', 'B', 'C', 'D'].forEach(gr => {
+        if (gradeBreakdown[gr].count > 0 && gradeBreakdown[gr].netPnL > bestPnL) {
+          bestPnL = gradeBreakdown[gr].netPnL;
+          topPositiveGrade = gr;
+        }
+      });
+    }
+
+    // Análise por Ativo (Asset Breakdown)
+    const assetMap = new Map();
+    executedTrades.forEach(t => {
+      const sym = t.symbol || 'OUTROS';
+      if (!assetMap.has(sym)) {
+        assetMap.set(sym, {
+          symbol: sym,
+          companyName: t.companyName || t.name || sym,
+          sector: t.sector || 'Outros',
+          trades: []
+        });
+      }
+      assetMap.get(sym).trades.push(t);
+    });
+
+    const assetBreakdown = Array.from(assetMap.values()).map(item => {
+      const aTrades = item.trades;
+      const aWins = aTrades.filter(t => (t.netPnL != null ? t.netPnL : 0) > 0);
+      const aTotalR = aTrades.reduce((acc, t) => acc + (t.netResultR != null ? t.netResultR : (t.resultR != null ? t.resultR : 0)), 0);
+      const aNetPnL = aTrades.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0);
+      const aTotalRiskCash = aTrades.reduce((acc, t) => acc + (t.authorizedRiskCash != null ? t.authorizedRiskCash : 0), 0);
+      const maxGain = aTrades.reduce((max, t) => Math.max(max, t.netPnL != null ? t.netPnL : 0), 0);
+      const maxLoss = aTrades.reduce((min, t) => Math.min(min, t.netPnL != null ? t.netPnL : 0), 0);
+      const contribPct = totalNetPnL !== 0 ? Number(((aNetPnL / totalNetPnL) * 100).toFixed(1)) : 0;
+
+      return {
+        symbol: item.symbol,
+        companyName: item.companyName,
+        sector: item.sector,
+        count: aTrades.length,
+        winsCount: aWins.length,
+        winRate: aTrades.length > 0 ? Number(((aWins.length / aTrades.length) * 100).toFixed(1)) : 0,
+        totalR: Number(aTotalR.toFixed(2)),
+        avgR: aTrades.length > 0 ? Number((aTotalR / aTrades.length).toFixed(2)) : 0,
+        netPnL: Number(aNetPnL.toFixed(2)),
+        avgRiskCash: aTrades.length > 0 ? Number((aTotalRiskCash / aTrades.length).toFixed(2)) : 0,
+        maxGain: Number(maxGain.toFixed(2)),
+        maxLoss: Number(maxLoss.toFixed(2)),
+        contribPct
+      };
+    }).sort((a, b) => b.netPnL - a.netPnL);
+
+    // Análise por Setup (Gatilho)
+    const setupMap = new Map();
+    executedTrades.forEach(t => {
+      const trig = formatTriggerDisplayName(t.triggerName || t.triggerType || t.setupTrigger || 'Outros');
+      if (!setupMap.has(trig)) {
+        setupMap.set(trig, {
+          name: trig,
+          trades: []
+        });
+      }
+      setupMap.get(trig).trades.push(t);
+    });
+
+    const setupBreakdown = Array.from(setupMap.values()).map(item => {
+      const sTrades = item.trades;
+      const sWins = sTrades.filter(t => (t.netPnL != null ? t.netPnL : 0) > 0);
+      const sLosses = sTrades.filter(t => (t.netPnL != null ? t.netPnL : 0) < 0);
+      const sTotalR = sTrades.reduce((acc, t) => acc + (t.netResultR != null ? t.netResultR : (t.resultR != null ? t.resultR : 0)), 0);
+      const sNetPnL = sTrades.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0);
+      const sTotalRiskCash = sTrades.reduce((acc, t) => acc + (t.authorizedRiskCash != null ? t.authorizedRiskCash : 0), 0);
+      const sWinsCash = sWins.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0);
+      const sLossesCash = Math.abs(sLosses.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0));
+      const profitFactor = sLossesCash > 0 ? Number((sWinsCash / sLossesCash).toFixed(2)) : (sWinsCash > 0 ? 99 : 0);
+      const contribPct = totalNetPnL !== 0 ? Number(((sNetPnL / totalNetPnL) * 100).toFixed(1)) : 0;
+
+      return {
+        name: item.name,
+        count: sTrades.length,
+        winsCount: sWins.length,
+        lossesCount: sLosses.length,
+        winRate: sTrades.length > 0 ? Number(((sWins.length / sTrades.length) * 100).toFixed(1)) : 0,
+        totalR: Number(sTotalR.toFixed(2)),
+        expectancyR: sTrades.length > 0 ? Number((sTotalR / sTrades.length).toFixed(2)) : 0,
+        netPnL: Number(sNetPnL.toFixed(2)),
+        profitFactor,
+        avgRiskCash: sTrades.length > 0 ? Number((sTotalRiskCash / sTrades.length).toFixed(2)) : 0,
+        contribPct
+      };
+    }).sort((a, b) => b.netPnL - a.netPnL);
 
     return {
       rubricMode,
@@ -8665,6 +8789,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       finalEquity: currentEquity,
       netPnL: totalNetPnL,
       netReturnPct,
+      topPositiveGrade,
+      assetBreakdown,
+      setupBreakdown,
       performance: {
         totalSignals: list.length,
         executedCount: totalExecuted,
@@ -8700,8 +8827,12 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         reducedSizeTradesCount,
         blockedStats,
         rsBandBreakdown,
-        gradeBreakdown
+        gradeBreakdown,
+        assetBreakdown,
+        setupBreakdown,
+        topPositiveGrade
       },
+      executedTrades,
       equityCurve,
       processedTrades
     };

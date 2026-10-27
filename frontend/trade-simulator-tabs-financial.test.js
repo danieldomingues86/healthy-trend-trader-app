@@ -1,0 +1,298 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const TradeSimulatorModel = require('./trade-simulator-model');
+
+// Mock helper para gerar trades de teste com diferentes grades e gatilhos
+function createSampleSimulations() {
+  return [
+    {
+      id: 'sim-1',
+      symbol: 'PETR4',
+      companyName: 'Petrobras PN',
+      sector: 'Petróleo e Gás',
+      triggerName: 'Inside Bar',
+      grade: 'A+',
+      signalDate: '2026-01-10',
+      entryDate: '2026-01-11',
+      entryPrice: 30.00,
+      stopLoss: 28.50,
+      exitDate: '2026-01-20',
+      exitPrice: 33.00,
+      status: 'CLOSED_GAIN',
+      resultR: 2.0,
+      shares: 333,
+      rsScore: 96,
+      marketCycle: 'healthy'
+    },
+    {
+      id: 'sim-2',
+      symbol: 'VALE3',
+      companyName: 'Vale ON',
+      sector: 'Materiais Básicos',
+      triggerName: '1-2-3 de Compra',
+      grade: 'A',
+      signalDate: '2026-01-15',
+      entryDate: '2026-01-16',
+      entryPrice: 60.00,
+      stopLoss: 57.00,
+      exitDate: '2026-01-25',
+      exitPrice: 66.00,
+      status: 'CLOSED_GAIN',
+      resultR: 2.0,
+      shares: 133,
+      rsScore: 92,
+      marketCycle: 'healthy'
+    },
+    {
+      id: 'sim-3',
+      symbol: 'ITUB4',
+      companyName: 'Itaú Unibanco PN',
+      sector: 'Financeiro',
+      triggerName: 'PFR de Compra',
+      grade: 'B',
+      signalDate: '2026-02-01',
+      entryDate: '2026-02-02',
+      entryPrice: 35.00,
+      stopLoss: 33.50,
+      exitDate: '2026-02-10',
+      exitPrice: 33.50,
+      status: 'CLOSED_LOSS',
+      resultR: -1.0,
+      shares: 133,
+      rsScore: 85,
+      marketCycle: 'healthy'
+    },
+    {
+      id: 'sim-4',
+      symbol: 'BBAS3',
+      companyName: 'Banco do Brasil ON',
+      sector: 'Financeiro',
+      triggerName: 'Inside Bar',
+      grade: 'C',
+      signalDate: '2026-02-10',
+      entryDate: '2026-02-11',
+      entryPrice: 28.00,
+      stopLoss: 27.00,
+      exitDate: '2026-02-18',
+      exitPrice: 30.00,
+      status: 'CLOSED_GAIN',
+      resultR: 2.0,
+      shares: 100,
+      rsScore: 82,
+      marketCycle: 'healthy'
+    },
+    {
+      id: 'sim-5',
+      symbol: 'MGLU3',
+      companyName: 'Magazine Luiza ON',
+      sector: 'Consumo',
+      triggerName: 'Dave Landry',
+      grade: 'D',
+      signalDate: '2026-02-15',
+      entryDate: '2026-02-16',
+      entryPrice: 12.00,
+      stopLoss: 11.00,
+      exitDate: '2026-02-25',
+      exitPrice: 14.00,
+      status: 'CLOSED_GAIN',
+      resultR: 2.0,
+      shares: 0,
+      rsScore: 65,
+      marketCycle: 'defensive'
+    }
+  ];
+}
+
+test('Rebuild Aba 1 — 1. Capital Inicial é personalizável e dimensiona o risco financeiro proporcionalmente', () => {
+  const sims = createSampleSimulations();
+
+  // Executar simulação com R$ 100.000
+  const rep100k = TradeSimulatorModel.runRubricPortfolioSimulation(sims, {
+    officialMode: true,
+    rubricMode: true,
+    initialCapital: 100000
+  });
+
+  assert.equal(rep100k.initialCapital, 100000);
+  assert.ok(rep100k.finalEquity > 0);
+
+  // Executar simulação com R$ 250.000
+  const rep250k = TradeSimulatorModel.runRubricPortfolioSimulation(sims, {
+    officialMode: true,
+    rubricMode: true,
+    initialCapital: 250000
+  });
+
+  assert.equal(rep250k.initialCapital, 250000);
+
+  // O risco financeiro de cada trade deve crescer proporcionalmente aos lotes padrão da B3
+  const tradeA100k = rep100k.executedTrades.find(t => t.grade === 'A');
+  const tradeA250k = rep250k.executedTrades.find(t => t.grade === 'A');
+
+  assert.ok(tradeA100k, 'Trade Grade A deve ter sido executado em 100k');
+  assert.ok(tradeA250k, 'Trade Grade A deve ter sido executado em 250k');
+
+  assert.ok(
+    tradeA250k.authorizedRiskCash >= tradeA100k.authorizedRiskCash * 2,
+    `Risco autorizado em 250k (R$ ${tradeA250k.authorizedRiskCash}) deve escalar substancialmente em relação a 100k (R$ ${tradeA100k.authorizedRiskCash})`
+  );
+  assert.ok(tradeA250k.shares > tradeA100k.shares, 'Quantidade de ações deve ser maior no capital superior');
+});
+
+test('Rebuild Aba 1 — 2. Atribuição Financeira por Grade e Bloqueio Categórico de Grade D', () => {
+  const sims = createSampleSimulations();
+
+  const report = TradeSimulatorModel.runRubricPortfolioSimulation(sims, {
+    officialMode: true,
+    rubricMode: true,
+    initialCapital: 100000
+  });
+
+  const gb = report.qualityAndSizing.gradeBreakdown;
+  assert.ok(gb, 'gradeBreakdown deve existir no relatório');
+
+  // Grades esperadas
+  assert.ok(gb['A+'], 'Grade A+ deve estar presente');
+  assert.ok(gb['A'], 'Grade A deve estar presente');
+  assert.ok(gb['B'], 'Grade B deve estar presente');
+  assert.ok(gb['C'], 'Grade C deve estar presente');
+  assert.ok(gb['D'], 'Grade D deve estar presente');
+
+  // No Modo Oficial, Grade D tem risco 0% e 0 trades executados
+  assert.equal(gb['D'].count, 0, 'Grade D deve ter 0 trades executados no Modo Oficial');
+  assert.equal(gb['D'].netPnL, 0, 'Grade D deve ter R$ 0,00 de resultado no Modo Oficial');
+  assert.equal(gb['D'].contribPct, 0, 'Grade D deve ter 0% de contribuição no Modo Oficial');
+  assert.equal(gb['D'].avgRiskPct, 0, 'Grade D deve ter 0,00% de risco médio');
+
+  // Verificação de integridade matemática: soma dos PnLs das grades == PnL total líquido
+  let sumGradePnL = 0;
+  for (const gr of ['A+', 'A', 'B', 'C', 'D']) {
+    sumGradePnL += gb[gr].netPnL || 0;
+  }
+
+  assert.ok(
+    Math.abs(sumGradePnL - report.netPnL) < 0.05,
+    `A soma dos resultados por Grade (R$ ${sumGradePnL}) deve ser idêntica ao Net PnL total (R$ ${report.netPnL})`
+  );
+
+  // Verificação da Grade de maior contribuição
+  assert.ok(report.topPositiveGrade, 'topPositiveGrade deve estar preenchido');
+  assert.ok(['A+', 'A', 'B', 'C'].includes(report.topPositiveGrade));
+});
+
+test('Rebuild Aba 3 — 3. Análise por Ativo agrega métricas e contribuição monetária', () => {
+  const sims = createSampleSimulations();
+
+  const report = TradeSimulatorModel.runRubricPortfolioSimulation(sims, {
+    officialMode: true,
+    rubricMode: true,
+    initialCapital: 100000
+  });
+
+  const assets = report.assetBreakdown;
+  assert.ok(Array.isArray(assets), 'assetBreakdown deve ser um array');
+  assert.ok(assets.length > 0, 'Deve conter ativos operados');
+
+  // Verificar estrutura de cada ativo
+  const petr = assets.find(a => a.symbol === 'PETR4');
+  assert.ok(petr, 'PETR4 deve estar no breakdown de ativos');
+  assert.equal(petr.count, 1);
+  assert.equal(petr.winRate, 100);
+  assert.ok(petr.netPnL > 0, 'PETR4 deve ter resultado financeiro positivo');
+  assert.ok(petr.contribPct > 0, 'PETR4 deve ter contribuição positiva');
+  assert.ok(petr.companyName, 'companyName deve ser preservado');
+  assert.ok(petr.sector, 'sector deve ser preservado');
+
+  // Ordenação decrescente por resultado
+  for (let i = 0; i < assets.length - 1; i++) {
+    assert.ok(assets[i].netPnL >= assets[i + 1].netPnL, 'Ativos devem ser ordenados decrescentes por netPnL');
+  }
+});
+
+test('Rebuild Aba 4 — 4. Análise por Setup agrega métricas por gatilho', () => {
+  const sims = createSampleSimulations();
+
+  const report = TradeSimulatorModel.runRubricPortfolioSimulation(sims, {
+    officialMode: true,
+    rubricMode: true,
+    initialCapital: 100000
+  });
+
+  const setups = report.setupBreakdown;
+  assert.ok(Array.isArray(setups), 'setupBreakdown deve ser um array');
+  assert.ok(setups.length > 0, 'Deve conter setups operados');
+
+  // Inside Bar teve 2 sinais executados (PETR4 e BBAS3)
+  const insideBar = setups.find(s => s.name === 'Inside Bar');
+  assert.ok(insideBar, 'Inside Bar deve estar presente no breakdown');
+  assert.equal(insideBar.count, 2);
+  assert.equal(insideBar.winsCount, 2);
+  assert.equal(insideBar.winRate, 100);
+  assert.ok(insideBar.netPnL > 0);
+  assert.ok(insideBar.expectancyR > 0);
+  assert.ok(insideBar.avgRiskCash > 0);
+
+  // Ordenação decrescente por resultado
+  for (let i = 0; i < setups.length - 1; i++) {
+    assert.ok(setups[i].netPnL >= setups[i + 1].netPnL, 'Setups devem ser ordenados decrescentes por netPnL');
+  }
+});
+
+test('Rebuild Aba 5 — 5. Evolução no Tempo calcula Curva de Capital e Drawdown', () => {
+  const sims = createSampleSimulations();
+
+  const report = TradeSimulatorModel.runRubricPortfolioSimulation(sims, {
+    officialMode: true,
+    rubricMode: true,
+    initialCapital: 100000
+  });
+
+  assert.ok(Array.isArray(report.equityCurve), 'equityCurve deve ser um array');
+  assert.ok(report.equityCurve.length > 0);
+
+  // O primeiro ponto da curva inicia no capital inicial
+  assert.equal(report.equityCurve[0].equity, 100000);
+
+  // O último ponto corresponde ao patrimônio final
+  const lastPoint = report.equityCurve[report.equityCurve.length - 1];
+  assert.equal(lastPoint.equity, report.finalEquity);
+
+  // Retorno líquido em percentual
+  const expectedReturnPct = ((report.finalEquity - 100000) / 100000) * 100;
+  assert.ok(Math.abs(report.netReturnPct - expectedReturnPct) < 0.01);
+
+  // Drawdown é métrica válida e finita
+  assert.ok(typeof report.risk.maxDrawdownPct === 'number');
+  assert.ok(!isNaN(report.risk.maxDrawdownPct));
+  assert.ok(report.risk.maxDrawdownPct >= 0);
+});
+
+test('Rebuild UI & CSS — 6. Arquivo trade-simulator.js implementa as 5 abas e novos componentes', () => {
+  const jsContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.js'), 'utf8');
+
+  // Verifica as 5 abas
+  assert.ok(jsContent.includes('renderScreenTabs'), 'Deve conter renderScreenTabs');
+  assert.ok(jsContent.includes('renderSummaryTab'), 'Deve conter renderSummaryTab (Aba 1)');
+  assert.ok(jsContent.includes('renderTradesListTab'), 'Deve conter renderTradesListTab (Aba 2)');
+  assert.ok(jsContent.includes('renderAssetAnalysisTab'), 'Deve conter renderAssetAnalysisTab (Aba 3)');
+  assert.ok(jsContent.includes('renderSetupAnalysisTab'), 'Deve conter renderSetupAnalysisTab (Aba 4)');
+  assert.ok(jsContent.includes('renderTimelineTab'), 'Deve conter renderTimelineTab (Aba 5)');
+
+  // Verifica controles do cabeçalho
+  assert.ok(jsContent.includes('simBtnExecute'), 'Deve conter botão Executar Simulação');
+  assert.ok(jsContent.includes('simCapitalInput'), 'Deve conter input de capital inicial');
+  assert.ok(jsContent.includes('simBtnRubricModeToggle'), 'Deve conter alternador de Modo Rubric');
+
+  // Verifica classes CSS do Rebuild no arquivo trade-simulator.css
+  const cssContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.css'), 'utf8');
+  assert.ok(cssContent.includes('.sim-rebuild-header'), 'CSS deve conter .sim-rebuild-header');
+  assert.ok(cssContent.includes('.sim-screen-tabs-bar'), 'CSS deve conter .sim-screen-tabs-bar');
+  assert.ok(cssContent.includes('.sim-rebuild-card'), 'CSS deve conter .sim-rebuild-card');
+  assert.ok(cssContent.includes('.sim-summary-subcards-row'), 'CSS deve conter .sim-summary-subcards-row');
+  assert.ok(cssContent.includes('.sim-rebuild-grade-table'), 'CSS deve conter .sim-rebuild-grade-table');
+  assert.ok(cssContent.includes('.sim-rebuild-kpis-grid'), 'CSS deve conter .sim-rebuild-kpis-grid');
+  assert.ok(cssContent.includes('.sim-rebuild-info-banner'), 'CSS deve conter .sim-rebuild-info-banner');
+});
