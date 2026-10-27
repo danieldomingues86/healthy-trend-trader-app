@@ -133,9 +133,9 @@ test('createTrade initializes setupTrigger from catalog and falls back cleanly f
   assert.equal(t1.setupTrigger, 'INSIDE_BAR');
   assert.equal(t1.setup, 'Inside Bar');
 
-  const t2 = M.createTrade({ ticker: 'VALE3', setup: 'Dave Landry' });
-  assert.equal(t2.setupTrigger, 'DAVE_LANDRY');
-  assert.equal(t2.setup, 'Dave Landry');
+  const t2 = M.createTrade({ ticker: 'VALE3', setup: 'PFR de Compra' });
+  assert.equal(t2.setupTrigger, 'PFR_COMPRA');
+  assert.equal(t2.setup, 'PFR de Compra');
 
   const t3 = M.createTrade({ ticker: 'PETR4', setup: 'RBI' });
   assert.equal(t3.setupTrigger, 'RBI');
@@ -147,3 +147,27 @@ test('createTrade initializes setupTrigger from catalog and falls back cleanly f
 });
 
 
+
+test('diario suporta titulo do dia, cor de destaque e rotulo/tag customizada', () => {
+  const day = M.blank('2026-10-26');
+  assert.equal(day.dayColor, null);
+  assert.equal(day.dayTag, '');
+
+  day.title = 'Dia ruim de eleições, volatilidade extrema';
+  day.dayColor = 'red';
+  day.dayTag = 'Dia Ruim';
+
+  const mockStorage = {
+    getItem(key) {
+      if (key === M.KEY) return JSON.stringify({ version: 2, records: [day] });
+      return null;
+    },
+    setItem() {}
+  };
+
+  const loaded = M.load(mockStorage, []);
+  assert.equal(loaded.records.length, 1);
+  assert.equal(loaded.records[0].title, 'Dia ruim de eleições, volatilidade extrema');
+  assert.equal(loaded.records[0].dayColor, 'red');
+  assert.equal(loaded.records[0].dayTag, 'Dia Ruim');
+});

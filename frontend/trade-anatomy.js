@@ -23,7 +23,6 @@
       { id: 'INSIDE_BAR', name: 'Inside Bar' },
       { id: 'PFR_COMPRA', name: 'PFR de Compra' },
       { id: '123_COMPRA', name: '1-2-3 de Compra' },
-      { id: 'DAVE_LANDRY', name: 'Dave Landry' },
       { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)' }
     ];
     return `<option value="">Todos</option>` + list.map(t => `<option value="${esc(t.id)}" ${String(selected) === String(t.id) ? 'selected' : ''}>${esc(t.name)}</option>`).join('');
@@ -112,7 +111,7 @@
     return `<section class="ta-triggers-section">
       <header>
         <div class="ta-section-question">🎯 PERFORMANCE POR GATILHO DE ENTRADA</div>
-        <h2>EFICÁCIA DOS 5 GATILHOS</h2>
+        <h2>EFICÁCIA DOS GATILHOS</h2>
         <p>Métricas consolidadas de cada gatilho padronizado no recorte atual.</p>
       </header>
       <div class="ta-triggers-grid">${cards}</div>

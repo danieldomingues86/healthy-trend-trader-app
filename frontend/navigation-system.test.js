@@ -143,7 +143,7 @@ test('Validação de Paridade 100%: Nenhum item da navegação anterior foi perd
     'today', 'newtrade', 'journal', 'dailyroutine', 'watchlist', 'habits',
     'tradertraining', 'mission',
     'relativestrength', 'marketcycle', 'charts', 'marketcentral', 'opportunityradar', 'fundamentals',
-    'tradesimulator', 'forecast',
+    'tradesimulator', 'researchlab', 'forecast',
     'dashboard', 'positions', 'closedpositions', 'portfolioheat', 'riskpolicy', 'assetblacklist',
     'analytics', 'tradeanatomy', 'mistakesbook', 'tradelibrary', 'platformaccess', 'review',
     'mindset',
@@ -282,4 +282,27 @@ test('NavigationSystemModel: Categoria Análise de Mercado fica posicionada acim
   const tree = model.getNavigationTree();
   assert.equal(tree.categories[0].id, 'market-analysis', 'Árvore de navegação deve ter Análise de Mercado em primeiro lugar');
   assert.equal(tree.categories[1].id, 'daily', 'Árvore de navegação deve ter Operação Diária após Análise de Mercado');
+});
+
+test('NavigationSystemModel: Categoria Simuladores inclui Simulador de Trades e Laboratório de Pesquisa', () => {
+  const model = new NavigationSystemModel();
+  const tree = model.getNavigationTree();
+  const simCat = tree.categories.find(c => c.id === 'simulators');
+  assert.ok(simCat, 'Categoria simulators deve existir');
+
+  const pageOrder = simCat.items.map(i => i.page);
+  assert.deepEqual(pageOrder, [
+    'tradesimulator',
+    'researchlab',
+    'forecast',
+    'riskofruin'
+  ], 'Simuladores deve conter Modo Oficial e Laboratório de Pesquisa como itens distintos');
+
+  const tradeSim = simCat.items.find(i => i.page === 'tradesimulator');
+  assert.equal(tradeSim.label, 'Simulador de Trades');
+  assert.equal(tradeSim.desc, 'Modo Oficial — Regras vigentes do método.');
+
+  const lab = simCat.items.find(i => i.page === 'researchlab');
+  assert.equal(lab.label, 'Laboratório de Pesquisa');
+  assert.equal(lab.desc, 'Modo Aberto — Descobertas e regras candidatas.');
 });

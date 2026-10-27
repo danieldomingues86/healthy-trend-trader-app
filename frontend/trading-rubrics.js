@@ -129,7 +129,7 @@
   function marketCycleKey(value){
     if(value===null||value===undefined||value==='')return null;
     const normalized=String(value||'').trim().toLowerCase();
-    if(['healthy','saudável','saudavel','expansão','expansao','expansion','risk-on','up'].includes(normalized))return'healthy';
+    if(['healthy','saudável','saudavel','expansão','expansao','expansion','risk-on','up','positivo','alta','bull'].includes(normalized))return'healthy';
     if(['unavailable','não disponível','nao disponivel','indisponível','indisponivel','none'].includes(normalized))return'unavailable';
     // Regra binária oficial: qualquer outro estado (incluindo transição legada ou defensivo) mapeia para 'defensive'
     return'defensive';

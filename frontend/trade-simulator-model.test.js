@@ -58,18 +58,14 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   const outros = stats.triggerPerformance.find(t => t.name === 'Outros');
 
   assert.ok(insideBar);
-  assert.ok(doubleInsideBar, 'Double Inside Bar deve estar presente no desempenho por gatilho');
+  assert.equal(doubleInsideBar, undefined, 'Double Inside Bar não deve existir no desempenho por gatilho');
   assert.ok(setup123);
   assert.equal(pullback, undefined, 'Gatilho Pullback não deve existir no desempenho por gatilho');
   assert.ok(outros);
 
-  // Inside Bar: 9,7R e 7 trades encerrados
-  assert.equal(insideBar.count, 7);
-  assert.equal(insideBar.totalR, 9.7);
-
-  // Double Inside Bar: 5,4R e 7 trades encerrados
-  assert.equal(doubleInsideBar.count, 7);
-  assert.equal(doubleInsideBar.totalR, 5.4);
+  // Inside Bar: 15,1R e 14 trades encerrados (inclui antigos Double Inside Bars agora normalizados para Inside Bar)
+  assert.equal(insideBar.count, 14);
+  assert.equal(insideBar.totalR, 15.1);
 
   // 1-2-3 de Compra: 10,9R e 13 trades encerrados
   assert.equal(setup123.count, 13);
@@ -669,11 +665,11 @@ test('trade-simulator-model: getTradeVisionAtivo reproduz com fidelidade o cená
   assert.equal(visionItub.context.title, 'Super Contexto');
   assert.equal(visionItub.context.status, 'good');
 
-  // Caso 2: Simulações padrão trazem visionAtivo anexado
+  // Caso 2: Simulações padrão trazem visionAtivo anexado e unificado com rsScore (sem divergência)
   const seeds = model.getDefaultSeedSimulations();
   const seedItub = seeds.find(s => s.symbol === 'ITUB4');
   assert.ok(seedItub && seedItub.visionAtivo);
-  assert.equal(seedItub.visionAtivo.relativeStrength.score, 67);
+  assert.equal(seedItub.visionAtivo.relativeStrength.score, seedItub.rsScore);
 
   // Caso 3: Trade que estopou em mercado defensivo (Junho de 2026)
   const defensiveTrade = {
@@ -711,9 +707,9 @@ test('trade-simulator-model: calculateDoubleInsideBarStructure valida contençã
   assert.equal(validStruct.totalCompressionPct, 20.0);
   assert.equal(validStruct.totalContractionPct, 80.0); // 100 - 20
   assert.equal(validStruct.entryPrice, 46.01); // high ib2 + 0.01
-  assert.equal(validStruct.stopLoss, 43.99);   // low ib2 - 0.01
-  assert.equal(validStruct.initialRisk, 2.02);
-  assert.equal(validStruct.graphicRiskPct, 4.39);
+  assert.equal(validStruct.stopLoss, 41.99);   // low ib1 (candle anterior ao gatilho) - 0.01; NUNCA no candle ib2 (43.99)
+  assert.equal(validStruct.initialRisk, 4.02);
+  assert.equal(validStruct.graphicRiskPct, 8.74);
 
   // Caso 2: Falha quando IB1 rompe a máxima do Candle-mãe
   const badIb1 = { high: 50.50, low: 42.00 };
@@ -865,7 +861,7 @@ test('trade-simulator-model: filterSimulations suporta períodos de 6m, 12m, 24m
   assert.ok(customFiltered.every(s => s.signalDate >= '2026-07-01' && s.signalDate <= '2026-08-31'));
 });
 
-test('trade-simulator-model: detectSetupTrigger identifica Inside Bar, Double Inside Bar e 1-2-3 de Compra', () => {
+test('trade-simulator-model: detectSetupTrigger identifica Inside Bar e 1-2-3 de Compra', () => {
   // 1. Inside Bar clássico (candle 2 contido em candle 1 e acima da EMA9/EMA30)
   const ibCandles = [
     { date: '2026-01-01', open: 20, high: 22, low: 19, close: 21, ema9: 20, ema30: 18 },
@@ -875,9 +871,9 @@ test('trade-simulator-model: detectSetupTrigger identifica Inside Bar, Double In
   assert.ok(ib);
   assert.equal(ib.name, 'Inside Bar');
   assert.equal(ib.entry, 21.51); // high + 0.01
-  assert.equal(ib.stop, 19.99); // low - 0.01
+  assert.equal(ib.stop, 18.99); // Regra mandatória: 0,01 abaixo do candle anterior (mãe low 19.00 - 0.01 = 18.99)
 
-  // 2. Double Inside Bar (candle 3 contido em 2, que está contido em 1)
+  // 2. Contração dupla aninhada é avaliada diretamente como Inside Bar canônico
   const dibCandles = [
     { date: '2026-01-01', open: 20, high: 24, low: 18, close: 22, ema9: 20, ema30: 18 },
     { date: '2026-01-02', open: 21, high: 23, low: 19, close: 22, ema9: 20.5, ema30: 18.2 },
@@ -885,7 +881,7 @@ test('trade-simulator-model: detectSetupTrigger identifica Inside Bar, Double In
   ];
   const dib = model.detectSetupTrigger(dibCandles);
   assert.ok(dib);
-  assert.equal(dib.name, 'Double Inside Bar');
+  assert.equal(dib.name, 'Inside Bar', 'Contração dupla é tratada como Inside Bar canônico');
 
   // 3. 1-2-3 de Compra (Fundo em V: c1.low > c2.low e c3.low > c2.low)
   const setup123Candles = [
@@ -1110,6 +1106,21 @@ test('trade-simulator-model: detectAllSetupTriggers e detectSetupTrigger validam
   assert.ok(pfr, 'Deve detectar PFR de Compra em reversão legítima de 3 candles');
   assert.equal(pfr.entry, 30.01, 'Entrada 1 tick acima da máxima do candle sinal');
   assert.equal(pfr.stop, 27.49, 'Stop 1 tick abaixo da mínima do candle sinal');
+
+  // Regra Obrigatória: Inside Bar e Double Inside Bar posicionam stop no candle anterior, NUNCA no candle do sinal
+  const ibCandles = [
+    { time: '2026-07-01', open: 20, high: 22.0, low: 18.0, close: 21, ema10: 17.0, ema72: 15.0 }, // c3 (mãe externa)
+    { time: '2026-07-02', open: 21, high: 21.0, low: 19.0, close: 20.5, ema10: 17.5, ema72: 15.2 }, // c2 (mãe direta do IB / IB1 do Double IB): low = 19.0
+    { time: '2026-07-03', open: 20.5, high: 20.2, low: 19.5, close: 20.0, ema10: 18.0, ema72: 15.5 } // c1 (gatilho IB): high = 20.2, low = 19.5
+  ];
+  const ibTriggers = model.detectAllSetupTriggers(ibCandles, { rsScore: 85 });
+  const dibTrigger = ibTriggers.find(t => t.id === 'DOUBLE_INSIDE_BAR');
+  const simpleIbTrigger = ibTriggers.find(t => t.id === 'INSIDE_BAR');
+
+  assert.ok(simpleIbTrigger, 'Deve detectar Inside Bar');
+  assert.equal(simpleIbTrigger.entry, 20.21, 'Entrada em c1.high + 0.01');
+  assert.equal(simpleIbTrigger.stop, 18.99, 'Stop deve ficar 0,01 abaixo de c2.low (19.00 - 0.01 = 18.99), NUNCA em c1.low (19.49)');
+  assert.equal(dibTrigger, undefined, 'Double Inside Bar não deve ser detectado');
 
   // 3. Marcadores de snapshot para PFR de Compra retornam os 3 candles (Ref2, Ref1, PFR)
   const base = [];
@@ -1375,4 +1386,436 @@ test('trade-simulator-model: Ciclo de Mercado — Cenários A, B, C, D e E (Comp
   assert.equal(batchAudit.errorBreakdown.DEFENSIVE_CYCLE_ENTRY, 1);
   assert.ok(batchAudit.invalidTrades.some(t => t.symbol === 'JGPX11'));
 });
+
+test('trade-simulator-model: Modo Oficial exige RS >= 80 na data do sinal (sem look-ahead) e isola Laboratório de Pesquisa', () => {
+  // 1. Causalidade do cálculo histórico de RS (Zero Look-Ahead Bias)
+  const assetCandlesBefore = [];
+  const benchCandlesBefore = [];
+  for (let i = 0; i < 65; i++) {
+    const day = String((i % 28) + 1).padStart(2, '0');
+    const month = String(Math.floor(i / 28) + 7).padStart(2, '0');
+    const date = `2026-${month}-${day}`;
+    assetCandlesBefore.push({ date, open: 20 + i * 0.35, high: 20.5 + i * 0.35, low: 19.8 + i * 0.35, close: 20.3 + i * 0.35 });
+    benchCandlesBefore.push({ date, open: 100 + i * 0.2, high: 101 + i * 0.2, low: 99.5 + i * 0.2, close: 100.1 + i * 0.2 });
+  }
+  const signalDate = assetCandlesBefore[assetCandlesBefore.length - 1].date;
+  const rsAtSignal = model.calculateHistoricalRsScore(assetCandlesBefore, benchCandlesBefore, { evalDate: signalDate });
+  assert.equal(rsAtSignal.isAvailable, true);
+  assert.ok(rsAtSignal.score >= 80, `Ativo líder deve ter RS >= 80 na data do sinal (obteve ${rsAtSignal.score})`);
+
+  // Adicionar candles futuros (crash ou explosão após signalDate) NÃO pode alterar o RS na data do sinal
+  const assetWithFutureCrash = [
+    ...assetCandlesBefore,
+    { date: '2026-10-20', open: 10, high: 10, low: 5, close: 5 },
+    { date: '2026-10-21', open: 5, high: 5, low: 2, close: 2 }
+  ];
+  const benchWithFuture = [
+    ...benchCandlesBefore,
+    { date: '2026-10-20', open: 130, high: 135, low: 129, close: 134 },
+    { date: '2026-10-21', open: 134, high: 140, low: 133, close: 139 }
+  ];
+  const rsWithFuturePresent = model.calculateHistoricalRsScore(assetWithFutureCrash, benchWithFuture, { evalDate: signalDate });
+  assert.equal(rsWithFuturePresent.score, rsAtSignal.score, 'Zero look-ahead bias: candles posteriores à data do sinal não alteram o RS histórico');
+
+  // 2. Caso 1: Sinal com RS = 85 em ciclo positivo -> Aceito no Modo Oficial
+  const positivePerm = {
+    isPermitted: true,
+    isFavorable: true,
+    aboveEma10: true,
+    aboveEma72: true,
+    regime: 'Positivo',
+    benchmarkSymbol: 'IBOV',
+    evalDate: '2026-09-21'
+  };
+  const validIbCandles = [
+    { time: '2026-09-17', open: 20.0, high: 22.0, low: 19.5, close: 21.0, ema10: 20.5, ema72: 19.0 },
+    { time: '2026-09-18', open: 21.0, high: 21.5, low: 20.2, close: 20.8, ema10: 20.6, ema72: 19.1 },
+    { time: '2026-09-21', open: 20.8, high: 21.2, low: 20.4, close: 20.9, ema10: 20.7, ema72: 19.2 }
+  ];
+  const evalRs85 = model.evaluateSetupTriggerWithAudit(validIbCandles, {
+    marketPermission: positivePerm,
+    rsScore: 85,
+    requireRs80: true,
+    simulationMode: 'OFFICIAL'
+  });
+  assert.equal(evalRs85.isValid, true);
+  assert.equal(evalRs85.entryRs.score, 85);
+  assert.equal(evalRs85.entryRs.isEligible, true);
+
+  // 3. Caso 2: Sinal com RS = 79 em ciclo positivo -> Bloqueado no Modo Oficial; permitido no Laboratório quando RS < 80 habilitado
+  const evalRs79Official = model.evaluateSetupTriggerWithAudit(validIbCandles, {
+    marketPermission: positivePerm,
+    rsScore: 79,
+    requireRs80: true,
+    simulationMode: 'OFFICIAL'
+  });
+  assert.equal(evalRs79Official.isValid, false);
+  assert.equal(evalRs79Official.rejectionCode, 'RS_BELOW_80_OFFICIAL');
+  assert.ok(evalRs79Official.rejectionReason.includes('RS 79 < 80'));
+
+  const evalRs79Research = model.evaluateSetupTriggerWithAudit(validIbCandles, {
+    marketPermission: positivePerm,
+    rsScore: 79,
+    requireRs80: false,
+    simulationMode: 'RESEARCH'
+  });
+  assert.equal(evalRs79Research.isValid, true, 'No Modo Pesquisa com filtro RS aberto, RS 79 deve ser permitido para estudo');
+
+  // 4. Caso 3: Sinal no limite exato RS = 80 em ciclo positivo -> Aceito no Modo Oficial (regra RS >= 80)
+  const evalRs80Boundary = model.evaluateSetupTriggerWithAudit(validIbCandles, {
+    marketPermission: positivePerm,
+    rsScore: 80,
+    requireRs80: true,
+    simulationMode: 'OFFICIAL'
+  });
+  assert.equal(evalRs80Boundary.isValid, true, 'Limite exato RS = 80 deve ser elegível no Modo Oficial');
+  assert.equal(evalRs80Boundary.entryRs.isEligible, true);
+
+  // 5. Caso 4: Sinal sem dado de RS disponível -> Exibe "N/D" e não entra na contagem oficial
+  const rsMissingInfo = model.resolveSimulationEntryRs({ symbol: 'UNKNOWN3', rsUnavailable: true });
+  assert.equal(rsMissingInfo.isAvailable, false);
+  assert.equal(rsMissingInfo.display, 'N/D');
+  assert.equal(rsMissingInfo.isEligible, false);
+
+  const evalRsMissingOfficial = model.evaluateSetupTriggerWithAudit(validIbCandles, {
+    marketPermission: positivePerm,
+    rsScore: null,
+    requireRs80: true,
+    simulationMode: 'OFFICIAL'
+  });
+  assert.equal(evalRsMissingOfficial.isValid, false);
+  assert.equal(evalRsMissingOfficial.rejectionCode, 'RS_UNAVAILABLE_OFFICIAL');
+
+  // Validação de lote acusa erro se um trade com RS < 80 ou N/D tentar entrar como OFFICIAL
+  const invalidOfficialTrade = {
+    symbol: 'TEST4',
+    triggerName: 'Inside Bar',
+    grade: 'B',
+    signalDate: '2026-09-21',
+    entryPrice: 25.00,
+    stopLoss: 23.80,
+    status: model.STATUS.WAITING_ENTRY,
+    marketCycle: 'Positivo',
+    marketPermission: positivePerm,
+    rsScore: 74,
+    simulationMode: 'OFFICIAL'
+  };
+  const valInvalidRs = model.validateSimulation(invalidOfficialTrade);
+  assert.equal(valInvalidRs.isValid, false);
+  assert.ok(valInvalidRs.errors.some(e => e.code === 'RS_BELOW_80_OFFICIAL'));
+
+  // 6. Caso 5: Painel de Regras Oficiais e Isolamento do Laboratório de Pesquisa
+  const officialSeeds = model.getDefaultSeedSimulations();
+  officialSeeds.forEach(s => {
+    assert.equal(s.simulationMode, 'OFFICIAL');
+    assert.ok(s.rsScore >= 80, `Seed oficial ${s.symbol} deve ter RS >= 80 (atual: ${s.rsScore})`);
+  });
+
+  const panelData = model.buildOfficialRulesPanelData(officialSeeds);
+  assert.equal(panelData.modeBadge, 'MODO OFICIAL');
+  assert.equal(panelData.minRs, 80);
+  assert.equal(panelData.allOfficialCompliant, true);
+  assert.ok(panelData.rules.some(r => r.id === 'relative_strength' && r.title.includes('RS ≥ 80') && r.summary.includes('≥ 80')));
+
+  // Executar experimento no Laboratório com RS < 80 não altera a amostra oficial
+  const labRun = model.runResearchLabExperiment({
+    rsFilter: 'BELOW_80',
+    marketCycleFilter: 'POSITIVE_ONLY',
+    requireTrendAlignment: true,
+    scenario: '2R'
+  });
+  assert.equal(labRun.modeBadge, 'MODO PESQUISA — REGRAS ABERTAS');
+  assert.equal(labRun.isRelaxedFromOfficial, true);
+  assert.ok(labRun.researchExperiment.simulations.length > 0);
+  labRun.researchExperiment.simulations.forEach(expSim => {
+    assert.equal(expSim.simulationMode, 'RESEARCH');
+    assert.ok(expSim.rsScore < 80, `Experimento BELOW_80 deve conter apenas ativos com RS < 80 (obteve ${expSim.rsScore})`);
+  });
+  assert.equal(labRun.officialBaseline.simulations.every(s => s.rsScore >= 80 && s.simulationMode === 'OFFICIAL'), true);
+});
+
+test('trade-simulator-model: Visão do Ativo e RS na Entrada são rigorosamente coerentes trade a trade (sem divergência 99 vs 38)', () => {
+  // Caso MGLU3 da imagem do usuário: sinal com RS histórico 99 e Grade D (em modo pesquisa/exploratório)
+  const mgluTrade = {
+    symbol: 'MGLU3',
+    signalDate: '2026-09-30',
+    entryPrice: 7.47,
+    stopLoss: 6.51,
+    triggerName: '1-2-3 de Compra',
+    grade: 'D',
+    status: model.STATUS.CLOSED_GAIN,
+    rsScore: 99,
+    marketCycle: 'Positivo',
+    simulationMode: 'RESEARCH'
+  };
+
+  const entryRs = model.resolveSimulationEntryRs(mgluTrade);
+  const vision = model.getTradeVisionAtivo(mgluTrade);
+
+  assert.equal(entryRs.rsScore, 99);
+  assert.equal(entryRs.isEligible, true);
+  assert.equal(vision.relativeStrength.score, 99, 'Visão do Ativo deve ter o mesmo score de Força Relativa do trade (99)');
+  assert.equal(vision.relativeStrength.classification, 'Líder');
+  assert.equal(vision.relativeStrength.status, 'good');
+  assert.equal(vision.relativeStrength.text, 'Líder (99)');
+  assert.equal(vision.marketCycle.regime, 'Positivo');
+  assert.equal(vision.marketCycle.status, 'good');
+
+  // Coerência em lote com todos os 42 seeds oficiais
+  const seeds = model.getDefaultSeedSimulations();
+  seeds.forEach(seed => {
+    const seedEntryRs = model.resolveSimulationEntryRs(seed);
+    const seedVision = model.getTradeVisionAtivo(seed);
+    assert.equal(
+      seedVision.relativeStrength.score,
+      seedEntryRs.rsScore,
+      `Trade ${seed.symbol} (${seed.signalDate}): score da Visão do Ativo (${seedVision.relativeStrength.score}) deve ser idêntico ao RS na Entrada (${seedEntryRs.rsScore})`
+    );
+  });
+});
+
+test('trade-simulator-model: classifyTriggerRubricGrade alinha classificação com Novo Trade / Trading Rubric', () => {
+  // 1. Caso OPCT3: ATR 10.05% (muito acima do teto de 4.00%) -> Grade D
+  const gradeOpct3 = model.classifyTriggerRubricGrade(10.95, 9.85, 10.95, 10.50, 9.00, 10.40, 'A', 1.10);
+  assert.equal(gradeOpct3, 'D', 'ATR de 10.05% (R$ 1,10 / R$ 10,95) deve ser classificado como Grade D');
+
+  // 2. Volatilidade ATR no limite de 4.00% -> Grade D
+  const gradeExcessVol = model.classifyTriggerRubricGrade(20.00, 19.50, 20.00, 19.00, 17.00, 18.80, 'A', 0.80);
+  assert.equal(gradeExcessVol, 'D', 'ATR de 4.00% deve ser classificado como Grade D');
+
+  // 3. Risco gráfico excessivo > 8.5% -> Grade D
+  const gradeExcessRisk = model.classifyTriggerRubricGrade(10.00, 9.10, 10.00, 9.50, 8.50, 9.40, 'A');
+  assert.equal(gradeExcessRisk, 'D', 'Stop de 9% deve ser classificado como Grade D');
+
+  // 4. Setup equilibrado com ATR < 2.0% e médias alinhadas -> Grade A
+  const gradeGood = model.classifyTriggerRubricGrade(30.00, 29.20, 30.00, 29.00, 27.00, 28.80, 'A', 0.45);
+  assert.equal(gradeGood, 'A', 'ATR de 1.5% e risco de 2.67% devem produzir Grade A');
+});
+
+test('trade-simulator-model: evaluateSimulationOnCandles bloqueia categoricamente execução de Grade D no Modo Oficial', () => {
+  const candles = [
+    { time: '2026-08-01', open: 10.0, high: 10.2, low: 9.9, close: 10.1 },
+    { time: '2026-08-02', open: 10.1, high: 10.8, low: 10.0, close: 10.6 },
+    { time: '2026-08-03', open: 10.6, high: 11.5, low: 10.5, close: 11.2 }
+  ];
+
+  // Tentativa de execução de Grade D no Modo Oficial
+  const simOfficial = {
+    symbol: 'OPCT3',
+    signalDate: '2026-08-01',
+    entryPrice: 10.30,
+    stopLoss: 9.80,
+    grade: 'D',
+    status: model.STATUS.WAITING_ENTRY,
+    simulationMode: 'OFFICIAL'
+  };
+
+  const evalOfficial = model.evaluateSimulationOnCandles(simOfficial, candles, '2R');
+  assert.equal(evalOfficial.status, model.STATUS.NOT_TRIGGERED, 'No Modo Oficial, Grade D não pode ser executada (deve ficar NOT_TRIGGERED)');
+  assert.equal(evalOfficial.executedEntryPrice, null, 'Preço de entrada executado deve ser nulo');
+  assert.equal(evalOfficial.resultR, null, 'Resultado em R deve ser nulo');
+  assert.equal(evalOfficial.exitReason, 'BLOQUEIO_GRADE_D');
+  assert.match(evalOfficial.notes, /Grade D \(orçamento de risco 0%\)/);
+
+  // No Modo Pesquisa, execução de Grade D é permitida para testes laboratoriais
+  const simResearch = {
+    symbol: 'OPCT3',
+    signalDate: '2026-08-01',
+    entryPrice: 10.30,
+    stopLoss: 9.80,
+    grade: 'D',
+    status: model.STATUS.WAITING_ENTRY,
+    simulationMode: 'RESEARCH'
+  };
+
+  const evalResearch = model.evaluateSimulationOnCandles(simResearch, candles, '2R');
+  assert.notEqual(evalResearch.status, model.STATUS.NOT_TRIGGERED, 'No Modo Pesquisa, Grade D pode ser executada');
+  assert.equal(evalResearch.executedEntryPrice, 10.30);
+});
+
+test('trade-simulator-model: generateHistoricalSimulations impede operações Grade D no Modo Oficial mesmo com RS alto e Ciclo Positivo', () => {
+  const candlesMap = new Map();
+  // Cria candles para um ativo hipotético com grande volatilidade (Grade D)
+  const opctCandles = [];
+  for (let i = 0; i < 40; i++) {
+    const d = new Date(Date.UTC(2026, 0, 5 + i * (i % 5 === 4 ? 3 : 1))).toISOString().slice(0, 10);
+    // Variação percentual ampla (10% por candle)
+    opctCandles.push({
+      time: d,
+      open: 10 + i * 0.2,
+      high: 11.5 + i * 0.2,
+      low: 9.5 + i * 0.2,
+      close: 11.0 + i * 0.2,
+      volume: 1000000
+    });
+  }
+  candlesMap.set('OPCT3', opctCandles);
+
+  const resOfficial = model.generateHistoricalSimulations({
+    candlesMap,
+    metadataMap: { OPCT3: { name: 'OceanPact', sector: 'Petróleo' } },
+    simulationMode: 'OFFICIAL',
+    period: 'ALL',
+    universe: 'IBOV',
+    rsBySymbolAndDate: { 'OPCT3': 95 }, // RS alto (95)
+    benchmarkCycleByDate: new Map([['IBOV', { isPermitted: true, classification: 'Positivo' }]]),
+    allowDefensiveCycle: false
+  });
+
+  // Verifica que nenhum trade Grade D foi executado no Modo Oficial
+  const executedOfficial = resOfficial.simulations.filter(s =>
+    s.status === model.STATUS.IN_OPERATION || s.status === model.STATUS.CLOSED_GAIN || s.status === model.STATUS.CLOSED_LOSS
+  );
+  assert.ok(executedOfficial.every(s => s.grade !== 'D'), 'Nenhum trade executado no Modo Oficial pode ter Grade D');
+  assert.ok(resOfficial.meta.blockedBreakdown.blockedByGradeD >= 0, 'blockedBreakdown deve contabilizar bloqueios por Grade D');
+});
+
+test('trade-simulator-model: validateSimulation e auditoria rejeitam categoricamente trade executado Grade D no Modo Oficial', () => {
+  const tradeGradeD = {
+    symbol: 'MGLU3',
+    signalDate: '2026-09-01',
+    entryDate: '2026-09-02',
+    exitDate: '2026-09-10',
+    entryPrice: 10.00,
+    stopLoss: 9.00,
+    executedEntryPrice: 10.00,
+    exitPrice: 12.00,
+    resultR: 2.0,
+    mfeR: 2.2,
+    maeR: 0.0,
+    grade: 'D',
+    status: model.STATUS.CLOSED_GAIN,
+    simulationMode: 'OFFICIAL',
+    rsScore: 85,
+    marketCycle: 'Positivo'
+  };
+
+  const validation = model.validateSimulation(tradeGradeD);
+  assert.equal(validation.isValid, false, 'Trade executado Grade D no Modo Oficial deve ser inválido');
+  assert.ok(validation.errors.some(e => e.code === 'GRADE_D_EXECUTED_OFFICIAL'), 'Deve conter erro GRADE_D_EXECUTED_OFFICIAL');
+
+  // Já em modo de pesquisa, a auditoria aceita se permitida
+  const validationResearch = model.validateSimulation({ ...tradeGradeD, simulationMode: 'RESEARCH' });
+  assert.equal(validationResearch.isValid, true, 'Trade executado Grade D no Modo Pesquisa é aceito para estudos');
+});
+
+test('trade-simulator-model: buildOfficialRulesPanelData inclui regra de Qualidade do Setup (Trading Rubric)', () => {
+  const panel = model.buildOfficialRulesPanelData([], {
+    blockedBreakdown: { blockedByGradeD: 15 }
+  });
+
+  const gradeRule = panel.rules.find(r => r.id === 'grade_quality');
+  assert.ok(gradeRule, 'Deve existir a regra grade_quality no painel');
+  assert.equal(gradeRule.status, 'Ativa');
+  assert.equal(gradeRule.blockedCount, 15);
+  assert.match(gradeRule.summary, /Apenas Notas A\+, A, B e C/);
+  assert.match(gradeRule.summary, /Nota D possui orçamento de risco 0,00%/);
+});
+
+test('trade-simulator-model: computeSnapshotNavInfo navega trade a trade com setas, limites de borda e contador de posição', () => {
+  const sampleList = [
+    { id: 'sim-1', symbol: 'PETR4', grade: 'A' },
+    { id: 'sim-2', symbol: 'VALE3', grade: 'B' },
+    { id: 'sim-3', symbol: 'ITUB4', grade: 'A+' }
+  ];
+
+  // 1. Primeiro trade (sim-1)
+  const navFirst = model.computeSnapshotNavInfo({ list: sampleList, currentId: 'sim-1' });
+  assert.equal(navFirst.currentIndex, 0);
+  assert.equal(navFirst.hasPrev, false, 'Primeiro trade não tem anterior');
+  assert.equal(navFirst.hasNext, true, 'Primeiro trade tem próximo');
+  assert.equal(navFirst.prevSim, null);
+  assert.equal(navFirst.nextSim?.id, 'sim-2');
+  assert.equal(navFirst.positionLabel, '1 de 3');
+
+  // 2. Segundo trade (sim-2)
+  const navMid = model.computeSnapshotNavInfo({ list: sampleList, currentId: 'sim-2' });
+  assert.equal(navMid.currentIndex, 1);
+  assert.equal(navMid.hasPrev, true, 'Trade do meio tem anterior');
+  assert.equal(navMid.hasNext, true, 'Trade do meio tem próximo');
+  assert.equal(navMid.prevSim?.id, 'sim-1');
+  assert.equal(navMid.nextSim?.id, 'sim-3');
+  assert.equal(navMid.positionLabel, '2 de 3');
+
+  // 3. Último trade (sim-3)
+  const navLast = model.computeSnapshotNavInfo({ list: sampleList, currentId: 'sim-3' });
+  assert.equal(navLast.currentIndex, 2);
+  assert.equal(navLast.hasPrev, true, 'Último trade tem anterior');
+  assert.equal(navLast.hasNext, false, 'Último trade não tem próximo');
+  assert.equal(navLast.prevSim?.id, 'sim-2');
+  assert.equal(navLast.nextSim, null);
+  assert.equal(navLast.positionLabel, '3 de 3');
+
+  // 4. Navegação sequencial (simulando toques nas teclas seta direita e esquerda)
+  let currentId = 'sim-1';
+  let nav = model.computeSnapshotNavInfo({ list: sampleList, currentId });
+  assert.equal(nav.nextSim?.id, 'sim-2');
+
+  currentId = nav.nextSim.id; // Seta direita pressionada
+  nav = model.computeSnapshotNavInfo({ list: sampleList, currentId });
+  assert.equal(nav.nextSim?.id, 'sim-3');
+
+  currentId = nav.nextSim.id; // Seta direita pressionada novamente
+  nav = model.computeSnapshotNavInfo({ list: sampleList, currentId });
+  assert.equal(nav.hasNext, false, 'Chegou ao final da lista de trades');
+
+  currentId = nav.prevSim.id; // Seta esquerda pressionada
+  nav = model.computeSnapshotNavInfo({ list: sampleList, currentId });
+  assert.equal(nav.prevSim?.id, 'sim-1');
+
+  // 5. Casos extremos: lista vazia ou id inexistente
+  const navEmpty = model.computeSnapshotNavInfo({ list: [], currentId: 'unknown' });
+  assert.equal(navEmpty.hasPrev, false);
+  assert.equal(navEmpty.hasNext, false);
+  assert.equal(navEmpty.positionLabel, '');
+
+  const navSingle = model.computeSnapshotNavInfo({ list: [{ id: 'only-1', symbol: 'WEGE3' }], currentId: 'only-1' });
+  assert.equal(navSingle.currentIndex, 0);
+  assert.equal(navSingle.hasPrev, false);
+  assert.equal(navSingle.hasNext, false);
+  assert.equal(navSingle.positionLabel, '1 de 1');
+});
+
+test('trade-simulator-model: geração de massa com múltiplos gatilhos e múltiplas notas filtra corretamente o conjunto', () => {
+  // Teste com múltiplos gatilhos
+  const resTriggers = model.generateExpandedSeeds('2R', {
+    period: 120,
+    targetVolume: 100,
+    triggers: ['Inside Bar', 'PFR de Compra']
+  });
+
+  assert.ok(resTriggers.length > 0, 'Deve gerar trades para os gatilhos selecionados');
+  const allowedTriggers = new Set(['Inside Bar', 'PFR de Compra']);
+  const allMatchTriggers = resTriggers.every(s => allowedTriggers.has(s.triggerName));
+  assert.ok(allMatchTriggers, 'Todos os trades gerados devem pertencer aos gatilhos selecionados (Inside Bar ou PFR de Compra)');
+
+  // Teste com múltiplas notas (Grade A e Grade B)
+  const resGrades = model.generateExpandedSeeds('2R', {
+    period: 120,
+    targetVolume: 100,
+    grades: ['A', 'B']
+  });
+
+  assert.ok(resGrades.length > 0, 'Deve gerar trades para as notas selecionadas');
+  const allowedGrades = new Set(['A', 'B']);
+  const allMatchGrades = resGrades.every(s => allowedGrades.has(s.grade));
+  assert.ok(allMatchGrades, 'Todos os trades gerados devem possuir Nota A ou Nota B');
+
+  // Teste combinado: múltiplos gatilhos E múltiplas notas
+  const resCombined = model.generateExpandedSeeds('2R', {
+    period: 120,
+    targetVolume: 100,
+    triggers: ['Inside Bar', '1-2-3 de Compra'],
+    grades: ['A']
+  });
+
+  assert.ok(resCombined.length > 0, 'Deve gerar trades para a combinação');
+  const allowedCombTriggers = new Set(['Inside Bar', '1-2-3 de Compra']);
+  assert.ok(resCombined.every(s => allowedCombTriggers.has(s.triggerName) && s.grade === 'A'), 'Trades devem respeitar a combinação de múltiplos filtros');
+});
+
+
+
+
+
 

@@ -4,14 +4,12 @@ const model = require('../../frontend/trade-simulator-model');
 const edgeValidation = require('../src/trade-simulator-edge-validation');
 
 test('Validação de Edge: inventário canônico e tipos experimentais', () => {
-  assert.equal(edgeValidation.CANONICAL_INVENTORY.length, 6);
+  assert.equal(edgeValidation.CANONICAL_INVENTORY.length, 4);
   const ids = edgeValidation.CANONICAL_INVENTORY.map(i => i.id);
   assert.deepEqual(ids, [
-    'DOUBLE_INSIDE_BAR',
     'INSIDE_BAR',
     '123_COMPRA',
     'PFR_COMPRA',
-    'DAVE_LANDRY',
     'RBI'
   ]);
 
@@ -52,12 +50,12 @@ test('Validação de Edge: detectAllSetupTriggers detecta combo 1-2-3 + Inside B
   assert.equal(comboVertex.stop, 17.99); // c2.low - 0.01 (stop do vértice)
 });
 
-test('Validação de Edge: buildScenarios cria os 15 cenários de validação (P1-P6, X1-X5, C1-C4)', () => {
+test('Validação de Edge: buildScenarios cria os 13 cenários de validação (P1-P4, X1-X5, C1-C4)', () => {
   const scenarios = edgeValidation.buildScenarios();
-  assert.equal(scenarios.length, 15);
+  assert.equal(scenarios.length, 13);
   const keys = scenarios.map(s => s.key);
   assert.deepEqual(keys, [
-    'P1', 'P2', 'P3', 'P4', 'P5', 'P6',
+    'P1', 'P2', 'P3', 'P4',
     'X1', 'X2', 'X3', 'X4', 'X5',
     'C1', 'C2', 'C3', 'C4'
   ]);

@@ -25,11 +25,9 @@ const EXP = model.EXPERIMENTAL_TRIGGERS;
 const TT = model.TRIGGER_TYPES;
 
 const CANONICAL_INVENTORY = [
-  { id: 'DOUBLE_INSIDE_BAR', name: TT.DOUBLE_INSIDE_BAR, inCatalog: false },
   { id: 'INSIDE_BAR', name: TT.INSIDE_BAR, inCatalog: true },
   { id: '123_COMPRA', name: TT.ONE_TWO_THREE, inCatalog: true },
   { id: 'PFR_COMPRA', name: TT.PFR_COMPRA, inCatalog: true },
-  { id: 'DAVE_LANDRY', name: TT.DAVE_LANDRY, inCatalog: true },
   { id: 'RBI', name: TT.RBI, inCatalog: true }
 ];
 

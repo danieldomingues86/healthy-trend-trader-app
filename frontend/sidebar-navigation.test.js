@@ -35,11 +35,16 @@ test('SidebarNavigation reúne Simulador de Trades e Simulador de Equity no menu
 
   // 2. Simuladores deve conter as telas de simulação (Simulador de Trades, Simulador de Equity e Risco de Ruína)
   const itemIds = Array.from(simulatorsGroup.items.map(item => item.id));
-  assert.deepEqual([...itemIds], ['tradesimulator', 'forecast', 'riskofruin']);
+  assert.deepEqual([...itemIds], ['tradesimulator', 'researchlab', 'forecast', 'riskofruin']);
 
   const tradeSim = simulatorsGroup.items.find(item => item.id === 'tradesimulator');
   assert.equal(tradeSim.title, 'Simulador de Trades');
   assert.equal(tradeSim.page, 'tradesimulator');
+
+  const researchLab = simulatorsGroup.items.find(item => item.id === 'researchlab');
+  assert.ok(researchLab, 'Item "researchlab" deve existir em Simuladores');
+  assert.equal(researchLab.title, 'Laboratório de Pesquisa');
+  assert.equal(researchLab.page, 'researchlab');
 
   const equitySim = simulatorsGroup.items.find(item => item.id === 'forecast');
   assert.equal(equitySim.title, 'Simulador de Equity');

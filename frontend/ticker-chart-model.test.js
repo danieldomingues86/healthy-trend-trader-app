@@ -254,7 +254,8 @@ test('TickerChartModel: Inside Bar acima da EMA 9 e EMA 30 é promovido a gatilh
   assert.equal(trigger.name, 'Inside Bar');
   assert.equal(trigger.grade, 'A+');
   assert.equal(trigger.entry, 28.01);
-  assert.equal(trigger.stop, 21.99);
+  assert.equal(trigger.stop, 19.99); // Regra mandatória: 0,01 abaixo do candle anterior (mãe)
+  assert.equal(trigger.stopLabel, '1 tick abaixo da mínima do candle anterior (barra-mãe)');
 });
 
 test('TickerChartModel: Inside Bar abaixo da EMA 9 é rejeitado (hasTrigger: false)', () => {

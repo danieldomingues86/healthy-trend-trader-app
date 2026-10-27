@@ -79,7 +79,7 @@ test('OpportunityRadarModel.evaluateAssetReadiness aprova apenas ativo que cumpr
   assert.equal(result.trend, 'Alinhada');
   assert.equal(result.triggerName, 'Inside Bar');
   assert.equal(result.entry, 42.61);
-  assert.equal(result.stop, 41.19);
+  assert.equal(result.stop, 40.49); // Regra mandatória: 0,01 abaixo da mínima da barra-mãe (40.5 - 0.01 = 40.49); NUNCA no candle da Inside Bar (41.19)
   assert.ok(result.rr >= 2.0);
   assert.equal(result.status, 'Pronto para entrada');
 });
