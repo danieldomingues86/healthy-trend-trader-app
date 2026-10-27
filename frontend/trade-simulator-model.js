@@ -8534,6 +8534,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       };
 
       const isTriggered = sim.status !== 'NOT_TRIGGERED' && sim.status !== 'WAITING_ENTRY';
+      const isFinalized = (sim.status === 'CLOSED_GAIN' || sim.status === 'CLOSED_LOSS' || sim.status === 'CLOSED_BE' || (sim.resultR != null && sim.status !== 'IN_OPERATION' && sim.status !== 'INCOMPLETE')) &&
+        sim.status !== 'INCOMPLETE' && sim.status !== 'IN_OPERATION' && !sim.isIncomplete && !sim.isCensored;
       let evaluation = null;
       let executed = false;
       let shares = 0;
@@ -8545,7 +8547,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         shares = evaluation.quantity;
         authorizedRiskCash = evaluation.initialRiskCash;
         authorizedRiskPct = evaluation.executableRiskPct;
-        executed = evaluation.isEligible && shares > 0 && isTriggered;
+        executed = evaluation.isEligible && shares > 0 && isTriggered && isFinalized;
 
         // Contabiliza distribuição do Rubric
         const gr = evaluation.grade;
@@ -8572,7 +8574,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         shares = Math.max(100, theoreticalShares);
         authorizedRiskCash = shares * distance;
         authorizedRiskPct = currentEquity > 0 ? (authorizedRiskCash / currentEquity) * 100 : 0;
-        executed = distance > 0 && entryPrice > 0 && isTriggered;
+        executed = distance > 0 && entryPrice > 0 && isTriggered && isFinalized;
 
         evaluation = {
           symbol: sim.symbol,

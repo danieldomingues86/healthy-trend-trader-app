@@ -629,7 +629,7 @@
       targetSimulations = expResult.researchExperiment.simulations || [];
     } else {
       const filtered = getFilteredSimulations();
-      const all = state.simulations;
+      const all = (state.simulations || []).filter(s => s && s.status !== 'INCOMPLETE' && s.status !== 'IN_OPERATION' && !s.isIncomplete && !s.isCensored && (s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS' || s.status === 'CLOSED_BE'));
       targetSimulations = state.exportScope === 'ALL' ? all : filtered;
     }
 
@@ -716,6 +716,8 @@
         if (cycle !== 'Positivo') return false;
         const rsInfo = resolveSimulationEntryRs(s);
         if (!rsInfo.isAvailable || !rsInfo.isEligible) return false;
+        // Exclui operações incompletas / censuradas: somente trades finalizados entram na amostra oficial
+        if (s.status === 'INCOMPLETE' || s.status === 'IN_OPERATION' || s.isIncomplete || s.isCensored) return false;
         return true;
       });
     }
@@ -864,6 +866,14 @@
     }
     // Remove operações incompletas/censuradas da exibição da tabela conforme solicitação
     source = source.filter(s => s && s.status !== 'INCOMPLETE' && !s.isIncomplete);
+    source = source.filter(s => s &&
+      s.status !== 'IN_OPERATION' &&
+      !s.isCensored &&
+      s.status !== 'WAITING_ENTRY' &&
+      s.status !== 'NOT_TRIGGERED' &&
+      Boolean(s.exitDate) &&
+      (s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS' || s.status === 'CLOSED_BE')
+    );
     let filtered;
     if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.filterSimulations !== 'function') {
       filtered = source;
@@ -1943,8 +1953,24 @@
   function renderTradesListTab(rubricReport, filteredTrades, stats) {
     let rawExecuted = rubricReport?.executedTrades || rubricReport?.processedTrades?.filter(t => t.executed) || [];
     if (rawExecuted.length === 0) {
-      rawExecuted = filteredTrades.filter(t => t.status === 'CLOSED_GAIN' || t.status === 'CLOSED_LOSS');
+      rawExecuted = (filteredTrades || []).filter(t => t.status === 'CLOSED_GAIN' || t.status === 'CLOSED_LOSS');
     }
+
+    // Regra Obrigatória: Apresentar e contabilizar na Lista de Trades estritamente trades 100% finalizados
+    // (Operações com desfecho válido determinado pelo motor de simulação: Gain, Loss ou Breakeven)
+    rawExecuted = rawExecuted.filter(t => {
+      if (!t) return false;
+      if (t.status === 'INCOMPLETE' || t.status === 'IN_OPERATION' || Boolean(t.isIncomplete) || Boolean(t.isCensored)) {
+        return false;
+      }
+      if (t.status === 'WAITING_ENTRY' || t.status === 'NOT_TRIGGERED') {
+        return false;
+      }
+      if (!t.exitDate || t.resultR == null) {
+        return false;
+      }
+      return t.status === 'CLOSED_GAIN' || t.status === 'CLOSED_LOSS' || t.status === 'CLOSED_BE';
+    });
 
     // Filtro por resultado (Todos, Gain, Loss, Breakeven)
     const activeFilter = state.tradeStatusFilter || 'ALL';
@@ -5797,7 +5823,7 @@
 
     const isResearchEnv = state.activeEnvironment === 'RESEARCH';
     let filtered = getFilteredSimulations();
-    let all = state.simulations;
+    let all = (state.simulations || []).filter(s => s && s.status !== 'INCOMPLETE' && s.status !== 'IN_OPERATION' && !s.isIncomplete && !s.isCensored && (s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS' || s.status === 'CLOSED_BE'));
     if (isResearchEnv && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runResearchLabExperiment === 'function') {
       const exp = root.TradeSimulatorModel.runResearchLabExperiment(state.researchConfig || {});
       const expSims = (exp && exp.researchExperiment && Array.isArray(exp.researchExperiment.simulations))

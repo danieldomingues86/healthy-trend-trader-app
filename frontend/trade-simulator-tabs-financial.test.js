@@ -429,3 +429,66 @@ test('UI/UX Premium — 9. Padrão visual premium da referência aprovada (cores
   assert.ok(cssContent.includes('background: #eff6ff;'), 'Banner deve ter fundo azul suave #eff6ff');
   assert.ok(cssContent.includes('border: 1px solid #bfdbfe;'), 'Banner deve ter borda suave #bfdbfe');
 });
+
+test('Lista de Trades — 10. Exclusão categórica de trades incompletos/excluídos: somente operações 100% finalizadas participam da amostra e da tabela', () => {
+  const jsContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.js'), 'utf8');
+
+  // 1. Verificação estrita no código de trade-simulator.js
+  assert.ok(
+    jsContent.includes("t.status === 'INCOMPLETE' || t.status === 'IN_OPERATION' || Boolean(t.isIncomplete) || Boolean(t.isCensored)"),
+    'renderTradesListTab deve filtrar categoricamente operações com status INCOMPLETE, IN_OPERATION, isIncomplete ou isCensored'
+  );
+  assert.ok(
+    jsContent.includes("t.status === 'CLOSED_GAIN' || t.status === 'CLOSED_LOSS' || t.status === 'CLOSED_BE'"),
+    'renderTradesListTab deve aceitar estritamente desfechos de trades encerrados (CLOSED_GAIN, CLOSED_LOSS, CLOSED_BE)'
+  );
+  assert.ok(
+    jsContent.includes("s.status === 'INCOMPLETE' || s.status === 'IN_OPERATION' || s.isIncomplete || s.isCensored"),
+    'getScopedSimulations deve excluir operações incompletas no escopo da simulação oficial'
+  );
+
+  // 2. Comportamento do motor runRubricPortfolioSimulation com trades incompletos misturados
+  const mixedSims = [
+    { id: 't1', symbol: 'WEGE3', signalDate: '2026-01-05', entryDate: '2026-01-06', entryPrice: 40.00, stopLoss: 38.00, exitDate: '2026-01-15', exitPrice: 44.00, grade: 'A', rsScore: 95, marketCycle: 'healthy', resultR: 2, status: 'CLOSED_GAIN' },
+    { id: 't2', symbol: 'VALE3', signalDate: '2026-01-10', entryDate: '2026-01-11', entryPrice: 60.00, stopLoss: 57.00, exitDate: '2026-01-18', exitPrice: 57.00, grade: 'B', rsScore: 90, marketCycle: 'healthy', resultR: -1, status: 'CLOSED_LOSS' },
+    { id: 't3', symbol: 'CAML3', signalDate: '2026-01-20', entryDate: '2026-01-21', entryPrice: 7.50, stopLoss: 7.20, exitDate: null, exitPrice: null, grade: 'A', rsScore: 85, marketCycle: 'healthy', resultR: null, status: 'IN_OPERATION', isIncomplete: true },
+    { id: 't4', symbol: 'GRUL1', signalDate: '2026-01-16', entryDate: '2026-01-17', entryPrice: 12.00, stopLoss: 11.50, exitDate: null, exitPrice: null, grade: 'A', rsScore: 88, marketCycle: 'healthy', resultR: null, status: 'INCOMPLETE', isIncomplete: true }
+  ];
+
+  const report = TradeSimulatorModel.runRubricPortfolioSimulation(mixedSims, { rubricMode: true, officialMode: true });
+
+  // Apenas t1 e t2 (100% finalizados) devem ter sido executados
+  assert.equal(report.performance.executedCount, 2, 'Apenas os 2 trades finalizados devem constar como executados');
+  assert.equal(report.executedTrades.length, 2, 'executedTrades deve conter estritamente 2 operações');
+  assert.ok(report.executedTrades.every(t => t.status === 'CLOSED_GAIN' || t.status === 'CLOSED_LOSS'));
+
+  // Trades incompletos (CAML3 e GRUL1) NÃO devem constar em executedTrades
+  assert.ok(!report.executedTrades.some(t => t.symbol === 'CAML3'), 'CAML3 (incompleto) não pode estar em executedTrades');
+  assert.ok(!report.executedTrades.some(t => t.symbol === 'GRUL1'), 'GRUL1 (incompleto) não pode estar em executedTrades');
+
+  // 3. Simula a filtragem exata aplicada em renderTradesListTab
+  const isCompletedTrade = (t) => {
+    if (!t) return false;
+    if (t.status === 'INCOMPLETE' || t.status === 'IN_OPERATION' || Boolean(t.isIncomplete) || Boolean(t.isCensored)) return false;
+    if (t.status === 'WAITING_ENTRY' || t.status === 'NOT_TRIGGERED') return false;
+    if (!t.exitDate || t.resultR == null) return false;
+    return t.status === 'CLOSED_GAIN' || t.status === 'CLOSED_LOSS' || t.status === 'CLOSED_BE';
+  };
+
+  const finalizedList = mixedSims.filter(isCompletedTrade);
+  assert.equal(finalizedList.length, 2);
+  assert.equal(finalizedList[0].symbol, 'WEGE3');
+  assert.equal(finalizedList[1].symbol, 'VALE3');
+
+  // Contadores de abas da Lista de Trades
+  const totalCount = finalizedList.length;
+  const gainCount = finalizedList.filter(t => t.resultR > 0).length;
+  const lossCount = finalizedList.filter(t => t.resultR < 0).length;
+  const beCount = finalizedList.filter(t => t.resultR === 0).length;
+
+  assert.equal(totalCount, 2);
+  assert.equal(gainCount, 1);
+  assert.equal(lossCount, 1);
+  assert.equal(beCount, 0);
+  assert.equal(totalCount, gainCount + lossCount + beCount, 'Soma de Gain + Loss + BE deve ser idêntica a Todos');
+});
