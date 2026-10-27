@@ -327,3 +327,64 @@ test('Refinamento Premium — 7. Separação visual das abas, botão Ver Anális
   assert.ok(jsContent.includes('id="simMoreBtnExport"'), 'Exportar deve estar no menu de opções adicionais');
   assert.ok(jsContent.includes('id="simMoreBtnClear"'), 'Excluir deve estar no menu de opções adicionais');
 });
+
+test('Refinamento do Simulador — 8. Badges ao lado do título, grid equilibrado de 2 linhas e sincronização do risco por Grade', () => {
+  // 1. Validação de fonte única da Política de Risco
+  assert.equal(typeof TradeSimulatorModel.getOfficialRiskPolicy, 'function', 'TradeSimulatorModel deve exportar getOfficialRiskPolicy');
+  const policy = TradeSimulatorModel.getOfficialRiskPolicy();
+  assert.ok(policy, 'Política deve ser retornada');
+  assert.ok(Array.isArray(policy.grades), 'policy.grades deve ser um array');
+
+  const gradeA = policy.grades.find(g => g.grade === 'A');
+  const gradeB = policy.grades.find(g => g.grade === 'B');
+  const gradeC = policy.grades.find(g => g.grade === 'C');
+  assert.equal(gradeA.riskPct, 0.004, 'Grade A deve ter risco padrão de 0,40% (0.004)');
+  assert.equal(gradeB.riskPct, 0.002, 'Grade B deve ter risco padrão de 0,20% (0.002)');
+  assert.equal(gradeC.riskPct, 0.001, 'Grade C deve ter risco padrão de 0,10% (0.001)');
+
+  // 2. Simulação com discriminação de risco configurado vs executado
+  const sims = createSampleSimulations();
+  const report = TradeSimulatorModel.runRubricPortfolioSimulation(sims, {
+    officialMode: true,
+    rubricMode: true,
+    initialCapital: 100000,
+    policy
+  });
+
+  const gb = report.qualityAndSizing.gradeBreakdown;
+  assert.ok(gb.A, 'Grade A deve existir no breakdown');
+  assert.equal(gb.A.configuredRiskPct, 0.40, 'Risco configurado de Grade A deve ser 0,40%');
+  assert.equal(gb.B.configuredRiskPct, 0.20, 'Risco configurado de Grade B deve ser 0,20%');
+  assert.equal(gb.C.configuredRiskPct, 0.10, 'Risco configurado de Grade C deve ser 0,10%');
+
+  // Risco médio executado deve ser exposto separadamente e refletir a execução real
+  assert.ok(typeof gb.A.avgRiskPct === 'number', 'avgRiskPct deve ser numérico');
+  assert.ok(typeof gb.B.avgRiskPct === 'number', 'avgRiskPct deve ser numérico');
+  assert.ok(typeof gb.C.avgRiskPct === 'number', 'avgRiskPct deve ser numérico');
+
+  // 3. Validação de UI no trade-simulator.js
+  const jsContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.js'), 'utf8');
+
+  // Badges na mesma linha do título
+  assert.ok(jsContent.includes('class="sim-title-row"'), 'Deve conter .sim-title-row');
+  assert.ok(jsContent.includes('simBtnRubricModeToggle'), 'Botão Modo Rubric deve estar no cabeçalho');
+  assert.ok(jsContent.includes('simBtnAuditModal'), 'Pill de Auditoria deve estar no cabeçalho ao lado do título');
+
+  // Grid em 2 linhas no lado direito
+  assert.ok(jsContent.includes('sim-header-right-zone'), 'Deve conter .sim-header-right-zone');
+  assert.ok(jsContent.includes('sim-header-filters-row'), 'Deve conter linha de parâmetros .sim-header-filters-row');
+  assert.ok(jsContent.includes('sim-header-actions-row'), 'Deve conter linha de ações .sim-header-actions-row');
+
+  // Tabela com colunas distintas de risco configurado e aplicado
+  assert.ok(jsContent.includes('>Risco configurado</th>'), 'Tabela deve conter coluna "Risco configurado"');
+  assert.ok(jsContent.includes('>Risco médio aplicado</th>'), 'Tabela deve conter coluna "Risco médio aplicado"');
+  assert.ok(jsContent.includes('sim-grade-table-footer-note'), 'Deve conter nota explicativa .sim-grade-table-footer-note');
+
+  // 4. Validação de CSS no trade-simulator.css
+  const cssContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.css'), 'utf8');
+
+  // Título e badges alinhados sem quebra forçada
+  assert.ok(cssContent.includes('.sim-rebuild-header .sim-title-row'), 'CSS deve estilizar .sim-rebuild-header .sim-title-row');
+  assert.ok(cssContent.includes('.sim-grade-table-footer-note'), 'CSS deve conter estilos para .sim-grade-table-footer-note');
+  assert.ok(cssContent.includes('max-width: 620px'), 'sim-header-titles não deve estar limitado a 360px');
+});

@@ -8015,6 +8015,67 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
    */
 
   /**
+   * Obtém a Política de Risco oficial unificada do sistema (fonte única de verdade).
+   * Segue a hierarquia estrita: options.policy -> window.riskPolicyState -> window.tradingRubricPolicy -> localStorage -> TradingRubrics.DEFAULT_POLICY
+   * @param {Object} [options] Opções contendo policy opcional
+   * @returns {Object} Política normalizada via TradingRubrics.normalizePolicy
+   */
+  function getOfficialRiskPolicy(options = {}) {
+    if (options && options.policy) {
+      if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+        return TradingRubrics.normalizePolicy(options.policy);
+      }
+      return options.policy;
+    }
+    if (typeof window !== 'undefined') {
+      if (window.riskPolicyState) {
+        if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+          return TradingRubrics.normalizePolicy(window.riskPolicyState);
+        }
+        return window.riskPolicyState;
+      }
+      if (window.tradingRubricPolicy) {
+        if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+          return TradingRubrics.normalizePolicy(window.tradingRubricPolicy);
+        }
+        return window.tradingRubricPolicy;
+      }
+      try {
+        const stored = window.localStorage?.getItem('healthy-trend-risk-policy-v2') || window.localStorage?.getItem('healthy-trend-trading-rubric-policy');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+            return TradingRubrics.normalizePolicy(parsed);
+          }
+          return parsed;
+        }
+      } catch (_) {}
+    }
+    if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+      return TradingRubrics.normalizePolicy();
+    }
+    return {
+      grades: [
+        { grade: 'A', minScore: 95, riskPct: 0.004 },
+        { grade: 'B', minScore: 80, riskPct: 0.002 },
+        { grade: 'C', minScore: 65, riskPct: 0.001 },
+        { grade: 'D', minScore: -Infinity, riskPct: 0 }
+      ],
+      profiles: {
+        standard: {
+          ongoingRiskPct: 0.006,
+          initialVolatilityPct: 0.003,
+          ongoingVolatilityPct: 0.006,
+          capitalPct: 0.1,
+          maximumPortfolioRiskPct: 0.03,
+          maximumPositions: 6
+        }
+      },
+      selectedProfile: 'standard'
+    };
+  }
+
+  /**
    * Classifica a Força Relativa (RS) nas 4 faixas oficiais com prioridade de capital e Bet Sizing
    * @param {number|string|null} rsScore 
    * @returns {Object} { score, bandKey, bandLabel, priorityLabel, priorityTier, priorityRank, sizingMultiplier, isOfficialEligible, rubricRating, rubricScore, description }
@@ -8120,6 +8181,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       };
     }
 
+    const officialPolicy = getOfficialRiskPolicy(options);
     const isOfficialMode = options.officialMode !== false;
     const entryPrice = Math.max(0, Number(sim.entryPrice || sim.entry || sim.entryPriceLevel || 0));
     const stopLoss = Math.max(0, Number(sim.stopLoss || sim.stop || sim.stopPriceLevel || 0));
@@ -8195,7 +8257,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           fundamentalScore: sim.fundamentalRating || 'good'
         },
         profileKey: options.profileKey || 'standard'
-      }, options.policy);
+      }, officialPolicy);
 
       rubricScore = rubricResult.normalizedScore || rubricResult.score || 80;
       if (!resolvedGrade || resolvedGrade === 'AUTO') {
@@ -8206,19 +8268,21 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       if (!resolvedGrade) resolvedGrade = rubricScore >= 85 ? 'A' : (rubricScore >= 70 ? 'B' : (rubricScore >= 50 ? 'C' : 'D'));
     }
 
-    // Risk Budget nominal pelo Grade
-    let baseRiskBudgetPct = 0.004; // 0.40% padrão para A
-    if (resolvedGrade === 'A') baseRiskBudgetPct = 0.004;
-    else if (resolvedGrade === 'B') baseRiskBudgetPct = 0.002;
-    else if (resolvedGrade === 'C') baseRiskBudgetPct = 0.001;
-    else if (resolvedGrade === 'D') baseRiskBudgetPct = isOfficialMode ? 0.00 : 0.002;
+    // Risk Budget nominal pelo Grade (fonte única de verdade: Política de Risco oficial)
+    let configuredRiskPct = 0.004; // 0.40% padrão para A
+    if (resolvedGrade === 'A') configuredRiskPct = 0.004;
+    else if (resolvedGrade === 'B') configuredRiskPct = 0.002;
+    else if (resolvedGrade === 'C') configuredRiskPct = 0.001;
+    else if (resolvedGrade === 'D') configuredRiskPct = 0.000;
 
-    const policyGradeObj = options.policy?.grades?.find(g => g.grade === resolvedGrade);
+    const policyGradeObj = officialPolicy?.grades?.find(g => g.grade === resolvedGrade);
     if (policyGradeObj && policyGradeObj.riskPct != null) {
-      baseRiskBudgetPct = (resolvedGrade === 'D' && !isOfficialMode) ? 0.002 : policyGradeObj.riskPct;
+      configuredRiskPct = policyGradeObj.riskPct;
     } else if (!sim.grade && rubricResult && rubricResult.riskBudgetPct != null) {
-      baseRiskBudgetPct = (resolvedGrade === 'D' && !isOfficialMode) ? 0.002 : rubricResult.riskBudgetPct;
+      configuredRiskPct = rubricResult.riskBudgetPct;
     }
+
+    const baseRiskBudgetPct = (resolvedGrade === 'D' && !isOfficialMode) ? 0.002 : configuredRiskPct;
 
     // 7. Validação de Elegibilidade Oficial
     let isEligible = true;
@@ -8246,7 +8310,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     }
 
     // 8. Bet Sizing e Alocação de Risco
-    const effectiveRiskBudgetPct = isEligible ? (baseRiskBudgetPct * rsPriority.sizingMultiplier) : 0;
+    const effectiveRiskBudgetPct = isEligible ? baseRiskBudgetPct : 0;
     const currentEquity = Math.max(1000, Number(portfolioState.currentEquity || options.initialCapital || 100000));
     const currentHeatPct = Math.max(0, Number(portfolioState.currentHeatPct || 0));
     const openPositionsCount = Math.max(0, Number(portfolioState.openPositionsCount || 0));
@@ -8254,7 +8318,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     let sizing = null;
     if (isEligible && effectiveRiskBudgetPct > 0 && TradingRubrics && typeof TradingRubrics.calculatePolicyPositionSizing === 'function') {
       sizing = TradingRubrics.calculatePolicyPositionSizing({
-        policy: options.policy,
+        policy: officialPolicy,
         profileKey: options.profileKey || 'standard',
         riskBudgetPct: effectiveRiskBudgetPct,
         currentHeatPct,
@@ -8281,7 +8345,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       } else if (sizing.quantity <= 0) {
         // Tenta dimensionamento no mercado fracionário (lote de 1 ação) para cumprir o Risk Budget nominal
         const fractionalSizing = TradingRubrics.calculatePolicyPositionSizing({
-          policy: options.policy,
+          policy: officialPolicy,
           profileKey: options.profileKey || 'standard',
           riskBudgetPct: effectiveRiskBudgetPct,
           currentHeatPct,
@@ -8352,6 +8416,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       atrPct,
       rubricScore,
       grade: resolvedGrade,
+      configuredRiskPct: Number((configuredRiskPct * 100).toFixed(2)),
       baseRiskBudgetPct,
       effectiveRiskBudgetPct,
       isEligible,
@@ -8400,7 +8465,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     const rubricMode = options.rubricMode !== false;
     const initialCapital = Math.max(1000, Number(options.initialCapital || 100000));
     const costRatePct = Number(options.costRatePct != null ? options.costRatePct : 0.0006);
-    const fixedRiskPct = Number(options.fixedRiskPct || 0.005); // 0.5% risco fixo no modo sem Rubric
+    const fixedRiskPct = Number(options.fixedRiskPct || 0.005);
+    const officialPolicy = getOfficialRiskPolicy(options);
+    const resolvedOptions = { ...options, policy: officialPolicy }; // 0.5% risco fixo no modo sem Rubric
 
     // Ordenação cronológica estrita (sem look-ahead bias)
     list.sort((a, b) => {
@@ -8474,7 +8541,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       let authorizedRiskPct = 0;
 
       if (rubricMode) {
-        evaluation = evaluateTradeRubricAndSizing(sim, portfolioState, options);
+        evaluation = evaluateTradeRubricAndSizing(sim, portfolioState, resolvedOptions);
         shares = evaluation.quantity;
         authorizedRiskCash = evaluation.initialRiskCash;
         authorizedRiskPct = evaluation.executableRiskPct;
@@ -8666,9 +8733,13 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       const gTotalRiskCash = gTrades.reduce((acc, t) => acc + (t.authorizedRiskCash != null ? t.authorizedRiskCash : 0), 0);
       const gTotalRiskPct = gTrades.reduce((acc, t) => acc + (t.authorizedRiskPct != null ? t.authorizedRiskPct : 0), 0);
 
-      const avgRiskCash = gTrades.length > 0 ? gTotalRiskCash / gTrades.length : 0;
-      const defaultRiskPct = gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10);
-      const avgRiskPct = gTrades.length > 0 ? gTotalRiskPct / gTrades.length : defaultRiskPct;
+      const policyGrade = officialPolicy.grades?.find(item => item.grade === gr);
+      const nominalConfiguredRiskPct = policyGrade && policyGrade.riskPct != null
+        ? Number((policyGrade.riskPct * 100).toFixed(2))
+        : (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10));
+
+      const avgRiskCash = gTrades.length > 0 ? gTotalRiskCash / gTrades.length : (nominalConfiguredRiskPct / 100) * initialCapital;
+      const avgRiskPct = gTrades.length > 0 ? gTotalRiskPct / gTrades.length : nominalConfiguredRiskPct;
       const contribPct = totalNetPnL !== 0 ? Number(((gNetPnL / totalNetPnL) * 100).toFixed(1)) : 0;
 
       if (gNetPnL > maxGradePnL && gTrades.length > 0) {
@@ -8685,6 +8756,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         netPnL: Number(gNetPnL.toFixed(2)),
         grossPnL: Number(gGrossPnL.toFixed(2)),
         totalCosts: Number(gTotalCosts.toFixed(2)),
+        configuredRiskPct: nominalConfiguredRiskPct,
         avgRiskCash: Number(avgRiskCash.toFixed(2)),
         avgRiskPct: Number(avgRiskPct.toFixed(2)),
         contribPct
@@ -9135,6 +9207,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     OFFICIAL_SEED_RS_BY_SYMBOL,
     calculateHistoricalRsScore,
     resolveSimulationEntryRs,
+    getOfficialRiskPolicy,
     classifyRsCapitalPriority,
     evaluateTradeRubricAndSizing,
     runRubricPortfolioSimulation,

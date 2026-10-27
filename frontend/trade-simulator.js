@@ -1482,10 +1482,14 @@
     let rubricComparison = null;
 
     if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runRubricPortfolioSimulation === 'function') {
+      const officialPolicy = root.TradeSimulatorModel.getOfficialRiskPolicy
+        ? root.TradeSimulatorModel.getOfficialRiskPolicy()
+        : null;
       rubricReport = root.TradeSimulatorModel.runRubricPortfolioSimulation(scoped, {
         rubricMode: state.rubricMode !== false,
         officialMode: true,
-        initialCapital: initialCapital
+        initialCapital: initialCapital,
+        policy: officialPolicy
       });
       if (typeof root.TradeSimulatorModel.compareRubricModes === 'function') {
         rubricComparison = root.TradeSimulatorModel.compareRubricModes(scoped, { initialCapital });
@@ -1677,6 +1681,7 @@
         winRate: 0,
         totalR: 0,
         netPnL: 0,
+        configuredRiskPct: (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10)),
         avgRiskPct: (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10)),
         contribPct: 0
       };
@@ -1689,7 +1694,8 @@
       const barWidth = hasTrades ? Math.min(100, Math.max(4, Math.abs(gData.contribPct))) : 0;
       const barColorClass = isPositive ? 'pos' : 'neg';
 
-      const riskLabel = `${gData.avgRiskPct.toFixed(2).replace('.', ',')}%`;
+      const configuredRiskFormatted = `${(gData.configuredRiskPct != null ? gData.configuredRiskPct : (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10))).toFixed(2).replace('.', ',')}%`;
+      const avgRiskFormatted = hasTrades ? `${gData.avgRiskPct.toFixed(2).replace('.', ',')}%` : '-';
 
       return `
         <tr>
@@ -1697,7 +1703,8 @@
             <span class="sim-rebuild-grade-badge grade-${gr.toLowerCase().replace('+', '-plus')}">${gr}</span>
           </td>
           <td style="text-align: center; font-weight: 600;">${gData.count}</td>
-          <td style="text-align: center; color: #475569;">${riskLabel}</td>
+          <td style="text-align: center; font-weight: 600; color: #0f172a;" title="Percentual nominal oficial da Política de Risco">${configuredRiskFormatted}</td>
+          <td style="text-align: center; color: #475569;" title="Média real executada pós-lote e limite de capital">${avgRiskFormatted}</td>
           <td style="text-align: center; font-weight: 700; color: ${hasTrades && gData.totalR >= 0 ? '#059669' : (hasTrades ? '#ef4444' : '#64748b')};">
             ${rValFormatted}
           </td>
@@ -1705,7 +1712,7 @@
             ${pnlFormatted}
           </td>
           <td style="text-align: center; font-weight: 600; color: #475569;">${contribFormatted}</td>
-          <td style="width: 140px; padding-right: 20px;">
+          <td style="width: 130px; padding-right: 16px;">
             <div class="sim-rebuild-progress-track">
               <div class="sim-rebuild-progress-bar ${barColorClass}" style="width: ${barWidth}%;"></div>
             </div>
@@ -1794,18 +1801,23 @@
               <thead>
                 <tr>
                   <th style="width: 70px;">Grade</th>
-                  <th style="text-align: center; width: 80px;">Trades</th>
-                  <th style="text-align: center; width: 140px;">Risco médio por trade</th>
-                  <th style="text-align: center; width: 130px;">Resultado em R</th>
-                  <th style="text-align: center; width: 170px;">Resultado financeiro (R$)</th>
-                  <th style="text-align: center; width: 110px;">Contribuição</th>
-                  <th style="width: 140px;"></th>
+                  <th style="text-align: center; width: 75px;">Trades</th>
+                  <th style="text-align: center; width: 135px;" title="Percentual nominal configurado na Política de Risco para este Grade">Risco configurado</th>
+                  <th style="text-align: center; width: 145px;" title="Média real executada após restrições de lote mínimo (100 ações na B3) e teto de capital (10%)">Risco médio aplicado</th>
+                  <th style="text-align: center; width: 125px;">Resultado em R</th>
+                  <th style="text-align: center; width: 165px;">Resultado financeiro (R$)</th>
+                  <th style="text-align: center; width: 105px;">Contribuição</th>
+                  <th style="width: 130px;"></th>
                 </tr>
               </thead>
               <tbody>
                 ${rowsHtml}
               </tbody>
             </table>
+            <div class="sim-grade-table-footer-note">
+              <span class="note-icon">ℹ️</span>
+              <span><strong>Risco configurado:</strong> percentual nominal da Política de Risco (sincronizado com <em>Novo Trade / Política de Risco</em>). <strong>Risco médio aplicado:</strong> média real resultante das restrições de lote mínimo (100 ações na B3) e teto de capital (10% por ativo).</span>
+            </div>
           </div>
         </div>
 
