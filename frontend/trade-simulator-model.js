@@ -6142,7 +6142,7 @@
       return riskPct >= 0.5 && riskPct <= 16.0;
     }
 
-    // Validação independente de tendência no Diário: EMA 10 e EMA 72 alinhadas e ambas ascendentes
+// Validação independente de tendência no Diário: EMA 10 e EMA 72 alinhadas e ambas ascendentes
     const emaAlignment = validateDailyEmaAlignment(candles, options.ema10Values, options.ema72Values);
     const latestEma10 = emaAlignment.values ? emaAlignment.values.ema10 : null;
     const prevEma10 = emaAlignment.values ? emaAlignment.values.prevEma10 : null;
@@ -6198,7 +6198,7 @@
     const found = [];
     function push(id, name, entry, stop, baseQuality, structure) {
       if (!isAcceptableGraphicRisk(entry, stop)) return;
-      if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
+if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         const rejectedItem = {
           id,
           name,

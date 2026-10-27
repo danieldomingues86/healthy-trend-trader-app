@@ -2876,7 +2876,7 @@
       `;
     }
 
-    if (scenarioId === 'PARTIAL_50_2R_EMA9') {
+        if (scenarioId === 'PARTIAL_50_2R_EMA9') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <line x1="26" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2" />
@@ -2887,7 +2887,7 @@
           <circle cx="88" cy="18" r="3.5" fill="#8b5cf6" />
           <text x="88" y="10" fill="#7c3aed" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">50% em 2R</text>
           <circle cx="157" cy="18" r="3.5" fill="#8b5cf6" />
-          <text x="155" y="10" fill="#6d28d9" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
+          <text x="155" y="10" fill="#6d28d9" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM10</text>
           <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
           <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
           <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
@@ -2895,7 +2895,7 @@
       `;
     }
 
-    if (scenarioId === 'PARTIAL_80_2R_EMA9') {
+        if (scenarioId === 'PARTIAL_80_2R_EMA9') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <line x1="26" y1="18" x2="88" y2="18" stroke="#3b82f6" stroke-width="2" />
@@ -2906,7 +2906,7 @@
           <circle cx="88" cy="18" r="3.5" fill="#3b82f6" />
           <text x="88" y="10" fill="#0284c7" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">80% em 2R</text>
           <circle cx="157" cy="18" r="3.5" fill="#6366f1" />
-          <text x="155" y="10" fill="#1d4ed8" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM9</text>
+          <text x="155" y="10" fill="#1d4ed8" font-size="8.5" font-family="system-ui, sans-serif" font-weight="700" text-anchor="middle">Saída MM10</text>
           <line x1="26" y1="18" x2="26" y2="33" stroke="#ef4444" stroke-width="1.4" stroke-dasharray="2 2" />
           <circle cx="26" cy="33" r="2.5" fill="#ef4444" />
           <text x="33" y="36" fill="#dc2626" font-size="8" font-family="system-ui, sans-serif" font-weight="600">Stop (-1R)</text>
