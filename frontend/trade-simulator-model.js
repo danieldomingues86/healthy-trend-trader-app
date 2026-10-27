@@ -38,7 +38,8 @@
 
   const STATUS = {
     WAITING_ENTRY: 'WAITING_ENTRY',         // Aguardando entrada (amarelo)
-    IN_OPERATION: 'IN_OPERATION',           // Em operação (verde)
+    IN_OPERATION: 'IN_OPERATION',           // Em operação (legado/operacional)
+    INCOMPLETE: 'INCOMPLETE',               // Incompleto / Censurado pelo fim do histórico (âmbar/cinza)
     CLOSED_GAIN: 'CLOSED_GAIN',             // Encerrado - Gain (verde)
     CLOSED_LOSS: 'CLOSED_LOSS',             // Encerrado - Loss (vermelho)
     NOT_TRIGGERED: 'NOT_TRIGGERED'          // Não acionado / Expirado (cinza)
@@ -47,6 +48,7 @@
   const STATUS_LABELS = {
     [STATUS.WAITING_ENTRY]: 'Aguardando entrada',
     [STATUS.IN_OPERATION]: 'Em operação',
+    [STATUS.INCOMPLETE]: 'Incompleto / Excluído',
     [STATUS.CLOSED_GAIN]: 'Encerrado (Gain)',
     [STATUS.CLOSED_LOSS]: 'Encerrado (Loss)',
     [STATUS.NOT_TRIGGERED]: 'Não acionado'
@@ -55,6 +57,7 @@
   const STATUS_BADGE_CLASSES = {
     [STATUS.WAITING_ENTRY]: 'badge-waiting',
     [STATUS.IN_OPERATION]: 'badge-in-op',
+    [STATUS.INCOMPLETE]: 'badge-incomplete',
     [STATUS.CLOSED_GAIN]: 'badge-gain',
     [STATUS.CLOSED_LOSS]: 'badge-loss',
     [STATUS.NOT_TRIGGERED]: 'badge-not-triggered'
@@ -1078,7 +1081,7 @@
 
     let endStr = sim.exitDate;
     if (!endStr) {
-      if (status === STATUS.IN_OPERATION) {
+      if (status === STATUS.IN_OPERATION || status === STATUS.INCOMPLETE) {
         endStr = sim.currentDate || referenceDate || (sim.timeline && sim.timeline.length ? sim.timeline[sim.timeline.length - 1].date : null) || '2026-10-05';
       } else {
         return null;
@@ -1644,25 +1647,26 @@
       }
     }
 
-    // Se continuar em operação no candle mais recente
-    if (status === STATUS.IN_OPERATION && executedEntryPrice) {
+    // Se continuar em operação no candle mais recente (janela histórica terminou sem atingir stop nem alvo)
+    let isIncomplete = sim.isIncomplete || false;
+    let isCensored = sim.isCensored || false;
+    let incompleteReason = sim.incompleteReason || null;
+    let unrealizedR = sim.unrealizedR != null ? sim.unrealizedR : null;
+
+    if (status === STATUS.IN_OPERATION) {
+      isIncomplete = true;
+      isCensored = true;
+      incompleteReason = 'Janela histórica terminou antes de ocorrer uma condição válida de saída (stop ou alvo).';
+      exitDate = null;
+      exitPrice = null;
+      exitReason = 'Histórico insuficiente: sem desfecho';
       const curPrice = sim.currentPrice || executedEntryPrice;
-      const r1 = round2((curPrice - executedEntryPrice) / risk);
-      if (isPartialEma9 && sim.partialExit?.executed) {
-        const runnerR = Math.max(0, r1);
-        resultR = round2(sim.partialExit.partialResultR + (runnerPercent / 100) * runnerR);
-        sim.partialExit.runnerExitR = runnerR;
-        sim.partialExit.consolidatedResultR = resultR;
-      } else if (isPyramid && sim.scaleIn && sim.scaleIn.executed) {
-        const addPrice = Number(round2(executedEntryPrice + risk));
-        const r2 = round2((curPrice - addPrice) / risk);
-        resultR = round2(r1 + r2);
-        sim.scaleIn.lot1ResultR = r1;
-        sim.scaleIn.lot2ResultR = r2;
-        sim.scaleIn.consolidatedResultR = resultR;
-      } else {
-        resultR = r1;
+      if (executedEntryPrice && risk > 0) {
+        unrealizedR = round2((curPrice - executedEntryPrice) / risk);
       }
+      // Princípio do Método: Não fabrica desfecho artificial no último preço.
+      // O trade não atingiu saída formal e é excluído da amostra final de resultados.
+      resultR = null;
     }
 
     const latestSessionDate = validCandles.length ? String(validCandles[validCandles.length - 1].time || validCandles[validCandles.length - 1].date).slice(0, 10) : null;
@@ -1674,6 +1678,10 @@
       scaleIn: sim.scaleIn || null,
       partialExit: sim.partialExit || null,
       status,
+      isIncomplete,
+      isCensored,
+      incompleteReason,
+      unrealizedR,
       executedEntryPrice: round2(executedEntryPrice),
       entryDate,
       entryCandleIndex,
@@ -1705,6 +1713,7 @@
     const totalCreated = list.length;
     let waitingCount = 0;
     let inOperationCount = 0;
+    let incompleteCount = 0;
     let notTriggeredCount = 0;
     let winningTradesCount = 0;
     let losingTradesCount = 0;
@@ -1758,9 +1767,10 @@
         waitingCount++;
       } else if (status === STATUS.NOT_TRIGGERED) {
         notTriggeredCount++;
-      } else if (status === STATUS.IN_OPERATION) {
+      } else if (status === STATUS.IN_OPERATION || status === STATUS.INCOMPLETE || sim.isIncomplete) {
         inOperationCount++;
-        openR += Number(sim.resultR) || 0;
+        incompleteCount++;
+        openR += Number(sim.unrealizedR != null ? sim.unrealizedR : (sim.resultR || 0));
         triggerMap[trigKey].executed++;
         triggerMap[trigKey].open++;
         gradeMap[grade].executed++;
@@ -1832,6 +1842,7 @@
     const executedPct = totalCreated > 0 ? (executedEntriesCount / totalCreated) * 100 : 0;
     const waitingPct = totalCreated > 0 ? (waitingCount / totalCreated) * 100 : 0;
     const notTriggeredPct = totalCreated > 0 ? (notTriggeredCount / totalCreated) * 100 : 0;
+    const incompletePct = totalCreated > 0 ? (incompleteCount / totalCreated) * 100 : 0;
 
     // Métricas de performance (Win Rate, Loss Rate, Expectancy/R médio) são calculadas sobre os trades encerrados (closedTradesCount),
     // garantindo que Vencedores + Perdedores = 100% dos trades com resultado definitivo e Expectancy = Total R / Trades Encerrados.
@@ -1852,10 +1863,10 @@
     // Desempenho por Gatilho (reconciliado com totalR global)
     const triggerPerformance = Object.values(triggerMap)
       .map(t => {
-        const div = t.closed > 0 ? t.closed : t.executed;
+        const div = t.closed;
         const wr = div > 0 ? (t.winners / div) * 100 : 0;
         const exp = div > 0 ? t.totalR / div : 0;
-        const displayCount = t.closed > 0 ? t.closed : t.signals;
+        const displayCount = t.closed;
         return {
           name: t.name,
           totalR: round2(t.totalR),
@@ -1878,10 +1889,10 @@
     const gradeOrder = { A: 1, B: 2, C: 3, D: 4 };
     const gradePerformance = Object.values(gradeMap)
       .map(g => {
-        const div = g.closed > 0 ? g.closed : g.executed;
+        const div = g.closed;
         const wr = div > 0 ? (g.winners / div) * 100 : 0;
         const exp = div > 0 ? g.totalR / div : 0;
-        const displayCount = g.closed > 0 ? g.closed : g.signals;
+        const displayCount = g.closed;
         return {
           name: g.grade,
           grade: g.grade,
@@ -1904,10 +1915,10 @@
     // Desempenho por Período (reconciliado com totalR global)
     const periodPerformance = Object.values(periodMap)
       .map(p => {
-        const div = p.closed > 0 ? p.closed : p.executed;
+        const div = p.closed;
         const wr = div > 0 ? (p.winners / div) * 100 : 0;
         const exp = div > 0 ? p.totalR / div : 0;
-        const displayCount = p.closed > 0 ? p.closed : p.signals;
+        const displayCount = p.closed;
         return {
           name: p.period,
           period: p.period,
@@ -2028,6 +2039,9 @@
       totalCreated,
       executedEntriesCount,
       executedPct: round2(executedPct),
+      incompleteCount,
+      excludedCount: incompleteCount,
+      incompletePct: round2(incompletePct),
       winningTradesCount,
       losingTradesCount,
       closedTradesCount,
@@ -2125,15 +2139,16 @@
 
     return list.filter(sim => {
       if (!sim) return false;
-      // 1. Aba de Status (Aguardando Entrada, Em Operação, Encerrados e Não Acionados)
-      if (tab === 'WAITING_ENTRY' || tab === 'WAITING') {
-        if (sim.status !== STATUS.WAITING_ENTRY) return false;
-      } else if (tab === 'IN_OPERATION' || tab === 'IN_OP') {
-        if (sim.status !== STATUS.IN_OPERATION) return false;
-      } else if (tab === 'CLOSED') {
+      // 1. Aba de Status (Trades Encerrados, Não Acionados, Incompletos / Excluídos e Todos)
+      if (tab === 'CLOSED') {
         if (sim.status !== STATUS.CLOSED_GAIN && sim.status !== STATUS.CLOSED_LOSS) return false;
       } else if (tab === 'NOT_TRIGGERED' || tab === 'NOT_TRIGGER') {
         if (sim.status !== STATUS.NOT_TRIGGERED) return false;
+      } else if (tab === 'INCOMPLETE' || tab === 'IN_OP' || tab === 'IN_OPERATION') {
+        const isIncomplete = sim.status === STATUS.INCOMPLETE || sim.status === STATUS.IN_OPERATION || Boolean(sim.isIncomplete);
+        if (!isIncomplete) return false;
+      } else if (tab === 'WAITING_ENTRY' || tab === 'WAITING') {
+        if (sim.status !== STATUS.WAITING_ENTRY) return false;
       } else if (tab !== 'ALL' && tab !== '' && sim.status !== tab) {
         return false;
       }
@@ -6578,7 +6593,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           exitDate = addTradingDays(signalDate, 1, validSessionSet);
         }
       }
-    } else if (status === STATUS.IN_OPERATION || status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS) {
+    } else if (status === STATUS.IN_OPERATION || status === STATUS.INCOMPLETE || status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS) {
       if (!executedEntryPrice || executedEntryPrice <= 0) {
         executedEntryPrice = entryPrice;
       }
@@ -7715,7 +7730,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         number: 8,
         title: 'Regras de Entrada e Saída',
         summary: `Entrada: Máxima do gatilho + R$ 0,01 (avaliada exclusivamente em T+1) | Stop inicial: 0,01 abaixo da mínima de referência (Inside Bar: stop no candle anterior) | Saída: ${scenarioMeta.name}.`,
-        detail: `A entrada é avaliada exclusivamente no pregão imediatamente seguinte ao sinal (T+1). Se o preço não for atingido em T+1, a ordem é cancelada e o sinal expira definitivamente (sem execuções tardias em T+2 ou posteriores). ${scenarioMeta.description} Para Inside Bar, o stop inicial fica obrigatoriamente 0,01 abaixo da mínima do candle anterior ao gatilho (nunca no mesmo candle). Política conservadora (stop-first) em caso de ambiguidade intradiária.`,
+        detail: `A entrada é avaliada exclusivamente no pregão imediatamente seguinte ao sinal (T+1). Se o preço não for atingido em T+1, a ordem é cancelada e o sinal expira definitivamente (sem execuções tardias em T+2 ou posteriores). Apenas operações com saída confirmada (stop ou alvo) participam da amostra principal de resultados; trades sem desfecho até o fim dos dados são marcados como incompletos e excluídos das métricas finais. ${scenarioMeta.description} Para Inside Bar, o stop inicial fica obrigatoriamente 0,01 abaixo da mínima do candle anterior ao gatilho (nunca no mesmo candle). Política conservadora (stop-first) em caso de ambiguidade intradiária.`,
         status: 'Ativa',
         statusKey: 'active',
         blockedCount: null

@@ -57,7 +57,7 @@
       trigger: 'ALL',
       sector: 'ALL',
       grade: 'ALL',
-      tab: 'ALL',
+      tab: 'CLOSED',
       result: 'ALL',
       query: '',
       unit: 'R' // 'R' ou 'RS'
@@ -1751,18 +1751,20 @@
           <p class="sim-kpi-sub">Operações finalizadas no período.</p>
         </div>
 
-        <!-- Card 2: Trades em aberto -->
+        <!-- Card 2: Operações incompletas / Excluídas da Amostra -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            <span class="sim-kpi-icon icon-orange">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <circle cx="12" cy="16" r="0.5" fill="currentColor"></circle>
               </svg>
             </span>
-            <span class="sim-kpi-title">Trades em aberto</span>
+            <span class="sim-kpi-title">Operações incompletas</span>
           </div>
-          <div class="sim-kpi-val">${stats.inOperationCount}</div>
-          <p class="sim-kpi-sub">${stats.inOperationCount > 0 ? 'Posições em andamento no gráfico.' : 'Nenhuma posição aberta.'}</p>
+          <div class="sim-kpi-val">${stats.incompleteCount != null ? stats.incompleteCount : stats.inOperationCount}</div>
+          <p class="sim-kpi-sub">${(stats.incompleteCount || stats.inOperationCount) > 0 ? 'Excluídas da amostra (sem saída até o fim dos dados).' : 'Nenhuma operação excluída.'}</p>
         </div>
 
         <!-- Card 3: Trades vencedores -->
@@ -2346,25 +2348,21 @@
         <div class="sim-table-toolbar">
           <!-- Abas de Status -->
           <div class="sim-status-tabs">
-            <button class="sim-tab-btn ${activeTab === 'ALL' ? 'active' : ''}" data-tab="ALL" type="button">
+            <button class="sim-tab-btn ${activeTab === 'ALL' ? 'active' : ''}" data-tab="ALL" type="button" title="Exibir todos os registros históricos do cenário">
               <span>●</span>
               <span>Todos (${stats.totalCreated})</span>
             </button>
-            <button class="sim-tab-btn ${activeTab === 'WAITING_ENTRY' ? 'active' : ''}" data-tab="WAITING_ENTRY" type="button">
-              <span class="sim-tab-dot dot-orange"></span>
-              <span>Aguardando Entrada (${stats.waitingCount})</span>
-            </button>
-            <button class="sim-tab-btn ${activeTab === 'IN_OPERATION' ? 'active' : ''}" data-tab="IN_OPERATION" type="button">
-              <span class="sim-tab-dot dot-green"></span>
-              <span>Em Operação (${stats.inOperationCount})</span>
-            </button>
-            <button class="sim-tab-btn ${activeTab === 'CLOSED' ? 'active' : ''}" data-tab="CLOSED" type="button">
+            <button class="sim-tab-btn ${activeTab === 'CLOSED' ? 'active' : ''}" data-tab="CLOSED" type="button" title="Apenas operações efetivamente finalizadas e elegíveis para a amostra principal">
               <span class="sim-tab-dot dot-blue"></span>
-              <span>Encerrados (${stats.closedTradesCount != null ? stats.closedTradesCount : stats.closedCount})</span>
+              <span>Trades Encerrados (${stats.closedTradesCount != null ? stats.closedTradesCount : stats.closedCount})</span>
             </button>
-            <button class="sim-tab-btn ${activeTab === 'NOT_TRIGGERED' ? 'active' : ''}" data-tab="NOT_TRIGGERED" type="button">
+            <button class="sim-tab-btn ${activeTab === 'NOT_TRIGGERED' ? 'active' : ''}" data-tab="NOT_TRIGGERED" type="button" title="Sinais históricos cujo preço de entrada não foi atingido em T+1">
               <span class="sim-tab-dot dot-gray"></span>
               <span>Não Acionados (${stats.notTriggeredCount})</span>
+            </button>
+            <button class="sim-tab-btn ${activeTab === 'INCOMPLETE' ? 'active' : ''}" data-tab="INCOMPLETE" type="button" title="Operações com entrada executada mas sem saída até o fim da cobertura de dados (excluídas dos resultados)">
+              <span class="sim-tab-dot dot-orange"></span>
+              <span>Incompletos / Excluídos (${stats.incompleteCount != null ? stats.incompleteCount : stats.inOperationCount})</span>
             </button>
           </div>
 
@@ -2629,8 +2627,9 @@
       return `<span class="sim-status-pill pill-breakeven"><span class="pill-dot"></span> Encerrado (Breakeven)</span>`;
     }
     switch (status) {
+      case 'INCOMPLETE':
       case 'IN_OPERATION':
-        return `<span class="sim-status-pill pill-in-op"><span class="pill-dot"></span> Em operação</span>`;
+        return `<span class="sim-status-pill pill-incomplete" title="${sim?.incompleteReason || 'Operação incompleta: histórico terminou sem condição de saída (stop ou alvo)'}"><span class="pill-dot"></span> Incompleto (Excluído)</span>`;
       case 'WAITING_ENTRY':
         return `<span class="sim-status-pill pill-waiting"><span class="pill-dot"></span> Aguardando entrada</span>`;
       case 'CLOSED_GAIN':

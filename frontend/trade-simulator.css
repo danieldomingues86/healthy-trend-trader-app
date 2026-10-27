@@ -980,6 +980,12 @@ body:has(#researchlab.active) .content {
 }
 .sim-status-pill.pill-in-op .pill-dot { background: #059669; }
 
+.sim-status-pill.pill-incomplete {
+  background: #fffbeb;
+  color: #b45309;
+}
+.sim-status-pill.pill-incomplete .pill-dot { background: #f59e0b; }
+
 .sim-status-pill.pill-waiting {
   background: #fffbeb;
   color: #b45309;
