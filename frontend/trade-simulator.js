@@ -1583,7 +1583,7 @@
         <div class="sim-screen-tabs-bar" role="tablist">
           <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'summary' ? 'active' : ''}" data-screen-tab="summary" role="tab" aria-selected="${state.screenTab === 'summary'}">
             <span class="sim-tab-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
                 <line x1="12" y1="20" x2="12" y2="4"></line>
                 <line x1="6" y1="20" x2="6" y2="14"></line>
@@ -1593,7 +1593,7 @@
           </button>
           <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'trades' ? 'active' : ''}" data-screen-tab="trades" role="tab" aria-selected="${state.screenTab === 'trades'}">
             <span class="sim-tab-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
                 <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -1605,7 +1605,7 @@
           </button>
           <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'assets' ? 'active' : ''}" data-screen-tab="assets" role="tab" aria-selected="${state.screenTab === 'assets'}">
             <span class="sim-tab-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
               </svg>
             </span>
@@ -1613,7 +1613,7 @@
           </button>
           <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'setups' ? 'active' : ''}" data-screen-tab="setups" role="tab" aria-selected="${state.screenTab === 'setups'}">
             <span class="sim-tab-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <circle cx="12" cy="12" r="6"></circle>
                 <circle cx="12" cy="12" r="2"></circle>
@@ -1623,7 +1623,7 @@
           </button>
           <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'timeline' ? 'active' : ''}" data-screen-tab="timeline" role="tab" aria-selected="${state.screenTab === 'timeline'}">
             <span class="sim-tab-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
@@ -2387,60 +2387,63 @@
           <p class="sim-header-sub">Simule suas estratégias com base em dados históricos usando os mesmos gatilhos, regras de risco e posição do seu método.</p>
         </div>
 
-        <div class="sim-header-controls-row">
-          <!-- Dropdown Período -->
-          <div class="sim-control-select-wrap">
-            <select class="sim-header-select" id="simFilterPeriod" title="Filtrar por período histórico">
-              <option value="30" ${state.filters.days === 30 ? 'selected' : ''}>Últimos 30 dias</option>
-              <option value="90" ${state.filters.days === 90 ? 'selected' : ''}>Últimos 90 dias</option>
-              <option value="120" ${state.filters.days === 120 ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
-              <option value="180" ${state.filters.days === 180 ? 'selected' : ''}>Últimos 6 meses</option>
-              <option value="365" ${state.filters.days === 365 ? 'selected' : ''}>Últimos 12 meses</option>
-              <option value="730" ${state.filters.days === 730 ? 'selected' : ''}>Últimos 24 meses</option>
-              <option value="1095" ${state.filters.days === 1095 ? 'selected' : ''}>Últimos 36 meses</option>
-              <option value="ALL" ${state.filters.days === 'ALL' ? 'selected' : ''}>Todo o período</option>
-            </select>
-          </div>
+        <!-- Zona de Controles e Ações alinhada à Direita em 2 Linhas Otimizadas -->
+        <div class="sim-header-right-zone">
+          <!-- Linha 1: Filtros de Dados e Capital Inicial -->
+          <div class="sim-header-filters-row sim-header-controls-row">
+            <!-- Dropdown Período -->
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="simFilterPeriod" title="Filtrar por período histórico">
+                <option value="30" ${state.filters.days === 30 ? 'selected' : ''}>Últimos 30 dias</option>
+                <option value="90" ${state.filters.days === 90 ? 'selected' : ''}>Últimos 90 dias</option>
+                <option value="120" ${state.filters.days === 120 ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
+                <option value="180" ${state.filters.days === 180 ? 'selected' : ''}>Últimos 6 meses</option>
+                <option value="365" ${state.filters.days === 365 ? 'selected' : ''}>Últimos 12 meses</option>
+                <option value="730" ${state.filters.days === 730 ? 'selected' : ''}>Últimos 24 meses</option>
+                <option value="1095" ${state.filters.days === 1095 ? 'selected' : ''}>Últimos 36 meses</option>
+                <option value="ALL" ${state.filters.days === 'ALL' ? 'selected' : ''}>Todo o período</option>
+              </select>
+            </div>
 
-          <!-- Dropdown Ativo -->
-          <div class="sim-control-select-wrap">
-            <select class="sim-header-select" id="simFilterSymbol" title="Filtrar por ativo específico">
-              <option value="ALL" ${state.filters.symbol === 'ALL' ? 'selected' : ''}>Todos os ativos</option>
-              ${symbolOptionsHtml}
-            </select>
-          </div>
+            <!-- Dropdown Ativo -->
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="simFilterSymbol" title="Filtrar por ativo específico">
+                <option value="ALL" ${state.filters.symbol === 'ALL' ? 'selected' : ''}>Todos os ativos</option>
+                ${symbolOptionsHtml}
+              </select>
+            </div>
 
-          <!-- Dropdown Gatilho -->
-          <div class="sim-control-select-wrap">
-            <select class="sim-header-select" id="simFilterTrigger" title="Filtrar por gatilho operacional">
-              <option value="ALL" ${state.filters.trigger === 'ALL' ? 'selected' : ''}>Todos os gatilhos</option>
-              <option value="Inside Bar" ${state.filters.trigger === 'Inside Bar' ? 'selected' : ''}>Inside Bar</option>
-              <option value="1-2-3 de Compra" ${state.filters.trigger === '1-2-3 de Compra' ? 'selected' : ''}>1-2-3 de Compra</option>
-              <option value="PFR de Compra" ${state.filters.trigger === 'PFR de Compra' ? 'selected' : ''}>PFR de Compra</option>
-              <option value="Barra Vermelha Ignorada" ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'RBI') ? 'selected' : ''}>Barra Vermelha Ignorada</option>
-              <option value="Dave Landry" ${state.filters.trigger === 'Dave Landry' ? 'selected' : ''}>Dave Landry</option>
-              <option value="Outros" ${state.filters.trigger === 'Outros' ? 'selected' : ''}>Outros</option>
-            </select>
-          </div>
+            <!-- Dropdown Gatilho -->
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="simFilterTrigger" title="Filtrar por gatilho operacional">
+                <option value="ALL" ${state.filters.trigger === 'ALL' ? 'selected' : ''}>Todos os gatilhos</option>
+                <option value="Inside Bar" ${state.filters.trigger === 'Inside Bar' ? 'selected' : ''}>Inside Bar</option>
+                <option value="1-2-3 de Compra" ${state.filters.trigger === '1-2-3 de Compra' ? 'selected' : ''}>1-2-3 de Compra</option>
+                <option value="PFR de Compra" ${state.filters.trigger === 'PFR de Compra' ? 'selected' : ''}>PFR de Compra</option>
+                <option value="Barra Vermelha Ignorada" ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'RBI') ? 'selected' : ''}>Barra Vermelha Ignorada</option>
+                <option value="Outros" ${state.filters.trigger === 'Outros' ? 'selected' : ''}>Outros</option>
+              </select>
+            </div>
 
-          <!-- Dropdown Setor -->
-          <div class="sim-control-select-wrap">
-            <select class="sim-header-select" id="simFilterSector" title="Filtrar por setor econômico">
-              <option value="ALL" ${state.filters.sector === 'ALL' ? 'selected' : ''}>Todos os setores</option>
-              ${sectorOptionsHtml}
-            </select>
-          </div>
+            <!-- Dropdown Setor -->
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="simFilterSector" title="Filtrar por setor econômico">
+                <option value="ALL" ${state.filters.sector === 'ALL' ? 'selected' : ''}>Todos os setores</option>
+                ${sectorOptionsHtml}
+              </select>
+            </div>
 
-          <!-- Input Capital Inicial da Simulação -->
-          <div class="sim-capital-control-wrap">
-            <span class="sim-control-label">Capital inicial</span>
-            <div class="sim-capital-input-box">
-              <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" title="Definir capital de referência para simulação financeira" />
+            <!-- Input Capital Inicial da Simulação -->
+            <div class="sim-capital-control-wrap">
+              <span class="sim-control-label">Capital inicial</span>
+              <div class="sim-capital-input-box">
+                <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" title="Definir capital de referência para simulação financeira" />
+              </div>
             </div>
           </div>
 
-          <!-- Grupo de Ações Principais e Secundárias com Hierarquia Clara -->
-          <div class="sim-header-actions-group">
+          <!-- Linha 2: Ações Principais e Secundárias com Hierarquia Clara -->
+          <div class="sim-header-actions-row sim-header-actions-group">
             <!-- 1. Executar Simulação (Ação Principal) -->
             <button type="button" id="simBtnExecute" class="sim-btn-execute" title="Executar simulação com os filtros e capital selecionados">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -5270,7 +5273,7 @@
    * Ícones SVG dedicados para o Card 'Visão do Ativo' no Modal de Snapshot
    */
   const SNAPSHOT_ICONS = {
-    trophy: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+    trophy: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
     relativeStrength: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
     marketCycle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
     trend: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`,
