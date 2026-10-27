@@ -1184,7 +1184,7 @@ body[data-theme="gold"][data-navigation-layout="tiles"] .navigation-hub-tile.pla
 <script>
 function applyTheme(theme){const selected=theme==='healthy'?'healthy':'gold';document.body.dataset.theme=selected;document.querySelectorAll('[data-theme-choice]').forEach(button=>{const active=button.dataset.themeChoice===selected;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});try{localStorage.setItem('healthy-trend-theme',selected)}catch(error){}if(document.querySelector('#manual.page.active')&&typeof renderManualBook==='function')renderManualBook()}
 try{applyTheme(localStorage.getItem('healthy-trend-theme')||'healthy')}catch(error){applyTheme('healthy')}
-function enterWorkspace(event){event.preventDefault();document.getElementById('loginShell').classList.add('hidden');document.body.style.overflow='';go('today');}
+function enterWorkspace(event){if(event?.preventDefault)event.preventDefault();document.getElementById('loginShell').classList.add('hidden');document.body.style.overflow='';go('today');}
 const titles={today:'Meu Desktop',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',fundamentals:'Análise Fundamentalista',positions:'Posições Abertas',closedpositions:'Posições Encerradas',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',tradeanatomy:'Anatomia dos Trades',journal:'Diário de Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Monitor de Hábitos',materials:'Loja Trader',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',assetblacklist:'Ativos Blacklist',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
 Object.assign(titles,{mindset:'Mentalidade',traderrules:'Regras do Trader'});
 titles.emotionalintelligence='Analisador Emocional';titles.forecast='Simulador de Equity';
@@ -3676,7 +3676,7 @@ body:not([data-theme="healthy"]) #materials .materials-layout:before{color:#d4ad
 /* A tela Materials não usa uma coluna central estreita: ela ocupa todo o workspace. */
 body:has(#materials.active) .content{padding-right:clamp(24px,3vw,64px)!important;padding-left:clamp(24px,3vw,64px)!important}#materials .materials-page{width:100%;max-width:none;margin:0}#materials .materials-hero{width:100%;box-sizing:border-box}#materials .materials-layout{width:100%;box-sizing:border-box}@media(min-width:1680px){#materials .materials-layout{grid-template-columns:minmax(0,1fr) 380px;gap:24px}#materials .materials-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}#materials .material-cover{height:220px}}
 </style>
-<link rel="stylesheet" href="frontend/materials-page-v2.css?v=20261027-forca-verde-flagship-1" />
+<link rel="stylesheet" href="frontend/materials-page-v2.css?v=20261027-store-cinematic-rebuild-1" />
 <link rel="stylesheet" href="frontend/fundamentals.css?v=20260925-v1" />
 <link rel="stylesheet" href="frontend/theme-audit.css?v=20260923-visual-fidelity-1" />
 <script>
@@ -3720,7 +3720,7 @@ const goWithMaterials=go;
 go=function(id, ...args){goWithMaterials(id, ...args);if(id==='materials')renderMaterials()};
 renderMaterials();
 </script>
-<script src="frontend/materials-page-v2.js?v=20261027-forca-verde-flagship-1"></script>
+<script src="frontend/materials-page-v2.js?v=20261027-store-cinematic-rebuild-1"></script>
 <script src="frontend/manual-rubric-page.js?v=20260922-grading-abcd-1"></script>
 <script src="frontend/journal-v2-model.js?v=20261026-title-audio-1"></script>
 <script src="frontend/journal-export-model.js?v=20260924-ai-1"></script>

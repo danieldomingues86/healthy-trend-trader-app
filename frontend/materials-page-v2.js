@@ -21,7 +21,7 @@
       isAvailable: true,
       tagline: 'Swing Trade com Tendência',
       author: 'Daniel Gonçalves',
-      commercialCopy: 'Um guia completo e prático para encontrar, operar e capturar grandes movimentos no mercado, com mais disciplina, paciência e resultados consistentes.',
+      commercialCopy: 'Aprenda a encontrar, operar e capturar grandes movimentos no mercado — com estratégia, disciplina e gestão de risco.',
       benefits: [
         'Encontre os Líderes: Seleção objetiva com Força Relativa (RS ≥ 80)',
         'Opere com o Ciclo: Direcionamento do capital nos regimes de alta',
@@ -30,11 +30,11 @@
         'Venda na Força: Condução profissional para capturar múltiplos de risco'
       ],
       pillars: [
-        { num: '01', icon: '📊', title: 'Encontre os Líderes', desc: 'Com Força Relativa (RS ≥ 80)' },
-        { num: '02', icon: '📈', title: 'Ciclo de Mercado', desc: 'Sempre a favor do regime positivo' },
-        { num: '03', icon: '🕯️', title: 'Gatilhos Oficiais', desc: 'Inside Bar e 1-2-3 de Compra' },
-        { num: '04', icon: '🛡️', title: 'Gestão de Risco', desc: 'Position Sizing matemático' },
-        { num: '05', icon: '🎯', title: 'Venda na Força', desc: 'Capture múltiplos de risco (R)' }
+        { num: '01', titlePrefix: 'ENCONTRE ', titleHighlight: 'OS LÍDERES', title: 'Encontre os Líderes', desc: 'Com Força Relativa (RS ≥ 80)' },
+        { num: '02', titlePrefix: 'LEIA O CICLO ', titleHighlight: 'DE MERCADO', title: 'Ciclo de Mercado', desc: 'Sempre a favor do regime positivo' },
+        { num: '03', titlePrefix: 'GATILHOS ', titleHighlight: 'OFICIAIS', title: 'Gatilhos Oficiais', desc: 'Inside Bar e 1-2-3 de Compra' },
+        { num: '04', titlePrefix: 'GESTÃO ', titleHighlight: 'DE RISCO', title: 'Gestão de Risco', desc: 'Posicionamento matemático e profissional' },
+        { num: '05', titlePrefix: 'VENDA ', titleHighlight: 'NA FORÇA', title: 'Venda na Força', desc: 'Capture múltiplos de risco (R)' }
       ],
       chapters: [
         { num: 'I', title: 'Filosofia e Mentalidade do Trend Following', desc: 'Por que seguir tendências é o jogo com maior expectativa matemática no longo prazo.' },
@@ -57,6 +57,7 @@
       rating: '5.0',
       reviews: 'Em breve',
       isAvailable: false,
+      isMethodKey: true,
       tagline: 'O Guia Mestre de Oportunidades',
       benefits: [
         'Identificação precisa e pontuação ponderada de setups A',
@@ -69,6 +70,7 @@
       rating: '4.9',
       reviews: 'Em breve',
       isAvailable: false,
+      isMethodKey: true,
       tagline: 'O Termômetro dos 4 Regimes de Mercado',
       benefits: [
         'Mapeamento objetivo dos 4 regimes do Ibovespa e S&P 500',
@@ -81,6 +83,7 @@
       rating: '5.0',
       reviews: 'Em breve',
       isAvailable: false,
+      isMethodKey: true,
       tagline: 'A Armadura Matemática do Capital',
       benefits: [
         'Cálculo exato de R-Multiple e risco assimétrico positivo',
@@ -150,14 +153,14 @@
   };
 
   // Garante a existência do livro Força Verde como item principal
-  if (!healthyMaterials.some(m => m.id === 'forca-verde')) {
+  if (!healthyMaterials.some((m) => m.id === 'forca-verde')) {
     healthyMaterials.unshift({
       id: 'forca-verde',
       title: 'Força Verde: Swing Trade com Tendência',
       type: 'Livro',
       price: 97,
       cover: 'assets/forca-verde-banner.jpg',
-      description: 'Um guia completo e prático para encontrar, operar e capturar grandes movimentos no mercado, com mais disciplina, paciência e resultados consistentes.',
+      description: 'Aprenda a encontrar, operar e capturar grandes movimentos no mercado — com estratégia, disciplina e gestão de risco.',
       available: true,
       isFlagship: true
     });
@@ -170,7 +173,6 @@
       material.available = true;
       material.isFlagship = true;
     } else if (material.available === undefined) {
-      // Por padrão, materiais secundários ainda não lançados ficam indisponíveis
       material.available = false;
     }
   });
@@ -270,83 +272,149 @@
     const fvMeta = materialDetails['forca-verde'];
     const isFvExpanded = materialsDetail === 'forca-verde';
 
-    // HERO PRINCIPAL — LIVRO-CARRO-CHEFE "FORÇA VERDE"
+    // 1. HERO CINEMATOGRÁFICO DO FORÇA VERDE (PRIMEIRA DOBRA OBRIGATÓRIA)
     const heroSpotlightMarkup = !materialsLibraryOnly ? `
-      <section class="materials-hero-spotlight forca-verde-flagship" aria-label="Destaque Editorial — Livro Força Verde">
-        <div class="spotlight-content">
-          <div class="spotlight-badge-row">
-            <span class="spotlight-badge-gold">★ LIVRO-CARRO-CHEFE DO MÉTODO</span>
-            <span class="spotlight-badge-type">eBook Digital (PDF HD + Kindle)</span>
-            <span class="spotlight-rating">★★★★★ 5.0 <i>(Edição Oficial)</i></span>
-          </div>
+      <section class="materials-hero-cinematic materials-hero-spotlight forca-verde-flagship" aria-label="Destaque Editorial — Livro Força Verde">
+        <!-- Backdrop Panorâmico Oficial Limpo -->
+        <div class="hero-cinematic-bg" style="background-image: url('assets/forca-verde-hero-pure-art.png');"></div>
+        <div class="hero-cinematic-vignette"></div>
 
-          <div class="flagship-title-group">
-            <span class="flagship-kicker">LIVRO OFICIAL DO MÉTODO</span>
-            <h1 class="flagship-title">FORÇA VERDE</h1>
-            <p class="flagship-tagline">Swing Trade com Tendência</p>
-            <div class="flagship-author-badge">
-              <span class="author-label">Autor da Metodologia:</span>
-              <strong class="author-name">Daniel Gonçalves</strong>
-              <span class="verified-seal">✓ Verificado</span>
+        <div class="hero-cinematic-body">
+          <!-- Coluna Esquerda: Tipografia Monumental, Proposta de Valor e Ações -->
+          <div class="hero-cinematic-left spotlight-content">
+            <div class="spotlight-badge-row">
+              <span class="spotlight-badge-gold">★ LIVRO OFICIAL DO MÉTODO</span>
+              <span class="spotlight-rating">★★★★★ 5.0 <i>(Edição Oficial)</i></span>
+            </div>
+
+            <div class="flagship-title-group">
+              <h1 class="flagship-title">
+                <span class="title-forca">FORÇA</span>
+                <span class="title-verde">VERDE</span>
+              </h1>
+              <p class="flagship-tagline">SWING TRADE COM TENDÊNCIA</p>
+            </div>
+
+            <p class="spotlight-subtitle flagship-commercial-copy">
+              Aprenda a encontrar, operar e capturar <span class="highlight-green">grandes movimentos</span> no mercado — com estratégia, disciplina e gestão de risco.
+            </p>
+
+            <!-- Linha de Ações (CTAs) -->
+            <div class="spotlight-action-row flagship-action-row">
+              <button type="button" class="btn-hero-primary spotlight-cta-btn ${isForcaVerdeOwned ? 'is-acquired' : ''}" data-material-action="forca-verde" title="${isForcaVerdeOwned ? 'Abrir leitura na Biblioteca' : 'Garantir exemplar oficial por R$ 97,00'}">
+                <span class="btn-hero-icon">🛒</span>
+                <span class="btn-hero-text">${isForcaVerdeOwned ? 'Acessar Obra na Biblioteca' : 'GARANTIR MEU EXEMPLAR'}</span>
+                <span class="btn-hero-arrow">›</span>
+              </button>
+
+              <button type="button" class="btn-hero-secondary spotlight-detail-btn" data-material-detail="forca-verde">
+                <span>${isFvExpanded ? 'Ocultar detalhes' : 'Conhecer o método'}</span>
+                <span class="btn-hero-arrow">›</span>
+              </button>
+            </div>
+
+            <div class="hero-microcopy">
+              <span class="lock-icon">🔒</span>
+              <span>Acesso imediato • PDF HD + Kindle</span>
             </div>
           </div>
 
-          <p class="spotlight-subtitle flagship-commercial-copy">
-            Um guia completo e prático para encontrar, operar e capturar grandes movimentos no mercado, com mais disciplina, paciência e resultados consistentes.
-          </p>
-
-          <!-- Os 5 Pilares Fundamentais do Método (como na arte de capa) -->
-          <div class="flagship-pillars-strip" aria-label="Os 5 Pilares do Método Força Verde">
-            ${fvMeta.pillars.map((p) => `
-              <div class="pillar-card">
-                <div class="pillar-header">
-                  <span class="pillar-icon">${p.icon}</span>
-                  <span class="pillar-num">${p.num}</span>
-                </div>
-                <b class="pillar-title">${p.title}</b>
-                <small class="pillar-sub">${p.desc}</small>
-              </div>
-            `).join('')}
-          </div>
-
-          <!-- Linha de Ação Principal (CTA & Detalhes) -->
-          <div class="spotlight-action-row flagship-action-row">
-            <button type="button" class="spotlight-cta-btn ${isForcaVerdeOwned ? 'is-acquired' : ''}" data-material-action="forca-verde">
-              <span>${isForcaVerdeOwned ? 'Acessar Obra na Biblioteca ↗' : 'Garantir meu Exemplar — R$ 97,00'}</span>
-              ${isForcaVerdeOwned ? '' : '<span class="cta-cart-ico">🛒</span>'}
-            </button>
-
-            <button type="button" class="spotlight-detail-btn" data-material-detail="forca-verde">
-              <span>${isFvExpanded ? 'Ocultar detalhes' : 'Conhecer os detalhes da obra →'}</span>
-            </button>
-
-            <span class="spotlight-guarantee">
-              🔒 Pagamento seguro • Acesso vitalício imediato na Biblioteca • Leitura em PDF HD + formato Kindle / ePub
-            </span>
+          <!-- Coluna Direita: Mockup 3D Oficial Grande do Livro -->
+          <div class="hero-cinematic-right spotlight-book-stage flagship-stage" data-material-detail="forca-verde" title="Clique para explorar o sumário da obra">
+            <div class="hero-book-glow flagship-glow"></div>
+            <div class="hero-book-wrap flagship-book-3d">
+              <img src="assets/forca-verde-book-3d.png" alt="Capa Oficial 3D — Livro Força Verde por Daniel Gonçalves" class="hero-book-img spotlight-cover-img flagship-cover-img" />
+              <div class="hero-book-sheen spotlight-foil-reflection"></div>
+            </div>
+            <div class="hero-book-shadow flagship-shadow"></div>
+            <div class="flagship-stage-badge">
+              <span>Edição Oficial · 248 Páginas · Daniel Gonçalves</span>
+            </div>
           </div>
         </div>
 
-        <!-- Coluna Visual 3D com a Arte de Referência -->
-        <div class="spotlight-book-stage flagship-stage">
-          <div class="spotlight-ambient-glow flagship-glow"></div>
-          <div class="spotlight-3d-book flagship-book-3d">
-            <div class="spotlight-spine flagship-spine"></div>
-            <div class="spotlight-front-wrap flagship-front-wrap">
-              <img src="assets/forca-verde-banner.jpg" alt="Capa Oficial 3D — Livro Força Verde por Daniel Gonçalves" class="spotlight-cover-img flagship-cover-img" />
-              <div class="spotlight-foil-reflection"></div>
+        <!-- 2. FAIXA DE BENEFÍCIOS E PILARES DO MÉTODO (5 PILARES OFICIAIS) -->
+        <div class="hero-pillars-strip flagship-pillars-strip" aria-label="Os 5 Pilares do Método Força Verde">
+          <div class="pillar-col">
+            <div class="pillar-icon-box">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 20V10M12 20V4M6 20v-6"/>
+              </svg>
             </div>
-            <div class="spotlight-pages-rim"></div>
-            <div class="spotlight-shadow flagship-shadow"></div>
+            <div class="pillar-text">
+              <strong class="pillar-title">ENCONTRE <span class="highlight-green">OS LÍDERES</span></strong>
+              <span class="pillar-sub">Com Força Relativa (RS ≥ 80)</span>
+            </div>
           </div>
-          <div class="flagship-stage-badge">
-            <span>Edição Oficial · 248 Páginas · Healthy Trend Trader</span>
+
+          <div class="pillar-divider"></div>
+
+          <div class="pillar-col">
+            <div class="pillar-icon-box">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12c3-6 6-6 9 0s6 6 9 0"/><path d="M17 6h4v4"/>
+              </svg>
+            </div>
+            <div class="pillar-text">
+              <strong class="pillar-title">LEIA O CICLO <span class="highlight-green">DE MERCADO</span></strong>
+              <span class="pillar-sub">Sempre a favor do regime positivo</span>
+            </div>
+          </div>
+
+          <div class="pillar-divider"></div>
+
+          <div class="pillar-col">
+            <div class="pillar-icon-box">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <rect x="4" y="6" width="3" height="12" rx="0.5"/>
+                <line x1="5.5" y1="3" x2="5.5" y2="21" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="10.5" y="9" width="3" height="6" rx="0.5"/>
+                <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="17" y="5" width="3" height="14" rx="0.5"/>
+                <line x1="18.5" y1="2" x2="18.5" y2="22" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="pillar-text">
+              <strong class="pillar-title">GATILHOS OFICIAIS</strong>
+              <span class="pillar-sub">Inside Bar e 1-2-3 de Compra</span>
+            </div>
+          </div>
+
+          <div class="pillar-divider"></div>
+
+          <div class="pillar-col">
+            <div class="pillar-icon-box">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="pillar-text">
+              <strong class="pillar-title">GESTÃO DE RISCO</strong>
+              <span class="pillar-sub">Posicionamento matemático e profissional</span>
+            </div>
+          </div>
+
+          <div class="pillar-divider"></div>
+
+          <div class="pillar-col">
+            <div class="pillar-icon-box">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"/>
+                <polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </div>
+            <div class="pillar-text">
+              <strong class="pillar-title">VENDA NA FORÇA</strong>
+              <span class="pillar-sub">Capture múltiplos de risco (R)</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- Gaveta Expansível de Detalhes do Força Verde -->
+      <!-- GAVETA EXPANSÍVEL DE DETALHES DO FORÇA VERDE -->
       ${isFvExpanded ? `
-        <section class="flagship-details-drawer" id="forcaVerdeDetails">
+        <section class="flagship-details-drawer" id="forcaVerdeDetails" aria-label="Sumário da Obra Força Verde">
           <div class="drawer-header">
             <div class="drawer-header-left">
               <span class="drawer-kicker">SUMÁRIO E ESTRUTURA DA OBRA</span>
@@ -394,7 +462,7 @@
       ` : ''}
     ` : '';
 
-    // CARD DOS MATERIAIS SECUNDÁRIOS
+    // 3. RENDERIZADOR DE CARDS DE PRODUTOS DO CATÁLOGO
     const card = (item) => {
       const acquired = owned.includes(item.id);
       const isAvailable = item.available === true;
@@ -408,12 +476,12 @@
         benefits: ['Aplicação imediata no dia a dia', 'Conhecimento fundamentado no método']
       };
 
-      return `<article class="material-card material-card-${item.id} ${acquired ? 'is-acquired' : ''} ${!isAvailable ? 'is-coming-soon' : ''}" data-network="${item.id}">
+      return `<article class="material-card store-product-card material-card-${item.id} ${acquired ? 'is-acquired' : ''} ${!isAvailable ? 'is-coming-soon' : ''}" data-network="${item.id}">
         <div class="material-book-stage">
           <div class="material-3d-book">
             <div class="card-book-spine"></div>
             <div class="card-book-cover-wrap">
-              <img src="${item.cover}" alt="Capa de ${item.title}" class="card-book-front" style="${item.id === 'forca-verde' ? 'object-position: 78% 50%;' : ''}" />
+              <img src="${item.cover}" alt="Capa de ${item.title}" class="card-book-front" />
               <span class="material-type-pill ${!isAvailable ? 'pill-coming-soon' : ''}">
                 ${!isAvailable ? '⏳ EM BREVE' : `${meta.formatIco} ${meta.badge}`}
               </span>
@@ -480,35 +548,182 @@
       </article>`;
     };
 
+    // 4. SEÇÃO DESTAQUES DA LOJA (DESTAQUES EDITORIAIS PRINCIPAIS)
+    const showFeatured = !materialsLibraryOnly && !query && (materialsFilter === 'Todos' || materialsFilter === 'Livros');
+    const rubricItem = healthyMaterials.find((m) => m.id === 'rubric');
+    const riskItem = healthyMaterials.find((m) => m.id === 'risk');
+    const cycleItem = healthyMaterials.find((m) => m.id === 'cycle');
+
+    const featuredSectionMarkup = showFeatured && rubricItem ? `
+      <section class="store-featured-section" aria-label="Destaques da Metodologia">
+        <div class="store-section-header">
+          <span class="section-kicker">SELEÇÃO ESPECIAL</span>
+          <h2 class="section-title">Destaques da Metodologia</h2>
+          <p class="section-desc">Frameworks técnicos e literatura essencial para transformar o trading em um sistema matemático e profissional.</p>
+        </div>
+
+        <div class="featured-editorial-layout">
+          <!-- Card de Destaque Principal (Lead Feature) -->
+          <article class="featured-lead-card">
+            <div class="lead-card-stage">
+              <img src="${rubricItem.cover}" alt="Capa de ${rubricItem.title}" class="lead-card-cover" />
+              <div class="lead-stage-glow"></div>
+            </div>
+            <div class="lead-card-info">
+              <div class="lead-badge-row">
+                <span class="badge-featured-gold">★ METODOLOGIA OFICIAL</span>
+                <span class="badge-featured-type">Livro & Framework</span>
+                <span class="badge-featured-rating">★★★★★ 5.0 <i>(Em Breve)</i></span>
+              </div>
+              <h3 class="lead-title">${rubricItem.title}</h3>
+              <p class="lead-tagline">O Guia Mestre de Oportunidades: pontuação ponderada de setups A, B e C, eliminando operações medíocres e aplicando a fórmula matemática de dimensionamento de lote (Position Sizing).</p>
+              
+              <div class="lead-benefits-grid">
+                <div class="lead-benefit-pill">
+                  <span class="benefit-ico">🎯</span>
+                  <div>
+                    <b>Pontuação de 0 a 100</b>
+                    <small>Critérios objetivos e auditáveis</small>
+                  </div>
+                </div>
+                <div class="lead-benefit-pill">
+                  <span class="benefit-ico">📐</span>
+                  <div>
+                    <b>Position Sizing Real</b>
+                    <small>Dimensionamento matemático</small>
+                  </div>
+                </div>
+                <div class="lead-benefit-pill">
+                  <span class="benefit-ico">🛡️</span>
+                  <div>
+                    <b>Zero Subjetividade</b>
+                    <small>Filtro anti-impulso operacional</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="lead-card-footer">
+                <div class="lead-status">
+                  <span class="status-label">Disponibilidade</span>
+                  <strong class="status-val">Em Produção Editorial</strong>
+                </div>
+                <div class="lead-actions">
+                  <button type="button" class="btn-card-detail" data-material-detail="rubric">Ver Detalhes</button>
+                  <button type="button" class="btn-card-disabled" disabled aria-disabled="true">Em Breve</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Destaques Secundários em Grid Duplo -->
+          <div class="featured-dual-grid">
+            ${riskItem ? `
+              <article class="featured-sub-card">
+                <div class="sub-card-top">
+                  <img src="${riskItem.cover}" alt="Capa de ${riskItem.title}" class="sub-card-thumb" />
+                  <div>
+                    <span class="sub-badge">🛡️ GUIA ESSENCIAL</span>
+                    <h4 class="sub-title">${riskItem.title}</h4>
+                    <span class="sub-rating">★★★★★ 5.0</span>
+                  </div>
+                </div>
+                <p class="sub-copy">A Armadura Matemática do Capital: cálculo exato de R-Multiple, risco assimétrico positivo e condução de trailing stop pela EMA 10.</p>
+                <div class="sub-footer">
+                  <span class="sub-status">Em Breve</span>
+                  <button type="button" class="btn-card-detail" data-material-detail="risk">Ver Detalhes</button>
+                </div>
+              </article>
+            ` : ''}
+
+            ${cycleItem ? `
+              <article class="featured-sub-card">
+                <div class="sub-card-top">
+                  <img src="${cycleItem.cover}" alt="Capa de ${cycleItem.title}" class="sub-card-thumb" />
+                  <div>
+                    <span class="sub-badge">🧭 FRAMEWORK OFICIAL</span>
+                    <h4 class="sub-title">${cycleItem.title}</h4>
+                    <span class="sub-rating">★★★★★ 4.9</span>
+                  </div>
+                </div>
+                <p class="sub-copy">O Termômetro dos 4 Regimes de Mercado: mapeamento do Ibovespa e S&P 500, protegendo o capital em transições defensivas.</p>
+                <div class="sub-footer">
+                  <span class="sub-status">Em Breve</span>
+                  <button type="button" class="btn-card-detail" data-material-detail="cycle">Ver Detalhes</button>
+                </div>
+              </article>
+            ` : ''}
+          </div>
+        </div>
+      </section>
+    ` : '';
+
+    // 5. MEU ACERVO PESSOAL INTEGRADO
     const libraryProducts = healthyMaterials.filter((item) => owned.includes(item.id));
-    const library = libraryProducts.length
+    const libraryItemsMarkup = libraryProducts.length
       ? libraryProducts.map((item) => `
-          <div class="library-item">
-            <div class="library-item-thumb">
-              <img src="${item.cover}" alt="${item.title}" style="${item.id === 'forca-verde' ? 'object-position: 78% 50%;' : ''}">
+          <div class="acervo-item-card">
+            <div class="acervo-item-cover-wrap">
+              <img src="${item.id === 'forca-verde' ? 'assets/forca-verde-book-3d.png' : item.cover}" alt="${item.title}" class="acervo-item-cover" />
             </div>
-            <div>
-              <b>${item.title}</b>
-              <small>${item.type} · Acesso vitalício</small>
+            <div class="acervo-item-content">
+              <div class="acervo-item-header">
+                <span class="acervo-item-tag">✓ Adquirido · Acesso Vitalício</span>
+                <h4 class="acervo-item-title">${item.title}</h4>
+                <small class="acervo-item-meta">${item.type} · Metodologia Oficial</small>
+              </div>
+              <div class="acervo-item-actions">
+                <button type="button" class="btn-acervo-open" data-material-action="${item.id}">
+                  <span>Abrir Obra</span> ↗
+                </button>
+              </div>
             </div>
-            <button type="button" data-material-action="${item.id}">Abrir ↗</button>
           </div>
         `).join('')
-      : '<p class="library-empty">Nenhum material adquirido ainda. Garanta seu exemplar de <b>Força Verde</b> no topo para iniciar seu acervo pessoal.</p>';
+      : `
+        <div class="acervo-empty-state">
+          <div class="acervo-empty-icon">🏛</div>
+          <div class="acervo-empty-text">
+            <h3>Sua estante pessoal de materiais</h3>
+            <p>Você ainda não possui obras adquiridas na sua biblioteca. Ao garantir o livro <b>Força Verde</b> ou adquirir materiais oficiais do método, eles ficarão salvos aqui com acesso imediato e vitalício.</p>
+          </div>
+          <button type="button" class="btn-acervo-cta" data-material-action="forca-verde">Garantir Força Verde no Topo ↑</button>
+        </div>
+      `;
 
+    // MONTAGEM GERAL DA PÁGINA (ESTRUTURA EDITORIAL COMMERCIAL EM FLUXO COMPLETO)
     root.innerHTML = `<main class="materials-page materials-v2">
+      <!-- 1. Hero Cinematográfico Força Verde -->
       ${heroSpotlightMarkup}
 
-      <section class="materials-toolbar">
-        <nav class="materials-filters">
-          ${categories.map((category) => `
-            <button type="button" class="${!materialsLibraryOnly && materialsFilter === category ? 'active' : ''}" data-material-filter="${category}">
-              ${category}
-            </button>
-          `).join('')}
+      <!-- 2. Barra de Navegação Comercial por Categorias e Ferramentas -->
+      <section class="store-nav-strip">
+        <nav class="materials-filters" aria-label="Filtro de Categorias">
+          ${categories.map((category) => {
+            const count = category === 'Todos'
+              ? secondaryMaterials.length
+              : secondaryMaterials.filter((i) => i.type === categoryMap[category]).length;
+            const isActive = !materialsLibraryOnly && materialsFilter === category;
+            return `
+              <button type="button" class="${isActive ? 'active' : ''}" data-material-filter="${category}">
+                <span>${category}</span>
+                <small class="category-count">(${count})</small>
+              </button>
+            `;
+          }).join('')}
         </nav>
-        <div class="materials-tools">
-          <label class="materials-search">⌕ <input id="materialsSearch" value="${safe(materialsQuery)}" placeholder="Buscar materiais..."></label>
+
+        <div class="store-nav-tools">
+          <button type="button" class="btn-store-library-shortcut ${materialsLibraryOnly ? 'active' : ''}" data-material-library="${!materialsLibraryOnly}" title="Visualizar apenas obras adquiridas na sua estante">
+            <span>🏛</span> Meu Acervo <span class="badge-acervo-count">${owned.length}</span>
+          </button>
+
+          <label class="materials-search">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input id="materialsSearch" value="${safe(materialsQuery)}" placeholder="Buscar materiais...">
+          </label>
+
           <select id="materialsSort" aria-label="Ordenar materiais">
             <option value="recent" ${materialsSort === 'recent' ? 'selected' : ''}>Mais recentes</option>
             <option value="price-asc" ${materialsSort === 'price-asc' ? 'selected' : ''}>Menor preço</option>
@@ -517,86 +732,107 @@
         </div>
       </section>
 
-      <section class="materials-layout">
-        <div class="materials-catalog">
-          <header class="materials-heading">
-            <h2>${materialsLibraryOnly ? 'Meu Acervo de Obras' : 'Catálogo de Materiais & Estudos Futuros'}</h2>
-            <p>${materialsLibraryOnly ? 'Materiais adquiridos prontos para consulta imediata.' : 'Literatura técnica, frameworks operacionais e guias práticos em produção editorial.'}</p>
-          </header>
-          <div class="materials-grid">
-            ${visible.map(card).join('') || '<div class="materials-empty">Nenhum material encontrado nesta seleção.</div>'}
+      <!-- 3. Seção Destaques da Loja (quando aplicável) -->
+      ${featuredSectionMarkup}
+
+      <!-- 4. Catálogo Completo (Grade Editorial Full-Width) -->
+      <section class="store-catalog-section" aria-label="Catálogo de Obras">
+        <div class="store-section-header">
+          <div class="section-header-row">
+            <div>
+              <span class="section-kicker">${materialsLibraryOnly ? 'SUA COLEÇÃO' : 'VITRINE COMPLETA'}</span>
+              <h2 class="section-title">${materialsLibraryOnly ? 'Meu Acervo de Obras' : 'Catálogo de Materiais & Obras Futuras'}</h2>
+              <p class="section-desc">${materialsLibraryOnly ? 'Materiais adquiridos prontos para consulta e leitura imediata.' : 'Literatura técnica, frameworks operacionais e manuais práticos da metodologia.'}</p>
+            </div>
+            <span class="store-results-count">${visible.length} ${visible.length === 1 ? 'material encontrado' : 'materiais encontrados'}</span>
           </div>
-          <footer class="materials-method-footer">MÉTODO <i>·</i> PROCESSO <i>·</i> DISCIPLINA <i>·</i> LIBERDADE</footer>
         </div>
 
-        <aside class="materials-library">
-          <section class="materials-library-card">
-            <header>
-              <h2><span>🏛</span> Meu Acervo Pessoal</h2>
-              <button type="button" data-material-library="${!materialsLibraryOnly}">
-                ${materialsLibraryOnly ? 'Ver Catálogo Completo' : 'Filtrar Adquiridos (' + owned.length + ')'}
-              </button>
-            </header>
-            <small>Sua estante de materiais do método.</small>
-            <div class="library-items-list">${library}</div>
-          </section>
-
-          <section class="materials-promo">
-            <div class="materials-promo-copy">
-              <span class="promo-kicker">INVESTIMENTO EM VOCÊ</span>
-              <h2>Mais conhecimento.<br>Mais consistência.</h2>
-              <p>O melhor retorno sobre investimento no mercado financeiro começa pelo domínio profundo do seu método.</p>
-              <button type="button" data-material-library="false">Explorar catálogo →</button>
-            </div>
-            <div class="materials-book-spines">
-              <span>Força</span>
-              <span>Rubric</span>
-              <span>Ciclo</span>
-              <span>Risco</span>
-            </div>
-          </section>
-
-          <section class="materials-support">
-            <div class="support-icon">💬</div>
-            <div>
-              <b>Suporte VIP de Conhecimento</b>
-              <p>Dúvidas sobre os materiais, acesso aos arquivos ou aplicação no software? Fale direto com nossa equipe.</p>
-              <button type="button" data-material-support>Acessar suporte via WhatsApp</button>
-            </div>
-          </section>
-
-          <section class="materials-footer-art">
-            <em>“Um trader melhor<br>a cada dia.”</em>
-          </section>
-        </aside>
+        <div class="materials-grid store-full-grid">
+          ${visible.map(card).join('') || '<div class="materials-empty">Nenhum material encontrado nesta seleção.</div>'}
+        </div>
       </section>
+
+      <!-- 5. Seção Meu Acervo Pessoal Integrada (quando no modo geral) -->
+      ${!materialsLibraryOnly ? `
+        <section class="store-my-library-section" id="myPersonalLibrarySection" aria-label="Meu Acervo Pessoal">
+          <div class="store-section-header">
+            <span class="section-kicker">SUA ESTANTE PESSOAL</span>
+            <h2 class="section-title">🏛 Meu Acervo Pessoal</h2>
+            <p class="section-desc">Seus materiais adquiridos com acesso vitalício imediato na plataforma.</p>
+          </div>
+          <div class="acervo-items-grid">
+            ${libraryItemsMarkup}
+          </div>
+        </section>
+      ` : ''}
+
+      <!-- 6. Faixa Editorial de Suporte VIP WhatsApp -->
+      <section class="store-support-banner" aria-label="Suporte VIP de Conhecimento">
+        <div class="support-banner-content">
+          <div class="support-banner-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+              <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/>
+            </svg>
+          </div>
+          <div class="support-banner-text">
+            <span class="support-kicker">SUPORTE VIP DE CONHECIMENTO</span>
+            <h3 class="support-title">Dúvidas sobre os materiais ou aplicação prática?</h3>
+            <p class="support-desc">Fale direto com nossa equipe pelo WhatsApp. Orientação sobre acesso aos arquivos, formatos digitais ou dúvidas da metodologia.</p>
+          </div>
+        </div>
+        <button type="button" class="btn-support-whatsapp" data-material-support>
+          <span>Falar no WhatsApp com Especialista</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </section>
+
+      <!-- 7. Citação Institucional e Rodapé Editorial -->
+      <footer class="store-editorial-footer">
+        <blockquote class="store-quote">
+          “O melhor retorno sobre investimento no mercado financeiro começa pelo domínio profundo do seu método.”
+        </blockquote>
+        <div class="store-mantra">
+          <span>MÉTODO</span> <i>·</i> <span>PROCESSO</span> <i>·</i> <span>DISCIPLINA</span> <i>·</i> <span>LIBERDADE</span>
+        </div>
+      </footer>
     </main>`;
 
+    // Eventos e Interações
     root.querySelector('#materialsSearch').oninput = (event) => {
       materialsQuery = event.target.value;
       renderMaterials();
       document.getElementById('materialsSearch')?.focus();
     };
+
     root.querySelector('#materialsSort').onchange = (event) => {
       materialsSort = event.target.value;
       renderMaterials();
     };
+
     root.querySelectorAll('[data-material-filter]').forEach((button) => (button.onclick = () => {
       materialsLibraryOnly = false;
       materialsFilter = button.dataset.materialFilter;
       renderMaterials();
     }));
+
     root.querySelectorAll('[data-material-library]').forEach((button) => (button.onclick = () => {
       materialsLibraryOnly = button.dataset.materialLibrary === 'true';
       renderMaterials();
+      if (materialsLibraryOnly) {
+        document.querySelector('.store-catalog-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }));
+
     root.querySelectorAll('[data-material-detail]').forEach((button) => (button.onclick = () => {
-      materialsDetail = materialsDetail === button.dataset.materialDetail ? null : button.dataset.materialDetail;
+      const targetId = button.dataset.materialDetail;
+      materialsDetail = materialsDetail === targetId ? null : targetId;
       renderMaterials();
       if (materialsDetail === 'forca-verde') {
         document.getElementById('forcaVerdeDetails')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }));
+
     root.querySelectorAll('[data-material-action]').forEach((button) => (button.onclick = () => {
       const id = button.dataset.materialAction;
       if (owned.includes(id)) {
@@ -605,6 +841,7 @@
         acquireMaterial(id);
       }
     }));
+
     root.querySelector('[data-material-support]').onclick = () =>
       showToast('O suporte está disponível pelo WhatsApp no canto inferior direito.');
 
