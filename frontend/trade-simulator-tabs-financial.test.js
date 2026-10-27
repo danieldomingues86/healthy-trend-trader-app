@@ -14,7 +14,7 @@ function createSampleSimulations() {
       companyName: 'Petrobras PN',
       sector: 'Petróleo e Gás',
       triggerName: 'Inside Bar',
-      grade: 'A+',
+      grade: 'A',
       signalDate: '2026-01-10',
       entryDate: '2026-01-11',
       entryPrice: 30.00,
@@ -142,7 +142,7 @@ test('Rebuild Aba 1 — 1. Capital Inicial é personalizável e dimensiona o ris
   assert.ok(tradeA250k.shares > tradeA100k.shares, 'Quantidade de ações deve ser maior no capital superior');
 });
 
-test('Rebuild Aba 1 — 2. Atribuição Financeira por Grade e Bloqueio Categórico de Grade D', () => {
+test('Rebuild Aba 1 — 2. Atribuição Financeira por Grade (apenas A, B, C; sem A+ e sem Grade D no simulador)', () => {
   const sims = createSampleSimulations();
 
   const report = TradeSimulatorModel.runRubricPortfolioSimulation(sims, {
@@ -154,22 +154,16 @@ test('Rebuild Aba 1 — 2. Atribuição Financeira por Grade e Bloqueio Categór
   const gb = report.qualityAndSizing.gradeBreakdown;
   assert.ok(gb, 'gradeBreakdown deve existir no relatório');
 
-  // Grades esperadas
-  assert.ok(gb['A+'], 'Grade A+ deve estar presente');
+  // Grades estritamente válidas e operadas no simulador: A, B, C (sem A+ e sem D)
+  assert.equal(gb['A+'], undefined, 'Grade A+ não deve existir no gradeBreakdown');
   assert.ok(gb['A'], 'Grade A deve estar presente');
   assert.ok(gb['B'], 'Grade B deve estar presente');
   assert.ok(gb['C'], 'Grade C deve estar presente');
-  assert.ok(gb['D'], 'Grade D deve estar presente');
+  assert.equal(gb['D'], undefined, 'Grade D não deve ser considerado ou exibido no simulador');
 
-  // No Modo Oficial, Grade D tem risco 0% e 0 trades executados
-  assert.equal(gb['D'].count, 0, 'Grade D deve ter 0 trades executados no Modo Oficial');
-  assert.equal(gb['D'].netPnL, 0, 'Grade D deve ter R$ 0,00 de resultado no Modo Oficial');
-  assert.equal(gb['D'].contribPct, 0, 'Grade D deve ter 0% de contribuição no Modo Oficial');
-  assert.equal(gb['D'].avgRiskPct, 0, 'Grade D deve ter 0,00% de risco médio');
-
-  // Verificação de integridade matemática: soma dos PnLs das grades == PnL total líquido
+  // Verificação de integridade matemática: soma dos PnLs das grades operadas == PnL total líquido
   let sumGradePnL = 0;
-  for (const gr of ['A+', 'A', 'B', 'C', 'D']) {
+  for (const gr of ['A', 'B', 'C']) {
     sumGradePnL += gb[gr].netPnL || 0;
   }
 
@@ -178,9 +172,9 @@ test('Rebuild Aba 1 — 2. Atribuição Financeira por Grade e Bloqueio Categór
     `A soma dos resultados por Grade (R$ ${sumGradePnL}) deve ser idêntica ao Net PnL total (R$ ${report.netPnL})`
   );
 
-  // Verificação da Grade de maior contribuição
+  // Verificação da Grade de maior contribuição (entre A, B e C)
   assert.ok(report.topPositiveGrade, 'topPositiveGrade deve estar preenchido');
-  assert.ok(['A+', 'A', 'B', 'C'].includes(report.topPositiveGrade));
+  assert.ok(['A', 'B', 'C'].includes(report.topPositiveGrade));
 });
 
 test('Rebuild Aba 3 — 3. Análise por Ativo agrega métricas e contribuição monetária', () => {
@@ -285,6 +279,10 @@ test('Rebuild UI & CSS — 6. Arquivo trade-simulator.js implementa as 5 abas e 
   assert.ok(jsContent.includes('simBtnExecute'), 'Deve conter botão Executar Simulação');
   assert.ok(jsContent.includes('simCapitalInput'), 'Deve conter input de capital inicial');
   assert.ok(jsContent.includes('simBtnRubricModeToggle'), 'Deve conter alternador de Modo Rubric');
+
+  // Validação estrita de Grades no Simulador: A, B, C apenas (sem A+ e sem D)
+  assert.ok(jsContent.includes("const gradesList = ['A', 'B', 'C'];"), 'Tabela de resultados por grade deve listar estritamente A, B e C');
+  assert.ok(!jsContent.includes("['A+', 'A', 'B', 'C', 'D']"), 'Não deve conter A+ ou D na lista de grades da tabela de resultados');
 
   // Verifica classes CSS do Rebuild no arquivo trade-simulator.css
   const cssContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.css'), 'utf8');

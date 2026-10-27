@@ -958,7 +958,7 @@
             </div>
             <h3 class="sim-rubric-banner-heading">Aplicação do Método: Trading Rubric, Bet Sizing e Gestão de Risco</h3>
             <p class="sim-rubric-banner-sub">
-              Dimensionamento causal trade a trade no Diário: Orçamento por Grade (A+/A/B/C), prioridade por Força Relativa (RS 95-100), bloqueio categórico de Grade D e controle de Portfolio Heat.
+              Dimensionamento causal trade a trade no Diário: Orçamento por Grade (A/B/C), prioridade por Força Relativa (RS 95-100), bloqueio categórico de Grade D e controle de Portfolio Heat.
             </p>
           </div>
           <div class="sim-rubric-banner-actions">
@@ -1101,13 +1101,6 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td><span class="sim-grade-badge grade-a">A+</span></td>
-                      <td>Rare Trade (Confluência Máxima)</td>
-                      <td>${grades['A+']?.count || 0}</td>
-                      <td>${grades['A+']?.winRate || 0}%</td>
-                      <td>${formatR(grades['A+']?.expectancyR || 0)}</td>
-                    </tr>
-                    <tr>
                       <td><span class="sim-grade-badge grade-a">A</span></td>
                       <td>Alta Qualidade (Edge Forte)</td>
                       <td>${grades['A']?.count || 0}</td>
@@ -1127,13 +1120,6 @@
                       <td>${grades['C']?.count || 0}</td>
                       <td>${grades['C']?.winRate || 0}%</td>
                       <td>${formatR(grades['C']?.expectancyR || 0)}</td>
-                    </tr>
-                    <tr>
-                      <td><span class="sim-grade-badge grade-d">D</span></td>
-                      <td>Sem Edge (Bloqueio Automático)</td>
-                      <td>0</td>
-                      <td>—</td>
-                      <td>Risco 0,00%</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1683,7 +1669,7 @@
 
     const gradeBreakdown = rubricReport?.qualityAndSizing?.gradeBreakdown || {};
 
-    const gradesList = ['A+', 'A', 'B', 'C', 'D'];
+    const gradesList = ['A', 'B', 'C'];
     const rowsHtml = gradesList.map(gr => {
       const gData = gradeBreakdown[gr] || {
         grade: gr,
@@ -1691,7 +1677,7 @@
         winRate: 0,
         totalR: 0,
         netPnL: 0,
-        avgRiskPct: (gr === 'A+' ? 0.50 : (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : (gr === 'C' ? 0.10 : 0.00)))),
+        avgRiskPct: (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10)),
         contribPct: 0
       };
 
@@ -1699,13 +1685,11 @@
       const isPositive = gData.netPnL >= 0;
       const rValFormatted = hasTrades ? `${gData.totalR >= 0 ? '+' : ''}${gData.totalR.toFixed(2).replace('.', ',')}R` : '0,00R';
       const pnlFormatted = hasTrades ? `${isPositive ? '+ ' : '- '}R$ ${formatMoney(Math.abs(gData.netPnL)).replace('R$ ', '')}` : 'R$ 0,00';
-      const contribFormatted = hasTrades ? `${gData.contribPct >= 0 ? '' : ''}${gData.contribPct.toFixed(1).replace('.', ',')}%` : (gr === 'D' ? '0,0% (Bloqueado)' : '0,0%');
+      const contribFormatted = hasTrades ? `${gData.contribPct.toFixed(1).replace('.', ',')}%` : '0,0%';
       const barWidth = hasTrades ? Math.min(100, Math.max(4, Math.abs(gData.contribPct))) : 0;
       const barColorClass = isPositive ? 'pos' : 'neg';
 
-      const riskLabel = hasTrades
-        ? `${gData.avgRiskPct.toFixed(2).replace('.', ',')}%`
-        : (gr === 'D' ? '0,00%' : `${gData.avgRiskPct.toFixed(2).replace('.', ',')}%`);
+      const riskLabel = `${gData.avgRiskPct.toFixed(2).replace('.', ',')}%`;
 
       return `
         <tr>

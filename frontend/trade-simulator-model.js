@@ -7726,7 +7726,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         id: 'grade_quality',
         number: 7,
         title: 'Qualidade do Setup (Trading Rubric)',
-        summary: 'Apenas Notas A+, A, B e C são elegíveis para execução conforme Risk Budget. Nota D possui orçamento de risco 0,00% (bloqueio automático).',
+        summary: 'Apenas Notas A, B e C são elegíveis para execução conforme Risk Budget. Nota D possui orçamento de risco 0,00% (bloqueio automático).',
         detail: 'Exige pontuação técnica (≥ 50 pontos), volatilidade controlada e conformidade com os gates do método.',
         status: 'Ativa',
         statusKey: 'active',
@@ -8181,7 +8181,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     // 6. Resolução via TradingRubrics compartilhado
     let rubricScore = 80;
     let rubricResult = null;
-    let resolvedGrade = String(sim.grade || sim.rubricGrade || '').trim().toUpperCase();
+    const rawSimGrade = String(sim.grade || sim.rubricGrade || '').trim().toUpperCase();
+    let resolvedGrade = rawSimGrade && rawSimGrade !== 'AUTO' ? normalizeSimulatorGrade(rawSimGrade) : '';
 
     if (TradingRubrics && typeof TradingRubrics.calculateRubric === 'function') {
       rubricResult = TradingRubrics.calculateRubric({
@@ -8201,14 +8202,13 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         resolvedGrade = rubricResult.grade || 'C';
       }
     } else {
-      rubricScore = sim.rubricScore || (resolvedGrade === 'A+' ? 96 : (resolvedGrade === 'A' ? 88 : (resolvedGrade === 'B' ? 76 : (resolvedGrade === 'C' ? 60 : 40))));
-      if (!resolvedGrade) resolvedGrade = rubricScore >= 95 ? 'A+' : (rubricScore >= 85 ? 'A' : (rubricScore >= 70 ? 'B' : (rubricScore >= 50 ? 'C' : 'D')));
+      rubricScore = sim.rubricScore || (resolvedGrade === 'A' ? 88 : (resolvedGrade === 'B' ? 76 : (resolvedGrade === 'C' ? 60 : 40)));
+      if (!resolvedGrade) resolvedGrade = rubricScore >= 85 ? 'A' : (rubricScore >= 70 ? 'B' : (rubricScore >= 50 ? 'C' : 'D'));
     }
 
     // Risk Budget nominal pelo Grade
     let baseRiskBudgetPct = 0.004; // 0.40% padrão para A
-    if (resolvedGrade === 'A+') baseRiskBudgetPct = 0.005;
-    else if (resolvedGrade === 'A') baseRiskBudgetPct = 0.004;
+    if (resolvedGrade === 'A') baseRiskBudgetPct = 0.004;
     else if (resolvedGrade === 'B') baseRiskBudgetPct = 0.002;
     else if (resolvedGrade === 'C') baseRiskBudgetPct = 0.001;
     else if (resolvedGrade === 'D') baseRiskBudgetPct = isOfficialMode ? 0.00 : 0.002;
@@ -8433,7 +8433,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       byRiskLimits: 0
     };
 
-    const gradeCounts = { 'A+': 0, 'A': 0, 'B': 0, 'C': 0, 'D': 0, BLOCKED: 0 };
+    const gradeCounts = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, BLOCKED: 0 };
     const rsBandCounts = { '95-100': 0, '90-94': 0, '80-89': 0, '<80': 0 };
     let reducedSizeTradesCount = 0;
     let totalRsSum = 0;
@@ -8656,8 +8656,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     let topPositiveGrade = null;
     let maxGradePnL = 0;
 
-    ['A+', 'A', 'B', 'C', 'D'].forEach(gr => {
-      const gTrades = executedTrades.filter(t => (t.evaluation && t.evaluation.grade === gr) || t.grade === gr);
+    ['A', 'B', 'C'].forEach(gr => {
+      const gTrades = executedTrades.filter(t => normalizeSimulatorGrade((t.evaluation && t.evaluation.grade) || t.grade) === gr);
       const gWins = gTrades.filter(t => (t.netPnL != null ? t.netPnL : 0) > 0);
       const gTotalR = gTrades.reduce((acc, t) => acc + (t.netResultR != null ? t.netResultR : (t.resultR != null ? t.resultR : 0)), 0);
       const gNetPnL = gTrades.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0);
@@ -8667,7 +8667,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       const gTotalRiskPct = gTrades.reduce((acc, t) => acc + (t.authorizedRiskPct != null ? t.authorizedRiskPct : 0), 0);
 
       const avgRiskCash = gTrades.length > 0 ? gTotalRiskCash / gTrades.length : 0;
-      const defaultRiskPct = gr === 'A+' ? 0.50 : (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : (gr === 'C' ? 0.10 : 0.00)));
+      const defaultRiskPct = gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10);
       const avgRiskPct = gTrades.length > 0 ? gTotalRiskPct / gTrades.length : defaultRiskPct;
       const contribPct = totalNetPnL !== 0 ? Number(((gNetPnL / totalNetPnL) * 100).toFixed(1)) : 0;
 
@@ -8693,8 +8693,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
     if (!topPositiveGrade && executedTrades.length > 0) {
       let bestPnL = -Infinity;
-      ['A+', 'A', 'B', 'C', 'D'].forEach(gr => {
-        if (gradeBreakdown[gr].count > 0 && gradeBreakdown[gr].netPnL > bestPnL) {
+      ['A', 'B', 'C'].forEach(gr => {
+        if (gradeBreakdown[gr] && gradeBreakdown[gr].count > 0 && gradeBreakdown[gr].netPnL > bestPnL) {
           bestPnL = gradeBreakdown[gr].netPnL;
           topPositiveGrade = gr;
         }
@@ -8903,7 +8903,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         return name === triggerName;
       });
 
-      const grades = ['ALL', 'A+', 'A', 'B', 'C'];
+      const grades = ['ALL', 'A', 'B', 'C'];
       const gradeStats = {};
 
       grades.forEach(gr => {

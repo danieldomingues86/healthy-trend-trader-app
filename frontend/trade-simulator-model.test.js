@@ -1717,7 +1717,7 @@ test('trade-simulator-model: buildOfficialRulesPanelData inclui regra de Qualida
   assert.ok(gradeRule, 'Deve existir a regra grade_quality no painel');
   assert.equal(gradeRule.status, 'Ativa');
   assert.equal(gradeRule.blockedCount, 15);
-  assert.match(gradeRule.summary, /Apenas Notas A\+, A, B e C/);
+  assert.match(gradeRule.summary, /Apenas Notas A, B e C/);
   assert.match(gradeRule.summary, /Nota D possui orçamento de risco 0,00%/);
 });
 
@@ -1725,7 +1725,7 @@ test('trade-simulator-model: computeSnapshotNavInfo navega trade a trade com set
   const sampleList = [
     { id: 'sim-1', symbol: 'PETR4', grade: 'A' },
     { id: 'sim-2', symbol: 'VALE3', grade: 'B' },
-    { id: 'sim-3', symbol: 'ITUB4', grade: 'A+' }
+    { id: 'sim-3', symbol: 'ITUB4', grade: 'C' }
   ];
 
   // 1. Primeiro trade (sim-1)
