@@ -856,6 +856,8 @@
         return true;
       });
     }
+    // Remove operações incompletas/censuradas da exibição da tabela conforme solicitação
+    source = source.filter(s => s && s.status !== 'INCOMPLETE' && !s.isIncomplete);
     let filtered;
     if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.filterSimulations !== 'function') {
       filtered = source;
@@ -1751,22 +1753,6 @@
           <p class="sim-kpi-sub">Operações finalizadas no período.</p>
         </div>
 
-        <!-- Card 2: Operações incompletas / Excluídas da Amostra -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-orange">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <circle cx="12" cy="16" r="0.5" fill="currentColor"></circle>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Operações incompletas</span>
-          </div>
-          <div class="sim-kpi-val">${stats.incompleteCount != null ? stats.incompleteCount : stats.inOperationCount}</div>
-          <p class="sim-kpi-sub">${(stats.incompleteCount || stats.inOperationCount) > 0 ? 'Excluídas da amostra (sem saída até o fim dos dados).' : 'Nenhuma operação excluída.'}</p>
-        </div>
-
         <!-- Card 3: Trades vencedores -->
         <div class="sim-kpi-card">
           <div class="sim-kpi-top">
@@ -2343,6 +2329,9 @@
       closedCounts.breakeven = closedBase.filter(s => Number(s.resultR) === 0 || Math.abs(Number(s.resultR) || 0) < 0.0001).length;
     }
 
+    const incompleteCount = stats.incompleteCount != null ? stats.incompleteCount : (stats.inOperationCount || 0);
+    const displayedTotal = Math.max(0, (stats.totalCreated || 0) - incompleteCount);
+
     return `
       <div class="sim-table-card">
         <div class="sim-table-toolbar">
@@ -2350,7 +2339,7 @@
           <div class="sim-status-tabs">
             <button class="sim-tab-btn ${activeTab === 'ALL' ? 'active' : ''}" data-tab="ALL" type="button" title="Exibir todos os registros históricos do cenário">
               <span>●</span>
-              <span>Todos (${stats.totalCreated})</span>
+              <span>Todos (${displayedTotal})</span>
             </button>
             <button class="sim-tab-btn ${activeTab === 'CLOSED' ? 'active' : ''}" data-tab="CLOSED" type="button" title="Apenas operações efetivamente finalizadas e elegíveis para a amostra principal">
               <span class="sim-tab-dot dot-blue"></span>
@@ -2359,10 +2348,6 @@
             <button class="sim-tab-btn ${activeTab === 'NOT_TRIGGERED' ? 'active' : ''}" data-tab="NOT_TRIGGERED" type="button" title="Sinais históricos cujo preço de entrada não foi atingido em T+1">
               <span class="sim-tab-dot dot-gray"></span>
               <span>Não Acionados (${stats.notTriggeredCount})</span>
-            </button>
-            <button class="sim-tab-btn ${activeTab === 'INCOMPLETE' ? 'active' : ''}" data-tab="INCOMPLETE" type="button" title="Operações com entrada executada mas sem saída até o fim da cobertura de dados (excluídas dos resultados)">
-              <span class="sim-tab-dot dot-orange"></span>
-              <span>Incompletos / Excluídos (${stats.incompleteCount != null ? stats.incompleteCount : stats.inOperationCount})</span>
             </button>
           </div>
 

@@ -1,6 +1,8 @@
 'use strict';
 
 const test = require('node:test');
+const fs = require('node:fs');
+const path = require('node:path');
 const assert = require('node:assert/strict');
 const TradeSimulatorModel = require('./trade-simulator-model');
 
@@ -282,4 +284,22 @@ test('Critério 6 — Filtros da interface histórica organizam claramente as ca
   // Aba Todos: retorna todos os registros históricos do cenário
   const allRecords = TradeSimulatorModel.filterSimulations(simulations, { tab: 'ALL' });
   assert.equal(allRecords.length, 4);
+});
+
+test('Critério 7 — Interface do Simulador não expõe aba nem KPI de Incompletos / Excluídos conforme solicitação do usuário', () => {
+  const simJs = fs.readFileSync(path.join(__dirname, 'trade-simulator.js'), 'utf8');
+  const simCss = fs.readFileSync(path.join(__dirname, 'trade-simulator.css'), 'utf8');
+
+  // 1. Aba INCOMPLETE deve estar completamente removida da barra de abas da tabela
+  assert.ok(!simJs.includes('data-tab="INCOMPLETE"'), 'Aba INCOMPLETE não deve existir na UI');
+  assert.ok(!simJs.includes('Incompletos / Excluídos ('), 'Texto de aba Incompletos não deve existir na UI');
+
+  // 2. KPI Card Operações incompletas deve estar removido
+  assert.ok(!simJs.includes('<span class="sim-kpi-title">Operações incompletas</span>'), 'KPI Card Operações incompletas deve ser removido');
+
+  // 3. Grid de KPIs deve ter 7 colunas proporcionais
+  assert.ok(simCss.includes('grid-template-columns: repeat(7, minmax(0, 1fr));'), 'Grid deve ter 7 colunas simétricas');
+
+  // 4. Operações incompletas devem ser expurgadas da listagem da tabela
+  assert.ok(simJs.includes("source.filter(s => s && s.status !== 'INCOMPLETE' && !s.isIncomplete)"), 'getFilteredSimulations deve expurgar incompletos');
 });
