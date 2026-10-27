@@ -296,3 +296,36 @@ test('Rebuild UI & CSS — 6. Arquivo trade-simulator.js implementa as 5 abas e 
   assert.ok(cssContent.includes('.sim-rebuild-kpis-grid'), 'CSS deve conter .sim-rebuild-kpis-grid');
   assert.ok(cssContent.includes('.sim-rebuild-info-banner'), 'CSS deve conter .sim-rebuild-info-banner');
 });
+
+
+test('Refinamento Premium — 7. Separação visual das abas, botão Ver Análise corrigido e ações diretas no cabeçalho', () => {
+  const jsContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.js'), 'utf8');
+  const cssContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.css'), 'utf8');
+
+  // 1. Área de navegação de abas com container dedicado
+  assert.ok(jsContent.includes('sim-screen-tabs-container'), 'renderScreenTabs deve conter container dedicado .sim-screen-tabs-container');
+  assert.ok(cssContent.includes('.sim-screen-tabs-container'), 'CSS deve conter estilo para .sim-screen-tabs-container');
+  assert.ok(jsContent.includes('sim-tab-icon'), 'Abas devem conter ícones visuais para hierarquia');
+  assert.ok(jsContent.includes('sim-tab-label'), 'Abas devem conter labels claros com indicador');
+
+  // 2. Botão Ver Análise corrigido na Lista de Trades
+  assert.ok(jsContent.includes('sim-btn-view-analysis'), 'Lista de trades deve usar classe específica .sim-btn-view-analysis');
+  assert.ok(cssContent.includes('.sim-btn-view-analysis'), 'CSS deve conter regras específicas para .sim-btn-view-analysis');
+  assert.ok(cssContent.includes('min-width: 104px'), 'CSS deve garantir largura mínima suficiente para o texto');
+  assert.ok(cssContent.includes('white-space: nowrap'), 'CSS deve proibir quebra inadequada de texto no botão');
+  assert.ok(jsContent.includes('width: 125px'), 'Cabeçalho da coluna Ações deve ter largura explícita');
+
+  // 3. Ações Diretas no Cabeçalho
+  assert.ok(jsContent.includes('sim-header-actions-group'), 'Cabeçalho deve agrupar ações com hierarquia visual clara');
+  assert.ok(jsContent.includes('id="simBtnExecute"'), 'Executar Simulação deve ser o botão principal');
+  assert.ok(jsContent.includes('id="simBtnCompareModal"'), 'Comparar Cenários deve estar diretamente visível no cabeçalho');
+  assert.ok(jsContent.includes('id="simBtnMassModal"'), 'Gerar Massa de Teste deve estar diretamente visível no cabeçalho');
+  assert.ok(cssContent.includes('.sim-btn-header-secondary'), 'CSS deve ter estilo secundário elegante para Comparar e Gerar Massa');
+
+  // 4. Menu Mais Opções (···) preservado para ações menos frequentes
+  assert.ok(jsContent.includes('id="simBtnMoreDropdown"'), 'Menu de três pontos deve continuar disponível');
+  assert.ok(jsContent.includes('id="simMoreBtnAudit"'), 'Auditoria deve estar no menu de opções adicionais');
+  assert.ok(jsContent.includes('id="simMoreBtnEvaluate"'), 'Reavaliar candles deve estar no menu de opções adicionais');
+  assert.ok(jsContent.includes('id="simMoreBtnExport"'), 'Exportar deve estar no menu de opções adicionais');
+  assert.ok(jsContent.includes('id="simMoreBtnClear"'), 'Excluir deve estar no menu de opções adicionais');
+});

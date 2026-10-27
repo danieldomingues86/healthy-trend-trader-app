@@ -1469,7 +1469,7 @@
                   ${getSortHeader('resultR', 'Resultado (R)')}
                   ${getSortHeader('mfeR', 'MFE (R)')}
                   ${getSortHeader('maeR', 'MAE (R)')}
-                  <th style="text-align: center;">Ações</th>
+                  <th style="text-align: center; width: 125px; min-width: 120px;">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -1593,23 +1593,59 @@
 
   function renderScreenTabs() {
     return `
-      <div class="sim-screen-tabs-bar">
-        <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'summary' ? 'active' : ''}" data-screen-tab="summary">
-          Resumo
-        </button>
-        <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'trades' ? 'active' : ''}" data-screen-tab="trades">
-          Lista de Trades
-        </button>
-        <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'assets' ? 'active' : ''}" data-screen-tab="assets">
-          Análise por Ativo
-        </button>
-        <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'setups' ? 'active' : ''}" data-screen-tab="setups">
-          Análise por Setup
-        </button>
-        <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'timeline' ? 'active' : ''}" data-screen-tab="timeline">
-          Evolução no Tempo
-        </button>
-      </div>
+      <nav class="sim-screen-tabs-container" aria-label="Navegação das Abas do Simulador">
+        <div class="sim-screen-tabs-bar" role="tablist">
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'summary' ? 'active' : ''}" data-screen-tab="summary" role="tab" aria-selected="${state.screenTab === 'summary'}">
+            <span class="sim-tab-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Resumo</span>
+          </button>
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'trades' ? 'active' : ''}" data-screen-tab="trades" role="tab" aria-selected="${state.screenTab === 'trades'}">
+            <span class="sim-tab-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Lista de Trades</span>
+          </button>
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'assets' ? 'active' : ''}" data-screen-tab="assets" role="tab" aria-selected="${state.screenTab === 'assets'}">
+            <span class="sim-tab-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Análise por Ativo</span>
+          </button>
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'setups' ? 'active' : ''}" data-screen-tab="setups" role="tab" aria-selected="${state.screenTab === 'setups'}">
+            <span class="sim-tab-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Análise por Setup</span>
+          </button>
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'timeline' ? 'active' : ''}" data-screen-tab="timeline" role="tab" aria-selected="${state.screenTab === 'timeline'}">
+            <span class="sim-tab-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Evolução no Tempo</span>
+          </button>
+        </div>
+      </nav>
     `;
   }
 
@@ -1975,9 +2011,15 @@
           <td class="td-date">${formatDateBR(sim.exitDate)} ${sim.exitPrice ? `(${formatMoney(sim.exitPrice)})` : ''}</td>
           <td style="text-align: center;">${sim.durationDays || '—'}d</td>
           <td>${renderStatusPill(sim.status, sim)}</td>
-          <td style="text-align: center;">
-            <button class="sim-action-btn" data-action="chart" data-sim-id="${sim.id}" title="Abrir Gráfico e Snapshot Auditável" type="button">
-              Ver Análise
+          <td style="text-align: center; white-space: nowrap;">
+            <button class="sim-btn-view-analysis sim-action-btn" data-action="chart" data-sim-id="${sim.id}" title="Abrir Gráfico e Snapshot Auditável de ${sim.symbol}" type="button">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"></path>
+                <path d="M18 17V9"></path>
+                <path d="M13 17V5"></path>
+                <path d="M8 17v-3"></path>
+              </svg>
+              <span>Ver Análise</span>
             </button>
           </td>
         </tr>
@@ -2413,39 +2455,54 @@
             </div>
           </div>
 
-          <!-- Botão Principal Executar Simulação -->
-          <button type="button" id="simBtnExecute" class="sim-btn-execute" title="Executar simulação com os filtros e capital selecionados">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-            <span>Executar Simulação</span>
-          </button>
-
-          <!-- Botão Mais Opções (···) -->
-          <div class="sim-filter-select-wrap">
-            <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Gerar Massa, Auditoria, Cenários e Exportação">
-              <span>···</span>
+          <!-- Grupo de Ações Principais e Secundárias com Hierarquia Clara -->
+          <div class="sim-header-actions-group">
+            <!-- 1. Executar Simulação (Ação Principal) -->
+            <button type="button" id="simBtnExecute" class="sim-btn-execute" title="Executar simulação com os filtros e capital selecionados">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Executar Simulação</span>
             </button>
-            <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
-              <button class="sim-dropdown-item" type="button" id="simBtnMassModal">
-                <span>⚡</span> <span>Gerar Massa de Teste</span>
+
+            <!-- 2. Comparar Cenários (Ação Secundária Diretamente Visível) -->
+            <button type="button" id="simBtnCompareModal" class="sim-btn-header-secondary" title="Comparar cenários de gestão na mesma amostra de trades">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              <span>Comparar Cenários</span>
+            </button>
+
+            <!-- 3. Gerar Massa de Teste (Ação Secundária Diretamente Visível) -->
+            <button type="button" id="simBtnMassModal" class="sim-btn-header-secondary" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>Gerar Massa de Teste</span>
+            </button>
+
+            <!-- 4. Menu Mais Opções (···) com Dropdown para Ações Administrativas e Menos Frequentes -->
+            <div class="sim-filter-select-wrap">
+              <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Auditoria, Reavaliar Candles, Exportação e Exclusão">
+                <span>···</span>
               </button>
-              <button class="sim-dropdown-item" type="button" id="simBtnCompareModal">
-                <span>📊</span> <span>Comparar Cenários</span>
-              </button>
-              <button class="sim-dropdown-item" type="button" id="simMoreBtnAudit">
-                <span>🛡️</span> <span>Relatório de Auditoria</span>
-              </button>
-              <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate">
-                <span>↻</span> <span>Reavaliar Candles</span>
-              </button>
-              <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
-                <span>📥</span> <span>Exportar Simulação</span>
-              </button>
-              <div class="sim-dropdown-divider"></div>
-              <button class="sim-dropdown-item danger" type="button" id="simMoreBtnClear">
-                <span>🗑️</span> <span>Excluir Simulações</span>
-              </button>
+              <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
+                <button class="sim-dropdown-item" type="button" id="simMoreBtnAudit">
+                  <span>🛡️</span> <span>Relatório de Auditoria</span>
+                </button>
+                <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate">
+                  <span>↻</span> <span>Reavaliar Candles</span>
+                </button>
+                <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
+                  <span>📥</span> <span>Exportar Simulação</span>
+                </button>
+                <div class="sim-dropdown-divider"></div>
+                <button class="sim-dropdown-item danger" type="button" id="simMoreBtnClear">
+                  <span>🗑️</span> <span>Excluir Simulações</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2453,197 +2510,8 @@
     `;
   }
 
-  function renderKpiCards(stats) {
-    const totalRClass = stats.totalR > 0 ? 'positive' : (stats.totalR < 0 ? 'negative' : 'neutral');
-    const avgRClass = stats.avgR > 0 ? 'positive' : (stats.avgR < 0 ? 'negative' : 'neutral');
 
-    return `
-      <!-- Linha 1: 8 KPIs Operacionais Primários -->
-      <div class="sim-kpis-container">
-        <!-- Card 1: Trades encerrados -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-blue">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Trades encerrados</span>
-          </div>
-          <div class="sim-kpi-val">${stats.closedTradesCount}</div>
-          <p class="sim-kpi-sub">Operações finalizadas no período.</p>
-        </div>
-
-        <!-- Card 3: Trades vencedores -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-                <path d="M4 22h16"></path>
-                <path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1h10v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path>
-                <path d="M6 4h12v5a6 6 0 0 1-12 0V4z"></path>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Trades vencedores</span>
-          </div>
-          <div class="sim-kpi-val">${stats.winningTradesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.winRate.toFixed(1).replace('.', ',')}%</strong> de ${stats.closedTradesCount} encerrados.</p>
-        </div>
-
-        <!-- Card 4: Trades perdedores -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-red">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Trades perdedores</span>
-          </div>
-          <div class="sim-kpi-val">${stats.losingTradesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.lossRate.toFixed(1).replace('.', ',')}%</strong> de ${stats.closedTradesCount} encerrados.</p>
-        </div>
-
-        <!-- Card 5: Resultado total -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <span style="font-size: 13px; font-weight: 800; font-family: system-ui; line-height: 1;">Σ</span>
-            </span>
-            <span class="sim-kpi-title">Resultado total</span>
-          </div>
-          <div class="sim-kpi-val ${totalRClass}">${stats.totalRFormatted}</div>
-          <p class="sim-kpi-sub">Soma de ganhos e perdas.</p>
-        </div>
-
-        <!-- Card 6: R médio / trade -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">R médio / trade</span>
-          </div>
-          <div class="sim-kpi-val ${avgRClass}">${stats.avgRFormatted}</div>
-          <p class="sim-kpi-sub">Expectativa matemática.</p>
-        </div>
-
-        <!-- Card 7: Duração média -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-blue">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Duração média</span>
-          </div>
-          <div class="sim-kpi-val">${stats.avgDurationDaysFormatted || '—'}</div>
-          <p class="sim-kpi-sub">Tempo em operação.</p>
-        </div>
-
-        <!-- Card 8: Aguardando entrada -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-orange">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 22h14"></path>
-                <path d="M5 2h14"></path>
-                <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"></path>
-                <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Aguardando entrada</span>
-          </div>
-          <div class="sim-kpi-val">${stats.waitingCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.waitingPct.toFixed(1).replace('.', ',')}%</strong> ainda não ativaram.</p>
-        </div>
-      </div>
-
-      <!-- Linha 2: 4 KPIs Estatísticos Avançados (Validação em Escala) -->
-      <div class="sim-kpis-advanced-row">
-        <!-- Card 9: Profit Factor -->
-        <div class="sim-kpi-card advanced">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Profit Factor</span>
-          </div>
-          <div class="sim-kpi-val ${(stats.profitFactor || 0) >= 1.5 ? 'positive' : ((stats.profitFactor || 0) < 1 ? 'negative' : 'neutral')}">
-            ${stats.profitFactorFormatted || (stats.profitFactor ? stats.profitFactor.toFixed(2).replace('.', ',') : '—')}
-          </div>
-          <p class="sim-kpi-sub">Ganhos (${stats.totalGainsR != null ? '+' + stats.totalGainsR.toFixed(1).replace('.', ',') + 'R' : '—'}) / Perdas (${stats.totalLossesR != null ? '-' + stats.totalLossesR.toFixed(1).replace('.', ',') + 'R' : '—'}).</p>
-        </div>
-
-        <!-- Card 10: Drawdown Máximo -->
-        <div class="sim-kpi-card advanced">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-red">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
-                <polyline points="17 18 23 18 23 12"></polyline>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Drawdown Máximo</span>
-          </div>
-          <div class="sim-kpi-val negative">
-            ${stats.maxDrawdownRFormatted || (stats.maxDrawdownR != null ? '-' + Math.abs(stats.maxDrawdownR).toFixed(1).replace('.', ',') + 'R' : '0,0R')}
-          </div>
-          <p class="sim-kpi-sub">Maior rebaixamento acumulado de capital.</p>
-        </div>
-
-        <!-- Card 11: Sequência Máxima de Perdas -->
-        <div class="sim-kpi-card advanced">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-orange">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Sequência de Stops</span>
-          </div>
-          <div class="sim-kpi-val">
-            ${stats.maxConsecutiveLosses != null ? stats.maxConsecutiveLosses + (stats.maxConsecutiveLosses === 1 ? ' trade' : ' trades') : '0 trades'}
-          </div>
-          <p class="sim-kpi-sub">Pior série consecutiva de perdas registrada.</p>
-        </div>
-
-        <!-- Card 12: Sinais Não Acionados -->
-        <div class="sim-kpi-card advanced">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-gray">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Sinais Não Acionados</span>
-          </div>
-          <div class="sim-kpi-val">
-            ${stats.notTriggeredCount != null ? stats.notTriggeredCount : 0}
-          </div>
-          <p class="sim-kpi-sub">Expiraram ou stop foi violado antes da entrada.</p>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * 3. Linha de 3 Gráficos: Curva de Resultados, Distribuição e Desempenho
-   */
-  function renderChartsRow(stats) {
+    function renderChartsRow(stats) {
     const isUnitRS = state.filters.unit === 'RS';
     const riskNominal = 1000; // Padrão R$ 1.000,00 por R
     const displayTotal = isUnitRS
@@ -7294,7 +7162,7 @@
     });
 
     // Botões de Ação na Tabela (Snapshot e Detalhes)
-    container.querySelectorAll('.sim-action-btn[data-action="chart"]').forEach(btn => {
+    container.querySelectorAll('.sim-btn-view-analysis[data-action="chart"], .sim-action-btn[data-action="chart"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         openSnapshot(btn.dataset.simId);

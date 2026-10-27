@@ -7468,13 +7468,27 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   transform: translateY(0);
 }
 
-/* Barra de Abas Superiores */
+/* Container de Navegação das Abas — Área Premium com Hierarquia Clara */
+.sim-screen-tabs-container {
+  display: flex;
+  align-items: center;
+  margin: 18px 0 22px 0;
+  padding: 5px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  width: fit-content;
+  max-width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
 .sim-screen-tabs-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  border-bottom: 1px solid #e2e8f0;
-  margin: 16px 0 20px 0;
+  gap: 4px;
+  border: none;
+  margin: 0;
+  padding: 0;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -7484,25 +7498,82 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 }
 
 .sim-screen-tab-btn {
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  padding: 10px 18px;
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 13.5px;
   font-weight: 600;
   color: #64748b;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
+  user-select: none;
+  line-height: 1.2;
+}
+
+.sim-screen-tab-btn .sim-tab-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  transition: color 0.18s ease;
 }
 
 .sim-screen-tab-btn:hover {
   color: #0f172a;
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.sim-screen-tab-btn:hover .sim-tab-icon {
+  color: #475569;
 }
 
 .sim-screen-tab-btn.active {
-  color: #059669;
-  border-bottom-color: #059669;
+  background: #ffffff;
+  color: #047857;
+  font-weight: 700;
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.sim-screen-tab-btn.active .sim-tab-icon {
+  color: #10b981;
+}
+
+.sim-screen-tab-btn.active .sim-tab-label {
+  position: relative;
+}
+
+.sim-screen-tab-btn.active .sim-tab-label::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #10b981;
+  border-radius: 999px;
+}
+
+.sim-screen-tab-content {
+  margin-top: 10px;
+  animation: simTabFadeIn 0.18s ease-out;
+}
+
+@keyframes simTabFadeIn {
+  from {
+    opacity: 0.88;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Card Principal e Conteúdo */
@@ -7930,4 +8001,151 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   .sim-capital-input {
     flex: 1;
   }
+}
+
+
+/* ==========================================================================
+   REFINAMENTO PREMIUM — BOTÃO VER ANÁLISE E AÇÕES DIRETAS DO CABEÇALHO
+   ========================================================================== */
+
+/* Grupo de Ações do Cabeçalho e Botões Secundários */
+.sim-header-actions-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sim-btn-header-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  height: 38px;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.sim-btn-header-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sim-btn-header-secondary:active {
+  transform: translateY(0);
+}
+
+.sim-btn-header-secondary svg {
+  color: #64748b;
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sim-btn-header-secondary:hover svg {
+  color: #047857;
+}
+
+/* Botão Ver Análise na Lista de Trades — Layout Corrigido e Padronizado */
+.sim-action-btn.sim-btn-view-analysis,
+.sim-btn-view-analysis {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-width: 104px !important;
+  height: 28px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #047857 !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+.sim-action-btn.sim-btn-view-analysis:hover,
+.sim-btn-view-analysis:hover {
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.15) !important;
+}
+
+.sim-action-btn.sim-btn-view-analysis:active,
+.sim-btn-view-analysis:active {
+  transform: translateY(1px) !important;
+}
+
+.sim-btn-view-analysis svg {
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+/* Suporte ao Gold Theme para Novos Componentes */
+body.gold-theme .sim-screen-tabs-container {
+  background: #18221b;
+  border-color: #2b3930;
+}
+
+body.gold-theme .sim-screen-tab-btn {
+  color: #94a3b8;
+}
+
+body.gold-theme .sim-screen-tab-btn:hover {
+  color: #ffffff;
+  background: #1f2d24;
+  border-color: #3b5042;
+}
+
+body.gold-theme .sim-screen-tab-btn.active {
+  background: #131c16;
+  color: #34d399;
+  border-color: #3b5042;
+}
+
+body.gold-theme .sim-screen-tab-btn.active .sim-tab-icon {
+  color: #34d399;
+}
+
+body.gold-theme .sim-btn-header-secondary {
+  background: #18221b;
+  border-color: #2b3930;
+  color: #e2e8f0;
+}
+
+body.gold-theme .sim-btn-header-secondary:hover {
+  background: #1f2d24;
+  border-color: #3b5042;
+  color: #ffffff;
+}
+
+body.gold-theme .sim-action-btn.sim-btn-view-analysis,
+body.gold-theme .sim-btn-view-analysis {
+  background: #18221b !important;
+  border-color: #2b3930 !important;
+  color: #34d399 !important;
+}
+
+body.gold-theme .sim-action-btn.sim-btn-view-analysis:hover,
+body.gold-theme .sim-btn-view-analysis:hover {
+  background: #1f2d24 !important;
+  border-color: #3b5042 !important;
+  color: #6ee7b7 !important;
 }
