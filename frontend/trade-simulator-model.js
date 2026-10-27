@@ -8318,6 +8318,14 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     const currentHeatPct = Math.max(0, Number(portfolioState.currentHeatPct || 0));
     const openPositionsCount = Math.max(0, Number(portfolioState.openPositionsCount || 0));
 
+    // No Simulador de Trades (Modo Rubric), o risco configurado por Grade é o risco-alvo soberano.
+    // O teto artificial de 10% por ativo não deve distorcer o dimensionamento das operações.
+    // A restrição financeira física padrão é o capital total da conta (100% de equity), a menos que options.enforceCapitalCap seja explicitamente true.
+    const enforceCapitalCap = options.enforceCapitalCap === true || (options.capitalPct != null && options.capitalPct < 1.0);
+    const simulatorCapitalPct = enforceCapitalCap ? (options.capitalPct != null ? options.capitalPct : 0.10) : 1.0;
+    const enforceVolatilityLimit = options.enforceVolatilityLimit === true;
+    const simulatorVolatilityPct = enforceVolatilityLimit ? (options.volatilityPct != null ? options.volatilityPct : null) : null;
+
     let sizing = null;
     if (isEligible && effectiveRiskBudgetPct > 0 && TradingRubrics && typeof TradingRubrics.calculatePolicyPositionSizing === 'function') {
       sizing = TradingRubrics.calculatePolicyPositionSizing({
@@ -8330,7 +8338,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         entry: entryPrice,
         stop: stopLoss,
         atr: atrValue,
-        lot: 100
+        lot: 100,
+        capitalPct: simulatorCapitalPct,
+        volatilityPct: simulatorVolatilityPct,
+        enforceCapitalLimit: enforceCapitalCap,
+        enforceVolatilityLimit
       });
 
       if (sizing.positionCapacityAvailable === false) {
@@ -8357,7 +8369,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           entry: entryPrice,
           stop: stopLoss,
           atr: atrValue,
-          lot: 1
+          lot: 1,
+          capitalPct: simulatorCapitalPct,
+          volatilityPct: simulatorVolatilityPct,
+          enforceCapitalLimit: enforceCapitalCap,
+          enforceVolatilityLimit
         });
         if (fractionalSizing && fractionalSizing.quantity > 0) {
           sizing = fractionalSizing;
@@ -8375,16 +8391,15 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     } else if (isEligible && effectiveRiskBudgetPct > 0) {
       // Fallback se TradingRubrics não carregar
       const theoreticalQty = Math.floor((currentEquity * effectiveRiskBudgetPct) / distance / 100) * 100;
-      const maxCapQty = Math.floor((currentEquity * 0.20) / entryPrice / 100) * 100;
-      const maxVolQty = Math.floor((currentEquity * 0.008) / atrValue / 100) * 100;
-      const qty = Math.max(0, Math.min(theoreticalQty, maxCapQty, maxVolQty));
+      const maxCapQty = Math.floor((currentEquity * simulatorCapitalPct) / entryPrice / 100) * 100;
+      const qty = Math.max(0, Math.min(theoreticalQty, maxCapQty));
       sizing = {
         quantity: qty,
         theoreticalQuantity: theoreticalQty,
         initialRisk: qty * distance,
         executableRiskPct: currentEquity > 0 ? (qty * distance) / currentEquity : 0,
-        limitingLayer: qty === theoreticalQty ? 'budget' : (qty === maxVolQty ? 'volatility' : 'capital'),
-        limitingLayerName: qty === theoreticalQty ? 'Orçamento pelo Grade' : (qty === maxVolQty ? 'Limite ATR' : 'Limite de Capital')
+        limitingLayer: qty === theoreticalQty ? 'budget' : 'capital',
+        limitingLayerName: qty === theoreticalQty ? 'Orçamento pelo Grade' : (simulatorCapitalPct >= 1.0 ? 'Capital total da conta (100%)' : 'Limite de Capital')
       };
     } else {
       sizing = {
@@ -8400,6 +8415,17 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     const finalQuantity = isEligible ? Math.max(0, sizing.quantity || 0) : 0;
     const initialRiskCash = finalQuantity * distance;
     const executableRiskPct = currentEquity > 0 ? (initialRiskCash / currentEquity) * 100 : 0;
+    const positionCapitalCash = finalQuantity * entryPrice;
+    const positionCapitalPct = currentEquity > 0 ? (positionCapitalCash / currentEquity) * 100 : 0;
+    const nominalConfiguredPercent = Number((configuredRiskPct * 100).toFixed(2));
+    const isLimited = isEligible && (finalQuantity < (sizing.theoreticalQuantity || 0) || Math.abs(executableRiskPct - nominalConfiguredPercent) >= 0.05);
+
+    let limitingLayerName = sizing.limitingLayerName || 'Orçamento de Risco pelo Grade';
+    if (sizing.limitingLayer === 'capital') {
+      limitingLayerName = simulatorCapitalPct >= 1.0 ? 'Capital total da conta (100%)' : `Limite de Capital (${(simulatorCapitalPct * 100).toFixed(0)}%)`;
+    } else if (sizing.limitingLayer === 'budget' && isLimited) {
+      limitingLayerName = 'Lote padrão (100 ações na B3)';
+    }
 
     return {
       symbol: sim.symbol || 'ATIVO',
@@ -8419,7 +8445,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       atrPct,
       rubricScore,
       grade: resolvedGrade,
-      configuredRiskPct: Number((configuredRiskPct * 100).toFixed(2)),
+      configuredRiskPct: nominalConfiguredPercent,
       baseRiskBudgetPct,
       effectiveRiskBudgetPct,
       isEligible,
@@ -8430,9 +8456,12 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       theoreticalQuantity: sizing.theoreticalQuantity || 0,
       initialRiskCash,
       executableRiskPct,
+      positionCapitalCash,
+      positionCapitalPct,
       isSizeReduced: isEligible && finalQuantity < (sizing.theoreticalQuantity || 0),
+      isLimited,
       limitingLayer: sizing.limitingLayer || 'budget',
-      limitingLayerName: sizing.limitingLayerName || 'Orçamento de Risco'
+      limitingLayerName
     };
   }
 
@@ -8679,6 +8708,12 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         shares,
         authorizedRiskCash,
         authorizedRiskPct,
+        configuredRiskPct: evaluation?.configuredRiskPct,
+        positionCapitalCash: evaluation?.positionCapitalCash,
+        positionCapitalPct: evaluation?.positionCapitalPct,
+        isLimited: evaluation?.isLimited,
+        limitingLayer: evaluation?.limitingLayer,
+        limitingLayerName: evaluation?.limitingLayerName,
         netPnL,
         grossPnL,
         totalCosts,
@@ -8737,6 +8772,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       const gTotalCosts = gTrades.reduce((acc, t) => acc + (t.totalCosts != null ? t.totalCosts : 0), 0);
       const gTotalRiskCash = gTrades.reduce((acc, t) => acc + (t.authorizedRiskCash != null ? t.authorizedRiskCash : 0), 0);
       const gTotalRiskPct = gTrades.reduce((acc, t) => acc + (t.authorizedRiskPct != null ? t.authorizedRiskPct : 0), 0);
+      const gTotalCapitalCash = gTrades.reduce((acc, t) => acc + (t.positionCapitalCash != null ? t.positionCapitalCash : (t.evaluation?.positionCapitalCash != null ? t.evaluation.positionCapitalCash : 0)), 0);
+      const gTotalCapitalPct = gTrades.reduce((acc, t) => acc + (t.positionCapitalPct != null ? t.positionCapitalPct : (t.evaluation?.positionCapitalPct != null ? t.evaluation.positionCapitalPct : 0)), 0);
+      const limitedTradesCount = gTrades.filter(t => t.isLimited || (t.evaluation && t.evaluation.isLimited)).length;
 
       const policyGrade = officialPolicy.grades?.find(item => item.grade === gr);
       const nominalConfiguredRiskPct = policyGrade && policyGrade.riskPct != null
@@ -8745,6 +8783,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
       const avgRiskCash = gTrades.length > 0 ? gTotalRiskCash / gTrades.length : (nominalConfiguredRiskPct / 100) * initialCapital;
       const avgRiskPct = gTrades.length > 0 ? gTotalRiskPct / gTrades.length : nominalConfiguredRiskPct;
+      const avgCapitalCash = gTrades.length > 0 ? gTotalCapitalCash / gTrades.length : 0;
+      const avgCapitalPct = gTrades.length > 0 ? gTotalCapitalPct / gTrades.length : 0;
       const contribPct = totalNetPnL !== 0 ? Number(((gNetPnL / totalNetPnL) * 100).toFixed(1)) : 0;
 
       if (gNetPnL > maxGradePnL && gTrades.length > 0) {
@@ -8764,6 +8804,10 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         configuredRiskPct: nominalConfiguredRiskPct,
         avgRiskCash: Number(avgRiskCash.toFixed(2)),
         avgRiskPct: Number(avgRiskPct.toFixed(2)),
+        avgCapitalCash: Number(avgCapitalCash.toFixed(2)),
+        avgCapitalPct: Number(avgCapitalPct.toFixed(2)),
+        limitedTradesCount,
+        limitedTradesPct: gTrades.length > 0 ? Number(((limitedTradesCount / gTrades.length) * 100).toFixed(1)) : 0,
         contribPct
       };
     });

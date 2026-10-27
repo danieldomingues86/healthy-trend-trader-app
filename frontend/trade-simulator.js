@@ -1714,7 +1714,7 @@
           </td>
           <td style="text-align: center; font-weight: 600;">${gData.count}</td>
           <td style="text-align: center; font-weight: 600; color: #0f172a;" title="Percentual nominal oficial da Política de Risco">${configuredRiskFormatted}</td>
-          <td style="text-align: center; color: #475569;" title="Média real executada pós-lote e limite de capital">${avgRiskFormatted}</td>
+          <td style="text-align: center; color: #475569;" title="Média real executada com lote padrão (100 ações na B3)">${avgRiskFormatted}</td>
           <td style="text-align: center; font-weight: 700; color: ${hasTrades && gData.totalR >= 0 ? '#059669' : (hasTrades ? '#ef4444' : '#64748b')};">
             ${rValFormatted}
           </td>
@@ -1813,7 +1813,7 @@
                   <th style="width: 70px;">Grade</th>
                   <th style="text-align: center; width: 75px;">Trades</th>
                   <th style="text-align: center; width: 135px;" title="Percentual nominal configurado na Política de Risco para este Grade">Risco configurado</th>
-                  <th style="text-align: center; width: 145px;" title="Média real executada após restrições de lote mínimo (100 ações na B3) e teto de capital (10%)">Risco médio aplicado</th>
+                  <th style="text-align: center; width: 145px;" title="Média real executada com lote padrão (100 ações na B3), onde o risco configurado por Grade é o risco-alvo soberano">Risco médio aplicado</th>
                   <th style="text-align: center; width: 125px;">Resultado em R</th>
                   <th style="text-align: center; width: 165px;">Resultado financeiro (R$)</th>
                   <th style="text-align: center; width: 105px;">Contribuição</th>
@@ -1826,7 +1826,7 @@
             </table>
             <div class="sim-grade-table-footer-note">
               <span class="note-icon">ℹ️</span>
-              <span><strong>Risco configurado:</strong> percentual nominal da Política de Risco (sincronizado com <em>Novo Trade / Política de Risco</em>). <strong>Risco médio aplicado:</strong> média real resultante das restrições de lote mínimo (100 ações na B3) e teto de capital (10% por ativo).</span>
+              <span><strong>Risco configurado:</strong> percentual nominal oficial da Política de Risco (sincronizado com <em>Novo Trade / Política de Risco</em>). <strong>Risco médio aplicado:</strong> média real resultante da execução com lote padrão (100 ações na B3), onde o risco configurado por Grade é o risco-alvo soberano utilizado no dimensionamento.</span>
             </div>
           </div>
         </div>
@@ -2004,10 +2004,12 @@
       const isLoss = (sim.netPnL != null ? sim.netPnL : sim.resultR) < 0;
       const pnlVal = sim.netPnL != null ? sim.netPnL : (sim.resultR != null ? sim.resultR * 400 : 0);
       const rVal = sim.netResultR != null ? sim.netResultR : (sim.resultR != null ? Number(sim.resultR) : 0);
-      const shares = sim.shares || sim.quantity || (sim.entryPrice > 0 ? Math.floor(10000 / sim.entryPrice) : 100);
-      const posCapital = shares * (sim.entryPrice || 0);
+      const shares = sim.shares || sim.quantity || (sim.entryPrice > 0 ? Math.floor((state.initialCapital || 100000) / sim.entryPrice) : 100);
+      const posCapital = sim.positionCapitalCash || (shares * (sim.entryPrice || 0));
       const riskCash = sim.authorizedRiskCash || (shares * Math.max(0.01, (sim.entryPrice || 0) - (sim.stopLoss || 0)));
       const riskPct = sim.authorizedRiskPct || (state.initialCapital > 0 ? (riskCash / state.initialCapital) * 100 : 0.40);
+      const isLimited = sim.isLimited || (sim.evaluation && sim.evaluation.isLimited);
+      const limitReason = sim.limitingLayerName || (sim.evaluation && sim.evaluation.limitingLayerName) || '';
 
       return `
         <tr data-sim-id="${sim.id || ''}">
@@ -2023,7 +2025,7 @@
           <td class="td-num">${formatMoney(sim.entryPrice)}</td>
           <td class="td-num">${formatMoney(sim.stopLoss)}</td>
           <td class="td-num">${shares} ações <span style="font-size: 11px; color: #94a3b8;">(${formatMoney(posCapital)})</span></td>
-          <td class="td-num">${formatMoney(riskCash)} <span style="font-size: 11px; color: #94a3b8;">(${riskPct.toFixed(2)}%)</span></td>
+          <td class="td-num">${formatMoney(riskCash)} <span style="font-size: 11px; color: #94a3b8;" title="${isLimited && limitReason ? `Limitado por: ${limitReason}` : 'Risco-alvo atingido'}">(${riskPct.toFixed(2)}%${isLimited ? '*' : ''})</span></td>
           <td class="td-num ${isWin ? 'metric-gain' : (isLoss ? 'metric-loss' : 'metric-neutral')}" style="font-weight: 700;">
             ${rVal >= 0 ? '+' : ''}${rVal.toFixed(2).replace('.', ',')}R
           </td>

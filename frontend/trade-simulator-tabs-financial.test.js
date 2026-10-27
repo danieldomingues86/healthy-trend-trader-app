@@ -551,3 +551,66 @@ test('Trailing Stop e Gestão de Risco — 11. O método utiliza estritamente a 
   assert.ok(runnerExitEvent.desc.includes('EMA 10'), 'Descrição do evento deve referenciar EMA 10');
   assert.ok(evalResult.exitReason.includes('EMA 10'), 'exitReason deve referenciar EMA 10');
 });
+
+test('Correção Crítica — 12. Eliminação do teto de 10% e respeito estrito ao risco configurado por Grade (A, B e C)', () => {
+  // 1. Configura política oficial com os riscos configurados do usuário: A = 1,00%, B = 0,50%, C = 0,25%
+  const policy = TradeSimulatorModel.getOfficialRiskPolicy();
+  policy.grades = [
+    { grade: 'A', minScore: 95, riskPct: 0.01 },
+    { grade: 'B', minScore: 80, riskPct: 0.005 },
+    { grade: 'C', minScore: 65, riskPct: 0.0025 },
+    { grade: 'D', minScore: -Infinity, riskPct: 0 }
+  ];
+
+  // 2. Amostra de trades com stops típicos de swing trade (3% a 5%) e datas sequenciais
+  const sims = [
+    { symbol: 'PETR4', entryPrice: 38.00, stopLoss: 36.50, date: '2026-03-01', exitDate: '2026-03-05', status: 'CLOSED_GAIN', resultR: 2.0, rsScore: 94, rubricScore: 90, grade: 'A', marketCycle: 'healthy', trendQuality: 'good', triggerName: '1-2-3 de Compra' },
+    { symbol: 'BBAS3', entryPrice: 28.00, stopLoss: 26.80, date: '2026-03-10', exitDate: '2026-03-15', status: 'CLOSED_GAIN', resultR: 1.5, rsScore: 92, rubricScore: 88, grade: 'A', marketCycle: 'healthy', trendQuality: 'good', triggerName: 'Inside Bar' },
+    { symbol: 'VALE3', entryPrice: 62.00, stopLoss: 59.50, date: '2026-03-20', exitDate: '2026-03-25', status: 'CLOSED_GAIN', resultR: 1.0, rsScore: 88, rubricScore: 80, grade: 'B', marketCycle: 'healthy', trendQuality: 'good', triggerName: 'Inside Bar' },
+    { symbol: 'RENT3', entryPrice: 50.00, stopLoss: 48.00, date: '2026-04-01', exitDate: '2026-04-05', status: 'CLOSED_LOSS', resultR: -1.0, rsScore: 85, rubricScore: 78, grade: 'B', marketCycle: 'healthy', trendQuality: 'good', triggerName: 'PFR de Compra' },
+    { symbol: 'ITUB4', entryPrice: 34.00, stopLoss: 32.80, date: '2026-04-10', exitDate: '2026-04-15', status: 'CLOSED_GAIN', resultR: 0.8, rsScore: 83, rubricScore: 66, grade: 'C', marketCycle: 'healthy', trendQuality: 'good', triggerName: 'PFR de Compra' },
+    { symbol: 'B3SA3', entryPrice: 12.00, stopLoss: 11.50, date: '2026-04-20', exitDate: '2026-04-25', status: 'CLOSED_LOSS', resultR: -1.0, rsScore: 81, rubricScore: 64, grade: 'C', marketCycle: 'healthy', trendQuality: 'good', triggerName: 'Barra Vermelha Ignorada' }
+  ];
+
+  const rep = TradeSimulatorModel.runRubricPortfolioSimulation(sims, {
+    officialMode: true,
+    rubricMode: true,
+    initialCapital: 100000,
+    policy
+  });
+
+  const gb = rep.qualityAndSizing.gradeBreakdown;
+  assert.ok(gb.A && gb.B && gb.C, 'Grades A, B e C devem estar presentes no relatório');
+
+  // 3. Risco configurado deve ser exatamente o oficial sincronizado
+  assert.equal(gb.A.configuredRiskPct, 1.00, 'Grade A deve ter risco configurado de 1,00%');
+  assert.equal(gb.B.configuredRiskPct, 0.50, 'Grade B deve ter risco configurado de 0,50%');
+  assert.equal(gb.C.configuredRiskPct, 0.25, 'Grade C deve ter risco configurado de 0,25%');
+
+  // 4. Risco médio aplicado NÃO PODE ser achatado pelo teto antigo de 10% (que antes produzia 0,29% em A e 0,30% em B)
+  assert.ok(gb.A.avgRiskPct >= 0.85, `Grade A deve aplicar risco próximo de 1,00% (obtido: ${gb.A.avgRiskPct}%)`);
+  assert.ok(gb.B.avgRiskPct >= 0.40, `Grade B deve aplicar risco próximo de 0,50% (obtido: ${gb.B.avgRiskPct}%)`);
+  assert.ok(gb.C.avgRiskPct >= 0.20, `Grade C deve aplicar risco próximo de 0,25% (obtido: ${gb.C.avgRiskPct}%)`);
+
+  // 5. Hierarquia matemática estrita: Risco A > Risco B > Risco C
+  assert.ok(gb.A.avgRiskPct > gb.B.avgRiskPct, 'Risco aplicado em Grade A deve ser estritamente maior que Grade B');
+  assert.ok(gb.B.avgRiskPct > gb.C.avgRiskPct, 'Risco aplicado em Grade B deve ser estritamente maior que Grade C');
+  assert.ok(gb.A.avgRiskCash > gb.B.avgRiskCash, 'Risco monetário em Grade A deve ser maior que Grade B');
+  assert.ok(gb.B.avgRiskCash > gb.C.avgRiskCash, 'Risco monetário em Grade B deve ser maior que Grade C');
+
+  // 6. Separação explícita entre risco financeiro e capital alocado por posição
+  assert.ok(typeof gb.A.avgCapitalCash === 'number' && gb.A.avgCapitalCash > 0, 'avgCapitalCash deve ser rastreado');
+  assert.ok(typeof gb.A.avgCapitalPct === 'number' && gb.A.avgCapitalPct > 0, 'avgCapitalPct deve ser rastreado');
+
+  // 7. Divergência de lote registrada de forma transparente em cada trade executado
+  rep.executedTrades.forEach(trade => {
+    assert.ok(trade.limitingLayerName, 'Cada trade executado deve identificar a camada limitadora');
+    assert.ok(typeof trade.positionCapitalCash === 'number', 'positionCapitalCash deve ser numérico');
+    assert.ok(typeof trade.positionCapitalPct === 'number', 'positionCapitalPct deve ser numérico');
+  });
+
+  // 8. O texto do trade-simulator.js não pode mais mencionar teto de capital de 10%
+  const jsContent = fs.readFileSync(path.resolve(__dirname, 'trade-simulator.js'), 'utf8');
+  assert.ok(!jsContent.includes('teto de capital (10% por ativo)'), 'Texto de teto de capital de 10% deve ser removido da nota');
+  assert.ok(!jsContent.includes('teto de capital (10%)'), 'Texto de teto de capital de 10% deve ser removido do tooltip');
+});
