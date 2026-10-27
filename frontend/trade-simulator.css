@@ -7293,12 +7293,17 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
    Referência Visual: media_1793106466712_20165f0c.png
    ========================================================================== */
 
+/* Layout Rebuild do Simulador — Abas 100% coladas ao formulário */
+.simulator-page.sim-rebuild-layout {
+  gap: 0;
+}
+
 .sim-rebuild-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 2px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
@@ -7529,18 +7534,24 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   transform: translateY(0);
 }
 
-/* Container de Navegação das Abas — Colada ao Formulário, Imponente e Elegante */
+/* Container de Navegação das Abas — 100% Colada ao Formulário / Card */
 .sim-screen-tabs-container {
   display: flex;
   align-items: center;
-  margin: 2px 0 14px 0; /* Colada ao formulário com respiro mínimo */
+  margin: 0;
   padding: 6px 8px;
   background: #ffffff;
   border: 1px solid #cbd5e1;
-  border-radius: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.07), 0 1px 3px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 -2px 10px -2px rgba(15, 23, 42, 0.04);
+  position: relative;
+  z-index: 2;
 }
 
 .sim-screen-tabs-bar {
@@ -7636,8 +7647,10 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 }
 
 .sim-screen-tab-content {
-  margin-top: 10px;
+  margin-top: 0;
   animation: simTabFadeIn 0.18s ease-out;
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes simTabFadeIn {
@@ -7652,6 +7665,16 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 }
 
 /* Card Principal e Conteúdo */
+/* Conexão perfeita: o card principal une-se diretamente à barra de abas superior (sem gap e sem borda duplicada) */
+.sim-rebuild-layout .sim-screen-tab-content > .sim-summary-container > .sim-rebuild-card:first-child,
+.sim-rebuild-layout .sim-screen-tab-content > .sim-rebuild-card:first-child,
+.sim-rebuild-layout .sim-screen-tab-content > .sim-timeline-container > .sim-rebuild-card:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top: none;
+  margin-top: 0;
+}
+
 .sim-rebuild-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -8306,7 +8329,8 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 body.gold-theme .sim-screen-tabs-container {
   background: #111412;
   border-color: #2b3930;
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+  border-bottom-color: #26332a;
+  box-shadow: 0 -2px 10px -2px rgba(0, 0, 0, 0.4);
 }
 
 body.gold-theme .sim-screen-tab-btn {

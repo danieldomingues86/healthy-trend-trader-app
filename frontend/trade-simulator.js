@@ -2342,8 +2342,18 @@
 
     return `
       <div class="sim-timeline-container">
-        <!-- 4 Cards de Resumo Temporal -->
-        <div class="sim-rebuild-kpis-grid" style="margin-bottom: 20px;">
+        <div class="sim-rebuild-card">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">⏱️</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Evolução no Tempo</h2>
+                <p class="sim-rebuild-card-desc">Curva de capital acumulado, métricas de retorno e controle de drawdown ao longo do período.</p>
+              </div>
+            </div>
+          </div>
+          <!-- 4 Cards de Resumo Temporal -->
+          <div class="sim-rebuild-kpis-grid" style="margin-bottom: 24px;">
           <div class="sim-mini-kpi-card">
             <div class="sim-mini-kpi-title">Capital Inicial</div>
             <div class="sim-mini-kpi-val" style="font-size: 20px; margin: 8px 0;">R$ ${formatMoney(initCap).replace('R$ ', '')}</div>
@@ -2368,6 +2378,7 @@
 
         <!-- Gráficos Reutilizados -->
         ${renderChartsRow(stats)}
+              </div>
       </div>
     `;
   }

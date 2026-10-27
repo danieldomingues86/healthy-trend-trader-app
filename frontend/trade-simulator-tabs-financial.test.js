@@ -614,3 +614,21 @@ test('Correção Crítica — 12. Eliminação do teto de 10% e respeito estrito
   assert.ok(!jsContent.includes('teto de capital (10% por ativo)'), 'Texto de teto de capital de 10% deve ser removido da nota');
   assert.ok(!jsContent.includes('teto de capital (10%)'), 'Texto de teto de capital de 10% deve ser removido do tooltip');
 });
+
+test('Refinamento UI — 13. Abas 100% coladas ao formulário (eliminação de gap e união de bordas)', () => {
+  const cssContent = fs.readFileSync(path.resolve(__dirname, 'trade-simulator.css'), 'utf8');
+
+  // 1. Elimina gap vertical do container flex principal
+  assert.ok(cssContent.includes('.simulator-page.sim-rebuild-layout {') && cssContent.includes('gap: 0;'), 'Layout rebuild deve definir gap: 0');
+
+  // 2. Container de abas sem margem inferior e com cantos superiores arredondados e inferiores planos
+  assert.ok(cssContent.includes('border-bottom-left-radius: 0;'), 'Abas devem ter border-bottom-left-radius: 0');
+  assert.ok(cssContent.includes('border-bottom-right-radius: 0;'), 'Abas devem ter border-bottom-right-radius: 0');
+
+  // 3. Conteúdo sem margem superior
+  assert.ok(cssContent.includes('.sim-screen-tab-content {') && cssContent.includes('margin-top: 0;'), 'Conteúdo das abas deve ter margin-top: 0');
+
+  // 4. Primeiro card une-se sem borda superior ou cantos superiores duplicados
+  assert.ok(cssContent.includes('border-top-left-radius: 0;'), 'Card colado deve ter border-top-left-radius: 0');
+  assert.ok(cssContent.includes('border-top: none;'), 'Card colado deve ter border-top: none');
+});
