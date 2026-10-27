@@ -76,7 +76,7 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   assert.equal(outros.totalR, 0.1);
 });
 
-test('trade-simulator-model: NÃO entra se o preço não romper o nível de entrada (sem look-ahead)', () => {
+test('trade-simulator-model: NÃO entra se o preço não romper o nível de entrada (sem look-ahead) e cancela no T+1', () => {
   const sim = {
     symbol: 'PETR4',
     signalDate: '2026-09-20',
@@ -86,16 +86,25 @@ test('trade-simulator-model: NÃO entra se o preço não romper o nível de entr
     timeline: []
   };
 
-  // Candle do dia 21 não atinge 50.00 (máxima 49.50)
+  // Se apenas o candle T existir (sem T+1 ainda), permanece aguardando
+  const candleTOnly = [
+    { time: '2026-09-20', open: 49.00, high: 49.80, low: 48.50, close: 49.20 }
+  ];
+  const evaluatedWaiting = model.evaluateSimulationOnCandles(sim, candleTOnly);
+  assert.equal(evaluatedWaiting.status, model.STATUS.WAITING_ENTRY);
+  assert.ok(!evaluatedWaiting.executedEntryPrice);
+
+  // Candle T+1 (2026-09-21) não atinge 50.00 (máxima 49.50) -> cancela imediatamente (NOT_TRIGGERED)
   const candles = [
     { time: '2026-09-20', open: 49.00, high: 49.80, low: 48.50, close: 49.20 },
     { time: '2026-09-21', open: 49.10, high: 49.50, low: 48.60, close: 49.00 }
   ];
 
   const evaluated = model.evaluateSimulationOnCandles(sim, candles);
-  assert.equal(evaluated.status, model.STATUS.WAITING_ENTRY);
+  assert.equal(evaluated.status, model.STATUS.NOT_TRIGGERED);
   assert.equal(evaluated.executedEntryPrice, null);
   assert.equal(evaluated.resultR, null);
+  assert.equal(evaluated.exitDate, '2026-09-21');
 });
 
 test('trade-simulator-model: aciona entrada quando candle seguinte atinge ou ultrapassa a máxima planejada', () => {

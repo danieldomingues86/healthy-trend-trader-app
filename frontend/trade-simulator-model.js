@@ -1270,8 +1270,29 @@
 
       // ESTADO 1: AGUARDANDO ENTRADA
       if (status === STATUS.WAITING_ENTRY) {
+        // Regra Global e Obrigatória do Sistema:
+        // A condição de entrada de qualquer gatilho identificado no candle T é avaliada EXCLUSIVAMENTE
+        // no candle imediatamente seguinte T+1 (i === startIndex).
+        // Se a entrada não for acionada no candle T+1, o sinal expira definitivamente e a ordem é cancelada.
+        // Nenhuma ordem pode permanecer pendente nem ser executada em T+2 ou candles posteriores.
+        if (i > startIndex) {
+          status = STATUS.NOT_TRIGGERED;
+          exitDate = candleDate;
+          exitReason = 'Expirou sem acionamento no candle seguinte (T+1)';
+          resultR = null;
+          executedEntryPrice = null;
+          entryDate = null;
+          addTimelineEvent({
+            type: 'NOT_TRIGGERED',
+            date: candleDate,
+            label: 'Não acionado',
+            desc: 'Expirou sem acionamento no candle imediatamente seguinte ao sinal (T+1). Ordem cancelada definitivamente.'
+          });
+          break;
+        }
+
         if (cHigh >= entryPlanned) {
-          // Gatilho acionado em sessão válida após o sinal!
+          // Gatilho acionado no candle imediatamente seguinte (T+1)!
           executedEntryPrice = entryPlanned;
           entryDate = candleDate;
           entryCandleIndex = i;
@@ -1284,7 +1305,7 @@
             date: candleDate,
             label: 'Entrada executada',
             price: executedEntryPrice,
-            desc: `Preço rompeu a máxima do gatilho a ${formatPrice(executedEntryPrice)}`
+            desc: `Preço rompeu a máxima do gatilho a ${formatPrice(executedEntryPrice)} no candle seguinte (T+1)`
           });
 
           maxHigh = cHigh;
@@ -1320,38 +1341,34 @@
             break; // Trade encerrado
           }
         } else {
-          // Preço não alcançou a entrada
-          // Setup invalidado se a mínima perder o stop antes da entrada ou expirar (5 pregões)
-          if (cLow <= stopInitial) {
-            status = STATUS.NOT_TRIGGERED;
-            exitDate = candleDate;
-            exitReason = 'Mínima do gatilho violada antes da ativação';
-            resultR = null;
-            addTimelineEvent({
-              type: 'NOT_TRIGGERED',
-              date: candleDate,
-              label: 'Não acionado',
-              desc: `Padrão desqualificado antes do rompimento: preço violou o stop prévio`
-            });
-            break;
-          }
+          // Preço não alcançou a entrada no candle imediatamente seguinte (T+1).
+          // Regra Global e Obrigatória do Sistema:
+          // A ordem de entrada é avaliada exclusivamente no candle T+1.
+          // Se não atingir o preço de entrada no candle T+1, a ordem é cancelada e o sinal invalidado.
+          status = STATUS.NOT_TRIGGERED;
+          exitDate = candleDate;
+          resultR = null;
+          executedEntryPrice = null;
+          entryDate = null;
 
-          const sessionsElapsed = i - startIndex + 1;
-          if (sessionsElapsed >= 6) {
-            status = STATUS.NOT_TRIGGERED;
-            exitDate = candleDate;
-            exitReason = 'Expirou sem acionamento da entrada (limite de 5 sessões)';
-            resultR = null;
+          if (cLow <= stopInitial) {
+            exitReason = 'Mínima do gatilho violada antes da ativação no candle seguinte (T+1)';
             addTimelineEvent({
               type: 'NOT_TRIGGERED',
               date: candleDate,
               label: 'Não acionado',
-              desc: `Expirou após 5 pregões sem rompimento do gatilho`
+              desc: 'Padrão desqualificado antes do rompimento: preço violou o stop no candle seguinte (T+1) sem acionar a entrada'
             });
-            break;
+          } else {
+            exitReason = 'Expirou sem acionamento no candle seguinte (T+1)';
+            addTimelineEvent({
+              type: 'NOT_TRIGGERED',
+              date: candleDate,
+              label: 'Não acionado',
+              desc: 'Expirou sem acionamento no candle imediatamente seguinte ao sinal (T+1). Ordem cancelada definitivamente.'
+            });
           }
-          // Continua aguardando entrada
-          continue;
+          break; // O sinal expira imediatamente em T+1; encerra a avaliação sem processar candles posteriores
         }
       }
 
@@ -2787,7 +2804,7 @@
         stopLoss: 8.40,
         status: STATUS.NOT_TRIGGERED,
         currentPrice: 8.30,
-        exitDate: '2026-07-22',
+        exitDate: '2026-07-20',
         exitReason: 'Mínima violada antes do rompimento',
         resultR: null,
         mfeR: null,
@@ -2820,7 +2837,7 @@
         stopLoss: 18.90,
         status: STATUS.NOT_TRIGGERED,
         currentPrice: 18.70,
-        exitDate: '2026-06-29',
+        exitDate: '2026-06-26',
         exitReason: 'Mínima violada antes do rompimento',
         resultR: null,
         mfeR: null,
@@ -2843,7 +2860,7 @@
         stopLoss: 31.00,
         status: STATUS.NOT_TRIGGERED,
         currentPrice: 30.80,
-        exitDate: '2026-06-19',
+        exitDate: '2026-06-17',
         exitReason: 'Mínima violada antes do rompimento',
         resultR: null,
         mfeR: null,
@@ -6827,6 +6844,15 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         });
       }
 
+      const expectedTPlusOne = addTradingDays(signalDate, 1, validSessionSet);
+      if (signalDate && eDate && expectedTPlusOne && eDate !== expectedTPlusOne) {
+        errors.push({
+          code: 'DELAYED_ENTRY_EXECUTION',
+          field: 'entryDate',
+          message: `Execução tardia proibida: a entrada (${eDate}) deve ocorrer exclusivamente no pregão imediatamente seguinte ao sinal (T+1: ${expectedTPlusOne}).`
+        });
+      }
+
       const execEntry = Number(sim.executedEntryPrice);
       if (!Number.isFinite(execEntry) || execEntry <= 0) {
         errors.push({
@@ -7466,12 +7492,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
         if (isExecuted) {
           executedCount++;
-        }
-
-        if (evaluated.exitDate) {
-          symbolBusyUntil.set(sym, String(evaluated.exitDate).slice(0, 10));
-        } else if (evaluated.status === STATUS.IN_OPERATION || evaluated.status === STATUS.WAITING_ENTRY) {
-          symbolBusyUntil.set(sym, '9999-12-31');
+          if (evaluated.exitDate) {
+            symbolBusyUntil.set(sym, String(evaluated.exitDate).slice(0, 10));
+          } else if (evaluated.status === STATUS.IN_OPERATION) {
+            symbolBusyUntil.set(sym, '9999-12-31');
+          }
         }
 
         simulations.push(evaluated);
@@ -7689,8 +7714,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         id: 'entry_exit_rules',
         number: 8,
         title: 'Regras de Entrada e Saída',
-        summary: `Entrada: Máxima do gatilho + R$ 0,01 | Stop inicial: 0,01 abaixo da mínima de referência (Inside Bar: stop obrigatoriamente no candle anterior) | Saída: ${scenarioMeta.name}.`,
-        detail: `${scenarioMeta.description} Para Inside Bar, o stop inicial fica obrigatoriamente 0,01 abaixo da mínima do candle anterior ao gatilho (nunca no mesmo candle). Política conservadora (stop-first) em caso de ambiguidade intradiária.`,
+        summary: `Entrada: Máxima do gatilho + R$ 0,01 (avaliada exclusivamente em T+1) | Stop inicial: 0,01 abaixo da mínima de referência (Inside Bar: stop no candle anterior) | Saída: ${scenarioMeta.name}.`,
+        detail: `A entrada é avaliada exclusivamente no pregão imediatamente seguinte ao sinal (T+1). Se o preço não for atingido em T+1, a ordem é cancelada e o sinal expira definitivamente (sem execuções tardias em T+2 ou posteriores). ${scenarioMeta.description} Para Inside Bar, o stop inicial fica obrigatoriamente 0,01 abaixo da mínima do candle anterior ao gatilho (nunca no mesmo candle). Política conservadora (stop-first) em caso de ambiguidade intradiária.`,
         status: 'Ativa',
         statusKey: 'active',
         blockedCount: null
