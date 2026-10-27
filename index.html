@@ -3676,20 +3676,21 @@ body:not([data-theme="healthy"]) #materials .materials-layout:before{color:#d4ad
 /* A tela Materials não usa uma coluna central estreita: ela ocupa todo o workspace. */
 body:has(#materials.active) .content{padding-right:clamp(24px,3vw,64px)!important;padding-left:clamp(24px,3vw,64px)!important}#materials .materials-page{width:100%;max-width:none;margin:0}#materials .materials-hero{width:100%;box-sizing:border-box}#materials .materials-layout{width:100%;box-sizing:border-box}@media(min-width:1680px){#materials .materials-layout{grid-template-columns:minmax(0,1fr) 380px;gap:24px}#materials .materials-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}#materials .material-cover{height:220px}}
 </style>
-<link rel="stylesheet" href="frontend/materials-page-v2.css" />
+<link rel="stylesheet" href="frontend/materials-page-v2.css?v=20261027-forca-verde-flagship-1" />
 <link rel="stylesheet" href="frontend/fundamentals.css?v=20260925-v1" />
 <link rel="stylesheet" href="frontend/theme-audit.css?v=20260923-visual-fidelity-1" />
 <script>
 const MATERIALS_STORAGE='healthy-trend-trader-materials-v1';
 const healthyMaterials=[
- {id:'rubric',title:'Trading Rubric',type:'Livro',price:97,cover:'assets/materials-rubric-cover-v1.png',description:'O guia completo para avaliar a qualidade das oportunidades e empilhar probabilidades.'},
- {id:'cycle',title:'Ciclo de Mercado',type:'eBook',price:67,cover:'assets/materials-market-cover-v1.png',description:'Entenda as fases do mercado e adapte sua estratégia para cada ambiente.'},
- {id:'risk',title:'Gestão de Risco',type:'Guia',price:67,cover:'assets/materials-risk-cover-v1.png',description:'Princípios e práticas para proteger o capital e construir consistência no longo prazo.'},
- {id:'earnings',title:'Playbook de Earnings',type:'Apresentação',price:47,cover:'assets/materials-rubric-cover-v1.png',description:'Estratégias, exemplos e estudos para operar oportunidades em resultados corporativos.'},
- {id:'checklist',title:'Checklist do Trader',type:'Template',price:27,cover:'assets/materials-risk-cover-v1.png',description:'Um checklist prático para executar seu método com disciplina todos os dias.'},
- {id:'zen',title:'Trader Zen',type:'Livro',price:57,cover:'assets/materials-zen-cover-v1.png',description:'Um guia para desenvolver mentalidade, foco e equilíbrio durante a operação.'},
- {id:'audio',title:'Áudios de Alta Performance',type:'Áudio',price:37,cover:'assets/materials-zen-cover-v1.png',description:'Conteúdos especiais para fortalecer foco, disciplina e confiança na jornada.'},
- {id:'fundamentals',title:'Fundamentos para Traders',type:'Curso',price:67,cover:'assets/materials-market-cover-v1.png',description:'Como analisar empresas de forma simples e encontrar ativos de alta qualidade.'}
+ {id:'forca-verde',title:'Força Verde: Swing Trade com Tendência',type:'Livro',price:97,cover:'assets/forca-verde-banner.jpg',description:'Um guia completo e prático para encontrar, operar e capturar grandes movimentos no mercado, com mais disciplina, paciência e resultados consistentes.',available:true,isFlagship:true},
+ {id:'rubric',title:'Trading Rubric: O Guia Mestre de Oportunidades',type:'Livro',price:97,cover:'assets/materials-rubric-cover-v1.png',description:'O guia completo para avaliar a qualidade das oportunidades e empilhar probabilidades.',available:false},
+ {id:'cycle',title:'Ciclo de Mercado: O Termômetro dos 4 Regimes',type:'eBook',price:67,cover:'assets/materials-market-cover-v1.png',description:'Entenda as fases do mercado e adapte sua estratégia para cada ambiente.',available:false},
+ {id:'risk',title:'Gestão de Risco: A Armadura Matemática do Capital',type:'Guia',price:67,cover:'assets/materials-risk-cover-v1.png',description:'Princípios e práticas para proteger o capital e construir consistência no longo prazo.',available:false},
+ {id:'earnings',title:'Playbook de Earnings: Operações Estratégicas em Balanços',type:'Apresentação',price:47,cover:'assets/materials-earnings-cover-v1.png',description:'Estratégias, exemplos e estudos para operar oportunidades em resultados corporativos.',available:false},
+ {id:'checklist',title:'Checklist do Trader: Checklist Executivo do Trader de Tendência',type:'Template',price:27,cover:'assets/materials-checklist-cover-v1.png',description:'Um checklist prático para executar seu método com disciplina todos os dias.',available:false},
+ {id:'zen',title:'Trader Zen: Pausas Conscientes e Maestria Emocional',type:'Livro',price:57,cover:'assets/materials-zen-cover-v1.png',description:'Um guia para desenvolver mentalidade, foco e equilíbrio durante a operação.',available:false},
+ {id:'audio',title:'Áudios de Alta Performance: Condicionamento Neural Pré-Pregão',type:'Áudio',price:37,cover:'assets/materials-audio-cover-v1.png',description:'Conteúdos especiais para fortalecer foco, disciplina e confiança na jornada.',available:false},
+ {id:'fundamentals',title:'Fundamentos para Traders: Filtros Fundamentalistas para Trend Following',type:'Curso',price:67,cover:'assets/materials-fundamentals-cover-v1.png',description:'Como analisar empresas de forma simples e encontrar ativos de alta qualidade.',available:false}
 ];
 let materialsFilter='Todos',materialsQuery='',materialsLibraryOnly=false,materialsDetail=null;
 function purchasedMaterials(){try{return JSON.parse(localStorage.getItem(MATERIALS_STORAGE)||'[]')}catch{return[]}}
@@ -3719,7 +3720,7 @@ const goWithMaterials=go;
 go=function(id, ...args){goWithMaterials(id, ...args);if(id==='materials')renderMaterials()};
 renderMaterials();
 </script>
-<script src="frontend/materials-page-v2.js?v=20260922-grading-abcd-1"></script>
+<script src="frontend/materials-page-v2.js?v=20261027-forca-verde-flagship-1"></script>
 <script src="frontend/manual-rubric-page.js?v=20260922-grading-abcd-1"></script>
 <script src="frontend/journal-v2-model.js?v=20261026-title-audio-1"></script>
 <script src="frontend/journal-export-model.js?v=20260924-ai-1"></script>

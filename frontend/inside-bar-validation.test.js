@@ -206,7 +206,7 @@ test('Inside Bar — 5. Acionamento da entrada e stop no simulador (sem look-ahe
   assert.equal(evaluatedExpired.resultR, null);
 });
 
-test('Inside Bar — 6. Deduplicação com Double Inside Bar', () => {
+test('Inside Bar — 6. Consecutivos consolidados no Inside Bar canônico', () => {
   // Três candles: c3 (mãe), c2 (IB de c3), c1 (IB de c2)
   const mother = { date: '2026-05-08', open: 20.0, high: 24.0, low: 18.0, close: 22.0 };
   const ib1 = { date: '2026-05-09', open: 21.0, high: 23.0, low: 19.0, close: 22.0 };
@@ -220,8 +220,8 @@ test('Inside Bar — 6. Deduplicação com Double Inside Bar', () => {
 
   // detectSetupTrigger deve retornar Double Inside Bar (prioridade sobre Inside Bar simples)
   assert.ok(detected);
-  assert.equal(detected.name, 'Double Inside Bar');
-  assert.equal(detected.id, 'DOUBLE_INSIDE_BAR');
+  assert.equal(detected.name, 'Inside Bar');
+  assert.equal(detected.id, 'INSIDE_BAR');
 });
 
 test('Inside Bar — 7. Consistência entre TradeSimulatorModel e TickerChartModel', () => {
