@@ -492,3 +492,62 @@ test('Lista de Trades — 10. Exclusão categórica de trades incompletos/exclu�
   assert.equal(beCount, 0);
   assert.equal(totalCount, gainCount + lossCount + beCount, 'Soma de Gain + Loss + BE deve ser idêntica a Todos');
 });
+
+test('Trailing Stop e Gestão de Risco — 11. O método utiliza estritamente a EMA 10 (Média 10) para condução de trailing stop, eliminando qualquer menção ou cálculo baseado em EMA 9', () => {
+  const jsContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.js'), 'utf8');
+
+  // 1. Textos do modal Gerador de Massa de Testes devem citar estritamente Média 10
+  assert.ok(
+    jsContent.includes('Gestão Parcial 50% (2R) + Média 10'),
+    'Modal da massa deve exibir "Gestão Parcial 50% (2R) + Média 10"'
+  );
+  assert.ok(
+    jsContent.includes('Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 10.'),
+    'Modal da massa deve descrever condução dos 50% pela Média 10'
+  );
+  assert.ok(
+    jsContent.includes('Gestão Parcial 80% (2R) + Média 10'),
+    'Modal da massa deve exibir "Gestão Parcial 80% (2R) + Média 10"'
+  );
+  assert.ok(
+    jsContent.includes('Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 10.'),
+    'Modal da massa deve descrever condução dos 20% pela Média 10'
+  );
+
+  // 2. Não deve existir nenhuma menção a "Média 9" no trade-simulator.js
+  assert.ok(
+    !/média 9|media 9/i.test(jsContent),
+    'trade-simulator.js não pode conter menções a Média 9'
+  );
+
+  // 3. Verificação do motor TradeSimulatorModel: condução da posição via EMA 10
+  const baseSim = {
+    symbol: 'PETR4',
+    signalDate: '2026-09-01',
+    entryPrice: 30.00,
+    stopLoss: 28.00, // risk = 2.00, alvo 2R = 34.00
+    status: 'WAITING_ENTRY',
+    timeline: []
+  };
+
+  const candles = [
+    { time: '2026-09-01', open: 29.80, high: 30.20, low: 29.50, close: 30.00 },
+    { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 }, // Ativa entrada a 30.00
+    { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.50 },
+    { time: '2026-09-04', open: 32.20, high: 34.50, low: 31.80, close: 34.20 }, // Atinge +2R (34.00) -> parcial executada
+    { time: '2026-09-05', open: 33.00, high: 33.10, low: 30.80, close: 31.00 }  // Fecha a 31.00 (abaixo da EMA 10 que está em ~31.15)
+  ];
+
+  const evalResult = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles, 'PARTIAL_50_2R_EMA9');
+  assert.equal(evalResult.status, 'CLOSED_GAIN');
+  assert.ok(evalResult.partialExit && evalResult.partialExit.executed);
+  assert.equal(evalResult.partialExit.percent, 50);
+  assert.equal(evalResult.partialExit.runnerPercent, 50);
+
+  // Verifica que o evento de saída do runner registrou explicitamente a saída pela MM10
+  const runnerExitEvent = evalResult.timeline.find(e => e.type === 'RUNNER_EXIT');
+  assert.ok(runnerExitEvent, 'Deve registrar evento RUNNER_EXIT na timeline');
+  assert.ok(runnerExitEvent.label.includes('MM10'), 'Evento de saída deve referenciar MM10');
+  assert.ok(runnerExitEvent.desc.includes('EMA 10'), 'Descrição do evento deve referenciar EMA 10');
+  assert.ok(evalResult.exitReason.includes('EMA 10'), 'exitReason deve referenciar EMA 10');
+});

@@ -90,7 +90,9 @@
     EXTENDED_2_5R: '2.5R',
     PYRAMID_1R_2R: 'PYRAMID_1R_2R',
     PARTIAL_50_2R_EMA9: 'PARTIAL_50_2R_EMA9',
-    PARTIAL_80_2R_EMA9: 'PARTIAL_80_2R_EMA9'
+    PARTIAL_80_2R_EMA9: 'PARTIAL_80_2R_EMA9',
+    PARTIAL_50_2R_EMA10: 'PARTIAL_50_2R_EMA9',
+    PARTIAL_80_2R_EMA10: 'PARTIAL_80_2R_EMA9'
   });
 
   const SCENARIO_METADATA = Object.freeze({
@@ -1116,9 +1118,10 @@
     const scenario = simulation.managementScenario || scenarioOverride || '2R';
     const targetMultiplier = scenario === '2.5R' ? 2.5 : 2.0;
     const isPyramid = scenario === 'PYRAMID_1R_2R';
-    const isPartial50 = scenario === 'PARTIAL_50_2R_EMA9';
-    const isPartial80 = scenario === 'PARTIAL_80_2R_EMA9';
-    const isPartialEma9 = isPartial50 || isPartial80;
+    const isPartial50 = scenario === 'PARTIAL_50_2R_EMA9' || scenario === 'PARTIAL_50_2R_EMA10';
+    const isPartial80 = scenario === 'PARTIAL_80_2R_EMA9' || scenario === 'PARTIAL_80_2R_EMA10';
+    const isPartialEma10 = isPartial50 || isPartial80;
+    const isPartialEma9 = isPartialEma10;
     const partialPercent = isPartial50 ? 50 : (isPartial80 ? 80 : 0);
     const runnerPercent = 100 - partialPercent;
 
@@ -3951,8 +3954,8 @@
       return cloned;
     }
 
-    if (scenario === 'PARTIAL_50_2R_EMA9' || scenario === 'PARTIAL_80_2R_EMA9') {
-      const is50 = scenario === 'PARTIAL_50_2R_EMA9';
+    if (scenario === 'PARTIAL_50_2R_EMA9' || scenario === 'PARTIAL_80_2R_EMA9' || scenario === 'PARTIAL_50_2R_EMA10' || scenario === 'PARTIAL_80_2R_EMA10') {
+      const is50 = scenario === 'PARTIAL_50_2R_EMA9' || scenario === 'PARTIAL_50_2R_EMA10';
       const pct = is50 ? 0.5 : 0.8;
       const runnerPct = 1 - pct;
       const cloned = {

@@ -3474,7 +3474,7 @@
       `;
     }
 
-        if (scenarioId === 'PARTIAL_50_2R_EMA9') {
+        if (scenarioId === 'PARTIAL_50_2R_EMA9' || scenarioId === 'PARTIAL_50_2R_EMA10') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <line x1="26" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2.4" />
@@ -3493,7 +3493,7 @@
       `;
     }
 
-        if (scenarioId === 'PARTIAL_80_2R_EMA9') {
+        if (scenarioId === 'PARTIAL_80_2R_EMA9' || scenarioId === 'PARTIAL_80_2R_EMA10') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <line x1="26" y1="18" x2="88" y2="18" stroke="#3b82f6" stroke-width="2.4" />
@@ -4056,15 +4056,15 @@
                     </div>
                   </div>
 
-                  <!-- Opção 4: Gestão Parcial 50% (2R) + Média 9 -->
+                  <!-- Opção 4: Gestão Parcial 50% (2R) + Média 10 -->
                   <div class="sim-scenario-option ${sel === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_50_2R_EMA9">
                     <div class="sim-scen-opt-left">
                       <div class="sim-scen-radio ${sel === 'PARTIAL_50_2R_EMA9' ? 'checked' : ''}">
                         <span class="sim-scen-radio-dot"></span>
                       </div>
                       <div class="sim-scen-opt-texts">
-                        <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
-                        <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 9.</div>
+                        <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 10</div>
+                        <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 10.</div>
                       </div>
                     </div>
                     <div class="sim-scen-opt-diagram">
@@ -4072,15 +4072,15 @@
                     </div>
                   </div>
 
-                  <!-- Opção 5: Gestão Parcial 80% (2R) + Média 9 -->
+                  <!-- Opção 5: Gestão Parcial 80% (2R) + Média 10 -->
                   <div class="sim-scenario-option ${sel === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_80_2R_EMA9">
                     <div class="sim-scen-opt-left">
                       <div class="sim-scen-radio ${sel === 'PARTIAL_80_2R_EMA9' ? 'checked' : ''}">
                         <span class="sim-scen-radio-dot"></span>
                       </div>
                       <div class="sim-scen-opt-texts">
-                        <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
-                        <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 9.</div>
+                        <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 10</div>
+                        <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 10.</div>
                       </div>
                     </div>
                     <div class="sim-scen-opt-diagram">
@@ -4308,8 +4308,8 @@
     const sc2R = scenarios.find(s => s.id === '2R') || {};
     const sc25R = scenarios.find(s => s.id === '2.5R') || {};
     const scPyr = scenarios.find(s => s.id === 'PYRAMID_1R_2R') || {};
-    const scPart50 = scenarios.find(s => s.id === 'PARTIAL_50_2R_EMA9') || {};
-    const scPart80 = scenarios.find(s => s.id === 'PARTIAL_80_2R_EMA9') || {};
+    const scPart50 = scenarios.find(s => s.id === 'PARTIAL_50_2R_EMA9' || s.id === 'PARTIAL_50_2R_EMA10') || {};
+    const scPart80 = scenarios.find(s => s.id === 'PARTIAL_80_2R_EMA9' || s.id === 'PARTIAL_80_2R_EMA10') || {};
 
     function getScenarioAvgDuration(scen, scenarioId) {
       if (scen && scen.avgDurationDaysFormatted && scen.avgDurationDaysFormatted !== '—') {
@@ -4560,7 +4560,7 @@
                 </div>
               </div>
 
-              <!-- Card 4: Parcial 50% (2R) + Média 9 -->
+              <!-- Card 4: Parcial 50% (2R) + Média 10 -->
               <div class="sim-expl-item item-part50">
                 <div class="sim-expl-item-body">
                   <div class="sim-expl-title-row">

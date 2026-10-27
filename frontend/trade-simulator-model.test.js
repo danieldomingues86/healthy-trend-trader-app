@@ -458,7 +458,7 @@ test('trade-simulator-model: compareManagementScenarios consolida 10 métricas o
   assert.equal(scPyr.winnersCount, 13);
   assert.equal(scPyr.losersCount, 15);
 
-  // 4. Cenário Parcial 50% em 2R + Condução por MM9
+  // 4. Cenário Parcial 50% em 2R + Condução por MM10
   assert.equal(scPart50.id, 'PARTIAL_50_2R_EMA9');
   assert.equal(scPart50.totalTrades, 42);
   assert.equal(scPart50.winRate, 71.4);
@@ -469,7 +469,7 @@ test('trade-simulator-model: compareManagementScenarios consolida 10 métricas o
   assert.equal(scPart50.winnersCount, 20);
   assert.equal(scPart50.losersCount, 8);
 
-  // 5. Cenário Parcial 80% em 2R + Condução por MM9
+  // 5. Cenário Parcial 80% em 2R + Condução por MM10
   assert.equal(scPart80.id, 'PARTIAL_80_2R_EMA9');
   assert.equal(scPart80.totalTrades, 42);
   assert.equal(scPart80.winRate, 71.4);
