@@ -293,8 +293,8 @@
     // 1. HERO CINEMATOGRÁFICO DO FORÇA VERDE (PRIMEIRA DOBRA OBRIGATÓRIA)
     const heroSpotlightMarkup = !materialsLibraryOnly ? `
       <section class="materials-hero-cinematic materials-hero-spotlight forca-verde-flagship" aria-label="Destaque Editorial — Livro Força Verde">
-        <!-- Backdrop Panorâmico Oficial Limpo com Iluminação Cinematográfica -->
-        <div class="hero-cinematic-bg" style="background-image: url('assets/forca-verde-banner.jpg');"></div>
+        <!-- Backdrop Panorâmico Oficial Limpo com Iluminação Cinematográfica (Ambientação Pura sem livro no fundo) -->
+        <div class="hero-cinematic-bg" style="background-image: url('assets/forca-verde-ambient-backdrop.jpg');"></div>
         <div class="hero-cinematic-vignette"></div>
 
         <div class="hero-cinematic-body">
@@ -332,8 +332,10 @@
             </div>
 
             <div class="hero-microcopy">
-              <span class="lock-icon">🔒</span>
-              <span>Acesso imediato • PDF HD + Kindle</span>
+              <span class="hero-microcopy-item"><span class="lock-icon">🔒</span> Acesso imediato</span>
+              <span class="hero-microcopy-item"><span class="doc-icon">📄</span> PDF HD</span>
+              <span class="hero-microcopy-item"><span class="device-icon">📱</span> Formato Kindle</span>
+              <span class="hero-microcopy-item"><span class="book-icon">📖</span> Leitura na Biblioteca</span>
             </div>
           </div>
 
@@ -547,7 +549,7 @@
       </article>`;
     };
 
-    // 4. SEÇÃO DESTAQUES DA METODOLOGIA (GRID COM LEAD CARD E CARDS COMPLEMENTARES)
+    // 4. SEÇÃO DESTAQUES DA METODOLOGIA (GRID COM 3 CARDS, SELO EM BREVE E FONTE ÚNICA DA VERDADE)
     const showFeatured = !materialsLibraryOnly && !query && (materialsFilter === 'Todos' || materialsFilter === 'Livros');
     const rubricItem = healthyMaterials.find((m) => m.id === 'rubric');
     const riskItem = healthyMaterials.find((m) => m.id === 'risk');
@@ -558,7 +560,7 @@
         <div class="store-section-header featured-header-row">
           <div>
             <span class="section-kicker">— SELEÇÃO ESPECIAL</span>
-            <h2 class="section-title">Destaques da Metodologia</h2>
+            <h2 class="section-title">DESTAQUES DA METODOLOGIA</h2>
             <p class="section-desc">Materiais essenciais para transformar o trading em um sistema matemático e profissional.</p>
           </div>
           <button type="button" class="btn-view-all-materials" data-material-filter="Todos">
@@ -567,62 +569,51 @@
         </div>
 
         <div class="featured-editorial-layout featured-tri-grid">
-          <!-- Card de Destaque Principal (Lead Feature - Trading Rubric) -->
-          <article class="featured-lead-card">
-            <div class="lead-card-stage">
-              <img src="${rubricItem.cover}" alt="Capa de ${rubricItem.title}" class="lead-card-cover" />
-              <div class="lead-stage-glow"></div>
+          <!-- Card de Destaque 1 (Trading Rubric - Em Breve conforme referência) -->
+          <article class="featured-lead-card featured-highlight-card">
+            <div class="highlight-card-stage lead-card-stage">
+              <img src="${rubricItem.cover}" alt="Capa de ${rubricItem.title}" class="highlight-card-cover lead-card-cover" />
+              <span class="highlight-badge">★ LIVRO</span>
+              <div class="stamp-coming-soon pill-coming-soon" aria-label="Material em produção editorial — Em Breve">
+                <span>EM BREVE</span>
+              </div>
             </div>
-            <div class="lead-card-info">
-              <div class="lead-badge-row">
-                <span class="badge-featured-gold">LIVRO OFICIAL</span>
-                <span class="badge-featured-type">Edição Completa</span>
-                <span class="badge-featured-best">Mais Vendido</span>
-                <span class="badge-featured-rating">★★★ 5.0</span>
-              </div>
-
-              <h3 class="lead-title">${rubricItem.title}</h3>
-              <p class="lead-tagline">O guia completo do método Healthy Trend Trader. Estratégia, disciplina e prática para encontrar, operar e capturar grandes movimentos no mercado.</p>
-              
-              <ul class="lead-checklist">
-                <li><span class="check-ico">✔</span> <span>Identificação de oportunidades com Força Relativa</span></li>
-                <li><span class="check-ico">✔</span> <span>Fórmula matemática de posicionamento (Position Sizing)</span></li>
-                <li><span class="check-ico">✔</span> <span>Exemplos práticos e estudos de caso</span></li>
-              </ul>
-
-              <div class="lead-actions-row">
-                <button type="button" class="btn-lead-detail" data-material-detail="rubric">Ver detalhes</button>
-                <button type="button" class="btn-lead-buy" data-material-detail="rubric">Garantir meu exemplar →</button>
-              </div>
+            <div class="highlight-card-body lead-card-info">
+              <h3 class="highlight-title lead-title">${rubricItem.title}</h3>
+              <p class="highlight-desc lead-tagline">O guia completo do método Healthy Trend Trader. Estratégia, disciplina e prática para capturar grandes movimentos no mercado.</p>
             </div>
           </article>
 
           <!-- Destaques Secundários em Grid Duplo Integrado -->
-          <div class="featured-dual-grid">
-            ${riskItem ? `
-              <article class="featured-sub-card">
-                <div class="sub-card-stage">
-                  <img src="${riskItem.cover}" alt="Capa de ${riskItem.title}" class="sub-card-cover" />
-                  <span class="sub-badge">GUIA PRÁTICO</span>
+          <div class="featured-dual-grid" style="display: contents;">
+            ${cycleItem ? `
+              <article class="featured-sub-card featured-highlight-card">
+                <div class="highlight-card-stage sub-card-stage">
+                  <img src="${cycleItem.cover}" alt="Capa de ${cycleItem.title}" class="highlight-card-cover sub-card-cover" />
+                  <span class="highlight-badge sub-badge">★ GUIA</span>
+                  <div class="stamp-coming-soon pill-coming-soon" aria-label="Material em produção editorial — Em Breve">
+                    <span>EM BREVE</span>
+                  </div>
                 </div>
-                <div class="sub-card-body">
-                  <h4 class="sub-title">${riskItem.title}</h4>
-                  <p class="sub-desc">Cálculo exato de R-Múltiplo, sizing matemático e quebra de série.</p>
-                  <button type="button" class="btn-sub-detail" data-material-detail="risk">Ver detalhes</button>
+                <div class="highlight-card-body sub-card-body">
+                  <h3 class="highlight-title sub-title">${cycleItem.title}</h3>
+                  <p class="highlight-desc sub-desc">Mapeamento objetivo dos regimes de mercado do Ibovespa e S&P 500, para operar sempre a favor do cenário.</p>
                 </div>
               </article>
             ` : ''}
 
-            ${cycleItem ? `
-              <article class="featured-sub-card">
-                <div class="sub-card-stage">
-                  <img src="${cycleItem.cover}" alt="Capa de ${cycleItem.title}" class="sub-card-cover" />
-                  <span class="sub-badge">★ APRESENTAÇÃO</span>
+            ${riskItem ? `
+              <article class="featured-sub-card featured-highlight-card">
+                <div class="highlight-card-stage sub-card-stage">
+                  <img src="${riskItem.cover}" alt="Capa de ${riskItem.title}" class="highlight-card-cover sub-card-cover" />
+                  <span class="highlight-badge sub-badge">★ APRESENTAÇÃO</span>
+                  <div class="stamp-coming-soon pill-coming-soon" aria-label="Material em produção editorial — Em Breve">
+                    <span>EM BREVE</span>
+                  </div>
                 </div>
-                <div class="sub-card-body">
-                  <h4 class="sub-title">${cycleItem.title}</h4>
-                  <p class="sub-desc">Mapeamento objetivo dos regimes do Ibovespa e S&P 500.</p>
-                  <button type="button" class="btn-sub-detail" data-material-detail="cycle">Ver detalhes</button>
+                <div class="highlight-card-body sub-card-body">
+                  <h3 class="highlight-title sub-title">${riskItem.title}</h3>
+                  <p class="highlight-desc sub-desc">Cálculo exato de R-Múltiplo, sizing matemático e regras práticas de proteção do capital.</p>
                 </div>
               </article>
             ` : ''}
@@ -674,22 +665,11 @@
 
           <div class="acervo-item-card">
             <div class="acervo-item-cover-wrap">
-              <img src="assets/materials-market-cover-v1.png" alt="Ciclo de Mercado" class="acervo-item-cover" />
-            </div>
-            <div class="acervo-item-info">
-              <h4 class="acervo-item-title">Ciclo de Mercado</h4>
-              <span class="acervo-item-type">Apresentação</span>
-              <button type="button" class="btn-acervo-open" data-material-detail="cycle">Abrir</button>
-            </div>
-          </div>
-
-          <div class="acervo-item-card">
-            <div class="acervo-item-cover-wrap">
               <img src="assets/materials-earnings-cover-v1.png" alt="Playbook de Earnings" class="acervo-item-cover" />
             </div>
             <div class="acervo-item-info">
               <h4 class="acervo-item-title">Playbook de Earnings</h4>
-              <span class="acervo-item-type">Guia</span>
+              <span class="acervo-item-type">Apresentação</span>
               <button type="button" class="btn-acervo-open" data-material-detail="earnings">Abrir</button>
             </div>
           </div>
