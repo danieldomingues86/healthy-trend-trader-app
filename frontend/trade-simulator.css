@@ -7367,9 +7367,16 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 }
 
 .sim-rubric-pill-btn.active {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-  color: #047857;
+  background: #059669;
+  border-color: #047857;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.35);
+  font-weight: 700;
+}
+
+.sim-rubric-pill-btn.active .pill-dot {
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
 }
 
 .sim-rubric-pill-btn.inactive {
@@ -7648,9 +7655,9 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 .sim-rebuild-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
   margin-bottom: 20px;
 }
 
@@ -7660,7 +7667,7 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .sim-rebuild-card-head-left {
@@ -7677,22 +7684,35 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  background: #ecfdf5;
-  color: #059669;
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
 }
 
 .sim-rebuild-card-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 2px 0;
-  letter-spacing: -0.01em;
+  margin: 0 0 3px 0;
+  letter-spacing: -0.015em;
 }
 
 .sim-rebuild-card-desc {
-  font-size: 12.5px;
+  font-size: 13px;
   color: #64748b;
   margin: 0;
+}
+
+.sim-rebuild-view-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sim-view-toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
 }
 
 .sim-rebuild-view-toggle {
@@ -7701,46 +7721,52 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   border-radius: 999px;
   padding: 3px;
   gap: 2px;
+  border: 1px solid #e2e8f0;
 }
 
 .sim-view-toggle-btn {
   background: transparent;
   border: none;
   border-radius: 999px;
-  padding: 5px 14px;
-  font-size: 12px;
+  padding: 6px 16px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #64748b;
+  color: #475569;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.sim-view-toggle-btn.active {
-  background: #ffffff;
+.sim-view-toggle-btn:hover {
   color: #0f172a;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.sim-view-toggle-btn.active {
+  background: #059669;
+  color: #ffffff;
   font-weight: 700;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
 }
 
 /* Subcards de Destaque */
 .sim-summary-subcards-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 22px;
+  gap: 18px;
+  margin-bottom: 24px;
 }
 
 .sim-subcard-box {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 16px 20px;
-  border-radius: 12px;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 14px;
 }
 
 .sim-subcard-box.subcard-total {
   background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  border: 1.5px solid #bbf7d0;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.08);
 }
 
 .sim-subcard-box.subcard-trophy {
@@ -7749,9 +7775,9 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 }
 
 .sim-subcard-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -7760,32 +7786,35 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 
 .sim-subcard-icon.icon-coins {
   background: #dcfce7;
-  color: #16a34a;
+  color: #15803d;
+  border: 1px solid #86efac;
 }
 
 .sim-subcard-icon.icon-trophy {
   background: #f1f5f9;
-  color: #0f172a;
+  color: #059669;
+  border: 1px solid #e2e8f0;
 }
 
 .sim-subcard-label {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
-  color: #15803d;
+  color: #166534;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 2px;
-}
-
-.sim-subcard-main-val {
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1.15;
+  letter-spacing: 0.06em;
   margin-bottom: 4px;
 }
 
+.sim-subcard-main-val {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  letter-spacing: -0.025em;
+}
+
 .sim-subcard-main-val.pos {
-  color: #15803d;
+  color: #047857;
 }
 
 .sim-subcard-main-val.neg {
@@ -7795,30 +7824,43 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 .sim-subcard-sub-line {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 12px;
+  gap: 14px;
+  font-size: 12.5px;
   color: #4b5563;
 }
 
 .sim-subcard-sub-line .equiv-tag {
+  color: #475569;
   font-weight: 500;
 }
 
+.sim-subcard-sub-line .equiv-val.pos {
+  color: #047857;
+  font-weight: 700;
+}
+
+.sim-subcard-sub-line .equiv-val.neg {
+  color: #dc2626;
+  font-weight: 700;
+}
+
 .sim-subcard-sub-line .count-tag {
-  color: #6b7280;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .sim-subcard-trophy-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: #0f172a;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
 }
 
 .sim-subcard-trophy-text {
-  font-size: 12px;
+  font-size: 12.5px;
   color: #64748b;
-  line-height: 1.45;
+  line-height: 1.5;
   margin: 0;
 }
 
@@ -7834,20 +7876,24 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 
 .sim-rebuild-grade-table th {
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 12px 14px;
-  border-bottom: 1px solid #e2e8f0;
+  letter-spacing: 0.05em;
+  padding: 14px 16px;
+  border-bottom: 1.5px solid #e2e8f0;
   background: #fafafa;
 }
 
 .sim-rebuild-grade-table td {
-  padding: 14px;
+  padding: 16px 14px;
   border-bottom: 1px solid #f1f5f9;
-  font-size: 13px;
+  font-size: 13.5px;
   vertical-align: middle;
+}
+
+.sim-rebuild-grade-table tbody tr {
+  transition: background 0.12s ease;
 }
 
 .sim-rebuild-grade-table tbody tr:hover {
@@ -7859,49 +7905,60 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 11.5px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  min-width: 26px;
+  font-size: 12.5px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  min-width: 34px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1;
 }
 
 .sim-rebuild-grade-badge.grade-a-plus {
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
+  background: #15803d;
+  color: #ffffff;
+  border: 1px solid #166534;
+  box-shadow: 0 1px 3px rgba(21, 128, 61, 0.25);
 }
 
 .sim-rebuild-grade-badge.grade-a {
-  background: #f0fdf4;
-  color: #15803d;
-  border: 1px solid #bbf7d0;
+  background: #86efac;
+  color: #064e3b;
+  border: 1px solid #4ade80;
+  box-shadow: 0 1px 2px rgba(134, 239, 172, 0.35);
 }
 
 .sim-rebuild-grade-badge.grade-b {
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
+  background: #fef08a;
+  color: #713f12;
+  border: 1px solid #fde047;
+  box-shadow: 0 1px 2px rgba(254, 240, 138, 0.4);
 }
 
 .sim-rebuild-grade-badge.grade-c {
-  background: #fffbeb;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  background: #fed7aa;
+  color: #9a3412;
+  border: 1px solid #fdba74;
+  box-shadow: 0 1px 2px rgba(254, 215, 170, 0.4);
 }
 
 .sim-rebuild-grade-badge.grade-d {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  background: #fecaca;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  box-shadow: 0 1px 2px rgba(254, 202, 202, 0.4);
 }
 
-/* Barra de Progresso da Contribuição */
+/* Barra de Progresso da Contribuição — Estilo Cápsula Expressiva de 10px */
 .sim-rebuild-progress-track {
   width: 100%;
-  height: 6px;
-  background: #e2e8f0;
+  max-width: 130px;
+  height: 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
   border-radius: 999px;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .sim-rebuild-progress-bar {
@@ -7922,36 +7979,45 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 .sim-rebuild-kpis-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin: 18px 0;
+  gap: 16px;
+  margin: 22px 0 16px 0;
 }
 
 .sim-mini-kpi-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  padding: 16px 18px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sim-mini-kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
 }
 
 .sim-mini-kpi-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .sim-mini-kpi-icon {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .sim-mini-kpi-icon.icon-mint {
-  background: #dcfce7;
-  color: #10b981;
+  background: #d1fae5;
+  color: #059669;
 }
 
 .sim-mini-kpi-icon.icon-blue {
@@ -7961,20 +8027,20 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 
 .sim-mini-kpi-icon.icon-red {
   background: #fee2e2;
-  color: #ef4444;
+  color: #dc2626;
 }
 
 .sim-mini-kpi-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: #64748b;
+  color: #475569;
 }
 
 .sim-mini-kpi-body {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin: 8px 0 4px 0;
+  margin-bottom: 8px;
 }
 
 .sim-mini-kpi-num-area {
@@ -7984,13 +8050,15 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 }
 
 .sim-mini-kpi-val {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 800;
   color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 .sim-mini-kpi-val.pos {
-  color: #059669;
+  color: #047857;
 }
 
 .sim-mini-kpi-val.neg {
@@ -8000,18 +8068,21 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 .sim-mini-kpi-badge {
   font-size: 11px;
   font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 999px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  line-height: 1.2;
 }
 
 .sim-mini-kpi-badge.pos {
   background: #ecfdf5;
-  color: #059669;
+  color: #047857;
+  border: 1px solid #a7f3d0;
 }
 
 .sim-mini-kpi-badge.neg {
   background: #fef2f2;
   color: #dc2626;
+  border: 1px solid #fecaca;
 }
 
 .sim-mini-kpi-sparkline svg {
@@ -8019,26 +8090,31 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
 }
 
 .sim-mini-kpi-sub {
-  font-size: 11px;
-  color: #94a3b8;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 400;
+  line-height: 1.3;
 }
 
 /* Banner Soft de Informação */
 .sim-rebuild-info-banner {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  gap: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
   border-radius: 12px;
-  padding: 12px 18px;
-  font-size: 12.5px;
-  color: #475569;
-  margin-top: 16px;
+  padding: 14px 20px;
+  font-size: 13px;
+  color: #1e40af;
+  font-weight: 500;
+  margin-top: 18px;
 }
 
 .sim-rebuild-info-banner svg {
-  color: #64748b;
+  color: #2563eb;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
@@ -8047,18 +8123,18 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 10px;
-  padding: 8px 14px;
+  margin-top: 12px;
+  padding: 10px 16px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 11.5px;
+  border-radius: 10px;
+  font-size: 12px;
   color: #64748b;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .sim-grade-table-footer-note .note-icon {
-  font-size: 13px;
+  font-size: 14px;
   flex-shrink: 0;
 }
 

@@ -388,3 +388,44 @@ test('Refinamento do Simulador — 8. Badges ao lado do título, grid equilibrad
   assert.ok(cssContent.includes('.sim-grade-table-footer-note'), 'CSS deve conter estilos para .sim-grade-table-footer-note');
   assert.ok(cssContent.includes('max-width: 620px'), 'sim-header-titles não deve estar limitado a 360px');
 });
+
+test('UI/UX Premium — 9. Padrão visual premium da referência aprovada (cores vivas, destaque de resultado, badges com contraste, barras de contribuição de 10px e cards de métricas refinados)', () => {
+  const jsContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.js'), 'utf8');
+  const cssContent = fs.readFileSync(path.join(__dirname, 'trade-simulator.css'), 'utf8');
+
+  // 1. View Toggle com label "Visão:" e botão ativo esmeralda
+  assert.ok(jsContent.includes('sim-rebuild-view-toggle-wrap'), 'Deve conter wrapper do toggle de visualização');
+  assert.ok(jsContent.includes('class="sim-view-toggle-label">Visão:</span>'), 'Deve conter label "Visão:"');
+  assert.ok(cssContent.includes('.sim-view-toggle-btn.active'), 'CSS deve ter seletor ativo para toggle');
+  assert.ok(cssContent.includes('background: #059669;'), 'Botão ativo deve ter fundo verde esmeralda #059669');
+
+  // 2. Subcard de Resultado Total com grande destaque visual
+  assert.ok(cssContent.includes('.subcard-total'), 'CSS deve estilizar subcard-total');
+  assert.ok(cssContent.includes('background: #f0fdf4;'), 'Subcard de resultado total deve ter fundo verde suave #f0fdf4');
+  assert.ok(cssContent.includes('font-size: 30px;'), 'Valor principal deve ter tipografia destacada de 30px');
+  assert.ok(jsContent.includes('equiv-val'), 'Equivalente em R deve ter classe de destaque equiv-val');
+
+  // 3. Badges de Grades com personalidades cromáticas vivas
+  assert.ok(cssContent.includes('.sim-rebuild-grade-badge.grade-a {'), 'CSS deve estilizar badge Grade A');
+  assert.ok(cssContent.includes('.sim-rebuild-grade-badge.grade-b {'), 'CSS deve estilizar badge Grade B');
+  assert.ok(cssContent.includes('.sim-rebuild-grade-badge.grade-c {'), 'CSS deve estilizar badge Grade C');
+  assert.ok(cssContent.includes('font-size: 12.5px;'), 'Badges devem ter tipografia nítida de 12.5px');
+
+  // 4. Barra de contribuição expressiva de 10px com preenchimento em cápsula
+  assert.ok(cssContent.includes('height: 10px;'), 'Barra de progresso deve ter altura expressiva de 10px');
+  assert.ok(cssContent.includes('.sim-rebuild-progress-bar.pos'), 'CSS deve ter seletor para barra positiva');
+  assert.ok(cssContent.includes('background: #10b981;'), 'Barra positiva deve ter preenchimento verde vivo #10b981');
+  assert.ok(cssContent.includes('.sim-rebuild-progress-bar.neg'), 'CSS deve ter seletor para barra negativa');
+  assert.ok(cssContent.includes('background: #ef4444;'), 'Barra negativa deve ter preenchimento vermelho #ef4444');
+
+  // 5. Cards de Métricas com ícones tonalizados e valores em 24px
+  assert.ok(cssContent.includes('.sim-mini-kpi-icon.icon-mint'), 'Ícone mint deve ter classe específica');
+  assert.ok(cssContent.includes('.sim-mini-kpi-icon.icon-blue'), 'Ícone blue deve ter classe específica');
+  assert.ok(cssContent.includes('.sim-mini-kpi-icon.icon-red'), 'Ícone red deve ter classe específica');
+  assert.ok(cssContent.includes('font-size: 24px;'), 'Valores de mini KPIs devem ter 24px');
+
+  // 6. Banner de Informação com fundo azul tonalizado e ícone consistente
+  assert.ok(cssContent.includes('.sim-rebuild-info-banner'), 'CSS deve estilizar sim-rebuild-info-banner');
+  assert.ok(cssContent.includes('background: #eff6ff;'), 'Banner deve ter fundo azul suave #eff6ff');
+  assert.ok(cssContent.includes('border: 1px solid #bfdbfe;'), 'Banner deve ter borda suave #bfdbfe');
+});

@@ -1734,13 +1734,16 @@
                 <p class="sim-rebuild-card-desc">Atribuição monetária e em R gerada por cada classe de qualidade do Rubric</p>
               </div>
             </div>
-            <div class="sim-rebuild-view-toggle">
-              <button type="button" class="sim-view-toggle-btn ${isFinancial ? 'active' : ''}" data-summary-view="financial">
-                Financeira (R$)
-              </button>
-              <button type="button" class="sim-view-toggle-btn ${!isFinancial ? 'active' : ''}" data-summary-view="statistical">
-                Estatística (R)
-              </button>
+            <div class="sim-rebuild-view-toggle-wrap">
+              <span class="sim-view-toggle-label">Visão:</span>
+              <div class="sim-rebuild-view-toggle">
+                <button type="button" class="sim-view-toggle-btn ${isFinancial ? 'active' : ''}" data-summary-view="financial">
+                  Financeira (R$)
+                </button>
+                <button type="button" class="sim-view-toggle-btn ${!isFinancial ? 'active' : ''}" data-summary-view="statistical">
+                  Estatística (R)
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1763,10 +1766,7 @@
                 </div>
                 <div class="sim-subcard-sub-line">
                   <span class="equiv-tag">
-                    ${isFinancial
-                      ? `Equivalente a ${totalR >= 0 ? '+' : ''}${totalR.toFixed(2).replace('.', ',')}R`
-                      : `Equivalente a ${totalNetPnL >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(totalNetPnL)).replace('R$ ', '')}`
-                    }
+                    Equivalente a <strong class="equiv-val ${totalR >= 0 ? 'pos' : 'neg'}">${totalR >= 0 ? '+' : ''}${totalR.toFixed(2).replace('.', ',')}R</strong>
                   </span>
                   <span class="count-tag">${executedCount} trades executados</span>
                 </div>
@@ -1776,7 +1776,7 @@
             <!-- Subcard 2: Destaque da Maior Contribuição -->
             <div class="sim-subcard-box subcard-trophy">
               <div class="sim-subcard-icon icon-trophy">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
                   <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
                   <path d="M4 22h16"></path>
@@ -1842,7 +1842,7 @@
               </div>
               <div class="sim-mini-kpi-sparkline">
                 <svg width="64" height="24" viewBox="0 0 64 24" fill="none">
-                  <path d="M2 20 L18 16 L34 18 L48 10 L62 4" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M2 20 L18 16 L34 18 L48 10 L62 4" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
               </div>
             </div>
@@ -1867,7 +1867,7 @@
               </div>
               <div class="sim-mini-kpi-sparkline">
                 <svg width="64" height="24" viewBox="0 0 64 24" fill="none">
-                  <path d="M2 18 L16 19 L32 14 L46 8 L62 4" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M2 18 L16 19 L32 14 L46 8 L62 4" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
               </div>
             </div>
@@ -1891,7 +1891,7 @@
               </div>
               <div class="sim-mini-kpi-sparkline">
                 <svg width="64" height="24" viewBox="0 0 64 24" fill="none">
-                  <path d="M2 22 L20 18 L36 12 L50 8 L62 4" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M2 22 L20 18 L36 12 L50 8 L62 4" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
               </div>
             </div>
@@ -1916,7 +1916,7 @@
               </div>
               <div class="sim-mini-kpi-sparkline">
                 <svg width="64" height="24" viewBox="0 0 64 24" fill="none">
-                  <path d="M2 4 L18 10 L34 8 L48 18 L62 22" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M2 4 L18 10 L34 8 L48 18 L62 22" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
               </div>
             </div>
@@ -2857,7 +2857,7 @@
         <path d="${pathD}" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
         <!-- Ponto final com pulso luminoso -->
         <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="#10b981" opacity="0.25" />
-        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="#10b981" stroke="#ffffff" stroke-width="2" />
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="#10b981" stroke="#ffffff" stroke-width="2.4" />
       </svg>
     `;
   }
@@ -3416,7 +3416,7 @@
     if (scenarioId === '2.5R') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="26" y1="18" x2="148" y2="18" stroke="#f59e0b" stroke-width="2" />
+          <line x1="26" y1="18" x2="148" y2="18" stroke="#f59e0b" stroke-width="2.4" />
           <polygon points="146,14.5 153,18 146,21.5" fill="#f59e0b" />
           <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
           <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -3432,8 +3432,8 @@
     if (scenarioId === 'PYRAMID_1R_2R') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="26" y1="18" x2="88" y2="18" stroke="#0284c7" stroke-width="2" />
-          <line x1="88" y1="18" x2="150" y2="18" stroke="#0284c7" stroke-width="2" />
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#0284c7" stroke-width="2.4" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#0284c7" stroke-width="2.4" />
           <polygon points="148,14.5 155,18 148,21.5" fill="#0284c7" />
           <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
           <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -3451,8 +3451,8 @@
         if (scenarioId === 'PARTIAL_50_2R_EMA9') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="26" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2" />
-          <line x1="88" y1="18" x2="150" y2="18" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3 2" />
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2.4" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#8b5cf6" stroke-width="2.4" stroke-dasharray="3 2" />
           <polygon points="148,14.5 155,18 148,21.5" fill="#8b5cf6" />
           <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
           <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -3470,8 +3470,8 @@
         if (scenarioId === 'PARTIAL_80_2R_EMA9') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="26" y1="18" x2="88" y2="18" stroke="#3b82f6" stroke-width="2" />
-          <line x1="88" y1="18" x2="150" y2="18" stroke="#6366f1" stroke-width="2" stroke-dasharray="3 2" />
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#3b82f6" stroke-width="2.4" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#6366f1" stroke-width="2.4" stroke-dasharray="3 2" />
           <polygon points="148,14.5 155,18 148,21.5" fill="#6366f1" />
           <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
           <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -3489,7 +3489,7 @@
     // Default: '2R' Base
     return `
       <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="26" y1="18" x2="148" y2="18" stroke="#10b981" stroke-width="2" />
+        <line x1="26" y1="18" x2="148" y2="18" stroke="#10b981" stroke-width="2.4" />
         <polygon points="146,14.5 153,18 146,21.5" fill="#10b981" />
         <circle cx="26" cy="18" r="3.5" fill="#10b981" />
         <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -3646,7 +3646,7 @@
                 <span class="sim-mass-tip-icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#10b981" fill-opacity="0.18" stroke="#0d8a5e" stroke-width="1.8"/>
-                    <path d="M9 12L11 14L15 10" stroke="#0d8a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 12L11 14L15 10" stroke="#0d8a5e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
                 <span class="sim-mass-tip-text">Simulações em escala ajudam a identificar padrões, validar hipóteses e aprimorar seu PlayBook com evidências.</span>
@@ -3680,7 +3680,7 @@
                     <div class="sim-mass-card-head-row">
                       <div class="sim-mass-card-head-left">
                         <div class="sim-mass-feature-icon blue">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#dbeafe" fill-opacity="0.5"/>
                             <line x1="16" y1="2" x2="16" y2="6"/>
                             <line x1="8" y1="2" x2="8" y2="6"/>
@@ -3742,7 +3742,7 @@
                       <span class="sim-mass-callout-icon">
                         <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                           <circle cx="10" cy="10" r="9" fill="#2563eb"/>
-                          <path d="M10 9V14M10 6.5H10.01" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                          <path d="M10 9V14M10 6.5H10.01" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
                         </svg>
                       </span>
                       <div class="sim-mass-callout-text">
@@ -3843,7 +3843,7 @@
                       <div class="sim-mass-card-head-left">
                         <div class="sim-mass-feature-icon red">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2" fill="#fee2e2"/>
+                            <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2.4" fill="#fee2e2"/>
                             <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
                             <circle cx="12" cy="12" r="2" fill="#ef4444"/>
                           </svg>
@@ -3916,7 +3916,7 @@
                     <div class="sim-mass-card-head-row">
                       <div class="sim-mass-card-head-left">
                         <div class="sim-mass-feature-icon blue">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4">
                             <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
                             <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
                             <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
@@ -4081,7 +4081,7 @@
                   <div class="sim-mass-preflight-grid">
                     <div class="sim-mass-preflight-item">
                       <div class="sim-mass-pf-icon-box green">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2.4">
                           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#d1fae5"/>
                           <line x1="16" y1="2" x2="16" y2="6"/>
                           <line x1="8" y1="2" x2="8" y2="6"/>
@@ -4112,7 +4112,7 @@
                     <div class="sim-mass-preflight-item">
                       <div class="sim-mass-pf-icon-box red">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2" fill="#fee2e2"/>
+                          <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2.4" fill="#fee2e2"/>
                           <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
                           <circle cx="12" cy="12" r="2" fill="#ef4444"/>
                         </svg>
@@ -4137,7 +4137,7 @@
 
                     <div class="sim-mass-preflight-item">
                       <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4">
                           <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
                           <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
                           <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
@@ -4152,7 +4152,7 @@
 
                     <div class="sim-mass-preflight-item">
                       <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                           <circle cx="12" cy="12" r="3" fill="#dbeafe"/>
                           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                         </svg>
@@ -4169,7 +4169,7 @@
                       <span class="sim-mass-integrity-shield">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                           <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
-                          <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </span>
                       <div class="sim-mass-integrity-text">
@@ -4207,7 +4207,7 @@
               <div class="sim-mass-current-actions-bar">
                 <div class="sim-mass-actions-bar-left">
                   <div class="sim-mass-actions-bar-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d7a52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d7a52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="3" y="4" width="18" height="16" rx="2" fill="#d1fae5"/>
                       <line x1="7" y1="9" x2="17" y2="9"/>
                       <line x1="7" y1="13" x2="13" y2="13"/>
@@ -5285,15 +5285,15 @@
    * Ícones SVG dedicados para o Card 'Visão do Ativo' no Modal de Snapshot
    */
   const SNAPSHOT_ICONS = {
-    trophy: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
-    relativeStrength: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
-    marketCycle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
-    trend: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`,
-    structure: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
-    trigger: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
-    volatility: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
-    fundamentals: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="12" y1="14" x2="12" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>`,
-    context: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
+    trophy: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+    relativeStrength: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+    marketCycle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+    trend: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`,
+    structure: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+    trigger: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
+    volatility: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+    fundamentals: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="12" y1="14" x2="12" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>`,
+    context: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
   };
 
   /**
