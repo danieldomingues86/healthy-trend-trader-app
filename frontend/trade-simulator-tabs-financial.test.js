@@ -632,3 +632,25 @@ test('Refinamento UI — 13. Abas 100% coladas ao formulário (eliminação de g
   assert.ok(cssContent.includes('border-top-left-radius: 0;'), 'Card colado deve ter border-top-left-radius: 0');
   assert.ok(cssContent.includes('border-top: none;'), 'Card colado deve ter border-top: none');
 });
+
+
+test('Nomenclatura e Filtros — 14. Nomenclatura oficial "Gatilho" (sem "Setup") e remoção do filtro de setor', () => {
+  const jsContent = fs.readFileSync(path.resolve(__dirname, 'trade-simulator.js'), 'utf8');
+
+  // 1. Aba e Card com "Análise por Gatilho"
+  assert.ok(jsContent.includes('Análise por Gatilho'), 'Aba deve se chamar "Análise por Gatilho"');
+  assert.ok(!jsContent.includes('class="sim-tab-label">Análise por Setup<'), 'Não deve conter label de aba "Análise por Setup"');
+
+  // 2. Cards superiores com terminologia oficial
+  assert.ok(jsContent.includes('Gatilho Mais Lucrativo'), 'Card superior deve se chamar "Gatilho Mais Lucrativo"');
+  assert.ok(jsContent.includes('Total de Gatilhos'), 'Card superior deve se chamar "Total de Gatilhos"');
+  assert.ok(!jsContent.includes('Setup Mais Lucrativo'), 'Não deve conter "Setup Mais Lucrativo"');
+  assert.ok(!jsContent.includes('Total de Setups'), 'Não deve conter "Total de Setups"');
+
+  // 3. Cabeçalho de coluna da tabela
+  assert.ok(jsContent.includes('<th>Gatilho</th>'), 'Coluna da tabela deve se chamar "Gatilho"');
+  assert.ok(!jsContent.includes('<th>Gatilho / Setup</th>'), 'Não deve conter "Gatilho / Setup"');
+
+  // 4. Filtro de setores removido da tela do simulador
+  assert.ok(!jsContent.includes('id="simFilterSector"'), 'Filtro "Todos os setores" (#simFilterSector) deve ser removido do cabeçalho');
+});

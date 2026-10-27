@@ -1633,7 +1633,7 @@
                 <circle cx="12" cy="12" r="2"></circle>
               </svg>
             </span>
-            <span class="sim-tab-label">Análise por Setup</span>
+            <span class="sim-tab-label">Análise por Gatilho</span>
           </button>
           <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'timeline' ? 'active' : ''}" data-screen-tab="timeline" role="tab" aria-selected="${state.screenTab === 'timeline'}">
             <span class="sim-tab-icon">
@@ -2275,8 +2275,8 @@
           <div class="sim-rebuild-card-head-left">
             <span class="sim-rebuild-head-icon icon-chart">🎯</span>
             <div>
-              <h2 class="sim-rebuild-card-title">Análise por Setup</h2>
-              <p class="sim-rebuild-card-desc">Performance de cada padrão operacional testado sob as mesmas regras de saída e risco.</p>
+              <h2 class="sim-rebuild-card-title">Análise por Gatilho</h2>
+              <p class="sim-rebuild-card-desc">Performance de cada gatilho operacional testado sob as mesmas regras de saída e risco.</p>
             </div>
           </div>
         </div>
@@ -2284,7 +2284,7 @@
         <!-- 4 Cards Superiores de Setups -->
         <div class="sim-rebuild-kpis-grid" style="margin-bottom: 20px;">
           <div class="sim-mini-kpi-card">
-            <div class="sim-mini-kpi-title">Setup Mais Lucrativo</div>
+            <div class="sim-mini-kpi-title">Gatilho Mais Lucrativo</div>
             <div class="sim-mini-kpi-val pos" style="font-size: 18px; margin: 8px 0;">${topWinner ? topWinner.name : '—'}</div>
             <div class="sim-mini-kpi-sub">${topWinner ? `+ R$ ${formatMoney(topWinner.netPnL).replace('R$ ', '')} (${topWinner.totalR.toFixed(2)}R)` : 'Sem ganhos'}</div>
           </div>
@@ -2299,9 +2299,9 @@
             <div class="sim-mini-kpi-sub">${bestExp ? `+${bestExp.expectancyR.toFixed(3)}R por trade` : '—'}</div>
           </div>
           <div class="sim-mini-kpi-card">
-            <div class="sim-mini-kpi-title">Total de Setups</div>
+            <div class="sim-mini-kpi-title">Total de Gatilhos</div>
             <div class="sim-mini-kpi-val" style="font-size: 18px; margin: 8px 0;">${totalSetupsCount} gatilhos</div>
-            <div class="sim-mini-kpi-sub">Padrões testados no período</div>
+            <div class="sim-mini-kpi-sub">Gatilhos testados no período</div>
           </div>
         </div>
 
@@ -2309,7 +2309,7 @@
           <table class="sim-table">
             <thead>
               <tr>
-                <th>Gatilho / Setup</th>
+                <th>Gatilho</th>
                 <th style="text-align: center;">Trades</th>
                 <th style="text-align: center;">Taxa de Acerto</th>
                 <th style="text-align: center;">Resultado (R)</th>
@@ -2473,14 +2473,6 @@
                 <option value="PFR de Compra" ${state.filters.trigger === 'PFR de Compra' ? 'selected' : ''}>PFR de Compra</option>
                 <option value="Barra Vermelha Ignorada" ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'RBI') ? 'selected' : ''}>Barra Vermelha Ignorada</option>
                 <option value="Outros" ${state.filters.trigger === 'Outros' ? 'selected' : ''}>Outros</option>
-              </select>
-            </div>
-
-            <!-- Dropdown Setor -->
-            <div class="sim-control-select-wrap">
-              <select class="sim-header-select" id="simFilterSector" title="Filtrar por setor econômico">
-                <option value="ALL" ${state.filters.sector === 'ALL' ? 'selected' : ''}>Todos os setores</option>
-                ${sectorOptionsHtml}
               </select>
             </div>
 
@@ -6587,7 +6579,7 @@
     `;
   }  function bindLocalEvents(container) {
 
-    // Alternância de Abas Superiores (Resumo, Lista de Trades, Análise por Ativo, Análise por Setup, Evolução no Tempo)
+    // Alternância de Abas Superiores (Resumo, Lista de Trades, Análise por Ativo, Análise por Gatilho, Evolução no Tempo)
     container.querySelectorAll('[data-screen-tab]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
