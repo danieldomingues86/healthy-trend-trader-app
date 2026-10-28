@@ -91,3 +91,40 @@ test('corporate-events: corrige EMA 30 de LUPA3 para 4,12 (conforme Profit) e el
   assert.ok(retUnadjusted > 4.0, 'Retorno sem ajuste produzia distorção de > +400%');
   assert.ok(retAdjusted < -0.30, 'Retorno ajustado real é negativo (~ -38% a -40%)');
 });
+
+test('corporate-events: corrige NIKE34 apos mudanca de paridade 5:1 em 13/10/2026, alinhando com ProfitChart', () => {
+  const events = getEventsForSymbol('NIKE34');
+  assert.equal(events.length, 1);
+  assert.equal(events[0].exDate, '2026-10-13');
+  assert.equal(events[0].ratio, 5.0);
+  assert.equal(events[0].type, 'reverse_split');
+
+  const cachePath = path.join(__dirname, '..', 'data', 'b3-spot-candles-cache.json');
+  if (!fs.existsSync(cachePath)) return;
+
+  const cache = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+  const rawCandles = cache['NIKE34'];
+  if (!rawCandles || rawCandles.length < 50) return;
+
+  const adjusted = adjustCandles(rawCandles, 'NIKE34');
+  const cBefore = adjusted.find(c => c.time === '2026-10-09');
+  const cEx = adjusted.find(c => c.time === '2026-10-13');
+  assert.equal(cBefore.close, 87.45);
+  assert.equal(cEx.close, 87.5);
+
+  // Calculo de EMA 10 e EMA 72 em 27/10/2026
+  function calcEma(series, period) {
+    const k = 2 / (period + 1);
+    let ema = series[0].close;
+    for (let i = 1; i < series.length; i++) {
+      ema = series[i].close * k + ema * (1 - k);
+    }
+    return ema;
+  }
+
+  const ema10 = calcEma(adjusted, 10);
+  const ema72 = calcEma(adjusted, 72);
+  assert.ok(Math.abs(ema10 - 95.32) < 0.5, 'EMA 10 ajustada deve estar em ~95 (Profit: 96,02)');
+  assert.ok(Math.abs(ema72 - 99.07) < 0.5, 'EMA 72 ajustada deve estar em ~99 (Profit: 98,61)');
+  assert.ok(ema10 < ema72, 'EMA 10 deve estar abaixo da EMA 72 (tendencia de queda)');
+});

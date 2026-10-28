@@ -43,6 +43,13 @@ const CORPORATE_EVENTS = [
     description: 'Grupamento 15:1 homologado em mai/2025'
   },
   {
+    symbol: 'NIKE34',
+    exDate: '2026-10-13',
+    ratio: 5.0,
+    type: 'reverse_split',
+    description: 'Mudança de paridade / grupamento de BDR 5:1 homologado em out/2026'
+  },
+  {
     symbol: 'DIRR3',
     exDate: '2025-08-11',
     ratio: 1 / 3,
