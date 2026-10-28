@@ -53,14 +53,14 @@ body:has(#materials.active) .topbar .crumb b {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 540px;
+  min-height: 580px;
   margin: 0 0 24px;
   border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: #020b06;
+  background-color: #020905;
   color: #ffffff;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   isolation: isolate;
 }
 
@@ -69,11 +69,25 @@ body:has(#materials.active) .topbar .crumb b {
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(90deg, rgba(2, 11, 6, 0.94) 0%, rgba(2, 11, 6, 0.82) 36%, rgba(2, 11, 6, 0.25) 66%, rgba(2, 11, 6, 0.08) 100%),
+    linear-gradient(90deg, 
+      rgba(2, 9, 5, 0.98) 0%, 
+      rgba(2, 9, 5, 0.94) 28%, 
+      rgba(2, 9, 5, 0.85) 40%, 
+      rgba(2, 9, 5, 0.55) 54%, 
+      rgba(2, 9, 5, 0.22) 74%, 
+      rgba(2, 9, 5, 0.40) 100%
+    ),
+    linear-gradient(180deg, 
+      rgba(2, 9, 5, 0.45) 0%, 
+      transparent 22%, 
+      transparent 72%, 
+      rgba(2, 9, 5, 0.85) 100%
+    ),
     url('assets/forca-verde-ambient-backdrop.jpg');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
+  filter: brightness(0.80) contrast(1.12);
   z-index: -2;
   transition: transform 0.8s ease;
 }
@@ -95,10 +109,10 @@ body:has(#materials.active) .topbar .crumb b {
 /* Corpo Principal do Hero */
 .hero-cinematic-body {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(380px, 0.95fr);
+  grid-template-columns: minmax(0, 0.98fr) minmax(460px, 1.22fr);
   align-items: center;
   gap: 32px;
-  padding: 28px 48px 16px;
+  padding: 24px 44px 14px;
   z-index: 2;
 }
 
@@ -106,6 +120,7 @@ body:has(#materials.active) .topbar .crumb b {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
 }
 
 .spotlight-badge-row {
@@ -278,6 +293,7 @@ body:has(#materials.active) .topbar .crumb b {
   justify-content: center;
   align-items: center;
   position: relative;
+  height: 100%;
 }
 
 .flagship-stage {
@@ -306,7 +322,7 @@ body:has(#materials.active) .topbar .crumb b {
 }
 
 .flagship-cover-img {
-  height: clamp(450px, 38vw, 560px);
+  height: clamp(520px, 44vw, 680px);
   width: auto;
   max-width: 100%;
   object-fit: contain;
