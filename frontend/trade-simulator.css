@@ -152,8 +152,8 @@ body:has(#researchlab.active) .content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 50%;
@@ -244,7 +244,7 @@ body:has(#researchlab.active) .content {
    ========================================================================== */
 .sim-kpis-container {
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 2px;
 }
@@ -979,6 +979,12 @@ body:has(#researchlab.active) .content {
   color: #047857;
 }
 .sim-status-pill.pill-in-op .pill-dot { background: #059669; }
+
+.sim-status-pill.pill-incomplete {
+  background: #fffbeb;
+  color: #b45309;
+}
+.sim-status-pill.pill-incomplete .pill-dot { background: #f59e0b; }
 
 .sim-status-pill.pill-waiting {
   background: #fffbeb;
@@ -7279,4 +7285,1104 @@ body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
   .sim-rubric-segments-row {
     grid-template-columns: 1fr;
   }
+}
+
+
+/* ==========================================================================
+   REBUILD V5 — NAVEGAÇÃO POR ABAS E ATRIBUIÇÃO FINANCEIRA POR GRADE
+   Referência Visual: media_1793106466712_20165f0c.png
+   ========================================================================== */
+
+/* Layout Rebuild do Simulador — Abas 100% coladas ao formulário */
+.simulator-page.sim-rebuild-layout {
+  gap: 0;
+}
+
+.sim-rebuild-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.sim-rebuild-header .sim-header-titles {
+  flex: 0 1 auto;
+  max-width: 620px;
+  margin-bottom: 0;
+}
+
+.sim-header-right-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex: 1 1 auto;
+  margin-left: auto;
+}
+
+.sim-header-filters-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.sim-header-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.sim-rebuild-header .sim-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.sim-rebuild-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.sim-rubric-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.sim-rubric-pill-btn.active {
+  background: #059669;
+  border-color: #047857;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.35);
+  font-weight: 700;
+}
+
+.sim-rubric-pill-btn.active .pill-dot {
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+.sim-rubric-pill-btn.inactive {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+.sim-rubric-pill-btn .pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sim-audit-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 0;
+  box-sizing: border-box;
+}
+
+.sim-header-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+  line-height: 1.45;
+}
+
+.sim-header-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+.sim-control-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sim-header-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 8px 34px 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  height: 38px;
+  box-sizing: border-box;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sim-header-select:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.sim-capital-control-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 3px 6px 3px 14px;
+  height: 38px;
+  box-sizing: border-box;
+}
+
+.sim-capital-control-wrap .sim-control-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.sim-capital-input-box {
+  display: inline-flex;
+  align-items: center;
+}
+
+.sim-capital-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  background: #ffffff;
+  width: 120px;
+  text-align: right;
+  height: 28px;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.sim-capital-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.sim-btn-execute {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  height: 38px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.25);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.sim-btn-execute:hover {
+  background: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(5, 150, 105, 0.3);
+}
+
+.sim-btn-execute:active {
+  transform: translateY(0);
+}
+
+/* Container de Navegação das Abas — 100% Colada ao Formulário / Card */
+.sim-screen-tabs-container {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 6px 8px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-bottom: 1px solid #e2e8f0;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 -2px 10px -2px rgba(15, 23, 42, 0.04);
+  position: relative;
+  z-index: 2;
+}
+
+.sim-screen-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  width: 100%;
+}
+
+.sim-screen-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.sim-screen-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px; /* Maior e mais imponente! */
+  padding: 0 24px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 15px; /* Tipografia robusta e visível */
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  user-select: none;
+  letter-spacing: -0.015em;
+  box-sizing: border-box;
+}
+
+.sim-screen-tab-btn .sim-tab-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.sim-screen-tab-btn .sim-tab-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sim-screen-tab-btn:hover {
+  color: #0f172a;
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.sim-screen-tab-btn:hover .sim-tab-icon {
+  color: #0f172a;
+}
+
+.sim-screen-tab-btn.active {
+  background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border-color: #059669;
+  box-shadow: 0 4px 14px rgba(4, 120, 87, 0.32), 0 2px 4px rgba(4, 120, 87, 0.2);
+  transform: translateY(-1px);
+}
+
+.sim-screen-tab-btn.active .sim-tab-icon {
+  color: #a7f3d0;
+}
+
+.sim-screen-tab-btn.active .sim-tab-label {
+  position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.sim-screen-tab-btn.active .sim-tab-label::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: #34d399;
+  border-radius: 999px;
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.7);
+}
+
+.sim-screen-tab-content {
+  margin-top: 0;
+  animation: simTabFadeIn 0.18s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes simTabFadeIn {
+  from {
+    opacity: 0.88;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card Principal e Conteúdo */
+/* Conexão perfeita: o card principal une-se diretamente à barra de abas superior (sem gap e sem borda duplicada) */
+.sim-rebuild-layout .sim-screen-tab-content > .sim-summary-container > .sim-rebuild-card:first-child,
+.sim-rebuild-layout .sim-screen-tab-content > .sim-rebuild-card:first-child,
+.sim-rebuild-layout .sim-screen-tab-content > .sim-timeline-container > .sim-rebuild-card:first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top: none;
+  margin-top: 0;
+}
+
+.sim-rebuild-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  margin-bottom: 20px;
+}
+
+.sim-rebuild-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.sim-rebuild-card-head-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sim-rebuild-head-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.sim-rebuild-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 3px 0;
+  letter-spacing: -0.015em;
+}
+
+.sim-rebuild-card-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.sim-rebuild-view-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sim-view-toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.sim-rebuild-view-toggle {
+  display: inline-flex;
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid #e2e8f0;
+}
+
+.sim-view-toggle-btn {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sim-view-toggle-btn:hover {
+  color: #0f172a;
+}
+
+.sim-view-toggle-btn.active {
+  background: #059669;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
+}
+
+/* Subcards de Destaque */
+.sim-summary-subcards-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.sim-subcard-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 14px;
+}
+
+.sim-subcard-box.subcard-total {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.08);
+}
+
+.sim-subcard-box.subcard-trophy {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.sim-subcard-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sim-subcard-icon.icon-coins {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.sim-subcard-icon.icon-trophy {
+  background: #f1f5f9;
+  color: #059669;
+  border: 1px solid #e2e8f0;
+}
+
+.sim-subcard-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #166534;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.sim-subcard-main-val {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  letter-spacing: -0.025em;
+}
+
+.sim-subcard-main-val.pos {
+  color: #047857;
+}
+
+.sim-subcard-main-val.neg {
+  color: #dc2626;
+}
+
+.sim-subcard-sub-line {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12.5px;
+  color: #4b5563;
+}
+
+.sim-subcard-sub-line .equiv-tag {
+  color: #475569;
+  font-weight: 500;
+}
+
+.sim-subcard-sub-line .equiv-val.pos {
+  color: #047857;
+  font-weight: 700;
+}
+
+.sim-subcard-sub-line .equiv-val.neg {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.sim-subcard-sub-line .count-tag {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.sim-subcard-trophy-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.sim-subcard-trophy-text {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Tabela Comparativa de Grade */
+.sim-rebuild-table-wrap {
+  overflow-x: auto;
+}
+
+.sim-rebuild-grade-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sim-rebuild-grade-table th {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 16px;
+  border-bottom: 1.5px solid #e2e8f0;
+  background: #fafafa;
+}
+
+.sim-rebuild-grade-table td {
+  padding: 16px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13.5px;
+  vertical-align: middle;
+}
+
+.sim-rebuild-grade-table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.sim-rebuild-grade-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.sim-rebuild-grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 12.5px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  min-width: 34px;
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1;
+}
+
+.sim-rebuild-grade-badge.grade-a-plus {
+  background: #15803d;
+  color: #ffffff;
+  border: 1px solid #166534;
+  box-shadow: 0 1px 3px rgba(21, 128, 61, 0.25);
+}
+
+.sim-rebuild-grade-badge.grade-a {
+  background: #86efac;
+  color: #064e3b;
+  border: 1px solid #4ade80;
+  box-shadow: 0 1px 2px rgba(134, 239, 172, 0.35);
+}
+
+.sim-rebuild-grade-badge.grade-b {
+  background: #fef08a;
+  color: #713f12;
+  border: 1px solid #fde047;
+  box-shadow: 0 1px 2px rgba(254, 240, 138, 0.4);
+}
+
+.sim-rebuild-grade-badge.grade-c {
+  background: #fed7aa;
+  color: #9a3412;
+  border: 1px solid #fdba74;
+  box-shadow: 0 1px 2px rgba(254, 215, 170, 0.4);
+}
+
+.sim-rebuild-grade-badge.grade-d {
+  background: #fecaca;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  box-shadow: 0 1px 2px rgba(254, 202, 202, 0.4);
+}
+
+/* Barra de Progresso da Contribuição — Estilo Cápsula Expressiva de 10px */
+.sim-rebuild-progress-track {
+  width: 100%;
+  max-width: 130px;
+  height: 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.sim-rebuild-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.sim-rebuild-progress-bar.pos {
+  background: #10b981;
+}
+
+.sim-rebuild-progress-bar.neg {
+  background: #ef4444;
+}
+
+/* Grid de Mini KPIs */
+.sim-rebuild-kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 22px 0 16px 0;
+}
+
+.sim-mini-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sim-mini-kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+.sim-mini-kpi-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.sim-mini-kpi-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sim-mini-kpi-icon.icon-mint {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.sim-mini-kpi-icon.icon-blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.sim-mini-kpi-icon.icon-red {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.sim-mini-kpi-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.sim-mini-kpi-body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sim-mini-kpi-num-area {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.sim-mini-kpi-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.sim-mini-kpi-val.pos {
+  color: #047857;
+}
+
+.sim-mini-kpi-val.neg {
+  color: #dc2626;
+}
+
+.sim-mini-kpi-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  line-height: 1.2;
+}
+
+.sim-mini-kpi-badge.pos {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.sim-mini-kpi-badge.neg {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.sim-mini-kpi-sparkline svg {
+  display: block;
+}
+
+.sim-mini-kpi-sub {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+/* Banner Soft de Informação */
+.sim-rebuild-info-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 13px;
+  color: #1e40af;
+  font-weight: 500;
+  margin-top: 18px;
+}
+
+.sim-rebuild-info-banner svg {
+  color: #2563eb;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Nota de Rodapé Explicativa da Tabela de Grades */
+.sim-grade-table-footer-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.sim-grade-table-footer-note .note-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.sim-grade-table-footer-note strong {
+  color: #334155;
+  font-weight: 600;
+}
+
+/* Responsividade Desktop-First */
+@media (max-width: 1400px) {
+  .sim-rebuild-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .sim-header-right-zone {
+    align-items: flex-start;
+    width: 100%;
+  }
+  .sim-header-filters-row,
+  .sim-header-actions-row {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .sim-rebuild-header .sim-title-row {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 1200px) {
+  .sim-rebuild-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sim-header-right-zone {
+    align-items: flex-start;
+    width: 100%;
+  }
+  .sim-header-filters-row,
+  .sim-header-actions-row {
+    justify-content: flex-start;
+  }
+  .sim-rebuild-kpis-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .sim-summary-subcards-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .sim-rebuild-kpis-grid {
+    grid-template-columns: 1fr;
+  }
+  .sim-header-controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sim-header-select,
+  .sim-capital-control-wrap,
+  .sim-btn-execute {
+    width: 100%;
+    justify-content: center;
+  }
+  .sim-capital-input {
+    flex: 1;
+  }
+}
+
+
+/* ==========================================================================
+   REFINAMENTO PREMIUM — BOTÃO VER ANÁLISE E AÇÕES DIRETAS DO CABEÇALHO
+   ========================================================================== */
+
+/* Grupo de Ações do Cabeçalho e Botões Secundários */
+.sim-header-actions-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sim-btn-header-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  height: 38px;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.sim-btn-header-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sim-btn-header-secondary:active {
+  transform: translateY(0);
+}
+
+.sim-btn-header-secondary svg {
+  color: #64748b;
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sim-btn-header-secondary:hover svg {
+  color: #047857;
+}
+
+/* Botão Ver Análise na Lista de Trades — Layout Corrigido e Padronizado */
+.sim-action-btn.sim-btn-view-analysis,
+.sim-btn-view-analysis {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: auto !important;
+  min-width: 104px !important;
+  height: 28px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #047857 !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+.sim-action-btn.sim-btn-view-analysis:hover,
+.sim-btn-view-analysis:hover {
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.15) !important;
+}
+
+.sim-action-btn.sim-btn-view-analysis:active,
+.sim-btn-view-analysis:active {
+  transform: translateY(1px) !important;
+}
+
+.sim-btn-view-analysis svg {
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+/* Suporte ao Gold Theme para Novos Componentes */
+body.gold-theme .sim-screen-tabs-container {
+  background: #111412;
+  border-color: #2b3930;
+  border-bottom-color: #26332a;
+  box-shadow: 0 -2px 10px -2px rgba(0, 0, 0, 0.4);
+}
+
+body.gold-theme .sim-screen-tab-btn {
+  background: #161e18;
+  border-color: #26332a;
+  color: #94a3b8;
+}
+
+body.gold-theme .sim-screen-tab-btn:hover {
+  color: #ffffff;
+  background: #1f2d24;
+  border-color: #3b5042;
+}
+
+body.gold-theme .sim-screen-tab-btn.active {
+  background: linear-gradient(135deg, #854d0e 0%, #a16207 100%);
+  color: #ffffff;
+  border-color: #ca8a04;
+  box-shadow: 0 4px 14px rgba(202, 138, 4, 0.35);
+}
+
+body.gold-theme .sim-screen-tab-btn.active .sim-tab-icon {
+  color: #fef08a;
+}
+
+body.gold-theme .sim-screen-tab-btn.active .sim-tab-label::after {
+  background: #facc15;
+  box-shadow: 0 0 6px rgba(250, 204, 21, 0.7);
+}
+
+body.gold-theme .sim-btn-header-secondary {
+  background: #18221b;
+  border-color: #2b3930;
+  color: #e2e8f0;
+}
+
+body.gold-theme .sim-btn-header-secondary:hover {
+  background: #1f2d24;
+  border-color: #3b5042;
+  color: #ffffff;
+}
+
+body.gold-theme .sim-action-btn.sim-btn-view-analysis,
+body.gold-theme .sim-btn-view-analysis {
+  background: #18221b !important;
+  border-color: #2b3930 !important;
+  color: #34d399 !important;
+}
+
+body.gold-theme .sim-action-btn.sim-btn-view-analysis:hover,
+body.gold-theme .sim-btn-view-analysis:hover {
+  background: #1f2d24 !important;
+  border-color: #3b5042 !important;
+  color: #6ee7b7 !important;
 }

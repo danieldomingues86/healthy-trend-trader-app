@@ -76,7 +76,7 @@ test('trade-simulator-model: getDefaultSeedSimulations reproduz com exatidão as
   assert.equal(outros.totalR, 0.1);
 });
 
-test('trade-simulator-model: NÃO entra se o preço não romper o nível de entrada (sem look-ahead)', () => {
+test('trade-simulator-model: NÃO entra se o preço não romper o nível de entrada (sem look-ahead) e cancela no T+1', () => {
   const sim = {
     symbol: 'PETR4',
     signalDate: '2026-09-20',
@@ -86,16 +86,25 @@ test('trade-simulator-model: NÃO entra se o preço não romper o nível de entr
     timeline: []
   };
 
-  // Candle do dia 21 não atinge 50.00 (máxima 49.50)
+  // Se apenas o candle T existir (sem T+1 ainda), permanece aguardando
+  const candleTOnly = [
+    { time: '2026-09-20', open: 49.00, high: 49.80, low: 48.50, close: 49.20 }
+  ];
+  const evaluatedWaiting = model.evaluateSimulationOnCandles(sim, candleTOnly);
+  assert.equal(evaluatedWaiting.status, model.STATUS.WAITING_ENTRY);
+  assert.ok(!evaluatedWaiting.executedEntryPrice);
+
+  // Candle T+1 (2026-09-21) não atinge 50.00 (máxima 49.50) -> cancela imediatamente (NOT_TRIGGERED)
   const candles = [
     { time: '2026-09-20', open: 49.00, high: 49.80, low: 48.50, close: 49.20 },
     { time: '2026-09-21', open: 49.10, high: 49.50, low: 48.60, close: 49.00 }
   ];
 
   const evaluated = model.evaluateSimulationOnCandles(sim, candles);
-  assert.equal(evaluated.status, model.STATUS.WAITING_ENTRY);
+  assert.equal(evaluated.status, model.STATUS.NOT_TRIGGERED);
   assert.equal(evaluated.executedEntryPrice, null);
   assert.equal(evaluated.resultR, null);
+  assert.equal(evaluated.exitDate, '2026-09-21');
 });
 
 test('trade-simulator-model: aciona entrada quando candle seguinte atinge ou ultrapassa a máxima planejada', () => {
@@ -449,7 +458,7 @@ test('trade-simulator-model: compareManagementScenarios consolida 10 métricas o
   assert.equal(scPyr.winnersCount, 13);
   assert.equal(scPyr.losersCount, 15);
 
-  // 4. Cenário Parcial 50% em 2R + Condução por MM9
+  // 4. Cenário Parcial 50% em 2R + Condução por MM10
   assert.equal(scPart50.id, 'PARTIAL_50_2R_EMA9');
   assert.equal(scPart50.totalTrades, 42);
   assert.equal(scPart50.winRate, 71.4);
@@ -460,7 +469,7 @@ test('trade-simulator-model: compareManagementScenarios consolida 10 métricas o
   assert.equal(scPart50.winnersCount, 20);
   assert.equal(scPart50.losersCount, 8);
 
-  // 5. Cenário Parcial 80% em 2R + Condução por MM9
+  // 5. Cenário Parcial 80% em 2R + Condução por MM10
   assert.equal(scPart80.id, 'PARTIAL_80_2R_EMA9');
   assert.equal(scPart80.totalTrades, 42);
   assert.equal(scPart80.winRate, 71.4);
@@ -1708,7 +1717,7 @@ test('trade-simulator-model: buildOfficialRulesPanelData inclui regra de Qualida
   assert.ok(gradeRule, 'Deve existir a regra grade_quality no painel');
   assert.equal(gradeRule.status, 'Ativa');
   assert.equal(gradeRule.blockedCount, 15);
-  assert.match(gradeRule.summary, /Apenas Notas A\+, A, B e C/);
+  assert.match(gradeRule.summary, /Apenas Notas A, B e C/);
   assert.match(gradeRule.summary, /Nota D possui orçamento de risco 0,00%/);
 });
 
@@ -1716,7 +1725,7 @@ test('trade-simulator-model: computeSnapshotNavInfo navega trade a trade com set
   const sampleList = [
     { id: 'sim-1', symbol: 'PETR4', grade: 'A' },
     { id: 'sim-2', symbol: 'VALE3', grade: 'B' },
-    { id: 'sim-3', symbol: 'ITUB4', grade: 'A+' }
+    { id: 'sim-3', symbol: 'ITUB4', grade: 'C' }
   ];
 
   // 1. Primeiro trade (sim-1)

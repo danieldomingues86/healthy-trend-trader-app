@@ -371,18 +371,21 @@
   function calculatePositionSizing({equity,entry,stop,atr,riskBudgetPct,riskPct,volatilityPct,capitalPct,portfolioCapacityPct,positionCapacityAvailable=true,lot=100}){
     const account=Number(equity),entryPrice=Number(entry),stopPrice=Number(stop),atrValue=Number(atr),distance=Math.abs(entryPrice-stopPrice);
     const budget=Math.max(0,finite(riskBudgetPct,finite(riskPct,0)));
-    const volatilityLimit=Math.max(0,finite(volatilityPct,0));
-    const capitalLimit=Math.max(0,finite(capitalPct,0));
     const lotSize=Math.max(1,Math.floor(finite(lot,100)));
     const empty={quantity:0,theoreticalQuantity:0,layers:[],allLayers:[],budgetLayer:null,limitingLayer:null,limitingLayerName:null,initialRisk:0,riskBudgetPct:budget,executableRiskPct:0,executableRiskPercent:0};
-    if(!(account>0&&entryPrice>0&&atrValue>0&&distance>0))return empty;
+    if(!(account>0&&entryPrice>0&&distance>0))return empty;
     const round=q=>Math.max(0,Math.floor(q/lotSize)*lotSize);
     const withRisk=(layer)=>({...layer,riskPct:account>0?layer.quantity*distance/account:0});
     const budgetLayer=withRisk({key:'budget',name:'Orçamento de Risco pelo Grade',quantity:round(account*budget/distance),constraintPct:budget});
-    const layers=[
-      withRisk({key:'volatility',name:'Limite de volatilidade / ATR',quantity:round(account*volatilityLimit/atrValue),constraintPct:volatilityLimit}),
-      withRisk({key:'capital',name:'Limite de capital',quantity:round(account*capitalLimit/entryPrice),constraintPct:capitalLimit})
-    ];
+    const layers=[];
+    if(volatilityPct!=null && Number.isFinite(Number(volatilityPct)) && Number(volatilityPct)>0 && atrValue>0){
+      const volatilityLimit=Number(volatilityPct);
+      layers.push(withRisk({key:'volatility',name:'Limite de volatilidade / ATR',quantity:round(account*volatilityLimit/atrValue),constraintPct:volatilityLimit}));
+    }
+    if(capitalPct!=null && Number.isFinite(Number(capitalPct)) && Number(capitalPct)>0){
+      const capitalLimit=Number(capitalPct);
+      layers.push(withRisk({key:'capital',name:'Limite de capital',quantity:round(account*capitalLimit/entryPrice),constraintPct:capitalLimit}));
+    }
     const allLayers=[budgetLayer,...layers];
     if(Number.isFinite(Number(portfolioCapacityPct))){
       const capacity=Math.max(0,Number(portfolioCapacityPct));
@@ -396,14 +399,26 @@
     return{quantity,theoreticalQuantity:budgetLayer.quantity,layers,allLayers,budgetLayer,limitingLayer:limitingLayer.key,limitingLayerName:limitingLayer.name,initialRisk,riskBudgetPct:budget,executableRiskPct,executableRiskPercent:Number((executableRiskPct*100).toFixed(8))};
   }
 
-  function calculatePolicyPositionSizing({policy,profileKey,gradeRiskPct,riskBudgetPct,riskPct,currentHeatPct=0,openPositions=0,...trade}){
+  function calculatePolicyPositionSizing({policy,profileKey,gradeRiskPct,riskBudgetPct,riskPct,currentHeatPct=0,openPositions=0,capitalPct,volatilityPct,enforceCapitalLimit=true,enforceVolatilityLimit=true,...trade}){
     const normalized=normalizePolicy(policy),profile=profileFor(normalized,profileKey);
     const budget=finite(riskBudgetPct,finite(gradeRiskPct,finite(riskPct,0)));
     const heatLimitPct=profile.maximumPortfolioRiskPct*100;
     const portfolioCapacityPct=Math.max(0,(heatLimitPct-Math.max(0,finite(currentHeatPct,0)))/100);
     const activePositions=Math.max(0,Math.floor(finite(openPositions,0)));
     const positionCapacityAvailable=activePositions<profile.maximumPositions;
-    const sizing=calculatePositionSizing({...trade,riskBudgetPct:budget,volatilityPct:profile.initialVolatilityPct,capitalPct:profile.capitalPct,portfolioCapacityPct,positionCapacityAvailable});
+    let resolvedCapitalPct = profile.capitalPct;
+    if (capitalPct !== undefined) {
+      resolvedCapitalPct = capitalPct;
+    } else if (enforceCapitalLimit === false) {
+      resolvedCapitalPct = null;
+    }
+    let resolvedVolatilityPct = profile.initialVolatilityPct;
+    if (volatilityPct !== undefined) {
+      resolvedVolatilityPct = volatilityPct;
+    } else if (enforceVolatilityLimit === false) {
+      resolvedVolatilityPct = null;
+    }
+    const sizing=calculatePositionSizing({...trade,riskBudgetPct:budget,volatilityPct:resolvedVolatilityPct,capitalPct:resolvedCapitalPct,portfolioCapacityPct,positionCapacityAvailable});
     return{...sizing,profile,currentHeatPct:Math.max(0,finite(currentHeatPct,0)),maximumHeatPct:heatLimitPct,portfolioCapacityPct,openPositions:activePositions,positionCapacityAvailable};
   }
 

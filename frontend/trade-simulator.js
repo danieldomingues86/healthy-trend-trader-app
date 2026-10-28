@@ -11,6 +11,10 @@
   const API_ENDPOINT = '/api/trade-simulations';
 
   const state = {
+    screenTab: 'summary', // 'summary' | 'trades' | 'assets' | 'setups' | 'timeline'
+    summaryView: 'financial', // 'financial' | 'statistical'
+    initialCapital: 100000,
+    tradeStatusFilter: 'ALL', // 'ALL' | 'GAIN' | 'LOSS' | 'BREAKEVEN'
     simulations: [],
     loading: false,
     generatingMass: false,
@@ -51,13 +55,14 @@
     comparison: null,
     hypothesisComparison: null,
     filters: {
+      symbol: 'ALL',
       days: 120,
       startDate: null,
       endDate: null,
       trigger: 'ALL',
       sector: 'ALL',
       grade: 'ALL',
-      tab: 'ALL',
+      tab: 'CLOSED',
       result: 'ALL',
       query: '',
       unit: 'R' // 'R' ou 'RS'
@@ -624,7 +629,7 @@
       targetSimulations = expResult.researchExperiment.simulations || [];
     } else {
       const filtered = getFilteredSimulations();
-      const all = state.simulations;
+      const all = (state.simulations || []).filter(s => s && s.status !== 'INCOMPLETE' && s.status !== 'IN_OPERATION' && !s.isIncomplete && !s.isCensored && (s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS' || s.status === 'CLOSED_BE'));
       targetSimulations = state.exportScope === 'ALL' ? all : filtered;
     }
 
@@ -711,6 +716,8 @@
         if (cycle !== 'Positivo') return false;
         const rsInfo = resolveSimulationEntryRs(s);
         if (!rsInfo.isAvailable || !rsInfo.isEligible) return false;
+        // Exclui operações incompletas / censuradas: somente trades finalizados entram na amostra oficial
+        if (s.status === 'INCOMPLETE' || s.status === 'IN_OPERATION' || s.isIncomplete || s.isCensored) return false;
         return true;
       });
     }
@@ -723,6 +730,7 @@
       startDate: state.filters.startDate,
       endDate: state.filters.endDate,
       trigger: state.filters.trigger,
+      symbol: state.filters.symbol,
       sector: state.filters.sector,
       grade: state.filters.grade,
       tab: 'ALL',
@@ -856,6 +864,16 @@
         return true;
       });
     }
+    // Remove operações incompletas/censuradas da exibição da tabela conforme solicitação
+    source = source.filter(s => s && s.status !== 'INCOMPLETE' && !s.isIncomplete);
+    source = source.filter(s => s &&
+      s.status !== 'IN_OPERATION' &&
+      !s.isCensored &&
+      s.status !== 'WAITING_ENTRY' &&
+      s.status !== 'NOT_TRIGGERED' &&
+      Boolean(s.exitDate) &&
+      (s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS' || s.status === 'CLOSED_BE')
+    );
     let filtered;
     if (!root.TradeSimulatorModel || typeof root.TradeSimulatorModel.filterSimulations !== 'function') {
       filtered = source;
@@ -868,6 +886,18 @@
   /**
    * Formatação auxiliar
    */
+  function formatNumberPlain(val) {
+    if (val === null || val === undefined || isNaN(Number(val))) return '100.000';
+    return Number(val).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+  }
+
+  function parseFormattedNumber(str) {
+    if (!str) return 100000;
+    const clean = String(str).replace(/[^0-9,-]/g, '').replace(',', '.');
+    const num = parseFloat(clean);
+    return isNaN(num) || num <= 0 ? 100000 : num;
+  }
+
   function formatMoney(val) {
     if (val === null || val === undefined || Number.isNaN(Number(val))) return '—';
     return `R$ ${Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -938,7 +968,7 @@
             </div>
             <h3 class="sim-rubric-banner-heading">Aplicação do Método: Trading Rubric, Bet Sizing e Gestão de Risco</h3>
             <p class="sim-rubric-banner-sub">
-              Dimensionamento causal trade a trade no Diário: Orçamento por Grade (A+/A/B/C), prioridade por Força Relativa (RS 95-100), bloqueio categórico de Grade D e controle de Portfolio Heat.
+              Dimensionamento causal trade a trade no Diário: Orçamento por Grade (A/B/C), prioridade por Força Relativa (RS 95-100), bloqueio categórico de Grade D e controle de Portfolio Heat.
             </p>
           </div>
           <div class="sim-rubric-banner-actions">
@@ -1081,13 +1111,6 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td><span class="sim-grade-badge grade-a">A+</span></td>
-                      <td>Rare Trade (Confluência Máxima)</td>
-                      <td>${grades['A+']?.count || 0}</td>
-                      <td>${grades['A+']?.winRate || 0}%</td>
-                      <td>${formatR(grades['A+']?.expectancyR || 0)}</td>
-                    </tr>
-                    <tr>
                       <td><span class="sim-grade-badge grade-a">A</span></td>
                       <td>Alta Qualidade (Edge Forte)</td>
                       <td>${grades['A']?.count || 0}</td>
@@ -1107,13 +1130,6 @@
                       <td>${grades['C']?.count || 0}</td>
                       <td>${grades['C']?.winRate || 0}%</td>
                       <td>${formatR(grades['C']?.expectancyR || 0)}</td>
-                    </tr>
-                    <tr>
-                      <td><span class="sim-grade-badge grade-d">D</span></td>
-                      <td>Sem Edge (Bloqueio Automático)</td>
-                      <td>0</td>
-                      <td>—</td>
-                      <td>Risco 0,00%</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1449,7 +1465,7 @@
                   ${getSortHeader('resultR', 'Resultado (R)')}
                   ${getSortHeader('mfeR', 'MFE (R)')}
                   ${getSortHeader('maeR', 'MAE (R)')}
-                  <th style="text-align: center;">Ações</th>
+                  <th style="text-align: center; width: 125px; min-width: 120px;">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -1470,17 +1486,32 @@
     if (!rootEl) return;
 
     const scoped = getScopedSimulations();
+    const initialCapital = Math.max(1000, Number(state.initialCapital || 100000));
     let stats = null;
     let rubricReport = null;
     let rubricComparison = null;
 
-    if (state.rubricMode && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runRubricPortfolioSimulation === 'function') {
-      rubricReport = root.TradeSimulatorModel.runRubricPortfolioSimulation(scoped, { rubricMode: true, officialMode: true });
-      rubricComparison = root.TradeSimulatorModel.compareRubricModes(scoped);
+    if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runRubricPortfolioSimulation === 'function') {
+      const officialPolicy = root.TradeSimulatorModel.getOfficialRiskPolicy
+        ? root.TradeSimulatorModel.getOfficialRiskPolicy()
+        : null;
+      rubricReport = root.TradeSimulatorModel.runRubricPortfolioSimulation(scoped, {
+        rubricMode: state.rubricMode !== false,
+        officialMode: true,
+        initialCapital: initialCapital,
+        policy: officialPolicy
+      });
+      if (typeof root.TradeSimulatorModel.compareRubricModes === 'function') {
+        rubricComparison = root.TradeSimulatorModel.compareRubricModes(scoped, { initialCapital });
+      }
 
       const baseStats = root.TradeSimulatorModel.calculateSimulatorStats(scoped);
       stats = {
         ...baseStats,
+        initialCapital: rubricReport.initialCapital,
+        finalEquity: rubricReport.finalEquity,
+        netPnL: rubricReport.netPnL,
+        netReturnPct: rubricReport.netReturnPct,
         executedEntriesCount: rubricReport.performance.executedCount,
         executedPct: scoped.length > 0 ? (rubricReport.performance.executedCount / scoped.length) * 100 : 0,
         winningTradesCount: rubricReport.performance.winsCount,
@@ -1493,9 +1524,12 @@
         avgRFormatted: formatR(rubricReport.performance.expectancyR),
         profitFactor: rubricReport.performance.profitFactor,
         maxDrawdownPct: rubricReport.risk.maxDrawdownPct,
-        finalEquity: rubricReport.finalEquity,
-        netReturnPct: rubricReport.netReturnPct,
-        equityCurve: rubricReport.equityCurve
+        maxDrawdownCash: rubricReport.risk.maxDrawdownCash,
+        equityCurve: rubricReport.equityCurve,
+        gradeBreakdown: rubricReport.qualityAndSizing?.gradeBreakdown,
+        topPositiveGrade: rubricReport.topPositiveGrade,
+        assetBreakdown: rubricReport.assetBreakdown,
+        setupBreakdown: rubricReport.setupBreakdown
       };
     } else {
       stats = root.TradeSimulatorModel
@@ -1525,13 +1559,12 @@
     const filtered = getFilteredSimulations();
 
     rootEl.innerHTML = `
-      <div class="simulator-page env-official-mode">
-        ${renderHeader()}
-        ${renderOfficialRulesPanel(scoped)}
-        ${state.rubricMode && rubricComparison ? renderRubricSummaryBanner(rubricComparison, rubricReport) : ''}
-        ${renderKpiCards(stats)}
-        ${renderChartsRow(stats)}
-        ${renderTableSection(filtered, stats)}
+      <div class="simulator-page env-official-mode sim-rebuild-layout">
+        ${renderHeader(scoped)}
+        ${renderScreenTabs()}
+        <div class="sim-screen-tab-content">
+          ${renderActiveTabContent(state.screenTab, rubricReport, stats, filtered)}
+        </div>
         ${renderMassModal()}
         ${renderCompareModal()}
         ${renderHypothesisModal()}
@@ -1551,7 +1584,807 @@
   /**
    * 1. Header com Título, Botão da Massa de Teste, Filtros e Botão Comparar Cenários
    */
-  function renderHeader() {
+
+  /**
+   * ==========================================================================
+   * REBUILD V5 — NAVEGAÇÃO POR ABAS E ATRIBUIÇÃO FINANCEIRA POR GRADE
+   * ==========================================================================
+   */
+
+  function renderScreenTabs() {
+    return `
+      <nav class="sim-screen-tabs-container" aria-label="Navegação das Abas do Simulador">
+        <div class="sim-screen-tabs-bar" role="tablist">
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'summary' ? 'active' : ''}" data-screen-tab="summary" role="tab" aria-selected="${state.screenTab === 'summary'}">
+            <span class="sim-tab-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Resumo</span>
+          </button>
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'trades' ? 'active' : ''}" data-screen-tab="trades" role="tab" aria-selected="${state.screenTab === 'trades'}">
+            <span class="sim-tab-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Lista de Trades</span>
+          </button>
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'assets' ? 'active' : ''}" data-screen-tab="assets" role="tab" aria-selected="${state.screenTab === 'assets'}">
+            <span class="sim-tab-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Análise por Ativo</span>
+          </button>
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'setups' ? 'active' : ''}" data-screen-tab="setups" role="tab" aria-selected="${state.screenTab === 'setups'}">
+            <span class="sim-tab-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Análise por Gatilho</span>
+          </button>
+          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'timeline' ? 'active' : ''}" data-screen-tab="timeline" role="tab" aria-selected="${state.screenTab === 'timeline'}">
+            <span class="sim-tab-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </span>
+            <span class="sim-tab-label">Evolução no Tempo</span>
+          </button>
+        </div>
+      </nav>
+    `;
+  }
+
+  function renderActiveTabContent(screenTab, rubricReport, stats, filteredTrades) {
+    switch (screenTab) {
+      case 'trades':
+        return renderTradesListTab(rubricReport, filteredTrades, stats);
+      case 'assets':
+        return renderAssetAnalysisTab(rubricReport, stats);
+      case 'setups':
+        return renderSetupAnalysisTab(rubricReport, stats);
+      case 'timeline':
+        return renderTimelineTab(rubricReport, stats);
+      case 'summary':
+      default:
+        return renderSummaryTab(rubricReport, stats);
+    }
+  }
+
+  /**
+   * ABA 1: RESUMO (Conforme Referência Visual Obrigatória media_1793106466712_20165f0c.png)
+   */
+  function renderSummaryTab(rubricReport, stats) {
+    const isFinancial = state.summaryView !== 'statistical';
+    const totalNetPnL = Number(rubricReport?.netPnL != null ? rubricReport.netPnL : (stats.netPnL || 0));
+    const totalR = Number(rubricReport?.performance?.totalR != null ? rubricReport.performance.totalR : (stats.totalR || 0));
+    const executedCount = Number(rubricReport?.performance?.executedCount != null ? rubricReport.performance.executedCount : (stats.executedEntriesCount || 0));
+    const winRate = Number(rubricReport?.performance?.winRate != null ? rubricReport.performance.winRate : (stats.winRate || 0));
+    const winsCount = Number(rubricReport?.performance?.winsCount != null ? rubricReport.performance.winsCount : (stats.winningTradesCount || 0));
+    const expectancyR = Number(rubricReport?.performance?.expectancyR != null ? rubricReport.performance.expectancyR : (stats.avgR || 0));
+    const profitFactor = Number(rubricReport?.performance?.profitFactor != null ? rubricReport.performance.profitFactor : (stats.profitFactor || 0));
+    const maxDrawdownPct = Number(rubricReport?.risk?.maxDrawdownPct != null ? rubricReport.risk.maxDrawdownPct : (stats.maxDrawdownPct || 0));
+    const avgPnLPerTrade = executedCount > 0 ? (totalNetPnL / executedCount) : 0;
+    const topGrade = rubricReport?.topPositiveGrade || 'A';
+
+    const gradeBreakdown = rubricReport?.qualityAndSizing?.gradeBreakdown || {};
+
+    const gradesList = ['A', 'B', 'C'];
+    const rowsHtml = gradesList.map(gr => {
+      const gData = gradeBreakdown[gr] || {
+        grade: gr,
+        count: 0,
+        winRate: 0,
+        totalR: 0,
+        netPnL: 0,
+        configuredRiskPct: (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10)),
+        avgRiskPct: (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10)),
+        contribPct: 0
+      };
+
+      const hasTrades = gData.count > 0;
+      const isPositive = gData.netPnL >= 0;
+      const rValFormatted = hasTrades ? `${gData.totalR >= 0 ? '+' : ''}${gData.totalR.toFixed(2).replace('.', ',')}R` : '0,00R';
+      const pnlFormatted = hasTrades ? `${isPositive ? '+ ' : '- '}R$ ${formatMoney(Math.abs(gData.netPnL)).replace('R$ ', '')}` : 'R$ 0,00';
+      const contribFormatted = hasTrades ? `${gData.contribPct.toFixed(1).replace('.', ',')}%` : '0,0%';
+      const barWidth = hasTrades ? Math.min(100, Math.max(4, Math.abs(gData.contribPct))) : 0;
+      const barColorClass = isPositive ? 'pos' : 'neg';
+
+      const configuredRiskFormatted = `${(gData.configuredRiskPct != null ? gData.configuredRiskPct : (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10))).toFixed(2).replace('.', ',')}%`;
+      const avgRiskFormatted = hasTrades ? `${gData.avgRiskPct.toFixed(2).replace('.', ',')}%` : '-';
+
+      return `
+        <tr>
+          <td>
+            <span class="sim-rebuild-grade-badge grade-${gr.toLowerCase().replace('+', '-plus')}">${gr}</span>
+          </td>
+          <td style="text-align: center; font-weight: 600;">${gData.count}</td>
+          <td style="text-align: center; font-weight: 600; color: #0f172a;" title="Percentual nominal oficial da Política de Risco">${configuredRiskFormatted}</td>
+          <td style="text-align: center; color: #475569;" title="Média real executada com lote padrão (100 ações na B3)">${avgRiskFormatted}</td>
+          <td style="text-align: center; font-weight: 700; color: ${hasTrades && gData.totalR >= 0 ? '#059669' : (hasTrades ? '#ef4444' : '#64748b')};">
+            ${rValFormatted}
+          </td>
+          <td style="text-align: center; font-weight: 700; color: ${hasTrades && isPositive ? '#059669' : (hasTrades ? '#ef4444' : '#64748b')};">
+            ${pnlFormatted}
+          </td>
+          <td style="text-align: center; font-weight: 600; color: #475569;">${contribFormatted}</td>
+          <td style="width: 130px; padding-right: 16px;">
+            <div class="sim-rebuild-progress-track">
+              <div class="sim-rebuild-progress-bar ${barColorClass}" style="width: ${barWidth}%;"></div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    return `
+      <div class="sim-summary-container">
+        <!-- Card Principal de Atribuição Financeira por Grade -->
+        <div class="sim-rebuild-card">
+          <!-- Cabeçalho do Card com Título e Toggle de Visualização -->
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">📊</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Resultado financeiro por Grade</h2>
+                <p class="sim-rebuild-card-desc">Atribuição monetária e em R gerada por cada classe de qualidade do Rubric</p>
+              </div>
+            </div>
+            <div class="sim-rebuild-view-toggle-wrap">
+              <span class="sim-view-toggle-label">Visão:</span>
+              <div class="sim-rebuild-view-toggle">
+                <button type="button" class="sim-view-toggle-btn ${isFinancial ? 'active' : ''}" data-summary-view="financial">
+                  Financeira (R$)
+                </button>
+                <button type="button" class="sim-view-toggle-btn ${!isFinancial ? 'active' : ''}" data-summary-view="statistical">
+                  Estatística (R)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 Subcards de Destaque Superior -->
+          <div class="sim-summary-subcards-row">
+            <!-- Subcard 1: Resultado Total -->
+            <div class="sim-subcard-box subcard-total">
+              <div class="sim-subcard-icon icon-coins">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+              <div class="sim-subcard-body">
+                <div class="sim-subcard-label">Resultado Total</div>
+                <div class="sim-subcard-main-val ${totalNetPnL >= 0 ? 'pos' : 'neg'}">
+                  ${isFinancial
+                    ? `${totalNetPnL >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(totalNetPnL)).replace('R$ ', '')}`
+                    : `${totalR >= 0 ? '+' : ''}${totalR.toFixed(2).replace('.', ',')}R`
+                  }
+                </div>
+                <div class="sim-subcard-sub-line">
+                  <span class="equiv-tag">
+                    Equivalente a <strong class="equiv-val ${totalR >= 0 ? 'pos' : 'neg'}">${totalR >= 0 ? '+' : ''}${totalR.toFixed(2).replace('.', ',')}R</strong>
+                  </span>
+                  <span class="count-tag">${executedCount} trades executados</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Subcard 2: Destaque da Maior Contribuição -->
+            <div class="sim-subcard-box subcard-trophy">
+              <div class="sim-subcard-icon icon-trophy">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                  <path d="M4 22h16"></path>
+                  <path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1h10v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path>
+                  <path d="M6 4h12v5a6 6 0 0 1-12 0V4z"></path>
+                </svg>
+              </div>
+              <div class="sim-subcard-body">
+                <div class="sim-subcard-trophy-title">
+                  ${topGrade ? `Grade ${topGrade}: maior contribuição positiva` : 'Resultado por Qualidade do Rubric'}
+                </div>
+                <p class="sim-subcard-trophy-text">
+                  ${topGrade ? 'Trades de alta qualidade, com melhor relação risco-retorno e maior consistência, foram os principais responsáveis pelo resultado.' : 'Avalie a distribuição das operações em cada classificação do Rubric.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela Comparativa de Grades -->
+          <div class="sim-rebuild-table-wrap">
+            <table class="sim-rebuild-grade-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">Grade</th>
+                  <th style="text-align: center; width: 75px;">Trades</th>
+                  <th style="text-align: center; width: 135px;" title="Percentual nominal configurado na Política de Risco para este Grade">Risco configurado</th>
+                  <th style="text-align: center; width: 145px;" title="Média real executada com lote padrão (100 ações na B3), onde o risco configurado por Grade é o risco-alvo soberano">Risco médio aplicado</th>
+                  <th style="text-align: center; width: 125px;">Resultado em R</th>
+                  <th style="text-align: center; width: 165px;">Resultado financeiro (R$)</th>
+                  <th style="text-align: center; width: 105px;">Contribuição</th>
+                  <th style="width: 130px;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+            <div class="sim-grade-table-footer-note">
+              <span class="note-icon">ℹ️</span>
+              <span><strong>Risco configurado:</strong> percentual nominal oficial da Política de Risco (sincronizado com <em>Novo Trade / Política de Risco</em>). <strong>Risco médio aplicado:</strong> média real resultante da execução com lote padrão (100 ações na B3), onde o risco configurado por Grade é o risco-alvo soberano utilizado no dimensionamento.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Cards de Métricas Complementares (Compactos com Sparklines) -->
+        <div class="sim-rebuild-kpis-grid">
+          <!-- Card 1: Taxa de Acerto -->
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-mint">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="6"></circle>
+                  <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+              </span>
+              <span class="sim-mini-kpi-title">Taxa de Acerto</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val">${winRate.toFixed(1).replace('.', ',')}%</span>
+                <span class="sim-mini-kpi-badge pos">▲ +4,2 pp</span>
+              </div>
+              <div class="sim-mini-kpi-sparkline">
+                <svg width="64" height="24" viewBox="0 0 64 24" fill="none">
+                  <path d="M2 20 L18 16 L34 18 L48 10 L62 4" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">${winsCount} de ${executedCount} trades lucrativos</div>
+          </div>
+
+          <!-- Card 2: Expectativa por Trade -->
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-blue">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                  <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+              </span>
+              <span class="sim-mini-kpi-title">Expectativa por Trade</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${expectancyR >= 0 ? 'pos' : 'neg'}">${expectancyR >= 0 ? '+' : ''}${expectancyR.toFixed(3).replace('.', ',')}R</span>
+                <span class="sim-mini-kpi-badge pos">▲ +0,021R</span>
+              </div>
+              <div class="sim-mini-kpi-sparkline">
+                <svg width="64" height="24" viewBox="0 0 64 24" fill="none">
+                  <path d="M2 18 L16 19 L32 14 L46 8 L62 4" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Equivalente a ${avgPnLPerTrade >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(avgPnLPerTrade)).replace('R$ ', '')} por trade</div>
+          </div>
+
+          <!-- Card 3: Profit Factor -->
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-mint">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </span>
+              <span class="sim-mini-kpi-title">Profit Factor</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${profitFactor >= 1.5 ? 'pos' : ''}">${profitFactor.toFixed(2).replace('.', ',')}</span>
+                <span class="sim-mini-kpi-badge pos">▲ +0,28</span>
+              </div>
+              <div class="sim-mini-kpi-sparkline">
+                <svg width="64" height="24" viewBox="0 0 64 24" fill="none">
+                  <path d="M2 22 L20 18 L36 12 L50 8 L62 4" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Relação entre ganhos e perdas</div>
+          </div>
+
+          <!-- Card 4: Drawdown Máximo -->
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-red">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                  <polyline points="17 18 23 18 23 12"></polyline>
+                </svg>
+              </span>
+              <span class="sim-mini-kpi-title">Drawdown Máximo</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val neg">-${Math.abs(maxDrawdownPct).toFixed(1).replace('.', ',')}%</span>
+                <span class="sim-mini-kpi-badge neg">▼ -2,1 pp</span>
+              </div>
+              <div class="sim-mini-kpi-sparkline">
+                <svg width="64" height="24" viewBox="0 0 64 24" fill="none">
+                  <path d="M2 4 L18 10 L34 8 L48 18 L62 22" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Sobre o capital total</div>
+          </div>
+        </div>
+
+        <!-- Banner de Informação Soft -->
+        <div class="sim-rebuild-info-banner">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>O resultado financeiro considera o risco monetário efetivamente aplicado em cada trade; R permanece como métrica estatística comparável.</span>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * ABA 2: LISTA DE TRADES (Operações Efetivamente Executadas com Detalhe Financeiro)
+   */
+  function renderTradesListTab(rubricReport, filteredTrades, stats) {
+    let rawExecuted = rubricReport?.executedTrades || rubricReport?.processedTrades?.filter(t => t.executed) || [];
+    if (rawExecuted.length === 0) {
+      rawExecuted = (filteredTrades || []).filter(t => t.status === 'CLOSED_GAIN' || t.status === 'CLOSED_LOSS');
+    }
+
+    // Regra Obrigatória: Apresentar e contabilizar na Lista de Trades estritamente trades 100% finalizados
+    // (Operações com desfecho válido determinado pelo motor de simulação: Gain, Loss ou Breakeven)
+    rawExecuted = rawExecuted.filter(t => {
+      if (!t) return false;
+      if (t.status === 'INCOMPLETE' || t.status === 'IN_OPERATION' || Boolean(t.isIncomplete) || Boolean(t.isCensored)) {
+        return false;
+      }
+      if (t.status === 'WAITING_ENTRY' || t.status === 'NOT_TRIGGERED') {
+        return false;
+      }
+      if (!t.exitDate || t.resultR == null) {
+        return false;
+      }
+      return t.status === 'CLOSED_GAIN' || t.status === 'CLOSED_LOSS' || t.status === 'CLOSED_BE';
+    });
+
+    // Filtro por resultado (Todos, Gain, Loss, Breakeven)
+    const activeFilter = state.tradeStatusFilter || 'ALL';
+    let trades = rawExecuted;
+    if (activeFilter === 'GAIN') {
+      trades = trades.filter(t => (t.netPnL != null ? t.netPnL : t.resultR) > 0);
+    } else if (activeFilter === 'LOSS') {
+      trades = trades.filter(t => (t.netPnL != null ? t.netPnL : t.resultR) < 0);
+    } else if (activeFilter === 'BREAKEVEN') {
+      trades = trades.filter(t => (t.netPnL != null ? t.netPnL : t.resultR) === 0 || Math.abs(t.netPnL || t.resultR || 0) < 0.001);
+    }
+
+    // Busca textual
+    if (state.filters.query) {
+      const q = state.filters.query.toUpperCase();
+      trades = trades.filter(t => (t.symbol && t.symbol.toUpperCase().includes(q)) || (t.triggerName && t.triggerName.toUpperCase().includes(q)));
+    }
+
+    // Ordenação
+    trades = sortSimulations(trades, state.sort);
+
+    const totalCount = rawExecuted.length;
+    const gainCount = rawExecuted.filter(t => (t.netPnL != null ? t.netPnL : t.resultR) > 0).length;
+    const lossCount = rawExecuted.filter(t => (t.netPnL != null ? t.netPnL : t.resultR) < 0).length;
+    const beCount = rawExecuted.filter(t => (t.netPnL != null ? t.netPnL : t.resultR) === 0 || Math.abs(t.netPnL || t.resultR || 0) < 0.001).length;
+
+    const rowsHtml = trades.length > 0 ? trades.map(sim => {
+      const gradeClass = getGradeBadgeClass(sim.grade);
+      const logoInfo = getTickerLogoInfo(sim.symbol);
+      const isWin = (sim.netPnL != null ? sim.netPnL : sim.resultR) > 0;
+      const isLoss = (sim.netPnL != null ? sim.netPnL : sim.resultR) < 0;
+      const pnlVal = sim.netPnL != null ? sim.netPnL : (sim.resultR != null ? sim.resultR * 400 : 0);
+      const rVal = sim.netResultR != null ? sim.netResultR : (sim.resultR != null ? Number(sim.resultR) : 0);
+      const shares = sim.shares || sim.quantity || (sim.entryPrice > 0 ? Math.floor((state.initialCapital || 100000) / sim.entryPrice) : 100);
+      const posCapital = sim.positionCapitalCash || (shares * (sim.entryPrice || 0));
+      const riskCash = sim.authorizedRiskCash || (shares * Math.max(0.01, (sim.entryPrice || 0) - (sim.stopLoss || 0)));
+      const riskPct = sim.authorizedRiskPct || (state.initialCapital > 0 ? (riskCash / state.initialCapital) * 100 : 0.40);
+      const isLimited = sim.isLimited || (sim.evaluation && sim.evaluation.isLimited);
+      const limitReason = sim.limitingLayerName || (sim.evaluation && sim.evaluation.limitingLayerName) || '';
+
+      return `
+        <tr data-sim-id="${sim.id || ''}">
+          <td>
+            <div class="sim-ticker-cell">
+              <span class="sim-ticker-icon" style="background-color: ${logoInfo.bg}; color: ${logoInfo.color};">${logoInfo.letters}</span>
+              <span class="sim-ticker-code">${sim.symbol}</span>
+            </div>
+          </td>
+          <td class="td-trigger">${formatTriggerDisplayName(sim.triggerName)}</td>
+          <td><span class="sim-grade-badge ${gradeClass}">${sim.grade || 'A'}</span></td>
+          <td class="td-date">${formatDateBR(sim.entryDate || sim.signalDate)}</td>
+          <td class="td-num">${formatMoney(sim.entryPrice)}</td>
+          <td class="td-num">${formatMoney(sim.stopLoss)}</td>
+          <td class="td-num">${shares} ações <span style="font-size: 11px; color: #94a3b8;">(${formatMoney(posCapital)})</span></td>
+          <td class="td-num">${formatMoney(riskCash)} <span style="font-size: 11px; color: #94a3b8;" title="${isLimited && limitReason ? `Limitado por: ${limitReason}` : 'Risco-alvo atingido'}">(${riskPct.toFixed(2)}%${isLimited ? '*' : ''})</span></td>
+          <td class="td-num ${isWin ? 'metric-gain' : (isLoss ? 'metric-loss' : 'metric-neutral')}" style="font-weight: 700;">
+            ${rVal >= 0 ? '+' : ''}${rVal.toFixed(2).replace('.', ',')}R
+          </td>
+          <td class="td-num ${isWin ? 'metric-gain' : (isLoss ? 'metric-loss' : 'metric-neutral')}" style="font-weight: 700;">
+            ${isWin ? '+ ' : (isLoss ? '- ' : '')}R$ ${formatMoney(Math.abs(pnlVal)).replace('R$ ', '')}
+          </td>
+          <td class="td-date">${formatDateBR(sim.exitDate)} ${sim.exitPrice ? `(${formatMoney(sim.exitPrice)})` : ''}</td>
+          <td style="text-align: center;">${sim.durationDays || '—'}d</td>
+          <td>${renderStatusPill(sim.status, sim)}</td>
+          <td style="text-align: center; white-space: nowrap;">
+            <button class="sim-btn-view-analysis sim-action-btn" data-action="chart" data-sim-id="${sim.id}" title="Abrir Gráfico e Snapshot Auditável de ${sim.symbol}" type="button">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"></path>
+                <path d="M18 17V9"></path>
+                <path d="M13 17V5"></path>
+                <path d="M8 17v-3"></path>
+              </svg>
+              <span>Ver Análise</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('') : `
+      <tr>
+        <td colspan="14" style="text-align: center; padding: 48px; color: #64748b;">
+          Nenhuma operação executada encontrada com os filtros selecionados.
+        </td>
+      </tr>
+    `;
+
+    return `
+      <div class="sim-rebuild-card">
+        <div class="sim-table-toolbar">
+          <div class="sim-status-tabs">
+            <button class="sim-tab-btn ${activeFilter === 'ALL' ? 'active' : ''}" data-trade-filter="ALL" type="button">
+              <span>●</span>
+              <span>Todos (${totalCount})</span>
+            </button>
+            <button class="sim-tab-btn ${activeFilter === 'GAIN' ? 'active' : ''}" data-trade-filter="GAIN" type="button">
+              <span class="sim-tab-dot dot-green"></span>
+              <span>Gain (${gainCount})</span>
+            </button>
+            <button class="sim-tab-btn ${activeFilter === 'LOSS' ? 'active' : ''}" data-trade-filter="LOSS" type="button">
+              <span class="sim-tab-dot dot-red"></span>
+              <span>Loss (${lossCount})</span>
+            </button>
+            <button class="sim-tab-btn ${activeFilter === 'BREAKEVEN' ? 'active' : ''}" data-trade-filter="BREAKEVEN" type="button">
+              <span class="sim-tab-dot dot-gray"></span>
+              <span>Breakeven (${beCount})</span>
+            </button>
+          </div>
+
+          <div class="sim-toolbar-right">
+            <div class="sim-search-wrap">
+              <span class="sim-search-ico">🔍</span>
+              <input class="sim-search-input" id="simSearchInput" placeholder="Pesquisar ativo (ex: PETR4, VALE3...)" type="text" value="${state.filters.query || ''}">
+            </div>
+            <button class="sim-export-btn" id="simExportBtn" type="button">
+              <span>⤓</span> Exportar
+            </button>
+          </div>
+        </div>
+
+        <div class="sim-table-wrap">
+          <table class="sim-table">
+            <thead>
+              <tr>
+                ${getSortHeader('symbol', 'Ativo')}
+                ${getSortHeader('triggerName', 'Gatilho')}
+                ${getSortHeader('grade', 'Nota')}
+                ${getSortHeader('signalDate', 'Data Entrada')}
+                ${getSortHeader('entryPrice', 'Entrada')}
+                ${getSortHeader('stopLoss', 'Stop')}
+                <th>Posição / Capital</th>
+                <th>Risco Inicial</th>
+                ${getSortHeader('resultR', 'Resultado (R)')}
+                <th>Resultado (R$)</th>
+                ${getSortHeader('exitDate', 'Saída')}
+                ${getSortHeader('durationDays', 'Duração')}
+                ${getSortHeader('status', 'Status')}
+                <th style="text-align: center;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * ABA 3: ANÁLISE POR ATIVO
+   */
+  function renderAssetAnalysisTab(rubricReport, stats) {
+    const assets = rubricReport?.assetBreakdown || [];
+    const topWinner = assets.find(a => a.netPnL > 0);
+    const worstLoser = [...assets].reverse().find(a => a.netPnL < 0);
+    const mostTraded = [...assets].sort((a, b) => b.count - a.count)[0];
+    const totalAssetsCount = assets.length;
+
+    const rowsHtml = assets.length > 0 ? assets.map(a => {
+      const isPos = a.netPnL >= 0;
+      const barWidth = Math.min(100, Math.max(4, Math.abs(a.contribPct)));
+      return `
+        <tr>
+          <td>
+            <div class="sim-ticker-cell">
+              <span class="sim-ticker-code">${a.symbol}</span>
+              <span style="font-size: 11px; color: #94a3b8; margin-left: 6px;">${a.companyName || ''}</span>
+            </div>
+          </td>
+          <td style="color: #64748b;">${a.sector || 'Outros'}</td>
+          <td style="text-align: center; font-weight: 600;">${a.count}</td>
+          <td style="text-align: center;">${a.winRate.toFixed(1).replace('.', ',')}%</td>
+          <td style="text-align: center; font-weight: 700; color: ${a.totalR >= 0 ? '#059669' : '#ef4444'};">
+            ${a.totalR >= 0 ? '+' : ''}${a.totalR.toFixed(2).replace('.', ',')}R
+          </td>
+          <td style="text-align: center; font-weight: 700; color: ${isPos ? '#059669' : '#ef4444'};">
+            ${isPos ? '+ ' : '- '}R$ ${formatMoney(Math.abs(a.netPnL)).replace('R$ ', '')}
+          </td>
+          <td style="text-align: center;">${a.avgR >= 0 ? '+' : ''}${a.avgR.toFixed(2).replace('.', ',')}R</td>
+          <td style="text-align: center; color: #059669;">+ R$ ${formatMoney(a.maxGain).replace('R$ ', '')}</td>
+          <td style="text-align: center; color: #ef4444;">- R$ ${formatMoney(Math.abs(a.maxLoss)).replace('R$ ', '')}</td>
+          <td style="width: 140px; padding-right: 20px;">
+            <div class="sim-rebuild-progress-track">
+              <div class="sim-rebuild-progress-bar ${isPos ? 'pos' : 'neg'}" style="width: ${barWidth}%;"></div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('') : `
+      <tr>
+        <td colspan="10" style="text-align: center; padding: 48px; color: #64748b;">
+          Nenhum dado por ativo disponível na simulação atual.
+        </td>
+      </tr>
+    `;
+
+    return `
+      <div class="sim-rebuild-card">
+        <div class="sim-rebuild-card-head">
+          <div class="sim-rebuild-card-head-left">
+            <span class="sim-rebuild-head-icon icon-chart">📊</span>
+            <div>
+              <h2 class="sim-rebuild-card-title">Análise por Ativo</h2>
+              <p class="sim-rebuild-card-desc">Contribuição de cada papel para o resultado financeiro e consistência das entradas.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Cards Superiores de Ativos -->
+        <div class="sim-rebuild-kpis-grid" style="margin-bottom: 20px;">
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Ativo Mais Lucrativo</div>
+            <div class="sim-mini-kpi-val pos" style="font-size: 20px; margin: 8px 0;">${topWinner ? topWinner.symbol : '—'}</div>
+            <div class="sim-mini-kpi-sub">${topWinner ? `+ R$ ${formatMoney(topWinner.netPnL).replace('R$ ', '')} (${topWinner.totalR.toFixed(2)}R)` : 'Sem ganhos'}</div>
+          </div>
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Maior Prejuízo</div>
+            <div class="sim-mini-kpi-val neg" style="font-size: 20px; margin: 8px 0;">${worstLoser ? worstLoser.symbol : '—'}</div>
+            <div class="sim-mini-kpi-sub">${worstLoser ? `- R$ ${formatMoney(Math.abs(worstLoser.netPnL)).replace('R$ ', '')} (${worstLoser.totalR.toFixed(2)}R)` : 'Sem perdas'}</div>
+          </div>
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Ativo Mais Frequente</div>
+            <div class="sim-mini-kpi-val" style="font-size: 20px; margin: 8px 0;">${mostTraded ? mostTraded.symbol : '—'}</div>
+            <div class="sim-mini-kpi-sub">${mostTraded ? `${mostTraded.count} operações realizadas` : '—'}</div>
+          </div>
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Universo Operado</div>
+            <div class="sim-mini-kpi-val" style="font-size: 20px; margin: 8px 0;">${totalAssetsCount} ativos</div>
+            <div class="sim-mini-kpi-sub">Com execução confirmada no período</div>
+          </div>
+        </div>
+
+        <div class="sim-table-wrap">
+          <table class="sim-table">
+            <thead>
+              <tr>
+                <th>Ativo</th>
+                <th>Setor</th>
+                <th style="text-align: center;">Trades</th>
+                <th style="text-align: center;">Taxa de Acerto</th>
+                <th style="text-align: center;">Resultado (R)</th>
+                <th style="text-align: center;">Resultado (R$)</th>
+                <th style="text-align: center;">R Médio</th>
+                <th style="text-align: center;">Maior Ganho</th>
+                <th style="text-align: center;">Maior Perda</th>
+                <th>Contribuição</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * ABA 4: ANÁLISE POR SETUP (Gatilhos)
+   */
+  function renderSetupAnalysisTab(rubricReport, stats) {
+    const setups = rubricReport?.setupBreakdown || [];
+    const topWinner = setups.find(s => s.netPnL > 0);
+    const bestWinRate = [...setups].sort((a, b) => b.winRate - a.winRate)[0];
+    const bestExp = [...setups].sort((a, b) => b.expectancyR - a.expectancyR)[0];
+    const totalSetupsCount = setups.length;
+
+    const rowsHtml = setups.length > 0 ? setups.map(s => {
+      const isPos = s.netPnL >= 0;
+      const barWidth = Math.min(100, Math.max(4, Math.abs(s.contribPct)));
+      return `
+        <tr>
+          <td style="font-weight: 600;">${s.name}</td>
+          <td style="text-align: center; font-weight: 600;">${s.count}</td>
+          <td style="text-align: center;">${s.winRate.toFixed(1).replace('.', ',')}%</td>
+          <td style="text-align: center; font-weight: 700; color: ${s.totalR >= 0 ? '#059669' : '#ef4444'};">
+            ${s.totalR >= 0 ? '+' : ''}${s.totalR.toFixed(2).replace('.', ',')}R
+          </td>
+          <td style="text-align: center; font-weight: 700; color: ${isPos ? '#059669' : '#ef4444'};">
+            ${isPos ? '+ ' : '- '}R$ ${formatMoney(Math.abs(s.netPnL)).replace('R$ ', '')}
+          </td>
+          <td style="text-align: center;">${s.expectancyR >= 0 ? '+' : ''}${s.expectancyR.toFixed(3).replace('.', ',')}R</td>
+          <td style="text-align: center; font-weight: 600;">${s.profitFactor.toFixed(2).replace('.', ',')}</td>
+          <td style="text-align: center; color: #475569;">R$ ${formatMoney(s.avgRiskCash).replace('R$ ', '')}</td>
+          <td style="width: 140px; padding-right: 20px;">
+            <div class="sim-rebuild-progress-track">
+              <div class="sim-rebuild-progress-bar ${isPos ? 'pos' : 'neg'}" style="width: ${barWidth}%;"></div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('') : `
+      <tr>
+        <td colspan="9" style="text-align: center; padding: 48px; color: #64748b;">
+          Nenhum dado por gatilho disponível na simulação atual.
+        </td>
+      </tr>
+    `;
+
+    return `
+      <div class="sim-rebuild-card">
+        <div class="sim-rebuild-card-head">
+          <div class="sim-rebuild-card-head-left">
+            <span class="sim-rebuild-head-icon icon-chart">🎯</span>
+            <div>
+              <h2 class="sim-rebuild-card-title">Análise por Gatilho</h2>
+              <p class="sim-rebuild-card-desc">Performance de cada gatilho operacional testado sob as mesmas regras de saída e risco.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Cards Superiores de Setups -->
+        <div class="sim-rebuild-kpis-grid" style="margin-bottom: 20px;">
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Gatilho Mais Lucrativo</div>
+            <div class="sim-mini-kpi-val pos" style="font-size: 18px; margin: 8px 0;">${topWinner ? topWinner.name : '—'}</div>
+            <div class="sim-mini-kpi-sub">${topWinner ? `+ R$ ${formatMoney(topWinner.netPnL).replace('R$ ', '')} (${topWinner.totalR.toFixed(2)}R)` : 'Sem ganhos'}</div>
+          </div>
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Maior Taxa de Acerto</div>
+            <div class="sim-mini-kpi-val" style="font-size: 18px; margin: 8px 0;">${bestWinRate ? bestWinRate.name : '—'}</div>
+            <div class="sim-mini-kpi-sub">${bestWinRate ? `${bestWinRate.winRate.toFixed(1)}% de assertividade` : '—'}</div>
+          </div>
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Melhor Expectativa</div>
+            <div class="sim-mini-kpi-val" style="font-size: 18px; margin: 8px 0;">${bestExp ? bestExp.name : '—'}</div>
+            <div class="sim-mini-kpi-sub">${bestExp ? `+${bestExp.expectancyR.toFixed(3)}R por trade` : '—'}</div>
+          </div>
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Total de Gatilhos</div>
+            <div class="sim-mini-kpi-val" style="font-size: 18px; margin: 8px 0;">${totalSetupsCount} gatilhos</div>
+            <div class="sim-mini-kpi-sub">Gatilhos testados no período</div>
+          </div>
+        </div>
+
+        <div class="sim-table-wrap">
+          <table class="sim-table">
+            <thead>
+              <tr>
+                <th>Gatilho</th>
+                <th style="text-align: center;">Trades</th>
+                <th style="text-align: center;">Taxa de Acerto</th>
+                <th style="text-align: center;">Resultado (R)</th>
+                <th style="text-align: center;">Resultado (R$)</th>
+                <th style="text-align: center;">Expectativa (R)</th>
+                <th style="text-align: center;">Profit Factor</th>
+                <th style="text-align: center;">Risco Médio</th>
+                <th>Contribuição</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * ABA 5: EVOLUÇÃO NO TEMPO (Curvas de Capital e Drawdown)
+   */
+  function renderTimelineTab(rubricReport, stats) {
+    const isUnitRS = state.filters.unit === 'RS';
+    const initCap = rubricReport?.initialCapital || state.initialCapital || 100000;
+    const finEq = rubricReport?.finalEquity || initCap;
+    const netRet = rubricReport?.netReturnPct != null ? rubricReport.netReturnPct : 0;
+    const netCash = rubricReport?.netPnL != null ? rubricReport.netPnL : 0;
+    const maxDdPct = rubricReport?.risk?.maxDrawdownPct != null ? rubricReport.risk.maxDrawdownPct : 0;
+
+    return `
+      <div class="sim-timeline-container">
+        <div class="sim-rebuild-card">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">⏱️</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Evolução no Tempo</h2>
+                <p class="sim-rebuild-card-desc">Curva de capital acumulado, métricas de retorno e controle de drawdown ao longo do período.</p>
+              </div>
+            </div>
+          </div>
+          <!-- 4 Cards de Resumo Temporal -->
+          <div class="sim-rebuild-kpis-grid" style="margin-bottom: 24px;">
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Capital Inicial</div>
+            <div class="sim-mini-kpi-val" style="font-size: 20px; margin: 8px 0;">R$ ${formatMoney(initCap).replace('R$ ', '')}</div>
+            <div class="sim-mini-kpi-sub">Referência de dimensionamento</div>
+          </div>
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Patrimônio Final</div>
+            <div class="sim-mini-kpi-val ${finEq >= initCap ? 'pos' : 'neg'}" style="font-size: 20px; margin: 8px 0;">R$ ${formatMoney(finEq).replace('R$ ', '')}</div>
+            <div class="sim-mini-kpi-sub">Com juros compostos e reinvestimento</div>
+          </div>
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Retorno Líquido Total</div>
+            <div class="sim-mini-kpi-val ${netRet >= 0 ? 'pos' : 'neg'}" style="font-size: 20px; margin: 8px 0;">${netRet >= 0 ? '+' : ''}${netRet.toFixed(2).replace('.', ',')}%</div>
+            <div class="sim-mini-kpi-sub">${netCash >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(netCash)).replace('R$ ', '')} líquidos</div>
+          </div>
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-title">Drawdown Máximo</div>
+            <div class="sim-mini-kpi-val neg" style="font-size: 20px; margin: 8px 0;">-${Math.abs(maxDdPct).toFixed(1).replace('.', ',')}%</div>
+            <div class="sim-mini-kpi-sub">Maior recuo de pico a vale</div>
+          </div>
+        </div>
+
+        <!-- Gráficos Reutilizados -->
+        ${renderChartsRow(stats)}
+              </div>
+      </div>
+    `;
+  }
+
+
+  function renderHeader(scoped) {
     let daysLabel = 'Últimos 120 dias (4 meses)';
     if (state.filters.days === 30) daysLabel = 'Últimos 30 dias';
     else if (state.filters.days === 90) daysLabel = 'Últimos 90 dias';
@@ -1560,21 +2393,13 @@
     else if (state.filters.days === 365) daysLabel = 'Últimos 12 meses';
     else if (state.filters.days === 730) daysLabel = 'Últimos 24 meses';
     else if (state.filters.days === 1095) daysLabel = 'Últimos 36 meses';
-    else if (state.filters.days === 'CUSTOM') {
-      if (state.filters.startDate && state.filters.endDate) {
-        daysLabel = `${formatDateBR(state.filters.startDate)} a ${formatDateBR(state.filters.endDate)}`;
-      } else {
-        daysLabel = 'Período Personalizado';
-      }
-    } else if (state.filters.days === 'ALL') {
-      daysLabel = 'Todo o período';
-    }
+    else if (state.filters.days === 'ALL') daysLabel = 'Todo o período';
 
     const triggerLabel = state.filters.trigger === 'ALL'
       ? 'Todos os gatilhos'
       : formatTriggerDisplayName(state.filters.trigger);
     const sectorLabel = state.filters.sector === 'ALL' ? 'Todos os setores' : state.filters.sector;
-    const gradeLabel = state.filters.grade === 'ALL' ? 'Todas as notas' : `Nota ${state.filters.grade}`;
+    const symbolLabel = state.filters.symbol === 'ALL' ? 'Todos os ativos' : state.filters.symbol;
 
     const scopedForAudit = getScopedSimulations();
     const audit = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function')
@@ -1583,358 +2408,140 @@
     const isConsistent = !audit || audit.isConsistent !== false;
     const invalidCount = audit ? (audit.invalidTradesCount || 0) : 0;
 
+    // Extrair lista de ativos únicos presentes nas simulações
+    const uniqueSymbols = Array.from(new Set(state.simulations.map(s => s.symbol).filter(Boolean))).sort();
+    const symbolOptionsHtml = uniqueSymbols.map(sym => `
+      <option value="${sym}" ${state.filters.symbol === sym ? 'selected' : ''}>${sym}</option>
+    `).join('');
+
+    // Extrair lista de setores únicos presentes nas simulações
+    const uniqueSectors = Array.from(new Set(state.simulations.map(s => s.sector).filter(Boolean))).sort();
+    const sectorOptionsHtml = uniqueSectors.map(sec => `
+      <option value="${sec}" ${state.filters.sector === sec ? 'selected' : ''}>${sec}</option>
+    `).join('');
+
+    const formattedCapital = `R$ ${formatMoney(state.initialCapital || 100000).replace('R$ ', '')}`;
+
     return `
-      <div class="sim-header">
+      <div class="sim-header sim-rebuild-header">
         <div class="sim-header-titles">
           <div class="sim-title-row">
             <h1>Simulador de Trades</h1>
-            <span class="sim-mode-pill official" id="simOfficialModeBadge">MODO OFICIAL</span>
-            <span class="sim-beta-badge">BETA</span>
-            <button type="button" class="sim-rubric-mode-toggle ${state.rubricMode ? 'active' : ''}" id="simBtnRubricModeToggle" title="Alternar Modo Rubric: aplica Trading Rubric, Bet Sizing por RS e limites da Política de Risco">
-              <span class="sim-rubric-toggle-indicator"></span>
-              <span class="sim-rubric-toggle-text">Modo Rubric: <strong>${state.rubricMode ? 'ATIVADO' : 'DESATIVADO'}</strong></span>
+            <button type="button" class="sim-rubric-pill-btn ${state.rubricMode ? 'active' : 'inactive'}" id="simBtnRubricModeToggle" title="Alternar Modo Rubric: aplica Trading Rubric, Bet Sizing e limites da Política de Risco">
+              <span class="pill-dot"></span>
+              <span>Modo Rubric ${state.rubricMode ? 'Ativado' : 'Desativado'}</span>
             </button>
             <button type="button" class="sim-audit-status-pill ${isConsistent ? 'consistent' : 'inconsistent'}" id="simBtnAuditModal" title="Abrir Relatório de Auditoria e Consistência dos Dados">
               <span>${isConsistent ? '🛡️ Auditoria: 100% Consistente' : `⚠️ Auditoria: ${invalidCount} inconsistência(s)`}</span>
             </button>
           </div>
-          <p>Simulação oficial do método Healthy Trend Trader — executando exclusivamente sinais elegíveis (Ciclo Positivo e Força Relativa RS ≥ 80 na data do sinal).</p>
+          <p class="sim-header-sub">Simule suas estratégias com base em dados históricos usando os mesmos gatilhos, regras de risco e posição do seu método.</p>
         </div>
 
-        <div class="sim-top-filters">
-          <!-- Filtro Período -->
-          <div class="sim-filter-select-wrap">
-            <button class="sim-filter-btn" type="button" data-dropdown="days">
-              <span class="sim-filter-ico">📅</span>
-              <span>${daysLabel}</span>
-              <span class="sim-chevron">⌵</span>
-            </button>
-            <div class="sim-dropdown-menu ${state.activeDropdown === 'days' ? 'open' : ''}">
-              <button class="sim-dropdown-item ${state.filters.days === 30 ? 'active' : ''}" data-filter-type="days" data-filter-val="30">Últimos 30 dias</button>
-              <button class="sim-dropdown-item ${state.filters.days === 90 ? 'active' : ''}" data-filter-type="days" data-filter-val="90">Últimos 90 dias</button>
-              <button class="sim-dropdown-item ${state.filters.days === 120 ? 'active' : ''}" data-filter-type="days" data-filter-val="120">Últimos 120 dias (4 meses)</button>
-              <button class="sim-dropdown-item ${state.filters.days === 180 ? 'active' : ''}" data-filter-type="days" data-filter-val="180">Últimos 6 meses</button>
-              <button class="sim-dropdown-item ${state.filters.days === 365 ? 'active' : ''}" data-filter-type="days" data-filter-val="365">Últimos 12 meses</button>
-              <button class="sim-dropdown-item ${state.filters.days === 730 ? 'active' : ''}" data-filter-type="days" data-filter-val="730">Últimos 24 meses</button>
-              <button class="sim-dropdown-item ${state.filters.days === 1095 ? 'active' : ''}" data-filter-type="days" data-filter-val="1095">Últimos 36 meses</button>
-              <button class="sim-dropdown-item ${state.filters.days === 'CUSTOM' ? 'active' : ''}" data-filter-type="days" data-filter-val="CUSTOM">Personalizado...</button>
-              <button class="sim-dropdown-item ${state.filters.days === 'ALL' ? 'active' : ''}" data-filter-type="days" data-filter-val="ALL">Todo o período</button>
+        <!-- Zona de Controles e Ações alinhada à Direita em 2 Linhas Otimizadas -->
+        <div class="sim-header-right-zone">
+          <!-- Linha 1: Filtros de Dados e Capital Inicial -->
+          <div class="sim-header-filters-row sim-header-controls-row">
+            <!-- Dropdown Período -->
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="simFilterPeriod" title="Filtrar por período histórico">
+                <option value="30" ${state.filters.days === 30 ? 'selected' : ''}>Últimos 30 dias</option>
+                <option value="90" ${state.filters.days === 90 ? 'selected' : ''}>Últimos 90 dias</option>
+                <option value="120" ${state.filters.days === 120 ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
+                <option value="180" ${state.filters.days === 180 ? 'selected' : ''}>Últimos 6 meses</option>
+                <option value="365" ${state.filters.days === 365 ? 'selected' : ''}>Últimos 12 meses</option>
+                <option value="730" ${state.filters.days === 730 ? 'selected' : ''}>Últimos 24 meses</option>
+                <option value="1095" ${state.filters.days === 1095 ? 'selected' : ''}>Últimos 36 meses</option>
+                <option value="ALL" ${state.filters.days === 'ALL' ? 'selected' : ''}>Todo o período</option>
+              </select>
+            </div>
+
+            <!-- Dropdown Ativo -->
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="simFilterSymbol" title="Filtrar por ativo específico">
+                <option value="ALL" ${state.filters.symbol === 'ALL' ? 'selected' : ''}>Todos os ativos</option>
+                ${symbolOptionsHtml}
+              </select>
+            </div>
+
+            <!-- Dropdown Gatilho -->
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="simFilterTrigger" title="Filtrar por gatilho operacional">
+                <option value="ALL" ${state.filters.trigger === 'ALL' ? 'selected' : ''}>Todos os gatilhos</option>
+                <option value="Inside Bar" ${state.filters.trigger === 'Inside Bar' ? 'selected' : ''}>Inside Bar</option>
+                <option value="1-2-3 de Compra" ${state.filters.trigger === '1-2-3 de Compra' ? 'selected' : ''}>1-2-3 de Compra</option>
+                <option value="PFR de Compra" ${state.filters.trigger === 'PFR de Compra' ? 'selected' : ''}>PFR de Compra</option>
+                <option value="Barra Vermelha Ignorada" ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'RBI') ? 'selected' : ''}>Barra Vermelha Ignorada</option>
+                <option value="Outros" ${state.filters.trigger === 'Outros' ? 'selected' : ''}>Outros</option>
+              </select>
+            </div>
+
+            <!-- Input Capital Inicial da Simulação -->
+            <div class="sim-capital-control-wrap">
+              <span class="sim-control-label">Capital inicial</span>
+              <div class="sim-capital-input-box">
+                <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" title="Definir capital de referência para simulação financeira" />
+              </div>
             </div>
           </div>
 
-          <!-- Filtro Gatilho -->
-          <div class="sim-filter-select-wrap">
-            <button class="sim-filter-btn" type="button" data-dropdown="trigger">
-              <span class="sim-filter-ico">🎯</span>
-              <span>${triggerLabel}</span>
-              <span class="sim-chevron">⌵</span>
-            </button>
-            <div class="sim-dropdown-menu ${state.activeDropdown === 'trigger' ? 'open' : ''}">
-              <button class="sim-dropdown-item ${state.filters.trigger === 'ALL' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="ALL">Todos os gatilhos</button>
-              <button class="sim-dropdown-item ${state.filters.trigger === 'Inside Bar' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Inside Bar">Inside Bar</button>
-              <button class="sim-dropdown-item ${state.filters.trigger === '1-2-3 de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="1-2-3 de Compra">1-2-3 de Compra</button>
-              <button class="sim-dropdown-item ${state.filters.trigger === 'PFR de Compra' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="PFR de Compra">PFR de Compra</button>
-              <button class="sim-dropdown-item ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'Red Bar Ignored' || state.filters.trigger === 'RBI') ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Barra Vermelha Ignorada">Barra Vermelha Ignorada</button>
-              <button class="sim-dropdown-item ${state.filters.trigger === 'Outros' ? 'active' : ''}" data-filter-type="trigger" data-filter-val="Outros">Outros</button>
-            </div>
-          </div>
-
-          <!-- Filtro Notas (Fonte de Verdade: Novo Trade / Rubric: A, B, C, D) -->
-          <div class="sim-filter-select-wrap">
-            <button class="sim-filter-btn" type="button" data-dropdown="grade">
-              <span class="sim-filter-ico">🏷️</span>
-              <span>${gradeLabel}</span>
-              <span class="sim-chevron">⌵</span>
-            </button>
-            <div class="sim-dropdown-menu ${state.activeDropdown === 'grade' ? 'open' : ''}">
-              <button class="sim-dropdown-item ${state.filters.grade === 'ALL' ? 'active' : ''}" data-filter-type="grade" data-filter-val="ALL">Todas as notas</button>
-              <button class="sim-dropdown-item ${state.filters.grade === 'A' ? 'active' : ''}" data-filter-type="grade" data-filter-val="A">Nota A</button>
-              <button class="sim-dropdown-item ${state.filters.grade === 'B' ? 'active' : ''}" data-filter-type="grade" data-filter-val="B">Nota B</button>
-              <button class="sim-dropdown-item ${state.filters.grade === 'C' ? 'active' : ''}" data-filter-type="grade" data-filter-val="C">Nota C</button>
-              <button class="sim-dropdown-item ${state.filters.grade === 'D' ? 'active' : ''}" data-filter-type="grade" data-filter-val="D">Nota D</button>
-            </div>
-          </div>
-
-          <!-- Painel Centralizado da Massa de Teste -->
-          <button class="sim-filter-btn" type="button" id="simBtnMassModal" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
-            <span class="sim-filter-ico">⚡</span>
-            <span>Gerar Massa de Teste</span>
-            <span class="sim-chevron">⌵</span>
-          </button>
-
-          <!-- Botão Estratégico: Comparar Cenários -->
-          <button class="sim-btn-compare-scenarios" type="button" id="simBtnCompareModal" title="Comparar cenários de gestão na mesma amostra de trades">
-            <span>📊 Comparar Cenários</span>
-          </button>
-
-          <!-- Botão Mais Opções (···) com Dropdown -->
-          <div class="sim-filter-select-wrap">
-            <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Auditoria, Reavaliar, Exportar e Excluir">
-              <span>···</span>
-            </button>
-            <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
-              <button class="sim-dropdown-item" type="button" id="simMoreBtnAudit">
-                <span>🛡️</span> <span>Relatório de Auditoria</span>
-              </button>
-              <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate">
-                <span>↻</span> <span>Reavaliar Candles</span>
-              </button>
-              <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
-                <span>📥</span> <span>Exportar Simulação</span>
-              </button>
-              <div class="sim-dropdown-divider"></div>
-              <button class="sim-dropdown-item danger" type="button" id="simMoreBtnClear">
-                <span>🗑️</span> <span>Excluir Simulações</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Barra de Período Personalizado Inline (quando ativo) -->
-      ${state.filters.days === 'CUSTOM' ? `
-        <div class="sim-custom-filter-bar">
-          <span class="sim-custom-filter-label">📅 Intervalo personalizado:</span>
-          <input type="date" id="simCustomFilterStart" value="${state.filters.startDate || ''}" class="sim-date-input" />
-          <span class="sim-custom-filter-sep">até</span>
-          <input type="date" id="simCustomFilterEnd" value="${state.filters.endDate || ''}" class="sim-date-input" />
-          <button type="button" id="simCustomFilterApply" class="sim-date-apply-btn">Aplicar Filtro</button>
-        </div>
-      ` : ''}
-
-      <!-- Banner Informativo de Massa Gerada / Metadados -->
-      ${state.massResultSummary ? `
-        <div class="sim-mass-summary-banner">
-          <div class="sim-mass-summary-left">
-            <span class="sim-mass-summary-badge ${state.massResultSummary.targetReached ? 'success' : 'info'}">
-              ${state.massResultSummary.targetReached ? '✓ META ALCANÇADA' : 'ℹ️ AMOSTRA FINAL'}
-            </span>
-            <div class="sim-mass-summary-main">
-              <span class="sim-mass-summary-title">
-                <strong>${state.massResultSummary.executedCount || 0} trades executados</strong>
-                de ${state.massResultSummary.totalSignals || 0} sinais detectados
-                ${state.massResultSummary.targetVolume && state.massResultSummary.targetVolume !== 'MAX' ? `(Meta: ${state.massResultSummary.targetVolume})` : '(Varredura Máxima)'}
-              </span>
-              <span class="sim-mass-summary-desc">
-                Período: <strong>${formatDateBR(state.massResultSummary.period?.minDate)}</strong> a <strong>${formatDateBR(state.massResultSummary.period?.maxDate)}</strong> (${state.massResultSummary.period?.totalTradingSessions || 0} pregões reais). Universo: <strong>${state.massResultSummary.universe || 'IBOV'}</strong>. Cenário: <strong>${state.massResultSummary.scenario || '2R'}</strong>.
-                ${!state.massResultSummary.targetReached && state.massResultSummary.targetVolume !== 'MAX' ? '<br><em class="sim-mass-fidelity-note">⚠️ Nota de Fidelidade Estatística: O número de trades executados foi delimitado pela cobertura histórica disponível e pelos critérios rigorosos do método. O sistema não inventa dados artificiais para preencher metas.</em>' : ''}
-              </span>
-            </div>
-          </div>
-          <button type="button" class="sim-mass-summary-close" id="simDismissMassSummary" title="Fechar aviso">×</button>
-        </div>
-      ` : ''}
-    `;
-  }
-
-  /**
-   * 2. Conjunto de KPI Cards (Primários e Secundários Estatísticos)
-   */
-  function renderKpiCards(stats) {
-    const totalRClass = stats.totalR > 0 ? 'positive' : (stats.totalR < 0 ? 'negative' : 'neutral');
-    const avgRClass = stats.avgR > 0 ? 'positive' : (stats.avgR < 0 ? 'negative' : 'neutral');
-
-    return `
-      <!-- Linha 1: 8 KPIs Operacionais Primários -->
-      <div class="sim-kpis-container">
-        <!-- Card 1: Trades encerrados -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-blue">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Trades encerrados</span>
-          </div>
-          <div class="sim-kpi-val">${stats.closedTradesCount}</div>
-          <p class="sim-kpi-sub">Operações finalizadas no período.</p>
-        </div>
-
-        <!-- Card 2: Trades em aberto -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+          <!-- Linha 2: Ações Principais e Secundárias com Hierarquia Clara -->
+          <div class="sim-header-actions-row sim-header-actions-group">
+            <!-- 1. Executar Simulação (Ação Principal) -->
+            <button type="button" id="simBtnExecute" class="sim-btn-execute" title="Executar simulação com os filtros e capital selecionados">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
-            </span>
-            <span class="sim-kpi-title">Trades em aberto</span>
-          </div>
-          <div class="sim-kpi-val">${stats.inOperationCount}</div>
-          <p class="sim-kpi-sub">${stats.inOperationCount > 0 ? 'Posições em andamento no gráfico.' : 'Nenhuma posição aberta.'}</p>
-        </div>
+              <span>Executar Simulação</span>
+            </button>
 
-        <!-- Card 3: Trades vencedores -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-                <path d="M4 22h16"></path>
-                <path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1 .45-1 1v1h10v-1c0-.55-.45-1-1-1h-1c-.55 0-1-.45-1-1v-2.34"></path>
-                <path d="M6 4h12v5a6 6 0 0 1-12 0V4z"></path>
+            <!-- 2. Comparar Cenários (Ação Secundária Diretamente Visível) -->
+            <button type="button" id="simBtnCompareModal" class="sim-btn-header-secondary" title="Comparar cenários de gestão na mesma amostra de trades">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
               </svg>
-            </span>
-            <span class="sim-kpi-title">Trades vencedores</span>
-          </div>
-          <div class="sim-kpi-val">${stats.winningTradesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.winRate.toFixed(1).replace('.', ',')}%</strong> de ${stats.closedTradesCount} encerrados.</p>
-        </div>
+              <span>Comparar Cenários</span>
+            </button>
 
-        <!-- Card 4: Trades perdedores -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-red">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+            <!-- 3. Gerar Massa de Teste (Ação Secundária Diretamente Visível) -->
+            <button type="button" id="simBtnMassModal" class="sim-btn-header-secondary" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
               </svg>
-            </span>
-            <span class="sim-kpi-title">Trades perdedores</span>
-          </div>
-          <div class="sim-kpi-val">${stats.losingTradesCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.lossRate.toFixed(1).replace('.', ',')}%</strong> de ${stats.closedTradesCount} encerrados.</p>
-        </div>
+              <span>Gerar Massa de Teste</span>
+            </button>
 
-        <!-- Card 5: Resultado total -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <span style="font-size: 13px; font-weight: 800; font-family: system-ui; line-height: 1;">Σ</span>
-            </span>
-            <span class="sim-kpi-title">Resultado total</span>
+            <!-- 4. Menu Mais Opções (···) com Dropdown para Ações Administrativas e Menos Frequentes -->
+            <div class="sim-filter-select-wrap">
+              <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Auditoria, Reavaliar Candles, Exportação e Exclusão">
+                <span>···</span>
+              </button>
+              <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
+                <button class="sim-dropdown-item" type="button" id="simMoreBtnAudit">
+                  <span>🛡️</span> <span>Relatório de Auditoria</span>
+                </button>
+                <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate">
+                  <span>↻</span> <span>Reavaliar Candles</span>
+                </button>
+                <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
+                  <span>📥</span> <span>Exportar Simulação</span>
+                </button>
+                <div class="sim-dropdown-divider"></div>
+                <button class="sim-dropdown-item danger" type="button" id="simMoreBtnClear">
+                  <span>🗑️</span> <span>Excluir Simulações</span>
+                </button>
+              </div>
+            </div>
           </div>
-          <div class="sim-kpi-val ${totalRClass}">${stats.totalRFormatted}</div>
-          <p class="sim-kpi-sub">Soma de ganhos e perdas.</p>
-        </div>
-
-        <!-- Card 6: R médio / trade -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                <polyline points="17 6 23 6 23 12"></polyline>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">R médio / trade</span>
-          </div>
-          <div class="sim-kpi-val ${avgRClass}">${stats.avgRFormatted}</div>
-          <p class="sim-kpi-sub">Expectativa matemática.</p>
-        </div>
-
-        <!-- Card 7: Duração média -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-blue">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Duração média</span>
-          </div>
-          <div class="sim-kpi-val">${stats.avgDurationDaysFormatted || '—'}</div>
-          <p class="sim-kpi-sub">Tempo em operação.</p>
-        </div>
-
-        <!-- Card 8: Aguardando entrada -->
-        <div class="sim-kpi-card">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-orange">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 22h14"></path>
-                <path d="M5 2h14"></path>
-                <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"></path>
-                <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Aguardando entrada</span>
-          </div>
-          <div class="sim-kpi-val">${stats.waitingCount}</div>
-          <p class="sim-kpi-sub"><strong>${stats.waitingPct.toFixed(1).replace('.', ',')}%</strong> ainda não ativaram.</p>
-        </div>
-      </div>
-
-      <!-- Linha 2: 4 KPIs Estatísticos Avançados (Validação em Escala) -->
-      <div class="sim-kpis-advanced-row">
-        <!-- Card 9: Profit Factor -->
-        <div class="sim-kpi-card advanced">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-green">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Profit Factor</span>
-          </div>
-          <div class="sim-kpi-val ${(stats.profitFactor || 0) >= 1.5 ? 'positive' : ((stats.profitFactor || 0) < 1 ? 'negative' : 'neutral')}">
-            ${stats.profitFactorFormatted || (stats.profitFactor ? stats.profitFactor.toFixed(2).replace('.', ',') : '—')}
-          </div>
-          <p class="sim-kpi-sub">Ganhos (${stats.totalGainsR != null ? '+' + stats.totalGainsR.toFixed(1).replace('.', ',') + 'R' : '—'}) / Perdas (${stats.totalLossesR != null ? '-' + stats.totalLossesR.toFixed(1).replace('.', ',') + 'R' : '—'}).</p>
-        </div>
-
-        <!-- Card 10: Drawdown Máximo -->
-        <div class="sim-kpi-card advanced">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-red">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
-                <polyline points="17 18 23 18 23 12"></polyline>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Drawdown Máximo</span>
-          </div>
-          <div class="sim-kpi-val negative">
-            ${stats.maxDrawdownRFormatted || (stats.maxDrawdownR != null ? '-' + Math.abs(stats.maxDrawdownR).toFixed(1).replace('.', ',') + 'R' : '0,0R')}
-          </div>
-          <p class="sim-kpi-sub">Maior rebaixamento acumulado de capital.</p>
-        </div>
-
-        <!-- Card 11: Sequência Máxima de Perdas -->
-        <div class="sim-kpi-card advanced">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-orange">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Sequência de Stops</span>
-          </div>
-          <div class="sim-kpi-val">
-            ${stats.maxConsecutiveLosses != null ? stats.maxConsecutiveLosses + (stats.maxConsecutiveLosses === 1 ? ' trade' : ' trades') : '0 trades'}
-          </div>
-          <p class="sim-kpi-sub">Pior série consecutiva de perdas registrada.</p>
-        </div>
-
-        <!-- Card 12: Sinais Não Acionados -->
-        <div class="sim-kpi-card advanced">
-          <div class="sim-kpi-top">
-            <span class="sim-kpi-icon icon-gray">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-              </svg>
-            </span>
-            <span class="sim-kpi-title">Sinais Não Acionados</span>
-          </div>
-          <div class="sim-kpi-val">
-            ${stats.notTriggeredCount != null ? stats.notTriggeredCount : 0}
-          </div>
-          <p class="sim-kpi-sub">Expiraram ou stop foi violado antes da entrada.</p>
         </div>
       </div>
     `;
   }
 
-  /**
-   * 3. Linha de 3 Gráficos: Curva de Resultados, Distribuição e Desempenho
-   */
-  function renderChartsRow(stats) {
+
+    function renderChartsRow(stats) {
     const isUnitRS = state.filters.unit === 'RS';
     const riskNominal = 1000; // Padrão R$ 1.000,00 por R
     const displayTotal = isUnitRS
@@ -2281,7 +2888,7 @@
         <path d="${pathD}" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
         <!-- Ponto final com pulso luminoso -->
         <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="#10b981" opacity="0.25" />
-        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="#10b981" stroke="#ffffff" stroke-width="2" />
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="#10b981" stroke="#ffffff" stroke-width="2.4" />
       </svg>
     `;
   }
@@ -2341,28 +2948,23 @@
       closedCounts.breakeven = closedBase.filter(s => Number(s.resultR) === 0 || Math.abs(Number(s.resultR) || 0) < 0.0001).length;
     }
 
+    const incompleteCount = stats.incompleteCount != null ? stats.incompleteCount : (stats.inOperationCount || 0);
+    const displayedTotal = Math.max(0, (stats.totalCreated || 0) - incompleteCount);
+
     return `
       <div class="sim-table-card">
         <div class="sim-table-toolbar">
           <!-- Abas de Status -->
           <div class="sim-status-tabs">
-            <button class="sim-tab-btn ${activeTab === 'ALL' ? 'active' : ''}" data-tab="ALL" type="button">
+            <button class="sim-tab-btn ${activeTab === 'ALL' ? 'active' : ''}" data-tab="ALL" type="button" title="Exibir todos os registros históricos do cenário">
               <span>●</span>
-              <span>Todos (${stats.totalCreated})</span>
+              <span>Todos (${displayedTotal})</span>
             </button>
-            <button class="sim-tab-btn ${activeTab === 'WAITING_ENTRY' ? 'active' : ''}" data-tab="WAITING_ENTRY" type="button">
-              <span class="sim-tab-dot dot-orange"></span>
-              <span>Aguardando Entrada (${stats.waitingCount})</span>
-            </button>
-            <button class="sim-tab-btn ${activeTab === 'IN_OPERATION' ? 'active' : ''}" data-tab="IN_OPERATION" type="button">
-              <span class="sim-tab-dot dot-green"></span>
-              <span>Em Operação (${stats.inOperationCount})</span>
-            </button>
-            <button class="sim-tab-btn ${activeTab === 'CLOSED' ? 'active' : ''}" data-tab="CLOSED" type="button">
+            <button class="sim-tab-btn ${activeTab === 'CLOSED' ? 'active' : ''}" data-tab="CLOSED" type="button" title="Apenas operações efetivamente finalizadas e elegíveis para a amostra principal">
               <span class="sim-tab-dot dot-blue"></span>
-              <span>Encerrados (${stats.closedTradesCount != null ? stats.closedTradesCount : stats.closedCount})</span>
+              <span>Trades Encerrados (${stats.closedTradesCount != null ? stats.closedTradesCount : stats.closedCount})</span>
             </button>
-            <button class="sim-tab-btn ${activeTab === 'NOT_TRIGGERED' ? 'active' : ''}" data-tab="NOT_TRIGGERED" type="button">
+            <button class="sim-tab-btn ${activeTab === 'NOT_TRIGGERED' ? 'active' : ''}" data-tab="NOT_TRIGGERED" type="button" title="Sinais históricos cujo preço de entrada não foi atingido em T+1">
               <span class="sim-tab-dot dot-gray"></span>
               <span>Não Acionados (${stats.notTriggeredCount})</span>
             </button>
@@ -2629,8 +3231,9 @@
       return `<span class="sim-status-pill pill-breakeven"><span class="pill-dot"></span> Encerrado (Breakeven)</span>`;
     }
     switch (status) {
+      case 'INCOMPLETE':
       case 'IN_OPERATION':
-        return `<span class="sim-status-pill pill-in-op"><span class="pill-dot"></span> Em operação</span>`;
+        return `<span class="sim-status-pill pill-incomplete" title="${sim?.incompleteReason || 'Operação incompleta: histórico terminou sem condição de saída (stop ou alvo)'}"><span class="pill-dot"></span> Incompleto (Excluído)</span>`;
       case 'WAITING_ENTRY':
         return `<span class="sim-status-pill pill-waiting"><span class="pill-dot"></span> Aguardando entrada</span>`;
       case 'CLOSED_GAIN':
@@ -2844,7 +3447,7 @@
     if (scenarioId === '2.5R') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="26" y1="18" x2="148" y2="18" stroke="#f59e0b" stroke-width="2" />
+          <line x1="26" y1="18" x2="148" y2="18" stroke="#f59e0b" stroke-width="2.4" />
           <polygon points="146,14.5 153,18 146,21.5" fill="#f59e0b" />
           <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
           <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -2860,8 +3463,8 @@
     if (scenarioId === 'PYRAMID_1R_2R') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="26" y1="18" x2="88" y2="18" stroke="#0284c7" stroke-width="2" />
-          <line x1="88" y1="18" x2="150" y2="18" stroke="#0284c7" stroke-width="2" />
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#0284c7" stroke-width="2.4" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#0284c7" stroke-width="2.4" />
           <polygon points="148,14.5 155,18 148,21.5" fill="#0284c7" />
           <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
           <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -2876,11 +3479,11 @@
       `;
     }
 
-        if (scenarioId === 'PARTIAL_50_2R_EMA9') {
+        if (scenarioId === 'PARTIAL_50_2R_EMA9' || scenarioId === 'PARTIAL_50_2R_EMA10') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="26" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2" />
-          <line x1="88" y1="18" x2="150" y2="18" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3 2" />
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#8b5cf6" stroke-width="2.4" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#8b5cf6" stroke-width="2.4" stroke-dasharray="3 2" />
           <polygon points="148,14.5 155,18 148,21.5" fill="#8b5cf6" />
           <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
           <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -2895,11 +3498,11 @@
       `;
     }
 
-        if (scenarioId === 'PARTIAL_80_2R_EMA9') {
+        if (scenarioId === 'PARTIAL_80_2R_EMA9' || scenarioId === 'PARTIAL_80_2R_EMA10') {
       return `
         <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="26" y1="18" x2="88" y2="18" stroke="#3b82f6" stroke-width="2" />
-          <line x1="88" y1="18" x2="150" y2="18" stroke="#6366f1" stroke-width="2" stroke-dasharray="3 2" />
+          <line x1="26" y1="18" x2="88" y2="18" stroke="#3b82f6" stroke-width="2.4" />
+          <line x1="88" y1="18" x2="150" y2="18" stroke="#6366f1" stroke-width="2.4" stroke-dasharray="3 2" />
           <polygon points="148,14.5 155,18 148,21.5" fill="#6366f1" />
           <circle cx="26" cy="18" r="3.5" fill="#0284c7" />
           <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -2917,7 +3520,7 @@
     // Default: '2R' Base
     return `
       <svg class="sim-scen-diagram-svg" width="190" height="40" viewBox="0 0 190 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="26" y1="18" x2="148" y2="18" stroke="#10b981" stroke-width="2" />
+        <line x1="26" y1="18" x2="148" y2="18" stroke="#10b981" stroke-width="2.4" />
         <polygon points="146,14.5 153,18 146,21.5" fill="#10b981" />
         <circle cx="26" cy="18" r="3.5" fill="#10b981" />
         <text x="26" y="10" fill="#475569" font-size="8.5" font-family="system-ui, sans-serif" font-weight="600" text-anchor="middle">Entrada</text>
@@ -3074,7 +3677,7 @@
                 <span class="sim-mass-tip-icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#10b981" fill-opacity="0.18" stroke="#0d8a5e" stroke-width="1.8"/>
-                    <path d="M9 12L11 14L15 10" stroke="#0d8a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 12L11 14L15 10" stroke="#0d8a5e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </span>
                 <span class="sim-mass-tip-text">Simulações em escala ajudam a identificar padrões, validar hipóteses e aprimorar seu PlayBook com evidências.</span>
@@ -3108,7 +3711,7 @@
                     <div class="sim-mass-card-head-row">
                       <div class="sim-mass-card-head-left">
                         <div class="sim-mass-feature-icon blue">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#dbeafe" fill-opacity="0.5"/>
                             <line x1="16" y1="2" x2="16" y2="6"/>
                             <line x1="8" y1="2" x2="8" y2="6"/>
@@ -3170,7 +3773,7 @@
                       <span class="sim-mass-callout-icon">
                         <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                           <circle cx="10" cy="10" r="9" fill="#2563eb"/>
-                          <path d="M10 9V14M10 6.5H10.01" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                          <path d="M10 9V14M10 6.5H10.01" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
                         </svg>
                       </span>
                       <div class="sim-mass-callout-text">
@@ -3271,7 +3874,7 @@
                       <div class="sim-mass-card-head-left">
                         <div class="sim-mass-feature-icon red">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2" fill="#fee2e2"/>
+                            <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2.4" fill="#fee2e2"/>
                             <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
                             <circle cx="12" cy="12" r="2" fill="#ef4444"/>
                           </svg>
@@ -3344,7 +3947,7 @@
                     <div class="sim-mass-card-head-row">
                       <div class="sim-mass-card-head-left">
                         <div class="sim-mass-feature-icon blue">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4">
                             <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
                             <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
                             <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
@@ -3458,15 +4061,15 @@
                     </div>
                   </div>
 
-                  <!-- Opção 4: Gestão Parcial 50% (2R) + Média 9 -->
+                  <!-- Opção 4: Gestão Parcial 50% (2R) + Média 10 -->
                   <div class="sim-scenario-option ${sel === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_50_2R_EMA9">
                     <div class="sim-scen-opt-left">
                       <div class="sim-scen-radio ${sel === 'PARTIAL_50_2R_EMA9' ? 'checked' : ''}">
                         <span class="sim-scen-radio-dot"></span>
                       </div>
                       <div class="sim-scen-opt-texts">
-                        <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 9</div>
-                        <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 9.</div>
+                        <div class="sim-scen-opt-title">Gestão Parcial 50% (2R) + Média 10</div>
+                        <div class="sim-scen-opt-desc">Realiza 50% em +2R com stop no breakeven e conduz os outros 50% pela Média 10.</div>
                       </div>
                     </div>
                     <div class="sim-scen-opt-diagram">
@@ -3474,15 +4077,15 @@
                     </div>
                   </div>
 
-                  <!-- Opção 5: Gestão Parcial 80% (2R) + Média 9 -->
+                  <!-- Opção 5: Gestão Parcial 80% (2R) + Média 10 -->
                   <div class="sim-scenario-option ${sel === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}" data-scenario-select="PARTIAL_80_2R_EMA9">
                     <div class="sim-scen-opt-left">
                       <div class="sim-scen-radio ${sel === 'PARTIAL_80_2R_EMA9' ? 'checked' : ''}">
                         <span class="sim-scen-radio-dot"></span>
                       </div>
                       <div class="sim-scen-opt-texts">
-                        <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 9</div>
-                        <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 9.</div>
+                        <div class="sim-scen-opt-title">Gestão Parcial 80% (2R) + Média 10</div>
+                        <div class="sim-scen-opt-desc">Realiza 80% em +2R com stop no breakeven e conduz os outros 20% pela Média 10.</div>
                       </div>
                     </div>
                     <div class="sim-scen-opt-diagram">
@@ -3509,7 +4112,7 @@
                   <div class="sim-mass-preflight-grid">
                     <div class="sim-mass-preflight-item">
                       <div class="sim-mass-pf-icon-box green">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2.4">
                           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#d1fae5"/>
                           <line x1="16" y1="2" x2="16" y2="6"/>
                           <line x1="8" y1="2" x2="8" y2="6"/>
@@ -3540,7 +4143,7 @@
                     <div class="sim-mass-preflight-item">
                       <div class="sim-mass-pf-icon-box red">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2" fill="#fee2e2"/>
+                          <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2.4" fill="#fee2e2"/>
                           <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
                           <circle cx="12" cy="12" r="2" fill="#ef4444"/>
                         </svg>
@@ -3565,7 +4168,7 @@
 
                     <div class="sim-mass-preflight-item">
                       <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4">
                           <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
                           <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
                           <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
@@ -3580,7 +4183,7 @@
 
                     <div class="sim-mass-preflight-item">
                       <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                           <circle cx="12" cy="12" r="3" fill="#dbeafe"/>
                           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                         </svg>
@@ -3597,7 +4200,7 @@
                       <span class="sim-mass-integrity-shield">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                           <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
-                          <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </span>
                       <div class="sim-mass-integrity-text">
@@ -3635,7 +4238,7 @@
               <div class="sim-mass-current-actions-bar">
                 <div class="sim-mass-actions-bar-left">
                   <div class="sim-mass-actions-bar-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d7a52" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d7a52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="3" y="4" width="18" height="16" rx="2" fill="#d1fae5"/>
                       <line x1="7" y1="9" x2="17" y2="9"/>
                       <line x1="7" y1="13" x2="13" y2="13"/>
@@ -3710,8 +4313,8 @@
     const sc2R = scenarios.find(s => s.id === '2R') || {};
     const sc25R = scenarios.find(s => s.id === '2.5R') || {};
     const scPyr = scenarios.find(s => s.id === 'PYRAMID_1R_2R') || {};
-    const scPart50 = scenarios.find(s => s.id === 'PARTIAL_50_2R_EMA9') || {};
-    const scPart80 = scenarios.find(s => s.id === 'PARTIAL_80_2R_EMA9') || {};
+    const scPart50 = scenarios.find(s => s.id === 'PARTIAL_50_2R_EMA9' || s.id === 'PARTIAL_50_2R_EMA10') || {};
+    const scPart80 = scenarios.find(s => s.id === 'PARTIAL_80_2R_EMA9' || s.id === 'PARTIAL_80_2R_EMA10') || {};
 
     function getScenarioAvgDuration(scen, scenarioId) {
       if (scen && scen.avgDurationDaysFormatted && scen.avgDurationDaysFormatted !== '—') {
@@ -3962,7 +4565,7 @@
                 </div>
               </div>
 
-              <!-- Card 4: Parcial 50% (2R) + Média 9 -->
+              <!-- Card 4: Parcial 50% (2R) + Média 10 -->
               <div class="sim-expl-item item-part50">
                 <div class="sim-expl-item-body">
                   <div class="sim-expl-title-row">
@@ -4713,15 +5316,15 @@
    * Ícones SVG dedicados para o Card 'Visão do Ativo' no Modal de Snapshot
    */
   const SNAPSHOT_ICONS = {
-    trophy: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
-    relativeStrength: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
-    marketCycle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
-    trend: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`,
-    structure: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
-    trigger: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
-    volatility: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
-    fundamentals: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="12" y1="14" x2="12" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>`,
-    context: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
+    trophy: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+    relativeStrength: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+    marketCycle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+    trend: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`,
+    structure: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+    trigger: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
+    volatility: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+    fundamentals: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="12" y1="14" x2="12" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>`,
+    context: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
   };
 
   /**
@@ -5225,7 +5828,7 @@
 
     const isResearchEnv = state.activeEnvironment === 'RESEARCH';
     let filtered = getFilteredSimulations();
-    let all = state.simulations;
+    let all = (state.simulations || []).filter(s => s && s.status !== 'INCOMPLETE' && s.status !== 'IN_OPERATION' && !s.isIncomplete && !s.isCensored && (s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS' || s.status === 'CLOSED_BE'));
     if (isResearchEnv && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.runResearchLabExperiment === 'function') {
       const exp = root.TradeSimulatorModel.runResearchLabExperiment(state.researchConfig || {});
       const expSims = (exp && exp.researchExperiment && Array.isArray(exp.researchExperiment.simulations))
@@ -5975,6 +6578,90 @@
       </svg>
     `;
   }  function bindLocalEvents(container) {
+
+    // Alternância de Abas Superiores (Resumo, Lista de Trades, Análise por Ativo, Análise por Gatilho, Evolução no Tempo)
+    container.querySelectorAll('[data-screen-tab]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.screenTab = btn.dataset.screenTab;
+        render();
+      });
+    });
+
+    // Alternância do Modo de Visualização do Resumo (Financeira R$ / Estatística R)
+    container.querySelectorAll('[data-summary-view]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.summaryView = btn.dataset.summaryView;
+        render();
+      });
+    });
+
+    // Filtro de Status na Lista de Trades (Todos, Gain, Loss, Breakeven)
+    container.querySelectorAll('[data-trade-filter]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.tradeStatusFilter = btn.dataset.tradeFilter;
+        render();
+      });
+    });
+
+    // Filtros do Cabeçalho
+    container.querySelector('#simFilterPeriod')?.addEventListener('change', (e) => {
+      state.filters.days = e.target.value === 'ALL' ? 'ALL' : Number(e.target.value);
+      render();
+    });
+
+    container.querySelector('#simFilterSymbol')?.addEventListener('change', (e) => {
+      state.filters.symbol = e.target.value;
+      render();
+    });
+
+    container.querySelector('#simFilterTrigger')?.addEventListener('change', (e) => {
+      state.filters.trigger = e.target.value;
+      render();
+    });
+
+    container.querySelector('#simFilterSector')?.addEventListener('change', (e) => {
+      state.filters.sector = e.target.value;
+      render();
+    });
+
+    // Input de Capital Inicial
+    const capInput = container.querySelector('#simCapitalInput');
+    if (capInput) {
+      const applyCapital = () => {
+        const parsed = parseFormattedNumber(capInput.value);
+        if (parsed > 0) {
+          state.initialCapital = parsed;
+          capInput.value = `R$ ${formatMoney(parsed).replace('R$ ', '')}`;
+        }
+      };
+      capInput.addEventListener('change', applyCapital);
+      capInput.addEventListener('blur', applyCapital);
+      capInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          applyCapital();
+          capInput.blur();
+          container.querySelector('#simBtnExecute')?.click();
+        }
+      });
+    }
+
+    // Botão Principal Executar Simulação
+    container.querySelector('#simBtnExecute')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const capIn = container.querySelector('#simCapitalInput');
+      if (capIn) {
+        const parsed = parseFormattedNumber(capIn.value);
+        if (parsed > 0) state.initialCapital = parsed;
+      }
+      render();
+      if (typeof root.showToast === 'function') {
+        root.showToast('Simulação executada com sucesso.');
+      }
+    });
+
     // Alternância entre Modo Oficial e Laboratório de Pesquisa Quantitativa
     const switchToOfficial = (e) => {
       e.stopPropagation();
@@ -6505,7 +7192,7 @@
     });
 
     // Botões de Ação na Tabela (Snapshot e Detalhes)
-    container.querySelectorAll('.sim-action-btn[data-action="chart"]').forEach(btn => {
+    container.querySelectorAll('.sim-btn-view-analysis[data-action="chart"], .sim-action-btn[data-action="chart"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         openSnapshot(btn.dataset.simId);

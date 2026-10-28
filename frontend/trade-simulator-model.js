@@ -38,7 +38,8 @@
 
   const STATUS = {
     WAITING_ENTRY: 'WAITING_ENTRY',         // Aguardando entrada (amarelo)
-    IN_OPERATION: 'IN_OPERATION',           // Em operação (verde)
+    IN_OPERATION: 'IN_OPERATION',           // Em operação (legado/operacional)
+    INCOMPLETE: 'INCOMPLETE',               // Incompleto / Censurado pelo fim do histórico (âmbar/cinza)
     CLOSED_GAIN: 'CLOSED_GAIN',             // Encerrado - Gain (verde)
     CLOSED_LOSS: 'CLOSED_LOSS',             // Encerrado - Loss (vermelho)
     NOT_TRIGGERED: 'NOT_TRIGGERED'          // Não acionado / Expirado (cinza)
@@ -47,6 +48,7 @@
   const STATUS_LABELS = {
     [STATUS.WAITING_ENTRY]: 'Aguardando entrada',
     [STATUS.IN_OPERATION]: 'Em operação',
+    [STATUS.INCOMPLETE]: 'Incompleto / Excluído',
     [STATUS.CLOSED_GAIN]: 'Encerrado (Gain)',
     [STATUS.CLOSED_LOSS]: 'Encerrado (Loss)',
     [STATUS.NOT_TRIGGERED]: 'Não acionado'
@@ -55,6 +57,7 @@
   const STATUS_BADGE_CLASSES = {
     [STATUS.WAITING_ENTRY]: 'badge-waiting',
     [STATUS.IN_OPERATION]: 'badge-in-op',
+    [STATUS.INCOMPLETE]: 'badge-incomplete',
     [STATUS.CLOSED_GAIN]: 'badge-gain',
     [STATUS.CLOSED_LOSS]: 'badge-loss',
     [STATUS.NOT_TRIGGERED]: 'badge-not-triggered'
@@ -87,7 +90,9 @@
     EXTENDED_2_5R: '2.5R',
     PYRAMID_1R_2R: 'PYRAMID_1R_2R',
     PARTIAL_50_2R_EMA9: 'PARTIAL_50_2R_EMA9',
-    PARTIAL_80_2R_EMA9: 'PARTIAL_80_2R_EMA9'
+    PARTIAL_80_2R_EMA9: 'PARTIAL_80_2R_EMA9',
+    PARTIAL_50_2R_EMA10: 'PARTIAL_50_2R_EMA9',
+    PARTIAL_80_2R_EMA10: 'PARTIAL_80_2R_EMA9'
   });
 
   const SCENARIO_METADATA = Object.freeze({
@@ -1078,7 +1083,7 @@
 
     let endStr = sim.exitDate;
     if (!endStr) {
-      if (status === STATUS.IN_OPERATION) {
+      if (status === STATUS.IN_OPERATION || status === STATUS.INCOMPLETE) {
         endStr = sim.currentDate || referenceDate || (sim.timeline && sim.timeline.length ? sim.timeline[sim.timeline.length - 1].date : null) || '2026-10-05';
       } else {
         return null;
@@ -1113,9 +1118,10 @@
     const scenario = simulation.managementScenario || scenarioOverride || '2R';
     const targetMultiplier = scenario === '2.5R' ? 2.5 : 2.0;
     const isPyramid = scenario === 'PYRAMID_1R_2R';
-    const isPartial50 = scenario === 'PARTIAL_50_2R_EMA9';
-    const isPartial80 = scenario === 'PARTIAL_80_2R_EMA9';
-    const isPartialEma9 = isPartial50 || isPartial80;
+    const isPartial50 = scenario === 'PARTIAL_50_2R_EMA9' || scenario === 'PARTIAL_50_2R_EMA10';
+    const isPartial80 = scenario === 'PARTIAL_80_2R_EMA9' || scenario === 'PARTIAL_80_2R_EMA10';
+    const isPartialEma10 = isPartial50 || isPartial80;
+    const isPartialEma9 = isPartialEma10;
     const partialPercent = isPartial50 ? 50 : (isPartial80 ? 80 : 0);
     const runnerPercent = 100 - partialPercent;
 
@@ -1270,8 +1276,29 @@
 
       // ESTADO 1: AGUARDANDO ENTRADA
       if (status === STATUS.WAITING_ENTRY) {
+        // Regra Global e Obrigatória do Sistema:
+        // A condição de entrada de qualquer gatilho identificado no candle T é avaliada EXCLUSIVAMENTE
+        // no candle imediatamente seguinte T+1 (i === startIndex).
+        // Se a entrada não for acionada no candle T+1, o sinal expira definitivamente e a ordem é cancelada.
+        // Nenhuma ordem pode permanecer pendente nem ser executada em T+2 ou candles posteriores.
+        if (i > startIndex) {
+          status = STATUS.NOT_TRIGGERED;
+          exitDate = candleDate;
+          exitReason = 'Expirou sem acionamento no candle seguinte (T+1)';
+          resultR = null;
+          executedEntryPrice = null;
+          entryDate = null;
+          addTimelineEvent({
+            type: 'NOT_TRIGGERED',
+            date: candleDate,
+            label: 'Não acionado',
+            desc: 'Expirou sem acionamento no candle imediatamente seguinte ao sinal (T+1). Ordem cancelada definitivamente.'
+          });
+          break;
+        }
+
         if (cHigh >= entryPlanned) {
-          // Gatilho acionado em sessão válida após o sinal!
+          // Gatilho acionado no candle imediatamente seguinte (T+1)!
           executedEntryPrice = entryPlanned;
           entryDate = candleDate;
           entryCandleIndex = i;
@@ -1284,7 +1311,7 @@
             date: candleDate,
             label: 'Entrada executada',
             price: executedEntryPrice,
-            desc: `Preço rompeu a máxima do gatilho a ${formatPrice(executedEntryPrice)}`
+            desc: `Preço rompeu a máxima do gatilho a ${formatPrice(executedEntryPrice)} no candle seguinte (T+1)`
           });
 
           maxHigh = cHigh;
@@ -1320,38 +1347,34 @@
             break; // Trade encerrado
           }
         } else {
-          // Preço não alcançou a entrada
-          // Setup invalidado se a mínima perder o stop antes da entrada ou expirar (5 pregões)
-          if (cLow <= stopInitial) {
-            status = STATUS.NOT_TRIGGERED;
-            exitDate = candleDate;
-            exitReason = 'Mínima do gatilho violada antes da ativação';
-            resultR = null;
-            addTimelineEvent({
-              type: 'NOT_TRIGGERED',
-              date: candleDate,
-              label: 'Não acionado',
-              desc: `Padrão desqualificado antes do rompimento: preço violou o stop prévio`
-            });
-            break;
-          }
+          // Preço não alcançou a entrada no candle imediatamente seguinte (T+1).
+          // Regra Global e Obrigatória do Sistema:
+          // A ordem de entrada é avaliada exclusivamente no candle T+1.
+          // Se não atingir o preço de entrada no candle T+1, a ordem é cancelada e o sinal invalidado.
+          status = STATUS.NOT_TRIGGERED;
+          exitDate = candleDate;
+          resultR = null;
+          executedEntryPrice = null;
+          entryDate = null;
 
-          const sessionsElapsed = i - startIndex + 1;
-          if (sessionsElapsed >= 6) {
-            status = STATUS.NOT_TRIGGERED;
-            exitDate = candleDate;
-            exitReason = 'Expirou sem acionamento da entrada (limite de 5 sessões)';
-            resultR = null;
+          if (cLow <= stopInitial) {
+            exitReason = 'Mínima do gatilho violada antes da ativação no candle seguinte (T+1)';
             addTimelineEvent({
               type: 'NOT_TRIGGERED',
               date: candleDate,
               label: 'Não acionado',
-              desc: `Expirou após 5 pregões sem rompimento do gatilho`
+              desc: 'Padrão desqualificado antes do rompimento: preço violou o stop no candle seguinte (T+1) sem acionar a entrada'
             });
-            break;
+          } else {
+            exitReason = 'Expirou sem acionamento no candle seguinte (T+1)';
+            addTimelineEvent({
+              type: 'NOT_TRIGGERED',
+              date: candleDate,
+              label: 'Não acionado',
+              desc: 'Expirou sem acionamento no candle imediatamente seguinte ao sinal (T+1). Ordem cancelada definitivamente.'
+            });
           }
-          // Continua aguardando entrada
-          continue;
+          break; // O sinal expira imediatamente em T+1; encerra a avaliação sem processar candles posteriores
         }
       }
 
@@ -1627,25 +1650,26 @@
       }
     }
 
-    // Se continuar em operação no candle mais recente
-    if (status === STATUS.IN_OPERATION && executedEntryPrice) {
+    // Se continuar em operação no candle mais recente (janela histórica terminou sem atingir stop nem alvo)
+    let isIncomplete = sim.isIncomplete || false;
+    let isCensored = sim.isCensored || false;
+    let incompleteReason = sim.incompleteReason || null;
+    let unrealizedR = sim.unrealizedR != null ? sim.unrealizedR : null;
+
+    if (status === STATUS.IN_OPERATION) {
+      isIncomplete = true;
+      isCensored = true;
+      incompleteReason = 'Janela histórica terminou antes de ocorrer uma condição válida de saída (stop ou alvo).';
+      exitDate = null;
+      exitPrice = null;
+      exitReason = 'Histórico insuficiente: sem desfecho';
       const curPrice = sim.currentPrice || executedEntryPrice;
-      const r1 = round2((curPrice - executedEntryPrice) / risk);
-      if (isPartialEma9 && sim.partialExit?.executed) {
-        const runnerR = Math.max(0, r1);
-        resultR = round2(sim.partialExit.partialResultR + (runnerPercent / 100) * runnerR);
-        sim.partialExit.runnerExitR = runnerR;
-        sim.partialExit.consolidatedResultR = resultR;
-      } else if (isPyramid && sim.scaleIn && sim.scaleIn.executed) {
-        const addPrice = Number(round2(executedEntryPrice + risk));
-        const r2 = round2((curPrice - addPrice) / risk);
-        resultR = round2(r1 + r2);
-        sim.scaleIn.lot1ResultR = r1;
-        sim.scaleIn.lot2ResultR = r2;
-        sim.scaleIn.consolidatedResultR = resultR;
-      } else {
-        resultR = r1;
+      if (executedEntryPrice && risk > 0) {
+        unrealizedR = round2((curPrice - executedEntryPrice) / risk);
       }
+      // Princípio do Método: Não fabrica desfecho artificial no último preço.
+      // O trade não atingiu saída formal e é excluído da amostra final de resultados.
+      resultR = null;
     }
 
     const latestSessionDate = validCandles.length ? String(validCandles[validCandles.length - 1].time || validCandles[validCandles.length - 1].date).slice(0, 10) : null;
@@ -1657,6 +1681,10 @@
       scaleIn: sim.scaleIn || null,
       partialExit: sim.partialExit || null,
       status,
+      isIncomplete,
+      isCensored,
+      incompleteReason,
+      unrealizedR,
       executedEntryPrice: round2(executedEntryPrice),
       entryDate,
       entryCandleIndex,
@@ -1688,6 +1716,7 @@
     const totalCreated = list.length;
     let waitingCount = 0;
     let inOperationCount = 0;
+    let incompleteCount = 0;
     let notTriggeredCount = 0;
     let winningTradesCount = 0;
     let losingTradesCount = 0;
@@ -1741,9 +1770,10 @@
         waitingCount++;
       } else if (status === STATUS.NOT_TRIGGERED) {
         notTriggeredCount++;
-      } else if (status === STATUS.IN_OPERATION) {
+      } else if (status === STATUS.IN_OPERATION || status === STATUS.INCOMPLETE || sim.isIncomplete) {
         inOperationCount++;
-        openR += Number(sim.resultR) || 0;
+        incompleteCount++;
+        openR += Number(sim.unrealizedR != null ? sim.unrealizedR : (sim.resultR || 0));
         triggerMap[trigKey].executed++;
         triggerMap[trigKey].open++;
         gradeMap[grade].executed++;
@@ -1815,6 +1845,7 @@
     const executedPct = totalCreated > 0 ? (executedEntriesCount / totalCreated) * 100 : 0;
     const waitingPct = totalCreated > 0 ? (waitingCount / totalCreated) * 100 : 0;
     const notTriggeredPct = totalCreated > 0 ? (notTriggeredCount / totalCreated) * 100 : 0;
+    const incompletePct = totalCreated > 0 ? (incompleteCount / totalCreated) * 100 : 0;
 
     // Métricas de performance (Win Rate, Loss Rate, Expectancy/R médio) são calculadas sobre os trades encerrados (closedTradesCount),
     // garantindo que Vencedores + Perdedores = 100% dos trades com resultado definitivo e Expectancy = Total R / Trades Encerrados.
@@ -1835,10 +1866,10 @@
     // Desempenho por Gatilho (reconciliado com totalR global)
     const triggerPerformance = Object.values(triggerMap)
       .map(t => {
-        const div = t.closed > 0 ? t.closed : t.executed;
+        const div = t.closed;
         const wr = div > 0 ? (t.winners / div) * 100 : 0;
         const exp = div > 0 ? t.totalR / div : 0;
-        const displayCount = t.closed > 0 ? t.closed : t.signals;
+        const displayCount = t.closed;
         return {
           name: t.name,
           totalR: round2(t.totalR),
@@ -1861,10 +1892,10 @@
     const gradeOrder = { A: 1, B: 2, C: 3, D: 4 };
     const gradePerformance = Object.values(gradeMap)
       .map(g => {
-        const div = g.closed > 0 ? g.closed : g.executed;
+        const div = g.closed;
         const wr = div > 0 ? (g.winners / div) * 100 : 0;
         const exp = div > 0 ? g.totalR / div : 0;
-        const displayCount = g.closed > 0 ? g.closed : g.signals;
+        const displayCount = g.closed;
         return {
           name: g.grade,
           grade: g.grade,
@@ -1887,10 +1918,10 @@
     // Desempenho por Período (reconciliado com totalR global)
     const periodPerformance = Object.values(periodMap)
       .map(p => {
-        const div = p.closed > 0 ? p.closed : p.executed;
+        const div = p.closed;
         const wr = div > 0 ? (p.winners / div) * 100 : 0;
         const exp = div > 0 ? p.totalR / div : 0;
-        const displayCount = p.closed > 0 ? p.closed : p.signals;
+        const displayCount = p.closed;
         return {
           name: p.period,
           period: p.period,
@@ -2011,6 +2042,9 @@
       totalCreated,
       executedEntriesCount,
       executedPct: round2(executedPct),
+      incompleteCount,
+      excludedCount: incompleteCount,
+      incompletePct: round2(incompletePct),
       winningTradesCount,
       losingTradesCount,
       closedTradesCount,
@@ -2062,6 +2096,7 @@
 
     const tab = String(filters.tab || filters.statusTab || 'ALL').trim().toUpperCase();
     const resultFilter = String(filters.result || filters.resultFilter || filters.outcome || 'ALL').trim().toUpperCase();
+    const symbol = String(filters.symbol || filters.ticker || 'ALL').trim().toUpperCase();
     const trigger = String(filters.trigger || 'ALL').trim();
     const sector = String(filters.sector || 'ALL').trim();
     const grade = String(filters.grade || 'ALL').trim().toUpperCase();
@@ -2108,15 +2143,16 @@
 
     return list.filter(sim => {
       if (!sim) return false;
-      // 1. Aba de Status (Aguardando Entrada, Em Operação, Encerrados e Não Acionados)
-      if (tab === 'WAITING_ENTRY' || tab === 'WAITING') {
-        if (sim.status !== STATUS.WAITING_ENTRY) return false;
-      } else if (tab === 'IN_OPERATION' || tab === 'IN_OP') {
-        if (sim.status !== STATUS.IN_OPERATION) return false;
-      } else if (tab === 'CLOSED') {
+      // 1. Aba de Status (Trades Encerrados, Não Acionados, Incompletos / Excluídos e Todos)
+      if (tab === 'CLOSED') {
         if (sim.status !== STATUS.CLOSED_GAIN && sim.status !== STATUS.CLOSED_LOSS) return false;
       } else if (tab === 'NOT_TRIGGERED' || tab === 'NOT_TRIGGER') {
         if (sim.status !== STATUS.NOT_TRIGGERED) return false;
+      } else if (tab === 'INCOMPLETE' || tab === 'IN_OP' || tab === 'IN_OPERATION') {
+        const isIncomplete = sim.status === STATUS.INCOMPLETE || sim.status === STATUS.IN_OPERATION || Boolean(sim.isIncomplete);
+        if (!isIncomplete) return false;
+      } else if (tab === 'WAITING_ENTRY' || tab === 'WAITING') {
+        if (sim.status !== STATUS.WAITING_ENTRY) return false;
       } else if (tab !== 'ALL' && tab !== '' && sim.status !== tab) {
         return false;
       }
@@ -2143,6 +2179,12 @@
       }
       if (maxDateStr && sim.signalDate && String(sim.signalDate).slice(0, 10) > maxDateStr) {
         return false;
+      }
+
+      // 2.1. Ativo / Símbolo
+      if (symbol && symbol !== 'ALL') {
+        const simSym = String(sim.symbol || '').trim().toUpperCase();
+        if (simSym !== symbol) return false;
       }
 
       // 3. Gatilho
@@ -2787,7 +2829,7 @@
         stopLoss: 8.40,
         status: STATUS.NOT_TRIGGERED,
         currentPrice: 8.30,
-        exitDate: '2026-07-22',
+        exitDate: '2026-07-20',
         exitReason: 'Mínima violada antes do rompimento',
         resultR: null,
         mfeR: null,
@@ -2820,7 +2862,7 @@
         stopLoss: 18.90,
         status: STATUS.NOT_TRIGGERED,
         currentPrice: 18.70,
-        exitDate: '2026-06-29',
+        exitDate: '2026-06-26',
         exitReason: 'Mínima violada antes do rompimento',
         resultR: null,
         mfeR: null,
@@ -2843,7 +2885,7 @@
         stopLoss: 31.00,
         status: STATUS.NOT_TRIGGERED,
         currentPrice: 30.80,
-        exitDate: '2026-06-19',
+        exitDate: '2026-06-17',
         exitReason: 'Mínima violada antes do rompimento',
         resultR: null,
         mfeR: null,
@@ -3912,8 +3954,8 @@
       return cloned;
     }
 
-    if (scenario === 'PARTIAL_50_2R_EMA9' || scenario === 'PARTIAL_80_2R_EMA9') {
-      const is50 = scenario === 'PARTIAL_50_2R_EMA9';
+    if (scenario === 'PARTIAL_50_2R_EMA9' || scenario === 'PARTIAL_80_2R_EMA9' || scenario === 'PARTIAL_50_2R_EMA10' || scenario === 'PARTIAL_80_2R_EMA10') {
+      const is50 = scenario === 'PARTIAL_50_2R_EMA9' || scenario === 'PARTIAL_50_2R_EMA10';
       const pct = is50 ? 0.5 : 0.8;
       const runnerPct = 1 - pct;
       const cloned = {
@@ -6561,7 +6603,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           exitDate = addTradingDays(signalDate, 1, validSessionSet);
         }
       }
-    } else if (status === STATUS.IN_OPERATION || status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS) {
+    } else if (status === STATUS.IN_OPERATION || status === STATUS.INCOMPLETE || status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS) {
       if (!executedEntryPrice || executedEntryPrice <= 0) {
         executedEntryPrice = entryPrice;
       }
@@ -6824,6 +6866,15 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           code: 'CHRONOLOGY_ERROR',
           field: 'entryDate',
           message: `Data de entrada (${eDate}) deve ser estritamente posterior à data do sinal (${signalDate}).`
+        });
+      }
+
+      const expectedTPlusOne = addTradingDays(signalDate, 1, validSessionSet);
+      if (signalDate && eDate && expectedTPlusOne && eDate !== expectedTPlusOne) {
+        errors.push({
+          code: 'DELAYED_ENTRY_EXECUTION',
+          field: 'entryDate',
+          message: `Execução tardia proibida: a entrada (${eDate}) deve ocorrer exclusivamente no pregão imediatamente seguinte ao sinal (T+1: ${expectedTPlusOne}).`
         });
       }
 
@@ -7466,12 +7517,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
         if (isExecuted) {
           executedCount++;
-        }
-
-        if (evaluated.exitDate) {
-          symbolBusyUntil.set(sym, String(evaluated.exitDate).slice(0, 10));
-        } else if (evaluated.status === STATUS.IN_OPERATION || evaluated.status === STATUS.WAITING_ENTRY) {
-          symbolBusyUntil.set(sym, '9999-12-31');
+          if (evaluated.exitDate) {
+            symbolBusyUntil.set(sym, String(evaluated.exitDate).slice(0, 10));
+          } else if (evaluated.status === STATUS.IN_OPERATION) {
+            symbolBusyUntil.set(sym, '9999-12-31');
+          }
         }
 
         simulations.push(evaluated);
@@ -7679,7 +7729,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         id: 'grade_quality',
         number: 7,
         title: 'Qualidade do Setup (Trading Rubric)',
-        summary: 'Apenas Notas A+, A, B e C são elegíveis para execução conforme Risk Budget. Nota D possui orçamento de risco 0,00% (bloqueio automático).',
+        summary: 'Apenas Notas A, B e C são elegíveis para execução conforme Risk Budget. Nota D possui orçamento de risco 0,00% (bloqueio automático).',
         detail: 'Exige pontuação técnica (≥ 50 pontos), volatilidade controlada e conformidade com os gates do método.',
         status: 'Ativa',
         statusKey: 'active',
@@ -7689,8 +7739,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         id: 'entry_exit_rules',
         number: 8,
         title: 'Regras de Entrada e Saída',
-        summary: `Entrada: Máxima do gatilho + R$ 0,01 | Stop inicial: 0,01 abaixo da mínima de referência (Inside Bar: stop obrigatoriamente no candle anterior) | Saída: ${scenarioMeta.name}.`,
-        detail: `${scenarioMeta.description} Para Inside Bar, o stop inicial fica obrigatoriamente 0,01 abaixo da mínima do candle anterior ao gatilho (nunca no mesmo candle). Política conservadora (stop-first) em caso de ambiguidade intradiária.`,
+        summary: `Entrada: Máxima do gatilho + R$ 0,01 (avaliada exclusivamente em T+1) | Stop inicial: 0,01 abaixo da mínima de referência (Inside Bar: stop no candle anterior) | Saída: ${scenarioMeta.name}.`,
+        detail: `A entrada é avaliada exclusivamente no pregão imediatamente seguinte ao sinal (T+1). Se o preço não for atingido em T+1, a ordem é cancelada e o sinal expira definitivamente (sem execuções tardias em T+2 ou posteriores). Apenas operações com saída confirmada (stop ou alvo) participam da amostra principal de resultados; trades sem desfecho até o fim dos dados são marcados como incompletos e excluídos das métricas finais. ${scenarioMeta.description} Para Inside Bar, o stop inicial fica obrigatoriamente 0,01 abaixo da mínima do candle anterior ao gatilho (nunca no mesmo candle). Política conservadora (stop-first) em caso de ambiguidade intradiária.`,
         status: 'Ativa',
         statusKey: 'active',
         blockedCount: null
@@ -7968,6 +8018,67 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
    */
 
   /**
+   * Obtém a Política de Risco oficial unificada do sistema (fonte única de verdade).
+   * Segue a hierarquia estrita: options.policy -> window.riskPolicyState -> window.tradingRubricPolicy -> localStorage -> TradingRubrics.DEFAULT_POLICY
+   * @param {Object} [options] Opções contendo policy opcional
+   * @returns {Object} Política normalizada via TradingRubrics.normalizePolicy
+   */
+  function getOfficialRiskPolicy(options = {}) {
+    if (options && options.policy) {
+      if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+        return TradingRubrics.normalizePolicy(options.policy);
+      }
+      return options.policy;
+    }
+    if (typeof window !== 'undefined') {
+      if (window.riskPolicyState) {
+        if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+          return TradingRubrics.normalizePolicy(window.riskPolicyState);
+        }
+        return window.riskPolicyState;
+      }
+      if (window.tradingRubricPolicy) {
+        if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+          return TradingRubrics.normalizePolicy(window.tradingRubricPolicy);
+        }
+        return window.tradingRubricPolicy;
+      }
+      try {
+        const stored = window.localStorage?.getItem('healthy-trend-risk-policy-v2') || window.localStorage?.getItem('healthy-trend-trading-rubric-policy');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+            return TradingRubrics.normalizePolicy(parsed);
+          }
+          return parsed;
+        }
+      } catch (_) {}
+    }
+    if (TradingRubrics && typeof TradingRubrics.normalizePolicy === 'function') {
+      return TradingRubrics.normalizePolicy();
+    }
+    return {
+      grades: [
+        { grade: 'A', minScore: 95, riskPct: 0.004 },
+        { grade: 'B', minScore: 80, riskPct: 0.002 },
+        { grade: 'C', minScore: 65, riskPct: 0.001 },
+        { grade: 'D', minScore: -Infinity, riskPct: 0 }
+      ],
+      profiles: {
+        standard: {
+          ongoingRiskPct: 0.006,
+          initialVolatilityPct: 0.003,
+          ongoingVolatilityPct: 0.006,
+          capitalPct: 0.1,
+          maximumPortfolioRiskPct: 0.03,
+          maximumPositions: 6
+        }
+      },
+      selectedProfile: 'standard'
+    };
+  }
+
+  /**
    * Classifica a Força Relativa (RS) nas 4 faixas oficiais com prioridade de capital e Bet Sizing
    * @param {number|string|null} rsScore 
    * @returns {Object} { score, bandKey, bandLabel, priorityLabel, priorityTier, priorityRank, sizingMultiplier, isOfficialEligible, rubricRating, rubricScore, description }
@@ -8073,6 +8184,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       };
     }
 
+    const officialPolicy = getOfficialRiskPolicy(options);
     const isOfficialMode = options.officialMode !== false;
     const entryPrice = Math.max(0, Number(sim.entryPrice || sim.entry || sim.entryPriceLevel || 0));
     const stopLoss = Math.max(0, Number(sim.stopLoss || sim.stop || sim.stopPriceLevel || 0));
@@ -8134,7 +8246,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     // 6. Resolução via TradingRubrics compartilhado
     let rubricScore = 80;
     let rubricResult = null;
-    let resolvedGrade = String(sim.grade || sim.rubricGrade || '').trim().toUpperCase();
+    const rawSimGrade = String(sim.grade || sim.rubricGrade || '').trim().toUpperCase();
+    let resolvedGrade = rawSimGrade && rawSimGrade !== 'AUTO' ? normalizeSimulatorGrade(rawSimGrade) : '';
 
     if (TradingRubrics && typeof TradingRubrics.calculateRubric === 'function') {
       rubricResult = TradingRubrics.calculateRubric({
@@ -8147,31 +8260,32 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           fundamentalScore: sim.fundamentalRating || 'good'
         },
         profileKey: options.profileKey || 'standard'
-      }, options.policy);
+      }, officialPolicy);
 
       rubricScore = rubricResult.normalizedScore || rubricResult.score || 80;
       if (!resolvedGrade || resolvedGrade === 'AUTO') {
         resolvedGrade = rubricResult.grade || 'C';
       }
     } else {
-      rubricScore = sim.rubricScore || (resolvedGrade === 'A+' ? 96 : (resolvedGrade === 'A' ? 88 : (resolvedGrade === 'B' ? 76 : (resolvedGrade === 'C' ? 60 : 40))));
-      if (!resolvedGrade) resolvedGrade = rubricScore >= 95 ? 'A+' : (rubricScore >= 85 ? 'A' : (rubricScore >= 70 ? 'B' : (rubricScore >= 50 ? 'C' : 'D')));
+      rubricScore = sim.rubricScore || (resolvedGrade === 'A' ? 88 : (resolvedGrade === 'B' ? 76 : (resolvedGrade === 'C' ? 60 : 40)));
+      if (!resolvedGrade) resolvedGrade = rubricScore >= 85 ? 'A' : (rubricScore >= 70 ? 'B' : (rubricScore >= 50 ? 'C' : 'D'));
     }
 
-    // Risk Budget nominal pelo Grade
-    let baseRiskBudgetPct = 0.004; // 0.40% padrão para A
-    if (resolvedGrade === 'A+') baseRiskBudgetPct = 0.005;
-    else if (resolvedGrade === 'A') baseRiskBudgetPct = 0.004;
-    else if (resolvedGrade === 'B') baseRiskBudgetPct = 0.002;
-    else if (resolvedGrade === 'C') baseRiskBudgetPct = 0.001;
-    else if (resolvedGrade === 'D') baseRiskBudgetPct = isOfficialMode ? 0.00 : 0.002;
+    // Risk Budget nominal pelo Grade (fonte única de verdade: Política de Risco oficial)
+    let configuredRiskPct = 0.004; // 0.40% padrão para A
+    if (resolvedGrade === 'A') configuredRiskPct = 0.004;
+    else if (resolvedGrade === 'B') configuredRiskPct = 0.002;
+    else if (resolvedGrade === 'C') configuredRiskPct = 0.001;
+    else if (resolvedGrade === 'D') configuredRiskPct = 0.000;
 
-    const policyGradeObj = options.policy?.grades?.find(g => g.grade === resolvedGrade);
+    const policyGradeObj = officialPolicy?.grades?.find(g => g.grade === resolvedGrade);
     if (policyGradeObj && policyGradeObj.riskPct != null) {
-      baseRiskBudgetPct = (resolvedGrade === 'D' && !isOfficialMode) ? 0.002 : policyGradeObj.riskPct;
+      configuredRiskPct = policyGradeObj.riskPct;
     } else if (!sim.grade && rubricResult && rubricResult.riskBudgetPct != null) {
-      baseRiskBudgetPct = (resolvedGrade === 'D' && !isOfficialMode) ? 0.002 : rubricResult.riskBudgetPct;
+      configuredRiskPct = rubricResult.riskBudgetPct;
     }
+
+    const baseRiskBudgetPct = (resolvedGrade === 'D' && !isOfficialMode) ? 0.002 : configuredRiskPct;
 
     // 7. Validação de Elegibilidade Oficial
     let isEligible = true;
@@ -8199,15 +8313,23 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     }
 
     // 8. Bet Sizing e Alocação de Risco
-    const effectiveRiskBudgetPct = isEligible ? (baseRiskBudgetPct * rsPriority.sizingMultiplier) : 0;
+    const effectiveRiskBudgetPct = isEligible ? baseRiskBudgetPct : 0;
     const currentEquity = Math.max(1000, Number(portfolioState.currentEquity || options.initialCapital || 100000));
     const currentHeatPct = Math.max(0, Number(portfolioState.currentHeatPct || 0));
     const openPositionsCount = Math.max(0, Number(portfolioState.openPositionsCount || 0));
 
+    // No Simulador de Trades (Modo Rubric), o risco configurado por Grade é o risco-alvo soberano.
+    // O teto artificial de 10% por ativo não deve distorcer o dimensionamento das operações.
+    // A restrição financeira física padrão é o capital total da conta (100% de equity), a menos que options.enforceCapitalCap seja explicitamente true.
+    const enforceCapitalCap = options.enforceCapitalCap === true || (options.capitalPct != null && options.capitalPct < 1.0);
+    const simulatorCapitalPct = enforceCapitalCap ? (options.capitalPct != null ? options.capitalPct : 0.10) : 1.0;
+    const enforceVolatilityLimit = options.enforceVolatilityLimit === true;
+    const simulatorVolatilityPct = enforceVolatilityLimit ? (options.volatilityPct != null ? options.volatilityPct : null) : null;
+
     let sizing = null;
     if (isEligible && effectiveRiskBudgetPct > 0 && TradingRubrics && typeof TradingRubrics.calculatePolicyPositionSizing === 'function') {
       sizing = TradingRubrics.calculatePolicyPositionSizing({
-        policy: options.policy,
+        policy: officialPolicy,
         profileKey: options.profileKey || 'standard',
         riskBudgetPct: effectiveRiskBudgetPct,
         currentHeatPct,
@@ -8216,7 +8338,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         entry: entryPrice,
         stop: stopLoss,
         atr: atrValue,
-        lot: 100
+        lot: 100,
+        capitalPct: simulatorCapitalPct,
+        volatilityPct: simulatorVolatilityPct,
+        enforceCapitalLimit: enforceCapitalCap,
+        enforceVolatilityLimit
       });
 
       if (sizing.positionCapacityAvailable === false) {
@@ -8234,7 +8360,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       } else if (sizing.quantity <= 0) {
         // Tenta dimensionamento no mercado fracionário (lote de 1 ação) para cumprir o Risk Budget nominal
         const fractionalSizing = TradingRubrics.calculatePolicyPositionSizing({
-          policy: options.policy,
+          policy: officialPolicy,
           profileKey: options.profileKey || 'standard',
           riskBudgetPct: effectiveRiskBudgetPct,
           currentHeatPct,
@@ -8243,7 +8369,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           entry: entryPrice,
           stop: stopLoss,
           atr: atrValue,
-          lot: 1
+          lot: 1,
+          capitalPct: simulatorCapitalPct,
+          volatilityPct: simulatorVolatilityPct,
+          enforceCapitalLimit: enforceCapitalCap,
+          enforceVolatilityLimit
         });
         if (fractionalSizing && fractionalSizing.quantity > 0) {
           sizing = fractionalSizing;
@@ -8261,16 +8391,15 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     } else if (isEligible && effectiveRiskBudgetPct > 0) {
       // Fallback se TradingRubrics não carregar
       const theoreticalQty = Math.floor((currentEquity * effectiveRiskBudgetPct) / distance / 100) * 100;
-      const maxCapQty = Math.floor((currentEquity * 0.20) / entryPrice / 100) * 100;
-      const maxVolQty = Math.floor((currentEquity * 0.008) / atrValue / 100) * 100;
-      const qty = Math.max(0, Math.min(theoreticalQty, maxCapQty, maxVolQty));
+      const maxCapQty = Math.floor((currentEquity * simulatorCapitalPct) / entryPrice / 100) * 100;
+      const qty = Math.max(0, Math.min(theoreticalQty, maxCapQty));
       sizing = {
         quantity: qty,
         theoreticalQuantity: theoreticalQty,
         initialRisk: qty * distance,
         executableRiskPct: currentEquity > 0 ? (qty * distance) / currentEquity : 0,
-        limitingLayer: qty === theoreticalQty ? 'budget' : (qty === maxVolQty ? 'volatility' : 'capital'),
-        limitingLayerName: qty === theoreticalQty ? 'Orçamento pelo Grade' : (qty === maxVolQty ? 'Limite ATR' : 'Limite de Capital')
+        limitingLayer: qty === theoreticalQty ? 'budget' : 'capital',
+        limitingLayerName: qty === theoreticalQty ? 'Orçamento pelo Grade' : (simulatorCapitalPct >= 1.0 ? 'Capital total da conta (100%)' : 'Limite de Capital')
       };
     } else {
       sizing = {
@@ -8286,6 +8415,17 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     const finalQuantity = isEligible ? Math.max(0, sizing.quantity || 0) : 0;
     const initialRiskCash = finalQuantity * distance;
     const executableRiskPct = currentEquity > 0 ? (initialRiskCash / currentEquity) * 100 : 0;
+    const positionCapitalCash = finalQuantity * entryPrice;
+    const positionCapitalPct = currentEquity > 0 ? (positionCapitalCash / currentEquity) * 100 : 0;
+    const nominalConfiguredPercent = Number((configuredRiskPct * 100).toFixed(2));
+    const isLimited = isEligible && (finalQuantity < (sizing.theoreticalQuantity || 0) || Math.abs(executableRiskPct - nominalConfiguredPercent) >= 0.05);
+
+    let limitingLayerName = sizing.limitingLayerName || 'Orçamento de Risco pelo Grade';
+    if (sizing.limitingLayer === 'capital') {
+      limitingLayerName = simulatorCapitalPct >= 1.0 ? 'Capital total da conta (100%)' : `Limite de Capital (${(simulatorCapitalPct * 100).toFixed(0)}%)`;
+    } else if (sizing.limitingLayer === 'budget' && isLimited) {
+      limitingLayerName = 'Lote padrão (100 ações na B3)';
+    }
 
     return {
       symbol: sim.symbol || 'ATIVO',
@@ -8305,6 +8445,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       atrPct,
       rubricScore,
       grade: resolvedGrade,
+      configuredRiskPct: nominalConfiguredPercent,
       baseRiskBudgetPct,
       effectiveRiskBudgetPct,
       isEligible,
@@ -8315,9 +8456,12 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       theoreticalQuantity: sizing.theoreticalQuantity || 0,
       initialRiskCash,
       executableRiskPct,
+      positionCapitalCash,
+      positionCapitalPct,
       isSizeReduced: isEligible && finalQuantity < (sizing.theoreticalQuantity || 0),
+      isLimited,
       limitingLayer: sizing.limitingLayer || 'budget',
-      limitingLayerName: sizing.limitingLayerName || 'Orçamento de Risco'
+      limitingLayerName
     };
   }
 
@@ -8353,7 +8497,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     const rubricMode = options.rubricMode !== false;
     const initialCapital = Math.max(1000, Number(options.initialCapital || 100000));
     const costRatePct = Number(options.costRatePct != null ? options.costRatePct : 0.0006);
-    const fixedRiskPct = Number(options.fixedRiskPct || 0.005); // 0.5% risco fixo no modo sem Rubric
+    const fixedRiskPct = Number(options.fixedRiskPct || 0.005);
+    const officialPolicy = getOfficialRiskPolicy(options);
+    const resolvedOptions = { ...options, policy: officialPolicy }; // 0.5% risco fixo no modo sem Rubric
 
     // Ordenação cronológica estrita (sem look-ahead bias)
     list.sort((a, b) => {
@@ -8386,7 +8532,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       byRiskLimits: 0
     };
 
-    const gradeCounts = { 'A+': 0, 'A': 0, 'B': 0, 'C': 0, 'D': 0, BLOCKED: 0 };
+    const gradeCounts = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, BLOCKED: 0 };
     const rsBandCounts = { '95-100': 0, '90-94': 0, '80-89': 0, '<80': 0 };
     let reducedSizeTradesCount = 0;
     let totalRsSum = 0;
@@ -8420,6 +8566,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       };
 
       const isTriggered = sim.status !== 'NOT_TRIGGERED' && sim.status !== 'WAITING_ENTRY';
+      const isFinalized = (sim.status === 'CLOSED_GAIN' || sim.status === 'CLOSED_LOSS' || sim.status === 'CLOSED_BE' || (sim.resultR != null && sim.status !== 'IN_OPERATION' && sim.status !== 'INCOMPLETE')) &&
+        sim.status !== 'INCOMPLETE' && sim.status !== 'IN_OPERATION' && !sim.isIncomplete && !sim.isCensored;
       let evaluation = null;
       let executed = false;
       let shares = 0;
@@ -8427,11 +8575,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       let authorizedRiskPct = 0;
 
       if (rubricMode) {
-        evaluation = evaluateTradeRubricAndSizing(sim, portfolioState, options);
+        evaluation = evaluateTradeRubricAndSizing(sim, portfolioState, resolvedOptions);
         shares = evaluation.quantity;
         authorizedRiskCash = evaluation.initialRiskCash;
         authorizedRiskPct = evaluation.executableRiskPct;
-        executed = evaluation.isEligible && shares > 0 && isTriggered;
+        executed = evaluation.isEligible && shares > 0 && isTriggered && isFinalized;
 
         // Contabiliza distribuição do Rubric
         const gr = evaluation.grade;
@@ -8458,7 +8606,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         shares = Math.max(100, theoreticalShares);
         authorizedRiskCash = shares * distance;
         authorizedRiskPct = currentEquity > 0 ? (authorizedRiskCash / currentEquity) * 100 : 0;
-        executed = distance > 0 && entryPrice > 0 && isTriggered;
+        executed = distance > 0 && entryPrice > 0 && isTriggered && isFinalized;
 
         evaluation = {
           symbol: sim.symbol,
@@ -8560,6 +8708,12 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         shares,
         authorizedRiskCash,
         authorizedRiskPct,
+        configuredRiskPct: evaluation?.configuredRiskPct,
+        positionCapitalCash: evaluation?.positionCapitalCash,
+        positionCapitalPct: evaluation?.positionCapitalPct,
+        isLimited: evaluation?.isLimited,
+        limitingLayer: evaluation?.limitingLayer,
+        limitingLayerName: evaluation?.limitingLayerName,
         netPnL,
         grossPnL,
         totalCosts,
@@ -8606,18 +8760,149 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     });
 
     const gradeBreakdown = {};
-    ['A+', 'A', 'B', 'C', 'D'].forEach(gr => {
-      const gTrades = executedTrades.filter(t => t.evaluation.grade === gr);
-      const gWins = gTrades.filter(t => t.netPnL > 0);
-      const gTotalR = gTrades.reduce((acc, t) => acc + t.netResultR, 0);
+    let topPositiveGrade = null;
+    let maxGradePnL = 0;
+
+    ['A', 'B', 'C'].forEach(gr => {
+      const gTrades = executedTrades.filter(t => normalizeSimulatorGrade((t.evaluation && t.evaluation.grade) || t.grade) === gr);
+      const gWins = gTrades.filter(t => (t.netPnL != null ? t.netPnL : 0) > 0);
+      const gTotalR = gTrades.reduce((acc, t) => acc + (t.netResultR != null ? t.netResultR : (t.resultR != null ? t.resultR : 0)), 0);
+      const gNetPnL = gTrades.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0);
+      const gGrossPnL = gTrades.reduce((acc, t) => acc + (t.grossPnL != null ? t.grossPnL : 0), 0);
+      const gTotalCosts = gTrades.reduce((acc, t) => acc + (t.totalCosts != null ? t.totalCosts : 0), 0);
+      const gTotalRiskCash = gTrades.reduce((acc, t) => acc + (t.authorizedRiskCash != null ? t.authorizedRiskCash : 0), 0);
+      const gTotalRiskPct = gTrades.reduce((acc, t) => acc + (t.authorizedRiskPct != null ? t.authorizedRiskPct : 0), 0);
+      const gTotalCapitalCash = gTrades.reduce((acc, t) => acc + (t.positionCapitalCash != null ? t.positionCapitalCash : (t.evaluation?.positionCapitalCash != null ? t.evaluation.positionCapitalCash : 0)), 0);
+      const gTotalCapitalPct = gTrades.reduce((acc, t) => acc + (t.positionCapitalPct != null ? t.positionCapitalPct : (t.evaluation?.positionCapitalPct != null ? t.evaluation.positionCapitalPct : 0)), 0);
+      const limitedTradesCount = gTrades.filter(t => t.isLimited || (t.evaluation && t.evaluation.isLimited)).length;
+
+      const policyGrade = officialPolicy.grades?.find(item => item.grade === gr);
+      const nominalConfiguredRiskPct = policyGrade && policyGrade.riskPct != null
+        ? Number((policyGrade.riskPct * 100).toFixed(2))
+        : (gr === 'A' ? 0.40 : (gr === 'B' ? 0.20 : 0.10));
+
+      const avgRiskCash = gTrades.length > 0 ? gTotalRiskCash / gTrades.length : (nominalConfiguredRiskPct / 100) * initialCapital;
+      const avgRiskPct = gTrades.length > 0 ? gTotalRiskPct / gTrades.length : nominalConfiguredRiskPct;
+      const avgCapitalCash = gTrades.length > 0 ? gTotalCapitalCash / gTrades.length : 0;
+      const avgCapitalPct = gTrades.length > 0 ? gTotalCapitalPct / gTrades.length : 0;
+      const contribPct = totalNetPnL !== 0 ? Number(((gNetPnL / totalNetPnL) * 100).toFixed(1)) : 0;
+
+      if (gNetPnL > maxGradePnL && gTrades.length > 0) {
+        maxGradePnL = gNetPnL;
+        topPositiveGrade = gr;
+      }
+
       gradeBreakdown[gr] = {
+        grade: gr,
         count: gTrades.length,
         winRate: gTrades.length > 0 ? Number(((gWins.length / gTrades.length) * 100).toFixed(1)) : 0,
         totalR: Number(gTotalR.toFixed(2)),
         expectancyR: gTrades.length > 0 ? Number((gTotalR / gTrades.length).toFixed(2)) : 0,
-        netPnL: Number(gTrades.reduce((acc, t) => acc + t.netPnL, 0).toFixed(2))
+        netPnL: Number(gNetPnL.toFixed(2)),
+        grossPnL: Number(gGrossPnL.toFixed(2)),
+        totalCosts: Number(gTotalCosts.toFixed(2)),
+        configuredRiskPct: nominalConfiguredRiskPct,
+        avgRiskCash: Number(avgRiskCash.toFixed(2)),
+        avgRiskPct: Number(avgRiskPct.toFixed(2)),
+        avgCapitalCash: Number(avgCapitalCash.toFixed(2)),
+        avgCapitalPct: Number(avgCapitalPct.toFixed(2)),
+        limitedTradesCount,
+        limitedTradesPct: gTrades.length > 0 ? Number(((limitedTradesCount / gTrades.length) * 100).toFixed(1)) : 0,
+        contribPct
       };
     });
+
+    if (!topPositiveGrade && executedTrades.length > 0) {
+      let bestPnL = -Infinity;
+      ['A', 'B', 'C'].forEach(gr => {
+        if (gradeBreakdown[gr] && gradeBreakdown[gr].count > 0 && gradeBreakdown[gr].netPnL > bestPnL) {
+          bestPnL = gradeBreakdown[gr].netPnL;
+          topPositiveGrade = gr;
+        }
+      });
+    }
+
+    // Análise por Ativo (Asset Breakdown)
+    const assetMap = new Map();
+    executedTrades.forEach(t => {
+      const sym = t.symbol || 'OUTROS';
+      if (!assetMap.has(sym)) {
+        assetMap.set(sym, {
+          symbol: sym,
+          companyName: t.companyName || t.name || sym,
+          sector: t.sector || 'Outros',
+          trades: []
+        });
+      }
+      assetMap.get(sym).trades.push(t);
+    });
+
+    const assetBreakdown = Array.from(assetMap.values()).map(item => {
+      const aTrades = item.trades;
+      const aWins = aTrades.filter(t => (t.netPnL != null ? t.netPnL : 0) > 0);
+      const aTotalR = aTrades.reduce((acc, t) => acc + (t.netResultR != null ? t.netResultR : (t.resultR != null ? t.resultR : 0)), 0);
+      const aNetPnL = aTrades.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0);
+      const aTotalRiskCash = aTrades.reduce((acc, t) => acc + (t.authorizedRiskCash != null ? t.authorizedRiskCash : 0), 0);
+      const maxGain = aTrades.reduce((max, t) => Math.max(max, t.netPnL != null ? t.netPnL : 0), 0);
+      const maxLoss = aTrades.reduce((min, t) => Math.min(min, t.netPnL != null ? t.netPnL : 0), 0);
+      const contribPct = totalNetPnL !== 0 ? Number(((aNetPnL / totalNetPnL) * 100).toFixed(1)) : 0;
+
+      return {
+        symbol: item.symbol,
+        companyName: item.companyName,
+        sector: item.sector,
+        count: aTrades.length,
+        winsCount: aWins.length,
+        winRate: aTrades.length > 0 ? Number(((aWins.length / aTrades.length) * 100).toFixed(1)) : 0,
+        totalR: Number(aTotalR.toFixed(2)),
+        avgR: aTrades.length > 0 ? Number((aTotalR / aTrades.length).toFixed(2)) : 0,
+        netPnL: Number(aNetPnL.toFixed(2)),
+        avgRiskCash: aTrades.length > 0 ? Number((aTotalRiskCash / aTrades.length).toFixed(2)) : 0,
+        maxGain: Number(maxGain.toFixed(2)),
+        maxLoss: Number(maxLoss.toFixed(2)),
+        contribPct
+      };
+    }).sort((a, b) => b.netPnL - a.netPnL);
+
+    // Análise por Setup (Gatilho)
+    const setupMap = new Map();
+    executedTrades.forEach(t => {
+      const trig = formatTriggerDisplayName(t.triggerName || t.triggerType || t.setupTrigger || 'Outros');
+      if (!setupMap.has(trig)) {
+        setupMap.set(trig, {
+          name: trig,
+          trades: []
+        });
+      }
+      setupMap.get(trig).trades.push(t);
+    });
+
+    const setupBreakdown = Array.from(setupMap.values()).map(item => {
+      const sTrades = item.trades;
+      const sWins = sTrades.filter(t => (t.netPnL != null ? t.netPnL : 0) > 0);
+      const sLosses = sTrades.filter(t => (t.netPnL != null ? t.netPnL : 0) < 0);
+      const sTotalR = sTrades.reduce((acc, t) => acc + (t.netResultR != null ? t.netResultR : (t.resultR != null ? t.resultR : 0)), 0);
+      const sNetPnL = sTrades.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0);
+      const sTotalRiskCash = sTrades.reduce((acc, t) => acc + (t.authorizedRiskCash != null ? t.authorizedRiskCash : 0), 0);
+      const sWinsCash = sWins.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0);
+      const sLossesCash = Math.abs(sLosses.reduce((acc, t) => acc + (t.netPnL != null ? t.netPnL : 0), 0));
+      const profitFactor = sLossesCash > 0 ? Number((sWinsCash / sLossesCash).toFixed(2)) : (sWinsCash > 0 ? 99 : 0);
+      const contribPct = totalNetPnL !== 0 ? Number(((sNetPnL / totalNetPnL) * 100).toFixed(1)) : 0;
+
+      return {
+        name: item.name,
+        count: sTrades.length,
+        winsCount: sWins.length,
+        lossesCount: sLosses.length,
+        winRate: sTrades.length > 0 ? Number(((sWins.length / sTrades.length) * 100).toFixed(1)) : 0,
+        totalR: Number(sTotalR.toFixed(2)),
+        expectancyR: sTrades.length > 0 ? Number((sTotalR / sTrades.length).toFixed(2)) : 0,
+        netPnL: Number(sNetPnL.toFixed(2)),
+        profitFactor,
+        avgRiskCash: sTrades.length > 0 ? Number((sTotalRiskCash / sTrades.length).toFixed(2)) : 0,
+        contribPct
+      };
+    }).sort((a, b) => b.netPnL - a.netPnL);
 
     return {
       rubricMode,
@@ -8625,6 +8910,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       finalEquity: currentEquity,
       netPnL: totalNetPnL,
       netReturnPct,
+      topPositiveGrade,
+      assetBreakdown,
+      setupBreakdown,
       performance: {
         totalSignals: list.length,
         executedCount: totalExecuted,
@@ -8660,8 +8948,12 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         reducedSizeTradesCount,
         blockedStats,
         rsBandBreakdown,
-        gradeBreakdown
+        gradeBreakdown,
+        assetBreakdown,
+        setupBreakdown,
+        topPositiveGrade
       },
+      executedTrades,
       equityCurve,
       processedTrades
     };
@@ -8732,7 +9024,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         return name === triggerName;
       });
 
-      const grades = ['ALL', 'A+', 'A', 'B', 'C'];
+      const grades = ['ALL', 'A', 'B', 'C'];
       const gradeStats = {};
 
       grades.forEach(gr => {
@@ -8964,6 +9256,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     OFFICIAL_SEED_RS_BY_SYMBOL,
     calculateHistoricalRsScore,
     resolveSimulationEntryRs,
+    getOfficialRiskPolicy,
     classifyRsCapitalPriority,
     evaluateTradeRubricAndSizing,
     runRubricPortfolioSimulation,

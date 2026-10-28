@@ -197,6 +197,7 @@
     const map = {
       WAITING_ENTRY: 'Aguardando entrada',
       IN_OPERATION: 'Em operação',
+      INCOMPLETE: 'Incompleto / Excluído',
       CLOSED_GAIN: 'Encerrado (Gain)',
       CLOSED_LOSS: 'Encerrado (Loss)',
       NOT_TRIGGERED: 'Não acionado'
@@ -212,6 +213,8 @@
         return { bg: '#fef2f2', text: '#991b1b', border: '#fecaca' };
       case 'IN_OPERATION':
         return { bg: '#f0fdf4', text: '#166534', border: '#bbf7d0' };
+      case 'INCOMPLETE':
+        return { bg: '#fffbeb', text: '#92400e', border: '#fde68a' };
       case 'WAITING_ENTRY':
         return { bg: '#fffbeb', text: '#92400e', border: '#fde68a' };
       case 'NOT_TRIGGERED':

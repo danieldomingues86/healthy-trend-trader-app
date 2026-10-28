@@ -151,6 +151,10 @@ function loadB3History() {
         }
       } catch (err) {
         console.error(`Erro ao carregar COTAHIST ${year}:`, err.message);
+        try {
+          fs.unlinkSync(file);
+          console.warn(`[ticker-chart] Arquivo corrompido cotahist-${year}.zip removido do cache para permitir novo download.`);
+        } catch (_) {}
       }
     }
   }
