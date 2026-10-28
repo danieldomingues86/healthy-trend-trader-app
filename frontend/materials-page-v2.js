@@ -339,14 +339,11 @@
             </div>
           </div>
 
-          <!-- Coluna Direita: Mockup 3D Oficial Grande do Livro -->
+          <!-- Coluna Direita: Mockup 3D Oficial Grande do Livro (Transparência Pura sem Camadas Extras) -->
           <div class="hero-cinematic-right spotlight-book-stage flagship-stage" data-material-detail="forca-verde" title="Clique para explorar o sumário da obra">
-            <div class="hero-book-glow flagship-glow"></div>
             <div class="hero-book-wrap flagship-book-3d">
               <img src="assets/forca-verde-book-3d.png" alt="Capa Oficial 3D — Livro Força Verde por Daniel Gonçalves" class="hero-book-img spotlight-cover-img flagship-cover-img" />
-              <div class="hero-book-sheen spotlight-foil-reflection"></div>
             </div>
-            <div class="hero-book-shadow flagship-shadow"></div>
           </div>
         </div>
 

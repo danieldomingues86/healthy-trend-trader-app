@@ -281,7 +281,17 @@ body:has(#materials.active) .topbar .crumb b {
 }
 
 .flagship-stage {
-  perspective: 1200px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.hero-book-wrap,
+.flagship-book-3d {
   position: relative;
   display: flex;
   justify-content: center;
@@ -292,18 +302,20 @@ body:has(#materials.active) .topbar .crumb b {
 }
 
 .flagship-cover-img {
-  height: clamp(330px, 30vw, 410px);
+  height: clamp(340px, 32vw, 420px);
   width: auto;
+  max-width: 100%;
   object-fit: contain;
   background: transparent !important;
-  /* Sombra natural e realista integrando o livro 3D à cena do touro e montanhas */
-  filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 25px rgba(16, 185, 129, 0.2));
-  transition: transform 0.4s ease, filter 0.4s ease;
+  border: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transition: transform 0.3s ease;
+  cursor: pointer;
 }
 
 .flagship-stage:hover .flagship-cover-img {
-  transform: translateY(-6px) scale(1.02);
-  filter: drop-shadow(0 26px 48px rgba(0, 0, 0, 0.92)) drop-shadow(0 0 35px rgba(16, 185, 129, 0.35));
+  transform: translateY(-4px) scale(1.02);
 }
 
 /* Faixa dos 5 Pilares Integrada */
