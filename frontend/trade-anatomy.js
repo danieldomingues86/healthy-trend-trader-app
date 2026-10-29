@@ -23,7 +23,8 @@
       { id: 'INSIDE_BAR', name: 'Inside Bar' },
       { id: 'PFR_COMPRA', name: 'PFR de Compra' },
       { id: '123_COMPRA', name: '1-2-3 de Compra' },
-      { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)' }
+      { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)' },
+      { id: 'BREAKOUT', name: 'Breakout' }
     ];
     return `<option value="">Todos</option>` + list.map(t => `<option value="${esc(t.id)}" ${String(selected) === String(t.id) ? 'selected' : ''}>${esc(t.name)}</option>`).join('');
   }

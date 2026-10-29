@@ -813,8 +813,8 @@
               <div class="jv-field jv-field-grade">
                 <span>${text('Grade da Rubric', 'Rubric Grade')}</span>
                 <div class="jv-grade-pills">
-                  ${['A+', 'A', 'B', 'C', 'D'].map(g => `
-                    <button type="button" class="jv-grade-pill grade-${g.toLowerCase().replace('+', 'plus')} ${trade.grade === g ? 'chosen' : ''}" data-trade-set="grade" data-value="${g}" data-trade-id="${esc(trade.id)}">${g}</button>
+                  ${['A', 'B', 'C', 'D'].map(g => `
+                    <button type="button" class="jv-grade-pill grade-${g.toLowerCase()} ${trade.grade === g ? 'chosen' : ''}" data-trade-set="grade" data-value="${g}" data-trade-id="${esc(trade.id)}" aria-pressed="${trade.grade === g}">${g}</button>
                   `).join('')}
                 </div>
               </div>
@@ -1021,9 +1021,9 @@
 
           <div class="jv-field">
             <span>${text('Direção *', 'Direction *')}</span>
-            <div class="jv-toggle-group">
-              <button type="button" class="jv-toggle-opt chosen" data-modal-dir="long">🟢 ${text('Compra', 'Long')}</button>
-              <button type="button" class="jv-toggle-opt" data-modal-dir="short">🔴 ${text('Venda', 'Short')}</button>
+            <div class="jv-toggle-group" role="group" aria-label="${text('Direção da operação', 'Trade direction')}">
+              <button type="button" class="jv-toggle-opt chosen" data-modal-dir="long" aria-pressed="true">🟢 ${text('Compra', 'Long')}</button>
+              <button type="button" class="jv-toggle-opt" data-modal-dir="short" aria-pressed="false">🔴 ${text('Venda', 'Short')}</button>
             </div>
             <input type="hidden" id="jv-modal-direction" value="long">
           </div>
@@ -1049,9 +1049,9 @@
 
           <div class="jv-field">
             <span>${text('Grade da Rubric', 'Rubric Grade')}</span>
-            <div class="jv-grade-pills">
-              ${['A+', 'A', 'B', 'C', 'D'].map(g => `
-                <button type="button" class="jv-grade-pill grade-${g.toLowerCase().replace('+', 'plus')} ${g === 'A' ? 'chosen' : ''}" data-modal-grade="${g}">${g}</button>
+            <div class="jv-grade-pills" role="group" aria-label="${text('Grade da Rubric', 'Rubric Grade')}">
+              ${['A', 'B', 'C', 'D'].map(g => `
+                <button type="button" class="jv-grade-pill grade-${g.toLowerCase()} ${g === 'A' ? 'chosen' : ''}" data-modal-grade="${g}" aria-pressed="${g === 'A'}">${g}</button>
               `).join('')}
             </div>
             <input type="hidden" id="jv-modal-grade" value="A">
@@ -1090,17 +1090,27 @@
     if (!form) return;
 
     form.querySelectorAll('[data-modal-dir]').forEach(btn => {
-      btn.onclick = () => {
-        form.querySelectorAll('[data-modal-dir]').forEach(b => b.classList.remove('chosen'));
+      btn.onclick = (e) => {
+        if (e) e.preventDefault();
+        form.querySelectorAll('[data-modal-dir]').forEach(b => {
+          b.classList.remove('chosen');
+          b.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('chosen');
+        btn.setAttribute('aria-pressed', 'true');
         form.querySelector('#jv-modal-direction').value = btn.dataset.modalDir;
       };
     });
 
     form.querySelectorAll('[data-modal-grade]').forEach(btn => {
-      btn.onclick = () => {
-        form.querySelectorAll('[data-modal-grade]').forEach(b => b.classList.remove('chosen'));
+      btn.onclick = (e) => {
+        if (e) e.preventDefault();
+        form.querySelectorAll('[data-modal-grade]').forEach(b => {
+          b.classList.remove('chosen');
+          b.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('chosen');
+        btn.setAttribute('aria-pressed', 'true');
         form.querySelector('#jv-modal-grade').value = btn.dataset.modalGrade;
       };
     });
