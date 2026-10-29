@@ -4,9 +4,9 @@ const Catalog = require('./setup-triggers-catalog');
 
 test('SetupTriggersCatalog exposes the official triggers without removed setups', () => {
   const all = Catalog.getAllTriggers();
-  assert.equal(all.length, 4);
+  assert.equal(all.length, 5);
   const ids = all.map(t => t.id);
-  assert.deepEqual(ids, ['INSIDE_BAR', 'PFR_COMPRA', '123_COMPRA', 'RBI']);
+  assert.deepEqual(ids, ['INSIDE_BAR', 'PFR_COMPRA', '123_COMPRA', 'RBI', 'BREAKOUT']);
 });
 
 test('each trigger has all required educational and execution fields', () => {
@@ -30,6 +30,7 @@ test('isValidTrigger accurately validates keys', () => {
   assert.equal(Catalog.isValidTrigger('PFR_COMPRA'), true);
   assert.equal(Catalog.isValidTrigger('123_COMPRA'), true);
   assert.equal(Catalog.isValidTrigger('RBI'), true);
+  assert.equal(Catalog.isValidTrigger('BREAKOUT'), true);
   assert.equal(Catalog.isValidTrigger('inside_bar'), true);
   assert.equal(Catalog.isValidTrigger('DAVE_LANDRY'), false);
   assert.equal(Catalog.isValidTrigger('UNKNOWN_TRIGGER'), false);
@@ -42,6 +43,7 @@ test('getTriggerLabel provides correct display names and fallback', () => {
   assert.equal(Catalog.getTriggerLabel('PFR_COMPRA'), 'PFR de Compra');
   assert.equal(Catalog.getTriggerLabel('123_COMPRA'), '1-2-3 de Compra');
   assert.equal(Catalog.getTriggerLabel('RBI'), 'Barra Vermelha Ignorada (RBI)');
+  assert.equal(Catalog.getTriggerLabel('BREAKOUT'), 'Breakout');
 
   // Legacy or missing values
   assert.equal(Catalog.getTriggerLabel('DAVE_LANDRY'), 'Não informado');
@@ -60,6 +62,8 @@ test('normalizeKey handles variations and legacy setup names', () => {
   assert.equal(Catalog.normalizeKey('Contração 1-2-3'), '123_COMPRA');
   assert.equal(Catalog.normalizeKey('rbi'), 'RBI');
   assert.equal(Catalog.normalizeKey('Barra Vermelha Ignorada'), 'RBI');
+  assert.equal(Catalog.normalizeKey('Breakout'), 'BREAKOUT');
+  assert.equal(Catalog.normalizeKey('Rompimento'), 'BREAKOUT');
   assert.equal(Catalog.normalizeKey('Dave Landry'), null);
   assert.equal(Catalog.normalizeKey('Outro'), null);
 });

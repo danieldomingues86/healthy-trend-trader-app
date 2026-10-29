@@ -110,6 +110,31 @@
         '                            Stop 1 tick abaixo'
       ].join('\n'),
       observations: 'A barra vermelha deve ter volume inferior ou similar às barras verdes anteriores. Se apresentar volume anormalmente explosivo com fechamento na mínima extrema, pode indicar início de distribuição e não uma RBI confiável.'
+    },
+    {
+      id: 'BREAKOUT',
+      name: 'Breakout',
+      shortLabel: 'Breakout',
+      whatIs: 'Rompimento confirmado de resistência horizontal, topo prévio ou linha de consolidação/contração com expansão de volume e momentum favorável a favor da tendência.',
+      howToIdentify: 'Identifique uma consolidação ou base estreita onde o preço vinha acumulando logo abaixo de uma resistência bem definida. O candle de sinal rompe essa resistência e fecha no terço superior de sua amplitude com volume acima da média.',
+      concept: 'Indica a vitória definitiva dos compradores sobre a oferta acumulada naquela faixa de preço. A superação da barreira destrava ordens de compra e stop dos vendedores, gerando expansão rápida a favor da tendência.',
+      conditions: [
+        'Tendência primária de alta saudável e alinhada com as médias móveis.',
+        'Contração prévia de volatilidade formando uma base ou resistência clara.',
+        'Candle de rompimento com volume expressivo e fechamento forte próximo da máxima.'
+      ],
+      entryTrigger: 'Compra na superação da máxima do candle de rompimento (ou 1 tick acima da resistência confirmada).',
+      stop: '1 tick abaixo da mínima do candle de rompimento ou abaixo do suporte da consolidação rompida.',
+      visualExample: [
+        '               Resistência  ──────┬──────  <-- ROMPIMENTO (BREAKOUT)',
+        '                                  │',
+        '      ┌───┐            ┌───┐    ┌───┐  <-- Superação da máxima = COMPRA',
+        '      │   │   ┌───┐    │   │    │   │',
+        '      └───┘   │   │    └───┘    │   │',
+        '              └───┘             └───┘',
+        '                                  | Mínima <-- STOP'
+      ].join('\n'),
+      observations: 'Evite breakouts esticados longe das médias móveis ou sem volume correspondente. O setup tem maior probabilidade quando precedido por bases estreitas ou contrações de volatilidade.'
     }
   ];
 
@@ -153,6 +178,9 @@
     }
     if (normalized.includes('1-2-3') || normalized.includes('123') || normalized.includes('contracao 1-2-3')) {
       return '123_COMPRA';
+    }
+    if (normalized.includes('breakout') || normalized.includes('rompimento')) {
+      return 'BREAKOUT';
     }
 
     return null;
