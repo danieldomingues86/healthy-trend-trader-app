@@ -86,14 +86,18 @@ body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .experience
 }
 body:not([data-theme="healthy"]) #newtrade .rubric-experience-inline .experience-gauge::before{background:radial-gradient(circle at 50% 88%,#fff3cb 0 4px,#201606 5px 100%)}
 
-body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control{
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control,
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer .executed-quantity-control {
   border-color:rgba(224,183,78,.45);
   background:linear-gradient(145deg,rgba(57,39,10,.86),rgba(27,19,7,.9));
 }
-body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control label{color:#f1d583}
-body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control input{
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control label,
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer .executed-quantity-control label {color:#f1d583}
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control input,
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer .executed-quantity-control input {
   background:#fff9e8;
   border-color:#d2a745;
   color:#372609;
 }
-body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control small{color:#ddca9d!important}
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer>.executed-quantity-control small,
+body:not([data-theme="healthy"]) #newtrade .workbench-sizer .executed-quantity-control small {color:#ddca9d!important}

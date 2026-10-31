@@ -1147,8 +1147,8 @@ body:has(#newtrade.active) .content {
 
 #newtrade .workbench-sizer-body {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr) !important;
-  gap: 12px !important;
+  grid-template-columns: minmax(0, 7fr) 2px minmax(0, 3fr) !important;
+  gap: 16px !important;
   flex: 1 !important;
   align-items: stretch !important;
   min-height: 0 !important;
@@ -1272,15 +1272,20 @@ body:has(#newtrade.active) .content {
   font-weight: 800 !important;
 }
 
-/* POSITION SIZE FINAL CARD (HERO ELEMENT NO RODAPÉ DE 3A) */
-#newtrade .final-size {
+/* POSITION SIZE FINAL CARD (NOVO POSICIONAMENTO EM VOCÊ — 30%) */
+#newtrade .final-size,
+#newtrade .workbench-subcol-execution .final-size {
   background: linear-gradient(145deg, #0e3423, #071e14) !important;
   border: 1.5px solid rgba(200, 168, 78, 0.38) !important;
   border-radius: 12px !important;
-  padding: 10px 12px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(200, 168, 78, 0.2) !important;
+  padding: 11px 13px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(200, 168, 78, 0.2) !important;
   text-align: center !important;
-  margin: auto 0 0 0 !important;
+  margin: 0 !important;
+}
+
+#newtrade.has-mission-active .workbench-subcol-execution > .final-size {
+  display: none !important;
 }
 
 #newtrade .final-size small {
@@ -2140,7 +2145,7 @@ body:has(#newtrade.active) .content {
 }
 
 #newtrade .workbench-sizer-body {
-  grid-template-columns: minmax(0, 0.92fr) 2px minmax(0, 1.08fr) !important;
+  grid-template-columns: minmax(0, 7fr) 2px minmax(0, 3fr) !important;
   gap: 16px !important;
 }
 
@@ -2167,8 +2172,8 @@ body:has(#newtrade.active) .content {
 }
 
 #newtrade .workbench-subcol-system .layer-prism {
-  min-height: clamp(122px, 12vh, 158px) !important;
-  padding: 15px 16px !important;
+  min-height: auto !important;
+  padding: 14px 18px !important;
   grid-template-columns: 31px minmax(0, 1fr) !important;
   grid-template-rows: auto 1fr !important;
   gap: 6px 11px !important;
@@ -2201,7 +2206,9 @@ body:has(#newtrade.active) .content {
 }
 
 #newtrade .layer-quality-content {
-  grid-template-columns: 0.7fr 1fr !important;
+  grid-template-columns: 80px minmax(130px, 1fr) minmax(160px, 1.2fr) !important;
+  gap: 8px 16px !important;
+  align-items: center !important;
 }
 
 #newtrade .layer-grade,
@@ -2258,7 +2265,9 @@ body:has(#newtrade.active) .content {
 
 /* Bloco Explicativo de Risco de Missão Ativa na Etapa 3 (Card 1) */
 #newtrade .layer-quality-content.has-mission-block {
-  grid-template-columns: 0.65fr 1.35fr !important;
+  grid-template-columns: 80px minmax(160px, 1fr) minmax(160px, 1fr) !important;
+  gap: 10px 16px !important;
+  align-items: start !important;
 }
 
 #newtrade .layer-grade-budget-metric small {
@@ -2388,10 +2397,7 @@ body:has(#newtrade.active) .content {
 #newtrade .layer-exposure-content,
 #newtrade .layer-portfolio-content {
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-
-#newtrade .layer-exposure-content {
-  grid-template-columns: 1fr !important;
+  gap: 10px 16px !important;
 }
 
 #newtrade .execution-limit {
@@ -2548,7 +2554,7 @@ body:has(#newtrade.active) .content {
 
   #newtrade .workbench-sizer-body {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 2px minmax(0, 1fr) !important;
+    grid-template-columns: minmax(0, 7fr) 2px minmax(0, 3fr) !important;
     gap: 18px !important;
     align-items: stretch !important;
     width: 100% !important;
@@ -2632,7 +2638,7 @@ body:has(#newtrade.active) .content {
 
   #newtrade .workbench-sizer-body {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) 2px minmax(0, 1fr) !important;
+    grid-template-columns: minmax(0, 7fr) 2px minmax(0, 3fr) !important;
     gap: 18px !important;
     align-items: stretch !important;
     width: 100% !important;
@@ -3849,3 +3855,52 @@ body:has(#newtrade.active) .content {
 }
 
 
+
+
+/* ── ETAPA 3: REORGANIZAÇÃO 70/30 (O SISTEMA 70% / VOCÊ 30%) ─────────────────── */
+#newtrade .workbench-subcol-execution .executed-quantity-control {
+  margin: 0 !important;
+  padding: 11px 13px !important;
+  border: 1px solid rgba(143, 224, 170, 0.25) !important;
+  border-radius: 12px !important;
+  background: rgba(4, 21, 15, 0.6) !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .workbench-subcol-execution .executed-quantity-control label {
+  display: block !important;
+  margin-bottom: 5px !important;
+  color: #e5cb68 !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
+
+#newtrade .workbench-subcol-execution .executed-quantity-control input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 9px 12px !important;
+  border: 1px solid rgba(175, 227, 195, 0.35) !important;
+  border-radius: 8px !important;
+  background: #0a2018 !important;
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 850 !important;
+  text-align: center !important;
+  transition: all 0.15s ease !important;
+}
+
+#newtrade .workbench-subcol-execution .executed-quantity-control input:focus {
+  border-color: #6ee7a2 !important;
+  box-shadow: 0 0 0 3px rgba(110, 231, 162, 0.2) !important;
+  outline: none !important;
+}
+
+#newtrade .workbench-subcol-execution .executed-quantity-control small {
+  display: block !important;
+  margin-top: 5px !important;
+  color: #b7cfbf !important;
+  font-size: 10.5px !important;
+  line-height: 1.35 !important;
+}
