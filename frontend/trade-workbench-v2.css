@@ -1146,9 +1146,10 @@ body:has(#newtrade.active) .content {
 }
 
 #newtrade .workbench-sizer-body {
-  display: grid !important;
-  grid-template-columns: minmax(0, 7fr) 2px minmax(0, 3fr) !important;
+  display: flex !important;
+  flex-direction: column !important;
   gap: 16px !important;
+  width: 100% !important;
   flex: 1 !important;
   align-items: stretch !important;
   min-height: 0 !important;
@@ -1164,8 +1165,14 @@ body:has(#newtrade.active) .content {
 }
 
 #newtrade .workbench-subcol-divider {
-  width: 1px !important;
-  background: linear-gradient(180deg, rgba(200, 168, 78, 0.06) 0%, rgba(200, 168, 78, 0.28) 25%, rgba(200, 168, 78, 0.28) 75%, rgba(200, 168, 78, 0.06) 100%) !important;
+  display: block !important;
+  width: 100% !important;
+  height: 2px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, rgba(110, 231, 162, 0.05) 0%, rgba(110, 231, 162, 0.55) 25%, rgba(200, 168, 78, 0.65) 50%, rgba(110, 231, 162, 0.55) 75%, rgba(110, 231, 162, 0.05) 100%) !important;
+  box-shadow: 0 0 14px rgba(110, 231, 162, 0.2) !important;
+  margin: 6px 0 !important;
+  flex-shrink: 0 !important;
   align-self: stretch !important;
 }
 
@@ -1798,7 +1805,7 @@ body:has(#newtrade.active) .content {
   }
 
   #newtrade .trade-workbench-grid {
-    grid-template-columns: minmax(390px, 0.98fr) minmax(450px, 1.08fr) minmax(540px, 1.24fr) !important;
+    grid-template-columns: minmax(360px, 0.90fr) minmax(420px, 1.05fr) minmax(580px, 1.45fr) !important;
     gap: 16px !important;
     padding: 14px 18px !important;
     align-items: stretch !important;
@@ -2145,15 +2152,20 @@ body:has(#newtrade.active) .content {
 }
 
 #newtrade .workbench-sizer-body {
-  grid-template-columns: minmax(0, 7fr) 2px minmax(0, 3fr) !important;
+  display: flex !important; flex-direction: column !important;
   gap: 16px !important;
 }
 
 #newtrade .workbench-subcol-divider {
-  width: 2px !important;
+  display: block !important;
+  width: 100% !important;
+  height: 2px !important;
   border-radius: 999px !important;
-  background: linear-gradient(180deg, rgba(110, 231, 162, 0.05), rgba(110, 231, 162, 0.4) 22%, rgba(200, 168, 78, 0.52) 50%, rgba(110, 231, 162, 0.4) 78%, rgba(110, 231, 162, 0.05)) !important;
-  box-shadow: 0 0 12px rgba(110, 231, 162, 0.12) !important;
+  background: linear-gradient(90deg, rgba(110, 231, 162, 0.05) 0%, rgba(110, 231, 162, 0.55) 25%, rgba(200, 168, 78, 0.65) 50%, rgba(110, 231, 162, 0.55) 75%, rgba(110, 231, 162, 0.05) 100%) !important;
+  box-shadow: 0 0 14px rgba(110, 231, 162, 0.2) !important;
+  margin: 6px 0 !important;
+  flex-shrink: 0 !important;
+  align-self: stretch !important;
 }
 
 #newtrade .workbench-subcol-system {
@@ -2553,20 +2565,26 @@ body:has(#newtrade.active) .content {
   }
 
   #newtrade .workbench-sizer-body {
-    display: grid !important;
-    grid-template-columns: minmax(0, 7fr) 2px minmax(0, 3fr) !important;
-    gap: 18px !important;
-    align-items: stretch !important;
-    width: 100% !important;
-  }
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  width: 100% !important;
+  flex: 1 !important;
+  align-items: stretch !important;
+  min-height: 0 !important;
+}
 
   #newtrade .workbench-subcol-divider {
-    display: block !important;
-    width: 2px !important;
-    border-radius: 999px !important;
-    background: linear-gradient(180deg, rgba(110, 231, 162, 0.05), rgba(110, 231, 162, 0.4) 22%, rgba(200, 168, 78, 0.52) 50%, rgba(110, 231, 162, 0.4) 78%, rgba(110, 231, 162, 0.05)) !important;
-    box-shadow: 0 0 12px rgba(110, 231, 162, 0.12) !important;
-  }
+  display: block !important;
+  width: 100% !important;
+  height: 2px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, rgba(110, 231, 162, 0.05) 0%, rgba(110, 231, 162, 0.55) 25%, rgba(200, 168, 78, 0.65) 50%, rgba(110, 231, 162, 0.55) 75%, rgba(110, 231, 162, 0.05) 100%) !important;
+  box-shadow: 0 0 14px rgba(110, 231, 162, 0.2) !important;
+  margin: 6px 0 !important;
+  flex-shrink: 0 !important;
+  align-self: stretch !important;
+}
 
   #newtrade .workbench-subcol {
     min-width: 0 !important;
@@ -2637,20 +2655,26 @@ body:has(#newtrade.active) .content {
   }
 
   #newtrade .workbench-sizer-body {
-    display: grid !important;
-    grid-template-columns: minmax(0, 7fr) 2px minmax(0, 3fr) !important;
-    gap: 18px !important;
-    align-items: stretch !important;
-    width: 100% !important;
-  }
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  width: 100% !important;
+  flex: 1 !important;
+  align-items: stretch !important;
+  min-height: 0 !important;
+}
 
   #newtrade .workbench-subcol-divider {
-    display: block !important;
-    width: 2px !important;
-    border-radius: 999px !important;
-    background: linear-gradient(180deg, rgba(110, 231, 162, 0.05), rgba(110, 231, 162, 0.4) 22%, rgba(200, 168, 78, 0.52) 50%, rgba(110, 231, 162, 0.4) 78%, rgba(110, 231, 162, 0.05)) !important;
-    box-shadow: 0 0 12px rgba(110, 231, 162, 0.12) !important;
-  }
+  display: block !important;
+  width: 100% !important;
+  height: 2px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, rgba(110, 231, 162, 0.05) 0%, rgba(110, 231, 162, 0.55) 25%, rgba(200, 168, 78, 0.65) 50%, rgba(110, 231, 162, 0.55) 75%, rgba(110, 231, 162, 0.05) 100%) !important;
+  box-shadow: 0 0 14px rgba(110, 231, 162, 0.2) !important;
+  margin: 6px 0 !important;
+  flex-shrink: 0 !important;
+  align-self: stretch !important;
+}
 
   #newtrade .workbench-subcol {
     min-width: 0 !important;
@@ -3854,53 +3878,523 @@ body:has(#newtrade.active) .content {
   font-weight: 800;
 }
 
+/* =========================================================================
+   ETAPA 3 — ARQUITETURA VERTICAL (O SISTEMA NO TOPO / VOCÊ NO RODAPÉ)
+   Organização vertical em 2 tiers com distribuição horizontal interna:
+   1. O SISTEMA (100% largura): 3 blocos lado a lado (Grade & Budget, Limitadores, Exposição)
+   2. DIVISÓRIA HORIZONTAL luminosa em toda a extensão
+   3. VOCÊ (100% largura): Quantidade e Position Size lado a lado, métricas financeiras em 4 colunas, botão proeminente
+   ========================================================================= */
 
+#newtrade .workbench-sizer-body {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  width: 100% !important;
+  flex: 1 !important;
+  align-items: stretch !important;
+  min-height: 0 !important;
+}
 
+/* 1. SEÇÃO O SISTEMA */
+#newtrade .workbench-subcol-system {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+}
 
-/* ── ETAPA 3: REORGANIZAÇÃO 70/30 (O SISTEMA 70% / VOCÊ 30%) ─────────────────── */
+#newtrade .subcol-kicker {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 4px 6px 8px 6px !important;
+  border-bottom: 1px solid rgba(200, 168, 78, 0.18) !important;
+  margin-bottom: 4px !important;
+}
+
+#newtrade .three-layers,
+#newtrade .workbench-subcol-system .three-layers {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  align-items: stretch !important;
+}
+
+#newtrade .layer-prism,
+#newtrade .workbench-subcol-system .layer-prism {
+  display: grid !important;
+  grid-template-columns: 28px minmax(0, 1fr) !important;
+  grid-template-rows: auto 1fr !important;
+  gap: 8px 10px !important;
+  align-items: start !important;
+  background: linear-gradient(155deg, rgba(14, 46, 32, 0.88), rgba(6, 24, 16, 0.94)) !important;
+  border: 1px solid rgba(143, 224, 170, 0.24) !important;
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24) !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  height: 100% !important;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+#newtrade .workbench-subcol-system .layer-prism:hover {
+  border-color: rgba(143, 224, 170, 0.38) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.32) !important;
+}
+
+#newtrade .layer-prism i,
+#newtrade .workbench-subcol-system .layer-prism i {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  background: rgba(200, 168, 78, 0.16) !important;
+  color: #c8a84e !important;
+  border: 1px solid rgba(200, 168, 78, 0.32) !important;
+  display: grid !important;
+  place-items: center !important;
+  font-weight: 850 !important;
+  font-size: 13px !important;
+  flex-shrink: 0 !important;
+}
+
+#newtrade .layer-prism h3,
+#newtrade .workbench-subcol-system .layer-prism h3 {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  margin: 0 !important;
+  align-self: center !important;
+  color: #f2ede4 !important;
+  font-size: 14px !important;
+  font-weight: 850 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.01em !important;
+}
+
+#newtrade .layer-prism .layer-content,
+#newtrade .workbench-subcol-system .layer-content {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  justify-content: space-between !important;
+  height: 100% !important;
+}
+
+/* Card 1: Grade & Risk Budget */
+#newtrade .layer-quality-content {
+  display: grid !important;
+  grid-template-columns: auto 1fr !important;
+  gap: 8px 12px !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+#newtrade .layer-grade {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+#newtrade .layer-grade small,
+#newtrade .layer-metric small {
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: #89a99a !important;
+  margin-bottom: 2px !important;
+}
+
+#newtrade .layer-grade b {
+  font-size: 32px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1 !important;
+  text-shadow: 0 0 16px rgba(110, 231, 162, 0.3) !important;
+}
+
+#newtrade .layer-metric b {
+  font-size: 19px !important;
+  font-weight: 850 !important;
+  color: #34d399 !important;
+}
+
+#newtrade .layer-theoretical {
+  grid-column: 1 / -1 !important;
+  padding: 6px 10px !important;
+  background: rgba(0, 0, 0, 0.28) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+#newtrade .layer-theoretical small {
+  margin-bottom: 0 !important;
+}
+
+#newtrade .layer-theoretical b {
+  font-size: 14px !important;
+  color: #f2ede4 !important;
+}
+
+/* Cards 2 e 3: Limitadores e Exposição */
+#newtrade .layer-exposure-content,
+#newtrade .layer-portfolio-content {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+
+#newtrade .execution-limit,
+#newtrade .portfolio-reading {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 2px !important;
+  padding: 6px 10px !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .execution-limit small,
+#newtrade .portfolio-reading small {
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.07em !important;
+  color: #89a99a !important;
+  font-weight: 750 !important;
+}
+
+#newtrade .execution-limit b,
+#newtrade .portfolio-reading b {
+  font-size: 13.5px !important;
+  font-weight: 850 !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+#newtrade .execution-limit em {
+  font-size: 10px !important;
+  font-style: normal !important;
+  font-weight: 800 !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+}
+
+#newtrade .execution-limit em.is-limiting {
+  background: rgba(234, 179, 8, 0.2) !important;
+  color: #facc15 !important;
+  border: 1px solid rgba(234, 179, 8, 0.4) !important;
+}
+
+#newtrade .portfolio-reading em {
+  font-size: 11px !important;
+  font-style: normal !important;
+  color: #64748b !important;
+  margin-left: 4px !important;
+}
+
+#newtrade .layer-quality-content .layer-status,
+#newtrade .layer-exposure-content .layer-status,
+#newtrade .layer-portfolio-content .layer-status {
+  grid-column: 1 / -1 !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  margin-top: 4px !important;
+}
+
+/* 2. DIVISÓRIA HORIZONTAL LUMINOSA */
+#newtrade .workbench-subcol-divider {
+  display: block !important;
+  width: 100% !important;
+  height: 2px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, rgba(110, 231, 162, 0.05) 0%, rgba(110, 231, 162, 0.55) 25%, rgba(200, 168, 78, 0.65) 50%, rgba(110, 231, 162, 0.55) 75%, rgba(110, 231, 162, 0.05) 100%) !important;
+  box-shadow: 0 0 14px rgba(110, 231, 162, 0.2) !important;
+  margin: 6px 0 !important;
+  flex-shrink: 0 !important;
+  align-self: stretch !important;
+}
+
+/* 3. SEÇÃO VOCÊ */
+#newtrade .workbench-subcol-execution {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+}
+
+#newtrade .workbench-execution-top-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 14px !important;
+  width: 100% !important;
+  align-items: stretch !important;
+}
+
+#newtrade #workbenchExecutionMount {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  height: 100% !important;
+}
+
 #newtrade .workbench-subcol-execution .executed-quantity-control {
   margin: 0 !important;
-  padding: 11px 13px !important;
-  border: 1px solid rgba(143, 224, 170, 0.25) !important;
-  border-radius: 12px !important;
-  background: rgba(4, 21, 15, 0.6) !important;
+  padding: 14px 18px !important;
+  border: 1.5px solid rgba(143, 224, 170, 0.32) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(155deg, rgba(8, 34, 23, 0.9), rgba(4, 20, 14, 0.96)) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24) !important;
   box-sizing: border-box !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
 }
 
 #newtrade .workbench-subcol-execution .executed-quantity-control label {
   display: block !important;
-  margin-bottom: 5px !important;
-  color: #e5cb68 !important;
+  margin-bottom: 6px !important;
+  color: #6ee7a2 !important;
   font-size: 11px !important;
   font-weight: 850 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.08em !important;
+  letter-spacing: 0.12em !important;
 }
 
 #newtrade .workbench-subcol-execution .executed-quantity-control input {
   width: 100% !important;
   box-sizing: border-box !important;
-  padding: 9px 12px !important;
-  border: 1px solid rgba(175, 227, 195, 0.35) !important;
-  border-radius: 8px !important;
-  background: #0a2018 !important;
+  padding: 10px 14px !important;
+  border: 1.5px solid rgba(110, 231, 162, 0.45) !important;
+  border-radius: 10px !important;
+  background: #051a11 !important;
   color: #ffffff !important;
-  font-size: 20px !important;
-  font-weight: 850 !important;
+  font-size: 28px !important;
+  font-weight: 900 !important;
   text-align: center !important;
-  transition: all 0.15s ease !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.45) !important;
+  transition: all 0.18s ease !important;
 }
 
 #newtrade .workbench-subcol-execution .executed-quantity-control input:focus {
-  border-color: #6ee7a2 !important;
-  box-shadow: 0 0 0 3px rgba(110, 231, 162, 0.2) !important;
+  border-color: #34d399 !important;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.28), inset 0 2px 8px rgba(0, 0, 0, 0.45) !important;
   outline: none !important;
 }
 
 #newtrade .workbench-subcol-execution .executed-quantity-control small {
   display: block !important;
-  margin-top: 5px !important;
-  color: #b7cfbf !important;
-  font-size: 10.5px !important;
-  line-height: 1.35 !important;
+  margin-top: 6px !important;
+  color: #a4bfae !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+}
+
+#newtrade .final-size,
+#newtrade .workbench-subcol-execution .final-size {
+  background: linear-gradient(155deg, rgba(14, 52, 35, 0.9), rgba(7, 30, 20, 0.96)) !important;
+  border: 1.5px solid rgba(200, 168, 78, 0.4) !important;
+  border-radius: 14px !important;
+  padding: 14px 18px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(200, 168, 78, 0.25) !important;
+  text-align: center !important;
+  margin: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .final-size small {
+  display: block !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #c8a84e !important;
+  margin-bottom: 4px !important;
+}
+
+#newtrade .final-size strong {
+  display: block !important;
+  font-size: clamp(28px, 2.4vw, 38px) !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 22px rgba(255, 255, 255, 0.25) !important;
+  line-height: 1.1 !important;
+  margin: 2px 0 !important;
+}
+
+#newtrade .final-size span {
+  display: block !important;
+  color: #a4bfae !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+}
+
+/* Painel de Métricas e Botão de Ação */
+#newtrade .workbench-subcol-execution #workbenchSummary {
+  width: 100% !important;
+  margin-top: 0 !important;
+}
+
+#newtrade .workbench-subcol-execution .summary-box {
+  width: 100% !important;
+  margin-top: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+#newtrade .workbench-sizer .calc {
+  background: linear-gradient(155deg, rgba(9, 33, 23, 0.92), rgba(6, 24, 17, 0.96)) !important;
+  border: 1px solid rgba(143, 224, 170, 0.24) !important;
+  border-radius: 14px !important;
+  padding: 14px 18px !important;
+  margin: 0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .workbench-sizer .calc-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 8px 10px !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+#newtrade .workbench-sizer .calc-grid div {
+  border-top: none !important;
+  border-left: 2px solid rgba(143, 224, 170, 0.28) !important;
+  padding: 3px 8px !important;
+  text-align: left !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+#newtrade .workbench-sizer .calc-grid small {
+  font-size: 9.5px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: #89a99a !important;
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin-bottom: 2px !important;
+  font-weight: 750 !important;
+}
+
+#newtrade .workbench-sizer .calc-grid b {
+  font-size: 13px !important;
+  color: #f1faf3 !important;
+  font-weight: 850 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+}
+
+/* Botão Registrar Trade Proeminente */
+#newtrade button.primary,
+#newtrade .workbench-sizer .summary-box button.primary,
+#newtrade .mission-register-btn {
+  width: 100% !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #1b683e 0%, #2aa35c 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(143, 224, 170, 0.5) !important;
+  box-shadow: 0 6px 22px rgba(27, 104, 62, 0.42) !important;
+  font-size: 16px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.05em !important;
+  padding: 0 24px !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  transition: transform 0.18s, filter 0.18s, box-shadow 0.18s !important;
+  margin-top: 6px !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade button.primary:hover:not(:disabled),
+#newtrade .workbench-sizer .summary-box button.primary:hover:not(:disabled),
+#newtrade .mission-register-btn:hover:not(:disabled) {
+  filter: brightness(1.14) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 28px rgba(37, 110, 69, 0.55) !important;
+}
+
+/* Grid de 2 colunas para o topo da Missão (Quantidade e Position Size lado a lado) */
+#newtrade .op-top-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  gap: 14px !important;
+  width: 100% !important;
+  align-items: stretch !important;
+}
+
+#newtrade .op-top-grid .op-hero-card,
+#newtrade .op-top-grid .op-qty-row {
+  margin: 0 !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 4. RESPONSIVIDADE ESPECÍFICA DA ETAPA 3 */
+@media (max-width: 1100px) {
+  #newtrade .three-layers,
+  #newtrade .workbench-subcol-system .three-layers {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 800px) {
+  #newtrade .three-layers,
+  #newtrade .workbench-subcol-system .three-layers {
+    grid-template-columns: 1fr !important;
+  }
+
+  #newtrade .workbench-execution-top-row,
+  #newtrade .op-top-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  #newtrade .workbench-sizer .calc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 520px) {
+  #newtrade .workbench-sizer .calc-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
