@@ -4242,8 +4242,8 @@ body:has(#newtrade.active) .content {
   display: block !important;
   font-size: clamp(28px, 2.4vw, 38px) !important;
   font-weight: 900 !important;
-  color: #ffffff !important;
-  text-shadow: 0 0 22px rgba(255, 255, 255, 0.25) !important;
+  color: #fbbf24 !important;
+  text-shadow: 0 0 22px rgba(251, 191, 36, 0.4) !important;
   line-height: 1.1 !important;
   margin: 2px 0 !important;
 }
@@ -4569,3 +4569,176 @@ body:has(#newtrade.active) .content {
   cursor: auto !important;
   transition: filter 0.3s ease, opacity 0.3s ease !important;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   6. FAIXA HORIZONTAL DE DESTAQUE — MISSÃO ATIVA (COM IMAGEM ARTÍSTICA)
+   ══════════════════════════════════════════════════════════════════════════ */
+#newtrade .workbench-sizer.is-locked .workbench-mission-active-banner,
+#newtrade .workbench-mission-active-banner[style*="display: none"],
+#newtrade .workbench-mission-active-banner[style*="display:none"] {
+  display: none !important;
+}
+
+#newtrade .workbench-mission-active-banner {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  width: 100% !important;
+  padding: 20px 24px !important;
+  border-radius: 16px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 24px rgba(217, 119, 6, 0.16) !important;
+  background-color: #0b140f !important;
+  background-image:
+    linear-gradient(90deg,
+      rgba(10, 18, 14, 0.98) 0%,
+      rgba(12, 21, 16, 0.95) 45%,
+      rgba(16, 26, 19, 0.78) 65%,
+      rgba(20, 28, 20, 0.35) 85%,
+      rgba(20, 28, 20, 0.15) 100%),
+    url('../assets/mission-climber-banner.jpg') !important;
+  background-repeat: no-repeat !important;
+  background-position: right center !important;
+  background-size: cover !important;
+  margin-bottom: 6px !important;
+  animation: wbMissionFadeIn 0.35s ease-out !important;
+}
+
+@keyframes wbMissionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#newtrade .mission-banner-head {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+
+#newtrade .mission-banner-icon-badge {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(217, 119, 6, 0.42)) !important;
+  border: 1.5px solid rgba(251, 191, 36, 0.65) !important;
+  color: #fbbf24 !important;
+  display: grid !important;
+  place-items: center !important;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.35) !important;
+  flex-shrink: 0 !important;
+}
+
+#newtrade .mission-banner-title-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+#newtrade .mission-banner-eyebrow {
+  font-size: 10px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #fbbf24 !important;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.4) !important;
+}
+
+#newtrade .mission-banner-title {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  color: #fef3c7 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+  line-height: 1.2 !important;
+}
+
+#newtrade .mission-banner-desc {
+  margin: 0 !important;
+  font-size: 13px !important;
+  color: #e5e7eb !important;
+  line-height: 1.55 !important;
+  max-width: 720px !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+#newtrade .mission-banner-metrics-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  align-items: center !important;
+  margin-top: 2px !important;
+}
+
+#newtrade .mission-metric-pill {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  padding: 8px 16px !important;
+  border-radius: 10px !important;
+  background: rgba(8, 16, 12, 0.8) !important;
+  border: 1px solid rgba(245, 158, 11, 0.28) !important;
+  backdrop-filter: blur(8px) !important;
+  min-width: 140px !important;
+  box-sizing: border-box !important;
+}
+
+#newtrade .mission-metric-pill.is-effective {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.32)) !important;
+  border-color: rgba(245, 158, 11, 0.65) !important;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.22) !important;
+}
+
+#newtrade .mission-metric-label {
+  font-size: 10px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #9ca3af !important;
+}
+
+#newtrade .mission-metric-pill.is-effective .mission-metric-label {
+  color: #fde68a !important;
+  font-weight: 850 !important;
+}
+
+#newtrade .mission-metric-val {
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  line-height: 1.15 !important;
+}
+
+#newtrade .mission-metric-val.is-grade {
+  color: #34d399 !important;
+}
+
+#newtrade .mission-metric-val.is-limit {
+  color: #fbbf24 !important;
+}
+
+#newtrade .mission-metric-val.is-effective {
+  color: #fef08a !important;
+  font-size: 20px !important;
+  text-shadow: 0 0 12px rgba(254, 240, 138, 0.4) !important;
+}
+
+@media (max-width: 800px) {
+  #newtrade .workbench-mission-active-banner {
+    padding: 16px !important;
+    background-position: right 15% center !important;
+  }
+  #newtrade .mission-banner-metrics-grid {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+}
+
