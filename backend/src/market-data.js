@@ -24,13 +24,13 @@ const refreshControl = createRefreshControl({ directory: CONTROL_PATH, readCache
 const INDEX_HISTORY_RANGE = process.env.BRAPI_INDEX_HISTORY_RANGE || '3mo';
 const FALLBACK_SYMBOLS = (process.env.IBOV_SYMBOLS || 'PETR4,VALE3,ITUB4,BBAS3,BBDC4,WEGE3,PRIO3,SUZB3')
   .split(',').map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
-const FII_SYMBOLS = `RBRL11 BTCI11 DEVA11 SPXS11 RBRP11 RCRB11 BRCR11 RECR11 HCTR11 RBRY11 RBRR11 VGIP11 MCCI11 VGIR11 CPTS11 RZAK11 RBRX11 AFHI11 RZAT11 BTLG11 SNCI11 SNFF11 BROF11 ALZR11 BTAL11 XPML11 BRCO11 KNIP11 GTWR11 KISU11 KNRI11 TEPP11 RBVA11 HGRU11 BCIA11 KFOF11 GARE11 HGBS11 XPCI11 VILG11 TRXF11 HSLG11 TRBL11 BCRI11 HSML11 HGLG11 VISC11 VGHF11 MXRF11 JSAF11 PVBI11 CYCR11 HABT11 OUJP11 MFII11 TGAR11 KNSC11 WHGR11 URPR11 LVBI11 KNCR11 VINO11 PORD11 VRTA11 HSAF11 KNHY11 VCJR11 TVRI11 HTMX11 XPSF11 KCRE11 HFOF11 CACR11 XPLG11 HGRE11 JSRE11 RZTR11 HGCR11 GGRC11 FATN11 CLIN11 KNHF11 KORE11 SNEL11 BPML11 CPSH11 GZIT11 KIVO11 KNUQ11 MANA11 MCRE11 ITRI11 BBIG11 VGRI11 ICRI11 LIFE11 BTHF11 TOPP11 VRTM11 PMLL11 AZPL11 PCIP11 PSEC11 RPRI11 RBFM11 IRIM11`.split(/\s+/).filter(Boolean);
+const FII_SYMBOLS = `RBRL11 BTCI11 DEVA11 SPXS11 RBRP11 RCRB11 BRCR11 RECR11 HCTR11 RBRY11 RBRR11 VGIP11 MCCI11 VGIR11 CPTS11 RZAK11 RBRX11 AFHI11 RZAT11 BTLG11 SNCI11 BROF11 ALZR11 BTAL11 XPML11 BRCO11 KNIP11 GTWR11 KNRI11 TEPP11 RBVA11 HGRU11 BCIA11 KFOF11 GARE11 HGBS11 XPCI11 VILG11 TRXF11 HSLG11 TRBL11 BCRI11 HSML11 HGLG11 VISC11 VGHF11 MXRF11 JSAF11 PVBI11 CYCR11 HABT11 OUJP11 MFII11 TGAR11 KNSC11 WHGR11 URPR11 LVBI11 KNCR11 VINO11 PORD11 VRTA11 HSAF11 KNHY11 VCJR11 TVRI11 HTMX11 XPSF11 KCRE11 HFOF11 CACR11 XPLG11 HGRE11 JSRE11 RZTR11 HGCR11 GGRC11 FATN11 CLIN11 KNHF11 KORE11 SNEL11 BPML11 CPSH11 GZIT11 KIVO11 KNUQ11 MANA11 MCRE11 ITRI11 BBIG11 VGRI11 ICRI11 LIFE11 BTHF11 TOPP11 VRTM11 PMLL11 AZPL11 PCIP11 PSEC11 RPRI11 RBFM11 IRIM11`.split(/\s+/).filter(Boolean);
 const FII_SEGMENTS = {
   BTLG11:'Logística',BRCO11:'Logística',HGLG11:'Logística',HSLG11:'Logística',LVBI11:'Logística',VILG11:'Logística',XPLG11:'Logística',GGRC11:'Logística',TRBL11:'Logística',AZPL11:'Logística',
   XPML11:'Shopping',HGBS11:'Shopping',HSML11:'Shopping',VISC11:'Shopping',BPML11:'Shopping',PMLL11:'Shopping',
   BRCR11:'Lajes corporativas',GTWR11:'Lajes corporativas',PVBI11:'Lajes corporativas',RBRP11:'Lajes corporativas',RCRB11:'Lajes corporativas',HGRE11:'Lajes corporativas',JSRE11:'Lajes corporativas',TEPP11:'Lajes corporativas',VINO11:'Lajes corporativas',LIFE11:'Lajes corporativas',
   BTCI11:'Papel/CRI',DEVA11:'Papel/CRI',RECR11:'Papel/CRI',HCTR11:'Papel/CRI',RBRY11:'Papel/CRI',RBRR11:'Papel/CRI',VGIP11:'Papel/CRI',MCCI11:'Papel/CRI',VGIR11:'Papel/CRI',CPTS11:'Papel/CRI',RZAK11:'Papel/CRI',AFHI11:'Papel/CRI',KNIP11:'Papel/CRI',XPCI11:'Papel/CRI',BCRI11:'Papel/CRI',MXRF11:'Papel/CRI',HABT11:'Papel/CRI',OUJP11:'Papel/CRI',KNSC11:'Papel/CRI',KNCR11:'Papel/CRI',VRTA11:'Papel/CRI',KNHY11:'Papel/CRI',VCJR11:'Papel/CRI',KCRE11:'Papel/CRI',CACR11:'Papel/CRI',HGCR11:'Papel/CRI',CLIN11:'Papel/CRI',KNHF11:'Papel/CRI',KIVO11:'Papel/CRI',KNUQ11:'Papel/CRI',MCRE11:'Papel/CRI',ICRI11:'Papel/CRI',PCIP11:'Papel/CRI',PSEC11:'Papel/CRI',RPRI11:'Papel/CRI',IRIM11:'Papel/CRI',
-  RBRL11:'Híbridos',RBRX11:'Híbridos',SNFF11:'Híbridos',KISU11:'Híbridos',KFOF11:'Híbridos',BCIA11:'Híbridos',JSAF11:'Híbridos',TGAR11:'Híbridos',XPSF11:'Híbridos',HFOF11:'Híbridos',BTHF11:'Híbridos',RBFM11:'Híbridos'
+  RBRL11:'Híbridos',RBRX11:'Híbridos',KFOF11:'Híbridos',BCIA11:'Híbridos',JSAF11:'Híbridos',TGAR11:'Híbridos',XPSF11:'Híbridos',HFOF11:'Híbridos',BTHF11:'Híbridos',RBFM11:'Híbridos'
 };
 const FII_NAME_MAP = {
   HGLG11: 'CSHG Logística', KNIP11: 'Kinea Índices de Preços', KNCR11: 'Kinea Rendimentos Imobiliários',
@@ -56,8 +56,8 @@ const FII_NAME_MAP = {
   RBRP11: 'RBR Properties', RBRR11: 'RBR Rendimento High Grade', RBRY11: 'RBR Crédito Imobiliário',
   RBRL11: 'RBR Logística', RBRX11: 'RBR Plus Multiestratégia', RBVA11: 'Rio Bravo Renda Varejo',
   RBFM11: 'Rio Bravo Renda Comercial', RCRB11: 'Rio Bravo Renda Corporativa', RECR11: 'REC Recebíveis Imobiliários',
-  SNCI11: 'Suno Recebíveis Imobiliários', SNFF11: 'Suno Fundo de Fundos', SNEL11: 'Suno Energias Limpas',
-  KISU11: 'Kilima FIC de FII SUNO 30', KIVO11: 'Kilima Vesta', TEPP11: 'Tellus Properties',
+  SNCI11: 'Suno Recebíveis Imobiliários', SNEL11: 'Suno Energias Limpas',
+  KIVO11: 'Kilima Vesta', TEPP11: 'Tellus Properties',
   VRTA11: 'Fator Verità', VRTM11: 'Fator Verità Multiestratégia', FATN11: 'BR Capital Distribuição',
   CLIN11: 'Clave Índices de Preços', DEVA11: 'Devant Recebíveis Imobiliários', URPR11: 'Urca Prime Renda',
   HABT11: 'Habitat II', OUJP11: 'Ourinvest JPP', AFHI11: 'AF Invest Cri',
@@ -577,7 +577,6 @@ function bdrCatalogFromMetadata(metadata) {
 const STOCK_CATALOG_FALLBACK = {
   EMBJ3: { name: 'EMBRAER S.A.', sector: 'Tecnologia eletrônica' },
   AXIA3: { name: 'AXIA ENERGIA S.A.', sector: 'Serviços públicos' },
-  AXIA6: { name: 'AXIA ENERGIA S.A.', sector: 'Serviços públicos' },
   AXIA7: { name: 'AXIA ENERGIA S.A.', sector: 'Serviços públicos' },
   MBRF3: { name: 'MBRF GLOBAL FOODS COMPANY S.A.', sector: 'Bens de consumo não duráveis' },
   RIAA3: { name: 'RIACHUELO S.A.', sector: 'Comércio varejista' },
@@ -617,15 +616,25 @@ function bdrCatalogFromCache(cache) {
     };
   });
 }
+function historyLastDate(history) {
+  if (!Array.isArray(history) || !history.length) return null;
+  const last = history[history.length - 1];
+  return last?.date || last?.time || null;
+}
 async function collectClassRelativeStrength({ assetClass, benchmarkSymbol, catalog }) {
   const benchmarkHistory = await fetchBenchmarkHistory(benchmarkSymbol);
   const benchmarkReturns = returns(benchmarkHistory);
+  const benchmarkLastDate = historyLastDate(benchmarkHistory);
   const histories = await fetchHistories(catalog.map((item) => item.symbol));
   const collected = catalog.map((item) => {
     const history = histories.get(item.symbol);
     if (!history) return { ...item, error: `Histórico indisponível para ${item.symbol}` };
     const assetReturns = returns(history);
     if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) return { ...item, error: `Histórico incompleto para ${item.symbol}` };
+    const assetLastDate = historyLastDate(history);
+    if (benchmarkLastDate && assetLastDate && assetLastDate < benchmarkLastDate) {
+      return { ...item, error: `Ativo expirado ou sem negociação no fechamento (${assetLastDate} < ${benchmarkLastDate})` };
+    }
     return {
       ...item,
       ...assetReturns,
@@ -641,11 +650,16 @@ async function collectPeerRelativeStrength({ assetClass, catalog }) {
   const histories = await fetchHistories(catalog.map((item) => item.symbol));
   const benchmarkHistory = peerBenchmarkHistory(histories);
   const benchmarkReturns = returns(benchmarkHistory);
+  const benchmarkLastDate = historyLastDate(benchmarkHistory);
   const collected = catalog.map((item) => {
     const history = histories.get(item.symbol);
     if (!history) return { ...item, error: `Histórico indisponível para ${item.symbol}` };
     const assetReturns = returns(history);
     if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) return { ...item, error: `Histórico incompleto para ${item.symbol}` };
+    const assetLastDate = historyLastDate(history);
+    if (benchmarkLastDate && assetLastDate && assetLastDate < benchmarkLastDate) {
+      return { ...item, error: `Ativo expirado ou sem negociação no fechamento (${assetLastDate} < ${benchmarkLastDate})` };
+    }
     return { ...item, ...assetReturns, scan: scanMetrics(history), relativeTrend: relativeTrend(history, benchmarkHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
   });
   const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
@@ -742,18 +756,22 @@ async function collectMarketData() {
   let stocksLatestDate = null;
   for (const list of histories.values()) {
     if (Array.isArray(list) && list.length) {
-      const d = list[list.length - 1]?.date;
+      const d = historyLastDate(list);
       if (d && (!stocksLatestDate || d > stocksLatestDate)) {
         stocksLatestDate = d;
       }
     }
   }
-  const dataAsOf = stocksLatestDate || (ibovHistory.at(-1)?.date) || null;
+  const dataAsOf = stocksLatestDate || historyLastDate(ibovHistory) || null;
   const collected = symbols.map((symbol) => {
     const history = histories.get(symbol);
     if (!history) return { symbol, error: `Histórico indisponível para ${symbol}` };
     const assetReturns = returns(history);
     if (!Number.isFinite(assetReturns.m1) || !Number.isFinite(assetReturns.m3)) return { symbol, error: `Histórico incompleto para ${symbol}` };
+    const assetLastDate = historyLastDate(history);
+    if (dataAsOf && assetLastDate && assetLastDate < dataAsOf) {
+      return { symbol, error: `Ativo expirado ou sem negociação no fechamento (${assetLastDate} < ${dataAsOf})` };
+    }
     const details = metadata.get(symbol) || { name: symbol, sector: 'Não classificado' };
     return { symbol, ...details, ...assetReturns, scan: scanMetrics(history), history };
   });

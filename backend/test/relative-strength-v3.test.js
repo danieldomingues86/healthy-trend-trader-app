@@ -47,7 +47,7 @@ test('Força Relativa: calcula e entrega dados do Semanal (Position Trade)', asy
   assert.ok(weekly.bdr, 'Universo bdr semanal deve existir');
 
   assert.strictEqual(weekly.stock_ibov.items.length, 76, 'Ibov semanal deve conter 76 ativos');
-  assert.strictEqual(weekly.fii.items.length, 106, 'FIIs semanal deve conter 106 ativos');
+  assert.strictEqual(weekly.fii.items.length, 104, 'FIIs semanal deve conter 104 ativos');
   assert.strictEqual(weekly.bdr.items.length, 34, 'BDRs semanal deve conter 34 ativos');
 
   const topWeekly = weekly.stock_ibov.items[0];
@@ -95,14 +95,14 @@ test('Força Relativa: Cache estático do frontend contém todos os universos Di
 
   // Daily
   assert.strictEqual(staticCache.daily.stock_ibov.items.length, 76, '76 Ibov Diário');
-  assert.strictEqual(staticCache.daily.stock_other.items.length, 201, '201 Demais ações Diário');
-  assert.strictEqual(staticCache.daily.fii.items.length, 106, '106 FIIs Diário');
+  assert.strictEqual(staticCache.daily.stock_other.items.length, 199, '199 Demais ações Diário');
+  assert.strictEqual(staticCache.daily.fii.items.length, 104, '104 FIIs Diário');
   assert.strictEqual(staticCache.daily.bdr.items.length, 34, '34 BDRs Diário');
 
   // Weekly
   assert.strictEqual(staticCache.weekly.stock_ibov.items.length, 76, '76 Ibov Semanal');
-  assert.strictEqual(staticCache.weekly.stock_other.items.length, 201, '201 Demais ações Semanal');
-  assert.strictEqual(staticCache.weekly.fii.items.length, 106, '106 FIIs Semanal');
+  assert.strictEqual(staticCache.weekly.stock_other.items.length, 199, '199 Demais ações Semanal');
+  assert.strictEqual(staticCache.weekly.fii.items.length, 104, '104 FIIs Semanal');
   assert.strictEqual(staticCache.weekly.bdr.items.length, 34, '34 BDRs Semanal');
 
   // Nasdaq

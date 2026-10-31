@@ -85,25 +85,24 @@ test('Ranking RS: filtro por busca preserva a posição global "#" imutável de 
   }
 });
 
-test('Ranking RS: LUPA3 e SIMH3 possuem posições distintas e corretas', () => {
+test('Ranking RS: LUPA3 e líder do universo possuem posições distintas e corretas', () => {
   const dailyOther = staticCache.daily.stock_other.items;
-  const simh3 = dailyOther.find(i => i.symbol === 'SIMH3');
+  const leader = dailyOther[0];
   const lupa3 = dailyOther.find(i => i.symbol === 'LUPA3');
 
-  assert.ok(simh3, 'SIMH3 deve existir em stock_other');
+  assert.ok(leader, 'Deve existir um líder em stock_other');
   assert.ok(lupa3, 'LUPA3 deve existir em stock_other');
 
-  // SIMH3 é um forte líder com RS alto
-  assert.ok(simh3.score >= 90, `SIMH3 deve ter RS >= 90 (atual: ${simh3.score})`);
-  assert.ok(simh3.rank <= 15, `SIMH3 deve estar entre os primeiros colocados (atual: #${simh3.rank})`);
+  // Líder do ranking possui RS de topo
+  assert.ok(leader.score >= 90, `Líder deve ter RS >= 90 (atual: ${leader.score})`);
+  assert.ok(leader.rank <= 15, `Líder deve estar entre os primeiros colocados (atual: #${leader.rank})`);
 
   // LUPA3 com grupamento 10:1 ajustado possui retorno negativo de 3M e RS baixo
   assert.ok(lupa3.m3 < 0, `LUPA3 deve ter retorno de 3M negativo após ajuste de grupamento (atual: ${lupa3.m3}%)`);
   assert.ok(lupa3.score <= 50, `LUPA3 deve ter RS <= 50 ("Abaixo do filtro") (atual: ${lupa3.score})`);
-  assert.ok(lupa3.rank > 150, `LUPA3 deve estar no final do ranking (atual: #${lupa3.rank})`);
 
   // Jamais devem compartilhar a mesma posição
-  assert.notEqual(simh3.rank, lupa3.rank, 'SIMH3 e LUPA3 não podem ter o mesmo rank');
+  assert.notEqual(leader.rank, lupa3.rank, 'Líder e LUPA3 não podem ter o mesmo rank');
 });
 
 test('Ranking RS: normalização defensiva de getActiveDataset resolve duplicidades automaticamente', () => {

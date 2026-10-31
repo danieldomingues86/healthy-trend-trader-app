@@ -122,8 +122,10 @@ test('corporate-events: corrige NIKE34 apos mudanca de paridade 5:1 em 13/10/202
     return ema;
   }
 
-  const ema10 = calcEma(adjusted, 10);
-  const ema72 = calcEma(adjusted, 72);
+  const idx27 = adjusted.findIndex(c => c.time === '2026-10-27');
+  const series27 = idx27 >= 0 ? adjusted.slice(0, idx27 + 1) : adjusted;
+  const ema10 = calcEma(series27, 10);
+  const ema72 = calcEma(series27, 72);
   assert.ok(Math.abs(ema10 - 95.32) < 0.5, 'EMA 10 ajustada deve estar em ~95 (Profit: 96,02)');
   assert.ok(Math.abs(ema72 - 99.07) < 0.5, 'EMA 72 ajustada deve estar em ~99 (Profit: 98,61)');
   assert.ok(ema10 < ema72, 'EMA 10 deve estar abaixo da EMA 72 (tendencia de queda)');
