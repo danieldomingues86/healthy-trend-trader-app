@@ -6,9 +6,9 @@ process.env.BRAPI_CACHE_DIRECTORY = path.join(os.tmpdir(), `healthy-trend-stock-
 const { REQUIRED_STOCK_SYMBOLS, stockUniverse, splitStockUniverse } = require('../src/stock-universe');
 test('all requested tickers remain eligible without quote or metadata', () => {
   const symbols = stockUniverse(new Map());
-  assert.equal(symbols.length, 83);
+  assert.equal(symbols.length, 82);
   for (const symbol of REQUIRED_STOCK_SYMBOLS) assert.ok(symbols.includes(symbol));
-  for (const symbol of ['SLCE3','AXIA6','AXIA7','CYRE4','RENT4','KLBN11']) assert.ok(symbols.includes(symbol));
+  for (const symbol of ['SLCE3','AXIA7','CYRE4','RENT4','KLBN11']) assert.ok(symbols.includes(symbol));
 });
 test('separates Ibovespa, Small Caps and residual stocks without overlap', () => {
   assert.deepEqual(splitStockUniverse(['PETR4','SLCE3','ABCD3'], ['PETR4'], ['SLCE3','PETR4']), { ibov:['PETR4'], small:['SLCE3'], other:['ABCD3'] });

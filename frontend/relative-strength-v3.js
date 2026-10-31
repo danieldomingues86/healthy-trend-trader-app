@@ -191,13 +191,18 @@
     window.relativeStrengthSearchQuery = '';
     window.relativeStrengthSelectedGroup = '';
     window.relativeStrengthCurrentPage = 1;
-    if (market === 'b3' && window.relativeStrengthClassesState) {
-      if (!['stock_ibov', 'stock_other', 'fii', 'bdr'].includes(window.relativeStrengthClassesState.selected)) {
-        window.relativeStrengthClassesState.selected = 'stock_ibov';
+    if (market === 'b3') {
+      if (window.relativeStrengthClassesState) {
+        if (!['stock_ibov', 'stock_other', 'fii', 'bdr'].includes(window.relativeStrengthClassesState.selected)) {
+          window.relativeStrengthClassesState.selected = 'stock_ibov';
+        }
       }
-    }
-    renderRelativeStrengthClassesPage();
-    if (market === 'nasdaq' && typeof window.fetchNasdaqData === 'function') {
+      renderRelativeStrengthClassesPage();
+      if (typeof window.loadRelativeStrengthClassesForTimeframe === 'function') {
+        window.loadRelativeStrengthClassesForTimeframe(window.currentRelativeStrengthTimeframe || 'daily').catch(() => {});
+      }
+    } else if (market === 'nasdaq' && typeof window.fetchNasdaqData === 'function') {
+      renderRelativeStrengthClassesPage();
       window.fetchNasdaqData(window.currentRelativeStrengthTimeframe || 'daily').then(() => {
         renderRelativeStrengthClassesPage();
       }).catch(() => {});
@@ -267,50 +272,104 @@
     updateTableAndPaginationOnly();
   };
 
-  window.loadRelativeStrengthClassesForTimeframe = async function (timeframe = 'daily') {
-    if (!window.relativeStrengthClassesState) return;
+  let inFlightClassesPromises = {};
+
+  window.loadRelativeStrengthClassesForTimeframe = async function (timeframe = 'daily', force = false) {
+    const state = window.relativeStrengthClassesState;
+    if (!state) return;
     const isWeekly = timeframe === 'weekly';
-    const endpoint = `/api/relative-strength/classes${isWeekly ? '?timeframe=weekly' : ''}`;
-    try {
-      let payload;
-      if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
-        payload = await window.healthyTrendApi.request(endpoint);
-      } else {
-        const url = (window.MARKET_DATA_API_URL || 'http://localhost:8787/api') + endpoint;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Classes indisponíveis');
-        payload = await res.json();
-      }
-      const classes = payload.classes || {};
-      window.relativeStrengthClassesState.updatedAt = payload.updatedAt || null;
-      window.relativeStrengthClassesState.dataAsOf = payload.dataAsOf || null;
-      window.relativeStrengthClassesState.source = payload.source || null;
-      window.relativeStrengthClassesState.timeframe = payload.timeframe || timeframe;
-      if (isWeekly) {
-        window.relativeStrengthClassesState.weeklyClasses = classes;
-      } else {
-        window.relativeStrengthClassesState.dailyClasses = classes;
-      }
+    const cacheKey = isWeekly ? 'weekly' : 'daily';
+
+    // Se já tivermos dados frescos confirmados pelo backend para este timeframe e não for force, reaproveita
+    if (!force && state[`${cacheKey}Fresh`] && state[`${cacheKey}Classes`]) {
       if (window.currentRelativeStrengthTimeframe === timeframe) {
-        window.relativeStrengthClassesState.classes = classes;
+        state.classes = state[`${cacheKey}Classes`];
         renderRelativeStrengthClassesPage();
       }
-      window.relativeStrengthClassesState.error = false;
-    } catch (err) {
-      console.info('[rs-v3] Cache offline ativo para classes de força relativa (' + timeframe + ').');
-      const staticCache = window.__relativeStrengthStaticCache;
-      if (staticCache && staticCache[timeframe]) {
-        if (isWeekly) {
-          window.relativeStrengthClassesState.weeklyClasses = window.relativeStrengthClassesState.weeklyClasses || staticCache.weekly;
+      return state[`${cacheKey}Classes`];
+    }
+
+    if (inFlightClassesPromises[timeframe]) {
+      return inFlightClassesPromises[timeframe];
+    }
+
+    const endpoint = `/api/relative-strength/classes${isWeekly ? '?timeframe=weekly' : ''}`;
+    state.loading = true;
+
+    inFlightClassesPromises[timeframe] = (async () => {
+      try {
+        let payload;
+        if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
+          payload = await window.healthyTrendApi.request(endpoint);
         } else {
-          window.relativeStrengthClassesState.dailyClasses = window.relativeStrengthClassesState.dailyClasses || staticCache.daily;
+          const url = (window.MARKET_DATA_API_URL || 'http://localhost:8787/api') + endpoint;
+          const res = await fetch(url, { cache: 'no-store' });
+          if (!res.ok) throw new Error('Classes indisponíveis na API');
+          payload = await res.json();
         }
-        if (window.currentRelativeStrengthTimeframe === timeframe && (!window.relativeStrengthClassesState.classes || !window.relativeStrengthClassesState.classes.stock_ibov?.items?.length)) {
-          window.relativeStrengthClassesState.classes = staticCache[timeframe];
+
+        const classes = payload.classes || {};
+        state.updatedAt = payload.updatedAt || null;
+        state.dataAsOf = payload.dataAsOf || null;
+        state.source = payload.source || null;
+        state.timeframe = payload.timeframe || timeframe;
+        state.error = false;
+        state.offlineFallback = false;
+
+        if (isWeekly) {
+          state.weeklyClasses = classes;
+          state.weeklyDataAsOf = payload.dataAsOf;
+          state.weeklyUpdatedAt = payload.updatedAt;
+          state.weeklySource = payload.source;
+          state.weeklyFresh = true;
+        } else {
+          state.dailyClasses = classes;
+          state.dailyDataAsOf = payload.dataAsOf;
+          state.dailyUpdatedAt = payload.updatedAt;
+          state.dailySource = payload.source;
+          state.dailyFresh = true;
+        }
+
+        state.classes = classes;
+        state.loading = false;
+
+        if (window.currentRelativeStrengthTimeframe === timeframe) {
           renderRelativeStrengthClassesPage();
         }
+        return classes;
+      } catch (err) {
+        console.warn('[rs-v3] API de Força Relativa indisponível (' + timeframe + '), usando fallback offline:', err.message);
+        state.error = true;
+        state.offlineFallback = true;
+        state.loading = false;
+
+        const staticCache = window.__relativeStrengthStaticCache;
+        if (staticCache && staticCache[timeframe]) {
+          const fallbackClasses = staticCache[timeframe];
+          if (isWeekly) {
+            state.weeklyClasses = state.weeklyClasses || fallbackClasses;
+            state.weeklyDataAsOf = staticCache.dataAsOf;
+            state.weeklySource = `${staticCache.source} (Offline)`;
+            state.weeklyFresh = false;
+          } else {
+            state.dailyClasses = state.dailyClasses || fallbackClasses;
+            state.dailyDataAsOf = staticCache.dataAsOf;
+            state.dailySource = `${staticCache.source} (Offline)`;
+            state.dailyFresh = false;
+          }
+          if (window.currentRelativeStrengthTimeframe === timeframe) {
+            state.classes = isWeekly ? state.weeklyClasses : state.dailyClasses;
+            state.dataAsOf = isWeekly ? state.weeklyDataAsOf : state.dailyDataAsOf;
+            state.source = isWeekly ? state.weeklySource : state.dailySource;
+            renderRelativeStrengthClassesPage();
+          }
+        }
+      } finally {
+        delete inFlightClassesPromises[timeframe];
       }
-    }
+    })();
+
+    return inFlightClassesPromises[timeframe];
   };
 
   // --- Filter and Pagination Computations ---
@@ -379,9 +438,15 @@
       bdr: 'Universo BDR'
     };
 
-    const rawDate = state.dataAsOf || state.updatedAt || window.__relativeStrengthStaticCache?.dataAsOf || '2026-10-07';
-    const dateLabel = formatDisplayDate(rawDate);
-    const sourceLabel = timeframe === 'weekly' ? 'B3 (COTAHIST · Semanal)' : 'B3 (COTAHIST)';
+    const isWeekly = timeframe === 'weekly';
+    const isFresh = isWeekly ? Boolean(state.weeklyFresh) : Boolean(state.dailyFresh);
+    const isOffline = Boolean(state.offlineFallback) || (!isFresh && !state.classes);
+    const effectiveDataAsOf = (isWeekly ? (state.weeklyDataAsOf || state.dataAsOf) : (state.dailyDataAsOf || state.dataAsOf)) || window.__relativeStrengthStaticCache?.dataAsOf || '2026-10-07';
+    const dateLabel = formatDisplayDate(effectiveDataAsOf);
+    let sourceLabel = isWeekly ? 'B3 (COTAHIST · Semanal)' : 'B3 (COTAHIST)';
+    if (isOffline) {
+      sourceLabel += ' · ' + text('Dados em Cache Offline', 'Offline Cached Data');
+    }
 
     // Normalização defensiva: assegura posições globais imutáveis 1..N e ordenação consistente por força relativa
     const rawItems = activeClass.items || [];
@@ -590,6 +655,19 @@
 
   function renderTableRows(pagedItems, timeframe, isFii) {
     if (!pagedItems || pagedItems.length === 0) {
+      const state = window.relativeStrengthClassesState;
+      if (state?.loading) {
+        return `
+          <tr>
+            <td colspan="9">
+              <div class="rs-table-empty">
+                <span class="rs-spinner" aria-hidden="true">⏳</span>
+                <p>${text('Carregando ranking oficial atualizado da B3...', 'Loading official updated B3 ranking...')}</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
       return `
         <tr>
           <td colspan="9">
@@ -888,13 +966,19 @@
     window.renderRelativeStrengthClassesPage = renderRelativeStrengthWorkspace;
   }
 
-  // Initial call if document is already ready
-  if (typeof document !== 'undefined') {
+  // Initial call if document is already ready — carrega dados frescos da API automaticamente
+  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    const initWorkspace = () => {
+      renderRelativeStrengthWorkspace();
+      if (typeof window.loadRelativeStrengthClassesForTimeframe === 'function') {
+        window.loadRelativeStrengthClassesForTimeframe(window.currentRelativeStrengthTimeframe || 'daily').catch(() => {});
+      }
+    };
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      setTimeout(renderRelativeStrengthWorkspace, 20);
+      setTimeout(initWorkspace, 20);
     } else {
       document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(renderRelativeStrengthWorkspace, 20);
+        setTimeout(initWorkspace, 20);
       });
     }
   }
