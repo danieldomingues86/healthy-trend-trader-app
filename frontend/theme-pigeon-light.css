@@ -1,0 +1,1602 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   THE HEALTHY TREND TRADER — TEMA PIGEON LIGHT
+   Conceito: Leveza, clareza mental, tranquilidade e liberdade para operar
+   Inspirado no céu sereno e voo suave de pomba branca
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Tokens Semânticos e Paleta Root (Pigeon Light) ──────────────── */
+body[data-theme="pigeon"] {
+  --ink: #304B5B;
+  --ink-2: #213845;
+  --ink-3: #182B36;
+  --paper: #F5FAFD;
+  --paper-2: #EDF6FA;
+  --surface: #FFFFFF;
+  --surface-2: #F0F7FB;
+  --surface-alt: #E8F3F8;
+  --muted: #718A99;
+  --line: #DCE8EF;
+  --line-light: #EBF3F8;
+  --mint: #79BBD6;
+  --lime: #98CEE4;
+  --good: #16a34a;
+  --good-text: #15803d;
+  --warn: #d97706;
+  --bad: #dc2626;
+  --white: #FFFFFF;
+  --gold: #58A6CA;
+  --gold-light: #79BBD6;
+  --gold-deep: #2A6885;
+  --primary: #79BBD6;
+  --primary-hover: #58A6CA;
+  --primary-soft: #DCEEF7;
+  --primary-text: #FFFFFF;
+  --hover-surface: #E4F2F9;
+  --active-surface: #D4EAF6;
+  --shadow: 0 18px 45px rgba(48, 75, 91, 0.08);
+  --soft: 0 8px 24px rgba(48, 75, 91, 0.05);
+
+  background: #F5FAFD !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"]:before {
+  opacity: 0.015;
+}
+
+/* ── 2. Estrutura Global e Shell ────────────────────────────────────── */
+body[data-theme="pigeon"] .app {
+  background: radial-gradient(circle at 75% 0%, rgba(121, 187, 214, 0.12), transparent 35%), #F5FAFD;
+  color: #304B5B;
+}
+
+body[data-theme="pigeon"] .sidebar {
+  background: #EDF6FA !important;
+  border-right: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+  box-shadow: 4px 0 24px rgba(48, 75, 91, 0.04) !important;
+}
+
+body[data-theme="pigeon"] .brand {
+  border-bottom: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .brand strong {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .brand small {
+  color: #58A6CA !important;
+  font-weight: 700 !important;
+}
+
+body[data-theme="pigeon"] .mark {
+  border-color: #79BBD6 !important;
+  background: #DCEEF7 !important;
+}
+
+body[data-theme="pigeon"] .mark:before {
+  border-color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] .nav-label {
+  color: #718A99 !important;
+  font-weight: 750 !important;
+}
+
+body[data-theme="pigeon"] .nav button {
+  color: #486577 !important;
+}
+
+body[data-theme="pigeon"] .nav button:hover {
+  background: #E4F2F9 !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .nav button.active {
+  background: #D4EAF6 !important;
+  color: #182B36 !important;
+  font-weight: 750 !important;
+  box-shadow: inset 3px 0 0 #58A6CA !important;
+}
+
+/* Sidebar V4 / Navegação Expandida */
+body[data-theme="pigeon"] .sidebar-btn {
+  color: #486577 !important;
+}
+
+body[data-theme="pigeon"] .sidebar-btn:hover {
+  background: #E4F2F9 !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .sidebar-btn.active {
+  background: linear-gradient(105deg, #79BBD6, #58A6CA) !important;
+  color: #FFFFFF !important;
+  font-weight: 750 !important;
+  box-shadow: 0 4px 14px rgba(88, 166, 202, 0.25) !important;
+}
+
+body[data-theme="pigeon"] .sidebar-btn.active .sidebar-btn-desc {
+  color: #EBF7FC !important;
+}
+
+body[data-theme="pigeon"] .flyout-menu {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 16px 40px rgba(48, 75, 91, 0.12) !important;
+}
+
+body[data-theme="pigeon"] .flyout-group-title {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .flyout-item-link {
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .flyout-item-link:hover {
+  background: #F0F7FB !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .flyout-item-link.active {
+  background: #D4EAF6 !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .flyout-item-link.active .flyout-item-desc {
+  color: #213845 !important;
+}
+
+body[data-theme="pigeon"] .sidebar-quote-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .sidebar-quote-card:before {
+  background: linear-gradient(135deg, #79BBD6, #58A6CA) !important;
+}
+
+body[data-theme="pigeon"] .side-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+  box-shadow: 0 4px 14px rgba(48, 75, 91, 0.04) !important;
+}
+
+body[data-theme="pigeon"] .side-card p,
+body[data-theme="pigeon"] .side-card small {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .heatline,
+body[data-theme="pigeon"] .bar,
+body[data-theme="pigeon"] .progress {
+  background: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .heatline span,
+body[data-theme="pigeon"] .bar span,
+body[data-theme="pigeon"] .progress span {
+  background: linear-gradient(90deg, #79BBD6, #58A6CA) !important;
+}
+
+/* ── 3. Topbar e Cabeçalho ─────────────────────────────────────────── */
+body[data-theme="pigeon"] .topbar {
+  background: rgba(245, 250, 253, 0.94) !important;
+  border-bottom: 1px solid #DCE8EF !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+body[data-theme="pigeon"] .crumb {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .crumb b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .pill {
+  border-color: #DCE8EF !important;
+  background: #FFFFFF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .avatar {
+  background: linear-gradient(135deg, #79BBD6, #58A6CA) !important;
+  color: #FFFFFF !important;
+  border-color: #DCEEF7 !important;
+}
+
+body[data-theme="pigeon"] .eyebrow {
+  color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] .eyebrow:before {
+  background: #79BBD6 !important;
+}
+
+body[data-theme="pigeon"] .hero h1,
+body[data-theme="pigeon"] .section-title h2,
+body[data-theme="pigeon"] .manual-hero h1 {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .hero p,
+body[data-theme="pigeon"] .section-title p {
+  color: #718A99 !important;
+}
+
+/* ── 4. Botões e Controles ─────────────────────────────────────────── */
+body[data-theme="pigeon"] .primary {
+  background: linear-gradient(100deg, #79BBD6, #58A6CA) !important;
+  color: #FFFFFF !important;
+  border: 1px solid #58A6CA !important;
+  box-shadow: 0 8px 20px rgba(88, 166, 202, 0.28) !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+}
+
+body[data-theme="pigeon"] .primary:hover {
+  filter: brightness(1.06) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 10px 25px rgba(88, 166, 202, 0.35) !important;
+}
+
+body[data-theme="pigeon"] .secondary {
+  border-color: #DCE8EF !important;
+  background: #FFFFFF !important;
+  color: #304B5B !important;
+  border-radius: 10px !important;
+}
+
+body[data-theme="pigeon"] .secondary:hover {
+  background: #F0F7FB !important;
+  border-color: #B8D6E5 !important;
+}
+
+body[data-theme="pigeon"] .filterbar button {
+  border-color: #DCE8EF !important;
+  background: #FFFFFF !important;
+  color: #486577 !important;
+}
+
+body[data-theme="pigeon"] .filterbar button.active {
+  background: #58A6CA !important;
+  color: #FFFFFF !important;
+  border-color: #58A6CA !important;
+}
+
+/* ── 5. Cards, Painéis e Superfícies ───────────────────────────────── */
+body[data-theme="pigeon"] .card {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  border-radius: 16px !important;
+  color: #304B5B !important;
+  box-shadow: var(--soft) !important;
+}
+
+body[data-theme="pigeon"] .card.dark,
+body[data-theme="pigeon"] .calc,
+body[data-theme="pigeon"] .result-panel,
+body[data-theme="pigeon"] .three-layer-hero,
+body[data-theme="pigeon"] .health-score,
+body[data-theme="pigeon"] .position-top,
+body[data-theme="pigeon"] .flow-box.final {
+  background: linear-gradient(145deg, #FFFFFF, #F0F7FB) !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .kpi:after,
+body[data-theme="pigeon"] .three-layer-hero:after,
+body[data-theme="pigeon"] .result-panel:after {
+  background: radial-gradient(circle, rgba(121, 187, 214, 0.12), transparent 68%) !important;
+}
+
+body[data-theme="pigeon"] .kpi small,
+body[data-theme="pigeon"] .card.dark .kpi small,
+body[data-theme="pigeon"] .dark .kpi small,
+body[data-theme="pigeon"] .calc small,
+body[data-theme="pigeon"] .result-panel small,
+body[data-theme="pigeon"] .card-head span,
+body[data-theme="pigeon"] .metric small,
+body[data-theme="pigeon"] .pair small,
+body[data-theme="pigeon"] .layer-sub,
+body[data-theme="pigeon"] .flow-box small {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .kpi strong,
+body[data-theme="pigeon"] .result-total,
+body[data-theme="pigeon"] .layer-value,
+body[data-theme="pigeon"] .decision-qty strong {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .today-metric,
+body[data-theme="pigeon"] .operational-row,
+body[data-theme="pigeon"] .operation-form {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .today-metric small,
+body[data-theme="pigeon"] .today-metric .delta,
+body[data-theme="pigeon"] .operational-row p {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .today-metric strong,
+body[data-theme="pigeon"] .operational-row b {
+  color: #182B36 !important;
+}
+
+/* ── 6. Campos de Formulário e Inputs ──────────────────────────────── */
+body[data-theme="pigeon"] .field label {
+  color: #486577 !important;
+}
+
+body[data-theme="pigeon"] .field input,
+body[data-theme="pigeon"] .field select,
+body[data-theme="pigeon"] .field textarea,
+body[data-theme="pigeon"] input:not([type="checkbox"]):not([type="radio"]),
+body[data-theme="pigeon"] select,
+body[data-theme="pigeon"] textarea {
+  border: 1px solid #DCE8EF !important;
+  background: #FFFFFF !important;
+  color: #304B5B !important;
+  border-radius: 9px !important;
+  color-scheme: light !important;
+}
+
+body[data-theme="pigeon"] .field input:focus,
+body[data-theme="pigeon"] .field select:focus,
+body[data-theme="pigeon"] .field textarea:focus,
+body[data-theme="pigeon"] input:focus,
+body[data-theme="pigeon"] select:focus,
+body[data-theme="pigeon"] textarea:focus {
+  border-color: #58A6CA !important;
+  box-shadow: 0 0 0 3px rgba(121, 187, 214, 0.25) !important;
+  outline: none !important;
+}
+
+body[data-theme="pigeon"] .check {
+  border-color: #DCE8EF !important;
+  background: #F0F7FB !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .check input {
+  accent-color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] .toggle {
+  background: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .toggle span {
+  background: #FFFFFF !important;
+}
+
+body[data-theme="pigeon"] .toggle.on {
+  background: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] .toggle.on span {
+  background: #FFFFFF !important;
+}
+
+/* ── 7. Tabs e Tabelas ─────────────────────────────────────────────── */
+body[data-theme="pigeon"] .tabs {
+  background: #EDF6FA !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .tabs button {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .tabs button.active {
+  background: #FFFFFF !important;
+  color: #182B36 !important;
+  box-shadow: 0 2px 8px rgba(48, 75, 91, 0.08) !important;
+  font-weight: 750 !important;
+}
+
+body[data-theme="pigeon"] .positions-table th {
+  background: #EDF6FA !important;
+  color: #718A99 !important;
+  border-color: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .positions-table td {
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .positions-table tr:hover td {
+  background: #F0F7FB !important;
+}
+
+body[data-theme="pigeon"] .position-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .position-card:hover {
+  box-shadow: 0 14px 34px rgba(48, 75, 91, 0.1) !important;
+  border-color: #B8D6E5 !important;
+}
+
+body[data-theme="pigeon"] .position-top {
+  background: linear-gradient(135deg, #F0F7FB, #EDF6FA) !important;
+  color: #182B36 !important;
+  border-bottom: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .position-top h3 {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .position-top p {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .position-body {
+  background: #FFFFFF !important;
+}
+
+/* ── 8. Cores Semânticas de Trading ────────────────────────────────── */
+body[data-theme="pigeon"] .badge.good {
+  background: rgba(22, 163, 74, 0.1) !important;
+  color: #15803d !important;
+  border: 1px solid rgba(22, 163, 74, 0.28) !important;
+}
+
+body[data-theme="pigeon"] .badge.warn {
+  background: rgba(217, 119, 6, 0.1) !important;
+  color: #b45309 !important;
+  border: 1px solid rgba(217, 119, 6, 0.28) !important;
+}
+
+body[data-theme="pigeon"] .badge.bad {
+  background: rgba(220, 38, 38, 0.1) !important;
+  color: #b91c1c !important;
+  border: 1px solid rgba(220, 38, 38, 0.28) !important;
+}
+
+body[data-theme="pigeon"] .delta.good,
+body[data-theme="pigeon"] .money.good {
+  color: #15803d !important;
+}
+
+body[data-theme="pigeon"] .delta.bad,
+body[data-theme="pigeon"] .money.bad {
+  color: #b91c1c !important;
+}
+
+body[data-theme="pigeon"] .mode-badge {
+  background: #DCEEF7 !important;
+  color: #213845 !important;
+}
+
+body[data-theme="pigeon"] .mode-badge.paper {
+  background: #EDF6FA !important;
+  color: #486577 !important;
+}
+
+/* ── 9. Modais, Diálogos e Overlays ─────────────────────────────────── */
+body[data-theme="pigeon"] .modal {
+  background: rgba(30, 48, 59, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+body[data-theme="pigeon"] .modal-box {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 24px 60px rgba(48, 75, 91, 0.16) !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .close {
+  background: #EDF6FA !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .close:hover {
+  background: #DCE8EF !important;
+}
+
+/* ── 10. Novo Trade (Etapa 1, Etapa 2 e Etapa 3) ────────────────────── */
+body[data-theme="pigeon"] .trade-form-card,
+body[data-theme="pigeon"] .trade-summary-card,
+body[data-theme="pigeon"] .form-card {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .step-num {
+  background: #EDF6FA !important;
+  color: #718A99 !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .step.active .step-num,
+body[data-theme="pigeon"] .step.done .step-num {
+  background: #58A6CA !important;
+  color: #FFFFFF !important;
+  border-color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] .step3-system-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .step3-system-card-title {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .step3-system-card-kicker {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .step3-system-indicator-box {
+  background: #F0F7FB !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .step3-indicator-title {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .step3-indicator-value {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .step3-indicator-sub {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .step3-mission-banner {
+  background: linear-gradient(135deg, #F0F7FB 0%, #DCEEF7 100%) !important;
+  border: 1px solid #B8D6E5 !important;
+  color: #182B36 !important;
+  box-shadow: 0 8px 24px rgba(88, 166, 202, 0.12) !important;
+}
+
+body[data-theme="pigeon"] .step3-mission-title {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .step3-mission-desc {
+  color: #486577 !important;
+}
+
+body[data-theme="pigeon"] .step3-mission-pill {
+  background: #FFFFFF !important;
+  border: 1px solid #B8D6E5 !important;
+}
+
+body[data-theme="pigeon"] .step3-mission-pill-label {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .step3-mission-pill-val {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .step3-lock-alert {
+  background: #FFFBEB !important;
+  border: 1px solid #FCD34D !important;
+  color: #92400E !important;
+}
+
+body[data-theme="pigeon"] .step3-lock-alert-title {
+  color: #92400E !important;
+}
+
+body[data-theme="pigeon"] .step3-lock-alert-desc {
+  color: #B45309 !important;
+}
+
+body[data-theme="pigeon"] .step3-locked-state {
+  background: #F0F7FB !important;
+  border: 1px dashed #DCE8EF !important;
+  opacity: 0.72 !important;
+  filter: grayscale(0.5) !important;
+}
+
+body[data-theme="pigeon"] .step3-you-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+/* ── 11. Seletor de Tema e Configurações de Aparência ───────────────── */
+body[data-theme="pigeon"] .theme-picker {
+  border-color: #DCE8EF !important;
+  background: rgba(220, 238, 247, 0.45) !important;
+}
+
+body[data-theme="pigeon"] .theme-choice {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .theme-choice.active {
+  background: linear-gradient(100deg, #79BBD6, #58A6CA) !important;
+  color: #FFFFFF !important;
+  border-color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] .theme-choice[data-theme-choice="pigeon"] .theme-swatch {
+  background: #79BBD6 !important;
+  box-shadow: 0 0 0 2px rgba(121, 187, 214, 0.4) !important;
+}
+
+#settings [data-theme-choice="pigeon"] .settings-swatches i:nth-child(1) {
+  background: #79BBD6 !important;
+}
+
+#settings [data-theme-choice="pigeon"] .settings-swatches i:nth-child(2) {
+  background: #DCEEF7 !important;
+}
+
+#settings [data-theme-choice="pigeon"] .settings-swatches i:nth-child(3) {
+  background: #304B5B !important;
+}
+
+#settings .theme-choice[data-theme-choice="pigeon"] {
+  order: 1;
+}
+
+body[data-theme="pigeon"] #settings .theme-choice {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #settings .theme-choice:hover {
+  background: #F0F7FB !important;
+  border-color: #B8D6E5 !important;
+}
+
+body[data-theme="pigeon"] #settings .theme-choice.active {
+  border-color: #79BBD6 !important;
+  background: #DCEEF7 !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #settings .theme-choice.active:after {
+  content: '✓' !important;
+  color: #FFFFFF !important;
+  background: #58A6CA !important;
+  border-color: #58A6CA !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 12px !important;
+}
+
+body[data-theme="pigeon"] #settings .theme-choice img {
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #settings .settings-hero .eyebrow,
+body[data-theme="pigeon"] #settings .settings-icon {
+  color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] #settings .settings-hero p {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #settings .settings-grid > .card {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #settings h3,
+body[data-theme="pigeon"] #settings .setting-row b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #settings .language-choice {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #settings .language-choice.active {
+  border-color: #79BBD6 !important;
+  background: #DCEEF7 !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #settings .language-choice.active:after {
+  background: #58A6CA !important;
+  border-color: #58A6CA !important;
+}
+
+/* ── 12. Manual e Central de Conhecimento ────────────────────────────── */
+body[data-theme="pigeon"] .manual-shell .manual-card,
+body[data-theme="pigeon"] .manual-shell .manual-callout,
+body[data-theme="pigeon"] .manual-shell .manual-section,
+body[data-theme="pigeon"] .manual-shell .flow-step,
+body[data-theme="pigeon"] .manual-shell .formula-row {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .manual-nav button {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .manual-nav button:hover,
+body[data-theme="pigeon"] .manual-nav button.active {
+  background: #D4EAF6 !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .manual-search input {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .manual-intro {
+  background: linear-gradient(135deg, #182B36, #213845) !important;
+  color: #FFFFFF !important;
+}
+
+/* ── 13. Radar de Oportunidades, Ciclo de Mercado e Telas Especiais ──── */
+body[data-theme="pigeon"] #marketcycle .mcv2-page {
+  background: #F5FAFD !important;
+}
+
+body[data-theme="pigeon"] #marketcycle .mcv2-card {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .radar-universe-nav button {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  color: #486577 !important;
+}
+
+body[data-theme="pigeon"] .radar-universe-nav button.active {
+  background: #58A6CA !important;
+  color: #FFFFFF !important;
+  border-color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] .radar-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .el-container,
+body[data-theme="pigeon"] .el-table-card,
+body[data-theme="pigeon"] .zen-session,
+body[data-theme="pigeon"] .zen-card {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+
+/* ── 14. Meu Desktop (#today) no tema Pigeon Light ─────────────────── */
+body[data-theme="pigeon"]:has(#today.active) {
+  background: #F5FAFD !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .main {
+  background: #F5FAFD !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .content {
+  background: #F5FAFD !important;
+}
+
+body[data-theme="pigeon"] #today.today-cockpit-page {
+  background: #F5FAFD !important;
+}
+
+body[data-theme="pigeon"] #today .today-dashboard {
+  background: #F5FAFD !important;
+  border: none !important;
+}
+
+body[data-theme="pigeon"] #today .today-dashboard-header h1 {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #today .today-dashboard-header p {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #today .desktop-market-pulse {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 4px 14px rgba(48, 75, 91, 0.04) !important;
+}
+
+body[data-theme="pigeon"] #today .desktop-pulse-reading b {
+  color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] #today .desktop-pulse-reading p {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #today .desktop-pulse-metrics > div {
+  border-left: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-widget {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 8px 24px rgba(48, 75, 91, 0.04) !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-widget-header {
+  border-bottom: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-widget-kicker {
+  color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-widget h2,
+body[data-theme="pigeon"] #today .dashboard-widget h3 {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-widget-content p {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-opportunity-metrics div,
+body[data-theme="pigeon"] #today .today-account-facts div {
+  background: #F0F7FB !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-opportunity-metrics strong {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-opportunity-metrics span {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #today .today-cockpit-hero {
+  background: linear-gradient(135deg, #FFFFFF, #F0F7FB) !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #today .today-cockpit-card {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #today .today-cockpit-card h2,
+body[data-theme="pigeon"] #today .today-cockpit-card h3 {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #today .desktop-stat-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #today .desktop-stat-label {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #today .desktop-stat-value {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #today .today-permission {
+  background: #F0F7FB !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #today .today-permission b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #today .today-opportunity-list button {
+  background: #F0F7FB !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #today .today-opportunity-list button:hover {
+  background: #E4F2F9 !important;
+  border-color: #79BBD6 !important;
+}
+
+body[data-theme="pigeon"] #today .today-opportunity-list strong {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-primary-action,
+body[data-theme="pigeon"] #today .dashboard-edit-toggle {
+  background: linear-gradient(100deg, #79BBD6, #58A6CA) !important;
+  color: #FFFFFF !important;
+  border: 1px solid #58A6CA !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-widget-edit-controls button {
+  background: #EDF6FA !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+/* ── 15. Novo Trade (#newtrade) no tema Pigeon Light ───────────────── */
+body[data-theme="pigeon"]:has(#newtrade.active) {
+  background: #F5FAFD !important;
+}
+
+body[data-theme="pigeon"]:has(#newtrade.active) .main {
+  background: #F5FAFD !important;
+}
+
+body[data-theme="pigeon"]:has(#newtrade.active) .content {
+  background: radial-gradient(circle at 80% 10%, rgba(121, 187, 214, 0.15) 0%, transparent 60%), #F5FAFD !important;
+}
+
+body[data-theme="pigeon"] #newtrade .trade-workbench {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 16px 40px rgba(48, 75, 91, 0.06) !important;
+}
+
+body[data-theme="pigeon"] #newtrade .trade-workbench-head {
+  background: linear-gradient(135deg, #F0F7FB 0%, #EDF6FA 100%) !important;
+  border-bottom: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .trade-workbench-head h2 {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .trade-workbench-head .eyebrow {
+  color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] #newtrade .trade-workbench-grid {
+  background: #F5FAFD !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 6px 18px rgba(48, 75, 91, 0.04) !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card > .eyebrow {
+  color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card h3 {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card > p {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card .field label,
+body[data-theme="pigeon"] #newtrade .tw2-field label {
+  color: #486577 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card .field input,
+body[data-theme="pigeon"] #newtrade .workbench-card .field select,
+body[data-theme="pigeon"] #newtrade .workbench-card .field textarea,
+body[data-theme="pigeon"] #newtrade .tw2-field input,
+body[data-theme="pigeon"] #newtrade .tw2-field select,
+body[data-theme="pigeon"] #newtrade .tw2-field textarea {
+  background: #F0F7FB !important;
+  border: 1px solid #DCE8EF !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card .field input:focus,
+body[data-theme="pigeon"] #newtrade .workbench-card .field select:focus,
+body[data-theme="pigeon"] #newtrade .workbench-card .field textarea:focus,
+body[data-theme="pigeon"] #newtrade .tw2-field input:focus,
+body[data-theme="pigeon"] #newtrade .tw2-field select:focus,
+body[data-theme="pigeon"] #newtrade .tw2-field textarea:focus {
+  background: #FFFFFF !important;
+  border-color: #58A6CA !important;
+  box-shadow: 0 0 0 3px rgba(121, 187, 214, 0.22) !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card .field select option {
+  background: #FFFFFF !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .trade-asset-cache-status,
+body[data-theme="pigeon"] #newtrade .workbench-card .field small {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card .trade-screenshot-section {
+  background: #F0F7FB !important;
+  border: 1px dashed #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card .trade-screenshot-drop {
+  background: #FFFFFF !important;
+  border: 1px dashed #B8D6E5 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-card .trade-screenshot-drop span {
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-rubric-stage {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .workbench-rubric-stage.grade-pending,
+body[data-theme="pigeon"] #newtrade .rubric-experience.grade-pending,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline.grade-pending {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-experience-header {
+  background: #F0F7FB !important;
+  border-bottom: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-experience-header b {
+  color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-experience-card > header {
+  background: #EDF6FA !important;
+  border-bottom: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-experience-card > header b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-experience-card > header button {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  color: #486577 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-source-divider {
+  color: #58A6CA !important;
+  border-bottom: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-host .rubric-criterion,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-criterion {
+  background: #F0F7FB !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-host .rubric-criterion > span,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-criterion > span {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-criterion .manual-rubric-controls button {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button:hover,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-criterion .manual-rubric-controls button:hover {
+  background: #E4F2F9 !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button.active,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline .rubric-criterion .manual-rubric-controls button.active {
+  background: #58A6CA !important;
+  border-color: #58A6CA !important;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button[data-rating="bad"].active {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button[data-rating="med"].active {
+  background: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience-host .rubric-criterion .manual-rubric-controls button[data-rating="good"].active {
+  background: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="pigeon"] #newtrade .trade-asset-field-wrap .ticker-combo-menu,
+body[data-theme="pigeon"] #newtrade #workbenchData .field:has(#tradeAsset) .ticker-combo-menu {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 14px 30px rgba(48, 75, 91, 0.12) !important;
+  color: #304B5B !important;
+}
+
+/* ── 16. Elementos Globais do Topbar no tema Pigeon Light ───────────── */
+body[data-theme="pigeon"] .market-pause-pill,
+body[data-theme="pigeon"] .topbar-market-alert,
+body[data-theme="pigeon"] .topbar-session-reminder {
+  background: #EDF6FA !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .market-pause-pill b,
+body[data-theme="pigeon"] .topbar-market-alert b,
+body[data-theme="pigeon"] .topbar-session-reminder b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .topbar-plan-pill {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+/* ── 15. Header e Widgets no Meu Desktop (#today) ───────────────────── */
+body[data-theme="pigeon"] #today .today-dashboard:before,
+body[data-theme="pigeon"] #today .today-dashboard:after {
+  display: none !important;
+}
+
+body[data-theme="pigeon"] #today .today-dashboard-header {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 8px 24px rgba(48, 75, 91, 0.04) !important;
+  border-radius: 18px !important;
+}
+
+body[data-theme="pigeon"] #today .today-header-identity h1 {
+  color: #182B36 !important;
+  text-shadow: none !important;
+}
+
+body[data-theme="pigeon"] #today .today-header-identity .eyebrow {
+  color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] #today .today-header-identity p {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #today .desktop-header-badge {
+  border-right-color: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] #today .desktop-header-badge span {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-edit-toggle {
+  background: linear-gradient(135deg, #79BBD6 0%, #58A6CA 100%) !important;
+  border: 1px solid #58A6CA !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(88, 166, 202, 0.3) !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-edit-toggle:hover {
+  background: linear-gradient(135deg, #58A6CA 0%, #304B5B 100%) !important;
+  border-color: #304B5B !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 6px 20px rgba(48, 75, 91, 0.25) !important;
+}
+
+/* 4 Stat Cards in #today */
+body[data-theme="pigeon"] .desktop-stat-item {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 6px 20px rgba(48, 75, 91, 0.04) !important;
+}
+
+body[data-theme="pigeon"] .desktop-stat-label {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .desktop-stat-value {
+  color: #182B36 !important;
+  text-shadow: none !important;
+}
+
+body[data-theme="pigeon"] .desktop-stat-value.gold {
+  color: #58A6CA !important;
+  text-shadow: none !important;
+}
+
+body[data-theme="pigeon"] .desktop-stat-sub {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .stat-sparkline path {
+  stroke: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] .stat-bars rect {
+  fill: #79BBD6 !important;
+}
+
+body[data-theme="pigeon"] .desktop-stat-pill.positive {
+  background: #EBF8F0 !important;
+  color: #16A34A !important;
+  border: 1px solid #BBF7D0 !important;
+}
+
+/* Telemetry bar in #today */
+body[data-theme="pigeon"] .desktop-telemetry-bar {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 4px 14px rgba(48, 75, 91, 0.03) !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] .telemetry-pulse {
+  color: #58A6CA !important;
+}
+
+body[data-theme="pigeon"] .telemetry-pulse b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .telemetry-metrics {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .telemetry-metrics span b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .telemetry-time {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .today-source.cached {
+  background: #EDF6FA !important;
+  color: #58A6CA !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+/* Ciclo de Mercado Widget in #today */
+body[data-theme="pigeon"] #today .dashboard-widget[data-widget-id="market-cycle"] {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 8px 24px rgba(48, 75, 91, 0.04) !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-widget[data-widget-id="market-cycle"] .desktop-widget-art {
+  opacity: 0.12 !important;
+}
+
+body[data-theme="pigeon"] #today .dashboard-widget[data-widget-id="market-cycle"] .desktop-widget-art svg {
+  stroke: #79BBD6 !important;
+}
+
+/* ── 16. Ciclo de Mercado e Subcritérios no Novo Trade (#newtrade) ──── */
+body[data-theme="pigeon"] #newtrade .rubric-criterion.rubric-market-permission,
+body[data-theme="pigeon"] #newtrade #rubricCriteria .rubric-criterion.rubric-market-permission {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 4px 14px rgba(48, 75, 91, 0.04) !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-criterion.rubric-market-permission.is-defensive,
+body[data-theme="pigeon"] #newtrade #rubricCriteria .rubric-criterion.rubric-market-permission.is-defensive {
+  background: #FFFBFB !important;
+  border-color: #FCA5A5 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-criterion.rubric-market-permission.is-healthy,
+body[data-theme="pigeon"] #newtrade #rubricCriteria .rubric-criterion.rubric-market-permission.is-healthy {
+  background: #F0FDF4 !important;
+  border-color: #86EFAC !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-title-text strong {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-title-text small {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-sub-row .sub-name {
+  color: #536B78 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-sub-row .sub-val {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-rule-box {
+  background: #F0F7FB !important;
+  border: 1px solid #DCE8EF !important;
+  color: #536B78 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-rule-box strong {
+  color: #2B7A9E !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-rule-box p {
+  color: #536B78 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-rule-box p b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .newtrade-cycle-pill {
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #newtrade .newtrade-cycle-pill.is-defensive {
+  background: #FEF2F2 !important;
+  border-color: #FECACA !important;
+  color: #DC2626 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .newtrade-cycle-pill.is-healthy {
+  background: #F0FDF4 !important;
+  border-color: #BBF7D0 !important;
+  color: #16A34A !important;
+}
+
+/* Lock banner in Etapa 3 (high contrast on light theme) */
+body[data-theme="pigeon"] .workbench-step3-lock-banner {
+  background: #FFFBEB !important;
+  border: 1.5px solid #FCD34D !important;
+  color: #92400E !important;
+}
+
+body[data-theme="pigeon"] .workbench-step3-lock-banner .lock-banner-icon svg {
+  stroke: #D97706 !important;
+}
+
+body[data-theme="pigeon"] .workbench-step3-lock-banner .lock-banner-title {
+  color: #92400E !important;
+}
+
+body[data-theme="pigeon"] .workbench-step3-lock-banner .lock-banner-msg {
+  color: #78350F !important;
+}
+
+body[data-theme="pigeon"] .workbench-step3-lock-banner .lock-banner-subtext {
+  color: #B45309 !important;
+}
+
+/* ── 17. Maior Trade, Ciclo de Mercado Tabs e Topbar no #today ───────── */
+body[data-theme="pigeon"] .desktop-stat-item.stat-maior-trade {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 6px 20px rgba(48, 75, 91, 0.04) !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-head svg {
+  color: #16A34A !important;
+  stroke: #16A34A !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-head-label {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-big-val {
+  color: #16A34A !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-ticker {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-company {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-spark-pill {
+  background: #EDF6FA !important;
+  color: #58A6CA !important;
+  border: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-footer-row {
+  border-top-color: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-badge {
+  background: #EBF8F0 !important;
+  color: #16A34A !important;
+  border-color: #BBF7D0 !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-badge-star {
+  color: #16A34A !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-badge-sep {
+  color: #16A34A !important;
+}
+
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-badge-days,
+body[data-theme="pigeon"] .stat-maior-trade .maior-trade-days-text {
+  color: #536B78 !important;
+}
+
+/* Ciclo de Mercado Widget Tabs and KPIs */
+body[data-theme="pigeon"] .today-cycle-market-tabs {
+  background: #EDF6FA !important;
+  border-color: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-market-tab {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-market-tab:hover {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-market-tab.is-active {
+  background: #FFFFFF !important;
+  color: #182B36 !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 2px 6px rgba(48, 75, 91, 0.06) !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-score-tag {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-score-tag strong {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-narrative {
+  color: #536B78 !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-kpis {
+  border-top-color: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-kpi-item .kpi-label {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-kpi-item .kpi-val {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-kpi-item .kpi-val.is-pos {
+  color: #16A34A !important;
+}
+
+body[data-theme="pigeon"] .today-cycle-kpi-item .kpi-val.is-neg {
+  color: #DC2626 !important;
+}
+
+body[data-theme="pigeon"] .ruler-step {
+  background: #EDF6FA !important;
+  color: #718A99 !important;
+  border-color: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .ruler-step.step-defensive.is-active {
+  background: #FEF2F2 !important;
+  border-color: #FECACA !important;
+  color: #DC2626 !important;
+}
+
+body[data-theme="pigeon"] .ruler-step.step-transition.is-active {
+  background: #FFFBEB !important;
+  border-color: #FCD34D !important;
+  color: #D97706 !important;
+}
+
+body[data-theme="pigeon"] .ruler-step.step-healthy.is-active {
+  background: #F0FDF4 !important;
+  border-color: #BBF7D0 !important;
+  color: #16A34A !important;
+}
+
+/* Topbar override when #today is active and globally */
+body[data-theme="pigeon"]:has(#today.active) .topbar,
+body[data-theme="pigeon"] .topbar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid #DCE8EF !important;
+  box-shadow: 0 2px 10px rgba(48, 75, 91, 0.04) !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .topbar .crumb,
+body[data-theme="pigeon"] .topbar .crumb {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .topbar .crumb b,
+body[data-theme="pigeon"] .topbar .crumb b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .topbar .pill,
+body[data-theme="pigeon"] .topbar .pill {
+  border-color: #DCE8EF !important;
+  background: #EDF6FA !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .topbar .avatar,
+body[data-theme="pigeon"] .topbar .avatar {
+  border: 1px solid #DCE8EF !important;
+  background: linear-gradient(135deg, #79BBD6, #58A6CA) !important;
+  color: #FFFFFF !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .top-heat-meter,
+body[data-theme="pigeon"] .top-heat-meter {
+  border-color: #DCE8EF !important;
+  background: #EDF6FA !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .top-heat-meter span,
+body[data-theme="pigeon"] .top-heat-meter span {
+  color: #718A99 !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .top-heat-meter b,
+body[data-theme="pigeon"] .top-heat-meter b {
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .top-heat-meter i,
+body[data-theme="pigeon"] .top-heat-meter i {
+  background: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"]:has(#today.active) .top-heat-meter i em,
+body[data-theme="pigeon"] .top-heat-meter i em {
+  background: #58A6CA !important;
+}

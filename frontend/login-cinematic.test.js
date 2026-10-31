@@ -64,6 +64,8 @@ test('seletor de temas está presente e configurado na tela de login', () => {
   assert.ok(html.includes('data-theme-choice="gold"'), 'Deve conter opção Premium Gold');
   assert.ok(html.includes('applyTheme(\'healthy\')'), 'Deve acionar applyTheme healthy no clique');
   assert.ok(html.includes('applyTheme(\'gold\')'), 'Deve acionar applyTheme gold no clique');
+  assert.ok(html.includes('data-theme-choice="pigeon"'), 'Deve conter opção Pigeon Light');
+  assert.ok(html.includes('applyTheme(\'pigeon\')'), 'Deve acionar applyTheme pigeon no clique');
 
   // CSS suporta o seletor de tema no login
   assert.ok(css.includes('#loginShell .login-theme-picker'), 'CSS deve estilizar #loginShell .login-theme-picker');

@@ -116,3 +116,22 @@ test('Flyout Menu: selected active item subtitles have high contrast and crystal
   // Premium Gold: active item subtitle must be deep dark charcoal-gold (#241805) on the gold background
   assert.match(css, /body\[data-theme="gold"\]\s+\.flyout-item-link\.active\s+\.flyout-item-desc[^{]*\{[^}]*#241805/);
 });
+
+
+test('Pigeon Light: tokens and stylesheet are loaded and valid', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+
+  assert.ok(html.includes('frontend/theme-pigeon-light.css'), 'index.html deve carregar theme-pigeon-light.css');
+  assert.ok(css.includes('body[data-theme="pigeon"]'), 'Deve conter tokens sob body[data-theme="pigeon"]');
+  assert.ok(css.includes('--paper: #F5FAFD'), 'Deve definir fundo principal #F5FAFD');
+  assert.ok(css.includes('--ink: #304B5B'), 'Deve definir tipografia principal #304B5B');
+  assert.ok(css.includes('--primary: #79BBD6'), 'Deve definir azul principal #79BBD6');
+  assert.ok(css.includes('--primary-hover: #58A6CA'), 'Deve definir azul de destaque #58A6CA');
+});
+
+test('Pigeon Light: seletor de tema em Configurações e Login suporta pigeon', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  assert.ok(html.includes('data-theme-choice="pigeon"'), 'Deve conter botão data-theme-choice="pigeon"');
+  assert.ok(html.includes("applyTheme('pigeon')"), 'Deve acionar applyTheme("pigeon")');
+});

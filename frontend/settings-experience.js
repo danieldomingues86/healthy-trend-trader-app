@@ -31,8 +31,20 @@
     });
     heading(page.querySelector('.theme-settings-card'), 'theme');
     page.querySelectorAll('[data-theme-choice]').forEach(button => {
-      const green = button.dataset.themeChoice === 'healthy';
-      button.innerHTML = `<img src="assets/manual-knowledge/${green ? 'forest-landscape.png' : 'hero.png'}" alt=""><span class="settings-theme-copy"><b>${green ? 'Healthy Green' : 'Premium Gold'}</b><small>${green ? t('Clareza, equilíbrio<br>e processo.','Clarity, balance<br>and process.') : t('Sofisticação, foco<br>e performance.','Sophistication, focus<br>and performance.')}</small><span class="settings-swatches"><i></i><i></i><i></i></span></span>`;
+      const choice = button.dataset.themeChoice;
+      let img = 'assets/manual-knowledge/hero.png';
+      let title = 'Premium Gold';
+      let desc = t('Sofisticação, foco<br>e performance.','Sophistication, focus<br>and performance.');
+      if (choice === 'healthy') {
+        img = 'assets/manual-knowledge/forest-landscape.png';
+        title = 'Healthy Green';
+        desc = t('Clareza, equilíbrio<br>e processo.','Clarity, balance<br>and process.');
+      } else if (choice === 'pigeon') {
+        img = 'assets/theme-pigeon-preview.png';
+        title = 'Pigeon Light';
+        desc = t('Leveza, clareza e<br>tranquilidade para operar.','Lightness, clarity and<br>peace of mind to trade.');
+      }
+      button.innerHTML = `<img src="${img}" alt=""><span class="settings-theme-copy"><b>${title}</b><small>${desc}</small><span class="settings-swatches"><i></i><i></i><i></i></span></span>`;
     });
     heading(page.querySelector('.language-settings-card'), 'globe');
     page.querySelectorAll('[data-language-choice]').forEach(button => {

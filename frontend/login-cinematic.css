@@ -69,6 +69,111 @@ body[data-theme="healthy"] #loginShell {
   --login-pill-active-text: #042f1a;
 }
 
+
+/* TEMA 3 — PIGEON LIGHT */
+body[data-theme="pigeon"] #loginShell {
+  --login-bg: #F5FAFD;
+  --login-card-bg: rgba(255, 255, 255, 0.94);
+  --login-card-border: rgba(121, 187, 214, 0.45);
+  --login-card-highlight: rgba(121, 187, 214, 0.65);
+  --login-card-shadow: 0 24px 60px -10px rgba(48, 75, 91, 0.15);
+  --login-accent: #58A6CA;
+  --login-accent-bright: #79BBD6;
+  --login-accent-glow: rgba(88, 166, 202, 0.22);
+  --login-headline-accent: #2A6885;
+  --login-line-color: #58A6CA;
+  --login-cta-bg: linear-gradient(90deg, #79BBD6 0%, #58A6CA 100%);
+  --login-cta-text: #FFFFFF;
+  --login-cta-shadow: rgba(88, 166, 202, 0.35);
+  --login-input-bg: #F0F7FB;
+  --login-input-border: #DCE8EF;
+  --login-input-focus: #58A6CA;
+  --login-icon-color: #58A6CA;
+  --login-pill-active-bg: #79BBD6;
+  --login-pill-active-text: #FFFFFF;
+  color: #304B5B;
+}
+
+body[data-theme="pigeon"] #loginShell .login-scene-green,
+body[data-theme="pigeon"] #loginShell .login-scene-gold {
+  opacity: 0;
+  visibility: hidden;
+}
+
+body[data-theme="pigeon"] #loginShell .login-scene-overlay {
+  background: radial-gradient(circle at 80% 20%, rgba(121, 187, 214, 0.2), transparent 50%),
+              linear-gradient(135deg, #F5FAFD 0%, #EDF6FA 50%, #F5FAFD 100%);
+}
+
+body[data-theme="pigeon"] #loginShell .login-theme-picker,
+body[data-theme="pigeon"] #loginShell .login-language-picker {
+  background: rgba(237, 246, 250, 0.85);
+  border-color: #DCE8EF;
+}
+
+body[data-theme="pigeon"] #loginShell .login-theme-picker .theme-choice,
+body[data-theme="pigeon"] #loginShell .login-language-picker .language-choice {
+  color: #718A99;
+}
+
+body[data-theme="pigeon"] #loginShell .login-theme-picker .theme-choice:hover,
+body[data-theme="pigeon"] #loginShell .login-language-picker .language-choice:hover {
+  color: #182B36;
+  background: #E4F2F9;
+}
+
+body[data-theme="pigeon"] #loginShell .login-brand-text strong,
+body[data-theme="pigeon"] #loginShell .login-headline-area h1,
+body[data-theme="pigeon"] #loginShell .login-card h2,
+body[data-theme="pigeon"] #loginShell .login-field label,
+body[data-theme="pigeon"] #loginShell .login-field input,
+body[data-theme="pigeon"] #loginShell .login-foot b,
+body[data-theme="pigeon"] #loginShell #openSignup {
+  color: #182B36;
+}
+
+body[data-theme="pigeon"] #loginShell .login-brand-mark {
+  background: #FFFFFF;
+  border-color: #DCE8EF;
+  color: #58A6CA;
+}
+
+body[data-theme="pigeon"] #loginShell .login-editorial p,
+body[data-theme="pigeon"] #loginShell .login-card > p,
+body[data-theme="pigeon"] #loginShell .login-meta,
+body[data-theme="pigeon"] #loginShell .login-forgot-btn,
+body[data-theme="pigeon"] #loginShell .login-signup-prompt,
+body[data-theme="pigeon"] #loginShell .login-foot small {
+  color: #718A99;
+}
+
+body[data-theme="pigeon"] #loginShell .login-forgot-btn:hover {
+  color: #182B36;
+}
+
+body[data-theme="pigeon"] #loginShell .login-field input {
+  background: #F0F7FB;
+  border-color: #DCE8EF;
+  color: #182B36;
+  box-shadow: inset 0 1px 2px rgba(48, 75, 91, 0.04);
+}
+
+body[data-theme="pigeon"] #loginShell .login-field input::placeholder {
+  color: #9BB0BD;
+}
+
+body[data-theme="pigeon"] #loginShell .login-input-icon {
+  color: #718A99;
+}
+
+body[data-theme="pigeon"] #loginShell .login-foot {
+  border-top: 1px solid #DCE8EF;
+}
+
+body[data-theme="pigeon"] #loginShell .login-foot > div:not(:last-child) {
+  border-right: 1px solid #DCE8EF;
+}
+
 /* ── 2. Cenas de Background Cinematográficas ───────────────────────── */
 #loginShell::before,
 #loginShell::after {
@@ -193,6 +298,12 @@ body:not([data-theme="healthy"]) #loginShell .login-language-picker {
 #loginShell .login-theme-picker .theme-choice[data-theme-choice="healthy"] .theme-swatch {
   background: #10b981;
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+
+#loginShell .login-theme-picker .theme-choice[data-theme-choice="pigeon"] .theme-swatch {
+  background: #79BBD6;
+  box-shadow: 0 0 6px rgba(121, 187, 214, 0.6);
 }
 
 #loginShell .login-theme-picker .theme-choice[data-theme-choice="gold"] .theme-swatch {
