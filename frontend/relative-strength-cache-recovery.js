@@ -17,32 +17,43 @@
     const en = `${refreshed ? `Updated ${refreshed} · ` : ''}Latest close: ${closing} · Source: ${provider}`;
     return window.cycleText?.(pt,en) || pt;
   };
-  window.loadRelativeStrengthClasses = async function loadRelativeStrengthClassesFresh() {
+  window.loadRelativeStrengthClasses = async function loadRelativeStrengthClassesFresh(force = true) {
+    if (typeof window.loadRelativeStrengthClassesForTimeframe === 'function') {
+      return window.loadRelativeStrengthClassesForTimeframe(window.currentRelativeStrengthTimeframe || 'daily', force);
+    }
     const state = window.relativeStrengthClassesState;
     if (!state.classes[state.selected]?.items?.length) {
       state.loading = true;
       window.renderRelativeStrengthClassesPage();
     }
+    const isWeekly = (window.currentRelativeStrengthTimeframe === 'weekly');
     try {
-      const isWeekly = (window.currentRelativeStrengthTimeframe === 'weekly');
       const response = await fetch(`${window.MARKET_DATA_API_URL || 'http://localhost:8787/api'}/relative-strength/classes${isWeekly ? '?timeframe=weekly' : ''}`, {cache:'no-store'});
       if (!response.ok) throw new Error('Classes indisponíveis');
       const payload = await response.json();
       const source = payload.classes || {};
-      // O endpoint mantém a chave legada "stock" por compatibilidade e também
-      // entrega os dois universos corretos: Ibovespa e demais ações.
       const stockIbov = source.stock_ibov?.items?.length ? source.stock_ibov : (source.stock?.items?.length ? {...source.stock,key:'stock_ibov',items:source.stock.items.map(item=>({...item,assetClass:'stock_ibov'}))} : fallback);
-      state.classes = {...source, stock:source.stock?.items?.length ? source.stock : stockIbov, stock_ibov:stockIbov, stock_other:source.stock_other || {key:'stock_other',items:[],available:0}};
+      const unifiedClasses = {...source, stock:source.stock?.items?.length ? source.stock : stockIbov, stock_ibov:stockIbov, stock_other:source.stock_other || {key:'stock_other',items:[],available:0}};
+      state.classes = unifiedClasses;
+      if (isWeekly) {
+        state.weeklyClasses = unifiedClasses;
+        state.weeklyDataAsOf = payload.dataAsOf;
+        state.weeklyFresh = true;
+      } else {
+        state.dailyClasses = unifiedClasses;
+        state.dailyDataAsOf = payload.dataAsOf;
+        state.dailyFresh = true;
+      }
       state.updatedAt = payload.updatedAt || null;
       state.dataAsOf = payload.dataAsOf || null;
       state.source = payload.source || null;
       state.error = false;
+      state.offlineFallback = false;
     } catch (error) {
-      // Um erro temporário nunca apaga os universos já carregados no cliente.
       const staticCache = window.__relativeStrengthStaticCache;
-      const staticClasses = (window.currentRelativeStrengthTimeframe === 'weekly' ? staticCache?.weekly : staticCache?.daily) || {};
+      const staticClasses = (isWeekly ? staticCache?.weekly : staticCache?.daily) || {};
       const stockIbov = state.classes.stock_ibov?.items?.length ? state.classes.stock_ibov : (staticClasses.stock_ibov || fallback);
-      state.classes = {
+      const fallbackClasses = {
         ...staticClasses,
         ...state.classes,
         stock: state.classes.stock?.items?.length ? state.classes.stock : stockIbov,
@@ -51,7 +62,16 @@
         fii: state.classes.fii?.items?.length ? state.classes.fii : (staticClasses.fii || { key: 'fii', items: [] }),
         bdr: state.classes.bdr?.items?.length ? state.classes.bdr : (staticClasses.bdr || { key: 'bdr', items: [] })
       };
-      state.error = false;
+      state.classes = fallbackClasses;
+      if (isWeekly) {
+        state.weeklyClasses = state.weeklyClasses || fallbackClasses;
+        state.weeklyFresh = false;
+      } else {
+        state.dailyClasses = state.dailyClasses || fallbackClasses;
+        state.dailyFresh = false;
+      }
+      state.error = true;
+      state.offlineFallback = true;
       console.info('Cache de Força Relativa ativo (modo offline/resiliente).');
     } finally {
       state.loading = false;
@@ -61,5 +81,5 @@
   };
   // Carrega novamente sem cache do navegador depois que todos os aprimoramentos
   // de apresentação já foram registrados.
-  window.loadRelativeStrengthClasses();
+  window.loadRelativeStrengthClasses(true);
 })();
