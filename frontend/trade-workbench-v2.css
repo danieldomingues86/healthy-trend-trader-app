@@ -3927,15 +3927,15 @@ body:has(#newtrade.active) .content {
 #newtrade .layer-prism,
 #newtrade .workbench-subcol-system .layer-prism {
   display: grid !important;
-  grid-template-columns: 28px minmax(0, 1fr) !important;
+  grid-template-columns: 32px minmax(0, 1fr) !important;
   grid-template-rows: auto 1fr !important;
-  gap: 8px 10px !important;
+  gap: 12px 12px !important;
   align-items: start !important;
-  background: linear-gradient(155deg, rgba(14, 46, 32, 0.88), rgba(6, 24, 16, 0.94)) !important;
-  border: 1px solid rgba(143, 224, 170, 0.24) !important;
+  background: linear-gradient(155deg, rgba(14, 46, 32, 0.92), rgba(6, 24, 16, 0.96)) !important;
+  border: 1.5px solid rgba(143, 224, 170, 0.26) !important;
   border-radius: 14px !important;
-  padding: 14px 16px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24) !important;
+  padding: 16px 18px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28) !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
   height: 100% !important;
@@ -3943,24 +3943,24 @@ body:has(#newtrade.active) .content {
 }
 
 #newtrade .workbench-subcol-system .layer-prism:hover {
-  border-color: rgba(143, 224, 170, 0.38) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.32) !important;
+  border-color: rgba(143, 224, 170, 0.42) !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.36) !important;
 }
 
 #newtrade .layer-prism i,
 #newtrade .workbench-subcol-system .layer-prism i {
   grid-column: 1 !important;
   grid-row: 1 !important;
-  width: 28px !important;
-  height: 28px !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 8px !important;
-  background: rgba(200, 168, 78, 0.16) !important;
-  color: #c8a84e !important;
-  border: 1px solid rgba(200, 168, 78, 0.32) !important;
+  background: rgba(200, 168, 78, 0.18) !important;
+  color: #e5cb68 !important;
+  border: 1.5px solid rgba(200, 168, 78, 0.38) !important;
   display: grid !important;
   place-items: center !important;
-  font-weight: 850 !important;
-  font-size: 13px !important;
+  font-weight: 900 !important;
+  font-size: 14px !important;
   flex-shrink: 0 !important;
 }
 
@@ -3970,8 +3970,8 @@ body:has(#newtrade.active) .content {
   grid-row: 1 !important;
   margin: 0 !important;
   align-self: center !important;
-  color: #f2ede4 !important;
-  font-size: 14px !important;
+  color: #f8fafc !important;
+  font-size: 16px !important;
   font-weight: 850 !important;
   line-height: 1.25 !important;
   letter-spacing: -0.01em !important;
@@ -3983,7 +3983,7 @@ body:has(#newtrade.active) .content {
   grid-row: 2 !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 8px !important;
+  gap: 10px !important;
   width: 100% !important;
   min-width: 0 !important;
   justify-content: space-between !important;
@@ -3992,11 +3992,25 @@ body:has(#newtrade.active) .content {
 
 /* Card 1: Grade & Risk Budget */
 #newtrade .layer-quality-content {
-  display: grid !important;
-  grid-template-columns: auto 1fr !important;
-  gap: 8px 12px !important;
-  align-items: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
   width: 100% !important;
+  height: 100% !important;
+  justify-content: space-between !important;
+}
+
+#newtrade .layer-grade-budget-row {
+  display: grid !important;
+  grid-template-columns: 54px 1fr !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 10px 14px !important;
+  background: rgba(0, 0, 0, 0.36) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  min-height: 66px !important;
+  box-sizing: border-box !important;
 }
 
 #newtrade .layer-grade {
@@ -4006,47 +4020,95 @@ body:has(#newtrade.active) .content {
 }
 
 #newtrade .layer-grade small,
-#newtrade .layer-metric small {
-  font-size: 10px !important;
+#newtrade .layer-metric small,
+#newtrade .layer-grade-budget-metric small {
+  font-size: 11px !important;
   font-weight: 800 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.1em !important;
-  color: #89a99a !important;
-  margin-bottom: 2px !important;
+  letter-spacing: 0.08em !important;
+  color: #94a3b8 !important;
+  margin-bottom: 3px !important;
+  display: block !important;
+  white-space: nowrap !important;
 }
 
-#newtrade .layer-grade b {
-  font-size: 32px !important;
+#newtrade .layer-grade b,
+#newtrade .layer-grade-val {
+  font-size: 38px !important;
   font-weight: 900 !important;
-  color: #ffffff !important;
   line-height: 1 !important;
-  text-shadow: 0 0 16px rgba(110, 231, 162, 0.3) !important;
+  color: #facc15 !important;
 }
 
-#newtrade .layer-metric b {
-  font-size: 19px !important;
-  font-weight: 850 !important;
+#newtrade .layer-grade-val.grade-A {
+  color: #4ade80 !important;
+  text-shadow: 0 0 16px rgba(74, 222, 128, 0.45) !important;
+}
+
+#newtrade .layer-grade-val.grade-B {
+  color: #a3e635 !important;
+  text-shadow: 0 0 16px rgba(163, 230, 53, 0.4) !important;
+}
+
+#newtrade .layer-grade-val.grade-C {
+  color: #facc15 !important;
+  text-shadow: 0 0 16px rgba(250, 204, 21, 0.4) !important;
+}
+
+#newtrade .layer-grade-val.grade-D {
+  color: #f87171 !important;
+  text-shadow: 0 0 16px rgba(248, 113, 113, 0.45) !important;
+}
+
+#newtrade .layer-grade-budget-metric {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+#newtrade .layer-grade-budget-metric b {
+  font-size: 24px !important;
+  font-weight: 900 !important;
   color: #34d399 !important;
+  line-height: 1.1 !important;
+}
+
+#newtrade .layer-effective-sub {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #facc15 !important;
+  margin-top: 2px !important;
+  letter-spacing: 0.03em !important;
+  display: block !important;
+  white-space: nowrap !important;
 }
 
 #newtrade .layer-theoretical {
-  grid-column: 1 / -1 !important;
-  padding: 6px 10px !important;
-  background: rgba(0, 0, 0, 0.28) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  border-radius: 8px !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
+  padding: 10px 14px !important;
+  background: rgba(0, 0, 0, 0.36) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  min-height: 66px !important;
+  box-sizing: border-box !important;
 }
 
 #newtrade .layer-theoretical small {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
   margin-bottom: 0 !important;
 }
 
 #newtrade .layer-theoretical b {
-  font-size: 14px !important;
-  color: #f2ede4 !important;
+  font-size: 21px !important;
+  font-weight: 900 !important;
+  color: #72ecae !important;
+  letter-spacing: -0.01em !important;
 }
 
 /* Cards 2 e 3: Limitadores e Exposição */
@@ -4054,72 +4116,195 @@ body:has(#newtrade.active) .content {
 #newtrade .layer-portfolio-content {
   display: flex !important;
   flex-direction: column !important;
-  gap: 6px !important;
+  gap: 10px !important;
   width: 100% !important;
+  height: 100% !important;
+  justify-content: space-between !important;
 }
 
-#newtrade .execution-limit,
+#newtrade .execution-limit {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  grid-template-rows: auto auto !important;
+  align-items: center !important;
+  padding: 10px 14px !important;
+  background: rgba(0, 0, 0, 0.36) !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-sizing: border-box !important;
+  min-height: 66px !important;
+  position: relative !important;
+}
+
+#newtrade .execution-limit small {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #94a3b8 !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+}
+
+#newtrade .execution-limit b {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  font-size: 21px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.01em !important;
+  display: flex !important;
+  align-items: center !important;
+  width: auto !important;
+}
+
+#newtrade .execution-limit em {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  align-self: center !important;
+  position: static !important;
+  transform: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#newtrade .execution-limit em.is-ok,
+#newtrade .execution-limit:not(.is-limiting) em {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  background: rgba(16, 185, 129, 0.18) !important;
+  border: 1.5px solid rgba(74, 222, 128, 0.5) !important;
+  color: #4ade80 !important;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.2) !important;
+  padding: 0 !important;
+}
+
+#newtrade .execution-limit em.is-ok svg,
+#newtrade .execution-limit:not(.is-limiting) em svg {
+  display: block !important;
+  width: 13px !important;
+  height: 13px !important;
+  color: #4ade80 !important;
+  stroke: #4ade80 !important;
+}
+
+#newtrade .execution-limit.is-limiting {
+  border-color: rgba(234, 179, 8, 0.45) !important;
+  background: rgba(234, 179, 8, 0.1) !important;
+  padding-right: 14px !important;
+}
+
+#newtrade .execution-limit em.is-limiting {
+  width: auto !important;
+  height: auto !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  background: rgba(234, 179, 8, 0.22) !important;
+  border: 1.5px solid rgba(234, 179, 8, 0.6) !important;
+  color: #facc15 !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Card 3: Exposição da Carteira */
 #newtrade .portfolio-reading {
   display: flex !important;
   flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 2px !important;
-  padding: 6px 10px !important;
-  background: rgba(0, 0, 0, 0.3) !important;
-  border-radius: 8px !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  width: 100% !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 10px 14px !important;
+  background: rgba(0, 0, 0, 0.36) !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-sizing: border-box !important;
+  min-height: 66px !important;
 }
 
-#newtrade .execution-limit small,
-#newtrade .portfolio-reading small {
-  font-size: 10px !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.07em !important;
-  color: #89a99a !important;
-  font-weight: 750 !important;
-}
-
-#newtrade .execution-limit b,
-#newtrade .portfolio-reading b {
-  font-size: 13.5px !important;
-  font-weight: 850 !important;
-  color: #ffffff !important;
+#newtrade .portfolio-reading .reading-head {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   width: 100% !important;
 }
 
-#newtrade .execution-limit em {
-  font-size: 10px !important;
-  font-style: normal !important;
-  font-weight: 800 !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
-}
-
-#newtrade .execution-limit em.is-limiting {
-  background: rgba(234, 179, 8, 0.2) !important;
-  color: #facc15 !important;
-  border: 1px solid rgba(234, 179, 8, 0.4) !important;
-}
-
-#newtrade .portfolio-reading em {
+#newtrade .portfolio-reading small {
   font-size: 11px !important;
-  font-style: normal !important;
-  color: #64748b !important;
-  margin-left: 4px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #94a3b8 !important;
+  margin-bottom: 0 !important;
+  display: block !important;
 }
 
+#newtrade .portfolio-reading .reading-ceiling {
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  color: #94a3b8 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  padding: 2px 7px !important;
+  border-radius: 5px !important;
+  letter-spacing: 0.04em !important;
+  font-style: normal !important;
+}
+
+#newtrade .portfolio-reading b,
+#newtrade .portfolio-reading .reading-val {
+  font-size: 21px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Status e Validações nos 3 Cards */
 #newtrade .layer-quality-content .layer-status,
 #newtrade .layer-exposure-content .layer-status,
 #newtrade .layer-portfolio-content .layer-status {
   grid-column: 1 / -1 !important;
-  font-size: 11px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  text-align: center !important;
   line-height: 1.35 !important;
-  margin-top: 4px !important;
+  letter-spacing: 0.02em !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  margin-top: 2px !important;
+}
+
+#newtrade .layer-status.status-good {
+  background: rgba(16, 185, 129, 0.14) !important;
+  border: 1.5px solid rgba(52, 211, 153, 0.4) !important;
+  color: #6ee7a2 !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.12) !important;
+}
+
+#newtrade .layer-status.status-caution {
+  background: rgba(234, 179, 8, 0.16) !important;
+  border: 1.5px solid rgba(234, 179, 8, 0.5) !important;
+  color: #fde047 !important;
+  box-shadow: 0 2px 10px rgba(234, 179, 8, 0.14) !important;
+}
+
+#newtrade .layer-status.status-danger {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border: 1.5px solid rgba(239, 68, 68, 0.5) !important;
+  color: #fca5a5 !important;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.16) !important;
 }
 
 /* 2. DIVISÓRIA HORIZONTAL LUMINOSA */

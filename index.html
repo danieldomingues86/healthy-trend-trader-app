@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="frontend/event-playbook.css?v=20261013-1" />
 <link rel="stylesheet" href="frontend/focus-guardian.css?v=20261018-1" />
 <link rel="stylesheet" href="frontend/daily-wisdom.css?v=20261018-1" />
-<link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20261031-mission1" />
+<link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20261031-cardscale1" />
 <script src="frontend/instrument-catalog.js?v=20260924-market-reset-1"></script>
 <script src="frontend/setup-triggers-catalog.js?v=20261026-inside-bar-stop-1"></script>
 <style>
@@ -2944,12 +2944,14 @@ function syncWorkbenchRiskSummary(result){
 
     quality.innerHTML = '<i>1</i><h3>Grade & Risk Budget</h3>'
       + '<div class="layer-content layer-quality-content">'
-      +   '<div class="layer-grade"><small>GRADE</small><b>' + result.grade + '</b></div>'
-      +   '<div class="layer-metric layer-grade-budget-metric"><small>BUDGET AUTORIZADO</small><b>' + gradeBudgetFormatted + '</b>'
-      +   (sizing.isMissionCapped ? '<small class="layer-effective-sub" style="color:#facc15;font-size:10px;font-weight:800;letter-spacing:0.04em;display:block;margin-top:2px;">Efetivo: ' + numBR(sizing.riskBudgetPct*100,2) + '%</small>' : '')
+      +   '<div class="layer-grade-budget-row">'
+      +     '<div class="layer-grade"><small>GRADE</small><b class="layer-grade-val grade-' + result.grade + '">' + result.grade + '</b></div>'
+      +     '<div class="layer-metric layer-grade-budget-metric"><small>RISK BUDGET</small><b>' + gradeBudgetFormatted + '</b>'
+      +     (sizing.isMissionCapped ? '<small class="layer-effective-sub">Efetivo: ' + numBR(sizing.riskBudgetPct*100,2) + '%</small>' : '')
+      +     '</div>'
       +   '</div>'
-      +   '<div class="layer-metric layer-theoretical" style="grid-column: 1 / -1;"><small>POSITION SIZE TEÓRICO</small><b>' + numBR(sizing.theoreticalQuantity,0) + ' ações</b></div>'
-      +   '<span class="layer-status ' + (isDanger?'status-danger':(isCaution?'status-caution':'status-good')) + '" style="grid-column: 1 / -1;">' + statusNote + '</span>'
+      +   '<div class="layer-metric layer-theoretical"><small>POSITION SIZE TEÓRICO</small><b>' + numBR(sizing.theoreticalQuantity,0) + ' ações</b></div>'
+      +   '<span class="layer-status ' + (isDanger?'status-danger':(isCaution?'status-caution':'status-good')) + '">' + statusNote + '</span>'
       + '</div>';
   }
 
@@ -3013,7 +3015,10 @@ function syncWorkbenchRiskSummary(result){
   if(volatility)volatility.innerHTML='<i>2</i><h3>Limitadores de exposição</h3><div class="layer-content layer-exposure-content">'+sizing.layers.map(layerLine).join('')+'<span class="layer-status '+(sizing.limitingLayer==='volatility'||sizing.limitingLayer==='capital'?'status-caution':'status-good')+'">'+exposureStatus+'</span></div>';
   const portfolioIsLimiting=sizing.limitingLayer==='portfolio'||sizing.limitingLayer==='positions';
   const portfolioStatus=sizing.limitingLayer==='positions'?'LIMITANTE · máximo de posições':sizing.limitingLayer==='portfolio'?'LIMITANTE · Portfolio Heat':'✓ Dentro dos limites';
-  if(portfolioLayer)portfolioLayer.innerHTML='<i>3</i><h3>Exposição da carteira</h3><div class="layer-content layer-portfolio-content"><span class="portfolio-reading"><small>PORTFOLIO HEAT</small><b>'+numBR(sizing.currentHeatPct,2)+'% → '+numBR(portfolio.projectedHeatPct,2)+'%</b><em>/ '+numBR(sizing.maximumHeatPct,2)+'%</em></span><span class="portfolio-reading"><small>POSIÇÕES</small><b>'+portfolio.projectedPositions+' / '+profile.maximumPositions+'</b></span><span class="layer-status '+(portfolioIsLimiting?'status-caution':'status-good')+'">'+portfolioStatus+'</span></div>';
+  if(portfolioLayer)portfolioLayer.innerHTML='<i>3</i><h3>Exposição da carteira</h3><div class="layer-content layer-portfolio-content">'
+    + '<span class="portfolio-reading"><div class="reading-head"><small>PORTFOLIO HEAT</small><em class="reading-ceiling">MÁX. '+numBR(sizing.maximumHeatPct,2)+'%</em></div><b class="reading-val">'+numBR(sizing.currentHeatPct,2)+'% → '+numBR(portfolio.projectedHeatPct,2)+'%</b></span>'
+    + '<span class="portfolio-reading"><div class="reading-head"><small>POSIÇÕES</small><em class="reading-ceiling">MÁX. '+profile.maximumPositions+'</em></div><b class="reading-val">'+portfolio.projectedPositions+' / '+profile.maximumPositions+'</b></span>'
+    + '<span class="layer-status '+(portfolioIsLimiting?'status-caution':'status-good')+'">'+portfolioStatus+'</span></div>';
   if(final)final.textContent=numBR(sizing.quantity,0)+' ações';
   const finalContainer=final?.closest('.final-size')||document.querySelector('.final-size');
   finalContainer?.querySelector('.executable-risk-summary')?.remove();
@@ -4856,7 +4861,7 @@ renderEffectiveRiskPolicy();
 <script src="frontend/watchlist-page.js?v=20260923-watchlist-compact-2"></script>
 <link rel="stylesheet" href="frontend/about-page.css?v=20260924-centered-canvas-1" />
 <script src="frontend/about-page.js?v=20260924-centered-canvas-1"></script>
-<link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20261031-mission1" />
+<link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20261031-cardscale1" />
 <script>
 const goWithAboutPage=go;
 go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAboutPage()};
