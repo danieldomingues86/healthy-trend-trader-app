@@ -241,3 +241,29 @@ test('Pigeon Light (Complemento): Widget Gallery, Novo Trade header, Menu em Blo
 
 
 
+
+test('Pigeon Light (Refinamento de Contraste): Menu Superior, Missao Ativa em Novo Trade, Citacao na Sidebar, EMA 21 nos Graficos e Legibilidade em Setores', () => {
+  const css = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+  const chartJs = fs.readFileSync(path.join(root, 'frontend', 'ticker-chart.js'), 'utf8');
+  const wlCss = fs.readFileSync(path.join(root, 'frontend', 'workspace-layout.css'), 'utf8');
+
+  // 1. Menu Superior: textos e icones com contraste nitido, categoria ativa destacada em azul e scroll buttons sem vazamento de cores
+  assert.ok(css.includes('.top-nav-cat-trigger.parent-active'), 'Deve definir estilo de categoria ativa no Menu Superior');
+  assert.ok(css.includes('.top-nav-quick-pill.active'), 'Deve definir pilula de acesso rapido ativa no Menu Superior');
+  assert.ok(wlCss.includes('body:not([data-theme="pigeon"])[data-navigation-layout="top"] .top-navigation-menu button'), 'workspace-layout.css nao deve vazar cor #dce9e1 para o tema Pigeon Light');
+
+  // 2. Novo Trade: Missao Ativa com imagem original mission-climber-banner.jpg e citacao na sidebar legivel
+  assert.ok(css.includes("url('../assets/mission-climber-banner.jpg')"), 'Deve usar imagem existente mission-climber-banner.jpg no banner de Missao Ativa');
+  assert.ok(!css.includes('mission-active-climber-banner.png'), 'Nao deve referenciar arquivo inexistente mission-active-climber-banner.png');
+  assert.ok(css.includes('body[data-theme="pigeon"] .sidebar-quote-text'), 'Deve estilizar o texto da citacao no menu lateral no tema Pigeon Light');
+
+  // 3. Graficos: reset das series tecnicas ao recriar o grafico para preservar EMA 21 ao trocar de ativo
+  assert.ok(chartJs.includes('ema21Series = null;'), 'ticker-chart.js deve resetar ema21Series ao recriar o grafico');
+  assert.ok(chartJs.includes('ema50Series = null;'), 'ticker-chart.js deve resetar ema50Series ao recriar o grafico');
+  assert.ok(chartJs.includes('ema200Series = null;'), 'ticker-chart.js deve resetar ema200Series ao recriar o grafico');
+
+  // 4. Setores: metadados do cabecalho e titulos de empresas no hover com alto contraste
+  assert.ok(css.includes('#markettreemap .treemap-sector-meta span'), 'Deve garantir contraste nos metadados do cabecalho dos setores');
+  assert.ok(css.includes('.tgm-company-title'), 'Deve garantir legibilidade na coluna de empresas do modal de setor');
+  assert.ok(css.includes('.tgm-price-cell'), 'Deve garantir contraste nos precos do modal de setor');
+});

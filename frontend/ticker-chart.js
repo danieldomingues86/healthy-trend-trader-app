@@ -1983,6 +1983,16 @@
       try { chartInstance.remove(); } catch {}
       chartInstance = null;
     }
+    ema21Series = null;
+    ema50Series = null;
+    ema200Series = null;
+    ema10Series = null;
+    ema72Series = null;
+    ema9Series = null;
+    ema30Series = null;
+    volumeSeries = null;
+    candleSeries = null;
+    lineSeries = null;
 
     const isGold = document.documentElement.getAttribute('data-theme') === 'gold';
     const chartBg = isGold ? '#0f1715' : '#ffffff';
