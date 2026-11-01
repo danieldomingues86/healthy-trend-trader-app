@@ -267,3 +267,22 @@ test('Pigeon Light (Refinamento de Contraste): Menu Superior, Missao Ativa em No
   assert.ok(css.includes('.tgm-company-title'), 'Deve garantir legibilidade na coluna de empresas do modal de setor');
   assert.ok(css.includes('.tgm-price-cell'), 'Deve garantir contraste nos precos do modal de setor');
 });
+
+test('Pigeon Light (Ajustes Adicionais): Espaçamento em Configurações, Hero da tela Sobre e Legibilidade em Novo Trade', () => {
+  const css = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+  const setCss = fs.readFileSync(path.join(root, 'frontend', 'settings-experience.css'), 'utf8');
+
+  // 1. Configurações: respiro superior para o título não colar no menu superior
+  assert.match(setCss, /#settings \.settings-hero\{[^}]*padding:32px 0 24px/, 'settings-experience.css deve ter padding-top aumentado');
+  assert.ok(css.includes('padding-top: 36px !important;'), 'theme-pigeon-light.css deve garantir respiro no hero de configurações');
+
+  // 2. Sobre: arte hero substitui o touro por about-pigeon-hero.png
+  assert.ok(fs.existsSync(path.join(root, 'assets', 'about-pigeon-hero.png')), 'assets/about-pigeon-hero.png deve existir');
+  assert.ok(css.includes("url('../assets/about-pigeon-hero.png')"), 'Deve usar about-pigeon-hero.png na tela Sobre');
+  assert.ok(css.includes('#about .about-hero-bull-bg'), 'Deve ocultar imagem do touro no tema Pigeon Light');
+
+  // 3. Novo Trade: Grade C com alto contraste e Missão Ativa com descrição e métricas legíveis
+  assert.ok(css.includes('#newtrade #tradeGaugeMessage.grade-c'), 'Deve estilizar #tradeGaugeMessage.grade-c diretamente no Pigeon Light');
+  assert.ok(css.includes('max-width: 62% !important;'), 'Descrição da Missão Ativa não deve invadir o escalador');
+  assert.ok(css.includes('.mission-metric-pill.is-effective .mission-metric-label'), 'Deve garantir contraste no label do risco efetivo');
+});
