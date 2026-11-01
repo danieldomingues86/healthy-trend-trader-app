@@ -546,114 +546,121 @@ body:not([data-theme="healthy"]) #traderprofile .platform-access-panel{border-co
 </head>
 <body style="overflow:hidden">
 <section class="login-shell" id="loginShell" aria-label="Acesso ao The Healthy Trend Trader">
-  <!-- Cenas de Background (Alta fidelidade cinematográfica) -->
-  <div class="login-scene login-scene-green" aria-hidden="true"></div>
-  <div class="login-scene login-scene-gold" aria-hidden="true"></div>
-  <div class="login-scene-overlay" aria-hidden="true"></div>
+  <!-- Backdrop ambiente para preenchimento total de tela sem cortes -->
+  <div class="login-ambient-backdrop" aria-hidden="true"></div>
 
-  <!-- Idioma e Tema Topo Direito -->
-  <div class="login-top-bar">
-    <div class="theme-picker login-theme-picker" aria-label="Escolha o tema visual">
-      <button class="theme-choice" type="button" data-theme-choice="healthy" onclick="applyTheme('healthy')">
-        <span class="theme-swatch"></span><span class="theme-choice-text">Healthy Green</span>
-      </button>
-      <button class="theme-choice" type="button" data-theme-choice="gold" onclick="applyTheme('gold')">
-        <span class="theme-swatch"></span><span class="theme-choice-text">Premium Gold</span>
-      </button>
-      <button class="theme-choice" type="button" data-theme-choice="pigeon" onclick="applyTheme('pigeon')">
-        <span class="theme-swatch"></span><span class="theme-choice-text">Pigeon Light</span>
-      </button>
-    </div>
-    <div class="language-picker login-language-picker" aria-label="Escolha o idioma">
-      <button class="language-choice" type="button" data-language-choice="pt-BR" onclick="applyLanguage('pt-BR')">PT</button>
-      <button class="language-choice" type="button" data-language-choice="en-US" onclick="applyLanguage('en-US')">EN</button>
-    </div>
-  </div>
+  <!-- Stage cinematográfico em proporção exata da arte oficial (1024:384) -->
+  <div class="login-stage">
+    <!-- Cenas de Background (Alta fidelidade cinematográfica com os 3 assets oficiais) -->
+    <div class="login-scene login-scene-green" aria-hidden="true"></div>
+    <div class="login-scene login-scene-gold" aria-hidden="true"></div>
+    <div class="login-scene login-scene-pigeon" aria-hidden="true"></div>
+    <div class="login-scene-overlay" aria-hidden="true"></div>
 
-  <div class="login-container">
-    <!-- COLUNA ESQUERDA: Marca + Manifesto + Pilares -->
-    <div class="login-manifesto-col">
-      <div class="login-brand">
-        <div class="login-brand-mark">HT</div>
-        <div class="login-brand-text">
-          <strong>THE HEALTHY TREND TRADER</strong>
-          <small>HEALTHY TRADING WORKSPACE</small>
-        </div>
+    <!-- Idioma e Tema Topo Direito -->
+    <div class="login-top-bar">
+      <div class="theme-picker login-theme-picker" aria-label="Escolha o tema visual">
+        <button class="theme-choice" type="button" data-theme-choice="healthy" onclick="applyTheme('healthy')">
+          <span class="theme-swatch"></span><span class="theme-choice-text">Healthy Green</span>
+        </button>
+        <button class="theme-choice" type="button" data-theme-choice="gold" onclick="applyTheme('gold')">
+          <span class="theme-swatch"></span><span class="theme-choice-text">Premium Gold</span>
+        </button>
+        <button class="theme-choice" type="button" data-theme-choice="pigeon" onclick="applyTheme('pigeon')">
+          <span class="theme-swatch"></span><span class="theme-choice-text">Pigeon Light</span>
+        </button>
       </div>
-
-      <div class="login-headline-area">
-        <h1>Clareza para decidir.<br><em>Disciplina para permanecer.</em></h1>
-        <div class="login-accent-line" aria-hidden="true"></div>
-        <div class="login-editorial">
-          <p>Seu processo. Seu risco. Suas decisões.</p>
-          <p>Um workspace construído para operar com intenção.</p>
-        </div>
-      </div>
-
-      <div class="login-foot">
-        <div>
-          <span aria-hidden="true">▥</span>
-          <b>ANÁLISE</b>
-          <small>com método</small>
-        </div>
-        <div>
-          <span aria-hidden="true">♢</span>
-          <b>GESTÃO DE RISCO</b>
-          <small>com disciplina</small>
-        </div>
-        <div>
-          <span aria-hidden="true">◎</span>
-          <b>RESULTADOS</b>
-          <small>no longo prazo</small>
-        </div>
+      <div class="language-picker login-language-picker" aria-label="Escolha o idioma">
+        <button class="language-choice" type="button" data-language-choice="pt-BR" onclick="applyLanguage('pt-BR')">PT</button>
+        <button class="language-choice" type="button" data-language-choice="en-US" onclick="applyLanguage('en-US')">EN</button>
       </div>
     </div>
 
-    <!-- COLUNA CENTRAL: Card de Autenticação (Foreground) -->
-    <div class="login-card-col">
-      <div class="login-card">
-        <div class="login-kicker">BEM-VINDO DE VOLTA</div>
-        <h2>Acesse seu workspace</h2>
-        <p>Continue de onde parou e mantenha seu método no centro de cada decisão.</p>
-        
-        <form class="login-form" onsubmit="enterWorkspace(event)">
-          <div class="login-field">
-            <label for="loginEmail">E-mail</label>
-            <div class="login-email-input">
-              <span aria-hidden="true" class="login-input-icon">✉</span>
-              <input id="loginEmail" type="email" placeholder="seu@email.com" autocomplete="email" required>
+    <div class="login-container">
+      <!-- COLUNA ESQUERDA: Marca + Manifesto + Pilares -->
+      <div class="login-manifesto-col">
+        <div class="login-brand">
+          <div class="login-brand-mark">HT</div>
+          <div class="login-brand-text">
+            <strong>THE HEALTHY TREND TRADER</strong>
+            <small>HEALTHY TRADING WORKSPACE</small>
+          </div>
+        </div>
+
+        <div class="login-headline-area">
+          <h1>Clareza para decidir.<br><em>Disciplina para permanecer.</em></h1>
+          <div class="login-accent-line" aria-hidden="true"></div>
+          <div class="login-editorial">
+            <p>Seu processo. Seu risco. Suas decisões.</p>
+            <p>Um workspace construído para operar com intenção.</p>
+          </div>
+        </div>
+
+        <div class="login-foot">
+          <div>
+            <span aria-hidden="true">▥</span>
+            <b>ANÁLISE</b>
+            <small>com método</small>
+          </div>
+          <div>
+            <span aria-hidden="true">♢</span>
+            <b>GESTÃO DE RISCO</b>
+            <small>com disciplina</small>
+          </div>
+          <div>
+            <span aria-hidden="true">◎</span>
+            <b>RESULTADOS</b>
+            <small>no longo prazo</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUNA CENTRAL: Card de Autenticação (Foreground) -->
+      <div class="login-card-col">
+        <div class="login-card">
+          <div class="login-kicker">BEM-VINDO DE VOLTA</div>
+          <h2>Acesse seu workspace</h2>
+          <p>Continue de onde parou e mantenha seu método no centro de cada decisão.</p>
+          
+          <form class="login-form" onsubmit="enterWorkspace(event)">
+            <div class="login-field">
+              <label for="loginEmail">E-mail</label>
+              <div class="login-email-input">
+                <span aria-hidden="true" class="login-input-icon">✉</span>
+                <input id="loginEmail" type="email" placeholder="seu@email.com" autocomplete="email" required>
+              </div>
             </div>
-          </div>
-          
-          <div class="login-field password-field">
-            <label for="loginPassword">Senha</label>
-            <div class="password-input">
-              <span aria-hidden="true" class="login-input-icon">🔒</span>
-              <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" required>
-              <button id="revealLoginPassword" type="button" class="password-visibility" aria-label="Mostrar senha enquanto pressionado" title="Segure para ver a senha">◉</button>
+            
+            <div class="login-field password-field">
+              <label for="loginPassword">Senha</label>
+              <div class="password-input">
+                <span aria-hidden="true" class="login-input-icon">🔒</span>
+                <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password" required>
+                <button id="revealLoginPassword" type="button" class="password-visibility" aria-label="Mostrar senha enquanto pressionado" title="Segure para ver a senha">◉</button>
+              </div>
             </div>
-          </div>
+            
+            <button class="login-submit" type="submit">
+              <span>Entrar no workspace</span>
+              <span class="submit-arrow" aria-hidden="true">→</span>
+            </button>
+            
+            <div class="login-meta">
+              <label><input type="checkbox"> Manter conectado</label>
+              <button type="button" class="login-forgot-btn">Esqueci minha senha</button>
+            </div>
+          </form>
           
-          <button class="login-submit" type="submit">
-            <span>Entrar no workspace</span>
-            <span class="submit-arrow" aria-hidden="true">→</span>
-          </button>
-          
-          <div class="login-meta">
-            <label><input type="checkbox"> Manter conectado</label>
-            <button type="button" class="login-forgot-btn">Esqueci minha senha</button>
-          </div>
-        </form>
-        
-        <p class="login-signup-prompt">
-          <span class="login-signup-prefix">Novo por aqui? </span>
-          <button id="openSignup" type="button">Crie sua conta</button>
-        </p>
+          <p class="login-signup-prompt">
+            <span class="login-signup-prefix">Novo por aqui? </span>
+            <button id="openSignup" type="button">Crie sua conta</button>
+          </p>
+        </div>
       </div>
-    </div>
 
-    <!-- COLUNA DIREITA: Área de Respiro Visual para a Arte de Fundo -->
-    <div class="login-art-col" aria-hidden="true"></div>
+      <!-- COLUNA DIREITA: Área de Respiro Visual para a Arte de Fundo -->
+      <div class="login-art-col" aria-hidden="true"></div>
+    </div>
   </div>
 </section>
 <div class="app">
