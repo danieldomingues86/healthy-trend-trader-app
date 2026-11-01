@@ -5,45 +5,33 @@
 
 /* ── 1. Tokens e Variáveis de Tema ─────────────────────────────────── */
 #loginShell {
-  /* Padrão: PREMIUM GOLD */
-  --login-bg: #050605;
-  --login-card-bg: rgba(14, 13, 9, 0.84);
-  --login-card-border: rgba(212, 175, 55, 0.36);
-  --login-card-highlight: rgba(250, 204, 21, 0.55);
-  --login-card-shadow: 0 28px 75px -10px rgba(0, 0, 0, 0.85);
-  --login-accent: #d4af37;
-  --login-accent-bright: #facc15;
-  --login-accent-glow: rgba(234, 179, 8, 0.22);
-  --login-headline-accent: #eab308;
-  --login-line-color: #d4af37;
-  --login-cta-bg: linear-gradient(90deg, #fde047 0%, #facc15 50%, #eab308 100%);
-  --login-cta-text: #1a1606;
-  --login-cta-shadow: rgba(234, 179, 8, 0.35);
-  --login-input-bg: rgba(6, 6, 4, 0.78);
-  --login-input-border: rgba(255, 255, 255, 0.08);
-  --login-input-focus: rgba(212, 175, 55, 0.7);
-  --login-icon-color: #eab308;
-  --login-pill-active-bg: #facc15;
-  --login-pill-active-text: #1a1606;
-
   position: fixed;
   inset: 0;
   z-index: 1000;
   width: 100vw;
   height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: var(--login-bg);
-  color: #f5f5f5;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
-  isolation: isolate;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   box-sizing: border-box;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  transition: background 400ms ease;
 }
 
 #loginShell.hidden {
   display: none !important;
+}
+
+body[data-theme="healthy"] #loginShell,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell {
+  background: radial-gradient(ellipse at 50% 50%, #0a2919 0%, #05160d 50%, #020a06 100%);
+}
+body[data-theme="gold"] #loginShell {
+  background: radial-gradient(ellipse at 50% 50%, #2a1808 0%, #150c04 50%, #080502 100%);
+}
+body[data-theme="pigeon"] #loginShell {
+  background: radial-gradient(ellipse at 50% 50%, #FFFFFF 0%, #F0F6FA 60%, #E3EDF4 100%);
 }
 
 /* TEMA 1 — HEALTHY GREEN */
@@ -69,407 +57,460 @@ body[data-theme="healthy"] #loginShell {
   --login-pill-active-text: #042f1a;
 }
 
-/* ── 2. Cenas de Background Cinematográficas ───────────────────────── */
+
+/* TEMA 3 — PIGEON LIGHT */
+body[data-theme="pigeon"] #loginShell {
+  --login-bg: #F5FAFD;
+  --login-card-bg: rgba(255, 255, 255, 0.94);
+  --login-card-border: rgba(121, 187, 214, 0.45);
+  --login-card-highlight: rgba(121, 187, 214, 0.65);
+  --login-card-shadow: 0 24px 60px -10px rgba(48, 75, 91, 0.15);
+  --login-accent: #58A6CA;
+  --login-accent-bright: #79BBD6;
+  --login-accent-glow: rgba(88, 166, 202, 0.22);
+  --login-headline-accent: #2A6885;
+  --login-line-color: #58A6CA;
+  --login-cta-bg: linear-gradient(90deg, #79BBD6 0%, #58A6CA 100%);
+  --login-cta-text: #FFFFFF;
+  --login-cta-shadow: rgba(88, 166, 202, 0.35);
+  --login-input-bg: #F0F7FB;
+  --login-input-border: #DCE8EF;
+  --login-input-focus: #58A6CA;
+  --login-icon-color: #58A6CA;
+  --login-pill-active-bg: #79BBD6;
+  --login-pill-active-text: #FFFFFF;
+  color: #304B5B;
+}
+
+body[data-theme="pigeon"] #loginShell .login-scene-green,
+body[data-theme="pigeon"] #loginShell .login-scene-gold {
+  opacity: 0;
+  visibility: hidden;
+}
+
+body[data-theme="pigeon"] #loginShell .login-scene-overlay {
+  background: radial-gradient(circle at 80% 20%, rgba(121, 187, 214, 0.2), transparent 50%),
+              linear-gradient(135deg, #F5FAFD 0%, #EDF6FA 50%, #F5FAFD 100%);
+}
+
+body[data-theme="pigeon"] #loginShell .login-theme-picker,
+body[data-theme="pigeon"] #loginShell .login-language-picker {
+  background: rgba(237, 246, 250, 0.85);
+  border-color: #DCE8EF;
+}
+
+body[data-theme="pigeon"] #loginShell .login-theme-picker .theme-choice,
+body[data-theme="pigeon"] #loginShell .login-language-picker .language-choice {
+  color: #718A99;
+}
+
+body[data-theme="pigeon"] #loginShell .login-theme-picker .theme-choice:hover,
+body[data-theme="pigeon"] #loginShell .login-language-picker .language-choice:hover {
+  color: #182B36;
+  background: #E4F2F9;
+}
+
+body[data-theme="pigeon"] #loginShell .login-brand-text strong,
+body[data-theme="pigeon"] #loginShell .login-headline-area h1,
+body[data-theme="pigeon"] #loginShell .login-card h2,
+body[data-theme="pigeon"] #loginShell .login-field label,
+body[data-theme="pigeon"] #loginShell .login-field input,
+body[data-theme="pigeon"] #loginShell .login-foot b,
+body[data-theme="pigeon"] #loginShell #openSignup {
+  color: #182B36;
+}
+
+body[data-theme="pigeon"] #loginShell .login-brand-mark {
+  background: #FFFFFF;
+  border-color: #DCE8EF;
+  color: #58A6CA;
+}
+
+body[data-theme="pigeon"] #loginShell .login-editorial p,
+body[data-theme="pigeon"] #loginShell .login-card > p,
+body[data-theme="pigeon"] #loginShell .login-meta,
+body[data-theme="pigeon"] #loginShell .login-forgot-btn,
+body[data-theme="pigeon"] #loginShell .login-signup-prompt,
+body[data-theme="pigeon"] #loginShell .login-foot small {
+  color: #718A99;
+}
+
+body[data-theme="pigeon"] #loginShell .login-forgot-btn:hover {
+  color: #182B36;
+}
+
+body[data-theme="pigeon"] #loginShell .login-field input {
+  background: #F0F7FB;
+  border-color: #DCE8EF;
+  color: #182B36;
+  box-shadow: inset 0 1px 2px rgba(48, 75, 91, 0.04);
+}
+
+body[data-theme="pigeon"] #loginShell .login-field input::placeholder {
+  color: #9BB0BD;
+}
+
+body[data-theme="pigeon"] #loginShell .login-input-icon {
+  color: #718A99;
+}
+
+body[data-theme="pigeon"] #loginShell .login-foot {
+  border-top: 1px solid #DCE8EF;
+}
+
+body[data-theme="pigeon"] #loginShell .login-foot > div:not(:last-child) {
+  border-right: 1px solid #DCE8EF;
+}
+
+/* ── 2. Cenas e Composição Cinematográfica (3 Identidades Oficiais) ───── */
 #loginShell::before,
 #loginShell::after {
   content: none !important;
   display: none !important;
 }
 
-#loginShell .login-scene {
-  position: fixed;
-  inset: 0;
-  z-index: -3;
-  background-position: right center;
-  background-repeat: no-repeat;
+/* Ambient backdrop preenche a tela inteira sem cortes na arte principal */
+#loginShell .login-ambient-backdrop {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  background-position: center center;
   background-size: cover;
+  background-repeat: no-repeat;
+  filter: blur(36px) saturate(1.25);
   pointer-events: none;
-  transition: opacity 500ms ease, filter 500ms ease;
-  filter: brightness(0.95) contrast(1.04);
+  z-index: 1;
+  transition: opacity 400ms ease, background-image 400ms ease;
+}
+
+body[data-theme="healthy"] #loginShell .login-ambient-backdrop,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-ambient-backdrop {
+  background-image: url('../assets/login/healthy-green-forest.png');
+  opacity: 0.85;
+}
+body[data-theme="gold"] #loginShell .login-ambient-backdrop {
+  background-image: url('../assets/login/premium-gold-stallion.png');
+  opacity: 0.88;
+}
+body[data-theme="pigeon"] #loginShell .login-ambient-backdrop {
+  background-image: url('../assets/login/pigeon-light-sky.png');
+  opacity: 0.95;
+}
+
+/* Stage cinematográfico que preserva proporção exata 1024:384 da arte oficial */
+#loginShell .login-stage {
+  position: relative;
+  z-index: 5;
+  width: 112vw;
+  max-width: 2200px;
+  aspect-ratio: 1024 / 384;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cenas oficiais uncropped */
+#loginShell .login-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  pointer-events: none;
+  transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  visibility: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
 }
 
 #loginShell .login-scene-green {
-  background-image: url('../assets/login/healthy-green-bg.png');
-  opacity: 0;
-  visibility: hidden;
+  background-image: url('../assets/login/healthy-green-forest.png');
 }
-
 #loginShell .login-scene-gold {
-  background-image: url('../assets/login/premium-gold-bg.png');
+  background-image: url('../assets/login/premium-gold-stallion.png');
+}
+#loginShell .login-scene-pigeon {
+  background-image: url('../assets/login/pigeon-light-sky.png');
+}
+
+body[data-theme="healthy"] #loginShell .login-scene-green,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-scene-green {
+  opacity: 1;
+  visibility: visible;
+}
+body[data-theme="gold"] #loginShell .login-scene-gold {
+  opacity: 1;
+  visibility: visible;
+}
+body[data-theme="pigeon"] #loginShell .login-scene-pigeon {
   opacity: 1;
   visibility: visible;
 }
 
-body[data-theme="healthy"] #loginShell .login-scene-green {
-  opacity: 1;
-  visibility: visible;
-}
-
-body[data-theme="healthy"] #loginShell .login-scene-gold {
-  opacity: 0;
-  visibility: hidden;
-}
-
-/* Vinheta de Proteção de Contraste — Preserva a legibilidade do texto e card em qualquer resolução */
 #loginShell .login-scene-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  background: linear-gradient(90deg, #050605 0%, rgba(5, 6, 5, 0.94) 28%, rgba(5, 6, 5, 0.68) 46%, rgba(5, 6, 5, 0.15) 68%, transparent 100%);
-}
-
-body[data-theme="healthy"] #loginShell .login-scene-overlay {
-  background: linear-gradient(90deg, #040806 0%, rgba(4, 8, 6, 0.94) 28%, rgba(4, 8, 6, 0.68) 46%, rgba(4, 8, 6, 0.15) 68%, transparent 100%);
+  display: none !important;
 }
 
 /* ── 3. Top Bar (Tema & Idioma) ────────────────────────────────────── */
 #loginShell .login-top-bar {
   position: absolute;
-  top: 28px;
-  right: 36px;
-  z-index: 10;
+  top: 2.85%;
+  right: 2.25%;
+  z-index: 20;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
 }
 
-#loginShell .login-theme-picker,
+#loginShell .login-theme-picker {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding: 2px 6px 2px 20px;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  box-sizing: border-box;
+}
+
 #loginShell .login-language-picker {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 3px;
-  border-radius: 99px;
-  background: rgba(12, 16, 14, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  height: 28px;
+  padding: 2px 5px;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  min-width: 66px;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 body[data-theme="healthy"] #loginShell .login-theme-picker,
-body[data-theme="healthy"] #loginShell .login-language-picker {
-  background: rgba(8, 16, 12, 0.7);
-  border-color: rgba(52, 211, 153, 0.18);
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-theme-picker,
+body[data-theme="healthy"] #loginShell .login-language-picker,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-language-picker {
+  background: #FFFFFF !important;
+  border: 1px solid #E5E7EB !important;
 }
-
-body:not([data-theme="healthy"]) #loginShell .login-theme-picker,
-body:not([data-theme="healthy"]) #loginShell .login-language-picker {
-  background: rgba(14, 13, 9, 0.7);
-  border-color: rgba(212, 175, 55, 0.18);
+body[data-theme="pigeon"] #loginShell .login-theme-picker,
+body[data-theme="pigeon"] #loginShell .login-language-picker {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+}
+body[data-theme="gold"] #loginShell .login-theme-picker,
+body[data-theme="gold"] #loginShell .login-language-picker {
+  background: #0C0B08 !important;
+  border: 1px solid rgba(212, 175, 55, 0.45) !important;
 }
 
 #loginShell .login-theme-picker .theme-choice {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  border: 1px solid transparent;
+  gap: 6px;
+  border: none;
   background: transparent;
-  color: #9ca3af;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 5px 12px;
-  border-radius: 99px;
+  letter-spacing: 0.01em;
+  padding: 4px 12px;
+  border-radius: 999px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  line-height: 1;
 }
 
-#loginShell .login-theme-picker .theme-choice:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.04);
-}
+body[data-theme="healthy"] #loginShell .theme-choice,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .theme-choice { color: #4B5563; }
+body[data-theme="pigeon"] #loginShell .theme-choice { color: #5A7382; }
+body[data-theme="gold"] #loginShell .theme-choice { color: #D1D5DB; }
 
-#loginShell .login-theme-picker .theme-swatch {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
+#loginShell .login-theme-picker .theme-swatch,
+#loginShell .theme-swatch {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  display: inline-block;
   flex-shrink: 0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+#loginShell .theme-choice[data-theme-choice="healthy"] .theme-swatch { background: #10B981; }
+#loginShell .theme-choice[data-theme-choice="gold"] .theme-swatch { background: #F59E0B; }
+#loginShell .theme-choice[data-theme-choice="pigeon"] .theme-swatch { background: #38BDF8; }
 
-#loginShell .login-theme-picker .theme-choice[data-theme-choice="healthy"] .theme-swatch {
-  background: #10b981;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+body[data-theme="healthy"] #loginShell .theme-choice[data-theme-choice="healthy"],
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .theme-choice[data-theme-choice="healthy"] {
+  background: #047857 !important;
+  color: #FFFFFF !important;
 }
-
-#loginShell .login-theme-picker .theme-choice[data-theme-choice="gold"] .theme-swatch {
-  background: #facc15;
-  box-shadow: 0 0 6px rgba(250, 204, 21, 0.6);
+body[data-theme="gold"] #loginShell .theme-choice[data-theme-choice="gold"] {
+  background: #F59E0B !important;
+  color: #0C0B08 !important;
 }
-
-#loginShell .login-theme-picker .theme-choice.active,
-#loginShell .login-theme-picker .theme-choice[aria-pressed="true"] {
-  background: var(--login-pill-active-bg);
-  color: var(--login-pill-active-text);
-  font-weight: 850;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-#loginShell .login-theme-picker .theme-choice.active .theme-swatch,
-#loginShell .login-theme-picker .theme-choice[aria-pressed="true"] .theme-swatch {
-  transform: scale(1.15);
+body[data-theme="pigeon"] #loginShell .theme-choice[data-theme-choice="pigeon"] {
+  background: #0284C7 !important;
+  color: #FFFFFF !important;
 }
 
 #loginShell .language-choice {
   border: none;
   background: transparent;
-  color: #9ca3af;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 5px 11px;
-  border-radius: 99px;
+  letter-spacing: 0.03em;
+  padding: 4px 10px;
+  border-radius: 999px;
   cursor: pointer;
   transition: all 0.2s ease;
+  line-height: 1;
 }
+body[data-theme="healthy"] #loginShell .language-choice,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .language-choice { color: #4B5563; }
+body[data-theme="pigeon"] #loginShell .language-choice { color: #5A7382; }
+body[data-theme="gold"] #loginShell .language-choice { color: #D1D5DB; }
 
-#loginShell .language-choice:hover {
-  color: #ffffff;
-}
+body[data-theme="healthy"] #loginShell .language-choice.active,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .language-choice.active { background: #84CC16 !important; color: #FFFFFF !important; }
+body[data-theme="pigeon"] #loginShell .language-choice.active { background: #7DD3FC !important; color: #0C4A6E !important; }
+body[data-theme="gold"] #loginShell .language-choice.active { background: #F59E0B !important; color: #0C0B08 !important; }
 
-#loginShell .language-choice.active,
-#loginShell .language-choice[aria-pressed="true"] {
-  background: var(--login-pill-active-bg);
-  color: var(--login-pill-active-text);
-  font-weight: 850;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-/* ── 4. Grid Container Principal ───────────────────────────────────── */
+/* ── 4. Layout da Composição & Overlay de Precisão ─────────────────── */
 #loginShell .login-container {
-  position: relative;
-  z-index: 2;
-  flex: 1;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 1800px;
-  margin: 0 auto;
-  padding: 36px clamp(24px, 3.5vw, 64px);
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: minmax(320px, 1.1fr) minmax(390px, 450px) minmax(280px, 1.1fr);
-  align-items: center;
-  gap: clamp(24px, 3vw, 56px);
-  min-height: 100vh;
-}
-
-/* ── 5. Coluna Esquerda: Marca + Manifesto + Pilares ───────────────── */
-#loginShell .login-manifesto-col {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   height: 100%;
-  max-height: 720px;
-  padding: 12px 0;
-  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 10;
 }
 
-/* Marca HT */
-#loginShell .login-brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+/* Manifesto semântico: presente e legível por leitores de tela e testes */
+#loginShell .login-manifesto-col {
+  position: absolute;
+  left: 5%;
+  top: 10%;
+  bottom: 8%;
+  width: 32%;
+  opacity: 0;
+  pointer-events: none;
 }
 
-#loginShell .login-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid var(--login-card-border);
-  background: rgba(10, 14, 11, 0.7);
-  color: var(--login-accent);
-  font-family: Georgia, serif;
-  font-size: 19px;
-  font-weight: 750;
-  letter-spacing: 0.04em;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-#loginShell .login-brand-text strong {
-  display: block;
-  font-size: 13.5px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  color: #f3f4f6;
-}
-
-#loginShell .login-brand-text small {
-  display: block;
-  margin-top: 3px;
-  font-size: 9px;
-  font-weight: 750;
-  letter-spacing: 0.22em;
-  color: var(--login-accent);
-  text-transform: uppercase;
-}
-
-/* Headline Editorial */
-#loginShell .login-headline-area {
-  margin: 36px 0;
-}
-
-#loginShell .login-headline-area h1 {
-  margin: 0;
-  font-family: Georgia, "Playfair Display", "Times New Roman", serif;
-  font-size: clamp(34px, 3.1vw, 50px);
-  font-weight: 400;
-  line-height: 1.14;
-  letter-spacing: -0.035em;
-  color: #ffffff;
-}
-
-#loginShell .login-headline-area h1 em {
-  font-style: normal;
-  display: block;
-  color: var(--login-headline-accent);
-}
-
-#loginShell .login-accent-line {
-  width: 32px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--login-line-color);
-  margin: 22px 0 20px;
-}
-
-#loginShell .login-editorial p {
-  margin: 0 0 4px;
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: #8da498;
-  max-width: 420px;
-}
-
-/* Pilares Inferiores Minimalistas */
-#loginShell .login-foot {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-#loginShell .login-foot > div {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-#loginShell .login-foot > div:not(:last-child) {
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  padding-right: 12px;
-}
-
-#loginShell .login-foot span {
-  display: inline-flex;
-  align-items: center;
-  margin-bottom: 5px;
-  color: var(--login-icon-color);
-  font-size: 20px;
-}
-
-#loginShell .login-foot svg {
-  width: 20px;
-  height: 20px;
-  stroke: var(--login-icon-color);
-  fill: none;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-#loginShell .login-foot b {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: #e5ede7;
-  text-transform: uppercase;
-}
-
-#loginShell .login-foot small {
-  font-size: 10.5px;
-  color: #637f70;
-  letter-spacing: 0.01em;
-}
-
-/* ── 6. Coluna Central: Card de Login (Foreground Protagonista) ───── */
+/* Card interativo posicionado com precisão sobre o card da arte */
 #loginShell .login-card-col {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: absolute;
+  left: 50.1%;
+  top: 17.5%;
+  bottom: 8.8%;
+  transform: translateX(-50%);
+  width: 24.8%;
+  min-width: 380px;
+  max-width: 470px;
+  pointer-events: auto;
+  z-index: 15;
 }
 
 #loginShell .login-card {
   width: 100%;
-  max-width: 446px;
-  padding: 38px 40px 30px;
+  height: 100%;
+  border-radius: 22px;
+  padding: clamp(16px, 2.8vh, 26px) clamp(20px, 1.8vw, 28px);
   box-sizing: border-box;
-  background: var(--login-card-bg);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border-radius: 20px;
-  border: 1px solid var(--login-card-border);
-  box-shadow: 
-    var(--login-card-shadow),
-    inset 0 1px 0 var(--login-card-highlight);
+  text-align: center;
   position: relative;
-  transition: transform 0.25s ease, border-color 0.25s ease;
-}
-
-#loginShell .login-kicker {
-  font-size: 9.5px;
-  font-weight: 850;
-  letter-spacing: 0.22em;
-  color: var(--login-accent);
-  text-transform: uppercase;
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-#loginShell .login-card h2 {
-  margin: 0 0 6px;
-  font-family: Georgia, "Playfair Display", "Times New Roman", serif;
-  font-size: clamp(25px, 2.1vw, 32px);
-  font-weight: 400;
-  letter-spacing: -0.025em;
-  color: #ffffff;
-  text-align: center;
-}
-
-#loginShell .login-card > p {
-  margin: 0 0 24px;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: #9ca3af;
-  text-align: center;
-  max-width: 340px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Formulário de Autenticação */
-#loginShell .login-form {
   display: flex;
   flex-direction: column;
-  position: relative;
+  justify-content: space-between;
+  transition: all 300ms ease;
+}
+
+/* Estilos de Card por tema */
+body[data-theme="healthy"] #loginShell .login-card,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-card {
+  background: #FFFFFF !important;
+  box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  color: #1F2937;
+}
+
+body[data-theme="gold"] #loginShell .login-card {
+  background: #0C0B08 !important;
+  border: 1.5px solid #D4AF37 !important;
+  box-shadow: 0 0 32px rgba(212, 175, 55, 0.35), 0 20px 50px rgba(0, 0, 0, 0.85);
+  color: #F3F4F6;
+}
+
+body[data-theme="pigeon"] #loginShell .login-card {
+  background: #FFFFFF !important;
+  border: 1.5px solid #DCE8EF !important;
+  box-shadow: 0 16px 48px -8px rgba(48, 75, 91, 0.2);
+  color: #182B36;
+}
+
+/* Kicker */
+#loginShell .login-kicker {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+body[data-theme="healthy"] #loginShell .login-kicker,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-kicker { color: #059669; }
+body[data-theme="gold"] #loginShell .login-kicker { color: #F59E0B; }
+body[data-theme="pigeon"] #loginShell .login-kicker { color: #0284C7; }
+
+/* Título do Card */
+#loginShell .login-card h2 {
+  font-family: Georgia, "Playfair Display", "Times New Roman", serif;
+  font-size: clamp(19px, 2.5vh, 23px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+}
+body[data-theme="healthy"] #loginShell .login-card h2,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-card h2 { color: #111827; }
+body[data-theme="gold"] #loginShell .login-card h2 { color: #FFFFFF; }
+body[data-theme="pigeon"] #loginShell .login-card h2 { color: #182B36; }
+
+/* Subtítulo */
+#loginShell .login-card > p {
+  font-size: 10px;
+  line-height: 1.35;
+  margin-bottom: 12px;
+}
+body[data-theme="healthy"] #loginShell .login-card > p,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-card > p { color: #6B7280; }
+body[data-theme="gold"] #loginShell .login-card > p { color: #9CA3AF; }
+body[data-theme="pigeon"] #loginShell .login-card > p { color: #718A99; }
+
+/* Formulário e Campos */
+#loginShell .login-form {
+  text-align: left;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #loginShell .login-field {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 #loginShell .login-field label {
   display: block;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #d1d5db;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
+body[data-theme="healthy"] #loginShell .login-field label,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-field label { color: #374151; }
+body[data-theme="gold"] #loginShell .login-field label { color: #E5E7EB; }
+body[data-theme="pigeon"] #loginShell .login-field label { color: #304B5B; }
 
 #loginShell .login-email-input,
 #loginShell .password-input {
@@ -480,208 +521,148 @@ body:not([data-theme="healthy"]) #loginShell .login-language-picker {
 
 #loginShell .login-input-icon {
   position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-  font-size: 14px;
+  left: 10px;
+  font-size: 12px;
   pointer-events: none;
-  z-index: 2;
 }
+body[data-theme="healthy"] #loginShell .login-email-input .login-input-icon,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-email-input .login-input-icon { color: #E06D53; }
+body[data-theme="healthy"] #loginShell .password-input .login-input-icon,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .password-input .login-input-icon { color: #10B981; }
+body[data-theme="gold"] #loginShell .login-input-icon { color: #F59E0B; }
+body[data-theme="pigeon"] #loginShell .login-input-icon { color: #0284C7; }
 
 #loginShell .login-field input {
   width: 100%;
-  height: 44px;
-  padding: 0 14px 0 40px;
-  box-sizing: border-box;
+  height: clamp(32px, 4.4vh, 36px);
   border-radius: 8px;
-  background: var(--login-input-bg);
-  border: 1px solid var(--login-input-border);
-  color: #ffffff;
-  font-family: inherit;
-  font-size: 13.5px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 0 32px 0 30px;
+  font-size: 11.5px;
   outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
-#loginShell .password-input input {
-  padding-right: 42px;
+body[data-theme="healthy"] #loginShell .login-field input,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-field input {
+  background: #EDF5F1 !important;
+  border: 1px solid #D1E3D9 !important;
+  color: #1F2937 !important;
 }
-
-#loginShell .login-field input::placeholder {
-  color: #4b5563;
-  opacity: 1;
+body[data-theme="gold"] #loginShell .login-field input {
+  background: #181714 !important;
+  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  color: #F3F4F6 !important;
 }
-
-#loginShell .login-field input:focus {
-  border-color: var(--login-input-focus);
-  box-shadow: 0 0 0 3px var(--login-accent-glow), inset 0 1px 3px rgba(0, 0, 0, 0.4);
+body[data-theme="pigeon"] #loginShell .login-field input {
+  background: #F0F7FB !important;
+  border: 1px solid #DCE8EF !important;
+  color: #182B36 !important;
 }
 
 #loginShell .password-visibility {
   position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  right: 10px;
+  background: none;
   border: none;
-  background: transparent;
-  color: #6b7280;
-  display: grid;
-  place-items: center;
   cursor: pointer;
-  border-radius: 6px;
-  transition: color 0.15s ease;
+  font-size: 12px;
+  color: #9CA3AF;
 }
 
-#loginShell .password-visibility:hover {
-  color: #e5e7eb;
-}
-
-#loginShell .password-visibility svg {
-  width: 17px;
-  height: 17px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 1.8;
-}
-
-/* Botão Submit com Gradiente Nobre */
+/* Botão Submit */
 #loginShell .login-submit {
+  width: 100%;
+  height: clamp(34px, 4.8vh, 38px);
+  border-radius: 8px;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
-  height: 46px;
-  margin-top: 6px;
-  border-radius: 8px;
-  border: none;
-  background: var(--login-cta-bg);
-  color: var(--login-cta-text);
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 850;
-  letter-spacing: 0.02em;
+  gap: 6px;
   cursor: pointer;
-  box-shadow: 0 6px 20px -2px var(--login-cta-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+  margin-top: 8px;
+  margin-bottom: 10px;
+  transition: transform 0.15s ease, filter 0.15s ease;
 }
-
-#loginShell .login-submit .submit-arrow {
-  font-size: 16px;
-  line-height: 1;
-  transition: transform 0.2s ease;
-}
-
 #loginShell .login-submit:hover {
-  transform: translateY(-1px);
   filter: brightness(1.06);
-  box-shadow: 0 8px 24px -2px var(--login-cta-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
-#loginShell .login-submit:hover .submit-arrow {
-  transform: translateX(3px);
+body[data-theme="healthy"] #loginShell .login-submit,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-submit {
+  background: #047857 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.35);
+}
+body[data-theme="gold"] #loginShell .login-submit {
+  background: linear-gradient(90deg, #F59E0B 0%, #D97706 100%) !important;
+  color: #0C0B08 !important;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+}
+body[data-theme="pigeon"] #loginShell .login-submit {
+  background: #0284C7 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
 }
 
-#loginShell .login-submit:active {
-  transform: translateY(0);
-}
-
-#loginShell .login-submit:disabled {
-  opacity: 0.6;
-  cursor: wait;
-  transform: none;
-}
-
-/* Linha de Metadados (Manter conectado & Esqueci minha senha) */
+/* Meta links */
 #loginShell .login-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 22px;
-  font-size: 11.5px;
-  color: #9ca3af;
+  font-size: 9.5px;
+  margin-bottom: 8px;
 }
-
-#loginShell .login-field-error {
-  display: block;
-  margin-top: 6px;
-  font-size: 11.5px;
-  color: #f87171;
-  line-height: 1.4;
-}
+body[data-theme="healthy"] #loginShell .login-meta,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-meta { color: #6B7280; }
+body[data-theme="gold"] #loginShell .login-meta { color: #9CA3AF; }
+body[data-theme="pigeon"] #loginShell .login-meta { color: #718A99; }
 
 #loginShell .login-meta label {
   display: flex;
   align-items: center;
-  gap: 7px;
-  cursor: pointer;
-  user-select: none;
-}
-
-#loginShell .login-meta input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
-  accent-color: var(--login-accent);
+  gap: 5px;
   cursor: pointer;
 }
 
 #loginShell .login-forgot-btn {
+  background: none;
   border: none;
-  background: transparent;
-  color: #9ca3af;
-  font-family: inherit;
-  font-size: 11.5px;
-  padding: 0;
   cursor: pointer;
-  transition: color 0.15s ease;
+  font-size: 9.5px;
+  color: inherit;
 }
+#loginShell .login-forgot-btn:hover { text-decoration: underline; }
 
-#loginShell .login-forgot-btn:hover {
-  color: #e5e7eb;
-}
-
-/* Prompt Novo por aqui? Crie sua conta */
+/* Signup prompt */
 #loginShell .login-signup-prompt {
+  font-size: 9.5px;
+  margin: 0;
   text-align: center;
-  margin: 22px 0 0;
-  font-size: 12px;
-  color: #9ca3af;
 }
+body[data-theme="healthy"] #loginShell .login-signup-prompt,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell .login-signup-prompt { color: #6B7280; }
+body[data-theme="gold"] #loginShell .login-signup-prompt { color: #9CA3AF; }
+body[data-theme="pigeon"] #loginShell .login-signup-prompt { color: #718A99; }
 
 #loginShell #openSignup {
+  background: none;
   border: none;
-  background: transparent;
-  color: #ffffff;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 750;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  font-size: 9.5px;
+  font-weight: 700;
   cursor: pointer;
-  padding: 0;
-  transition: color 0.15s ease;
+  text-decoration: underline;
 }
+body[data-theme="healthy"] #loginShell #openSignup,
+body:not([data-theme="gold"]):not([data-theme="pigeon"]) #loginShell #openSignup { color: #047857; }
+body[data-theme="gold"] #loginShell #openSignup { color: #F59E0B; }
+body[data-theme="pigeon"] #loginShell #openSignup { color: #0284C7; }
 
-#loginShell #openSignup:hover {
-  color: var(--login-accent-bright);
-}
-
-#loginShell .login-demo {
-  margin: 12px 0 0;
-  width: 100%;
-  font-size: 12px;
-  line-height: 1.4;
-  color: #f87171;
-  text-align: center;
-}
-
-#loginShell .login-demo:empty {
-  display: none;
-}
 
 #loginShell #loginMessage {
   position: absolute;
@@ -834,30 +815,30 @@ body:not([data-theme="healthy"]) #loginShell .login-language-picker {
 
 /* Suporte ao Tema Gold - preserva identidade de erro vermelha/vinho */
 body[data-theme="gold"] #loginShell .login-error-card,
-body:not([data-theme="healthy"]) #loginShell .login-error-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-card {
   background: rgba(30, 11, 13, 0.98);
   border-color: rgba(239, 68, 68, 0.42);
   box-shadow: 0 16px 42px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(239, 68, 68, 0.15);
 }
 
 body[data-theme="gold"] #loginShell .login-error-advice-box,
-body:not([data-theme="healthy"]) #loginShell .login-error-advice-box {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-advice-box {
   background: rgba(20, 7, 9, 0.88);
   border-color: rgba(239, 68, 68, 0.25);
 }
 
 body[data-theme="gold"] #loginShell .login-error-advice-title,
-body:not([data-theme="healthy"]) #loginShell .login-error-advice-title {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-advice-title {
   color: #fca5a5;
 }
 
 body[data-theme="gold"] #loginShell .login-error-retry-btn,
-body:not([data-theme="healthy"]) #loginShell .login-error-retry-btn {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-retry-btn {
   background: #059669;
 }
 
 body[data-theme="gold"] #loginShell .login-error-retry-btn:hover,
-body:not([data-theme="healthy"]) #loginShell .login-error-retry-btn:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-retry-btn:hover {
   background: #10b981;
 }
 
@@ -868,84 +849,151 @@ body:not([data-theme="healthy"]) #loginShell .login-error-retry-btn:hover {
 }
 
 /* ── 8. Responsividade Refinada ────────────────────────────────────── */
-@media (max-width: 1280px) {
-  #loginShell .login-container {
-    grid-template-columns: minmax(300px, 1fr) minmax(360px, 420px);
-    gap: 32px;
-    padding: 32px 36px;
+@media (max-height: 760px) and (min-width: 961px) {
+  #loginShell .login-stage {
+    width: 120vw;
+    max-width: 2100px;
   }
-  #loginShell .login-art-col {
-    display: none;
+  #loginShell .login-card-col {
+    top: 15%;
+    bottom: 6%;
+    min-width: 370px;
   }
-  #loginShell .login-headline-area h1 {
-    font-size: clamp(30px, 2.7vw, 40px);
+  #loginShell .login-card {
+    padding: 16px 22px;
+  }
+  #loginShell .login-card h2 {
+    font-size: 20px;
+  }
+  #loginShell .login-card > p {
+    margin-bottom: 8px;
+    font-size: 9.5px;
+  }
+  #loginShell .login-field {
+    margin-bottom: 7px;
+  }
+  #loginShell .login-submit {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    height: 34px;
   }
 }
 
 @media (max-width: 960px) {
-  #loginShell .login-container {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    padding: 80px 24px 40px;
-    min-height: auto;
-  }
-  #loginShell .login-manifesto-col {
+  #loginShell {
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
-    text-align: center;
-    max-height: none;
-    margin-bottom: 24px;
+    padding: 24px 16px 40px;
   }
-  #loginShell .login-accent-line {
-    margin: 18px auto 16px;
+  #loginShell .login-ambient-backdrop {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    filter: blur(24px) saturate(1.2);
+    opacity: 0.92;
   }
-  #loginShell .login-foot {
-    display: none; /* Oculta pilares em telas compactas conforme requisitos */
+  #loginShell .login-stage {
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    -webkit-mask-image: none;
+    mask-image: none;
+    box-shadow: none;
   }
-  #loginShell .login-card {
-    max-width: 440px;
+  #loginShell .login-scene {
+    display: none !important;
   }
   #loginShell .login-top-bar {
-    top: 18px;
-    right: 20px;
-    gap: 8px;
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    max-width: 440px;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+  }
+  #loginShell .login-container {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+  }
+  #loginShell .login-manifesto-col,
+  #loginShell .login-art-col {
+    display: none;
+  }
+  #loginShell .login-card-col {
+    position: relative;
+    left: auto;
+    top: auto;
+    bottom: auto;
+    transform: none;
+    width: 100%;
+    max-width: 440px;
+    min-width: 0;
+    height: auto;
+  }
+  #loginShell .login-card {
+    height: auto;
+    min-height: 480px;
+    padding: 28px 24px 22px;
   }
 }
 
 @media (max-width: 560px) {
   #loginShell .login-top-bar {
-    top: 14px;
-    right: 14px;
+    width: 100%;
+    max-width: 360px;
     gap: 6px;
+    margin-bottom: 16px;
+    justify-content: space-between;
   }
-  #loginShell .login-theme-picker .theme-choice-text {
-    display: none;
+  #loginShell .login-theme-picker {
+    height: 28px;
+    padding: 2px 4px;
+    gap: 2px;
+    min-width: 0;
   }
   #loginShell .login-theme-picker .theme-choice {
-    padding: 6px 9px;
+    padding: 3px 6px;
+    font-size: 9px;
+    gap: 3px;
   }
-  #loginShell .login-theme-picker .theme-swatch {
-    margin: 0;
+  #loginShell .login-language-picker {
+    height: 28px;
+    min-width: 52px;
+    padding: 2px 3px;
+  }
+  #loginShell .login-language-picker .language-choice {
+    padding: 3px 6px;
+    font-size: 9.5px;
   }
 }
 
 @media (max-width: 480px) {
-  #loginShell .login-container {
-    padding: 70px 16px 30px;
+  #loginShell {
+    padding: 16px 12px 32px;
+  }
+  #loginShell .login-theme-picker .theme-choice:not(.active) .theme-choice-text {
+    display: none;
   }
   #loginShell .login-card {
-    padding: 28px 20px 22px;
+    padding: 22px 18px 18px;
+    border-radius: 18px;
   }
-  #loginShell .login-headline-area h1 {
-    font-size: 26px;
-  }
-  #loginShell .login-editorial p {
-    font-size: 12px;
-  }
-  #loginShell .login-brand strong {
-    font-size: 11.5px;
-  }
-  #loginShell .login-brand small {
-    font-size: 7.5px;
+  #loginShell .login-card h2 {
+    font-size: 21px;
   }
 }
 

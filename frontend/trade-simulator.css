@@ -1307,92 +1307,92 @@ body.theme-gold .sim-cycle-pill.cycle-neutral,
 }
 
 /* Dark theme / Gold theme support */
-body:not([data-theme="healthy"]) #tradesimulator {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #tradesimulator {
   color: #f1ede3;
 }
 
-body:not([data-theme="healthy"]) .sim-header-titles h1,
-body:not([data-theme="healthy"]) .sim-kpi-val,
-body:not([data-theme="healthy"]) .sim-chart-title,
-body:not([data-theme="healthy"]) .sim-dist-count,
-body:not([data-theme="healthy"]) .sim-trigger-name,
-body:not([data-theme="healthy"]) .sim-ticker-code,
-body:not([data-theme="healthy"]) .sim-table td,
-body:not([data-theme="healthy"]) .sim-metric-box b,
-body:not([data-theme="healthy"]) .sim-timeline-label {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-header-titles h1,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-kpi-val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-chart-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-dist-count,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-trigger-name,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-ticker-code,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-table td,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-metric-box b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-timeline-label {
   color: #f1ede3;
 }
 
-body:not([data-theme="healthy"]) .sim-kpi-card,
-body:not([data-theme="healthy"]) .sim-chart-card,
-body:not([data-theme="healthy"]) .sim-table-card,
-body:not([data-theme="healthy"]) .sim-modal-box {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-kpi-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-chart-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-table-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-modal-box {
   background: #142820;
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-body:not([data-theme="healthy"]) .sim-filter-btn,
-body:not([data-theme="healthy"]) .sim-more-btn,
-body:not([data-theme="healthy"]) .sim-search-input,
-body:not([data-theme="healthy"]) .sim-export-btn,
-body:not([data-theme="healthy"]) .sim-tab-btn,
-body:not([data-theme="healthy"]) .sim-result-pill,
-body:not([data-theme="healthy"]) .sim-result-filter-bar {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-filter-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-more-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-search-input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-export-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-tab-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-result-pill,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-result-filter-bar {
   background: rgba(20, 40, 32, 0.65);
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-body:not([data-theme="healthy"]) .sim-result-filter-label {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-result-filter-label {
   color: rgba(241, 237, 227, 0.6);
 }
 
-body:not([data-theme="healthy"]) .sim-result-pill.active {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-result-pill.active {
   background: #10b981;
   border-color: #10b981;
   color: #ffffff;
 }
 
-body:not([data-theme="healthy"]) .sim-result-pill.pill-loss.active {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-result-pill.pill-loss.active {
   background: #ef4444;
   border-color: #ef4444;
 }
 
-body:not([data-theme="healthy"]) .sim-result-pill.pill-breakeven.active {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-result-pill.pill-breakeven.active {
   background: #475569;
   border-color: #475569;
 }
 
-body:not([data-theme="healthy"]) .sim-status-pill.pill-breakeven {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-status-pill.pill-breakeven {
   background: #1e3a2f;
   color: #cbd5e1;
   border-color: rgba(255, 255, 255, 0.15);
 }
 
-body:not([data-theme="healthy"]) .sim-metric-box {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-metric-box {
   background: #193329;
   border-color: rgba(255, 255, 255, 0.12);
   color: #f1ede3;
 }
 
-body:not([data-theme="healthy"]) .sim-table tbody tr:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.03);
 }
 
-body:not([data-theme="healthy"]) .sim-table tfoot tr.sim-table-summary-row {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-table tfoot tr.sim-table-summary-row {
   background: #142820;
   border-top-color: rgba(255, 255, 255, 0.12);
 }
 
-body:not([data-theme="healthy"]) .sim-table tfoot td,
-body:not([data-theme="healthy"]) .sim-tfoot-summary-title {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-table tfoot td,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-tfoot-summary-title {
   color: #f1ede3;
 }
 
-body:not([data-theme="healthy"]) .sim-tfoot-summary-title small {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-tfoot-summary-title small {
   color: #94a3b8;
 }
 
-body:not([data-theme="healthy"]) .sim-table td.td-duration {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-table td.td-duration {
   color: #cbd5e1;
 }
 
@@ -2166,80 +2166,80 @@ body:not([data-theme="healthy"]) .sim-table td.td-duration {
   padding: 0 4px;
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-modal-box {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-modal-box {
   background: #11231b;
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-params-bar {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-params-bar {
   background: #172d23;
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-param-item b,
-body:not([data-theme="healthy"]) .sim-snapshot-title-wrap h2 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-param-item b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-title-wrap h2 {
   color: #f1ede3;
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-nav-group {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-nav-group {
   background: #0f1d16;
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-nav-btn {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-nav-btn {
   background: #172d23;
   border-color: rgba(255, 255, 255, 0.16);
   color: #f1ede3;
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-nav-btn:hover:not(.disabled):not(:disabled) {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-nav-btn:hover:not(.disabled):not(:disabled) {
   background: #1f3b2e;
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-body:not([data-theme="healthy"]) .sim-kbd-pill {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-kbd-pill {
   background: #11231b;
   color: #cbd5e1;
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-counter-badge {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-counter-badge {
   color: #94a3b8;
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-counter-cur {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-counter-cur {
   color: #f1ede3;
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-footer-nav-btn {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-footer-nav-btn {
   background: #172d23;
   border-color: rgba(255, 255, 255, 0.16);
   color: #f1ede3;
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-footer-nav-btn:hover:not(.disabled):not(:disabled) {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-footer-nav-btn:hover:not(.disabled):not(:disabled) {
   background: #1f3b2e;
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-keyboard-guide {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-keyboard-guide {
   color: #38bdf8;
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-vision-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-vision-card {
   background: #15291f;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-title {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-vision-card .summary-title {
   color: #f1ede3;
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-left {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-vision-card .summary-check-left {
   color: #cbd5e1;
 }
 
-body:not([data-theme="healthy"]) .sim-snapshot-vision-card .summary-check-row {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sim-snapshot-vision-card .summary-check-row {
   border-bottom-color: rgba(255, 255, 255, 0.06);
 }
 

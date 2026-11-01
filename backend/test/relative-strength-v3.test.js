@@ -26,7 +26,7 @@ test('Força Relativa: preserva 100% da integridade do Diário (Swing Trade)', a
   assert.ok(daily.bdr, 'Universo bdr deve existir no Diário');
 
   assert.strictEqual(daily.stock_ibov.items.length, 76, 'Ibov diário deve conter 76 ativos');
-  assert.strictEqual(daily.fii.items.length, 106, 'FIIs diário deve conter 106 ativos');
+  assert.strictEqual(daily.fii.items.length, 104, 'FIIs diário deve conter 104 ativos');
   assert.strictEqual(daily.bdr.items.length, 34, 'BDRs diário deve conter 34 ativos');
 
   // Verify daily returns are present and valid

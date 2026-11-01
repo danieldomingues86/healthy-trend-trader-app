@@ -19,30 +19,30 @@
 .today-opportunity-list{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:18px}.today-opportunity-list button{min-height:92px;padding:13px;border:1px solid #d9e6dc;border-radius:13px;background:#f9fbf7;color:var(--ink);text-align:left;cursor:pointer}.today-opportunity-list button:hover{border-color:#63b67e;background:#f0f8f2}.today-opportunity-list small,.today-opportunity-list strong{display:block}.today-opportunity-list small{color:var(--muted);font-size:9px;text-transform:uppercase}.today-opportunity-list strong{margin:8px 0 4px;font-size:23px}.today-opportunity-list span{font-size:10px;color:#557060}
 .today-next-action{position:relative;overflow:hidden;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;padding:27px;border-radius:20px;background:linear-gradient(135deg,#102f24,#174d37);color:#fff}.today-next-action:after{content:"→";position:absolute;right:24%;top:-26px;color:rgba(255,255,255,.045);font-size:150px}.today-next-action small{color:#8fd3a5;font-size:9px;font-weight:900;letter-spacing:.14em}.today-next-action h2{margin:7px 0;color:#fff;font:700 29px Georgia,serif}.today-next-action p{margin:0;color:#c7dfce;font-size:12px}.today-next-action button{position:relative;z-index:1;min-width:175px;border:1px solid #9ed4ae;border-radius:11px;background:#e9f8ec;color:#175b37;padding:12px 15px;font-weight:850;cursor:pointer}
 .top-heat-meter{display:flex;align-items:center;gap:9px;min-width:160px;padding:7px 11px;border:1px solid #d7e3d9;border-radius:999px;background:rgba(255,255,255,.72);cursor:pointer}.top-heat-meter span{font-size:9px;font-weight:850;color:#486456}.top-heat-meter b{font-size:11px;color:#173f2b}.top-heat-meter i{width:42px;height:5px;overflow:hidden;border-radius:999px;background:#dce5de}.top-heat-meter i em{display:block;height:100%;background:#4fad70}.top-heat-meter.warn i em{background:#d88e3b}
-body:not([data-theme="healthy"]) .today-cockpit-card{border-color:#3f3828;background:rgba(24,22,16,.88)}body:not([data-theme="healthy"]) .today-cockpit-card h2,body:not([data-theme="healthy"]) .today-cockpit-card h3{color:#f5ead3}body:not([data-theme="healthy"]) .today-account-facts div,body:not([data-theme="healthy"]) .today-opportunity-list button{border-color:#413925;background:#211d13;color:#f2e5c9}body:not([data-theme="healthy"]) .today-heat-bar{background:#3b3424}body:not([data-theme="healthy"]) .top-heat-meter{border-color:#4c4028;background:#211b11}body:not([data-theme="healthy"]) .top-heat-meter span,body:not([data-theme="healthy"]) .top-heat-meter b{color:#ead49f}
-body:not([data-theme="healthy"]) .today-heat-card.critical{border-color:#b84d49;background:linear-gradient(135deg,#281514,#391b19);box-shadow:0 0 0 5px rgba(206,71,64,.16),0 15px 34px rgba(0,0,0,.28)}body:not([data-theme="healthy"]) .today-heat-card.critical h2,body:not([data-theme="healthy"]) .today-heat-card.critical .today-card-kicker,body:not([data-theme="healthy"]) .today-heat-card.critical .today-heat-number strong{color:#ffaaa4}body:not([data-theme="healthy"]) .today-heat-card.critical .today-account-facts div{border-color:#65312e;background:#341b19}body:not([data-theme="healthy"]) .top-heat-meter.critical{border-color:#a84c47;background:#311817}.top-heat-meter.critical span,.top-heat-meter.critical b{color:#ffaaa4}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cockpit-card{border-color:#3f3828;background:rgba(24,22,16,.88)}body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cockpit-card h2,body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cockpit-card h3{color:#f5ead3}body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-account-facts div,body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-opportunity-list button{border-color:#413925;background:#211d13;color:#f2e5c9}body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-heat-bar{background:#3b3424}body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .top-heat-meter{border-color:#4c4028;background:#211b11}body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .top-heat-meter span,body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .top-heat-meter b{color:#ead49f}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-heat-card.critical{border-color:#b84d49;background:linear-gradient(135deg,#281514,#391b19);box-shadow:0 0 0 5px rgba(206,71,64,.16),0 15px 34px rgba(0,0,0,.28)}body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-heat-card.critical h2,body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-heat-card.critical .today-card-kicker,body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-heat-card.critical .today-heat-number strong{color:#ffaaa4}body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-heat-card.critical .today-account-facts div{border-color:#65312e;background:#341b19}body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .top-heat-meter.critical{border-color:#a84c47;background:#311817}.top-heat-meter.critical span,.top-heat-meter.critical b{color:#ffaaa4}
 
 /* Premium Gold: the operational panels use charcoal and gold, while green remains a market-status signal. */
-body:not([data-theme="healthy"]) .today-cockpit-hero{background:radial-gradient(circle at 82% 15%,rgba(224,181,79,.17),transparent 29%),linear-gradient(132deg,#15110b,#473119);box-shadow:0 24px 54px rgba(30,18,4,.3)}
-body:not([data-theme="healthy"]) .today-cockpit-hero .eyebrow{color:#e8bf62}
-body:not([data-theme="healthy"]) .today-cockpit-hero p{color:#e3d2aa}
-body:not([data-theme="healthy"]) .today-permission{border-color:rgba(233,196,108,.3);background:rgba(13,9,4,.38)}
-body:not([data-theme="healthy"]) .today-permission small{color:#e1c780}
-body:not([data-theme="healthy"]) .today-card-kicker{color:#d7aa4f}
-body:not([data-theme="healthy"]) .today-cockpit-card>p,
-body:not([data-theme="healthy"]) .today-heat-number span,
-body:not([data-theme="healthy"]) .today-heat-scale,
-body:not([data-theme="healthy"]) .today-account-facts small,
-body:not([data-theme="healthy"]) .today-opportunity-list small{color:#bcae8f}
-body:not([data-theme="healthy"]) .today-opportunity-list span{color:#cabd9c}
-body:not([data-theme="healthy"]) .today-opportunity-list button:hover{border-color:#c89f46;background:#2a2112}
-body:not([data-theme="healthy"]) .today-heat-bar i{background:linear-gradient(90deg,#a97420,#edc96d)}
-body:not([data-theme="healthy"]) .today-next-action{background:radial-gradient(circle at 76% 48%,rgba(221,179,73,.13),transparent 30%),linear-gradient(135deg,#1d150b,#513817)}
-body:not([data-theme="healthy"]) .today-next-action small{color:#e5bd61}
-body:not([data-theme="healthy"]) .today-next-action p{color:#d8c59c}
-body:not([data-theme="healthy"]) .today-next-action button{border-color:#e5c36f;background:#f2dfaa;color:#34220a}
-body:not([data-theme="healthy"]) .top-heat-meter i{background:#54462b}
-body:not([data-theme="healthy"]) .top-heat-meter i em{background:#d6aa50}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cockpit-hero{background:radial-gradient(circle at 82% 15%,rgba(224,181,79,.17),transparent 29%),linear-gradient(132deg,#15110b,#473119);box-shadow:0 24px 54px rgba(30,18,4,.3)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cockpit-hero .eyebrow{color:#e8bf62}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cockpit-hero p{color:#e3d2aa}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-permission{border-color:rgba(233,196,108,.3);background:rgba(13,9,4,.38)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-permission small{color:#e1c780}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-card-kicker{color:#d7aa4f}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cockpit-card>p,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-heat-number span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-heat-scale,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-account-facts small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-opportunity-list small{color:#bcae8f}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-opportunity-list span{color:#cabd9c}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-opportunity-list button:hover{border-color:#c89f46;background:#2a2112}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-heat-bar i{background:linear-gradient(90deg,#a97420,#edc96d)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-next-action{background:radial-gradient(circle at 76% 48%,rgba(221,179,73,.13),transparent 30%),linear-gradient(135deg,#1d150b,#513817)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-next-action small{color:#e5bd61}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-next-action p{color:#d8c59c}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-next-action button{border-color:#e5c36f;background:#f2dfaa;color:#34220a}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .top-heat-meter i{background:#54462b}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .top-heat-meter i em{background:#d6aa50}
 @media(max-width:980px){.today-cockpit-hero,.today-cockpit-grid{grid-template-columns:1fr}.today-next-action{grid-template-columns:1fr}.today-next-action button{width:100%}}@media(max-width:680px){.today-heat-layout{grid-template-columns:1fr}.today-account-facts,.today-opportunity-list{grid-template-columns:1fr}.top-heat-meter{display:none}}
 
 
@@ -200,7 +200,7 @@ body:has(#today.active) .content{min-height:calc(100vh - 78px);padding:0!importa
   mask-image:linear-gradient(115deg,transparent 2%,#000 50%,transparent 96%);
 }
 #today .today-dashboard:after{content:"";position:absolute;z-index:-1;inset:80px 0 auto 35%;height:360px;pointer-events:none;background:radial-gradient(ellipse at center,rgba(26,168,99,.1),transparent 67%);filter:blur(18px)}
-body:not([data-theme="healthy"]) #today .today-dashboard{--desktop-accent:#e0b753;--desktop-accent-rgb:224,183,83;--desktop-border:rgba(224,183,83,.3);background:radial-gradient(ellipse 40% 30% at 92% 2%,rgba(186,132,39,.13),transparent 72%),radial-gradient(ellipse 38% 34% at 4% 72%,rgba(120,83,28,.1),transparent 72%),linear-gradient(145deg,#171309 0%,#0e0c08 74%,#161107 100%)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-dashboard{--desktop-accent:#e0b753;--desktop-accent-rgb:224,183,83;--desktop-border:rgba(224,183,83,.3);background:radial-gradient(ellipse 40% 30% at 92% 2%,rgba(186,132,39,.13),transparent 72%),radial-gradient(ellipse 38% 34% at 4% 72%,rgba(120,83,28,.1),transparent 72%),linear-gradient(145deg,#171309 0%,#0e0c08 74%,#161107 100%)}
 
 #today .today-dashboard-header{min-height:66px;padding:0 0 9px;gap:16px}
 #today .today-dashboard-header h1{margin:3px 0 2px;font-size:clamp(28px,2.15vw,38px);font-weight:780}
@@ -1730,11 +1730,11 @@ body[data-theme="healthy"] #today .personal-list label {
    ═══════════════════════════════════════════════════════════════════════ */
 
 /* Canvas & Background no Gold */
-body:not([data-theme="healthy"]):has(#today.active),
-body:not([data-theme="healthy"]):has(#today.active) .main,
-body:not([data-theme="healthy"]):has(#today.active) .content,
-body:not([data-theme="healthy"]) #today.today-cockpit-page,
-body:not([data-theme="healthy"]) #today .today-dashboard,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active),
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .main,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .content,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today.today-cockpit-page,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-dashboard,
 body[data-theme="gold"]:has(#today.active),
 body[data-theme="gold"]:has(#today.active) .main,
 body[data-theme="gold"]:has(#today.active) .content,
@@ -1743,7 +1743,7 @@ body[data-theme="gold"] #today .today-dashboard {
   background: #090805 !important;
 }
 
-body:not([data-theme="healthy"]) #today .today-dashboard,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-dashboard,
 body[data-theme="gold"] #today .today-dashboard {
   position: relative;
   background: 
@@ -1753,7 +1753,7 @@ body[data-theme="gold"] #today .today-dashboard {
   padding: 16px clamp(20px, 2.2vw, 36px) 36px !important;
 }
 
-body:not([data-theme="healthy"]) #today .today-dashboard:before,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-dashboard:before,
 body[data-theme="gold"] #today .today-dashboard:before {
   background-image:
     linear-gradient(rgba(214, 170, 80, 0.035) 1px, transparent 1px),
@@ -1763,84 +1763,84 @@ body[data-theme="gold"] #today .today-dashboard:before {
 }
 
 /* Topbar Dark no Gold */
-body:not([data-theme="healthy"]):has(#today.active) .topbar,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .topbar,
 body[data-theme="gold"]:has(#today.active) .topbar {
   background: rgba(14, 11, 7, 0.95) !important;
   backdrop-filter: blur(16px) !important;
   border-bottom: 1px solid rgba(214, 170, 80, 0.18) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
 }
-body:not([data-theme="healthy"]):has(#today.active) .topbar .crumb,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .topbar .crumb,
 body[data-theme="gold"]:has(#today.active) .topbar .crumb {
   color: #a49477 !important;
 }
-body:not([data-theme="healthy"]):has(#today.active) .topbar .crumb b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .topbar .crumb b,
 body[data-theme="gold"]:has(#today.active) .topbar .crumb b {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]):has(#today.active) .topbar .pill,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .topbar .pill,
 body[data-theme="gold"]:has(#today.active) .topbar .pill {
   border-color: rgba(214, 170, 80, 0.25) !important;
   background: rgba(26, 21, 14, 0.9) !important;
   color: #f0ce7a !important;
 }
-body:not([data-theme="healthy"]):has(#today.active) .topbar .avatar,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .topbar .avatar,
 body[data-theme="gold"]:has(#today.active) .topbar .avatar {
   border: 1px solid rgba(214, 170, 80, 0.4) !important;
   background: linear-gradient(135deg, #3d2f16, #b8860b) !important;
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]):has(#today.active) .top-heat-meter,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .top-heat-meter,
 body[data-theme="gold"]:has(#today.active) .top-heat-meter {
   border-color: rgba(214, 170, 80, 0.25) !important;
   background: rgba(26, 21, 14, 0.9) !important;
 }
-body:not([data-theme="healthy"]):has(#today.active) .top-heat-meter span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .top-heat-meter span,
 body[data-theme="gold"]:has(#today.active) .top-heat-meter span {
   color: #a49477 !important;
 }
-body:not([data-theme="healthy"]):has(#today.active) .top-heat-meter b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .top-heat-meter b,
 body[data-theme="gold"]:has(#today.active) .top-heat-meter b {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]):has(#today.active) .top-heat-meter i,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .top-heat-meter i,
 body[data-theme="gold"]:has(#today.active) .top-heat-meter i {
   background: #2a2215 !important;
 }
-body:not([data-theme="healthy"]):has(#today.active) .top-heat-meter i em,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#today.active) .top-heat-meter i em,
 body[data-theme="gold"]:has(#today.active) .top-heat-meter i em {
   background: #d4af37 !important;
 }
 
 /* Hero Header no Gold */
-body:not([data-theme="healthy"]) #today .today-dashboard-header,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-dashboard-header,
 body[data-theme="gold"] #today .today-dashboard-header {
   background: linear-gradient(135deg, #17130c 0%, #0d0a06 100%) !important;
   border: 1px solid rgba(214, 170, 80, 0.2) !important;
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(214, 170, 80, 0.1) !important;
 }
-body:not([data-theme="healthy"]) #today .today-header-identity .eyebrow,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-header-identity .eyebrow,
 body[data-theme="gold"] #today .today-header-identity .eyebrow {
   color: #e5b854 !important;
 }
-body:not([data-theme="healthy"]) #today .today-header-identity h1,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-header-identity h1,
 body[data-theme="gold"] #today .today-header-identity h1 {
   color: #fffaf0 !important;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8) !important;
 }
-body:not([data-theme="healthy"]) #today .today-header-identity p,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-header-identity p,
 body[data-theme="gold"] #today .today-header-identity p {
   color: #bfae8e !important;
 }
-body:not([data-theme="healthy"]) #today .desktop-header-badge,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .desktop-header-badge,
 body[data-theme="gold"] #today .desktop-header-badge {
   border-right-color: rgba(214, 170, 80, 0.25) !important;
 }
-body:not([data-theme="healthy"]) #today .desktop-header-badge span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .desktop-header-badge span,
 body[data-theme="gold"] #today .desktop-header-badge span {
   color: rgba(214, 170, 80, 0.65) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-edit-toggle,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-edit-toggle,
 body[data-theme="gold"] #today .dashboard-edit-toggle {
   background: linear-gradient(135deg, #854d0e 0%, #ca8a04 50%, #eab308 100%) !important;
   border: 2px solid #fef08a !important;
@@ -1856,7 +1856,7 @@ body[data-theme="gold"] #today .dashboard-edit-toggle {
   gap: 8px !important;
   cursor: pointer !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-edit-toggle:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-edit-toggle:hover,
 body[data-theme="gold"] #today .dashboard-edit-toggle:hover {
   background: linear-gradient(135deg, #a16207 0%, #eab308 50%, #fde047 100%) !important;
   border-color: #ffffff !important;
@@ -1864,7 +1864,7 @@ body[data-theme="gold"] #today .dashboard-edit-toggle:hover {
   box-shadow: 0 6px 26px rgba(234, 179, 8, 0.65) !important;
   transform: translateY(-2px) scale(1.02) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-edit-status-pill,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-edit-status-pill,
 body[data-theme="gold"] #today .dashboard-edit-status-pill {
   color: #fde047 !important;
   background: rgba(234, 179, 8, 0.15) !important;
@@ -1872,85 +1872,85 @@ body[data-theme="gold"] #today .dashboard-edit-status-pill {
 }
 
 /* Stat Strip no Gold */
-body:not([data-theme="healthy"]) .desktop-stat-item,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .desktop-stat-item,
 body[data-theme="gold"] .desktop-stat-item {
   background: linear-gradient(170deg, #16140f 0%, #0a0907 100%) !important;
   border: 1px solid rgba(214, 170, 80, 0.16) !important;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(214, 170, 80, 0.08) !important;
 }
-body:not([data-theme="healthy"]) .desktop-stat-label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .desktop-stat-label,
 body[data-theme="gold"] .desktop-stat-label {
   color: #9c8e73 !important;
 }
-body:not([data-theme="healthy"]) .desktop-stat-value,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .desktop-stat-value,
 body[data-theme="gold"] .desktop-stat-value {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) .desktop-stat-value.gold,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .desktop-stat-value.gold,
 body[data-theme="gold"] .desktop-stat-value.gold {
   color: #fde047 !important;
   text-shadow: 0 0 14px rgba(253, 224, 71, 0.25) !important;
 }
-body:not([data-theme="healthy"]) .stat-icon-trophy,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-icon-trophy,
 body[data-theme="gold"] .stat-icon-trophy {
   color: #facc15 !important;
   stroke: #facc15 !important;
   filter: drop-shadow(0 0 6px rgba(234, 179, 8, 0.35)) !important;
 }
-body:not([data-theme="healthy"]) .stat-icon-shield,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-icon-shield,
 body[data-theme="gold"] .stat-icon-shield {
   color: #d4af37 !important;
   stroke: #d4af37 !important;
   filter: drop-shadow(0 0 6px rgba(214, 170, 80, 0.4)) !important;
 }
-body:not([data-theme="healthy"]) .stat-sparkline path,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-sparkline path,
 body[data-theme="gold"] .stat-sparkline path {
   stroke: #d4af37 !important;
 }
-body:not([data-theme="healthy"]) .stat-bars rect,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-bars rect,
 body[data-theme="gold"] .stat-bars rect {
   fill: #d4af37 !important;
 }
-body:not([data-theme="healthy"]) .desktop-stat-pill.positive,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .desktop-stat-pill.positive,
 body[data-theme="gold"] .desktop-stat-pill.positive {
   background: rgba(214, 170, 80, 0.15) !important;
   color: #f0ce7a !important;
   border: 1px solid rgba(214, 170, 80, 0.3) !important;
 }
-body:not([data-theme="healthy"]) .desktop-stat-sub,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .desktop-stat-sub,
 body[data-theme="gold"] .desktop-stat-sub {
   color: #a49477 !important;
 }
 
 /* Telemetria de Mercado no Gold */
-body:not([data-theme="healthy"]) .desktop-telemetry-bar,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .desktop-telemetry-bar,
 body[data-theme="gold"] .desktop-telemetry-bar {
   background: rgba(18, 15, 10, 0.9) !important;
   border: 1px solid rgba(214, 170, 80, 0.2) !important;
   color: #a49477 !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
 }
-body:not([data-theme="healthy"]) .telemetry-pulse,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .telemetry-pulse,
 body[data-theme="gold"] .telemetry-pulse {
   color: #f0ce7a !important;
 }
-body:not([data-theme="healthy"]) .telemetry-pulse b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .telemetry-pulse b,
 body[data-theme="gold"] .telemetry-pulse b {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) .telemetry-metrics,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .telemetry-metrics,
 body[data-theme="gold"] .telemetry-metrics {
   color: #9c8e73 !important;
 }
-body:not([data-theme="healthy"]) .telemetry-metrics span b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .telemetry-metrics span b,
 body[data-theme="gold"] .telemetry-metrics span b {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) .telemetry-time,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .telemetry-time,
 body[data-theme="gold"] .telemetry-time {
   color: #7f6c48 !important;
 }
-body:not([data-theme="healthy"]) .today-source.cached,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-source.cached,
 body[data-theme="gold"] .today-source.cached {
   background: rgba(214, 170, 80, 0.15) !important;
   color: #f0ce7a !important;
@@ -1958,174 +1958,174 @@ body[data-theme="gold"] .today-source.cached {
 }
 
 /* Cards & Widgets no Gold */
-body:not([data-theme="healthy"]) #today .dashboard-widget,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget,
 body[data-theme="gold"] #today .dashboard-widget {
   background: linear-gradient(165deg, #15110a 0%, #0b0906 100%) !important;
   border: 1px solid rgba(214, 170, 80, 0.18) !important;
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(214, 170, 80, 0.08) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget:hover,
 body[data-theme="gold"] #today .dashboard-widget:hover {
   border-color: rgba(214, 170, 80, 0.35) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget-kicker,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget-kicker,
 body[data-theme="gold"] #today .dashboard-widget-kicker {
   color: #d4af37 !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget h2,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget h2,
 body[data-theme="gold"] #today .dashboard-widget h2 {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget-content p,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget-content p,
 body[data-theme="gold"] #today .dashboard-widget-content p {
   color: #bfae8e !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget-details,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget-details,
 body[data-theme="gold"] #today .dashboard-widget-details {
   color: #e5b854 !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget-details:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget-details:hover,
 body[data-theme="gold"] #today .dashboard-widget-details:hover {
   color: #fde047 !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-primary-action,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-primary-action,
 body[data-theme="gold"] #today .dashboard-primary-action {
   background: linear-gradient(135deg, #9b6c1c, #d4af37) !important;
   color: #160e04 !important;
   border: 1px solid #fde047 !important;
   box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget .desktop-widget-art,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget .desktop-widget-art,
 body[data-theme="gold"] #today .dashboard-widget .desktop-widget-art {
   opacity: 0.28 !important;
   filter: drop-shadow(0 0 16px rgba(214, 170, 80, 0.28)) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget .desktop-widget-art svg,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget .desktop-widget-art svg,
 body[data-theme="gold"] #today .dashboard-widget .desktop-widget-art svg {
   stroke: #d4af37 !important;
 }
 
 /* Ciclo de Mercado no Gold */
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="market-cycle"],
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="market-cycle"],
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="market-cycle"] {
   background: linear-gradient(165deg, #18140c 0%, #090805 100%) !important;
   border-color: rgba(214, 170, 80, 0.22) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="market-cycle"] .desktop-widget-art,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="market-cycle"] .desktop-widget-art,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="market-cycle"] .desktop-widget-art {
   opacity: 0.28 !important;
   filter: drop-shadow(0 0 16px rgba(214, 170, 80, 0.28)) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="market-cycle"] .desktop-widget-art svg,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="market-cycle"] .desktop-widget-art svg,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="market-cycle"] .desktop-widget-art svg {
   stroke: #d4af37 !important;
 }
 
 /* Daily Checklist Concluído (Done) no Gold / Dark */
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"],
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"],
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] {
   background: linear-gradient(165deg, #092c1e 0%, #051a11 100%) !important;
   border-color: rgba(74, 222, 128, 0.45) !important;
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6), 0 0 28px rgba(34, 197, 94, 0.18), inset 0 1px 0 rgba(74, 222, 128, 0.22) !important;
 }
 
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"]:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"]:hover,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"]:hover {
   border-color: rgba(74, 222, 128, 0.7) !important;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 34px rgba(34, 197, 94, 0.26), inset 0 1px 0 rgba(74, 222, 128, 0.3) !important;
 }
 
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-kicker,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-kicker,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-kicker {
   color: #4ade80 !important;
 }
 
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] h2,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] h2,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] h2 {
   color: #f0fdf4 !important;
 }
 
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art {
   opacity: 0.28 !important;
   filter: drop-shadow(0 0 16px rgba(34, 197, 94, 0.25)) !important;
 }
 
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art svg,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art svg,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .desktop-widget-art svg {
   stroke: #4ade80 !important;
 }
 
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist label,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist label {
   color: #d1fae5 !important;
   border-bottom-color: rgba(74, 222, 128, 0.15) !important;
 }
 
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist input[type="checkbox"],
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist input[type="checkbox"],
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .personal-checklist input[type="checkbox"] {
   accent-color: #34d399 !important;
 }
 
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details {
   color: #6ee7b7 !important;
   font-weight: 700 !important;
 }
 
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details:hover,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="daily-checklist"][data-checklist-done="true"] .dashboard-widget-details:hover {
   color: #a7f3d0 !important;
 }
-body:not([data-theme="healthy"]) .dashboard-cycle.transition .cycle-state-copy strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dashboard-cycle.transition .cycle-state-copy strong,
 body[data-theme="gold"] .dashboard-cycle.transition .cycle-state-copy strong {
   color: #fbbf24 !important;
   text-shadow: 0 0 18px rgba(245, 158, 11, 0.35) !important;
 }
-body:not([data-theme="healthy"]) .dashboard-cycle.healthy .cycle-state-copy strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dashboard-cycle.healthy .cycle-state-copy strong,
 body[data-theme="gold"] .dashboard-cycle.healthy .cycle-state-copy strong {
   color: #34d399 !important;
   text-shadow: 0 0 18px rgba(52, 211, 153, 0.35) !important;
 }
-body:not([data-theme="healthy"]) .dashboard-cycle.defensive .cycle-state-copy strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dashboard-cycle.defensive .cycle-state-copy strong,
 body[data-theme="gold"] .dashboard-cycle.defensive .cycle-state-copy strong {
   color: #f87171 !important;
   text-shadow: 0 0 18px rgba(248, 113, 113, 0.35) !important;
 }
-body:not([data-theme="healthy"]) .cycle-state-copy span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .cycle-state-copy span,
 body[data-theme="gold"] .cycle-state-copy span {
   color: #a49477 !important;
 }
-body:not([data-theme="healthy"]) .dashboard-cycle-benchmark-pill,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dashboard-cycle-benchmark-pill,
 body[data-theme="gold"] .dashboard-cycle-benchmark-pill {
   background: rgba(10, 8, 5, 0.7) !important;
   border: 1px solid rgba(214, 170, 80, 0.2) !important;
   color: #cbbfa7 !important;
 }
-body:not([data-theme="healthy"]) .dashboard-cycle-benchmark-pill span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dashboard-cycle-benchmark-pill span,
 body[data-theme="gold"] .dashboard-cycle-benchmark-pill span {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) .cycle-pill,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .cycle-pill,
 body[data-theme="gold"] .cycle-pill {
   background: rgba(24, 19, 12, 0.8) !important;
   border: 1px solid rgba(214, 170, 80, 0.2) !important;
   color: #a49477 !important;
 }
-body:not([data-theme="healthy"]) .cycle-pill.transition.active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .cycle-pill.transition.active,
 body[data-theme="gold"] .cycle-pill.transition.active {
   border-color: #f59e0b !important;
   background: rgba(245, 158, 11, 0.25) !important;
   color: #fbbf24 !important;
   box-shadow: 0 0 12px rgba(245, 158, 11, 0.25) !important;
 }
-body:not([data-theme="healthy"]) .cycle-pill.active:not(.transition):not(.defensive),
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .cycle-pill.active:not(.transition):not(.defensive),
 body[data-theme="gold"] .cycle-pill.active:not(.transition):not(.defensive) {
   border-color: #10b981 !important;
   background: rgba(16, 185, 129, 0.2) !important;
   color: #34d399 !important;
 }
-body:not([data-theme="healthy"]) .cycle-pill.defensive.active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .cycle-pill.defensive.active,
 body[data-theme="gold"] .cycle-pill.defensive.active {
   border-color: #ef4444 !important;
   background: rgba(239, 68, 68, 0.2) !important;
@@ -2133,23 +2133,23 @@ body[data-theme="gold"] .cycle-pill.defensive.active {
 }
 
 /* Ciclo de Mercado Moderno no Gold */
-body:not([data-theme="healthy"]) .today-cycle-market-tabs,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-market-tabs,
 body[data-theme="gold"] .today-cycle-market-tabs {
   background: rgba(24, 19, 12, 0.8) !important;
   border-color: rgba(214, 170, 80, 0.2) !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-market-tab,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-market-tab,
 body[data-theme="gold"] .today-cycle-market-tab {
   color: #a49477 !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-market-tab:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-market-tab:hover,
 body[data-theme="gold"] .today-cycle-market-tab:hover {
   color: #fffaf0 !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-market-tab.is-active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-market-tab.is-active,
 body[data-theme="gold"] .today-cycle-market-tab.is-active {
   background: rgba(214, 170, 80, 0.22) !important;
   color: #fffaf0 !important;
@@ -2157,103 +2157,103 @@ body[data-theme="gold"] .today-cycle-market-tab.is-active {
   box-shadow: 0 0 10px rgba(214, 170, 80, 0.2) !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-score-tag,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-score-tag,
 body[data-theme="gold"] .today-cycle-score-tag {
   color: #a49477 !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-score-tag strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-score-tag strong,
 body[data-theme="gold"] .today-cycle-score-tag strong {
   color: #fffaf0 !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-regime-pill.healthy,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-regime-pill.healthy,
 body[data-theme="gold"] .today-cycle-regime-pill.healthy {
   background: rgba(16, 185, 129, 0.2) !important;
   border-color: rgba(16, 185, 129, 0.4) !important;
   color: #34d399 !important;
 }
-body:not([data-theme="healthy"]) .today-cycle-regime-pill.healthy .regime-dot,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-regime-pill.healthy .regime-dot,
 body[data-theme="gold"] .today-cycle-regime-pill.healthy .regime-dot {
   background: #34d399 !important;
   box-shadow: 0 0 8px rgba(52, 211, 153, 0.7) !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-regime-pill.transition,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-regime-pill.transition,
 body[data-theme="gold"] .today-cycle-regime-pill.transition {
   background: rgba(245, 158, 11, 0.2) !important;
   border-color: rgba(245, 158, 11, 0.4) !important;
   color: #fbbf24 !important;
 }
-body:not([data-theme="healthy"]) .today-cycle-regime-pill.transition .regime-dot,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-regime-pill.transition .regime-dot,
 body[data-theme="gold"] .today-cycle-regime-pill.transition .regime-dot {
   background: #fbbf24 !important;
   box-shadow: 0 0 8px rgba(251, 191, 36, 0.7) !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-regime-pill.defensive,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-regime-pill.defensive,
 body[data-theme="gold"] .today-cycle-regime-pill.defensive {
   background: rgba(239, 68, 68, 0.2) !important;
   border-color: rgba(239, 68, 68, 0.4) !important;
   color: #f87171 !important;
 }
-body:not([data-theme="healthy"]) .today-cycle-regime-pill.defensive .regime-dot,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-regime-pill.defensive .regime-dot,
 body[data-theme="gold"] .today-cycle-regime-pill.defensive .regime-dot {
   background: #f87171 !important;
   box-shadow: 0 0 8px rgba(248, 113, 113, 0.7) !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-narrative,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-narrative,
 body[data-theme="gold"] .today-cycle-narrative {
   color: #c5bca9 !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-kpis,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-kpis,
 body[data-theme="gold"] .today-cycle-kpis {
   border-top-color: rgba(214, 170, 80, 0.15) !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-kpi-item .kpi-label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-kpi-item .kpi-label,
 body[data-theme="gold"] .today-cycle-kpi-item .kpi-label {
   color: #a49477 !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-kpi-item .kpi-val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-kpi-item .kpi-val,
 body[data-theme="gold"] .today-cycle-kpi-item .kpi-val {
   color: #fffaf0 !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-kpi-item .kpi-val.is-pos,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-kpi-item .kpi-val.is-pos,
 body[data-theme="gold"] .today-cycle-kpi-item .kpi-val.is-pos {
   color: #34d399 !important;
 }
 
-body:not([data-theme="healthy"]) .today-cycle-kpi-item .kpi-val.is-neg,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .today-cycle-kpi-item .kpi-val.is-neg,
 body[data-theme="gold"] .today-cycle-kpi-item .kpi-val.is-neg {
   color: #f87171 !important;
 }
 
-body:not([data-theme="healthy"]) .ruler-step,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ruler-step,
 body[data-theme="gold"] .ruler-step {
   background: rgba(24, 19, 12, 0.8) !important;
   color: #786d58 !important;
 }
 
-body:not([data-theme="healthy"]) .ruler-step.step-defensive.is-active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ruler-step.step-defensive.is-active,
 body[data-theme="gold"] .ruler-step.step-defensive.is-active {
   background: rgba(239, 68, 68, 0.25) !important;
   border-color: rgba(239, 68, 68, 0.5) !important;
   color: #fca5a5 !important;
 }
 
-body:not([data-theme="healthy"]) .ruler-step.step-transition.is-active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ruler-step.step-transition.is-active,
 body[data-theme="gold"] .ruler-step.step-transition.is-active {
   background: rgba(245, 158, 11, 0.25) !important;
   border-color: rgba(245, 158, 11, 0.5) !important;
   color: #fde047 !important;
 }
 
-body:not([data-theme="healthy"]) .ruler-step.step-healthy.is-active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ruler-step.step-healthy.is-active,
 body[data-theme="gold"] .ruler-step.step-healthy.is-active {
   background: rgba(16, 185, 129, 0.25) !important;
   border-color: rgba(16, 185, 129, 0.5) !important;
@@ -2261,131 +2261,131 @@ body[data-theme="gold"] .ruler-step.step-healthy.is-active {
 }
 
 /* Portfolio Heat no Gold */
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-risk-state strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-risk-state strong,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-risk-state strong {
   color: #fffaf0 !important;
   text-shadow: 0 0 20px rgba(214, 170, 80, 0.3) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-risk-state small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-risk-state small,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-risk-state small {
   color: #a49477 !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-progress,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-progress,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-progress {
   background: #1a150e !important;
   border: 1px solid rgba(214, 170, 80, 0.2) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-progress i,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-progress i,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="portfolio"] .dashboard-progress i {
   background: linear-gradient(90deg, #9b6c1c, #ebc668) !important;
   box-shadow: 0 0 10px rgba(235, 198, 104, 0.4) !important;
 }
-body:not([data-theme="healthy"]) .dashboard-heat-grid > div,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dashboard-heat-grid > div,
 body[data-theme="gold"] .dashboard-heat-grid > div {
   background: rgba(22, 17, 11, 0.8) !important;
   border: 1px solid rgba(214, 170, 80, 0.18) !important;
 }
-body:not([data-theme="healthy"]) .dashboard-heat-grid > div span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dashboard-heat-grid > div span,
 body[data-theme="gold"] .dashboard-heat-grid > div span {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) .dashboard-heat-grid > div small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dashboard-heat-grid > div small,
 body[data-theme="gold"] .dashboard-heat-grid > div small {
   color: #9c8e73 !important;
 }
 
 /* Watchlist no Gold */
-body:not([data-theme="healthy"]) .watchlist-compact-item,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .watchlist-compact-item,
 body[data-theme="gold"] .watchlist-compact-item {
   background: rgba(22, 17, 11, 0.8) !important;
   border: 1px solid rgba(214, 170, 80, 0.18) !important;
 }
-body:not([data-theme="healthy"]) .watchlist-compact-item:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .watchlist-compact-item:hover,
 body[data-theme="gold"] .watchlist-compact-item:hover {
   background: rgba(36, 28, 17, 0.9) !important;
   border-color: rgba(214, 170, 80, 0.35) !important;
 }
-body:not([data-theme="healthy"]) .watchlist-compact-main b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .watchlist-compact-main b,
 body[data-theme="gold"] .watchlist-compact-main b {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) .watchlist-badge,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .watchlist-badge,
 body[data-theme="gold"] .watchlist-badge {
   background: rgba(214, 170, 80, 0.14) !important;
   color: #dcd0b7 !important;
 }
-body:not([data-theme="healthy"]) .watchlist-dot,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .watchlist-dot,
 body[data-theme="gold"] .watchlist-dot {
   background: #facc15 !important;
   box-shadow: 0 0 6px #facc15 !important;
 }
-body:not([data-theme="healthy"]) .watchlist-footer-hint,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .watchlist-footer-hint,
 body[data-theme="gold"] .watchlist-footer-hint {
   color: #7f6c48 !important;
 }
 
 /* Desafio Grade A no Gold */
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="courage-challenge"],
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="courage-challenge"],
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="courage-challenge"] {
   border-color: rgba(214, 170, 80, 0.3) !important;
   background: linear-gradient(165deg, #18140c 0%, #0d0b07 100%) !important;
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="courage-challenge"] h2,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="courage-challenge"] h2,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="courage-challenge"] h2 {
   color: #fef08a !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="courage-challenge"] strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="courage-challenge"] strong,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="courage-challenge"] strong {
   color: #fde047 !important;
   text-shadow: 0 0 16px rgba(253, 224, 71, 0.3) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-widget[data-widget-id="courage-challenge"] .desktop-challenge-label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="courage-challenge"] .desktop-challenge-label,
 body[data-theme="gold"] #today .dashboard-widget[data-widget-id="courage-challenge"] .desktop-challenge-label {
   color: #ca8a04 !important;
 }
-body:not([data-theme="healthy"]) #today .desktop-challenge-progress circle:first-child,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .desktop-challenge-progress circle:first-child,
 body[data-theme="gold"] #today .desktop-challenge-progress circle:first-child {
   stroke: #2e2617 !important;
 }
-body:not([data-theme="healthy"]) #today .desktop-challenge-progress circle + circle,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .desktop-challenge-progress circle + circle,
 body[data-theme="gold"] #today .desktop-challenge-progress circle + circle {
   stroke: #eab308 !important;
 }
 
 /* Oportunidades & RS no Gold */
-body:not([data-theme="healthy"]) #today .dashboard-opportunity-metrics > div,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-opportunity-metrics > div,
 body[data-theme="gold"] #today .dashboard-opportunity-metrics > div {
   background: rgba(22, 17, 11, 0.8) !important;
   border: 1px solid rgba(214, 170, 80, 0.18) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-opportunity-metrics strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-opportunity-metrics strong,
 body[data-theme="gold"] #today .dashboard-opportunity-metrics strong {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-opportunity-metrics span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-opportunity-metrics span,
 body[data-theme="gold"] #today .dashboard-opportunity-metrics span {
   color: #9c8e73 !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-rs-list > div,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-rs-list > div,
 body[data-theme="gold"] #today .dashboard-rs-list > div {
   background: rgba(22, 17, 11, 0.8) !important;
   border: 1px solid rgba(214, 170, 80, 0.18) !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-rs-list b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-rs-list b,
 body[data-theme="gold"] #today .dashboard-rs-list b {
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) #today .dashboard-rs-list strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-rs-list strong,
 body[data-theme="gold"] #today .dashboard-rs-list strong {
   color: #f0ce7a !important;
 }
 
 /* Checklist Pessoal & Notas no Gold */
-body:not([data-theme="healthy"]) #today .personal-notes,
-body:not([data-theme="healthy"]) #today .personal-focus input,
-body:not([data-theme="healthy"]) #today .personal-focus textarea,
-body:not([data-theme="healthy"]) #today .personal-list form input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .personal-notes,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .personal-focus input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .personal-focus textarea,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .personal-list form input,
 body[data-theme="gold"] #today .personal-notes,
 body[data-theme="gold"] #today .personal-focus input,
 body[data-theme="gold"] #today .personal-focus textarea,
@@ -2394,8 +2394,8 @@ body[data-theme="gold"] #today .personal-list form input {
   border: 1px solid rgba(214, 170, 80, 0.22) !important;
   color: #fffaf0 !important;
 }
-body:not([data-theme="healthy"]) #today .personal-checklist label,
-body:not([data-theme="healthy"]) #today .personal-list label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .personal-checklist label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .personal-list label,
 body[data-theme="gold"] #today .personal-checklist label,
 body[data-theme="gold"] #today .personal-list label {
   color: #dcd0b7 !important;
@@ -2422,7 +2422,7 @@ body[data-theme="gold"] #today .personal-list label {
 }
 
 body[data-theme="gold"] .dashboard-done-pill,
-body:not([data-theme="healthy"]) .dashboard-done-pill {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dashboard-done-pill {
   background: rgba(34, 197, 94, 0.2);
   color: #86efac;
   border: 1px solid rgba(74, 222, 128, 0.4);
@@ -2591,65 +2591,65 @@ body:not([data-theme="healthy"]) .dashboard-done-pill {
 
 /* Gold Theme Override */
 body[data-theme="gold"] .desktop-stat-item.stat-maior-trade,
-body:not([data-theme="healthy"]) .desktop-stat-item.stat-maior-trade {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .desktop-stat-item.stat-maior-trade {
   background: rgba(22, 17, 11, 0.85) !important;
   border-color: rgba(214, 170, 80, 0.22) !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-head-label,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-head-label {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-head-label {
   color: #d1b87d !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-big-val,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-big-val {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-big-val {
   color: #f0ce7a !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-ticker,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-ticker {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-ticker {
   color: #fffaf0 !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-company,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-company {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-company {
   color: #a89a80 !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-spark-pill,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-spark-pill {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-spark-pill {
   background: rgba(234, 179, 8, 0.18) !important;
   color: #facc15 !important;
   border-color: rgba(234, 179, 8, 0.35) !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-footer-row,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-footer-row {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-footer-row {
   border-top-color: rgba(214, 170, 80, 0.15) !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-badge,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-badge {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-badge {
   background: rgba(234, 179, 8, 0.12) !important;
   color: #facc15 !important;
   border-color: rgba(234, 179, 8, 0.28) !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-badge-star,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-badge-star {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-badge-star {
   color: #facc15 !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-badge-sep,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-badge-sep {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-badge-sep {
   color: #facc15 !important;
   opacity: 0.6 !important;
 }
 
 body[data-theme="gold"] .stat-maior-trade .maior-trade-badge-days,
 body[data-theme="gold"] .stat-maior-trade .maior-trade-days-text,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-badge-days,
-body:not([data-theme="healthy"]) .stat-maior-trade .maior-trade-days-text {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-badge-days,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .maior-trade-days-text {
   color: #d1b87d !important;
 }
 

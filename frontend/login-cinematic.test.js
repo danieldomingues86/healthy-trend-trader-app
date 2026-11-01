@@ -30,28 +30,29 @@ test('tela de login tem estrutura cinematográfica sem elementos legados', () =>
   assert.ok(cssIndex > 0 && cssIndex < headEnd, 'login-cinematic.css deve ser carregado dentro de <head>');
 });
 
-test('login-cinematic.css define backgrounds limpos e isolamento de tema', () => {
+test('login-cinematic.css define backgrounds oficiais e isolamento de tema', () => {
   const css = fs.readFileSync(path.join(root, 'frontend', 'login-cinematic.css'), 'utf8');
 
   // Supressão de pseudo-elementos legados
   assert.ok(css.includes('#loginShell::before'), 'Deve declarar supressão de ::before');
   assert.ok(css.includes('#loginShell::after'), 'Deve declarar supressão de ::after');
 
-  // Uso dos assets limpos
-  assert.ok(css.includes('healthy-green-bg.png'), 'Cena verde deve usar healthy-green-bg.png limpo');
-  assert.ok(css.includes('premium-gold-bg.png'), 'Cena dourada deve usar premium-gold-bg.png limpo');
+  // Uso dos assets oficiais dos 3 temas
+  assert.ok(css.includes('healthy-green-forest.png') || css.includes('healthy-green-bg.png'), 'Cena verde deve usar asset oficial');
+  assert.ok(css.includes('premium-gold-stallion.png') || css.includes('premium-gold-bg.png'), 'Cena dourada deve usar asset oficial');
+  assert.ok(css.includes('pigeon-light-sky.png'), 'Cena pigeon deve usar asset oficial');
 
-  // Não deve referenciar assets com card embutido nem imagens antigas
-  assert.ok(!css.includes('healthy-green-reference.png'), 'Não deve usar reference PNG como background');
-  assert.ok(!css.includes('premium-gold-reference.png'), 'Não deve usar reference PNG como background');
+  // Não deve referenciar imagens antigas
   assert.ok(!css.includes('bull-bear'), 'Não deve carregar imagem antiga bull-bear');
   assert.ok(!css.includes('trading-desk'), 'Não deve carregar imagem antiga trading-desk');
 
   // Arquivos de imagem existem
-  const greenBgPath = path.join(root, 'assets', 'login', 'healthy-green-bg.png');
-  const goldBgPath = path.join(root, 'assets', 'login', 'premium-gold-bg.png');
-  assert.ok(fs.existsSync(greenBgPath) && fs.statSync(greenBgPath).size > 50000, 'healthy-green-bg.png deve existir e ser válido');
-  assert.ok(fs.existsSync(goldBgPath) && fs.statSync(goldBgPath).size > 50000, 'premium-gold-bg.png deve existir e ser válido');
+  const greenBgPath = path.join(root, 'assets', 'login', 'healthy-green-forest.png');
+  const goldBgPath = path.join(root, 'assets', 'login', 'premium-gold-stallion.png');
+  const pigeonBgPath = path.join(root, 'assets', 'login', 'pigeon-light-sky.png');
+  assert.ok(fs.existsSync(greenBgPath) && fs.statSync(greenBgPath).size > 50000, 'healthy-green-forest.png deve existir e ser válido');
+  assert.ok(fs.existsSync(goldBgPath) && fs.statSync(goldBgPath).size > 50000, 'premium-gold-stallion.png deve existir e ser válido');
+  assert.ok(fs.existsSync(pigeonBgPath) && fs.statSync(pigeonBgPath).size > 50000, 'pigeon-light-sky.png deve existir e ser válido');
 });
 
 test('seletor de temas está presente e configurado na tela de login', () => {
@@ -64,6 +65,8 @@ test('seletor de temas está presente e configurado na tela de login', () => {
   assert.ok(html.includes('data-theme-choice="gold"'), 'Deve conter opção Premium Gold');
   assert.ok(html.includes('applyTheme(\'healthy\')'), 'Deve acionar applyTheme healthy no clique');
   assert.ok(html.includes('applyTheme(\'gold\')'), 'Deve acionar applyTheme gold no clique');
+  assert.ok(html.includes('data-theme-choice="pigeon"'), 'Deve conter opção Pigeon Light');
+  assert.ok(html.includes('applyTheme(\'pigeon\')'), 'Deve acionar applyTheme pigeon no clique');
 
   // CSS suporta o seletor de tema no login
   assert.ok(css.includes('#loginShell .login-theme-picker'), 'CSS deve estilizar #loginShell .login-theme-picker');

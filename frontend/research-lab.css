@@ -1526,87 +1526,87 @@
 }
 
 /* ==========================================================================
-   Suporte a Tema Escuro / Tema Gold (body:not([data-theme="healthy"]))
+   Suporte a Tema Escuro / Tema Gold (body:not([data-theme="healthy"]):not([data-theme="pigeon"]))
    ========================================================================== */
 
-body:not([data-theme="healthy"]) .research-lab-page.env-research-mode {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .research-lab-page.env-research-mode {
   background: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.12) 0%, rgba(180, 83, 9, 0.04) 40%, transparent 80%);
   border-color: rgba(245, 158, 11, 0.28);
 }
 
-body:not([data-theme="healthy"]) .rl-title,
-body:not([data-theme="healthy"]) .rl-tab-intro-title,
-body:not([data-theme="healthy"]) .rl-trigger-name,
-body:not([data-theme="healthy"]) .rl-effect-title,
-body:not([data-theme="healthy"]) .rl-scenario-title,
-body:not([data-theme="healthy"]) .rl-section-title,
-body:not([data-theme="healthy"]) .rl-card-value,
-body:not([data-theme="healthy"]) .rl-effect-kpi .val,
-body:not([data-theme="healthy"]) .rl-scen-metric .val,
-body:not([data-theme="healthy"]) .rl-velocity-header,
-body:not([data-theme="healthy"]) .rl-policy-title,
-body:not([data-theme="healthy"]) .rl-metric-val,
-body:not([data-theme="healthy"]) .rl-modal-title,
-body:not([data-theme="healthy"]) .rl-extreme-cases-title,
-body:not([data-theme="healthy"]) .rl-giveback-stat .val {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-tab-intro-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-trigger-name,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-effect-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-scenario-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-section-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-card-value,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-effect-kpi .val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-scen-metric .val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-velocity-header,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-policy-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-metric-val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-modal-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-extreme-cases-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-giveback-stat .val {
   color: #f8fafc;
 }
 
-body:not([data-theme="healthy"]) .rl-subtitle,
-body:not([data-theme="healthy"]) .rl-breadcrumb,
-body:not([data-theme="healthy"]) .rl-tab-intro-desc,
-body:not([data-theme="healthy"]) .rl-section-sub,
-body:not([data-theme="healthy"]) .rl-scenario-desc,
-body:not([data-theme="healthy"]) .rl-effect-summary,
-body:not([data-theme="healthy"]) .rl-metric-name,
-body:not([data-theme="healthy"]) .rl-card-label,
-body:not([data-theme="healthy"]) .rl-effect-kpi .lbl,
-body:not([data-theme="healthy"]) .rl-scen-metric .lbl,
-body:not([data-theme="healthy"]) .rl-giveback-stat .lbl,
-body:not([data-theme="healthy"]) .rl-form-label {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-subtitle,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-breadcrumb,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-tab-intro-desc,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-section-sub,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-scenario-desc,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-effect-summary,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-metric-name,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-card-label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-effect-kpi .lbl,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-scen-metric .lbl,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-giveback-stat .lbl,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-form-label {
   color: #94a3b8;
 }
 
-body:not([data-theme="healthy"]) .rl-tab-intro-card,
-body:not([data-theme="healthy"]) .rl-trigger-card,
-body:not([data-theme="healthy"]) .rl-effect-card,
-body:not([data-theme="healthy"]) .rl-scenario-card,
-body:not([data-theme="healthy"]) .rl-section,
-body:not([data-theme="healthy"]) .rl-main-tabs-bar,
-body:not([data-theme="healthy"]) .rl-filter-bar,
-body:not([data-theme="healthy"]) .rl-modal-dialog {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-tab-intro-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-trigger-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-effect-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-scenario-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-section,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-main-tabs-bar,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-filter-bar,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-modal-dialog {
   background: #101c24;
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-body:not([data-theme="healthy"]) .rl-grade-table th,
-body:not([data-theme="healthy"]) .rl-data-table th,
-body:not([data-theme="healthy"]) .rl-row-all,
-body:not([data-theme="healthy"]) .rl-overview-card,
-body:not([data-theme="healthy"]) .rl-effect-kpis,
-body:not([data-theme="healthy"]) .rl-scenario-metrics-grid,
-body:not([data-theme="healthy"]) .rl-status-strip,
-body:not([data-theme="healthy"]) .rl-velocity-card,
-body:not([data-theme="healthy"]) .rl-policy-card,
-body:not([data-theme="healthy"]) .rl-realization-breakdown {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-grade-table th,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-data-table th,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-row-all,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-overview-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-effect-kpis,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-scenario-metrics-grid,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-status-strip,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-velocity-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-policy-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-realization-breakdown {
   background: rgba(255, 255, 255, 0.04);
   color: #cbd5e1;
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-body:not([data-theme="healthy"]) .rl-grade-table td,
-body:not([data-theme="healthy"]) .rl-data-table td,
-body:not([data-theme="healthy"]) .rl-checklist li {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-grade-table td,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-data-table td,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-checklist li {
   color: #e2e8f0;
   border-color: rgba(255, 255, 255, 0.06);
 }
 
-body:not([data-theme="healthy"]) .rl-export-btn,
-body:not([data-theme="healthy"]) .rl-filter-select,
-body:not([data-theme="healthy"]) .rl-form-input,
-body:not([data-theme="healthy"]) .rl-form-textarea,
-body:not([data-theme="healthy"]) .rl-form-select,
-body:not([data-theme="healthy"]) .rl-btn-cancel {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-export-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-filter-select,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-form-input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-form-textarea,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-form-select,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rl-btn-cancel {
   background: #182830;
   border-color: rgba(255, 255, 255, 0.12);
   color: #e2e8f0;

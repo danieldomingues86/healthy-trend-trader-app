@@ -366,6 +366,13 @@
         this.model.load();
       }
 
+      // Sync persisted navigation layout style from model to body
+      if (this.model && this.model.state && ['sidebar', 'top', 'tiles'].includes(this.model.state.style)) {
+        if (!document.body.dataset.navigationLayout || document.body.dataset.navigationLayout !== this.model.state.style) {
+          document.body.dataset.navigationLayout = this.model.state.style;
+        }
+      }
+
       // Load collapsed state
       try {
         this.isCollapsed = localStorage.getItem(STORAGE_KEY_COLLAPSED) === 'true';

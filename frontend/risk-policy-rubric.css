@@ -38,6 +38,6 @@
   background: linear-gradient(135deg, rgba(204, 64, 64, .18), rgba(255, 231, 231, .72));
 }
 
-body:not([data-theme="healthy"]) .risk-policy-shell .risk-policy-quality:has(.risk-weight-total.invalid) {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-shell .risk-policy-quality:has(.risk-weight-total.invalid) {
   background: linear-gradient(135deg, rgba(137, 38, 35, .42), rgba(68, 22, 21, .55));
 }

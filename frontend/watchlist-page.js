@@ -782,7 +782,7 @@
         </div>
 
         <!-- SPARKLINE MINI CHART -->
-        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(2,16,10,0.5); padding:6px 12px; border-radius:8px;">
+        <div class="wl-sparkline-strip" style="display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border:1px solid #E2E8F0; padding:6px 12px; border-radius:8px;">
           <span style="font-size:11px; color:#64748b;">Ação do Preço</span>
           ${renderSparklineSvg(opp.ticker, isUp)}
         </div>
@@ -812,7 +812,7 @@
           <div class="wl-metric-cell">
             <span class="wl-metric-title">Emerging Score</span>
             <div class="wl-metric-val">
-              <span style="color:#6ee7b7;">${Math.round(opp.snapshot?.emergingScore || current.emergingScore || 88)}/100</span>
+              <span class="wl-emerging-score-val" style="color:#059669;">${Math.round(opp.snapshot?.emergingScore || current.emergingScore || 88)}/100</span>
             </div>
           </div>
         </div>
@@ -1072,14 +1072,14 @@
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
             <span style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Cotação Atual</span>
-            <div style="font-size:24px; font-weight:800; color:#ffffff;">${formatMoney(current.price || opp.snapshot?.price || 0)}</div>
+            <div class="wl-drawer-price-val" style="font-size:24px; font-weight:800; color:#0f172a;">${formatMoney(current.price || opp.snapshot?.price || 0)}</div>
           </div>
           <div style="text-align:right;">
             <span style="font-size:11px; color:#94a3b8; text-transform:uppercase;">Evolução Geral</span>
             <div><span class="wl-evolution-tag ${evo.state}" style="font-size:13px; font-weight:700;">${evo.label}</span></div>
           </div>
         </div>
-        <p style="font-size:12.5px; color:#cbd5e1; margin:0; line-height:1.45; background:rgba(2,16,10,0.6); padding:10px 12px; border-radius:8px;">
+        <p class="wl-drawer-summary-box" style="font-size:12.5px; color:#334155; margin:0; line-height:1.45; background:#F8FAFC; border:1px solid #E2E8F0; padding:10px 12px; border-radius:8px;">
           ${escapeHtml(evo.summary)}
         </p>
       </div>
@@ -1091,7 +1091,7 @@
         </div>
         <div style="display:flex; flex-direction:column; gap:8px;">
           ${whyList.map((r) => `
-            <div style="background:rgba(2,16,10,0.7); border:1px solid rgba(16,185,129,0.18); border-radius:8px; padding:10px 12px;">
+            <div class="wl-drawer-reason-item" style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:10px 12px;">
               <b style="font-size:13px; color:#34d399; display:block; margin-bottom:2px;">${escapeHtml(r.title || r.label)}</b>
               <span style="font-size:12px; color:#cbd5e1; line-height:1.4;">${escapeHtml(r.desc || '')}</span>
             </div>
@@ -1179,7 +1179,7 @@
           </div>
         </div>
 
-        <div style="background:rgba(2,16,10,0.6); padding:12px; border-radius:8px; margin-top:12px;">
+        <div class="wl-drawer-variation-box" style="background:#F8FAFC; border:1px solid #E2E8F0; padding:12px; border-radius:8px; margin-top:12px;">
           <b style="font-size:12.5px; color:#34d399; display:block; margin-bottom:4px;">Variação Acumulada:</b>
           <div style="display:flex; justify-content:space-between; font-size:12px; color:#cbd5e1;">
             <span>Preço: <b style="color:${evo.priceChangePct >= 0 ? '#34d399' : '#f87171'}">${formatPct(evo.priceChangePct)}</b></span>
@@ -1199,7 +1199,7 @@
         </p>
         <div style="display:flex; flex-direction:column; gap:6px;">
           ${(opp.sources || []).map((s) => `
-            <div style="display:flex; justify-content:space-between; font-size:12px; padding:6px 10px; background:rgba(2,16,10,0.6); border-radius:6px;">
+            <div class="wl-drawer-origin-item" style="display:flex; justify-content:space-between; font-size:12px; padding:6px 10px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px;">
               <span style="color:#e2e8f0; font-weight:600;">${getModel().ORIGINS[s.origin]?.label || s.origin}</span>
               <span style="color:#64748b;">${formatDate(s.date)}</span>
             </div>

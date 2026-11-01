@@ -65,8 +65,8 @@ test('Premium Gold: market cycle holographic sphere switches to gold wireframe',
 
 test('Premium Gold: market cycle page has warm charcoal gold background in gold theme', () => {
   const css = fs.readFileSync(path.join(root, 'frontend', 'market-cycle-v2.css'), 'utf8');
-  assert.match(css, /body:not\(\[data-theme="healthy"\]\)\s+#marketcycle\s+\.mcv2-page\s*\{[^}]*#0d0a06/);
-  assert.match(css, /body:not\(\[data-theme="healthy"\]\)\s+#marketcycle\s+\.mcv2-market-pill\.active\s*\{[^}]*#e0b750/);
+  assert.match(css, /body:not\(\[data-theme="healthy"\]\)[^{]*#marketcycle\s+\.mcv2-page\s*\{[^}]*#0d0a06/);
+  assert.match(css, /body:not\(\[data-theme="healthy"\]\)[^{]*#marketcycle\s+\.mcv2-market-pill\.active\s*\{[^}]*#e0b750/);
 });
 
 test('Premium Gold: watchlist and emerging leaders topbars do not force emerald green', () => {
@@ -78,7 +78,7 @@ test('Premium Gold: watchlist and emerging leaders topbars do not force emerald 
 
 test('Premium Gold: settings toggle switches to gold accent in gold mode', () => {
   const auditCss = fs.readFileSync(path.join(root, 'frontend', 'theme-audit.css'), 'utf8');
-  assert.match(auditCss, /body:not\(\[data-theme="healthy"\]\)\s+#settings\s+\.toggle\.on\s*\{[^}]*#c99e3d/);
+  assert.match(auditCss, /body:not\(\[data-theme="healthy"\]\)[^{]*#settings\s+\.toggle\.on\s*\{[^}]*#c99e3d/);
 });
 
 test('Breadcrumb: index.html default markup shows "The Healthy Trend Trader / Meu Desktop"', () => {
@@ -116,3 +116,128 @@ test('Flyout Menu: selected active item subtitles have high contrast and crystal
   // Premium Gold: active item subtitle must be deep dark charcoal-gold (#241805) on the gold background
   assert.match(css, /body\[data-theme="gold"\]\s+\.flyout-item-link\.active\s+\.flyout-item-desc[^{]*\{[^}]*#241805/);
 });
+
+
+test('Pigeon Light: tokens and stylesheet are loaded and valid', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+
+  assert.ok(html.includes('frontend/theme-pigeon-light.css'), 'index.html deve carregar theme-pigeon-light.css');
+  assert.ok(css.includes('body[data-theme="pigeon"]'), 'Deve conter tokens sob body[data-theme="pigeon"]');
+  assert.ok(css.includes('--paper: #F5FAFD'), 'Deve definir fundo principal #F5FAFD');
+  assert.ok(css.includes('--ink: #304B5B'), 'Deve definir tipografia principal #304B5B');
+  assert.ok(css.includes('--primary: #79BBD6'), 'Deve definir azul principal #79BBD6');
+  assert.ok(css.includes('--primary-hover: #58A6CA'), 'Deve definir azul de destaque #58A6CA');
+});
+
+test('Pigeon Light: seletor de tema em Configurações e Login suporta pigeon', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  assert.ok(html.includes('data-theme-choice="pigeon"'), 'Deve conter botão data-theme-choice="pigeon"');
+  assert.ok(html.includes("applyTheme('pigeon')"), 'Deve acionar applyTheme("pigeon")');
+});
+
+test('Pigeon Light: sidebar flyout, settings, about, forecast, mistakesbook e demais telas possuem cobertura visual completa', () => {
+  const css = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+  assert.ok(css.includes('.sidebar-flyout'), 'Deve estilizar .sidebar-flyout no tema Pigeon Light');
+  assert.ok(css.includes('#settings .navigation-layout-option.active'), 'Deve estilizar o card ativo de layout de navegação em #settings');
+  assert.ok(css.includes('#about .about-hero'), 'Deve estilizar a tela #about em Pigeon Light');
+  assert.ok(css.includes('#forecast .forecast-hero-banner'), 'Deve estilizar o banner e botões de #forecast em Pigeon Light');
+  assert.ok(css.includes('#mistakesbook .mb-scene'), 'Deve estilizar o Mistakes Book (#mistakesbook) em Pigeon Light');
+  assert.ok(css.includes('#marketcycle .mcv2-page'), 'Deve estilizar Ciclo de Mercado (#marketcycle) em Pigeon Light');
+  assert.ok(css.includes('#assetblacklist .ab-hero'), 'Deve estilizar Ativos Blacklist (#assetblacklist) em Pigeon Light');
+  assert.ok(css.includes('#materials .materials-v2'), 'Deve estilizar Loja Trader (#materials) em Pigeon Light');
+  assert.ok(css.includes('#wisdom .wv-page'), 'Deve estilizar Sabedoria Trader (#wisdom) em Pigeon Light');
+});
+
+test('Multi-Theme Isolation: seletores :not([data-theme="healthy"]) incluem :not([data-theme="pigeon"])', () => {
+  const filesToCheck = [
+    path.join(root, 'index.html'),
+    path.join(root, 'frontend', 'sidebar-navigation.css'),
+    path.join(root, 'frontend', 'today-cockpit.css'),
+    path.join(root, 'frontend', 'market-cycle-v2.css'),
+    path.join(root, 'frontend', 'theme-audit.css'),
+    path.join(root, 'frontend', 'login-cinematic.css')
+  ];
+  for (const file of filesToCheck) {
+    const content = fs.readFileSync(file, 'utf8');
+    const unisolated = content.match(/:not\(\[data-theme="healthy"\]\)(?!:not\(\[data-theme="pigeon"\]\))/g);
+    assert.strictEqual(unisolated, null, `Arquivo ${path.basename(file)} não deve conter :not([data-theme="healthy"]) sem :not([data-theme="pigeon"])`);
+  }
+});
+
+test('Pigeon Light (Auditoria Final): Novo Trade, Watchlist, Blacklist, Missão, Anatomia, Erros & Lições, Scrollbar e Loja do Trader não possuem resíduos escuros e preservam artes originais', () => {
+  const css = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+  const watchlistJs = fs.readFileSync(path.join(root, 'frontend', 'watchlist-page.js'), 'utf8');
+  const materialsCss = fs.readFileSync(path.join(root, 'frontend', 'materials-page-v2.css'), 'utf8');
+
+  // 1. Novo Trade: todos os grades (.grade-d, .grade-c, etc.) e o banner de bloqueio da Etapa 3 têm fundo claro e alto contraste
+  assert.ok(css.includes('#newtrade .rubric-experience-inline.grade-d'), 'Deve remover fundo escuro herdado de .rubric-experience-inline.grade-d');
+  assert.ok(css.includes('#newtrade .workbench-step3-lock-banner'), 'Deve estilizar o banner de bloqueio da Etapa 3 com alta especificidade');
+  assert.ok(css.includes('#newtrade .lock-banner-msg'), 'Deve garantir contraste escuro para .lock-banner-msg no tema Pigeon Light');
+
+  // 2. Watchlist: sem fundo inline escuro rgba(2,16,10,...) na faixa de sparkline
+  assert.ok(!watchlistJs.includes('rgba(2,16,10,'), 'watchlist-page.js não deve conter fundos escuros hardcoded rgba(2,16,10,...)');
+  assert.ok(css.includes('#watchlist .wl-sparkline-strip'), 'Deve estilizar .wl-sparkline-strip no tema Pigeon Light');
+  assert.ok(css.includes('#watchlist .wl-emerging-score-val'), 'Deve garantir legibilidade de .wl-emerging-score-val');
+
+  // 3. Ativos Blacklist: restaura imagens originais e estiliza linhas populadas da tabela
+  assert.ok(css.includes("url('../assets/asset-blacklist-hero-v1.png')"), 'Deve preservar imagem original asset-blacklist-hero-v1.png');
+  assert.ok(css.includes("url('../assets/asset-blacklist-focus-v1.png')"), 'Deve preservar imagem original asset-blacklist-focus-v1.png');
+  assert.ok(css.includes('#assetblacklist .ab-table td'), 'Deve estilizar células populadas de .ab-table no tema Pigeon Light');
+
+  // 4. Missão: restaura panorama da montanha e estiliza cards de waypoints
+  assert.ok(css.includes("url('../assets/mission-hero-clean.jpg')"), 'Deve restaurar imagem panorâmica da montanha mission-hero-clean.jpg');
+  assert.ok(css.includes('#mission .mission-waypoint-label-card'), 'Deve estilizar cards de waypoints com alto contraste sobre a montanha');
+
+  // 5. Anatomia do Trade: estiliza cards populados, evita cortes laterais nos rankings e estiliza Raio-X
+  assert.ok(css.includes('#tradeanatomy .ta-trade-card.rank-1'), 'Deve estilizar cards de trades encerrados em #tradeanatomy');
+  assert.ok(css.includes('padding: 24px 28px !important;'), 'Deve aplicar padding interno nas seções .ta-ranking de #tradeanatomy para evitar corte lateral');
+  assert.ok(css.includes('#tradeanatomy .ta-title h1 em'), 'Deve estilizar o destaque em itálico de Anatomia dos Trades com cor Pigeon Light');
+
+  // 6. Erros & Lições (Lições importantes): cards brancos, títulos #304B5B e botão primário #79BBD6
+  assert.ok(css.includes('#mistakesbook .mb-market-lesson-list article'), 'Deve estilizar os cards de Lições importantes com fundo claro em #mistakesbook');
+  assert.ok(css.includes('#mistakesbook button[data-new-market-lesson]'), 'Deve estilizar o botão + Registrar lição de mercado com a identidade Pigeon Light');
+
+  // 7. Menu lateral (.sidebar): barra de rolagem azul-clara suave
+  assert.ok(css.includes('.sidebar::-webkit-scrollbar-thumb'), 'Deve estilizar o polegar da barra de rolagem do menu lateral (.sidebar) no tema Pigeon Light');
+
+  // 8. Loja do Trader (#materials): Hero com imagem original, Destaques, Catálogo Completo e Rodapé Editorial claros
+  assert.ok(materialsCss.includes("url('../assets/forca-verde-ambient-backdrop.jpg')"), 'materials-page-v2.css deve usar caminho relativo correto ../assets/forca-verde-ambient-backdrop.jpg');
+  assert.ok(css.includes('#materials .store-catalog-card .card-body'), 'Deve estilizar .card-body do catálogo de materiais com fundo branco e texto #304B5B');
+  assert.ok(css.includes('#materials .featured-highlight-card'), 'Deve estilizar os cards de Destaques da Metodologia no tema Pigeon Light');
+  assert.ok(css.includes('#materials .store-editorial-footer'), 'Deve estilizar o rodapé editorial da Loja do Trader no tema Pigeon Light');
+});
+
+test('Pigeon Light (Complemento): Widget Gallery, Novo Trade header, Menu em Blocos e Menu Superior seguem Pigeon Light e funcionam integralmente', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+  const navCss = fs.readFileSync(path.join(root, 'frontend', 'sidebar-navigation.css'), 'utf8');
+  const navJs = fs.readFileSync(path.join(root, 'frontend', 'sidebar-navigation.js'), 'utf8');
+
+  // 1. Widget Gallery sem identidade verde-escura, preservando ilustrações SVG originais
+  assert.ok(css.includes('.widget-gallery-backdrop'), 'Deve estilizar .widget-gallery-backdrop no tema Pigeon Light');
+  assert.ok(css.includes('.widget-gallery-card'), 'Deve estilizar .widget-gallery-card com superfície clara no tema Pigeon Light');
+  assert.ok(css.includes('.widget-gallery-filter.active'), 'Deve estilizar filtro ativo da Widget Gallery com #79BBD6');
+  assert.ok(css.includes('.widget-gallery-add'), 'Deve estilizar botão + Adicionar widget na paleta Pigeon Light');
+  assert.ok(!css.includes('.widget-gallery-art svg'), 'Não deve alterar as ilustrações próprias (.widget-gallery-art svg) dos widgets');
+
+  // 2. Novo Trade: indicador duplicado de Ciclo de Mercado removido do cabeçalho superior, mantendo Etapa 2 intacta
+  assert.match(html, /\.newtrade-cycle-pill\s*\{[^}]*display:\s*none\s*!important/);
+  assert.ok(css.includes('#newtrade #newTradeCyclePill'), 'Deve ocultar #newTradeCyclePill no cabeçalho de Novo Trade');
+  assert.ok(html.includes('id="rubricCriteria"'), 'Deve preservar a avaliação de Ciclo de Mercado na Etapa 2 (Trading Rubric)');
+
+  // 3. Menu em Blocos (tiles): fundo claro Pigeon Light, blocos brancos e títulos #304B5B legíveis
+  assert.ok(css.includes('body[data-theme="pigeon"][data-navigation-layout="tiles"] .navigation-hub'), 'Deve estilizar o fundo de .navigation-hub no Menu em Blocos');
+  assert.ok(css.includes('.nav-card-info b'), 'Deve garantir título escuro (#304B5B) em .nav-card-info b no Menu em Blocos');
+  assert.ok(css.includes('.nav-category-block'), 'Deve estilizar .nav-category-block com superfície branca no Menu em Blocos');
+
+  // 4. Menu Superior (top): controles visíveis, persistência sincronizada e dropdowns em Pigeon Light
+  assert.ok(!navCss.includes('.sidebar:not([data-navigation-layout="top"]) #topNavigationControls'), 'sidebar-navigation.css não deve ocultar #topNavigationControls quando data-navigation-layout="top" está no body');
+  assert.ok(navJs.includes('document.body.dataset.navigationLayout = this.model.state.style'), 'sidebar-navigation.js deve sincronizar data-navigation-layout no body na inicialização');
+  assert.ok(css.includes('body[data-navigation-layout="top"] #topNavigationControls'), 'Deve exibir #topNavigationControls no Menu Superior');
+  assert.ok(css.includes('.top-nav-cat-trigger'), 'Deve estilizar os gatilhos de categoria do Menu Superior em Pigeon Light');
+  assert.ok(css.includes('.top-nav-dropdown-menu'), 'Deve estilizar o menu dropdown do Menu Superior em Pigeon Light');
+});
+
+
+

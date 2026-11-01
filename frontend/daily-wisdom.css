@@ -109,51 +109,51 @@
 }
 
 /* Gold Theme Overrides */
-body:not([data-theme="healthy"]) .daily-wisdom-category-pill,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .daily-wisdom-category-pill,
 body[data-theme="gold"] .daily-wisdom-category-pill {
   background: rgba(232, 196, 94, 0.12);
   border: 1px solid rgba(232, 196, 94, 0.3);
   color: #f1d582;
 }
 
-body:not([data-theme="healthy"]) .daily-wisdom-quote-box,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .daily-wisdom-quote-box,
 body[data-theme="gold"] .daily-wisdom-quote-box {
   border-left-color: #e8c45e;
   background: rgba(22, 17, 11, 0.45);
 }
 
-body:not([data-theme="healthy"]) .daily-wisdom-quote-box:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .daily-wisdom-quote-box:hover,
 body[data-theme="gold"] .daily-wisdom-quote-box:hover {
   background: rgba(28, 22, 14, 0.7);
 }
 
-body:not([data-theme="healthy"]) .daily-wisdom-quote-mark,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .daily-wisdom-quote-mark,
 body[data-theme="gold"] .daily-wisdom-quote-mark {
   color: rgba(232, 196, 94, 0.35);
 }
 
-body:not([data-theme="healthy"]) .daily-wisdom-text,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .daily-wisdom-text,
 body[data-theme="gold"] .daily-wisdom-text {
   color: #fffaf0;
 }
 
-body:not([data-theme="healthy"]) .daily-wisdom-author,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .daily-wisdom-author,
 body[data-theme="gold"] .daily-wisdom-author {
   color: #f0ce7a;
 }
 
-body:not([data-theme="healthy"]) .daily-wisdom-reflection-box,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .daily-wisdom-reflection-box,
 body[data-theme="gold"] .daily-wisdom-reflection-box {
   background: rgba(22, 17, 11, 0.85);
   border: 1px solid rgba(214, 170, 80, 0.22);
 }
 
-body:not([data-theme="healthy"]) .daily-wisdom-reflection-label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .daily-wisdom-reflection-label,
 body[data-theme="gold"] .daily-wisdom-reflection-label {
   color: #e8c45e;
 }
 
-body:not([data-theme="healthy"]) .daily-wisdom-reflection-text,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .daily-wisdom-reflection-text,
 body[data-theme="gold"] .daily-wisdom-reflection-text {
   color: #d8ceb8;
 }

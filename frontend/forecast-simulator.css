@@ -1076,38 +1076,38 @@ body:has(#forecast.active) .content {
 /* ==========================================================================
    8. TEMA GOLD / DARK FALLBACK
    ========================================================================== */
-body:not([data-theme="healthy"]) .forecast-hero-banner {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-hero-banner {
   border-color: #5f4924;
   background: linear-gradient(135deg, #110d06 0%, #241807 50%, #0c0903 100%);
 }
 
-body:not([data-theme="healthy"]) .forecast-hero-eyebrow,
-body:not([data-theme="healthy"]) .forecast-panel-overline,
-body:not([data-theme="healthy"]) .forecast-modal-badge,
-body:not([data-theme="healthy"]) .forecast-source-link {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-hero-eyebrow,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-panel-overline,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-modal-badge,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-source-link {
   color: #e4bd61;
 }
 
-body:not([data-theme="healthy"]) .forecast-action-btn,
-body:not([data-theme="healthy"]) .forecast-mode-btn.active,
-body:not([data-theme="healthy"]) .forecast-modal-btn.primary {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-action-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-mode-btn.active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-modal-btn.primary {
   background: #c99c3c;
   border-color: #c99c3c;
   color: #160f05;
 }
 
-body:not([data-theme="healthy"]) .forecast-node-circle {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-node-circle {
   border-color: #c89c3b;
   background: #2e210d;
   color: #f1d27d;
   box-shadow: 0 0 0 4px rgba(46, 33, 13, 0.6);
 }
 
-body:not([data-theme="healthy"]) .forecast-node-connector {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-node-connector {
   background: linear-gradient(90deg, #c89c3b 0%, #f1d27d 100%);
 }
 
-body:not([data-theme="healthy"]) .forecast-median-line {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .forecast-median-line {
   stroke: #ddb557;
 }
 

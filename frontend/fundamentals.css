@@ -967,52 +967,52 @@
 /* ==========================================================================
    TEMA ESCURO (Dark Mode / Audit)
    ========================================================================== */
-body:not([data-theme="healthy"]) .fund-snapshot,
-body:not([data-theme="healthy"]) .fund-calculation-section,
-body:not([data-theme="healthy"]) .fund-raiox-section,
-body:not([data-theme="healthy"]) .fund-bottom-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-snapshot,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-calculation-section,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-raiox-section,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-bottom-card {
   background: #17150f;
   border-color: #3b311e;
   color: #f7eedb;
 }
 
-body:not([data-theme="healthy"]) .fund-snapshot-title h2,
-body:not([data-theme="healthy"]) .fund-section-head h3,
-body:not([data-theme="healthy"]) .fund-bottom-card h3,
-body:not([data-theme="healthy"]) .fund-dim-title,
-body:not([data-theme="healthy"]) .fund-snapshot-metric b,
-body:not([data-theme="healthy"]) .fund-dim-score-val,
-body:not([data-theme="healthy"]) .fund-raiox-val {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-snapshot-title h2,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-section-head h3,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-bottom-card h3,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-dim-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-snapshot-metric b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-dim-score-val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-raiox-val {
   color: #fff8e8;
 }
 
-body:not([data-theme="healthy"]) .fund-dim-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-dim-card {
   background: #201a12;
   border-color: #45371f;
 }
 
-body:not([data-theme="healthy"]) .fund-raiox-group {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-raiox-group {
   background: #1b160f;
   border-color: #3d301b;
 }
 
-body:not([data-theme="healthy"]) .fund-raiox-item {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-raiox-item {
   background: #231c12;
   border-color: #4c3b20;
 }
 
-body:not([data-theme="healthy"]) .fund-formula-bar {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-formula-bar {
   background: #241b0d;
   border-color: #634b1e;
   color: #fce7b8;
 }
 
-body:not([data-theme="healthy"]) .fund-score-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-score-card {
   background: linear-gradient(145deg, #241a0b, #150f06);
   border-color: #785a21;
 }
 
-body:not([data-theme="healthy"]) .fund-trader-takeaway {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .fund-trader-takeaway {
   background: linear-gradient(120deg, #2b1d09, #3f2a0d);
   border-color: #826023;
 }

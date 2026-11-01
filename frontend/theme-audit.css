@@ -1,5 +1,5 @@
 /* Palette audit: shared components introduced after the original theme layer. */
-body:not([data-theme="healthy"]){
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]){
   --theme-gold:#d8ad4d;
   --theme-gold-soft:#f0d88e;
   --theme-ink:#f8f0df;
@@ -10,197 +10,197 @@ body:not([data-theme="healthy"]){
 }
 
 /* New trade: Gold uses the same hierarchy as Healthy, with its own warm surfaces. */
-body:not([data-theme="healthy"]) #newtrade .trade-workbench{color:var(--theme-ink)}
-body:not([data-theme="healthy"]) #newtrade .trade-workbench-head{background:linear-gradient(118deg,#211707,#4a3310);border-color:#765a29}
-body:not([data-theme="healthy"]) #newtrade .trade-workbench-head .eyebrow{color:var(--theme-gold-soft)}
-body:not([data-theme="healthy"]) #newtrade .trade-workbench-head p{color:#eadab5}
-body:not([data-theme="healthy"]) #newtrade .trade-workbench-grid{background:linear-gradient(145deg,#100f0a,#21180b);border-color:#5b4623}
-body:not([data-theme="healthy"]) #newtrade .workbench-card{background:linear-gradient(155deg,#211a0e,#141109);border-color:#604b28;box-shadow:inset 0 1px rgba(255,248,224,.06),0 18px 34px rgba(0,0,0,.22)}
-body:not([data-theme="healthy"]) #newtrade .workbench-card .eyebrow{color:var(--theme-gold-soft)}
-body:not([data-theme="healthy"]) #newtrade .workbench-card .form-card{color:#2a2418}
-body:not([data-theme="healthy"]) #newtrade .workbench-card .form-card h3{color:#2d291c}
-body:not([data-theme="healthy"]) #newtrade .workbench-card .field label{color:#8a7957}
-body:not([data-theme="healthy"]) #newtrade .workbench-card .field input,
-body:not([data-theme="healthy"]) #newtrade .workbench-card .field select,
-body:not([data-theme="healthy"]) #newtrade .workbench-card .field textarea{background:#fffdf5;border-color:#d9caa8;color:#31291a}
-body:not([data-theme="healthy"]) #newtrade .workbench-card .field input:focus,
-body:not([data-theme="healthy"]) #newtrade .workbench-card .field select:focus,
-body:not([data-theme="healthy"]) #newtrade .workbench-card .field textarea:focus{border-color:#c99e3d;outline:2px solid rgba(216,173,77,.22)}
-body:not([data-theme="healthy"]) #newtrade .workbench-card #workbenchData .form-card{background:linear-gradient(145deg,#fffdf6,#f1e9d8)}
-body:not([data-theme="healthy"]) #newtrade .workbench-rubric-stage{background:radial-gradient(circle at 50% 5%,rgba(222,180,79,.22),transparent 36%),linear-gradient(160deg,#332611,#161208)}
-body:not([data-theme="healthy"]) #newtrade .workbench-rubric-stage:before{background:repeating-linear-gradient(90deg,transparent 0 39px,rgba(233,195,100,.12) 40px),repeating-linear-gradient(0deg,transparent 0 39px,rgba(233,195,100,.12) 40px)}
-body:not([data-theme="healthy"]) #newtrade .workbench-rubric-stage .trading-rubric{background:rgba(27,19,7,.79);border-color:rgba(239,208,127,.27)}
-body:not([data-theme="healthy"]) #newtrade .workbench-rubric-stage .rubric-head p,
-body:not([data-theme="healthy"]) #newtrade .workbench-rubric-stage .rubric-score small{color:#e8d9b7}
-body:not([data-theme="healthy"]) #newtrade .workbench-rubric-stage .rubric-criterion,
-body:not([data-theme="healthy"]) #newtrade .workbench-rubric-stage .rubric-score div{background:rgba(255,248,224,.09);border-color:rgba(239,208,127,.18)}
-body:not([data-theme="healthy"]) #newtrade .workbench-rubric-stage .rubric-criterion select{background:#291d0b;border-color:#88682d;color:#fff9e9}
-body:not([data-theme="healthy"]) #newtrade .workbench-rubric-stage .rubric-grade{background:#2a1d09}
-body:not([data-theme="healthy"]) #newtrade .workbench-sizer h3{color:#fff8e8}
-body:not([data-theme="healthy"]) #newtrade .workbench-sizer>p{color:#decda7}
-body:not([data-theme="healthy"]) #newtrade .layer-prism{border-color:rgba(229,193,103,.34);background:linear-gradient(145deg,rgba(121,86,25,.55),rgba(51,35,9,.86))}
-body:not([data-theme="healthy"]) #newtrade .layer-prism:nth-child(2){background:linear-gradient(145deg,rgba(111,81,29,.55),rgba(53,38,11,.86))}
-body:not([data-theme="healthy"]) #newtrade .layer-prism:nth-child(3){background:linear-gradient(145deg,rgba(94,72,34,.55),rgba(48,36,13,.86))}
-body:not([data-theme="healthy"]) #newtrade .layer-prism p{color:#eddfbd}
-body:not([data-theme="healthy"]) #newtrade .final-size{background:rgba(23,16,5,.74)}
-body:not([data-theme="healthy"]) #newtrade .final-size strong{color:#f2cf75}
-body:not([data-theme="healthy"]) #newtrade .final-size span{color:#e4d2aa}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .trade-workbench{color:var(--theme-ink)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .trade-workbench-head{background:linear-gradient(118deg,#211707,#4a3310);border-color:#765a29}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .trade-workbench-head .eyebrow{color:var(--theme-gold-soft)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .trade-workbench-head p{color:#eadab5}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .trade-workbench-grid{background:linear-gradient(145deg,#100f0a,#21180b);border-color:#5b4623}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card{background:linear-gradient(155deg,#211a0e,#141109);border-color:#604b28;box-shadow:inset 0 1px rgba(255,248,224,.06),0 18px 34px rgba(0,0,0,.22)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .eyebrow{color:var(--theme-gold-soft)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .form-card{color:#2a2418}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .form-card h3{color:#2d291c}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .field label{color:#8a7957}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .field input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .field select,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .field textarea{background:#fffdf5;border-color:#d9caa8;color:#31291a}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .field input:focus,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .field select:focus,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card .field textarea:focus{border-color:#c99e3d;outline:2px solid rgba(216,173,77,.22)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-card #workbenchData .form-card{background:linear-gradient(145deg,#fffdf6,#f1e9d8)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-rubric-stage{background:radial-gradient(circle at 50% 5%,rgba(222,180,79,.22),transparent 36%),linear-gradient(160deg,#332611,#161208)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-rubric-stage:before{background:repeating-linear-gradient(90deg,transparent 0 39px,rgba(233,195,100,.12) 40px),repeating-linear-gradient(0deg,transparent 0 39px,rgba(233,195,100,.12) 40px)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-rubric-stage .trading-rubric{background:rgba(27,19,7,.79);border-color:rgba(239,208,127,.27)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-rubric-stage .rubric-head p,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-rubric-stage .rubric-score small{color:#e8d9b7}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-rubric-stage .rubric-criterion,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-rubric-stage .rubric-score div{background:rgba(255,248,224,.09);border-color:rgba(239,208,127,.18)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-rubric-stage .rubric-criterion select{background:#291d0b;border-color:#88682d;color:#fff9e9}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-rubric-stage .rubric-grade{background:#2a1d09}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-sizer h3{color:#fff8e8}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .workbench-sizer>p{color:#decda7}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .layer-prism{border-color:rgba(229,193,103,.34);background:linear-gradient(145deg,rgba(121,86,25,.55),rgba(51,35,9,.86))}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .layer-prism:nth-child(2){background:linear-gradient(145deg,rgba(111,81,29,.55),rgba(53,38,11,.86))}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .layer-prism:nth-child(3){background:linear-gradient(145deg,rgba(94,72,34,.55),rgba(48,36,13,.86))}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .layer-prism p{color:#eddfbd}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .final-size{background:rgba(23,16,5,.74)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .final-size strong{color:#f2cf75}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #newtrade .final-size span{color:#e4d2aa}
 
 /* Patrimônio and positions: never place muted content on a pale inherited surface. */
-body:not([data-theme="healthy"]) .wealth-tabs{background:#18150e;border-color:#514222}
-body:not([data-theme="healthy"]) .wealth-tabs button{color:#d8c79f}
-body:not([data-theme="healthy"]) .wealth-tabs button.active{background:#4a3511;color:#fff8e6;border-color:#c99e3d}
-body:not([data-theme="healthy"]) .wealth-heat{background:linear-gradient(135deg,#352514,#1b140b);border-color:#80612b;color:#f7f0de}
-body:not([data-theme="healthy"]) .wealth-heat b{color:#fff8e8}
-body:not([data-theme="healthy"]) #positions .period-selector,
-body:not([data-theme="healthy"]) #closedpositions .period-selector{background:#18150e;border-color:#584625;color:#d9c9a6}
-body:not([data-theme="healthy"]) #positions .period-selector button,
-body:not([data-theme="healthy"]) #closedpositions .period-selector button{background:#292214;border-color:#5b4827;color:#eadabd}
-body:not([data-theme="healthy"]) #positions .period-selector button.active,
-body:not([data-theme="healthy"]) #closedpositions .period-selector button.active{background:#c99e3d;border-color:#e3c16b;color:#241b0b}
-body:not([data-theme="healthy"]) #positions .period-group-banner,
-body:not([data-theme="healthy"]) #closedpositions .period-group-banner{background:#17140d;border-color:#604b28;color:#fff7e5}
-body:not([data-theme="healthy"]) #positions .period-group-banner small,
-body:not([data-theme="healthy"]) #closedpositions .period-group-banner small{color:#d9c8a1}
-body:not([data-theme="healthy"]) #positions .positions-table .closed-period-group td,
-body:not([data-theme="healthy"]) #closedpositions .positions-table .closed-period-group td{background:#241f14!important;border-color:#5d4a26!important;color:#f4d27c!important}
-body:not([data-theme="healthy"]) #positions .positions-table .closed-period-group small,
-body:not([data-theme="healthy"]) #closedpositions .positions-table .closed-period-group small{color:#cdbd98!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .wealth-tabs{background:#18150e;border-color:#514222}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .wealth-tabs button{color:#d8c79f}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .wealth-tabs button.active{background:#4a3511;color:#fff8e6;border-color:#c99e3d}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .wealth-heat{background:linear-gradient(135deg,#352514,#1b140b);border-color:#80612b;color:#f7f0de}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .wealth-heat b{color:#fff8e8}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .period-selector,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #closedpositions .period-selector{background:#18150e;border-color:#584625;color:#d9c9a6}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .period-selector button,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #closedpositions .period-selector button{background:#292214;border-color:#5b4827;color:#eadabd}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .period-selector button.active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #closedpositions .period-selector button.active{background:#c99e3d;border-color:#e3c16b;color:#241b0b}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .period-group-banner,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #closedpositions .period-group-banner{background:#17140d;border-color:#604b28;color:#fff7e5}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .period-group-banner small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #closedpositions .period-group-banner small{color:#d9c8a1}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .positions-table .closed-period-group td,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #closedpositions .positions-table .closed-period-group td{background:#241f14!important;border-color:#5d4a26!important;color:#f4d27c!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .positions-table .closed-period-group small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #closedpositions .positions-table .closed-period-group small{color:#cdbd98!important}
 
 /* Fundamental analysis: retain the semantic score colors but use Gold-neutral panels and readable years. */
-body:not([data-theme="healthy"]) #fundamentals .fund-score-card{background:linear-gradient(145deg,#241b0d,#151109)!important;border-color:#765b2b;color:#fff8e8}
-body:not([data-theme="healthy"]) #fundamentals .fund-score-hero-row .fund-score-number{color:#fff8e8}
-body:not([data-theme="healthy"]) #fundamentals .fund-score-takeaway-inline{color:#e7d7b5;border-left-color:#8e7039}
-body:not([data-theme="healthy"]) #fundamentals .fund-snapshot,
-body:not([data-theme="healthy"]) #fundamentals .fund-calculation-section,
-body:not([data-theme="healthy"]) #fundamentals .fund-raiox-section,
-body:not([data-theme="healthy"]) #fundamentals .fund-bottom-card{background:#1b170e;border-color:#493c21;color:#f3e8d2}
-body:not([data-theme="healthy"]) #fundamentals .fund-dim-card{background:#231c11;border-color:#534324}
-body:not([data-theme="healthy"]) #fundamentals .fund-raiox-item{background:#231c11;border-color:#534324}
-body:not([data-theme="healthy"]) #fundamentals .fund-formula-bar{background:#2b2111;border-color:#6c572a;color:#fff1cb}
-body:not([data-theme="healthy"]) #fundamentals .fund-trader-takeaway{background:linear-gradient(120deg,#2c1d08,#4a3310)!important;border-color:#7b5d2d;color:#fff8e8}
-body:not([data-theme="healthy"]) #fundamentals .fund-trader-takeaway small{color:#e6d2a4}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-score-card{background:linear-gradient(145deg,#241b0d,#151109)!important;border-color:#765b2b;color:#fff8e8}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-score-hero-row .fund-score-number{color:#fff8e8}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-score-takeaway-inline{color:#e7d7b5;border-left-color:#8e7039}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-snapshot,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-calculation-section,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-raiox-section,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-bottom-card{background:#1b170e;border-color:#493c21;color:#f3e8d2}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-dim-card{background:#231c11;border-color:#534324}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-raiox-item{background:#231c11;border-color:#534324}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-formula-bar{background:#2b2111;border-color:#6c572a;color:#fff1cb}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-trader-takeaway{background:linear-gradient(120deg,#2c1d08,#4a3310)!important;border-color:#7b5d2d;color:#fff8e8}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #fundamentals .fund-trader-takeaway small{color:#e6d2a4}
 
 /* Portfolio Heat retains its visual story while adopting the selected Gold theme. */
-body:not([data-theme="healthy"]) .heat-philosophy h2::first-letter{color:#fff!important}
-body:not([data-theme="healthy"]) .heat-philosophy:before{color:#f1d783}
-body:not([data-theme="healthy"]) .heat-philosophy p{color:#f5ead1}
-body:not([data-theme="healthy"]) .heat-philosophy p:last-child{color:#efd784!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .heat-philosophy h2::first-letter{color:#fff!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .heat-philosophy:before{color:#f1d783}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .heat-philosophy p{color:#f5ead1}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .heat-philosophy p:last-child{color:#efd784!important}
 
 /* Política de risco: all formerly light-only sub-panels receive a coherent Gold surface. */
-body:not([data-theme="healthy"]) .risk-policy-shell{background:#17140d!important;border-color:#4f4024!important;color:#f8f0df}
-body:not([data-theme="healthy"]) .risk-policy-heading h3,
-body:not([data-theme="healthy"]) .risk-block-title h4{color:#fff7e5}
-body:not([data-theme="healthy"]) .risk-policy-heading p,
-body:not([data-theme="healthy"]) .risk-block-title p{color:#cdbd98}
-body:not([data-theme="healthy"]) .risk-policy-heading span{color:#edca70}
-body:not([data-theme="healthy"]) .risk-policy-formula{background:#2b2212;border-color:#806531}
-body:not([data-theme="healthy"]) .risk-policy-formula small{color:#e6c777}
-body:not([data-theme="healthy"]) .risk-policy-formula b{color:#fff3d7}
-body:not([data-theme="healthy"]) .risk-policy-block{border-color:#554525;background:#1c180f!important}
-body:not([data-theme="healthy"]) .risk-profile-card,
-body:not([data-theme="healthy"]) .risk-grade-card,
-body:not([data-theme="healthy"]) .risk-weight-item,
-body:not([data-theme="healthy"]) .risk-cycle-item{background:#242016;border-color:#5c4b2a;color:#f8f0df}
-body:not([data-theme="healthy"]) .risk-profile-card.active{background:#2c2617;border-color:#d1a849;box-shadow:0 0 0 2px rgba(209,168,73,.17)}
-body:not([data-theme="healthy"]) .risk-policy-shell .field label,
-body:not([data-theme="healthy"]) .risk-profile-card small,
-body:not([data-theme="healthy"]) .risk-cycle-item small{color:#d7c8a6!important}
-body:not([data-theme="healthy"]) .risk-policy-shell .field input,
-body:not([data-theme="healthy"]) .risk-policy-shell .field select{background:#0e0d0a;border-color:#62502c;color:#fff8e9}
-body:not([data-theme="healthy"]) .risk-cycle-item.healthy{background:#233420;border-color:#669051}
-body:not([data-theme="healthy"]) .risk-cycle-item.improving{background:#34351d;border-color:#a5984d}
-body:not([data-theme="healthy"]) .risk-cycle-item.transition{background:#3d3118;border-color:#c6a64c}
-body:not([data-theme="healthy"]) .risk-cycle-item.defensive{background:#3c2719;border-color:#bd7f49}
-body:not([data-theme="healthy"]) .risk-cycle-item.riskOff{background:#3a2020;border-color:#b75d5d}
-body:not([data-theme="healthy"]) .risk-cycle-item.healthy{background:#2c2818;border-color:#806c38}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-shell{background:#17140d!important;border-color:#4f4024!important;color:#f8f0df}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-heading h3,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-block-title h4{color:#fff7e5}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-heading p,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-block-title p{color:#cdbd98}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-heading span{color:#edca70}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-formula{background:#2b2212;border-color:#806531}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-formula small{color:#e6c777}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-formula b{color:#fff3d7}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block{border-color:#554525;background:#1c180f!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-profile-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-grade-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-weight-item,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-cycle-item{background:#242016;border-color:#5c4b2a;color:#f8f0df}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-profile-card.active{background:#2c2617;border-color:#d1a849;box-shadow:0 0 0 2px rgba(209,168,73,.17)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-shell .field label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-profile-card small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-cycle-item small{color:#d7c8a6!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-shell .field input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-shell .field select{background:#0e0d0a;border-color:#62502c;color:#fff8e9}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-cycle-item.healthy{background:#233420;border-color:#669051}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-cycle-item.improving{background:#34351d;border-color:#a5984d}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-cycle-item.transition{background:#3d3118;border-color:#c6a64c}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-cycle-item.defensive{background:#3c2719;border-color:#bd7f49}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-cycle-item.riskOff{background:#3a2020;border-color:#b75d5d}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-cycle-item.healthy{background:#2c2818;border-color:#806c38}
 
 /* Gold uses gold for neutral controls. Green stays reserved for positive market state only. */
-body:not([data-theme="healthy"]) .heat-status.ok .status-badge{background:#4d3a16!important;color:#f8df93!important;border-color:#b38a35!important}
-body:not([data-theme="healthy"]) .heat-status.ok .heat-meter i{background:linear-gradient(90deg,#9b762b,#e0b950)!important}
-body:not([data-theme="healthy"]) .heat-status.ok .heat-recommendation{border-left-color:#c69b3f!important;background:#261e10!important}
-body:not([data-theme="healthy"]) .wealth-card .wealth-heat{border-left-color:#c69b3f!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .heat-status.ok .status-badge{background:#4d3a16!important;color:#f8df93!important;border-color:#b38a35!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .heat-status.ok .heat-meter i{background:linear-gradient(90deg,#9b762b,#e0b950)!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .heat-status.ok .heat-recommendation{border-left-color:#c69b3f!important;background:#261e10!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .wealth-card .wealth-heat{border-left-color:#c69b3f!important}
 
 /* Relative strength keeps its semantic green/red status, while all reading surfaces follow Gold. */
-body:not([data-theme="healthy"]) #relativestrength .rs-race-shell{color:#f5ead1}
-body:not([data-theme="healthy"]) #relativestrength .rs-disclaimer{border-color:#9a752e;background:linear-gradient(100deg,#2e220d,#5b4217);box-shadow:0 10px 28px rgba(0,0,0,.22)}
-body:not([data-theme="healthy"]) #relativestrength .rs-disclaimer-main strong{color:#fff3d5}
-body:not([data-theme="healthy"]) #relativestrength .rs-disclaimer-main em{color:#f1cf78}
-body:not([data-theme="healthy"]) #relativestrength .rs-disclaimer-copy{color:#e4d0a4}
-body:not([data-theme="healthy"]) #relativestrength .rs-responsibility{background:linear-gradient(135deg,#b78526,#dfb84f);color:#211707}
-body:not([data-theme="healthy"]) #relativestrength .rs-class-card,
-body:not([data-theme="healthy"]) #relativestrength .rs-classification-card{border-color:#584a2c;background:linear-gradient(135deg,#211d13,#17140e);box-shadow:none}
-body:not([data-theme="healthy"]) #relativestrength .rs-class-card b,
-body:not([data-theme="healthy"]) #relativestrength .rs-class-card strong,
-body:not([data-theme="healthy"]) #relativestrength .rs-classification-card b,
-body:not([data-theme="healthy"]) #relativestrength .rs-classification-card strong{color:#f4e6c4}
-body:not([data-theme="healthy"]) #relativestrength .rs-class-card span,
-body:not([data-theme="healthy"]) #relativestrength .rs-classification-card span{color:#cdbd98}
-body:not([data-theme="healthy"]) #relativestrength .rs-class-card.watch,
-body:not([data-theme="healthy"]) #relativestrength .rs-classification-card.watch{border-color:#8b6c2c;background:#302712}
-body:not([data-theme="healthy"]) #relativestrength .rs-class-card.weak,
-body:not([data-theme="healthy"]) #relativestrength .rs-classification-card.laggard{border-color:#824542;background:#301819}
-body:not([data-theme="healthy"]) #relativestrength .rs-dashboard .relative-table-wrap{border-color:#544528;background:#17140e}
-body:not([data-theme="healthy"]) #relativestrength .relative-table th{background:#252014!important;color:#e4ce98}
-body:not([data-theme="healthy"]) #relativestrength .relative-table td{background:#19160f!important;border-top-color:#3b321e!important;color:#f1e5c8}
-body:not([data-theme="healthy"]) #relativestrength .relative-table td small{color:#bcad89!important}
-body:not([data-theme="healthy"]) #relativestrength .relative-table tr.rs-row-leaders td{background:#1c2c1c!important}
-body:not([data-theme="healthy"]) #relativestrength .relative-table tr.rs-row-strong td{background:#1b271a!important}
-body:not([data-theme="healthy"]) #relativestrength .relative-table tr.rs-row-watch td{background:#2d2515!important}
-body:not([data-theme="healthy"]) #relativestrength .relative-table tr.rs-row-weak td{background:#2d1a1a!important}
-body:not([data-theme="healthy"]) #relativestrength .relative-table .rs-band-divider td{background:#28210f!important;color:#f0cf75!important;border-top-color:#89692d!important}
-body:not([data-theme="healthy"]) #relativestrength .rs-toolbar input,
-body:not([data-theme="healthy"]) #relativestrength .rs-toolbar select{background:#17140e;border-color:#584828;color:#f5e8c9}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-race-shell{color:#f5ead1}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-disclaimer{border-color:#9a752e;background:linear-gradient(100deg,#2e220d,#5b4217);box-shadow:0 10px 28px rgba(0,0,0,.22)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-disclaimer-main strong{color:#fff3d5}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-disclaimer-main em{color:#f1cf78}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-disclaimer-copy{color:#e4d0a4}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-responsibility{background:linear-gradient(135deg,#b78526,#dfb84f);color:#211707}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-class-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-classification-card{border-color:#584a2c;background:linear-gradient(135deg,#211d13,#17140e);box-shadow:none}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-class-card b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-class-card strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-classification-card b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-classification-card strong{color:#f4e6c4}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-class-card span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-classification-card span{color:#cdbd98}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-class-card.watch,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-classification-card.watch{border-color:#8b6c2c;background:#302712}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-class-card.weak,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-classification-card.laggard{border-color:#824542;background:#301819}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-dashboard .relative-table-wrap{border-color:#544528;background:#17140e}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .relative-table th{background:#252014!important;color:#e4ce98}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .relative-table td{background:#19160f!important;border-top-color:#3b321e!important;color:#f1e5c8}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .relative-table td small{color:#bcad89!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .relative-table tr.rs-row-leaders td{background:#1c2c1c!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .relative-table tr.rs-row-strong td{background:#1b271a!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .relative-table tr.rs-row-watch td{background:#2d2515!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .relative-table tr.rs-row-weak td{background:#2d1a1a!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .relative-table .rs-band-divider td{background:#28210f!important;color:#f0cf75!important;border-top-color:#89692d!important}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-toolbar input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #relativestrength .rs-toolbar select{background:#17140e;border-color:#584828;color:#f5e8c9}
 
 /* Truth panel: remove the washed-out green glass and recover Gold contrast. */
-body:not([data-theme="healthy"]) #analytics .truth-panel:before{background:radial-gradient(ellipse 44% 50% at 80% 10%,rgba(210,168,73,.16),transparent 70%),radial-gradient(ellipse 36% 44% at 10% 82%,rgba(121,80,26,.16),transparent 72%),linear-gradient(135deg,#14120d,#211b10)}
-body:not([data-theme="healthy"]) #analytics .truth-panel:after{border-color:rgba(214,174,78,.14);box-shadow:inset 0 0 0 18px rgba(217,178,83,.04),inset 0 0 80px rgba(145,106,35,.08)}
-body:not([data-theme="healthy"]) #analytics .truth-panel .hero,
-body:not([data-theme="healthy"]) #analytics .truth-panel .card{background:linear-gradient(145deg,#211d14,#17140e);border-color:#56472c;color:#f8efd9}
-body:not([data-theme="healthy"]) #analytics .truth-panel .hero p,
-body:not([data-theme="healthy"]) #analytics .truth-panel .card span,
-body:not([data-theme="healthy"]) #analytics .truth-filter-card p{color:#cdbd98}
-body:not([data-theme="healthy"]) #analytics .truth-reflection{color:#e1be69}
-body:not([data-theme="healthy"]) #analytics .truth-filter-fields label span{color:#d7c59b}
-body:not([data-theme="healthy"]) #analytics .truth-filter-fields select{background:#100f0b;border-color:#5d4c2b;color:#f7ead0}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-panel:before{background:radial-gradient(ellipse 44% 50% at 80% 10%,rgba(210,168,73,.16),transparent 70%),radial-gradient(ellipse 36% 44% at 10% 82%,rgba(121,80,26,.16),transparent 72%),linear-gradient(135deg,#14120d,#211b10)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-panel:after{border-color:rgba(214,174,78,.14);box-shadow:inset 0 0 0 18px rgba(217,178,83,.04),inset 0 0 80px rgba(145,106,35,.08)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-panel .hero,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-panel .card{background:linear-gradient(145deg,#211d14,#17140e);border-color:#56472c;color:#f8efd9}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-panel .hero p,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-panel .card span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-filter-card p{color:#cdbd98}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-reflection{color:#e1be69}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-filter-fields label span{color:#d7c59b}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #analytics .truth-filter-fields select{background:#100f0b;border-color:#5d4c2b;color:#f7ead0}
 
 /* Platform monitor. */
-body:not([data-theme="healthy"]) #platformaccess .platform-access-panel{background:#1a160e;border-color:#594725;color:#f8edcf}
-body:not([data-theme="healthy"]) #platformaccess .platform-access-metric,
-body:not([data-theme="healthy"]) #platformaccess .platform-access-day{background:#252015;border-color:#5b4b2c;color:#f8efd9}
-body:not([data-theme="healthy"]) #platformaccess .platform-access-metric small,
-body:not([data-theme="healthy"]) #platformaccess .platform-access-day small{color:#cdbd98}
-body:not([data-theme="healthy"]) #platformaccess .platform-access-option{background:#1c180f;border-color:#514225;color:#f8efd9}
-body:not([data-theme="healthy"]) #platformaccess .platform-access-target{background:#15120c;border-color:#5a4928;color:#f8efd9}
-body:not([data-theme="healthy"]) #platformaccess .platform-access-config-note{background:#30240e;border-color:#846428;color:#eed9a8}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #platformaccess .platform-access-panel{background:#1a160e;border-color:#594725;color:#f8edcf}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #platformaccess .platform-access-metric,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #platformaccess .platform-access-day{background:#252015;border-color:#5b4b2c;color:#f8efd9}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #platformaccess .platform-access-metric small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #platformaccess .platform-access-day small{color:#cdbd98}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #platformaccess .platform-access-option{background:#1c180f;border-color:#514225;color:#f8efd9}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #platformaccess .platform-access-target{background:#15120c;border-color:#5a4928;color:#f8efd9}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #platformaccess .platform-access-config-note{background:#30240e;border-color:#846428;color:#eed9a8}
 
 /* Zen library link is a Gold control when that palette is active. */
-body:not([data-theme="healthy"]) #zen .zen-library-link{border-color:#c79e45;background:rgba(40,28,7,.78);color:#fff2d3}
-body:not([data-theme="healthy"]) #zen .zen-library-link span{color:#e2c983}
-body:not([data-theme="healthy"]) #zen .zen-library-link:hover{background:rgba(95,66,16,.88)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #zen .zen-library-link{border-color:#c79e45;background:rgba(40,28,7,.78);color:#fff2d3}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #zen .zen-library-link span{color:#e2c983}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #zen .zen-library-link:hover{background:rgba(95,66,16,.88)}
 
 /* Materials retains the Premium Gold collection without inherited Healthy greens. */
-body:not([data-theme="healthy"]) #materials .materials-hero{border-color:#876a32}
-body:not([data-theme="healthy"]) #materials .materials-hero .materials-journey-line,
-body:not([data-theme="healthy"]) #materials .materials-hero .materials-journey-line::before{border-color:#d2aa54}
-body:not([data-theme="healthy"]) #materials .materials-filters button.active,
-body:not([data-theme="healthy"]) #materials .material-actions .buy{background:#c99b34;color:#211706}
-body:not([data-theme="healthy"]) #materials .material-card,
-body:not([data-theme="healthy"]) #materials .materials-library-card,
-body:not([data-theme="healthy"]) #materials .materials-support{background:#1b170f;border-color:#504126;color:#f7ecd2}
-body:not([data-theme="healthy"]) #materials .material-body p,
-body:not([data-theme="healthy"]) #materials .materials-library-card small{color:#c8b990}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .materials-hero{border-color:#876a32}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .materials-hero .materials-journey-line,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .materials-hero .materials-journey-line::before{border-color:#d2aa54}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .materials-filters button.active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .material-actions .buy{background:#c99b34;color:#211706}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .material-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .materials-library-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .materials-support{background:#1b170f;border-color:#504126;color:#f7ecd2}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .material-body p,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .materials-library-card small{color:#c8b990}
 
 /* Glossary flow, labels and actions receive Gold rather than the previous Green accents. */
-body:not([data-theme="healthy"]) #glossary .glossary-hero .eyebrow,
-body:not([data-theme="healthy"]) #glossary .glossary-open{color:#e5bf68}
-body:not([data-theme="healthy"]) #glossary .glossary-flow span{border-color:#c99d43;color:#f4df9a;background:#2b2210}
-body:not([data-theme="healthy"]) #glossary .glossary-flow i{background:#b88d38}
-body:not([data-theme="healthy"]) #glossary .glossary-filters button.active{border-color:#d4aa4e;background:#bf9234;color:#211706}
-body:not([data-theme="healthy"]) #glossary .glossary-card.active{border-color:#d0a448;box-shadow:0 12px 30px rgba(0,0,0,.2)}
-body:not([data-theme="healthy"]) #glossary .glossary-panel-tabs button.active{border-color:#d4aa4e;color:#efce78}
-body:not([data-theme="healthy"]) #glossary .glossary-art .grade+circle,
-body:not([data-theme="healthy"]) #glossary .glossary-art .grade~circle{fill:#c79a3c}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #glossary .glossary-hero .eyebrow,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #glossary .glossary-open{color:#e5bf68}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #glossary .glossary-flow span{border-color:#c99d43;color:#f4df9a;background:#2b2210}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #glossary .glossary-flow i{background:#b88d38}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #glossary .glossary-filters button.active{border-color:#d4aa4e;background:#bf9234;color:#211706}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #glossary .glossary-card.active{border-color:#d0a448;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #glossary .glossary-panel-tabs button.active{border-color:#d4aa4e;color:#efce78}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #glossary .glossary-art .grade+circle,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #glossary .glossary-art .grade~circle{fill:#c79a3c}
 /* A CSS icon follows the navigation's currentColor in every theme. */
 .materials-menu-icon{position:relative;display:inline-block!important;width:14px;height:14px;color:currentColor}
 .materials-menu-icon::before{content:"";position:absolute;left:0;bottom:1px;width:13px;height:10px;border:1.5px solid currentColor;border-radius:2px;box-sizing:border-box}
@@ -281,65 +281,65 @@ body[data-navigation-layout="top"] .sidebar .nav{gap:1px}
    -------------------------------------------------------------------------- */
 
 /* PATRIMÔNIO (Dashboard) — Gold surfaces & typography */
-body:not([data-theme="healthy"]) #dashboard .wealth-shell {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #dashboard .wealth-shell {
   color: #f5ead1;
 }
 
-body:not([data-theme="healthy"]) #dashboard .wealth-section-kicker {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #dashboard .wealth-section-kicker {
   color: #d4af37;
 }
 
-body:not([data-theme="healthy"]) #dashboard .wealth-section-kicker i {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #dashboard .wealth-section-kicker i {
   background-color: #d4af37;
 }
 
-body:not([data-theme="healthy"]) #dashboard .wealth-heading-content h1 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #dashboard .wealth-heading-content h1 {
   color: #fff8e8;
 }
 
-body:not([data-theme="healthy"]) #dashboard .wealth-heading-content p {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #dashboard .wealth-heading-content p {
   color: #cdbd98;
 }
 
-body:not([data-theme="healthy"]) #dashboard .wealth-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #dashboard .wealth-card {
   background: linear-gradient(145deg, #1c170e, #120e08);
   border-color: #514222;
   color: #f8eed8;
 }
 
-body:not([data-theme="healthy"]) #dashboard .wealth-kpi-sub {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #dashboard .wealth-kpi-sub {
   color: #cdbd98;
 }
 
-body:not([data-theme="healthy"]) #dashboard .wealth-metric-val {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #dashboard .wealth-metric-val {
   color: #f5d77a;
 }
 
 /* ATIVOS BLACKLIST — Gold surfaces */
-body:not([data-theme="healthy"]) #assetblacklist {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #assetblacklist {
   background: radial-gradient(ellipse at 77% 4%, rgba(86, 68, 25, 0.18), transparent 42%),
               radial-gradient(ellipse at 83% 94%, rgba(99, 22, 32, 0.10), transparent 40%),
               linear-gradient(145deg, #17120a, #0d0a06 72%) !important;
   color: #f8efdb !important;
 }
 
-body:not([data-theme="healthy"]) #assetblacklist .ab-panel {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #assetblacklist .ab-panel {
   border-color: #584423 !important;
   background: linear-gradient(155deg, #1c160e, #110e08 70%) !important;
 }
 
-body:not([data-theme="healthy"]) #assetblacklist .ab-table th {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #assetblacklist .ab-table th {
   color: #e4ce98 !important;
   background: #241c10 !important;
 }
 
-body:not([data-theme="healthy"]) #assetblacklist .ab-table td {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #assetblacklist .ab-table td {
   background: #17140e !important;
   border-color: #4b3a20 !important;
   color: #f1e5c8 !important;
 }
 
-body:not([data-theme="healthy"]) #assetblacklist .ab-search {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #assetblacklist .ab-search {
   border-color: #584423 !important;
   color: #deb465 !important;
   background: #130f08 !important;
@@ -355,28 +355,28 @@ body[data-theme="healthy"] #materials .materials-hero-spotlight::before {
   background: radial-gradient(circle at 75% 45%, rgba(52, 211, 153, 0.15) 0%, transparent 62%) !important;
 }
 
-body:not([data-theme="healthy"]) #materials .materials-hero-spotlight {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .materials-hero-spotlight {
   border-color: rgba(214, 170, 80, 0.42) !important;
   background: linear-gradient(135deg, #241a0b 0%, #120e06 55%, #291c0b 100%) !important;
 }
 
-body:not([data-theme="healthy"]) #materials .materials-hero-spotlight::before {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #materials .materials-hero-spotlight::before {
   background: radial-gradient(circle at 75% 45%, rgba(214, 170, 80, 0.18) 0%, transparent 62%) !important;
 }
 
 /* SETTINGS (Configurações) — Gold toggles & buttons */
-body:not([data-theme="healthy"]) #settings .toggle.on {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #settings .toggle.on {
   background: #c99e3d !important;
 }
 
-body:not([data-theme="healthy"]) #settings .settings-hero {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #settings .settings-hero {
   color: #f7eedb;
 }
 
-body:not([data-theme="healthy"]) #settings .settings-hero h1 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #settings .settings-hero h1 {
   color: #fff8e8;
 }
 
-body:not([data-theme="healthy"]) #settings .settings-hero p {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #settings .settings-hero p {
   color: #cdbd98;
 }

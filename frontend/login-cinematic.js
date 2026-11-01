@@ -75,7 +75,7 @@
     });
 
     // Seletores de tema
-    const currentTheme = document.body.dataset.theme === 'healthy' ? 'healthy' : 'gold';
+    const currentTheme = ['healthy', 'gold', 'pigeon'].includes(document.body.dataset.theme) ? document.body.dataset.theme : 'healthy';
     shell.querySelectorAll('[data-theme-choice]').forEach(button => {
       const active = button.dataset.themeChoice === currentTheme;
       button.classList.toggle('active', active);
