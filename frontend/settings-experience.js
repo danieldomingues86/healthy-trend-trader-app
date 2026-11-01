@@ -19,7 +19,7 @@
   function decorate() {
     const hero = page.querySelector('.hero');
     hero.className = 'hero settings-hero';
-    hero.innerHTML = `<div><div class="eyebrow">${t('CONFIGURAÇÕES GERAIS','GENERAL SETTINGS')}</div><h1>${t('Seu ambiente.<br>Suas regras.','Your environment.<br>Your rules.')}</h1><p>${t('Configure a plataforma para que ela trabalhe a favor da sua rotina<br>e não contra ela.','Configure the platform to work with your routine,<br>not against it.')}</p></div><aside>${t('Pequenos ajustes,<br>grandes resultados.','Small adjustments,<br>great results.')}</aside>`;
+    hero.innerHTML = `<div><h1>${t('Seu ambiente.<br>Suas regras.','Your environment.<br>Your rules.')}</h1><p>${t('Configure a plataforma para que ela trabalhe a favor da sua rotina<br>e não contra ela.','Configure the platform to work with your routine,<br>not against it.')}</p></div><aside>${t('Pequenos ajustes,<br>grandes resultados.','Small adjustments,<br>great results.')}</aside>`;
     const menu = page.querySelector('#navigationLayoutSettings');
     heading(menu, 'menu');
     menu?.querySelectorAll('.navigation-layout-option').forEach((button, i) => {

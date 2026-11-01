@@ -241,3 +241,71 @@ test('Pigeon Light (Complemento): Widget Gallery, Novo Trade header, Menu em Blo
 
 
 
+
+test('Pigeon Light (Refinamento de Contraste): Menu Superior, Missao Ativa em Novo Trade, Citacao na Sidebar, EMA 21 nos Graficos e Legibilidade em Setores', () => {
+  const css = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+  const chartJs = fs.readFileSync(path.join(root, 'frontend', 'ticker-chart.js'), 'utf8');
+  const wlCss = fs.readFileSync(path.join(root, 'frontend', 'workspace-layout.css'), 'utf8');
+
+  // 1. Menu Superior: textos e icones com contraste nitido, categoria ativa destacada em azul e scroll buttons sem vazamento de cores
+  assert.ok(css.includes('.top-nav-cat-trigger.parent-active'), 'Deve definir estilo de categoria ativa no Menu Superior');
+  assert.ok(css.includes('.top-nav-quick-pill.active'), 'Deve definir pilula de acesso rapido ativa no Menu Superior');
+  assert.ok(wlCss.includes('body:not([data-theme="pigeon"])[data-navigation-layout="top"] .top-navigation-menu button'), 'workspace-layout.css nao deve vazar cor #dce9e1 para o tema Pigeon Light');
+
+  // 2. Novo Trade: Missao Ativa com imagem original mission-climber-banner.jpg e citacao na sidebar legivel
+  assert.ok(css.includes("url('../assets/mission-climber-banner.jpg')"), 'Deve usar imagem existente mission-climber-banner.jpg no banner de Missao Ativa');
+  assert.ok(!css.includes('mission-active-climber-banner.png'), 'Nao deve referenciar arquivo inexistente mission-active-climber-banner.png');
+  assert.ok(css.includes('body[data-theme="pigeon"] .sidebar-quote-text'), 'Deve estilizar o texto da citacao no menu lateral no tema Pigeon Light');
+
+  // 3. Graficos: reset das series tecnicas ao recriar o grafico para preservar EMA 21 ao trocar de ativo
+  assert.ok(chartJs.includes('ema21Series = null;'), 'ticker-chart.js deve resetar ema21Series ao recriar o grafico');
+  assert.ok(chartJs.includes('ema50Series = null;'), 'ticker-chart.js deve resetar ema50Series ao recriar o grafico');
+  assert.ok(chartJs.includes('ema200Series = null;'), 'ticker-chart.js deve resetar ema200Series ao recriar o grafico');
+
+  // 4. Setores: metadados do cabecalho e titulos de empresas no hover com alto contraste
+  assert.ok(css.includes('#markettreemap .treemap-sector-meta span'), 'Deve garantir contraste nos metadados do cabecalho dos setores');
+  assert.ok(css.includes('.tgm-company-title'), 'Deve garantir legibilidade na coluna de empresas do modal de setor');
+  assert.ok(css.includes('.tgm-price-cell'), 'Deve garantir contraste nos precos do modal de setor');
+});
+
+test('Pigeon Light (Ajustes Adicionais): Espaçamento em Configurações, Hero da tela Sobre e Legibilidade em Novo Trade', () => {
+  const css = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+  const setCss = fs.readFileSync(path.join(root, 'frontend', 'settings-experience.css'), 'utf8');
+
+  // 1. Configurações: respiro superior para o título não colar no menu superior
+  assert.match(setCss, /#settings \.settings-hero\{[^}]*padding:32px 0 24px/, 'settings-experience.css deve ter padding-top aumentado');
+  assert.ok(css.includes('padding-top: 36px !important;'), 'theme-pigeon-light.css deve garantir respiro no hero de configurações');
+
+  // 2. Sobre: arte hero substitui o touro por about-pigeon-hero.png
+  assert.ok(fs.existsSync(path.join(root, 'assets', 'about-pigeon-hero.png')), 'assets/about-pigeon-hero.png deve existir');
+  assert.ok(css.includes("url('../assets/about-pigeon-hero.png')"), 'Deve usar about-pigeon-hero.png na tela Sobre');
+  assert.ok(css.includes('#about .about-hero-bull-bg'), 'Deve ocultar imagem do touro no tema Pigeon Light');
+
+  // 3. Novo Trade: Grade C com alto contraste e Missão Ativa com descrição e métricas legíveis
+  assert.ok(css.includes('#newtrade #tradeGaugeMessage.grade-c'), 'Deve estilizar #tradeGaugeMessage.grade-c diretamente no Pigeon Light');
+  assert.ok(css.includes('max-width: 62% !important;'), 'Descrição da Missão Ativa não deve invadir o escalador');
+  assert.ok(css.includes('.mission-metric-pill.is-effective .mission-metric-label'), 'Deve garantir contraste no label do risco efetivo');
+});
+
+test('Pigeon Light (Refinamento Final): Grade C contraste em index.html, Remoção do eyebrow em Configurações e Tela Sobre Widescreen/Ultrawide', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const setJs = fs.readFileSync(path.join(root, 'frontend', 'settings-experience.js'), 'utf8');
+  const setCss = fs.readFileSync(path.join(root, 'frontend', 'settings-experience.css'), 'utf8');
+  const aboutCss = fs.readFileSync(path.join(root, 'frontend', 'about-page.css'), 'utf8');
+  const pigeonCss = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+
+  // 1. Novo Trade: Grade C em Pigeon Light tem contraste WCAG AAA (#92400E e fundo #FEF3C7)
+  assert.ok(html.includes("statusEl.style.setProperty('color', '#92400E', 'important')"), 'index.html deve aplicar #92400E para Grade C no Pigeon Light');
+  assert.ok(html.includes("statusEl.style.setProperty('background', '#FEF3C7', 'important')"), 'index.html deve aplicar #FEF3C7 para Grade C no Pigeon Light');
+  assert.ok(pigeonCss.includes('#92400E !important;'), 'theme-pigeon-light.css deve garantir cor #92400E no Grade C');
+
+  // 2. Configurações: remoção do eyebrow duplicado e espaçamento
+  assert.ok(!setJs.includes("CONFIGURAÇÕES GERAIS"), 'settings-experience.js não deve ter eyebrow duplicado de CONFIGURAÇÕES GERAIS');
+  assert.ok(setCss.includes('.eyebrow{display:none!important}'), 'settings-experience.css deve ocultar .eyebrow no hero');
+
+  // 3. Sobre: expansão fluida em monitores widescreen e ultrawide (1600px, 2000px, 2600px)
+  assert.ok(aboutCss.includes('--about-composition-width: min(1860px, 94vw);'), 'about-page.css deve suportar largura fluida a partir de 1600px');
+  assert.ok(aboutCss.includes('--about-composition-width: min(2300px, 94vw);'), 'about-page.css deve suportar ultrawide a partir de 2000px');
+  assert.ok(aboutCss.includes('--about-composition-width: min(2900px, 92vw);'), 'about-page.css deve suportar super ultrawide a partir de 2600px');
+  assert.ok(pigeonCss.includes("background: url('../assets/about-pigeon-hero.png') right center / cover no-repeat !important;"), 'theme-pigeon-light.css deve posicionar imagem sem distorção');
+});

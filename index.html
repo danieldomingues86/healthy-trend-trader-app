@@ -1141,7 +1141,7 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #traderprofile .plat
   <div id="traderWisdomRoot"></div>
 </section>
 
-<section class="page" id="settings"><div class="hero"><div><div class="eyebrow">Preferências do software</div><h1>Seu ambiente,<br>do seu jeito.</h1></div><p>Personalize idioma, aparência, navegação e os recursos de apoio sem alterar as regras do seu método.</p></div><div class="grid settings-grid"><div class="card theme-settings-card"><div class="card-head"><div><h3>Aparência do software</h3><span>Escolha a identidade visual que combina melhor com seu momento</span></div></div><div class="theme-picker" aria-label="Tema visual do software"><button class="theme-choice" type="button" data-theme-choice="gold" onclick="applyTheme('gold')"><span class="theme-swatch"></span>Premium Gold</button><button class="theme-choice" type="button" data-theme-choice="healthy" onclick="applyTheme('healthy')"><span class="theme-swatch"></span>Healthy Green</button><button class="theme-choice" type="button" data-theme-choice="pigeon" onclick="applyTheme('pigeon')"><span class="theme-swatch"></span>Pigeon Light</button></div></div><div class="card language-settings-card"><div class="card-head"><div><h3>Idioma do software</h3><span>Escolha como deseja ler toda a plataforma</span></div></div><p class="language-picker-label">Idioma de exibição</p><div class="language-picker" aria-label="Escolha o idioma"><button class="language-choice" type="button" data-language-choice="pt-BR" onclick="applyLanguage('pt-BR')">Português (BR)</button><button class="language-choice" type="button" data-language-choice="en-US" onclick="applyLanguage('en-US')">English (US)</button></div></div><div id="marketPauseSettingsRoot" style="grid-column: 1 / -1;"></div><div id="drSettingsSection" style="grid-column: 1 / -1;"></div></div></section>
+<section class="page" id="settings"><div class="hero"><div><h1>Seu ambiente,<br>do seu jeito.</h1></div><p>Personalize idioma, aparência, navegação e os recursos de apoio sem alterar as regras do seu método.</p></div><div class="grid settings-grid"><div class="card theme-settings-card"><div class="card-head"><div><h3>Aparência do software</h3><span>Escolha a identidade visual que combina melhor com seu momento</span></div></div><div class="theme-picker" aria-label="Tema visual do software"><button class="theme-choice" type="button" data-theme-choice="gold" onclick="applyTheme('gold')"><span class="theme-swatch"></span>Premium Gold</button><button class="theme-choice" type="button" data-theme-choice="healthy" onclick="applyTheme('healthy')"><span class="theme-swatch"></span>Healthy Green</button><button class="theme-choice" type="button" data-theme-choice="pigeon" onclick="applyTheme('pigeon')"><span class="theme-swatch"></span>Pigeon Light</button></div></div><div class="card language-settings-card"><div class="card-head"><div><h3>Idioma do software</h3><span>Escolha como deseja ler toda a plataforma</span></div></div><p class="language-picker-label">Idioma de exibição</p><div class="language-picker" aria-label="Escolha o idioma"><button class="language-choice" type="button" data-language-choice="pt-BR" onclick="applyLanguage('pt-BR')">Português (BR)</button><button class="language-choice" type="button" data-language-choice="en-US" onclick="applyLanguage('en-US')">English (US)</button></div></div><div id="marketPauseSettingsRoot" style="grid-column: 1 / -1;"></div><div id="drSettingsSection" style="grid-column: 1 / -1;"></div></div></section>
 <section class="page" id="riskpolicy"><div class="hero"><div><div class="eyebrow">Livro de regras</div><h1>Política de<br>risco.</h1></div><p>Defina o Risk Budget por Grade e os limitadores que transformam esse teto em risco executável.</p></div><div class="grid settings-grid" id="riskPolicyGrid"><section class="card"><div class="card-head"><div><h3>Proteção da conta</h3><span>Limites permanentes da operação</span></div></div><div class="setting-row"><div><b>Volatilidade alvo</b><small>Modelo baseado em ATR</small></div><strong>0,20%</strong></div><div class="setting-row"><div><b>Limite de capital</b><small>Máximo por posição</small></div><strong>10%</strong></div><div class="setting-row"><div><b>Portfolio Heat máximo</b><small>Risco agregado</small></div><strong>12,5%</strong></div><div class="setting-row"><div><b>Máximo de posições</b><small>Simultâneas</small></div><strong>10</strong></div></section><section class="card"><div class="card-head"><div><h3>Regras A</h3><span>Critérios obrigatórios do método</span></div></div><div class="setting-row"><div><b>Diário saudável</b><small>Médias totalmente alinhadas</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>ATR% abaixo de 2%</b><small>Zona verde</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>Contração no 4H</b><small>Não comprar expansão</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>Gatilho confirmado</b><small>Execução objetiva</small></div><div class="toggle on"><span></span></div></div><div class="setting-row"><div><b>Bloquear trade rejeitado</b><small>Permitir apenas com justificativa</small></div><div class="toggle"><span></span></div></div></section></div></section>
 <section class="page" id="portfolioheat" aria-label="Controle de Portfolio Heat"><div id="portfolioHeatRoot"></div></section>
 <section class="page" id="forecast" aria-label="Simulador de Equity"><div id="forecastRoot"></div></section>
@@ -2186,49 +2186,92 @@ function syncQualityRulerExperience(result){
     el.className='grade-val '+gradeClass;
   });
 
+  const isPigeon = document.documentElement.getAttribute('data-theme') === 'pigeon' || document.body?.getAttribute('data-theme') === 'pigeon';
   document.querySelectorAll('#experienceStatus, #tradeGaugeMessage').forEach(statusEl=>{
     if(!complete&&numericScore===0){
       statusEl.className='experience-status status-pending';
       statusEl.textContent='○ AVALIE TODOS OS CRITÉRIOS';
-      statusEl.style.setProperty('background', 'rgba(20, 50, 36, 0.6)', 'important');
-      statusEl.style.setProperty('border-color', 'rgba(143, 224, 170, 0.28)', 'important');
-      statusEl.style.setProperty('color', '#b9d8c4', 'important');
-      statusEl.style.setProperty('box-shadow', 'none', 'important');
+      if(isPigeon){
+        statusEl.style.setProperty('background', '#F0F7FB', 'important');
+        statusEl.style.setProperty('border-color', '#B8D6E5', 'important');
+        statusEl.style.setProperty('color', '#476577', 'important');
+        statusEl.style.setProperty('box-shadow', 'none', 'important');
+      }else{
+        statusEl.style.setProperty('background', 'rgba(20, 50, 36, 0.6)', 'important');
+        statusEl.style.setProperty('border-color', 'rgba(143, 224, 170, 0.28)', 'important');
+        statusEl.style.setProperty('color', '#b9d8c4', 'important');
+        statusEl.style.setProperty('box-shadow', 'none', 'important');
+      }
     }else if(isDanger){
       statusEl.className='experience-status status-danger';
       statusEl.textContent='● OPERAÇÃO NÃO RECOMENDADA';
-      statusEl.style.setProperty('background', 'rgba(220, 38, 38, 0.25)', 'important');
-      statusEl.style.setProperty('border-color', '#ef4444', 'important');
-      statusEl.style.setProperty('color', '#fca5a5', 'important');
-      statusEl.style.setProperty('box-shadow', '0 0 16px rgba(239, 68, 68, 0.35)', 'important');
+      if(isPigeon){
+        statusEl.style.setProperty('background', '#FEF2F2', 'important');
+        statusEl.style.setProperty('border-color', '#F87171', 'important');
+        statusEl.style.setProperty('color', '#B91C1C', 'important');
+        statusEl.style.setProperty('box-shadow', '0 2px 8px rgba(239, 68, 68, 0.15)', 'important');
+      }else{
+        statusEl.style.setProperty('background', 'rgba(220, 38, 38, 0.25)', 'important');
+        statusEl.style.setProperty('border-color', '#ef4444', 'important');
+        statusEl.style.setProperty('color', '#fca5a5', 'important');
+        statusEl.style.setProperty('box-shadow', '0 0 16px rgba(239, 68, 68, 0.35)', 'important');
+      }
     }else if(isGradeC){
       statusEl.className='experience-status status-caution';
       statusEl.textContent='GRADE C — SMALL EDGE';
-      statusEl.style.setProperty('background', 'rgba(234, 179, 8, 0.25)', 'important');
-      statusEl.style.setProperty('border-color', '#eab308', 'important');
-      statusEl.style.setProperty('color', '#fef08a', 'important');
-      statusEl.style.setProperty('box-shadow', '0 0 16px rgba(234, 179, 8, 0.25)', 'important');
+      if(isPigeon){
+        statusEl.style.setProperty('background', '#FEF3C7', 'important');
+        statusEl.style.setProperty('border-color', '#F59E0B', 'important');
+        statusEl.style.setProperty('color', '#92400E', 'important');
+        statusEl.style.setProperty('box-shadow', '0 2px 8px rgba(245, 158, 11, 0.18)', 'important');
+      }else{
+        statusEl.style.setProperty('background', 'rgba(234, 179, 8, 0.25)', 'important');
+        statusEl.style.setProperty('border-color', '#eab308', 'important');
+        statusEl.style.setProperty('color', '#fef08a', 'important');
+        statusEl.style.setProperty('box-shadow', '0 0 16px rgba(234, 179, 8, 0.25)', 'important');
+      }
     }else if(isGradeB){
       statusEl.className='experience-status status-caution';
       statusEl.textContent='GRADE B — GOOD TRADE';
-      statusEl.style.setProperty('background', 'rgba(234, 179, 8, 0.25)', 'important');
-      statusEl.style.setProperty('border-color', '#eab308', 'important');
-      statusEl.style.setProperty('color', '#fef08a', 'important');
-      statusEl.style.setProperty('box-shadow', '0 0 16px rgba(234, 179, 8, 0.25)', 'important');
+      if(isPigeon){
+        statusEl.style.setProperty('background', '#F0FDF4', 'important');
+        statusEl.style.setProperty('border-color', '#86EFAC', 'important');
+        statusEl.style.setProperty('color', '#166534', 'important');
+        statusEl.style.setProperty('box-shadow', '0 2px 8px rgba(34, 197, 94, 0.15)', 'important');
+      }else{
+        statusEl.style.setProperty('background', 'rgba(234, 179, 8, 0.25)', 'important');
+        statusEl.style.setProperty('border-color', '#eab308', 'important');
+        statusEl.style.setProperty('color', '#fef08a', 'important');
+        statusEl.style.setProperty('box-shadow', '0 0 16px rgba(234, 179, 8, 0.25)', 'important');
+      }
     }else if(isApproved){
       statusEl.className='experience-status status-good';
       statusEl.textContent='🏆 GRADE A — RARE TRADE';
-      statusEl.style.setProperty('background', 'rgba(16, 107, 71, 0.45)', 'important');
-      statusEl.style.setProperty('border-color', '#22c55e', 'important');
-      statusEl.style.setProperty('color', '#bbf7d0', 'important');
-      statusEl.style.setProperty('box-shadow', '0 0 16px rgba(34, 197, 94, 0.28)', 'important');
+      if(isPigeon){
+        statusEl.style.setProperty('background', '#ECFDF5', 'important');
+        statusEl.style.setProperty('border-color', '#34D399', 'important');
+        statusEl.style.setProperty('color', '#15803D', 'important');
+        statusEl.style.setProperty('box-shadow', '0 2px 8px rgba(16, 185, 129, 0.2)', 'important');
+      }else{
+        statusEl.style.setProperty('background', 'rgba(16, 107, 71, 0.45)', 'important');
+        statusEl.style.setProperty('border-color', '#22c55e', 'important');
+        statusEl.style.setProperty('color', '#bbf7d0', 'important');
+        statusEl.style.setProperty('box-shadow', '0 0 16px rgba(34, 197, 94, 0.28)', 'important');
+      }
     }else{
       statusEl.className='experience-status';
       statusEl.textContent='● '+tradeGradeMessage(grade).replace(/^[🔴🟡🟢]\s*/,'');
-      statusEl.style.removeProperty('background');
-      statusEl.style.removeProperty('border-color');
-      statusEl.style.removeProperty('color');
-      statusEl.style.removeProperty('box-shadow');
+      if(isPigeon){
+        statusEl.style.setProperty('background', '#F0F7FB', 'important');
+        statusEl.style.setProperty('border-color', '#B8D6E5', 'important');
+        statusEl.style.setProperty('color', '#304B5B', 'important');
+        statusEl.style.setProperty('box-shadow', 'none', 'important');
+      }else{
+        statusEl.style.removeProperty('background');
+        statusEl.style.removeProperty('border-color');
+        statusEl.style.removeProperty('color');
+        statusEl.style.removeProperty('box-shadow');
+      }
     }
   });
 

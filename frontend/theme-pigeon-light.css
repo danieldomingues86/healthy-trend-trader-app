@@ -153,10 +153,17 @@ body[data-theme="pigeon"] .sidebar-quote-card {
   background: #FFFFFF !important;
   border: 1px solid #DCE8EF !important;
   color: #304B5B !important;
+  box-shadow: 0 4px 14px rgba(48, 75, 91, 0.05) !important;
 }
 
 body[data-theme="pigeon"] .sidebar-quote-card:before {
-  background: linear-gradient(135deg, #79BBD6, #58A6CA) !important;
+  background: linear-gradient(90deg, #79BBD6, #58A6CA) !important;
+}
+
+body[data-theme="pigeon"] .sidebar-quote-text {
+  color: #304B5B !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
 }
 
 body[data-theme="pigeon"] .side-card {
@@ -1939,10 +1946,47 @@ body[data-theme="pigeon"] #newtrade .workbench-rubric-stage.grade-b #tradeGaugeM
 
 body[data-theme="pigeon"] #newtrade .rubric-experience.grade-c .experience-status,
 body[data-theme="pigeon"] #newtrade .rubric-experience-inline.grade-c .experience-status,
-body[data-theme="pigeon"] #newtrade .workbench-rubric-stage.grade-c #tradeGaugeMessage {
-  background: #FFFBEB !important;
-  border-color: #FCD34D !important;
-  color: #B45309 !important;
+body[data-theme="pigeon"] #newtrade .workbench-rubric-stage.grade-c #tradeGaugeMessage,
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.grade-c {
+  background: #FEF3C7 !important;
+  border: 1.5px solid #F59E0B !important;
+  color: #92400E !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15) !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience.grade-a .experience-status,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline.grade-a .experience-status,
+body[data-theme="pigeon"] #newtrade .workbench-rubric-stage.grade-a #tradeGaugeMessage,
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.grade-a {
+  background: #ECFDF5 !important;
+  border: 1.5px solid #34D399 !important;
+  color: #15803D !important;
+  font-weight: 800 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience.grade-b .experience-status,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline.grade-b .experience-status,
+body[data-theme="pigeon"] #newtrade .workbench-rubric-stage.grade-b #tradeGaugeMessage,
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.grade-b {
+  background: #F0FDF4 !important;
+  border: 1.5px solid #86EFAC !important;
+  color: #166534 !important;
+  font-weight: 800 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-experience.grade-d .experience-status,
+body[data-theme="pigeon"] #newtrade .rubric-experience.grade-no-trade .experience-status,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline.grade-d .experience-status,
+body[data-theme="pigeon"] #newtrade .rubric-experience-inline.grade-no-trade .experience-status,
+body[data-theme="pigeon"] #newtrade .workbench-rubric-stage.grade-d #tradeGaugeMessage,
+body[data-theme="pigeon"] #newtrade .workbench-rubric-stage.grade-no-trade #tradeGaugeMessage,
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.grade-d,
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.grade-no-trade {
+  background: #FEF2F2 !important;
+  border: 1.5px solid #F87171 !important;
+  color: #B91C1C !important;
+  font-weight: 800 !important;
 }
 
 body[data-theme="pigeon"] #newtrade .rubric-experience.grade-d .experience-status,
@@ -2055,12 +2099,73 @@ body[data-theme="pigeon"] #newtrade .risk-policy-shortcut:hover b {
 }
 
 body[data-theme="pigeon"] #newtrade .workbench-mission-active-banner {
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.97) 0%, rgba(220, 238, 247, 0.94) 55%, rgba(220, 238, 247, 0.35) 100%),
-    url('../assets/mission-active-climber-banner.png') right center / cover no-repeat !important;
+  background-color: #F5FAFD !important;
+  background-image:
+    linear-gradient(90deg,
+      rgba(255, 255, 255, 0.97) 0%,
+      rgba(255, 255, 255, 0.92) 42%,
+      rgba(240, 248, 253, 0.78) 65%,
+      rgba(240, 248, 253, 0.28) 85%,
+      rgba(240, 248, 253, 0.08) 100%),
+    url('../assets/mission-climber-banner.jpg') !important;
+  background-repeat: no-repeat !important;
+  background-position: right center !important;
+  background-size: cover !important;
   border: 1px solid #B8D6E5 !important;
-  box-shadow: 0 8px 24px rgba(48, 75, 91, 0.06) !important;
+  box-shadow: 0 8px 24px rgba(48, 75, 91, 0.08) !important;
   color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-banner-icon-badge {
+  background: #DCEEF7 !important;
+  border: 1.5px solid #79BBD6 !important;
+  color: #304B5B !important;
+  box-shadow: 0 2px 10px rgba(121, 187, 214, 0.3) !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-banner-desc,
+body[data-theme="pigeon"] #newtrade #wbMissionDesc {
+  color: #182B36 !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  max-width: 62% !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-pill {
+  background: #FFFFFF !important;
+  border: 1.5px solid #DCE8EF !important;
+  box-shadow: 0 2px 8px rgba(48, 75, 91, 0.04) !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-label {
+  color: #476577 !important;
+  font-weight: 750 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-val.is-grade {
+  color: #059669 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-val.is-limit {
+  color: #D97706 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-pill.is-effective {
+  background: #DCEEF7 !important;
+  border: 1.5px solid #79BBD6 !important;
+  box-shadow: 0 2px 10px rgba(121, 187, 214, 0.25) !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-pill.is-effective .mission-metric-label {
+  color: #1D4E63 !important;
+  font-weight: 800 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-val.is-effective {
+  color: #0F3B4C !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
 }
 
 body[data-theme="pigeon"] #newtrade .mission-banner-icon {
@@ -2639,11 +2744,38 @@ body[data-theme="pigeon"] #markettreemap .treemap-sector-header {
 }
 
 body[data-theme="pigeon"] #markettreemap .treemap-sector-title {
-  color: #304B5B !important;
+  color: #182B36 !important;
+  font-weight: 800 !important;
 }
 
 body[data-theme="pigeon"] #markettreemap .treemap-sector-sub {
-  color: #536B78 !important;
+  color: #476577 !important;
+}
+
+body[data-theme="pigeon"] #markettreemap .treemap-sector-meta,
+body[data-theme="pigeon"] #markettreemap .treemap-sector-meta span {
+  color: #304B5B !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+}
+
+body[data-theme="pigeon"] #markettreemap .treemap-sector-zoom-btn {
+  background: #FFFFFF !important;
+  border: 1px solid #B8D8EB !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="pigeon"] #markettreemap .treemap-sector-zoom-btn:hover {
+  background: #79BBD6 !important;
+  border-color: #5FAECB !important;
+  color: #182B36 !important;
+}
+
+body[data-theme="pigeon"] #markettreemap .treemap-group-peek-hint {
+  background: #FFFFFF !important;
+  border: 1px solid #B8D8EB !important;
+  color: #304B5B !important;
+  font-weight: 700 !important;
 }
 
 body[data-theme="pigeon"] #markettreemap .treemap-sector-body {
@@ -2661,13 +2793,49 @@ body[data-theme="pigeon"] .treemap-group-modal {
 body[data-theme="pigeon"] .tgm-header,
 body[data-theme="pigeon"] .tgm-table thead {
   background: #DCEEF7 !important;
-  color: #304B5B !important;
+  color: #182B36 !important;
 }
 
-body[data-theme="pigeon"] .tgm-table td,
+body[data-theme="pigeon"] .tgm-sector-name {
+  color: #182B36 !important;
+  font-weight: 800 !important;
+}
+
+body[data-theme="pigeon"] .tgm-meta-text {
+  color: #476577 !important;
+  font-weight: 600 !important;
+}
+
 body[data-theme="pigeon"] .tgm-table th {
-  border-color: #DCE8EF !important;
+  border-bottom: 1.5px solid #C4E0EE !important;
   color: #304B5B !important;
+  font-weight: 800 !important;
+}
+
+body[data-theme="pigeon"] .tgm-row {
+  border-bottom: 1px solid #E8F1F6 !important;
+}
+
+body[data-theme="pigeon"] .tgm-row:hover {
+  background: #F0F7FB !important;
+}
+
+body[data-theme="pigeon"] .tgm-sym-cell b,
+body[data-theme="pigeon"] .tgm-sym-cell strong {
+  color: #182B36 !important;
+  font-weight: 800 !important;
+}
+
+body[data-theme="pigeon"] .tgm-company-title {
+  color: #304B5B !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+body[data-theme="pigeon"] .tgm-price-cell,
+body[data-theme="pigeon"] .tgm-price-cell span {
+  color: #304B5B !important;
+  font-weight: 600 !important;
 }
 
 body[data-theme="pigeon"] .treemap-popover-btn,
@@ -3635,7 +3803,7 @@ html[data-theme="pigeon"] .top-nav-quick-pill,
 body[data-theme="pigeon"] .top-nav-quick-pill,
 html[data-theme="pigeon"] .top-nav-cat-trigger,
 body[data-theme="pigeon"] .top-nav-cat-trigger {
-  color: #627D8E !important;
+  color: #304B5B !important;
 }
 
 html[data-theme="pigeon"] .top-nav-quick-pill:hover,
@@ -3913,13 +4081,25 @@ body[data-theme="pigeon"] #about .about-hero-stage::after {
   display: none !important;
 }
 
+html[data-theme="pigeon"] #about .about-hero,
+body[data-theme="pigeon"] #about .about-hero {
+  background: linear-gradient(105deg, #FFFFFF 0%, #F5FAFD 42%, #EDF6FA 100%) !important;
+  border-bottom: 1px solid #DCE8EF !important;
+}
+
 html[data-theme="pigeon"] #about .about-hero-art,
-body[data-theme="pigeon"] #about .about-hero-art,
+body[data-theme="pigeon"] #about .about-hero-art {
+  background: url('../assets/about-pigeon-hero.png') right center / cover no-repeat !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 10%, rgba(0,0,0,0.65) 28%, #000 44%, #000 100%) !important;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 10%, rgba(0,0,0,0.65) 28%, #000 44%, #000 100%) !important;
+}
+
 html[data-theme="pigeon"] #about .about-hero-bull-bg,
 body[data-theme="pigeon"] #about .about-hero-bull-bg {
-  filter: invert(1) hue-rotate(165deg) saturate(0.32) brightness(1.08) !important;
-  mix-blend-mode: multiply !important;
-  opacity: 0.24 !important;
+  display: none !important;
 }
 
 html[data-theme="pigeon"] #about .about-hero-kicker,
@@ -6625,10 +6805,10 @@ body[data-theme="pigeon"] .nav-hub-settings-link:hover {
 /* --- 21.4 Menu Superior (body[data-navigation-layout="top"]) --- */
 html[data-theme="pigeon"] body[data-navigation-layout="top"] .sidebar,
 body[data-theme="pigeon"][data-navigation-layout="top"] .sidebar {
-  background: rgba(255, 255, 255, 0.96) !important;
+  background: #FFFFFF !important;
   border-bottom: 1px solid #DCE8EF !important;
   border-right: none !important;
-  box-shadow: 0 6px 20px rgba(48, 75, 91, 0.06) !important;
+  box-shadow: 0 4px 16px rgba(48, 75, 91, 0.06) !important;
 }
 
 body[data-navigation-layout="top"] #topNavigationControls,
@@ -6642,34 +6822,53 @@ body[data-navigation-layout="top"] .top-navigation-controls {
 
 html[data-theme="pigeon"] .top-navigation-scroll,
 body[data-theme="pigeon"] .top-navigation-scroll {
-  background: #F5FAFD !important;
-  border: 1px solid #DCE8EF !important;
+  background: #FFFFFF !important;
+  border: 1px solid #C8DEEC !important;
   color: #304B5B !important;
+  font-weight: 700 !important;
   border-radius: 8px !important;
   width: 28px !important;
   height: 28px !important;
   display: inline-grid !important;
   place-items: center !important;
   cursor: pointer !important;
+  opacity: 1 !important;
+  transition: all 0.16s ease !important;
 }
 
 html[data-theme="pigeon"] .top-navigation-scroll:hover:not(:disabled),
 body[data-theme="pigeon"] .top-navigation-scroll:hover:not(:disabled) {
   background: #DCEEF7 !important;
   border-color: #79BBD6 !important;
+  color: #182B36 !important;
 }
 
 html[data-theme="pigeon"] .top-navigation-scroll:disabled,
 body[data-theme="pigeon"] .top-navigation-scroll:disabled {
   opacity: 0.35 !important;
+  color: #8FA7B5 !important;
+  border-color: #E2EFF6 !important;
   cursor: default !important;
 }
 
+/* Quick access pills */
 html[data-theme="pigeon"] .top-nav-quick-pill,
-body[data-theme="pigeon"] .top-nav-quick-pill {
-  background: #F5FAFD !important;
-  border: 1px solid #DCE8EF !important;
+body[data-theme="pigeon"] .top-nav-quick-pill,
+body[data-theme="pigeon"][data-navigation-layout="top"] .top-nav-quick-pill {
+  background: #FFFFFF !important;
+  border: 1px solid #C8DEEC !important;
   color: #304B5B !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="pigeon"] .top-nav-quick-pill .top-pill-ico,
+body[data-theme="pigeon"] .top-nav-quick-pill .top-pill-ico,
+html[data-theme="pigeon"] .top-nav-quick-pill .top-pill-text,
+body[data-theme="pigeon"] .top-nav-quick-pill .top-pill-text {
+  color: #304B5B !important;
+  opacity: 1 !important;
 }
 
 html[data-theme="pigeon"] .top-nav-quick-pill:hover,
@@ -6679,24 +6878,63 @@ body[data-theme="pigeon"] .top-nav-quick-pill:hover {
   color: #182B36 !important;
 }
 
+html[data-theme="pigeon"] .top-nav-quick-pill:hover .top-pill-ico,
+body[data-theme="pigeon"] .top-nav-quick-pill:hover .top-pill-ico,
+html[data-theme="pigeon"] .top-nav-quick-pill:hover .top-pill-text,
+body[data-theme="pigeon"] .top-nav-quick-pill:hover .top-pill-text {
+  color: #182B36 !important;
+}
+
 html[data-theme="pigeon"] .top-nav-quick-pill.active,
-body[data-theme="pigeon"] .top-nav-quick-pill.active {
+body[data-theme="pigeon"] .top-nav-quick-pill.active,
+body[data-theme="pigeon"][data-navigation-layout="top"] .top-nav-quick-pill.active {
   background: #79BBD6 !important;
-  border-color: #5FAECB !important;
-  color: #304B5B !important;
-  box-shadow: 0 4px 12px rgba(121, 187, 214, 0.25) !important;
+  border-color: #4FA3C4 !important;
+  color: #182B36 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 3px 12px rgba(121, 187, 214, 0.35) !important;
+}
+
+html[data-theme="pigeon"] .top-nav-quick-pill.active .top-pill-ico,
+body[data-theme="pigeon"] .top-nav-quick-pill.active .top-pill-ico,
+html[data-theme="pigeon"] .top-nav-quick-pill.active .top-pill-text,
+body[data-theme="pigeon"] .top-nav-quick-pill.active .top-pill-text {
+  color: #182B36 !important;
+  font-weight: 700 !important;
 }
 
 html[data-theme="pigeon"] .top-nav-divider,
 body[data-theme="pigeon"] .top-nav-divider {
-  background: #DCE8EF !important;
+  background: #C8DEEC !important;
+  width: 1.5px !important;
+  opacity: 1 !important;
 }
 
+/* Category dropdown triggers */
 html[data-theme="pigeon"] .top-nav-cat-trigger,
-body[data-theme="pigeon"] .top-nav-cat-trigger {
+body[data-theme="pigeon"] .top-nav-cat-trigger,
+body[data-theme="pigeon"][data-navigation-layout="top"] .top-nav-cat-trigger {
   background: transparent !important;
   border: 1px solid transparent !important;
+  color: #304B5B !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="pigeon"] .top-nav-cat-trigger .cat-ico,
+body[data-theme="pigeon"] .top-nav-cat-trigger .cat-ico,
+html[data-theme="pigeon"] .top-nav-cat-trigger span,
+body[data-theme="pigeon"] .top-nav-cat-trigger span {
+  color: #304B5B !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="pigeon"] .top-nav-cat-trigger .cat-arrow,
+body[data-theme="pigeon"] .top-nav-cat-trigger .cat-arrow {
   color: #486577 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
 }
 
 html[data-theme="pigeon"] .top-nav-cat-trigger:hover,
@@ -6705,50 +6943,114 @@ html[data-theme="pigeon"] .top-nav-cat-dropdown.open .top-nav-cat-trigger,
 body[data-theme="pigeon"] .top-nav-cat-dropdown.open .top-nav-cat-trigger {
   background: #DCEEF7 !important;
   border-color: #B8D8EB !important;
-  color: #304B5B !important;
+  color: #182B36 !important;
 }
 
+html[data-theme="pigeon"] .top-nav-cat-trigger:hover .cat-ico,
+body[data-theme="pigeon"] .top-nav-cat-trigger:hover .cat-ico,
+html[data-theme="pigeon"] .top-nav-cat-trigger:hover span,
+body[data-theme="pigeon"] .top-nav-cat-trigger:hover span,
+html[data-theme="pigeon"] .top-nav-cat-trigger:hover .cat-arrow,
+body[data-theme="pigeon"] .top-nav-cat-trigger:hover .cat-arrow {
+  color: #182B36 !important;
+}
+
+/* Category Selected / Parent-Active */
 html[data-theme="pigeon"] .top-nav-cat-trigger.parent-active,
-body[data-theme="pigeon"] .top-nav-cat-trigger.parent-active {
+body[data-theme="pigeon"] .top-nav-cat-trigger.parent-active,
+body[data-theme="pigeon"][data-navigation-layout="top"] .top-nav-cat-trigger.parent-active {
   background: #DCEEF7 !important;
-  border-color: #79BBD6 !important;
-  color: #304B5B !important;
+  border: 1.5px solid #79BBD6 !important;
+  color: #182B36 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(121, 187, 214, 0.3) !important;
 }
 
-html[data-theme="pigeon"] .top-nav-cat-trigger .cat-arrow,
-body[data-theme="pigeon"] .top-nav-cat-trigger .cat-arrow,
-html[data-theme="pigeon"] .top-nav-cat-dropdown:hover .cat-arrow,
-body[data-theme="pigeon"] .top-nav-cat-dropdown:hover .cat-arrow,
-html[data-theme="pigeon"] .top-nav-cat-dropdown.open .cat-arrow,
-body[data-theme="pigeon"] .top-nav-cat-dropdown.open .cat-arrow {
-  color: #4F97B8 !important;
+html[data-theme="pigeon"] .top-nav-cat-trigger.parent-active .cat-ico,
+body[data-theme="pigeon"] .top-nav-cat-trigger.parent-active .cat-ico,
+html[data-theme="pigeon"] .top-nav-cat-trigger.parent-active span,
+body[data-theme="pigeon"] .top-nav-cat-trigger.parent-active span,
+html[data-theme="pigeon"] .top-nav-cat-trigger.parent-active .cat-arrow,
+body[data-theme="pigeon"] .top-nav-cat-trigger.parent-active .cat-arrow {
+  color: #182B36 !important;
+  font-weight: 700 !important;
+}
+
+/* Dropdown menu and items */
+html[data-theme="pigeon"] .top-nav-dropdown-menu,
+body[data-theme="pigeon"] .top-nav-dropdown-menu {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE8EF !important;
+  box-shadow: 0 16px 40px rgba(48, 75, 91, 0.14) !important;
+  border-radius: 14px !important;
+}
+
+html[data-theme="pigeon"] .top-nav-dropdown-header,
+body[data-theme="pigeon"] .top-nav-dropdown-header {
+  border-bottom: 1px solid #E8F1F6 !important;
+  padding: 12px 16px !important;
 }
 
 html[data-theme="pigeon"] .top-nav-dropdown-header strong,
 body[data-theme="pigeon"] .top-nav-dropdown-header strong {
-  color: #304B5B !important;
+  color: #182B36 !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
 }
 
 html[data-theme="pigeon"] .top-nav-dropdown-header small,
 body[data-theme="pigeon"] .top-nav-dropdown-header small {
-  color: #627D8E !important;
+  color: #476577 !important;
+  font-size: 11.5px !important;
+}
+
+html[data-theme="pigeon"] .top-nav-dropdown-item,
+body[data-theme="pigeon"] .top-nav-dropdown-item {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  transition: all 0.15s ease !important;
+}
+
+html[data-theme="pigeon"] .top-nav-dropdown-item:hover,
+body[data-theme="pigeon"] .top-nav-dropdown-item:hover {
+  background: #F0F7FB !important;
+  border-color: #DCE8EF !important;
 }
 
 html[data-theme="pigeon"] .dropdown-item-title-row b,
 body[data-theme="pigeon"] .dropdown-item-title-row b {
-  color: #304B5B !important;
+  color: #182B36 !important;
+  font-weight: 700 !important;
 }
 
 html[data-theme="pigeon"] .dropdown-item-text small,
 body[data-theme="pigeon"] .dropdown-item-text small {
-  color: #627D8E !important;
+  color: #476577 !important;
+  font-weight: 500 !important;
+}
+
+html[data-theme="pigeon"] .dropdown-item-ico,
+body[data-theme="pigeon"] .dropdown-item-ico {
+  color: #304B5B !important;
 }
 
 html[data-theme="pigeon"] .top-nav-dropdown-item.active,
 body[data-theme="pigeon"] .top-nav-dropdown-item.active {
-  background: #79BBD6 !important;
-  border-color: #5FAECB !important;
-  color: #304B5B !important;
+  background: #DCEEF7 !important;
+  border: 1px solid #79BBD6 !important;
+  color: #182B36 !important;
+}
+
+html[data-theme="pigeon"] .top-nav-dropdown-item.active .dropdown-item-title-row b,
+body[data-theme="pigeon"] .top-nav-dropdown-item.active .dropdown-item-title-row b {
+  color: #182B36 !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="pigeon"] .top-nav-dropdown-item.active .dropdown-item-ico,
+body[data-theme="pigeon"] .top-nav-dropdown-item.active .dropdown-item-ico {
+  color: #182B36 !important;
 }
 
 html[data-theme="pigeon"] .top-nav-dropdown-item.active .dropdown-item-ico,
@@ -6795,3 +7097,149 @@ body[data-theme="pigeon"] .sidebar-badge-pro {
 
 
 
+
+body[data-theme="pigeon"] #settings .settings-hero { padding-top: 36px !important; margin-top: 0 !important; }
+
+/* =========================================================================
+   PIGEON LIGHT: CONTRAST, SETTINGS & WIDESCREEN ENHANCEMENTS
+   ========================================================================= */
+
+/* 1. Novo Trade: Grade Status Pill (#tradeGaugeMessage & #experienceStatus) */
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage,
+body[data-theme="pigeon"] #newtrade #experienceStatus,
+body[data-theme="pigeon"] .experience-status {
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  border-width: 1.5px !important;
+  border-style: solid !important;
+  border-radius: 999px !important;
+  padding: 6px 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-transform: uppercase !important;
+}
+
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.status-caution,
+body[data-theme="pigeon"] #newtrade #experienceStatus.status-caution {
+  background: #FEF3C7 !important;
+  border-color: #F59E0B !important;
+  color: #92400E !important;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2) !important;
+}
+
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.status-good,
+body[data-theme="pigeon"] #newtrade #experienceStatus.status-good {
+  background: #ECFDF5 !important;
+  border-color: #34D399 !important;
+  color: #15803D !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.22) !important;
+}
+
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.status-danger,
+body[data-theme="pigeon"] #newtrade #experienceStatus.status-danger {
+  background: #FEF2F2 !important;
+  border-color: #F87171 !important;
+  color: #B91C1C !important;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.18) !important;
+}
+
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.status-pending,
+body[data-theme="pigeon"] #newtrade #experienceStatus.status-pending {
+  background: #F0F7FB !important;
+  border-color: #B8D6E5 !important;
+  color: #476577 !important;
+  box-shadow: none !important;
+}
+
+/* Etapa 3: Banner de Missão Ativa contraste */
+body[data-theme="pigeon"] #newtrade .mission-banner-desc,
+body[data-theme="pigeon"] #newtrade #wbMissionDesc {
+  color: #182B36 !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  max-width: 62% !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-val.is-effective,
+body[data-theme="pigeon"] #newtrade #wbMissionEffectiveRisk {
+  color: #0F3B4C !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+  font-size: 20px !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-pill.is-effective .mission-metric-label {
+  color: #1D4E63 !important;
+  font-weight: 850 !important;
+}
+
+/* 2. Configurações Gerais: Sem duplicação de título e com respiração superior */
+body[data-theme="pigeon"]:has(#settings.active) .content {
+  padding-top: 24px !important;
+}
+
+body[data-theme="pigeon"] #settings .settings-hero,
+#settings .settings-hero {
+  padding-top: 20px !important;
+  margin-top: 0 !important;
+}
+
+#settings .settings-hero .eyebrow,
+.settings-hero .eyebrow {
+  display: none !important;
+}
+
+body[data-theme="pigeon"] #settings .settings-hero h1,
+#settings .settings-hero h1 {
+  margin-top: 0 !important;
+  padding-top: 4px !important;
+  color: #102430 !important;
+}
+
+/* 3. Tela Sobre: Monitores Wide e Ultrawide */
+@media (min-width: 1600px) {
+  body[data-theme="pigeon"] #about .about-wrapper {
+    --about-composition-width: min(1860px, 94vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero-content {
+    max-width: min(960px, 50vw) !important;
+  }
+}
+
+@media (min-width: 2000px) {
+  body[data-theme="pigeon"] #about .about-wrapper {
+    --about-composition-width: min(2300px, 94vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero-content {
+    max-width: min(1100px, 46vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero {
+    min-height: clamp(580px, 58vh, 740px) !important;
+  }
+}
+
+@media (min-width: 2600px) {
+  body[data-theme="pigeon"] #about .about-wrapper {
+    --about-composition-width: min(2900px, 92vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero-content {
+    max-width: min(1300px, 44vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero {
+    min-height: clamp(620px, 58vh, 780px) !important;
+  }
+}
+
+html[data-theme="pigeon"] #about .about-hero-art,
+body[data-theme="pigeon"] #about .about-hero-art {
+  background: url('../assets/about-pigeon-hero.png') right center / cover no-repeat !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+  transform: none !important;
+  image-rendering: auto !important;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 10%, rgba(0,0,0,0.65) 28%, #000 44%, #000 100%) !important;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 10%, rgba(0,0,0,0.65) 28%, #000 44%, #000 100%) !important;
+}
