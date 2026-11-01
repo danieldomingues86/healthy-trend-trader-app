@@ -607,3 +607,41 @@ body:has(#about.active) .content {
   .about-footer-left,
   .about-footer-right { flex-wrap: wrap; justify-content: center; }
 }
+
+/* ── 9. WIDESCREEN & ULTRAWIDE RESPONSIVE EXTENSIONS ────────────────────── */
+
+@media (min-width: 1600px) {
+  .about-wrapper {
+    --about-composition-width: min(1860px, 94vw);
+  }
+  .about-hero-content {
+    max-width: min(960px, 50vw);
+  }
+  .about-hero {
+    min-height: clamp(540px, 58vh, 700px);
+  }
+}
+
+@media (min-width: 2000px) {
+  .about-wrapper {
+    --about-composition-width: min(2300px, 94vw);
+  }
+  .about-hero-content {
+    max-width: min(1100px, 46vw);
+  }
+  .about-hero {
+    min-height: clamp(580px, 58vh, 740px);
+  }
+}
+
+@media (min-width: 2600px) {
+  .about-wrapper {
+    --about-composition-width: min(2900px, 92vw);
+  }
+  .about-hero-content {
+    max-width: min(1300px, 44vw);
+  }
+  .about-hero {
+    min-height: clamp(620px, 58vh, 780px);
+  }
+}

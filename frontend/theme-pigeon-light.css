@@ -7099,3 +7099,147 @@ body[data-theme="pigeon"] .sidebar-badge-pro {
 
 
 body[data-theme="pigeon"] #settings .settings-hero { padding-top: 36px !important; margin-top: 0 !important; }
+
+/* =========================================================================
+   PIGEON LIGHT: CONTRAST, SETTINGS & WIDESCREEN ENHANCEMENTS
+   ========================================================================= */
+
+/* 1. Novo Trade: Grade Status Pill (#tradeGaugeMessage & #experienceStatus) */
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage,
+body[data-theme="pigeon"] #newtrade #experienceStatus,
+body[data-theme="pigeon"] .experience-status {
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  border-width: 1.5px !important;
+  border-style: solid !important;
+  border-radius: 999px !important;
+  padding: 6px 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-transform: uppercase !important;
+}
+
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.status-caution,
+body[data-theme="pigeon"] #newtrade #experienceStatus.status-caution {
+  background: #FEF3C7 !important;
+  border-color: #F59E0B !important;
+  color: #92400E !important;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2) !important;
+}
+
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.status-good,
+body[data-theme="pigeon"] #newtrade #experienceStatus.status-good {
+  background: #ECFDF5 !important;
+  border-color: #34D399 !important;
+  color: #15803D !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.22) !important;
+}
+
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.status-danger,
+body[data-theme="pigeon"] #newtrade #experienceStatus.status-danger {
+  background: #FEF2F2 !important;
+  border-color: #F87171 !important;
+  color: #B91C1C !important;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.18) !important;
+}
+
+body[data-theme="pigeon"] #newtrade #tradeGaugeMessage.status-pending,
+body[data-theme="pigeon"] #newtrade #experienceStatus.status-pending {
+  background: #F0F7FB !important;
+  border-color: #B8D6E5 !important;
+  color: #476577 !important;
+  box-shadow: none !important;
+}
+
+/* Etapa 3: Banner de Missão Ativa contraste */
+body[data-theme="pigeon"] #newtrade .mission-banner-desc,
+body[data-theme="pigeon"] #newtrade #wbMissionDesc {
+  color: #182B36 !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  max-width: 62% !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-val.is-effective,
+body[data-theme="pigeon"] #newtrade #wbMissionEffectiveRisk {
+  color: #0F3B4C !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+  font-size: 20px !important;
+}
+
+body[data-theme="pigeon"] #newtrade .mission-metric-pill.is-effective .mission-metric-label {
+  color: #1D4E63 !important;
+  font-weight: 850 !important;
+}
+
+/* 2. Configurações Gerais: Sem duplicação de título e com respiração superior */
+body[data-theme="pigeon"]:has(#settings.active) .content {
+  padding-top: 24px !important;
+}
+
+body[data-theme="pigeon"] #settings .settings-hero,
+#settings .settings-hero {
+  padding-top: 20px !important;
+  margin-top: 0 !important;
+}
+
+#settings .settings-hero .eyebrow,
+.settings-hero .eyebrow {
+  display: none !important;
+}
+
+body[data-theme="pigeon"] #settings .settings-hero h1,
+#settings .settings-hero h1 {
+  margin-top: 0 !important;
+  padding-top: 4px !important;
+  color: #102430 !important;
+}
+
+/* 3. Tela Sobre: Monitores Wide e Ultrawide */
+@media (min-width: 1600px) {
+  body[data-theme="pigeon"] #about .about-wrapper {
+    --about-composition-width: min(1860px, 94vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero-content {
+    max-width: min(960px, 50vw) !important;
+  }
+}
+
+@media (min-width: 2000px) {
+  body[data-theme="pigeon"] #about .about-wrapper {
+    --about-composition-width: min(2300px, 94vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero-content {
+    max-width: min(1100px, 46vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero {
+    min-height: clamp(580px, 58vh, 740px) !important;
+  }
+}
+
+@media (min-width: 2600px) {
+  body[data-theme="pigeon"] #about .about-wrapper {
+    --about-composition-width: min(2900px, 92vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero-content {
+    max-width: min(1300px, 44vw) !important;
+  }
+  body[data-theme="pigeon"] #about .about-hero {
+    min-height: clamp(620px, 58vh, 780px) !important;
+  }
+}
+
+html[data-theme="pigeon"] #about .about-hero-art,
+body[data-theme="pigeon"] #about .about-hero-art {
+  background: url('../assets/about-pigeon-hero.png') right center / cover no-repeat !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  opacity: 1 !important;
+  transform: none !important;
+  image-rendering: auto !important;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 10%, rgba(0,0,0,0.65) 28%, #000 44%, #000 100%) !important;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.06) 10%, rgba(0,0,0,0.65) 28%, #000 44%, #000 100%) !important;
+}

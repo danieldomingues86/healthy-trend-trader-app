@@ -1,10 +1,10 @@
 body:has(#settings.active){overflow:hidden!important}
 body:has(#settings.active) .main{background:#f1f2e7 url('../assets/settings/environment.png') center top/100% 960px no-repeat;min-height:0;height:100vh}
 body:has(#settings.active) .topbar{background:transparent;border:0;min-height:64px;backdrop-filter:none}
-body:has(#settings.active) .content{display:flex;flex-direction:column;flex:1;min-height:0;height:calc(100vh - 64px);gap:0;overflow-y:auto;overflow-x:hidden;max-width:none;width:100%;padding:0 clamp(24px,3vw,48px) 18px;margin:0;scrollbar-width:thin}
+body:has(#settings.active) .content{display:flex;flex-direction:column;flex:1;min-height:0;height:calc(100vh - 64px);gap:0;overflow-y:auto;overflow-x:hidden;max-width:none;width:100%;padding:24px clamp(24px,3vw,48px) 18px;margin:0;scrollbar-width:thin}
 #settings.active{display:contents;color:#092f25;--ink:#092f25;--muted:#60716b;--good:#168754;--line:#d6e2d8}
 #settings .settings-hero{order:0;flex:none;display:flex;justify-content:space-between;align-items:center;min-height:215px;margin:0;padding:32px 0 24px;background:none;border:0;box-shadow:none}
-#settings .settings-hero .eyebrow{font-size:12px;letter-spacing:.17em;color:#185c3c;margin-bottom:12px}
+#settings .settings-hero .eyebrow{display:none!important}
 #settings .settings-hero h1{font-family:inherit;font-size:clamp(35px,3.2vw,52px);font-weight:800;letter-spacing:-.04em;line-height:1.02;margin:0 0 13px;color:#082d23}
 #settings .settings-hero p{font-size:14px;line-height:1.6;max-width:490px;color:#425b50;margin:0}
 #settings .settings-hero aside{font-family:Georgia,serif;font-size:23px;font-style:italic;line-height:1.3;color:#fff9dc;text-align:center;text-shadow:0 2px 5px #172c15;align-self:center;padding-top:20px}

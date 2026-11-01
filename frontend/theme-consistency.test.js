@@ -286,3 +286,26 @@ test('Pigeon Light (Ajustes Adicionais): Espaçamento em Configurações, Hero d
   assert.ok(css.includes('max-width: 62% !important;'), 'Descrição da Missão Ativa não deve invadir o escalador');
   assert.ok(css.includes('.mission-metric-pill.is-effective .mission-metric-label'), 'Deve garantir contraste no label do risco efetivo');
 });
+
+test('Pigeon Light (Refinamento Final): Grade C contraste em index.html, Remoção do eyebrow em Configurações e Tela Sobre Widescreen/Ultrawide', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const setJs = fs.readFileSync(path.join(root, 'frontend', 'settings-experience.js'), 'utf8');
+  const setCss = fs.readFileSync(path.join(root, 'frontend', 'settings-experience.css'), 'utf8');
+  const aboutCss = fs.readFileSync(path.join(root, 'frontend', 'about-page.css'), 'utf8');
+  const pigeonCss = fs.readFileSync(path.join(root, 'frontend', 'theme-pigeon-light.css'), 'utf8');
+
+  // 1. Novo Trade: Grade C em Pigeon Light tem contraste WCAG AAA (#92400E e fundo #FEF3C7)
+  assert.ok(html.includes("statusEl.style.setProperty('color', '#92400E', 'important')"), 'index.html deve aplicar #92400E para Grade C no Pigeon Light');
+  assert.ok(html.includes("statusEl.style.setProperty('background', '#FEF3C7', 'important')"), 'index.html deve aplicar #FEF3C7 para Grade C no Pigeon Light');
+  assert.ok(pigeonCss.includes('#92400E !important;'), 'theme-pigeon-light.css deve garantir cor #92400E no Grade C');
+
+  // 2. Configurações: remoção do eyebrow duplicado e espaçamento
+  assert.ok(!setJs.includes("CONFIGURAÇÕES GERAIS"), 'settings-experience.js não deve ter eyebrow duplicado de CONFIGURAÇÕES GERAIS');
+  assert.ok(setCss.includes('.eyebrow{display:none!important}'), 'settings-experience.css deve ocultar .eyebrow no hero');
+
+  // 3. Sobre: expansão fluida em monitores widescreen e ultrawide (1600px, 2000px, 2600px)
+  assert.ok(aboutCss.includes('--about-composition-width: min(1860px, 94vw);'), 'about-page.css deve suportar largura fluida a partir de 1600px');
+  assert.ok(aboutCss.includes('--about-composition-width: min(2300px, 94vw);'), 'about-page.css deve suportar ultrawide a partir de 2000px');
+  assert.ok(aboutCss.includes('--about-composition-width: min(2900px, 92vw);'), 'about-page.css deve suportar super ultrawide a partir de 2600px');
+  assert.ok(pigeonCss.includes("background: url('../assets/about-pigeon-hero.png') right center / cover no-repeat !important;"), 'theme-pigeon-light.css deve posicionar imagem sem distorção');
+});
