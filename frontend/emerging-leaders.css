@@ -37,16 +37,16 @@ body[data-theme="healthy"]:has(#emergingleaders.active) .main {
 }
 
 /* PREMIUM GOLD: Emerging Leaders canvas */
-body:not([data-theme="healthy"]):has(#emergingleaders.active) {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#emergingleaders.active) {
   background: #0c0906 !important;
   color: #f8eed8;
 }
 
-body:not([data-theme="healthy"]):has(#emergingleaders.active) .app {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#emergingleaders.active) .app {
   background: #0c0906 !important;
 }
 
-body:not([data-theme="healthy"]):has(#emergingleaders.active) .main {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#emergingleaders.active) .main {
   position: relative;
   isolation: isolate;
   min-height: 100vh;
@@ -93,7 +93,7 @@ body:not([data-theme="healthy"]):has(#emergingleaders.active) .main {
   vertical-align: middle;
 }
 
-body:not([data-theme="healthy"]) .el-badge-new {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .el-badge-new {
   background: linear-gradient(135deg, #e4bf69, #cba143);
   color: #211604;
 }
@@ -486,18 +486,18 @@ body:not([data-theme="healthy"]) .el-badge-new {
 }
 
 /* Gold Theme Overrides for Clusters */
-body:not([data-theme="healthy"]) .el-cluster-card:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .el-cluster-card:hover {
   border-color: #d4af37;
   box-shadow: 0 0 16px rgba(212, 175, 55, 0.25);
 }
 
-body:not([data-theme="healthy"]) .el-cluster-card.active {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .el-cluster-card.active {
   border: 1.5px solid #d4af37 !important;
   background: #261b0c !important;
   box-shadow: 0 0 20px rgba(212, 175, 55, 0.32), 0 8px 24px rgba(0, 0, 0, 0.45) !important;
 }
 
-body:not([data-theme="healthy"]) .el-cluster-card.active .el-cluster-title {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .el-cluster-card.active .el-cluster-title {
   color: #fff9e6;
   text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
 }
@@ -1190,7 +1190,7 @@ body:not([data-theme="healthy"]) .el-cluster-card.active .el-cluster-title {
   color: #8fe0aa;
 }
 
-body:not([data-theme="healthy"]) .el-pipeline-tagline {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .el-pipeline-tagline {
   color: #d4af37;
 }
 

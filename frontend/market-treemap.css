@@ -993,31 +993,31 @@ body:has(#markettreemap.active) #marketFocusGuard {
    11. COMPATIBILIDADE COM O TEMA GOLD
    ========================================================================= */
 
-body:not([data-theme="healthy"]) .treemap-controls-bar,
-body:not([data-theme="healthy"]) .treemap-kpi-card,
-body:not([data-theme="healthy"]) .treemap-sector-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-controls-bar,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-kpi-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-sector-card {
   border-color: rgba(220, 179, 84, 0.18);
   background: linear-gradient(180deg, #16120b 0%, #0d0a07 100%);
 }
 
-body:not([data-theme="healthy"]) .treemap-sector-header {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-sector-header {
   background: rgba(30, 26, 17, 0.7);
   border-bottom-color: rgba(220, 179, 84, 0.12);
 }
 
-body:not([data-theme="healthy"]) .treemap-popover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-popover {
   background: linear-gradient(160deg, #1a150c 0%, #0d0a07 100%);
   border-color: rgba(220, 179, 84, 0.35);
 }
 
-body:not([data-theme="healthy"]) .treemap-header-icon {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-header-icon {
   background: linear-gradient(135deg, rgba(220, 179, 84, 0.2), rgba(180, 140, 50, 0.15));
   border-color: rgba(220, 179, 84, 0.4);
   color: #f3d47c;
 }
 
-body:not([data-theme="healthy"]) .treemap-popover-btn,
-body:not([data-theme="healthy"]) .treemap-focus-back-btn {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-popover-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-focus-back-btn {
   background: linear-gradient(90deg, #d4a737 0%, #b8861b 100%);
   color: #12100a;
 }
@@ -1309,31 +1309,31 @@ body:not([data-theme="healthy"]) .treemap-focus-back-btn {
 
 /* Gold Theme Support */
 body[data-theme="gold"] .treemap-group-modal,
-body:not([data-theme="healthy"]) .treemap-group-modal {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-group-modal {
   background: linear-gradient(165deg, #181510 0%, #0d0c0a 100%);
   border-color: rgba(214, 170, 80, 0.32);
 }
 
 body[data-theme="gold"] .treemap-group-peek-hint,
-body:not([data-theme="healthy"]) .treemap-group-peek-hint {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .treemap-group-peek-hint {
   color: rgba(214, 170, 80, 0.85);
   background: rgba(214, 170, 80, 0.1);
   border-color: rgba(214, 170, 80, 0.2);
 }
 
 body[data-theme="gold"] .tgm-table thead,
-body:not([data-theme="healthy"]) .tgm-table thead {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tgm-table thead {
   background: #14120e;
 }
 
 body[data-theme="gold"] .tgm-sym-cell strong,
 body[data-theme="gold"] .tgm-sym-cell b,
-body:not([data-theme="healthy"]) .tgm-sym-cell strong,
-body:not([data-theme="healthy"]) .tgm-sym-cell b {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tgm-sym-cell strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tgm-sym-cell b {
   color: #e0b750;
 }
 
 body[data-theme="gold"] .tgm-row:hover,
-body:not([data-theme="healthy"]) .tgm-row:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tgm-row:hover {
   background: rgba(214, 170, 80, 0.12);
 }

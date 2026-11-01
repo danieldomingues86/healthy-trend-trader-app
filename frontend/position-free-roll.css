@@ -407,74 +407,74 @@
 }
 
 /* Dark / Gold Theme Support */
-body:not([data-theme="healthy"]) .pm-dialog {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog {
   background: linear-gradient(160deg, #10261c 0%, #081812 100%);
   border-color: rgba(212, 175, 55, 0.28);
   color: #f7f0e3;
   box-shadow: 0 28px 70px rgba(0, 0, 0, 0.65), 0 0 50px rgba(16, 185, 129, 0.1);
 }
 
-body:not([data-theme="healthy"]) .pm-dialog-header {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog-header {
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
-body:not([data-theme="healthy"]) .pm-dialog h3 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog h3 {
   color: #ffffff;
 }
 
-body:not([data-theme="healthy"]) .pm-dialog-close-btn {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog-close-btn {
   color: #a7bcae;
 }
 
-body:not([data-theme="healthy"]) .pm-dialog-close-btn:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog-close-btn:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
 }
 
-body:not([data-theme="healthy"]) .pm-dialog .pm-field-label {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog .pm-field-label {
   color: #a7d9b9;
 }
 
-body:not([data-theme="healthy"]) .pm-dialog .pm-field-badge {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog .pm-field-badge {
   background: rgba(255, 255, 255, 0.1);
   color: #c4bfb4;
 }
 
-body:not([data-theme="healthy"]) .pm-dialog input {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog input {
   background: rgba(4, 16, 11, 0.85);
   border-color: rgba(46, 229, 157, 0.24);
   color: #ffffff;
   color-scheme: dark;
 }
 
-body:not([data-theme="healthy"]) .pm-dialog input:hover:not(:disabled):not([readonly]) {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog input:hover:not(:disabled):not([readonly]) {
   border-color: #34d6ab;
 }
 
-body:not([data-theme="healthy"]) .pm-dialog input:focus:not(:disabled):not([readonly]) {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog input:focus:not(:disabled):not([readonly]) {
   border-color: #34d6ab;
   box-shadow: 0 0 0 3px rgba(52, 214, 171, 0.25);
   background: rgba(6, 24, 16, 0.95);
 }
 
-body:not([data-theme="healthy"]) .pm-dialog input[readonly] {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog input[readonly] {
   background: rgba(0, 0, 0, 0.45);
   border-color: rgba(255, 255, 255, 0.08);
   color: #8fa899;
 }
 
-body:not([data-theme="healthy"]) .pm-dialog input[readonly]:focus {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog input[readonly]:focus {
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-body:not([data-theme="healthy"]) .pm-dialog .pm-preview {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog .pm-preview {
   background: rgba(0, 0, 0, 0.35);
   border-color: rgba(46, 229, 157, 0.2);
   color: #d1ded6;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-body:not([data-theme="healthy"]) .pm-dialog .pm-preview b {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-dialog .pm-preview b {
   color: #ffffff;
 }
 .pm-policy {
@@ -569,37 +569,37 @@ body:not([data-theme="healthy"]) .pm-dialog .pm-preview b {
 }
 
 /* Premium Gold: harmonia total para o Sell Into Strength */
-body:not([data-theme="healthy"]) .pm-sell-policy {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-policy {
   background: #1c180f !important;
   border-color: #554525 !important;
 }
-body:not([data-theme="healthy"]) .pm-sell-item {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-item {
   background: #242016 !important;
   border-color: #5c4b2a !important;
   color: #f8f0df !important;
 }
-body:not([data-theme="healthy"]) .pm-sell-item .field label {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-item .field label {
   color: #d7c8a6 !important;
 }
-body:not([data-theme="healthy"]) .pm-sell-item .field input,
-body:not([data-theme="healthy"]) .pm-sell-item .field select {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-item .field input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-item .field select {
   background: #0e0d0a !important;
   border-color: #62502c !important;
   color: #fff8e9 !important;
 }
-body:not([data-theme="healthy"]) .pm-sell-item .field input:focus,
-body:not([data-theme="healthy"]) .pm-sell-item .field select:focus {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-item .field input:focus,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-item .field select:focus {
   border-color: #d4af37 !important;
   box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25) !important;
 }
-body:not([data-theme="healthy"]) .pm-sell-footer {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-footer {
   background: rgba(36, 32, 22, 0.75) !important;
   border-color: rgba(214, 170, 80, 0.25) !important;
 }
-body:not([data-theme="healthy"]) .pm-sell-hint {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-hint {
   color: #cdbd98 !important;
 }
-body:not([data-theme="healthy"]) .pm-sell-hint span {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pm-sell-hint span {
   color: #fde047 !important;
 }
 
@@ -776,49 +776,49 @@ body:not([data-theme="healthy"]) .pm-sell-hint span {
 }
 
 /* Gold Theme Toggles & Disabled State */
-body:not([data-theme="healthy"]) .risk-artistic-toggle.is-on {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-artistic-toggle.is-on {
   background: linear-gradient(135deg, #d4af37 0%, #a17f1a 100%) !important;
   border-color: #d4af37 !important;
   box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25), 0 3px 8px rgba(212, 175, 55, 0.4) !important;
 }
 
-body:not([data-theme="healthy"]) .risk-artistic-toggle.is-off {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-artistic-toggle.is-off {
   background: #334155 !important;
   border-color: #1e293b !important;
 }
 
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled {
   background: #141414 !important;
   border-color: #27272a !important;
 }
 
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .risk-block-title > span {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled .risk-block-title > span {
   background: #3f3f46 !important;
   color: #a1a1aa !important;
 }
 
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .risk-title-content h4 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled .risk-title-content h4 {
   color: #71717a !important;
 }
 
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .risk-title-content p {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled .risk-title-content p {
   color: #52525b !important;
 }
 
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .pm-sell-item,
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .scale-in-policy-item {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled .pm-sell-item,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled .scale-in-policy-item {
   background: #18181b !important;
   border-color: #27272a !important;
 }
 
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .pm-sell-footer,
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled .scale-in-policy-footer {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled .pm-sell-footer,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled .scale-in-policy-footer {
   background: #18181b !important;
   border-color: #27272a !important;
 }
 
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled input,
-body:not([data-theme="healthy"]) .risk-policy-block.is-policy-disabled select {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .risk-policy-block.is-policy-disabled select {
   background: #18181b !important;
   border-color: #27272a !important;
   color: #71717a !important;

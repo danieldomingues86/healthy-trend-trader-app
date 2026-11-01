@@ -165,71 +165,71 @@
 }
 
 /* Gold Theme Overrides */
-body:not([data-theme="healthy"]) .focus-guardian-badge.good,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-badge.good,
 body[data-theme="gold"] .focus-guardian-badge.good {
   background: rgba(16, 185, 129, 0.15);
   color: #34d399;
   border-color: rgba(16, 185, 129, 0.3);
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-badge.warning,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-badge.warning,
 body[data-theme="gold"] .focus-guardian-badge.warning {
   background: rgba(245, 158, 11, 0.15);
   color: #fbbf24;
   border-color: rgba(245, 158, 11, 0.3);
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-badge.critical,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-badge.critical,
 body[data-theme="gold"] .focus-guardian-badge.critical {
   background: rgba(239, 68, 68, 0.2);
   color: #f87171;
   border-color: rgba(239, 68, 68, 0.45);
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-badge.neutral,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-badge.neutral,
 body[data-theme="gold"] .focus-guardian-badge.neutral {
   background: rgba(148, 163, 184, 0.12);
   color: #94a3b8;
   border-color: rgba(148, 163, 184, 0.25);
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-cfg-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-cfg-btn,
 body[data-theme="gold"] .focus-guardian-cfg-btn {
   background: rgba(26, 21, 14, 0.8);
   border-color: rgba(214, 170, 80, 0.28);
   color: #e8c45e;
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-cfg-btn:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-cfg-btn:hover,
 body[data-theme="gold"] .focus-guardian-cfg-btn:hover {
   background: rgba(45, 36, 22, 0.9);
   color: #fffaf0;
   border-color: #e8c45e;
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-kpi,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-kpi,
 body[data-theme="gold"] .focus-guardian-kpi {
   background: rgba(22, 17, 11, 0.8);
   border-color: rgba(214, 170, 80, 0.18);
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-kpis:hover .focus-guardian-kpi,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-kpis:hover .focus-guardian-kpi,
 body[data-theme="gold"] .focus-guardian-kpis:hover .focus-guardian-kpi {
   border-color: rgba(214, 170, 80, 0.38);
   background: rgba(28, 22, 14, 0.9);
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-kpi small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-kpi small,
 body[data-theme="gold"] .focus-guardian-kpi small {
   color: #9c8e73;
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-kpi b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-kpi b,
 body[data-theme="gold"] .focus-guardian-kpi b {
   color: #fffaf0;
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-message,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-message,
 body[data-theme="gold"] .focus-guardian-message {
   background: rgba(8, 42, 29, 0.5);
   border: 1px solid rgba(16, 185, 129, 0.3);
@@ -237,7 +237,7 @@ body[data-theme="gold"] .focus-guardian-message {
   color: #c4ded0;
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-message.warning,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-message.warning,
 body[data-theme="gold"] .focus-guardian-message.warning {
   background: rgba(45, 33, 5, 0.4);
   border: 1px solid rgba(245, 158, 11, 0.3);
@@ -245,7 +245,7 @@ body[data-theme="gold"] .focus-guardian-message.warning {
   color: #fde68a;
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-message.critical,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-message.critical,
 body[data-theme="gold"] .focus-guardian-message.critical {
   background: rgba(45, 12, 12, 0.45);
   border: 1px solid rgba(239, 68, 68, 0.45);
@@ -253,7 +253,7 @@ body[data-theme="gold"] .focus-guardian-message.critical {
   color: #fecaca;
 }
 
-body:not([data-theme="healthy"]) .focus-guardian-message.neutral,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .focus-guardian-message.neutral,
 body[data-theme="gold"] .focus-guardian-message.neutral {
   background: rgba(30, 41, 59, 0.35);
   border: 1px solid rgba(148, 163, 184, 0.25);

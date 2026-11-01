@@ -22,15 +22,15 @@
 #positions .position-action-badge.critical{border-color:#ef9b96;background:linear-gradient(135deg,#fff0ee,#ffd9d5);color:#a4322c;box-shadow:0 3px 10px rgba(177,57,48,.12)}
 #positions .position-action-badge.critical i{background:#bb4038;color:#fff}
 #positions .positions-account-empty{padding:25px 16px;border:1px dashed rgba(68,116,85,.38);border-radius:14px;color:var(--muted);font-size:12px;text-align:center}
-body:not([data-theme="healthy"]) #positions .positions-account-panel{border-color:#3d614d;background:linear-gradient(145deg,#14281e,#0d1b14);box-shadow:0 16px 36px rgba(0,0,0,.22)}
-body:not([data-theme="healthy"]) #positions .positions-account-panel.paper{border-color:#695326;background:linear-gradient(145deg,#251f12,#17150e)}
-body:not([data-theme="healthy"]) #positions .positions-account-panel>header{border-color:#34513e}
-body:not([data-theme="healthy"]) #positions .positions-account-panel.paper>header{border-color:#594625}
-body:not([data-theme="healthy"]) #positions .positions-account-panel h2{color:#fff7e7}
-body:not([data-theme="healthy"]) #positions .positions-account-panel>header>b{background:#17452d;color:#b4edc4}
-body:not([data-theme="healthy"]) #positions .positions-account-panel.paper>header>b{background:#4a391b;color:#f0ce79}
-body:not([data-theme="healthy"]) #positions .position-action-badge.opportunity{border-color:#72ca89;background:linear-gradient(135deg,#143d29,#102b1e);color:#a8edb9}
-body:not([data-theme="healthy"]) #positions .position-action-badge.critical{border-color:#d56e68;background:linear-gradient(135deg,#482321,#341918);color:#ffb5ae}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .positions-account-panel{border-color:#3d614d;background:linear-gradient(145deg,#14281e,#0d1b14);box-shadow:0 16px 36px rgba(0,0,0,.22)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .positions-account-panel.paper{border-color:#695326;background:linear-gradient(145deg,#251f12,#17150e)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .positions-account-panel>header{border-color:#34513e}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .positions-account-panel.paper>header{border-color:#594625}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .positions-account-panel h2{color:#fff7e7}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .positions-account-panel>header>b{background:#17452d;color:#b4edc4}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .positions-account-panel.paper>header>b{background:#4a391b;color:#f0ce79}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .position-action-badge.opportunity{border-color:#72ca89;background:linear-gradient(135deg,#143d29,#102b1e);color:#a8edb9}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #positions .position-action-badge.critical{border-color:#d56e68;background:linear-gradient(135deg,#482321,#341918);color:#ffb5ae}
 @media(max-width:1100px){#positions .positions-account-panels{grid-template-columns:1fr}}
 @media(max-width:700px){#positions .positions-account-grid{grid-template-columns:1fr}#positions .positions-account-panel{padding:14px;border-radius:17px}#positions .positions-account-panel h2{font-size:22px}#positions .positions-account-panel>header{gap:10px}#positions .positions-account-panel>header>b{font-size:10px;padding:7px 8px}}
 @media(max-width:520px){#positions .position-action-queue{grid-template-columns:1fr}}
@@ -41,7 +41,7 @@ body:not([data-theme="healthy"]) #positions .position-action-badge.critical{bord
 .position-menu-trigger{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;border:1px solid rgba(255,255,255,.14);border-radius:6px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);font-size:16px;line-height:1;font-weight:700;cursor:pointer;transition:all .15s ease}
 .position-menu-trigger:hover,.position-menu-trigger:focus-visible{background:rgba(255,255,255,.22);color:#fff;border-color:rgba(255,255,255,.3);outline:none}
 .position-menu-dropdown{position:absolute;top:calc(100% + 5px);right:0;z-index:60;min-width:160px;padding:5px;border-radius:10px;background:#10281e;border:1px solid rgba(82,169,120,.28);box-shadow:0 14px 30px rgba(0,0,0,.42),0 2px 6px rgba(0,0,0,.2);backdrop-filter:blur(10px)}
-body:not([data-theme="healthy"]) .position-menu-dropdown{background:#1d1810;border-color:rgba(214,170,80,.32)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .position-menu-dropdown{background:#1d1810;border-color:rgba(214,170,80,.32)}
 .position-menu-item{display:flex;align-items:center;gap:9px;width:100%;padding:8px 12px;border:0;border-radius:6px;background:transparent;font-size:12px;font-weight:600;text-align:left;cursor:pointer;transition:background .15s,color .15s}
 .position-menu-item.delete{color:#f17f76}
 .position-menu-item.delete svg{flex-shrink:0;stroke:#f17f76}
@@ -52,7 +52,7 @@ body:not([data-theme="healthy"]) .position-menu-dropdown{background:#1d1810;bord
 .pos-delete-modal-overlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgba(4,15,9,.75);backdrop-filter:blur(8px);animation:posModalFadeIn .2s ease-out}
 @keyframes posModalFadeIn{from{opacity:0}to{opacity:1}}
 .pos-delete-modal-card{position:relative;width:min(480px,100%);padding:28px 28px 24px;border-radius:20px;border:1px solid rgba(239,102,91,.35);background:var(--paper,#0e1e16);box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.04);color:var(--ink,#e4ede7);animation:posModalPop .2s cubic-bezier(.16,1,.3,1)}
-body:not([data-theme="healthy"]) .pos-delete-modal-card{background:#191610;border-color:rgba(239,102,91,.4)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-delete-modal-card{background:#191610;border-color:rgba(239,102,91,.4)}
 @keyframes posModalPop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
 .pos-delete-modal-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .pos-delete-modal-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:rgba(239,102,91,.12);border:1px solid rgba(239,102,91,.25);color:#f17f76}

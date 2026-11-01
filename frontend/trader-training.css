@@ -1490,13 +1490,13 @@ body.tt-active-screen .content,
 }
 
 /* 15. Tema Gold / Escuro */
-body:not([data-theme="healthy"]) .tt-hero {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-hero {
   background-color: #0c1810;
   border-color: rgba(212, 174, 82, 0.28);
   color: #f7ede1;
 }
 
-body:not([data-theme="healthy"]) .tt-hero-overlay {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-hero-overlay {
   background: linear-gradient(
     90deg,
     rgba(15, 26, 19, 0) 0%,
@@ -1507,158 +1507,158 @@ body:not([data-theme="healthy"]) .tt-hero-overlay {
   );
 }
 
-body:not([data-theme="healthy"]) .tt-btn-switch {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-btn-switch {
   background: #2a2213;
   border-color: #d4ae52;
   color: #fcf4e4;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
-body:not([data-theme="healthy"]) .tt-btn-switch:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-btn-switch:hover {
   background: #3a2f1b;
   border-color: #f1cf77;
   color: #ffffff;
   box-shadow: 0 6px 18px rgba(212, 174, 82, 0.28);
 }
 
-body:not([data-theme="healthy"]) .tt-hero-title {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-hero-title {
   color: #fbf6ee;
 }
 
-body:not([data-theme="healthy"]) .tt-hero-subtitle {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-hero-subtitle {
   color: #ddbf82;
 }
 
-body:not([data-theme="healthy"]) .tt-hero-quote {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-hero-quote {
   color: #e5d8c3;
 }
 
-body:not([data-theme="healthy"]) .tt-goal-focus-note {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-goal-focus-note {
   background: linear-gradient(90deg, rgba(46, 36, 18, 0.7), rgba(30, 24, 14, 0.5));
   border-color: rgba(212, 174, 82, 0.28);
 }
 
-body:not([data-theme="healthy"]) .tt-focus-note-badge {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-focus-note-badge {
   background: #3e3118;
   color: #f0cb79;
   border: 1px solid rgba(212, 174, 82, 0.4);
 }
 
-body:not([data-theme="healthy"]) .tt-focus-note-text {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-focus-note-text {
   color: #ebdcc3;
 }
 
-body:not([data-theme="healthy"]) .tt-period-remaining-badge {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-period-remaining-badge {
   background: #252016;
   color: #e5c378;
   border-color: #554425;
 }
 
-body:not([data-theme="healthy"]) .tt-unified-evolution-block {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-unified-evolution-block {
   background: #18140f;
   border-color: #3b3122;
 }
 
-body:not([data-theme="healthy"]) .tt-evolution-subhead h3 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-evolution-subhead h3 {
   color: #f5ede0;
 }
 
-body:not([data-theme="healthy"]) .tt-evolution-body-compact .tt-evolution-copy p {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-evolution-body-compact .tt-evolution-copy p {
   color: #d8c7ad;
 }
 
-body:not([data-theme="healthy"]) .tt-ticker-pill {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-ticker-pill {
   background: #231d15;
   color: #f0deb8;
   border-color: #493b27;
 }
 
-body:not([data-theme="healthy"]) .tt-history-count-badge {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-history-count-badge {
   background: #231d15;
   color: #c9b48c;
 }
 
-body:not([data-theme="healthy"]) .tt-btn-link-viewall {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-btn-link-viewall {
   color: #d4ae52;
 }
 
-body:not([data-theme="healthy"]) .tt-btn-link-viewall:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-btn-link-viewall:hover {
   background: rgba(212, 174, 82, 0.12);
   color: #f1cf77;
 }
 
-body:not([data-theme="healthy"]) .tt-catalog-item-title {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-catalog-item-title {
   color: #f3e8d6;
 }
 
-body:not([data-theme="healthy"]) .tt-catalog-item-desc {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-catalog-item-desc {
   color: #b59f7d;
 }
 
-body:not([data-theme="healthy"]) .tt-catalog-radio-dot {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-catalog-radio-dot {
   border-color: #635237;
 }
 
-body:not([data-theme="healthy"]) .tt-catalog-item.selected .tt-catalog-radio-dot {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-catalog-item.selected .tt-catalog-radio-dot {
   border-color: #d4ae52;
   background: #d4ae52;
   box-shadow: inset 0 0 0 2.5px #181510;
 }
 
-body:not([data-theme="healthy"]) .tt-custom-prompt-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-custom-prompt-card {
   background: #191510;
   border-color: #614f2e;
 }
 
-body:not([data-theme="healthy"]) .tt-card,
-body:not([data-theme="healthy"]) .tt-development-section {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-development-section {
   background: rgba(22, 19, 14, 0.92);
   border-color: rgba(212, 174, 82, 0.15);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-body:not([data-theme="healthy"]) .tt-card-header h2,
-body:not([data-theme="healthy"]) .tt-card-header h3,
-body:not([data-theme="healthy"]) .tt-goal-title,
-body:not([data-theme="healthy"]) .tt-adherence-big-score {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-card-header h2,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-card-header h3,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-goal-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-adherence-big-score {
   color: #f7ede1;
 }
 
-body:not([data-theme="healthy"]) .tt-meta-value {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-meta-value {
   color: #f0e3d0;
 }
 
-body:not([data-theme="healthy"]) .tt-meta-label,
-body:not([data-theme="healthy"]) .tt-meta-sub {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-meta-label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-meta-sub {
   color: #bfa982;
 }
 
-body:not([data-theme="healthy"]) .tt-catalog-item {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-catalog-item {
   background: #181510;
   border-color: #362e21;
 }
 
-body:not([data-theme="healthy"]) .tt-catalog-item-left {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-catalog-item-left {
   color: #e8dccb;
 }
 
-body:not([data-theme="healthy"]) .tt-table th {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-table th {
   background: #211c15;
   color: #d1b888;
   border-color: #3b3223;
 }
 
-body:not([data-theme="healthy"]) .tt-table td {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-table td {
   border-color: #2c2419;
   color: #edd9be;
 }
 
-body:not([data-theme="healthy"]) .tt-modal-dialog {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-modal-dialog {
   background: #1a1611;
   border-color: #554425;
 }
 
-body:not([data-theme="healthy"]) .tt-modal-header h3 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-modal-header h3 {
   color: #f7ede1;
 }
 
@@ -1697,7 +1697,7 @@ body:not([data-theme="healthy"]) .tt-modal-header h3 {
       rgba(246, 250, 247, 0.98) 100%
     );
   }
-  body:not([data-theme="healthy"]) .tt-hero-overlay {
+  body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-hero-overlay {
     background: linear-gradient(
       180deg,
       rgba(15, 26, 19, 0.48) 0%,

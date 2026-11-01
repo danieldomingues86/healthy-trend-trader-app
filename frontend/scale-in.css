@@ -435,178 +435,178 @@ body:not([data-theme="healthy"]) .scale-in-dialog {
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.75);
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog-header {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog-header {
   border-bottom-color: #382f1b;
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog-header .eyebrow {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog-header .eyebrow {
   color: #d4af37;
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog-header h3 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog-header h3 {
   color: #f8f0df;
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog-subtitle {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog-subtitle {
   color: #bfae8a;
 }
 
-body:not([data-theme="healthy"]) .scale-in-close-btn {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-close-btn {
   background: #2b2314;
   border-color: #554525;
   color: #d4af37;
 }
 
-body:not([data-theme="healthy"]) .scale-in-close-btn:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-close-btn:hover {
   background: #3a301c;
   color: #ffffff;
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog label {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog label {
   color: #d7c8a6;
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog input,
-body:not([data-theme="healthy"]) .scale-in-dialog select,
-body:not([data-theme="healthy"]) .scale-in-dialog textarea {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog select,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog textarea {
   background: #0e0d0a;
   border-color: #62502c;
   color: #fff8e9;
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog input:focus,
-body:not([data-theme="healthy"]) .scale-in-dialog select:focus,
-body:not([data-theme="healthy"]) .scale-in-dialog textarea:focus {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog input:focus,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog select:focus,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog textarea:focus {
   border-color: #d4af37;
   box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25);
 }
 
-body:not([data-theme="healthy"]) .scale-in-summary-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-summary-card {
   background: #242016;
   border-color: #5c4b2a;
 }
 
-body:not([data-theme="healthy"]) .scale-in-summary-card strong {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-summary-card strong {
   color: #f8f0df;
 }
 
-body:not([data-theme="healthy"]) .scale-in-summary-card span {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-summary-card span {
   color: #bfae8a;
 }
 
-body:not([data-theme="healthy"]) .scale-in-summary-card.result {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-summary-card.result {
   background: rgba(212, 175, 55, 0.15);
   border-color: #d4af37;
 }
 
-body:not([data-theme="healthy"]) .scale-in-summary-card.result strong.good {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-summary-card.result strong.good {
   color: #fbbf24;
 }
 
-body:not([data-theme="healthy"]) .scale-in-summary-card.result strong.bad {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-summary-card.result strong.bad {
   color: #f87171;
 }
 
-body:not([data-theme="healthy"]) .scale-in-summary-card.result span {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-summary-card.result span {
   color: #d7c8a6;
 }
 
-body:not([data-theme="healthy"]) .scale-in-validation-banner.pass {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-validation-banner.pass {
   background: rgba(16, 185, 129, 0.18);
   border-color: #10b981;
   color: #86efac;
 }
 
-body:not([data-theme="healthy"]) .scale-in-validation-banner.pass b {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-validation-banner.pass b {
   color: #bbf7d0;
 }
 
-body:not([data-theme="healthy"]) .scale-in-validation-banner.fail {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-validation-banner.fail {
   background: rgba(217, 119, 6, 0.22);
   border-color: #f59e0b;
   color: #fde68a;
 }
 
-body:not([data-theme="healthy"]) .scale-in-validation-banner.fail b {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-validation-banner.fail b {
   color: #fef08a;
 }
 
-body:not([data-theme="healthy"]) .scale-in-validation-box {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-validation-box {
   background: #14120b;
   border-color: #3d321b;
 }
 
-body:not([data-theme="healthy"]) .scale-in-validation-box h4 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-validation-box h4 {
   color: #d4af37;
 }
 
-body:not([data-theme="healthy"]) .scale-in-check-item {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-check-item {
   color: #f8f0df;
 }
 
-body:not([data-theme="healthy"]) .scale-in-check-detail {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-check-detail {
   color: #bfae8a;
 }
 
-body:not([data-theme="healthy"]) .scale-in-check-icon.pass {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-check-icon.pass {
   background: rgba(16, 185, 129, 0.2);
   color: #34d399;
   border-color: #10b981;
 }
 
-body:not([data-theme="healthy"]) .scale-in-check-icon.fail {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-check-icon.fail {
   background: rgba(239, 68, 68, 0.2);
   color: #f87171;
   border-color: #ef4444;
 }
 
-body:not([data-theme="healthy"]) .scale-in-consolidated-details {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-consolidated-details {
   background: #242016;
   border-color: #5c4b2a;
 }
 
-body:not([data-theme="healthy"]) .scale-in-consolidated-details summary {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-consolidated-details summary {
   color: #d4af37;
 }
 
-body:not([data-theme="healthy"]) .scale-in-consolidated-details[open] summary {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-consolidated-details[open] summary {
   color: #f8f0df;
 }
 
-body:not([data-theme="healthy"]) .consolidated-table th {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .consolidated-table th {
   background: #1c180f;
   color: #d7c8a6;
   border-bottom-color: #554525;
 }
 
-body:not([data-theme="healthy"]) .consolidated-table td {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .consolidated-table td {
   color: #f8f0df;
   border-bottom-color: #382f1b;
 }
 
-body:not([data-theme="healthy"]) .consolidated-table tr.total-row {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .consolidated-table tr.total-row {
   background: rgba(212, 175, 55, 0.15);
 }
 
-body:not([data-theme="healthy"]) .consolidated-table tr.total-row td {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .consolidated-table tr.total-row td {
   color: #d4af37;
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog .pm-form-actions {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog .pm-form-actions {
   border-top-color: #382f1b;
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog .pm-form-actions button.secondary {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog .pm-form-actions button.secondary {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.25);
   color: #f8f0df;
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog .pm-form-actions button.secondary:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog .pm-form-actions button.secondary:hover {
   background: rgba(255, 255, 255, 0.14);
 }
 
-body:not([data-theme="healthy"]) .scale-in-dialog .pm-form-actions button.primary {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog .pm-form-actions button.primary {
   background: linear-gradient(135deg, #eab308, #ca8a04);
   color: #1c180f;
   box-shadow: 0 10px 20px rgba(234, 179, 8, 0.25);

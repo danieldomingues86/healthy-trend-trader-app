@@ -90,7 +90,7 @@
   --jv-tone-eeeede:#eeeede;
   --jv-tone-f1f6e9:#f1f6e9;
 }
-body:not([data-theme="healthy"]) #journal{
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal{
   --jv-tone-04140cba:#130e05ba;
   --jv-tone-04180fcc:#161106cc;
   --jv-tone-07150eed:#151007ed;
@@ -186,7 +186,7 @@ body:not([data-theme="healthy"]) #journal{
 body:has(#journal.active) .content{min-height:calc(100vh - 78px);background:linear-gradient(135deg,#062219 0%,#0d3d2c 48%,#092b20 100%)}
 body:has(#journal.active) #journal{min-height:calc(100vh - 78px);margin:0!important;padding:0!important}
 body:has(#journal.active) #journal .jv-workspace{min-height:calc(100vh - 78px)}
-body:not([data-theme="healthy"]):has(#journal.active) .content{background:linear-gradient(135deg,#171108 0%,#30210d 48%,#171108 100%)}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#journal.active) .content{background:linear-gradient(135deg,#171108 0%,#30210d 48%,#171108 100%)}
 body:has(#journal.active) .content{max-width:none;margin:0;padding:0!important}
 body:has(#journal.active) #marketFocusGuard{display:none}
 #journal .jv-workspace{--jv-ink:var(--jv-tone-293b30);--jv-muted:var(--jv-tone-647065);--jv-line:#cfcdbb;min-height:calc(100dvh - 78px);padding:42px clamp(20px,3vw,60px) 60px;background:radial-gradient(ellipse at 85% 0,var(--jv-tone-36584040),transparent 60%),linear-gradient(110deg,var(--jv-tone-081d14eb),var(--jv-tone-07150eed)),url('../assets/plans-connected-journey-v1.png') center/cover fixed;color:var(--jv-tone-eeeede);font:16px/1.6 Arial,Helvetica,sans-serif}
@@ -194,7 +194,7 @@ body:has(#journal.active) #marketFocusGuard{display:none}
 /* Decorative vector chart: stays behind the opaque notebook and never catches clicks. */
 #journal .jv-workspace{position:relative;isolation:isolate;--jv-chart:var(--jv-tone-88cda2)}
 #journal .jv-workspace::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--jv-chart);opacity:.22;mask:url('../assets/journal-market-background.svg') center top/100% auto repeat-y;-webkit-mask:url('../assets/journal-market-background.svg') center top/100% auto repeat-y}
-body:not([data-theme="healthy"]) #journal .jv-workspace{--jv-chart:#d6aa50;background:radial-gradient(ellipse at 85% 0,#8a68252b,transparent 60%),linear-gradient(110deg,var(--jv-tone-17170feb),var(--jv-tone-0e120eed)),url('../assets/plans-connected-journey-v1.png') center/cover fixed}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-workspace{--jv-chart:#d6aa50;background:radial-gradient(ellipse at 85% 0,#8a68252b,transparent 60%),linear-gradient(110deg,var(--jv-tone-17170feb),var(--jv-tone-0e120eed)),url('../assets/plans-connected-journey-v1.png') center/cover fixed}
 @media(max-width:700px){#journal .jv-workspace::before{opacity:.14;mask-size:auto 900px;-webkit-mask-size:auto 900px}}
 #journal .jv-workspace h1,#journal .jv-workspace h2,#journal .jv-workspace h3,#journal .jv-workspace p{margin:0;color:inherit}
 #journal .jv-workspace button,#journal .jv-workspace input,#journal .jv-workspace select,#journal .jv-workspace textarea{font:inherit}
@@ -384,7 +384,7 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{--jv-chart:#d6aa50;backg
 /* V3 — a live interface sits inside a physical open journal. */
 body:has(#journal.active) .content{background:#07150e}
 #journal .jv-workspace,
-body:not([data-theme="healthy"]) #journal .jv-workspace{
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-workspace{
   min-height:calc(100dvh - 78px);
   padding:28px clamp(18px,2vw,38px) 70px;
   background:
@@ -2252,31 +2252,31 @@ body:not([data-theme="healthy"]) #journal .jv-workspace{
 }
 
 /* Overrides para Tema Gold no Modal */
-body:not([data-theme="healthy"]) #journal #jv-dialog .jv-toggle-group,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal #jv-dialog .jv-toggle-group,
 body[data-theme="gold"] #journal #jv-dialog .jv-toggle-group {
   background: #251c0d;
   border-color: #554222;
 }
 
-body:not([data-theme="healthy"]) #journal #jv-dialog button.jv-toggle-opt,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal #jv-dialog button.jv-toggle-opt,
 body[data-theme="gold"] #journal #jv-dialog button.jv-toggle-opt {
   background: #251c0d !important;
   color: #c9b996 !important;
 }
 
-body:not([data-theme="healthy"]) #journal #jv-dialog button.jv-toggle-opt[data-modal-dir="long"].chosen,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal #jv-dialog button.jv-toggle-opt[data-modal-dir="long"].chosen,
 body[data-theme="gold"] #journal #jv-dialog button.jv-toggle-opt[data-modal-dir="long"].chosen {
   background: #15803d !important;
   color: #ffffff !important;
 }
 
-body:not([data-theme="healthy"]) #journal #jv-dialog button.jv-toggle-opt[data-modal-dir="short"].chosen,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal #jv-dialog button.jv-toggle-opt[data-modal-dir="short"].chosen,
 body[data-theme="gold"] #journal #jv-dialog button.jv-toggle-opt[data-modal-dir="short"].chosen {
   background: #dc2626 !important;
   color: #ffffff !important;
 }
 
-body:not([data-theme="healthy"]) #journal #jv-dialog button.jv-grade-pill,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal #jv-dialog button.jv-grade-pill,
 body[data-theme="gold"] #journal #jv-dialog button.jv-grade-pill {
   background: #231b0e !important;
   color: #c9b996 !important;
@@ -2287,251 +2287,251 @@ body[data-theme="gold"] #journal #jv-dialog button.jv-grade-pill {
    TEMA GOLD — OVERRIDES PARA TRADES DO DIA E ABAS
    ========================================================================== */
 
-body:not([data-theme="healthy"]) #journal .jv-session-nav {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-session-nav {
   background: linear-gradient(90deg, #241c0f, #2c2213 50%, #241c0f);
   border-bottom-color: #4a3a1f;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-session-tab {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-session-tab {
   background: #231b0e;
   border-color: #48381c;
   color: #d8c8a8;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-session-tab:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-session-tab:hover {
   background: #312614;
   border-color: #8c6e33;
   color: #f7eddc;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-session-tab.is-active {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-session-tab.is-active {
   background: linear-gradient(135deg, #7c5d1e, #4f3b10);
   border-color: #9b7529;
   color: #ffffff;
   box-shadow: 0 3px 10px rgba(124, 93, 30, .35);
 }
 
-body:not([data-theme="healthy"]) #journal .jv-add-trade-btn {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-add-trade-btn {
   background: #261f12;
   border-color: #8c6e33;
   color: #dfbf78;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-add-trade-btn:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-add-trade-btn:hover {
   background: #382c16;
   border-color: #d6aa50;
   color: #faeac8;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trades-day-section {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trades-day-section {
   background: #1c150b;
   border-top-color: #40321a;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trades-day-title h3 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trades-day-title h3 {
   color: #f3e6ce;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trades-day-title .jv-title-icon svg {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trades-day-title .jv-title-icon svg {
   stroke: #d6aa50;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trades-count {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trades-count {
   background: #7c5d1e;
   color: #fff;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-btn-add-trade {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-btn-add-trade {
   background: linear-gradient(135deg, #7c5d1e, #4f3b10);
   border-color: #8c6e33;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-btn-add-trade:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-btn-add-trade:hover {
   background: linear-gradient(135deg, #9b7529, #664d17);
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-card {
   background: #251d10;
   border-color: #443419;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-card:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-card:hover {
   border-color: #9b7529;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-card-ticker h4 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-card-ticker h4 {
   color: #faeed7;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-card-info-row {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-card-info-row {
   border-bottom-color: #362914;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-card-info-val {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-card-info-val {
   color: #f0e2ca;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-card-excerpt {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-card-excerpt {
   background: #2f2413;
   border-left-color: #b58934;
   color: #ded1ba;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-card-footer {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-card-footer {
   border-top-color: #362914;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-card-plan-status {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-card-plan-status {
   color: #cdad68;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-btn-open-trade {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-btn-open-trade {
   color: #dfbf78;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-sheet {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-sheet {
   background: #1c150b;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-sheet-header {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-sheet-header {
   border-bottom-color: #40321a;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-title-left h2 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-title-left h2 {
   color: #faeed7;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-badge-setup,
-body:not([data-theme="healthy"]) #journal .jv-trade-badge-tf,
-body:not([data-theme="healthy"]) #journal .jv-trade-badge-time {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-badge-setup,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-badge-tf,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-badge-time {
   background: #2e2311;
   color: #d8c8a8;
   border-color: #48381c;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-section legend {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-section legend {
   color: #e5cb91;
   border-bottom-color: #48381c;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-toggle-opt {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-toggle-opt {
   background: #2c2213;
   color: #bfae8d;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-toggle-opt.chosen {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-toggle-opt.chosen {
   background: #7c5d1e;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-upload-dropzone {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-upload-dropzone {
   background: #251d10;
   border-color: #55411f;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-upload-dropzone h4 {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-upload-dropzone h4 {
   color: #faeed7;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-btn-browse-img {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-btn-browse-img {
   background: #7c5d1e;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-plan-option {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-plan-option {
   background: #2a2012;
   border-color: #48381c;
   color: #d8c8a8;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-plan-option.chosen {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-plan-option.chosen {
   background: #7c5d1e;
   border-color: #9b7529;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-trade-sheet-footer {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-trade-sheet-footer {
   border-top-color: #40321a;
 }
 
 
 
 /* Mercados no Diário - Gold Theme */
-body:not([data-theme="healthy"]) #journal .jv-market-empty-state,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-empty-state,
 body[data-theme="gold"] #journal .jv-market-empty-state {
   background: rgba(24, 19, 12, 0.6) !important;
   border-color: rgba(214, 170, 80, 0.25) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-card,
 body[data-theme="gold"] #journal .jv-market-card {
   background: rgba(24, 19, 12, 0.85) !important;
   border-color: rgba(214, 170, 80, 0.25) !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-card-header,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-card-header,
 body[data-theme="gold"] #journal .jv-market-card-header {
   border-bottom-color: rgba(214, 170, 80, 0.15) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-card-title b,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-card-title b,
 body[data-theme="gold"] #journal .jv-market-card-title b {
   color: #fffaf0 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-card-dot,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-card-dot,
 body[data-theme="gold"] #journal .jv-market-card-dot {
   background: #d4af37 !important;
   box-shadow: 0 0 6px rgba(214, 170, 80, 0.5) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-card-title .jv-market-badge,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-card-title .jv-market-badge,
 body[data-theme="gold"] #journal .jv-market-card-title .jv-market-badge {
   background: rgba(214, 170, 80, 0.18) !important;
   color: #f5edd8 !important;
   border-color: rgba(214, 170, 80, 0.35) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-remove-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-remove-btn,
 body[data-theme="gold"] #journal .jv-market-remove-btn {
   color: #a49477 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-remove-btn:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-remove-btn:hover,
 body[data-theme="gold"] #journal .jv-market-remove-btn:hover {
   color: #f87171 !important;
   background: rgba(239, 68, 68, 0.15) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-add-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-add-btn,
 body[data-theme="gold"] #journal .jv-market-add-btn {
   background: rgba(24, 19, 12, 0.8) !important;
   border-color: rgba(214, 170, 80, 0.25) !important;
   color: #fffaf0 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-add-btn .jv-add-plus,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-add-btn .jv-add-plus,
 body[data-theme="gold"] #journal .jv-market-add-btn .jv-add-plus {
   color: #d4af37 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-add-btn:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-add-btn:hover,
 body[data-theme="gold"] #journal .jv-market-add-btn:hover {
   background: rgba(214, 170, 80, 0.15) !important;
   border-color: rgba(214, 170, 80, 0.45) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-add-toggle,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-add-toggle,
 body[data-theme="gold"] #journal .jv-market-add-toggle {
   border-color: rgba(214, 170, 80, 0.3) !important;
   color: #c5bca9 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-add-toggle:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-add-toggle:hover,
 body[data-theme="gold"] #journal .jv-market-add-toggle:hover {
   background: rgba(214, 170, 80, 0.12) !important;
   color: #fffaf0 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-market-add-dropdown,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-market-add-dropdown,
 body[data-theme="gold"] #journal .jv-market-add-dropdown {
   background: rgba(20, 16, 10, 0.9) !important;
   border-color: rgba(214, 170, 80, 0.25) !important;
@@ -2850,7 +2850,7 @@ body[data-theme="gold"] #journal .jv-market-add-dropdown {
 }
 
 /* Overrides para Tema Gold / Dark */
-body:not([data-theme="healthy"]) #journal .jv-training-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-card,
 body[data-theme="gold"] #journal .jv-training-card {
   background: linear-gradient(135deg, rgba(20, 26, 22, 0.92) 0%, rgba(26, 21, 15, 0.95) 100%) !important;
   border-color: rgba(214, 170, 80, 0.25) !important;
@@ -2858,118 +2858,118 @@ body[data-theme="gold"] #journal .jv-training-card {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-target-icon,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-target-icon,
 body[data-theme="gold"] #journal .jv-training-target-icon {
   background: linear-gradient(135deg, #2b2313, #151109) !important;
   color: #f6e6b4 !important;
   border: 1px solid rgba(214, 170, 80, 0.3) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-kicker,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-kicker,
 body[data-theme="gold"] #journal .jv-training-kicker {
   color: #d4af37 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-dot,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-dot,
 body[data-theme="gold"] #journal .jv-training-dot {
   color: #6e6451 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-subtag,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-subtag,
 body[data-theme="gold"] #journal .jv-training-subtag {
   color: #a89f8c !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-cat-pill,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-cat-pill,
 body[data-theme="gold"] #journal .jv-training-cat-pill {
   background: rgba(214, 170, 80, 0.15) !important;
   color: #e9c97b !important;
   border-color: rgba(214, 170, 80, 0.35) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-goal-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-goal-title,
 body[data-theme="gold"] #journal .jv-training-goal-title {
   color: #f7f3e8 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-meta-pill,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-meta-pill,
 body[data-theme="gold"] #journal .jv-training-meta-pill {
   background: rgba(28, 22, 15, 0.9) !important;
   border-color: rgba(214, 170, 80, 0.3) !important;
   color: #e9c97b !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-question-label span,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-question-label span,
 body[data-theme="gold"] #journal .jv-training-question-label span {
   color: #ded6c5 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-question-label small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-question-label small,
 body[data-theme="gold"] #journal .jv-training-question-label small {
   color: #8c8270 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-option-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-option-btn,
 body[data-theme="gold"] #journal .jv-training-option-btn {
   background: rgba(24, 20, 15, 0.85) !important;
   border-color: rgba(214, 170, 80, 0.22) !important;
   color: #ded6c5 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-option-btn:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-option-btn:hover,
 body[data-theme="gold"] #journal .jv-training-option-btn:hover {
   background: rgba(36, 29, 21, 0.95) !important;
   border-color: rgba(214, 170, 80, 0.5) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-opt-status-circle,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-opt-status-circle,
 body[data-theme="gold"] #journal .jv-opt-status-circle {
   background: rgba(255, 255, 255, 0.08) !important;
   color: #c5bca9 !important;
   border-color: rgba(214, 170, 80, 0.2) !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-opt-text strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-opt-text strong,
 body[data-theme="gold"] #journal .jv-opt-text strong {
   color: #f7f3e8 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-opt-text small,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-opt-text small,
 body[data-theme="gold"] #journal .jv-opt-text small {
   color: #9c917d !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-option-btn.opt-correct.is-selected,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-option-btn.opt-correct.is-selected,
 body[data-theme="gold"] #journal .jv-training-option-btn.opt-correct.is-selected {
   background: rgba(39, 174, 96, 0.2) !important;
   border-color: #2ecc71 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-option-btn.opt-correct.is-selected .jv-opt-status-circle,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-option-btn.opt-correct.is-selected .jv-opt-status-circle,
 body[data-theme="gold"] #journal .jv-training-option-btn.opt-correct.is-selected .jv-opt-status-circle {
   background: #27ae60 !important;
   color: #ffffff !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-option-btn.opt-incorrect.is-selected,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-option-btn.opt-incorrect.is-selected,
 body[data-theme="gold"] #journal .jv-training-option-btn.opt-incorrect.is-selected {
   background: rgba(224, 75, 75, 0.2) !important;
   border-color: #f87171 !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-option-btn.opt-incorrect.is-selected .jv-opt-status-circle,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-option-btn.opt-incorrect.is-selected .jv-opt-status-circle,
 body[data-theme="gold"] #journal .jv-training-option-btn.opt-incorrect.is-selected .jv-opt-status-circle {
   background: #e04b4b !important;
   color: #ffffff !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-option-btn.opt-na.is-selected,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-option-btn.opt-na.is-selected,
 body[data-theme="gold"] #journal .jv-training-option-btn.opt-na.is-selected {
   background: rgba(108, 117, 125, 0.2) !important;
   border-color: #adb5bd !important;
 }
 
-body:not([data-theme="healthy"]) #journal .jv-training-option-btn.opt-na.is-selected .jv-opt-status-circle,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-training-option-btn.opt-na.is-selected .jv-opt-status-circle,
 body[data-theme="gold"] #journal .jv-training-option-btn.opt-na.is-selected .jv-opt-status-circle {
   background: #6c757d !important;
   color: #ffffff !important;
@@ -3184,23 +3184,23 @@ body[data-theme="gold"] #journal .jv-training-option-btn.opt-na.is-selected .jv-
 #journal .jv-day-tag-pill-input-wrap.is-purple .jv-day-tag-input { color: #6d28d9 !important; }
 
 /* Force readable contrast in Gold/Dark theme */
-body:not([data-theme="healthy"]) #journal .jv-day-identity,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-day-identity,
 body[data-theme="gold"] #journal .jv-day-identity {
   background: linear-gradient(90deg, #e8dfcc 0%, #f7f2e4 43%, #d5c8af 49.5%, #c5b89e 50%, #f5eedd 56%, #e6ddc9 100%) !important;
 }
-body:not([data-theme="healthy"]) #journal .jv-day-title-input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-day-title-input,
 body[data-theme="gold"] #journal .jv-day-title-input {
   color: #1a271d !important;
 }
-body:not([data-theme="healthy"]) #journal .jv-meta-label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-meta-label,
 body[data-theme="gold"] #journal .jv-meta-label {
   color: #55442e !important;
 }
-body:not([data-theme="healthy"]) #journal .jv-day-tag-input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-day-tag-input,
 body[data-theme="gold"] #journal .jv-day-tag-input {
   color: #1a271d !important;
 }
-body:not([data-theme="healthy"]) #journal .jv-day-tag-pill-input-wrap.is-red .jv-day-tag-input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-day-tag-pill-input-wrap.is-red .jv-day-tag-input,
 body[data-theme="gold"] #journal .jv-day-tag-pill-input-wrap.is-red .jv-day-tag-input {
   color: #b91c1c !important;
 }

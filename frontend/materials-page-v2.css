@@ -10,25 +10,45 @@ body:has(#materials.active) .content {
 }
 
 /* Preserva rigorosamente a Sidebar oficial do Healthy Trend Trader */
-body:has(#materials.active) .sidebar {
+body[data-theme="healthy"]:has(#materials.active) .sidebar {
   background: linear-gradient(180deg, #10291f 0%, #0a1d16 100%) !important;
   border-right: 1px solid rgba(16, 185, 129, 0.12) !important;
   box-shadow: 18px 0 40px rgba(0, 0, 0, 0.5) !important;
   z-index: 25 !important;
 }
 
-/* Harmoniza a barra superior (topbar) com o visual cinematográfico escuro */
-body:has(#materials.active) .topbar {
+body[data-theme="gold"]:has(#materials.active) .sidebar {
+  background: #080909 !important;
+  border-right: 1px solid #26241e !important;
+  box-shadow: 18px 0 40px rgba(0, 0, 0, 0.5) !important;
+  z-index: 25 !important;
+}
+
+/* Harmoniza a barra superior (topbar) com o visual cinematográfico escuro nos temas escuros */
+body[data-theme="healthy"]:has(#materials.active) .topbar {
   background: rgba(3, 14, 7, 0.95) !important;
   border-bottom: 1px solid rgba(16, 185, 129, 0.14) !important;
   backdrop-filter: blur(16px) !important;
   color: #e2e8f0 !important;
 }
-body:has(#materials.active) .topbar .crumb {
+body[data-theme="healthy"]:has(#materials.active) .topbar .crumb {
   color: #94a3b8 !important;
 }
-body:has(#materials.active) .topbar .crumb b {
+body[data-theme="healthy"]:has(#materials.active) .topbar .crumb b {
   color: #10b981 !important;
+}
+
+body[data-theme="gold"]:has(#materials.active) .topbar {
+  background: rgba(10, 9, 8, 0.95) !important;
+  border-bottom: 1px solid #2e291f !important;
+  backdrop-filter: blur(16px) !important;
+  color: #e2e8f0 !important;
+}
+body[data-theme="gold"]:has(#materials.active) .topbar .crumb {
+  color: #cdbd98 !important;
+}
+body[data-theme="gold"]:has(#materials.active) .topbar .crumb b {
+  color: #d4af37 !important;
 }
 
 #materials {
@@ -83,7 +103,7 @@ body:has(#materials.active) .topbar .crumb b {
       transparent 72%, 
       rgba(2, 9, 5, 0.85) 100%
     ),
-    url('assets/forca-verde-ambient-backdrop.jpg');
+    url('../assets/forca-verde-ambient-backdrop.jpg');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;

@@ -815,30 +815,30 @@ body[data-theme="pigeon"] #loginShell #openSignup { color: #0284C7; }
 
 /* Suporte ao Tema Gold - preserva identidade de erro vermelha/vinho */
 body[data-theme="gold"] #loginShell .login-error-card,
-body:not([data-theme="healthy"]) #loginShell .login-error-card {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-card {
   background: rgba(30, 11, 13, 0.98);
   border-color: rgba(239, 68, 68, 0.42);
   box-shadow: 0 16px 42px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(239, 68, 68, 0.15);
 }
 
 body[data-theme="gold"] #loginShell .login-error-advice-box,
-body:not([data-theme="healthy"]) #loginShell .login-error-advice-box {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-advice-box {
   background: rgba(20, 7, 9, 0.88);
   border-color: rgba(239, 68, 68, 0.25);
 }
 
 body[data-theme="gold"] #loginShell .login-error-advice-title,
-body:not([data-theme="healthy"]) #loginShell .login-error-advice-title {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-advice-title {
   color: #fca5a5;
 }
 
 body[data-theme="gold"] #loginShell .login-error-retry-btn,
-body:not([data-theme="healthy"]) #loginShell .login-error-retry-btn {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-retry-btn {
   background: #059669;
 }
 
 body[data-theme="gold"] #loginShell .login-error-retry-btn:hover,
-body:not([data-theme="healthy"]) #loginShell .login-error-retry-btn:hover {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #loginShell .login-error-retry-btn:hover {
   background: #10b981;
 }
 
