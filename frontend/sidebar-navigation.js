@@ -263,6 +263,13 @@
           page: 'analytics'
         },
         {
+          id: 'systemquality',
+          title: 'Qualidade Estatística',
+          desc: 'SQN, Expectancy e consistência do sistema.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>`,
+          page: 'systemquality'
+        },
+        {
           id: 'tradeanatomy',
           title: 'Anatomia dos Trades',
           desc: 'Estatísticas de payoff, gatilhos e duração.',

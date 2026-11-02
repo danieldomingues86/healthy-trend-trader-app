@@ -1,12 +1,12 @@
 /**
  * Healthy Trend Trader — System Quality Analytics (SQN) View & Controller
- * Renderizador de Inteligência Estatística de Sistemas de Trading (Van K. Tharp).
+ * Renderizador de Inteligência Estatística de Sistemas de Trading (Metodologia Van K. Tharp).
  *
- * Integração:
- * - Painel da Verdade (Analytics)
- * - Anatomia dos Trades (Trade Anatomy)
- * - Simulador de Trades (Trade Simulator)
- * - Política de Risco (Risk Policy)
+ * Módulos integrados:
+ * - Nova tela oficial: Qualidade Estatística do Sistema (#systemquality)
+ * - Painel da Verdade: Card de Acesso Executivo (#analytics)
+ * - Simulador de Trades: SQN Simulado (#tradesimulator)
+ * - Política de Risco: Governança Consultiva (#riskpolicy)
  */
 
 (function (root, factory) {
@@ -27,45 +27,47 @@
   const esc = str => String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[c]);
 
   /**
-   * Gera o SVG da Curva de Evolução do SQN (Rolling SQN)
+   * 2.3. Gera o SVG da Curva de Evolução do SQN (Rolling SQN)
+   * Com largura ampla e margem direita protegida para evitar cortes de legendas.
    */
   function renderEvolutionSvg(evolution = [], options = {}) {
     if (!evolution || evolution.length < 2) {
       return `
-        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted,#64748b);font-size:13px;text-align:center;padding:20px;">
+        <div class="sqn-empty-chart-placeholder">
           Encerre ao menos 2 operações para formar a curva histórica de qualidade estatística do sistema.
         </div>
       `;
     }
 
-    const width = options.width || 760;
-    const height = options.height || 220;
-    const padX = 40;
-    const padY = 24;
+    const width = options.width || 920;
+    const height = options.height || 240;
+    const padLeft = 46;
+    const padRight = 140; // Espaço protegido na lateral direita para textos de referência
+    const padY = 28;
 
     const sqnVals = evolution.map(p => p.sqnRaw != null ? p.sqnRaw : 0);
-    // Definir mínimo e máximo da escala incluindo as referências críticas (1.6 a 5.0)
     let minVal = Math.min(-0.5, ...sqnVals);
     let maxVal = Math.max(5.5, ...sqnVals);
     const range = (maxVal - minVal) || 1;
 
-    const getX = (idx, total) => padX + (idx / (total - 1 || 1)) * (width - padX * 2);
+    const plotWidth = width - padLeft - padRight;
+    const getX = (idx, total) => padLeft + (idx / (total - 1 || 1)) * plotWidth;
     const getY = val => height - padY - ((val - minVal) / range) * (height - padY * 2);
 
-    // Linhas de referência Van Tharp (1.6, 2.5, 3.0, 5.0)
+    // Linhas de referência Van Tharp (1.6, 2.0, 3.0, 5.0)
     const guides = [
-      { val: 1.6, label: '1,6 (Mínimo)', class: 'guide-1-6', color: '#ef4444' },
-      { val: 2.0, label: '2,0 (Mediano)', class: 'guide-2', color: '#3b82f6' },
-      { val: 3.0, label: '3,0 (Excelente)', class: 'guide-3', color: '#10b981' },
-      { val: 5.0, label: '5,0 (Excepcional)', class: 'guide-3', color: '#047857' }
+      { val: 1.6, label: '1,6 (Mínimo)', class: 'guide-1-6', color: '#f87171' },
+      { val: 2.0, label: '2,0 (Mediano)', class: 'guide-2', color: '#60a5fa' },
+      { val: 3.0, label: '3,0 (Excelente)', class: 'guide-3', color: '#34d399' },
+      { val: 5.0, label: '5,0 (Excepcional)', class: 'guide-5', color: '#10b981' }
     ];
 
     const guideLinesMarkup = guides.map(g => {
       if (g.val < minVal || g.val > maxVal) return '';
       const y = getY(g.val);
       return `
-        <line x1="${padX}" y1="${y}" x2="${width - padX}" y2="${y}" class="sqn-chart-guide-line ${g.class}" />
-        <text x="${width - padX + 6}" y="${y + 3}" class="sqn-chart-guide-text">${g.label}</text>
+        <line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" class="sqn-chart-guide-line ${g.class}" />
+        <text x="${width - padRight + 12}" y="${y + 4}" class="sqn-chart-guide-text">${g.label}</text>
       `;
     }).join('');
 
@@ -79,38 +81,98 @@
     const pathD = points.map((p, idx) => (idx === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(' ');
     const areaD = `${pathD} L ${points[points.length - 1].x} ${height - padY} L ${points[0].x} ${height - padY} Z`;
 
-    // Amostragem de pontos para não sobrecarregar com 100+ dots
+    // Amostragem de marcadores
     const stepInterval = Math.max(1, Math.floor(points.length / 25));
     const dotsMarkup = points.filter((_, idx) => idx === 0 || idx === points.length - 1 || idx % stepInterval === 0).map(p => `
-      <circle cx="${p.x}" cy="${p.y}" r="3.5" class="sqn-chart-dot" title="Trade #${p.step.tradeIndex} (${p.step.r >= 0 ? '+' : ''}${p.step.r}R) → SQN ${p.step.sqn} (${p.step.classification})">
-        <title>Trade #${p.step.tradeIndex}: Resultado ${p.step.r >= 0 ? '+' : ''}${p.step.r}R | SQN: ${p.step.sqn} (${p.step.classification})</title>
+      <circle cx="${p.x}" cy="${p.y}" r="3.5" class="sqn-chart-dot">
+        <title>Trade #${p.step.tradeIndex}: ${p.step.r >= 0 ? '+' : ''}${p.step.r}R | SQN: ${p.step.sqn} (${p.step.classification})</title>
       </circle>
     `).join('');
+
+    const midTradeIndex = Math.round(evolution.length / 2);
+    const lastTradeIndex = evolution[evolution.length - 1].tradeIndex;
 
     return `
       <svg class="sqn-evolution-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Gráfico de Evolução do SQN">
         <defs>
           <linearGradient id="sqnAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#10b981" stop-opacity="0.35" />
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.32" />
             <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
           </linearGradient>
         </defs>
 
-        <!-- Linhas de Base e Escala -->
-        <line x1="${padX}" y1="${getY(0)}" x2="${width - padX}" y2="${getY(0)}" class="sqn-chart-grid-line" />
+        <!-- Linha Zero / Base -->
+        <line x1="${padLeft}" y1="${getY(0)}" x2="${width - padRight}" y2="${getY(0)}" class="sqn-chart-grid-line" />
         ${guideLinesMarkup}
 
-        <!-- Área e Linha de Dados -->
+        <!-- Área Sombreada e Linha da Série -->
         <path d="${areaD}" class="sqn-chart-area-fill" />
         <path d="${pathD}" class="sqn-chart-path-line" />
 
         <!-- Pontos Interativos -->
         ${dotsMarkup}
 
-        <!-- Eixo X: Legendas de Trades -->
-        <text x="${padX}" y="${height - 6}" class="sqn-chart-guide-text">Trade #2</text>
-        <text x="${width / 2}" y="${height - 6}" text-anchor="middle" class="sqn-chart-guide-text">${Math.round(evolution.length / 2)} trades</text>
-        <text x="${width - padX}" y="${height - 6}" text-anchor="end" class="sqn-chart-guide-text">${evolution[evolution.length - 1].tradeIndex} trades</text>
+        <!-- Eixo X: Identificação de Trades -->
+        <text x="${padLeft}" y="${height - 6}" class="sqn-chart-guide-text">Trade #2</text>
+        <text x="${padLeft + plotWidth / 2}" y="${height - 6}" text-anchor="middle" class="sqn-chart-guide-text">${midTradeIndex} trades</text>
+        <text x="${width - padRight}" y="${height - 6}" text-anchor="end" class="sqn-chart-guide-text">${lastTradeIndex} trades</text>
+      </svg>
+    `;
+  }
+
+  /**
+   * 2.2. Gera o SVG do Histograma de Distribuição dos R-Múltiplos por Faixas
+   */
+  function renderRDistributionChartSvg(distribution, options = {}) {
+    if (!distribution || !distribution.buckets || !distribution.buckets.length) {
+      return `
+        <div class="sqn-empty-chart-placeholder">
+          Encerre ao menos 2 operações para formar o histograma de distribuição em R.
+        </div>
+      `;
+    }
+
+    const width = options.width || 880;
+    const height = options.height || 210;
+    const padLeft = 36;
+    const padRight = 36;
+    const padTop = 32;
+    const padBottom = 48;
+
+    const buckets = distribution.buckets;
+    const maxCount = Math.max(1, ...buckets.map(b => b.count));
+    const chartWidth = width - padLeft - padRight;
+    const chartHeight = height - padTop - padBottom;
+    const slotWidth = chartWidth / buckets.length;
+    const barWidth = Math.max(22, Math.floor(slotWidth) - 16);
+
+    const barsMarkup = buckets.map((b, idx) => {
+      const centerX = padLeft + idx * slotWidth + slotWidth / 2;
+      const x = centerX - barWidth / 2;
+      const barH = b.count > 0 ? Math.max(8, (b.count / maxCount) * chartHeight) : 2;
+      const y = padTop + chartHeight - barH;
+
+      return `
+        <g class="sqn-dist-bar-group" data-bucket="${b.key}">
+          <!-- Barra do Histograma -->
+          <rect x="${x}" y="${y}" width="${barWidth}" height="${barH}" rx="5" fill="${b.color}" opacity="${b.count > 0 ? '0.85' : '0.22'}" class="sqn-dist-rect">
+            <title>${b.label} (${b.desc}): ${b.count} trade(s) — ${b.pct.toFixed(1).replace('.', ',')}%</title>
+          </rect>
+          <!-- Quantidade em cima da barra -->
+          <text x="${centerX}" y="${y - 8}" text-anchor="middle" class="sqn-dist-count-text ${b.count > 0 ? 'has-trades' : ''}">${b.count}</text>
+          <!-- Rótulo da Faixa no Eixo X -->
+          <text x="${centerX}" y="${padTop + chartHeight + 18}" text-anchor="middle" class="sqn-dist-label-text">${b.label}</text>
+          <!-- Percentual abaixo do rótulo -->
+          <text x="${centerX}" y="${padTop + chartHeight + 32}" text-anchor="middle" class="sqn-dist-pct-text">${b.pct.toFixed(1).replace('.', ',')}%</text>
+        </g>
+      `;
+    }).join('');
+
+    return `
+      <svg class="sqn-distribution-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Distribuição dos R-Múltiplos">
+        <!-- Linha de Base do Eixo X -->
+        <line x1="${padLeft}" y1="${padTop + chartHeight}" x2="${width - padRight}" y2="${padTop + chartHeight}" class="sqn-chart-grid-line" />
+        ${barsMarkup}
       </svg>
     `;
   }
@@ -150,9 +212,9 @@
   }
 
   /**
-   * Gera a Seção Completa de SYSTEM QUALITY ANALYTICS (SQN)
+   * 2. Gera o HTML completo da nova tela: Qualidade Estatística do Sistema
    */
-  function generateSectionHtml(tradesOrReport) {
+  function generateSystemQualityPageHtml(tradesOrReport, activeFilter = 'all') {
     const model = getModel();
     if (!model) return '<p>Modelo SystemQualityAnalyticsModel não carregado.</p>';
 
@@ -170,141 +232,265 @@
     const trendText = report.trendLabel || 'Estável';
     const trendTone = `trend-${report.trend || 'stable'}`;
 
+    const rDist = report.rDistribution || model.calculateRDistribution(report.rValues || []);
     const svgChart = renderEvolutionSvg(report.evolution || []);
+    const distChart = renderRDistributionChartSvg(rDist);
     const scaleBar = renderScaleBarMarkup(report.sqn);
 
     return `
-      <section class="sqn-analytics-section" id="systemQualityAnalyticsSection" aria-label="System Quality Analytics (SQN)">
-        <!-- Cabeçalho da Seção -->
-        <header class="sqn-section-head">
+      <main class="sqn-page-shell" id="systemQualityPageRoot">
+        <!-- Hero Header -->
+        <header class="sqn-page-hero">
           <div>
             <div class="sqn-eyebrow">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M8 12h8M12 8v8"></path>
               </svg>
-              Inteligência Estatística · Metodologia Van K. Tharp
+              DADOS &amp; PERFORMANCE · INTELIGÊNCIA ESTATÍSTICA
             </div>
-            <h2 class="sqn-title">System Quality Analytics (SQN)</h2>
-            <p class="sqn-subtitle">
-              Avaliação matemática da consistência, dispersão e facilidade de execução do seu sistema de trading através da Expectancy e do Desvio-Padrão dos R-Múltiplos.
+            <h1 class="sqn-page-title">Qualidade Estatística<br>do Sistema</h1>
+            <p class="sqn-page-subtitle">
+              Avaliação matemática profunda da consistência, expectativa matemática e dispersão dos resultados reais do método Healthy Trend Trader segundo a metodologia de Van K. Tharp.
             </p>
           </div>
-          <div class="sqn-chart-trend-pill ${trendTone}">
-            <span>● Tendência: <strong>${esc(trendText)}</strong></span>
+          <div class="sqn-hero-actions">
+            <div class="sqn-chart-trend-pill ${trendTone}">
+              <span>● Tendência do SQN: <strong>${esc(trendText)}</strong></span>
+            </div>
           </div>
         </header>
 
-        <!-- Grid Principal: Card Destaque + 3 Mini Cards -->
-        <div class="sqn-overview-grid">
-          <!-- Card de Destaque: SQN e Régua de Qualidade -->
-          <article class="sqn-highlight-card">
-            <div class="sqn-highlight-header">
-              <div class="sqn-highlight-title-group">
-                <small>Qualidade Estatística do Sistema</small>
-                <h3>System Quality Number (SQN)</h3>
-              </div>
+        <!-- Barra de Filtro de Período -->
+        <section class="sqn-filter-toolbar card">
+          <div class="sqn-filter-left">
+            <span class="sqn-filter-label">Recorte Temporal:</span>
+            <div class="sqn-filter-buttons">
+              <button type="button" class="sqn-filter-btn ${activeFilter === 'all' ? 'active' : ''}" data-sqn-period="all">Todo o Histórico</button>
+              <button type="button" class="sqn-filter-btn ${activeFilter === '30' ? 'active' : ''}" data-sqn-period="30">Últimos 30 dias</button>
+              <button type="button" class="sqn-filter-btn ${activeFilter === '90' ? 'active' : ''}" data-sqn-period="90">Últimos 90 dias</button>
+              <button type="button" class="sqn-filter-btn ${activeFilter === '365' ? 'active' : ''}" data-sqn-period="365">Últimos 12 meses</button>
+            </div>
+          </div>
+          <div class="sqn-filter-info">
+            Amostra válida: <strong>${report.sampleSize} trades encerrados</strong>
+          </div>
+        </section>
+
+        <!-- 2.1. Quatro Indicadores Principais (Cards Superiores) -->
+        <section class="sqn-top-kpi-grid">
+          <!-- Card 1: System Quality Number (SQN) -->
+          <article class="card sqn-kpi-card sqn-kpi-hero">
+            <div class="sqn-kpi-head">
+              <span class="sqn-kpi-eyebrow">Qualidade Estatística</span>
               <span class="sqn-badge ${badgeClass}">${esc(classification.label)}</span>
             </div>
-
-            <div class="sqn-big-score-row">
-              <span class="sqn-big-number ${toneClass}">${sqnVal}</span>
-              <div style="flex:1;">
-                <p style="margin:0 0 6px;font-size:13px;color:var(--text-primary,#e2ece6);font-weight:700;">
-                  ${esc(classification.description)}
-                </p>
-                ${scaleBar}
-              </div>
-            </div>
-
-            <div class="sqn-sample-status-box">
-              <span style="font-size:16px;">📊</span>
-              <div>
-                <strong>${esc(significance.label)}:</strong> ${esc(significance.note)}
-              </div>
+            <div class="sqn-kpi-big-value ${toneClass}">${sqnVal}</div>
+            <p class="sqn-kpi-desc">${esc(classification.description)}</p>
+            ${scaleBar}
+            <div class="sqn-sample-status-box" style="margin-top:14px;">
+              <span>📊</span>
+              <div><strong>${esc(significance.label)}:</strong> ${esc(significance.note)}</div>
             </div>
           </article>
 
-          <!-- 3 Mini Cards de Métricas Complementares -->
-          <div class="sqn-metrics-col">
-            <!-- 1. Expectancy (Expectativa Matemática) -->
-            <div class="sqn-mini-card">
-              <div class="sqn-mini-card-info">
-                <div class="sqn-mini-card-label">
-                  Expectancy Matemática (R)
-                  <span class="sqn-tooltip-trigger" title="Média aritmética dos resultados de todas as operações expressos em R-Múltiplos. Mede quanto o sistema produz em média por trade.">ⓘ</span>
-                </div>
-                <div class="sqn-mini-card-desc">Retorno médio esperado por trade</div>
-              </div>
-              <div class="sqn-mini-card-value ${report.expectancy >= 0 ? 'good' : 'bad'}">
-                ${report.expectancyFormatted || '—'}
-              </div>
+          <!-- Card 2: Expectancy Matemática (R) -->
+          <article class="card sqn-kpi-card">
+            <div class="sqn-kpi-head">
+              <span class="sqn-kpi-eyebrow">Expectancy (R)</span>
+              <span class="sqn-tooltip-trigger" title="Média aritmética dos resultados de todas as operações em R-Múltiplos. Média esperada que o sistema produz por unidade de risco assumida.">ⓘ</span>
             </div>
-
-            <!-- 2. Standard Deviation (Desvio-Padrão Amostral) -->
-            <div class="sqn-mini-card">
-              <div class="sqn-mini-card-info">
-                <div class="sqn-mini-card-label">
-                  Desvio-Padrão Amostral (s)
-                  <span class="sqn-tooltip-trigger" title="Desvio-padrão amostral (N-1) dos R-Múltiplos. Mede a dispersão dos resultados em torno da Expectancy. Quanto menor, mais consistentes e regulares são os resultados.">ⓘ</span>
-                </div>
-                <div class="sqn-mini-card-desc">Dispersão e irregularidade dos R</div>
-              </div>
-              <div class="sqn-mini-card-value">
-                ${report.standardDeviationFormatted || '—'}
-              </div>
+            <div class="sqn-kpi-big-value ${report.expectancy >= 0 ? 'good' : 'bad'}">
+              ${report.expectancyFormatted || '—'}
             </div>
-
-            <!-- 3. Tamanho da Amostra (Trades Encerrados) -->
-            <div class="sqn-mini-card">
-              <div class="sqn-mini-card-info">
-                <div class="sqn-mini-card-label">
-                  Trades Analisados (N)
-                  <span class="sqn-tooltip-trigger" title="Total de operações encerradas com resultado efetivo em R. O SQN requer no mínimo 2 trades; ≥30 para representatividade e ≥100 para validação robusta.">ⓘ</span>
-                </div>
-                <div class="sqn-mini-card-desc">Base de operações encerradas</div>
-              </div>
-              <div class="sqn-mini-card-value">
-                ${report.sampleSize} trades
-              </div>
+            <div class="sqn-kpi-sub">
+              Média esperada por trade executado
             </div>
-          </div>
-        </div>
+            <p class="sqn-kpi-desc">
+              Cada trade arriscando 1R produz em média <strong>${report.expectancyFormatted}</strong> de retorno líquido.
+            </p>
+          </article>
 
-        <!-- Gráfico de Evolução Histórica do SQN -->
-        <article class="sqn-chart-card">
-          <div class="sqn-chart-head">
+          <!-- Card 3: Desvio-Padrão Amostral (R) -->
+          <article class="card sqn-kpi-card">
+            <div class="sqn-kpi-head">
+              <span class="sqn-kpi-eyebrow">Desvio-Padrão Amostral (s)</span>
+              <span class="sqn-tooltip-trigger" title="Desvio-padrão amostral (N-1) dos R-Múltiplos. Mede a dispersão em torno da Expectancy. Quanto menor, mais suave e previsível é a curva de resultados.">ⓘ</span>
+            </div>
+            <div class="sqn-kpi-big-value">
+              ${report.standardDeviationFormatted || '—'}
+            </div>
+            <div class="sqn-kpi-sub">
+              Grau de dispersão e variabilidade dos R
+            </div>
+            <p class="sqn-kpi-desc">
+              Valores baixos de dispersão facilitam o dimensionamento de posição e protegem o estado psicológico.
+            </p>
+          </article>
+
+          <!-- Card 4: Trades Analisados (N) -->
+          <article class="card sqn-kpi-card">
+            <div class="sqn-kpi-head">
+              <span class="sqn-kpi-eyebrow">Trades Analisados (N)</span>
+              <span class="sqn-tooltip-trigger" title="Quantidade de operações efetivamente encerradas e válidas para o cálculo. Nunca inclui trades em aberto ou ordens canceladas.">ⓘ</span>
+            </div>
+            <div class="sqn-kpi-big-value">
+              ${report.sampleSize}
+            </div>
+            <div class="sqn-kpi-sub">
+              Operações encerradas com R realizado
+            </div>
+            <p class="sqn-kpi-desc">
+              ${report.sampleSize >= 30 ? 'Base com significância estatística representativa (≥30 trades).' : 'Amostra em consolidação histórica (<30 trades).'}
+            </p>
+          </article>
+        </section>
+
+        <!-- 2.2. Seção: Distribuição e Anatomia Estatística dos R-Múltiplos -->
+        <section class="card sqn-dist-section">
+          <div class="sqn-section-header">
             <div>
-              <div class="sqn-eyebrow">Acompanhamento Temporal</div>
-              <h3 style="margin:2px 0 0;font-size:17px;font-weight:800;color:var(--text-primary,#e2ece6);">
-                Evolução Acumulada da Qualidade Estatística (Rolling SQN)
-              </h3>
-              <p style="margin:2px 0 0;font-size:12.5px;color:var(--text-muted,#94a3b8);">
-                Acompanhe trade a trade se o sistema está ganhando consistência estatística ou perdendo qualidade operacional.
+              <span class="sqn-eyebrow">ANATOMIA MATEMÁTICA</span>
+              <h2 class="sqn-section-title">Distribuição dos R-Múltiplos</h2>
+              <p class="sqn-section-desc">
+                Análise aprofundada da dispersão e frequência dos resultados em R para avaliar se a consistência é homogênea ou se depende de trades excepcionais isolados.
               </p>
             </div>
-            <div style="font-size:12px;color:var(--text-muted,#94a3b8);">
-              Amostra: <strong>${report.sampleSize} trades</strong>
+          </div>
+
+          <!-- Métricas de Dispersão e Assimetria de R -->
+          <div class="sqn-dist-metrics-grid">
+            <div class="sqn-dist-mini-metric">
+              <small>R Médio Geral</small>
+              <strong>${report.expectancyFormatted}</strong>
+            </div>
+            <div class="sqn-dist-mini-metric">
+              <small>R Médio Vencedores</small>
+              <strong class="good">+${rDist.avgWinR.toFixed(2).replace('.', ',')}R</strong>
+            </div>
+            <div class="sqn-dist-mini-metric">
+              <small>R Médio Perdedores</small>
+              <strong class="bad">-${rDist.avgLossR.toFixed(2).replace('.', ',')}R</strong>
+            </div>
+            <div class="sqn-dist-mini-metric">
+              <small>Melhor Trade (Max R)</small>
+              <strong class="good">${rDist.bestR >= 0 ? '+' : ''}${rDist.bestR.toFixed(2).replace('.', ',')}R</strong>
+            </div>
+            <div class="sqn-dist-mini-metric">
+              <small>Pior Trade (Min R)</small>
+              <strong class="bad">${rDist.worstR.toFixed(2).replace('.', ',')}R</strong>
+            </div>
+            <div class="sqn-dist-mini-metric">
+              <small>Win / Loss Ratio (R)</small>
+              <strong>${rDist.winLossRatio ? rDist.winLossRatio.toFixed(2).replace('.', ',') : '—'}</strong>
+            </div>
+          </div>
+
+          <!-- Histograma de Barras por Faixas de R -->
+          <div class="sqn-dist-chart-wrap" style="margin-top:20px;">
+            <div class="sqn-dist-chart-title">Frequência por Faixa de R-Múltiplos</div>
+            <div class="sqn-svg-chart-container" style="height:210px;">
+              ${distChart}
+            </div>
+          </div>
+        </section>
+
+        <!-- 2.3. Seção: Evolução Histórica — Rolling SQN -->
+        <section class="card sqn-chart-card">
+          <div class="sqn-chart-head">
+            <div>
+              <span class="sqn-eyebrow">ACOMPANHAMENTO TEMPORAL</span>
+              <h2 class="sqn-section-title">Evolução Acumulada da Qualidade Estatística (Rolling SQN)</h2>
+              <p class="sqn-section-desc">
+                Acompanhe trade a trade se o método está construindo consistência estatística, estabilizando ou degradando a qualidade operacional ao longo do tempo.
+              </p>
+            </div>
+            <div class="sqn-chart-trend-pill ${trendTone}">
+              <span>Tendência: <strong>${esc(trendText)}</strong></span>
             </div>
           </div>
 
           <div class="sqn-svg-chart-container">
             ${svgChart}
           </div>
-        </article>
+        </section>
 
-        <!-- Callout Pedagógico Metodológico -->
-        <div class="sqn-pedagogical-card">
-          <div class="sqn-pedagogical-icon">💡</div>
-          <div class="sqn-pedagogical-content">
-            <h4>O que o SQN revela sobre o seu trading?</h4>
-            <p>
-              Diferente de métricas puras de lucro (como Rentabilidade em R$ ou Win Rate isolada), o <strong>System Quality Number (SQN)</strong> mede a <em>qualidade intrínseca do processo</em> através da fórmula <code>SQN = (Expectancy / Desvio-Padrão) × √N</code>.
-              Um sistema com alto lucro mas desvio-padrão excessivo é perigoso porque depende de poucos "tiros de sorte" e impõe grandes retrações emocionais.
-              Quanto maior o SQN, mais suave é a curva de resultados e mais fácil é dimensionar posições com tranquilidade.
-            </p>
+        <!-- 2.4. Interpretação Estatística Pedagógica -->
+        <section class="sqn-pedagogical-grid">
+          <article class="card sqn-pedagogical-box">
+            <div class="sqn-pedagogical-icon">📐</div>
+            <div class="sqn-pedagogical-body">
+              <h3>Como o SQN avalia o sistema</h3>
+              <p>
+                O <strong>System Quality Number (SQN)</strong> de Van K. Tharp quantifica quão fácil é extrair lucro do sistema de forma consistente: <code>SQN = (Expectancy ÷ Desvio-Padrão) × √N</code>. Ele equilibra o ganho médio esperado com a estabilidade dos desfechos.
+              </p>
+            </div>
+          </article>
+
+          <article class="card sqn-pedagogical-box">
+            <div class="sqn-pedagogical-icon">⚖️</div>
+            <div class="sqn-pedagogical-body">
+              <h3>Por que o Desvio-Padrão importa</h3>
+              <p>
+                Um sistema com lucro alto mas desvio-padrão descontrolado gera drawdowns agressivos e desconforto emocional. Desvio-padrão reduzido significa que as perdas são contidas no stop padrão e os ganhos são regulares, permitindo dimensionamento seguro.
+              </p>
+            </div>
+          </article>
+
+          <article class="card sqn-pedagogical-box">
+            <div class="sqn-pedagogical-icon">🛡️</div>
+            <div class="sqn-pedagogical-body">
+              <h3>Confiabilidade da Amostra (N)</h3>
+              <p>
+                O SQN requer no mínimo 30 operações encerradas para que a inferência estatística tenha relevância, e mais de 100 operações para atingir o padrão ouro. Um SQN alto com menos de 30 trades é preliminar e não garante consistência futura.
+              </p>
+            </div>
+          </article>
+        </section>
+      </main>
+    `;
+  }
+
+  /**
+   * 3. Card de Acesso Executivo para o Painel da Verdade (#analytics)
+   */
+  function generateTruthPanelAccessCardHtml(tradesOrReport) {
+    const model = getModel();
+    if (!model) return '';
+
+    let report = tradesOrReport;
+    if (Array.isArray(tradesOrReport) || !tradesOrReport?.classification) {
+      report = model.calculateSystemQualityAnalytics(tradesOrReport);
+    }
+
+    const sqnVal = report.sqn != null ? report.sqnFormatted : '—';
+    const classification = report.classification || model.classifySQN(null);
+    const badgeClass = classification.badgeClass || 'sqn-badge-unclassified';
+
+    return `
+      <article class="card truth-system-quality-access-card" id="truthSystemQualityAccessCard" onclick="typeof go==='function'&&go('systemquality')" role="button" tabindex="0" aria-label="Acessar Qualidade Estatística do Sistema">
+        <div class="truth-sqn-access-left">
+          <div class="sqn-eyebrow">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 12h8M12 8v8"></path>
+            </svg>
+            INTELIGÊNCIA ESTATÍSTICA
           </div>
+          <h3 class="truth-sqn-access-title">Qualidade Estatística do Sistema (SQN)</h3>
+          <p class="truth-sqn-access-desc">Explore o SQN, Expectancy, desvio-padrão e distribuição dos R-múltiplos do seu método.</p>
         </div>
-      </section>
+        <div class="truth-sqn-access-right">
+          <div class="truth-sqn-access-kpi">
+            <small>SQN Atual</small>
+            <strong class="sqn-kpi-val">${sqnVal}</strong>
+            <span class="sqn-badge ${badgeClass}">${esc(classification.label)}</span>
+          </div>
+          <button type="button" class="primary truth-sqn-access-btn" onclick="typeof go==='function'&&go('systemquality');event.stopPropagation();">
+            Explorar Qualidade Estatística →
+          </button>
+        </div>
+      </article>
     `;
   }
 
@@ -369,8 +555,8 @@
           <div style="font-size:12px;color:var(--text-muted,#94a3b8);">
             <strong style="color:var(--text-primary,#e2ece6);">Diretriz de Risco:</strong> Este indicador é estritamente consultivo e informativo; ele <strong>não altera automaticamente</strong> o Risk Budget por Grade, o position sizing ou os limites de alocação de capital vigentes.
           </div>
-          <button type="button" class="secondary" style="font-size:12px;padding:6px 14px;" onclick="typeof go==='function'&&go('analytics')">
-            Ver Análise Estatística Completa →
+          <button type="button" class="secondary" style="font-size:12px;padding:6px 14px;" onclick="typeof go==='function'&&go('systemquality')">
+            Ver Qualidade Estatística Completa →
           </button>
         </div>
       </section>
@@ -378,7 +564,7 @@
   }
 
   /**
-   * Renderiza o card do SQN dentro da aba Resumo do Simulador de Trades
+   * 5. Renderiza o card do SQN dentro do Simulador de Trades (estritamente isolado aos dados simulados)
    */
   function generateSimulatorSqnCardHtml(stats) {
     const model = getModel();
@@ -397,8 +583,8 @@
           <div class="sim-rebuild-card-head-left">
             <span class="sim-rebuild-head-icon icon-chart">📐</span>
             <div>
-              <h2 class="sim-rebuild-card-title">System Quality Analytics (SQN)</h2>
-              <p class="sim-rebuild-card-desc">Qualidade estatística da simulação segundo Van Tharp: SQN = (Expectancy ÷ Desvio-Padrão) × √N</p>
+              <h2 class="sim-rebuild-card-title">SQN da Simulação — Qualidade Estatística do Cenário</h2>
+              <p class="sim-rebuild-card-desc">Cálculo hipotético segundo Van Tharp: SQN = (Expectancy ÷ Desvio-Padrão) × √N (não interfere nos dados reais).</p>
             </div>
           </div>
           <span class="sqn-badge ${badgeClass}">${esc(classification.label)}</span>
@@ -414,13 +600,13 @@
               </svg>
             </div>
             <div class="sim-subcard-body">
-              <div class="sim-subcard-label">System Quality Number (SQN)</div>
+              <div class="sim-subcard-label">SQN Simulado</div>
               <div class="sim-subcard-main-val pos">
                 ${sqnReport.sqnFormatted || '—'}
               </div>
               <div class="sim-subcard-sub-line">
                 <span class="equiv-tag">Classificação: <strong>${esc(classification.label)}</strong></span>
-                <span class="count-tag">${sqnReport.sampleSize} trades na amostra</span>
+                <span class="count-tag">${sqnReport.sampleSize} trades simulados</span>
               </div>
               <div style="margin-top: 10px;">
                 ${scaleBar}
@@ -436,7 +622,7 @@
               </svg>
             </div>
             <div class="sim-subcard-body">
-              <div class="sim-subcard-trophy-title">Dispersão e Vantagem Estatística</div>
+              <div class="sim-subcard-trophy-title">Dispersão e Vantagem Estatística Simulada</div>
               <p class="sim-subcard-trophy-text" style="margin-bottom: 8px;">
                 Expectancy: <strong style="color: #059669;">${sqnReport.expectancyFormatted}</strong> | Desvio-Padrão: <strong style="color: #0f172a;">${sqnReport.standardDeviationFormatted}</strong>
               </p>
@@ -452,8 +638,10 @@
 
   return Object.freeze({
     renderEvolutionSvg,
+    renderRDistributionChartSvg,
     renderScaleBarMarkup,
-    generateSectionHtml,
+    generateSystemQualityPageHtml,
+    generateTruthPanelAccessCardHtml,
     generateRiskPolicyCardHtml,
     generateSimulatorSqnCardHtml
   });

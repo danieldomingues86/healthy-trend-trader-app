@@ -349,6 +349,87 @@
   }
 
   /**
+   * 2.2. Distribuição e anatomia estatística dos R-múltiplos
+   * Calcula estatísticas detalhadas de R e categorização por faixas (buckets)
+   * @param {Array<number>} rValues
+   * @param {number|null} precomputedExpectancy
+   * @param {number|null} precomputedStdDev
+   * @returns {object} Estatísticas e buckets de distribuição
+   */
+  function calculateRDistribution(rValues = [], precomputedExpectancy = null, precomputedStdDev = null) {
+    const list = extractRMultiples(rValues);
+    const n = list.length;
+    if (!n) {
+      return {
+        count: 0,
+        avgR: 0,
+        avgWinR: 0,
+        avgLossR: 0,
+        bestR: 0,
+        worstR: 0,
+        stdDev: 0,
+        winLossRatio: null,
+        buckets: []
+      };
+    }
+
+    const mean = precomputedExpectancy != null && Number.isFinite(precomputedExpectancy)
+      ? precomputedExpectancy
+      : calculateExpectancy(list);
+
+    const stdDev = precomputedStdDev != null && Number.isFinite(precomputedStdDev)
+      ? precomputedStdDev
+      : calculateSampleStandardDeviation(list, mean);
+
+    const wins = list.filter(r => r > 0);
+    const losses = list.filter(r => r < 0);
+    const avgWinR = wins.length ? round(wins.reduce((sum, r) => sum + r, 0) / wins.length, 2) : 0;
+    const avgLossR = losses.length ? round(Math.abs(losses.reduce((sum, r) => sum + r, 0) / losses.length), 2) : 0;
+    const bestR = round(Math.max(...list), 2);
+    const worstR = round(Math.min(...list), 2);
+    const winLossRatio = avgLossR > 0 ? round(avgWinR / avgLossR, 2) : null;
+
+    // 7 faixas canônicas de R para distribuição
+    const bucketsDef = [
+      { key: 'severe_loss', label: '< -2R', rangeText: 'Menor que -2,0R', desc: 'Perdas severas (>2R de risco)', tone: 'bad', color: '#ef4444', match: r => r < -2.0 },
+      { key: 'stop_loss', label: '-2R a -1R', rangeText: '-2,0R a -1,0R', desc: 'Perda acima do stop padrão', tone: 'bad', color: '#f87171', match: r => r >= -2.0 && r < -1.0 },
+      { key: 'normal_loss', label: '-1R a 0R', rangeText: '-1,0R a 0,0R', desc: 'Perdas no stop padrão / breakeven', tone: 'warn', color: '#f59e0b', match: r => r >= -1.0 && r < 0.0 },
+      { key: 'small_gain', label: '0R a +1R', rangeText: '0,0R a +1,0R', desc: 'Pequenos ganhos / defesas', tone: 'info', color: '#60a5fa', match: r => r >= 0.0 && r < 1.0 },
+      { key: 'standard_gain', label: '+1R a +2R', rangeText: '+1,0R a +2,0R', desc: 'Alvo padrão (+2R) do método', tone: 'good', color: '#10b981', match: r => r >= 1.0 && r < 2.0 },
+      { key: 'extended_gain', label: '+2R a +3R', rangeText: '+2,0R a +3,0R', desc: 'Alvos estendidos e condução', tone: 'excellent', color: '#059669', match: r => r >= 2.0 && r < 3.0 },
+      { key: 'exceptional_gain', label: '≥ +3R', rangeText: 'Maior ou igual a +3,0R', desc: 'Ganhos excepcionais (runners)', tone: 'exceptional', color: '#047857', match: r => r >= 3.0 }
+    ];
+
+    const buckets = bucketsDef.map(b => {
+      const matched = list.filter(b.match);
+      const count = matched.length;
+      const pct = round((count / n) * 100, 1);
+      return {
+        key: b.key,
+        label: b.label,
+        rangeText: b.rangeText,
+        desc: b.desc,
+        tone: b.tone,
+        color: b.color,
+        count,
+        pct
+      };
+    });
+
+    return {
+      count: n,
+      avgR: round(mean, 2),
+      avgWinR,
+      avgLossR,
+      bestR,
+      worstR,
+      stdDev: stdDev != null ? round(stdDev, 2) : 0,
+      winLossRatio,
+      buckets
+    };
+  }
+
+  /**
    * Motor principal de cálculo do System Quality Analytics
    * @param {Array} tradesOuR Lista de trades ou valores R
    * @returns {object} Relatório estatístico completo
@@ -371,6 +452,7 @@
         classification: classifySQN(null),
         significance,
         evolution: [],
+        rDistribution: calculateRDistribution(rValues),
         summaryNote: significance.note,
         rValues
       };
@@ -419,6 +501,7 @@
       classification,
       significance,
       evolution,
+      rDistribution: calculateRDistribution(rValues, expectancy, stdDev),
       trend,
       trendLabel,
       summaryNote: significance.note,
@@ -446,6 +529,7 @@
     classifySQN,
     evaluateSampleSignificance,
     calculateSQNEvolution,
+    calculateRDistribution,
     calculateSystemQualityAnalytics,
     formatNumber
   });

@@ -173,3 +173,28 @@ test('SystemQualityAnalyticsModel: relatório completo calculateSystemQualityAna
   assert.strictEqual(report.significance.isReliable, true);
   assert.strictEqual(report.evolution.length, 29);
 });
+
+test('SystemQualityAnalyticsModel: calculateRDistribution gera anatomia e 7 buckets de R', () => {
+  const sample = [-2.5, -1.5, -1.0, -0.5, 0.5, 1.2, 1.8, 2.4, 3.5, 4.0];
+  const dist = model.calculateRDistribution(sample);
+
+  assert.strictEqual(dist.count, 10);
+  assert.strictEqual(dist.bestR, 4.0);
+  assert.strictEqual(dist.worstR, -2.5);
+  assert.ok(dist.avgWinR > 0);
+  assert.ok(dist.avgLossR > 0);
+  assert.ok(dist.winLossRatio > 0);
+
+  // 7 buckets
+  assert.strictEqual(dist.buckets.length, 7);
+  const totalCountInBuckets = dist.buckets.reduce((sum, b) => sum + b.count, 0);
+  assert.strictEqual(totalCountInBuckets, 10);
+
+  // Bucket severe_loss (< -2R) deve ter 1 item (-2.5)
+  const severe = dist.buckets.find(b => b.key === 'severe_loss');
+  assert.strictEqual(severe.count, 1);
+
+  // Bucket exceptional_gain (>= +3R) deve ter 2 itens (3.5, 4.0)
+  const exceptional = dist.buckets.find(b => b.key === 'exceptional_gain');
+  assert.strictEqual(exceptional.count, 2);
+});
