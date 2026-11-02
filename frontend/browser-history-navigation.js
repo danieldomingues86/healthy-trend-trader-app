@@ -85,6 +85,9 @@
     try {
       if (typeof window !== 'undefined' && window.history && typeof window.history.pushState === 'function') {
         window.history.pushState(state, title, url);
+        if (typeof window.updateThemeFavicon === 'function') {
+          window.updateThemeFavicon();
+        }
       }
     } catch (e) {
       // In restricted file:// environments or sandboxed frames, handle gracefully
@@ -96,6 +99,9 @@
     try {
       if (typeof window !== 'undefined' && window.history && typeof window.history.replaceState === 'function') {
         window.history.replaceState(state, title, url);
+        if (typeof window.updateThemeFavicon === 'function') {
+          window.updateThemeFavicon();
+        }
       }
     } catch (e) {
       console.warn('[BrowserHistoryNav] replaceState ignored:', e.message);
@@ -219,6 +225,9 @@
 
       try {
         restoreNavigation(target);
+        if (typeof window.updateThemeFavicon === 'function') {
+          window.updateThemeFavicon();
+        }
       } catch (err) {
         console.error('[BrowserHistoryNav] popstate restoration error:', err);
       } finally {

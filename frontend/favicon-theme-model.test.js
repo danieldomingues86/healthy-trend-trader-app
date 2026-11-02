@@ -4,9 +4,10 @@
  * Verifies dynamic favicon management across Healthy Green, Premium Gold, and Pigeon Light:
  * - Theme normalization and asset path mapping
  * - SVG file existence and geometric identity preservation
+ * - Inlined SVG Data URIs for instant, zero-latency painting (anti-flicker)
  * - Dynamic DOM updates for link[rel="icon"] and link[rel="apple-touch-icon"]
  * - Anti-duplication and fallback guarantees
- * - Integration with index.html and applyTheme()
+ * - Integration with index.html, browser history navigation, and applyTheme()
  */
 
 const { test, describe } = require('node:test');
@@ -46,6 +47,16 @@ describe('FaviconThemeModel — Mapping & Paths', () => {
     // Default with version query string to prevent stale browser cache
     const withVersion = faviconModel.getFaviconPath('gold', true);
     assert.match(withVersion, /^assets\/favicon-gold\.svg\?v=\d+/);
+  });
+
+  test('getFaviconDataUri produces valid data URIs for all three themes', () => {
+    ['healthy', 'gold', 'pigeon'].forEach(theme => {
+      const dataUri = faviconModel.getFaviconDataUri(theme);
+      assert.ok(dataUri.startsWith('data:image/svg+xml,'), `${theme} must produce data:image/svg+xml data URI`);
+      const decoded = decodeURIComponent(dataUri.replace('data:image/svg+xml,', ''));
+      assert.match(decoded, /<svg xmlns="http:\/\/www.w3.org\/2000\/svg"/, 'Must contain valid SVG tag');
+      assert.match(decoded, /viewBox="0 0 64 64"/, 'Must contain 64x64 viewBox');
+    });
   });
 });
 
@@ -182,7 +193,7 @@ describe('FaviconThemeModel — Dynamic DOM Manipulation', () => {
     return mockDoc;
   }
 
-  test('updateFavicon updates existing link elements without creating duplicates', () => {
+  test('updateFavicon updates link elements with Data URI and without creating duplicates', () => {
     const doc = createMockDocument([
       { rel: 'icon', type: 'image/svg+xml', href: 'assets/favicon.svg' },
       { rel: 'apple-touch-icon', href: 'assets/favicon.svg' }
@@ -192,13 +203,14 @@ describe('FaviconThemeModel — Dynamic DOM Manipulation', () => {
 
     assert.equal(result.theme, 'gold');
     assert.match(result.href, /assets\/favicon-gold\.svg/);
+    assert.ok(result.dataUri.startsWith('data:image/svg+xml,'));
 
     const icons = doc.querySelectorAll('link[rel="icon"]');
     const apples = doc.querySelectorAll('link[rel="apple-touch-icon"]');
 
     assert.equal(icons.length, 1, 'Must maintain exactly 1 link[rel="icon"]');
     assert.equal(apples.length, 1, 'Must maintain exactly 1 link[rel="apple-touch-icon"]');
-    assert.match(icons[0].href, /assets\/favicon-gold\.svg/);
+    assert.ok(icons[0].href.startsWith('data:image/svg+xml,'), 'Icon link uses Data URI for 0ms instant render');
     assert.match(apples[0].href, /assets\/favicon-gold\.svg/);
   });
 
@@ -215,7 +227,7 @@ describe('FaviconThemeModel — Dynamic DOM Manipulation', () => {
 
     assert.ok(icon, 'link[rel="icon"] must be created');
     assert.ok(apple, 'link[rel="apple-touch-icon"] must be created');
-    assert.match(icon.href, /assets\/favicon-pigeon\.svg/);
+    assert.ok(icon.href.startsWith('data:image/svg+xml,'));
     assert.match(apple.href, /assets\/favicon-pigeon\.svg/);
   });
 
@@ -234,7 +246,7 @@ describe('FaviconThemeModel — Dynamic DOM Manipulation', () => {
 
     assert.equal(icons.length, 1, 'Must collapse duplicate icons to 1');
     assert.equal(apples.length, 1, 'Must collapse duplicate apple-touch-icons to 1');
-    assert.match(icons[0].href, /assets\/favicon-healthy\.svg/);
+    assert.ok(icons[0].href.startsWith('data:image/svg+xml,'));
   });
 
   test('resolveCurrentTheme derives theme from document.body or documentElement', () => {
@@ -249,12 +261,19 @@ describe('FaviconThemeModel — Dynamic DOM Manipulation', () => {
   });
 });
 
-describe('FaviconThemeModel — Integration in index.html', () => {
+describe('FaviconThemeModel — Integration & Anti-Flicker in index.html and Navigation', () => {
   const rootDir = path.resolve(__dirname, '..');
   const html = fs.readFileSync(path.join(rootDir, 'index.html'), 'utf8');
+  const navJs = fs.readFileSync(path.join(rootDir, 'frontend', 'browser-history-navigation.js'), 'utf8');
 
   test('index.html loads favicon-theme-model.js in <head>', () => {
     assert.match(html, /<script\s+src="frontend\/favicon-theme-model\.js[^"]*">\s*<\/script>/);
+  });
+
+  test('index.html has zero static Healthy Green hardcoded fallback links in <head>', () => {
+    const headChunk = html.slice(0, html.indexOf('<link rel="stylesheet"'));
+    assert.ok(!headChunk.includes('<link rel="icon" href="assets/favicon.svg"'), 'Head must not hardcode static assets/favicon.svg link');
+    assert.ok(!headChunk.includes('<link rel="apple-touch-icon" href="assets/favicon.svg"'), 'Head must not hardcode static assets/favicon.svg apple touch link');
   });
 
   test('index.html immediately updates favicon based on saved preference', () => {
@@ -264,5 +283,15 @@ describe('FaviconThemeModel — Integration in index.html', () => {
 
   test('applyTheme() invokes updateThemeFavicon() on every theme switch', () => {
     assert.match(html, /function\s+applyTheme\s*\([^)]*\)\s*\{[\s\S]*?updateThemeFavicon\s*\(\s*selected\s*\)/);
+  });
+
+  test('browser-history-navigation.js re-asserts favicon on pushState, replaceState and popstate', () => {
+    assert.match(navJs, /function\s+safePushState[\s\S]*?updateThemeFavicon/, 'safePushState must re-assert favicon');
+    assert.match(navJs, /function\s+safeReplaceState[\s\S]*?updateThemeFavicon/, 'safeReplaceState must re-assert favicon');
+    assert.match(navJs, /addEventListener\('popstate'[\s\S]*?updateThemeFavicon/, 'popstate listener must re-assert favicon');
+  });
+
+  test('window.go() re-asserts favicon on navigation', () => {
+    assert.match(html, /function\s+go\s*\([^)]*\)\s*\{[\s\S]*?updateThemeFavicon/, 'go() must re-assert favicon');
   });
 });
