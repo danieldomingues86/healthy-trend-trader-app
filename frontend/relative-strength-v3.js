@@ -496,7 +496,7 @@
     const query = (window.relativeStrengthSearchQuery || '').trim().toLowerCase();
     const groupFilter = (window.relativeStrengthSelectedGroup || '').trim();
 
-    const filtered = (allItems || []).filter(item => {
+    let filtered = (allItems || []).filter(item => {
       if (groupFilter) {
         const itemSec = String(item.sector || '').trim();
         const locSec = localizedSector(itemSec);
@@ -513,6 +513,11 @@
       }
       return true;
     });
+
+    const resModel = (typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel : (typeof window !== 'undefined' ? window.MarketResilienceModel : null));
+    if (window.relativeStrengthSelectedResilience && resModel) {
+      filtered = resModel.filterByResilienceTier(filtered, window.relativeStrengthSelectedResilience);
+    }
 
     const pageSize = window.relativeStrengthPageSize;
     if (pageSize === 'all' || !Number.isFinite(Number(pageSize))) {
@@ -659,7 +664,7 @@
       if (state?.loading) {
         return `
           <tr>
-            <td colspan="9">
+            <td colspan="11">
               <div class="rs-table-empty">
                 <span class="rs-spinner" aria-hidden="true">⏳</span>
                 <p>${text('Carregando ranking oficial atualizado da B3...', 'Loading official updated B3 ranking...')}</p>
@@ -670,7 +675,7 @@
       }
       return `
         <tr>
-          <td colspan="9">
+          <td colspan="11">
             <div class="rs-table-empty">
               <span>🔍</span>
               <p>${text('Nenhum ativo encontrado para os filtros selecionados.', 'No assets found for the selected filters.')}</p>
@@ -696,6 +701,27 @@
       const m1Class = Number.isFinite(m1Val) ? (m1Val >= 0 ? 'rs-val-positive' : 'rs-val-negative') : '';
       const m3Class = Number.isFinite(m3Val) ? (m3Val >= 0 ? 'rs-val-positive' : 'rs-val-negative') : '';
 
+      // Resiliência 12M
+      const res = (typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.resolve(item) : item.resilience12m) || null;
+      let resBadge = '';
+      if (res && Number.isFinite(res.score)) {
+        resBadge = `
+          <span class="rs-resilience-pill badge-${res.badgeColor || 'green'}" title="${text(
+            `Resiliência 12M: ${res.score} (${res.label}). Superou o índice em ${res.beatRate}% dos dias negativos nos últimos 12 meses. Métrica complementar que não altera o RS.`,
+            `Resilience 12M: ${res.score} (${res.label}). Beat benchmark on ${res.beatRate}% of down days over the last 12 months. Complementary metric that does not affect RS.`
+          )}">
+            <span class="rs-resilience-dot">${res.dot || (res.score >= 80 ? '🟢' : res.score >= 40 ? '🟡' : '🔴')}</span>
+            <span class="rs-resilience-score">${res.score}</span>
+            <span class="rs-resilience-sep">—</span>
+            <span class="rs-resilience-label">${res.label}</span>
+          </span>
+        `;
+      } else {
+        resBadge = `<span class="rs-resilience-pill badge-neutral" title="${text('Dados históricos insuficientes para 12 meses', 'Insufficient historical data for 12 months')}"><span class="rs-resilience-dot">⚪</span><span class="rs-resilience-score">—</span></span>`;
+      }
+
+      const readingTooltip = `${leitura.label} — RS ${score}. ${typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.TOOLTIPS.rsReading : 'Classificação baseada exclusivamente na Força Relativa (RS). A Resiliência 12M não altera esta classificação.'}`;
+
       return `
         <tr class="rs-data-row rs-row-${leitura.tierClass}" data-symbol="${symbol}">
           <td class="td-rank">${rank}</td>
@@ -707,14 +733,19 @@
           <td class="td-rs">
             <span class="rs-score-pill ${scoreBadgeClass}">${score}</span>
           </td>
-          <td class="td-reading">
+          <td class="td-reading" title="${readingTooltip}">
             <span class="rs-reading-badge ${leitura.tierClass}">
               <span class="rs-reading-icon">${leitura.icon}</span>
               <span class="rs-reading-text">${leitura.label}</span>
             </span>
           </td>
+          <td class="td-divider-col" aria-hidden="true"><span class="rs-col-divider"></span></td>
+          <td class="td-resilience">${resBadge}</td>
           <td class="td-actions">
             <div class="rs-row-actions">
+              <button type="button" class="rs-btn-resilience" onclick="window.openResilienceAnalysis && window.openResilienceAnalysis('${symbol}')" title="${text(`Ver análise de resiliência de ${symbol}`, `View resilience analysis for ${symbol}`)}">
+                <span class="rs-btn-icon">🛡️</span> ${text('Resiliência', 'Resilience')}
+              </button>
               <button type="button" class="rs-btn-analysis" onclick="window.openTickerAnalysis && window.openTickerAnalysis('${symbol}')" title="${text(`Ver gráfico de ${symbol}`, `View chart for ${symbol}`)}">
                 <span class="rs-btn-icon">📊</span> ${text('Ver gráfico', 'View chart')}
               </button>
@@ -796,6 +827,10 @@
     const bottomSelect = document.getElementById('rsBottomPerPageSelect');
     if (bottomSelect) {
       bottomSelect.value = String(window.relativeStrengthPageSize);
+    }
+    const resSelect = document.getElementById('rsResilienceSelect');
+    if (resSelect) {
+      resSelect.value = window.relativeStrengthSelectedResilience || '';
     }
   }
 
@@ -913,6 +948,15 @@
                       ${sectorOptions}
                     </select>
                   </div>
+                  <div class="rs-select-wrap">
+                    <select id="rsResilienceSelect" class="rs-select-resilience" onchange="window.handleRelativeStrengthResilienceChange(this.value)" aria-label="${text('Filtrar por Resiliência 12M', 'Filter by Resilience 12M')}">
+                      <option value="">${text('Todas as resiliências', 'All resilience tiers')}</option>
+                      <option value="excelente" ${window.relativeStrengthSelectedResilience === 'excelente' ? 'selected' : ''}>🟢 ${text('Excelente — 80 a 100', 'Excellent — 80 to 100')}</option>
+                      <option value="forte" ${window.relativeStrengthSelectedResilience === 'forte' ? 'selected' : ''}>🟡 ${text('Forte — 60 a 79', 'Strong — 60 to 79')}</option>
+                      <option value="moderada" ${window.relativeStrengthSelectedResilience === 'moderada' ? 'selected' : ''}>🟡 ${text('Moderada — 40 a 59', 'Moderate — 40 to 59')}</option>
+                      <option value="fraca" ${window.relativeStrengthSelectedResilience === 'fraca' ? 'selected' : ''}>🔴 ${text('Fraca — 0 a 39', 'Weak — 0 to 39')}</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div class="rs-toolbar-meta">
@@ -928,20 +972,52 @@
                 </div>
               </div>
 
+              <!-- Explanation Banner -->
+              <div class="rs-explanation-banner" role="region" aria-label="${text('Como interpretar esta tabela', 'How to interpret this table')}">
+                <div class="rs-explanation-banner-header">
+                  <span class="rs-banner-bulb">💡</span>
+                  <span class="rs-banner-title">${text('Como interpretar esta tabela?', 'How to interpret this table?')}</span>
+                </div>
+                <p class="rs-banner-text">
+                  ${text(
+                    'A classificação do ativo (Líder, Qualificado, etc.) é determinada <strong>exclusivamente pela Força Relativa (RS)</strong>. A <strong>Resiliência 12M</strong> é uma métrica complementar que mostra como o ativo se comportou durante períodos de fraqueza do mercado nos últimos 12 meses.',
+                    'Asset classification (Leader, Qualified, etc.) is determined <strong>exclusively by Relative Strength (RS)</strong>. <strong>Resilience 12M</strong> is a complementary metric showing how the asset performed during periods of market weakness over the last 12 months.'
+                  )}
+                </p>
+              </div>
+
               <!-- Table -->
               <div class="rs-table-wrapper">
                 <table class="rs-table">
                   <thead>
-                    <tr>
-                      <th class="th-rank">#</th>
-                      <th class="th-symbol">${text('Ativo', 'Asset')}</th>
-                      <th class="th-company">${text('Empresa', 'Company')}</th>
-                      <th class="th-group">${isFii ? text('Segmento', 'Segment') : text('Grupo', 'Group')}</th>
+                    <tr class="rs-super-header-row">
+                      <th rowspan="2" class="th-rank">#</th>
+                      <th rowspan="2" class="th-symbol">${text('Ativo', 'Asset')}</th>
+                      <th rowspan="2" class="th-company">${text('Empresa', 'Company')}</th>
+                      <th rowspan="2" class="th-group">${isFii ? text('Segmento', 'Segment') : text('Grupo', 'Group')}</th>
+                      <th colspan="4" class="th-super-header th-super-rs">
+                        <div class="rs-super-header-wrap">
+                          <span class="rs-super-header-title">${text('FORÇA RELATIVA', 'RELATIVE STRENGTH')}</span>
+                          <span class="rs-super-header-sep">—</span>
+                          <span class="rs-super-header-subtitle">${text('Determina a classificação do ativo', 'Determines asset classification')}</span>
+                        </div>
+                      </th>
+                      <th rowspan="2" class="th-divider-col" aria-hidden="true"><span class="rs-col-divider"></span></th>
+                      <th class="th-super-header th-super-resilience">
+                        <div class="rs-super-header-wrap">
+                          <span class="rs-super-header-title">${text('RESILIÊNCIA', 'RESILIENCE')}</span>
+                          <span class="rs-super-header-sep">—</span>
+                          <span class="rs-super-header-subtitle">${text('Métrica complementar (12 meses)', 'Complementary metric (12 months)')}</span>
+                        </div>
+                      </th>
+                      <th rowspan="2" class="th-actions">${text('Ações', 'Actions')}</th>
+                    </tr>
+                    <tr class="rs-sub-header-row">
                       <th class="th-m1">1M</th>
                       <th class="th-m3">3M</th>
                       <th class="th-rs">RS</th>
-                      <th class="th-reading">${text('Leitura', 'Reading')}</th>
-                      <th class="th-actions">${text('Ações', 'Actions')}</th>
+                      <th class="th-reading" title="${typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.TOOLTIPS.rsReading : ''}">${text('LEITURA RS', 'RS READING')}</th>
+                      <th class="th-resilience" title="${typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.TOOLTIPS.resilience12m : ''}">${text('RESILIÊNCIA 12M', 'RESILIENCE 12M')}</th>
                     </tr>
                   </thead>
                   <tbody id="rsRankingTableBody">
@@ -968,6 +1044,17 @@
 
   // Initial call if document is already ready — carrega dados frescos da API automaticamente
   if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    // Delegated click handler to open drawer when clicking a table row
+    document.addEventListener('click', (e) => {
+      const row = e.target.closest && e.target.closest('.rs-data-row');
+      if (row && !e.target.closest('button') && !e.target.closest('a') && !e.target.closest('input') && !e.target.closest('select')) {
+        const symbol = row.getAttribute('data-symbol');
+        if (symbol && typeof window.openResilienceAnalysis === 'function') {
+          window.openResilienceAnalysis(symbol, 'resilience');
+        }
+      }
+    });
+
     const initWorkspace = () => {
       renderRelativeStrengthWorkspace();
       if (typeof window.loadRelativeStrengthClassesForTimeframe === 'function') {

@@ -1,0 +1,845 @@
+/* ==========================================================================
+   Healthy Trend Trader — Resiliência 12M & Painel Lateral de Análise
+   Design System: Green / Dark, Pigeon Light e Gold Themes
+   ========================================================================== */
+
+/* --- 1. Explanation Banner Above Table --- */
+.rs-explanation-banner {
+  margin: 0 0 16px 0;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(240, 253, 244, 0.95), rgba(236, 253, 245, 0.85));
+  border: 1px solid rgba(134, 239, 172, 0.45);
+  border-left: 4px solid #10b981;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.rs-explanation-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.rs-banner-bulb {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.rs-banner-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #065f46;
+  letter-spacing: 0.01em;
+}
+
+.rs-banner-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #1e3a2f;
+}
+
+.rs-banner-text strong {
+  font-weight: 700;
+  color: #064e3b;
+}
+
+/* Theme overrides for explanation banner */
+body[data-theme="pigeon"] .rs-explanation-banner {
+  background: linear-gradient(135deg, #f0f7ff, #e8f2fe);
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #2563eb;
+}
+body[data-theme="pigeon"] .rs-banner-title {
+  color: #1e40af;
+}
+body[data-theme="pigeon"] .rs-banner-text {
+  color: #1e293b;
+}
+body[data-theme="pigeon"] .rs-banner-text strong {
+  color: #0f172a;
+}
+
+body[data-theme="gold"] .rs-explanation-banner,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-explanation-banner {
+  background: rgba(28, 25, 17, 0.85);
+  border: 1px solid rgba(212, 166, 62, 0.25);
+  border-left: 4px solid #d4a63e;
+}
+body[data-theme="gold"] .rs-banner-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-banner-title {
+  color: #f1cf7a;
+}
+body[data-theme="gold"] .rs-banner-text,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-banner-text {
+  color: #d1c7b7;
+}
+body[data-theme="gold"] .rs-banner-text strong,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-banner-text strong {
+  color: #fff;
+}
+
+/* --- 2. Grouped Super-Headers --- */
+.rs-table thead tr.rs-super-header-row th {
+  padding: 10px 10px 6px 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.th-super-header {
+  text-align: center !important;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.rs-super-header-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rs-super-header-title {
+  font-weight: 800;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+}
+
+.th-super-rs .rs-super-header-title {
+  color: #059669;
+}
+.th-super-resilience .rs-super-header-title {
+  color: #2563eb;
+}
+
+.rs-super-header-sep {
+  opacity: 0.4;
+}
+
+.rs-super-header-subtitle {
+  font-size: 10.5px;
+  font-weight: 500;
+  text-transform: none;
+  opacity: 0.75;
+}
+
+body[data-theme="pigeon"] .th-super-rs .rs-super-header-title {
+  color: #0284c7;
+}
+body[data-theme="pigeon"] .th-super-resilience .rs-super-header-title {
+  color: #3b82f6;
+}
+
+body[data-theme="gold"] .th-super-rs .rs-super-header-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .th-super-rs .rs-super-header-title {
+  color: #4ade80;
+}
+body[data-theme="gold"] .th-super-resilience .rs-super-header-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .th-super-resilience .rs-super-header-title {
+  color: #e5b94c;
+}
+
+/* --- 3. Vertical Divider Column --- */
+.th-divider-col,
+.td-divider-col {
+  width: 14px !important;
+  min-width: 14px !important;
+  max-width: 14px !important;
+  padding: 0 !important;
+  text-align: center;
+  vertical-align: middle;
+  background: transparent !important;
+}
+
+.rs-col-divider {
+  display: block;
+  width: 2px;
+  height: 24px;
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 1px;
+}
+
+.th-divider-col .rs-col-divider {
+  height: 34px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+body[data-theme="pigeon"] .rs-col-divider {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+body[data-theme="gold"] .rs-col-divider,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-col-divider {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* --- 4. Resilience 12M Cell Pill --- */
+.td-resilience {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.rs-resilience-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: default;
+  transition: transform 0.15s ease;
+}
+
+.rs-resilience-pill:hover {
+  transform: translateY(-1px);
+}
+
+.rs-resilience-dot {
+  font-size: 9px;
+  line-height: 1;
+}
+
+.rs-resilience-score {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.rs-resilience-sep {
+  opacity: 0.45;
+  font-size: 10px;
+}
+
+.rs-resilience-label {
+  font-size: 11px;
+}
+
+/* Badge colors */
+.rs-resilience-pill.badge-green {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.rs-resilience-pill.badge-yellow {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+.rs-resilience-pill.badge-red {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+.rs-resilience-pill.badge-neutral {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* Dark / Theme overrides for pills */
+body[data-theme="gold"] .rs-resilience-pill.badge-green,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-resilience-pill.badge-green {
+  background: rgba(22, 101, 52, 0.25);
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.35);
+}
+body[data-theme="gold"] .rs-resilience-pill.badge-yellow,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-resilience-pill.badge-yellow {
+  background: rgba(133, 77, 14, 0.25);
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.35);
+}
+body[data-theme="gold"] .rs-resilience-pill.badge-red,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-resilience-pill.badge-red {
+  background: rgba(153, 27, 27, 0.25);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+/* --- 5. Resilience Dropdown in Toolbar --- */
+.rs-select-resilience {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.rs-select-resilience:hover,
+.rs-select-resilience:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+
+body[data-theme="pigeon"] .rs-select-resilience {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+body[data-theme="pigeon"] .rs-select-resilience:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+body[data-theme="gold"] .rs-select-resilience,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-select-resilience {
+  background: #181914;
+  border-color: #3d392b;
+  color: #ded3b9;
+}
+
+/* --- 6. Actions Column & Ver Análise Button --- */
+.rs-btn-analysis {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #15803d;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.rs-btn-analysis:hover {
+  background: #dcfce7;
+  transform: translateY(-1px);
+}
+
+.rs-btn-chart {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  color: #374151;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.rs-btn-chart:hover {
+  background: #f3f4f6;
+}
+
+body[data-theme="pigeon"] .rs-btn-analysis {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+body[data-theme="pigeon"] .rs-btn-analysis:hover {
+  background: #dbeafe;
+}
+
+body[data-theme="gold"] .rs-btn-analysis,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-btn-analysis {
+  background: rgba(22, 101, 52, 0.25);
+  border-color: rgba(74, 222, 128, 0.35);
+  color: #4ade80;
+}
+
+/* Row hover indicator */
+.rs-data-row {
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+/* --- 7. Lateral Drawer & Backdrop --- */
+.rs-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rs-drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rs-analysis-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 470px;
+  max-width: 92vw;
+  background: #ffffff;
+  z-index: 9999;
+  box-shadow: -8px 0 35px rgba(0, 0, 0, 0.22);
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: inherit;
+}
+
+.rs-analysis-drawer.open {
+  transform: translateX(0);
+}
+
+/* Drawer Header */
+.rs-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.rs-drawer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rs-drawer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #052e16;
+  color: #22c55e;
+  font-weight: 800;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.rs-drawer-title-group h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+.rs-drawer-company {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.rs-drawer-close-btn {
+  background: #f3f4f6;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.rs-drawer-close-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* Drawer Navigation Tabs */
+.rs-drawer-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.rs-drawer-tab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.rs-drawer-tab:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.rs-drawer-tab.active {
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 700;
+  border-color: #a7f3d0;
+}
+
+/* Drawer Body */
+.rs-drawer-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Box Header with Shield */
+.rs-drawer-box-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+}
+
+.rs-shield-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #dcfce7;
+  color: #15803d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rs-shield-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rs-shield-subtitle {
+  font-size: 12px;
+  color: #4b5563;
+  margin-top: 2px;
+}
+
+.rs-info-tip {
+  font-size: 12px;
+  cursor: help;
+  opacity: 0.65;
+}
+
+/* Callout Banner */
+.rs-drawer-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f0fdf4;
+  border: 1px solid #dcfce7;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #1e3a2f;
+}
+
+.rs-callout-arrow {
+  color: #16a34a;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+/* 4 Metric Cards Grid */
+.rs-stat-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.rs-stat-card {
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 84px;
+}
+
+.rs-stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #111827;
+}
+
+.rs-stat-value.val-outperformance {
+  color: #16a34a;
+}
+.rs-stat-value.val-negative {
+  color: #dc2626;
+}
+.rs-stat-value.val-positive {
+  color: #16a34a;
+}
+.rs-stat-value.rs-val-accent {
+  color: #047857;
+}
+
+.rs-stat-label {
+  font-size: 11.5px;
+  color: #4b5563;
+  font-weight: 500;
+  margin-top: 8px;
+  line-height: 1.3;
+}
+
+/* Comparison Bar Chart */
+.rs-chart-section {
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.rs-chart-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rs-chart-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rs-chart-bars-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rs-chart-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rs-chart-bar-ticker {
+  width: 44px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.rs-chart-bar-track {
+  flex: 1;
+  height: 12px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.rs-chart-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.rs-chart-bar-fill.fill-asset {
+  background: #10b981;
+}
+
+.rs-chart-bar-fill.fill-bench {
+  background: #cbd5e1;
+}
+
+.rs-chart-bar-val {
+  width: 48px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.rs-chart-advantage-badge {
+  padding: 10px 14px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 100px;
+}
+
+.rs-adv-val {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  color: #166534;
+  line-height: 1.1;
+}
+
+.rs-adv-label {
+  display: block;
+  font-size: 10.5px;
+  color: #4b5563;
+  margin-top: 3px;
+  line-height: 1.2;
+}
+
+/* Educational Interpretation Card */
+.rs-drawer-interpretation-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 10px;
+}
+
+.rs-interp-bulb {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.rs-interp-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #713f12;
+}
+
+.rs-interp-text strong {
+  font-weight: 700;
+  color: #854d0e;
+}
+
+/* Bottom Disclaimer Note */
+.rs-drawer-footer-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #091b14;
+  border-radius: 10px;
+  color: #e2e8f0;
+}
+
+.rs-footer-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #15803d;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.rs-drawer-footer-note p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+.rs-drawer-footer-note strong {
+  color: #4ade80;
+}
+
+/* --- Theme Support for Drawer --- */
+body[data-theme="pigeon"] .rs-analysis-drawer {
+  background: #ffffff;
+}
+body[data-theme="pigeon"] .rs-drawer-tabs {
+  background: #f1f5f9;
+}
+body[data-theme="pigeon"] .rs-drawer-tab.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+body[data-theme="pigeon"] .rs-drawer-footer-note {
+  background: #0f172a;
+}
+body[data-theme="pigeon"] .rs-drawer-footer-note strong {
+  color: #60a5fa;
+}
+
+body[data-theme="gold"] .rs-analysis-drawer,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-analysis-drawer {
+  background: #141510;
+  color: #e7dfcb;
+  border-left: 1px solid #332f22;
+}
+body[data-theme="gold"] .rs-drawer-header,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-drawer-header {
+  background: #141510;
+  border-bottom-color: #2b281c;
+}
+body[data-theme="gold"] .rs-drawer-title-group h3,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-drawer-title-group h3 {
+  color: #fff;
+}
+body[data-theme="gold"] .rs-drawer-company,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-drawer-company {
+  color: #9ca3af;
+}
+body[data-theme="gold"] .rs-drawer-tabs,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-drawer-tabs {
+  background: #191b14;
+  border-bottom-color: #2b281c;
+}
+body[data-theme="gold"] .rs-drawer-tab,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-drawer-tab {
+  color: #9ca3af;
+}
+body[data-theme="gold"] .rs-drawer-tab.active,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-drawer-tab.active {
+  background: rgba(212, 166, 62, 0.2);
+  color: #f1cf7a;
+  border-color: #d4a63e;
+}
+body[data-theme="gold"] .rs-stat-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-stat-card,
+body[data-theme="gold"] .rs-chart-section,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-chart-section {
+  background: #1c1d16;
+  border-color: #2d2b20;
+}
+body[data-theme="gold"] .rs-stat-value,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-stat-value,
+body[data-theme="gold"] .rs-chart-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-chart-title {
+  color: #fff;
+}

@@ -23,6 +23,21 @@
           "m1": 11.397809541488769,
           "m3": 22.3694942903752,
           "score": 100,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.78,
+            "beatRate": 69.1,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 62,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 1
         },
@@ -33,6 +48,21 @@
           "m1": 17.38916256157634,
           "m3": 17.485620377978627,
           "score": 99,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.09,
+            "beatRate": 68.3,
+            "avgAssetDrop": 0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 84,
+            "upCount": 67,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 2
         },
@@ -43,6 +73,21 @@
           "m1": 7.308631921824116,
           "m3": 21.39567019806541,
           "score": 97,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.75,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 66,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 3
         },
@@ -53,6 +98,21 @@
           "m1": 13.438914027149318,
           "m3": 15.743305632502302,
           "score": 96,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.74,
+            "beatRate": 61,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 4
         },
@@ -63,6 +123,21 @@
           "m1": 2.3738567464803184,
           "m3": 14.650707791460471,
           "score": 95,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.57,
+            "beatRate": 60.2,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 5
         },
@@ -73,6 +148,21 @@
           "m1": -10.179903466432648,
           "m3": 19.42823803967326,
           "score": 93,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.03,
+            "beatRate": 45.5,
+            "avgAssetDrop": -0.87,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 6
         },
@@ -83,6 +173,21 @@
           "m1": 7.5452716297786715,
           "m3": 5.5802469135802335,
           "score": 92,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.47,
+            "beatRate": 65.9,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 7
         },
@@ -93,6 +198,21 @@
           "m1": 5.461970393057691,
           "m3": 0.14541929229279216,
           "score": 91,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.43,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.47,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 8
         },
@@ -103,6 +223,21 @@
           "m1": 1.5539305301645268,
           "m3": 1.7399267399267337,
           "score": 89,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.27,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.63,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 9
         },
@@ -113,6 +248,21 @@
           "m1": 3.5434693036670684,
           "m3": 0.6004803843074447,
           "score": 88,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.3,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.6,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 10
         },
@@ -123,6 +273,21 @@
           "m1": -2.224019409623945,
           "m3": 2.457627118644057,
           "score": 87,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.41,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.49,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 11
         },
@@ -133,6 +298,21 @@
           "m1": 4.5826513911620514,
           "m3": -1.3381369016983946,
           "score": 85,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.18,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 12
         },
@@ -143,6 +323,21 @@
           "m1": -4.27759497457374,
           "m3": 3.0264005151320106,
           "score": 84,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.23,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 13
         },
@@ -153,6 +348,21 @@
           "m1": -20.017953321364455,
           "m3": 7.869249394673128,
           "score": 83,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.77,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 14
         },
@@ -163,6 +373,21 @@
           "m1": -5.309734513274334,
           "m3": -0.17650025214319687,
           "score": 81,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.09,
+            "beatRate": 52,
+            "avgAssetDrop": -0.81,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 15
         },
@@ -173,6 +398,21 @@
           "m1": 2.9855753102985494,
           "m3": -5.914802329144964,
           "score": 80,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.3,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.6,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 16
         },
@@ -183,6 +423,21 @@
           "m1": 1.655629139072845,
           "m3": -6.969696969696959,
           "score": 79,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.56,
+            "beatRate": 62.6,
+            "avgAssetDrop": -0.34,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 77,
+            "upCount": 61,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 17
         },
@@ -193,6 +448,21 @@
           "m1": -7.786149982059564,
           "m3": -2.3185100722158847,
           "score": 77,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.07,
+            "beatRate": 42.3,
+            "avgAssetDrop": -0.96,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 18
         },
@@ -203,6 +473,21 @@
           "m1": -13.112745098039213,
           "m3": 0,
           "score": 76,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.11,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1.01,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 19
         },
@@ -213,6 +498,21 @@
           "m1": -5.024848150193262,
           "m3": -5.753424657534245,
           "score": 75,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.42,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 20
         },
@@ -223,6 +523,21 @@
           "m1": -28.284182305630033,
           "m3": 6.361829025844923,
           "score": 73,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.1,
+            "beatRate": 35.8,
+            "avgAssetDrop": -2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 44,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 21
         },
@@ -233,6 +548,21 @@
           "m1": -10.499999999999998,
           "m3": -3.4389750505731564,
           "score": 72,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.07,
+            "beatRate": 48,
+            "avgAssetDrop": -0.97,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 22
         },
@@ -243,6 +573,21 @@
           "m1": -16.513056835637485,
           "m3": -1.0018214936247882,
           "score": 71,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.24,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 23
         },
@@ -253,6 +598,21 @@
           "m1": -4.9479166666666625,
           "m3": -8.69293308317699,
           "score": 69,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.32,
+            "beatRate": 61,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 24
         },
@@ -263,6 +623,21 @@
           "m1": -15.64409030544488,
           "m3": -3.9031770045385605,
           "score": 68,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.23,
+            "beatRate": 48,
+            "avgAssetDrop": -0.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 25
         },
@@ -273,6 +648,21 @@
           "m1": -15.408225905463468,
           "m3": -4.570637119113574,
           "score": 67,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 26
         },
@@ -283,6 +673,21 @@
           "m1": -10.257339615802818,
           "m3": -7.921160282632944,
           "score": 65,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.01,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.91,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 27
         },
@@ -293,6 +698,21 @@
           "m1": -7.932322566468908,
           "m3": -9.189423493714788,
           "score": 64,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.02,
+            "beatRate": 46.3,
+            "avgAssetDrop": -0.92,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 28
         },
@@ -303,6 +723,21 @@
           "m1": -16.417910447761198,
           "m3": -5.1490514905149,
           "score": 63,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.31,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 29
         },
@@ -313,6 +748,21 @@
           "m1": -6.972586412395721,
           "m3": -11.003420752565562,
           "score": 61,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.11,
+            "beatRate": 47.2,
+            "avgAssetDrop": -1.01,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 30
         },
@@ -323,6 +773,21 @@
           "m1": -9.952606635071092,
           "m3": -10.83032490974729,
           "score": 60,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.85,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1.75,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 31
         },
@@ -333,6 +798,21 @@
           "m1": -9.76702508960573,
           "m3": -11.199294532627857,
           "score": 59,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.03,
+            "beatRate": 44.7,
+            "avgAssetDrop": -0.93,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 20,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 32
         },
@@ -343,6 +823,21 @@
           "m1": -2.9940119760478945,
           "m3": -14.88616462346759,
           "score": 57,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.1,
+            "beatRate": 48,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 33
         },
@@ -353,6 +848,21 @@
           "m1": -12.624209575429092,
           "m3": -9.792492422476107,
           "score": 56,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.16,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 34
         },
@@ -363,6 +873,21 @@
           "m1": -6.633020908435472,
           "m3": -13.924891990694588,
           "score": 55,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.5,
+            "beatRate": 39.8,
+            "avgAssetDrop": -1.4,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 49,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 35
         },
@@ -373,6 +898,21 @@
           "m1": -10.862186014935505,
           "m3": -11.87919463087248,
           "score": 53,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.29,
+            "beatRate": 48,
+            "avgAssetDrop": -1.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 36
         },
@@ -383,6 +923,21 @@
           "m1": -17.262992948550536,
           "m3": -8.545034642032334,
           "score": 52,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.4,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 37
         },
@@ -393,6 +948,21 @@
           "m1": -14.726027397260278,
           "m3": -9.913169319826343,
           "score": 51,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.19,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 25,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 38
         },
@@ -403,6 +973,21 @@
           "m1": -14.308943089430892,
           "m3": -10.204468004543731,
           "score": 49,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.49,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.39,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 39
         },
@@ -413,6 +998,21 @@
           "m1": -19.625585023400927,
           "m3": -9.295774647887312,
           "score": 48,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.6,
+            "beatRate": 35,
+            "avgAssetDrop": -1.5,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 43,
+            "upCount": 24,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 40
         },
@@ -423,6 +1023,21 @@
           "m1": -16.386633943741735,
           "m3": -11.082112025697654,
           "score": 47,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.42,
+            "beatRate": 35.8,
+            "avgAssetDrop": -1.32,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 44,
+            "upCount": 23,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 41
         },
@@ -433,6 +1048,21 @@
           "m1": -5.371114400507504,
           "m3": -18.190127970749547,
           "score": 45,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.22,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 42
         },
@@ -443,6 +1073,21 @@
           "m1": -20.58638083228247,
           "m3": -10.451475293281188,
           "score": 44,
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.33,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 43
         },
@@ -453,6 +1098,21 @@
           "m1": -9.688581314878897,
           "m3": -16.954545454545457,
           "score": 43,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.1,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 44
         },
@@ -463,6 +1123,21 @@
           "m1": -17.54890678941311,
           "m3": -12.728380024360542,
           "score": 41,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.54,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.44,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 45
         },
@@ -473,6 +1148,21 @@
           "m1": -27.90484903934126,
           "m3": -7.294117647058829,
           "score": 40,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.57,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.47,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 46
         },
@@ -483,6 +1173,21 @@
           "m1": -19.356032568467807,
           "m3": -12.24325412807088,
           "score": 39,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.38,
+            "beatRate": 35.8,
+            "avgAssetDrop": -1.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 44,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 47
         },
@@ -493,6 +1198,21 @@
           "m1": -20.31197015937606,
           "m3": -13.252122554448132,
           "score": 37,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.25,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 48
         },
@@ -503,6 +1223,21 @@
           "m1": -11.285939064511508,
           "m3": -18.694284216046142,
           "score": 36,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.18,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 49
         },
@@ -513,6 +1248,21 @@
           "m1": -16.730434782608693,
           "m3": -16.35220125786163,
           "score": 35,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.14,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 50
         },
@@ -523,6 +1273,21 @@
           "m1": -19.80319803198032,
           "m3": -15.675116399379196,
           "score": 33,
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.37,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 24,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 51
         },
@@ -533,6 +1298,21 @@
           "m1": -17.147523135547093,
           "m3": -17.640692640692635,
           "score": 32,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.38,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 52
         },
@@ -543,6 +1323,21 @@
           "m1": -11.617312072892938,
           "m3": -21.21827411167513,
           "score": 31,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.54,
+            "beatRate": 33.3,
+            "avgAssetDrop": -1.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 41,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 53
         },
@@ -553,6 +1348,21 @@
           "m1": -25.959780621572214,
           "m3": -14.556962025316466,
           "score": 29,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.85,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.75,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 54
         },
@@ -563,6 +1373,21 @@
           "m1": -20.344456404736267,
           "m3": -17.89181692094313,
           "score": 28,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.13,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.76,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 55
         },
@@ -573,6 +1398,21 @@
           "m1": -26.772082878953107,
           "m3": -14.621741894469176,
           "score": 27,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.68,
+            "beatRate": 33.3,
+            "avgAssetDrop": -1.58,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 41,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 56
         },
@@ -583,6 +1423,21 @@
           "m1": -21.63995067817508,
           "m3": -20.512820512820507,
           "score": 25,
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.25,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 24,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 57
         },
@@ -593,6 +1448,21 @@
           "m1": -14.562244716746587,
           "m3": -25.027271310581266,
           "score": 24,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.19,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.71,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 58
         },
@@ -603,6 +1473,21 @@
           "m1": -26.694915254237294,
           "m3": -22.00180342651037,
           "score": 23,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.46,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 59
         },
@@ -613,6 +1498,21 @@
           "m1": -11.483253588516739,
           "m3": -30.320150659133706,
           "score": 21,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.26,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 60
         },
@@ -623,6 +1523,21 @@
           "m1": -32.755632582322356,
           "m3": -19.834710743801654,
           "score": 20,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.93,
+            "beatRate": 39,
+            "avgAssetDrop": -1.83,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 61
         },
@@ -633,6 +1548,21 @@
           "m1": -28.608582574772434,
           "m3": -22.857142857142865,
           "score": 19,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.42,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 62
         },
@@ -643,6 +1573,21 @@
           "m1": -25.12155591572124,
           "m3": -24.796527400976675,
           "score": 17,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.37,
+            "beatRate": 34.1,
+            "avgAssetDrop": -1.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 42,
+            "upCount": 24,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 63
         },
@@ -653,6 +1598,21 @@
           "m1": -20.276953511374863,
           "m3": -28.986784140969156,
           "score": 16,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.95,
+            "beatRate": 31.7,
+            "avgAssetDrop": -1.85,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 39,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 64
         },
@@ -663,6 +1623,21 @@
           "m1": -37.122884473877846,
           "m3": -20.0280767430978,
           "score": 15,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.98,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.88,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 65
         },
@@ -673,6 +1648,21 @@
           "m1": -31.234567901234566,
           "m3": -25.950545067801112,
           "score": 13,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1,
+            "beatRate": 30.1,
+            "avgAssetDrop": -1.89,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 37,
+            "upCount": 18,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 66
         },
@@ -683,6 +1673,21 @@
           "m1": -22.58620689655172,
           "m3": -33.97058823529411,
           "score": 12,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.66,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 67
         },
@@ -693,6 +1698,21 @@
           "m1": -28.673323823109843,
           "m3": -32.065217391304344,
           "score": 11,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.05,
+            "beatRate": 47.2,
+            "avgAssetDrop": -0.95,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 68
         },
@@ -703,6 +1723,21 @@
           "m1": -31.89655172413792,
           "m3": -30.701754385964907,
           "score": 9,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.82,
+            "beatRate": 32.5,
+            "avgAssetDrop": -1.71,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 40,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 69
         },
@@ -713,6 +1748,21 @@
           "m1": -25.9163272861903,
           "m3": -34.02571711177052,
           "score": 8,
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.41,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 70
         },
@@ -723,6 +1773,21 @@
           "m1": -34.695912263210374,
           "m3": -30.614406779661017,
           "score": 7,
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.21,
+            "beatRate": 30.1,
+            "avgAssetDrop": -2.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 37,
+            "upCount": 23,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 71
         },
@@ -733,6 +1798,21 @@
           "m1": -35.27918781725889,
           "m3": -30.327868852459027,
           "score": 5,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.15,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.05,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "IBOV",
           "rank": 72
         },
@@ -743,6 +1823,21 @@
           "m1": -44.651162790697676,
           "m3": -28.742514970059887,
           "score": 4,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.3,
+            "beatRate": 34.1,
+            "avgAssetDrop": -2.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 42,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 73
         },
@@ -753,6 +1848,21 @@
           "m1": -27.999999999999993,
           "m3": -42.00477326968974,
           "score": 3,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.61,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.51,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 74
         },
@@ -763,6 +1873,21 @@
           "m1": -41.16161616161615,
           "m3": -42.75184275184275,
           "score": 1,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.25,
+            "beatRate": 29.3,
+            "avgAssetDrop": -2.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 36,
+            "upCount": 25,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 75
         },
@@ -773,6 +1898,21 @@
           "m1": -37.031484257871064,
           "m3": -62.76595744680851,
           "score": 0,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.63,
+            "beatRate": 35,
+            "avgAssetDrop": -2.53,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 43,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "IBOV",
           "rank": 76
         }
@@ -790,6 +1930,21 @@
           "m1": 240,
           "m3": 269.5652173913043,
           "score": 100,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.01,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.9,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 1
         },
@@ -800,6 +1955,21 @@
           "m1": 49.05660377358492,
           "m3": 128.2222222222222,
           "score": 99,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.34,
+            "beatRate": 62.6,
+            "avgAssetDrop": 0.45,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 77,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 2
         },
@@ -810,6 +1980,21 @@
           "m1": 100.64102564102564,
           "m3": 87.42514970059881,
           "score": 99,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.97,
+            "beatRate": 52.8,
+            "avgAssetDrop": 0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 3
         },
@@ -820,6 +2005,21 @@
           "m1": -8.711217183770891,
           "m3": 61.392405063291136,
           "score": 98,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.14,
+            "beatRate": 55.3,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 4
         },
@@ -830,6 +2030,21 @@
           "m1": 106.89655172413795,
           "m3": -17.808219178082197,
           "score": 98,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.54,
+            "beatRate": 61,
+            "avgAssetDrop": -0.36,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 5
         },
@@ -840,6 +2055,21 @@
           "m1": -1.5932521087160256,
           "m3": 26.506024096385538,
           "score": 97,
+          "resilience12m": {
+            "score": 62,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.26,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.63,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 6
         },
@@ -850,6 +2080,21 @@
           "m1": -24.752475247524753,
           "m3": 38.18181818181816,
           "score": 97,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.31,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 7
         },
@@ -860,6 +2105,21 @@
           "m1": 4.357338195077487,
           "m3": 21.0745258407953,
           "score": 96,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.79,
+            "beatRate": 78,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 8
         },
@@ -870,6 +2130,21 @@
           "m1": 18.74999999999998,
           "m3": 45.24793388429753,
           "score": 96,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.46,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 9
         },
@@ -880,6 +2155,21 @@
           "m1": 2.3255813953488413,
           "m3": 14.28571428571428,
           "score": 95,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.55,
+            "beatRate": 54.9,
+            "avgAssetDrop": -0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 45,
+            "matchedDays": 122,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 10
         },
@@ -890,6 +2180,21 @@
           "m1": 7.051282051282048,
           "m3": 10.231023102310232,
           "score": 95,
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.1,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.99,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 11
         },
@@ -900,6 +2205,21 @@
           "m1": -3.2258064516129115,
           "m3": 15.384615384615374,
           "score": 94,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.79,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.69,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 12
         },
@@ -910,6 +2230,21 @@
           "m1": -21.649484536082475,
           "m3": 24.590163934426236,
           "score": 94,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.17,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 13
         },
@@ -920,6 +2255,21 @@
           "m1": 0.09794319294809117,
           "m3": 12.307692307692308,
           "score": 93,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.05,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.95,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 14
         },
@@ -930,6 +2280,21 @@
           "m1": -31.744518589132507,
           "m3": 28.31541218637994,
           "score": 93,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.66,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 15
         },
@@ -940,6 +2305,21 @@
           "m1": -3.195488721804507,
           "m3": 12.445414847161572,
           "score": 92,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.14,
+            "beatRate": 50.4,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 16
         },
@@ -950,6 +2330,21 @@
           "m1": 0.9096244131455489,
           "m3": 9.696969696969692,
           "score": 92,
+          "resilience12m": {
+            "score": 86,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.5,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.4,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 17
         },
@@ -960,6 +2355,21 @@
           "m1": 0.4381161007666945,
           "m3": 4.919908466819223,
           "score": 91,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.84,
+            "beatRate": 78.9,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 18
         },
@@ -970,6 +2380,21 @@
           "m1": 4.999999999999982,
           "m3": 2.4390243902439046,
           "score": 91,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.84,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 82,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 19
         },
@@ -980,6 +2405,21 @@
           "m1": -8.171206225680939,
           "m3": 6.7873303167420795,
           "score": 90,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.24,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.66,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 20
         },
@@ -990,6 +2430,21 @@
           "m1": 4.069767441860472,
           "m3": -0.04653327128896212,
           "score": 90,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.37,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.52,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 21
         },
@@ -1000,6 +2455,21 @@
           "m1": -10.399999999999999,
           "m3": 7.519999999999993,
           "score": 89,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.39,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.51,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 22
         },
@@ -1010,6 +2480,21 @@
           "m1": 0.43478260869567187,
           "m3": 1.4270032930845389,
           "score": 89,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.63,
+            "beatRate": 60.2,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 23
         },
@@ -1020,6 +2505,21 @@
           "m1": -0.20263424518742745,
           "m3": 0.5102040816326481,
           "score": 88,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.36,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.54,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 24
         },
@@ -1030,6 +2530,21 @@
           "m1": 4.761904761904767,
           "m3": -2.2222222222222254,
           "score": 88,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.02,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.88,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 25
         },
@@ -1040,6 +2555,21 @@
           "m1": -0.9632751354605618,
           "m3": 0.6731946144430845,
           "score": 87,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.16,
+            "beatRate": 61,
+            "avgAssetDrop": -0.74,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 26
         },
@@ -1050,6 +2580,21 @@
           "m1": 2.564102564102577,
           "m3": -1.2345679012345734,
           "score": 87,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.56,
+            "beatRate": 61,
+            "avgAssetDrop": -0.34,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 27
         },
@@ -1060,6 +2605,21 @@
           "m1": -4.255319148936165,
           "m3": 1.6949152542372836,
           "score": 86,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.07,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.83,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 28
         },
@@ -1070,6 +2630,21 @@
           "m1": -15.986394557823125,
           "m3": 7.391304347826111,
           "score": 86,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.66,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 29
         },
@@ -1080,6 +2655,21 @@
           "m1": -2.4598930481283476,
           "m3": -0.2188183807440014,
           "score": 85,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.79,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 30
         },
@@ -1090,6 +2680,21 @@
           "m1": -23.17073170731707,
           "m3": 10.526315789473696,
           "score": 85,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.03,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.93,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 23,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 31
         },
@@ -1100,6 +2705,21 @@
           "m1": -7.769929364278516,
           "m3": 1.571678044133984,
           "score": 84,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.28,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.62,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 32
         },
@@ -1110,6 +2730,21 @@
           "m1": -10.593220338983055,
           "m3": 2.9268292682926855,
           "score": 84,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.09,
+            "beatRate": 47.2,
+            "avgAssetDrop": -0.99,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 33
         },
@@ -1120,6 +2755,21 @@
           "m1": -1.2847965738758016,
           "m3": -2.6193493874102303,
           "score": 83,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.55,
+            "beatRate": 65,
+            "avgAssetDrop": -0.34,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 80,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 34
         },
@@ -1130,6 +2780,21 @@
           "m1": -4.522613065326631,
           "m3": -0.9679821295606739,
           "score": 83,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.23,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.66,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 35
         },
@@ -1140,6 +2805,21 @@
           "m1": -15.779645191409909,
           "m3": 4.883720930232549,
           "score": 82,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.06,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.84,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 36
         },
@@ -1150,6 +2830,21 @@
           "m1": -2.3809523809523836,
           "m3": -2.6590693257359854,
           "score": 82,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.09,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 37
         },
@@ -1160,6 +2855,21 @@
           "m1": -4.177897574123978,
           "m3": -1.93103448275862,
           "score": 81,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.33,
+            "beatRate": 65.9,
+            "avgAssetDrop": -0.57,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 38
         },
@@ -1170,6 +2880,21 @@
           "m1": 1.2492563950029734,
           "m3": 27.2047832585949,
           "score": 81,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.52,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 39
         },
@@ -1180,6 +2905,21 @@
           "m1": -5.8394160583941535,
           "m3": -2.1986353297952954,
           "score": 80,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.18,
+            "beatRate": 52,
+            "avgAssetDrop": -0.71,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 40
         },
@@ -1190,6 +2930,21 @@
           "m1": -2.355460385438979,
           "m3": -4.080774084981065,
           "score": 80,
+          "resilience12m": {
+            "score": 98,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.82,
+            "beatRate": 71.9,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.89,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 51,
+            "matchedDays": 121,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 41
         },
@@ -1200,6 +2955,21 @@
           "m1": -10.524193548387096,
           "m3": 0.31645569620253333,
           "score": 79,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.26,
+            "beatRate": 48,
+            "avgAssetDrop": -1.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 42
         },
@@ -1210,6 +2980,21 @@
           "m1": -3.0425963488843855,
           "m3": -3.822937625754541,
           "score": 79,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.33,
+            "beatRate": 54.2,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.91,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 41,
+            "matchedDays": 120,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 43
         },
@@ -1220,6 +3005,21 @@
           "m1": -5.465213746856657,
           "m3": -2.607944732297063,
           "score": 78,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.23,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 44
         },
@@ -1230,6 +3030,21 @@
           "m1": -2.754621239579569,
           "m3": -4.1785714285714315,
           "score": 78,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.71,
+            "beatRate": 65,
+            "avgAssetDrop": -0.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 80,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 45
         },
@@ -1240,6 +3055,21 @@
           "m1": -5.066666666666664,
           "m3": -2.997275204359673,
           "score": 77,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.37,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.53,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 46
         },
@@ -1250,6 +3080,21 @@
           "m1": 0.27173913043476716,
           "m3": -6.345177664974622,
           "score": 77,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.62,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 47
         },
@@ -1260,6 +3105,21 @@
           "m1": -6.073943661971826,
           "m3": -4.046762589928054,
           "score": 76,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.76,
+            "beatRate": 68,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 53,
+            "matchedDays": 122,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 48
         },
@@ -1270,6 +3130,21 @@
           "m1": -9.176788124156543,
           "m3": -2.7456647398843903,
           "score": 76,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.13,
+            "beatRate": 49.6,
+            "avgAssetDrop": -1.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 49
         },
@@ -1280,6 +3155,21 @@
           "m1": -9.14634146341463,
           "m3": -3.2467532467532534,
           "score": 75,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.04,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.86,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 50
         },
@@ -1290,6 +3180,21 @@
           "m1": -5.3043478260869525,
           "m3": -5.550737207285328,
           "score": 75,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.11,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.79,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 51
         },
@@ -1300,6 +3205,21 @@
           "m1": 5.617977528089879,
           "m3": -11.432160804020096,
           "score": 74,
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.13,
+            "beatRate": 43.8,
+            "avgAssetDrop": -1.03,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 32,
+            "upCount": 22,
+            "matchedDays": 73,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 52
         },
@@ -1310,6 +3230,21 @@
           "m1": -15.295815295815295,
           "m3": -0.6207674943566555,
           "score": 74,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.05,
+            "beatRate": 46.3,
+            "avgAssetDrop": -0.94,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 53
         },
@@ -1320,6 +3255,21 @@
           "m1": -10.83009079118028,
           "m3": -3.169014084507038,
           "score": 73,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.18,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 54
         },
@@ -1330,6 +3280,21 @@
           "m1": -16.279069767441868,
           "m3": -0.34602076124568004,
           "score": 73,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.3,
+            "beatRate": 39.8,
+            "avgAssetDrop": -1.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 49,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 55
         },
@@ -1340,6 +3305,21 @@
           "m1": -5.277777777777781,
           "m3": -6.318681318681318,
           "score": 72,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.44,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.46,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 56
         },
@@ -1350,6 +3330,21 @@
           "m1": -1.3112884834663663,
           "m3": -9.086134453781513,
           "score": 72,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.42,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 57
         },
@@ -1360,6 +3355,21 @@
           "m1": -15.749525616698278,
           "m3": -1.3333333333333197,
           "score": 71,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.57,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.46,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 58
         },
@@ -1370,6 +3380,21 @@
           "m1": -9.335727109515268,
           "m3": -4.896421845574384,
           "score": 71,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.74,
+            "beatRate": 69.1,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 59
         },
@@ -1380,6 +3405,21 @@
           "m1": -3.4110535405872167,
           "m3": -8.432255423659429,
           "score": 70,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.66,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 60
         },
@@ -1390,6 +3430,21 @@
           "m1": -3.844660194174754,
           "m3": -8.29629629629629,
           "score": 70,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.42,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 61
         },
@@ -1400,6 +3455,21 @@
           "m1": -9.546925566343045,
           "m3": -5.307735742518361,
           "score": 69,
+          "resilience12m": {
+            "score": 86,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.41,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.49,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 62
         },
@@ -1410,6 +3480,21 @@
           "m1": -13.114754098360649,
           "m3": -3.8112522686025385,
           "score": 69,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.29,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.61,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 63
         },
@@ -1420,6 +3505,21 @@
           "m1": -5.116796440489447,
           "m3": -8.279569892473138,
           "score": 68,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.34,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 64
         },
@@ -1430,6 +3530,21 @@
           "m1": -7.4074074074074066,
           "m3": -7.213488507727783,
           "score": 68,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.62,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 65
         },
@@ -1440,6 +3555,21 @@
           "m1": -16.96606786427145,
           "m3": -2.3474178403755763,
           "score": 67,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.57,
+            "beatRate": 39,
+            "avgAssetDrop": -1.47,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 66
         },
@@ -1450,6 +3580,21 @@
           "m1": -11.161543222611915,
           "m3": -5.652936021034172,
           "score": 67,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.03,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.92,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 67
         },
@@ -1460,6 +3605,21 @@
           "m1": -7.847533632286985,
           "m3": -8.25892857142857,
           "score": 66,
+          "resilience12m": {
+            "score": 62,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.14,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.75,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 68
         },
@@ -1470,6 +3630,21 @@
           "m1": -12.457684495599185,
           "m3": -7.1120689655172376,
           "score": 66,
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0,
+            "beatRate": 44.7,
+            "avgAssetDrop": -0.9,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 69
         },
@@ -1480,6 +3655,21 @@
           "m1": -12.329863891112902,
           "m3": -7.828282828282839,
           "score": 65,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.06,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.84,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 70
         },
@@ -1490,6 +3680,21 @@
           "m1": -3.8461538461538547,
           "m3": -12.587412587412583,
           "score": 65,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 3.25,
+            "beatRate": 43.9,
+            "avgAssetDrop": 2.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 71
         },
@@ -1500,6 +3705,21 @@
           "m1": -19.905956112852664,
           "m3": -3.9473684210526327,
           "score": 64,
+          "resilience12m": {
+            "score": 54,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.1,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 72
         },
@@ -1510,6 +3730,21 @@
           "m1": -13.303167420814477,
           "m3": -7.902326475677757,
           "score": 64,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.38,
+            "beatRate": 42.7,
+            "avgAssetDrop": -1.29,
+            "avgBenchDrop": -0.91,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 26,
+            "matchedDays": 110,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 73
         },
@@ -1520,6 +3755,21 @@
           "m1": -10.588235294117643,
           "m3": -9.369676320272568,
           "score": 63,
+          "resilience12m": {
+            "score": 66,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.35,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.55,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 74
         },
@@ -1530,6 +3780,21 @@
           "m1": -15.675675675675683,
           "m3": -7.14285714285714,
           "score": 63,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.63,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.53,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 75
         },
@@ -1540,6 +3805,21 @@
           "m1": -11.830985915492953,
           "m3": -10.571428571428577,
           "score": 62,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.15,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.74,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 76
         },
@@ -1550,6 +3830,21 @@
           "m1": -4.50689289501589,
           "m3": 18.29228243021348,
           "score": 62,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.1,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 77
         },
@@ -1560,6 +3855,21 @@
           "m1": -14.03162055335968,
           "m3": -10.123966942148765,
           "score": 61,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0,
+            "beatRate": 46.3,
+            "avgAssetDrop": -0.9,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 78
         },
@@ -1570,6 +3880,21 @@
           "m1": 0,
           "m3": -18.324607329842923,
           "score": 61,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.99,
+            "beatRate": 65.9,
+            "avgAssetDrop": 0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 79
         },
@@ -1580,6 +3905,21 @@
           "m1": -12.442396313364057,
           "m3": -11.627906976744185,
           "score": 60,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.52,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.38,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 80
         },
@@ -1590,6 +3930,21 @@
           "m1": -6.111111111111112,
           "m3": -15.500000000000004,
           "score": 60,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.46,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.44,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 81
         },
@@ -1600,6 +3955,21 @@
           "m1": -7.515337423312873,
           "m3": -15.189873417721522,
           "score": 59,
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.09,
+            "beatRate": 46.3,
+            "avgAssetDrop": -0.99,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 82
         },
@@ -1610,6 +3980,21 @@
           "m1": -10.1123595505618,
           "m3": -14.590747330960863,
           "score": 59,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.21,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.69,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 83
         },
@@ -1620,6 +4005,21 @@
           "m1": -38.01452784503632,
           "m3": 0.39215686274509665,
           "score": 58,
+          "resilience12m": {
+            "score": 66,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.33,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.57,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 84
         },
@@ -1630,6 +4030,21 @@
           "m1": -8.792411528639189,
           "m3": -15.426251691474956,
           "score": 58,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.33,
+            "beatRate": 59.3,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 73,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 85
         },
@@ -1640,6 +4055,21 @@
           "m1": -9.677419354838701,
           "m3": -15.151515151515149,
           "score": 57,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.06,
+            "beatRate": 48,
+            "avgAssetDrop": -0.84,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 86
         },
@@ -1650,6 +4080,21 @@
           "m1": -12.612612612612628,
           "m3": -14.15929203539823,
           "score": 57,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.22,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.68,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 87
         },
@@ -1660,6 +4105,21 @@
           "m1": -17.716535433070867,
           "m3": -11.534391534391531,
           "score": 56,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.58,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 88
         },
@@ -1670,6 +4130,21 @@
           "m1": -16.666666666666664,
           "m3": -13.043478260869556,
           "score": 56,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.02,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.88,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 89
         },
@@ -1680,6 +4155,21 @@
           "m1": -15.309446254071657,
           "m3": -14.191419141914185,
           "score": 55,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.17,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.73,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 90
         },
@@ -1690,6 +4180,21 @@
           "m1": -7.801418439716312,
           "m3": -19.254658385093173,
           "score": 55,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.1,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 91
         },
@@ -1700,6 +4205,21 @@
           "m1": -11.674718196457324,
           "m3": -17.704426106526626,
           "score": 54,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.34,
+            "beatRate": 58.5,
+            "avgAssetDrop": -0.55,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 92
         },
@@ -1710,6 +4230,21 @@
           "m1": -16.187806587245966,
           "m3": -15.417256011315416,
           "score": 54,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.14,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 93
         },
@@ -1720,6 +4255,21 @@
           "m1": -42.2195416164053,
           "m3": -1.8442622950819665,
           "score": 53,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.23,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 94
         },
@@ -1730,6 +4280,21 @@
           "m1": -12,
           "m3": -18.518518518518523,
           "score": 53,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.05,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.95,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 25,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 95
         },
@@ -1740,6 +4305,21 @@
           "m1": -16.428571428571438,
           "m3": -17.16814159292036,
           "score": 52,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.49,
+            "beatRate": 69.9,
+            "avgAssetDrop": -0.41,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 86,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 96
         },
@@ -1750,6 +4330,21 @@
           "m1": -16.736111111111107,
           "m3": -17.02422145328719,
           "score": 52,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.15,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.05,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 97
         },
@@ -1760,6 +4355,21 @@
           "m1": -16.217430368373776,
           "m3": -18.91304347826087,
           "score": 51,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.26,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.64,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 98
         },
@@ -1770,6 +4380,21 @@
           "m1": 3.373945641986875,
           "m3": 3.373945641986875,
           "score": 51,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.21,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.69,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 99
         },
@@ -1780,6 +4405,21 @@
           "m1": 0.05141388174807471,
           "m3": 4.623655913978486,
           "score": 50,
+          "resilience12m": {
+            "score": 98,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.65,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 100
         },
@@ -1790,6 +4430,21 @@
           "m1": -12.488114104595882,
           "m3": -23.26292384658143,
           "score": 49,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.4,
+            "beatRate": 60.2,
+            "avgAssetDrop": -0.5,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 101
         },
@@ -1800,6 +4455,21 @@
           "m1": -10.11523687580026,
           "m3": -24.75884244372991,
           "score": 49,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.28,
+            "beatRate": 58.5,
+            "avgAssetDrop": -0.62,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 102
         },
@@ -1810,6 +4480,21 @@
           "m1": -13.151927437641719,
           "m3": 9.742120343839545,
           "score": 48,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.18,
+            "beatRate": 51.9,
+            "avgAssetDrop": -1.1,
+            "avgBenchDrop": -0.92,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 38,
+            "matchedDays": 108,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 103
         },
@@ -1820,6 +4505,21 @@
           "m1": -9.523809523809534,
           "m3": -25.974025974025984,
           "score": 48,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.12,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 104
         },
@@ -1830,6 +4530,21 @@
           "m1": 0.3561887800534125,
           "m3": 1.7148014440433235,
           "score": 47,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.01,
+            "beatRate": 83.7,
+            "avgAssetDrop": 0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 103,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 105
         },
@@ -1840,6 +4555,21 @@
           "m1": -16.2008733624454,
           "m3": -22.745571658615127,
           "score": 47,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.49,
+            "beatRate": 39.4,
+            "avgAssetDrop": -1.36,
+            "avgBenchDrop": -0.87,
+            "marketDownDays": 123,
+            "beatCount": 28,
+            "upCount": 16,
+            "matchedDays": 71,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 106
         },
@@ -1850,6 +4580,21 @@
           "m1": -0.990099009900991,
           "m3": -32.20338983050848,
           "score": 46,
+          "resilience12m": {
+            "score": 78,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.47,
+            "beatRate": 58.5,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 107
         },
@@ -1860,6 +4605,21 @@
           "m1": -25.87064676616915,
           "m3": 14.176245210727977,
           "score": 46,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.63,
+            "beatRate": 39.8,
+            "avgAssetDrop": -1.52,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 49,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 108
         },
@@ -1870,6 +4630,21 @@
           "m1": -34.572490706319705,
           "m3": -15.384615384615385,
           "score": 45,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.02,
+            "beatRate": 39,
+            "avgAssetDrop": -1.92,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 109
         },
@@ -1880,6 +4655,21 @@
           "m1": -29.11392405063291,
           "m3": -18.84057971014491,
           "score": 45,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.25,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 110
         },
@@ -1890,6 +4680,21 @@
           "m1": -25.816993464052285,
           "m3": -20.90592334494774,
           "score": 44,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.19,
+            "beatRate": 53.7,
+            "avgAssetDrop": -1.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 111
         },
@@ -1900,6 +4705,21 @@
           "m1": -2.012578616352201,
           "m3": -1.07936507936508,
           "score": 44,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.31,
+            "beatRate": 68.3,
+            "avgAssetDrop": -0.59,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 84,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 112
         },
@@ -1910,6 +4730,21 @@
           "m1": -24.390243902439025,
           "m3": -23.69230769230769,
           "score": 43,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.69,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 113
         },
@@ -1920,6 +4755,21 @@
           "m1": -3.686635944700467,
           "m3": -1.7241379310344862,
           "score": 43,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.19,
+            "beatRate": 48.8,
+            "avgAssetDrop": -1.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 114
         },
@@ -1930,6 +4780,21 @@
           "m1": -12.49999999999999,
           "m3": -30.92105263157895,
           "score": 42,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.34,
+            "beatRate": 61,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 115
         },
@@ -1940,6 +4805,21 @@
           "m1": -22.06076618229854,
           "m3": 7.078039927404722,
           "score": 42,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.21,
+            "beatRate": 47.2,
+            "avgAssetDrop": -1.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 116
         },
@@ -1950,6 +4830,21 @@
           "m1": -25.5079006772009,
           "m3": -24.82915717539863,
           "score": 41,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.27,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 117
         },
@@ -1960,6 +4855,21 @@
           "m1": -25.076923076923073,
           "m3": -25.076923076923073,
           "score": 41,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.09,
+            "beatRate": 52,
+            "avgAssetDrop": -0.98,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 118
         },
@@ -1970,6 +4880,21 @@
           "m1": -21.378091872791515,
           "m3": -27.22812755519215,
           "score": 40,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.19,
+            "beatRate": 47.1,
+            "avgAssetDrop": -1.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 42,
+            "matchedDays": 121,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 119
         },
@@ -1980,6 +4905,21 @@
           "m1": -3.4737165693206395,
           "m3": -3.7400367872470808,
           "score": 40,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.11,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.79,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 120
         },
@@ -1990,6 +4930,21 @@
           "m1": -9.69834576710995,
           "m3": -0.6778451658936868,
           "score": 39,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.01,
+            "beatRate": 48,
+            "avgAssetDrop": -0.89,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 121
         },
@@ -2000,6 +4955,21 @@
           "m1": -12.693935119887156,
           "m3": 0.8964955175224221,
           "score": 39,
+          "resilience12m": {
+            "score": 50,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.08,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.98,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 122
         },
@@ -2010,6 +4980,21 @@
           "m1": -2.117148906139732,
           "m3": -5.324232081911273,
           "score": 38,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.07,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.97,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 123
         },
@@ -2020,6 +5005,21 @@
           "m1": -30.048780487804883,
           "m3": -23.47918890074706,
           "score": 38,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.17,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.73,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 124
         },
@@ -2030,6 +5030,21 @@
           "m1": -37.910447761194035,
           "m3": -19.691119691119685,
           "score": 37,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.1,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 125
         },
@@ -2040,6 +5055,21 @@
           "m1": -13.93442622950819,
           "m3": -32.692307692307686,
           "score": 37,
+          "resilience12m": {
+            "score": 78,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.6,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 126
         },
@@ -2050,6 +5080,21 @@
           "m1": -23.4113712374582,
           "m3": 5.045871559633031,
           "score": 36,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.9,
+            "beatRate": 39,
+            "avgAssetDrop": -1.79,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 127
         },
@@ -2060,6 +5105,21 @@
           "m1": -2.4421593830334265,
           "m3": -6.411837237977802,
           "score": 36,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.29,
+            "beatRate": 58.5,
+            "avgAssetDrop": -0.61,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 128
         },
@@ -2070,6 +5130,21 @@
           "m1": -25.00000000000001,
           "m3": -27.54716981132076,
           "score": 35,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.36,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 129
         },
@@ -2080,6 +5155,21 @@
           "m1": -30.250383239652535,
           "m3": -25.266903914590742,
           "score": 35,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.03,
+            "beatRate": 33,
+            "avgAssetDrop": -1.95,
+            "avgBenchDrop": -0.91,
+            "marketDownDays": 123,
+            "beatCount": 36,
+            "upCount": 23,
+            "matchedDays": 109,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 130
         },
@@ -2090,6 +5180,21 @@
           "m1": -6.315789473684208,
           "m3": -5.066666666666664,
           "score": 34,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.08,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.98,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 131
         },
@@ -2100,6 +5205,21 @@
           "m1": -24.29378531073446,
           "m3": -28.912466843501328,
           "score": 34,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.26,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.63,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 132
         },
@@ -2110,6 +5230,21 @@
           "m1": -37.743950039032015,
           "m3": -21.698576337751607,
           "score": 33,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.88,
+            "beatRate": 39.8,
+            "avgAssetDrop": -1.8,
+            "avgBenchDrop": -0.92,
+            "marketDownDays": 123,
+            "beatCount": 43,
+            "upCount": 31,
+            "matchedDays": 108,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 133
         },
@@ -2120,6 +5255,21 @@
           "m1": -16.161616161616166,
           "m3": -33.60000000000001,
           "score": 33,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.28,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 134
         },
@@ -2130,6 +5280,21 @@
           "m1": -0.7999999999999896,
           "m3": -41.87499999999999,
           "score": 32,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 7.65,
+            "beatRate": 56.9,
+            "avgAssetDrop": 6.75,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 135
         },
@@ -2140,6 +5305,21 @@
           "m1": -16.483126110124324,
           "m3": -1.2184873949579789,
           "score": 32,
+          "resilience12m": {
+            "score": 34,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.21,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 136
         },
@@ -2150,6 +5330,21 @@
           "m1": -17.741935483870964,
           "m3": -33.76623376623377,
           "score": 31,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.59,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 137
         },
@@ -2160,6 +5355,21 @@
           "m1": -25.50761421319797,
           "m3": -29.700598802395206,
           "score": 31,
+          "resilience12m": {
+            "score": 46,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.01,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.89,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 138
         },
@@ -2170,6 +5380,21 @@
           "m1": -10.752212389380533,
           "m3": -4.72366556447803,
           "score": 30,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.08,
+            "beatRate": 59.3,
+            "avgAssetDrop": -0.82,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 73,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 139
         },
@@ -2180,6 +5405,21 @@
           "m1": -35.483870967741936,
           "m3": -25.133689839572206,
           "score": 30,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.06,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.96,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 140
         },
@@ -2190,6 +5430,21 @@
           "m1": -11.364967779730517,
           "m3": -5.081555834378914,
           "score": 29,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.51,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 141
         },
@@ -2200,6 +5455,21 @@
           "m1": -11.41141141141141,
           "m3": -6.050955414012737,
           "score": 29,
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.07,
+            "beatRate": 52,
+            "avgAssetDrop": -0.82,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 142
         },
@@ -2210,6 +5480,21 @@
           "m1": 0.7843137254901933,
           "m3": -12.881355932203398,
           "score": 28,
+          "resilience12m": {
+            "score": 26,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.23,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 143
         },
@@ -2220,6 +5505,21 @@
           "m1": -26.119402985074636,
           "m3": -31.72413793103448,
           "score": 28,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.41,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 144
         },
@@ -2230,6 +5530,21 @@
           "m1": -23.96694214876034,
           "m3": -33.04221251819506,
           "score": 27,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.14,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.76,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 145
         },
@@ -2240,6 +5555,21 @@
           "m1": -0.11123470522802492,
           "m3": -12.815533980582527,
           "score": 27,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.2,
+            "beatRate": 60.2,
+            "avgAssetDrop": -0.7,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 146
         },
@@ -2250,6 +5580,21 @@
           "m1": -6.345332519829173,
           "m3": -10.495626822157433,
           "score": 26,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.03,
+            "beatRate": 52,
+            "avgAssetDrop": -0.86,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 147
         },
@@ -2260,6 +5605,21 @@
           "m1": -25.690607734806637,
           "m3": -34.229828850855746,
           "score": 26,
+          "resilience12m": {
+            "score": 26,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.33,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 148
         },
@@ -2270,6 +5630,21 @@
           "m1": -13.309352517985607,
           "m3": -8.015267175572516,
           "score": 25,
+          "resilience12m": {
+            "score": 38,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.09,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.99,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 149
         },
@@ -2280,6 +5655,21 @@
           "m1": -14.335394126738787,
           "m3": -7.624999999999993,
           "score": 25,
+          "resilience12m": {
+            "score": 54,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.01,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.91,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 150
         },
@@ -2290,6 +5680,21 @@
           "m1": -6.543471675249912,
           "m3": -14.849572177753235,
           "score": 24,
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.18,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 151
         },
@@ -2300,6 +5705,21 @@
           "m1": -28.98172323759791,
           "m3": -2.857142857142847,
           "score": 24,
+          "resilience12m": {
+            "score": 10,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.91,
+            "beatRate": 39,
+            "avgAssetDrop": -1.81,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 152
         },
@@ -2310,6 +5730,21 @@
           "m1": -16.33466135458168,
           "m3": -10.409556313993173,
           "score": 23,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.52,
+            "beatRate": 39,
+            "avgAssetDrop": -1.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 153
         },
@@ -2320,6 +5755,21 @@
           "m1": -5.838041431261765,
           "m3": -16.52754590984975,
           "score": 23,
+          "resilience12m": {
+            "score": 22,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.28,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 154
         },
@@ -2330,6 +5780,21 @@
           "m1": -22.22959522229595,
           "m3": -9.846153846153838,
           "score": 22,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.17,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 155
         },
@@ -2340,6 +5805,21 @@
           "m1": -21.342512908777955,
           "m3": -10.392156862745082,
           "score": 22,
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.31,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 156
         },
@@ -2350,6 +5830,21 @@
           "m1": -22.803738317757006,
           "m3": -9.825327510917036,
           "score": 21,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.13,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.76,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 157
         },
@@ -2360,6 +5855,21 @@
           "m1": -12.216216216216225,
           "m3": -16.374871266735337,
           "score": 21,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.01,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.91,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 158
         },
@@ -2370,6 +5880,21 @@
           "m1": -21.595900439238648,
           "m3": -11.779242174629323,
           "score": 20,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.27,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 159
         },
@@ -2380,6 +5905,21 @@
           "m1": -22.26415094339623,
           "m3": -12.091038406827892,
           "score": 20,
+          "resilience12m": {
+            "score": 34,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.12,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 160
         },
@@ -2390,6 +5930,21 @@
           "m1": -9.429941395844432,
           "m3": -19.29102706124386,
           "score": 19,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.19,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.7,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 161
         },
@@ -2400,6 +5955,21 @@
           "m1": -20.48192771084336,
           "m3": -13.725490196078427,
           "score": 19,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.04,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.93,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 162
         },
@@ -2410,6 +5980,21 @@
           "m1": -20.62992125984251,
           "m3": -14.936708860759495,
           "score": 18,
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.36,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 163
         },
@@ -2420,6 +6005,21 @@
           "m1": -16.570188133140384,
           "m3": -17.16954022988506,
           "score": 18,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.16,
+            "beatRate": 48.8,
+            "avgAssetDrop": -1.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 164
         },
@@ -2430,6 +6030,21 @@
           "m1": -33.33333333333333,
           "m3": -42.85714285714286,
           "score": 17,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.27,
+            "beatRate": 60.2,
+            "avgAssetDrop": -2.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 18,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 165
         },
@@ -2440,6 +6055,21 @@
           "m1": -24.76370510396976,
           "m3": -15.138592750533054,
           "score": 17,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.56,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.45,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 166
         },
@@ -2450,6 +6080,21 @@
           "m1": -37.24966622162884,
           "m3": -41.68734491315137,
           "score": 16,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 6.51,
+            "beatRate": 48.8,
+            "avgAssetDrop": 5.61,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 167
         },
@@ -2460,6 +6105,21 @@
           "m1": -23.51485148514851,
           "m3": -16.93548387096775,
           "score": 16,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.53,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 168
         },
@@ -2470,6 +6130,21 @@
           "m1": -21.5633423180593,
           "m3": -18.028169014084494,
           "score": 15,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.3,
+            "beatRate": 47.2,
+            "avgAssetDrop": -1.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 169
         },
@@ -2480,6 +6155,21 @@
           "m1": -31.10236220472441,
           "m3": -13.151364764267992,
           "score": 15,
+          "resilience12m": {
+            "score": 10,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.41,
+            "beatRate": 35.8,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 44,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 170
         },
@@ -2490,6 +6180,21 @@
           "m1": -18.689710610932476,
           "m3": -20.44828942194259,
           "score": 14,
+          "resilience12m": {
+            "score": 46,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.05,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.94,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 171
         },
@@ -2500,6 +6205,21 @@
           "m1": -23.529411764705877,
           "m3": -18.896925858951175,
           "score": 14,
+          "resilience12m": {
+            "score": 22,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.37,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 172
         },
@@ -2510,6 +6230,21 @@
           "m1": -29.481132075471695,
           "m3": -49.916247906197654,
           "score": 13,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.44,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.33,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 173
         },
@@ -2520,6 +6255,21 @@
           "m1": -9.438775510204088,
           "m3": -27.551020408163275,
           "score": 13,
+          "resilience12m": {
+            "score": 38,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.15,
+            "beatRate": 49.6,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 174
         },
@@ -2530,6 +6280,21 @@
           "m1": -31.090487238979104,
           "m3": -16.573033707865157,
           "score": 12,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.89,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.79,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 175
         },
@@ -2540,6 +6305,21 @@
           "m1": -20.271348762968866,
           "m3": -23.565416985462896,
           "score": 12,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.36,
+            "beatRate": 48,
+            "avgAssetDrop": -1.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 176
         },
@@ -2550,6 +6330,21 @@
           "m1": -17.154811715481166,
           "m3": -25.283018867924522,
           "score": 11,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.93,
+            "beatRate": 37,
+            "avgAssetDrop": -1.86,
+            "avgBenchDrop": -0.93,
+            "marketDownDays": 123,
+            "beatCount": 37,
+            "upCount": 25,
+            "matchedDays": 100,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 177
         },
@@ -2560,6 +6355,21 @@
           "m1": -21.416333523700747,
           "m3": -24.685276409414335,
           "score": 11,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.19,
+            "beatRate": 48.8,
+            "avgAssetDrop": -1.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "benchmark": "SMLL",
           "rank": 178
         },
@@ -2570,6 +6380,21 @@
           "m1": -28.115942028985508,
           "m3": -22.012578616352208,
           "score": 10,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.86,
+            "beatRate": 34.1,
+            "avgAssetDrop": -1.76,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 42,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 179
         },
@@ -2580,6 +6405,21 @@
           "m1": -36.29032258064516,
           "m3": -51.53374233128834,
           "score": 10,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.71,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.6,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 180
         },
@@ -2590,6 +6430,21 @@
           "m1": -36.045681655960024,
           "m3": -19.060523938572715,
           "score": 9,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.66,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 181
         },
@@ -2600,6 +6455,21 @@
           "m1": -37.086092715231786,
           "m3": -24,
           "score": 9,
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.48,
+            "beatRate": 37.4,
+            "avgAssetDrop": -2.37,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 182
         },
@@ -2610,6 +6480,21 @@
           "m1": -31.473010064043915,
           "m3": -27.422480620155042,
           "score": 8,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.91,
+            "beatRate": 33.3,
+            "avgAssetDrop": -1.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 41,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 183
         },
@@ -2620,6 +6505,21 @@
           "m1": -46.05873261205564,
           "m3": -52.75270758122743,
           "score": 8,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.7,
+            "beatRate": 38.8,
+            "avgAssetDrop": -1.61,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 31,
+            "upCount": 24,
+            "matchedDays": 80,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 184
         },
@@ -2630,6 +6530,21 @@
           "m1": -25.418569254185684,
           "m3": -33.287950987066026,
           "score": 7,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.45,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.34,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 185
         },
@@ -2640,6 +6555,21 @@
           "m1": -31.78082191780821,
           "m3": -30.737134909596662,
           "score": 7,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.48,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.38,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 186
         },
@@ -2650,6 +6580,21 @@
           "m1": -33.592233009708735,
           "m3": -30.204081632653068,
           "score": 6,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.83,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.73,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 187
         },
@@ -2660,6 +6605,21 @@
           "m1": -43.89999999999999,
           "m3": -28.807106598984767,
           "score": 6,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.67,
+            "beatRate": 28.5,
+            "avgAssetDrop": -2.57,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 35,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 188
         },
@@ -2670,6 +6630,21 @@
           "m1": -33.40380549682877,
           "m3": -34.78260869565217,
           "score": 5,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.73,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.63,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 189
         },
@@ -2680,6 +6655,21 @@
           "m1": -45.84717607973422,
           "m3": -29.43722943722944,
           "score": 5,
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.18,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 40,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 190
         },
@@ -2690,6 +6680,21 @@
           "m1": -38.08229813664597,
           "m3": -35.45123431808985,
           "score": 4,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.06,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.96,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 191
         },
@@ -2700,6 +6705,21 @@
           "m1": -33.28358208955224,
           "m3": -39.2663043478261,
           "score": 4,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.07,
+            "beatRate": 39,
+            "avgAssetDrop": -1.96,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 192
         },
@@ -2710,6 +6730,21 @@
           "m1": -42.01680672268908,
           "m3": -67.7570093457944,
           "score": 3,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.71,
+            "beatRate": 53.7,
+            "avgAssetDrop": -1.6,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 193
         },
@@ -2720,6 +6755,21 @@
           "m1": -35.53191489361702,
           "m3": -38.60182370820668,
           "score": 3,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 194
         },
@@ -2730,6 +6780,21 @@
           "m1": -46.308724832214764,
           "m3": -38.93129770992366,
           "score": 2,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.52,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 195
         },
@@ -2740,6 +6805,21 @@
           "m1": -49.74039460020769,
           "m3": -37.224383916990924,
           "score": 2,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.8,
+            "beatRate": 28.5,
+            "avgAssetDrop": -1.69,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 35,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 196
         },
@@ -2750,6 +6830,21 @@
           "m1": -41.49326805385557,
           "m3": -49.41798941798942,
           "score": 1,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.13,
+            "beatRate": 34.1,
+            "avgAssetDrop": -2.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 42,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 197
         },
@@ -2760,6 +6855,21 @@
           "m1": -8.117443868739205,
           "m3": -77.36170212765957,
           "score": 1,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.74,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.64,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "benchmark": "SMLL",
           "rank": 198
         },
@@ -2770,6 +6880,21 @@
           "m1": -83.33333333333334,
           "m3": -85.36585365853658,
           "score": 0,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 90.36,
+            "beatRate": 55.3,
+            "avgAssetDrop": 89.47,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "benchmark": "B3 fora de IBOV/SMLL",
           "rank": 199
         }
@@ -2787,6 +6912,21 @@
           "m1": 1.0476512335248378,
           "m3": 1.4109347442680775,
           "score": 100,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.81,
+            "beatRate": 85.4,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 105,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 1
         },
         {
@@ -2796,6 +6936,21 @@
           "m1": 2.146690518783534,
           "m3": -0.3490401396160636,
           "score": 99,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.74,
+            "beatRate": 70.7,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 2
         },
         {
@@ -2805,6 +6960,21 @@
           "m1": 1.1004126547455195,
           "m3": -1.34228187919464,
           "score": 98,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.88,
+            "beatRate": 87,
+            "avgAssetDrop": -0.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 107,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 3
         },
         {
@@ -2814,6 +6984,21 @@
           "m1": -2.497027348394776,
           "m3": -0.36452004860269005,
           "score": 97,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.81,
+            "beatRate": 82.9,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 102,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 4
         },
         {
@@ -2823,6 +7008,21 @@
           "m1": -1.9090813205358104,
           "m3": -1.4830508474576343,
           "score": 96,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.79,
+            "beatRate": 80.5,
+            "avgAssetDrop": -0.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 99,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 5
         },
         {
@@ -2832,6 +7032,21 @@
           "m1": -1.4268727705113005,
           "m3": -1.840688912809485,
           "score": 95,
+          "resilience12m": {
+            "score": 78,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.79,
+            "beatRate": 78.9,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 6
         },
         {
@@ -2841,6 +7056,21 @@
           "m1": -2.1352313167259718,
           "m3": -1.5513126491646823,
           "score": 94,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.84,
+            "beatRate": 87,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 107,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 7
         },
         {
@@ -2850,6 +7080,21 @@
           "m1": -2.277279915656294,
           "m3": -1.477465986394555,
           "score": 93,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.74,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 8
         },
         {
@@ -2859,6 +7104,21 @@
           "m1": -4.3887147335423204,
           "m3": -0.6514657980456029,
           "score": 92,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.68,
+            "beatRate": 72.4,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 89,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 9
         },
         {
@@ -2868,6 +7128,21 @@
           "m1": -1.0309278350515427,
           "m3": -2.866779089376059,
           "score": 91,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.83,
+            "beatRate": 86.2,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 106,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 10
         },
         {
@@ -2877,6 +7152,21 @@
           "m1": -0.14204545454544748,
           "m3": -3.434065934065933,
           "score": 90,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.73,
+            "beatRate": 74,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 91,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 11
         },
         {
@@ -2886,6 +7176,21 @@
           "m1": -1.3345864661654105,
           "m3": -2.859257888405653,
           "score": 89,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.85,
+            "beatRate": 85.4,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 105,
+            "upCount": 59,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 12
         },
         {
@@ -2895,6 +7200,21 @@
           "m1": -1.5873015873015817,
           "m3": -3.2761310452418035,
           "score": 88,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 13
         },
         {
@@ -2904,6 +7224,21 @@
           "m1": -3.0093093743234434,
           "m3": -2.545138133565372,
           "score": 87,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.73,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 14
         },
         {
@@ -2913,6 +7248,21 @@
           "m1": -4.680810579393013,
           "m3": -1.8707149853085192,
           "score": 86,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.78,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 15
         },
         {
@@ -2922,6 +7272,21 @@
           "m1": -3.1419284940411796,
           "m3": -2.826086956521734,
           "score": 85,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.81,
+            "beatRate": 85.4,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 105,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 16
         },
         {
@@ -2931,6 +7296,21 @@
           "m1": -5.329000812347672,
           "m3": -1.7203575645133973,
           "score": 84,
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.74,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 61,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 17
         },
         {
@@ -2940,6 +7320,21 @@
           "m1": -2.4144869215291798,
           "m3": -3.2901296111665035,
           "score": 83,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.73,
+            "beatRate": 78,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 18
         },
         {
@@ -2949,6 +7344,21 @@
           "m1": -6.259130239352729,
           "m3": -1.348155156102182,
           "score": 83,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.74,
+            "beatRate": 78,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 19
         },
         {
@@ -2958,6 +7368,21 @@
           "m1": -5.334928229665071,
           "m3": -1.8844532606000497,
           "score": 82,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.67,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 20
         },
         {
@@ -2967,6 +7392,21 @@
           "m1": -1.5534549717886703,
           "m3": -3.9465217702152056,
           "score": 81,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.87,
+            "beatRate": 84.6,
+            "avgAssetDrop": -0.03,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 104,
+            "upCount": 67,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 21
         },
         {
@@ -2976,6 +7416,21 @@
           "m1": -6.190476190476191,
           "m3": -1.5984015984015998,
           "score": 80,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.73,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 22
         },
         {
@@ -2985,6 +7440,21 @@
           "m1": -7.065146152837853,
           "m3": -1.3359309768995131,
           "score": 79,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.73,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 23
         },
         {
@@ -2994,6 +7464,21 @@
           "m1": -2.409638554216864,
           "m3": -4.379648211545262,
           "score": 78,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 24
         },
         {
@@ -3003,6 +7488,21 @@
           "m1": -2.715466351829998,
           "m3": -4.297328687572577,
           "score": 77,
+          "resilience12m": {
+            "score": 66,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 80.5,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 99,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 25
         },
         {
@@ -3012,6 +7512,21 @@
           "m1": -3.6383682469680267,
           "m3": -3.850385038503845,
           "score": 76,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.77,
+            "beatRate": 82.1,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 101,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 26
         },
         {
@@ -3021,6 +7536,21 @@
           "m1": -2.164179104477615,
           "m3": -4.647610735326213,
           "score": 75,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.76,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 27
         },
         {
@@ -3030,6 +7560,21 @@
           "m1": -1.744397334948511,
           "m3": -4.967779730521382,
           "score": 74,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.79,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 28
         },
         {
@@ -3039,6 +7584,21 @@
           "m1": -2.611812905428479,
           "m3": -4.7579298831385675,
           "score": 73,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.64,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 29
         },
         {
@@ -3048,6 +7608,21 @@
           "m1": -4.146232724030307,
           "m3": -4.5958795562599075,
           "score": 72,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 30
         },
         {
@@ -3057,6 +7632,21 @@
           "m1": -3.6616161616161658,
           "m3": -4.898417050978443,
           "score": 71,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.79,
+            "beatRate": 80.5,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 99,
+            "upCount": 60,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 31
         },
         {
@@ -3066,6 +7656,21 @@
           "m1": -2.517564402810313,
           "m3": -5.7298154229419085,
           "score": 70,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 32
         },
         {
@@ -3075,6 +7680,21 @@
           "m1": -2.746365105008086,
           "m3": -5.642633228840133,
           "score": 69,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.76,
+            "beatRate": 82.9,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 102,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 33
         },
         {
@@ -3084,6 +7704,21 @@
           "m1": -1.754385964912275,
           "m3": -6.306306306306297,
           "score": 68,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.67,
+            "beatRate": 74,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 91,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 34
         },
         {
@@ -3093,6 +7728,21 @@
           "m1": -5.4704920469748615,
           "m3": -4.361558129041954,
           "score": 67,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 82,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 35
         },
         {
@@ -3102,6 +7752,21 @@
           "m1": -3.689320388349515,
           "m3": -5.424730670225952,
           "score": 66,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.73,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 36
         },
         {
@@ -3111,6 +7776,21 @@
           "m1": -2.522464003464331,
           "m3": -6.208333333333327,
           "score": 65,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.74,
+            "beatRate": 74,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 91,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 37
         },
         {
@@ -3120,6 +7800,21 @@
           "m1": -1.9083969465648942,
           "m3": -6.545454545454554,
           "score": 64,
+          "resilience12m": {
+            "score": 22,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.6,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 38
         },
         {
@@ -3129,6 +7824,21 @@
           "m1": -3.574902723735407,
           "m3": -5.696277797597816,
           "score": 63,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.82,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 64,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 39
         },
         {
@@ -3138,6 +7848,21 @@
           "m1": -1.9509703779366783,
           "m3": -6.787725771994568,
           "score": 62,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.76,
+            "beatRate": 78,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 40
         },
         {
@@ -3147,6 +7872,21 @@
           "m1": -4.378531073446334,
           "m3": -5.57880055788006,
           "score": 61,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.58,
+            "beatRate": 72.4,
+            "avgAssetDrop": -0.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 89,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 41
         },
         {
@@ -3156,6 +7896,21 @@
           "m1": -0.5620082427875706,
           "m3": -7.831220698037866,
           "score": 60,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 42
         },
         {
@@ -3165,6 +7920,21 @@
           "m1": -5.179704016913311,
           "m3": -5.379746835443033,
           "score": 59,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.81,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 63,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 43
         },
         {
@@ -3174,6 +7944,21 @@
           "m1": -3.04449648711943,
           "m3": -6.546275395033863,
           "score": 58,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.82,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 44
         },
         {
@@ -3183,6 +7968,21 @@
           "m1": -1.920878115710034,
           "m3": -7.264864864864862,
           "score": 57,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.72,
+            "beatRate": 72.4,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 89,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 45
         },
         {
@@ -3192,6 +7992,21 @@
           "m1": -0.36057692307693845,
           "m3": -8.194905869324476,
           "score": 56,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.76,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 46
         },
         {
@@ -3201,6 +8016,21 @@
           "m1": -5.584415584415581,
           "m3": -5.449343217583557,
           "score": 55,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 47
         },
         {
@@ -3210,6 +8040,21 @@
           "m1": -2.2163588390501254,
           "m3": -7.36852629474104,
           "score": 54,
+          "resilience12m": {
+            "score": 98,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.83,
+            "beatRate": 86.2,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 106,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 48
         },
         {
@@ -3219,6 +8064,21 @@
           "m1": -5.1133222775013865,
           "m3": -5.945205479452065,
           "score": 53,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.81,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 49
         },
         {
@@ -3228,6 +8088,21 @@
           "m1": -4.276729559748416,
           "m3": -6.431476402156433,
           "score": 52,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.82,
+            "beatRate": 88.6,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 109,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 50
         },
         {
@@ -3237,6 +8112,21 @@
           "m1": -3.4335303735379297,
           "m3": -6.978434698328084,
           "score": 51,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.64,
+            "beatRate": 69.1,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 51
         },
         {
@@ -3246,6 +8136,21 @@
           "m1": -4.1367713004484274,
           "m3": -6.638279288131887,
           "score": 50,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.75,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 52
         },
         {
@@ -3255,6 +8160,21 @@
           "m1": -3.1624863685932314,
           "m3": -7.306889352818368,
           "score": 50,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.77,
+            "beatRate": 82.1,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 101,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 53
         },
         {
@@ -3264,6 +8184,21 @@
           "m1": -2.850260939381777,
           "m3": -7.615957243748806,
           "score": 49,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 54
         },
         {
@@ -3273,6 +8208,21 @@
           "m1": -4.72673559822746,
           "m3": -6.657018813314042,
           "score": 48,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.74,
+            "beatRate": 82.9,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 102,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 55
         },
         {
@@ -3282,6 +8232,21 @@
           "m1": -0.48013967699693794,
           "m3": -8.982035928143716,
           "score": 47,
+          "resilience12m": {
+            "score": 62,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.68,
+            "beatRate": 78,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 56
         },
         {
@@ -3291,6 +8256,21 @@
           "m1": -4.9482163406214035,
           "m3": -6.666666666666665,
           "score": 46,
+          "resilience12m": {
+            "score": 50,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.74,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 57
         },
         {
@@ -3300,6 +8280,21 @@
           "m1": -5.101455921128051,
           "m3": -6.5899345520198604,
           "score": 45,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.77,
+            "beatRate": 79.7,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 98,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 58
         },
         {
@@ -3309,6 +8304,21 @@
           "m1": -4.83434317390744,
           "m3": -6.792929292929307,
           "score": 44,
+          "resilience12m": {
+            "score": 38,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.68,
+            "beatRate": 74,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 91,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 59
         },
         {
@@ -3318,6 +8328,21 @@
           "m1": -7.772020725388595,
           "m3": -5.919661733615222,
           "score": 43,
+          "resilience12m": {
+            "score": 86,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.76,
+            "beatRate": 82.1,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 101,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 60
         },
         {
@@ -3327,6 +8352,21 @@
           "m1": -7.936507936507942,
           "m3": -6.173159052672439,
           "score": 42,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 61
         },
         {
@@ -3336,6 +8376,21 @@
           "m1": -2.9027777777777874,
           "m3": -8.900182434193383,
           "score": 41,
+          "resilience12m": {
+            "score": 34,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.65,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 62
         },
         {
@@ -3345,6 +8400,21 @@
           "m1": -7.038512616201864,
           "m3": -6.914893617021267,
           "score": 40,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.7,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 63
         },
         {
@@ -3354,6 +8424,21 @@
           "m1": -4.522613065326631,
           "m3": -8.570119156736943,
           "score": 39,
+          "resilience12m": {
+            "score": 46,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.7,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 64
         },
         {
@@ -3363,6 +8448,21 @@
           "m1": -7.849133537206942,
           "m3": -6.995884773662564,
           "score": 38,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.72,
+            "beatRate": 78,
+            "avgAssetDrop": -0.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 65
         },
         {
@@ -3372,6 +8472,21 @@
           "m1": -3.649851632047485,
           "m3": -9.377616522467203,
           "score": 37,
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 66
         },
         {
@@ -3381,6 +8496,21 @@
           "m1": -5.223880597014919,
           "m3": -8.633093525179858,
           "score": 36,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 67
         },
         {
@@ -3390,6 +8520,21 @@
           "m1": -5.902312706491653,
           "m3": -8.325358851674647,
           "score": 35,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.81,
+            "beatRate": 78,
+            "avgAssetDrop": -0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 61,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 68
         },
         {
@@ -3399,6 +8544,21 @@
           "m1": -4.831956546339267,
           "m3": -9.090909090909104,
           "score": 34,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.85,
+            "beatRate": 80.5,
+            "avgAssetDrop": -0.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 99,
+            "upCount": 65,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 69
         },
         {
@@ -3408,6 +8568,21 @@
           "m1": -5.0267225191391045,
           "m3": -9.05947441217151,
           "score": 33,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 61,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 70
         },
         {
@@ -3417,6 +8592,21 @@
           "m1": -7.1822495831730055,
           "m3": -8.17155183352366,
           "score": 32,
+          "resilience12m": {
+            "score": 10,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.62,
+            "beatRate": 68.3,
+            "avgAssetDrop": -0.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 84,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 71
         },
         {
@@ -3426,6 +8616,21 @@
           "m1": -3.8265725078009516,
           "m3": -10.032263020433252,
           "score": 31,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.68,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 72
         },
         {
@@ -3435,6 +8640,21 @@
           "m1": -5.593544857768052,
           "m3": -9.147143985259287,
           "score": 30,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.61,
+            "beatRate": 69.9,
+            "avgAssetDrop": -0.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 86,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 73
         },
         {
@@ -3444,6 +8664,21 @@
           "m1": -4.387990762124716,
           "m3": -9.80392156862746,
           "score": 29,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 74
         },
         {
@@ -3453,6 +8688,21 @@
           "m1": -4.519119351100819,
           "m3": -9.84682713347922,
           "score": 28,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 79.7,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 98,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 75
         },
         {
@@ -3462,6 +8712,21 @@
           "m1": -9.343434343434353,
           "m3": -7.948717948717954,
           "score": 27,
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.25,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.65,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 76
         },
         {
@@ -3471,6 +8736,21 @@
           "m1": -14.52941176470588,
           "m3": -5.321459600347511,
           "score": 26,
+          "resilience12m": {
+            "score": 26,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.55,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 77
         },
         {
@@ -3480,6 +8760,21 @@
           "m1": -5.295315682281054,
           "m3": -10.490856592877762,
           "score": 25,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 70.2,
+            "avgAssetDrop": -0.27,
+            "avgBenchDrop": -0.93,
+            "marketDownDays": 123,
+            "beatCount": 73,
+            "upCount": 38,
+            "matchedDays": 104,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 78
         },
         {
@@ -3489,6 +8784,21 @@
           "m1": -3.686286407766992,
           "m3": -11.363953650705005,
           "score": 24,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.73,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 79
         },
         {
@@ -3498,6 +8808,21 @@
           "m1": -4.465366509751167,
           "m3": -11.212500000000002,
           "score": 23,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 78.9,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 80
         },
         {
@@ -3507,6 +8832,21 @@
           "m1": -3.619340413638905,
           "m3": -11.803069053708448,
           "score": 22,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.76,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 81
         },
         {
@@ -3516,6 +8856,21 @@
           "m1": -9.375000000000021,
           "m3": -9.172259507829983,
           "score": 21,
+          "resilience12m": {
+            "score": 50,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 82
         },
         {
@@ -3525,6 +8880,21 @@
           "m1": -7.550077041602476,
           "m3": -10.966018697136072,
           "score": 20,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.65,
+            "beatRate": 65.9,
+            "avgAssetDrop": -0.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 83
         },
         {
@@ -3534,6 +8904,21 @@
           "m1": -3.356643356643363,
           "m3": -13.299874529485567,
           "score": 19,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.57,
+            "beatRate": 78.9,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 84
         },
         {
@@ -3543,6 +8928,21 @@
           "m1": -6.389037195230463,
           "m3": -12.17231591250626,
           "score": 18,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 85
         },
         {
@@ -3552,6 +8952,21 @@
           "m1": -6.963788300835649,
           "m3": -12.565445026178013,
           "score": 17,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.61,
+            "beatRate": 68.3,
+            "avgAssetDrop": -0.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 84,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 86
         },
         {
@@ -3561,6 +8976,21 @@
           "m1": -7.617749507799488,
           "m3": -12.50717154331612,
           "score": 17,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.55,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 87
         },
         {
@@ -3570,6 +9000,21 @@
           "m1": -4.092427616926497,
           "m3": -15.022200296003941,
           "score": 16,
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.62,
+            "beatRate": 70.7,
+            "avgAssetDrop": -0.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 88
         },
         {
@@ -3579,6 +9024,21 @@
           "m1": -5.727958236658914,
           "m3": -14.392941796154846,
           "score": 15,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 89
         },
         {
@@ -3588,6 +9048,21 @@
           "m1": -5.672969966629582,
           "m3": -15.453639082751735,
           "score": 14,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.7,
+            "beatRate": 82.9,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 102,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 90
         },
         {
@@ -3597,6 +9072,21 @@
           "m1": -15.244865718799371,
           "m3": -10.657785179017488,
           "score": 13,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.53,
+            "beatRate": 69.9,
+            "avgAssetDrop": -0.37,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 86,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 91
         },
         {
@@ -3606,6 +9096,21 @@
           "m1": -5.366492146596846,
           "m3": -16.416184971098268,
           "score": 12,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.6,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.29,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 92
         },
         {
@@ -3615,6 +9120,21 @@
           "m1": -9.780370624571033,
           "m3": -14.281056406912295,
           "score": 11,
+          "resilience12m": {
+            "score": 54,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 93
         },
         {
@@ -3624,6 +9144,21 @@
           "m1": -10.035211267605625,
           "m3": -14.864864864864868,
           "score": 10,
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.55,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 94
         },
         {
@@ -3633,6 +9168,21 @@
           "m1": -5.138339920948609,
           "m3": -18.08873720136519,
           "score": 9,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.46,
+            "beatRate": 69.9,
+            "avgAssetDrop": -0.44,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 86,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 95
         },
         {
@@ -3642,6 +9192,21 @@
           "m1": -10.42765084944347,
           "m3": -18.626929217668973,
           "score": 8,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.51,
+            "beatRate": 65.9,
+            "avgAssetDrop": -0.39,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 96
         },
         {
@@ -3651,6 +9216,21 @@
           "m1": -7.734553775743713,
           "m3": -20.47337278106509,
           "score": 7,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.34,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 97
         },
         {
@@ -3660,6 +9240,21 @@
           "m1": -13.726884779516357,
           "m3": -17.333030440708775,
           "score": 6,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.64,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 98
         },
         {
@@ -3669,6 +9264,21 @@
           "m1": -10.781034821955537,
           "m3": -21.18526242613834,
           "score": 5,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.47,
+            "beatRate": 69.1,
+            "avgAssetDrop": -0.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 99
         },
         {
@@ -3678,6 +9288,21 @@
           "m1": -11.804446628178356,
           "m3": -21.194160904401272,
           "score": 4,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.5,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.4,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 82,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 100
         },
         {
@@ -3687,6 +9312,21 @@
           "m1": -13.921433494141965,
           "m3": -20.698412698412692,
           "score": 3,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.26,
+            "beatRate": 56.1,
+            "avgAssetDrop": -1.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 101
         },
         {
@@ -3696,6 +9336,21 @@
           "m1": -7.43836188884246,
           "m3": -27.05817782656421,
           "score": 2,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.7,
+            "beatRate": 78,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 102
         },
         {
@@ -3705,6 +9360,21 @@
           "m1": -7.846153846153847,
           "m3": -27.39393939393939,
           "score": 1,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.47,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 103
         },
         {
@@ -3714,6 +9384,21 @@
           "m1": -17.406417112299465,
           "m3": -37.15157680569684,
           "score": 0,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.51,
+            "beatRate": 61,
+            "avgAssetDrop": -0.38,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 104
         }
       ]
@@ -3730,6 +9415,21 @@
           "m1": 5.043592387737883,
           "m3": 62.39130434782607,
           "score": 100,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 1.25,
+            "beatRate": 56.9,
+            "avgAssetDrop": 0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 59,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 1
         },
         {
@@ -3739,6 +9439,21 @@
           "m1": 28.403697227079693,
           "m3": 32.40597630087585,
           "score": 97,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.61,
+            "beatRate": 72.4,
+            "avgAssetDrop": 0.71,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 89,
+            "upCount": 69,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 2
         },
         {
@@ -3748,6 +9463,21 @@
           "m1": 18.38337988826815,
           "m3": 37.68527918781726,
           "score": 94,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.71,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 3
         },
         {
@@ -3757,6 +9487,21 @@
           "m1": -10.017730496453892,
           "m3": 49.48453608247423,
           "score": 91,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.58,
+            "beatRate": 45.5,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 4
         },
         {
@@ -3766,6 +9511,21 @@
           "m1": 21.72514896434312,
           "m3": 31.420402328193585,
           "score": 88,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.54,
+            "beatRate": 73.2,
+            "avgAssetDrop": 0.64,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 80,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 5
         },
         {
@@ -3775,6 +9535,21 @@
           "m1": 24.09923213230951,
           "m3": 19.036827195467442,
           "score": 85,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.39,
+            "beatRate": 69.1,
+            "avgAssetDrop": 0.5,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 65,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 6
         },
         {
@@ -3784,6 +9559,21 @@
           "m1": -5.64809496457973,
           "m3": 34.46111869031378,
           "score": 82,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 1.24,
+            "beatRate": 49.1,
+            "avgAssetDrop": 0.35,
+            "avgBenchDrop": -0.89,
+            "marketDownDays": 123,
+            "beatCount": 27,
+            "upCount": 21,
+            "matchedDays": 55,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 7
         },
         {
@@ -3793,6 +9583,21 @@
           "m1": 12.36111111111111,
           "m3": 24.576532183554068,
           "score": 79,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.11,
+            "beatRate": 70.7,
+            "avgAssetDrop": 0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 68,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 8
         },
         {
@@ -3802,6 +9607,21 @@
           "m1": 8.220915484837988,
           "m3": 20.611667951683387,
           "score": 76,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.32,
+            "beatRate": 74.8,
+            "avgAssetDrop": 0.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 71,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 9
         },
         {
@@ -3811,6 +9631,21 @@
           "m1": 7.274376417233563,
           "m3": 20.21752388696889,
           "score": 73,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.16,
+            "beatRate": 63.4,
+            "avgAssetDrop": 0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 66,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 10
         },
         {
@@ -3820,6 +9655,21 @@
           "m1": 14.6112600536193,
           "m3": 16.168478260869577,
           "score": 70,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.26,
+            "beatRate": 73.2,
+            "avgAssetDrop": 0.36,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 73,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 11
         },
         {
@@ -3829,6 +9679,21 @@
           "m1": 14.508133230054243,
           "m3": 13.593053634547436,
           "score": 67,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.32,
+            "beatRate": 75.6,
+            "avgAssetDrop": 0.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 74,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 12
         },
         {
@@ -3838,6 +9703,21 @@
           "m1": 10.077859414409463,
           "m3": 15.233612673631036,
           "score": 64,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.39,
+            "beatRate": 78.9,
+            "avgAssetDrop": 0.5,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 84,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 13
         },
         {
@@ -3847,6 +9727,21 @@
           "m1": -11.385662499075233,
           "m3": 19.7440767769669,
           "score": 61,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.76,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 14
         },
         {
@@ -3856,6 +9751,21 @@
           "m1": -13.397372174439216,
           "m3": 14.82664756446992,
           "score": 58,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 1.16,
+            "beatRate": 58.5,
+            "avgAssetDrop": 0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 63,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 15
         },
         {
@@ -3865,6 +9775,21 @@
           "m1": -5.737373737373741,
           "m3": 10.15108593012275,
           "score": 55,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.88,
+            "beatRate": 62.6,
+            "avgAssetDrop": -0.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 77,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 16
         },
         {
@@ -3874,6 +9799,21 @@
           "m1": 7.147027910778947,
           "m3": 2.7550677567476756,
           "score": 52,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.01,
+            "beatRate": 70.7,
+            "avgAssetDrop": 0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 66,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 17
         },
         {
@@ -3883,6 +9823,21 @@
           "m1": -0.9876129896217001,
           "m3": 7.058823529411762,
           "score": 48,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.59,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 18
         },
         {
@@ -3892,6 +9847,21 @@
           "m1": -13.26355611601513,
           "m3": 12.491822582755452,
           "score": 45,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.78,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 19
         },
         {
@@ -3901,6 +9871,21 @@
           "m1": -6.184447235328072,
           "m3": 7.461119751166412,
           "score": 42,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.88,
+            "beatRate": 62.6,
+            "avgAssetDrop": -0.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 77,
+            "upCount": 60,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 20
         },
         {
@@ -3910,6 +9895,21 @@
           "m1": 11.312803889789302,
           "m3": -2.4431818181818166,
           "score": 39,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 4.38,
+            "beatRate": 67.5,
+            "avgAssetDrop": 3.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 64,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "rank": 21
         },
         {
@@ -3919,6 +9919,21 @@
           "m1": 1.4067089194620408,
           "m3": -4.470656764234759,
           "score": 36,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.82,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 82,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 22
         },
         {
@@ -3928,6 +9943,21 @@
           "m1": -19.32729624838292,
           "m3": 4.983164983164978,
           "score": 33,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.71,
+            "beatRate": 52,
+            "avgAssetDrop": -0.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 23
         },
         {
@@ -3937,6 +9967,21 @@
           "m1": -0.06743088334458802,
           "m3": -6.047926968429074,
           "score": 30,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.48,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 24
         },
         {
@@ -3946,6 +9991,21 @@
           "m1": -6.9252077562326875,
           "m3": -6.796116504854377,
           "score": 27,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.34,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 60,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 25
         },
         {
@@ -3955,6 +10015,21 @@
           "m1": -2.96153846153846,
           "m3": -10.181559273762907,
           "score": 24,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.96,
+            "beatRate": 65,
+            "avgAssetDrop": 0.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 80,
+            "upCount": 65,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "rank": 26
         },
         {
@@ -3964,6 +10039,21 @@
           "m1": -3.8356164383561597,
           "m3": -12.614107883817438,
           "score": 21,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.07,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.82,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 27
         },
         {
@@ -3973,6 +10063,21 @@
           "m1": -3.4918381831085976,
           "m3": -12.956087568813214,
           "score": 18,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.98,
+            "beatRate": 71.5,
+            "avgAssetDrop": 0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 71,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 28
         },
         {
@@ -3982,6 +10087,21 @@
           "m1": -8.244111349036398,
           "m3": -11.649484536082467,
           "score": 15,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.21,
+            "beatRate": 47.2,
+            "avgAssetDrop": -1.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 29
         },
         {
@@ -3991,6 +10111,21 @@
           "m1": -5.591612581128313,
           "m3": -14.00636653024101,
           "score": 12,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.89,
+            "beatRate": 56.1,
+            "avgAssetDrop": 0,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 30
         },
         {
@@ -4000,6 +10135,21 @@
           "m1": -3.7422037422037313,
           "m3": -16.425992779783392,
           "score": 9,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.08,
+            "beatRate": 64.2,
+            "avgAssetDrop": 0.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 67,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 31
         },
         {
@@ -4009,6 +10159,21 @@
           "m1": -15.602038789964912,
           "m3": -15.366744108861607,
           "score": 6,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1,
+            "beatRate": 69.1,
+            "avgAssetDrop": 0.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 69,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "rank": 32
         },
         {
@@ -4018,6 +10183,21 @@
           "m1": -22.49690976514216,
           "m3": -24.684684684684687,
           "score": 3,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.57,
+            "beatRate": 42.3,
+            "avgAssetDrop": -0.33,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 33
         },
         {
@@ -4027,6 +10207,21 @@
           "m1": -43.50830054697246,
           "m3": -22.844036697247706,
           "score": 0,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.68,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "rank": 34
         }
       ]
@@ -4045,6 +10240,21 @@
           "m1": 112.15277777777779,
           "m3": 134.09961685823757,
           "score": 100,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.1,
+            "beatRate": 35.8,
+            "avgAssetDrop": -2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 44,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4058,6 +10268,21 @@
           "m1": 109.78593272171256,
           "m3": 124.18300653594771,
           "score": 99,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.3,
+            "beatRate": 34.1,
+            "avgAssetDrop": -2.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 42,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4071,6 +10296,21 @@
           "m1": 46.821392532795166,
           "m3": 62.56983240223466,
           "score": 97,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.77,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4084,6 +10324,21 @@
           "m1": 31.671415004748347,
           "m3": 68.87941534713762,
           "score": 96,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.03,
+            "beatRate": 45.5,
+            "avgAssetDrop": -0.87,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4097,6 +10352,21 @@
           "m1": 36.23693379790941,
           "m3": 56.08782435129742,
           "score": 95,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.85,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.75,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4110,6 +10380,21 @@
           "m1": 35.65652676164805,
           "m3": 52.77536860364267,
           "score": 93,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.98,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.88,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4123,6 +10408,21 @@
           "m1": 35.12731481481482,
           "m3": 51.426718547341125,
           "score": 92,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.68,
+            "beatRate": 33.3,
+            "avgAssetDrop": -1.58,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 41,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4136,6 +10436,21 @@
           "m1": 59.46439440048691,
           "m3": 37.17277486910993,
           "score": 91,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.54,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.44,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4149,6 +10464,21 @@
           "m1": 35.13238289205702,
           "m3": 49.60541149943631,
           "score": 89,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.57,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.47,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4162,6 +10492,21 @@
           "m1": 52.26256983240224,
           "m3": 32.62773722627736,
           "score": 88,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1,
+            "beatRate": 30.1,
+            "avgAssetDrop": -1.89,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 37,
+            "upCount": 18,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4175,6 +10520,21 @@
           "m1": 45.94594594594595,
           "m3": 32.67813267813268,
           "score": 87,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.25,
+            "beatRate": 29.3,
+            "avgAssetDrop": -2.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 36,
+            "upCount": 25,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4188,6 +10548,21 @@
           "m1": 34.0019730351858,
           "m3": 38.770645326068454,
           "score": 85,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.6,
+            "beatRate": 35,
+            "avgAssetDrop": -1.5,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 43,
+            "upCount": 24,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4201,6 +10576,21 @@
           "m1": 28.11171827565272,
           "m3": 41.08993647609496,
           "score": 84,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.23,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4214,6 +10604,21 @@
           "m1": 36.480686695278976,
           "m3": 32.500000000000014,
           "score": 83,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.82,
+            "beatRate": 32.5,
+            "avgAssetDrop": -1.71,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 40,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4227,6 +10632,21 @@
           "m1": 45.24064171122995,
           "m3": 27.153558052434462,
           "score": 81,
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.21,
+            "beatRate": 30.1,
+            "avgAssetDrop": -2.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 37,
+            "upCount": 23,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4240,6 +10660,21 @@
           "m1": 15.663976522377107,
           "m3": 42.70196877121522,
           "score": 80,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.78,
+            "beatRate": 69.1,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 62,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4253,6 +10688,21 @@
           "m1": 33.13311373764773,
           "m3": 31.83039140445126,
           "score": 79,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.42,
+            "beatRate": 35.8,
+            "avgAssetDrop": -1.32,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 44,
+            "upCount": 23,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4266,6 +10716,21 @@
           "m1": 14.285714285714285,
           "m3": 41.23581336696091,
           "score": 77,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.75,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 66,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4279,6 +10744,21 @@
           "m1": 23.94195888754535,
           "m3": 35.31353135313531,
           "score": 76,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.31,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4292,6 +10772,21 @@
           "m1": 27.107215104517877,
           "m3": 31.267409470752106,
           "score": 75,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4305,6 +10800,21 @@
           "m1": 46.282420749279524,
           "m3": 19.886632026452514,
           "score": 73,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.54,
+            "beatRate": 33.3,
+            "avgAssetDrop": -1.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 41,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4318,6 +10828,21 @@
           "m1": 29.398071167276342,
           "m3": 28.45823704192802,
           "score": 72,
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.33,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4331,6 +10856,21 @@
           "m1": 31.885356023287066,
           "m3": 25.159371015724595,
           "score": 71,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.46,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4344,6 +10884,21 @@
           "m1": 27.579593402378205,
           "m3": 25.13167795334838,
           "score": 69,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.38,
+            "beatRate": 35.8,
+            "avgAssetDrop": -1.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 44,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4357,6 +10912,21 @@
           "m1": 27.99495586380833,
           "m3": 24.05279882669275,
           "score": 68,
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.37,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 24,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4370,6 +10940,21 @@
           "m1": 21.643180005317735,
           "m3": 27.012770682953903,
           "score": 67,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.4,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4383,6 +10968,21 @@
           "m1": 25.148445686342995,
           "m3": 24.84320557491289,
           "score": 65,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.25,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4396,6 +10996,21 @@
           "m1": 18.321616871704734,
           "m3": 27.569872098531505,
           "score": 64,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.11,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1.01,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4409,6 +11024,21 @@
           "m1": 31.6722972972973,
           "m3": 19.646968534151963,
           "score": 63,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.24,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4422,6 +11052,21 @@
           "m1": 2.8143082588111525,
           "m3": 27.28752849234778,
           "score": 61,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.23,
+            "beatRate": 48,
+            "avgAssetDrop": -0.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4435,6 +11080,21 @@
           "m1": 8.958837772397098,
           "m3": 22.950819672131143,
           "score": 60,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.15,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.05,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4448,6 +11108,21 @@
           "m1": -0.750750750750748,
           "m3": 27.606177606177617,
           "score": 59,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.93,
+            "beatRate": 39,
+            "avgAssetDrop": -1.83,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4461,6 +11136,21 @@
           "m1": 9.713282621416033,
           "m3": 20.578778135048225,
           "score": 57,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.11,
+            "beatRate": 47.2,
+            "avgAssetDrop": -1.01,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4474,6 +11164,21 @@
           "m1": 9.559804357492228,
           "m3": 19.727891156462597,
           "score": 56,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.42,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4487,6 +11192,21 @@
           "m1": 16.54411764705882,
           "m3": 15.552855407047378,
           "score": 55,
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.25,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 24,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4500,6 +11220,21 @@
           "m1": 18.113737421015685,
           "m3": 13.92776523702032,
           "score": 53,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.16,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4513,6 +11248,21 @@
           "m1": 16.24529316837009,
           "m3": 14.581124072110288,
           "score": 52,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.37,
+            "beatRate": 34.1,
+            "avgAssetDrop": -1.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 42,
+            "upCount": 24,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4526,6 +11276,21 @@
           "m1": 14.94009866102889,
           "m3": 15.102328863796746,
           "score": 51,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.19,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 25,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4539,6 +11304,21 @@
           "m1": 14.80263157894737,
           "m3": 14.010889292196005,
           "score": 49,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.07,
+            "beatRate": 42.3,
+            "avgAssetDrop": -0.96,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4552,6 +11332,21 @@
           "m1": 24.26035502958581,
           "m3": 8.003857280617172,
           "score": 48,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.85,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1.75,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -4565,6 +11360,21 @@
           "m1": 32.921447484554285,
           "m3": 3.009575923392622,
           "score": 47,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.66,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4578,6 +11388,21 @@
           "m1": 9.713701431492854,
           "m3": 14.331379861481095,
           "score": 45,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.38,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4591,6 +11416,21 @@
           "m1": 10.58897243107768,
           "m3": 13.650998068254985,
           "score": 44,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.07,
+            "beatRate": 48,
+            "avgAssetDrop": -0.97,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4604,6 +11444,21 @@
           "m1": 14.04370243064082,
           "m3": 11.20421355039502,
           "score": 43,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.09,
+            "beatRate": 52,
+            "avgAssetDrop": -0.81,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4617,6 +11472,21 @@
           "m1": 15.612648221343871,
           "m3": 9.985377062878632,
           "score": 41,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.02,
+            "beatRate": 46.3,
+            "avgAssetDrop": -0.92,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4630,6 +11500,21 @@
           "m1": 0.4050475151892898,
           "m3": 16.23083859332732,
           "score": 40,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.09,
+            "beatRate": 68.3,
+            "avgAssetDrop": 0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 84,
+            "upCount": 67,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4643,6 +11528,21 @@
           "m1": 9.197080291970815,
           "m3": 10.753285211919309,
           "score": 39,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.49,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.39,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4656,6 +11556,21 @@
           "m1": 12.465828321487159,
           "m3": 8.606124604012667,
           "score": 37,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.56,
+            "beatRate": 62.6,
+            "avgAssetDrop": -0.34,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 77,
+            "upCount": 61,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4669,6 +11584,21 @@
           "m1": -0.42992261392949876,
           "m3": 13.418217433888335,
           "score": 36,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.27,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.63,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4682,6 +11612,21 @@
           "m1": -1.5708812260536404,
           "m3": 11.647109952194695,
           "score": 35,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.3,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.6,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4695,6 +11640,21 @@
           "m1": -1.7842876165113037,
           "m3": 11.757575757575765,
           "score": 33,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.13,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.76,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4708,6 +11668,21 @@
           "m1": -0.038842493688100846,
           "m3": 10.664373253063859,
           "score": 32,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.41,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.49,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4721,6 +11696,21 @@
           "m1": 5.9388646288209745,
           "m3": 6.590509666080843,
           "score": 31,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.03,
+            "beatRate": 44.7,
+            "avgAssetDrop": -0.93,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 20,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4734,6 +11724,21 @@
           "m1": 8.485229415461983,
           "m3": 0.9061677871967327,
           "score": 29,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.5,
+            "beatRate": 39.8,
+            "avgAssetDrop": -1.4,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 49,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4747,6 +11752,21 @@
           "m1": 15.388739946380694,
           "m3": -4.284655300222387,
           "score": 28,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.19,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.71,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4760,6 +11780,21 @@
           "m1": 3.341772151898735,
           "m3": 1.1648079306071841,
           "score": 27,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.43,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.47,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4773,6 +11808,21 @@
           "m1": 2.368758002560826,
           "m3": 1.0745891276864725,
           "score": 25,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.32,
+            "beatRate": 61,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4786,6 +11836,21 @@
           "m1": 17.478510028653293,
           "m3": -7.379518072289147,
           "score": 24,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.95,
+            "beatRate": 31.7,
+            "avgAssetDrop": -1.85,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 39,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4799,6 +11864,21 @@
           "m1": -5.845852384062713,
           "m3": 4.380883417813169,
           "score": 23,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.14,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4812,6 +11892,21 @@
           "m1": -7.974004538890039,
           "m3": 5.449172576832151,
           "score": 21,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.57,
+            "beatRate": 60.2,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4825,6 +11920,21 @@
           "m1": 32.09509658246657,
           "m3": -16.132075471698105,
           "score": 20,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.63,
+            "beatRate": 35,
+            "avgAssetDrop": -2.53,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 43,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -4838,6 +11948,21 @@
           "m1": 5.772005772005778,
           "m3": -2.2666666666666657,
           "score": 19,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.01,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.91,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4851,6 +11976,21 @@
           "m1": -7.2159672466734905,
           "m3": 3.3637400228050165,
           "score": 17,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.42,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4864,6 +12004,21 @@
           "m1": 4.914150384843092,
           "m3": -3.2927051118792114,
           "score": 16,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.22,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4877,6 +12032,21 @@
           "m1": 5.297679112008076,
           "m3": -5.351473922902493,
           "score": 15,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.47,
+            "beatRate": 65.9,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -4890,6 +12060,21 @@
           "m1": -10.75088893536917,
           "m3": 2.6955475330926704,
           "score": 13,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.74,
+            "beatRate": 61,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -4903,6 +12088,21 @@
           "m1": 3.1869918699187005,
           "m3": -5.5092316855270935,
           "score": 12,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.29,
+            "beatRate": 48,
+            "avgAssetDrop": -1.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -4916,6 +12116,21 @@
           "m1": -8.518189884649505,
           "m3": -4.976958525345614,
           "score": 11,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.1,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -4929,6 +12144,21 @@
           "m1": 9.777777777777787,
           "m3": -14.97418244406195,
           "score": 9,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.26,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -4942,6 +12172,21 @@
           "m1": -1.084010840108402,
           "m3": -13.609467455621296,
           "score": 8,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": -0.05,
+            "beatRate": 47.2,
+            "avgAssetDrop": -0.95,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -4955,6 +12200,21 @@
           "m1": -3.768296480847091,
           "m3": -12.613122171945705,
           "score": 7,
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.41,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -4968,6 +12228,21 @@
           "m1": 0.26428807400066684,
           "m3": -15.1048951048951,
           "score": 5,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.3,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.6,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -4981,6 +12256,21 @@
           "m1": -13.171355498721224,
           "m3": -8.465893771906174,
           "score": 4,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.18,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -4994,6 +12284,21 @@
           "m1": -25.44642857142857,
           "m3": -4.206500956022956,
           "score": 3,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.1,
+            "beatRate": 48,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5007,6 +12312,21 @@
           "m1": -10.564225690276109,
           "m3": -14.17050691244239,
           "score": 1,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.61,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.51,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -5020,6 +12340,21 @@
           "m1": -6.556530717604541,
           "m3": -20.54433713784021,
           "score": 0,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.18,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IBOV",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -5040,6 +12375,21 @@
           "m1": 48.410404624277454,
           "m3": 715.0793650793651,
           "score": 100,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.34,
+            "beatRate": 62.6,
+            "avgAssetDrop": 0.45,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 77,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5053,6 +12403,21 @@
           "m1": 350,
           "m3": 382.9268292682927,
           "score": 99,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.01,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.9,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5066,6 +12431,21 @@
           "m1": 28.571428571428577,
           "m3": 232.90816326530614,
           "score": 99,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.66,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5079,6 +12459,21 @@
           "m1": 115.44117647058823,
           "m3": 132.53968253968256,
           "score": 98,
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.48,
+            "beatRate": 37.4,
+            "avgAssetDrop": -2.37,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5092,6 +12487,21 @@
           "m1": 132.5,
           "m3": 116.27906976744187,
           "score": 98,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.54,
+            "beatRate": 61,
+            "avgAssetDrop": -0.36,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5105,6 +12515,21 @@
           "m1": 115.07537688442211,
           "m3": 123.30434782608694,
           "score": 97,
+          "resilience12m": {
+            "score": 10,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.91,
+            "beatRate": 39,
+            "avgAssetDrop": -1.81,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5118,6 +12543,21 @@
           "m1": 137.34335839598998,
           "m3": 109.97782705099782,
           "score": 97,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.67,
+            "beatRate": 28.5,
+            "avgAssetDrop": -2.57,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 35,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5131,6 +12571,21 @@
           "m1": 127.40447957839265,
           "m3": 111.00244498777509,
           "score": 96,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.8,
+            "beatRate": 28.5,
+            "avgAssetDrop": -1.69,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 35,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5144,6 +12599,21 @@
           "m1": 82.17821782178217,
           "m3": 106.74157303370787,
           "score": 96,
+          "resilience12m": {
+            "score": 66,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.33,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.57,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5157,6 +12627,21 @@
           "m1": 96.98113207547169,
           "m3": 98.47908745247148,
           "score": 95,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.63,
+            "beatRate": 39.8,
+            "avgAssetDrop": -1.52,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 49,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5170,6 +12655,21 @@
           "m1": 100,
           "m3": 87.42857142857142,
           "score": 95,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.63,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.53,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5183,6 +12683,21 @@
           "m1": 70.97625329815304,
           "m3": 97.56097560975611,
           "score": 94,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.89,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.79,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5196,6 +12711,21 @@
           "m1": 81.20393120393119,
           "m3": 89.83268983268984,
           "score": 94,
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.18,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 40,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5209,6 +12739,21 @@
           "m1": 19.90686845168802,
           "m3": 119.14893617021278,
           "score": 93,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.14,
+            "beatRate": 55.3,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5222,6 +12767,21 @@
           "m1": 80.54607508532422,
           "m3": 84.3205574912892,
           "score": 93,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.9,
+            "beatRate": 39,
+            "avgAssetDrop": -1.79,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5235,6 +12795,21 @@
           "m1": 55.88723051409619,
           "m3": 88.75502008032127,
           "score": 92,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.23,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5248,6 +12823,21 @@
           "m1": 80.32786885245903,
           "m3": 61.29032258064515,
           "score": 92,
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.1,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.99,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5261,6 +12851,21 @@
           "m1": 53.99610136452243,
           "m3": 66.66666666666666,
           "score": 91,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.83,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.73,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5274,6 +12879,21 @@
           "m1": 31.273408239700373,
           "m3": 69.73365617433413,
           "score": 91,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.57,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.46,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5287,6 +12907,21 @@
           "m1": 50.95492742551567,
           "m3": 50.2661596958175,
           "score": 90,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.66,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5300,6 +12935,21 @@
           "m1": 24.35897435897435,
           "m3": 64.40677966101696,
           "score": 90,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.25,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5313,6 +12963,21 @@
           "m1": 39.55375253549696,
           "m3": 53.914988814317674,
           "score": 89,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.57,
+            "beatRate": 39,
+            "avgAssetDrop": -1.47,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5326,6 +12991,21 @@
           "m1": 35.24193548387096,
           "m3": 55.8550185873606,
           "score": 89,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.88,
+            "beatRate": 39.8,
+            "avgAssetDrop": -1.8,
+            "avgBenchDrop": -0.92,
+            "marketDownDays": 123,
+            "beatCount": 43,
+            "upCount": 31,
+            "matchedDays": 108,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5339,6 +13019,21 @@
           "m1": 59.86842105263159,
           "m3": 42.105263157894754,
           "score": 88,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.04,
+            "beatRate": 36.6,
+            "avgAssetDrop": -1.93,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 45,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5352,6 +13047,21 @@
           "m1": 38.018018018018026,
           "m3": 53.50701402805611,
           "score": 88,
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.31,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5365,6 +13075,21 @@
           "m1": 44.736842105263165,
           "m3": 46.666666666666664,
           "score": 87,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.86,
+            "beatRate": 34.1,
+            "avgAssetDrop": -1.76,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 42,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5378,6 +13103,21 @@
           "m1": 24.561403508771917,
           "m3": 55.79937304075234,
           "score": 87,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.18,
+            "beatRate": 51.9,
+            "avgAssetDrop": -1.1,
+            "avgBenchDrop": -0.92,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 38,
+            "matchedDays": 108,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5391,6 +13131,21 @@
           "m1": 49.76744186046513,
           "m3": 41.975308641975325,
           "score": 86,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.91,
+            "beatRate": 33.3,
+            "avgAssetDrop": -1.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 41,
+            "upCount": 27,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5404,6 +13159,21 @@
           "m1": 37.201365187713314,
           "m3": 48.55875831485589,
           "score": 86,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.17,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5417,6 +13187,21 @@
           "m1": 31.25414731254148,
           "m3": 49.848484848484865,
           "score": 85,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.07,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.97,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5430,6 +13215,21 @@
           "m1": 41.83168316831684,
           "m3": 41.83168316831684,
           "score": 85,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.53,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5443,6 +13243,21 @@
           "m1": 30.230547550432256,
           "m3": 48.018342613822455,
           "score": 84,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.1,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5456,6 +13271,21 @@
           "m1": 51.28205128205126,
           "m3": 36.41618497109826,
           "score": 84,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.97,
+            "beatRate": 52.8,
+            "avgAssetDrop": 0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5469,6 +13299,21 @@
           "m1": 53.29099307159354,
           "m3": 33.989401968205904,
           "score": 83,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.03,
+            "beatRate": 33,
+            "avgAssetDrop": -1.95,
+            "avgBenchDrop": -0.91,
+            "marketDownDays": 123,
+            "beatCount": 36,
+            "upCount": 23,
+            "matchedDays": 109,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5482,6 +13327,21 @@
           "m1": 31.51884278644841,
           "m3": 44.742354419773754,
           "score": 83,
+          "resilience12m": {
+            "score": 34,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.21,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5495,6 +13355,21 @@
           "m1": 36.99999999999999,
           "m3": 41.52892561983471,
           "score": 82,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0,
+            "beatRate": 46.3,
+            "avgAssetDrop": -0.9,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5508,6 +13383,21 @@
           "m1": 26.591760299625467,
           "m3": 46.956521739130444,
           "score": 82,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.02,
+            "beatRate": 39,
+            "avgAssetDrop": -1.92,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5521,6 +13411,21 @@
           "m1": 43.78947368421053,
           "m3": 36.6,
           "score": 81,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.58,
+            "beatRate": 40.7,
+            "avgAssetDrop": -1.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 50,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5534,6 +13439,21 @@
           "m1": 36.398467432950184,
           "m3": 38.84555382215289,
           "score": 81,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.52,
+            "beatRate": 39,
+            "avgAssetDrop": -1.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5547,6 +13467,21 @@
           "m1": 21.285140562248987,
           "m3": 46.60194174757281,
           "score": 80,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.09,
+            "beatRate": 47.2,
+            "avgAssetDrop": -0.99,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5560,6 +13495,21 @@
           "m1": 26.632801161103046,
           "m3": 43.38537387017255,
           "score": 80,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.27,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5573,6 +13523,21 @@
           "m1": 39.08045977011495,
           "m3": 35.65022421524663,
           "score": 79,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.27,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5586,6 +13551,21 @@
           "m1": 29.18918918918919,
           "m3": 39.76608187134504,
           "score": 79,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.07,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.83,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5599,6 +13579,21 @@
           "m1": 24.265842349304474,
           "m3": 42.30088495575219,
           "score": 78,
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.36,
+            "beatRate": 41.5,
+            "avgAssetDrop": -1.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 51,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5612,6 +13607,21 @@
           "m1": 44.125105663567204,
           "m3": 31.053036126056888,
           "score": 78,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.36,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5625,6 +13635,21 @@
           "m1": 33.75506072874493,
           "m3": 35.53846153846153,
           "score": 77,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.05,
+            "beatRate": 46.3,
+            "avgAssetDrop": -0.94,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5638,6 +13663,21 @@
           "m1": 16.803278688524596,
           "m3": 43.57682619647355,
           "score": 77,
+          "resilience12m": {
+            "score": 10,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.41,
+            "beatRate": 35.8,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 44,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5651,6 +13691,21 @@
           "m1": 0,
           "m3": 51.99999999999999,
           "score": 76,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.31,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -5664,6 +13719,21 @@
           "m1": 34.57943925233646,
           "m3": 32.84132841328414,
           "score": 76,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.56,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.45,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5677,6 +13747,21 @@
           "m1": 44.41260744985673,
           "m3": 26.952141057934504,
           "score": 75,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.3,
+            "beatRate": 47.2,
+            "avgAssetDrop": -1.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5690,6 +13775,21 @@
           "m1": 25.056264066016514,
           "m3": 36.86371100164205,
           "score": 75,
+          "resilience12m": {
+            "score": 50,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.08,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.98,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5703,6 +13803,21 @@
           "m1": 19.52988247061764,
           "m3": 38.05054151624548,
           "score": 74,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.79,
+            "beatRate": 78,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5716,6 +13831,21 @@
           "m1": 26.04651162790698,
           "m3": 34.15841584158416,
           "score": 74,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.06,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.96,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5729,6 +13859,21 @@
           "m1": 12.581063553826196,
           "m3": 40.9090909090909,
           "score": 73,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.21,
+            "beatRate": 47.2,
+            "avgAssetDrop": -1.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5742,6 +13887,21 @@
           "m1": 51.90409026798307,
           "m3": 17.704918032786875,
           "score": 73,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.93,
+            "beatRate": 37,
+            "avgAssetDrop": -1.86,
+            "avgBenchDrop": -0.93,
+            "marketDownDays": 123,
+            "beatCount": 37,
+            "upCount": 25,
+            "matchedDays": 100,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5755,6 +13915,21 @@
           "m1": 22.682445759368825,
           "m3": 33.19057815845824,
           "score": 72,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.14,
+            "beatRate": 50.4,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5768,6 +13943,21 @@
           "m1": 21.233174120712118,
           "m3": 32.95238095238096,
           "score": 72,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.08,
+            "beatRate": 59.3,
+            "avgAssetDrop": -0.82,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 73,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5781,6 +13971,21 @@
           "m1": 16.096579476861166,
           "m3": 35.28722157092614,
           "score": 71,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.63,
+            "beatRate": 60.2,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5794,6 +13999,21 @@
           "m1": 32.92011019283748,
           "m3": 25.896934116112202,
           "score": 71,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.48,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.38,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5807,6 +14027,21 @@
           "m1": 29.257493188010912,
           "m3": 27.541589648798535,
           "score": 70,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.23,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.67,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5820,6 +14055,21 @@
           "m1": 30.782029950083206,
           "m3": 26.570048309178752,
           "score": 70,
+          "resilience12m": {
+            "score": 66,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.35,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.55,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5833,6 +14083,21 @@
           "m1": 23.413996075866592,
           "m3": 30.227743271221534,
           "score": 69,
+          "resilience12m": {
+            "score": 34,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.12,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5846,6 +14111,21 @@
           "m1": 27.819548872180434,
           "m3": 27.659574468085097,
           "score": 69,
+          "resilience12m": {
+            "score": 38,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.09,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.99,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5859,6 +14139,21 @@
           "m1": 25.964912280701746,
           "m3": 28.21428571428572,
           "score": 68,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.02,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.88,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5872,6 +14167,21 @@
           "m1": 20.538720538720533,
           "m3": 31.135531135531142,
           "score": 68,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.1,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5885,6 +14195,21 @@
           "m1": 19.983552631578945,
           "m3": 30.852017937219728,
           "score": 67,
+          "resilience12m": {
+            "score": 22,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.37,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5898,6 +14223,21 @@
           "m1": 6.832298136645955,
           "m3": 37.6,
           "score": 67,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.52,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5911,6 +14251,21 @@
           "m1": 30.125523012552314,
           "m3": 24.69927826784282,
           "score": 66,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.36,
+            "beatRate": 48,
+            "avgAssetDrop": -1.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5924,6 +14279,21 @@
           "m1": 34.41558441558441,
           "m3": 21.908127208480558,
           "score": 66,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.1,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5937,6 +14307,21 @@
           "m1": 14.942528735632187,
           "m3": 31.578947368421044,
           "score": 65,
+          "resilience12m": {
+            "score": 54,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.1,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5950,6 +14335,21 @@
           "m1": 13.584905660377347,
           "m3": 30.869565217391287,
           "score": 65,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.13,
+            "beatRate": 49.6,
+            "avgAssetDrop": -1.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5963,6 +14363,21 @@
           "m1": 30.119047619047617,
           "m3": 21.354552183567726,
           "score": 64,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.06,
+            "beatRate": 38.2,
+            "avgAssetDrop": -1.96,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -5976,6 +14391,21 @@
           "m1": 52.57985257985257,
           "m3": 8.376963350785331,
           "score": 64,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.73,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.63,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -5989,6 +14419,21 @@
           "m1": 24.44761225944406,
           "m3": 23.47949080622348,
           "score": 63,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.18,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6002,6 +14447,21 @@
           "m1": 28.834355828220872,
           "m3": 20.689655172413797,
           "score": 63,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.04,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.86,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6015,6 +14475,21 @@
           "m1": 11.397849462365595,
           "m3": 29.93311036789299,
           "score": 62,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.28,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.62,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6028,6 +14503,21 @@
           "m1": 15.02347417840375,
           "m3": 27.604166666666675,
           "score": 62,
+          "resilience12m": {
+            "score": 62,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.26,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.63,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6041,6 +14531,21 @@
           "m1": 30.410879629629623,
           "m3": 19.075297225891674,
           "score": 61,
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.18,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6054,6 +14559,21 @@
           "m1": 18.200000000000003,
           "m3": 25.344644750795343,
           "score": 61,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.05,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.95,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6067,6 +14587,21 @@
           "m1": 25.66844919786096,
           "m3": 20.822622107969153,
           "score": 60,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.08,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.98,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6080,6 +14615,21 @@
           "m1": 27.581120943952804,
           "m3": 18.982118294360397,
           "score": 60,
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.09,
+            "beatRate": 46.3,
+            "avgAssetDrop": -0.99,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 31,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6093,6 +14643,21 @@
           "m1": 14.444444444444446,
           "m3": 25.609756097560986,
           "score": 59,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.17,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6106,6 +14671,21 @@
           "m1": 31.36268343815512,
           "m3": 16.3818722139673,
           "score": 59,
+          "resilience12m": {
+            "score": 46,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.05,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.94,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6119,6 +14699,21 @@
           "m1": 19.509043927648577,
           "m3": 22.11221122112211,
           "score": 58,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.4,
+            "beatRate": 60.2,
+            "avgAssetDrop": -0.5,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6132,6 +14727,21 @@
           "m1": 17.86743515850143,
           "m3": 22.822822822822815,
           "score": 58,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.3,
+            "beatRate": 39.8,
+            "avgAssetDrop": -1.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 49,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6145,6 +14755,21 @@
           "m1": 23.870333988212177,
           "m3": 19.526066350710888,
           "score": 57,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.06,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.84,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6158,6 +14783,21 @@
           "m1": 30.271790065604502,
           "m3": 15.833333333333336,
           "score": 57,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.19,
+            "beatRate": 47.1,
+            "avgAssetDrop": -1.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 42,
+            "matchedDays": 121,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6171,6 +14811,21 @@
           "m1": 25.00000000000002,
           "m3": 17.769671704012506,
           "score": 56,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6184,6 +14839,21 @@
           "m1": 16.1509184180043,
           "m3": 22.4956369982548,
           "score": 56,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.01,
+            "beatRate": 48,
+            "avgAssetDrop": -0.89,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6197,6 +14867,21 @@
           "m1": 8.727272727272736,
           "m3": 26.160337552742618,
           "score": 55,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.66,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6210,6 +14895,21 @@
           "m1": 21.428571428571434,
           "m3": 18.260869565217387,
           "score": 55,
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.07,
+            "beatRate": 52,
+            "avgAssetDrop": -0.82,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6223,6 +14923,21 @@
           "m1": -6.818181818181825,
           "m3": 32.258064516129025,
           "score": 54,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.03,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.93,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 23,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6236,6 +14951,21 @@
           "m1": 17.768924302788832,
           "m3": 18.524458700882107,
           "score": 54,
+          "resilience12m": {
+            "score": 54,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.01,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.91,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6249,6 +14979,21 @@
           "m1": 35.7142857142857,
           "m3": 8.57142857142858,
           "score": 53,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.79,
+            "beatRate": 44.7,
+            "avgAssetDrop": -1.69,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6262,6 +15007,21 @@
           "m1": 1.2720156555772897,
           "m3": 26.450824679291372,
           "score": 53,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.46,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6275,6 +15035,21 @@
           "m1": 28.68217054263565,
           "m3": 11.409395973154357,
           "score": 52,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.41,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6288,6 +15063,21 @@
           "m1": 24.833808167141505,
           "m3": 13.27014218009478,
           "score": 52,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.26,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.64,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6301,6 +15091,21 @@
           "m1": 25.246398786959816,
           "m3": 12.995896032831741,
           "score": 51,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.16,
+            "beatRate": 48.8,
+            "avgAssetDrop": -1.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6314,6 +15119,21 @@
           "m1": -6.962025316455701,
           "m3": 30.08849557522125,
           "score": 51,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.71,
+            "beatRate": 45.5,
+            "avgAssetDrop": -1.6,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6327,6 +15147,21 @@
           "m1": 17.723770005927673,
           "m3": 16.754850088183407,
           "score": 50,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.11,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.79,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6340,6 +15175,21 @@
           "m1": 27.69058295964126,
           "m3": 11.121951219512201,
           "score": 49,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.13,
+            "beatRate": 34.1,
+            "avgAssetDrop": -2.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 42,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6353,6 +15203,21 @@
           "m1": 20.5968402574605,
           "m3": 14.69115191986645,
           "score": 49,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.03,
+            "beatRate": 52,
+            "avgAssetDrop": -0.86,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6366,6 +15231,21 @@
           "m1": 16.277074844520687,
           "m3": 16.70253981919931,
           "score": 48,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.03,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.92,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 29,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6379,6 +15259,21 @@
           "m1": 22.683706070287542,
           "m3": 12.941176470588234,
           "score": 48,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.17,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.73,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6392,6 +15287,21 @@
           "m1": 23.050847457627107,
           "m3": 12.732919254658375,
           "score": 47,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.19,
+            "beatRate": 53.7,
+            "avgAssetDrop": -1.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6405,6 +15315,21 @@
           "m1": 27.960057061340954,
           "m3": 10.061349693251536,
           "score": 47,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.07,
+            "beatRate": 39,
+            "avgAssetDrop": -1.96,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 48,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6418,6 +15343,21 @@
           "m1": 20.25423728813558,
           "m3": 14.067524115755628,
           "score": 46,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.11,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.79,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6431,6 +15371,21 @@
           "m1": 15.987933634992466,
           "m3": 16.16314199395771,
           "score": 46,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.19,
+            "beatRate": 48.8,
+            "avgAssetDrop": -1.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6444,6 +15399,21 @@
           "m1": 19.954648526077097,
           "m3": 14.008620689655181,
           "score": 45,
+          "resilience12m": {
+            "score": 62,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.14,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.75,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6457,6 +15427,21 @@
           "m1": 19.670781893004104,
           "m3": 14.039215686274503,
           "score": 45,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.49,
+            "beatRate": 39.4,
+            "avgAssetDrop": -1.36,
+            "avgBenchDrop": -0.87,
+            "marketDownDays": 123,
+            "beatCount": 28,
+            "upCount": 16,
+            "matchedDays": 71,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6470,6 +15455,21 @@
           "m1": -1.8952062430323289,
           "m3": 25.53495007132669,
           "score": 44,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.52,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6483,6 +15483,21 @@
           "m1": 14.963503649635024,
           "m3": 16.236162361623617,
           "score": 44,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.09,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.8,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6496,6 +15511,21 @@
           "m1": 7.570422535211279,
           "m3": 19.569471624266143,
           "score": 43,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.21,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.69,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6509,6 +15539,21 @@
           "m1": 17.98227100042211,
           "m3": 13.849287169042764,
           "score": 43,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.26,
+            "beatRate": 48,
+            "avgAssetDrop": -1.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6522,6 +15567,21 @@
           "m1": 9.552238805970143,
           "m3": 18.38709677419354,
           "score": 42,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.29,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.61,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6535,6 +15595,21 @@
           "m1": 14.707952146375792,
           "m3": 15.52090715804395,
           "score": 42,
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0,
+            "beatRate": 44.7,
+            "avgAssetDrop": -0.9,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 55,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6548,6 +15623,21 @@
           "m1": 15.446153846153857,
           "m3": 15.092024539877306,
           "score": 41,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.51,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6561,6 +15651,21 @@
           "m1": 15.832649712879407,
           "m3": 14.703493095044667,
           "score": 41,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.06,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.84,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6574,6 +15679,21 @@
           "m1": 11.999999999999993,
           "m3": 16.666666666666664,
           "score": 40,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.17,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.73,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6587,6 +15707,21 @@
           "m1": 29.795918367346935,
           "m3": 6.354515050167222,
           "score": 40,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.21,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.69,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6600,6 +15735,21 @@
           "m1": 15.108759553203999,
           "m3": 14.05825242718447,
           "score": 39,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.33,
+            "beatRate": 54.2,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.91,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 41,
+            "matchedDays": 120,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6613,6 +15763,21 @@
           "m1": 13.560267857142854,
           "m3": 13.687150837988844,
           "score": 39,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.19,
+            "beatRate": 48.8,
+            "avgAssetDrop": -1.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6626,6 +15791,21 @@
           "m1": 9.08173562058527,
           "m3": 15.987124463519315,
           "score": 38,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.01,
+            "beatRate": 51.2,
+            "avgAssetDrop": -0.91,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 63,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6639,6 +15819,21 @@
           "m1": 13.913690476190485,
           "m3": 12.079062957540266,
           "score": 38,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.18,
+            "beatRate": 52,
+            "avgAssetDrop": -0.71,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 30,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6652,6 +15847,21 @@
           "m1": 11.420612813370466,
           "m3": 12.464854732895978,
           "score": 37,
+          "resilience12m": {
+            "score": 86,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.5,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.4,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6665,6 +15875,21 @@
           "m1": 3.2608695652173822,
           "m3": 16.564417177914113,
           "score": 37,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.55,
+            "beatRate": 54.9,
+            "avgAssetDrop": -0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 45,
+            "matchedDays": 122,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6678,6 +15903,21 @@
           "m1": 9.866666666666669,
           "m3": 12.876712328767129,
           "score": 36,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.33,
+            "beatRate": 65.9,
+            "avgAssetDrop": -0.57,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6691,6 +15931,21 @@
           "m1": 8.912331757002558,
           "m3": 13.301797540208138,
           "score": 36,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.38,
+            "beatRate": 42.7,
+            "avgAssetDrop": -1.29,
+            "avgBenchDrop": -0.91,
+            "marketDownDays": 123,
+            "beatCount": 47,
+            "upCount": 26,
+            "matchedDays": 110,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6704,6 +15959,21 @@
           "m1": 12.499999999999998,
           "m3": 11.176470588235292,
           "score": 35,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.99,
+            "beatRate": 65.9,
+            "avgAssetDrop": 0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6717,6 +15987,21 @@
           "m1": 14.186851211072653,
           "m3": 9.999999999999993,
           "score": 35,
+          "resilience12m": {
+            "score": 22,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.28,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 28,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6730,6 +16015,21 @@
           "m1": 23.260437375745525,
           "m3": 5.0847457627118615,
           "score": 34,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.02,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.88,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6743,6 +16043,21 @@
           "m1": 12.165097755249816,
           "m3": 10.95988538681948,
           "score": 34,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.23,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.66,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6756,6 +16071,21 @@
           "m1": 10.13215859030837,
           "m3": 11.607142857142847,
           "score": 33,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.24,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.66,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6769,6 +16099,21 @@
           "m1": 2.962962962962949,
           "m3": 14.876033057851235,
           "score": 33,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.71,
+            "beatRate": 53.7,
+            "avgAssetDrop": -1.6,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6782,6 +16127,21 @@
           "m1": 10.678571428571423,
           "m3": 10.678571428571423,
           "score": 32,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.49,
+            "beatRate": 69.9,
+            "avgAssetDrop": -0.41,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 86,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6795,6 +16155,21 @@
           "m1": -2.0833333333333353,
           "m3": 17.49999999999999,
           "score": 32,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.56,
+            "beatRate": 61,
+            "avgAssetDrop": -0.34,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6808,6 +16183,21 @@
           "m1": 16.624040920716098,
           "m3": 7.168037602820205,
           "score": 31,
+          "resilience12m": {
+            "score": 46,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.01,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.89,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6821,6 +16211,21 @@
           "m1": 11.193476649369902,
           "m3": 9.489051094890517,
           "score": 31,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.42,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6834,6 +16239,21 @@
           "m1": 6.976744186046521,
           "m3": 11.290322580645167,
           "score": 30,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.84,
+            "beatRate": 78.9,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6847,6 +16267,21 @@
           "m1": 5.13992004568817,
           "m3": 11.575757575757576,
           "score": 30,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.16,
+            "beatRate": 61,
+            "avgAssetDrop": -0.74,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6860,6 +16295,21 @@
           "m1": 0.48169556840076044,
           "m3": 13.36956521739131,
           "score": 29,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.36,
+            "beatRate": 54.5,
+            "avgAssetDrop": -0.54,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 67,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6873,6 +16323,21 @@
           "m1": 5.51611141452759,
           "m3": 10.400000000000002,
           "score": 29,
+          "resilience12m": {
+            "score": 86,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.41,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.49,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6886,6 +16351,21 @@
           "m1": 0.5041246562786409,
           "m3": 12.924819773429444,
           "score": 28,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.37,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.52,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6899,6 +16379,21 @@
           "m1": 18.97081413210446,
           "m3": 2.514890800794181,
           "score": 28,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.45,
+            "beatRate": 42.3,
+            "avgAssetDrop": -1.34,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 26,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6912,6 +16407,21 @@
           "m1": 10.193839617631435,
           "m3": 7.232558139534887,
           "score": 27,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.62,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6925,6 +16435,21 @@
           "m1": -2.1276595744680753,
           "m3": 13.580246913580243,
           "score": 27,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.84,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 82,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6938,6 +16463,21 @@
           "m1": 12.160413971539457,
           "m3": 5.731707317073171,
           "score": 26,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.66,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6951,6 +16491,21 @@
           "m1": 5.875831485587596,
           "m3": 8.522727272727272,
           "score": 26,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.79,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6964,6 +16519,21 @@
           "m1": 9.201171058134669,
           "m3": 4.94372990353698,
           "score": 25,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.55,
+            "beatRate": 65,
+            "avgAssetDrop": -0.34,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 80,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -6977,6 +16547,21 @@
           "m1": 0.7253886010362723,
           "m3": 8.542713567839202,
           "score": 25,
+          "resilience12m": {
+            "score": 98,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.65,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -6990,6 +16575,21 @@
           "m1": 2.7522935779816535,
           "m3": 7.177033492822985,
           "score": 24,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.52,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.38,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7003,6 +16603,21 @@
           "m1": 9.482758620689664,
           "m3": 3.2520325203252063,
           "score": 24,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.22,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.68,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7016,6 +16631,21 @@
           "m1": 8.771929824561402,
           "m3": 3.161397670549092,
           "score": 23,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.76,
+            "beatRate": 68,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 53,
+            "matchedDays": 122,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7029,6 +16659,21 @@
           "m1": 5.408805031446549,
           "m3": 4.619225967540587,
           "score": 23,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.29,
+            "beatRate": 58.5,
+            "avgAssetDrop": -0.61,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7042,6 +16687,21 @@
           "m1": 3.102189781021896,
           "m3": 5.214152700186224,
           "score": 22,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.74,
+            "beatRate": 69.1,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7055,6 +16715,21 @@
           "m1": 2.4050632911392342,
           "m3": 4.792746113989639,
           "score": 22,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.31,
+            "beatRate": 68.3,
+            "avgAssetDrop": -0.59,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 84,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7068,6 +16743,21 @@
           "m1": -10.400000000000004,
           "m3": 11.258278145695359,
           "score": 21,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.39,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.51,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7081,6 +16771,21 @@
           "m1": -6.013071895424836,
           "m3": 8.528301886792459,
           "score": 21,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.15,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.05,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7094,6 +16799,21 @@
           "m1": -3.9999999999999996,
           "m3": 7.0063694267515935,
           "score": 20,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.13,
+            "beatRate": 49.6,
+            "avgAssetDrop": -0.76,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7107,6 +16827,21 @@
           "m1": 11.142061281337059,
           "m3": -1.4814814814814719,
           "score": 20,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.46,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.44,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7120,6 +16855,21 @@
           "m1": 0.08904719501335517,
           "m3": 3.977798334875113,
           "score": 19,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.01,
+            "beatRate": 83.7,
+            "avgAssetDrop": 0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 103,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7133,6 +16883,21 @@
           "m1": 6.4830508474576165,
           "m3": 0.519999999999996,
           "score": 19,
+          "resilience12m": {
+            "score": 98,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.82,
+            "beatRate": 71.9,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.89,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 51,
+            "matchedDays": 121,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7146,6 +16911,21 @@
           "m1": 2.1456436931079326,
           "m3": 1.6828478964401397,
           "score": 18,
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.13,
+            "beatRate": 43.8,
+            "avgAssetDrop": -1.03,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 32,
+            "upCount": 22,
+            "matchedDays": 73,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7159,6 +16939,21 @@
           "m1": 8.2640240665369,
           "m3": -2.6571201272871945,
           "score": 18,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.19,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.7,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7172,6 +16967,21 @@
           "m1": -8.33333333333333,
           "m3": 6.250000000000005,
           "score": 17,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.37,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.53,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 36,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7185,6 +16995,21 @@
           "m1": 7.297297297297297,
           "m3": -2.5766871165644165,
           "score": 17,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 6.51,
+            "beatRate": 48.8,
+            "avgAssetDrop": 5.61,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7198,6 +17023,21 @@
           "m1": 1.7599999999999907,
           "m3": 0.3682272488163952,
           "score": 16,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.42,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7211,6 +17051,21 @@
           "m1": 1.52284263959391,
           "m3": 0.25062656641603476,
           "score": 16,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.62,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7224,6 +17079,21 @@
           "m1": -5.714285714285719,
           "m3": 4.011461318051566,
           "score": 15,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.44,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.46,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 38,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7237,6 +17107,21 @@
           "m1": 4.298310066127853,
           "m3": -1.4236111111111116,
           "score": 15,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.71,
+            "beatRate": 65,
+            "avgAssetDrop": -0.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 80,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7250,6 +17135,21 @@
           "m1": 5.4905490549054985,
           "m3": -2.251876563803172,
           "score": 14,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.33,
+            "beatRate": 59.3,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 73,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7263,6 +17163,21 @@
           "m1": 0.540540540540541,
           "m3": 0,
           "score": 14,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.26,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.63,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7276,6 +17191,21 @@
           "m1": 10.84010840108401,
           "m3": -5.76036866359447,
           "score": 13,
+          "resilience12m": {
+            "score": 26,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.33,
+            "beatRate": 46.3,
+            "avgAssetDrop": -1.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 57,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7289,6 +17219,21 @@
           "m1": 0,
           "m3": 0,
           "score": 13,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.27,
+            "beatRate": 60.2,
+            "avgAssetDrop": -2.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 18,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7302,6 +17247,21 @@
           "m1": 0,
           "m3": -0.7692307692307665,
           "score": 12,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.34,
+            "beatRate": 58.5,
+            "avgAssetDrop": -0.55,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7315,6 +17275,21 @@
           "m1": 5.345911949685532,
           "m3": -4.69416785206259,
           "score": 12,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.14,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.76,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7328,6 +17303,21 @@
           "m1": -3.5361414456578246,
           "m3": -0.3224073078989722,
           "score": 11,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.34,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7341,6 +17331,21 @@
           "m1": 4.347826086956526,
           "m3": -4.761904761904765,
           "score": 11,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 90.36,
+            "beatRate": 55.3,
+            "avgAssetDrop": 89.47,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7354,6 +17359,21 @@
           "m1": -5.843729481286937,
           "m3": 0.27972027972027375,
           "score": 10,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.14,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7367,6 +17387,21 @@
           "m1": 18.947368421052634,
           "m3": -13.685550604710379,
           "score": 10,
+          "resilience12m": {
+            "score": 26,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.23,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7380,6 +17415,21 @@
           "m1": 46.66666666666667,
           "m3": -30.158730158730158,
           "score": 9,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.05,
+            "beatRate": 37.4,
+            "avgAssetDrop": -1.95,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 46,
+            "upCount": 25,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7393,6 +17443,21 @@
           "m1": -3.79858657243816,
           "m3": -3.6283185840707977,
           "score": 9,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.2,
+            "beatRate": 60.2,
+            "avgAssetDrop": -0.7,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 74,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7406,6 +17471,21 @@
           "m1": 3.1250000000000027,
           "m3": -8.333333333333325,
           "score": 8,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.12,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7419,6 +17499,21 @@
           "m1": 2.18340611353711,
           "m3": -7.8740157480315025,
           "score": 8,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": -0.09,
+            "beatRate": 52,
+            "avgAssetDrop": -0.98,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7432,6 +17527,21 @@
           "m1": 8.70588235294118,
           "m3": -14.602587800369687,
           "score": 7,
+          "resilience12m": {
+            "score": 38,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.15,
+            "beatRate": 49.6,
+            "avgAssetDrop": -1.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 61,
+            "upCount": 35,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7445,6 +17555,21 @@
           "m1": -11.403508771929829,
           "m3": -6.7692307692307745,
           "score": 7,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.69,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7458,6 +17583,21 @@
           "m1": -2.150537634408599,
           "m3": -13.60759493670887,
           "score": 6,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.28,
+            "beatRate": 58.5,
+            "avgAssetDrop": -0.62,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7471,6 +17611,21 @@
           "m1": 0.6880733944953982,
           "m3": -20.036429872495457,
           "score": 6,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.28,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7484,6 +17639,21 @@
           "m1": 3.4817351598173487,
           "m3": -22.85106382978724,
           "score": 5,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.7,
+            "beatRate": 38.8,
+            "avgAssetDrop": -1.61,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 31,
+            "upCount": 24,
+            "matchedDays": 80,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7497,6 +17667,21 @@
           "m1": -7.031250000000005,
           "m3": -20.40133779264215,
           "score": 5,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.34,
+            "beatRate": 61,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7510,6 +17695,21 @@
           "m1": -6.586826347305381,
           "m3": -23.902439024390233,
           "score": 4,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 3.25,
+            "beatRate": 43.9,
+            "avgAssetDrop": 2.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7523,6 +17723,21 @@
           "m1": -6.8702290076335935,
           "m3": -24.691358024691365,
           "score": 4,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.06,
+            "beatRate": 48,
+            "avgAssetDrop": -0.84,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 59,
+            "upCount": 33,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7536,6 +17751,21 @@
           "m1": -10.958904109589037,
           "m3": -27.77777777777778,
           "score": 3,
+          "resilience12m": {
+            "score": 78,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.6,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7549,6 +17779,21 @@
           "m1": -10.563380281690135,
           "m3": -29.05027932960894,
           "score": 3,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.59,
+            "beatRate": 57.7,
+            "avgAssetDrop": -0.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 71,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7562,6 +17807,21 @@
           "m1": -19.083969465648853,
           "m3": -29.33333333333333,
           "score": 2,
+          "resilience12m": {
+            "score": 78,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.47,
+            "beatRate": 58.5,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7575,6 +17835,21 @@
           "m1": -17.07779886148007,
           "m3": -34.08748114630467,
           "score": 2,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.44,
+            "beatRate": 43.9,
+            "avgAssetDrop": -1.33,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 54,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7588,6 +17863,21 @@
           "m1": -2.3076923076923075,
           "m3": -18.06451612903226,
           "score": 1,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.15,
+            "beatRate": 48.8,
+            "avgAssetDrop": -0.74,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 60,
+            "upCount": 37,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7601,6 +17891,21 @@
           "m1": 13.150684931506849,
           "m3": -41,
           "score": 1,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 7.65,
+            "beatRate": 56.9,
+            "avgAssetDrop": 6.75,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7614,6 +17919,21 @@
           "m1": 26.551724137931043,
           "m3": -71.87739463601534,
           "score": 0,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.74,
+            "beatRate": 43.1,
+            "avgAssetDrop": -1.64,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 53,
+            "upCount": 34,
+            "matchedDays": 123,
+            "benchmark": "SMLL + B3",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7634,6 +17954,21 @@
           "m1": 16.431300880544942,
           "m3": 18.819938962360126,
           "score": 100,
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.74,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 61,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7647,6 +17982,21 @@
           "m1": 16.680249932083672,
           "m3": 17.38179830554796,
           "score": 99,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.73,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7660,6 +18010,21 @@
           "m1": 12.730627306273071,
           "m3": 14.419475655430722,
           "score": 98,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.74,
+            "beatRate": 70.7,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7673,6 +18038,21 @@
           "m1": 11.303630363036312,
           "m3": 12.206279891869405,
           "score": 97,
+          "resilience12m": {
+            "score": 26,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.55,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7686,6 +18066,21 @@
           "m1": 11.565739225313687,
           "m3": 11.687602403058442,
           "score": 96,
+          "resilience12m": {
+            "score": 78,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.79,
+            "beatRate": 78.9,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7699,6 +18094,21 @@
           "m1": 10.738461538461545,
           "m3": 12.031128404669268,
           "score": 95,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 82,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7712,6 +18122,21 @@
           "m1": 20.43280182232346,
           "m3": 4.486166007905131,
           "score": 94,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.34,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7725,6 +18150,21 @@
           "m1": 12.853873027346104,
           "m3": 7.616312464101102,
           "score": 93,
+          "resilience12m": {
+            "score": 46,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.7,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7738,6 +18178,21 @@
           "m1": 8.937228091982595,
           "m3": 9.687108886107627,
           "score": 92,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.73,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7751,6 +18206,21 @@
           "m1": 10.359187922956785,
           "m3": 7.233181588265047,
           "score": 91,
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.25,
+            "beatRate": 55.3,
+            "avgAssetDrop": -0.65,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 68,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7764,6 +18234,21 @@
           "m1": 8.74749594581704,
           "m3": 7.913669064748201,
           "score": 90,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.73,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7777,6 +18262,21 @@
           "m1": 6.169604573606488,
           "m3": 9.186673199412052,
           "score": 89,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.67,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7790,6 +18290,21 @@
           "m1": 7.281553398058252,
           "m3": 7.857491459248411,
           "score": 88,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.78,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7803,6 +18318,21 @@
           "m1": 7.809768038232881,
           "m3": 7.048611111111098,
           "score": 87,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.74,
+            "beatRate": 78,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7816,6 +18346,21 @@
           "m1": 8.953301127214159,
           "m3": 6.050156739811904,
           "score": 86,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.73,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7829,6 +18374,21 @@
           "m1": 9.14245216158753,
           "m3": 5.580693815987924,
           "score": 85,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.81,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7842,6 +18402,21 @@
           "m1": 4.018912529550826,
           "m3": 7.97546012269939,
           "score": 84,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.81,
+            "beatRate": 82.9,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 102,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7855,6 +18430,21 @@
           "m1": 13.266998341625207,
           "m3": 2.9079403344884627,
           "score": 83,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.68,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7868,6 +18458,21 @@
           "m1": 7.9315068493150775,
           "m3": 5.545880776959143,
           "score": 83,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.81,
+            "beatRate": 85.4,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 105,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7881,6 +18486,21 @@
           "m1": 6.962120077855953,
           "m3": 5.8370370370370335,
           "score": 82,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.76,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7894,6 +18514,21 @@
           "m1": 7.491560633601675,
           "m3": 5.196950444726815,
           "score": 81,
+          "resilience12m": {
+            "score": 10,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.62,
+            "beatRate": 68.3,
+            "avgAssetDrop": -0.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 84,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7907,6 +18542,21 @@
           "m1": 9.42857142857143,
           "m3": 4.076086956521737,
           "score": 80,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.58,
+            "beatRate": 72.4,
+            "avgAssetDrop": -0.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 89,
+            "upCount": 39,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7920,6 +18570,21 @@
           "m1": 5.284090909090915,
           "m3": 6.274374856618489,
           "score": 79,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.77,
+            "beatRate": 79.7,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 98,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7933,6 +18598,21 @@
           "m1": 7.88939228245586,
           "m3": 4.63636363636364,
           "score": 78,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.65,
+            "beatRate": 65.9,
+            "avgAssetDrop": -0.25,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7946,6 +18626,21 @@
           "m1": 2.6275115919629046,
           "m3": 7.443365695792881,
           "score": 77,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.68,
+            "beatRate": 72.4,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 89,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7959,6 +18654,21 @@
           "m1": 13.752455795677804,
           "m3": 1.4010507880910694,
           "score": 76,
+          "resilience12m": {
+            "score": 22,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.6,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.3,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -7972,6 +18682,21 @@
           "m1": 5.652173913043473,
           "m3": 5.346820809248556,
           "score": 75,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.73,
+            "beatRate": 74,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 91,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -7985,6 +18710,21 @@
           "m1": 5.451080050825911,
           "m3": 5.4309851997713166,
           "score": 74,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -7998,6 +18738,21 @@
           "m1": 10.659756268384928,
           "m3": 2.610728666060534,
           "score": 73,
+          "resilience12m": {
+            "score": 34,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.65,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.24,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8011,6 +18766,21 @@
           "m1": 5.73333333333333,
           "m3": 5.172413793103444,
           "score": 72,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.7,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8024,6 +18794,21 @@
           "m1": 7.326007326007311,
           "m3": 4.304207119741095,
           "score": 71,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.53,
+            "beatRate": 69.9,
+            "avgAssetDrop": -0.37,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 86,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -8037,6 +18822,21 @@
           "m1": 11.724865863312516,
           "m3": 1.4617780972921146,
           "score": 70,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.64,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8050,6 +18850,21 @@
           "m1": 5.263157894736844,
           "m3": 4.928457869634334,
           "score": 69,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8063,6 +18878,21 @@
           "m1": 10.779023107790241,
           "m3": 1.393110435663638,
           "score": 68,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.61,
+            "beatRate": 69.9,
+            "avgAssetDrop": -0.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 86,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8076,6 +18906,21 @@
           "m1": 2.09139391404371,
           "m3": 5.786109004225798,
           "score": 67,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.74,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -8089,6 +18934,21 @@
           "m1": 8.658420551855386,
           "m3": 1.8733273862622735,
           "score": 66,
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.55,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8102,6 +18962,21 @@
           "m1": 7.479387514723202,
           "m3": 2.470522178551383,
           "score": 65,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.51,
+            "beatRate": 65.9,
+            "avgAssetDrop": -0.39,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 81,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8115,6 +18990,21 @@
           "m1": 6.860706860706863,
           "m3": 2.594810379241515,
           "score": 64,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.72,
+            "beatRate": 78,
+            "avgAssetDrop": -0.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 40,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8128,6 +19018,21 @@
           "m1": 15.049504950495047,
           "m3": -1.8581081081081134,
           "score": 63,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.46,
+            "beatRate": 69.9,
+            "avgAssetDrop": -0.44,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 86,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8141,6 +19046,21 @@
           "m1": 3.8941398865784542,
           "m3": 4.143506821627086,
           "score": 62,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8154,6 +19074,21 @@
           "m1": 11.675126903553288,
           "m3": -0.06680026720106501,
           "score": 61,
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8167,6 +19102,21 @@
           "m1": 8.367768595041328,
           "m3": 1.6472868217054255,
           "score": 60,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 70.2,
+            "avgAssetDrop": -0.27,
+            "avgBenchDrop": -0.93,
+            "marketDownDays": 123,
+            "beatCount": 73,
+            "upCount": 38,
+            "matchedDays": 104,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8180,6 +19130,21 @@
           "m1": 6.224719101123602,
           "m3": 2.727371509290454,
           "score": 59,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.75,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8193,6 +19158,21 @@
           "m1": 8.816705336426933,
           "m3": 0.8602150537634415,
           "score": 58,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.66,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8206,6 +19186,21 @@
           "m1": 4.6000000000000085,
           "m3": 3.0541871921182313,
           "score": 57,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.73,
+            "beatRate": 78,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8219,6 +19214,21 @@
           "m1": 7.871110564506201,
           "m3": 1.1066282420749207,
           "score": 56,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.5,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.4,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 82,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8232,6 +19242,21 @@
           "m1": 5.224787363304978,
           "m3": 2.3640661938534193,
           "score": 55,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.84,
+            "beatRate": 87,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 107,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -8245,6 +19270,21 @@
           "m1": 7.612031921424189,
           "m3": 0.8050603795284679,
           "score": 54,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8258,6 +19298,21 @@
           "m1": 7.109004739336489,
           "m3": 0.8928571428571237,
           "score": 53,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.82,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8271,6 +19326,21 @@
           "m1": 5.280077934729651,
           "m3": 1.8279468576274358,
           "score": 52,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8284,6 +19354,21 @@
           "m1": 7.676220937384665,
           "m3": 0.4936854190585612,
           "score": 51,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.79,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8297,6 +19382,21 @@
           "m1": 4.534683326152514,
           "m3": 2.1794061907769984,
           "score": 50,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.74,
+            "beatRate": 74,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 91,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8310,6 +19410,21 @@
           "m1": 5.412216488659553,
           "m3": 1.6666666666666639,
           "score": 50,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.82,
+            "beatRate": 73.2,
+            "avgAssetDrop": -0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 64,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8323,6 +19438,21 @@
           "m1": 3.740992991807316,
           "m3": 2.5565964090554156,
           "score": 49,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.83,
+            "beatRate": 86.2,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 106,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8336,6 +19466,21 @@
           "m1": 3.8374717832957095,
           "m3": 1.9955654101995532,
           "score": 48,
+          "resilience12m": {
+            "score": 50,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.74,
+            "beatRate": 75.6,
+            "avgAssetDrop": -0.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8349,6 +19494,21 @@
           "m1": 10.217391304347826,
           "m3": -1.8583042973286918,
           "score": 47,
+          "resilience12m": {
+            "score": 62,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.68,
+            "beatRate": 78,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8362,6 +19522,21 @@
           "m1": 2.896566252369918,
           "m3": 1.9515758714255944,
           "score": 46,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.79,
+            "beatRate": 80.5,
+            "avgAssetDrop": -0.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 99,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8375,6 +19550,21 @@
           "m1": 8.837727441515035,
           "m3": -1.313131313131315,
           "score": 45,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8388,6 +19578,21 @@
           "m1": 5.9107358262967455,
           "m3": 0.22831050228310015,
           "score": 44,
+          "resilience12m": {
+            "score": 66,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 80.5,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 99,
+            "upCount": 43,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8401,6 +19606,21 @@
           "m1": 6.915029344220466,
           "m3": -0.47505938242280954,
           "score": 43,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.64,
+            "beatRate": 69.1,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 45,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8414,6 +19634,21 @@
           "m1": 8.283245679939888,
           "m3": -1.7552828902522175,
           "score": 42,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8427,6 +19662,21 @@
           "m1": 4.8133211916222045,
           "m3": -0.03722084367245799,
           "score": 41,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.79,
+            "beatRate": 80.5,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 99,
+            "upCount": 60,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8440,6 +19690,21 @@
           "m1": 10.152990264255903,
           "m3": -2.9411764705882377,
           "score": 40,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.61,
+            "beatRate": 68.3,
+            "avgAssetDrop": -0.28,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 84,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8453,6 +19718,21 @@
           "m1": 9.43718905472638,
           "m3": -2.5743944636678195,
           "score": 39,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.73,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8466,6 +19746,21 @@
           "m1": 5.268505079825828,
           "m3": -0.3571919219673102,
           "score": 38,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.55,
+            "beatRate": 64.2,
+            "avgAssetDrop": -0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8479,6 +19774,21 @@
           "m1": 3.90792291220557,
           "m3": 0.3619441571871783,
           "score": 37,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.76,
+            "beatRate": 82.9,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 102,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8492,6 +19802,21 @@
           "m1": 5.317945236478845,
           "m3": -0.5661788270483935,
           "score": 36,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.72,
+            "beatRate": 72.4,
+            "avgAssetDrop": -0.17,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 89,
+            "upCount": 49,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8505,6 +19830,21 @@
           "m1": 2.908689248895426,
           "m3": 0.6191950464396384,
           "score": 35,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.87,
+            "beatRate": 84.6,
+            "avgAssetDrop": -0.03,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 104,
+            "upCount": 67,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8518,6 +19858,21 @@
           "m1": 3.5319300749197273,
           "m3": 0.24179620034543234,
           "score": 34,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.64,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8531,6 +19886,21 @@
           "m1": 5.177529929397321,
           "m3": -0.7722753161502047,
           "score": 33,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.76,
+            "beatRate": 78,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8544,6 +19914,21 @@
           "m1": 4.610644852863065,
           "m3": -0.6657923938262853,
           "score": 32,
+          "resilience12m": {
+            "score": 98,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.83,
+            "beatRate": 86.2,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 106,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8557,6 +19942,21 @@
           "m1": 3.0099009900990117,
           "m3": 0.07695267410542808,
           "score": 31,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8570,6 +19970,21 @@
           "m1": 1.0893246187363796,
           "m3": 1.0893246187363796,
           "score": 30,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.81,
+            "beatRate": 85.4,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 105,
+            "upCount": 48,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8583,6 +19998,21 @@
           "m1": 6.308724832214761,
           "m3": -1.7369727047146473,
           "score": 29,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.67,
+            "beatRate": 74,
+            "avgAssetDrop": -0.23,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 91,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8596,6 +20026,21 @@
           "m1": 3.2295271049596237,
           "m3": -0.11160714285716028,
           "score": 28,
+          "resilience12m": {
+            "score": 50,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8609,6 +20054,21 @@
           "m1": 2.6068821689259645,
           "m3": 0.10172939979653903,
           "score": 27,
+          "resilience12m": {
+            "score": 86,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.76,
+            "beatRate": 82.1,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 101,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -8622,6 +20082,21 @@
           "m1": 2.5669642857142705,
           "m3": -0.32537960954448086,
           "score": 26,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.77,
+            "beatRate": 82.1,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 101,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -8635,6 +20110,21 @@
           "m1": 13.153627888123214,
           "m3": -6.025921562026592,
           "score": 25,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.47,
+            "beatRate": 69.1,
+            "avgAssetDrop": -0.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8648,6 +20138,21 @@
           "m1": 2.6416052832105645,
           "m3": -1.077111383108947,
           "score": 24,
+          "resilience12m": {
+            "score": 38,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.68,
+            "beatRate": 74,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 91,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8661,6 +20166,21 @@
           "m1": 7.229431056609166,
           "m3": -3.589743589743586,
           "score": 23,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.21,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8674,6 +20194,21 @@
           "m1": 3.7383177570093373,
           "m3": -1.8939393939393985,
           "score": 22,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.57,
+            "beatRate": 78.9,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8687,6 +20222,21 @@
           "m1": 5.116796440489423,
           "m3": -2.7777777777777914,
           "score": 21,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.7,
+            "beatRate": 82.9,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 102,
+            "upCount": 47,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8700,6 +20250,21 @@
           "m1": 1.6998401859654246,
           "m3": -0.9480684873355054,
           "score": 20,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 61,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8713,6 +20278,21 @@
           "m1": 0.1796090861066957,
           "m3": -0.2944269190325985,
           "score": 19,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.81,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 63,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -8726,6 +20306,21 @@
           "m1": 2.1589343132751444,
           "m3": -1.592920353982314,
           "score": 18,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 95,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8739,6 +20334,21 @@
           "m1": 2.981969486823854,
           "m3": -2.516411378555811,
           "score": 17,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.85,
+            "beatRate": 80.5,
+            "avgAssetDrop": -0.04,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 99,
+            "upCount": 65,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8752,6 +20362,21 @@
           "m1": 2.9014844804318467,
           "m3": -2.607770090473659,
           "score": 17,
+          "resilience12m": {
+            "score": 54,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 76.4,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 94,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8765,6 +20390,21 @@
           "m1": 3.3916849015317143,
           "m3": -2.9774127310061695,
           "score": 16,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.77,
+            "beatRate": 82.1,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 101,
+            "upCount": 41,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8778,6 +20418,21 @@
           "m1": 7.816377171215868,
           "m3": -5.44069640914037,
           "score": 15,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.6,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.29,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8791,6 +20446,21 @@
           "m1": 1.9445706497046804,
           "m3": -2.443478260869567,
           "score": 14,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.81,
+            "beatRate": 78,
+            "avgAssetDrop": -0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 61,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8804,6 +20474,21 @@
           "m1": -0.44247787610618533,
           "m3": -2.067464635473335,
           "score": 13,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 79.7,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 98,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8817,6 +20502,21 @@
           "m1": 0.2922552362396465,
           "m3": -2.5094696969696892,
           "score": 12,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.82,
+            "beatRate": 88.6,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 109,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8830,6 +20530,21 @@
           "m1": 3.0687124749833186,
           "m3": -4.037267080745342,
           "score": 11,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 78.9,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8843,6 +20558,21 @@
           "m1": 1.2658227848101407,
           "m3": -3.190319031903181,
           "score": 10,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.76,
+            "beatRate": 74.8,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8856,6 +20586,21 @@
           "m1": 4.9559918754231695,
           "m3": -5.2908113391984335,
           "score": 9,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.76,
+            "beatRate": 71.5,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -8869,6 +20614,21 @@
           "m1": -0.8928571428571455,
           "m3": -2.2343778972742414,
           "score": 8,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.85,
+            "beatRate": 85.4,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 105,
+            "upCount": 59,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8882,6 +20642,21 @@
           "m1": 0.138121546961323,
           "m3": -3.3333333333333335,
           "score": 7,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.88,
+            "beatRate": 87,
+            "avgAssetDrop": -0.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 107,
+            "upCount": 32,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8895,6 +20670,21 @@
           "m1": 1.6455696202531518,
           "m3": -4.404761904761916,
           "score": 6,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.78,
+            "beatRate": 81.3,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 100,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8908,6 +20698,21 @@
           "m1": 0.1492537313432804,
           "m3": -4.005722460658086,
           "score": 5,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.74,
+            "beatRate": 82.9,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 102,
+            "upCount": 52,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8921,6 +20726,21 @@
           "m1": 9.289924221161929,
           "m3": -9.336437718277079,
           "score": 4,
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.62,
+            "beatRate": 70.7,
+            "avgAssetDrop": -0.27,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8934,6 +20754,21 @@
           "m1": 6.084243369734784,
           "m3": -18.121613485851896,
           "score": 3,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.47,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8947,6 +20782,21 @@
           "m1": -1.412313177019061,
           "m3": -21.07574094401755,
           "score": 2,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.7,
+            "beatRate": 78,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 96,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8960,6 +20810,21 @@
           "m1": 1.5344603381014206,
           "m3": -23.058730784391017,
           "score": 1,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.51,
+            "beatRate": 61,
+            "avgAssetDrop": -0.38,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 75,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8973,6 +20838,21 @@
           "m1": -2.922077922077929,
           "m3": -31.42201834862386,
           "score": 0,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.26,
+            "beatRate": 56.1,
+            "avgAssetDrop": -1.16,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "IFIX",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -8993,6 +20873,21 @@
           "m1": 20.40249826509369,
           "m3": 60.351201478743064,
           "score": 100,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 1.25,
+            "beatRate": 56.9,
+            "avgAssetDrop": 0.35,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 59,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9006,6 +20901,21 @@
           "m1": 14.091858037578284,
           "m3": 59.56204379562045,
           "score": 97,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.58,
+            "beatRate": 45.5,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 56,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9019,6 +20929,21 @@
           "m1": 5.017039000378642,
           "m3": 34.897859922178995,
           "score": 94,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.16,
+            "beatRate": 63.4,
+            "avgAssetDrop": 0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 66,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9032,6 +20957,21 @@
           "m1": 5.243088655862716,
           "m3": 19.222462203023753,
           "score": 91,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.21,
+            "beatRate": 47.2,
+            "avgAssetDrop": -1.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 58,
+            "upCount": 44,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9045,6 +20985,21 @@
           "m1": 6.666666666666668,
           "m3": 13.698630136986298,
           "score": 88,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.07,
+            "beatRate": 52.8,
+            "avgAssetDrop": -0.82,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 65,
+            "upCount": 42,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9058,6 +21013,21 @@
           "m1": -3.768752286864243,
           "m3": 18.57529305680794,
           "score": 85,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.54,
+            "beatRate": 73.2,
+            "avgAssetDrop": 0.64,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 80,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9071,6 +21041,21 @@
           "m1": 14.583333333333337,
           "m3": 5.419594988749685,
           "score": 82,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.78,
+            "beatRate": 56.9,
+            "avgAssetDrop": -0.12,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 70,
+            "upCount": 58,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9084,6 +21069,21 @@
           "m1": -0.7468879668049683,
           "m3": 11.3939770257684,
           "score": 79,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.11,
+            "beatRate": 70.7,
+            "avgAssetDrop": 0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 68,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9097,6 +21097,21 @@
           "m1": 3.554868624420408,
           "m3": 7.868786476152151,
           "score": 76,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 1.24,
+            "beatRate": 49.1,
+            "avgAssetDrop": 0.35,
+            "avgBenchDrop": -0.89,
+            "marketDownDays": 123,
+            "beatCount": 27,
+            "upCount": 21,
+            "matchedDays": 55,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9110,6 +21125,21 @@
           "m1": 7.378151260504202,
           "m3": 4.310204081632654,
           "score": 73,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.76,
+            "beatRate": 53.7,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 66,
+            "upCount": 53,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9123,6 +21153,21 @@
           "m1": -1.7906336088154233,
           "m3": 9.154929577464795,
           "score": 70,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.71,
+            "beatRate": 52,
+            "avgAssetDrop": -0.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 64,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9136,6 +21181,21 @@
           "m1": 2.1021021021021107,
           "m3": 5.871886120996442,
           "score": 67,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.88,
+            "beatRate": 62.6,
+            "avgAssetDrop": -0.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 77,
+            "upCount": 56,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9149,6 +21209,21 @@
           "m1": -0.8042488619119894,
           "m3": 4.158699808795421,
           "score": 64,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.82,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.08,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 82,
+            "upCount": 55,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9162,6 +21237,21 @@
           "m1": -2.2000000000000073,
           "m3": 4.190340909090893,
           "score": 61,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.26,
+            "beatRate": 73.2,
+            "avgAssetDrop": 0.36,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 90,
+            "upCount": 73,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9175,6 +21265,21 @@
           "m1": 2.108805249859281,
           "m3": 1.3888228299643222,
           "score": 58,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 1.16,
+            "beatRate": 58.5,
+            "avgAssetDrop": 0.26,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 72,
+            "upCount": 63,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9188,6 +21293,21 @@
           "m1": 2.0555355210962816,
           "m3": 1.3319965625895258,
           "score": 55,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.88,
+            "beatRate": 62.6,
+            "avgAssetDrop": -0.02,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 77,
+            "upCount": 60,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9201,6 +21321,21 @@
           "m1": -1.5882352941176403,
           "m3": 3.271604938271612,
           "score": 52,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.32,
+            "beatRate": 74.8,
+            "avgAssetDrop": 0.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 92,
+            "upCount": 71,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9214,6 +21349,21 @@
           "m1": -1.6806077814442464,
           "m3": 1.521394611727418,
           "score": 48,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.32,
+            "beatRate": 75.6,
+            "avgAssetDrop": 0.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 93,
+            "upCount": 74,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9227,6 +21377,21 @@
           "m1": 2.8644608227484136,
           "m3": -2.843742285855354,
           "score": 45,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.61,
+            "beatRate": 72.4,
+            "avgAssetDrop": 0.71,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 89,
+            "upCount": 69,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9240,6 +21405,21 @@
           "m1": -3.0456226880394563,
           "m3": -1.1937672782106092,
           "score": 42,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.48,
+            "beatRate": 61.8,
+            "avgAssetDrop": -0.42,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 76,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BULLISH"
           },
@@ -9253,6 +21433,21 @@
           "m1": 1.1460922397127842,
           "m3": -3.8713910761154895,
           "score": 39,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1,
+            "beatRate": 69.1,
+            "avgAssetDrop": 0.1,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 69,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9266,6 +21461,21 @@
           "m1": -4.472173144876322,
           "m3": -1.018306636155607,
           "score": 36,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.39,
+            "beatRate": 78.9,
+            "avgAssetDrop": 0.5,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 97,
+            "upCount": 84,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9279,6 +21489,21 @@
           "m1": 1.3973799126637463,
           "m3": -4.260582737768016,
           "score": 33,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.39,
+            "beatRate": 69.1,
+            "avgAssetDrop": 0.5,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 85,
+            "upCount": 65,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -9292,6 +21517,21 @@
           "m1": -1.9470793809286095,
           "m3": -3.6310107948969503,
           "score": 30,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.89,
+            "beatRate": 56.1,
+            "avgAssetDrop": 0,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 51,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -9305,6 +21545,21 @@
           "m1": 2.4511484401782644,
           "m3": -8.257866462010748,
           "score": 27,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.71,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 54,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9318,6 +21573,21 @@
           "m1": -8.348953452046235,
           "m3": -2.976436544026464,
           "score": 24,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.59,
+            "beatRate": 50.4,
+            "avgAssetDrop": -0.31,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 62,
+            "upCount": 50,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -9331,6 +21601,21 @@
           "m1": -1.2698412698412749,
           "m3": -7.361702127659576,
           "score": 21,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.68,
+            "beatRate": 56.1,
+            "avgAssetDrop": -0.22,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 69,
+            "upCount": 57,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9344,6 +21629,21 @@
           "m1": -8.434925864909383,
           "m3": -3.5627530364372446,
           "score": 18,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.01,
+            "beatRate": 70.7,
+            "avgAssetDrop": 0.11,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 87,
+            "upCount": 66,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "NEUTRAL"
           },
@@ -9357,6 +21657,21 @@
           "m1": -11.194968553459127,
           "m3": -5.8666666666666725,
           "score": 15,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.34,
+            "beatRate": 63.4,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 78,
+            "upCount": 60,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -9370,6 +21685,21 @@
           "m1": -3.3707865168539275,
           "m3": -11.065149948293694,
           "score": 12,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.96,
+            "beatRate": 65,
+            "avgAssetDrop": 0.07,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 80,
+            "upCount": 65,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -9383,6 +21713,21 @@
           "m1": -9.842519685039369,
           "m3": -11.923076923076925,
           "score": 9,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 1.08,
+            "beatRate": 64.2,
+            "avgAssetDrop": 0.18,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 79,
+            "upCount": 67,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -9396,6 +21741,21 @@
           "m1": -15.770430442919526,
           "m3": -12.027625749283281,
           "score": 6,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.98,
+            "beatRate": 71.5,
+            "avgAssetDrop": 0.09,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 88,
+            "upCount": 71,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -9409,6 +21769,21 @@
           "m1": -4.993909866017064,
           "m3": -23.491907797940172,
           "score": 3,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.57,
+            "beatRate": 42.3,
+            "avgAssetDrop": -0.33,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 52,
+            "upCount": 46,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -9422,6 +21797,21 @@
           "m1": -6.819392647842308,
           "m3": -22.95154185022027,
           "score": 0,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 4.38,
+            "beatRate": 67.5,
+            "avgAssetDrop": 3.48,
+            "avgBenchDrop": -0.9,
+            "marketDownDays": 123,
+            "beatCount": 83,
+            "upCount": 64,
+            "matchedDays": 123,
+            "benchmark": "Universo BDR",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "weeklyTrend": {
             "state": "BEARISH"
           },
@@ -9433,9 +21823,9 @@
   },
   "nasdaq": {
     "daily": {
-      "displayDate": "01/10/2026 20:15",
-      "baseDate": "2026-10-01",
       "source": "Twelve Data",
+      "baseDate": "2026-10-01",
+      "displayDate": "01/10/2026 20:15",
       "ranking": [
         {
           "symbol": "MRNA",
@@ -9444,6 +21834,21 @@
           "m1": 22.47,
           "m3": 136.89,
           "score": 100,
+          "resilience12m": {
+            "score": 78,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 2.26,
+            "beatRate": 55.3,
+            "avgAssetDrop": 1.3,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 63,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BULLISH",
           "rank": 1
         },
@@ -9454,6 +21859,21 @@
           "m1": 1.54,
           "m3": 126.51,
           "score": 99,
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.7,
+            "beatRate": 58.8,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 67,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BULLISH",
           "rank": 2
         },
@@ -9464,6 +21884,21 @@
           "m1": 28.52,
           "m3": 59.27,
           "score": 98,
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.32,
+            "beatRate": 27.2,
+            "avgAssetDrop": -2.28,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 31,
+            "upCount": 27,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 3
         },
@@ -9474,6 +21909,21 @@
           "m1": 14.19,
           "m3": 54,
           "score": 97,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.49,
+            "beatRate": 28.1,
+            "avgAssetDrop": -2.45,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 32,
+            "upCount": 23,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 4
         },
@@ -9484,6 +21934,21 @@
           "m1": 28.29,
           "m3": 40.83,
           "score": 96,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.93,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.03,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BULLISH",
           "rank": 5
         },
@@ -9494,6 +21959,21 @@
           "m1": 5.62,
           "m3": 46.98,
           "score": 95,
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 46.5,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 53,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 6
         },
@@ -9504,6 +21984,21 @@
           "m1": 23.72,
           "m3": 37.17,
           "score": 94,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.08,
+            "beatRate": 49.1,
+            "avgAssetDrop": -0.88,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 56,
+            "upCount": 38,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 7
         },
@@ -9514,6 +22009,21 @@
           "m1": 11.44,
           "m3": 34.92,
           "score": 93,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.11,
+            "beatRate": 54.4,
+            "avgAssetDrop": -0.85,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 62,
+            "upCount": 48,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 8
         },
@@ -9524,6 +22034,21 @@
           "m1": 25.48,
           "m3": 24.54,
           "score": 92,
+          "resilience12m": {
+            "score": 34,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.26,
+            "beatRate": 50.9,
+            "avgAssetDrop": -0.7,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 58,
+            "upCount": 40,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 9
         },
@@ -9534,6 +22059,21 @@
           "m1": 33.97,
           "m3": 18.91,
           "score": 91,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1,
+            "beatRate": 32.5,
+            "avgAssetDrop": -1.96,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 31,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 10
         },
@@ -9544,6 +22084,21 @@
           "m1": -5.86,
           "m3": 37.92,
           "score": 90,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.86,
+            "beatRate": 58.8,
+            "avgAssetDrop": -0.1,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 67,
+            "upCount": 49,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 11
         },
@@ -9554,6 +22109,21 @@
           "m1": 2.35,
           "m3": 31.32,
           "score": 89,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 58.8,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 67,
+            "upCount": 40,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BULLISH",
           "rank": 12
         },
@@ -9564,6 +22134,21 @@
           "m1": 23.95,
           "m3": 12.65,
           "score": 88,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.18,
+            "beatRate": 38.6,
+            "avgAssetDrop": -2.14,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 44,
+            "upCount": 37,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 13
         },
@@ -9574,6 +22159,21 @@
           "m1": 18.25,
           "m3": 12.21,
           "score": 87,
+          "resilience12m": {
+            "score": 22,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.3,
+            "beatRate": 47.4,
+            "avgAssetDrop": -1.26,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 54,
+            "upCount": 30,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 14
         },
@@ -9584,6 +22184,21 @@
           "m1": 17.56,
           "m3": 12.49,
           "score": 86,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.25,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.21,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 15
         },
@@ -9594,6 +22209,21 @@
           "m1": 9.29,
           "m3": 16.88,
           "score": 85,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.92,
+            "beatRate": 75.4,
+            "avgAssetDrop": -0.04,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 86,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BULLISH",
           "rank": 16
         },
@@ -9604,6 +22234,21 @@
           "m1": 6.17,
           "m3": 18.49,
           "score": 84,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.36,
+            "beatRate": 42.1,
+            "avgAssetDrop": -1.32,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 48,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 17
         },
@@ -9614,6 +22259,21 @@
           "m1": 10.42,
           "m3": 14.38,
           "score": 83,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.5,
+            "beatRate": 50,
+            "avgAssetDrop": -0.46,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 57,
+            "upCount": 43,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BULLISH",
           "rank": 18
         },
@@ -9624,6 +22284,21 @@
           "m1": 9.43,
           "m3": 13.85,
           "score": 82,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.4,
+            "beatRate": 53.5,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 61,
+            "upCount": 42,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BULLISH",
           "rank": 19
         },
@@ -9634,6 +22309,21 @@
           "m1": 23.51,
           "m3": 6.18,
           "score": 81,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.38,
+            "beatRate": 49.1,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 56,
+            "upCount": 38,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 20
         },
@@ -9644,6 +22334,21 @@
           "m1": -4.34,
           "m3": 21.02,
           "score": 80,
+          "resilience12m": {
+            "score": 66,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.77,
+            "beatRate": 64.9,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 56,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 21
         },
@@ -9654,6 +22359,21 @@
           "m1": 14.13,
           "m3": 7.28,
           "score": 78,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.01,
+            "beatRate": 53.5,
+            "avgAssetDrop": -0.95,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 61,
+            "upCount": 39,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 22
         },
@@ -9664,6 +22384,21 @@
           "m1": 11.01,
           "m3": 5.65,
           "score": 77,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.83,
+            "beatRate": 36,
+            "avgAssetDrop": -1.79,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 41,
+            "upCount": 35,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 23
         },
@@ -9674,6 +22409,21 @@
           "m1": -1.61,
           "m3": 12.36,
           "score": 76,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.96,
+            "beatRate": 65.8,
+            "avgAssetDrop": 0,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 24
         },
@@ -9684,6 +22434,21 @@
           "m1": 2.12,
           "m3": 9.68,
           "score": 75,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.9,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 88,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 25
         },
@@ -9694,6 +22459,21 @@
           "m1": 9.29,
           "m3": 3.31,
           "score": 74,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.54,
+            "beatRate": 47.4,
+            "avgAssetDrop": -1.5,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 54,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 26
         },
@@ -9704,6 +22484,21 @@
           "m1": 1.6,
           "m3": 7.03,
           "score": 73,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.83,
+            "beatRate": 69.3,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 27
         },
@@ -9714,6 +22509,21 @@
           "m1": 8.61,
           "m3": 2.21,
           "score": 72,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.43,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.39,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 28
         },
@@ -9724,6 +22534,21 @@
           "m1": 17.2,
           "m3": -3.22,
           "score": 69,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.23,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.19,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 29
         },
@@ -9734,6 +22559,21 @@
           "m1": 24.5,
           "m3": -7.28,
           "score": 68,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.35,
+            "beatRate": 34.2,
+            "avgAssetDrop": -2.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 39,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 30
         },
@@ -9744,6 +22584,21 @@
           "m1": 3.03,
           "m3": 3.34,
           "score": 65,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.91,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BULLISH",
           "rank": 31
         },
@@ -9754,6 +22609,21 @@
           "m1": 3.14,
           "m3": 3.1,
           "score": 64,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.11,
+            "beatRate": 64.9,
+            "avgAssetDrop": 0.15,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BULLISH",
           "rank": 32
         },
@@ -9764,6 +22634,21 @@
           "m1": 11.04,
           "m3": -4.02,
           "score": 61,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.1,
+            "beatRate": 50,
+            "avgAssetDrop": -0.86,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 57,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BULLISH",
           "rank": 33
         },
@@ -9774,6 +22659,21 @@
           "m1": 12.04,
           "m3": -6.01,
           "score": 58,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 45.6,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 52,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 34
         },
@@ -9784,6 +22684,21 @@
           "m1": 8.66,
           "m3": -5.81,
           "score": 57,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.64,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 35
         },
@@ -9794,6 +22709,21 @@
           "m1": 19.79,
           "m3": -12.23,
           "score": 56,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.97,
+            "beatRate": 40.4,
+            "avgAssetDrop": -1.93,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 46,
+            "upCount": 36,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 36
         },
@@ -9804,6 +22734,21 @@
           "m1": 6.05,
           "m3": -4.87,
           "score": 55,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.97,
+            "beatRate": 69.3,
+            "avgAssetDrop": 0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 37
         },
@@ -9814,6 +22759,21 @@
           "m1": 9.93,
           "m3": -7.25,
           "score": 54,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.58,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.54,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 38
         },
@@ -9824,6 +22784,21 @@
           "m1": -0.89,
           "m3": -3.49,
           "score": 52,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 43,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 39
         },
@@ -9834,6 +22809,21 @@
           "m1": -2.66,
           "m3": -3.86,
           "score": 51,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.14,
+            "beatRate": 75.4,
+            "avgAssetDrop": 0.18,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 86,
+            "upCount": 62,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 40
         },
@@ -9844,6 +22834,21 @@
           "m1": 17.23,
           "m3": -14.95,
           "score": 47,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.06,
+            "beatRate": 37.7,
+            "avgAssetDrop": -2.02,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 41
         },
@@ -9854,6 +22859,21 @@
           "m1": 1.82,
           "m3": -6.99,
           "score": 46,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.55,
+            "beatRate": 65.8,
+            "avgAssetDrop": -0.41,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 39,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 42
         },
@@ -9864,6 +22884,21 @@
           "m1": 10.23,
           "m3": -12.21,
           "score": 43,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.8,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.76,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 43
         },
@@ -9874,6 +22909,21 @@
           "m1": 1.26,
           "m3": 16.69,
           "score": 79,
+          "resilience12m": {
+            "score": 46,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.48,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.48,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 44,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 44
         },
@@ -9884,6 +22934,21 @@
           "m1": -2.49,
           "m3": 7.85,
           "score": 71,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.17,
+            "beatRate": 74.6,
+            "avgAssetDrop": 0.21,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 85,
+            "upCount": 61,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 45
         },
@@ -9894,6 +22959,21 @@
           "m1": -10.8,
           "m3": 12.31,
           "score": 70,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.96,
+            "beatRate": 66.7,
+            "avgAssetDrop": 0,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 58,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 46
         },
@@ -9904,6 +22984,21 @@
           "m1": -6.89,
           "m3": 8.95,
           "score": 67,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.12,
+            "beatRate": 69.3,
+            "avgAssetDrop": 0.16,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 58,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 47
         },
@@ -9914,6 +23009,21 @@
           "m1": -7.04,
           "m3": 8.85,
           "score": 66,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.95,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 53,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 48
         },
@@ -9924,6 +23034,21 @@
           "m1": -7.63,
           "m3": 8.22,
           "score": 63,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.17,
+            "beatRate": 48.2,
+            "avgAssetDrop": -1.13,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 55,
+            "upCount": 37,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 49
         },
@@ -9934,6 +23059,21 @@
           "m1": -8.69,
           "m3": 7.83,
           "score": 62,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.42,
+            "beatRate": 73.7,
+            "avgAssetDrop": 0.46,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 84,
+            "upCount": 67,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 50
         },
@@ -9944,6 +23084,21 @@
           "m1": -12.09,
           "m3": 7.75,
           "score": 60,
+          "resilience12m": {
+            "score": 54,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.55,
+            "beatRate": 62.3,
+            "avgAssetDrop": -0.41,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 71,
+            "upCount": 47,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 51
         },
@@ -9954,6 +23109,21 @@
           "m1": -2.62,
           "m3": 2.29,
           "score": 59,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.09,
+            "beatRate": 50.9,
+            "avgAssetDrop": -0.87,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 58,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 52
         },
@@ -9964,6 +23134,21 @@
           "m1": -9.63,
           "m3": 1.84,
           "score": 53,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.45,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.51,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 53
         },
@@ -9974,6 +23159,21 @@
           "m1": 0.87,
           "m3": -5.97,
           "score": 49,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.24,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 54
         },
@@ -9984,6 +23184,21 @@
           "m1": 0.96,
           "m3": -6.02,
           "score": 48,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.24,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 55
         },
@@ -9994,6 +23209,21 @@
           "m1": -14.69,
           "m3": 1.85,
           "score": 45,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 63.2,
+            "avgAssetDrop": -0.25,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 72,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 56
         },
@@ -10004,6 +23234,21 @@
           "m1": -9.87,
           "m3": -0.93,
           "score": 44,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.87,
+            "beatRate": 65.8,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 50,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 57
         },
@@ -10014,6 +23259,21 @@
           "m1": -18.02,
           "m3": 2.7,
           "score": 42,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.6,
+            "beatRate": 57.9,
+            "avgAssetDrop": -0.36,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 66,
+            "upCount": 49,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 58
         },
@@ -10024,6 +23284,21 @@
           "m1": -4.44,
           "m3": -4.81,
           "score": 41,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.82,
+            "beatRate": 73.7,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 84,
+            "upCount": 51,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 59
         },
@@ -10034,6 +23309,21 @@
           "m1": -9.15,
           "m3": -2.42,
           "score": 40,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 50,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 60
         },
@@ -10044,6 +23334,21 @@
           "m1": -7.47,
           "m3": -4.03,
           "score": 37,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.91,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 55,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 61
         },
@@ -10054,6 +23359,21 @@
           "m1": 7.55,
           "m3": -12.5,
           "score": 36,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.41,
+            "beatRate": 39.5,
+            "avgAssetDrop": -1.37,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 45,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 62
         },
@@ -10064,6 +23384,21 @@
           "m1": -3.76,
           "m3": -7.84,
           "score": 32,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.13,
+            "beatRate": 72.8,
+            "avgAssetDrop": 0.17,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 83,
+            "upCount": 61,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "NEUTRAL",
           "rank": 63
         },
@@ -10074,6 +23409,21 @@
           "m1": -0.56,
           "m3": -10,
           "score": 30,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.7,
+            "beatRate": 29.8,
+            "avgAssetDrop": -1.66,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 34,
+            "upCount": 23,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 64
         },
@@ -10084,6 +23434,21 @@
           "m1": -3.32,
           "m3": -5.78,
           "score": 39,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.99,
+            "beatRate": 67.5,
+            "avgAssetDrop": 0.03,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 60,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 65
         },
@@ -10094,6 +23459,21 @@
           "m1": -13.32,
           "m3": -0.44,
           "score": 38,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.06,
+            "beatRate": 66.7,
+            "avgAssetDrop": 0.1,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 59,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 66
         },
@@ -10104,6 +23484,21 @@
           "m1": -7.04,
           "m3": -4.66,
           "score": 35,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.76,
+            "beatRate": 39.5,
+            "avgAssetDrop": -1.72,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 45,
+            "upCount": 27,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 67
         },
@@ -10114,6 +23509,21 @@
           "m1": -6.25,
           "m3": -5.17,
           "score": 34,
+          "resilience12m": {
+            "score": 98,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.28,
+            "beatRate": 76.3,
+            "avgAssetDrop": 0.32,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 87,
+            "upCount": 63,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 68
         },
@@ -10124,6 +23534,21 @@
           "m1": -6.33,
           "m3": -5.46,
           "score": 33,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.18,
+            "beatRate": 76.3,
+            "avgAssetDrop": 0.22,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 87,
+            "upCount": 67,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 69
         },
@@ -10134,6 +23559,21 @@
           "m1": -5.03,
           "m3": -7.18,
           "score": 31,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.47,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.49,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 44,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 70
         },
@@ -10144,6 +23584,21 @@
           "m1": -19,
           "m3": -0.89,
           "score": 29,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.34,
+            "beatRate": 45.6,
+            "avgAssetDrop": -1.3,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 52,
+            "upCount": 37,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 71
         },
@@ -10154,6 +23609,21 @@
           "m1": -8.02,
           "m3": -7.15,
           "score": 28,
+          "resilience12m": {
+            "score": 26,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.15,
+            "beatRate": 51.8,
+            "avgAssetDrop": -0.81,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 59,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 72
         },
@@ -10164,6 +23634,21 @@
           "m1": -14.18,
           "m3": -4.44,
           "score": 27,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.43,
+            "beatRate": 57.9,
+            "avgAssetDrop": -0.52,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 66,
+            "upCount": 51,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 73
         },
@@ -10174,6 +23659,21 @@
           "m1": -10.22,
           "m3": -8,
           "score": 26,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.57,
+            "beatRate": 63.2,
+            "avgAssetDrop": -0.39,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 72,
+            "upCount": 41,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 74
         },
@@ -10184,6 +23684,21 @@
           "m1": -10.62,
           "m3": -9.01,
           "score": 25,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.76,
+            "beatRate": 64.9,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 75
         },
@@ -10194,6 +23709,21 @@
           "m1": -13.12,
           "m3": -7.75,
           "score": 24,
+          "resilience12m": {
+            "score": 62,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.85,
+            "beatRate": 61.4,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 70,
+            "upCount": 55,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 76
         },
@@ -10204,6 +23734,21 @@
           "m1": -11.22,
           "m3": -8.89,
           "score": 23,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.18,
+            "beatRate": 71.9,
+            "avgAssetDrop": 0.22,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 82,
+            "upCount": 67,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 77
         },
@@ -10214,6 +23759,21 @@
           "m1": -19.27,
           "m3": -5.12,
           "score": 22,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.15,
+            "beatRate": 51.8,
+            "avgAssetDrop": -0.81,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 59,
+            "upCount": 44,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 78
         },
@@ -10224,6 +23784,21 @@
           "m1": -19.74,
           "m3": -5.18,
           "score": 21,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.95,
+            "beatRate": 64,
+            "avgAssetDrop": -0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 73,
+            "upCount": 58,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 79
         },
@@ -10234,6 +23809,21 @@
           "m1": -3.56,
           "m3": -14.12,
           "score": 20,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.99,
+            "beatRate": 76.3,
+            "avgAssetDrop": 0.03,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 87,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 80
         },
@@ -10244,6 +23834,21 @@
           "m1": -6.33,
           "m3": -13.43,
           "score": 19,
+          "resilience12m": {
+            "score": 86,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.07,
+            "beatRate": 70.8,
+            "avgAssetDrop": 0.11,
+            "avgBenchDrop": -0.97,
+            "marketDownDays": 114,
+            "beatCount": 80,
+            "upCount": 62,
+            "matchedDays": 113,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 81
         },
@@ -10254,6 +23859,21 @@
           "m1": -15.95,
           "m3": -9.06,
           "score": 18,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.97,
+            "beatRate": 67.5,
+            "avgAssetDrop": 0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 82
         },
@@ -10264,6 +23884,21 @@
           "m1": -13.36,
           "m3": -10.6,
           "score": 17,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.17,
+            "beatRate": 71.1,
+            "avgAssetDrop": 0.21,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 81,
+            "upCount": 64,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 83
         },
@@ -10274,6 +23909,21 @@
           "m1": -17.49,
           "m3": -8.79,
           "score": 16,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.89,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 84
         },
@@ -10284,6 +23934,21 @@
           "m1": -10.15,
           "m3": -12.91,
           "score": 15,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.34,
+            "beatRate": 80.7,
+            "avgAssetDrop": 0.38,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 92,
+            "upCount": 64,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 85
         },
@@ -10294,6 +23959,21 @@
           "m1": -13.18,
           "m3": -11.47,
           "score": 14,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.17,
+            "beatRate": 73.7,
+            "avgAssetDrop": 0.21,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 84,
+            "upCount": 71,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 86
         },
@@ -10304,6 +23984,21 @@
           "m1": -7.67,
           "m3": -15.48,
           "score": 13,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.13,
+            "beatRate": 75.4,
+            "avgAssetDrop": 0.17,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 86,
+            "upCount": 65,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 87
         },
@@ -10314,6 +24009,21 @@
           "m1": -7.17,
           "m3": -15.96,
           "score": 12,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.95,
+            "beatRate": 64.9,
+            "avgAssetDrop": -0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 88
         },
@@ -10324,6 +24034,21 @@
           "m1": -3.85,
           "m3": -18.1,
           "score": 11,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.14,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.1,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 26,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 89
         },
@@ -10334,6 +24059,21 @@
           "m1": -4.76,
           "m3": -18.17,
           "score": 10,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.5,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.46,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 49,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 90
         },
@@ -10344,6 +24084,21 @@
           "m1": -16.04,
           "m3": -12.62,
           "score": 9,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.82,
+            "beatRate": 68.4,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 78,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 91
         },
@@ -10354,6 +24109,21 @@
           "m1": -18.09,
           "m3": -13.16,
           "score": 8,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.65,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 47,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 92
         },
@@ -10364,6 +24134,21 @@
           "m1": -6.03,
           "m3": -20.15,
           "score": 7,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.53,
+            "beatRate": 63.2,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 72,
+            "upCount": 45,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 93
         },
@@ -10374,6 +24159,21 @@
           "m1": 10.81,
           "m3": -30.3,
           "score": 6,
+          "resilience12m": {
+            "score": 10,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.9,
+            "beatRate": 36,
+            "avgAssetDrop": -1.86,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 41,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "NEUTRAL",
           "rank": 94
         },
@@ -10384,6 +24184,21 @@
           "m1": -6.2,
           "m3": -21.23,
           "score": 5,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.25,
+            "beatRate": 54.4,
+            "avgAssetDrop": -0.7,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 62,
+            "upCount": 41,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 95
         },
@@ -10394,6 +24209,21 @@
           "m1": -18.76,
           "m3": -19.06,
           "score": 4,
+          "resilience12m": {
+            "score": 38,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.34,
+            "beatRate": 51.8,
+            "avgAssetDrop": -0.62,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 59,
+            "upCount": 42,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 96
         },
@@ -10404,6 +24234,21 @@
           "m1": -23.82,
           "m3": -18.83,
           "score": 3,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.81,
+            "beatRate": 64,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 73,
+            "upCount": 56,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
           "trendState": "BEARISH",
           "rank": 97
         },
@@ -10414,6 +24259,21 @@
           "m1": -18.54,
           "m3": -29.28,
           "score": 2,
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.07,
+            "beatRate": 44.7,
+            "avgAssetDrop": -0.89,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 51,
+            "upCount": 42,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 98
         },
@@ -10424,6 +24284,21 @@
           "m1": -12.19,
           "m3": -36.65,
           "score": 1,
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.19,
+            "beatRate": 47.4,
+            "avgAssetDrop": -0.77,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 54,
+            "upCount": 42,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 99
         },
@@ -10434,1314 +24309,2529 @@
           "m1": -9.76,
           "m3": -46.63,
           "score": 0,
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.93,
+            "beatRate": 41.2,
+            "avgAssetDrop": -1.89,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 47,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
           "trendState": "BEARISH",
           "rank": 100
         }
       ]
     },
     "weekly": {
-      "displayDate": "01/10/2026 20:15",
-      "baseDate": "2026-10-01",
       "source": "Twelve Data (Semanal)",
+      "baseDate": "2026-10-01",
+      "displayDate": "01/10/2026 20:15",
       "ranking": [
         {
-          "symbol": "NVDA",
-          "name": "NVIDIA Corporation",
-          "sector": "Tecnologia",
-          "m1": 0.21705157145337728,
-          "m3": 18.49304521890879,
+          "symbol": "MRNA",
+          "name": "Moderna Inc.",
+          "sector": "Saúde",
+          "m1": 22.47,
+          "m3": 136.89,
           "score": 100,
-          "weeklyTrend": {
-            "state": "BULLISH"
+          "resilience12m": {
+            "score": 78,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 2.26,
+            "beatRate": 55.3,
+            "avgAssetDrop": 1.3,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 63,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
-          "benchmark": "QQQ",
+          "trendState": "BULLISH",
           "rank": 1
         },
         {
-          "symbol": "AVGO",
-          "name": "Broadcom Inc.",
+          "symbol": "TEAM",
+          "name": "Atlassian Corporation",
           "sector": "Tecnologia",
-          "m1": -3.9843476944494984,
-          "m3": -4.663614796404084,
+          "m1": 1.54,
+          "m3": 126.51,
           "score": 99,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "resilience12m": {
+            "score": 56,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.7,
+            "beatRate": 58.8,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 67,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
-          "benchmark": "QQQ",
+          "trendState": "BULLISH",
           "rank": 2
         },
         {
-          "symbol": "TSLA",
-          "name": "Tesla Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": 0.00847350912266192,
-          "m3": -9.998734019602653,
+          "symbol": "MSTR",
+          "name": "MicroStrategy Incorporated",
+          "sector": "Tecnologia",
+          "m1": 28.52,
+          "m3": 59.27,
           "score": 98,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "resilience12m": {
+            "score": 1,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.32,
+            "beatRate": 27.2,
+            "avgAssetDrop": -2.28,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 31,
+            "upCount": 27,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
+          "trendState": "BULLISH",
           "rank": 3
+        },
+        {
+          "symbol": "SMCI",
+          "name": "Super Micro Computer Inc.",
+          "sector": "Tecnologia",
+          "m1": 14.19,
+          "m3": 54,
+          "score": 97,
+          "resilience12m": {
+            "score": 0,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.49,
+            "beatRate": 28.1,
+            "avgAssetDrop": -2.45,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 32,
+            "upCount": 23,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 4
+        },
+        {
+          "symbol": "ILMN",
+          "name": "Illumina Inc.",
+          "sector": "Saúde",
+          "m1": 28.29,
+          "m3": 40.83,
+          "score": 96,
+          "resilience12m": {
+            "score": 63,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.93,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.03,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 5
         },
         {
           "symbol": "PLTR",
           "name": "Palantir Technologies Inc.",
           "sector": "Tecnologia",
-          "m1": 9.011640566741235,
-          "m3": 46.97601933488012,
-          "score": 97,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 4
-        },
-        {
-          "symbol": "AAPL",
-          "name": "Apple Inc.",
-          "sector": "Tecnologia",
-          "m1": 3.2346813763790347,
-          "m3": 7.027835920033707,
-          "score": 96,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 5
-        },
-        {
-          "symbol": "MSFT",
-          "name": "Microsoft Corporation",
-          "sector": "Tecnologia",
-          "m1": 2.6215688889019555,
-          "m3": 31.322185749242898,
+          "m1": 5.62,
+          "m3": 46.98,
           "score": 95,
-          "weeklyTrend": {
-            "state": "BULLISH"
+          "resilience12m": {
+            "score": 23,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 46.5,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 53,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
+          "trendState": "BULLISH",
           "rank": 6
-        },
-        {
-          "symbol": "AMZN",
-          "name": "Amazon.com Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": -3.9766390477490727,
-          "m3": 2.2911773189928724,
-          "score": 94,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 7
-        },
-        {
-          "symbol": "META",
-          "name": "Meta Platforms Inc.",
-          "sector": "Comunicação",
-          "m1": 17.698650462939156,
-          "m3": 24.537650556265195,
-          "score": 93,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 8
-        },
-        {
-          "symbol": "GOOGL",
-          "name": "Alphabet Inc. (Class A)",
-          "sector": "Comunicação",
-          "m1": -0.06500029737636856,
-          "m3": -6.020952460337319,
-          "score": 92,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 9
-        },
-        {
-          "symbol": "GOOG",
-          "name": "Alphabet Inc. (Class C)",
-          "sector": "Comunicação",
-          "m1": -0.11333094748144315,
-          "m3": -5.96608473148646,
-          "score": 91,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 10
-        },
-        {
-          "symbol": "COST",
-          "name": "Costco Wholesale Corporation",
-          "sector": "Consumo Básico",
-          "m1": -0.08735995028457584,
-          "m3": -3.859529119537842,
-          "score": 90,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 11
-        },
-        {
-          "symbol": "AMD",
-          "name": "Advanced Micro Devices Inc.",
-          "sector": "Tecnologia",
-          "m1": 28.929783509647084,
-          "m3": 18.90810863025551,
-          "score": 89,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 12
-        },
-        {
-          "symbol": "NFLX",
-          "name": "Netflix Inc.",
-          "sector": "Comunicação",
-          "m1": -13.29073482428116,
-          "m3": -12.620734063103683,
-          "score": 88,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 13
-        },
-        {
-          "symbol": "PEP",
-          "name": "PepsiCo Inc.",
-          "sector": "Consumo Básico",
-          "m1": -8.740826854610189,
-          "m3": -12.910830675357095,
-          "score": 87,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 14
-        },
-        {
-          "symbol": "LIN",
-          "name": "Linde plc",
-          "sector": "Materiais Básicos",
-          "m1": -1.7002742697348194,
-          "m3": -14.120810512937016,
-          "score": 86,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 15
-        },
-        {
-          "symbol": "CSCO",
-          "name": "Cisco Systems Inc.",
-          "sector": "Tecnologia",
-          "m1": -0.40293040293040083,
-          "m3": -3.4874434288756704,
-          "score": 85,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 16
-        },
-        {
-          "symbol": "TMUS",
-          "name": "T-Mobile US Inc.",
-          "sector": "Comunicação",
-          "m1": -10.902379903040998,
-          "m3": -8.894772420009025,
-          "score": 84,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 17
-        },
-        {
-          "symbol": "QCOM",
-          "name": "QUALCOMM Incorporated",
-          "sector": "Tecnologia",
-          "m1": 7.911571179828661,
-          "m3": 3.3134729078014264,
-          "score": 83,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 18
-        },
-        {
-          "symbol": "INTU",
-          "name": "Intuit Inc.",
-          "sector": "Tecnologia",
-          "m1": -15.004511120994568,
-          "m3": 2.698380145328477,
-          "score": 82,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 19
-        },
-        {
-          "symbol": "TXN",
-          "name": "Texas Instruments Incorporated",
-          "sector": "Tecnologia",
-          "m1": 8.849249342207091,
-          "m3": -4.0159640787755375,
-          "score": 81,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 20
-        },
-        {
-          "symbol": "AMAT",
-          "name": "Applied Materials Inc.",
-          "sector": "Tecnologia",
-          "m1": 16.403862162782033,
-          "m3": -12.228043030341189,
-          "score": 80,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 21
-        },
-        {
-          "symbol": "ISRG",
-          "name": "Intuitive Surgical Inc.",
-          "sector": "Saúde",
-          "m1": 9.419138003295926,
-          "m3": -5.814422060176484,
-          "score": 79,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 22
-        },
-        {
-          "symbol": "BKNG",
-          "name": "Booking Holdings Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": -17.077961460911652,
-          "m3": -13.155613350671869,
-          "score": 78,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 23
-        },
-        {
-          "symbol": "HON",
-          "name": "Honeywell International Inc.",
-          "sector": "Industriais",
-          "m1": 1.998950431754209,
-          "m3": -6.9868615679109025,
-          "score": 77,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 24
-        },
-        {
-          "symbol": "VRTX",
-          "name": "Vertex Pharmaceuticals Inc.",
-          "sector": "Saúde",
-          "m1": -7.210871237090755,
-          "m3": -4.03378321480046,
-          "score": 76,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 25
-        },
-        {
-          "symbol": "CMCSA",
-          "name": "Comcast Corporation",
-          "sector": "Comunicação",
-          "m1": -18.08229520573801,
-          "m3": -8.78520386717108,
-          "score": 75,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 26
-        },
-        {
-          "symbol": "ADP",
-          "name": "Automatic Data Processing Inc.",
-          "sector": "Industriais",
-          "m1": -4.920398386283409,
-          "m3": 8.952817104882978,
-          "score": 74,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 27
-        },
-        {
-          "symbol": "PANW",
-          "name": "Palo Alto Networks Inc.",
-          "sector": "Tecnologia",
-          "m1": 18.90115468699649,
-          "m3": 13.845314680487931,
-          "score": 73,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 28
-        },
-        {
-          "symbol": "AMGN",
-          "name": "Amgen Inc.",
-          "sector": "Saúde",
-          "m1": -6.852233221594278,
-          "m3": 8.85206491653254,
-          "score": 72,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 29
-        },
-        {
-          "symbol": "LRCX",
-          "name": "Lam Research Corporation",
-          "sector": "Tecnologia",
-          "m1": 10.547707152533954,
-          "m3": -3.218459918613593,
-          "score": 71,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 30
-        },
-        {
-          "symbol": "ADI",
-          "name": "Analog Devices Inc.",
-          "sector": "Tecnologia",
-          "m1": 11.690824016563147,
-          "m3": 7.275429525930632,
-          "score": 70,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 31
-        },
-        {
-          "symbol": "MU",
-          "name": "Micron Technology Inc.",
-          "sector": "Tecnologia",
-          "m1": 7.948138149653122,
-          "m3": 12.48821292385913,
-          "score": 69,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 32
-        },
-        {
-          "symbol": "GILD",
-          "name": "Gilead Sciences Inc.",
-          "sector": "Saúde",
-          "m1": -2.3178807947019866,
-          "m3": 12.363830273482128,
-          "score": 68,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 33
-        },
-        {
-          "symbol": "MELI",
-          "name": "MercadoLibre Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": -14.822377700834924,
-          "m3": -4.436983397814307,
-          "score": 67,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 34
-        },
-        {
-          "symbol": "KLAC",
-          "name": "KLA Corporation",
-          "sector": "Tecnologia",
-          "m1": 7.936416598253425,
-          "m3": -14.952239439609425,
-          "score": 66,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 35
-        },
-        {
-          "symbol": "SBUX",
-          "name": "Starbucks Corporation",
-          "sector": "Consumo Discricionário",
-          "m1": -9.17966880444147,
-          "m3": -9.005466577155463,
-          "score": 65,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 36
         },
         {
           "symbol": "CRWD",
           "name": "CrowdStrike Holdings Inc.",
           "sector": "Tecnologia",
-          "m1": 24.866252235276757,
-          "m3": 37.17393339519538,
-          "score": 64,
-          "weeklyTrend": {
-            "state": "BULLISH"
+          "m1": 23.72,
+          "m3": 37.17,
+          "score": 94,
+          "resilience12m": {
+            "score": 30,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.08,
+            "beatRate": 49.1,
+            "avgAssetDrop": -0.88,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 56,
+            "upCount": 38,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
-          "rank": 37
+          "trendState": "BULLISH",
+          "rank": 7
         },
         {
-          "symbol": "MDLZ",
-          "name": "Mondelez International Inc.",
-          "sector": "Consumo Básico",
-          "m1": -5.744125326370762,
-          "m3": -5.171564603513378,
-          "score": 63,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "symbol": "ZS",
+          "name": "Zscaler Inc.",
+          "sector": "Tecnologia",
+          "m1": 11.44,
+          "m3": 34.92,
+          "score": 93,
+          "resilience12m": {
+            "score": 36,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.11,
+            "beatRate": 54.4,
+            "avgAssetDrop": -0.85,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 62,
+            "upCount": 48,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
-          "rank": 38
+          "trendState": "BULLISH",
+          "rank": 8
         },
         {
-          "symbol": "REGN",
-          "name": "Regeneron Pharmaceuticals Inc.",
-          "sector": "Saúde",
-          "m1": -11.224807104750662,
-          "m3": 12.309899206446888,
-          "score": 62,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "symbol": "META",
+          "name": "Meta Platforms Inc.",
+          "sector": "Comunicação",
+          "m1": 25.48,
+          "m3": 24.54,
+          "score": 92,
+          "resilience12m": {
+            "score": 34,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.26,
+            "beatRate": 50.9,
+            "avgAssetDrop": -0.7,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 58,
+            "upCount": 40,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
-          "rank": 39
+          "trendState": "BULLISH",
+          "rank": 9
+        },
+        {
+          "symbol": "AMD",
+          "name": "Advanced Micro Devices Inc.",
+          "sector": "Tecnologia",
+          "m1": 33.97,
+          "m3": 18.91,
+          "score": 91,
+          "resilience12m": {
+            "score": 7,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1,
+            "beatRate": 32.5,
+            "avgAssetDrop": -1.96,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 31,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 10
+        },
+        {
+          "symbol": "WDAY",
+          "name": "Workday Inc.",
+          "sector": "Tecnologia",
+          "m1": -5.86,
+          "m3": 37.92,
+          "score": 90,
+          "resilience12m": {
+            "score": 60,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.86,
+            "beatRate": 58.8,
+            "avgAssetDrop": -0.1,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 67,
+            "upCount": 49,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 11
+        },
+        {
+          "symbol": "MSFT",
+          "name": "Microsoft Corporation",
+          "sector": "Tecnologia",
+          "m1": 2.35,
+          "m3": 31.32,
+          "score": 89,
+          "resilience12m": {
+            "score": 43,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 58.8,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 67,
+            "upCount": 40,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 12
+        },
+        {
+          "symbol": "TER",
+          "name": "Teradyne Inc.",
+          "sector": "Tecnologia",
+          "m1": 23.95,
+          "m3": 12.65,
+          "score": 88,
+          "resilience12m": {
+            "score": 9,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.18,
+            "beatRate": 38.6,
+            "avgAssetDrop": -2.14,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 44,
+            "upCount": 37,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 13
         },
         {
           "symbol": "SNPS",
           "name": "Synopsys Inc.",
           "sector": "Tecnologia",
-          "m1": 24.553120556571205,
-          "m3": 12.210634550279066,
-          "score": 61,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "m1": 18.25,
+          "m3": 12.21,
+          "score": 87,
+          "resilience12m": {
+            "score": 22,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.3,
+            "beatRate": 47.4,
+            "avgAssetDrop": -1.26,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 54,
+            "upCount": 30,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
-          "rank": 40
+          "trendState": "BULLISH",
+          "rank": 14
         },
         {
-          "symbol": "CDNS",
-          "name": "Cadence Design Systems Inc.",
+          "symbol": "MU",
+          "name": "Micron Technology Inc.",
           "sector": "Tecnologia",
-          "m1": 19.82575948664982,
-          "m3": -6.005788551058897,
-          "score": 60,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "m1": 17.56,
+          "m3": 12.49,
+          "score": 86,
+          "resilience12m": {
+            "score": 4,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.25,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.21,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
-          "rank": 41
+          "trendState": "BULLISH",
+          "rank": 15
+        },
+        {
+          "symbol": "WBD",
+          "name": "Warner Bros. Discovery Inc.",
+          "sector": "Comunicação",
+          "m1": 9.29,
+          "m3": 16.88,
+          "score": 85,
+          "resilience12m": {
+            "score": 87,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.92,
+            "beatRate": 75.4,
+            "avgAssetDrop": -0.04,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 86,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 16
+        },
+        {
+          "symbol": "NVDA",
+          "name": "NVIDIA Corporation",
+          "sector": "Tecnologia",
+          "m1": 6.17,
+          "m3": 18.49,
+          "score": 84,
+          "resilience12m": {
+            "score": 19,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.36,
+            "beatRate": 42.1,
+            "avgAssetDrop": -1.32,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 48,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 17
+        },
+        {
+          "symbol": "FTNT",
+          "name": "Fortinet Inc.",
+          "sector": "Tecnologia",
+          "m1": 10.42,
+          "m3": 14.38,
+          "score": 83,
+          "resilience12m": {
+            "score": 41,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.5,
+            "beatRate": 50,
+            "avgAssetDrop": -0.46,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 57,
+            "upCount": 43,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 18
+        },
+        {
+          "symbol": "PANW",
+          "name": "Palo Alto Networks Inc.",
+          "sector": "Tecnologia",
+          "m1": 9.43,
+          "m3": 13.85,
+          "score": 82,
+          "resilience12m": {
+            "score": 42,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.4,
+            "beatRate": 53.5,
+            "avgAssetDrop": -0.56,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 61,
+            "upCount": 42,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 19
+        },
+        {
+          "symbol": "DDOG",
+          "name": "Datadog Inc.",
+          "sector": "Tecnologia",
+          "m1": 23.51,
+          "m3": 6.18,
+          "score": 81,
+          "resilience12m": {
+            "score": 33,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.38,
+            "beatRate": 49.1,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 56,
+            "upCount": 38,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 20
+        },
+        {
+          "symbol": "DXCM",
+          "name": "DexCom Inc.",
+          "sector": "Saúde",
+          "m1": -4.34,
+          "m3": 21.02,
+          "score": 80,
+          "resilience12m": {
+            "score": 66,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.77,
+            "beatRate": 64.9,
+            "avgAssetDrop": -0.19,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 56,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 21
+        },
+        {
+          "symbol": "ADI",
+          "name": "Analog Devices Inc.",
+          "sector": "Tecnologia",
+          "m1": 14.13,
+          "m3": 7.28,
+          "score": 78,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.01,
+            "beatRate": 53.5,
+            "avgAssetDrop": -0.95,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 61,
+            "upCount": 39,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 22
+        },
+        {
+          "symbol": "MPWR",
+          "name": "Monolithic Power Systems Inc.",
+          "sector": "Tecnologia",
+          "m1": 11.01,
+          "m3": 5.65,
+          "score": 77,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.83,
+            "beatRate": 36,
+            "avgAssetDrop": -1.79,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 41,
+            "upCount": 35,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 23
+        },
+        {
+          "symbol": "GILD",
+          "name": "Gilead Sciences Inc.",
+          "sector": "Saúde",
+          "m1": -1.61,
+          "m3": 12.36,
+          "score": 76,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.96,
+            "beatRate": 65.8,
+            "avgAssetDrop": 0,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 24
+        },
+        {
+          "symbol": "ROST",
+          "name": "Ross Stores Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": 2.12,
+          "m3": 9.68,
+          "score": 75,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.9,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 88,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 25
+        },
+        {
+          "symbol": "QCOM",
+          "name": "QUALCOMM Incorporated",
+          "sector": "Tecnologia",
+          "m1": 9.29,
+          "m3": 3.31,
+          "score": 74,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.54,
+            "beatRate": 47.4,
+            "avgAssetDrop": -1.5,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 54,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 26
+        },
+        {
+          "symbol": "AAPL",
+          "name": "Apple Inc.",
+          "sector": "Tecnologia",
+          "m1": 1.6,
+          "m3": 7.03,
+          "score": 73,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.83,
+            "beatRate": 69.3,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 27
         },
         {
           "symbol": "ASML",
           "name": "ASML Holding N.V.",
           "sector": "Tecnologia",
-          "m1": 5.458690403993278,
-          "m3": 2.2138471902721704,
-          "score": 59,
-          "weeklyTrend": {
-            "state": "BULLISH"
+          "m1": 8.61,
+          "m3": 2.21,
+          "score": 72,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.43,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.39,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
+          "trendState": "BULLISH",
+          "rank": 28
+        },
+        {
+          "symbol": "LRCX",
+          "name": "Lam Research Corporation",
+          "sector": "Tecnologia",
+          "m1": 17.2,
+          "m3": -3.22,
+          "score": 69,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.23,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.19,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 29
+        },
+        {
+          "symbol": "ARM",
+          "name": "Arm Holdings plc",
+          "sector": "Tecnologia",
+          "m1": 24.5,
+          "m3": -7.28,
+          "score": 68,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.35,
+            "beatRate": 34.2,
+            "avgAssetDrop": -2.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 39,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 30
+        },
+        {
+          "symbol": "FAST",
+          "name": "Fastenal Company",
+          "sector": "Industriais",
+          "m1": 3.03,
+          "m3": 3.34,
+          "score": 65,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.91,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 31
+        },
+        {
+          "symbol": "BIIB",
+          "name": "Biogen Inc.",
+          "sector": "Saúde",
+          "m1": 3.14,
+          "m3": 3.1,
+          "score": 64,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.11,
+            "beatRate": 64.9,
+            "avgAssetDrop": 0.15,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 32
+        },
+        {
+          "symbol": "TXN",
+          "name": "Texas Instruments Incorporated",
+          "sector": "Tecnologia",
+          "m1": 11.04,
+          "m3": -4.02,
+          "score": 61,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.1,
+            "beatRate": 50,
+            "avgAssetDrop": -0.86,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 57,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 33
+        },
+        {
+          "symbol": "CDNS",
+          "name": "Cadence Design Systems Inc.",
+          "sector": "Tecnologia",
+          "m1": 12.04,
+          "m3": -6.01,
+          "score": 58,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 45.6,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 52,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 34
+        },
+        {
+          "symbol": "ISRG",
+          "name": "Intuitive Surgical Inc.",
+          "sector": "Saúde",
+          "m1": 8.66,
+          "m3": -5.81,
+          "score": 57,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.64,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 35
+        },
+        {
+          "symbol": "AMAT",
+          "name": "Applied Materials Inc.",
+          "sector": "Tecnologia",
+          "m1": 19.79,
+          "m3": -12.23,
+          "score": 56,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.97,
+            "beatRate": 40.4,
+            "avgAssetDrop": -1.93,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 46,
+            "upCount": 36,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 36
+        },
+        {
+          "symbol": "MAR",
+          "name": "Marriott International Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": 6.05,
+          "m3": -4.87,
+          "score": 55,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.97,
+            "beatRate": 69.3,
+            "avgAssetDrop": 0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 37
+        },
+        {
+          "symbol": "MCHP",
+          "name": "Microchip Technology Inc.",
+          "sector": "Tecnologia",
+          "m1": 9.93,
+          "m3": -7.25,
+          "score": 54,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.58,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.54,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 38
+        },
+        {
+          "symbol": "CSCO",
+          "name": "Cisco Systems Inc.",
+          "sector": "Tecnologia",
+          "m1": -0.89,
+          "m3": -3.49,
+          "score": 52,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 43,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 39
+        },
+        {
+          "symbol": "COST",
+          "name": "Costco Wholesale Corporation",
+          "sector": "Consumo Básico",
+          "m1": -2.66,
+          "m3": -3.86,
+          "score": 51,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.14,
+            "beatRate": 75.4,
+            "avgAssetDrop": 0.18,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 86,
+            "upCount": 62,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 40
+        },
+        {
+          "symbol": "KLAC",
+          "name": "KLA Corporation",
+          "sector": "Tecnologia",
+          "m1": 17.23,
+          "m3": -14.95,
+          "score": 47,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.06,
+            "beatRate": 37.7,
+            "avgAssetDrop": -2.02,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 41
+        },
+        {
+          "symbol": "HON",
+          "name": "Honeywell International Inc.",
+          "sector": "Industriais",
+          "m1": 1.82,
+          "m3": -6.99,
+          "score": 46,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.55,
+            "beatRate": 65.8,
+            "avgAssetDrop": -0.41,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 39,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "NEUTRAL",
           "rank": 42
         },
         {
-          "symbol": "ABNB",
-          "name": "Airbnb Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": -11.800593602286467,
-          "m3": 7.748613962842538,
-          "score": 58,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "symbol": "ON",
+          "name": "ON Semiconductor Corporation",
+          "sector": "Tecnologia",
+          "m1": 10.23,
+          "m3": -12.21,
+          "score": 43,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.8,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.76,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
+          "trendState": "NEUTRAL",
           "rank": 43
         },
         {
-          "symbol": "CEG",
-          "name": "Constellation Energy Corporation",
-          "sector": "Utilities",
-          "m1": -13.39308982449458,
-          "m3": 8.22152978056426,
-          "score": 57,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "symbol": "PYPL",
+          "name": "PayPal Holdings Inc.",
+          "sector": "Tecnologia",
+          "m1": 1.26,
+          "m3": 16.69,
+          "score": 79,
+          "resilience12m": {
+            "score": 46,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.48,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.48,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 44,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
-          "benchmark": "QQQ",
+          "trendState": "BEARISH",
           "rank": 44
         },
         {
           "symbol": "CTAS",
           "name": "Cintas Corporation",
           "sector": "Industriais",
-          "m1": -2.4292861774829158,
-          "m3": 7.8458455091801245,
-          "score": 56,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "m1": -2.49,
+          "m3": 7.85,
+          "score": 71,
+          "resilience12m": {
+            "score": 94,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.17,
+            "beatRate": 74.6,
+            "avgAssetDrop": 0.21,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 85,
+            "upCount": 61,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
-          "benchmark": "QQQ",
+          "trendState": "BEARISH",
           "rank": 45
         },
         {
-          "symbol": "MAR",
-          "name": "Marriott International Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": 5.43223067866539,
-          "m3": -4.869285296439601,
-          "score": 55,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "symbol": "REGN",
+          "name": "Regeneron Pharmaceuticals Inc.",
+          "sector": "Saúde",
+          "m1": -10.8,
+          "m3": 12.31,
+          "score": 70,
+          "resilience12m": {
+            "score": 77,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.96,
+            "beatRate": 66.7,
+            "avgAssetDrop": 0,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 58,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
-          "benchmark": "QQQ",
+          "trendState": "BEARISH",
           "rank": 46
         },
         {
-          "symbol": "DASH",
-          "name": "DoorDash Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": -13.958815472535768,
-          "m3": -5.122126338064133,
-          "score": 54,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "symbol": "ADP",
+          "name": "Automatic Data Processing Inc.",
+          "sector": "Industriais",
+          "m1": -6.89,
+          "m3": 8.95,
+          "score": 67,
+          "resilience12m": {
+            "score": 85,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.12,
+            "beatRate": 69.3,
+            "avgAssetDrop": 0.16,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 58,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
-          "benchmark": "QQQ",
+          "trendState": "BEARISH",
           "rank": 47
         },
         {
-          "symbol": "PYPL",
-          "name": "PayPal Holdings Inc.",
-          "sector": "Tecnologia",
-          "m1": -3.4570578602620103,
-          "m3": 16.69232680888498,
-          "score": 53,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "symbol": "AMGN",
+          "name": "Amgen Inc.",
+          "sector": "Saúde",
+          "m1": -7.04,
+          "m3": 8.85,
+          "score": 66,
+          "resilience12m": {
+            "score": 75,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.95,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 53,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
-          "benchmark": "QQQ",
+          "trendState": "BEARISH",
           "rank": 48
         },
         {
-          "symbol": "ORLY",
-          "name": "O'Reilly Automotive Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": -3.2540687222664655,
-          "m3": -5.783934626038778,
-          "score": 52,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 49
-        },
-        {
-          "symbol": "PCAR",
-          "name": "PACCAR Inc.",
-          "sector": "Industriais",
-          "m1": -11.8364073777065,
-          "m3": -8.000000000000002,
-          "score": 51,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 50
-        },
-        {
-          "symbol": "NXPI",
-          "name": "NXP Semiconductors N.V.",
-          "sector": "Tecnologia",
-          "m1": 4.9815660112359526,
-          "m3": -12.49999679909265,
-          "score": 49,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 51
-        },
-        {
-          "symbol": "KDP",
-          "name": "Keurig Dr Pepper Inc.",
-          "sector": "Consumo Básico",
-          "m1": -5.830009205277698,
-          "m3": -7.837837837837826,
-          "score": 48,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 52
-        },
-        {
-          "symbol": "MNST",
-          "name": "Monster Beverage Corporation",
-          "sector": "Consumo Básico",
-          "m1": -3.833865814696485,
-          "m3": -13.647540983606552,
-          "score": 47,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 53
-        },
-        {
-          "symbol": "ROP",
-          "name": "Roper Technologies Inc.",
-          "sector": "Tecnologia",
-          "m1": -10.972795128658417,
-          "m3": -0.44206753316674674,
-          "score": 46,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 54
-        },
-        {
-          "symbol": "MCHP",
-          "name": "Microchip Technology Inc.",
-          "sector": "Tecnologia",
-          "m1": 5.837939867871104,
-          "m3": -7.254253308128546,
-          "score": 45,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 55
-        },
-        {
-          "symbol": "LULU",
-          "name": "Lululemon Athletica Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": -4.721200675877149,
-          "m3": -19.057671198176145,
-          "score": 44,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 56
-        },
-        {
-          "symbol": "ADSK",
-          "name": "Autodesk Inc.",
-          "sector": "Tecnologia",
-          "m1": -3.0243186335162293,
-          "m3": 1.8459610564873785,
-          "score": 43,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 57
-        },
-        {
-          "symbol": "DXCM",
-          "name": "DexCom Inc.",
-          "sector": "Saúde",
-          "m1": -1.899886234357226,
-          "m3": 21.024561403508777,
-          "score": 42,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 58
-        },
-        {
-          "symbol": "IDXX",
-          "name": "IDEXX Laboratories Inc.",
-          "sector": "Saúde",
-          "m1": -3.2929881579438893,
-          "m3": -7.179991164933506,
-          "score": 41,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 59
-        },
-        {
-          "symbol": "PAYX",
-          "name": "Paychex Inc.",
-          "sector": "Industriais",
-          "m1": -17.14731739380494,
-          "m3": -5.181006111894678,
-          "score": 40,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 60
-        },
-        {
-          "symbol": "ROST",
-          "name": "Ross Stores Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": 1.4781785079543976,
-          "m3": 9.684683956551744,
-          "score": 39,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 61
-        },
-        {
-          "symbol": "KHC",
-          "name": "The Kraft Heinz Company",
-          "sector": "Consumo Básico",
-          "m1": -9.61770623742455,
-          "m3": -11.470240441466299,
-          "score": 38,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 62
-        },
-        {
-          "symbol": "FTNT",
-          "name": "Fortinet Inc.",
-          "sector": "Tecnologia",
-          "m1": 14.351533325966692,
-          "m3": 14.380799999999999,
-          "score": 37,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 63
-        },
-        {
-          "symbol": "CPRT",
-          "name": "Copart Inc.",
-          "sector": "Industriais",
-          "m1": -19.06880189798339,
-          "m3": -9.063645451516168,
-          "score": 36,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 64
-        },
-        {
-          "symbol": "TEAM",
-          "name": "Atlassian Corporation",
-          "sector": "Tecnologia",
-          "m1": 0.1740689946196772,
-          "m3": 126.51479007633586,
-          "score": 35,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 65
-        },
-        {
-          "symbol": "CHTR",
-          "name": "Charter Communications Inc.",
-          "sector": "Comunicação",
-          "m1": -26.725447284331388,
-          "m3": -18.826530612244888,
-          "score": 34,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 66
-        },
-        {
-          "symbol": "FAST",
-          "name": "Fastenal Company",
-          "sector": "Industriais",
-          "m1": 1.2600806451612903,
-          "m3": 3.343621399176955,
-          "score": 33,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 67
-        },
-        {
-          "symbol": "EXC",
-          "name": "Exelon Corporation",
+          "symbol": "CEG",
+          "name": "Constellation Energy Corporation",
           "sector": "Utilities",
-          "m1": -7.263978001833184,
-          "m3": -15.476190476190482,
-          "score": 32,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "m1": -7.63,
+          "m3": 8.22,
+          "score": 63,
+          "resilience12m": {
+            "score": 25,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.17,
+            "beatRate": 48.2,
+            "avgAssetDrop": -1.13,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 55,
+            "upCount": 37,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
-          "rank": 68
-        },
-        {
-          "symbol": "BIIB",
-          "name": "Biogen Inc.",
-          "sector": "Saúde",
-          "m1": 0.9011502060408386,
-          "m3": 3.100134184712193,
-          "score": 31,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 69
-        },
-        {
-          "symbol": "ODFL",
-          "name": "Old Dominion Freight Line Inc.",
-          "sector": "Industriais",
-          "m1": -4.180335718512943,
-          "m3": -18.171367708310026,
-          "score": 30,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 70
-        },
-        {
-          "symbol": "GEHC",
-          "name": "GE HealthCare Technologies Inc.",
-          "sector": "Saúde",
-          "m1": -7.086842869590478,
-          "m3": -2.4174483337146357,
-          "score": 29,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 71
-        },
-        {
-          "symbol": "CSX",
-          "name": "CSX Corporation",
-          "sector": "Industriais",
-          "m1": -5.8085407812183725,
-          "m3": -4.8067089384332204,
-          "score": 28,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 72
-        },
-        {
-          "symbol": "VRSK",
-          "name": "Verisk Analytics Inc.",
-          "sector": "Industriais",
-          "m1": -9.370790105537976,
-          "m3": -10.602606286030992,
-          "score": 27,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 73
-        },
-        {
-          "symbol": "DDOG",
-          "name": "Datadog Inc.",
-          "sector": "Tecnologia",
-          "m1": 29.83609777091522,
-          "m3": 6.1837458205464,
-          "score": 26,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 74
-        },
-        {
-          "symbol": "WBD",
-          "name": "Warner Bros. Discovery Inc.",
-          "sector": "Comunicação",
-          "m1": 9.557522123893802,
-          "m3": 16.88066465256797,
-          "score": 25,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 75
-        },
-        {
-          "symbol": "TER",
-          "name": "Teradyne Inc.",
-          "sector": "Tecnologia",
-          "m1": 16.458003855300692,
-          "m3": 12.65274445422791,
-          "score": 24,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 76
-        },
-        {
-          "symbol": "DLTR",
-          "name": "Dollar Tree Inc.",
-          "sector": "Consumo Básico",
-          "m1": -12.92801704458985,
-          "m3": -7.75493975602725,
-          "score": 23,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 77
-        },
-        {
-          "symbol": "TTWO",
-          "name": "Take-Two Interactive Software Inc.",
-          "sector": "Comunicação",
-          "m1": -5.156271833806881,
-          "m3": -20.14589120569861,
-          "score": 22,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 78
-        },
-        {
-          "symbol": "MDB",
-          "name": "MongoDB Inc.",
-          "sector": "Tecnologia",
-          "m1": -4.6130011556381465,
-          "m3": -0.8876211677186661,
-          "score": 21,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 79
-        },
-        {
-          "symbol": "ILMN",
-          "name": "Illumina Inc.",
-          "sector": "Saúde",
-          "m1": 21.767024104115126,
-          "m3": 40.831044139868794,
-          "score": 20,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 80
-        },
-        {
-          "symbol": "ZS",
-          "name": "Zscaler Inc.",
-          "sector": "Tecnologia",
-          "m1": 17.067137809187273,
-          "m3": 34.921604561189156,
-          "score": 19,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 81
-        },
-        {
-          "symbol": "ON",
-          "name": "ON Semiconductor Corporation",
-          "sector": "Tecnologia",
-          "m1": 7.663353051895669,
-          "m3": -12.212231966673981,
-          "score": 18,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 82
-        },
-        {
-          "symbol": "CDW",
-          "name": "CDW Corporation",
-          "sector": "Tecnologia",
-          "m1": -10.861005381283622,
-          "m3": 1.844492764489771,
-          "score": 17,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 83
-        },
-        {
-          "symbol": "MRNA",
-          "name": "Moderna Inc.",
-          "sector": "Saúde",
-          "m1": 29.81106149089659,
-          "m3": 136.88565697091272,
-          "score": 16,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 84
-        },
-        {
-          "symbol": "BMRN",
-          "name": "BioMarin Pharmaceutical Inc.",
-          "sector": "Saúde",
-          "m1": -12.159927852096803,
-          "m3": -0.9323614171893613,
-          "score": 15,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 85
-        },
-        {
-          "symbol": "ALGN",
-          "name": "Align Technology Inc.",
-          "sector": "Saúde",
-          "m1": -8.380610186585974,
-          "m3": -21.23076089312812,
-          "score": 14,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 86
-        },
-        {
-          "symbol": "SIRI",
-          "name": "Sirius XM Holdings Inc.",
-          "sector": "Comunicação",
-          "m1": -11.555708865125899,
-          "m3": -15.961979678793842,
-          "score": 13,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
-          },
-          "benchmark": "QQQ",
-          "rank": 87
+          "trendState": "BEARISH",
+          "rank": 49
         },
         {
           "symbol": "FANG",
           "name": "Diamondback Energy Inc.",
           "sector": "Energia",
-          "m1": -6.881844192350171,
-          "m3": 7.829573092344858,
-          "score": 12,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "m1": -8.69,
+          "m3": 7.83,
+          "score": 62,
+          "resilience12m": {
+            "score": 99,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.42,
+            "beatRate": 73.7,
+            "avgAssetDrop": 0.46,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 84,
+            "upCount": 67,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
-          "benchmark": "QQQ",
-          "rank": 88
+          "trendState": "BEARISH",
+          "rank": 50
+        },
+        {
+          "symbol": "ABNB",
+          "name": "Airbnb Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -12.09,
+          "m3": 7.75,
+          "score": 60,
+          "resilience12m": {
+            "score": 54,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.55,
+            "beatRate": 62.3,
+            "avgAssetDrop": -0.41,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 71,
+            "upCount": 47,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 51
+        },
+        {
+          "symbol": "AMZN",
+          "name": "Amazon.com Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -2.62,
+          "m3": 2.29,
+          "score": 59,
+          "resilience12m": {
+            "score": 29,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.09,
+            "beatRate": 50.9,
+            "avgAssetDrop": -0.87,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 58,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BEARISH",
+          "rank": 52
+        },
+        {
+          "symbol": "CDW",
+          "name": "CDW Corporation",
+          "sector": "Tecnologia",
+          "m1": -9.63,
+          "m3": 1.84,
+          "score": 53,
+          "resilience12m": {
+            "score": 48,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.45,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.51,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 53
+        },
+        {
+          "symbol": "GOOG",
+          "name": "Alphabet Inc. (Class C)",
+          "sector": "Comunicação",
+          "m1": 0.87,
+          "m3": -5.97,
+          "score": 49,
+          "resilience12m": {
+            "score": 40,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.24,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 54
+        },
+        {
+          "symbol": "GOOGL",
+          "name": "Alphabet Inc. (Class A)",
+          "sector": "Comunicação",
+          "m1": 0.96,
+          "m3": -6.02,
+          "score": 48,
+          "resilience12m": {
+            "score": 39,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.24,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.72,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BEARISH",
+          "rank": 55
+        },
+        {
+          "symbol": "ADSK",
+          "name": "Autodesk Inc.",
+          "sector": "Tecnologia",
+          "m1": -14.69,
+          "m3": 1.85,
+          "score": 45,
+          "resilience12m": {
+            "score": 61,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.71,
+            "beatRate": 63.2,
+            "avgAssetDrop": -0.25,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 72,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 56
+        },
+        {
+          "symbol": "BMRN",
+          "name": "BioMarin Pharmaceutical Inc.",
+          "sector": "Saúde",
+          "m1": -9.87,
+          "m3": -0.93,
+          "score": 44,
+          "resilience12m": {
+            "score": 67,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.87,
+            "beatRate": 65.8,
+            "avgAssetDrop": -0.09,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 50,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 57
+        },
+        {
+          "symbol": "INTU",
+          "name": "Intuit Inc.",
+          "sector": "Tecnologia",
+          "m1": -18.02,
+          "m3": 2.7,
+          "score": 42,
+          "resilience12m": {
+            "score": 49,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.6,
+            "beatRate": 57.9,
+            "avgAssetDrop": -0.36,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 66,
+            "upCount": 49,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 58
+        },
+        {
+          "symbol": "CSX",
+          "name": "CSX Corporation",
+          "sector": "Industriais",
+          "m1": -4.44,
+          "m3": -4.81,
+          "score": 41,
+          "resilience12m": {
+            "score": 84,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.82,
+            "beatRate": 73.7,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 84,
+            "upCount": 51,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 59
+        },
+        {
+          "symbol": "GEHC",
+          "name": "GE HealthCare Technologies Inc.",
+          "sector": "Saúde",
+          "m1": -9.15,
+          "m3": -2.42,
+          "score": 40,
+          "resilience12m": {
+            "score": 59,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.69,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.26,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 50,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 60
+        },
+        {
+          "symbol": "VRTX",
+          "name": "Vertex Pharmaceuticals Inc.",
+          "sector": "Saúde",
+          "m1": -7.47,
+          "m3": -4.03,
+          "score": 37,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.91,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 55,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 61
+        },
+        {
+          "symbol": "NXPI",
+          "name": "NXP Semiconductors N.V.",
+          "sector": "Tecnologia",
+          "m1": 7.55,
+          "m3": -12.5,
+          "score": 36,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.41,
+            "beatRate": 39.5,
+            "avgAssetDrop": -1.37,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 45,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 62
+        },
+        {
+          "symbol": "KDP",
+          "name": "Keurig Dr Pepper Inc.",
+          "sector": "Consumo Básico",
+          "m1": -3.76,
+          "m3": -7.84,
+          "score": 32,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.13,
+            "beatRate": 72.8,
+            "avgAssetDrop": 0.17,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 83,
+            "upCount": 61,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 63
+        },
+        {
+          "symbol": "TSLA",
+          "name": "Tesla Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -0.56,
+          "m3": -10,
+          "score": 30,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.7,
+            "beatRate": 29.8,
+            "avgAssetDrop": -1.66,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 34,
+            "upCount": 23,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 64
+        },
+        {
+          "symbol": "ORLY",
+          "name": "O'Reilly Automotive Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -3.32,
+          "m3": -5.78,
+          "score": 39,
+          "resilience12m": {
+            "score": 80,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.99,
+            "beatRate": 67.5,
+            "avgAssetDrop": 0.03,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 60,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 65
+        },
+        {
+          "symbol": "ROP",
+          "name": "Roper Technologies Inc.",
+          "sector": "Tecnologia",
+          "m1": -13.32,
+          "m3": -0.44,
+          "score": 38,
+          "resilience12m": {
+            "score": 82,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.06,
+            "beatRate": 66.7,
+            "avgAssetDrop": 0.1,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 59,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 66
+        },
+        {
+          "symbol": "AVGO",
+          "name": "Broadcom Inc.",
+          "sector": "Tecnologia",
+          "m1": -7.04,
+          "m3": -4.66,
+          "score": 35,
+          "resilience12m": {
+            "score": 11,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.76,
+            "beatRate": 39.5,
+            "avgAssetDrop": -1.72,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 45,
+            "upCount": 27,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BEARISH",
+          "rank": 67
+        },
+        {
+          "symbol": "MDLZ",
+          "name": "Mondelez International Inc.",
+          "sector": "Consumo Básico",
+          "m1": -6.25,
+          "m3": -5.17,
+          "score": 34,
+          "resilience12m": {
+            "score": 98,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.28,
+            "beatRate": 76.3,
+            "avgAssetDrop": 0.32,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 87,
+            "upCount": 63,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 68
         },
         {
           "symbol": "CCEP",
           "name": "Coca-Cola Europacific Partners plc",
           "sector": "Consumo Básico",
-          "m1": -4.699319213313161,
-          "m3": -5.459150173529681,
-          "score": 11,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "m1": -6.33,
+          "m3": -5.46,
+          "score": 33,
+          "resilience12m": {
+            "score": 97,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.18,
+            "beatRate": 76.3,
+            "avgAssetDrop": 0.22,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 87,
+            "upCount": 67,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
-          "benchmark": "QQQ",
-          "rank": 89
+          "trendState": "BEARISH",
+          "rank": 69
         },
         {
-          "symbol": "AXON",
-          "name": "Axon Enterprise Inc.",
-          "sector": "Industriais",
-          "m1": -18.123992790893123,
-          "m3": -29.282794191714917,
-          "score": 10,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "symbol": "IDXX",
+          "name": "IDEXX Laboratories Inc.",
+          "sector": "Saúde",
+          "m1": -5.03,
+          "m3": -7.18,
+          "score": 31,
+          "resilience12m": {
+            "score": 47,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.47,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.49,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 44,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
-          "benchmark": "QQQ",
-          "rank": 90
+          "trendState": "BEARISH",
+          "rank": 70
         },
         {
-          "symbol": "APP",
-          "name": "AppLovin Corporation",
+          "symbol": "MDB",
+          "name": "MongoDB Inc.",
           "sector": "Tecnologia",
-          "m1": -12.244197654105315,
-          "m3": -46.62656982744495,
-          "score": 9,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "m1": -19,
+          "m3": -0.89,
+          "score": 29,
+          "resilience12m": {
+            "score": 24,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.34,
+            "beatRate": 45.6,
+            "avgAssetDrop": -1.3,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 52,
+            "upCount": 37,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
-          "rank": 91
-        },
-        {
-          "symbol": "ARM",
-          "name": "Arm Holdings plc",
-          "sector": "Tecnologia",
-          "m1": 15.966521733770014,
-          "m3": -7.276072062928191,
-          "score": 8,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 92
-        },
-        {
-          "symbol": "MSTR",
-          "name": "MicroStrategy Incorporated",
-          "sector": "Tecnologia",
-          "m1": 12.394957983193269,
-          "m3": 59.273593331348614,
-          "score": 7,
-          "weeklyTrend": {
-            "state": "BULLISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 93
-        },
-        {
-          "symbol": "TTD",
-          "name": "The Trade Desk Inc.",
-          "sector": "Tecnologia",
-          "m1": -16.146916146916148,
-          "m3": -36.64921465968587,
-          "score": 6,
-          "weeklyTrend": {
-            "state": "BEARISH"
-          },
-          "benchmark": "QQQ",
-          "rank": 94
+          "trendState": "BEARISH",
+          "rank": 71
         },
         {
           "symbol": "PDD",
           "name": "PDD Holdings Inc.",
           "sector": "Consumo Discricionário",
-          "m1": -6.945627052669985,
-          "m3": -7.148925840514626,
-          "score": 5,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "m1": -8.02,
+          "m3": -7.15,
+          "score": 28,
+          "resilience12m": {
+            "score": 26,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.15,
+            "beatRate": 51.8,
+            "avgAssetDrop": -0.81,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 59,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
-          "rank": 95
+          "trendState": "BEARISH",
+          "rank": 72
         },
         {
-          "symbol": "GFS",
-          "name": "GlobalFoundries Inc.",
-          "sector": "Tecnologia",
-          "m1": 7.675293076752928,
-          "m3": -30.29782359679267,
-          "score": 4,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "symbol": "MELI",
+          "name": "MercadoLibre Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -14.18,
+          "m3": -4.44,
+          "score": 27,
+          "resilience12m": {
+            "score": 45,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.43,
+            "beatRate": 57.9,
+            "avgAssetDrop": -0.52,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 66,
+            "upCount": 51,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
-          "benchmark": "QQQ",
-          "rank": 96
+          "trendState": "BEARISH",
+          "rank": 73
+        },
+        {
+          "symbol": "PCAR",
+          "name": "PACCAR Inc.",
+          "sector": "Industriais",
+          "m1": -10.22,
+          "m3": -8,
+          "score": 26,
+          "resilience12m": {
+            "score": 52,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.57,
+            "beatRate": 63.2,
+            "avgAssetDrop": -0.39,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 72,
+            "upCount": 41,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 74
+        },
+        {
+          "symbol": "SBUX",
+          "name": "Starbucks Corporation",
+          "sector": "Consumo Discricionário",
+          "m1": -10.62,
+          "m3": -9.01,
+          "score": 25,
+          "resilience12m": {
+            "score": 64,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.76,
+            "beatRate": 64.9,
+            "avgAssetDrop": -0.2,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 75
+        },
+        {
+          "symbol": "DLTR",
+          "name": "Dollar Tree Inc.",
+          "sector": "Consumo Básico",
+          "m1": -13.12,
+          "m3": -7.75,
+          "score": 24,
+          "resilience12m": {
+            "score": 62,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.85,
+            "beatRate": 61.4,
+            "avgAssetDrop": -0.11,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 70,
+            "upCount": 55,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 76
+        },
+        {
+          "symbol": "TMUS",
+          "name": "T-Mobile US Inc.",
+          "sector": "Comunicação",
+          "m1": -11.22,
+          "m3": -8.89,
+          "score": 23,
+          "resilience12m": {
+            "score": 92,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.18,
+            "beatRate": 71.9,
+            "avgAssetDrop": 0.22,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 82,
+            "upCount": 67,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 77
+        },
+        {
+          "symbol": "DASH",
+          "name": "DoorDash Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -19.27,
+          "m3": -5.12,
+          "score": 22,
+          "resilience12m": {
+            "score": 35,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.15,
+            "beatRate": 51.8,
+            "avgAssetDrop": -0.81,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 59,
+            "upCount": 44,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BEARISH",
+          "rank": 78
+        },
+        {
+          "symbol": "PAYX",
+          "name": "Paychex Inc.",
+          "sector": "Industriais",
+          "m1": -19.74,
+          "m3": -5.18,
+          "score": 21,
+          "resilience12m": {
+            "score": 68,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.95,
+            "beatRate": 64,
+            "avgAssetDrop": -0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 73,
+            "upCount": 58,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 79
+        },
+        {
+          "symbol": "LIN",
+          "name": "Linde plc",
+          "sector": "Materiais Básicos",
+          "m1": -3.56,
+          "m3": -14.12,
+          "score": 20,
+          "resilience12m": {
+            "score": 91,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.99,
+            "beatRate": 76.3,
+            "avgAssetDrop": 0.03,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 87,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 80
+        },
+        {
+          "symbol": "MNST",
+          "name": "Monster Beverage Corporation",
+          "sector": "Consumo Básico",
+          "m1": -6.33,
+          "m3": -13.43,
+          "score": 19,
+          "resilience12m": {
+            "score": 86,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.07,
+            "beatRate": 70.8,
+            "avgAssetDrop": 0.11,
+            "avgBenchDrop": -0.97,
+            "marketDownDays": 114,
+            "beatCount": 80,
+            "upCount": 62,
+            "matchedDays": 113,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 81
+        },
+        {
+          "symbol": "CPRT",
+          "name": "Copart Inc.",
+          "sector": "Industriais",
+          "m1": -15.95,
+          "m3": -9.06,
+          "score": 18,
+          "resilience12m": {
+            "score": 79,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.97,
+            "beatRate": 67.5,
+            "avgAssetDrop": 0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 82
+        },
+        {
+          "symbol": "VRSK",
+          "name": "Verisk Analytics Inc.",
+          "sector": "Industriais",
+          "m1": -13.36,
+          "m3": -10.6,
+          "score": 17,
+          "resilience12m": {
+            "score": 89,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.17,
+            "beatRate": 71.1,
+            "avgAssetDrop": 0.21,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 81,
+            "upCount": 64,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 83
+        },
+        {
+          "symbol": "CMCSA",
+          "name": "Comcast Corporation",
+          "sector": "Comunicação",
+          "m1": -17.49,
+          "m3": -8.79,
+          "score": 16,
+          "resilience12m": {
+            "score": 73,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.89,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.07,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 84
+        },
+        {
+          "symbol": "PEP",
+          "name": "PepsiCo Inc.",
+          "sector": "Consumo Básico",
+          "m1": -10.15,
+          "m3": -12.91,
+          "score": 15,
+          "resilience12m": {
+            "score": 100,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.34,
+            "beatRate": 80.7,
+            "avgAssetDrop": 0.38,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 92,
+            "upCount": 64,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 85
+        },
+        {
+          "symbol": "KHC",
+          "name": "The Kraft Heinz Company",
+          "sector": "Consumo Básico",
+          "m1": -13.18,
+          "m3": -11.47,
+          "score": 14,
+          "resilience12m": {
+            "score": 93,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.17,
+            "beatRate": 73.7,
+            "avgAssetDrop": 0.21,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 84,
+            "upCount": 71,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 86
+        },
+        {
+          "symbol": "EXC",
+          "name": "Exelon Corporation",
+          "sector": "Utilities",
+          "m1": -7.67,
+          "m3": -15.48,
+          "score": 13,
+          "resilience12m": {
+            "score": 95,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.13,
+            "beatRate": 75.4,
+            "avgAssetDrop": 0.17,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 86,
+            "upCount": 65,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 87
+        },
+        {
+          "symbol": "SIRI",
+          "name": "Sirius XM Holdings Inc.",
+          "sector": "Comunicação",
+          "m1": -7.17,
+          "m3": -15.96,
+          "score": 12,
+          "resilience12m": {
+            "score": 69,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.95,
+            "beatRate": 64.9,
+            "avgAssetDrop": -0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 88
         },
         {
           "symbol": "VRT",
           "name": "Vertiv Holdings Co",
           "sector": "Industriais",
-          "m1": -12.266067800235259,
-          "m3": -18.104681728945522,
-          "score": 3,
-          "weeklyTrend": {
-            "state": "BEARISH"
+          "m1": -3.85,
+          "m3": -18.1,
+          "score": 11,
+          "resilience12m": {
+            "score": 3,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.14,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.1,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 26,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
+          "trendState": "BEARISH",
+          "rank": 89
+        },
+        {
+          "symbol": "ODFL",
+          "name": "Old Dominion Freight Line Inc.",
+          "sector": "Industriais",
+          "m1": -4.76,
+          "m3": -18.17,
+          "score": 10,
+          "resilience12m": {
+            "score": 51,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.5,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.46,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 49,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 90
+        },
+        {
+          "symbol": "NFLX",
+          "name": "Netflix Inc.",
+          "sector": "Comunicação",
+          "m1": -16.04,
+          "m3": -12.62,
+          "score": 9,
+          "resilience12m": {
+            "score": 70,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.82,
+            "beatRate": 68.4,
+            "avgAssetDrop": -0.14,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 78,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 91
+        },
+        {
+          "symbol": "BKNG",
+          "name": "Booking Holdings Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -18.09,
+          "m3": -13.16,
+          "score": 8,
+          "resilience12m": {
+            "score": 58,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.65,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 47,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 92
+        },
+        {
+          "symbol": "TTWO",
+          "name": "Take-Two Interactive Software Inc.",
+          "sector": "Comunicação",
+          "m1": -6.03,
+          "m3": -20.15,
+          "score": 7,
+          "resilience12m": {
+            "score": 55,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.53,
+            "beatRate": 63.2,
+            "avgAssetDrop": -0.43,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 72,
+            "upCount": 45,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "BEARISH",
+          "rank": 93
+        },
+        {
+          "symbol": "GFS",
+          "name": "GlobalFoundries Inc.",
+          "sector": "Tecnologia",
+          "m1": 10.81,
+          "m3": -30.3,
+          "score": 6,
+          "resilience12m": {
+            "score": 10,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.9,
+            "beatRate": 36,
+            "avgAssetDrop": -1.86,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 41,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 94
+        },
+        {
+          "symbol": "ALGN",
+          "name": "Align Technology Inc.",
+          "sector": "Saúde",
+          "m1": -6.2,
+          "m3": -21.23,
+          "score": 5,
+          "resilience12m": {
+            "score": 37,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.25,
+            "beatRate": 54.4,
+            "avgAssetDrop": -0.7,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 62,
+            "upCount": 41,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BEARISH",
+          "rank": 95
+        },
+        {
+          "symbol": "LULU",
+          "name": "Lululemon Athletica Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -18.76,
+          "m3": -19.06,
+          "score": 4,
+          "resilience12m": {
+            "score": 38,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.34,
+            "beatRate": 51.8,
+            "avgAssetDrop": -0.62,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 59,
+            "upCount": 42,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BEARISH",
+          "rank": 96
+        },
+        {
+          "symbol": "CHTR",
+          "name": "Charter Communications Inc.",
+          "sector": "Comunicação",
+          "m1": -23.82,
+          "m3": -18.83,
+          "score": 3,
+          "resilience12m": {
+            "score": 65,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.81,
+            "beatRate": 64,
+            "avgAssetDrop": -0.15,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 73,
+            "upCount": 56,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BEARISH",
           "rank": 97
         },
         {
-          "symbol": "MPWR",
-          "name": "Monolithic Power Systems Inc.",
-          "sector": "Tecnologia",
-          "m1": 11.203077240886042,
-          "m3": 5.652243378487695,
+          "symbol": "AXON",
+          "name": "Axon Enterprise Inc.",
+          "sector": "Industriais",
+          "m1": -18.54,
+          "m3": -29.28,
           "score": 2,
-          "weeklyTrend": {
-            "state": "NEUTRAL"
+          "resilience12m": {
+            "score": 28,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.07,
+            "beatRate": 44.7,
+            "avgAssetDrop": -0.89,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 51,
+            "upCount": 42,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
+          "trendState": "BEARISH",
           "rank": 98
         },
         {
-          "symbol": "SMCI",
-          "name": "Super Micro Computer Inc.",
+          "symbol": "TTD",
+          "name": "The Trade Desk Inc.",
           "sector": "Tecnologia",
-          "m1": 5.885324576913358,
-          "m3": 54.00440852314476,
+          "m1": -12.19,
+          "m3": -36.65,
           "score": 1,
-          "weeklyTrend": {
-            "state": "BULLISH"
+          "resilience12m": {
+            "score": 32,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.19,
+            "beatRate": 47.4,
+            "avgAssetDrop": -0.77,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 54,
+            "upCount": 42,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
+          "trendState": "BEARISH",
           "rank": 99
         },
         {
-          "symbol": "WDAY",
-          "name": "Workday Inc.",
+          "symbol": "APP",
+          "name": "AppLovin Corporation",
           "sector": "Tecnologia",
-          "m1": -4.617187017579392,
-          "m3": 37.924677837863946,
+          "m1": -9.76,
+          "m3": -46.63,
           "score": 0,
-          "weeklyTrend": {
-            "state": "BULLISH"
+          "resilience12m": {
+            "score": 15,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.93,
+            "beatRate": 41.2,
+            "avgAssetDrop": -1.89,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 47,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
-          "benchmark": "QQQ",
+          "trendState": "BEARISH",
           "rank": 100
         }
       ]
