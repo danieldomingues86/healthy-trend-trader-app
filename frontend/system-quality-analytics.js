@@ -96,8 +96,8 @@
       <svg class="sqn-evolution-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Gráfico de Evolução do SQN">
         <defs>
           <linearGradient id="sqnAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#10b981" stop-opacity="0.32" />
-            <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
+            <stop offset="0%" stop-color="var(--sqn-area-stop-0, #10b981)" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="var(--sqn-area-stop-1, rgba(16, 185, 129, 0))" stop-opacity="0.0" />
           </linearGradient>
         </defs>
 
@@ -511,14 +511,14 @@
     const badgeClass = classification.badgeClass || 'sqn-badge-unclassified';
 
     return `
-      <section class="sqn-embedded-risk-card" id="riskPolicySqnCard">
+      <section class="card sqn-embedded-risk-card" id="riskPolicySqnCard">
         <div class="sqn-embedded-risk-head">
           <div>
             <span class="sqn-eyebrow">GOVERNANÇA ESTATÍSTICA DO SISTEMA</span>
-            <h3 style="margin:2px 0 0;font-size:16px;font-weight:800;color:var(--text-primary,#e2ece6);">
+            <h3 class="sqn-embedded-risk-title">
               Qualidade do Sistema (SQN) — Indicador Complementar de Risco
             </h3>
-            <p style="margin:2px 0 0;font-size:12px;color:var(--text-muted,#94a3b8);">
+            <p class="sqn-embedded-risk-desc">
               Avalia a consistência matemática das operações reais para calibrar o perfil de exposição com disciplina.
             </p>
           </div>
@@ -526,34 +526,34 @@
         </div>
 
         <div class="sqn-embedded-risk-grid">
-          <div style="background:rgba(0,0,0,0.15);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
-            <div style="font-size:11px;font-weight:700;color:var(--text-muted,#94a3b8);text-transform:uppercase;">SQN Atual</div>
-            <strong style="font-size:24px;color:var(--text-primary,#e2ece6);">${sqnVal}</strong>
-            <small style="display:block;font-size:11px;color:var(--text-muted,#64748b);">${classification.label}</small>
+          <div class="sqn-dist-mini-metric">
+            <small>SQN Atual</small>
+            <strong>${sqnVal}</strong>
+            <span>${classification.label}</span>
           </div>
 
-          <div style="background:rgba(0,0,0,0.15);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
-            <div style="font-size:11px;font-weight:700;color:var(--text-muted,#94a3b8);text-transform:uppercase;">Expectancy (R)</div>
-            <strong style="font-size:24px;color:${report.expectancy >= 0 ? 'var(--primary,#10b981)' : '#ef4444'};">${report.expectancyFormatted || '—'}</strong>
-            <small style="display:block;font-size:11px;color:var(--text-muted,#64748b);">Média por trade</small>
+          <div class="sqn-dist-mini-metric">
+            <small>Expectancy (R)</small>
+            <strong class="${report.expectancy >= 0 ? 'good' : 'bad'}">${report.expectancyFormatted || '—'}</strong>
+            <span>Média por trade</span>
           </div>
 
-          <div style="background:rgba(0,0,0,0.15);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
-            <div style="font-size:11px;font-weight:700;color:var(--text-muted,#94a3b8);text-transform:uppercase;">Desvio-Padrão (s)</div>
-            <strong style="font-size:24px;color:var(--text-primary,#e2ece6);">${report.standardDeviationFormatted || '—'}</strong>
-            <small style="display:block;font-size:11px;color:var(--text-muted,#64748b);">Dispersão de R</small>
+          <div class="sqn-dist-mini-metric">
+            <small>Desvio-Padrão (s)</small>
+            <strong>${report.standardDeviationFormatted || '—'}</strong>
+            <span>Dispersão de R</span>
           </div>
 
-          <div style="background:rgba(0,0,0,0.15);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
-            <div style="font-size:11px;font-weight:700;color:var(--text-muted,#94a3b8);text-transform:uppercase;">Amostra Analisada</div>
-            <strong style="font-size:24px;color:var(--text-primary,#e2ece6);">${report.sampleSize}</strong>
-            <small style="display:block;font-size:11px;color:var(--text-muted,#64748b);">${report.significance?.label || 'Trades'}</small>
+          <div class="sqn-dist-mini-metric">
+            <small>Amostra Analisada</small>
+            <strong>${report.sampleSize}</strong>
+            <span>${report.significance?.label || 'Trades'}</span>
           </div>
         </div>
 
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 14px;border-radius:10px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);">
-          <div style="font-size:12px;color:var(--text-muted,#94a3b8);">
-            <strong style="color:var(--text-primary,#e2ece6);">Diretriz de Risco:</strong> Este indicador é estritamente consultivo e informativo; ele <strong>não altera automaticamente</strong> o Risk Budget por Grade, o position sizing ou os limites de alocação de capital vigentes.
+        <div class="sqn-risk-banner">
+          <div class="sqn-risk-banner-text">
+            <strong>Diretriz de Risco:</strong> Este indicador é estritamente consultivo e informativo; ele <strong>não altera automaticamente</strong> o Risk Budget por Grade, o position sizing ou os limites de alocação de capital vigentes.
           </div>
           <button type="button" class="secondary" style="font-size:12px;padding:6px 14px;" onclick="typeof go==='function'&&go('systemquality')">
             Ver Qualidade Estatística Completa →
@@ -624,9 +624,9 @@
             <div class="sim-subcard-body">
               <div class="sim-subcard-trophy-title">Dispersão e Vantagem Estatística Simulada</div>
               <p class="sim-subcard-trophy-text" style="margin-bottom: 8px;">
-                Expectancy: <strong style="color: #059669;">${sqnReport.expectancyFormatted}</strong> | Desvio-Padrão: <strong style="color: #0f172a;">${sqnReport.standardDeviationFormatted}</strong>
+                Expectancy: <strong style="color: var(--sqn-kpi-val-good, #059669);">${sqnReport.expectancyFormatted}</strong> | Desvio-Padrão: <strong style="color: var(--sqn-text-primary, #0f172a);">${sqnReport.standardDeviationFormatted}</strong>
               </p>
-              <div style="font-size: 11.5px; color: #64748b; line-height: 1.4;">
+              <div style="font-size: 11.5px; color: var(--sqn-text-muted, #64748b); line-height: 1.4;">
                 ${esc(sqnReport.significance?.note || '')}
               </div>
             </div>

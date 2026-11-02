@@ -1,10 +1,227 @@
 /* ==========================================================================
    SYSTEM QUALITY ANALYTICS (SQN) — STYLESHEET
    Metodologia Van K. Tharp: Expectancy, Desvio-Padrão (N-1), SQN e Distribuição
-   Compatível com Healthy Green, Premium Gold e Pigeon Light
+   Arquitetura de Temas: Healthy Green, Premium Gold e Pigeon Light
    ========================================================================== */
 
-/* Layout da Nova Tela #systemquality */
+/* --------------------------------------------------------------------------
+   1. TOKENS DE COR POR TEMA
+   -------------------------------------------------------------------------- */
+
+/* TEMA 1: HEALTHY GREEN (Padrão do Sistema & body[data-theme="healthy"]) */
+:root,
+body[data-theme="healthy"] {
+  --sqn-page-title: #0f2a20;
+  --sqn-page-subtitle: #2d4838;
+  --sqn-eyebrow: #166534;
+
+  --sqn-card-bg: #ffffff;
+  --sqn-card-border: #d3ddd5;
+  --sqn-card-shadow: 0 4px 18px rgba(17, 37, 27, 0.05);
+
+  --sqn-card-title: #0f2a20;
+  --sqn-card-desc: #2d4838;
+  --sqn-card-eyebrow: #385747;
+
+  --sqn-text-primary: #0f2a20;
+  --sqn-text-secondary: #2d4838;
+  --sqn-text-muted: #385747;
+
+  --sqn-kpi-val: #0f2a20;
+  --sqn-kpi-val-good: #16a34a;
+  --sqn-kpi-val-bad: #dc2626;
+
+  --sqn-subcard-bg: #f4f8f5;
+  --sqn-subcard-border: #cbd8ce;
+  --sqn-subcard-label: #385747;
+  --sqn-subcard-val: #0f2a20;
+
+  --sqn-btn-bg: #f4f8f5;
+  --sqn-btn-border: #cbd8ce;
+  --sqn-btn-text: #1a3b2b;
+  --sqn-btn-hover-bg: #e5efe8;
+  --sqn-btn-hover-text: #0f2a20;
+  --sqn-btn-active-bg: #2e7d58;
+  --sqn-btn-active-border: #2e7d58;
+  --sqn-btn-active-text: #ffffff;
+
+  --sqn-formula-bg: #e5f0e8;
+  --sqn-formula-border: #b8d4c1;
+  --sqn-formula-text: #0d3521;
+
+  --sqn-chart-grid: #cbd8ce;
+  --sqn-chart-line: #2e7d58;
+  --sqn-chart-dot: #ffffff;
+  --sqn-chart-guide-text: #17372a;
+  --sqn-chart-placeholder: #385747;
+
+  --sqn-scale-track: #e5efe8;
+  --sqn-scale-label: #385747;
+  --sqn-scale-label-active: #0f2a20;
+
+  --sqn-trend-pill-bg: #e1f3e7;
+  --sqn-trend-pill-border: #a3d9b5;
+  --sqn-trend-pill-text: #166534;
+
+  --sqn-hero-glow: radial-gradient(circle at top right, rgba(46, 125, 88, 0.08), transparent 70%);
+  --sqn-area-stop-0: #2e7d58;
+  --sqn-area-stop-1: rgba(46, 125, 88, 0);
+
+  --sqn-access-card-bg: linear-gradient(135deg, #ffffff, #f0fdf4);
+  --sqn-access-card-border: #b8d9c2;
+  --sqn-access-card-hover-border: #89d99f;
+  --sqn-access-card-shadow: 0 8px 24px rgba(17, 37, 27, 0.06);
+
+  --sqn-guide-5: rgba(22, 163, 74, 0.65);
+  --sqn-guide-3: rgba(5, 150, 105, 0.65);
+  --sqn-guide-2: rgba(37, 99, 235, 0.65);
+  --sqn-guide-1-6: rgba(220, 38, 38, 0.65);
+}
+
+/* TEMA 2: PREMIUM GOLD (body[data-theme="gold"] e seletor isolado de exclusão) */
+body[data-theme="gold"],
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) {
+  --sqn-page-title: #fffaf0;
+  --sqn-page-subtitle: #c5baa5;
+  --sqn-eyebrow: #d6aa50;
+
+  --sqn-card-bg: linear-gradient(145deg, #151616, #0f1010);
+  --sqn-card-border: #2b2923;
+  --sqn-card-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+
+  --sqn-card-title: #fffaf0;
+  --sqn-card-desc: #c5baa5;
+  --sqn-card-eyebrow: #a99a79;
+
+  --sqn-text-primary: #fffaf0;
+  --sqn-text-secondary: #c5baa5;
+  --sqn-text-muted: #9d9a92;
+
+  --sqn-kpi-val: #fffaf0;
+  --sqn-kpi-val-good: #34d399;
+  --sqn-kpi-val-bad: #f87171;
+
+  --sqn-subcard-bg: #181816;
+  --sqn-subcard-border: #2c2a23;
+  --sqn-subcard-label: #a99a79;
+  --sqn-subcard-val: #fffaf0;
+
+  --sqn-btn-bg: #1c1b18;
+  --sqn-btn-border: #383427;
+  --sqn-btn-text: #aaa69d;
+  --sqn-btn-hover-bg: #272520;
+  --sqn-btn-hover-text: #fffaf0;
+  --sqn-btn-active-bg: #d6aa50;
+  --sqn-btn-active-border: #d6aa50;
+  --sqn-btn-active-text: #090909;
+
+  --sqn-formula-bg: #251e12;
+  --sqn-formula-border: #4a3b1f;
+  --sqn-formula-text: #f0ce7a;
+
+  --sqn-chart-grid: rgba(255, 255, 255, 0.12);
+  --sqn-chart-line: #d6aa50;
+  --sqn-chart-dot: #151616;
+  --sqn-chart-guide-text: #c5baa5;
+  --sqn-chart-placeholder: #c5baa5;
+
+  --sqn-scale-track: rgba(255, 255, 255, 0.08);
+  --sqn-scale-label: #9d9a92;
+  --sqn-scale-label-active: #fffaf0;
+
+  --sqn-trend-pill-bg: rgba(214, 170, 80, 0.15);
+  --sqn-trend-pill-border: rgba(214, 170, 80, 0.35);
+  --sqn-trend-pill-text: #f5d77a;
+
+  --sqn-hero-glow: radial-gradient(circle at top right, rgba(214, 170, 80, 0.15), transparent 70%);
+  --sqn-area-stop-0: #d6aa50;
+  --sqn-area-stop-1: rgba(214, 170, 80, 0);
+
+  --sqn-access-card-bg: linear-gradient(135deg, rgba(32, 28, 18, 0.95), rgba(20, 18, 12, 0.98));
+  --sqn-access-card-border: rgba(214, 170, 80, 0.35);
+  --sqn-access-card-hover-border: rgba(214, 170, 80, 0.6);
+  --sqn-access-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+  --sqn-guide-5: rgba(16, 185, 129, 0.65);
+  --sqn-guide-3: rgba(52, 211, 153, 0.55);
+  --sqn-guide-2: rgba(96, 165, 250, 0.55);
+  --sqn-guide-1-6: rgba(248, 113, 113, 0.55);
+}
+
+/* TEMA 3: PIGEON LIGHT (body[data-theme="pigeon"] e html[data-theme="pigeon"]) */
+body[data-theme="pigeon"],
+html[data-theme="pigeon"] {
+  --sqn-page-title: #0f172a;
+  --sqn-page-subtitle: #476375;
+  --sqn-eyebrow: #0284c7;
+
+  --sqn-card-bg: #ffffff;
+  --sqn-card-border: #DCE8EF;
+  --sqn-card-shadow: 0 4px 18px rgba(48, 75, 91, 0.05);
+
+  --sqn-card-title: #0f172a;
+  --sqn-card-desc: #476375;
+  --sqn-card-eyebrow: #304B5B;
+
+  --sqn-text-primary: #0f172a;
+  --sqn-text-secondary: #304B5B;
+  --sqn-text-muted: #476375;
+
+  --sqn-kpi-val: #0f172a;
+  --sqn-kpi-val-good: #16a34a;
+  --sqn-kpi-val-bad: #dc2626;
+
+  --sqn-subcard-bg: #F0F7FB;
+  --sqn-subcard-border: #DCE8EF;
+  --sqn-subcard-label: #304B5B;
+  --sqn-subcard-val: #0f172a;
+
+  --sqn-btn-bg: #EDF6FA;
+  --sqn-btn-border: #DCE8EF;
+  --sqn-btn-text: #304B5B;
+  --sqn-btn-hover-bg: #e0eff7;
+  --sqn-btn-hover-text: #0f172a;
+  --sqn-btn-active-bg: #0284c7;
+  --sqn-btn-active-border: #0284c7;
+  --sqn-btn-active-text: #ffffff;
+
+  --sqn-formula-bg: #E0EFF7;
+  --sqn-formula-border: #BADAEB;
+  --sqn-formula-text: #0369a1;
+
+  --sqn-chart-grid: #DCE8EF;
+  --sqn-chart-line: #0284c7;
+  --sqn-chart-dot: #ffffff;
+  --sqn-chart-guide-text: #182B36;
+  --sqn-chart-placeholder: #476375;
+
+  --sqn-scale-track: #e2e8f0;
+  --sqn-scale-label: #476375;
+  --sqn-scale-label-active: #0f172a;
+
+  --sqn-trend-pill-bg: #e0f2fe;
+  --sqn-trend-pill-border: #bae6fd;
+  --sqn-trend-pill-text: #0369a1;
+
+  --sqn-hero-glow: radial-gradient(circle at top right, rgba(2, 132, 199, 0.08), transparent 70%);
+  --sqn-area-stop-0: #0284c7;
+  --sqn-area-stop-1: rgba(2, 132, 199, 0);
+
+  --sqn-access-card-bg: linear-gradient(135deg, #ffffff, #F0F7FB);
+  --sqn-access-card-border: #BADAEB;
+  --sqn-access-card-hover-border: #79BBD6;
+  --sqn-access-card-shadow: 0 8px 24px rgba(48, 75, 91, 0.06);
+
+  --sqn-guide-5: rgba(22, 163, 74, 0.65);
+  --sqn-guide-3: rgba(2, 132, 199, 0.65);
+  --sqn-guide-2: rgba(37, 99, 235, 0.65);
+  --sqn-guide-1-6: rgba(220, 38, 38, 0.65);
+}
+
+
+/* --------------------------------------------------------------------------
+   2. LAYOUT & HERO DA TELA (#systemquality)
+   -------------------------------------------------------------------------- */
 .sqn-page-shell {
   display: flex;
   flex-direction: column;
@@ -28,19 +245,19 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--primary, #10b981);
+  color: var(--sqn-eyebrow);
   margin-bottom: 6px;
 }
 
 .sqn-page-title {
   margin: 0;
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 900;
-  color: var(--text-primary, #e2ece6);
+  color: var(--sqn-page-title);
   letter-spacing: -0.03em;
   line-height: 1.15;
 }
@@ -48,22 +265,33 @@
 .sqn-page-subtitle {
   margin: 8px 0 0;
   font-size: 14.5px;
-  color: var(--text-muted, #94a3b8);
+  font-weight: 500;
+  color: var(--sqn-page-subtitle);
   max-width: 860px;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
-/* Barra de Filtro de Período */
-.sqn-filter-toolbar {
+.sqn-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. BARRA DE FILTRO DE PERÍODO
+   -------------------------------------------------------------------------- */
+.card.sqn-filter-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
   padding: 14px 20px;
-  background: var(--bg-card, #12231b);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  background: var(--sqn-card-bg);
+  border: 1px solid var(--sqn-card-border);
   border-radius: 16px;
+  box-shadow: var(--sqn-card-shadow);
 }
 
 .sqn-filter-left {
@@ -77,8 +305,8 @@
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted, #94a3b8);
+  letter-spacing: 0.06em;
+  color: var(--sqn-filter-label);
 }
 
 .sqn-filter-buttons {
@@ -88,39 +316,45 @@
 }
 
 .sqn-filter-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--sqn-btn-bg);
+  border: 1px solid var(--sqn-btn-border);
   border-radius: 9999px;
-  padding: 6px 14px;
+  padding: 7px 16px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--text-muted, #94a3b8);
+  color: var(--sqn-btn-text);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .sqn-filter-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary, #ffffff);
+  background: var(--sqn-btn-hover-bg);
+  color: var(--sqn-btn-hover-text);
 }
 
 .sqn-filter-btn.active {
-  background: var(--primary, #10b981);
-  color: #0b1a13;
-  border-color: var(--primary, #10b981);
+  background: var(--sqn-btn-active-bg);
+  color: var(--sqn-btn-active-text);
+  border-color: var(--sqn-btn-active-border);
   font-weight: 800;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .sqn-filter-info {
   font-size: 13px;
-  color: var(--text-muted, #94a3b8);
+  font-weight: 500;
+  color: var(--sqn-text-muted);
 }
 
 .sqn-filter-info strong {
-  color: var(--text-primary, #e2ece6);
+  color: var(--sqn-text-primary);
+  font-weight: 800;
 }
 
-/* 2.1. Top KPI Grid */
+
+/* --------------------------------------------------------------------------
+   4. TOP KPI GRID (4 INDICADORES SUPERIORES)
+   -------------------------------------------------------------------------- */
 .sqn-top-kpi-grid {
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr 1fr;
@@ -139,16 +373,17 @@
   }
 }
 
-.sqn-kpi-card {
-  background: var(--bg-card, #12231b);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+.card.sqn-kpi-card {
+  background: var(--sqn-card-bg);
+  border: 1px solid var(--sqn-card-border);
   border-radius: 20px;
   padding: 22px 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 12px;
-  box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--sqn-card-shadow);
+  color: var(--sqn-text-primary);
 }
 
 .sqn-kpi-hero {
@@ -163,7 +398,7 @@
   right: 0;
   width: 180px;
   height: 180px;
-  background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.15), transparent 70%);
+  background: var(--sqn-hero-glow);
   pointer-events: none;
 }
 
@@ -178,8 +413,8 @@
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted, #94a3b8);
+  letter-spacing: 0.07em;
+  color: var(--sqn-card-eyebrow);
 }
 
 .sqn-kpi-big-value {
@@ -187,34 +422,85 @@
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.03em;
-  color: var(--text-primary, #ffffff);
+  color: var(--sqn-kpi-val);
   font-variant-numeric: tabular-nums;
   margin: 4px 0;
 }
 
-.sqn-kpi-big-value.good { color: #10b981; }
-.sqn-kpi-big-value.bad { color: #ef4444; }
-.sqn-kpi-big-value.tone-poor { color: #ef4444; }
-.sqn-kpi-big-value.tone-below_average { color: #f59e0b; }
-.sqn-kpi-big-value.tone-average { color: #3b82f6; }
-.sqn-kpi-big-value.tone-good { color: #10b981; }
+.sqn-kpi-big-value.good { color: var(--sqn-kpi-val-good); }
+.sqn-kpi-big-value.bad { color: var(--sqn-kpi-val-bad); }
+
+/* Tones Semânticos de SQN */
+.sqn-kpi-big-value.tone-poor { color: #dc2626; }
+.sqn-kpi-big-value.tone-below_average { color: #d97706; }
+.sqn-kpi-big-value.tone-average { color: #2563eb; }
+.sqn-kpi-big-value.tone-good { color: var(--sqn-kpi-val-good); }
 .sqn-kpi-big-value.tone-excellent { color: #059669; }
-.sqn-kpi-big-value.tone-exceptional { color: #34d399; }
+.sqn-kpi-big-value.tone-exceptional { color: #047857; }
+
+/* Tones em Gold Theme */
+body[data-theme="gold"] .sqn-kpi-big-value.tone-poor,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-kpi-big-value.tone-poor { color: #f87171; }
+
+body[data-theme="gold"] .sqn-kpi-big-value.tone-below_average,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-kpi-big-value.tone-below_average { color: #fbbf24; }
+
+body[data-theme="gold"] .sqn-kpi-big-value.tone-average,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-kpi-big-value.tone-average { color: #60a5fa; }
+
+body[data-theme="gold"] .sqn-kpi-big-value.tone-good,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-kpi-big-value.tone-good { color: #34d399; }
+
+body[data-theme="gold"] .sqn-kpi-big-value.tone-excellent,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-kpi-big-value.tone-excellent { color: #10b981; }
+
+body[data-theme="gold"] .sqn-kpi-big-value.tone-exceptional,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-kpi-big-value.tone-exceptional { color: #6ee7b7; }
 
 .sqn-kpi-sub {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--text-primary, #e2ece6);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--sqn-text-primary);
 }
 
 .sqn-kpi-desc {
   margin: 0;
-  font-size: 12px;
-  color: var(--text-muted, #94a3b8);
-  line-height: 1.45;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--sqn-card-desc);
+  line-height: 1.5;
 }
 
-/* Badges de Classificação */
+.sqn-kpi-desc strong {
+  color: var(--sqn-text-primary);
+  font-weight: 800;
+}
+
+.sqn-tooltip-trigger {
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--sqn-subcard-bg);
+  border: 1px solid var(--sqn-subcard-border);
+  color: var(--sqn-text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  transition: all 0.15s ease;
+}
+
+.sqn-tooltip-trigger:hover {
+  background: var(--sqn-btn-active-bg);
+  color: var(--sqn-btn-active-text);
+}
+
+
+/* --------------------------------------------------------------------------
+   5. BADGES DE CLASSIFICAÇÃO
+   -------------------------------------------------------------------------- */
 .sqn-badge {
   display: inline-flex;
   align-items: center;
@@ -228,50 +514,105 @@
   white-space: nowrap;
 }
 
+/* Light Themes (Healthy Green & Pigeon Light) */
 .sqn-badge-poor {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.sqn-badge-below-average {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fcd34d;
+}
+
+.sqn-badge-average {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+.sqn-badge-good {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #86efac;
+}
+
+.sqn-badge-excellent {
+  background: #d1fae5;
+  color: #047857;
+  border-color: #6ee7b7;
+}
+
+.sqn-badge-exceptional {
+  background: #ccfbf1;
+  color: #0f766e;
+  border-color: #5eead4;
+  box-shadow: 0 0 10px rgba(15, 118, 110, 0.15);
+}
+
+.sqn-badge-unclassified {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+/* Premium Gold Badges */
+body[data-theme="gold"] .sqn-badge-poor,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-badge-poor {
   background: rgba(239, 68, 68, 0.15);
   color: #f87171;
   border-color: rgba(239, 68, 68, 0.35);
 }
 
-.sqn-badge-below-average {
+body[data-theme="gold"] .sqn-badge-below-average,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-badge-below-average {
   background: rgba(245, 158, 11, 0.15);
   color: #fbbf24;
   border-color: rgba(245, 158, 11, 0.35);
 }
 
-.sqn-badge-average {
+body[data-theme="gold"] .sqn-badge-average,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-badge-average {
   background: rgba(59, 130, 246, 0.15);
   color: #60a5fa;
   border-color: rgba(59, 130, 246, 0.35);
 }
 
-.sqn-badge-good {
+body[data-theme="gold"] .sqn-badge-good,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-badge-good {
   background: rgba(16, 185, 129, 0.15);
   color: #34d399;
   border-color: rgba(16, 185, 129, 0.35);
 }
 
-.sqn-badge-excellent {
+body[data-theme="gold"] .sqn-badge-excellent,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-badge-excellent {
   background: rgba(5, 150, 105, 0.22);
   color: #10b981;
   border-color: rgba(16, 185, 129, 0.45);
 }
 
-.sqn-badge-exceptional {
+body[data-theme="gold"] .sqn-badge-exceptional,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-badge-exceptional {
   background: rgba(4, 120, 87, 0.28);
   color: #6ee7b7;
   border-color: rgba(52, 211, 153, 0.55);
   box-shadow: 0 0 16px rgba(52, 211, 153, 0.2);
 }
 
-.sqn-badge-unclassified {
+body[data-theme="gold"] .sqn-badge-unclassified,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-badge-unclassified {
   background: rgba(100, 116, 139, 0.15);
   color: #94a3b8;
   border-color: rgba(100, 116, 139, 0.3);
 }
 
-/* Régua Visual Van Tharp */
+
+/* --------------------------------------------------------------------------
+   6. RÉGUA VAN THARP & STATUS DE AMOSTRA
+   -------------------------------------------------------------------------- */
 .sqn-scale-wrapper {
   display: flex;
   flex-direction: column;
@@ -284,7 +625,7 @@
   height: 8px;
   border-radius: 9999px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--sqn-scale-track);
   position: relative;
 }
 
@@ -296,7 +637,7 @@
 
 .sqn-scale-segment.active {
   opacity: 1;
-  box-shadow: 0 0 10px currentColor;
+  box-shadow: 0 0 8px currentColor;
 }
 
 .sqn-scale-segment.seg-poor { width: 20%; background: #ef4444; }
@@ -311,11 +652,11 @@
   justify-content: space-between;
   font-size: 10px;
   font-weight: 700;
-  color: var(--text-muted, #94a3b8);
+  color: var(--sqn-scale-label);
 }
 
 .sqn-scale-labels span.active {
-  color: var(--text-primary, #ffffff);
+  color: var(--sqn-scale-label-active);
   font-weight: 800;
 }
 
@@ -325,26 +666,31 @@
   gap: 10px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--sqn-subcard-bg);
+  border: 1px solid var(--sqn-subcard-border);
   font-size: 12px;
-  color: var(--text-muted, #94a3b8);
-  line-height: 1.4;
+  color: var(--sqn-text-secondary);
+  line-height: 1.45;
 }
 
 .sqn-sample-status-box strong {
-  color: var(--text-primary, #e2ece6);
+  color: var(--sqn-text-primary);
+  font-weight: 800;
 }
 
-/* 2.2. Seção de Distribuição de R */
-.sqn-dist-section {
-  background: var(--bg-card, #12231b);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+
+/* --------------------------------------------------------------------------
+   7. SEÇÃO DE DISTRIBUIÇÃO DOS R-MÚLTIPLOS
+   -------------------------------------------------------------------------- */
+.card.sqn-dist-section {
+  background: var(--sqn-card-bg);
+  border: 1px solid var(--sqn-card-border);
   border-radius: 22px;
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  box-shadow: var(--sqn-card-shadow);
 }
 
 .sqn-section-header {
@@ -359,13 +705,15 @@
   margin: 2px 0 0;
   font-size: 20px;
   font-weight: 800;
-  color: var(--text-primary, #e2ece6);
+  color: var(--sqn-card-title);
+  letter-spacing: -0.02em;
 }
 
 .sqn-section-desc {
   margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--text-muted, #94a3b8);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sqn-card-desc);
   max-width: 860px;
   line-height: 1.5;
 }
@@ -378,8 +726,8 @@
 }
 
 .sqn-dist-mini-metric {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--sqn-subcard-bg);
+  border: 1px solid var(--sqn-subcard-border);
   border-radius: 14px;
   padding: 12px 16px;
   display: flex;
@@ -389,28 +737,33 @@
 
 .sqn-dist-mini-metric small {
   font-size: 10.5px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-muted, #94a3b8);
+  color: var(--sqn-subcard-label);
 }
 
 .sqn-dist-mini-metric strong {
   font-size: 20px;
   font-weight: 900;
-  color: var(--text-primary, #e2ece6);
+  color: var(--sqn-subcard-val);
   font-variant-numeric: tabular-nums;
 }
 
-.sqn-dist-mini-metric strong.good { color: #10b981; }
-.sqn-dist-mini-metric strong.bad { color: #ef4444; }
+.sqn-dist-mini-metric strong.good { color: var(--sqn-kpi-val-good); }
+.sqn-dist-mini-metric strong.bad { color: var(--sqn-kpi-val-bad); }
+
+.sqn-dist-mini-metric span {
+  font-size: 11px;
+  color: var(--sqn-text-muted);
+}
 
 .sqn-dist-chart-title {
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-muted, #94a3b8);
+  color: var(--sqn-card-eyebrow);
   margin-bottom: 8px;
 }
 
@@ -433,34 +786,39 @@
 .sqn-dist-count-text {
   font-size: 12px;
   font-weight: 800;
-  fill: var(--text-muted, #94a3b8);
+  fill: var(--sqn-text-muted);
 }
 
 .sqn-dist-count-text.has-trades {
-  fill: var(--text-primary, #ffffff);
+  fill: var(--sqn-text-primary);
+  font-weight: 900;
 }
 
 .sqn-dist-label-text {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
-  fill: var(--text-primary, #e2ece6);
+  fill: var(--sqn-text-primary);
 }
 
 .sqn-dist-pct-text {
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
-  fill: var(--text-muted, #94a3b8);
+  fill: var(--sqn-text-secondary);
 }
 
-/* 2.3. Seção de Evolução do SQN (Rolling SQN) */
-.sqn-chart-card {
-  background: var(--bg-card, #12231b);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+
+/* --------------------------------------------------------------------------
+   8. SEÇÃO DE EVOLUÇÃO DO SQN (ROLLING SQN)
+   -------------------------------------------------------------------------- */
+.card.sqn-chart-card {
+  background: var(--sqn-card-bg);
+  border: 1px solid var(--sqn-card-border);
   border-radius: 22px;
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  box-shadow: var(--sqn-card-shadow);
 }
 
 .sqn-chart-head {
@@ -475,23 +833,37 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 14px;
+  padding: 6px 14px;
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 800;
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: var(--sqn-trend-pill-bg);
+  color: var(--sqn-trend-pill-text);
+  border: 1px solid var(--sqn-trend-pill-border);
   white-space: nowrap;
 }
 
 .sqn-chart-trend-pill.trend-degrading {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.sqn-chart-trend-pill.trend-stable {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+body[data-theme="gold"] .sqn-chart-trend-pill.trend-degrading,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-chart-trend-pill.trend-degrading {
   background: rgba(239, 68, 68, 0.15);
   color: #f87171;
   border-color: rgba(239, 68, 68, 0.35);
 }
 
-.sqn-chart-trend-pill.trend-stable {
+body[data-theme="gold"] .sqn-chart-trend-pill.trend-stable,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-chart-trend-pill.trend-stable {
   background: rgba(59, 130, 246, 0.15);
   color: #60a5fa;
   border-color: rgba(59, 130, 246, 0.35);
@@ -515,15 +887,15 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--text-muted, #94a3b8);
-  font-size: 13px;
+  color: var(--sqn-chart-placeholder);
+  font-size: 13.5px;
+  font-weight: 600;
   text-align: center;
   padding: 24px;
 }
 
-/* Linhas e Rótulos do Gráfico de SQN */
 .sqn-chart-grid-line {
-  stroke: rgba(255, 255, 255, 0.08);
+  stroke: var(--sqn-chart-grid);
   stroke-dasharray: 4 4;
   stroke-width: 1;
 }
@@ -533,22 +905,21 @@
   stroke-width: 1.3;
 }
 
-.sqn-chart-guide-line.guide-5 { stroke: rgba(16, 185, 129, 0.65); }
-.sqn-chart-guide-line.guide-3 { stroke: rgba(52, 211, 153, 0.55); }
-.sqn-chart-guide-line.guide-2 { stroke: rgba(96, 165, 250, 0.55); }
-.sqn-chart-guide-line.guide-1-6 { stroke: rgba(248, 113, 113, 0.55); }
+.sqn-chart-guide-line.guide-5 { stroke: var(--sqn-guide-5); }
+.sqn-chart-guide-line.guide-3 { stroke: var(--sqn-guide-3); }
+.sqn-chart-guide-line.guide-2 { stroke: var(--sqn-guide-2); }
+.sqn-chart-guide-line.guide-1-6 { stroke: var(--sqn-guide-1-6); }
 
-/* Textos de Guia na lateral direita com contraste garantido */
 .sqn-chart-guide-text {
   font-size: 11px;
   font-weight: 800;
-  fill: #cbd5e1; /* Alto contraste sobre fundo escuro */
+  fill: var(--sqn-chart-guide-text);
   letter-spacing: 0.02em;
 }
 
 .sqn-chart-path-line {
   fill: none;
-  stroke: var(--primary, #10b981);
+  stroke: var(--sqn-chart-line);
   stroke-width: 2.8;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -559,8 +930,8 @@
 }
 
 .sqn-chart-dot {
-  fill: var(--bg-card, #12231b);
-  stroke: var(--primary, #10b981);
+  fill: var(--sqn-chart-dot);
+  stroke: var(--sqn-chart-line);
   stroke-width: 2.2;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -569,24 +940,28 @@
 .sqn-chart-dot:hover {
   r: 5.5;
   stroke-width: 3.2;
-  stroke: #ffffff;
+  stroke: var(--sqn-text-primary);
 }
 
-/* 2.4. Seção Pedagógica */
+
+/* --------------------------------------------------------------------------
+   9. SEÇÃO PEDAGÓGICA (CARDS INFORMATIVOS)
+   -------------------------------------------------------------------------- */
 .sqn-pedagogical-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 18px;
 }
 
-.sqn-pedagogical-box {
-  background: var(--bg-card, #12231b);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+.card.sqn-pedagogical-box {
+  background: var(--sqn-card-bg);
+  border: 1px solid var(--sqn-card-border);
   border-radius: 18px;
   padding: 20px 22px;
   display: flex;
   gap: 16px;
   align-items: flex-start;
+  box-shadow: var(--sqn-card-shadow);
 }
 
 .sqn-pedagogical-icon {
@@ -597,33 +972,43 @@
 
 .sqn-pedagogical-body h3 {
   margin: 0 0 6px;
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 800;
-  color: var(--text-primary, #e2ece6);
+  color: var(--sqn-card-title);
+  letter-spacing: -0.01em;
 }
 
 .sqn-pedagogical-body p {
   margin: 0;
   font-size: 13px;
-  line-height: 1.5;
-  color: var(--text-muted, #94a3b8);
+  line-height: 1.55;
+  color: var(--sqn-card-desc);
+  font-weight: 500;
+}
+
+.sqn-pedagogical-body p strong {
+  color: var(--sqn-text-primary);
+  font-weight: 800;
 }
 
 .sqn-pedagogical-body code {
-  background: rgba(0, 0, 0, 0.35);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
+  background: var(--sqn-formula-bg);
+  border: 1px solid var(--sqn-formula-border);
+  color: var(--sqn-formula-text);
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
-  color: var(--primary, #10b981);
+  font-weight: 700;
 }
 
-/* ==========================================================================
-   3. CARD DE ACESSO EXECUTIVO NO PAINEL DA VERDADE (#analytics)
-   ========================================================================== */
-.truth-system-quality-access-card {
-  background: linear-gradient(135deg, rgba(18, 35, 27, 0.95), rgba(10, 25, 18, 0.98));
-  border: 1px solid rgba(16, 185, 129, 0.25);
+
+/* --------------------------------------------------------------------------
+   10. CARD DE ACESSO EXECUTIVO NO PAINEL DA VERDADE (#analytics)
+   -------------------------------------------------------------------------- */
+.card.truth-system-quality-access-card {
+  background: var(--sqn-access-card-bg);
+  border: 1px solid var(--sqn-access-card-border);
   border-radius: 20px;
   padding: 20px 26px;
   margin-bottom: 24px;
@@ -632,14 +1017,14 @@
   align-items: center;
   gap: 20px;
   cursor: pointer;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--sqn-access-card-shadow);
   transition: all 0.2s ease;
 }
 
-.truth-system-quality-access-card:hover {
-  border-color: rgba(16, 185, 129, 0.45);
+.card.truth-system-quality-access-card:hover {
+  border-color: var(--sqn-access-card-hover-border);
   transform: translateY(-2px);
-  box-shadow: 0 12px 35px -8px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
 
 .truth-sqn-access-left {
@@ -650,13 +1035,15 @@
   margin: 4px 0 2px;
   font-size: 19px;
   font-weight: 800;
-  color: var(--text-primary, #e2ece6);
+  color: var(--sqn-text-primary);
+  letter-spacing: -0.02em;
 }
 
 .truth-sqn-access-desc {
   margin: 0;
-  font-size: 13px;
-  color: var(--text-muted, #94a3b8);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--sqn-text-secondary);
   max-width: 650px;
   line-height: 1.45;
 }
@@ -672,7 +1059,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 2px;
+  gap: 3px;
 }
 
 .truth-sqn-access-kpi small {
@@ -680,14 +1067,14 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-muted, #94a3b8);
+  color: var(--sqn-subcard-label);
 }
 
 .truth-sqn-access-kpi strong.sqn-kpi-val {
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 900;
   line-height: 1;
-  color: var(--text-primary, #ffffff);
+  color: var(--sqn-text-primary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -699,18 +1086,20 @@
   white-space: nowrap;
 }
 
-/* ==========================================================================
-   TOUCHPOINTS DE RISCO (#riskpolicy)
-   ========================================================================== */
-.sqn-embedded-risk-card {
-  background: var(--bg-card, #12231b);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+
+/* --------------------------------------------------------------------------
+   11. TOUCHPOINT DE RISCO (#riskpolicy)
+   -------------------------------------------------------------------------- */
+.card.sqn-embedded-risk-card {
+  background: var(--sqn-card-bg);
+  border: 1px solid var(--sqn-card-border);
   border-radius: 20px;
   padding: 22px 24px;
   margin-top: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  box-shadow: var(--sqn-card-shadow);
 }
 
 .sqn-embedded-risk-head {
@@ -721,166 +1110,47 @@
   gap: 12px;
 }
 
+.sqn-embedded-risk-title {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--sqn-card-title);
+}
+
+.sqn-embedded-risk-desc {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--sqn-card-desc);
+  font-weight: 500;
+}
+
 .sqn-embedded-risk-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 14px;
 }
 
-.sqn-tooltip-trigger {
-  cursor: help;
-  display: inline-flex;
+.sqn-risk-banner {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-muted, #94a3b8);
-  font-size: 10px;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--sqn-subcard-bg);
+  border: 1px solid var(--sqn-subcard-border);
+}
+
+.sqn-risk-banner-text {
+  font-size: 12px;
+  color: var(--sqn-text-secondary);
+  line-height: 1.45;
+  flex: 1;
+  min-width: 260px;
+}
+
+.sqn-risk-banner-text strong {
+  color: var(--sqn-text-primary);
   font-weight: 800;
-}
-
-/* ==========================================================================
-   THEME OVERRIDES
-   ========================================================================== */
-
-/* GOLD THEME */
-body.theme-gold .sqn-eyebrow {
-  color: #d4af37;
-}
-
-body.theme-gold .truth-system-quality-access-card {
-  background: linear-gradient(135deg, rgba(32, 28, 18, 0.95), rgba(20, 18, 12, 0.98));
-  border-color: rgba(212, 175, 55, 0.3);
-}
-
-body.theme-gold .truth-system-quality-access-card:hover {
-  border-color: rgba(212, 175, 55, 0.55);
-}
-
-body.theme-gold .sqn-filter-btn.active {
-  background: #d4af37;
-  color: #121008;
-  border-color: #d4af37;
-}
-
-body.theme-gold .sqn-chart-path-line {
-  stroke: #d4af37;
-}
-
-body.theme-gold .sqn-chart-dot {
-  stroke: #d4af37;
-}
-
-/* PIGEON LIGHT THEME (Alto Contraste e Luminosidade) */
-body.theme-pigeon .sqn-page-title,
-body.theme-pigeon .sqn-section-title,
-body.theme-pigeon .truth-sqn-access-title,
-body.theme-pigeon .sqn-pedagogical-body h3 {
-  color: #0f172a;
-}
-
-body.theme-pigeon .sqn-page-subtitle,
-body.theme-pigeon .sqn-section-desc,
-body.theme-pigeon .sqn-kpi-desc,
-body.theme-pigeon .sqn-filter-label,
-body.theme-pigeon .sqn-filter-info,
-body.theme-pigeon .truth-sqn-access-desc,
-body.theme-pigeon .sqn-pedagogical-body p,
-body.theme-pigeon .sqn-sample-status-box {
-  color: #475569;
-}
-
-body.theme-pigeon .sqn-kpi-card,
-body.theme-pigeon .sqn-dist-section,
-body.theme-pigeon .sqn-chart-card,
-body.theme-pigeon .sqn-filter-toolbar,
-body.theme-pigeon .sqn-pedagogical-box,
-body.theme-pigeon .sqn-embedded-risk-card {
-  background: #ffffff;
-  border-color: rgba(148, 163, 184, 0.28);
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
-}
-
-body.theme-pigeon .sqn-filter-btn {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-  color: #475569;
-}
-
-body.theme-pigeon .sqn-filter-btn:hover {
-  background: #e2e8f0;
-  color: #0f172a;
-}
-
-body.theme-pigeon .sqn-filter-btn.active {
-  background: #0284c7;
-  color: #ffffff;
-  border-color: #0284c7;
-}
-
-body.theme-pigeon .sqn-kpi-big-value,
-body.theme-pigeon .truth-sqn-access-kpi strong.sqn-kpi-val,
-body.theme-pigeon .sqn-dist-mini-metric strong {
-  color: #0f172a;
-}
-
-body.theme-pigeon .sqn-dist-mini-metric {
-  background: #f8fafc;
-  border-color: #e2e8f0;
-}
-
-body.theme-pigeon .sqn-dist-mini-metric small {
-  color: #64748b;
-}
-
-body.theme-pigeon .sqn-sample-status-box {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-}
-
-body.theme-pigeon .sqn-sample-status-box strong {
-  color: #0f172a;
-}
-
-body.theme-pigeon .sqn-pedagogical-body code {
-  background: #e2e8f0;
-  color: #0369a1;
-}
-
-body.theme-pigeon .truth-system-quality-access-card {
-  background: linear-gradient(135deg, #ffffff, #f0fdf4);
-  border-color: #bbf7d0;
-  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
-}
-
-body.theme-pigeon .truth-system-quality-access-card:hover {
-  border-color: #86efac;
-  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.15);
-}
-
-body.theme-pigeon .sqn-chart-grid-line {
-  stroke: rgba(148, 163, 184, 0.28);
-}
-
-body.theme-pigeon .sqn-chart-guide-text {
-  fill: #334155; /* Alto contraste sobre fundo claro */
-  font-weight: 800;
-}
-
-body.theme-pigeon .sqn-chart-dot {
-  fill: #ffffff;
-}
-
-body.theme-pigeon .sqn-dist-label-text {
-  fill: #1e293b;
-}
-
-body.theme-pigeon .sqn-dist-pct-text {
-  fill: #64748b;
-}
-
-body.theme-pigeon .sqn-dist-count-text.has-trades {
-  fill: #0f172a;
 }

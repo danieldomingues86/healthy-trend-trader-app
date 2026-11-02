@@ -309,3 +309,31 @@ test('Pigeon Light (Refinamento Final): Grade C contraste em index.html, Remoç�
   assert.ok(aboutCss.includes('--about-composition-width: min(2900px, 92vw);'), 'about-page.css deve suportar super ultrawide a partir de 2600px');
   assert.ok(pigeonCss.includes("background: url('../assets/about-pigeon-hero.png') right center / cover no-repeat !important;"), 'theme-pigeon-light.css deve posicionar imagem sem distorção');
 });
+
+
+test('System Quality Analytics (SQN): Legibilidade e Contraste em Healthy Green, Premium Gold e Pigeon Light', () => {
+  const sqnCss = fs.readFileSync(path.join(root, 'frontend', 'system-quality-analytics.css'), 'utf8');
+  const sqnJs = fs.readFileSync(path.join(root, 'frontend', 'system-quality-analytics.js'), 'utf8');
+
+  // 1. Healthy Green: contraste alto com verde escuro floresta (#0f2a20) e cartões brancos
+  assert.ok(sqnCss.includes('body[data-theme="healthy"]'), 'Deve conter tokens para body[data-theme="healthy"]');
+  assert.match(sqnCss, /--sqn-page-title:\s*#0f2a20;/, 'Healthy Green deve usar título com tinta verde floresta escura #0f2a20');
+  assert.match(sqnCss, /--sqn-card-bg:\s*#ffffff;/, 'Healthy Green deve usar cartões brancos limpos #ffffff');
+  assert.match(sqnCss, /--sqn-subcard-bg:\s*#f4f8f5;/, 'Subcards devem ter fundo claro #f4f8f5');
+  assert.match(sqnCss, /--sqn-formula-bg:\s*#e5f0e8;/, 'Fórmula pedagógica deve ter fundo legível #e5f0e8');
+
+  // 2. Premium Gold: isolamento correto e paleta obsidiana com ouro
+  assert.ok(sqnCss.includes('body[data-theme="gold"],'), 'Deve cobrir body[data-theme="gold"]');
+  assert.ok(sqnCss.includes(':not([data-theme="healthy"]):not([data-theme="pigeon"])'), 'Deve isolar seletor gold sem vazar para healthy ou pigeon');
+  assert.match(sqnCss, /--sqn-page-title:\s*#fffaf0;/, 'Premium Gold deve usar marfim quente #fffaf0');
+  assert.match(sqnCss, /--sqn-eyebrow:\s*#d6aa50;/, 'Premium Gold deve usar destaque ouro #d6aa50');
+
+  // 3. Pigeon Light: azul gelo com ardósia escuro (#0f172a)
+  assert.ok(sqnCss.includes('body[data-theme="pigeon"]'), 'Deve cobrir body[data-theme="pigeon"]');
+  assert.match(sqnCss, /--sqn-page-title:\s*#0f172a;/, 'Pigeon Light deve usar texto principal escuro #0f172a');
+  assert.match(sqnCss, /--sqn-formula-text:\s*#0369a1;/, 'Fórmula em Pigeon deve usar azul legível #0369a1');
+
+  // 4. Sem resíduos de cores opacas ou variáveis inexistentes no JS
+  assert.ok(!sqnJs.includes('var(--text-primary,#e2ece6)'), 'system-quality-analytics.js não deve ter fallback claro #e2ece6');
+  assert.ok(!sqnCss.includes('background: rgba(0, 0, 0, 0.2);'), 'system-quality-analytics.css não deve ter caixas escuras fixas');
+});
