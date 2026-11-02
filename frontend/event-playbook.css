@@ -842,3 +842,124 @@
   font-weight: 600;
   margin-top: 10px;
 }
+
+
+/* THEME OVERRIDES — Dark / Gold Theme */
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .event-playbook-page {
+  color: #f5efe3;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-title-col h1 {
+  color: #fffaf0;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-title-col p {
+  color: #9d9a92;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-btn-secondary {
+  background: #111211;
+  color: #dfbd70;
+  border-color: #4b4028;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-btn-secondary:hover {
+  background: #171817;
+  border-color: #d6aa50;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-category-pill {
+  background: #111211;
+  border-color: #292720;
+  color: #9d9a92;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-category-pill:hover {
+  border-color: #4b4028;
+  color: #f5efe3;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-category-pill.active {
+  background: #d6aa50;
+  color: #090909;
+  border-color: #d6aa50;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-filter-card {
+  background: linear-gradient(145deg, #151616, #0f1010);
+  border-color: #2b2923;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-search-input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-filter-select {
+  background: #090a0a;
+  border-color: #35332c;
+  color: #eee9df;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-search-input:focus,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-filter-select:focus {
+  border-color: #d6aa50;
+  box-shadow: 0 0 0 3px rgba(214, 170, 80, 0.15);
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-filter-clear-btn {
+  border-color: #292720;
+  color: #9d9a92;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-filter-clear-btn:hover {
+  background: #171817;
+  color: #f5efe3;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-event-card {
+  background: linear-gradient(145deg, #151616, #0f1010);
+  border-color: #2b2923;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-event-card:hover {
+  border-color: #4b4028;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-event-card.active {
+  border-color: #d6aa50;
+  background: #1a1915;
+  box-shadow: 0 0 0 2px rgba(214, 170, 80, 0.25);
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-event-card-title {
+  color: #fffaf0;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-event-card-snippet {
+  color: #9d9a92;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-detail-header-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-section-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-lesson-card {
+  background: linear-gradient(145deg, #151616, #0f1010);
+  border-color: #2b2923;
+  color: #f5efe3;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-detail-title {
+  color: #fffaf0;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-metric-box {
+  background: #090a0a;
+  border-color: #292720;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-metric-val {
+  color: #fffaf0;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-metric-lbl {
+  color: #9d9a92;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-modal-card {
+  background: #111212;
+  border: 1px solid #292720;
+  color: #f5efe3;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-modal-head {
+  border-bottom-color: #292720;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-modal-head h3 {
+  color: #fffaf0;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-modal-foot {
+  background: #0d0e0e;
+  border-top-color: #292720;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-form-group label {
+  color: #a59a83;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-form-group input,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-form-group select,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .ep-form-group textarea {
+  background: #090a0a;
+  border-color: #35332c;
+  color: #eee9df;
+}

@@ -38,7 +38,7 @@ test('Healthy Green: emerging leaders cluster cards and NOVO badge use emerald',
 test('Healthy Green: portfolio heat quote does not leak gold color', () => {
   const css = fs.readFileSync(path.join(root, 'frontend', 'portfolio-heat-page.css'), 'utf8');
   assert.ok(!css.includes(',.heat-quote b{color:#eccb77}'));
-  assert.match(css, /body:not\(\[data-theme="healthy"\]\)\s+\.heat-quote b\{color:#eccb77\}/);
+  assert.match(css, /body:not\(\[data-theme="healthy"\]\)[^{]*\.heat-quote b\{color:#eccb77\}/);
 });
 
 test('Healthy Green: trade anatomy does not have hardcoded gold crumb', () => {

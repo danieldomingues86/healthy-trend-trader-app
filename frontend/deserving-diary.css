@@ -1205,19 +1205,23 @@ body:has(#deservingdiary.active) .content {
    TEMA GOLD OVERRIDES
    ========================================================================= */
 
-body.theme-gold .dd-card {
+body[data-theme="gold"] .dd-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dd-card {
   border-color: rgba(212, 175, 55, 0.25);
 }
 
-body.theme-gold .dd-form-card {
+body[data-theme="gold"] .dd-form-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dd-form-card {
   border-top-color: #d4af37;
 }
 
-body.theme-gold .dd-btn-save {
+body[data-theme="gold"] .dd-btn-save,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dd-btn-save {
   background: #b48530;
   box-shadow: 0 3px 12px rgba(180, 133, 48, 0.28);
 }
 
-body.theme-gold .dd-btn-save:hover {
+body[data-theme="gold"] .dd-btn-save:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .dd-btn-save:hover {
   background: #966c22;
 }

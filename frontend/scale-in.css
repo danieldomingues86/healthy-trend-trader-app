@@ -428,7 +428,7 @@
 }
 
 /* Premium Gold: Harmonização do Modal de Scale-In */
-body:not([data-theme="healthy"]) .scale-in-dialog {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .scale-in-dialog {
   background: #1c180f;
   color: #f8f0df;
   border-color: #554525;

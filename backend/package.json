@@ -11,7 +11,9 @@
     "db:check": "node src/check-database.js",
     "admin:reset": "node src/reset-admin-password.js",
     "demo:seed": "node src/seed-demo-user.js",
-    "test": "node --test ../frontend/*.test.js test/*.test.js"
+    "test": "node --test ../frontend/*.test.js test/*.test.js",
+    "test:visual": "node --test ../frontend/visual-consistency.test.js ../frontend/visual-regression.test.js",
+    "test:visual:update": "node ../frontend/generate-baselines.js"
   },
   "engines": {
     "node": ">=20"
