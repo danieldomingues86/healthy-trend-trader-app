@@ -337,3 +337,25 @@ test('System Quality Analytics (SQN): Legibilidade e Contraste em Healthy Green,
   assert.ok(!sqnJs.includes('var(--text-primary,#e2ece6)'), 'system-quality-analytics.js não deve ter fallback claro #e2ece6');
   assert.ok(!sqnCss.includes('background: rgba(0, 0, 0, 0.2);'), 'system-quality-analytics.css não deve ter caixas escuras fixas');
 });
+
+test('Favicon Dinâmico: Favicon e Apple-Touch-Icon adaptam-se para Healthy Green, Premium Gold e Pigeon Light', () => {
+  const faviconModel = require('./favicon-theme-model.js');
+  const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+
+  // Mapeamento correto
+  assert.equal(faviconModel.normalizeTheme('healthy'), 'healthy');
+  assert.equal(faviconModel.normalizeTheme('gold'), 'gold');
+  assert.equal(faviconModel.normalizeTheme('pigeon'), 'pigeon');
+
+  // Arquivos existem e preservam a mesma geometria
+  ['assets/favicon.svg', 'assets/favicon-healthy.svg', 'assets/favicon-gold.svg', 'assets/favicon-pigeon.svg'].forEach(rel => {
+    assert.ok(fs.existsSync(path.join(root, rel)), `Arquivo ${rel} deve existir`);
+    const svg = fs.readFileSync(path.join(root, rel), 'utf8');
+    assert.ok(svg.includes('viewBox="0 0 64 64"'), `${rel} deve ter viewBox="0 0 64 64"`);
+    assert.ok(svg.includes('<rect width="64" height="64" rx="18"'), `${rel} deve manter o squircle rx=18`);
+  });
+
+  // Integração com index.html
+  assert.match(indexHtml, /frontend\/favicon-theme-model\.js/, 'index.html deve carregar o modelo de favicon dinâmico');
+  assert.match(indexHtml, /updateThemeFavicon/, 'index.html deve invocar updateThemeFavicon');
+});

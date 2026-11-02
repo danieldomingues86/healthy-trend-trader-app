@@ -20,6 +20,7 @@
       name: 'Healthy Green',
       isDark: false,
       selector: 'body[data-theme="healthy"]',
+      favicon: 'assets/favicon-healthy.svg',
       tokens: {
         '--ink': '#11251b',
         '--ink-2': '#385747',
@@ -45,6 +46,7 @@
       name: 'Premium Gold',
       isDark: true,
       selector: 'body:not([data-theme="healthy"]):not([data-theme="pigeon"])',
+      favicon: 'assets/favicon-gold.svg',
       tokens: {
         '--ink': '#f5efe3',
         '--ink-2': '#d8c7a3',
@@ -72,6 +74,7 @@
       name: 'Pigeon Light',
       isDark: false,
       selector: 'body[data-theme="pigeon"]',
+      favicon: 'assets/favicon-pigeon.svg',
       tokens: {
         '--ink': '#0f172a',
         '--ink-2': '#1e293b',

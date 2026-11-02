@@ -29,6 +29,8 @@ describe('Visual Consistency Engine & Design Tokens', () => {
       assert.ok(theme.tokens['--paper'], `Theme ${k} defines --paper`);
       assert.ok(theme.tokens['--muted'], `Theme ${k} defines --muted`);
       assert.ok(theme.tokens['--line'], `Theme ${k} defines --line`);
+      assert.ok(theme.favicon, `Theme ${k} defines favicon asset path`);
+      assert.ok(fs.existsSync(path.join(__dirname, '..', theme.favicon)), `Theme ${k} favicon file exists on disk`);
     });
   });
 

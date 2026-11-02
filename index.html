@@ -4,8 +4,12 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>The Healthy Trend Trader — V4 Premium</title>
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-<link rel="apple-touch-icon" href="assets/favicon.svg" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" id="appFavicon" />
+<link rel="apple-touch-icon" href="assets/favicon.svg" id="appAppleTouchIcon" />
+<script src="frontend/favicon-theme-model.js?v=20261102-1"></script>
+<script>
+try{const savedTheme=localStorage.getItem('healthy-trend-theme')||'healthy';if(typeof updateThemeFavicon==='function')updateThemeFavicon(savedTheme);}catch(e){}
+</script>
 <link rel="stylesheet" href="frontend/trader-zen.css" />
 <link rel="stylesheet" href="frontend/market-scans-page.css" />
 <link rel="stylesheet" href="frontend/portfolio-heat-page.css" />
@@ -1197,7 +1201,7 @@ body[data-theme="gold"][data-navigation-layout="tiles"] .navigation-hub-tile.pla
 <script src="frontend/market-cycle-model.js"></script>
 <script src="frontend/trading-rubrics.js?v=20261027-sizing-target-grade-1"></script>
 <script>
-function applyTheme(theme){const selected=['healthy','gold','pigeon'].includes(theme)?theme:'healthy';document.body.dataset.theme=selected;document.querySelectorAll('[data-theme-choice]').forEach(button=>{const active=button.dataset.themeChoice===selected;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});try{localStorage.setItem('healthy-trend-theme',selected)}catch(error){}if(document.querySelector('#manual.page.active')&&typeof renderManualBook==='function')renderManualBook()}
+function applyTheme(theme){const selected=['healthy','gold','pigeon'].includes(theme)?theme:'healthy';document.body.dataset.theme=selected;document.documentElement.dataset.theme=selected;document.querySelectorAll('[data-theme-choice]').forEach(button=>{const active=button.dataset.themeChoice===selected;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});try{localStorage.setItem('healthy-trend-theme',selected)}catch(error){}if(typeof updateThemeFavicon==='function')updateThemeFavicon(selected);if(document.querySelector('#manual.page.active')&&typeof renderManualBook==='function')renderManualBook()}
 try{applyTheme(localStorage.getItem('healthy-trend-theme')||'healthy')}catch(error){applyTheme('healthy')}
 function enterWorkspace(event){if(event?.preventDefault)event.preventDefault();document.getElementById('loginShell').classList.add('hidden');document.body.style.overflow='';go('today');}
 const titles={today:'Meu Desktop',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',fundamentals:'Análise Fundamentalista',positions:'Posições Abertas',closedpositions:'Posições Encerradas',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',systemquality:'Qualidade Estatística do Sistema',tradeanatomy:'Anatomia dos Trades',journal:'Diário de Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Monitor de Hábitos',materials:'Loja Trader',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',assetblacklist:'Ativos Blacklist',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
