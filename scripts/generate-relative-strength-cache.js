@@ -4,19 +4,39 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const b3CachePath = path.join(root, 'backend', 'data', 'market-cache.json');
 const nasdaqCachePath = path.join(root, 'backend', 'data', 'nasdaq-market-cache.json');
+const resilienceCachePath = path.join(root, 'backend', 'data', 'resilience-12m-cache.json');
 const outputPath = path.join(root, 'frontend', 'relative-strength-data-cache.js');
 
 const b3 = JSON.parse(fs.readFileSync(b3CachePath, 'utf8'));
 const nq = JSON.parse(fs.readFileSync(nasdaqCachePath, 'utf8'));
+const resilienceMap = fs.existsSync(resilienceCachePath)
+  ? JSON.parse(fs.readFileSync(resilienceCachePath, 'utf8'))
+  : {};
 
 function cleanItem(item) {
+  const res = resilienceMap[item.symbol] || null;
   const obj = {
     symbol: item.symbol,
     name: item.name || item.companyName || item.symbol,
     sector: item.sector || '',
     m1: item.m1,
     m3: item.m3,
-    score: item.score ?? item.rsScore ?? 0
+    score: item.score ?? item.rsScore ?? 0,
+    resilience12m: res ? {
+      score: res.score,
+      label: res.label,
+      badgeColor: res.badgeColor,
+      outperformance: res.outperformance,
+      beatRate: res.beatRate,
+      avgAssetDrop: res.avgAssetDrop,
+      avgBenchDrop: res.avgBenchDrop,
+      marketDownDays: res.marketDownDays,
+      beatCount: res.beatCount,
+      upCount: res.upCount,
+      matchedDays: res.matchedDays,
+      benchmark: res.benchmark,
+      interpretation: res.interpretation
+    } : null
   };
   if (item.weeklyTrend && item.weeklyTrend.state) {
     obj.weeklyTrend = { state: item.weeklyTrend.state };
@@ -63,44 +83,44 @@ const staticCache = {
       key: 'stock_ibov',
       label: 'Ações Ibovespa',
       benchmark: 'IBOV',
-      items: (b3.relativeStrengthByClassWeekly?.stock_ibov?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClassWeekly?.stock_ibov?.items || b3.relativeStrengthByClass?.stock_ibov?.items || []).map(cleanItem)
     },
     stock_other: {
       key: 'stock_other',
       label: 'Demais ações',
       benchmark: 'SMLL + B3',
-      items: (b3.relativeStrengthByClassWeekly?.stock_other?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClassWeekly?.stock_other?.items || b3.relativeStrengthByClass?.stock_other?.items || []).map(cleanItem)
     },
     fii: {
       key: 'fii',
       label: 'FIIs',
       benchmark: 'IFIX',
-      items: (b3.relativeStrengthByClassWeekly?.fii?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClassWeekly?.fii?.items || b3.relativeStrengthByClass?.fii?.items || []).map(cleanItem)
     },
     bdr: {
       key: 'bdr',
       label: 'BDRs',
       benchmark: 'Universo BDR',
-      items: (b3.relativeStrengthByClassWeekly?.bdr?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClassWeekly?.bdr?.items || b3.relativeStrengthByClass?.bdr?.items || []).map(cleanItem)
     }
   },
   nasdaq: {
     daily: {
-      displayDate: nq.displayDate || '07/10/2026',
-      baseDate: nq.baseDate,
       source: 'Twelve Data',
+      baseDate: nq.baseDate || '2026-10-07',
+      displayDate: nq.displayDate || '07/10/2026',
       ranking: (nq.ranking || []).map(cleanItem)
     },
     weekly: {
-      displayDate: nq.weekly?.displayDate || '07/10/2026',
-      baseDate: nq.weekly?.baseDate,
       source: 'Twelve Data (Semanal)',
-      ranking: (nq.weekly?.ranking || []).map(cleanItem)
+      baseDate: nq.baseDate || '2026-10-07',
+      displayDate: nq.displayDate || '07/10/2026',
+      ranking: (nq.weeklyRanking || nq.ranking || []).map(cleanItem)
     }
   }
 };
 
-const code = `/* ==========================================================================
+const fileContent = `/* ==========================================================================
    Healthy Trend Trader — Cache de Dados de Força Relativa (B3 e Nasdaq)
    Gerado automaticamente a partir do último fechamento em market-cache.json
    Garante disponibilidade instantânea dos dados reais mesmo em modo offline.
@@ -148,8 +168,5 @@ const code = `/* ===============================================================
 })();
 `;
 
-fs.writeFileSync(outputPath, code, 'utf8');
-console.log('Cache generated successfully at:', outputPath);
-console.log('Daily B3 counts: stock_ibov=' + staticCache.daily.stock_ibov.items.length + ', stock_other=' + staticCache.daily.stock_other.items.length + ', fii=' + staticCache.daily.fii.items.length + ', bdr=' + staticCache.daily.bdr.items.length);
-console.log('Weekly B3 counts: stock_ibov=' + staticCache.weekly.stock_ibov.items.length + ', stock_other=' + staticCache.weekly.stock_other.items.length + ', fii=' + staticCache.weekly.fii.items.length + ', bdr=' + staticCache.weekly.bdr.items.length);
-console.log('Nasdaq counts: daily=' + staticCache.nasdaq.daily.ranking.length + ', weekly=' + staticCache.nasdaq.weekly.ranking.length);
+fs.writeFileSync(outputPath, fileContent, 'utf8');
+console.log('Successfully generated frontend/relative-strength-data-cache.js with Resilience 12M!');

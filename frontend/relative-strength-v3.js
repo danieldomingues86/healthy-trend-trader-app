@@ -257,6 +257,329 @@
     updateTableAndPaginationOnly();
   };
 
+  // --- Resilience Lateral Drawer & Analysis ---
+
+  window.activeResilienceDrawerSymbol = null;
+  window.activeResilienceDrawerTab = 'resilience';
+
+  window.openResilienceAnalysis = function (symbol, tab = 'resilience') {
+    if (!symbol) return;
+    window.activeResilienceDrawerSymbol = String(symbol).trim().toUpperCase();
+    window.activeResilienceDrawerTab = tab;
+    renderResilienceDrawer();
+  };
+
+  window.closeResilienceDrawer = function () {
+    const drawer = document.getElementById('rsAnalysisDrawer');
+    const backdrop = document.getElementById('rsAnalysisDrawerBackdrop');
+    if (drawer) drawer.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('open');
+    window.activeResilienceDrawerSymbol = null;
+  };
+
+  window.switchResilienceDrawerTab = function (tab) {
+    window.activeResilienceDrawerTab = tab;
+    const bodyEl = document.getElementById('rsDrawerBodyContent');
+    if (bodyEl && window.activeResilienceDrawerSymbol) {
+      bodyEl.innerHTML = renderDrawerTabContent(window.activeResilienceDrawerSymbol, tab);
+    }
+    const tabs = document.querySelectorAll('.rs-drawer-tab');
+    tabs.forEach(t => {
+      if (t.dataset.tab === tab) {
+        t.classList.add('active');
+        t.setAttribute('aria-selected', 'true');
+      } else {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      }
+    });
+  };
+
+  function getTickerAvatarMarkup(symbol) {
+    const sym = String(symbol || '').toUpperCase();
+    if (sym.startsWith('PETR')) {
+      return '<div class="rs-drawer-avatar avatar-br">BR</div>';
+    }
+    if (sym.startsWith('VALE')) {
+      return '<div class="rs-drawer-avatar avatar-vale">VA</div>';
+    }
+    if (sym.startsWith('ITUB')) {
+      return '<div class="rs-drawer-avatar avatar-itau">IT</div>';
+    }
+    const initials = sym.slice(0, 2);
+    return '<div class="rs-drawer-avatar">' + initials + '</div>';
+  }
+
+  function renderDrawerTabContent(symbol, activeTab) {
+    const dataset = getActiveDataset();
+    const item = (dataset.items || []).find(i => i.symbol === symbol) || { symbol };
+    const res = (typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.resolve(item) : item.resilience12m) || null;
+    const score = Number(item.score ?? item.rsScore ?? 0);
+    const leitura = getLeituraInfo(item, window.currentRelativeStrengthTimeframe);
+    const company = item.name || item.companyName || symbol;
+    const sector = localizedSector(item.sector || '—');
+    const benchmarkLabel = (res && res.benchmark) || dataset.benchmarkLabel || 'IBOV';
+
+    if (activeTab === 'summary') {
+      return `
+        <div class="rs-drawer-summary-view">
+          <div class="rs-drawer-hero-metric">
+            <div class="rs-d-metric-box">
+              <span class="rs-d-label">${text('Força Relativa', 'Relative Strength')}</span>
+              <span class="rs-d-val rs-d-rs">${score}</span>
+              <span class="rs-reading-badge ${leitura.tierClass}">${leitura.icon} ${leitura.label}</span>
+            </div>
+            <div class="rs-d-metric-box">
+              <span class="rs-d-label">${text('Resiliência 12M', 'Resilience 12M')}</span>
+              <span class="rs-d-val rs-d-res">${res ? res.score : '—'}</span>
+              <span class="rs-resilience-pill badge-${res ? res.badgeColor : 'neutral'}">${res ? (res.dot + ' ' + res.label) : '—'}</span>
+            </div>
+          </div>
+
+          <div class="rs-summary-details-card">
+            <h4>${text('Dados do Ativo', 'Asset Details')}</h4>
+            <div class="rs-summary-row"><span>${text('Empresa', 'Company')}:</span><b>${company}</b></div>
+            <div class="rs-summary-row"><span>${text('Setor / Segmento', 'Sector / Segment')}:</span><b>${sector}</b></div>
+            <div class="rs-summary-row"><span>${text('Retorno 1M', '1M Return')}:</span><b>${formatReturn(item.m1)}</b></div>
+            <div class="rs-summary-row"><span>${text('Retorno 3M', '3M Return')}:</span><b>${formatReturn(item.m3)}</b></div>
+            <div class="rs-summary-row"><span>${text('Benchmark de referência', 'Reference benchmark')}:</span><b>${benchmarkLabel}</b></div>
+          </div>
+
+          <div class="rs-drawer-quick-actions">
+            <button type="button" class="rs-btn-drawer-chart" onclick="window.openTickerAnalysis && window.openTickerAnalysis('${symbol}')">
+              📊 ${text('Abrir Gráfico Técnico', 'Open Technical Chart')}
+            </button>
+            <button type="button" class="rs-btn-drawer-wl" onclick="window.addToWatchlist && window.addToWatchlist('${symbol}', { origin: 'relative-strength', rsScore: ${score} })">
+              + ${text('Adicionar à Watchlist', 'Add to Watchlist')}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    if (activeTab === 'rs') {
+      return `
+        <div class="rs-drawer-rs-view">
+          <div class="rs-drawer-callout">
+            <span class="rs-callout-arrow">📈</span>
+            <span>${text('A Força Relativa mede o desempenho do ativo comparado ao mercado como um todo.', 'Relative strength measures asset performance compared to the overall market.')}</span>
+          </div>
+
+          <div class="rs-stat-cards-grid">
+            <div class="rs-stat-card">
+              <div class="rs-stat-value rs-val-accent">${score} / 100</div>
+              <div class="rs-stat-label">${text('Pontuação RS Oficial', 'Official RS Score')}</div>
+            </div>
+            <div class="rs-stat-card">
+              <div class="rs-stat-value">${leitura.icon} ${leitura.label}</div>
+              <div class="rs-stat-label">${text('Classificação RS', 'RS Classification')}</div>
+            </div>
+            <div class="rs-stat-card">
+              <div class="rs-stat-value ${Number(item.m1) >= 0 ? 'val-positive' : 'val-negative'}">${formatReturn(item.m1)}</div>
+              <div class="rs-stat-label">${text('Retorno 1 Mês (21 dias)', '1 Month Return (21 days)')}</div>
+            </div>
+            <div class="rs-stat-card">
+              <div class="rs-stat-value ${Number(item.m3) >= 0 ? 'val-positive' : 'val-negative'}">${formatReturn(item.m3)}</div>
+              <div class="rs-stat-label">${text('Retorno 3 Meses (63 dias)', '3 Months Return (63 days)')}</div>
+            </div>
+          </div>
+
+          <div class="rs-drawer-interpretation-card">
+            <span class="rs-interp-bulb">⭐</span>
+            <div class="rs-interp-text">
+              <strong>${text('Regra Inviolável:', 'Strict Rule:')}</strong> ${typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.TOOLTIPS.rsReading : 'A Força Relativa é o único determinante da classificação do ativo.'}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Default: 'resilience' tab (Exact match with user reference mockup)
+    if (!res) {
+      return `
+        <div class="rs-drawer-empty">
+          <p>${text('Dados históricos insuficientes para calcular a Resiliência 12M deste ativo.', 'Insufficient historical data to calculate 12M Resilience for this asset.')}</p>
+        </div>
+      `;
+    }
+
+    const outperfVal = MarketResilienceModel.formatOutperformance(res.outperformance);
+    const assetDropVal = MarketResilienceModel.formatPercent(res.avgAssetDrop);
+    const benchDropVal = MarketResilienceModel.formatPercent(res.avgBenchDrop);
+    const beatRateVal = `${res.beatRate}%`;
+    const interpText = res.interpretation || (typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.getInterpretation(res.score, symbol, benchmarkLabel) : '');
+
+    // Proportional bar calculation for visual comparison
+    const maxVal = Math.max(Math.abs(Number(res.avgAssetDrop) || 0), Math.abs(Number(res.avgBenchDrop) || 0), 2.5);
+    const assetBarPct = Math.min(Math.max((Math.abs(Number(res.avgAssetDrop) || 0) / maxVal) * 100, 15), 100);
+    const benchBarPct = Math.min(Math.max((Math.abs(Number(res.avgBenchDrop) || 0) / maxVal) * 100, 15), 100);
+
+    return `
+      <!-- Header Box with Shield in Blue Circle -->
+      <div class="rs-drawer-header-box">
+        <div class="rs-drawer-shield-circle" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="rs-drawer-shield-content">
+          <div class="rs-drawer-shield-title">
+            <span>${text('Resiliência 12M', 'Resilience 12M')}</span>
+            <span class="rs-info-tip" title="${text('Avalia o comportamento exclusivo nos pregões em que o benchmark fechou em queda nos últimos 12 meses.', 'Evaluates behavior exclusively on sessions when the benchmark closed down over the last 12 months.')}">ⓘ</span>
+          </div>
+          <p class="rs-drawer-shield-subtitle">${text('Análise do comportamento do ativo em períodos de queda do mercado.', 'Analysis of asset behavior during market down periods.')}</p>
+        </div>
+      </div>
+
+      <!-- Score Card -->
+      <div class="rs-drawer-score-card">
+        <div class="rs-drawer-score-info">
+          <div class="rs-drawer-score-label">${text('Score de Resiliência', 'Resilience Score')}</div>
+          <div class="rs-drawer-score-row">
+            <span class="rs-drawer-score-number val-${res.badgeColor || 'green'}">${res.score}</span>
+            <span class="rs-drawer-tier-pill badge-${res.badgeColor || 'green'}">
+              <span class="rs-tier-dot">${res.dot || '🟢'}</span> ${res.label}
+            </span>
+          </div>
+        </div>
+        <div class="rs-drawer-score-watermark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="46" height="46">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M18 10l-6 6-4-4"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 4 Stat Cards in 2x2 Grid -->
+      <div class="rs-stat-cards-grid">
+        <div class="rs-stat-card card-outperf">
+          <div class="rs-stat-value val-outperformance">${outperfVal}</div>
+          <div class="rs-stat-label">
+            ${text('Outperformance média', 'Average outperformance')}
+            <span class="rs-info-tip" title="${text('Diferença média entre o retorno diário do ativo e o do índice nos dias de queda do índice.', 'Average difference between asset daily return and benchmark daily return on down days.')}">ⓘ</span>
+          </div>
+        </div>
+
+        <div class="rs-stat-card card-beatrate">
+          <div class="rs-stat-value val-neutral">${beatRateVal}</div>
+          <div class="rs-stat-label">
+            ${text('Dias em que superou o índice', 'Days beating the index')}
+            <span class="rs-info-tip" title="${text(`Superou o índice em ${res.beatCount || '—'} de ${res.marketDownDays || 120} dias de queda do mercado (${beatRateVal}).`, `Beat the index in ${res.beatCount || '—'} of ${res.marketDownDays || 120} market down days (${beatRateVal}).`)}">ⓘ</span>
+          </div>
+        </div>
+
+        <div class="rs-stat-card ${Number(res.avgAssetDrop) >= 0 ? 'card-positive' : 'card-assetdrop'}">
+          <div class="rs-stat-value ${Number(res.avgAssetDrop) >= 0 ? 'val-positive' : 'val-negative'}">${assetDropVal}</div>
+          <div class="rs-stat-label">
+            ${text('Queda média do ativo (dias negativos)', 'Asset average drop (negative days)')}
+            <span class="rs-info-tip" title="${text('Retorno médio do ativo exclusivamente nos dias em que o índice fechou negativo.', 'Average return of the asset exclusively on days the benchmark closed down.')}">ⓘ</span>
+          </div>
+        </div>
+
+        <div class="rs-stat-card card-benchdrop">
+          <div class="rs-stat-value val-negative">${benchDropVal}</div>
+          <div class="rs-stat-label">
+            ${text(`Queda média do ${benchmarkLabel} (dias negativos)`, `Average drop of ${benchmarkLabel} (negative days)`)}
+            <span class="rs-info-tip" title="${text('Retorno médio do índice de referência nos seus dias de queda.', 'Average return of the benchmark index on its down days.')}">ⓘ</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparative Bar Chart -->
+      <section class="rs-chart-section">
+        <div class="rs-chart-title">
+          <span>${text(`Desempenho Relativo — Dias Negativos do ${benchmarkLabel}`, `Relative Performance — Down Days of ${benchmarkLabel}`)}</span>
+          <span class="rs-info-tip" title="${text('Comparação da retração média nos dias de queda do mercado.', 'Comparison of average drawdown on market down days.')}">ⓘ</span>
+        </div>
+
+        <div class="rs-chart-container">
+          <div class="rs-chart-bars-wrap">
+            <div class="rs-chart-bar-row">
+              <span class="rs-chart-bar-ticker">${symbol}</span>
+              <div class="rs-chart-bar-track">
+                <div class="rs-chart-bar-fill fill-asset" style="width: ${assetBarPct}%;"></div>
+              </div>
+              <span class="rs-chart-bar-val">${assetDropVal}</span>
+            </div>
+            <div class="rs-chart-bar-row">
+              <span class="rs-chart-bar-ticker">${benchmarkLabel}</span>
+              <div class="rs-chart-bar-track">
+                <div class="rs-chart-bar-fill fill-bench" style="width: ${benchBarPct}%;"></div>
+              </div>
+              <span class="rs-chart-bar-val">${benchDropVal}</span>
+            </div>
+          </div>
+
+          <div class="rs-chart-advantage-badge">
+            <span class="rs-adv-val">${outperfVal}</span>
+            <span class="rs-adv-label">${text('Vantagem média do ativo', 'Asset average advantage')}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Educational Interpretation Card -->
+      <div class="rs-drawer-interpretation-card">
+        <div class="rs-interp-icon-wrap" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+        </div>
+        <div class="rs-interp-text">
+          <strong>${text('Leitura:', 'Reading:')}</strong> ${interpText}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderResilienceDrawer() {
+    const symbol = window.activeResilienceDrawerSymbol;
+    if (!symbol) return;
+    const dataset = getActiveDataset();
+    const item = (dataset.items || []).find(i => i.symbol === symbol) || { symbol };
+    const company = item.name || item.companyName || symbol;
+    const sector = localizedSector(item.sector || '—');
+    const activeTab = window.activeResilienceDrawerTab || 'resilience';
+
+    let container = document.getElementById('rsAnalysisDrawerWrap');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'rsAnalysisDrawerWrap';
+      document.body.appendChild(container);
+    }
+
+    container.innerHTML = `
+      <div id="rsAnalysisDrawerBackdrop" class="rs-drawer-backdrop open" onclick="window.closeResilienceDrawer()"></div>
+      <aside id="rsAnalysisDrawer" class="rs-analysis-drawer open" role="dialog" aria-labelledby="rsDrawerTitle" aria-modal="true">
+        <!-- Drawer Header -->
+        <header class="rs-drawer-header">
+          <div class="rs-drawer-header-left">
+            ${getTickerAvatarMarkup(symbol)}
+            <div class="rs-drawer-title-group">
+              <h3 id="rsDrawerTitle" class="rs-drawer-symbol">${symbol}</h3>
+              <p class="rs-drawer-company">${company} • ${sector}</p>
+            </div>
+          </div>
+          <button type="button" class="rs-drawer-close-btn" onclick="window.closeResilienceDrawer()" aria-label="${text('Fechar painel lateral', 'Close side panel')}">✕</button>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="rs-drawer-tabs" role="tablist">
+          <button type="button" class="rs-drawer-tab ${activeTab === 'summary' ? 'active' : ''}" data-tab="summary" onclick="window.switchResilienceDrawerTab('summary')" role="tab" aria-selected="${activeTab === 'summary'}">${text('Resumo', 'Summary')}</button>
+          <button type="button" class="rs-drawer-tab ${activeTab === 'rs' ? 'active' : ''}" data-tab="rs" onclick="window.switchResilienceDrawerTab('rs')" role="tab" aria-selected="${activeTab === 'rs'}">${text('Força Relativa', 'Relative Strength')}</button>
+          <button type="button" class="rs-drawer-tab ${activeTab === 'resilience' ? 'active' : ''}" data-tab="resilience" onclick="window.switchResilienceDrawerTab('resilience')" role="tab" aria-selected="${activeTab === 'resilience'}">${text('Resiliência', 'Resilience')}</button>
+        </nav>
+
+        <!-- Tab Body Content -->
+        <div id="rsDrawerBodyContent" class="rs-drawer-body">
+          ${renderDrawerTabContent(symbol, activeTab)}
+        </div>
+      </aside>
+    `;
+  }
+
+
   window.handleRelativeStrengthPageSizeChange = function (value) {
     window.relativeStrengthPageSize = Number(value) || 20;
     window.relativeStrengthCurrentPage = 1;
@@ -496,7 +819,7 @@
     const query = (window.relativeStrengthSearchQuery || '').trim().toLowerCase();
     const groupFilter = (window.relativeStrengthSelectedGroup || '').trim();
 
-    const filtered = (allItems || []).filter(item => {
+    let filtered = (allItems || []).filter(item => {
       if (groupFilter) {
         const itemSec = String(item.sector || '').trim();
         const locSec = localizedSector(itemSec);
@@ -513,6 +836,11 @@
       }
       return true;
     });
+
+    const resModel = (typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel : (typeof window !== 'undefined' ? window.MarketResilienceModel : null));
+    if (window.relativeStrengthSelectedResilience && resModel) {
+      filtered = resModel.filterByResilienceTier(filtered, window.relativeStrengthSelectedResilience);
+    }
 
     const pageSize = window.relativeStrengthPageSize;
     if (pageSize === 'all' || !Number.isFinite(Number(pageSize))) {
@@ -659,7 +987,7 @@
       if (state?.loading) {
         return `
           <tr>
-            <td colspan="9">
+            <td colspan="10">
               <div class="rs-table-empty">
                 <span class="rs-spinner" aria-hidden="true">⏳</span>
                 <p>${text('Carregando ranking oficial atualizado da B3...', 'Loading official updated B3 ranking...')}</p>
@@ -670,7 +998,7 @@
       }
       return `
         <tr>
-          <td colspan="9">
+          <td colspan="10">
             <div class="rs-table-empty">
               <span>🔍</span>
               <p>${text('Nenhum ativo encontrado para os filtros selecionados.', 'No assets found for the selected filters.')}</p>
@@ -696,6 +1024,8 @@
       const m1Class = Number.isFinite(m1Val) ? (m1Val >= 0 ? 'rs-val-positive' : 'rs-val-negative') : '';
       const m3Class = Number.isFinite(m3Val) ? (m3Val >= 0 ? 'rs-val-positive' : 'rs-val-negative') : '';
 
+      const readingTooltip = `${leitura.label} — RS ${score}. ${typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.TOOLTIPS.rsReading : 'Classificação baseada exclusivamente na Força Relativa (RS). A Resiliência 12M não altera esta classificação.'}`;
+
       return `
         <tr class="rs-data-row rs-row-${leitura.tierClass}" data-symbol="${symbol}">
           <td class="td-rank">${rank}</td>
@@ -707,11 +1037,18 @@
           <td class="td-rs">
             <span class="rs-score-pill ${scoreBadgeClass}">${score}</span>
           </td>
-          <td class="td-reading">
+          <td class="td-reading" title="${readingTooltip}">
             <span class="rs-reading-badge ${leitura.tierClass}">
               <span class="rs-reading-icon">${leitura.icon}</span>
               <span class="rs-reading-text">${leitura.label}</span>
             </span>
+          </td>
+          <td class="td-resilience-col">
+            <button type="button" class="rs-icon-btn-resilience" onclick="event.stopPropagation(); window.openResilienceAnalysis && window.openResilienceAnalysis('${symbol}')" title="${text('Ver resiliência (12M)', 'View resilience (12M)')}" aria-label="${text(`Ver resiliência de ${symbol}`, `View resilience for ${symbol}`)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </button>
           </td>
           <td class="td-actions">
             <div class="rs-row-actions">
@@ -796,6 +1133,10 @@
     const bottomSelect = document.getElementById('rsBottomPerPageSelect');
     if (bottomSelect) {
       bottomSelect.value = String(window.relativeStrengthPageSize);
+    }
+    const resSelect = document.getElementById('rsResilienceSelect');
+    if (resSelect) {
+      resSelect.value = window.relativeStrengthSelectedResilience || '';
     }
   }
 
@@ -913,6 +1254,15 @@
                       ${sectorOptions}
                     </select>
                   </div>
+                  <div class="rs-select-wrap">
+                    <select id="rsResilienceSelect" class="rs-select-resilience" onchange="window.handleRelativeStrengthResilienceChange(this.value)" aria-label="${text('Filtrar por Resiliência 12M', 'Filter by Resilience 12M')}">
+                      <option value="">${text('Todas as resiliências', 'All resilience tiers')}</option>
+                      <option value="excelente" ${window.relativeStrengthSelectedResilience === 'excelente' ? 'selected' : ''}>🟢 ${text('Excelente — 80 a 100', 'Excellent — 80 to 100')}</option>
+                      <option value="forte" ${window.relativeStrengthSelectedResilience === 'forte' ? 'selected' : ''}>🟡 ${text('Forte — 60 a 79', 'Strong — 60 to 79')}</option>
+                      <option value="moderada" ${window.relativeStrengthSelectedResilience === 'moderada' ? 'selected' : ''}>🟡 ${text('Moderada — 40 a 59', 'Moderate — 40 to 59')}</option>
+                      <option value="fraca" ${window.relativeStrengthSelectedResilience === 'fraca' ? 'selected' : ''}>🔴 ${text('Fraca — 0 a 39', 'Weak — 0 to 39')}</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div class="rs-toolbar-meta">
@@ -932,22 +1282,45 @@
               <div class="rs-table-wrapper">
                 <table class="rs-table">
                   <thead>
-                    <tr>
-                      <th class="th-rank">#</th>
-                      <th class="th-symbol">${text('Ativo', 'Asset')}</th>
-                      <th class="th-company">${text('Empresa', 'Company')}</th>
-                      <th class="th-group">${isFii ? text('Segmento', 'Segment') : text('Grupo', 'Group')}</th>
+                    <tr class="rs-super-header-row">
+                      <th rowspan="2" class="th-rank">#</th>
+                      <th rowspan="2" class="th-symbol">${text('Ativo', 'Asset')}</th>
+                      <th rowspan="2" class="th-company">${text('Empresa', 'Company')}</th>
+                      <th rowspan="2" class="th-group">${isFii ? text('Segmento', 'Segment') : text('Grupo', 'Group')}</th>
+                      <th colspan="4" class="th-super-header th-super-rs">
+                        <span class="rs-super-header-title">${text('Força Relativa (RS)', 'Relative Strength (RS)')}</span>
+                      </th>
+                      <th rowspan="2" class="th-resilience-col" title="${text('Ver resiliência (12M)', 'View resilience (12M)')}">
+                        <span class="rs-header-shield-icon" aria-label="${text('Ver resiliência (12M)', 'View resilience (12M)')}">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                          </svg>
+                        </span>
+                      </th>
+                      <th rowspan="2" class="th-actions">${text('Ações', 'Actions')}</th>
+                    </tr>
+                    <tr class="rs-sub-header-row">
                       <th class="th-m1">1M</th>
                       <th class="th-m3">3M</th>
                       <th class="th-rs">RS</th>
-                      <th class="th-reading">${text('Leitura', 'Reading')}</th>
-                      <th class="th-actions">${text('Ações', 'Actions')}</th>
+                      <th class="th-reading" title="${typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.TOOLTIPS.rsReading : ''}">${text('Leitura RS', 'RS Reading')}</th>
                     </tr>
                   </thead>
                   <tbody id="rsRankingTableBody">
                     ${renderTableRows(paged, activeTimeframe, isFii)}
                   </tbody>
                 </table>
+              </div>
+
+              <!-- Bottom Disclaimer Banner -->
+              <div class="rs-bottom-disclaimer-banner" role="note">
+                <span class="rs-bottom-check-icon">✓</span>
+                <span class="rs-bottom-disclaimer-text">
+                  <strong>${text('Importante:', 'Important:')}</strong> ${text(
+                    'A Resiliência é uma análise complementar que mostra como o ativo se comportou durante períodos de fraqueza do mercado nos últimos 12 meses, sem alterar o ranking da Força Relativa.',
+                    'Resilience is a complementary analysis showing how the asset performed during periods of market weakness over the last 12 months, without altering the Relative Strength ranking.'
+                  )}
+                </span>
               </div>
 
               <!-- Pagination -->
@@ -968,6 +1341,26 @@
 
   // Initial call if document is already ready — carrega dados frescos da API automaticamente
   if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    // Delegated click handler to open drawer when clicking a table row
+    document.addEventListener('click', (e) => {
+      const row = e.target.closest && e.target.closest('.rs-data-row');
+      if (row && !e.target.closest('button') && !e.target.closest('a') && !e.target.closest('input') && !e.target.closest('select')) {
+        const symbol = row.getAttribute('data-symbol');
+        if (symbol && typeof window.openResilienceAnalysis === 'function') {
+          window.openResilienceAnalysis(symbol, 'resilience');
+        }
+      }
+    });
+
+    // ESC key listener to close drawer
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        if (typeof window.closeResilienceDrawer === 'function') {
+          window.closeResilienceDrawer();
+        }
+      }
+    });
+
     const initWorkspace = () => {
       renderRelativeStrengthWorkspace();
       if (typeof window.loadRelativeStrengthClassesForTimeframe === 'function') {

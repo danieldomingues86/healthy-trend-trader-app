@@ -665,16 +665,38 @@ async function collectPeerRelativeStrength({ assetClass, catalog }) {
   const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
   return { ...classMeta(assetClass), benchmark: 'Universo de BDRs', returns: benchmarkReturns, requested: catalog.length, available: rows.length, items: rows, catalogVersion: BDR_CATALOG_VERSION };
 }
+let resilience12mCacheData = null;
+function getResilience12mCache() {
+  if (!resilience12mCacheData) {
+    try {
+      resilience12mCacheData = require('../data/resilience-12m-cache.json');
+    } catch {
+      resilience12mCacheData = {};
+    }
+  }
+  return resilience12mCacheData;
+}
+
+function enrichItemWithResilience(item) {
+  if (!item || item.resilience12m) return item;
+  const resCache = getResilience12mCache();
+  const res = resCache[item.symbol];
+  if (res) return { ...item, resilience12m: res };
+  return item;
+}
+
 function classStrengthFromCache(cache) {
-  const legacyStock = { ...classMeta('stock'), requested: cache.universe?.requested || 0, available: cache.relativeStrength?.length || 0, unavailable: cache.universe?.unavailable || [], items: (cache.relativeStrength || []).map((item) => ({ ...item, assetClass: item.assetClass || 'stock' })) };
+  const legacyStock = { ...classMeta('stock'), requested: cache.universe?.requested || 0, available: cache.relativeStrength?.length || 0, unavailable: cache.universe?.unavailable || [], items: (cache.relativeStrength || []).map((item) => enrichItemWithResilience({ ...item, assetClass: item.assetClass || 'stock' })) };
   const fallbackStock = { ...legacyStock, ...classMeta('stock_ibov'), items: legacyStock.items.map(item => ({ ...item, assetClass: 'stock_ibov' })) };
-  const stockIbov = cache.relativeStrengthByClass?.stock_ibov || fallbackStock;
-  const stockOther = cache.relativeStrengthByClass?.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [], pending: true };
+  const rawStockIbov = cache.relativeStrengthByClass?.stock_ibov || fallbackStock;
+  const stockIbov = { ...rawStockIbov, items: (rawStockIbov.items || []).map(enrichItemWithResilience) };
+  const rawStockOther = cache.relativeStrengthByClass?.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [], pending: true };
+  const stockOther = { ...rawStockOther, items: (rawStockOther.items || []).map(enrichItemWithResilience) };
   const pending = (assetClass) => ({ ...classMeta(assetClass), requested: 0, available: 0, items: [], pending: true });
   const fiiRaw = cache.relativeStrengthByClass?.fii || pending('fii');
   const fii = {
     ...fiiRaw,
-    items: (fiiRaw.items || []).map((item) => ({
+    items: (fiiRaw.items || []).map((item) => enrichItemWithResilience({
       ...item,
       name: (item.name && item.name !== item.symbol) ? item.name : (FII_NAME_MAP[item.symbol] || item.name || item.symbol)
     }))
@@ -684,10 +706,10 @@ function classStrengthFromCache(cache) {
     ...bdrRaw,
     items: (bdrRaw.items || []).map((item) => {
       const bdrEntry = BDR_CATALOG.find(([s]) => s === item.symbol);
-      return {
+      return enrichItemWithResilience({
         ...item,
         name: (item.name && item.name !== item.symbol) ? item.name : (bdrEntry?.[1] || item.name || item.symbol)
-      };
+      });
     })
   };
   return { stock: legacyStock, stock_ibov: stockIbov, stock_other: stockOther, fii, bdr };
@@ -696,12 +718,14 @@ function classStrengthFromCache(cache) {
 function classStrengthWeeklyFromCache(cache) {
   const weekly = cache?.relativeStrengthByClassWeekly;
   if (!weekly) return classStrengthFromCache(cache);
-  const stockIbov = weekly.stock_ibov || { ...classMeta('stock_ibov'), requested: 0, available: 0, items: [] };
-  const stockOther = weekly.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [] };
+  const rawStockIbov = weekly.stock_ibov || { ...classMeta('stock_ibov'), requested: 0, available: 0, items: [] };
+  const stockIbov = { ...rawStockIbov, items: (rawStockIbov.items || []).map(enrichItemWithResilience) };
+  const rawStockOther = weekly.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [] };
+  const stockOther = { ...rawStockOther, items: (rawStockOther.items || []).map(enrichItemWithResilience) };
   const fiiRaw = weekly.fii || { ...classMeta('fii'), requested: 0, available: 0, items: [] };
   const fii = {
     ...fiiRaw,
-    items: (fiiRaw.items || []).map((item) => ({
+    items: (fiiRaw.items || []).map((item) => enrichItemWithResilience({
       ...item,
       name: (item.name && item.name !== item.symbol) ? item.name : (FII_NAME_MAP[item.symbol] || item.name || item.symbol)
     }))
@@ -711,10 +735,10 @@ function classStrengthWeeklyFromCache(cache) {
     ...bdrRaw,
     items: (bdrRaw.items || []).map((item) => {
       const bdrEntry = BDR_CATALOG.find(([s]) => s === item.symbol);
-      return {
+      return enrichItemWithResilience({
         ...item,
         name: (item.name && item.name !== item.symbol) ? item.name : (bdrEntry?.[1] || item.name || item.symbol)
-      };
+      });
     })
   };
   return { stock: stockIbov, stock_ibov: stockIbov, stock_other: stockOther, fii, bdr };
