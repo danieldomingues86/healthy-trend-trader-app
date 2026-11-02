@@ -36,6 +36,15 @@
     }
   }
 
+  let SystemQualityAnalyticsModel = (typeof root !== 'undefined' && root && root.SystemQualityAnalyticsModel) || null;
+  if (!SystemQualityAnalyticsModel && typeof require === 'function') {
+    try {
+      SystemQualityAnalyticsModel = require('./system-quality-analytics-model');
+    } catch {
+      // Ignora se não estiver acessível
+    }
+  }
+
   const STATUS = {
     WAITING_ENTRY: 'WAITING_ENTRY',         // Aguardando entrada (amarelo)
     IN_OPERATION: 'IN_OPERATION',           // Em operação (legado/operacional)
@@ -1863,6 +1872,17 @@
       ? round2(totalGainsR / totalLossesR)
       : (totalGainsR > 0 ? 99.9 : 0);
 
+    // System Quality Analytics (SQN - Metodologia Van K. Tharp)
+    const closedSimsOrdered = list
+      .filter(s => s && (s.status === STATUS.CLOSED_GAIN || s.status === STATUS.CLOSED_LOSS || (s.resultR != null && s.status !== STATUS.IN_OPERATION && s.status !== STATUS.INCOMPLETE)))
+      .sort((a, b) => new Date(a.exitDate || a.signalDate || 0) - new Date(b.exitDate || b.signalDate || 0));
+    const closedRValues = closedSimsOrdered.map(s => Number(s.resultR) || 0);
+
+    let sqnAnalytics = null;
+    if (SystemQualityAnalyticsModel && typeof SystemQualityAnalyticsModel.calculateSystemQualityAnalytics === 'function') {
+      sqnAnalytics = SystemQualityAnalyticsModel.calculateSystemQualityAnalytics(closedRValues);
+    }
+
     // Desempenho por Gatilho (reconciliado com totalR global)
     const triggerPerformance = Object.values(triggerMap)
       .map(t => {
@@ -2084,7 +2104,14 @@
       triggerPerformance,
       gradePerformance,
       periodPerformance,
-      equityCurve
+      equityCurve,
+      sqnAnalytics,
+      sqn: sqnAnalytics ? sqnAnalytics.sqn : null,
+      sqnFormatted: sqnAnalytics ? sqnAnalytics.sqnFormatted : '—',
+      sqnClassification: sqnAnalytics ? sqnAnalytics.classification : null,
+      standardDeviationR: sqnAnalytics ? sqnAnalytics.standardDeviation : null,
+      standardDeviationRFormatted: sqnAnalytics ? sqnAnalytics.standardDeviationFormatted : '—',
+      sqnEvolution: sqnAnalytics ? sqnAnalytics.evolution : []
     };
   }
 
@@ -4322,6 +4349,12 @@
       avgRFormatted,
       expectancy: round2(avgRVal),
       expectancyFormatted: avgRFormatted,
+      sqnAnalytics: stats.sqnAnalytics,
+      sqn: stats.sqn,
+      sqnFormatted: stats.sqnFormatted,
+      sqnClassification: stats.sqnClassification,
+      standardDeviationR: stats.standardDeviationR,
+      standardDeviationRFormatted: stats.standardDeviationRFormatted,
       avgDurationDays: stats.avgDurationDays,
       avgDurationDaysFormatted: stats.avgDurationDaysFormatted,
       profitFactor: pf,
@@ -9268,6 +9301,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     generateHistoricalSimulations,
     computeSnapshotNavInfo,
     MarketCycleModel,
-    validateMarketPermissionForBuy: MarketCycleModel ? MarketCycleModel.validateMarketPermissionForBuy : null
+    validateMarketPermissionForBuy: MarketCycleModel ? MarketCycleModel.validateMarketPermissionForBuy : null,
+    SystemQualityAnalyticsModel
   };
 });

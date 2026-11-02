@@ -175,11 +175,12 @@
       </section>
       <section class="ta-summary">
         <div class="ta-summary-primary"><small>RESULTADO LÍQUIDO</small><strong class="${metrics.net >= 0 ? 'positive' : 'negative'}">${money(metrics.net)}</strong><span>${money(metrics.grossProfit)} ganhos · ${money(-metrics.grossLoss)} perdas</span></div>
-        <div class="ta-summary-secondary">${summaryMetric('Trades', metrics.total)}${summaryMetric('Profit Factor', metrics.profitFactor == null ? '—' : metrics.profitFactor === Infinity ? '∞' : num(metrics.profitFactor, 2))}${summaryMetric('Taxa de acerto', `${num(metrics.winRate, 1)}%`)}</div>
+        <div class="ta-summary-secondary">${summaryMetric('Trades', metrics.total)}${summaryMetric('Profit Factor', metrics.profitFactor == null ? '—' : metrics.profitFactor === Infinity ? '∞' : num(metrics.profitFactor, 2))}${summaryMetric('Taxa de acerto', `${num(metrics.winRate, 1)}%`)}${summaryMetric('SQN', (metrics.sqnAnalytics && metrics.sqnAnalytics.sqn != null) ? `${metrics.sqnAnalytics.sqnFormatted} (${metrics.sqnAnalytics.classification.label})` : '—')}</div>
       </section>
       ${rankingSection('winner', ranks.winners, metrics.grossProfit)}
       ${rankingSection('loser', ranks.losers, metrics.grossLoss)}
       ${triggersPerformanceSection(filtered)}
+      ${window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.generateSectionHtml === 'function' ? window.SystemQualityAnalytics.generateSectionHtml(metrics.sqnAnalytics || filtered) : ''}
       <section class="ta-dna">
         <header><div class="ta-section-question">🧬 O QUE ELES TINHAM EM COMUM?</div><h2>DNA DOS VENCEDORES × PERDEDORES</h2><p>Comparação descritiva dos dados registrados na entrada. Associação não significa causalidade.</p></header>
         <div class="ta-dna-list">${comparison.map(dnaRow).join('')}</div>

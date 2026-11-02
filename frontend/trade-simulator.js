@@ -1934,6 +1934,11 @@
           </div>
         </div>
 
+        <!-- System Quality Analytics (SQN - Metodologia Van K. Tharp) -->
+        ${window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.generateSimulatorSqnCardHtml === 'function'
+          ? window.SystemQualityAnalytics.generateSimulatorSqnCardHtml(stats)
+          : ''}
+
         <!-- Banner de Informação Soft -->
         <div class="sim-rebuild-info-banner">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -2378,6 +2383,27 @@
 
         <!-- Gráficos Reutilizados -->
         ${renderChartsRow(stats)}
+
+        <!-- Evolução do SQN na Simulação (Rolling SQN) -->
+        <div class="sim-rebuild-card" style="margin-top: 24px;">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">📐</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Evolução do SQN na Simulação (Rolling SQN)</h2>
+                <p class="sim-rebuild-card-desc">Acompanhe trade a trade a formação da qualidade estatística da simulação (Van Tharp).</p>
+              </div>
+            </div>
+            <span class="sqn-badge ${(stats.sqnClassification?.badgeClass) || 'sqn-badge-unclassified'}">
+              SQN: ${stats.sqnFormatted || '—'} (${stats.sqnClassification?.label || 'Não classificado'})
+            </span>
+          </div>
+          <div class="sqn-svg-chart-container" style="margin-top: 16px;">
+            ${window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.renderEvolutionSvg === 'function'
+              ? window.SystemQualityAnalytics.renderEvolutionSvg(stats.sqnEvolution || [])
+              : ''}
+          </div>
+        </div>
               </div>
       </div>
     `;

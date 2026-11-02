@@ -32,6 +32,7 @@
 <link rel="stylesheet" href="frontend/focus-guardian.css?v=20261018-1" />
 <link rel="stylesheet" href="frontend/daily-wisdom.css?v=20261018-1" />
 <link rel="stylesheet" href="frontend/trade-workbench-v2.css?v=20261031-cardscale1" />
+<link rel="stylesheet" href="frontend/system-quality-analytics.css?v=20261102-sqn-1" />
 
 <script src="frontend/instrument-catalog.js?v=20260924-market-reset-1"></script>
 <script src="frontend/setup-triggers-catalog.js?v=20261026-inside-bar-stop-1"></script>
@@ -2501,11 +2502,26 @@ renderAnalyticsFromDatabase=function(trades=synchronizedTrades){
   if(!root||!window.healthyTrendApi?.isAuthenticated())return;
   root.querySelector('.hero').insertAdjacentHTML('afterend',truthFilterMarkup(trades));
   root.querySelector('.analytics-breakdown-grid')?.insertAdjacentHTML('beforebegin',truthAdvancedMarkup(selected));
+  if (window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.generateSectionHtml === 'function') {
+    const closedForSqn = selected.map(minerAnalyticsTrade);
+    root.querySelector('.analytics-breakdown-grid')?.insertAdjacentHTML('beforebegin', window.SystemQualityAnalytics.generateSectionHtml(closedForSqn));
+  }
   root.querySelectorAll('[data-truth-filter]').forEach(control=>control.addEventListener('change',()=>{truthPanelFilters[control.dataset.truthFilter]=control.value;renderAnalyticsFromDatabase(synchronizedTrades)}));
   root.querySelector('[data-truth-reset]')?.addEventListener('click',()=>{truthPanelFilters={period:'all',asset:'',setup:'',direction:'',grade:'',account:''};renderAnalyticsFromDatabase(synchronizedTrades)});
   root.querySelectorAll('[data-truth-export]').forEach(button=>button.addEventListener('click',()=>exportTruthReport(button.dataset.truthExport)));
 };
-go=function(id, ...args){const destination=id==='risk'?'newtrade':id;goWithEmbeddedPositionSizing(destination, ...args);if(destination==='today'||destination==='positions'||destination==='closedpositions'||destination==='analytics')syncOperationalFromDatabase();if(destination==='closedpositions')renderClosedPositionsView();if(destination==='analytics')renderAnalyticsFromDatabase()};
+function renderRiskPolicySqnSection(){
+  const page=document.getElementById('riskpolicy');
+  if(!page||!window.SystemQualityAnalytics)return;
+  const closed=(Array.isArray(window.synchronizedTrades)?window.synchronizedTrades:[])
+    .filter(t=>t&&t.status==='closed')
+    .map(minerAnalyticsTrade);
+  const existing=document.getElementById('riskPolicySqnCard');
+  const cardHtml=window.SystemQualityAnalytics.generateRiskPolicyCardHtml(closed);
+  if(existing){existing.outerHTML=cardHtml;}else{page.insertAdjacentHTML('beforeend',cardHtml);}
+}
+window.renderRiskPolicySqnSection=renderRiskPolicySqnSection;
+go=function(id, ...args){const destination=id==='risk'?'newtrade':id;goWithEmbeddedPositionSizing(destination, ...args);if(destination==='today'||destination==='positions'||destination==='closedpositions'||destination==='analytics'||destination==='riskpolicy')syncOperationalFromDatabase();if(destination==='closedpositions')renderClosedPositionsView();if(destination==='analytics')renderAnalyticsFromDatabase();if(destination==='riskpolicy'||id==='riskpolicy')renderRiskPolicySqnSection()};
 </script>
 <!-- Fundamentals styling loaded via frontend/fundamentals.css -->
 <script src="frontend/fundamental-score.js"></script>
@@ -5625,6 +5641,8 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 })();
 </script>
 <link rel="stylesheet" href="frontend/trade-anatomy.css?v=20260929-layout-1" />
+<script src="frontend/system-quality-analytics-model.js?v=20261102-sqn-1"></script>
+<script src="frontend/system-quality-analytics.js?v=20261102-sqn-1"></script>
 <script src="frontend/trade-anatomy-model.js?v=20260924-1"></script>
 <script src="frontend/trade-anatomy.js?v=20260924-2"></script>
 <script src="frontend/navigation-system-model.js?v=20261026-6"></script>

@@ -102,6 +102,13 @@
     const losses = items.filter(item => item.result < 0);
     const grossProfit = wins.reduce((sum, item) => sum + item.result, 0);
     const grossLoss = Math.abs(losses.reduce((sum, item) => sum + item.result, 0));
+    const rValues = items.map(item => item.r).filter(v => v != null && Number.isFinite(v));
+    const sqnAnalytics = (typeof SystemQualityAnalyticsModel !== 'undefined' && SystemQualityAnalyticsModel)
+      ? SystemQualityAnalyticsModel.calculateSystemQualityAnalytics(rValues)
+      : (typeof require === 'function' ? (() => {
+          try { return require('./system-quality-analytics-model').calculateSystemQualityAnalytics(rValues); } catch (_) { return null; }
+        })() : null);
+
     return {
       total: items.length,
       net: items.reduce((sum, item) => sum + item.result, 0),
@@ -110,7 +117,8 @@
       profitFactor: grossLoss ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : null,
       winRate: items.length ? wins.length / items.length * 100 : 0,
       wins,
-      losses
+      losses,
+      sqnAnalytics
     };
   }
 
