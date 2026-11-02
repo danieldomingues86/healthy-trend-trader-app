@@ -98,18 +98,18 @@ test('Resiliência 12M: filtro por faixa de resiliência preserva RS e ranking o
   assert.equal(resTodas.filtered.length, 4, 'Todas deve retornar os 4 ativos intactos');
 });
 
-test('Resiliência 12M: renderTableRows gera coluna de divisória e pill de resiliência', () => {
+test('Resiliência 12M: renderTableRows gera ícone discreto de resiliência e não coluna permanente de nota', () => {
   const pagedItems = [
     {
-      symbol: 'JSLG3',
-      name: 'JSL Logística',
-      sector: 'Transportes',
-      m1: 12.5,
-      m3: 35.8,
-      score: 95,
+      symbol: 'PETR3',
+      name: 'PETROBRAS',
+      sector: 'Energia e minerais',
+      m1: 11.4,
+      m3: 22.4,
+      score: 100,
       globalRank: 1,
       resilience12m: {
-        score: 92,
+        score: 97,
         label: 'Excelente',
         badgeColor: 'green',
         dot: '🟢',
@@ -127,11 +127,11 @@ test('Resiliência 12M: renderTableRows gera coluna de divisória e pill de resi
   };
 
   const html = renderTableRows(pagedItems, 'daily', false);
-  assert.ok(html.includes('td-divider-col'), 'Deveria conter a coluna divisória td-divider-col');
-  assert.ok(html.includes('td-resilience'), 'Deveria conter a coluna de resiliência td-resilience');
-  assert.ok(html.includes('Excelente'), 'Deveria conter o badge de Excelente');
-  assert.ok(html.includes('92'), 'Deveria conter a nota de resiliência 92');
-  assert.ok(html.includes('rs-btn-resilience'), 'Deveria conter o botão de ação rs-btn-resilience');
+  assert.ok(!html.includes('class="td-resilience"'), 'NÃO deve conter coluna fixa de resiliência com texto/pills');
+  assert.ok(html.includes('td-resilience-col'), 'Deveria conter a coluna compacta com ícone');
+  assert.ok(html.includes('rs-icon-btn-resilience'), 'Deveria conter o botão discreto com ícone de escudo');
+  assert.ok(html.includes('Ver resiliência (12M)'), 'Deveria conter o tooltip "Ver resiliência (12M)"');
+  assert.ok(html.includes('rs-btn-analysis'), 'Deveria manter o botão Ver gráfico');
   assert.ok(html.includes('td-reading'), 'Deveria conter a coluna td-reading');
 });
 
