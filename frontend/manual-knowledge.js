@@ -451,7 +451,9 @@
     progress: loadProgress(),
     bookmarks: loadBookmarks(),
     isDualPage: typeof window !== 'undefined' ? window.innerWidth >= 1050 : true,
+    isModalOpen: false,
     isDrawerOpen: false,
+    modalFilter: 'all',
     drawerTab: 'toc', // 'toc' | 'bookmarks'
     isFlipping: false,
     flipDirection: null,
@@ -516,6 +518,8 @@
     appState.bookId = bookId;
     appState.chapterId = chapter.id;
     appState.pageIndex = validPageIndex;
+    appState.isModalOpen = false;
+    appState.isDrawerOpen = false;
 
     markPageVisited(chapter.id, validPageIndex, pages.length);
 
@@ -708,6 +712,7 @@
     appState.bookId = 'acervo';
     appState.chapterId = null;
     appState.pageIndex = 0;
+    appState.isModalOpen = false;
     appState.isDrawerOpen = false;
     renderApp();
   }
@@ -723,8 +728,9 @@
   }
 
   function toggleDrawer(tab) {
-    appState.isDrawerOpen = !appState.isDrawerOpen;
-    if (tab) appState.drawerTab = tab;
+    appState.isModalOpen = !appState.isModalOpen;
+    appState.isDrawerOpen = appState.isModalOpen;
+    if (tab === 'bookmarks') appState.modalFilter = 'bookmarks';
     renderApp();
   }
 
@@ -1431,7 +1437,86 @@
     `;
   }
 
-  function renderReaderView() {
+    function bookCategoryIcon(bookId) {
+    const icons = {
+      'livro-1': '📖',
+      'livro-2': '🖥️',
+      'livro-3': '⚖️',
+      'livro-4': '📋',
+      'livro-5': '🛡️',
+      'livro-6': '🧠'
+    };
+    return icons[bookId] || '📖';
+  }
+
+  function renderTocArt(bookId, chapterId) {
+    const arts = {
+      'livro-1': '<svg viewBox="0 0 180 110"><defs><linearGradient id="toc-art-v1" x2="0" y2="1"><stop stop-color="#34D399" stop-opacity=".7"/><stop offset="1" stop-color="#059669" stop-opacity=".05"/></linearGradient></defs><rect x="25" y="70" width="16" height="30" fill="url(#toc-art-v1)"/><rect x="50" y="55" width="16" height="45" fill="url(#toc-art-v1)"/><rect x="75" y="40" width="16" height="60" fill="url(#toc-art-v1)"/><rect x="100" y="25" width="16" height="75" fill="url(#toc-art-v1)"/><rect x="125" y="10" width="16" height="90" fill="url(#toc-art-v1)"/><path d="M15 85 L50 60 L80 65 L110 35 L140 15" fill="none" stroke="#34D399" stroke-width="3" stroke-linecap="round"/><circle cx="140" cy="15" r="5" fill="#34D399"/></svg>',
+      'livro-2': '<svg viewBox="0 0 180 110"><defs><linearGradient id="toc-art-v2" x2="1" y2="1"><stop stop-color="#10B981" stop-opacity=".6"/><stop offset="1" stop-color="#047857" stop-opacity=".1"/></linearGradient></defs><rect x="35" y="15" width="110" height="75" rx="8" fill="url(#toc-art-v2)" stroke="#34D399" stroke-width="1.8"/><line x1="35" y1="35" x2="145" y2="35" stroke="#34D399" stroke-width="1.2" stroke-opacity=".6"/><circle cx="48" cy="25" r="3.5" fill="#34D399"/><circle cx="60" cy="25" r="3.5" fill="#34D399" fill-opacity=".5"/><circle cx="72" cy="25" r="3.5" fill="#34D399" fill-opacity=".3"/><path d="M50 70 L75 50 L95 60 L130 42" fill="none" stroke="#6EE7B7" stroke-width="2.5"/><rect x="78" y="90" width="24" height="12" fill="#047857"/><line x1="65" y1="102" x2="115" y2="102" stroke="#34D399" stroke-width="2"/></svg>',
+      'livro-3': '<svg viewBox="0 0 180 110"><defs><radialGradient id="toc-art-v3"><stop stop-color="#34D399" stop-opacity=".7"/><stop offset="1" stop-color="#064E3B" stop-opacity=".08"/></radialGradient></defs><circle cx="110" cy="55" r="42" fill="url(#toc-art-v3)" stroke="#34D399" stroke-width="2"/><path d="M110 20 L110 90 M75 55 L145 55" stroke="#34D399" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="110" cy="55" r="24" fill="none" stroke="#6EE7B7" stroke-width="1.5"/><polygon points="110,35 125,50 110,75 95,50" fill="#34D399" fill-opacity=".3" stroke="#A7F3D0" stroke-width="1.5"/></svg>',
+      'livro-4': '<svg viewBox="0 0 180 110"><defs><linearGradient id="toc-art-v4" x2="0" y2="1"><stop stop-color="#F59E0B" stop-opacity=".7"/><stop offset="1" stop-color="#78350F" stop-opacity=".1"/></linearGradient></defs><rect x="45" y="15" width="90" height="85" rx="10" fill="url(#toc-art-v4)" stroke="#F59E0B" stroke-width="1.8"/><path d="M60 40 L70 50 L90 30" fill="none" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/><line x1="98" y1="40" x2="122" y2="40" stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round"/><path d="M60 65 L70 75 L90 55" fill="none" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/><line x1="98" y1="65" x2="122" y2="65" stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round"/><circle cx="110" cy="85" r="4" fill="#FBBF24"/></svg>',
+      'livro-5': '<svg viewBox="0 0 180 110"><defs><linearGradient id="toc-art-v5" x2="1" y2="1"><stop stop-color="#10B981" stop-opacity=".7"/><stop offset="1" stop-color="#064E3B" stop-opacity=".1"/></linearGradient></defs><path d="M105 15 L145 35 L145 75 L105 95 L65 75 L65 35 Z" fill="url(#toc-art-v5)" stroke="#34D399" stroke-width="2"/><path d="M105 32 L130 45 L130 68 L105 80 L80 68 L80 45 Z" fill="none" stroke="#6EE7B7" stroke-width="1.5"/><circle cx="105" cy="55" r="7" fill="#34D399"/></svg>',
+      'livro-6': '<svg viewBox="0 0 180 110"><defs><radialGradient id="toc-art-v6"><stop stop-color="#60A5FA" stop-opacity=".7"/><stop offset="1" stop-color="#1E3A8A" stop-opacity=".1"/></radialGradient></defs><polygon points="110,12 125,48 105,48 120,95 85,55 105,55" fill="url(#toc-art-v6)" stroke="#93C5FD" stroke-width="2" stroke-linejoin="round"/><circle cx="65" cy="35" r="3" fill="#93C5FD" opacity=".6"/><circle cx="145" cy="70" r="4" fill="#93C5FD" opacity=".8"/></svg>'
+    };
+    return arts[bookId] || arts['livro-1'];
+  }
+
+  function renderTocModal() {
+    const filter = appState.modalFilter || 'all';
+    const books = BooksModel.BOOKS || [];
+    const bookmarksCount = appState.bookmarks ? appState.bookmarks.length : 0;
+
+    const filterCategories = [
+      { id: 'all', label: 'Todos os Capítulos (80)', icon: '📚' },
+      { id: 'livro-1', label: 'Vol. 1 · Primeiros Passos', icon: '📖' },
+      { id: 'livro-2', label: 'Vol. 2 · Telas & Software', icon: '🖥️' },
+      { id: 'livro-3', label: 'Vol. 3 · O Método', icon: '⚖️' },
+      { id: 'livro-4', label: 'Vol. 4 · Grading & Sizing', icon: '📋' },
+      { id: 'livro-5', label: 'Vol. 5 · Gestão de Risco', icon: '🛡️' },
+      { id: 'livro-6', label: 'Vol. 6 · A Mente do Trader', icon: '🧠' },
+      { id: 'bookmarks', label: 'Marcadores (' + bookmarksCount + ')', icon: '🔖' }
+    ];
+
+    const filtersHtml = filterCategories.map(cat => {
+      const active = filter === cat.id;
+      return '<button type="button" class="ht-toc-filter-btn ' + (active ? 'active' : '') + '" data-action="set-toc-filter" data-filter="' + cat.id + '" aria-pressed="' + active + '"><span aria-hidden="true">' + cat.icon + '</span> ' + esc(cat.label) + '</button>';
+    }).join('');
+
+    let gridHtml = '';
+
+    if (filter === 'bookmarks') {
+      if (!appState.bookmarks || appState.bookmarks.length === 0) {
+        gridHtml = '<div class="ht-toc-empty-bookmarks"><div class="ht-toc-empty-icon">🔖</div><h3>Nenhum marcador salvo ainda</h3><p>Enquanto navega pelo livro, clique no botão <strong>Marcar</strong> na barra superior para salvar páginas de referência rápida nesta galeria.</p></div>';
+      } else {
+        gridHtml = appState.bookmarks.map(bm => {
+          const book = BooksModel.getBook(bm.bookId);
+          const ch = BooksModel.getChapter(bm.bookId, bm.chapterId);
+          const catLabel = 'MARCADOR · VOL. 0' + (book ? book.number : '1') + ' · PÁG. ' + (bm.chapterPageIndex + 1);
+          return '<article class="ht-toc-card ht-toc-card-bookmark" data-action="open-chapter" data-book-id="' + bm.bookId + '" data-chapter-id="' + bm.chapterId + '" data-page-index="' + bm.chapterPageIndex + '"><div class="ht-toc-art" aria-hidden="true">' + renderTocArt(bm.bookId, bm.chapterId) + '</div><div class="ht-toc-card-copy"><span class="ht-toc-card-icon" aria-hidden="true">🔖</span><div><span class="ht-toc-card-category">' + catLabel + '</span><h3 class="ht-toc-card-title">' + esc(bm.title) + '</h3><p class="ht-toc-card-desc">' + esc(bm.snippet || (ch ? ch.subtitle : '') || 'Página de referência salva pelo usuário.') + '</p></div></div><div class="ht-toc-card-footer"><button type="button" class="ht-toc-remove-btn" data-action="toggle-bookmark" data-book-id="' + bm.bookId + '" data-chapter-id="' + bm.chapterId + '" data-page-index="' + bm.chapterPageIndex + '">Remover</button><button type="button" class="ht-toc-card-btn" data-action="open-chapter" data-book-id="' + bm.bookId + '" data-chapter-id="' + bm.chapterId + '" data-page-index="' + bm.chapterPageIndex + '">Abrir Página →</button></div></article>';
+        }).join('');
+      }
+    } else {
+      const filteredBooks = filter === 'all' ? books : books.filter(b => b.id === filter);
+      const cards = [];
+
+      filteredBooks.forEach(b => {
+        b.chapters.forEach(c => {
+          const isReadingNow = b.id === appState.bookId && c.id === appState.chapterId;
+          const completed = isChapterCompleted(c.id);
+          const pages = BooksModel.getChapterPages(c);
+          const totalPages = pages.length;
+
+          cards.push('<article class="ht-toc-card ' + (isReadingNow ? 'reading-now' : '') + '" data-action="open-chapter" data-book-id="' + b.id + '" data-chapter-id="' + c.id + '" data-page-index="0"><div class="ht-toc-art" aria-hidden="true">' + renderTocArt(b.id, c.id) + '</div><div class="ht-toc-card-copy"><span class="ht-toc-card-icon" aria-hidden="true">' + bookCategoryIcon(b.id) + '</span><div><span class="ht-toc-card-category">VOL. 0' + b.number + ' · CAPÍTULO ' + c.number + '</span><h3 class="ht-toc-card-title">' + esc(c.title) + '</h3><p class="ht-toc-card-desc">' + esc(c.subtitle || c.description || 'Domínio prático das regras operacionais e setups.') + '</p></div></div><div class="ht-toc-card-footer"><div class="ht-toc-card-status-group">' + (isReadingNow ? '<span class="ht-toc-card-state active">Lendo agora</span>' : '') + (completed ? '<span class="ht-toc-card-in-panel">✓ Concluído</span>' : '<span class="ht-toc-card-pages-badge">' + totalPages + ' págs</span>') + '</div><button type="button" class="ht-toc-card-btn" data-action="open-chapter" data-book-id="' + b.id + '" data-chapter-id="' + c.id + '" data-page-index="0">' + (isReadingNow ? 'Voltar à Leitura' : 'Ler Capítulo') + ' →</button></div></article>');
+        });
+      });
+
+      gridHtml = cards.join('');
+    }
+
+    return '<div class="ht-toc-modal-backdrop ' + (appState.isModalOpen ? 'open' : '') + '" id="htTocModalBackdrop" data-action="close-toc-modal"><section class="ht-toc-modal" role="dialog" aria-modal="true" aria-label="Galeria de Capítulos do Manual"><header class="ht-toc-modal-header"><div><span class="eyebrow ht-toc-eyebrow">SUMÁRIO &amp; ÍNDICE DO MANUAL</span><h2 class="ht-toc-modal-title">Galeria de Capítulos do Acervo</h2><p class="ht-toc-modal-desc">Navegue diretamente pelos 6 volumes temáticos e 80 capítulos estruturados ou acesse suas anotações e marcadores salvos.</p></div><aside class="ht-toc-modal-intro"><b>Acervo The Healthy Trend Trader</b><span>6 Volumes Estruturados · 80 Capítulos · 41 Ferramentas</span></aside><button type="button" class="ht-toc-modal-close" data-action="close-toc-modal" aria-label="Fechar galeria">×</button></header><nav class="ht-toc-modal-filters" aria-label="Filtros de volumes">' + filtersHtml + '</nav><div class="ht-toc-modal-grid">' + gridHtml + '</div></section></div>';
+  }
+
+function renderReaderView() {
     const isAcervo = appState.bookId === 'acervo';
     const book = BooksModel.getBook(appState.bookId) || BooksModel.BOOKS[0];
     const flatPages = ReaderModel && ReaderModel.flattenBookPages
@@ -1519,7 +1604,7 @@
             </div>
 
             <!-- ÍNDICE / TOC DRAWER TOGGLE -->
-            <button type="button" class="ht-reader-action-btn ${appState.isDrawerOpen ? 'active' : ''}" data-action="open-drawer" data-drawer-tab="toc" title="Sumário do Livro">
+            <button type="button" class="ht-reader-action-btn ${appState.isModalOpen ? 'active' : ''}" data-action="open-toc-modal" data-drawer-tab="toc" title="Galeria de Capítulos e Índice">
               ${icon('list', 16)} Índice
             </button>
 
@@ -1607,59 +1692,9 @@
           <button data-action="next-page">Próxima</button>
         </div>
 
-        <!-- TOC & BOOKMARKS SLIDE-OVER DRAWER -->
-        <div class="ht-drawer-backdrop ${appState.isDrawerOpen ? 'open' : ''}" data-action="close-drawer">
-          <aside class="ht-toc-drawer" onclick="event.stopPropagation()">
-            <div class="ht-drawer-header">
-              <h3 class="ht-drawer-title">${icon('book', 20)} Central de Leitura</h3>
-              <button type="button" class="ht-drawer-close" data-action="close-drawer">×</button>
-            </div>
-
-            <div class="ht-drawer-tabs">
-              <button type="button" class="ht-drawer-tab-btn ${appState.drawerTab === 'toc' ? 'active' : ''}" data-action="switch-drawer-tab" data-tab="toc">
-                Índice de Capítulos
-              </button>
-              <button type="button" class="ht-drawer-tab-btn ${appState.drawerTab === 'bookmarks' ? 'active' : ''}" data-action="switch-drawer-tab" data-tab="bookmarks">
-                Marcadores (${appState.bookmarks.length})
-              </button>
-            </div>
-
-            <div class="ht-drawer-content">
-              ${appState.drawerTab === 'toc' ? `
-                ${BooksModel.BOOKS.map(b => `
-                  <div class="ht-drawer-book-group">
-                    <div class="ht-drawer-book-title">Livro ${b.number} — ${esc(b.title)}</div>
-                    ${b.chapters.map(c => `
-                      <div class="ht-drawer-ch-item ${c.id === appState.chapterId && b.id === appState.bookId ? 'active' : ''}" data-action="open-chapter" data-book-id="${b.id}" data-chapter-id="${c.id}" data-page-index="0">
-                        <span><strong>${c.number}.</strong> ${esc(c.title)}</span>
-                        ${isChapterCompleted(c.id) ? `<span style="color:var(--ht-book-accent);">${icon('check', 14)}</span>` : ''}
-                      </div>
-                    `).join('')}
-                  </div>
-                `).join('')}
-              ` : `
-                ${appState.bookmarks.length === 0 ? `
-                  <div style="text-align:center;padding:40px 20px;color:var(--ht-book-ink-muted);">
-                    <p style="font-size:32px;margin-bottom:8px;">🔖</p>
-                    <p>Você ainda não marcou nenhuma página.</p>
-                    <small>Clique em "Marcar" na barra superior para salvar páginas importantes para consulta posterior.</small>
-                  </div>
-                ` : `
-                  ${appState.bookmarks.map(bm => `
-                    <div class="ht-drawer-ch-item ht-bookmark-drawer-item">
-                      <div class="ht-bookmark-row">
-                        <span class="ht-bookmark-badge">Pág. ${bm.chapterPageIndex + 1}</span>
-                        <button type="button" class="ht-bookmark-remove-btn" data-action="toggle-bookmark" data-book-id="${bm.bookId}" data-chapter-id="${bm.chapterId}" data-page-index="${bm.chapterPageIndex}">Remover</button>
-                      </div>
-                      <strong class="ht-bookmark-title" data-action="open-chapter" data-book-id="${bm.bookId}" data-chapter-id="${bm.chapterId}" data-page-index="${bm.chapterPageIndex}">${esc(bm.title)}</strong>
-                      ${bm.snippet ? `<small class="ht-bookmark-snippet">${esc(bm.snippet)}</small>` : ''}
-                    </div>
-                  `).join('')}
-                `}
-              `}
-            </div>
-          </aside>
-        </div>
+        <!-- GALERIA DE CAPÍTULOS / MODAL ARTÍSTICO CENTRAL (ESTILO WIDGET GALLERY) -->
+        ${renderTocModal()}
+        <div class="ht-toc-drawer" style="display:none;" aria-hidden="true"></div>
       </div>
     `;
   }
@@ -1823,6 +1858,12 @@
 
     // Global Click Delegation
     container.onclick = function (e) {
+      if (e.target.id === 'htTocModalBackdrop' || (e.target.classList && e.target.classList.contains('ht-toc-modal-backdrop'))) {
+        appState.isModalOpen = false;
+        appState.isDrawerOpen = false;
+        renderApp();
+        return;
+      }
       const target = e.target.closest('[data-action]');
       if (!target) {
         if (searchDropdown && !e.target.closest('.kc-lib-search-box')) searchDropdown.hidden = true;
@@ -1842,6 +1883,8 @@
         const bId = target.dataset.bookId;
         const cId = target.dataset.chapterId;
         const pIdx = parseInt(target.dataset.pageIndex || '0', 10);
+        appState.isModalOpen = false;
+        appState.isDrawerOpen = false;
         openChapter(bId, cId, pIdx);
       } else if (action === 'go-to-page') {
         const pIdx = parseInt(target.dataset.pageIndex || '0', 10);
@@ -1858,11 +1901,22 @@
       } else if (action === 'toggle-complete') {
         const cId = target.dataset.chapterId;
         toggleChapterCompleted(cId);
-      } else if (action === 'open-drawer') {
-        const tab = target.dataset.drawerTab || 'toc';
-        toggleDrawer(tab);
-      } else if (action === 'close-drawer') {
+      } else if (action === 'open-toc-modal' || action === 'open-drawer') {
+        const tab = target.dataset.drawerTab || target.dataset.filter || 'all';
+        appState.isModalOpen = true;
+        appState.isDrawerOpen = true;
+        if (tab === 'bookmarks') appState.modalFilter = 'bookmarks';
+        renderApp();
+      } else if (action === 'close-toc-modal' || action === 'close-drawer') {
+        appState.isModalOpen = false;
         appState.isDrawerOpen = false;
+        renderApp();
+      } else if (action === 'set-toc-filter') {
+        appState.modalFilter = target.dataset.filter || 'all';
+        renderApp();
+      } else if (action === 'switch-drawer-tab') {
+        appState.drawerTab = target.dataset.tab;
+        if (target.dataset.tab === 'bookmarks') appState.modalFilter = 'bookmarks';
         renderApp();
       } else if (action === 'switch-drawer-tab') {
         appState.drawerTab = target.dataset.tab;
@@ -1923,8 +1977,9 @@
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
     if (event.key === 'Escape') {
-      if (appState.isDrawerOpen) {
+      if (appState.isModalOpen || appState.isDrawerOpen) {
         event.preventDefault();
+        appState.isModalOpen = false;
         appState.isDrawerOpen = false;
         renderApp();
       } else if (appState.view === 'reader') {

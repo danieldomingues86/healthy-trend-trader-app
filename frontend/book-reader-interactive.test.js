@@ -135,4 +135,33 @@ test('Interactive Book Reader: Alto Contraste e Legibilidade na Topbar em Todos 
   assert.ok(mkCss.includes('color: #ECFDF5;'), 'manual-knowledge.css deve garantir cor clara em is-reader-view');
 });
 
+test('Interactive Book Reader: Galeria de Capítulos em Modal Central Estilo Widget Gallery', () => {
+  const mkCode = fs.readFileSync(path.join(__dirname, 'manual-knowledge.js'), 'utf8');
+  const cssCode = fs.readFileSync(path.join(__dirname, 'book-reader.css'), 'utf8');
+
+  // Modal central estruturado no JavaScript
+  assert.ok(mkCode.includes('ht-toc-modal'), 'Deve conter modal central do índice');
+  assert.ok(mkCode.includes('ht-toc-modal-header'), 'Modal deve conter cabeçalho com título e descrição');
+  assert.ok(mkCode.includes('ht-toc-modal-intro'), 'Modal deve conter badge ilustrativo intro');
+  assert.ok(mkCode.includes('ht-toc-modal-filters'), 'Modal deve conter filtros por volume e marcadores');
+  assert.ok(mkCode.includes('ht-toc-modal-grid'), 'Modal deve conter grade artística de cards');
+  assert.ok(mkCode.includes('ht-toc-card'), 'Cada capítulo deve ser renderizado em card artístico');
+  assert.ok(mkCode.includes('renderTocArt'), 'Cards devem conter ilustrações SVG por volume');
+  assert.ok(mkCode.includes('ht-toc-empty-bookmarks'), 'Deve conter estado vazio artístico para marcadores');
+
+  // Ações e navegação
+  assert.ok(mkCode.includes('open-toc-modal'), 'Deve possuir ação para abrir o modal de índice');
+  assert.ok(mkCode.includes('close-toc-modal'), 'Deve possuir ação para fechar o modal');
+  assert.ok(mkCode.includes('set-toc-filter'), 'Deve permitir filtrar por volume ou marcadores');
+
+  // CSS do Modal e temas
+  assert.ok(cssCode.includes('.ht-toc-modal-backdrop'), 'CSS deve conter backdrop com blur para o modal');
+  assert.ok(cssCode.includes('.ht-toc-modal'), 'CSS deve definir dimensões e bordas arredondadas para o modal');
+  assert.ok(cssCode.includes('.ht-toc-card'), 'CSS deve definir visual de card inspirado na Widget Gallery');
+  assert.ok(cssCode.includes('.ht-toc-art'), 'CSS deve posicionar arte do card à direita com máscara gradiente');
+  assert.ok(cssCode.includes('body[data-theme="pigeon"] .ht-toc-modal'), 'Pigeon Light deve estilizar o modal com cores claras');
+  assert.ok(cssCode.includes('body[data-theme="gold"] .ht-toc-modal'), 'Premium Gold deve estilizar o modal com acabamento dourado');
+});
+
+
 
