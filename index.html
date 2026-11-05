@@ -546,47 +546,55 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #traderprofile .plat
 </head>
 <body style="overflow:hidden">
 <section class="login-shell" id="loginShell" aria-label="Acesso ao The Healthy Trend Trader">
-  <!-- Backdrop ambiente para preenchimento total de tela sem cortes -->
+  <!-- CAMADA 1: BACKGROUND CINEMATOGRÁFICO PURO & OVERLAYS -->
   <div class="login-ambient-backdrop" aria-hidden="true"></div>
-
-  <!-- Stage cinematográfico em proporção exata da arte oficial (1024:384) -->
-  <div class="login-stage">
-    <!-- Cenas de Background (Alta fidelidade cinematográfica com os 3 assets oficiais) -->
+  <div class="login-bg-layer" aria-hidden="true">
     <div class="login-scene login-scene-green" aria-hidden="true"></div>
     <div class="login-scene login-scene-gold" aria-hidden="true"></div>
     <div class="login-scene login-scene-pigeon" aria-hidden="true"></div>
     <div class="login-scene-overlay" aria-hidden="true"></div>
+  </div>
 
-    <!-- Idioma e Tema Topo Direito -->
-    <div class="login-top-bar">
-      <div class="theme-picker login-theme-picker" aria-label="Escolha o tema visual">
-        <button class="theme-choice" type="button" data-theme-choice="healthy" onclick="applyTheme('healthy')">
-          <span class="theme-swatch"></span><span class="theme-choice-text">Healthy Green</span>
-        </button>
-        <button class="theme-choice" type="button" data-theme-choice="gold" onclick="applyTheme('gold')">
-          <span class="theme-swatch"></span><span class="theme-choice-text">Premium Gold</span>
-        </button>
-        <button class="theme-choice" type="button" data-theme-choice="pigeon" onclick="applyTheme('pigeon')">
-          <span class="theme-swatch"></span><span class="theme-choice-text">Pigeon Light</span>
-        </button>
-      </div>
-      <div class="language-picker login-language-picker" aria-label="Escolha o idioma">
-        <button class="language-choice" type="button" data-language-choice="pt-BR" onclick="applyLanguage('pt-BR')">PT</button>
-        <button class="language-choice" type="button" data-language-choice="en-US" onclick="applyLanguage('en-US')">EN</button>
-      </div>
-    </div>
+  <!-- CAMADA 2: ELEMENTO ARTÍSTICO INDEPENDENTE (Mascote dourado à direita) -->
+  <div class="login-art-col" aria-hidden="true">
+    <div class="login-art-mascot login-mascot-gold" aria-hidden="true"></div>
+  </div>
 
-    <div class="login-container">
-      <!-- COLUNA ESQUERDA: Marca + Manifesto + Pilares -->
-      <div class="login-manifesto-col">
-        <div class="login-brand">
-          <div class="login-brand-mark">HT</div>
-          <div class="login-brand-text">
-            <strong>THE HEALTHY TREND TRADER</strong>
-            <small>HEALTHY TRADING WORKSPACE</small>
-          </div>
+  <!-- CAMADA 3: VIEWPORT ESTRUTURADO (HEADER, ÁREA PRINCIPAL, RODAPÉ) -->
+  <div class="login-viewport">
+    <!-- HEADER INDEPENDENTE: Logo à esquerda, seletores à direita -->
+    <header class="login-header">
+      <div class="login-brand">
+        <div class="login-brand-mark">HT</div>
+        <div class="login-brand-text">
+          <strong>THE HEALTHY TREND TRADER</strong>
+          <small>HEALTHY TRADING WORKSPACE</small>
         </div>
+      </div>
 
+      <div class="login-top-bar">
+        <div class="theme-picker login-theme-picker" aria-label="Escolha o tema visual">
+          <button class="theme-choice" type="button" data-theme-choice="healthy" onclick="applyTheme('healthy')">
+            <span class="theme-swatch"></span><span class="theme-choice-text">Healthy Green</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="gold" onclick="applyTheme('gold')">
+            <span class="theme-swatch"></span><span class="theme-choice-text">Premium Gold</span>
+          </button>
+          <button class="theme-choice" type="button" data-theme-choice="pigeon" onclick="applyTheme('pigeon')">
+            <span class="theme-swatch"></span><span class="theme-choice-text">Pigeon Light</span>
+          </button>
+        </div>
+        <div class="language-picker login-language-picker" aria-label="Escolha o idioma">
+          <button class="language-choice" type="button" data-language-choice="pt-BR" onclick="applyLanguage('pt-BR')">PT</button>
+          <button class="language-choice" type="button" data-language-choice="en-US" onclick="applyLanguage('en-US')">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL: DUAS COLUNAS VIA FLEXBOX / GRID -->
+    <main class="login-container">
+      <!-- COLUNA ESQUERDA: Slogan + Descrição + Benefícios -->
+      <div class="login-manifesto-col">
         <div class="login-headline-area">
           <h1>Clareza para decidir.<br><em>Disciplina para permanecer.</em></h1>
           <div class="login-accent-line" aria-hidden="true"></div>
@@ -615,7 +623,7 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #traderprofile .plat
         </div>
       </div>
 
-      <!-- COLUNA CENTRAL: Card de Autenticação (Foreground) -->
+      <!-- COLUNA DIREITA: Card de Autenticação -->
       <div class="login-card-col">
         <div class="login-card">
           <div class="login-kicker">BEM-VINDO DE VOLTA</div>
@@ -657,10 +665,12 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #traderprofile .plat
           </p>
         </div>
       </div>
+    </main>
 
-      <!-- COLUNA DIREITA: Área de Respiro Visual para a Arte de Fundo -->
-      <div class="login-art-col" aria-hidden="true"></div>
-    </div>
+    <!-- RODAPÉ INSTITUCIONAL -->
+    <footer class="login-footer">
+      <div class="login-footer-copy">The Healthy Trend Trader &copy; 2026 &bull; Disciplina transforma oportunidades em resultados.</div>
+    </footer>
   </div>
 </section>
 <div class="app">
@@ -5665,9 +5675,9 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <script src="frontend/risk-of-ruin.js?v=20261018-4"></script>
 <script src="frontend/browser-history-navigation-model.js?v=20261018-1"></script>
 <script src="frontend/browser-history-navigation.js?v=20261018-1"></script>
-<link rel="stylesheet" href="frontend/market-treemap.css?v=20261019-1" />
-<script src="frontend/market-treemap-model.js?v=20261019-1"></script>
-<script src="frontend/market-treemap.js?v=20261019-1"></script>
+<link rel="stylesheet" href="frontend/market-treemap.css?v=20261105-finviz-v3" />
+<script src="frontend/market-treemap-model.js?v=20261105-finviz-v3"></script>
+<script src="frontend/market-treemap.js?v=20261105-finviz-v3"></script>
 <link rel="stylesheet" href="frontend/deserving-diary.css?v=20261021-1" />
 <link rel="stylesheet" href="frontend/theme-pigeon-light.css?v=20261101-pigeon-light-final" />
 <script src="frontend/deserving-diary-model.js?v=20261021-1"></script>

@@ -35,6 +35,7 @@ const profitCelebration = require('./profit-celebration');
 const opportunityRadar = require('./opportunity-radar');
 const marketTreemap = require('./market-treemap');
 const deservingDiary = require('./deserving-diary');
+const marketRegime = require('./market-regime');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -894,7 +895,7 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, payload);
     }
 
-    if (!['/api/opportunity-radar','/api/market-central','/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
+    if (!['/api/opportunity-radar','/api/market-central','/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength','/api/trading-analytics/performance-by-regime','/api/market-regime/current','/api/market-regime/history','/api/market-regime/periods','/api/market-regime/configuration'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
     if (url.pathname === '/api/opportunity-radar') {
@@ -908,9 +909,72 @@ const server = http.createServer(async (request, response) => {
       const payload = await marketCentral.getMarketCentralData({ market: marketParam, universe: universeParam, cache, userId: user ? user.id : null });
       return send(response, 200, payload);
     }
+    // Market Regime Engine Routes
+    if (url.pathname === '/api/market-regime/current' && request.method === 'GET') {
+      const benchmark = url.searchParams.get('benchmark') || 'IBOV';
+      const current = await marketRegime.getCurrentRegime(benchmark);
+      return send(response, 200, { benchmark, current, metadata: marketRegime.REGIME_METADATA });
+    }
+
+    if (url.pathname === '/api/market-regime/history' && request.method === 'GET') {
+      const benchmark = url.searchParams.get('benchmark') || 'IBOV';
+      const from = url.searchParams.get('from') || null;
+      const to = url.searchParams.get('to') || null;
+      const payload = await marketRegime.getRegimeHistory(benchmark, { from, to });
+      return send(response, 200, payload);
+    }
+
+    if (url.pathname === '/api/market-regime/periods' && request.method === 'GET') {
+      const benchmark = url.searchParams.get('benchmark') || 'IBOV';
+      const history = await marketRegime.getRegimeHistory(benchmark);
+      return send(response, 200, { benchmarkId: benchmark, periods: history.periods, distribution: history.distribution });
+    }
+
+    if (url.pathname === '/api/market-regime/configuration' && request.method === 'GET') {
+      let benchmarks = marketRegime.DEFAULT_BENCHMARKS;
+      if (database.configured()) {
+        try {
+          const res = await database.query('SELECT * FROM app.market_benchmarks WHERE active = true ORDER BY is_default DESC, id ASC');
+          if (res.rowCount) benchmarks = res.rows;
+        } catch (_) {}
+      }
+      return send(response, 200, { benchmarks, regimes: marketRegime.REGIME_METADATA });
+    }
+
+    if (url.pathname === '/api/market-regime/configuration' && request.method === 'POST') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const payload = await body(request);
+      return send(response, 200, { success: true, updated: payload });
+    }
+
+    if (url.pathname === '/api/trading-analytics/performance-by-regime' && request.method === 'GET') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const benchmark = url.searchParams.get('benchmark') || 'IBOV';
+      const payload = await marketRegime.getPerformanceByRegime({ userId: user?.id, benchmarkId: benchmark });
+      return send(response, 200, payload);
+    }
+
     if (url.pathname === '/api/market-cycle') {
-      const marketParam = url.searchParams.get('market') || 'stock_b3';
+      const benchmarkQuery = (url.searchParams.get('benchmark') || '').toUpperCase();
+      let marketParam = url.searchParams.get('market') || 'stock_b3';
+      if (benchmarkQuery === 'BDRX') marketParam = 'bdr';
+      else if (benchmarkQuery === 'IFIX') marketParam = 'fii';
+      else if (benchmarkQuery === 'IBOV') marketParam = 'stock_b3';
+
       const payload = await resolveMarketCycle(cache, marketParam);
+      try {
+        const benchmarkId = (marketParam === 'fii' || marketParam === 'ifix' || benchmarkQuery === 'IFIX') ? 'IFIX' : ((marketParam === 'bdr' || marketParam === 'bdrx' || benchmarkQuery === 'BDRX') ? 'BDRX' : 'IBOV');
+        const regimeData = await marketRegime.getRegimeHistory(benchmarkId);
+        payload.marketRegime = {
+          benchmarkId,
+          current: regimeData.current,
+          periods: regimeData.periods,
+          distribution: regimeData.distribution,
+          regimes: regimeData.regimes,
+          metadata: marketRegime.REGIME_METADATA
+        };
+      } catch (_) {}
       return send(response, 200, payload);
     }
     if (url.pathname === '/api/market-scans') {

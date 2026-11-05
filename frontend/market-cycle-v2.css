@@ -1,596 +1,1075 @@
-#marketcycle{width:100%!important;min-width:0!important;margin:0!important;padding:0!important;max-width:none!important;container-type:inline-size}
+/* market-cycle-v2.css — Market Regime Engine & Ciclo de Mercado V2 */
 
-html.market-cycle-active,
-body.market-cycle-active,
-body:has(#marketcycle.active),
-body:has(#marketcycle.page.active) {
-  background: #072517 !important;
-}
-html.market-cycle-active .main,
-body.market-cycle-active .main,
-body:has(#marketcycle.active) .main,
-body:has(#marketcycle.page.active) .main {
-  background: #072517 !important;
-}
-html.market-cycle-active .content,
-body.market-cycle-active .content,
-body:has(#marketcycle.active) .content,
-body:has(#marketcycle.page.active) .content {
-  box-sizing: border-box !important;
+#marketcycle {
+  background: #ffffff !important;
   width: 100% !important;
   min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #072517 radial-gradient(circle at 50% 0%, #0e3b26 0%, #072618 60%, #04180f 100%) !important;
-}
-html.market-cycle-active .content #marketPauseBannerRoot:empty,
-body.market-cycle-active .content #marketPauseBannerRoot:empty,
-body:has(#marketcycle.active) .content #marketPauseBannerRoot:empty,
-body:has(#marketcycle.page.active) .content #marketPauseBannerRoot:empty,
-html.market-cycle-active .content #marketFocusGuard,
-body.market-cycle-active .content #marketFocusGuard,
-body:has(#marketcycle.active) .content #marketFocusGuard,
-body:has(#marketcycle.page.active) .content #marketFocusGuard {
-  display: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  height: 0 !important;
+  box-sizing: border-box;
 }
 
-/* Gold Theme Cockpit Overrides */
-body.gold-theme.market-cycle-active,
-body[data-theme="gold"].market-cycle-active,
-body.gold-theme:has(#marketcycle.active),
-body[data-theme="gold"]:has(#marketcycle.active),
-body.gold-theme:has(#marketcycle.page.active),
-body[data-theme="gold"]:has(#marketcycle.page.active) {
-  background: #0d0a06 !important;
-}
-body.gold-theme.market-cycle-active .main,
-body[data-theme="gold"].market-cycle-active .main,
-body.gold-theme:has(#marketcycle.active) .main,
-body[data-theme="gold"]:has(#marketcycle.active) .main,
-body.gold-theme:has(#marketcycle.page.active) .main,
-body[data-theme="gold"]:has(#marketcycle.page.active) .main {
-  background: #0d0a06 !important;
-}
-body.gold-theme.market-cycle-active .content,
-body[data-theme="gold"].market-cycle-active .content,
-body.gold-theme:has(#marketcycle.active) .content,
-body[data-theme="gold"]:has(#marketcycle.active) .content,
-body.gold-theme:has(#marketcycle.page.active) .content,
-body[data-theme="gold"]:has(#marketcycle.page.active) .content {
-  background: #0d0a06 radial-gradient(circle at 50% 0%, #21170a 0%, #120e07 60%, #080603 100%) !important;
+body:has(#marketcycle.active) {
+  background-color: #ffffff;
 }
 
-#marketcycle .mcv2-page{
-  --regime-primary:#e5b83b;
-  --regime-secondary:#d97706;
-  --regime-soft:rgba(229,184,59,.16);
-  --regime-border:rgba(229,184,59,.65);
-  --regime-glow:rgba(229,184,59,.24);
-  --regime-badge-bg:rgba(229,184,59,.18);
-  --regime-btn-bg:linear-gradient(90deg,#e5b83b,#f6cb56);
-  --regime-btn-text:#2a1800;
-  --regime-active-card-bg:#ffffff;
-  --regime-active-title:#9a630a;
-  --mc-paper:#ffffff;
-  --mc-muted:#64748b;
-  position:relative;
-  isolation:isolate;
-  min-height:calc(100dvh - 58px);
-  padding:clamp(22px,2.2vw,38px);
-  background:#072517 radial-gradient(circle at 50% 0%,#0e3b26 0%,#072618 60%,#04180f 100%);
-  color:#eff9f1;
+.mre-workspace {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0;
+  padding: 24px 32px 48px;
+  background: #ffffff;
+  color: var(--text, #172b24);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Default Theme Tokens (Healthy Green Light Theme) */
+  --surface-page: #ffffff;
+  --surface-card: #ffffff;
+  --surface-subtle: #f4f7f5;
+  --surface-muted: #eef2f0;
+  --border: #e2e8f0;
+  --border-subtle: #edf2ee;
+  --text: #172b24;
+  --text-secondary: #5a6e65;
+  --text-muted: #84978f;
+  --primary: #16a879;
+  --color-pos: #16a879;
+  --color-neg: #dc4545;
+  --color-warn: #e9a323;
+  --color-sideways: #428bdb;
 }
 
-#marketcycle .mcv2-page:before{
-  content:"";
-  position:absolute;
-  z-index:-1;
-  inset:0;
-  background:radial-gradient(circle at 50% 4%,var(--regime-glow),transparent 58%);
-  pointer-events:none;
-  transition:background .35s ease;
+.mre-shell {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-/* Tokens Semânticos por Regime */
-#marketcycle .mcv2-page[data-market-regime="healthy"],
-#marketcycle .mcv2-page.regime-healthy,
-#marketcycle .mcv2-page.regime-expansion{
-  --regime-primary:#22c55e;
-  --regime-secondary:#16a34a;
-  --regime-soft:rgba(34,197,94,.16);
-  --regime-border:rgba(34,197,94,.6);
-  --regime-glow:rgba(34,197,94,.24);
-  --regime-badge-bg:rgba(34,197,94,.16);
-  --regime-btn-bg:linear-gradient(90deg,#22c55e,#4ade80);
-  --regime-btn-text:#022c19;
-  --regime-active-card-bg:#ffffff;
-  --regime-active-title:#15803d;
+/* Header */
+.mre-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
 }
 
-#marketcycle .mcv2-page[data-market-regime="transition"],
-#marketcycle .mcv2-page.regime-transition{
-  --regime-primary:#e5b83b;
-  --regime-secondary:#d97706;
-  --regime-soft:rgba(229,184,59,.16);
-  --regime-border:rgba(229,184,59,.65);
-  --regime-glow:rgba(229,184,59,.24);
-  --regime-badge-bg:rgba(229,184,59,.18);
-  --regime-btn-bg:linear-gradient(90deg,#e5b83b,#f6cb56);
-  --regime-btn-text:#2a1800;
-  --regime-active-card-bg:#ffffff;
-  --regime-active-title:#9a630a;
+.mre-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-#marketcycle .mcv2-page[data-market-regime="defensive"],
-#marketcycle .mcv2-page.regime-defensive,
-#marketcycle .mcv2-page.regime-defence{
-  --regime-primary:#ef4444;
-  --regime-secondary:#dc2626;
-  --regime-soft:rgba(239,68,68,.16);
-  --regime-border:rgba(239,68,68,.65);
-  --regime-glow:rgba(239,68,68,.24);
-  --regime-badge-bg:rgba(239,68,68,.18);
-  --regime-btn-bg:linear-gradient(90deg,#ef4444,#f87171);
-  --regime-btn-text:#2c0505;
-  --regime-active-card-bg:#ffffff;
-  --regime-active-title:#b91c1c;
+.mre-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-#marketcycle .mcv2-shell{width:100%;max-width:none;margin:0 auto}
-
-#marketcycle .mcv2-market-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 16px;padding:0 8px;flex-wrap:wrap}
-#marketcycle .mcv2-market-pills{display:inline-flex;align-items:center;gap:6px;padding:4px;border:1px solid rgba(80,140,105,.3);border-radius:999px;background:rgba(4,22,14,.75);box-shadow:0 6px 18px rgba(0,0,0,.25);backdrop-filter:blur(10px)}
-#marketcycle .mcv2-market-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border:0;border-radius:999px;background:transparent;color:#9bc0ad;font:700 12px/1 Inter,sans-serif;cursor:pointer;transition:all .15s ease}
-#marketcycle .mcv2-market-pill:hover{background:rgba(45,157,96,.18);color:#dcf3e5}
-#marketcycle .mcv2-market-pill.active{background:#0e4830;color:#fff;box-shadow:0 3px 12px rgba(0,0,0,.35);border:1px solid rgba(110,218,155,.25)}
-#marketcycle .mcv2-market-ref{display:inline-block;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.09);color:inherit;font-size:10px;font-weight:800;letter-spacing:.04em}
-#marketcycle .mcv2-market-pill.active .mcv2-market-ref{background:rgba(255,255,255,.2);color:#82e5ab}
-#marketcycle .mcv2-market-indicator{display:flex;align-items:center}
-#marketcycle .mcv2-market-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid rgba(75,125,95,.3);border-radius:999px;background:rgba(5,26,17,.75);color:#9ec4af;font-size:11px}
-#marketcycle .mcv2-market-tag b{color:#dcf3e5}
-#marketcycle .mcv2-market-tag .sep{color:#6c8b7b;font-size:9px}
-
-/* Escala e Responsividade para Telas Amplas */
-@container (min-width:1400px){
-  #marketcycle.page .mcv2-page{padding:32px 6cqw 40px}
-  #marketcycle.page .mcv2-shell{width:100%;max-width:none}
-  #marketcycle.page .mcv2-hero{grid-template-columns:repeat(3,minmax(0,1fr));min-height:280px}
-  #marketcycle.page .mcv2-gauge{width:262px;aspect-ratio:1/.82}
-  #marketcycle.page .mcv2-gauge:before,#marketcycle.page .mcv2-gauge:after{left:19px;right:19px;top:5px;border-width:26px;border-bottom:0}
-  #marketcycle.page .mcv2-gauge>div{inset:72px 0 0}
-  #marketcycle.page .mcv2-gauge strong{font-size:77px}
-  #marketcycle.page .mcv2-gauge span{font-size:24px}
-  #marketcycle.page .mcv2-gauge small{font-size:11px;margin-top:10px}
-  #marketcycle.page .mcv2-gauge-wrap{padding:22px 12px;gap:8px}
-  #marketcycle.page .mcv2-score-change{min-width:96px}
-  #marketcycle.page .mcv2-analysis{grid-template-columns:minmax(0,3.3fr) minmax(300px,1fr);gap:18px}
-  #marketcycle.page .mcv2-chart{height:420px}
-  #marketcycle.page .mcv2-chart-card{padding:24px 24px 20px}
-  #marketcycle.page .mcv2-reading>section{padding:25px 24px}
-  #marketcycle.page .mcv2-reading section:first-child>div{padding:12px 0;font-size:12px}
-  #marketcycle.page .mcv2-reading section:first-child b{font-size:12px}
-  #marketcycle.page .mcv2-context p{font-size:13px;line-height:1.65}
-  #marketcycle.page .mcv2-evidence{gap:11px}
-  #marketcycle.page .mcv2-evidence article{min-height:94px;padding:16px}
-  #marketcycle.page .mcv2-evidence small,#marketcycle .mcv2-evidence span{font-size:11px}
-  #marketcycle.page .mcv2-evidence b{font-size:17px}
+.mre-header-icon {
+  display: flex;
+  align-items: center;
 }
 
-#marketcycle .mcv2-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:0 0 16px;padding:0 10px;flex-wrap:wrap}
-#marketcycle .mcv2-heading>div:first-child{flex:0 1 auto}
-#marketcycle .mcv2-heading .mcv2-heading-center{display:flex;flex-direction:column;align-items:center;gap:10px;flex:0 0 auto;margin:0}
-#marketcycle .mcv2-heading .mcv2-market-pills{flex:0 0 auto;margin:0}
-#marketcycle .mcv2-heading p{margin:0 0 10px;color:#7ba58e;font-size:12px}
-#marketcycle .mcv2-heading p b{color:#d6ece0}
-#marketcycle .mcv2-heading h1{margin:0;color:#ffffff;font:600 clamp(37px,3.2vw,58px)/.95 Georgia,serif;letter-spacing:-.045em}
-#marketcycle .mcv2-heading em{display:block;margin-top:8px;color:#b0d9c2;font:italic 600 clamp(17px,1.35vw,23px)/1.25 Georgia,serif}
-#marketcycle .mcv2-heading blockquote{flex:0 1 auto;justify-self:end;margin:0;color:#85b89c;font:italic 600 15px/1.4 Georgia,serif;text-align:right}
-
-/* Freshness badge in Market Cycle (matching Força Relativa design language) */
-#marketcycle .mcv2-freshness.relative-data-freshness {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  padding: 6px 14px !important;
-  border: 1px solid rgba(80, 140, 105, 0.35) !important;
-  border-radius: 999px !important;
-  background: rgba(4, 22, 14, 0.75) !important;
-  color: #c4ecd3 !important;
-  font: 600 12px/1.3 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  letter-spacing: 0.01em;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  white-space: nowrap !important;
-}
-#marketcycle .mcv2-freshness .rs-freshness-icon {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 14px !important;
-  height: 14px !important;
-  color: #55cf7a !important;
-  flex-shrink: 0 !important;
-  line-height: 1 !important;
-}
-#marketcycle .mcv2-freshness .rs-freshness-icon svg {
-  display: block !important;
-  width: 13px !important;
-  height: 13px !important;
-  stroke: currentColor !important;
-}
-#marketcycle .mcv2-freshness .rs-freshness-text {
-  line-height: 1.2 !important;
+.mre-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #172b24 !important;
+  letter-spacing: -0.02em;
 }
 
-body.gold-theme #marketcycle .mcv2-freshness.relative-data-freshness,
-body[data-theme="gold"] #marketcycle .mcv2-freshness.relative-data-freshness {
-  border-color: rgba(214, 170, 80, 0.35) !important;
-  background: rgba(26, 19, 10, 0.85) !important;
-  color: #f7eedb !important;
-}
-body.gold-theme #marketcycle .mcv2-freshness .rs-freshness-icon,
-body[data-theme="gold"] #marketcycle .mcv2-freshness .rs-freshness-icon {
-  color: #d6aa50 !important;
+.mre-subtitle {
+  margin: 0;
+  font-size: 13.5px;
+  color: #5a6e65;
+  font-weight: 400;
 }
 
-#marketcycle .mcv2-status{display:flex;align-items:center;gap:12px;min-width:420px;padding:13px 18px;border:1px solid rgba(70,125,95,.32);border-radius:999px;background:rgba(5,26,17,.75);box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(12px)}
-#marketcycle .mcv2-status>i{width:10px;height:10px;flex:none;border-radius:50%;background:#6a7f73;box-shadow:0 0 0 5px rgba(87,116,98,.15)}
-#marketcycle .mcv2-status.open>i{background:#2ecc71}
-#marketcycle .mcv2-status div{display:grid;line-height:1.22}
-#marketcycle .mcv2-status b{font-size:12px;color:#f0faf4}
-#marketcycle .mcv2-status span,#marketcycle .mcv2-status small{color:#97b8a5;font-size:10px;font-weight:600}
-#marketcycle .mcv2-status-dates{display:flex;flex-direction:column;align-items:flex-end;gap:3px;margin-left:auto}
-#marketcycle .mcv2-status-dates small{margin-left:0;white-space:nowrap}
-#marketcycle .mcv2-snapshot-tag{display:inline-block;padding:1px 6px;border-radius:4px;background:rgba(45,157,96,.18);color:#8ce8af!important;font-size:9px!important;font-weight:700!important}
-#marketcycle .mcv2-breadth-info{background:#ffffff}
-#marketcycle .mcv2-breadth-note{margin-top:12px;padding:14px 18px;border-radius:10px;background:rgba(240,247,242,.9);border:1px solid rgba(70,140,95,.2);color:#1e3a2b;font-size:13px;line-height:1.55}
-
-/* Hero Card Temático com Regime */
-#marketcycle .mcv2-hero{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  align-items:stretch;
-  min-height:235px;
-  border:1.5px solid var(--regime-border);
-  border-radius:20px;
-  background:linear-gradient(135deg,rgba(8,38,25,.96) 0%,rgba(4,22,14,.98) 100%);
-  box-shadow:0 24px 55px rgba(0,0,0,.4),0 0 30px var(--regime-glow),inset 0 1px 0 rgba(255,255,255,.08);
-  color:#eff9f1;
-  overflow:hidden;
-  transition:border-color .35s ease,box-shadow .35s ease;
+.mre-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
-#marketcycle .mcv2-diagnosis{position:relative;padding:31px 34px}
-#marketcycle .mcv2-diagnosis:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 6% 48%,var(--regime-glow),transparent 55%);pointer-events:none;transition:background .35s ease}
-#marketcycle .mcv2-diagnosis>p{margin:0;color:var(--regime-primary);font-size:10.5px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;transition:color .35s ease}
-#marketcycle .mcv2-hero-title-row{display:flex;align-items:center;gap:12px;margin:12px 0 10px}
-#marketcycle .mcv2-hero-icon{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex:none;color:var(--regime-primary);transition:color .35s ease}
 
-/* ── THEME PALETTE ISOLATION FOR MARKET CYCLE ── */
+.mre-badge-closed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ebf7f2;
+  border: 1px solid #d1efe2;
+  color: #16a879;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.mre-closed-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #16a879;
+}
+
+.mre-badge-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8e4;
+  color: #5a6e65;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.mre-badge-date svg {
+  color: #84978f;
+}
+
+.mre-benchmark-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mre-benchmark-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #5a6e65;
+}
+
+.mre-benchmark-pills {
+  display: inline-flex;
+  background: #ffffff;
+  border: 1px solid #e2e8e4;
+  border-radius: 24px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.mre-pill-btn {
+  background: transparent;
+  border: none;
+  border-radius: 18px;
+  padding: 4px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #5a6e65;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mre-pill-btn:hover {
+  color: #172b24;
+}
+
+.mre-pill-btn.active {
+  background: #0d2b20 !important;
+  color: #ffffff !important;
+}
+
+/* Base Card Style */
+.mre-card {
+  background: #ffffff;
+  border: 1px solid #e5ece8;
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(13, 43, 32, 0.02);
+  margin-bottom: 22px;
+}
+
+.mre-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mre-card-title {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #172b24;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mre-card-info-icon {
+  display: inline-flex;
+  align-items: center;
+  color: #84978f;
+  cursor: help;
+}
+
+.mre-card-date-sub {
+  font-size: 11.5px;
+  color: #84978f;
+  font-weight: 500;
+}
+
+/* Seção A — Top 3 Cards (Grid 3 Colunas) */
+.mre-top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.15fr;
+  gap: 20px;
+  margin-bottom: 22px;
+  align-items: stretch;
+}
+
+@media (max-width: 1200px) {
+  .mre-top-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .mre-six-card {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 780px) {
+  .mre-top-grid {
+    grid-template-columns: 1fr;
+  }
+  .mre-six-card {
+    grid-column: span 1;
+  }
+}
+
+/* Card 1: Hero Tile Gradient */
+.mre-current-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.mre-hero-tile {
+  flex: 1;
+  border-radius: 14px;
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  min-height: 180px;
+}
+
+.mre-hero-tile.regime-up-volatile {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #b45309 100%);
+}
+.mre-hero-tile.regime-up-quiet {
+  background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
+}
+.mre-hero-tile.regime-sideways-quiet {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+}
+.mre-hero-tile.regime-sideways-volatile {
+  background: linear-gradient(135deg, #7c2d12 0%, #ea580c 100%);
+}
+.mre-hero-tile.regime-down-quiet {
+  background: linear-gradient(135deg, #334155 0%, #64748b 100%);
+}
+.mre-hero-tile.regime-down-volatile {
+  background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);
+}
+
+.mre-hero-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.mre-hero-title {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff !important;
+  letter-spacing: -0.02em;
+}
+
+.mre-hero-subtitle {
+  margin: 0 0 14px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.mre-hero-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ffffff !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Card 2: Métricas de Volatilidade */
+.mre-metrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mre-metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f9fbfa;
+  border: 1px solid #edf2ee;
+}
+
+.mre-metric-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #5a6e65;
+}
+
+.mre-metric-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #e8f5ee;
+  color: #16a879;
+}
+
+.mre-metric-icon.is-elevated {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.mre-metric-val {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: #172b24;
+}
+
+.mre-metric-val.is-elevated {
+  color: #dc2626 !important;
+}
+
+.mre-metric-val.is-quiet {
+  color: #16a879 !important;
+}
+
+/* Card 3: Os 6 Regimes (Grid 2x3 Pastel) */
+.mre-six-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mre-regime-box {
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1.5px solid transparent;
+  transition: all 0.15s ease;
+  cursor: default;
+}
+
+.mre-regime-box.regime-up-quiet {
+  background: #f0fdf4;
+  border-color: #dcfce7;
+  color: #16a879;
+}
+.mre-regime-box.regime-up-volatile {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #d97706;
+}
+.mre-regime-box.regime-sideways-quiet {
+  background: #eff6ff;
+  border-color: #dbeafe;
+  color: #2563eb;
+}
+.mre-regime-box.regime-sideways-volatile {
+  background: #fff7ed;
+  border-color: #ffedd5;
+  color: #ea580c;
+}
+.mre-regime-box.regime-down-quiet {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+.mre-regime-box.regime-down-volatile {
+  background: #fef2f2;
+  border-color: #fee2e2;
+  color: #dc2626;
+}
+
+.mre-regime-box.is-active {
+  border-width: 2px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+.mre-regime-box.regime-up-volatile.is-active {
+  border-color: #d97706 !important;
+}
+.mre-regime-box.regime-up-quiet.is-active {
+  border-color: #16a879 !important;
+}
+.mre-regime-box.regime-sideways-quiet.is-active {
+  border-color: #2563eb !important;
+}
+.mre-regime-box.regime-sideways-volatile.is-active {
+  border-color: #ea580c !important;
+}
+.mre-regime-box.regime-down-quiet.is-active {
+  border-color: #64748b !important;
+}
+.mre-regime-box.regime-down-volatile.is-active {
+  border-color: #dc2626 !important;
+}
+
+.mre-box-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mre-box-texts {
+  display: flex;
+  flex-direction: column;
+}
+
+.mre-box-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #172b24;
+  margin-bottom: 2px;
+}
+
+.mre-box-sub {
+  font-size: 11px;
+  color: #5a6e65;
+}
+
+/* Seção B: Histórico e Preço do Índice (Gráfico de Candlesticks) */
+.mre-chart-card {
+  padding: 22px 24px 20px;
+}
+
+.mre-chart-header {
+  margin-bottom: 12px;
+}
+
+.mre-chart-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mre-chart-icon {
+  display: flex;
+  align-items: center;
+}
+
+.mre-chart-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mre-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #172b24;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mre-toggle-label input[type="checkbox"] {
+  display: none;
+}
+
+.mre-custom-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #d1dbd5;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.mre-toggle-label input:checked + .mre-box-ema10 {
+  background: #16a879;
+  border-color: #16a879;
+}
+.mre-toggle-label input:checked + .mre-box-ema72 {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.mre-toggle-label input:checked + .mre-custom-box::after {
+  content: "";
+  display: block;
+  width: 4px;
+  height: 8px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+.mre-badge-candles {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f4f7f5;
+  border: 1px solid #e2e8e4;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a6e65;
+}
+
+.mre-period-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mre-period-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #5a6e65;
+}
+
+.mre-period-select {
+  appearance: none;
+  background: #ffffff;
+  border: 1px solid #d1dbd5;
+  border-radius: 6px;
+  padding: 4px 28px 4px 10px;
+  min-width: 95px;
+  height: 28px;
+  box-sizing: border-box;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #172b24;
+  cursor: pointer;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%235a6e65' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.mre-stat-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #edf2ee;
+  font-size: 13.5px;
+  flex-wrap: wrap;
+}
+
+.mre-stat-ticker {
+  font-weight: 600;
+  color: #5a6e65;
+}
+
+.mre-stat-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: #172b24;
+}
+
+.mre-stat-var {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.mre-stat-var.is-pos {
+  background: #e8f5ee;
+  color: #16a879;
+}
+
+.mre-stat-var.is-neg {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.mre-stat-divider {
+  color: #d1dbd5;
+}
+
+.mre-stat-ema {
+  color: #5a6e65;
+}
+
+.mre-stat-ema10 strong {
+  color: #16a879;
+}
+
+.mre-stat-ema72 strong {
+  color: #2563eb;
+}
+
+.mre-chart-area-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.mre-svg-container {
+  width: 100%;
+  height: 340px;
+  position: relative;
+}
+
+.mre-candlestick-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Floating Tooltip dentro do gráfico */
+.mre-tooltip-object {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.mre-floating-tooltip {
+  background: #0d2b20;
+  border: 1px solid #16a879;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  overflow: hidden;
+  font-family: Inter, sans-serif;
+}
+
+.mre-tip-header {
+  background: #071f16;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mre-tip-body {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11.5px;
+}
+
+.mre-tip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #e2e8f0;
+}
+
+.mre-tip-symbol {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.mre-tip-ema10 {
+  color: #34d399;
+  font-weight: 600;
+}
+
+.mre-tip-ema72 {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.mre-tip-reg-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Linha do Tempo dos Regimes (Ribbon & Legenda) */
+.mre-timeline-section {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #edf2ee;
+}
+
+.mre-timeline-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #172b24;
+  margin-bottom: 8px;
+}
+
+.mre-ribbon-bar {
+  width: 100%;
+  height: 14px;
+  border-radius: 7px;
+  display: flex;
+  overflow: hidden;
+  background: #edf2ee;
+}
+
+.mre-ribbon-seg {
+  height: 100%;
+  display: inline-block;
+  transition: opacity 0.15s ease;
+}
+
+.mre-ribbon-seg:hover {
+  opacity: 0.85;
+}
+
+.mre-timeline-legend {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #5a6e65;
+  flex-wrap: wrap;
+}
+
+.mre-legend-title {
+  font-weight: 600;
+  color: #172b24;
+}
+
+.mre-legend-items-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.mre-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mre-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Seção C: Performance do Meu Sistema por Regime */
+.mre-performance-card {
+  padding: 22px 24px;
+}
+
+.mre-perf-header {
+  margin-bottom: 16px;
+}
+
+.mre-perf-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mre-perf-icon {
+  display: flex;
+  align-items: center;
+}
+
+.mre-badge-perf-update {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f4f7f5;
+  border: 1px solid #edf2ee;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #5a6e65;
+}
+
+.mre-performance-layout {
+  display: grid;
+  grid-template-columns: 1fr 310px;
+  gap: 22px;
+  align-items: stretch;
+}
+
+@media (max-width: 1050px) {
+  .mre-performance-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tabela de Performance */
+.mre-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.mre-perf-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+.mre-perf-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #84978f;
+  border-bottom: 1px solid #edf2ee;
+  white-space: nowrap;
+}
+
+.mre-perf-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f4f7f5;
+  color: #172b24;
+  white-space: nowrap;
+}
+
+.mre-col-regime {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mre-reg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.mre-reg-name {
+  font-weight: 600;
+  color: #172b24;
+}
+
+.mre-insufficient-badge {
+  display: inline-block;
+  background: #f4f7f5;
+  border: 1px solid #e2e8e4;
+  color: #84978f;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 3px 10px;
+}
+
+.mre-perf-table td.is-pos strong {
+  color: #16a879;
+}
+
+.mre-perf-table td.is-neg strong,
+.mre-perf-table td.is-neg {
+  color: #dc4545;
+}
+
+/* Card Sem Histórico de Trades */
+.mre-empty-trades-card {
+  background: #ffffff;
+  border: 1px solid #e5ece8;
+  border-radius: 14px;
+  padding: 32px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.mre-empty-icon-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #e8f5ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.mre-empty-title {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #172b24;
+}
+
+.mre-empty-desc {
+  margin: 0 0 18px 0;
+  font-size: 12.5px;
+  color: #5a6e65;
+  line-height: 1.45;
+  max-width: 250px;
+}
+
+.mre-connect-btn {
+  background: #ffffff;
+  border: 1px solid #0d2b20;
+  border-radius: 20px;
+  padding: 7px 18px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0d2b20;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mre-connect-btn:hover {
+  background: #0d2b20;
+  color: #ffffff;
+}
+
+/* Cards Melhor / Pior Regime quando houver trades */
+.mre-summary-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mre-summary-card {
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e5ece8;
+  background: #ffffff;
+  display: flex;
+  gap: 14px;
+}
+
+.mre-summary-card.is-best {
+  background: #f0fdf4;
+  border-color: #dcfce7;
+}
+
+.mre-summary-card.is-worst {
+  background: #fef2f2;
+  border-color: #fee2e2;
+}
+
+.mre-sum-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mre-icon-best {
+  background: #dcfce7;
+  color: #16a879;
+}
+
+.mre-icon-worst {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.mre-sum-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.mre-sum-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: #84978f;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mre-sum-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #172b24;
+  margin: 2px 0;
+}
+
+.mre-sum-metric {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.mre-sum-metric.is-pos {
+  color: #16a879;
+}
+
+.mre-sum-metric.is-neg {
+  color: #dc4545;
+}
+
+.mre-sum-footer {
+  font-size: 11px;
+  color: #84978f;
+}
+
+/* Multi-theme Preservations */
 body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-page {
-  background: #0d0a06 radial-gradient(circle at 50% 0%, #26190b 0%, #130e07 60%, #080603 100%) !important;
-  color: #f7eedb !important;
-}
-
-body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-market-pills {
-  border-color: rgba(214, 170, 80, 0.3) !important;
-  background: rgba(26, 19, 10, 0.85) !important;
-}
-
-body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-market-pill {
-  color: #d7c59d !important;
-}
-
-body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-market-pill:hover {
-  background: rgba(214, 170, 80, 0.15) !important;
-  color: #fff4d6 !important;
+  background: #0d0a06;
 }
 
 body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-market-pill.active {
-  background: linear-gradient(105deg, #b78022, #e0b750) !important;
-  color: #171004 !important;
-  border-color: rgba(240, 210, 120, 0.4) !important;
+  background: #e0b750;
+  color: #0d0a06;
 }
 
-body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-market-pill.active .mcv2-market-ref {
-  background: rgba(0, 0, 0, 0.25) !important;
-  color: #171004 !important;
-}
-
-body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-market-tag {
-  border-color: rgba(214, 170, 80, 0.3) !important;
-  background: rgba(26, 19, 10, 0.8) !important;
-  color: #deb465 !important;
-}
-
-body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-status {
-  background: rgba(26, 19, 10, 0.85) !important;
-  border-color: rgba(214, 170, 80, 0.35) !important;
-}
-
-body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-hero {
-  background: linear-gradient(135deg, rgba(38, 26, 11, 0.96) 0%, rgba(20, 14, 7, 0.98) 100%) !important;
-  color: #f7eedb !important;
-}
-#marketcycle .mcv2-hero-icon svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#marketcycle .mcv2-diagnosis h2{margin:0;color:#ffffff;font-size:clamp(26px,2.2vw,36px);letter-spacing:-.035em;font-weight:700}
-#marketcycle .mcv2-diagnosis>span{display:block;max-width:480px;color:#cbe0d3;font-size:14px;line-height:1.55}
-#marketcycle .mcv2-diagnosis>div{display:flex;gap:10px;margin-top:22px}
-#marketcycle .mcv2-diagnosis button{min-height:40px;padding:0 20px;border-radius:999px;font-weight:800;font-size:11.5px;cursor:pointer;transition:all .2s ease}
-#marketcycle .mcv2-diagnosis .primary{border:0;background:var(--regime-btn-bg);color:var(--regime-btn-text);box-shadow:0 4px 15px var(--regime-glow);transition:all .35s ease}
-#marketcycle .mcv2-diagnosis .primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
-#marketcycle .mcv2-diagnosis .secondary{border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.05);color:#f2fbf4}
-#marketcycle .mcv2-diagnosis .secondary:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.35)}
-
-/* Gauge e Score Integrados ao Regime */
-#marketcycle .mcv2-gauge-wrap{display:grid;grid-template-columns:1fr auto;place-items:center;gap:6px;padding:18px 20px;border-left:1px solid rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.08)}
-#marketcycle .mcv2-gauge{position:relative;width:210px;aspect-ratio:1/.82;overflow:hidden}
-#marketcycle .mcv2-gauge:before,#marketcycle .mcv2-gauge:after{content:"";position:absolute;left:15px;right:15px;top:4px;aspect-ratio:2/1;border-radius:180px 180px 0 0}
-#marketcycle .mcv2-gauge:before{border:21px solid rgba(255,255,255,.1);border-bottom:0}
-#marketcycle .mcv2-gauge:after{
-  border:21px solid transparent;
-  border-top-color:var(--regime-primary);
-  border-left-color:var(--regime-primary);
-  transform:rotate(calc((var(--score) - 50) * .9deg));
-  transform-origin:50% 100%;
-  filter:drop-shadow(0 0 10px var(--regime-glow));
-  transition:border-color .35s ease,filter .35s ease,transform .4s ease;
-}
-#marketcycle .mcv2-gauge>div{position:absolute;inset:58px 0 0;text-align:center;display:flex;flex-direction:column;align-items:center}
-#marketcycle .mcv2-gauge strong{font:700 62px/.8 Inter,sans-serif;letter-spacing:-.075em;color:#ffffff}
-#marketcycle .mcv2-gauge span{font-size:19px;font-weight:700;color:rgba(255,255,255,.55)}
-#marketcycle .mcv2-gauge small{display:block;margin-top:8px;color:var(--regime-primary);font-size:9.5px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;line-height:1.3;white-space:nowrap;transition:color .35s ease}
-#marketcycle .mcv2-score-change{align-self:center;display:grid;min-width:112px}
-#marketcycle .mcv2-score-change b{color:#4ade80;font-size:15px}
-#marketcycle .mcv2-score-change.down b{color:#fb7185}
-#marketcycle .mcv2-score-change span{margin-top:3px;color:#cbdad0;font-size:9px}
-
-/* Principais Fatores */
-#marketcycle .mcv2-factors{display:grid;align-content:center;gap:9px;padding:25px 28px}
-#marketcycle .mcv2-factors>p{margin:0;color:var(--regime-primary);font-size:10.5px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;transition:color .35s ease}
-#marketcycle .mcv2-factors>div{display:grid;grid-template-columns:30px 1fr;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.04);transition:all .2s ease}
-#marketcycle .mcv2-factors svg{width:23px;fill:none;stroke:var(--regime-primary);stroke-width:1.8;transition:stroke .35s ease}
-#marketcycle .mcv2-factors span{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
-#marketcycle .mcv2-factors small{color:#b6cbbe;font-size:10px;font-weight:600}
-#marketcycle .mcv2-factors b{color:#ffffff;font-size:11px;font-weight:700;text-align:right}
-
-/* Régua de Ciclo Redesenhada */
-#marketcycle .mcv2-regime{
-  position:relative;
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  margin:16px 0 16px;
-  padding:12px 14px 22px;
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:16px;
-  background:rgba(6,28,18,.6);
-  box-shadow:0 14px 34px rgba(0,0,0,.3);
-  backdrop-filter:blur(10px);
-}
-#marketcycle .mcv2-regime:after{
-  content:"";
-  position:absolute;
-  left:14px;
-  right:14px;
-  bottom:8px;
-  height:5px;
-  border-radius:999px;
-  background:linear-gradient(90deg,#ef4444 0%,#22c55e 100%);
-}
-#marketcycle .mcv2-regime-item{
-  position:relative;
-  display:grid;
-  grid-template-columns:38px minmax(0,1fr);
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  min-height:50px;
-  padding:8px 14px;
-  text-align:left;
-  border-radius:12px;
-  border:1.5px solid transparent;
-  background:rgba(255,255,255,.04);
-  color:#94a3b8;
-  opacity:.65;
-  transition:all .3s ease;
-}
-#marketcycle .mcv2-regime-item:hover{
-  opacity:.85;
-}
-#marketcycle .mcv2-regime-item>div{min-width:0}
-#marketcycle .mcv2-regime b{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
-#marketcycle .mcv2-regime-item.defence b{color:#f87171}
-#marketcycle .mcv2-regime-item.transition b{color:#fbbf24}
-#marketcycle .mcv2-regime-item.expansion b{color:#4ade80}
-#marketcycle .mcv2-regime span:not(.mcv2-regime-icon){display:block;color:#94a3b8;font-size:11px;line-height:1.3;margin-top:2px}
-
-#marketcycle .mcv2-regime-icon{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:11px;transition:all .3s ease}
-#marketcycle .mcv2-regime-icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-#marketcycle .mcv2-regime-item.defence .mcv2-regime-icon{color:#ef4444;background:rgba(239,68,68,.14)}
-#marketcycle .mcv2-regime-item.transition .mcv2-regime-icon{color:#e5b83b;background:rgba(229,184,59,.16)}
-#marketcycle .mcv2-regime-item.expansion .mcv2-regime-icon{color:#22c55e;background:rgba(34,197,94,.15)}
-
-/* Bloco Ativo da Régua: card proeminente e elevado com alto contraste */
-#marketcycle .mcv2-regime-item.active{
-  opacity:1;
-  background:#ffffff;
-  border-color:var(--regime-primary);
-  box-shadow:0 8px 24px rgba(0,0,0,.25),0 0 16px var(--regime-glow);
-  transform:translateY(-2px);
-  z-index:2;
-}
-#marketcycle .mcv2-regime-item.active b{
-  color:var(--regime-active-title);
-  font-size:13.5px;
-}
-#marketcycle .mcv2-regime-item.active span:not(.mcv2-regime-icon){
-  color:#334155;
-  font-weight:600;
-}
-#marketcycle .mcv2-regime-item.active .mcv2-regime-icon{
-  background:var(--regime-badge-bg);
-  color:var(--regime-primary);
-}
-
-/* Bolinha da régua */
-#marketcycle .mcv2-regime>i{
-  position:absolute;
-  z-index:4;
-  bottom:3px;
-  width:15px;
-  height:15px;
-  margin-left:-7px;
-  border:3px solid #ffffff;
-  border-radius:50%;
-  background:#093826;
-  box-shadow:0 2px 9px rgba(0,0,0,.6);
-  transition:left .4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Cards Inferiores: Gráfico Diário, Leitura Transparente e Amplitude */
-#marketcycle .mcv2-analysis{display:grid;grid-template-columns:minmax(0,4fr) minmax(265px,1fr);gap:13px;align-items:stretch}
-#marketcycle .mcv2-chart-card,#marketcycle .mcv2-reading{
-  border:1px solid rgba(0,0,0,.08);
-  background:#ffffff;
-  box-shadow:0 18px 45px rgba(0,0,0,.25);
-  backdrop-filter:blur(11px);
-}
-#marketcycle .mcv2-chart-card{padding:18px 20px 14px;border-radius:18px 7px 7px 18px;overflow:hidden;color:#1e293b}
-#marketcycle .mcv2-reading{display:flex;flex-direction:column;border-radius:7px 18px 18px 7px;overflow:hidden;color:#1e293b}
-#marketcycle .mcv2-breadth{margin-top:16px;padding:18px 20px;border:1px solid rgba(0,0,0,.08);border-radius:16px;background:#ffffff;box-shadow:0 14px 34px rgba(0,0,0,.22);color:#1e293b}
-
-#marketcycle .mcv2-breadth header{display:flex;align-items:center;justify-content:space-between;gap:18px}
-#marketcycle .mcv2-breadth p{margin:0;color:#1e7e4c;font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
-#marketcycle .mcv2-breadth h2{margin:4px 0 0;font-size:18px;letter-spacing:-.025em;color:#0f172a}
-#marketcycle .mcv2-breadth button{border:1px solid #8bc9a1;border-radius:999px;background:#eff8ef;color:#17633d;padding:9px 15px;font:800 11px/1 inherit;cursor:pointer;transition:all .15s ease}
-#marketcycle .mcv2-breadth button:hover{background:#dcf3e3}
-#marketcycle .mcv2-breadth>div{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
-#marketcycle .mcv2-breadth article{min-height:70px;padding:12px 14px;border:1px solid #d7e4d8;border-radius:11px;background:#fbfdf9}
-#marketcycle .mcv2-breadth article b,#marketcycle .mcv2-breadth article span{display:block}
-#marketcycle .mcv2-breadth article b{font-size:23px;letter-spacing:-.045em;color:#0f172a}
-#marketcycle .mcv2-breadth article span{margin-top:3px;color:#577063;font-size:11px;font-weight:700}
-#marketcycle .mcv2-breadth article.leader{border-left:4px solid #197445}
-#marketcycle .mcv2-breadth article.qualified{border-left:4px solid #79bc91}
-#marketcycle .mcv2-breadth article.watch{border-left:4px solid #d3ae4b}
-#marketcycle .mcv2-breadth article.below-threshold{border-left:4px solid #bd726a}
-#marketcycle .mcv2-breadth>small{display:block;margin-top:12px;color:#64748b;font-size:11px;line-height:1.45}
-
-#marketcycle .mcv2-chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
-#marketcycle .mcv2-chart-head h2{margin:0;font-size:19px;letter-spacing:-.025em;color:#0f172a}
-#marketcycle .mcv2-chart-head p{margin:3px 0 0;color:#64748b;font-size:11px}
-#marketcycle .mcv2-ranges{display:flex;gap:3px;padding:3px;border:1px solid #cbd5e1;border-radius:999px;background:#f8fafc}
-#marketcycle .mcv2-ranges button{min-width:34px;padding:5px 8px;border:0;border-radius:999px;background:transparent;color:#475569;font-size:10px;font-weight:800;cursor:pointer}
-#marketcycle .mcv2-ranges button.active{background:#0e4830;color:#fff}
-
-#marketcycle .mcv2-chart-scroll{overflow-x:auto}
-#marketcycle .mcv2-chart{display:block;width:100%;min-width:680px;height:380px}
-#marketcycle .mcv2-chart text{fill:#64748b;font:9.5px Inter,sans-serif}
-#marketcycle .mcv2-plot-bg{fill:#fcfdfd;stroke:#f1f5f9;stroke-width:1}
-#marketcycle .mcv2-gridline{stroke:#e2e8f0;stroke-width:1;stroke-dasharray:2 5}
-#marketcycle .mcv2-candles-group{shape-rendering:geometricPrecision}
-#marketcycle .mcv2-candle{outline:0;cursor:pointer}
-#marketcycle .mcv2-candle.up line{stroke:#10b981;stroke-width:1.8}
-#marketcycle .mcv2-candle.up rect{stroke:#059669;fill:#10b981;stroke-width:0.8}
-#marketcycle .mcv2-candle.down line{stroke:#ef4444;stroke-width:1.8}
-#marketcycle .mcv2-candle.down rect{stroke:#dc2626;fill:#ef4444;stroke-width:0.8}
-#marketcycle .mcv2-candle:hover rect,#marketcycle .mcv2-candle:focus rect{filter:brightness(1.18);stroke-width:1.2}
-#marketcycle .mcv2-candle:hover line,#marketcycle .mcv2-candle:focus line{stroke-width:2.2}
-#marketcycle .mcv2-line{fill:none;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
-#marketcycle .mcv2-line.ema9, #marketcycle .mcv2-line.ema10{stroke:#2563eb;stroke-width:2.0;stroke-opacity:0.92}
-#marketcycle .mcv2-line.ema30, #marketcycle .mcv2-line.ema72{stroke:#f97316;stroke-width:2.0;stroke-opacity:0.92}
-#marketcycle .mcv2-axis-badge rect{filter:drop-shadow(0 2px 5px rgba(0,0,0,.15))}
-#marketcycle .mcv2-axis-badge text{fill:#ffffff;font:700 9px/1 Inter,sans-serif;letter-spacing:-.01em}
-#marketcycle .mcv2-hit{fill:transparent;stroke:transparent;cursor:crosshair}
-#marketcycle .mcv2-hit:focus{fill:#fff;stroke:#145d3c;stroke-width:2;outline:0}
-
-/* Rodapé do Gráfico: Legenda Visual dos Elementos e Leitura Rápida */
-#marketcycle .mcv2-chart-footer-row{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1.2fr);gap:14px;margin-top:14px;align-items:stretch}
-#marketcycle .mcv2-legend-card{display:flex;align-items:center;gap:18px;padding:12px 18px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;flex-wrap:wrap}
-#marketcycle .mcv2-legend-item{display:flex;align-items:center;gap:9px}
-#marketcycle .mcv2-candlestick-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:20px;flex:none}
-#marketcycle .mcv2-line-swatch{display:inline-block;width:24px;height:3.5px;border-radius:2px;flex:none}
-#marketcycle .mcv2-line-swatch.ema9, #marketcycle .mcv2-line-swatch.ema10{background:#2563eb}
-#marketcycle .mcv2-line-swatch.ema30, #marketcycle .mcv2-line-swatch.ema72{background:#f97316}
-#marketcycle .mcv2-legend-text{display:flex;flex-direction:column;line-height:1.25}
-#marketcycle .mcv2-legend-text strong{font-size:11px;font-weight:700;color:#1e293b}
-#marketcycle .mcv2-legend-text span{font-size:9.5px;color:#64748b}
-#marketcycle .mcv2-quick-reading-card{display:flex;flex-direction:column;justify-content:center;padding:12px 18px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}
-#marketcycle .mcv2-quick-reading-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
-#marketcycle .mcv2-quick-reading-icon{font-size:14px}
-#marketcycle .mcv2-quick-reading-head strong{font-size:11px;font-weight:700;color:#1e293b;text-transform:uppercase;letter-spacing:.05em}
-#marketcycle .mcv2-quick-reading-card p{margin:0;font-size:10.5px;line-height:1.45;color:#475569}
-
-#marketcycle .mcv2-evidence{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-#marketcycle .mcv2-evidence article{display:grid;min-height:72px;padding:11px 13px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}
-#marketcycle .mcv2-evidence small{color:#64748b;font-size:9.5px}
-#marketcycle .mcv2-evidence b{margin-top:3px;font-size:14px;color:#0f172a}
-#marketcycle .mcv2-evidence span{align-self:end;color:#16a34a;font-size:9.5px;font-weight:700}
-
-#marketcycle .mcv2-reading>section{padding:20px 22px}
-#marketcycle .mcv2-reading h3{margin:0 0 12px;color:#1e7e4c;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
-#marketcycle .mcv2-reading h3 svg{width:13px;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.7}
-#marketcycle .mcv2-reading section:first-child>div{display:grid;grid-template-columns:1fr auto 18px;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #e2e8f0;font-size:10px}
-#marketcycle .mcv2-reading section:first-child>div:last-child{border:0}
-#marketcycle .mcv2-reading section:first-child span{color:#475569}
-#marketcycle .mcv2-reading section:first-child b{text-align:right;font-size:10px;color:#0f172a}
-#marketcycle .mcv2-reading section:first-child i{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#22c55e;color:#fff;font-style:normal;font-weight:800}
-#marketcycle .mcv2-reading section:first-child .attention i{background:#f59e0b}
-#marketcycle .mcv2-context{border-top:1px solid #e2e8f0;background:#f8fafc}
-#marketcycle .mcv2-context p{margin:0;color:#475569;font-size:11px;line-height:1.6}
-#marketcycle .mcv2-reading blockquote{margin:auto 22px 19px;color:#334155;font:italic 13px/1.5 Georgia,serif;text-align:center}
-
-#marketcycle .mcv2-page footer{display:flex;justify-content:space-between;padding:14px 11px 0;color:#85b89c;font-size:10.5px}
-#marketcycle .mcv2-page footer b{font:italic 600 13px Georgia,serif;color:#a3d4ba}
-
-#marketcycle .mcv2-loading{display:grid;place-items:center;gap:10px;min-height:360px;padding:50px;border:1px solid rgba(80,140,105,.25);border-radius:20px;background:rgba(5,26,17,.8);text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.35)}
-#marketcycle .mcv2-loading i{width:34px;height:34px;border:3px solid #336148;border-top-color:#22c55e;border-radius:50%;animation:mcv2-spin .8s linear infinite}
-#marketcycle .mcv2-loading span{color:#9ec4af;font-size:12px}
-#marketcycle .mcv2-loading button{padding:9px 16px;border:0;border-radius:999px;background:#15803d;color:#fff;font-weight:800;cursor:pointer}
-@keyframes mcv2-spin{to{transform:rotate(360deg)}}
-
-@container (max-width:1250px){
-  #marketcycle .mcv2-heading{gap:16px}
-  #marketcycle .mcv2-heading blockquote{display:none}
-  #marketcycle .mcv2-hero{grid-template-columns:1fr .9fr}
-  #marketcycle .mcv2-factors{grid-column:1/-1;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(255,255,255,.08)}
-  #marketcycle .mcv2-factors>p{grid-column:1/-1}
-  #marketcycle .mcv2-gauge-wrap{border-right:0}
-  #marketcycle .mcv2-analysis{grid-template-columns:minmax(0,3fr) minmax(260px,1fr)}
-}
-
-@container (max-width:900px){
-  #marketcycle .mcv2-page{padding:18px 14px;background-attachment:scroll}
-  #marketcycle .mcv2-heading{flex-direction:column;align-items:flex-start;gap:14px}
-  #marketcycle .mcv2-heading .mcv2-heading-center{align-items:flex-start;width:100%}
-  #marketcycle .mcv2-status{min-width:0;width:100%;border-radius:14px}
-  #marketcycle .mcv2-status small{display:none}
-  #marketcycle .mcv2-hero{grid-template-columns:1fr}
-  #marketcycle .mcv2-gauge-wrap{border:0;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08)}
-  #marketcycle .mcv2-factors{grid-template-columns:1fr}
-  #marketcycle .mcv2-regime{margin:12px 0}
-  #marketcycle .mcv2-analysis{grid-template-columns:1fr}
-  #marketcycle .mcv2-chart-card,#marketcycle .mcv2-reading{border-radius:14px}
-  #marketcycle .mcv2-chart-footer-row{grid-template-columns:1fr;gap:10px}
-  #marketcycle .mcv2-breadth>div{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #marketcycle .mcv2-evidence{grid-template-columns:repeat(2,1fr)}
-}
-
-@container (max-width:560px){
-  #marketcycle .mcv2-heading h1{font-size:37px}
-  #marketcycle .mcv2-market-pills{width:100%;display:flex}
-  #marketcycle .mcv2-market-pill{flex:1;justify-content:center}
-  #marketcycle .mcv2-diagnosis{padding:25px 22px}
-  #marketcycle .mcv2-hero-title-row{flex-direction:row}
-  #marketcycle .mcv2-diagnosis>div{flex-direction:column}
-  #marketcycle .mcv2-gauge-wrap{grid-template-columns:1fr}
-  #marketcycle .mcv2-regime{padding-inline:6px;grid-template-columns:1fr;gap:6px}
-  #marketcycle .mcv2-chart-head,#marketcycle .mcv2-breadth header{align-items:flex-start;flex-direction:column}
-  #marketcycle .mcv2-breadth>div{grid-template-columns:1fr}
-  #marketcycle .mcv2-evidence{grid-template-columns:1fr}
-  #marketcycle .mcv2-page footer{flex-direction:column;gap:6px}
+#marketcycle .mcv2-page {
+  width: 100%;
 }

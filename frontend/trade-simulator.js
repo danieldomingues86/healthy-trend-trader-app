@@ -3261,6 +3261,16 @@
   }
 
   function renderMarketCyclePill(sim) {
+    const reg = sim.entryMarketRegime || sim.entry_market_regime;
+    if (reg && window.MarketCycleModel && window.MarketCycleModel.REGIME_METADATA && window.MarketCycleModel.REGIME_METADATA[reg]) {
+      const meta = window.MarketCycleModel.REGIME_METADATA[reg];
+      return `
+        <span class="sim-cycle-pill" style="border: 1px solid ${meta.color}55; background: ${meta.color}15;" title="Regime de Entrada: ${meta.label} (${meta.name})">
+          <span class="sim-cycle-dot" style="background-color: ${meta.color};"></span>
+          <span class="sim-cycle-text" style="color: ${meta.color}; font-weight: 600;">${meta.label}</span>
+        </span>
+      `;
+    }
     const cycle = resolveSimulationMarketCycle(sim);
     const cls = cycle.classification || 'Indeterminado';
 
@@ -3286,6 +3296,16 @@
   }
 
   function renderMarketCycleDetailsCard(sim) {
+    const reg = sim.entryMarketRegime || sim.entry_market_regime;
+    if (reg && window.MarketCycleModel && window.MarketCycleModel.REGIME_METADATA && window.MarketCycleModel.REGIME_METADATA[reg]) {
+      const meta = window.MarketCycleModel.REGIME_METADATA[reg];
+      return `
+        <span class="sim-cycle-pill" style="border: 1px solid ${meta.color}55; background: ${meta.color}15;" title="Regime de Entrada: ${meta.label} (${meta.name})">
+          <span class="sim-cycle-dot" style="background-color: ${meta.color};"></span>
+          <span class="sim-cycle-text" style="color: ${meta.color}; font-weight: 600;">${meta.label}</span>
+        </span>
+      `;
+    }
     const cycle = resolveSimulationMarketCycle(sim);
     const cls = cycle.classification || 'Indeterminado';
     const isGood = cls === 'Positivo';

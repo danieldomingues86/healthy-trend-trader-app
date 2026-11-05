@@ -1,11 +1,12 @@
 /**
  * HEALTHY TREND TRADER - MARKET TREEMAP MODEL
  *
- * Modelo puro de cálculo e layout para o Mapa de Setores da B3:
+ * Modelo puro de cálculo e layout para o Mapa de Setores da B3 e US Market:
  * 1. Algoritmo de Squarified Treemap (Bruls, Huizing, van Wijk)
  * 2. Mapeamento de cores da escala de variação percentual (-10% a +10%)
  * 3. Formatação monetária humanizada (tri, bi, mi) e percentual
  * 4. Filtragem, busca e agregação com deduplicação de classes de ações
+ * 5. Constantes oficiais do widget FINVIZ Market Map (US Market - S&P 500, período 1 Day)
  */
 
 (function (root) {
@@ -301,6 +302,31 @@
     return total;
   }
 
+  // Constantes de Mercado Suportadas
+  const MARKETS = Object.freeze({
+    B3: 'B3',
+    US: 'US'
+  });
+
+  // Configuração Oficial do Widget FINVIZ (S&P 500, período 1 Day)
+  const FINVIZ_CONFIG = Object.freeze({
+    embedUrl: 'https://finviz.com/widgets/map?t=sec&st=d1&wid=i8jancme',
+    creditUrl: 'https://finviz.com/map?t=sec&st=d1&utm_source=finviz_widget&utm_medium=widget&utm_campaign=map&utm_content=i8jancme',
+    creditText: 'Market map by FINVIZ',
+    universe: 'S&P 500',
+    period: '1 Day',
+    periodLabel: '1 Day',
+    defaultHeight: 650
+  });
+
+  /**
+   * Normaliza o identificador de mercado ('B3' ou 'US')
+   */
+  function normalizeMarket(market) {
+    const m = String(market || '').trim().toUpperCase();
+    return (m === 'US' || m === 'US_MARKET' || m === 'USA') ? MARKETS.US : MARKETS.B3;
+  }
+
   const model = {
     COLOR_STOPS,
     getColorForReturn,
@@ -309,7 +335,10 @@
     formatSignedPercent,
     formatPrice,
     filterStocks,
-    calculateDeduplicatedMarketCap
+    calculateDeduplicatedMarketCap,
+    MARKETS,
+    FINVIZ_CONFIG,
+    normalizeMarket
   };
 
   if (typeof module !== 'undefined' && module.exports) {
