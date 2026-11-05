@@ -7,6 +7,20 @@
   'use strict';
 
   const state = {
+    market: (function () {
+      try {
+        const stored = localStorage.getItem('healthy-trend-treemap-market');
+        const m = (root.MarketTreemapModel && typeof root.MarketTreemapModel.normalizeMarket === 'function')
+          ? root.MarketTreemapModel.normalizeMarket(stored)
+          : (stored === 'US' ? 'US' : 'B3');
+        return m;
+      } catch (e) {
+        return 'B3';
+      }
+    })(),
+    usLoaded: false,
+    usLoading: false,
+    usError: false,
     loading: false,
     loaded: false,
     data: null,
@@ -25,6 +39,7 @@
   let resizeObserver = null;
   let searchDebounceTimer = null;
   let popoverHideTimer = null;
+  let finvizLoadTimeout = null;
 
   function esc(str) {
     if (str === null || str === undefined) return '';
@@ -120,15 +135,47 @@
             </div>
             <div class="treemap-header-text">
               <h1>Setores</h1>
-              <p>Panorama do mercado acionário da B3 por setor econômico, com tamanho proporcional ao Market Cap e variação diária.</p>
+              <p id="treemapHeaderSubtitle">${state.market === 'US'
+                ? 'Mapa de setores do mercado americano (S&amp;P 500, período 1 Day) via FINVIZ oficial.'
+                : 'Panorama do mercado acionário da B3 por setor econômico, com tamanho proporcional ao Market Cap e variação diária.'}</p>
             </div>
           </header>
 
           <!-- Barra de Controles e Filtros -->
           <nav class="treemap-controls-bar" aria-label="Filtros da tela de Setores">
             <div class="treemap-filters-left">
-              <!-- Universo -->
-              <div class="treemap-select-wrap">
+              <!-- Seletor de Mercado: B3 vs US Market -->
+              <div class="treemap-market-switch" role="radiogroup" aria-label="Seletor de Mercado">
+                <button
+                  type="button"
+                  id="treemapMarketB3"
+                  class="treemap-market-btn ${state.market === 'B3' ? 'active' : ''}"
+                  role="radio"
+                  aria-checked="${state.market === 'B3' ? 'true' : 'false'}"
+                  data-market="B3"
+                  title="Visualizar Mapa de Setores da B3 (Ações Brasileiras)"
+                >
+                  <span class="market-btn-flag">🇧🇷</span>
+                  <span class="market-btn-text">B3</span>
+                </button>
+                <button
+                  type="button"
+                  id="treemapMarketUS"
+                  class="treemap-market-btn ${state.market === 'US' ? 'active' : ''}"
+                  role="radio"
+                  aria-checked="${state.market === 'US' ? 'true' : 'false'}"
+                  data-market="US"
+                  title="Visualizar Mapa de Setores do Mercado Americano (S&amp;P 500)"
+                >
+                  <span class="market-btn-flag">🇺🇸</span>
+                  <span class="market-btn-text">US Market</span>
+                </button>
+              </div>
+
+              <div class="treemap-controls-divider" aria-hidden="true"></div>
+
+              <!-- Universo (B3) -->
+              <div class="treemap-select-wrap" id="treemapUniverseWrap" style="display: ${state.market === 'B3' ? '' : 'none'};">
                 <select id="treemapFilterUniverse" aria-label="Filtrar universo de ativos">
                   <option value="ALL" ${state.filters.universe === 'ALL' ? 'selected' : ''}>Mercado Completo</option>
                   <option value="IBOV" ${state.filters.universe === 'IBOV' ? 'selected' : ''}>Ibovespa</option>
@@ -137,8 +184,8 @@
                 <span class="treemap-select-icon">▼</span>
               </div>
 
-              <!-- Setor -->
-              <div class="treemap-select-wrap">
+              <!-- Setor (B3) -->
+              <div class="treemap-select-wrap" id="treemapSectorWrap" style="display: ${state.market === 'B3' ? '' : 'none'};">
                 <select id="treemapFilterSector" aria-label="Filtrar por setor econômico">
                   <option value="ALL" ${state.filters.sector === 'ALL' ? 'selected' : ''}>Todos os Setores</option>
                   <option value="Financeiro">Financeiro</option>
@@ -156,8 +203,8 @@
                 <span class="treemap-select-icon">▼</span>
               </div>
 
-              <!-- Busca rápida -->
-              <div class="treemap-search-wrap">
+              <!-- Busca rápida (B3) -->
+              <div class="treemap-search-wrap" id="treemapSearchWrap" style="display: ${state.market === 'B3' ? '' : 'none'};">
                 <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -180,11 +227,19 @@
                   aria-label="Limpar busca"
                 >✕</button>
               </div>
+
+              <!-- US Market Pill (US) -->
+              <div class="treemap-us-active-pill" id="treemapUsActivePill" style="display: ${state.market === 'US' ? 'inline-flex' : 'none'};">
+                <span class="us-pill-badge">S&amp;P 500</span>
+                <span class="us-pill-dot">•</span>
+                <span class="us-pill-period">1 Day</span>
+                <span class="us-pill-source">FINVIZ Official</span>
+              </div>
             </div>
 
             <div class="treemap-controls-right">
-              <!-- Escala de Cores e Legenda Explicativa do Gradiente -->
-              <div class="treemap-scale-container" aria-label="Legenda do mapa de calor de variação diária">
+              <!-- Escala de Cores e Legenda Explicativa do Gradiente (B3) -->
+              <div class="treemap-scale-container" id="treemapScaleContainer" style="display: ${state.market === 'B3' ? '' : 'none'};" aria-label="Legenda do mapa de calor de variação diária">
                 <div class="treemap-scale-bar-wrap">
                   <div class="treemap-scale-bar" role="img" aria-label="Gradiente de -10% a +10%"></div>
                   <div class="treemap-scale-labels" aria-hidden="true">
@@ -210,17 +265,125 @@
                   </div>
                 </div>
               </div>
+
+              <!-- US Top Credit / Direct Link (US) -->
+              <div class="treemap-us-top-credit" id="treemapUsTopCredit" style="display: ${state.market === 'US' ? 'inline-flex' : 'none'};">
+                <a
+                  href="https://finviz.com/map?t=sec&st=d1&utm_source=finviz_widget&utm_medium=widget&utm_campaign=map&utm_content=i8jancme"
+                  target="_blank"
+                  rel="noopener"
+                  class="treemap-finviz-link-btn"
+                  title="Abrir mapa ampliado diretamente no FINVIZ em nova aba"
+                >
+                  <span>Abrir no FINVIZ</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+              </div>
             </div>
           </nav>
 
           <!-- Barra de Indicadores do Topo (5 KPIs) -->
-          <section class="treemap-kpi-bar" id="treemapKpiBar" aria-label="Indicadores gerais do universo"></section>
+          <section class="treemap-kpi-bar" id="treemapKpiBar" style="display: ${state.market === 'B3' ? '' : 'none'};" aria-label="Indicadores gerais do universo"></section>
 
-          <!-- Barra de Retorno de Foco (visível apenas quando um setor está expandido) -->
-          <div id="treemapFocusBarContainer"></div>
+          <!-- Barra de Retorno de Foco (visível apenas quando um setor está expandido na B3) -->
+          <div id="treemapFocusBarContainer" style="display: ${state.market === 'B3' ? '' : 'none'};"></div>
 
-          <!-- Grade Principal de Setores / Treemap -->
-          <main class="treemap-grid" id="treemapGridRegion" aria-label="Treemap de setores da B3"></main>
+          <!-- Grade Principal de Setores / Treemap (B3) -->
+          <main class="treemap-grid" id="treemapGridRegion" style="display: ${state.market === 'B3' ? '' : 'none'};" aria-label="Treemap de setores da B3"></main>
+
+          <!-- Contêiner do US Market (FINVIZ Official Embed) -->
+          <section class="treemap-us-container" id="treemapUsContainer" style="display: ${state.market === 'US' ? 'flex' : 'none'};" aria-label="Mapa de Setores - US Market">
+            <div class="treemap-us-card">
+              <!-- Loading indicator -->
+              <div class="treemap-us-loading" id="treemapUsLoading" style="display: none;">
+                <div class="treemap-us-spinner"></div>
+                <p>Carregando mapa setorial do mercado americano via FINVIZ...</p>
+              </div>
+
+              <!-- Fallback em caso de erro / bloqueio / conexão recusada -->
+              <div class="treemap-us-fallback" id="treemapUsFallback" style="display: none;">
+                <div class="treemap-us-fallback-header">
+                  <div class="treemap-us-fallback-icon-wrap" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                  </div>
+                  <div class="treemap-us-fallback-titles">
+                    <span class="treemap-us-fallback-badge">Conexão Externa Bloqueada / Recusada</span>
+                    <h4>Conexão com o widget do FINVIZ recusada pelo navegador</h4>
+                  </div>
+                </div>
+
+                <p class="treemap-us-fallback-desc">
+                  O navegador recusou a conexão direta com o widget incorporado do <strong>finviz.com</strong>.
+                  Isso ocorre frequentemente devido a <strong>extensões de bloqueio de anúncios (Adblock, uBlock Origin, Brave Shields)</strong>,
+                  políticas de proteção contra terceiros ou restrições de rede local que impedem carregamento de iframes externos.
+                </p>
+
+                <div class="treemap-us-fallback-actions">
+                  <a
+                    href="https://finviz.com/map?t=sec&st=d1&utm_source=finviz_widget&utm_medium=widget&utm_campaign=map&utm_content=i8jancme"
+                    target="_blank"
+                    rel="noopener"
+                    class="treemap-finviz-btn primary"
+                    title="Abrir mapa oficial do S&amp;P 500 no FINVIZ em nova aba"
+                  >
+                    <span>Abrir Mapa Oficial no FINVIZ ↗</span>
+                  </a>
+                  <button
+                    type="button"
+                    class="treemap-finviz-btn tv-alt"
+                    onclick="window.loadTradingViewHeatmap()"
+                    title="Carregar visualização interativa do S&amp;P 500 integrada nesta tela"
+                  >
+                    <span>📊 Ver Heatmap S&amp;P 500 na Tela</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="treemap-finviz-btn secondary"
+                    onclick="window.reloadFinvizTreemap()"
+                    title="Tentar recarregar o widget incorporado do FINVIZ"
+                  >
+                    <span>↻ Tentar FINVIZ</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="treemap-finviz-btn secondary"
+                    onclick="window.switchTreemapMarket('B3')"
+                    title="Retornar para o mapa setorial de ações brasileiras"
+                  >
+                    <span>🇧🇷 Voltar para B3</span>
+                  </button>
+                </div>
+
+                <div class="treemap-us-fallback-tip">
+                  <span class="treemap-us-tip-icon" aria-hidden="true">💡</span>
+                  <div class="treemap-us-tip-text">
+                    <strong>Como visualizar agora:</strong> Você pode acessar o mapa interativo completo clicando no botão acima <em>"Abrir Mapa Oficial S&amp;P 500 no FINVIZ"</em> (abre em nova aba sem restrições de iframe), ou desativar temporariamente bloqueadores de anúncios para <code>finviz.com</code>.
+                  </div>
+                </div>
+              </div>
+<!-- Slot onde o iframe oficial é inserido de forma lazy -->
+              <div class="treemap-finviz-slot" id="treemapFinvizSlot"></div>
+
+              <!-- Rodapé oficial exigido com crédito e link FINVIZ -->
+              <footer class="treemap-us-footer-credit">
+                <a
+                  href="https://finviz.com/map?t=sec&st=d1&utm_source=finviz_widget&utm_medium=widget&utm_campaign=map&utm_content=i8jancme"
+                  target="_blank"
+                  rel="noopener"
+                  class="treemap-finviz-credit-link"
+                >Market map by FINVIZ</a>
+                <span class="treemap-us-footer-note">S&amp;P 500 • Período: 1 Day • Widget oficial incorporado</span>
+              </footer>
+            </div>
+          </section>
         </div>
 
         <!-- Tooltip Popover Flutuante Compartilhado -->
@@ -232,17 +395,279 @@
       bindUiEvents();
     }
 
-    if (!state.loaded && !state.loading) {
-      fetchTreemapData();
-    } else if (state.loaded) {
-      renderTreemapDom();
+    if (state.market === 'US') {
+      applyMarketView('US');
+      if (!state.usLoaded && !state.usLoading) {
+        mountFinvizIframe();
+      }
+    } else {
+      applyMarketView('B3');
+      if (!state.loaded && !state.loading) {
+        fetchTreemapData();
+      } else if (state.loaded) {
+        renderTreemapDom();
+      }
     }
+  }
+
+  /**
+   * Aplica a visibilidade dos elementos conforme o mercado selecionado ('B3' ou 'US')
+   */
+  function applyMarketView(market) {
+    const isB3 = market === 'B3';
+
+    // Subtítulo
+    const subtitle = document.getElementById('treemapHeaderSubtitle');
+    if (subtitle) {
+      subtitle.innerHTML = isB3
+        ? 'Panorama do mercado acionário da B3 por setor econômico, com tamanho proporcional ao Market Cap e variação diária.'
+        : 'Mapa de setores do mercado americano (S&amp;P 500, período 1 Day) via FINVIZ oficial.';
+    }
+
+    // Botões do seletor
+    const b3Btn = document.getElementById('treemapMarketB3');
+    const usBtn = document.getElementById('treemapMarketUS');
+    if (b3Btn) {
+      b3Btn.classList.toggle('active', isB3);
+      b3Btn.setAttribute('aria-checked', isB3 ? 'true' : 'false');
+    }
+    if (usBtn) {
+      usBtn.classList.toggle('active', !isB3);
+      usBtn.setAttribute('aria-checked', !isB3 ? 'true' : 'false');
+    }
+
+    // Elementos B3
+    const universeWrap = document.getElementById('treemapUniverseWrap');
+    const sectorWrap = document.getElementById('treemapSectorWrap');
+    const searchWrap = document.getElementById('treemapSearchWrap');
+    const scaleContainer = document.getElementById('treemapScaleContainer');
+    const kpiBar = document.getElementById('treemapKpiBar');
+    const focusBarContainer = document.getElementById('treemapFocusBarContainer');
+    const gridRegion = document.getElementById('treemapGridRegion');
+
+    if (universeWrap) universeWrap.style.display = isB3 ? '' : 'none';
+    if (sectorWrap) sectorWrap.style.display = isB3 ? '' : 'none';
+    if (searchWrap) searchWrap.style.display = isB3 ? '' : 'none';
+    if (scaleContainer) scaleContainer.style.display = isB3 ? '' : 'none';
+    if (kpiBar) kpiBar.style.display = isB3 ? '' : 'none';
+    if (focusBarContainer) focusBarContainer.style.display = isB3 ? '' : 'none';
+    if (gridRegion) gridRegion.style.display = isB3 ? '' : 'none';
+
+    // Elementos US
+    const usActivePill = document.getElementById('treemapUsActivePill');
+    const usTopCredit = document.getElementById('treemapUsTopCredit');
+    const usContainer = document.getElementById('treemapUsContainer');
+
+    if (usActivePill) usActivePill.style.display = isB3 ? 'none' : 'inline-flex';
+    if (usTopCredit) usTopCredit.style.display = isB3 ? 'none' : 'inline-flex';
+    if (usContainer) usContainer.style.display = isB3 ? 'none' : 'flex';
+
+    hidePopoverImmediate();
+    hideGroupModalImmediate();
+  }
+
+  /**
+   * Alterna entre B3 e US Market na tela de Setores sem recarregar a página
+   */
+  function switchTreemapMarket(nextMarket) {
+    const model = getModel();
+    const market = (model && typeof model.normalizeMarket === 'function')
+      ? model.normalizeMarket(nextMarket)
+      : (String(nextMarket).toUpperCase() === 'US' ? 'US' : 'B3');
+
+    if (state.market === market) return;
+
+    state.market = market;
+    try {
+      localStorage.setItem('healthy-trend-treemap-market', market);
+    } catch (e) {
+      // Ignorar falhas de quota ou navegação privada
+    }
+
+    applyMarketView(market);
+
+    if (market === 'US') {
+      if (!state.usLoaded && !state.usLoading) {
+        mountFinvizIframe();
+      }
+    } else {
+      if (!state.loaded && !state.loading) {
+        fetchTreemapData();
+      } else if (state.loaded) {
+        renderTreemapDom();
+      }
+    }
+  }
+
+  /**
+   * Monta a visualização do US Market com detecção preventiva de bloqueio X-Frame-Options
+   */
+  function mountFinvizIframe() {
+    const slot = document.getElementById('treemapFinvizSlot');
+    const loadingEl = document.getElementById('treemapUsLoading');
+    const fallbackEl = document.getElementById('treemapUsFallback');
+    if (!slot) return;
+
+    // Se já estiver montado e carregado com sucesso, preservar
+    if (state.usLoaded && !state.usError && slot.children.length > 0) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (fallbackEl) fallbackEl.style.display = 'none';
+      return;
+    }
+
+    state.usLoading = true;
+    state.usError = false;
+    state.usLoaded = false;
+    if (loadingEl) loadingEl.style.display = 'flex';
+    if (fallbackEl) fallbackEl.style.display = 'none';
+    slot.innerHTML = '';
+
+    const model = getModel();
+    const cfg = (model && model.FINVIZ_CONFIG) ? model.FINVIZ_CONFIG : {
+      embedUrl: 'https://finviz.com/widgets/map?t=sec&st=d1&wid=i8jancme',
+      creditUrl: 'https://finviz.com/map?t=sec&st=d1&utm_source=finviz_widget&utm_medium=widget&utm_campaign=map&utm_content=i8jancme',
+      creditText: 'Market map by FINVIZ',
+      defaultHeight: 650
+    };
+
+    function triggerFallback(reason) {
+      clearTimeout(finvizLoadTimeout);
+      state.usLoading = false;
+      state.usLoaded = false;
+      state.usError = true;
+      if (slot) slot.innerHTML = '';
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (fallbackEl) fallbackEl.style.display = 'flex';
+      console.warn('[MarketTreemap] Fallback acionado:', reason);
+    }
+
+    function triggerSuccess() {
+      clearTimeout(finvizLoadTimeout);
+      state.usLoading = false;
+      state.usLoaded = true;
+      state.usError = false;
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (fallbackEl) fallbackEl.style.display = 'none';
+    }
+
+    // Timeout de proteção máxima para resposta externa
+    clearTimeout(finvizLoadTimeout);
+    finvizLoadTimeout = setTimeout(() => {
+      if (!state.usLoaded) {
+        triggerFallback('Tempo limite excedido sem confirmação do widget FINVIZ');
+      }
+    }, 4500);
+
+    // Teste preflight antes de montar o iframe no DOM
+    fetch(cfg.embedUrl, { mode: 'no-cors' })
+      .then(() => {
+        // Se a requisição não foi recusada na rede, tentar montar o iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = cfg.embedUrl;
+        iframe.width = '100%';
+        iframe.height = String(cfg.defaultHeight || 650);
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('scrolling', 'no');
+        iframe.setAttribute('loading', 'lazy');
+        iframe.setAttribute('title', 'FINVIZ S&P 500 Market Map (1 Day)');
+        iframe.className = 'treemap-finviz-iframe';
+
+        iframe.onload = function () {
+          try {
+            triggerSuccess();
+          } catch (e) {
+            triggerFallback('Iframe bloqueado por política X-Frame-Options');
+          }
+        };
+
+        iframe.onerror = function () {
+          triggerFallback('Erro de conexão ao carregar iframe');
+        };
+
+        slot.appendChild(iframe);
+      })
+      .catch((err) => {
+        // Conexão recusada na origem pelo navegador/adblocker/Cloudflare
+        triggerFallback('Conexão recusada com finviz.com (' + (err.message || 'net_error') + ')');
+      });
+  }
+
+  /**
+   * Carrega o Heatmap interativo do S&P 500 integrado na tela (alternativa ao FINVIZ com iframe bloqueado)
+   */
+  function loadTradingViewHeatmap() {
+    const slot = document.getElementById('treemapFinvizSlot');
+    const loadingEl = document.getElementById('treemapUsLoading');
+    const fallbackEl = document.getElementById('treemapUsFallback');
+    if (!slot) return;
+
+    if (fallbackEl) fallbackEl.style.display = 'none';
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    slot.innerHTML = `
+      <div class="tradingview-widget-container" style="height: 650px; width: 100%;">
+        <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+      </div>
+    `;
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js';
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      exchanges: [],
+      dataSource: 'SPX500',
+      grouping: 'sector',
+      blockSize: 'market_cap_basic',
+      blockColor: 'change',
+      locale: 'br',
+      symbolUrl: '',
+      colorTheme: 'dark',
+      hasTopBar: false,
+      isDataSetEnabled: false,
+      isZoomEnabled: true,
+      hasSymbolTooltip: true,
+      width: '100%',
+      height: '650'
+    });
+
+    const widgetContainer = slot.querySelector('.tradingview-widget-container');
+    if (widgetContainer) widgetContainer.appendChild(script);
+
+    state.usLoaded = true;
+    state.usLoading = false;
+    state.usError = false;
+  }
+
+  /**
+   * Recarrega o iframe do FINVIZ após falha
+   */
+  function reloadFinvizTreemap() {
+    state.usLoaded = false;
+    state.usLoading = false;
+    state.usError = false;
+    mountFinvizIframe();
   }
 
   /**
    * Associa os eventos de clique, teclado e filtros
    */
   function bindUiEvents() {
+    const b3Btn = document.getElementById('treemapMarketB3');
+    const usBtn = document.getElementById('treemapMarketUS');
+
+    if (b3Btn) {
+      b3Btn.addEventListener('click', () => {
+        switchTreemapMarket('B3');
+      });
+    }
+
+    if (usBtn) {
+      usBtn.addEventListener('click', () => {
+        switchTreemapMarket('US');
+      });
+    }
+
     const universeSelect = document.getElementById('treemapFilterUniverse');
     const sectorSelect = document.getElementById('treemapFilterSector');
     const searchInput = document.getElementById('treemapSearchInput');
@@ -968,6 +1393,7 @@
   }
 
   function renderLoadingIndicator(isLoading) {
+    if (state.market === 'US') return;
     const grid = document.getElementById('treemapGridRegion');
     if (!grid) return;
     if (isLoading && !state.loaded) {
@@ -981,6 +1407,7 @@
   }
 
   function renderErrorState(message) {
+    if (state.market === 'US') return;
     const grid = document.getElementById('treemapGridRegion');
     if (!grid) return;
     grid.innerHTML = `
@@ -1003,6 +1430,10 @@
   // Exporta métodos públicos para acesso global
   root.renderMarketTreemap = renderMarketTreemap;
   root.refreshMarketTreemap = refreshMarketTreemap;
+  root.switchTreemapMarket = switchTreemapMarket;
+  root.mountFinvizIframe = mountFinvizIframe;
+  root.reloadFinvizTreemap = reloadFinvizTreemap;
+  root.loadTradingViewHeatmap = loadTradingViewHeatmap;
   root.openTreemapTickerChart = openTreemapTickerChart;
   root.focusTreemapSector = focusTreemapSector;
   root.handleTreemapGroupHover = handleTreemapGroupHover;

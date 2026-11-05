@@ -2213,6 +2213,13 @@
         if (simGrade !== targetGrade) return false;
       }
 
+      // 5.1. Regime de Mercado (UP_QUIET, UP_VOLATILE, SIDEWAYS_QUIET, etc.)
+      const regimeFilter = String(filters.regime || filters.marketRegime || 'ALL').trim().toUpperCase();
+      if (regimeFilter && regimeFilter !== 'ALL') {
+        const simReg = String(sim.entryMarketRegime || sim.entry_market_regime || sim.regime || '').toUpperCase();
+        if (simReg !== regimeFilter) return false;
+      }
+
       // 6. Busca textual por ativo ou gatilho ou empresa ou ciclo de mercado
       if (query) {
         const sym = String(sim.symbol || '').toUpperCase();
@@ -9268,6 +9275,12 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     generateHistoricalSimulations,
     computeSnapshotNavInfo,
     MarketCycleModel,
+    calculateRegimePerformance: function (simulations, options) {
+      if (MarketCycleModel && typeof MarketCycleModel.calculateRegimePerformance === 'function') {
+        return MarketCycleModel.calculateRegimePerformance(simulations, options);
+      }
+      return { rows: [], bestRegime: null, worstRegime: null, totalTrades: 0, sampleQualityStatus: 'insufficient', sampleRecommendationText: 'Recomendação: pelo menos 30 trades por regime.' };
+    },
     validateMarketPermissionForBuy: MarketCycleModel ? MarketCycleModel.validateMarketPermissionForBuy : null
   };
 });

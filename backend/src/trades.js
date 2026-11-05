@@ -7,6 +7,7 @@ const assetBlacklist = require('./asset-blacklist');
 const marketPause = require('./market-pause');
 const setupTriggers = require('../../frontend/setup-triggers-catalog');
 const paperPendingModel = require('../../frontend/paper-trading-pending-model');
+const marketRegime = require('./market-regime');
 
 function invalid(message) {
   const error = new Error(message);
@@ -218,20 +219,35 @@ async function createPlan(userId, payload = {}) {
       validateRareTrade(plan, savedPolicy.rows[0]?.policy);
     }
     const totalCapital = plan.entry * plan.metadata.executedQuantity;
+    const benchmarkId = marketRegime.resolveBenchmarkForAsset(plan.ticker, plan.metadata?.assetClass, plan.market);
+    let entryRegimeInfo = null;
+    try {
+      entryRegimeInfo = await marketRegime.getCurrentRegime(benchmarkId);
+    } catch (_) {}
+
+    const entryDirection = entryRegimeInfo?.direction || (plan.direction === 'short' ? 'DOWN' : 'UP');
+    const entryVolatility = entryRegimeInfo?.volatility || 'QUIET';
+    const entryRegimeCode = entryRegimeInfo?.regime || `${entryDirection}_${entryVolatility}`;
+    const entryBenchmark = benchmarkId;
+    const entryRefDate = plan.metadata?.entryDate || (plan.entryTimestamp ? plan.entryTimestamp.slice(0, 10) : new Date().toISOString().slice(0, 10));
+
     await client.query(
       `INSERT INTO app.trades (
         id, user_id, ticker, market, direction, setup, entry_price, stop_price, atr,
         planned_quantity, risk_pct, rubric_score, rubric_max_score, rubric_grade,
         rubric_responses, status, metadata, execution_price, executed_quantity, executed_at, setup_trigger,
-        scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent
+        scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent,
+        entry_market_direction, entry_market_volatility, entry_market_regime, entry_market_benchmark, entry_regime_reference_date
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
         $10, $11, $12, $13, $14, $15::jsonb, 'open', $16::jsonb, $7, $17, $18, $19,
-        true, 0, $17, $7, $20, $11
+        true, 0, $17, $7, $20, $11,
+        $21, $22, $23, $24, $25
       )`,
       [id, userId, plan.ticker, plan.market, plan.direction, plan.setup, plan.entry, plan.stop, plan.atr,
         plan.plannedQuantity, plan.riskPct, plan.rubricScore, plan.rubricMaxScore, plan.rubricGrade,
-        JSON.stringify(plan.rubricResponses), JSON.stringify(plan.metadata), plan.metadata.executedQuantity, plan.entryTimestamp, plan.setupTrigger, totalCapital]
+        JSON.stringify(plan.rubricResponses), JSON.stringify(plan.metadata), plan.metadata.executedQuantity, plan.entryTimestamp, plan.setupTrigger, totalCapital,
+        entryDirection, entryVolatility, entryRegimeCode, entryBenchmark, entryRefDate]
     );
     for (const item of plan.contributions) {
       await client.query(
@@ -498,6 +514,7 @@ async function listPlans(userId) {
             t.pending_snapshot, t.discard_reason, t.verified_at,
             t.execution_price, t.executed_quantity, t.executed_at, t.created_at, t.updated_at,
             t.scale_in_enabled, t.scale_in_count, t.total_quantity, t.average_entry_price, t.total_allocated_capital, t.current_risk_percent,
+            t.entry_market_direction, t.entry_market_volatility, t.entry_market_regime, t.entry_market_benchmark, t.entry_regime_reference_date,
             COALESCE(events.items, '[]'::jsonb) AS events,
             COALESCE(entries.items, '[]'::jsonb) AS entries
        FROM app.trades t

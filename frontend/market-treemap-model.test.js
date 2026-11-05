@@ -78,3 +78,31 @@ test('MarketTreemapModel: getColorForReturn produz cores esperadas nos extremos 
   assert.equal(MarketTreemapModel.getColorForReturn(0), 'rgb(45, 55, 72)');
   assert.equal(MarketTreemapModel.getColorForReturn(null), '#1e293b');
 });
+
+test('MarketTreemapModel: suporte a mercados B3 e US Market com FINVIZ oficial', () => {
+  // Constantes de mercado
+  assert.equal(MarketTreemapModel.MARKETS.B3, 'B3');
+  assert.equal(MarketTreemapModel.MARKETS.US, 'US');
+
+  // Normalização de mercado
+  assert.equal(MarketTreemapModel.normalizeMarket('B3'), 'B3');
+  assert.equal(MarketTreemapModel.normalizeMarket('b3'), 'B3');
+  assert.equal(MarketTreemapModel.normalizeMarket('US'), 'US');
+  assert.equal(MarketTreemapModel.normalizeMarket('us'), 'US');
+  assert.equal(MarketTreemapModel.normalizeMarket('US_MARKET'), 'US');
+  assert.equal(MarketTreemapModel.normalizeMarket('usa'), 'US');
+  assert.equal(MarketTreemapModel.normalizeMarket(null), 'B3');
+  assert.equal(MarketTreemapModel.normalizeMarket(''), 'B3');
+
+  // Configuração Oficial FINVIZ
+  const cfg = MarketTreemapModel.FINVIZ_CONFIG;
+  assert.ok(cfg, 'FINVIZ_CONFIG deve existir');
+  assert.ok(cfg.embedUrl.includes('finviz.com/widgets/map'), 'Embed URL deve apontar para o widget oficial');
+  assert.ok(cfg.embedUrl.includes('wid=i8jancme'), 'Embed URL deve conter o widget ID fornecido');
+  assert.ok(cfg.embedUrl.includes('st=d1'), 'Embed URL deve usar período d1 (1 Day)');
+  assert.ok(cfg.creditUrl.includes('finviz.com/map'), 'Credit URL deve apontar para mapa oficial');
+  assert.equal(cfg.creditText, 'Market map by FINVIZ', 'Texto de crédito oficial do FINVIZ');
+  assert.equal(cfg.universe, 'S&P 500', 'Universo inicial é S&P 500');
+  assert.equal(cfg.period, '1 Day', 'Período deve ser estritamente 1 Day');
+  assert.notEqual(cfg.period, 'EOD', 'Regra explícita: não rotular como EOD sem validação');
+});

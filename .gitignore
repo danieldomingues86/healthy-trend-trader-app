@@ -18,3 +18,4 @@ healthy-trend-trader-app/
 output/
 scratch/
 verify-about-page.cjs
+backend/data/market-regimes-cache.json
