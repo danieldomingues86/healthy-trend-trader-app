@@ -112,6 +112,21 @@ body[data-theme="healthy"]:has(#manual.active) #manual {
   font-size: 15px;
   line-height: 1.6;
   box-sizing: border-box;
+  color: #ECFDF5;
+}
+
+body[data-theme="pigeon"] #manual .knowledge-center.is-reader-view,
+html[data-theme="pigeon"] #manual .knowledge-center.is-reader-view,
+body.theme-pigeon #manual .knowledge-center.is-reader-view,
+body.theme-light #manual .knowledge-center.is-reader-view {
+  color: #182B36;
+}
+
+body[data-theme="gold"] #manual .knowledge-center.is-reader-view,
+html[data-theme="gold"] #manual .knowledge-center.is-reader-view,
+body.theme-gold #manual .knowledge-center.is-reader-view,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #manual .knowledge-center.is-reader-view {
+  color: #FFF8E8;
 }
 
 #manual .knowledge-center * {

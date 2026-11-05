@@ -108,3 +108,15 @@ test('Interactive Book Reader: Flipbook Unificado sem Tela Longa / Sumário do A
   assert.ok(cssCode.includes('.ht-acervo-page'), 'CSS deve definir dimensões sem scroll para as páginas do acervo');
 });
 
+test('Interactive Book Reader: Alto Contraste e Legibilidade na Topbar em Todos os Temas', () => {
+  const cssCode = fs.readFileSync(path.join(__dirname, 'book-reader.css'), 'utf8');
+  const mkCss = fs.readFileSync(path.join(__dirname, 'manual-knowledge.css'), 'utf8');
+
+  // Topbar deve ter cor de texto clara no tema escuro padrão (Healthy Green)
+  assert.ok(cssCode.includes('color: #ECFDF5;'), 'Topbar deve definir cor de texto clara no Healthy Green');
+  assert.ok(cssCode.includes('color: #ECFDF5;\n  font-size: 13px;\n  font-weight: 600;'), 'Botão voltar deve possuir contraste nítido #ECFDF5');
+  assert.ok(cssCode.includes('.ht-reader-chapter-title {\n  color: #FFFFFF;'), 'Título do capítulo deve ser branco puro legível');
+  assert.ok(mkCss.includes('color: #ECFDF5;'), 'manual-knowledge.css deve garantir cor clara em is-reader-view');
+});
+
+

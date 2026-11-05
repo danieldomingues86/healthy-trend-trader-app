@@ -96,12 +96,13 @@ body.theme-light .ht-book-reader-shell {
   padding: 6px 24px;
   height: 50px;
   flex-shrink: 0;
-  background: rgba(14, 30, 23, 0.85);
+  background: #0d2118;
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(22, 168, 121, 0.28);
   position: relative;
   z-index: 40;
   box-sizing: border-box;
+  color: #ECFDF5;
 }
 
 body[data-theme="gold"] .ht-reader-topbar,
@@ -134,10 +135,10 @@ body.theme-light .ht-reader-topbar {
   align-items: center;
   gap: 8px;
   padding: 7px 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(22, 168, 121, 0.16);
+  border: 1px solid rgba(22, 168, 121, 0.38);
   border-radius: 999px;
-  color: inherit;
+  color: #ECFDF5;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -145,7 +146,9 @@ body.theme-light .ht-reader-topbar {
 }
 
 .ht-reader-btn-back:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(22, 168, 121, 0.3);
+  border-color: #10B981;
+  color: #FFFFFF;
   transform: translateX(-2px);
 }
 
@@ -181,7 +184,7 @@ body.theme-light .ht-reader-btn-back:hover {
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--muted, #9fb3a7);
+  color: #A7F3D0;
 }
 
 body[data-theme="gold"] .ht-reader-breadcrumbs,
@@ -199,8 +202,8 @@ body.theme-light .ht-reader-breadcrumbs {
 }
 
 .ht-reader-book-tag {
-  color: var(--ht-book-gold);
-  font-weight: 700;
+  color: #34D399;
+  font-weight: 800;
   letter-spacing: 0.5px;
 }
 
@@ -213,7 +216,7 @@ body.theme-light .ht-reader-book-tag {
 }
 
 .ht-reader-chapter-title {
-  color: inherit;
+  color: #FFFFFF;
   font-weight: 600;
   max-width: 320px;
   white-space: nowrap;
@@ -244,12 +247,16 @@ body.theme-light .ht-reader-chapter-title {
   width: 220px;
   padding: 6px 12px 6px 34px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(22, 168, 121, 0.38);
   border-radius: 20px;
-  color: inherit;
+  color: #FFFFFF;
   font-size: 12px;
   outline: none;
   transition: width 0.25s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.ht-reader-search-input::placeholder {
+  color: rgba(236, 253, 245, 0.6);
 }
 
 .ht-reader-search-input:focus {
@@ -298,7 +305,7 @@ body.theme-light .ht-reader-search-input:focus {
   left: 11px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--muted, #9fb3a7);
+  color: #34D399;
   pointer-events: none;
   font-size: 14px;
 }
@@ -316,23 +323,29 @@ body.theme-light .ht-reader-search-icon {
   gap: 6px;
   padding: 6px 12px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: inherit;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ECFDF5;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
+.ht-reader-action-btn svg {
+  stroke: currentColor;
+}
+
 .ht-reader-action-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(22, 168, 121, 0.25);
+  border-color: #34D399;
+  color: #FFFFFF;
 }
 
 .ht-reader-action-btn.active {
-  background: var(--ht-book-accent-bg);
-  border-color: var(--ht-book-accent);
-  color: var(--ht-book-accent);
+  background: #16A879;
+  border-color: #34D399;
+  color: #FFFFFF;
 }
 
 body[data-theme="gold"] .ht-reader-action-btn,
@@ -2036,11 +2049,11 @@ body.theme-light .ht-dock-progress-fill {
   font-weight: 600;
   cursor: pointer;
   outline: none;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background-color: rgba(255, 255, 255, 0.08);
-  color: inherit;
+  border: 1px solid rgba(22, 168, 121, 0.38);
+  background-color: rgba(22, 168, 121, 0.16);
+  color: #ECFDF5;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.7)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   transition: all 0.2s ease;
@@ -2048,12 +2061,14 @@ body.theme-light .ht-dock-progress-fill {
 }
 
 .ht-reader-book-select:hover {
-  background-color: rgba(255, 255, 255, 0.14);
+  background-color: rgba(22, 168, 121, 0.28);
+  border-color: #10B981;
+  color: #FFFFFF;
 }
 
 .ht-reader-book-select option {
   background: #0b1a14;
-  color: #fff;
+  color: #ECFDF5;
 }
 
 /* Book Select por Tema */
