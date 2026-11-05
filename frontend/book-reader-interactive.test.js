@@ -81,8 +81,24 @@ test('Interactive Book Reader: Suporte a Temas Healthy Green, Premium Gold e Pig
   assert.ok(mkCss.includes('is-reader-view'), 'manual-knowledge.css deve definir classe is-reader-view');
   assert.ok(mkCss.includes('max-width: none !important'), 'manual-knowledge.css deve remover restrição de largura no leitor');
   assert.ok(cssCode.includes('width: calc(100% - 72px)'), 'Container do livro deve aproveitar toda a largura disponível da mesa');
-  assert.ok(cssCode.includes('height: calc(100% - 10px)'), 'Container do livro deve aproveitar toda a altura útil da tela');
+  assert.ok(cssCode.includes('height: 100%'), 'Container do livro deve preencher 100% da altura útil da mesa');
+  assert.ok(cssCode.includes('padding: 8px 18px 58px;'), 'Mesa deve reservar 58px de respiro inferior para a paginação');
 });
+
+test('Interactive Book Reader: Prevenção de Sobreposição da Paginação e Integridade do Conteúdo', () => {
+  const cssCode = fs.readFileSync(path.join(__dirname, 'book-reader.css'), 'utf8');
+  const mkCode = fs.readFileSync(path.join(__dirname, 'manual-knowledge.js'), 'utf8');
+
+  // Dock de paginação fica na margem inferior reservada sem sobrepor as páginas
+  assert.ok(cssCode.includes('bottom: 8px;'), 'Dock de paginação deve estar fixado na base');
+  assert.ok(cssCode.includes('padding: 8px 18px 58px;'), 'Mesa do livro deve possuir padding inferior de 58px');
+
+  // Páginas do livro com flex-start e footer auto para evitar quebra de texto
+  assert.ok(cssCode.includes('justify-content: flex-start;'), 'Página deve utilizar flex-start');
+  assert.ok(cssCode.includes('margin-top: auto;'), 'Rodapé editorial deve utilizar margin-top auto');
+  assert.ok(mkCode.includes('line-height:1.4;margin:3px 0 0;'), 'Card de ferramenta deve ter line-height sem truncamento');
+});
+
 
 test('Interactive Book Reader: Flipbook Unificado sem Tela Longa / Sumário do Acervo Inicial', () => {
   const mkCode = fs.readFileSync(path.join(__dirname, 'manual-knowledge.js'), 'utf8');

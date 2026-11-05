@@ -1414,7 +1414,7 @@
               <div>
                 <span class="ht-tool-tag">⚡ Ferramenta no Software</span>
                 <h4 class="ht-tool-action-title">Pratique agora na plataforma</h4>
-                <p style="font-size:12px;margin:2px 0 0;color:var(--ht-book-ink-muted);">Acesse o módulo e aplique as regras deste capítulo.</p>
+                <p style="font-size:12px;line-height:1.4;margin:3px 0 0;color:var(--ht-book-ink-muted);">Acesse o módulo e aplique as regras deste capítulo.</p>
               </div>
               <button type="button" class="ht-tool-action-btn" data-action="launch-route" data-route="${page.toolRoute}">
                 ${esc(page.toolLabel || 'Abrir Ferramenta →')}
