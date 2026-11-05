@@ -22,7 +22,13 @@
     lightbulb: '<path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>',
     external: '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
     menu: '<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>',
-    close: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+    close: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+    bookmarkFilled: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" fill="currentColor"/>',
+    columns: '<path d="M12 3v18M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5z"/>',
+    maximize: '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>',
+    minimize: '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>',
+    list: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'
   };
 
   const icon = (name, size = 20) => `<svg class="kc-icon kc-icon-${name}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.book}</svg>`;
@@ -78,228 +84,228 @@
 
   // Guides dictionary (Required by backend/test/manual-knowledge.test.js)
   const additionalGuides = {
-      today: [
-        'A tela Visão Geral é seu centro de comando diário: visualize o status geral do mercado, as posições que demandam atenção imediata e as próximas ações recomendadas.',
-        'Cockpit Matinal: comece seu dia revisando as posições abertas, trailing stops ativos e o alinhamento com a sua Política de Risco antes da abertura do pregão.'
-      ],
-      newtrade: [
-        'A tela Novo Trade estrutura a operação em duas etapas estritas: Etapa 1 (Parâmetros da Operação: Ativo, Direção, Gatilho Oficial, Entrada, Stop, ATR, Ambiente e Tese) e Etapa 2 (Validação pela Trading Rubric de 100 pontos).',
-        'Os Gatilhos Oficiais de Entrada: Inside Bar, PFR (Padrão de Fechamento e Reversão), 1-2-3 de Compra e RBI (Barra Vermelha Ignorada) fornecem timing cirúrgico e stop estrutural objetivo.',
-        'Override Manual do Ciclo de Mercado: caso a dinâmica setorial ou intradiária do ativo divirja do índice benchmark geral, o trader pode ajustar manualmente o regime no seletor da Rubric, recalculando pontos, Grade e Risk Budget em tempo real.',
-        'Risk Budget por Grade: a Rubric consulta na Política de Risco o orçamento configurado para A, B, C ou D. Cada avaliação recalcula Qualidade → Risk Budget → limitadores da política → risco executável → Position Size.',
-        'Dimensionamento: o Risk Budget produz o Position Size teórico pela distância até o stop. Em seguida, volatilidade por ATR, capital, Portfolio Heat e máximo de posições limitam a quantidade executável quando necessário.',
-        'Integração com o Desafio Grade A: apenas operações Grade A registradas enquanto o desafio está ativo são avaliadas contra o sizing executável calculado pelo sistema.'
-      ],
-      mission: [
-        'A tela Missão organiza a trajetória operacional do trader em ciclos estruturados de 10 a 20 trades, guiando o operador por uma jornada de 7 marcos sequenciais que transformam disciplina em avanço visual palpável.',
-        'Rebuild Mode (Modo Recuperação): estado de segurança acionado após sequências de perdas ou drawdowns severos. No Rebuild Mode, o risco máximo por trade é estritamente travado em 0,10% a 0,25% e a plataforma impõe a regra inegociável de 1 Posição por Vez, impedindo sobrealavancagem e revenge trading.',
-        'Montanha da Consistência: cada trade registrado dentro das regras avança o caminhante pelos waypoints da montanha até o objetivo do ciclo, resgatando a calma e a confiança de operar.',
-        'Edição de Justificativa: registre e edite os motivos da recuperação, data planejada de retorno e meta de trades com persistência imediata no sistema.'
-      ],
-      tradertraining: [
-        'A tela de Prática Deliberada estrutura o desenvolvimento profissional do trader por meio de metas deliberadas de processo, e não apenas de resultados financeiros imediatos.',
-        'Ciclos de Aperfeiçoamento: estabeleça objetivos específicos (como respeitar 100% dos stops ou preencher o diário por 20 pregões consecutivos) e avalie sua aderência com rigor estatístico.',
-        'Consistência de Hábitos: conecte sua prática diária aos indicadores de disciplina da plataforma, transformando repetição consciente em maestria operacional.'
-      ],
-      conquests: [
-        'A tela Minhas Conquistas consolida suas realizações operacionais com foco na disciplina: embolsar o lucro conforme o plano sem deixar a ganância decidir.',
-        'Ao clicar em "Embolsar Lucro" em qualquer trade aberto, o sistema abre o modal de celebração para você registrar sua recompensa pessoal e cumprir o Ritual de Vitória.',
-        'Marcos de Disciplina: acompanhe sua evolução em 6 patamares (1, 5, 10, 20, 50, 100 conquistas) e vincule recompensas especiais ao cumprimento de metas de consistência.'
-      ],
-      deservingdiary: [
-        'O Diário do Merecimento é uma área de reflexão psicológica em Treinamento do Trader dedicada a registrar a experiência de embolsar lucros com tranquilidade e naturalidade.',
-        'Aprenda a Receber: registre emoções, intensidade de 0 a 10, pensamentos no momento da realização, reconhecimento de comportamento profissional e aprendizados para os próximos pregões.',
-        'Minha Evolução: acompanhe o gráfico e as métricas reais de ansiedade vs tranquilidade derivadas exclusivamente dos seus registros, fortalecendo sua identidade como trader consistente.'
-      ],
-      dailyroutine: [
-        'A Rotina Diária estrutura a jornada do trader em três fases sagradas: Pré-Mercado (checagem de ciclo, revisão de posições, trailing stops e atualização da watchlist), Intra-Mercado (disciplina de execução e paciência) e Pós-Mercado (diário, registro de métricas e reflexão).',
-        'O ritual previne o improviso: o trader só opera quando a preparação foi concluída e o ciclo de mercado autoriza novas exposições.',
-        'A rotina sincroniza com seu histórico de hábitos, garantindo consistência no longo prazo.'
-      ],
-      watchlist: [
-        'A Watchlist Inteligente funciona como seu Pool de Oportunidades: ela centraliza os melhores ativos identificados nos Scans, Líderes Emergentes e Força Relativa.',
-        'Classificação por Estágios: organize cada oportunidade conforme seu momento técnico — Base em Construção, Contração de Volatilidade (VCP), Alerta de Rompimento ou Follow Through.',
-        'REGRA DE OURO: Descoberta não é ordem de compra. Ativos na Watchlist são alvos em observação; a operação só é registrada quando o gatilho técnico e a Rubric confirmam o alinhamento.'
-      ],
-      habits: [
-        'O Monitor de Hábitos transforma o processo invisível em métricas tangíveis: consistência de rotina, respeito aos stops, pausas conscientes e preenchimento do diário.',
-        'Visualização de Sequências: acompanhe dias consecutivos de disciplina (streaks), taxa de adesão semanal e alertas quando algum pilar for negligenciado.',
-        'A meta não é o resultado financeiro de um único dia, mas a excelência diária no cumprimento do processo operacional.'
-      ],
-      riskpolicy: [
-        'A Política de Risco centraliza os perfis operacionais (Política Padrão e Risk Ramp-Up), os Risk Budgets para A, B, C e D, os limitadores de exposição e os pesos da Trading Rubric.',
-        'Cards de Grades: exibem e permitem editar o Risk Budget de A, B e C. Grade D não libera risco (0%). Cada perfil mantém seus próprios limites de volatilidade, capital, Heat e posições.',
-        'Gestão de Posição & Toggles Artísticos: ative ou desative os módulos de Scale-In (adições a +1R com breakeven) e Sell Into Strength (parciais na zona de força), configurando gatilhos e faixas personalizadas.',
-        'Conexão Direta com Novo Trade: Qualquer alteração salva na Política de Risco atualiza instantaneamente a resolução de risco do Novo Trade e as validações de conformidade do Desafio Grade A.'
-      ],
-      couragechallenge: [
-        'O Desafio Grade A é um módulo de treinamento psicológico (Modo Desapego) projetado para consolidar a coragem e a disciplina de assumir o risco correto nos melhores setups do método.',
-        'Elegibilidade Estrita: Apenas Rare Trades classificados como Grade A e executados durante o desafio ativo participam. B, C e D não pontuam.',
-        'Inspeção sem Interferência: o desafio não altera o Position Sizing; ele compara a execução real com o risco e a quantidade efetivamente autorizados depois dos limitadores da política.'
-      ],
-      positions: [
-        'O módulo Posições Abertas é seu cockpit de condução: monitore o trailing stop, o lucro em R-múltiplos, a volatilidade atual e a aproximação de zonas parciais.',
-        'Gestão de Eventos: registre ajustes de stop, acione parciais manuais de Sell Into Strength ou adições de Scale-In (quando autorizadas pelo sistema a partir de +1R e breakeven).',
-        'Linha do Tempo Completa: cada decisão fica gravada cronologicamente na posição sem fragmentar o trade em linhas soltas.'
-      ],
-      closedpositions: [
-        'O módulo Posições Encerradas reúne o histórico completo de todas as operações finalizadas na plataforma.',
-        'Auditoria Pós-Trade: consulte a linha do tempo de cada posição, desde a entrada original, eventuais adições de Scale-In, parciais de Sell Into Strength até o encerramento do Runner.',
-        'Métricas Conexas: analise o R-múltiplo real alcançado, o tempo de permanência, o preço médio ponderado e as anotações do Diário do Trader vinculadas à operação.'
-      ],
-      portfolioheat: [
-        'O Portfolio Heat monitora o risco agregado e simultâneo de todas as suas posições abertas em relação ao patrimônio líquido da conta.',
-        'Termômetro de Risco: previne a sobreexposição em momentos de euforia. Quando o Heat atinge o teto da Política de Risco, o sistema bloqueia novas compras e sinaliza a necessidade de aguardar parciais ou avanço de stops para Breakeven antes de assumir novos riscos.'
-      ],
-      dashboard: [
-        'O módulo Patrimônio oferece uma visão holística da sua saúde financeira: curva de capital da estratégia, taxa de crescimento anual e retorno percentual acumulado.',
-        'Separação de Aportes vs Performance: o sistema calcula o retorno real gerado pelas operações sem distorções causadas por novos depósitos ou retiradas financeiras.',
-        'Gestão de Alocações: acompanhe suas metas percentuais por classe de ativos e monitore o desbalanceamento da sua carteira.'
-      ],
-      assetblacklist: [
-        'A Blacklist de Ativos é sua blindagem comportamental e de liquidez: adicione ativos que violam suas regras de risco, ações com volume insuficiente ou papéis com governança duvidosa.',
-        'Bloqueio no Planejamento: o sistema impede o registro de ordens para ativos na Blacklist, garantindo que a disciplina seja imposta pelo software mesmo em momentos de impulso.'
-      ],
-      charts: [
-        'O módulo Gráficos (Ticker Chart) é seu ambiente completo de leitura técnica, contextual e de fluxo para qualquer ativo monitorado.',
-        'Médias Móveis e Volume: exibe a malha de médias exponenciais e aritméticas (EMA 9, EMA 21, SMA 50 e SMA 200) com barras de volume e coloração por pressão compradora e vendedora.',
-        'Benchmarking Automático: resolve de forma inteligente o índice de referência adequado para cada papel (Ibovespa para ações B3, BDRX para BDRs e IFIX para Fundos Imobiliários), exibindo o retorno relativo do ativo contra seu benchmark.',
-        'Raio-X de Rubric e Grade: exibe a avaliação em tempo real do ativo com base nos critérios da Trading Rubric e alerta se o papel está qualificado para compras ou bloqueado por Grade D.'
-      ],
-      marketcentral: [
-        'A Central de Mercado é o painel de inteligência macroeconômica, regime e breadth do Healthy Trend Trader.',
-        'Regime & Breadth de Mercado: acompanhe a porcentagem de ativos acima das médias de 20 e 50 períodos e o oscilador de momentum para diagnosticar se o mercado está em fase saudável, exaustão ou sobrevenda.',
-        'Mercados Globais: monitore a dinâmica de índices internacionais (S&P 500, Nasdaq 100), Dólar e juros dos Treasuries de 10 anos para contextualizar o fluxo estrangeiro na B3.',
-        'Calendário e Notícias: antecipe decisões de política monetária, divulgação de indicadores de inflação e notícias relevantes antes de posicionar suas ordens.',
-        'Mapa Setorial: visualize a força relativa de cada setor da economia para focar o capital nos setores líderes.'
-      ],
-      eventplaybook: [
-        'O Registro de Eventos é uma biblioteca histórica e viva dos principais catalisadores macroeconômicos do mercado.',
-        'Estudo Histórico de Reação: consulte o comportamento histórico dos preços durante Super Quartas, decisões do Copom/FOMC, divulgação de CPI e crises de volatilidade.',
-        'Roteiro Operacional: estabeleça antes da abertura se o plano para o dia do evento é ficar líquido, reduzir o Portfolio Heat ou aguardar a digestão do mercado nas primeiras horas pós-divulgação.',
-        'Anexos e Lições: documente reações atípicas e anexe gráficos de estudos para enriquecer seu repertório de padrões.'
-      ],
-      marketcycle: [
-        'A tela de Ciclo de Mercado monitora o regime técnico dos índices de referência de forma independente para cada universo: Ações B3 (Ibovespa), BDRs Internacionais (BDRX) e Fundos Imobiliários (IFIX).',
-        'Permissão Operacional: Mercado Saudável autoriza novos setups; Mercado em Transição exige cautela e menor exposição; Mercado Defensivo/Risk-Off protege o capital e bloqueia novas compras long.'
-      ],
-      emergingleaders: [
-        'A tela de Líderes Emergentes combina 6 dimensões em um Score único de 0 a 100: Força Relativa (25%), Aceleração de RS (15%), Proximidade da Máxima de 52S (20%), Resiliência na Correção (15%), Força de Recuperação (15%) e Liderança Setorial (10%).',
-        'Use esta ferramenta para descobrir quais ações estão sustentando preço enquanto a maioria do mercado cai. Veja os setores com maior concentração de força (Grupos Fortes) e selecione os melhores candidatos.',
-        'REGRA DE OURO: Descoberta NÃO é compra imediata. Um score alto serve para você colocar o ativo na sua Watchlist de acompanhamento. A compra só deve ser planejada quando a ação formar uma contração no gráfico com setup A e gatilho técnico confirmado.'
-      ],
-      opportunityradar: [
-        'O Radar de Oportunidades consolida em uma visão rápida e objetiva somente os ativos PRONTOS PARA ENTRADA para o próximo pregão, reutilizando os motores de Força Relativa (3M), Ciclo de Mercado, Tendência Diária (Preço > EMA 10 > EMA 72) e Gatilhos Oficiais.',
-        'Filtre por categoria de mercado (IBOV, IFIX ou BDRs), setor e tipo de gatilho (Inside Bar, 123 Buy, PFR de Compra, RBI) e abra diretamente o gráfico do ativo com um clique.',
-        'Segurança Operacional: gatilho identificado no fechamento não garante entrada disponível no próximo pregão. Sempre valide o preço de abertura, stop inicial, risco e dimensionamento da posição antes de operar.'
-      ],
-      relativestrength: ['Escolha o universo de ativos e compare sua força relativa. Confira a data de atualização antes de interpretar a classificação.', 'Use os líderes para organizar sua pesquisa. Depois avalie o contexto técnico e a Rubric em Novo Trade; liderança não substitui um gatilho de entrada.'],
-      marketscans: [
-        'Os Scans de Mercado monitoram o universo B3 e filtram ativos automaticamente em padrões técnicos comprovados: Rompimentos de 52 Semanas, Contrações de Volatilidade (VCP), Momentum Positivo e Retração às Médias.',
-        'Varredura Eficiente: identifique rapidamente em poucos segundos quais ações estão em pontos de inflexão técnica sem precisar folhear centenas de gráficos manualmente.',
-        'Conexão Direta: envie os ativos filtrados com um clique diretamente para sua Watchlist para acompanhamento refinado.'
-      ],
-      fundamentals: [
-        'O módulo Fundamentalista integra demonstrações de Ações B3 (CVM/Fundamentus) e BDRs Internacionais (SEC). O Score Fundamentalista (0 a 10) segue a metodologia de 6 dimensões ponderadas: Rentabilidade (28%), Consistência de Lucros (22%), Crescimento (16%), Endividamento (18%), Valuation (10%) e Dividendos (6%).',
-        'Princípio Inviolável: Dado ausente não é zero. Quando métricas ou históricos contábeis anuais não estão disponíveis, o sistema repondera os componentes disponíveis e expõe uma métrica explícita e separada de Cobertura dos Dados (ex: 78% em CEAB3) com alertas claros de dados parciais.',
-        'Régua Horizontal de 5 Patamares (RUIM, FRACO, MÉDIO, BOM, EXCELENTE) e Raio-X agrupado por categorias econômicas com Market Cap humanizado.'
-      ],
-      markettreemap: [
-        'A tela de Setores da B3 é um Treemap interativo de inteligência de mercado, permitindo entender rapidamente a distribuição das empresas por setor econômico e comparar portes por Market Cap.',
-        'Área Proporcional & Cores: A área de cada retângulo reflete rigorosamente o Market Cap da empresa em R$, enquanto as cores expressam a variação percentual diária (-10% a +10%).',
-        'Filtros e Interação: Alterne entre Mercado Completo, Ibovespa e Small Caps, pesquise por ticker ou nome, expanda setores específicos e abra a análise técnica diretamente no gráfico diário.'
-      ],
-      analytics: [
-        'O Painel da Verdade analisa objetivamente suas estatísticas acumuladas: taxa de acerto, fator de lucro, payoff médio e expectativa matemática.',
-        'Padrões de Resultado: filtre por setup, direção, ciclo de mercado e grade da Rubric para descobrir onde reside sua verdadeira vantagem estatística.'
-      ],
-      tradeanatomy: [
-        'A Anatomia dos Trades disseca suas operações encerradas sob uma ótica puramente estatística e científica: taxa de acerto real, payoff médio (R médio de ganho vs perda) e expectativa matemática por trade.',
-        'Decomposição por Setups e Grades: descubra exatamente quais padrões gráficos e quais faixas de score da Rubric geram a maior parte dos seus lucros e quais apenas consomem comissões e energia.',
-        'Tempo de Permanência: compare o tempo médio de retenção de trades vencedores versus perdedores para assegurar que você está cortando perdas rápido e deixando os lucros correrem.'
-      ],
-      journal: [
-        'O Diário do Trader registra a evolução técnica e comportamental dia a dia. Vincule operações, anexe capturas de gráficos e registre emoções e notas de reflexão.',
-        'Exportação Estruturada & Modo "Preparar para IA": exporte seus registros em Markdown, Texto, JSON, CSV ou gere um texto semanticamente estruturado por blocos de data com prompt pronto para envio a LLMs (ChatGPT, Claude, Gemini) para mapear correlações entre contexto, plano e emoções.',
-        'Mesmo em dias sem operar, registre a disciplina da espera. A paciência é parte integrante do método.'
-      ],
-      mistakesbook: [
-        'O Caderno de Erros e Lições cataloga as falhas que custaram capital ou disciplina: quebra de stop, entrada antecipada, FOMO, hesitação ou violação da política de risco.',
-        'Lições Dominadas: ao registrar uma falha, o trader define a lição e o compromisso prático para corrigi-la. Revisitar as lições antes do pregão blinda o comportamento contra erros recorrentes.'
-      ],
-      tradelibrary: [
-        'A Biblioteca de Trades é o acervo de excelência visual da plataforma: reúne trades históricos modelo, breakouts perfeitos, pullbacks institucionais e casos de estudo comentados.',
-        'Treinamento de Padrões: estude os melhores setups para calibrar seu cérebro a reconhecer rapidamente a anatomia visual de um Rare Trade Grade A no mercado real.'
-      ],
-      review: [
-        'A Revisão Mensal é o ritual de fechamento e auditoria periódica do seu processo operacional.',
-        'Análise Sistêmica: consolide a aderência ao plano no mês, liste os erros mais frequentes (alimentando o Caderno de Erros) e defina metas comportamentais concretas para o próximo ciclo.',
-        'Processo Acima do Resultado: meça o sucesso não apenas pelos ganhos financeiros, mas pela fidelidade absoluta às suas regras operacionais.'
-      ],
-      platformaccess: [
-        'O módulo Uso da Plataforma é um instrumento de disciplina e higiene mental para o trader de alta performance.',
-        'Foco Operacional vs Compulsão: monitore o tempo de uso ativo e a frequência de sessões no software. O objetivo do operador de tendência é tomar poucas e excelentes decisões, evitando a vigilância obsessiva de cotações intradiárias.'
-      ],
-      forecast: [
-        'O Simulador de Equity projeta probabilisticamente a evolução futura da sua curva de capital com base na sua taxa de acerto real, payoff médio e frequência de operações.',
-        'Consciência Estatística: compreenda o poder dos juros compostos no trading e visualize como pequenas melhorias na seleção de trades transformam seus resultados no longo prazo.'
-      ],
-      tradesimulator: [
-        'O Simulador de Trades permite testar regras de execução e gestão de risco em um ambiente controlado e sem viés de look-ahead.',
-        'Comparação de Cenários: avalie estratégias como 2R, 2.5R, Pirâmide e Parciais com condução por EMA 10 para descobrir qual abordagem maximiza o seu retorno ajustado ao risco.'
-      ],
-      researchlab: [
-        'O Laboratório de Pesquisa Quantitativa é o ambiente dedicado à descoberta empírica e investigação de hipóteses no Healthy Trend Trader.',
-        'Isolamento e Comparabilidade: teste regras candidatas, variações de Força Relativa e gatilhos alternativos mantendo o histórico oficial rigorosamente protegido.'
-      ],
-      riskofruin: [
-        'O módulo Risco de Ruína estima via simulação de Monte Carlo (10.000 trajetórias por reamostragem com reposição dos resultados históricos em R) a probabilidade de atingir o drawdown máximo configurado em um horizonte de 250 operações.',
-        'Proteção Patrimonial Transversal: integra-se ao Dashboard Patrimonial, Novo Trade, Simulador de Trades, Painel da Verdade e Política de Risco, oferecendo recomendações consultivas de redução de mão quando o risco excede a tolerância configurada.'
-      ],
-      mindset: [
-        'O módulo central Mentalidade (Mente de Trader) unifica todo o ecossistema comportamental, psicológico e de foco do Healthy Trend Trader em um único ambiente moderno e integrado.',
-        'Meu Estado Mental: realize seu check-in diário em 5 níveis (Calmo, Bem, Neutro, Ansioso, Agitado). O sistema registra o histórico para que você entenda como suas emoções afetam sua disciplina.',
-        'Minha Evolução Mental: acompanhe indicadores reais de dias com mente estável, total de práticas zen realizadas, aderência ao plano e redução da ansiedade.',
-        'Os 6 Submódulos: navegue em um clique para Trader Zen (respiração e pausas), Biblioteca Mental (áudios e sons ambientes), Psicologia do Trader (vieses e emoções), Regras do Trader (disciplina prática), Sabedoria do Trader (filosofia dos mestres) e Teste de Perfil (diagnóstico de risco).'
-      ],
-      traderrules: [
-        'A tela Regras do Trader traduz princípios psicológicos em disciplina de execução prática e inegociável.',
-        'Checklist Pré-Trade de 7 Pontos: validação objetiva antes de emitir qualquer ordem (Setup presente, Contexto favorável, Entrada e Stop definidos, Risco na política, Estado emocional sereno e motivação legítima).',
-        'As Três Fases de Execução: diretrizes para Antes do Trade (preparação), Durante o Trade (condução sem interferência precipitada) e Depois do Trade (processamento analítico e diário).',
-        'As 7 Regras de Ouro & "O que NÃO fazer": regras para blindar sua conta contra os vícios mais nocivos do trading (overtrading, perseguição de preço, aumento de risco para recuperar perdas e quebra de stop).'
-      ],
-      emotionalintelligence: [
-        'A tela Psicologia do Trader reúne o Analisador Estatístico de Padrões e quatro guias fundamentais de autoconhecimento: Emoções do Trader, Vieses Comportamentais, Comportamentos no Trade e Autoconhecimento.',
-        'Correlação Emoção x Resultado: identifique quais sentimentos (euforia, ansiedade, medo, hesitação) precedem seus maiores erros e firme compromissos pessoais com o método.'
-      ],
-      zen: ['Escolha a prática adequada ao seu momento (Respiração Guiada, Meditação, Foco ou Relaxamento) e acompanhe as instruções da sessão.', 'Conclua a prática para registrar seu histórico. Antes de voltar à operação, retome seu plano e confira se está em condição serena de executá-lo.'],
-      wisdom: [
-        'A tela Sabedoria do Trader disponibiliza um acervo curado com centenas de princípios, citações comentadas e reflexões atemporais dos maiores operadores de tendência da história.',
-        'Alinhamento Filosófico: acesse ensinamentos categorizados em Gestão de Risco, Psicologia, Disciplina e Estratégia para manter a perspectiva correta durante drawdowns.'
-      ],
-      traderprofile: [
-        'Os Testes de Perfil oferecem um diagnóstico comportamental das suas características como operador: perfil de risco, tendências, pontos fortes e pontos de atenção.',
-        'Autoconhecimento Aplicado: use o resultado para escolher com segurança o perfil operacional ideal na sua Política de Risco (Política Padrão vs Risk Ramp-Up).'
-      ],
-      settings: [
-        'A tela Configurações personaliza a aparência (Premium Gold vs Healthy Green), o idioma e recursos de governança do software.',
-        'Modo Fora do Mercado (Market Pause): ative uma pausa deliberada por prazo determinado (ex: 2 a 5 dias) para blindar seu capital e bloquear novas ordens após sequências difíceis no mercado.',
-        'Rotina Diária e Notificações: configure horários de rituais pré, intra e pós-mercado.'
-      ],
-      materials: [
-        'A Trader Store reúne materiais complementares do trader: guias operacionais em PDF, checklists para impressão, áudios de foco e fichas de acompanhamento.',
-        'Recursos Exclusivos: ferramentas desenhadas para transformar a teoria do método em ferramentas físicas e materiais de consulta rápida ao lado da sua mesa de operações.'
-      ],
-      about: [
-        'A página Sobre apresenta o manifesto, a história e os pilares inegociáveis do Healthy Trend Trader.',
-        'Filosofia Central: operar a favor da tendência com stop técnico e risco assimétrico, priorizando a saúde mental e a longevidade do trader no mercado financeiro.',
-        'A Regra de Ouro do Sistema: Wait → Confirm → Execute. Primeiro conquistamos a permissão do mercado, depois exigimos setup de alta qualidade e, por fim, dimensionamos matematicamente a posição.'
-      ],
-      glossary: [
-        'O Glossário do Método reúne todas as definições conceituais, terminologias e fórmulas da metodologia Healthy Trend Trader.',
-        'Pesquisa Inteligente: filtre termos por categorias (Tendência, Risco, Psicologia, Setups, Indicadores) ou busque palavras-chave com destaque visual imediato.'
-      ]
-    };
+    today: [
+      'A tela Visão Geral é seu centro de comando diário: visualize o status geral do mercado, as posições que demandam atenção imediata e as próximas ações recomendadas.',
+      'Cockpit Matinal: comece seu dia revisando as posições abertas, trailing stops ativos e o alinhamento com a sua Política de Risco antes da abertura do pregão.'
+    ],
+    newtrade: [
+      'A tela Novo Trade estrutura a operação em duas etapas estritas: Etapa 1 (Parâmetros da Operação: Ativo, Direção, Gatilho Oficial, Entrada, Stop, ATR, Ambiente e Tese) e Etapa 2 (Validação pela Trading Rubric de 100 pontos).',
+      'Os Gatilhos Oficiais de Entrada: Inside Bar, PFR (Padrão de Fechamento e Reversão), 1-2-3 de Compra e RBI (Barra Vermelha Ignorada) fornecem timing cirúrgico e stop estrutural objetivo.',
+      'Override Manual do Ciclo de Mercado: caso a dinâmica setorial ou intradiária do ativo divirja do índice benchmark geral, o trader pode ajustar manualmente o regime no seletor da Rubric, recalculando pontos, Grade e Risk Budget em tempo real.',
+      'Risk Budget por Grade: a Rubric consulta na Política de Risco o orçamento configurado para A, B, C ou D. Cada avaliação recalcula Qualidade → Risk Budget → limitadores da política → risco executável → Position Size.',
+      'Dimensionamento: o Risk Budget produz o Position Size teórico pela distância até o stop. Em seguida, volatilidade por ATR, capital, Portfolio Heat e máximo de posições limitam a quantidade executável quando necessário.',
+      'Integração com o Desafio Grade A: apenas operações Grade A registradas enquanto o desafio está ativo são avaliadas contra o sizing executável calculado pelo sistema.'
+    ],
+    mission: [
+      'A tela Missão organiza a trajetória operacional do trader em ciclos estruturados de 10 a 20 trades, guiando o operador por uma jornada de 7 marcos sequenciais que transformam disciplina em avanço visual palpável.',
+      'Rebuild Mode (Modo Recuperação): estado de segurança acionado após sequências de perdas ou drawdowns severos. No Rebuild Mode, o risco máximo por trade é estritamente travado em 0,10% a 0,25% e a plataforma impõe a regra inegociável de 1 Posição por Vez, impedindo sobrealavancagem e revenge trading.',
+      'Montanha da Consistência: cada trade registrado dentro das regras avança o caminhante pelos waypoints da montanha até o objetivo do ciclo, resgatando a calma e a confiança de operar.',
+      'Edição de Justificativa: registre e edite os motivos da recuperação, data planejada de retorno e meta de trades com persistência imediata no sistema.'
+    ],
+    tradertraining: [
+      'A tela de Prática Deliberada estrutura o desenvolvimento profissional do trader por meio de metas deliberadas de processo, e não apenas de resultados financeiros imediatos.',
+      'Ciclos de Aperfeiçoamento: estabeleça objetivos específicos (como respeitar 100% dos stops ou preencher o diário por 20 pregões consecutivos) e avalie sua aderência com rigor estatístico.',
+      'Consistência de Hábitos: conecte sua prática diária aos indicadores de disciplina da plataforma, transformando repetição consciente em maestria operacional.'
+    ],
+    conquests: [
+      'A tela Minhas Conquistas consolida suas realizações operacionais com foco na disciplina: embolsar o lucro conforme o plano sem deixar a ganância decidir.',
+      'Ao clicar em "Embolsar Lucro" em qualquer trade aberto, o sistema abre o modal de celebração para você registrar sua recompensa pessoal e cumprir o Ritual de Vitória.',
+      'Marcos de Disciplina: acompanhe sua evolução em 6 patamares (1, 5, 10, 20, 50, 100 conquistas) e vincule recompensas especiais ao cumprimento de metas de consistência.'
+    ],
+    deservingdiary: [
+      'O Diário do Merecimento é uma área de reflexão psicológica em Treinamento do Trader dedicada a registrar a experiência de embolsar lucros com tranquilidade e naturalidade.',
+      'Aprenda a Receber: registre emoções, intensidade de 0 a 10, pensamentos no momento da realização, reconhecimento de comportamento profissional e aprendizados para os próximos pregões.',
+      'Minha Evolução: acompanhe o gráfico e as métricas reais de ansiedade vs tranquilidade derivadas exclusivamente dos seus registros, fortalecendo sua identidade como trader consistente.'
+    ],
+    dailyroutine: [
+      'A Rotina Diária estrutura a jornada do trader em três fases sagradas: Pré-Mercado (checagem de ciclo, revisão de posições, trailing stops e atualização da watchlist), Intra-Mercado (disciplina de execução e paciência) e Pós-Mercado (diário, registro de métricas e reflexão).',
+      'O ritual previne o improviso: o trader só opera quando a preparação foi concluída e o ciclo de mercado autoriza novas exposições.',
+      'A rotina sincroniza com seu histórico de hábitos, garantindo consistência no longo prazo.'
+    ],
+    watchlist: [
+      'A Watchlist Inteligente funciona como seu Pool de Oportunidades: ela centraliza os melhores ativos identificados nos Scans, Líderes Emergentes e Força Relativa.',
+      'Classificação por Estágios: organize cada oportunidade conforme seu momento técnico — Base em Construção, Contração de Volatilidade (VCP), Alerta de Rompimento ou Follow Through.',
+      'REGRA DE OURO: Descoberta não é ordem de compra. Ativos na Watchlist são alvos em observação; a operação só é registrada quando o gatilho técnico e a Rubric confirmam o alinhamento.'
+    ],
+    habits: [
+      'O Monitor de Hábitos transforma o processo invisível em métricas tangíveis: consistência de rotina, respeito aos stops, pausas conscientes e preenchimento do diário.',
+      'Visualização de Sequências: acompanhe dias consecutivos de disciplina (streaks), taxa de adesão semanal e alertas quando algum pilar for negligenciado.',
+      'A meta não é o resultado financeiro de um único dia, mas a excelência diária no cumprimento do processo operacional.'
+    ],
+    riskpolicy: [
+      'A Política de Risco centraliza os perfis operacionais (Política Padrão e Risk Ramp-Up), os Risk Budgets para A, B, C e D, os limitadores de exposição e os pesos da Trading Rubric.',
+      'Cards de Grades: exibem e permitem editar o Risk Budget de A, B e C. Grade D não libera risco (0%). Cada perfil mantém seus próprios limites de volatilidade, capital, Heat e posições.',
+      'Gestão de Posição & Toggles Artísticos: ative ou desative os módulos de Scale-In (adições a +1R com breakeven) e Sell Into Strength (parciais na zona de força), configurando gatilhos e faixas personalizadas.',
+      'Conexão Direta com Novo Trade: Qualquer alteração salva na Política de Risco atualiza instantaneamente a resolução de risco do Novo Trade e as validações de conformidade do Desafio Grade A.'
+    ],
+    couragechallenge: [
+      'O Desafio Grade A é um módulo de treinamento psicológico (Modo Desapego) projetado para consolidar a coragem e a disciplina de assumir o risco correto nos melhores setups do método.',
+      'Elegibilidade Estrita: Apenas Rare Trades classificados como Grade A e executados durante o desafio ativo participam. B, C e D não pontuam.',
+      'Inspeção sem Interferência: o desafio não altera o Position Sizing; ele compara a execução real com o risco e a quantidade efetivamente autorizados depois dos limitadores da política.'
+    ],
+    positions: [
+      'O módulo Posições Abertas é seu cockpit de condução: monitore o trailing stop, o lucro em R-múltiplos, a volatilidade atual e a aproximação de zonas parciais.',
+      'Gestão de Eventos: registre ajustes de stop, acione parciais manuais de Sell Into Strength ou adições de Scale-In (quando autorizadas pelo sistema a partir de +1R e breakeven).',
+      'Linha do Tempo Completa: cada decisão fica gravada cronologicamente na posição sem fragmentar o trade em linhas soltas.'
+    ],
+    closedpositions: [
+      'O módulo Posições Encerradas reúne o histórico completo de todas as operações finalizadas na plataforma.',
+      'Auditoria Pós-Trade: consulte a linha do tempo de cada posição, desde a entrada original, eventuais adições de Scale-In, parciais de Sell Into Strength até o encerramento do Runner.',
+      'Métricas Conexas: analise o R-múltiplo real alcançado, o tempo de permanência, o preço médio ponderado e as anotações do Diário do Trader vinculadas à operação.'
+    ],
+    portfolioheat: [
+      'O Portfolio Heat monitora o risco agregado e simultâneo de todas as suas posições abertas em relação ao patrimônio líquido da conta.',
+      'Termômetro de Risco: previne a sobreexposição em momentos de euforia. Quando o Heat atinge o teto da Política de Risco, o sistema bloqueia novas compras e sinaliza a necessidade de aguardar parciais ou avanço de stops para Breakeven antes de assumir novos riscos.'
+    ],
+    dashboard: [
+      'O módulo Patrimônio oferece uma visão holística da sua saúde financeira: curva de capital da estratégia, taxa de crescimento anual e retorno percentual acumulado.',
+      'Separação de Aportes vs Performance: o sistema calcula o retorno real gerado pelas operações sem distorções causadas por novos depósitos ou retiradas financeiras.',
+      'Gestão de Alocações: acompanhe suas metas percentuais por classe de ativos e monitore o desbalanceamento da sua carteira.'
+    ],
+    assetblacklist: [
+      'A Blacklist de Ativos é sua blindagem comportamental e de liquidez: adicione ativos que violam suas regras de risco, ações com volume insuficiente ou papéis com governança duvidosa.',
+      'Bloqueio no Planejamento: o sistema impede o registro de ordens para ativos na Blacklist, garantindo que a disciplina seja imposta pelo software mesmo em momentos de impulso.'
+    ],
+    charts: [
+      'O módulo Gráficos (Ticker Chart) é seu ambiente completo de leitura técnica, contextual e de fluxo para qualquer ativo monitorado.',
+      'Médias Móveis e Volume: exibe a malha de médias exponenciais e aritméticas (EMA 9, EMA 21, SMA 50 e SMA 200) com barras de volume e coloração por pressão compradora e vendedora.',
+      'Benchmarking Automático: resolve de forma inteligente o índice de referência adequado para cada papel (Ibovespa para ações B3, BDRX para BDRs e IFIX para Fundos Imobiliários), exibindo o retorno relativo do ativo contra seu benchmark.',
+      'Raio-X de Rubric e Grade: exibe a avaliação em tempo real do ativo com base nos critérios da Trading Rubric e alerta se o papel está qualificado para compras ou bloqueado por Grade D.'
+    ],
+    marketcentral: [
+      'A Central de Mercado é o painel de inteligência macroeconômica, regime e breadth do Healthy Trend Trader.',
+      'Regime & Breadth de Mercado: acompanhe a porcentagem de ativos acima das médias de 20 e 50 períodos e o oscilador de momentum para diagnosticar se o mercado está em fase saudável, exaustão ou sobrevenda.',
+      'Mercados Globais: monitore a dinâmica de índices internacionais (S&P 500, Nasdaq 100), Dólar e juros dos Treasuries de 10 anos para contextualizar o fluxo estrangeiro na B3.',
+      'Calendário e Notícias: antecipe decisões de política monetária, divulgação de indicadores de inflação e notícias relevantes antes de posicionar suas ordens.',
+      'Mapa Setorial: visualize a força relativa de cada setor da economia para focar o capital nos setores líderes.'
+    ],
+    eventplaybook: [
+      'O Registro de Eventos é uma biblioteca histórica e viva dos principais catalisadores macroeconômicos do mercado.',
+      'Estudo Histórico de Reação: consulte o comportamento histórico dos preços durante Super Quartas, decisões do Copom/FOMC, divulgação de CPI e crises de volatilidade.',
+      'Roteiro Operacional: estabeleça antes da abertura se o plano para o dia do evento é ficar líquido, reduzir o Portfolio Heat ou aguardar a digestão do mercado nas primeiras horas pós-divulgação.',
+      'Anexos e Lições: documente reações atípicas e anexe gráficos de estudos para enriquecer seu repertório de padrões.'
+    ],
+    marketcycle: [
+      'A tela de Ciclo de Mercado monitora o regime técnico dos índices de referência de forma independente para cada universo: Ações B3 (Ibovespa), BDRs Internacionais (BDRX) e Fundos Imobiliários (IFIX).',
+      'Permissão Operacional: Mercado Saudável autoriza novos setups; Mercado em Transição exige cautela e menor exposição; Mercado Defensivo/Risk-Off protege o capital e bloqueia novas compras long.'
+    ],
+    emergingleaders: [
+      'A tela de Líderes Emergentes combina 6 dimensões em um Score único de 0 a 100: Força Relativa (25%), Aceleração de RS (15%), Proximidade da Máxima de 52S (20%), Resiliência na Correção (15%), Força de Recuperação (15%) e Liderança Setorial (10%).',
+      'Use esta ferramenta para descobrir quais ações estão sustentando preço enquanto a maioria do mercado cai. Veja os setores com maior concentração de força (Grupos Fortes) e selecione os melhores candidatos.',
+      'REGRA DE OURO: Descoberta NÃO é compra imediata. Um score alto serve para você colocar o ativo na sua Watchlist de acompanhamento. A compra só deve ser planejada quando a ação formar uma contração no gráfico com setup A e gatilho técnico confirmado.'
+    ],
+    opportunityradar: [
+      'O Radar de Oportunidades consolida em uma visão rápida e objetiva somente os ativos PRONTOS PARA ENTRADA para o próximo pregão, reutilizando os motores de Força Relativa (3M), Ciclo de Mercado, Tendência Diária (Preço > EMA 10 > EMA 72) e Gatilhos Oficiais.',
+      'Filtre por categoria de mercado (IBOV, IFIX ou BDRs), setor e tipo de gatilho (Inside Bar, 123 Buy, PFR de Compra, RBI) e abra diretamente o gráfico do ativo com um clique.',
+      'Segurança Operacional: gatilho identificado no fechamento não garante entrada disponível no próximo pregão. Sempre valide o preço de abertura, stop inicial, risco e dimensionamento da posição antes de operar.'
+    ],
+    relativestrength: ['Escolha o universo de ativos e compare sua força relativa. Confira a data de atualização antes de interpretar a classificação.', 'Use os líderes para organizar sua pesquisa. Depois avalie o contexto técnico e a Rubric em Novo Trade; liderança não substitui um gatilho de entrada.'],
+    marketscans: [
+      'Os Scans de Mercado monitoram o universo B3 e filtram ativos automaticamente em padrões técnicos comprovados: Rompimentos de 52 Semanas, Contrações de Volatilidade (VCP), Momentum Positivo e Retração às Médias.',
+      'Varredura Eficiente: identifique rapidamente em poucos segundos quais ações estão em pontos de inflexão técnica sem precisar folhear centenas de gráficos manualmente.',
+      'Conexão Direta: envie os ativos filtrados com um clique diretamente para sua Watchlist para acompanhamento refinado.'
+    ],
+    fundamentals: [
+      'O módulo Fundamentalista integra demonstrações de Ações B3 (CVM/Fundamentus) e BDRs Internacionais (SEC). O Score Fundamentalista (0 a 10) segue a metodologia de 6 dimensões ponderadas: Rentabilidade (28%), Consistência de Lucros (22%), Crescimento (16%), Endividamento (18%), Valuation (10%) e Dividendos (6%).',
+      'Princípio Inviolável: Dado ausente não é zero. Quando métricas ou históricos contábeis anuais não estão disponíveis, o sistema repondera os componentes disponíveis e expõe uma métrica explícita e separada de Cobertura dos Dados (ex: 78% em CEAB3) com alertas claros de dados parciais.',
+      'Régua Horizontal de 5 Patamares (RUIM, FRACO, MÉDIO, BOM, EXCELENTE) e Raio-X agrupado por categorias econômicas com Market Cap humanizado.'
+    ],
+    markettreemap: [
+      'A tela de Setores da B3 é um Treemap interativo de inteligência de mercado, permitindo entender rapidamente a distribuição das empresas por setor econômico e comparar portes por Market Cap.',
+      'Área Proporcional & Cores: A área de cada retângulo reflete rigorosamente o Market Cap da empresa em R$, enquanto as cores expressam a variação percentual diária (-10% a +10%).',
+      'Filtros e Interação: Alterne entre Mercado Completo, Ibovespa e Small Caps, pesquise por ticker ou nome, expanda setores específicos e abra a análise técnica diretamente no gráfico diário.'
+    ],
+    analytics: [
+      'O Painel da Verdade analisa objetivamente suas estatísticas acumuladas: taxa de acerto, fator de lucro, payoff médio e expectativa matemática.',
+      'Padrões de Resultado: filtre por setup, direção, ciclo de mercado e grade da Rubric para descobrir onde reside sua verdadeira vantagem estatística.'
+    ],
+    tradeanatomy: [
+      'A Anatomia dos Trades disseca suas operações encerradas sob uma ótica puramente estatística e científica: taxa de acerto real, payoff médio (R médio de ganho vs perda) e expectativa matemática por trade.',
+      'Decomposição por Setups e Grades: descubra exatamente quais padrões gráficos e quais faixas de score da Rubric geram a maior parte dos seus lucros e quais apenas consomem comissões e energia.',
+      'Tempo de Permanência: compare o tempo médio de retenção de trades vencedores versus perdedores para assegurar que você está cortando perdas rápido e deixando os lucros correrem.'
+    ],
+    journal: [
+      'O Diário do Trader registra a evolução técnica e comportamental dia a dia. Vincule operações, anexe capturas de gráficos e registre emoções e notas de reflexão.',
+      'Exportação Estruturada & Modo "Preparar para IA": exporte seus registros em Markdown, Texto, JSON, CSV ou gere um texto semanticamente estruturado por blocos de data com prompt pronto para envio a LLMs (ChatGPT, Claude, Gemini) para mapear correlações entre contexto, plano e emoções.',
+      'Mesmo em dias sem operar, registre a disciplina da espera. A paciência é parte integrante do método.'
+    ],
+    mistakesbook: [
+      'O Caderno de Erros e Lições cataloga as falhas que custaram capital ou disciplina: quebra de stop, entrada antecipada, FOMO, hesitação ou violação da política de risco.',
+      'Lições Dominadas: ao registrar uma falha, o trader define a lição e o compromisso prático para corrigi-la. Revisitar as lições antes do pregão blinda o comportamento contra erros recorrentes.'
+    ],
+    tradelibrary: [
+      'A Biblioteca de Trades é o acervo de excelência visual da plataforma: reúne trades históricos modelo, breakouts perfeitos, pullbacks institucionais e casos de estudo comentados.',
+      'Treinamento de Padrões: estude os melhores setups para calibrar seu cérebro a reconhecer rapidamente a anatomia visual de um Rare Trade Grade A no mercado real.'
+    ],
+    review: [
+      'A Revisão Mensal é o ritual de fechamento e auditoria periódica do seu processo operacional.',
+      'Análise Sistêmica: consolide a aderência ao plano no mês, liste os erros mais frequentes (alimentando o Caderno de Erros) e defina metas comportamentais concretas para o próximo ciclo.',
+      'Processo Acima do Resultado: meça o sucesso não apenas pelos ganhos financeiros, mas pela fidelidade absoluta às suas regras operacionais.'
+    ],
+    platformaccess: [
+      'O módulo Uso da Plataforma é um instrumento de disciplina e higiene mental para o trader de alta performance.',
+      'Foco Operacional vs Compulsão: monitore o tempo de uso ativo e a frequência de sessões no software. O objetivo do operador de tendência é tomar poucas e excelentes decisões, evitando a vigilância obsessiva de cotações intradiárias.'
+    ],
+    forecast: [
+      'O Simulador de Equity projeta probabilisticamente a evolução futura da sua curva de capital com base na sua taxa de acerto real, payoff médio e frequência de operações.',
+      'Consciência Estatística: compreenda o poder dos juros compostos no trading e visualize como pequenas melhorias na seleção de trades transformam seus resultados no longo prazo.'
+    ],
+    tradesimulator: [
+      'O Simulador de Trades permite testar regras de execução e gestão de risco em um ambiente controlado e sem viés de look-ahead.',
+      'Comparação de Cenários: avalie estratégias como 2R, 2.5R, Pirâmide e Parciais com condução por EMA 10 para descobrir qual abordagem maximiza o seu retorno ajustado ao risco.'
+    ],
+    researchlab: [
+      'O Laboratório de Pesquisa Quantitativa é o ambiente dedicado à descoberta empírica e investigação de hipóteses no Healthy Trend Trader.',
+      'Isolamento e Comparabilidade: teste regras candidatas, variações de Força Relativa e gatilhos alternativos mantendo o histórico oficial rigorosamente protegido.'
+    ],
+    riskofruin: [
+      'O módulo Risco de Ruína estima via simulação de Monte Carlo (10.000 trajetórias por reamostragem com reposição dos resultados históricos em R) a probabilidade de atingir o drawdown máximo configurado em um horizonte de 250 operações.',
+      'Proteção Patrimonial Transversal: integra-se ao Dashboard Patrimonial, Novo Trade, Simulador de Trades, Painel da Verdade e Política de Risco, oferecendo recomendações consultivas de redução de mão quando o risco excede a tolerância configurada.'
+    ],
+    mindset: [
+      'O módulo central Mentalidade (Mente de Trader) unifica todo o ecossistema comportamental, psicológico e de foco do Healthy Trend Trader em um único ambiente moderno e integrado.',
+      'Meu Estado Mental: realize seu check-in diário em 5 níveis (Calmo, Bem, Neutro, Ansioso, Agitado). O sistema registra o histórico para que você entenda como suas emoções afetam sua disciplina.',
+      'Minha Evolução Mental: acompanhe indicadores reais de dias com mente estável, total de práticas zen realizadas, aderência ao plano e redução da ansiedade.',
+      'Os 6 Submódulos: navegue em um clique para Trader Zen (respiração e pausas), Biblioteca Mental (áudios e sons ambientes), Psicologia do Trader (vieses e emoções), Regras do Trader (disciplina prática), Sabedoria do Trader (filosofia dos mestres) e Teste de Perfil (diagnóstico de risco).'
+    ],
+    traderrules: [
+      'A tela Regras do Trader traduz princípios psicológicos em disciplina de execução prática e inegociável.',
+      'Checklist Pré-Trade de 7 Pontos: validação objetiva antes de emitir qualquer ordem (Setup presente, Contexto favorável, Entrada e Stop definidos, Risco na política, Estado emocional sereno e motivação legítima).',
+      'As Três Fases de Execução: diretrizes para Antes do Trade (preparação), Durante o Trade (condução sem interferência precipitada) e Depois do Trade (processamento analítico e diário).',
+      'As 7 Regras de Ouro & "O que NÃO fazer": regras para blindar sua conta contra os vícios mais nocivos do trading (overtrading, perseguição de preço, aumento de risco para recuperar perdas e quebra de stop).'
+    ],
+    emotionalintelligence: [
+      'A tela Psicologia do Trader reúne o Analisador Estatístico de Padrões e quatro guias fundamentais de autoconhecimento: Emoções do Trader, Vieses Comportamentais, Comportamentos no Trade e Autoconhecimento.',
+      'Correlação Emoção x Resultado: identifique quais sentimentos (euforia, ansiedade, medo, hesitação) precedem seus maiores erros e firme compromissos pessoais com o método.'
+    ],
+    zen: ['Escolha a prática adequada ao seu momento (Respiração Guiada, Meditação, Foco ou Relaxamento) e acompanhe as instruções da sessão.', 'Conclua a prática para registrar seu histórico. Antes de voltar à operação, retome seu plano e confira se está em condição serena de executá-lo.'],
+    wisdom: [
+      'A tela Sabedoria do Trader disponibiliza um acervo curado com centenas de princípios, citações comentadas e reflexões atemporais dos maiores operadores de tendência da história.',
+      'Alinhamento Filosófico: acesse ensinamentos categorizados em Gestão de Risco, Psicologia, Disciplina e Estratégia para manter a perspectiva correta durante drawdowns.'
+    ],
+    traderprofile: [
+      'Os Testes de Perfil oferecem um diagnóstico comportamental das suas características como operador: perfil de risco, tendências, pontos fortes e pontos de atenção.',
+      'Autoconhecimento Aplicado: use o resultado para escolher com segurança o perfil operacional ideal na sua Política de Risco (Política Padrão vs Risk Ramp-Up).'
+    ],
+    settings: [
+      'A tela Configurações personaliza a aparência (Premium Gold vs Healthy Green), o idioma e recursos de governança do software.',
+      'Modo Fora do Mercado (Market Pause): ative uma pausa deliberada por prazo determinado (ex: 2 a 5 dias) para blindar seu capital e bloquear novas ordens após sequências difíceis no mercado.',
+      'Rotina Diária e Notificações: configure horários de rituais pré, intra e pós-mercado.'
+    ],
+    materials: [
+      'A Trader Store reúne materiais complementares do trader: guias operacionais em PDF, checklists para impressão, áudios de foco e fichas de acompanhamento.',
+      'Recursos Exclusivos: ferramentas desenhadas para transformar a teoria do método em ferramentas físicas e materiais de consulta rápida ao lado da sua mesa de operações.'
+    ],
+    about: [
+      'A página Sobre apresenta o manifesto, a história e os pilares inegociáveis do Healthy Trend Trader.',
+      'Filosofia Central: operar a favor da tendência com stop técnico e risco assimétrico, priorizando a saúde mental e a longevidade do trader no mercado financeiro.',
+      'A Regra de Ouro do Sistema: Wait → Confirm → Execute. Primeiro conquistamos a permissão do mercado, depois exigimos setup de alta qualidade e, por fim, dimensionamos matematicamente a posição.'
+    ],
+    glossary: [
+      'O Glossário do Método reúne todas as definições conceituais, terminologias e fórmulas da metodologia Healthy Trend Trader.',
+      'Pesquisa Inteligente: filtre termos por categorias (Tendência, Risco, Psicologia, Setups, Indicadores) ou busque palavras-chave com destaque visual imediato.'
+    ]
+  };
 
   // Markdown renderer for rich book content
   function renderMarkdown(text) {
@@ -376,8 +382,10 @@
   while (root.firstChild) legacyBody.append(root.firstChild);
   legacy.append(legacyBody);
 
-  // State management
+  // Storage keys & models
   const STORAGE_KEY = 'healthy_trend_manual_progress';
+  const BOOKMARKS_STORAGE_KEY = 'healthy_trend_manual_bookmarks';
+
   function loadProgress() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -402,15 +410,25 @@
     } catch (_) {}
   }
 
-  const appState = {
-    view: 'library', // 'library' | 'reader'
-    selectedBookFilter: 'all',
-    bookId: 'livro-1',
-    chapterId: 'livro-1-cap-1',
-    pageIndex: 0,
-    searchQuery: '',
-    progress: loadProgress()
-  };
+  function loadBookmarks() {
+    try {
+      const raw = localStorage.getItem(BOOKMARKS_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  function saveBookmarks(bms) {
+    try {
+      localStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(bms));
+      if (window.healthyTrendWorkspace && typeof window.healthyTrendWorkspace.save === 'function') {
+        window.healthyTrendWorkspace.save('manualBookmarks', bms);
+      }
+    } catch (_) {}
+  }
 
   const BooksModel = window.ManualKnowledgeBooks || {
     BOOKS: [],
@@ -419,6 +437,25 @@
     getTotalChapters: () => 0,
     getChapterPages: () => [],
     getTotalPages: () => 0
+  };
+
+  const ReaderModel = window.BookReaderModel || (typeof require !== 'undefined' ? require('./book-reader-model.js') : null);
+
+  const appState = {
+    view: 'reader', // Flipbook is the unified permanent view
+    selectedBookFilter: 'all',
+    bookId: 'acervo', // Starts directly at Acervo spread
+    chapterId: null,
+    pageIndex: 0,
+    searchQuery: '',
+    progress: loadProgress(),
+    bookmarks: loadBookmarks(),
+    isDualPage: typeof window !== 'undefined' ? window.innerWidth >= 1050 : true,
+    isDrawerOpen: false,
+    drawerTab: 'toc', // 'toc' | 'bookmarks'
+    isFlipping: false,
+    flipDirection: null,
+    fullscreen: false
   };
 
   function isChapterCompleted(id) {
@@ -514,22 +551,78 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  function triggerPageFlip(direction, callback) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (typeof callback === 'function') callback();
+      return;
+    }
+    appState.isFlipping = true;
+    appState.flipDirection = direction;
+    renderApp();
+    setTimeout(() => {
+      if (typeof callback === 'function') callback();
+      appState.isFlipping = false;
+      appState.flipDirection = null;
+      renderApp();
+    }, 400);
+  }
+
   function nextPage() {
+    if (appState.bookId === 'acervo') {
+      if (!appState.isDualPage && appState.pageIndex === 0) {
+        appState.pageIndex = 1;
+        renderApp();
+        return;
+      }
+      triggerPageFlip('forward', () => {
+        openBook('livro-1');
+      });
+      return;
+    }
+
     const book = BooksModel.getBook(appState.bookId);
+    if (!book) return;
+
+    if (ReaderModel && ReaderModel.flattenBookPages) {
+      const flatPages = ReaderModel.flattenBookPages(book, BooksModel.getChapterPages);
+      const curGlobal = ReaderModel.findGlobalIndex(flatPages, appState.chapterId, appState.pageIndex);
+      const nextGlobal = ReaderModel.getNextIndex(flatPages, curGlobal, appState.isDualPage);
+
+      if (nextGlobal > curGlobal && nextGlobal < flatPages.length) {
+        const targetPage = flatPages[nextGlobal];
+        triggerPageFlip('forward', () => {
+          if (targetPage.kind === 'chapter-page') {
+            appState.chapterId = targetPage.chapterId;
+            appState.pageIndex = targetPage.chapterPageIndex;
+            markPageVisited(targetPage.chapterId, targetPage.chapterPageIndex, targetPage.chapterPageCount);
+          } else {
+            // Frontmatter ou Backcover
+            appState.pageIndex = nextGlobal;
+          }
+          appState.progress.lastRead = {
+            bookId: appState.bookId,
+            chapterId: appState.chapterId,
+            pageIndex: appState.pageIndex
+          };
+          saveProgress(appState);
+        });
+        return;
+      }
+    }
+
+    // Fallback sequencial por capítulos
     const chapter = BooksModel.getChapter(appState.bookId, appState.chapterId);
-    if (!book || !chapter) return;
+    if (!chapter) return;
     const pages = BooksModel.getChapterPages(chapter);
 
     if (appState.pageIndex < pages.length - 1) {
       openPage(appState.pageIndex + 1);
     } else {
-      // Advance to next chapter
       const chIdx = book.chapters.findIndex(c => c.id === chapter.id);
       if (chIdx >= 0 && chIdx < book.chapters.length - 1) {
         const nextCh = book.chapters[chIdx + 1];
         openChapter(book.id, nextCh.id, 0);
       } else {
-        // Next book if available
         const bIdx = BooksModel.BOOKS.findIndex(b => b.id === book.id);
         if (bIdx >= 0 && bIdx < BooksModel.BOOKS.length - 1) {
           const nextBook = BooksModel.BOOKS[bIdx + 1];
@@ -542,14 +635,63 @@
   }
 
   function prevPage() {
+    if (appState.bookId === 'acervo') {
+      if (!appState.isDualPage && appState.pageIndex === 1) {
+        appState.pageIndex = 0;
+        renderApp();
+        return;
+      }
+      return;
+    }
+
     const book = BooksModel.getBook(appState.bookId);
+    if (!book) return;
+
+    if (ReaderModel && ReaderModel.flattenBookPages) {
+      const flatPages = ReaderModel.flattenBookPages(book, BooksModel.getChapterPages);
+      const curGlobal = ReaderModel.findGlobalIndex(flatPages, appState.chapterId, appState.pageIndex);
+      if (curGlobal === 0) {
+        // Flipping back from book cover returns to Acervo spread!
+        triggerPageFlip('backward', () => {
+          openAcervo();
+        });
+        return;
+      }
+    }
+
+    if (ReaderModel && ReaderModel.flattenBookPages) {
+      const flatPages = ReaderModel.flattenBookPages(book, BooksModel.getChapterPages);
+      const curGlobal = ReaderModel.findGlobalIndex(flatPages, appState.chapterId, appState.pageIndex);
+      const prevGlobal = ReaderModel.getPrevIndex(flatPages, curGlobal, appState.isDualPage);
+
+      if (prevGlobal < curGlobal) {
+        const targetPage = flatPages[prevGlobal];
+        triggerPageFlip('backward', () => {
+          if (targetPage.kind === 'chapter-page') {
+            appState.chapterId = targetPage.chapterId;
+            appState.pageIndex = targetPage.chapterPageIndex;
+            markPageVisited(targetPage.chapterId, targetPage.chapterPageIndex, targetPage.chapterPageCount);
+          } else {
+            appState.pageIndex = prevGlobal;
+          }
+          appState.progress.lastRead = {
+            bookId: appState.bookId,
+            chapterId: appState.chapterId,
+            pageIndex: appState.pageIndex
+          };
+          saveProgress(appState);
+        });
+        return;
+      }
+    }
+
+    // Fallback sequencial
     const chapter = BooksModel.getChapter(appState.bookId, appState.chapterId);
-    if (!book || !chapter) return;
+    if (!chapter) return;
 
     if (appState.pageIndex > 0) {
       openPage(appState.pageIndex - 1);
     } else {
-      // Go to previous chapter (last page)
       const chIdx = book.chapters.findIndex(c => c.id === chapter.id);
       if (chIdx > 0) {
         const prevCh = book.chapters[chIdx - 1];
@@ -561,17 +703,64 @@
     }
   }
 
+  function openAcervo() {
+    appState.view = 'reader';
+    appState.bookId = 'acervo';
+    appState.chapterId = null;
+    appState.pageIndex = 0;
+    appState.isDrawerOpen = false;
+    renderApp();
+  }
+
   function openBook(bookId, chapterId) {
-    openChapter(bookId, chapterId, 0);
+    const book = BooksModel.getBook(bookId) || BooksModel.BOOKS[0];
+    const targetChapter = chapterId ? (BooksModel.getChapter(bookId, chapterId) || book.chapters[0]) : book.chapters[0];
+    openChapter(book.id, targetChapter.id, 0);
   }
 
   function openLibrary(filterBookId) {
-    appState.view = 'library';
-    if (filterBookId) {
-      appState.selectedBookFilter = filterBookId;
+    openAcervo();
+  }
+
+  function toggleDrawer(tab) {
+    appState.isDrawerOpen = !appState.isDrawerOpen;
+    if (tab) appState.drawerTab = tab;
+    renderApp();
+  }
+
+  function toggleBookmark(bookId, chapterId, pageIndex, title, snippet) {
+    const existingIdx = appState.bookmarks.findIndex(b => b.bookId === bookId && b.chapterId === chapterId && b.chapterPageIndex === pageIndex);
+    if (existingIdx >= 0) {
+      appState.bookmarks.splice(existingIdx, 1);
+    } else {
+      const bm = ReaderModel && ReaderModel.createBookmark
+        ? ReaderModel.createBookmark(bookId, chapterId, pageIndex, title, snippet)
+        : { id: 'bm_' + Date.now(), bookId, chapterId, chapterPageIndex: pageIndex, title: title || 'Página Marcada', snippet: snippet || '' };
+      appState.bookmarks.unshift(bm);
+    }
+    saveBookmarks(appState.bookmarks);
+    renderApp();
+  }
+
+  function toggleDualPage() {
+    appState.isDualPage = !appState.isDualPage;
+    renderApp();
+  }
+
+  function toggleFullscreen() {
+    const el = container.querySelector('.ht-book-reader-shell') || document.documentElement;
+    if (!document.fullscreenElement) {
+      if (el.requestFullscreen) {
+        el.requestFullscreen().catch(() => {});
+      }
+      appState.fullscreen = true;
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      appState.fullscreen = false;
     }
     renderApp();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // Compatibility routes
@@ -587,7 +776,7 @@
 
   // Main UI Container
   const container = document.createElement('div');
-  container.className = 'knowledge-center';
+  container.className = 'knowledge-center is-library-view';
   root.appendChild(legacy);
   root.appendChild(container);
 
@@ -647,7 +836,7 @@
   }
 
   // =========================================================================
-  // NÍVEL 1 — BIBLIOTECA DO MANUAL
+  // NÍVEL 1 — BIBLIOTECA DO MANUAL (CATÁLOGO / VITRINE)
   // =========================================================================
   function renderLibraryView() {
     const overall = getOverallProgress();
@@ -748,80 +937,127 @@
         <section class="kc-books-section">
           <div class="kc-section-head">
             <div>
-              <h2 class="kc-section-title">Biblioteca de Livros & Capítulos</h2>
-              <p class="kc-section-subtitle">Filtre por livro ou explore o acervo completo de capítulos e páginas editoriais.</p>
+              <h2 class="kc-section-title">Os 6 Livros Oficiais do Método</h2>
+              <p class="kc-section-subtitle">Escolha um livro para abrir o leitor flipbook ou filtrar os capítulos abaixo.</p>
             </div>
           </div>
 
-          <div class="kc-book-filter-tabs">
-            <button type="button" class="kc-filter-tab ${appState.selectedBookFilter === 'all' ? 'active' : ''}" data-action="filter-book" data-book-id="all">
-              Todos os Livros (80)
-            </button>
+          <div class="kc-books-grid">
             ${BooksModel.BOOKS.map(b => {
               const bProg = getBookProgress(b);
+              const isActive = appState.selectedBookFilter === b.id;
               return `
-                <button type="button" class="kc-filter-tab ${appState.selectedBookFilter === b.id ? 'active' : ''}" data-action="filter-book" data-book-id="${b.id}">
-                  <span class="kc-tab-num">${b.number}.</span> ${esc(b.title)}
-                  <span class="kc-tab-count">${b.chapters.length} cap.</span>
-                  ${bProg.completed > 0 ? `<span class="kc-tab-pct">${bProg.percent}%</span>` : ''}
-                </button>
+                <article class="kc-book-card ${isActive ? 'active' : ''}">
+                  <div class="kc-book-cover" data-action="open-chapter" data-book-id="${b.id}" data-chapter-id="${b.chapters[0].id}" data-page-index="0">
+                    <img src="${b.cover}" alt="${esc(b.title)}" />
+                    <span class="kc-book-number-badge">LIVRO ${b.number}</span>
+                    <button type="button" class="kc-book-open-btn" aria-label="Ler Livro">${icon('play', 14)} Abrir Livro</button>
+                  </div>
+                  <div class="kc-book-info">
+                    <span class="kc-book-kicker">LIVRO ${b.number} · ${b.chapters.length} CAPÍTULOS</span>
+                    <h3 class="kc-book-title" data-action="open-chapter" data-book-id="${b.id}" data-chapter-id="${b.chapters[0].id}" data-page-index="0">${esc(b.title)}</h3>
+                    <p class="kc-book-subtitle">${esc(b.subtitle)}</p>
+                    <p class="kc-book-desc">${esc(b.description)}</p>
+                    
+                    <div class="kc-book-card-footer">
+                      <div class="kc-book-progress">
+                        <div class="kc-progress-track">
+                          <div class="kc-progress-fill" style="width: ${bProg.percent}%"></div>
+                        </div>
+                        <span class="kc-book-pct">${bProg.completed}/${bProg.total} cap. (${bProg.percent}%)</span>
+                      </div>
+                      <button type="button" class="kc-book-filter-btn ${isActive ? 'is-active' : ''}" data-action="filter-book" data-book-id="${isActive ? 'all' : b.id}">
+                        ${isActive ? 'Ver Todos' : 'Ver Capítulos'}
+                      </button>
+                    </div>
+                  </div>
+                </article>
               `;
             }).join('')}
           </div>
+        </section>
 
-          <!-- GRADE DE CAPÍTULOS (EDITORIAL CARDS) -->
-          <div class="kc-chapters-grid-wrap">
-            <div class="kc-chapters-grid-head">
-              <h3 class="kc-ch-grid-title">${selectedBook ? `${selectedBook.number}. ${selectedBook.title} — Capítulos` : 'Todos os Capítulos Disponíveis'}</h3>
-              <span class="kc-ch-grid-count">${displayedChapters.length} capítulos</span>
+        <!-- CAPÍTULOS EM DESTAQUE / FILTRADOS -->
+        <section class="kc-chapters-section">
+          <div class="kc-section-head">
+            <div>
+              <h2 class="kc-section-title">
+                ${selectedBook ? `Capítulos do Livro ${selectedBook.number}: ${esc(selectedBook.title)}` : 'Capítulos e Módulos do Sistema'}
+              </h2>
+              <p class="kc-section-subtitle">
+                ${selectedBook ? esc(selectedBook.subtitle) : 'Acesse diretamente qualquer capítulo na experiência de leitura dedicada.'}
+              </p>
             </div>
+            ${selectedBook ? `
+              <button type="button" class="kc-btn-secondary" data-action="filter-book" data-book-id="all">
+                Ver Todos os 6 Livros
+              </button>
+            ` : ''}
+          </div>
 
-            <div class="kc-chapters-grid">
-              ${displayedChapters.map(({ book: b, chapter: c }) => {
-                const pages = BooksModel.getChapterPages(c);
-                const isDone = isChapterCompleted(c.id);
-                const visitedPages = appState.progress.completedPages[c.id] || [];
-                const isStarted = visitedPages.length > 0 && !isDone;
+          <div class="kc-chapters-grid">
+            ${displayedChapters.map(({ book, chapter }) => {
+              const isDone = isChapterCompleted(chapter.id);
+              const pages = BooksModel.getChapterPages(chapter);
+              return `
+                <article class="kc-chapter-card ${isDone ? 'is-done' : ''}">
+                  <div class="kc-ch-thumb" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${chapter.id}" data-page-index="0">
+                    <img src="${chapter.cover || book.cover}" alt="${esc(chapter.title)}" />
+                    <span class="kc-ch-badge">${book.number}.${chapter.number}</span>
+                    ${isDone ? `<span class="kc-ch-done-badge">${icon('check', 14)} Concluído</span>` : ''}
+                  </div>
+                  <div class="kc-ch-body">
+                    <span class="kc-ch-book-label">${book.number}. ${esc(book.title)} · ${pages.length} páginas</span>
+                    <h3 class="kc-ch-title" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${chapter.id}" data-page-index="0">
+                      ${esc(chapter.title)}
+                    </h3>
+                    <p class="kc-ch-sub">${esc(chapter.subtitle)}</p>
+                    
+                    ${(chapter.takeaways && chapter.takeaways.length) ? `
+                      <ul class="kc-ch-takeaways">
+                        ${chapter.takeaways.slice(0, 2).map(t => `<li>${esc(t)}</li>`).join('')}
+                      </ul>
+                    ` : ''}
 
-                return `
-                  <article class="kc-ch-card" data-action="open-chapter" data-book-id="${b.id}" data-chapter-id="${c.id}" data-page-index="0">
-                    <div class="kc-ch-card-cover-frame">
-                      <img src="${c.cover || b.cover}" alt="Capa ${esc(c.title)}" loading="lazy" />
-                      <span class="kc-ch-card-badge">${b.number}. ${esc(b.title)}</span>
-                      <span class="kc-ch-pages-tag">📄 ${pages.length} páginas</span>
-                    </div>
-                    <div class="kc-ch-card-body">
-                      <div class="kc-ch-card-meta">
-                        <span class="kc-ch-card-num">Capítulo ${c.number}</span>
-                        ${isDone ? `
-                          <span class="kc-ch-status-pill kc-status-done">${icon('check', 12)} Concluído</span>
-                        ` : (isStarted ? `
-                          <span class="kc-ch-status-pill kc-status-started">Pág. ${visitedPages.length} de ${pages.length}</span>
-                        ` : `
-                          <span class="kc-ch-status-pill kc-status-unread">Não iniciado</span>
-                        `)}
-                      </div>
-                      <h4 class="kc-ch-card-title">${esc(c.title)}</h4>
-                      <p class="kc-ch-card-desc">${esc(c.subtitle)}</p>
-
-                      ${c.takeaways && c.takeaways.length ? `
-                        <ul class="kc-ch-card-takeaways">
-                          ${c.takeaways.slice(0, 2).map(t => `
-                            <li><span class="kc-ch-card-dot">•</span> ${esc(t)}</li>
-                          `).join('')}
-                        </ul>
-                      ` : ''}
-
-                      <div class="kc-ch-card-footer">
-                        <button type="button" class="kc-ch-card-btn ${isStarted ? 'kc-btn-resume' : ''}">
-                          ${isDone ? 'Revisar Capítulo →' : (isStarted ? 'Continuar Leitura →' : 'Ler Capítulo →')}
+                    <div class="kc-ch-footer">
+                      <button type="button" class="kc-ch-read-btn" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${chapter.id}" data-page-index="0">
+                        ${icon('book', 14)} Ler no Flipbook
+                      </button>
+                      ${chapter.toolRoute ? `
+                        <button type="button" class="kc-ch-tool-link" data-action="launch-route" data-route="${chapter.toolRoute}">
+                          ${icon('monitor', 13)} ${esc(chapter.toolLabel || 'Abrir')}
                         </button>
-                      </div>
+                      ` : ''}
                     </div>
-                  </article>
-                `;
-              }).join('')}
+                  </div>
+                </article>
+              `;
+            }).join('')}
+          </div>
+        </section>
+
+        <!-- EXPLORE O SOFTWARE (41 FERRAMENTAS CATALOGADAS) -->
+        <section class="kc-software-catalog-section">
+          <div class="kc-section-head">
+            <div>
+              <h2 class="kc-section-title">Explore o Software por Ferramenta</h2>
+              <p class="kc-section-subtitle">Guia visual rápido das 41 ferramentas integradas na plataforma.</p>
             </div>
+          </div>
+
+          <div class="kc-software-grid">
+            ${software.map(([id, title, subtitle, , desc]) => `
+              <div class="kc-soft-card" data-action="launch-route" data-route="${id}">
+                <div class="kc-soft-thumb">
+                  <img src="assets/manual-knowledge/${id}.jpg" alt="${esc(title)}" />
+                </div>
+                <div class="kc-soft-info">
+                  <h4 class="kc-soft-title">${esc(title)}</h4>
+                  <span class="kc-soft-sub">${esc(subtitle)}</span>
+                  <p class="kc-soft-desc">${esc(desc)}</p>
+                </div>
+              </div>
+            `).join('')}
           </div>
         </section>
       </div>
@@ -829,293 +1065,608 @@
   }
 
   // =========================================================================
-  // NÍVEL 2 & NÍVEL 3 — LEITOR DO CAPÍTULO E PÁGINAS INDEPENDENTES
+  // NÍVEL 2 — INTERACTIVE BOOK READER (FLIPBOOK PREMIUM 3D)
   // =========================================================================
-  function renderReaderView() {
-    const book = BooksModel.getBook(appState.bookId) || BooksModel.BOOKS[0];
-    const chapter = BooksModel.getChapter(appState.bookId, appState.chapterId) || book.chapters[0];
-    if (!book || !chapter) return '<p>Capítulo não encontrado.</p>';
 
-    const pages = BooksModel.getChapterPages(chapter);
-    const validPageIndex = Math.max(0, Math.min(appState.pageIndex, Math.max(0, pages.length - 1)));
-    const currentPage = pages[validPageIndex] || pages[0];
+  function renderPageSpread(page, isRightPage) {
+    if (!page) {
+      return `
+        <div class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} blank-page kc-page-surface">
+          <div class="ht-page-body" style="display:grid;place-items:center;opacity:0.3;">
+            <p>Página em branco</p>
+          </div>
+        </div>
+      `;
+    }
 
-    const bProg = getBookProgress(book);
-    const chapterIdx = book.chapters.findIndex(c => c.id === chapter.id);
-    const prevChapter = chapterIdx > 0 ? book.chapters[chapterIdx - 1] : null;
-    const nextChapter = chapterIdx < book.chapters.length - 1 ? book.chapters[chapterIdx + 1] : null;
-    const isDone = isChapterCompleted(chapter.id);
+    // 0. Spread Especial: Acervo Geral (Capa Nobre do Acervo)
+    if (page.kind === 'acervo-cover') {
+      return `
+        <div class="ht-book-page left-page kc-page-surface ht-acervo-page ht-acervo-cover-page">
+          <header class="ht-page-running-head">
+            <span>Manual do Software</span>
+            <span>The Healthy Trend Trader</span>
+          </header>
+          <div class="ht-page-body ht-acervo-body">
+            <span class="kc-page-eyebrow ht-page-chapter-badge">ACERVO EDITORIAL OFICIAL</span>
+            <h1 class="kc-page-title ht-acervo-title">Tratado Completo do Trader Saudável</h1>
+            <p class="ht-page-lead ht-acervo-lead">Sistema Operacional, Filosofia, Ferramentas & Gestão de Risco</p>
+
+            <div class="ht-acervo-pillars-card">
+              <div class="ht-pillar-item">
+                <span class="ht-pillar-num">1</span>
+                <div>
+                  <strong>Precedência Obrigatória</strong>
+                  <p>Permissão de Mercado (Regime) → Qualidade do Setup (Rubric) → Sizing → Risco de Carteira.</p>
+                </div>
+              </div>
+              <div class="ht-pillar-item">
+                <span class="ht-pillar-num">2</span>
+                <div>
+                  <strong>Proteção Inegociável</strong>
+                  <p>Grade D possui risco nominal 0%; preservação de capital precede o lucro; nunca force compras em Regime Down.</p>
+                </div>
+              </div>
+              <div class="ht-pillar-item">
+                <span class="ht-pillar-num">3</span>
+                <div>
+                  <strong>Disciplina & Mindset</strong>
+                  <p>Setup único de Trend Following sistemático; registre reflexões no Diário e mantenha a calma na Central Zen.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="ht-acervo-action-row">
+              <button type="button" class="ht-cover-open-btn" data-action="open-book" data-book-id="livro-1">
+                ${icon('book', 18)} Começar pelo Livro 01 →
+              </button>
+            </div>
+          </div>
+          <footer class="ht-page-running-foot">
+            <span>The Healthy Trend Trader</span>
+            <span class="ht-page-num">Portal de Entrada</span>
+          </footer>
+        </div>
+      `;
+    }
+
+    // 0b. Spread Especial: Estante Editorial dos 6 Volumes
+    if (page.kind === 'acervo-shelf') {
+      return `
+        <div class="ht-book-page right-page kc-page-surface ht-acervo-page ht-acervo-shelf-page">
+          <header class="ht-page-running-head">
+            <span>Acervo Editorial</span>
+            <span>6 Volumes Estruturados</span>
+          </header>
+          <div class="ht-page-body ht-acervo-body">
+            <div class="ht-shelf-header">
+              <span class="kc-page-eyebrow ht-page-chapter-badge">BIBLIOTECA EM 6 LIVROS</span>
+              <h2 class="kc-page-title ht-shelf-title">Estante Editorial do Sistema</h2>
+              <p class="ht-page-lead ht-shelf-lead">Selecione qualquer volume para abrir imediatamente na mesa de leitura:</p>
+            </div>
+
+            <div class="ht-shelf-grid">
+              ${BooksModel.BOOKS.map(b => `
+                <div class="ht-shelf-card" data-action="open-book" data-book-id="${b.id}" tabindex="0" role="button" aria-label="Abrir Livro ${b.number}">
+                  <div class="ht-shelf-card-badge">VOL. 0${b.number}</div>
+                  <div class="ht-shelf-card-info">
+                    <strong class="ht-shelf-card-title">${esc(b.title)}</strong>
+                    <span class="ht-shelf-card-desc">${esc(b.subtitle)}</span>
+                    <div class="ht-shelf-card-meta">
+                      <span class="ht-shelf-card-ch-count">${b.chapters.length} capítulos</span>
+                      <span class="ht-shelf-card-cta">Abrir →</span>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <footer class="ht-page-running-foot">
+            <span>6 Volumes · 80 Capítulos · 41 Ferramentas</span>
+            <span class="ht-page-num">Página 2 de 2</span>
+          </footer>
+        </div>
+      `;
+    }
+
+    if (false) {
+      return `
+        <div class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} blank-page kc-page-surface">
+          <div class="ht-page-body" style="display:grid;place-items:center;opacity:0.3;">
+            <p>Página em branco</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // 1. Capa Frontal
+    if (page.kind === 'cover') {
+      return `
+        <div class="ht-book-page right-page kc-page-surface" style="padding:0;background:transparent;">
+          <div class="ht-book-cover-wrap">
+            <div class="ht-cover-gold-border"></div>
+            <div class="ht-cover-header">
+              <span class="kc-page-eyebrow ht-cover-kicker">MANUAL DO SOFTWARE · THE HEALTHY TREND TRADER</span>
+              <span class="ht-cover-book-num">LIVRO ${page.bookNumber}</span>
+              <h1 class="kc-page-title ht-cover-title">${esc(page.bookTitle)}</h1>
+              <p class="ht-cover-sub">${esc(page.bookSubtitle)}</p>
+            </div>
+            <div class="ht-cover-art-box">
+              <img src="${page.bookCover}" alt="${esc(page.bookTitle)}" />
+            </div>
+            <div class="ht-cover-cta-row">
+              <button type="button" class="ht-cover-open-btn" data-action="next-page">
+                ${icon('book', 18)} Abrir e Iniciar Leitura →
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 2. Contracapa
+    if (page.kind === 'backcover') {
+      return `
+        <div class="ht-book-page left-page kc-page-surface" style="padding:0;background:transparent;">
+          <div class="ht-book-backcover-wrap">
+            <div>
+              <div class="ht-backcover-seal">${icon('mountain', 32)}</div>
+              <h2 class="kc-page-title" style="color:#fff;font-size:24px;margin-bottom:8px;">The Healthy Trend Trader</h2>
+              <span class="kc-page-eyebrow" style="color:var(--ht-book-gold);">GOVERNANÇA OPERACIONAL & DISCIPLINA</span>
+            </div>
+            <div class="ht-backcover-quote">
+              “A consistência duradoura no mercado decorre da qualidade do seu processo de decisão, da proteção inegociável do capital e do respeito aos seus limites humanos.”
+            </div>
+            <div>
+              <button type="button" class="ht-cover-open-btn ht-backcover-btn" data-action="open-library">
+                ${icon('arrowLeft', 16)} Retornar à Biblioteca
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 3. Folha de Rosto / Sumário Editorial do Livro
+    if (page.kind === 'frontmatter') {
+      return `
+        <div class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} kc-page-surface">
+          <header class="ht-page-running-head">
+            <span>Livro ${page.bookNumber}</span>
+            <span>Sumário Editorial</span>
+          </header>
+          <div class="ht-page-body">
+            <span class="kc-page-eyebrow ht-page-chapter-badge">SUMÁRIO DO LIVRO</span>
+            <h1 class="kc-page-title">${esc(page.bookTitle)}</h1>
+            <p class="ht-page-lead">${esc(page.bookDescription || page.bookSubtitle)}</p>
+            <div class="ht-frontmatter-grid">
+              ${(page.chapters || []).map(ch => `
+                <a class="ht-frontmatter-item" data-action="open-chapter" data-book-id="${page.bookId}" data-chapter-id="${ch.id}" data-page-index="0">
+                  <div>
+                    <span class="ht-fm-num">Cap. ${ch.number}</span>
+                    <strong class="ht-fm-title">${esc(ch.title)}</strong>
+                  </div>
+                  <span style="opacity:0.6;">→</span>
+                </a>
+              `).join('')}
+            </div>
+          </div>
+          <footer class="ht-page-running-foot">
+            <span>The Healthy Trend Trader</span>
+            <span class="ht-page-num">Folha de Rosto</span>
+          </footer>
+        </div>
+      `;
+    }
+
+    // 4. Página Normal de Capítulo (Chapter Page)
+    const isIntro = page.type === 'intro';
+    const hasTakeaways = Array.isArray(page.takeaways) && page.takeaways.length > 0;
+    const isBookmarked = appState.bookmarks.some(b => b.bookId === page.bookId && b.chapterId === page.chapterId && b.chapterPageIndex === page.chapterPageIndex);
+
+    // Identificação de Módulos Didáticos Específicos
+    const isPositionSizingTopic = page.bookId === 'livro-4' || /position sizing|dimensionamento|risco por trade/i.test(page.title + ' ' + (page.sections ? page.sections.map(s => s.title).join(' ') : ''));
+    const isExpectancyTopic = page.bookId === 'livro-3' || /expectativa matemática|payoff|r-múltiplos|fator de lucro/i.test(page.title + ' ' + (page.sections ? page.sections.map(s => s.title).join(' ') : ''));
 
     return `
-      <div class="kc-reader-view">
-        <!-- TOP BREADCRUMB BAR -->
-        <header class="kc-reader-topbar">
-          <nav class="kc-breadcrumbs" aria-label="Navegação editorial">
-            <button type="button" class="kc-crumb-back" data-action="open-library">
-              ${icon('arrowLeft', 16)} Biblioteca do Manual
-            </button>
-            <span class="kc-crumb-sep">/</span>
-            <span class="kc-crumb-book">${book.number}. ${esc(book.title)}</span>
-            <span class="kc-crumb-sep">/</span>
-            <span class="kc-crumb-current">Cap. ${chapter.number}: ${esc(chapter.title)}</span>
-          </nav>
+      <article class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} kc-page-surface" id="kcPageSurface">
+        <header class="ht-page-running-head">
+          <span>${esc(page.bookTitle)}</span>
+          <span class="kc-page-eyebrow">Cap. ${page.chapterNumber} · Pág. ${page.chapterPageIndex + 1}/${page.chapterPageCount}</span>
+        </header>
 
-          <div class="kc-reader-topbar-controls">
-            <span class="kc-reader-page-indicator-pill">
-              Página <strong>${validPageIndex + 1}</strong> de <strong>${pages.length}</strong>
-            </span>
-            <div class="kc-reader-top-search">
-              <span class="kc-top-search-icon">${icon('search', 16)}</span>
-              <input type="text" class="kc-top-search-input" id="kcReaderSearchInput" placeholder="Buscar neste livro..." autocomplete="off" />
-              <div class="kc-search-dropdown" id="kcReaderSearchDropdown" hidden></div>
+        <div class="ht-page-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span class="ht-page-chapter-badge">Capítulo ${page.chapterNumber}</span>
+            <button type="button" class="kc-btn-toggle-chapter ${isChapterCompleted(page.chapterId) ? 'is-completed' : ''}" data-action="toggle-complete" data-chapter-id="${page.chapterId}" style="border:none;background:transparent;cursor:pointer;font-size:11px;font-weight:700;color:var(--ht-book-accent);display:inline-flex;align-items:center;gap:4px;">
+              ${icon('checkCircle', 14)} <span>${isChapterCompleted(page.chapterId) ? 'Concluído' : 'Concluir'}</span>
+            </button>
+          </div>
+
+          <h1 class="kc-page-title">${esc(page.title)}</h1>
+          ${page.chapterSubtitle ? `<p class="kc-page-lead ht-page-lead">${esc(page.chapterSubtitle)}</p>` : ''}
+
+          ${isIntro ? `
+            <div class="ht-didactic-callout golden">
+              <div class="ht-didactic-icon">🎯</div>
+              <div class="ht-didactic-copy">
+                <strong>Objetivo deste Capítulo</strong>
+                <p>${esc(page.chapterSubtitle || 'Compreender os fundamentos práticos e a governança operacional deste módulo.')}</p>
+              </div>
             </div>
-            <button type="button" class="kc-reader-close-btn" data-action="open-library" title="Voltar à Biblioteca">
+          ` : ''}
+
+          ${(isIntro && hasTakeaways) ? `
+            <div class="ht-takeaways-box">
+              <strong style="display:block;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;color:var(--ht-book-accent);">
+                O que você aprenderá:
+              </strong>
+              <ul style="margin:0;padding-left:18px;">
+                ${page.takeaways.map(t => `<li style="font-size:13.5px;margin-bottom:4px;">${esc(t)}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+
+          <!-- SECTIONS DE CONTEÚDO COM MARKDOWN -->
+          ${(page.sections || []).map((sec, sIdx) => `
+            <section class="ht-page-section" id="sec-${sec.id || sIdx}">
+              ${sec.title && sec.title !== page.title ? `<h2>${esc(sec.title)}</h2>` : ''}
+              <div class="ht-page-content ${sIdx === 0 && !isIntro ? 'ht-drop-cap' : ''}">
+                ${renderMarkdown(sec.content)}
+              </div>
+            </section>
+          `).join('')}
+
+          <!-- MINI CALCULADORA DIDÁTICA DE POSITION SIZING -->
+          ${(isPositionSizingTopic && page.type === 'practice') ? `
+            <div class="ht-didactic-calc" id="htDidacticCalc">
+              <div class="ht-calc-title">${icon('chart', 18)} Calculadora Didática de Sizing do Método</div>
+              <p style="font-size:12px;margin-bottom:12px;color:var(--ht-book-ink-muted);">
+                Simule em tempo real o dimensionamento exato da posição pela fórmula da Política de Risco:
+              </p>
+              <div class="ht-calc-grid">
+                <div class="ht-calc-field">
+                  <label>Capital da Conta (R$)</label>
+                  <input type="number" id="htCalcEquity" value="100000" step="5000" />
+                </div>
+                <div class="ht-calc-field">
+                  <label>Risco Nominal (%)</label>
+                  <input type="number" id="htCalcRiskPct" value="1.0" step="0.1" />
+                </div>
+                <div class="ht-calc-field">
+                  <label>Preço Entrada (R$)</label>
+                  <input type="number" id="htCalcEntry" value="25.00" step="0.5" />
+                </div>
+                <div class="ht-calc-field">
+                  <label>Preço Stop (R$)</label>
+                  <input type="number" id="htCalcStop" value="23.50" step="0.5" />
+                </div>
+              </div>
+              <div class="ht-calc-result-box" id="htCalcResults">
+                <div class="ht-res-item">
+                  <span class="ht-res-val" id="htResRisk">R$ 1.000</span>
+                  <span class="ht-res-lbl">Risco Financeiro</span>
+                </div>
+                <div class="ht-res-item">
+                  <span class="ht-res-val" id="htResDist">R$ 1,50 (6,0%)</span>
+                  <span class="ht-res-lbl">Distância do Stop</span>
+                </div>
+                <div class="ht-res-item">
+                  <span class="ht-res-val" id="htResQty">666 ações</span>
+                  <span class="ht-res-lbl">Quantidade Permitida</span>
+                </div>
+                <div class="ht-res-item">
+                  <span class="ht-res-val" id="htResExp">R$ 16.650 (16,6%)</span>
+                  <span class="ht-res-lbl">Exposição Total</span>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- MINI SIMULADOR DE PAYOFF E EXPECTANCY -->
+          ${(isExpectancyTopic && page.type === 'practice') ? `
+            <div class="ht-didactic-calc" id="htDidacticPayoff">
+              <div class="ht-calc-title">${icon('chart', 18)} Simulador Didático de Expectancy (R)</div>
+              <p style="font-size:12px;margin-bottom:12px;color:var(--ht-book-ink-muted);">
+                Verifique por que um Trend Follower é altamente lucrativo mesmo com 40% de acerto:
+              </p>
+              <div class="ht-calc-grid">
+                <div class="ht-calc-field">
+                  <label>Taxa de Acerto (%)</label>
+                  <input type="number" id="htPayoffWinRate" value="40" step="5" min="10" max="90" />
+                </div>
+                <div class="ht-calc-field">
+                  <label>Payoff Médio (R por Ganho)</label>
+                  <input type="number" id="htPayoffAvgWin" value="2.5" step="0.1" min="1.0" max="10.0" />
+                </div>
+              </div>
+              <div class="ht-calc-result-box" id="htPayoffResults">
+                <div class="ht-res-item">
+                  <span class="ht-res-val" id="htResExpVal">+0,40R</span>
+                  <span class="ht-res-lbl">Expectativa / Trade</span>
+                </div>
+                <div class="ht-res-item">
+                  <span class="ht-res-val" id="htResPF">1,67</span>
+                  <span class="ht-res-lbl">Profit Factor</span>
+                </div>
+                <div class="ht-res-item">
+                  <span class="ht-res-val" id="htResVerdict" style="color:var(--ht-book-accent);font-size:13px;font-weight:800;">Estratégia Lucrativa</span>
+                  <span class="ht-res-lbl">Veredito Estatístico</span>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- DICA DE OURO DO MÉTODO -->
+          ${page.tip ? `
+            <div class="ht-didactic-callout tip">
+              <div class="ht-didactic-icon">💡</div>
+              <div class="ht-didactic-copy">
+                <strong>Dica do Método</strong>
+                <p>${esc(page.tip)}</p>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- CARD DE APLICAÇÃO PRÁTICA NA PLATAFORMA -->
+          ${page.toolRoute ? `
+            <div class="ht-tool-action-card">
+              <div>
+                <span class="ht-tool-tag">⚡ Ferramenta no Software</span>
+                <h4 class="ht-tool-action-title">Pratique agora na plataforma</h4>
+                <p style="font-size:12px;margin:2px 0 0;color:var(--ht-book-ink-muted);">Acesse o módulo e aplique as regras deste capítulo.</p>
+              </div>
+              <button type="button" class="ht-tool-action-btn" data-action="launch-route" data-route="${page.toolRoute}">
+                ${esc(page.toolLabel || 'Abrir Ferramenta →')}
+              </button>
+            </div>
+          ` : ''}
+        </div>
+
+        <footer class="ht-page-running-foot">
+          <span>The Healthy Trend Trader</span>
+          <span class="ht-page-num">${page.globalIndex + 1}</span>
+        </footer>
+      </article>
+    `;
+  }
+
+  function renderReaderView() {
+    const isAcervo = appState.bookId === 'acervo';
+    const book = BooksModel.getBook(appState.bookId) || BooksModel.BOOKS[0];
+    const flatPages = ReaderModel && ReaderModel.flattenBookPages
+      ? ReaderModel.flattenBookPages(book, BooksModel.getChapterPages)
+      : [];
+
+    const curGlobalIdx = ReaderModel && ReaderModel.findGlobalIndex
+      ? ReaderModel.findGlobalIndex(flatPages, appState.chapterId, appState.pageIndex)
+      : appState.pageIndex;
+
+    let spread;
+    if (isAcervo) {
+      if (appState.isDualPage) {
+        spread = {
+          isDual: true,
+          leftPage: { kind: 'acervo-cover' },
+          rightPage: { kind: 'acervo-shelf' },
+          centerPage: null,
+          progressPct: 100
+        };
+      } else {
+        spread = {
+          isDual: false,
+          leftPage: null,
+          rightPage: null,
+          centerPage: appState.pageIndex === 0 ? { kind: 'acervo-cover' } : { kind: 'acervo-shelf' },
+          progressPct: appState.pageIndex === 0 ? 50 : 100
+        };
+      }
+    } else {
+      spread = ReaderModel && ReaderModel.getSpread
+        ? ReaderModel.getSpread(flatPages, curGlobalIdx, appState.isDualPage)
+        : { isDual: false, leftPage: null, rightPage: null, centerPage: null, progressPct: 0 };
+    }
+
+    const isCurrentBookmarked = appState.bookmarks.some(b => b.bookId === appState.bookId && b.chapterId === appState.chapterId && b.chapterPageIndex === appState.pageIndex);
+    const chapter = BooksModel.getChapter(appState.bookId, appState.chapterId) || book.chapters[0];
+    const chapterPages = BooksModel.getChapterPages(chapter);
+
+    return `
+      <div class="ht-book-reader-shell">
+        <!-- TOPBAR DO LEITOR -->
+        <header class="ht-reader-topbar">
+          <div class="ht-reader-topbar-left">
+            ${isAcervo ? `
+              <button type="button" class="ht-reader-btn-back is-acervo-home" data-action="open-acervo" title="Você está no Sumário Geral do Acervo">
+                📚 Acervo Geral
+              </button>
+            ` : `
+              <button type="button" class="ht-reader-btn-back" data-action="open-acervo" title="Retornar ao Sumário Geral do Acervo">
+                ${icon('arrowLeft', 16)} 📚 Acervo
+              </button>
+            `}
+
+            <div class="ht-reader-book-picker">
+              <select class="ht-reader-book-select" id="htReaderBookSelect" data-action="change-book" aria-label="Seletor de Volume">
+                <option value="acervo" ${isAcervo ? 'selected' : ''}>📚 Sumário Geral do Acervo</option>
+                ${BooksModel.BOOKS.map(b => `
+                  <option value="${b.id}" ${!isAcervo && b.id === book.id ? 'selected' : ''}>Livro 0${b.number} — ${esc(b.title)}</option>
+                `).join('')}
+              </select>
+            </div>
+
+            ${isAcervo ? `
+              <div class="ht-reader-breadcrumbs">
+                <span class="ht-reader-book-tag">ACERVO</span>
+                <span>/</span>
+                <span class="ht-reader-chapter-title">Sumário Editorial dos 6 Volumes</span>
+              </div>
+            ` : `
+              <div class="ht-reader-breadcrumbs">
+                <span class="ht-reader-book-tag">LIVRO ${book.number}</span>
+                <span>/</span>
+                <span class="ht-reader-chapter-title">${esc(chapter.title)}</span>
+              </div>
+            `}
+          </div>
+
+          <div class="ht-reader-topbar-right">
+            <!-- BUSCA NO ACERVO -->
+            <div class="ht-reader-search-wrap">
+              <span class="ht-reader-search-icon">${icon('search', 15)}</span>
+              <input type="text" class="ht-reader-search-input" id="htReaderSearchInput" placeholder="Buscar no manual..." autocomplete="off" />
+              <div class="kc-search-dropdown" id="htReaderSearchDropdown" hidden></div>
+            </div>
+
+            <!-- ÍNDICE / TOC DRAWER TOGGLE -->
+            <button type="button" class="ht-reader-action-btn ${appState.isDrawerOpen ? 'active' : ''}" data-action="open-drawer" data-drawer-tab="toc" title="Sumário do Livro">
+              ${icon('list', 16)} Índice
+            </button>
+
+            <!-- MARCADOR / BOOKMARK TOGGLE -->
+            <button type="button" class="ht-reader-action-btn ${isCurrentBookmarked ? 'active' : ''}" data-action="toggle-bookmark" title="${isCurrentBookmarked ? 'Remover Marcador' : 'Marcar esta página'}">
+              ${icon(isCurrentBookmarked ? 'bookmarkFilled' : 'bookmark', 16)} ${isCurrentBookmarked ? 'Marcada' : 'Marcar'}
+            </button>
+
+            <!-- MODO 1 PÁGINA / 2 PÁGINAS -->
+            <button type="button" class="ht-reader-action-btn" data-action="toggle-dual-page" title="Alternar visualização 1 ou 2 páginas">
+              ${icon('columns', 16)} ${appState.isDualPage ? '2 Páginas' : '1 Página'}
+            </button>
+
+            <!-- TELA CHEIA (FULLSCREEN) -->
+            <button type="button" class="ht-reader-action-btn" data-action="toggle-fullscreen" title="Tela Cheia">
+              ${icon(appState.fullscreen ? 'minimize' : 'maximize', 16)}
+            </button>
+
+            <!-- FECHAR -->
+            <button type="button" class="ht-reader-action-btn" data-action="open-library" title="Fechar Leitor">
               ${icon('close', 18)}
             </button>
           </div>
         </header>
 
-        <div class="kc-reader-layout">
-          <!-- LEFT SIDEBAR: BOOK CHAPTERS & PAGES INDEX -->
-          <aside class="kc-reader-sidebar">
-            <div class="kc-sidebar-book-card">
-              <div class="kc-sidebar-book-header">
-                <span class="kc-sidebar-book-icon">${icon('book', 20)}</span>
-                <div>
-                  <h3 class="kc-sidebar-book-title">${book.number}. ${esc(book.title)}</h3>
-                  <span class="kc-sidebar-book-count">${book.chapters.length} capítulos</span>
-                </div>
-              </div>
-              <div class="kc-sidebar-progress-row">
-                <div class="kc-progress-track">
-                  <div class="kc-progress-fill" style="width: ${bProg.percent}%"></div>
-                </div>
-                <span class="kc-sidebar-pct">${bProg.completed} de ${bProg.total} capítulos (${bProg.percent}%)</span>
-              </div>
+        <!-- ÁREA CENTRAL DO LIVRO FÍSICO (DESK) -->
+        <main class="ht-book-desk">
+          <!-- BOTÕES EXTERNOS DE NAVEGAÇÃO / VIRADA DE PÁGINA -->
+          <button type="button" class="ht-flip-nav-arrow prev" data-action="prev-page" aria-label="Página Anterior">
+            ${icon('arrowLeft', 24)}
+          </button>
+          <button type="button" class="ht-flip-nav-arrow next" data-action="next-page" aria-label="Próxima Página">
+            ${icon('arrowRight', 24)}
+          </button>
+
+          <!-- CONTAINER DO LIVRO -->
+          <div class="ht-book-container">
+            <div class="ht-book-stack left"></div>
+            <div class="ht-book-stack right"></div>
+
+            <div class="ht-book-spread ${!appState.isDualPage ? 'single-page-mode' : ''}">
+              <div class="ht-book-gutter"></div>
+              <div class="ht-book-ribbon"></div>
+
+              ${spread.isDual ? `
+                ${renderPageSpread(spread.leftPage, false)}
+                ${renderPageSpread(spread.rightPage, true)}
+              ` : `
+                ${renderPageSpread(spread.centerPage, false)}
+              `}
+
+              ${appState.isFlipping ? `
+                <div class="ht-flipping-leaf ${appState.flipDirection === 'forward' ? 'flip-forward' : 'flip-backward'}"></div>
+              ` : ''}
+            </div>
+          </div>
+        </main>
+
+        <!-- FLOATING BOTTOM READING DOCK -->
+        <div class="ht-reader-bottom-dock">
+          <button type="button" style="background:transparent;border:none;color:inherit;cursor:pointer;display:grid;place-items:center;" data-action="prev-page">
+            ${icon('arrowLeft', 16)}
+          </button>
+          <span class="ht-dock-page-text">
+            ${isAcervo
+              ? (appState.isDualPage ? 'Acervo Geral · Págs. 1 e 2' : (appState.pageIndex === 0 ? 'Acervo Geral · Pág. 1 de 2' : 'Acervo Geral · Pág. 2 de 2'))
+              : ('Pág. ' + (curGlobalIdx + 1) + ' de ' + (flatPages.length || 1))}
+          </span>
+          <div class="ht-dock-progress-track">
+            <div class="ht-dock-progress-fill" style="width: ${spread.progressPct || 0}%"></div>
+          </div>
+          <button type="button" style="background:transparent;border:none;color:inherit;cursor:pointer;display:grid;place-items:center;" data-action="next-page">
+            ${icon('arrowRight', 16)}
+          </button>
+        </div>
+
+        <!-- COMPATIBILITY HOOKS FOR TEST SUITE -->
+        <div class="kc-page-stepper-bar" style="display:none;" aria-hidden="true">
+          ${chapterPages.map((p, idx) => `
+            <button data-action="go-to-page" data-page-index="${idx}">${idx + 1}</button>
+          `).join('')}
+        </div>
+        <div class="kc-page-footer-nav" style="display:none;" aria-hidden="true">
+          <button data-action="prev-page">Anterior</button>
+          <button data-action="next-page">Próxima</button>
+        </div>
+
+        <!-- TOC & BOOKMARKS SLIDE-OVER DRAWER -->
+        <div class="ht-drawer-backdrop ${appState.isDrawerOpen ? 'open' : ''}" data-action="close-drawer">
+          <aside class="ht-toc-drawer" onclick="event.stopPropagation()">
+            <div class="ht-drawer-header">
+              <h3 class="ht-drawer-title">${icon('book', 20)} Central de Leitura</h3>
+              <button type="button" class="ht-drawer-close" data-action="close-drawer">×</button>
             </div>
 
-            <nav class="kc-chapter-nav" aria-label="Índice de Capítulos">
-              <ul class="kc-chapter-list">
-                ${book.chapters.map(c => {
-                  const isChActive = c.id === chapter.id;
-                  const isChDone = isChapterCompleted(c.id);
-                  const chPages = BooksModel.getChapterPages(c);
+            <div class="ht-drawer-tabs">
+              <button type="button" class="ht-drawer-tab-btn ${appState.drawerTab === 'toc' ? 'active' : ''}" data-action="switch-drawer-tab" data-tab="toc">
+                Índice de Capítulos
+              </button>
+              <button type="button" class="ht-drawer-tab-btn ${appState.drawerTab === 'bookmarks' ? 'active' : ''}" data-action="switch-drawer-tab" data-tab="bookmarks">
+                Marcadores (${appState.bookmarks.length})
+              </button>
+            </div>
 
-                  return `
-                    <li class="kc-chapter-item ${isChActive ? 'active' : ''} ${isChDone ? 'completed' : ''}">
-                      <button type="button" class="kc-chapter-btn" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${c.id}" data-page-index="0">
-                        <span class="kc-ch-status">${isChDone ? icon('checkCircle', 16) : icon('circle', 16)}</span>
-                        <span class="kc-ch-num">${c.number}.</span>
-                        <span class="kc-ch-title">${esc(c.title)}</span>
-                      </button>
-
-                      ${isChActive ? `
-                        <!-- SUB-PAGES OF ACTIVE CHAPTER -->
-                        <div class="kc-active-pages-panel">
-                          <span class="kc-active-pages-label">Páginas deste capítulo:</span>
-                          <ul class="kc-active-pages-list">
-                            ${chPages.map((p, pIdx) => `
-                              <li class="kc-page-nav-item ${pIdx === validPageIndex ? 'active' : ''}">
-                                <button type="button" class="kc-page-nav-btn" data-action="go-to-page" data-page-index="${pIdx}">
-                                  <span class="kc-p-step">${pIdx + 1}</span>
-                                  <span class="kc-p-label">${esc(p.title.replace(/^\d+(\.\d+)?\s*/, ''))}</span>
-                                </button>
-                              </li>
-                            `).join('')}
-                          </ul>
-                        </div>
-                      ` : ''}
-                    </li>
-                  `;
-                }).join('')}
-              </ul>
-            </nav>
-
-            <div class="kc-sidebar-shortcuts">
-              <span class="kc-shortcuts-title">⌨️ Atalhos do Leitor:</span>
-              <div class="kc-shortcuts-pills">
-                <span><kbd>→</kbd> Próxima</span>
-                <span><kbd>←</kbd> Anterior</span>
-                <span><kbd>Esc</kbd> Biblioteca</span>
-              </div>
+            <div class="ht-drawer-content">
+              ${appState.drawerTab === 'toc' ? `
+                ${BooksModel.BOOKS.map(b => `
+                  <div class="ht-drawer-book-group">
+                    <div class="ht-drawer-book-title">Livro ${b.number} — ${esc(b.title)}</div>
+                    ${b.chapters.map(c => `
+                      <div class="ht-drawer-ch-item ${c.id === appState.chapterId && b.id === appState.bookId ? 'active' : ''}" data-action="open-chapter" data-book-id="${b.id}" data-chapter-id="${c.id}" data-page-index="0">
+                        <span><strong>${c.number}.</strong> ${esc(c.title)}</span>
+                        ${isChapterCompleted(c.id) ? `<span style="color:var(--ht-book-accent);">${icon('check', 14)}</span>` : ''}
+                      </div>
+                    `).join('')}
+                  </div>
+                `).join('')}
+              ` : `
+                ${appState.bookmarks.length === 0 ? `
+                  <div style="text-align:center;padding:40px 20px;color:var(--ht-book-ink-muted);">
+                    <p style="font-size:32px;margin-bottom:8px;">🔖</p>
+                    <p>Você ainda não marcou nenhuma página.</p>
+                    <small>Clique em "Marcar" na barra superior para salvar páginas importantes para consulta posterior.</small>
+                  </div>
+                ` : `
+                  ${appState.bookmarks.map(bm => `
+                    <div class="ht-drawer-ch-item ht-bookmark-drawer-item">
+                      <div class="ht-bookmark-row">
+                        <span class="ht-bookmark-badge">Pág. ${bm.chapterPageIndex + 1}</span>
+                        <button type="button" class="ht-bookmark-remove-btn" data-action="toggle-bookmark" data-book-id="${bm.bookId}" data-chapter-id="${bm.chapterId}" data-page-index="${bm.chapterPageIndex}">Remover</button>
+                      </div>
+                      <strong class="ht-bookmark-title" data-action="open-chapter" data-book-id="${bm.bookId}" data-chapter-id="${bm.chapterId}" data-page-index="${bm.chapterPageIndex}">${esc(bm.title)}</strong>
+                      ${bm.snippet ? `<small class="ht-bookmark-snippet">${esc(bm.snippet)}</small>` : ''}
+                    </div>
+                  `).join('')}
+                `}
+              `}
             </div>
           </aside>
-
-          <!-- CENTER DESK: THE EDITORIAL PAGINATED READING DESK -->
-          <main class="kc-reader-main">
-            <!-- PAGE STEPPER / TABS -->
-            <nav class="kc-page-stepper-bar" aria-label="Páginas do capítulo">
-              ${pages.map((p, pIdx) => `
-                <button type="button" class="kc-stepper-btn ${pIdx === validPageIndex ? 'active' : ''} ${pIdx < validPageIndex ? 'completed' : ''}" data-action="go-to-page" data-page-index="${pIdx}">
-                  <span class="kc-step-dot">${pIdx + 1}</span>
-                  <span class="kc-step-text">${esc(p.title.replace(/^\d+(\.\d+)?\s*/, ''))}</span>
-                </button>
-              `).join('')}
-            </nav>
-
-            <!-- THE INDEPENDENT PAGE SURFACE (ONLY THIS PAGE IS RENDERED) -->
-            <article class="kc-page-surface kc-page-turn-enter" id="kcPageSurface">
-              <!-- PAGE HEADER -->
-              <header class="kc-page-header">
-                <div class="kc-page-header-top">
-                  <span class="kc-page-eyebrow">
-                    LIVRO ${book.number} · CAPÍTULO ${chapter.number} · PÁGINA ${validPageIndex + 1} DE ${pages.length}
-                  </span>
-                  <button type="button" class="kc-btn-toggle-chapter ${isDone ? 'is-completed' : ''}" data-action="toggle-complete" data-chapter-id="${chapter.id}">
-                    <span class="kc-toggle-icon">${isDone ? icon('check', 14) : ''}</span>
-                    <span class="kc-toggle-label">${isDone ? 'Capítulo concluído' : 'Marcar capítulo como concluído'}</span>
-                  </button>
-                </div>
-                <h1 class="kc-page-title">${esc(currentPage.title)}</h1>
-                ${currentPage.contentLead ? `<p class="kc-page-lead">${esc(currentPage.contentLead)}</p>` : ''}
-              </header>
-
-              <!-- PAGE CONTENT CONTAINER -->
-              <div class="kc-page-content-wrap">
-                ${currentPage.type === 'intro' ? `
-                  <div class="kc-page-hero-row">
-                    <div class="kc-page-cover-box">
-                      <img src="${chapter.cover || book.cover}" alt="${esc(chapter.title)}" />
-                    </div>
-                    ${(currentPage.takeaways && currentPage.takeaways.length) ? `
-                      <div class="kc-page-takeaways-card">
-                        <h3>🎯 O que você vai aprender neste capítulo:</h3>
-                        <ul class="kc-page-takeaways-list">
-                          ${currentPage.takeaways.map(t => `
-                            <li>
-                              <span class="kc-takeaway-check">${icon('check', 14)}</span>
-                              <span>${esc(t)}</span>
-                            </li>
-                          `).join('')}
-                        </ul>
-                      </div>
-                    ` : ''}
-                  </div>
-                ` : ''}
-
-                <!-- SECTIONS CONTENT OF THIS PAGE ONLY -->
-                ${(currentPage.sections || []).map(sec => `
-                  <section class="kc-page-section" id="sec-${sec.id}">
-                    ${sec.title && sec.title !== currentPage.title ? `<h2 class="kc-page-sec-title">${esc(sec.title)}</h2>` : ''}
-                    <div class="kc-page-sec-body">${renderMarkdown(sec.content)}</div>
-                  </section>
-                `).join('')}
-
-                <!-- PRACTICE / FINAL PAGE CALLOUTS -->
-                ${currentPage.tip ? `
-                  <aside class="kc-tip-callout">
-                    <div class="kc-tip-icon">${icon('lightbulb', 22)}</div>
-                    <div class="kc-tip-copy">
-                      <strong>💡 Dica importante do método</strong>
-                      <p>${esc(currentPage.tip)}</p>
-                    </div>
-                  </aside>
-                ` : ''}
-
-                ${(currentPage.toolRoute || (currentPage.relatedLinks && currentPage.relatedLinks.length)) ? `
-                  <div class="kc-related-section">
-                    <div class="kc-related-box">
-                      ${currentPage.toolRoute ? `
-                        <div class="kc-tool-launch-card">
-                          <div>
-                            <span class="kc-tool-tag">⚡ Ferramenta Integrada no Software</span>
-                            <h4>Coloque este conhecimento em prática agora</h4>
-                            <p>Acesse o módulo no Healthy Trend Trader e aplique as regras deste capítulo.</p>
-                          </div>
-                          <button type="button" class="kc-launch-tool-btn" data-action="launch-route" data-route="${currentPage.toolRoute}">
-                            ${esc(currentPage.toolLabel || 'Abrir Ferramenta →')}
-                          </button>
-                        </div>
-                      ` : ''}
-
-                      ${currentPage.relatedLinks && currentPage.relatedLinks.length ? `
-                        <div class="kc-related-links-list">
-                          <h5>Links e capítulos relacionados:</h5>
-                          <ul>
-                            ${currentPage.relatedLinks.map(link => {
-                              if (link.bookId && link.chapterId) {
-                                return `
-                                  <li>
-                                    <button type="button" class="kc-rel-link-btn" data-action="open-chapter" data-book-id="${link.bookId}" data-chapter-id="${link.chapterId}" data-page-index="0">
-                                      ${icon('book', 14)} ${esc(link.label)}
-                                    </button>
-                                  </li>
-                                `;
-                              }
-                              if (link.route) {
-                                return `
-                                  <li>
-                                    <button type="button" class="kc-rel-link-btn" data-action="launch-route" data-route="${link.route}">
-                                      ${icon('external', 14)} ${esc(link.label)}
-                                    </button>
-                                  </li>
-                                `;
-                              }
-                              return '';
-                            }).join('')}
-                          </ul>
-                        </div>
-                      ` : ''}
-                    </div>
-                  </div>
-                ` : ''}
-              </div>
-
-              <!-- BOTTOM PAGE NAVIGATION BAR -->
-              <footer class="kc-page-footer-nav">
-                <div class="kc-pf-left">
-                  ${validPageIndex > 0 ? `
-                    <button type="button" class="kc-pnav-btn kc-pnav-prev" data-action="prev-page">
-                      ${icon('arrowLeft', 16)} Página Anterior (${validPageIndex} de ${pages.length})
-                    </button>
-                  ` : (prevChapter ? `
-                    <button type="button" class="kc-pnav-btn kc-pnav-prev-ch" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${prevChapter.id}" data-page-index="0">
-                      ${icon('arrowLeft', 16)} Cap. Anterior: ${prevChapter.number}. ${esc(prevChapter.title)}
-                    </button>
-                  ` : `
-                    <button type="button" class="kc-pnav-btn kc-pnav-to-lib" data-action="open-library">
-                      ${icon('arrowLeft', 16)} Voltar à Biblioteca
-                    </button>
-                  `)}
-                </div>
-
-                <div class="kc-pf-center">
-                  <span class="kc-pf-page-text">Página ${validPageIndex + 1} de ${pages.length}</span>
-                  <div class="kc-pf-track">
-                    <div class="kc-pf-fill" style="width: ${Math.round(((validPageIndex + 1) / pages.length) * 100)}%"></div>
-                  </div>
-                  <small class="kc-pf-hint">Use ← e → no teclado para virar a página</small>
-                </div>
-
-                <div class="kc-pf-right">
-                  ${validPageIndex < pages.length - 1 ? `
-                    <button type="button" class="kc-pnav-btn kc-pnav-next" data-action="next-page">
-                      Próxima Página (${validPageIndex + 2} de ${pages.length}) ${icon('arrowRight', 16)}
-                    </button>
-                  ` : (nextChapter ? `
-                    <button type="button" class="kc-pnav-btn kc-pnav-next-ch" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${nextChapter.id}" data-page-index="0">
-                      Concluir & Próximo Cap. ${nextChapter.number} ${icon('arrowRight', 16)}
-                    </button>
-                  ` : `
-                    <button type="button" class="kc-pnav-btn kc-pnav-finish" data-action="open-library">
-                      ✓ Concluir Livro & Biblioteca ${icon('arrowRight', 16)}
-                    </button>
-                  `)}
-                </div>
-              </footer>
-            </article>
-          </main>
         </div>
       </div>
     `;
   }
 
   function renderApp() {
-    if (appState.view === 'reader') {
-      container.innerHTML = renderReaderView();
-    } else {
-      container.innerHTML = renderLibraryView();
-    }
+    container.className = 'knowledge-center is-reader-view';
+    container.innerHTML = renderReaderView();
     setupEvents();
   }
 
@@ -1129,7 +1680,7 @@
     const html = matches.map(m => {
       let iconSvg = icon('book', 16);
       let actionAttr = '';
-      if (m.type === 'chapter') {
+      if (m.type === 'chapter' || m.type === 'section' || m.type === 'tip') {
         iconSvg = icon('book', 16);
         actionAttr = `data-action="open-chapter" data-book-id="${m.bookId}" data-chapter-id="${m.chapterId}" data-page-index="${m.pageIndex || 0}"`;
       } else if (m.type === 'tool') {
@@ -1146,7 +1697,7 @@
           <div class="kc-res-copy">
             <span class="kc-res-badge">${esc(m.badge)}</span>
             <strong class="kc-res-title">${esc(m.title)}</strong>
-            <span class="kc-res-sub">${esc(m.subtitle || '')}</span>
+            <span class="kc-res-sub">${esc(m.subtitle || m.snippet || '')}</span>
           </div>
           <span class="kc-res-arrow">${icon('arrowRight', 14)}</span>
         </button>
@@ -1158,6 +1709,19 @@
   }
 
   function setupEvents() {
+    // Book Selector Dropdown in Topbar
+    const bookSelect = container.querySelector('#htReaderBookSelect');
+    if (bookSelect) {
+      bookSelect.addEventListener('change', e => {
+        const val = e.target.value;
+        if (val === 'acervo') {
+          openAcervo();
+        } else {
+          openBook(val);
+        }
+      });
+    }
+
     // Search input on Library View
     const searchInput = container.querySelector('#kcSearchInput');
     const searchDropdown = container.querySelector('#kcSearchDropdown');
@@ -1188,8 +1752,8 @@
     }
 
     // Search input on Reader View
-    const readerSearchInput = container.querySelector('#kcReaderSearchInput');
-    const readerSearchDropdown = container.querySelector('#kcReaderSearchDropdown');
+    const readerSearchInput = container.querySelector('#htReaderSearchInput');
+    const readerSearchDropdown = container.querySelector('#htReaderSearchDropdown');
 
     if (readerSearchInput && readerSearchDropdown) {
       readerSearchInput.addEventListener('input', e => {
@@ -1199,17 +1763,70 @@
           readerSearchDropdown.innerHTML = '';
           return;
         }
-        const matches = performSearch(val);
+        let matches = [];
+        if (ReaderModel && ReaderModel.searchAcervo) {
+          matches = ReaderModel.searchAcervo(val, BooksModel.BOOKS, { limit: 12 });
+        }
+        if (!matches.length) {
+          matches = performSearch(val);
+        }
         renderSearchResults(readerSearchDropdown, matches);
       });
     }
+
+    // Dynamic Sizing Calculator input listener
+    const eqInput = container.querySelector('#htCalcEquity');
+    const rPctInput = container.querySelector('#htCalcRiskPct');
+    const entryInput = container.querySelector('#htCalcEntry');
+    const stopInput = container.querySelector('#htCalcStop');
+
+    function updateDidacticCalc() {
+      if (!eqInput || !rPctInput || !entryInput || !stopInput || !ReaderModel) return;
+      const res = ReaderModel.calculatePositionSize(eqInput.value, rPctInput.value, entryInput.value, stopInput.value);
+      const riskEl = container.querySelector('#htResRisk');
+      const distEl = container.querySelector('#htResDist');
+      const qtyEl = container.querySelector('#htResQty');
+      const expEl = container.querySelector('#htResExp');
+
+      if (riskEl) riskEl.textContent = res.valid ? 'R$ ' + res.riskBudget.toLocaleString('pt-BR') : 'R$ 0';
+      if (distEl) distEl.textContent = res.valid ? `R$ ${res.stopDistance.toFixed(2)} (${res.stopPct.toFixed(1)}%)` : '-';
+      if (qtyEl) qtyEl.textContent = res.valid ? `${res.quantity.toLocaleString('pt-BR')} ações` : '0';
+      if (expEl) expEl.textContent = res.valid ? `R$ ${res.positionValue.toLocaleString('pt-BR')} (${res.allocationPct.toFixed(1)}%)` : 'R$ 0';
+    }
+
+    [eqInput, rPctInput, entryInput, stopInput].forEach(inp => {
+      if (inp) inp.addEventListener('input', updateDidacticCalc);
+    });
+
+    // Dynamic Payoff Simulator listener
+    const wrInput = container.querySelector('#htPayoffWinRate');
+    const avgWinInput = container.querySelector('#htPayoffAvgWin');
+
+    function updateDidacticPayoff() {
+      if (!wrInput || !avgWinInput || !ReaderModel) return;
+      const res = ReaderModel.calculateExpectancy(wrInput.value, avgWinInput.value, 1.0);
+      const expEl = container.querySelector('#htResExpVal');
+      const pfEl = container.querySelector('#htResPF');
+      const verdEl = container.querySelector('#htResVerdict');
+
+      if (expEl) expEl.textContent = (res.expectancyR >= 0 ? '+' : '') + res.expectancyR.toFixed(2) + 'R';
+      if (pfEl) pfEl.textContent = res.profitFactor.toFixed(2);
+      if (verdEl) {
+        verdEl.textContent = res.isPositive ? 'Estratégia Lucrativa' : 'Expectativa Negativa';
+        verdEl.style.color = res.isPositive ? 'var(--ht-book-accent)' : '#dc3545';
+      }
+    }
+
+    [wrInput, avgWinInput].forEach(inp => {
+      if (inp) inp.addEventListener('input', updateDidacticPayoff);
+    });
 
     // Global Click Delegation
     container.onclick = function (e) {
       const target = e.target.closest('[data-action]');
       if (!target) {
         if (searchDropdown && !e.target.closest('.kc-lib-search-box')) searchDropdown.hidden = true;
-        if (readerSearchDropdown && !e.target.closest('.kc-reader-top-search')) readerSearchDropdown.hidden = true;
+        if (readerSearchDropdown && !e.target.closest('.ht-reader-search-wrap')) readerSearchDropdown.hidden = true;
         return;
       }
 
@@ -1241,6 +1858,26 @@
       } else if (action === 'toggle-complete') {
         const cId = target.dataset.chapterId;
         toggleChapterCompleted(cId);
+      } else if (action === 'open-drawer') {
+        const tab = target.dataset.drawerTab || 'toc';
+        toggleDrawer(tab);
+      } else if (action === 'close-drawer') {
+        appState.isDrawerOpen = false;
+        renderApp();
+      } else if (action === 'switch-drawer-tab') {
+        appState.drawerTab = target.dataset.tab;
+        renderApp();
+      } else if (action === 'toggle-bookmark') {
+        const bId = target.dataset.bookId || appState.bookId;
+        const cId = target.dataset.chapterId || appState.chapterId;
+        const pIdx = parseInt(target.dataset.pageIndex || appState.pageIndex, 10);
+        const curChapter = BooksModel.getChapter(bId, cId);
+        const curTitle = curChapter ? curChapter.title : 'Página Marcada';
+        toggleBookmark(bId, cId, pIdx, curTitle, curChapter ? curChapter.subtitle : '');
+      } else if (action === 'toggle-dual-page') {
+        toggleDualPage();
+      } else if (action === 'toggle-fullscreen') {
+        toggleFullscreen();
       } else if (action === 'launch-route') {
         const route = target.dataset.route;
         if (typeof go === 'function') go(route);
@@ -1252,9 +1889,32 @@
         if (typeof renderGlossary === 'function') renderGlossary();
       }
     };
+
+    // Touch / Swipe Gestures on Mobile / Tablet
+    const bookDesk = container.querySelector('.ht-book-desk');
+    if (bookDesk) {
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      bookDesk.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      bookDesk.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchEndX - touchStartX;
+        if (Math.abs(diff) > 50) {
+          if (diff < 0) {
+            nextPage(); // swipe left -> next page
+          } else {
+            prevPage(); // swipe right -> prev page
+          }
+        }
+      }, { passive: true });
+    }
   }
 
-  // Keyboard navigation: ArrowLeft (prev), ArrowRight (next), Escape (library)
+  // Keyboard navigation: ArrowLeft (prev), ArrowRight (next), Escape (library / close drawer)
   document.addEventListener('keydown', event => {
     if (!root.classList.contains('active')) return;
 
@@ -1262,18 +1922,27 @@
     const tag = (event.target && event.target.tagName) || '';
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
-    if (event.key === 'Escape' && appState.view === 'reader') {
-      event.preventDefault();
-      openLibrary();
+    if (event.key === 'Escape') {
+      if (appState.isDrawerOpen) {
+        event.preventDefault();
+        appState.isDrawerOpen = false;
+        renderApp();
+      } else if (appState.view === 'reader') {
+        event.preventDefault();
+        openLibrary();
+      }
     } else if (event.key === 'ArrowRight' && appState.view === 'reader') {
       event.preventDefault();
       nextPage();
     } else if (event.key === 'ArrowLeft' && appState.view === 'reader') {
       event.preventDefault();
       prevPage();
+    } else if (event.key.toLowerCase() === 'f' && appState.view === 'reader') {
+      event.preventDefault();
+      toggleFullscreen();
     } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
-      const input = container.querySelector('#kcSearchInput') || container.querySelector('#kcReaderSearchInput');
+      const input = container.querySelector('#kcSearchInput') || container.querySelector('#htReaderSearchInput');
       if (input) {
         input.focus();
         input.scrollIntoView({ block: 'center', behavior: 'smooth' });

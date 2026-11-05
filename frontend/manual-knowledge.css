@@ -4,21 +4,56 @@
    ========================================================================== */
 
 /* Scoped adjustments for #manual view */
-body:has(#manual.active) .content {
-  max-width: none !important;
-  background: #F8FAFC !important;
-  padding: 0 0 40px !important;
-  overflow-y: auto !important;
-  overflow-x: hidden;
-  min-height: 0;
-  scrollbar-gutter: stable;
+body:has(#manual.active) #marketFocusGuard,
+body:has(#manual.page.active) #marketFocusGuard {
+  display: none !important;
 }
 
-#manual.active {
-  height: auto !important;
-  min-height: 100%;
-  overflow: visible;
-  background: #F8FAFC !important;
+body:has(#manual.active) .content,
+body:has(#manual.page.active) .content {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: calc(100vh - 78px) !important;
+  min-height: calc(100vh - 78px) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+body:has(#manual.active) #manual,
+body:has(#manual.page.active) #manual {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Background por tema no container principal */
+body[data-theme="pigeon"]:has(#manual.active) .content,
+body[data-theme="pigeon"]:has(#manual.active) #manual {
+  background: #F5FAFD !important;
+  color: #304B5B !important;
+}
+
+body[data-theme="gold"]:has(#manual.active) .content,
+body[data-theme="gold"]:has(#manual.active) #manual,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#manual.active) .content,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#manual.active) #manual {
+  background: #141009 !important;
+  color: #FFF8E8 !important;
+}
+
+body[data-theme="healthy"]:has(#manual.active) .content,
+body[data-theme="healthy"]:has(#manual.active) #manual {
+  background: #0b1a14 !important;
+  color: #FFFFFF !important;
 }
 
 .nav [data-page="glossary"],
@@ -53,10 +88,26 @@ body:has(#manual.active) .content {
   --kc-radius-lg: 18px;
   --kc-radius-xl: 24px;
 
+  width: 100%;
+  color: var(--kc-ink);
+}
+
+#manual .knowledge-center.is-library-view {
   max-width: 1600px;
   margin: 0 auto;
   padding: 24px 32px 56px;
-  color: var(--kc-ink);
+  overflow-y: auto;
+  height: 100%;
+}
+
+#manual .knowledge-center.is-reader-view {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 15px;
   line-height: 1.6;
