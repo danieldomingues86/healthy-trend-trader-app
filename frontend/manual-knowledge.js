@@ -394,11 +394,12 @@
         return {
           completed: Array.isArray(parsed.completed) ? parsed.completed : [],
           completedPages: parsed.completedPages && typeof parsed.completedPages === 'object' ? parsed.completedPages : {},
+          quizzes: parsed.quizzes && typeof parsed.quizzes === 'object' ? parsed.quizzes : {},
           lastRead: parsed.lastRead || null
         };
       }
     } catch (_) {}
-    return { completed: [], completedPages: {}, lastRead: null };
+    return { completed: [], completedPages: {}, quizzes: {}, lastRead: null };
   }
 
   function saveProgress(state) {
@@ -455,6 +456,7 @@
     isDrawerOpen: false,
     modalFilter: 'all',
     drawerTab: 'toc', // 'toc' | 'bookmarks'
+    activePillarId: 'pilar-1',
     isFlipping: false,
     flipDirection: null,
     fullscreen: false
@@ -1274,6 +1276,47 @@
     const isPositionSizingTopic = page.bookId === 'livro-4' || /position sizing|dimensionamento|risco por trade/i.test(page.title + ' ' + (page.sections ? page.sections.map(s => s.title).join(' ') : ''));
     const isExpectancyTopic = page.bookId === 'livro-3' || /expectativa matemática|payoff|r-múltiplos|fator de lucro/i.test(page.title + ' ' + (page.sections ? page.sections.map(s => s.title).join(' ') : ''));
 
+    // Se a página possuir blocos visuais e interativos do Manual 2.0
+    const pageBlocks = (Array.isArray(page.blocks) && page.blocks.length > 0)
+      ? page.blocks
+      : (page.pageData && Array.isArray(page.pageData.blocks) && page.pageData.blocks.length > 0 ? page.pageData.blocks : null);
+
+    if (pageBlocks && typeof ManualBlocks !== 'undefined') {
+      const achievements = typeof ManualBlocksModel !== 'undefined'
+        ? ManualBlocksModel.computeAchievements(appState.progress)
+        : [];
+      const blocksHtml = ManualBlocks.render({ blocks: pageBlocks, layoutClass: page.layoutClass }, isRightPage, {
+        activePillarId: appState.activePillarId || 'pilar-1',
+        quizzes: appState.progress.quizzes || {},
+        achievements: achievements
+      });
+
+      return `
+        <article class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} kc-page-surface ht-page-visual-mode" id="kcPageSurface">
+          <header class="ht-page-running-head">
+            <span>${esc(page.bookTitle)}</span>
+            <span class="kc-page-eyebrow">Cap. ${page.chapterNumber} · Pág. ${page.chapterPageIndex + 1}/${page.chapterPageCount}</span>
+          </header>
+
+          <div class="ht-page-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span class="ht-page-chapter-badge">Capítulo ${page.chapterNumber}</span>
+              <button type="button" class="kc-btn-toggle-chapter ${isChapterCompleted(page.chapterId) ? 'is-completed' : ''}" data-action="toggle-complete" data-chapter-id="${page.chapterId}" style="border:none;background:transparent;cursor:pointer;font-size:11px;font-weight:700;color:var(--ht-book-accent);display:inline-flex;align-items:center;gap:4px;">
+                ${icon('checkCircle', 14)} <span>${isChapterCompleted(page.chapterId) ? 'Concluído' : 'Concluir'}</span>
+              </button>
+            </div>
+
+            ${blocksHtml}
+          </div>
+
+          <footer class="ht-page-running-foot">
+            <span>The Healthy Trend Trader</span>
+            <span class="ht-page-num">${page.globalIndex + 1}</span>
+          </footer>
+        </article>
+      `;
+    }
+
     return `
       <article class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} kc-page-surface" id="kcPageSurface">
         <header class="ht-page-running-head">
@@ -2048,6 +2091,76 @@ function renderReaderView() {
       } else if (action === 'launch-route') {
         const route = target.dataset.route;
         if (typeof go === 'function') go(route);
+      } else if (action === 'select-pillar') {
+        appState.activePillarId = target.dataset.pillarId || 'pilar-1';
+        renderApp();
+      } else if (action === 'quiz-select') {
+        const qId = target.dataset.quizId;
+        const optIdx = parseInt(target.dataset.optIdx, 10);
+        if (!appState.progress.quizzes) appState.progress.quizzes = {};
+        if (!appState.progress.quizzes[qId]) {
+          appState.progress.quizzes[qId] = { attempts: 0, hasAnswered: false, selectedOptionIndex: null };
+        }
+        appState.progress.quizzes[qId].selectedOptionIndex = optIdx;
+        renderApp();
+      } else if (action === 'quiz-submit') {
+        const qId = target.dataset.quizId;
+        if (!appState.progress.quizzes) appState.progress.quizzes = {};
+        const qState = appState.progress.quizzes[qId] || { attempts: 0, hasAnswered: false, selectedOptionIndex: null };
+
+        if (qState.selectedOptionIndex === null || qState.selectedOptionIndex === undefined) {
+          const checkedRadio = container.querySelector(`input[name="${qId}"]:checked`);
+          if (checkedRadio) {
+            qState.selectedOptionIndex = parseInt(checkedRadio.value, 10);
+          }
+        }
+
+        if (qState.selectedOptionIndex === null || qState.selectedOptionIndex === undefined || isNaN(qState.selectedOptionIndex)) {
+          if (typeof showToast === 'function') {
+            showToast('Selecione uma alternativa antes de responder.', 'warn');
+          }
+          return;
+        }
+
+        const curBook = BooksModel.getBook(appState.bookId);
+        const flatPages = ReaderModel.flattenBookPages(curBook);
+        let foundQuiz = null;
+        for (const p of flatPages) {
+          if (Array.isArray(p.blocks)) {
+            for (const b of p.blocks) {
+              if (b.type === 'quiz' && (b.id === qId || !b.id)) {
+                foundQuiz = b;
+                break;
+              }
+            }
+          }
+          if (foundQuiz) break;
+        }
+
+        if (foundQuiz && typeof ManualBlocksModel !== 'undefined') {
+          if (qState.hasAnswered && !qState.isCorrect) {
+            qState.hasAnswered = false;
+            qState.selectedOptionIndex = null;
+            saveProgress(appState);
+            renderApp();
+            return;
+          }
+
+          qState.attempts = (qState.attempts || 0) + 1;
+          const evalRes = ManualBlocksModel.evaluateQuiz(foundQuiz, qState.selectedOptionIndex);
+          qState.hasAnswered = true;
+          qState.isCorrect = evalRes.isCorrect;
+          qState.feedback = evalRes.feedback;
+          qState.points = evalRes.points;
+          appState.progress.quizzes[qId] = qState;
+          saveProgress(appState);
+
+          if (evalRes.isCorrect && typeof showToast === 'function') {
+            showToast('Parabéns! Resposta correta (+50 pts)', 'good');
+          }
+
+          renderApp();
+        }
       } else if (action === 'open-glossary') {
         const term = target.dataset.term;
         if (typeof glossaryQuery !== 'undefined') glossaryQuery = term;

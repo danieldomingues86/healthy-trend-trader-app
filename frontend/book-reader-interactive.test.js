@@ -176,6 +176,81 @@ test('Interactive Book Reader: Ações de Retorno ao Acervo (open-acervo) e Aber
   assert.ok(mkCode.includes('data-action="open-acervo"'), 'Botão voltar deve possuir data-action="open-acervo"');
 });
 
+test('Manual 2.0: Visual Learning Experience — Estrutura de Blocos do Piloto (Cap. 1.1 e 1.2)', () => {
+  const BooksModel = require(path.join(__dirname, 'manual-knowledge-books.js'));
+  const ManualBlocks = require(path.join(__dirname, 'manual-blocks.js'));
+  const BookReaderModel = require(path.join(__dirname, 'book-reader-model.js'));
+
+  const cap1 = BooksModel.getChapter('livro-1', 'livro-1-cap-1');
+  assert.ok(cap1, 'Capítulo 1 deve existir');
+
+  const pages = BooksModel.getChapterPages(cap1);
+  assert.equal(pages.length, 4, 'Capítulo 1 piloto deve expandir para exatamente 4 páginas');
+
+  // Página 1 (1.1 - A): Hero, Lead, Quote, Princípios
+  const p1 = pages[0];
+  assert.ok(p1.blocks.some(b => b.type === 'hero'), 'Página 1 deve conter Hero');
+  assert.ok(p1.blocks.some(b => b.type === 'principles'), 'Página 1 deve conter Princípios Inegociáveis');
+  const principlesBlock = p1.blocks.find(b => b.type === 'principles');
+  assert.equal(principlesBlock.principles.length, 3, 'Devem ser exatamente 3 princípios inegociáveis');
+
+  // Página 2 (1.1 - B): Story, Visual Callout, Tip, Quiz, What You Learned
+  const p2 = pages[1];
+  assert.ok(p2.blocks.some(b => b.type === 'story'), 'Página 2 deve conter Storytelling Impulsivo vs. Disciplinado');
+  assert.ok(p2.blocks.some(b => b.type === 'quiz'), 'Página 2 deve conter Quiz interativo Pare e Pense');
+  assert.ok(p2.blocks.some(b => b.type === 'visual-callout'), 'Página 2 deve conter Visual Callout');
+
+  // Página 3 (1.2 - A): Hero, Lead, Pillar Wheel, Quote
+  const p3 = pages[2];
+  const wheelBlock = p3.blocks.find(b => b.type === 'pillar-wheel');
+  assert.ok(wheelBlock, 'Página 3 deve conter infográfico radial dos Seis Pilares');
+  assert.equal(wheelBlock.pillars.length, 6, 'Roda deve conter exatamente 6 pilares');
+
+  // Página 4 (1.2 - B): In-Practice, Challenge, Quiz, Visual Summary, Conquest Badge
+  const p4 = pages[3];
+  assert.ok(p4.blocks.some(b => b.type === 'in-practice'), 'Página 4 deve conter Na Prática');
+  assert.ok(p4.blocks.some(b => b.type === 'challenge'), 'Página 4 deve conter Desafio do Capítulo');
+  assert.ok(p4.blocks.some(b => b.type === 'visual-summary'), 'Página 4 deve conter Resumo Visual');
+
+  // Renderização via ManualBlocks.render
+  const renderedP1 = ManualBlocks.render(p1, false);
+  assert.ok(renderedP1.includes('ht-block-hero'), 'HTML deve renderizar Hero');
+  assert.ok(renderedP1.includes('ht-principle-card'), 'HTML deve renderizar cards de princípios');
+
+  const renderedP3 = ManualBlocks.render(p3, false, { activePillarId: 'pilar-1' });
+  assert.ok(renderedP3.includes('ht-wheel-svg'), 'HTML deve renderizar SVG radial');
+  assert.ok(renderedP3.includes('data-action="select-pillar"'), 'HTML deve conter gatilhos interativos para fatias da roda');
+
+  // Busca indexa os termos dos novos blocos
+  const searchRevenge = BookReaderModel.searchAcervo('Revenge trading', BooksModel.BOOKS);
+  assert.ok(searchRevenge.length > 0, 'Busca deve encontrar termos do bloco Story/Quiz (Revenge trading)');
+  assert.equal(searchRevenge[0].chapterId, 'livro-1-cap-1');
+
+  const searchPilares = BookReaderModel.searchAcervo('Seis Pilares', BooksModel.BOOKS);
+  assert.ok(searchPilares.length > 0, 'Busca deve encontrar Seis Pilares');
+});
+
+test('Manual 2.0: Arquivos de Mídia e Imagens em assets/manual-learning/', () => {
+  const assetsDir = path.join(__dirname, '..', 'assets', 'manual-learning');
+  const requiredImages = [
+    'mlx-hero-disciplined-trader.webp',
+    'mlx-hero-disciplined-trader.jpg',
+    'mlx-story-impulsive-vs-disciplined.webp',
+    'mlx-story-impulsive-vs-disciplined.jpg',
+    'mlx-process-mountain-path.webp',
+    'mlx-process-mountain-path.jpg',
+    'mlx-platform-cockpit.webp',
+    'mlx-platform-cockpit.jpg'
+  ];
+
+  requiredImages.forEach(img => {
+    const fullPath = path.join(assetsDir, img);
+    assert.ok(fs.existsSync(fullPath), `Imagem obrigatória ${img} deve existir em assets/manual-learning/`);
+    const stat = fs.statSync(fullPath);
+    assert.ok(stat.size > 1000, `Imagem ${img} deve possuir tamanho válido (> 1KB)`);
+  });
+});
+
 
 
 

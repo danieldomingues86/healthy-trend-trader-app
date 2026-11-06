@@ -127,6 +127,7 @@
           type: pageObj.type || 'content',
           takeaways: pageObj.takeaways || [],
           sections: pageObj.sections || [],
+          blocks: pageObj.blocks || [],
           tip: pageObj.tip || null,
           toolRoute: pageObj.toolRoute || null,
           toolLabel: pageObj.toolLabel || null,
@@ -376,6 +377,38 @@
               });
 
               if (results.length >= maxResults) return results;
+            }
+          }
+
+          // 2.1 Match em Blocos Visuais e Interativos (Manual 2.0)
+          if (Array.isArray(page.blocks) && page.blocks.length > 0) {
+            var blocksExtractor = typeof window !== 'undefined' && window.ManualBlocksModel ? window.ManualBlocksModel.extractBlocksText : (typeof require !== 'undefined' ? (function () { try { return require('./manual-blocks-model.js').extractBlocksText; } catch (_) { return null; } })() : null);
+            var blocksText = blocksExtractor ? blocksExtractor(page.blocks) : '';
+            var normBlocks = BookReaderModel.normalizeText(blocksText);
+            var bMatchIdx = normBlocks.indexOf(q);
+            if (bMatchIdx >= 0) {
+              var startB = Math.max(0, bMatchIdx - 40);
+              var endB = Math.min(blocksText.length, bMatchIdx + q.length + 80);
+              var bSnippet = (startB > 0 ? '...' : '') + blocksText.substring(startB, endB).trim() + (endB < blocksText.length ? '...' : '');
+
+              if (!results.some(function (r) { return r.globalIndex === page.globalIndex && r.title === page.title; })) {
+                results.push({
+                  type: 'visual-block',
+                  bookId: book.id,
+                  bookNumber: book.number,
+                  bookTitle: book.title,
+                  chapterId: ch.id,
+                  chapterNumber: ch.number,
+                  chapterTitle: ch.title,
+                  pageIndex: page.chapterPageIndex,
+                  globalIndex: page.globalIndex,
+                  badge: 'Livro ' + book.number + ' · Pág. ' + (page.chapterPageIndex + 1),
+                  title: page.title,
+                  subtitle: ch.title,
+                  snippet: bSnippet
+                });
+                if (results.length >= maxResults) return results;
+              }
             }
           }
 

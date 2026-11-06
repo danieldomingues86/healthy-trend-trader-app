@@ -61,6 +61,355 @@
             "label": "Rotina Diária (Ferramenta)",
             "route": "dailyroutine"
           }
+        ],
+        "pages": [
+          {
+            "pageIndex": 0,
+            "number": 1,
+            "id": "p-1",
+            "title": "1.1 O que é o Healthy Trend Trader",
+            "type": "intro",
+            "takeaways": [
+              "O que é o Healthy Trend Trader e sua missão central",
+              "Como o software protege seu capital antes de buscar rentabilidade",
+              "Os 3 princípios inegociáveis do sistema",
+              "A diferença entre operar por impulso e operar por processo sistemático"
+            ],
+            "sections": [
+              {
+                "id": "o-que-e",
+                "title": "1.1 O que é o Healthy Trend Trader",
+                "content": "O **Healthy Trend Trader** não é apenas uma plataforma de análise técnica ou de registro de ordens; ele é um **ambiente de governança operacional e emocional** desenhado especificamente para operadores de tendência (Trend Followers).\n\nA premissa fundamental do sistema é que **a consistência a longo prazo no mercado financeiro decorre da saúde do seu processo decisório, e não de tentar prever o futuro em cada pregão.**\n\nEnquanto a maioria dos traders se perde no estresse das oscilações de curto prazo, operando em excesso e assumindo riscos desproporcionais, o Healthy Trend Trader estrutura toda a sua jornada em torno de três princípios inegociáveis:\n1. **Proteção Rigorosa do Capital:** Nenhuma operação é permitida sem um stop técnico definido e um risco financeiro pré-estabelecido.\n2. **Confluência de Probabilidades:** Apenas oportunidades de alta qualidade técnica (Grades A e B) recebem autorização de risco da política.\n3. **Longevidade e Paz Mental:** O software monitora sua carga psicológica, seu tempo de tela e seus hábitos diários para evitar o esgotamento (burnout) e a espiral de perdas."
+              }
+            ],
+            "blocks": [
+              {
+                "type": "hero",
+                "kicker": "CAPÍTULO 1.1",
+                "title": "O que é o Healthy Trend Trader?",
+                "subtitle": "Muito mais que um software. Um sistema para desenvolver consistência e longevidade no Swing Trade.",
+                "image": "mlx-hero-disciplined-trader"
+              },
+              {
+                "type": "lead",
+                "text": "O Healthy Trend Trader é um ambiente completo de governança operacional e emocional desenhado especificamente para operadores de tendência (Trend Followers), integrando análise, processo, gestão de risco e disciplina."
+              },
+              {
+                "type": "quote",
+                "quote": "A consistência a longo prazo no mercado financeiro decorre da saúde do seu processo decisório, e não de tentar prever o futuro em cada pregão.",
+                "author": "Premissa Fundamental do Método"
+              },
+              {
+                "type": "principles",
+                "heading": "A Filosofia do Sistema: 3 Princípios Inegociáveis",
+                "description": "Operar a favor da tendência com regras simples, gestão de risco rigorosa e foco na preservação patrimonial.",
+                "principles": [
+                  {
+                    "name": "Proteção Rigorosa do Capital",
+                    "icon": "🛡️",
+                    "color": "#10b981",
+                    "description": "Nenhuma operação é permitida sem um stop técnico definido e um risco financeiro pré-estabelecido. Preservar o patrimônio é a prioridade inegociável."
+                  },
+                  {
+                    "name": "Confluência de Probabilidades",
+                    "icon": "🎯",
+                    "color": "#0284c7",
+                    "description": "Apenas oportunidades avaliadas pela Trading Rubric com alta qualidade técnica (Grades A e B) recebem autorização de risco da política."
+                  },
+                  {
+                    "name": "Longevidade e Paz Mental",
+                    "icon": "🧠",
+                    "color": "#8b5cf6",
+                    "description": "Monitoramento da carga psicológica, tempo de tela e hábitos diários para blindar contra o overtrading, o burnout e a espiral de perdas."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "pageIndex": 1,
+            "number": 2,
+            "id": "p-2",
+            "title": "Processo e Comportamento: Impulso vs. Disciplina",
+            "type": "explanation",
+            "blocks": [
+              {
+                "type": "story",
+                "heading": "O Trader Impulsivo vs. O Trader Disciplinado",
+                "subtitle": "A diferença real entre operar por reação emocional e operar por processo sistemático.",
+                "image": "mlx-story-impulsive-vs-disciplined",
+                "left": {
+                  "title": "O Trader Impulsivo",
+                  "points": [
+                    "Entra no mercado por ansiedade e medo de perder a alta (FOMO)",
+                    "Aumenta a mão após uma perda tentando recuperar rápido (Revenge trading)",
+                    "Altera ou retira o stop quando a operação oscila contra sua posição",
+                    "Opera compulsivamente todos os dias mesmo em mercado desfavorável"
+                  ],
+                  "outcome": "Esgotamento psicológico, drawdown severo e risco constante de ruína."
+                },
+                "right": {
+                  "title": "O Trader Disciplinado",
+                  "points": [
+                    "Espera pacientemente a confirmação do setup e do regime de mercado",
+                    "Respeita rigorosamente o dimensionamento exato autorizado pela política",
+                    "Aceita o stop técnico como um custo planejado e natural do método",
+                    "Executa com clareza o fluxo inegociável: Wait → Confirm → Execute"
+                  ],
+                  "outcome": "Operação tranquila, decisões frias e consistência matemática no longo prazo."
+                }
+              },
+              {
+                "type": "visual-callout",
+                "image": "mlx-process-mountain-path",
+                "quote": "Você não precisa prever o mercado. Precisa apenas aprender a reagir com método a ele.",
+                "author": "Sabedoria do Trend Following"
+              },
+              {
+                "type": "method-tip",
+                "title": "Dica do Método: Menos é Mais",
+                "tip": "No Healthy Trend Trader, o melhor trader não é aquele que faz mais operações, mas aquele que espera pacientemente pelas oportunidades com confluência máxima de probabilidades."
+              },
+              {
+                "type": "quiz",
+                "id": "quiz-cap-1-1",
+                "badge": "Pare e Pense · Teste seus conhecimentos",
+                "question": "Qual desses comportamentos mais prejudica a consistência de um trader segundo o método?",
+                "points": 50,
+                "correctIndex": 0,
+                "options": [
+                  {
+                    "text": "Aumentar a mão após uma perda para tentar recuperar o capital rápido (Over-risking / Revenge trading).",
+                    "explanation": "Exato! O revenge trading viola a governança da política de risco e é a causa estatística número um de quebra de contas."
+                  },
+                  {
+                    "text": "Ter uma taxa de acerto de 40% em operações com payoff médio de 2.5R.",
+                    "explanation": "Incorreto. Com 40% de acerto e payoff de 2.5R, a expectativa matemática é fortemente positiva (+0.40R por trade)."
+                  },
+                  {
+                    "text": "Aguardar dias sem operar quando o mercado está em Regime Down.",
+                    "explanation": "Incorreto. Ficar de fora em mercado Down é disciplina exemplar e cumpre a regra de ouro de proteger capital."
+                  }
+                ]
+              },
+              {
+                "type": "what-you-learned",
+                "title": "O que você aprendeu nesta etapa",
+                "items": [
+                  "A consistência decorre da saúde do processo decisório, não da previsão do futuro.",
+                  "Os três princípios inegociáveis blindam seu patrimônio contra impulsos emocionais.",
+                  "Respeitar o fluxo Wait → Confirm → Execute é o segredo dos operadores de alta performance."
+                ]
+              }
+            ]
+          },
+          {
+            "pageIndex": 2,
+            "number": 3,
+            "id": "p-3",
+            "title": "1.2 Os Seis Pilares do Sistema",
+            "type": "explanation",
+            "sections": [
+              {
+                "id": "pilares",
+                "title": "1.2 Os Seis Pilares do Sistema",
+                "content": "A navegação do sistema reflete diretamente o ciclo de vida do operador profissional:\n- **Operação Diária:** Onde o dia acontece (Visão Geral, Planejamento de Novo Trade, Rotina Pré/Pós e Monitor de Hábitos).\n- **Análise de Mercado:** Inteligência antes do trade (Gráficos, Central Macro, Ciclo de Mercado, Líderes Emergentes e Força Relativa).\n- **Carteira & Risco:** Governança patrimonial (Posições abertas, Portfolio Heat, Política de Risco e Blindagem Comportamental).\n- **Desempenho & Simulações:** Auditoria e evolução (Painel da Verdade, Anatomia de Trades, Simuladores e Diário com IA).\n- **Mentalidade & Zen:** O cérebro do operador (Check-in emocional, Trader Zen, Regras inegociáveis e Sabedoria dos mestres).\n- **Recursos & Governança:** Ferramentas de apoio, Trader Store e configurações da plataforma."
+              }
+            ],
+            "blocks": [
+              {
+                "type": "hero",
+                "kicker": "CAPÍTULO 1.2",
+                "title": "Os Seis Pilares do Sistema",
+                "subtitle": "Os fundamentos que sustentam o Healthy Trend Trader e guiam todas as suas operações."
+              },
+              {
+                "type": "lead",
+                "text": "A arquitetura do software reflete diretamente o ciclo de vida do operador de tendência profissional. Cada pilar foi desenhado para atuar em sinergia, transformando a rotina do trader em um processo coordenado e blindado."
+              },
+              {
+                "type": "pillar-wheel",
+                "pillars": [
+                  {
+                    "id": "pilar-1",
+                    "number": 1,
+                    "name": "Operação Diária",
+                    "subtitle": "Onde o dia acontece",
+                    "color": "#10b981",
+                    "description": "O centro de comando do pregão: cockpit geral, planejamento de novos trades com Trading Rubric, rotinas diárias e monitor de hábitos.",
+                    "modules": [
+                      "Meu Desktop",
+                      "Novo Trade",
+                      "Rotina Diária",
+                      "Watchlist",
+                      "Hábitos"
+                    ],
+                    "route": "today"
+                  },
+                  {
+                    "id": "pilar-2",
+                    "number": 2,
+                    "name": "Análise de Mercado",
+                    "subtitle": "Inteligência antes do trade",
+                    "color": "#0284c7",
+                    "description": "Leitura objetiva do ambiente: radar de oportunidades, ciclo de mercado, permissão do pregão, líderes emergentes e força relativa.",
+                    "modules": [
+                      "Radar de Oportunidades",
+                      "Força Relativa",
+                      "Ciclo de Mercado",
+                      "Central de Mercado",
+                      "Setores"
+                    ],
+                    "route": "marketcycle"
+                  },
+                  {
+                    "id": "pilar-3",
+                    "number": 3,
+                    "name": "Carteira & Risco",
+                    "subtitle": "Governança patrimonial",
+                    "color": "#6366f1",
+                    "description": "Proteção matemática do capital: monitor de posições abertas, calor da carteira (Portfolio Heat), política de risco e blindagem de ativos proibidos.",
+                    "modules": [
+                      "Patrimônio",
+                      "Posições Abertas",
+                      "Portfolio Heat",
+                      "Política de Risco",
+                      "Ativos Blacklist"
+                    ],
+                    "route": "riskpolicy"
+                  },
+                  {
+                    "id": "pilar-4",
+                    "number": 4,
+                    "name": "Desempenho & Simulações",
+                    "subtitle": "Auditoria e evolução contínua",
+                    "color": "#d97706",
+                    "description": "A verdade dos seus números: painel de performance, anatomia dos trades, simulador Monte Carlo, diário com IA e cálculo de risco de ruína.",
+                    "modules": [
+                      "Painel da Verdade",
+                      "Anatomia dos Trades",
+                      "Simulador de Trades",
+                      "Diário com IA",
+                      "Risco de Ruína"
+                    ],
+                    "route": "analytics"
+                  },
+                  {
+                    "id": "pilar-5",
+                    "number": 5,
+                    "name": "Mentalidade & Zen",
+                    "subtitle": "O cérebro do operador",
+                    "color": "#0d9488",
+                    "description": "Equilíbrio emocional sustentável: check-in emocional antes de operar, práticas do Trader Zen, regras inegociáveis e sabedoria dos mestres.",
+                    "modules": [
+                      "Check-in Emocional",
+                      "Trader Zen",
+                      "Regras Inegociáveis",
+                      "Sabedoria dos Mestres"
+                    ],
+                    "route": "mindset"
+                  },
+                  {
+                    "id": "pilar-6",
+                    "number": 6,
+                    "name": "Recursos & Governança",
+                    "subtitle": "Infraestrutura e apoio",
+                    "color": "#475569",
+                    "description": "Ferramentas de expansão e governança: manual do software em flipbook, glossário completo do método, loja do trader e configurações gerais.",
+                    "modules": [
+                      "Manual do Software",
+                      "Glossário do Método",
+                      "Loja do Trader",
+                      "Configurações"
+                    ],
+                    "route": "manual"
+                  }
+                ]
+              },
+              {
+                "type": "quote",
+                "quote": "A ideia central: Os seis pilares trabalham de forma integrada, criando um sistema completo que une método, análise, execução, controle de risco e evolução contínua.",
+                "author": "Governança Sistêmica"
+              }
+            ]
+          },
+          {
+            "pageIndex": 3,
+            "number": 4,
+            "id": "p-4",
+            "title": "Os Pilares na Prática & Síntese",
+            "type": "practice",
+            "tip": "No Healthy Trend Trader, menos é mais. O melhor trader não é aquele que faz mais operações, mas aquele que espera pacientemente pelas oportunidades com confluência máxima de probabilidades.",
+            "toolRoute": "today",
+            "toolLabel": "Abrir Visão Geral (Cockpit) →",
+            "blocks": [
+              {
+                "type": "in-practice",
+                "title": "Veja os pilares integrados no software real",
+                "description": "Acesse o menu principal do Healthy Trend Trader e explore cada pilar diretamente na plataforma.",
+                "image": "mlx-platform-cockpit",
+                "route": "today",
+                "buttonLabel": "Abrir Visão Geral (Cockpit) →"
+              },
+              {
+                "type": "challenge",
+                "title": "Desafio do Capítulo: Conhecendo seu Cockpit",
+                "subtitle": "Atividade Prática Inicial",
+                "text": "Antes de planejar qualquer operação, realize a checagem dos três primeiros pilares na plataforma:",
+                "steps": [
+                  "1. Acesse Meu Desktop e confira o sinal de Market Permission (Permissão de Mercado) do dia.",
+                  "2. Abra Carteira & Risco → Portfolio Heat e verifique a capacidade de risco restante da conta.",
+                  "3. Vá para Mentalidade & Zen e registre seu Check-in Emocional antes da abertura do pregão."
+                ]
+              },
+              {
+                "type": "quiz",
+                "id": "quiz-cap-1-2",
+                "badge": "Quiz de Fixação · Estrutura dos Pilares",
+                "question": "Por que a Análise de Mercado e a Carteira & Risco obrigatoriamente antecedem o envio de ordens no Novo Trade?",
+                "points": 50,
+                "correctIndex": 0,
+                "options": [
+                  {
+                    "text": "Porque a hierarquia do método exige: primeiro a permissão do mercado (Wait), depois a qualidade do setup (Confirm) e então o dimensionamento seguro da posição (Execute).",
+                    "explanation": "Perfeito! Nenhuma oportunidade técnica é operada sem permissão do mercado ou com violação dos limites de risco da carteira."
+                  },
+                  {
+                    "text": "Porque o sistema exige clicar em todas as abas antes de liberar os botões de compra.",
+                    "explanation": "Incorreto. A ordem das etapas decorre da governança metodológica e da preservação estatística do patrimônio."
+                  }
+                ]
+              },
+              {
+                "type": "visual-summary",
+                "title": "Síntese Visual dos Seis Pilares",
+                "items": [
+                  {
+                    "icon": "🟢",
+                    "title": "1. Permissão de Mercado",
+                    "text": "Regime Up autoriza compras; Down protege o caixa e bloqueia entradas."
+                  },
+                  {
+                    "icon": "🔵",
+                    "title": "2. Qualidade do Setup",
+                    "text": "Apenas confluências Grade A e B recebem alocação de risco."
+                  },
+                  {
+                    "icon": "🟣",
+                    "title": "3. Dimensionamento Matemático",
+                    "text": "Stop técnico, volatilidade ATR e teto de risco definem o lote exato."
+                  }
+                ]
+              },
+              {
+                "type": "conquest-badge",
+                "achievementId": "piloto_completo",
+                "icon": "👑",
+                "title": "Fundamentos de Ouro",
+                "description": "Você completou o estudo da introdução e dos Seis Pilares do Healthy Trend Trader!"
+              }
+            ]
+          }
         ]
       },
       {
