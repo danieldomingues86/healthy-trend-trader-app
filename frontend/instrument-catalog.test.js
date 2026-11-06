@@ -54,3 +54,22 @@ test('catálogo contempla todas as 34 BDRs do sistema', () => {
   assert.equal(expectedBDRs.length, 34);
 });
 
+
+test('catálogo e tela Novo Trade não incluem mercados Forex e Outros', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  assert.equal(instruments.MARKETS.includes('Forex'), false, 'MARKETS não deve conter Forex');
+  assert.equal(instruments.MARKETS.includes('Outros'), false, 'MARKETS não deve conter Outros');
+  assert.deepEqual(instruments.MARKETS, ['Ações', 'Futuros', 'BDR', 'FII', 'Cripto']);
+
+  assert.equal(instruments.forMarket('Forex').length, 0, 'forMarket(Forex) deve retornar lista vazia');
+  assert.equal(instruments.forMarket('Outros').length, 0, 'forMarket(Outros) deve retornar lista vazia');
+  assert.equal(instruments.belongsToMarket('USD-BRL', 'Forex'), false);
+  assert.equal(instruments.belongsToMarket('EUR-USD', 'Forex'), false);
+  assert.equal(instruments.belongsToMarket('IBOV', 'Outros'), false);
+  assert.equal(instruments.belongsToMarket('DXY', 'Outros'), false);
+
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.ok(!html.includes('<option>Forex</option>'), 'index.html não deve conter <option>Forex</option>');
+  assert.ok(!html.includes('<option>Outros</option>'), 'index.html não deve conter <option>Outros</option>');
+});

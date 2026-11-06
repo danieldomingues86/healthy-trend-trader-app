@@ -5,7 +5,7 @@
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
 
-  const MARKETS = ['Ações', 'Futuros', 'BDR', 'FII', 'Cripto', 'Forex', 'Outros'];
+  const MARKETS = ['Ações', 'Futuros', 'BDR', 'FII', 'Cripto'];
   const INSTRUMENTS = [
     // Base local para que o seletor continue útil enquanto o cache de Força Relativa é atualizado.
     // A lista dinâmica complementa estes instrumentos; a classificação permanece centralizada aqui.
@@ -83,11 +83,6 @@
     { symbol: 'BTC', name: 'Bitcoin', market: 'Cripto' },
     { symbol: 'ETH', name: 'Ethereum', market: 'Cripto' },
     { symbol: 'SOL', name: 'Solana', market: 'Cripto' },
-    { symbol: 'USD-BRL', name: 'Dólar / Real', market: 'Forex' },
-    { symbol: 'EUR-USD', name: 'Euro / Dólar', market: 'Forex' },
-    { symbol: 'GBP-USD', name: 'Libra / Dólar', market: 'Forex' },
-    { symbol: 'IBOV', name: 'Ibovespa', market: 'Outros' },
-    { symbol: 'DXY', name: 'Dollar Index', market: 'Outros' }
   ];
 
   const normalizeSymbol = value => String(value || '').trim().toUpperCase();
