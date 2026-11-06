@@ -285,6 +285,8 @@
     const startStr = M.formatDate(active.startDate);
     const endStr = M.formatDate(active.endDate);
     const durationLabel = `${active.durationDays} dias`;
+    const catalogItem = active.catalogId ? state.catalog.find(c => c.id === active.catalogId) : state.catalog.find(c => c.title === active.title);
+    const importanceText = catalogItem?.description || active.focus || 'Foco comportamental em treinamento deliberado para consistência operacional.';
 
     return `
       <article class="tt-card tt-current-goal-card">
@@ -306,6 +308,7 @@
             <div class="tt-goal-headline">
               <span class="tt-goal-kicker">Comportamento em Foco</span>
               <h3 class="tt-goal-title">“${esc(active.title)}”</h3>
+              <p class="tt-goal-importance-text">${esc(importanceText)}</p>
             </div>
           </div>
 
@@ -855,6 +858,7 @@
     if (!state.skillModalItem) return '';
     const item = state.skillModalItem;
     const catLabel = M.categoryLabel(item.category);
+    const isAlreadyActive = Boolean(state.active && (state.active.catalogId === item.id || state.active.title === item.title || state.active.id === item.id));
 
     return `
       <div class="tt-modal-backdrop" onclick="if (event.target === this) window.TraderTraining.closeSkillModal()">
@@ -880,10 +884,15 @@
           </div>
 
           <footer class="tt-modal-actions">
-            <button type="button" class="tt-btn-secondary" onclick="window.TraderTraining.closeSkillModal()">Fechar</button>
-            <button type="button" class="tt-btn-primary" onclick="window.TraderTraining.chooseSkillFromDetails('${item.id}')">
-              Treinar este objetivo →
-            </button>
+            ${isAlreadyActive ? `
+              <span class="tt-modal-active-badge">● Treinamento Ativo</span>
+              <button type="button" class="tt-btn-primary" onclick="window.TraderTraining.closeSkillModal()">Entendido</button>
+            ` : `
+              <button type="button" class="tt-btn-secondary" onclick="window.TraderTraining.closeSkillModal()">Fechar</button>
+              <button type="button" class="tt-btn-primary" onclick="window.TraderTraining.chooseSkillFromDetails('${item.id}')">
+                Treinar este objetivo →
+              </button>
+            `}
           </footer>
         </div>
       </div>
@@ -1067,13 +1076,10 @@
     banner.innerHTML = `
       <div class="tt-contextual-focus-left">
         <div class="tt-contextual-focus-icon-wrap" aria-hidden="true">
-          <svg class="tt-contextual-focus-target-svg" width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="17" cy="19" r="13" stroke="#f43f5e" stroke-width="2.5" fill="#fff5f6" />
-            <circle cx="17" cy="19" r="8.5" stroke="#cbd5e1" stroke-width="1.8" fill="#ffffff" />
-            <circle cx="17" cy="19" r="4.5" stroke="#06b6d4" stroke-width="2" fill="#ecfeff" />
-            <circle cx="17" cy="19" r="1.8" fill="#0891b2" />
-            <path d="M7 9L15 17" stroke="#0f172a" stroke-width="2" stroke-linecap="round" />
-            <path d="M5 8L8 5L9 8L6 11Z" fill="#0f172a" />
+          <svg class="tt-contextual-focus-target-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" fill="currentColor" />
           </svg>
         </div>
         <div class="tt-contextual-focus-content">
@@ -1082,9 +1088,15 @@
           <div class="tt-contextual-focus-sub">${esc(focusMsg)}</div>
         </div>
       </div>
-      <button type="button" class="tt-btn-dismiss-focus" onclick="window.TraderTraining.dismissWorkbenchBanner('${active.id}')">
-        Entendi
-      </button>
+      <div class="tt-contextual-focus-actions">
+        <button type="button" class="tt-btn-focus-action" onclick="window.TraderTraining.navigateToActiveTraining('${active.id}')" title="Acessar página e detalhes deste treinamento">
+          <span>Ver Treinamento</span>
+          <span class="tt-btn-arrow" aria-hidden="true">→</span>
+        </button>
+        <button type="button" class="tt-btn-close-focus" onclick="window.TraderTraining.dismissWorkbenchBanner('${active.id}')" title="Dispensar aviso">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
     `;
   }
 
@@ -1263,6 +1275,47 @@
       state.dismissedBanners.add(goalId);
       const b = document.getElementById('ttContextualFocusBanner');
       if (b) b.remove();
+    },
+    navigateToActiveTraining(goalId) {
+      const active = state.active;
+      let targetItem = null;
+      if (active) {
+        if (active.catalogId) {
+          targetItem = state.catalog.find(c => c.id === active.catalogId);
+        }
+        if (!targetItem && active.title) {
+          targetItem = state.catalog.find(c => c.title === active.title);
+        }
+      }
+      if (!targetItem && goalId) {
+        targetItem = state.catalog.find(c => c.id === goalId);
+      }
+      if (!targetItem && active) {
+        targetItem = {
+          id: active.id || 'custom-goal',
+          title: active.title,
+          category: active.category || 'execution',
+          focus: active.focus || 'Foco comportamental em treinamento.',
+          description: 'Este comportamento foi selecionado como seu foco prioritário de desenvolvimento no método Healthy Trend Trader. O objetivo é manter a repetição deliberada até automatizar a disciplina.',
+          criteria: 'Avalie no Diário após cada operação se o comportamento foi rigorosamente respeitado do início ao encerramento do trade.'
+        };
+      }
+      if (targetItem) {
+        state.skillModalItem = targetItem;
+      }
+      if (typeof go === 'function') {
+        go('tradertraining');
+      }
+      render();
+      setTimeout(() => {
+        const goalCard = document.querySelector('.tt-current-goal-card');
+        if (goalCard) {
+          goalCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 120);
+    },
+    goToActiveGoal(goalId) {
+      return this.navigateToActiveTraining(goalId);
     }
   };
 
