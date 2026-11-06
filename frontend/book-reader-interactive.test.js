@@ -147,6 +147,8 @@ test('Interactive Book Reader: Galeria de Capítulos em Modal Central Estilo Wid
   assert.ok(mkCode.includes('ht-toc-modal-grid'), 'Modal deve conter grade artística de cards');
   assert.ok(mkCode.includes('ht-toc-card'), 'Cada capítulo deve ser renderizado em card artístico');
   assert.ok(mkCode.includes('renderTocArt'), 'Cards devem conter ilustrações SVG por volume');
+  assert.ok(mkCode.includes('getChapterThematicSvg'), 'Deve possuir ilustrações temáticas personalizadas por assunto de cada capítulo');
+  assert.ok(mkCode.includes('NUMERO GIGANTE ARTISTICO DO CAPITULO'), 'Deve estampar o número grande do capítulo na arte do card');
   assert.ok(mkCode.includes('ht-toc-empty-bookmarks'), 'Deve conter estado vazio artístico para marcadores');
 
   // Ações e navegação
