@@ -165,5 +165,17 @@ test('Interactive Book Reader: Galeria de Capítulos em Modal Central Estilo Wid
   assert.ok(cssCode.includes('body[data-theme="gold"] .ht-toc-modal'), 'Premium Gold deve estilizar o modal com acabamento dourado');
 });
 
+test('Interactive Book Reader: Ações de Retorno ao Acervo (open-acervo) e Abertura de Volume (open-book)', () => {
+  const mkCode = fs.readFileSync(path.join(__dirname, 'manual-knowledge.js'), 'utf8');
+
+  // open-acervo no topo do leitor deve chamar openAcervo()
+  assert.ok(mkCode.includes("action === 'open-library' || action === 'open-acervo'"), 'Ação open-acervo deve ser tratada e redirecionar para openAcervo()');
+  // open-book nas capas do acervo e botões deve chamar openBook()
+  assert.ok(mkCode.includes("action === 'open-book'"), 'Ação open-book deve ser tratada para abrir volumes específicos');
+  // O botão voltar deve conter data-action="open-acervo"
+  assert.ok(mkCode.includes('data-action="open-acervo"'), 'Botão voltar deve possuir data-action="open-acervo"');
+});
+
+
 
 

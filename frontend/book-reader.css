@@ -152,6 +152,15 @@ body.theme-light .ht-reader-topbar {
   transform: translateX(-2px);
 }
 
+.ht-reader-btn-back.is-acervo-home {
+  opacity: 0.9;
+  cursor: default;
+}
+
+.ht-reader-btn-back.is-acervo-home:hover {
+  transform: none;
+}
+
 body[data-theme="gold"] .ht-reader-btn-back,
 html[data-theme="gold"] .ht-reader-btn-back,
 body.theme-gold .ht-reader-btn-back,

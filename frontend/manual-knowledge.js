@@ -1982,8 +1982,12 @@ function renderReaderView() {
 
       const action = target.dataset.action;
 
-      if (action === 'open-library') {
-        openLibrary();
+      if (action === 'open-library' || action === 'open-acervo') {
+        openAcervo();
+      } else if (action === 'open-book') {
+        const bId = target.dataset.bookId || 'livro-1';
+        const cId = target.dataset.chapterId;
+        openBook(bId, cId);
       } else if (action === 'filter-book') {
         const bookId = target.dataset.bookId;
         appState.selectedBookFilter = bookId;
