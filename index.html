@@ -1202,6 +1202,7 @@ body[data-theme="gold"][data-navigation-layout="tiles"] .navigation-hub-tile.pla
 @media(max-width:520px){body[data-navigation-layout="tiles"] .navigation-hub-grid{grid-template-columns:1fr}body[data-navigation-layout="tiles"] .navigation-hub-tile{min-height:132px}body[data-navigation-layout="tiles"] .navigation-hub-title h1{font-size:31px}}
 </style>
 <script src="frontend/market-cycle-model.js"></script>
+<script src="frontend/liquidity-gate-model.js"></script>
 <script src="frontend/trading-rubrics.js?v=20261027-sizing-target-grade-1"></script>
 <script>
 function applyTheme(theme){const selected=['healthy','gold','pigeon'].includes(theme)?theme:'healthy';document.body.dataset.theme=selected;document.querySelectorAll('[data-theme-choice]').forEach(button=>{const active=button.dataset.themeChoice===selected;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});try{localStorage.setItem('healthy-trend-theme',selected)}catch(error){}if(document.querySelector('#manual.page.active')&&typeof renderManualBook==='function')renderManualBook()}
@@ -3292,7 +3293,24 @@ async function applyTradeAssetCache(){
     const fundamentalRating=rubricRatingFromFundamentals(fundamental);
     if(fundamentalRating)setPolicyRubricRating('fundamentalScore',fundamentalRating);
     const fundamentalLabel=fundamentalRating?`${fundamental.classification.charAt(0)+fundamental.classification.slice(1).toLocaleLowerCase('pt-BR')} ${fundamental.score}/10 → ${MANUAL_RUBRIC_RATINGS[fundamentalRating].label}`:'indisponíveis';
-    setTradeAssetStatus(`RS ${relative.score} → ${MANUAL_RUBRIC_RATINGS[relativeRating].label}  ·  Fund. ${fundamentalLabel}`,'ready');
+    
+    // Consulta liquidez em paralelo
+    try {
+      const chartRes = await fetch(`${MARKET_DATA_API_URL}/ticker-chart?ticker=${encodeURIComponent(symbol)}`);
+      if (chartRes.ok) {
+        const chartData = await chartRes.json();
+        if (chartData.liquidity) {
+          window.currentTradeLiquidity = chartData.liquidity;
+          if (!chartData.liquidity.isEligible) {
+            setTradeAssetStatus(`🚫 BLOQUEADO POR LIQUIDEZ: ${chartData.liquidity.metrics?.averageDailyVolumeCompact || '0'}/dia (Mín: ${chartData.liquidity.metrics?.minDailyVolumeCompact || '500 mil'}) · Trade proibido`, 'blocked');
+            if (typeof updateTradingRubric === 'function') updateTradingRubric();
+            return;
+          }
+        }
+      }
+    } catch (_) {}
+
+    setTradeAssetStatus(`RS ${relative.score} → ${MANUAL_RUBRIC_RATINGS[relativeRating].label}  ·  Fund. ${fundamentalLabel}  ·  💧 Liquidez OK`,'ready');
   }catch(error){
     setTradeAssetStatus(`RS ${relative.score} → ${MANUAL_RUBRIC_RATINGS[relativeRating].label}  /  Fundamentos indisponíveis`,'manual');
   }
@@ -4047,6 +4065,17 @@ saveEffectiveRiskPolicy=function(){
       riskPolicyState.atrVolatility.maxGood = Number(goodVal.toFixed(2));
     }
   }
+  const liqB3Input = document.getElementById('riskLiqMinVolumeB3');
+  const liqUsInput = document.getElementById('riskLiqMinVolumeUs');
+  const liqTrdInput = document.getElementById('riskLiqMinTrades');
+  const liqWinInput = document.getElementById('riskLiqWindowSessions');
+  if (liqB3Input || liqUsInput || liqTrdInput || liqWinInput) {
+    if (!riskPolicyState.liquidityGate) riskPolicyState.liquidityGate = {};
+    if (liqB3Input && Number(liqB3Input.value) > 0) riskPolicyState.liquidityGate.minDailyFinancialVolumeB3 = Number(liqB3Input.value);
+    if (liqUsInput && Number(liqUsInput.value) > 0) riskPolicyState.liquidityGate.minDailyFinancialVolumeUs = Number(liqUsInput.value);
+    if (liqTrdInput && Number(liqTrdInput.value) > 0) riskPolicyState.liquidityGate.minDailyTrades = Number(liqTrdInput.value);
+    if (liqWinInput && Number(liqWinInput.value) > 0) riskPolicyState.liquidityGate.windowSessions = Number(liqWinInput.value);
+  }
   return saveEffectiveRiskPolicyWithLocalizedPercentages();
 };
 renderEffectiveRiskPolicy();
@@ -4283,6 +4312,15 @@ renderEffectiveRiskPolicy();
 .rubric-volatility-reason.is-pending{color:rgba(255,255,255,.5)}
 
 /* Política de Risco — Seção Parâmetros de Volatilidade (ATR) */
+.risk-policy-liquidity-gate{background:linear-gradient(135deg,#f3f7f9,#fbfcfd);border-left:4px solid #0284c7}
+.risk-liquidity-card{display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.82);border:1px solid #cfdade;border-radius:12px;padding:14px 16px}
+.risk-liquidity-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 14px;border-radius:9px;border:1px solid rgba(0,0,0,.06);background:#fff}
+.risk-liquidity-info b{display:block;font-size:12px;color:var(--ink)}
+.risk-liquidity-info small{display:block;margin-top:2px;color:var(--muted);font-size:10px}
+.risk-liquidity-input-wrap{display:inline-flex;align-items:center;gap:6px}
+.risk-liq-input{width:110px;padding:6px 8px;border:1px solid #cfded2;border-radius:7px;background:#fff;font-weight:700;font-size:12px;text-align:right}
+.risk-liquidity-note{margin-top:10px;padding:10px 14px;border-radius:9px;background:rgba(2,132,199,.08);border:1px solid rgba(2,132,199,.25);color:#0369a1;font-size:11px}
+.trade-asset-cache-status[data-kind="blocked"]{color:#ef4444;font-weight:800}
 .risk-policy-atr-volatility{background:linear-gradient(135deg,#f3f8f4,#fbfdf9)}
 .risk-atr-bands-card{display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.78);border:1px solid #cfded2;border-radius:12px;padding:14px 16px}
 .risk-atr-band-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 14px;border-radius:9px;border:1px solid rgba(0,0,0,.06)}
@@ -4800,6 +4838,22 @@ renderEffectiveRiskPolicy();
   const updateBeforeRubricFix=updateTradingRubric;
   updateTradingRubric=function(){
     syncAutomaticAtrRating();
+    if (window.currentTradeLiquidity && !window.currentTradeLiquidity.isEligible) {
+      if (typeof TradingRubrics !== 'undefined' && typeof TradingRubrics.calculateRubric === 'function') {
+        const customRes = TradingRubrics.calculateRubric({
+          ratings: manualRubricRatings,
+          liquidity: window.currentTradeLiquidity,
+          entry: Number(document.getElementById('entry')?.value) || 0,
+          atr: Number(document.getElementById('atr')?.value) || 0
+        }, riskPolicyState || tradingRubricPolicy);
+        if (customRes) {
+          window.lastCalculatedRubricResult = customRes;
+          syncQualityRulerExperience(customRes);
+          refreshWorkbenchRiskGate();
+          return customRes;
+        }
+      }
+    }
     const result=updateBeforeRubricFix();
     if(!result)return result;
     window.lastCalculatedRubricResult=result;

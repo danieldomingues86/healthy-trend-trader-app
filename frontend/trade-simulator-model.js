@@ -27,6 +27,13 @@
     }
   }
 
+  let LiquidityGateModel = (typeof root !== 'undefined' && root && root.LiquidityGateModel) || null;
+  if (!LiquidityGateModel && typeof require === 'function') {
+    try {
+      LiquidityGateModel = require('./liquidity-gate-model');
+    } catch {}
+  }
+
   let TradingRubrics = (typeof root !== 'undefined' && root && root.TradingRubrics) || null;
   if (!TradingRubrics && typeof require === 'function') {
     try {
@@ -2311,7 +2318,8 @@
           grade,
           display: `${tName} (${grade})`,
           status: grade === 'D' ? 'bad' : 'good'
-        }
+        },
+        liquidity: v.liquidity || null
       };
     }
 
@@ -2428,6 +2436,18 @@
     // 8. Fundamentos
     const fundInfo = KNOWN_FUND_BY_SYMBOL[sym] || (grade === 'D' ? { evaluation: 'Fraco', status: 'bad' } : { evaluation: 'Forte', status: 'good' });
 
+    // 10. Liquidez
+    let liqData = sim.liquidity || (sim.visionAtivo && sim.visionAtivo.liquidity) || null;
+    if (!liqData && LiquidityGateModel && Array.isArray(sim.candles) && sim.candles.length > 0) {
+      liqData = LiquidityGateModel.evaluateLiquidity({
+        candles: sim.candles,
+        targetDate: sDate,
+        symbol: sym
+      });
+    }
+    const isLiqGood = liqData ? liqData.isEligible : true;
+    const liqStatus = isLiqGood ? 'good' : 'bad';
+    const liqSummary = liqData ? (isLiqGood ? `Aprovada (${liqData.metrics?.averageDailyVolumeCompact || 'OK'}/dia)` : `Bloqueada (${liqData.metrics?.averageDailyVolumeCompact || 'Baixo'}/dia)`) : 'Aprovada';
     // 9. Contexto
     let contextTitle = 'Super Contexto';
     let contextStatus = 'good';
@@ -2486,6 +2506,13 @@
       context: {
         title: contextTitle,
         status: contextStatus
+      },
+      liquidity: {
+        isEligible: isLiqGood,
+        status: liqStatus,
+        text: liqSummary,
+        reason: liqData?.reason || 'Liquidez dentro dos parâmetros operacionais.',
+        metrics: liqData?.metrics || null
       }
     };
   }
@@ -6435,6 +6462,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       { strictRs: Object.prototype.hasOwnProperty.call(options, 'rsScore') || options.rsUnavailable === true || options.requireRsScore === true || options.requireRs80 === true }
     );
 
+
+
     if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       const rejectedTriggers = detectAllSetupTriggers(candles, { ...options, marketPermission, includeRejected: true });
       return {
@@ -6507,6 +6536,35 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           rejectionCode: 'RS_BELOW_80_OFFICIAL',
           rejectionReason: msg,
           rejectionReasons: [msg],
+          trendAudit,
+          marketPermission
+        };
+      }
+    }
+
+    const allowIlliquid = isResearchMode && options.allowIlliquid === true;
+    const shouldCheckLiquidity = options.checkLiquidity === true || (Boolean(options.symbol) && Array.isArray(candles) && candles.length >= 20);
+    if (!allowIlliquid && shouldCheckLiquidity && LiquidityGateModel && Array.isArray(candles) && candles.length > 0) {
+      const lastCandle = candles[candles.length - 1];
+      const targetDate = options.date || lastCandle.time || lastCandle.date;
+      const liqEval = LiquidityGateModel.evaluateLiquidity({
+        candles,
+        targetDate,
+        symbol: options.symbol,
+        policy: options.policy
+      });
+      if (!liqEval.isEligible) {
+        const rejectedTriggers = detectAllSetupTriggers(candles, { ...options, marketPermission, includeRejected: true });
+        return {
+          isValid: false,
+          hasTrigger: false,
+          trigger: null,
+          triggers: [],
+          rejectedTriggers,
+          rejectionCode: 'LIQUIDITY_GATE_BLOCKED',
+          rejectionReason: `ENTRADA BLOQUEADA — LIQUIDEZ INSUFICIENTE: ${liqEval.reason}`,
+          rejectionReasons: [liqEval.reason],
+          liquidityAudit: liqEval,
           trendAudit,
           marketPermission
         };
@@ -6776,6 +6834,15 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
     const simMode = opts.simulationMode || sim.simulationMode || SIMULATION_MODES.OFFICIAL;
     const isResearchMode = simMode === SIMULATION_MODES.RESEARCH || opts.allowRelaxedFilters === true;
+
+    // 0. Validação mandatória de Liquidez
+    if (sim.liquidity && !sim.liquidity.isEligible && !isResearchMode) {
+      errors.push({
+        code: 'ILLIQUID_ASSET_BLOCKED',
+        field: 'liquidity',
+        message: sim.liquidity.reason || 'Ativo não atende aos requisitos mínimos de liquidez.'
+      });
+    }
 
     // 1. Fonte de verdade das notas (exclusivamente A, B, C, D)
     const rawGrade = String(sim.grade || '').trim();
@@ -7244,6 +7311,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     let rejectedSignalsCount = 0;
     const blockedBreakdown = {
       blockedByMarketCycle: 0,
+      blockedByLiquidity: 0,
       blockedByRsBelow80: 0,
       blockedByRsUnavailable: 0,
       blockedByTrendAlignment: 0,
@@ -7355,6 +7423,23 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
         // Slice estrito sem look-ahead
         const slice = candles.slice(0, candleIdx + 1);
+
+        // REGRA MANDATÓRIA (P0): Avaliação estrita do Liquidity Gate
+        const allowIlliquid = isResearchMode && options.allowIlliquid === true;
+        if (!allowIlliquid && LiquidityGateModel) {
+          const liqEval = LiquidityGateModel.evaluateLiquidity({
+            candles: slice,
+            targetDate: d,
+            symbol: sym,
+            market: options.universe === 'NASDAQ' ? 'US' : 'B3',
+            policy: options.policy
+          });
+          if (!liqEval.isEligible) {
+            blockedBreakdown.blockedByLiquidity = (blockedBreakdown.blockedByLiquidity || 0) + 1;
+            rejectedSignalsCount++;
+            continue;
+          }
+        }
 
         // Avaliação causal da Força Relativa (RS) na data do sinal (sem look-ahead bias)
         let rsEval = null;

@@ -1,4 +1,10 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.TradingRubrics=api})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  let LiquidityGateModel = (typeof globalThis !== 'undefined' && globalThis && globalThis.LiquidityGateModel) || null;
+  if (!LiquidityGateModel && typeof require === 'function') {
+    try {
+      LiquidityGateModel = require('./liquidity-gate-model');
+    } catch {}
+  }
   const DEFAULT_POLICY={
     criteria:[
       {key:'trendQuality',label:'Contexto do Ativo (Diário)',weight:25},
@@ -37,6 +43,14 @@
     atrVolatility:{
       maxExcellent:2.0,
       maxGood:4.0
+    },
+    liquidityGate:{
+      enabled:true,
+      windowSessions:21,
+      minDailyFinancialVolumeB3:500000,
+      minDailyFinancialVolumeUs:1000000,
+      minDailyTrades:500,
+      maxCalendarDaysSpan:45
     },
     profiles:{
       rampUp:{label:'Mercado em recuperação',ongoingRiskPct:.0025,initialVolatilityPct:.001,ongoingVolatilityPct:.0025,capitalPct:.1,maximumPortfolioRiskPct:.03,maximumPositions:3,pyramiding:false},
@@ -103,6 +117,15 @@
       maxExcellent:Number(maxExcellent.toFixed(2)),
       maxGood:Number(maxGood.toFixed(2))
     };
+    const rawLiquidity=policy.liquidityGate||{};
+    const liquidityGate={
+      enabled:rawLiquidity.enabled!==false,
+      windowSessions:Math.max(5,Math.floor(finite(rawLiquidity.windowSessions,DEFAULT_POLICY.liquidityGate.windowSessions))),
+      minDailyFinancialVolumeB3:Math.max(1000,finite(rawLiquidity.minDailyFinancialVolumeB3,DEFAULT_POLICY.liquidityGate.minDailyFinancialVolumeB3)),
+      minDailyFinancialVolumeUs:Math.max(1000,finite(rawLiquidity.minDailyFinancialVolumeUs,DEFAULT_POLICY.liquidityGate.minDailyFinancialVolumeUs)),
+      minDailyTrades:Math.max(10,Math.floor(finite(rawLiquidity.minDailyTrades,DEFAULT_POLICY.liquidityGate.minDailyTrades))),
+      maxCalendarDaysSpan:Math.max(25,Math.floor(finite(rawLiquidity.maxCalendarDaysSpan,DEFAULT_POLICY.liquidityGate.maxCalendarDaysSpan)))
+    };
     const selectedProfile=profiles[policy.selectedProfile]?policy.selectedProfile:DEFAULT_POLICY.selectedProfile;
     return{
       gradingVersion:2,
@@ -116,7 +139,8 @@
       portfolioHeatLimitPct:profiles[selectedProfile].maximumPortfolioRiskPct*100,
       sellIntoStrength:{enabled:settings.enabled!==false,startR:start,endR:end,suggestedPercent:Math.min(100,Math.max(1,finite(settings.suggestedPercent,50)))},
       scaleIn,
-      atrVolatility
+      atrVolatility,
+      liquidityGate
     };
   }
 
@@ -358,12 +382,43 @@
     }
     if(cycleKey==='defensive'){if(grade==='A')grade='B';gates.push({key:'market',status:'limited',message:'Modo Defesa: novos trades devem ser evitados.'});}
     if(cycleKey==='unavailable'){gates.push({key:'market',status:'limited',message:'Não foi possível obter o ciclo de mercado atual (ciclo não disponível).'});}
+    let liquidity = input.liquidity || null;
+    if (!liquidity && input.candles && LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
+      liquidity = LiquidityGateModel.evaluateLiquidity({
+        candles: input.candles,
+        targetDate: input.targetDate || input.entryDate || input.signalDate,
+        symbol: input.symbol || input.ticker,
+        market: input.market,
+        policy: p
+      });
+    }
+    let isLiquidityApproved = true;
+    if (p.liquidityGate?.enabled !== false && liquidity) {
+      if (!liquidity.isEligible) {
+        isLiquidityApproved = false;
+        grade = 'D';
+        gates.push({
+          key: 'liquidity',
+          status: 'blocked',
+          code: liquidity.code || 'LIQUIDITY_BLOCKED',
+          message: `NÃO ELEGÍVEL / BLOQUEADO POR LIQUIDEZ: ${liquidity.reason}`
+        });
+      } else {
+        gates.push({
+          key: 'liquidity',
+          status: 'approved',
+          code: 'APPROVED',
+          message: liquidity.reason || 'Liquidez aprovada.'
+        });
+      }
+    }
     const gradeObj=p.grades.find(item=>item.grade===grade)||p.grades[p.grades.length-1];
-    const gradeRiskPct=gradeObj.riskPct;
-    const riskBudgetPct=(weightsValid&&complete&&grade!=='D')?gradeRiskPct:0;
-    const qualityAllowed=weightsValid&&complete&&grade==='A';
-    const isBuyPermitted = cycleKey !== 'defensive' && cycleKey !== 'unavailable';
-    return{score,maximumScore:100,rawGrade,grade,gradeRiskPct,riskBudgetPct,riskPct:riskBudgetPct,marketCycle:cycleKey,profile,complete,contributions,gates,weightsTotal,weightsValid,qualityAllowed,isBuyPermitted};
+    const gradeRiskPct=grade==='D'?0:gradeObj.riskPct;
+    const baseBudget=(weightsValid&&complete&&grade!=='D')?gradeRiskPct:0;
+    const riskBudgetPct=isLiquidityApproved?baseBudget:0;
+    const qualityAllowed=isLiquidityApproved&&weightsValid&&complete&&grade==='A';
+    const isBuyPermitted = isLiquidityApproved && cycleKey !== 'defensive' && cycleKey !== 'unavailable';
+    return{score,maximumScore:100,rawGrade,grade,gradeRiskPct,riskBudgetPct,riskPct:riskBudgetPct,marketCycle:cycleKey,liquidity,isLiquidityApproved,liquidityStatus:isLiquidityApproved?(liquidity?'APROVADO':null):(liquidity?.status||'BLOQUEADO_LIQUIDEZ'),profile,complete,contributions,gates,weightsTotal,weightsValid,qualityAllowed,isBuyPermitted};
   }
 
   function riskBaseOptions(policy={}){return normalizePolicy(policy).grades.map(item=>item.riskPct);}

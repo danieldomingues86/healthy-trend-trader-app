@@ -5,10 +5,13 @@
   const tradingRubrics = typeof module === 'object' && module.exports
     ? require('./trading-rubrics')
     : root?.TradingRubrics;
-  const api = factory(tickerChartModel, tradingRubrics);
+  const liquidityGateModel = typeof module === 'object' && module.exports
+    ? require('./liquidity-gate-model')
+    : root?.LiquidityGateModel;
+  const api = factory(tickerChartModel, tradingRubrics, liquidityGateModel);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.OpportunityRadarModel = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (TickerChartModel, TradingRubrics) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (TickerChartModel, TradingRubrics, LiquidityGateModel) {
   'use strict';
 
   const SECTOR_TRANSLATIONS = {
@@ -367,6 +370,16 @@
     }
 
     const stopPct = Number((((entry - stop) / entry) * 100).toFixed(1));
+    // Salvaguarda mandatória: Liquidity Gate (Hard Gate global)
+    if (LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
+      const liqCheck = LiquidityGateModel.evaluateLiquidity({
+        candles,
+        symbol: item.symbol,
+        policy
+      });
+      if (!liqCheck.isEligible) return null;
+    }
+
     const rr = calculateRiskReward(entry, stop, candles);
     if (!rr || rr < 1.5) {
       return null;

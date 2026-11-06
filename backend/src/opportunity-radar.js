@@ -4,6 +4,7 @@ const marketData = require('./market-data');
 const tickerChart = require('./ticker-chart');
 const OpportunityRadarModel = require('../../frontend/opportunity-radar-model');
 const MarketCycleModel = require('../../frontend/market-cycle-model');
+const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
 
 async function getOpportunityRadarData(cache) {
   if (!cache || typeof cache !== 'object') {
@@ -86,6 +87,15 @@ async function getOpportunityRadarData(cache) {
 
       const candles = b3Histories.get(symbol);
       if (!Array.isArray(candles) || candles.length < 30) continue;
+
+      // Salvaguarda mandatória: Liquidity Gate (Hard Gate global)
+      if (LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
+        const liqCheck = LiquidityGateModel.evaluateLiquidity({
+          candles,
+          symbol
+        });
+        if (!liqCheck.isEligible) continue;
+      }
 
       const enrichedItem = {
         ...item,
