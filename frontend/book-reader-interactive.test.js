@@ -251,6 +251,47 @@ test('Manual 2.0: Arquivos de Mídia e Imagens em assets/manual-learning/', () =
   });
 });
 
+test('Flipbook 2.1: Unified Scroll — Rolagem Única Compartilhada no Spread Sem Barras Independentes', () => {
+  const cssCode = fs.readFileSync(path.join(__dirname, 'book-reader.css'), 'utf8');
+  const mkCode = fs.readFileSync(path.join(__dirname, 'manual-knowledge.js'), 'utf8');
+
+  // 1. .ht-book-spread é o contêiner único de rolagem vertical
+  assert.ok(cssCode.includes('.ht-book-spread {\n  display: flex;'), 'ht-book-spread deve existir');
+  assert.ok(cssCode.includes('overflow-y: auto;'), 'ht-book-spread deve possuir overflow-y: auto para rolagem unificada');
+
+  // 2. Páginas individuais NÃO possuem scrollbars independentes
+  assert.ok(cssCode.includes('overflow: visible !important;'), 'ht-book-page deve ter overflow visible para rolar como unidade');
+  assert.ok(cssCode.includes('display: none !important;'), 'Scrollbars internas devem estar ocultas');
+
+  // 3. Cabeçalho sticky mantém contexto durante a rolagem
+  assert.ok(cssCode.includes('position: sticky;'), 'Running head deve ser sticky no topo da página');
+
+  // 4. Lombada central acompanha a altura total do scroll
+  assert.ok(cssCode.includes('min-height: 100%;'), 'Lombada deve ter min-height 100%');
+
+  // 5. Dock inferior exibe paginação com formato "Págs. X e Y de N" em modo dual-page
+  assert.ok(mkCode.includes("'Págs. ' + (spread.leftPage.globalIndex + 1) + ' e ' + (spread.rightPage.globalIndex + 1) + ' de '"), 'Dock inferior deve indicar ambas as páginas no modo 2 páginas');
+  assert.ok(mkCode.includes('ht-dock-nav-btn'), 'Botões de navegação no dock devem possuir classe ht-dock-nav-btn');
+});
+
+test('Flipbook 2.1: Qualidade Visual Premium das Ilustrações (Resolução e Arte Editorial)', () => {
+  const assetsDir = path.join(__dirname, '..', 'assets', 'manual-learning');
+  const assets = [
+    'mlx-hero-disciplined-trader.jpg',
+    'mlx-story-impulsive-vs-disciplined.jpg',
+    'mlx-process-mountain-path.jpg',
+    'mlx-platform-cockpit.jpg'
+  ];
+
+  assets.forEach(img => {
+    const fullPath = path.join(assetsDir, img);
+    assert.ok(fs.existsSync(fullPath), `Arquivo ${img} deve existir`);
+    const stat = fs.statSync(fullPath);
+    // Cada imagem refinada em alta qualidade possui mais de 100KB
+    assert.ok(stat.size > 100000, `Arquivo ${img} deve possuir alta resolução editorial (>100KB), tamanho atual: ${stat.size}`);
+  });
+});
+
 
 
 

@@ -493,18 +493,46 @@ body.theme-light .ht-book-stack {
   border-right: 2px solid var(--ht-book-leather);
 }
 
-/* Livro Físico Aberto (Open Spread) */
+/* Livro Físico Aberto (Open Spread) — UNIFIED SCROLL */
 .ht-book-spread {
   display: flex;
   width: 100%;
   height: 100%;
+  max-height: 100%;
   border-radius: 12px;
   box-shadow: var(--ht-book-page-shadow);
   background: var(--ht-book-paper);
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid var(--ht-book-paper-border);
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ht-book-leather, #4a3424) transparent;
+  scroll-behavior: smooth;
+}
+
+.ht-book-spread::-webkit-scrollbar {
+  width: 7px;
+}
+
+.ht-book-spread::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ht-book-spread::-webkit-scrollbar-thumb {
+  background: var(--ht-book-leather, #4a3424);
+  border-radius: 4px;
+}
+
+body[data-theme="gold"] .ht-book-spread::-webkit-scrollbar-thumb,
+body.theme-gold .ht-book-spread::-webkit-scrollbar-thumb {
+  background: #c59b27;
+}
+
+body[data-theme="pigeon"] .ht-book-spread::-webkit-scrollbar-thumb,
+body.theme-light .ht-book-spread::-webkit-scrollbar-thumb {
+  background: #a9c2d0;
 }
 
 body[data-theme="pigeon"] .ht-book-spread,
@@ -524,6 +552,7 @@ body.theme-light .ht-book-spread {
   left: 50%;
   width: 44px;
   margin-left: -22px;
+  min-height: 100%;
   background: linear-gradient(
     to right,
     rgba(0, 0, 0, 0.18) 0%,
@@ -586,9 +615,11 @@ body.theme-light .ht-book-ribbon {
 
 /* Página Individual (Folha do Livro) */
 .ht-book-page {
-  flex: 1;
-  height: 100%;
-  max-height: 100%;
+  flex: 1 1 50%;
+  min-width: 0;
+  height: auto;
+  min-height: 100%;
+  max-height: none;
   padding: 20px 36px 22px;
   box-sizing: border-box;
   background: var(--ht-book-paper);
@@ -597,9 +628,12 @@ body.theme-light .ht-book-ribbon {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: thin;
+  overflow: visible !important;
+  scrollbar-width: none;
+}
+
+.ht-book-page::-webkit-scrollbar {
+  display: none !important;
 }
 
 body[data-theme="pigeon"] .ht-book-page,
@@ -647,11 +681,15 @@ body.theme-light .ht-book-page.right-page {
 
 /* 4. Tipografia & Hierarquia Editorial */
 .ht-page-running-head {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  background: var(--ht-book-paper);
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding-bottom: 8px;
+  padding: 8px 0 8px;
   margin-bottom: 14px;
   font-size: 11px;
   font-weight: 700;
@@ -666,6 +704,7 @@ body.theme-pigeon .ht-page-running-head,
 body.theme-light .ht-page-running-head {
   border-bottom-color: #ebf3f8;
   color: #718a99;
+  background: #ffffff;
 }
 
 .ht-page-body {
@@ -2584,6 +2623,32 @@ body.theme-light .ht-dock-progress-fill {
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
+}
+
+.ht-dock-nav-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.ht-dock-nav-btn:hover:not(:disabled):not(.is-disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.1);
+}
+
+.ht-dock-nav-btn:disabled,
+.ht-dock-nav-btn.is-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* 13. Responsividade & Breakpoints */

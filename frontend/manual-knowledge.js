@@ -1817,18 +1817,22 @@ function renderReaderView() {
 
         <!-- FLOATING BOTTOM READING DOCK -->
         <div class="ht-reader-bottom-dock">
-          <button type="button" style="background:transparent;border:none;color:inherit;cursor:pointer;display:grid;place-items:center;" data-action="prev-page">
+          <button type="button" class="ht-dock-nav-btn ${curGlobalIdx === 0 && appState.bookId !== 'acervo' ? 'is-disabled' : ''}" style="background:transparent;border:none;color:inherit;cursor:pointer;display:grid;place-items:center;" data-action="prev-page" title="Página Anterior (Seta Esquerda)" aria-label="Página Anterior">
             ${icon('arrowLeft', 16)}
           </button>
           <span class="ht-dock-page-text">
             ${isAcervo
               ? (appState.isDualPage ? 'Acervo Geral · Págs. 1 e 2' : (appState.pageIndex === 0 ? 'Acervo Geral · Pág. 1 de 2' : 'Acervo Geral · Pág. 2 de 2'))
-              : ('Pág. ' + (curGlobalIdx + 1) + ' de ' + (flatPages.length || 1))}
+              : (appState.isDualPage
+                  ? ((spread.leftPage && spread.rightPage && spread.leftPage.globalIndex !== spread.rightPage.globalIndex)
+                      ? ('Págs. ' + (spread.leftPage.globalIndex + 1) + ' e ' + (spread.rightPage.globalIndex + 1) + ' de ' + (flatPages.length || 1))
+                      : ('Pág. ' + (curGlobalIdx + 1) + ' de ' + (flatPages.length || 1)))
+                  : ('Pág. ' + (curGlobalIdx + 1) + ' de ' + (flatPages.length || 1)))}
           </span>
           <div class="ht-dock-progress-track">
             <div class="ht-dock-progress-fill" style="width: ${spread.progressPct || 0}%"></div>
           </div>
-          <button type="button" style="background:transparent;border:none;color:inherit;cursor:pointer;display:grid;place-items:center;" data-action="next-page">
+          <button type="button" class="ht-dock-nav-btn ${curGlobalIdx >= flatPages.length - 1 && appState.bookId !== 'acervo' ? 'is-disabled' : ''}" style="background:transparent;border:none;color:inherit;cursor:pointer;display:grid;place-items:center;" data-action="next-page" title="Próxima Página (Seta Direita)" aria-label="Próxima Página">
             ${icon('arrowRight', 16)}
           </button>
         </div>
@@ -1855,6 +1859,10 @@ function renderReaderView() {
     container.className = 'knowledge-center is-reader-view';
     container.innerHTML = renderReaderView();
     setupEvents();
+    const spreadEl = container.querySelector('.ht-book-spread');
+    if (spreadEl && !appState.isFlipping) {
+      spreadEl.scrollTop = 0;
+    }
   }
 
   function renderSearchResults(dropdownEl, matches) {
