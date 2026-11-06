@@ -292,6 +292,64 @@ test('Flipbook 2.1: Qualidade Visual Premium das Ilustrações (Resolução e Ar
   });
 });
 
+test('Manual Editorial 2.2: Capa Cinematográfica de Entrada (A Jornada do Trader Saudável)', () => {
+  const mkCode = fs.readFileSync(path.join(__dirname, 'manual-knowledge.js'), 'utf8');
+  const htmlCode = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const cssCode = fs.readFileSync(path.join(__dirname, 'manual-editorial.css'), 'utf8');
+  const assetsDir = path.join(__dirname, '..', 'assets', 'manual-learning');
+
+  // 1. Arquivos de alta resolução da Capa Cinematográfica
+  const coverJpg = path.join(assetsDir, 'financial-editorial-dawn-cover.jpg');
+  const coverWebp = path.join(assetsDir, 'financial-editorial-dawn-cover.webp');
+  assert.ok(fs.existsSync(coverJpg), 'financial-editorial-dawn-cover.jpg deve existir');
+  assert.ok(fs.existsSync(coverWebp), 'financial-editorial-dawn-cover.webp deve existir');
+  assert.ok(fs.statSync(coverJpg).size > 200000, 'Capa em JPG deve ser alta resolução (>200KB)');
+
+  // 2. Inclusão do CSS editorial no index.html
+  assert.ok(htmlCode.includes('frontend/manual-editorial.css'), 'index.html deve carregar manual-editorial.css');
+
+  // 3. Estrutura HTML da Capa Cinematográfica
+  assert.ok(mkCode.includes('ht-editorial-hero-screen'), 'Deve conter tela editorial hero');
+  assert.ok(mkCode.includes('financial-editorial-dawn-cover'), 'Deve apontar para a arte cinematográfica de montanha e amanhecer');
+  assert.ok(mkCode.includes('A Jornada do'), 'Deve conter título principal A Jornada do');
+  assert.ok(mkCode.includes('Trader Saudável'), 'Deve conter destaque Trader Saudável');
+  assert.ok(mkCode.includes('Trading não é sobre perseguir oportunidades'), 'Deve conter citação editorial sobre método');
+  assert.ok(mkCode.includes('Explorar a Biblioteca'), 'Deve conter botão CTA Explorar a Biblioteca');
+  assert.ok(mkCode.includes('data-action="explore-library"'), 'Botão CTA deve ter data-action="explore-library"');
+  assert.ok(mkCode.includes('6 Volumes'), 'Deve exibir badge dos 6 Volumes');
+
+  // 4. CSS Editorial da Capa
+  assert.ok(cssCode.includes('.ht-editorial-hero-screen'), 'CSS deve estilizar a tela hero');
+  assert.ok(cssCode.includes('.ht-editorial-hero-overlay'), 'CSS deve criar gradiente de legibilidade');
+  assert.ok(cssCode.includes('.ht-hero-primary-cta'), 'CSS deve conter botão CTA dourado com sombra e relevo');
+});
+
+test('Manual Editorial 2.2: Biblioteca Editorial dos 6 Volumes e Navegação Integrada', () => {
+  const mkCode = fs.readFileSync(path.join(__dirname, 'manual-knowledge.js'), 'utf8');
+  const cssCode = fs.readFileSync(path.join(__dirname, 'manual-editorial.css'), 'utf8');
+
+  // 1. Estrutura da Biblioteca dos 6 Volumes
+  assert.ok(mkCode.includes('ht-editorial-library-screen'), 'Deve conter tela da Biblioteca Editorial');
+  assert.ok(mkCode.includes('ht-library-topbar'), 'Deve conter topbar da biblioteca');
+  assert.ok(mkCode.includes('data-action="open-hero"'), 'Deve conter atalho para retornar à Capa Principal');
+  assert.ok(mkCode.includes('ht-library-books-grid'), 'Deve conter grade dos 6 volumes');
+  assert.ok(mkCode.includes('ht-volume-card'), 'Cada livro deve ser apresentado em volume card');
+  assert.ok(mkCode.includes('ht-volume-vol-pill'), 'Grade deve conter identificador de volume ht-volume-vol-pill');
+  assert.ok(mkCode.includes('VOL. 00'), 'Grade deve conter identificador de volume VOL. 00');
+
+  // 2. Ações de navegação bidirecionais
+  assert.ok(mkCode.includes('window.openManualHero = openHero;'), 'Deve expor openManualHero globalmente');
+  assert.ok(mkCode.includes('window.openManualLibrary = openLibrary;'), 'Deve expor openManualLibrary globalmente');
+  assert.ok(mkCode.includes('data-action="explore-library"'), 'Deve suportar ação explore-library');
+  assert.ok(mkCode.includes('data-action="open-hero"'), 'Deve suportar ação open-hero');
+
+  // 3. CSS da Biblioteca e Cards
+  assert.ok(cssCode.includes('.ht-editorial-library-screen'), 'CSS deve estilizar tela da biblioteca');
+  assert.ok(cssCode.includes('.ht-volume-card:hover'), 'CSS deve ter hover effect nos cards');
+  assert.ok(cssCode.includes('@media (max-width: 1200px)'), 'CSS deve prever layout responsivo');
+});
+
+
 
 
 

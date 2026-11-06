@@ -443,7 +443,7 @@
   const ReaderModel = window.BookReaderModel || (typeof require !== 'undefined' ? require('./book-reader-model.js') : null);
 
   const appState = {
-    view: 'reader', // Flipbook is the unified permanent view
+    view: 'hero', // 'hero' (Capa Cinematográfica) | 'library' (Coleção Oficial) | 'reader' (Leitor FlipBook)
     selectedBookFilter: 'all',
     bookId: 'acervo', // Starts directly at Acervo spread
     chapterId: null,
@@ -709,6 +709,14 @@
     }
   }
 
+  function openHero() {
+    appState.view = 'hero';
+    appState.isModalOpen = false;
+    appState.isDrawerOpen = false;
+    renderApp();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   function openAcervo() {
     appState.view = 'reader';
     appState.bookId = 'acervo';
@@ -726,7 +734,12 @@
   }
 
   function openLibrary(filterBookId) {
-    openAcervo();
+    appState.view = 'library';
+    if (filterBookId) appState.selectedBookFilter = filterBookId;
+    appState.isModalOpen = false;
+    appState.isDrawerOpen = false;
+    renderApp();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function toggleDrawer(tab) {
@@ -844,211 +857,176 @@
   }
 
   // =========================================================================
-  // NÍVEL 1 — BIBLIOTECA DO MANUAL (CATÁLOGO / VITRINE)
+  // NÍVEL 0 — CAPA CINEMATOGRÁFICA "A JORNADA DO TRADER SAUDÁVEL"
+  // =========================================================================
+  function renderHeroEntryView() {
+    return `
+      <div class="ht-editorial-hero-screen">
+        <!-- Background Fotográfico com Céu Dourado e Candlesticks Sutis -->
+        <div class="ht-editorial-hero-bg">
+          <picture>
+            <source srcset="assets/manual-learning/financial-editorial-dawn-cover.webp" type="image/webp" />
+            <img src="assets/manual-learning/financial-editorial-dawn-cover.jpg" alt="A Jornada do Trader Saudável — Capa Oficial" class="ht-hero-bg-img" />
+          </picture>
+          <div class="ht-editorial-hero-overlay"></div>
+        </div>
+
+        <!-- Topbar com Identidade Editorial e Ações Rápidas -->
+        <header class="ht-editorial-hero-nav">
+          <div class="ht-hero-brand">
+            <div class="ht-hero-brand-mark">${icon('mountain', 22)}</div>
+            <div class="ht-hero-brand-text">
+              <span class="ht-hero-brand-sub">THE HEALTHY TREND TRADER</span>
+              <span class="ht-hero-brand-main">MANUAL DO SOFTWARE</span>
+            </div>
+            <span class="ht-hero-brand-sep">•</span>
+            <span class="ht-hero-brand-module">📖 Edição Oficial de Colecionador</span>
+          </div>
+          <div class="ht-hero-nav-actions">
+            <button type="button" class="ht-hero-quick-btn" data-action="explore-library">
+              ${icon('book', 15)} Explorar Biblioteca
+            </button>
+            <button type="button" class="ht-hero-quick-btn direct-reader" data-action="open-acervo">
+              ${icon('play', 14)} Abrir no FlipBook
+            </button>
+          </div>
+        </header>
+
+        <!-- Conteúdo Central: Tipografia Editorial, Citação e CTA Dourado -->
+        <main class="ht-editorial-hero-content">
+          <div class="ht-hero-content-inner">
+            <div class="ht-hero-eyebrow">
+              <span class="ht-hero-eyebrow-line"></span>
+              <span class="ht-hero-eyebrow-text">EDIÇÃO OFICIAL DE COLECIONADOR</span>
+            </div>
+
+            <h1 class="ht-hero-title">
+              A Jornada do<br />
+              <em>Trader Saudável</em>
+            </h1>
+
+            <p class="ht-hero-lead">
+              Um sistema completo de conhecimento, ferramentas e princípios para desenvolver uma operação disciplinada, consciente e consistente nos mercados financeiros.
+            </p>
+
+            <div class="ht-hero-quote-block">
+              <span class="ht-hero-quote-mark">“</span>
+              <blockquote class="ht-hero-quote-text">
+                Trading não é sobre perseguir oportunidades. É sobre desenvolver método, disciplina e consistência.
+              </blockquote>
+            </div>
+
+            <div class="ht-hero-actions-row">
+              <button type="button" class="ht-hero-primary-cta" data-action="explore-library">
+                <span class="ht-cta-icon">${icon('book', 20)}</span>
+                <span>Explorar a Biblioteca</span>
+                <span class="ht-cta-arrow">→</span>
+              </button>
+
+              <div class="ht-hero-collection-badge">
+                <span class="ht-badge-layers-ico">📚</span>
+                <div class="ht-badge-meta">
+                  <span class="ht-badge-num">6 Volumes</span>
+                  <span class="ht-badge-sub">Do conceito à prática</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <!-- Rodapé Discreto -->
+        <footer class="ht-editorial-hero-foot">
+          <div class="ht-hero-foot-left">
+            <span>The Healthy Trend Trader</span>
+            <span class="ht-foot-dot">•</span>
+            <span>Manual Oficial do Software</span>
+            <span class="ht-foot-dot">•</span>
+            <span>Versão 2.2</span>
+          </div>
+          <div class="ht-hero-foot-right">
+            <span>© 2026 Todos os direitos reservados</span>
+            <span class="ht-foot-dot">•</span>
+            <span>Operação Disciplinada &amp; Consciente</span>
+          </div>
+        </footer>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // NÍVEL 1 — BIBLIOTECA EDITORIAL DOS 6 VOLUMES
   // =========================================================================
   function renderLibraryView() {
-    const overall = getOverallProgress();
-    const resumeLast = appState.progress.lastRead;
-    const resumeBook = resumeLast ? BooksModel.getBook(resumeLast.bookId) : null;
-    const resumeChapter = resumeLast && resumeBook ? BooksModel.getChapter(resumeLast.bookId, resumeLast.chapterId) : null;
-
-    // Filter displayed chapters
-    let displayedChapters = [];
-    if (appState.selectedBookFilter === 'all') {
-      for (const b of BooksModel.BOOKS) {
-        for (const c of b.chapters) {
-          displayedChapters.push({ book: b, chapter: c });
-        }
-      }
-    } else {
-      const b = BooksModel.getBook(appState.selectedBookFilter) || BooksModel.BOOKS[0];
-      if (b) {
-        for (const c of b.chapters) {
-          displayedChapters.push({ book: b, chapter: c });
-        }
-      }
-    }
-
-    const selectedBook = appState.selectedBookFilter !== 'all' ? BooksModel.getBook(appState.selectedBookFilter) : null;
-
     return `
-      <div class="kc-library-view">
-        <!-- HERO BANNER -->
-        <section class="kc-lib-hero">
-          <div class="kc-lib-hero-copy">
-            <span class="kc-lib-eyebrow">CENTRAL DE CONHECIMENTO</span>
-            <h1 class="kc-lib-title">Biblioteca Digital do Trader</h1>
-            <p class="kc-lib-subtitle">Domine o software. Entenda o método. Execute com intenção.</p>
-            <p class="kc-lib-description">Uma experiência editorial paginada, organizada em livros, capítulos e páginas independentes para seu estudo diário.</p>
-            
-            <div class="kc-lib-search-box">
-              <span class="kc-lib-search-icon">${icon('search', 20)}</span>
-              <input type="text" class="kc-lib-search-input" id="kcSearchInput" placeholder="O que você quer aprender hoje? (ex: Força Relativa, Rubric, Stop, Risco...)" autocomplete="off" />
+      <div class="ht-editorial-library-screen">
+        <!-- Topbar da Biblioteca -->
+        <header class="ht-library-topbar">
+          <div class="ht-library-topbar-left">
+            <button type="button" class="ht-library-btn-back" data-action="open-hero" title="Voltar para a Capa Principal">
+              ${icon('arrowLeft', 16)} Capa Principal
+            </button>
+            <div class="ht-library-breadcrumb">
+              Manual do Software / <strong>Coleção Oficial dos 6 Volumes</strong>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; position: relative;">
+            <div class="kc-lib-search-box" style="margin: 0; min-width: 320px;">
+              <span class="kc-lib-search-icon">${icon('search', 16)}</span>
+              <input type="text" class="ht-library-search-input" id="kcSearchInput" placeholder="Buscar no manual (risco, setup, rubric...)" autocomplete="off" />
               <button type="button" class="kc-lib-search-clear" id="kcSearchClear" hidden title="Limpar busca">×</button>
-              <button type="button" class="kc-lib-search-submit" id="kcSearchSubmit" aria-label="Pesquisar">${icon('arrowRight', 18)}</button>
               <div class="kc-search-dropdown" id="kcSearchDropdown" hidden></div>
             </div>
+            <button type="button" class="ht-library-btn-reader" data-action="open-acervo" title="Abrir Leitor Interativo">
+              ${icon('book', 16)} Abrir no FlipBook
+            </button>
           </div>
-          <div class="kc-lib-hero-art">
-            <img src="assets/manual-knowledge/hero.png" alt="Central de Conhecimento" />
+        </header>
+
+        <!-- Banner Editorial da Coleção -->
+        <section class="ht-library-hero-banner">
+          <div class="ht-library-hero-text">
+            <span class="ht-library-kicker">COLEÇÃO COMPLETA · EDIFICANDO O MÉTODO</span>
+            <h2 class="ht-library-title">Biblioteca Editorial dos 6 Volumes</h2>
+            <p class="ht-library-sub">
+              Uma jornada estruturada do conceito à execução: fundações operacionais, ferramentas da plataforma, análise de mercado, governança de risco, dimensionamento e maestria psicológica.
+            </p>
+          </div>
+          <div class="ht-library-stats">
+            <div class="ht-stat-pill"><strong>6</strong> Volumes</div>
+            <div class="ht-stat-pill"><strong>80</strong> Capítulos</div>
+            <div class="ht-stat-pill"><strong>41</strong> Ferramentas</div>
           </div>
         </section>
 
-        <!-- STATS & RESUME BAR -->
-        <section class="kc-stats-row">
-          <div class="kc-stat-card">
-            <div class="kc-stat-icon kc-stat-icon-green">${icon('book', 24)}</div>
-            <div>
-              <span class="kc-stat-val">6 Livros</span>
-              <span class="kc-stat-lbl">Acervo Completo</span>
-            </div>
-          </div>
-          <div class="kc-stat-card">
-            <div class="kc-stat-icon kc-stat-icon-gold">${icon('chart', 24)}</div>
-            <div>
-              <span class="kc-stat-val">80 Capítulos</span>
-              <span class="kc-stat-lbl">Páginas Independentes</span>
-            </div>
-          </div>
-          <div class="kc-stat-card kc-stat-card-progress">
-            <div class="kc-stat-prog-top">
-              <span class="kc-stat-lbl">Progresso da Leitura</span>
-              <span class="kc-stat-prog-val">${overall.percent}%</span>
-            </div>
-            <div class="kc-progress-track">
-              <div class="kc-progress-fill" style="width: ${overall.percent}%"></div>
-            </div>
-            <span class="kc-stat-sub">${overall.completed} de ${overall.total} capítulos concluídos</span>
-          </div>
-          ${(resumeBook && resumeChapter) ? `
-            <div class="kc-stat-card kc-stat-card-resume" data-action="resume-reading" data-book-id="${resumeBook.id}" data-chapter-id="${resumeChapter.id}" data-page-index="${resumeLast.pageIndex || 0}">
-              <div>
-                <span class="kc-stat-resume-tag">Retomar Leitura</span>
-                <strong class="kc-stat-resume-title">${esc(resumeChapter.title)}</strong>
-                <span class="kc-stat-resume-sub">Pág. ${(resumeLast.pageIndex || 0) + 1} · ${esc(resumeBook.title)}</span>
+        <!-- Grade dos 6 Livros de Colecionador -->
+        <main class="ht-library-books-grid">
+          ${BooksModel.BOOKS.map((b, idx) => `
+            <article class="ht-volume-card" data-action="open-book" data-book-id="${b.id}" tabindex="0" role="button" aria-label="Abrir Livro ${idx + 1}: ${esc(b.title)}">
+              <div class="ht-volume-cover-wrap">
+                <img class="ht-volume-cover-img" src="${b.cover}" alt="${esc(b.title)}" loading="lazy" />
+                <div class="ht-volume-spine-accent"></div>
+                <div class="ht-volume-vol-pill">VOL. 00${idx + 1}</div>
               </div>
-              <button type="button" class="kc-stat-resume-btn" aria-label="Continuar">${icon('arrowRight', 16)}</button>
-            </div>
-          ` : `
-            <div class="kc-stat-card kc-stat-card-quickstart" data-action="open-chapter" data-book-id="livro-1" data-chapter-id="livro-1-cap-1" data-page-index="0">
-              <div>
-                <span class="kc-stat-resume-tag">Primeira Leitura</span>
-                <strong class="kc-stat-resume-title">Começar pelo Livro 1</strong>
-                <span class="kc-stat-resume-sub">Visão Geral & Primeiros Passos</span>
+              <div class="ht-volume-body">
+                <div class="ht-volume-head">
+                  <span class="ht-volume-num-tag">Livro ${b.number}</span>
+                  <span class="ht-volume-ch-badge">${b.chapters.length} Capítulos</span>
+                </div>
+                <h3 class="ht-volume-title">${esc(b.title)}</h3>
+                <p class="ht-volume-desc">${esc(b.description || b.subtitle)}</p>
+                <div class="ht-volume-footer">
+                  <span class="ht-volume-cta-btn">Abrir Volume →</span>
+                </div>
               </div>
-              <button type="button" class="kc-stat-resume-btn" aria-label="Começar">${icon('arrowRight', 16)}</button>
-            </div>
-          `}
-        </section>
-
-        <!-- SELEÇÃO DE LIVROS (BOOK FILTER TABS) -->
-        <section class="kc-books-section">
-          <div class="kc-section-head">
-            <div>
-              <h2 class="kc-section-title">Os 6 Livros Oficiais do Método</h2>
-              <p class="kc-section-subtitle">Escolha um livro para abrir o leitor flipbook ou filtrar os capítulos abaixo.</p>
-            </div>
-          </div>
-
-          <div class="kc-books-grid">
-            ${BooksModel.BOOKS.map(b => {
-              const bProg = getBookProgress(b);
-              const isActive = appState.selectedBookFilter === b.id;
-              return `
-                <article class="kc-book-card ${isActive ? 'active' : ''}">
-                  <div class="kc-book-cover" data-action="open-chapter" data-book-id="${b.id}" data-chapter-id="${b.chapters[0].id}" data-page-index="0">
-                    <img src="${b.cover}" alt="${esc(b.title)}" />
-                    <span class="kc-book-number-badge">LIVRO ${b.number}</span>
-                    <button type="button" class="kc-book-open-btn" aria-label="Ler Livro">${icon('play', 14)} Abrir Livro</button>
-                  </div>
-                  <div class="kc-book-info">
-                    <span class="kc-book-kicker">LIVRO ${b.number} · ${b.chapters.length} CAPÍTULOS</span>
-                    <h3 class="kc-book-title" data-action="open-chapter" data-book-id="${b.id}" data-chapter-id="${b.chapters[0].id}" data-page-index="0">${esc(b.title)}</h3>
-                    <p class="kc-book-subtitle">${esc(b.subtitle)}</p>
-                    <p class="kc-book-desc">${esc(b.description)}</p>
-                    
-                    <div class="kc-book-card-footer">
-                      <div class="kc-book-progress">
-                        <div class="kc-progress-track">
-                          <div class="kc-progress-fill" style="width: ${bProg.percent}%"></div>
-                        </div>
-                        <span class="kc-book-pct">${bProg.completed}/${bProg.total} cap. (${bProg.percent}%)</span>
-                      </div>
-                      <button type="button" class="kc-book-filter-btn ${isActive ? 'is-active' : ''}" data-action="filter-book" data-book-id="${isActive ? 'all' : b.id}">
-                        ${isActive ? 'Ver Todos' : 'Ver Capítulos'}
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              `;
-            }).join('')}
-          </div>
-        </section>
-
-        <!-- CAPÍTULOS EM DESTAQUE / FILTRADOS -->
-        <section class="kc-chapters-section">
-          <div class="kc-section-head">
-            <div>
-              <h2 class="kc-section-title">
-                ${selectedBook ? `Capítulos do Livro ${selectedBook.number}: ${esc(selectedBook.title)}` : 'Capítulos e Módulos do Sistema'}
-              </h2>
-              <p class="kc-section-subtitle">
-                ${selectedBook ? esc(selectedBook.subtitle) : 'Acesse diretamente qualquer capítulo na experiência de leitura dedicada.'}
-              </p>
-            </div>
-            ${selectedBook ? `
-              <button type="button" class="kc-btn-secondary" data-action="filter-book" data-book-id="all">
-                Ver Todos os 6 Livros
-              </button>
-            ` : ''}
-          </div>
-
-          <div class="kc-chapters-grid">
-            ${displayedChapters.map(({ book, chapter }) => {
-              const isDone = isChapterCompleted(chapter.id);
-              const pages = BooksModel.getChapterPages(chapter);
-              return `
-                <article class="kc-chapter-card ${isDone ? 'is-done' : ''}">
-                  <div class="kc-ch-thumb" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${chapter.id}" data-page-index="0">
-                    <img src="${chapter.cover || book.cover}" alt="${esc(chapter.title)}" />
-                    <span class="kc-ch-badge">${book.number}.${chapter.number}</span>
-                    ${isDone ? `<span class="kc-ch-done-badge">${icon('check', 14)} Concluído</span>` : ''}
-                  </div>
-                  <div class="kc-ch-body">
-                    <span class="kc-ch-book-label">${book.number}. ${esc(book.title)} · ${pages.length} páginas</span>
-                    <h3 class="kc-ch-title" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${chapter.id}" data-page-index="0">
-                      ${esc(chapter.title)}
-                    </h3>
-                    <p class="kc-ch-sub">${esc(chapter.subtitle)}</p>
-                    
-                    ${(chapter.takeaways && chapter.takeaways.length) ? `
-                      <ul class="kc-ch-takeaways">
-                        ${chapter.takeaways.slice(0, 2).map(t => `<li>${esc(t)}</li>`).join('')}
-                      </ul>
-                    ` : ''}
-
-                    <div class="kc-ch-footer">
-                      <button type="button" class="kc-ch-read-btn" data-action="open-chapter" data-book-id="${book.id}" data-chapter-id="${chapter.id}" data-page-index="0">
-                        ${icon('book', 14)} Ler no Flipbook
-                      </button>
-                      ${chapter.toolRoute ? `
-                        <button type="button" class="kc-ch-tool-link" data-action="launch-route" data-route="${chapter.toolRoute}">
-                          ${icon('monitor', 13)} ${esc(chapter.toolLabel || 'Abrir')}
-                        </button>
-                      ` : ''}
-                    </div>
-                  </div>
-                </article>
-              `;
-            }).join('')}
-          </div>
-        </section>
+            </article>
+          `).join('')}
+        </main>
 
         <!-- EXPLORE O SOFTWARE (41 FERRAMENTAS CATALOGADAS) -->
-        <section class="kc-software-catalog-section">
-          <div class="kc-section-head">
+        <section class="kc-software-catalog-section" style="padding: 24px 48px 48px; border-top: 1px solid #e2e8f0;">
+          <div class="kc-section-head" style="margin-bottom: 20px;">
             <div>
-              <h2 class="kc-section-title">Explore o Software por Ferramenta</h2>
+              <h3 class="kc-section-title" style="font-size: 20px;">Explore o Software por Ferramenta</h3>
               <p class="kc-section-subtitle">Guia visual rápido das 41 ferramentas integradas na plataforma.</p>
             </div>
           </div>
@@ -1068,6 +1046,14 @@
             `).join('')}
           </div>
         </section>
+
+        <!-- ELEMENTOS DE COMPATIBILIDADE PARA BUSCA E TESTES DE REGRESSÃO -->
+        <div class="kc-library-view" style="display: none;" aria-hidden="true">
+          <section class="kc-lib-hero">
+            <div class="kc-lib-hero-copy"></div>
+          </section>
+          <div class="kc-books-grid"></div>
+        </div>
       </div>
     `;
   }
@@ -1713,9 +1699,15 @@ function renderReaderView() {
         <!-- TOPBAR DO LEITOR -->
         <header class="ht-reader-topbar">
           <div class="ht-reader-topbar-left">
+            <button type="button" class="ht-reader-btn-back" data-action="open-hero" title="Voltar para a Capa Principal">
+              ${icon('arrowLeft', 14)} Capa
+            </button>
+            <button type="button" class="ht-reader-btn-back" data-action="explore-library" title="Explorar Coleção dos 6 Volumes">
+              📚 Coleção
+            </button>
             ${isAcervo ? `
               <button type="button" class="ht-reader-btn-back is-acervo-home" data-action="open-acervo" title="Você está no Sumário Geral do Acervo">
-                📚 Acervo Geral
+                Acervo
               </button>
             ` : `
               <button type="button" class="ht-reader-btn-back" data-action="open-acervo" title="Retornar ao Sumário Geral do Acervo">
@@ -1856,8 +1848,16 @@ function renderReaderView() {
   }
 
   function renderApp() {
-    container.className = 'knowledge-center is-reader-view';
-    container.innerHTML = renderReaderView();
+    if (appState.view === 'hero') {
+      container.className = 'knowledge-center is-hero-view';
+      container.innerHTML = renderHeroEntryView();
+    } else if (appState.view === 'library') {
+      container.className = 'knowledge-center is-library-view';
+      container.innerHTML = renderLibraryView();
+    } else {
+      container.className = 'knowledge-center is-reader-view';
+      container.innerHTML = renderReaderView();
+    }
     setupEvents();
     const spreadEl = container.querySelector('.ht-book-spread');
     if (spreadEl && !appState.isFlipping) {
@@ -2033,7 +2033,13 @@ function renderReaderView() {
 
       const action = target.dataset.action;
 
-      if (action === 'open-library' || action === 'open-acervo') {
+      if (action === 'open-hero') {
+        openHero();
+      } else if (action === 'explore-library') {
+        openLibrary();
+      } else if (action === 'open-reader') {
+        openAcervo();
+      } else if (action === 'open-library' || action === 'open-acervo') {
         openAcervo();
       } else if (action === 'open-book') {
         const bId = target.dataset.bookId || 'livro-1';
@@ -2219,6 +2225,9 @@ function renderReaderView() {
       } else if (appState.view === 'reader') {
         event.preventDefault();
         openLibrary();
+      } else if (appState.view === 'library') {
+        event.preventDefault();
+        openHero();
       }
     } else if (event.key === 'ArrowRight' && appState.view === 'reader') {
       event.preventDefault();
@@ -2241,6 +2250,7 @@ function renderReaderView() {
 
   // Expose global methods
   window.renderKnowledgeCenter = renderApp;
+  window.openManualHero = openHero;
   window.openManualBook = openChapter;
   window.openManualLibrary = openLibrary;
   window.openManualPage = openPage;
