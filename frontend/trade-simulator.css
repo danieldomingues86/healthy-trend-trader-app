@@ -8386,3 +8386,53 @@ body.gold-theme .sim-btn-view-analysis:hover {
   border-color: #3b5042 !important;
   color: #6ee7b7 !important;
 }
+
+/* Card de Rodapé do Modal da Massa (apenas integridade e CTA) */
+.sim-mass-footer-card {
+  background: #ffffff;
+  border: 1px solid #e4ebf1;
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+body.gold-theme .sim-mass-footer-card {
+  background: #18221b;
+  border-color: #2b3930;
+}
+
+/* Botão de Excluir Massa na Toolbar Principal */
+.sim-btn-header-secondary.sim-btn-header-danger {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.sim-btn-header-secondary.sim-btn-header-danger:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #b91c1c;
+}
+
+.sim-btn-header-secondary.sim-btn-header-danger svg {
+  color: #ef4444;
+}
+
+.sim-btn-header-secondary.sim-btn-header-danger:hover svg {
+  color: #dc2626;
+}
+
+body.gold-theme .sim-btn-header-secondary.sim-btn-header-danger {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #f87171;
+}
+
+body.gold-theme .sim-btn-header-secondary.sim-btn-header-danger:hover {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(220, 38, 38, 0.5);
+  color: #ef4444;
+}
+

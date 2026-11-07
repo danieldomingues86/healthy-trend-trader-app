@@ -91,6 +91,16 @@
     rubricComparisonExpanded: false
   };
 
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function sanitizeSimulationsList(list) {
     if (!Array.isArray(list)) return [];
     const filtered = list.filter(s => s && s.triggerName !== 'Pullback' && s.triggerName !== 'Dave Landry' && s.triggerName !== 'David Landry');
@@ -1934,11 +1944,6 @@
           </div>
         </div>
 
-        <!-- System Quality Analytics (SQN - Metodologia Van K. Tharp) -->
-        ${window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.generateSimulatorSqnCardHtml === 'function'
-          ? window.SystemQualityAnalytics.generateSimulatorSqnCardHtml(stats)
-          : ''}
-
         <!-- Banner de Informação Soft -->
         <div class="sim-rebuild-info-banner">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -2601,11 +2606,32 @@
             </button>
 
             <!-- 3. Gerar Massa de Teste (Ação Secundária Diretamente Visível) -->
-            <button type="button" id="simBtnMassModal" class="sim-btn-header-secondary" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
+            <button type="button" id="simBtnMassModal" class="sim-btn-header-secondary" title="Configurar e gerar massa de testes em escala">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
               </svg>
               <span>Gerar Massa de Teste</span>
+            </button>
+
+            <!-- 4. Reavaliar Candles (Ação Direta na Tela) -->
+            <button type="button" id="simBtnEvaluateCandles" class="sim-btn-header-secondary" title="Reavaliar e reprocessar as simulações existentes utilizando candles disponíveis">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Reavaliar Candles</span>
+            </button>
+
+            <!-- 5. Excluir Massa Atual (Ação Direta na Tela) -->
+            <button type="button" id="simBtnClearMass" class="sim-btn-header-secondary sim-btn-header-danger" title="Excluir todas as simulações carregadas">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+              <span>Excluir Massa Atual</span>
             </button>
 
             <!-- 4. Menu Mais Opções (···) com Dropdown para Ações Administrativas e Menos Frequentes -->
@@ -3316,14 +3342,23 @@
   }
 
   function renderStatusPill(status, sim) {
-    if (state.rubricMode && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.evaluateTradeRubricAndSizing === 'function') {
-      const evalInfo = sim?.evaluation || root.TradeSimulatorModel.evaluateTradeRubricAndSizing(sim, {}, { officialMode: true });
-      if (!evalInfo.isEligible) {
-        return `<span class="sim-status-pill pill-blocked" title="${evalInfo.blockReason || 'Bloqueado pelo Trading Rubric'}"><span class="pill-dot"></span> Bloqueado (${evalInfo.blockCode || 'Rubric'})</span>`;
-      }
-    }
     if (sim && (status === 'CLOSED_LOSS' || status === 'CLOSED_GAIN') && (Number(sim.resultR) === 0 || Math.abs(Number(sim.resultR) || 0) < 0.0001)) {
       return `<span class="sim-status-pill pill-breakeven"><span class="pill-dot"></span> Encerrado (Breakeven)</span>`;
+    }
+    if (status === 'CLOSED_GAIN') {
+      return `<span class="sim-status-pill pill-gain"><span class="pill-dot"></span> Encerrado (Gain)</span>`;
+    }
+    if (status === 'CLOSED_LOSS') {
+      return `<span class="sim-status-pill pill-loss"><span class="pill-dot"></span> Encerrado (Loss)</span>`;
+    }
+    if (status === 'BLOCKED' || (sim && sim.isBlocked)) {
+      return `<span class="sim-status-pill pill-blocked" title="${sim?.blockReason || 'Bloqueado'}"><span class="pill-dot"></span> Bloqueado (${sim?.blockCode || 'Rubric'})</span>`;
+    }
+    if (sim && state.rubricMode && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.evaluateTradeRubricAndSizing === 'function') {
+      const evalInfo = sim.evaluation || root.TradeSimulatorModel.evaluateTradeRubricAndSizing(sim, {}, { officialMode: true });
+      if (evalInfo && !evalInfo.isEligible) {
+        return `<span class="sim-status-pill pill-blocked" title="${evalInfo.blockReason || 'Bloqueado pelo Trading Rubric'}"><span class="pill-dot"></span> Bloqueado (${evalInfo.blockCode || 'Rubric'})</span>`;
+      }
     }
     switch (status) {
       case 'INCOMPLETE':
@@ -3331,10 +3366,6 @@
         return `<span class="sim-status-pill pill-incomplete" title="${sim?.incompleteReason || 'Operação incompleta: histórico terminou sem condição de saída (stop ou alvo)'}"><span class="pill-dot"></span> Incompleto (Excluído)</span>`;
       case 'WAITING_ENTRY':
         return `<span class="sim-status-pill pill-waiting"><span class="pill-dot"></span> Aguardando entrada</span>`;
-      case 'CLOSED_GAIN':
-        return `<span class="sim-status-pill pill-gain"><span class="pill-dot"></span> Encerrado (Gain)</span>`;
-      case 'CLOSED_LOSS':
-        return `<span class="sim-status-pill pill-loss"><span class="pill-dot"></span> Encerrado (Loss)</span>`;
       case 'NOT_TRIGGERED':
       default:
         return `<span class="sim-status-pill pill-not-triggered"><span class="pill-dot"></span> Não acionado</span>`;
@@ -4211,192 +4242,43 @@
               </div>
             </div>
 
-            <!-- SEÇÃO INFERIOR: RESUMO PRÉ-EXECUÇÃO & AÇÕES DA MASSA ATUAL -->
+            <!-- SEÇÃO INFERIOR: INTEGRIDADE METODOLÓGICA & BOTÃO DE INICIAR SIMULAÇÃO -->
             <div class="sim-mass-bottom-section">
-              <!-- BLOCO 3: RESUMO ANTES DE INICIAR -->
-              <div class="sim-mass-modal-section sim-mass-summary-section">
-                <div class="sim-mass-preflight-card">
-                  <div class="sim-mass-step-header sim-mass-step-header-summary">
-                    <div class="sim-mass-step-num step-3">3</div>
-                    <div class="sim-mass-step-texts">
-                      <div class="sim-mass-step-title">Resumo antes de iniciar</div>
-                      <div class="sim-mass-step-desc">Confira as configurações da simulação em escala. Valide os parâmetros e inicie a execução.</div>
-                    </div>
-                  </div>
-
-                  <div class="sim-mass-preflight-grid">
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box green">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2.4">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#d1fae5"/>
-                          <line x1="16" y1="2" x2="16" y2="6"/>
-                          <line x1="8" y1="2" x2="8" y2="6"/>
-                          <line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Período</span>
-                        <span class="sim-mass-pf-val">${periodDesc}</span>
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <rect x="4" y="12" width="4" height="8" rx="1" fill="#3b82f6"/>
-                          <rect x="10" y="7" width="4" height="13" rx="1" fill="#2563eb"/>
-                          <rect x="16" y="3" width="4" height="17" rx="1" fill="#1d4ed8"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Universo de Ativos</span>
-                        <span class="sim-mass-pf-val">${universePrimary}</span>
-                        ${universeSub ? `<span class="sim-mass-pf-sub">${universeSub}</span>` : ''}
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box red">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2.4" fill="#fee2e2"/>
-                          <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
-                          <circle cx="12" cy="12" r="2" fill="#ef4444"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Gatilhos</span>
-                        <span class="sim-mass-pf-val">${triggerDesc}</span>
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box gold">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#d97706" stroke-width="1.5">
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Notas do Rubric</span>
-                        <span class="sim-mass-pf-val">${gradeDesc}</span>
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4">
-                          <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
-                          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-                          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Meta de Trades</span>
-                        <span class="sim-mass-pf-val">${targetPrimary}</span>
-                        <span class="sim-mass-pf-sub">${targetSub}</span>
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                          <circle cx="12" cy="12" r="3" fill="#dbeafe"/>
-                          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Gestão de Risco</span>
-                        <span class="sim-mass-pf-val">${scenarioMeta.name}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="sim-mass-preflight-footer">
-                    <div class="sim-mass-preflight-integrity">
-                      <span class="sim-mass-integrity-shield">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                          <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
-                          <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </span>
-                      <div class="sim-mass-integrity-text">
-                        <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a <strong>1</strong> posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
-                      </div>
-                    </div>
-
-                    <!-- Botão de Ação / Indicador de Progresso -->
-                    <div class="sim-scenario-action-wrap">
-                      ${state.generatingMass ? `
-                        <div class="sim-mass-progress-box">
-                          <div class="sim-mass-spinner"></div>
-                          <div class="sim-mass-progress-text">${state.massProgressText || 'Processando varredura histórica...'}</div>
-                        </div>
-                        <button class="sim-btn-confirm-scenario disabled" type="button" disabled>
-                          <span>⏳ Gerando Massa...</span>
-                        </button>
-                      ` : `
-                        <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
-                          <span class="sim-cta-play-circle">
-                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                              <polygon points="3,1.5 10.5,6 3,10.5" fill="#0d6845"/>
-                            </svg>
-                          </span>
-                          <span>Iniciar Simulação em Escala</span>
-                          <span class="sim-cta-arrow">→</span>
-                        </button>
-                      `}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- BLOCO 4: BARRA HORIZONTAL DE AÇÕES DA MASSA ATUAL -->
-              <div class="sim-mass-current-actions-bar">
-                <div class="sim-mass-actions-bar-left">
-                  <div class="sim-mass-actions-bar-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d7a52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="4" width="18" height="16" rx="2" fill="#d1fae5"/>
-                      <line x1="7" y1="9" x2="17" y2="9"/>
-                      <line x1="7" y1="13" x2="13" y2="13"/>
-                    </svg>
-                  </div>
-                  <div class="sim-mass-actions-bar-texts">
-                    <div class="sim-mass-actions-bar-title">Ações da Massa Atual</div>
-                    <div class="sim-mass-actions-bar-desc">Gerencie as simulações existentes utilizando os candles disponíveis.</div>
-                  </div>
-                </div>
-
-                <div class="sim-mass-actions-bar-right">
-                  <!-- Reavaliar candles -->
-                  <div class="sim-mass-action-card" id="simMassActionEvaluate" role="button" tabindex="0">
-                    <div class="sim-mass-action-icon">
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="23 4 23 10 17 10"></polyline>
-                        <polyline points="1 20 1 14 7 14"></polyline>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              <div class="sim-mass-footer-card">
+                <div class="sim-mass-preflight-footer">
+                  <div class="sim-mass-preflight-integrity">
+                    <span class="sim-mass-integrity-shield">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
+                        <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
+                    </span>
+                    <div class="sim-mass-integrity-text">
+                      <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a <strong>1</strong> posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
                     </div>
-                    <div class="sim-mass-action-info">
-                      <div class="sim-mass-action-title">Reavaliar candles</div>
-                      <div class="sim-mass-action-desc">Reprocessar as simulações existentes</div>
-                    </div>
-                    <button class="sim-mass-action-trigger-btn sr-only-btn" type="button" id="simMassActionEvaluateBtn" aria-label="Reavaliar candles">Executar</button>
                   </div>
 
-                  <!-- Excluir massa atual -->
-                  <div class="sim-mass-action-card danger" id="simMassActionClear" role="button" tabindex="0">
-                    <div class="sim-mass-action-icon danger">
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                      </svg>
-                    </div>
-                    <div class="sim-mass-action-info">
-                      <div class="sim-mass-action-title danger">Excluir massa atual</div>
-                      <div class="sim-mass-action-desc danger">Excluir todas as simulações carregadas</div>
-                    </div>
-                    <button class="sim-mass-action-trigger-btn danger sr-only-btn" type="button" id="simMassActionClearBtn" aria-label="Excluir massa atual">Excluir</button>
+                  <!-- Botão de Ação / Indicador de Progresso -->
+                  <div class="sim-scenario-action-wrap">
+                    ${state.generatingMass ? `
+                      <div class="sim-mass-progress-box">
+                        <div class="sim-mass-spinner"></div>
+                        <div class="sim-mass-progress-text">${state.massProgressText || 'Processando varredura histórica...'}</div>
+                      </div>
+                      <button class="sim-btn-confirm-scenario disabled" type="button" disabled>
+                        <span>⏳ Gerando Massa...</span>
+                      </button>
+                    ` : `
+                      <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
+                        <span class="sim-cta-play-circle">
+                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                            <polygon points="3,1.5 10.5,6 3,10.5" fill="#0d6845"/>
+                          </svg>
+                        </span>
+                        <span>Iniciar Simulação em Escala</span>
+                        <span class="sim-cta-arrow">→</span>
+                      </button>
+                    `}
                   </div>
                 </div>
               </div>
@@ -5329,7 +5211,7 @@
               <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <h2 style="margin: 0; font-size: 22px;">${sim.symbol}</h2>
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
-                ${renderStatusPill(sim.status)}
+                ${renderStatusPill(sim.status, sim)}
                 ${renderMarketCyclePill(sim)}
                 ${renderEntryRsPill(sim)}
                 <span class="sim-mode-pill ${isResearchTrade ? 'sim-mode-research' : 'sim-mode-official'}">${isResearchTrade ? '🧪 MODO PESQUISA' : '🛡️ MODO OFICIAL'}</span>
@@ -5454,6 +5336,12 @@
     if (!vision) return '';
     sim.visionAtivo = vision;
 
+    const liqObj = vision.liquidity || null;
+    const isLiqGood = liqObj ? (liqObj.isEligible !== false && liqObj.status !== 'bad') : true;
+    const liqStatus = isLiqGood ? 'good' : 'bad';
+    const liqText = liqObj?.text || (isLiqGood ? 'Aprovada' : 'Bloqueado por Liquidez');
+    const liqReason = liqObj?.reason || (isLiqGood ? 'Ativo cumpre todos os requisitos do Liquidity Gate.' : 'Ativo reprovado no Liquidity Gate.');
+
     return `
       <div class="ticker-summary-card sim-snapshot-vision-card">
         <div class="summary-card-head">
@@ -5532,6 +5420,14 @@
             </div>
             <div class="summary-check-right">
               <span class="vision-status ${vision.context.status}">● ${vision.context.title}</span>
+            </div>
+          </div>
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.liquidity}</span> Liquidez
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${liqStatus}" title="${escapeHtml(liqReason)}">● ${escapeHtml(liqText)}</span>
             </div>
           </div>
         </div>
@@ -5811,7 +5707,7 @@
               <h2>
                 <span>${sim.symbol}</span>
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
-                ${renderStatusPill(sim.status)}
+                ${renderStatusPill(sim.status, sim)}
                 ${renderMarketCyclePill(sim)}
                 ${renderEntryRsPill(sim)}
               </h2>
@@ -6225,6 +6121,12 @@
         throw new Error('Cliente de API indisponível para carregar o histórico real.');
       }
       if (state.snapshotSimId !== simId) return;
+      if (res && res.snapshot && Array.isArray(res.snapshot.candles) && res.snapshot.candles.length > 0) {
+        sim.candles = res.snapshot.candles;
+        if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getTradeVisionAtivo === 'function') {
+          sim.visionAtivo = root.TradeSimulatorModel.getTradeVisionAtivo(sim);
+        }
+      }
       state.snapshotData = { simId, status: 'ready', snapshot: res && res.snapshot ? res.snapshot : null, error: null };
     } catch (e) {
       if (state.snapshotSimId !== simId) return;
@@ -7072,12 +6974,13 @@
       generateScenarioMass(state.tempScenarioSelection || '2R', cfg);
     });
 
-    // Ações da massa atual no painel
+    // Ações da massa atual no painel e cabeçalho principal
     const handleEvaluate = (e) => {
       e.stopPropagation();
       state.massModalOpen = false;
       evaluateActive();
     };
+    container.querySelector('#simBtnEvaluateCandles')?.addEventListener('click', handleEvaluate);
     container.querySelector('#simMassActionEvaluate')?.addEventListener('click', handleEvaluate);
     container.querySelector('#simMassActionEvaluateBtn')?.addEventListener('click', handleEvaluate);
 
@@ -7087,6 +6990,7 @@
       state.massModalOpen = false;
       clearAllSimulations();
     };
+    container.querySelector('#simBtnClearMass')?.addEventListener('click', handleDirectClear);
     container.querySelector('#simMassActionClear')?.addEventListener('click', handleDirectClear);
     container.querySelector('#simMassActionClearBtn')?.addEventListener('click', handleDirectClear);
 

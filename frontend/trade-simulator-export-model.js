@@ -602,6 +602,10 @@
             <td style="padding: 4px; color: #64748b;"><b>Contexto:</b></td>
             <td style="padding: 4px; color: #0f172a;">${escapeHtml(vision.context?.title || '—')}</td>
           </tr>
+          <tr>
+            <td style="padding: 4px; color: #64748b;"><b>Liquidez:</b></td>
+            <td style="padding: 4px; color: #0f172a;" colspan="3">${escapeHtml(vision.liquidity?.text || (vision.liquidity?.isEligible ? 'Aprovada' : 'Bloqueado por Liquidez'))}</td>
+          </tr>
         </table>
       </div>
     `;
