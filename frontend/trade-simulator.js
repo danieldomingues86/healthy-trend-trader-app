@@ -7,7 +7,7 @@
 (function(root) {
   'use strict';
 
-  const STORAGE_KEY = 'healthy-trade-simulator-data';
+  const STORAGE_KEY = 'healthy-trade-simulator-data-v2-audited';
   const API_ENDPOINT = '/api/trade-simulations';
 
   const state = {
@@ -16,6 +16,7 @@
     initialCapital: 100000,
     tradeStatusFilter: 'ALL', // 'ALL' | 'GAIN' | 'LOSS' | 'BREAKEVEN'
     simulations: [],
+    rejectedSimulations: [],
     loading: false,
     generatingMass: false,
     massProgressText: '',
@@ -148,6 +149,9 @@
         const response = await root.healthyTrendApi.request(API_ENDPOINT, { method: 'GET' });
         if (response && Array.isArray(response.simulations) && response.simulations.length > 0) {
           state.simulations = sanitizeSimulationsList(response.simulations);
+          state.rejectedSimulations = Array.isArray(response.rejectedTrades)
+            ? response.rejectedTrades
+            : (Array.isArray(response.auditReport?.rejectedTrades) ? response.auditReport.rejectedTrades : []);
           state.comparison = response.comparison || null;
           state.hypothesisComparison = response.hypothesisComparison || null;
           state.auditReport = response.auditReport || (root.TradeSimulatorModel?.auditSimulationsBatch ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations) : null);
@@ -5382,6 +5386,24 @@
             </div>
           </div>
 
+          ${(Array.isArray(state.rejectedSimulations) && state.rejectedSimulations.length > 0) ? `
+            <div class="sim-audit-card" style="margin-top: 14px;">
+              <h4>🚫 Operações Rejeitadas pela Auditoria Integral — Excluídas das Estatísticas (${state.rejectedSimulations.length})</h4>
+              <p style="margin: 0 0 10px; font-size: 12px; color: #64748b;">
+                Estes registros foram reprovados na verificação histórica/OHLC/técnica e <b>não impactam</b> lucro, prejuízo, win rate, payoff, expectancy, R-Múltiplo, SQN ou drawdown.
+              </p>
+              <div class="sim-audit-invalid-list">
+                ${state.rejectedSimulations.map(item => `
+                  <div class="sim-audit-invalid-row">
+                    <b>${escapeHtml(item.symbol)} (${escapeHtml(item.id || '—')}) — ${escapeHtml(item.primaryCategoryLabel || 'Rejeitado')}</b>
+                    <span>Sinal: ${formatDateBR(item.signalDate)} | Gatilho: ${escapeHtml(item.triggerName || '—')}</span>
+                    <code>${(item.errors || []).map(e => e.code + ': ' + e.message).join(' • ')}</code>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
           ${invalidTrades.length > 0 ? `
             <div class="sim-audit-card" style="margin-top: 14px;">
               <h4>Trades com Inconsistências Detectadas (${invalidTrades.length})</h4>
@@ -6363,6 +6385,57 @@
         sim.candles = res.snapshot.candles;
         if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getTradeVisionAtivo === 'function') {
           sim.visionAtivo = root.TradeSimulatorModel.getTradeVisionAtivo(sim);
+        }
+        if (
+          res.snapshot.verification &&
+          res.snapshot.verification.status === 'DIVERGENT' &&
+          root.TradeSimulatorModel &&
+          typeof root.TradeSimulatorModel.performIntegralTradeAudit === 'function'
+        ) {
+          const fullHistory = Array.isArray(res.snapshot.allCandles) && res.snapshot.allCandles.length > 0
+            ? res.snapshot.allCandles
+            : res.snapshot.candles;
+          const integral = root.TradeSimulatorModel.performIntegralTradeAudit(sim, fullHistory);
+          if (!integral.approved) {
+            state.simulations = (state.simulations || []).filter(s => s && s.id !== sim.id);
+            if (!Array.isArray(state.rejectedSimulations)) state.rejectedSimulations = [];
+            if (!state.rejectedSimulations.some(r => r && r.id === sim.id)) {
+              state.rejectedSimulations.push({
+                id: sim.id,
+                symbol: sim.symbol,
+                companyName: sim.companyName || sim.symbol,
+                triggerName: sim.triggerName,
+                grade: sim.grade,
+                signalDate: sim.signalDate,
+                entryDate: sim.entryDate,
+                exitDate: sim.exitDate,
+                entryPrice: sim.entryPrice,
+                executedEntryPrice: sim.executedEntryPrice,
+                stopLoss: sim.stopLoss,
+                exitPrice: sim.exitPrice,
+                status: sim.status,
+                resultR: sim.resultR,
+                rejectionStatus: 'REJECTED',
+                primaryCategory: integral.primaryCategory,
+                primaryCategoryLabel: integral.primaryCategoryLabel,
+                categories: integral.categories,
+                errors: integral.errors,
+                violatedRules: integral.violatedRules,
+                questions10: integral.questions10,
+                originalTrade: sim
+              });
+            }
+            if (typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function') {
+              state.auditReport = root.TradeSimulatorModel.auditSimulationsBatch(state.simulations);
+            }
+            if (typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
+              state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
+            }
+            saveLocalCache();
+            if (typeof root.showToast === 'function') {
+              root.showToast(`⚠️ Trade ${sim.symbol} (${formatDateBR(sim.signalDate)}) reprovado na Auditoria Integral e excluído das estatísticas.`, 'warn');
+            }
+          }
         }
       }
       state.snapshotData = { simId, status: 'ready', snapshot: res && res.snapshot ? res.snapshot : null, error: null };

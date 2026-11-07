@@ -478,7 +478,7 @@ const server = http.createServer(async (request, response) => {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       const envParam = (url.searchParams.get('env') || url.searchParams.get('mode') || 'OFFICIAL').toUpperCase();
-      return send(response, 200, await tradeSimulator.list(user.id, database, { environment: envParam }));
+      return send(response, 200, await tradeSimulator.list(user.id, database, { environment: envParam, strictHistoricalAudit: true }));
     }
     if (url.pathname === '/api/trade-simulations' && request.method === 'POST') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });

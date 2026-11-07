@@ -8293,9 +8293,923 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       });
     }
 
+    // 10. Auditoria Integral (quando candles históricos são fornecidos ou há metadados financeiros/temporais/setup explícitos)
+    const explicitCandles = (Array.isArray(opts.candles) && opts.candles.length > 0)
+      ? opts.candles
+      : (opts.candlesMap
+        ? (opts.candlesMap instanceof Map
+          ? opts.candlesMap.get(String(sim.symbol || '').toUpperCase().trim())
+          : opts.candlesMap[String(sim.symbol || '').toUpperCase().trim()])
+        : null);
+    const hasIntegralAuditTriggers = Boolean(
+      explicitCandles ||
+      (Array.isArray(sim.candles) && sim.candles.length > 0) ||
+      sim.indicatorEvalDate ||
+      sim.emaEvalDate ||
+      sim.rsEvalDate ||
+      sim.corporateEventUnadjusted ||
+      sim.priceAdjustmentMismatch ||
+      sim.shares != null ||
+      sim.quantity != null ||
+      sim.grossPnL != null ||
+      sim.netPnL != null ||
+      sim.financialResult != null ||
+      (sim.trendAlignment && sim.trendAlignment.isValid === false)
+    );
+
+    if (hasIntegralAuditTriggers) {
+      const integral = performIntegralTradeAudit(sim, explicitCandles || sim.candles || null, {
+        ...opts,
+        validSessionSet: sessions,
+        skipBaseValidation: true
+      });
+      const existingCodes = new Set(errors.map(e => e.code));
+      for (const err of integral.errors) {
+        if (!existingCodes.has(err.code)) {
+          existingCodes.add(err.code);
+          errors.push(err);
+        }
+      }
+    }
+
     return {
       isValid: errors.length === 0,
       errors
+    };
+  }
+
+  /**
+   * Categorias formais de rejeição da Auditoria Integral de Trades
+   */
+  const REJECTION_CATEGORIES = {
+    SETUP_DIVERGENCE: 'DIVERGENCIA_DE_SETUP',
+    IMPOSSIBLE_EXECUTION: 'EXECUCAO_IMPOSSIVEL',
+    TEMPORAL_INCONSISTENCY: 'INCONSISTENCIA_TEMPORAL',
+    HISTORICAL_DATA_DIVERGENCE: 'DIVERGENCIA_DE_DADOS_HISTORICOS',
+    FINANCIAL_CALCULATION_ERROR: 'INCONSISTENCIA_DE_CALCULO_FINANCEIRO',
+    MANDATORY_FILTER_VIOLATION: 'VIOLACAO_DE_FILTRO_OBRIGATORIO'
+  };
+
+  const REJECTION_CATEGORY_LABELS = {
+    [REJECTION_CATEGORIES.SETUP_DIVERGENCE]: 'Divergência de Setup',
+    [REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION]: 'Execução Impossível',
+    [REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY]: 'Inconsistência Temporal',
+    [REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE]: 'Divergência de Dados Históricos',
+    [REJECTION_CATEGORIES.FINANCIAL_CALCULATION_ERROR]: 'Inconsistência de Cálculo Financeiro',
+    [REJECTION_CATEGORIES.MANDATORY_FILTER_VIOLATION]: 'Violação de Filtro Obrigatório'
+  };
+
+  /**
+   * Pipeline Independente de Auditoria Integral de Trade (6 estágios e 10 perguntas obrigatórias):
+   * Identificação do sinal → Validação técnica → Validação histórica → Validação de execução → Validação financeira → Aprovação do trade
+   *
+   * @param {Object} sim Registro do trade / simulação
+   * @param {Array} [candles] Série histórica de candles diários OHLCV do ativo
+   * @param {Object} [options] Opções de auditoria (candlesMap, validSessionSet, simulationMode, etc.)
+   * @returns {Object} Resultado completo da auditoria com status APPROVED ou REJECTED
+   */
+  function performIntegralTradeAudit(sim, candles = null, options = {}) {
+    if (!sim || typeof sim !== 'object') {
+      return {
+        approved: false,
+        isValid: false,
+        status: 'REJECTED',
+        primaryCategory: REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE,
+        primaryCategoryLabel: REJECTION_CATEGORY_LABELS[REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE],
+        categories: [REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE],
+        errors: [{
+          code: 'NULL_SIMULATION',
+          category: REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE,
+          field: 'sim',
+          message: 'Registro de simulação nulo ou inválido.'
+        }],
+        violatedRules: ['NULL_SIMULATION'],
+        questions10: {},
+        stages: {}
+      };
+    }
+
+    const opts = options || {};
+    const sessions = opts.validSessionSet instanceof Set ? opts.validSessionSet : null;
+    const simMode = opts.simulationMode || sim.simulationMode || SIMULATION_MODES.OFFICIAL;
+    const isResearchMode = simMode === SIMULATION_MODES.RESEARCH || opts.allowRelaxedFilters === true;
+    const allowDefensiveCycle = isResearchMode && opts.allowDefensiveCycle === true;
+    const allowTrendMisalignment = isResearchMode && opts.allowTrendMisalignment === true;
+    const allowRsBelow80 = isResearchMode && (opts.allowRsBelow80 === true || (opts.minRsScore !== undefined && Number(opts.minRsScore) < OFFICIAL_MIN_RS));
+    const allowIlliquid = isResearchMode && opts.allowIlliquid === true;
+
+    const sym = String(sim.symbol || '').toUpperCase().trim();
+    const signalDate = sim.signalDate ? String(sim.signalDate).slice(0, 10) : null;
+    const eDate = sim.entryDate ? String(sim.entryDate).slice(0, 10) : null;
+    const xDate = sim.exitDate ? String(sim.exitDate).slice(0, 10) : null;
+    const entryPrice = Number(sim.entryPrice);
+    const stopLoss = Number(sim.stopLoss);
+    const execEntry = sim.executedEntryPrice != null ? Number(sim.executedEntryPrice) : null;
+    const exitPrice = sim.exitPrice != null ? Number(sim.exitPrice) : null;
+    const resultR = sim.resultR != null ? Number(sim.resultR) : null;
+    const risk = Math.max(0.01, Math.abs(entryPrice - stopLoss));
+    const status = sim.status;
+    const isExecuted = status === STATUS.IN_OPERATION || status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS;
+    const isClosed = status === STATUS.CLOSED_GAIN || status === STATUS.CLOSED_LOSS;
+
+    // Resolve série de candles históricos
+    let rawSeries = null;
+    if (Array.isArray(candles) && candles.length > 0) {
+      rawSeries = candles;
+    } else if (Array.isArray(opts.candles) && opts.candles.length > 0) {
+      rawSeries = opts.candles;
+    } else if (opts.candlesMap && sym) {
+      rawSeries = opts.candlesMap instanceof Map
+        ? opts.candlesMap.get(sym)
+        : opts.candlesMap[sym];
+    } else if (Array.isArray(sim.candles) && sim.candles.length > 0) {
+      rawSeries = sim.candles;
+    } else if (Array.isArray(sim._evalCandles) && sim._evalCandles.length > 0) {
+      rawSeries = sim._evalCandles;
+    }
+
+    const candleSeries = Array.isArray(rawSeries) && rawSeries.length > 0
+      ? rawSeries.map(c => ({
+          ...c,
+          time: String(c.time || c.date || '').slice(0, 10),
+          open: Number(c.open != null ? c.open : c.close),
+          high: Number(c.high),
+          low: Number(c.low),
+          close: Number(c.close),
+          volume: Number(c.volume || 0)
+        })).filter(c => c.time && Number.isFinite(c.high) && Number.isFinite(c.low) && Number.isFinite(c.close))
+      : null;
+
+    const errors = [];
+    const pushError = (code, category, field, message) => {
+      if (!errors.some(e => e.code === code && e.field === field)) {
+        errors.push({ code, category, field, message });
+      }
+    };
+
+    // Se chamado diretamente (sem skipBaseValidation), inclui as validações estruturais básicas
+    if (!opts.skipBaseValidation) {
+      const baseVal = validateSimulation(sim, sessions, { ...opts, candles: null, candlesMap: null });
+      for (const err of baseVal.errors) {
+        let cat = REJECTION_CATEGORIES.MANDATORY_FILTER_VIOLATION;
+        if (err.code.includes('CHRONOLOGY') || err.code.includes('NON_TRADING_DAY') || err.code.includes('DELAYED')) {
+          cat = REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY;
+        } else if (err.code.includes('OHLC') || err.code.includes('MISSING_EXECUTED') || err.code.includes('MISSING_EXIT')) {
+          cat = REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION;
+        } else if (err.code.includes('MISMATCH') || err.code.includes('GAIN') || err.code.includes('LOSS') || err.code.includes('MFE') || err.code.includes('MAE')) {
+          cat = REJECTION_CATEGORIES.FINANCIAL_CALCULATION_ERROR;
+        } else if (err.code === 'INVALID_ENTRY_STOP') {
+          cat = REJECTION_CATEGORIES.SETUP_DIVERGENCE;
+        }
+        pushError(err.code, cat, err.field, err.message);
+      }
+    }
+
+    // =========================================================================
+    // ESTÁGIO 1: IDENTIFICAÇÃO DO SINAL E ZERO LOOK-AHEAD
+    // =========================================================================
+    let signalIdx = -1;
+    let causalSlice = null;
+
+    if (!signalDate || !isTradingDay(signalDate, sessions)) {
+      pushError(
+        'NON_TRADING_DAY_SIGNAL',
+        REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+        'signalDate',
+        `Data do sinal (${signalDate || 'vazia'}) inválida ou fora de pregão.`
+      );
+    }
+
+    // Verificação de metadados de look-ahead explícitos
+    const futureEvalDates = [
+      sim.indicatorEvalDate,
+      sim.emaEvalDate,
+      sim.rsEvalDate,
+      sim.marketPermission && sim.marketPermission.evalDate,
+      sim.trendAlignment && sim.trendAlignment.evalDate,
+      sim.trendAlignment && sim.trendAlignment.lastDate
+    ].filter(Boolean).map(d => String(d).slice(0, 10));
+
+    for (const fDate of futureEvalDates) {
+      if (signalDate && fDate > signalDate) {
+        pushError(
+          'LOOKAHEAD_CONTAMINATION',
+          REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+          'signalDate',
+          `Vazamento de dados futuros detectado: indicador/contexto calculado em ${fDate} (posterior à data do sinal ${signalDate}).`
+        );
+      }
+    }
+
+    if (candleSeries && signalDate) {
+      signalIdx = candleSeries.findIndex(c => c.time === signalDate);
+      if (signalIdx < 0) {
+        pushError(
+          'SIGNAL_DATE_NOT_FOUND',
+          REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE,
+          'signalDate',
+          `Data do sinal (${signalDate}) inexistente na série histórica real de ${sym}.`
+        );
+        pushError(
+          'SIGNAL_NOT_REPRODUCIBLE',
+          REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+          'triggerName',
+          `Sinal de ${sim.triggerName} em ${signalDate} não pode ser reproduzido pois a data não existe no histórico.`
+        );
+      } else {
+        causalSlice = candleSeries.slice(0, signalIdx + 1);
+      }
+    }
+
+    // =========================================================================
+    // ESTÁGIO 2: VALIDAÇÃO TÉCNICA (TENDÊNCIA E REPRODUÇÃO DO SETUP)
+    // =========================================================================
+    if (sim.trendAlignment && sim.trendAlignment.isValid === false && !allowTrendMisalignment) {
+      pushError(
+        'TREND_MISALIGNMENT',
+        REJECTION_CATEGORIES.MANDATORY_FILTER_VIOLATION,
+        'trendAlignment',
+        sim.trendAlignment.reason || 'Tendência incompatível: alinhamento altista das EMAs 10 e 72 reprovado no Diário.'
+      );
+    }
+
+    // Verifica se temos contexto prévio suficiente no causalSlice para revalidar EMAs e padrão geométrico
+    const hasPreSignalContext = Boolean(causalSlice && causalSlice.length >= 2 && (opts.requirePatternVerification === true || causalSlice.length >= 15 || rawSeries === candles || rawSeries === opts.candles || Boolean(opts.candlesMap)));
+
+    if (causalSlice && causalSlice.length >= 1) {
+      const sigCandle = causalSlice[causalSlice.length - 1];
+      // Checagem de consistência de escala de preços / eventos corporativos na data do sinal
+      if (Number.isFinite(entryPrice) && entryPrice > 0 && Number.isFinite(sigCandle.high) && sigCandle.high > 0) {
+        const ratio = entryPrice / sigCandle.high;
+        if (ratio > 1.30 || ratio < 0.70) {
+          pushError(
+            'ADJUSTED_PRICE_INCONSISTENCY',
+            REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE,
+            'entryPrice',
+            `Inconsistência histórica de preços ajustados em ${sym} (${signalDate}): entrada planejada R$ ${entryPrice.toFixed(2)} incompatível com máxima histórica ajustada R$ ${sigCandle.high.toFixed(2)}.`
+          );
+        }
+      }
+    }
+
+    if (sim.corporateEventUnadjusted === true || sim.priceAdjustmentMismatch === true) {
+      pushError(
+        'ADJUSTED_PRICE_INCONSISTENCY',
+        REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE,
+        'entryPrice',
+        'Inconsistência entre preços ajustados e não ajustados (evento corporativo / split / grupamento sem ajuste coerente).'
+      );
+    }
+
+    if (hasPreSignalContext) {
+      // 2.1. Revalidação causal das EMAs 10 e 72 e detecção de contaminação por dados futuros
+      if (causalSlice.length >= 5) {
+        const causalEma = validateDailyEmaAlignment(causalSlice);
+        if (!causalEma.isValid && !allowTrendMisalignment) {
+          pushError(
+            'TREND_MISALIGNMENT',
+            REJECTION_CATEGORIES.MANDATORY_FILTER_VIOLATION,
+            'trendAlignment',
+            causalEma.reason || 'Tendência incompatível com o alinhamento altista das EMAs 10 e 72 na data do sinal.'
+          );
+        }
+
+        // Verifica se a EMA anexada ao trade foi contaminada por candles posteriores ao sinal
+        const recordedEma10 = sim.ema10AtSignal != null
+          ? Number(sim.ema10AtSignal)
+          : (sim.trendAlignment && sim.trendAlignment.values && sim.trendAlignment.values.ema10 != null
+            ? Number(sim.trendAlignment.values.ema10)
+            : null);
+        if (recordedEma10 != null && causalEma.values && causalEma.values.ema10 != null && candleSeries.length > causalSlice.length) {
+          if (Math.abs(recordedEma10 - causalEma.values.ema10) > 0.05) {
+            pushError(
+              'LOOKAHEAD_CONTAMINATION',
+              REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+              'trendAlignment',
+              `Indicador EMA 10 registrado (${recordedEma10}) diverge do valor causal em ${signalDate} (${causalEma.values.ema10}); possível uso de dados futuros.`
+            );
+          }
+        }
+      }
+
+      // 2.2. Reprodução estrita do padrão geométrico do gatilho nos candles históricos
+      if (!opts.customDetector && !opts.skipPatternRedetection) {
+        const c1 = causalSlice[causalSlice.length - 1];
+        const c2 = causalSlice.length >= 2 ? causalSlice[causalSlice.length - 2] : null;
+        const c3 = causalSlice.length >= 3 ? causalSlice[causalSlice.length - 3] : null;
+        const trigName = String(sim.triggerName || '').trim();
+
+        if (trigName === 'Inside Bar' || trigName === 'INSIDE_BAR') {
+          const ib = calculateInsideBarStructure(c2, c1, opts);
+          if (!ib || !ib.isValid) {
+            pushError(
+              'INSIDE_BAR_NOT_REPRODUCIBLE',
+              REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+              'triggerName',
+              (ib && ib.reason) || `Padrão Inside Bar não reproduzido nos candles históricos de ${sym} em ${signalDate}.`
+            );
+            pushError(
+              'SIGNAL_NOT_REPRODUCIBLE',
+              REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+              'triggerName',
+              `Gatilho Inside Bar inexistente em ${signalDate}.`
+            );
+          } else {
+            if (Math.abs(entryPrice - ib.entryPrice) > 0.02) {
+              pushError(
+                'SETUP_ENTRY_MISMATCH',
+                REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+                'entryPrice',
+                `Entrada planejada (${entryPrice}) diverge da máxima do Inside Bar + R$ 0,01 (${ib.entryPrice}).`
+              );
+            }
+            const classicStop = round2(Number(c1.low) - 0.01);
+            const stopMatchesMother = Math.abs(stopLoss - ib.stopLoss) <= 0.02;
+            const stopMatchesInside = opts.allowInsideBarOwnLowStop === true && Math.abs(stopLoss - classicStop) <= 0.02;
+            if (!stopMatchesMother && !stopMatchesInside) {
+              pushError(
+                'SETUP_STOP_MISMATCH',
+                REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+                'stopLoss',
+                `Stop inicial (${stopLoss}) diverge do nível técnico do Inside Bar (${ib.stopLoss}).`
+              );
+            }
+          }
+        } else if (trigName === '1-2-3 de Compra' || trigName === '123_COMPRA') {
+          const s123 = c3 ? validateOneTwoThreeBuyPattern(c1, c2, c3, opts) : { isValid: false, reason: 'Histórico insuficiente para 1-2-3 de Compra.' };
+          if (!s123 || !s123.isValid) {
+            pushError(
+              'SETUP_NOT_REPRODUCIBLE',
+              REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+              'triggerName',
+              (s123 && s123.reason) || `Padrão 1-2-3 de Compra não reproduzido nos candles históricos de ${sym} em ${signalDate}.`
+            );
+            pushError(
+              'SIGNAL_NOT_REPRODUCIBLE',
+              REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+              'triggerName',
+              `Gatilho 1-2-3 de Compra inexistente em ${signalDate}.`
+            );
+          } else {
+            if (Math.abs(entryPrice - s123.entryPrice) > 0.02) {
+              pushError(
+                'SETUP_ENTRY_MISMATCH',
+                REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+                'entryPrice',
+                `Entrada planejada (${entryPrice}) diverge do nível do 1-2-3 de Compra (${s123.entryPrice}).`
+              );
+            }
+            if (Math.abs(stopLoss - s123.stopLoss) > 0.02) {
+              pushError(
+                'SETUP_STOP_MISMATCH',
+                REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+                'stopLoss',
+                `Stop inicial (${stopLoss}) diverge do nível técnico do 1-2-3 de Compra (${s123.stopLoss}).`
+              );
+            }
+          }
+        } else if (trigName === 'PFR de Compra' || trigName === 'PFR_COMPRA') {
+          const pfr = c3 ? validatePfrBuyPattern(c1, c2, c3) : { isValid: false, reason: 'Histórico insuficiente para PFR de Compra.' };
+          if (!pfr || !pfr.isValid) {
+            pushError(
+              'SETUP_NOT_REPRODUCIBLE',
+              REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+              'triggerName',
+              (pfr && pfr.reason) || `Padrão PFR de Compra não reproduzido nos candles históricos de ${sym} em ${signalDate}.`
+            );
+            pushError(
+              'SIGNAL_NOT_REPRODUCIBLE',
+              REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+              'triggerName',
+              `Gatilho PFR de Compra inexistente em ${signalDate}.`
+            );
+          } else {
+            const expectedEntry = round2(Number(c1.high) + 0.01);
+            const expectedStop = round2(Number(c1.low) - 0.01);
+            if (Math.abs(entryPrice - expectedEntry) > 0.02) {
+              pushError(
+                'SETUP_ENTRY_MISMATCH',
+                REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+                'entryPrice',
+                `Entrada planejada (${entryPrice}) diverge da máxima do PFR + R$ 0,01 (${expectedEntry}).`
+              );
+            }
+            if (Math.abs(stopLoss - expectedStop) > 0.02) {
+              pushError(
+                'SETUP_STOP_MISMATCH',
+                REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+                'stopLoss',
+                `Stop inicial (${stopLoss}) diverge da mínima do PFR - R$ 0,01 (${expectedStop}).`
+              );
+            }
+          }
+        } else if (trigName === 'RBI' || trigName === 'Barra Vermelha Ignorada' || trigName === 'Red Bar Ignored') {
+          const rbi = validateRedBarIgnoredPattern(c1, c2, c3, opts);
+          if (!rbi || !rbi.isValid) {
+            pushError(
+              'SETUP_NOT_REPRODUCIBLE',
+              REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+              'triggerName',
+              (rbi && rbi.reason) || `Padrão Barra Vermelha Ignorada não reproduzido nos candles históricos de ${sym} em ${signalDate}.`
+            );
+            pushError(
+              'SIGNAL_NOT_REPRODUCIBLE',
+              REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+              'triggerName',
+              `Gatilho Barra Vermelha Ignorada inexistente em ${signalDate}.`
+            );
+          } else {
+            if (Math.abs(entryPrice - rbi.entryPrice) > 0.02) {
+              pushError(
+                'SETUP_ENTRY_MISMATCH',
+                REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+                'entryPrice',
+                `Entrada planejada (${entryPrice}) diverge do nível da Barra Vermelha Ignorada (${rbi.entryPrice}).`
+              );
+            }
+            if (Math.abs(stopLoss - rbi.stopLoss) > 0.02) {
+              pushError(
+                'SETUP_STOP_MISMATCH',
+                REJECTION_CATEGORIES.SETUP_DIVERGENCE,
+                'stopLoss',
+                `Stop inicial (${stopLoss}) diverge do nível técnico da Barra Vermelha Ignorada (${rbi.stopLoss}).`
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // =========================================================================
+    // ESTÁGIO 3: VALIDAÇÃO HISTÓRICA E FILTROS OBRIGATÓRIOS (LIQUIDEZ, RS, CICLO)
+    // =========================================================================
+    if (!allowIlliquid) {
+      if (sim.liquidity && sim.liquidity.isEligible === false) {
+        pushError(
+          'ILLIQUID_ASSET_BLOCKED',
+          REJECTION_CATEGORIES.MANDATORY_FILTER_VIOLATION,
+          'liquidity',
+          sim.liquidity.reason || 'Ativo reprovado pelo filtro obrigatório de liquidez (Liquidity Gate).'
+        );
+      } else if (causalSlice && causalSlice.length >= 20 && LiquidityGateModel) {
+        const liqEval = LiquidityGateModel.evaluateLiquidity({
+          candles: causalSlice,
+          targetDate: signalDate,
+          symbol: sym,
+          policy: opts.policy
+        });
+        if (liqEval && !liqEval.isEligible) {
+          pushError(
+            'ILLIQUID_ASSET_BLOCKED',
+            REJECTION_CATEGORIES.MANDATORY_FILTER_VIOLATION,
+            'liquidity',
+            liqEval.reason || `Ativo ${sym} reprovado pelo Liquidity Gate em ${signalDate}.`
+          );
+        }
+      }
+    }
+
+    // =========================================================================
+    // ESTÁGIO 4: VALIDAÇÃO DE EXECUÇÃO E INTEGRIDADE TEMPORAL / OHLC
+    // =========================================================================
+    if (isExecuted) {
+      if (signalDate && eDate && eDate <= signalDate) {
+        pushError(
+          'EXECUTION_BEFORE_SIGNAL',
+          REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+          'entryDate',
+          `Execução impossível antes do sinal: data de entrada (${eDate}) anterior ou igual à data do sinal (${signalDate}).`
+        );
+        pushError(
+          'CHRONOLOGY_ERROR',
+          REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+          'entryDate',
+          `Data de entrada (${eDate}) deve ser estritamente posterior à data do sinal (${signalDate}).`
+        );
+      }
+
+      if (candleSeries && eDate) {
+        const entryIdx = candleSeries.findIndex(c => c.time === eDate);
+        if (entryIdx < 0) {
+          pushError(
+            'ENTRY_DATE_NOT_FOUND',
+            REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE,
+            'entryDate',
+            `Data de entrada (${eDate}) não encontrada no histórico real de ${sym}.`
+          );
+        } else {
+          if (signalIdx >= 0 && entryIdx !== signalIdx + 1) {
+            if (entryIdx <= signalIdx) {
+              pushError(
+                'EXECUTION_BEFORE_SIGNAL',
+                REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+                'entryDate',
+                `Candle de entrada (${eDate}) não é posterior ao candle do sinal (${signalDate}).`
+              );
+            } else {
+              pushError(
+                'DELAYED_ENTRY_EXECUTION',
+                REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+                'entryDate',
+                `A entrada (${eDate}) ocorreu após T+1 (${candleSeries[signalIdx + 1]?.time}).`
+              );
+            }
+          }
+
+          const ec = candleSeries[entryIdx];
+          const effectiveEntry = execEntry != null ? execEntry : entryPrice;
+
+          // Verifica se o gatilho foi efetivamente alcançado pela máxima do candle
+          if (ec.high + 0.015 < entryPrice) {
+            pushError(
+              'ENTRY_ABOVE_CANDLE_HIGH',
+              REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+              'entryPrice',
+              `Entrada planejada (${entryPrice}) acima da máxima do candle de execução (${ec.high}) em ${eDate}.`
+            );
+            pushError(
+              'ENTRY_PRICE_OUT_OF_OHLC_RANGE',
+              REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+              'executedEntryPrice',
+              `Preço de entrada (${effectiveEntry}) fora da amplitude negociável do candle de ${eDate} [${ec.low}, ${ec.high}].`
+            );
+          }
+
+          if (Number.isFinite(effectiveEntry)) {
+            if (effectiveEntry > ec.high + 0.015) {
+              pushError(
+                'ENTRY_ABOVE_CANDLE_HIGH',
+                REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                'executedEntryPrice',
+                `Preço de entrada executado (${effectiveEntry}) acima da máxima do candle (${ec.high}) em ${eDate}.`
+              );
+              pushError(
+                'ENTRY_PRICE_OUT_OF_OHLC_RANGE',
+                REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                'executedEntryPrice',
+                `Preço de entrada executado (${effectiveEntry}) fora da amplitude negociável do candle de ${eDate} [${ec.low}, ${ec.high}].`
+              );
+            }
+            if (effectiveEntry < ec.low - 0.015) {
+              pushError(
+                'ENTRY_BELOW_CANDLE_LOW',
+                REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                'executedEntryPrice',
+                `Preço de entrada executado (${effectiveEntry}) abaixo da mínima do candle (${ec.low}) em ${eDate}.`
+              );
+              pushError(
+                'ENTRY_PRICE_OUT_OF_OHLC_RANGE',
+                REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                'executedEntryPrice',
+                `Preço de entrada executado (${effectiveEntry}) fora da amplitude negociável do candle de ${eDate} [${ec.low}, ${ec.high}].`
+              );
+            }
+
+            // Verifica regra de gap de abertura na entrada
+            const entryRes = resolveEntryExecutionOnCandle(ec, entryPrice);
+            if (entryRes.triggered && Math.abs(effectiveEntry - entryRes.executedPrice) > 0.02) {
+              pushError(
+                'OPENING_GAP_MISMATCH',
+                REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                'executedEntryPrice',
+                `Execução de entrada (${effectiveEntry}) ignora o gap de abertura de ${eDate} (abertura ${ec.open}; preço executável realista: ${entryRes.executedPrice}).`
+              );
+            }
+          }
+
+          // Validação da saída nos candles históricos
+          if (isClosed && xDate) {
+            const exitIdx = candleSeries.findIndex(c => c.time === xDate);
+            if (exitIdx < 0) {
+              pushError(
+                'EXIT_DATE_NOT_FOUND',
+                REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE,
+                'exitDate',
+                `Data de saída (${xDate}) não encontrada no histórico real de ${sym}.`
+              );
+            } else {
+              const xc = candleSeries[exitIdx];
+              if (Number.isFinite(exitPrice)) {
+                if (exitPrice < xc.low - 0.015 || exitPrice > xc.high + 0.015) {
+                  pushError(
+                    'EXIT_PRICE_OUT_OF_OHLC_RANGE',
+                    REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                    'exitPrice',
+                    `Preço de saída executado (${exitPrice}) fora da amplitude negociável do candle de ${xDate} [${xc.low}, ${xc.high}].`
+                  );
+                }
+
+                const reasonStr = String(sim.exitReason || '').toLowerCase();
+                const isExtremeExit = Boolean(
+                  sim.isExtremeEventExit ||
+                  sim.exitType === EXTREME_EVENT_EXIT_TYPE ||
+                  sim.exitReason === EXTREME_EVENT_EXIT_REASON ||
+                  reasonStr.includes('evento extremo')
+                );
+                const isTrailingEmaExit = reasonStr.includes('média 10') || reasonStr.includes('ema 10') || reasonStr.includes('mm10');
+                const isBreakevenExit = reasonStr.includes('breakeven');
+                const isCompound = Boolean((sim.scaleIn && sim.scaleIn.executed) || (sim.partialExit && sim.partialExit.executed));
+                const isStopExit = !isExtremeExit && !isTrailingEmaExit && (status === STATUS.CLOSED_LOSS || reasonStr.includes('stop'));
+                const isTargetExit = !isExtremeExit && !isTrailingEmaExit && (status === STATUS.CLOSED_GAIN || reasonStr.includes('strength') || reasonStr.includes('alvo'));
+
+                const targetMult = (sim.managementScenario === '2.5R' || reasonStr.includes('2,5r') || reasonStr.includes('2.5r')) ? 2.5 : 2.0;
+                const targetPrice = round2(effectiveEntry + targetMult * risk);
+                const activeStopLevel = isBreakevenExit ? effectiveEntry : stopLoss;
+
+                // Caso 6: Stop não atingido no candle de saída
+                if (isStopExit && !isBreakevenExit && !isCompound) {
+                  if (xc.low > stopLoss + 0.015) {
+                    pushError(
+                      'STOP_NOT_REACHED',
+                      REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                      'exitPrice',
+                      `Saída por Stop Loss (${stopLoss}) registrada em ${xDate}, porém a mínima do candle foi ${xc.low} (stop não foi atingido).`
+                    );
+                  } else {
+                    const stopRes = resolveStopExecutionOnCandle(xc, stopLoss, { enteredOnSameCandle: exitIdx === entryIdx });
+                    if (stopRes.triggered && Math.abs(exitPrice - stopRes.executedPrice) > 0.02) {
+                      pushError(
+                        'OPENING_GAP_MISMATCH',
+                        REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                        'exitPrice',
+                        `Execução do Stop Loss (${exitPrice}) em ${xDate} incompatível com a abertura do candle (${xc.open}); preço executável realista: ${stopRes.executedPrice}.`
+                      );
+                    }
+                  }
+                }
+
+                // Caso 7: Alvo não atingido no candle de saída
+                if (isTargetExit && !isCompound) {
+                  const requiredTarget = Math.min(targetPrice, exitPrice);
+                  if (xc.high < requiredTarget - 0.015 || xc.high < targetPrice - 0.02) {
+                    pushError(
+                      'TARGET_NOT_REACHED',
+                      REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                      'exitPrice',
+                      `Saída por Alvo (${exitPrice} / alvo ${targetPrice}) registrada em ${xDate}, porém a máxima do candle foi ${xc.high} (alvo não foi atingido).`
+                    );
+                  } else {
+                    const targetRes = resolveTargetExecutionOnCandle(xc, targetPrice, { enteredOnSameCandle: exitIdx === entryIdx });
+                    if (targetRes.triggered && Math.abs(exitPrice - targetRes.executedPrice) > 0.02) {
+                      pushError(
+                        'OPENING_GAP_MISMATCH',
+                        REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                        'exitPrice',
+                        `Execução do Alvo (${exitPrice}) em ${xDate} incompatível com a abertura do candle (${xc.open}); preço executável realista: ${targetRes.executedPrice}.`
+                      );
+                    }
+                  }
+
+                  // Caso 15: Ambiguidade intradiária no mesmo candle (atingiu stop e alvo simultaneamente)
+                  if (xc.low <= activeStopLevel + 0.005 && xc.high >= targetPrice - 0.005) {
+                    pushError(
+                      'AMBIGUITY_RULE_VIOLATION',
+                      REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                      'status',
+                      `Violação da regra conservadora de ambiguidade intradiária em ${xDate}: o candle atingiu tanto o Stop (${activeStopLevel}, mín ${xc.low}) quanto o Alvo (${targetPrice}, máx ${xc.high}), devendo encerrar no Stop Loss.`
+                    );
+                  }
+                }
+
+                // Verificação de candles intermediários (stop ignorado ou descontinuidade corporativa não ajustada)
+                if (entryIdx >= 0 && exitIdx >= entryIdx) {
+                  for (let k = entryIdx; k <= exitIdx; k++) {
+                    if (k > entryIdx) {
+                      const prevClose = candleSeries[k - 1].close;
+                      const curOpen = candleSeries[k].open;
+                      if (prevClose > 0 && curOpen > 0) {
+                        const jumpRatio = curOpen / prevClose;
+                        if ((jumpRatio > 1.65 || jumpRatio < 0.45) && !isExtremeExit) {
+                          pushError(
+                            'ADJUSTED_PRICE_INCONSISTENCY',
+                            REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE,
+                            'exitPrice',
+                            `Descontinuidade extrema não ajustada entre ${candleSeries[k - 1].time} (${prevClose}) e ${candleSeries[k].time} (${curOpen}), indicando possível split/grupamento não ajustado.`
+                          );
+                        }
+                      }
+                    }
+                    if (k < exitIdx && !isCompound && candleSeries[k].low <= stopLoss - 0.005) {
+                      pushError(
+                        'MISSED_EARLIER_STOP',
+                        REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+                        'exitDate',
+                        `O stop inicial (${stopLoss}) já havia sido violado no pregão ${candleSeries[k].time} (mínima ${candleSeries[k].low}) antes da saída registrada em ${xDate}.`
+                      );
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // =========================================================================
+    // ESTÁGIO 5: VALIDAÇÃO FINANCEIRA E DE GESTÃO DE RISCO
+    // =========================================================================
+    const shares = sim.shares != null
+      ? Number(sim.shares)
+      : (sim.quantity != null
+        ? Number(sim.quantity)
+        : (sim.sizing && sim.sizing.shares != null ? Number(sim.sizing.shares) : null));
+
+    if (shares != null) {
+      if (!Number.isFinite(shares) || shares <= 0 || !Number.isInteger(shares)) {
+        pushError(
+          'FINANCIAL_CALCULATION_ERROR',
+          REJECTION_CATEGORIES.FINANCIAL_CALCULATION_ERROR,
+          'shares',
+          `Quantidade de ações inválida (${shares}): deve ser um número inteiro positivo.`
+        );
+      } else if (isClosed && Number.isFinite(execEntry) && Number.isFinite(exitPrice) && !sim.scaleIn?.executed && !sim.partialExit?.executed) {
+        const expectedGross = round2(shares * (exitPrice - execEntry));
+        const costs = Number(sim.totalCosts || sim.costs || 0);
+        const expectedNet = round2(expectedGross - costs);
+        const tolerance = Math.max(0.5, shares * 0.015);
+
+        if (sim.grossPnL != null && Math.abs(Number(sim.grossPnL) - expectedGross) > tolerance) {
+          pushError(
+            'FINANCIAL_CALCULATION_ERROR',
+            REJECTION_CATEGORIES.FINANCIAL_CALCULATION_ERROR,
+            'grossPnL',
+            `Resultado bruto (${sim.grossPnL}) diverge de ${shares} ações × (${exitPrice} - ${execEntry}) = ${expectedGross}.`
+          );
+        }
+        if (sim.netPnL != null && Math.abs(Number(sim.netPnL) - expectedNet) > tolerance) {
+          pushError(
+            'FINANCIAL_CALCULATION_ERROR',
+            REJECTION_CATEGORIES.FINANCIAL_CALCULATION_ERROR,
+            'netPnL',
+            `Resultado líquido (${sim.netPnL}) diverge do lucro bruto (${expectedGross}) menos custos (${costs}) = ${expectedNet}.`
+          );
+        }
+        if (sim.financialResult != null && sim.netPnL == null && Math.abs(Number(sim.financialResult) - expectedNet) > tolerance) {
+          pushError(
+            'FINANCIAL_CALCULATION_ERROR',
+            REJECTION_CATEGORIES.FINANCIAL_CALCULATION_ERROR,
+            'financialResult',
+            `Resultado financeiro (${sim.financialResult}) diverge do valor calculado (${expectedNet}).`
+          );
+        }
+      }
+    }
+
+    if (isClosed && eDate && xDate && sim.durationDays != null) {
+      const expectedDuration = calculateTradeDurationDays(sim);
+      if (expectedDuration != null && Math.abs(Number(sim.durationDays) - expectedDuration) > 1) {
+        pushError(
+          'DURATION_MISMATCH',
+          REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+          'durationDays',
+          `Duração registrada (${sim.durationDays}d) incompatível com o intervalo entre ${eDate} e ${xDate} (${expectedDuration}d).`
+        );
+      }
+    }
+
+    // =========================================================================
+    // ESTÁGIO 6: RESPOSTA ÀS 10 PERGUNTAS OBRIGATÓRIAS E DECISÃO DE APROVAÇÃO
+    // =========================================================================
+    const errorCodes = new Set(errors.map(e => e.code));
+    const questions10 = {
+      q1_signalExisted: !errorCodes.has('SIGNAL_DATE_NOT_FOUND') && !errorCodes.has('SIGNAL_NOT_REPRODUCIBLE') && !errorCodes.has('NON_TRADING_DAY_SIGNAL'),
+      q2_setupMetOfficialRules: !errorCodes.has('INSIDE_BAR_NOT_REPRODUCIBLE') && !errorCodes.has('SETUP_NOT_REPRODUCIBLE') && !errorCodes.has('SETUP_ENTRY_MISMATCH') && !errorCodes.has('SETUP_STOP_MISMATCH') && !errorCodes.has('INVALID_ENTRY_STOP'),
+      q3_marketContextCompatible: !errorCodes.has('DEFENSIVE_CYCLE_ENTRY') && !errorCodes.has('UNDETERMINED_MARKET_CYCLE'),
+      q4_trendRsAndFiltersTrue: !errorCodes.has('TREND_MISALIGNMENT') && !errorCodes.has('RS_BELOW_80_OFFICIAL') && !errorCodes.has('RS_UNAVAILABLE_OFFICIAL') && !errorCodes.has('ILLIQUID_ASSET_BLOCKED') && !errorCodes.has('GRADE_D_EXECUTED_OFFICIAL') && !errorCodes.has('INVALID_GRADE'),
+      q5_entryExecutable: !errorCodes.has('ENTRY_ABOVE_CANDLE_HIGH') && !errorCodes.has('ENTRY_BELOW_CANDLE_LOW') && !errorCodes.has('ENTRY_PRICE_OUT_OF_OHLC_RANGE') && !errorCodes.has('ENTRY_DATE_NOT_FOUND') && !errorCodes.has('MISSING_EXECUTED_ENTRY') && !errorCodes.has('DELAYED_ENTRY_EXECUTION') && !errorCodes.has('EXECUTION_BEFORE_SIGNAL'),
+      q6_initialStopValid: !errorCodes.has('INVALID_ENTRY_STOP') && !errorCodes.has('SETUP_STOP_MISMATCH'),
+      q7_exitTradable: !errorCodes.has('EXIT_PRICE_OUT_OF_OHLC_RANGE') && !errorCodes.has('STOP_NOT_REACHED') && !errorCodes.has('TARGET_NOT_REACHED') && !errorCodes.has('OPENING_GAP_MISMATCH') && !errorCodes.has('AMBIGUITY_RULE_VIOLATION') && !errorCodes.has('MISSED_EARLIER_STOP') && !errorCodes.has('EXIT_DATE_NOT_FOUND'),
+      q8_durationAndFinancialCoherent: !errorCodes.has('FINANCIAL_CALCULATION_ERROR') && !errorCodes.has('PRICE_RESULT_MISMATCH') && !errorCodes.has('ZERO_OR_NEGATIVE_GAIN') && !errorCodes.has('POSITIVE_LOSS') && !errorCodes.has('DURATION_MISMATCH') && !errorCodes.has('CHRONOLOGY_ERROR'),
+      q9_zeroLookAhead: !errorCodes.has('LOOKAHEAD_CONTAMINATION'),
+      q10_riskManagementRespected: !errorCodes.has('GRADE_D_EXECUTED_OFFICIAL') && !errorCodes.has('AMBIGUITY_RULE_VIOLATION') && !errorCodes.has('MISSED_EARLIER_STOP') && !errorCodes.has('ADJUSTED_PRICE_INCONSISTENCY')
+    };
+
+    const categories = Array.from(new Set(errors.map(e => e.category).filter(Boolean)));
+    const primaryCategory = categories[0] || null;
+    const approved = errors.length === 0;
+
+    return {
+      approved,
+      isValid: approved,
+      status: approved ? 'APPROVED' : 'REJECTED',
+      primaryCategory,
+      primaryCategoryLabel: primaryCategory ? REJECTION_CATEGORY_LABELS[primaryCategory] : 'Trade Tecnicamente Válido',
+      categories,
+      errors,
+      violatedRules: Array.from(errorCodes),
+      questions10,
+      stages: {
+        signalIdentification: questions10.q1_signalExisted && questions10.q9_zeroLookAhead,
+        technicalValidation: questions10.q2_setupMetOfficialRules && questions10.q6_initialStopValid,
+        historicalValidation: questions10.q3_marketContextCompatible && questions10.q4_trendRsAndFiltersTrue && !errorCodes.has('ADJUSTED_PRICE_INCONSISTENCY'),
+        executionValidation: questions10.q5_entryExecutable && questions10.q7_exitTradable,
+        financialValidation: questions10.q8_durationAndFinancialCoherent && questions10.q10_riskManagementRespected,
+        approved
+      }
+    };
+  }
+
+  /**
+   * Auditoria Retroativa e Higienização da Base de Simulações:
+   * - Audita cada operação contra o histórico real e as 10 perguntas obrigatórias.
+   * - Separa não-destrutivamente os trades aprovados (`approvedTrades`) das operações rejeitadas (`rejectedTrades`).
+   * - Recalcula todas as estatísticas (`stats`) exclusivamente sobre os trades aprovados (rejeitados têm impacto zero).
+   */
+  function auditAndSanitizeSimulationsBatch(simulations = [], options = {}) {
+    const list = Array.isArray(simulations) ? simulations : [];
+    const approvedTrades = [];
+    const rejectedTrades = [];
+    const seenKeys = new Set();
+
+    const byCategory = {
+      [REJECTION_CATEGORIES.SETUP_DIVERGENCE]: 0,
+      [REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION]: 0,
+      [REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY]: 0,
+      [REJECTION_CATEGORIES.HISTORICAL_DATA_DIVERGENCE]: 0,
+      [REJECTION_CATEGORIES.FINANCIAL_CALCULATION_ERROR]: 0,
+      [REJECTION_CATEGORIES.MANDATORY_FILTER_VIOLATION]: 0
+    };
+
+    for (const sim of list) {
+      if (!sim) continue;
+      const audit = performIntegralTradeAudit(sim, null, options);
+      const sigKey = `${String(sim.symbol || '').toUpperCase()}|${String(sim.signalDate || '').slice(0, 10)}|${sim.triggerName || ''}`;
+      if (sim.symbol && sim.signalDate && seenKeys.has(sigKey)) {
+        audit.approved = false;
+        audit.isValid = false;
+        audit.status = 'REJECTED';
+        audit.errors.push({
+          code: 'DUPLICATE_SIGNAL',
+          category: REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+          field: 'signalDate',
+          message: `Sinal duplicado para ${sim.symbol} em ${sim.signalDate} (${sim.triggerName}).`
+        });
+        if (!audit.categories.includes(REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY)) {
+          audit.categories.push(REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY);
+        }
+        if (!audit.primaryCategory) {
+          audit.primaryCategory = REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY;
+          audit.primaryCategoryLabel = REJECTION_CATEGORY_LABELS[REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY];
+        }
+        audit.violatedRules.push('DUPLICATE_SIGNAL');
+      } else if (sim.symbol && sim.signalDate) {
+        seenKeys.add(sigKey);
+      }
+
+      if (audit.approved) {
+        approvedTrades.push(sim);
+      } else {
+        for (const cat of audit.categories) {
+          if (byCategory[cat] != null) byCategory[cat]++;
+        }
+        rejectedTrades.push({
+          id: sim.id,
+          symbol: sim.symbol,
+          companyName: sim.companyName || sim.symbol,
+          triggerName: sim.triggerName,
+          grade: sim.grade,
+          signalDate: sim.signalDate,
+          entryDate: sim.entryDate,
+          exitDate: sim.exitDate,
+          entryPrice: sim.entryPrice,
+          executedEntryPrice: sim.executedEntryPrice,
+          stopLoss: sim.stopLoss,
+          exitPrice: sim.exitPrice,
+          status: sim.status,
+          resultR: sim.resultR,
+          rejectionStatus: 'REJECTED',
+          primaryCategory: audit.primaryCategory,
+          primaryCategoryLabel: audit.primaryCategoryLabel,
+          categories: audit.categories,
+          errors: audit.errors,
+          violatedRules: audit.violatedRules,
+          questions10: audit.questions10,
+          stages: audit.stages,
+          originalTrade: sim
+        });
+      }
+    }
+
+    const stats = calculateSimulatorStats(approvedTrades);
+    const auditReport = auditSimulationsBatch(approvedTrades, options);
+    auditReport.rejectedTrades = rejectedTrades;
+    auditReport.rejectedTradesCount = rejectedTrades.length;
+    auditReport.classificationSummary = {
+      totalEvaluated: list.length,
+      validTradesCount: approvedTrades.length,
+      rejectedTradesCount: rejectedTrades.length,
+      byCategory,
+      categoryLabels: REJECTION_CATEGORY_LABELS
+    };
+
+    return {
+      approvedTrades,
+      rejectedTrades,
+      stats,
+      classificationSummary: auditReport.classificationSummary,
+      auditReport
     };
   }
 
@@ -8818,15 +9732,20 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         evaluated.simulationMode = simulationMode;
         evaluated.ruleVersion = ruleVersion;
 
-        // Valida integridade individual antes de aceitar na amostra
-        const validation = validateSimulation(evaluated, validSessionSet, {
+        // Valida integridade individual e auditoria integral contra os candles históricos antes de aceitar na amostra
+        const integralAudit = performIntegralTradeAudit(evaluated, candles, {
+          validSessionSet,
           simulationMode,
           allowDefensiveCycle,
+          allowTrendMisalignment,
           allowRsBelow80,
+          allowIlliquid,
           allowMissingRs: options.allowMissingRs === true,
-          minRsScore: minRsRequired
+          minRsScore: minRsRequired,
+          customDetector: typeof options.detectTrigger === 'function',
+          includeExperimental: options.includeExperimental === true
         });
-        if (!validation.isValid) {
+        if (!integralAudit.approved) {
           blockedBreakdown.blockedByValidation++;
           rejectedSignalsCount++;
           continue;
@@ -10587,6 +11506,10 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     classifyTriggerRubricGrade,
     sanitizeAndNormalizeSimulation,
     validateSimulation,
+    REJECTION_CATEGORIES,
+    REJECTION_CATEGORY_LABELS,
+    performIntegralTradeAudit,
+    auditAndSanitizeSimulationsBatch,
     auditSimulationsBatch,
     resolveSimulationMarketCycle,
     SIMULATION_MODES,
