@@ -10761,8 +10761,19 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
     const openPositions = []; // { id, symbol, entryDate, exitDate, riskPct, capitalUsed, riskCash }
     const processedTrades = [];
+    let runningR = 0;
     const firstDate = list[0] ? (toIsoDateStr(list[0].signalDate || list[0].date) || 'Início') : 'Início';
-    const equityCurve = [{ date: firstDate, equity: initialCapital, drawdownPct: 0, openPositions: 0 }];
+    const equityCurve = [{
+      date: firstDate,
+      dateFormatted: formatDateBR(firstDate),
+      equity: initialCapital,
+      drawdownPct: 0,
+      openPositions: 0,
+      tradeR: 0,
+      cumulativeR: 0,
+      cumulativeCash: 0,
+      netPnL: 0
+    }];
 
     const blockedStats = {
       totalBlocked: 0,
@@ -10931,13 +10942,19 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           riskCash: authorizedRiskCash
         });
 
+        runningR = round2(runningR + (Number(tradeResultR) || 0));
+
         equityCurve.push({
           date: exitDate,
+          dateFormatted: formatDateBR(exitDate),
           equity: currentEquity,
           drawdownPct: round2(ddPct),
           openPositions: openPositions.length,
           tradeSymbol: sim.symbol,
           netPnL,
+          cumulativeCash: Number((currentEquity - initialCapital).toFixed(2)),
+          tradeR: round2(tradeResultR),
+          cumulativeR: runningR,
           tradeResultR
         });
       }

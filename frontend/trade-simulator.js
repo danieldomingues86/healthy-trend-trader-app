@@ -3043,16 +3043,18 @@
   }
 
 
-    function renderChartsRow(stats) {
+  function renderChartsRow(stats) {
     const isUnitRS = state.filters.unit === 'RS';
     const riskNominal = 1000; // Padrão R$ 1.000,00 por R
     const displayTotal = isUnitRS
-      ? `+R$ ${(stats.totalR * riskNominal).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      ? (stats.netPnL != null
+          ? `${stats.netPnL >= 0 ? '+' : '-'}R$ ${formatMoney(Math.abs(stats.netPnL)).replace('R$ ', '')}`
+          : `+R$ ${(stats.totalR * riskNominal).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`)
       : stats.totalRFormatted;
 
     // 1. Gráfico Curva de Equity SVG
     const curvePoints = stats.equityCurve && stats.equityCurve.length > 0 ? stats.equityCurve : [];
-    const svgChartHtml = renderEquitySvgChart(curvePoints, isUnitRS, riskNominal);
+    const svgChartHtml = renderEquitySvgChart(curvePoints, isUnitRS, riskNominal, stats);
 
     // 2. Gráfico Distribuição de Resultados
     const dist = stats.distribution || {
@@ -3235,42 +3237,118 @@
   /**
    * Renderiza SVG da curva de resultado acumulado
    */
-  function renderEquitySvgChart(points, isUnitRS, riskNominal) {
+  function renderEquitySvgChart(points, isUnitRS, riskNominal, stats) {
     const width = 640;
     const height = 180;
-    const pad = { top: 16, right: 20, bottom: 25, left: 54 };
+    const pad = { top: 16, right: 20, bottom: 25, left: isUnitRS ? 68 : 54 };
+
+    const rawPoints = Array.isArray(points) ? points : [];
+    let normPoints = [];
+    if (rawPoints.length > 0) {
+      let rAcc = 0;
+      let cashAcc = 0;
+      const initialEquity = rawPoints[0].equity != null ? Number(rawPoints[0].equity) : (state.initialCapital || 500000);
+
+      normPoints = rawPoints.map((p, idx) => {
+        let ptR = Number(p.cumulativeR);
+        if (isNaN(ptR)) {
+          if (idx === 0) {
+            rAcc = 0;
+          } else {
+            const tr = Number(p.tradeR != null ? p.tradeR : p.tradeResultR) || 0;
+            rAcc += tr;
+          }
+          ptR = rAcc;
+        }
+
+        let ptCash = Number(p.cumulativeCash);
+        if (isNaN(ptCash)) {
+          if (p.equity != null) {
+            ptCash = Number(p.equity) - initialEquity;
+          } else if (p.netPnL != null) {
+            if (idx === 0) cashAcc = 0;
+            else cashAcc += Number(p.netPnL) || 0;
+            ptCash = cashAcc;
+          } else {
+            ptCash = ptR * (Number(riskNominal) || 1000);
+          }
+        }
+
+        let dateLabel = '';
+        if (p.dateFormatted) {
+          dateLabel = p.dateFormatted;
+        } else if (p.date) {
+          const dStr = String(p.date);
+          if (dStr.includes('-')) {
+            const parts = dStr.split('-');
+            if (parts.length === 3) {
+              dateLabel = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } else {
+              dateLabel = dStr;
+            }
+          } else {
+            dateLabel = dStr;
+          }
+        }
+
+        return {
+          ...p,
+          cumulativeR: ptR,
+          cumulativeCash: ptCash,
+          dateLabel
+        };
+      });
+    }
 
     let minVal = 0;
-    let maxVal = 25;
-    if (points && points.length > 0) {
-      const vals = points.map(p => Number(p.cumulativeR) || 0);
+    let maxVal = isUnitRS ? 10000 : 25;
+    if (normPoints.length > 0) {
+      const vals = normPoints.map(p => isUnitRS ? Number(p.cumulativeCash) || 0 : Number(p.cumulativeR) || 0);
       minVal = Math.min(0, ...vals);
       maxVal = Math.max(0, ...vals);
     }
 
-    const rawSpan = Math.max(20, maxVal - minVal);
-    const candidateSteps = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
-    let stepR = 50;
-    for (const c of candidateSteps) {
-      if (rawSpan / c <= 5.5) {
-        stepR = c;
-        break;
+    let yMin = 0;
+    let yMax = 25;
+    let step = 10;
+
+    if (isUnitRS) {
+      const rawSpanCash = Math.max(5000, maxVal - minVal);
+      const candidateStepsCash = [500, 1000, 2500, 5000, 10000, 20000, 25000, 50000, 100000, 200000, 250000, 500000, 1000000];
+      step = 25000;
+      for (const c of candidateStepsCash) {
+        if (rawSpanCash / c <= 5.5) {
+          step = c;
+          break;
+        }
+      }
+      yMin = Math.min(0, Math.floor(minVal / step) * step);
+      yMax = Math.max(step, Math.ceil(maxVal / step) * step);
+      if (yMax - yMin < step * 2) {
+        yMax += step;
+      }
+    } else {
+      const rawSpanR = Math.max(10, maxVal - minVal);
+      const candidateStepsR = [0.5, 1, 2, 5, 10, 15, 20, 25, 50, 100, 200, 250, 500];
+      step = 10;
+      for (const c of candidateStepsR) {
+        if (rawSpanR / c <= 5.5) {
+          step = c;
+          break;
+        }
+      }
+      yMin = Math.min(0, Math.floor(minVal / step) * step);
+      yMax = Math.max(step, Math.ceil(maxVal / step) * step);
+      if (yMax - yMin < step * 2) {
+        yMax += step;
       }
     }
 
-    let yMinR = Math.min(0, Math.floor(minVal / stepR) * stepR);
-    let yMaxR = Math.max(stepR, Math.ceil(maxVal / stepR) * stepR);
+    const yRange = (yMax - yMin) || (isUnitRS ? 10000 : 20);
 
-    // Garantir pelo menos 3 divisões visíveis
-    if (yMaxR - yMinR < stepR * 2) {
-      yMaxR += stepR;
-    }
-
-    const yRange = yMaxR - yMinR || 30;
-
-    const getY = (rVal) => {
-      const clamped = Math.max(yMinR, Math.min(yMaxR, rVal));
-      return pad.top + ((yMaxR - clamped) / yRange) * (height - pad.top - pad.bottom);
+    const getY = (v) => {
+      const clamped = Math.max(yMin, Math.min(yMax, v));
+      return pad.top + ((yMax - clamped) / yRange) * (height - pad.top - pad.bottom);
     };
 
     const getX = (idx, total) => {
@@ -3280,26 +3358,28 @@
 
     // Linhas de Grade Horizontais calculadas dinamicamente
     const gridLevels = [];
-    for (let l = yMaxR; l >= yMinR; l -= stepR) {
+    for (let l = yMax; l >= yMin; l -= step) {
       gridLevels.push(l);
     }
-    if (!gridLevels.includes(0) && yMinR <= 0 && yMaxR >= 0) {
+    if (!gridLevels.includes(0) && yMin <= 0 && yMax >= 0) {
       gridLevels.push(0);
       gridLevels.sort((a, b) => b - a);
     }
 
     const formatYLabel = (level) => {
       if (isUnitRS) {
-        const nominal = Number(riskNominal) || 1000;
-        const totalMoney = level * nominal;
-        const absMoney = Math.abs(totalMoney);
-        if (absMoney === 0) return 'R$ 0';
-        const sign = totalMoney > 0 ? '+' : '-';
-        if (absMoney >= 1000) {
-          const kVal = (absMoney / 1000).toFixed(absMoney % 1000 === 0 ? 0 : 1).replace('.0', '');
+        const absVal = Math.abs(level);
+        if (absVal === 0) return 'R$ 0';
+        const sign = level > 0 ? '+' : '-';
+        if (absVal >= 1000000) {
+          const miVal = (absVal / 1000000).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+          return `${sign}R$ ${miVal}M`;
+        }
+        if (absVal >= 1000) {
+          const kVal = (absVal / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
           return `${sign}R$ ${kVal}k`;
         }
-        return `${sign}R$ ${absMoney.toFixed(0)}`;
+        return `${sign}R$ ${absVal.toFixed(0)}`;
       }
       if (level === 0) return '0R';
       return `${level > 0 ? '+' : ''}${level}R`;
@@ -3310,55 +3390,79 @@
       const isBaseline = level === 0;
       const label = formatYLabel(level);
       return `
-        <line x1="${pad.left}" y1="${y}" x2="${width - pad.right}" y2="${y}"
+        <line x1="${pad.left}" y1="${y.toFixed(1)}" x2="${width - pad.right}" y2="${y.toFixed(1)}"
               stroke="${isBaseline ? 'rgba(16, 185, 129, 0.45)' : '#e2e8f0'}"
               stroke-dasharray="${isBaseline ? '4,4' : '2,2'}" stroke-width="${isBaseline ? '1.2' : '1'}" />
-        <text x="${pad.left - 8}" y="${y + 3.5}" text-anchor="end" font-size="9.5" fill="${isBaseline ? '#10b981' : '#94a3b8'}" font-family="Inter, sans-serif" font-weight="${isBaseline ? '600' : '500'}">${label}</text>
+        <text x="${pad.left - 8}" y="${(y + 3.5).toFixed(1)}" text-anchor="end" font-size="9.5" fill="${isBaseline ? '#10b981' : '#94a3b8'}" font-family="Inter, sans-serif" font-weight="${isBaseline ? '600' : '500'}">${label}</text>
       `;
     }).join('');
 
     // Datas no eixo X
-    let dates = ['Jul 1', 'Jul 15', 'Ago 1', 'Ago 15', 'Set 1', 'Set 15', 'Out 1'];
-    if (points && points.length >= 2) {
-      const numDateTicks = Math.min(7, points.length);
+    let dateLabels = '';
+    const ptCount = normPoints.length;
+    if (ptCount >= 2) {
+      const numTicks = Math.min(6, ptCount);
+      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
       const sampledDates = [];
-      for (let i = 0; i < numDateTicks; i++) {
-        const ptIndex = Math.round((i / (numDateTicks - 1)) * (points.length - 1));
-        const pt = points[ptIndex];
-        if (pt && pt.dateFormatted) {
-          sampledDates.push({ idx: ptIndex, label: pt.dateFormatted.slice(0, 5) });
+      for (let i = 0; i < numTicks; i++) {
+        const ptIndex = Math.round((i / (numTicks - 1)) * (ptCount - 1));
+        const pt = normPoints[ptIndex];
+        let label = '';
+        if (pt) {
+          const dStr = pt.dateFormatted || pt.dateLabel || pt.date || '';
+          if (dStr.includes('/')) {
+            const parts = dStr.split('/');
+            const day = parts[0];
+            const mIdx = parseInt(parts[1], 10) - 1;
+            const mName = monthNames[mIdx] || parts[1];
+            label = `${day} ${mName}`;
+          } else if (dStr.includes('-')) {
+            const parts = dStr.split('-');
+            const day = parts[2];
+            const mIdx = parseInt(parts[1], 10) - 1;
+            const mName = monthNames[mIdx] || parts[1];
+            label = `${day} ${mName}`;
+          } else {
+            label = dStr.slice(0, 6);
+          }
         }
+        sampledDates.push({ idx: ptIndex, label });
       }
-      if (sampledDates.length >= 2) {
-        dates = sampledDates;
-      }
-    }
 
-    const dateLabels = Array.isArray(dates) && typeof dates[0] === 'string'
-      ? dates.map((d, i) => {
-          const x = pad.left + (i / (dates.length - 1)) * (width - pad.left - pad.right);
-          return `
-            <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d}</text>
-          `;
-        }).join('')
-      : dates.map(d => {
-          const x = getX(d.idx, points.length);
-          return `
-            <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d.label}</text>
-          `;
-        }).join('');
+      dateLabels = sampledDates.map(d => {
+        const x = getX(d.idx, ptCount);
+        return `
+          <text x="${x.toFixed(1)}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d.label}</text>
+        `;
+      }).join('');
+    } else {
+      const defaultDates = ['Início', '1/4', 'Meio', '3/4', 'Fim'];
+      dateLabels = defaultDates.map((d, i) => {
+        const x = pad.left + (i / (defaultDates.length - 1)) * (width - pad.left - pad.right);
+        return `
+          <text x="${x.toFixed(1)}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d}</text>
+        `;
+      }).join('');
+    }
 
     // Traçado da Curva com base nos trades reais acumulados
     let pathD = '';
     let areaD = '';
     let lastX = pad.left;
     let lastY = getY(0);
+    const finalVal = normPoints.length > 0
+      ? (isUnitRS ? normPoints[normPoints.length - 1].cumulativeCash : normPoints[normPoints.length - 1].cumulativeR)
+      : 0;
+    const isPositive = finalVal >= 0;
+    const themeColor = isPositive ? '#10b981' : '#ef4444';
+    const gradId = isPositive ? 'simEquityGradPos' : 'simEquityGradNeg';
 
-    if (points.length > 0) {
-      const coords = points.map((p, i) => {
-        const x = getX(i, points.length);
-        const y = getY(p.cumulativeR);
-        return { x, y, p };
+    if (normPoints.length > 0) {
+      const coords = normPoints.map((p, i) => {
+        const val = isUnitRS ? p.cumulativeCash : p.cumulativeR;
+        const x = getX(i, normPoints.length);
+        const y = getY(val);
+        return { x, y, p, val };
       });
 
       lastX = coords[coords.length - 1].x;
@@ -3366,31 +3470,30 @@
 
       pathD = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ');
       const baselineY = getY(0);
-      areaD = `${pathD} L ${lastX.toFixed(1)} ${baselineY.toFixed(1)} L ${pad.left.toFixed(1)} ${baselineY.toFixed(1)} Z`;
+      areaD = `${pathD} L ${lastX.toFixed(1)} ${baselineY.toFixed(1)} L ${coords[0].x.toFixed(1)} ${baselineY.toFixed(1)} Z`;
     } else {
-      // Linha plana inicial em 0R
       const y0 = getY(0);
       lastX = width - pad.right;
       lastY = y0;
-      pathD = `M ${pad.left} ${y0} L ${lastX} ${y0}`;
-      areaD = `M ${pad.left} ${y0} L ${lastX} ${y0} L ${lastX} ${y0} Z`;
+      pathD = `M ${pad.left} ${y0.toFixed(1)} L ${lastX} ${y0.toFixed(1)}`;
+      areaD = `M ${pad.left} ${y0.toFixed(1)} L ${lastX} ${y0.toFixed(1)} L ${lastX} ${y0.toFixed(1)} Z`;
     }
 
     return `
       <svg class="sim-equity-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
         <defs>
-          <linearGradient id="simEquityGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#10b981" stop-opacity="0.28" />
-            <stop offset="100%" stop-color="#10b981" stop-opacity="0.01" />
+          <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${themeColor}" stop-opacity="0.28" />
+            <stop offset="100%" stop-color="${themeColor}" stop-opacity="0.01" />
           </linearGradient>
         </defs>
         ${gridLines}
         ${dateLabels}
-        <path d="${areaD}" fill="url(#simEquityGrad)" />
-        <path d="${pathD}" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="${areaD}" fill="url(#${gradId})" />
+        <path d="${pathD}" fill="none" stroke="${themeColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
         <!-- Ponto final com pulso luminoso -->
-        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="#10b981" opacity="0.25" />
-        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="#10b981" stroke="#ffffff" stroke-width="2.4" />
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="${themeColor}" opacity="0.25" />
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="${themeColor}" stroke="#ffffff" stroke-width="2.4" />
       </svg>
     `;
   }
