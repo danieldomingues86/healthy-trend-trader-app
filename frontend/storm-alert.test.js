@@ -300,3 +300,15 @@ test('WealthDashboardV2 — Integração do Storm Alert no início do dashboard'
   assert.ok(js.includes('StormAlert.buildStormAlertHtml'), 'wealth-dashboard-v2 deve invocar StormAlert.buildStormAlertHtml');
   assert.ok(js.includes('StormAlert.attachEvents'), 'wealth-dashboard-v2 deve invocar StormAlert.attachEvents');
 });
+
+
+test('Widget Gallery — Storm Alert catalogado para adição/remoção pelo usuário', () => {
+  const registryCode = fs.readFileSync(path.resolve(__dirname, 'home-widget-registry.js'), 'utf8');
+  assert.ok(registryCode.includes("id: 'storm-alert'"), 'HomeWidgetRegistry deve conter widget storm-alert');
+  assert.ok(registryCode.includes("name: 'Storm Alert'"), 'HomeWidgetRegistry deve ter nome Storm Alert');
+  assert.ok(registryCode.includes("category: 'Trading'"), 'Categoria deve ser Trading');
+
+  const cockpitCode = fs.readFileSync(path.resolve(__dirname, 'today-cockpit.js'), 'utf8');
+  assert.ok(cockpitCode.includes("'storm-alert'"), 'today-cockpit deve conter artwork de galeria para storm-alert');
+  assert.ok(cockpitCode.includes('renderStormAlert'), 'today-cockpit renderContext deve conter renderStormAlert');
+});
