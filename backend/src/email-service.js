@@ -7,6 +7,7 @@ try {
 
 const { renderWelcomeEmail, getBackgroundBase64, DEFAULT_BG_URL } = require('./templates/welcome-email');
 const { renderPasswordResetEmail } = require('./templates/password-reset-email');
+const { renderStormAlertEmail } = require('./templates/storm-alert-email');
 
 function isConfigured() {
   return Boolean(
@@ -149,8 +150,46 @@ async function sendPasswordResetEmail({ email, displayName, resetUrl, expiresInM
   }
 }
 
+async function sendStormAlertEmail({ email, displayName, event, openPositionsCount, appUrl }) {
+  if (!email) {
+    return { sent: false, error: 'E-mail do destinatário não informado.' };
+  }
+
+  const { subject, html, text } = renderStormAlertEmail({
+    displayName,
+    email,
+    event,
+    openPositionsCount,
+    appUrl
+  });
+
+  try {
+    if (isConfigured() && process.env.NODE_ENV !== 'test') {
+      const transporter = createTransporter();
+      const info = await transporter.sendMail({
+        from: getFromAddress(),
+        to: email,
+        subject,
+        html,
+        text
+      });
+      console.log(`[email-service] 🚨 E-mail de Storm Alert enviado para ${email} (ID: ${info.messageId})`);
+      return { sent: true, mode: 'smtp', messageId: info.messageId, subject };
+    }
+
+    const preview = await saveEmailPreview(email, subject, html, text, 'storm-alert');
+    return { sent: true, mode: 'preview', subject, ...preview };
+  } catch (err) {
+    console.error(`[email-service] ⚠️ Erro ao disparar e-mail de Storm Alert para ${email}:`, err.message);
+    const prev = await saveEmailPreview(email, subject, html, text, 'storm-alert');
+    return { sent: false, mode: 'smtp_error', error: err.message, preview: prev };
+  }
+}
+
 module.exports = {
   sendWelcomeEmail,
+  sendStormAlertEmail,
+  renderStormAlertEmail,
   sendPasswordResetEmail,
   isConfigured,
   renderWelcomeEmail,

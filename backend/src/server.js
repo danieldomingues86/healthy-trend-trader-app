@@ -530,6 +530,25 @@ const server = http.createServer(async (request, response) => {
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       return send(response, 200, await tradeSimulator.remove(user.id, tradeSimMatch[1]));
     }
+    if (url.pathname === '/api/storm-alert/notify-email' && request.method === 'POST') {
+      const payload = await body(request).catch(() => ({}));
+      const user = auth ? await auth.session(bearer(request)).catch(() => null) : null;
+      const targetEmail = payload.email || (user ? user.email : null);
+      if (!targetEmail) {
+        return send(response, 400, { error: 'E-mail do destinatário não informado.' });
+      }
+      const targetName = payload.displayName || (user ? (user.displayName || user.name) : 'Trader');
+      const appUrl = payload.appUrl || request.headers.origin || request.headers.referer || null;
+      const emailService = require('./email-service');
+      const result = await emailService.sendStormAlertEmail({
+        email: targetEmail,
+        displayName: targetName,
+        event: payload.event || {},
+        openPositionsCount: payload.openPositionsCount != null ? payload.openPositionsCount : 0,
+        appUrl
+      });
+      return send(response, 200, { success: true, email: targetEmail, ...result });
+    }
     if (request.method === 'GET' && url.pathname === '/api/watchlist') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request));

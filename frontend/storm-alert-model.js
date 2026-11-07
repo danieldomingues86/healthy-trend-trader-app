@@ -206,6 +206,57 @@
   ];
 
   let _customStormEvents = [];
+  let _testMode = 'AUTO';
+
+  function initStorage() {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('healthyTrend_customExtremeEvents');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            _customStormEvents = parsed;
+          }
+        }
+        const savedMode = localStorage.getItem('healthyTrend_stormAlertTestMode');
+        if (savedMode) {
+          _testMode = savedMode;
+        }
+      } catch (_) {}
+    }
+  }
+  initStorage();
+
+  function saveCustomEventsToStorage() {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('healthyTrend_customExtremeEvents', JSON.stringify(_customStormEvents));
+      } catch (_) {}
+    }
+  }
+
+  function getTestMode() {
+    return _testMode;
+  }
+
+  function setTestMode(mode) {
+    const validModes = ['AUTO', 'ACTION_REQUIRED', 'WARNING', 'PROTECTED', 'INACTIVE'];
+    _testMode = validModes.includes(mode) ? mode : 'AUTO';
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('healthyTrend_stormAlertTestMode', _testMode);
+      } catch (_) {}
+    }
+    return _testMode;
+  }
+
+  function removeCustomEvent(eventId) {
+    if (!eventId) return false;
+    const beforeLen = _customStormEvents.length;
+    _customStormEvents = _customStormEvents.filter(e => e.id !== eventId);
+    saveCustomEventsToStorage();
+    return _customStormEvents.length < beforeLen;
+  }
 
   function getActiveCalendar() {
     let baseEvents = DEFAULT_EXTREME_EVENTS;
@@ -327,6 +378,122 @@
    * Avalia o status do alerta para uma data de referência e parâmetros fornecidos.
    */
   function evaluateStormAlertStatus(options = {}) {
+    const currentMode = options.testMode || getTestMode();
+    if (currentMode && currentMode !== 'AUTO') {
+      if (currentMode === 'ACTION_REQUIRED') {
+        const count = options.openPositionsCount != null ? Number(options.openPositionsCount) : 8;
+        return {
+          hasActiveAlert: true,
+          testMode: 'ACTION_REQUIRED',
+          state: 'ACTION_REQUIRED',
+          stateLabel: 'AÇÃO NECESSÁRIA',
+          riskLevel: 'RISCO EXTREMO',
+          openPositionsCount: count,
+          isProtected: false,
+          headline: 'TEMPESTADE À VISTA.',
+          primaryMessage: 'ZERE SUAS POSIÇÕES. PROTEJA SEU CAPITAL.',
+          complementaryMessage: 'Um evento extremo está se aproximando. Permanecer posicionado pode expor seu patrimônio a gaps de abertura, volatilidade extraordinária e perdas que seus stops talvez não consigam evitar.',
+          impactQuote: 'PROTEGER SEU CAPITAL É MAIS IMPORTANTE DO QUE GANHAR DINHEIRO.',
+          subWarning: 'Não ignore este alerta.',
+          event: {
+            id: 'evt-test-eleicoes-2026',
+            name: 'Eleições presidenciais',
+            fullName: 'Eleições Presidenciais 2026 (1º Turno)',
+            category: 'ELECTION',
+            categoryLabel: 'Eleições e Política',
+            eventDate: '2026-10-04',
+            eventDateFormatted: 'Domingo — 04/10',
+            cutoffDate: '2026-10-02',
+            cutoffFormatted: 'Sexta-feira — fechamento',
+            daysRemaining: 1,
+            sessionsRemaining: 1,
+            isPastCutoff: false,
+            isInRiskPeriod: false
+          }
+        };
+      }
+      if (currentMode === 'WARNING') {
+        const count = options.openPositionsCount != null ? Number(options.openPositionsCount) : 6;
+        return {
+          hasActiveAlert: true,
+          testMode: 'WARNING',
+          state: 'WARNING',
+          stateLabel: 'ATENÇÃO — EVENTO NO RADAR',
+          riskLevel: 'ALERTA PREVENTIVO',
+          openPositionsCount: count,
+          isProtected: false,
+          headline: 'TEMPESTADE NO RADAR.',
+          primaryMessage: 'PLANEJE SUA SAÍDA. REDUZA A EXPOSIÇÃO.',
+          complementaryMessage: 'Um evento extremo relevante se aproxima nos próximos pregões. Inicie a redução gradativa ou planeje o encerramento ordenado das suas operações antes do prazo limite.',
+          impactQuote: 'PROTEGER SEU CAPITAL É MAIS IMPORTANTE DO QUE GANHAR DINHEIRO.',
+          subWarning: 'Planejamento antecipado evita liquidações forçadas a mercado.',
+          event: {
+            id: 'evt-test-copom',
+            name: 'Reunião Extraordinária do COPOM',
+            fullName: 'Reunião Extraordinária do COPOM',
+            category: 'MONETARY_POLICY',
+            categoryLabel: 'Política Monetária',
+            eventDate: '2026-11-20',
+            eventDateFormatted: 'Sexta-feira — 20/11',
+            cutoffDate: '2026-11-19',
+            cutoffFormatted: 'Quinta-feira — fechamento',
+            daysRemaining: 13,
+            sessionsRemaining: 9,
+            isPastCutoff: false,
+            isInRiskPeriod: false
+          }
+        };
+      }
+      if (currentMode === 'PROTECTED') {
+        return {
+          hasActiveAlert: true,
+          testMode: 'PROTECTED',
+          state: 'PROTECTED',
+          stateLabel: 'PROTEÇÃO CONCLUÍDA',
+          riskLevel: 'PATRIMÔNIO PROTEGIDO',
+          openPositionsCount: 0,
+          isProtected: true,
+          headline: 'PATRIMÔNIO PROTEGIDO.',
+          primaryMessage: 'VOCÊ ESTÁ 100% FORA DE RISCO.',
+          complementaryMessage: 'Todas as suas posições foram encerradas com sucesso antes do evento. Seu capital está preservado em caixa e imune à volatilidade e aos gaps do mercado durante este período.',
+          impactQuote: 'PROTEGER SEU CAPITAL É MAIS IMPORTANTE DO QUE GANHAR DINHEIRO.',
+          subWarning: 'Aguarde a reabertura do mercado e a normalização da volatilidade.',
+          event: {
+            id: 'evt-test-eleicoes-2026',
+            name: 'Eleições presidenciais',
+            fullName: 'Eleições Presidenciais 2026 (1º Turno)',
+            category: 'ELECTION',
+            categoryLabel: 'Eleições e Política',
+            eventDate: '2026-10-04',
+            eventDateFormatted: 'Domingo — 04/10',
+            cutoffDate: '2026-10-02',
+            cutoffFormatted: 'Sexta-feira — fechamento',
+            daysRemaining: 1,
+            sessionsRemaining: 1,
+            isPastCutoff: false,
+            isInRiskPeriod: false
+          }
+        };
+      }
+      if (currentMode === 'INACTIVE') {
+        return {
+          hasActiveAlert: false,
+          testMode: 'INACTIVE',
+          state: 'INACTIVE',
+          stateLabel: 'SEM EVENTO',
+          riskLevel: 'NORMAL',
+          event: null,
+          openPositionsCount: 0,
+          isProtected: true,
+          headline: '',
+          primaryMessage: '',
+          complementaryMessage: '',
+          impactQuote: 'PROTEGER SEU CAPITAL É MAIS IMPORTANTE DO QUE GANHAR DINHEIRO.',
+          subWarning: ''
+        };
+      }
+    }
+
     const referenceDate = options.referenceDate
       ? String(options.referenceDate).slice(0, 10)
       : new Date().toISOString().slice(0, 10);
@@ -495,7 +662,10 @@
     DEFAULT_EXTREME_EVENTS,
     getActiveCalendar,
     registerCustomEvent,
+    removeCustomEvent,
     clearCustomEvents,
+    getTestMode,
+    setTestMode,
     resolveCutoffSession,
     resolveOpenPositionsCount,
     evaluateStormAlertStatus

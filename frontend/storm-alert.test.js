@@ -284,7 +284,7 @@ test('StormAlert CSS — Preserva contraste e identidade visual em Pigeon Light 
 
   // Verifica que existe declaração explícita para Pigeon Light
   assert.ok(css.includes('[data-theme="pigeon"]'), 'Deve conter seletores para data-theme="pigeon"');
-  assert.ok(css.includes('body.theme-pigeon'), 'Deve conter seletores para body.theme-pigeon');
+  assert.ok(css.includes('body[data-theme="pigeon"]'), 'Deve conter seletores para body[data-theme="pigeon"]');
   assert.ok(css.includes('!important'), 'Deve garantir propriedades com alta prioridade de contraste');
   assert.ok(css.includes('storm-state-action'), 'Deve estilizar o estado de ação');
   assert.ok(css.includes('storm-state-warning'), 'Deve estilizar o estado de advertência');
@@ -311,4 +311,94 @@ test('Widget Gallery — Storm Alert catalogado para adição/remoção pelo usu
   const cockpitCode = fs.readFileSync(path.resolve(__dirname, 'today-cockpit.js'), 'utf8');
   assert.ok(cockpitCode.includes("'storm-alert'"), 'today-cockpit deve conter artwork de galeria para storm-alert');
   assert.ok(cockpitCode.includes('renderStormAlert'), 'today-cockpit renderContext deve conter renderStormAlert');
+});
+
+test('StormAlertModel — Alternância de modos de teste ao vivo', () => {
+  StormAlertModel.setTestMode('ACTION_REQUIRED');
+  assert.equal(StormAlertModel.getTestMode(), 'ACTION_REQUIRED');
+  const actionRes = StormAlertModel.evaluateStormAlertStatus();
+  assert.equal(actionRes.hasActiveAlert, true);
+  assert.equal(actionRes.state, 'ACTION_REQUIRED');
+  assert.match(actionRes.headline, /TEMPESTADE À VISTA/);
+
+  StormAlertModel.setTestMode('WARNING');
+  assert.equal(StormAlertModel.getTestMode(), 'WARNING');
+  const warnRes = StormAlertModel.evaluateStormAlertStatus();
+  assert.equal(warnRes.hasActiveAlert, true);
+  assert.equal(warnRes.state, 'WARNING');
+  assert.match(warnRes.headline, /TEMPESTADE NO RADAR/);
+
+  StormAlertModel.setTestMode('PROTECTED');
+  assert.equal(StormAlertModel.getTestMode(), 'PROTECTED');
+  const protRes = StormAlertModel.evaluateStormAlertStatus();
+  assert.equal(protRes.hasActiveAlert, true);
+  assert.equal(protRes.state, 'PROTECTED');
+  assert.match(protRes.headline, /PATRIMÔNIO PROTEGIDO/);
+
+  StormAlertModel.setTestMode('INACTIVE');
+  assert.equal(StormAlertModel.getTestMode(), 'INACTIVE');
+  const inactRes = StormAlertModel.evaluateStormAlertStatus();
+  assert.equal(inactRes.hasActiveAlert, false);
+  assert.equal(inactRes.state, 'INACTIVE');
+
+  // Restaura AUTO
+  StormAlertModel.setTestMode('AUTO');
+  assert.equal(StormAlertModel.getTestMode(), 'AUTO');
+});
+
+test('StormAlertModel — Remoção de evento customizado', () => {
+  const evt = StormAlertModel.registerCustomEvent({
+    name: 'Evento Temporário de Teste',
+    eventDate: '2027-05-15',
+    category: 'OTHER_EXTREME_RISK'
+  });
+
+  assert.ok(evt && evt.id);
+  const calBefore = StormAlertModel.getActiveCalendar();
+  assert.ok(calBefore.some(e => e.id === evt.id));
+
+  const removed = StormAlertModel.removeCustomEvent(evt.id);
+  assert.equal(removed, true);
+
+  const calAfter = StormAlertModel.getActiveCalendar();
+  assert.equal(calAfter.some(e => e.id === evt.id), false);
+});
+
+test('StormAlert — Modal de Gerenciamento & Teste com abas e controle de e-mail', () => {
+  global.document = {
+    body: {
+      appendChild: (el) => { global.__modalEl = el; return el; }
+    },
+    getElementById: (id) => {
+      if (id === 'stormAlertManagerModal') return global.__modalEl || null;
+      return null;
+    },
+    createElement: (tag) => {
+      const el = {
+        tagName: tag,
+        id: '',
+        className: '',
+        innerHTML: '',
+        querySelector: () => null,
+        querySelectorAll: () => [],
+        addEventListener: () => {},
+        remove: () => { global.__modalEl = null; }
+      };
+      return el;
+    }
+  };
+
+  StormAlert.openExtremeEventsManagerModal('test');
+  assert.ok(global.__modalEl);
+  assert.match(global.__modalEl.innerHTML, /Central de Proteção Patrimonial/i);
+  assert.match(global.__modalEl.innerHTML, /Testar Estados \(Ao Vivo\)/i);
+  assert.match(global.__modalEl.innerHTML, /Cadastrar Novo Evento/i);
+  assert.match(global.__modalEl.innerHTML, /Calendário Ativo/i);
+  assert.match(global.__modalEl.innerHTML, /Disparar Notificação por E-mail/i);
+
+  StormAlert.closeExtremeEventsManagerModal();
+  assert.equal(global.__modalEl, null);
+
+  delete global.document;
+  delete global.__modalEl;
 });

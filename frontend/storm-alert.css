@@ -533,28 +533,457 @@
    ISOLAMENTO DE TEMA (PIGEON LIGHT & PREMIUM GOLD)
    Garante contraste máximo inviolável em qualquer paleta visual do software.
    -------------------------------------------------------------------------- */
-[data-theme="pigeon"] .storm-alert-widget.storm-state-action,
-body.theme-pigeon .storm-alert-widget.storm-state-action {
+body[data-theme="pigeon"] .storm-alert-widget.storm-state-action,
+html[data-theme="pigeon"] .storm-alert-widget.storm-state-action {
   background: linear-gradient(180deg, #1f070a 0%, #160406 100%) !important;
   border-color: rgba(220, 38, 38, 0.6) !important;
   color: #ffffff !important;
 }
 
-[data-theme="pigeon"] .storm-alert-widget.storm-state-warning,
-body.theme-pigeon .storm-alert-widget.storm-state-warning {
+body[data-theme="pigeon"] .storm-alert-widget.storm-state-warning,
+html[data-theme="pigeon"] .storm-alert-widget.storm-state-warning {
   background: linear-gradient(180deg, #1f1406 0%, #150d03 100%) !important;
   border-color: rgba(217, 119, 6, 0.6) !important;
   color: #ffffff !important;
 }
 
-[data-theme="pigeon"] .storm-alert-widget.storm-state-protected,
-body.theme-pigeon .storm-alert-widget.storm-state-protected {
+body[data-theme="pigeon"] .storm-alert-widget.storm-state-protected,
+html[data-theme="pigeon"] .storm-alert-widget.storm-state-protected {
   background: linear-gradient(180deg, #072216 0%, #04160e 100%) !important;
   border-color: rgba(16, 185, 129, 0.6) !important;
   color: #ffffff !important;
 }
 
-[data-theme="pigeon"] .storm-alert-widget .storm-meta-val,
-body.theme-pigeon .storm-alert-widget .storm-meta-val {
+body[data-theme="pigeon"] .storm-alert-widget .storm-meta-val,
+html[data-theme="pigeon"] .storm-alert-widget .storm-meta-val {
   color: #ffffff !important;
 }
+
+/* ==========================================================================
+   MODAL: CENTRAL DE EVENTOS EXTREMOS & STORM ALERT
+   ========================================================================== */
+.storm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 2, 3, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: stormModalFadeIn 0.2s ease-out;
+}
+
+@keyframes stormModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.storm-modal {
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #180709 0%, #100406 100%);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: 22px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85), 0 0 32px rgba(220, 38, 38, 0.16);
+  color: #ffffff;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: stormModalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes stormModalSlideUp {
+  from { transform: translateY(20px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.storm-modal-header {
+  padding: 24px 28px 18px 28px;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.22);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.storm-modal-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.storm-modal-kicker {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #f87171;
+}
+
+.storm-modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: #ffffff;
+}
+
+.storm-modal-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+.storm-modal-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.storm-modal-close:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.6);
+  transform: scale(1.05);
+}
+
+.storm-modal-tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.35);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.18);
+  padding: 0 20px;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.storm-modal-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.storm-modal-tab-btn:hover {
+  color: #ffffff;
+}
+
+.storm-modal-tab-btn.active {
+  color: #fca5a5;
+  border-bottom-color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.storm-modal-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.storm-modal-panel {
+  display: none;
+}
+
+.storm-modal-panel.active {
+  display: block;
+}
+
+/* Painel de Testes */
+.storm-test-intro {
+  margin: 0 0 18px 0;
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.5;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+.storm-test-state-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.storm-test-btn {
+  background: #1e090c;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.storm-test-btn:hover {
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.storm-test-btn.active {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.18);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.3);
+}
+
+.storm-test-btn-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.storm-test-btn-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+.storm-test-email-card {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-top: 10px;
+}
+
+.storm-test-email-card-title {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fca5a5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.storm-test-email-card-desc {
+  margin: 0 0 14px 0;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.storm-email-input-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.storm-email-input {
+  flex: 1;
+  min-width: 220px;
+  background: #0d0304;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.storm-email-input:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+.storm-btn-fire-email {
+  background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
+  border: 1px solid #ef4444;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.storm-btn-fire-email:hover {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+}
+
+/* Formulário de Cadastro */
+.storm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.storm-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.storm-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.storm-form-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+
+.storm-form-control {
+  background: #0d0304;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.storm-form-control:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.35);
+}
+
+.storm-form-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #f1f5f9;
+  user-select: none;
+}
+
+.storm-form-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #dc2626;
+  cursor: pointer;
+}
+
+.storm-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  grid-column: 1 / -1;
+}
+
+.storm-btn-save {
+  background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
+  border: 1px solid #ef4444;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.storm-btn-save:hover {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* Calendário Ativo */
+.storm-calendar-table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.storm-calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.storm-calendar-table th {
+  background: rgba(239, 68, 68, 0.1);
+  padding: 12px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #fca5a5;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.storm-calendar-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+}
+
+.storm-calendar-table tr:last-child td {
+  border-bottom: none;
+}
+
+.storm-calendar-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.storm-btn-delete-event {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.storm-btn-delete-event:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
