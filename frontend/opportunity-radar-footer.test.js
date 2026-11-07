@@ -29,6 +29,7 @@ test('Radar de Oportunidades: Card do rodapé exibe "Requisitos Obrigatórios de
   assert.ok(radarJs.includes('Força Relativa (3M) &gt; 80'), 'Deve manter Força Relativa (3M) > 80');
   assert.ok(radarJs.includes('Ciclo de Mercado Positivo'), 'Deve manter Ciclo de Mercado Positivo');
   assert.ok(radarJs.includes('Preço &gt; EMA 10 &gt; EMA 72 (Diário)'), 'Deve manter Preço > EMA 10 > EMA 72 (Diário)');
+  assert.ok(radarJs.includes('Liquidez Mínima: Vol. médio &ge; R$ 500 mil/dia (21 pregões)'), 'Deve conter o requisito obrigatório de Liquidez Mínima');
   assert.ok(radarJs.includes('Gatilhos: Inside Bar, 123 Buy, PFR de Compra'), 'Deve manter os gatilhos oficiais');
 
   // 4. Preservação dos demais cards do rodapé
@@ -53,4 +54,21 @@ test('Radar de Oportunidades: CSS define hierarquia visual e suporte a temas par
     radarCss.includes('body[data-theme="gold"] .radar-info-desc'),
     'Deve conter regra temática para .radar-info-desc no tema Gold'
   );
+});
+
+test('Radar de Oportunidades: Tabela de oportunidades exibe coluna LIQUIDEZ e pills com comprovação de volume', () => {
+  const radarJsPath = path.join(__dirname, 'opportunity-radar.js');
+  const radarJs = fs.readFileSync(radarJsPath, 'utf8');
+  const radarCssPath = path.join(__dirname, 'opportunity-radar.css');
+  const radarCss = fs.readFileSync(radarCssPath, 'utf8');
+
+  // Cabeçalho da tabela deve conter coluna LIQUIDEZ
+  assert.ok(radarJs.includes('<th class="col-center">LIQUIDEZ</th>'), 'Tabela do radar deve ter cabeçalho LIQUIDEZ');
+
+  // Linhas da tabela devem renderizar radar-liquidity-pill
+  assert.ok(radarJs.includes('class="radar-liquidity-pill"'), 'Linhas devem renderizar badge radar-liquidity-pill');
+
+  // CSS deve definir a estilização padrão e tema Gold
+  assert.ok(radarCss.includes('.radar-liquidity-pill'), 'CSS deve conter .radar-liquidity-pill');
+  assert.ok(radarCss.includes('body[data-theme="gold"] .radar-liquidity-pill'), 'CSS deve suportar tema Gold para a pill de liquidez');
 });

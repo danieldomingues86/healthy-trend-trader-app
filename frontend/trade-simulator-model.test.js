@@ -1822,9 +1822,55 @@ test('trade-simulator-model: geração de massa com múltiplos gatilhos e múlti
   const allowedCombTriggers = new Set(['Inside Bar', '1-2-3 de Compra']);
   assert.ok(resCombined.every(s => allowedCombTriggers.has(s.triggerName) && s.grade === 'A'), 'Trades devem respeitar a combinação de múltiplos filtros');
 });
+test('trade-simulator-model: calculateSimulatorSQN e classifySQN calculam qualidade estatística do simulador de forma autônoma', () => {
+  // 1. Amostra vazia ou insuficiente (< 2)
+  const emptyReport = model.calculateSimulatorSQN([]);
+  assert.equal(emptyReport.isEligible, false);
+  assert.equal(emptyReport.sqn, null);
+  assert.equal(emptyReport.sqnFormatted, '—');
 
+  const singleReport = model.calculateSimulatorSQN([2.0]);
+  assert.equal(singleReport.isEligible, false);
+  assert.equal(singleReport.sqn, null);
 
+  // 2. Cálculo com amostra representativa
+  const sample = [2.0, -1.0, 3.0, -1.0, 2.0];
+  const sqnReport = model.calculateSimulatorSQN(sample);
+  assert.ok(sqnReport.isEligible);
+  assert.equal(sqnReport.sampleSize, 5);
+  assert.ok(typeof sqnReport.sqn === 'number');
+  assert.ok(sqnReport.sqn > 0);
+  assert.ok(typeof sqnReport.sqnFormatted === 'string');
+  assert.ok(sqnReport.classification);
+  assert.ok(Array.isArray(sqnReport.evolution));
+  assert.equal(sqnReport.evolution.length, 4);
 
+  // 3. Suporte a objetos de simulação com resultR
+  const simObjs = [
+    { resultR: 2.0, status: model.STATUS.CLOSED_GAIN },
+    { resultR: -1.0, status: model.STATUS.CLOSED_LOSS },
+    { resultR: 2.0, status: model.STATUS.CLOSED_GAIN }
+  ];
+  const objReport = model.calculateSimulatorSQN(simObjs);
+  assert.ok(objReport.isEligible);
+  assert.equal(objReport.sampleSize, 3);
+  assert.ok(typeof objReport.sqn === 'number');
 
+  // 4. Teste de faixas de classificação (Van Tharp)
+  assert.equal(model.classifySQN(1.2).key, 'poor');
+  assert.equal(model.classifySQN(1.8).key, 'below_average');
+  assert.equal(model.classifySQN(2.2).key, 'average');
+  assert.equal(model.classifySQN(2.8).key, 'good');
+  assert.equal(model.classifySQN(3.5).key, 'excellent');
+  assert.equal(model.classifySQN(6.0).key, 'exceptional');
 
-
+  // 5. Integração com calculateSimulatorStats
+  const seeds = model.getDefaultSeedSimulations();
+  const stats = model.calculateSimulatorStats(seeds);
+  assert.ok(stats.sqnAnalytics !== null);
+  assert.ok(typeof stats.sqn === 'number');
+  assert.ok(typeof stats.sqnFormatted === 'string');
+  assert.ok(stats.sqnClassification !== null);
+  assert.ok(typeof stats.standardDeviationR === 'number');
+  assert.ok(Array.isArray(stats.sqnEvolution));
+});

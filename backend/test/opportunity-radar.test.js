@@ -32,6 +32,8 @@ test('getOpportunityRadarData consolida apenas ativos prontos para entrada usand
     assert.ok(item.entry > item.stop, 'Entrada planejada deve ser maior que stop inicial');
     assert.ok(item.rr >= 1.5, 'R:R deve ser consistente');
     assert.ok(item.triggerName && item.triggerId !== 'NONE', 'Deve possuir gatilho confirmado');
+    assert.ok(item.liquidity, `Ativo ${item.symbol} deve possuir metadados de liquidez`);
+    assert.equal(item.liquidity.isEligible, true, `Ativo ${item.symbol} deve ter liquidez elegível no Radar`);
   }
 });
 

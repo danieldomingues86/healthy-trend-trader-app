@@ -1,0 +1,1091 @@
+/* ==========================================================================
+   HT Manual 2.0 — Visual Learning Experience & Interactive Blocks
+   Componentes visuais, didáticos e interativos modulares
+   ========================================================================== */
+
+/* 1. Container Geral da Página Visual */
+.ht-visual-learning-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Utilitários de Imagem & Picture */
+.ht-block-picture {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  background: var(--ht-book-deck-bg, #eae3cb);
+}
+
+.ht-block-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* 2. Hero Block */
+.ht-block-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ht-hero-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ht-hero-kicker {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 3px 10px;
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.12));
+  border: 1px solid rgba(22, 168, 121, 0.28);
+  border-radius: 999px;
+  color: var(--ht-book-accent, #16a879);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.ht-hero-title {
+  font-family: Georgia, 'Playfair Display', serif;
+  font-size: 24px;
+  line-height: 1.25;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0;
+  letter-spacing: -0.4px;
+}
+
+.ht-hero-subtitle {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ht-book-ink-muted, #56685f);
+  margin: 0;
+  font-style: italic;
+}
+
+.ht-hero-media {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+}
+
+.ht-hero-media .ht-block-img {
+  max-height: 220px;
+}
+
+/* 3. Lead & Quote Blocks */
+.ht-block-lead {
+  padding: 2px 0;
+}
+
+.ht-lead-text {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0;
+  font-weight: 500;
+}
+
+.ht-block-quote {
+  position: relative;
+  padding: 12px 18px 12px 42px;
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.08));
+  border-left: 3px solid var(--ht-book-accent, #16a879);
+  border-radius: 0 10px 10px 0;
+}
+
+.ht-quote-mark {
+  position: absolute;
+  left: 12px;
+  top: 6px;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--ht-book-accent, #16a879);
+  opacity: 0.6;
+  font-family: Georgia, serif;
+}
+
+.ht-quote-content p {
+  font-size: 14px;
+  line-height: 1.55;
+  font-style: italic;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0 0 4px 0;
+}
+
+.ht-quote-content cite {
+  font-size: 12px;
+  color: var(--ht-book-ink-muted, #56685f);
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* 4. Principles Block (3 Princípios Inegociáveis) */
+.ht-block-principles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ht-principles-header .ht-block-heading {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0 0 2px 0;
+}
+
+.ht-principles-header .ht-block-sub {
+  font-size: 12.5px;
+  color: var(--ht-book-ink-muted, #56685f);
+  margin: 0;
+}
+
+.ht-principles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.ht-principle-card {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ht-principle-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  border-color: var(--ht-book-accent, #16a879);
+}
+
+.ht-principle-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ht-principle-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.16));
+  color: var(--ht-book-accent, #16a879);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.ht-principle-ico {
+  font-size: 20px;
+}
+
+.ht-principle-name {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0 0 4px 0;
+}
+
+.ht-principle-desc {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ht-book-ink-muted, #56685f);
+  margin: 0;
+}
+
+/* 5. Story Block (Impulsivo vs. Disciplinado) */
+.ht-block-story {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ht-story-header .ht-block-heading {
+  font-family: Georgia, serif;
+  font-size: 18px;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0 0 2px 0;
+}
+
+.ht-story-header .ht-block-sub {
+  font-size: 12.5px;
+  color: var(--ht-book-ink-muted, #56685f);
+  margin: 0;
+}
+
+.ht-story-media {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+}
+
+.ht-story-media .ht-block-img {
+  max-height: 170px;
+}
+
+.ht-story-comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ht-story-side {
+  padding: 12px 14px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ht-story-side.impulsive {
+  background: rgba(239, 68, 68, 0.06);
+  border-left: 3px solid #ef4444;
+}
+
+.ht-story-side.disciplined {
+  background: rgba(16, 185, 129, 0.06);
+  border-left: 3px solid #10b981;
+}
+
+.ht-story-badge {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ht-story-side.impulsive .ht-story-badge {
+  color: #dc2626;
+}
+
+.ht-story-side.disciplined .ht-story-badge {
+  color: #059669;
+}
+
+.ht-story-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ht-story-list li {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ht-book-ink, #14251e);
+}
+
+.ht-story-side.impulsive .ht-story-bullet {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.ht-story-side.disciplined .ht-story-bullet {
+  color: #059669;
+  font-weight: 800;
+}
+
+.ht-story-outcome {
+  font-size: 11.5px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+  color: var(--ht-book-ink-muted, #56685f);
+}
+
+/* 6. Visual Callout Block (Montanha & Jornada) */
+.ht-block-visual-callout {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+}
+
+.ht-vc-media .ht-block-img {
+  max-height: 155px;
+}
+
+.ht-vc-overlay {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  max-width: 60%;
+  padding: 10px 16px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #ffffff;
+}
+
+.ht-vc-quote {
+  font-family: Georgia, serif;
+  font-size: 13.5px;
+  line-height: 1.45;
+  font-style: italic;
+  margin: 0 0 2px 0;
+}
+
+.ht-vc-author {
+  font-size: 11px;
+  font-weight: 700;
+  color: #34d399;
+}
+
+/* 7. Pillar Wheel Block (Infográfico Radial dos 6 Pilares) */
+.ht-block-pillar-wheel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ht-wheel-container {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.ht-wheel-graphic-wrap {
+  width: 280px;
+  height: 280px;
+  margin: 0 auto;
+}
+
+.ht-wheel-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ht-wheel-slice-group {
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: 150px 150px;
+}
+
+.ht-wheel-slice-group:hover,
+.ht-wheel-slice-group:focus-visible {
+  transform: scale(1.05);
+}
+
+.ht-wheel-slice-group.is-active {
+  transform: scale(1.07);
+}
+
+.ht-wheel-slice {
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.ht-wheel-slice-group:hover .ht-wheel-slice,
+.ht-wheel-slice-group.is-active .ht-wheel-slice {
+  filter: brightness(1.12);
+}
+
+.ht-wheel-detail-card {
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+  border-left-width: 4px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.ht-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ht-detail-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.ht-detail-title {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0;
+}
+
+.ht-detail-sub {
+  font-size: 11.5px;
+  color: var(--ht-book-ink-muted, #56685f);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ht-detail-desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0;
+}
+
+.ht-detail-modules {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ht-detail-modules-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ht-book-ink-muted, #56685f);
+}
+
+.ht-detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ht-detail-chip {
+  padding: 3px 8px;
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.12));
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ht-book-ink, #14251e);
+}
+
+.ht-detail-action-btn {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  padding: 6px 14px;
+  background: var(--ht-book-accent, #16a879);
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.ht-detail-action-btn:hover {
+  filter: brightness(1.1);
+  transform: translateX(2px);
+}
+
+.ht-wheel-nav-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.ht-wheel-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+  color: var(--ht-book-ink, #14251e);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ht-wheel-nav-pill:hover {
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.12));
+  border-color: var(--ht-book-accent, #16a879);
+}
+
+.ht-wheel-nav-pill.is-active {
+  background: var(--ht-book-accent, #16a879);
+  color: #ffffff;
+  border-color: var(--ht-book-accent, #16a879);
+}
+
+.ht-pill-bullet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* 8. Method Tip Block */
+.ht-block-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.08));
+  border: 1px solid rgba(22, 168, 121, 0.28);
+  border-radius: 10px;
+}
+
+.ht-tip-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.ht-tip-title {
+  font-family: Georgia, serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ht-book-accent, #16a879);
+  margin: 0 0 2px 0;
+}
+
+.ht-tip-text {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0;
+}
+
+/* 9. Quiz Block ("Pare e Pense") */
+.ht-block-quiz {
+  padding: 16px 18px;
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ht-block-quiz.is-correct {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.04);
+}
+
+.ht-block-quiz.is-incorrect {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.ht-quiz-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ht-book-accent, #16a879);
+}
+
+.ht-quiz-question {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--ht-book-ink, #14251e);
+  margin: 4px 0 0 0;
+}
+
+.ht-quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ht-quiz-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+  border-radius: 8px;
+  background: var(--ht-book-paper, #ffffff);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ht-quiz-option:hover {
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.08));
+  border-color: var(--ht-book-accent, #16a879);
+}
+
+.ht-quiz-option.is-selected {
+  border-color: var(--ht-book-accent, #16a879);
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.12));
+}
+
+.ht-quiz-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ht-quiz-radio-custom {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--ht-book-ink-muted, #56685f);
+  margin-top: 2px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.ht-quiz-option.is-selected .ht-quiz-radio-custom {
+  border-color: var(--ht-book-accent, #16a879);
+  background: var(--ht-book-accent, #16a879);
+  box-shadow: inset 0 0 0 3px var(--ht-book-paper, #ffffff);
+}
+
+.ht-quiz-option-text {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ht-book-ink, #14251e);
+}
+
+.ht-quiz-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ht-quiz-submit-btn {
+  padding: 8px 18px;
+  background: var(--ht-book-accent, #16a879);
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ht-quiz-submit-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.ht-quiz-feedback {
+  padding: 12px 14px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: htFadeSlide 0.25s ease;
+}
+
+.ht-quiz-feedback.correct {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid #10b981;
+}
+
+.ht-quiz-feedback.incorrect {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid #ef4444;
+}
+
+.ht-feedback-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ht-feedback-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ht-book-ink, #14251e);
+}
+
+.ht-feedback-text {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0;
+}
+
+/* 10. In-Practice Block (Ferramenta no Software com Screenshot) */
+.ht-block-in-practice {
+  padding: 16px 18px;
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ht-practice-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--ht-book-accent, #16a879);
+  text-transform: uppercase;
+}
+
+.ht-practice-title {
+  font-family: Georgia, serif;
+  font-size: 17px;
+  color: var(--ht-book-ink, #14251e);
+  margin: 2px 0 0 0;
+}
+
+.ht-practice-desc {
+  font-size: 12.5px;
+  color: var(--ht-book-ink-muted, #56685f);
+  margin: 2px 0 0 0;
+}
+
+.ht-practice-media {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+}
+
+.ht-practice-media .ht-block-img {
+  max-height: 185px;
+}
+
+.ht-practice-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  background: var(--ht-book-accent, #16a879);
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ht-practice-btn:hover {
+  filter: brightness(1.1);
+  transform: translateX(2px);
+}
+
+/* 11. Challenge Block */
+.ht-block-challenge {
+  padding: 14px 16px;
+  border: 1px dashed var(--ht-book-accent, #16a879);
+  border-radius: 10px;
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.05));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ht-challenge-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ht-challenge-icon {
+  font-size: 20px;
+}
+
+.ht-challenge-title {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0;
+}
+
+.ht-challenge-sub {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ht-book-accent, #16a879);
+}
+
+.ht-challenge-intro {
+  font-size: 12px;
+  color: var(--ht-book-ink-muted, #56685f);
+  margin: 0;
+}
+
+.ht-challenge-steps {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ht-book-ink, #14251e);
+}
+
+/* 12. Visual Summary Block */
+.ht-block-visual-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ht-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ht-summary-title {
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0;
+}
+
+.ht-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ht-summary-card {
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ht-summary-card-ico {
+  font-size: 16px;
+}
+
+.ht-summary-card-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--ht-book-ink, #14251e);
+  margin: 0;
+}
+
+.ht-summary-card-text {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--ht-book-ink-muted, #56685f);
+  margin: 0;
+}
+
+/* 13. What You Learned */
+.ht-block-what-you-learned {
+  padding: 12px 16px;
+  background: var(--ht-book-accent-bg, rgba(22, 168, 121, 0.08));
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ht-learned-title {
+  font-family: Georgia, serif;
+  font-size: 13.5px;
+  color: var(--ht-book-accent, #16a879);
+  margin: 0;
+}
+
+.ht-learned-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ht-learned-list li {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ht-book-ink, #14251e);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ht-learned-check {
+  color: var(--ht-book-accent, #16a879);
+  font-weight: 800;
+}
+
+/* 14. Conquest Badge Block */
+.ht-block-conquest-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--ht-book-paper-border, #e4dcbe);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.ht-block-conquest-badge.is-unlocked {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.ht-conquest-icon-wrap {
+  font-size: 28px;
+}
+
+.ht-conquest-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #f59e0b;
+  text-transform: uppercase;
+}
+
+.ht-conquest-title {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  color: var(--ht-book-ink, #14251e);
+  margin: 2px 0 0 0;
+}
+
+.ht-conquest-sub {
+  font-size: 12px;
+  color: var(--ht-book-ink-muted, #56685f);
+  margin: 2px 0 0 0;
+}
+
+/* ==========================================================================
+   THEME OVERRIDES
+   ========================================================================== */
+
+/* Tema Premium Gold */
+body[data-theme="gold"] .ht-hero-kicker,
+body[data-theme="gold"] .ht-detail-chip,
+body[data-theme="gold"] .ht-wheel-nav-pill.is-active,
+body[data-theme="gold"] .ht-quiz-submit-btn,
+body[data-theme="gold"] .ht-practice-btn {
+  background: #d4a017;
+  color: #ffffff;
+}
+
+body[data-theme="gold"] .ht-principle-card:hover {
+  border-color: #f5c542;
+}
+
+body[data-theme="gold"] .ht-block-quote {
+  border-left-color: #d4a017;
+  background: rgba(212, 160, 23, 0.08);
+}
+
+body[data-theme="gold"] .ht-quote-mark {
+  color: #f5c542;
+}
+
+/* Tema Pigeon Light */
+body[data-theme="pigeon"] .ht-visual-learning-page,
+body.theme-light .ht-visual-learning-page {
+  --ht-book-accent: #2a6885;
+  --ht-book-accent-bg: #edf6fa;
+}
+
+body[data-theme="pigeon"] .ht-hero-kicker,
+body.theme-light .ht-hero-kicker {
+  background: #edf6fa;
+  border-color: #dce8ef;
+  color: #2a6885;
+}
+
+body[data-theme="pigeon"] .ht-wheel-nav-pill.is-active,
+body.theme-light .ht-wheel-nav-pill.is-active,
+body[data-theme="pigeon"] .ht-quiz-submit-btn,
+body.theme-light .ht-quiz-submit-btn,
+body[data-theme="pigeon"] .ht-practice-btn,
+body.theme-light .ht-practice-btn,
+body[data-theme="pigeon"] .ht-detail-action-btn,
+body.theme-light .ht-detail-action-btn {
+  background: #2a6885;
+  color: #ffffff;
+}
+
+body[data-theme="pigeon"] .ht-principle-card:hover,
+body.theme-light .ht-principle-card:hover {
+  border-color: #58a6ca;
+}
+
+body[data-theme="pigeon"] .ht-block-quote,
+body.theme-light .ht-block-quote {
+  border-left-color: #58a6ca;
+  background: #f0f7fb;
+}
+
+body[data-theme="pigeon"] .ht-quote-mark,
+body.theme-light .ht-quote-mark {
+  color: #58a6ca;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE (Mobile & Breakpoints)
+   ========================================================================== */
+
+@media (max-width: 1050px) {
+  .ht-wheel-container {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .ht-principles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ht-story-comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ht-summary-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes htFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

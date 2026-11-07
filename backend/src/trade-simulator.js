@@ -9,6 +9,12 @@ try {
 } catch {
   // Opcional para ambientes de teste isolados
 }
+let LiquidityGateModel = null;
+try {
+  LiquidityGateModel = require('../../frontend/liquidity-gate-model');
+} catch {
+  // Opcional para ambientes de teste isolados
+}
 const { parseYearMatrix } = require('./b3-index-history');
 let tickerChart = null;
 try {
@@ -314,6 +320,7 @@ async function create(userId, payload = {}, client = database) {
   if (simulationMode === 'OFFICIAL' && grade === 'D') {
     throw invalid('ENTRADA BLOQUEADA — SETUP GRADE D NÃO É PERMITIDO NO MODO OFICIAL (ORÇAMENTO DE RISCO ZERO)', 422);
   }
+
   const hasExplicitRs = Object.prototype.hasOwnProperty.call(payload, 'rsScore') || payload.rsUnavailable === true;
   if (simulationMode === 'OFFICIAL' && hasExplicitRs) {
     if (payload.rsUnavailable === true || payload.rsScore === null || payload.rsScore === 'N/D' || payload.rsScore === '') {
@@ -341,6 +348,26 @@ async function create(userId, payload = {}, client = database) {
     if (perm) {
       marketPermission = perm;
       marketCycle = perm.isPermitted ? 'Positivo' : (perm.isUndetermined ? 'Indeterminado' : 'Defensivo');
+    }
+  }
+
+  // REGRA MANDATÓRIA (P0): Liquidity Gate — avaliado após Market Permission
+  if (simulationMode === 'OFFICIAL' && LiquidityGateModel) {
+    let candles = null;
+    if (tickerChart) {
+      const b3 = typeof tickerChart.loadB3History === 'function' ? tickerChart.loadB3History() : null;
+      const nasdaq = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
+      candles = (b3 && b3.get(symbol)) || (nasdaq && nasdaq.get(symbol)) || null;
+    }
+    if (candles && Array.isArray(candles)) {
+      const liqEval = LiquidityGateModel.evaluateLiquidity({
+        candles,
+        targetDate: signalDate,
+        symbol
+      });
+      if (!liqEval.isEligible) {
+        throw invalid(`ENTRADA BLOQUEADA — LIQUIDEZ INSUFICIENTE: ${liqEval.reason}`, 422);
+      }
     }
   }
 

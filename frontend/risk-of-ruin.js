@@ -1273,76 +1273,15 @@
   }
 
   // =========================================================================
-  // CROSS-SCREEN TOUCHPOINT 3: SIMULADOR DE TRADES (#tradesimulator)
+  // SIMULADOR DE TRADES: DESACOPLADO
+  // O Simulador de Trades é independente de Risco de Ruína.
+  // Preserva apenas a remoção de qualquer elemento residual de sessões prévias.
   // =========================================================================
   function renderTradeSimulatorScenarioSection() {
-    const simRoot = document.getElementById('tradeSimulatorRoot');
-    if (!simRoot) return;
-
-    let section = document.getElementById('simRiskOfRuinScenarioSection');
-    if (!section) {
-      section = document.createElement('section');
-      section.id = 'simRiskOfRuinScenarioSection';
-      section.className = 'ror-embedded-card';
-      section.style.margin = '18px 0';
-      const tableSec = simRoot.querySelector('.sim-table-card') || simRoot.querySelector('.simulator-page')?.lastElementChild;
-      if (tableSec && tableSec.parentNode) {
-        tableSec.parentNode.insertBefore(section, tableSec);
-      } else {
-        simRoot.appendChild(section);
-      }
-    }
-
-    const simTrades = getSimulatorClosedTrades();
-    const comp = Model.compareRiskScenarios(simTrades, state.config, state.simulatorCustomRisks);
-    const cfg = state.config;
-
-    section.innerHTML = `
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
-        <div>
-          <span style="font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted,#52665c);">ANÁLISE CONSULTIVA DE CENÁRIOS · MONTE CARLO</span>
-          <h3 style="margin:2px 0 0;font-size:16px;font-weight:800;color:var(--ink,#0f2a20);">Sensibilidade de Risco de Ruína na Amostra do Simulador (${simTrades.length} trades encerrados)</h3>
-          <p style="margin:3px 0 0;font-size:12px;color:var(--muted,#52665c);">
-            Compara diferentes níveis de risco por trade sobre o mesmo histórico simulado, horizonte de ${cfg.horizonTrades} trades, limite de ${fmtNum(cfg.maxDrawdownLimitPct, 0)}% DD e seed #${cfg.seed}. Simulação consultiva — não modifica a conta real.
-          </p>
-        </div>
-        <button type="button" class="ror-banner-btn" onclick="typeof go==='function'&&go('riskofruin')">Abrir módulo Risco de Ruína →</button>
-      </div>
-
-      <div class="ror-table-wrap">
-        <table class="ror-scenario-table">
-          <thead>
-            <tr>
-              <th>Cenário de Risco</th>
-              <th>Risco por Trade</th>
-              <th>Prob. de atingir ${fmtNum(cfg.maxDrawdownLimitPct, 0)}% DD</th>
-              <th>Drawdown Mediano (P50)</th>
-              <th>Drawdown P90</th>
-              <th>Drawdown P95</th>
-              <th>IC 95% Binomial</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${comp.scenarios.map(sc => {
-              const ci = sc.confidenceInterval95;
-              return `
-                <tr class="${sc.isCurrent ? 'is-current' : ''}">
-                  <td>${esc(sc.label)}${sc.isCurrent ? ' (Referência)' : ''}</td>
-                  <td><b>${fmtPct(sc.riskPerTradePct, 2)}</b></td>
-                  <td style="font-weight:700;color:${sc.ruinProbabilityPct > cfg.ruinProbabilityTolerancePct ? '#dc2626' : '#15803d'};">
-                    ${ci?.zeroOccurrences ? `0 ocorr. (≤ ${fmtPct(ci.upperPct, 2)})` : fmtPct(sc.ruinProbabilityPct, 1)}
-                  </td>
-                  <td>${fmtPct(sc.medianDrawdownPct, 1)}</td>
-                  <td>${fmtPct(sc.p90DrawdownPct, 1)}</td>
-                  <td>${fmtPct(sc.p95DrawdownPct, 1)}</td>
-                  <td style="font-size:11.5px;color:var(--muted);">${ci?.zeroOccurrences ? `0,0% – ${fmtPct(ci.upperPct, 2)}` : `${fmtPct(ci.lowerPct, 1)} – ${fmtPct(ci.upperPct, 1)}`}</td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
+    try {
+      const existing = document.getElementById('simRiskOfRuinScenarioSection');
+      if (existing) existing.remove();
+    } catch (_) {}
   }
 
   // =========================================================================

@@ -38,7 +38,7 @@ test('Healthy Green: emerging leaders cluster cards and NOVO badge use emerald',
 test('Healthy Green: portfolio heat quote does not leak gold color', () => {
   const css = fs.readFileSync(path.join(root, 'frontend', 'portfolio-heat-page.css'), 'utf8');
   assert.ok(!css.includes(',.heat-quote b{color:#eccb77}'));
-  assert.match(css, /body:not\(\[data-theme="healthy"\]\)\s+\.heat-quote b\{color:#eccb77\}/);
+  assert.match(css, /body:not\(\[data-theme="healthy"\]\)[^{]*\.heat-quote b\{color:#eccb77\}/);
 });
 
 test('Healthy Green: trade anatomy does not have hardcoded gold crumb', () => {
@@ -319,4 +319,53 @@ test('Ciclo de Mercado: Paleta Light Theme consistente com fundo #FFFFFF, títul
   assert.ok(css.includes('--color-pos: #16a879;'), 'Verde positivo deve ser #16A879');
   assert.ok(css.includes('--color-neg: #dc4545;'), 'Vermelho negativo deve ser #DC4545');
   assert.ok(!css.includes('--surface-card: #0c2016;'), 'Não deve conter painéis escuros hardcoded #0c2016 no tema padrão');
+});
+
+test('System Quality Analytics (SQN): Legibilidade e Contraste em Healthy Green, Premium Gold e Pigeon Light', () => {
+  const sqnCss = fs.readFileSync(path.join(root, 'frontend', 'system-quality-analytics.css'), 'utf8');
+  const sqnJs = fs.readFileSync(path.join(root, 'frontend', 'system-quality-analytics.js'), 'utf8');
+
+  // 1. Healthy Green: contraste alto com verde escuro floresta (#0f2a20) e cartões brancos
+  assert.ok(sqnCss.includes('body[data-theme="healthy"]'), 'Deve conter tokens para body[data-theme="healthy"]');
+  assert.match(sqnCss, /--sqn-page-title:\s*#0f2a20;/, 'Healthy Green deve usar título com tinta verde floresta escura #0f2a20');
+  assert.match(sqnCss, /--sqn-card-bg:\s*#ffffff;/, 'Healthy Green deve usar cartões brancos limpos #ffffff');
+  assert.match(sqnCss, /--sqn-subcard-bg:\s*#f4f8f5;/, 'Subcards devem ter fundo claro #f4f8f5');
+  assert.match(sqnCss, /--sqn-formula-bg:\s*#e5f0e8;/, 'Fórmula pedagógica deve ter fundo legível #e5f0e8');
+
+  // 2. Premium Gold: isolamento correto e paleta obsidiana com ouro
+  assert.ok(sqnCss.includes('body[data-theme="gold"],'), 'Deve cobrir body[data-theme="gold"]');
+  assert.ok(sqnCss.includes(':not([data-theme="healthy"]):not([data-theme="pigeon"])'), 'Deve isolar seletor gold sem vazar para healthy ou pigeon');
+  assert.match(sqnCss, /--sqn-page-title:\s*#fffaf0;/, 'Premium Gold deve usar marfim quente #fffaf0');
+  assert.match(sqnCss, /--sqn-eyebrow:\s*#d6aa50;/, 'Premium Gold deve usar destaque ouro #d6aa50');
+
+  // 3. Pigeon Light: azul gelo com ardósia escuro (#0f172a)
+  assert.ok(sqnCss.includes('body[data-theme="pigeon"]'), 'Deve cobrir body[data-theme="pigeon"]');
+  assert.match(sqnCss, /--sqn-page-title:\s*#0f172a;/, 'Pigeon Light deve usar texto principal escuro #0f172a');
+  assert.match(sqnCss, /--sqn-formula-text:\s*#0369a1;/, 'Fórmula em Pigeon deve usar azul legível #0369a1');
+
+  // 4. Sem resíduos de cores opacas ou variáveis inexistentes no JS
+  assert.ok(!sqnJs.includes('var(--text-primary,#e2ece6)'), 'system-quality-analytics.js não deve ter fallback claro #e2ece6');
+  assert.ok(!sqnCss.includes('background: rgba(0, 0, 0, 0.2);'), 'system-quality-analytics.css não deve ter caixas escuras fixas');
+});
+
+test('Favicon Dinâmico: Favicon e Apple-Touch-Icon adaptam-se para Healthy Green, Premium Gold e Pigeon Light', () => {
+  const faviconModel = require('./favicon-theme-model.js');
+  const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+
+  // Mapeamento correto
+  assert.equal(faviconModel.normalizeTheme('healthy'), 'healthy');
+  assert.equal(faviconModel.normalizeTheme('gold'), 'gold');
+  assert.equal(faviconModel.normalizeTheme('pigeon'), 'pigeon');
+
+  // Arquivos existem e preservam a mesma geometria
+  ['assets/favicon.svg', 'assets/favicon-healthy.svg', 'assets/favicon-gold.svg', 'assets/favicon-pigeon.svg'].forEach(rel => {
+    assert.ok(fs.existsSync(path.join(root, rel)), `Arquivo ${rel} deve existir`);
+    const svg = fs.readFileSync(path.join(root, rel), 'utf8');
+    assert.ok(svg.includes('viewBox="0 0 64 64"'), `${rel} deve ter viewBox="0 0 64 64"`);
+    assert.ok(svg.includes('<rect width="64" height="64" rx="18"'), `${rel} deve manter o squircle rx=18`);
+  });
+
+  // Integração com index.html
+  assert.match(indexHtml, /frontend\/favicon-theme-model\.js/, 'index.html deve carregar o modelo de favicon dinâmico');
+  assert.match(indexHtml, /updateThemeFavicon/, 'index.html deve invocar updateThemeFavicon');
 });

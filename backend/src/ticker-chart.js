@@ -9,6 +9,7 @@ const { adjustCandles } = require('./corporate-events');
 const TradingRubrics = require('../../frontend/trading-rubrics');
 const TickerChartModel = require('../../frontend/ticker-chart-model');
 const FundamentalScore = require('../../frontend/fundamental-score');
+const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
 
 const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
 const NASDAQ_PRICES_FILE = path.join(__dirname, '..', 'data', 'nasdaq-daily-prices.json');
@@ -650,6 +651,10 @@ async function getTickerChartData(rawSymbol) {
     }
   });
 
+  const liquidity = (LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function')
+    ? LiquidityGateModel.evaluateLiquidity({ candles, symbol })
+    : { isEligible: true, status: 'APROVADO', badge: { text: 'LIQUIDEZ APROVADA' } };
+
   const finalGrade = chartRubricEval.finalGrade || 'B';
   const gradeVisual = TradingRubrics.getRubricGradeVisual(finalGrade);
 
@@ -771,7 +776,12 @@ async function getTickerChartData(rawSymbol) {
       volumeAvg21Formatted: `${(volumeAvg21 / 1e6).toFixed(1)} milhões`,
       financialLiquidity: volumeAvg21Formatted,
       spread: '0,03%',
-      spreadRating: 'Excelente'
+      spreadRating: 'Excelente',
+      isEligible: liquidity.isEligible,
+      status: liquidity.status,
+      badge: liquidity.badge,
+      reason: liquidity.reason,
+      gate: liquidity
     },
     context: {
       title: 'Super Contexto',

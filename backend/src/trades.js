@@ -8,6 +8,11 @@ const marketPause = require('./market-pause');
 const setupTriggers = require('../../frontend/setup-triggers-catalog');
 const paperPendingModel = require('../../frontend/paper-trading-pending-model');
 const marketRegime = require('./market-regime');
+const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
+let tickerChart = null;
+try {
+  tickerChart = require('./ticker-chart');
+} catch {}
 
 function invalid(message) {
   const error = new Error(message);
@@ -121,6 +126,28 @@ function normalizePlan(payload = {}) {
   };
 }
 
+function validateLiquidityGate(plan, policy) {
+  if (!LiquidityGateModel) return;
+  if (!tickerChart) {
+    try { tickerChart = require('./ticker-chart'); } catch {}
+  }
+  if (!tickerChart) return;
+  const b3Histories = typeof tickerChart.loadB3History === 'function' ? tickerChart.loadB3History() : null;
+  const nasdaqHistories = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
+  const candles = (b3Histories && b3Histories.get(plan.ticker)) || (nasdaqHistories && nasdaqHistories.get(plan.ticker)) || null;
+  if (candles && Array.isArray(candles) && candles.length > 0) {
+    const liqResult = LiquidityGateModel.evaluateLiquidity({
+      candles,
+      targetDate: plan.metadata?.entryDate || (plan.entryTimestamp ? plan.entryTimestamp.slice(0, 10) : null),
+      symbol: plan.ticker,
+      market: plan.market,
+      policy
+    });
+    if (!liqResult.isEligible) {
+      throw invalid(`Operação bloqueada pelo Liquidity Gate: ${liqResult.reason}`);
+    }
+  }
+}
 function validateRareTrade(plan, policy) {
   if (plan.rubricGrade !== 'A') return;
   const verified = rubricModel.calculateRubric(plan.rubricResponses, policy);
@@ -177,6 +204,7 @@ async function createPlan(userId, payload = {}) {
     }
   }
   const plan = normalizePlan(payload);
+  validateLiquidityGate(plan);
   const id = crypto.randomUUID();
   await database.transaction(async (client) => {
     const restriction = await assetBlacklist.find(userId, plan.ticker, plan.market, client);
@@ -186,6 +214,27 @@ async function createPlan(userId, payload = {}) {
     const activePause = await marketPause.getActive(userId, client);
     if (activePause) {
       throw invalid(`Você está em período de pausa fora do mercado até ${activePause.expectedReturnDate}. Encerre a pausa antes de registrar uma nova operação.`);
+    }
+
+    // Validação mandatória do Liquidity Gate no servidor (Hard Gate global inegociável)
+    if (LiquidityGateModel && tickerChart) {
+      const b3Histories = typeof tickerChart.loadB3History === 'function' ? tickerChart.loadB3History() : null;
+      const nasdaqHistories = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
+      const candles = (b3Histories && b3Histories.get(plan.ticker)) || (nasdaqHistories && nasdaqHistories.get(plan.ticker)) || null;
+      if (candles && Array.isArray(candles) && candles.length > 0) {
+        const savedPolicyRes = await client.query('SELECT policy FROM app.risk_policies WHERE user_id = $1', [userId]);
+        const userPolicy = savedPolicyRes.rows[0]?.policy || null;
+        const liqResult = LiquidityGateModel.evaluateLiquidity({
+          candles,
+          targetDate: plan.metadata?.entryDate || (plan.entryTimestamp ? plan.entryTimestamp.slice(0, 10) : null),
+          symbol: plan.ticker,
+          market: plan.market,
+          policy: userPolicy
+        });
+        if (!liqResult.isEligible) {
+          throw invalid(`Operação bloqueada pelo Liquidity Gate: ${liqResult.reason}`);
+        }
+      }
     }
     const wsRes = await client.query('SELECT state FROM app.workspace_state WHERE user_id = $1', [userId]);
     const missionState = wsRes.rows[0]?.state?.missionState;
@@ -1024,6 +1073,7 @@ module.exports = {
   getAccountEquity,
   normalizePlan,
   validateRareTrade,
+  validateLiquidityGate,
   validateMissionRisk,
   normalizeExecution,
   normalizePositionEvent,

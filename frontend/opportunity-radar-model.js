@@ -5,10 +5,13 @@
   const tradingRubrics = typeof module === 'object' && module.exports
     ? require('./trading-rubrics')
     : root?.TradingRubrics;
-  const api = factory(tickerChartModel, tradingRubrics);
+  const liquidityGateModel = typeof module === 'object' && module.exports
+    ? require('./liquidity-gate-model')
+    : root?.LiquidityGateModel;
+  const api = factory(tickerChartModel, tradingRubrics, liquidityGateModel);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.OpportunityRadarModel = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (TickerChartModel, TradingRubrics) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (TickerChartModel, TradingRubrics, LiquidityGateModel) {
   'use strict';
 
   const SECTOR_TRANSLATIONS = {
@@ -367,6 +370,19 @@
     }
 
     const stopPct = Number((((entry - stop) / entry) * 100).toFixed(1));
+    // Salvaguarda mandatória: Liquidity Gate (Hard Gate global)
+    let liquidityResult = item.liquidity || null;
+    if (LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
+      const liqCheck = LiquidityGateModel.evaluateLiquidity({
+        candles,
+        symbol: item.symbol,
+        market: resolveMarketCategory(item),
+        policy
+      });
+      if (!liqCheck || !liqCheck.isEligible) return null;
+      liquidityResult = liqCheck;
+    }
+
     const rr = calculateRiskReward(entry, stop, candles);
     if (!rr || rr < 1.5) {
       return null;
@@ -476,6 +492,8 @@
       stopPct,
       rr,
       status: 'Pronto para entrada',
+      liquidity: liquidityResult,
+      liquidityEligible: true,
       lastCandleDate: latestCandle.time || null,
       lastPrice: latestClose
     };
@@ -494,6 +512,14 @@
 
     return items.filter((item) => {
       if (!item || item.status !== 'Pronto para entrada') return false;
+
+      // Salvaguarda mandatória: somente ativos com liquidez comprovada são exibidos
+      if (item.liquidity && item.liquidity.isEligible === false) {
+        return false;
+      }
+      if (item.liquidityEligible === false || item.liquidityBlocked === true) {
+        return false;
+      }
 
       // Salvaguarda: somente ativos em Ciclo Positivo são elegíveis no Radar de Oportunidades.
       // Ativos com ciclo em transição ou defensivo são estritamente excluídos.

@@ -1934,6 +1934,11 @@
           </div>
         </div>
 
+        <!-- System Quality Analytics (SQN - Metodologia Van K. Tharp) -->
+        ${window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.generateSimulatorSqnCardHtml === 'function'
+          ? window.SystemQualityAnalytics.generateSimulatorSqnCardHtml(stats)
+          : ''}
+
         <!-- Banner de Informação Soft -->
         <div class="sim-rebuild-info-banner">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1942,6 +1947,75 @@
             <line x1="12" y1="8" x2="12.01" y2="8"></line>
           </svg>
           <span>O resultado financeiro considera o risco monetário efetivamente aplicado em cada trade; R permanece como métrica estatística comparável.</span>
+        </div>
+
+        <!-- System Quality Analytics (SQN - Metodologia Van K. Tharp) -->
+        ${renderSimulatorSqnCard(stats)}
+      </div>
+    `;
+  }
+
+  /**
+   * Renderiza o Card de SQN da Simulação na aba de Visão Geral / Relatório de Rubric.
+   * Utiliza o helper do SystemQualityAnalytics quando carregado ou gera estrutura nativa elegante.
+   */
+  function renderSimulatorSqnCard(stats) {
+    if (window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.generateSimulatorSqnCardHtml === 'function') {
+      return window.SystemQualityAnalytics.generateSimulatorSqnCardHtml(stats);
+    }
+    if (!stats || !stats.sqnAnalytics) return '';
+    const sqnReport = stats.sqnAnalytics;
+    const classification = sqnReport.classification || { label: 'Não classificado', badgeClass: 'sqn-badge-unclassified' };
+    const badgeClass = classification.badgeClass || 'sqn-badge-unclassified';
+    return `
+      <div class="sim-rebuild-card" style="margin-top: 20px;">
+        <div class="sim-rebuild-card-head">
+          <div class="sim-rebuild-card-head-left">
+            <span class="sim-rebuild-head-icon icon-chart">📐</span>
+            <div>
+              <h2 class="sim-rebuild-card-title">SQN da Simulação — Qualidade Estatística do Cenário</h2>
+              <p class="sim-rebuild-card-desc">Cálculo hipotético segundo Van Tharp: SQN = (Expectancy ÷ Desvio-Padrão) × √N (não interfere nos dados reais).</p>
+            </div>
+          </div>
+          <span class="sqn-badge ${badgeClass}">${classification.label || '—'}</span>
+        </div>
+
+        <div class="sim-summary-subcards-row" style="margin-top: 14px;">
+          <div class="sim-subcard-box subcard-total">
+            <div class="sim-subcard-icon icon-coins">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M8 12h8M12 8v8"></path>
+              </svg>
+            </div>
+            <div class="sim-subcard-body">
+              <div class="sim-subcard-label">SQN Simulado</div>
+              <div class="sim-subcard-main-val pos">
+                ${sqnReport.sqnFormatted || '—'}
+              </div>
+              <div class="sim-subcard-sub-line">
+                <span class="equiv-tag">Classificação: <strong>${classification.label || '—'}</strong></span>
+                <span class="count-tag">${sqnReport.sampleSize || 0} trades simulados</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-subcard-box subcard-trophy">
+            <div class="sim-subcard-icon icon-trophy">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 20V10M10 20V4M16 20v-7M22 20V7"></path>
+              </svg>
+            </div>
+            <div class="sim-subcard-body">
+              <div class="sim-subcard-trophy-title">Dispersão e Vantagem Estatística Simulada</div>
+              <p class="sim-subcard-trophy-text" style="margin-bottom: 8px;">
+                Expectancy: <strong style="color: var(--sqn-kpi-val-good, #059669);">${sqnReport.expectancyFormatted || '—'}</strong> | Desvio-Padrão: <strong style="color: var(--sqn-text-primary, #0f172a);">${sqnReport.standardDeviationFormatted || '—'}</strong>
+              </p>
+              <div style="font-size: 11.5px; color: var(--sqn-text-muted, #64748b); line-height: 1.4;">
+                ${sqnReport.significance?.note || ''}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -2378,6 +2452,27 @@
 
         <!-- Gráficos Reutilizados -->
         ${renderChartsRow(stats)}
+
+        <!-- Evolução do SQN na Simulação (Rolling SQN) -->
+        <div class="sim-rebuild-card" style="margin-top: 24px;">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">📐</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Evolução do SQN na Simulação (Rolling SQN)</h2>
+                <p class="sim-rebuild-card-desc">Acompanhe trade a trade a formação da qualidade estatística da simulação (Van Tharp).</p>
+              </div>
+            </div>
+            <span class="sqn-badge ${(stats.sqnClassification?.badgeClass) || 'sqn-badge-unclassified'}">
+              SQN: ${stats.sqnFormatted || '—'} (${stats.sqnClassification?.label || 'Não classificado'})
+            </span>
+          </div>
+          <div class="sqn-svg-chart-container" style="margin-top: 16px;">
+            ${window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.renderEvolutionSvg === 'function'
+              ? window.SystemQualityAnalytics.renderEvolutionSvg(stats.sqnEvolution || [])
+              : ''}
+          </div>
+        </div>
               </div>
       </div>
     `;
@@ -5344,7 +5439,8 @@
     trigger: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
     volatility: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
     fundamentals: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="5 6 12 3 19 6"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="12" y1="14" x2="12" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>`,
-    context: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
+    context: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+    liquidity: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`
   };
 
   /**

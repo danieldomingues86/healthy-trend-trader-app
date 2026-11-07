@@ -610,6 +610,11 @@
       const tierClass = item.rsTier === 'leader' ? 'tier-leader' : '';
       const isSelected = root.OpportunityRadarModel.isSelected(state.selectedTickers, sym);
 
+      const liqMetrics = item.liquidity?.metrics;
+      const liqVolCompact = liqMetrics?.averageDailyVolumeCompact;
+      const liqBadgeText = liqVolCompact ? `${liqVolCompact}/dia` : (item.liquidity?.badge?.shortText || '✓ Adequada');
+      const liqTooltip = item.liquidity?.reason || 'Liquidez comprovada nos últimos 21 pregões (Hard Gate).';
+
       return `
         <tr data-ticker="${esc(sym)}">
           <td>
@@ -640,6 +645,12 @@
           </td>
           <td class="col-center">
             <span class="radar-green-pill">${esc(item.trend)}</span>
+          </td>
+          <td class="col-center">
+            <span class="radar-liquidity-pill" title="${esc(liqTooltip)}">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              ${esc(liqBadgeText)}
+            </span>
           </td>
           <td>
             <div class="radar-trigger-cell">
@@ -690,6 +701,7 @@
               <th class="col-center">RS (3M)</th>
               <th class="col-center">CICLO DE MERCADO</th>
               <th class="col-center">TENDÊNCIA (EMA 10 &gt; 72)</th>
+              <th class="col-center">LIQUIDEZ</th>
               <th>GATILHO</th>
               <th>ENTRADA PLANEJADA</th>
               <th>STOP INICIAL</th>
@@ -1197,6 +1209,7 @@
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Força Relativa (3M) &gt; 80</li>
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Ciclo de Mercado Positivo</li>
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Preço &gt; EMA 10 &gt; EMA 72 (Diário)</li>
+                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Liquidez Mínima: Vol. médio &ge; R$ 500 mil/dia (21 pregões)</li>
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Gatilhos: Inside Bar, 123 Buy, PFR de Compra</li>
               </ul>
             </div>
