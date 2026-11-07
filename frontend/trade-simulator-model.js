@@ -43,6 +43,15 @@
     }
   }
 
+  let SystemQualityAnalyticsModel = (typeof root !== 'undefined' && root && root.SystemQualityAnalyticsModel) || null;
+  if (!SystemQualityAnalyticsModel && typeof require === 'function') {
+    try {
+      SystemQualityAnalyticsModel = require('./system-quality-analytics-model');
+    } catch {
+      // Ignora se não estiver acessível
+    }
+  }
+
   const STATUS = {
     WAITING_ENTRY: 'WAITING_ENTRY',         // Aguardando entrada (amarelo)
     IN_OPERATION: 'IN_OPERATION',           // Em operação (legado/operacional)
@@ -1712,6 +1721,201 @@
   }
 
   /**
+   * Classificação oficial da qualidade do sistema segundo metodologia Van K. Tharp.
+   * @param {number} sqn - Valor numérico do SQN
+   * @returns {Object} Dados completos da faixa de classificação
+   */
+  function classifySQN(sqn) {
+    if (SystemQualityAnalyticsModel && typeof SystemQualityAnalyticsModel.classifySQN === 'function') {
+      return SystemQualityAnalyticsModel.classifySQN(sqn);
+    }
+    if (sqn == null || !Number.isFinite(sqn)) {
+      return {
+        key: 'unclassified',
+        label: 'Não classificado',
+        tone: 'neutral',
+        badgeClass: 'sqn-badge-unclassified',
+        color: '#64748b',
+        bgLight: 'rgba(100, 116, 139, 0.12)',
+        description: 'Dados insuficientes para determinar a qualidade estatística.'
+      };
+    }
+    if (sqn < 1.6) {
+      return {
+        key: 'poor',
+        label: 'Fraco',
+        tone: 'bad',
+        badgeClass: 'sqn-badge-poor',
+        color: '#ef4444',
+        bgLight: 'rgba(239, 68, 68, 0.12)',
+        description: 'Sistema com pouca ou nenhuma vantagem estatística comprovada; elevado risco de ruína ou dependência de sorte temporária.'
+      };
+    }
+    if (sqn < 2.0) {
+      return {
+        key: 'below_average',
+        label: 'Abaixo da média',
+        tone: 'warn',
+        badgeClass: 'sqn-badge-below-average',
+        color: '#f59e0b',
+        bgLight: 'rgba(245, 158, 11, 0.12)',
+        description: 'Vantagem estatística modesta; vulnerável a períodos prolongados de drawdown e sequências de perdas.'
+      };
+    }
+    if (sqn < 2.5) {
+      return {
+        key: 'average',
+        label: 'Mediano',
+        tone: 'info',
+        badgeClass: 'sqn-badge-average',
+        color: '#3b82f6',
+        bgLight: 'rgba(59, 130, 246, 0.12)',
+        description: 'Sistema operável com consistência moderada; gera vantagem líquida positiva quando executado com rigor.'
+      };
+    }
+    if (sqn < 3.0) {
+      return {
+        key: 'good',
+        label: 'Bom',
+        tone: 'good',
+        badgeClass: 'sqn-badge-good',
+        color: '#10b981',
+        bgLight: 'rgba(16, 185, 129, 0.12)',
+        description: 'Boa consistência e relação sólida entre recompensa gerada e dispersão do risco.'
+      };
+    }
+    if (sqn <= 5.0) {
+      return {
+        key: 'excellent',
+        label: 'Excelente',
+        tone: 'excellent',
+        badgeClass: 'sqn-badge-excellent',
+        color: '#059669',
+        bgLight: 'rgba(5, 150, 105, 0.15)',
+        description: 'Alta consistência estatística, dispersão controlada e forte previsibilidade nos resultados operacionais.'
+      };
+    }
+    return {
+      key: 'exceptional',
+      label: 'Excepcional',
+      tone: 'exceptional',
+      badgeClass: 'sqn-badge-exceptional',
+      color: '#047857',
+      bgLight: 'rgba(4, 120, 87, 0.18)',
+      description: 'Desempenho estatístico fora de série (Santo Graal de Van Tharp); altíssima expectativa com baixa dispersão de perdas.'
+    };
+  }
+
+  /**
+   * Cálculo autônomo do System Quality Number (SQN) do Simulador de Trades.
+   * O simulador calcula o SQN estritamente sobre suas próprias operações simuladas encerradas,
+   * sem intervir ou depender de dados reais da conta do trader.
+   * Fórmula: SQN = (Expectancy / Sample StdDev) * sqrt(N)
+   * @param {Array} simulationsOrR - Simulações ou array de valores em R
+   * @returns {Object} Relatório SQN
+   */
+  function calculateSimulatorSQN(simulationsOrR = []) {
+    let rValues = [];
+    if (Array.isArray(simulationsOrR)) {
+      for (const item of simulationsOrR) {
+        if (typeof item === 'number' && Number.isFinite(item)) {
+          rValues.push(item);
+        } else if (item && typeof item === 'object') {
+          if (Number.isFinite(Number(item.resultR))) {
+            rValues.push(Number(item.resultR));
+          } else if (Number.isFinite(Number(item.netResultR))) {
+            rValues.push(Number(item.netResultR));
+          } else if (Number.isFinite(Number(item.r))) {
+            rValues.push(Number(item.r));
+          }
+        }
+      }
+    }
+
+    if (SystemQualityAnalyticsModel && typeof SystemQualityAnalyticsModel.calculateSystemQualityAnalytics === 'function') {
+      return SystemQualityAnalyticsModel.calculateSystemQualityAnalytics(rValues);
+    }
+
+    const count = rValues.length;
+    if (count < 2) {
+      return {
+        isEligible: false,
+        sampleSize: count,
+        expectancy: count === 1 ? round2(rValues[0]) : 0,
+        expectancyFormatted: count === 1 ? `${rValues[0] >= 0 ? '+' : ''}${rValues[0].toFixed(2).replace('.', ',')}R` : '—',
+        standardDeviation: null,
+        standardDeviationFormatted: '—',
+        sqn: null,
+        sqnFormatted: '—',
+        classification: classifySQN(null),
+        significance: {
+          isEligible: false,
+          isReliable: false,
+          note: 'Necessário o encerramento de no mínimo 2 operações para calcular o desvio-padrão amostral.'
+        },
+        evolution: [],
+        rValues
+      };
+    }
+
+    const sum = rValues.reduce((a, b) => a + b, 0);
+    const mean = sum / count;
+    const variance = rValues.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / (count - 1);
+    const stdDev = Math.sqrt(variance);
+    const sqn = stdDev > 0 ? (mean / stdDev) * Math.sqrt(count) : null;
+    const classification = classifySQN(sqn);
+
+    const evolution = [];
+    let runningSum = 0;
+    for (let i = 0; i < count; i++) {
+      const r = rValues[i];
+      runningSum += r;
+      const k = i + 1;
+      if (k >= 2) {
+        const kMean = runningSum / k;
+        let kVarSum = 0;
+        for (let j = 0; j <= i; j++) {
+          kVarSum += Math.pow(rValues[j] - kMean, 2);
+        }
+        const kStd = Math.sqrt(kVarSum / (k - 1));
+        const kSqn = kStd > 0 ? (kMean / kStd) * Math.sqrt(k) : null;
+        evolution.push({
+          tradeIndex: k,
+          r,
+          cumulativeR: round2(runningSum),
+          rollingExpectancy: round2(kMean),
+          rollingStdDev: round2(kStd),
+          sqn: kSqn != null ? round2(kSqn) : null,
+          sqnRaw: kSqn
+        });
+      }
+    }
+
+    return {
+      isEligible: true,
+      sampleSize: count,
+      totalR: round2(sum),
+      expectancy: round2(mean),
+      expectancyFormatted: `${mean >= 0 ? '+' : ''}${mean.toFixed(2).replace('.', ',')}R`,
+      standardDeviation: round2(stdDev),
+      standardDeviationFormatted: `${stdDev.toFixed(2).replace('.', ',')}R`,
+      sqn: sqn != null ? round2(sqn) : null,
+      sqnRaw: sqn,
+      sqnFormatted: sqn != null ? sqn.toFixed(2).replace('.', ',') : '—',
+      classification,
+      evolution,
+      significance: {
+        isEligible: true,
+        isReliable: count >= 30,
+        note: count < 30
+          ? `Amostra em desenvolvimento (${count} trades < 30). O SQN é indicativo e preliminar; requer mais trades para significância estatística robusta.`
+          : `Amostra estatisticamente representativa (${count} trades ≥ 30). Confiabilidade sólida da vantagem estatística.`
+      },
+      rValues
+    };
+  }
+
+  /**
    * Calcula estatísticas consolidadas para os KPI Cards, Gráficos e Tabelas Agregadas.
    * Garante reconciliação matemática estrita entre trades individuais, KPIs globais e quebras por gatilho/nota/período.
    * @param {Array} simulations - Lista de simulações
@@ -1869,6 +2073,15 @@
     const profitFactor = totalLossesR > 0
       ? round2(totalGainsR / totalLossesR)
       : (totalGainsR > 0 ? 99.9 : 0);
+
+    // System Quality Analytics (SQN - Metodologia Van K. Tharp)
+    // O simulador possui seu próprio cálculo de SQN, operando estritamente sobre a amostra simulada.
+    const closedSimsOrdered = list
+      .filter(s => s && (s.status === STATUS.CLOSED_GAIN || s.status === STATUS.CLOSED_LOSS || (s.resultR != null && s.status !== STATUS.IN_OPERATION && s.status !== STATUS.INCOMPLETE)))
+      .sort((a, b) => new Date(a.exitDate || a.signalDate || 0) - new Date(b.exitDate || b.signalDate || 0));
+    const closedRValues = closedSimsOrdered.map(s => Number(s.resultR) || 0);
+
+    const sqnAnalytics = calculateSimulatorSQN(closedRValues);
 
     // Desempenho por Gatilho (reconciliado com totalR global)
     const triggerPerformance = Object.values(triggerMap)
@@ -2091,7 +2304,14 @@
       triggerPerformance,
       gradePerformance,
       periodPerformance,
-      equityCurve
+      equityCurve,
+      sqnAnalytics,
+      sqn: sqnAnalytics ? sqnAnalytics.sqn : null,
+      sqnFormatted: sqnAnalytics ? sqnAnalytics.sqnFormatted : '—',
+      sqnClassification: sqnAnalytics ? sqnAnalytics.classification : null,
+      standardDeviationR: sqnAnalytics ? sqnAnalytics.standardDeviation : null,
+      standardDeviationRFormatted: sqnAnalytics ? sqnAnalytics.standardDeviationFormatted : '—',
+      sqnEvolution: sqnAnalytics ? sqnAnalytics.evolution : []
     };
   }
 
@@ -4356,6 +4576,12 @@
       avgRFormatted,
       expectancy: round2(avgRVal),
       expectancyFormatted: avgRFormatted,
+      sqnAnalytics: stats.sqnAnalytics,
+      sqn: stats.sqn,
+      sqnFormatted: stats.sqnFormatted,
+      sqnClassification: stats.sqnClassification,
+      standardDeviationR: stats.standardDeviationR,
+      standardDeviationRFormatted: stats.standardDeviationRFormatted,
       avgDurationDays: stats.avgDurationDays,
       avgDurationDaysFormatted: stats.avgDurationDaysFormatted,
       profitFactor: pf,
@@ -9360,6 +9586,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     generateHistoricalSimulations,
     computeSnapshotNavInfo,
     MarketCycleModel,
+    classifySQN,
+    calculateSimulatorSQN,
+    SystemQualityAnalyticsModel,
     calculateRegimePerformance: function (simulations, options) {
       if (MarketCycleModel && typeof MarketCycleModel.calculateRegimePerformance === 'function') {
         return MarketCycleModel.calculateRegimePerformance(simulations, options);
