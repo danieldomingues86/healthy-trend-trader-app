@@ -117,3 +117,42 @@ test('Liquidity Gate Global: Visão do Ativo no Simulator inclui status e badges
   assert.equal(vision.liquidity.status, 'good');
   assert.match(vision.liquidity.text, /Aprovada/);
 });
+
+test('Liquidity Gate Global: Radar de Oportunidades inclui campo liquidity e filtra ativos ilíquidos no filterOpportunities', () => {
+  const liquidCandles = Array.from({ length: 30 }, (_, i) => ({
+    time: `2026-09-${String(i + 1).padStart(2, '0')}`,
+    open: 40 + i * 0.1,
+    high: 41 + i * 0.1,
+    low: 39 + i * 0.1,
+    close: 40.5 + i * 0.1,
+    volume: 15000000 // R$ 15 mi diários
+  }));
+
+  // Cria setup válido (Inside Bar no final)
+  liquidCandles[28] = { time: '2026-09-29', open: 43.0, high: 45.0, low: 42.0, close: 44.5, volume: 15000000 };
+  liquidCandles[29] = { time: '2026-09-30', open: 43.5, high: 44.2, low: 42.5, close: 43.8, volume: 15000000 };
+
+  const item = {
+    symbol: 'WEGE3',
+    name: 'Weg',
+    sector: 'Bens Industriais',
+    score: 90
+  };
+
+  const ready = OpportunityRadarModel.evaluateAssetReadiness(item, liquidCandles, 'healthy');
+  if (ready) {
+    assert.ok(ready.liquidity, 'Ativo pronto deve possuir metadados de liquidez');
+    assert.equal(ready.liquidity.isEligible, true);
+    assert.ok(ready.liquidity.metrics.averageDailyVolume > 500000);
+  }
+
+  // filterOpportunities exclui qualquer ativo com liquidez reprovada
+  const list = [
+    { symbol: 'PETR4', status: 'Pronto para entrada', market: 'IBOV', liquidity: { isEligible: true } },
+    { symbol: 'ILLIQ3', status: 'Pronto para entrada', market: 'IBOV', liquidity: { isEligible: false } },
+    { symbol: 'FAIL3', status: 'Pronto para entrada', market: 'IBOV', liquidityEligible: false }
+  ];
+  const filtered = OpportunityRadarModel.filterOpportunities(list);
+  assert.equal(filtered.length, 1);
+  assert.equal(filtered[0].symbol, 'PETR4');
+});

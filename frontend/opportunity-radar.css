@@ -767,6 +767,26 @@
   font-weight: 700;
 }
 
+/* Liquidity Pill */
+.radar-liquidity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  white-space: nowrap;
+}
+
+.radar-liquidity-pill svg {
+  flex-shrink: 0;
+  color: #0284c7;
+}
+
 /* Trigger Cell */
 .radar-trigger-cell {
   display: inline-flex;
@@ -1828,6 +1848,16 @@ body[data-theme="gold"] .radar-table tbody tr {
 
 body[data-theme="gold"] .radar-table tbody tr:hover {
   background: rgba(212, 175, 55, 0.05);
+}
+
+body[data-theme="gold"] .radar-liquidity-pill {
+  background: rgba(2, 132, 199, 0.16);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+body[data-theme="gold"] .radar-liquidity-pill svg {
+  color: #38bdf8;
 }
 
 body[data-theme="gold"] .radar-btn-view-chart {

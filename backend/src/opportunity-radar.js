@@ -89,21 +89,28 @@ async function getOpportunityRadarData(cache) {
       if (!Array.isArray(candles) || candles.length < 30) continue;
 
       // Salvaguarda mandatória: Liquidity Gate (Hard Gate global)
+      let liquidityResult = null;
       if (LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
         const liqCheck = LiquidityGateModel.evaluateLiquidity({
           candles,
-          symbol
+          symbol,
+          market: group.market
         });
-        if (!liqCheck.isEligible) continue;
+        if (!liqCheck || !liqCheck.isEligible) continue;
+        liquidityResult = liqCheck;
       }
 
       const enrichedItem = {
         ...item,
-        marketCategory: group.market
+        marketCategory: group.market,
+        liquidity: liquidityResult
       };
 
       const evaluated = OpportunityRadarModel.evaluateAssetReadiness(enrichedItem, candles, group.cycleState);
       if (evaluated) {
+        if (!evaluated.liquidity && liquidityResult) {
+          evaluated.liquidity = liquidityResult;
+        }
         readyItems.push(evaluated);
       }
     }
@@ -121,6 +128,13 @@ async function getOpportunityRadarData(cache) {
           readyItem.__excludedByCycle = true;
           return;
         }
+        if (chartData?.liquidity) {
+          if (!chartData.liquidity.isEligible) {
+            readyItem.__excludedByLiquidity = true;
+            return;
+          }
+          readyItem.liquidity = chartData.liquidity;
+        }
         if (chartData?.rubric?.finalGrade) {
           readyItem.grade = chartData.rubric.finalGrade;
           readyItem.rubricScore = chartData.rubric.score;
@@ -132,7 +146,7 @@ async function getOpportunityRadarData(cache) {
     })
   );
 
-  const filteredReadyItems = readyItems.filter((i) => !i.__excludedByCycle);
+  const filteredReadyItems = readyItems.filter((i) => !i.__excludedByCycle && !i.__excludedByLiquidity);
 
   const latestCandleDates = filteredReadyItems.map((i) => i.lastCandleDate).filter(Boolean).sort();
   const dataAsOf = latestCandleDates.at(-1)
