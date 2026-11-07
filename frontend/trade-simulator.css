@@ -8529,3 +8529,191 @@ body.gold-theme .sim-btn-header-secondary.sim-btn-header-danger:hover {
   color: #ef4444;
 }
 
+/* =========================================================
+   PROTEÇÃO OBRIGATÓRIA CONTRA EVENTOS EXTREMOS (EXTREME EVENT PROTECTION)
+   ========================================================= */
+.sim-status-pill.pill-extreme-event {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+  font-weight: 700;
+}
+
+.sim-status-pill.pill-extreme-event .pill-dot {
+  background: #d97706;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
+}
+
+.sim-extreme-event-detail-card {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fcd34d;
+  border-left: 4px solid #d97706;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.08);
+}
+
+.sim-extreme-event-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.sim-extreme-event-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sim-extreme-shield-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sim-extreme-event-detail-title strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #78350f;
+}
+
+.sim-extreme-reason-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400e;
+  background: rgba(217, 119, 6, 0.12);
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 2px;
+}
+
+.sim-extreme-category-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #78350f;
+  background: #fde68a;
+  border: 1px solid #f59e0b;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.sim-extreme-event-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.sim-extreme-kv small {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #92400e;
+  margin-bottom: 2px;
+}
+
+.sim-extreme-kv b {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.sim-extreme-justification-box {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px dashed #f59e0b;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.sim-extreme-justification-box small {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #b45309;
+  margin-bottom: 3px;
+}
+
+.sim-extreme-justification-box p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #451a03;
+  font-style: italic;
+}
+
+.sim-extreme-calendar-strip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.sim-extreme-calendar-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.sim-extreme-calendar-Badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sim-extreme-cal-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #78350f;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+body.gold-theme .sim-status-pill.pill-extreme-event {
+  background: rgba(217, 119, 6, 0.16);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+body.gold-theme .sim-extreme-event-detail-card {
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.28) 0%, rgba(69, 26, 3, 0.36) 100%);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+body.gold-theme .sim-extreme-event-detail-title strong,
+body.gold-theme .sim-extreme-kv b,
+body.gold-theme .sim-extreme-justification-box p {
+  color: #fef3c7;
+}
+
+body.gold-theme .sim-extreme-event-detail-grid,
+body.gold-theme .sim-extreme-justification-box,
+body.gold-theme .sim-extreme-calendar-strip {
+  background: rgba(15, 23, 42, 0.45);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+body.gold-theme .sim-extreme-cal-chip {
+  background: rgba(217, 119, 6, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fde68a;
+}
+
+

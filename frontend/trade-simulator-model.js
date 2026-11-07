@@ -1265,6 +1265,409 @@
     };
   }
 
+  // ==========================================
+  // PROTEÇÃO OBRIGATÓRIA CONTRA EVENTOS EXTREMOS (EXTREME EVENT PROTECTION)
+  // ==========================================
+
+  const EXTREME_EVENT_EXIT_REASON = 'EVENTO EXTREMO IDENTIFICADO';
+  const EXTREME_EVENT_EXIT_TYPE = 'EXTREME_EVENT_PROTECTION';
+
+  const EXTREME_EVENT_CATEGORIES = Object.freeze({
+    PRESIDENTIAL_ELECTION_1ST_ROUND: {
+      id: 'PRESIDENTIAL_ELECTION_1ST_ROUND',
+      label: 'Eleições Presidenciais — 1º Turno',
+      shortLabel: 'Eleições (1º Turno)'
+    },
+    PRESIDENTIAL_ELECTION_2ND_ROUND: {
+      id: 'PRESIDENTIAL_ELECTION_2ND_ROUND',
+      label: 'Segundo Turno de Eleições Presidenciais',
+      shortLabel: 'Eleições (2º Turno)'
+    },
+    EXTRAORDINARY_MONETARY_POLICY: {
+      id: 'EXTRAORDINARY_MONETARY_POLICY',
+      label: 'Decisão Extraordinária de Política Monetária',
+      shortLabel: 'Política Monetária Extraordinária'
+    },
+    GEOPOLITICAL_IMPACT: {
+      id: 'GEOPOLITICAL_IMPACT',
+      label: 'Evento Geopolítico de Grande Impacto',
+      shortLabel: 'Evento Geopolítico'
+    },
+    MILITARY_CONFLICT: {
+      id: 'MILITARY_CONFLICT',
+      label: 'Guerra / Conflito Militar Relevante',
+      shortLabel: 'Conflito Militar'
+    },
+    SYSTEMIC_JUDICIAL_POLITICAL: {
+      id: 'SYSTEMIC_JUDICIAL_POLITICAL',
+      label: 'Decisão Judicial ou Política com Impacto Sistêmico',
+      shortLabel: 'Risco Judicial / Político Sistêmico'
+    },
+    REFERENDUM_EXTRAORDINARY: {
+      id: 'REFERENDUM_EXTRAORDINARY',
+      label: 'Referendo / Acontecimento Político Extraordinário',
+      shortLabel: 'Referendo / Político Extraordinário'
+    },
+    OTHER_EXTREME_RISK: {
+      id: 'OTHER_EXTREME_RISK',
+      label: 'Outro Evento Classificado como Risco Extremo',
+      shortLabel: 'Risco Extremo'
+    }
+  });
+
+  /**
+   * Calendário oficial de Eventos Extremos previamente conhecidos e agendados.
+   * Por regra metodológica, eventos previamente conhecidos determinam o encerramento obrigatório
+   * de todas as posições abertas no fechamento do último pregão anterior ao evento (ou antecedência maior configurada).
+   */
+  const DEFAULT_EXTREME_EVENTS_CALENDAR = Object.freeze([
+    Object.freeze({
+      id: 'evt-br-presidential-2026-r1',
+      name: 'Eleições Presidenciais do Brasil 2026 — 1º Turno',
+      category: 'PRESIDENTIAL_ELECTION_1ST_ROUND',
+      categoryLabel: 'Eleições Presidenciais — 1º Turno',
+      eventDate: '2026-10-04',
+      riskStartDate: '2026-10-04',
+      riskEndDate: '2026-10-04',
+      knownSinceDate: '2026-01-01',
+      market: 'ALL',
+      isPreScheduled: true,
+      isUnexpected: false,
+      defaultAdvanceSessions: 1,
+      justification: 'Operação encerrada antecipadamente por proteção contra evento extremo. Evento eleitoral previamente identificado, com elevado potencial de provocar gaps de abertura e volatilidade extraordinária. Posição zerada antes do evento para preservação do capital, independentemente da validade do setup técnico.'
+    }),
+    Object.freeze({
+      id: 'evt-br-presidential-2026-r2',
+      name: 'Eleições Presidenciais do Brasil 2026 — 2º Turno',
+      category: 'PRESIDENTIAL_ELECTION_2ND_ROUND',
+      categoryLabel: 'Segundo Turno de Eleições Presidenciais',
+      eventDate: '2026-10-25',
+      riskStartDate: '2026-10-25',
+      riskEndDate: '2026-10-25',
+      knownSinceDate: '2026-01-01',
+      market: 'ALL',
+      isPreScheduled: true,
+      isUnexpected: false,
+      defaultAdvanceSessions: 1,
+      justification: 'Operação encerrada antecipadamente por proteção contra evento extremo. Evento eleitoral previamente identificado, com elevado potencial de provocar gaps de abertura e volatilidade extraordinária. Posição zerada antes do evento para preservação do capital, independentemente da validade do setup técnico.'
+    }),
+    Object.freeze({
+      id: 'evt-br-presidential-2022-r1',
+      name: 'Eleições Presidenciais do Brasil 2022 — 1º Turno',
+      category: 'PRESIDENTIAL_ELECTION_1ST_ROUND',
+      categoryLabel: 'Eleições Presidenciais — 1º Turno',
+      eventDate: '2022-10-02',
+      riskStartDate: '2022-10-02',
+      riskEndDate: '2022-10-02',
+      knownSinceDate: '2022-01-01',
+      market: 'ALL',
+      isPreScheduled: true,
+      isUnexpected: false,
+      defaultAdvanceSessions: 1,
+      justification: 'Operação encerrada antecipadamente por proteção contra evento extremo. Evento eleitoral previamente identificado, com elevado potencial de provocar gaps de abertura e volatilidade extraordinária. Posição zerada antes do evento para preservação do capital, independentemente da validade do setup técnico.'
+    }),
+    Object.freeze({
+      id: 'evt-br-presidential-2022-r2',
+      name: 'Eleições Presidenciais do Brasil 2022 — 2º Turno',
+      category: 'PRESIDENTIAL_ELECTION_2ND_ROUND',
+      categoryLabel: 'Segundo Turno de Eleições Presidenciais',
+      eventDate: '2022-10-30',
+      riskStartDate: '2022-10-30',
+      riskEndDate: '2022-10-30',
+      knownSinceDate: '2022-01-01',
+      market: 'ALL',
+      isPreScheduled: true,
+      isUnexpected: false,
+      defaultAdvanceSessions: 1,
+      justification: 'Operação encerrada antecipadamente por proteção contra evento extremo. Evento eleitoral previamente identificado, com elevado potencial de provocar gaps de abertura e volatilidade extraordinária. Posição zerada antes do evento para preservação do capital, independentemente da validade do setup técnico.'
+    })
+  ]);
+
+  let _customExtremeEvents = [];
+  let _removedDefaultEventIds = new Set();
+  let _extremeEventProtectionConfig = {
+    advanceSessions: 1,      // Antecedência mínima obrigatória >= 1 pregão antes do evento
+    operationalCostPct: 0    // Custo operacional aplicável sobre o preço de fechamento na saída extraordinária (%)
+  };
+
+  function normalizeExtremeEventRecord(evt) {
+    if (!evt || typeof evt !== 'object') return null;
+    const rawDate = String(evt.eventDate || evt.date || evt.riskStartDate || '').slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) return null;
+    const riskStartDate = String(evt.riskStartDate || rawDate).slice(0, 10);
+    const riskEndDate = String(evt.riskEndDate || riskStartDate).slice(0, 10);
+    const catKey = evt.category && EXTREME_EVENT_CATEGORIES[evt.category]
+      ? evt.category
+      : 'OTHER_EXTREME_RISK';
+    const catMeta = EXTREME_EVENT_CATEGORIES[catKey];
+    const categoryLabel = evt.categoryLabel || catMeta.label;
+    const isUnexpected = evt.isUnexpected === true || evt.isPreScheduled === false;
+    const isPreScheduled = !isUnexpected;
+    const knownSinceDate = evt.knownSinceDate
+      ? String(evt.knownSinceDate).slice(0, 10)
+      : (isUnexpected ? '9999-12-31' : '1900-01-01');
+    const advance = Math.max(1, Math.round(Number(evt.advanceSessions || evt.defaultAdvanceSessions || 1) || 1));
+
+    const defaultJustification = (catKey === 'PRESIDENTIAL_ELECTION_1ST_ROUND' || catKey === 'PRESIDENTIAL_ELECTION_2ND_ROUND')
+      ? 'Operação encerrada antecipadamente por proteção contra evento extremo. Evento eleitoral previamente identificado, com elevado potencial de provocar gaps de abertura e volatilidade extraordinária. Posição zerada antes do evento para preservação do capital, independentemente da validade do setup técnico.'
+      : `Operação encerrada antecipadamente por proteção contra evento extremo. ${categoryLabel} previamente identificado (${evt.name || 'Evento Extremo'}), com elevado potencial de provocar gaps de abertura, descontinuidades de preço e perda da efetividade dos stops. Posição zerada antes do evento para preservação do capital, independentemente da validade do setup técnico.`;
+
+    return {
+      id: String(evt.id || `evt-custom-${rawDate}-${ String(evt.name || 'ext').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 24) }`),
+      name: String(evt.name || evt.description || categoryLabel).trim(),
+      category: catKey,
+      categoryLabel,
+      eventDate: rawDate,
+      riskStartDate,
+      riskEndDate: riskEndDate >= riskStartDate ? riskEndDate : riskStartDate,
+      knownSinceDate,
+      market: String(evt.market || 'ALL').toUpperCase(),
+      isPreScheduled,
+      isUnexpected,
+      defaultAdvanceSessions: advance,
+      justification: String(evt.justification || defaultJustification).trim(),
+      isCustom: Boolean(evt.isCustom)
+    };
+  }
+
+  function getExtremeEventsCalendar(customEvents = null) {
+    if (Array.isArray(customEvents)) {
+      return customEvents.map(normalizeExtremeEventRecord).filter(Boolean).sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+    }
+    const defaults = DEFAULT_EXTREME_EVENTS_CALENDAR
+      .filter(e => !_removedDefaultEventIds.has(e.id))
+      .map(normalizeExtremeEventRecord)
+      .filter(Boolean);
+    const customs = _customExtremeEvents.map(normalizeExtremeEventRecord).filter(Boolean);
+    const mergedMap = new Map();
+    defaults.forEach(e => mergedMap.set(e.id, e));
+    customs.forEach(e => mergedMap.set(e.id, e));
+    return Array.from(mergedMap.values()).sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+  }
+
+  function registerExtremeEvent(eventInput) {
+    const normalized = normalizeExtremeEventRecord({ ...eventInput, isCustom: true });
+    if (!normalized) {
+      throw new Error('Evento extremo inválido: informe ao menos nome e data válida (YYYY-MM-DD).');
+    }
+    _removedDefaultEventIds.delete(normalized.id);
+    const existingIdx = _customExtremeEvents.findIndex(e => e.id === normalized.id);
+    if (existingIdx >= 0) {
+      _customExtremeEvents[existingIdx] = normalized;
+    } else {
+      _customExtremeEvents.push(normalized);
+    }
+    return normalized;
+  }
+
+  function removeExtremeEvent(eventId) {
+    if (!eventId) return false;
+    const idStr = String(eventId);
+    const beforeLen = _customExtremeEvents.length;
+    _customExtremeEvents = _customExtremeEvents.filter(e => e.id !== idStr);
+    if (DEFAULT_EXTREME_EVENTS_CALENDAR.some(e => e.id === idStr)) {
+      _removedDefaultEventIds.add(idStr);
+      return true;
+    }
+    return _customExtremeEvents.length < beforeLen;
+  }
+
+  function resetExtremeEventsCalendar() {
+    _customExtremeEvents = [];
+    _removedDefaultEventIds = new Set();
+    _extremeEventProtectionConfig = {
+      advanceSessions: 1,
+      operationalCostPct: 0
+    };
+    return getExtremeEventsCalendar();
+  }
+
+  function getExtremeEventProtectionConfig() {
+    return {
+      advanceSessions: Math.max(1, Math.round(Number(_extremeEventProtectionConfig.advanceSessions) || 1)),
+      operationalCostPct: Math.max(0, Number(_extremeEventProtectionConfig.operationalCostPct) || 0)
+    };
+  }
+
+  function setExtremeEventProtectionConfig(newConfig = {}) {
+    if (!newConfig || typeof newConfig !== 'object') return getExtremeEventProtectionConfig();
+    if (newConfig.advanceSessions !== undefined) {
+      // Regra obrigatória: o usuário pode configurar antecedência maior (>= 1), mas NUNCA < 1 (nunca manter posições durante o evento)
+      const adv = Math.max(1, Math.round(Number(newConfig.advanceSessions) || 1));
+      _extremeEventProtectionConfig.advanceSessions = adv;
+    }
+    if (newConfig.operationalCostPct !== undefined) {
+      const cost = Math.max(0, Number(newConfig.operationalCostPct) || 0);
+      _extremeEventProtectionConfig.operationalCostPct = cost;
+    }
+    return getExtremeEventProtectionConfig();
+  }
+
+  /**
+   * Resolve a data exata do pregão limite de encerramento (cutoff session) antes do evento extremo.
+   * Por padrão (advanceSessions = 1), é o último pregão estritamente anterior ao início do risco do evento.
+   * Exemplo:
+   * - Evento no domingo 2026-10-04 -> Último pregão anterior (advance = 1): sexta-feira 2026-10-02.
+   * - Evento na segunda-feira 2026-10-05 -> Último pregão anterior (advance = 1): sexta-feira 2026-10-02.
+   * - Com advance = 2 para domingo 2026-10-04 -> quinta-feira 2026-10-01.
+   */
+  function resolveExtremeEventCutoffSession(eventInput, options = {}) {
+    const evt = normalizeExtremeEventRecord(eventInput);
+    if (!evt) return null;
+
+    const config = getExtremeEventProtectionConfig();
+    const rawAdvance = options.advanceSessions != null
+      ? Number(options.advanceSessions)
+      : (evt.defaultAdvanceSessions || config.advanceSessions || 1);
+    // Nunca permite antecedência menor que 1 pregão antes do evento
+    const advanceSessions = Math.max(1, Math.round(rawAdvance || 1));
+    const validSessionSet = options.validSessionSet instanceof Set ? options.validSessionSet : null;
+
+    const firstRiskDate = evt.riskStartDate || evt.eventDate;
+    const candles = Array.isArray(options.candles) ? options.candles : null;
+
+    // 1. Determina o pregão oficial de encerramento pelo calendário de negociação do mercado
+    const dayBeforeEvent = new Date(new Date(firstRiskDate + 'T12:00:00Z').getTime() - 86400000).toISOString().slice(0, 10);
+    const lastSessionBeforeEvent = snapToTradingDay(dayBeforeEvent, -1, validSessionSet);
+    const calendarCutoffDate = advanceSessions > 1
+      ? addTradingDays(lastSessionBeforeEvent, -(advanceSessions - 1), validSessionSet)
+      : lastSessionBeforeEvent;
+    const dayAfterEvent = new Date(new Date(evt.riskEndDate + 'T12:00:00Z').getTime() + 86400000).toISOString().slice(0, 10);
+    let reopenDate = snapToTradingDay(dayAfterEvent, 1, validSessionSet);
+    let reopenOpenPrice = null;
+
+    if (candles && candles.length > 0) {
+      for (let i = 0; i < candles.length; i++) {
+        const d = String(candles[i].time || candles[i].date || '').slice(0, 10);
+        if (d > evt.riskEndDate && isTradingDay(d, validSessionSet)) {
+          reopenDate = d;
+          reopenOpenPrice = Number(candles[i].open != null ? candles[i].open : candles[i].close);
+          break;
+        }
+      }
+    }
+
+    return {
+      cutoffDate: calendarCutoffDate,
+      advanceSessions,
+      firstRiskDate,
+      riskEndDate: evt.riskEndDate,
+      reopenDate,
+      reopenOpenPrice
+    };
+  }
+
+  /**
+   * Verifica se uma operação aberta em `candleDate` (que entrou em `entryDate`) deve ser obrigatoriamente
+   * encerrada no fechamento de `candleDate` devido a um Evento Extremo previamente agendado e conhecido.
+   * Garante Zero Look-Ahead Bias:
+   * - Somente eventos com `isPreScheduled === true` e `!isUnexpected` e `knownSinceDate <= candleDate` acionam proteção.
+   */
+  function findApplicableExtremeEventForBar(params = {}) {
+    const {
+      candleDate,
+      nextCandleDate = null,
+      entryDate = null,
+      market = 'B3',
+      candles = null,
+      validSessionSet = null,
+      customEvents = null,
+      advanceSessions = null
+    } = params;
+
+    if (!candleDate) return null;
+    const calendar = getExtremeEventsCalendar(customEvents);
+    if (!calendar || calendar.length === 0) return null;
+
+    for (let i = 0; i < calendar.length; i++) {
+      const evt = calendar[i];
+      // Regra 7 (Integridade Cronológica / Zero Look-Ahead Bias):
+      // Eventos inesperados não conhecidos antecipadamente não podem gerar encerramento preventivo retroativo.
+      if (!evt.isPreScheduled || evt.isUnexpected) continue;
+      if (evt.knownSinceDate && evt.knownSinceDate > candleDate) continue;
+
+      if (evt.market && evt.market !== 'ALL' && market && evt.market !== String(market).toUpperCase()) {
+        continue;
+      }
+
+      // O evento precisa ser posterior ou igual à entrada da posição
+      if (entryDate && evt.riskEndDate < entryDate) {
+        continue;
+      }
+
+      const resolution = resolveExtremeEventCutoffSession(evt, {
+        candles,
+        validSessionSet,
+        advanceSessions
+      });
+      if (!resolution || !resolution.cutoffDate) continue;
+
+      // Caso 1: O pregão atual é exatamente o pregão limite (ou já atingiu/ultrapassou o cutoff antes do término do evento)
+      // Ex: entrada na sexta-feira ou antes, e sexta-feira é o último pregão antes da eleição de domingo.
+      if (candleDate >= resolution.cutoffDate && candleDate <= evt.riskEndDate) {
+        return {
+          event: evt,
+          resolution
+        };
+      }
+
+      // Caso 2: Caso haja buraco de liquidez na série de candles do ativo e o próximo candle disponível
+      // já salte direto para durante ou após o período de risco do evento.
+      if (candleDate < resolution.cutoffDate && nextCandleDate && nextCandleDate >= resolution.firstRiskDate) {
+        return {
+          event: evt,
+          resolution: {
+            ...resolution,
+            cutoffDate: candleDate
+          }
+        };
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Verifica se uma data de pregão cai diretamente dentro da janela de risco ativa de um evento extremo conhecido,
+   * bloqueando novas entradas durante o evento.
+   */
+  function findActiveExtremeEventBlockingEntry(params = {}) {
+    const {
+      candleDate,
+      market = 'B3',
+      customEvents = null,
+      candles = null,
+      validSessionSet = null,
+      advanceSessions = null
+    } = params;
+
+    if (!candleDate) return null;
+    const calendar = getExtremeEventsCalendar(customEvents);
+    for (let i = 0; i < calendar.length; i++) {
+      const evt = calendar[i];
+      if (!evt.isPreScheduled || evt.isUnexpected) continue;
+      if (evt.knownSinceDate && evt.knownSinceDate > candleDate) continue;
+      if (evt.market && evt.market !== 'ALL' && market && evt.market !== String(market).toUpperCase()) {
+        continue;
+      }
+      const resolution = resolveExtremeEventCutoffSession(evt, {
+        candles,
+        validSessionSet,
+        advanceSessions
+      });
+      const firstBlockedAfterCutoff = resolution && resolution.cutoffDate ? resolution.cutoffDate : evt.riskStartDate;
+      // Se a sessão atual está dentro do período de risco [riskStartDate, riskEndDate]
+      // ou entre o cutoff (quando advanceSessions > 1) e o fim do evento:
+      if (candleDate >= evt.riskStartDate && candleDate <= evt.riskEndDate) {
+        return { event: evt, resolution };
+      }
+      if (resolution && resolution.advanceSessions > 1 && candleDate > firstBlockedAfterCutoff && candleDate <= evt.riskEndDate) {
+        return { event: evt, resolution };
+      }
+    }
+    return null;
+  }
+
   function evaluateSimulationOnCandles(simulation, candles = [], scenarioOverride = '2R') {
     if (!simulation || !Array.isArray(candles) || candles.length === 0) {
       return simulation;
@@ -1453,6 +1856,33 @@
             desc: 'Expirou sem acionamento no candle imediatamente seguinte ao sinal (T+1). Ordem cancelada definitivamente.'
           });
           break;
+        }
+
+        // Proteção Obrigatória contra Eventos Extremos (Extreme Event Protection):
+        // Impede que novas posições sejam abertas diretamente durante uma janela de risco ativa de evento extremo.
+        if (!sim._skipExtremeEventProtection) {
+          const blockingEvt = findActiveExtremeEventBlockingEntry({
+            candleDate,
+            market: sim.market || 'B3',
+            customEvents: sim.customExtremeEvents || null,
+            candles: validCandles,
+            advanceSessions: sim.extremeEventAdvanceSessions != null ? sim.extremeEventAdvanceSessions : null
+          });
+          if (blockingEvt) {
+            status = STATUS.NOT_TRIGGERED;
+            exitDate = candleDate;
+            exitReason = EXTREME_EVENT_EXIT_REASON;
+            resultR = null;
+            executedEntryPrice = null;
+            entryDate = null;
+            addTimelineEvent({
+              type: 'NOT_TRIGGERED',
+              date: candleDate,
+              label: 'Bloqueado — Evento Extremo',
+              desc: `Entrada bloqueada preventivamente durante o período de risco do evento extremo: ${blockingEvt.event.name}.`
+            });
+            break;
+          }
         }
 
         const entryExec = resolveEntryExecutionOnCandle(c, entryPlanned);
@@ -1849,6 +2279,164 @@
             break;
           }
         }
+
+        // 4. PROTEÇÃO OBRIGATÓRIA CONTRA EVENTOS EXTREMOS (EXTREME EVENT PROTECTION)
+        // Se a operação permanece aberta ao final do pregão e este pregão é o último pregão anterior
+        // a um evento extremo previamente identificado (ou o próximo pregão já adentra o período de risco do evento),
+        // a posição é obrigatoriamente encerrada no preço de fechamento da sessão.
+        if (status === STATUS.IN_OPERATION && !sim._skipExtremeEventProtection) {
+          const nextCandle = (i + 1 < validCandles.length) ? validCandles[i + 1] : null;
+          const nextRawDate = nextCandle ? String(nextCandle.time || nextCandle.date || '').slice(0, 10) : null;
+          const nextCandleDate = nextRawDate ? (snapToTradingDay(nextRawDate, 1) || nextRawDate) : null;
+
+          const applicableExtreme = findApplicableExtremeEventForBar({
+            candleDate,
+            nextCandleDate,
+            entryDate,
+            market: sim.market || 'B3',
+            candles: validCandles,
+            customEvents: sim.customExtremeEvents || null,
+            advanceSessions: sim.extremeEventAdvanceSessions != null ? sim.extremeEventAdvanceSessions : null
+          });
+
+          if (applicableExtreme) {
+            const { event: extEvent, resolution: extRes } = applicableExtreme;
+            const protCfg = getExtremeEventProtectionConfig();
+            const costPct = sim.operationalCostPct != null
+              ? Math.max(0, Number(sim.operationalCostPct) || 0)
+              : protCfg.operationalCostPct;
+
+            // Execução no fechamento da sessão anterior ao evento extremo, considerando custos aplicáveis
+            // e respeitando estritamente a faixa negociável OHLC [cLow, cHigh]
+            const rawCloseExit = costPct > 0 ? round2(cClose * (1 - costPct / 100)) : round2(cClose);
+            exitPrice = round2(Math.min(cHigh, Math.max(cLow, rawCloseExit)));
+            exitDate = candleDate;
+            sim.currentPrice = exitPrice;
+
+            if (isPartialEma9 && sim.partialExit?.executed) {
+              const runnerR = round2((exitPrice - executedEntryPrice) / risk);
+              resultR = round2(sim.partialExit.partialResultR + (runnerPercent / 100) * runnerR);
+              sim.partialExit.runnerExitPrice = exitPrice;
+              sim.partialExit.runnerExitR = runnerR;
+              sim.partialExit.consolidatedResultR = resultR;
+              sim.partialExit.averageExitPrice = round2((partialPercent / 100) * sim.partialExit.partialPrice + (runnerPercent / 100) * exitPrice);
+            } else if (isPyramid && sim.scaleIn && sim.scaleIn.executed) {
+              const scaleInPrice = Number(sim.scaleIn.price) || target1R;
+              const lot1R = round2((exitPrice - executedEntryPrice) / risk);
+              const lot2R = round2((exitPrice - scaleInPrice) / risk);
+              resultR = round2(lot1R + lot2R);
+              sim.scaleIn.lot1ResultR = lot1R;
+              sim.scaleIn.lot2ResultR = lot2R;
+              sim.scaleIn.consolidatedResultR = resultR;
+            } else {
+              resultR = round2((exitPrice - executedEntryPrice) / risk);
+            }
+
+            status = resultR > 0 ? STATUS.CLOSED_GAIN : STATUS.CLOSED_LOSS;
+            exitReason = EXTREME_EVENT_EXIT_REASON;
+            sim.exitType = EXTREME_EVENT_EXIT_TYPE;
+            sim.isExtremeEventExit = true;
+            sim.isTechnicalStop = false;
+
+            // Apuração contrafactual (hipotética): o que teria ocorrido se a operação permanecesse aberta durante o evento?
+            let hypotheticalResultR = resultR;
+            let hypotheticalExitPrice = exitPrice;
+            let hypotheticalExitDate = exitDate;
+            let hypotheticalExitReason = exitReason;
+            try {
+              const counterfactualSim = evaluateSimulationOnCandles(
+                {
+                  ...simulation,
+                  _skipExtremeEventProtection: true,
+                  status: STATUS.WAITING_ENTRY,
+                  executedEntryPrice: null,
+                  entryDate: null,
+                  exitPrice: null,
+                  exitDate: null,
+                  exitReason: null,
+                  resultR: null,
+                  scaleIn: null,
+                  partialExit: null,
+                  timeline: []
+                },
+                validCandles,
+                scenario
+              );
+              if (counterfactualSim && counterfactualSim.resultR != null && Number.isFinite(Number(counterfactualSim.resultR))) {
+                hypotheticalResultR = round2(Number(counterfactualSim.resultR));
+                hypotheticalExitPrice = counterfactualSim.exitPrice;
+                hypotheticalExitDate = counterfactualSim.exitDate;
+                hypotheticalExitReason = counterfactualSim.exitReason;
+              } else if (counterfactualSim && counterfactualSim.unrealizedR != null && Number.isFinite(Number(counterfactualSim.unrealizedR))) {
+                hypotheticalResultR = round2(Number(counterfactualSim.unrealizedR));
+                hypotheticalExitPrice = counterfactualSim.currentPrice;
+                hypotheticalExitDate = validCandles.length ? String(validCandles[validCandles.length - 1].time || validCandles[validCandles.length - 1].date).slice(0, 10) : exitDate;
+                hypotheticalExitReason = 'Permanência hipotética após o evento';
+              }
+            } catch {
+              // Preserva fallback seguro caso não haja candles posteriores
+            }
+
+            const protectionImpactR = round2(resultR - hypotheticalResultR);
+            const avoidedLossR = protectionImpactR > 0 ? protectionImpactR : 0;
+            const foregoneGainR = protectionImpactR < 0 ? round2(Math.abs(protectionImpactR)) : 0;
+            const reopenGapPct = (extRes.reopenOpenPrice != null && exitPrice > 0)
+              ? round2(((extRes.reopenOpenPrice - exitPrice) / exitPrice) * 100)
+              : null;
+
+            sim.extremeEventProtection = {
+              isExtraordinaryRiskProtection: true,
+              exitReason: EXTREME_EVENT_EXIT_REASON,
+              exitType: EXTREME_EVENT_EXIT_TYPE,
+              exitDate: candleDate,
+              exitTime: '17:00 BRT',
+              exitDateTime: `${candleDate}T17:00:00-03:00`,
+              exitSessionClosePrice: round2(cClose),
+              effectiveExitPrice: exitPrice,
+              operationalCostPct: costPct,
+              eventId: extEvent.id,
+              eventName: extEvent.name,
+              eventCategory: extEvent.category,
+              eventCategoryLabel: extEvent.categoryLabel,
+              eventDate: extEvent.eventDate,
+              riskStartDate: extEvent.riskStartDate,
+              riskEndDate: extEvent.riskEndDate,
+              cutoffDate: extRes.cutoffDate,
+              advanceSessions: extRes.advanceSessions,
+              reopenDate: extRes.reopenDate,
+              reopenOpenPrice: extRes.reopenOpenPrice != null ? round2(extRes.reopenOpenPrice) : null,
+              reopenGapPct,
+              justification: extEvent.justification,
+              realizedResultR: resultR,
+              hypotheticalResultR,
+              hypotheticalExitPrice,
+              hypotheticalExitDate,
+              hypotheticalExitReason,
+              protectionImpactR,
+              avoidedLossR,
+              foregoneGainR
+            };
+
+            addTimelineEvent({
+              type: 'EXTREME_EVENT_EXIT',
+              date: candleDate,
+              label: '🛡️ Saída antecipada — Evento Extremo',
+              price: exitPrice,
+              resultR,
+              eventName: extEvent.name,
+              eventCategoryLabel: extEvent.categoryLabel,
+              desc: `${extEvent.justification} Evento: ${extEvent.name} (${formatDateBR(extEvent.eventDate)}). Encerramento no fechamento do pregão de ${formatDateBR(candleDate)} a ${formatPrice(exitPrice)} (${formatR(resultR)}).`
+            });
+            addTimelineEvent({
+              type: 'CLOSED',
+              date: candleDate,
+              label: 'Encerrado — Proteção contra Evento Extremo',
+              resultR,
+              desc: `Operação encerrada antecipadamente por proteção extraordinária de risco (${formatR(resultR)}).`
+            });
+            break; // Impede qualquer acompanhamento adicional por stop loss, trailing stop ou alvos após o encerramento
+          }
+        }
       }
     }
 
@@ -2134,6 +2722,15 @@
     let totalLossesR = 0;
     let totalDurationDays = 0;
     let durationTradesCount = 0;
+    let extremeEventExitsCount = 0;
+    let extremeEventTotalR = 0;
+    let extremeEventHypotheticalTotalR = 0;
+    let extremeEventAvoidedImpactR = 0;
+    let extremeEventStrategyImpactR = 0;
+    let extremeEventFinancialResult = 0;
+    let extremeEventAvoidedFinancial = 0;
+    let technicalStopsCount = 0;
+    const extremeEventTrades = [];
 
     const triggerMap = {};
     const gradeMap = {};
@@ -2222,6 +2819,43 @@
         if (dur !== null) {
           totalDurationDays += dur;
           durationTradesCount++;
+        }
+
+        const isExtremeExit = Boolean(
+          sim.isExtremeEventExit ||
+          sim.exitType === EXTREME_EVENT_EXIT_TYPE ||
+          sim.exitReason === EXTREME_EVENT_EXIT_REASON ||
+          sim.extremeEventProtection
+        );
+        if (isExtremeExit) {
+          extremeEventExitsCount++;
+          extremeEventTotalR = round2(extremeEventTotalR + r);
+          const extProt = sim.extremeEventProtection || {};
+          const hypR = extProt.hypotheticalResultR != null ? Number(extProt.hypotheticalResultR) : r;
+          const impactR = extProt.protectionImpactR != null ? Number(extProt.protectionImpactR) : round2(r - hypR);
+          extremeEventHypotheticalTotalR = round2(extremeEventHypotheticalTotalR + hypR);
+          extremeEventAvoidedImpactR = round2(extremeEventAvoidedImpactR + impactR);
+          extremeEventStrategyImpactR = round2(extremeEventStrategyImpactR + impactR);
+          const riskCash = Number(sim.authorizedRiskCash || sim.initialRiskCash || 1000);
+          const tradeFin = sim.netPnL != null ? Number(sim.netPnL) : round2(r * riskCash);
+          const impactFin = round2(impactR * riskCash);
+          extremeEventFinancialResult = round2(extremeEventFinancialResult + tradeFin);
+          extremeEventAvoidedFinancial = round2(extremeEventAvoidedFinancial + impactFin);
+          extremeEventTrades.push({
+            id: sim.id,
+            symbol: sim.symbol,
+            entryDate: sim.entryDate,
+            exitDate: sim.exitDate,
+            exitPrice: sim.exitPrice,
+            resultR: r,
+            hypotheticalResultR: hypR,
+            protectionImpactR: impactR,
+            eventName: extProt.eventName || 'Evento Extremo Identificado',
+            eventCategoryLabel: extProt.eventCategoryLabel || 'Risco Extremo',
+            eventDate: extProt.eventDate || sim.exitDate
+          });
+        } else if (status === STATUS.CLOSED_LOSS || String(sim.exitReason || '').toLowerCase().includes('stop')) {
+          technicalStopsCount++;
         }
       }
     });
@@ -2506,7 +3140,32 @@
       sqnClassification: sqnAnalytics ? sqnAnalytics.classification : null,
       standardDeviationR: sqnAnalytics ? sqnAnalytics.standardDeviation : null,
       standardDeviationRFormatted: sqnAnalytics ? sqnAnalytics.standardDeviationFormatted : '—',
-      sqnEvolution: sqnAnalytics ? sqnAnalytics.evolution : []
+      sqnEvolution: sqnAnalytics ? sqnAnalytics.evolution : [],
+      extremeEventExitsCount,
+      extremeEventTotalR: round2(extremeEventTotalR),
+      extremeEventTotalRFormatted: formatR(extremeEventTotalR),
+      extremeEventHypotheticalTotalR: round2(extremeEventHypotheticalTotalR),
+      extremeEventAvoidedImpactR: round2(extremeEventAvoidedImpactR),
+      extremeEventAvoidedImpactRFormatted: formatR(extremeEventAvoidedImpactR),
+      extremeEventStrategyImpactR: round2(extremeEventStrategyImpactR),
+      extremeEventStrategyImpactRFormatted: formatR(extremeEventStrategyImpactR),
+      extremeEventFinancialResult: round2(extremeEventFinancialResult),
+      extremeEventAvoidedFinancial: round2(extremeEventAvoidedFinancial),
+      technicalStopsCount,
+      extremeEventStats: {
+        count: extremeEventExitsCount,
+        totalR: round2(extremeEventTotalR),
+        totalRFormatted: formatR(extremeEventTotalR),
+        hypotheticalTotalR: round2(extremeEventHypotheticalTotalR),
+        avoidedImpactR: round2(extremeEventAvoidedImpactR),
+        avoidedImpactRFormatted: formatR(extremeEventAvoidedImpactR),
+        strategyImpactR: round2(extremeEventStrategyImpactR),
+        strategyImpactRFormatted: formatR(extremeEventStrategyImpactR),
+        financialResult: round2(extremeEventFinancialResult),
+        avoidedFinancial: round2(extremeEventAvoidedFinancial),
+        technicalStopsCount,
+        trades: extremeEventTrades
+      }
     };
   }
 
@@ -4302,6 +4961,10 @@
         exitPrice: null,
         exitDate: null,
         exitReason: null,
+        exitType: null,
+        isExtremeEventExit: false,
+        isTechnicalStop: undefined,
+        extremeEventProtection: null,
         resultR: null,
         mfeR: null,
         maeR: null,
@@ -5500,12 +6163,26 @@
       });
     }
     if ((isClosed || status === STATUS.NOT_TRIGGERED) && inWindow(exitDate)) {
+      const isExtremeExit = Boolean(
+        simulation.isExtremeEventExit ||
+        simulation.exitType === EXTREME_EVENT_EXIT_TYPE ||
+        simulation.exitReason === EXTREME_EVENT_EXIT_REASON ||
+        simulation.extremeEventProtection
+      );
       events.push({
-        type: status === STATUS.NOT_TRIGGERED ? 'NOT_TRIGGERED' : 'EXIT',
+        type: status === STATUS.NOT_TRIGGERED
+          ? 'NOT_TRIGGERED'
+          : (isExtremeExit ? 'EXTREME_EVENT_EXIT' : 'EXIT'),
         time: exitDate,
         price: simulation.exitPrice != null ? Number(simulation.exitPrice) : null,
-        label: status === STATUS.NOT_TRIGGERED ? 'Não acionado' : (status === STATUS.CLOSED_GAIN ? 'Saída (gain)' : 'Saída (stop/loss)'),
-        reason: simulation.exitReason || null
+        label: status === STATUS.NOT_TRIGGERED
+          ? 'Não acionado'
+          : (isExtremeExit
+            ? '🛡️ Saída antecipada — Evento Extremo'
+            : (status === STATUS.CLOSED_GAIN ? 'Saída (gain)' : 'Saída (stop/loss)')),
+        reason: simulation.exitReason || null,
+        isExtremeEventExit: isExtremeExit,
+        extremeEventProtection: simulation.extremeEventProtection || null
       });
     }
 
@@ -9858,6 +10535,20 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     resolveStopExecutionOnCandle,
     resolveTargetExecutionOnCandle,
     resolveCandleExitWithAmbiguity,
+    EXTREME_EVENT_EXIT_REASON,
+    EXTREME_EVENT_EXIT_TYPE,
+    EXTREME_EVENT_CATEGORIES,
+    DEFAULT_EXTREME_EVENTS_CALENDAR,
+    normalizeExtremeEventRecord,
+    getExtremeEventsCalendar,
+    registerExtremeEvent,
+    removeExtremeEvent,
+    resetExtremeEventsCalendar,
+    getExtremeEventProtectionConfig,
+    setExtremeEventProtectionConfig,
+    resolveExtremeEventCutoffSession,
+    findApplicableExtremeEventForBar,
+    findActiveExtremeEventBlockingEntry,
     evaluateSimulationOnCandles,
     calculateSimulatorStats,
     filterSimulations,

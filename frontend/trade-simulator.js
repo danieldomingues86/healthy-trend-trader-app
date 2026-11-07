@@ -1956,6 +1956,121 @@
 
         <!-- System Quality Analytics (SQN - Metodologia Van K. Tharp) -->
         ${renderSimulatorSqnCard(stats)}
+        ${renderExtremeEventSummarySection(stats)}
+      </div>
+    `;
+  }
+
+  /**
+   * Renderiza o painel de estatísticas e calendário de Proteção Obrigatória contra Eventos Extremos na aba Resumo.
+   */
+  function renderExtremeEventSummarySection(stats) {
+    const extStats = (stats && stats.extremeEventStats) || {
+      count: stats?.extremeEventExitsCount || 0,
+      totalR: stats?.extremeEventTotalR || 0,
+      totalRFormatted: stats?.extremeEventTotalRFormatted || '0,00R',
+      avoidedImpactR: stats?.extremeEventAvoidedImpactR || 0,
+      avoidedImpactRFormatted: stats?.extremeEventAvoidedImpactRFormatted || '0,00R',
+      strategyImpactR: stats?.extremeEventStrategyImpactR || 0,
+      strategyImpactRFormatted: stats?.extremeEventStrategyImpactRFormatted || '0,00R',
+      financialResult: stats?.extremeEventFinancialResult || 0,
+      avoidedFinancial: stats?.extremeEventAvoidedFinancial || 0,
+      technicalStopsCount: stats?.technicalStopsCount || 0,
+      trades: []
+    };
+
+    const calendar = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getExtremeEventsCalendar === 'function')
+      ? root.TradeSimulatorModel.getExtremeEventsCalendar()
+      : [];
+    const protCfg = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getExtremeEventProtectionConfig === 'function')
+      ? root.TradeSimulatorModel.getExtremeEventProtectionConfig()
+      : { advanceSessions: 1, operationalCostPct: 0 };
+
+    const count = Number(extStats.count || 0);
+    const totalR = Number(extStats.totalR || 0);
+    const avoidedR = Number(extStats.avoidedImpactR || 0);
+    const impactR = Number(extStats.strategyImpactR || 0);
+    const finRes = Number(extStats.financialResult || 0);
+
+    return `
+      <div class="sim-rebuild-card sim-extreme-summary-card" style="margin-top: 20px;" id="simExtremeEventProtectionPanel">
+        <div class="sim-rebuild-card-head">
+          <div class="sim-rebuild-card-head-left">
+            <span class="sim-rebuild-head-icon icon-chart">🛡️</span>
+            <div>
+              <h2 class="sim-rebuild-card-title">Proteção Obrigatória contra Eventos Extremos (Extreme Event Protection)</h2>
+              <p class="sim-rebuild-card-desc">Encerramento preventivo obrigatório no último pregão anterior a eleições presidenciais, decisões extraordinárias e eventos de descontinuidade de preço.</p>
+            </div>
+          </div>
+          <span class="sim-status-pill pill-extreme-event">
+            <span class="pill-dot"></span> Regra Obrigatória Ativa (${protCfg.advanceSessions} pregão antes)
+          </span>
+        </div>
+
+        <div class="sim-rebuild-kpis-grid" style="margin-top: 14px;">
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-blue">🛡️</span>
+              <span class="sim-mini-kpi-title">Trades Encerrados por Evento Extremo</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val">${count}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Não contabilizados como stops técnicos (${extStats.technicalStopsCount || 0} stops técnicos)</div>
+          </div>
+
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-mint">💰</span>
+              <span class="sim-mini-kpi-title">Resultado das Saídas Preventivas</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${totalR >= 0 ? 'pos' : 'neg'}">${formatR(totalR)}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Financeiro realizado: ${finRes >= 0 ? '+ ' : '- '}${formatMoney(Math.abs(finRes))}</div>
+          </div>
+
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-mint">⚡</span>
+              <span class="sim-mini-kpi-title">Lucro / Prejuízo Evitado (vs Permanência)</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${avoidedR >= 0 ? 'pos' : 'neg'}">${formatR(avoidedR)}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Comparado à permanência hipotética no evento</div>
+          </div>
+
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-blue">📊</span>
+              <span class="sim-mini-kpi-title">Impacto da Proteção na Estratégia</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${impactR >= 0 ? 'pos' : 'neg'}">${formatR(impactR)}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Preservação de capital prioritária sobre retorno bruto</div>
+          </div>
+        </div>
+
+        <div class="sim-extreme-calendar-strip" style="margin-top: 14px;">
+          <div class="sim-extreme-calendar-title">📅 Calendário Oficial de Eventos Extremos Monitorados (${calendar.length}):</div>
+          <div class="sim-extreme-calendar-Badges">
+            ${calendar.map(evt => `
+              <span class="sim-extreme-cal-chip" title="${escapeHtml(evt.justification || '')}">
+                <strong>${escapeHtml(evt.name)}</strong> • Evento: ${formatDateBR(evt.eventDate)}
+              </span>
+            `).join('')}
+          </div>
+        </div>
       </div>
     `;
   }
@@ -3381,7 +3496,88 @@
     `;
   }
 
+  function isExtremeEventExitSim(sim) {
+    if (!sim || typeof sim !== 'object') return false;
+    return Boolean(
+      sim.isExtremeEventExit ||
+      sim.exitType === 'EXTREME_EVENT_PROTECTION' ||
+      sim.exitReason === 'EVENTO EXTREMO IDENTIFICADO' ||
+      sim.extremeEventProtection
+    );
+  }
+
+  function renderExtremeEventProtectionCard(sim) {
+    if (!isExtremeEventExitSim(sim)) return '';
+    const ext = sim.extremeEventProtection || {};
+    const eventName = escapeHtml(ext.eventName || 'Evento Extremo Previamente Identificado');
+    const categoryLabel = escapeHtml(ext.eventCategoryLabel || 'Risco Extremo');
+    const exitDateStr = formatDateBR(ext.exitDate || sim.exitDate);
+    const exitTimeStr = escapeHtml(ext.exitTime || '17:00 BRT');
+    const exitPriceStr = formatMoney(ext.effectiveExitPrice != null ? ext.effectiveExitPrice : sim.exitPrice);
+    const realizedR = ext.realizedResultR != null ? ext.realizedResultR : sim.resultR;
+    const hypR = ext.hypotheticalResultR != null ? ext.hypotheticalResultR : realizedR;
+    const impactR = ext.protectionImpactR != null ? ext.protectionImpactR : ((Number(realizedR) || 0) - (Number(hypR) || 0));
+    const justification = escapeHtml(
+      ext.justification ||
+      'Operação encerrada antecipadamente por proteção contra evento extremo. Evento previamente identificado, com elevado potencial de provocar gaps de abertura e volatilidade extraordinária. Posição zerada antes do evento para preservação do capital, independentemente da validade do setup técnico.'
+    );
+    const impactSign = impactR > 0 ? '+' : '';
+    const impactFormatted = `${impactSign}${Number(impactR || 0).toFixed(2).replace('.', ',')}R`;
+
+    return `
+      <div class="sim-extreme-event-detail-card" role="region" aria-label="Proteção Obrigatória contra Eventos Extremos">
+        <div class="sim-extreme-event-detail-head">
+          <div class="sim-extreme-event-detail-title">
+            <span class="sim-extreme-shield-icon">🛡️</span>
+            <div>
+              <strong>Saída Antecipada — Proteção Obrigatória contra Evento Extremo</strong>
+              <span class="sim-extreme-reason-tag">Motivo de saída: EVENTO EXTREMO IDENTIFICADO</span>
+            </div>
+          </div>
+          <span class="sim-extreme-category-pill">${categoryLabel}</span>
+        </div>
+        <div class="sim-extreme-event-detail-grid">
+          <div class="sim-extreme-kv">
+            <small>Evento Identificado</small>
+            <b>${eventName}${ext.eventDate ? ` (${formatDateBR(ext.eventDate)})` : ''}</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Data e Horário do Encerramento</small>
+            <b>${exitDateStr} às ${exitTimeStr} (Último pregão anterior)</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Preço Efetivo de Saída</small>
+            <b>${exitPriceStr} (Fechamento da sessão)</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Resultado Realizado</small>
+            <b style="color: ${realizedR > 0 ? '#059669' : (realizedR < 0 ? '#dc2626' : '#475569')};">${formatR(realizedR)}</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Permanência Hipotética (Contrafactual)</small>
+            <b>${formatR(hypR)}${ext.hypotheticalExitPrice ? ` (${formatMoney(ext.hypotheticalExitPrice)})` : ''}</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Impacto da Proteção (Risco Evitado)</small>
+            <b style="color: ${impactR >= 0 ? '#059669' : '#d97706'};">${impactFormatted}</b>
+          </div>
+        </div>
+        <div class="sim-extreme-justification-box">
+          <small>Justificativa de Gerenciamento de Risco Extraordinário:</small>
+          <p>"${justification}"</p>
+        </div>
+      </div>
+    `;
+  }
+
   function renderStatusPill(status, sim) {
+    if (isExtremeEventExitSim(sim)) {
+      const ext = sim.extremeEventProtection || {};
+      const tooltip = escapeHtml(
+        `${ext.eventName || 'Evento Extremo'}: ${ext.justification || 'Posição encerrada preventivamente antes do evento extremo.'}`
+      );
+      return `<span class="sim-status-pill pill-extreme-event" title="${tooltip}"><span class="pill-dot"></span> 🛡️ Evento Extremo (${formatR(sim.resultR)})</span>`;
+    }
     if (sim && (status === 'CLOSED_LOSS' || status === 'CLOSED_GAIN') && (Number(sim.resultR) === 0 || Math.abs(Number(sim.resultR) || 0) < 0.0001)) {
       return `<span class="sim-status-pill pill-breakeven"><span class="pill-dot"></span> Encerrado (Breakeven)</span>`;
     }
@@ -5262,6 +5458,7 @@
           </div>
 
           <!-- Cards de Auditoria do Ciclo de Mercado e Força Relativa (RS na Entrada) -->
+          ${renderExtremeEventProtectionCard(sim)}
           ${renderMarketCycleDetailsCard(sim)}
           ${renderEntryRsDetailsCard(sim)}
 
@@ -5822,6 +6019,7 @@
           </div>
 
           <!-- Print / Foto do Momento da Captura & Execução + Visão do Ativo (Trading Rubric) -->
+          ${renderExtremeEventProtectionCard(sim)}
           <div class="sim-snapshot-body-split">
             <div class="sim-snapshot-chart-card">
               ${renderSnapshotChartSvg(sim)}
@@ -6542,6 +6740,23 @@
             <rect x="-44" y="-8" width="88" height="16" rx="4" fill="#059669" />
             <text x="0" y="3.5" fill="#fff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">▲ Entrada R$ ${ev.price.toFixed(2).replace('.', ',')}</text>
           </g>`;
+      } else if (ev.type === 'EXTREME_EVENT_EXIT' || ev.isExtremeEventExit) {
+        const extInfo = ev.extremeEventProtection || sim.extremeEventProtection || {};
+        const extTitle = `${extInfo.eventName || 'Evento Extremo'} (${extInfo.eventCategoryLabel || 'Risco Extremo'}) • Saída antecipada em ${formatDateBR(ev.time)} às ${extInfo.exitTime || '17:00 BRT'} a R$ ${ev.price.toFixed(2).replace('.', ',')} • ${extInfo.justification || 'Encerramento preventivo para preservação do capital.'}`;
+        eventsSvg += `
+          <g>
+            <title>${snapEsc(extTitle)}</title>
+            <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + plotH}" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.85" />
+            <g transform="translate(${x}, ${padTop + 11})">
+              <rect x="-78" y="-8" width="156" height="16" rx="4" fill="#7c2d12" stroke="#f59e0b" stroke-width="1" />
+              <text x="0" y="3.2" fill="#fef3c7" font-size="8" font-weight="700" text-anchor="middle" font-family="system-ui">🛡️ Saída antecipada — Evento Extremo</text>
+            </g>
+            <circle cx="${x}" cy="${y}" r="5.5" fill="#d97706" stroke="#fef3c7" stroke-width="1.6" />
+            <g transform="translate(${x}, ${y + (isGain ? -16 : 16)})">
+              <rect x="-66" y="-8.5" width="132" height="17" rx="4" fill="#d97706" stroke="#fde68a" stroke-width="1" />
+              <text x="0" y="3.5" fill="#fffbeb" font-size="8.3" font-weight="800" text-anchor="middle" font-family="system-ui">🛡️ Evento Extremo R$ ${ev.price.toFixed(2).replace('.', ',')}</text>
+            </g>
+          </g>`;
       } else if (ev.type === 'EXIT') {
         const outColor = isGain ? '#059669' : (isLoss ? '#dc2626' : '#64748b');
         const outIcon = isGain ? '★' : (isLoss ? '✕' : '•');
@@ -6569,6 +6784,7 @@
           <span class="sim-snap-ticker">${snapEsc(snap.symbol)} • ${snapEsc(snap.timeframe || '1D')}</span>
           <span class="sim-snap-ema-leg" style="color: #38bdf8;">— EMA 10</span>
           <span class="sim-snap-ema-leg" style="color: #f59e0b;">— EMA 72</span>
+          ${isExtremeEventExitSim(sim) ? `<span class="sim-snap-ema-leg sim-snap-extreme-leg" style="color: #fbbf24; font-weight: 700;">🛡️ Saída antecipada — Evento Extremo</span>` : ''}
         </div>
         <div class="sim-snapshot-zoom-group">
           ${['1M', '3M', '6M', '1A', '2A'].map(z => `

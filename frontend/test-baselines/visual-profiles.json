@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-07T16:07:42.408Z",
+  "updatedAt": "2026-11-07T16:44:50.830Z",
   "totalScreens": 46,
   "totalStylesheets": 11,
   "screens": {
@@ -625,7 +625,7 @@
     },
     "trade-simulator.css": {
       "filename": "trade-simulator.css",
-      "rulesCount": 1241,
+      "rulesCount": 1265,
       "mediaBreakpointsCount": 16,
       "mediaBreakpoints": [
         "@media (max-width: 1024px)",
@@ -648,7 +648,7 @@
       "healthyRulesCount": 53,
       "goldRulesCount": 59,
       "pigeonRulesCount": 56,
-      "footprintHash": "c74cde6871c2b054"
+      "footprintHash": "ac5cb843abaebd47"
     },
     "event-playbook.css": {
       "filename": "event-playbook.css",
