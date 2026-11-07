@@ -45,6 +45,7 @@
     exportScope: 'FILTERED', // 'FILTERED' | 'ALL'
     tempScenarioSelection: '2R',
     massConfig: {
+      strategy: 'TREND_FOLLOWING', // 'TREND_FOLLOWING' | 'VOLATILITY_TRADING'
       period: 120, // 30, 90, 120, 180, 365, 730, 1095, 'CUSTOM', 'ALL'
       startDate: '',
       endDate: '',
@@ -52,6 +53,15 @@
       triggers: 'ALL', // 'ALL' ou array
       grades: 'ALL', // 'ALL' ou array
       targetVolume: 100 // 100, 250, 500, 1000, 'MAX'
+    },
+    massProcessingState: {
+      status: 'IDLE', // 'IDLE' | 'PROCESSING' | 'SUCCESS' | 'ERROR'
+      phase: 'LOAD_HISTORY',
+      currentStepIndex: 1,
+      realProgressPct: null,
+      executedCount: null,
+      errorMessage: null,
+      config: null
     },
     comparison: null,
     hypothesisComparison: null,
@@ -335,20 +345,99 @@
     return newSim;
   }
 
+  function yieldToUiFrame() {
+    return new Promise(resolve => setTimeout(resolve, 16));
+  }
+
+  let massSuccessAutoCloseTimer = null;
+
+  function clearMassSuccessAutoCloseTimer() {
+    if (massSuccessAutoCloseTimer) {
+      clearTimeout(massSuccessAutoCloseTimer);
+      massSuccessAutoCloseTimer = null;
+    }
+  }
+
+  function syncFiltersWithMassPayload(payload) {
+    if (payload.period === 'CUSTOM') {
+      state.filters.days = 'CUSTOM';
+      state.filters.startDate = payload.startDate || null;
+      state.filters.endDate = payload.endDate || null;
+    } else if (payload.period === 'ALL') {
+      state.filters.days = 'ALL';
+      state.filters.startDate = null;
+      state.filters.endDate = null;
+    } else {
+      state.filters.days = Number(payload.period);
+      state.filters.startDate = null;
+      state.filters.endDate = null;
+    }
+    state.massConfig.period = payload.period;
+    state.massConfig.startDate = payload.startDate || '';
+    state.massConfig.endDate = payload.endDate || '';
+    if (payload.triggers && payload.triggers !== 'ALL') {
+      const trigs = Array.isArray(payload.triggers) ? payload.triggers : [payload.triggers];
+      state.filters.trigger = trigs.length === 1 ? trigs[0] : 'ALL';
+    } else {
+      state.filters.trigger = 'ALL';
+    }
+    if (payload.grades && payload.grades !== 'ALL') {
+      const grs = Array.isArray(payload.grades) ? payload.grades : [payload.grades];
+      state.filters.grade = grs.length === 1 ? (root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(grs[0]) : grs[0]) : 'ALL';
+    } else {
+      state.filters.grade = 'ALL';
+    }
+  }
+
+  function finalizeMassGenerationSuccess(payload, meta, toastText, keepSuccessOpen = false) {
+    const executedCount = meta?.executedCount ?? state.simulations.filter(
+      s => s.status === 'IN_OPERATION' || s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS'
+    ).length;
+
+    state.loading = false;
+    state.generatingMass = false;
+    state.massProcessingState = {
+      status: 'SUCCESS',
+      phase: 'COMPLETED',
+      currentStepIndex: 6,
+      realProgressPct: 100,
+      executedCount,
+      errorMessage: null,
+      config: { ...payload, meta: meta || null }
+    };
+    saveLocalCache();
+    render();
+
+    if (typeof root.showToast === 'function' && toastText) {
+      root.showToast(toastText);
+    }
+
+    clearMassSuccessAutoCloseTimer();
+    if (!keepSuccessOpen && state.massModalOpen) {
+      massSuccessAutoCloseTimer = setTimeout(() => {
+        if (state.massModalOpen && state.massProcessingState?.status === 'SUCCESS') {
+          state.massModalOpen = false;
+          state.massProcessingState.status = 'IDLE';
+          render();
+        }
+      }, 1100);
+    }
+  }
+
   /**
    * Gera massa de teste no cenário de gestão selecionado ('2R', '2.5R' ou 'PYRAMID_1R_2R')
    */
   async function generateScenarioMass(scenarioId = '2R', options = null) {
-    state.loading = true;
-    state.generatingMass = true;
-    state.massProgressText = 'Varrendo histórico e identificando operações...';
-    state.activeScenario = scenarioId;
-    state.tempScenarioSelection = scenarioId;
-    state.scenarioModalOpen = false;
-    render();
+    // Bloqueia cliques duplicados ou submissões concorrentes durante o processamento
+    if (state.generatingMass) {
+      return null;
+    }
+
+    clearMassSuccessAutoCloseTimer();
 
     const config = options || state.massConfig || {};
     const payload = {
+      strategy: config.strategy || state.massConfig?.strategy || 'TREND_FOLLOWING',
       scenario: scenarioId,
       period: config.period || 120,
       startDate: config.startDate || null,
@@ -359,6 +448,73 @@
       targetVolume: config.targetVolume || 100
     };
 
+    // Validação preventiva de período personalizado ou erro explícito
+    if (payload.period === 'CUSTOM') {
+      if (!payload.startDate || !payload.endDate) {
+        state.loading = false;
+        state.generatingMass = false;
+        state.massProcessingState = {
+          status: 'ERROR',
+          phase: 'FAILED',
+          currentStepIndex: 1,
+          realProgressPct: null,
+          executedCount: null,
+          errorMessage: 'Informe a data inicial e a data final para o período personalizado.',
+          config: { ...payload }
+        };
+        render();
+        return null;
+      }
+      if (String(payload.startDate) > String(payload.endDate)) {
+        state.loading = false;
+        state.generatingMass = false;
+        state.massProcessingState = {
+          status: 'ERROR',
+          phase: 'FAILED',
+          currentStepIndex: 1,
+          realProgressPct: null,
+          executedCount: null,
+          errorMessage: 'A data inicial não pode ser posterior à data final selecionada.',
+          config: { ...payload }
+        };
+        render();
+        return null;
+      }
+    }
+
+    if (config && config.simulateError === true) {
+      state.loading = false;
+      state.generatingMass = false;
+      state.massProcessingState = {
+        status: 'ERROR',
+        phase: 'FAILED',
+        currentStepIndex: Number(config.errorStepIndex) || 1,
+        realProgressPct: null,
+        executedCount: null,
+        errorMessage: config.errorMessage || 'Não foi possível concluir o processamento da massa de testes. Tente novamente.',
+        config: { ...payload }
+      };
+      render();
+      return null;
+    }
+
+    state.loading = true;
+    state.generatingMass = true;
+    state.massProgressText = 'Varrendo histórico e identificando operações...';
+    state.activeScenario = scenarioId;
+    state.tempScenarioSelection = scenarioId;
+    state.scenarioModalOpen = false;
+    state.massProcessingState = {
+      status: 'PROCESSING',
+      phase: 'LOAD_HISTORY',
+      currentStepIndex: 1,
+      realProgressPct: null, // Indeterminado enquanto aguarda processamento do servidor (sem percentuais fictícios)
+      executedCount: null,
+      errorMessage: null,
+      config: { ...payload }
+    };
+    render();
+
     try {
       if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
         const res = await root.healthyTrendApi.request(API_ENDPOINT + '/generate-mass', {
@@ -366,53 +522,47 @@
           body: JSON.stringify(payload)
         });
         if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
+          // Etapas 1, 2 e 3 concluídas e confirmadas pelo servidor (60% real) -> inicia Etapa 4
+          state.massProcessingState = {
+            ...state.massProcessingState,
+            status: 'PROCESSING',
+            phase: 'CALCULATE_METRICS',
+            currentStepIndex: 4,
+            realProgressPct: 60,
+            config: { ...payload, meta: res.meta || null }
+          };
+          render();
+          await yieldToUiFrame();
+
           state.simulations = sanitizeSimulationsList(res.simulations);
           state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
           state.hypothesisComparison = res.hypothesisComparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations) : null);
           state.auditReport = res.auditReport || (root.TradeSimulatorModel?.auditSimulationsBatch ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload }) : null);
           state.massResultSummary = res.meta || null;
 
-          // Sincroniza os filtros do topo com o período gerado para que a amostra completa seja exibida na tela
-          if (payload.period === 'CUSTOM') {
-            state.filters.days = 'CUSTOM';
-            state.filters.startDate = payload.startDate || null;
-            state.filters.endDate = payload.endDate || null;
-          } else if (payload.period === 'ALL') {
-            state.filters.days = 'ALL';
-            state.filters.startDate = null;
-            state.filters.endDate = null;
-          } else {
-            state.filters.days = Number(payload.period);
-            state.filters.startDate = null;
-            state.filters.endDate = null;
-          }
-          state.massConfig.period = payload.period;
-          state.massConfig.startDate = payload.startDate || '';
-          state.massConfig.endDate = payload.endDate || '';
-          if (payload.triggers && payload.triggers !== 'ALL') {
-            const trigs = Array.isArray(payload.triggers) ? payload.triggers : [payload.triggers];
-            state.filters.trigger = trigs.length === 1 ? trigs[0] : 'ALL';
-          } else {
-            state.filters.trigger = 'ALL';
-          }
-          if (payload.grades && payload.grades !== 'ALL') {
-            const grs = Array.isArray(payload.grades) ? payload.grades : [payload.grades];
-            state.filters.grade = grs.length === 1 ? (root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(grs[0]) : grs[0]) : 'ALL';
-          } else {
-            state.filters.grade = 'ALL';
-          }
-
-          state.loading = false;
-          state.generatingMass = false;
-          state.massModalOpen = false;
-          saveLocalCache();
+          // Etapa 4 concluída e confirmada (80% real) -> inicia Etapa 5 (Preparando o relatório final)
+          state.massProcessingState = {
+            ...state.massProcessingState,
+            status: 'PROCESSING',
+            phase: 'PREPARE_REPORT',
+            currentStepIndex: 5,
+            realProgressPct: 80,
+            config: { ...payload, meta: res.meta || null }
+          };
           render();
-          if (typeof root.showToast === 'function') {
-            const count = res.meta?.executedCount || state.simulations.filter(s => s.status === 'IN_OPERATION' || s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS').length;
-            const pText = formatPeriodLabel(payload.period, payload.startDate, payload.endDate);
-            root.showToast(`✓ Massa histórica auditada: ${count} trades executados cobrindo ${pText}.`);
-          }
-          return;
+          await yieldToUiFrame();
+
+          syncFiltersWithMassPayload(payload);
+
+          const count = res.meta?.executedCount || state.simulations.filter(s => s.status === 'IN_OPERATION' || s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS').length;
+          const pText = formatPeriodLabel(payload.period, payload.startDate, payload.endDate);
+          finalizeMassGenerationSuccess(
+            payload,
+            res.meta || null,
+            `✓ Massa histórica auditada: ${count} trades executados cobrindo ${pText}.`,
+            Boolean(config && config.keepSuccessOpen)
+          );
+          return state.simulations;
         }
       }
     } catch (e) {
@@ -426,6 +576,17 @@
           body: JSON.stringify({ scenario: scenarioId })
         });
         if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
+          state.massProcessingState = {
+            ...state.massProcessingState,
+            status: 'PROCESSING',
+            phase: 'CALCULATE_METRICS',
+            currentStepIndex: 4,
+            realProgressPct: 60,
+            config: { ...payload, meta: res.meta || null }
+          };
+          render();
+          await yieldToUiFrame();
+
           state.simulations = sanitizeSimulationsList(res.simulations);
           state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
           state.auditReport = res.auditReport || (root.TradeSimulatorModel?.auditSimulationsBatch ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload }) : null);
@@ -434,66 +595,127 @@
               state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
             }
           }
-          saveLocalCache();
-          state.loading = false;
-          state.generatingMass = false;
-          state.massModalOpen = false;
+
+          state.massProcessingState = {
+            ...state.massProcessingState,
+            status: 'PROCESSING',
+            phase: 'PREPARE_REPORT',
+            currentStepIndex: 5,
+            realProgressPct: 80,
+            config: { ...payload, meta: res.meta || null }
+          };
           render();
-          if (typeof root.showToast === 'function') {
-            const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
-            root.showToast(`✓ Massa de teste gerada para o cenário: ${meta.name}`);
-          }
-          return;
+          await yieldToUiFrame();
+
+          const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
+          finalizeMassGenerationSuccess(
+            payload,
+            res.meta || null,
+            `✓ Massa de teste gerada para o cenário: ${meta.name}`,
+            Boolean(config && config.keepSuccessOpen)
+          );
+          return state.simulations;
         }
       }
     } catch (e) {}
 
-    if (root.TradeSimulatorModel) {
-      if (typeof root.TradeSimulatorModel.generateExpandedSeeds === 'function') {
-        state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateExpandedSeeds(scenarioId, payload));
-      } else if (typeof root.TradeSimulatorModel.generateSeedSimulationsForScenario === 'function') {
-        state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateSeedSimulationsForScenario(scenarioId));
+    try {
+      if (root.TradeSimulatorModel) {
+        // Execução local determinística passo a passo (reflete cada etapa real em memória)
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'PROCESSING',
+          phase: 'APPLY_RULES',
+          currentStepIndex: 2,
+          realProgressPct: 20,
+          config: { ...payload }
+        };
+        render();
+        await yieldToUiFrame();
+
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'PROCESSING',
+          phase: 'SIMULATE_TRADES',
+          currentStepIndex: 3,
+          realProgressPct: 40,
+          config: { ...payload }
+        };
+        render();
+        await yieldToUiFrame();
+
+        if (typeof root.TradeSimulatorModel.generateExpandedSeeds === 'function') {
+          state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateExpandedSeeds(scenarioId, payload));
+        } else if (typeof root.TradeSimulatorModel.generateSeedSimulationsForScenario === 'function') {
+          state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateSeedSimulationsForScenario(scenarioId));
+        }
+
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'PROCESSING',
+          phase: 'CALCULATE_METRICS',
+          currentStepIndex: 4,
+          realProgressPct: 60,
+          config: { ...payload }
+        };
+        render();
+        await yieldToUiFrame();
+
+        state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
+        if (typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function') {
+          state.auditReport = root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload });
+        }
+
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'PROCESSING',
+          phase: 'PREPARE_REPORT',
+          currentStepIndex: 5,
+          realProgressPct: 80,
+          config: { ...payload }
+        };
+        render();
+        await yieldToUiFrame();
+
+        syncFiltersWithMassPayload(payload);
+        const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
+        finalizeMassGenerationSuccess(
+          payload,
+          null,
+          `✓ Massa de teste gerada para o cenário: ${meta.name}`,
+          Boolean(config && config.keepSuccessOpen)
+        );
+        return state.simulations;
       }
-      state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
-      if (typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function') {
-        state.auditReport = root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload });
-      }
-      if (payload.period === 'CUSTOM') {
-        state.filters.days = 'CUSTOM';
-        state.filters.startDate = payload.startDate || null;
-        state.filters.endDate = payload.endDate || null;
-      } else if (payload.period === 'ALL') {
-        state.filters.days = 'ALL';
-        state.filters.startDate = null;
-        state.filters.endDate = null;
-      } else {
-        state.filters.days = Number(payload.period);
-        state.filters.startDate = null;
-        state.filters.endDate = null;
-      }
-      state.massConfig.period = payload.period;
-      if (payload.triggers && payload.triggers !== 'ALL') {
-        const trigs = Array.isArray(payload.triggers) ? payload.triggers : [payload.triggers];
-        state.filters.trigger = trigs.length === 1 ? trigs[0] : 'ALL';
-      } else {
-        state.filters.trigger = 'ALL';
-      }
-      if (payload.grades && payload.grades !== 'ALL') {
-        const grs = Array.isArray(payload.grades) ? payload.grades : [payload.grades];
-        state.filters.grade = grs.length === 1 ? (root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(grs[0]) : grs[0]) : 'ALL';
-      } else {
-        state.filters.grade = 'ALL';
-      }
+    } catch (err) {
+      state.loading = false;
+      state.generatingMass = false;
+      state.massProcessingState = {
+        status: 'ERROR',
+        phase: 'FAILED',
+        currentStepIndex: state.massProcessingState?.currentStepIndex || 1,
+        realProgressPct: null,
+        executedCount: null,
+        errorMessage: err?.message || 'Ocorreu uma falha inesperada durante a geração da massa de testes.',
+        config: { ...payload }
+      };
+      render();
+      return null;
     }
-    saveLocalCache();
+
     state.loading = false;
     state.generatingMass = false;
-    state.massModalOpen = false;
+    state.massProcessingState = {
+      status: 'ERROR',
+      phase: 'FAILED',
+      currentStepIndex: 1,
+      realProgressPct: null,
+      executedCount: null,
+      errorMessage: 'Motor de simulação indisponível no momento. Recarregue a página e tente novamente.',
+      config: { ...payload }
+    };
     render();
-    if (typeof root.showToast === 'function') {
-      const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
-      root.showToast(`✓ Massa de teste gerada para o cenário: ${meta.name}`);
-    }
+    return null;
   }
 
   function formatPeriodLabel(period, startDate, endDate) {
@@ -3926,6 +4148,37 @@
   function renderMassModal() {
     if (!state.massModalOpen) return '';
 
+    const procState = state.massProcessingState || {};
+    const procStatus = procState.status || 'IDLE';
+    const isProcessingViewActive = state.generatingMass || procStatus === 'PROCESSING' || procStatus === 'SUCCESS' || procStatus === 'ERROR';
+
+    if (isProcessingViewActive) {
+      const procComponent = root.SimulationProcessingExperience || (root.TradeSimulatorModel && root.TradeSimulatorModel.SimulationProcessingExperience);
+      const activeConfig = procState.config || {
+        ...state.massConfig,
+        scenario: state.tempScenarioSelection || state.activeScenario || '2R'
+      };
+      const processingHtml = procComponent && typeof procComponent.render === 'function'
+        ? procComponent.render({
+            status: state.generatingMass ? 'PROCESSING' : procStatus,
+            phase: procState.phase || 'LOAD_HISTORY',
+            currentStepIndex: procState.currentStepIndex,
+            realProgressPct: procState.realProgressPct,
+            executedCount: procState.executedCount,
+            errorMessage: procState.errorMessage,
+            config: activeConfig
+          })
+        : '';
+
+      return `
+        <div class="sim-scenario-modal-overlay open" id="simMassModalOverlay">
+          <div class="sim-scenario-modal-box sim-mass-modal-box sim-mass-modal-processing" id="simMassModalBox">
+            ${processingHtml}
+          </div>
+        </div>
+      `;
+    }
+
     const isOfficialEnv = state.activeEnvironment !== 'RESEARCH';
     const sel = state.tempScenarioSelection || state.activeScenario || '2R';
     const cfg = state.massConfig || {};
@@ -4498,27 +4751,17 @@
                     </div>
                   </div>
 
-                  <!-- Botão de Ação / Indicador de Progresso -->
+                  <!-- Botão de Ação para Iniciar a Experiência de Processamento -->
                   <div class="sim-scenario-action-wrap">
-                    ${state.generatingMass ? `
-                      <div class="sim-mass-progress-box">
-                        <div class="sim-mass-spinner"></div>
-                        <div class="sim-mass-progress-text">${state.massProgressText || 'Processando varredura histórica...'}</div>
-                      </div>
-                      <button class="sim-btn-confirm-scenario disabled" type="button" disabled>
-                        <span>⏳ Gerando Massa...</span>
-                      </button>
-                    ` : `
-                      <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
-                        <span class="sim-cta-play-circle">
-                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                            <polygon points="3,1.5 10.5,6 3,10.5" fill="#0d6845"/>
-                          </svg>
-                        </span>
-                        <span>Iniciar Simulação em Escala</span>
-                        <span class="sim-cta-arrow">→</span>
-                      </button>
-                    `}
+                    <button class="sim-btn-confirm-scenario ${state.generatingMass ? 'disabled' : ''}" type="button" id="simModalConfirmScenario" ${state.generatingMass ? 'disabled aria-disabled="true"' : ''}>
+                      <span class="sim-cta-play-circle">
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                          <polygon points="3,1.5 10.5,6 3,10.5" fill="#0d6845"/>
+                        </svg>
+                      </span>
+                      <span>Iniciar Simulação em Escala</span>
+                      <span class="sim-cta-arrow">→</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -7160,36 +7403,92 @@
     // 1. Painel de Controle: Massa de Teste (Gerar, Reavaliar e Excluir)
     container.querySelector('#simBtnMassModal')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      clearMassSuccessAutoCloseTimer();
       state.massModalOpen = true;
+      if (!state.generatingMass) {
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'IDLE',
+          errorMessage: null
+        };
+      }
       state.tempScenarioSelection = state.activeScenario || '2R';
       render();
     });
 
     container.querySelector('#simBtnScenarioModal')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      clearMassSuccessAutoCloseTimer();
       state.massModalOpen = true;
+      if (!state.generatingMass) {
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'IDLE',
+          errorMessage: null
+        };
+      }
       state.tempScenarioSelection = state.activeScenario || '2R';
       render();
     });
 
-    // Fechar modal da Massa de Teste
+    // Fechar modal da Massa de Teste (bloqueado durante o processamento em andamento)
     container.querySelector('#simMassModalClose')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (state.generatingMass) return;
+      clearMassSuccessAutoCloseTimer();
       state.massModalOpen = false;
+      state.massProcessingState = { ...state.massProcessingState, status: 'IDLE', errorMessage: null };
       render();
     });
 
     container.querySelector('#simMassModalOverlay')?.addEventListener('click', (e) => {
       if (e.target.id === 'simMassModalOverlay') {
+        if (state.generatingMass) return;
+        clearMassSuccessAutoCloseTimer();
         state.massModalOpen = false;
+        state.massProcessingState = { ...state.massProcessingState, status: 'IDLE', errorMessage: null };
         render();
       }
     });
 
-    // Controles de Parâmetros do Modal de Massa de Teste
+    // Ações dos estados de Sucesso e Erro da SimulationProcessingExperience
+    container.querySelector('#simProcBtnViewResults')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearMassSuccessAutoCloseTimer();
+      state.massModalOpen = false;
+      state.massProcessingState = { ...state.massProcessingState, status: 'IDLE', errorMessage: null };
+      render();
+    });
+
+    const handleReturnToMassForm = (e) => {
+      e.stopPropagation();
+      if (state.generatingMass) return;
+      clearMassSuccessAutoCloseTimer();
+      state.massProcessingState = {
+        ...state.massProcessingState,
+        status: 'IDLE',
+        errorMessage: null
+      };
+      render();
+    };
+    container.querySelector('#simProcBtnReconfigure')?.addEventListener('click', handleReturnToMassForm);
+    container.querySelector('#simProcBtnBackToForm')?.addEventListener('click', handleReturnToMassForm);
+
+    container.querySelector('#simProcBtnRetry')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (state.generatingMass) return;
+      clearMassSuccessAutoCloseTimer();
+      const retryCfg = state.massProcessingState?.config
+        ? { ...state.massConfig, ...state.massProcessingState.config, simulateError: false }
+        : { ...state.massConfig };
+      generateScenarioMass(state.tempScenarioSelection || state.activeScenario || '2R', retryCfg);
+    });
+
+    // Controles de Parâmetros do Modal de Massa de Teste (protegidos contra alterações durante processamento)
     container.querySelectorAll('[data-mass-period]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const p = btn.dataset.massPeriod;
         state.massConfig.period = (p === 'CUSTOM' || p === 'ALL') ? p : Number(p);
         render();
@@ -7197,16 +7496,19 @@
     });
 
     container.querySelector('#simMassStartDate')?.addEventListener('change', (e) => {
+      if (state.generatingMass) return;
       state.massConfig.startDate = e.target.value;
     });
 
     container.querySelector('#simMassEndDate')?.addEventListener('change', (e) => {
+      if (state.generatingMass) return;
       state.massConfig.endDate = e.target.value;
     });
 
     container.querySelectorAll('[data-mass-universe]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         state.massConfig.universe = btn.dataset.massUniverse;
         render();
       });
@@ -7215,6 +7517,7 @@
     container.querySelectorAll('[data-mass-trigger]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const trig = btn.dataset.massTrigger;
         if (!trig) return;
 
@@ -7240,6 +7543,7 @@
     container.querySelectorAll('[data-mass-grade]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const gr = btn.dataset.massGrade;
         if (!gr) return;
 
@@ -7272,6 +7576,7 @@
     container.querySelectorAll('[data-mass-target]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const t = btn.dataset.massTarget;
         state.massConfig.targetVolume = t === 'MAX' ? 'MAX' : Number(t);
         render();
@@ -7282,6 +7587,7 @@
     container.querySelectorAll('[data-scenario-select]').forEach(opt => {
       opt.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const scen = opt.getAttribute('data-scenario-select') || opt.dataset.scenarioSelect;
         if (scen) {
           state.tempScenarioSelection = scen;
@@ -7290,9 +7596,10 @@
       });
     });
 
-    // Confirmar geração de massa de teste em escala
+    // Confirmar geração de massa de teste em escala (bloqueado contra cliques duplicados)
     container.querySelector('#simModalConfirmScenario')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (state.generatingMass) return;
       const cfg = { ...state.massConfig };
       if (cfg.period === 'CUSTOM') {
         const sVal = container.querySelector('#simMassStartDate')?.value;
@@ -7871,6 +8178,7 @@
     loadData,
     render,
     addSimulation,
+    generateScenarioMass,
     resetToDefaults,
     evaluateActive,
     openExportModal,

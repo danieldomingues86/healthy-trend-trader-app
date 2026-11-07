@@ -9851,6 +9851,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         rejectedSignalsCount,
         blockedBreakdown,
         executedCount,
+        assetsCount: symbols.length,
         targetVolume: rawTargetVolume || 'MAX',
         targetReached: executedCount >= (isTargetMax ? 1 : targetVolume),
         period: {
@@ -11430,6 +11431,576 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     };
   }
 
+  // ============================================================================
+  // COMPONENTE REUTILIZÁVEL: SimulationProcessingExperience
+  // Experiência visual ampliada de processamento da Massa de Testes
+  // ============================================================================
+
+  const SIMULATION_PROCESSING_STEPS = [
+    { id: 'LOAD_HISTORY', index: 1, label: 'Carregando histórico dos ativos.' },
+    { id: 'APPLY_RULES', index: 2, label: 'Aplicando regras da estratégia.' },
+    { id: 'SIMULATE_TRADES', index: 3, label: 'Simulando operações.' },
+    { id: 'CALCULATE_METRICS', index: 4, label: 'Calculando métricas e resultados.' },
+    { id: 'PREPARE_REPORT', index: 5, label: 'Preparando o relatório final.' }
+  ];
+
+  const UNIVERSE_ASSET_COUNTS = {
+    IBOV: 76,
+    LIQUID_B3: 274,
+    LIQUID: 274,
+    ALL_B3: 2550,
+    NASDAQ: 100
+  };
+
+  const PT_MONTH_SHORT = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  function formatMonthYearPT(isoDate) {
+    if (!isoDate || typeof isoDate !== 'string') return '';
+    const clean = isoDate.slice(0, 10);
+    const parts = clean.split('-');
+    if (parts.length < 2) return clean;
+    const year = parts[0];
+    const monthIdx = parseInt(parts[1], 10) - 1;
+    if (monthIdx >= 0 && monthIdx < 12) {
+      return `${PT_MONTH_SHORT[monthIdx]}/${year}`;
+    }
+    return clean;
+  }
+
+  function resolveSimulationStrategyInfo(input = {}) {
+    const raw = typeof input === 'string'
+      ? input
+      : (input?.strategy || input?.operationalWorld || input?.strategyType || input?.mode || 'TREND_FOLLOWING');
+    const norm = String(raw || '').trim().toUpperCase();
+    const isVolatility = norm === 'VOLATILITY_TRADING' ||
+                         norm === 'VOLATILITY' ||
+                         norm === 'SWING_VOLATILIDADE' ||
+                         norm.includes('VOLATIL');
+
+    return {
+      id: isVolatility ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING',
+      label: isVolatility ? 'Volatility Trading' : 'Trend Following',
+      artImage: 'assets/simulator-processing-bull-hero.jpg',
+      artAlt: isVolatility
+        ? 'Touro dourado sobre montanha iluminada com candles de mercado representando Volatility Trading'
+        : 'Touro dourado sobre montanha iluminada com candles de mercado representando Trend Following',
+      themeVariant: isVolatility ? 'volatility' : 'trend'
+    };
+  }
+
+  function resolveSimulationPeriodInfo(config = {}) {
+    if (config && typeof config.periodLabel === 'string' && config.periodLabel.trim()) {
+      return config.periodLabel.trim();
+    }
+    const metaPeriod = config?.meta?.period;
+    if (metaPeriod && metaPeriod.minDate && metaPeriod.maxDate) {
+      const mStart = formatMonthYearPT(metaPeriod.minDate);
+      const mEnd = formatMonthYearPT(metaPeriod.maxDate);
+      if (mStart && mEnd) {
+        return `${mStart} – ${mEnd}`;
+      }
+    }
+
+    const period = config?.period ?? 120;
+    const startDate = config?.startDate || null;
+    const endDate = config?.endDate || null;
+    const universe = String(config?.universe || 'IBOV').toUpperCase().trim();
+
+    if (period === 'CUSTOM') {
+      if (startDate && endDate) {
+        return `${formatDateBR(startDate)} – ${formatDateBR(endDate)}`;
+      }
+      if (startDate) return `A partir de ${formatDateBR(startDate)}`;
+      if (endDate) return `Até ${formatDateBR(endDate)}`;
+      return 'Período Personalizado';
+    }
+
+    if (period === 'ALL') {
+      return universe === 'NASDAQ' ? 'Out/2025 – Out/2026' : 'Jan/2025 – Out/2026';
+    }
+
+    const numPeriod = Number(period);
+    if (numPeriod === 30) return 'Últimos 30 dias';
+    if (numPeriod === 90) return 'Últimos 90 dias';
+    if (numPeriod === 120) return 'Últimos 120 dias (4 meses)';
+    if (numPeriod === 180 || period === '6m') return 'Últimos 6 meses';
+    if (numPeriod === 365 || period === '12m') return 'Últimos 12 meses';
+    if (numPeriod === 730 || period === '24m') return 'Últimos 24 meses';
+    if (numPeriod === 1095 || period === '36m') return 'Últimos 36 meses';
+
+    if (Number.isFinite(numPeriod) && numPeriod > 0) {
+      return `Últimos ${numPeriod} dias`;
+    }
+    return String(period);
+  }
+
+  function resolveSimulationAssetsInfo(config = {}) {
+    if (config && typeof config.assetsLabel === 'string' && config.assetsLabel.trim()) {
+      const explicitCount = Number(config.assetsCount || config.selectedAssetsCount || 0) || null;
+      return {
+        count: explicitCount,
+        label: config.assetsLabel.trim()
+      };
+    }
+
+    let count = null;
+    if (Number.isFinite(Number(config?.assetsCount)) && Number(config.assetsCount) > 0) {
+      count = Math.round(Number(config.assetsCount));
+    } else if (Number.isFinite(Number(config?.selectedAssetsCount)) && Number(config.selectedAssetsCount) > 0) {
+      count = Math.round(Number(config.selectedAssetsCount));
+    } else if (Number.isFinite(Number(config?.meta?.assetsCount)) && Number(config.meta.assetsCount) > 0) {
+      count = Math.round(Number(config.meta.assetsCount));
+    } else if (Array.isArray(config?.symbols) && config.symbols.length > 0) {
+      count = config.symbols.length;
+    } else {
+      const universe = String(config?.universe || 'IBOV').toUpperCase().trim();
+      count = UNIVERSE_ASSET_COUNTS[universe] || UNIVERSE_ASSET_COUNTS.IBOV;
+    }
+
+    const formattedCount = count.toLocaleString('pt-BR');
+    return {
+      count,
+      label: `${formattedCount} ${count === 1 ? 'ativo selecionado' : 'ativos selecionados'}`
+    };
+  }
+
+  function buildSimulationProcessingState(props = {}) {
+    const rawStatus = String(props.status || 'PROCESSING').toUpperCase().trim();
+    const status = ['IDLE', 'PROCESSING', 'SUCCESS', 'ERROR'].includes(rawStatus) ? rawStatus : 'PROCESSING';
+    const phase = String(props.phase || (status === 'SUCCESS' ? 'COMPLETED' : status === 'ERROR' ? 'FAILED' : 'SERVER_SCAN')).toUpperCase().trim();
+
+    // REGRA CRÍTICA: Nunca inventar percentuais ou simular progresso falso.
+    // Só exibe percentual numérico quando houver correspondência real confirmada pelo processamento.
+    let progressPct = null;
+    let isIndeterminate = true;
+
+    if (status === 'SUCCESS' || phase === 'COMPLETED') {
+      progressPct = 100;
+      isIndeterminate = false;
+    } else if (
+      props.indeterminate !== true &&
+      props.realProgressPct !== undefined &&
+      props.realProgressPct !== null &&
+      props.realProgressPct !== '' &&
+      Number.isFinite(Number(props.realProgressPct))
+    ) {
+      progressPct = Math.max(0, Math.min(100, Math.round(Number(props.realProgressPct))));
+      isIndeterminate = false;
+    }
+
+    // Determina quais etapas estão realmente confirmadas (completed), em andamento (in_progress) ou pendentes (pending)
+    const completedSet = new Set();
+    if (Array.isArray(props.completedStepIds)) {
+      props.completedStepIds.forEach(id => completedSet.add(String(id).toUpperCase()));
+    }
+    if (Array.isArray(props.completedStepIndices)) {
+      props.completedStepIndices.forEach(idx => {
+        const found = SIMULATION_PROCESSING_STEPS.find(s => s.index === Number(idx));
+        if (found) completedSet.add(found.id);
+      });
+    }
+
+    let activeStepIndex = Number.isFinite(Number(props.currentStepIndex))
+      ? Number(props.currentStepIndex)
+      : null;
+
+    if (activeStepIndex === null) {
+      if (status === 'SUCCESS' || phase === 'COMPLETED') {
+        activeStepIndex = 6;
+      } else if (phase === 'LOAD_HISTORY' || phase === 'SERVER_SCAN') {
+        activeStepIndex = 1;
+      } else if (phase === 'APPLY_RULES') {
+        activeStepIndex = 2;
+      } else if (phase === 'SIMULATE_TRADES') {
+        activeStepIndex = 3;
+      } else if (phase === 'CALCULATE_METRICS') {
+        activeStepIndex = 4;
+      } else if (phase === 'PREPARE_REPORT') {
+        activeStepIndex = 5;
+      } else {
+        activeStepIndex = 1;
+      }
+    }
+
+    const steps = SIMULATION_PROCESSING_STEPS.map(step => {
+      let stepStatus = 'pending';
+      if (status === 'SUCCESS' || phase === 'COMPLETED' || completedSet.has(step.id) || step.index < activeStepIndex) {
+        stepStatus = 'completed';
+      } else if (step.index === activeStepIndex) {
+        stepStatus = status === 'ERROR' ? 'error' : 'in_progress';
+      } else {
+        stepStatus = 'pending';
+      }
+      return {
+        ...step,
+        status: stepStatus
+      };
+    });
+
+    const activeStep = steps.find(s => s.status === 'in_progress') ||
+                       steps.find(s => s.status === 'error') ||
+                       steps[steps.length - 1];
+
+    const configSource = props.config || props;
+    const strategyInfo = resolveSimulationStrategyInfo(configSource);
+    const periodLabel = resolveSimulationPeriodInfo(configSource);
+    const assetsInfo = resolveSimulationAssetsInfo(configSource);
+
+    let title = 'Gerando sua Massa de Trades';
+    let subtitle = 'Estamos processando os dados históricos e simulando as operações conforme os parâmetros definidos.';
+
+    if (status === 'SUCCESS') {
+      title = props.title || 'Massa de Trades Gerada com Sucesso';
+      const execCount = props.executedCount != null ? Number(props.executedCount) : null;
+      subtitle = props.subtitle || (
+        execCount != null && Number.isFinite(execCount)
+          ? `Processamento concluído: ${execCount.toLocaleString('pt-BR')} operações validadas cronologicamente e prontas para análise.`
+          : 'Os dados históricos foram processados e todas as operações validadas estão prontas para análise.'
+      );
+    } else if (status === 'ERROR') {
+      title = props.title || 'Não foi possível gerar a Massa de Trades';
+      subtitle = props.errorMessage || props.subtitle || 'Ocorreu uma falha durante o processamento dos dados históricos. Verifique os parâmetros e tente novamente.';
+    } else if (props.title) {
+      title = props.title;
+      if (props.subtitle) subtitle = props.subtitle;
+    }
+
+    return {
+      componentName: 'SimulationProcessingExperience',
+      status,
+      phase,
+      title,
+      subtitle,
+      isIndeterminate,
+      progressPct,
+      activeStep,
+      steps,
+      isLocked: status === 'PROCESSING',
+      executedCount: props.executedCount != null ? Number(props.executedCount) : null,
+      errorMessage: status === 'ERROR' ? subtitle : null,
+      summary: {
+        strategyId: strategyInfo.id,
+        strategyLabel: strategyInfo.label,
+        periodLabel,
+        assetsCount: assetsInfo.count,
+        assetsLabel: assetsInfo.label
+      },
+      art: {
+        image: strategyInfo.artImage,
+        alt: strategyInfo.artAlt,
+        themeVariant: strategyInfo.themeVariant
+      }
+    };
+  }
+
+  function escapeProcessingHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderSimulationProcessingStepIcon(stepStatus) {
+    if (stepStatus === 'completed') {
+      return `
+        <span class="sim-proc-step-icon is-completed" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="11" fill="#15803d"/>
+            <path d="M7.5 12.3L10.4 15.2L16.6 9" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      `;
+    }
+    if (stepStatus === 'in_progress') {
+      return `
+        <span class="sim-proc-step-icon is-in-progress" aria-hidden="true">
+          <svg class="sim-proc-step-spinner-svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="3" r="2" fill="#15803d"/>
+            <circle cx="18.36" cy="5.64" r="1.9" fill="#16a34a" fill-opacity="0.9"/>
+            <circle cx="21" cy="12" r="1.75" fill="#10b981" fill-opacity="0.75"/>
+            <circle cx="18.36" cy="18.36" r="1.6" fill="#10b981" fill-opacity="0.55"/>
+            <circle cx="12" cy="21" r="1.45" fill="#10b981" fill-opacity="0.4"/>
+            <circle cx="5.64" cy="18.36" r="1.3" fill="#10b981" fill-opacity="0.25"/>
+            <circle cx="3" cy="12" r="1.2" fill="#10b981" fill-opacity="0.18"/>
+            <circle cx="5.64" cy="5.64" r="1.6" fill="#15803d" fill-opacity="0.65"/>
+          </svg>
+        </span>
+      `;
+    }
+    if (stepStatus === 'error') {
+      return `
+        <span class="sim-proc-step-icon is-error" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="11" fill="#dc2626"/>
+            <path d="M12 7.5V13M12 16.5H12.01" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
+        </span>
+      `;
+    }
+    return `
+      <span class="sim-proc-step-icon is-pending" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9.5" stroke="#94a3b8" stroke-opacity="0.65" stroke-width="2"/>
+        </svg>
+      </span>
+    `;
+  }
+
+  function renderSimulationProcessingExperience(props = {}) {
+    const vm = (props && props.componentName === 'SimulationProcessingExperience')
+      ? props
+      : buildSimulationProcessingState(props);
+
+    const radius = 64;
+    const circumference = Number((2 * Math.PI * radius).toFixed(2));
+    const dashOffset = vm.isIndeterminate
+      ? Number((circumference * 0.68).toFixed(2))
+      : Number((circumference * (1 - (vm.progressPct || 0) / 100)).toFixed(2));
+
+    const stepsHtml = vm.steps.map(step => {
+      const displayLabel = step.status === 'in_progress'
+        ? step.label.replace(/\.$/, '') + '...'
+        : step.label.replace(/\.$/, '');
+      return `
+        <li class="sim-proc-step-item status-${step.status}" data-step-id="${step.id}" data-step-index="${step.index}" data-step-status="${step.status}">
+          ${renderSimulationProcessingStepIcon(step.status)}
+          <span class="sim-proc-step-text">${escapeProcessingHtml(displayLabel)}</span>
+        </li>
+      `;
+    }).join('');
+
+    let centerReadoutHtml = '';
+    if (vm.status === 'ERROR') {
+      centerReadoutHtml = `
+        <span class="sim-proc-ring-error-icon" aria-hidden="true">⚠️</span>
+        <span class="sim-proc-ring-status-tag is-error">Interrompido</span>
+      `;
+    } else if (vm.isIndeterminate) {
+      centerReadoutHtml = `
+        <span class="sim-proc-ring-indeterminate-pulse" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M4 18L9.5 12.5L13.5 16.5L20 9" stroke="#0d8a5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="15 9 20 9 20 14" stroke="#0d8a5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="sim-proc-ring-status-tag">Etapa ${vm.activeStep ? vm.activeStep.index : 1}/5</span>
+        <small class="sim-proc-ring-status-sub">Em execução</small>
+      `;
+    } else {
+      centerReadoutHtml = `
+        <span class="sim-proc-ring-pct" data-testid="sim-proc-pct">${vm.progressPct}%</span>
+      `;
+    }
+
+    let statusActionsHtml = '';
+    if (vm.status === 'SUCCESS') {
+      statusActionsHtml = `
+        <div class="sim-proc-state-actions is-success" data-testid="sim-proc-success-banner">
+          <button type="button" class="sim-proc-btn-primary" id="simProcBtnViewResults">
+            <span>Visualizar Resultados da Simulação</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <button type="button" class="sim-proc-btn-secondary" id="simProcBtnReconfigure">
+            <span>Ajustar Parâmetros</span>
+          </button>
+        </div>
+      `;
+    } else if (vm.status === 'ERROR') {
+      statusActionsHtml = `
+        <div class="sim-proc-state-actions is-error" data-testid="sim-proc-error-banner" role="alert">
+          <button type="button" class="sim-proc-btn-primary is-retry" id="simProcBtnRetry">
+            <span>↻ Tentar Novamente</span>
+          </button>
+          <button type="button" class="sim-proc-btn-secondary" id="simProcBtnBackToForm">
+            <span>Voltar aos Parâmetros</span>
+          </button>
+        </div>
+      `;
+    }
+
+    return `
+      <section
+        class="sim-processing-experience status-${vm.status.toLowerCase()} theme-${vm.art.themeVariant}"
+        id="simProcessingExperience"
+        data-component="SimulationProcessingExperience"
+        data-status="${vm.status}"
+        data-strategy="${vm.summary.strategyId}"
+        data-indeterminate="${vm.isIndeterminate ? 'true' : 'false'}"
+        role="status"
+        aria-live="polite"
+        aria-busy="${vm.status === 'PROCESSING' ? 'true' : 'false'}"
+      >
+        <!-- Backdrop Artístico Integrado -->
+        <div class="sim-proc-art-backdrop" aria-hidden="true">
+          <img
+            src="${escapeProcessingHtml(vm.art.image)}"
+            alt="${escapeProcessingHtml(vm.art.alt)}"
+            class="sim-proc-art-img"
+          />
+          <div class="sim-proc-art-gradient-overlay"></div>
+        </div>
+
+        <!-- Barra Superior Flutuante dentro do Modal -->
+        <header class="sim-proc-topbar">
+          <div class="sim-proc-brand-pill">
+            <span class="sim-proc-brand-bars" aria-hidden="true">
+              <svg width="22" height="20" viewBox="0 0 22 20" fill="none">
+                <rect x="2" y="11" width="4" height="7" rx="1.5" fill="#10b981"/>
+                <rect x="9" y="7" width="4" height="11" rx="1.5" fill="#059669"/>
+                <rect x="16" y="2" width="4" height="16" rx="1.5" fill="#047857"/>
+              </svg>
+            </span>
+            <span class="sim-proc-brand-title">Gerador de Massa de Trades</span>
+          </div>
+
+          <button
+            type="button"
+            class="sim-modal-close-btn sim-proc-close-btn ${vm.isLocked ? 'is-locked' : ''}"
+            id="simMassModalClose"
+            title="${vm.isLocked ? 'Aguarde a conclusão do processamento' : 'Fechar'}"
+            ${vm.isLocked ? 'disabled aria-disabled="true"' : ''}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </header>
+
+        <!-- Composição Principal Dividida: Área Artística (38%) + Conteúdo de Processamento (62%) -->
+        <div class="sim-proc-stage-grid">
+          <div class="sim-proc-art-spacer" aria-hidden="true"></div>
+
+          <div class="sim-proc-content-column">
+            <div class="sim-proc-headings">
+              <h2 class="sim-proc-main-title" data-testid="sim-proc-title">${escapeProcessingHtml(vm.title)}</h2>
+              <p class="sim-proc-main-subtitle" data-testid="sim-proc-subtitle">${escapeProcessingHtml(vm.subtitle)}</p>
+            </div>
+
+            <div class="sim-proc-progress-and-steps">
+              <!-- Indicador Circular Grande -->
+              <div class="sim-proc-ring-wrapper ${vm.isIndeterminate ? 'is-indeterminate' : 'is-determinate'}" data-testid="sim-proc-ring">
+                <div class="sim-proc-ring-halo">
+                  <svg class="sim-proc-ring-svg ${vm.isIndeterminate ? 'indeterminate-spin' : ''}" width="168" height="168" viewBox="0 0 160 160">
+                    <defs>
+                      <linearGradient id="simProcGreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#22c55e" />
+                        <stop offset="55%" stop-color="#16a34a" />
+                        <stop offset="100%" stop-color="#0d6845" />
+                      </linearGradient>
+                    </defs>
+                    <circle
+                      class="sim-proc-ring-track"
+                      cx="80"
+                      cy="80"
+                      r="${radius}"
+                      fill="none"
+                      stroke="rgba(15, 42, 30, 0.11)"
+                      stroke-width="13"
+                    />
+                    <circle
+                      class="sim-proc-ring-value"
+                      cx="80"
+                      cy="80"
+                      r="${radius}"
+                      fill="none"
+                      stroke="${vm.status === 'ERROR' ? '#dc2626' : 'url(#simProcGreenGrad)'}"
+                      stroke-width="13"
+                      stroke-linecap="round"
+                      stroke-dasharray="${circumference}"
+                      stroke-dashoffset="${dashOffset}"
+                      transform="rotate(-90 80 80)"
+                    />
+                  </svg>
+                  <div class="sim-proc-ring-center">
+                    ${centerReadoutHtml}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de 5 Etapas do Processamento -->
+              <ol class="sim-proc-steps-list" data-testid="sim-proc-steps">
+                ${stepsHtml}
+              </ol>
+            </div>
+
+            ${statusActionsHtml}
+          </div>
+        </div>
+
+        <!-- Faixa Informativa Inferior com os 3 Pilares Dinâmicos -->
+        <footer class="sim-proc-summary-bar" data-testid="sim-proc-summary">
+          <!-- 1. Estratégia -->
+          <div class="sim-proc-summary-col" data-summary-field="strategy">
+            <span class="sim-proc-summary-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0d6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <circle cx="12" cy="12" r="5"/>
+                <circle cx="12" cy="12" r="1.8" fill="#0d6845"/>
+              </svg>
+            </span>
+            <div class="sim-proc-summary-texts">
+              <span class="sim-proc-summary-label">Estratégia</span>
+              <strong class="sim-proc-summary-value" data-testid="sim-proc-strategy-val">${escapeProcessingHtml(vm.summary.strategyLabel)}</strong>
+            </div>
+          </div>
+
+          <div class="sim-proc-summary-divider" aria-hidden="true"></div>
+
+          <!-- 2. Período -->
+          <div class="sim-proc-summary-col" data-summary-field="period">
+            <span class="sim-proc-summary-icon" aria-hidden="true">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="17" rx="2.5"/>
+                <line x1="16" y1="2.5" x2="16" y2="6"/>
+                <line x1="8" y1="2.5" x2="8" y2="6"/>
+                <line x1="3" y1="9.5" x2="21" y2="9.5"/>
+                <rect x="7.5" y="13" width="2.5" height="2.5" rx="0.5" fill="#0d6845" stroke="none"/>
+                <rect x="11.5" y="13" width="2.5" height="2.5" rx="0.5" fill="#0d6845" stroke="none"/>
+              </svg>
+            </span>
+            <div class="sim-proc-summary-texts">
+              <span class="sim-proc-summary-label">Período</span>
+              <strong class="sim-proc-summary-value" data-testid="sim-proc-period-val">${escapeProcessingHtml(vm.summary.periodLabel)}</strong>
+            </div>
+          </div>
+
+          <div class="sim-proc-summary-divider" aria-hidden="true"></div>
+
+          <!-- 3. Ativos -->
+          <div class="sim-proc-summary-col" data-summary-field="assets">
+            <span class="sim-proc-summary-icon" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0d6845" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 3 3 8 12 13 21 8 12 3"/>
+                <polyline points="3 12.5 12 17.5 21 12.5"/>
+                <polyline points="3 17 12 22 21 17"/>
+              </svg>
+            </span>
+            <div class="sim-proc-summary-texts">
+              <span class="sim-proc-summary-label">Ativos</span>
+              <strong class="sim-proc-summary-value" data-testid="sim-proc-assets-val">${escapeProcessingHtml(vm.summary.assetsLabel)}</strong>
+            </div>
+          </div>
+        </footer>
+      </section>
+    `;
+  }
+
+  const SimulationProcessingExperience = {
+    STEPS: SIMULATION_PROCESSING_STEPS,
+    UNIVERSE_ASSET_COUNTS,
+    resolveStrategyInfo: resolveSimulationStrategyInfo,
+    resolvePeriodInfo: resolveSimulationPeriodInfo,
+    resolveAssetsInfo: resolveSimulationAssetsInfo,
+    buildState: buildSimulationProcessingState,
+    render: renderSimulationProcessingExperience
+  };
+
+  if (typeof root !== 'undefined' && root) {
+    root.SimulationProcessingExperience = SimulationProcessingExperience;
+  }
+
   return {
     STATUS,
     STATUS_LABELS,
@@ -11529,6 +12100,10 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     runResearchLabExperiment,
     generateHistoricalSimulations,
     computeSnapshotNavInfo,
+    SIMULATION_PROCESSING_STEPS,
+    SimulationProcessingExperience,
+    buildSimulationProcessingState,
+    renderSimulationProcessingExperience,
     MarketCycleModel,
     classifySQN,
     calculateSimulatorSQN,
