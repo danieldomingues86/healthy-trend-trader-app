@@ -1934,6 +1934,11 @@
           </div>
         </div>
 
+        <!-- System Quality Analytics (SQN - Metodologia Van K. Tharp) -->
+        ${window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.generateSimulatorSqnCardHtml === 'function'
+          ? window.SystemQualityAnalytics.generateSimulatorSqnCardHtml(stats)
+          : ''}
+
         <!-- Banner de Informação Soft -->
         <div class="sim-rebuild-info-banner">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">

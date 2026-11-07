@@ -180,6 +180,7 @@
       ${rankingSection('winner', ranks.winners, metrics.grossProfit)}
       ${rankingSection('loser', ranks.losers, metrics.grossLoss)}
       ${triggersPerformanceSection(filtered)}
+      
       <section class="ta-dna">
         <header><div class="ta-section-question">🧬 O QUE ELES TINHAM EM COMUM?</div><h2>DNA DOS VENCEDORES × PERDEDORES</h2><p>Comparação descritiva dos dados registrados na entrada. Associação não significa causalidade.</p></header>
         <div class="ta-dna-list">${comparison.map(dnaRow).join('')}</div>

@@ -52,7 +52,7 @@ test('Artistic ON/OFF Toggles for Sell Into Strength and Scale-In', async t => {
     // Validation box must have light background, not rgba(0,0,0,0.15)
     assert.match(scaleInCss, /\.scale-in-validation-box\s*\{[^}]*background:\s*#f8faf7;/s, 'Validation box must have light background');
     // Gold theme support for modal dialog
-    assert.match(scaleInCss, /body:not\(\[data-theme="healthy"\]\)\s*\.scale-in-dialog\s*\{[^}]*background:\s*#1c180f;/s, 'Gold theme must style modal with #1c180f');
+    assert.match(scaleInCss, /body:not\(\[data-theme="healthy"\]\)[^{]*\.scale-in-dialog\s*\{[^}]*background:\s*#1c180f;/s, 'Gold theme must style modal with #1c180f');
   });
 
   await t.test('Position Management card completely hides .pm-states when Sell Into Strength is disabled', () => {

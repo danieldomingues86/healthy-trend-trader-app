@@ -238,6 +238,7 @@ test('NavigationSystemModel: Categoria Dados & Performance inclui Registro de Ev
   const pageOrder = dataCat.items.map(i => i.page);
   assert.deepEqual(pageOrder, [
     'analytics',
+    'systemquality',
     'tradeanatomy',
     'tradelibrary',
     'platformaccess',

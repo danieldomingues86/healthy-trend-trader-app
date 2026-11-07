@@ -67,7 +67,7 @@
 
     if (!sqnView || !sqnModel) {
       rootEl.innerHTML = `
-        <div style="padding:40px;text-align:center;color:var(--text-muted,#94a3b8);">
+        <div style="padding:40px;text-align:center;color:var(--sqn-text-muted, var(--muted, #475569));">
           Carregando módulos de inteligência estatística...
         </div>
       `;
