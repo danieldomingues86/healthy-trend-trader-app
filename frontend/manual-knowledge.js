@@ -65,6 +65,7 @@
     ['forecast','Simulador de Equity','Projeções probabilísticas.',null,'Simule a evolução matemática da sua curva de capital combinando taxa de acerto, payoff (R médio) e volume operacional.'],
     ['riskofruin','Risco de Ruína','Proteção patrimonial e sobrevivência estatística.',null,'Estime via Monte Carlo (10.000 trajetórias por reamostragem em R) a probabilidade de atingir o drawdown limite da conta em 250 trades e receba recomendações consultivas de redução de mão.'],
     ['analytics','Painel da Verdade','Descubra onde você tem edge.','manual-analytics','Revise os resultados das operações registradas e procure padrões de qualidade e execução.'],
+    ['systemquality','Qualidade Estatística do Sistema','SQN e inteligência quantitativa.',null,'Avalie a qualidade, consistência e dispersão do seu sistema com o System Quality Number (SQN de Van Tharp), Expectancy Matemática em R e histograma de R-Múltiplos.'],
     ['tradeanatomy','Anatomia dos Trades','Decomposição do seu edge.',null,'Examine a anatomia estatística dos seus trades vencedores vs perdedores, relação de R múltiplo, permanência e setups mais lucrativos.'],
     ['journal','Diário do Trader','Registro e exportação para IA.','manual-journal','Registre o processo técnico e emocional. Exporte notas em múltiplos formatos ou com prompt formatado para análise com IA (ChatGPT/Claude/Gemini).'],
     ['tradelibrary','Biblioteca de Trades','Trades modelo e referências.',null,'Estude operações históricas de referência e setups clássicos do método para treinar seu olhar para o padrão perfeito.'],
@@ -218,6 +219,11 @@
     analytics: [
       'O Painel da Verdade analisa objetivamente suas estatísticas acumuladas: taxa de acerto, fator de lucro, payoff médio e expectativa matemática.',
       'Padrões de Resultado: filtre por setup, direção, ciclo de mercado e grade da Rubric para descobrir onde reside sua verdadeira vantagem estatística.'
+    ],
+    systemquality: [
+      'A tela Qualidade Estatística do Sistema centraliza a avaliação quantitativa do método via System Quality Number (SQN), metodologia criada por Van K. Tharp.',
+      'Expectancy e Desvio-Padrão: mede o retorno médio esperado por trade em unidades de risco (R) e a volatilidade dos resultados, diferenciando sistemas consistentes de resultados apoiados em tiros de sorte.',
+      'Histograma e Rolling SQN: acompanhe a dispersão dos trades em 7 faixas canônicas de R e a evolução trade a trade na curva temporal para auditar se sua consistência está melhorando ou se deteriorando.'
     ],
     tradeanatomy: [
       'A Anatomia dos Trades disseca suas operações encerradas sob uma ótica puramente estatística e científica: taxa de acerto real, payoff médio (R médio de ganho vs perda) e expectativa matemática por trade.',

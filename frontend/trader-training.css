@@ -1543,7 +1543,7 @@ body:not([data-theme="pigeon"]) .tt-btn-close-focus:hover {
   max-width: 620px;
 }
 
-body:not([data-theme="healthy"]) .tt-goal-importance-text {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-goal-importance-text {
   color: #c9bea9;
 }
 
@@ -1560,7 +1560,7 @@ body:not([data-theme="healthy"]) .tt-goal-importance-text {
   border: 1px solid #b7dfc6;
 }
 
-body:not([data-theme="healthy"]) .tt-modal-active-badge {
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .tt-modal-active-badge {
   background: rgba(143, 224, 170, 0.14);
   color: #8fe0aa;
   border-color: rgba(143, 224, 170, 0.28);

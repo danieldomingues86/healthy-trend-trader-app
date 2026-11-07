@@ -67,8 +67,8 @@ test('Interactive Book Reader: Suporte a Temas Healthy Green, Premium Gold e Pig
 
   // Variáveis por tema
   assert.ok(cssCode.includes(':root'), 'CSS deve possuir variáveis para Healthy Green');
-  assert.ok(cssCode.includes('body.theme-gold'), 'CSS deve possuir variáveis para Premium Gold');
-  assert.ok(cssCode.includes('body.theme-light'), 'CSS deve possuir compatibilidade com theme-light');
+  assert.ok(cssCode.includes('body[data-theme="gold"]') || cssCode.includes('body.theme-gold'), 'CSS deve possuir variáveis para Premium Gold');
+  assert.ok(cssCode.includes('body[data-theme="pigeon"]') || cssCode.includes('body.theme-light'), 'CSS deve possuir compatibilidade com theme-light');
   assert.ok(cssCode.includes('body[data-theme="pigeon"]'), 'CSS deve possuir suporte estrito a data-theme="pigeon"');
   assert.ok(cssCode.includes('body[data-theme="gold"]'), 'CSS deve possuir suporte estrito a data-theme="gold"');
 

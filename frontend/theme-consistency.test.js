@@ -369,4 +369,3 @@ test('Favicon Dinâmico: Favicon e Apple-Touch-Icon adaptam-se para Healthy Gree
   assert.match(indexHtml, /frontend\/favicon-theme-model\.js/, 'index.html deve carregar o modelo de favicon dinâmico');
   assert.match(indexHtml, /updateThemeFavicon/, 'index.html deve invocar updateThemeFavicon');
 });
-});
