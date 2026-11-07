@@ -1972,6 +1972,36 @@
     const sqnReport = stats.sqnAnalytics;
     const classification = sqnReport.classification || { label: 'Não classificado', badgeClass: 'sqn-badge-unclassified' };
     const badgeClass = classification.badgeClass || 'sqn-badge-unclassified';
+    const isVal = sqnReport.sqn != null && Number.isFinite(sqnReport.sqn);
+    const sqn = sqnReport.sqn;
+    const activeSeg = !isVal ? '' :
+      (sqn < 1.6 ? 'poor' :
+      (sqn < 2.0 ? 'below-avg' :
+      (sqn < 2.5 ? 'avg' :
+      (sqn < 3.0 ? 'good' :
+      (sqn <= 5.0 ? 'exc' : 'excep')))));
+
+    const fallbackScaleBar = `
+      <div class="sqn-scale-wrapper">
+        <div class="sqn-scale-bar" title="Escala Van Tharp">
+          <div class="sqn-scale-segment seg-poor ${activeSeg === 'poor' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-below-avg ${activeSeg === 'below-avg' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-avg ${activeSeg === 'avg' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-good ${activeSeg === 'good' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-exc ${activeSeg === 'exc' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-excep ${activeSeg === 'excep' ? 'active' : ''}"></div>
+        </div>
+        <div class="sqn-scale-labels">
+          <span class="sqn-lbl-poor ${activeSeg === 'poor' ? 'active' : ''}"><span class="sqn-lbl-val">&lt;1,6</span> <span class="sqn-lbl-name">Fraco</span></span>
+          <span class="sqn-lbl-below-avg ${activeSeg === 'below-avg' ? 'active' : ''}"><span class="sqn-lbl-val">1,6</span> <span class="sqn-lbl-name">Média</span></span>
+          <span class="sqn-lbl-avg ${activeSeg === 'avg' ? 'active' : ''}"><span class="sqn-lbl-val">2,0</span> <span class="sqn-lbl-name">Mediano</span></span>
+          <span class="sqn-lbl-good ${activeSeg === 'good' ? 'active' : ''}"><span class="sqn-lbl-val">2,5</span> <span class="sqn-lbl-name">Bom</span></span>
+          <span class="sqn-lbl-exc ${activeSeg === 'exc' ? 'active' : ''}"><span class="sqn-lbl-val">3,0</span> <span class="sqn-lbl-name">Excelente</span></span>
+          <span class="sqn-lbl-excep ${activeSeg === 'excep' ? 'active' : ''}"><span class="sqn-lbl-val">&gt;5,0</span> <span class="sqn-lbl-name">Excepcional</span></span>
+        </div>
+      </div>
+    `;
+
     return `
       <div class="sim-rebuild-card" style="margin-top: 20px;">
         <div class="sim-rebuild-card-head">
@@ -1986,22 +2016,32 @@
         </div>
 
         <div class="sim-summary-subcards-row" style="margin-top: 14px;">
-          <div class="sim-subcard-box subcard-total">
-            <div class="sim-subcard-icon icon-coins">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M8 12h8M12 8v8"></path>
-              </svg>
+          <div class="sim-subcard-box subcard-total sim-sqn-subcard-split">
+            <div class="sim-sqn-kpi-col">
+              <div class="sim-subcard-icon icon-coins">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 12h8M12 8v8"></path>
+                </svg>
+              </div>
+              <div class="sim-subcard-body">
+                <div class="sim-subcard-label">SQN Simulado</div>
+                <div class="sim-subcard-main-val ${(Number(sqnReport.sqn) < 0) ? 'neg' : 'pos'}">
+                  ${sqnReport.sqnFormatted || '—'}
+                </div>
+                <div class="sim-subcard-sub-line">
+                  <span class="equiv-tag">Classificação: <strong>${classification.label || '—'}</strong></span>
+                  <span class="count-tag">${sqnReport.sampleSize || 0} trades</span>
+                </div>
+              </div>
             </div>
-            <div class="sim-subcard-body">
-              <div class="sim-subcard-label">SQN Simulado</div>
-              <div class="sim-subcard-main-val pos">
-                ${sqnReport.sqnFormatted || '—'}
+
+            <div class="sim-sqn-scale-col">
+              <div class="sim-sqn-scale-topline">
+                <span class="sim-sqn-scale-eyebrow">Régua Van Tharp</span>
+                <span class="sim-sqn-scale-pill ${badgeClass}">Faixa ativa: <strong>${classification.label || '—'}</strong></span>
               </div>
-              <div class="sim-subcard-sub-line">
-                <span class="equiv-tag">Classificação: <strong>${classification.label || '—'}</strong></span>
-                <span class="count-tag">${sqnReport.sampleSize || 0} trades simulados</span>
-              </div>
+              ${fallbackScaleBar}
             </div>
           </div>
 
