@@ -13,7 +13,7 @@
   const state = {
     screenTab: 'summary', // 'summary' | 'trades' | 'assets' | 'setups' | 'timeline'
     summaryView: 'financial', // 'financial' | 'statistical'
-    initialCapital: 100000,
+    initialCapital: 500000,
     tradeStatusFilter: 'ALL', // 'ALL' | 'GAIN' | 'LOSS' | 'BREAKEVEN'
     simulations: [],
     rejectedSimulations: [],
@@ -901,15 +901,15 @@
    * Formatação auxiliar
    */
   function formatNumberPlain(val) {
-    if (val === null || val === undefined || isNaN(Number(val))) return '100.000';
+    if (val === null || val === undefined || isNaN(Number(val))) return '500.000';
     return Number(val).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
   }
 
   function parseFormattedNumber(str) {
-    if (!str) return 100000;
+    if (!str) return 500000;
     const clean = String(str).replace(/[^0-9,-]/g, '').replace(',', '.');
     const num = parseFloat(clean);
-    return isNaN(num) || num <= 0 ? 100000 : num;
+    return isNaN(num) || num <= 0 ? 500000 : num;
   }
 
   function formatMoney(val) {
@@ -1025,9 +1025,9 @@
             <span class="mini-kpi-label">Patrimônio Líquido Acumulado</span>
             <strong class="mini-kpi-val ${wr.netReturnPct >= 0 ? 'good' : 'bad'}">
               ${wr.netReturnPct ? (wr.netReturnPct >= 0 ? '+' : '') + wr.netReturnPct.toFixed(2).replace('.', ',') + '%' : '0,00%'}
-              <small class="mini-delta">(${formatMoney(rubricReport.finalEquity || 100000)})</small>
+              <small class="mini-delta">(${formatMoney(rubricReport.finalEquity || 500000)})</small>
             </strong>
-            <span class="mini-kpi-desc">Capital inicial R$ 100.000 + custos reais</span>
+            <span class="mini-kpi-desc">Capital inicial ${formatMoney(rubricReport.initialCapital || state.initialCapital || 500000)} + custos reais</span>
           </div>
         </div>
 
@@ -1500,7 +1500,7 @@
     if (!rootEl) return;
 
     const scoped = getScopedSimulations();
-    const initialCapital = Math.max(1000, Number(state.initialCapital || 100000));
+    const initialCapital = Math.max(1000, Number(state.initialCapital || 500000));
     let stats = null;
     let rubricReport = null;
     let rubricComparison = null;
@@ -2242,7 +2242,7 @@
       const isLoss = (sim.netPnL != null ? sim.netPnL : sim.resultR) < 0;
       const pnlVal = sim.netPnL != null ? sim.netPnL : (sim.resultR != null ? sim.resultR * 400 : 0);
       const rVal = sim.netResultR != null ? sim.netResultR : (sim.resultR != null ? Number(sim.resultR) : 0);
-      const shares = sim.shares || sim.quantity || (sim.entryPrice > 0 ? Math.floor((state.initialCapital || 100000) / sim.entryPrice) : 100);
+      const shares = sim.shares || sim.quantity || (sim.entryPrice > 0 ? Math.floor((state.initialCapital || 500000) / sim.entryPrice) : 100);
       const posCapital = sim.positionCapitalCash || (shares * (sim.entryPrice || 0));
       const riskCash = sim.authorizedRiskCash || (shares * Math.max(0.01, (sim.entryPrice || 0) - (sim.stopLoss || 0)));
       const riskPct = sim.authorizedRiskPct || (state.initialCapital > 0 ? (riskCash / state.initialCapital) * 100 : 0.40);
@@ -2572,7 +2572,7 @@
    */
   function renderTimelineTab(rubricReport, stats) {
     const isUnitRS = state.filters.unit === 'RS';
-    const initCap = rubricReport?.initialCapital || state.initialCapital || 100000;
+    const initCap = rubricReport?.initialCapital || state.initialCapital || 500000;
     const finEq = rubricReport?.finalEquity || initCap;
     const netRet = rubricReport?.netReturnPct != null ? rubricReport.netReturnPct : 0;
     const netCash = rubricReport?.netPnL != null ? rubricReport.netPnL : 0;
@@ -2679,7 +2679,7 @@
       <option value="${sec}" ${state.filters.sector === sec ? 'selected' : ''}>${sec}</option>
     `).join('');
 
-    const formattedCapital = `R$ ${formatMoney(state.initialCapital || 100000).replace('R$ ', '')}`;
+    const formattedCapital = `R$ ${formatMoney(state.initialCapital || 500000).replace('R$ ', '')}`;
 
     return `
       <div class="sim-header sim-rebuild-header">

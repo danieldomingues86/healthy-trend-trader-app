@@ -10554,7 +10554,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
     // 8. Bet Sizing e Alocação de Risco
     const effectiveRiskBudgetPct = isEligible ? baseRiskBudgetPct : 0;
-    const currentEquity = Math.max(1000, Number(portfolioState.currentEquity || options.initialCapital || 100000));
+    const currentEquity = Math.max(1000, Number(portfolioState.currentEquity || options.initialCapital || 500000));
     const currentHeatPct = Math.max(0, Number(portfolioState.currentHeatPct || 0));
     const openPositionsCount = Math.max(0, Number(portfolioState.openPositionsCount || 0));
 
@@ -10729,13 +10729,13 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
   /**
    * Executa a simulação completa do portfólio aplicando o motor de Rubric, Bet Sizing e Política de Risco
    * @param {Array} simulations Lista de simulações brutas
-   * @param {Object} options Configurações { rubricMode: true|false, initialCapital: 100000, costRatePct: 0.0006, profileKey: 'standard' }
+   * @param {Object} options Configurações { rubricMode: true|false, initialCapital: 500000, costRatePct: 0.0006, profileKey: 'standard' }
    * @returns {Object} Relatório estruturado de desempenho, risco, dimensionamento e curvas de capital
    */
   function runRubricPortfolioSimulation(simulations = [], options = {}) {
     const list = Array.isArray(simulations) ? [...simulations] : [];
     const rubricMode = options.rubricMode !== false;
-    const initialCapital = Math.max(1000, Number(options.initialCapital || 100000));
+    const initialCapital = Math.max(1000, Number(options.initialCapital || 500000));
     const costRatePct = Number(options.costRatePct != null ? options.costRatePct : 0.0006);
     const fixedRiskPct = Number(options.fixedRiskPct || 0.005);
     const officialPolicy = getOfficialRiskPolicy(options);
