@@ -242,6 +242,27 @@
     return 'trader@healthytrendtrader.com';
   }
 
+  async function sendStormAlertEmailApi(payload) {
+    if (typeof window !== 'undefined' && window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
+      return window.healthyTrendApi.request('/api/storm-alert/notify-email', {
+        method: 'POST',
+        body: payload
+      });
+    }
+
+    const apiBase = (typeof window !== 'undefined' && (window.HEALTHY_TREND_API_URL || (window.location && window.location.port !== '8787' ? 'http://localhost:8787' : ''))) || 'http://localhost:8787';
+    const res = await fetch(`${apiBase}/api/storm-alert/notify-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || 'Falha ao processar envio no servidor.');
+    }
+    return data;
+  }
+
   /**
    * MODAL: CENTRAL DE EVENTOS EXTREMOS & STORM ALERT
    */
@@ -543,37 +564,32 @@
           const model = StormAlertModel || root.StormAlertModel;
           const status = model ? model.evaluateStormAlertStatus() : {};
 
-          const res = await fetch('/api/storm-alert/notify-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: targetEmail,
-              displayName: 'Trader',
-              openPositionsCount: status.openPositionsCount || 8,
-              event: status.event || {
-                name: 'Eleições presidenciais',
-                fullName: 'Eleições Presidenciais 2026',
-                eventDateFormatted: 'Domingo — 04/10',
-                cutoffFormatted: 'Sexta-feira — fechamento',
-                categoryLabel: 'Eleições e Política'
-              }
-            })
+          const data = await sendStormAlertEmailApi({
+            email: targetEmail,
+            displayName: (window.currentUser && (window.currentUser.displayName || window.currentUser.name)) || 'Trader',
+            openPositionsCount: status.openPositionsCount || 8,
+            event: status.event || {
+              name: 'Eleições presidenciais',
+              fullName: 'Eleições Presidenciais 2026',
+              eventDateFormatted: 'Domingo — 04/10',
+              cutoffFormatted: 'Sexta-feira — fechamento',
+              categoryLabel: 'Eleições e Política'
+            }
           });
 
-          const data = await res.json();
-          if (res.ok && data.success) {
+          if (data && (data.success || data.sent)) {
             notifyToast(`🚨 E-mail de Storm Alert enviado com sucesso para ${targetEmail}!`);
             if (statusMsg) {
               statusMsg.style.display = 'block';
               statusMsg.style.color = '#34d399';
-              statusMsg.textContent = `✓ E-mail enviado com sucesso para ${targetEmail}. (Modo: ${data.mode || 'salvo'})`;
+              statusMsg.textContent = `✓ E-mail enviado com sucesso para ${targetEmail}. (${data.mode === 'smtp' ? 'Disparado via SMTP' : 'Pré-visualização salva em data/emails'})`;
             }
           } else {
-            notifyToast(`Erro ao enviar: ${data.error || 'Falha no servidor'}`, 'error');
+            notifyToast(`Erro ao enviar: ${data?.error || 'Falha no servidor'}`, 'error');
             if (statusMsg) {
               statusMsg.style.display = 'block';
               statusMsg.style.color = '#ef4444';
-              statusMsg.textContent = `Erro: ${data.error || 'Falha no envio'}`;
+              statusMsg.textContent = `Erro: ${data?.error || 'Falha no envio'}`;
             }
           }
         } catch (err) {
@@ -627,19 +643,15 @@
         if (notifyImmediate && targetEmail) {
           try {
             const cutoff = model.resolveCutoffSession(registered, advanceSessions);
-            await fetch('/api/storm-alert/notify-email', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: targetEmail,
-                displayName: 'Trader',
-                openPositionsCount: model.resolveOpenPositionsCount(),
-                event: {
-                  ...registered,
-                  cutoffFormatted: cutoff ? model.formatCutoffSessionBR(cutoff.cutoffDate) : '—',
-                  eventDateFormatted: model.formatDateWithWeekdayBR(registered.eventDate)
-                }
-              })
+            await sendStormAlertEmailApi({
+              email: targetEmail,
+              displayName: (window.currentUser && (window.currentUser.displayName || window.currentUser.name)) || 'Trader',
+              openPositionsCount: model.resolveOpenPositionsCount(),
+              event: {
+                ...registered,
+                cutoffFormatted: cutoff ? model.formatCutoffSessionBR(cutoff.cutoffDate) : '—',
+                eventDateFormatted: model.formatDateWithWeekdayBR(registered.eventDate)
+              }
             });
             notifyToast(`✉️ Notificação enviada para ${targetEmail}`);
           } catch (_) {}

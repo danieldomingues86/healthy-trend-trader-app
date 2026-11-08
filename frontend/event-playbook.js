@@ -752,23 +752,32 @@
               ? window.StormAlertModel.formatDateWithWeekdayBR(payload.date)
               : payload.date;
 
-            fetch('/api/storm-alert/notify-email', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: userEmail,
-                displayName: displayName,
-                openPositionsCount: openCount,
-                event: {
-                  name: payload.name,
-                  fullName: payload.name,
-                  categoryLabel: (payload.category || 'Macro') + ' (Extremo)',
-                  eventDate: payload.date,
-                  eventDateFormatted: dateFormatted,
-                  cutoffFormatted: cutoffFormatted
-                }
-              })
-            }).catch(() => {});
+            const emailPayload = {
+              email: userEmail,
+              displayName: displayName,
+              openPositionsCount: openCount,
+              event: {
+                name: payload.name,
+                fullName: payload.name,
+                categoryLabel: (payload.category || 'Macro') + ' (Extremo)',
+                eventDate: payload.date,
+                eventDateFormatted: dateFormatted,
+                cutoffFormatted: cutoffFormatted
+              }
+            };
+            if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
+              window.healthyTrendApi.request('/api/storm-alert/notify-email', {
+                method: 'POST',
+                body: emailPayload
+              }).catch(() => {});
+            } else {
+              const apiBase = window.HEALTHY_TREND_API_URL || 'http://localhost:8787';
+              fetch(`${apiBase}/api/storm-alert/notify-email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(emailPayload)
+              }).catch(() => {});
+            }
           }
         }
       } catch (err) {
