@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
+const path = require('path');
 const Model = require('./event-playbook-model');
 
 test('EventPlaybookModel: helpers de apresentação visual (datas, bandeiras, ícones e capas)', () => {
@@ -40,15 +41,16 @@ test('EventPlaybookModel: helpers de apresentação visual (datas, bandeiras, í
 });
 
 test('EventPlaybook: arquivos de mídia e capas existem no diretório assets/event-playbook/', () => {
-  assert.ok(fs.existsSync('assets/event-playbook/hero-alpine-eagle.jpg'), 'Hero alpino deve existir');
-  assert.ok(fs.existsSync('assets/event-playbook/cover-us-election.jpg'), 'Capa Eleições EUA deve existir');
-  assert.ok(fs.existsSync('assets/event-playbook/cover-copom-bcb.jpg'), 'Capa COPOM deve existir');
-  assert.ok(fs.existsSync('assets/event-playbook/cover-fed-wallstreet.jpg'), 'Capa FED deve existir');
+  const assetsDir = path.resolve(__dirname, '../assets/event-playbook');
+  assert.ok(fs.existsSync(path.join(assetsDir, 'hero-alpine-eagle.jpg')), 'Hero alpino deve existir');
+  assert.ok(fs.existsSync(path.join(assetsDir, 'cover-us-election.jpg')), 'Capa Eleições EUA deve existir');
+  assert.ok(fs.existsSync(path.join(assetsDir, 'cover-copom-bcb.jpg')), 'Capa COPOM deve existir');
+  assert.ok(fs.existsSync(path.join(assetsDir, 'cover-fed-wallstreet.jpg')), 'Capa FED deve existir');
 });
 
 test('EventPlaybook UI: integridade estrutural do HTML e CSS', () => {
-  const jsContent = fs.readFileSync('frontend/event-playbook.js', 'utf8');
-  const cssContent = fs.readFileSync('frontend/event-playbook.css', 'utf8');
+  const jsContent = fs.readFileSync(path.resolve(__dirname, 'event-playbook.js'), 'utf8');
+  const cssContent = fs.readFileSync(path.resolve(__dirname, 'event-playbook.css'), 'utf8');
 
   // Hero Banner com imagem alpina e águia
   assert.ok(jsContent.includes('ep-hero-header'));

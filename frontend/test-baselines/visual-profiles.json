@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-07T19:11:11.144Z",
+  "updatedAt": "2026-11-08T12:31:36.934Z",
   "totalScreens": 46,
   "totalStylesheets": 11,
   "screens": {
@@ -654,15 +654,20 @@
     },
     "event-playbook.css": {
       "filename": "event-playbook.css",
-      "rulesCount": 134,
-      "mediaBreakpointsCount": 1,
+      "rulesCount": 196,
+      "mediaBreakpointsCount": 6,
       "mediaBreakpoints": [
-        "@media (max-width: 1100px)"
+        "@media (max-width: 1100px)",
+        "@media (max-width: 650px)",
+        "@media (max-width: 780px)",
+        "@media (max-width: 860px)",
+        "@media (max-width: 950px)",
+        "@media (min-width: 1440px)"
       ],
-      "healthyRulesCount": 35,
-      "goldRulesCount": 35,
-      "pigeonRulesCount": 35,
-      "footprintHash": "bbbc47204680d28c"
+      "healthyRulesCount": 26,
+      "goldRulesCount": 52,
+      "pigeonRulesCount": 26,
+      "footprintHash": "1485b8dc6d8a89f4"
     },
     "portfolio-heat-page.css": {
       "filename": "portfolio-heat-page.css",
