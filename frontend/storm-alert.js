@@ -127,8 +127,11 @@
                   VER POSIÇÕES EM ABERTO →
                 </button>
               ` : ''}
-              <button type="button" class="storm-btn-calendar" data-storm-nav="calendar" title="Gerenciar calendário, testar estados ao vivo e disparar alertas">
-                ⚙️ Gerenciar Eventos &amp; Testar Alerta
+              <button type="button" class="storm-btn-calendar" data-storm-nav="calendar" title="Abrir tela Registro de Eventos">
+                📅 Registro de Eventos
+              </button>
+              <button type="button" class="storm-btn-calendar" data-storm-nav="test" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1;" title="Simular estados e testar e-mail">
+                ⚙️ Simular Estados
               </button>
             </div>
 
@@ -171,6 +174,17 @@
     });
 
     scope.querySelectorAll('[data-storm-nav="calendar"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (typeof root.go === 'function') {
+          root.go('eventplaybook');
+        } else if (typeof window !== 'undefined' && typeof window.go === 'function') {
+          window.go('eventplaybook');
+        }
+      });
+    });
+
+    scope.querySelectorAll('[data-storm-nav="test"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         openExtremeEventsManagerModal('test');

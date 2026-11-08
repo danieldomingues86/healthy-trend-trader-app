@@ -402,3 +402,43 @@ test('StormAlert — Modal de Gerenciamento & Teste com abas e controle de e-mai
   delete global.document;
   delete global.__modalEl;
 });
+
+test('StormAlert + Registro de Eventos (EventPlaybook): eventos de Impacto 5 acionam o alarme e rota aponta para eventplaybook', () => {
+  // 1. Verifica rota no registry
+  const registryCode = fs.readFileSync(path.resolve(__dirname, 'home-widget-registry.js'), 'utf8');
+  assert.match(registryCode, /route:\s*'eventplaybook'/, 'Widget Storm Alert deve direcionar para a tela eventplaybook');
+
+  // 2. Mock do EventPlaybookModel
+  const EventPlaybookModel = require('./event-playbook-model');
+  global.EventPlaybookModel = EventPlaybookModel;
+
+  const testEventName = 'Reunião Extraordinária do COPOM (Taxa Selic)';
+  const upcomingDate = '2026-11-20'; // Futuro próximo dentro do horizonte
+  const created = EventPlaybookModel.addEvent({
+    name: testEventName,
+    date: upcomingDate,
+    category: 'Banco Central',
+    impact: 5 // Impacto 5 (Extremo)
+  });
+
+  assert.ok(created && created.id);
+
+  // 3. Avalia o calendário ativo no StormAlertModel com a data de referência antes do evento
+  const cal = StormAlertModel.getActiveCalendar();
+  const matchedInCalendar = cal.find(e => e.id === created.id || e.name === testEventName);
+  assert.ok(matchedInCalendar, 'Evento de Impacto 5 do Registro de Eventos deve ser integrado ao calendário do Storm Alert');
+  assert.equal(matchedInCalendar.impact, 5);
+
+  const status = StormAlertModel.evaluateStormAlertStatus({
+    referenceDate: '2026-11-19',
+    openPositionsCount: 4
+  });
+
+  assert.equal(status.hasActiveAlert, true, 'Storm Alert deve disparar o alarme para o evento extremo cadastrado');
+  assert.equal(status.event.name, testEventName);
+  assert.ok(status.state === 'WARNING' || status.state === 'ACTION_REQUIRED');
+
+  // Limpa o evento de teste
+  EventPlaybookModel.deleteEvent(created.id);
+  delete global.EventPlaybookModel;
+});

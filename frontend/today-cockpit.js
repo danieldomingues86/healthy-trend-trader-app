@@ -478,7 +478,25 @@
           const html = window.StormAlert.buildStormAlertHtml();
           if (html) return html;
         }
-        return empty('Nenhum evento extremo ativo no radar no momento. Capital seguro.');
+        return `
+          <div class="today-storm-safe-card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.22); border-radius: 14px; gap: 14px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 18px;">🛡️</span>
+              <div>
+                <strong style="display: block; font-size: 13px; color: #f1f5f9; letter-spacing: 0.2px;">Radar Seguro · Sem Eventos Extremos Iminentes</strong>
+                <span style="font-size: 12px; color: #94a3b8;">Nenhum evento extremo ativo no radar no momento. Capital seguro.</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button type="button" class="btn-cockpit-eventplaybook" onclick="if(typeof go==='function')go('eventplaybook')" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); color: #ffffff; padding: 7px 14px; border-radius: 9px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                📅 Registro de Eventos
+              </button>
+              <button type="button" class="btn-cockpit-stormtest" onclick="if(window.StormAlert&&typeof window.StormAlert.openExtremeEventsManagerModal==='function')window.StormAlert.openExtremeEventsManagerModal('test')" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; padding: 7px 14px; border-radius: 9px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                ⚙️ Simular Estados &amp; Alerta
+              </button>
+            </div>
+          </div>
+        `;
       },
       renderPortfolio: () => portfolioContent,
       renderOpportunities: () => opportunitiesContent,

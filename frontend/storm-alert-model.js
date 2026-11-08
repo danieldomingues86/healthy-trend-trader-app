@@ -275,6 +275,50 @@
     baseEvents.forEach(e => {
       if (e && e.id) mergedMap.set(e.id, { ...e });
     });
+
+    // 1. Sincronização direta com Registro de Eventos (EventPlaybookModel / Storage)
+    let playbookEvents = [];
+    if (typeof globalThis !== 'undefined' && globalThis.EventPlaybookModel && typeof globalThis.EventPlaybookModel.getAllEvents === 'function') {
+      try {
+        playbookEvents = globalThis.EventPlaybookModel.getAllEvents();
+      } catch (_) {}
+    } else if (typeof localStorage !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('healthy-trend-event-playbook-v1');
+        if (raw) playbookEvents = JSON.parse(raw);
+      } catch (_) {}
+    }
+
+    if (Array.isArray(playbookEvents)) {
+      playbookEvents.forEach(e => {
+        if (!e) return;
+        const impactNum = Number(e.impact) || 0;
+        const isExtreme = impactNum >= 5 ||
+          String(e.impactLevel || '').toUpperCase() === 'EXTREMO' ||
+          String(e.category || '').toUpperCase() === 'BLACK SWAN';
+
+        if (isExtreme && (e.date || e.eventDate)) {
+          const dateStr = String(e.date || e.eventDate).slice(0, 10);
+          mergedMap.set(e.id || `evt-playbook-${dateStr}`, {
+            id: e.id || `evt-playbook-${dateStr}`,
+            name: e.name || 'Evento Extremo',
+            fullName: e.name || 'Evento Extremo',
+            category: e.category || 'OTHER_EXTREME_RISK',
+            categoryLabel: e.category ? `${e.category} (Extremo)` : 'Risco Extremo',
+            eventDate: dateStr,
+            riskStartDate: dateStr,
+            riskEndDate: dateStr,
+            defaultAdvanceSessions: 1,
+            impact: 5,
+            impactLevel: 'EXTREMO',
+            tradingImplications: e.tradingImplications || '',
+            whatHappened: e.whatHappened || '',
+            source: 'Registro de Eventos'
+          });
+        }
+      });
+    }
+
     _customStormEvents.forEach(e => {
       if (e && e.id) mergedMap.set(e.id, { ...e });
     });
