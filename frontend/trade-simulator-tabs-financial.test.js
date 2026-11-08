@@ -535,7 +535,8 @@ test('Trailing Stop e Gestão de Risco — 11. O método utiliza estritamente a 
     { time: '2026-09-02', open: 29.80, high: 30.50, low: 29.50, close: 30.40 }, // Ativa entrada a 30.00
     { time: '2026-09-03', open: 30.50, high: 32.50, low: 30.20, close: 32.50 },
     { time: '2026-09-04', open: 32.20, high: 34.50, low: 31.80, close: 34.20 }, // Atinge +2R (34.00) -> parcial executada
-    { time: '2026-09-05', open: 33.00, high: 33.10, low: 30.80, close: 31.00 }  // Fecha a 31.00 (abaixo da EMA 10 que está em ~31.15)
+    { time: '2026-09-05', open: 33.00, high: 33.10, low: 30.80, close: 31.00 }, // Fecha a 31.00 (abaixo da EMA 10 que está em ~31.15)
+    { time: '2026-09-08', open: 31.00, high: 31.40, low: 30.70, close: 31.10 }  // D1: Executa saída na abertura do próximo candle diário (31.00)
   ];
 
   const evalResult = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles, 'PARTIAL_50_2R_EMA9');

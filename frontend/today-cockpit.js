@@ -284,6 +284,7 @@
 
   function desktopArtwork(id) {
     const scenes = {
+      'storm-alert': `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="desktop-storm-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dc2626" stop-opacity=".38"/><stop offset="1" stop-color="#180709" stop-opacity="0"/></linearGradient></defs><path class="scene-grid" d="M12 40H428M12 82H428M12 124H428M12 166H428M78 12V178M148 12V178M218 12V178M288 12V178M358 12V178"/><path class="scene-area" fill="url(#desktop-storm-area)" d="M16 156l43-8 31-31 36 9 37-43 35 9 42-48 39 8 51-36v160H16Z"/><path d="M220 30l-20 40h24l-14 44 36-54h-26z" fill="#fca5a5" stroke="#ef4444" stroke-width="2"/></svg>`,
       portfolio: `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="desktop-portfolio-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".42"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient><radialGradient id="desktop-portfolio-glow"><stop stop-color="#f0ce68" stop-opacity=".2"/><stop offset="1" stop-color="#f0ce68" stop-opacity="0"/></radialGradient></defs><path class="scene-grid" d="M14 34H426M14 74H426M14 114H426M14 154H426M70 16V176M140 16V176M210 16V176M280 16V176M350 16V176"/><path class="scene-area" fill="url(#desktop-portfolio-area)" d="M18 155L62 143 91 150 127 119 158 128 199 87 231 101 269 63 303 74 346 39 377 48 418 17V176H18Z"/><path class="scene-line" d="M18 155L62 143 91 150 127 119 158 128 199 87 231 101 269 63 303 74 346 39 377 48 418 17"/><path class="scene-line scene-highlight" d="M397 19h22v22"/><circle cx="354" cy="104" r="64" fill="url(#desktop-portfolio-glow)"/><path class="scene-warm shield" d="M354 54l34 13v27c0 28-13 45-34 57-21-12-34-29-34-57V67Z"/><path class="scene-warm shield-check" d="M338 101l11 11 22-26"/></svg>`,
       opportunities: `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="desktop-opportunities-area" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".34"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="scene-grid" d="M12 38H428M12 78H428M12 118H428M12 158H428M82 14V178M162 14V178M242 14V178M322 14V178"/><g class="scene-candles"><path d="M126 137V84m-10 17h20v25h-20zm42 26V62m-10 13h20v34h-20zm42 1V44m-10 17h20v31h-20zm42 11V28m-10 20h20v31h-20zm42-13V19m-10 17h20v25h-20zm42 28V11m-10 11h20v35h-20z"/></g><path class="scene-area" fill="url(#desktop-opportunities-area)" d="M18 159l54-12 39-31 47 11 48-49 41 15 58-58 58 9 49-29v161H18Z"/><path class="scene-line" d="M18 159l54-12 39-31 47 11 48-49 41 15 58-58 58 9 49-29"/><g class="scene-scan"><circle cx="86" cy="88" r="35"/><circle cx="86" cy="88" r="19"/><path d="M86 43v17m0 56v17M41 88h17m56 0h17"/></g></svg>`,
       'market-cycle': `<svg class="desktop-scene" viewBox="0 0 440 190" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="desktop-cycle-globe" cx="42%" cy="38%"><stop stop-color="#8af5c3" stop-opacity=".8"/><stop offset=".32" stop-color="currentColor" stop-opacity=".52"/><stop offset=".72" stop-color="#063f32" stop-opacity=".56"/><stop offset="1" stop-color="#021b16" stop-opacity="0"/></radialGradient><linearGradient id="desktop-cycle-haze"><stop stop-color="currentColor" stop-opacity="0"/><stop offset=".5" stop-color="currentColor" stop-opacity=".25"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs><path class="scene-grid" d="M8 45H432M8 95H432M8 145H432M75 10V180M150 10V180M225 10V180M300 10V180M375 10V180"/><ellipse cx="296" cy="103" rx="129" ry="82" fill="url(#desktop-cycle-haze)"/><circle class="globe-base" cx="304" cy="96" r="72" fill="url(#desktop-cycle-globe)"/><g class="globe-lines"><ellipse cx="304" cy="96" rx="72" ry="29"/><ellipse cx="304" cy="96" rx="33" ry="72"/><path d="M232 96h144M246 56c35 17 81 17 116 0m-116 80c35-17 81-17 116 0"/></g><path class="scene-orbit" d="M213 126c-26-68 55-126 137-94 80 31 77 123 2 151"/></svg>`,
@@ -313,6 +314,7 @@
 
   function galleryArtwork(id) {
     const art = {
+      'storm-alert': '<svg viewBox="0 0 180 110"><defs><linearGradient id="gallery-storm" x2="0" y2="1"><stop stop-color="#ef4444" stop-opacity=".75"/><stop offset="1" stop-color="#7f1d1d" stop-opacity=".15"/></linearGradient></defs><rect x="15" y="15" width="150" height="80" rx="10" fill="url(#gallery-storm)" stroke="#ef4444" stroke-opacity=".5"/><path d="M90 26l-16 28h20l-12 30 26-36h-20z" fill="#fca5a5" stroke="#ffffff" stroke-width="1.6"/><circle cx="50" cy="55" r="4" fill="#f87171"/><circle cx="130" cy="55" r="4" fill="#f87171"/></svg>',
       portfolio: '<svg viewBox="0 0 180 110"><defs><linearGradient id="gallery-portfolio" x2="0" y2="1"><stop stop-color="#37ef8a" stop-opacity=".74"/><stop offset="1" stop-color="#0b5a36" stop-opacity=".1"/></linearGradient></defs><path d="M5 98H177" stroke-opacity=".35"/><rect x="28" y="73" width="13" height="25" fill="url(#gallery-portfolio)"/><rect x="50" y="62" width="13" height="36" fill="url(#gallery-portfolio)"/><rect x="72" y="69" width="13" height="29" fill="url(#gallery-portfolio)"/><rect x="94" y="47" width="13" height="51" fill="url(#gallery-portfolio)"/><rect x="116" y="31" width="13" height="67" fill="url(#gallery-portfolio)"/><rect x="138" y="18" width="13" height="80" fill="url(#gallery-portfolio)"/><path d="M17 74c25-5 33-25 54-20 18 5 26-7 42-23 11-11 29-14 52-25" fill="none" stroke="#59f29b" stroke-width="2.7"/><path d="M151 7h15v15" fill="none" stroke="#59f29b" stroke-width="2.7"/></svg>',
       opportunities: '<svg viewBox="0 0 180 110"><defs><linearGradient id="gallery-opportunities" x2="0" y2="1"><stop stop-color="#2ed77d" stop-opacity=".48"/><stop offset="1" stop-color="#0a492c" stop-opacity=".02"/></linearGradient></defs><path d="M7 103V78h19v25m8 0V67h19v36m8 0V54h19v49m8 0V44h19v59m8 0V29h19v74" fill="url(#gallery-opportunities)" stroke-opacity=".3"/><path d="M12 86l31-17 28 2 27-29 29 7 35-39" fill="none" stroke="#42ed92" stroke-width="6" stroke-linejoin="round"/><path d="M142 9l22-5-4 22" fill="#43ee92" stroke="#43ee92"/></svg>',
       'next-action': '<svg viewBox="0 0 180 110"><defs><linearGradient id="gallery-next" x2="1" y2="1"><stop stop-color="#154c38"/><stop offset="1" stop-color="#071e19"/></linearGradient></defs><rect x="46" y="12" width="98" height="93" rx="10" fill="url(#gallery-next)" stroke="#48c77e"/><path d="M81 11h29a5 5 0 0 1 5 5v4H76v-4a5 5 0 0 1 5-5z" fill="#157d4c"/><path d="M72 42l6 6 10-13m-16 27 6 6 10-13m-16 27 6 6 10-13" fill="none" stroke="#59eda0" stroke-width="3"/><path d="M98 41h29M98 61h24M98 81h29" fill="none" stroke="#4de796" stroke-width="3" stroke-opacity=".72"/></svg>',
@@ -471,6 +473,31 @@
     const habits = Array.isArray(window.habitState?.habits) ? window.habitState.habits : [];
     const empty = (message) => `<div class="dashboard-widget-state">${esc(message)}</div>`;
     const renderContext = {
+      renderStormAlert: () => {
+        if (typeof window !== 'undefined' && window.StormAlert && typeof window.StormAlert.buildStormAlertHtml === 'function') {
+          const html = window.StormAlert.buildStormAlertHtml();
+          if (html) return html;
+        }
+        return `
+          <div class="today-storm-safe-card">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="today-storm-safe-icon" aria-hidden="true">🛡️</span>
+              <div class="today-storm-safe-text">
+                <strong class="today-storm-safe-title">Radar Seguro · Sem Eventos Extremos Iminentes</strong>
+                <span class="today-storm-safe-desc">Nenhum evento extremo ativo no radar no momento. Capital seguro.</span>
+              </div>
+            </div>
+            <div class="today-storm-safe-actions">
+              <button type="button" class="btn-cockpit-eventplaybook" onclick="if(typeof go==='function')go('eventplaybook')">
+                📅 Registro de Eventos
+              </button>
+              <button type="button" class="btn-cockpit-stormtest" onclick="if(window.StormAlert&&typeof window.StormAlert.openExtremeEventsManagerModal==='function')window.StormAlert.openExtremeEventsManagerModal('test')">
+                ⚙️ Simular Estados &amp; Alerta
+              </button>
+            </div>
+          </div>
+        `;
+      },
       renderPortfolio: () => portfolioContent,
       renderOpportunities: () => opportunitiesContent,
       renderNextAction: () => actionContent,
@@ -619,6 +646,7 @@
     // subtitle is baked into the header template
     root.querySelector('.today-dashboard-context').outerHTML = `<section class="desktop-telemetry-bar ${market.cycle?.cycle ? (healthy() ? 'pulse-healthy' : 'pulse-transition') : ''}" aria-label="Status do Sistema"><div class="telemetry-item"><span class="today-source ${source.kind}">${source.label}</span></div><div class="telemetry-item telemetry-pulse"><svg viewBox="0 0 24 16" width="20" height="14" aria-hidden="true"><path d="M1 8h4l3-6 4 12 3-8 3 4h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><b>${market.cycle?.cycle ? (healthy() ? 'Mercado Saudável (Tendência)' : (Number(market.cycle.cycle.price) > Number(market.cycle.cycle.ema200) ? 'Mercado em Transição (Seletividade)' : 'Mercado Defensivo (Proteção)')) : 'Aguardando telemetria...'}</b></div><div class="telemetry-metrics">${market.ranking ? `<span><b>${leaders}</b> líderes RS</span>` : ''}${market.scans ? `<span><b>${candidates}</b> ativos nos scans</span>` : ''}</div><div class="telemetry-time"><small>Atualizado: ${esc(updateText(market.cycle?.updatedAt || market.scans?.updatedAt))}</small></div></section>`;
     bindDashboard(root, action);
+    if (typeof window !== 'undefined' && window.StormAlert?.attachEvents === 'function') { window.StormAlert.attachEvents(root); }
     renderTopHeat();
     if (prevScrollY > 0) {
       window.scrollTo({ top: prevScrollY, behavior: 'instant' });

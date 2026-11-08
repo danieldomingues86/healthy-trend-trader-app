@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-11-07T01:39:24.577Z",
+  "updatedAt": "2026-11-07T19:11:11.144Z",
   "totalScreens": 46,
   "totalStylesheets": 11,
   "screens": {
@@ -598,7 +598,7 @@
   "stylesheets": {
     "system-quality-analytics.css": {
       "filename": "system-quality-analytics.css",
-      "rulesCount": 142,
+      "rulesCount": 149,
       "mediaBreakpointsCount": 2,
       "mediaBreakpoints": [
         "@media (max-width: 1280px)",
@@ -607,7 +607,7 @@
       "healthyRulesCount": 18,
       "goldRulesCount": 33,
       "pigeonRulesCount": 20,
-      "footprintHash": "d621020333466500"
+      "footprintHash": "7ec6c12cd6cd2053"
     },
     "trade-anatomy.css": {
       "filename": "trade-anatomy.css",
@@ -625,8 +625,8 @@
     },
     "trade-simulator.css": {
       "filename": "trade-simulator.css",
-      "rulesCount": 1218,
-      "mediaBreakpointsCount": 16,
+      "rulesCount": 1348,
+      "mediaBreakpointsCount": 18,
       "mediaBreakpoints": [
         "@media (max-width: 1024px)",
         "@media (max-width: 1050px)",
@@ -637,18 +637,20 @@
         "@media (max-width: 1400px)",
         "@media (max-width: 1440px)",
         "@media (max-width: 500px)",
+        "@media (max-width: 600px)",
         "@media (max-width: 640px)",
         "@media (max-width: 650px)",
         "@media (max-width: 700px)",
         "@media (max-width: 768px)",
         "@media (max-width: 800px)",
         "@media (max-width: 900px)",
+        "@media (max-width: 960px)",
         "@media (min-width: 1800px)"
       ],
       "healthyRulesCount": 53,
-      "goldRulesCount": 56,
-      "pigeonRulesCount": 53,
-      "footprintHash": "aacc5a59375b32cd"
+      "goldRulesCount": 59,
+      "pigeonRulesCount": 56,
+      "footprintHash": "030cdfc60878b537"
     },
     "event-playbook.css": {
       "filename": "event-playbook.css",

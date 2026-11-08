@@ -845,6 +845,12 @@
     const openTrades = (state.trades || []).filter(t => t.status === 'open' && t.metadata?.mode !== 'paper');
     const openPositionsCount = openTrades.length || 12; // 12 as per reference mockup
 
+    const stormAlertHtml = (typeof window !== 'undefined' && window.StormAlert && typeof window.StormAlert.buildStormAlertHtml === 'function')
+      ? window.StormAlert.buildStormAlertHtml({
+          openPositionsCount: openPositionsCount
+        })
+      : '';
+
     const tabs = [
       ['overview', 'Visão Geral'],
       ['movements', 'Movimentações'],
@@ -1165,6 +1171,7 @@
 
         <!-- 2. DASHBOARD BODY (Completely outside the hero container) -->
         <div class="wealth-dashboard-body">
+          ${stormAlertHtml}
           ${state.tab === 'overview' ? `
             ${kpisMarkup}
             ${typeof window !== 'undefined' && window.RiskOfRuinController && typeof window.RiskOfRuinController.buildWealthDashboardCardHtml === 'function' ? window.RiskOfRuinController.buildWealthDashboardCardHtml() : ''}
@@ -1178,6 +1185,10 @@
     `;
 
     // Event listeners
+    if (typeof window !== 'undefined' && window.StormAlert && typeof window.StormAlert.attachEvents === 'function') {
+      window.StormAlert.attachEvents(root);
+    }
+
     root.querySelector('[data-wealth-year]')?.addEventListener('change', e => {
       state.year = Number(e.target.value);
       render();

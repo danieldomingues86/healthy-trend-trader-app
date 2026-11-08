@@ -2653,4 +2653,136 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .stat-maior-trade .m
   color: #d1b87d !important;
 }
 
+/* Storm Alert - Safe state card inside Trading Desktop (#today) */
+#today .today-storm-safe-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+#today .today-storm-safe-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.16);
+  color: #047857;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+#today .today-storm-safe-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#today .today-storm-safe-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f2a20;
+  letter-spacing: -0.01em;
+}
+
+#today .today-storm-safe-desc {
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+}
+
+#today .today-storm-safe-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#today .btn-cockpit-eventplaybook {
+  background: #ffffff;
+  border: 1px solid rgba(15, 42, 32, 0.2);
+  color: #0f2a20;
+  padding: 7px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#today .btn-cockpit-eventplaybook:hover {
+  background: #f8fafc;
+  border-color: rgba(15, 42, 32, 0.35);
+  color: #047857;
+}
+
+#today .btn-cockpit-stormtest {
+  background: #fef2f2;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #991b1b;
+  padding: 7px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#today .btn-cockpit-stormtest:hover {
+  background: #fee2e2;
+  border-color: rgba(239, 68, 68, 0.55);
+  color: #7f1d1d;
+}
+
+/* Gold Theme overrides for Safe state */
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-storm-safe-card,
+body[data-theme="gold"] #today .today-storm-safe-card {
+  background: rgba(214, 170, 80, 0.08);
+  border-color: rgba(214, 170, 80, 0.25);
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-storm-safe-title,
+body[data-theme="gold"] #today .today-storm-safe-title {
+  color: #fffaf0;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .today-storm-safe-desc,
+body[data-theme="gold"] #today .today-storm-safe-desc {
+  color: #d1b87d;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .btn-cockpit-eventplaybook,
+body[data-theme="gold"] #today .btn-cockpit-eventplaybook {
+  background: rgba(214, 170, 80, 0.12);
+  border-color: rgba(214, 170, 80, 0.3);
+  color: #fffaf0;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .btn-cockpit-eventplaybook:hover,
+body[data-theme="gold"] #today .btn-cockpit-eventplaybook:hover {
+  background: rgba(214, 170, 80, 0.2);
+  color: #fde047;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .btn-cockpit-stormtest,
+body[data-theme="gold"] #today .btn-cockpit-stormtest {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .btn-cockpit-stormtest:hover,
+body[data-theme="gold"] #today .btn-cockpit-stormtest:hover {
+  background: rgba(239, 68, 68, 0.28);
+  color: #ffffff;
+}
 

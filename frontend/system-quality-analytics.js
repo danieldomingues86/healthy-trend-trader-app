@@ -200,12 +200,12 @@
           <div class="sqn-scale-segment seg-excep ${activeSeg === 'excep' ? 'active' : ''}"></div>
         </div>
         <div class="sqn-scale-labels">
-          <span class="${activeSeg === 'poor' ? 'active' : ''}">&lt;1,6 Fraco</span>
-          <span class="${activeSeg === 'below-avg' ? 'active' : ''}">1,6 Média</span>
-          <span class="${activeSeg === 'avg' ? 'active' : ''}">2,0 Mediano</span>
-          <span class="${activeSeg === 'good' ? 'active' : ''}">2,5 Bom</span>
-          <span class="${activeSeg === 'exc' ? 'active' : ''}">3,0 Excelente</span>
-          <span class="${activeSeg === 'excep' ? 'active' : ''}">&gt;5,0 Excepcional</span>
+          <span class="sqn-lbl-poor ${activeSeg === 'poor' ? 'active' : ''}"><span class="sqn-lbl-val">&lt;1,6</span> <span class="sqn-lbl-name">Fraco</span></span>
+          <span class="sqn-lbl-below-avg ${activeSeg === 'below-avg' ? 'active' : ''}"><span class="sqn-lbl-val">1,6</span> <span class="sqn-lbl-name">Média</span></span>
+          <span class="sqn-lbl-avg ${activeSeg === 'avg' ? 'active' : ''}"><span class="sqn-lbl-val">2,0</span> <span class="sqn-lbl-name">Mediano</span></span>
+          <span class="sqn-lbl-good ${activeSeg === 'good' ? 'active' : ''}"><span class="sqn-lbl-val">2,5</span> <span class="sqn-lbl-name">Bom</span></span>
+          <span class="sqn-lbl-exc ${activeSeg === 'exc' ? 'active' : ''}"><span class="sqn-lbl-val">3,0</span> <span class="sqn-lbl-name">Excelente</span></span>
+          <span class="sqn-lbl-excep ${activeSeg === 'excep' ? 'active' : ''}"><span class="sqn-lbl-val">&gt;5,0</span> <span class="sqn-lbl-name">Excepcional</span></span>
         </div>
       </div>
     `;
@@ -591,26 +591,34 @@
         </div>
 
         <div class="sim-summary-subcards-row" style="margin-top: 14px;">
-          <!-- Subcard 1: SQN e Classificação -->
-          <div class="sim-subcard-box subcard-total">
-            <div class="sim-subcard-icon icon-coins">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M8 12h8M12 8v8"></path>
-              </svg>
+          <!-- Subcard 1: SQN e Régua Van Tharp com layout horizontal espaçoso -->
+          <div class="sim-subcard-box subcard-total sim-sqn-subcard-split">
+            <div class="sim-sqn-kpi-col">
+              <div class="sim-subcard-icon icon-coins">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 12h8M12 8v8"></path>
+                </svg>
+              </div>
+              <div class="sim-subcard-body">
+                <div class="sim-subcard-label">SQN Simulado</div>
+                <div class="sim-subcard-main-val ${(Number(sqnReport.sqn) < 0) ? 'neg' : 'pos'}">
+                  ${sqnReport.sqnFormatted || '—'}
+                </div>
+                <div class="sim-subcard-sub-line">
+                  <span class="equiv-tag">Classificação: <strong>${esc(classification.label)}</strong></span>
+                  <span class="count-tag">${sqnReport.sampleSize} trades</span>
+                </div>
+              </div>
             </div>
-            <div class="sim-subcard-body">
-              <div class="sim-subcard-label">SQN Simulado</div>
-              <div class="sim-subcard-main-val pos">
-                ${sqnReport.sqnFormatted || '—'}
+
+            <!-- Régua Van Tharp utilizando toda a amplitude livre do componente -->
+            <div class="sim-sqn-scale-col">
+              <div class="sim-sqn-scale-topline">
+                <span class="sim-sqn-scale-eyebrow">Régua Van Tharp</span>
+                <span class="sim-sqn-scale-pill ${badgeClass}">Faixa ativa: <strong>${esc(classification.label)}</strong></span>
               </div>
-              <div class="sim-subcard-sub-line">
-                <span class="equiv-tag">Classificação: <strong>${esc(classification.label)}</strong></span>
-                <span class="count-tag">${sqnReport.sampleSize} trades simulados</span>
-              </div>
-              <div style="margin-top: 10px;">
-                ${scaleBar}
-              </div>
+              ${scaleBar}
             </div>
           </div>
 

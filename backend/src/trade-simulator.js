@@ -54,9 +54,33 @@ function getPrecomputedBenchmarkCycleMap() {
   const map = new Map();
   if (!MarketCycleModel) return map;
 
-  for (const bSym of ['IBOV', 'IFIX', 'BDRX']) {
+  const b3 = (tickerChart && typeof tickerChart.loadB3History === 'function') ? tickerChart.loadB3History() : null;
+  const etfProxyByIndex = { IBOV: 'BOVA11', SMLL: 'SMAL11', IFIX: 'XFIX11', BDRX: 'IVVB11' };
+  for (const bSym of ['IBOV', 'SMLL', 'IFIX', 'BDRX']) {
     try {
       const series = loadIndexSeries(bSym);
+      const seenDates = new Set(series.map(c => c.date));
+      const etfSym = etfProxyByIndex[bSym];
+      const etfSeries = (b3 && etfSym && b3.get(etfSym)) ? b3.get(etfSym) : null;
+      if (Array.isArray(etfSeries) && etfSeries.length >= 30) {
+        const normalizedEtf = etfSeries.map(c => ({
+          date: String(c.time || c.date || '').slice(0, 10),
+          time: String(c.time || c.date || '').slice(0, 10),
+          open: Number(c.open || c.close),
+          high: Number(c.high || c.close),
+          low: Number(c.low || c.close),
+          close: Number(c.close),
+          volume: Number(c.volume || 0)
+        }));
+        for (let i = 29; i < normalizedEtf.length; i++) {
+          const d = normalizedEtf[i].date;
+          if (d && !seenDates.has(d)) {
+            const reading = MarketCycleModel.scoreMarketCycleFromCandles(normalizedEtf.slice(0, i + 1));
+            const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: bSym });
+            map.set(`${bSym}:${d}`, perm);
+          }
+        }
+      }
       for (let i = 29; i < series.length; i++) {
         const reading = MarketCycleModel.scoreMarketCycleFromCandles(series.slice(0, i + 1));
         const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: bSym });
@@ -261,6 +285,64 @@ async function list(userId, client = database, options = {}) {
         if (perm) return perm.isPermitted;
         return !(sDate && sDate < '2026-07-01');
       });
+    }
+  }
+
+  if (options && options.strictHistoricalAudit && tickerChart && typeof model.auditAndSanitizeSimulationsBatch === 'function') {
+    try {
+      const b3 = typeof tickerChart.loadB3History === 'function' ? tickerChart.loadB3History() : null;
+      const nasdaq = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
+      const combinedMap = new Map();
+      if (b3 instanceof Map) {
+        for (const [k, v] of b3.entries()) combinedMap.set(k, v);
+      }
+      if (nasdaq instanceof Map) {
+        for (const [k, v] of nasdaq.entries()) {
+          if (!combinedMap.has(k)) combinedMap.set(k, v);
+        }
+      }
+      if (combinedMap.size > 0) {
+        const sanitized = model.auditAndSanitizeSimulationsBatch(simulations, {
+          candlesMap: combinedMap,
+          simulationMode: isResearchMode ? 'RESEARCH' : 'OFFICIAL'
+        });
+        const rejectedTrades = sanitized.rejectedTrades || [];
+        if (sanitized.approvedTrades.length === 0 && simulations.length > 0) {
+          const fresh = await generateMass(userId, {
+            period: 120,
+            universe: 'IBOV',
+            triggers: 'ALL',
+            grades: isResearchMode ? 'ALL' : ['A', 'B', 'C'],
+            targetVolume: 100,
+            scenario: '2R',
+            simulationMode: isResearchMode ? 'RESEARCH' : 'OFFICIAL'
+          }, client);
+          if (fresh && Array.isArray(fresh.simulations) && fresh.simulations.length > 0) {
+            return {
+              ...fresh,
+              rejectedTrades,
+              auditReport: {
+                ...(fresh.auditReport || {}),
+                rejectedTrades,
+                rejectedTradesCount: rejectedTrades.length
+              }
+            };
+          }
+        }
+        simulations = sanitized.approvedTrades;
+        return {
+          simulations,
+          rejectedTrades,
+          stats: sanitized.stats,
+          comparison: model.compareManagementScenarios(simulations),
+          hypothesisComparison: (typeof model.compareInsideBarTriggers === 'function')
+            ? model.compareInsideBarTriggers(simulations)
+            : null,
+          auditReport: sanitized.auditReport
+        };
+      }
+    } catch {
+      // Mantém retorno padrão se cache de candles não estiver carregado
     }
   }
 

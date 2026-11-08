@@ -715,6 +715,71 @@
         if (window.MarketCentral && typeof window.MarketCentral.refresh === 'function') {
           window.MarketCentral.refresh();
         }
+
+        // Sincroniza com Storm Alert no Desktop e Dashboard
+        const isExtreme = Number(payload.impact) >= 5 || String(payload.category).toUpperCase() === 'BLACK SWAN';
+        if (typeof window !== 'undefined') {
+          if (window.StormAlert && typeof window.StormAlert.refresh === 'function') {
+            window.StormAlert.refresh();
+          }
+          if (window.TodayCockpit && typeof window.TodayCockpit.render === 'function') {
+            const cockpitRoot = document.getElementById('todayCockpitRoot') || document.querySelector('.today-cockpit-root');
+            if (cockpitRoot) window.TodayCockpit.render(cockpitRoot);
+          }
+          if (window.WealthDashboardV2 && typeof window.WealthDashboardV2.render === 'function') {
+            const dashRoot = document.getElementById('wealthDashboardRoot') || document.querySelector('.wealth-dashboard-root');
+            if (dashRoot) window.WealthDashboardV2.render(dashRoot);
+          }
+
+          if (isExtreme) {
+            if (typeof window.showToast === 'function') {
+              window.showToast('🚨 Storm Alert ativado! Evento Extremo "' + payload.name + '" registrado no sistema.');
+            }
+
+            // Dispara e-mail de notificação para o trader
+            const userEmail = (window.currentUser && window.currentUser.email) || (window.healthyTrendUser && window.healthyTrendUser.email) || 'trader@healthytrendtrader.com';
+            const displayName = (window.currentUser && (window.currentUser.displayName || window.currentUser.name)) || 'Trader';
+            const openCount = (window.StormAlertModel && typeof window.StormAlertModel.resolveOpenPositionsCount === 'function')
+              ? window.StormAlertModel.resolveOpenPositionsCount()
+              : 8;
+            const cutoffDate = (window.StormAlertModel && typeof window.StormAlertModel.resolveCutoffSession === 'function')
+              ? window.StormAlertModel.resolveCutoffSession(payload, 1)?.cutoffDate
+              : null;
+            const cutoffFormatted = cutoffDate && window.StormAlertModel
+              ? window.StormAlertModel.formatCutoffSessionBR(cutoffDate)
+              : 'Fechamento do pregão anterior';
+            const dateFormatted = window.StormAlertModel
+              ? window.StormAlertModel.formatDateWithWeekdayBR(payload.date)
+              : payload.date;
+
+            const emailPayload = {
+              email: userEmail,
+              displayName: displayName,
+              openPositionsCount: openCount,
+              event: {
+                name: payload.name,
+                fullName: payload.name,
+                categoryLabel: (payload.category || 'Macro') + ' (Extremo)',
+                eventDate: payload.date,
+                eventDateFormatted: dateFormatted,
+                cutoffFormatted: cutoffFormatted
+              }
+            };
+            if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
+              window.healthyTrendApi.request('/api/storm-alert/notify-email', {
+                method: 'POST',
+                body: emailPayload
+              }).catch(() => {});
+            } else {
+              const apiBase = window.HEALTHY_TREND_API_URL || 'http://localhost:8787';
+              fetch(`${apiBase}/api/storm-alert/notify-email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(emailPayload)
+              }).catch(() => {});
+            }
+          }
+        }
       } catch (err) {
         alert(err.message);
       }
@@ -735,6 +800,19 @@
       loadData().then(render);
       if (window.MarketCentral && typeof window.MarketCentral.refresh === 'function') {
         window.MarketCentral.refresh();
+      }
+      if (typeof window !== 'undefined') {
+        if (window.StormAlert && typeof window.StormAlert.refresh === 'function') {
+          window.StormAlert.refresh();
+        }
+        if (window.TodayCockpit && typeof window.TodayCockpit.render === 'function') {
+          const cockpitRoot = document.getElementById('todayCockpitRoot') || document.querySelector('.today-cockpit-root');
+          if (cockpitRoot) window.TodayCockpit.render(cockpitRoot);
+        }
+        if (window.WealthDashboardV2 && typeof window.WealthDashboardV2.render === 'function') {
+          const dashRoot = document.getElementById('wealthDashboardRoot') || document.querySelector('.wealth-dashboard-root');
+          if (dashRoot) window.WealthDashboardV2.render(dashRoot);
+        }
       }
     }
   }

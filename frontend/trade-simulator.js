@@ -7,15 +7,16 @@
 (function(root) {
   'use strict';
 
-  const STORAGE_KEY = 'healthy-trade-simulator-data';
+  const STORAGE_KEY = 'healthy-trade-simulator-data-v2-audited';
   const API_ENDPOINT = '/api/trade-simulations';
 
   const state = {
     screenTab: 'summary', // 'summary' | 'trades' | 'assets' | 'setups' | 'timeline'
     summaryView: 'financial', // 'financial' | 'statistical'
-    initialCapital: 100000,
+    initialCapital: 500000,
     tradeStatusFilter: 'ALL', // 'ALL' | 'GAIN' | 'LOSS' | 'BREAKEVEN'
     simulations: [],
+    rejectedSimulations: [],
     loading: false,
     generatingMass: false,
     massProgressText: '',
@@ -44,6 +45,7 @@
     exportScope: 'FILTERED', // 'FILTERED' | 'ALL'
     tempScenarioSelection: '2R',
     massConfig: {
+      strategy: 'TREND_FOLLOWING', // 'TREND_FOLLOWING' | 'VOLATILITY_TRADING'
       period: 120, // 30, 90, 120, 180, 365, 730, 1095, 'CUSTOM', 'ALL'
       startDate: '',
       endDate: '',
@@ -51,6 +53,15 @@
       triggers: 'ALL', // 'ALL' ou array
       grades: 'ALL', // 'ALL' ou array
       targetVolume: 100 // 100, 250, 500, 1000, 'MAX'
+    },
+    massProcessingState: {
+      status: 'IDLE', // 'IDLE' | 'PROCESSING' | 'SUCCESS' | 'ERROR'
+      phase: 'LOAD_HISTORY',
+      currentStepIndex: 1,
+      realProgressPct: null,
+      executedCount: null,
+      errorMessage: null,
+      config: null
     },
     comparison: null,
     hypothesisComparison: null,
@@ -90,6 +101,16 @@
     })(),
     rubricComparisonExpanded: false
   };
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   function sanitizeSimulationsList(list) {
     if (!Array.isArray(list)) return [];
@@ -138,6 +159,9 @@
         const response = await root.healthyTrendApi.request(API_ENDPOINT, { method: 'GET' });
         if (response && Array.isArray(response.simulations) && response.simulations.length > 0) {
           state.simulations = sanitizeSimulationsList(response.simulations);
+          state.rejectedSimulations = Array.isArray(response.rejectedTrades)
+            ? response.rejectedTrades
+            : (Array.isArray(response.auditReport?.rejectedTrades) ? response.auditReport.rejectedTrades : []);
           state.comparison = response.comparison || null;
           state.hypothesisComparison = response.hypothesisComparison || null;
           state.auditReport = response.auditReport || (root.TradeSimulatorModel?.auditSimulationsBatch ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations) : null);
@@ -321,20 +345,99 @@
     return newSim;
   }
 
+  function yieldToUiFrame() {
+    return new Promise(resolve => setTimeout(resolve, 16));
+  }
+
+  let massSuccessAutoCloseTimer = null;
+
+  function clearMassSuccessAutoCloseTimer() {
+    if (massSuccessAutoCloseTimer) {
+      clearTimeout(massSuccessAutoCloseTimer);
+      massSuccessAutoCloseTimer = null;
+    }
+  }
+
+  function syncFiltersWithMassPayload(payload) {
+    if (payload.period === 'CUSTOM') {
+      state.filters.days = 'CUSTOM';
+      state.filters.startDate = payload.startDate || null;
+      state.filters.endDate = payload.endDate || null;
+    } else if (payload.period === 'ALL') {
+      state.filters.days = 'ALL';
+      state.filters.startDate = null;
+      state.filters.endDate = null;
+    } else {
+      state.filters.days = Number(payload.period);
+      state.filters.startDate = null;
+      state.filters.endDate = null;
+    }
+    state.massConfig.period = payload.period;
+    state.massConfig.startDate = payload.startDate || '';
+    state.massConfig.endDate = payload.endDate || '';
+    if (payload.triggers && payload.triggers !== 'ALL') {
+      const trigs = Array.isArray(payload.triggers) ? payload.triggers : [payload.triggers];
+      state.filters.trigger = trigs.length === 1 ? trigs[0] : 'ALL';
+    } else {
+      state.filters.trigger = 'ALL';
+    }
+    if (payload.grades && payload.grades !== 'ALL') {
+      const grs = Array.isArray(payload.grades) ? payload.grades : [payload.grades];
+      state.filters.grade = grs.length === 1 ? (root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(grs[0]) : grs[0]) : 'ALL';
+    } else {
+      state.filters.grade = 'ALL';
+    }
+  }
+
+  function finalizeMassGenerationSuccess(payload, meta, toastText, keepSuccessOpen = false) {
+    const executedCount = meta?.executedCount ?? state.simulations.filter(
+      s => s.status === 'IN_OPERATION' || s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS'
+    ).length;
+
+    state.loading = false;
+    state.generatingMass = false;
+    state.massProcessingState = {
+      status: 'SUCCESS',
+      phase: 'COMPLETED',
+      currentStepIndex: 6,
+      realProgressPct: 100,
+      executedCount,
+      errorMessage: null,
+      config: { ...payload, meta: meta || null }
+    };
+    saveLocalCache();
+    render();
+
+    if (typeof root.showToast === 'function' && toastText) {
+      root.showToast(toastText);
+    }
+
+    clearMassSuccessAutoCloseTimer();
+    if (!keepSuccessOpen && state.massModalOpen) {
+      massSuccessAutoCloseTimer = setTimeout(() => {
+        if (state.massModalOpen && state.massProcessingState?.status === 'SUCCESS') {
+          state.massModalOpen = false;
+          state.massProcessingState.status = 'IDLE';
+          render();
+        }
+      }, 1100);
+    }
+  }
+
   /**
    * Gera massa de teste no cenário de gestão selecionado ('2R', '2.5R' ou 'PYRAMID_1R_2R')
    */
   async function generateScenarioMass(scenarioId = '2R', options = null) {
-    state.loading = true;
-    state.generatingMass = true;
-    state.massProgressText = 'Varrendo histórico e identificando operações...';
-    state.activeScenario = scenarioId;
-    state.tempScenarioSelection = scenarioId;
-    state.scenarioModalOpen = false;
-    render();
+    // Bloqueia cliques duplicados ou submissões concorrentes durante o processamento
+    if (state.generatingMass) {
+      return null;
+    }
+
+    clearMassSuccessAutoCloseTimer();
 
     const config = options || state.massConfig || {};
     const payload = {
+      strategy: config.strategy || state.massConfig?.strategy || 'TREND_FOLLOWING',
       scenario: scenarioId,
       period: config.period || 120,
       startDate: config.startDate || null,
@@ -345,6 +448,73 @@
       targetVolume: config.targetVolume || 100
     };
 
+    // Validação preventiva de período personalizado ou erro explícito
+    if (payload.period === 'CUSTOM') {
+      if (!payload.startDate || !payload.endDate) {
+        state.loading = false;
+        state.generatingMass = false;
+        state.massProcessingState = {
+          status: 'ERROR',
+          phase: 'FAILED',
+          currentStepIndex: 1,
+          realProgressPct: null,
+          executedCount: null,
+          errorMessage: 'Informe a data inicial e a data final para o período personalizado.',
+          config: { ...payload }
+        };
+        render();
+        return null;
+      }
+      if (String(payload.startDate) > String(payload.endDate)) {
+        state.loading = false;
+        state.generatingMass = false;
+        state.massProcessingState = {
+          status: 'ERROR',
+          phase: 'FAILED',
+          currentStepIndex: 1,
+          realProgressPct: null,
+          executedCount: null,
+          errorMessage: 'A data inicial não pode ser posterior à data final selecionada.',
+          config: { ...payload }
+        };
+        render();
+        return null;
+      }
+    }
+
+    if (config && config.simulateError === true) {
+      state.loading = false;
+      state.generatingMass = false;
+      state.massProcessingState = {
+        status: 'ERROR',
+        phase: 'FAILED',
+        currentStepIndex: Number(config.errorStepIndex) || 1,
+        realProgressPct: null,
+        executedCount: null,
+        errorMessage: config.errorMessage || 'Não foi possível concluir o processamento da massa de testes. Tente novamente.',
+        config: { ...payload }
+      };
+      render();
+      return null;
+    }
+
+    state.loading = true;
+    state.generatingMass = true;
+    state.massProgressText = 'Varrendo histórico e identificando operações...';
+    state.activeScenario = scenarioId;
+    state.tempScenarioSelection = scenarioId;
+    state.scenarioModalOpen = false;
+    state.massProcessingState = {
+      status: 'PROCESSING',
+      phase: 'LOAD_HISTORY',
+      currentStepIndex: 1,
+      realProgressPct: null, // Indeterminado enquanto aguarda processamento do servidor (sem percentuais fictícios)
+      executedCount: null,
+      errorMessage: null,
+      config: { ...payload }
+    };
+    render();
+
     try {
       if (root.healthyTrendApi && typeof root.healthyTrendApi.request === 'function') {
         const res = await root.healthyTrendApi.request(API_ENDPOINT + '/generate-mass', {
@@ -352,53 +522,47 @@
           body: JSON.stringify(payload)
         });
         if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
+          // Etapas 1, 2 e 3 concluídas e confirmadas pelo servidor (60% real) -> inicia Etapa 4
+          state.massProcessingState = {
+            ...state.massProcessingState,
+            status: 'PROCESSING',
+            phase: 'CALCULATE_METRICS',
+            currentStepIndex: 4,
+            realProgressPct: 60,
+            config: { ...payload, meta: res.meta || null }
+          };
+          render();
+          await yieldToUiFrame();
+
           state.simulations = sanitizeSimulationsList(res.simulations);
           state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
           state.hypothesisComparison = res.hypothesisComparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareInsideBarTriggers(state.simulations) : null);
           state.auditReport = res.auditReport || (root.TradeSimulatorModel?.auditSimulationsBatch ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload }) : null);
           state.massResultSummary = res.meta || null;
 
-          // Sincroniza os filtros do topo com o período gerado para que a amostra completa seja exibida na tela
-          if (payload.period === 'CUSTOM') {
-            state.filters.days = 'CUSTOM';
-            state.filters.startDate = payload.startDate || null;
-            state.filters.endDate = payload.endDate || null;
-          } else if (payload.period === 'ALL') {
-            state.filters.days = 'ALL';
-            state.filters.startDate = null;
-            state.filters.endDate = null;
-          } else {
-            state.filters.days = Number(payload.period);
-            state.filters.startDate = null;
-            state.filters.endDate = null;
-          }
-          state.massConfig.period = payload.period;
-          state.massConfig.startDate = payload.startDate || '';
-          state.massConfig.endDate = payload.endDate || '';
-          if (payload.triggers && payload.triggers !== 'ALL') {
-            const trigs = Array.isArray(payload.triggers) ? payload.triggers : [payload.triggers];
-            state.filters.trigger = trigs.length === 1 ? trigs[0] : 'ALL';
-          } else {
-            state.filters.trigger = 'ALL';
-          }
-          if (payload.grades && payload.grades !== 'ALL') {
-            const grs = Array.isArray(payload.grades) ? payload.grades : [payload.grades];
-            state.filters.grade = grs.length === 1 ? (root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(grs[0]) : grs[0]) : 'ALL';
-          } else {
-            state.filters.grade = 'ALL';
-          }
-
-          state.loading = false;
-          state.generatingMass = false;
-          state.massModalOpen = false;
-          saveLocalCache();
+          // Etapa 4 concluída e confirmada (80% real) -> inicia Etapa 5 (Preparando o relatório final)
+          state.massProcessingState = {
+            ...state.massProcessingState,
+            status: 'PROCESSING',
+            phase: 'PREPARE_REPORT',
+            currentStepIndex: 5,
+            realProgressPct: 80,
+            config: { ...payload, meta: res.meta || null }
+          };
           render();
-          if (typeof root.showToast === 'function') {
-            const count = res.meta?.executedCount || state.simulations.filter(s => s.status === 'IN_OPERATION' || s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS').length;
-            const pText = formatPeriodLabel(payload.period, payload.startDate, payload.endDate);
-            root.showToast(`✓ Massa histórica auditada: ${count} trades executados cobrindo ${pText}.`);
-          }
-          return;
+          await yieldToUiFrame();
+
+          syncFiltersWithMassPayload(payload);
+
+          const count = res.meta?.executedCount || state.simulations.filter(s => s.status === 'IN_OPERATION' || s.status === 'CLOSED_GAIN' || s.status === 'CLOSED_LOSS').length;
+          const pText = formatPeriodLabel(payload.period, payload.startDate, payload.endDate);
+          finalizeMassGenerationSuccess(
+            payload,
+            res.meta || null,
+            `✓ Massa histórica auditada: ${count} trades executados cobrindo ${pText}.`,
+            Boolean(config && config.keepSuccessOpen)
+          );
+          return state.simulations;
         }
       }
     } catch (e) {
@@ -412,6 +576,17 @@
           body: JSON.stringify({ scenario: scenarioId })
         });
         if (res && Array.isArray(res.simulations) && res.simulations.length > 0) {
+          state.massProcessingState = {
+            ...state.massProcessingState,
+            status: 'PROCESSING',
+            phase: 'CALCULATE_METRICS',
+            currentStepIndex: 4,
+            realProgressPct: 60,
+            config: { ...payload, meta: res.meta || null }
+          };
+          render();
+          await yieldToUiFrame();
+
           state.simulations = sanitizeSimulationsList(res.simulations);
           state.comparison = res.comparison || (root.TradeSimulatorModel ? root.TradeSimulatorModel.compareManagementScenarios(state.simulations) : null);
           state.auditReport = res.auditReport || (root.TradeSimulatorModel?.auditSimulationsBatch ? root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload }) : null);
@@ -420,66 +595,127 @@
               state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
             }
           }
-          saveLocalCache();
-          state.loading = false;
-          state.generatingMass = false;
-          state.massModalOpen = false;
+
+          state.massProcessingState = {
+            ...state.massProcessingState,
+            status: 'PROCESSING',
+            phase: 'PREPARE_REPORT',
+            currentStepIndex: 5,
+            realProgressPct: 80,
+            config: { ...payload, meta: res.meta || null }
+          };
           render();
-          if (typeof root.showToast === 'function') {
-            const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
-            root.showToast(`✓ Massa de teste gerada para o cenário: ${meta.name}`);
-          }
-          return;
+          await yieldToUiFrame();
+
+          const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
+          finalizeMassGenerationSuccess(
+            payload,
+            res.meta || null,
+            `✓ Massa de teste gerada para o cenário: ${meta.name}`,
+            Boolean(config && config.keepSuccessOpen)
+          );
+          return state.simulations;
         }
       }
     } catch (e) {}
 
-    if (root.TradeSimulatorModel) {
-      if (typeof root.TradeSimulatorModel.generateExpandedSeeds === 'function') {
-        state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateExpandedSeeds(scenarioId, payload));
-      } else if (typeof root.TradeSimulatorModel.generateSeedSimulationsForScenario === 'function') {
-        state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateSeedSimulationsForScenario(scenarioId));
+    try {
+      if (root.TradeSimulatorModel) {
+        // Execução local determinística passo a passo (reflete cada etapa real em memória)
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'PROCESSING',
+          phase: 'APPLY_RULES',
+          currentStepIndex: 2,
+          realProgressPct: 20,
+          config: { ...payload }
+        };
+        render();
+        await yieldToUiFrame();
+
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'PROCESSING',
+          phase: 'SIMULATE_TRADES',
+          currentStepIndex: 3,
+          realProgressPct: 40,
+          config: { ...payload }
+        };
+        render();
+        await yieldToUiFrame();
+
+        if (typeof root.TradeSimulatorModel.generateExpandedSeeds === 'function') {
+          state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateExpandedSeeds(scenarioId, payload));
+        } else if (typeof root.TradeSimulatorModel.generateSeedSimulationsForScenario === 'function') {
+          state.simulations = sanitizeSimulationsList(root.TradeSimulatorModel.generateSeedSimulationsForScenario(scenarioId));
+        }
+
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'PROCESSING',
+          phase: 'CALCULATE_METRICS',
+          currentStepIndex: 4,
+          realProgressPct: 60,
+          config: { ...payload }
+        };
+        render();
+        await yieldToUiFrame();
+
+        state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
+        if (typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function') {
+          state.auditReport = root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload });
+        }
+
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'PROCESSING',
+          phase: 'PREPARE_REPORT',
+          currentStepIndex: 5,
+          realProgressPct: 80,
+          config: { ...payload }
+        };
+        render();
+        await yieldToUiFrame();
+
+        syncFiltersWithMassPayload(payload);
+        const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
+        finalizeMassGenerationSuccess(
+          payload,
+          null,
+          `✓ Massa de teste gerada para o cenário: ${meta.name}`,
+          Boolean(config && config.keepSuccessOpen)
+        );
+        return state.simulations;
       }
-      state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
-      if (typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function') {
-        state.auditReport = root.TradeSimulatorModel.auditSimulationsBatch(state.simulations, { parameters: payload });
-      }
-      if (payload.period === 'CUSTOM') {
-        state.filters.days = 'CUSTOM';
-        state.filters.startDate = payload.startDate || null;
-        state.filters.endDate = payload.endDate || null;
-      } else if (payload.period === 'ALL') {
-        state.filters.days = 'ALL';
-        state.filters.startDate = null;
-        state.filters.endDate = null;
-      } else {
-        state.filters.days = Number(payload.period);
-        state.filters.startDate = null;
-        state.filters.endDate = null;
-      }
-      state.massConfig.period = payload.period;
-      if (payload.triggers && payload.triggers !== 'ALL') {
-        const trigs = Array.isArray(payload.triggers) ? payload.triggers : [payload.triggers];
-        state.filters.trigger = trigs.length === 1 ? trigs[0] : 'ALL';
-      } else {
-        state.filters.trigger = 'ALL';
-      }
-      if (payload.grades && payload.grades !== 'ALL') {
-        const grs = Array.isArray(payload.grades) ? payload.grades : [payload.grades];
-        state.filters.grade = grs.length === 1 ? (root.TradeSimulatorModel?.normalizeSimulatorGrade ? root.TradeSimulatorModel.normalizeSimulatorGrade(grs[0]) : grs[0]) : 'ALL';
-      } else {
-        state.filters.grade = 'ALL';
-      }
+    } catch (err) {
+      state.loading = false;
+      state.generatingMass = false;
+      state.massProcessingState = {
+        status: 'ERROR',
+        phase: 'FAILED',
+        currentStepIndex: state.massProcessingState?.currentStepIndex || 1,
+        realProgressPct: null,
+        executedCount: null,
+        errorMessage: err?.message || 'Ocorreu uma falha inesperada durante a geração da massa de testes.',
+        config: { ...payload }
+      };
+      render();
+      return null;
     }
-    saveLocalCache();
+
     state.loading = false;
     state.generatingMass = false;
-    state.massModalOpen = false;
+    state.massProcessingState = {
+      status: 'ERROR',
+      phase: 'FAILED',
+      currentStepIndex: 1,
+      realProgressPct: null,
+      executedCount: null,
+      errorMessage: 'Motor de simulação indisponível no momento. Recarregue a página e tente novamente.',
+      config: { ...payload }
+    };
     render();
-    if (typeof root.showToast === 'function') {
-      const meta = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[scenarioId]) || { name: scenarioId };
-      root.showToast(`✓ Massa de teste gerada para o cenário: ${meta.name}`);
-    }
+    return null;
   }
 
   function formatPeriodLabel(period, startDate, endDate) {
@@ -887,15 +1123,15 @@
    * Formatação auxiliar
    */
   function formatNumberPlain(val) {
-    if (val === null || val === undefined || isNaN(Number(val))) return '100.000';
+    if (val === null || val === undefined || isNaN(Number(val))) return '500.000';
     return Number(val).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
   }
 
   function parseFormattedNumber(str) {
-    if (!str) return 100000;
+    if (!str) return 500000;
     const clean = String(str).replace(/[^0-9,-]/g, '').replace(',', '.');
     const num = parseFloat(clean);
-    return isNaN(num) || num <= 0 ? 100000 : num;
+    return isNaN(num) || num <= 0 ? 500000 : num;
   }
 
   function formatMoney(val) {
@@ -1011,9 +1247,9 @@
             <span class="mini-kpi-label">Patrimônio Líquido Acumulado</span>
             <strong class="mini-kpi-val ${wr.netReturnPct >= 0 ? 'good' : 'bad'}">
               ${wr.netReturnPct ? (wr.netReturnPct >= 0 ? '+' : '') + wr.netReturnPct.toFixed(2).replace('.', ',') + '%' : '0,00%'}
-              <small class="mini-delta">(${formatMoney(rubricReport.finalEquity || 100000)})</small>
+              <small class="mini-delta">(${formatMoney(rubricReport.finalEquity || 500000)})</small>
             </strong>
-            <span class="mini-kpi-desc">Capital inicial R$ 100.000 + custos reais</span>
+            <span class="mini-kpi-desc">Capital inicial ${formatMoney(rubricReport.initialCapital || state.initialCapital || 500000)} + custos reais</span>
           </div>
         </div>
 
@@ -1486,7 +1722,7 @@
     if (!rootEl) return;
 
     const scoped = getScopedSimulations();
-    const initialCapital = Math.max(1000, Number(state.initialCapital || 100000));
+    const initialCapital = Math.max(1000, Number(state.initialCapital || 500000));
     let stats = null;
     let rubricReport = null;
     let rubricComparison = null;
@@ -1934,11 +2170,6 @@
           </div>
         </div>
 
-        <!-- System Quality Analytics (SQN - Metodologia Van K. Tharp) -->
-        ${window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.generateSimulatorSqnCardHtml === 'function'
-          ? window.SystemQualityAnalytics.generateSimulatorSqnCardHtml(stats)
-          : ''}
-
         <!-- Banner de Informação Soft -->
         <div class="sim-rebuild-info-banner">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1951,6 +2182,121 @@
 
         <!-- System Quality Analytics (SQN - Metodologia Van K. Tharp) -->
         ${renderSimulatorSqnCard(stats)}
+        ${renderExtremeEventSummarySection(stats)}
+      </div>
+    `;
+  }
+
+  /**
+   * Renderiza o painel de estatísticas e calendário de Proteção Obrigatória contra Eventos Extremos na aba Resumo.
+   */
+  function renderExtremeEventSummarySection(stats) {
+    const extStats = (stats && stats.extremeEventStats) || {
+      count: stats?.extremeEventExitsCount || 0,
+      totalR: stats?.extremeEventTotalR || 0,
+      totalRFormatted: stats?.extremeEventTotalRFormatted || '0,00R',
+      avoidedImpactR: stats?.extremeEventAvoidedImpactR || 0,
+      avoidedImpactRFormatted: stats?.extremeEventAvoidedImpactRFormatted || '0,00R',
+      strategyImpactR: stats?.extremeEventStrategyImpactR || 0,
+      strategyImpactRFormatted: stats?.extremeEventStrategyImpactRFormatted || '0,00R',
+      financialResult: stats?.extremeEventFinancialResult || 0,
+      avoidedFinancial: stats?.extremeEventAvoidedFinancial || 0,
+      technicalStopsCount: stats?.technicalStopsCount || 0,
+      trades: []
+    };
+
+    const calendar = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getExtremeEventsCalendar === 'function')
+      ? root.TradeSimulatorModel.getExtremeEventsCalendar()
+      : [];
+    const protCfg = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getExtremeEventProtectionConfig === 'function')
+      ? root.TradeSimulatorModel.getExtremeEventProtectionConfig()
+      : { advanceSessions: 1, operationalCostPct: 0 };
+
+    const count = Number(extStats.count || 0);
+    const totalR = Number(extStats.totalR || 0);
+    const avoidedR = Number(extStats.avoidedImpactR || 0);
+    const impactR = Number(extStats.strategyImpactR || 0);
+    const finRes = Number(extStats.financialResult || 0);
+
+    return `
+      <div class="sim-rebuild-card sim-extreme-summary-card" style="margin-top: 20px;" id="simExtremeEventProtectionPanel">
+        <div class="sim-rebuild-card-head">
+          <div class="sim-rebuild-card-head-left">
+            <span class="sim-rebuild-head-icon icon-chart">🛡️</span>
+            <div>
+              <h2 class="sim-rebuild-card-title">Proteção Obrigatória contra Eventos Extremos (Extreme Event Protection)</h2>
+              <p class="sim-rebuild-card-desc">Encerramento preventivo obrigatório no último pregão anterior a eleições presidenciais, decisões extraordinárias e eventos de descontinuidade de preço.</p>
+            </div>
+          </div>
+          <span class="sim-status-pill pill-extreme-event">
+            <span class="pill-dot"></span> Regra Obrigatória Ativa (${protCfg.advanceSessions} pregão antes)
+          </span>
+        </div>
+
+        <div class="sim-rebuild-kpis-grid" style="margin-top: 14px;">
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-blue">🛡️</span>
+              <span class="sim-mini-kpi-title">Trades Encerrados por Evento Extremo</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val">${count}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Não contabilizados como stops técnicos (${extStats.technicalStopsCount || 0} stops técnicos)</div>
+          </div>
+
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-mint">💰</span>
+              <span class="sim-mini-kpi-title">Resultado das Saídas Preventivas</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${totalR >= 0 ? 'pos' : 'neg'}">${formatR(totalR)}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Financeiro realizado: ${finRes >= 0 ? '+ ' : '- '}${formatMoney(Math.abs(finRes))}</div>
+          </div>
+
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-mint">⚡</span>
+              <span class="sim-mini-kpi-title">Lucro / Prejuízo Evitado (vs Permanência)</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${avoidedR >= 0 ? 'pos' : 'neg'}">${formatR(avoidedR)}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Comparado à permanência hipotética no evento</div>
+          </div>
+
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-blue">📊</span>
+              <span class="sim-mini-kpi-title">Impacto da Proteção na Estratégia</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${impactR >= 0 ? 'pos' : 'neg'}">${formatR(impactR)}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Preservação de capital prioritária sobre retorno bruto</div>
+          </div>
+        </div>
+
+        <div class="sim-extreme-calendar-strip" style="margin-top: 14px;">
+          <div class="sim-extreme-calendar-title">📅 Calendário Oficial de Eventos Extremos Monitorados (${calendar.length}):</div>
+          <div class="sim-extreme-calendar-Badges">
+            ${calendar.map(evt => `
+              <span class="sim-extreme-cal-chip" title="${escapeHtml(evt.justification || '')}">
+                <strong>${escapeHtml(evt.name)}</strong> • Evento: ${formatDateBR(evt.eventDate)}
+              </span>
+            `).join('')}
+          </div>
+        </div>
       </div>
     `;
   }
@@ -1967,6 +2313,36 @@
     const sqnReport = stats.sqnAnalytics;
     const classification = sqnReport.classification || { label: 'Não classificado', badgeClass: 'sqn-badge-unclassified' };
     const badgeClass = classification.badgeClass || 'sqn-badge-unclassified';
+    const isVal = sqnReport.sqn != null && Number.isFinite(sqnReport.sqn);
+    const sqn = sqnReport.sqn;
+    const activeSeg = !isVal ? '' :
+      (sqn < 1.6 ? 'poor' :
+      (sqn < 2.0 ? 'below-avg' :
+      (sqn < 2.5 ? 'avg' :
+      (sqn < 3.0 ? 'good' :
+      (sqn <= 5.0 ? 'exc' : 'excep')))));
+
+    const fallbackScaleBar = `
+      <div class="sqn-scale-wrapper">
+        <div class="sqn-scale-bar" title="Escala Van Tharp">
+          <div class="sqn-scale-segment seg-poor ${activeSeg === 'poor' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-below-avg ${activeSeg === 'below-avg' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-avg ${activeSeg === 'avg' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-good ${activeSeg === 'good' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-exc ${activeSeg === 'exc' ? 'active' : ''}"></div>
+          <div class="sqn-scale-segment seg-excep ${activeSeg === 'excep' ? 'active' : ''}"></div>
+        </div>
+        <div class="sqn-scale-labels">
+          <span class="sqn-lbl-poor ${activeSeg === 'poor' ? 'active' : ''}"><span class="sqn-lbl-val">&lt;1,6</span> <span class="sqn-lbl-name">Fraco</span></span>
+          <span class="sqn-lbl-below-avg ${activeSeg === 'below-avg' ? 'active' : ''}"><span class="sqn-lbl-val">1,6</span> <span class="sqn-lbl-name">Média</span></span>
+          <span class="sqn-lbl-avg ${activeSeg === 'avg' ? 'active' : ''}"><span class="sqn-lbl-val">2,0</span> <span class="sqn-lbl-name">Mediano</span></span>
+          <span class="sqn-lbl-good ${activeSeg === 'good' ? 'active' : ''}"><span class="sqn-lbl-val">2,5</span> <span class="sqn-lbl-name">Bom</span></span>
+          <span class="sqn-lbl-exc ${activeSeg === 'exc' ? 'active' : ''}"><span class="sqn-lbl-val">3,0</span> <span class="sqn-lbl-name">Excelente</span></span>
+          <span class="sqn-lbl-excep ${activeSeg === 'excep' ? 'active' : ''}"><span class="sqn-lbl-val">&gt;5,0</span> <span class="sqn-lbl-name">Excepcional</span></span>
+        </div>
+      </div>
+    `;
+
     return `
       <div class="sim-rebuild-card" style="margin-top: 20px;">
         <div class="sim-rebuild-card-head">
@@ -1981,22 +2357,32 @@
         </div>
 
         <div class="sim-summary-subcards-row" style="margin-top: 14px;">
-          <div class="sim-subcard-box subcard-total">
-            <div class="sim-subcard-icon icon-coins">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M8 12h8M12 8v8"></path>
-              </svg>
+          <div class="sim-subcard-box subcard-total sim-sqn-subcard-split">
+            <div class="sim-sqn-kpi-col">
+              <div class="sim-subcard-icon icon-coins">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 12h8M12 8v8"></path>
+                </svg>
+              </div>
+              <div class="sim-subcard-body">
+                <div class="sim-subcard-label">SQN Simulado</div>
+                <div class="sim-subcard-main-val ${(Number(sqnReport.sqn) < 0) ? 'neg' : 'pos'}">
+                  ${sqnReport.sqnFormatted || '—'}
+                </div>
+                <div class="sim-subcard-sub-line">
+                  <span class="equiv-tag">Classificação: <strong>${classification.label || '—'}</strong></span>
+                  <span class="count-tag">${sqnReport.sampleSize || 0} trades</span>
+                </div>
+              </div>
             </div>
-            <div class="sim-subcard-body">
-              <div class="sim-subcard-label">SQN Simulado</div>
-              <div class="sim-subcard-main-val pos">
-                ${sqnReport.sqnFormatted || '—'}
+
+            <div class="sim-sqn-scale-col">
+              <div class="sim-sqn-scale-topline">
+                <span class="sim-sqn-scale-eyebrow">Régua Van Tharp</span>
+                <span class="sim-sqn-scale-pill ${badgeClass}">Faixa ativa: <strong>${classification.label || '—'}</strong></span>
               </div>
-              <div class="sim-subcard-sub-line">
-                <span class="equiv-tag">Classificação: <strong>${classification.label || '—'}</strong></span>
-                <span class="count-tag">${sqnReport.sampleSize || 0} trades simulados</span>
-              </div>
+              ${fallbackScaleBar}
             </div>
           </div>
 
@@ -2078,7 +2464,7 @@
       const isLoss = (sim.netPnL != null ? sim.netPnL : sim.resultR) < 0;
       const pnlVal = sim.netPnL != null ? sim.netPnL : (sim.resultR != null ? sim.resultR * 400 : 0);
       const rVal = sim.netResultR != null ? sim.netResultR : (sim.resultR != null ? Number(sim.resultR) : 0);
-      const shares = sim.shares || sim.quantity || (sim.entryPrice > 0 ? Math.floor((state.initialCapital || 100000) / sim.entryPrice) : 100);
+      const shares = sim.shares || sim.quantity || (sim.entryPrice > 0 ? Math.floor((state.initialCapital || 500000) / sim.entryPrice) : 100);
       const posCapital = sim.positionCapitalCash || (shares * (sim.entryPrice || 0));
       const riskCash = sim.authorizedRiskCash || (shares * Math.max(0.01, (sim.entryPrice || 0) - (sim.stopLoss || 0)));
       const riskPct = sim.authorizedRiskPct || (state.initialCapital > 0 ? (riskCash / state.initialCapital) * 100 : 0.40);
@@ -2408,7 +2794,7 @@
    */
   function renderTimelineTab(rubricReport, stats) {
     const isUnitRS = state.filters.unit === 'RS';
-    const initCap = rubricReport?.initialCapital || state.initialCapital || 100000;
+    const initCap = rubricReport?.initialCapital || state.initialCapital || 500000;
     const finEq = rubricReport?.finalEquity || initCap;
     const netRet = rubricReport?.netReturnPct != null ? rubricReport.netReturnPct : 0;
     const netCash = rubricReport?.netPnL != null ? rubricReport.netPnL : 0;
@@ -2515,7 +2901,7 @@
       <option value="${sec}" ${state.filters.sector === sec ? 'selected' : ''}>${sec}</option>
     `).join('');
 
-    const formattedCapital = `R$ ${formatMoney(state.initialCapital || 100000).replace('R$ ', '')}`;
+    const formattedCapital = `R$ ${formatMoney(state.initialCapital || 500000).replace('R$ ', '')}`;
 
     return `
       <div class="sim-header sim-rebuild-header">
@@ -2601,11 +2987,32 @@
             </button>
 
             <!-- 3. Gerar Massa de Teste (Ação Secundária Diretamente Visível) -->
-            <button type="button" id="simBtnMassModal" class="sim-btn-header-secondary" title="Painel da Massa de Teste: Gerar, Reavaliar e Excluir">
+            <button type="button" id="simBtnMassModal" class="sim-btn-header-secondary" title="Configurar e gerar massa de testes em escala">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
               </svg>
               <span>Gerar Massa de Teste</span>
+            </button>
+
+            <!-- 4. Reavaliar Candles (Ação Direta na Tela) -->
+            <button type="button" id="simBtnEvaluateCandles" class="sim-btn-header-secondary" title="Reavaliar e reprocessar as simulações existentes utilizando candles disponíveis">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Reavaliar Candles</span>
+            </button>
+
+            <!-- 5. Excluir Massa Atual (Ação Direta na Tela) -->
+            <button type="button" id="simBtnClearMass" class="sim-btn-header-secondary sim-btn-header-danger" title="Excluir todas as simulações carregadas">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+              <span>Excluir Massa Atual</span>
             </button>
 
             <!-- 4. Menu Mais Opções (···) com Dropdown para Ações Administrativas e Menos Frequentes -->
@@ -2636,16 +3043,18 @@
   }
 
 
-    function renderChartsRow(stats) {
+  function renderChartsRow(stats) {
     const isUnitRS = state.filters.unit === 'RS';
     const riskNominal = 1000; // Padrão R$ 1.000,00 por R
     const displayTotal = isUnitRS
-      ? `+R$ ${(stats.totalR * riskNominal).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      ? (stats.netPnL != null
+          ? `${stats.netPnL >= 0 ? '+' : '-'}R$ ${formatMoney(Math.abs(stats.netPnL)).replace('R$ ', '')}`
+          : `+R$ ${(stats.totalR * riskNominal).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`)
       : stats.totalRFormatted;
 
     // 1. Gráfico Curva de Equity SVG
     const curvePoints = stats.equityCurve && stats.equityCurve.length > 0 ? stats.equityCurve : [];
-    const svgChartHtml = renderEquitySvgChart(curvePoints, isUnitRS, riskNominal);
+    const svgChartHtml = renderEquitySvgChart(curvePoints, isUnitRS, riskNominal, stats);
 
     // 2. Gráfico Distribuição de Resultados
     const dist = stats.distribution || {
@@ -2828,42 +3237,118 @@
   /**
    * Renderiza SVG da curva de resultado acumulado
    */
-  function renderEquitySvgChart(points, isUnitRS, riskNominal) {
+  function renderEquitySvgChart(points, isUnitRS, riskNominal, stats) {
     const width = 640;
     const height = 180;
-    const pad = { top: 16, right: 20, bottom: 25, left: 54 };
+    const pad = { top: 16, right: 20, bottom: 25, left: isUnitRS ? 68 : 54 };
+
+    const rawPoints = Array.isArray(points) ? points : [];
+    let normPoints = [];
+    if (rawPoints.length > 0) {
+      let rAcc = 0;
+      let cashAcc = 0;
+      const initialEquity = rawPoints[0].equity != null ? Number(rawPoints[0].equity) : (state.initialCapital || 500000);
+
+      normPoints = rawPoints.map((p, idx) => {
+        let ptR = Number(p.cumulativeR);
+        if (isNaN(ptR)) {
+          if (idx === 0) {
+            rAcc = 0;
+          } else {
+            const tr = Number(p.tradeR != null ? p.tradeR : p.tradeResultR) || 0;
+            rAcc += tr;
+          }
+          ptR = rAcc;
+        }
+
+        let ptCash = Number(p.cumulativeCash);
+        if (isNaN(ptCash)) {
+          if (p.equity != null) {
+            ptCash = Number(p.equity) - initialEquity;
+          } else if (p.netPnL != null) {
+            if (idx === 0) cashAcc = 0;
+            else cashAcc += Number(p.netPnL) || 0;
+            ptCash = cashAcc;
+          } else {
+            ptCash = ptR * (Number(riskNominal) || 1000);
+          }
+        }
+
+        let dateLabel = '';
+        if (p.dateFormatted) {
+          dateLabel = p.dateFormatted;
+        } else if (p.date) {
+          const dStr = String(p.date);
+          if (dStr.includes('-')) {
+            const parts = dStr.split('-');
+            if (parts.length === 3) {
+              dateLabel = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } else {
+              dateLabel = dStr;
+            }
+          } else {
+            dateLabel = dStr;
+          }
+        }
+
+        return {
+          ...p,
+          cumulativeR: ptR,
+          cumulativeCash: ptCash,
+          dateLabel
+        };
+      });
+    }
 
     let minVal = 0;
-    let maxVal = 25;
-    if (points && points.length > 0) {
-      const vals = points.map(p => Number(p.cumulativeR) || 0);
+    let maxVal = isUnitRS ? 10000 : 25;
+    if (normPoints.length > 0) {
+      const vals = normPoints.map(p => isUnitRS ? Number(p.cumulativeCash) || 0 : Number(p.cumulativeR) || 0);
       minVal = Math.min(0, ...vals);
       maxVal = Math.max(0, ...vals);
     }
 
-    const rawSpan = Math.max(20, maxVal - minVal);
-    const candidateSteps = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
-    let stepR = 50;
-    for (const c of candidateSteps) {
-      if (rawSpan / c <= 5.5) {
-        stepR = c;
-        break;
+    let yMin = 0;
+    let yMax = 25;
+    let step = 10;
+
+    if (isUnitRS) {
+      const rawSpanCash = Math.max(5000, maxVal - minVal);
+      const candidateStepsCash = [500, 1000, 2500, 5000, 10000, 20000, 25000, 50000, 100000, 200000, 250000, 500000, 1000000];
+      step = 25000;
+      for (const c of candidateStepsCash) {
+        if (rawSpanCash / c <= 5.5) {
+          step = c;
+          break;
+        }
+      }
+      yMin = Math.min(0, Math.floor(minVal / step) * step);
+      yMax = Math.max(step, Math.ceil(maxVal / step) * step);
+      if (yMax - yMin < step * 2) {
+        yMax += step;
+      }
+    } else {
+      const rawSpanR = Math.max(10, maxVal - minVal);
+      const candidateStepsR = [0.5, 1, 2, 5, 10, 15, 20, 25, 50, 100, 200, 250, 500];
+      step = 10;
+      for (const c of candidateStepsR) {
+        if (rawSpanR / c <= 5.5) {
+          step = c;
+          break;
+        }
+      }
+      yMin = Math.min(0, Math.floor(minVal / step) * step);
+      yMax = Math.max(step, Math.ceil(maxVal / step) * step);
+      if (yMax - yMin < step * 2) {
+        yMax += step;
       }
     }
 
-    let yMinR = Math.min(0, Math.floor(minVal / stepR) * stepR);
-    let yMaxR = Math.max(stepR, Math.ceil(maxVal / stepR) * stepR);
+    const yRange = (yMax - yMin) || (isUnitRS ? 10000 : 20);
 
-    // Garantir pelo menos 3 divisões visíveis
-    if (yMaxR - yMinR < stepR * 2) {
-      yMaxR += stepR;
-    }
-
-    const yRange = yMaxR - yMinR || 30;
-
-    const getY = (rVal) => {
-      const clamped = Math.max(yMinR, Math.min(yMaxR, rVal));
-      return pad.top + ((yMaxR - clamped) / yRange) * (height - pad.top - pad.bottom);
+    const getY = (v) => {
+      const clamped = Math.max(yMin, Math.min(yMax, v));
+      return pad.top + ((yMax - clamped) / yRange) * (height - pad.top - pad.bottom);
     };
 
     const getX = (idx, total) => {
@@ -2873,26 +3358,28 @@
 
     // Linhas de Grade Horizontais calculadas dinamicamente
     const gridLevels = [];
-    for (let l = yMaxR; l >= yMinR; l -= stepR) {
+    for (let l = yMax; l >= yMin; l -= step) {
       gridLevels.push(l);
     }
-    if (!gridLevels.includes(0) && yMinR <= 0 && yMaxR >= 0) {
+    if (!gridLevels.includes(0) && yMin <= 0 && yMax >= 0) {
       gridLevels.push(0);
       gridLevels.sort((a, b) => b - a);
     }
 
     const formatYLabel = (level) => {
       if (isUnitRS) {
-        const nominal = Number(riskNominal) || 1000;
-        const totalMoney = level * nominal;
-        const absMoney = Math.abs(totalMoney);
-        if (absMoney === 0) return 'R$ 0';
-        const sign = totalMoney > 0 ? '+' : '-';
-        if (absMoney >= 1000) {
-          const kVal = (absMoney / 1000).toFixed(absMoney % 1000 === 0 ? 0 : 1).replace('.0', '');
+        const absVal = Math.abs(level);
+        if (absVal === 0) return 'R$ 0';
+        const sign = level > 0 ? '+' : '-';
+        if (absVal >= 1000000) {
+          const miVal = (absVal / 1000000).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+          return `${sign}R$ ${miVal}M`;
+        }
+        if (absVal >= 1000) {
+          const kVal = (absVal / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
           return `${sign}R$ ${kVal}k`;
         }
-        return `${sign}R$ ${absMoney.toFixed(0)}`;
+        return `${sign}R$ ${absVal.toFixed(0)}`;
       }
       if (level === 0) return '0R';
       return `${level > 0 ? '+' : ''}${level}R`;
@@ -2903,55 +3390,79 @@
       const isBaseline = level === 0;
       const label = formatYLabel(level);
       return `
-        <line x1="${pad.left}" y1="${y}" x2="${width - pad.right}" y2="${y}"
+        <line x1="${pad.left}" y1="${y.toFixed(1)}" x2="${width - pad.right}" y2="${y.toFixed(1)}"
               stroke="${isBaseline ? 'rgba(16, 185, 129, 0.45)' : '#e2e8f0'}"
               stroke-dasharray="${isBaseline ? '4,4' : '2,2'}" stroke-width="${isBaseline ? '1.2' : '1'}" />
-        <text x="${pad.left - 8}" y="${y + 3.5}" text-anchor="end" font-size="9.5" fill="${isBaseline ? '#10b981' : '#94a3b8'}" font-family="Inter, sans-serif" font-weight="${isBaseline ? '600' : '500'}">${label}</text>
+        <text x="${pad.left - 8}" y="${(y + 3.5).toFixed(1)}" text-anchor="end" font-size="9.5" fill="${isBaseline ? '#10b981' : '#94a3b8'}" font-family="Inter, sans-serif" font-weight="${isBaseline ? '600' : '500'}">${label}</text>
       `;
     }).join('');
 
     // Datas no eixo X
-    let dates = ['Jul 1', 'Jul 15', 'Ago 1', 'Ago 15', 'Set 1', 'Set 15', 'Out 1'];
-    if (points && points.length >= 2) {
-      const numDateTicks = Math.min(7, points.length);
+    let dateLabels = '';
+    const ptCount = normPoints.length;
+    if (ptCount >= 2) {
+      const numTicks = Math.min(6, ptCount);
+      const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
       const sampledDates = [];
-      for (let i = 0; i < numDateTicks; i++) {
-        const ptIndex = Math.round((i / (numDateTicks - 1)) * (points.length - 1));
-        const pt = points[ptIndex];
-        if (pt && pt.dateFormatted) {
-          sampledDates.push({ idx: ptIndex, label: pt.dateFormatted.slice(0, 5) });
+      for (let i = 0; i < numTicks; i++) {
+        const ptIndex = Math.round((i / (numTicks - 1)) * (ptCount - 1));
+        const pt = normPoints[ptIndex];
+        let label = '';
+        if (pt) {
+          const dStr = pt.dateFormatted || pt.dateLabel || pt.date || '';
+          if (dStr.includes('/')) {
+            const parts = dStr.split('/');
+            const day = parts[0];
+            const mIdx = parseInt(parts[1], 10) - 1;
+            const mName = monthNames[mIdx] || parts[1];
+            label = `${day} ${mName}`;
+          } else if (dStr.includes('-')) {
+            const parts = dStr.split('-');
+            const day = parts[2];
+            const mIdx = parseInt(parts[1], 10) - 1;
+            const mName = monthNames[mIdx] || parts[1];
+            label = `${day} ${mName}`;
+          } else {
+            label = dStr.slice(0, 6);
+          }
         }
+        sampledDates.push({ idx: ptIndex, label });
       }
-      if (sampledDates.length >= 2) {
-        dates = sampledDates;
-      }
-    }
 
-    const dateLabels = Array.isArray(dates) && typeof dates[0] === 'string'
-      ? dates.map((d, i) => {
-          const x = pad.left + (i / (dates.length - 1)) * (width - pad.left - pad.right);
-          return `
-            <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d}</text>
-          `;
-        }).join('')
-      : dates.map(d => {
-          const x = getX(d.idx, points.length);
-          return `
-            <text x="${x}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d.label}</text>
-          `;
-        }).join('');
+      dateLabels = sampledDates.map(d => {
+        const x = getX(d.idx, ptCount);
+        return `
+          <text x="${x.toFixed(1)}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d.label}</text>
+        `;
+      }).join('');
+    } else {
+      const defaultDates = ['Início', '1/4', 'Meio', '3/4', 'Fim'];
+      dateLabels = defaultDates.map((d, i) => {
+        const x = pad.left + (i / (defaultDates.length - 1)) * (width - pad.left - pad.right);
+        return `
+          <text x="${x.toFixed(1)}" y="${height - 6}" text-anchor="middle" font-size="9.5" fill="#94a3b8" font-family="Inter, sans-serif" font-weight="500">${d}</text>
+        `;
+      }).join('');
+    }
 
     // Traçado da Curva com base nos trades reais acumulados
     let pathD = '';
     let areaD = '';
     let lastX = pad.left;
     let lastY = getY(0);
+    const finalVal = normPoints.length > 0
+      ? (isUnitRS ? normPoints[normPoints.length - 1].cumulativeCash : normPoints[normPoints.length - 1].cumulativeR)
+      : 0;
+    const isPositive = finalVal >= 0;
+    const themeColor = isPositive ? '#10b981' : '#ef4444';
+    const gradId = isPositive ? 'simEquityGradPos' : 'simEquityGradNeg';
 
-    if (points.length > 0) {
-      const coords = points.map((p, i) => {
-        const x = getX(i, points.length);
-        const y = getY(p.cumulativeR);
-        return { x, y, p };
+    if (normPoints.length > 0) {
+      const coords = normPoints.map((p, i) => {
+        const val = isUnitRS ? p.cumulativeCash : p.cumulativeR;
+        const x = getX(i, normPoints.length);
+        const y = getY(val);
+        return { x, y, p, val };
       });
 
       lastX = coords[coords.length - 1].x;
@@ -2959,31 +3470,30 @@
 
       pathD = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ');
       const baselineY = getY(0);
-      areaD = `${pathD} L ${lastX.toFixed(1)} ${baselineY.toFixed(1)} L ${pad.left.toFixed(1)} ${baselineY.toFixed(1)} Z`;
+      areaD = `${pathD} L ${lastX.toFixed(1)} ${baselineY.toFixed(1)} L ${coords[0].x.toFixed(1)} ${baselineY.toFixed(1)} Z`;
     } else {
-      // Linha plana inicial em 0R
       const y0 = getY(0);
       lastX = width - pad.right;
       lastY = y0;
-      pathD = `M ${pad.left} ${y0} L ${lastX} ${y0}`;
-      areaD = `M ${pad.left} ${y0} L ${lastX} ${y0} L ${lastX} ${y0} Z`;
+      pathD = `M ${pad.left} ${y0.toFixed(1)} L ${lastX} ${y0.toFixed(1)}`;
+      areaD = `M ${pad.left} ${y0.toFixed(1)} L ${lastX} ${y0.toFixed(1)} L ${lastX} ${y0.toFixed(1)} Z`;
     }
 
     return `
       <svg class="sim-equity-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
         <defs>
-          <linearGradient id="simEquityGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#10b981" stop-opacity="0.28" />
-            <stop offset="100%" stop-color="#10b981" stop-opacity="0.01" />
+          <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${themeColor}" stop-opacity="0.28" />
+            <stop offset="100%" stop-color="${themeColor}" stop-opacity="0.01" />
           </linearGradient>
         </defs>
         ${gridLines}
         ${dateLabels}
-        <path d="${areaD}" fill="url(#simEquityGrad)" />
-        <path d="${pathD}" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="${areaD}" fill="url(#${gradId})" />
+        <path d="${pathD}" fill="none" stroke="${themeColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
         <!-- Ponto final com pulso luminoso -->
-        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="#10b981" opacity="0.25" />
-        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="#10b981" stroke="#ffffff" stroke-width="2.4" />
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="${themeColor}" opacity="0.25" />
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="${themeColor}" stroke="#ffffff" stroke-width="2.4" />
       </svg>
     `;
   }
@@ -3315,15 +3825,105 @@
     `;
   }
 
+  function isExtremeEventExitSim(sim) {
+    if (!sim || typeof sim !== 'object') return false;
+    return Boolean(
+      sim.isExtremeEventExit ||
+      sim.exitType === 'EXTREME_EVENT_PROTECTION' ||
+      sim.exitReason === 'EVENTO EXTREMO IDENTIFICADO' ||
+      sim.extremeEventProtection
+    );
+  }
+
+  function renderExtremeEventProtectionCard(sim) {
+    if (!isExtremeEventExitSim(sim)) return '';
+    const ext = sim.extremeEventProtection || {};
+    const eventName = escapeHtml(ext.eventName || 'Evento Extremo Previamente Identificado');
+    const categoryLabel = escapeHtml(ext.eventCategoryLabel || 'Risco Extremo');
+    const exitDateStr = formatDateBR(ext.exitDate || sim.exitDate);
+    const exitTimeStr = escapeHtml(ext.exitTime || '17:00 BRT');
+    const exitPriceStr = formatMoney(ext.effectiveExitPrice != null ? ext.effectiveExitPrice : sim.exitPrice);
+    const realizedR = ext.realizedResultR != null ? ext.realizedResultR : sim.resultR;
+    const hypR = ext.hypotheticalResultR != null ? ext.hypotheticalResultR : realizedR;
+    const impactR = ext.protectionImpactR != null ? ext.protectionImpactR : ((Number(realizedR) || 0) - (Number(hypR) || 0));
+    const justification = escapeHtml(
+      ext.justification ||
+      'Operação encerrada antecipadamente por proteção contra evento extremo. Evento previamente identificado, com elevado potencial de provocar gaps de abertura e volatilidade extraordinária. Posição zerada antes do evento para preservação do capital, independentemente da validade do setup técnico.'
+    );
+    const impactSign = impactR > 0 ? '+' : '';
+    const impactFormatted = `${impactSign}${Number(impactR || 0).toFixed(2).replace('.', ',')}R`;
+
+    return `
+      <div class="sim-extreme-event-detail-card" role="region" aria-label="Proteção Obrigatória contra Eventos Extremos">
+        <div class="sim-extreme-event-detail-head">
+          <div class="sim-extreme-event-detail-title">
+            <span class="sim-extreme-shield-icon">🛡️</span>
+            <div>
+              <strong>Saída Antecipada — Proteção Obrigatória contra Evento Extremo</strong>
+              <span class="sim-extreme-reason-tag">Motivo de saída: EVENTO EXTREMO IDENTIFICADO</span>
+            </div>
+          </div>
+          <span class="sim-extreme-category-pill">${categoryLabel}</span>
+        </div>
+        <div class="sim-extreme-event-detail-grid">
+          <div class="sim-extreme-kv">
+            <small>Evento Identificado</small>
+            <b>${eventName}${ext.eventDate ? ` (${formatDateBR(ext.eventDate)})` : ''}</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Data e Horário do Encerramento</small>
+            <b>${exitDateStr} às ${exitTimeStr} (Último pregão anterior)</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Preço Efetivo de Saída</small>
+            <b>${exitPriceStr} (Fechamento da sessão)</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Resultado Realizado</small>
+            <b style="color: ${realizedR > 0 ? '#059669' : (realizedR < 0 ? '#dc2626' : '#475569')};">${formatR(realizedR)}</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Permanência Hipotética (Contrafactual)</small>
+            <b>${formatR(hypR)}${ext.hypotheticalExitPrice ? ` (${formatMoney(ext.hypotheticalExitPrice)})` : ''}</b>
+          </div>
+          <div class="sim-extreme-kv">
+            <small>Impacto da Proteção (Risco Evitado)</small>
+            <b style="color: ${impactR >= 0 ? '#059669' : '#d97706'};">${impactFormatted}</b>
+          </div>
+        </div>
+        <div class="sim-extreme-justification-box">
+          <small>Justificativa de Gerenciamento de Risco Extraordinário:</small>
+          <p>"${justification}"</p>
+        </div>
+      </div>
+    `;
+  }
+
   function renderStatusPill(status, sim) {
-    if (state.rubricMode && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.evaluateTradeRubricAndSizing === 'function') {
-      const evalInfo = sim?.evaluation || root.TradeSimulatorModel.evaluateTradeRubricAndSizing(sim, {}, { officialMode: true });
-      if (!evalInfo.isEligible) {
-        return `<span class="sim-status-pill pill-blocked" title="${evalInfo.blockReason || 'Bloqueado pelo Trading Rubric'}"><span class="pill-dot"></span> Bloqueado (${evalInfo.blockCode || 'Rubric'})</span>`;
-      }
+    if (isExtremeEventExitSim(sim)) {
+      const ext = sim.extremeEventProtection || {};
+      const tooltip = escapeHtml(
+        `${ext.eventName || 'Evento Extremo'}: ${ext.justification || 'Posição encerrada preventivamente antes do evento extremo.'}`
+      );
+      return `<span class="sim-status-pill pill-extreme-event" title="${tooltip}"><span class="pill-dot"></span> 🛡️ Evento Extremo (${formatR(sim.resultR)})</span>`;
     }
     if (sim && (status === 'CLOSED_LOSS' || status === 'CLOSED_GAIN') && (Number(sim.resultR) === 0 || Math.abs(Number(sim.resultR) || 0) < 0.0001)) {
       return `<span class="sim-status-pill pill-breakeven"><span class="pill-dot"></span> Encerrado (Breakeven)</span>`;
+    }
+    if (status === 'CLOSED_GAIN') {
+      return `<span class="sim-status-pill pill-gain"><span class="pill-dot"></span> Encerrado (Gain)</span>`;
+    }
+    if (status === 'CLOSED_LOSS') {
+      return `<span class="sim-status-pill pill-loss"><span class="pill-dot"></span> Encerrado (Loss)</span>`;
+    }
+    if (status === 'BLOCKED' || (sim && sim.isBlocked)) {
+      return `<span class="sim-status-pill pill-blocked" title="${sim?.blockReason || 'Bloqueado'}"><span class="pill-dot"></span> Bloqueado (${sim?.blockCode || 'Rubric'})</span>`;
+    }
+    if (sim && state.rubricMode && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.evaluateTradeRubricAndSizing === 'function') {
+      const evalInfo = sim.evaluation || root.TradeSimulatorModel.evaluateTradeRubricAndSizing(sim, {}, { officialMode: true });
+      if (evalInfo && !evalInfo.isEligible) {
+        return `<span class="sim-status-pill pill-blocked" title="${evalInfo.blockReason || 'Bloqueado pelo Trading Rubric'}"><span class="pill-dot"></span> Bloqueado (${evalInfo.blockCode || 'Rubric'})</span>`;
+      }
     }
     switch (status) {
       case 'INCOMPLETE':
@@ -3331,10 +3931,6 @@
         return `<span class="sim-status-pill pill-incomplete" title="${sim?.incompleteReason || 'Operação incompleta: histórico terminou sem condição de saída (stop ou alvo)'}"><span class="pill-dot"></span> Incompleto (Excluído)</span>`;
       case 'WAITING_ENTRY':
         return `<span class="sim-status-pill pill-waiting"><span class="pill-dot"></span> Aguardando entrada</span>`;
-      case 'CLOSED_GAIN':
-        return `<span class="sim-status-pill pill-gain"><span class="pill-dot"></span> Encerrado (Gain)</span>`;
-      case 'CLOSED_LOSS':
-        return `<span class="sim-status-pill pill-loss"><span class="pill-dot"></span> Encerrado (Loss)</span>`;
       case 'NOT_TRIGGERED':
       default:
         return `<span class="sim-status-pill pill-not-triggered"><span class="pill-dot"></span> Não acionado</span>`;
@@ -3654,6 +4250,37 @@
    */
   function renderMassModal() {
     if (!state.massModalOpen) return '';
+
+    const procState = state.massProcessingState || {};
+    const procStatus = procState.status || 'IDLE';
+    const isProcessingViewActive = state.generatingMass || procStatus === 'PROCESSING' || procStatus === 'SUCCESS' || procStatus === 'ERROR';
+
+    if (isProcessingViewActive) {
+      const procComponent = root.SimulationProcessingExperience || (root.TradeSimulatorModel && root.TradeSimulatorModel.SimulationProcessingExperience);
+      const activeConfig = procState.config || {
+        ...state.massConfig,
+        scenario: state.tempScenarioSelection || state.activeScenario || '2R'
+      };
+      const processingHtml = procComponent && typeof procComponent.render === 'function'
+        ? procComponent.render({
+            status: state.generatingMass ? 'PROCESSING' : procStatus,
+            phase: procState.phase || 'LOAD_HISTORY',
+            currentStepIndex: procState.currentStepIndex,
+            realProgressPct: procState.realProgressPct,
+            executedCount: procState.executedCount,
+            errorMessage: procState.errorMessage,
+            config: activeConfig
+          })
+        : '';
+
+      return `
+        <div class="sim-scenario-modal-overlay open" id="simMassModalOverlay">
+          <div class="sim-scenario-modal-box sim-mass-modal-box sim-mass-modal-processing" id="simMassModalBox">
+            ${processingHtml}
+          </div>
+        </div>
+      `;
+    }
 
     const isOfficialEnv = state.activeEnvironment !== 'RESEARCH';
     const sel = state.tempScenarioSelection || state.activeScenario || '2R';
@@ -4211,192 +4838,33 @@
               </div>
             </div>
 
-            <!-- SEÇÃO INFERIOR: RESUMO PRÉ-EXECUÇÃO & AÇÕES DA MASSA ATUAL -->
+            <!-- SEÇÃO INFERIOR: INTEGRIDADE METODOLÓGICA & BOTÃO DE INICIAR SIMULAÇÃO -->
             <div class="sim-mass-bottom-section">
-              <!-- BLOCO 3: RESUMO ANTES DE INICIAR -->
-              <div class="sim-mass-modal-section sim-mass-summary-section">
-                <div class="sim-mass-preflight-card">
-                  <div class="sim-mass-step-header sim-mass-step-header-summary">
-                    <div class="sim-mass-step-num step-3">3</div>
-                    <div class="sim-mass-step-texts">
-                      <div class="sim-mass-step-title">Resumo antes de iniciar</div>
-                      <div class="sim-mass-step-desc">Confira as configurações da simulação em escala. Valide os parâmetros e inicie a execução.</div>
+              <div class="sim-mass-footer-card">
+                <div class="sim-mass-preflight-footer">
+                  <div class="sim-mass-preflight-integrity">
+                    <span class="sim-mass-integrity-shield">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
+                        <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                    <div class="sim-mass-integrity-text">
+                      <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a <strong>1</strong> posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
                     </div>
                   </div>
 
-                  <div class="sim-mass-preflight-grid">
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box green">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2.4">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="#d1fae5"/>
-                          <line x1="16" y1="2" x2="16" y2="6"/>
-                          <line x1="8" y1="2" x2="8" y2="6"/>
-                          <line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Período</span>
-                        <span class="sim-mass-pf-val">${periodDesc}</span>
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <rect x="4" y="12" width="4" height="8" rx="1" fill="#3b82f6"/>
-                          <rect x="10" y="7" width="4" height="13" rx="1" fill="#2563eb"/>
-                          <rect x="16" y="3" width="4" height="17" rx="1" fill="#1d4ed8"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Universo de Ativos</span>
-                        <span class="sim-mass-pf-val">${universePrimary}</span>
-                        ${universeSub ? `<span class="sim-mass-pf-sub">${universeSub}</span>` : ''}
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box red">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="2.4" fill="#fee2e2"/>
-                          <circle cx="12" cy="12" r="5" stroke="#ef4444" stroke-width="1.8" fill="#ffffff"/>
-                          <circle cx="12" cy="12" r="2" fill="#ef4444"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Gatilhos</span>
-                        <span class="sim-mass-pf-val">${triggerDesc}</span>
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box gold">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="#d97706" stroke-width="1.5">
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Notas do Rubric</span>
-                        <span class="sim-mass-pf-val">${gradeDesc}</span>
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4">
-                          <ellipse cx="12" cy="5" rx="9" ry="3" fill="#dbeafe"/>
-                          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-                          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Meta de Trades</span>
-                        <span class="sim-mass-pf-val">${targetPrimary}</span>
-                        <span class="sim-mass-pf-sub">${targetSub}</span>
-                      </div>
-                    </div>
-
-                    <div class="sim-mass-preflight-item">
-                      <div class="sim-mass-pf-icon-box blue">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                          <circle cx="12" cy="12" r="3" fill="#dbeafe"/>
-                          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                        </svg>
-                      </div>
-                      <div class="sim-mass-pf-content">
-                        <span class="sim-mass-pf-label">Gestão de Risco</span>
-                        <span class="sim-mass-pf-val">${scenarioMeta.name}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="sim-mass-preflight-footer">
-                    <div class="sim-mass-preflight-integrity">
-                      <span class="sim-mass-integrity-shield">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                          <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" fill="#3b82f6" fill-opacity="0.2" stroke="#2563eb" stroke-width="1.8"/>
-                          <path d="M9 12L11 14L15 10" stroke="#1d4ed8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <!-- Botão de Ação para Iniciar a Experiência de Processamento -->
+                  <div class="sim-scenario-action-wrap">
+                    <button class="sim-btn-confirm-scenario ${state.generatingMass ? 'disabled' : ''}" type="button" id="simModalConfirmScenario" ${state.generatingMass ? 'disabled aria-disabled="true"' : ''}>
+                      <span class="sim-cta-play-circle">
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                          <polygon points="3,1.5 10.5,6 3,10.5" fill="#0d6845"/>
                         </svg>
                       </span>
-                      <div class="sim-mass-integrity-text">
-                        <strong>Integridade Metodológica:</strong> Execução cronológica candle a candle sem look-ahead bias. Concorrência restrita a <strong>1</strong> posição aberta por ativo. Resolução de ambiguidades conservadora (stop-loss prioritário caso entrada e stop ocorram no mesmo candle).
-                      </div>
-                    </div>
-
-                    <!-- Botão de Ação / Indicador de Progresso -->
-                    <div class="sim-scenario-action-wrap">
-                      ${state.generatingMass ? `
-                        <div class="sim-mass-progress-box">
-                          <div class="sim-mass-spinner"></div>
-                          <div class="sim-mass-progress-text">${state.massProgressText || 'Processando varredura histórica...'}</div>
-                        </div>
-                        <button class="sim-btn-confirm-scenario disabled" type="button" disabled>
-                          <span>⏳ Gerando Massa...</span>
-                        </button>
-                      ` : `
-                        <button class="sim-btn-confirm-scenario" type="button" id="simModalConfirmScenario">
-                          <span class="sim-cta-play-circle">
-                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                              <polygon points="3,1.5 10.5,6 3,10.5" fill="#0d6845"/>
-                            </svg>
-                          </span>
-                          <span>Iniciar Simulação em Escala</span>
-                          <span class="sim-cta-arrow">→</span>
-                        </button>
-                      `}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- BLOCO 4: BARRA HORIZONTAL DE AÇÕES DA MASSA ATUAL -->
-              <div class="sim-mass-current-actions-bar">
-                <div class="sim-mass-actions-bar-left">
-                  <div class="sim-mass-actions-bar-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d7a52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="4" width="18" height="16" rx="2" fill="#d1fae5"/>
-                      <line x1="7" y1="9" x2="17" y2="9"/>
-                      <line x1="7" y1="13" x2="13" y2="13"/>
-                    </svg>
-                  </div>
-                  <div class="sim-mass-actions-bar-texts">
-                    <div class="sim-mass-actions-bar-title">Ações da Massa Atual</div>
-                    <div class="sim-mass-actions-bar-desc">Gerencie as simulações existentes utilizando os candles disponíveis.</div>
-                  </div>
-                </div>
-
-                <div class="sim-mass-actions-bar-right">
-                  <!-- Reavaliar candles -->
-                  <div class="sim-mass-action-card" id="simMassActionEvaluate" role="button" tabindex="0">
-                    <div class="sim-mass-action-icon">
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0d8a5e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="23 4 23 10 17 10"></polyline>
-                        <polyline points="1 20 1 14 7 14"></polyline>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                      </svg>
-                    </div>
-                    <div class="sim-mass-action-info">
-                      <div class="sim-mass-action-title">Reavaliar candles</div>
-                      <div class="sim-mass-action-desc">Reprocessar as simulações existentes</div>
-                    </div>
-                    <button class="sim-mass-action-trigger-btn sr-only-btn" type="button" id="simMassActionEvaluateBtn" aria-label="Reavaliar candles">Executar</button>
-                  </div>
-
-                  <!-- Excluir massa atual -->
-                  <div class="sim-mass-action-card danger" id="simMassActionClear" role="button" tabindex="0">
-                    <div class="sim-mass-action-icon danger">
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                      </svg>
-                    </div>
-                    <div class="sim-mass-action-info">
-                      <div class="sim-mass-action-title danger">Excluir massa atual</div>
-                      <div class="sim-mass-action-desc danger">Excluir todas as simulações carregadas</div>
-                    </div>
-                    <button class="sim-mass-action-trigger-btn danger sr-only-btn" type="button" id="simMassActionClearBtn" aria-label="Excluir massa atual">Excluir</button>
+                      <span>Iniciar Simulação em Escala</span>
+                      <span class="sim-cta-arrow">→</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -5264,6 +5732,24 @@
             </div>
           </div>
 
+          ${(Array.isArray(state.rejectedSimulations) && state.rejectedSimulations.length > 0) ? `
+            <div class="sim-audit-card" style="margin-top: 14px;">
+              <h4>🚫 Operações Rejeitadas pela Auditoria Integral — Excluídas das Estatísticas (${state.rejectedSimulations.length})</h4>
+              <p style="margin: 0 0 10px; font-size: 12px; color: #64748b;">
+                Estes registros foram reprovados na verificação histórica/OHLC/técnica e <b>não impactam</b> lucro, prejuízo, win rate, payoff, expectancy, R-Múltiplo, SQN ou drawdown.
+              </p>
+              <div class="sim-audit-invalid-list">
+                ${state.rejectedSimulations.map(item => `
+                  <div class="sim-audit-invalid-row">
+                    <b>${escapeHtml(item.symbol)} (${escapeHtml(item.id || '—')}) — ${escapeHtml(item.primaryCategoryLabel || 'Rejeitado')}</b>
+                    <span>Sinal: ${formatDateBR(item.signalDate)} | Gatilho: ${escapeHtml(item.triggerName || '—')}</span>
+                    <code>${(item.errors || []).map(e => e.code + ': ' + e.message).join(' • ')}</code>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
           ${invalidTrades.length > 0 ? `
             <div class="sim-audit-card" style="margin-top: 14px;">
               <h4>Trades com Inconsistências Detectadas (${invalidTrades.length})</h4>
@@ -5329,7 +5815,7 @@
               <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <h2 style="margin: 0; font-size: 22px;">${sim.symbol}</h2>
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
-                ${renderStatusPill(sim.status)}
+                ${renderStatusPill(sim.status, sim)}
                 ${renderMarketCyclePill(sim)}
                 ${renderEntryRsPill(sim)}
                 <span class="sim-mode-pill ${isResearchTrade ? 'sim-mode-research' : 'sim-mode-official'}">${isResearchTrade ? '🧪 MODO PESQUISA' : '🛡️ MODO OFICIAL'}</span>
@@ -5340,6 +5826,7 @@
           </div>
 
           <!-- Cards de Auditoria do Ciclo de Mercado e Força Relativa (RS na Entrada) -->
+          ${renderExtremeEventProtectionCard(sim)}
           ${renderMarketCycleDetailsCard(sim)}
           ${renderEntryRsDetailsCard(sim)}
 
@@ -5454,6 +5941,12 @@
     if (!vision) return '';
     sim.visionAtivo = vision;
 
+    const liqObj = vision.liquidity || null;
+    const isLiqGood = liqObj ? (liqObj.isEligible !== false && liqObj.status !== 'bad') : true;
+    const liqStatus = isLiqGood ? 'good' : 'bad';
+    const liqText = liqObj?.text || (isLiqGood ? 'Aprovada' : 'Bloqueado por Liquidez');
+    const liqReason = liqObj?.reason || (isLiqGood ? 'Ativo cumpre todos os requisitos do Liquidity Gate.' : 'Ativo reprovado no Liquidity Gate.');
+
     return `
       <div class="ticker-summary-card sim-snapshot-vision-card">
         <div class="summary-card-head">
@@ -5532,6 +6025,14 @@
             </div>
             <div class="summary-check-right">
               <span class="vision-status ${vision.context.status}">● ${vision.context.title}</span>
+            </div>
+          </div>
+          <div class="summary-check-row">
+            <div class="summary-check-left">
+              <span class="summary-check-icon">${SNAPSHOT_ICONS.liquidity}</span> Liquidez
+            </div>
+            <div class="summary-check-right">
+              <span class="vision-status ${liqStatus}" title="${escapeHtml(liqReason)}">● ${escapeHtml(liqText)}</span>
             </div>
           </div>
         </div>
@@ -5811,7 +6312,7 @@
               <h2>
                 <span>${sim.symbol}</span>
                 <span class="sim-grade-badge ${getGradeBadgeClass(sim.grade)}">${sim.grade || '—'}</span>
-                ${renderStatusPill(sim.status)}
+                ${renderStatusPill(sim.status, sim)}
                 ${renderMarketCyclePill(sim)}
                 ${renderEntryRsPill(sim)}
               </h2>
@@ -5886,6 +6387,7 @@
           </div>
 
           <!-- Print / Foto do Momento da Captura & Execução + Visão do Ativo (Trading Rubric) -->
+          ${renderExtremeEventProtectionCard(sim)}
           <div class="sim-snapshot-body-split">
             <div class="sim-snapshot-chart-card">
               ${renderSnapshotChartSvg(sim)}
@@ -6225,6 +6727,63 @@
         throw new Error('Cliente de API indisponível para carregar o histórico real.');
       }
       if (state.snapshotSimId !== simId) return;
+      if (res && res.snapshot && Array.isArray(res.snapshot.candles) && res.snapshot.candles.length > 0) {
+        sim.candles = res.snapshot.candles;
+        if (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getTradeVisionAtivo === 'function') {
+          sim.visionAtivo = root.TradeSimulatorModel.getTradeVisionAtivo(sim);
+        }
+        if (
+          res.snapshot.verification &&
+          res.snapshot.verification.status === 'DIVERGENT' &&
+          root.TradeSimulatorModel &&
+          typeof root.TradeSimulatorModel.performIntegralTradeAudit === 'function'
+        ) {
+          const fullHistory = Array.isArray(res.snapshot.allCandles) && res.snapshot.allCandles.length > 0
+            ? res.snapshot.allCandles
+            : res.snapshot.candles;
+          const integral = root.TradeSimulatorModel.performIntegralTradeAudit(sim, fullHistory);
+          if (!integral.approved) {
+            state.simulations = (state.simulations || []).filter(s => s && s.id !== sim.id);
+            if (!Array.isArray(state.rejectedSimulations)) state.rejectedSimulations = [];
+            if (!state.rejectedSimulations.some(r => r && r.id === sim.id)) {
+              state.rejectedSimulations.push({
+                id: sim.id,
+                symbol: sim.symbol,
+                companyName: sim.companyName || sim.symbol,
+                triggerName: sim.triggerName,
+                grade: sim.grade,
+                signalDate: sim.signalDate,
+                entryDate: sim.entryDate,
+                exitDate: sim.exitDate,
+                entryPrice: sim.entryPrice,
+                executedEntryPrice: sim.executedEntryPrice,
+                stopLoss: sim.stopLoss,
+                exitPrice: sim.exitPrice,
+                status: sim.status,
+                resultR: sim.resultR,
+                rejectionStatus: 'REJECTED',
+                primaryCategory: integral.primaryCategory,
+                primaryCategoryLabel: integral.primaryCategoryLabel,
+                categories: integral.categories,
+                errors: integral.errors,
+                violatedRules: integral.violatedRules,
+                questions10: integral.questions10,
+                originalTrade: sim
+              });
+            }
+            if (typeof root.TradeSimulatorModel.auditSimulationsBatch === 'function') {
+              state.auditReport = root.TradeSimulatorModel.auditSimulationsBatch(state.simulations);
+            }
+            if (typeof root.TradeSimulatorModel.compareManagementScenarios === 'function') {
+              state.comparison = root.TradeSimulatorModel.compareManagementScenarios(state.simulations);
+            }
+            saveLocalCache();
+            if (typeof root.showToast === 'function') {
+              root.showToast(`⚠️ Trade ${sim.symbol} (${formatDateBR(sim.signalDate)}) reprovado na Auditoria Integral e excluído das estatísticas.`, 'warn');
+            }
+          }
+        }
+      }
       state.snapshotData = { simId, status: 'ready', snapshot: res && res.snapshot ? res.snapshot : null, error: null };
     } catch (e) {
       if (state.snapshotSimId !== simId) return;
@@ -6600,6 +7159,23 @@
             <rect x="-44" y="-8" width="88" height="16" rx="4" fill="#059669" />
             <text x="0" y="3.5" fill="#fff" font-size="8.5" font-weight="700" text-anchor="middle" font-family="system-ui">▲ Entrada R$ ${ev.price.toFixed(2).replace('.', ',')}</text>
           </g>`;
+      } else if (ev.type === 'EXTREME_EVENT_EXIT' || ev.isExtremeEventExit) {
+        const extInfo = ev.extremeEventProtection || sim.extremeEventProtection || {};
+        const extTitle = `${extInfo.eventName || 'Evento Extremo'} (${extInfo.eventCategoryLabel || 'Risco Extremo'}) • Saída antecipada em ${formatDateBR(ev.time)} às ${extInfo.exitTime || '17:00 BRT'} a R$ ${ev.price.toFixed(2).replace('.', ',')} • ${extInfo.justification || 'Encerramento preventivo para preservação do capital.'}`;
+        eventsSvg += `
+          <g>
+            <title>${snapEsc(extTitle)}</title>
+            <line x1="${x}" y1="${padTop}" x2="${x}" y2="${padTop + plotH}" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.85" />
+            <g transform="translate(${x}, ${padTop + 11})">
+              <rect x="-78" y="-8" width="156" height="16" rx="4" fill="#7c2d12" stroke="#f59e0b" stroke-width="1" />
+              <text x="0" y="3.2" fill="#fef3c7" font-size="8" font-weight="700" text-anchor="middle" font-family="system-ui">🛡️ Saída antecipada — Evento Extremo</text>
+            </g>
+            <circle cx="${x}" cy="${y}" r="5.5" fill="#d97706" stroke="#fef3c7" stroke-width="1.6" />
+            <g transform="translate(${x}, ${y + (isGain ? -16 : 16)})">
+              <rect x="-66" y="-8.5" width="132" height="17" rx="4" fill="#d97706" stroke="#fde68a" stroke-width="1" />
+              <text x="0" y="3.5" fill="#fffbeb" font-size="8.3" font-weight="800" text-anchor="middle" font-family="system-ui">🛡️ Evento Extremo R$ ${ev.price.toFixed(2).replace('.', ',')}</text>
+            </g>
+          </g>`;
       } else if (ev.type === 'EXIT') {
         const outColor = isGain ? '#059669' : (isLoss ? '#dc2626' : '#64748b');
         const outIcon = isGain ? '★' : (isLoss ? '✕' : '•');
@@ -6627,6 +7203,7 @@
           <span class="sim-snap-ticker">${snapEsc(snap.symbol)} • ${snapEsc(snap.timeframe || '1D')}</span>
           <span class="sim-snap-ema-leg" style="color: #38bdf8;">— EMA 10</span>
           <span class="sim-snap-ema-leg" style="color: #f59e0b;">— EMA 72</span>
+          ${isExtremeEventExitSim(sim) ? `<span class="sim-snap-ema-leg sim-snap-extreme-leg" style="color: #fbbf24; font-weight: 700;">🛡️ Saída antecipada — Evento Extremo</span>` : ''}
         </div>
         <div class="sim-snapshot-zoom-group">
           ${['1M', '3M', '6M', '1A', '2A'].map(z => `
@@ -6929,36 +7506,92 @@
     // 1. Painel de Controle: Massa de Teste (Gerar, Reavaliar e Excluir)
     container.querySelector('#simBtnMassModal')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      clearMassSuccessAutoCloseTimer();
       state.massModalOpen = true;
+      if (!state.generatingMass) {
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'IDLE',
+          errorMessage: null
+        };
+      }
       state.tempScenarioSelection = state.activeScenario || '2R';
       render();
     });
 
     container.querySelector('#simBtnScenarioModal')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      clearMassSuccessAutoCloseTimer();
       state.massModalOpen = true;
+      if (!state.generatingMass) {
+        state.massProcessingState = {
+          ...state.massProcessingState,
+          status: 'IDLE',
+          errorMessage: null
+        };
+      }
       state.tempScenarioSelection = state.activeScenario || '2R';
       render();
     });
 
-    // Fechar modal da Massa de Teste
+    // Fechar modal da Massa de Teste (bloqueado durante o processamento em andamento)
     container.querySelector('#simMassModalClose')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (state.generatingMass) return;
+      clearMassSuccessAutoCloseTimer();
       state.massModalOpen = false;
+      state.massProcessingState = { ...state.massProcessingState, status: 'IDLE', errorMessage: null };
       render();
     });
 
     container.querySelector('#simMassModalOverlay')?.addEventListener('click', (e) => {
       if (e.target.id === 'simMassModalOverlay') {
+        if (state.generatingMass) return;
+        clearMassSuccessAutoCloseTimer();
         state.massModalOpen = false;
+        state.massProcessingState = { ...state.massProcessingState, status: 'IDLE', errorMessage: null };
         render();
       }
     });
 
-    // Controles de Parâmetros do Modal de Massa de Teste
+    // Ações dos estados de Sucesso e Erro da SimulationProcessingExperience
+    container.querySelector('#simProcBtnViewResults')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearMassSuccessAutoCloseTimer();
+      state.massModalOpen = false;
+      state.massProcessingState = { ...state.massProcessingState, status: 'IDLE', errorMessage: null };
+      render();
+    });
+
+    const handleReturnToMassForm = (e) => {
+      e.stopPropagation();
+      if (state.generatingMass) return;
+      clearMassSuccessAutoCloseTimer();
+      state.massProcessingState = {
+        ...state.massProcessingState,
+        status: 'IDLE',
+        errorMessage: null
+      };
+      render();
+    };
+    container.querySelector('#simProcBtnReconfigure')?.addEventListener('click', handleReturnToMassForm);
+    container.querySelector('#simProcBtnBackToForm')?.addEventListener('click', handleReturnToMassForm);
+
+    container.querySelector('#simProcBtnRetry')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (state.generatingMass) return;
+      clearMassSuccessAutoCloseTimer();
+      const retryCfg = state.massProcessingState?.config
+        ? { ...state.massConfig, ...state.massProcessingState.config, simulateError: false }
+        : { ...state.massConfig };
+      generateScenarioMass(state.tempScenarioSelection || state.activeScenario || '2R', retryCfg);
+    });
+
+    // Controles de Parâmetros do Modal de Massa de Teste (protegidos contra alterações durante processamento)
     container.querySelectorAll('[data-mass-period]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const p = btn.dataset.massPeriod;
         state.massConfig.period = (p === 'CUSTOM' || p === 'ALL') ? p : Number(p);
         render();
@@ -6966,16 +7599,19 @@
     });
 
     container.querySelector('#simMassStartDate')?.addEventListener('change', (e) => {
+      if (state.generatingMass) return;
       state.massConfig.startDate = e.target.value;
     });
 
     container.querySelector('#simMassEndDate')?.addEventListener('change', (e) => {
+      if (state.generatingMass) return;
       state.massConfig.endDate = e.target.value;
     });
 
     container.querySelectorAll('[data-mass-universe]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         state.massConfig.universe = btn.dataset.massUniverse;
         render();
       });
@@ -6984,6 +7620,7 @@
     container.querySelectorAll('[data-mass-trigger]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const trig = btn.dataset.massTrigger;
         if (!trig) return;
 
@@ -7009,6 +7646,7 @@
     container.querySelectorAll('[data-mass-grade]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const gr = btn.dataset.massGrade;
         if (!gr) return;
 
@@ -7041,6 +7679,7 @@
     container.querySelectorAll('[data-mass-target]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const t = btn.dataset.massTarget;
         state.massConfig.targetVolume = t === 'MAX' ? 'MAX' : Number(t);
         render();
@@ -7051,6 +7690,7 @@
     container.querySelectorAll('[data-scenario-select]').forEach(opt => {
       opt.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (state.generatingMass) return;
         const scen = opt.getAttribute('data-scenario-select') || opt.dataset.scenarioSelect;
         if (scen) {
           state.tempScenarioSelection = scen;
@@ -7059,9 +7699,10 @@
       });
     });
 
-    // Confirmar geração de massa de teste em escala
+    // Confirmar geração de massa de teste em escala (bloqueado contra cliques duplicados)
     container.querySelector('#simModalConfirmScenario')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (state.generatingMass) return;
       const cfg = { ...state.massConfig };
       if (cfg.period === 'CUSTOM') {
         const sVal = container.querySelector('#simMassStartDate')?.value;
@@ -7072,12 +7713,13 @@
       generateScenarioMass(state.tempScenarioSelection || '2R', cfg);
     });
 
-    // Ações da massa atual no painel
+    // Ações da massa atual no painel e cabeçalho principal
     const handleEvaluate = (e) => {
       e.stopPropagation();
       state.massModalOpen = false;
       evaluateActive();
     };
+    container.querySelector('#simBtnEvaluateCandles')?.addEventListener('click', handleEvaluate);
     container.querySelector('#simMassActionEvaluate')?.addEventListener('click', handleEvaluate);
     container.querySelector('#simMassActionEvaluateBtn')?.addEventListener('click', handleEvaluate);
 
@@ -7087,6 +7729,7 @@
       state.massModalOpen = false;
       clearAllSimulations();
     };
+    container.querySelector('#simBtnClearMass')?.addEventListener('click', handleDirectClear);
     container.querySelector('#simMassActionClear')?.addEventListener('click', handleDirectClear);
     container.querySelector('#simMassActionClearBtn')?.addEventListener('click', handleDirectClear);
 
@@ -7638,6 +8281,7 @@
     loadData,
     render,
     addSimulation,
+    generateScenarioMass,
     resetToDefaults,
     evaluateActive,
     openExportModal,

@@ -119,6 +119,10 @@ test('SystemQualityAnalytics: integração com TradeSimulatorModel.calculateSimu
   const simCard = sqnView.generateSimulatorSqnCardHtml(stats);
   assert.ok(simCard.includes('SQN da Simulação'));
   assert.ok(simCard.includes('Expectancy ÷ Desvio-Padrão'));
+  assert.ok(simCard.includes('sim-sqn-subcard-split'), 'Subcard 1 deve utilizar layout dividido com espaço amplo para a régua');
+  assert.ok(simCard.includes('sim-sqn-scale-col'), 'Régua Van Tharp deve ocupar coluna dedicada à direita');
+  assert.ok(simCard.includes('sqn-lbl-poor'), 'Labels da régua devem possuir classes dedicadas por faixa');
+  assert.ok(simCard.includes('sqn-lbl-excep'), 'Faixa excepcional deve ter classe dedicada');
 });
 
 test('TradeAnatomy: código fonte de frontend/trade-anatomy.js não renderiza SQN', () => {

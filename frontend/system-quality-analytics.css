@@ -648,15 +648,59 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .sqn-badge-unclassif
 .sqn-scale-segment.seg-excep { width: 15%; background: #047857; }
 
 .sqn-scale-labels {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 20% 15% 15% 15% 20% 15%;
+  width: 100%;
+  margin-top: 5px;
   font-size: 10px;
   font-weight: 700;
   color: var(--sqn-scale-label);
 }
 
+.sqn-scale-labels span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  line-height: 1.22;
+  padding: 2px 1px;
+}
+
+.sqn-scale-labels span.sqn-lbl-poor {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.sqn-scale-labels span.sqn-lbl-excep {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.sqn-scale-labels .sqn-lbl-val {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  opacity: 0.95;
+}
+
+.sqn-scale-labels .sqn-lbl-name {
+  font-size: 9.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .sqn-scale-labels span.active {
   color: var(--sqn-scale-label-active);
+  font-weight: 800;
+}
+
+.sqn-scale-labels span.active .sqn-lbl-val {
+  color: var(--sqn-scale-label-active);
+  font-weight: 800;
+}
+
+.sqn-scale-labels span.active .sqn-lbl-name {
   font-weight: 800;
 }
 
