@@ -2,8 +2,10 @@
  * EVENT PLAYBOOK — FRONTEND INTERFACE
  * Healthy Trend Trader
  *
- * Biblioteca histórica de eventos de mercado e memória operacional do trader.
- * Cadastro único integrado à Central de Mercado.
+ * Terminal de Inteligência de Mercado & Biblioteca Viva de Eventos
+ * Design System: Trading-workspace premium, visual de alta classe,
+ * hero panorâmico alpino, eventos em formato timeline, protagonista destacado,
+ * métricas nítidas e cadastro simplificado em etapas.
  */
 
 (function (root) {
@@ -36,17 +38,6 @@
       .replace(/'/g, '&#39;');
   }
 
-  function formatDisplayDate(dateStr) {
-    if (!dateStr) return '—';
-    try {
-      const parts = String(dateStr).slice(0, 10).split('-');
-      if (parts.length === 3) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-      }
-    } catch (_) {}
-    return String(dateStr);
-  }
-
   function getImpactClass(impact) {
     const num = Number(impact) || 3;
     if (num >= 5) return 'impact-5';
@@ -64,6 +55,17 @@
     return 'Impacto 1 (Muito Baixo)';
   }
 
+  function formatDisplayDate(dateStr) {
+    if (!dateStr) return '—';
+    try {
+      const parts = String(dateStr).slice(0, 10).split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+    } catch (_) {}
+    return String(dateStr);
+  }
+
   async function loadData() {
     state.loading = true;
     try {
@@ -72,7 +74,7 @@
       } else if (Model && typeof Model.getAllEvents === 'function') {
         state.events = Model.filterEvents(Model.getAllEvents(), state.filters);
       }
-    } catch (err) {
+    } catch (_) {
       if (Model && typeof Model.getAllEvents === 'function') {
         state.events = Model.filterEvents(Model.getAllEvents(), state.filters);
       }
@@ -92,7 +94,7 @@
   function selectEvent(id) {
     state.selectedEventId = id;
     render();
-    const activeEl = document.querySelector(`.ep-event-card[data-id="${id}"]`);
+    const activeEl = document.querySelector(`.ep-timeline-card[data-id="${id}"]`);
     if (activeEl) {
       activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -107,16 +109,11 @@
   function applyFilters() {
     const searchInput = document.getElementById('epSearchInput');
     const periodSelect = document.getElementById('epPeriodSelect');
-    const catSelect = document.getElementById('epCategorySelect');
     const impactSelect = document.getElementById('epImpactSelect');
-    const assetInput = document.getElementById('epAssetInput');
 
     state.filters.search = searchInput ? searchInput.value.trim() : '';
     state.filters.period = periodSelect ? periodSelect.value : '';
-    state.filters.category = catSelect ? catSelect.value : state.selectedCategory;
     state.filters.impact = impactSelect ? impactSelect.value : '';
-    state.filters.asset = assetInput ? assetInput.value.trim() : '';
-    state.selectedCategory = state.filters.category || 'Todos';
 
     loadData().then(render);
   }
@@ -133,124 +130,177 @@
     loadData().then(render);
   }
 
+  function setEvidencePhase(phase) {
+    state.activeEvidencePhase = phase;
+    render();
+  }
+
+  /* RENDER HERO BANNER */
+  function renderHeroBanner() {
+    return `
+      <section class="ep-hero-header">
+        <div class="ep-hero-overlay"></div>
+        <div class="ep-hero-content">
+          <div class="ep-hero-icon-badge" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+              <path d="M8 14h.01"/>
+              <path d="M12 14h.01"/>
+              <path d="M16 14h.01"/>
+              <path d="M8 18h.01"/>
+              <path d="M12 18h.01"/>
+            </svg>
+          </div>
+          <div class="ep-hero-text">
+            <h1 class="ep-hero-title">Registro de Eventos</h1>
+            <p class="ep-hero-subtitle">Fatos, decisões e eventos que impactaram o mercado e o seu trading.</p>
+            <div class="ep-hero-accent-bar"></div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  /* RENDER CATEGORY PILLS BAR */
   function renderCategoryPills(counts) {
-    const categories = Model?.CATEGORIES || [
+    const categories = [
       'Todos', 'Política', 'Macro', 'Geopolítica', 'Earnings',
-      'Tarifas', 'Banco Central', 'Commodities', 'Black Swan', 'Outros'
+      'Tarifas', 'Banco Central', 'Commodities', 'Outros'
     ];
 
     return `
-      <div class="ep-categories-bar" role="tablist">
-        ${categories.map(cat => {
-          const isActive = state.selectedCategory === cat;
-          const count = counts[cat] || 0;
-          return `
-            <button type="button" class="ep-category-pill ${isActive ? 'active' : ''}" onclick="window.EventPlaybook.setCategory('${esc(cat)}')">
-              <span>${esc(cat)}</span>
-              <span class="ep-pill-count">${count}</span>
-            </button>
-          `;
-        }).join('')}
+      <div class="ep-categories-bar">
+        <div class="ep-categories-pills-wrap" role="tablist">
+          ${categories.map(cat => {
+            const isActive = state.selectedCategory === cat;
+            const count = counts[cat] || 0;
+            return `
+              <button type="button" class="ep-category-pill ${isActive ? 'active' : ''}" onclick="window.EventPlaybook.setCategory('${esc(cat)}')">
+                <span>${esc(cat)}</span>
+                <span class="ep-pill-count">${count}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+
+        <button type="button" class="ep-btn-new-event" onclick="window.EventPlaybook.openCreateModal()">
+          <span>+</span> Novo Evento
+        </button>
       </div>
     `;
   }
 
+  /* RENDER SEARCH & FILTERS BAR */
   function renderFiltersBar() {
     return `
-      <div class="ep-filter-card">
+      <div class="ep-filter-row">
         <div class="ep-search-wrap">
           <span class="ep-search-icon">🔍</span>
           <input type="text" id="epSearchInput" class="ep-search-input"
-            placeholder="Pesquisar eventos por palavra-chave, ativo ou descrição..."
+            placeholder="Buscar evento por palavra-chave..."
             value="${esc(state.filters.search)}"
-            onkeydown="if(event.key === 'Enter') window.EventPlaybook.applyFilters()" />
+            onkeydown="if(event.key === 'Enter') window.EventPlaybook.applyFilters()"
+            onblur="window.EventPlaybook.applyFilters()" />
         </div>
 
         <select id="epPeriodSelect" class="ep-filter-select" onchange="window.EventPlaybook.applyFilters()">
           <option value="" ${state.filters.period === '' ? 'selected' : ''}>Todos os períodos</option>
           <option value="today" ${state.filters.period === 'today' ? 'selected' : ''}>Hoje</option>
           <option value="30d" ${state.filters.period === '30d' ? 'selected' : ''}>Últimos 30 dias</option>
+          <option value="90d" ${state.filters.period === '90d' ? 'selected' : ''}>Últimos 3 meses</option>
           <option value="1y" ${state.filters.period === '1y' ? 'selected' : ''}>Último ano</option>
         </select>
 
-        <select id="epCategorySelect" class="ep-filter-select" onchange="window.EventPlaybook.setCategory(this.value)">
-          ${(Model?.CATEGORIES || ['Todos']).map(cat => `
-            <option value="${esc(cat)}" ${state.selectedCategory === cat ? 'selected' : ''}>${esc(cat)}</option>
-          `).join('')}
-        </select>
-
         <select id="epImpactSelect" class="ep-filter-select" onchange="window.EventPlaybook.applyFilters()">
-          <option value="" ${state.filters.impact === '' ? 'selected' : ''}>Todos os impactos</option>
-          <option value="5" ${state.filters.impact === '5' ? 'selected' : ''}>Impacto 5 (Extremo)</option>
-          <option value="4" ${state.filters.impact === '4' ? 'selected' : ''}>Impacto 4 (Alto)</option>
-          <option value="3" ${state.filters.impact === '3' ? 'selected' : ''}>Impacto 3 (Médio)</option>
-          <option value="2" ${state.filters.impact === '2' ? 'selected' : ''}>Impacto 2 (Baixo)</option>
+          <option value="" ${state.filters.impact === '' ? 'selected' : ''}>Impacto</option>
+          <option value="5" ${state.filters.impact === '5' ? 'selected' : ''}>Nível 5 (Extremo)</option>
+          <option value="4" ${state.filters.impact === '4' ? 'selected' : ''}>Nível 4 (Alto)</option>
+          <option value="3" ${state.filters.impact === '3' ? 'selected' : ''}>Nível 3 (Médio)</option>
+          <option value="2" ${state.filters.impact === '2' ? 'selected' : ''}>Nível 2 (Baixo)</option>
         </select>
-
-        <input type="text" id="epAssetInput" class="ep-search-input" style="max-width: 140px;"
-          placeholder="Ativo (ex: SPX)"
-          value="${esc(state.filters.asset)}"
-          onkeydown="if(event.key === 'Enter') window.EventPlaybook.applyFilters()" />
 
         <button type="button" class="ep-filter-clear-btn" onclick="window.EventPlaybook.clearFilters()">
-          Limpar filtros
+          <span>↺</span> Limpar filtros
         </button>
       </div>
     `;
   }
 
-  function renderEventCard(ev) {
+  /* RENDER TIMELINE CARD (LEFT LIST) */
+  function renderTimelineCard(ev) {
     const isSelected = ev.id === state.selectedEventId;
     const impactClass = getImpactClass(ev.impact);
-    const dateFormatted = formatDisplayDate(ev.date || ev.eventDate);
-    const excerpt = ev.whatHappened || ev.description || '';
-
-    let assetsList = [];
-    if (ev.affectedAssets) {
-      assetsList = ev.affectedAssets.split(/[,/]/).map(s => s.trim()).filter(Boolean).slice(0, 3);
-    } else if (ev.relatedAssets) {
-      assetsList = ev.relatedAssets.split(/[,/]/).map(s => s.trim()).filter(Boolean).slice(0, 3);
-    }
+    const dateBadge = Model?.formatDateBadge ? Model.formatDateBadge(ev.date || ev.eventDate) : { day: '—', month: '—' };
+    const snippet = ev.whatHappened || ev.description || '';
+    const catIcon = Model?.getCategoryIcon ? Model.getCategoryIcon(ev.category) : '📌';
 
     return `
-      <div class="ep-event-card ${isSelected ? 'active' : ''}" data-id="${esc(ev.id)}" onclick="window.EventPlaybook.selectEvent('${esc(ev.id)}')">
-        <div class="ep-event-card-top">
-          <span class="ep-event-card-date">${esc(dateFormatted)}</span>
-          <span class="ep-badge-impact ${impactClass}">Nível ${ev.impact || 3}</span>
+      <div class="ep-timeline-card ${isSelected ? 'active' : ''}" data-id="${esc(ev.id)}" onclick="window.EventPlaybook.selectEvent('${esc(ev.id)}')">
+        <div class="ep-date-badge">
+          <span class="ep-date-day">${esc(dateBadge.day)}</span>
+          <span class="ep-date-month">${esc(dateBadge.month)}</span>
         </div>
 
-        <h4 class="ep-event-card-title">${esc(ev.name)}</h4>
-
-        ${excerpt ? `<p class="ep-event-card-snippet">${esc(excerpt)}</p>` : ''}
-
-        <div class="ep-event-card-footer">
-          <span class="ep-badge-cat">${esc(ev.category || 'Macro')}</span>
-          <div class="ep-chips-row">
-            ${assetsList.map(a => `<span class="ep-chip">${esc(a)}</span>`).join('')}
-          </div>
+        <div class="ep-timeline-info">
+          <span class="ep-timeline-cat-row">
+            <span>${catIcon}</span>
+            <span>${esc(ev.category || 'Macro')}</span>
+          </span>
+          <h4 class="ep-timeline-event-name" title="${esc(ev.name)}">${esc(ev.name)}</h4>
+          <p class="ep-timeline-snippet" title="${esc(snippet)}">${esc(snippet)}</p>
         </div>
+
+        <span class="ep-badge-impact-pill ${impactClass}">Nível ${ev.impact || 3}</span>
       </div>
     `;
   }
 
+  /* RENDER PROTAGONIST DETAIL (RIGHT COLUMN) */
   function renderDetailPane(ev) {
     if (!ev) {
       return `
-        <div class="ep-section-card" style="text-align:center;padding:48px;">
-          <h3>Nenhum evento selecionado</h3>
-          <p style="color:#64748b;margin-top:8px;">Selecione um evento da lista ao lado ou cadastre um novo evento.</p>
-          <button type="button" class="ep-btn-primary" style="margin-top:16px;" onclick="window.EventPlaybook.openCreateModal()">
+        <div class="ep-detail-card" style="text-align:center;padding:54px 32px;">
+          <h3 style="font-size:20px;color:#0f2a20;">Nenhum evento selecionado</h3>
+          <p style="color:#64748b;margin:8px 0 20px;">Selecione um evento na lista ao lado ou cadastre um novo evento.</p>
+          <button type="button" class="ep-btn-new-event" onclick="window.EventPlaybook.openCreateModal()">
             + Novo Evento
           </button>
         </div>
       `;
     }
 
-    const impactClass = getImpactClass(ev.impact);
     const impactLabel = getImpactLabel(ev.impact);
     const dateFormatted = formatDisplayDate(ev.date || ev.eventDate);
+    const timeFormatted = ev.time || ev.eventTime || '10:00';
+    const countryFlag = Model?.getCountryWithFlag ? Model.getCountryWithFlag(ev.country) : (ev.country || 'Global');
+    const coverUrl = Model?.getEventCoverImage ? Model.getEventCoverImage(ev) : 'assets/event-playbook/cover-us-election.jpg';
+    const catIcon = Model?.getCategoryIcon ? Model.getCategoryIcon(ev.category) : '🏛️';
 
-    // Filtro de screenshots por fase
+    // Ativos afetados em lista
+    let assetsList = [];
+    if (ev.affectedAssets) {
+      assetsList = ev.affectedAssets.split(/[,/]/).map(s => s.trim()).filter(Boolean);
+    } else if (ev.relatedAssets) {
+      assetsList = ev.relatedAssets.split(/[,/]/).map(s => s.trim()).filter(Boolean);
+    }
+    if (assetsList.length === 0) assetsList = ['Mercado Geral'];
+
+    // Direção inicial e classe
+    const dir = String(ev.initialDirection || 'Alta').trim();
+    let dirClass = 'dir-alta';
+    let dirIcon = '↗';
+    if (dir.toLowerCase().includes('baixa')) {
+      dirClass = 'dir-baixa';
+      dirIcon = '↘';
+    } else if (dir.toLowerCase().includes('neutr') || dir.toLowerCase().includes('lateral')) {
+      dirClass = 'dir-neutra';
+      dirIcon = '→';
+    }
+
+    // Screenshots
     const allScreenshots = Array.isArray(ev.screenshots) ? ev.screenshots : [];
     const filteredScreenshots = state.activeEvidencePhase === 'all'
       ? allScreenshots
@@ -265,202 +315,168 @@
     };
 
     return `
-      <div class="ep-detail-column">
-        <!-- HEADER CARD -->
-        <article class="ep-detail-header-card">
-          <div class="ep-detail-header-top">
-            <div>
-              <h2 class="ep-detail-title">${esc(ev.name)}</h2>
+      <article class="ep-detail-card">
+        <!-- HEADER COM CAPA EDITORIAL -->
+        <header class="ep-protagonist-header">
+          <div class="ep-protagonist-info">
+            <div class="ep-protagonist-tag-actions-row">
+              <span class="ep-protagonist-category-badge">
+                <span>${catIcon}</span>
+                <span>${esc(ev.category || 'Macro')}</span>
+              </span>
+
+              <div class="ep-protagonist-actions">
+                <button type="button" class="ep-btn-subtle" onclick="window.EventPlaybook.openEditModal('${esc(ev.id)}')">
+                  <span>✏️</span> Editar
+                </button>
+                <button type="button" class="ep-btn-subtle danger" onclick="window.EventPlaybook.confirmDelete('${esc(ev.id)}')">
+                  <span>🗑️</span> Excluir
+                </button>
+              </div>
             </div>
-            <div class="ep-detail-header-actions">
-              <button type="button" class="ep-btn-secondary" onclick="window.EventPlaybook.openEditModal('${esc(ev.id)}')">
-                ✏️ Editar
-              </button>
-              <button type="button" class="ep-btn-secondary" style="color:#ef4444;" onclick="window.EventPlaybook.confirmDelete('${esc(ev.id)}')">
-                🗑️ Excluir
-              </button>
+
+            <h2 class="ep-protagonist-title">${esc(ev.name)}</h2>
+
+            <div class="ep-protagonist-meta-row">
+              <span class="ep-meta-item">
+                <span>📅</span>
+                <span>${esc(dateFormatted)} às ${esc(timeFormatted)}</span>
+              </span>
+              <span class="ep-meta-sep">|</span>
+              <span class="ep-meta-item">
+                <span>${countryFlag}</span>
+              </span>
+              <span class="ep-meta-sep">|</span>
+              <span class="ep-meta-impact-badge">${esc(impactLabel)}</span>
             </div>
           </div>
 
-          <div class="ep-detail-meta-row">
-            <span class="ep-detail-meta-item">
-              📅 <strong>${esc(dateFormatted)}</strong> às <strong>${esc(ev.time || ev.eventTime || '10:00')}</strong>
+          <img src="${esc(coverUrl)}" alt="${esc(ev.name)}" class="ep-protagonist-cover-img" loading="lazy" />
+        </header>
+
+        <!-- NARRATIVA E IMPACTO NO MERCADO -->
+        <div class="ep-narrative-grid">
+          <div class="ep-narrative-card">
+            <div class="ep-narrative-block">
+              <h3 class="ep-narrative-block-title">
+                <span>📋</span> O que aconteceu
+              </h3>
+              <p class="ep-narrative-block-body">
+                ${esc(ev.whatHappened || ev.description || 'Nenhum detalhe histórico registrado ainda.')}
+              </p>
+            </div>
+
+            <div class="ep-narrative-block">
+              <h3 class="ep-narrative-block-title">
+                <span>🎯</span> Como isso afeta meu trading?
+              </h3>
+              <p class="ep-narrative-block-body">
+                ${esc(ev.tradingImplications || 'Defina diretrizes práticas para conduzir operações durante eventos similares.')}
+              </p>
+            </div>
+          </div>
+
+          <div class="ep-market-impact-callout">
+            <span class="ep-market-impact-eyebrow">
+              <span>📈</span> Impacto no Mercado
             </span>
-            <span>•</span>
-            <span class="ep-badge-cat" style="font-size:12px;">${esc(ev.category || 'Macro')}</span>
-            <span>•</span>
-            <span class="ep-badge-impact ${impactClass}" style="font-size:12px;">${esc(impactLabel)}</span>
-            ${ev.country ? `<span>•</span><span>🌍 ${esc(ev.country)}</span>` : ''}
+            <h4 class="ep-market-impact-headline">${esc(ev.marketImpactHeadline || (ev.impact >= 5 ? 'Volatilidade elevada' : 'Reação pontual'))}</h4>
+            <p class="ep-market-impact-desc">
+              ${esc(ev.marketImpactSummary || ev.marketReaction || 'Acompanhamento do fluxo e da reação dos ativos líderes.')}
+            </p>
           </div>
-        </article>
+        </div>
 
-        <!-- CARD 1: O QUE ACONTECEU -->
-        <article class="ep-section-card">
-          <div class="ep-section-head">
-            <h3><span class="ep-section-icon">📋</span> O que aconteceu</h3>
-          </div>
-          <div class="ep-section-body">
-            <p>${esc(ev.whatHappened || ev.description || 'Nenhum detalhe registrado ainda.')}</p>
-            ${ev.description && ev.description !== ev.whatHappened ? `
-              <p style="font-size:13px;color:#64748b;margin-top:8px;">${esc(ev.description)}</p>
-            ` : ''}
-          </div>
-        </article>
+        <!-- ATIVOS AFETADOS & MÉTRICAS DA REAÇÃO -->
+        <section class="ep-metrics-section">
+          <h3 class="ep-section-heading">
+            <span>📊</span> Ativos Afetados &amp; Métricas da Reação
+          </h3>
 
-        <!-- CARD 2: COMO ISSO AFETA MEU TRADING -->
-        <article class="ep-section-card">
-          <div class="ep-section-head">
-            <h3><span class="ep-section-icon">🎯</span> Como isso afeta meu trading?</h3>
+          <div class="ep-affected-assets-bar">
+            ${assetsList.map(a => `<span class="ep-asset-pill">${esc(a)}</span>`).join('')}
           </div>
-          <div class="ep-section-body">
-            <p>${esc(ev.tradingImplications || 'Defina aqui as diretrizes práticas para lidar com acontecimentos semelhantes no futuro.')}</p>
-          </div>
-        </article>
 
-        <!-- CARD 3: ATIVOS AFETADOS & MÉTRICAS DA REAÇÃO -->
-        <article class="ep-section-card">
-          <div class="ep-section-head">
-            <h3><span class="ep-section-icon">📊</span> Ativos afetados & Métricas da Reação</h3>
+          <div class="ep-metrics-cards-row">
+            <div class="ep-metric-card">
+              <span class="ep-metric-card-lbl"><span>📈</span> Direção Inicial</span>
+              <span class="ep-metric-card-val ${dirClass}">${esc(dir)} ${dirIcon}</span>
+            </div>
+            <div class="ep-metric-card">
+              <span class="ep-metric-card-lbl"><span>⚡</span> Gap Inicial</span>
+              <span class="ep-metric-card-val">${esc(ev.gap || '0.0%')}</span>
+            </div>
+            <div class="ep-metric-card">
+              <span class="ep-metric-card-lbl"><span>📊</span> Volume</span>
+              <span class="ep-metric-card-val">${esc(ev.volume || '1.0x média')}</span>
+            </div>
+            <div class="ep-metric-card">
+              <span class="ep-metric-card-lbl"><span>🎯</span> ATR</span>
+              <span class="ep-metric-card-val">${esc(ev.atr || '1.0x (Diário)')}</span>
+            </div>
+            <div class="ep-metric-card">
+              <span class="ep-metric-card-lbl"><span>⏱️</span> Duração do Impacto</span>
+              <span class="ep-metric-card-val" style="font-size:14.5px;">${esc(ev.impactDuration || 'Sessão atual')}</span>
+            </div>
           </div>
-          <div class="ep-section-body">
-            <div>
-              <strong style="font-size:12px;color:#64748b;text-transform:uppercase;">Ativos mais impactados:</strong>
-              <div class="ep-chips-row" style="margin-top:6px;">
-                ${(ev.affectedAssets || ev.relatedAssets || 'Geral').split(/[,/]/).map(a => `<span class="ep-chip" style="font-size:12px;padding:4px 10px;">${esc(a.trim())}</span>`).join('')}
-              </div>
+        </section>
+
+        <!-- LIÇÃO PARA O FUTURO (WISDOM CARD) -->
+        <section class="ep-lesson-box">
+          <span class="ep-lesson-bulb-icon" aria-hidden="true">💡</span>
+          <div class="ep-lesson-content">
+            <h4 class="ep-lesson-title">Lição para o Futuro</h4>
+            <p class="ep-lesson-quote">
+              "${esc(ev.lessonsLearned || 'Eventos extremos geram expansão aguda de volatilidade. Proteger o patrimônio e esperar a absorção antes de aumentar risco.')}"
+            </p>
+          </div>
+        </section>
+
+        <!-- EVIDÊNCIAS & SCREENSHOTS -->
+        <section class="ep-evidence-section">
+          <div class="ep-evidence-head">
+            <div class="ep-evidence-tabs-bar">
+              <button type="button" class="ep-evidence-tab-btn ${state.activeEvidencePhase === 'all' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('all')">
+                Todas (${allScreenshots.length})
+              </button>
+              <button type="button" class="ep-evidence-tab-btn ${state.activeEvidencePhase === 'before' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('before')">
+                Antes (${allScreenshots.filter(s => s.type === 'before').length})
+              </button>
+              <button type="button" class="ep-evidence-tab-btn ${state.activeEvidencePhase === 'during' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('during')">
+                Durante (${allScreenshots.filter(s => s.type === 'during').length})
+              </button>
+              <button type="button" class="ep-evidence-tab-btn ${state.activeEvidencePhase === 'after' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('after')">
+                Depois (${allScreenshots.filter(s => s.type === 'after').length})
+              </button>
+              <button type="button" class="ep-evidence-tab-btn ${state.activeEvidencePhase === 'news' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('news')">
+                Notícias (${allScreenshots.filter(s => s.type === 'news').length})
+              </button>
             </div>
 
-            <div class="ep-metrics-grid">
-              <div class="ep-metric-box">
-                <span class="ep-metric-lbl">Direção Inicial</span>
-                <span class="ep-metric-val ${ev.initialDirection === 'Alta' ? 'dir-alta' : ev.initialDirection === 'Baixa' ? 'dir-baixa' : ''}">
-                  ${esc(ev.initialDirection || 'Neutra')}
-                </span>
-              </div>
-              <div class="ep-metric-box">
-                <span class="ep-metric-lbl">Gap Inicial</span>
-                <span class="ep-metric-val">${esc(ev.gap || '—')}</span>
-              </div>
-              <div class="ep-metric-box">
-                <span class="ep-metric-lbl">Volume</span>
-                <span class="ep-metric-val">${esc(ev.volume || '—')}</span>
-              </div>
-              <div class="ep-metric-box">
-                <span class="ep-metric-lbl">ATR</span>
-                <span class="ep-metric-val">${esc(ev.atr || '—')}</span>
-              </div>
-              <div class="ep-metric-box">
-                <span class="ep-metric-lbl">Duração do Impacto</span>
-                <span class="ep-metric-val" style="font-size:13px;">${esc(ev.impactDuration || '—')}</span>
-              </div>
-            </div>
-
-            ${ev.volatilityBehavior ? `
-              <div style="margin-top:14px;padding:10px 14px;background:#f8fafc;border-radius:10px;font-size:13px;color:#334155;">
-                <strong>Comportamento da Volatilidade:</strong> ${esc(ev.volatilityBehavior)}
-              </div>
-            ` : ''}
-          </div>
-        </article>
-
-        <!-- CARD 4: GRÁFICOS E SCREENSHOTS (4 FASES) -->
-        <article class="ep-section-card">
-          <div class="ep-section-head">
-            <h3><span class="ep-section-icon">📸</span> Gráficos e Screenshots</h3>
-            <button type="button" class="ep-btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="window.EventPlaybook.openEvidenceModal('${esc(ev.id)}')">
-              + Anexar Imagem
+            <button type="button" class="ep-btn-add-img" onclick="window.EventPlaybook.openEvidenceModal('${esc(ev.id)}')">
+              <span>+</span> Adicionar Screenshot
             </button>
           </div>
 
-          <!-- ABAS DE FASES -->
-          <div class="ep-evidence-phases-tabs">
-            <button type="button" class="ep-phase-tab-btn ${state.activeEvidencePhase === 'all' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('all')">
-              Todas (${allScreenshots.length})
-            </button>
-            <button type="button" class="ep-phase-tab-btn ${state.activeEvidencePhase === 'before' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('before')">
-              Antes (${allScreenshots.filter(s => s.type === 'before').length})
-            </button>
-            <button type="button" class="ep-phase-tab-btn ${state.activeEvidencePhase === 'during' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('during')">
-              Durante (${allScreenshots.filter(s => s.type === 'during').length})
-            </button>
-            <button type="button" class="ep-phase-tab-btn ${state.activeEvidencePhase === 'after' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('after')">
-              Depois (${allScreenshots.filter(s => s.type === 'after').length})
-            </button>
-            <button type="button" class="ep-phase-tab-btn ${state.activeEvidencePhase === 'news' ? 'active' : ''}" onclick="window.EventPlaybook.setEvidencePhase('news')">
-              Notícias (${allScreenshots.filter(s => s.type === 'news').length})
-            </button>
-          </div>
-
-          <div class="ep-gallery-grid">
+          <div class="ep-evidence-gallery-grid">
             ${filteredScreenshots.length > 0 ? filteredScreenshots.map(img => `
-              <div class="ep-gallery-item">
-                <div class="ep-gallery-thumb-wrap" onclick="window.EventPlaybook.openLightbox('${esc(img.url)}', '${esc(img.caption || img.description || '')}')">
-                  <img src="${esc(img.url)}" alt="${esc(img.caption || 'Evidência')}" class="ep-gallery-thumb" loading="lazy" />
-                  <span class="ep-gallery-phase-badge">${esc(phaseLabels[img.type] || 'Evidência')}</span>
-                </div>
-                <div class="ep-gallery-info">
-                  <h5 class="ep-gallery-caption" title="${esc(img.caption || '')}">${esc(img.caption || 'Sem legenda')}</h5>
-                  ${img.description ? `<p class="ep-gallery-desc">${esc(img.description)}</p>` : ''}
-                  <div class="ep-gallery-actions">
-                    <button type="button" class="ep-btn-icon-xs" title="Excluir imagem" onclick="window.EventPlaybook.removeScreenshot('${esc(ev.id)}', '${esc(img.id)}')">✕</button>
-                  </div>
-                </div>
+              <div class="ep-evidence-item" onclick="window.EventPlaybook.openLightbox('${esc(img.url)}', '${esc(img.caption || '')}')">
+                <img src="${esc(img.url)}" alt="${esc(img.caption || 'Screenshot')}" class="ep-evidence-thumb" loading="lazy" />
+                <span class="ep-evidence-phase-badge">${esc(phaseLabels[img.type] || 'Evidência')}</span>
+                <p class="ep-evidence-caption">${esc(img.caption || 'Sem legenda')}</p>
               </div>
             `).join('') : `
-              <div class="ep-gallery-empty">
-                <p>Nenhuma evidência anexada para este momento.</p>
-                <button type="button" class="ep-btn-secondary" style="font-size:12px;" onclick="window.EventPlaybook.openEvidenceModal('${esc(ev.id)}')">
-                  + Adicionar Screenshot
-                </button>
+              <div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: #64748b; font-size: 13px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                Nenhuma evidência fotográfica anexada para este filtro de fase.
               </div>
             `}
           </div>
-        </article>
-
-        <!-- CARD 5: LIÇÃO PARA O FUTURO (CARD DESTACADO) -->
-        <article class="ep-lesson-card">
-          <div class="ep-lesson-eyebrow">
-            <span>💡</span> LIÇÃO PARA O FUTURO
-          </div>
-          <div class="ep-lesson-question">
-            "O que eu aprendi com esse evento que quero lembrar quando algo parecido acontecer novamente?"
-          </div>
-          <p class="ep-lesson-text">
-            ${esc(ev.lessonsLearned || 'Nenhuma lição anotada ainda. Clique em Editar para registrar os aprendizados operacionais.')}
-          </p>
-        </article>
-
-        <!-- CARD 6: TAGS E FONTES DE REFERÊNCIA -->
-        ${(ev.tags?.length || ev.sources?.length) ? `
-          <article class="ep-section-card">
-            <div class="ep-section-head">
-              <h3><span class="ep-section-icon">🔗</span> Tags e Fontes de Referência</h3>
-            </div>
-            <div class="ep-section-body">
-              ${ev.tags?.length ? `
-                <div style="margin-bottom:12px;">
-                  <strong style="font-size:12px;color:#64748b;">Tags:</strong>
-                  <div class="ep-chips-row" style="margin-top:6px;">
-                    ${ev.tags.map(t => `<span class="ep-chip">${esc(t)}</span>`).join('')}
-                  </div>
-                </div>
-              ` : ''}
-
-              ${ev.sources?.length ? `
-                <div>
-                  <strong style="font-size:12px;color:#64748b;">Fontes e links:</strong>
-                  <ul style="margin:6px 0 0 18px;padding:0;font-size:13px;color:#334155;">
-                    ${ev.sources.map(s => `<li>${esc(s)}</li>`).join('')}
-                  </ul>
-                </div>
-              ` : ''}
-            </div>
-          </article>
-        ` : ''}
-      </div>
+        </section>
+      </article>
     `;
   }
 
+  /* MAIN RENDER FUNCTION */
   function render() {
     const rootEl = document.getElementById('eventPlaybookRoot');
     if (!rootEl) return;
@@ -471,522 +487,545 @@
 
     rootEl.innerHTML = `
       <div class="event-playbook-page">
-        <!-- HEADER -->
-        <header class="ep-header">
-          <div class="ep-title-col">
-            <h1>Registro de Eventos</h1>
-            <p>Biblioteca histórica de eventos e comportamento do mercado.</p>
-          </div>
-          <div class="ep-header-actions">
-            <button type="button" class="ep-btn-primary" onclick="window.EventPlaybook.openCreateModal()">
-              + Novo Evento
-            </button>
-          </div>
-        </header>
+        <!-- 1. HERO BANNER -->
+        ${renderHeroBanner()}
 
-        <!-- CATEGORIES -->
+        <!-- 2. CATEGORIES & NEW EVENT -->
         ${renderCategoryPills(counts)}
 
-        <!-- FILTERS -->
+        <!-- 3. SEARCH & FILTERS -->
         ${renderFiltersBar()}
 
-        <!-- WORKSPACE GRID -->
+        <!-- 4. WORKSPACE GRID -->
         <div class="ep-workspace-grid">
-          <!-- LEFT COLUMN: EVENT LIST -->
-          <div class="ep-list-column">
-            <div class="ep-list-head">
-              <h3>Eventos Históricos</h3>
-              <span class="ep-list-count">${state.events.length} evento(s)</span>
+          <!-- LEFT: TIMELINE LIST -->
+          <aside class="ep-timeline-col">
+            <div class="ep-timeline-head">
+              <h3 class="ep-timeline-title">Eventos Históricos</h3>
+              <span class="ep-timeline-count">${state.events.length} evento(s)</span>
             </div>
 
-            <div class="ep-events-scroll-container">
-              ${state.events.length > 0 ? state.events.map(renderEventCard).join('') : `
-                <div class="ep-section-card" style="text-align:center;padding:32px 16px;color:#64748b;">
-                  Nenhum evento encontrado para os filtros selecionados.
+            <div class="ep-timeline-list">
+              ${state.events.length > 0 ? state.events.map(renderTimelineCard).join('') : `
+                <div style="text-align:center;padding:36px 16px;color:#64748b;font-size:13px;">
+                  Nenhum evento encontrado com os filtros selecionados.
                 </div>
               `}
             </div>
+
+            <a class="ep-timeline-footer-link" onclick="window.EventPlaybook.clearFilters()">
+              Ver todos os eventos →
+            </a>
+          </aside>
+
+          <!-- RIGHT: PROTAGONIST DETAIL -->
+          <main class="ep-detail-col-wrap">
+            ${renderDetailPane(selectedEvent)}
+          </main>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ==========================================================================
+     SIMPLIFIED CREATION & EDIT MODAL (3-STEP WIZARD)
+     ========================================================================== */
+
+  let modalWizardState = {
+    currentStep: 1,
+    eventToEdit: null,
+    formData: {}
+  };
+
+  function openCreateModal(eventToEdit = null) {
+    const isEditing = Boolean(eventToEdit && eventToEdit.id);
+    modalWizardState.currentStep = 1;
+    modalWizardState.eventToEdit = eventToEdit;
+
+    const ev = eventToEdit || {};
+    modalWizardState.formData = {
+      id: ev.id || null,
+      name: ev.name || '',
+      category: ev.category || 'Política',
+      date: ev.date || ev.eventDate || new Date().toISOString().slice(0, 10),
+      time: ev.time || ev.eventTime || '10:00',
+      country: ev.country || 'Brasil',
+      impact: Number(ev.impact) || 5,
+      affectedAssets: ev.affectedAssets || ev.relatedAssets || 'IBOV, Dólar',
+      whatHappened: ev.whatHappened || ev.description || '',
+      tradingImplications: ev.tradingImplications || '',
+      marketImpactHeadline: ev.marketImpactHeadline || 'Volatilidade elevada',
+      marketImpactSummary: ev.marketImpactSummary || ev.marketReaction || '',
+      initialDirection: ev.initialDirection || 'Alta',
+      gap: ev.gap || '+2.4%',
+      volume: ev.volume || '2.8x média',
+      atr: ev.atr || '2.6x (Diário)',
+      impactDuration: ev.impactDuration || 'Semanas',
+      lessonsLearned: ev.lessonsLearned || '',
+      coverImage: ev.coverImage || ''
+    };
+
+    renderModalWizard(isEditing);
+  }
+
+  function renderModalWizard(isEditing = false) {
+    let modalEl = document.getElementById('epSteppedModalContainer');
+    if (!modalEl) {
+      modalEl = document.createElement('div');
+      modalEl.id = 'epSteppedModalContainer';
+      modalEl.className = 'ep-modal-backdrop';
+      document.body.appendChild(modalEl);
+    }
+
+    const categories = ['Política', 'Macro', 'Geopolítica', 'Banco Central', 'Earnings', 'Tarifas', 'Commodities', 'Black Swan', 'Outros'];
+    const curStep = modalWizardState.currentStep;
+    const d = modalWizardState.formData;
+
+    modalEl.innerHTML = `
+      <div class="ep-stepped-modal">
+        <!-- MODAL HEADER -->
+        <div class="ep-stepped-modal-header">
+          <div class="ep-modal-title-col">
+            <h3>${isEditing ? 'Editar Evento de Mercado' : 'Novo Evento no Playbook'}</h3>
+            <p>Terminal de inteligência e memória operacional do trader.</p>
+          </div>
+          <button type="button" class="ep-modal-close-btn" onclick="document.getElementById('epSteppedModalContainer').remove()">✕</button>
+        </div>
+
+        <!-- STEPPER BAR -->
+        <div class="ep-stepper-bar">
+          <button type="button" class="ep-step-tab ${curStep === 1 ? 'active' : ''}" onclick="window.EventPlaybook.goToStep(1)">
+            <span class="ep-step-num">1</span>
+            <span>Identificação</span>
+          </button>
+          <button type="button" class="ep-step-tab ${curStep === 2 ? 'active' : ''}" onclick="window.EventPlaybook.goToStep(2)">
+            <span class="ep-step-num">2</span>
+            <span>Contexto &amp; Operação</span>
+          </button>
+          <button type="button" class="ep-step-tab ${curStep === 3 ? 'active' : ''}" onclick="window.EventPlaybook.goToStep(3)">
+            <span class="ep-step-num">3</span>
+            <span>Métricas &amp; Lição</span>
+          </button>
+        </div>
+
+        <!-- STEP BODY -->
+        <div class="ep-step-body">
+          ${curStep === 1 ? `
+            <!-- STEP 1: IDENTIFICAÇÃO -->
+            <div class="ep-form-group">
+              <label class="ep-form-label">Título do Evento *</label>
+              <input type="text" id="wizName" class="ep-form-input" placeholder="Ex: Eleição Presidencial EUA" value="${esc(d.name)}" />
+            </div>
+
+            <div class="ep-form-group">
+              <label class="ep-form-label">Categoria do Evento</label>
+              <div class="ep-modal-cat-pills">
+                ${categories.map(c => `
+                  <button type="button" class="ep-modal-cat-pill ${d.category === c ? 'selected' : ''}" onclick="window.EventPlaybook.setModalCategory('${esc(c)}')">
+                    ${esc(c)}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="ep-grid-3">
+              <div class="ep-form-group">
+                <label class="ep-form-label">Data *</label>
+                <input type="date" id="wizDate" class="ep-form-input" value="${esc(d.date)}" />
+              </div>
+              <div class="ep-form-group">
+                <label class="ep-form-label">Horário</label>
+                <input type="time" id="wizTime" class="ep-form-input" value="${esc(d.time)}" />
+              </div>
+              <div class="ep-form-group">
+                <label class="ep-form-label">País / Região</label>
+                <input type="text" id="wizCountry" class="ep-form-input" placeholder="Ex: EUA ou Brasil" value="${esc(d.country)}" />
+              </div>
+            </div>
+
+            <div class="ep-form-group">
+              <label class="ep-form-label">Nível de Impacto no Mercado</label>
+              <div class="ep-modal-impact-row">
+                ${[1, 2, 3, 4, 5].map(lvl => `
+                  <button type="button" class="ep-modal-impact-btn ${d.impact === lvl ? `selected-${lvl}` : ''}" onclick="window.EventPlaybook.setModalImpact(${lvl})">
+                    Nível ${lvl} ${lvl === 5 ? '🔥' : ''}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="ep-form-group">
+              <label class="ep-form-label">Ativos Mais Impactados (separados por vírgula)</label>
+              <input type="text" id="wizAssets" class="ep-form-input" placeholder="Ex: SPX, NDX, BTC, DXY, IBOV" value="${esc(d.affectedAssets)}" />
+            </div>
+          ` : ''}
+
+          ${curStep === 2 ? `
+            <!-- STEP 2: NARRATIVA & OPERAÇÃO -->
+            <div class="ep-form-group">
+              <label class="ep-form-label">O que aconteceu? (Narrativa do Fato)</label>
+              <textarea id="wizWhatHappened" class="ep-form-textarea" placeholder="Descreva os fatos essenciais do acontecimento e a reação geral...">${esc(d.whatHappened)}</textarea>
+            </div>
+
+            <div class="ep-form-group">
+              <label class="ep-form-label">Como isso afeta meu trading? (Diretriz Operacional Prática)</label>
+              <textarea id="wizTradingImplications" class="ep-form-textarea" placeholder="Ex: Reduzir posições na véspera. Aguardar confirmação da apuração antes de aumentar risco...">${esc(d.tradingImplications)}</textarea>
+            </div>
+
+            <div class="ep-grid-2">
+              <div class="ep-form-group">
+                <label class="ep-form-label">Resumo do Impacto (Manchete)</label>
+                <input type="text" id="wizImpactHeadline" class="ep-form-input" placeholder="Ex: Volatilidade elevada" value="${esc(d.marketImpactHeadline)}" />
+              </div>
+              <div class="ep-form-group">
+                <label class="ep-form-label">Detalhe do Fluxo</label>
+                <input type="text" id="wizImpactSummary" class="ep-form-input" placeholder="Ex: Aumento de fluxo para ativos de risco" value="${esc(d.marketImpactSummary)}" />
+              </div>
+            </div>
+          ` : ''}
+
+          ${curStep === 3 ? `
+            <!-- STEP 3: MÉTRICAS & LIÇÃO -->
+            <div class="ep-grid-3">
+              <div class="ep-form-group">
+                <label class="ep-form-label">Direção Inicial</label>
+                <select id="wizDirection" class="ep-form-select">
+                  <option value="Alta" ${d.initialDirection === 'Alta' ? 'selected' : ''}>Alta ↗</option>
+                  <option value="Baixa" ${d.initialDirection === 'Baixa' ? 'selected' : ''}>Baixa ↘</option>
+                  <option value="Neutra" ${d.initialDirection === 'Neutra' ? 'selected' : ''}>Neutra / Lateral →</option>
+                </select>
+              </div>
+              <div class="ep-form-group">
+                <label class="ep-form-label">Gap Inicial (%)</label>
+                <input type="text" id="wizGap" class="ep-form-input" placeholder="Ex: +2,4%" value="${esc(d.gap)}" />
+              </div>
+              <div class="ep-form-group">
+                <label class="ep-form-label">Volume</label>
+                <input type="text" id="wizVolume" class="ep-form-input" placeholder="Ex: 2,8x média" value="${esc(d.volume)}" />
+              </div>
+            </div>
+
+            <div class="ep-grid-2">
+              <div class="ep-form-group">
+                <label class="ep-form-label">ATR</label>
+                <input type="text" id="wizAtr" class="ep-form-input" placeholder="Ex: 2,6x (Diário)" value="${esc(d.atr)}" />
+              </div>
+              <div class="ep-form-group">
+                <label class="ep-form-label">Duração do Impacto</label>
+                <input type="text" id="wizDuration" class="ep-form-input" placeholder="Ex: Semanas" value="${esc(d.impactDuration)}" />
+              </div>
+            </div>
+
+            <div class="ep-form-group">
+              <label class="ep-form-label">💡 Lição para o Futuro (Insight Memorável)</label>
+              <textarea id="wizLessons" class="ep-form-textarea" style="min-height:90px;" placeholder="Ex: Eventos eleitorais podem gerar expansão extrema de volatilidade. Esperar a reação inicial e procurar oportunidades somente depois que o mercado começar a estabilizar.">${esc(d.lessonsLearned)}</textarea>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- MODAL FOOTER -->
+        <div class="ep-stepped-modal-footer">
+          <div>
+            ${curStep > 1 ? `
+              <button type="button" class="ep-btn-footer-prev" onclick="window.EventPlaybook.prevStep()">
+                ← Voltar
+              </button>
+            ` : `
+              <button type="button" class="ep-btn-footer-prev" onclick="document.getElementById('epSteppedModalContainer').remove()">
+                Cancelar
+              </button>
+            `}
           </div>
 
-          <!-- RIGHT COLUMN: EVENT DETAIL -->
-          <div class="ep-detail-column-wrap">
-            ${renderDetailPane(selectedEvent)}
+          <div style="display:flex;gap:10px;">
+            ${curStep < 3 ? `
+              <button type="button" class="ep-btn-subtle" onclick="window.EventPlaybook.saveFromModal()">
+                Salvar Rápido
+              </button>
+              <button type="button" class="ep-btn-footer-next" onclick="window.EventPlaybook.nextStep()">
+                Avançar →
+              </button>
+            ` : `
+              <button type="button" class="ep-btn-footer-save" onclick="window.EventPlaybook.saveFromModal()">
+                Salvar Evento ✓
+              </button>
+            `}
           </div>
         </div>
       </div>
     `;
   }
 
-  /* MODALS IMPLEMENTATION */
+  function saveStepInputs() {
+    const cur = modalWizardState.currentStep;
+    const d = modalWizardState.formData;
 
-  function openCreateModal(eventToEdit = null) {
-    const isEditing = Boolean(eventToEdit && eventToEdit.id);
-    const ev = eventToEdit || {};
+    if (cur === 1) {
+      const nameInput = document.getElementById('wizName');
+      const dateInput = document.getElementById('wizDate');
+      const timeInput = document.getElementById('wizTime');
+      const countryInput = document.getElementById('wizCountry');
+      const assetsInput = document.getElementById('wizAssets');
 
-    const existing = document.getElementById('epEventModal');
-    if (existing) existing.remove();
+      if (nameInput) d.name = nameInput.value.trim();
+      if (dateInput) d.date = dateInput.value;
+      if (timeInput) d.time = timeInput.value;
+      if (countryInput) d.country = countryInput.value.trim();
+      if (assetsInput) d.affectedAssets = assetsInput.value.trim();
+    } else if (cur === 2) {
+      const what = document.getElementById('wizWhatHappened');
+      const imp = document.getElementById('wizTradingImplications');
+      const hl = document.getElementById('wizImpactHeadline');
+      const sm = document.getElementById('wizImpactSummary');
 
-    const categories = (Model?.CATEGORIES || ['Macro', 'Política']).filter(c => c !== 'Todos');
+      if (what) d.whatHappened = what.value.trim();
+      if (imp) d.tradingImplications = imp.value.trim();
+      if (hl) d.marketImpactHeadline = hl.value.trim();
+      if (sm) d.marketImpactSummary = sm.value.trim();
+    } else if (cur === 3) {
+      const dir = document.getElementById('wizDirection');
+      const gap = document.getElementById('wizGap');
+      const vol = document.getElementById('wizVolume');
+      const atr = document.getElementById('wizAtr');
+      const dur = document.getElementById('wizDuration');
+      const les = document.getElementById('wizLessons');
 
-    const modal = document.createElement('div');
-    modal.id = 'epEventModal';
-    modal.className = 'ep-modal-backdrop';
-    modal.innerHTML = `
-      <div class="ep-modal-card">
-        <div class="ep-modal-head">
-          <h3>${isEditing ? 'Editar Evento' : 'Novo Evento no Playbook'}</h3>
-          <button type="button" class="ep-modal-close-btn" onclick="document.getElementById('epEventModal').remove()">✕</button>
-        </div>
+      if (dir) d.initialDirection = dir.value;
+      if (gap) d.gap = gap.value.trim();
+      if (vol) d.volume = vol.value.trim();
+      if (atr) d.atr = atr.value.trim();
+      if (dur) d.impactDuration = dur.value.trim();
+      if (les) d.lessonsLearned = les.value.trim();
+    }
+  }
 
-        <form id="epEventForm">
-          <div class="ep-modal-body">
-            <!-- GRUPO 1: IDENTIFICAÇÃO -->
-            <div class="ep-form-group">
-              <label>Nome do Evento *</label>
-              <input type="text" id="mfName" value="${esc(ev.name || '')}" placeholder="Ex: Decisão de Juros — FED" required />
-            </div>
+  function goToStep(stepNum) {
+    saveStepInputs();
+    modalWizardState.currentStep = stepNum;
+    renderModalWizard(Boolean(modalWizardState.eventToEdit));
+  }
 
-            <div class="ep-form-grid-3">
-              <div class="ep-form-group">
-                <label>Data *</label>
-                <input type="date" id="mfDate" value="${esc(ev.date || ev.eventDate || new Date().toISOString().slice(0, 10))}" required />
-              </div>
-              <div class="ep-form-group">
-                <label>Horário</label>
-                <input type="time" id="mfTime" value="${esc(ev.time || ev.eventTime || '10:00')}" />
-              </div>
-              <div class="ep-form-group">
-                <label>País / Região</label>
-                <input type="text" id="mfCountry" value="${esc(ev.country || 'Brasil')}" placeholder="Brasil / EUA" />
-              </div>
-            </div>
+  function nextStep() {
+    saveStepInputs();
+    if (!modalWizardState.formData.name) {
+      alert('Por favor, informe o título do evento antes de avançar.');
+      return;
+    }
+    modalWizardState.currentStep = Math.min(3, modalWizardState.currentStep + 1);
+    renderModalWizard(Boolean(modalWizardState.eventToEdit));
+  }
 
-            <div class="ep-form-grid-2">
-              <div class="ep-form-group">
-                <label>Categoria</label>
-                <select id="mfCategory">
-                  ${categories.map(c => `
-                    <option value="${esc(c)}" ${(ev.category === c) ? 'selected' : ''}>${esc(c)}</option>
-                  `).join('')}
-                </select>
-              </div>
+  function prevStep() {
+    saveStepInputs();
+    modalWizardState.currentStep = Math.max(1, modalWizardState.currentStep - 1);
+    renderModalWizard(Boolean(modalWizardState.eventToEdit));
+  }
 
-              <div class="ep-form-group">
-                <label>Nível de Impacto</label>
-                <select id="mfImpact">
-                  <option value="5" ${Number(ev.impact) === 5 ? 'selected' : ''}>Impacto 5 — Extremo (Black Swan / Cataclismo)</option>
-                  <option value="4" ${Number(ev.impact) === 4 ? 'selected' : ''}>Impacto 4 — Alto (Catalisador maior)</option>
-                  <option value="3" ${(!ev.impact || Number(ev.impact) === 3) ? 'selected' : ''}>Impacto 3 — Médio (Volatilidade pontual)</option>
-                  <option value="2" ${Number(ev.impact) === 2 ? 'selected' : ''}>Impacto 2 — Baixo (Reação suave)</option>
-                  <option value="1" ${Number(ev.impact) === 1 ? 'selected' : ''}>Impacto 1 — Muito Baixo</option>
-                </select>
-              </div>
-            </div>
+  function setModalCategory(cat) {
+    modalWizardState.formData.category = cat;
+    renderModalWizard(Boolean(modalWizardState.eventToEdit));
+  }
 
-            <div class="ep-form-group">
-              <label>Ativos Relacionados / Afetados</label>
-              <input type="text" id="mfAssets" value="${esc(ev.affectedAssets || ev.relatedAssets || '')}" placeholder="Ex: PETR4, DI1F29, SPX, Dólar Futuro" />
-            </div>
+  function setModalImpact(impactNum) {
+    modalWizardState.formData.impact = impactNum;
+    renderModalWizard(Boolean(modalWizardState.eventToEdit));
+  }
 
-            <!-- GRUPO 2: CONTEXTO E REAÇÃO -->
-            <div class="ep-form-group">
-              <label>O que aconteceu?</label>
-              <textarea id="mfWhatHappened" rows="2" placeholder="Resumo factual do acontecimento...">${esc(ev.whatHappened || '')}</textarea>
-            </div>
+  function saveFromModal() {
+    saveStepInputs();
+    const d = modalWizardState.formData;
+    if (!d.name) {
+      alert('Por favor, preencha o título do evento.');
+      return;
+    }
 
-            <div class="ep-form-grid-3">
-              <div class="ep-form-group">
-                <label>Direção Inicial</label>
-                <select id="mfDirection">
-                  <option value="Alta" ${ev.initialDirection === 'Alta' ? 'selected' : ''}>Alta ↗</option>
-                  <option value="Baixa" ${ev.initialDirection === 'Baixa' ? 'selected' : ''}>Baixa ↘</option>
-                  <option value="Neutra" ${(!ev.initialDirection || ev.initialDirection === 'Neutra') ? 'selected' : ''}>Neutra ⬌</option>
-                </select>
-              </div>
-              <div class="ep-form-group">
-                <label>Gap Inicial</label>
-                <input type="text" id="mfGap" value="${esc(ev.gap || '')}" placeholder="Ex: +1.2%" />
-              </div>
-              <div class="ep-form-group">
-                <label>Volume Relativo</label>
-                <input type="text" id="mfVolume" value="${esc(ev.volume || '')}" placeholder="Ex: 2.5x média" />
-              </div>
-            </div>
+    try {
+      let saved;
+      if (modalWizardState.eventToEdit && modalWizardState.eventToEdit.id) {
+        saved = Model.updateEvent(modalWizardState.eventToEdit.id, d);
+      } else {
+        saved = Model.addEvent(d);
+      }
 
-            <div class="ep-form-grid-2">
-              <div class="ep-form-group">
-                <label>Comportamento da Volatilidade</label>
-                <select id="mfVolatility">
-                  <option value="Expansão rápida seguida de absorção" ${ev.volatilityBehavior?.includes('absorção') ? 'selected' : ''}>Expansão rápida seguida de absorção</option>
-                  <option value="Volatilidade unidirecional sem retorno" ${ev.volatilityBehavior?.includes('unidirecional') ? 'selected' : ''}>Volatilidade unidirecional sem retorno</option>
-                  <option value="Falso rompimento com reversão rápida" ${ev.volatilityBehavior?.includes('reversão') ? 'selected' : ''}>Falso rompimento com reversão rápida</option>
-                  <option value="Reação fraca / neutra" ${ev.volatilityBehavior?.includes('neutra') ? 'selected' : ''}>Reação fraca / neutra</option>
-                </select>
-              </div>
-              <div class="ep-form-group">
-                <label>Duração do Impacto</label>
-                <input type="text" id="mfDuration" value="${esc(ev.impactDuration || '')}" placeholder="Ex: 2 horas / 3 dias" />
-              </div>
-            </div>
+      // Fecha modal
+      const modalEl = document.getElementById('epSteppedModalContainer');
+      if (modalEl) modalEl.remove();
 
-            <!-- GRUPO 3: ANÁLISE OPERACIONAL -->
-            <div class="ep-form-group">
-              <label>Como isso afeta meu trading?</label>
-              <textarea id="mfTrading" rows="2" placeholder="Regras de proteção, setups permitidos, posturas a adotar...">${esc(ev.tradingImplications || '')}</textarea>
-            </div>
+      state.selectedEventId = saved.id;
+      loadData().then(render);
 
-            <div class="ep-form-group" style="background:#f0fdf4;padding:12px;border-radius:10px;border:1px solid #a7f3d0;">
-              <label style="color:#047857;">Lição para o futuro (Memória Operacional)</label>
-              <textarea id="mfLessons" rows="2" style="border-color:#6ee7b7;" placeholder="O que aprendi com este evento para nunca esquecer na próxima vez...">${esc(ev.lessonsLearned || '')}</textarea>
-            </div>
-
-            <div class="ep-form-group">
-              <label>Tags (separadas por vírgula)</label>
-              <input type="text" id="mfTags" value="${esc(Array.isArray(ev.tags) ? ev.tags.join(', ') : '')}" placeholder="Fed, Inflação, Juros, Big Tech" />
-            </div>
-          </div>
-
-          <div class="ep-modal-foot">
-            <button type="button" class="ep-btn-secondary" onclick="document.getElementById('epEventModal').remove()">Cancelar</button>
-            <button type="submit" class="ep-btn-primary">${isEditing ? 'Atualizar Evento' : 'Salvar no Playbook'}</button>
-          </div>
-        </form>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    modal.querySelector('#epEventForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = modal.querySelector('#mfName').value.trim();
-      const date = modal.querySelector('#mfDate').value;
-      const time = modal.querySelector('#mfTime').value;
-      const country = modal.querySelector('#mfCountry').value;
-      const category = modal.querySelector('#mfCategory').value;
-      const impact = Number(modal.querySelector('#mfImpact').value) || 3;
-      const affectedAssets = modal.querySelector('#mfAssets').value;
-      const whatHappened = modal.querySelector('#mfWhatHappened').value;
-      const initialDirection = modal.querySelector('#mfDirection').value;
-      const gap = modal.querySelector('#mfGap').value;
-      const volume = modal.querySelector('#mfVolume').value;
-      const volatilityBehavior = modal.querySelector('#mfVolatility').value;
-      const impactDuration = modal.querySelector('#mfDuration').value;
-      const tradingImplications = modal.querySelector('#mfTrading').value;
-      const lessonsLearned = modal.querySelector('#mfLessons').value;
-      const tagsRaw = modal.querySelector('#mfTags').value;
-      const tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
-
-      const payload = {
-        name,
-        date,
-        eventDate: date,
-        time,
-        eventTime: time,
-        country,
-        category,
-        impact,
-        relatedAssets: affectedAssets,
-        affectedAssets,
-        description: whatHappened,
-        whatHappened,
-        initialDirection,
-        gap,
-        volume,
-        volatilityBehavior,
-        impactDuration,
-        tradingImplications,
-        lessonsLearned,
-        tags
-      };
-
-      try {
-        if (isEditing) {
-          Model.updateEvent(ev.id, payload);
-          state.selectedEventId = ev.id;
-        } else {
-          const created = Model.addEvent(payload);
-          state.selectedEventId = created.id;
-        }
-
-        modal.remove();
-        loadData().then(render);
-
-        // Se a Central de Mercado estiver visível, atualiza
-        if (window.MarketCentral && typeof window.MarketCentral.refresh === 'function') {
-          window.MarketCentral.refresh();
-        }
-
-        // Sincroniza com Storm Alert no Desktop e Dashboard
-        const isExtreme = Number(payload.impact) >= 5 || String(payload.category).toUpperCase() === 'BLACK SWAN';
+      // Dispara alarme ou e-mail se impacto for extremo (Nível 5 ou Black Swan)
+      if (Number(saved.impact) >= 5 || saved.category === 'Black Swan') {
         if (typeof window !== 'undefined') {
           if (window.StormAlert && typeof window.StormAlert.refresh === 'function') {
             window.StormAlert.refresh();
           }
           if (window.TodayCockpit && typeof window.TodayCockpit.render === 'function') {
-            const cockpitRoot = document.getElementById('todayCockpitRoot') || document.querySelector('.today-cockpit-root');
-            if (cockpitRoot) window.TodayCockpit.render(cockpitRoot);
-          }
-          if (window.WealthDashboardV2 && typeof window.WealthDashboardV2.render === 'function') {
-            const dashRoot = document.getElementById('wealthDashboardRoot') || document.querySelector('.wealth-dashboard-root');
-            if (dashRoot) window.WealthDashboardV2.render(dashRoot);
-          }
-
-          if (isExtreme) {
-            if (typeof window.showToast === 'function') {
-              window.showToast('🚨 Storm Alert ativado! Evento Extremo "' + payload.name + '" registrado no sistema.');
-            }
-
-            // Dispara e-mail de notificação para o trader
-            const userEmail = (window.currentUser && window.currentUser.email) || (window.healthyTrendUser && window.healthyTrendUser.email) || 'trader@healthytrendtrader.com';
-            const displayName = (window.currentUser && (window.currentUser.displayName || window.currentUser.name)) || 'Trader';
-            const openCount = (window.StormAlertModel && typeof window.StormAlertModel.resolveOpenPositionsCount === 'function')
-              ? window.StormAlertModel.resolveOpenPositionsCount()
-              : 8;
-            const cutoffDate = (window.StormAlertModel && typeof window.StormAlertModel.resolveCutoffSession === 'function')
-              ? window.StormAlertModel.resolveCutoffSession(payload, 1)?.cutoffDate
-              : null;
-            const cutoffFormatted = cutoffDate && window.StormAlertModel
-              ? window.StormAlertModel.formatCutoffSessionBR(cutoffDate)
-              : 'Fechamento do pregão anterior';
-            const dateFormatted = window.StormAlertModel
-              ? window.StormAlertModel.formatDateWithWeekdayBR(payload.date)
-              : payload.date;
-
-            const emailPayload = {
-              email: userEmail,
-              displayName: displayName,
-              openPositionsCount: openCount,
-              event: {
-                name: payload.name,
-                fullName: payload.name,
-                categoryLabel: (payload.category || 'Macro') + ' (Extremo)',
-                eventDate: payload.date,
-                eventDateFormatted: dateFormatted,
-                cutoffFormatted: cutoffFormatted
-              }
-            };
-            if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
-              window.healthyTrendApi.request('/api/storm-alert/notify-email', {
-                method: 'POST',
-                body: emailPayload
-              }).catch(() => {});
-            } else {
-              const apiBase = window.HEALTHY_TREND_API_URL || 'http://localhost:8787';
-              fetch(`${apiBase}/api/storm-alert/notify-email`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(emailPayload)
-              }).catch(() => {});
-            }
+            window.TodayCockpit.render();
           }
         }
-      } catch (err) {
-        alert(err.message);
       }
-    });
+    } catch (err) {
+      alert(`Erro ao salvar evento: ${err.message}`);
+    }
   }
 
-  function openEditModal(eventId) {
-    const ev = Model.getEventById(eventId);
+  function openEditModal(id) {
+    const ev = Model.getEventById(id);
     if (!ev) return;
     openCreateModal(ev);
   }
 
-  function confirmDelete(eventId) {
-    const ev = Model.getEventById(eventId);
+  function confirmDelete(id) {
+    const ev = Model.getEventById(id);
     if (!ev) return;
-    if (confirm(`Tem certeza que deseja excluir o evento "${ev.name}"? Esta ação removerá o registro e suas evidências.`)) {
-      Model.deleteEvent(eventId);
-      loadData().then(render);
-      if (window.MarketCentral && typeof window.MarketCentral.refresh === 'function') {
-        window.MarketCentral.refresh();
-      }
-      if (typeof window !== 'undefined') {
-        if (window.StormAlert && typeof window.StormAlert.refresh === 'function') {
-          window.StormAlert.refresh();
-        }
-        if (window.TodayCockpit && typeof window.TodayCockpit.render === 'function') {
-          const cockpitRoot = document.getElementById('todayCockpitRoot') || document.querySelector('.today-cockpit-root');
-          if (cockpitRoot) window.TodayCockpit.render(cockpitRoot);
-        }
-        if (window.WealthDashboardV2 && typeof window.WealthDashboardV2.render === 'function') {
-          const dashRoot = document.getElementById('wealthDashboardRoot') || document.querySelector('.wealth-dashboard-root');
-          if (dashRoot) window.WealthDashboardV2.render(dashRoot);
-        }
-      }
+    if (!confirm(`Tem certeza que deseja excluir o evento "${ev.name}"?`)) return;
+
+    Model.deleteEvent(id);
+    if (state.selectedEventId === id) state.selectedEventId = null;
+
+    if (typeof window !== 'undefined' && window.StormAlert && typeof window.StormAlert.refresh === 'function') {
+      window.StormAlert.refresh();
     }
+    loadData().then(render);
   }
 
+  /* EVIDENCE MODAL & LIGHTBOX */
   function openEvidenceModal(eventId) {
     const ev = Model.getEventById(eventId);
     if (!ev) return;
 
-    const existing = document.getElementById('epEvidenceModal');
-    if (existing) existing.remove();
+    let modalEl = document.getElementById('epEvidenceModal');
+    if (!modalEl) {
+      modalEl = document.createElement('div');
+      modalEl.id = 'epEvidenceModal';
+      modalEl.className = 'ep-modal-backdrop';
+      document.body.appendChild(modalEl);
+    }
 
-    const modal = document.createElement('div');
-    modal.id = 'epEvidenceModal';
-    modal.className = 'ep-modal-backdrop';
-    modal.innerHTML = `
-      <div class="ep-modal-card" style="max-width:520px;">
-        <div class="ep-modal-head">
-          <h3>Anexar Evidência / Print</h3>
+    modalEl.innerHTML = `
+      <div class="ep-stepped-modal" style="max-width:540px;">
+        <div class="ep-stepped-modal-header">
+          <div class="ep-modal-title-col">
+            <h3>Adicionar Screenshot ou Evidência</h3>
+            <p>${esc(ev.name)}</p>
+          </div>
           <button type="button" class="ep-modal-close-btn" onclick="document.getElementById('epEvidenceModal').remove()">✕</button>
         </div>
 
-        <form id="epEvidenceForm">
-          <div class="ep-modal-body">
-            <div class="ep-form-group">
-              <label>Momento da Evidência</label>
-              <select id="evPhase">
-                <option value="during">Durante o evento (Reação imediata / Gap)</option>
-                <option value="before">Antes do evento (Estrutura prévia / Contexto)</option>
-                <option value="after">Depois do evento (Continuação / Absorção)</option>
-                <option value="news">Notícia / Comunicado oficial</option>
-                <option value="other">Outra evidência</option>
-              </select>
-            </div>
-
-            <div class="ep-form-group">
-              <label>Arquivo de Imagem (PNG, JPG, WebP)</label>
-              <input type="file" id="evFileInput" accept="image/*" required />
-            </div>
-
-            <div class="ep-form-group">
-              <label>Legenda</label>
-              <input type="text" id="evCaption" placeholder="Ex: Reação imediata no gráfico de 15 minutos" required />
-            </div>
-
-            <div class="ep-form-group">
-              <label>Observação / Descrição Técnica</label>
-              <textarea id="evDescription" rows="2" placeholder="Ex: Absorção compradora no teste da EMA 20 com volume 3x maior..."></textarea>
-            </div>
-
-            <div id="evPreviewWrap" style="display:none;margin-top:10px;text-align:center;">
-              <img id="evPreviewImg" src="" style="max-height:160px;max-width:100%;border-radius:8px;border:1px solid #e2e8f0;" />
-            </div>
+        <div class="ep-step-body">
+          <div class="ep-form-group">
+            <label class="ep-form-label">Momento / Fase da Evidência</label>
+            <select id="eviPhase" class="ep-form-select">
+              <option value="during">Durante o evento (Reação imediata / Gap)</option>
+              <option value="before">Antes do evento (Estrutura anterior)</option>
+              <option value="after">Depois do evento (Consolidação subsequente)</option>
+              <option value="news">Notícias e Comunicados Oficiais</option>
+              <option value="other">Outra evidência</option>
+            </select>
           </div>
 
-          <div class="ep-modal-foot">
-            <button type="button" class="ep-btn-secondary" onclick="document.getElementById('epEvidenceModal').remove()">Cancelar</button>
-            <button type="submit" class="ep-btn-primary" id="evSubmitBtn">Salvar Evidência</button>
+          <div class="ep-form-group">
+            <label class="ep-form-label">Legenda da Imagem</label>
+            <input type="text" id="eviCaption" class="ep-form-input" placeholder="Ex: Reação de abertura no gráfico de 15 minutos" />
           </div>
-        </form>
+
+          <div class="ep-form-group">
+            <label class="ep-form-label">Arquivo de Imagem (PNG, JPG, WebP)</label>
+            <input type="file" id="eviFile" accept="image/*" class="ep-form-input" />
+          </div>
+
+          <div class="ep-form-group">
+            <label class="ep-form-label">Ou URL direta da Imagem</label>
+            <input type="url" id="eviUrl" class="ep-form-input" placeholder="https://..." />
+          </div>
+        </div>
+
+        <div class="ep-stepped-modal-footer">
+          <button type="button" class="ep-btn-footer-prev" onclick="document.getElementById('epEvidenceModal').remove()">
+            Cancelar
+          </button>
+          <button type="button" class="ep-btn-footer-save" onclick="window.EventPlaybook.saveEvidence('${esc(eventId)}')">
+            Salvar Evidência ✓
+          </button>
+        </div>
       </div>
     `;
-
-    document.body.appendChild(modal);
-
-    const fileInput = modal.querySelector('#evFileInput');
-    const previewWrap = modal.querySelector('#evPreviewWrap');
-    const previewImg = modal.querySelector('#evPreviewImg');
-
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          previewImg.src = e.target.result;
-          previewWrap.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
-    modal.querySelector('#epEvidenceForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const file = fileInput.files[0];
-      if (!file) return;
-
-      const phase = modal.querySelector('#evPhase').value;
-      const caption = modal.querySelector('#evCaption').value.trim();
-      const description = modal.querySelector('#evDescription').value.trim();
-      const submitBtn = modal.querySelector('#evSubmitBtn');
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Enviando...';
-
-      try {
-        let imageUrl = '';
-        if (root.healthyTrendApi?.uploadFile) {
-          try {
-            const uploaded = await root.healthyTrendApi.uploadFile('/api/event-playbook/attachments', file);
-            if (uploaded?.attachment?.url) {
-              imageUrl = uploaded.attachment.url;
-            }
-          } catch (_) {}
-        }
-
-        if (!imageUrl) {
-          imageUrl = await new Promise((resolve) => {
-            const r = new FileReader();
-            r.onload = ev => resolve(ev.target.result);
-            r.readAsDataURL(file);
-          });
-        }
-
-        Model.addScreenshotToEvent(eventId, {
-          type: phase,
-          url: imageUrl,
-          caption,
-          description
-        });
-
-        modal.remove();
-        loadData().then(render);
-      } catch (err) {
-        alert('Erro ao salvar evidência: ' + err.message);
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Salvar Evidência';
-      }
-    });
   }
 
-  function removeScreenshot(eventId, screenshotId) {
-    if (confirm('Deseja remover esta evidência?')) {
-      Model.removeScreenshotFromEvent(eventId, screenshotId);
+  async function saveEvidence(eventId) {
+    const phaseSelect = document.getElementById('eviPhase');
+    const captionInput = document.getElementById('eviCaption');
+    const fileInput = document.getElementById('eviFile');
+    const urlInput = document.getElementById('eviUrl');
+
+    const type = phaseSelect ? phaseSelect.value : 'during';
+    const caption = captionInput ? captionInput.value.trim() : 'Evidência gráfica';
+
+    let imageUrl = urlInput ? urlInput.value.trim() : '';
+
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      const file = fileInput.files[0];
+      try {
+        imageUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      } catch (_) {
+        alert('Falha ao processar o arquivo de imagem.');
+        return;
+      }
+    }
+
+    if (!imageUrl) {
+      alert('Por favor, selecione um arquivo de imagem ou informe uma URL.');
+      return;
+    }
+
+    try {
+      Model.addScreenshotToEvent(eventId, {
+        type,
+        caption,
+        url: imageUrl
+      });
+
+      const modalEl = document.getElementById('epEvidenceModal');
+      if (modalEl) modalEl.remove();
+
       loadData().then(render);
+    } catch (err) {
+      alert(`Erro ao adicionar evidência: ${err.message}`);
     }
   }
 
-  function openLightbox(url, caption) {
-    const existing = document.getElementById('epLightbox');
-    if (existing) existing.remove();
-
-    const lb = document.createElement('div');
-    lb.id = 'epLightbox';
-    lb.className = 'ep-modal-backdrop';
-    lb.style.cursor = 'zoom-out';
-    lb.onclick = (e) => {
-      if (e.target !== lb && e.target.tagName === 'IMG') return;
-      lb.remove();
-    };
+  function openLightbox(url, caption = '') {
+    let lb = document.getElementById('epLightbox');
+    if (!lb) {
+      lb = document.createElement('div');
+      lb.id = 'epLightbox';
+      lb.className = 'ep-modal-backdrop';
+      lb.onclick = (e) => {
+        if (e.target === lb || e.target.classList.contains('ep-lightbox-close')) {
+          lb.remove();
+        }
+      };
+      document.body.appendChild(lb);
+    }
 
     lb.innerHTML = `
       <div style="position:relative;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;align-items:center;">
-        <button type="button" style="position:absolute;top:-36px;right:0;background:transparent;border:none;color:#fff;font-size:24px;cursor:pointer;" onclick="document.getElementById('epLightbox').remove()">✕</button>
-        <img src="${esc(url)}" class="ep-lightbox-img" alt="${esc(caption)}" />
-        ${caption ? `<div class="ep-lightbox-caption">${esc(caption)}</div>` : ''}
+        <button type="button" class="ep-lightbox-close" style="position:absolute;top:-40px;right:0;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;">✕</button>
+        <img src="${esc(url)}" alt="${esc(caption)}" style="max-width:100%;max-height:80vh;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);" />
+        ${caption ? `<p style="color:#f1f5f9;margin-top:12px;font-size:14px;font-weight:600;text-align:center;">${esc(caption)}</p>` : ''}
       </div>
     `;
-
-    document.body.appendChild(lb);
   }
 
-  function setEvidencePhase(phase) {
-    state.activeEvidencePhase = phase;
-    render();
-  }
-
-  async function init() {
-    await loadData();
-    render();
-  }
-
-  root.EventPlaybook = {
-    init,
-    render,
-    refresh: () => loadData().then(render),
+  // Public Interface
+  const api = {
+    render: () => loadData().then(render),
     selectEvent,
     setCategory,
     applyFilters,
@@ -994,26 +1033,28 @@
     setEvidencePhase,
     openCreateModal,
     openEditModal,
+    confirmDelete,
     openEvidenceModal,
-    removeScreenshot,
+    saveEvidence,
     openLightbox,
-    confirmDelete
+    goToStep,
+    nextStep,
+    prevStep,
+    setModalCategory,
+    setModalImpact,
+    saveFromModal
   };
 
-  // Inicializa quando a página for carregada ou quando a tela for acessada
-  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+  root.EventPlaybook = api;
+
+  // Carrega automaticamente quando o DOM estiver pronto se o elemento estiver ativo
+  if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
-      if (document.getElementById('eventPlaybookRoot')) {
-        init();
+      const rootEl = document.getElementById('eventPlaybookRoot');
+      if (rootEl && rootEl.closest('.page.active')) {
+        api.render();
       }
     });
   }
 
-  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-    window.addEventListener('healthyTrend:workspace-loaded', () => {
-      if (typeof document !== 'undefined' && document.getElementById('eventPlaybookRoot')) {
-        init();
-      }
-    });
-  }
-})(typeof window !== 'undefined' ? window : this);
+})(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -201,7 +201,8 @@
   function removeCustomEvent(eventId) {
     const pb = getPlaybook();
     if (pb && typeof pb.deleteEvent === 'function') {
-      return pb.deleteEvent(eventId);
+      pb.deleteEvent(eventId);
+      return getCustomEvents();
     }
     const current = getCustomEvents();
     const filtered = current.filter(it => it.id !== eventId);
