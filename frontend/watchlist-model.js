@@ -41,6 +41,8 @@
     'relative-strength': { id: 'relative-strength', label: 'Relative Strength', badge: 'Força Relativa' },
     'fundamentalista': { id: 'fundamentalista', label: 'Fundamentalista', badge: 'Fundamentos' },
     'scans': { id: 'scans', label: 'Scans de Mercado', badge: 'Scan Técnico' },
+    'volatility-engine': { id: 'volatility-engine', label: 'Volatility Engine', badge: 'Volatility Swing' },
+    'volatility-scan': { id: 'volatility-scan', label: 'Scan de Volatilidade', badge: 'IFR2 Sobrevendido' },
     'manual': { id: 'manual', label: 'Manual', badge: 'Manual' }
   };
 
@@ -233,12 +235,16 @@
       : (Array.isArray(raw.whyObserving) && raw.whyObserving.length ? raw.whyObserving : []);
 
     const snapshot = (raw.snapshot && typeof raw.snapshot === 'object') ? raw.snapshot : {};
+    const rawStrat = String(raw.strategy_type || raw.strategyType || raw.strategy || '').trim().toUpperCase();
+    const strategyType = (rawStrat === 'VOLATILITY_TRADING' || rawStrat === 'VOLATILITY' || origin.includes('volatility')) ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
 
     return {
       id: raw.id || `opp-${symbol}-${Date.now()}`,
       ticker: symbol,
       name: raw.name || raw.shortName || symbol,
       sector: raw.sector || raw.setor || 'Outros',
+      strategyType,
+      strategy_type: strategyType,
       origin,
       status,
       thesis: typeof raw.thesis === 'string' ? raw.thesis : '',
@@ -258,6 +264,7 @@
     const sector = String(filters.sector || 'todos').trim().toLowerCase();
     const origin = String(filters.origin || 'todos').trim().toLowerCase();
     const sortBy = String(filters.sort || 'recentes').trim().toLowerCase();
+    const strategy = String(filters.strategy || filters.strategyType || 'todos').trim().toLowerCase();
 
     let filtered = list.filter((item) => {
       if (search) {
@@ -278,6 +285,12 @@
       if (origin !== 'todos') {
         const hasOrigin = item.origin === origin || (Array.isArray(item.sources) && item.sources.some((s) => s.origin === origin));
         if (!hasOrigin) return false;
+      }
+
+      if (strategy !== 'todos' && strategy !== 'all') {
+        const itemStrat = String(item.strategyType || item.strategy_type || 'TREND_FOLLOWING').toLowerCase();
+        const targetStrat = strategy.includes('volatili') ? 'volatility_trading' : 'trend_following';
+        if (itemStrat !== targetStrat) return false;
       }
 
       return true;

@@ -116,6 +116,10 @@
       if (typeof item === 'number') {
         r = item;
       } else if (typeof item === 'object') {
+        const strat = String(item.strategy_type || item.strategyType || '').toUpperCase();
+        if (strat.includes('VOLATILITY')) {
+          continue; // Volatility Trading opera sem stop técnico inicial em R; preserva pureza amostral do SQN
+        }
         // Suporte unificado para:
         // - TradeSimulator / Backtest: item.resultR, item.netResultR
         // - Workspace / Diário: item.r, item.netR, item.realizedR

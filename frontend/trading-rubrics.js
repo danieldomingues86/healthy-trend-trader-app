@@ -5,7 +5,49 @@
       LiquidityGateModel = require('./liquidity-gate-model');
     } catch {}
   }
+  const DEFAULT_VOLATILITY_POLICY = Object.freeze({
+    strategyType: 'VOLATILITY_TRADING',
+    version: 'volatility-v1',
+    criteria: [
+      { key: 'primaryTrend', label: 'Tendência Primária (SMA 200)', description: 'Fechamento acima da média longa estrutural e inclinação positiva', weight: 20 },
+      { key: 'meanReversionTrigger', label: 'Gatilho de Sobrevenda (IFR 2)', description: 'Intensidade e profundidade da sobrevenda do IFR(2) abaixo de 10', weight: 25 },
+      { key: 'distanceShortMa', label: 'Afastamento da Média Curta (SMA 7)', description: 'Distância percentual abaixo da SMA(7) que fornece potencial de repique', weight: 15 },
+      { key: 'volatilityContext', label: 'Contexto de Volatilidade (ATR)', description: 'Volatilidade saudável (ATR%) que viabiliza expansão e recuperação rápida', weight: 15 },
+      { key: 'liquidity', label: 'Liquidez Operacional (Liquidity Gate)', description: 'Aprovação mandatória na trava global de volume financeiro diário', weight: 10 },
+      { key: 'historicalEdge', label: 'Edge Estatístico do Setup', description: 'Taxa de acerto e consistência histórica da reversão à média no ativo', weight: 10 },
+      { key: 'executionExposure', label: 'Elegibilidade e Execução', description: 'Gap tolerável na abertura, sem bloqueio de Blacklist ou limite de carteira', weight: 5 }
+    ],
+    ratingScale: {
+      bad: { label: 'Ruim', score: 0 },
+      medium: { label: 'Médio', score: 0.55 },
+      good: { label: 'Bom', score: 1 }
+    },
+    grades: [
+      { grade: 'A', minScore: 85, riskPct: 0.004 },
+      { grade: 'B', minScore: 70, riskPct: 0.002 },
+      { grade: 'C', minScore: 50, riskPct: 0.001 },
+      { grade: 'D', minScore: -Infinity, riskPct: 0 }
+    ]
+  });
+
+  const STRATEGY_RUBRIC_VERSIONS = Object.freeze({
+    TREND_FOLLOWING: 'trend-v2',
+    VOLATILITY_TRADING: 'volatility-v1'
+  });
+
   const DEFAULT_POLICY={
+    volatilityRubric: DEFAULT_VOLATILITY_POLICY,
+    volatility: Object.freeze({
+      activeProfileId: 'vol-ifr2-standard',
+      fixedCapital: 7500,
+      ifrPeriod: 2,
+      oversoldLevel: 10,
+      shortMaPeriod: 7,
+      longMaPeriod: 200,
+      maxHoldingSessions: 7,
+      minDailyFinancialVolume: 500000,
+      minDailyTrades: 200
+    }),
     criteria:[
       {key:'trendQuality',label:'Contexto do Ativo (Diário)',weight:25},
       {key:'marketCycle',label:'Contexto do Mercado',weight:20},
@@ -126,6 +168,43 @@
       minDailyTrades:Math.max(10,Math.floor(finite(rawLiquidity.minDailyTrades,DEFAULT_POLICY.liquidityGate.minDailyTrades))),
       maxCalendarDaysSpan:Math.max(25,Math.floor(finite(rawLiquidity.maxCalendarDaysSpan,DEFAULT_POLICY.liquidityGate.maxCalendarDaysSpan)))
     };
+        const rawVol = policy.volatilityRubric || {};
+    const volCriteria = DEFAULT_VOLATILITY_POLICY.criteria.map(item => {
+      const saved = (rawVol.criteria || policy.volatilityCriteria || []).find(c => c?.key === item.key) || {};
+      return {
+        ...item,
+        ...saved,
+        key: item.key,
+        label: item.label,
+        weight: Math.max(0, finite(saved.weight, item.weight))
+      };
+    });
+    const volGrades = DEFAULT_VOLATILITY_POLICY.grades.map(item => {
+      const saved = (rawVol.grades || policy.volatilityGrades || []).find(g => g?.grade === item.grade) || {};
+      const oldMin = Number(saved.minScore);
+      const minScore = item.grade === 'D' ? -Infinity : (!Number.isFinite(oldMin) ? item.minScore : oldMin);
+      const riskPct = item.grade === 'D' ? 0 : Math.max(0, finite(saved.riskPct, item.riskPct));
+      return { grade: item.grade, minScore, riskPct };
+    });
+    const volatilityRubric = {
+      strategyType: 'VOLATILITY_TRADING',
+      version: 'volatility-v1',
+      criteria: volCriteria,
+      ratingScale: { ...DEFAULT_VOLATILITY_POLICY.ratingScale },
+      grades: volGrades
+    };
+    const rawVolSettings = policy.volatility || {};
+    const volatility = {
+      activeProfileId: String(rawVolSettings.activeProfileId || DEFAULT_POLICY.volatility?.activeProfileId || 'vol-ifr2-standard'),
+      fixedCapital: Math.max(100, finite(rawVolSettings.fixedCapital, 7500)),
+      ifrPeriod: Math.max(1, Math.floor(finite(rawVolSettings.ifrPeriod, 2))),
+      oversoldLevel: Math.max(1, Math.min(99, finite(rawVolSettings.oversoldLevel, 10))),
+      shortMaPeriod: Math.max(1, Math.floor(finite(rawVolSettings.shortMaPeriod, 7))),
+      longMaPeriod: Math.max(5, Math.floor(finite(rawVolSettings.longMaPeriod, 200))),
+      maxHoldingSessions: Math.max(1, Math.floor(finite(rawVolSettings.maxHoldingSessions, 7))),
+      minDailyFinancialVolume: Math.max(1000, finite(rawVolSettings.minDailyFinancialVolume, 500000)),
+      minDailyTrades: Math.max(1, Math.floor(finite(rawVolSettings.minDailyTrades, 200)))
+    };
     const selectedProfile=profiles[policy.selectedProfile]?policy.selectedProfile:DEFAULT_POLICY.selectedProfile;
     return{
       gradingVersion:2,
@@ -140,7 +219,9 @@
       sellIntoStrength:{enabled:settings.enabled!==false,startR:start,endR:end,suggestedPercent:Math.min(100,Math.max(1,finite(settings.suggestedPercent,50)))},
       scaleIn,
       atrVolatility,
-      liquidityGate
+      liquidityGate,
+      volatilityRubric,
+      volatility
     };
   }
 
@@ -159,7 +240,25 @@
     return'defensive';
   }
 
-  function calculateGrade(score,policy){
+  function calculateVolatilityGrade(score, volConfig) {
+    const numericScore = finite(score, 0);
+    const grades = volConfig?.grades || DEFAULT_VOLATILITY_POLICY.grades;
+    const matched = grades.find(item => numericScore >= item.minScore);
+    return (matched || grades[grades.length - 1]).grade;
+  }
+
+  function calculateGrade(score, policy, strategyType) {
+    const normStrat = String(strategyType || '').trim().toUpperCase();
+    const p = normalizePolicy(policy);
+    if (normStrat === 'VOLATILITY_TRADING' || normStrat === 'VOLATILITY') {
+      return calculateVolatilityGrade(score, p.volatilityRubric);
+    }
+    const numericScore = finite(score, 0);
+    const matched = p.grades.find(item => numericScore >= item.minScore);
+    return (matched || p.grades[p.grades.length - 1]).grade;
+  }
+
+  function _oldCalculateGrade_unused(score,policy){
     const p=normalizePolicy(policy),numericScore=finite(score,0),matched=p.grades.find(item=>numericScore>=item.minScore);
     return(matched||p.grades[p.grades.length-1]).grade;
   }
@@ -261,7 +360,7 @@
         display: num !== null ? `Forte (${num})` : 'Forte'
       };
     }
-    if ((hasNum && num < 40) || c.includes('frac') || c.includes('lag') || c.includes('abaixo')) {
+    if ((hasNum && num < 40) || c.includes('frac') || c.includes('lag') || c.includes('abaixo') || c.includes('below')) {
       return {
         score: num,
         tier: 'weak',
@@ -355,7 +454,7 @@
     return getRubricGradeVisual(grade).color;
   }
 
-  function calculateRubric(input={},policy){
+  function calculateTrendFollowingRubric(input={},policy){
     const p=normalizePolicy(policy),ratings={...(input.ratings||{})},profile=profileFor(p,input.profileKey);
     if((Number(input.entry)>0&&Number(input.atr)>0)&&(!ratings.volatility||input.autoVolatility!==false)){
       const autoPct=(Number(input.atr)/Number(input.entry))*100;
@@ -418,7 +517,290 @@
     const riskBudgetPct=isLiquidityApproved?baseBudget:0;
     const qualityAllowed=isLiquidityApproved&&weightsValid&&complete&&grade==='A';
     const isBuyPermitted = isLiquidityApproved && cycleKey !== 'defensive' && cycleKey !== 'unavailable';
-    return{score,maximumScore:100,rawGrade,grade,gradeRiskPct,riskBudgetPct,riskPct:riskBudgetPct,marketCycle:cycleKey,liquidity,isLiquidityApproved,liquidityStatus:isLiquidityApproved?(liquidity?'APROVADO':null):(liquidity?.status||'BLOQUEADO_LIQUIDEZ'),profile,complete,contributions,gates,weightsTotal,weightsValid,qualityAllowed,isBuyPermitted};
+        return {
+      strategyType: 'TREND_FOLLOWING',
+      rubricVersion: 'trend-v2',
+      score,
+      maximumScore: 100,
+      rawGrade,
+      grade,
+      gradeRiskPct,
+      riskBudgetPct,
+      riskPct: riskBudgetPct,
+      marketCycle: cycleKey,
+      liquidity,
+      isLiquidityApproved,
+      liquidityStatus: isLiquidityApproved ? (liquidity ? 'APROVADO' : null) : (liquidity?.status || 'BLOQUEADO_LIQUIDEZ'),
+      profile,
+      complete,
+      contributions,
+      gates,
+      weightsTotal,
+      weightsValid,
+      qualityAllowed,
+      isBuyPermitted
+    };
+  }
+
+  function calculateVolatilityRubric(input = {}, policy) {
+    const p = normalizePolicy(policy);
+    const volConfig = p.volatilityRubric || DEFAULT_VOLATILITY_POLICY;
+    const criteria = volConfig.criteria;
+    const ratingScale = volConfig.ratingScale || DEFAULT_VOLATILITY_POLICY.ratingScale;
+    const grades = volConfig.grades || DEFAULT_VOLATILITY_POLICY.grades;
+    const ratings = { ...(input.ratings || {}) };
+
+    const weightsTotal = criteria.reduce((sum, item) => sum + Number(item.weight || 0), 0);
+    const weightsValid = Math.abs(weightsTotal - 100) < 0.001;
+
+    // Resolução mandatória de Liquidez (Hard Gate inegociável)
+    let liquidity = input.liquidity || null;
+    if (!liquidity && input.candles && LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
+      liquidity = LiquidityGateModel.evaluateLiquidity({
+        candles: input.candles,
+        targetDate: input.targetDate || input.entryDate || input.signalDate,
+        symbol: input.symbol || input.ticker,
+        market: input.market,
+        policy: p
+      });
+    }
+
+    let isLiquidityApproved = true;
+    if (p.liquidityGate?.enabled !== false && liquidity) {
+      if (!liquidity.isEligible) {
+        isLiquidityApproved = false;
+      }
+    }
+
+    const contributions = criteria.map(c => {
+      let selectedRating = ratings[c.key] || input[c.key + 'Rating'] || (typeof input[c.key] === 'string' || (typeof input[c.key] === 'number' && Number.isFinite(input[c.key])) ? input[c.key] : undefined);
+      let value = null;
+
+      // Inferência automática e inteligente de métricas se não houver rating manual
+      if (selectedRating === undefined || selectedRating === null) {
+        if (c.key === 'primaryTrend') {
+          if (input.close !== undefined && input.smaLong !== undefined) {
+            const close = Number(input.close);
+            const smaLong = Number(input.smaLong);
+            if (close <= smaLong) {
+              selectedRating = 'bad';
+              value = 0;
+            } else {
+              const dist = ((close - smaLong) / smaLong) * 100;
+              if (dist >= 3.0) { selectedRating = 'good'; value = 1.0; }
+              else { selectedRating = 'medium'; value = 0.65; }
+            }
+          }
+        } else if (c.key === 'meanReversionTrigger') {
+          const ifr = input.ifr !== undefined ? Number(input.ifr) : (input.rsi !== undefined ? Number(input.rsi) : null);
+          if (ifr !== null && Number.isFinite(ifr)) {
+            if (ifr <= 2.0) { selectedRating = 'good'; value = 1.0; }
+            else if (ifr <= 5.0) { selectedRating = 'good'; value = 0.90; }
+            else if (ifr <= 10.0) { selectedRating = 'medium'; value = 0.70; }
+            else { selectedRating = 'bad'; value = 0; }
+          }
+        } else if (c.key === 'distanceShortMa') {
+          if (input.close !== undefined && input.smaShort !== undefined) {
+            const close = Number(input.close);
+            const smaShort = Number(input.smaShort);
+            if (close >= smaShort) {
+              selectedRating = 'bad';
+              value = 0;
+            } else {
+              const dist = ((smaShort - close) / smaShort) * 100;
+              if (dist >= 2.5) { selectedRating = 'good'; value = 1.0; }
+              else if (dist >= 1.0) { selectedRating = 'medium'; value = 0.65; }
+              else { selectedRating = 'bad'; value = 0.30; }
+            }
+          }
+        } else if (c.key === 'volatilityContext') {
+          const atr = input.atr !== undefined ? Number(input.atr) : null;
+          const entry = Number(input.entry || input.close || 0);
+          if (atr !== null && entry > 0) {
+            const atrPct = (atr / entry) * 100;
+            const autoVol = classifyAtrVolatility(atrPct, p.atrVolatility);
+            if (autoVol?.rating === 'good') { selectedRating = 'good'; value = 1.0; }
+            else if (autoVol?.rating === 'medium') { selectedRating = 'medium'; value = 0.70; }
+            else { selectedRating = 'bad'; value = 0.20; }
+          }
+        } else if (c.key === 'liquidity') {
+          if (liquidity) {
+            if (liquidity.isEligible) { selectedRating = 'good'; value = 1.0; }
+            else { selectedRating = 'bad'; value = 0; }
+          } else {
+            selectedRating = 'good';
+            value = 1.0;
+          }
+        } else if (c.key === 'historicalEdge') {
+          const wr = input.winRate !== undefined ? Number(input.winRate) : (input.historicalWinRate !== undefined ? Number(input.historicalWinRate) : null);
+          if (wr !== null && Number.isFinite(wr)) {
+            if (wr >= 60) { selectedRating = 'good'; value = 1.0; }
+            else if (wr >= 50) { selectedRating = 'medium'; value = 0.65; }
+            else { selectedRating = 'bad'; value = 0.25; }
+          } else {
+            selectedRating = 'medium';
+            value = 0.55;
+          }
+        } else if (c.key === 'executionExposure') {
+          const gap = input.entryGapPct !== undefined ? Math.abs(Number(input.entryGapPct)) : (input.gapPct !== undefined ? Math.abs(Number(input.gapPct)) : null);
+          if (gap !== null && Number.isFinite(gap)) {
+            if (gap <= 2.0) { selectedRating = 'good'; value = 1.0; }
+            else if (gap <= 4.0) { selectedRating = 'medium'; value = 0.55; }
+            else { selectedRating = 'bad'; value = 0; }
+          } else {
+            selectedRating = 'good';
+            value = 1.0;
+          }
+        }
+      }
+
+      if (value === null) {
+        if (typeof selectedRating === 'number') {
+          value = Math.max(0, Math.min(1, finite(selectedRating, 0)));
+        } else if (typeof selectedRating === 'string' && ratingScale[selectedRating]) {
+          value = ratingScale[selectedRating].score;
+        } else {
+          value = 0;
+          selectedRating = 'bad';
+        }
+      }
+
+      const points = Number((value * c.weight).toFixed(2));
+      return {
+        key: c.key,
+        label: c.label,
+        description: c.description,
+        selectedRating: typeof selectedRating === 'string' ? selectedRating : (value >= 0.9 ? 'good' : (value >= 0.5 ? 'medium' : 'bad')),
+        rating: typeof selectedRating === 'string' ? selectedRating : (value >= 0.9 ? 'good' : (value >= 0.5 ? 'medium' : 'bad')),
+        value,
+        weight: c.weight,
+        points
+      };
+    });
+
+    const complete = criteria.every(c => Boolean(ratings[c.key] || input[c.key + 'Rating'] || input[c.key] !== undefined));
+    const score = Number(contributions.reduce((sum, item) => sum + item.points, 0).toFixed(1));
+    const rawGrade = calculateVolatilityGrade(score, volConfig);
+    const gates = [];
+    let grade = rawGrade;
+
+    if (!weightsValid) {
+      gates.push({ key: 'weights', status: 'blocked', message: 'Os pesos da Rubric de Volatilidade precisam totalizar 100 pontos antes de liberar risco.' });
+    }
+
+    // Hard Gate: Liquidity Gate (inegociável, bloqueio automático e Grade D)
+    if (!isLiquidityApproved) {
+      grade = 'D';
+      gates.push({
+        key: 'liquidity',
+        status: 'blocked',
+        code: liquidity?.code || 'LIQUIDITY_BLOCKED',
+        message: `NÃO ELEGÍVEL / BLOQUEADO POR LIQUIDEZ: ${liquidity?.reason || 'Volume financeiro ou histórico insuficiente para atender à trava global.'}`
+      });
+    } else if (liquidity) {
+      gates.push({
+        key: 'liquidity',
+        status: 'approved',
+        code: 'APPROVED',
+        message: liquidity.reason || 'Liquidez aprovada.'
+      });
+    }
+
+    // Gate Estrutural: Tendência Primária (SMA 200)
+    const trendContrib = contributions.find(c => c.key === 'primaryTrend');
+    if (trendContrib && trendContrib.value < 0.5) {
+      if (grade === 'A' || grade === 'B') grade = 'C';
+      gates.push({
+        key: 'primaryTrend',
+        status: 'limited',
+        message: 'Filtro estrutural reprovado: Fechamento abaixo da SMA200 impede notas de excelência no Volatility Swing.'
+      });
+    }
+
+    // Gate de Gatilho: IFR2 Sobrevenda
+    const triggerContrib = contributions.find(c => c.key === 'meanReversionTrigger');
+    if (triggerContrib && triggerContrib.value < 0.5) {
+      if (grade === 'A' || grade === 'B') grade = 'C';
+      gates.push({
+        key: 'meanReversionTrigger',
+        status: 'limited',
+        message: 'Gatilho de sobrevenda não confirmado: IFR(2) precisa estar abaixo do limiar configurado para validar a reversão à média.'
+      });
+    }
+
+    // Exigência de Excelência para Grade A
+    if (grade === 'A') {
+      if (score < 85) {
+        grade = 'B';
+        gates.push({ key: 'score', status: 'limited', message: 'Grade A de Volatilidade exige pelo menos 85 pontos.' });
+      }
+      if ((trendContrib && trendContrib.value < 0.9) || (triggerContrib && triggerContrib.value < 0.9)) {
+        grade = 'B';
+        gates.push({ key: 'excellence', status: 'limited', message: 'Grade A exige excelência tanto na tendência estrutural quanto no gatilho de sobrevenda.' });
+      }
+    }
+
+    const gradeObj = grades.find(item => item.grade === grade) || grades[grades.length - 1];
+    const gradeRiskPct = grade === 'D' ? 0 : gradeObj.riskPct;
+    const baseBudget = (weightsValid && grade !== 'D') ? gradeRiskPct : 0;
+    const riskBudgetPct = isLiquidityApproved ? baseBudget : 0;
+    const qualityAllowed = isLiquidityApproved && weightsValid && grade === 'A';
+    const isBuyPermitted = isLiquidityApproved && grade !== 'D';
+
+    return {
+      strategyType: 'VOLATILITY_TRADING',
+      rubricVersion: volConfig.version || 'volatility-v1',
+      score,
+      maximumScore: 100,
+      rawGrade,
+      grade,
+      gradeRiskPct,
+      riskBudgetPct,
+      riskPct: riskBudgetPct,
+      liquidity,
+      isLiquidityApproved,
+      liquidityStatus: isLiquidityApproved ? (liquidity ? 'APROVADO' : null) : (liquidity?.status || 'BLOQUEADO_LIQUIDEZ'),
+      complete,
+      contributions,
+      gates,
+      weightsTotal,
+      weightsValid,
+      qualityAllowed,
+      isBuyPermitted
+    };
+  }
+
+  function calculateRubric(input = {}, policy) {
+    const rawStrat = String(
+      input.strategyType ||
+      input.strategy_type ||
+      input.strategy ||
+      input.strategyWorkspace ||
+      (typeof globalThis !== 'undefined' && globalThis.StrategyWorkspaceModel && typeof globalThis.StrategyWorkspaceModel.getActiveStrategy === 'function' ? globalThis.StrategyWorkspaceModel.getActiveStrategy() : '') ||
+      'TREND_FOLLOWING'
+    ).toUpperCase();
+
+    if (rawStrat === 'VOLATILITY_TRADING' || rawStrat === 'VOLATILITY') {
+      return calculateVolatilityRubric(input, policy);
+    }
+    return calculateTrendFollowingRubric(input, policy);
+  }
+
+  function getRubricCriteriaForStrategy(strategyType, policy) {
+    const normStrat = String(strategyType || 'TREND_FOLLOWING').trim().toUpperCase();
+    const p = normalizePolicy(policy);
+    if (normStrat === 'VOLATILITY_TRADING' || normStrat === 'VOLATILITY') {
+      return p.volatilityRubric.criteria;
+    }
+    return p.criteria;
+  }
+
+  function getRubricVersion(strategyType) {
+    const normStrat = String(strategyType || 'TREND_FOLLOWING').trim().toUpperCase();
+    if (normStrat === 'VOLATILITY_TRADING' || normStrat === 'VOLATILITY') {
+      return 'volatility-v1';
+    }
+    return 'trend-v2';
   }
 
   function riskBaseOptions(policy={}){return normalizePolicy(policy).grades.map(item=>item.riskPct);}
@@ -492,5 +874,5 @@
     return{projectedHeatPct,projectedPositions,heatAllowed,positionsAllowed,allowed:heatAllowed&&positionsAllowed};
   }
 
-  return{DEFAULT_POLICY,normalizePolicy,normalizeHistoricalGrade,profileFor,marketCycleKey,riskBaseOptions,calculateGrade,calculateRubric,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,classifyAtrVolatility,classifyRelativeStrength,getRubricGradeVisual,getRubricGradeColor};
+  return{DEFAULT_POLICY,DEFAULT_VOLATILITY_POLICY,STRATEGY_RUBRIC_VERSIONS,normalizePolicy,normalizeHistoricalGrade,profileFor,marketCycleKey,riskBaseOptions,calculateGrade,calculateVolatilityGrade,calculateRubric,calculateTrendFollowingRubric,calculateVolatilityRubric,getRubricCriteriaForStrategy,getRubricVersion,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,classifyAtrVolatility,classifyRelativeStrength,getRubricGradeVisual,getRubricGradeColor};
 });

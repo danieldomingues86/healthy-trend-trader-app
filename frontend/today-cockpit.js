@@ -261,6 +261,13 @@
   }
 
   function widgetShell(item, widget, content) {
+    if (item.id === 'storm-alert') {
+      const isCollapsed = Boolean(window.StormAlert?.isCollapsed?.());
+      const collapsedClass = isCollapsed ? ' storm-widget-collapsed' : '';
+      const editControls = dashboardEditing ? `<div class="dashboard-widget-edit-controls" aria-label="Editar ${esc(widget.name)}"><span class="dashboard-widget-drag-handle" title="Arraste para reorganizar">⠿</span><button type="button" class="danger" data-widget-remove="${item.id}" aria-label="Remover ${esc(widget.name)}">×</button></div>` : '';
+      const resizeHandles = dashboardEditing ? `<span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--horizontal" aria-label="Ajustar largura de ${esc(widget.name)}"></span><span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--vertical" aria-label="Ajustar altura de ${esc(widget.name)}"></span><span class="dashboard-widget-resize-handle dashboard-widget-resize-handle--corner" aria-label="Ajustar largura e altura de ${esc(widget.name)}"></span>` : '';
+      return `<article class="dashboard-widget dashboard-widget--storm${collapsedClass}" data-widget-id="${item.id}" data-columns="${item.columns}" data-custom-height="${item.customHeight === true}"${item.customHeight ? ` data-rows="${item.rows}"` : ''}>${editControls}<div class="desktop-widget-body desktop-widget-body--storm"><div class="dashboard-widget-content dashboard-widget-content--storm">${content}</div></div>${resizeHandles}</article>`;
+    }
     const activeCycleData = item.id === 'market-cycle' ? getActiveCycleData(selectedCycleMarket) : null;
     const cycleState = (item.id === 'market-cycle' && activeCycleData)
       ? activeCycleData.state

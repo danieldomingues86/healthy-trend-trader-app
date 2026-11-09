@@ -1,0 +1,492 @@
+/**
+ * HEALTHY TREND TRADER — STRATEGY CONFIGURATION CENTER STYLES (PASSO 3)
+ * Central de Configurações, Parâmetros e Versionamento por Estratégia
+ */
+
+/* ==========================================================================
+   1. TOPBAR BUTTON FOR STRATEGY CONFIG CENTER
+   ========================================================================== */
+.strat-config-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 42, 32, 0.15);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink, #0f2a20);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: 6px;
+  user-select: none;
+}
+
+.strat-config-quick-btn:hover {
+  background: var(--paper-2, #ffffff);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.strat-config-quick-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+/* ==========================================================================
+   2. MODAL BACKDROP & SHELL
+   ========================================================================== */
+.strat-config-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 25, 20, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.strat-config-modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.strat-config-modal-container {
+  background: var(--paper, #f7f9f6);
+  color: var(--ink, #0f2a20);
+  border: 1px solid var(--border, rgba(15, 42, 32, 0.14));
+  border-radius: 20px;
+  width: 100%;
+  max-width: 1180px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.32);
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.strat-config-modal-backdrop.open .strat-config-modal-container {
+  transform: translateY(0) scale(1);
+}
+
+/* ==========================================================================
+   3. MODAL HEADER & STRATEGY TABS
+   ========================================================================== */
+.strat-config-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border, rgba(15, 42, 32, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.5);
+  gap: 16px;
+}
+
+.strat-config-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.strat-config-eyebrow {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #059669;
+}
+
+.strat-config-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--ink, #0f2a20);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.strat-config-header-tabs {
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 3px;
+  border-radius: 999px;
+  user-select: none;
+}
+
+.strat-config-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.strat-config-tab-btn.active {
+  background: var(--paper-2, #ffffff);
+  color: var(--ink, #0f2a20);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.strat-config-close-btn {
+  background: transparent;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.strat-config-close-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--ink, #0f2a20);
+}
+
+/* ==========================================================================
+   4. MODAL BODY & TOOLBAR
+   ========================================================================== */
+.strat-config-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.strat-config-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border, rgba(15, 42, 32, 0.08));
+}
+
+.strat-config-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.strat-config-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.strat-config-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.strat-config-btn.primary {
+  background: #0f2a20;
+  color: #ffffff;
+  border-color: #0f2a20;
+}
+
+.strat-config-btn.primary:hover {
+  background: #164032;
+  box-shadow: 0 2px 6px rgba(15, 42, 32, 0.2);
+}
+
+.strat-config-btn.secondary {
+  background: var(--paper-2, #ffffff);
+  color: var(--ink, #0f2a20);
+  border-color: var(--border, rgba(0, 0, 0, 0.12));
+}
+
+.strat-config-btn.secondary:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   5. PRESET EXPERIMENTS STRIP
+   ========================================================================== */
+.strat-config-presets-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.strat-config-preset-pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px dashed rgba(2, 132, 199, 0.35);
+  background: rgba(2, 132, 199, 0.06);
+  color: #0284c7;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.strat-config-preset-pill:hover {
+  background: rgba(2, 132, 199, 0.14);
+  border-color: #0284c7;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   6. PROFILE CARDS GRID
+   ========================================================================== */
+.strat-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.strat-profile-card {
+  background: var(--paper-2, #ffffff);
+  border: 1px solid var(--border, rgba(15, 42, 32, 0.1));
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.strat-profile-card:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.strat-profile-card.active-profile {
+  border: 2px solid #10b981;
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.04) 0%, var(--paper-2, #ffffff) 100%);
+}
+
+.strat-profile-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.strat-profile-title {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--ink, #0f2a20);
+}
+
+.strat-profile-desc {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.strat-profile-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.strat-badge-active {
+  background: #10b981;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.strat-badge-version {
+  background: rgba(0, 0, 0, 0.06);
+  color: #475569;
+  font-size: 10px;
+  font-weight: 750;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.strat-badge-hash {
+  background: rgba(0, 0, 0, 0.04);
+  color: #64748b;
+  font-size: 9.5px;
+  font-family: monospace;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Parameters Summary Matrix */
+.strat-profile-params-matrix {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.strat-param-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.strat-param-label {
+  font-size: 10.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.strat-param-value {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink, #0f2a20);
+}
+
+.strat-profile-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   7. COMPARISON DRAWER / MODAL
+   ========================================================================== */
+.strat-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.strat-compare-table th {
+  background: rgba(0, 0, 0, 0.04);
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 750;
+  color: var(--ink, #0f2a20);
+  border-bottom: 2px solid var(--border, rgba(0, 0, 0, 0.1));
+}
+
+.strat-compare-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.strat-compare-table tr.diff-row {
+  background: rgba(2, 132, 199, 0.06);
+}
+
+.strat-compare-table tr.diff-row td:first-child {
+  font-weight: 750;
+  color: #0284c7;
+}
+
+.strat-compare-diff-tag {
+  background: #0284c7;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 800;
+  margin-left: 6px;
+}
+
+/* ==========================================================================
+   8. THEME ISOLATION OVERRIDES
+   ========================================================================== */
+[data-theme="gold"] .strat-config-quick-btn {
+  background: rgba(28, 25, 23, 0.5);
+  border-color: rgba(212, 175, 55, 0.25);
+  color: #f5f5f4;
+}
+
+[data-theme="gold"] .strat-config-quick-btn:hover {
+  background: #1c1917;
+  border-color: #d4af37;
+}
+
+[data-theme="gold"] .strat-config-modal-container {
+  background: #141210;
+  border-color: rgba(212, 175, 55, 0.2);
+  color: #f5f5f4;
+}
+
+[data-theme="gold"] .strat-profile-card {
+  background: #1c1917;
+  border-color: rgba(212, 175, 55, 0.15);
+  color: #f5f5f4;
+}
+
+[data-theme="gold"] .strat-profile-card.active-profile {
+  border-color: #d4af37;
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.08) 0%, #1c1917 100%);
+}
+
+[data-theme="gold"] .strat-config-btn.primary {
+  background: #d4af37;
+  color: #000000;
+  border-color: #d4af37;
+}
+
+[data-theme="gold"] .strat-config-btn.primary:hover {
+  background: #e6c555;
+}
+
+[data-theme="pigeon"] .strat-config-modal-container {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+[data-theme="pigeon"] .strat-profile-card {
+  background: #ffffff;
+}

@@ -29,6 +29,89 @@
   `;
 
   let _isCollapsed = false;
+  try {
+    if (typeof localStorage !== 'undefined') {
+      _isCollapsed = localStorage.getItem('healthyTrend_stormAlertCollapsed') === 'true';
+    }
+  } catch (_) {}
+
+  function syncCollapsedDom() {
+    if (typeof document === 'undefined') return;
+    const widgets = document.querySelectorAll('.storm-alert-widget, #stormAlertWidget');
+    widgets.forEach(widget => {
+      widget.classList.toggle('storm-collapsed', _isCollapsed);
+      const toggleBtn = widget.querySelector('#btnToggleStormAlert, .storm-alert-toggle-btn');
+      if (toggleBtn) {
+        toggleBtn.textContent = _isCollapsed ? '▼' : '▲';
+        toggleBtn.title = _isCollapsed ? 'Expandir alerta' : 'Minimizar alerta';
+        toggleBtn.setAttribute('aria-expanded', String(!_isCollapsed));
+      }
+      const card = widget.closest('.dashboard-widget');
+      if (card) {
+        card.classList.toggle('storm-widget-collapsed', _isCollapsed);
+        if (_isCollapsed) {
+          card.style.gridRowEnd = 'span 4';
+        } else {
+          card.style.gridRowEnd = '';
+        }
+      }
+    });
+    if (typeof window !== 'undefined') {
+      try {
+        window.dispatchEvent(new Event('resize'));
+      } catch (_) {}
+    }
+  }
+
+  function toggleCollapsed(e) {
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
+    _isCollapsed = !_isCollapsed;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('healthyTrend_stormAlertCollapsed', String(_isCollapsed));
+      }
+    } catch (_) {}
+    syncCollapsedDom();
+  }
+
+  function navigatePositions(e) {
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
+    if (typeof root.go === 'function') {
+      root.go('positions');
+    } else if (typeof window !== 'undefined' && typeof window.go === 'function') {
+      window.go('positions');
+    } else if (typeof go === 'function') {
+      go('positions');
+    }
+  }
+
+  function navigateCalendar(e) {
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
+    if (typeof root.go === 'function') {
+      root.go('eventplaybook');
+    } else if (typeof window !== 'undefined' && typeof window.go === 'function') {
+      window.go('eventplaybook');
+    } else if (typeof go === 'function') {
+      go('eventplaybook');
+    }
+  }
+
+  function openManagerModal(e, tab = 'test') {
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
+    openExtremeEventsManagerModal(typeof tab === 'string' ? tab : 'test');
+  }
 
   function buildStormAlertHtml(options = {}) {
     const model = StormAlertModel || root.StormAlertModel;
@@ -65,7 +148,10 @@
                 ${iconSvg}
               </div>
               <div class="storm-alert-titles">
-                <span class="storm-alert-kicker">STORM ALERT</span>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <span class="storm-alert-kicker">STORM ALERT</span>
+                  <span class="storm-alert-collapsed-tag">${evtName} · ${cutoffDate}</span>
+                </div>
                 <span class="storm-alert-subkicker">EXTREME EVENT WARNING</span>
               </div>
             </div>
@@ -74,7 +160,7 @@
               <span class="storm-alert-badge">
                 ${alertStatus.riskLevel}
               </span>
-              <button type="button" class="storm-alert-toggle-btn" id="btnToggleStormAlert" title="${_isCollapsed ? 'Expandir alerta' : 'Minimizar alerta'}" aria-label="Alternar exibição do alerta">
+              <button type="button" class="storm-alert-toggle-btn" id="btnToggleStormAlert" onclick="window.StormAlert?.toggleCollapsed?.(event)" title="${_isCollapsed ? 'Expandir alerta' : 'Minimizar alerta'}" aria-label="Alternar exibição do alerta" aria-expanded="${!_isCollapsed}">
                 ${_isCollapsed ? '▼' : '▲'}
               </button>
             </div>
@@ -123,14 +209,14 @@
             <div class="storm-alert-footer-left">
               <span class="storm-alert-subwarn">${alertStatus.subWarning}</span>
               ${alertStatus.openPositionsCount > 0 ? `
-                <button type="button" class="storm-btn-action" data-storm-nav="positions">
+                <button type="button" class="storm-btn-action" data-storm-nav="positions" onclick="window.StormAlert?.navigatePositions?.(event)">
                   VER POSIÇÕES EM ABERTO →
                 </button>
               ` : ''}
-              <button type="button" class="storm-btn-calendar" data-storm-nav="calendar" title="Abrir tela Registro de Eventos">
+              <button type="button" class="storm-btn-calendar" data-storm-nav="calendar" onclick="window.StormAlert?.navigateCalendar?.(event)" title="Abrir tela Registro de Eventos">
                 📅 Registro de Eventos
               </button>
-              <button type="button" class="storm-btn-calendar" data-storm-nav="test" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1;" title="Simular estados e testar e-mail">
+              <button type="button" class="storm-btn-calendar" data-storm-nav="test" onclick="window.StormAlert?.openManagerModal?.(event)" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1;" title="Simular estados e testar e-mail">
                 ⚙️ Simular Estados
               </button>
             </div>
@@ -148,47 +234,47 @@
   function attachEvents(container = document) {
     const scope = container || document;
 
-    const toggleBtn = scope.querySelector('#btnToggleStormAlert');
+    const toggleBtn = scope.querySelector('#btnToggleStormAlert, .storm-alert-toggle-btn');
     if (toggleBtn) {
-      toggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        _isCollapsed = !_isCollapsed;
-        const widget = scope.querySelector('#stormAlertWidget');
-        if (widget) {
-          widget.classList.toggle('storm-collapsed', _isCollapsed);
-          toggleBtn.textContent = _isCollapsed ? '▼' : '▲';
-          toggleBtn.title = _isCollapsed ? 'Expandir alerta' : 'Minimizar alerta';
-        }
-      });
+      toggleBtn.onclick = (e) => toggleCollapsed(e);
     }
 
     scope.querySelectorAll('[data-storm-nav="positions"]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (typeof root.go === 'function') {
-          root.go('positions');
-        } else if (typeof window !== 'undefined' && typeof window.go === 'function') {
-          window.go('positions');
-        }
-      });
+      btn.onclick = (e) => navigatePositions(e);
     });
 
     scope.querySelectorAll('[data-storm-nav="calendar"]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (typeof root.go === 'function') {
-          root.go('eventplaybook');
-        } else if (typeof window !== 'undefined' && typeof window.go === 'function') {
-          window.go('eventplaybook');
-        }
-      });
+      btn.onclick = (e) => navigateCalendar(e);
     });
 
     scope.querySelectorAll('[data-storm-nav="test"]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        openExtremeEventsManagerModal('test');
-      });
+      btn.onclick = (e) => openManagerModal(e, 'test');
+    });
+  }
+
+  // Document-level delegated click handler for total reliability
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', (e) => {
+      const toggle = e.target.closest('#btnToggleStormAlert, .storm-alert-toggle-btn');
+      if (toggle) {
+        toggleCollapsed(e);
+        return;
+      }
+      const pos = e.target.closest('[data-storm-nav="positions"]');
+      if (pos) {
+        navigatePositions(e);
+        return;
+      }
+      const cal = e.target.closest('[data-storm-nav="calendar"]');
+      if (cal) {
+        navigateCalendar(e);
+        return;
+      }
+      const test = e.target.closest('[data-storm-nav="test"]');
+      if (test) {
+        openManagerModal(e, 'test');
+        return;
+      }
     });
   }
 
@@ -683,7 +769,20 @@
     refresh,
     openExtremeEventsManagerModal,
     closeExtremeEventsManagerModal,
+    openManagerModal,
+    toggleCollapsed,
+    navigatePositions,
+    navigateCalendar,
+    syncCollapsedDom,
     isCollapsed: () => _isCollapsed,
-    setCollapsed: (v) => { _isCollapsed = Boolean(v); }
+    setCollapsed: (v) => {
+      _isCollapsed = Boolean(v);
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('healthyTrend_stormAlertCollapsed', String(_isCollapsed));
+        }
+      } catch (_) {}
+      syncCollapsedDom();
+    }
   };
 });

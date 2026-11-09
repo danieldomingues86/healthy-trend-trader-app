@@ -50,10 +50,14 @@
 
     const setupTrigger = trade?.setup_trigger || trade?.setupTrigger || (setupTriggers ? setupTriggers.normalizeKey(trade?.setup) : null);
     const triggerLabel = setupTriggers ? setupTriggers.getTriggerLabel(setupTrigger || trade?.setup) : (trade?.setup || 'Não informado');
+    const rawStrat = String(trade?.strategy_type || trade?.strategyType || '').toUpperCase().trim();
+    const strategyType = rawStrat === 'VOLATILITY_TRADING' ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
 
     return {
       id: trade?.id,
       trade,
+      strategyType,
+      strategy_type: strategyType,
       symbol: String(trade?.ticker || '—').toUpperCase(),
       market: trade?.market || null,
       direction: trade?.direction || null,
@@ -91,9 +95,11 @@
       const year = item.closedAt.getFullYear();
       const month = item.closedAt.getMonth() + 1;
       const matchesTrigger = !filters.setupTrigger || item.setupTrigger === filters.setupTrigger;
+      const stratFilter = String(filters.strategy || filters.strategyType || 'ALL').toUpperCase();
+      const matchesStrategy = stratFilter === 'ALL' || item.strategyType === stratFilter;
       return (!filters.year || year === Number(filters.year)) && (!filters.month || month === Number(filters.month)) &&
         (!filters.market || item.market === filters.market) && (!filters.direction || item.direction === filters.direction) &&
-        matchesTrigger;
+        matchesTrigger && matchesStrategy;
     });
   }
 

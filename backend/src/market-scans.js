@@ -41,17 +41,18 @@ function itemView(item, status) {
   };
 }
 function sortBy(items, key) { return [...items].sort((a, b) => Number(b[key] ?? -Infinity) - Number(a[key] ?? -Infinity)); }
-function scanDefinition({ id, icon, title, description, criteria, items, availability, sort = 'score' }) {
+function scanDefinition({ id, icon, title, description, criteria, items, availability, sort = 'score', strategy = null }) {
   const results = sortBy(items.map((item) => itemView(item, title)), sort).slice(0, 100);
-  return { id, icon, title, description, criteria, available: availability, count: results.length, results };
+  return { id, icon, title, description, criteria, available: availability, count: results.length, results, strategy };
 }
-function marketScansFromCache(cache) {
+function marketScansFromCache(cache, options = {}) {
+  const strategy = options.strategy ? String(options.strategy).toUpperCase() : null;
   const assets = allAssets(cache);
   const hasMetric = (key) => assets.some((item) => finite(item.scan?.[key]));
   const hasTrend = assets.some((item) => item.scan?.healthyTrend === true || (finite(item.scan?.ema20) && finite(item.scan?.ema200)));
   const hasRs = assets.some((item) => finite(item.score));
   const hasRsTrend = assets.some((item) => finite(item.relativeTrend?.change6w));
-  const cards = [
+  const trendCards = [
     scanDefinition({
       id: 'strong-up', icon: '🚀', title: 'Alta forte', description: 'Movimentos iguais ou superiores a +10% no dia.',
       criteria: 'Variação diária ≥ +10%', availability: hasMetric('dayChangePct'), sort: 'dayChangePct',
@@ -97,6 +98,26 @@ function marketScansFromCache(cache) {
       items: assets.filter((item) => item.scan?.healthyTrend === true)
     })
   ];
+
+  const volatilityCard = scanDefinition({
+    id: 'volatility-oversold', icon: '⚡', title: 'IFR2 Sobrevendido (Volatilidade)', description: 'Candidatos ao Volatility Swing: tendência primária de alta com sobrevenda de curto prazo.',
+    criteria: 'Preço > SMA200 e IFR(2) ≤ 10 com Liquidez aprovada', availability: true, sort: 'score',
+    strategy: 'VOLATILITY_TRADING',
+    items: assets.filter((item) => {
+      const scan = item.scan || {};
+      const rsi2 = finite(scan.rsi2) ? Number(scan.rsi2) : (finite(scan.ifr2) ? Number(scan.ifr2) : null);
+      const aboveSma200 = scan.aboveSma200 === true || (finite(scan.close) && finite(scan.ema200) && Number(scan.close) > Number(scan.ema200));
+      return (rsi2 != null ? rsi2 <= 10 : true) && aboveSma200;
+    })
+  });
+
+  let cards = trendCards;
+  if (strategy === 'VOLATILITY_TRADING' || strategy === 'VOLATILITY') {
+    cards = [volatilityCard, ...trendCards.filter((c) => ['abnormal-volume', 'low-atr'].includes(c.id))];
+  } else if (strategy === 'ALL' || options.includeAll === true) {
+    cards = [...trendCards, volatilityCard];
+  }
+
   return {
     updatedAt: cache.updatedAt || null,
     dataAsOf: cache.dataAsOf || cache.b3CotahistDate || cache.relativeStrengthByClass?.dataAsOf || cache.overview?.benchmarkHistory?.at(-1)?.date || null,

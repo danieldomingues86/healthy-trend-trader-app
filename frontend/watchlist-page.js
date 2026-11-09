@@ -20,6 +20,7 @@
     status: 'todos',
     sector: 'todos',
     origin: 'todos',
+    strategy: 'todos',
     sort: 'recentes'
   };
   let selectedTicker = null;
@@ -551,6 +552,12 @@
               <input type="text" class="wl-search-input" id="wlSearchInput" placeholder="Buscar ticker ou empresa..." value="${escapeHtml(filters.search)}" />
             </div>
 
+            <select class="wl-select" id="wlFilterStrategy">
+              <option value="todos" ${filters.strategy === 'todos' ? 'selected' : ''}>Todas as Estratégias</option>
+              <option value="trend_following" ${filters.strategy === 'trend_following' ? 'selected' : ''}>📈 Trend Following</option>
+              <option value="volatility_trading" ${filters.strategy === 'volatility_trading' ? 'selected' : ''}>⚡ Volatility Trading</option>
+            </select>
+
             <select class="wl-select" id="wlFilterStatus">
               <option value="todos" ${filters.status === 'todos' ? 'selected' : ''}>Todos os Status</option>
               <option value="ready" ${filters.status === 'ready' ? 'selected' : ''}>● READY</option>
@@ -570,6 +577,8 @@
               <option value="relative-strength" ${filters.origin === 'relative-strength' ? 'selected' : ''}>Relative Strength</option>
               <option value="fundamentalista" ${filters.origin === 'fundamentalista' ? 'selected' : ''}>Fundamentalista</option>
               <option value="scans" ${filters.origin === 'scans' ? 'selected' : ''}>Scans de Mercado</option>
+              <option value="volatility-scan" ${filters.origin === 'volatility-scan' ? 'selected' : ''}>Scan de Volatilidade</option>
+              <option value="volatility-engine" ${filters.origin === 'volatility-engine' ? 'selected' : ''}>Volatility Engine</option>
               <option value="manual" ${filters.origin === 'manual' ? 'selected' : ''}>Manual</option>
             </select>
 
@@ -871,6 +880,7 @@
               <th>Ticker</th>
               <th>Empresa</th>
               <th>Setor</th>
+              <th>Estratégia</th>
               <th>Origem</th>
               <th>Status</th>
               <th>Preço</th>
@@ -899,6 +909,7 @@
                   <td><span class="wl-table-ticker">${opp.ticker}</span></td>
                   <td><span class="wl-table-company">${escapeHtml(opp.name || opp.ticker)}</span></td>
                   <td>${getSectorBadge(opp.sector)}</td>
+                  <td>${(opp.strategyType || '').includes('VOLATILITY') ? '<span class="strat-badge-volatility" style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700">⚡ Volatilidade</span>' : '<span class="strat-badge-trend" style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700">📈 Trend</span>'}</td>
                   <td><span class="wl-origin-label">${escapeHtml(model.ORIGINS[opp.origin]?.label || opp.origin)}</span></td>
                   <td>${renderStatusPill(opp.status)}</td>
                   <td><span class="wl-table-price">${formatMoney(price)}</span></td>
@@ -1410,6 +1421,11 @@
     }
 
     // Filter dropdowns
+    document.getElementById('wlFilterStrategy')?.addEventListener('change', (e) => {
+      filters.strategy = e.target.value;
+      renderWatchlistPage();
+    });
+
     document.getElementById('wlFilterStatus')?.addEventListener('change', (e) => {
       filters.status = e.target.value;
       renderWatchlistPage();
@@ -1541,6 +1557,14 @@
   if (typeof root.addEventListener === 'function') {
     root.addEventListener('healthyTrend:authenticated', () => {
       root.loadWatchlistOpportunities().catch(() => {});
+    });
+    root.addEventListener('healthyTrend:strategyChanged', (e) => {
+      if (e.detail?.strategy) {
+        filters.strategy = e.detail.strategy;
+        if (document.getElementById('watchlist')?.classList.contains('active')) {
+          renderWatchlistPage();
+        }
+      }
     });
   }
 

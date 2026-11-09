@@ -383,6 +383,31 @@ body:has(#newtrade.active) .content {
   line-height: 1.4 !important;
 }
 
+#newtrade .workbench-card.is-volatility-mode .trade-screenshot-section,
+#newtrade #tradeDataStage.is-volatility-mode .trade-screenshot-section {
+  background: rgba(7, 28, 43, 0.6) !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+}
+
+#newtrade .workbench-card.is-volatility-mode .trade-screenshot-drop,
+#newtrade #tradeDataStage.is-volatility-mode .trade-screenshot-drop {
+  background: rgba(3, 20, 34, 0.75) !important;
+  border-color: rgba(56, 189, 248, 0.28) !important;
+}
+
+#newtrade .workbench-card.is-volatility-mode .trade-screenshot-drop span,
+#newtrade #tradeDataStage.is-volatility-mode .trade-screenshot-drop span {
+  color: #e0f2fe !important;
+}
+
+#newtrade .workbench-card.is-volatility-mode .trade-screenshot-drop small,
+#newtrade #tradeDataStage.is-volatility-mode .trade-screenshot-drop small,
+#newtrade .workbench-card.is-volatility-mode .trade-screenshot-section p,
+#newtrade #tradeDataStage.is-volatility-mode .trade-screenshot-section p {
+  color: #7dd3fc !important;
+}
+
+
 /* ── 5. COLUMN 2: QUALIDADE DO CENÁRIO & TRADING RUBRIC ─────────────────── */
 
 #newtrade .workbench-rubric-stage {
@@ -4927,3 +4952,13 @@ body:has(#newtrade.active) .content {
   }
 }
 
+
+/* Hide lock badge, op mode badge, and volatility summary banner from New Trade per user instruction */
+#workbenchStageLockBadge,
+.workbench-stage-lock-badge,
+#opModeBadge,
+.op-mode-badge,
+#tradeVolPolicySummary,
+.trade-vol-policy-banner {
+  display: none !important;
+}

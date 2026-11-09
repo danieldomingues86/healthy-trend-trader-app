@@ -309,6 +309,16 @@
           ${t('REGIME ATUAL', 'CURRENT REGIME')}
         </div>
       </div>
+      <div class="mre-strategy-guidance-box" style="margin-top: 14px; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); font-size: 11.5px; line-height: 1.45;">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; font-weight:700; color:#34d399;">
+          <span>📈</span> <span>Trend Following:</span>
+        </div>
+        <div style="color:#cbd5e1; margin-bottom:8px;">${(meta.title || '').includes('ALTA') ? 'Ambiente favorável para condução, expansão e novos setups de continuação.' : 'Proteção de capital: não abrir novas compras em tendência sem confirmação de reversão.'}</div>
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; font-weight:700; color:#38bdf8;">
+          <span>⚡</span> <span>Volatility Trading (IFR2):</span>
+        </div>
+        <div style="color:#cbd5e1;">${(meta.title || '').includes('ALTA') ? 'Correções e sobrevendidos acima da SMA200 geram excelentes repiques de reversão à média curta.' : 'Requer atenção estrita ao filtro estrutural (preço > SMA200 do próprio ativo), operando repiques táticos com saída temporal D7.'}</div>
+      </div>
     </div>`;
   }
 

@@ -3,7 +3,7 @@
   const model = window.TradeAnatomyModel;
   if (!model) return;
 
-  const state = { year: '', month: '', market: '', direction: '', setupTrigger: '', selectedId: null, selectedRank: null };
+  const state = { strategy: '', year: '', month: '', market: '', direction: '', setupTrigger: '', selectedId: null, selectedRank: null };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
   const money = value => Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const num = (value, digits = 1) => Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -166,6 +166,7 @@
         <p>Investigue seus melhores resultados e maiores erros sem perder de vista o que realmente importa.</p>
       </header>
       <section class="ta-filterbar" aria-label="Filtros do período">
+        <label><span>Estratégia</span><select data-ta-filter="strategy"><option value="">Todas</option><option value="TREND_FOLLOWING" ${state.strategy==='TREND_FOLLOWING'?'selected':''}>📈 Trend Following</option><option value="VOLATILITY_TRADING" ${state.strategy==='VOLATILITY_TRADING'?'selected':''}>⚡ Volatility Trading</option></select></label>
         <label><span>Ano</span><select data-ta-filter="year">${selectOptions(choices.years, state.year, 'Todos')}</select></label>
         <label><span>Mês</span><select data-ta-filter="month"><option value="">Todos</option>${['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'].map((label,index)=>`<option value="${index+1}" ${String(state.month)===String(index+1)?'selected':''}>${label}</option>`).join('')}</select></label>
         <label><span>Mercado</span><select data-ta-filter="market">${selectOptions(choices.markets, state.market, 'Todos')}</select></label>
@@ -213,6 +214,12 @@
 
   window.renderTradeAnatomy = render;
   window.addEventListener('healthyTrend:tradesUpdated', render);
+  window.addEventListener('healthyTrend:strategyChanged', (e) => {
+    if (e.detail?.strategy) {
+      state.strategy = e.detail.strategy === 'volatility_trading' ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
+      render();
+    }
+  });
   const previousGo = window.go;
   if (typeof previousGo === 'function') window.go = function (id) { previousGo(id); if (id === 'tradeanatomy') window.requestAnimationFrame(render); };
 })();
