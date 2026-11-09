@@ -2282,6 +2282,9 @@ setInterval(renderMarketFocusGuard,60000);
 
 // Trading Rubrics → Grade → risco-base: a primeira camada do Position Sizing.
 const TRADING_RUBRIC_STORAGE='healthy-trend-rubric-policy-v1';
+const MANUAL_RUBRIC_RATINGS={bad:{label:'Ruim',score:0},medium:{label:'Médio',score:1},good:{label:'Bom',score:2}};
+var manualRubricRatings={};
+window.manualRubricRatings=manualRubricRatings;
 let tradingRubricPolicy=TradingRubrics.normalizePolicy();
 function saveTradingRubricPolicy(){window.healthyTrendWorkspace?.storage.setItem(TRADING_RUBRIC_STORAGE,JSON.stringify(tradingRubricPolicy));setupTradingRubricSettings();updateTradingRubric()}
 function rubricValueLabel(value){return ({'-2':'Muito desfavorável','-1':'Desfavorável','0':'Neutro','1':'Favorável','2':'Muito favorável'})[value]||'Neutro'}
@@ -2495,8 +2498,7 @@ mountTradingRubricExperienceInline();
 showTradingRubricExperience=function(){document.getElementById('tradeRubricStage')?.scrollIntoView({behavior:'smooth',block:'start'})};
 hideTradingRubricExperience=function(){const riskPolicy=document.getElementById('riskpolicy');if(riskPolicy?.classList.contains('active')){const card=document.getElementById('tradingRubricSettings');if(card){card.tabIndex=-1;card.scrollIntoView({behavior:'smooth',block:'start'});card.focus({preventScroll:true});card.classList.add('settings-target');setTimeout(()=>card.classList.remove('settings-target'),2400)}return}document.getElementById('workbenchData')?.scrollIntoView({behavior:'smooth',block:'start'})};
 advanceFromTradingRubricExperience=function(){document.querySelector('.workbench-sizer')?.scrollIntoView({behavior:'smooth',block:'start'})};
-const MANUAL_RUBRIC_RATINGS={bad:{label:'Ruim',score:0},medium:{label:'Médio',score:1},good:{label:'Bom',score:2}};
-let manualRubricRatings={};
+// manualRubricRatings e MANUAL_RUBRIC_RATINGS já inicializados no bloco principal de Trading Rubrics
 function setupManualRubricControls(){const root=document.getElementById('rubricCriteria');if(!root)return;root.querySelectorAll('.rubric-criterion').forEach(row=>{if(row.querySelector('.manual-rubric-controls'))return;const select=row.querySelector('[data-rubric-key]');const key=select?.dataset.rubricKey;if(!key)return;if(!manualRubricRatings[key]){select.value='0';}else if(MANUAL_RUBRIC_RATINGS[manualRubricRatings[key]]){select.value=String(MANUAL_RUBRIC_RATINGS[manualRubricRatings[key]].score);}select.setAttribute('aria-hidden','true');const controls=document.createElement('div');controls.className='manual-rubric-controls';controls.innerHTML=Object.entries(MANUAL_RUBRIC_RATINGS).map(([rating,meta])=>`<button type="button" data-rating="${rating}" class="${manualRubricRatings[key]===rating?'active':''}" onclick="setManualRubricRating('${key}','${rating}')">${meta.label}</button>`).join('');row.insertBefore(controls,select);});root.dataset.manualControls='true';}
 function setManualRubricRating(key,rating){if(!MANUAL_RUBRIC_RATINGS[rating])return;manualRubricRatings={...manualRubricRatings,[key]:rating};const select=document.querySelector(`[data-rubric-key="${key}"]`);if(select)select.value=String(MANUAL_RUBRIC_RATINGS[rating].score);document.querySelectorAll(`[data-rubric-key="${key}"]`).forEach(item=>item.dataset.selectedRating=rating);updateTradingRubric()}
 const currentRubricInputWithManual=currentRubricInput;
