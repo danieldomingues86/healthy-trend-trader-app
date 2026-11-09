@@ -732,7 +732,10 @@
           if (hero) hero.insertAdjacentElement('afterend', stratBox);
           else page.prepend(stratBox);
         }
-        render(stratBox);
+        const trades = Array.isArray(window.synchronizedTrades) && window.synchronizedTrades.length
+          ? window.synchronizedTrades
+          : (typeof synchronizedTrades !== 'undefined' && Array.isArray(synchronizedTrades) ? synchronizedTrades : []);
+        render(stratBox, trades);
       }
     };
 
@@ -744,10 +747,26 @@
 
     window.addEventListener('healthyTrend:tradesUpdated', ensureMounted);
     window.addEventListener('healthyTrend:authenticated', () => setTimeout(ensureMounted, 200));
+    window.addEventListener('popstate', () => setTimeout(ensureMounted, 50));
+
+    // Hook navigation for instant mounting
+    const prevGo = window.go;
+    if (typeof prevGo === 'function') {
+      window.go = function (id, ...args) {
+        const res = prevGo.apply(this, [id, ...args]);
+        if (id === 'analytics') {
+          setTimeout(ensureMounted, 30);
+          setTimeout(ensureMounted, 150);
+        }
+        return res;
+      };
+    }
+    window.renderStrategyAnalytics = ensureMounted;
   }
 
   root.StrategyAnalytics = {
     render,
-    setScope: (scope) => { activeScope = scope; }
+    setScope: (scope) => { activeScope = scope; },
+    ensureMounted: typeof ensureMounted === 'function' ? ensureMounted : () => {}
   };
 })(typeof window !== 'undefined' ? window : this);
