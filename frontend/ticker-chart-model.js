@@ -1350,6 +1350,14 @@
         score: funds.score ?? null,
         ...funds
       },
+      liquidity: tickerData?.liquidity ? {
+        isEligible: tickerData.liquidity.isEligible !== false,
+        status: tickerData.liquidity.status || (tickerData.liquidity.isEligible ? 'APPROVED' : 'VOLUME_BELOW_MINIMUM'),
+        badge: tickerData.liquidity.badge || null,
+        reason: tickerData.liquidity.reason || '',
+        metrics: tickerData.liquidity.metrics || null,
+        gate: tickerData.liquidity.gate || tickerData.liquidity
+      } : null,
       context: {
         title: ctx.title || 'Super Contexto',
         description: ctx.description || 'Ativo em tendência alinhada no gráfico Diário.'

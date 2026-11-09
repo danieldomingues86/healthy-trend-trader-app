@@ -18,6 +18,7 @@
   let volumeSeries = null;
   let activeBenchmark = null;
   let disciplineState = null;
+  let currentLiquidityEvaluation = null;
   let selectedNoteCategory = 'plano';
 
   const NOTES_STORAGE_KEY = 'healthy-trend-ticker-notes';
@@ -89,6 +90,7 @@
       atrPct: d.volatility?.atrPct ?? null,
       fundamentals: fundamentals.evaluation || fundamentals.classification || '—',
       context: d.context?.title || d.context?.description || '—',
+      liquidity: currentLiquidityEvaluation?.badge?.text || (currentLiquidityEvaluation?.isEligible ? 'Aprovada' : 'Reprovada'),
       ema10: d.indicators?.ema10?.at?.(-1)?.value ?? d.indicators?.ema9?.at?.(-1)?.value ?? null,
       ema72: d.indicators?.ema72?.at?.(-1)?.value ?? d.indicators?.ema30?.at?.(-1)?.value ?? null,
       ema9: d.indicators?.ema10?.at?.(-1)?.value ?? d.indicators?.ema9?.at?.(-1)?.value ?? null,
@@ -760,6 +762,7 @@
             <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.volatility}</span><span>Volatilidade</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
             <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.fundamentals}</span><span>Fundamentos</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
             <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.context}</span><span>Contexto</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.liquidity}</span><span>Liquidez</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
           </div>
         </div>
       </div>
@@ -1076,6 +1079,62 @@
     };
 
     const contextStatus = (trendStatus === 'good' && cycleStatus === 'good') ? 'good' : (trendStatus === 'bad' ? 'bad' : 'neutral');
+
+    // 8. Liquidity Gate — Avaliação oficial integrada ao modelo global
+    let liqGateResult = tickerData.liquidity?.gate || null;
+    const activeRiskPolicy = (typeof window !== 'undefined' && (window.riskPolicyState || window.tradingRubricPolicy)) || undefined;
+    if (typeof window !== 'undefined' && window.LiquidityGateModel && typeof window.LiquidityGateModel.evaluateLiquidity === 'function') {
+      const clientLiqEval = window.LiquidityGateModel.evaluateLiquidity({
+        candles: tickerData.ohlc,
+        symbol: tickerData.tickerInfo?.symbol,
+        market: tickerData.tickerInfo?.assetClass,
+        policy: activeRiskPolicy
+      });
+      if (clientLiqEval) {
+        liqGateResult = clientLiqEval;
+      }
+    } else if (!liqGateResult && tickerData.liquidity && typeof tickerData.liquidity.isEligible === 'boolean') {
+      liqGateResult = tickerData.liquidity;
+    }
+
+    currentLiquidityEvaluation = liqGateResult;
+
+    // Fail closed: dados vazios, nulos ou histórico insuficiente
+    const isLiqEligible = Boolean(liqGateResult && liqGateResult.isEligible === true);
+    const isLiqHistoryShort = Boolean(liqGateResult && (liqGateResult.status === 'HISTORICO_INSUFICIENTE' || liqGateResult.code === 'INSUFFICIENT_HISTORY'));
+    const isLiqUnavailable = !liqGateResult ||
+      liqGateResult.status === 'DADOS_INDISPONIVEIS' || liqGateResult.status === 'DATA_UNAVAILABLE' ||
+      liqGateResult.code === 'DATA_UNAVAILABLE' || isLiqHistoryShort;
+    const liqStatus = isLiqEligible ? 'good' : 'bad';
+
+    const liqMetrics = liqGateResult?.metrics || tickerData.liquidity?.metrics || null;
+    const compactVol = liqMetrics?.averageDailyVolumeCompact && liqMetrics.averageDailyVolumeCompact !== '—'
+      ? liqMetrics.averageDailyVolumeCompact
+      : (tickerData.tickerInfo?.volumeAvg21Formatted || tickerData.liquidity?.volumeAvg21Formatted || null);
+
+    let liqText = '● Aprovada';
+    if (isLiqUnavailable) {
+      liqText = isLiqHistoryShort ? '● Histórico Insuficiente' : '● Dados Indisponíveis';
+    } else if (isLiqEligible) {
+      liqText = compactVol ? `● Aprovada (${compactVol}/dia)` : '● Aprovada';
+    } else {
+      liqText = compactVol ? `● Reprovada (${compactVol}/dia)` : '● Reprovada (Não elegível)';
+    }
+
+    const liqReason = liqGateResult?.reason || tickerData.liquidity?.reason || (isLiqEligible ? 'Ativo cumpre todos os requisitos do Liquidity Gate.' : 'Ativo reprovado no Liquidity Gate (não elegível operacionalmente).');
+    const liqSource = tickerData.tickerInfo?.syncSource || 'B3 (COTAHIST)';
+    const liqSessionDate = sessionDateFormatted || tickerData.tickerInfo?.sessionDate || 'Último pregão';
+
+    const liqTooltip = [
+      `[LIQUIDITY GATE] ${isLiqEligible ? 'APROVADA (Elegível)' : (isLiqUnavailable ? 'DADOS INDISPONÍVEIS (Bloqueado)' : 'REPROVADA (Não Elegível)')}`,
+      liqMetrics?.averageDailyVolumeFormatted ? `• Volume Médio Diário: ${liqMetrics.averageDailyVolumeFormatted}` : (compactVol ? `• Volume Médio: ${compactVol}/dia` : null),
+      liqMetrics?.minDailyVolumeFormatted ? `• Mínimo Exigido: ${liqMetrics.minDailyVolumeFormatted}` : null,
+      liqMetrics?.averageDailyTrades ? `• Média de Negócios: ${liqMetrics.averageDailyTrades} neg/dia (mínimo: ${liqMetrics.minDailyTrades || 100})` : null,
+      `• Janela de Avaliação: ${liqMetrics?.windowSessions || 21} pregões${liqMetrics?.windowStartDate && liqMetrics?.windowEndDate ? ` (${liqMetrics.windowStartDate} a ${liqMetrics.windowEndDate})` : ''}`,
+      `• Data-Base: ${liqSessionDate}`,
+      `• Fonte dos Dados: ${liqSource}`,
+      `• Motivo: ${liqReason}`
+    ].filter(Boolean).join('\n');
 
     // Constrói HTML estrutural
     root.innerHTML = `
@@ -1407,6 +1466,14 @@
               </div>
               <div class="summary-check-right">
                 <span class="vision-status ${contextStatus}">● ${escapeHtml(tickerData.context?.title || 'Contexto')}</span>
+              </div>
+            </div>
+            <div class="summary-check-row" id="visionLiquidityRow" title="${escapeHtml(liqTooltip)}">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.liquidity}</span> Liquidez
+              </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${liqStatus}" id="visionLiquidityPill" role="button" tabindex="0" style="cursor: pointer;">${escapeHtml(liqText)}</span>
               </div>
             </div>
           </div>
@@ -2549,6 +2616,7 @@
     setupNotesDrawerEvents();
     setupWatchlistButtonEvents();
     setupTriggerBannerEvents();
+    setupLiquidityEvents();
 
     const btnRegisterAnalysis = document.getElementById('btnRegisterChartAnalysis');
     if (btnRegisterAnalysis) btnRegisterAnalysis.onclick = captureAndRegisterAnalysis;
@@ -2578,6 +2646,124 @@
         }
       });
     }
+  }
+
+  function setupLiquidityEvents() {
+    const row = document.getElementById('visionLiquidityRow');
+    const pill = document.getElementById('visionLiquidityPill');
+    const handler = (e) => {
+      e?.preventDefault?.();
+      showLiquidityDetailsModal(currentLiquidityEvaluation, tickerData);
+    };
+    if (pill) {
+      pill.onclick = handler;
+      pill.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handler(e);
+        }
+      };
+    }
+    if (row) {
+      row.style.cursor = 'pointer';
+      row.onclick = handler;
+    }
+  }
+
+  function showLiquidityDetailsModal(liqResult, tData) {
+    const old = document.getElementById('liquidityModalOverlay');
+    if (old) old.remove();
+
+    const sym = tData?.tickerInfo?.symbol || currentTicker || 'ATIVO';
+    const isEligible = Boolean(liqResult && liqResult.isEligible === true);
+    const isUnavailable = !liqResult ||
+      liqResult.status === 'DADOS_INDISPONIVEIS' || liqResult.status === 'DATA_UNAVAILABLE' ||
+      liqResult.status === 'HISTORICO_INSUFICIENTE' || liqResult.status === 'INSUFFICIENT_HISTORY' ||
+      liqResult.code === 'DATA_UNAVAILABLE' || liqResult.code === 'INSUFFICIENT_HISTORY';
+    const metrics = liqResult?.metrics || tData?.liquidity?.metrics || null;
+    const reason = liqResult?.reason || tData?.liquidity?.reason || (isEligible ? 'Ativo cumpre todos os requisitos do Liquidity Gate.' : 'Ativo reprovado no Liquidity Gate (não elegível operacionalmente).');
+    const source = tData?.tickerInfo?.syncSource || 'B3 (COTAHIST)';
+    const sessionDate = (tData?.tickerInfo?.sessionDate ? formatSessionDate(tData.tickerInfo.sessionDate) : null) || tData?.tickerInfo?.sessionDate || 'Último pregão';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'liquidity-modal-overlay';
+    overlay.id = 'liquidityModalOverlay';
+
+    overlay.innerHTML = `
+      <div class="liquidity-modal-card">
+        <div class="liquidity-modal-head">
+          <div class="liquidity-modal-title-group">
+            <div class="liquidity-modal-icon ${isEligible ? 'good' : 'bad'}">
+              ${ICONS.liquidity}
+            </div>
+            <div>
+              <h3 class="liquidity-modal-title">Liquidity Gate · ${escapeHtml(sym)}</h3>
+              <div class="liquidity-modal-subtitle">Avaliação oficial de liquidez operacional</div>
+            </div>
+          </div>
+          <button class="discipline-modal-close" id="btnCloseLiquidityModal" type="button" aria-label="Fechar">✕</button>
+        </div>
+
+        <div class="liquidity-modal-status-pill ${isEligible ? 'good' : 'bad'}">
+          ${isEligible
+            ? '● LIQUIDEZ APROVADA — Ativo Elegível para Operações'
+            : (isUnavailable ? '● DADOS INDISPONÍVEIS — Bloqueio Cautelar (Fail Closed)' : '● BLOQUEADO POR LIQUIDEZ — Ativo Não Elegível')}
+        </div>
+
+        <div class="liquidity-modal-grid">
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Volume Médio Diário</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(metrics?.averageDailyVolumeFormatted || metrics?.averageDailyVolumeCompact || tData?.tickerInfo?.volumeAvg21Formatted || '—')}</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Mínimo Exigido</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(metrics?.minDailyVolumeFormatted || metrics?.minDailyVolumeCompact || 'R$ 500.000')}</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Média de Negócios</span>
+            <span class="liquidity-modal-cell-value">${metrics?.averageDailyTrades ? `${escapeHtml(metrics.averageDailyTrades)} neg/dia` : '—'}</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Janela de Avaliação</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(metrics?.windowSessions || 21)} pregões</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Data-Base dos Dados</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(sessionDate)}</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Fonte de Informação</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(source)}</span>
+          </div>
+        </div>
+
+        <div class="liquidity-modal-reason-box ${isEligible ? 'good' : 'bad'}">
+          <strong>Diagnóstico do Gate:</strong> ${escapeHtml(reason)}
+        </div>
+
+        <div class="liquidity-modal-actions">
+          <button class="primary" id="btnConfirmLiquidityModal" type="button" style="padding: 9px 22px;">Entendido</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    const btnClose = overlay.querySelector('#btnCloseLiquidityModal');
+    const btnConfirm = overlay.querySelector('#btnConfirmLiquidityModal');
+    if (btnClose) btnClose.onclick = close;
+    if (btnConfirm) btnConfirm.onclick = close;
+    overlay.onclick = (e) => {
+      if (e.target === overlay) close();
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        close();
+        document.removeEventListener('keydown', onKey);
+      }
+    };
+    document.addEventListener('keydown', onKey);
   }
 
   function setupTriggerBannerEvents() {

@@ -653,7 +653,14 @@ async function getTickerChartData(rawSymbol) {
 
   const liquidity = (LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function')
     ? LiquidityGateModel.evaluateLiquidity({ candles, symbol })
-    : { isEligible: true, status: 'APROVADO', badge: { text: 'LIQUIDEZ APROVADA' } };
+    : {
+        isEligible: false,
+        status: 'DADOS_INDISPONIVEIS',
+        code: 'DATA_UNAVAILABLE',
+        reason: 'LiquidityGateModel não disponível para avaliação de liquidez.',
+        metrics: null,
+        badge: { text: 'BLOQUEADO POR LIQUIDEZ', shortText: 'Sem dados', class: 'badge-liquidity-blocked', color: '#b91c1c' }
+      };
 
   const finalGrade = chartRubricEval.finalGrade || 'B';
   const gradeVisual = TradingRubrics.getRubricGradeVisual(finalGrade);
@@ -781,6 +788,7 @@ async function getTickerChartData(rawSymbol) {
       status: liquidity.status,
       badge: liquidity.badge,
       reason: liquidity.reason,
+      metrics: liquidity.metrics || null,
       gate: liquidity
     },
     context: {
