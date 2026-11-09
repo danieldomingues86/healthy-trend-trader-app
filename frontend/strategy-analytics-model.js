@@ -68,8 +68,59 @@
       name: 'Nota Metodológica sobre R-Múltiplos',
       formula: 'R = Lucro Líquido / Risco Inicial Nominal',
       description: 'Métricas baseadas em R são válidas exclusivamente para Trend Following, onde existe um stop técnico inicial mensurável. Para Volatilidade (IFR2), que não opera com stop inicial fixo, o retorno é calculado sobre o capital financeiro alocado na operação.'
+    },
+    returnPerCapitalDay: {
+      name: 'Retorno por Capital-Dia (Return per Capital-Day)',
+      formula: '(Lucro Líquido / Soma de (Capital Empregado × Dias de Exposição)) × 100',
+      description: 'Métrica prioritária de eficiência econômica. Responde quanto resultado financeiro o sistema produz para cada unidade monetária comprometida durante o período em que a posição permaneceu aberta. Desconta todos os custos operacionais e trata entradas e saídas parciais.'
+    },
+    capitalTurnover: {
+      name: 'Rotatividade do Capital (Capital Turnover)',
+      formula: 'Capital Total Alocado em Trades / Capital Disponível da Conta',
+      description: 'Mede quantas vezes o capital da carteira foi reciclado em novas operações no período. Um turnover elevado indica que o mesmo capital foi reutilizado para capturar múltiplos ciclos de mercado sucessivos.'
+    },
+    tradesPerMonth: {
+      name: 'Frequência Operacional (Trades / Mês)',
+      formula: 'Total de Trades Executados / Meses de Histórico no Período',
+      description: 'Mede o ritmo e a cadência média de geração de oportunidades do sistema ao longo do tempo.'
+    },
+    avgHoldingPeriod: {
+      name: 'Tempo Médio de Exposição (Holding Period)',
+      formula: 'Média de Pregões e Dias Corridos das Operações Encerradas',
+      description: 'Mede quanto tempo, em média, o capital permanece sob risco de mercado em cada posição antes de ser realizado.'
+    },
+    expectancyPerMonth: {
+      name: 'Expectativa Mensal (Projetada vs Observada)',
+      formula: 'Projetada: Expectativa por Trade × Frequência Mensal | Observada: Lucro Líquido Total / Meses no Período',
+      description: 'Diferencia a expectativa estatística de geração mensal do sistema (combinação de expectativa por trade e cadência) do retorno mensal médio efetivamente observado no histórico.'
+    },
+    returnOnCapitalDeployed: {
+      name: 'Retorno sobre Capital Empregado (ROCD)',
+      formula: '(Lucro Líquido Total / Capital Médio Comprometido) × 100',
+      description: 'Mede a rentabilidade líquida do sistema em relação ao capital que esteve efetivamente alocado nas posições, isolando o efeito do caixa ocioso.'
+    },
+    maxDrawdown: {
+      name: 'Drawdown Máximo (Maximum Drawdown)',
+      formula: '((Pico Anterior - Fundo Posterior) / Pico Anterior) × 100',
+      description: 'Maior declínio percentual e financeiro acumulado a partir de um topo patrimonial anterior.'
     }
   });
+
+  function countBusinessDays(d1, d2) {
+    if (!d1 || !d2) return 1;
+    const start = new Date(d1);
+    const end = new Date(d2);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 1;
+    if (end < start) return 1;
+    let cur = new Date(start);
+    let count = 0;
+    while (cur <= end) {
+      const day = cur.getUTCDay();
+      if (day !== 0 && day !== 6) count++;
+      cur.setUTCDate(cur.getUTCDate() + 1);
+    }
+    return Math.max(1, count);
+  }
 
   function round2(val) {
     return Number(Math.round(val + 'e2') + 'e-2');
@@ -113,27 +164,106 @@
     const strategyType = rawStrat === 'VOLATILITY_TRADING' ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
 
     const events = Array.isArray(trade.events) ? trade.events : [];
-    const entryEvent = events.find(e => e.type === 'entry') || {};
-    const exits = events.filter(e => e.type === 'peeloff' || e.type === 'close');
-    const closeEvent = [...events].reverse().find(e => e.type === 'close') || {};
+    const entryEvent = events.find(e => {
+      const tp = String(e.type || '').toLowerCase();
+      return tp === 'entry' || tp === 'buy';
+    }) || {};
+    const exits = events.filter(e => {
+      const tp = String(e.type || '').toLowerCase();
+      return tp === 'peeloff' || tp === 'partial_exit' || tp === 'close' || tp === 'exit' || tp === 'sell';
+    });
+    const closeEvent = [...events].reverse().find(e => {
+      const tp = String(e.type || '').toLowerCase();
+      return tp === 'close' || tp === 'exit' || tp === 'sell';
+    }) || {};
 
-    const entryPrice = Number(entryEvent.price ?? trade.executed_entry_price ?? trade.execution_price ?? trade.entry_price ?? trade.entry ?? 0);
-    const exitPrice = Number(closeEvent.price ?? trade.exit_price ?? trade.exit ?? 0);
-    const sharesQuantity = Number(entryEvent.qty ?? trade.executed_quantity ?? trade.planned_quantity ?? trade.shares_quantity ?? trade.quantity ?? trade.shares ?? trade.qty ?? 0);
-    const allocatedCapital = round2(entryPrice * sharesQuantity) || Number(trade.allocated_capital ?? trade.allocatedCapital ?? trade.position_size ?? 0);
+    const entryPrice = Number(entryEvent.price ?? trade.executed_entry_price ?? trade.execution_price ?? trade.entry_price ?? trade.entryPrice ?? trade.entry ?? 0);
+    const exitPrice = Number(closeEvent.price ?? trade.exit_price ?? trade.exitPrice ?? trade.exit ?? 0);
+    const sharesQuantity = Number(entryEvent.qty ?? entryEvent.quantity ?? trade.executed_quantity ?? trade.planned_quantity ?? trade.shares_quantity ?? trade.sharesQuantity ?? trade.positionSize ?? trade.position_size ?? trade.quantity ?? trade.shares ?? trade.qty ?? 0);
+    const allocatedCapital = round2(entryPrice * sharesQuantity) || Number(trade.allocated_capital ?? trade.allocatedCapital ?? trade.financialInvested ?? trade.financial_invested ?? trade.position_size ?? 0);
 
-    const openedAtStr = toIsoDate(entryEvent.at || trade.entry_date || trade.executed_at || trade.created_at);
-    const closedAtStr = toIsoDate(closeEvent.at || trade.exit_date || trade.updated_at || trade.created_at);
-    const openedAt = openedAtStr ? new Date(openedAtStr) : null;
-    const closedAt = closedAtStr ? new Date(closedAtStr) : null;
+    const openedAtStr = toIsoDate(entryEvent.at || entryEvent.date || trade.entry_date || trade.entryDate || trade.executed_at || trade.executedAt || trade.created_at || trade.createdAt);
+    const closedAtStr = toIsoDate(closeEvent.at || closeEvent.date || trade.exit_date || trade.exitDate || trade.updated_at || trade.updatedAt || trade.closed_at || trade.closedAt || trade.created_at || trade.createdAt);
+    const openedAt = openedAtStr ? new Date(openedAtStr + 'T00:00:00Z') : null;
+    const closedAt = closedAtStr ? new Date(closedAtStr + 'T00:00:00Z') : null;
 
     let holdingSessions = Number(trade.holding_sessions ?? trade.holdingSessions ?? 0);
-    if (!holdingSessions && openedAt && closedAt && !Number.isNaN(openedAt.getTime()) && !Number.isNaN(closedAt.getTime())) {
-      holdingSessions = Math.max(1, Math.round((closedAt - openedAt) / (1000 * 60 * 60 * 24)));
+    let calendarDays = Number(trade.duration_days ?? trade.durationDays ?? trade.calendar_days ?? trade.calendarDays ?? 0);
+
+    if (openedAt && closedAt && !Number.isNaN(openedAt.getTime()) && !Number.isNaN(closedAt.getTime())) {
+      const diffDays = Math.max(0, Math.round((closedAt - openedAt) / (1000 * 60 * 60 * 24)));
+      // Convenção inclusiva: mesmo dia = 1 dia, dias subsequentes = diffDays + 1
+      calendarDays = calendarDays || Math.max(1, diffDays + 1);
+    }
+    if (!calendarDays) calendarDays = 1;
+
+    if (!holdingSessions && openedAtStr && closedAtStr) {
+      holdingSessions = countBusinessDays(openedAtStr, closedAtStr);
+    }
+    if (!holdingSessions) {
+      holdingSessions = calendarDays;
     }
 
     const direction = String(trade.direction || 'long').toLowerCase();
     const sign = direction === 'short' ? -1 : 1;
+
+    // Volume financeiro movimentado e Capital-Dias
+    let tradedVolume = round2((entryPrice * sharesQuantity) + (exitPrice * sharesQuantity)) || round2(allocatedCapital * 2);
+    let capitalDays = round2(allocatedCapital * calendarDays);
+    let capitalSessions = round2(allocatedCapital * holdingSessions);
+
+    // Se houver eventos detalhados com entradas e saídas parciais (scale-in e peel-off)
+    if (events.length > 1) {
+      const sortedEvents = [...events]
+        .filter(e => e && (e.at || e.date))
+        .sort((a, b) => new Date(a.at || a.date) - new Date(b.at || b.date));
+
+      if (sortedEvents.length > 1) {
+        let runningQty = 0;
+        let runningCapDays = 0;
+        let runningCapSessions = 0;
+        let segTradedVol = 0;
+
+        for (let i = 0; i < sortedEvents.length; i++) {
+          const ev = sortedEvents[i];
+          const evQty = Number(ev.qty ?? ev.quantity ?? ev.sharesQuantity ?? 0);
+          const evPrice = Number(ev.price ?? entryPrice);
+          const evType = String(ev.type || '').toLowerCase();
+
+          if (evType === 'entry' || evType === 'scalein' || evType === 'scale_in' || evType === 'buy') {
+            runningQty += evQty;
+            segTradedVol += evQty * evPrice;
+          } else if (evType === 'peeloff' || evType === 'partial_exit' || evType === 'partial_close' || evType === 'close' || evType === 'exit' || evType === 'sell') {
+            runningQty = Math.max(0, runningQty - evQty);
+            segTradedVol += evQty * evPrice;
+          }
+
+          if (i < sortedEvents.length - 1) {
+            const nextEv = sortedEvents[i + 1];
+            const d1 = toIsoDate(ev.at || ev.date);
+            const d2 = toIsoDate(nextEv.at || nextEv.date);
+            if (d1 && d2) {
+              const diffSeg = Math.max(0, Math.round((new Date(d2 + 'T00:00:00Z') - new Date(d1 + 'T00:00:00Z')) / (1000 * 60 * 60 * 24)));
+              // Se o próximo evento for o último (exit final), soma +1 no último intervalo para convenção inclusiva
+              const isLastSegment = (i + 1 === sortedEvents.length - 1);
+              const segCalDays = isLastSegment ? (diffSeg + 1) : diffSeg;
+              const segSess = countBusinessDays(d1, d2);
+              const segCap = runningQty * entryPrice;
+              runningCapDays += segCap * segCalDays;
+              runningCapSessions += segCap * segSess;
+            }
+          }
+        }
+
+        if (runningCapDays > 0) {
+          capitalDays = round2(runningCapDays);
+          capitalSessions = round2(runningCapSessions);
+        }
+        if (segTradedVol > 0) {
+          tradedVolume = round2(segTradedVol);
+        }
+      }
+    }
 
     // Resultado financeiro
     let grossResult = 0;
@@ -184,6 +314,11 @@
       slippage: round2(slippage),
       returnPct,
       holdingSessions,
+      calendarDays,
+      holdingCalendarDays: calendarDays,
+      capitalDays,
+      capitalSessions,
+      tradedVolume,
       outcome,
       raw: trade
     };
@@ -282,12 +417,63 @@
       }
     }
 
-    // Holding period
-    const holdingList = closed.map(t => t.holdingSessions).filter(h => Number.isFinite(h));
-    const avgHoldingSessions = holdingList.length > 0 ? round2(holdingList.reduce((a, b) => a + b, 0) / holdingList.length) : 0;
-    const medianHoldingSessions = median(holdingList);
+    // Período avaliado e frequência operacional
+    let minEntryDate = null;
+    let maxExitDate = null;
+    for (const t of closed) {
+      const dIn = t.entryDate;
+      const dOut = t.exitDate || t.entryDate;
+      if (dIn && (!minEntryDate || dIn < minEntryDate)) minEntryDate = dIn;
+      if (dOut && (!maxExitDate || dOut > maxExitDate)) maxExitDate = dOut;
+    }
 
-    // Maior ganho e perda
+    let daysSpan = 1;
+    if (options.period && Number(options.period) > 0) {
+      daysSpan = Number(options.period);
+    } else if (minEntryDate && maxExitDate) {
+      daysSpan = Math.max(1, Math.round((new Date(maxExitDate) - new Date(minEntryDate)) / (1000 * 60 * 60 * 24)));
+    }
+    const monthsSpan = round2(Math.max(1 / 30.4375, daysSpan / 30.4375));
+    const tradesPerMonth = totalTrades > 0 ? round2(totalTrades / monthsSpan) : 0;
+
+    // Holding period em dias corridos e pregões
+    const holdingDaysList = closed.map(t => t.calendarDays || t.holdingCalendarDays || 1);
+    const avgHoldingDays = holdingDaysList.length > 0 ? round2(holdingDaysList.reduce((a, b) => a + b, 0) / holdingDaysList.length) : 0;
+    const medianHoldingDays = median(holdingDaysList);
+
+    const holdingSessionsList = closed.map(t => t.holdingSessions || 1);
+    const avgHoldingSessions = holdingSessionsList.length > 0 ? round2(holdingSessionsList.reduce((a, b) => a + b, 0) / holdingSessionsList.length) : 0;
+    const medianHoldingSessions = median(holdingSessionsList);
+
+    // Métrica Prioritária: Capital-Dias e Retorno por Capital-Dia
+    const totalCapitalDays = round2(closed.reduce((sum, t) => sum + (t.capitalDays || 0), 0));
+    const totalCapitalSessions = round2(closed.reduce((sum, t) => sum + (t.capitalSessions || 0), 0));
+
+    // Return per Capital-Day (%) = (Lucro Líquido / Soma(Capital Empregado x Dias)) * 100
+    const returnPerCapitalDayPct = totalCapitalDays > 0 ? round4((netProfit / totalCapitalDays) * 100) : 0;
+    const returnPerCapitalSessionPct = totalCapitalSessions > 0 ? round4((netProfit / totalCapitalSessions) * 100) : 0;
+    const netPerThousandCapitalDays = totalCapitalDays > 0 ? round2((netProfit / totalCapitalDays) * 1000) : 0;
+    const annualizedCapitalDayReturnPct = round2(returnPerCapitalDayPct * 365);
+
+    // Capital Turnover e Volume Financeiro
+    const totalAllocatedCapital = round2(closed.reduce((sum, t) => sum + (t.allocatedCapital || 0), 0));
+    const totalVolumeTraded = round2(closed.reduce((sum, t) => sum + (t.tradedVolume || 0), 0));
+    const capitalTurnover = initialCapital > 0 ? round2(totalAllocatedCapital / initialCapital) : 0;
+    const volumeTurnover = initialCapital > 0 ? round2(totalVolumeTraded / initialCapital) : 0;
+
+    // Return on Capital Deployed (ROCD)
+    const avgCapitalCommitted = daysSpan > 0 ? round2(totalCapitalDays / daysSpan) : avgAllocatedCapital;
+    const returnOnCapitalDeployedPct = avgCapitalCommitted > 0 ? round2((netProfit / avgCapitalCommitted) * 100) : 0;
+    const returnOnCumulativeAllocatedPct = totalAllocatedCapital > 0 ? round2((netProfit / totalAllocatedCapital) * 100) : 0;
+
+    // Expectativa Mensal: Projetada vs Observada
+    const projectedMonthlyExpectancy = round2(expectancyAmount * tradesPerMonth);
+    const projectedMonthlyExpectancyR = (strategyType === 'TREND_FOLLOWING' && expectancyR != null)
+      ? round2(expectancyR * tradesPerMonth)
+      : null;
+    const observedMonthlyAverage = monthsSpan > 0 ? round2(netProfit / monthsSpan) : 0;
+
+    // Custos e slippage
     let largestGainAmount = 0;
     let largestGainPct = 0;
     let largestLossAmount = 0;
@@ -408,6 +594,27 @@
       totalR,
       avgHoldingSessions,
       medianHoldingSessions,
+      avgHoldingDays,
+      medianHoldingDays,
+      daysSpan,
+      monthsSpan,
+      tradesPerMonth,
+      totalCapitalDays,
+      totalCapitalSessions,
+      returnPerCapitalDayPct,
+      returnPerCapitalSessionPct,
+      netPerThousandCapitalDays,
+      annualizedCapitalDayReturnPct,
+      totalAllocatedCapital,
+      totalVolumeTraded,
+      capitalTurnover,
+      volumeTurnover,
+      avgCapitalCommitted,
+      returnOnCapitalDeployedPct,
+      returnOnCumulativeAllocatedPct,
+      projectedMonthlyExpectancy,
+      projectedMonthlyExpectancyR,
+      observedMonthlyAverage,
       largestGainAmount,
       largestGainPct,
       largestLossAmount,
@@ -788,12 +995,37 @@
       ? `Amostra combinada reduzida (${totalTradesCount} operações < ${MIN_SAMPLE_SIZE}). Recomenda-se expandir o histórico para validação conclusiva.`
       : `Amostra combinada estatisticamente representativa (${totalTradesCount} operações ≥ ${MIN_SAMPLE_SIZE}).`;
 
+    // Eficiência de Capital Consolidada da Carteira
+    const totalCapitalDays = round2(trendMetrics.totalCapitalDays + volMetrics.totalCapitalDays);
+    const totalCapitalSessions = round2(trendMetrics.totalCapitalSessions + volMetrics.totalCapitalSessions);
+    const returnPerCapitalDayPct = totalCapitalDays > 0 ? round4((totalNetProfit / totalCapitalDays) * 100) : 0;
+    const returnPerCapitalSessionPct = totalCapitalSessions > 0 ? round4((totalNetProfit / totalCapitalSessions) * 100) : 0;
+    const netPerThousandCapitalDays = totalCapitalDays > 0 ? round2((totalNetProfit / totalCapitalDays) * 1000) : 0;
+    const totalAllocatedCapital = round2(trendMetrics.totalAllocatedCapital + volMetrics.totalAllocatedCapital);
+    const totalVolumeTraded = round2(trendMetrics.totalVolumeTraded + volMetrics.totalVolumeTraded);
+    const capitalTurnover = initialCapital > 0 ? round2(totalAllocatedCapital / initialCapital) : 0;
+    const volumeTurnover = initialCapital > 0 ? round2(totalVolumeTraded / initialCapital) : 0;
+
+    const comparison = compareStrategies(normalized, { ...options, initialCapital });
+
     return {
       initialCapital,
       totalNetProfit,
       totalTradesCount,
       trendFollowing: trendMetrics,
       volatilityTrading: volMetrics,
+      capitalEfficiency: {
+        totalCapitalDays,
+        totalCapitalSessions,
+        returnPerCapitalDayPct,
+        returnPerCapitalSessionPct,
+        netPerThousandCapitalDays,
+        totalAllocatedCapital,
+        totalVolumeTraded,
+        capitalTurnover,
+        volumeTurnover
+      },
+      comparison,
       contribution: {
         trendFollowing: {
           netProfit: trendMetrics.netProfit,
@@ -828,6 +1060,201 @@
       combinedEquityCurve,
       sampleSizeAlert: isSampleSizeInsufficient,
       sampleSizeWarning,
+      definitions: METRIC_DEFINITIONS
+    };
+  }
+
+  /**
+   * Compara lado a lado os sistemas operacionais (Trend Following vs Volatility Trading)
+   * no mesmo período histórico, avaliando eficiência econômica, giro, retorno por capital-dia e drawdown.
+   */
+  function compareStrategies(trades, options = {}) {
+    const rawList = Array.isArray(trades) ? trades : [];
+    const normalized = rawList.map(analyzeTrade).filter(t => t && (t.status === 'closed' || t.status === 'CLOSED'));
+
+    const initialCapital = Number(options.initialCapital || 100000);
+    const trendTrades = normalized.filter(t => t.strategyType === 'TREND_FOLLOWING');
+    const volTrades = normalized.filter(t => t.strategyType === 'VOLATILITY_TRADING');
+
+    const trendMetrics = calculateStrategyMetrics(trendTrades, { ...options, initialCapital, strategyType: 'TREND_FOLLOWING' });
+    const volMetrics = calculateStrategyMetrics(volTrades, { ...options, initialCapital, strategyType: 'VOLATILITY_TRADING' });
+
+    function resolveWinner(trendVal, volVal, lowerIsBetter = false) {
+      if (trendVal == null && volVal == null) return 'TIE';
+      if (trendVal == null || Number.isNaN(trendVal)) return 'VOLATILITY_TRADING';
+      if (volVal == null || Number.isNaN(volVal)) return 'TREND_FOLLOWING';
+      if (Math.abs(trendVal - volVal) < 0.0001) return 'TIE';
+      if (lowerIsBetter) {
+        return trendVal < volVal ? 'TREND_FOLLOWING' : 'VOLATILITY_TRADING';
+      }
+      return trendVal > volVal ? 'TREND_FOLLOWING' : 'VOLATILITY_TRADING';
+    }
+
+    function formatMoneyBR(val) {
+      return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    const dimensions = [
+      {
+        id: 'returnPerCapitalDay',
+        name: 'Retorno por Capital-Dia',
+        isPriority: true,
+        unit: '% ao dia',
+        description: 'Rentabilidade gerada por cada unidade monetária comprometida multiplicada pelos dias em aberto. Métrica prioritária de eficiência de capital.',
+        trendValue: trendMetrics.returnPerCapitalDayPct,
+        trendFormatted: `${trendMetrics.returnPerCapitalDayPct.toFixed(3)}% ao dia (${formatMoneyBR(trendMetrics.netPerThousandCapitalDays)} / R$ 1k-dia)`,
+        volValue: volMetrics.returnPerCapitalDayPct,
+        volFormatted: `${volMetrics.returnPerCapitalDayPct.toFixed(3)}% ao dia (${formatMoneyBR(volMetrics.netPerThousandCapitalDays)} / R$ 1k-dia)`,
+        winner: resolveWinner(trendMetrics.returnPerCapitalDayPct, volMetrics.returnPerCapitalDayPct),
+        insight: 'Mede o poder de geração diária de riqueza sobre o capital sob risco no mercado.'
+      },
+      {
+        id: 'capitalTurnover',
+        name: 'Rotatividade do Capital (Turnover)',
+        unit: 'vezes',
+        description: 'Quantas vezes o capital disponível da conta foi reutilizado em operações durante o período.',
+        trendValue: trendMetrics.capitalTurnover,
+        trendFormatted: `${trendMetrics.capitalTurnover.toFixed(1)}x`,
+        volValue: volMetrics.capitalTurnover,
+        volFormatted: `${volMetrics.capitalTurnover.toFixed(1)}x`,
+        winner: resolveWinner(trendMetrics.capitalTurnover, volMetrics.capitalTurnover),
+        insight: 'Maior turnover recicla o capital com rapidez para capturar mais oportunidades.'
+      },
+      {
+        id: 'tradesPerMonth',
+        name: 'Frequência Operacional',
+        unit: 'trades/mês',
+        description: 'Média de operações executadas por mês no período observado.',
+        trendValue: trendMetrics.tradesPerMonth,
+        trendFormatted: `${trendMetrics.tradesPerMonth.toFixed(1)} trades/mês`,
+        volValue: volMetrics.tradesPerMonth,
+        volFormatted: `${volMetrics.tradesPerMonth.toFixed(1)} trades/mês`,
+        winner: resolveWinner(trendMetrics.tradesPerMonth, volMetrics.tradesPerMonth),
+        insight: 'Frequência de gatilhos acionados pelo modelo estatístico.'
+      },
+      {
+        id: 'avgHoldingPeriod',
+        name: 'Tempo Médio de Exposição',
+        unit: 'pregões',
+        description: 'Duração média das operações no mercado (menor tempo = menor exposição a choques exógenos).',
+        trendValue: trendMetrics.avgHoldingSessions,
+        trendFormatted: `${trendMetrics.avgHoldingSessions.toFixed(1)} pregões (${trendMetrics.avgHoldingDays.toFixed(1)} dias)`,
+        volValue: volMetrics.avgHoldingSessions,
+        volFormatted: `${volMetrics.avgHoldingSessions.toFixed(1)} pregões (${volMetrics.avgHoldingDays.toFixed(1)} dias)`,
+        winner: resolveWinner(trendMetrics.avgHoldingSessions, volMetrics.avgHoldingSessions, true),
+        insight: 'Posições curtas reduzem a permanência sob risco de mercado.'
+      },
+      {
+        id: 'payoffRatio',
+        name: 'Relação Payoff Médio',
+        unit: 'x',
+        description: 'Ganho médio por trade vencedor dividido pela perda média por trade perdedor.',
+        trendValue: trendMetrics.payoffRatio,
+        trendFormatted: `${trendMetrics.payoffRatio.toFixed(2)}x`,
+        volValue: volMetrics.payoffRatio,
+        volFormatted: `${volMetrics.payoffRatio.toFixed(2)}x`,
+        winner: resolveWinner(trendMetrics.payoffRatio, volMetrics.payoffRatio),
+        insight: 'Trend Following compensa menor frequência com grandes movimentos direcionais assimétricos.'
+      },
+      {
+        id: 'projectedMonthlyExpectancy',
+        name: 'Expectativa Mensal Projetada',
+        unit: 'R$/mês',
+        description: 'Expectativa matemática mensal baseada na combinação de Expectativa por Trade × Frequência Mensal.',
+        trendValue: trendMetrics.projectedMonthlyExpectancy,
+        trendFormatted: `${trendMetrics.projectedMonthlyExpectancy >= 0 ? '+' : ''}${formatMoneyBR(trendMetrics.projectedMonthlyExpectancy)}${trendMetrics.projectedMonthlyExpectancyR != null ? ` (+${trendMetrics.projectedMonthlyExpectancyR.toFixed(1)}R)` : ''}`,
+        volValue: volMetrics.projectedMonthlyExpectancy,
+        volFormatted: `${volMetrics.projectedMonthlyExpectancy >= 0 ? '+' : ''}${formatMoneyBR(volMetrics.projectedMonthlyExpectancy)}`,
+        winner: resolveWinner(trendMetrics.projectedMonthlyExpectancy, volMetrics.projectedMonthlyExpectancy),
+        insight: 'Demonstra como frequência e turnover compensam payoffs individuais moderados.'
+      },
+      {
+        id: 'observedMonthlyAverage',
+        name: 'Média Mensal Observada',
+        unit: 'R$/mês',
+        description: 'Resultado líquido total histórico dividido pela extensão em meses do período avaliado.',
+        trendValue: trendMetrics.observedMonthlyAverage,
+        trendFormatted: `${trendMetrics.observedMonthlyAverage >= 0 ? '+' : ''}${formatMoneyBR(trendMetrics.observedMonthlyAverage)}`,
+        volValue: volMetrics.observedMonthlyAverage,
+        volFormatted: `${volMetrics.observedMonthlyAverage >= 0 ? '+' : ''}${formatMoneyBR(volMetrics.observedMonthlyAverage)}`,
+        winner: resolveWinner(trendMetrics.observedMonthlyAverage, volMetrics.observedMonthlyAverage),
+        insight: 'Resultado líquido efetivamente realizado dividido pela extensão do período em meses.'
+      },
+      {
+        id: 'returnOnCapitalDeployed',
+        name: 'Retorno sobre Capital Empregado (ROCD)',
+        unit: '%',
+        description: 'Retorno líquido total em relação ao capital médio que esteve comprometido.',
+        trendValue: trendMetrics.returnOnCapitalDeployedPct,
+        trendFormatted: `${trendMetrics.returnOnCapitalDeployedPct >= 0 ? '+' : ''}${trendMetrics.returnOnCapitalDeployedPct.toFixed(1)}%`,
+        volValue: volMetrics.returnOnCapitalDeployedPct,
+        volFormatted: `${volMetrics.returnOnCapitalDeployedPct >= 0 ? '+' : ''}${volMetrics.returnOnCapitalDeployedPct.toFixed(1)}%`,
+        winner: resolveWinner(trendMetrics.returnOnCapitalDeployedPct, volMetrics.returnOnCapitalDeployedPct),
+        insight: 'Eficiência sobre o capital que foi efetivamente alocado em posições.'
+      },
+      {
+        id: 'maxDrawdown',
+        name: 'Drawdown Máximo Histórico',
+        unit: '%',
+        description: 'Maior queda patrimonial percentual de pico a vale (menor é melhor).',
+        trendValue: trendMetrics.maxDrawdownPct,
+        trendFormatted: `-${trendMetrics.maxDrawdownPct.toFixed(1)}% (${formatMoneyBR(trendMetrics.maxDrawdownAmount)})`,
+        volValue: volMetrics.maxDrawdownPct,
+        volFormatted: `-${volMetrics.maxDrawdownPct.toFixed(1)}% (${formatMoneyBR(volMetrics.maxDrawdownAmount)})`,
+        winner: resolveWinner(trendMetrics.maxDrawdownPct, volMetrics.maxDrawdownPct, true),
+        insight: 'Menor drawdown preserva estabilidade emocional e reduz risco de ruína.'
+      },
+      {
+        id: 'winRate',
+        name: 'Taxa de Acerto (Win Rate)',
+        unit: '%',
+        description: 'Percentual de operações com lucro líquido.',
+        trendValue: trendMetrics.winRatePct,
+        trendFormatted: `${trendMetrics.winRatePct.toFixed(1)}%`,
+        volValue: volMetrics.winRatePct,
+        volFormatted: `${volMetrics.winRatePct.toFixed(1)}%`,
+        winner: resolveWinner(trendMetrics.winRatePct, volMetrics.winRatePct),
+        insight: 'Volatilidade foca em alta probabilidade; Tendência foca em assimetria favorável.'
+      },
+      {
+        id: 'profitFactor',
+        name: 'Fator de Lucro (Profit Factor)',
+        unit: '',
+        description: 'Lucro bruto total dividido por perda bruta total.',
+        trendValue: trendMetrics.profitFactor,
+        trendFormatted: `${trendMetrics.profitFactor.toFixed(2)}`,
+        volValue: volMetrics.profitFactor,
+        volFormatted: `${volMetrics.profitFactor.toFixed(2)}`,
+        winner: resolveWinner(trendMetrics.profitFactor, volMetrics.profitFactor),
+        insight: 'Solidez global do sistema na relação entre lucros e perdas acumuladas.'
+      }
+    ];
+
+    const trendWins = dimensions.filter(d => d.winner === 'TREND_FOLLOWING').length;
+    const volWins = dimensions.filter(d => d.winner === 'VOLATILITY_TRADING').length;
+
+    let primaryVerdict = '';
+    if (volMetrics.returnPerCapitalDayPct > trendMetrics.returnPerCapitalDayPct) {
+      primaryVerdict = `O Swing Trade de Volatilidade superou em Retorno por Capital-Dia (${volMetrics.returnPerCapitalDayPct.toFixed(3)}%/dia vs ${trendMetrics.returnPerCapitalDayPct.toFixed(3)}%/dia). Embora o Trend Following apresente maior payoff por trade (${trendMetrics.payoffRatio.toFixed(2)}x vs ${volMetrics.payoffRatio.toFixed(2)}x), a maior rotação de capital (${volMetrics.capitalTurnover.toFixed(1)}x vs ${trendMetrics.capitalTurnover.toFixed(1)}x) e a menor permanência média (${volMetrics.avgHoldingSessions.toFixed(1)} vs ${trendMetrics.avgHoldingSessions.toFixed(1)} pregões) permitiram ao sistema de volatilidade gerar mais riqueza por unidade de capital e tempo de exposição.`;
+    } else if (trendMetrics.returnPerCapitalDayPct > volMetrics.returnPerCapitalDayPct) {
+      primaryVerdict = `O Swing Trade de Tendência superou em Retorno por Capital-Dia (${trendMetrics.returnPerCapitalDayPct.toFixed(3)}%/dia vs ${volMetrics.returnPerCapitalDayPct.toFixed(3)}%/dia). O elevado payoff direcional das operações vencedoras (${trendMetrics.payoffRatio.toFixed(2)}x) mais do que compensou o maior tempo de exposição (${trendMetrics.avgHoldingSessions.toFixed(1)} pregões).`;
+    } else {
+      primaryVerdict = `Ambos os sistemas apresentaram eficiência de capital equivalente por tempo de exposição no período analisado.`;
+    }
+
+    const dualSynergySummary = `Princípio do Portfólio Dual: Payoff elevado não significa necessariamente maior eficiência de capital. A integração de ambos os sistemas em carteira permite capturar grandes tendências estruturais com Trend Following enquanto Volatility Trading mantém o capital girando de forma líquida e produtiva durante consolidações de mercado.`;
+
+    return {
+      scope: 'COMPARISON',
+      initialCapital,
+      totalTradesCount: normalized.length,
+      trendFollowing: trendMetrics,
+      volatilityTrading: volMetrics,
+      dimensions,
+      trendWins,
+      volWins,
+      primaryVerdict,
+      dualSynergySummary,
       definitions: METRIC_DEFINITIONS
     };
   }
@@ -905,6 +1332,8 @@
     calculateVolatilityBreakdowns,
     calculatePearsonCorrelation,
     calculateConsolidatedPortfolio,
+    compareStrategies,
+    countBusinessDays,
     filterTrades
   });
 });
