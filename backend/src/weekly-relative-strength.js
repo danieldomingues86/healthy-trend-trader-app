@@ -1,3 +1,4 @@
+const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
 'use strict';
 
 /**
@@ -322,7 +323,7 @@ function rankWeeklyItems(items) {
 /**
  * Constrói e ranqueia uma classe de ativos inteira no timeframe semanal.
  */
-function buildWeeklyClass({ assetClass, catalogItems, histories, benchmarkDailyHistory, benchmarkSymbol, benchmarkName }) {
+function buildWeeklyClass({ assetClass, catalogItems, histories, benchmarkDailyHistory, benchmarkSymbol, benchmarkName, policy }) {
   const benchmarkWeekly = aggregateWeeklyCandles(benchmarkDailyHistory || []);
   const benchmarkRet = weeklyReturns(benchmarkWeekly);
 
@@ -339,6 +340,13 @@ function buildWeeklyClass({ assetClass, catalogItems, histories, benchmarkDailyH
       ? (ret.m1 - benchmarkRet.m1) * 0.35 + (ret.m3 - benchmarkRet.m3) * 0.65
       : (ret.m1 * 0.35 + ret.m3 * 0.65);
 
+    const liquidity = LiquidityGateModel.evaluateLiquidity({
+      candles: history,
+      symbol: item.symbol,
+      market: 'B3',
+      policy
+    });
+
     scored.push({
       symbol: item.symbol,
       name: item.name || item.symbol,
@@ -353,11 +361,21 @@ function buildWeeklyClass({ assetClass, catalogItems, histories, benchmarkDailyH
       relativeScore: relScore,
       trendState: trendInfo.state,
       weeklyTrend: trendInfo,
+      liquidity,
       timeframe: 'weekly'
     });
   }
 
-  const ranked = rankWeeklyItems(scored);
+  const eligible = scored.filter(item => item.liquidity?.isEligible);
+  const excluded = scored.filter(item => !item.liquidity?.isEligible).map(item => ({
+    ...item,
+    rank: null,
+    score: null,
+    rsScore: null,
+    trendTemplate: 'below_filter'
+  }));
+
+  const ranked = rankWeeklyItems(eligible);
   return {
     key: assetClass,
     assetClass,
@@ -367,7 +385,8 @@ function buildWeeklyClass({ assetClass, catalogItems, histories, benchmarkDailyH
     timeframe: 'weekly',
     requested: (catalogItems || []).length,
     available: ranked.length,
-    items: ranked
+    items: ranked,
+    excludedByLiquidity: excluded
   };
 }
 

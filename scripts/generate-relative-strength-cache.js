@@ -45,6 +45,25 @@ function cleanItem(item) {
   }
   if (item.benchmark) obj.benchmark = item.benchmark;
   if (item.rank) obj.rank = item.rank;
+  if (item.liquidity) {
+    obj.liquidity = {
+      isEligible: Boolean(item.liquidity.isEligible),
+      status: item.liquidity.status,
+      code: item.liquidity.code,
+      reason: item.liquidity.reason,
+      metrics: item.liquidity.metrics ? {
+        averageDailyVolumeFormatted: item.liquidity.metrics.averageDailyVolumeFormatted,
+        averageDailyVolumeCompact: item.liquidity.metrics.averageDailyVolumeCompact,
+        minDailyVolumeFormatted: item.liquidity.metrics.minDailyVolumeFormatted,
+        minDailyVolumeCompact: item.liquidity.metrics.minDailyVolumeCompact,
+        evaluatedSessions: item.liquidity.metrics.evaluatedSessions,
+        windowSessions: item.liquidity.metrics.windowSessions,
+        averageDailyVolume: item.liquidity.metrics.averageDailyVolume,
+        minDailyVolume: item.liquidity.metrics.minDailyVolume
+      } : null,
+      badge: item.liquidity.badge
+    };
+  }
   return obj;
 }
 
@@ -57,25 +76,29 @@ const staticCache = {
       key: 'stock_ibov',
       label: 'Ações Ibovespa',
       benchmark: 'IBOV',
-      items: (b3.relativeStrengthByClass?.stock_ibov?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClass?.stock_ibov?.items || []).map(cleanItem),
+      excludedByLiquidity: (b3.relativeStrengthByClass?.stock_ibov?.excludedByLiquidity || []).map(cleanItem)
     },
     stock_other: {
       key: 'stock_other',
       label: 'Demais ações',
       benchmark: 'SMLL + B3',
-      items: (b3.relativeStrengthByClass?.stock_other?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClass?.stock_other?.items || []).map(cleanItem),
+      excludedByLiquidity: (b3.relativeStrengthByClass?.stock_other?.excludedByLiquidity || []).map(cleanItem)
     },
     fii: {
       key: 'fii',
       label: 'FIIs',
       benchmark: 'IFIX',
-      items: (b3.relativeStrengthByClass?.fii?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClass?.fii?.items || []).map(cleanItem),
+      excludedByLiquidity: (b3.relativeStrengthByClass?.fii?.excludedByLiquidity || []).map(cleanItem)
     },
     bdr: {
       key: 'bdr',
       label: 'BDRs',
       benchmark: 'Universo BDR',
-      items: (b3.relativeStrengthByClass?.bdr?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClass?.bdr?.items || []).map(cleanItem),
+      excludedByLiquidity: (b3.relativeStrengthByClass?.bdr?.excludedByLiquidity || []).map(cleanItem)
     }
   },
   weekly: {
@@ -83,25 +106,29 @@ const staticCache = {
       key: 'stock_ibov',
       label: 'Ações Ibovespa',
       benchmark: 'IBOV',
-      items: (b3.relativeStrengthByClassWeekly?.stock_ibov?.items || b3.relativeStrengthByClass?.stock_ibov?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClassWeekly?.stock_ibov?.items || b3.relativeStrengthByClass?.stock_ibov?.items || []).map(cleanItem),
+      excludedByLiquidity: (b3.relativeStrengthByClassWeekly?.stock_ibov?.excludedByLiquidity || b3.relativeStrengthByClass?.stock_ibov?.excludedByLiquidity || []).map(cleanItem)
     },
     stock_other: {
       key: 'stock_other',
       label: 'Demais ações',
       benchmark: 'SMLL + B3',
-      items: (b3.relativeStrengthByClassWeekly?.stock_other?.items || b3.relativeStrengthByClass?.stock_other?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClassWeekly?.stock_other?.items || b3.relativeStrengthByClass?.stock_other?.items || []).map(cleanItem),
+      excludedByLiquidity: (b3.relativeStrengthByClassWeekly?.stock_other?.excludedByLiquidity || b3.relativeStrengthByClass?.stock_other?.excludedByLiquidity || []).map(cleanItem)
     },
     fii: {
       key: 'fii',
       label: 'FIIs',
       benchmark: 'IFIX',
-      items: (b3.relativeStrengthByClassWeekly?.fii?.items || b3.relativeStrengthByClass?.fii?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClassWeekly?.fii?.items || b3.relativeStrengthByClass?.fii?.items || []).map(cleanItem),
+      excludedByLiquidity: (b3.relativeStrengthByClassWeekly?.fii?.excludedByLiquidity || b3.relativeStrengthByClass?.fii?.excludedByLiquidity || []).map(cleanItem)
     },
     bdr: {
       key: 'bdr',
       label: 'BDRs',
       benchmark: 'Universo BDR',
-      items: (b3.relativeStrengthByClassWeekly?.bdr?.items || b3.relativeStrengthByClass?.bdr?.items || []).map(cleanItem)
+      items: (b3.relativeStrengthByClassWeekly?.bdr?.items || b3.relativeStrengthByClass?.bdr?.items || []).map(cleanItem),
+      excludedByLiquidity: (b3.relativeStrengthByClassWeekly?.bdr?.excludedByLiquidity || b3.relativeStrengthByClass?.bdr?.excludedByLiquidity || []).map(cleanItem)
     }
   },
   nasdaq: {

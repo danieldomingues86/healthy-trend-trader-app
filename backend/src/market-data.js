@@ -5,6 +5,7 @@ const { createBrapiClient, writeJson } = require('./brapi-client');
 const { createRefreshControl } = require('./market-refresh-control');
 const b3Historical = require('./b3-historical');
 const b3IndexHistory = require('./b3-index-history');
+const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
 
 const BRAPI_URL = 'https://brapi.dev/api/v2/stocks/historical';
 const BRAPI_QUOTE_URL = 'https://brapi.dev/api/v2/stocks/quote';
@@ -635,16 +636,33 @@ async function collectClassRelativeStrength({ assetClass, benchmarkSymbol, catal
     if (benchmarkLastDate && assetLastDate && assetLastDate < benchmarkLastDate) {
       return { ...item, error: `Ativo expirado ou sem negociação no fechamento (${assetLastDate} < ${benchmarkLastDate})` };
     }
+    const liquidity = LiquidityGateModel.evaluateLiquidity({
+      candles: history,
+      symbol: item.symbol,
+      market: 'B3'
+    });
     return {
       ...item,
       ...assetReturns,
       scan: scanMetrics(history),
       relativeTrend: relativeTrend(history, benchmarkHistory),
-      relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65
+      relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65,
+      liquidity,
+      history
     };
   });
-  const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
-  return { ...classMeta(assetClass), benchmark: benchmarkSymbol, returns: benchmarkReturns, requested: catalog.length, available: rows.length, items: rows };
+  const clean = item => { const { history, ...value } = item; return value; };
+  const available = collected.filter((item) => !item.error);
+  const eligible = available.filter((item) => item.liquidity?.isEligible);
+  const excluded = available.filter((item) => !item.liquidity?.isEligible).map(item => clean({
+    ...item,
+    rank: null,
+    score: null,
+    trendTemplate: 'below_filter',
+    assetClass
+  }));
+  const rows = rank(eligible.map(clean)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
+  return { ...classMeta(assetClass), benchmark: benchmarkSymbol, returns: benchmarkReturns, requested: catalog.length, available: rows.length, items: rows, excludedByLiquidity: excluded };
 }
 async function collectPeerRelativeStrength({ assetClass, catalog }) {
   const histories = await fetchHistories(catalog.map((item) => item.symbol));
@@ -660,10 +678,33 @@ async function collectPeerRelativeStrength({ assetClass, catalog }) {
     if (benchmarkLastDate && assetLastDate && assetLastDate < benchmarkLastDate) {
       return { ...item, error: `Ativo expirado ou sem negociação no fechamento (${assetLastDate} < ${benchmarkLastDate})` };
     }
-    return { ...item, ...assetReturns, scan: scanMetrics(history), relativeTrend: relativeTrend(history, benchmarkHistory), relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65 };
+    const liquidity = LiquidityGateModel.evaluateLiquidity({
+      candles: history,
+      symbol: item.symbol,
+      market: 'B3'
+    });
+    return {
+      ...item,
+      ...assetReturns,
+      scan: scanMetrics(history),
+      relativeTrend: relativeTrend(history, benchmarkHistory),
+      relativeScore: (assetReturns.m1 - benchmarkReturns.m1) * .35 + (assetReturns.m3 - benchmarkReturns.m3) * .65,
+      liquidity,
+      history
+    };
   });
-  const rows = rank(collected.filter((item) => !item.error)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
-  return { ...classMeta(assetClass), benchmark: 'Universo de BDRs', returns: benchmarkReturns, requested: catalog.length, available: rows.length, items: rows, catalogVersion: BDR_CATALOG_VERSION };
+  const cleanPeer = item => { const { history, ...value } = item; return value; };
+  const availablePeer = collected.filter((item) => !item.error);
+  const eligiblePeer = availablePeer.filter((item) => item.liquidity?.isEligible);
+  const excludedPeer = availablePeer.filter((item) => !item.liquidity?.isEligible).map(item => cleanPeer({
+    ...item,
+    rank: null,
+    score: null,
+    trendTemplate: 'below_filter',
+    assetClass
+  }));
+  const rows = rank(eligiblePeer.map(cleanPeer)).map((item) => ({ ...item, trendTemplate: templateReading(item.score, item.relativeTrend) }));
+  return { ...classMeta(assetClass), benchmark: 'Universo de BDRs', returns: benchmarkReturns, requested: catalog.length, available: rows.length, items: rows, excludedByLiquidity: excludedPeer, catalogVersion: BDR_CATALOG_VERSION };
 }
 let resilience12mCacheData = null;
 function getResilience12mCache() {
@@ -689,14 +730,26 @@ function classStrengthFromCache(cache) {
   const legacyStock = { ...classMeta('stock'), requested: cache.universe?.requested || 0, available: cache.relativeStrength?.length || 0, unavailable: cache.universe?.unavailable || [], items: (cache.relativeStrength || []).map((item) => enrichItemWithResilience({ ...item, assetClass: item.assetClass || 'stock' })) };
   const fallbackStock = { ...legacyStock, ...classMeta('stock_ibov'), items: legacyStock.items.map(item => ({ ...item, assetClass: 'stock_ibov' })) };
   const rawStockIbov = cache.relativeStrengthByClass?.stock_ibov || fallbackStock;
-  const stockIbov = { ...rawStockIbov, items: (rawStockIbov.items || []).map(enrichItemWithResilience) };
-  const rawStockOther = cache.relativeStrengthByClass?.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [], pending: true };
-  const stockOther = { ...rawStockOther, items: (rawStockOther.items || []).map(enrichItemWithResilience) };
-  const pending = (assetClass) => ({ ...classMeta(assetClass), requested: 0, available: 0, items: [], pending: true });
+  const stockIbov = {
+    ...rawStockIbov,
+    items: (rawStockIbov.items || []).map(enrichItemWithResilience),
+    excludedByLiquidity: (rawStockIbov.excludedByLiquidity || []).map(enrichItemWithResilience)
+  };
+  const rawStockOther = cache.relativeStrengthByClass?.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [], excludedByLiquidity: [], pending: true };
+  const stockOther = {
+    ...rawStockOther,
+    items: (rawStockOther.items || []).map(enrichItemWithResilience),
+    excludedByLiquidity: (rawStockOther.excludedByLiquidity || []).map(enrichItemWithResilience)
+  };
+  const pending = (assetClass) => ({ ...classMeta(assetClass), requested: 0, available: 0, items: [], excludedByLiquidity: [], pending: true });
   const fiiRaw = cache.relativeStrengthByClass?.fii || pending('fii');
   const fii = {
     ...fiiRaw,
     items: (fiiRaw.items || []).map((item) => enrichItemWithResilience({
+      ...item,
+      name: (item.name && item.name !== item.symbol) ? item.name : (FII_NAME_MAP[item.symbol] || item.name || item.symbol)
+    })),
+    excludedByLiquidity: (fiiRaw.excludedByLiquidity || []).map((item) => enrichItemWithResilience({
       ...item,
       name: (item.name && item.name !== item.symbol) ? item.name : (FII_NAME_MAP[item.symbol] || item.name || item.symbol)
     }))
@@ -710,6 +763,13 @@ function classStrengthFromCache(cache) {
         ...item,
         name: (item.name && item.name !== item.symbol) ? item.name : (bdrEntry?.[1] || item.name || item.symbol)
       });
+    }),
+    excludedByLiquidity: (bdrRaw.excludedByLiquidity || []).map((item) => {
+      const bdrEntry = BDR_CATALOG.find(([s]) => s === item.symbol);
+      return enrichItemWithResilience({
+        ...item,
+        name: (item.name && item.name !== item.symbol) ? item.name : (bdrEntry?.[1] || item.name || item.symbol)
+      });
     })
   };
   return { stock: legacyStock, stock_ibov: stockIbov, stock_other: stockOther, fii, bdr };
@@ -718,22 +778,41 @@ function classStrengthFromCache(cache) {
 function classStrengthWeeklyFromCache(cache) {
   const weekly = cache?.relativeStrengthByClassWeekly;
   if (!weekly) return classStrengthFromCache(cache);
-  const rawStockIbov = weekly.stock_ibov || { ...classMeta('stock_ibov'), requested: 0, available: 0, items: [] };
-  const stockIbov = { ...rawStockIbov, items: (rawStockIbov.items || []).map(enrichItemWithResilience) };
-  const rawStockOther = weekly.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [] };
-  const stockOther = { ...rawStockOther, items: (rawStockOther.items || []).map(enrichItemWithResilience) };
-  const fiiRaw = weekly.fii || { ...classMeta('fii'), requested: 0, available: 0, items: [] };
+  const rawStockIbov = weekly.stock_ibov || { ...classMeta('stock_ibov'), requested: 0, available: 0, items: [], excludedByLiquidity: [] };
+  const stockIbov = {
+    ...rawStockIbov,
+    items: (rawStockIbov.items || []).map(enrichItemWithResilience),
+    excludedByLiquidity: (rawStockIbov.excludedByLiquidity || []).map(enrichItemWithResilience)
+  };
+  const rawStockOther = weekly.stock_other || { ...classMeta('stock_other'), requested: 0, available: 0, items: [], excludedByLiquidity: [] };
+  const stockOther = {
+    ...rawStockOther,
+    items: (rawStockOther.items || []).map(enrichItemWithResilience),
+    excludedByLiquidity: (rawStockOther.excludedByLiquidity || []).map(enrichItemWithResilience)
+  };
+  const fiiRaw = weekly.fii || { ...classMeta('fii'), requested: 0, available: 0, items: [], excludedByLiquidity: [] };
   const fii = {
     ...fiiRaw,
     items: (fiiRaw.items || []).map((item) => enrichItemWithResilience({
       ...item,
       name: (item.name && item.name !== item.symbol) ? item.name : (FII_NAME_MAP[item.symbol] || item.name || item.symbol)
+    })),
+    excludedByLiquidity: (fiiRaw.excludedByLiquidity || []).map((item) => enrichItemWithResilience({
+      ...item,
+      name: (item.name && item.name !== item.symbol) ? item.name : (FII_NAME_MAP[item.symbol] || item.name || item.symbol)
     }))
   };
-  const bdrRaw = weekly.bdr || { ...classMeta('bdr'), requested: 0, available: 0, items: [] };
+  const bdrRaw = weekly.bdr || { ...classMeta('bdr'), requested: 0, available: 0, items: [], excludedByLiquidity: [] };
   const bdr = {
     ...bdrRaw,
     items: (bdrRaw.items || []).map((item) => {
+      const bdrEntry = BDR_CATALOG.find(([s]) => s === item.symbol);
+      return enrichItemWithResilience({
+        ...item,
+        name: (item.name && item.name !== item.symbol) ? item.name : (bdrEntry?.[1] || item.name || item.symbol)
+      });
+    }),
+    excludedByLiquidity: (bdrRaw.excludedByLiquidity || []).map((item) => {
       const bdrEntry = BDR_CATALOG.find(([s]) => s === item.symbol);
       return enrichItemWithResilience({
         ...item,
@@ -747,10 +826,21 @@ function classifyAsset(symbol, cache) {
   const normalized = String(symbol || '').trim().toUpperCase();
   const baseClass = assetClassForSymbol(normalized);
   const classes = classStrengthFromCache(cache || {});
-  const assetClass = baseClass === 'stock' ? (classes.stock_ibov.items.some(item => item.symbol === normalized) ? 'stock_ibov' : 'stock_other') : baseClass;
+  const assetClass = baseClass === 'stock'
+    ? (classes.stock_ibov.items.some(item => item.symbol === normalized) || (classes.stock_ibov.excludedByLiquidity || []).some(item => item.symbol === normalized) ? 'stock_ibov' : 'stock_other')
+    : baseClass;
   const universe = classes[assetClass];
   const item = universe?.items?.find((candidate) => candidate.symbol === normalized) || null;
-  return { ticker: normalized, assetClass, ...classMeta(assetClass), item, available: Boolean(item) };
+  const excludedItem = universe?.excludedByLiquidity?.find((candidate) => candidate.symbol === normalized) || null;
+  return {
+    ticker: normalized,
+    assetClass,
+    ...classMeta(assetClass),
+    item,
+    excludedItem,
+    available: Boolean(item),
+    excludedByLiquidity: Boolean(excludedItem)
+  };
 }
 
 function scoreStockGroup(entries, benchmarkHistory, benchmark) {
@@ -797,23 +887,72 @@ async function collectMarketData() {
       return { symbol, error: `Ativo expirado ou sem negociação no fechamento (${assetLastDate} < ${dataAsOf})` };
     }
     const details = metadata.get(symbol) || { name: symbol, sector: 'Não classificado' };
-    return { symbol, ...details, ...assetReturns, scan: scanMetrics(history), history };
+    const liquidity = LiquidityGateModel.evaluateLiquidity({
+      candles: history,
+      symbol,
+      market: 'B3'
+    });
+    return { symbol, ...details, ...assetReturns, scan: scanMetrics(history), liquidity, history };
   });
   const availableEntries = collected.filter((item) => !item.error);
   const groups = splitStockUniverse(symbols, indexSymbols, smallCapSymbols);
   const select = (members) => { const set = new Set(members); return availableEntries.filter(item => set.has(item.symbol)); };
-  const ibovRows = scoreStockGroup(select(groups.ibov), ibovHistory, 'IBOV');
-  const smallRows = scoreStockGroup(select(groups.small), smllHistory, 'SMLL');
+
+  // Separação estrita do Liquidity Gate antes do cálculo de ranking e percentis
+  const ibovEntries = select(groups.ibov);
+  const ibovEligible = ibovEntries.filter(item => item.liquidity?.isEligible);
+  const ibovExcluded = ibovEntries.filter(item => !item.liquidity?.isEligible);
+  const ibovRows = scoreStockGroup(ibovEligible, ibovHistory, 'IBOV');
+
+  const smallEntries = select(groups.small);
+  const smallEligible = smallEntries.filter(item => item.liquidity?.isEligible);
+  const smallExcluded = smallEntries.filter(item => !item.liquidity?.isEligible);
+  const smallRows = scoreStockGroup(smallEligible, smllHistory, 'SMLL');
+
   const otherEntries = select(groups.other);
-  const otherBenchmarkHistory = peerBenchmarkHistory(new Map(otherEntries.map(item => [item.symbol, item.history])));
-  const residualRows = otherEntries.length && Number.isFinite(returns(otherBenchmarkHistory).m3) ? scoreStockGroup(otherEntries, otherBenchmarkHistory, 'B3 fora de IBOV/SMLL') : [];
+  const otherEligible = otherEntries.filter(item => item.liquidity?.isEligible);
+  const otherExcluded = otherEntries.filter(item => !item.liquidity?.isEligible);
+  const otherBenchmarkHistory = peerBenchmarkHistory(new Map(otherEligible.map(item => [item.symbol, item.history])));
+  const residualRows = otherEligible.length && Number.isFinite(returns(otherBenchmarkHistory).m3) ? scoreStockGroup(otherEligible, otherBenchmarkHistory, 'B3 fora de IBOV/SMLL') : [];
   const clean = item => { const { history, ...value } = item; return value; };
-  // Unifica e ranqueia globalmente o universo stock_other (Demais ações) com posições estritamente únicas
+
+  // Unifica e ranqueia globalmente o universo stock_other (Demais ações) apenas com ativos elegíveis
   const unifiedStockOther = rank([...smallRows, ...residualRows].map(clean)).map(item => ({
     ...item,
     trendTemplate: templateReading(item.score, item.relativeTrend),
     assetClass: 'stock_other'
   }));
+
+  const allExcludedStockOther = [...smallExcluded, ...otherExcluded].map(item => {
+    const smllRet = returns(smllHistory);
+    const relScore = (item.m1 - smllRet.m1) * .35 + (item.m3 - smllRet.m3) * .65;
+    return clean({
+      ...item,
+      benchmark: 'SMLL',
+      relativeTrend: relativeTrend(item.history, smllHistory),
+      relativeScore: Number.isFinite(relScore) ? relScore : null,
+      rank: null,
+      score: null,
+      trendTemplate: 'below_filter',
+      assetClass: 'stock_other'
+    });
+  });
+
+  const allExcludedStockIbov = ibovExcluded.map(item => {
+    const ibovRet = returns(ibovHistory);
+    const relScore = (item.m1 - ibovRet.m1) * .35 + (item.m3 - ibovRet.m3) * .65;
+    return clean({
+      ...item,
+      benchmark: 'IBOV',
+      relativeTrend: relativeTrend(item.history, ibovHistory),
+      relativeScore: Number.isFinite(relScore) ? relScore : null,
+      rank: null,
+      score: null,
+      trendTemplate: 'below_filter',
+      assetClass: 'stock_ibov'
+    });
+  });
+
   const rows = [...ibovRows.map(clean), ...unifiedStockOther];
   if (!rows.length || (previous?.relativeStrength?.length && rows.length < previous.relativeStrength.length * .8)) throw new Error('Atualização incompleta: cache anterior preservado.');
   const catalogFii = catalogItems(FII_CATALOG, 'fii');
@@ -829,10 +968,25 @@ async function collectMarketData() {
   }
   const relativeStrengthByClass = {
     dataAsOf,
-    stock_ibov: { ...classMeta('stock_ibov'), dataAsOf, returns: benchmarkReturns, requested: groups.ibov.length, available: ibovRows.length, items: ibovRows.map(clean) },
-    stock_other: { ...classMeta('stock_other'), dataAsOf, requested: groups.small.length + groups.other.length, available: unifiedStockOther.length, items: unifiedStockOther },
-    fii: fiiResult.status === 'fulfilled' && fiiResult.value.available > 0 ? fiiResult.value : { ...(previous?.relativeStrengthByClass?.fii || { ...classMeta('fii'), requested: catalogFii.length, available: 0, items: [] }), error: fiiResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt },
-    bdr: bdrResult.status === 'fulfilled' && bdrResult.value.available > 0 ? bdrResult.value : { ...(previous?.relativeStrengthByClass?.bdr || { ...classMeta('bdr'), requested: catalogBdr.length, available: 0, items: [] }), error: bdrResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt }
+    stock_ibov: {
+      ...classMeta('stock_ibov'),
+      dataAsOf,
+      returns: benchmarkReturns,
+      requested: groups.ibov.length,
+      available: ibovRows.length,
+      items: ibovRows.map(clean),
+      excludedByLiquidity: allExcludedStockIbov
+    },
+    stock_other: {
+      ...classMeta('stock_other'),
+      dataAsOf,
+      requested: groups.small.length + groups.other.length,
+      available: unifiedStockOther.length,
+      items: unifiedStockOther,
+      excludedByLiquidity: allExcludedStockOther
+    },
+    fii: fiiResult.status === 'fulfilled' && fiiResult.value.available > 0 ? fiiResult.value : { ...(previous?.relativeStrengthByClass?.fii || { ...classMeta('fii'), requested: catalogFii.length, available: 0, items: [], excludedByLiquidity: [] }), error: fiiResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt },
+    bdr: bdrResult.status === 'fulfilled' && bdrResult.value.available > 0 ? bdrResult.value : { ...(previous?.relativeStrengthByClass?.bdr || { ...classMeta('bdr'), requested: catalogBdr.length, available: 0, items: [], excludedByLiquidity: [] }), error: bdrResult.reason?.message || 'Sem dados novos', dataUpdatedAt: previous?.historyUpdatedAt || previous?.updatedAt }
   };
   const bdrxHistory = bdrxHistoryResult.ok ? bdrxHistoryResult.data : null;
   const bdrxReturns = bdrxHistory ? returns(bdrxHistory) : null;

@@ -149,29 +149,52 @@ test('rankWeeklyItems gera ordenação e scores percentis de 0 a 100', () => {
 });
 
 test('buildWeeklyClass agrega, ranqueia e estrutura classe completa no semanal', () => {
-  const benchmarkDaily = Array.from({ length: 30 }, (_, i) => ({
-    date: `2026${String(Math.floor(i / 5) + 1).padStart(2, '0')}${String((i % 5) + 1).padStart(2, '0')}`,
-    close: 100 + i * 2
+  // Gera 30 dias úteis contínuos (outubro a novembro de 2026, ~40 dias corridos)
+  const baseDate = new Date('2026-10-01T12:00:00Z');
+  const dates = [];
+  let d = new Date(baseDate);
+  while (dates.length < 30) {
+    const day = d.getUTCDay();
+    if (day !== 0 && day !== 6) {
+      dates.push(d.toISOString().slice(0, 10));
+    }
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+
+  const benchmarkDaily = dates.map((dt, i) => ({
+    date: dt,
+    close: 100 + i * 2,
+    volume: 50000000
   }));
 
-  const stock1Daily = Array.from({ length: 30 }, (_, i) => ({
-    date: `2026${String(Math.floor(i / 5) + 1).padStart(2, '0')}${String((i % 5) + 1).padStart(2, '0')}`,
-    close: 50 + i * 3
+  const stock1Daily = dates.map((dt, i) => ({
+    date: dt,
+    close: 50 + i * 3,
+    volume: 5000000 // R$ 5.000.000/dia > R$ 500.000
   }));
 
-  const stock2Daily = Array.from({ length: 30 }, (_, i) => ({
-    date: `2026${String(Math.floor(i / 5) + 1).padStart(2, '0')}${String((i % 5) + 1).padStart(2, '0')}`,
-    close: 80 - i
+  const stock2Daily = dates.map((dt, i) => ({
+    date: dt,
+    close: 80 - i,
+    volume: 3000000 // R$ 3.000.000/dia > R$ 500.000
+  }));
+
+  const stockIlliquidDaily = dates.map((dt, i) => ({
+    date: dt,
+    close: 10 + i * 10,
+    volume: 50000 // R$ 50.000/dia < R$ 500.000 (reprovado pelo gate)
   }));
 
   const histories = new Map([
     ['ALFA3', stock1Daily],
-    ['BETA3', stock2Daily]
+    ['BETA3', stock2Daily],
+    ['ILLQ3', stockIlliquidDaily]
   ]);
 
   const catalog = [
     { symbol: 'ALFA3', name: 'Alfa SA', sector: 'Tecnologia' },
-    { symbol: 'BETA3', name: 'Beta SA', sector: 'Financeiro' }
+    { symbol: 'BETA3', name: 'Beta SA', sector: 'Financeiro' },
+    { symbol: 'ILLQ3', name: 'Illiquid SA', sector: 'Outros' }
   ];
 
   const result = require('../src/weekly-relative-strength').buildWeeklyClass({
@@ -189,5 +212,7 @@ test('buildWeeklyClass agrega, ranqueia e estrutura classe completa no semanal',
   assert.equal(result.items[0].score, 100);
   assert.equal(result.items[1].symbol, 'BETA3');
   assert.equal(result.items[1].score, 0);
+  assert.equal(result.excludedByLiquidity.length, 1);
+  assert.equal(result.excludedByLiquidity[0].symbol, 'ILLQ3');
 });
 
