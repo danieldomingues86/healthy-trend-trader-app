@@ -50,8 +50,26 @@ function entryTimestamp(value) {
 function normalizePlan(payload = {}) {
   const ticker = String(payload.asset || payload.ticker || '').trim().toUpperCase();
   if (!/^[A-Z0-9.\-]{2,20}$/.test(ticker)) throw invalid('Ticker inválido.');
+
+  // Multi-Strategy: strategyType, configId, configVersion, entrySetup, rubricVersion
+  let strategyType = 'TREND_FOLLOWING';
+  const rawStrategy = payload.strategyType || payload.strategy_type || payload.strategy;
+  if (rawStrategy) {
+    const normalized = String(rawStrategy).trim().toUpperCase();
+    if (normalized === 'TREND_FOLLOWING' || normalized === 'TREND' || normalized === 'TREND-FOLLOWING') {
+      strategyType = 'TREND_FOLLOWING';
+    } else if (normalized === 'VOLATILITY_TRADING' || normalized === 'VOLATILITY' || normalized === 'VOLATILITY-TRADING') {
+      strategyType = 'VOLATILITY_TRADING';
+    } else {
+      throw invalid(`Estratégia inválida: "${rawStrategy}". As opções válidas são TREND_FOLLOWING ou VOLATILITY_TRADING.`);
+    }
+  }
+
+  const isVol = strategyType === 'VOLATILITY_TRADING';
   const entry = number(payload.entry ?? payload.entryPrice, 'Preço de entrada', { minimum: 0.000001, required: true });
-  const stop = number(payload.stop ?? payload.stopPrice, 'Stop inicial', { minimum: 0.000001, required: true });
+  const stop = isVol
+    ? (number(payload.stop ?? payload.stopPrice, 'Stop inicial', { minimum: 0, required: false }) || 0)
+    : number(payload.stop ?? payload.stopPrice, 'Stop inicial', { minimum: 0.000001, required: true });
   const plannedQuantity = number(payload.suggestedQty ?? payload.plannedQuantity, 'Quantidade planejada', { minimum: 1, required: true });
   const riskPct = number(payload.executableRiskPct ?? payload.riskPct, 'Risco executável', { minimum: 0, required: true });
   const riskBudgetPct = number(payload.riskBudgetPct, 'Orçamento de risco', { minimum: 0 });
@@ -64,7 +82,9 @@ function normalizePlan(payload = {}) {
 
   const rawTrigger = payload.setupTrigger || payload.setup_trigger;
   let setupTrigger = null;
-  if (rawTrigger) {
+  if (isVol) {
+    setupTrigger = rawTrigger ? String(rawTrigger).slice(0, 50) : 'VOLATILITY_SWING_IFR2';
+  } else if (rawTrigger) {
     setupTrigger = setupTriggers.normalizeKey(rawTrigger);
     if (!setupTrigger || !setupTriggers.isValidTrigger(setupTrigger)) {
       throw invalid('Gatilho de entrada inválido. Selecione um dos 5 gatilhos homologados.');
@@ -73,12 +93,36 @@ function normalizePlan(payload = {}) {
     setupTrigger = setupTriggers.normalizeKey(payload.setup);
   }
 
-  const setupLabel = setupTrigger ? setupTriggers.getTriggerLabel(setupTrigger) : (String(payload.setup || '').slice(0, 100) || null);
+  const setupLabel = isVol
+    ? (payload.setup || 'Volatility Swing — IFR2')
+    : (setupTrigger ? setupTriggers.getTriggerLabel(setupTrigger) : (String(payload.setup || '').slice(0, 100) || null));
+
+  const strategyConfigId = (payload.strategyConfigId || payload.strategy_config_id) ? String(payload.strategyConfigId || payload.strategy_config_id).slice(0, 100) : null;
+  const strategyConfigVersion = (payload.strategyConfigVersion || payload.strategy_config_version) ? String(payload.strategyConfigVersion || payload.strategy_config_version).slice(0, 50) : null;
+  const defaultRubricVersion = isVol ? 'volatility-ifr2-v1.0' : '2';
+  const rubricVersion = String(payload.rubricVersion || payload.rubric_version || payload.metadata?.gradingVersion || defaultRubricVersion).slice(0, 20);
+  const entrySetup = (payload.entrySetup ? String(payload.entrySetup).slice(0, 100) : null) || setupLabel || setupTrigger || (isVol ? 'Volatility Swing — IFR2' : 'MANUAL');
+  const exitReason = (payload.exitReason || payload.exit_reason) ? String(payload.exitReason || payload.exit_reason).slice(0, 200) : null;
+  const strategyParametersSnapshot = (payload.strategyParametersSnapshot || payload.strategy_parameters_snapshot && typeof (payload.strategyParametersSnapshot || payload.strategy_parameters_snapshot) === 'object')
+    ? (payload.strategyParametersSnapshot || payload.strategy_parameters_snapshot)
+    : null;
+  const strategyParametersHash = (payload.strategyParametersHash || payload.strategy_parameters_hash)
+    ? String(payload.strategyParametersHash || payload.strategy_parameters_hash)
+    : (strategyParametersSnapshot?.parametersHash || null);
 
   return {
     ticker,
     market: String(payload.market || '').slice(0, 50) || null,
     direction: ['long', 'short'].includes(payload.direction) ? payload.direction : null,
+    strategyType,
+    strategy_type: strategyType,
+    strategyConfigId,
+    strategyConfigVersion,
+    strategyParametersSnapshot,
+    strategyParametersHash,
+    entrySetup,
+    exitReason,
+    rubricVersion,
     setup: setupLabel,
     setupTrigger,
     entry,
@@ -100,6 +144,14 @@ function normalizePlan(payload = {}) {
       })),
     metadata: {
       gradingVersion: 2,
+      strategyType,
+      strategy_type: strategyType,
+      strategyConfigId,
+      strategyConfigVersion,
+      strategyParametersSnapshot,
+      strategyParametersHash,
+      entrySetup,
+      rubricVersion,
       mode: payload.mode === 'paper' ? 'paper' : 'real',
       thesis: String(payload.thesis || '').slice(0, 4000),
       executedQuantity: number(payload.executedQty, 'Quantidade da operação', { minimum: 1, required: true }),
@@ -150,9 +202,10 @@ function validateLiquidityGate(plan, policy) {
 }
 function validateRareTrade(plan, policy) {
   if (plan.rubricGrade !== 'A') return;
-  const verified = rubricModel.calculateRubric(plan.rubricResponses, policy);
+  const verified = rubricModel.calculateRubric({ ...(plan.rubricResponses || {}), strategyType: plan.strategyType }, policy);
   if (!verified.qualityAllowed || Math.abs(verified.score - plan.rubricScore) > 0.11) {
-    throw invalid('Grade A exige score de pelo menos 95 e excelência em todos os critérios da Rubric. Reavalie o trade.');
+    const minScore = plan.strategyType === 'VOLATILITY_TRADING' ? 85 : 95;
+    throw invalid(`Grade A exige score de pelo menos ${minScore} e excelência nos critérios da Rubric. Reavalie o trade.`);
   }
 }
 
@@ -197,7 +250,9 @@ function validateMissionRisk(plan, missionState, equity) {
 
 async function createPlan(userId, payload = {}) {
   const direction = payload.direction || 'long';
-  if (direction !== 'short') {
+  const rawStrategy = payload.strategyType || payload.strategy_type || payload.strategy;
+  const isTrend = !rawStrategy || String(rawStrategy).trim().toUpperCase().includes('TREND');
+  if (isTrend && direction !== 'short') {
     const rawCycle = payload.rubricResponses?.marketCycle || payload.marketCycle || payload.marketCycleRegime;
     if (rawCycle === 'defensive' || rawCycle === 'unavailable') {
       throw invalid('ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO');
@@ -286,17 +341,20 @@ async function createPlan(userId, payload = {}) {
         planned_quantity, risk_pct, rubric_score, rubric_max_score, rubric_grade,
         rubric_responses, status, metadata, execution_price, executed_quantity, executed_at, setup_trigger,
         scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent,
-        entry_market_direction, entry_market_volatility, entry_market_regime, entry_market_benchmark, entry_regime_reference_date
+        entry_market_direction, entry_market_volatility, entry_market_regime, entry_market_benchmark, entry_regime_reference_date,
+        strategy_type, strategy_config_id, strategy_config_version, entry_setup, exit_reason, rubric_version
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
         $10, $11, $12, $13, $14, $15::jsonb, 'open', $16::jsonb, $7, $17, $18, $19,
         true, 0, $17, $7, $20, $11,
-        $21, $22, $23, $24, $25
+        $21, $22, $23, $24, $25,
+        $26, $27, $28, $29, $30, $31
       )`,
       [id, userId, plan.ticker, plan.market, plan.direction, plan.setup, plan.entry, plan.stop, plan.atr,
         plan.plannedQuantity, plan.riskPct, plan.rubricScore, plan.rubricMaxScore, plan.rubricGrade,
         JSON.stringify(plan.rubricResponses), JSON.stringify(plan.metadata), plan.metadata.executedQuantity, plan.entryTimestamp, plan.setupTrigger, totalCapital,
-        entryDirection, entryVolatility, entryRegimeCode, entryBenchmark, entryRefDate]
+        entryDirection, entryVolatility, entryRegimeCode, entryBenchmark, entryRefDate,
+        plan.strategyType, plan.strategyConfigId, plan.strategyConfigVersion, plan.entrySetup, plan.exitReason, plan.rubricVersion]
     );
     for (const item of plan.contributions) {
       await client.query(
@@ -325,12 +383,31 @@ async function createPlan(userId, payload = {}) {
         plan.metadata.executedQuantity === plan.plannedQuantity ? 'Trade registrado conforme quantidade sugerida.' : `Quantidade registrada diferente da sugestão: ${plan.plannedQuantity} unidades.`, plan.entryTimestamp]
     );
   });
-  return { id, ticker: plan.ticker, status: 'open', rubricGrade: plan.rubricGrade, setupTrigger: plan.setupTrigger, executionPrice: plan.entry, executedQuantity: plan.metadata.executedQuantity };
+  return {
+    id,
+    ticker: plan.ticker,
+    status: 'open',
+    strategyType: plan.strategyType,
+    strategy_type: plan.strategyType,
+    strategyConfigId: plan.strategyConfigId,
+    strategyConfigVersion: plan.strategyConfigVersion,
+    strategyParametersSnapshot: plan.strategyParametersSnapshot,
+    strategyParametersHash: plan.strategyParametersHash,
+    entrySetup: plan.entrySetup,
+    exitReason: plan.exitReason,
+    rubricVersion: plan.rubricVersion,
+    rubricGrade: plan.rubricGrade,
+    setupTrigger: plan.setupTrigger,
+    executionPrice: plan.entry,
+    executedQuantity: plan.metadata.executedQuantity
+  };
 }
 
 async function createPendingOrder(userId, payload = {}) {
   const direction = payload.direction || 'long';
-  if (direction !== 'short') {
+  const rawPendingStrat = payload.strategyType || payload.strategy_type || payload.strategy;
+  const isTrend = !rawPendingStrat || String(rawPendingStrat).trim().toUpperCase().includes('TREND');
+  if (isTrend && direction !== 'short') {
     const rawCycle = payload.marketCycle || payload.snapshotMarketData?.marketCycle || payload.snapshotMarketData?.rubricResponses?.marketCycle;
     if (rawCycle === 'defensive' || rawCycle === 'unavailable') {
       throw invalid('ENTRADA BLOQUEADA — CICLO DE MERCADO DEFENSIVO');
@@ -351,8 +428,25 @@ async function createPendingOrder(userId, payload = {}) {
     }
 
     const id = crypto.randomUUID();
+    let pendingStrategy = 'TREND_FOLLOWING';
+    const rawPendingStrat = payload.strategyType || payload.strategy_type || payload.strategy;
+    if (rawPendingStrat) {
+      const s = String(rawPendingStrat).trim().toUpperCase();
+      if (s === 'TREND_FOLLOWING' || s === 'VOLATILITY_TRADING') pendingStrategy = s;
+    }
+    const pendingStrategyConfigId = payload.strategyConfigId || payload.strategy_config_id ? String(payload.strategyConfigId || payload.strategy_config_id).slice(0, 100) : null;
+    const pendingStrategyConfigVersion = payload.strategyConfigVersion || payload.strategy_config_version ? String(payload.strategyConfigVersion || payload.strategy_config_version).slice(0, 50) : null;
+    const pendingRubricVersion = String(payload.rubricVersion || payload.rubric_version || '2').slice(0, 20);
+    const pendingEntrySetup = norm.setup || norm.setupTrigger || 'MANUAL';
+
     const metadata = {
       gradingVersion: 2,
+      strategyType: pendingStrategy,
+      strategy_type: pendingStrategy,
+      strategyConfigId: pendingStrategyConfigId,
+      strategyConfigVersion: pendingStrategyConfigVersion,
+      entrySetup: pendingEntrySetup,
+      rubricVersion: pendingRubricVersion,
       mode: 'paper',
       isPendingOrder: true,
       thesis: norm.notes,
@@ -380,17 +474,20 @@ async function createPendingOrder(userId, payload = {}) {
         id, user_id, ticker, market, direction, setup, entry_price, stop_price, atr,
         planned_quantity, risk_pct, rubric_score, rubric_max_score, rubric_grade,
         rubric_responses, status, metadata, pending_snapshot, setup_trigger,
-        scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent
+        scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent,
+        strategy_type, strategy_config_id, strategy_config_version, entry_setup, rubric_version
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
         $10, $11, $12, $13, $14, $15::jsonb, 'pending', $16::jsonb, $17::jsonb, $18,
-        false, 0, $10, $7, 0, 0
+        false, 0, $10, $7, 0, 0,
+        $19, $20, $21, $22, $23
       )`,
       [
         id, userId, norm.ticker, norm.market, norm.direction, norm.setup, norm.entry, norm.stop,
         norm.snapshotMarketData.lastPrice ? Number(norm.snapshotMarketData.lastPrice) : null,
         norm.quantity, norm.riskPct, norm.snapshotMarketData.rubricScore, 100, norm.snapshotMarketData.grade,
-        JSON.stringify({}), JSON.stringify(metadata), JSON.stringify(pendingSnapshot), norm.setupTrigger
+        JSON.stringify({}), JSON.stringify(metadata), JSON.stringify(pendingSnapshot), norm.setupTrigger,
+        pendingStrategy, pendingStrategyConfigId, pendingStrategyConfigVersion, pendingEntrySetup, pendingRubricVersion
       ]
     );
 
@@ -399,6 +496,12 @@ async function createPendingOrder(userId, payload = {}) {
       ticker: norm.ticker,
       status: 'pending',
       mode: 'paper',
+      strategyType: pendingStrategy,
+      strategy_type: pendingStrategy,
+      strategyConfigId: pendingStrategyConfigId,
+      strategyConfigVersion: pendingStrategyConfigVersion,
+      entrySetup: pendingEntrySetup,
+      rubricVersion: pendingRubricVersion,
       entry: norm.entry,
       stop: norm.stop,
       quantity: norm.quantity,
@@ -556,7 +659,17 @@ async function verifyPendingOrders(userId, options = {}) {
   };
 }
 
-async function listPlans(userId) {
+async function listPlans(userId, options = {}) {
+  const queryParams = [userId];
+  let strategyFilterClause = '';
+  if (options && options.strategy && options.strategy !== 'all') {
+    const raw = String(options.strategy).trim().toUpperCase();
+    if (raw === 'TREND_FOLLOWING' || raw === 'VOLATILITY_TRADING') {
+      queryParams.push(raw);
+      strategyFilterClause = " AND UPPER(COALESCE(t.strategy_type, 'TREND_FOLLOWING')) = $" + queryParams.length;
+    }
+  }
+
   const result = await database.query(
     `SELECT t.id, t.ticker, t.market, t.direction, t.setup, t.setup_trigger, t.entry_price, t.stop_price, t.atr, t.planned_quantity,
             t.risk_pct, t.rubric_score, t.rubric_max_score, t.rubric_grade, t.rubric_responses, t.status, t.metadata,
@@ -564,6 +677,7 @@ async function listPlans(userId) {
             t.execution_price, t.executed_quantity, t.executed_at, t.created_at, t.updated_at,
             t.scale_in_enabled, t.scale_in_count, t.total_quantity, t.average_entry_price, t.total_allocated_capital, t.current_risk_percent,
             t.entry_market_direction, t.entry_market_volatility, t.entry_market_regime, t.entry_market_benchmark, t.entry_regime_reference_date,
+            t.strategy_type, t.strategy_config_id, t.strategy_config_version, t.entry_setup, t.exit_reason, t.rubric_version,
             COALESCE(events.items, '[]'::jsonb) AS events,
             COALESCE(entries.items, '[]'::jsonb) AS entries
        FROM app.trades t
@@ -584,11 +698,18 @@ async function listPlans(userId) {
          ) ORDER BY en.created_at) AS items
          FROM app.trade_entries en WHERE en.trade_id = t.id
        ) entries ON true
-       WHERE t.user_id = $1 ORDER BY t.created_at DESC`,
-    [userId]
+       WHERE t.user_id = $1${strategyFilterClause} ORDER BY t.created_at DESC`,
+    queryParams
   );
   return result.rows.map(row => ({
     ...row,
+    strategyType: (row.strategy_type || row.metadata?.strategyType || 'TREND_FOLLOWING').toUpperCase(),
+    strategy_type: (row.strategy_type || row.metadata?.strategyType || 'TREND_FOLLOWING').toUpperCase(),
+    strategyConfigId: row.strategy_config_id || row.metadata?.strategyConfigId || null,
+    strategyConfigVersion: row.strategy_config_version || row.metadata?.strategyConfigVersion || null,
+    entrySetup: row.entry_setup || row.setup_trigger || row.setup || 'MANUAL',
+    exitReason: row.exit_reason || row.metadata?.exitReason || null,
+    rubricVersion: String(row.rubric_version || row.metadata?.gradingVersion || '2'),
     setupTrigger: row.setup_trigger || setupTriggers.normalizeKey(row.setup) || null,
     pending_snapshot: row.pending_snapshot || row.metadata?.pendingSnapshot || null,
     discard_reason: row.discard_reason || null,
@@ -696,7 +817,17 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
     if (event.type === 'update') {
       await client.query(`UPDATE app.trades SET stop_price = $3, atr = COALESCE($4, atr), updated_at = now() WHERE id = $1 AND user_id = $2`, [tradeId, userId, event.stop, event.atr]);
     } else if (shouldClose) {
-      await client.query(`UPDATE app.trades SET status = 'closed', total_allocated_capital = 0, current_risk_percent = 0, updated_at = now() WHERE id = $1 AND user_id = $2`, [tradeId, userId]);
+      const exitReason = payload.exitReason || payload.exit_reason || payload.reason || (event.type === 'close' ? event.note : null);
+      await client.query(
+        `UPDATE app.trades
+            SET status = 'closed',
+                total_allocated_capital = 0,
+                current_risk_percent = 0,
+                exit_reason = COALESCE($3, exit_reason),
+                updated_at = now()
+          WHERE id = $1 AND user_id = $2`,
+        [tradeId, userId, exitReason || null]
+      );
     } else if (event.type === 'peeloff') {
       const remainingCapital = Math.max(0, after.remaining * avgEntry);
       await client.query(`UPDATE app.trades SET total_allocated_capital = $3, updated_at = now() WHERE id = $1 AND user_id = $2`, [tradeId, userId, remainingCapital]);
@@ -754,6 +885,9 @@ async function executePlan(userId, tradeId, payload) {
 
 async function updateTrade(userId, tradeId, payload = {}) {
   if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
+  if (payload.strategyType !== undefined || payload.strategy_type !== undefined || payload.strategy !== undefined) {
+    throw invalid('A estratégia de uma operação não pode ser alterada diretamente na edição comum. A integridade histórica exige procedimento administrativo com justificativa de auditoria.');
+  }
   let setupTrigger = undefined;
   let setupLabel = undefined;
   if (payload.setupTrigger !== undefined || payload.setup_trigger !== undefined) {
@@ -1002,6 +1136,80 @@ async function listScaleIns(userId, tradeId) {
   return result.rows;
 }
 
+async function updateTradeStrategy(userId, tradeId, payload = {}) {
+  if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
+  const rawStrat = payload.newStrategyType || payload.strategyType || payload.strategy_type;
+  if (!rawStrat) throw invalid('Nova estratégia é obrigatória.');
+  const normalized = String(rawStrat).trim().toUpperCase();
+  if (normalized !== 'TREND_FOLLOWING' && normalized !== 'VOLATILITY_TRADING') {
+    throw invalid(`Estratégia inválida: "${rawStrat}". As opções válidas são TREND_FOLLOWING ou VOLATILITY_TRADING.`);
+  }
+  const auditReason = String(payload.auditReason || payload.reason || '').trim();
+  if (auditReason.length < 5) {
+    throw invalid('Justificativa de auditoria é obrigatória (mínimo de 5 caracteres) para reclassificar a estratégia de uma operação histórica.');
+  }
+
+  return database.transaction(async (client) => {
+    const currentRes = await client.query(
+      `SELECT id, ticker, status, strategy_type, metadata FROM app.trades WHERE id = $1 AND user_id = $2 FOR UPDATE`,
+      [tradeId, userId]
+    );
+    if (!currentRes.rowCount) throw invalid('Trade não encontrado.');
+    const current = currentRes.rows[0];
+    const previousStrategy = (current.strategy_type || current.metadata?.strategyType || 'TREND_FOLLOWING').toUpperCase();
+
+    if (previousStrategy === normalized) {
+      return {
+        id: tradeId,
+        ticker: current.ticker,
+        strategyType: normalized,
+        unchanged: true,
+        message: 'A operação já está classificada com essa estratégia.'
+      };
+    }
+
+    const currentMeta = current.metadata && typeof current.metadata === 'object' ? current.metadata : {};
+    const auditTrail = Array.isArray(currentMeta.strategyAuditTrail) ? [...currentMeta.strategyAuditTrail] : [];
+    auditTrail.push({
+      from: previousStrategy,
+      to: normalized,
+      reason: auditReason,
+      changedAt: new Date().toISOString(),
+      changedBy: userId
+    });
+
+    const updatedMeta = {
+      ...currentMeta,
+      strategyType: normalized,
+      strategyAuditTrail: auditTrail,
+      lastStrategyChange: {
+        from: previousStrategy,
+        to: normalized,
+        reason: auditReason,
+        changedAt: new Date().toISOString()
+      }
+    };
+
+    await client.query(
+      `UPDATE app.trades
+          SET strategy_type = $3,
+              metadata = $4::jsonb,
+              updated_at = now()
+        WHERE id = $1 AND user_id = $2`,
+      [tradeId, userId, normalized, JSON.stringify(updatedMeta)]
+    );
+
+    return {
+      id: tradeId,
+      ticker: current.ticker,
+      previousStrategy,
+      strategyType: normalized,
+      auditReason,
+      auditTrail
+    };
+  });
+}
+
 async function deleteTrade(userId, tradeId) {
   if (!/^[0-9a-f-]{36}$/i.test(String(tradeId || ''))) throw invalid('Trade inválido.');
   return database.transaction(async (client) => {
@@ -1058,6 +1266,66 @@ async function deleteTrade(userId, tradeId) {
 }
 
 
+
+async function duplicateTrade(userId, tradeId, options = {}) {
+  return database.transaction(async (client) => {
+    const res = await client.query('SELECT * FROM app.trades WHERE id = $1 AND user_id = $2', [tradeId, userId]);
+    if (res.rowCount === 0) throw notFound('Operação não encontrada.');
+    const original = res.rows[0];
+
+    const strategyType = normalizeStrategyType(options.strategyType || options.strategy_type || original.strategy_type || 'TREND_FOLLOWING');
+    const newId = crypto.randomUUID();
+    const now = new Date().toISOString();
+
+    const metadata = {
+      ...(original.metadata || {}),
+      duplicatedFrom: original.id,
+      duplicatedAt: now
+    };
+
+    const plannedQty = Number(original.planned_quantity || original.executed_quantity || 1);
+    const entryPrice = Number(original.entry_price || original.execution_price || 0);
+
+    await client.query(
+      `INSERT INTO app.trades (
+        id, user_id, ticker, market, direction, setup, entry_price, stop_price, atr,
+        planned_quantity, risk_pct, rubric_score, rubric_max_score, rubric_grade,
+        rubric_responses, status, metadata, execution_price, executed_quantity, executed_at, setup_trigger,
+        scale_in_enabled, scale_in_count, total_quantity, average_entry_price, total_allocated_capital, current_risk_percent,
+        entry_market_direction, entry_market_volatility, entry_market_regime, entry_market_benchmark, entry_regime_reference_date,
+        strategy_type, strategy_config_id, strategy_config_version, entry_setup, exit_reason, rubric_version
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9,
+        $10, $11, $12, $13, $14, $15::jsonb, 'planned', $16::jsonb, $7, $17, $18, $19,
+        true, 0, $17, $7, $20, $11,
+        $21, $22, $23, $24, $25,
+        $26, $27, $28, $29, $30, $31
+      )`,
+      [
+        newId, userId, original.ticker, original.market, original.direction, original.setup,
+        entryPrice, original.stop_price, original.atr, plannedQty,
+        original.risk_pct, original.rubric_score, original.rubric_max_score, original.rubric_grade,
+        JSON.stringify(original.rubric_responses || {}), JSON.stringify(metadata),
+        plannedQty, now, original.setup_trigger,
+        entryPrice * plannedQty,
+        original.entry_market_direction, original.entry_market_volatility, original.entry_market_regime,
+        original.entry_market_benchmark, now.slice(0, 10),
+        strategyType, original.strategy_config_id, original.strategy_config_version,
+        original.entry_setup, null, original.rubric_version
+      ]
+    );
+
+    return {
+      id: newId,
+      originalId: original.id,
+      strategyType,
+      strategy_type: strategyType,
+      ticker: original.ticker,
+      status: 'planned'
+    };
+  });
+}
+
 module.exports = {
   createPlan,
   createPendingOrder,
@@ -1066,6 +1334,8 @@ module.exports = {
   executePlan,
   updateTrade,
   deleteTrade,
+  duplicateTrade,
+  updateTradeStrategy,
   recordPositionEvent,
   canExecuteScaleIn: validateScaleIn,
   addScaleIn,

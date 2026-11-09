@@ -93,11 +93,16 @@
     const close = [...events].reverse().find(event => event?.type === 'close');
     return dateKey(trade.closedAt || trade.closed_at || close?.at);
   }
-  function tradesForDay(date, trades) {
+  function tradesForDay(date, trades, filterStrategy = null) {
     const seen = new Set();
+    const stratFilter = filterStrategy ? String(filterStrategy).trim().toUpperCase() : null;
     return trades.filter(trade => {
       const id = trade.id || trade.databaseId;
       if (trade.status === 'planned' || !id || seen.has(id) || (entryDate(trade) !== date && closeDate(trade) !== date)) return false;
+      if (stratFilter && stratFilter !== 'ALL') {
+        const tradeStrat = String(trade.strategyType || trade.strategy_type || trade.metadata?.strategyType || 'TREND_FOLLOWING').trim().toUpperCase();
+        if (tradeStrat !== stratFilter) return false;
+      }
       seen.add(id); return true;
     });
   }
@@ -106,22 +111,32 @@
     const ticker = String(data.ticker || '').trim().toUpperCase() || 'TRADE';
     const now = new Date();
     const defaultTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const rawStrategy = data.strategyType || data.strategy_type || 'TREND_FOLLOWING';
+    const strategyType = String(rawStrategy).toUpperCase().includes('VOLATILITY') ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
+    const isVol = strategyType === 'VOLATILITY_TRADING';
+
     const rawTrigger = data.setupTrigger || data.setup_trigger;
-    const triggerKey = rawTrigger
-      ? (setupTriggers ? setupTriggers.normalizeKey(rawTrigger) : rawTrigger)
-      : (data.setup ? (setupTriggers ? setupTriggers.normalizeKey(data.setup) : null) : null);
-    const triggerLabel = triggerKey && setupTriggers
-      ? setupTriggers.getTriggerLabel(triggerKey)
-      : (data.setup || 'Não informado');
+    const triggerKey = isVol
+      ? (rawTrigger || 'VOLATILITY_SWING_IFR2')
+      : (rawTrigger
+        ? (setupTriggers ? setupTriggers.normalizeKey(rawTrigger) : rawTrigger)
+        : (data.setup ? (setupTriggers ? setupTriggers.normalizeKey(data.setup) : null) : null));
+    const triggerLabel = isVol
+      ? (data.setup || 'Volatility Swing — IFR2')
+      : (triggerKey && setupTriggers ? setupTriggers.getTriggerLabel(triggerKey) : (data.setup || 'Não informado'));
 
     return {
       id: data.id || `trade-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      strategyType,
+      strategy_type: strategyType,
+      strategyConfigId: data.strategyConfigId || data.strategy_config_id || null,
+      strategyConfigVersion: data.strategyConfigVersion || data.strategy_config_version || null,
       ticker,
       direction: data.direction === 'short' ? 'short' : 'long',
       setup: triggerLabel,
       setupTrigger: triggerKey,
       grade: data.grade || 'A',
-      timeframe: data.timeframe || 'Diário + 4H',
+      timeframe: data.timeframe || (isVol ? 'Diário' : 'Diário + 4H'),
       entryTime: data.entryTime || defaultTime,
       whatISaw: data.whatISaw || '',
       whyIEntered: data.whyIEntered || '',

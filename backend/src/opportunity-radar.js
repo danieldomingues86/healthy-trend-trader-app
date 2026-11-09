@@ -5,8 +5,10 @@ const tickerChart = require('./ticker-chart');
 const OpportunityRadarModel = require('../../frontend/opportunity-radar-model');
 const MarketCycleModel = require('../../frontend/market-cycle-model');
 const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
+const VolatilityEngineModel = require('../../frontend/volatility-trading-engine-model');
 
-async function getOpportunityRadarData(cache) {
+async function getOpportunityRadarData(cache, options = {}) {
+  const strategy = options.strategy ? String(options.strategy).toUpperCase() : 'TREND_FOLLOWING';
   if (!cache || typeof cache !== 'object') {
     return {
       updatedAt: null,
@@ -147,6 +149,45 @@ async function getOpportunityRadarData(cache) {
   );
 
   const filteredReadyItems = readyItems.filter((i) => !i.__excludedByCycle && !i.__excludedByLiquidity);
+  filteredReadyItems.forEach(item => { item.strategyType = 'TREND_FOLLOWING'; });
+
+  const volatilityItems = [];
+  if (strategy === 'ALL' || strategy === 'VOLATILITY_TRADING' || strategy === 'VOLATILITY') {
+    for (const [symbol, candles] of b3Histories.entries()) {
+      if (!Array.isArray(candles) || candles.length < 200) continue;
+      if (LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
+        const liqCheck = LiquidityGateModel.evaluateLiquidity({ candles, symbol, market: 'Ações B3' });
+        if (!liqCheck || !liqCheck.isEligible) continue;
+      }
+      const signal = VolatilityEngineModel.evaluateSignal(candles, candles.length - 1, { symbol });
+      if (signal && signal.isValid) {
+        volatilityItems.push({
+          symbol,
+          name: symbol,
+          market: 'IBOV',
+          marketCategory: 'B3',
+          strategyType: 'VOLATILITY_TRADING',
+          setupName: 'Volatility Swing IFR2',
+          setupTrigger: 'IFR2_OVERSOLD',
+          ifr2: signal.indicators?.ifr,
+          close: signal.indicators?.close,
+          sma7: signal.indicators?.smaShort,
+          sma200: signal.indicators?.smaLong,
+          grade: 'A',
+          isReady: true,
+          liquidityApproved: true,
+          lastCandleDate: signal.signalDate
+        });
+      }
+    }
+  }
+
+  let finalItems = filteredReadyItems;
+  if (strategy === 'VOLATILITY_TRADING' || strategy === 'VOLATILITY') {
+    finalItems = volatilityItems;
+  } else if (strategy === 'ALL') {
+    finalItems = [...filteredReadyItems, ...volatilityItems];
+  }
 
   const latestCandleDates = filteredReadyItems.map((i) => i.lastCandleDate).filter(Boolean).sort();
   const dataAsOf = latestCandleDates.at(-1)
@@ -215,8 +256,8 @@ async function getOpportunityRadarData(cache) {
         name: 'BDRs (BDRX)'
       }
     },
-    totalReady: filteredReadyItems.length,
-    items: filteredReadyItems
+    totalReady: finalItems.length,
+    items: finalItems
   };
 }
 

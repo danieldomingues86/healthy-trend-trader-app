@@ -630,7 +630,7 @@
           return `
             <button type="button" class="jv-session-tab jv-trade-tab ${isSelected ? 'is-active' : ''}" data-nav-view="${esc(tr.id)}" role="tab" aria-selected="${isSelected}">
               <span class="jv-tab-dir-pill ${isLong ? 'is-long' : 'is-short'}">${isLong ? text('COMPRA', 'LONG') : text('VENDA', 'SHORT')}</span>
-              <span class="jv-tab-title"><b>${esc(label)}</b></span>
+              ${tr.strategyType === 'VOLATILITY_TRADING' ? '<span class="jv-tab-strat-pill" title="Volatility Trading">⚡</span>' : '<span class="jv-tab-strat-pill" title="Trend Following">🌿</span>'}<span class="jv-tab-title"><b>${esc(label)}</b></span>
               ${tr.grade ? `<span class="jv-tab-grade ${gradeClass}">${esc(tr.grade)}</span>` : ''}
               ${tr.management?.rMultiple ? `<span class="jv-tab-r">${esc(tr.management.rMultiple)}</span>` : ''}
             </button>
@@ -681,7 +681,7 @@
                   <header class="jv-trade-card-header">
                     <div class="jv-trade-card-ticker">
                       <span class="jv-card-dir-pill ${isLong ? 'is-long' : 'is-short'}">${isLong ? text('COMPRA', 'LONG') : text('VENDA', 'SHORT')}</span>
-                      <h4>${esc(label)}</h4>
+                      <h4>${esc(label)}</h4> <span class="jv-trade-badge-strategy ${tr.strategyType === 'VOLATILITY_TRADING' ? 'is-volatility' : 'is-trend'}" style="font-size:9.5px;padding:1px 5px;margin-left:4px;">${tr.strategyType === 'VOLATILITY_TRADING' ? '⚡ Volatilidade' : '🌿 Tendência'}</span>
                       <span class="jv-trade-card-num">Trade #${idx + 1}</span>
                     </div>
                     <div class="jv-trade-card-badges">
@@ -752,7 +752,7 @@
           <div class="jv-trade-sheet-titlebar">
             <div class="jv-trade-title-left">
               <span class="jv-trade-badge-dir ${isLong ? 'is-long' : 'is-short'}">${isLong ? text('COMPRA', 'LONG') : text('VENDA', 'SHORT')}</span>
-              <h2>Trade #${tradeIdx + 1} · ${esc(trade.ticker)}</h2>
+              <h2>Trade #${tradeIdx + 1} · ${esc(trade.ticker)}</h2> <span class="jv-trade-badge-strategy ${trade.strategyType === 'VOLATILITY_TRADING' ? 'is-volatility' : 'is-trend'}">${trade.strategyType === 'VOLATILITY_TRADING' ? '⚡ Volatility Trading' : '🌿 Trend Following'}</span>
               <span class="jv-trade-badge-setup">${esc((window.SetupTriggersCatalog ? window.SetupTriggersCatalog.getTriggerLabel(trade.setupTrigger || trade.setup) : null) || trade.setup || 'Não informado')}</span>
               <span class="jv-trade-badge-tf">${esc(trade.timeframe || 'Diário + 4H')}</span>
               <span class="jv-trade-badge-time">🕒 ${esc(trade.entryTime || '—')}</span>
@@ -771,6 +771,12 @@
           <fieldset class="jv-trade-section">
             <legend>1. ${text('Identificação do trade', 'Trade identification')}</legend>
             <div class="jv-ident-row">
+              <div class="jv-field jv-field-strategy">
+                <span>${text('Estratégia', 'Strategy')}</span>
+                <span class="jv-strategy-pill ${trade.strategyType === 'VOLATILITY_TRADING' ? 'is-volatility' : 'is-trend'}" style="display:inline-flex;align-items:center;padding:7px 12px;border-radius:8px;font-weight:700;font-size:12px;background:rgba(255,255,255,0.06);">
+                  ${trade.strategyType === 'VOLATILITY_TRADING' ? '⚡ Volatility Trading (IFR2)' : '🌿 Trend Following (Tendência)'}
+                </span>
+              </div>
               <label class="jv-field jv-field-ticker">
                 <span>${text('Ticker', 'Ticker')}</span>
                 <input type="text" class="jv-input-ticker" data-trade-id="${esc(trade.id)}" data-trade-field="ticker" value="${esc(trade.ticker)}" maxlength="10">

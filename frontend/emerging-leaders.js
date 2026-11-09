@@ -321,6 +321,15 @@
           </div>
         </div>
       </header>
+      ${window.StrategyWorkspaceModel?.getActiveStrategy && window.StrategyWorkspaceModel.getActiveStrategy() === 'volatility_trading' ? `
+        <div class="el-strategy-context-banner" style="margin: 14px 0 10px; padding: 12px 18px; border-radius: 12px; background: rgba(2, 132, 199, 0.12); border: 1px solid rgba(2, 132, 199, 0.35); display: flex; align-items: center; gap: 12px; color: #bae6fd; font-size: 13px;">
+          <span style="font-size: 20px;">⚡</span>
+          <div>
+            <strong style="color: #38bdf8;">Contexto Operacional: Volatility Trading</strong>
+            <p style="margin: 2px 0 0; color: #94a3b8; font-size: 12px;">Líderes Emergentes é um motor de descoberta direcional do <b>Trend Following</b>. O Volatility Trading opera reversões à média (IFR2) e <b>não</b> exige Força Relativa ou liderança como critério de corte ou gating.</p>
+          </div>
+        </div>
+      ` : ''}
     `;
   }
 
@@ -863,6 +872,14 @@
   window.elToggleWatchlist = function (ticker) {
     toggleWatchlist(ticker);
   };
+
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('healthyTrend:strategyChanged', () => {
+      if (document.getElementById('emergingleaders')?.classList.contains('active')) {
+        render();
+      }
+    });
+  }
 
   window.renderEmergingLeaders = function () {
     if (!rawData.stocks.length) {

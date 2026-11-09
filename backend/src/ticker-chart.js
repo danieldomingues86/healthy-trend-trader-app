@@ -457,7 +457,7 @@ async function getTickerChartData(rawSymbol) {
   const rsRank = rsData ? rsData.rank : 24;
   const totalUniverse = rsItems.length || 277;
   const rsPercentile = rsRank ? `Top ${Math.max(1, Math.round((rsRank / totalUniverse) * 100))}% do universo` : 'Top 15% do universo';
-  const rsInfo = TradingRubrics.classifyRelativeStrength(rsScore);
+  const rsInfo = TradingRubrics.classifyRelativeStrength(rsScore, rsData?.classification || rsData?.trendTemplate);
   const rsClassification = rsInfo.label;
   const rs3m = rsData?.m3 ? Number(rsData.m3.toFixed(1)) : 28.4;
 

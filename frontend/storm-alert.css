@@ -459,35 +459,77 @@
    ESTADO DISCRETO / RECOLHIDO (SE USUÁRIO RECOLHER)
    -------------------------------------------------------------------------- */
 .storm-alert-widget.storm-collapsed {
-  padding: 14px 20px;
+  padding: 12px 20px !important;
+  min-height: 0 !important;
+  height: auto !important;
 }
 
 .storm-alert-widget.storm-collapsed .storm-alert-hero-art,
 .storm-alert-widget.storm-collapsed .storm-alert-body,
 .storm-alert-widget.storm-collapsed .storm-alert-grid,
-.storm-alert-widget.storm-collapsed .storm-alert-philosophy-banner {
-  display: none;
+.storm-alert-widget.storm-collapsed .storm-alert-philosophy-banner,
+.storm-alert-widget.storm-collapsed .storm-alert-footer {
+  display: none !important;
 }
 
 .storm-alert-widget.storm-collapsed .storm-alert-head {
-  margin-bottom: 0;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.storm-alert-collapsed-tag {
+  display: none;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  letter-spacing: 0.2px;
+}
+
+.storm-alert-widget.storm-collapsed .storm-alert-collapsed-tag {
+  display: inline-block;
+}
+
+.storm-alert-widget.storm-state-protected .storm-alert-collapsed-tag {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+.storm-alert-widget.storm-state-warning .storm-alert-collapsed-tag {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fcd34d;
 }
 
 .storm-alert-toggle-btn {
-  background: none;
-  border: none;
-  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #e2e8f0;
   cursor: pointer;
-  padding: 4px;
-  display: flex;
+  padding: 4px 10px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  transition: color 0.2s ease;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1;
+  min-width: 30px;
+  min-height: 30px;
+  transition: all 0.2s ease;
+  user-select: none;
+  position: relative;
+  z-index: 25;
 }
 
 .storm-alert-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.32);
   color: #ffffff;
+  transform: scale(1.05);
 }
 
 /* --------------------------------------------------------------------------
@@ -987,3 +1029,110 @@ html[data-theme="pigeon"] .storm-alert-widget .storm-meta-val {
   color: #ffffff;
 }
 
+
+
+
+/* ==========================================================================
+   DASHBOARD INTEGRATION (#today) — REMOÇÃO DO FUNDO BRANCO E ENQUADRAMENTO TOTAL
+   O Storm Alert ocupa 100% do espaço do card sem moldura branca ou cabeçalho genérico.
+   ========================================================================== */
+
+#today .dashboard-widget[data-widget-id="storm-alert"],
+#today .dashboard-widget.dashboard-widget--storm,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="storm-alert"],
+body[data-theme="healthy"] #today .dashboard-widget.dashboard-widget--storm,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="storm-alert"],
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget.dashboard-widget--storm,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="storm-alert"],
+body[data-theme="gold"] #today .dashboard-widget.dashboard-widget--storm,
+body[data-theme="pigeon"] #today .dashboard-widget[data-widget-id="storm-alert"],
+body[data-theme="pigeon"] #today .dashboard-widget.dashboard-widget--storm {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+#today .dashboard-widget[data-widget-id="storm-alert"]:hover,
+#today .dashboard-widget.dashboard-widget--storm:hover,
+body[data-theme="healthy"] #today .dashboard-widget[data-widget-id="storm-alert"]:hover,
+body[data-theme="healthy"] #today .dashboard-widget.dashboard-widget--storm:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget[data-widget-id="storm-alert"]:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #today .dashboard-widget.dashboard-widget--storm:hover,
+body[data-theme="gold"] #today .dashboard-widget[data-widget-id="storm-alert"]:hover,
+body[data-theme="gold"] #today .dashboard-widget.dashboard-widget--storm:hover,
+body[data-theme="pigeon"] #today .dashboard-widget[data-widget-id="storm-alert"]:hover,
+body[data-theme="pigeon"] #today .dashboard-widget.dashboard-widget--storm:hover {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#today .dashboard-widget[data-widget-id="storm-alert"] .desktop-widget-body,
+#today .dashboard-widget.dashboard-widget--storm .desktop-widget-body,
+#today .dashboard-widget[data-widget-id="storm-alert"] .dashboard-widget-content,
+#today .dashboard-widget.dashboard-widget--storm .dashboard-widget-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+}
+
+#today .dashboard-widget[data-widget-id="storm-alert"] .storm-alert-container,
+#today .dashboard-widget.dashboard-widget--storm .storm-alert-container {
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+#today .dashboard-widget[data-widget-id="storm-alert"] .storm-alert-widget,
+#today .dashboard-widget.dashboard-widget--storm .storm-alert-widget {
+  width: 100% !important;
+  border-radius: 16px !important;
+}
+
+#today .dashboard-widget[data-widget-id="storm-alert"] .desktop-widget-art,
+#today .dashboard-widget.dashboard-widget--storm .desktop-widget-art,
+#today .dashboard-widget[data-widget-id="storm-alert"] .dashboard-widget-details,
+#today .dashboard-widget.dashboard-widget--storm .dashboard-widget-details {
+  display: none !important;
+}
+
+#today .dashboard-widget[data-widget-id="storm-alert"] .dashboard-widget-header,
+#today .dashboard-widget.dashboard-widget--storm .dashboard-widget-header {
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#today .dashboard-widget[data-widget-id="storm-alert"] .dashboard-widget-header > div:first-child,
+#today .dashboard-widget.dashboard-widget--storm .dashboard-widget-header > div:first-child {
+  display: none !important;
+}
+
+#today .dashboard-widget[data-widget-id="storm-alert"] .dashboard-widget-edit-controls,
+#today .dashboard-widget.dashboard-widget--storm .dashboard-widget-edit-controls {
+  position: absolute !important;
+  top: 10px !important;
+  right: 12px !important;
+  z-index: 50 !important;
+}
+
+#today .is-editing .dashboard-widget[data-widget-id="storm-alert"],
+#today .is-editing .dashboard-widget.dashboard-widget--storm {
+  border: 1px dashed rgba(225, 185, 52, 0.55) !important;
+  border-radius: 16px !important;
+}
+
+#today .dashboard-widget.dashboard-widget--storm.storm-widget-collapsed,
+#today .dashboard-widget[data-widget-id="storm-alert"].storm-widget-collapsed,
+#today .dashboard-widget.dashboard-widget--storm:has(.storm-collapsed),
+#today .dashboard-widget[data-widget-id="storm-alert"]:has(.storm-collapsed) {
+  grid-row-end: span 4 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+}

@@ -235,7 +235,9 @@
         lines.push('');
         r.trades.forEach((tr, trIdx) => {
           const dir = tr.direction === 'short' ? 'SHORT (Venda)' : 'LONG (Compra)';
-          lines.push(`Trade #${trIdx + 1}: ${tr.ticker || 'ATIVO'} (${dir})`);
+          const isVol = (tr.strategyType || tr.strategy_type || '').toUpperCase().includes('VOLATILITY');
+          const stratLabel = isVol ? '⚡ Volatility Trading' : '📈 Trend Following';
+          lines.push(`Trade #${trIdx + 1}: ${tr.ticker || 'ATIVO'} (${dir}) [${stratLabel}]`);
           const trigger = tr.setup || tr.setupTrigger || 'Não informado';
           lines.push(`- Gatilho de Entrada: ${trigger} · Grade: ${tr.grade || '—'} · Timeframe: ${tr.timeframe || '—'} · Entrada: ${tr.entryTime || '—'}`);
           const ex = tr.execution || {};
@@ -345,6 +347,7 @@
         if (Array.isArray(r.trades) && r.trades.length > 0) {
           item.trades = r.trades.map(tr => ({
             id: tr.id,
+            strategyType: (tr.strategyType || tr.strategy_type || '').toUpperCase().includes('VOLATILITY') ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING',
             ticker: tr.ticker,
             direction: tr.direction,
             setup: tr.setup,

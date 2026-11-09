@@ -8312,5 +8312,493 @@
     setTimeout(init, 50);
   }
 
-})(typeof window !== 'undefined' ? window : globalThis);
 
+  // =========================================================================
+  // PASSO 7 — VOLATILITY TRADING SIMULATOR LOGIC & RENDERING
+  // =========================================================================
+
+  function setSimulatorStrategy(strat) {
+    if (state.activeStrategy === strat) return;
+    state.activeStrategy = strat;
+    if (state.massConfig) state.massConfig.strategy = strat;
+    if (strat === 'VOLATILITY_TRADING' && !state.volatilityState?.simulationResult) {
+      executeVolatilitySimulation();
+    } else {
+      render();
+    }
+  }
+
+  async function executeVolatilitySimulation(customOpts = {}) {
+    const vState = state.volatilityState;
+    vState.loading = true;
+    vState.loadingText = 'Executando simulação de universo em escala...';
+    render();
+
+    try {
+      const payload = {
+        universe: customOpts.universe || vState.universe || 'IBOV',
+        market: customOpts.market || vState.market || 'B3',
+        period: customOpts.period || vState.period || '120',
+        profileId: customOpts.profileId || vState.activeProfileId,
+        parameters: {
+          oversoldLevel: customOpts.oversoldLevel !== undefined ? customOpts.oversoldLevel : vState.activeOversoldPreset,
+          fixedCapitalPerTrade: vState.fixedCapitalPerTrade || 10000,
+          initialCapital: vState.initialCapital || 100000
+        }
+      };
+
+      let result = null;
+      if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
+        result = await window.healthyTrendApi.request('/api/volatility/simulator/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(() => null);
+      }
+
+      if (!result && root.VolatilityTradeSimulatorModel) {
+        result = root.VolatilityTradeSimulatorModel.simulateUniverse(new Map(), {
+          universe: payload.universe,
+          period: payload.period,
+          oversoldLevel: payload.parameters.oversoldLevel
+        });
+      }
+
+      vState.simulationResult = result;
+      vState.experimentMode = 'SINGLE';
+    } catch (err) {
+      console.error('Erro na simulação de volatilidade:', err);
+    } finally {
+      vState.loading = false;
+      render();
+    }
+  }
+
+  async function compareVolatilityProfiles() {
+    const vState = state.volatilityState;
+    vState.loading = true;
+    vState.loadingText = 'Comparando os 4 perfis de IFR(2) (níveis 5, 10, 15 e 20)...';
+    render();
+
+    try {
+      const payload = {
+        universe: vState.universe || 'IBOV',
+        market: vState.market || 'B3',
+        period: vState.period || '120',
+        initialCapital: vState.initialCapital || 100000,
+        fixedCapitalPerTrade: vState.fixedCapitalPerTrade || 10000
+      };
+
+      let comparison = null;
+      if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
+        comparison = await window.healthyTrendApi.request('/api/volatility/simulator/compare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(() => null);
+      }
+
+      if (!comparison && root.VolatilityTradeSimulatorModel) {
+        comparison = root.VolatilityTradeSimulatorModel.compareExperiments(new Map(), null, payload);
+      }
+
+      vState.comparisonResult = comparison;
+      vState.experimentMode = 'COMPARISON';
+      vState.screenTab = 'compare';
+    } catch (err) {
+      console.error('Erro ao comparar perfis de volatilidade:', err);
+    } finally {
+      vState.loading = false;
+      render();
+    }
+  }
+
+  function renderVolatilitySimulator(rootEl) {
+    const vState = state.volatilityState;
+    const sim = vState.simulationResult;
+    const m = sim?.metrics || {
+      totalTrades: 0,
+      winningTrades: 0,
+      losingTrades: 0,
+      winRatePct: 0,
+      profitFactor: 0,
+      expectancyPct: 0,
+      expectancyAmount: 0,
+      avgTradeReturnPct: 0,
+      avgHoldingSessions: 0,
+      maxDrawdownPct: 0,
+      netProfit: 0,
+      sampleSizeAlert: false
+    };
+
+    const isComparing = vState.screenTab === 'compare' && vState.comparisonResult;
+
+    rootEl.innerHTML = `
+      <div class="vol-sim-container">
+        <!-- Cabeçalho de Volatilidade -->
+        <div class="vol-sim-header">
+          <div class="vol-sim-header-top">
+            <div class="vol-sim-title-group">
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                <h1>⚡ Simulador de Volatilidade — IFR2 Mean Reversion</h1>
+                <div class="sim-strat-toggle-group">
+                  <button type="button" class="sim-strat-toggle-btn ${state.activeStrategy === 'TREND_FOLLOWING' ? 'active' : ''}" data-sim-strat="TREND_FOLLOWING">
+                    <span>🌿 Trend Following</span>
+                  </button>
+                  <button type="button" class="sim-strat-toggle-btn is-volatility ${state.activeStrategy === 'VOLATILITY_TRADING' ? 'active' : ''}" data-sim-strat="VOLATILITY_TRADING">
+                    <span>⚡ Volatility Trading</span>
+                  </button>
+                </div>
+              </div>
+              <p>Simulação histórica e experimentos de reversão à média de curtíssimo prazo em ativos em tendência primária. Sem contaminação por regras de tendência ou Força Relativa.</p>
+            </div>
+          </div>
+
+          <!-- Barra de Controles e Presets de IFR2 -->
+          <div class="vol-sim-controls-bar">
+            <div class="vol-sim-presets-row">
+              <span style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-right:4px;">Experimentos IFR(2):</span>
+              <button type="button" class="vol-preset-pill ${vState.activeOversoldPreset === 5 && !isComparing ? 'active' : ''}" data-vol-level="5">IFR(2) ≤ 5 (Exaustão Extrema)</button>
+              <button type="button" class="vol-preset-pill ${vState.activeOversoldPreset === 10 && !isComparing ? 'active' : ''}" data-vol-level="10">IFR(2) ≤ 10 (Padrão Oficial)</button>
+              <button type="button" class="vol-preset-pill ${vState.activeOversoldPreset === 15 && !isComparing ? 'active' : ''}" data-vol-level="15">IFR(2) ≤ 15 (Filtro Moderado)</button>
+              <button type="button" class="vol-preset-pill ${vState.activeOversoldPreset === 20 && !isComparing ? 'active' : ''}" data-vol-level="20">IFR(2) ≤ 20 (Filtro Amplo)</button>
+              <button type="button" class="vol-preset-pill ${isComparing ? 'active' : ''}" id="volBtnCompareProfiles" style="border-color:#38bdf8; color:#38bdf8;">🔬 Comparar os 4 Perfis</button>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:10px; margin-left:auto;">
+              <select class="sim-header-select" id="volFilterUniverse" style="padding:6px 12px; font-size:12px;">
+                <option value="IBOV" ${vState.universe === 'IBOV' ? 'selected' : ''}>IBOV (B3)</option>
+                <option value="LIQUID_B3" ${vState.universe === 'LIQUID_B3' ? 'selected' : ''}>B3 Líquidas</option>
+                <option value="ALL_B3" ${vState.universe === 'ALL_B3' ? 'selected' : ''}>Todas B3</option>
+                <option value="NASDAQ" ${vState.universe === 'NASDAQ' ? 'selected' : ''}>Nasdaq (US)</option>
+              </select>
+
+              <select class="sim-header-select" id="volFilterPeriod" style="padding:6px 12px; font-size:12px;">
+                <option value="30" ${vState.period === '30' ? 'selected' : ''}>Últimos 30 dias</option>
+                <option value="90" ${vState.period === '90' ? 'selected' : ''}>Últimos 90 dias</option>
+                <option value="120" ${vState.period === '120' ? 'selected' : ''}>Últimos 120 dias</option>
+                <option value="180" ${vState.period === '180' ? 'selected' : ''}>Últimos 6 meses</option>
+                <option value="365" ${vState.period === '365' ? 'selected' : ''}>Últimos 12 meses</option>
+                <option value="ALL" ${vState.period === 'ALL' ? 'selected' : ''}>Todo o Histórico</option>
+              </select>
+
+              <button type="button" class="sim-btn-execute" id="volBtnRunSimulation" style="padding:8px 16px; font-size:12px;">
+                <span>▶ Executar Simulação</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Banner com Parâmetros Ativos da Simulação -->
+        <div class="vol-sim-banner">
+          <span style="font-size:11px; font-weight:800; color:#38bdf8; text-transform:uppercase; margin-right:4px;">Parâmetros Oficiais:</span>
+          <span class="vol-sim-banner-pill">📊 Diário</span>
+          <span class="vol-sim-banner-pill">📈 SMA(7) Curta</span>
+          <span class="vol-sim-banner-pill">🏛️ SMA(200) Longa</span>
+          <span class="vol-sim-banner-pill">⚡ IFR(2) ≤ ${vState.activeOversoldPreset}</span>
+          <span class="vol-sim-banner-pill">🎯 Saída: Close > SMA7</span>
+          <span class="vol-sim-banner-pill">⏳ Saída Temporal: D7</span>
+          <span class="vol-sim-banner-pill">💰 Capital Fixo R$ ${Number(vState.fixedCapitalPerTrade || 10000).toLocaleString('pt-BR')}</span>
+          <span class="vol-sim-banner-pill">🛡️ Stop: Nenhum</span>
+          <span class="vol-sim-banner-pill">💧 Liquidez: R$ 500k/dia</span>
+        </div>
+
+        <!-- Alerta de Amostra Reduzida quando < 30 trades -->
+        ${m.sampleSizeAlert ? `
+          <div class="vol-sim-alert">
+            <span style="font-size:18px;">⚠️</span>
+            <div>
+              <strong>Amostra Estatística Reduzida (${m.totalTrades} operações):</strong>
+              Menos de 30 trades concluídos no período. Resultados possuem margem de erro estatístico elevada. Recomenda-se expandir o período ou universo para conclusões definitivas.
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Grid de KPIs Consolidados -->
+        <div class="vol-sim-kpi-grid">
+          <div class="vol-sim-kpi-card">
+            <span class="vol-sim-kpi-label">Total de Trades</span>
+            <span class="vol-sim-kpi-val neutral">${m.totalTrades}</span>
+            <span class="vol-sim-kpi-sub">${m.winningTrades} Gain · ${m.losingTrades} Loss</span>
+          </div>
+
+          <div class="vol-sim-kpi-card">
+            <span class="vol-sim-kpi-label">Taxa de Acerto (Win Rate)</span>
+            <span class="vol-sim-kpi-val ${m.winRatePct >= 65 ? 'positive' : 'neutral'}">${m.winRatePct.toFixed(1)}%</span>
+            <span class="vol-sim-kpi-sub">Alvo estatístico: ≥ 65%</span>
+          </div>
+
+          <div class="vol-sim-kpi-card">
+            <span class="vol-sim-kpi-label">Fator de Lucro (Profit Factor)</span>
+            <span class="vol-sim-kpi-val ${m.profitFactor >= 1.5 ? 'positive' : (m.profitFactor >= 1.0 ? 'neutral' : 'negative')}">${m.profitFactor.toFixed(2)}</span>
+            <span class="vol-sim-kpi-sub">Lucro bruto / Perda bruta</span>
+          </div>
+
+          <div class="vol-sim-kpi-card">
+            <span class="vol-sim-kpi-label">Expectativa Matemática</span>
+            <span class="vol-sim-kpi-val ${m.expectancyPct >= 0 ? 'positive' : 'negative'}">${m.expectancyPct >= 0 ? '+' : ''}${m.expectancyPct.toFixed(2)}%</span>
+            <span class="vol-sim-kpi-sub">R$ ${m.expectancyAmount ? m.expectancyAmount.toFixed(2) : '0,00'} por trade</span>
+          </div>
+
+          <div class="vol-sim-kpi-card">
+            <span class="vol-sim-kpi-label">Retorno Médio / Trade</span>
+            <span class="vol-sim-kpi-val ${m.avgTradeReturnPct >= 0 ? 'positive' : 'negative'}">${m.avgTradeReturnPct >= 0 ? '+' : ''}${m.avgTradeReturnPct.toFixed(2)}%</span>
+            <span class="vol-sim-kpi-sub">Ganho: +${(m.avgWinPct || 0).toFixed(1)}% · Perda: ${(m.avgLossPct || 0).toFixed(1)}%</span>
+          </div>
+
+          <div class="vol-sim-kpi-card">
+            <span class="vol-sim-kpi-label">Permanência Média</span>
+            <span class="vol-sim-kpi-val neutral">${m.avgHoldingSessions ? m.avgHoldingSessions.toFixed(1) : 0} pregões</span>
+            <span class="vol-sim-kpi-sub">Máximo permitido: 7 pregões</span>
+          </div>
+
+          <div class="vol-sim-kpi-card">
+            <span class="vol-sim-kpi-label">Max Drawdown</span>
+            <span class="vol-sim-kpi-val negative">${(m.maxDrawdownPct || 0).toFixed(2)}%</span>
+            <span class="vol-sim-kpi-sub">Pico ao fundo no período</span>
+          </div>
+
+          <div class="vol-sim-kpi-card">
+            <span class="vol-sim-kpi-label">Lucro Líquido</span>
+            <span class="vol-sim-kpi-val ${m.netProfit >= 0 ? 'positive' : 'negative'}">R$ ${(m.netProfit || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+            <span class="vol-sim-kpi-sub">Capital fixo: R$ ${Number(vState.fixedCapitalPerTrade || 10000).toLocaleString('pt-BR')}</span>
+          </div>
+        </div>
+
+        <!-- Abas de Visualização: Resumo / Operações / Comparativo -->
+        <div class="vol-sim-tabs-nav">
+          <button type="button" class="vol-sim-tab-btn ${vState.screenTab === 'summary' ? 'active' : ''}" data-vol-tab="summary">📈 Resumo & Curva de Capital</button>
+          <button type="button" class="vol-sim-tab-btn ${vState.screenTab === 'trades' ? 'active' : ''}" data-vol-tab="trades">📋 Operações Detalhadas (${sim?.trades?.length || 0})</button>
+          <button type="button" class="vol-sim-tab-btn ${vState.screenTab === 'compare' ? 'active' : ''}" data-vol-tab="compare">🔬 Matriz Comparativa (IFR 5, 10, 15, 20)</button>
+        </div>
+
+        <!-- Conteúdo da Aba Ativa -->
+        <div class="vol-sim-tab-body">
+          ${renderVolatilityTabContent(vState, sim)}
+        </div>
+      </div>
+    `;
+
+    bindVolatilityEvents(rootEl);
+  }
+
+  function renderVolatilityTabContent(vState, sim) {
+    if (vState.screenTab === 'compare') {
+      const comp = vState.comparisonResult;
+      if (!comp || !comp.results || comp.results.length === 0) {
+        return `
+          <div style="text-align:center; padding:40px; color:#94a3b8; background:rgba(15,23,42,0.6); border-radius:14px;">
+            <p style="font-size:15px; margin-bottom:14px;">Nenhuma comparação executada ainda.</p>
+            <button type="button" class="sim-btn-execute" id="volBtnRunCompareDirect" style="padding:10px 20px;">🔬 Comparar os 4 Perfis Agora</button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="vol-sim-table-wrap">
+          <table class="vol-sim-table">
+            <thead>
+              <tr>
+                <th>Perfil / Nível</th>
+                <th>Trades</th>
+                <th>Status Amostra</th>
+                <th>Win Rate</th>
+                <th>Profit Factor</th>
+                <th>Expectativa %</th>
+                <th>Retorno Médio</th>
+                <th>Permanência</th>
+                <th>Max DD %</th>
+                <th>Lucro Líquido</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${comp.results.map(r => `
+                <tr>
+                  <td>
+                    <strong>${r.name}</strong>
+                    ${comp.bestVariants?.bestWinRate?.id === r.id ? '<span class="vol-badge-best">Melhor WinRate</span>' : ''}
+                  </td>
+                  <td>${r.tradesCount}</td>
+                  <td>${r.sampleSizeAlert ? '<span style="color:#f59e0b;">⚠️ Reduzida</span>' : '<span style="color:#10b981;">✓ Robusta</span>'}</td>
+                  <td style="color:${r.winRatePct >= 65 ? '#10b981' : '#cbd5e1'}; font-weight:700;">${r.winRatePct.toFixed(1)}%</td>
+                  <td style="color:${r.profitFactor >= 1.5 ? '#10b981' : '#cbd5e1'}; font-weight:700;">${r.profitFactor.toFixed(2)}</td>
+                  <td style="color:${r.expectancyPct >= 0 ? '#10b981' : '#f87171'};">${r.expectancyPct >= 0 ? '+' : ''}${r.expectancyPct.toFixed(2)}%</td>
+                  <td>${r.metrics?.avgTradeReturnPct >= 0 ? '+' : ''}${(r.metrics?.avgTradeReturnPct || 0).toFixed(2)}%</td>
+                  <td>${r.avgHoldingSessions ? r.avgHoldingSessions.toFixed(1) : 0} pregões</td>
+                  <td style="color:#f87171;">${r.maxDrawdownPct.toFixed(2)}%</td>
+                  <td style="color:${r.netProfit >= 0 ? '#10b981' : '#f87171'}; font-weight:800;">R$ ${r.netProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    if (vState.screenTab === 'trades') {
+      const trades = sim?.trades || [];
+      if (trades.length === 0) {
+        return `
+          <div style="text-align:center; padding:40px; color:#94a3b8; background:rgba(15,23,42,0.6); border-radius:14px;">
+            <p>Nenhuma operação encerrada encontrada para esta configuração.</p>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="vol-sim-table-wrap">
+          <table class="vol-sim-table">
+            <thead>
+              <tr>
+                <th>Ativo</th>
+                <th>Sinal</th>
+                <th>Entrada (T+1 Open)</th>
+                <th>Gap %</th>
+                <th>Qtd</th>
+                <th>Saída (Data & Preço)</th>
+                <th>Motivo da Saída</th>
+                <th>Holding</th>
+                <th>Retorno %</th>
+                <th>Resultado R$</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${trades.map(t => `
+                <tr>
+                  <td><strong>${t.symbol}</strong></td>
+                  <td>${t.signalDate}</td>
+                  <td>${t.entryDate} (R$ ${t.entryPrice.toFixed(2)})</td>
+                  <td style="color:${t.entryGapPct >= 0 ? '#10b981' : '#f87171'};">${t.entryGapPct >= 0 ? '+' : ''}${t.entryGapPct.toFixed(2)}%</td>
+                  <td>${t.sharesQuantity}</td>
+                  <td>${t.exitDate} (R$ ${t.exitPrice.toFixed(2)})</td>
+                  <td>
+                    ${t.exitReason === 'TARGET_MA_RECOVERY'
+                      ? '<span style="color:#38bdf8; font-weight:700;">🎯 Recuperação SMA7</span>'
+                      : '<span style="color:#fbbf24; font-weight:700;">⏳ Saída Temporal (D7)</span>'}
+                  </td>
+                  <td>${t.holdingSessions} pregões</td>
+                  <td style="color:${t.returnPct >= 0 ? '#10b981' : '#f87171'}; font-weight:700;">${t.returnPct >= 0 ? '+' : ''}${t.returnPct.toFixed(2)}%</td>
+                  <td style="color:${t.netPnl >= 0 ? '#10b981' : '#f87171'}; font-weight:800;">R$ ${t.netPnl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // Default: summary tab
+    const exits = sim?.metrics?.exitsBreakdown || { TARGET_MA_RECOVERY: 0, TIME_EXIT: 0 };
+    const totalExits = (exits.TARGET_MA_RECOVERY || 0) + (exits.TIME_EXIT || 0);
+    const recPct = totalExits > 0 ? ((exits.TARGET_MA_RECOVERY || 0) / totalExits * 100).toFixed(1) : 0;
+    const timePct = totalExits > 0 ? ((exits.TIME_EXIT || 0) / totalExits * 100).toFixed(1) : 0;
+
+    return `
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+        <!-- Distribuição por Motivo de Saída -->
+        <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px;">
+          <h3 style="font-size:14px; font-weight:800; color:#f8fafc; margin:0 0 14px 0; text-transform:uppercase; letter-spacing:0.5px;">Distribuição de Saídas</h3>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                <span style="color:#38bdf8; font-weight:700;">🎯 Recuperação na Média (Close > SMA7)</span>
+                <strong>${exits.TARGET_MA_RECOVERY || 0} (${recPct}%)</strong>
+              </div>
+              <div style="height:8px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden;">
+                <div style="height:100%; width:${recPct}%; background:#38bdf8; border-radius:999px;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                <span style="color:#fbbf24; font-weight:700;">⏳ Saída Temporal (D7)</span>
+                <strong>${exits.TIME_EXIT || 0} (${timePct}%)</strong>
+              </div>
+              <div style="height:8px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden;">
+                <div style="height:100%; width:${timePct}%; background:#fbbf24; border-radius:999px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Curva de Equity Resumida -->
+        <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px;">
+          <h3 style="font-size:14px; font-weight:800; color:#f8fafc; margin:0 0 14px 0; text-transform:uppercase; letter-spacing:0.5px;">Evolução de Patrimônio</h3>
+          <div style="font-size:12px; color:#94a3b8; margin-bottom:8px;">
+            Capital Inicial: <strong>R$ ${Number(vState.initialCapital || 100000).toLocaleString('pt-BR')}</strong> ·
+            Patrimônio Final: <strong style="color:#10b981;">R$ ${Number((vState.initialCapital || 100000) + (sim?.metrics?.netProfit || 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
+          </div>
+          <div style="font-size:11px; color:#64748b;">
+            Pontos de curva registrados: ${sim?.equityCurve?.length || 0} pregões com marcação a mercado e absorção de slippage.
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindVolatilityEvents(rootEl) {
+    // Strategy toggle buttons
+    rootEl.querySelectorAll('[data-sim-strat]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const strat = btn.getAttribute('data-sim-strat');
+        setSimulatorStrategy(strat);
+      });
+    });
+
+    // Preset pills (IFR levels)
+    rootEl.querySelectorAll('[data-vol-level]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lvl = parseInt(btn.getAttribute('data-vol-level'), 10);
+        state.volatilityState.activeOversoldPreset = lvl;
+        state.volatilityState.screenTab = 'summary';
+        executeVolatilitySimulation({ oversoldLevel: lvl });
+      });
+    });
+
+    // Run simulation button
+    rootEl.querySelector('#volBtnRunSimulation')?.addEventListener('click', () => {
+      executeVolatilitySimulation();
+    });
+
+    // Compare profiles button
+    rootEl.querySelector('#volBtnCompareProfiles')?.addEventListener('click', () => {
+      compareVolatilityProfiles();
+    });
+    rootEl.querySelector('#volBtnRunCompareDirect')?.addEventListener('click', () => {
+      compareVolatilityProfiles();
+    });
+
+    // Universe filter
+    rootEl.querySelector('#volFilterUniverse')?.addEventListener('change', (e) => {
+      state.volatilityState.universe = e.target.value;
+      executeVolatilitySimulation({ universe: e.target.value });
+    });
+
+    // Period filter
+    rootEl.querySelector('#volFilterPeriod')?.addEventListener('change', (e) => {
+      state.volatilityState.period = e.target.value;
+      executeVolatilitySimulation({ period: e.target.value });
+    });
+
+    // Tabs
+    rootEl.querySelectorAll('[data-vol-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-vol-tab');
+        state.volatilityState.screenTab = tab;
+        render();
+      });
+    });
+  }
+
+  // Global listener to strategyChanged
+  if (typeof window !== 'undefined') {
+    window.addEventListener('healthyTrend:strategyChanged', (e) => {
+      const strat = e.detail && e.detail.strategy;
+      const targetStrat = strat === 'volatility_trading' ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
+      if (state.activeStrategy !== targetStrat) {
+        setSimulatorStrategy(targetStrat);
+      }
+    });
+  }
+
+})(typeof window !== 'undefined' ? window : this);

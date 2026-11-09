@@ -36,6 +36,10 @@ const opportunityRadar = require('./opportunity-radar');
 const marketTreemap = require('./market-treemap');
 const deservingDiary = require('./deserving-diary');
 const marketRegime = require('./market-regime');
+const strategyConfigs = require('./strategy-configs');
+const volatilityEngine = require('./volatility-engine');
+const volatilitySimulator = require('./volatility-simulator');
+const strategyAnalytics = require('./strategy-analytics');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -508,7 +512,26 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/trade-simulations/generate-mass' && request.method === 'POST') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request)); if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
-      return send(response, 200, await tradeSimulator.generateMass(user.id, await body(request)));
+      const massBody = await body(request);
+      if (massBody && (massBody.strategy === 'VOLATILITY_TRADING' || massBody.strategyType === 'VOLATILITY_TRADING')) {
+        const res = await volatilitySimulator.runUniverseSimulation({
+          userId: user.id,
+          universe: massBody.universe,
+          market: massBody.market,
+          period: massBody.period,
+          startDate: massBody.startDate,
+          endDate: massBody.endDate,
+          profileId: massBody.profileId,
+          customParameters: massBody.parameters
+        });
+        return send(response, 200, {
+          simulations: res.trades,
+          stats: res.metrics,
+          equityCurve: res.equityCurve,
+          meta: res.metadata
+        });
+      }
+      return send(response, 200, await tradeSimulator.generateMass(user.id, massBody));
     }
     if (url.pathname === '/api/trade-simulations/clear' && request.method === 'POST') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
@@ -675,8 +698,196 @@ const server = http.createServer(async (request, response) => {
       const user = await auth.session(bearer(request));
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       await trades.verifyPendingOrders(user.id).catch(() => null);
-      return send(response, 200, { trades: await trades.listPlans(user.id) });
+      const strategy = url.searchParams.get('strategy') || url.searchParams.get('strategy_type') || null;
+      return send(response, 200, { trades: await trades.listPlans(user.id, { strategy }) });
     }
+    // Strategy Configuration Center (PASSO 3)
+    if (request.method === 'GET' && url.pathname === '/api/strategy-configs') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const strategy = url.searchParams.get('strategy') || url.searchParams.get('strategy_type') || null;
+      const configs = await strategyConfigs.list(user.id, strategy);
+      return send(response, 200, { configs });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/strategy-configs/active') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const strategy = url.searchParams.get('strategy') || url.searchParams.get('strategy_type') || null;
+      const profile = await strategyConfigs.getActiveProfile(user.id, strategy);
+      return send(response, 200, { profile });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/strategy-configs') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const config = await strategyConfigs.create(user.id, await body(request));
+      return send(response, 201, { config });
+    }
+    const stratConfigActiveMatch = url.pathname.match(/^\/api\/strategy-configs\/([^/]+)\/set-active$/);
+    if (request.method === 'POST' && stratConfigActiveMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const result = await strategyConfigs.setActive(user.id, stratConfigActiveMatch[1]);
+      return send(response, 200, { result });
+    }
+    const stratConfigDuplicateMatch = url.pathname.match(/^\/api\/strategy-configs\/([^/]+)\/duplicate$/);
+    if (request.method === 'POST' && stratConfigDuplicateMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const config = await strategyConfigs.duplicate(user.id, stratConfigDuplicateMatch[1], await body(request));
+      return send(response, 201, { config });
+    }
+    const stratConfigStatusMatch = url.pathname.match(/^\/api\/strategy-configs\/([^/]+)\/toggle-status$/);
+    if (request.method === 'POST' && stratConfigStatusMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const payload = await body(request);
+      const result = await strategyConfigs.toggleStatus(user.id, stratConfigStatusMatch[1], payload.status);
+      return send(response, 200, { result });
+    }
+    const stratConfigMatch = url.pathname.match(/^\/api\/strategy-configs\/([^/]+)$/);
+    if (request.method === 'GET' && stratConfigMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const config = await strategyConfigs.get(user.id, stratConfigMatch[1]);
+      return send(response, 200, { config });
+    }
+    if ((request.method === 'PUT' || request.method === 'PATCH') && stratConfigMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const config = await strategyConfigs.update(user.id, stratConfigMatch[1], await body(request));
+      return send(response, 200, { config });
+    }
+    if (request.method === 'DELETE' && stratConfigMatch) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const result = await strategyConfigs.deleteProfile(user.id, stratConfigMatch[1]);
+      return send(response, 200, result);
+    }
+
+    // Volatility Trading Engine (PASSO 4)
+    if (request.method === 'GET' && url.pathname === '/api/volatility/scan') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'demo-user';
+      const asOfDate = url.searchParams.get('as_of_date') || url.searchParams.get('asOfDate') || null;
+      const profileId = url.searchParams.get('profile_id') || url.searchParams.get('profileId') || null;
+      const market = url.searchParams.get('market') || 'B3';
+      const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+
+      const result = await volatilityEngine.scanOpportunities({ userId, asOfDate, profileId, market, limit });
+      return send(response, 200, result);
+    }
+    if (request.method === 'POST' && url.pathname === '/api/volatility/simulate') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'demo-user';
+      const payload = await body(request);
+      const result = await volatilityEngine.simulateAsset({
+        userId,
+        symbol: payload.symbol,
+        profileId: payload.profileId || payload.profile_id,
+        customParameters: payload.parameters,
+        market: payload.market || 'B3',
+        startDate: payload.startDate || payload.start_date,
+        endDate: payload.endDate || payload.end_date
+      });
+      return send(response, 200, result);
+    }
+    // Volatility Trading Simulator & Experiments (PASSO 7)
+    if (request.method === 'POST' && url.pathname === '/api/volatility/simulator/run') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'demo-user';
+      const payload = await body(request);
+      const result = await volatilitySimulator.runUniverseSimulation({
+        userId,
+        name: payload.name,
+        universe: payload.universe || 'IBOV',
+        market: payload.market || 'B3',
+        profileId: payload.profileId || payload.profile_id,
+        customParameters: payload.parameters,
+        period: payload.period || '120',
+        startDate: payload.startDate || payload.start_date,
+        endDate: payload.endDate || payload.end_date,
+        initialCapital: payload.initialCapital,
+        fixedCapitalPerTrade: payload.fixedCapitalPerTrade,
+        costsPerTrade: payload.costsPerTrade,
+        slippagePct: payload.slippagePct
+      });
+      return send(response, 200, result);
+    }
+    if (request.method === 'POST' && url.pathname === '/api/volatility/simulator/compare') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'demo-user';
+      const payload = await body(request);
+      const result = await volatilitySimulator.runComparativeExperiment({
+        userId,
+        universe: payload.universe || 'IBOV',
+        market: payload.market || 'B3',
+        variants: payload.variants,
+        period: payload.period || '120',
+        startDate: payload.startDate || payload.start_date,
+        endDate: payload.endDate || payload.end_date,
+        initialCapital: payload.initialCapital,
+        fixedCapitalPerTrade: payload.fixedCapitalPerTrade,
+        costsPerTrade: payload.costsPerTrade,
+        slippagePct: payload.slippagePct
+      });
+      return send(response, 200, result);
+    }
+    if (request.method === 'GET' && url.pathname === '/api/volatility/simulator/experiments') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'demo-user';
+      const list = await volatilitySimulator.listExperiments(userId);
+      return send(response, 200, { experiments: list });
+    }
+    const volExpMatch = url.pathname.match(/^\/api\/volatility\/simulator\/experiments\/([^/]+)$/);
+    if (volExpMatch && request.method === 'GET') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'demo-user';
+      const exp = await volatilitySimulator.getExperiment(userId, volExpMatch[1]);
+      return send(response, 200, { experiment: exp });
+    }
+    if (volExpMatch && request.method === 'DELETE') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const userId = user ? user.id : 'demo-user';
+      const res = await volatilitySimulator.deleteExperiment(userId, volExpMatch[1]);
+      return send(response, 200, res);
+    }
+    // Strategy Analytics: Métricas Individuais e Consolidado de Carteira (PASSO 8)
+    if (request.method === 'GET' && url.pathname === '/api/strategy-analytics') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const strategy = url.searchParams.get('strategy') || 'ALL';
+      const period = url.searchParams.get('period') || 'ALL';
+      const startDate = url.searchParams.get('startDate') || url.searchParams.get('start_date') || null;
+      const endDate = url.searchParams.get('endDate') || url.searchParams.get('end_date') || null;
+      const market = url.searchParams.get('market') || 'ALL';
+      const symbol = url.searchParams.get('symbol') || 'ALL';
+      const profileId = url.searchParams.get('profileId') || url.searchParams.get('profile_id') || null;
+      const initialCapital = Number(url.searchParams.get('initialCapital') || 100000);
+
+      const result = await strategyAnalytics.getAnalytics({
+        userId: user.id,
+        strategy,
+        period,
+        startDate,
+        endDate,
+        market,
+        symbol,
+        profileId,
+        initialCapital
+      });
+      return send(response, 200, result);
+    }
+
     if (request.method === 'GET' && url.pathname === '/api/wealth') {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
       const user = await auth.session(bearer(request));
@@ -763,6 +974,14 @@ const server = http.createServer(async (request, response) => {
       const trade = await trades.executePlan(user.id, executionMatch[1], await body(request));
       return send(response, 200, { trade });
     }
+    const tradeStrategyMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/strategy$/);
+    if (tradeStrategyMatch && (request.method === 'PATCH' || request.method === 'PUT')) {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const result = await trades.updateTradeStrategy(user.id, tradeStrategyMatch[1], await body(request));
+      return send(response, 200, result);
+    }
     const tradeUpdateMatch = url.pathname.match(/^\/api\/trades\/([^/]+)$/);
     if (tradeUpdateMatch && (request.method === 'PATCH' || request.method === 'PUT')) {
       if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
@@ -770,6 +989,14 @@ const server = http.createServer(async (request, response) => {
       if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
       const trade = await trades.updateTrade(user.id, tradeUpdateMatch[1], await body(request));
       return send(response, 200, { trade });
+    }
+    const tradeDuplicateMatch = url.pathname.match(/^\/api\/trades\/([^/]+)\/duplicate$/);
+    if (tradeDuplicateMatch && request.method === 'POST') {
+      if (!database.configured()) return send(response, 503, { error: 'Persistência ainda não configurada no servidor.' });
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const result = await trades.duplicateTrade(user.id, tradeDuplicateMatch[1], await body(request));
+      return send(response, 201, result);
     }
     const tradeDeleteMatch = url.pathname.match(/^\/api\/trades\/([^/]+)$/);
     if (tradeDeleteMatch && request.method === 'DELETE') {
@@ -918,7 +1145,7 @@ const server = http.createServer(async (request, response) => {
     let cache = await refreshIfDue();
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
     if (url.pathname === '/api/opportunity-radar') {
-      const payload = await opportunityRadar.getOpportunityRadarData(cache);
+      const payload = await opportunityRadar.getOpportunityRadarData(cache, { strategy: url.searchParams.get('strategy') || 'ALL' });
       return send(response, 200, payload);
     }
     if (url.pathname === '/api/market-central') {
@@ -999,7 +1226,8 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/market-scans') {
       cache = await refreshClassStrength(cache);
       cache = await refreshLiveScanQuotes(cache);
-      return send(response, 200, marketScansFromCache(cache));
+      const strategy = url.searchParams.get('strategy');
+      return send(response, 200, marketScansFromCache(cache, { strategy }));
     }
     if (url.pathname === '/api/relative-strength/classes') {
       const isWeekly = url.searchParams.get('timeframe') === 'weekly';
