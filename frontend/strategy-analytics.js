@@ -709,7 +709,7 @@
     });
   }
 
-  // Global listener to strategyChanged
+  // Global listeners e auto-montagem
   if (typeof window !== 'undefined') {
     window.addEventListener('healthyTrend:strategyChanged', (e) => {
       const strat = e.detail && e.detail.strategy;
@@ -720,6 +720,30 @@
         if (root) render(root);
       }
     });
+
+    const ensureMounted = () => {
+      const page = document.getElementById('analytics');
+      if (page) {
+        let stratBox = document.getElementById('analyticsStrategyContainer');
+        if (!stratBox) {
+          stratBox = document.createElement('div');
+          stratBox.id = 'analyticsStrategyContainer';
+          const hero = page.querySelector('.hero');
+          if (hero) hero.insertAdjacentElement('afterend', stratBox);
+          else page.prepend(stratBox);
+        }
+        render(stratBox);
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', ensureMounted);
+    } else {
+      setTimeout(ensureMounted, 100);
+    }
+
+    window.addEventListener('healthyTrend:tradesUpdated', ensureMounted);
+    window.addEventListener('healthyTrend:authenticated', () => setTimeout(ensureMounted, 200));
   }
 
   root.StrategyAnalytics = {
