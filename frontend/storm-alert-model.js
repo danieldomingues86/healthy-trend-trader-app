@@ -255,6 +255,13 @@
     const beforeLen = _customStormEvents.length;
     _customStormEvents = _customStormEvents.filter(e => e.id !== eventId);
     saveCustomEventsToStorage();
+
+    if (typeof globalThis !== 'undefined' && globalThis.TradeSimulatorModel && typeof globalThis.TradeSimulatorModel.removeExtremeEvent === 'function') {
+      try {
+        globalThis.TradeSimulatorModel.removeExtremeEvent(eventId);
+      } catch (_) {}
+    }
+
     return _customStormEvents.length < beforeLen;
   }
 
@@ -358,6 +365,12 @@
 
   function clearCustomEvents() {
     _customStormEvents = [];
+    saveCustomEventsToStorage();
+    if (typeof globalThis !== 'undefined' && globalThis.TradeSimulatorModel && typeof globalThis.TradeSimulatorModel.resetExtremeEventsCalendar === 'function') {
+      try {
+        globalThis.TradeSimulatorModel.resetExtremeEventsCalendar();
+      } catch (_) {}
+    }
   }
 
   /**
@@ -550,9 +563,10 @@
       ? options.calendar
       : getActiveCalendar();
 
+    const DEFAULT_HORIZON_DAYS = 5;
     const horizonDays = options.horizonDays != null
       ? Math.max(1, Number(options.horizonDays))
-      : 45; // Janela máxima no radar (45 dias)
+      : DEFAULT_HORIZON_DAYS; // Janela máxima de exibição: 5 dias antes do evento
 
     const openCount = resolveOpenPositionsCount(options.openPositionsCount);
 
@@ -569,18 +583,21 @@
       const evtTime = new Date(evt.eventDate + 'T12:00:00Z').getTime();
       const refTime = new Date(referenceDate + 'T12:00:00Z').getTime();
       const cutoffTime = new Date(cutoff.cutoffDate + 'T12:00:00Z').getTime();
-      const riskEndTime = new Date(cutoff.riskEndDate + 'T12:00:00Z').getTime();
 
-      // O evento é elegível se:
-      // a) A data de referência ainda não ultrapassou o fim do risco do evento
-      // b) E a data do evento está dentro do horizonte (dias futuros <= horizonDays)
-      //    ou a data de referência já está na janela entre o cutoff e o fim do evento.
+      // Regra de permanência e encerramento:
+      // O evento deve aparecer 5 dias antes do evento (daysUntilEvent <= horizonDays)
+      // e permanecer presente até o dia do evento (referenceDate <= maxActiveDate e daysUntilEvent >= 0).
+      // Assim que o dia do evento passar (referenceDate > maxActiveDate ou daysUntilEvent < 0), o evento é descartado.
+      const maxActiveDate = (cutoff.riskEndDate && cutoff.riskEndDate > evt.eventDate)
+        ? cutoff.riskEndDate
+        : evt.eventDate;
+      const eventHasPassed = referenceDate > maxActiveDate;
+
       const daysUntilEvent = Math.round((evtTime - refTime) / 86400000);
 
-      const isCurrentOrUpcoming = referenceDate <= cutoff.riskEndDate;
-      const isWithinHorizon = daysUntilEvent >= -1 && daysUntilEvent <= horizonDays;
+      const isWithinHorizon = !eventHasPassed && daysUntilEvent <= horizonDays && (daysUntilEvent >= 0 || referenceDate <= maxActiveDate);
 
-      if (isCurrentOrUpcoming && isWithinHorizon) {
+      if (isWithinHorizon) {
         // Prioriza o evento mais iminente
         const diff = Math.abs(refTime - cutoffTime);
         if (diff < minDiffMs || !candidateEvent) {

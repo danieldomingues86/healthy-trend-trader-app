@@ -262,6 +262,10 @@
 
   function widgetShell(item, widget, content) {
     if (item.id === 'storm-alert') {
+      if (!content || !content.trim()) {
+        if (!dashboardEditing) return '';
+        content = '<div class="dashboard-widget-state" style="padding: 16px; text-align: center; color: var(--muted, #64748b);">⚡ Storm Alert (Inativo — sem eventos extremos nos próximos 5 dias)</div>';
+      }
       const isCollapsed = Boolean(window.StormAlert?.isCollapsed?.());
       const collapsedClass = isCollapsed ? ' storm-widget-collapsed' : '';
       const editControls = dashboardEditing ? `<div class="dashboard-widget-edit-controls" aria-label="Editar ${esc(widget.name)}"><span class="dashboard-widget-drag-handle" title="Arraste para reorganizar">⠿</span><button type="button" class="danger" data-widget-remove="${item.id}" aria-label="Remover ${esc(widget.name)}">×</button></div>` : '';
@@ -482,28 +486,9 @@
     const renderContext = {
       renderStormAlert: () => {
         if (typeof window !== 'undefined' && window.StormAlert && typeof window.StormAlert.buildStormAlertHtml === 'function') {
-          const html = window.StormAlert.buildStormAlertHtml();
-          if (html) return html;
+          return window.StormAlert.buildStormAlertHtml() || '';
         }
-        return `
-          <div class="today-storm-safe-card">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span class="today-storm-safe-icon" aria-hidden="true">🛡️</span>
-              <div class="today-storm-safe-text">
-                <strong class="today-storm-safe-title">Radar Seguro · Sem Eventos Extremos Iminentes</strong>
-                <span class="today-storm-safe-desc">Nenhum evento extremo ativo no radar no momento. Capital seguro.</span>
-              </div>
-            </div>
-            <div class="today-storm-safe-actions">
-              <button type="button" class="btn-cockpit-eventplaybook" onclick="if(typeof go==='function')go('eventplaybook')">
-                📅 Registro de Eventos
-              </button>
-              <button type="button" class="btn-cockpit-stormtest" onclick="if(window.StormAlert&&typeof window.StormAlert.openExtremeEventsManagerModal==='function')window.StormAlert.openExtremeEventsManagerModal('test')">
-                ⚙️ Simular Estados &amp; Alerta
-              </button>
-            </div>
-          </div>
-        `;
+        return '';
       },
       renderPortfolio: () => portfolioContent,
       renderOpportunities: () => opportunitiesContent,

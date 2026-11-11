@@ -96,20 +96,20 @@ test('StormAlert — ESTADO 2: AÇÃO NECESSÁRIA (Prazo de zeragem próximo/ati
 });
 
 test('StormAlert — ESTADO 1: ATENÇÃO (Evento no radar com antecedência para preparação)', () => {
-  // Evento em 2026-11-25, referência em 2026-11-06 (mais de 10 dias úteis de antecedência)
+  // Evento em 2026-11-20 (sexta-feira), referência em 2026-11-15 (domingo, 5 dias de antecedência no início da janela)
   const testCalendar = [
     {
       id: 'test-election-future',
       name: 'Eleições extraordinárias',
-      eventDate: '2026-11-25',
-      riskStartDate: '2026-11-25',
-      riskEndDate: '2026-11-25',
+      eventDate: '2026-11-20',
+      riskStartDate: '2026-11-20',
+      riskEndDate: '2026-11-20',
       defaultAdvanceSessions: 1
     }
   ];
 
   const status = StormAlertModel.evaluateStormAlertStatus({
-    referenceDate: '2026-11-06',
+    referenceDate: '2026-11-15',
     openPositionsCount: 5,
     calendar: testCalendar,
     advanceSessions: 1
@@ -125,7 +125,7 @@ test('StormAlert — ESTADO 1: ATENÇÃO (Evento no radar com antecedência para
 
   // Renderização HTML
   const html = StormAlert.buildStormAlertHtml({
-    referenceDate: '2026-11-06',
+    referenceDate: '2026-11-15',
     openPositionsCount: 5,
     calendar: testCalendar,
     advanceSessions: 1
@@ -441,4 +441,95 @@ test('StormAlert + Registro de Eventos (EventPlaybook): eventos de Impacto 5 aci
   // Limpa o evento de teste
   EventPlaybookModel.deleteEvent(created.id);
   delete global.EventPlaybookModel;
+});
+
+test('Storm Alert — Janela estrita de 5 dias e desaparecimento pós-evento', () => {
+  const testCalendar = [
+    {
+      id: 'test-event-5days-window',
+      name: 'Decisão Copom Extraordinária',
+      eventDate: '2026-11-20',
+      riskStartDate: '2026-11-20',
+      riskEndDate: '2026-11-20',
+      defaultAdvanceSessions: 1
+    }
+  ];
+
+  // 1. D-6 (6 dias antes — 2026-11-14): Fora da janela de 5 dias -> INATIVO e invisível
+  const statusD6 = StormAlertModel.evaluateStormAlertStatus({
+    referenceDate: '2026-11-14',
+    openPositionsCount: 4,
+    calendar: testCalendar
+  });
+  assert.equal(statusD6.hasActiveAlert, false, 'A 6 dias do evento, o alerta não deve estar ativo');
+  assert.equal(statusD6.state, 'INACTIVE');
+  const htmlD6 = StormAlert.buildStormAlertHtml({
+    referenceDate: '2026-11-14',
+    openPositionsCount: 4,
+    calendar: testCalendar
+  });
+  assert.equal(htmlD6, '', 'A 6 dias do evento, o widget deve retornar string vazia');
+
+  // 2. D-5 (5 dias antes — 2026-11-15): Início exato da janela de 5 dias -> ATIVO
+  const statusD5 = StormAlertModel.evaluateStormAlertStatus({
+    referenceDate: '2026-11-15',
+    openPositionsCount: 4,
+    calendar: testCalendar
+  });
+  assert.equal(statusD5.hasActiveAlert, true, 'A 5 dias do evento, o alerta deve aparecer');
+  const htmlD5 = StormAlert.buildStormAlertHtml({
+    referenceDate: '2026-11-15',
+    openPositionsCount: 4,
+    calendar: testCalendar
+  });
+  assert.ok(htmlD5.length > 0, 'A 5 dias do evento, o HTML deve ser renderizado');
+
+  // 3. D-0 (Dia do evento — 2026-11-20): Presente na tela até o dia do evento -> ATIVO
+  const statusD0 = StormAlertModel.evaluateStormAlertStatus({
+    referenceDate: '2026-11-20',
+    openPositionsCount: 4,
+    calendar: testCalendar
+  });
+  assert.equal(statusD0.hasActiveAlert, true, 'No dia do evento, o alerta deve permanecer visível');
+  const htmlD0 = StormAlert.buildStormAlertHtml({
+    referenceDate: '2026-11-20',
+    openPositionsCount: 4,
+    calendar: testCalendar
+  });
+  assert.ok(htmlD0.length > 0, 'No dia do evento, o HTML deve estar presente');
+
+  // 4. D+1 (Dia seguinte após o evento — 2026-11-21): O evento passou -> DESAPARECE
+  const statusDPlus1 = StormAlertModel.evaluateStormAlertStatus({
+    referenceDate: '2026-11-21',
+    openPositionsCount: 4,
+    calendar: testCalendar
+  });
+  assert.equal(statusDPlus1.hasActiveAlert, false, 'Depois que o dia do evento passar, o alerta deve ser inativo');
+  assert.equal(statusDPlus1.state, 'INACTIVE');
+  const htmlDPlus1 = StormAlert.buildStormAlertHtml({
+    referenceDate: '2026-11-21',
+    openPositionsCount: 4,
+    calendar: testCalendar
+  });
+  assert.equal(htmlDPlus1, '', 'Depois que o dia do evento passar, o widget deve desaparecer (HTML vazio)');
+});
+
+test('Storm Alert — Estado atual do sistema em 2026-11-11: sem eventos a 5 dias, widget invisível', () => {
+  // Hoje é 2026-11-11. O próximo evento padrão é 2026-11-18 (7 dias de distância).
+  const status = StormAlertModel.evaluateStormAlertStatus({
+    referenceDate: '2026-11-11',
+    openPositionsCount: 5
+  });
+
+  assert.equal(status.hasActiveAlert, false, 'Não deve haver alerta ativo para eventos além de 5 dias');
+  assert.equal(status.state, 'INACTIVE');
+  const html = StormAlert.buildStormAlertHtml({
+    referenceDate: '2026-11-11',
+    openPositionsCount: 5
+  });
+  assert.equal(html, '', 'buildStormAlertHtml deve retornar vazio no estado atual');
+
+  // Verifica que today-cockpit.js não tem mais o fallback today-storm-safe-card
+  const cockpitCode = fs.readFileSync(path.resolve(__dirname, 'today-cockpit.js'), 'utf8');
+  assert.ok(!cockpitCode.includes('today-storm-safe-card'), 'today-cockpit não deve renderizar fallback de radar seguro');
 });
