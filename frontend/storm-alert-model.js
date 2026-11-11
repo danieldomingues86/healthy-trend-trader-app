@@ -211,6 +211,9 @@
   function initStorage() {
     if (typeof localStorage !== 'undefined') {
       try {
+        // Remove modo de teste legado persistido em localStorage para evitar
+        // que o usuário fique permanentemente preso no modo simulado de teste.
+        localStorage.removeItem('healthyTrend_stormAlertTestMode');
         const raw = localStorage.getItem('healthyTrend_customExtremeEvents');
         if (raw) {
           const parsed = JSON.parse(raw);
@@ -218,12 +221,9 @@
             _customStormEvents = parsed;
           }
         }
-        const savedMode = localStorage.getItem('healthyTrend_stormAlertTestMode');
-        if (savedMode) {
-          _testMode = savedMode;
-        }
       } catch (_) {}
     }
+    _testMode = 'AUTO';
   }
   initStorage();
 
@@ -242,9 +242,11 @@
   function setTestMode(mode) {
     const validModes = ['AUTO', 'ACTION_REQUIRED', 'WARNING', 'PROTECTED', 'INACTIVE'];
     _testMode = validModes.includes(mode) ? mode : 'AUTO';
+    // Modo de teste é volátil (apenas em memória para a simulação ativa);
+    // nunca persiste em localStorage para não desconfigurar o Dashboard real do trader.
     if (typeof localStorage !== 'undefined') {
       try {
-        localStorage.setItem('healthyTrend_stormAlertTestMode', _testMode);
+        localStorage.removeItem('healthyTrend_stormAlertTestMode');
       } catch (_) {}
     }
     return _testMode;

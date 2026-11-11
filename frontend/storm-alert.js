@@ -371,6 +371,11 @@
     if (modalBackdrop) {
       modalBackdrop.remove();
     }
+    const model = StormAlertModel || root.StormAlertModel;
+    if (model && typeof model.setTestMode === 'function') {
+      model.setTestMode('AUTO');
+      refresh();
+    }
   }
 
   function renderModalContent(container, activeTab = 'test') {

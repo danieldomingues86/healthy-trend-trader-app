@@ -13,6 +13,7 @@
   let galleryOpen = false;
   let galleryCategory = 'Todos';
   let widgetLayout = null;
+  try { localStorage.removeItem('healthyTrend_stormAlertTestMode'); } catch (_) {}
 
   const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
   const pct = (value) => Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
