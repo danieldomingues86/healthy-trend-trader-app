@@ -10,6 +10,7 @@ const TradingRubrics = require('../../frontend/trading-rubrics');
 const TickerChartModel = require('../../frontend/ticker-chart-model');
 const FundamentalScore = require('../../frontend/fundamental-score');
 const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
+const VolatilityTradingEngineModel = require('../../frontend/volatility-trading-engine-model');
 
 const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
 const NASDAQ_PRICES_FILE = path.join(__dirname, '..', 'data', 'nasdaq-daily-prices.json');
@@ -362,6 +363,15 @@ async function getTickerChartData(rawSymbol) {
   const { latestAtr, latestAtrPct } = TickerChartModel.calculateAtr(candles, 21);
 
   // Formata séries para o Lightweight Charts
+  const ifr2Array = VolatilityTradingEngineModel.calculateRSI(closePrices, 2, 'WILDER');
+  const ifr2Series = [];
+  for (let i = 0; i < candles.length; i++) {
+    if (ifr2Array[i] !== null && Number.isFinite(ifr2Array[i])) {
+      ifr2Series.push({ time: candles[i].time, value: ifr2Array[i] });
+    }
+  }
+  const latestIfr2 = ifr2Array[ifr2Array.length - 1];
+
   const ema10Series = [];
   const ema72Series = [];
   for (let i = 0; i < candles.length; i++) {
@@ -707,7 +717,9 @@ async function getTickerChartData(rawSymbol) {
       ema30: ema72Series,
       atr21: atrVal,
       atrPct: atrPctVal,
-      volumeAvg21
+      volumeAvg21,
+      ifr2: ifr2Series,
+      currentIfr2: latestIfr2 != null ? Number(latestIfr2.toFixed(2)) : null
     },
     relativeStrength: {
       score: rsScore,

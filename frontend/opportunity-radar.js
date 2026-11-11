@@ -11,10 +11,19 @@
     marketCycleState: 'healthy',
     marketCycles: null,
     items: [],
+    trendItems: [],
+    volatilityItems: [],
+    volatilitySummary: null,
+    strategy: 'TREND_FOLLOWING',
     filters: {
       market: 'ALL',
       grade: 'ALL',
       trigger: 'ALL',
+      search: ''
+    },
+    volatilityFilters: {
+      market: 'ALL',
+      condition: 'ALL',
       search: ''
     },
     selectedTickers: [],
@@ -329,8 +338,11 @@
         if (res.ok) payload = await res.json();
       }
 
-      if (payload && Array.isArray(payload.items)) {
-        state.items = payload.items;
+      if (payload && (Array.isArray(payload.items) || Array.isArray(payload.volatilityItems))) {
+        state.items = payload.items || [];
+        state.trendItems = payload.trendItems || payload.items || [];
+        state.volatilityItems = payload.volatilityItems || [];
+        state.volatilitySummary = payload.volatilitySummary || null;
         state.updatedAt = payload.updatedAt || null;
         state.dataAsOf = payload.dataAsOf || null;
         state.marketCycleState = payload.marketCycleState || 'healthy';
@@ -568,6 +580,179 @@
   // =========================================================================
   // TABLE RENDERING
   // =========================================================================
+
+
+  
+  function getFilteredVolatilityItems() {
+    const list = Array.isArray(state.volatilityItems) ? state.volatilityItems : [];
+    const market = (state.volatilityFilters && state.volatilityFilters.market) || 'ALL';
+    const condition = (state.volatilityFilters && state.volatilityFilters.condition) || 'ALL';
+    const search = (state.volatilityFilters && state.volatilityFilters.search || '').trim().toUpperCase();
+
+    return list.filter((item) => {
+      if (market !== 'ALL' && item.market !== market) return false;
+      if (condition !== 'ALL') {
+        if (condition === 'OVERSOLD' && item.statusCode !== 'OVERSOLD') return false;
+        if (condition === 'NEAR_OVERSOLD' && item.statusCode !== 'NEAR_OVERSOLD') return false;
+      }
+      if (search) {
+        const symMatch = String(item.symbol || '').toUpperCase().includes(search);
+        const nameMatch = String(item.name || '').toUpperCase().includes(search);
+        if (!symMatch && !nameMatch) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderVolatilityContextCard(summary, updatedLabel) {
+    const sm = summary || {
+      oversoldCount: 0,
+      nearOversoldCount: 0,
+      noOpportunityCount: 0,
+      oversoldLevel: 10,
+      totalEvaluated: 0
+    };
+
+    return `
+      <section class="radar-volatility-context-card" aria-label="Painel de contexto de Volatility Trading">
+        <div class="radar-vol-context-head">
+          <div class="radar-vol-context-title">
+            <div class="radar-vol-icon" aria-hidden="true">⚡</div>
+            <div>
+              <h3>VOLATILITY TRADING — RADAR DE SOBREVENDA</h3>
+              <p>Métrica atual: IFR de 2 períodos (gráfico Diário) · Reversão à Média</p>
+            </div>
+          </div>
+          <div class="radar-vol-context-meta">
+            <span>Nível Sobrevenda adotado: <strong>IFR(2) ≤ ${sm.oversoldLevel || 10}</strong></span>
+            <span>Última atualização: <strong>${esc(updatedLabel)}</strong></span>
+          </div>
+        </div>
+        <div class="radar-vol-context-stats">
+          <div class="radar-vol-stat is-oversold">
+            <span class="radar-vol-stat-num">${sm.oversoldCount || 0}</span>
+            <span class="radar-vol-stat-label">Sobrevenda (≤ ${sm.oversoldLevel || 10})</span>
+          </div>
+          <div class="radar-vol-stat is-near">
+            <span class="radar-vol-stat-num">${sm.nearOversoldCount || 0}</span>
+            <span class="radar-vol-stat-label">Próximos (10 a 20)</span>
+          </div>
+          <div class="radar-vol-stat is-neutral">
+            <span class="radar-vol-stat-num">${sm.noOpportunityCount || 0}</span>
+            <span class="radar-vol-stat-label">Sem Oportunidade (&gt; 20)</span>
+          </div>
+          <div class="radar-vol-stat is-total">
+            <span class="radar-vol-stat-num">${sm.totalEvaluated || 0}</span>
+            <span class="radar-vol-stat-label">Total Monitorados (Liquidity Gate OK)</span>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderVolatilityTable(items) {
+    const rowsHtml = items.map((item) => {
+      const sym = item.symbol;
+      const marketLower = String(item.market || 'IBOV').toLowerCase();
+      const isSelected = root.OpportunityRadarModel.isSelected(state.selectedTickers, sym);
+
+      const ifrVal = Number(item.ifr2 || 0);
+      const isOversold = item.statusCode === 'OVERSOLD' || ifrVal <= (item.oversoldLevel || 10);
+      const isNear = !isOversold && (item.statusCode === 'NEAR_OVERSOLD' || ifrVal <= 20);
+
+      const ifrClass = isOversold ? 'is-oversold' : (isNear ? 'is-near' : 'is-neutral');
+      const statusClass = isOversold ? 'is-oversold' : (isNear ? 'is-near' : 'is-no-opp');
+      const statusText = isOversold ? '⚡ SOBREVENDA' : (isNear ? '⏳ PRÓXIMO DA SOBREVENDA' : 'SEM OPORTUNIDADE');
+
+      const dist = Number(item.distanceToOversold ?? (ifrVal - (item.oversoldLevel || 10)));
+      const distFormatted = dist <= 0
+        ? `${Math.abs(dist).toFixed(1)} pts abaixo`
+        : `+${dist.toFixed(1)} pts`;
+
+      const distColor = dist <= 0 ? '#15803d' : (dist <= 10 ? '#b45309' : '#64748b');
+
+      const liqBadgeText = '✓ Aprovada';
+      const liqTooltip = 'Liquidez operacional comprovada nos últimos pregões pelo Liquidity Gate global.';
+
+      return `
+        <tr data-ticker="${esc(sym)}" class="${isOversold ? 'row-oversold' : ''}">
+          <td>
+            <div class="radar-asset-cell" onclick="window.openRadarTickerChart('${esc(sym)}', 'VOLATILITY_TRADING')" style="cursor: pointer;" title="Abrir gráfico diário de ${esc(sym)} com IFR(2)">
+              ${renderAssetLogo(sym)}
+              <div class="radar-asset-info">
+                <span class="radar-asset-symbol">${esc(sym)}</span>
+                <span class="radar-asset-name">${esc(item.name || sym)}</span>
+              </div>
+            </div>
+          </td>
+          <td class="col-center">
+            <span class="radar-market-badge market-${esc(marketLower)}">${esc(item.market || 'IBOV')}</span>
+          </td>
+          <td>
+            <span class="radar-price-val">${formatCurrency(item.price || item.close)}</span>
+          </td>
+          <td class="col-center">
+            <span class="radar-ifr-val ${ifrClass}">
+              ${formatNumberPt(ifrVal, 2)}
+            </span>
+          </td>
+          <td class="col-center">
+            <span class="radar-oversold-level-tag">≤ ${item.oversoldLevel || 10}</span>
+          </td>
+          <td class="col-center" style="font-size: 12px; font-weight: 600; color: ${distColor};">
+            ${esc(distFormatted)}
+          </td>
+          <td class="col-center">
+            <span class="radar-liquidity-pill" title="${esc(liqTooltip)}">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              ${esc(liqBadgeText)}
+            </span>
+          </td>
+          <td class="col-center">
+            <span class="radar-status-pill ${statusClass}" title="${esc(statusText)}">
+              ${esc(statusText)}
+            </span>
+          </td>
+          <td class="col-actions">
+            <div class="radar-row-actions">
+              <button type="button" class="radar-btn-paper-trading" onclick="window.openRadarTradePlan('${esc(sym)}', 'VOLATILITY_TRADING')" title="Planejar trade de reversão à média na tela Novo Trade">
+                + Planejar Trade
+              </button>
+              <button type="button" class="radar-btn-view-chart" onclick="window.openRadarTickerChart('${esc(sym)}', 'VOLATILITY_TRADING')" title="Ver gráfico com IFR (2)">
+                Ver gráfico <span aria-hidden="true">→</span>
+              </button>
+              <button type="button" class="radar-btn-select ${isSelected ? 'selected' : ''}" onclick="window.toggleRadarRowSelection('${esc(sym)}')">
+                ${isSelected ? '✓ Selecionado' : '+ Selecionar'}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    return `
+      <div class="radar-table-wrap">
+        <table class="radar-table radar-volatility-table" aria-label="Oportunidades de Volatility Trading (IFR 2)">
+          <thead>
+            <tr>
+              <th>ATIVO</th>
+              <th class="col-center">MERCADO</th>
+              <th>PREÇO ATUAL</th>
+              <th class="col-center">IFR (2) ATUAL</th>
+              <th class="col-center">NÍVEL CONFIGURADO</th>
+              <th class="col-center">DISTÂNCIA SOBREVENDA</th>
+              <th class="col-center">LIQUIDEZ</th>
+              <th class="col-center">STATUS DA OPORTUNIDADE</th>
+              <th class="col-actions">AÇÕES</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
 
   function renderTableRows(filteredItems) {
     if (state.loading && !state.loaded) {
@@ -957,13 +1142,55 @@
   /**
    * Navega diretamente para a tela Gráficos existente carregando o ticker selecionado no gráfico Diário.
    */
-  function openRadarTickerChart(symbol) {
+
+  root.selectRadarStrategy = function (strategyType) {
+    const strat = String(strategyType || 'TREND_FOLLOWING').toUpperCase();
+    state.strategy = strat;
+    const isVol = strat === 'VOLATILITY_TRADING';
+    if (root.StrategyWorkspaceModel && typeof root.StrategyWorkspaceModel.setActiveStrategy === 'function') {
+      root.StrategyWorkspaceModel.setActiveStrategy(isVol ? 'volatility_trading' : 'trend_following');
+    }
+    renderOpportunityRadarDom();
+  };
+
+  root.openRadarTradePlan = function (symbol, strategy) {
+    const sym = String(symbol || '').trim().toUpperCase();
+    const strat = strategy || state.strategy || 'TREND_FOLLOWING';
+
+    if (typeof root.go === 'function') {
+      root.go('newtrade');
+    }
+
+    setTimeout(() => {
+      if (typeof root.selectTradeStrategy === 'function') {
+        root.selectTradeStrategy(strat);
+      }
+      const assetEl = document.getElementById('tradeAsset');
+      if (assetEl) {
+        assetEl.value = sym;
+        assetEl.dispatchEvent(new Event('input', { bubbles: true }));
+        assetEl.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (typeof root.applyTradeContext === 'function') {
+        root.applyTradeContext({
+          symbol: sym,
+          strategyType: strat,
+          source: 'opportunityradar'
+        });
+      }
+    }, 120);
+  };
+
+  function openRadarTickerChart(symbol, strategy) {
     const sym = String(symbol || '').trim().toUpperCase();
     if (!sym) return;
 
     root.__chartReturnSource = 'opportunityradar';
     root.__radarLastViewedTicker = sym;
     root.__pendingChartsTicker = sym;
+    if (strategy === 'VOLATILITY_TRADING') {
+      root.__pendingChartIndicatorIfr2 = true;
+    }
     if (typeof root.go === 'function') {
       root.go('charts', sym);
     }
@@ -998,13 +1225,29 @@
   }
 
   function updateTableAndCounterOnly() {
+    const isVol = state.strategy === 'VOLATILITY_TRADING';
     const activeCycle = getActiveMarketCycle();
-    const filteredItems = getFilteredItems();
 
     const pillContainer = document.getElementById('radarHeaderCycleContainer');
     if (pillContainer) {
       pillContainer.innerHTML = renderHeaderCyclePill();
     }
+
+    if (isVol) {
+      const filteredVol = getFilteredVolatilityItems();
+      const countEl = document.getElementById('radarReadyCountBadge');
+      if (countEl) {
+        countEl.textContent = String(filteredVol.filter(i => i.statusCode === 'OVERSOLD').length);
+      }
+      const tableRegion = document.getElementById('radarTableRegion');
+      if (tableRegion) {
+        tableRegion.innerHTML = renderVolatilityTable(filteredVol);
+        initRenderedLogos(tableRegion);
+      }
+      return;
+    }
+
+    const filteredItems = getFilteredItems();
 
     const countEl = document.getElementById('radarReadyCountBadge');
     if (countEl) {
@@ -1038,10 +1281,164 @@
     const container = document.getElementById('opportunityRadarRoot');
     if (!container) return;
 
+    const isVol = state.strategy === 'VOLATILITY_TRADING';
     const activeCycle = getActiveMarketCycle();
+    const updatedLabel = formatUpdatedAt(state.updatedAt, state.dataAsOf);
+
+    // Strategy selector component (matches Novo Trade visual language)
+    const strategySelectorHtml = `
+      <section class="radar-strategy-row" aria-label="Seletor de Estratégia Operacional">
+        <div class="radar-strategy-control-wrap">
+          <div class="radar-strategy-label">
+            <span>Estratégia Operacional</span>
+            <span class="trade-strat-badge ${isVol ? 'is-vol' : 'is-trend'}">${isVol ? 'Volatility Trading (IFR 2)' : 'Trend Following (Tendência)'}</span>
+          </div>
+          <div class="radar-strategy-control">
+            <button type="button" class="strat-select-btn is-vol ${isVol ? 'is-active' : ''}" id="btnRadarStratVol" onclick="window.selectRadarStrategy('VOLATILITY_TRADING')">
+              ⚡ Volatility Trading (IFR 2 · Reversão à Média)
+            </button>
+            <button type="button" class="strat-select-btn is-trend ${!isVol ? 'is-active' : ''}" id="btnRadarStratTrend" onclick="window.selectRadarStrategy('TREND_FOLLOWING')">
+              🌿 Trend Following (Tendência)
+            </button>
+          </div>
+        </div>
+      </section>
+    `;
+
+    if (isVol) {
+      const filteredVol = getFilteredVolatilityItems();
+      const oversoldCount = filteredVol.filter(i => i.statusCode === 'OVERSOLD').length;
+
+      container.innerHTML = `
+        <div class="radar-shell">
+          <div class="radar-breadcrumb">
+            Análise de Mercado <span>›</span> <strong>Radar de Oportunidades</strong>
+          </div>
+
+          <header class="radar-header">
+            <div class="radar-header-left">
+              <div class="radar-target-circle" aria-hidden="true">⚡</div>
+              <div class="radar-header-titles">
+                <h1>Radar de Oportunidades</h1>
+                <p>Oportunidades de retorno à média identificadas pelo IFR(2) no gráfico Diário.</p>
+              </div>
+            </div>
+
+            <div class="radar-header-right">
+              <div id="radarHeaderCycleContainer">
+                ${renderHeaderCyclePill()}
+              </div>
+
+              <div class="radar-engine-badge">
+                <div class="radar-engine-icon" aria-hidden="true">⚡</div>
+                <div class="radar-engine-text">
+                  <strong>Motor de Volatilidade (IFR 2)</strong>
+                  <span>Sobrevenda Diária · Reversão à Média · Independente do Modo Defesa</span>
+                </div>
+              </div>
+
+              <div class="radar-updated-card">
+                <div class="radar-updated-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                </div>
+                <div class="radar-updated-info">
+                  <small>Última atualização</small>
+                  <strong id="radarUpdatedValue">${esc(updatedLabel)}</strong>
+                </div>
+                <button type="button" id="radarRefreshBtn" class="radar-refresh-btn ${state.loading ? 'spinning' : ''}" title="Atualizar oportunidades" onclick="window.refreshOpportunityRadar()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                    <path d="M16 16h5v5"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          ${strategySelectorHtml}
+
+          <!-- Filtros de Volatilidade -->
+          <section class="radar-filters-row" aria-label="Filtros do Radar de Volatilidade">
+            <div class="radar-filter-card">
+              <label for="radarFilterMarket">Mercado</label>
+              <select id="radarFilterMarket">
+                <option value="ALL" ${state.volatilityFilters.market === 'ALL' ? 'selected' : ''}>Todos (IBOV, IFIX, BDRs)</option>
+                <option value="IBOV" ${state.volatilityFilters.market === 'IBOV' ? 'selected' : ''}>IBOV</option>
+                <option value="IFIX" ${state.volatilityFilters.market === 'IFIX' ? 'selected' : ''}>IFIX</option>
+                <option value="BDRs" ${state.volatilityFilters.market === 'BDRs' ? 'selected' : ''}>BDRs</option>
+              </select>
+            </div>
+
+            <div class="radar-filter-card">
+              <label for="radarFilterCondition">Condição IFR (2)</label>
+              <select id="radarFilterCondition">
+                <option value="ALL" ${state.volatilityFilters.condition === 'ALL' ? 'selected' : ''}>Todas as condições</option>
+                <option value="OVERSOLD" ${state.volatilityFilters.condition === 'OVERSOLD' ? 'selected' : ''}>⚡ Sobrevenda (IFR 2 ≤ 10)</option>
+                <option value="NEAR_OVERSOLD" ${state.volatilityFilters.condition === 'NEAR_OVERSOLD' ? 'selected' : ''}>⏳ Próximo da Sobrevenda (10 &lt; IFR 2 ≤ 20)</option>
+              </select>
+            </div>
+
+            <div class="radar-filter-card">
+              <label>Nível Configurado</label>
+              <div style="font-size: 13px; font-weight: 700; color: #0284c7; padding-top: 6px;">
+                IFR(2) ≤ 10 (Sobrevenda)
+              </div>
+            </div>
+
+            <div class="radar-search-card">
+              <div class="radar-search-input-wrap">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="radarSearchInput" placeholder="Buscar por ticker ou nome..." value="${esc(state.volatilityFilters.search)}" autocomplete="off" style="text-transform: uppercase;" />
+              </div>
+            </div>
+          </section>
+
+          <!-- Painel de Contexto Volatility Trading -->
+          ${renderVolatilityContextCard(state.volatilitySummary, updatedLabel)}
+
+          ${activeCycle.isDefensive ? `
+            <div class="radar-vol-defense-notice" style="margin-bottom: 16px;">
+              <span class="radar-vol-defense-badge">Atenção Contextual</span>
+              <span>O mercado em geral está em Modo Defesa. Estratégias de Volatility Trading (IFR 2) operam contra-tendência em sobrevenda extrema, mas exigem disciplina rigorosa nos alvos curtos e controle de stop.</span>
+            </div>
+          ` : ''}
+
+          <!-- Tabela Principal de Volatilidade -->
+          <section class="radar-main-card">
+            <div class="radar-ready-banner">
+              <div class="radar-ready-left">
+                <span class="radar-ready-icon" aria-hidden="true">⚡</span>
+                <span class="radar-ready-title">Ativos em Sobrevenda (IFR 2 ≤ 10)</span>
+                <span class="radar-ready-count" id="radarReadyCountBadge">${oversoldCount}</span>
+              </div>
+              <span class="radar-ready-desc" id="radarReadyDesc">Ativos com liquidez operacional confirmada e IFR(2) Diário em níveis estatísticos de exaustão vendedora.</span>
+            </div>
+
+            <div id="radarTableRegion">
+              ${renderVolatilityTable(filteredVol)}
+            </div>
+          </section>
+        </div>
+      `;
+
+      bindFilterEvents();
+      initRenderedLogos(container);
+      return;
+    }
+
+    // MODO TREND FOLLOWING (Comportamento Oficial Preservado)
     const filteredItems = getFilteredItems();
     const options = getFilterOptions();
-    const updatedLabel = formatUpdatedAt(state.updatedAt, state.dataAsOf);
 
     const gradeLabels = {
       'A': 'Grade A (Alta Qualidade)',
@@ -1050,6 +1447,7 @@
       'D': 'Grade D (Sem Edge)'
     };
     const availableGrades = options.grades && options.grades.length > 0 ? options.grades : ['A', 'B', 'C', 'D'];
+
     const gradeOptionsHtml = availableGrades.map((g) => {
       const selected = state.filters.grade === g ? 'selected' : '';
       const label = gradeLabels[g] || `Grade ${g}`;
@@ -1126,6 +1524,8 @@
           </div>
         </header>
 
+        ${strategySelectorHtml}
+
         <section class="radar-filters-row" aria-label="Filtros do Radar de Oportunidades">
           <div class="radar-filter-card">
             <label for="radarFilterMarket">Mercado</label>
@@ -1169,7 +1569,7 @@
           ${renderMinhaSelecaoSection()}
         </div>
 
-        <!-- Tabela Principal de Ativos Prontos para Entrada (Largura total sem painel lateral) -->
+        <!-- Tabela Principal de Ativos Prontos para Entrada -->
         <section class="radar-main-card ${activeCycle.isDefensive ? 'is-defensive' : ''}">
           <div class="radar-ready-banner">
             <div class="radar-ready-left">
@@ -1257,6 +1657,35 @@
   }
 
   function bindFilterEvents() {
+    const isVol = state.strategy === 'VOLATILITY_TRADING';
+
+    if (isVol) {
+      const marketEl = document.getElementById('radarFilterMarket');
+      const conditionEl = document.getElementById('radarFilterCondition');
+      const searchEl = document.getElementById('radarSearchInput');
+
+      if (marketEl) {
+        marketEl.addEventListener('change', (e) => {
+          state.volatilityFilters.market = e.target.value || 'ALL';
+          updateTableAndCounterOnly();
+        });
+      }
+      if (conditionEl) {
+        conditionEl.addEventListener('change', (e) => {
+          state.volatilityFilters.condition = e.target.value || 'ALL';
+          updateTableAndCounterOnly();
+        });
+      }
+      if (searchEl) {
+        searchEl.addEventListener('input', (e) => {
+          e.target.value = (e.target.value || '').toUpperCase();
+          state.volatilityFilters.search = e.target.value;
+          updateTableAndCounterOnly();
+        });
+      }
+      return;
+    }
+
     const marketEl = document.getElementById('radarFilterMarket');
     const gradeEl = document.getElementById('radarFilterGrade');
     const triggerEl = document.getElementById('radarFilterTrigger');
@@ -1287,7 +1716,7 @@
         updateTableAndCounterOnly();
       });
     }
-  }
+  };
 
   // =========================================================================
   // PUBLIC API & EXTERNAL BRIDGE
@@ -1295,6 +1724,12 @@
 
   function renderOpportunityRadar() {
     initSelection();
+    if (root.StrategyWorkspaceModel && typeof root.StrategyWorkspaceModel.getActiveStrategy === 'function') {
+      const activeStrat = root.StrategyWorkspaceModel.getActiveStrategy();
+      if (activeStrat) {
+        state.strategy = String(activeStrat).toLowerCase().includes('volatility') ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
+      }
+    }
     renderOpportunityRadarDom();
     if (!state.loaded && !state.loading) {
       fetchRadarData(false);
@@ -1632,5 +2067,19 @@
   root.recalculatePendingModalRisk = root.recalculatePendingModalRisk;
   root.adjustPendingModalQty = root.adjustPendingModalQty;
   root.openMarketCycleFromRadar = openMarketCycleFromRadar;
+
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('healthyTrend:strategyChanged', (e) => {
+      const newStrat = e.detail?.strategy;
+      if (newStrat) {
+        const stratCode = String(newStrat).toUpperCase().includes('VOL') ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
+        if (state.strategy !== stratCode) {
+          state.strategy = stratCode;
+          renderOpportunityRadarDom();
+        }
+      }
+    });
+  }
 
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -87,3 +87,44 @@ test('getOpportunityRadarData expõe marketCycles canônico por mercado e reflet
   // ALL não pode ser defensivo se houver mercado saudável com oportunidades
   assert.equal(result.marketCycles.ALL.state, 'healthy');
 });
+
+
+test('getOpportunityRadarData suporta Volatility Trading (IFR 2) sem bloqueio por modo defesa', async () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const cacheFile = path.join(__dirname, '..', 'data', 'market-cache.json');
+  if (!fs.existsSync(cacheFile)) return;
+
+  const rawCache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+
+  // Força todos os mercados em ciclo defensivo para provar independência do ciclo de mercado
+  const defensiveCache = {
+    ...rawCache,
+    cycle: { state: 'defensive', score: 20 },
+    cycles: {
+      stock_b3: { cycle: { state: 'defensive', score: 20 } },
+      fii: { cycle: { state: 'defensive', score: 20 } },
+      bdr: { cycle: { state: 'defensive', score: 20 } }
+    }
+  };
+
+  const result = await getOpportunityRadarData(defensiveCache, { strategy: 'VOLATILITY_TRADING' });
+
+  assert.ok(result.volatilitySummary, 'volatilitySummary deve existir no payload');
+  assert.equal(result.volatilitySummary.oversoldLevel, 10, 'Nível padrão de sobrevenda deve ser 10');
+  assert.ok(typeof result.volatilitySummary.totalEvaluated === 'number');
+  assert.ok(result.volatilitySummary.totalEvaluated > 0, 'Deve avaliar o universo elegível');
+
+  assert.ok(Array.isArray(result.items), 'items deve ser array');
+  assert.ok(Array.isArray(result.volatilityItems), 'volatilityItems deve existir');
+  assert.ok(result.items.length > 0, 'Volatility Trading não deve ser bloqueado por ciclo de mercado defensivo');
+
+  for (const item of result.items) {
+    assert.equal(item.strategyType, 'VOLATILITY_TRADING');
+    assert.ok(typeof item.ifr2 === 'number', `Ativo ${item.symbol} deve possuir IFR(2) numérico`);
+    assert.equal(item.oversoldLevel, 10);
+    assert.ok(typeof item.distanceToOversold === 'number');
+    assert.ok(['SOBREVENDA', 'PRÓXIMO DA SOBREVENDA', 'SEM OPORTUNIDADE'].includes(item.status));
+    assert.ok(item.liquidity && item.liquidity.isEligible, `Ativo ${item.symbol} deve ser elegível no Liquidity Gate`);
+  }
+});

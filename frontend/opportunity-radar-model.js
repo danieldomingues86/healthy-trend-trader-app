@@ -566,6 +566,98 @@
   /**
    * Extrai opções únicas de setores e gatilhos presentes nos ativos prontos
    */
+
+  /**
+   * Avalia a condição e distância de sobrevenda pelo IFR(2).
+   */
+  function calculateVolatilityStatus(ifr2, oversoldLevel = 10) {
+    const val = Number(ifr2);
+    const lvl = Number(oversoldLevel) || 10;
+    if (!Number.isFinite(val)) {
+      return {
+        code: 'NO_OPPORTUNITY',
+        status: 'SEM OPORTUNIDADE',
+        label: 'Sem Oportunidade',
+        distance: 0,
+        sortPriority: 3
+      };
+    }
+    const distance = Number((val - lvl).toFixed(2));
+    if (val <= lvl) {
+      return {
+        code: 'OVERSOLD',
+        status: 'SOBREVENDA',
+        label: 'Sobrevenda',
+        distance,
+        sortPriority: 1
+      };
+    }
+    if (val <= 20) {
+      return {
+        code: 'NEAR_OVERSOLD',
+        status: 'PRÓXIMO DA SOBREVENDA',
+        label: 'Próximo da Sobrevenda',
+        distance,
+        sortPriority: 2
+      };
+    }
+    return {
+      code: 'NO_OPPORTUNITY',
+      status: 'SEM OPORTUNIDADE',
+      label: 'Sem Oportunidade',
+      distance,
+      sortPriority: 3
+    };
+  }
+
+  /**
+   * Filtra as oportunidades de Volatility Trading (IFR 2)
+   */
+  function filterVolatilityOpportunities(items, filters = {}) {
+    if (!Array.isArray(items)) return [];
+    const marketFilter = String(filters.market || 'ALL').trim().toUpperCase();
+    const statusFilter = String(filters.volatilityStatus || filters.status || 'ALL').trim().toUpperCase();
+    const searchQuery = String(filters.search || '').trim().toLowerCase();
+
+    return items.filter((item) => {
+      if (!item) return false;
+      if (item.strategyType && item.strategyType !== 'VOLATILITY_TRADING') return false;
+
+      // Salvaguarda mandatória: somente ativos com liquidez aprovada
+      if (item.liquidity && item.liquidity.isEligible === false) return false;
+      if (item.liquidityEligible === false || item.liquidityApproved === false) return false;
+
+      // 1. Filtro de Mercado
+      if (marketFilter !== 'ALL') {
+        const itemMarket = String(item.market || item.marketCategory || '').trim().toUpperCase();
+        if (itemMarket !== marketFilter) return false;
+      }
+
+      // 2. Filtro de Status IFR2
+      if (statusFilter !== 'ALL') {
+        const itemStatus = String(item.status || item.statusCode || '').trim().toUpperCase();
+        if (statusFilter === 'SOBREVENDA' || statusFilter === 'OVERSOLD') {
+          if (itemStatus !== 'SOBREVENDA' && itemStatus !== 'OVERSOLD') return false;
+        } else if (statusFilter.includes('PRÓXIMO') || statusFilter === 'NEAR_OVERSOLD') {
+          if (!itemStatus.includes('PRÓXIMO') && itemStatus !== 'NEAR_OVERSOLD') return false;
+        } else if (statusFilter.includes('SEM OPORTUNIDADE') || statusFilter === 'NO_OPPORTUNITY') {
+          if (!itemStatus.includes('SEM OPORTUNIDADE') && itemStatus !== 'NO_OPPORTUNITY') return false;
+        }
+      }
+
+      // 3. Busca por Ticker ou Nome
+      if (searchQuery) {
+        const sym = String(item.symbol || '').toLowerCase();
+        const name = String(item.name || '').toLowerCase();
+        if (!sym.includes(searchQuery) && !name.includes(searchQuery)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }
+
   function extractFilterOptions(items) {
     const list = Array.isArray(items) ? items : [];
     const sectors = [...new Set(list.map((i) => i.sector).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
@@ -909,6 +1001,8 @@
     isPositiveCycleState,
     resolveMarketCycleId,
     getActiveMarketName,
-    resolveActiveMarketCycle
+    resolveActiveMarketCycle,
+    calculateVolatilityStatus,
+    filterVolatilityOpportunities
   };
 });

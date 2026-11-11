@@ -3700,3 +3700,120 @@ body:has(#charts.page.active) #marketFocusGuard {
   color: #fca5a5;
 }
 
+
+
+/* =========================================================================
+   OSCILLATOR SUBPANEL (IFR 2 - VOLATILITY TRADING)
+   ========================================================================= */
+
+.chart-oscillator-wrapper {
+  margin-top: 8px;
+  border-top: 1px solid var(--border, #e5e7eb);
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-card, #ffffff);
+  border-radius: 0 0 16px 16px;
+}
+
+.oscillator-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 12px;
+  font-size: 11px;
+}
+
+.oscillator-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oscillator-tag {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+.oscillator-name {
+  font-weight: 700;
+  color: var(--text, #111827);
+}
+
+.oscillator-current-val {
+  font-weight: 800;
+  font-size: 13px;
+  color: #10b981;
+}
+
+.oscillator-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.oscillator-status-badge.is-oversold {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+
+.oscillator-status-badge.is-near {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+.oscillator-levels-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+}
+
+.osc-level-tag {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.osc-level-overbought {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.osc-level-oversold {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.oscillator-canvas-container {
+  width: 100%;
+  height: 120px;
+  position: relative;
+}
+
+body[data-theme="gold"] .chart-oscillator-wrapper {
+  background: #181612;
+  border-top-color: rgba(212, 175, 55, 0.18);
+}
+
+body[data-theme="gold"] .oscillator-name {
+  color: #f5efe2;
+}
+
+body[data-theme="gold"] .oscillator-tag {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}

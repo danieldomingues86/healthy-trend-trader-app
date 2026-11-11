@@ -6,6 +6,8 @@
   let tickerData = null;
   let searchUniverse = [];
   let chartInstance = null;
+  let ifrChartInstance = null;
+  let ifrLineSeries = null;
   let candleSeries = null;
   let lineSeries = null;
   let ema10Series = null;
@@ -190,11 +192,12 @@
           ema21: false,
           ema50: false,
           ema200: false,
-          volume: true
+          volume: true,
+          ifr2: parsed.ifr2 ?? false
         }, parsed);
       }
     } catch (e) {}
-    return { ema10: true, ema72: true, ema21: false, ema50: false, ema200: false, volume: true };
+    return { ema10: true, ema72: true, ema21: false, ema50: false, ema200: false, volume: true, ifr2: false };
   }
 
   function saveIndicatorPrefs(prefs) {
@@ -407,6 +410,9 @@
   }
 
   function applyIndicatorVisibility() {
+    if (typeof toggleIfr2Subpanel === 'function') {
+      toggleIfr2Subpanel(indicatorPrefs.ifr2);
+    }
     const isEma10Vis = !!(indicatorPrefs.ema10 ?? indicatorPrefs.ema9);
     const isEma72Vis = !!(indicatorPrefs.ema72 ?? indicatorPrefs.ema30);
     if (ema10Series) ema10Series.applyOptions({ visible: isEma10Vis });
@@ -1293,6 +1299,13 @@
                       </div>
                       <input type="checkbox" id="chkIndVolume" ${indicatorPrefs.volume ? 'checked' : ''} />
                     </label>
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #eab308;"></span>
+                        <span>IFR (2) — Volatility Trading</span>
+                      </div>
+                      <input type="checkbox" id="chkIndIfr2" ${indicatorPrefs.ifr2 ? 'checked' : ''} />
+                    </label>
                   </div>
                 </div>
               </div>
@@ -1382,6 +1395,22 @@
                 <span id="legendCompareTag" style="display: none;"></span>
               </div>
             </div>
+          </div>
+
+          <!-- SUBPAINEL OSCILADOR IFR(2) VOLATILITY TRADING -->
+          <div class="chart-oscillator-wrapper" id="chartOscillatorWrapper" style="display: ${indicatorPrefs.ifr2 ? 'flex' : 'none'};">
+            <div class="oscillator-head">
+              <div class="oscillator-title-row">
+                <span class="oscillator-tag">IFR 2</span>
+                <span class="oscillator-name">Volatility Trading · Reversão à Média</span>
+                <span class="oscillator-current-val" id="oscillatorCurrentVal">—</span>
+                <span class="oscillator-status-badge" id="oscillatorStatusBadge" style="display: none;">⚡ SOBREVENDA (IFR 2 ≤ 10)</span>
+              </div>
+              <div class="oscillator-levels-legend">
+                <span style="font-size: 10px; color: #9ca3af;">Sobrecompra: <strong style="color: #ef4444;">90</strong> · Sobrevenda: <strong style="color: #10b981;">10</strong></span>
+              </div>
+            </div>
+            <div class="chart-oscillator-canvas" id="ifr2SubChartContainer" style="width: 100%; height: 120px;"></div>
           </div>
         </div>
 
@@ -2041,6 +2070,220 @@
     return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+
+  function updateIfrLegendAndBadge(val) {
+    const currentValEl = document.getElementById('oscillatorCurrentVal');
+    const badgeEl = document.getElementById('oscillatorStatusBadge');
+    if (!currentValEl) return;
+    if (val == null || !Number.isFinite(Number(val))) {
+      currentValEl.textContent = '—';
+      if (badgeEl) badgeEl.style.display = 'none';
+      return;
+    }
+    const num = Number(val);
+    currentValEl.textContent = num.toFixed(2);
+    if (badgeEl) {
+      if (num <= 10) {
+        badgeEl.style.display = 'inline-flex';
+        badgeEl.className = 'oscillator-status-badge is-oversold';
+        badgeEl.textContent = '⚡ SOBREVENDA (IFR 2 ≤ 10)';
+      } else if (num <= 20) {
+        badgeEl.style.display = 'inline-flex';
+        badgeEl.className = 'oscillator-status-badge is-near';
+        badgeEl.textContent = 'PRÓXIMO DA SOBREVENDA (≤ 20)';
+      } else {
+        badgeEl.style.display = 'none';
+      }
+    }
+  }
+
+  function toggleIfr2Subpanel(visible) {
+    const wrapper = document.getElementById('chartOscillatorWrapper');
+    if (!wrapper) return;
+    if (visible) {
+      wrapper.style.display = 'flex';
+      if (!ifrChartInstance && tickerData) {
+        initIfr2Oscillator(tickerData);
+      } else if (ifrChartInstance) {
+        const subContainer = document.getElementById('ifr2SubChartContainer');
+        if (subContainer) {
+          ifrChartInstance.resize(subContainer.clientWidth, 120);
+        }
+      }
+    } else {
+      wrapper.style.display = 'none';
+      if (ifrChartInstance) {
+        try { ifrChartInstance.remove(); } catch (_) {}
+        ifrChartInstance = null;
+        ifrLineSeries = null;
+      }
+    }
+  }
+
+  function initIfr2Oscillator(data) {
+    const subContainer = document.getElementById('ifr2SubChartContainer');
+    const wrapper = document.getElementById('chartOscillatorWrapper');
+    if (!subContainer || !wrapper || !window.LightweightCharts) return;
+
+    if (ifrChartInstance) {
+      try { ifrChartInstance.remove(); } catch (_) {}
+      ifrChartInstance = null;
+      ifrLineSeries = null;
+    }
+
+    if (!indicatorPrefs.ifr2) {
+      wrapper.style.display = 'none';
+      return;
+    }
+
+    wrapper.style.display = 'flex';
+
+    // Calcula ou extrai série IFR(2)
+    let ifrSeriesData = [];
+    if (Array.isArray(data.indicators?.ifr2) && data.indicators.ifr2.length > 0) {
+      ifrSeriesData = data.indicators.ifr2;
+    } else if (Array.isArray(data.ohlc)) {
+      const closes = data.ohlc.map(c => c.close);
+      let ifrArr = null;
+      if (window.VolatilityTradingEngineModel && typeof window.VolatilityTradingEngineModel.calculateRSI === 'function') {
+        ifrArr = window.VolatilityTradingEngineModel.calculateRSI(closes, 2, 'WILDER');
+      } else {
+        // Fallback robusto Welles Wilder RSI 2
+        ifrArr = new Array(closes.length).fill(null);
+        if (closes.length > 2) {
+          let g = 0, l = 0;
+          for (let i = 1; i <= 2; i++) {
+            const d = closes[i] - closes[i - 1];
+            if (d > 0) g += d; else if (d < 0) l += Math.abs(d);
+          }
+          let avgG = g / 2, avgL = l / 2;
+          ifrArr[2] = avgL === 0 ? 100 : Number((100 - (100 / (1 + avgG / avgL))).toFixed(2));
+          for (let i = 3; i < closes.length; i++) {
+            const d = closes[i] - closes[i - 1];
+            const gain = d > 0 ? d : 0;
+            const loss = d < 0 ? Math.abs(d) : 0;
+            avgG = (avgG * 1 + gain) / 2;
+            avgL = (avgL * 1 + loss) / 2;
+            ifrArr[i] = avgL === 0 ? 100 : Number((100 - (100 / (1 + avgG / avgL))).toFixed(2));
+          }
+        }
+      }
+      for (let i = 0; i < data.ohlc.length; i++) {
+        if (ifrArr[i] !== null && Number.isFinite(ifrArr[i])) {
+          ifrSeriesData.push({ time: data.ohlc[i].time, value: ifrArr[i] });
+        }
+      }
+    }
+
+    if (!ifrSeriesData.length) return;
+
+    const isDark = document.body.getAttribute('data-theme') === 'gold';
+    const chartBg = isDark ? '#181612' : '#ffffff';
+    const textColor = isDark ? '#c9b99a' : '#64748b';
+    const gridColor = isDark ? 'rgba(212, 175, 55, 0.08)' : 'rgba(0, 0, 0, 0.04)';
+
+    ifrChartInstance = window.LightweightCharts.createChart(subContainer, {
+      width: subContainer.clientWidth || (wrapper.clientWidth - 20) || 800,
+      height: 120,
+      layout: {
+        background: { type: 'solid', color: chartBg },
+        textColor: textColor,
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+      },
+      grid: {
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor }
+      },
+      crosshair: {
+        mode: 1 // Magnet
+      },
+      rightPriceScale: {
+        borderColor: gridColor,
+        scaleMargins: { top: 0.1, bottom: 0.1 },
+        autoScale: false
+      },
+      timeScale: {
+        borderColor: gridColor,
+        visible: false
+      }
+    });
+
+    ifrLineSeries = ifrChartInstance.addLineSeries({
+      color: '#10b981',
+      lineWidth: 2,
+      priceScaleId: 'right',
+      autoscaleInfoProvider: () => ({
+        priceRange: {
+          minValue: 0,
+          maxValue: 100
+        }
+      })
+    });
+
+    // Linhas horizontais de referência (90 sobrecompra / 10 sobrevenda)
+    ifrLineSeries.createPriceLine({
+      price: 90,
+      color: 'rgba(239, 68, 68, 0.65)',
+      lineWidth: 1,
+      lineStyle: 2, // Dashed
+      axisLabelVisible: true,
+      title: '90'
+    });
+
+    ifrLineSeries.createPriceLine({
+      price: 10,
+      color: '#10b981',
+      lineWidth: 1.5,
+      lineStyle: 2, // Dashed
+      axisLabelVisible: true,
+      title: '10 (Sobrevenda)'
+    });
+
+    ifrLineSeries.setData(ifrSeriesData);
+
+    const lastIfr = ifrSeriesData[ifrSeriesData.length - 1]?.value;
+    updateIfrLegendAndBadge(lastIfr);
+
+    // Sincroniza faixa visível entre o gráfico principal e o oscilador
+    if (chartInstance) {
+      let syncingFromMain = false;
+      let syncingFromIfr = false;
+
+      try {
+        const mainLogicalRange = chartInstance.timeScale().getVisibleLogicalRange();
+        if (mainLogicalRange) {
+          ifrChartInstance.timeScale().setVisibleLogicalRange(mainLogicalRange);
+        }
+      } catch (_) {}
+
+      chartInstance.timeScale().subscribeVisibleLogicalRangeChange(range => {
+        if (syncingFromMain || !ifrChartInstance || !range) return;
+        syncingFromMain = true;
+        try { ifrChartInstance.timeScale().setVisibleLogicalRange(range); } catch (_) {}
+        syncingFromMain = false;
+      });
+
+      ifrChartInstance.timeScale().subscribeVisibleLogicalRangeChange(range => {
+        if (syncingFromIfr || !chartInstance || !range) return;
+        syncingFromIfr = true;
+        try { chartInstance.timeScale().setVisibleLogicalRange(range); } catch (_) {}
+        syncingFromIfr = false;
+      });
+
+      // Sincroniza crosshair move
+      chartInstance.subscribeCrosshairMove(param => {
+        if (!param || !param.time) {
+          updateIfrLegendAndBadge(ifrSeriesData[ifrSeriesData.length - 1]?.value);
+          return;
+        }
+        const match = ifrSeriesData.find(item => item.time === param.time);
+        if (match) {
+          updateIfrLegendAndBadge(match.value);
+        }
+      });
+    }
+  }
+
   // Inicializa o Lightweight Charts
   function initLightweightChart(data) {
     const container = document.getElementById('lightweightChartContainer');
@@ -2179,6 +2422,18 @@
 
     // Aplica configurações visuais (grade suave/oculta, escala logarítmica)
     applyChartSettings();
+
+    if (window.__pendingChartIndicatorIfr2) {
+      indicatorPrefs.ifr2 = true;
+      saveIndicatorPrefs(indicatorPrefs);
+      window.__pendingChartIndicatorIfr2 = false;
+      const chk = document.getElementById('chkIndIfr2');
+      if (chk) chk.checked = true;
+    }
+
+    if (indicatorPrefs.ifr2) {
+      initIfr2Oscillator(data);
+    }
 
     // Zoom inicial próximo (exibe ~75 barras com 4 barras de respiro à direita)
     resetChartZoom();
@@ -2497,6 +2752,14 @@
     if (chkE50) chkE50.onchange = () => { indicatorPrefs.ema50 = chkE50.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE200) chkE200.onchange = () => { indicatorPrefs.ema200 = chkE200.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkVol) chkVol.onchange = () => { indicatorPrefs.volume = chkVol.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    const chkIfr2 = document.getElementById('chkIndIfr2');
+    if (chkIfr2) {
+      chkIfr2.onchange = () => {
+        indicatorPrefs.ifr2 = chkIfr2.checked;
+        saveIndicatorPrefs(indicatorPrefs);
+        applyIndicatorVisibility();
+      };
+    }
 
     // 3. Settings Popover
     const btnSettings = document.getElementById('btnChartSettings');

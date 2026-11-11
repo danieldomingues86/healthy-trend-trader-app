@@ -37,8 +37,10 @@
 
     // Se o usuário selecionou uma estratégia global no workspace e nunca alternou a aba aqui,
     // sincroniza com a estratégia ativa
-    if (window.healthyTrendWorkspace && !window._analyticsUserToggledScope) {
-      const gStrat = window.healthyTrendWorkspace.getStrategy();
+    if (!window._analyticsUserToggledScope) {
+      const gStrat = typeof window.StrategyWorkspaceModel?.getActiveStrategy === 'function'
+        ? window.StrategyWorkspaceModel.getActiveStrategy()
+        : (typeof window.healthyTrendWorkspace?.getStrategy === 'function' ? window.healthyTrendWorkspace.getStrategy() : null);
       if (gStrat === 'volatility_trading' && activeScope === 'CONSOLIDATED') {
         activeScope = 'VOLATILITY_TRADING';
       } else if (gStrat === 'trend_following' && activeScope === 'CONSOLIDATED') {
