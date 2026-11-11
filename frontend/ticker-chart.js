@@ -14,6 +14,7 @@
   let ema72Series = null;
   let ema9Series = null;
   let ema30Series = null;
+  let sma7Series = null;
   let ema21Series = null;
   let ema50Series = null;
   let ema200Series = null;
@@ -189,6 +190,7 @@
         return Object.assign({
           ema10: parsed.ema10 ?? parsed.ema9 ?? true,
           ema72: parsed.ema72 ?? parsed.ema30 ?? true,
+          sma7: parsed.sma7 ?? false,
           ema21: false,
           ema50: false,
           ema200: false,
@@ -197,7 +199,52 @@
         }, parsed);
       }
     } catch (e) {}
-    return { ema10: true, ema72: true, ema21: false, ema50: false, ema200: false, volume: true, ifr2: false };
+    return { ema10: true, ema72: true, sma7: false, ema21: false, ema50: false, ema200: false, volume: true, ifr2: false };
+  }
+
+    function applyStrategyDefaultIndicatorProfile(strategy) {
+    if (strategy === 'VOLATILITY_TRADING') {
+      indicatorPrefs = {
+        ema10: false,
+        ema72: false,
+        ema9: false,
+        ema30: false,
+        sma7: true,
+        ema21: false,
+        ema50: false,
+        ema200: false,
+        volume: true,
+        ifr2: true
+      };
+      saveIndicatorPrefs(indicatorPrefs);
+    } else if (strategy === 'TREND_FOLLOWING') {
+      indicatorPrefs = {
+        ema10: true,
+        ema72: true,
+        ema9: true,
+        ema30: true,
+        sma7: false,
+        ema21: false,
+        ema50: false,
+        ema200: false,
+        volume: true,
+        ifr2: false
+      };
+      saveIndicatorPrefs(indicatorPrefs);
+    }
+  }
+
+  function checkAndApplyPendingStrategyProfile() {
+    if (window.__pendingChartStrategy) {
+      applyStrategyDefaultIndicatorProfile(window.__pendingChartStrategy);
+      window.__pendingChartStrategy = null;
+      window.__pendingChartVolatilityProfile = false;
+      window.__pendingChartIndicatorIfr2 = false;
+    } else if (window.__pendingChartVolatilityProfile) {
+      applyStrategyDefaultIndicatorProfile('VOLATILITY_TRADING');
+      window.__pendingChartVolatilityProfile = false;
+      window.__pendingChartIndicatorIfr2 = false;
+    }
   }
 
   function saveIndicatorPrefs(prefs) {
@@ -420,6 +467,11 @@
     if (ema9Series) ema9Series.applyOptions({ visible: isEma10Vis });
     if (ema30Series) ema30Series.applyOptions({ visible: isEma72Vis });
     if (volumeSeries) volumeSeries.applyOptions({ visible: !!indicatorPrefs.volume });
+    if (sma7Series) {
+      sma7Series.applyOptions({ visible: !!indicatorPrefs.sma7 });
+    } else if (indicatorPrefs.sma7 && chartInstance && tickerData?.ohlc) {
+      ensureSma7Series();
+    }
     if (ema21Series) {
       ema21Series.applyOptions({ visible: !!indicatorPrefs.ema21 });
     } else if (indicatorPrefs.ema21 && chartInstance && tickerData?.ohlc) {
@@ -442,12 +494,37 @@
     if (lEma72) lEma72.style.display = isEma72Vis ? 'inline' : 'none';
     const lVol = document.querySelector('.legend-vol');
     if (lVol) lVol.style.display = indicatorPrefs.volume ? 'inline' : 'none';
+    const lSma7 = document.querySelector('.legend-sma7');
+    if (lSma7) lSma7.style.display = indicatorPrefs.sma7 ? 'inline' : 'none';
     const lEma21 = document.querySelector('.legend-ema21');
     if (lEma21) lEma21.style.display = indicatorPrefs.ema21 ? 'inline' : 'none';
     const lEma50 = document.querySelector('.legend-ema50');
     if (lEma50) lEma50.style.display = indicatorPrefs.ema50 ? 'inline' : 'none';
     const lEma200 = document.querySelector('.legend-ema200');
     if (lEma200) lEma200.style.display = indicatorPrefs.ema200 ? 'inline' : 'none';
+  }
+
+    function ensureSma7Series() {
+    if (!chartInstance || !tickerData?.ohlc) return;
+    if (!sma7Series) {
+      sma7Series = chartInstance.addLineSeries({
+        color: '#f59e0b',
+        lineWidth: 2,
+        title: 'SMA 7',
+        visible: !!indicatorPrefs.sma7
+      });
+    }
+    const closes = tickerData.ohlc.map(c => c.close);
+    if (window.TickerChartModel && typeof window.TickerChartModel.calculateSma === 'function') {
+      const rawSma = window.TickerChartModel.calculateSma(closes, 7);
+      const data = tickerData.ohlc.map((c, idx) => ({
+        time: c.time,
+        value: rawSma[idx]
+      })).filter(p => Number.isFinite(p.value));
+      sma7Series.setData(data);
+    } else if (tickerData.indicators?.sma7) {
+      sma7Series.setData(tickerData.indicators.sma7);
+    }
   }
 
   function ensureEma21Series() {
@@ -809,6 +886,7 @@
 
   // Busca dados analíticos completos do ticker
   async function loadTickerData(symbol) {
+    checkAndApplyPendingStrategyProfile();
     const sym = String(symbol || defaultTicker).trim().toUpperCase();
     currentTicker = sym;
     const root = document.getElementById('tickerChartRoot');
@@ -1273,6 +1351,13 @@
                     </label>
                     <label class="chart-indicator-item">
                       <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #f59e0b;"></span>
+                        <span>SMA 7 (Média Móvel Simples · Alvo IFR 2)</span>
+                      </div>
+                      <input type="checkbox" id="chkIndSma7" ${indicatorPrefs.sma7 ? 'checked' : ''} />
+                    </label>
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
                         <span class="indicator-color-dot" style="background: #3b82f6;"></span>
                         <span>EMA 21</span>
                       </div>
@@ -1388,6 +1473,7 @@
               <div class="legend-row-indicators" id="legendIndicatorsRow">
                 <span class="legend-ema10" style="display: ${(indicatorPrefs.ema10 ?? indicatorPrefs.ema9) ? 'inline' : 'none'}">EMA 10: ${formatNumber(tickerData.indicators.ema10?.at(-1)?.value ?? tickerData.indicators.ema9?.at(-1)?.value)}</span>
                 <span class="legend-ema72" style="display: ${(indicatorPrefs.ema72 ?? indicatorPrefs.ema30) ? 'inline' : 'none'}">EMA 72: ${formatNumber(tickerData.indicators.ema72?.at(-1)?.value ?? tickerData.indicators.ema30?.at(-1)?.value)}</span>
+                <span class="legend-sma7" style="display: ${indicatorPrefs.sma7 ? 'inline' : 'none'}; color: #f59e0b; font-weight: 700;">SMA 7: ${formatNumber(tickerData.indicators.sma7?.at(-1)?.value ?? (sma7Series ? tickerData.ohlc.at(-1)?.close : null))}</span>
                 <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: —</span>
                 <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: —</span>
                 <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: —</span>
@@ -2380,6 +2466,11 @@
     ema72Series.setData(data.indicators.ema72 || data.indicators.ema30);
     ema30Series = ema72Series;
 
+    // SMA 7 Line (Média Móvel Simples - Default para Volatility Trading)
+    if (indicatorPrefs.sma7) {
+      ensureSma7Series();
+    }
+
     // EMA 21 Line (se ativada pelo usuário)
     if (indicatorPrefs.ema21) {
       ensureEma21Series();
@@ -2462,6 +2553,7 @@
         legendInd.innerHTML = `
           <span class="legend-ema10" style="display: ${isEma10Vis ? 'inline' : 'none'}">EMA 10: ${formatNumber(data.indicators.ema10?.at(-1)?.value ?? data.indicators.ema9?.at(-1)?.value)}</span>
           <span class="legend-ema72" style="display: ${isEma72Vis ? 'inline' : 'none'}">EMA 72: ${formatNumber(data.indicators.ema72?.at(-1)?.value ?? data.indicators.ema30?.at(-1)?.value)}</span>
+          <span class="legend-sma7" style="display: ${indicatorPrefs.sma7 ? 'inline' : 'none'}; color: #f59e0b; font-weight: 700;">SMA 7: ${formatNumber(data.indicators.sma7?.at(-1)?.value ?? (sma7Series ? data.ohlc.at(-1)?.close : null))}</span>
           <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(ema21Series ? data.ohlc.at(-1)?.close : null)}</span>
           <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: ${formatNumber(ema50Series ? data.ohlc.at(-1)?.close : null)}</span>
           <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: ${formatNumber(ema200Series ? data.ohlc.at(-1)?.close : null)}</span>
@@ -2474,6 +2566,7 @@
       const bar = param.seriesData.get(candleSeries) || param.seriesData.get(lineSeries);
       const e10 = (ema10Series && param.seriesData.get(ema10Series)) || (ema9Series && param.seriesData.get(ema9Series));
       const e72 = (ema72Series && param.seriesData.get(ema72Series)) || (ema30Series && param.seriesData.get(ema30Series));
+      const s7 = sma7Series ? param.seriesData.get(sma7Series) : null;
       const e21 = ema21Series ? param.seriesData.get(ema21Series) : null;
       const e50 = ema50Series ? param.seriesData.get(ema50Series) : null;
       const e200 = ema200Series ? param.seriesData.get(ema200Series) : null;
@@ -2493,12 +2586,13 @@
           </span>
         `;
       }
-      if (e10 || e72 || vol || e21 || e50 || e200) {
+      if (e10 || e72 || vol || s7 || e21 || e50 || e200) {
         const isEma10Vis = !!(indicatorPrefs.ema10 ?? indicatorPrefs.ema9);
         const isEma72Vis = !!(indicatorPrefs.ema72 ?? indicatorPrefs.ema30);
         legendInd.innerHTML = `
           <span class="legend-ema10" style="display: ${isEma10Vis ? 'inline' : 'none'}">EMA 10: ${formatNumber(e10?.value)}</span>
           <span class="legend-ema72" style="display: ${isEma72Vis ? 'inline' : 'none'}">EMA 72: ${formatNumber(e72?.value)}</span>
+          <span class="legend-sma7" style="display: ${indicatorPrefs.sma7 ? 'inline' : 'none'}; color: #f59e0b; font-weight: 700;">SMA 7: ${formatNumber(s7?.value ?? data.indicators.sma7?.at(-1)?.value)}</span>
           <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(e21?.value)}</span>
           <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: ${formatNumber(e50?.value)}</span>
           <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: ${formatNumber(e200?.value)}</span>
@@ -3114,6 +3208,7 @@
 
   // Ponto de entrada chamado ao navegar para a tela 'charts'
   function onOpenChartsPage(requestedTicker) {
+    checkAndApplyPendingStrategyProfile();
     initDiscipline();
     const target = requestedTicker || window.__pendingChartsTicker || currentTicker || defaultTicker;
     window.__pendingChartsTicker = null;

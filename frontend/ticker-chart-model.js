@@ -306,6 +306,25 @@
   }
 
   /**
+   * Cálculo de Média Móvel Simples (SMA)
+   */
+  function calculateSma(values, period) {
+    if (!Array.isArray(values) || values.length < period || period <= 0) return [];
+    const result = new Array(values.length).fill(null);
+    let sum = 0;
+    for (let i = 0; i < values.length; i++) {
+      sum += Number(values[i]) || 0;
+      if (i >= period) {
+        sum -= Number(values[i - period]) || 0;
+      }
+      if (i >= period - 1) {
+        result[i] = Number((sum / period).toFixed(4));
+      }
+    }
+    return result;
+  }
+
+  /**
    * Cálculo do ATR (Average True Range)
    */
   function calculateAtr(candles, period = 21) {
@@ -1588,6 +1607,7 @@
     logBypassMotive,
     evaluatePatienceIndex,
     calculateEma,
+    calculateSma,
     calculateCausalEmaSeries,
     calculateAtr,
     OFFICIAL_EMA_FAST,

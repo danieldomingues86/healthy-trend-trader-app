@@ -379,6 +379,17 @@ async function getTickerChartData(rawSymbol) {
     if (ema72Array[i] !== null) ema72Series.push({ time: candles[i].time, value: ema72Array[i] });
   }
 
+  // SMA 7 para Volatility Trading (Média Móvel Simples de 7 períodos)
+  const sma7Array = typeof TickerChartModel.calculateSma === 'function'
+    ? TickerChartModel.calculateSma(closePrices, 7)
+    : [];
+  const sma7Series = [];
+  for (let i = 0; i < candles.length; i++) {
+    if (sma7Array[i] !== null && Number.isFinite(sma7Array[i])) {
+      sma7Series.push({ time: candles[i].time, value: sma7Array[i] });
+    }
+  }
+
   // Volume médio 21 dias
   const last21Candles = candles.slice(-21);
   const volumeAvg21 = last21Candles.length > 0
@@ -715,6 +726,7 @@ async function getTickerChartData(rawSymbol) {
       ema72: ema72Series,
       ema9: ema10Series,
       ema30: ema72Series,
+      sma7: sma7Series,
       atr21: atrVal,
       atrPct: atrPctVal,
       volumeAvg21,

@@ -43,6 +43,7 @@ test('ticker-chart: getTickerChartData retorna pacote analítico completo para P
   // 3. Indicadores (EMA 9, EMA 30, ATR)
   assert.ok(data.indicators.ema9.length > 0);
   assert.ok(data.indicators.ema30.length > 0);
+  assert.ok(Array.isArray(data.indicators.sma7) && data.indicators.sma7.length > 0);
   assert.ok(data.indicators.atr21 > 0);
   assert.ok(data.indicators.atrPct > 0);
 

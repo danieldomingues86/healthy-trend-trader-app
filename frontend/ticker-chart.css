@@ -1213,6 +1213,11 @@ body:has(#charts.page.active) #marketFocusGuard {
   font-weight: 700;
 }
 
+.legend-sma7 {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
 .legend-vol {
   color: #64748b;
   font-weight: 600;

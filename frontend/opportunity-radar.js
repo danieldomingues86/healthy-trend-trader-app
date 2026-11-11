@@ -1185,11 +1185,17 @@
     const sym = String(symbol || '').trim().toUpperCase();
     if (!sym) return;
 
+    const strat = strategy || state.strategy || 'TREND_FOLLOWING';
     root.__chartReturnSource = 'opportunityradar';
     root.__radarLastViewedTicker = sym;
     root.__pendingChartsTicker = sym;
-    if (strategy === 'VOLATILITY_TRADING') {
+    root.__pendingChartStrategy = strat;
+    if (strat === 'VOLATILITY_TRADING') {
       root.__pendingChartIndicatorIfr2 = true;
+      root.__pendingChartVolatilityProfile = true;
+    } else {
+      root.__pendingChartIndicatorIfr2 = false;
+      root.__pendingChartVolatilityProfile = false;
     }
     if (typeof root.go === 'function') {
       root.go('charts', sym);
