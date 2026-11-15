@@ -59,8 +59,25 @@
   const EXIT_REASONS = Object.freeze({
     TARGET_MA_RECOVERY: 'TARGET_MA_RECOVERY',
     TIME_EXIT: 'TIME_EXIT',
+    EXTREME_EVENT_EXIT: 'EXTREME_EVENT_EXIT',
     MANUAL_EXIT: 'MANUAL_EXIT',
     STOP_LOSS: 'STOP_LOSS'
+  });
+
+  const EXIT_EXECUTION_MODES = Object.freeze({
+    SAME_CLOSE: 'SAME_CLOSE',
+    NEXT_OPEN: 'NEXT_OPEN'
+  });
+
+  const RS_FILTER_MODES = Object.freeze({
+    NONE: 'NONE',
+    RS_POSITIVE: 'RS_POSITIVE',
+    RS_RISING: 'RS_RISING'
+  });
+
+  const POSITION_SIZING_MODELS = Object.freeze({
+    FIXED_FINANCIAL: 'FIXED_FINANCIAL',
+    EQUITY_PERCENT: 'EQUITY_PERCENT'
   });
 
   const SIGNAL_CODES = Object.freeze({
@@ -72,6 +89,8 @@
     NOT_ABOVE_LONG_MA: 'NOT_ABOVE_LONG_MA',
     NOT_BELOW_SHORT_MA: 'NOT_BELOW_SHORT_MA',
     RSI_NOT_OVERSOLD: 'RSI_NOT_OVERSOLD',
+    RS_FILTER_REJECTED: 'RS_FILTER_REJECTED',
+    EXTREME_EVENT_BLOCKED: 'EXTREME_EVENT_BLOCKED',
     LIQUIDITY_REJECTED: 'LIQUIDITY_REJECTED',
     BLACKLISTED: 'BLACKLISTED',
     INVALID_CANDLE: 'INVALID_CANDLE',
@@ -266,6 +285,8 @@
 
   /**
    * Constrói a série cronológica enriquecida com todos os indicadores do motor.
+   * Calcula também indicadores causais opcionais de Força Relativa (RS) para experimentos (Seção 4.9),
+   * utilizando exclusivamente barras fechadas até o índice i (zero look-ahead bias).
    */
   function computeIndicators(rawCandles, options = {}) {
     const candles = normalizeCandles(rawCandles);
@@ -279,12 +300,40 @@
     const smaLongArr = calculateSMA(closes, longMaPeriod);
     const ifrArr = calculateRSI(closes, rsiPeriod, rsiMethod);
 
-    return candles.map((c, i) => ({
-      ...c,
-      smaShort: smaShortArr[i],
-      smaLong: smaLongArr[i],
-      ifr: ifrArr[i]
-    }));
+    // Cálculo causal de Força Relativa (RS) por barra para uso apenas quando rsFilterMode for ativado em experimentos
+    const rsScoreArr = new Array(candles.length).fill(null);
+    for (let i = 0; i < candles.length; i++) {
+      const cNow = closes[i];
+      if (!Number.isFinite(cNow) || cNow <= 0) continue;
+      const idx21 = Math.max(0, i - 21);
+      const idx63 = Math.max(0, i - 63);
+      const c21 = closes[idx21] || cNow;
+      const c63 = closes[idx63] || c21;
+      const ret21 = c21 > 0 ? ((cNow / c21) - 1) * 100 : 0;
+      const ret63 = c63 > 0 ? ((cNow / c63) - 1) * 100 : ret21;
+      const rawRs = Math.round(50 + (ret63 * 1.15) + (ret21 * 0.45));
+      rsScoreArr[i] = Math.max(1, Math.min(99, rawRs));
+    }
+
+    return candles.map((c, i) => {
+      const rsNow = rsScoreArr[i];
+      const rsPrev5 = i >= 5 ? rsScoreArr[i - 5] : rsNow;
+      const idx63 = Math.max(0, i - 63);
+      const ret63 = closes[idx63] > 0 ? ((c.close / closes[idx63]) - 1) * 100 : 0;
+      const rsPositive = (rsNow !== null && rsNow >= 50) || ret63 > 0;
+      const rsRising = rsNow !== null && rsPrev5 !== null && rsNow > rsPrev5;
+
+      return {
+        ...c,
+        smaShort: smaShortArr[i],
+        smaLong: smaLongArr[i],
+        ifr: ifrArr[i],
+        rsScore: rsNow,
+        rsPrev5,
+        rsPositive,
+        rsRising
+      };
+    });
   }
 
   /**
@@ -341,6 +390,9 @@
     const oversoldLevel = Number(options.oversoldLevel ?? DEFAULT_PARAMETERS.oversoldLevel);
     const holdingPeriodSessions = Number(options.holdingPeriodSessions || DEFAULT_PARAMETERS.holdingPeriodSessions);
     const fixedCapitalPerTrade = Number(options.fixedCapitalPerTrade || DEFAULT_PARAMETERS.fixedCapitalPerTrade);
+    const positionSizingModel = options.positionSizingModel || DEFAULT_PARAMETERS.positionSizingModel;
+    const equityPercentPerTrade = Number(options.equityPercentPerTrade || 5);
+    const rsFilterMode = String(options.rsFilterMode || RS_FILTER_MODES.NONE).toUpperCase();
 
     // 1. Histórico suficiente para todos os indicadores
     if (bar.smaLong === null || bar.smaLong === undefined || !Number.isFinite(bar.smaLong)) {
@@ -380,14 +432,37 @@
       };
     }
 
-    // 3. Salvaguarda Inegociável: Liquidity Gate (Hard Gate global de elegibilidade)
+    // 2.1. Proteção Obrigatória contra Eventos Extremos (Seção 11): bloqueia novos sinais na véspera de evento extremo
+    if (options.preEventBlockedDates instanceof Set && options.preEventBlockedDates.has(bar.time)) {
+      return {
+        isValid: false,
+        code: SIGNAL_CODES.EXTREME_EVENT_BLOCKED,
+        reason: `Sinal bloqueado preventivamente: data ${bar.time} precede evento extremo monitorado.`,
+        metrics: { date: bar.time, symbol: options.symbol }
+      };
+    }
+
+    // 3. Salvaguarda Inegociável: Liquidity Gate (Hard Gate global de elegibilidade, Seção 4.8)
     let liquidityResult = null;
     if (options.checkLiquidity !== false && LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
       // Regra anti look-ahead: envia candles estritamente até o sinal idx
       const subCandles = series.slice(0, idx + 1);
       const symbol = options.symbol || 'ATIVO';
       const market = options.market || 'B3';
-      const policy = options.policy || { liquidityGate: options.liquidityConfig || { enabled: true } };
+
+      const customMinVol = Number(options.minFinancialVolume || options.minDailyLiquidity || 0);
+      const customWindow = Number(options.liquidityWindowSessions || 0);
+      const customMinTrades = Number(options.minDailyTrades || 0);
+
+      const baseLiqCfg = {
+        enabled: true,
+        ...(options.liquidityConfig || {})
+      };
+      if (customMinVol > 0) baseLiqCfg.minDailyFinancialVolumeB3 = customMinVol;
+      if (customWindow > 0) baseLiqCfg.windowSessions = customWindow;
+      if (customMinTrades > 0) baseLiqCfg.minDailyTrades = customMinTrades;
+
+      const policy = options.policy || { liquidityGate: baseLiqCfg };
 
       liquidityResult = LiquidityGateModel.evaluateLiquidity({
         candles: subCandles,
@@ -405,6 +480,19 @@
           liquidity: liquidityResult,
           metrics: { close: bar.close, smaShort: bar.smaShort, smaLong: bar.smaLong, ifr: bar.ifr, oversoldLevel }
         };
+      }
+
+      // Se quantidade mínima de negócios foi explicitamente exigida no cenário e o ativo possui dados de negócios
+      if (customMinTrades > 0 && liquidityResult.metrics && liquidityResult.metrics.hasTradesData) {
+        if (liquidityResult.metrics.averageDailyTrades < customMinTrades) {
+          return {
+            isValid: false,
+            code: SIGNAL_CODES.LIQUIDITY_REJECTED,
+            reason: `Bloqueado pelo Liquidity Gate: média de negócios (${Math.round(liquidityResult.metrics.averageDailyTrades)}/dia) inferior ao mínimo configurado (${customMinTrades}/dia).`,
+            liquidity: liquidityResult,
+            metrics: { close: bar.close, smaShort: bar.smaShort, smaLong: bar.smaLong, ifr: bar.ifr, oversoldLevel }
+          };
+        }
       }
     }
 
@@ -441,6 +529,41 @@
       };
     }
 
+    // 7. Filtro Opcional Experimental de Força Relativa (RS — Seção 4.9)
+    if (rsFilterMode === RS_FILTER_MODES.RS_POSITIVE) {
+      const isPos = bar.rsPositive !== undefined ? bar.rsPositive : true;
+      if (!isPos) {
+        return {
+          isValid: false,
+          code: SIGNAL_CODES.RS_FILTER_REJECTED,
+          reason: `Filtro experimental de Força Relativa (RS Positiva) reprovado na data ${bar.time}.`,
+          liquidity: liquidityResult,
+          metrics: { close: bar.close, smaShort: bar.smaShort, smaLong: bar.smaLong, ifr: bar.ifr, rsScore: bar.rsScore }
+        };
+      }
+    } else if (rsFilterMode === RS_FILTER_MODES.RS_RISING) {
+      const isRis = bar.rsRising !== undefined ? bar.rsRising : true;
+      if (!isRis) {
+        return {
+          isValid: false,
+          code: SIGNAL_CODES.RS_FILTER_REJECTED,
+          reason: `Filtro experimental de Força Relativa (RS Crescente) reprovado na data ${bar.time}.`,
+          liquidity: liquidityResult,
+          metrics: { close: bar.close, smaShort: bar.smaShort, smaLong: bar.smaLong, ifr: bar.ifr, rsScore: bar.rsScore }
+        };
+      }
+    }
+
+    const validatedConditions = [
+      `IFR(${rsiPeriod}) = ${bar.ifr.toFixed(2)} <= ${oversoldLevel}`,
+      `Close (${bar.close.toFixed(2)}) < SMA(${shortMaPeriod}) (${bar.smaShort.toFixed(2)})`,
+      `Close (${bar.close.toFixed(2)}) > SMA(${longMaPeriod}) (${bar.smaLong.toFixed(2)})`,
+      options.checkLiquidity === false ? 'Liquidez: Isenta em modo teste' : 'Liquidez: Aprovada (Liquidity Gate)'
+    ];
+    if (rsFilterMode !== RS_FILTER_MODES.NONE) {
+      validatedConditions.push(`Filtro RS: ${rsFilterMode} aprovado (RS ${bar.rsScore ?? 'N/D'})`);
+    }
+
     // SINAL CONFIRMADO COM SUCESSO
     return {
       isValid: true,
@@ -452,21 +575,27 @@
       signalDate: bar.time,
       signalIndex: idx,
       signalPrice: bar.close,
+      validatedConditions,
       parameters: {
         shortMaPeriod,
         longMaPeriod,
         rsiPeriod,
         oversoldLevel,
         holdingPeriodSessions,
-        positionSizingModel: 'FIXED_FINANCIAL',
+        positionSizingModel,
         fixedCapitalPerTrade,
+        equityPercentPerTrade,
+        rsFilterMode,
         stopModel: 'NONE'
       },
       indicators: {
         close: bar.close,
         smaShort: bar.smaShort,
         smaLong: bar.smaLong,
-        ifr: bar.ifr
+        ifr: bar.ifr,
+        rsScore: bar.rsScore ?? null,
+        rsPositive: bar.rsPositive ?? null,
+        rsRising: bar.rsRising ?? null
       },
       liquidity: liquidityResult
     };
@@ -476,13 +605,15 @@
    * Simula o ciclo de vida completo de uma operação disparada a partir do candle de sinal.
    *
    * Regras de execução e tempo:
-   * - Entrada em T+1 na abertura (Open), com tratamento de gap.
+   * - Entrada em T+1 na abertura (Open), com tratamento de gap, slippage e custos.
    * - D0 é o dia de entrada executada (T+1).
    * - D1 é o primeiro pregão completo subsequente à execução (T+2).
    * - No fechamento de cada sessão D1..D7:
-   *   Se Close > SMA7: Saída imediata no fechamento com motivo 'TARGET_MA_RECOVERY'.
-   * - No fechamento de D7 (7º pregão completo):
-   *   Se não ocorreu saída por recuperação: Saída no fechamento de D7 com motivo 'TIME_EXIT'.
+   *   Se Close > SMA7:
+   *     - Quando exitExecutionTiming === 'NEXT_OPEN': confirma sinal de saída no fechamento e executa na abertura do próximo pregão (respeitando gaps e custos).
+   *     - Quando exitExecutionTiming === 'SAME_CLOSE' (default legado): executa no fechamento da própria sessão.
+   * - No limite de permanência D7 (7º pregão):
+   *   Se não ocorreu saída por recuperação: encerra com motivo 'TIME_EXIT'.
    *
    * @param {Object} params
    * @param {Array} params.series Série enriquecida com candles e indicadores
@@ -501,7 +632,15 @@
     const rsiPeriod = Number(options.rsiPeriod || DEFAULT_PARAMETERS.rsiPeriod);
     const oversoldLevel = Number(options.oversoldLevel ?? DEFAULT_PARAMETERS.oversoldLevel);
     const holdingPeriodSessions = Number(options.holdingPeriodSessions || DEFAULT_PARAMETERS.holdingPeriodSessions);
-    const fixedCapital = Number(options.fixedCapitalPerTrade || DEFAULT_PARAMETERS.fixedCapitalPerTrade);
+    const positionSizingModel = String(options.positionSizingModel || DEFAULT_PARAMETERS.positionSizingModel).toUpperCase();
+    const currentEquity = Number(options.currentEquity || options.initialCapital || 100000);
+    const equityPercentPerTrade = Number(options.equityPercentPerTrade || 10);
+    const fixedCapital = positionSizingModel === POSITION_SIZING_MODELS.EQUITY_PERCENT
+      ? round2(currentEquity * (equityPercentPerTrade / 100))
+      : Number(options.fixedCapitalPerTrade || DEFAULT_PARAMETERS.fixedCapitalPerTrade);
+    const exitExecutionTiming = String(options.exitExecutionTiming || EXIT_EXECUTION_MODES.SAME_CLOSE).toUpperCase();
+    const slippagePct = Number(options.slippagePct || 0);
+    const costsPerTrade = Number(options.costsPerTrade || 0);
 
     const entryIndex = signalIndex + 1;
 
@@ -528,12 +667,14 @@
 
     const entryBar = series[entryIndex];
     const entryDate = entryBar.time;
-    const entryPrice = entryBar.open; // Preço negociável realista da abertura de T+1
+    const rawEntryPrice = entryBar.open; // Preço negociável realista da abertura de T+1
+    const slippageRate = slippagePct / 100;
+    const entryPrice = slippagePct > 0 ? round4(rawEntryPrice * (1 + slippageRate)) : rawEntryPrice;
 
     // Cálculo do gap de abertura em relação ao fechamento do sinal
-    const entryGapPct = round2(((entryPrice - signalBar.close) / signalBar.close) * 100);
+    const entryGapPct = round2(((rawEntryPrice - signalBar.close) / signalBar.close) * 100);
 
-    // Position sizing: capital financeiro fixo
+    // Position sizing: capital financeiro fixo ou percentual do patrimônio
     const sharesQuantity = Math.floor(fixedCapital / entryPrice);
     if (sharesQuantity <= 0) {
       return {
@@ -553,15 +694,16 @@
     const allocatedCapital = round2(sharesQuantity * entryPrice);
     const remainingCash = round2(fixedCapital - allocatedCapital);
 
-    // Contagem de pregões e verificação de saída
-    // D0 = entryIndex (T+1)
-    // D1 = entryIndex + 1 (T+2)
-    // ...
-    // Dk = entryIndex + k (T+1+k)
+    // Rastreamento de MAE (Maximum Adverse Excursion) e MFE (Maximum Favorable Excursion) desde D0
+    let minLowPrice = Number.isFinite(entryBar.low) ? entryBar.low : rawEntryPrice;
+    let maxHighPrice = Number.isFinite(entryBar.high) ? entryBar.high : rawEntryPrice;
+
     let exitBar = null;
+    let exitSignalBar = null;
     let exitReason = null;
     let holdingSessions = 0;
     let isClosed = false;
+    let useOpenPriceOnExit = false;
 
     for (let k = 1; k <= holdingPeriodSessions; k++) {
       const sessionIdx = entryIndex + k;
@@ -573,26 +715,78 @@
       }
 
       const currentSessionBar = series[sessionIdx];
+      if (Number.isFinite(currentSessionBar.low) && currentSessionBar.low < minLowPrice) {
+        minLowPrice = currentSessionBar.low;
+      }
+      if (Number.isFinite(currentSessionBar.high) && currentSessionBar.high > maxHighPrice) {
+        maxHighPrice = currentSessionBar.high;
+      }
+
+      // 0. Proteção Obrigatória contra Eventos Extremos (Seção 11)
+      if (options.preEventBlockedDates instanceof Set && options.preEventBlockedDates.has(currentSessionBar.time)) {
+        exitSignalBar = currentSessionBar;
+        exitBar = currentSessionBar;
+        exitReason = EXIT_REASONS.EXTREME_EVENT_EXIT;
+        holdingSessions = k;
+        isClosed = true;
+        useOpenPriceOnExit = false;
+        break;
+      }
 
       // 1. Saída por Recuperação: Fechamento diário acima da SMA curta (SMA7)
       // Tem precedência sobre saída temporal inclusive no pregão D7
       if (currentSessionBar.close > currentSessionBar.smaShort) {
-        exitBar = currentSessionBar;
+        exitSignalBar = currentSessionBar;
         exitReason = EXIT_REASONS.TARGET_MA_RECOVERY;
         holdingSessions = k;
-        isClosed = true;
+
+        if (exitExecutionTiming === EXIT_EXECUTION_MODES.NEXT_OPEN) {
+          if (sessionIdx + 1 < series.length) {
+            exitBar = series[sessionIdx + 1];
+            if (Number.isFinite(exitBar.open)) {
+              if (exitBar.open < minLowPrice) minLowPrice = exitBar.open;
+              if (exitBar.open > maxHighPrice) maxHighPrice = exitBar.open;
+            }
+            useOpenPriceOnExit = true;
+            isClosed = true;
+          } else {
+            // Sinal de saída confirmado no último candle, aguardando abertura do próximo pregão
+            isClosed = false;
+          }
+        } else {
+          exitBar = currentSessionBar;
+          useOpenPriceOnExit = false;
+          isClosed = true;
+        }
         break;
       }
 
       // 2. Saída Temporal: Limite de permanência atingido (D7)
       if (k === holdingPeriodSessions) {
-        exitBar = currentSessionBar;
+        exitSignalBar = currentSessionBar;
         exitReason = EXIT_REASONS.TIME_EXIT;
         holdingSessions = k;
-        isClosed = true;
+        if (exitExecutionTiming === EXIT_EXECUTION_MODES.NEXT_OPEN && options.timeExitNextOpen === true) {
+          if (sessionIdx + 1 < series.length) {
+            exitBar = series[sessionIdx + 1];
+            useOpenPriceOnExit = true;
+            isClosed = true;
+          } else {
+            isClosed = false;
+          }
+        } else {
+          exitBar = currentSessionBar;
+          useOpenPriceOnExit = false;
+          isClosed = true;
+        }
         break;
       }
     }
+
+    const maePct = round2(Math.min(0, ((minLowPrice - entryPrice) / entryPrice) * 100));
+    const mfePct = round2(Math.max(0, ((maxHighPrice - entryPrice) / entryPrice) * 100));
+    const maeAmount = round2(sharesQuantity * Math.min(0, minLowPrice - entryPrice));
+    const mfeAmount = round2(sharesQuantity * Math.max(0, maxHighPrice - entryPrice));
 
     // Trade ainda em aberto na base histórica
     if (!isClosed) {
@@ -629,6 +823,10 @@
           smaShort: lastAvailableBar.smaShort,
           smaLong: lastAvailableBar.smaLong
         },
+        maePct,
+        mfePct,
+        maeAmount,
+        mfeAmount,
         unrealizedPnl,
         unrealizedReturnPct,
         parameters: {
@@ -637,21 +835,30 @@
           rsiPeriod,
           oversoldLevel,
           holdingPeriodSessions,
+          positionSizingModel,
           fixedCapitalPerTrade: fixedCapital
         }
       };
     }
 
     // Trade encerrado com sucesso
-    const exitPrice = exitBar.close;
+    const rawExitPrice = useOpenPriceOnExit ? exitBar.open : exitBar.close;
+    const exitPrice = slippagePct > 0 ? round4(rawExitPrice * (1 - slippageRate)) : rawExitPrice;
     const exitDate = exitBar.time;
-    const grossPnl = round2(sharesQuantity * (exitPrice - entryPrice));
+    const signalExitClose = exitSignalBar ? exitSignalBar.close : rawExitPrice;
+    const exitGapPct = useOpenPriceOnExit && signalExitClose > 0
+      ? round2(((rawExitPrice - signalExitClose) / signalExitClose) * 100)
+      : 0;
+    const grossPnl = round2(sharesQuantity * (rawExitPrice - rawEntryPrice));
+    const totalCosts = round2(costsPerTrade * 2);
+    const netPnl = round2(sharesQuantity * (exitPrice - entryPrice) - totalCosts);
     const returnPct = round2(((exitPrice - entryPrice) / entryPrice) * 100);
     const exitCapital = round2(sharesQuantity * exitPrice);
 
     let outcome = 'BREAKEVEN';
-    if (grossPnl > 0.005) outcome = 'WIN';
-    else if (grossPnl < -0.005) outcome = 'LOSS';
+    const refPnl = (slippagePct > 0 || costsPerTrade > 0) ? netPnl : grossPnl;
+    if (refPnl > 0.005) outcome = 'WIN';
+    else if (refPnl < -0.005) outcome = 'LOSS';
 
     return {
       status: 'CLOSED',
@@ -665,25 +872,36 @@
         close: signalBar.close,
         smaShort: signalBar.smaShort,
         smaLong: signalBar.smaLong,
-        ifr: signalBar.ifr
+        ifr: signalBar.ifr,
+        rsScore: signalBar.rsScore ?? null
       },
       entryDate,
       entryPrice,
+      rawEntryPrice,
       entryGapPct,
       sharesQuantity,
       allocatedCapital,
       remainingCash,
+      exitSignalDate: exitSignalBar ? exitSignalBar.time : exitDate,
       exitDate,
       exitPrice,
+      rawExitPrice,
+      exitGapPct,
       exitCapital,
       exitReason,
+      exitExecutionTiming,
       exitIndicators: {
-        close: exitBar.close,
-        smaShort: exitBar.smaShort,
-        smaLong: exitBar.smaLong
+        close: (exitSignalBar || exitBar).close,
+        smaShort: (exitSignalBar || exitBar).smaShort,
+        smaLong: (exitSignalBar || exitBar).smaLong
       },
       holdingSessions,
+      maePct,
+      mfePct,
+      maeAmount,
+      mfeAmount,
       grossPnl,
+      netPnl,
       returnPct,
       outcome,
       parameters: {
@@ -692,6 +910,7 @@
         rsiPeriod,
         oversoldLevel,
         holdingPeriodSessions,
+        positionSizingModel,
         fixedCapitalPerTrade: fixedCapital
       }
     };
@@ -881,6 +1100,9 @@
     STRATEGY_TYPE,
     SETUP_NAME,
     EXIT_REASONS,
+    EXIT_EXECUTION_MODES,
+    RS_FILTER_MODES,
+    POSITION_SIZING_MODELS,
     SIGNAL_CODES,
     DEFAULT_PARAMETERS,
     toIsoDate,

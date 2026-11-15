@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 260" fill="none">
+  <defs>
+    <linearGradient id="tfBgGlow" x1="0" y1="0" x2="1200" y2="260" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#DDF5E9" stop-opacity="0.15"/>
+      <stop offset="55%" stop-color="#0D9B70" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#063D2E" stop-opacity="0.22"/>
+    </linearGradient>
+    <linearGradient id="tfAreaGrad" x1="750" y1="30" x2="750" y2="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0D9B70" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#0D9B70" stop-opacity="0.0"/>
+    </linearGradient>
+    <linearGradient id="tfLineGrad" x1="360" y1="220" x2="1160" y2="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0D9B70" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="#0D9B70" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#063D2E" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Subtle architectural grid on the right half -->
+  <g stroke="#0D9B70" stroke-opacity="0.08" stroke-width="1">
+    <line x1="420" y1="40" x2="1180" y2="40" stroke-dasharray="4 6"/>
+    <line x1="420" y1="95" x2="1180" y2="95" stroke-dasharray="4 6"/>
+    <line x1="420" y1="150" x2="1180" y2="150" stroke-dasharray="4 6"/>
+    <line x1="420" y1="205" x2="1180" y2="205" stroke-dasharray="4 6"/>
+    <line x1="560" y1="20" x2="560" y2="240"/>
+    <line x1="740" y1="20" x2="740" y2="240"/>
+    <line x1="920" y1="20" x2="920" y2="240"/>
+    <line x1="1100" y1="20" x2="1100" y2="240"/>
+  </g>
+
+  <!-- Structural EMA 72 (Long-term ascending support) -->
+  <path d="M 380 232 C 540 220, 680 198, 840 164 C 960 138, 1070 108, 1175 78"
+        stroke="#063D2E" stroke-opacity="0.22" stroke-width="2" stroke-dasharray="6 5" fill="none"/>
+
+  <!-- Area under Trend Curve (EMA 10) -->
+  <path d="M 380 218 C 470 205, 520 175, 590 182 C 660 188, 710 135, 785 128 C 850 122, 890 142, 955 96 C 1020 52, 1095 62, 1175 34 L 1175 250 L 380 250 Z"
+        fill="url(#tfAreaGrad)"/>
+
+  <!-- Primary Ascending Trendline (EMA 10) -->
+  <path d="M 380 218 C 470 205, 520 175, 590 182 C 660 188, 710 135, 785 128 C 850 122, 890 142, 955 96 C 1020 52, 1095 62, 1175 34"
+        stroke="url(#tfLineGrad)" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+
+  <!-- Ascending Candlesticks (Higher Highs & Higher Lows) -->
+  <g opacity="0.42">
+    <!-- Wave 1 -->
+    <line x1="460" y1="184" x2="460" y2="216" stroke="#0D9B70" stroke-width="1.8"/>
+    <rect x="455" y="192" width="10" height="16" rx="2" fill="#0D9B70"/>
+
+    <line x1="495" y1="168" x2="495" y2="202" stroke="#0D9B70" stroke-width="1.8"/>
+    <rect x="490" y="174" width="10" height="20" rx="2" fill="#0D9B70"/>
+
+    <line x1="530" y1="160" x2="530" y2="190" stroke="#063D2E" stroke-width="1.8"/>
+    <rect x="525" y="168" width="10" height="12" rx="2" fill="#DDF5E9" stroke="#0D9B70" stroke-width="1.2"/>
+
+    <!-- Pullback 1 (Inside Bar / 1-2-3 base) -->
+    <line x1="565" y1="170" x2="565" y2="196" stroke="#063D2E" stroke-width="1.6"/>
+    <rect x="560" y="176" width="10" height="12" rx="2" fill="#063D2E" fill-opacity="0.35"/>
+
+    <!-- Wave 2 Breakout -->
+    <line x1="605" y1="146" x2="605" y2="184" stroke="#0D9B70" stroke-width="1.8"/>
+    <rect x="600" y="152" width="10" height="24" rx="2" fill="#0D9B70"/>
+
+    <line x1="645" y1="128" x2="645" y2="164" stroke="#0D9B70" stroke-width="1.8"/>
+    <rect x="640" y="134" width="10" height="22" rx="2" fill="#0D9B70"/>
+
+    <line x1="685" y1="114" x2="685" y2="148" stroke="#0D9B70" stroke-width="1.8"/>
+    <rect x="680" y="120" width="10" height="18" rx="2" fill="#0D9B70"/>
+
+    <!-- Pullback 2 -->
+    <line x1="725" y1="122" x2="725" y2="148" stroke="#063D2E" stroke-width="1.6"/>
+    <rect x="720" y="128" width="10" height="11" rx="2" fill="#063D2E" fill-opacity="0.35"/>
+
+    <line x1="765" y1="118" x2="765" y2="142" stroke="#0D9B70" stroke-width="1.8"/>
+    <rect x="760" y="122" width="10" height="14" rx="2" fill="#0D9B70"/>
+
+    <!-- Wave 3 Impulse -->
+    <line x1="810" y1="96" x2="810" y2="132" stroke="#0D9B70" stroke-width="1.8"/>
+    <rect x="805" y="102" width="10" height="22" rx="2" fill="#0D9B70"/>
+
+    <line x1="855" y1="82" x2="855" y2="116" stroke="#0D9B70" stroke-width="1.8"/>
+    <rect x="850" y="88" width="10" height="20" rx="2" fill="#0D9B70"/>
+
+    <!-- Pullback 3 -->
+    <line x1="895" y1="90" x2="895" y2="115" stroke="#063D2E" stroke-width="1.6"/>
+    <rect x="890" y="95" width="10" height="12" rx="2" fill="#063D2E" fill-opacity="0.35"/>
+
+    <!-- Wave 4 Expansion -->
+    <line x1="940" y1="64" x2="940" y2="102" stroke="#0D9B70" stroke-width="2"/>
+    <rect x="935" y="70" width="10" height="24" rx="2" fill="#0D9B70"/>
+
+    <line x1="985" y1="48" x2="985" y2="82" stroke="#0D9B70" stroke-width="2"/>
+    <rect x="980" y="54" width="10" height="20" rx="2" fill="#0D9B70"/>
+
+    <line x1="1030" y1="54" x2="1030" y2="78" stroke="#063D2E" stroke-width="1.6"/>
+    <rect x="1025" y="60" width="10" height="10" rx="2" fill="#063D2E" fill-opacity="0.35"/>
+
+    <line x1="1075" y1="32" x2="1075" y2="68" stroke="#0D9B70" stroke-width="2"/>
+    <rect x="1070" y="38" width="10" height="22" rx="2" fill="#0D9B70"/>
+
+    <line x1="1120" y1="18" x2="1120" y2="52" stroke="#063D2E" stroke-width="2.2"/>
+    <rect x="1115" y="24" width="10" height="20" rx="2" fill="#063D2E"/>
+  </g>
+
+  <!-- Higher High / Higher Low nodes & directional vector -->
+  <g fill="#0D9B70" opacity="0.55">
+    <circle cx="590" cy="182" r="4"/>
+    <circle cx="785" cy="128" r="4.5"/>
+    <circle cx="955" cy="96" r="5"/>
+    <circle cx="1175" cy="34" r="6" fill="#063D2E"/>
+    <circle cx="1175" cy="34" r="12" fill="#0D9B70" fill-opacity="0.22"/>
+  </g>
+</svg>

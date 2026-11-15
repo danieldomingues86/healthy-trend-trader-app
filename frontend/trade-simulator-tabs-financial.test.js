@@ -655,3 +655,40 @@ test('Nomenclatura e Filtros — 14. Nomenclatura oficial "Gatilho" (sem "Setup"
   // 4. Filtro de setores removido da tela do simulador
   assert.ok(!jsContent.includes('id="simFilterSector"'), 'Filtro "Todos os setores" (#simFilterSector) deve ser removido do cabeçalho');
 });
+
+test('Redesign UX/UI Multi-Strategy — 15. Seletor simplificado, 3 ambientes visuais independentes, 3 SVGs Hero, 4 abas e Configurações Avançadas', () => {
+  const jsContent = fs.readFileSync(path.resolve(__dirname, 'trade-simulator.js'), 'utf8');
+  const cssContent = fs.readFileSync(path.resolve(__dirname, 'trade-simulator.css'), 'utf8');
+
+  // 1. Seletor de metodologia simplificado com os 3 títulos exatos
+  assert.ok(jsContent.includes('<span class="sim-method-title">Trend Following</span>'), 'Seletor deve exibir título exato "Trend Following"');
+  assert.ok(jsContent.includes('<span class="sim-method-title">Volatility Trading</span>'), 'Seletor deve exibir título exato "Volatility Trading"');
+  assert.ok(jsContent.includes('<span class="sim-method-title">Comparação entre Sistemas</span>'), 'Seletor deve exibir título exato "Comparação entre Sistemas"');
+  assert.ok(!jsContent.includes('MODO A — SISTEMA 01'), 'Seletor não deve exibir "MODO A — SISTEMA 01"');
+  assert.ok(!jsContent.includes('MODO B — SISTEMA 02'), 'Seletor não deve exibir "MODO B — SISTEMA 02"');
+  assert.ok(!jsContent.includes('MODO C — MULTI-STRATEGY'), 'Seletor não deve exibir "MODO C — MULTI-STRATEGY"');
+
+  // 2. Três identidades visuais independentes no CSS (Verde, Azul e Dourado)
+  assert.ok(cssContent.includes('#063D2E') && cssContent.includes('#0D9B70') && cssContent.includes('#DDF5E9') && cssContent.includes('#F0F7F2'), 'Paleta verde do Trend Following deve estar presente');
+  assert.ok(cssContent.includes('#12345B') && cssContent.includes('#2878C7') && cssContent.includes('#DCEBFA') && cssContent.includes('#F0F5FC'), 'Paleta azul do Volatility Trading deve estar presente');
+  assert.ok(cssContent.includes('#73520A') && cssContent.includes('#D6A32A') && cssContent.includes('#FFF1C7') && cssContent.includes('#FBF7EA'), 'Paleta dourada de Comparação entre Sistemas deve estar presente');
+
+  // 3. Três imagens artísticas de fundo para o Hero Visual
+  const assetsDir = path.resolve(__dirname, '..', 'assets', 'simulator');
+  assert.ok(fs.existsSync(path.join(assetsDir, 'hero-trend-following.svg')), 'Asset hero-trend-following.svg deve existir');
+  assert.ok(fs.existsSync(path.join(assetsDir, 'hero-volatility-trading.svg')), 'Asset hero-volatility-trading.svg deve existir');
+  assert.ok(fs.existsSync(path.join(assetsDir, 'hero-system-comparison.svg')), 'Asset hero-system-comparison.svg deve existir');
+
+  // 4. Navegação simplificada em 4 abas principais + subnavegação em Análises
+  assert.ok(jsContent.includes('<span class="sim-tab-label">Visão Geral</span>'), 'Aba 1 deve se chamar "Visão Geral"');
+  assert.ok(jsContent.includes('<span class="sim-tab-label">Trades</span>'), 'Aba 2 deve se chamar "Trades"');
+  assert.ok(jsContent.includes('<span class="sim-tab-label">Análises</span>'), 'Aba 3 deve se chamar "Análises"');
+  assert.ok(jsContent.includes('<span class="sim-tab-label">Evolução</span>'), 'Aba 4 deve se chamar "Evolução"');
+  assert.ok(jsContent.includes('renderAnalyticsGroupedTab'), 'Aba Análises deve agrupar Análise por Ativo e Análise por Gatilho');
+
+  // 5. Drawer de Configurações Avançadas por categoria + Resumo de configuração ativa
+  assert.ok(jsContent.includes('renderAdvancedConfigDrawer'), 'Drawer de Configurações Avançadas deve existir');
+  assert.ok(jsContent.includes('id="simBtnOpenAdvConfig"'), 'Botão Configurações deve existir no cabeçalho');
+  assert.ok(jsContent.includes('sim-active-config-summary'), 'Resumo discreto da configuração ativa deve existir no cabeçalho');
+  assert.ok(jsContent.includes('Indicadores e Gatilhos') && jsContent.includes('Dimensionamento') && jsContent.includes('Execução e Saídas') && jsContent.includes('Proteções'), 'Categorias do Drawer de Configurações devem estar presentes');
+});

@@ -110,7 +110,18 @@ async function runUniverseSimulation({
   startDate = null,
   endDate = null,
   initialCapital = 100000,
+  positionSizingModel = 'FIXED_FINANCIAL',
   fixedCapitalPerTrade = 10000,
+  equityPercentPerTrade = 10,
+  exitExecutionTiming = 'NEXT_OPEN',
+  rsFilterMode = 'NONE',
+  financialRiskUnitMode = 'PERCENT_OF_POSITION',
+  financialRiskUnitValue = 5,
+  extremeEventProtectionEnabled = true,
+  maxConcurrentPositions = 10,
+  minDailyLiquidity = 500000,
+  liquidityWindowSessions = 21,
+  minDailyTrades = 500,
   costsPerTrade = 0,
   slippagePct = 0,
   persist = true
@@ -139,6 +150,7 @@ async function runUniverseSimulation({
     throw invalid('Dados históricos de mercado indisponíveis para o universo solicitado.', 503);
   }
 
+  const extraParams = customParameters || {};
   const simResult = VolatilitySimulatorModel.simulateUniverse(candlesMap, {
     symbols: universeSymbols,
     metadataMap,
@@ -155,7 +167,18 @@ async function runUniverseSimulation({
     rsiPeriod: validatedParams.rsiPeriod,
     oversoldLevel: validatedParams.oversoldLevel,
     holdingPeriodSessions: validatedParams.holdingPeriodSessions,
-    fixedCapitalPerTrade: fixedCapitalPerTrade || validatedParams.fixedCapitalPerTrade,
+    positionSizingModel: extraParams.positionSizingModel || positionSizingModel || validatedParams.positionSizingModel || 'FIXED_FINANCIAL',
+    fixedCapitalPerTrade: fixedCapitalPerTrade || extraParams.fixedCapitalPerTrade || validatedParams.fixedCapitalPerTrade,
+    equityPercentPerTrade: extraParams.equityPercentPerTrade || equityPercentPerTrade,
+    exitExecutionTiming: extraParams.exitExecutionTiming || exitExecutionTiming || 'NEXT_OPEN',
+    rsFilterMode: extraParams.rsFilterMode || rsFilterMode || 'NONE',
+    financialRiskUnitMode: extraParams.financialRiskUnitMode || financialRiskUnitMode || 'PERCENT_OF_POSITION',
+    financialRiskUnitValue: extraParams.financialRiskUnitValue !== undefined ? extraParams.financialRiskUnitValue : financialRiskUnitValue,
+    extremeEventProtectionEnabled: extraParams.extremeEventProtectionEnabled !== undefined ? extraParams.extremeEventProtectionEnabled : extremeEventProtectionEnabled,
+    maxConcurrentPositions: extraParams.maxConcurrentPositions || maxConcurrentPositions || 10,
+    minDailyLiquidity: extraParams.minDailyLiquidity || minDailyLiquidity || 500000,
+    liquidityWindowSessions: extraParams.liquidityWindowSessions || liquidityWindowSessions || 21,
+    minDailyTrades: extraParams.minDailyTrades !== undefined ? extraParams.minDailyTrades : minDailyTrades,
     initialCapital,
     costsPerTrade,
     slippagePct
@@ -241,7 +264,17 @@ async function runComparativeExperiment({
   startDate = null,
   endDate = null,
   initialCapital = 100000,
+  positionSizingModel = 'FIXED_FINANCIAL',
   fixedCapitalPerTrade = 10000,
+  equityPercentPerTrade = 10,
+  exitExecutionTiming = 'NEXT_OPEN',
+  rsFilterMode = 'NONE',
+  financialRiskUnitMode = 'PERCENT_OF_POSITION',
+  financialRiskUnitValue = 5,
+  extremeEventProtectionEnabled = true,
+  minDailyLiquidity = 500000,
+  liquidityWindowSessions = 21,
+  minDailyTrades = 500,
   costsPerTrade = 0,
   slippagePct = 0
 } = {}) {
@@ -260,7 +293,17 @@ async function runComparativeExperiment({
     startDate,
     endDate,
     initialCapital,
+    positionSizingModel,
     fixedCapitalPerTrade,
+    equityPercentPerTrade,
+    exitExecutionTiming,
+    rsFilterMode,
+    financialRiskUnitMode,
+    financialRiskUnitValue,
+    extremeEventProtectionEnabled,
+    minDailyLiquidity,
+    liquidityWindowSessions,
+    minDailyTrades,
     costsPerTrade,
     slippagePct
   });

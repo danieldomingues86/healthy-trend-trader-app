@@ -117,8 +117,8 @@
         r = item;
       } else if (typeof item === 'object') {
         const strat = String(item.strategy_type || item.strategyType || '').toUpperCase();
-        if (strat.includes('VOLATILITY')) {
-          continue; // Volatility Trading opera sem stop técnico inicial em R; preserva pureza amostral do SQN
+        if (strat.includes('VOLATILITY') && !item.hasExplicitFinancialRiskUnit) {
+          continue; // Volatility Trading opera sem stop técnico inicial em R; calcula SQN somente quando há unidade de risco financeiro explícita configurada
         }
         // Suporte unificado para:
         // - TradeSimulator / Backtest: item.resultR, item.netResultR

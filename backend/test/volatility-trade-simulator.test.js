@@ -489,3 +489,159 @@ test('PASSO 7 — Determinismo: Mesmos dados, configuração e versão geram res
   assert.equal(res1.metrics.avgHoldingSessions, res2.metrics.avgHoldingSessions);
   assert.equal(res1.metrics.maxDrawdownPct, res2.metrics.maxDrawdownPct);
 });
+
+test('Multi-Strategy — Execução de Saída no Próximo Pregão (NEXT_OPEN) com Gap e Custos', () => {
+  const candles = makeWarmupCandles(215, 30.00);
+  const series = VolatilityEngineModel.computeIndicators(candles, { shortMaPeriod: 7, longMaPeriod: 200, rsiPeriod: 2 });
+  const sigIdx = 200;
+
+  series[sigIdx] = { ...series[sigIdx], time: '2026-06-01', close: 25.00, smaLong: 20.00, smaShort: 27.00, ifr: 7.5 };
+  series[sigIdx + 1] = { ...series[sigIdx + 1], time: '2026-06-02', open: 25.00, high: 25.80, low: 24.50, close: 25.50, smaShort: 26.80 }; // Entrada (D0)
+  series[sigIdx + 2] = { ...series[sigIdx + 2], time: '2026-06-03', open: 25.60, high: 27.20, low: 25.40, close: 27.00, smaShort: 26.50 }; // Sinal de Saída no Fechamento (Close 27.00 > SMA7 26.50)
+  series[sigIdx + 3] = { ...series[sigIdx + 3], time: '2026-06-04', open: 27.50, high: 28.00, low: 27.10, close: 27.80, smaShort: 26.60 }; // Execução da Saída na Abertura (27.50)
+
+  const trade = VolatilityEngineModel.simulateTradeLifecycle({
+    series,
+    signalIndex: sigIdx,
+    options: {
+      fixedCapitalPerTrade: 10000,
+      exitExecutionTiming: 'NEXT_OPEN'
+    }
+  });
+
+  assert.equal(trade.status, 'CLOSED');
+  assert.equal(trade.exitSignalDate, '2026-06-03', 'Data do gatilho de saída deve ser o fechamento em que Close > SMA7');
+  assert.equal(trade.exitDate, '2026-06-04', 'Execução efetiva da saída ocorre no próximo pregão');
+  assert.equal(trade.exitPrice, 27.50, 'Preço de saída deve ser o Open do próximo pregão');
+  assert.ok(trade.exitGapPct > 0, 'Deve registrar o gap de abertura na saída');
+});
+
+test('Multi-Strategy — Dimensionamento Percentual do Patrimônio (EQUITY_PERCENT) vs Fixo e Filtro RS', () => {
+  const candles = makeWarmupCandles(220, 30.00);
+  const series = VolatilityEngineModel.computeIndicators(candles, { shortMaPeriod: 7, longMaPeriod: 200, rsiPeriod: 2 });
+  const sigIdx = 205;
+
+  series[sigIdx] = {
+    ...series[sigIdx],
+    time: '2026-07-01',
+    close: 25.00,
+    smaLong: 20.00,
+    smaShort: 27.00,
+    ifr: 6.0,
+    rsPositive: false,
+    rsRising: false
+  };
+  series[sigIdx + 1] = { ...series[sigIdx + 1], time: '2026-07-02', open: 25.00, close: 27.50, smaShort: 26.50 };
+  series[sigIdx + 2] = { ...series[sigIdx + 2], time: '2026-07-03', open: 27.60, close: 27.80, smaShort: 26.60 };
+
+  // Verifica filtro RS_POSITIVE rejeitando ativo com RS negativa
+  const evalRsRejected = VolatilityEngineModel.evaluateSignal(series, sigIdx, {
+    oversoldLevel: 10,
+    rsFilterMode: 'RS_POSITIVE'
+  });
+  assert.equal(evalRsRejected.isValid, false);
+  assert.equal(evalRsRejected.code, VolatilityEngineModel.SIGNAL_CODES.RS_FILTER_REJECTED);
+
+  // Verifica dimensionamento EQUITY_PERCENT (5% de R$ 500.000 = R$ 25.000 -> 1.000 ações a R$ 25,00)
+  const tradeEq = VolatilityEngineModel.simulateTradeLifecycle({
+    series,
+    signalIndex: sigIdx,
+    options: {
+      positionSizingModel: 'EQUITY_PERCENT',
+      equityPercentPerTrade: 5,
+      currentEquity: 500000
+    }
+  });
+  assert.equal(tradeEq.sharesQuantity, 1000);
+  assert.equal(tradeEq.allocatedCapital, 25000);
+});
+
+test('Multi-Strategy — 20 Métricas Obrigatórias, SQN com Unidade R Financeira, Proteção Eventos Extremos e Comparação Modo C', () => {
+  const candles = makeWarmupCandles(225, 30.00);
+  // Insere sinal antes da eleição presidencial de 2026-10-04 (último pregão anterior na série: 2026-10-02)
+  candles[205].time = '2026-10-01';
+  candles[205].close = 24.00;
+  candles[206].time = '2026-10-02'; // Último pregão antes de 2026-10-04!
+  candles[206].open = 24.20;
+  candles[206].close = 24.50;
+  candles[207].time = '2026-10-05'; // Pós-evento com gap de baixa severo
+  candles[207].open = 21.00;
+  candles[207].close = 21.20;
+
+  const map = new Map([['PETR4', candles]]);
+
+  // Simulação com Unidade de Risco Financeiro (5% da posição)
+  const simWithR = VolatilitySimulatorModel.simulateUniverse(map, {
+    initialCapital: 500000,
+    fixedCapitalPerTrade: 10000,
+    financialRiskUnitMode: 'PERCENT_OF_POSITION',
+    financialRiskUnitValue: 5,
+    extremeEventProtectionEnabled: true
+  });
+
+  const m = simWithR.metrics;
+  // Verifica presença das 20 métricas obrigatórias
+  assert.ok(typeof m.totalTrades === 'number');
+  assert.ok(typeof m.winningTrades === 'number');
+  assert.ok(typeof m.losingTrades === 'number');
+  assert.ok(typeof m.winRatePct === 'number');
+  assert.ok(typeof m.avgGainAmount === 'number');
+  assert.ok(typeof m.avgLossAmount === 'number');
+  assert.ok(typeof m.winLossRatio === 'number');
+  assert.ok(typeof m.profitFactor === 'number');
+  assert.ok(typeof m.expectancyAmount === 'number');
+  assert.ok('sqn' in m);
+  assert.ok(typeof m.maxDrawdownPct === 'number');
+  assert.ok(typeof m.totalReturnPct === 'number');
+  assert.ok(typeof m.avgHoldingSessions === 'number');
+  assert.ok(typeof m.maxConsecutiveLosses === 'number');
+  assert.ok(typeof m.maxConsecutiveWins === 'number');
+  assert.ok(typeof m.avgMaePct === 'number');
+  assert.ok(typeof m.avgMfePct === 'number');
+  assert.ok(typeof m.tradesPerMonth === 'number');
+  assert.ok(typeof m.exposurePct === 'number');
+  assert.ok(typeof m.returnPerCapitalDayPct === 'number');
+  assert.ok(simWithR.extremeEventProtection, 'Relatório de Extreme Event Protection deve estar presente');
+  assert.ok(simWithR.regimeBreakdown, 'Breakdown por regime de mercado deve estar presente');
+
+  // Simulação sem Unidade R (NONE) -> SQN deve ser Indisponível
+  const simNoR = VolatilitySimulatorModel.simulateUniverse(map, {
+    initialCapital: 500000,
+    fixedCapitalPerTrade: 10000,
+    financialRiskUnitMode: 'NONE'
+  });
+  assert.equal(simNoR.metrics.sqn, null);
+  assert.match(simNoR.metrics.sqnClassification, /Indisponível/i);
+
+  // Comparação lado a lado (Modo C) entre Trend Following e Volatility Trading
+  const cmp = VolatilitySimulatorModel.compareSystems({
+    trendStats: {
+      total: 42,
+      wins: 21,
+      losses: 21,
+      winRate: 50.0,
+      avgWinR: 2.1,
+      avgLossR: -1.0,
+      profitFactor: 2.1,
+      expectancy: 0.55,
+      maxDrawdown: 1.8,
+      totalR: 23.1,
+      avgDurationDays: 14.5,
+      maxLossStreak: 4,
+      maxWinStreak: 5,
+      sqnAnalytics: { sqn: 2.45, classification: { label: 'Bom' } }
+    },
+    trendRubricReport: {
+      summary: { totalPnlCurrency: 46200 },
+      trades: []
+    },
+    trendTrades: [],
+    volatilityResult: simWithR,
+    initialCapital: 500000
+  });
+
+  assert.equal(cmp.comparisonMode, 'SIDE_BY_SIDE_INDEPENDENT');
+  assert.equal(cmp.comparisonRows.length, 20, 'Tabela comparativa deve conter exatamente as 20 métricas obrigatórias');
+  assert.ok(cmp.regimeComparison.length === 3, 'Deve comparar os 3 regimes de mercado (Bull, Sideways, Correction)');
+});
+

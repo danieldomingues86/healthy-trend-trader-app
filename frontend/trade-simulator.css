@@ -9313,5 +9313,743 @@ body.gold-theme .sim-extreme-cal-chip {
   }
 }
 
+/* ==========================================================================
+   MULTI-STRATEGY ARCHITECTURE & 3 VISUAL ENVIRONMENTS (UX/UI REDESIGN)
+   ========================================================================== */
+
+/* 1. Tokens por Ambiente Visual (Seção 3) */
+#tradesimulator,
+#tradesimulator[data-sim-env="TREND_FOLLOWING"],
+.simulator-page[data-sim-methodology="TREND_FOLLOWING"] {
+  --sim-env-dark: #063D2E;
+  --sim-env-primary: #0D9B70;
+  --sim-env-light: #DDF5E9;
+  --sim-env-bg: #F0F7F2;
+  --sim-env-border: #bfe3d0;
+  --sim-env-card-border: #d5eadd;
+  --sim-env-shadow: rgba(6, 61, 46, 0.10);
+  --sim-env-hero-grad: linear-gradient(125deg, #ffffff 0%, #f3fbf6 52%, #ddf5e9 100%);
+  --sim-env-hero-art: url('../assets/simulator/hero-trend-following.svg');
+}
+
+#tradesimulator[data-sim-env="VOLATILITY_TRADING"],
+.simulator-page[data-sim-methodology="VOLATILITY_TRADING"] {
+  --sim-env-dark: #12345B;
+  --sim-env-primary: #2878C7;
+  --sim-env-light: #DCEBFA;
+  --sim-env-bg: #F0F5FC;
+  --sim-env-border: #b9d5f2;
+  --sim-env-card-border: #cfe2f7;
+  --sim-env-shadow: rgba(18, 52, 91, 0.11);
+  --sim-env-hero-grad: linear-gradient(125deg, #ffffff 0%, #f2f7fd 52%, #dcebFa 100%);
+  --sim-env-hero-art: url('../assets/simulator/hero-volatility-trading.svg');
+}
+
+#tradesimulator[data-sim-env="SYSTEM_COMPARISON"],
+.simulator-page[data-sim-methodology="SYSTEM_COMPARISON"] {
+  --sim-env-dark: #73520A;
+  --sim-env-primary: #D6A32A;
+  --sim-env-light: #FFF1C7;
+  --sim-env-bg: #FBF7EA;
+  --sim-env-border: #edd595;
+  --sim-env-card-border: #f2e2b3;
+  --sim-env-shadow: rgba(115, 82, 10, 0.11);
+  --sim-env-hero-grad: linear-gradient(125deg, #ffffff 0%, #fdfaf0 52%, #fff1c7 100%);
+  --sim-env-hero-art: url('../assets/simulator/hero-system-comparison.svg');
+}
+
+/* Fundo geral da área de trabalho do Simulador por ambiente */
+#tradesimulator[data-sim-env="TREND_FOLLOWING"],
+#tradesimulator[data-sim-env="VOLATILITY_TRADING"],
+#tradesimulator[data-sim-env="SYSTEM_COMPARISON"] {
+  background-color: var(--sim-env-bg);
+  transition: background-color 0.25s ease;
+}
+
+.simulator-page[data-sim-methodology],
+.simulator-page.env-official-mode[data-sim-methodology],
+.simulator-page.env-research-mode[data-sim-methodology] {
+  background: var(--sim-env-bg) !important;
+  border-top: 4px solid var(--sim-env-primary) !important;
+  box-shadow: 0 0 0 1px var(--sim-env-border) !important;
+  padding: 14px 18px 28px;
+  border-radius: 24px;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.simulator-page[data-sim-methodology] .sim-header-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  border-color: var(--sim-env-border);
+}
+
+.simulator-page[data-sim-methodology] .sim-header-select:focus,
+.simulator-page[data-sim-methodology] .sim-capital-input:focus {
+  border-color: var(--sim-env-primary) !important;
+  box-shadow: 0 0 0 3px var(--sim-env-light) !important;
+}
+
+/* 2. Novo Seletor de Metodologia Simplificado (Seção 2) */
+.sim-methodology-selector-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.sim-method-card-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  min-height: 66px;
+  padding: 14px 20px;
+  border-radius: 18px;
+  border: 2px solid #dde6e0;
+  background: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.sim-method-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.sim-method-card-btn.mode-trend .sim-method-icon {
+  background: #DDF5E9;
+  color: #063D2E;
+}
+
+.sim-method-card-btn.mode-volatility .sim-method-icon {
+  background: #DCEBFA;
+  color: #12345B;
+}
+
+.sim-method-card-btn.mode-comparison .sim-method-icon {
+  background: #FFF1C7;
+  color: #73520A;
+}
+
+.sim-method-texts {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.sim-method-title {
+  font-size: 16.5px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: inherit;
+  line-height: 1.2;
+}
+
+.sim-method-active-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+/* Hover por ambiente */
+.sim-method-card-btn.mode-trend:hover:not(.active) {
+  border-color: #0D9B70;
+  background: #f5fbf8;
+  transform: translateY(-1px);
+}
+
+.sim-method-card-btn.mode-volatility:hover:not(.active) {
+  border-color: #2878C7;
+  background: #f4f8fd;
+  transform: translateY(-1px);
+}
+
+.sim-method-card-btn.mode-comparison:hover:not(.active) {
+  border-color: #D6A32A;
+  background: #fdfaf1;
+  transform: translateY(-1px);
+}
+
+/* Estado Ativo por Estratégia */
+.sim-method-card-btn.mode-trend.active {
+  background: linear-gradient(135deg, #063D2E 0%, #0D9B70 100%);
+  border-color: #063D2E;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(6, 61, 46, 0.24);
+}
+
+.sim-method-card-btn.mode-trend.active .sim-method-icon {
+  background: rgba(221, 245, 233, 0.22);
+  color: #DDF5E9;
+}
+
+.sim-method-card-btn.mode-trend.active .sim-method-active-dot {
+  background: #DDF5E9;
+  box-shadow: 0 0 0 4px rgba(221, 245, 233, 0.28);
+}
+
+.sim-method-card-btn.mode-volatility.active {
+  background: linear-gradient(135deg, #12345B 0%, #2878C7 100%);
+  border-color: #12345B;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(18, 52, 91, 0.24);
+}
+
+.sim-method-card-btn.mode-volatility.active .sim-method-icon {
+  background: rgba(220, 235, 250, 0.22);
+  color: #DCEBFA;
+}
+
+.sim-method-card-btn.mode-volatility.active .sim-method-active-dot {
+  background: #DCEBFA;
+  box-shadow: 0 0 0 4px rgba(220, 235, 250, 0.28);
+}
+
+.sim-method-card-btn.mode-comparison.active {
+  background: linear-gradient(135deg, #73520A 0%, #D6A32A 100%);
+  border-color: #73520A;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(115, 82, 10, 0.24);
+}
+
+.sim-method-card-btn.mode-comparison.active .sim-method-icon {
+  background: rgba(255, 241, 199, 0.24);
+  color: #FFF1C7;
+}
+
+.sim-method-card-btn.mode-comparison.active .sim-method-active-dot {
+  background: #FFF1C7;
+  box-shadow: 0 0 0 4px rgba(255, 241, 199, 0.30);
+}
+
+/* 3. Hero Visual com Imagens Artísticas de Fundo (Seção 4) */
+.sim-env-hero-header {
+  position: relative;
+  overflow: visible;
+  background: var(--sim-env-hero-grad) !important;
+  border: 1.5px solid var(--sim-env-border) !important;
+  box-shadow: 0 8px 26px var(--sim-env-shadow) !important;
+  border-radius: 20px !important;
+  padding: 20px 24px !important;
+}
+
+.sim-hero-art-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 19px;
+  background-image: var(--sim-env-hero-art);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: cover;
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.22) 38%, rgba(0, 0, 0, 0.92) 100%);
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.22) 38%, rgba(0, 0, 0, 0.92) 100%);
+}
+
+.sim-env-hero-header .sim-header-titles {
+  position: relative;
+  z-index: 2;
+}
+
+.sim-env-hero-header .sim-header-right-zone {
+  position: relative;
+  z-index: 30;
+}
+
+.sim-env-hero-header h1 {
+  color: var(--sim-env-dark) !important;
+}
+
+/* Badge de Identidade do Ambiente no Hero */
+.sim-env-identity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  border: 1px solid var(--sim-env-border);
+  background: var(--sim-env-light);
+  color: var(--sim-env-dark);
+}
+
+.sim-env-identity-badge .pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sim-env-primary);
+}
+
+/* 4. Resumo Discreto da Configuração Ativa (Seção 5.4) */
+.sim-active-config-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid var(--sim-env-border);
+  width: fit-content;
+  backdrop-filter: blur(4px);
+}
+
+.sim-active-config-chip {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.3;
+}
+
+.sim-active-config-chip strong {
+  color: var(--sim-env-dark);
+  font-weight: 800;
+}
+
+.sim-active-config-sep {
+  color: #94a3b8;
+  font-size: 11px;
+  user-select: none;
+}
+
+/* 5. Barra Principal Simplificada e Botões Temáticos por Ambiente (Seção 5.1) */
+.sim-header-essential-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.90);
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--sim-env-border);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(6px);
+}
+
+.simulator-page[data-sim-methodology] .sim-btn-execute {
+  background: linear-gradient(135deg, var(--sim-env-primary) 0%, var(--sim-env-dark) 100%) !important;
+  border-color: var(--sim-env-dark) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px var(--sim-env-shadow) !important;
+}
+
+.simulator-page[data-sim-methodology] .sim-btn-execute:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.sim-btn-adv-config {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700 !important;
+  color: var(--sim-env-dark) !important;
+  border-color: var(--sim-env-border) !important;
+  background: #ffffff !important;
+}
+
+.sim-btn-adv-config:hover {
+  background: var(--sim-env-light) !important;
+  border-color: var(--sim-env-primary) !important;
+}
+
+/* 6. Navegação por 4 Abas Principais + Subnavegação em Análises (Seção 6) */
+.simulator-page[data-sim-methodology] .sim-screen-tabs-container {
+  border-color: var(--sim-env-border);
+  background: #ffffff;
+  box-shadow: 0 3px 12px var(--sim-env-shadow);
+}
+
+.simulator-page[data-sim-methodology] .sim-screen-tab-btn.active {
+  background: linear-gradient(135deg, var(--sim-env-dark) 0%, var(--sim-env-primary) 100%) !important;
+  color: #ffffff !important;
+  border-color: var(--sim-env-dark) !important;
+  box-shadow: 0 4px 12px var(--sim-env-shadow) !important;
+}
+
+.simulator-page[data-sim-methodology] .sim-screen-tab-btn.active .sim-tab-icon {
+  color: var(--sim-env-light) !important;
+}
+
+.simulator-page[data-sim-methodology] .sim-screen-tab-btn.active .sim-tab-label::after {
+  background: var(--sim-env-light) !important;
+  box-shadow: 0 0 6px var(--sim-env-light) !important;
+}
+
+.simulator-page[data-sim-methodology] .sim-screen-tab-btn:hover:not(.active) {
+  background: var(--sim-env-light);
+  color: var(--sim-env-dark);
+}
+
+.sim-analytics-grouped-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sim-analytics-subnav-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+  border-radius: 13px;
+  background: #ffffff;
+  border: 1px solid var(--sim-env-border);
+  width: fit-content;
+  box-shadow: 0 2px 8px var(--sim-env-shadow);
+}
+
+.sim-analytics-subnav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.sim-analytics-subnav-btn:hover:not(.active) {
+  background: var(--sim-env-light);
+  color: var(--sim-env-dark);
+}
+
+.sim-analytics-subnav-btn.active {
+  background: var(--sim-env-dark);
+  color: #ffffff;
+  box-shadow: 0 2px 6px var(--sim-env-shadow);
+}
+
+/* Cards e destaques por ambiente, mantendo fundo branco e cores semânticas de PnL intactas */
+.simulator-page[data-sim-methodology] .sim-rebuild-card {
+  background: #ffffff;
+  border-color: var(--sim-env-card-border);
+}
+
+.simulator-page[data-sim-methodology] .sim-rebuild-head-icon {
+  background: var(--sim-env-light);
+  color: var(--sim-env-dark);
+  border-color: var(--sim-env-border);
+}
+
+.simulator-page[data-sim-methodology] .sim-view-toggle-btn.active {
+  background: var(--sim-env-primary) !important;
+  color: #ffffff !important;
+}
+
+/* 7. Drawer / Modal de Configurações Avançadas (Seção 5.2) */
+.sim-adv-config-overlay {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 1200;
+}
+
+.sim-adv-config-drawer {
+  width: min(620px, 94vw);
+  height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -12px 0 36px rgba(15, 23, 42, 0.22);
+  border-left: 3px solid var(--sim-env-primary);
+  overflow: hidden;
+}
+
+.sim-adv-config-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: var(--sim-env-hero-grad);
+  border-bottom: 1px solid var(--sim-env-border);
+}
+
+.sim-adv-config-eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sim-env-primary);
+  margin-bottom: 3px;
+}
+
+.sim-adv-config-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--sim-env-dark);
+}
+
+.sim-adv-config-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--sim-env-bg);
+}
+
+.sim-adv-config-section {
+  background: #ffffff;
+  border: 1px solid var(--sim-env-card-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.sim-adv-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--sim-env-dark);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.sim-adv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 14px;
+}
+
+.sim-adv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sim-adv-field label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.sim-adv-field .sim-header-select,
+.sim-adv-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 9px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.sim-adv-readonly-box {
+  display: flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 9px;
+  background: var(--sim-env-light);
+  border: 1px solid var(--sim-env-border);
+  color: var(--sim-env-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sim-adv-config-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.sim-param-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--sim-env-border, #cbd5e1);
+  font-size: 11.5px;
+  color: #334155;
+}
+
+.sim-param-chip b {
+  color: var(--sim-env-dark, #0f291e);
+  font-weight: 700;
+}
+
+.sim-metrics-20-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sim-metric-20-box {
+  background: #f8faf9;
+  border: 1px solid var(--sim-env-card-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sim-metric-20-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.sim-metric-20-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--sim-env-light, #e2efe6);
+  color: var(--sim-env-dark, #0d3b26);
+  font-size: 9.5px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.sim-metric-20-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f291e;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.sim-metric-20-sub {
+  font-size: 10.5px;
+  color: #64748b;
+}
+
+.sim-comparison-dual-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.sim-system-card {
+  border-radius: 16px;
+  padding: 18px 20px;
+  border: 1.5px solid #dbe5de;
+  background: #ffffff;
+}
+
+.sim-system-card-tf {
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+  border-color: #86efac;
+}
+
+.sim-system-card-vol {
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+  border-color: #93c5fd;
+}
+
+.sim-system-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.sim-system-card-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f291e;
+}
+
+.sim-system-badge {
+  display: inline-flex;
+  width: fit-content;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.sim-system-badge.tf {
+  background: #DDF5E9;
+  color: #063D2E;
+}
+
+.sim-system-badge.vol {
+  background: #DCEBFA;
+  color: #12345B;
+}
+
+.sim-system-main-kpi {
+  font-size: 26px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 1200px) {
+  .sim-metrics-20-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  .sim-methodology-selector-bar {
+    grid-template-columns: 1fr;
+  }
+  .sim-metrics-20-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sim-comparison-dual-cards {
+    grid-template-columns: 1fr;
+  }
+  .sim-adv-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 
 
