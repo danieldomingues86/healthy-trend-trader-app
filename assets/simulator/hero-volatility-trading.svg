@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 260" fill="none">
+  <defs>
+    <linearGradient id="volBandGrad" x1="760" y1="30" x2="760" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2878C7" stop-opacity="0.16"/>
+      <stop offset="50%" stop-color="#DCEBFA" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#12345B" stop-opacity="0.18"/>
+    </linearGradient>
+    <linearGradient id="volWaveGrad" x1="380" y1="130" x2="1175" y2="130" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2878C7" stop-opacity="0.22"/>
+      <stop offset="55%" stop-color="#2878C7" stop-opacity="0.72"/>
+      <stop offset="100%" stop-color="#12345B" stop-opacity="0.92"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Subtle Horizontal Mean-Reversion Reference Grid -->
+  <g stroke="#2878C7" stroke-opacity="0.09" stroke-width="1">
+    <line x1="400" y1="45" x2="1180" y2="45" stroke-dasharray="3 6"/>
+    <line x1="400" y1="126" x2="1180" y2="126"/>
+    <line x1="400" y1="208" x2="1180" y2="208" stroke-dasharray="3 6"/>
+    <line x1="560" y1="20" x2="560" y2="240"/>
+    <line x1="760" y1="20" x2="760" y2="240"/>
+    <line x1="960" y1="20" x2="960" y2="240"/>
+  </g>
+
+  <!-- Volatility Envelope / Standard Deviation Band -->
+  <path d="M 380 86 Q 520 55, 650 82 T 910 74 T 1175 68 L 1175 198 Q 1030 220, 910 186 T 650 214 T 380 176 Z"
+        fill="url(#volBandGrad)"/>
+
+  <!-- Central Moving Average Equilibrium Line (SMA 7) -->
+  <path d="M 380 134 C 520 122, 650 140, 780 126 C 910 112, 1040 132, 1175 114"
+        stroke="#12345B" stroke-opacity="0.38" stroke-width="2.2" stroke-dasharray="8 5" fill="none"/>
+
+  <!-- Structural SMA 200 Baseline -->
+  <path d="M 380 228 C 640 222, 900 212, 1175 198"
+        stroke="#12345B" stroke-opacity="0.22" stroke-width="1.6" fill="none"/>
+
+  <!-- Oscillating Price Wave (Sharp Oversold Dips & Snap-Back Recoveries to SMA 7) -->
+  <path d="M 380 128 C 430 92, 470 96, 515 148 C 550 188, 575 204, 605 196 C 640 186, 665 118, 705 110 C 745 102, 775 145, 815 192 C 845 224, 875 218, 905 174 C 940 122, 970 96, 1010 104 C 1045 110, 1070 168, 1105 178 C 1135 186, 1155 128, 1175 106"
+        stroke="url(#volWaveGrad)" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+  <!-- Variable-Amplitude Candlesticks (Drops + Reversion Bounces) -->
+  <g opacity="0.44">
+    <!-- Cycle 1: Drop into oversold -->
+    <line x1="525" y1="128" x2="525" y2="168" stroke="#12345B" stroke-width="1.8"/>
+    <rect x="520" y="136" width="10" height="24" rx="2" fill="#12345B" fill-opacity="0.45"/>
+
+    <line x1="560" y1="154" x2="560" y2="198" stroke="#12345B" stroke-width="1.8"/>
+    <rect x="555" y="162" width="10" height="28" rx="2" fill="#12345B" fill-opacity="0.6"/>
+
+    <!-- Oversold Exhaustion Bar (IFR 2 <= 10) -->
+    <line x1="595" y1="176" x2="595" y2="216" stroke="#2878C7" stroke-width="2"/>
+    <rect x="590" y="184" width="10" height="22" rx="2" fill="#DCEBFA" stroke="#2878C7" stroke-width="1.5"/>
+
+    <!-- Snap-back Recovery to SMA 7 -->
+    <line x1="630" y1="142" x2="630" y2="190" stroke="#2878C7" stroke-width="2"/>
+    <rect x="625" y="148" width="10" height="32" rx="2" fill="#2878C7"/>
+
+    <line x1="665" y1="108" x2="665" y2="152" stroke="#2878C7" stroke-width="2"/>
+    <rect x="660" y="114" width="10" height="28" rx="2" fill="#2878C7"/>
+
+    <!-- Cycle 2: Sharp Pullback & Reversion -->
+    <line x1="785" y1="132" x2="785" y2="178" stroke="#12345B" stroke-width="1.8"/>
+    <rect x="780" y="140" width="10" height="28" rx="2" fill="#12345B" fill-opacity="0.5"/>
+
+    <line x1="820" y1="168" x2="820" y2="218" stroke="#12345B" stroke-width="1.8"/>
+    <rect x="815" y="176" width="10" height="32" rx="2" fill="#12345B" fill-opacity="0.65"/>
+
+    <!-- Deep Oversold Trigger Point -->
+    <line x1="855" y1="190" x2="855" y2="230" stroke="#2878C7" stroke-width="2"/>
+    <rect x="850" y="198" width="10" height="22" rx="2" fill="#DCEBFA" stroke="#2878C7" stroke-width="1.6"/>
+
+    <!-- Mean Reversion Surge -->
+    <line x1="890" y1="148" x2="890" y2="202" stroke="#2878C7" stroke-width="2"/>
+    <rect x="885" y="156" width="10" height="36" rx="2" fill="#2878C7"/>
+
+    <line x1="925" y1="112" x2="925" y2="160" stroke="#2878C7" stroke-width="2"/>
+    <rect x="920" y="118" width="10" height="32" rx="2" fill="#2878C7"/>
+
+    <line x1="960" y1="92" x2="960" y2="132" stroke="#12345B" stroke-width="2"/>
+    <rect x="955" y="98" width="10" height="22" rx="2" fill="#12345B"/>
+
+    <!-- Cycle 3: Quick Dip & Recovery -->
+    <line x1="1070" y1="138" x2="1070" y2="182" stroke="#12345B" stroke-width="1.8"/>
+    <rect x="1065" y="146" width="10" height="26" rx="2" fill="#12345B" fill-opacity="0.5"/>
+
+    <line x1="1105" y1="154" x2="1105" y2="194" stroke="#2878C7" stroke-width="2"/>
+    <rect x="1100" y="162" width="10" height="20" rx="2" fill="#DCEBFA" stroke="#2878C7" stroke-width="1.5"/>
+
+    <line x1="1140" y1="112" x2="1140" y2="164" stroke="#2878C7" stroke-width="2"/>
+    <rect x="1135" y="118" width="10" height="36" rx="2" fill="#2878C7"/>
+  </g>
+
+  <!-- Oversold & Mean-Reversion Highlight Nodes -->
+  <g opacity="0.65">
+    <circle cx="595" cy="198" r="5" fill="#2878C7"/>
+    <circle cx="595" cy="198" r="11" stroke="#2878C7" stroke-width="1.5" stroke-dasharray="2 2"/>
+    <circle cx="665" cy="118" r="4.5" fill="#12345B"/>
+
+    <circle cx="855" cy="216" r="5.5" fill="#2878C7"/>
+    <circle cx="855" cy="216" r="12" stroke="#2878C7" stroke-width="1.5" stroke-dasharray="2 2"/>
+    <circle cx="960" cy="102" r="5" fill="#12345B"/>
+
+    <circle cx="1105" cy="178" r="5" fill="#2878C7"/>
+    <circle cx="1175" cy="106" r="6" fill="#12345B"/>
+  </g>
+</svg>

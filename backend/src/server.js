@@ -802,7 +802,7 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, result);
     }
     // Volatility Trading Simulator & Experiments (PASSO 7)
-    if (request.method === 'POST' && url.pathname === '/api/volatility/simulator/run') {
+    if (request.method === 'POST' && (url.pathname === '/api/volatility/simulator/run' || url.pathname === '/api/volatility-simulator/run')) {
       const user = await auth.session(bearer(request)).catch(() => null);
       const userId = user ? user.id : 'demo-user';
       const payload = await body(request);
@@ -818,12 +818,23 @@ const server = http.createServer(async (request, response) => {
         endDate: payload.endDate || payload.end_date,
         initialCapital: payload.initialCapital,
         fixedCapitalPerTrade: payload.fixedCapitalPerTrade,
+        positionSizingModel: payload.positionSizingModel,
+        equityPercentPerTrade: payload.equityPercentPerTrade,
+        exitExecutionTiming: payload.exitExecutionTiming,
+        rsFilterMode: payload.rsFilterMode,
+        financialRiskUnitMode: payload.financialRiskUnitMode,
+        financialRiskUnitValue: payload.financialRiskUnitValue,
+        extremeEventProtectionEnabled: payload.extremeEventProtectionEnabled,
+        maxConcurrentPositions: payload.maxConcurrentPositions,
+        minDailyLiquidity: payload.minDailyLiquidity,
+        liquidityWindowSessions: payload.liquidityWindowSessions,
+        minDailyTrades: payload.minDailyTrades,
         costsPerTrade: payload.costsPerTrade,
         slippagePct: payload.slippagePct
       });
       return send(response, 200, result);
     }
-    if (request.method === 'POST' && url.pathname === '/api/volatility/simulator/compare') {
+    if (request.method === 'POST' && (url.pathname === '/api/volatility/simulator/compare' || url.pathname === '/api/volatility-simulator/compare')) {
       const user = await auth.session(bearer(request)).catch(() => null);
       const userId = user ? user.id : 'demo-user';
       const payload = await body(request);
@@ -837,6 +848,17 @@ const server = http.createServer(async (request, response) => {
         endDate: payload.endDate || payload.end_date,
         initialCapital: payload.initialCapital,
         fixedCapitalPerTrade: payload.fixedCapitalPerTrade,
+        positionSizingModel: payload.positionSizingModel,
+        equityPercentPerTrade: payload.equityPercentPerTrade,
+        exitExecutionTiming: payload.exitExecutionTiming,
+        rsFilterMode: payload.rsFilterMode,
+        financialRiskUnitMode: payload.financialRiskUnitMode,
+        financialRiskUnitValue: payload.financialRiskUnitValue,
+        extremeEventProtectionEnabled: payload.extremeEventProtectionEnabled,
+        maxConcurrentPositions: payload.maxConcurrentPositions,
+        minDailyLiquidity: payload.minDailyLiquidity,
+        liquidityWindowSessions: payload.liquidityWindowSessions,
+        minDailyTrades: payload.minDailyTrades,
         costsPerTrade: payload.costsPerTrade,
         slippagePct: payload.slippagePct
       });

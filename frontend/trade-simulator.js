@@ -11,10 +11,47 @@
   const API_ENDPOINT = '/api/trade-simulations';
 
   const state = {
-    screenTab: 'summary', // 'summary' | 'trades' | 'assets' | 'setups' | 'timeline'
+    activeStrategyMode: 'TREND_FOLLOWING', // 'TREND_FOLLOWING' | 'VOLATILITY_TRADING' | 'SYSTEM_COMPARISON'
+    activeStrategy: 'TREND_FOLLOWING',
+    screenTab: 'summary', // 'summary' | 'trades' | 'assets' | 'setups' | 'timeline' | 'comparison'
     summaryView: 'financial', // 'financial' | 'statistical'
     initialCapital: 500000,
     tradeStatusFilter: 'ALL', // 'ALL' | 'GAIN' | 'LOSS' | 'BREAKEVEN'
+    volatilityState: {
+      loading: false,
+      loadingText: '',
+      universe: 'IBOV',
+      symbolFilter: 'ALL',
+      market: 'B3',
+      period: '120',
+      activeOversoldPreset: 10,
+      oversoldLevel: 10,
+      shortMaPeriod: 7,
+      longMaPeriod: 200,
+      rsiPeriod: 2,
+      holdingPeriodSessions: 7,
+      exitExecutionTiming: 'NEXT_OPEN', // 'NEXT_OPEN' | 'SAME_CLOSE'
+      positionSizingModel: 'FIXED_FINANCIAL', // 'FIXED_FINANCIAL' | 'EQUITY_PERCENT'
+      fixedCapitalPerTrade: 10000,
+      equityPercentPerTrade: 2.0,
+      maxConcurrentPositions: 10,
+      minDailyLiquidity: 500000,
+      liquidityWindowSessions: 21,
+      minDailyTrades: 500,
+      rsFilterMode: 'NONE', // 'NONE' | 'RS_POSITIVE' | 'RS_RISING'
+      financialRiskUnitMode: 'PERCENT_OF_POSITION', // 'PERCENT_OF_POSITION' | 'FIXED_CASH' | 'NONE'
+      financialRiskUnitValue: 5.0,
+      extremeEventProtectionEnabled: true,
+      costsPerTrade: 0,
+      slippagePct: 0.05,
+      tradeStatusFilter: 'ALL',
+      searchQuery: '',
+      summaryView: 'financial',
+      simulationResult: null,
+      comparisonResult: null,
+      rsComparisonResult: null,
+      selectedVolTradeId: null
+    },
     simulations: [],
     rejectedSimulations: [],
     loading: false,
@@ -1793,14 +1830,22 @@
     }
 
     const filtered = getFilteredSimulations();
+    const activeEnv = state.activeStrategyMode || 'TREND_FOLLOWING';
+    const pageSection = document.getElementById('tradesimulator');
+    if (pageSection) {
+      pageSection.setAttribute('data-sim-env', activeEnv);
+    }
+    rootEl.setAttribute('data-sim-env', activeEnv);
 
     rootEl.innerHTML = `
-      <div class="simulator-page env-official-mode sim-rebuild-layout">
+      <div class="simulator-page env-official-mode sim-rebuild-layout" data-sim-methodology="${activeEnv}">
+        ${renderMethodologySelectorBar()}
         ${renderHeader(scoped)}
         ${renderScreenTabs()}
         <div class="sim-screen-tab-content">
           ${renderActiveTabContent(state.screenTab, rubricReport, stats, filtered)}
         </div>
+        ${renderAdvancedConfigDrawer(scoped)}
         ${renderMassModal()}
         ${renderCompareModal()}
         ${renderHypothesisModal()}
@@ -1808,10 +1853,12 @@
         ${renderModal()}
         ${renderSnapshotModal()}
         ${renderExportModal()}
+        ${renderVolatilityTradeAuditModal()}
       </div>
     `;
 
     bindLocalEvents(rootEl);
+    bindMultiStrategyEvents(rootEl);
     if (root.RiskOfRuinController && typeof root.RiskOfRuinController.renderTradeSimulatorScenarioSection === 'function') {
       try { root.RiskOfRuinController.renderTradeSimulatorScenarioSection(); } catch (_) {}
     }
@@ -1823,15 +1870,21 @@
 
   /**
    * ==========================================================================
-   * REBUILD V5 — NAVEGAÇÃO POR ABAS E ATRIBUIÇÃO FINANCEIRA POR GRADE
+   * REBUILD V5 — NAVEGAÇÃO POR ABAS (4 ÁREAS PRINCIPAIS) E ATRIBUIÇÃO FINANCEIRA
    * ==========================================================================
    */
 
   function renderScreenTabs() {
+    const tab = state.screenTab || 'summary';
+    const isSummaryActive = tab === 'summary' || tab === 'comparison';
+    const isTradesActive = tab === 'trades';
+    const isAnalyticsActive = tab === 'analytics' || tab === 'assets' || tab === 'setups';
+    const isTimelineActive = tab === 'timeline';
+
     return `
       <nav class="sim-screen-tabs-container" aria-label="Navegação das Abas do Simulador">
         <div class="sim-screen-tabs-bar" role="tablist">
-          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'summary' ? 'active' : ''}" data-screen-tab="summary" role="tab" aria-selected="${state.screenTab === 'summary'}">
+          <button type="button" class="sim-screen-tab-btn ${isSummaryActive ? 'active' : ''}" data-screen-tab="summary" role="tab" aria-selected="${isSummaryActive}">
             <span class="sim-tab-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -1839,9 +1892,9 @@
                 <line x1="6" y1="20" x2="6" y2="14"></line>
               </svg>
             </span>
-            <span class="sim-tab-label">Resumo</span>
+            <span class="sim-tab-label">Visão Geral</span>
           </button>
-          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'trades' ? 'active' : ''}" data-screen-tab="trades" role="tab" aria-selected="${state.screenTab === 'trades'}">
+          <button type="button" class="sim-screen-tab-btn ${isTradesActive ? 'active' : ''}" data-screen-tab="trades" role="tab" aria-selected="${isTradesActive}">
             <span class="sim-tab-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -1851,17 +1904,9 @@
                 <polyline points="10 9 9 9 8 9"></polyline>
               </svg>
             </span>
-            <span class="sim-tab-label">Lista de Trades</span>
+            <span class="sim-tab-label">Trades</span>
           </button>
-          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'assets' ? 'active' : ''}" data-screen-tab="assets" role="tab" aria-selected="${state.screenTab === 'assets'}">
-            <span class="sim-tab-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-              </svg>
-            </span>
-            <span class="sim-tab-label">Análise por Ativo</span>
-          </button>
-          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'setups' ? 'active' : ''}" data-screen-tab="setups" role="tab" aria-selected="${state.screenTab === 'setups'}">
+          <button type="button" class="sim-screen-tab-btn ${isAnalyticsActive ? 'active' : ''}" data-screen-tab="analytics" role="tab" aria-selected="${isAnalyticsActive}">
             <span class="sim-tab-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -1869,30 +1914,72 @@
                 <circle cx="12" cy="12" r="2"></circle>
               </svg>
             </span>
-            <span class="sim-tab-label">Análise por Gatilho</span>
+            <span class="sim-tab-label">Análises</span>
           </button>
-          <button type="button" class="sim-screen-tab-btn ${state.screenTab === 'timeline' ? 'active' : ''}" data-screen-tab="timeline" role="tab" aria-selected="${state.screenTab === 'timeline'}">
+          <button type="button" class="sim-screen-tab-btn ${isTimelineActive ? 'active' : ''}" data-screen-tab="timeline" role="tab" aria-selected="${isTimelineActive}">
             <span class="sim-tab-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
             </span>
-            <span class="sim-tab-label">Evolução no Tempo</span>
+            <span class="sim-tab-label">Evolução</span>
           </button>
         </div>
       </nav>
     `;
   }
 
+  function renderAnalyticsGroupedTab(rubricReport, stats) {
+    const isVol = state.activeStrategyMode === 'VOLATILITY_TRADING';
+    const subTab = state.analyticsSubTab || (state.screenTab === 'setups' ? 'setups' : 'assets');
+    const bodyHtml = subTab === 'setups'
+      ? (isVol ? renderVolatilitySetupAnalysisTab() : renderSetupAnalysisTab(rubricReport, stats))
+      : (isVol ? renderVolatilityAssetAnalysisTab() : renderAssetAnalysisTab(rubricReport, stats));
+
+    return `
+      <div class="sim-analytics-grouped-wrap">
+        <div class="sim-analytics-subnav-bar" role="tablist" aria-label="Subáreas de Análises">
+          <button type="button" class="sim-analytics-subnav-btn ${subTab === 'assets' ? 'active' : ''}" data-analytics-subtab="assets">
+            <span>📈 Análise por Ativo</span>
+          </button>
+          <button type="button" class="sim-analytics-subnav-btn ${subTab === 'setups' ? 'active' : ''}" data-analytics-subtab="setups">
+            <span>🎯 ${isVol ? 'Análise por Gatilho & Parâmetros (IFR 2 / RS)' : 'Análise por Gatilho'}</span>
+          </button>
+        </div>
+        <div class="sim-analytics-subnav-content">
+          ${bodyHtml}
+        </div>
+      </div>
+    `;
+  }
+
   function renderActiveTabContent(screenTab, rubricReport, stats, filteredTrades) {
+    if (screenTab === 'comparison' || (state.activeStrategyMode === 'SYSTEM_COMPARISON' && (!screenTab || screenTab === 'summary' || screenTab === 'comparison'))) {
+      return renderStrategyComparisonTab(rubricReport, stats, filteredTrades);
+    }
+
+    if (screenTab === 'analytics' || screenTab === 'assets' || screenTab === 'setups') {
+      if (screenTab === 'assets') state.analyticsSubTab = 'assets';
+      if (screenTab === 'setups') state.analyticsSubTab = 'setups';
+      return renderAnalyticsGroupedTab(rubricReport, stats);
+    }
+
+    if (state.activeStrategyMode === 'VOLATILITY_TRADING') {
+      switch (screenTab) {
+        case 'trades':
+          return renderVolatilityTradesListTab();
+        case 'timeline':
+          return renderVolatilityTimelineTab();
+        case 'summary':
+        default:
+          return renderVolatilitySummaryTab();
+      }
+    }
+
     switch (screenTab) {
       case 'trades':
         return renderTradesListTab(rubricReport, filteredTrades, stats);
-      case 'assets':
-        return renderAssetAnalysisTab(rubricReport, stats);
-      case 'setups':
-        return renderSetupAnalysisTab(rubricReport, stats);
       case 'timeline':
         return renderTimelineTab(rubricReport, stats);
       case 'summary':
@@ -2866,6 +2953,12 @@
 
 
   function renderHeader(scoped) {
+    if (state.activeStrategyMode === 'VOLATILITY_TRADING') {
+      return renderVolatilityHeader();
+    }
+    if (state.activeStrategyMode === 'SYSTEM_COMPARISON') {
+      return renderSystemComparisonHeader();
+    }
     let daysLabel = 'Últimos 120 dias (4 meses)';
     if (state.filters.days === 30) daysLabel = 'Últimos 30 dias';
     else if (state.filters.days === 90) daysLabel = 'Últimos 90 dias';
@@ -2904,26 +2997,37 @@
     const formattedCapital = `R$ ${formatMoney(state.initialCapital || 500000).replace('R$ ', '')}`;
 
     return `
-      <div class="sim-header sim-rebuild-header">
+      <div class="sim-header sim-rebuild-header sim-env-hero-header env-trend-hero">
+        <div class="sim-hero-art-bg" aria-hidden="true"></div>
         <div class="sim-header-titles">
           <div class="sim-title-row">
             <h1>Simulador de Trades</h1>
-            <button type="button" class="sim-rubric-pill-btn ${state.rubricMode ? 'active' : 'inactive'}" id="simBtnRubricModeToggle" title="Alternar Modo Rubric: aplica Trading Rubric, Bet Sizing e limites da Política de Risco">
+            <span class="sim-env-identity-badge env-badge-trend">
               <span class="pill-dot"></span>
-              <span>Modo Rubric ${state.rubricMode ? 'Ativado' : 'Desativado'}</span>
-            </button>
+              <span>Trend Following</span>
+            </span>
             <button type="button" class="sim-audit-status-pill ${isConsistent ? 'consistent' : 'inconsistent'}" id="simBtnAuditModal" title="Abrir Relatório de Auditoria e Consistência dos Dados">
               <span>${isConsistent ? '🛡️ Auditoria: 100% Consistente' : `⚠️ Auditoria: ${invalidCount} inconsistência(s)`}</span>
             </button>
           </div>
-          <p class="sim-header-sub">Simule suas estratégias com base em dados históricos usando os mesmos gatilhos, regras de risco e posição do seu método.</p>
+          <p class="sim-header-sub">Acompanhamento sistemático de tendências com validação de contexto, qualidade de oportunidade e gestão de risco.</p>
+          <div class="sim-active-config-summary" aria-label="Configuração ativa da simulação">
+            <span class="sim-active-config-chip">Gatilhos: <strong>${escapeHtml(triggerLabel)}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">EMA 10 &amp; EMA 72</span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Modo Rubric <strong>${state.rubricMode ? 'Ativado' : 'Desativado'}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Liquidez ≥ R$ 500k/dia</span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Proteção Eventos Extremos</span>
+          </div>
         </div>
 
-        <!-- Zona de Controles e Ações alinhada à Direita em 2 Linhas Otimizadas -->
+        <!-- Barra Principal Simplificada: Apenas Controles Essenciais + Configurações + Mais Ações -->
         <div class="sim-header-right-zone">
-          <!-- Linha 1: Filtros de Dados e Capital Inicial -->
-          <div class="sim-header-filters-row sim-header-controls-row">
-            <!-- Dropdown Período -->
+          <div class="sim-header-filters-row sim-header-controls-row sim-header-essential-bar">
+            <!-- 1. Período Histórico -->
             <div class="sim-control-select-wrap">
               <select class="sim-header-select" id="simFilterPeriod" title="Filtrar por período histórico">
                 <option value="30" ${state.filters.days === 30 ? 'selected' : ''}>Últimos 30 dias</option>
@@ -2937,103 +3041,72 @@
               </select>
             </div>
 
-            <!-- Dropdown Ativo -->
+            <!-- 2. Universo de Ativos -->
             <div class="sim-control-select-wrap">
-              <select class="sim-header-select" id="simFilterSymbol" title="Filtrar por ativo específico">
-                <option value="ALL" ${state.filters.symbol === 'ALL' ? 'selected' : ''}>Todos os ativos</option>
+              <select class="sim-header-select" id="simFilterSymbol" title="Universo de ativos">
+                <option value="ALL" ${state.filters.symbol === 'ALL' ? 'selected' : ''}>Todos os ativos (B3)</option>
                 ${symbolOptionsHtml}
               </select>
             </div>
 
-            <!-- Dropdown Gatilho -->
-            <div class="sim-control-select-wrap">
-              <select class="sim-header-select" id="simFilterTrigger" title="Filtrar por gatilho operacional">
-                <option value="ALL" ${state.filters.trigger === 'ALL' ? 'selected' : ''}>Todos os gatilhos</option>
-                <option value="Inside Bar" ${state.filters.trigger === 'Inside Bar' ? 'selected' : ''}>Inside Bar</option>
-                <option value="1-2-3 de Compra" ${state.filters.trigger === '1-2-3 de Compra' ? 'selected' : ''}>1-2-3 de Compra</option>
-                <option value="PFR de Compra" ${state.filters.trigger === 'PFR de Compra' ? 'selected' : ''}>PFR de Compra</option>
-                <option value="Barra Vermelha Ignorada" ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'RBI') ? 'selected' : ''}>Barra Vermelha Ignorada</option>
-                <option value="Outros" ${state.filters.trigger === 'Outros' ? 'selected' : ''}>Outros</option>
-              </select>
-            </div>
-
-            <!-- Input Capital Inicial da Simulação -->
+            <!-- 3. Capital Inicial -->
             <div class="sim-capital-control-wrap">
               <span class="sim-control-label">Capital inicial</span>
               <div class="sim-capital-input-box">
                 <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" title="Definir capital de referência para simulação financeira" />
               </div>
             </div>
-          </div>
 
-          <!-- Linha 2: Ações Principais e Secundárias com Hierarquia Clara -->
-          <div class="sim-header-actions-row sim-header-actions-group">
-            <!-- 1. Executar Simulação (Ação Principal) -->
-            <button type="button" id="simBtnExecute" class="sim-btn-execute" title="Executar simulação com os filtros e capital selecionados">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-              <span>Executar Simulação</span>
-            </button>
-
-            <!-- 2. Comparar Cenários (Ação Secundária Diretamente Visível) -->
-            <button type="button" id="simBtnCompareModal" class="sim-btn-header-secondary" title="Comparar cenários de gestão na mesma amostra de trades">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10"></line>
-                <line x1="12" y1="20" x2="12" y2="4"></line>
-                <line x1="6" y1="20" x2="6" y2="14"></line>
-              </svg>
-              <span>Comparar Cenários</span>
-            </button>
-
-            <!-- 3. Gerar Massa de Teste (Ação Secundária Diretamente Visível) -->
-            <button type="button" id="simBtnMassModal" class="sim-btn-header-secondary" title="Configurar e gerar massa de testes em escala">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-              </svg>
-              <span>Gerar Massa de Teste</span>
-            </button>
-
-            <!-- 4. Reavaliar Candles (Ação Direta na Tela) -->
-            <button type="button" id="simBtnEvaluateCandles" class="sim-btn-header-secondary" title="Reavaliar e reprocessar as simulações existentes utilizando candles disponíveis">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-              </svg>
-              <span>Reavaliar Candles</span>
-            </button>
-
-            <!-- 5. Excluir Massa Atual (Ação Direta na Tela) -->
-            <button type="button" id="simBtnClearMass" class="sim-btn-header-secondary sim-btn-header-danger" title="Excluir todas as simulações carregadas">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                <line x1="10" y1="11" x2="10" y2="17"></line>
-                <line x1="14" y1="11" x2="14" y2="17"></line>
-              </svg>
-              <span>Excluir Massa Atual</span>
-            </button>
-
-            <!-- 4. Menu Mais Opções (···) com Dropdown para Ações Administrativas e Menos Frequentes -->
-            <div class="sim-filter-select-wrap">
-              <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais opções: Auditoria, Reavaliar Candles, Exportação e Exclusão">
-                <span>···</span>
+            <!-- 4. Botão Principal: Executar Simulação -->
+            <div class="sim-header-actions-row sim-header-actions-group">
+              <button type="button" id="simBtnExecute" class="sim-btn-execute" title="Executar simulação com os filtros e capital selecionados">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span>Executar Simulação</span>
               </button>
-              <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
-                <button class="sim-dropdown-item" type="button" id="simMoreBtnAudit">
-                  <span>🛡️</span> <span>Relatório de Auditoria</span>
+
+              <!-- 5. Botão Configurações Avançadas -->
+              <button type="button" id="simBtnOpenAdvConfig" class="sim-btn-header-secondary sim-btn-adv-config" title="Abrir Configurações Avançadas da Estratégia">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>Configurações</span>
+              </button>
+
+              <!-- 6. Menu Mais Ações (···) -->
+              <div class="sim-filter-select-wrap">
+                <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais ações: Comparar Cenários, Gerar Massa, Reavaliar Candles, Exportar e Excluir">
+                  <span>⋯</span>
                 </button>
-                <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate">
-                  <span>↻</span> <span>Reavaliar Candles</span>
-                </button>
-                <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
-                  <span>📥</span> <span>Exportar Simulação</span>
-                </button>
-                <div class="sim-dropdown-divider"></div>
-                <button class="sim-dropdown-item danger" type="button" id="simMoreBtnClear">
-                  <span>🗑️</span> <span>Excluir Simulações</span>
-                </button>
+                <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
+                  <button class="sim-dropdown-item sim-btn-header-secondary" type="button" id="simBtnCompareModal">
+                    <span>📊</span> <span>Comparar Cenários</span>
+                  </button>
+                  <button class="sim-dropdown-item sim-btn-header-secondary" type="button" id="simBtnMassModal">
+                    <span>⚡</span> <span>Gerar Massa de Teste</span>
+                  </button>
+                  <button class="sim-dropdown-item sim-btn-header-secondary" type="button" id="simBtnEvaluateCandles">
+                    <span>↻</span> <span>Reavaliar Candles</span>
+                  </button>
+                  <button class="sim-dropdown-item" type="button" id="simMoreBtnAudit">
+                    <span>🛡️</span> <span>Relatório de Auditoria</span>
+                  </button>
+                  <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
+                    <span>📥</span> <span>Exportar Simulação</span>
+                  </button>
+                  <button class="sim-dropdown-item" type="button" id="simMoreBtnEvaluate" style="display:none;">
+                    <span>↻</span> <span>Reavaliar Candles</span>
+                  </button>
+                  <div class="sim-dropdown-divider"></div>
+                  <button class="sim-dropdown-item danger sim-btn-header-secondary sim-btn-header-danger" type="button" id="simBtnClearMass">
+                    <span>🗑️</span> <span>Excluir Massa Atual</span>
+                  </button>
+                  <button class="sim-dropdown-item danger" type="button" id="simMoreBtnClear" style="display:none;">
+                    <span>🗑️</span> <span>Excluir Simulações</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -8314,58 +8387,274 @@
 
 
   // =========================================================================
-  // PASSO 7 — VOLATILITY TRADING SIMULATOR LOGIC & RENDERING
+  // ARQUITETURA MULTI-STRATEGY: TREND FOLLOWING + VOLATILITY TRADING + COMPARAÇÃO
   // =========================================================================
 
-  function setSimulatorStrategy(strat) {
-    if (state.activeStrategy === strat) return;
-    state.activeStrategy = strat;
-    if (state.massConfig) state.massConfig.strategy = strat;
-    if (strat === 'VOLATILITY_TRADING' && !state.volatilityState?.simulationResult) {
-      executeVolatilitySimulation();
-    } else {
-      render();
+  function buildFallbackVolatilityCandlesMap() {
+    const tickers = [
+      { symbol: 'PETR4', name: 'Petrobras PN', sector: 'Petróleo e Gás', base: 34.0, seed: 1 },
+      { symbol: 'VALE3', name: 'Vale ON', sector: 'Mineração', base: 62.0, seed: 2 },
+      { symbol: 'ITUB4', name: 'Itaú Unibanco PN', sector: 'Financeiro', base: 32.0, seed: 3 },
+      { symbol: 'WEGE3', name: 'WEG ON', sector: 'Bens Industriais', base: 40.0, seed: 4 },
+      { symbol: 'BBAS3', name: 'Banco do Brasil ON', sector: 'Financeiro', base: 27.5, seed: 5 },
+      { symbol: 'PRIO3', name: 'PRIO ON', sector: 'Petróleo e Gás', base: 44.0, seed: 6 },
+      { symbol: 'RENT3', name: 'Localiza ON', sector: 'Consumo Cíclico', base: 48.0, seed: 7 },
+      { symbol: 'B3SA3', name: 'B3 ON', sector: 'Financeiro', base: 12.5, seed: 8 },
+      { symbol: 'RADL3', name: 'RaiaDrogasil ON', sector: 'Saúde', base: 26.0, seed: 9 },
+      { symbol: 'EQTL3', name: 'Equatorial ON', sector: 'Utilidade Pública', base: 31.0, seed: 10 }
+    ];
+
+    const map = new Map();
+    const totalDays = 320;
+    const startMs = Date.UTC(2025, 6, 1);
+
+    for (const tk of tickers) {
+      const candles = [];
+      let p = tk.base;
+      let curMs = startMs;
+
+      for (let i = 0; i < totalDays; i++) {
+        // Avança apenas dias úteis
+        const dt = new Date(curMs);
+        while (dt.getUTCDay() === 0 || dt.getUTCDay() === 6) {
+          curMs += 86400000;
+          dt.setTime(curMs);
+        }
+        const dateStr = dt.toISOString().slice(0, 10);
+        curMs += 86400000;
+
+        // Tendência estrutural ascendente (acima da SMA200) com pullbacks agudos periódicos (IFR2 <= 10)
+        const cyclePos = (i + tk.seed * 7) % 19;
+        let deltaPct = 0.0028;
+        if (i >= 200 && (cyclePos === 0 || cyclePos === 1)) {
+          deltaPct = -0.024 - (tk.seed % 3) * 0.004; // Pullback agudo de 2 dias
+        } else if (i >= 200 && (cyclePos === 2 || cyclePos === 3)) {
+          deltaPct = 0.019 + (tk.seed % 2) * 0.004; // Recuperação rápida acima da SMA7
+        } else {
+          deltaPct = 0.0022 + Math.sin(i * 0.17 + tk.seed) * 0.003;
+        }
+
+        const prevClose = p;
+        const gapPct = ((i + tk.seed) % 5 === 0) ? 0.0025 : -0.0015;
+        const open = Number((prevClose * (1 + gapPct)).toFixed(2));
+        const close = Number(Math.max(2, prevClose * (1 + deltaPct)).toFixed(2));
+        const high = Number((Math.max(open, close) * 1.009).toFixed(2));
+        const low = Number((Math.min(open, close) * 0.991).toFixed(2));
+        p = close;
+
+        candles.push({
+          time: dateStr,
+          open,
+          high,
+          low,
+          close,
+          volume: 4500000 + tk.seed * 350000,
+          trades: 850 + tk.seed * 45,
+          name: tk.name,
+          sector: tk.sector
+        });
+      }
+
+      map.set(tk.symbol, {
+        candles,
+        name: tk.name,
+        sector: tk.sector,
+        market: 'B3'
+      });
     }
+
+    return map;
+  }
+
+  function ensureVolatilitySimulationLoaded() {
+    const vState = state.volatilityState;
+    if (!vState.simulationResult && !vState.loading) {
+      // Inicializa síncrono com fallback determinístico imediatamente e dispara atualização assíncrona no backend
+      if (root.VolatilityTradeSimulatorModel) {
+        const fallbackMap = buildFallbackVolatilityCandlesMap();
+        const baseOpts = buildVolatilitySimulationOptions();
+        vState.simulationResult = root.VolatilityTradeSimulatorModel.simulateUniverse(fallbackMap, baseOpts);
+        vState.comparisonResult = root.VolatilityTradeSimulatorModel.compareExperiments(fallbackMap, null, baseOpts);
+        if (root.VolatilityTradeSimulatorModel.RS_EXPERIMENT_PRESETS) {
+          vState.rsComparisonResult = root.VolatilityTradeSimulatorModel.compareExperiments(
+            fallbackMap,
+            root.VolatilityTradeSimulatorModel.RS_EXPERIMENT_PRESETS.map(p => ({ ...p, oversoldLevel: vState.oversoldLevel })),
+            baseOpts
+          );
+        }
+      }
+      executeVolatilitySimulation({ silent: true });
+    }
+  }
+
+  function buildVolatilitySimulationOptions(customOpts = {}) {
+    const vState = state.volatilityState;
+    const periodVal = customOpts.period !== undefined
+      ? String(customOpts.period)
+      : String(state.filters.days || vState.period || '120');
+    const oversoldVal = customOpts.oversoldLevel !== undefined
+      ? Number(customOpts.oversoldLevel)
+      : Number(vState.oversoldLevel || vState.activeOversoldPreset || 10);
+
+    return {
+      universe: customOpts.universe || vState.universe || 'IBOV',
+      market: customOpts.market || vState.market || 'B3',
+      period: periodVal,
+      oversoldLevel: oversoldVal,
+      shortMaPeriod: Number(customOpts.shortMaPeriod || vState.shortMaPeriod || 7),
+      longMaPeriod: Number(customOpts.longMaPeriod || vState.longMaPeriod || 200),
+      rsiPeriod: Number(customOpts.rsiPeriod || vState.rsiPeriod || 2),
+      holdingPeriodSessions: Number(customOpts.holdingPeriodSessions || vState.holdingPeriodSessions || 7),
+      exitExecutionTiming: customOpts.exitExecutionTiming || vState.exitExecutionTiming || 'NEXT_OPEN',
+      positionSizingModel: customOpts.positionSizingModel || vState.positionSizingModel || 'FIXED_FINANCIAL',
+      fixedCapitalPerTrade: Number(customOpts.fixedCapitalPerTrade || vState.fixedCapitalPerTrade || 10000),
+      equityPercentPerTrade: Number(customOpts.equityPercentPerTrade || vState.equityPercentPerTrade || 2.0),
+      initialCapital: Math.max(1000, Number(state.initialCapital || 500000)),
+      maxConcurrentPositions: Number(customOpts.maxConcurrentPositions || vState.maxConcurrentPositions || 10),
+      minDailyLiquidity: Number(customOpts.minDailyLiquidity || vState.minDailyLiquidity || 500000),
+      liquidityWindowSessions: Number(customOpts.liquidityWindowSessions || vState.liquidityWindowSessions || 21),
+      minDailyTrades: Number(customOpts.minDailyTrades || vState.minDailyTrades || 500),
+      rsFilterMode: customOpts.rsFilterMode || vState.rsFilterMode || 'NONE',
+      financialRiskUnitMode: customOpts.financialRiskUnitMode || vState.financialRiskUnitMode || 'PERCENT_OF_POSITION',
+      financialRiskUnitValue: Number(customOpts.financialRiskUnitValue !== undefined ? customOpts.financialRiskUnitValue : vState.financialRiskUnitValue || 5.0),
+      extremeEventProtectionEnabled: customOpts.extremeEventProtectionEnabled !== undefined
+        ? Boolean(customOpts.extremeEventProtectionEnabled)
+        : (vState.extremeEventProtectionEnabled !== false),
+      costsPerTrade: Number(customOpts.costsPerTrade !== undefined ? customOpts.costsPerTrade : (vState.costsPerTrade || 0)),
+      slippagePct: Number(customOpts.slippagePct !== undefined ? customOpts.slippagePct : (vState.slippagePct ?? 0.05)),
+      symbols: (vState.symbolFilter && vState.symbolFilter !== 'ALL') ? [vState.symbolFilter] : null
+    };
+  }
+
+  function setSimulatorStrategy(mode) {
+    const normalizedMode = (mode === 'VOLATILITY_TRADING' || mode === 'SYSTEM_COMPARISON')
+      ? mode
+      : 'TREND_FOLLOWING';
+
+    state.activeStrategyMode = normalizedMode;
+    state.activeStrategy = normalizedMode === 'VOLATILITY_TRADING' ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
+    if (state.massConfig) {
+      state.massConfig.strategy = state.activeStrategy;
+    }
+
+    if (normalizedMode === 'SYSTEM_COMPARISON') {
+      state.screenTab = 'summary';
+      ensureVolatilitySimulationLoaded();
+    } else if (normalizedMode === 'VOLATILITY_TRADING') {
+      if (state.screenTab === 'comparison') {
+        state.screenTab = 'summary';
+      }
+      ensureVolatilitySimulationLoaded();
+    } else {
+      if (state.screenTab === 'comparison') {
+        state.screenTab = 'summary';
+      }
+    }
+
+    render();
   }
 
   async function executeVolatilitySimulation(customOpts = {}) {
     const vState = state.volatilityState;
-    vState.loading = true;
-    vState.loadingText = 'Executando simulação de universo em escala...';
-    render();
+    const opts = buildVolatilitySimulationOptions(customOpts);
+    vState.period = String(opts.period);
+    vState.oversoldLevel = opts.oversoldLevel;
+    vState.activeOversoldPreset = opts.oversoldLevel;
+
+    if (!customOpts.silent) {
+      vState.loading = true;
+      render();
+    }
 
     try {
       const payload = {
-        universe: customOpts.universe || vState.universe || 'IBOV',
-        market: customOpts.market || vState.market || 'B3',
-        period: customOpts.period || vState.period || '120',
-        profileId: customOpts.profileId || vState.activeProfileId,
+        ...opts,
         parameters: {
-          oversoldLevel: customOpts.oversoldLevel !== undefined ? customOpts.oversoldLevel : vState.activeOversoldPreset,
-          fixedCapitalPerTrade: vState.fixedCapitalPerTrade || 10000,
-          initialCapital: vState.initialCapital || 100000
+          oversoldLevel: opts.oversoldLevel,
+          shortMaPeriod: opts.shortMaPeriod,
+          longMaPeriod: opts.longMaPeriod,
+          rsiPeriod: opts.rsiPeriod,
+          holdingPeriodSessions: opts.holdingPeriodSessions,
+          exitExecutionTiming: opts.exitExecutionTiming,
+          positionSizingModel: opts.positionSizingModel,
+          fixedCapitalPerTrade: opts.fixedCapitalPerTrade,
+          equityPercentPerTrade: opts.equityPercentPerTrade,
+          initialCapital: opts.initialCapital,
+          maxConcurrentPositions: opts.maxConcurrentPositions,
+          minDailyLiquidity: opts.minDailyLiquidity,
+          liquidityWindowSessions: opts.liquidityWindowSessions,
+          minDailyTrades: opts.minDailyTrades,
+          rsFilterMode: opts.rsFilterMode,
+          financialRiskUnitMode: opts.financialRiskUnitMode,
+          financialRiskUnitValue: opts.financialRiskUnitValue,
+          extremeEventProtectionEnabled: opts.extremeEventProtectionEnabled,
+          costsPerTrade: opts.costsPerTrade,
+          slippagePct: opts.slippagePct
         }
       };
 
       let result = null;
+      let comparison = null;
+      let rsComparison = null;
+
       if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
-        result = await window.healthyTrendApi.request('/api/volatility/simulator/run', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        }).catch(() => null);
+        const [runRes, cmpRes] = await Promise.all([
+          window.healthyTrendApi.request('/api/volatility/simulator/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).catch(() => null),
+          window.healthyTrendApi.request('/api/volatility/simulator/compare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).catch(() => null)
+        ]);
+        if (runRes && runRes.metrics && Array.isArray(runRes.trades) && runRes.trades.length > 0 && Array.isArray(runRes.exitBreakdownTable) && runRes.metrics.totalReturnPct !== undefined) {
+          result = runRes;
+        }
+        if (cmpRes && Array.isArray(cmpRes.results) && cmpRes.results.length > 0 && cmpRes.results[0].winRatePct !== undefined) {
+          comparison = cmpRes;
+        }
+        if (root.VolatilityTradeSimulatorModel?.RS_EXPERIMENT_PRESETS) {
+          const rsRes = await window.healthyTrendApi.request('/api/volatility/simulator/compare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...payload,
+              variants: root.VolatilityTradeSimulatorModel.RS_EXPERIMENT_PRESETS.map(p => ({
+                ...p,
+                oversoldLevel: opts.oversoldLevel
+              }))
+            })
+          }).catch(() => null);
+          if (rsRes && Array.isArray(rsRes.results) && rsRes.results.length > 0 && rsRes.results[0].winRatePct !== undefined) {
+            rsComparison = rsRes;
+          }
+        }
       }
 
+      const fallbackMap = buildFallbackVolatilityCandlesMap();
       if (!result && root.VolatilityTradeSimulatorModel) {
-        result = root.VolatilityTradeSimulatorModel.simulateUniverse(new Map(), {
-          universe: payload.universe,
-          period: payload.period,
-          oversoldLevel: payload.parameters.oversoldLevel
-        });
+        result = root.VolatilityTradeSimulatorModel.simulateUniverse(fallbackMap, opts);
+      }
+      if (!comparison && root.VolatilityTradeSimulatorModel) {
+        comparison = root.VolatilityTradeSimulatorModel.compareExperiments(fallbackMap, null, opts);
+      }
+      if (!rsComparison && root.VolatilityTradeSimulatorModel?.RS_EXPERIMENT_PRESETS) {
+        rsComparison = root.VolatilityTradeSimulatorModel.compareExperiments(
+          fallbackMap,
+          root.VolatilityTradeSimulatorModel.RS_EXPERIMENT_PRESETS.map(p => ({
+            ...p,
+            oversoldLevel: opts.oversoldLevel
+          })),
+          opts
+        );
       }
 
       vState.simulationResult = result;
-      vState.experimentMode = 'SINGLE';
+      vState.comparisonResult = comparison;
+      vState.rsComparisonResult = rsComparison;
     } catch (err) {
       console.error('Erro na simulação de volatilidade:', err);
     } finally {
@@ -8375,418 +8664,1868 @@
   }
 
   async function compareVolatilityProfiles() {
-    const vState = state.volatilityState;
-    vState.loading = true;
-    vState.loadingText = 'Comparando os 4 perfis de IFR(2) (níveis 5, 10, 15 e 20)...';
-    render();
-
-    try {
-      const payload = {
-        universe: vState.universe || 'IBOV',
-        market: vState.market || 'B3',
-        period: vState.period || '120',
-        initialCapital: vState.initialCapital || 100000,
-        fixedCapitalPerTrade: vState.fixedCapitalPerTrade || 10000
-      };
-
-      let comparison = null;
-      if (window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
-        comparison = await window.healthyTrendApi.request('/api/volatility/simulator/compare', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        }).catch(() => null);
-      }
-
-      if (!comparison && root.VolatilityTradeSimulatorModel) {
-        comparison = root.VolatilityTradeSimulatorModel.compareExperiments(new Map(), null, payload);
-      }
-
-      vState.comparisonResult = comparison;
-      vState.experimentMode = 'COMPARISON';
-      vState.screenTab = 'compare';
-    } catch (err) {
-      console.error('Erro ao comparar perfis de volatilidade:', err);
-    } finally {
-      vState.loading = false;
-      render();
-    }
+    state.activeStrategyMode = 'VOLATILITY_TRADING';
+    state.screenTab = 'analytics';
+    state.analyticsSubTab = 'setups';
+    await executeVolatilitySimulation();
   }
 
-  function renderVolatilitySimulator(rootEl) {
+  /**
+   * SEÇÃO 2 — SELETOR DE METODOLOGIA SIMPLIFICADO NO TOPO DO SIMULADOR DE TRADES
+   */
+  function renderMethodologySelectorBar() {
+    const mode = state.activeStrategyMode || 'TREND_FOLLOWING';
+    return `
+      <div class="sim-methodology-selector-bar" role="region" aria-label="Seletor de Metodologia do Simulador de Trades">
+        <button type="button" class="sim-method-card-btn mode-trend ${mode === 'TREND_FOLLOWING' ? 'active' : ''}" data-sim-methodology-btn="TREND_FOLLOWING" aria-pressed="${mode === 'TREND_FOLLOWING'}">
+          <span class="sim-method-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+          </span>
+          <span class="sim-method-texts">
+            <span class="sim-method-title">Trend Following</span>
+          </span>
+          <span class="sim-method-active-dot" aria-hidden="true"></span>
+        </button>
+
+        <button type="button" class="sim-method-card-btn mode-volatility ${mode === 'VOLATILITY_TRADING' ? 'active' : ''}" data-sim-methodology-btn="VOLATILITY_TRADING" aria-pressed="${mode === 'VOLATILITY_TRADING'}">
+          <span class="sim-method-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+          </span>
+          <span class="sim-method-texts">
+            <span class="sim-method-title">Volatility Trading</span>
+          </span>
+          <span class="sim-method-active-dot" aria-hidden="true"></span>
+        </button>
+
+        <button type="button" class="sim-method-card-btn mode-comparison ${mode === 'SYSTEM_COMPARISON' ? 'active' : ''}" data-sim-methodology-btn="SYSTEM_COMPARISON" aria-pressed="${mode === 'SYSTEM_COMPARISON'}">
+          <span class="sim-method-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+              <path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+              <path d="M7 21h10"></path>
+              <path d="M12 3v18"></path>
+              <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
+            </svg>
+          </span>
+          <span class="sim-method-texts">
+            <span class="sim-method-title">Comparação entre Sistemas</span>
+          </span>
+          <span class="sim-method-active-dot" aria-hidden="true"></span>
+        </button>
+      </div>
+    `;
+  }
+
+  /**
+   * CABEÇALHO DO AMBIENTE 02 — VOLATILITY TRADING (IDENTIDADE AZUL)
+   */
+  function renderVolatilityHeader() {
+    ensureVolatilitySimulationLoaded();
     const vState = state.volatilityState;
     const sim = vState.simulationResult;
-    const m = sim?.metrics || {
-      totalTrades: 0,
-      winningTrades: 0,
-      losingTrades: 0,
-      winRatePct: 0,
-      profitFactor: 0,
-      expectancyPct: 0,
-      expectancyAmount: 0,
-      avgTradeReturnPct: 0,
-      avgHoldingSessions: 0,
-      maxDrawdownPct: 0,
-      netProfit: 0,
-      sampleSizeAlert: false
-    };
+    const audit = (sim && root.VolatilityTradeSimulatorModel && typeof root.VolatilityTradeSimulatorModel.auditSimulationIntegrity === 'function')
+      ? root.VolatilityTradeSimulatorModel.auditSimulationIntegrity(sim)
+      : { isValid: true, issues: [] };
 
-    const isComparing = vState.screenTab === 'compare' && vState.comparisonResult;
+    const formattedCapital = `R$ ${formatMoney(state.initialCapital || 500000).replace('R$ ', '')}`;
+    const allocValFormatted = vState.positionSizingModel === 'EQUITY_PERCENT'
+      ? `${Number(vState.equityPercentPerTrade || 2).toFixed(1).replace('.', ',')}% do Patrimônio`
+      : `R$ ${formatMoney(vState.fixedCapitalPerTrade || 10000).replace('R$ ', '')}`;
+    const rsLabel = vState.rsFilterMode === 'RS_POSITIVE'
+      ? 'RS &gt; 0'
+      : (vState.rsFilterMode === 'RS_RISING' ? 'RS Crescente' : 'RS sem filtro');
+    const exitLabel = vState.exitExecutionTiming === 'SAME_CLOSE' ? 'Fechamento D0' : 'Próx. Pregão';
 
-    rootEl.innerHTML = `
-      <div class="vol-sim-container">
-        <!-- Cabeçalho de Volatilidade -->
-        <div class="vol-sim-header">
-          <div class="vol-sim-header-top">
-            <div class="vol-sim-title-group">
-              <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-                <h1>⚡ Simulador de Volatilidade — IFR2 Mean Reversion</h1>
-                <div class="sim-strat-toggle-group">
-                  <button type="button" class="sim-strat-toggle-btn ${state.activeStrategy === 'TREND_FOLLOWING' ? 'active' : ''}" data-sim-strat="TREND_FOLLOWING">
-                    <span>🌿 Trend Following</span>
+    return `
+      <div class="sim-header sim-rebuild-header sim-env-hero-header env-volatility-hero">
+        <div class="sim-hero-art-bg" aria-hidden="true"></div>
+        <div class="sim-header-titles">
+          <div class="sim-title-row">
+            <h1>Simulador de Trades</h1>
+            <span class="sim-env-identity-badge env-badge-volatility">
+              <span class="pill-dot"></span>
+              <span>Volatility Trading</span>
+            </span>
+            <span class="sim-audit-status-pill ${audit.isValid ? 'consistent' : 'inconsistent'}" title="Auditoria de Execução Sem Look-Ahead Bias (Timeframe Diário)">
+              <span>${audit.isValid ? '🛡️ Auditoria: 100% Sem Look-Ahead (Diário)' : `⚠️ Auditoria: ${audit.issues.length} alerta(s)`}</span>
+            </span>
+          </div>
+          <p class="sim-header-sub">Reversão à média em gráfico Diário: entrada em T+1 (Open) em exaustão de curto prazo e saída na recuperação da média curta ou limite temporal.</p>
+          <div class="sim-active-config-summary" aria-label="Configuração ativa da simulação">
+            <span class="sim-active-config-chip">IFR(${vState.rsiPeriod || 2}) ≤ <strong>${vState.oversoldLevel || 10}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">SMA${vState.shortMaPeriod || 7}</span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">SMA${vState.longMaPeriod || 200}</span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">${rsLabel}</span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Alocação: <strong>${allocValFormatted}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Saída: <strong>${exitLabel} (máx. ${vState.holdingPeriodSessions || 7}d)</strong></span>
+          </div>
+        </div>
+
+        <!-- Barra Principal Simplificada: Apenas Controles Essenciais + Configurações + Mais Ações -->
+        <div class="sim-header-right-zone">
+          <div class="sim-header-filters-row sim-header-controls-row sim-header-essential-bar">
+            <!-- 1. Período Histórico -->
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="volHeaderPeriod" title="Período histórico da simulação">
+                <option value="30" ${String(state.filters.days) === '30' ? 'selected' : ''}>Últimos 30 dias</option>
+                <option value="90" ${String(state.filters.days) === '90' ? 'selected' : ''}>Últimos 90 dias</option>
+                <option value="120" ${String(state.filters.days) === '120' ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
+                <option value="180" ${String(state.filters.days) === '180' ? 'selected' : ''}>Últimos 6 meses</option>
+                <option value="365" ${String(state.filters.days) === '365' ? 'selected' : ''}>Últimos 12 meses</option>
+                <option value="730" ${String(state.filters.days) === '730' ? 'selected' : ''}>Últimos 24 meses</option>
+                <option value="1095" ${String(state.filters.days) === '1095' ? 'selected' : ''}>Últimos 36 meses</option>
+                <option value="ALL" ${String(state.filters.days) === 'ALL' ? 'selected' : ''}>Todo o período</option>
+              </select>
+            </div>
+
+            <!-- 2. Universo de Ativos -->
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="volHeaderUniverse" title="Universo de ativos monitorados">
+                <option value="IBOV" ${vState.universe === 'IBOV' ? 'selected' : ''}>Universo IBOV (B3)</option>
+                <option value="LIQUID_B3" ${vState.universe === 'LIQUID_B3' ? 'selected' : ''}>B3 Líquidas</option>
+                <option value="ALL_B3" ${vState.universe === 'ALL_B3' ? 'selected' : ''}>Todas B3</option>
+                <option value="NASDAQ" ${vState.universe === 'NASDAQ' ? 'selected' : ''}>Nasdaq / BDRs</option>
+              </select>
+            </div>
+
+            <!-- 3. Capital Inicial -->
+            <div class="sim-capital-control-wrap">
+              <span class="sim-control-label">Capital inicial</span>
+              <div class="sim-capital-input-box">
+                <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" title="Capital inicial do portfólio" />
+              </div>
+            </div>
+
+            <!-- 4. Botão Principal: Executar Simulação + Configurações + Mais Ações -->
+            <div class="sim-header-actions-row sim-header-actions-group">
+              <button type="button" id="volBtnExecuteHeader" class="sim-btn-execute" title="Executar simulação do Volatility Trading">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span>${vState.loading ? 'Processando...' : 'Executar Simulação'}</span>
+              </button>
+
+              <!-- 5. Botão Configurações Avançadas -->
+              <button type="button" id="simBtnOpenAdvConfig" class="sim-btn-header-secondary sim-btn-adv-config" title="Abrir Configurações Avançadas do Volatility Trading">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>Configurações</span>
+              </button>
+
+              <!-- 6. Menu Mais Ações (···) -->
+              <div class="sim-filter-select-wrap">
+                <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais ações: Experimentos IFR(2) & RS, Comparar Sistemas, Exportar e Restaurar Padrões">
+                  <span>⋯</span>
+                </button>
+                <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
+                  <button class="sim-dropdown-item sim-btn-header-secondary" type="button" id="volBtnOpenExperimentsTab">
+                    <span>🔬</span> <span>Experimentos IFR(2) &amp; RS</span>
                   </button>
-                  <button type="button" class="sim-strat-toggle-btn is-volatility ${state.activeStrategy === 'VOLATILITY_TRADING' ? 'active' : ''}" data-sim-strat="VOLATILITY_TRADING">
-                    <span>⚡ Volatility Trading</span>
+                  <button class="sim-dropdown-item sim-btn-header-secondary" type="button" id="volBtnOpenSystemComparison">
+                    <span>⚖️</span> <span>Comparar Sistemas</span>
+                  </button>
+                  <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
+                    <span>📥</span> <span>Exportar Simulação</span>
+                  </button>
+                  <div class="sim-dropdown-divider"></div>
+                  <button class="sim-dropdown-item" type="button" id="volBtnResetDefaults">
+                    <span>↺</span> <span>Restaurar Parâmetros Padrão</span>
                   </button>
                 </div>
               </div>
-              <p>Simulação histórica e experimentos de reversão à média de curtíssimo prazo em ativos em tendência primária. Sem contaminação por regras de tendência ou Força Relativa.</p>
             </div>
           </div>
-
-          <!-- Barra de Controles e Presets de IFR2 -->
-          <div class="vol-sim-controls-bar">
-            <div class="vol-sim-presets-row">
-              <span style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; margin-right:4px;">Experimentos IFR(2):</span>
-              <button type="button" class="vol-preset-pill ${vState.activeOversoldPreset === 5 && !isComparing ? 'active' : ''}" data-vol-level="5">IFR(2) ≤ 5 (Exaustão Extrema)</button>
-              <button type="button" class="vol-preset-pill ${vState.activeOversoldPreset === 10 && !isComparing ? 'active' : ''}" data-vol-level="10">IFR(2) ≤ 10 (Padrão Oficial)</button>
-              <button type="button" class="vol-preset-pill ${vState.activeOversoldPreset === 15 && !isComparing ? 'active' : ''}" data-vol-level="15">IFR(2) ≤ 15 (Filtro Moderado)</button>
-              <button type="button" class="vol-preset-pill ${vState.activeOversoldPreset === 20 && !isComparing ? 'active' : ''}" data-vol-level="20">IFR(2) ≤ 20 (Filtro Amplo)</button>
-              <button type="button" class="vol-preset-pill ${isComparing ? 'active' : ''}" id="volBtnCompareProfiles" style="border-color:#38bdf8; color:#38bdf8;">🔬 Comparar os 4 Perfis</button>
-            </div>
-
-            <div style="display:flex; align-items:center; gap:10px; margin-left:auto;">
-              <select class="sim-header-select" id="volFilterUniverse" style="padding:6px 12px; font-size:12px;">
-                <option value="IBOV" ${vState.universe === 'IBOV' ? 'selected' : ''}>IBOV (B3)</option>
-                <option value="LIQUID_B3" ${vState.universe === 'LIQUID_B3' ? 'selected' : ''}>B3 Líquidas</option>
-                <option value="ALL_B3" ${vState.universe === 'ALL_B3' ? 'selected' : ''}>Todas B3</option>
-                <option value="NASDAQ" ${vState.universe === 'NASDAQ' ? 'selected' : ''}>Nasdaq (US)</option>
-              </select>
-
-              <select class="sim-header-select" id="volFilterPeriod" style="padding:6px 12px; font-size:12px;">
-                <option value="30" ${vState.period === '30' ? 'selected' : ''}>Últimos 30 dias</option>
-                <option value="90" ${vState.period === '90' ? 'selected' : ''}>Últimos 90 dias</option>
-                <option value="120" ${vState.period === '120' ? 'selected' : ''}>Últimos 120 dias</option>
-                <option value="180" ${vState.period === '180' ? 'selected' : ''}>Últimos 6 meses</option>
-                <option value="365" ${vState.period === '365' ? 'selected' : ''}>Últimos 12 meses</option>
-                <option value="ALL" ${vState.period === 'ALL' ? 'selected' : ''}>Todo o Histórico</option>
-              </select>
-
-              <button type="button" class="sim-btn-execute" id="volBtnRunSimulation" style="padding:8px 16px; font-size:12px;">
-                <span>▶ Executar Simulação</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Banner com Parâmetros Ativos da Simulação -->
-        <div class="vol-sim-banner">
-          <span style="font-size:11px; font-weight:800; color:#38bdf8; text-transform:uppercase; margin-right:4px;">Parâmetros Oficiais:</span>
-          <span class="vol-sim-banner-pill">📊 Diário</span>
-          <span class="vol-sim-banner-pill">📈 SMA(7) Curta</span>
-          <span class="vol-sim-banner-pill">🏛️ SMA(200) Longa</span>
-          <span class="vol-sim-banner-pill">⚡ IFR(2) ≤ ${vState.activeOversoldPreset}</span>
-          <span class="vol-sim-banner-pill">🎯 Saída: Close > SMA7</span>
-          <span class="vol-sim-banner-pill">⏳ Saída Temporal: D7</span>
-          <span class="vol-sim-banner-pill">💰 Capital Fixo R$ ${Number(vState.fixedCapitalPerTrade || 10000).toLocaleString('pt-BR')}</span>
-          <span class="vol-sim-banner-pill">🛡️ Stop: Nenhum</span>
-          <span class="vol-sim-banner-pill">💧 Liquidez: R$ 500k/dia</span>
-        </div>
-
-        <!-- Alerta de Amostra Reduzida quando < 30 trades -->
-        ${m.sampleSizeAlert ? `
-          <div class="vol-sim-alert">
-            <span style="font-size:18px;">⚠️</span>
-            <div>
-              <strong>Amostra Estatística Reduzida (${m.totalTrades} operações):</strong>
-              Menos de 30 trades concluídos no período. Resultados possuem margem de erro estatístico elevada. Recomenda-se expandir o período ou universo para conclusões definitivas.
-            </div>
-          </div>
-        ` : ''}
-
-        <!-- Grid de KPIs Consolidados -->
-        <div class="vol-sim-kpi-grid">
-          <div class="vol-sim-kpi-card">
-            <span class="vol-sim-kpi-label">Total de Trades</span>
-            <span class="vol-sim-kpi-val neutral">${m.totalTrades}</span>
-            <span class="vol-sim-kpi-sub">${m.winningTrades} Gain · ${m.losingTrades} Loss</span>
-          </div>
-
-          <div class="vol-sim-kpi-card">
-            <span class="vol-sim-kpi-label">Taxa de Acerto (Win Rate)</span>
-            <span class="vol-sim-kpi-val ${m.winRatePct >= 65 ? 'positive' : 'neutral'}">${m.winRatePct.toFixed(1)}%</span>
-            <span class="vol-sim-kpi-sub">Alvo estatístico: ≥ 65%</span>
-          </div>
-
-          <div class="vol-sim-kpi-card">
-            <span class="vol-sim-kpi-label">Fator de Lucro (Profit Factor)</span>
-            <span class="vol-sim-kpi-val ${m.profitFactor >= 1.5 ? 'positive' : (m.profitFactor >= 1.0 ? 'neutral' : 'negative')}">${m.profitFactor.toFixed(2)}</span>
-            <span class="vol-sim-kpi-sub">Lucro bruto / Perda bruta</span>
-          </div>
-
-          <div class="vol-sim-kpi-card">
-            <span class="vol-sim-kpi-label">Expectativa Matemática</span>
-            <span class="vol-sim-kpi-val ${m.expectancyPct >= 0 ? 'positive' : 'negative'}">${m.expectancyPct >= 0 ? '+' : ''}${m.expectancyPct.toFixed(2)}%</span>
-            <span class="vol-sim-kpi-sub">R$ ${m.expectancyAmount ? m.expectancyAmount.toFixed(2) : '0,00'} por trade</span>
-          </div>
-
-          <div class="vol-sim-kpi-card">
-            <span class="vol-sim-kpi-label">Retorno Médio / Trade</span>
-            <span class="vol-sim-kpi-val ${m.avgTradeReturnPct >= 0 ? 'positive' : 'negative'}">${m.avgTradeReturnPct >= 0 ? '+' : ''}${m.avgTradeReturnPct.toFixed(2)}%</span>
-            <span class="vol-sim-kpi-sub">Ganho: +${(m.avgWinPct || 0).toFixed(1)}% · Perda: ${(m.avgLossPct || 0).toFixed(1)}%</span>
-          </div>
-
-          <div class="vol-sim-kpi-card">
-            <span class="vol-sim-kpi-label">Permanência Média</span>
-            <span class="vol-sim-kpi-val neutral">${m.avgHoldingSessions ? m.avgHoldingSessions.toFixed(1) : 0} pregões</span>
-            <span class="vol-sim-kpi-sub">Máximo permitido: 7 pregões</span>
-          </div>
-
-          <div class="vol-sim-kpi-card">
-            <span class="vol-sim-kpi-label">Max Drawdown</span>
-            <span class="vol-sim-kpi-val negative">${(m.maxDrawdownPct || 0).toFixed(2)}%</span>
-            <span class="vol-sim-kpi-sub">Pico ao fundo no período</span>
-          </div>
-
-          <div class="vol-sim-kpi-card">
-            <span class="vol-sim-kpi-label">Lucro Líquido</span>
-            <span class="vol-sim-kpi-val ${m.netProfit >= 0 ? 'positive' : 'negative'}">R$ ${(m.netProfit || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-            <span class="vol-sim-kpi-sub">Capital fixo: R$ ${Number(vState.fixedCapitalPerTrade || 10000).toLocaleString('pt-BR')}</span>
-          </div>
-        </div>
-
-        <!-- Abas de Visualização: Resumo / Operações / Comparativo -->
-        <div class="vol-sim-tabs-nav">
-          <button type="button" class="vol-sim-tab-btn ${vState.screenTab === 'summary' ? 'active' : ''}" data-vol-tab="summary">📈 Resumo & Curva de Capital</button>
-          <button type="button" class="vol-sim-tab-btn ${vState.screenTab === 'trades' ? 'active' : ''}" data-vol-tab="trades">📋 Operações Detalhadas (${sim?.trades?.length || 0})</button>
-          <button type="button" class="vol-sim-tab-btn ${vState.screenTab === 'compare' ? 'active' : ''}" data-vol-tab="compare">🔬 Matriz Comparativa (IFR 5, 10, 15, 20)</button>
-        </div>
-
-        <!-- Conteúdo da Aba Ativa -->
-        <div class="vol-sim-tab-body">
-          ${renderVolatilityTabContent(vState, sim)}
         </div>
       </div>
     `;
-
-    bindVolatilityEvents(rootEl);
   }
 
-  function renderVolatilityTabContent(vState, sim) {
-    if (vState.screenTab === 'compare') {
-      const comp = vState.comparisonResult;
-      if (!comp || !comp.results || comp.results.length === 0) {
-        return `
-          <div style="text-align:center; padding:40px; color:#94a3b8; background:rgba(15,23,42,0.6); border-radius:14px;">
-            <p style="font-size:15px; margin-bottom:14px;">Nenhuma comparação executada ainda.</p>
-            <button type="button" class="sim-btn-execute" id="volBtnRunCompareDirect" style="padding:10px 20px;">🔬 Comparar os 4 Perfis Agora</button>
+  /**
+   * CABEÇALHO DO AMBIENTE 03 — COMPARAÇÃO ENTRE SISTEMAS (IDENTIDADE DOURADA)
+   */
+  function renderSystemComparisonHeader() {
+    ensureVolatilitySimulationLoaded();
+    const vState = state.volatilityState;
+    const formattedCapital = `R$ ${formatMoney(state.initialCapital || 500000).replace('R$ ', '')}`;
+
+    return `
+      <div class="sim-header sim-rebuild-header sim-env-hero-header env-comparison-hero">
+        <div class="sim-hero-art-bg" aria-hidden="true"></div>
+        <div class="sim-header-titles">
+          <div class="sim-title-row">
+            <h1>Simulador de Trades</h1>
+            <span class="sim-env-identity-badge env-badge-comparison">
+              <span class="pill-dot"></span>
+              <span>Comparação entre Sistemas</span>
+            </span>
+            <span class="sim-audit-status-pill consistent">
+              <span>🛡️ Backtests Independentes Sincronizados</span>
+            </span>
           </div>
-        `;
-      }
+          <p class="sim-header-sub">Avaliação lado a lado de Trend Following e Volatility Trading sob a mesma base histórica, período, universo de ativos e capital inicial — sem misturar operações.</p>
+          <div class="sim-active-config-summary" aria-label="Configuração ativa da comparação">
+            <span class="sim-active-config-chip">Trend Following: <strong>EMA10 &amp; EMA72 (Modo Rubric)</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Volatility Trading: <strong>IFR(${vState.rsiPeriod || 2}) ≤ ${vState.oversoldLevel || 10} (SMA${vState.shortMaPeriod || 7} / SMA${vState.longMaPeriod || 200})</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Proteção Eventos Extremos Ativa</span>
+          </div>
+        </div>
+
+        <!-- Barra Principal Simplificada: Apenas Controles Essenciais + Configurações + Mais Ações -->
+        <div class="sim-header-right-zone">
+          <div class="sim-header-filters-row sim-header-controls-row sim-header-essential-bar">
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="cmpHeaderPeriod" title="Período sincronizado para ambos os motores">
+                <option value="30" ${String(state.filters.days) === '30' ? 'selected' : ''}>Últimos 30 dias</option>
+                <option value="90" ${String(state.filters.days) === '90' ? 'selected' : ''}>Últimos 90 dias</option>
+                <option value="120" ${String(state.filters.days) === '120' ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
+                <option value="180" ${String(state.filters.days) === '180' ? 'selected' : ''}>Últimos 6 meses</option>
+                <option value="365" ${String(state.filters.days) === '365' ? 'selected' : ''}>Últimos 12 meses</option>
+                <option value="730" ${String(state.filters.days) === '730' ? 'selected' : ''}>Últimos 24 meses</option>
+                <option value="1095" ${String(state.filters.days) === '1095' ? 'selected' : ''}>Últimos 36 meses</option>
+                <option value="ALL" ${String(state.filters.days) === 'ALL' ? 'selected' : ''}>Todo o período</option>
+              </select>
+            </div>
+
+            <div class="sim-control-select-wrap">
+              <select class="sim-header-select" id="volHeaderUniverse" title="Universo de ativos sincronizado">
+                <option value="IBOV" ${vState.universe === 'IBOV' ? 'selected' : ''}>Universo IBOV (B3)</option>
+                <option value="LIQUID_B3" ${vState.universe === 'LIQUID_B3' ? 'selected' : ''}>B3 Líquidas</option>
+                <option value="ALL_B3" ${vState.universe === 'ALL_B3' ? 'selected' : ''}>Todas B3</option>
+              </select>
+            </div>
+
+            <div class="sim-capital-control-wrap">
+              <span class="sim-control-label">Capital inicial</span>
+              <div class="sim-capital-input-box">
+                <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" />
+              </div>
+            </div>
+
+            <div class="sim-header-actions-row sim-header-actions-group">
+              <button type="button" id="volBtnExecuteHeader" class="sim-btn-execute">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span>Executar Simulação</span>
+              </button>
+
+              <button type="button" id="simBtnOpenAdvConfig" class="sim-btn-header-secondary sim-btn-adv-config" title="Abrir Configurações Avançadas da Comparação">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>Configurações</span>
+              </button>
+
+              <div class="sim-filter-select-wrap">
+                <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais ações">
+                  <span>⋯</span>
+                </button>
+                <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
+                  <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
+                    <span>📥</span> <span>Exportar Simulação</span>
+                  </button>
+                  <button class="sim-dropdown-item" type="button" id="volBtnResetDefaults">
+                    <span>↺</span> <span>Restaurar Parâmetros Padrão</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * ABA 1 (MODO B): RESUMO DO VOLATILITY TRADING
+   */
+  function renderVolatilitySummaryTab() {
+    ensureVolatilitySimulationLoaded();
+    const vState = state.volatilityState;
+    const sim = vState.simulationResult;
+    const m = sim?.metrics || {};
+    const cfg = sim?.metadata?.config || buildVolatilitySimulationOptions();
+    const isFinancial = vState.summaryView !== 'statistical';
+
+    const totalNetPnL = Number(m.netProfit || 0);
+    const totalReturnPct = Number(m.totalReturnPct || 0);
+    const totalTrades = Number(m.totalTrades || 0);
+    const winRate = Number(m.winRatePct || 0);
+    const winsCount = Number(m.winningTrades || 0);
+    const lossesCount = Number(m.losingTrades || 0);
+    const expectancyPct = Number(m.expectancyPct || 0);
+    const expectancyAmount = Number(m.expectancyAmount || 0);
+    const profitFactor = Number(m.profitFactor || 0);
+    const maxDrawdownPct = Number(m.maxDrawdownPct || 0);
+
+    const exitBreakdownTable = sim?.exitBreakdownTable || [];
+    const topExit = [...exitBreakdownTable].sort((a, b) => b.netPnL - a.netPnL)[0];
+
+    const rowsHtml = exitBreakdownTable.map(row => {
+      const hasTrades = row.count > 0;
+      const isPos = row.netPnL >= 0;
+      const rFormatted = row.totalR != null && cfg.financialRiskUnitMode !== 'NONE'
+        ? `${row.totalR >= 0 ? '+' : ''}${row.totalR.toFixed(2).replace('.', ',')}R`
+        : '—';
+      const pnlFormatted = hasTrades
+        ? `${isPos ? '+ ' : '- '}R$ ${formatMoney(Math.abs(row.netPnL)).replace('R$ ', '')}`
+        : 'R$ 0,00';
+      const contribFormatted = hasTrades ? `${row.contribPct.toFixed(1).replace('.', ',')}%` : '0,0%';
+      const barWidth = hasTrades ? Math.min(100, Math.max(4, Math.abs(row.contribPct))) : 0;
+      const badgeBg = row.code === 'SMA7' ? '#e0f2fe' : (row.code === 'PROT' ? '#fef3c7' : '#f1f5f9');
+      const badgeColor = row.code === 'SMA7' ? '#0369a1' : (row.code === 'PROT' ? '#b45309' : '#334155');
 
       return `
-        <div class="vol-sim-table-wrap">
-          <table class="vol-sim-table">
-            <thead>
-              <tr>
-                <th>Perfil / Nível</th>
-                <th>Trades</th>
-                <th>Status Amostra</th>
-                <th>Win Rate</th>
-                <th>Profit Factor</th>
-                <th>Expectativa %</th>
-                <th>Retorno Médio</th>
-                <th>Permanência</th>
-                <th>Max DD %</th>
-                <th>Lucro Líquido</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${comp.results.map(r => `
-                <tr>
-                  <td>
-                    <strong>${r.name}</strong>
-                    ${comp.bestVariants?.bestWinRate?.id === r.id ? '<span class="vol-badge-best">Melhor WinRate</span>' : ''}
-                  </td>
-                  <td>${r.tradesCount}</td>
-                  <td>${r.sampleSizeAlert ? '<span style="color:#f59e0b;">⚠️ Reduzida</span>' : '<span style="color:#10b981;">✓ Robusta</span>'}</td>
-                  <td style="color:${r.winRatePct >= 65 ? '#10b981' : '#cbd5e1'}; font-weight:700;">${r.winRatePct.toFixed(1)}%</td>
-                  <td style="color:${r.profitFactor >= 1.5 ? '#10b981' : '#cbd5e1'}; font-weight:700;">${r.profitFactor.toFixed(2)}</td>
-                  <td style="color:${r.expectancyPct >= 0 ? '#10b981' : '#f87171'};">${r.expectancyPct >= 0 ? '+' : ''}${r.expectancyPct.toFixed(2)}%</td>
-                  <td>${r.metrics?.avgTradeReturnPct >= 0 ? '+' : ''}${(r.metrics?.avgTradeReturnPct || 0).toFixed(2)}%</td>
-                  <td>${r.avgHoldingSessions ? r.avgHoldingSessions.toFixed(1) : 0} pregões</td>
-                  <td style="color:#f87171;">${r.maxDrawdownPct.toFixed(2)}%</td>
-                  <td style="color:${r.netProfit >= 0 ? '#10b981' : '#f87171'}; font-weight:800;">R$ ${r.netProfit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
+        <tr>
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="sim-rebuild-grade-badge" style="background:${badgeBg}; color:${badgeColor}; width:auto; padding:0 10px; font-size:11px;">${escapeHtml(row.code)}</span>
+              <div>
+                <div style="font-weight:700; color:#0f172a;">${escapeHtml(row.label)}</div>
+                <div style="font-size:11px; color:#64748b;">${escapeHtml(row.desc || '')}</div>
+              </div>
+            </div>
+          </td>
+          <td style="text-align: center; font-weight: 600;">${row.count}</td>
+          <td style="text-align: center; font-weight: 600; color: #0f172a;">${hasTrades ? `${row.winRate.toFixed(1).replace('.', ',')}%` : '—'}</td>
+          <td style="text-align: center; color: #475569;">${hasTrades ? `${row.avgHoldingSessions.toFixed(1)} pregões` : '—'}</td>
+          <td style="text-align: center; font-weight: 700; color: ${hasTrades && row.avgReturnPct >= 0 ? '#059669' : (hasTrades ? '#ef4444' : '#64748b')};">
+            ${hasTrades ? `${row.avgReturnPct >= 0 ? '+' : ''}${row.avgReturnPct.toFixed(2).replace('.', ',')}% (${rFormatted})` : '—'}
+          </td>
+          <td style="text-align: center; font-weight: 700; color: ${hasTrades && isPos ? '#059669' : (hasTrades ? '#ef4444' : '#64748b')};">
+            ${pnlFormatted}
+          </td>
+          <td style="text-align: center; font-weight: 600; color: #475569;">${contribFormatted}</td>
+          <td style="width: 130px; padding-right: 16px;">
+            <div class="sim-rebuild-progress-track">
+              <div class="sim-rebuild-progress-bar ${isPos ? 'pos' : 'neg'}" style="width: ${barWidth}%;"></div>
+            </div>
+          </td>
+        </tr>
       `;
+    }).join('');
+
+    return `
+      <div class="sim-summary-container">
+        <!-- Faixa de Parâmetros Operacionais Ativos -->
+        <div class="sim-rebuild-info-banner" style="margin-bottom: 14px; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <strong>⚡ Regras Ativas do VolatilityTradingEngine:</strong>
+            <span class="sim-param-chip">Timeframe: Diário</span>
+            <span class="sim-param-chip">IFR(${cfg.rsiPeriod || 2}) ≤ ${cfg.oversoldLevel || 10}</span>
+            <span class="sim-param-chip">Close &lt; SMA(${cfg.shortMaPeriod || 7})</span>
+            <span class="sim-param-chip">Close &gt; SMA(${cfg.longMaPeriod || 200})</span>
+            <span class="sim-param-chip">Liquidez ≥ ${cfg.minDailyTrades || 500} neg / ${cfg.liquidityWindowSessions || 21}d</span>
+            <span class="sim-param-chip">Entrada: Abertura T+1</span>
+            <span class="sim-param-chip">Saída: SMA(${cfg.shortMaPeriod || 7}) ou ${cfg.holdingPeriodSessions || 7} pregões (${cfg.exitExecutionTiming === 'NEXT_OPEN' ? 'Open T+1' : 'Close'})</span>
+            <span class="sim-param-chip">Stop Técnico: Nenhum (Saída Temporal)</span>
+          </div>
+          ${m.sampleSizeAlert ? `<span style="color:#b45309; font-weight:700;">⚠️ Amostra reduzida (${totalTrades} &lt; 30 trades)</span>` : `<span style="color:#047857; font-weight:700;">✓ Amostra válida (${totalTrades} trades)</span>`}
+        </div>
+
+        <!-- Card Principal: Resultado Financeiro por Condição de Saída -->
+        <div class="sim-rebuild-card">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">⚡</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Resultado financeiro por Condição de Saída (Volatility Trading)</h2>
+                <p class="sim-rebuild-card-desc">Atribuição monetária e estatística entre Recuperação da SMA(${cfg.shortMaPeriod || 7}), Limite Temporal (${cfg.holdingPeriodSessions || 7} pregões) e Proteção de Eventos Extremos</p>
+              </div>
+            </div>
+            <div class="sim-rebuild-view-toggle-wrap">
+              <span class="sim-view-toggle-label">Visão:</span>
+              <div class="sim-rebuild-view-toggle">
+                <button type="button" class="sim-view-toggle-btn ${isFinancial ? 'active' : ''}" data-vol-summary-view="financial">
+                  Financeira (R$)
+                </button>
+                <button type="button" class="sim-view-toggle-btn ${!isFinancial ? 'active' : ''}" data-vol-summary-view="statistical">
+                  Percentual (%)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-summary-subcards-row">
+            <div class="sim-subcard-box subcard-total">
+              <div class="sim-subcard-icon icon-coins">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+              <div class="sim-subcard-body">
+                <div class="sim-subcard-label">Resultado Líquido Total</div>
+                <div class="sim-subcard-main-val ${totalNetPnL >= 0 ? 'pos' : 'neg'}">
+                  ${isFinancial
+                    ? `${totalNetPnL >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(totalNetPnL)).replace('R$ ', '')}`
+                    : `${totalReturnPct >= 0 ? '+' : ''}${totalReturnPct.toFixed(2).replace('.', ',')}%`
+                  }
+                </div>
+                <div class="sim-subcard-sub-line">
+                  <span class="equiv-tag">
+                    Retorno sobre o capital: <strong class="equiv-val ${totalReturnPct >= 0 ? 'pos' : 'neg'}">${totalReturnPct >= 0 ? '+' : ''}${totalReturnPct.toFixed(2).replace('.', ',')}%</strong>
+                  </span>
+                  <span class="count-tag">${totalTrades} trades encerrados (${winsCount}W / ${lossesCount}L)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sim-subcard-box subcard-trophy">
+              <div class="sim-subcard-icon icon-trophy">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </div>
+              <div class="sim-subcard-body">
+                <div class="sim-subcard-trophy-title">
+                  ${topExit && topExit.count > 0 ? `${escapeHtml(topExit.label)}: principal motor de resultado` : 'Dinâmica de Reversão à Média (IFR 2)'}
+                </div>
+                <p class="sim-subcard-trophy-text">
+                  A recuperação rápida acima da SMA(${cfg.shortMaPeriod || 7}) captura o repique institucional de curto prazo, enquanto o limite temporal de ${cfg.holdingPeriodSessions || 7} pregões libera capital quando a reversão não se confirma.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-rebuild-table-wrap">
+            <table class="sim-rebuild-grade-table">
+              <thead>
+                <tr>
+                  <th style="width: 260px;">Condição de Saída</th>
+                  <th style="text-align: center; width: 75px;">Trades</th>
+                  <th style="text-align: center; width: 110px;">Win Rate</th>
+                  <th style="text-align: center; width: 125px;">Holding Médio</th>
+                  <th style="text-align: center; width: 150px;">Retorno Médio / R</th>
+                  <th style="text-align: center; width: 165px;">Resultado financeiro (R$)</th>
+                  <th style="text-align: center; width: 105px;">Contribuição</th>
+                  <th style="width: 130px;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+            <div class="sim-grade-table-footer-note">
+              <span class="note-icon">ℹ️</span>
+              <span><strong>Dimensionamento independente:</strong> ${cfg.positionSizingModel === 'EQUITY_PERCENT' ? `${cfg.equityPercentPerTrade}% do patrimônio por operação` : `Valor financeiro fixo de R$ ${formatMoney(cfg.fixedCapitalPerTrade || 10000).replace('R$ ', '')} por operação`} (máx. ${cfg.maxConcurrentPositions || 10} posições simultâneas). Sem herança de stop ATR do Trend Following.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Cards de Métricas Principais -->
+        <div class="sim-rebuild-kpis-grid">
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-mint">🎯</span>
+              <span class="sim-mini-kpi-title">Taxa de Acerto (Win Rate)</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${winRate >= 60 ? 'pos' : ''}">${winRate.toFixed(1).replace('.', ',')}%</span>
+                <span class="sim-mini-kpi-badge pos">${winsCount}W / ${lossesCount}L</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">${winsCount} de ${totalTrades} trades lucrativos</div>
+          </div>
+
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-blue">📈</span>
+              <span class="sim-mini-kpi-title">Expectativa por Trade</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${expectancyPct >= 0 ? 'pos' : 'neg'}">${expectancyPct >= 0 ? '+' : ''}${expectancyPct.toFixed(2).replace('.', ',')}%</span>
+                <span class="sim-mini-kpi-badge ${expectancyAmount >= 0 ? 'pos' : 'neg'}">R$ ${formatMoney(Math.abs(expectancyAmount)).replace('R$ ', '')}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Permanência média: ${(m.avgHoldingSessions || 0).toFixed(1)} pregões</div>
+          </div>
+
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-mint">💰</span>
+              <span class="sim-mini-kpi-title">Profit Factor</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val ${profitFactor >= 1.5 ? 'pos' : ''}">${profitFactor.toFixed(2).replace('.', ',')}</span>
+                <span class="sim-mini-kpi-badge pos">Payoff ${(m.payoffRatio || 0).toFixed(2)}x</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Razão lucro bruto / perda bruta</div>
+          </div>
+
+          <div class="sim-mini-kpi-card">
+            <div class="sim-mini-kpi-top">
+              <span class="sim-mini-kpi-icon icon-red">📉</span>
+              <span class="sim-mini-kpi-title">Drawdown Máximo</span>
+            </div>
+            <div class="sim-mini-kpi-body">
+              <div class="sim-mini-kpi-num-area">
+                <span class="sim-mini-kpi-val neg">-${Math.abs(maxDrawdownPct).toFixed(2).replace('.', ',')}%</span>
+                <span class="sim-mini-kpi-badge neg">R$ ${formatMoney(Math.abs(m.maxDrawdownAmount || 0)).replace('R$ ', '')}</span>
+              </div>
+            </div>
+            <div class="sim-mini-kpi-sub">Exposição no tempo: ${(m.exposurePct || 0).toFixed(1)}% dos pregões</div>
+          </div>
+        </div>
+
+        <!-- Painel Completo das 20 Métricas Estatísticas Obrigatórias (Seção 6) -->
+        ${renderVolatility20MetricsCard(m)}
+
+        <!-- Card de SQN da Simulação com Unidade de Risco Financeiro Configurável (Seção 6.1) -->
+        ${renderVolatilitySqnCard(m, cfg)}
+
+        <!-- Proteção Obrigatória contra Eventos Extremos (Seção 11) -->
+        ${renderExtremeEventSummarySection({ extremeEventStats: m.extremeEventStats })}
+      </div>
+    `;
+  }
+
+  /**
+   * SEÇÃO 6 — PAINEL COMPLETO DAS 20 MÉTRICAS ESTATÍSTICAS OBRIGATÓRIAS
+   */
+  function renderVolatility20MetricsCard(m) {
+    const items = [
+      { num: 1, label: 'Total Trades', val: `${m.totalTrades || 0}`, sub: `${m.openTradesCount || 0} em aberto` },
+      { num: 2, label: 'Winners (Vencedores)', val: `${m.winningTrades || 0}`, sub: `Lucro bruto: R$ ${formatMoney(m.totalGrossProfit || 0).replace('R$ ', '')}`, cls: 'pos' },
+      { num: 3, label: 'Losers (Perdedores)', val: `${m.losingTrades || 0}`, sub: `Perda bruta: R$ ${formatMoney(m.totalGrossLoss || 0).replace('R$ ', '')}`, cls: 'neg' },
+      { num: 4, label: 'Win Rate (%)', val: `${(m.winRatePct || 0).toFixed(1).replace('.', ',')}%`, sub: `Loss Rate: ${(m.lossRatePct || 0).toFixed(1).replace('.', ',')}%`, cls: (m.winRatePct || 0) >= 60 ? 'pos' : '' },
+      { num: 5, label: 'Ganho Médio (Average Winner)', val: `R$ ${formatMoney(m.avgWinAmount || 0).replace('R$ ', '')}`, sub: `+${(m.avgWinPct || 0).toFixed(2).replace('.', ',')}% por ganho`, cls: 'pos' },
+      { num: 6, label: 'Perda Média (Average Loser)', val: `-R$ ${formatMoney(m.avgLossAmount || 0).replace('R$ ', '')}`, sub: `${(m.avgLossPct || 0).toFixed(2).replace('.', ',')}% por perda`, cls: 'neg' },
+      { num: 7, label: 'Razão Ganho/Perda (Win/Loss Ratio)', val: `${(m.payoffRatio || 0).toFixed(2).replace('.', ',')}x`, sub: `Financeiro: ${(m.winLossRatioAmount || 0).toFixed(2).replace('.', ',')}x` },
+      { num: 8, label: 'Profit Factor', val: `${(m.profitFactor || 0).toFixed(2).replace('.', ',')}`, sub: 'Soma ganhos ÷ soma perdas', cls: (m.profitFactor || 0) >= 1.5 ? 'pos' : '' },
+      { num: 9, label: 'Expectativa (Expectancy)', val: `R$ ${formatMoney(m.expectancyAmount || 0).replace('R$ ', '')}`, sub: `${(m.expectancyPct || 0) >= 0 ? '+' : ''}${(m.expectancyPct || 0).toFixed(2).replace('.', ',')}% (${m.expectancyR != null ? formatR(m.expectancyR) : 'Sem R'})`, cls: (m.expectancyAmount || 0) >= 0 ? 'pos' : 'neg' },
+      { num: 10, label: 'SQN (System Quality Number)', val: `${m.sqnFormatted || 'Indisponível'}`, sub: `${m.sqnAnalytics?.classification?.label || 'Unidade R Financeiro'}` },
+      { num: 11, label: 'Drawdown Máximo (Max DD)', val: `-${(m.maxDrawdownPct || 0).toFixed(2).replace('.', ',')}%`, sub: `-R$ ${formatMoney(m.maxDrawdownAmount || 0).replace('R$ ', '')}`, cls: 'neg' },
+      { num: 12, label: 'Retorno Total (%)', val: `${(m.totalReturnPct || 0) >= 0 ? '+' : ''}${(m.totalReturnPct || 0).toFixed(2).replace('.', ',')}%`, sub: `Líquido: R$ ${formatMoney(m.netProfit || 0).replace('R$ ', '')}`, cls: (m.netProfit || 0) >= 0 ? 'pos' : 'neg' },
+      { num: 13, label: 'Tempo Médio em Operação', val: `${(m.avgHoldingSessions || 0).toFixed(1).replace('.', ',')} pregões`, sub: `${m.totalCapitalDays || 0} capital-dias totais` },
+      { num: 14, label: 'Máx. Perdas Consecutivas', val: `${m.maxConsecutiveLosses || 0}`, sub: 'Maior sequência de losses', cls: 'neg' },
+      { num: 15, label: 'Máx. Ganhos Consecutivos', val: `${m.maxConsecutiveWins || 0}`, sub: 'Maior sequência de gains', cls: 'pos' },
+      { num: 16, label: 'Excursão Adversa Máxima (MAE)', val: `${(m.avgMaePct || 0).toFixed(2).replace('.', ',')}%`, sub: `Pior MAE: ${(m.maxMaePct || 0).toFixed(2).replace('.', ',')}%`, cls: 'neg' },
+      { num: 17, label: 'Excursão Favorável Máxima (MFE)', val: `+${(m.avgMfePct || 0).toFixed(2).replace('.', ',')}%`, sub: `Pico MFE: +${(m.maxMfePct || 0).toFixed(2).replace('.', ',')}%`, cls: 'pos' },
+      { num: 18, label: 'Frequência (Trades por Mês)', val: `${(m.tradesPerMonth || 0).toFixed(1).replace('.', ',')} / mês`, sub: 'Média mensal (21 pregões)' },
+      { num: 19, label: 'Exposição no Tempo (%)', val: `${(m.exposurePct || 0).toFixed(1).replace('.', ',')}%`, sub: `Capital médio alocado: ${(m.avgCapitalAllocatedPct || 0).toFixed(1).replace('.', ',')}%` },
+      { num: 20, label: 'Retorno por Capital-Dia', val: `${(m.returnPerCapitalDayPct || 0).toFixed(4).replace('.', ',')}% / dia`, sub: 'Velocidade de giro do capital', cls: (m.returnPerCapitalDayPct || 0) >= 0 ? 'pos' : 'neg' }
+    ];
+
+    return `
+      <div class="sim-rebuild-card" style="margin-top: 20px;">
+        <div class="sim-rebuild-card-head">
+          <div class="sim-rebuild-card-head-left">
+            <span class="sim-rebuild-head-icon icon-chart">📋</span>
+            <div>
+              <h2 class="sim-rebuild-card-title">Relatório Estatístico Completo (20 Métricas Obrigatórias — Volatility Trading)</h2>
+              <p class="sim-rebuild-card-desc">Indicadores de performance, risco, excursão de preço (MAE/MFE) e eficiência de capital calculados exclusivamente sobre os trades do motor de volatilidade.</p>
+            </div>
+          </div>
+        </div>
+        <div class="sim-metrics-20-grid" style="margin-top: 14px;">
+          ${items.map(it => `
+            <div class="sim-metric-20-box">
+              <div class="sim-metric-20-label"><span class="sim-metric-20-num">#${it.num}</span> ${escapeHtml(it.label)}</div>
+              <div class="sim-metric-20-val ${it.cls || ''}">${escapeHtml(it.val)}</div>
+              <div class="sim-metric-20-sub">${escapeHtml(it.sub)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * SEÇÃO 6.1 — CARD DE SQN DO VOLATILITY TRADING COM UNIDADE DE RISCO FINANCEIRO CONFIGURÁVEL
+   */
+  function renderVolatilitySqnCard(m, cfg) {
+    const sqnReport = m?.sqnAnalytics || {
+      isAvailable: false,
+      sqn: null,
+      sqnFormatted: 'Indisponível',
+      classification: { label: 'Indisponível (Sem Unidade R)', badgeClass: 'sqn-badge-unclassified' },
+      significance: { note: 'Configure uma Unidade de Risco Financeiro para habilitar o cálculo de SQN.' }
+    };
+    const classification = sqnReport.classification || { label: 'Indisponível', badgeClass: 'sqn-badge-unclassified' };
+    const badgeClass = classification.badgeClass || 'sqn-badge-unclassified';
+    const curMode = cfg.financialRiskUnitMode || state.volatilityState.financialRiskUnitMode || 'PERCENT_OF_POSITION';
+    const curVal = Number(cfg.financialRiskUnitValue || state.volatilityState.financialRiskUnitValue || 5.0);
+    const selectVal = curMode === 'NONE' ? 'NONE' : `${curMode}:${curVal}`;
+
+    return `
+      <div class="sim-rebuild-card" style="margin-top: 20px;">
+        <div class="sim-rebuild-card-head">
+          <div class="sim-rebuild-card-head-left">
+            <span class="sim-rebuild-head-icon icon-chart">📐</span>
+            <div>
+              <h2 class="sim-rebuild-card-title">SQN da Simulação — Qualidade Estatística com Unidade de Risco Financeiro</h2>
+              <p class="sim-rebuild-card-desc">Como o Volatility Trading não utiliza stop técnico individual, o múltiplo R é calculado sobre uma Unidade de Risco Financeiro explícita e auditável (nunca um stop artificial).</p>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <label for="volSqnRiskUnitSelect" style="font-size:11.5px; font-weight:700; color:#475569;">Unidade 1R:</label>
+            <select id="volSqnRiskUnitSelect" class="sim-header-select" style="padding:5px 10px; font-size:12px;">
+              <option value="PERCENT_OF_POSITION:5" ${selectVal === 'PERCENT_OF_POSITION:5' ? 'selected' : ''}>5,0% do Capital da Posição (Padrão)</option>
+              <option value="PERCENT_OF_POSITION:3" ${selectVal === 'PERCENT_OF_POSITION:3' ? 'selected' : ''}>3,0% do Capital da Posição</option>
+              <option value="PERCENT_OF_POSITION:10" ${selectVal === 'PERCENT_OF_POSITION:10' ? 'selected' : ''}>10,0% do Capital da Posição</option>
+              <option value="FIXED_CASH:500" ${selectVal === 'FIXED_CASH:500' ? 'selected' : ''}>R$ 500,00 Fixos por Operação</option>
+              <option value="NONE" ${curMode === 'NONE' ? 'selected' : ''}>Sem Unidade R (SQN Indisponível)</option>
+            </select>
+            <span class="sqn-badge ${badgeClass}">${escapeHtml(classification.label || '—')}</span>
+          </div>
+        </div>
+
+        <div class="sim-summary-subcards-row" style="margin-top: 14px;">
+          <div class="sim-subcard-box subcard-total sim-sqn-subcard-split">
+            <div class="sim-sqn-kpi-col">
+              <div class="sim-subcard-icon icon-coins">📐</div>
+              <div class="sim-subcard-body">
+                <div class="sim-subcard-label">SQN Simulado (Van Tharp)</div>
+                <div class="sim-subcard-main-val ${(Number(sqnReport.sqn) < 0) ? 'neg' : 'pos'}">
+                  ${escapeHtml(sqnReport.sqnFormatted || 'Indisponível')}
+                </div>
+                <div class="sim-subcard-sub-line">
+                  <span class="equiv-tag">Classificação: <strong>${escapeHtml(classification.label || '—')}</strong></span>
+                  <span class="count-tag">${sqnReport.sampleSize || 0} trades</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-subcard-box subcard-trophy">
+            <div class="sim-subcard-icon icon-trophy">📊</div>
+            <div class="sim-subcard-body">
+              <div class="sim-subcard-trophy-title">Critério Matemático Adotado para Múltiplos de R</div>
+              <p class="sim-subcard-trophy-text" style="margin-bottom: 6px;">
+                Expectancy (R): <strong>${escapeHtml(sqnReport.expectancyFormatted || 'Indisponível')}</strong> |
+                Desvio-Padrão (R): <strong>${escapeHtml(sqnReport.standardDeviationFormatted || 'Indisponível')}</strong>
+              </p>
+              <div style="font-size: 11.5px; color: #64748b; line-height: 1.4;">
+                ${escapeHtml(sqnReport.significance?.note || '')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * ABA 2 (MODO B): LISTA DE TRADES DO VOLATILITY TRADING
+   */
+  function renderVolatilityTradesListTab() {
+    ensureVolatilitySimulationLoaded();
+    const vState = state.volatilityState;
+    const rawTrades = vState.simulationResult?.trades || [];
+    const activeFilter = vState.tradeStatusFilter || 'ALL';
+
+    let trades = [...rawTrades];
+    if (activeFilter === 'GAIN') {
+      trades = trades.filter(t => t.netPnl > 0);
+    } else if (activeFilter === 'LOSS') {
+      trades = trades.filter(t => t.netPnl < 0);
+    } else if (activeFilter === 'BREAKEVEN') {
+      trades = trades.filter(t => Math.abs(t.netPnl || 0) < 0.01);
     }
 
-    if (vState.screenTab === 'trades') {
-      const trades = sim?.trades || [];
-      if (trades.length === 0) {
-        return `
-          <div style="text-align:center; padding:40px; color:#94a3b8; background:rgba(15,23,42,0.6); border-radius:14px;">
-            <p>Nenhuma operação encerrada encontrada para esta configuração.</p>
-          </div>
-        `;
+    if (vState.searchQuery) {
+      const q = vState.searchQuery.toUpperCase();
+      trades = trades.filter(t =>
+        (t.symbol && t.symbol.toUpperCase().includes(q)) ||
+        (t.companyName && t.companyName.toUpperCase().includes(q))
+      );
+    }
+
+    const totalCount = rawTrades.length;
+    const gainCount = rawTrades.filter(t => t.netPnl > 0).length;
+    const lossCount = rawTrades.filter(t => t.netPnl < 0).length;
+    const beCount = rawTrades.filter(t => Math.abs(t.netPnl || 0) < 0.01).length;
+
+    const rowsHtml = trades.length > 0 ? trades.map(t => {
+      const logoInfo = getTickerLogoInfo(t.symbol);
+      const isWin = t.netPnl > 0;
+      const isLoss = t.netPnl < 0;
+      const ifrVal = t.signalIndicators?.ifr != null ? Number(t.signalIndicators.ifr).toFixed(1) : '—';
+      const sma7Val = t.signalIndicators?.smaShort != null ? formatMoney(t.signalIndicators.smaShort) : '—';
+      const sma200Val = t.signalIndicators?.smaLong != null ? formatMoney(t.signalIndicators.smaLong) : '—';
+      const rDisplay = t.resultR != null ? `${t.resultR >= 0 ? '+' : ''}${t.resultR.toFixed(2).replace('.', ',')}R` : '—';
+
+      let exitBadge = '<span class="sim-status-pill" style="background:#e0f2fe; color:#0369a1;">🎯 Recuperação SMA(7)</span>';
+      if (t.exitReason === 'TIME_EXIT') {
+        exitBadge = `<span class="sim-status-pill" style="background:#f1f5f9; color:#334155;">⏳ Limite Temporal (${t.holdingSessions}d)</span>`;
+      } else if (t.exitReason === 'EXTREME_EVENT_EXIT') {
+        exitBadge = `<span class="sim-status-pill pill-extreme-event">🛡️ Evento Extremo</span>`;
       }
 
       return `
-        <div class="vol-sim-table-wrap">
-          <table class="vol-sim-table">
+        <tr data-vol-trade-id="${escapeHtml(t.id)}">
+          <td>
+            <div class="sim-ticker-cell">
+              <span class="sim-ticker-icon" style="background-color: ${logoInfo.bg}; color: ${logoInfo.color};">${logoInfo.letters}</span>
+              <div>
+                <div class="sim-ticker-code">${escapeHtml(t.symbol)}</div>
+                <div style="font-size:10.5px; color:#94a3b8;">${escapeHtml(t.sector || 'B3')}</div>
+              </div>
+            </div>
+          </td>
+          <td class="td-trigger">
+            <span style="font-weight:700; color:#0284c7;">IFR(2) = ${ifrVal}</span>
+            <div style="font-size:10.5px; color:#64748b;">SMA7: ${sma7Val} · SMA200: ${sma200Val}</div>
+          </td>
+          <td class="td-date">${formatDateBR(t.signalDate)}<div style="font-size:10.5px; color:#64748b;">Fech: ${formatMoney(t.signalPrice)}</div></td>
+          <td class="td-date">${formatDateBR(t.entryDate)}<div style="font-size:10.5px; color:${t.entryGapPct >= 0 ? '#059669' : '#ef4444'};">Gap: ${t.entryGapPct >= 0 ? '+' : ''}${Number(t.entryGapPct || 0).toFixed(2)}%</div></td>
+          <td class="td-num">${formatMoney(t.executedEntryPrice || t.entryPrice)}</td>
+          <td class="td-num">${t.sharesQuantity} ações <span style="font-size: 11px; color: #94a3b8;">(${formatMoney(t.allocatedCapital)})</span></td>
+          <td class="td-date">${formatDateBR(t.exitDate)} <span style="font-size:11px; color:#475569;">(${formatMoney(t.executedExitPrice || t.exitPrice)})</span></td>
+          <td>${exitBadge}</td>
+          <td style="text-align: center; font-weight:600;">${t.holdingSessions} pregões</td>
+          <td class="td-num" style="font-size:11.5px;">
+            <span style="color:#ef4444;">${Number(t.maePct || 0).toFixed(1)}%</span> /
+            <span style="color:#059669;">+${Number(t.mfePct || 0).toFixed(1)}%</span>
+          </td>
+          <td class="td-num ${isWin ? 'metric-gain' : (isLoss ? 'metric-loss' : 'metric-neutral')}" style="font-weight: 700;">
+            ${rDisplay}
+          </td>
+          <td class="td-num ${isWin ? 'metric-gain' : (isLoss ? 'metric-loss' : 'metric-neutral')}" style="font-weight: 700;">
+            ${isWin ? '+ ' : (isLoss ? '- ' : '')}R$ ${formatMoney(Math.abs(t.netPnl)).replace('R$ ', '')}
+            <div style="font-size:10.5px;">(${t.returnPct >= 0 ? '+' : ''}${t.returnPct.toFixed(2)}%)</div>
+          </td>
+          <td style="text-align: center; white-space: nowrap;">
+            <button class="sim-btn-view-analysis" data-vol-open-audit="${escapeHtml(t.id)}" type="button">
+              <span>Ver Análise</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('') : `
+      <tr>
+        <td colspan="13" style="text-align: center; padding: 48px; color: #64748b;">
+          Nenhuma operação encerrada encontrada para os filtros selecionados.
+        </td>
+      </tr>
+    `;
+
+    return `
+      <div class="sim-rebuild-card">
+        <div class="sim-table-toolbar">
+          <div class="sim-status-tabs">
+            <button class="sim-tab-btn ${activeFilter === 'ALL' ? 'active' : ''}" data-vol-trade-filter="ALL" type="button">
+              <span>●</span> <span>Todos (${totalCount})</span>
+            </button>
+            <button class="sim-tab-btn ${activeFilter === 'GAIN' ? 'active' : ''}" data-vol-trade-filter="GAIN" type="button">
+              <span class="sim-tab-dot dot-green"></span> <span>Gain (${gainCount})</span>
+            </button>
+            <button class="sim-tab-btn ${activeFilter === 'LOSS' ? 'active' : ''}" data-vol-trade-filter="LOSS" type="button">
+              <span class="sim-tab-dot dot-red"></span> <span>Loss (${lossCount})</span>
+            </button>
+            <button class="sim-tab-btn ${activeFilter === 'BREAKEVEN' ? 'active' : ''}" data-vol-trade-filter="BREAKEVEN" type="button">
+              <span class="sim-tab-dot dot-gray"></span> <span>Breakeven (${beCount})</span>
+            </button>
+          </div>
+
+          <div class="sim-toolbar-right">
+            <div class="sim-search-wrap">
+              <span class="sim-search-ico">🔍</span>
+              <input class="sim-search-input" id="volTradeSearchInput" placeholder="Pesquisar ativo (ex: PETR4, VALE3...)" type="text" value="${escapeHtml(vState.searchQuery || '')}">
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-table-wrap">
+          <table class="sim-table">
             <thead>
               <tr>
                 <th>Ativo</th>
-                <th>Sinal</th>
-                <th>Entrada (T+1 Open)</th>
-                <th>Gap %</th>
-                <th>Qtd</th>
-                <th>Saída (Data & Preço)</th>
+                <th>Sinal & Indicadores</th>
+                <th>Data Sinal (D-1)</th>
+                <th>Data Entrada (T+1)</th>
+                <th>Preço Exec.</th>
+                <th>Posição / Capital</th>
+                <th>Saída & Preço</th>
                 <th>Motivo da Saída</th>
-                <th>Holding</th>
-                <th>Retorno %</th>
-                <th>Resultado R$</th>
+                <th style="text-align:center;">Duração</th>
+                <th>MAE / MFE</th>
+                <th>Resultado (R)</th>
+                <th>Resultado (R$ / %)</th>
+                <th style="text-align: center;">Auditoria</th>
               </tr>
             </thead>
             <tbody>
-              ${trades.map(t => `
-                <tr>
-                  <td><strong>${t.symbol}</strong></td>
-                  <td>${t.signalDate}</td>
-                  <td>${t.entryDate} (R$ ${t.entryPrice.toFixed(2)})</td>
-                  <td style="color:${t.entryGapPct >= 0 ? '#10b981' : '#f87171'};">${t.entryGapPct >= 0 ? '+' : ''}${t.entryGapPct.toFixed(2)}%</td>
-                  <td>${t.sharesQuantity}</td>
-                  <td>${t.exitDate} (R$ ${t.exitPrice.toFixed(2)})</td>
-                  <td>
-                    ${t.exitReason === 'TARGET_MA_RECOVERY'
-                      ? '<span style="color:#38bdf8; font-weight:700;">🎯 Recuperação SMA7</span>'
-                      : '<span style="color:#fbbf24; font-weight:700;">⏳ Saída Temporal (D7)</span>'}
-                  </td>
-                  <td>${t.holdingSessions} pregões</td>
-                  <td style="color:${t.returnPct >= 0 ? '#10b981' : '#f87171'}; font-weight:700;">${t.returnPct >= 0 ? '+' : ''}${t.returnPct.toFixed(2)}%</td>
-                  <td style="color:${t.netPnl >= 0 ? '#10b981' : '#f87171'}; font-weight:800;">R$ ${t.netPnl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                </tr>
-              `).join('')}
+              ${rowsHtml}
             </tbody>
           </table>
         </div>
-      `;
-    }
+      </div>
+    `;
+  }
 
-    // Default: summary tab
-    const exits = sim?.metrics?.exitsBreakdown || { TARGET_MA_RECOVERY: 0, TIME_EXIT: 0 };
-    const totalExits = (exits.TARGET_MA_RECOVERY || 0) + (exits.TIME_EXIT || 0);
-    const recPct = totalExits > 0 ? ((exits.TARGET_MA_RECOVERY || 0) / totalExits * 100).toFixed(1) : 0;
-    const timePct = totalExits > 0 ? ((exits.TIME_EXIT || 0) / totalExits * 100).toFixed(1) : 0;
+  /**
+   * ABA 3 (MODO B): ANÁLISE POR ATIVO DO VOLATILITY TRADING
+   */
+  function renderVolatilityAssetAnalysisTab() {
+    ensureVolatilitySimulationLoaded();
+    const sim = state.volatilityState.simulationResult;
+    return renderAssetAnalysisTab({ assetBreakdown: sim?.assetBreakdown || [] }, sim?.metrics || {});
+  }
+
+  /**
+   * ABA 4 (MODO B): ANÁLISE POR GATILHO / EXPERIMENTOS IFR(2) E FORÇA RELATIVA (SEÇÕES 4.9 E 9)
+   */
+  function renderVolatilitySetupAnalysisTab() {
+    ensureVolatilitySimulationLoaded();
+    const vState = state.volatilityState;
+    const comp = vState.comparisonResult;
+    const rsComp = vState.rsComparisonResult;
+    const normRow = (r = {}) => ({
+      ...r,
+      name: r.name || `IFR(2) ≤ ${r.oversoldLevel ?? r.oversold ?? 10}`,
+      description: r.description || '',
+      oversoldLevel: Number(r.oversoldLevel ?? r.oversold ?? 10),
+      tradesCount: Number(r.tradesCount ?? r.trades ?? 0),
+      winRatePct: Number(r.winRatePct ?? (r.winRate != null ? r.winRate * 100 : 0)),
+      profitFactor: Number(r.profitFactor ?? 0),
+      expectancyPct: Number(r.expectancyPct ?? (r.avgReturn != null ? r.avgReturn * 100 : 0)),
+      avgHoldingSessions: Number(r.avgHoldingSessions ?? r.avgHolding ?? 0),
+      maxDrawdownPct: Number(r.maxDrawdownPct ?? (r.maxDrawdown != null ? r.maxDrawdown * 100 : 0)),
+      netProfit: Number(r.netProfit ?? 0)
+    });
+    const results = (comp?.results || []).map(normRow);
+    const rsResults = (rsComp?.results || []).map(normRow);
+
+    const bestWr = results.reduce((b, x) => (!b || x.winRatePct > b.winRatePct) ? x : b, results[0]);
+    const bestPf = results.reduce((b, x) => (!b || x.profitFactor > b.profitFactor) ? x : b, results[0]);
+    const bestNet = results.reduce((b, x) => (!b || x.netProfit > b.netProfit) ? x : b, results[0]);
+
+    const ifrRowsHtml = results.map(r => {
+      const isCurrent = Number(vState.oversoldLevel) === Number(r.oversoldLevel);
+      const isPos = r.netProfit >= 0;
+      return `
+        <tr style="${isCurrent ? 'background:#f0f9ff;' : ''}">
+          <td>
+            <div style="font-weight:700; color:#0f172a;">
+              ${escapeHtml(r.name)}
+              ${isCurrent ? '<span class="sim-status-pill" style="margin-left:6px; background:#0284c7; color:#fff;">Ativo</span>' : ''}
+            </div>
+            <div style="font-size:11px; color:#64748b;">${escapeHtml(r.description || '')}</div>
+          </td>
+          <td style="text-align:center; font-weight:700;">${r.tradesCount}</td>
+          <td style="text-align:center; font-weight:700; color:${r.winRatePct >= 60 ? '#059669' : '#0f172a'};">${r.winRatePct.toFixed(1).replace('.', ',')}%</td>
+          <td style="text-align:center; font-weight:700;">${r.profitFactor.toFixed(2).replace('.', ',')}</td>
+          <td style="text-align:center; color:${r.expectancyPct >= 0 ? '#059669' : '#ef4444'}; font-weight:700;">${r.expectancyPct >= 0 ? '+' : ''}${r.expectancyPct.toFixed(2).replace('.', ',')}%</td>
+          <td style="text-align:center;">${r.avgHoldingSessions.toFixed(1)} pregões</td>
+          <td style="text-align:center; color:#ef4444; font-weight:600;">-${r.maxDrawdownPct.toFixed(2).replace('.', ',')}%</td>
+          <td style="text-align:center; font-weight:800; color:${isPos ? '#059669' : '#ef4444'};">
+            ${isPos ? '+ ' : '- '}R$ ${formatMoney(Math.abs(r.netProfit)).replace('R$ ', '')}
+          </td>
+          <td style="text-align:center;">
+            <button type="button" class="sim-btn-view-analysis" data-vol-apply-oversold="${r.oversoldLevel}">
+              <span>${isCurrent ? '✓ Selecionado' : 'Aplicar Gatilho'}</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    const rsRowsHtml = rsResults.map(r => {
+      const rsMode = r.parameters?.rsFilterMode || 'NONE';
+      const isCurrent = (vState.rsFilterMode || 'NONE') === rsMode;
+      const isPos = r.netProfit >= 0;
+      return `
+        <tr style="${isCurrent ? 'background:#f0fdf4;' : ''}">
+          <td>
+            <div style="font-weight:700; color:#0f172a;">
+              ${escapeHtml(r.name)}
+              ${isCurrent ? '<span class="sim-status-pill" style="margin-left:6px; background:#059669; color:#fff;">Ativo</span>' : ''}
+            </div>
+            <div style="font-size:11px; color:#64748b;">${escapeHtml(r.description || '')}</div>
+          </td>
+          <td style="text-align:center; font-weight:700;">${r.tradesCount}</td>
+          <td style="text-align:center; font-weight:700; color:${r.winRatePct >= 60 ? '#059669' : '#0f172a'};">${r.winRatePct.toFixed(1).replace('.', ',')}%</td>
+          <td style="text-align:center; font-weight:700;">${r.profitFactor.toFixed(2).replace('.', ',')}</td>
+          <td style="text-align:center; color:${r.expectancyPct >= 0 ? '#059669' : '#ef4444'}; font-weight:700;">${r.expectancyPct >= 0 ? '+' : ''}${r.expectancyPct.toFixed(2).replace('.', ',')}%</td>
+          <td style="text-align:center; color:#ef4444; font-weight:600;">-${r.maxDrawdownPct.toFixed(2).replace('.', ',')}%</td>
+          <td style="text-align:center; font-weight:800; color:${isPos ? '#059669' : '#ef4444'};">
+            ${isPos ? '+ ' : '- '}R$ ${formatMoney(Math.abs(r.netProfit)).replace('R$ ', '')}
+          </td>
+          <td style="text-align:center;">
+            <button type="button" class="sim-btn-view-analysis" data-vol-apply-rs="${escapeHtml(rsMode)}">
+              <span>${isCurrent ? '✓ Selecionado' : 'Testar Filtro RS'}</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
 
     return `
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
-        <!-- Distribuição por Motivo de Saída -->
-        <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px;">
-          <h3 style="font-size:14px; font-weight:800; color:#f8fafc; margin:0 0 14px 0; text-transform:uppercase; letter-spacing:0.5px;">Distribuição de Saídas</h3>
-          <div style="display:flex; flex-direction:column; gap:12px;">
-            <div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
-                <span style="color:#38bdf8; font-weight:700;">🎯 Recuperação na Média (Close > SMA7)</span>
-                <strong>${exits.TARGET_MA_RECOVERY || 0} (${recPct}%)</strong>
-              </div>
-              <div style="height:8px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden;">
-                <div style="height:100%; width:${recPct}%; background:#38bdf8; border-radius:999px;"></div>
+      <div class="sim-summary-container">
+        <div class="sim-rebuild-card">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">🔬</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Experimentos Estruturados — Limiares de Sobrevenda IFR(2) (Seção 9)</h2>
+                <p class="sim-rebuild-card-desc">Comparação científica sob o mesmo universo, período e regras de saída para descobrir em qual nível de exaustão vendedora o sistema apresenta maior vantagem estatística.</p>
               </div>
             </div>
+          </div>
 
-            <div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
-                <span style="color:#fbbf24; font-weight:700;">⏳ Saída Temporal (D7)</span>
-                <strong>${exits.TIME_EXIT || 0} (${timePct}%)</strong>
-              </div>
-              <div style="height:8px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden;">
-                <div style="height:100%; width:${timePct}%; background:#fbbf24; border-radius:999px;"></div>
-              </div>
+          <div class="sim-rebuild-kpis-grid" style="margin-bottom: 20px;">
+            <div class="sim-mini-kpi-card">
+              <div class="sim-mini-kpi-title">Maior Taxa de Acerto</div>
+              <div class="sim-mini-kpi-val pos" style="font-size: 18px; margin: 8px 0;">IFR(2) ≤ ${bestWr?.oversoldLevel || 10}</div>
+              <div class="sim-mini-kpi-sub">${bestWr ? `${bestWr.winRatePct.toFixed(1)}% de acerto (${bestWr.tradesCount} trades)` : '—'}</div>
             </div>
+            <div class="sim-mini-kpi-card">
+              <div class="sim-mini-kpi-title">Maior Profit Factor</div>
+              <div class="sim-mini-kpi-val pos" style="font-size: 18px; margin: 8px 0;">IFR(2) ≤ ${bestPf?.oversoldLevel || 10}</div>
+              <div class="sim-mini-kpi-sub">${bestPf ? `Profit Factor ${bestPf.profitFactor.toFixed(2)}` : '—'}</div>
+            </div>
+            <div class="sim-mini-kpi-card">
+              <div class="sim-mini-kpi-title">Maior Resultado Financeiro</div>
+              <div class="sim-mini-kpi-val pos" style="font-size: 18px; margin: 8px 0;">IFR(2) ≤ ${bestNet?.oversoldLevel || 10}</div>
+              <div class="sim-mini-kpi-sub">${bestNet ? `R$ ${formatMoney(bestNet.netProfit).replace('R$ ', '')}` : '—'}</div>
+            </div>
+            <div class="sim-mini-kpi-card">
+              <div class="sim-mini-kpi-title">Limiar Ativo na Simulação</div>
+              <div class="sim-mini-kpi-val" style="font-size: 18px; margin: 8px 0;">IFR(2) ≤ ${vState.oversoldLevel || 10}</div>
+              <div class="sim-mini-kpi-sub">Filtro RS: ${vState.rsFilterMode || 'NONE'}</div>
+            </div>
+          </div>
+
+          <div class="sim-table-wrap">
+            <table class="sim-table">
+              <thead>
+                <tr>
+                  <th>Experimento IFR(2)</th>
+                  <th style="text-align:center;">Trades</th>
+                  <th style="text-align:center;">Win Rate</th>
+                  <th style="text-align:center;">Profit Factor</th>
+                  <th style="text-align:center;">Expectativa (%)</th>
+                  <th style="text-align:center;">Permanência</th>
+                  <th style="text-align:center;">Max DD (%)</th>
+                  <th style="text-align:center;">Lucro Líquido (R$)</th>
+                  <th style="text-align:center;">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ifrRowsHtml}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <!-- Curva de Equity Resumida -->
-        <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px;">
-          <h3 style="font-size:14px; font-weight:800; color:#f8fafc; margin:0 0 14px 0; text-transform:uppercase; letter-spacing:0.5px;">Evolução de Patrimônio</h3>
-          <div style="font-size:12px; color:#94a3b8; margin-bottom:8px;">
-            Capital Inicial: <strong>R$ ${Number(vState.initialCapital || 100000).toLocaleString('pt-BR')}</strong> ·
-            Patrimônio Final: <strong style="color:#10b981;">R$ ${Number((vState.initialCapital || 100000) + (sim?.metrics?.netProfit || 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
+        <!-- Seção 4.9: Experimentos com Filtro de Força Relativa -->
+        <div class="sim-rebuild-card" style="margin-top: 20px;">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">⚡</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Experimento Científico — Impacto do Filtro de Força Relativa no Volatility Trading (Seção 4.9)</h2>
+                <p class="sim-rebuild-card-desc">Avalia estatisticamente se restringir compras de reversão à média a ativos com Força Relativa positiva ou crescente melhora o Profit Factor e o Drawdown.</p>
+              </div>
+            </div>
           </div>
-          <div style="font-size:11px; color:#64748b;">
-            Pontos de curva registrados: ${sim?.equityCurve?.length || 0} pregões com marcação a mercado e absorção de slippage.
+
+          <div class="sim-table-wrap" style="margin-top: 12px;">
+            <table class="sim-table">
+              <thead>
+                <tr>
+                  <th>Configuração do Filtro de Força Relativa (RS)</th>
+                  <th style="text-align:center;">Trades</th>
+                  <th style="text-align:center;">Win Rate</th>
+                  <th style="text-align:center;">Profit Factor</th>
+                  <th style="text-align:center;">Expectativa (%)</th>
+                  <th style="text-align:center;">Max DD (%)</th>
+                  <th style="text-align:center;">Lucro Líquido (R$)</th>
+                  <th style="text-align:center;">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rsRowsHtml}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     `;
   }
 
-  function bindVolatilityEvents(rootEl) {
-    // Strategy toggle buttons
-    rootEl.querySelectorAll('[data-sim-strat]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const strat = btn.getAttribute('data-sim-strat');
-        setSimulatorStrategy(strat);
+  /**
+   * ABA 5 (MODO B): EVOLUÇÃO NO TEMPO E REGIMES DE MERCADO DO VOLATILITY TRADING
+   */
+  function renderVolatilityTimelineTab() {
+    ensureVolatilitySimulationLoaded();
+    const sim = state.volatilityState.simulationResult;
+    const m = sim?.metrics || {};
+    const initCap = Number(sim?.metadata?.config?.initialCapital || state.initialCapital || 500000);
+    const finEq = Number(m.finalEquity || (initCap + (m.netProfit || 0)));
+    const netRet = Number(m.totalReturnPct || 0);
+    const netCash = Number(m.netProfit || 0);
+    const maxDdPct = Number(m.maxDrawdownPct || 0);
+    const curve = sim?.equityCurve || [];
+    const regimes = sim?.regimeBreakdown || [];
+
+    // Gera SVG da curva de capital do Volatility Trading
+    const svgW = 860;
+    const svgH = 220;
+    let pathD = '';
+    if (curve.length > 1) {
+      const vals = curve.map(c => c.equity);
+      const minV = Math.min(initCap * 0.98, ...vals);
+      const maxV = Math.max(initCap * 1.02, ...vals);
+      const span = Math.max(1, maxV - minV);
+      pathD = curve.map((pt, i) => {
+        const x = 20 + (i / (curve.length - 1)) * (svgW - 40);
+        const y = svgH - 24 - ((pt.equity - minV) / span) * (svgH - 48);
+        return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+    }
+
+    const regimeRows = regimes.map(r => `
+      <tr>
+        <td style="font-weight:700;">${escapeHtml(r.label)}</td>
+        <td style="text-align:center; font-weight:600;">${r.tradesCount}</td>
+        <td style="text-align:center; font-weight:700; color:${r.winRatePct >= 60 ? '#059669' : '#0f172a'};">${r.winRatePct.toFixed(1).replace('.', ',')}%</td>
+        <td style="text-align:center;">${r.avgReturnPct >= 0 ? '+' : ''}${r.avgReturnPct.toFixed(2).replace('.', ',')}%</td>
+        <td style="text-align:center; font-weight:600;">${r.profitFactor.toFixed(2).replace('.', ',')}</td>
+        <td style="text-align:center; font-weight:800; color:${r.netProfit >= 0 ? '#059669' : '#ef4444'};">
+          ${r.netProfit >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(r.netProfit)).replace('R$ ', '')}
+        </td>
+      </tr>
+    `).join('');
+
+    return `
+      <div class="sim-timeline-container">
+        <div class="sim-rebuild-card">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">⏱️</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Evolução no Tempo (Volatility Trading)</h2>
+                <p class="sim-rebuild-card-desc">Curva de patrimônio diário marcada a mercado, controle de drawdown e comportamento por regime de mercado.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-rebuild-kpis-grid" style="margin-bottom: 24px;">
+            <div class="sim-mini-kpi-card">
+              <div class="sim-mini-kpi-title">Capital Inicial</div>
+              <div class="sim-mini-kpi-val" style="font-size: 20px; margin: 8px 0;">R$ ${formatMoney(initCap).replace('R$ ', '')}</div>
+              <div class="sim-mini-kpi-sub">Base de referência</div>
+            </div>
+            <div class="sim-mini-kpi-card">
+              <div class="sim-mini-kpi-title">Patrimônio Final</div>
+              <div class="sim-mini-kpi-val ${finEq >= initCap ? 'pos' : 'neg'}" style="font-size: 20px; margin: 8px 0;">R$ ${formatMoney(finEq).replace('R$ ', '')}</div>
+              <div class="sim-mini-kpi-sub">Marcação diária a mercado</div>
+            </div>
+            <div class="sim-mini-kpi-card">
+              <div class="sim-mini-kpi-title">Retorno Líquido Total</div>
+              <div class="sim-mini-kpi-val ${netRet >= 0 ? 'pos' : 'neg'}" style="font-size: 20px; margin: 8px 0;">${netRet >= 0 ? '+' : ''}${netRet.toFixed(2).replace('.', ',')}%</div>
+              <div class="sim-mini-kpi-sub">${netCash >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(netCash)).replace('R$ ', '')} líquidos</div>
+            </div>
+            <div class="sim-mini-kpi-card">
+              <div class="sim-mini-kpi-title">Drawdown Máximo</div>
+              <div class="sim-mini-kpi-val neg" style="font-size: 20px; margin: 8px 0;">-${Math.abs(maxDdPct).toFixed(2).replace('.', ',')}%</div>
+              <div class="sim-mini-kpi-sub">Exposição no tempo: ${(m.exposurePct || 0).toFixed(1)}%</div>
+            </div>
+          </div>
+
+          <!-- Curva de Capital SVG -->
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:16px; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <strong style="font-size:13px; color:#0f172a;">Curva de Patrimônio Acumulado (${curve.length} pregões)</strong>
+              <span style="font-size:12px; color:#0284c7; font-weight:700;">⚡ VolatilityTradingEngine</span>
+            </div>
+            ${pathD ? `
+              <svg viewBox="0 0 ${svgW} ${svgH}" style="width:100%; height:200px; display:block;">
+                <line x1="20" y1="${svgH / 2}" x2="${svgW - 20}" y2="${svgH / 2}" stroke="#cbd5e1" stroke-dasharray="4 4" />
+                <path d="${pathD}" fill="none" stroke="#0284c7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            ` : '<p style="text-align:center; color:#64748b; padding:30px;">Sem dados de curva para o período.</p>'}
+          </div>
+
+          <!-- Performance por Regime de Mercado -->
+          <h3 style="font-size:14px; font-weight:800; color:#0f172a; margin:16px 0 10px;">Comportamento por Regime de Mercado (Bull, Sideways, Correction)</h3>
+          <div class="sim-table-wrap">
+            <table class="sim-table">
+              <thead>
+                <tr>
+                  <th>Regime de Mercado</th>
+                  <th style="text-align:center;">Trades</th>
+                  <th style="text-align:center;">Win Rate</th>
+                  <th style="text-align:center;">Retorno Médio (%)</th>
+                  <th style="text-align:center;">Profit Factor</th>
+                  <th style="text-align:center;">Lucro Líquido (R$)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${regimeRows}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * ABA 6 & MODO C: COMPARATIVO DE ESTRATÉGIAS LADO A LADO (SEÇÕES 3, 6 E 7)
+   */
+  function renderStrategyComparisonTab(rubricReport, stats, filteredTrades) {
+    ensureVolatilitySimulationLoaded();
+    const volSim = state.volatilityState.simulationResult;
+    const initCap = Math.max(1000, Number(state.initialCapital || 500000));
+
+    const cmp = (root.VolatilityTradeSimulatorModel && typeof root.VolatilityTradeSimulatorModel.compareSystems === 'function')
+      ? root.VolatilityTradeSimulatorModel.compareSystems({
+          trendStats: stats || {},
+          trendRubricReport: rubricReport || {},
+          trendTrades: filteredTrades || [],
+          volatilityResult: volSim || {},
+          initialCapital: initCap
+        })
+      : null;
+
+    if (!cmp) {
+      return `<div class="sim-rebuild-card"><p>Carregando comparativo entre sistemas...</p></div>`;
+    }
+
+    const tf = cmp.trendFollowing;
+    const vol = cmp.volatilityTrading;
+    const rows = cmp.comparisonRows || [];
+    const regimeComp = cmp.regimeComparison || [];
+
+    return `
+      <div class="sim-summary-container">
+        <!-- Cards Executivos Lado a Lado -->
+        <div class="sim-comparison-dual-cards">
+          <!-- Card Sistema 01: Trend Following -->
+          <div class="sim-rebuild-card sim-system-card is-trend-card">
+            <div class="sim-system-card-header">
+              <span class="sim-system-badge badge-trend">🌿 SISTEMA 01 — TREND FOLLOWING</span>
+              <span class="sim-system-tag">Acompanhamento de Tendências</span>
+            </div>
+            <div class="sim-system-main-kpi">
+              <div>
+                <div class="sim-subcard-label">Resultado Líquido (Trend Following)</div>
+                <div class="sim-subcard-main-val ${tf.netProfit >= 0 ? 'pos' : 'neg'}">
+                  ${tf.netProfit >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(tf.netProfit)).replace('R$ ', '')}
+                </div>
+                <div style="font-size:12px; color:#475569; margin-top:4px;">
+                  Retorno: <strong>${tf.totalReturnPct >= 0 ? '+' : ''}${tf.totalReturnPct.toFixed(2)}%</strong> ·
+                  Trades: <strong>${tf.totalTrades}</strong> ·
+                  Win Rate: <strong>${tf.winRatePct.toFixed(1)}%</strong>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:11px; color:#64748b; font-weight:700;">PROFIT FACTOR / SQN</div>
+                <div style="font-size:18px; font-weight:800; color:#047857;">PF ${tf.profitFactor.toFixed(2)} · SQN ${escapeHtml(tf.sqnFormatted)}</div>
+                <div style="font-size:11px; color:#64748b;">Holding médio: ${tf.avgHoldingSessions.toFixed(1)}d</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Sistema 02: Volatility Trading -->
+          <div class="sim-rebuild-card sim-system-card is-vol-card">
+            <div class="sim-system-card-header">
+              <span class="sim-system-badge badge-vol">⚡ SISTEMA 02 — VOLATILITY TRADING (IFR 2)</span>
+              <span class="sim-system-tag">Reversão à Média (Diário)</span>
+            </div>
+            <div class="sim-system-main-kpi">
+              <div>
+                <div class="sim-subcard-label">Resultado Líquido (Volatility Trading)</div>
+                <div class="sim-subcard-main-val ${vol.netProfit >= 0 ? 'pos' : 'neg'}">
+                  ${vol.netProfit >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(vol.netProfit)).replace('R$ ', '')}
+                </div>
+                <div style="font-size:12px; color:#475569; margin-top:4px;">
+                  Retorno: <strong>${vol.totalReturnPct >= 0 ? '+' : ''}${vol.totalReturnPct.toFixed(2)}%</strong> ·
+                  Trades: <strong>${vol.totalTrades}</strong> ·
+                  Win Rate: <strong>${vol.winRatePct.toFixed(1)}%</strong>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:11px; color:#64748b; font-weight:700;">PROFIT FACTOR / SQN</div>
+                <div style="font-size:18px; font-weight:800; color:#0284c7;">PF ${vol.profitFactor.toFixed(2)} · SQN ${escapeHtml(vol.sqnFormatted)}</div>
+                <div style="font-size:11px; color:#64748b;">Holding médio: ${vol.avgHoldingSessions.toFixed(1)}d</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela Comparativa Lado a Lado das 20 Métricas Obrigatórias -->
+        <div class="sim-rebuild-card" style="margin-top: 20px;">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">⚖️</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Comparativo Lado a Lado das 20 Métricas Estatísticas (Seções 6 e 7)</h2>
+                <p class="sim-rebuild-card-desc">Backtests 100% independentes executados sob o mesmo período, universo de ativos e capital inicial (R$ ${formatMoney(initCap).replace('R$ ', '')}).</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-table-wrap" style="margin-top: 12px;">
+            <table class="sim-table">
+              <thead>
+                <tr>
+                  <th style="width: 36%;">Métrica Estatística</th>
+                  <th style="width: 32%; background: rgba(16, 185, 129, 0.08); color: #047857;">🌿 Sistema 01 — Trend Following</th>
+                  <th style="width: 32%; background: rgba(2, 132, 199, 0.08); color: #0369a1;">⚡ Sistema 02 — Volatility Trading (IFR 2)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map(r => `
+                  <tr>
+                    <td style="font-weight: 700; color: #0f172a;">${escapeHtml(r.label)}</td>
+                    <td style="font-weight: 600; color: #1e293b; background: rgba(16, 185, 129, 0.02);">${escapeHtml(r.trendValue)}</td>
+                    <td style="font-weight: 600; color: #1e293b; background: rgba(2, 132, 199, 0.02);">${escapeHtml(r.volatilityValue)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Comparação por Regime de Mercado (Bull, Sideways, Correction — Seção 7.3) -->
+        <div class="sim-rebuild-card" style="margin-top: 20px;">
+          <div class="sim-rebuild-card-head">
+            <div class="sim-rebuild-card-head-left">
+              <span class="sim-rebuild-head-icon icon-chart">🧭</span>
+              <div>
+                <h2 class="sim-rebuild-card-title">Performance Comparada por Regime de Mercado (Seção 7.3)</h2>
+                <p class="sim-rebuild-card-desc">Avalia a complementaridade estrutural entre acompanhamento de tendência e reversão à média em mercados direcionais, laterais e em correção.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-table-wrap" style="margin-top: 12px;">
+            <table class="sim-table">
+              <thead>
+                <tr>
+                  <th>Regime de Mercado</th>
+                  <th style="text-align:center; color:#047857;">Trend Following (Trades / Win Rate)</th>
+                  <th style="text-align:center; color:#047857;">Trend Following (Resultado R$)</th>
+                  <th style="text-align:center; color:#0369a1;">Volatility Trading (Trades / Win Rate)</th>
+                  <th style="text-align:center; color:#0369a1;">Volatility Trading (Resultado R$)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${regimeComp.map(rc => `
+                  <tr>
+                    <td style="font-weight:700;">${escapeHtml(rc.label)}</td>
+                    <td style="text-align:center;">${rc.trendFollowing.tradesCount} trades (${rc.trendFollowing.winRatePct.toFixed(1)}%)</td>
+                    <td style="text-align:center; font-weight:700; color:${rc.trendFollowing.netProfit >= 0 ? '#059669' : '#ef4444'};">
+                      ${rc.trendFollowing.netProfit >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(rc.trendFollowing.netProfit)).replace('R$ ', '')}
+                    </td>
+                    <td style="text-align:center;">${rc.volatilityTrading.tradesCount} trades (${rc.volatilityTrading.winRatePct.toFixed(1)}%)</td>
+                    <td style="text-align:center; font-weight:700; color:${rc.volatilityTrading.netProfit >= 0 ? '#059669' : '#ef4444'};">
+                      ${rc.volatilityTrading.netProfit >= 0 ? '+ ' : '- '}R$ ${formatMoney(Math.abs(rc.volatilityTrading.netProfit)).replace('R$ ', '')}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * MODAL DE AUDITORIA DETALHADA DE OPERAÇÃO DO VOLATILITY TRADING
+   */
+  function renderVolatilityTradeAuditModal() {
+    const vState = state.volatilityState;
+    if (!vState.selectedVolTradeId) return '';
+    const trades = vState.simulationResult?.trades || [];
+    const t = trades.find(x => x.id === vState.selectedVolTradeId);
+    if (!t) return '';
+
+    const isWin = t.netPnl >= 0;
+    return `
+      <div class="sim-modal-overlay open" id="volTradeAuditModalOverlay" style="z-index: 1100;">
+        <div class="sim-modal" style="max-width: 680px;">
+          <div class="sim-modal-header">
+            <div>
+              <span class="sim-status-pill" style="background:#e0f2fe; color:#0369a1; margin-bottom:4px;">⚡ AUDITORIA DE EXECUÇÃO — VOLATILITY TRADING</span>
+              <h2>${escapeHtml(t.symbol)} — ${escapeHtml(t.companyName || t.symbol)}</h2>
+            </div>
+            <button type="button" class="sim-modal-close" id="volTradeAuditModalClose">✕</button>
+          </div>
+          <div class="sim-modal-body" style="display:flex; flex-direction:column; gap:14px;">
+            <div class="sim-rebuild-kpis-grid" style="grid-template-columns: repeat(3, 1fr);">
+              <div class="sim-mini-kpi-card">
+                <div class="sim-mini-kpi-title">Data do Sinal (D-1)</div>
+                <div class="sim-mini-kpi-val" style="font-size:16px;">${formatDateBR(t.signalDate)}</div>
+                <div class="sim-mini-kpi-sub">Fechamento: ${formatMoney(t.signalPrice)}</div>
+              </div>
+              <div class="sim-mini-kpi-card">
+                <div class="sim-mini-kpi-title">Entrada (T+1 Open)</div>
+                <div class="sim-mini-kpi-val" style="font-size:16px;">${formatDateBR(t.entryDate)}</div>
+                <div class="sim-mini-kpi-sub">Open: ${formatMoney(t.executedEntryPrice || t.entryPrice)} (Gap ${t.entryGapPct >= 0 ? '+' : ''}${Number(t.entryGapPct || 0).toFixed(2)}%)</div>
+              </div>
+              <div class="sim-mini-kpi-card">
+                <div class="sim-mini-kpi-title">Saída (${t.holdingSessions} pregões)</div>
+                <div class="sim-mini-kpi-val ${isWin ? 'pos' : 'neg'}" style="font-size:16px;">${formatDateBR(t.exitDate)}</div>
+                <div class="sim-mini-kpi-sub">Preço: ${formatMoney(t.executedExitPrice || t.exitPrice)}</div>
+              </div>
+            </div>
+
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px;">
+              <strong style="display:block; font-size:12px; color:#0f172a; margin-bottom:8px;">Condições Validadas no Fechamento do Sinal (${formatDateBR(t.signalDate)}):</strong>
+              <ul style="margin:0; padding-left:18px; font-size:12.5px; color:#334155; line-height:1.6;">
+                <li><strong>IFR(2) Sobrevendido:</strong> ${Number(t.signalIndicators?.ifr || 0).toFixed(2)} (Limiar configurado)</li>
+                <li><strong>Abaixo da SMA(7):</strong> Fechamento ${formatMoney(t.signalPrice)} &lt; SMA(7) ${formatMoney(t.signalIndicators?.smaShort || 0)}</li>
+                <li><strong>Acima da SMA(200):</strong> Fechamento ${formatMoney(t.signalPrice)} &gt; SMA(200) ${formatMoney(t.signalIndicators?.smaLong || 0)}</li>
+                <li><strong>Posição e Resultado:</strong> ${t.sharesQuantity} ações (${formatMoney(t.allocatedCapital)}) → <strong>${isWin ? '+' : '-'}R$ ${formatMoney(Math.abs(t.netPnl)).replace('R$ ', '')} (${t.returnPct >= 0 ? '+' : ''}${t.returnPct.toFixed(2)}%)</strong></li>
+                <li><strong>Excursão da Operação:</strong> MAE ${Number(t.maePct || 0).toFixed(2)}% | MFE +${Number(t.mfePct || 0).toFixed(2)}%</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * SEÇÃO 5.2 — CONFIGURAÇÕES AVANÇADAS (DRAWER / PAINEL LATERAL POR CATEGORIA)
+   */
+  function renderAdvancedConfigDrawer(scoped) {
+    if (!state.advConfigOpen) return '';
+    const mode = state.activeStrategyMode || 'TREND_FOLLOWING';
+    const vState = state.volatilityState;
+    const isVol = mode === 'VOLATILITY_TRADING';
+    const isCmp = mode === 'SYSTEM_COMPARISON';
+
+    const allocValFormatted = vState.positionSizingModel === 'EQUITY_PERCENT'
+      ? `${Number(vState.equityPercentPerTrade || 2).toFixed(1).replace('.', ',')}`
+      : `R$ ${formatMoney(vState.fixedCapitalPerTrade || 10000).replace('R$ ', '')}`;
+
+    const sqnRiskRaw = vState.financialRiskUnitMode === 'NONE'
+      ? 'NONE'
+      : `${vState.financialRiskUnitMode || 'ALLOCATED_PCT'}:${vState.financialRiskUnitValue || 5}`;
+
+    const envLabel = isVol
+      ? 'Volatility Trading'
+      : (isCmp ? 'Comparação entre Sistemas' : 'Trend Following');
+
+    return `
+      <div class="sim-modal-overlay sim-adv-config-overlay open" id="simAdvConfigOverlay" role="dialog" aria-modal="true" aria-label="Configurações Avançadas do Simulador">
+        <div class="sim-adv-config-drawer" data-drawer-env="${mode}">
+          <div class="sim-adv-config-head">
+            <div>
+              <span class="sim-adv-config-eyebrow">Parâmetros Operacionais • ${envLabel}</span>
+              <h3 class="sim-adv-config-title">Configurações da Estratégia</h3>
+            </div>
+            <button type="button" class="sim-modal-close" id="simAdvConfigClose" title="Fechar Configurações">✕</button>
+          </div>
+
+          <div class="sim-adv-config-body">
+            <!-- Categoria 1: Indicadores e Gatilhos -->
+            <section class="sim-adv-config-section">
+              <div class="sim-adv-section-title">
+                <span>🎯</span>
+                <span>Indicadores e Gatilhos</span>
+              </div>
+              <div class="sim-adv-grid">
+                ${!isVol ? `
+                <div class="sim-adv-field">
+                  <label for="simFilterTrigger">Gatilho Operacional (Trend Following)</label>
+                  <select class="sim-header-select" id="simFilterTrigger">
+                    <option value="ALL" ${state.filters.trigger === 'ALL' ? 'selected' : ''}>Todos os gatilhos</option>
+                    <option value="Gatilho 123" ${state.filters.trigger === 'Gatilho 123' ? 'selected' : ''}>Gatilho 123</option>
+                    <option value="Inside Bar" ${state.filters.trigger === 'Inside Bar' ? 'selected' : ''}>Inside Bar</option>
+                    <option value="Rompimento de Pivô" ${state.filters.trigger === 'Rompimento de Pivô' ? 'selected' : ''}>Rompimento de Pivô</option>
+                    <option value="Pullback na MME9/21" ${state.filters.trigger === 'Pullback na MME9/21' ? 'selected' : ''}>Pullback na MME9/21</option>
+                  </select>
+                </div>
+                <div class="sim-adv-field">
+                  <label>Médias de Tendência (Trend Following)</label>
+                  <div class="sim-adv-readonly-box">EMA 10 (Curta) &amp; EMA 72 (Longa) — Diário</div>
+                </div>
+                ` : ''}
+
+                ${(isVol || isCmp) ? `
+                <div class="sim-adv-field">
+                  <label for="volHeaderOversold">Limite de Sobrevenda IFR(2)</label>
+                  <select class="sim-header-select" id="volHeaderOversold">
+                    <option value="5" ${Number(vState.oversoldLevel) === 5 ? 'selected' : ''}>IFR(2) ≤ 5 (Extremo)</option>
+                    <option value="10" ${Number(vState.oversoldLevel) === 10 ? 'selected' : ''}>IFR(2) ≤ 10 (Oficial)</option>
+                    <option value="15" ${Number(vState.oversoldLevel) === 15 ? 'selected' : ''}>IFR(2) ≤ 15 (Moderado)</option>
+                    <option value="20" ${Number(vState.oversoldLevel) === 20 ? 'selected' : ''}>IFR(2) ≤ 20 (Amplo)</option>
+                  </select>
+                </div>
+                <div class="sim-adv-field">
+                  <label>Médias Móveis (Volatility Trading)</label>
+                  <div class="sim-adv-readonly-box">Close &lt; SMA(${vState.shortMaPeriod || 7}) &amp; Close &gt; SMA(${vState.longMaPeriod || 200})</div>
+                </div>
+                ` : ''}
+              </div>
+            </section>
+
+            <!-- Categoria 2: Filtros -->
+            <section class="sim-adv-config-section">
+              <div class="sim-adv-section-title">
+                <span>🔍</span>
+                <span>Filtros</span>
+              </div>
+              <div class="sim-adv-grid">
+                <div class="sim-adv-field">
+                  <label for="volHeaderRsFilter">Filtro de Força Relativa (RS)</label>
+                  <select class="sim-header-select" id="volHeaderRsFilter">
+                    <option value="NONE" ${vState.rsFilterMode === 'NONE' ? 'selected' : ''}>RS: Sem Filtro (Padrão)</option>
+                    <option value="RS_POSITIVE" ${vState.rsFilterMode === 'RS_POSITIVE' ? 'selected' : ''}>RS: Positiva (&gt; 0)</option>
+                    <option value="RS_RISING" ${vState.rsFilterMode === 'RS_RISING' ? 'selected' : ''}>RS: Crescente (Δ5d &gt; 0)</option>
+                  </select>
+                </div>
+                <div class="sim-adv-field">
+                  <label for="volAdvMinTrades">Liquidez Mínima (Negócios / Dia)</label>
+                  <select class="sim-header-select" id="volAdvMinTrades">
+                    <option value="300" ${Number(vState.minDailyTrades) === 300 ? 'selected' : ''}>≥ 300 negócios/dia (21 pregões)</option>
+                    <option value="500" ${Number(vState.minDailyTrades || 500) === 500 ? 'selected' : ''}>≥ 500 negócios/dia (Padrão Oficial)</option>
+                    <option value="1000" ${Number(vState.minDailyTrades) === 1000 ? 'selected' : ''}>≥ 1.000 negócios/dia (Alta Liquidez)</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <!-- Categoria 3: Dimensionamento -->
+            <section class="sim-adv-config-section">
+              <div class="sim-adv-section-title">
+                <span>📐</span>
+                <span>Dimensionamento</span>
+              </div>
+              <div class="sim-adv-grid">
+                ${!isVol ? `
+                <div class="sim-adv-field">
+                  <label>Qualidade &amp; Risk Budget (Trend Following)</label>
+                  <div>
+                    <button type="button" class="sim-rubric-pill-btn ${state.rubricMode ? 'active' : ''}" id="simBtnRubricModeToggle" title="Alternar entre Modo Rubric (Risk Budget por Grade A, B, C) e Risco Fixo">
+                      <span class="pill-dot"></span>
+                      <span>${state.rubricMode ? 'Modo Rubric Ativado (Grades A, B, C)' : 'Modo Risco Fixo'}</span>
+                    </button>
+                  </div>
+                </div>
+                ` : ''}
+
+                <div class="sim-adv-field">
+                  <label for="volHeaderSizingModel">Modelo de Alocação (Volatility Trading)</label>
+                  <select class="sim-header-select" id="volHeaderSizingModel">
+                    <option value="FIXED_FINANCIAL" ${vState.positionSizingModel === 'FIXED_FINANCIAL' ? 'selected' : ''}>Valor Financeiro Fixo por Trade</option>
+                    <option value="EQUITY_PERCENT" ${vState.positionSizingModel === 'EQUITY_PERCENT' ? 'selected' : ''}>Percentual do Patrimônio (%)</option>
+                  </select>
+                </div>
+
+                <div class="sim-adv-field">
+                  <label for="volHeaderAllocationInput">${vState.positionSizingModel === 'EQUITY_PERCENT' ? 'Percentual por Trade (%)' : 'Valor Financeiro por Trade (R$)'}</label>
+                  <input type="text" id="volHeaderAllocationInput" class="sim-adv-input" value="${allocValFormatted}" />
+                </div>
+
+                <div class="sim-adv-field">
+                  <label for="volAdvMaxPositions">Limite de Posições Simultâneas</label>
+                  <select class="sim-header-select" id="volAdvMaxPositions">
+                    <option value="5" ${Number(vState.maxConcurrentPositions) === 5 ? 'selected' : ''}>Até 5 posições</option>
+                    <option value="10" ${Number(vState.maxConcurrentPositions || 10) === 10 ? 'selected' : ''}>Até 10 posições (Padrão)</option>
+                    <option value="15" ${Number(vState.maxConcurrentPositions) === 15 ? 'selected' : ''}>Até 15 posições</option>
+                    <option value="20" ${Number(vState.maxConcurrentPositions) === 20 ? 'selected' : ''}>Até 20 posições</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <!-- Categoria 4: Execução e Saídas -->
+            <section class="sim-adv-config-section">
+              <div class="sim-adv-section-title">
+                <span>⏱️</span>
+                <span>Execução e Saídas</span>
+              </div>
+              <div class="sim-adv-grid">
+                <div class="sim-adv-field">
+                  <label for="volHeaderExitTiming">Momento de Execução da Saída (SMA7 / Tempo)</label>
+                  <select class="sim-header-select" id="volHeaderExitTiming">
+                    <option value="NEXT_OPEN" ${vState.exitExecutionTiming === 'NEXT_OPEN' ? 'selected' : ''}>Próximo Pregão (Open T+1 — Oficial)</option>
+                    <option value="SAME_CLOSE" ${vState.exitExecutionTiming === 'SAME_CLOSE' ? 'selected' : ''}>Fechamento do Dia do Sinal (D0)</option>
+                  </select>
+                </div>
+
+                <div class="sim-adv-field">
+                  <label for="volAdvHoldingSessions">Permanência Máxima (Time Stop)</label>
+                  <select class="sim-header-select" id="volAdvHoldingSessions">
+                    <option value="5" ${Number(vState.holdingPeriodSessions) === 5 ? 'selected' : ''}>5 pregões</option>
+                    <option value="7" ${Number(vState.holdingPeriodSessions || 7) === 7 ? 'selected' : ''}>7 pregões (Oficial)</option>
+                    <option value="10" ${Number(vState.holdingPeriodSessions) === 10 ? 'selected' : ''}>10 pregões</option>
+                  </select>
+                </div>
+
+                <div class="sim-adv-field">
+                  <label for="volAdvCosts">Custo Operacional por Trade (R$)</label>
+                  <input type="number" step="1" min="0" id="volAdvCosts" class="sim-adv-input" value="${Number(vState.costsPerTrade || 0)}" />
+                </div>
+
+                <div class="sim-adv-field">
+                  <label for="volAdvSlippage">Slippage Estimado (%)</label>
+                  <input type="number" step="0.01" min="0" id="volAdvSlippage" class="sim-adv-input" value="${Number(vState.slippagePct || 0)}" />
+                </div>
+              </div>
+            </section>
+
+            <!-- Categoria 5: Proteções -->
+            <section class="sim-adv-config-section">
+              <div class="sim-adv-section-title">
+                <span>🛡️</span>
+                <span>Proteções</span>
+              </div>
+              <div class="sim-adv-grid">
+                <div class="sim-adv-field">
+                  <label for="volAdvExtremeProtection">Extreme Event Protection (Saída Preventiva D-1)</label>
+                  <select class="sim-header-select" id="volAdvExtremeProtection">
+                    <option value="true" ${vState.extremeEventProtectionEnabled !== false ? 'selected' : ''}>Ativada (Obrigatória antes de Eventos Extremos)</option>
+                    <option value="false" ${vState.extremeEventProtectionEnabled === false ? 'selected' : ''}>Desativada (Apenas para estudo comparativo)</option>
+                  </select>
+                </div>
+
+                <div class="sim-adv-field">
+                  <label for="volAdvSqnRiskUnit">Unidade de Risco Financeiro (SQN Sem Stop)</label>
+                  <select class="sim-header-select" id="volAdvSqnRiskUnit">
+                    <option value="ALLOCATED_PCT:5" ${sqnRiskRaw === 'ALLOCATED_PCT:5' ? 'selected' : ''}>1R = 5,0% do Capital Alocado no Trade</option>
+                    <option value="ALLOCATED_PCT:3" ${sqnRiskRaw === 'ALLOCATED_PCT:3' ? 'selected' : ''}>1R = 3,0% do Capital Alocado no Trade</option>
+                    <option value="EQUITY_PCT:1" ${sqnRiskRaw === 'EQUITY_PCT:1' ? 'selected' : ''}>1R = 1,0% do Patrimônio Total</option>
+                    <option value="NONE" ${sqnRiskRaw === 'NONE' ? 'selected' : ''}>Desativar R Financeiro</option>
+                  </select>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="sim-adv-config-foot">
+            <button type="button" class="sim-btn-header-secondary" id="simAdvConfigResetBtn">Restaurar Padrões</button>
+            <button type="button" class="sim-btn-execute" id="simAdvConfigApplyBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Aplicar e Executar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindMultiStrategyEvents(rootEl) {
+    // 1. Seletor de Metodologia (Trend Following / Volatility Trading / Comparação entre Sistemas)
+    rootEl.querySelectorAll('[data-sim-methodology-btn]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetMode = btn.getAttribute('data-sim-methodology-btn');
+        setSimulatorStrategy(targetMode);
       });
     });
 
-    // Preset pills (IFR levels)
-    rootEl.querySelectorAll('[data-vol-level]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const lvl = parseInt(btn.getAttribute('data-vol-level'), 10);
-        state.volatilityState.activeOversoldPreset = lvl;
-        state.volatilityState.screenTab = 'summary';
-        executeVolatilitySimulation({ oversoldLevel: lvl });
+    // 1.1 Subnavegação da aba agrupada "Análises" (Análise por Ativo vs Análise por Gatilho)
+    rootEl.querySelectorAll('[data-analytics-subtab]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sub = btn.getAttribute('data-analytics-subtab') || 'assets';
+        state.analyticsSubTab = sub;
+        state.screenTab = 'analytics';
+        render();
       });
     });
 
-    // Run simulation button
-    rootEl.querySelector('#volBtnRunSimulation')?.addEventListener('click', () => {
+    // 1.2 Abertura e fechamento do Drawer de Configurações Avançadas
+    rootEl.querySelector('#simBtnOpenAdvConfig')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.advConfigOpen = !state.advConfigOpen;
+      state.activeDropdown = null;
+      render();
+    });
+
+    rootEl.querySelector('#simAdvConfigClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.advConfigOpen = false;
+      render();
+    });
+
+    rootEl.querySelector('#simAdvConfigOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'simAdvConfigOverlay') {
+        state.advConfigOpen = false;
+        render();
+      }
+    });
+
+    rootEl.querySelector('#simAdvConfigApplyBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.advConfigOpen = false;
+      if (state.activeStrategyMode === 'TREND_FOLLOWING') {
+        render();
+      } else {
+        executeVolatilitySimulation();
+      }
+      if (typeof root.showToast === 'function') {
+        root.showToast('Configurações aplicadas com sucesso.');
+      }
+    });
+
+    const resetDefaultsHandler = (e) => {
+      e.stopPropagation();
+      state.volatilityState.oversoldLevel = 10;
+      state.volatilityState.activeOversoldPreset = 10;
+      state.volatilityState.rsFilterMode = 'NONE';
+      state.volatilityState.positionSizingModel = 'FIXED_FINANCIAL';
+      state.volatilityState.fixedCapitalPerTrade = 10000;
+      state.volatilityState.equityPercentPerTrade = 2;
+      state.volatilityState.maxConcurrentPositions = 10;
+      state.volatilityState.minDailyTrades = 500;
+      state.volatilityState.holdingPeriodSessions = 7;
+      state.volatilityState.exitExecutionTiming = 'NEXT_OPEN';
+      state.volatilityState.extremeEventProtectionEnabled = true;
+      state.volatilityState.costsPerTrade = 0;
+      state.volatilityState.slippagePct = 0;
+      state.filters.trigger = 'ALL';
+      state.advConfigOpen = false;
+      state.activeDropdown = null;
       executeVolatilitySimulation();
+      if (typeof root.showToast === 'function') {
+        root.showToast('Parâmetros restaurados para o padrão oficial.');
+      }
+    };
+    rootEl.querySelector('#simAdvConfigResetBtn')?.addEventListener('click', resetDefaultsHandler);
+    rootEl.querySelector('#volBtnResetDefaults')?.addEventListener('click', resetDefaultsHandler);
+
+    // 2. Controles do Cabeçalho do Volatility Trading / Comparação
+    rootEl.querySelector('#volHeaderPeriod')?.addEventListener('change', (e) => {
+      const val = e.target.value;
+      state.filters.days = val === 'ALL' ? 'ALL' : Number(val);
+      state.volatilityState.period = String(val);
+      executeVolatilitySimulation({ period: String(val) });
     });
 
-    // Compare profiles button
-    rootEl.querySelector('#volBtnCompareProfiles')?.addEventListener('click', () => {
-      compareVolatilityProfiles();
-    });
-    rootEl.querySelector('#volBtnRunCompareDirect')?.addEventListener('click', () => {
-      compareVolatilityProfiles();
+    rootEl.querySelector('#cmpHeaderPeriod')?.addEventListener('change', (e) => {
+      const val = e.target.value;
+      state.filters.days = val === 'ALL' ? 'ALL' : Number(val);
+      state.volatilityState.period = String(val);
+      executeVolatilitySimulation({ period: String(val) });
     });
 
-    // Universe filter
-    rootEl.querySelector('#volFilterUniverse')?.addEventListener('change', (e) => {
+    rootEl.querySelector('#volHeaderUniverse')?.addEventListener('change', (e) => {
       state.volatilityState.universe = e.target.value;
       executeVolatilitySimulation({ universe: e.target.value });
     });
 
-    // Period filter
-    rootEl.querySelector('#volFilterPeriod')?.addEventListener('change', (e) => {
-      state.volatilityState.period = e.target.value;
-      executeVolatilitySimulation({ period: e.target.value });
+    rootEl.querySelector('#volHeaderOversold')?.addEventListener('change', (e) => {
+      const lvl = Number(e.target.value);
+      state.volatilityState.oversoldLevel = lvl;
+      state.volatilityState.activeOversoldPreset = lvl;
+      executeVolatilitySimulation({ oversoldLevel: lvl });
     });
 
-    // Tabs
-    rootEl.querySelectorAll('[data-vol-tab]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tab = btn.getAttribute('data-vol-tab');
-        state.volatilityState.screenTab = tab;
+    rootEl.querySelector('#volHeaderRsFilter')?.addEventListener('change', (e) => {
+      state.volatilityState.rsFilterMode = e.target.value;
+      executeVolatilitySimulation({ rsFilterMode: e.target.value });
+    });
+
+    rootEl.querySelector('#volHeaderSizingModel')?.addEventListener('change', (e) => {
+      state.volatilityState.positionSizingModel = e.target.value;
+      executeVolatilitySimulation({ positionSizingModel: e.target.value });
+    });
+
+    rootEl.querySelector('#volHeaderExitTiming')?.addEventListener('change', (e) => {
+      state.volatilityState.exitExecutionTiming = e.target.value;
+      executeVolatilitySimulation({ exitExecutionTiming: e.target.value });
+    });
+
+    rootEl.querySelector('#volAdvMinTrades')?.addEventListener('change', (e) => {
+      state.volatilityState.minDailyTrades = Number(e.target.value || 500);
+      executeVolatilitySimulation({ minDailyTrades: state.volatilityState.minDailyTrades });
+    });
+
+    rootEl.querySelector('#volAdvMaxPositions')?.addEventListener('change', (e) => {
+      state.volatilityState.maxConcurrentPositions = Number(e.target.value || 10);
+      executeVolatilitySimulation({ maxConcurrentPositions: state.volatilityState.maxConcurrentPositions });
+    });
+
+    rootEl.querySelector('#volAdvHoldingSessions')?.addEventListener('change', (e) => {
+      state.volatilityState.holdingPeriodSessions = Number(e.target.value || 7);
+      executeVolatilitySimulation({ holdingPeriodSessions: state.volatilityState.holdingPeriodSessions });
+    });
+
+    rootEl.querySelector('#volAdvCosts')?.addEventListener('change', (e) => {
+      state.volatilityState.costsPerTrade = Math.max(0, Number(e.target.value || 0));
+      executeVolatilitySimulation({ costsPerTrade: state.volatilityState.costsPerTrade });
+    });
+
+    rootEl.querySelector('#volAdvSlippage')?.addEventListener('change', (e) => {
+      state.volatilityState.slippagePct = Math.max(0, Number(e.target.value || 0));
+      executeVolatilitySimulation({ slippagePct: state.volatilityState.slippagePct });
+    });
+
+    rootEl.querySelector('#volAdvExtremeProtection')?.addEventListener('change', (e) => {
+      state.volatilityState.extremeEventProtectionEnabled = e.target.value !== 'false';
+      executeVolatilitySimulation({ extremeEventProtectionEnabled: state.volatilityState.extremeEventProtectionEnabled });
+    });
+
+    rootEl.querySelector('#volAdvSqnRiskUnit')?.addEventListener('change', (e) => {
+      const raw = e.target.value;
+      if (raw === 'NONE') {
+        state.volatilityState.financialRiskUnitMode = 'NONE';
+      } else {
+        const [mode, val] = raw.split(':');
+        state.volatilityState.financialRiskUnitMode = mode;
+        state.volatilityState.financialRiskUnitValue = Number(val || 5);
+      }
+      executeVolatilitySimulation({
+        financialRiskUnitMode: state.volatilityState.financialRiskUnitMode,
+        financialRiskUnitValue: state.volatilityState.financialRiskUnitValue
+      });
+    });
+
+    const allocInput = rootEl.querySelector('#volHeaderAllocationInput');
+    if (allocInput) {
+      const applyAlloc = () => {
+        const num = parseFormattedNumber(allocInput.value);
+        if (num > 0) {
+          if (state.volatilityState.positionSizingModel === 'EQUITY_PERCENT') {
+            state.volatilityState.equityPercentPerTrade = Math.min(100, num);
+          } else {
+            state.volatilityState.fixedCapitalPerTrade = num;
+          }
+          executeVolatilitySimulation();
+        }
+      };
+      allocInput.addEventListener('change', applyAlloc);
+    }
+
+    rootEl.querySelector('#volBtnExecuteHeader')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const capIn = rootEl.querySelector('#simCapitalInput');
+      if (capIn) {
+        const parsed = parseFormattedNumber(capIn.value);
+        if (parsed > 0) state.initialCapital = parsed;
+      }
+      executeVolatilitySimulation();
+      if (typeof root.showToast === 'function') {
+        root.showToast('Simulação executada com sucesso.');
+      }
+    });
+
+    rootEl.querySelector('#volBtnOpenExperimentsTab')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      state.screenTab = 'analytics';
+      state.analyticsSubTab = 'setups';
+      render();
+    });
+
+    rootEl.querySelector('#volBtnOpenSystemComparison')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.activeDropdown = null;
+      setSimulatorStrategy('SYSTEM_COMPARISON');
+    });
+
+    // 3. Visão Financeira vs Percentual na Aba Resumo do Volatility
+    rootEl.querySelectorAll('[data-vol-summary-view]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.volatilityState.summaryView = btn.getAttribute('data-vol-summary-view');
         render();
       });
+    });
+
+    // 4. Seletor de Unidade de Risco Financeiro para SQN (Seção 6.1)
+    rootEl.querySelector('#volSqnRiskUnitSelect')?.addEventListener('change', (e) => {
+      const raw = e.target.value;
+      if (raw === 'NONE') {
+        state.volatilityState.financialRiskUnitMode = 'NONE';
+      } else {
+        const [mode, val] = raw.split(':');
+        state.volatilityState.financialRiskUnitMode = mode;
+        state.volatilityState.financialRiskUnitValue = Number(val || 5);
+      }
+      executeVolatilitySimulation({
+        financialRiskUnitMode: state.volatilityState.financialRiskUnitMode,
+        financialRiskUnitValue: state.volatilityState.financialRiskUnitValue
+      });
+    });
+
+    // 5. Filtros da Lista de Trades do Volatility Trading
+    rootEl.querySelectorAll('[data-vol-trade-filter]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.volatilityState.tradeStatusFilter = btn.getAttribute('data-vol-trade-filter');
+        render();
+      });
+    });
+
+    const volSearch = rootEl.querySelector('#volTradeSearchInput');
+    if (volSearch) {
+      volSearch.addEventListener('input', (e) => {
+        state.volatilityState.searchQuery = e.target.value.toUpperCase().trim();
+        render();
+      });
+    }
+
+    // 6. Botões de aplicar experimentos na Aba 4 (IFR2 e RS)
+    rootEl.querySelectorAll('[data-vol-apply-oversold]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lvl = Number(btn.getAttribute('data-vol-apply-oversold'));
+        state.volatilityState.oversoldLevel = lvl;
+        state.volatilityState.activeOversoldPreset = lvl;
+        executeVolatilitySimulation({ oversoldLevel: lvl });
+      });
+    });
+
+    rootEl.querySelectorAll('[data-vol-apply-rs]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const rsMode = btn.getAttribute('data-vol-apply-rs');
+        state.volatilityState.rsFilterMode = rsMode;
+        executeVolatilitySimulation({ rsFilterMode: rsMode });
+      });
+    });
+
+    // 7. Modal de Auditoria de Trade Individual do Volatility Trading
+    rootEl.querySelectorAll('[data-vol-open-audit]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.volatilityState.selectedVolTradeId = btn.getAttribute('data-vol-open-audit');
+        render();
+      });
+    });
+
+    rootEl.querySelectorAll('tr[data-vol-trade-id]').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        state.volatilityState.selectedVolTradeId = row.getAttribute('data-vol-trade-id');
+        render();
+      });
+    });
+
+    rootEl.querySelector('#volTradeAuditModalClose')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.volatilityState.selectedVolTradeId = null;
+      render();
+    });
+
+    rootEl.querySelector('#volTradeAuditModalOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'volTradeAuditModalOverlay') {
+        state.volatilityState.selectedVolTradeId = null;
+        render();
+      }
     });
   }
 
@@ -8795,7 +10534,7 @@
     window.addEventListener('healthyTrend:strategyChanged', (e) => {
       const strat = e.detail && e.detail.strategy;
       const targetStrat = strat === 'volatility_trading' ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
-      if (state.activeStrategy !== targetStrat) {
+      if (state.activeStrategyMode !== targetStrat && state.activeStrategyMode !== 'SYSTEM_COMPARISON') {
         setSimulatorStrategy(targetStrat);
       }
     });
