@@ -162,10 +162,49 @@
       return platformAccessPreferences;
     }
   };
+  function syncAuthRouteIsolation(isAuthenticated) {
+    if (typeof window.setWorkspaceAuthState === 'function') {
+      window.setWorkspaceAuthState(isAuthenticated);
+      return;
+    }
+    const authed = Boolean(isAuthenticated);
+    const state = authed ? 'authenticated' : 'unauthenticated';
+    document.body.dataset.authState = state;
+    document.documentElement.dataset.authState = state;
+    const shell = document.getElementById('loginShell');
+    const app = document.querySelector('.app');
+    if (authed) {
+      if (shell) {
+        shell.classList.add('hidden');
+        shell.setAttribute('aria-hidden', 'true');
+      }
+      if (app) {
+        app.removeAttribute('hidden');
+        app.removeAttribute('aria-hidden');
+        app.removeAttribute('inert');
+        app.style.display = '';
+      }
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    } else {
+      if (shell) {
+        shell.classList.remove('hidden');
+        shell.removeAttribute('aria-hidden');
+      }
+      if (app) {
+        app.setAttribute('hidden', '');
+        app.setAttribute('aria-hidden', 'true');
+        app.setAttribute('inert', '');
+        app.style.display = 'none';
+      }
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      window.scrollTo?.(0, 0);
+    }
+  }
   function enter(user) {
     window.syncSubscriptionFromAccount?.(user);
-    document.getElementById('loginShell')?.classList.add('hidden');
-    document.body.style.overflow = '';
+    syncAuthRouteIsolation(true);
     const avatar = document.querySelector('.avatar');
     if (avatar) avatar.textContent = (user.displayName || user.email || 'U').split(/\s+/).map((part) => part[0]).slice(0, 2).join('').toUpperCase();
     if (typeof go === 'function') go('today');
@@ -254,8 +293,9 @@
     closePlatformAccess();
     try { await request('/api/auth/logout', { method: 'POST' }); } catch (_) { /* local logout remains valid */ }
     clearToken();
-    document.getElementById('loginShell')?.classList.remove('hidden');
-    document.getElementById('loginPassword').value = '';
+    syncAuthRouteIsolation(false);
+    const passwordEl = document.getElementById('loginPassword');
+    if (passwordEl) passwordEl.value = '';
   };
 
   window.addEventListener('pagehide', closePlatformAccess);
@@ -276,7 +316,15 @@
       revealButton.addEventListener('keyup', conceal);
       revealButton.addEventListener('blur', conceal);
     }
-    if (!token()) return;
-    try { enter((await request('/api/auth/me')).user); } catch (_) { clearToken(); }
+    if (!token()) {
+      syncAuthRouteIsolation(false);
+      return;
+    }
+    try {
+      enter((await request('/api/auth/me')).user);
+    } catch (_) {
+      clearToken();
+      syncAuthRouteIsolation(false);
+    }
   });
 })();
